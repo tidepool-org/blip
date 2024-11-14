@@ -3,8 +3,8 @@
     "schemaVersion": 1,
     "clinicId": "62419f38f85189a39ac4b68d",
     "period": "14d",
-    "lastUploadDateFrom": "2023-05-16T04:00:00.000Z",
-    "lastUploadDateTo": "2023-05-30T04:00:00.000Z",
+    "lastDataFrom": "2023-05-16T04:00:00.000Z",
+    "lastDataTo": "2023-05-30T04:00:00.000Z",
     "highGlucoseThreshold": 10,
     "lowGlucoseThreshold": 3.9,
     "veryHighGlucoseThreshold": 13.9,
@@ -512,6 +512,135 @@
             "645a9c5dd59edded4e573495",
             "6455353c299ee2ccddbdbe94",
             "646f7f0408e23bc18d91caa7"
+          ]
+        }
+      }
+    ],
+    "noData": [
+      {
+        "averageGlucoseMmol": 7.4,
+        "glucoseManagementIndicator": 8.6,
+        "timeInVeryLowPercent": 0.00088,
+        "timeInLowPercent": 0.01365,
+        "timeInTargetPercentDelta": -0.07124,
+        "timeInVeryHighPercent": 0.03443,
+        "timeInTargetPercent": 0.7406,
+        "timeInHighPercent": 0.21044,
+        "timeCGMUsePercent": 0.72922,
+        "timeCGMUseMinutes": 7300,
+        "lastData": "2024-11-10T00:00:00.000Z",
+        "patient": {
+          "email": null,
+          "id": "ecabff50-0698-ec3d-f2b9-b9d3720cbe14",
+          "fullName": "Denys Ickov",
+          "tags": [
+            "646f7edb08e23bc18d91caa5",
+            "64388096dbbc8aa9fad54c6a",
+            "643f0674dbbc8aa9fad54c78"
+          ],
+          "dataSources": [
+            { "providerName": "dexcom", "state": "disconnected" }
+          ]
+        }
+      },
+      {
+        "averageGlucoseMmol": 5,
+        "glucoseManagementIndicator": 12.1,
+        "timeInVeryLowPercent": 0.00607,
+        "timeInLowPercent": 0.03211,
+        "timeInTargetPercentDelta": 0.00661,
+        "timeInVeryHighPercent": 0.03149,
+        "timeInTargetPercent": 0.73621,
+        "timeInHighPercent": 0.19412,
+        "timeCGMUsePercent": 0.57113,
+        "timeCGMUseMinutes": 14935,
+        "lastData": "2024-11-08T00:00:00.000Z",
+        "patient": {
+          "email": "jstopforth1@earthlink.net",
+          "id": "ea8ab4da-d4ed-bc6a-dec3-6aa170a99d49",
+          "fullName": "Judah Stopforth",
+          "tags": [
+            "63d98f3dda7008171a96ab04",
+            "646f7ed208e23bc18d91caa3"
+          ],
+          "dataSources": [
+            { "providerName": "dexcom", "state": "error" }
+          ]
+        }
+      },
+      {
+        "averageGlucoseMmol": 7.3,
+        "glucoseManagementIndicator": 6.9,
+        "timeInVeryLowPercent": 0.00253,
+        "timeInLowPercent": 0.0209,
+        "timeInTargetPercentDelta": 0.01694,
+        "timeInVeryHighPercent": 0.01245,
+        "timeInTargetPercent": 0.72142,
+        "timeInHighPercent": 0.2427,
+        "timeCGMUsePercent": 0.95117,
+        "timeCGMUseMinutes": 19174,
+        "lastData": "2024-11-10T06:00:00.000Z",
+        "patient": {
+          "email": "jslatcher2@army.mil",
+          "id": "61f9e3fc-befc-f0eb-5c6a-7692a077c6af",
+          "fullName": "Johna Slatcher",
+          "tags": [
+            "64388096dbbc8aa9fad54c6a",
+            "646f7f0408e23bc18d91caa7",
+            "63d811e11710f10c0422ce6d",
+            "645a9c5dd59edded4e573495"
+          ],
+          "dataSources": [
+            { "providerName": "dexcom", "state": "noPendingConnections" }
+          ]
+        }
+      },
+      {
+        "averageGlucoseMmol": 13.8,
+        "glucoseManagementIndicator": 14.9,
+        "timeInVeryLowPercent": 0.00237,
+        "timeInLowPercent": 0.02924,
+        "timeInTargetPercentDelta": 0.01988,
+        "timeInVeryHighPercent": 0.03874,
+        "timeInTargetPercent": 0.71342,
+        "timeInHighPercent": 0.21623,
+        "timeCGMUsePercent": 0.93859,
+        "timeCGMUseMinutes": 10117,
+        "patient": {
+          "email": "estangoe3@google.de",
+          "id": "bc2780be-aca1-e9b1-471e-3bffff719cfe",
+          "fullName": "Emelda Stangoe",
+          "tags": [
+            "646f7ed208e23bc18d91caa3",
+            "646f7ed708e23bc18d91caa4"
+          ],
+          "dataSources": [
+            { "providerName": "dexcom", "state": "pendingExpired" }
+          ]
+        }
+      },
+      {
+        "averageGlucoseMmol": 12.6,
+        "glucoseManagementIndicator": 10.6,
+        "timeInVeryLowPercent": 0.00679,
+        "timeInLowPercent": 0.02242,
+        "timeInTargetPercentDelta": 0.17636,
+        "timeInVeryHighPercent": 0.04112,
+        "timeInTargetPercent": 0.72535,
+        "timeInHighPercent": 0.20432,
+        "timeCGMUsePercent": 0.78663,
+        "timeCGMUseMinutes": 3024,
+        "patient": {
+          "email": "wgambles4@ameblo.jp",
+          "id": "726b865e-010e-9dda-70af-dad119d53dd7",
+          "fullName": "Willie Gambles",
+          "tags": [
+            "645a9c5dd59edded4e573495",
+            "6455353c299ee2ccddbdbe94",
+            "646f7f0408e23bc18d91caa7"
+          ],
+          "dataSources": [
+            { "providerName": "dexcom", "state": "unknown" }
           ]
         }
       }

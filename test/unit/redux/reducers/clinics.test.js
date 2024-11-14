@@ -674,6 +674,9 @@ describe('clinics', () => {
           meetingTargets: [{
             patient: { id: 'meetingTargetsID'}
           }],
+          noData: [{
+            patient: { id: 'noDataID'}
+          }],
         }
       }
 
@@ -705,6 +708,9 @@ describe('clinics', () => {
         },
         meetingTargetsID: {
           id: 'meetingTargetsID',
+        },
+        noDataID: {
+          id: 'noDataID',
         },
       });
     });

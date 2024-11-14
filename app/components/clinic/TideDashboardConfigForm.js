@@ -15,7 +15,7 @@ import { TagList } from '../../components/elements/Tag';
 import RadioGroup from '../../components/elements/RadioGroup';
 import { useLocalStorage } from '../../core/hooks';
 import { getCommonFormikFieldProps, getFieldError } from '../../core/forms';
-import { tideDashboardConfigSchema as validationSchema, summaryPeriodOptions, lastUploadDateFilterOptions } from '../../core/clinicUtils';
+import { tideDashboardConfigSchema as validationSchema, summaryPeriodOptions, lastDataFilterOptions } from '../../core/clinicUtils';
 import { Body0, Caption } from '../../components/elements/FontStyles';
 import { borders } from '../../themes/baseTheme';
 import { push } from 'connected-react-router';
@@ -23,7 +23,7 @@ import { push } from 'connected-react-router';
 function getFormValues(config, clinicPatientTags) {
   return {
     period: config?.period || null,
-    lastUpload: config?.lastUpload || null,
+    lastData: config?.lastData || null,
     tags: config?.tags ? reject(config.tags, tagId => !clinicPatientTags?.[tagId]) : null,
   };
 }
@@ -113,21 +113,23 @@ export const TideDashboardConfigForm = props => {
       </Box>
 
       <Box sx={{ borderTop: borders.default }} py={3}>
-        <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Select how many day(s) of data to view')}</Body0>
+        <Body0 sx={{ fontWeight: 'bold' }} mb={0}>{t('Data Recency')}</Body0>
+        <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Tidepool will only show patients who have data within the selected number of days.')}</Body0>
 
         <RadioGroup
-          options={summaryPeriodOptions}
-          {...getCommonFormikFieldProps('period', formikContext)}
+          options={lastDataFilterOptions}
+          {...getCommonFormikFieldProps('lastData', formikContext)}
           variant="vertical"
         />
       </Box>
 
       <Box sx={{ borderTop: borders.default }} pt={3}>
-        <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Select Last Upload Date')}</Body0>
+        <Body0 sx={{ fontWeight: 'bold' }} mb={0}>{t('Number of Days to Summarize')}</Body0>
+        <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Tidepool will generate health summaries for the selected number of days.')}</Body0>
 
         <RadioGroup
-          options={lastUploadDateFilterOptions}
-          {...getCommonFormikFieldProps('lastUpload', formikContext)}
+          options={summaryPeriodOptions}
+          {...getCommonFormikFieldProps('period', formikContext)}
           variant="vertical"
         />
       </Box>

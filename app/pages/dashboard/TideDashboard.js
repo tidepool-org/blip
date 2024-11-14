@@ -5,6 +5,7 @@ import { push } from 'connected-react-router';
 import { withTranslation, Trans } from 'react-i18next';
 import moment from 'moment-timezone';
 import compact from 'lodash/compact';
+import each from 'lodash/each';
 import find from 'lodash/find';
 import flatten from 'lodash/flatten';
 import get from 'lodash/get';
@@ -18,6 +19,7 @@ import reject from 'lodash/reject';
 import values from 'lodash/values';
 import { Box, Flex, Text } from 'theme-ui';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
+import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
 import MoreVertRoundedIcon from '@material-ui/icons/MoreVertRounded';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 import EditIcon from '@material-ui/icons/EditRounded';
@@ -39,6 +41,7 @@ import {
 } from '../../components/elements/FontStyles';
 
 import Button from '../../components/elements/Button';
+import HoverButton from '../../components/elements/HoverButton';
 import Table from '../../components/elements/Table';
 import { TagList } from '../../components/elements/Tag';
 import PatientForm from '../../components/clinic/PatientForm';
@@ -48,6 +51,7 @@ import Popover from '../../components/elements/Popover';
 import PopoverMenu from '../../components/elements/PopoverMenu';
 import RadioGroup from '../../components/elements/RadioGroup';
 import DeltaBar from '../../components/elements/DeltaBar';
+import Pill from '../../components/elements/Pill';
 import utils from '../../core/utils';
 
 import {
@@ -65,10 +69,12 @@ import { fieldsAreValid } from '../../core/forms';
 import {
   patientSchema as validationSchema,
   tideDashboardConfigSchema,
+  lastDataFilterOptions,
+  summaryPeriodOptions,
 } from '../../core/clinicUtils';
 
 import { DEFAULT_FILTER_THRESHOLDS, MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
-import { colors, radii } from '../../themes/baseTheme';
+import { colors, fontWeights, radii } from '../../themes/baseTheme';
 import PatientLastReviewed from '../../components/clinic/PatientLastReviewed';
 
 const { Loader } = vizComponents;
@@ -243,6 +249,49 @@ const TideDashboardSection = React.memo(props => {
 
   const statEmptyText = '--';
 
+  const dexcomConnectStateUI = React.useMemo(() => ({
+    noPendingConnections: {
+      colorPalette: 'neutral',
+      icon: null,
+      text: t('No Pending Connections'),
+    },
+    pending: {
+      colorPalette: 'primaryText',
+      icon: null,
+      text: t('Invite Sent'),
+    },
+    pendingReconnect: {
+      colorPalette: 'primaryText',
+      icon: null,
+      text: t('Invite Sent'),
+    },
+    pendingExpired: {
+      colorPalette: 'warning',
+      icon: ErrorRoundedIcon,
+      text: t('Invite Expired'),
+    },
+    connected: {
+      colorPalette: 'primaryText',
+      icon: null,
+      text: t('Connected'),
+    },
+    disconnected: {
+      colorPalette: 'warning',
+      icon: ErrorRoundedIcon,
+      text: t('Patient Disconnected'),
+    },
+    error: {
+      colorPalette: 'warning',
+      icon: ErrorRoundedIcon,
+      text: t('Error Connecting'),
+    },
+    unknown: {
+      colorPalette: 'warning',
+      icon: ErrorRoundedIcon,
+      text: t('Unknown Status'),
+    },
+  }), []);
+
   const handleClickPatient = useCallback(patient => {
     return () => {
       trackMetric('Selected PwD');
@@ -384,6 +433,78 @@ const TideDashboardSection = React.memo(props => {
     setShowEditPatientDialog,
   ]);
 
+  const renderDexcomConnectionStatus = useCallback(({ patient }) => {
+    const dexcomDataSource = find(patient?.dataSources, { providerName: 'dexcom' });
+    let dexcomConnectState;
+
+    if (dexcomDataSource) {
+      dexcomConnectState = includes(keys(dexcomConnectStateUI), dexcomDataSource?.state)
+        ? dexcomDataSource.state
+        : 'unknown';
+    } else {
+      dexcomConnectState = 'noPendingConnections';
+    }
+
+    const showViewButton = includes([
+      'disconnected',
+      'error',
+      'noPendingConnections',
+      'pendingExpired',
+      'unknown',
+    ], dexcomConnectState);
+
+    const StatusBadge = () => (
+      <Pill
+        className="patient-dexcom-connection-status"
+        icon={dexcomConnectStateUI[dexcomConnectState].icon}
+        text={dexcomConnectStateUI[dexcomConnectState].text}
+        label={t('dexcom connection stauts')}
+        colorPalette={dexcomConnectStateUI[dexcomConnectState].colorPalette}
+        condensed
+      />
+    );
+
+    return dexcomConnectState ? (
+      <>
+      {showViewButton ? (
+        <HoverButton
+          buttonText={t('View')}
+          buttonProps={{
+            onClick: () => editPatient(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog, 'dexcom connection status'),
+            variant: 'textSecondary',
+            ml: -2,
+            sx: {
+              fontSize: 0,
+              fontWeight: fontWeights.medium,
+              textDecoration: 'underline',
+              color: colors.purpleMedium,
+              ':hover': {
+                color: colors.purpleMedium,
+                textDecoration: 'underline',
+              }
+            }
+          }}
+        >
+          <Box sx={{ whiteSpace: 'nowrap' }}>
+            <StatusBadge />
+          </Box>
+        </HoverButton>
+      ) : <StatusBadge />
+    }
+      </>
+    ) : null;
+  }, [dexcomConnectStateUI, t]);
+
+  const renderDaysSinceLastData = useCallback(({ daysSinceLastData }) => {
+    return daysSinceLastData ? (
+      <Box className="patient-dexcom-connection-status">
+        <Text sx={{ fontWeight: 'medium' }}>{daysSinceLastData}</Text>
+      </Box>
+    ) : (
+      <Text sx={{ fontWeight: 'medium' }}>-</Text>
+    );
+  }, []);
+
   const veryLowGlucoseThreshold = clinicBgUnits === MGDL_UNITS
     ? utils.translateBg(config?.veryLowGlucoseThreshold, MGDL_UNITS)
     : utils.formatDecimal(config?.veryLowGlucoseThreshold, 1);
@@ -482,6 +603,27 @@ const TideDashboardSection = React.memo(props => {
       })
     }
 
+    if (section.groupKey === 'noData') {
+      cols.splice(1, 8, ...[
+        {
+          title: t('Dexcom Connection Status'),
+          field: 'patient.dataSources',
+          align: 'left',
+          render: renderDexcomConnectionStatus,
+        },
+        {
+          title: t('Days Since Last Data '),
+          field: 'lastData',
+          align: 'center',
+          render: renderDaysSinceLastData,
+        },
+        {
+          field: 'spacer',
+          className: 'group-spacer',
+        },
+      ]);
+    }
+
     return cols;
   }, [
     highGlucoseThreshold,
@@ -513,6 +655,7 @@ const TideDashboardSection = React.memo(props => {
     timeInTargetPercent: t('Time in Range < 70%'),
     timeCGMUsePercent: t('CGM Wear Time < 70%'),
     meetingTargets: t('Meeting Targets'),
+    noData: t('Data Issues'),
   };
 
   return (
@@ -618,6 +761,7 @@ export const TideDashboard = (props) => {
     { groupKey: 'timeInTargetPercent', sortDirection: 'asc', sortKey: 'timeInTargetPercent' },
     { groupKey: 'timeCGMUsePercent', sortDirection: 'asc', sortKey: 'timeCGMUsePercent' },
     { groupKey: 'meetingTargets', sortDirection: 'desc', sortKey: 'timeInVeryLowPercent' },
+    { groupKey: 'noData', sortDirection: 'desc', sortKey: 'daysSinceLastData' },
   ];
 
   const [sections, setSections] = useState(defaultSections);
@@ -675,10 +819,10 @@ export const TideDashboard = (props) => {
   const fetchDashboardPatients = useCallback((config) => {
     const options = { ...(config || localConfig?.[localConfigKey]) };
     if (options) {
-      const queryOptions = { period: options.period };
-      queryOptions['tags'] = reject(options?.tags || [], tagId => !patientTags?.[tagId]);
-      queryOptions['cgm.lastUploadDateTo'] = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
-      queryOptions['cgm.lastUploadDateFrom'] = moment(queryOptions['cgm.lastUploadDateTo']).subtract(options.lastUpload, 'days').toISOString();
+      const lastData = Number(options.lastData);
+      const queryOptions = { period: options.period, lastData };
+      queryOptions['tags'] = reject(options.tags || [], tagId => !patientTags?.[tagId]);
+      queryOptions['lastDataCutoff'] = moment(getLocalizedCeiling(new Date().toISOString(), timePrefs)).subtract(lastData, 'days').toISOString();
       setLoading(true);
       dispatch(actions.async.fetchTideDashboardPatients(api, selectedClinicId, queryOptions));
     }
@@ -759,20 +903,15 @@ export const TideDashboard = (props) => {
   }
 
   const renderHeader = () => {
-    const timezone = getTimezoneFromTimePrefs(timePrefs);
-    const lastUploadDatesDayRange = moment(config?.lastUploadDateTo).diff(config?.lastUploadDateFrom, 'days');
-    const periodDaysText = config?.period === '1d' ? t('day') : t('days');
-
-    const uploadDatesLabel = t('Data uploaded {{descriptor}}', {
-      descriptor: lastUploadDatesDayRange === 1 ? 'on' : 'between',
-    })
+    const periodDaysText = keyBy(summaryPeriodOptions, 'value')?.[config?.period]?.label
+    const lastDataDaysText = keyBy(lastDataFilterOptions, 'value')?.[config?.lastData]?.label
 
     return (
       <Flex
         mb={3}
         sx={{ rowGap: 2, columnGap: 3, justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}
       >
-        <Flex sx={{ gap: 2, alignItems: 'center' }}>
+        <Flex sx={{ gap: 3, alignItems: 'center' }}>
           <Title id="tide-dashboard-header" sx={{ fontWeight: 'medium', fontSize: '18px' }}>{t('TIDE Dashboard')}</Title>
 
           <Flex sx={{ gap: 2, position: 'relative', top: '2px', alignItems: 'center' }}>
@@ -784,41 +923,7 @@ export const TideDashboard = (props) => {
               }}
               ml={2}
             >
-              {uploadDatesLabel}
-            </Text>
-
-            <Text
-              id="tide-dashboard-upload-dates"
-              as={Flex}
-              px={3}
-              sx={{
-                borderRadius: radii.medium,
-                alignContent: 'center',
-                flexWrap: 'wrap',
-                fontSize: 0,
-                fontWeight: 'medium',
-                height: '24px',
-                bg: 'white',
-                color: loading ? 'white' : 'text.primary',
-              }}
-            >
-              {formatDateRange(
-                moment.utc(config?.lastUploadDateFrom).subtract(getOffset(config?.lastUploadDateFrom, timezone), 'minutes').toISOString(),
-                moment.utc(config?.lastUploadDateTo).subtract(getOffset(config?.lastUploadDateTo, timezone), 'minutes').subtract(1, 'ms').toISOString(),
-                null,
-                'MMMM'
-              )}
-            </Text>
-
-            <Text
-              sx={{
-                fontSize: 0,
-                fontWeight: 'medium',
-                color: 'text.primaryGrey',
-              }}
-              ml={2}
-            >
-              {t('Viewing data from')}
+              {t('Summarizing')}
             </Text>
 
             <Text
@@ -836,7 +941,38 @@ export const TideDashboard = (props) => {
                 color: loading ? 'white' : 'text.primary',
               }}
             >
-              {config?.period.slice(0, -1)} {periodDaysText}
+              {periodDaysText} {t('of data')}
+            </Text>
+          </Flex>
+
+          <Flex sx={{ gap: 2, position: 'relative', top: '2px', alignItems: 'center' }}>
+            <Text
+              sx={{
+                fontSize: 0,
+                fontWeight: 'medium',
+                color: 'text.primaryGrey',
+              }}
+              ml={2}
+            >
+              {t('Data recency')}
+            </Text>
+
+            <Text
+              id="tide-dashboard-last-data"
+              as={Flex}
+              px={3}
+              sx={{
+                borderRadius: radii.medium,
+                alignContent: 'center',
+                flexWrap: 'wrap',
+                fontSize: 0,
+                fontWeight: 'medium',
+                height: '24px',
+                bg: 'white',
+                color: loading ? 'white' : 'text.primary',
+              }}
+            >
+              {lastDataDaysText}
             </Text>
           </Flex>
         </Flex>
@@ -867,7 +1003,7 @@ export const TideDashboard = (props) => {
       >
         <DialogTitle sx={{ alignItems: 'flex-start' }} onClose={handleCloseOverlays}>
           <Box mr={2}>
-            <MediumTitle sx={{ fontSize: 2 }} id="dialog-title">{t('Add patients from your clinic to view in your TIDE Dashboard')}</MediumTitle>
+            <MediumTitle sx={{ fontSize: 2 }} id="dialog-title">{t('Select Patients to Display in the TIDE Dashboard')}</MediumTitle>
             <Body1 sx={{ fontWeight: 'medium', color: 'grays.4' }}>{t('You must make a selection in each category')}</Body1>
           </Box>
         </DialogTitle>
@@ -988,6 +1124,10 @@ export const TideDashboard = (props) => {
 
       dispatch(push('/clinic-workspace/patients'));
     };
+
+    each(patientGroups.noData, record => {
+      record.daysSinceLastData = moment.utc().diff(record.lastData, 'days');
+    })
 
     return hasResults ? (
       <Box id="tide-dashboard-patient-groups">
