@@ -303,10 +303,12 @@ const TideDashboardSection = React.memo(props => {
     <Box onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
       <Text
         sx={{
+          display: 'inline-block',
           fontSize: [1, null, 0],
           fontWeight: 'medium',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
+          width: '100%',
         }}
       >
         {patient?.fullName}
@@ -435,12 +437,15 @@ const TideDashboardSection = React.memo(props => {
 
   const renderDexcomConnectionStatus = useCallback(({ patient }) => {
     const dexcomDataSource = find(patient?.dataSources, { providerName: 'dexcom' });
+    const dexcomAuthInviteExpired = dexcomDataSource?.expirationTime < moment.utc().toISOString();
     let dexcomConnectState;
 
     if (dexcomDataSource) {
       dexcomConnectState = includes(keys(dexcomConnectStateUI), dexcomDataSource?.state)
         ? dexcomDataSource.state
         : 'unknown';
+
+      if (includes(['pending', 'pendingReconnect'], dexcomConnectState) && dexcomAuthInviteExpired) dexcomConnectState = 'pendingExpired';
     } else {
       dexcomConnectState = 'noPendingConnections';
     }
