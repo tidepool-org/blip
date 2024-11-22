@@ -22,7 +22,7 @@ export const OAuthConnection = (props) => {
   const queryParams = new URLSearchParams(search)
   const dispatch = useDispatch();
   const [isCustodial, setIsCustodial] = useState();
-  const allowedProviderNames = ['dexcom'];
+  const allowedProviderNames = ['dexcom', 'abbot', 'twiist']; // TODO: store elsewhere for repeated use
   const [authStatus, setAuthStatus] = useState();
 
   const statusContent = {
