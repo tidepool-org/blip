@@ -796,6 +796,12 @@ describe('ClinicPatients', () => {
 
       expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.true;
 
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
+      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: 'm' } });
+      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('M');
+
+      expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.false;
+
       patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: 'mrn876thiswillexceedthelengthlimit' } });
       expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('MRN876THISWILLEXCEEDTHELENGTHLIMIT');
 
