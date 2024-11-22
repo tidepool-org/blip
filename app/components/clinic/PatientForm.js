@@ -99,7 +99,7 @@ export const PatientForm = (props) => {
   const [disableConnectDexcom, setDisableConnectDexcom] = useState(false);
   const showDexcomConnectState = !!selectedClinicId && !!dexcomDataSource?.state;
   const [showResendDexcomConnectRequest, setShowResendDexcomConnectRequest] = useState(false);
-  const { sendingPatientDexcomConnectRequest, fetchingPatientsForClinic } = useSelector((state) => state.blip.working);
+  const { sendingPatientDataProviderConnectRequest, fetchingPatientsForClinic } = useSelector((state) => state.blip.working);
   const [patientFetchOptions, setPatientFetchOptions] = useState({});
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const previousFetchingPatientsForClinic = usePrevious(fetchingPatientsForClinic);
@@ -197,7 +197,7 @@ export const PatientForm = (props) => {
 
       const emailUpdated = initialValues.email && values.email && (initialValues.email !== values.email);
 
-      if (context === 'clinic' && values.connectDexcom && (!patient?.lastRequestedDexcomConnectTime || emailUpdated)) {
+      if (context === 'clinic' && values.connectDexcom && (!patient?.connectionRequests?.dexcom?.[0]?.createdTime || emailUpdated)) {
         const reason = emailUpdated ? 'email updated' : 'initial connection request';
 
         trackMetric('Clinic - Request dexcom connection for patient', {
@@ -313,10 +313,10 @@ export const PatientForm = (props) => {
   }, []);
 
   useEffect(() => {
-    handleAsyncResult(sendingPatientDexcomConnectRequest, t('Dexcom connection request to {{email}} has been resent.', {
+    handleAsyncResult(sendingPatientDataProviderConnectRequest, t('Dexcom connection request to {{email}} has been resent.', {
       email: patient?.email,
     }));
-  }, [sendingPatientDexcomConnectRequest]);
+  }, [sendingPatientDataProviderConnectRequest]);
 
   function handleResendDexcomConnectEmail() {
     trackMetric('Clinic - Resend Dexcom connect email', { clinicId: selectedClinicId, dexcomConnectState, source: 'patientForm' })
@@ -326,7 +326,7 @@ export const PatientForm = (props) => {
   function handleResendDexcomConnectEmailConfirm() {
     trackMetric('Clinic - Resend Dexcom connect email confirm', { clinicId: selectedClinicId, source: 'patientForm' });
     formikContext.setStatus('resendingDexcomConnectRequest');
-    dispatch(actions.async.sendPatientDexcomConnectRequest(api, selectedClinicId, patient.id));
+    dispatch(actions.async.sendPatientDataProviderConnectRequest(api, selectedClinicId, patient.id, 'dexcom'));
   }
 
   function renderRegionalNote() {

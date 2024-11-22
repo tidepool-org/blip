@@ -47,7 +47,7 @@ export const DexcomBanner = withTranslation()((props) => {
   const isFirstRender = useIsFirstRender();
   const { set: setToast } = useToasts();
   const [showResendDexcomConnectRequest, setShowResendDexcomConnectRequest] = useState(false);
-  const { sendingPatientDexcomConnectRequest } = useSelector((state) => state.blip.working);
+  const { sendingPatientDataProviderConnectRequest } = useSelector((state) => state.blip.working);
 
   const redirectToProfile = (source = 'banner') => {
     push(`/patients/${patient.userid}/profile?dexcomConnect=${source}`);
@@ -77,10 +77,10 @@ export const DexcomBanner = withTranslation()((props) => {
   }
 
   useEffect(() => {
-    handleAsyncResult(sendingPatientDexcomConnectRequest, t('Dexcom connection request to {{email}} has been resent.', {
+    handleAsyncResult(sendingPatientDataProviderConnectRequest, t('Dexcom connection request to {{email}} has been resent.', {
       email: patient?.email,
     }));
-  }, [sendingPatientDexcomConnectRequest]);
+  }, [sendingPatientDataProviderConnectRequest]);
 
   const handleSendReconnectionEmail = () => {
     trackMetric('Clinic - Resend Dexcom connect email', { clinicId: selectedClinicId, dexcomConnectState: dataSourceState, source: 'banner' })
@@ -89,7 +89,7 @@ export const DexcomBanner = withTranslation()((props) => {
 
   const handleSendReconnectionEmailConfirm = () => {
     trackMetric('Clinic - Resend Dexcom connect email confirm', { clinicId: selectedClinicId, source: 'banner' });
-    dispatch(async.sendPatientDexcomConnectRequest(api, selectedClinicId, clinicPatient.id));
+    dispatch(async.sendPatientDataProviderConnectRequest(api, selectedClinicId, clinicPatient.id, 'dexcom'));
   };
 
   const handleDismiss = () => {

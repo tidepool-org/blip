@@ -794,7 +794,7 @@ export const TideDashboard = (props) => {
       handleCloseOverlays();
 
       if (patientFormContext?.status === 'sendingDexcomConnectRequest') {
-        dispatch(actions.async.sendPatientDexcomConnectRequest(api, selectedClinicId, updatingClinicPatient.patientId));
+        dispatch(actions.async.sendPatientDataProviderConnectRequest(api, selectedClinicId, updatingClinicPatient.patientId, 'dexcom'));
       }
     });
   }, [

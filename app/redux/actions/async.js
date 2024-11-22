@@ -2795,22 +2795,24 @@ export function revertClinicPatientLastReviewed(api, clinicId, patientId) {
 }
 
 /**
- * Send a dexcom connect reqeust email to a clinic patient
+ * Send a data source connection request email to a clinic patient
  *
  * @param {Object} api - an instance of the API wrapper
- * @param {String} clinicId - Id of the clinic
+ * @param {String} clinicId - clinic Id
+ * @param {String} patientId - id of the patient to send the dexcom connect request to
+ * @param {String} providerName - name of the provider to send the dexcom connect request to
  */
-export function sendPatientDexcomConnectRequest(api, clinicId, patientId) {
+export function sendPatientDataProviderConnectRequest(api, clinicId, patientId, providerName) {
   return (dispatch) => {
-    dispatch(sync.sendPatientDexcomConnectRequestRequest());
+    dispatch(sync.sendPatientDataProviderConnectRequestRequest());
 
-    api.clinics.sendPatientDexcomConnectRequest(clinicId, patientId, (err, result) => {
+    api.clinics.sendPatientDataProviderConnectRequest(clinicId, patientId, err => {
       if (err) {
-        dispatch(sync.sendPatientDexcomConnectRequestFailure(
-          createActionError(ErrorMessages.ERR_SENDING_PATIENT_DEXCOM_CONNECT_REQUEST, err), err
+        dispatch(sync.sendPatientDataProviderConnectRequestFailure(
+          createActionError(ErrorMessages.ERR_SENDING_PATIENT_DATA_PROVIDER_CONNECT_REQUEST, err), err
         ));
       } else {
-        dispatch(sync.sendPatientDexcomConnectRequestSuccess(clinicId, patientId, _.get(result, 'lastRequestedDexcomConnectTime', moment().toISOString())));
+        dispatch(sync.sendPatientDataProviderConnectRequestSuccess(clinicId, patientId, providerName, moment().toISOString()));
       }
     });
   };

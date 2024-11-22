@@ -982,18 +982,34 @@ export const clinics = (state = initialState.clinics, action) => {
         },
       });
     }
-    case types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_SUCCESS: {
+    case types.SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_SUCCESS: {
       const {
         clinicId,
         patientId,
-        lastRequestedDexcomConnectTime,
+        providerName,
+        createdTime,
       } = action.payload;
+
+      const patient = state[clinicId].patients[patientId];
+
+      const connectionRequest = {
+        createdTime: createdTime,
+        providerName: providerName,
+      };
+
+      const updatedProviderConnectionRequests = [
+        connectionRequest,
+        ...(patient.connectionRequests?.[providerName] || []),
+      ];
 
       return update(state, {
         [clinicId]: {
           patients: { [patientId]: { $set: {
-            ...state[clinicId].patients[patientId],
-            lastRequestedDexcomConnectTime,
+            ...patient,
+            connectionRequests: {
+              ...patient.connectionRequests,
+              [providerName]: { $set: updatedProviderConnectionRequests },
+            }
           } } },
         },
       });

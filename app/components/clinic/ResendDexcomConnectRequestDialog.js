@@ -18,12 +18,12 @@ import {
 export const ResendDexcomConnectRequestDialog = (props) => {
   const { t, onClose, onConfirm, open, patient } = props;
   const timePrefs = useSelector((state) => state.blip.timePrefs);
-  const { sendingPatientDexcomConnectRequest } = useSelector((state) => state.blip.working);
+  const { sendingPatientDataProviderConnectRequest } = useSelector((state) => state.blip.working);
 
   const formattedLastRequestedDexcomConnectDate =
-    patient?.lastRequestedDexcomConnectTime &&
+    patient?.connectionRequests?.dexcom?.[0]?.createdTime &&
     sundial.formatInTimezone(
-      patient?.lastRequestedDexcomConnectTime,
+      patient.connectionRequests.dexcom[0].createdTime,
       timePrefs?.timezoneName ||
         new Intl.DateTimeFormat().resolvedOptions().timeZone,
       'MM/DD/YYYY [at] h:mm a'
@@ -60,7 +60,7 @@ export const ResendDexcomConnectRequestDialog = (props) => {
         <Button
           className="resend-dexcom-connect-request"
           variant="primary"
-          processing={sendingPatientDexcomConnectRequest.inProgress}
+          processing={sendingPatientDataProviderConnectRequest.inProgress}
           onClick={onConfirm}
         >
           {t('Resend Request')}

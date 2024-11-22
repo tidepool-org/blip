@@ -69,7 +69,7 @@ describe('api', () => {
       getClinicByShareCode: sinon.stub(),
       triggerInitialClinicMigration: sinon.stub(),
       sendPatientUploadReminder: sinon.stub(),
-      sendPatientDexcomConnectRequest: sinon.stub(),
+      sendPatientDataProviderConnectRequest: sinon.stub(),
       createClinicPatientTag: sinon.stub(),
       updateClinicPatientTag: sinon.stub(),
       deleteClinicPatientTag: sinon.stub(),
@@ -142,7 +142,7 @@ describe('api', () => {
     tidepool.getClinicByShareCode.resetHistory();
     tidepool.triggerInitialClinicMigration.resetHistory();
     tidepool.sendPatientUploadReminder.resetHistory();
-    tidepool.sendPatientDexcomConnectRequest.resetHistory();
+    tidepool.sendPatientDataProviderConnectRequest.resetHistory();
     tidepool.createClinicPatientTag.resetHistory();
     tidepool.updateClinicPatientTag.resetHistory();
     tidepool.deleteClinicPatientTag.resetHistory();
@@ -1055,13 +1055,14 @@ describe('api', () => {
         sinon.assert.calledWith(tidepool.sendPatientUploadReminder, clinicId, patientId, cb);
       });
     });
-    describe('clinics.sendPatientDexcomConnectRequest', () => {
-      it('should call tidepool.sendPatientDexcomConnectRequest with the appropriate args', () => {
+    describe('clinics.sendPatientDataProviderConnectRequest', () => {
+      it('should call tidepool.sendPatientDataProviderConnectRequest with the appropriate args', () => {
         const cb = sinon.stub();
         const patientId = 'patientId123';
         const clinicId = 'clinicId123';
-        api.clinics.sendPatientDexcomConnectRequest(clinicId, patientId, cb);
-        sinon.assert.calledWith(tidepool.sendPatientDexcomConnectRequest, clinicId, patientId, cb);
+        const providerName = 'dexcom';
+        api.clinics.sendPatientDataProviderConnectRequest(clinicId, patientId, providerName, cb);
+        sinon.assert.calledWith(tidepool.sendPatientDataProviderConnectRequest, clinicId, patientId, providerName, cb);
       });
     });
     describe('clinics.createClinicPatientTag', () => {

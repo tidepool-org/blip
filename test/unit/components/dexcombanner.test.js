@@ -44,7 +44,7 @@ describe('DexcomBanner', () => {
     push: sinon.stub(),
     api: {
       clinics: {
-        sendPatientDexcomConnectRequest: sinon.stub().callsArgWith(2, null, { lastRequestedDexcomConnectTime: '2022-02-02T00:00:00.000Z'}),
+        sendPatientDataProviderConnectRequest: sinon.stub().callsArgWith(2, null),
       },
     },
   };
@@ -58,7 +58,7 @@ describe('DexcomBanner', () => {
   const blipState = {
     blip: {
       working: {
-        sendingPatientDexcomConnectRequest: defaultWorkingState,
+        sendingPatientDataProviderConnectRequest: defaultWorkingState,
       },
       timePrefs: {
         timezoneName: 'UTC'
@@ -71,7 +71,7 @@ describe('DexcomBanner', () => {
     email: 'patient1@test.ca',
     fullName: 'patient1',
     birthDate: '1999-01-01',
-    lastRequestedDexcomConnectTime: '2021-10-19T16:27:59.504Z',
+    connectionRequests: { dexcom: [{ providerName: 'dexcom', createdTime: '2021-10-19T16:27:59.504Z' }] },
     dataSources: [
       { providerName: 'dexcom', state: 'error' },
     ],
@@ -294,14 +294,15 @@ describe('DexcomBanner', () => {
 
           const expectedActions = [
             {
-              type: 'SEND_PATIENT_DEXCOM_CONNECT_REQUEST_REQUEST',
+              type: 'SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_REQUEST',
             },
             {
-              type: 'SEND_PATIENT_DEXCOM_CONNECT_REQUEST_SUCCESS',
+              type: 'SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_SUCCESS',
               payload: {
                 clinicId: 'clinicID123',
-                lastRequestedDexcomConnectTime: '2022-02-02T00:00:00.000Z',
+                createdTime: '2022-02-02T00:00:00.000Z',
                 patientId: 'clinicPatient123',
+                providerName: 'dexcom',
               },
             },
           ];
@@ -310,9 +311,10 @@ describe('DexcomBanner', () => {
           resendInvite.props().onClick();
           expect(store.getActions()).to.eql(expectedActions);
           sinon.assert.calledWith(
-            props.api.clinics.sendPatientDexcomConnectRequest,
+            props.api.clinics.sendPatientDataProviderConnectRequest,
             'clinicID123',
-            'clinicPatient123'
+            'clinicPatient123',
+            'dexcom',
           );
       });
 

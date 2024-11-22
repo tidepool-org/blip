@@ -671,7 +671,7 @@ export const ClinicPatients = (props) => {
       handleCloseOverlays();
 
       if (patientFormContext?.status === 'sendingDexcomConnectRequest') {
-        dispatch(actions.async.sendPatientDexcomConnectRequest(api, selectedClinicId, updatingClinicPatient.patientId));
+        dispatch(actions.async.sendPatientDataProviderConnectRequest(api, selectedClinicId, updatingClinicPatient.patientId, 'dexcom'));
       }
     });
   }, [
@@ -690,7 +690,7 @@ export const ClinicPatients = (props) => {
       handleCloseOverlays();
 
       if (patientFormContext?.status === 'sendingDexcomConnectRequest') {
-        dispatch(actions.async.sendPatientDexcomConnectRequest(api, selectedClinicId, creatingClinicCustodialAccount.patientId));
+        dispatch(actions.async.sendPatientDataProviderConnectRequest(api, selectedClinicId, creatingClinicCustodialAccount.patientId, 'dexcom'));
       }
     });
   }, [

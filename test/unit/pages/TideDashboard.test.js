@@ -190,7 +190,7 @@ describe('TideDashboard', () => {
         fetchingPatientFromClinic: defaultWorkingState,
         fetchingTideDashboardPatients: completedState,
         updatingClinicPatient: defaultWorkingState,
-        sendingPatientDexcomConnectRequest: defaultWorkingState,
+        sendingPatientDataProviderConnectRequest: defaultWorkingState,
         settingClinicPatientLastReviewed: defaultWorkingState,
         revertingClinicPatientLastReviewed: defaultWorkingState,
       },
