@@ -455,7 +455,7 @@ export const ClinicPatients = (props) => {
   const [showClinicPatientTagsDialog, setShowClinicPatientTagsDialog] = useState(false);
   const [showTimeInRangeDialog, setShowTimeInRangeDialog] = useState(false);
   const [showSendUploadReminderDialog, setShowSendUploadReminderDialog] = useState(false);
-  const [showNames, setShowNames] = useState(false);
+  const [showNames, setShowNames] = useState(true);
   const [search, setSearch] = useState('');
   const [selectedPatient, setSelectedPatient] = useState(null);
   const existingMRNs = useMemo(
