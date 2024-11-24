@@ -292,7 +292,7 @@ describe('ClinicianPatients', () => {
         expect(wrapper.find('.MuiTableRow-root')).to.have.length(3);
       });
 
-      it('should trigger a call to trackMetric', function () {
+      it('should trigger a call to trackMetric each time it is toggled', function () {
         expect(defaultProps.trackMetric.callCount).to.equal(0);
 
         wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
