@@ -313,11 +313,7 @@ describe('ClinicianPatients', () => {
       });
     });
 
-    context('show names clicked', () => {
-      beforeEach(() => {
-        defaultProps.trackMetric.resetHistory();
-      });
-
+    context('showNames view', () => {
       it('should render a list of patients', () => {
         const table = wrapper.find(Table);
         expect(table).to.have.length(1);
