@@ -52,6 +52,7 @@ import ChartDateRangeModal from '../../components/ChartDateRangeModal';
 import ChartDateModal from '../../components/ChartDateModal';
 import PrintDateRangeModal from '../../components/PrintDateRangeModal';
 import Button from '../../components/elements/Button';
+import PatientDataHeader from './PatientDataHeader';
 
 import ToastContext from '../../providers/ToastProvider';
 
@@ -212,6 +213,11 @@ export const PatientDataClass = createReactClass({
     return (
       <div className="patient-data js-patient-data-page">
         {messages}
+        <PatientDataHeader 
+          patient={this.props.patient} 
+          isUserPatient={this.props.isUserPatient}
+
+        />
         {patientData}
         {this.state.datesDialogOpen && datesDialog}
         {printDialog}
