@@ -577,7 +577,6 @@ describe('ClinicPatients', () => {
         </Provider>
       );
 
-      wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
       defaultProps.trackMetric.resetHistory();
     });
 
@@ -886,26 +885,33 @@ describe('ClinicPatients', () => {
 
     describe('showNames', function () {
       it('should show a row of data for each person', function () {
-        wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
         // 2 people plus one row for the header
         expect(wrapper.find('.MuiTableRow-root')).to.have.length(3);
       });
 
-      it('should trigger a call to trackMetric', function () {
+      it('should trigger calls to trackMetric based on show/hide', function () {
+        expect(defaultProps.trackMetric.callCount).to.equal(0);
+
         wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
-        expect(defaultProps.trackMetric.calledWith('Clicked Show All')).to.be.true;
+        
+        expect(defaultProps.trackMetric.calledWith('Clicked Hide All')).to.be.true;
+        expect(defaultProps.trackMetric.calledWith('Clicked Show All')).to.be.false;
         expect(defaultProps.trackMetric.callCount).to.equal(1);
+
+        wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
+
+        expect(defaultProps.trackMetric.calledWith('Clicked Hide All')).to.be.true;
+        expect(defaultProps.trackMetric.calledWith('Clicked Show All')).to.be.true;
+        expect(defaultProps.trackMetric.callCount).to.equal(2);
       });
 
       it('should not have instructions displayed', function () {
-        wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
         expect(wrapper.find('.peopletable-instructions')).to.have.length(0);
       });
     });
 
     context('show names clicked', () => {
       beforeEach(() => {
-        wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
         defaultProps.trackMetric.resetHistory();
       });
 
@@ -1251,7 +1257,6 @@ describe('ClinicPatients', () => {
             </Provider>
           );
 
-          wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
           defaultProps.trackMetric.resetHistory();
 
           getPatientForm(0);
@@ -1390,7 +1395,6 @@ describe('ClinicPatients', () => {
             </Provider>
           );
 
-          wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
           defaultProps.trackMetric.resetHistory();
         });
 
@@ -1452,7 +1456,6 @@ describe('ClinicPatients', () => {
               </Provider>
             );
 
-            wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
 
             expect(wrapper.find('#summary-dashboard-filters').hostNodes()).to.have.lengthOf(1);
 
@@ -1494,7 +1497,6 @@ describe('ClinicPatients', () => {
               </Provider>
             );
 
-            wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
             defaultProps.trackMetric.resetHistory();
 
             addButton = wrapper.find('button#add-patient');
@@ -1530,7 +1532,6 @@ describe('ClinicPatients', () => {
             </Provider>
           );
 
-          wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
           defaultProps.trackMetric.resetHistory();
         });
 
@@ -2083,7 +2084,6 @@ describe('ClinicPatients', () => {
               </Provider>
             );
 
-            wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
           });
 
           afterEach(() => {
@@ -2226,7 +2226,6 @@ describe('ClinicPatients', () => {
               </Provider>
             );
 
-            wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
             defaultProps.trackMetric.resetHistory();
           });
 
@@ -2339,7 +2338,6 @@ describe('ClinicPatients', () => {
               </Provider>
             );
 
-            wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
             defaultProps.trackMetric.resetHistory();
           });
 
@@ -2376,7 +2374,6 @@ describe('ClinicPatients', () => {
               </Provider>
             );
 
-            wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
             defaultProps.trackMetric.resetHistory();
           });
 
@@ -3272,7 +3269,6 @@ describe('ClinicPatients', () => {
               </Provider>
             );
 
-            wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
             defaultProps.trackMetric.resetHistory();
           });
 
@@ -3413,7 +3409,6 @@ describe('ClinicPatients', () => {
               </Provider>
             );
 
-            wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
             const lastReviewedHeader = wrapper.find('#peopleTable-header-lastReviewed').hostNodes();
             expect(lastReviewedHeader).to.have.length(0);
           });
@@ -3763,7 +3758,6 @@ describe('ClinicPatients', () => {
             </Provider>
           );
 
-          wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
         });
 
         it('should not render the remove button', () => {
