@@ -9,9 +9,11 @@ var UploadLaunchOverlay = require('../../../components/uploadlaunchoverlay');
 
 const PatientMenuOptions = ({ userid }) => {
   const history = useHistory();
+  
   const [showUploadOverlay, setShowUploadOverlay] = useState(false);
 
-  const accountSettingsPath = `/patients/${userid}/profile`
+  const profilePath = `/patients/${userid}/profile`;
+  const sharePath   = `/patients/${userid}/share`;
 
   return (
     <>
@@ -22,7 +24,7 @@ const PatientMenuOptions = ({ userid }) => {
         <Button
           id="profileNavigationButton"
           variant="textSecondary"
-          // onClick={handleNavigationAction}
+          onClick={() => history.push(sharePath)}
           // icon={navigationAction.icon}
           iconPosition='left'
           iconFontSize="1.25em"
@@ -37,7 +39,7 @@ const PatientMenuOptions = ({ userid }) => {
         <Button
           id="accountSettingsButton"
           variant="textSecondary"
-          onClick={() => history.push(accountSettingsPath)}
+          onClick={() => history.push(profilePath)}
           // icon={navigationAction.icon}
           iconPosition='left'
           iconFontSize="1.25em"
