@@ -1,4 +1,5 @@
 import { Box } from 'theme-ui';
+import { withTranslation } from 'react-i18next';
 import SettingsIcon from '@material-ui/icons/Settings';
 import PublishIcon from '@material-ui/icons/Publish';
 
@@ -19,7 +20,7 @@ const ClinicianMenuOptions = ({ onProfile, onUpload }) => {
           sx={{ fontSize: 1 }}
           pl={0}
         >
-          {"Patient Account Settings"}
+          {t("Patient Account Settings")}
         </Button>
       </Box>
       <Box>
@@ -34,11 +35,11 @@ const ClinicianMenuOptions = ({ onProfile, onUpload }) => {
           sx={{ fontSize: 1 }}
           pl={0}
         >
-          {"Upload Data"}
+          {t("Upload Data")}
         </Button>
       </Box>
     </>
   );
 };
 
-export default ClinicianMenuOptions;
+export default withTranslation()(ClinicianMenuOptions);

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { withTranslation } from 'react-i18next';
 import { Box, Flex } from 'theme-ui';
 
 import NameField from './NameField';
@@ -56,4 +55,4 @@ const PatientDataHeader = ({ t, patient, isUserPatient }) => {
   );
 }
 
-export default withTranslation()(PatientDataHeader);
+export default PatientDataHeader;

@@ -1,11 +1,12 @@
 import { Box } from 'theme-ui';
+import { withTranslation } from 'react-i18next';
 import SettingsIcon from '@material-ui/icons/Settings';
 import PublishIcon from '@material-ui/icons/Publish';
 import ShareIcon from '@material-ui/icons/Share';
 
 import Button from '../../../../components/elements/Button';
 
-const PatientMenuOptions = ({ onShare, onUpload, onProfile }) => {
+const PatientMenuOptions = ({ t, onShare, onUpload, onProfile }) => {
   return (
     <>
       <Box>
@@ -20,7 +21,7 @@ const PatientMenuOptions = ({ onShare, onUpload, onProfile }) => {
           sx={{ fontSize: 1 }}
           pl={0}
         >
-          {"Share"}
+          {t("Share")}
         </Button>
       </Box>
       <Box>
@@ -35,7 +36,7 @@ const PatientMenuOptions = ({ onShare, onUpload, onProfile }) => {
           sx={{ fontSize: 1 }}
           pl={0}
         >
-          {"Account Settings"}
+          {t("Account Settings")}
         </Button>
       </Box>
       <Box>
@@ -50,11 +51,11 @@ const PatientMenuOptions = ({ onShare, onUpload, onProfile }) => {
           sx={{ fontSize: 1 }}
           pl={0}
         >
-          {"Upload Data"}
+          {t("Upload Data")}
         </Button>
       </Box>
     </>
   );
 };
 
-export default PatientMenuOptions;
+export default withTranslation()(PatientMenuOptions);
