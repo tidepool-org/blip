@@ -16,7 +16,7 @@ const buttonStyleProps = {
 
 const PatientMenuOptions = ({ t, onShare, onUpload, onProfile }) => {
   return (
-    <Flex>
+    <Flex sx={{ ml: 'auto' }}>
       <Box>
         <Button
           id="patientDataHeader_shareButton"

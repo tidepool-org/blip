@@ -15,7 +15,7 @@ const buttonStyleProps = {
 
 const ClinicianMenuOptions = ({ t, onProfile, onUpload }) => {
   return (
-    <Flex>
+    <Flex sx={{ ml: 'auto' }}>
       <Box>
         <Button
           id="patientDataHeader_profileButton"

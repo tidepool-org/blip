@@ -1,7 +1,7 @@
 import { Box, Text } from 'theme-ui';
 import personUtils from '../../../core/personutils';
 
-const NameField = ({ patient }) => {
+const Name = ({ patient }) => {
   const renderedName = personUtils.patientFullName(patient);
 
   return (
@@ -13,4 +13,4 @@ const NameField = ({ patient }) => {
   );
 };
 
-export default NameField;
+export default Name;
