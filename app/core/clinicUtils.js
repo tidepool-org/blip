@@ -403,7 +403,6 @@ export const patientSchema = config => {
         {t('Patient\'s MRN is invalid. MRN must meet the following criteria:')}
         <ul>
           <li>{t('All upper case letters or numbers')}</li>
-          <li>{t('Minimum length: 4 characters')}</li>
           <li>{t('Maximum length: 25 characters')}</li>
           <li>{t('No spaces')}</li>
         </ul>
