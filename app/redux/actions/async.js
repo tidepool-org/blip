@@ -2806,7 +2806,7 @@ export function sendPatientDataProviderConnectRequest(api, clinicId, patientId, 
   return (dispatch) => {
     dispatch(sync.sendPatientDataProviderConnectRequestRequest());
 
-    api.clinics.sendPatientDataProviderConnectRequest(clinicId, patientId, err => {
+    api.clinics.sendPatientDataProviderConnectRequest(clinicId, patientId, providerName, err => {
       if (err) {
         dispatch(sync.sendPatientDataProviderConnectRequestFailure(
           createActionError(ErrorMessages.ERR_SENDING_PATIENT_DATA_PROVIDER_CONNECT_REQUEST, err), err
