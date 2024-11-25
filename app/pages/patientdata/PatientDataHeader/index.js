@@ -27,12 +27,14 @@ const NameField = ({ name }) => (
 const PatientDataHeader = ({ t, patient, isUserPatient }) => {
   if (!patient.profile) return null;
 
+  const { userid, profile: { fullName } } = patient;
+
   return (
     <Box variant="containers.largeBordered" mb={4}>
       <Flex id="patientDataHeader" { ...innerContainerStyles }>
-        <NameField name={patient.profile.fullName} />
+        <NameField name={fullName} />
 
-        { isUserPatient ? <PatientMenuOptions /> : <ClinicianMenuOptions /> }
+        { isUserPatient ? <PatientMenuOptions userid={userid}/> : <ClinicianMenuOptions /> }
       </Flex>
     </Box>
   );

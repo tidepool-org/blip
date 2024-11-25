@@ -1,4 +1,5 @@
 import { withTranslation } from 'react-i18next';
+import { useHistory } from 'react-router-dom';
 import { useState } from 'react';
 import { Box, Flex, Text, Link, BoxProps } from 'theme-ui';
 
@@ -6,8 +7,11 @@ import Button from '../../../components/elements/Button';
 
 var UploadLaunchOverlay = require('../../../components/uploadlaunchoverlay');
 
-const PatientMenuOptions = () => {
+const PatientMenuOptions = ({ userid }) => {
+  const history = useHistory();
   const [showUploadOverlay, setShowUploadOverlay] = useState(false);
+
+  const accountSettingsPath = `/patients/${userid}/profile`
 
   return (
     <>
@@ -33,7 +37,7 @@ const PatientMenuOptions = () => {
         <Button
           id="accountSettingsButton"
           variant="textSecondary"
-          // onClick={handleNavigationAction}
+          onClick={() => history.push(accountSettingsPath)}
           // icon={navigationAction.icon}
           iconPosition='left'
           iconFontSize="1.25em"
