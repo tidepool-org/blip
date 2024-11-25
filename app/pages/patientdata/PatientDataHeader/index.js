@@ -1,8 +1,13 @@
+import { useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import { withTranslation } from 'react-i18next';
 import { Box, Flex, Text, Link, BoxProps } from 'theme-ui';
 
-import PatientMenuOptions from './PatientMenuOptions';
-import ClinicianMenuOptions from './ClinicianMenuOptions'
+import NameField from './NameField';
+import PatientMenuOptions from './MenuOptions/Patient';
+import ClinicianMenuOptions from './MenuOptions/Clinician';
+
+const UploadLaunchOverlay = require('../../../components/uploadlaunchoverlay');
 
 const innerContainerStyles = {
   px: 4, 
@@ -16,25 +21,38 @@ const innerContainerStyles = {
   }
 };
 
-const NameField = ({ name }) => (
-  <Box sx={{ flexShrink: 0, marginRight: 'auto' }}>
-    <Text as="span" sx={{ color: 'text.primary', fontSize: [1, 2, '18px'], fontWeight: 'medium' }}>
-      {name}
-    </Text>
-  </Box>
-);
-
 const PatientDataHeader = ({ t, patient, isUserPatient }) => {
-  if (!patient.profile) return null;
+  const history = useHistory();
+  const [isUploadOverlayOpen, setIsUploadOverlayOpen] = useState(false);
+
+  if (!patient.profile) return null; // not available immediately on component mount
 
   const { userid, profile: { fullName } } = patient;
+
+  const handleUpload  = () => setIsUploadOverlayOpen(true);
+  const handleProfile = () => history.push(`/patients/${userid}/profile`);
+  const handleShare   = () => history.push(`/patients/${userid}/share`);
 
   return (
     <Box variant="containers.largeBordered" mb={4}>
       <Flex id="patientDataHeader" { ...innerContainerStyles }>
         <NameField name={fullName} />
 
-        { isUserPatient ? <PatientMenuOptions userid={userid}/> : <ClinicianMenuOptions /> }
+        { isUserPatient 
+          ? <PatientMenuOptions 
+              onUpload={handleUpload}
+              onProfile={handleProfile}
+              onShare={handleShare}
+            /> 
+          : <ClinicianMenuOptions 
+              onUpload={handleUpload}
+              onProfile={handleProfile}
+            /> 
+        }
+
+        { isUploadOverlayOpen &&
+          <UploadLaunchOverlay modalDismissHandler={() => setIsUploadOverlayOpen(false)} /> 
+        }
       </Flex>
     </Box>
   );

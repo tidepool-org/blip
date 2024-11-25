@@ -1,30 +1,15 @@
-import { withTranslation } from 'react-i18next';
-import { useHistory } from 'react-router-dom';
-import { useState } from 'react';
 import { Box, Flex, Text, Link, BoxProps } from 'theme-ui';
 
-import Button from '../../../components/elements/Button';
+import Button from '../../../../components/elements/Button';
 
-var UploadLaunchOverlay = require('../../../components/uploadlaunchoverlay');
-
-const PatientMenuOptions = ({ userid }) => {
-  const history = useHistory();
-  
-  const [showUploadOverlay, setShowUploadOverlay] = useState(false);
-
-  const profilePath = `/patients/${userid}/profile`;
-  const sharePath   = `/patients/${userid}/share`;
-
+const PatientMenuOptions = ({ onShare, onUpload, onProfile }) => {
   return (
     <>
-      {showUploadOverlay && (
-        <UploadLaunchOverlay modalDismissHandler={() => setShowUploadOverlay(false)} />
-      )}
       <Box>
         <Button
           id="profileNavigationButton"
           variant="textSecondary"
-          onClick={() => history.push(sharePath)}
+          onClick={onShare}
           // icon={navigationAction.icon}
           iconPosition='left'
           iconFontSize="1.25em"
@@ -39,7 +24,7 @@ const PatientMenuOptions = ({ userid }) => {
         <Button
           id="accountSettingsButton"
           variant="textSecondary"
-          onClick={() => history.push(profilePath)}
+          onClick={onProfile}
           // icon={navigationAction.icon}
           iconPosition='left'
           iconFontSize="1.25em"
@@ -54,7 +39,7 @@ const PatientMenuOptions = ({ userid }) => {
         <Button
           id="uploadDataButton"
           variant="textSecondary"
-          onClick={() => setShowUploadOverlay(true)}
+          onClick={onUpload}
           // icon={navigationAction.icon}
           iconPosition='left'
           iconFontSize="1.25em"
