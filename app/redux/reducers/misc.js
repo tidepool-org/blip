@@ -1008,7 +1008,7 @@ export const clinics = (state = initialState.clinics, action) => {
             ...patient,
             connectionRequests: {
               ...patient.connectionRequests,
-              [providerName]: { $set: updatedProviderConnectionRequests },
+              [providerName]: updatedProviderConnectionRequests,
             }
           } } },
         },
