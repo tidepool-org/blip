@@ -3,7 +3,7 @@ import { Flex, Text } from 'theme-ui';
 import moment from 'moment';
 import { colors } from '../../../themes/baseTheme';
 
-const containerStyles = {
+const containerStyleProps = {
     sx: {
       color: 'text.primary', 
       flexShrink: 0, 
@@ -24,7 +24,7 @@ const DemographicInfo = ({ t, patient }) => {
   const hasMrn = !!mrn
 
   return (
-    <Flex {...containerStyles}>
+    <Flex {...containerStyleProps}>
       { hasValidBirthday && <>
         <Text>{t('DOB:')}</Text>
         <Flex sx={{ columnGap: 2, alignItems: 'flex-start' }}>
