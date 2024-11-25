@@ -31,27 +31,29 @@ const PatientDataHeader = ({ patient, isUserPatient }) => {
   const handleShare   = () => history.push(`/patients/${patient.userid}/share`);
 
   return (
-    <Box variant="containers.largeBordered" mb={4}>
-      <Flex id="patientDataHeader" { ...innerContainerStyleProps }>
-        <NameField patient={patient} />
+    <div className="patient-data-header">
+      <Box variant="containers.largeBordered" mb={0} mx={[0, 0]} sx={{ width: ['100%', '100%']}}>
+        <Flex id="patientDataHeader" { ...innerContainerStyleProps }>
+          <NameField patient={patient} />
 
-        { isUserPatient 
-          ? <PatientMenuOptions 
-              onUpload={handleUpload}
-              onProfile={handleProfile}
-              onShare={handleShare}
-            /> 
-          : <ClinicianMenuOptions 
-              onUpload={handleUpload}
-              onProfile={handleProfile}
-            /> 
+          { isUserPatient 
+            ? <PatientMenuOptions 
+                onUpload={handleUpload}
+                onProfile={handleProfile}
+                onShare={handleShare}
+              /> 
+            : <ClinicianMenuOptions 
+                onUpload={handleUpload}
+                onProfile={handleProfile}
+              /> 
+          }
+        </Flex>
+
+        { isUploadOverlayOpen &&
+          <UploadLaunchOverlay modalDismissHandler={() => setIsUploadOverlayOpen(false)} /> 
         }
-      </Flex>
-
-      { isUploadOverlayOpen &&
-        <UploadLaunchOverlay modalDismissHandler={() => setIsUploadOverlayOpen(false)} /> 
-      }
-    </Box>
+      </Box>
+    </div>
   );
 }
 
