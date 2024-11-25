@@ -3,6 +3,7 @@ import { useHistory } from 'react-router-dom';
 import { Box, Flex } from 'theme-ui';
 
 import NameField from './NameField';
+import PatientInfo from './PatientInfo';
 import PatientMenuOptions from './MenuOptions/Patient';
 import ClinicianMenuOptions from './MenuOptions/Clinician';
 
@@ -35,6 +36,8 @@ const PatientDataHeader = ({ patient, isUserPatient }) => {
       <Box variant="containers.largeBordered" mb={0} mx={[0, 0]} sx={{ width: ['100%', '100%']}}>
         <Flex id="patientDataHeader" { ...innerContainerStyleProps }>
           <NameField patient={patient} />
+
+          { !isUserPatient && <PatientInfo patient={patient} /> }
 
           { isUserPatient 
             ? <PatientMenuOptions 

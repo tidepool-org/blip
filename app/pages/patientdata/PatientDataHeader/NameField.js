@@ -5,7 +5,7 @@ const NameField = ({ patient }) => {
   const renderedName = personUtils.patientFullName(patient);
 
   return (
-    <Box sx={{ flexShrink: 0, marginRight: 'auto' }}>
+    <Box sx={{ flexShrink: 0 }}>
       <Text as="span" sx={{ color: 'text.primary', fontSize: [1, 2, '18px'], fontWeight: 'medium' }}>
         {renderedName}
       </Text>

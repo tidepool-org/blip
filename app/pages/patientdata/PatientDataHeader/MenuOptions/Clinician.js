@@ -1,4 +1,4 @@
-import { Box } from 'theme-ui';
+import { Box, Flex } from 'theme-ui';
 import { withTranslation } from 'react-i18next';
 import SettingsIcon from '@material-ui/icons/Settings';
 import PublishIcon from '@material-ui/icons/Publish';
@@ -15,7 +15,7 @@ const buttonStyleProps = {
 
 const ClinicianMenuOptions = ({ t, onProfile, onUpload }) => {
   return (
-    <>
+    <Flex>
       <Box>
         <Button
           id="patientDataHeader_profileButton"
@@ -38,7 +38,7 @@ const ClinicianMenuOptions = ({ t, onProfile, onUpload }) => {
           {t("Upload Data")}
         </Button>
       </Box>
-    </>
+    </Flex>
   );
 };
 
