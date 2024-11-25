@@ -1,4 +1,4 @@
-import { Box, Flex, Text, Link, BoxProps } from 'theme-ui';
+import { Box } from 'theme-ui';
 import SettingsIcon from '@material-ui/icons/Settings';
 import PublishIcon from '@material-ui/icons/Publish';
 import ShareIcon from '@material-ui/icons/Share';
