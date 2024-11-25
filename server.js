@@ -86,7 +86,7 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
     objectSrc: ['blob:'],
     workerSrc: ["'self'", 'blob:'],
     childSrc: ["'self'", 'blob:', 'https://docs.google.com', 'https://app.pendo.io'],
-    frameSrc: ['https://docs.google.com', 'https://app.pendo.io', '*.tidepool.org', 'localhost:*', 'tidepooluploader://*'],
+    frameSrc: ['https://docs.google.com', 'https://app.pendo.io', 'https://*.tidepool.org', 'localhost:*', 'tidepooluploader://*'],
     connectSrc: [].concat([
       process.env.API_HOST || 'localhost:*',
       process.env.REALM_HOST,
@@ -97,16 +97,16 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
       'wss://tidepoolsupport.zendesk.com',
       'https://api.rollbar.com',
       'wss://*.zopim.com',
-      '*.tidepool.org',
-      '*.development.tidepool.org',
-      '*.integration.tidepool.org',
-      'http://*.integration-test.tidepool.org',
+      'https://*.tidepool.org',
+      'https://*.development.tidepool.org',
+      'https://*.integration.tidepool.org',
+      'https://*.integration-test.tidepool.org',
       'https://app.pendo.io',
       'https://data.pendo.io',
       'https://pendo-static-5707274877534208.storage.googleapis.com',
       'https://*.launchdarkly.com',
     ]).filter(src => src !== undefined),
-    frameAncestors: ['https://app.pendo.io', '*.tidepool.org', 'localhost:*']
+    frameAncestors: ['https://app.pendo.io', 'https://*.tidepool.org', 'localhost:*']
   },
   reportOnly: false,
 }));
