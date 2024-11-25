@@ -54,7 +54,6 @@ const PatientDataHeader = ({ t, patient, isUserPatient }) => {
       { isUploadOverlayOpen &&
         <UploadLaunchOverlay modalDismissHandler={() => setIsUploadOverlayOpen(false)} /> 
       }
-      
     </Box>
   );
 }

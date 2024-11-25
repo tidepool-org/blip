@@ -1,4 +1,7 @@
 import { Box, Flex, Text, Link, BoxProps } from 'theme-ui';
+import SettingsIcon from '@material-ui/icons/Settings';
+import PublishIcon from '@material-ui/icons/Publish';
+import ShareIcon from '@material-ui/icons/Share';
 
 import Button from '../../../../components/elements/Button';
 
@@ -10,10 +13,10 @@ const PatientMenuOptions = ({ onShare, onUpload, onProfile }) => {
           id="profileNavigationButton"
           variant="textSecondary"
           onClick={onShare}
-          // icon={navigationAction.icon}
+          icon={ShareIcon}
           iconPosition='left'
-          iconFontSize="1.25em"
-          // iconLabel={navigationAction.label}
+          iconFontSize="1.25em"          
+          iconLabel="Profile" // TODO: Verify
           sx={{ fontSize: 1 }}
           pl={0}
         >
@@ -25,10 +28,10 @@ const PatientMenuOptions = ({ onShare, onUpload, onProfile }) => {
           id="accountSettingsButton"
           variant="textSecondary"
           onClick={onProfile}
-          // icon={navigationAction.icon}
+          icon={SettingsIcon}
           iconPosition='left'
           iconFontSize="1.25em"
-          // iconLabel={navigationAction.label}
+          iconLabel="Settings" // TODO: Verify
           sx={{ fontSize: 1 }}
           pl={0}
         >
@@ -40,10 +43,10 @@ const PatientMenuOptions = ({ onShare, onUpload, onProfile }) => {
           id="uploadDataButton"
           variant="textSecondary"
           onClick={onUpload}
-          // icon={navigationAction.icon}
+          icon={PublishIcon}
           iconPosition='left'
           iconFontSize="1.25em"
-          // iconLabel={navigationAction.label}
+          iconLabel="Upload" // TODO: Verify
           sx={{ fontSize: 1 }}
           pl={0}
         >
