@@ -35,7 +35,9 @@ const PatientDataHeader = ({ patient, isUserPatient }) => {
     <div className="patient-data-header">
       <Box variant="containers.largeBordered" mb={0} mx={[0, 0]} sx={{ width: ['100%', '100%']}}>
         <Flex id="patientDataHeader" { ...innerContainerStyleProps }>
+
           <Name patient={patient} />
+
           { !isUserPatient && <DemographicInfo patient={patient} /> }
 
           { isUserPatient 
@@ -50,11 +52,10 @@ const PatientDataHeader = ({ patient, isUserPatient }) => {
               /> 
           }
         </Flex>
-
-        { isUploadOverlayOpen &&
-          <UploadLaunchOverlay modalDismissHandler={() => setIsUploadOverlayOpen(false)} /> 
-        }
       </Box>
+      { isUploadOverlayOpen &&
+        <UploadLaunchOverlay modalDismissHandler={() => setIsUploadOverlayOpen(false)} /> 
+      }
     </div>
   );
 }
