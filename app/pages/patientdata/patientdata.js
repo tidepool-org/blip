@@ -205,6 +205,7 @@ export const PatientDataClass = createReactClass({
 
   render: function() {
     const patientData = this.renderPatientData();
+    const header = this.renderHeader();
     const messages = this.renderMessagesContainer();
     const datesDialog = this.renderDatesDialog();
     const printDialog = this.renderPrintDialog();
@@ -213,17 +214,19 @@ export const PatientDataClass = createReactClass({
     return (
       <div className="patient-data js-patient-data-page">
         {messages}
-        <PatientDataHeader 
-          patient={this.props.patient} 
-          isUserPatient={this.props.isUserPatient}
-
-        />
+        {header}
         {patientData}
         {this.state.datesDialogOpen && datesDialog}
         {printDialog}
         <Loader show={showLoader} />
       </div>
     );
+  },
+
+  renderHeader: function() {
+    const { patient, isUserPatient } = this.props;
+
+    return <PatientDataHeader patient={patient} isUserPatient={isUserPatient} />;
   },
 
   renderPatientData: function() {
