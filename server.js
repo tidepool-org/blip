@@ -1,11 +1,11 @@
-const http = require('http');
-const https = require('https');
-const fs = require('fs');
-const path = require('path');
+const http = require('node:http');
+const https = require('node:https');
+const fs = require('node:fs');
+const path = require('node:path');
 const express = require('express');
 const helmet = require('helmet');
 const bodyParser = require('body-parser');
-const crypto = require('crypto');
+const crypto = require('node:crypto');
 
 const config = require('./config.server.js');
 
@@ -143,14 +143,14 @@ if (!(config.httpPort || config.httpsPort)) {
 if (config.httpPort) {
   app.server = http.createServer(app).listen(config.httpPort, () => {
     console.log('Connect server started on port', config.httpPort);
-    console.log('Serving static directory "' + staticDir + '/"');
+    console.log(`Serving static directory "${staticDir}/"`);
   });
 }
 
 if (config.httpsPort) {
   https.createServer(config.httpsConfig, app).listen(config.httpsPort, () => {
     console.log('Connect server started on HTTPS port', config.httpsPort);
-    console.log('Serving static directory "' + staticDir + '/"');
+    console.log(`Serving static directory "${staticDir}/"`);
   });
 }
 
