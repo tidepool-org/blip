@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { withTranslation } from 'react-i18next';
-import { Box, Flex, Text, Link, BoxProps } from 'theme-ui';
+import { Box, Flex } from 'theme-ui';
 
 import NameField from './NameField';
 import PatientMenuOptions from './MenuOptions/Patient';
@@ -27,16 +27,14 @@ const PatientDataHeader = ({ t, patient, isUserPatient }) => {
 
   if (!patient.profile) return null; // not available immediately on component mount
 
-  const { userid, profile: { fullName } } = patient;
-
   const handleUpload  = () => setIsUploadOverlayOpen(true);
-  const handleProfile = () => history.push(`/patients/${userid}/profile`);
-  const handleShare   = () => history.push(`/patients/${userid}/share`);
+  const handleProfile = () => history.push(`/patients/${patient.userid}/profile`);
+  const handleShare   = () => history.push(`/patients/${patient.userid}/share`);
 
   return (
     <Box variant="containers.largeBordered" mb={4}>
       <Flex id="patientDataHeader" { ...innerContainerStyles }>
-        <NameField name={fullName} />
+        <NameField patient={patient} />
 
         { isUserPatient 
           ? <PatientMenuOptions 

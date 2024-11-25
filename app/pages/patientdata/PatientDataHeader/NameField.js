@@ -1,11 +1,16 @@
-import { Box, Flex, Text, Link, BoxProps } from 'theme-ui';
+import { Box, Text } from 'theme-ui';
+import personUtils from '../../../core/personutils';
 
-const NameField = ({ name }) => (
-  <Box sx={{ flexShrink: 0, marginRight: 'auto' }}>
-    <Text as="span" sx={{ color: 'text.primary', fontSize: [1, 2, '18px'], fontWeight: 'medium' }}>
-      {name}
-    </Text>
-  </Box>
-);
+const NameField = ({ patient }) => {
+  const renderedName = personUtils.patientFullName(patient);
+
+  return (
+    <Box sx={{ flexShrink: 0, marginRight: 'auto' }}>
+      <Text as="span" sx={{ color: 'text.primary', fontSize: [1, 2, '18px'], fontWeight: 'medium' }}>
+        {renderedName}
+      </Text>
+    </Box>
+  );
+};
 
 export default NameField;
