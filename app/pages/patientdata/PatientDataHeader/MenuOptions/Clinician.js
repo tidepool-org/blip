@@ -9,7 +9,7 @@ const ClinicianMenuOptions = ({ onProfile, onUpload }) => {
     <>
       <Box>
         <Button
-          id="accountSettingsButton"
+          id="patientDataHeader_profileButton"
           variant="textSecondary"
           onClick={onProfile}
           icon={SettingsIcon}
@@ -24,7 +24,7 @@ const ClinicianMenuOptions = ({ onProfile, onUpload }) => {
       </Box>
       <Box>
         <Button
-          id="profileNavigationButton"
+          id="patientDataHeader_uploadButton"
           variant="textSecondary"
           onClick={onUpload}
           icon={PublishIcon}

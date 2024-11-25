@@ -10,7 +10,7 @@ const PatientMenuOptions = ({ onShare, onUpload, onProfile }) => {
     <>
       <Box>
         <Button
-          id="profileNavigationButton"
+          id="patientDataHeader_shareButton"
           variant="textSecondary"
           onClick={onShare}
           icon={ShareIcon}
@@ -25,7 +25,7 @@ const PatientMenuOptions = ({ onShare, onUpload, onProfile }) => {
       </Box>
       <Box>
         <Button
-          id="accountSettingsButton"
+          id="patientDataHeader_profileButton"
           variant="textSecondary"
           onClick={onProfile}
           icon={SettingsIcon}
@@ -40,7 +40,7 @@ const PatientMenuOptions = ({ onShare, onUpload, onProfile }) => {
       </Box>
       <Box>
         <Button
-          id="uploadDataButton"
+          id="patientDataHeader_uploadButton"
           variant="textSecondary"
           onClick={onUpload}
           icon={PublishIcon}
