@@ -8,7 +8,7 @@ import ClinicianMenuOptions from './MenuOptions/Clinician';
 
 const UploadLaunchOverlay = require('../../../components/uploadlaunchoverlay');
 
-const innerContainerStyles = {
+const innerContainerStyleProps = {
   px: 4, 
   py: 3, 
   sx: {
@@ -20,7 +20,7 @@ const innerContainerStyles = {
   }
 };
 
-const PatientDataHeader = ({ t, patient, isUserPatient }) => {
+const PatientDataHeader = ({ patient, isUserPatient }) => {
   const history = useHistory();
   const [isUploadOverlayOpen, setIsUploadOverlayOpen] = useState(false);
 
@@ -32,7 +32,7 @@ const PatientDataHeader = ({ t, patient, isUserPatient }) => {
 
   return (
     <Box variant="containers.largeBordered" mb={4}>
-      <Flex id="patientDataHeader" { ...innerContainerStyles }>
+      <Flex id="patientDataHeader" { ...innerContainerStyleProps }>
         <NameField patient={patient} />
 
         { isUserPatient 

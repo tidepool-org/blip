@@ -5,20 +5,24 @@ import PublishIcon from '@material-ui/icons/Publish';
 
 import Button from '../../../../components/elements/Button';
 
-const ClinicianMenuOptions = ({ onProfile, onUpload }) => {
+const buttonStyleProps = {
+  variant: 'textSecondary',
+  iconPosition: 'left',
+  iconFontSize: '1.25em',
+  sx: { fontSize: 1 },
+  pl: 0
+}
+
+const ClinicianMenuOptions = ({ t, onProfile, onUpload }) => {
   return (
     <>
       <Box>
         <Button
           id="patientDataHeader_profileButton"
-          variant="textSecondary"
           onClick={onProfile}
           icon={SettingsIcon}
-          iconPosition='left'
-          iconFontSize="1.25em"
           iconLabel="Settings" // TODO: Verify
-          sx={{ fontSize: 1 }}
-          pl={0}
+          {...buttonStyleProps}
         >
           {t("Patient Account Settings")}
         </Button>
@@ -26,14 +30,10 @@ const ClinicianMenuOptions = ({ onProfile, onUpload }) => {
       <Box>
         <Button
           id="patientDataHeader_uploadButton"
-          variant="textSecondary"
           onClick={onUpload}
           icon={PublishIcon}
-          iconPosition='left'
-          iconFontSize="1.25em"
           iconLabel="Upload" // TODO: Verify
-          sx={{ fontSize: 1 }}
-          pl={0}
+          {...buttonStyleProps}
         >
           {t("Upload Data")}
         </Button>
