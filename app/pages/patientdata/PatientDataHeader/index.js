@@ -49,11 +49,12 @@ const PatientDataHeader = ({ t, patient, isUserPatient }) => {
               onProfile={handleProfile}
             /> 
         }
-
-        { isUploadOverlayOpen &&
-          <UploadLaunchOverlay modalDismissHandler={() => setIsUploadOverlayOpen(false)} /> 
-        }
       </Flex>
+
+      { isUploadOverlayOpen &&
+        <UploadLaunchOverlay modalDismissHandler={() => setIsUploadOverlayOpen(false)} /> 
+      }
+      
     </Box>
   );
 }
