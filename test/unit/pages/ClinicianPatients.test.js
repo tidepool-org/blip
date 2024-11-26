@@ -342,7 +342,7 @@ describe('ClinicianPatients', () => {
         searchInput.simulate('change', { target: { name: 'search-patients', value: 'Two' } });
         expect(store.getActions()).to.eql([
           { type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT', payload: 'Two' },
-          { type: 'SET_IS_PATIENT_LIST_VISIBLE', payload: true } // searching should automatically toggle on the search input
+          { type: 'SET_IS_PATIENT_LIST_VISIBLE', payload: true } // a search query should automatically toggle the visibility to true
         ])
       });
 
