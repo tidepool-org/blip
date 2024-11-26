@@ -69,4 +69,23 @@ describe('tideDashboardPatients', () => {
       ] } });
     });
   });
+
+  describe('fetchPatientFromClinicSuccess', () => {
+    it('should set state to initial empty state', () => {
+      const patients = { results: { 'foo': [
+        { patient: {id: 'bar' } },
+        { patient: { id: 'baz'} }
+      ] } };
+
+      const updatedPatient = { id: 'baz', updated: true }
+      let initialStateForTest = patients;
+      let action = actions.sync.fetchPatientFromClinicSuccess('clinicId123', updatedPatient);
+      let state = reducer(initialStateForTest, action);
+
+      expect(state).to.eql({ results: { 'foo': [
+        { patient: {id: 'bar' } },
+        { patient: { id: 'baz', updated: true } }
+      ] } });
+    });
+  });
 });

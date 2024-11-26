@@ -227,7 +227,9 @@ export const PatientForm = (props) => {
 
     if (!isFirstRender && !inProgress) {
       if (completed) {
+        // Close the resend email modal and refetch patient details to update the connection status
         setShowResendDexcomConnectRequest(false);
+        fetchPatientDetails();
 
         setToast({
           message: successMessage,
@@ -309,7 +311,7 @@ export const PatientForm = (props) => {
 
   // Pull the patient on load to ensure the most recent dexcom connection state is made available
   useEffect(() => {
-    if ((action === 'edit') && selectedClinicId && patient?.id) dispatch(actions.async.fetchPatientFromClinic.bind(null, api, selectedClinicId, patient.id)())
+    if ((action === 'edit') && selectedClinicId && patient?.id) fetchPatientDetails();
   }, []);
 
   useEffect(() => {
@@ -327,6 +329,10 @@ export const PatientForm = (props) => {
     trackMetric('Clinic - Resend Dexcom connect email confirm', { clinicId: selectedClinicId, source: 'patientForm' });
     formikContext.setStatus('resendingDexcomConnectRequest');
     dispatch(actions.async.sendPatientDexcomConnectRequest(api, selectedClinicId, patient.id));
+  }
+
+  function fetchPatientDetails() {
+    dispatch(actions.async.fetchPatientFromClinic.bind(null, api, selectedClinicId, patient.id)());
   }
 
   function renderRegionalNote() {
