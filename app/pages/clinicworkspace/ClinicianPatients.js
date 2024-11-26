@@ -58,13 +58,15 @@ export const ClinicianPatients = (props) => {
   const [showAddPatientDialog, setShowAddPatientDialog] = useState(false);
   const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
   const [showNames, setShowNames] = useState(false);
-  const [searchText, setSearchText] = React.useState('');
   const [page, setPage] = useState(1);
   const [pageCount, setPageCount] = useState();
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [loading, setLoading] = useState(false);
   const [patientFormContext, setPatientFormContext] = useState();
   const rowsPerPage = 8;
+
+  const patientListSearchTextInput = useSelector(({ blip }) => blip.patientListFilters.patientListSearchTextInput);
+  const isPatientListVisible = useSelector(({ blip }) => blip.patientListFilters.isPatientListVisible);
 
   const {
     fetchingAssociatedAccounts,
@@ -120,7 +122,7 @@ export const ClinicianPatients = (props) => {
   }, [patients]);
 
   const renderHeader = () => {
-    const VisibilityIcon = showNames ? VisibilityOffOutlinedIcon : VisibilityOutlinedIcon;
+    const VisibilityIcon = isPatientListVisible ? VisibilityOffOutlinedIcon : VisibilityOutlinedIcon;
 
     return (
       <>
@@ -158,12 +160,12 @@ export const ClinicianPatients = (props) => {
                 }}
                 id="patients-search"
                 placeholder={t('Search')}
-                icon={!isEmpty(searchText) ? CloseRoundedIcon : SearchIcon}
+                icon={!isEmpty(patientListSearchTextInput) ? CloseRoundedIcon : SearchIcon}
                 iconLabel={t('Search')}
-                onClickIcon={!isEmpty(searchText) ? handleClearSearch : null}
+                onClickIcon={!isEmpty(patientListSearchTextInput) ? handleClearSearch : null}
                 name="search-patients"
                 onChange={handleSearchChange}
-                value={searchText}
+                value={patientListSearchTextInput}
                 variant="condensed"
               />
             </Box>
@@ -175,7 +177,7 @@ export const ClinicianPatients = (props) => {
               ml={1}
               icon={VisibilityIcon}
               label={t('Toggle visibility')}
-              disabled={!isEmpty(searchText)}
+              disabled={!isEmpty(patientListSearchTextInput)}
               onClick={handleToggleShowNames}
             />
           </Flex>
@@ -186,12 +188,12 @@ export const ClinicianPatients = (props) => {
 
   function handleToggleShowNames() {
     let toggleLabel = 'Clicked Hide All';
-    if ( !showNames ){
+    if (!isPatientListVisible){
       toggleLabel = 'Clicked Show All';
     }
 
     trackMetric(toggleLabel);
-    setShowNames(!showNames);
+    dispatch(actions.sync.setIsPatientListVisible(!isPatientListVisible));
   }
 
   const renderPeopleInstructions = () => {
@@ -368,8 +370,10 @@ export const ClinicianPatients = (props) => {
 
   function handleSearchChange(event) {
     setPage(1);
-    setSearchText(event.target.value);
-    setShowNames(true);
+
+    dispatch(actions.sync.setpatientListSearchTextInput(event.target.value));
+    dispatch(actions.sync.setIsPatientListVisible(true));
+
     if (isEmpty(event.target.value)) {
       setPageCount(Math.ceil(patients.length / rowsPerPage));
     }
@@ -377,7 +381,7 @@ export const ClinicianPatients = (props) => {
 
   function handleClearSearch(event) {
     setPage(1);
-    setSearchText('');
+    dispatch(actions.sync.setpatientListSearchTextInput(''));
     setPageCount(Math.ceil(patients.length / rowsPerPage));
   }
 
@@ -484,7 +488,7 @@ export const ClinicianPatients = (props) => {
           orderBy="fullNameOrderable"
           order="asc"
           rowsPerPage={rowsPerPage}
-          searchText={searchText}
+          searchText={patientListSearchTextInput}
           page={page}
           onFilter={handleTableFilter}
         />
@@ -493,7 +497,7 @@ export const ClinicianPatients = (props) => {
   }
 
   const renderPeopleArea = () => {
-    if (!showNames && !searchText) {
+    if (!isPatientListVisible && !patientListSearchTextInput) {
       return renderPeopleInstructions();
     } else {
       return renderPeopleTable();
@@ -510,7 +514,7 @@ export const ClinicianPatients = (props) => {
         {showEditPatientDialog && renderEditPatientDialog()}
       </Box>
 
-      {showNames && patients.length > rowsPerPage && (
+      {isPatientListVisible && patients.length > rowsPerPage && (
         <Box variant="containers.large" sx={{ bg: 'transparent', width: ['100%', '100%'] }} mb={0}>
           <Pagination
             px="5%"
