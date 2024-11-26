@@ -2470,7 +2470,7 @@ export function setIsPatientListVisible(data) {
   };
 }
 
-export function setpatientListSearchTextInput(data) {
+export function setPatientListSearchTextInput(data) {
   return {
     type: ActionTypes.SET_PATIENT_LIST_SEARCH_TEXT_INPUT,
     payload: data,

@@ -370,7 +370,7 @@ export const ClinicianPatients = (props) => {
   function handleSearchChange(event) {
     setPage(1);
 
-    dispatch(actions.sync.setpatientListSearchTextInput(event.target.value));
+    dispatch(actions.sync.setPatientListSearchTextInput(event.target.value));
     dispatch(actions.sync.setIsPatientListVisible(true));
 
     if (isEmpty(event.target.value)) {
@@ -380,7 +380,7 @@ export const ClinicianPatients = (props) => {
 
   function handleClearSearch(event) {
     setPage(1);
-    dispatch(actions.sync.setpatientListSearchTextInput(''));
+    dispatch(actions.sync.setPatientListSearchTextInput(''));
     setPageCount(Math.ceil(patients.length / rowsPerPage));
   }
 
