@@ -123,6 +123,10 @@ describe('ClinicianPatients', () => {
         sendingPatientDexcomConnectRequest: defaultWorkingState,
         fetchingPatientsForClinic: defaultWorkingState,
       },
+      patientListFilters: {
+        isPatientListVisible: true,
+        patientListSearchTextInput: '',
+      }
     },
   };
 
@@ -139,6 +143,10 @@ describe('ClinicianPatients', () => {
       membershipPermissionsInOtherCareTeams: {
         patient1: { view: {} },
         patient2: { custodian: {} },
+      },
+      patientListFilters: {
+        isPatientListVisible: true,
+        patientListSearchTextInput: '',
       }
     },
   });
@@ -154,12 +162,15 @@ describe('ClinicianPatients', () => {
         </Provider>
       );
 
-      wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
       defaultProps.trackMetric.resetHistory();
     });
 
     it('should render an empty table', () => {
       const table = wrapper.find(Table);
+
+      console.log('@@@ WRAPPER')
+      console.log(wrapper)
+
       expect(table).to.have.length(1);
       expect(table.find('tr')).to.have.length(1); // header row only
       expect(wrapper.find('.table-empty-text').hostNodes().text()).includes('There are no results to show.');
@@ -289,26 +300,23 @@ describe('ClinicianPatients', () => {
 
     describe('showNames', function () {
       it('should show a row of data for each person', function () {
-        wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
         // 2 people plus one row for the header
         expect(wrapper.find('.MuiTableRow-root')).to.have.length(3);
       });
 
       it('should trigger a call to trackMetric', function () {
         wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
-        expect(defaultProps.trackMetric.calledWith('Clicked Show All')).to.be.true;
+        expect(defaultProps.trackMetric.calledWith('Clicked Hide All')).to.be.true;
         expect(defaultProps.trackMetric.callCount).to.equal(1);
       });
 
       it('should not have instructions displayed', function () {
-        wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
         expect(wrapper.find('.peopletable-instructions')).to.have.length(0);
       });
     });
 
     context('show names clicked', () => {
       beforeEach(() => {
-        wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
         defaultProps.trackMetric.resetHistory();
       });
 
@@ -335,9 +343,10 @@ describe('ClinicianPatients', () => {
 
         // Input partial match on name for patient two
         searchInput.simulate('change', { target: { name: 'search-patients', value: 'Two' } });
-
-        expect(table().find('tr')).to.have.length(2); // header row + 1 invites
-        expect(table().find('tr').at(1).text()).contains('Patient Two');
+        expect(store.getActions()).to.eql([
+          { type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT', payload: 'Two' },
+          { type: 'SET_IS_PATIENT_LIST_VISIBLE', payload: true } // searching should automatically toggle on the search input
+        ])
       });
 
       it('should link to a patient data view when patient name is clicked', () => {
