@@ -858,7 +858,7 @@ export const ClinicPatients = (props) => {
         sortType: showSummaryData && activeSort?.sortType ? activeSort.sortType : defaultPatientFetchOptions.sortType,
         period: activeSummaryPeriod,
         limit: 50,
-        search: patientFetchOptions.search,
+        search: patientListSearchTextInput,
       }
 
       if (isEmpty(filterOptions.search)) delete filterOptions.search;
