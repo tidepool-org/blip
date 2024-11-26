@@ -57,7 +57,6 @@ export const ClinicianPatients = (props) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showAddPatientDialog, setShowAddPatientDialog] = useState(false);
   const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
-  const [showNames, setShowNames] = useState(false);
   const [page, setPage] = useState(1);
   const [pageCount, setPageCount] = useState();
   const [selectedPatient, setSelectedPatient] = useState(null);
