@@ -168,9 +168,6 @@ describe('ClinicianPatients', () => {
     it('should render an empty table', () => {
       const table = wrapper.find(Table);
 
-      console.log('@@@ WRAPPER')
-      console.log(wrapper)
-
       expect(table).to.have.length(1);
       expect(table.find('tr')).to.have.length(1); // header row only
       expect(wrapper.find('.table-empty-text').hostNodes().text()).includes('There are no results to show.');
