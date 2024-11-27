@@ -3,6 +3,8 @@ import { Flex, Text } from 'theme-ui';
 import moment from 'moment';
 import { colors } from '../../themes/baseTheme';
 
+const JS_DATE_FORMAT = 'YYYY-MM-DD';
+
 const containerStyleProps = {
     sx: {
       color: 'text.primary', 
@@ -15,7 +17,7 @@ const containerStyleProps = {
       height: '1.5rem',
       alignItems: 'center'
   }
-}
+};
 
 const DemographicInfo = ({ t, patient }) => {
   const { birthday, mrn } = patient.profile.patient;
@@ -30,7 +32,7 @@ const DemographicInfo = ({ t, patient }) => {
           <Text>{t('DOB:')}</Text>
           <Flex sx={{ columnGap: 2, alignItems: 'flex-start' }}>
             <Text as="span" sx={{ whiteSpace: 'nowrap', fontWeight: 'medium' }}>
-              {moment(birthday).format('MMMM D, YYYY')}
+              {moment(birthday).format(JS_DATE_FORMAT)}
             </Text>
           </Flex>
         </Flex>}
@@ -46,6 +48,6 @@ const DemographicInfo = ({ t, patient }) => {
         </Flex>}
     </Flex>
   )
-}
+};
 
 export default withTranslation()(DemographicInfo);
