@@ -16,17 +16,18 @@ const PatientMenuOptions = ({ t, onShare, onUpload, onViewProfile, onViewData })
 
   return (
     <Flex sx={{ ml: 'auto', columnGap: 32 }}>
-      {onViewData && <Box>
-        <Button
-          id="patientDataHeader_viewDataButton"
-          onClick={onViewData}
-          icon={BarChartIcon}
-          iconLabel="View"
-          {...getButtonStyleProps(finalSlug === '/data')}
-        >
-          {t("View")}
-        </Button>
-      </Box>}
+      {onViewData && 
+        <Box>
+          <Button
+            id="patientDataHeader_viewDataButton"
+            onClick={onViewData}
+            icon={BarChartIcon}
+            iconLabel="View"
+            {...getButtonStyleProps(finalSlug === '/data')}
+          >
+            {t("View")}
+          </Button>
+        </Box>}
       {onViewProfile && 
         <Box>
           <Button

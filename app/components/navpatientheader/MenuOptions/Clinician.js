@@ -39,17 +39,18 @@ const ClinicianMenuOptions = ({ t, onViewProfile, onUpload, onViewData }) => {
             {t("Patient Profile")}
           </Button>
         </Box>}
-      {onUpload && <Box>
-        <Button
-          id="patientDataHeader_uploadButton"
-          onClick={onUpload}
-          icon={PublishIcon}
-          iconLabel="Upload"
-          {...getButtonStyleProps(false)}
-        >
-          {t("Upload Data")}
-        </Button>
-      </Box>}
+      {onUpload && 
+        <Box>
+          <Button
+            id="patientDataHeader_uploadButton"
+            onClick={onUpload}
+            icon={PublishIcon}
+            iconLabel="Upload"
+            {...getButtonStyleProps(false)}
+          >
+            {t("Upload Data")}
+          </Button>
+        </Box>}
     </Flex>
   );
 };
