@@ -163,19 +163,7 @@ export default withTranslation()(class extends React.Component {
       return <div className="Navbar-patientSection"></div>;
     }
 
-    patient.link = this.getPatientLink(patient);
-
-    return (
-      <div className="Navbar-patientSection" ref="patient">
-        <NavbarPatientCard
-          href={patient.link}
-          currentPage={this.props.currentPage}
-          uploadUrl={this.props.getUploadUrl()}
-          patient={patient}
-          permsOfLoggedInUser={this.props.permsOfLoggedInUser}
-          trackMetric={this.props.trackMetric} />
-      </div>
-    );
+    return null;
   };
 
   toggleDropdown = (e) => {
