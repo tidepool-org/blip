@@ -22,11 +22,11 @@ const innerContainerStyleProps = {
   }
 };
 
-const NavHeader = ({ patient, isUserPatient, trackMetric, permsOfLoggedInUser }) => {
+const NavPatientHeader = ({ patient, isUserPatient, trackMetric, permsOfLoggedInUser }) => {
   const history = useHistory();
   const [isUploadOverlayOpen, setIsUploadOverlayOpen] = useState(false);
 
-  if (!patient?.profile) return null; // not available immediately on component mount
+  if (!patient?.profile) return null;
 
   const permissions = patient.permissions;
   const canUpload = _.isEmpty(permissions) === false && permissions.root || _.has(permsOfLoggedInUser, 'upload');
@@ -83,4 +83,4 @@ const NavHeader = ({ patient, isUserPatient, trackMetric, permsOfLoggedInUser })
   );
 }
 
-export default NavHeader;
+export default NavPatientHeader;
