@@ -19,6 +19,7 @@ import React from 'react';
 import createReactClass from 'create-react-class';
 import { withTranslation, Trans } from 'react-i18next';
 import _ from 'lodash';
+import PatientDataHeader from '../patientdata/PatientDataHeader';
 
 import personUtils from '../../core/personutils';
 import ModalOverlay from '../../components/modaloverlay';
@@ -72,13 +73,19 @@ const Patient = withTranslation()(createReactClass({
 
   render: function() {
     return (
-      <div className="PatientPage js-patient-page">
-        <div className="PatientPage-layer">
-          {this.renderSubnav()}
-          {this.renderContent()}
-          {this.renderFooter()}
+      <>
+        <PatientDataHeader 
+          patient={this.props.patient}
+          isUserPatient={this.isSamePersonUserAndPatient()} 
+        />
+        <div className="PatientPage js-patient-page">
+          <div className="PatientPage-layer">
+            {this.renderSubnav()}
+            {this.renderContent()}
+            {this.renderFooter()}
+          </div>
         </div>
-      </div>
+      </>
     );
   },
 
