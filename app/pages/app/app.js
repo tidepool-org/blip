@@ -35,7 +35,7 @@ import FooterLinks from '../../components/footerlinks';
 import Version from '../../components/version';
 
 import { DATA_DONATION_NONPROFITS, URL_TIDEPOOL_PLUS_CONTACT_SALES } from '../../core/constants';
-import NavPatientHeader from '../../components/navheader';
+import NavPatientHeader from '../../components/navpatientheader';
 
 // Styles
 require('tideline/css/tideline.less');
