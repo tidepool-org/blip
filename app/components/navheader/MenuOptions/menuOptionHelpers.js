@@ -1,4 +1,4 @@
-import colorPalette from "../../../../themes/colorPalette"
+import colorPalette from "../../../themes/colorPalette";
 
 export const getButtonStyleProps = (isActive) => {
   const styleProps = {

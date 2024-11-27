@@ -1,5 +1,5 @@
 import { Box, Text } from 'theme-ui';
-import personUtils from '../../../core/personutils';
+import personUtils from '../../core/personutils';
 
 const Name = ({ patient }) => {
   const renderedName = personUtils.patientFullName(patient);

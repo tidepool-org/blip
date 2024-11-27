@@ -35,6 +35,7 @@ import FooterLinks from '../../components/footerlinks';
 import Version from '../../components/version';
 
 import { DATA_DONATION_NONPROFITS, URL_TIDEPOOL_PLUS_CONTACT_SALES } from '../../core/constants';
+import NavHeader from '../../components/navheader';
 
 // Styles
 require('tideline/css/tideline.less');
@@ -341,6 +342,16 @@ export class AppComponent extends React.Component {
       }
     }
     return null;
+  }
+
+  renderNavHeader() {
+    if (!this.isPatientVisibleInNavbar()) return null;
+
+    const { patient, userIsCurrentPatient } = this.props;
+    
+    return (
+      <NavHeader patient={patient} isUserPatient={userIsCurrentPatient} />
+    );
   }
 
   renderBanner() {
@@ -698,6 +709,7 @@ export class AppComponent extends React.Component {
     this.props.context.log('Rendering AppComponent');
     var overlay = this.renderOverlay();
     var navbar = this.renderNavbar();
+    var navHeader = this.renderNavHeader();
     var notification = this.renderNotification();
     var banner = this.renderBanner();
     var emailbanner = this.renderAddEmailBanner();
@@ -710,6 +722,7 @@ export class AppComponent extends React.Component {
         {emailbanner}
         {patientLimitBanner}
         {navbar}
+        {navHeader}
         {notification}
         {banner}
         {this.props.children}

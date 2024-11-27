@@ -1,7 +1,7 @@
 import { withTranslation } from 'react-i18next';
 import { Flex, Text } from 'theme-ui';
 import moment from 'moment';
-import { colors } from '../../../themes/baseTheme';
+import { colors } from '../../themes/baseTheme';
 
 const containerStyleProps = {
     sx: {

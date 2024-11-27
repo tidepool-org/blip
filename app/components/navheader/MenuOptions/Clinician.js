@@ -5,12 +5,11 @@ import { withTranslation } from 'react-i18next';
 import BarChartIcon from '@material-ui/icons/BarChart';
 import PersonOutlineIcon from '@material-ui/icons/PersonOutline';
 import PublishIcon from '@material-ui/icons/Publish';
-import ShareIcon from '@material-ui/icons/Share';
-
-import Button from '../../../../components/elements/Button';
 import { getButtonStyleProps, getFinalSlug } from './menuOptionHelpers';
 
-const PatientMenuOptions = ({ t, onShare, onUpload, onViewProfile, onViewData }) => {
+import Button from '../../elements/Button';
+
+const ClinicianMenuOptions = ({ t, onProfile, onUpload, onViewData }) => {
   const { pathname } = useLocation();
   const finalSlug = getFinalSlug(pathname);
 
@@ -30,23 +29,12 @@ const PatientMenuOptions = ({ t, onShare, onUpload, onViewProfile, onViewData })
       <Box>
         <Button
           id="patientDataHeader_profileButton"
-          onClick={onViewProfile}
+          onClick={onProfile}
           icon={PersonOutlineIcon}
           iconLabel="Settings" // TODO: Verify
           {...getButtonStyleProps(finalSlug === '/profile')}
         >
-          {t("Profile")}
-        </Button>
-      </Box>
-      <Box>
-        <Button
-          id="patientDataHeader_shareButton"
-          onClick={onShare}
-          icon={ShareIcon}
-          iconLabel="Profile" // TODO: Verify
-          {...getButtonStyleProps(finalSlug === '/share')}
-        >
-          {t("Share")}
+          {t("Patient Profile")}
         </Button>
       </Box>
       <Box>
@@ -64,4 +52,4 @@ const PatientMenuOptions = ({ t, onShare, onUpload, onViewProfile, onViewData })
   );
 };
 
-export default withTranslation()(PatientMenuOptions);
+export default withTranslation()(ClinicianMenuOptions);

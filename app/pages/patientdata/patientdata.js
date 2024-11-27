@@ -52,7 +52,6 @@ import ChartDateRangeModal from '../../components/ChartDateRangeModal';
 import ChartDateModal from '../../components/ChartDateModal';
 import PrintDateRangeModal from '../../components/PrintDateRangeModal';
 import Button from '../../components/elements/Button';
-import PatientDataHeader from './PatientDataHeader';
 
 import ToastContext from '../../providers/ToastProvider';
 
@@ -205,7 +204,6 @@ export const PatientDataClass = createReactClass({
 
   render: function() {
     const patientData = this.renderPatientData();
-    const header = this.renderHeader();
     const messages = this.renderMessagesContainer();
     const datesDialog = this.renderDatesDialog();
     const printDialog = this.renderPrintDialog();
@@ -214,19 +212,12 @@ export const PatientDataClass = createReactClass({
     return (
       <div className="patient-data js-patient-data-page">
         {messages}
-        {header}
         {patientData}
         {this.state.datesDialogOpen && datesDialog}
         {printDialog}
         <Loader show={showLoader} />
       </div>
     );
-  },
-
-  renderHeader: function() {
-    const { patient, isUserPatient } = this.props;
-
-    return <PatientDataHeader patient={patient} isUserPatient={isUserPatient} />;
   },
 
   renderPatientData: function() {
