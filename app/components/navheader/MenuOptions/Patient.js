@@ -21,7 +21,7 @@ const PatientMenuOptions = ({ t, onShare, onUpload, onViewProfile, onViewData })
           id="patientDataHeader_viewDataButton"
           onClick={onViewData}
           icon={BarChartIcon}
-          iconLabel="Settings" // TODO: Verify
+          iconLabel="View"
           {...getButtonStyleProps(finalSlug === '/data')}
         >
           {t("View")}
@@ -33,7 +33,7 @@ const PatientMenuOptions = ({ t, onShare, onUpload, onViewProfile, onViewData })
             id="patientDataHeader_profileButton"
             onClick={onViewProfile}
             icon={PersonOutlineIcon}
-            iconLabel="Settings" // TODO: Verify
+            iconLabel="Profile"
             {...getButtonStyleProps(finalSlug === '/profile')}
           >
             {t("Profile")}
@@ -45,7 +45,7 @@ const PatientMenuOptions = ({ t, onShare, onUpload, onViewProfile, onViewData })
             id="patientDataHeader_shareButton"
             onClick={onShare}
             icon={ShareIcon}
-            iconLabel="Profile" // TODO: Verify
+            iconLabel="Share"
             {...getButtonStyleProps(finalSlug === '/share')}
           >
             {t("Share")}
@@ -57,7 +57,7 @@ const PatientMenuOptions = ({ t, onShare, onUpload, onViewProfile, onViewData })
             id="patientDataHeader_uploadButton"
             onClick={onUpload}
             icon={PublishIcon}
-            iconLabel="Upload" // TODO: Verify
+            iconLabel="Upload"
             {...getButtonStyleProps(false)}
           >
             {t("Upload Data")}

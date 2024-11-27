@@ -21,7 +21,7 @@ const ClinicianMenuOptions = ({ t, onViewProfile, onUpload, onViewData }) => {
             id="patientDataHeader_viewDataButton"
             onClick={onViewData}
             icon={BarChartIcon}
-            iconLabel="Settings" // TODO: Verify
+            iconLabel="View"
             {...getButtonStyleProps(finalSlug === '/data')}
           >
             {t("View")}
@@ -33,7 +33,7 @@ const ClinicianMenuOptions = ({ t, onViewProfile, onUpload, onViewData }) => {
             id="patientDataHeader_profileButton"
             onClick={onViewProfile}
             icon={PersonOutlineIcon}
-            iconLabel="Settings" // TODO: Verify
+            iconLabel="Profile"
             {...getButtonStyleProps(finalSlug === '/profile')}
           >
             {t("Patient Profile")}
@@ -44,7 +44,7 @@ const ClinicianMenuOptions = ({ t, onViewProfile, onUpload, onViewData }) => {
           id="patientDataHeader_uploadButton"
           onClick={onUpload}
           icon={PublishIcon}
-          iconLabel="Upload" // TODO: Verify
+          iconLabel="Upload"
           {...getButtonStyleProps(false)}
         >
           {t("Upload Data")}

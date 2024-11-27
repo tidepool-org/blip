@@ -28,8 +28,7 @@ const NavHeader = ({ patient, isUserPatient, trackMetric, permsOfLoggedInUser })
 
   if (!patient?.profile) return null; // not available immediately on component mount
 
-  const { permissions } = patient;
-  
+  const permissions = patient.permissions;
   const canUpload = _.isEmpty(permissions) === false && permissions.root || _.has(permsOfLoggedInUser, 'upload');
   const canShare = _.isEmpty(permissions) === false && permissions.root;
 
