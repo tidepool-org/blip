@@ -52,7 +52,7 @@ describe('tideDashboardPatients', () => {
   });
 
   describe('updateClinicPatientSuccess', () => {
-    it('should set state to initial empty state', () => {
+    it('should update matching patient in state', () => {
       const patients = { results: { 'foo': [
         { patient: {id: 'bar' } },
         { patient: { id: 'baz'} }
@@ -71,7 +71,7 @@ describe('tideDashboardPatients', () => {
   });
 
   describe('fetchPatientFromClinicSuccess', () => {
-    it('should set state to initial empty state', () => {
+    it('should update matching patient in state', () => {
       const patients = { results: { 'foo': [
         { patient: {id: 'bar' } },
         { patient: { id: 'baz'} }
