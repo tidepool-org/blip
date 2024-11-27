@@ -16,7 +16,7 @@ const PatientMenuOptions = ({ t, onShare, onUpload, onViewProfile, onViewData })
 
   return (
     <Flex sx={{ ml: 'auto', columnGap: 32 }}>
-      <Box>
+      {onViewData && <Box>
         <Button
           id="patientDataHeader_viewDataButton"
           onClick={onViewData}
@@ -26,40 +26,43 @@ const PatientMenuOptions = ({ t, onShare, onUpload, onViewProfile, onViewData })
         >
           {t("View")}
         </Button>
-      </Box>
-      <Box>
-        <Button
-          id="patientDataHeader_profileButton"
-          onClick={onViewProfile}
-          icon={PersonOutlineIcon}
-          iconLabel="Settings" // TODO: Verify
-          {...getButtonStyleProps(finalSlug === '/profile')}
-        >
-          {t("Profile")}
-        </Button>
-      </Box>
-      <Box>
-        <Button
-          id="patientDataHeader_shareButton"
-          onClick={onShare}
-          icon={ShareIcon}
-          iconLabel="Profile" // TODO: Verify
-          {...getButtonStyleProps(finalSlug === '/share')}
-        >
-          {t("Share")}
-        </Button>
-      </Box>
-      <Box>
-        <Button
-          id="patientDataHeader_uploadButton"
-          onClick={onUpload}
-          icon={PublishIcon}
-          iconLabel="Upload" // TODO: Verify
-          {...getButtonStyleProps(false)}
-        >
-          {t("Upload Data")}
-        </Button>
-      </Box>
+      </Box>}
+      {onViewProfile && 
+        <Box>
+          <Button
+            id="patientDataHeader_profileButton"
+            onClick={onViewProfile}
+            icon={PersonOutlineIcon}
+            iconLabel="Settings" // TODO: Verify
+            {...getButtonStyleProps(finalSlug === '/profile')}
+          >
+            {t("Profile")}
+          </Button>
+        </Box>}
+      {onShare && 
+        <Box>
+          <Button
+            id="patientDataHeader_shareButton"
+            onClick={onShare}
+            icon={ShareIcon}
+            iconLabel="Profile" // TODO: Verify
+            {...getButtonStyleProps(finalSlug === '/share')}
+          >
+            {t("Share")}
+          </Button>
+        </Box>}
+      {onUpload && 
+        <Box>
+          <Button
+            id="patientDataHeader_uploadButton"
+            onClick={onUpload}
+            icon={PublishIcon}
+            iconLabel="Upload" // TODO: Verify
+            {...getButtonStyleProps(false)}
+          >
+            {t("Upload Data")}
+          </Button>
+        </Box>}
     </Flex>
   );
 };

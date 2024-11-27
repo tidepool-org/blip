@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Box, Flex } from 'theme-ui';
+import _ from 'lodash';
 
 import Name from './Name';
 import DemographicInfo from './DemographicInfo';
@@ -21,11 +22,16 @@ const innerContainerStyleProps = {
   }
 };
 
-const NavHeader = ({ patient, isUserPatient, trackMetric }) => {
+const NavHeader = ({ patient, isUserPatient, trackMetric, permsOfLoggedInUser }) => {
   const history = useHistory();
   const [isUploadOverlayOpen, setIsUploadOverlayOpen] = useState(false);
 
   if (!patient?.profile) return null; // not available immediately on component mount
+
+  const { permissions } = patient;
+  
+  const canUpload = _.isEmpty(permissions) === false && permissions.root || _.has(permsOfLoggedInUser, 'upload');
+  const canShare = _.isEmpty(permissions) === false && permissions.root;
 
   const handleUpload = () => {
     trackMetric('Clicked Navbar Upload Data');
@@ -60,13 +66,13 @@ const NavHeader = ({ patient, isUserPatient, trackMetric }) => {
             ? <PatientMenuOptions 
                 onViewData={handleViewData}
                 onViewProfile={handleViewProfile}
-                onUpload={handleUpload}
-                onShare={handleShare}
+                onUpload={canUpload ? handleUpload : null}
+                onShare={canShare ? handleShare : null}
               /> 
             : <ClinicianMenuOptions 
                 onViewData={handleViewData}
-                onProfile={handleViewProfile}
-                onUpload={handleUpload}
+                onViewProfile={handleViewProfile}
+                onUpload={canUpload ? handleUpload : null}
               /> 
           }
         </Flex>
