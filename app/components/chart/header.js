@@ -40,24 +40,28 @@ const Header = withTranslation()(class Header extends Component {
 
     const basicsLinkClass = cx({
       'js-basics': true,
+      'patient-data-subnav-tablink': true,
       'patient-data-subnav-active': this.props.chartType === 'basics',
       'patient-data-subnav-hidden': this.props.chartType === 'no-data',
     });
 
     const dayLinkClass = cx({
       'js-daily': true,
+      'patient-data-subnav-tablink': true,
       'patient-data-subnav-active': this.props.chartType === 'daily',
       'patient-data-subnav-hidden': this.props.chartType === 'no-data',
     });
 
     const trendsLinkClass = cx({
       'js-trends': true,
+      'patient-data-subnav-tablink': true,
       'patient-data-subnav-active': this.props.chartType === 'trends',
       'patient-data-subnav-hidden': this.props.chartType === 'no-data',
     });
 
     const bgLogLinkClass = cx({
       'js-bgLog': true,
+      'patient-data-subnav-tablink': true,
       'patient-data-subnav-active': this.props.chartType === 'bgLog',
       'patient-data-subnav-hidden': this.props.chartType === 'no-data',
     });
@@ -77,7 +81,6 @@ const Header = withTranslation()(class Header extends Component {
     const mostRecentClass = cx({
       'js-most-recent': true,
       'patient-data-icon': true,
-      'patient-data-subnav-active': !this.props.atMostRecent && !this.props.inTransition,
       'patient-data-subnav-disabled': this.props.atMostRecent || this.props.inTransition,
       'patient-data-subnav-hidden': this.props.chartType === 'no-data',
     });
@@ -85,7 +88,6 @@ const Header = withTranslation()(class Header extends Component {
     const backClass = cx({
       'js-back': true,
       'patient-data-icon': true,
-      'patient-data-subnav-active': !this.props.inTransition,
       'patient-data-subnav-disabled': this.props.inTransition,
       'patient-data-subnav-hidden': this.props.chartType === 'settings' ||
         this.props.chartType === 'no-data',
@@ -94,7 +96,6 @@ const Header = withTranslation()(class Header extends Component {
     const nextClass = cx({
       'js-next': true,
       'patient-data-icon': true,
-      'patient-data-subnav-active': !this.props.atMostRecent && !this.props.inTransition,
       'patient-data-subnav-disabled': this.props.atMostRecent || this.props.inTransition,
       'patient-data-subnav-hidden': this.props.chartType === 'settings' ||
         this.props.chartType === 'no-data',
@@ -104,6 +105,7 @@ const Header = withTranslation()(class Header extends Component {
       'js-settings': true,
       'patient-data-subnav-right': true,
       'patient-data-subnav-right-label': true,
+      'patient-data-subnav-tablink': true,
       'patient-data-subnav-active': this.props.chartType === 'settings',
       'patient-data-subnav-hidden': this.props.chartType === 'no-data',
     });
@@ -111,19 +113,19 @@ const Header = withTranslation()(class Header extends Component {
     const printLinkClass = cx({
       'js-print-settings': this.props.chartType === 'settings',
       'printview-print-icon': true,
+      'patient-data-subnav-tablink': true,
       'patient-data-subnav-right': true,
       'patient-data-subnav-right-label': true,
-      'patient-data-subnav-active': false,
       'patient-data-subnav-hidden': this.props.chartType === 'no-data',
     });
 
     return (
       <div className="grid patient-data-subnav">
         <div className="app-no-print patient-data-subnav-left">
-            <a href="" className={basicsLinkClass} onClick={this.props.onClickBasics}>{t('Basics')}</a>
-            <a href="" className={dayLinkClass} onClick={this.props.onClickOneDay}>{t('Daily')}</a>
-            <a href="" className={bgLogLinkClass} onClick={this.props.onClickBgLog}>{t('BG Log')}</a>
-            <a href="" className={trendsLinkClass} onClick={this.props.onClickTrends}>{t('Trends')}</a>
+          <a href="" className={basicsLinkClass} onClick={this.props.onClickBasics}>{t('Basics')}</a>
+          <a href="" className={dayLinkClass} onClick={this.props.onClickOneDay}>{t('Daily')}</a>
+          <a href="" className={bgLogLinkClass} onClick={this.props.onClickBgLog}>{t('BG Log')}</a>
+          <a href="" className={trendsLinkClass} onClick={this.props.onClickTrends}>{t('Trends')}</a>
         </div>
         <div className="patient-data-subnav-center" id="tidelineLabel">
           {this.renderNavButton(backClass, this.props.onClickBack, this.props.iconBack)}
@@ -154,7 +156,7 @@ const Header = withTranslation()(class Header extends Component {
               className="icon"
               variant="default"
               sx={{
-                mr: 1,
+                mr: 2,
                 mt: '-2px',
                 color: 'white',
                 outline: 'none',

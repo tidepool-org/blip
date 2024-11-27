@@ -35,11 +35,16 @@
 // ====================================
 
 @patient-data-subnav-vertical-padding: @spacing-small;
-@patient-data-subnav-horizontal-padding: @spacing-small;
+@patient-data-subnav-horizontal-padding: @spacing-medium;
+
+.patient-data-subnav {
+  min-height: 42px;
+}
 
 .patient-data-subnav-inner {
   color: #fff;
   background-color: @blue-gray-dark;
+  border-radius: 3px 3px 0 0;
 
   padding: 0;
 }
@@ -73,8 +78,10 @@
 }
 
 .patient-data-subnav a {
-  display: flex;
-  padding: 0 @patient-data-subnav-horizontal-padding;
+  padding: @patient-data-subnav-vertical-padding @patient-data-subnav-horizontal-padding;
+
+  font-size: 14px;
+  
   &.patient-data-icon {
     padding: 0;
   }
@@ -83,16 +90,6 @@
   text-decoration: none;
 
   transition: all .2s ease-out;
-
-  &:hover,
-  &:focus {
-    color: @gray-darkest;
-    text-decoration: none;
-
-    .icon {
-      color: @gray-darkest;
-    }
-  }
 
   &:active,
   &.patient-data-subnav-disabled {
@@ -106,31 +103,32 @@
   }
 }
 
-.patient-data-subnav a.patient-data-subnav-active {
-  font-weight: bold;
+.patient-data-subnav-tablink {
+  &:hover,
+  &:focus {
+    background-color: @blue-gray-dark-active;
+    text-decoration: none;
+  }
 }
 
-.patient-data-footer-left a.patient-data-subnav-active {
-  font-weight: bold;
+.patient-data-subnav-active {
+  background-color: @blue-gray-dark-active;
 }
 
 .patient-data-subnav-center {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: @patient-data-subnav-vertical-padding @spacing-small;
 }
 
 .patient-data-subnav-left {
   display: flex;
   align-items: center;
-  padding: @patient-data-subnav-vertical-padding @spacing-small;
 }
 
 .patient-data-subnav-right {
   display: flex;
   align-items: center;
-  padding: @patient-data-subnav-vertical-padding @spacing-small;
 }
 
 .patient-data-subnav-right-label {
