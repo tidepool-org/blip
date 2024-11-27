@@ -25,23 +25,25 @@ const DemographicInfo = ({ t, patient }) => {
 
   return (
     <Flex {...containerStyleProps}>
-      { hasValidBirthday && <>
-        <Text>{t('DOB:')}</Text>
-        <Flex sx={{ columnGap: 2, alignItems: 'flex-start' }}>
-          <Text as="span" sx={{ whiteSpace: 'nowrap', fontWeight: 'medium' }}>
-            {moment(birthday).format('MMMM D, YYYY')}
-          </Text>
-        </Flex>
-      </>}
+      { hasValidBirthday && 
+        <Flex sx={{ color: 'text.primary', flexShrink: 0, gap: 2, fontSize: 1, alignItems: 'flex-end' }}>
+          <Text>{t('DOB:')}</Text>
+          <Flex sx={{ columnGap: 2, alignItems: 'flex-start' }}>
+            <Text as="span" sx={{ whiteSpace: 'nowrap', fontWeight: 'medium' }}>
+              {moment(birthday).format('MMMM D, YYYY')}
+            </Text>
+          </Flex>
+        </Flex>}
 
-      { hasMrn && <>
-        <Text ml={24}>{t('MRN:')}</Text>
-        <Flex sx={{ columnGap: 2, alignItems: 'flex-start' }}>
-          <Text as="span" sx={{ whiteSpace: 'nowrap', fontWeight: 'medium' }}>
-            {mrn}
-          </Text>
-        </Flex>
-      </>}
+      { hasMrn && 
+        <Flex sx={{ color: 'text.primary', flexShrink: 0, gap: 2, fontSize: 1, alignItems: 'flex-end' }}>
+          <Text ml={24}>{t('MRN:')}</Text>
+          <Flex sx={{ columnGap: 2, alignItems: 'flex-start' }}>
+            <Text as="span" sx={{ whiteSpace: 'nowrap', fontWeight: 'medium' }}>
+              {mrn}
+            </Text>
+          </Flex>
+        </Flex>}
     </Flex>
   )
 }
