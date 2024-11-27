@@ -332,7 +332,7 @@ export const PatientForm = (props) => {
   }
 
   function fetchPatientDetails() {
-    dispatch(actions.async.fetchPatientFromClinic.bind(null, api, selectedClinicId, patient.id)());
+    dispatch(actions.async.fetchPatientFromClinic(api, selectedClinicId, patient.id));
   }
 
   function renderRegionalNote() {
