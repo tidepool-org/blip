@@ -1,21 +1,19 @@
 import { Box, Flex } from 'theme-ui';
+import { useLocation } from 'react-router-dom';
 import { withTranslation } from 'react-i18next';
+
 import BarChartIcon from '@material-ui/icons/BarChart';
 import PersonOutlineIcon from '@material-ui/icons/PersonOutline';
 import PublishIcon from '@material-ui/icons/Publish';
 import ShareIcon from '@material-ui/icons/Share';
 
 import Button from '../../../../components/elements/Button';
-
-const buttonStyleProps = {
-  variant: 'textSecondary',
-  iconPosition: 'left',
-  iconFontSize: '1.25em',
-  sx: { fontSize: 1 },
-  pl: 0
-}
+import { getButtonStyleProps, getFinalSlug } from './menuOptionHelpers';
 
 const PatientMenuOptions = ({ t, onShare, onUpload, onViewProfile, onViewData }) => {
+  const { pathname } = useLocation();
+  const finalSlug = getFinalSlug(pathname);
+
   return (
     <Flex sx={{ ml: 'auto', columnGap: 32 }}>
       <Box>
@@ -24,7 +22,7 @@ const PatientMenuOptions = ({ t, onShare, onUpload, onViewProfile, onViewData })
           onClick={onViewData}
           icon={BarChartIcon}
           iconLabel="Settings" // TODO: Verify
-          {...buttonStyleProps}
+          {...getButtonStyleProps(finalSlug === '/data')}
         >
           {t("View")}
         </Button>
@@ -35,7 +33,7 @@ const PatientMenuOptions = ({ t, onShare, onUpload, onViewProfile, onViewData })
           onClick={onViewProfile}
           icon={PersonOutlineIcon}
           iconLabel="Settings" // TODO: Verify
-          {...buttonStyleProps}
+          {...getButtonStyleProps(finalSlug === '/profile')}
         >
           {t("Profile")}
         </Button>
@@ -46,7 +44,7 @@ const PatientMenuOptions = ({ t, onShare, onUpload, onViewProfile, onViewData })
           onClick={onShare}
           icon={ShareIcon}
           iconLabel="Profile" // TODO: Verify
-          {...buttonStyleProps}
+          {...getButtonStyleProps(finalSlug === '/share')}
         >
           {t("Share")}
         </Button>
@@ -57,7 +55,7 @@ const PatientMenuOptions = ({ t, onShare, onUpload, onViewProfile, onViewData })
           onClick={onUpload}
           icon={PublishIcon}
           iconLabel="Upload" // TODO: Verify
-          {...buttonStyleProps}
+          {...getButtonStyleProps(false)}
         >
           {t("Upload Data")}
         </Button>
