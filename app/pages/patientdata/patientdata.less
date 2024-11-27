@@ -105,6 +105,14 @@
 }
 
 .patient-data-subnav-tablink {
+  &:first-child {
+    border-radius: 3px 0 0 0;
+  }
+
+  &:last-child {
+    border-radius: 0 3px 0 0;
+  }
+
   &:hover,
   &:focus {
     background-color: @blue-gray-dark-active;
