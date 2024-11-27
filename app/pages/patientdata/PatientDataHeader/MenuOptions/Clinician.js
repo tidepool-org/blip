@@ -1,21 +1,18 @@
 import { Box, Flex } from 'theme-ui';
+import { useLocation } from 'react-router-dom';
 import { withTranslation } from 'react-i18next';
+
 import BarChartIcon from '@material-ui/icons/BarChart';
 import PersonOutlineIcon from '@material-ui/icons/PersonOutline';
-import SettingsIcon from '@material-ui/icons/Settings';
 import PublishIcon from '@material-ui/icons/Publish';
+import { getButtonStyleProps, getFinalSlug } from './menuOptionHelpers';
 
 import Button from '../../../../components/elements/Button';
 
-const buttonStyleProps = {
-  variant: 'textSecondary',
-  iconPosition: 'left',
-  iconFontSize: '1.25em',
-  sx: { fontSize: 1 },
-  pl: 0
-}
-
 const ClinicianMenuOptions = ({ t, onProfile, onUpload, onViewData }) => {
+  const { pathname } = useLocation();
+  const finalSlug = getFinalSlug(pathname);
+
   return (
     <Flex sx={{ ml: 'auto', columnGap: 32 }}>
       <Box>
@@ -24,7 +21,7 @@ const ClinicianMenuOptions = ({ t, onProfile, onUpload, onViewData }) => {
           onClick={onViewData}
           icon={BarChartIcon}
           iconLabel="Settings" // TODO: Verify
-          {...buttonStyleProps}
+          {...getButtonStyleProps(finalSlug === '/data')}
         >
           {t("View")}
         </Button>
@@ -35,7 +32,7 @@ const ClinicianMenuOptions = ({ t, onProfile, onUpload, onViewData }) => {
           onClick={onProfile}
           icon={PersonOutlineIcon}
           iconLabel="Settings" // TODO: Verify
-          {...buttonStyleProps}
+          {...getButtonStyleProps(finalSlug === '/profile')}
         >
           {t("Patient Profile")}
         </Button>
@@ -46,7 +43,7 @@ const ClinicianMenuOptions = ({ t, onProfile, onUpload, onViewData }) => {
           onClick={onUpload}
           icon={PublishIcon}
           iconLabel="Upload" // TODO: Verify
-          {...buttonStyleProps}
+          {...getButtonStyleProps(false)}
         >
           {t("Upload Data")}
         </Button>

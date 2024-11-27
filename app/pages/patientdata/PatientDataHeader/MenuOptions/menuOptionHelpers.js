@@ -9,7 +9,7 @@ export const getButtonStyleProps = (isActive) => {
     pl: 0
   }
 
-  // Button represents the current page
+  // if button represents the current page, it should be highlighted
   if (isActive) {
     styleProps.sx.color = colorPalette.primary.purpleDark;
     styleProps.sx.textDecoration = 'underline';
