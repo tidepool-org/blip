@@ -141,29 +141,28 @@ export default withTranslation()(class extends React.Component {
   renderMiddleSection = () => {
     var patient = this.props.patient;
 
-    if (_.isEmpty(patient)) {
-      if (
-        _.includes([
-          '/patients',
-          '/clinic-admin',
-          '/prescriptions',
-          '/clinic-invite',
-          '/clinic-profile',
-          '/clinic-workspace',
-          '/clinic-workspace/patients',
-          '/clinic-workspace/invites',
-          '/clinic-workspace/prescriptions',
-          '/clinician-edit',
-        ], this.props.currentPage) && personUtils.isClinicianAccount(this.props.user)
-      ) {
-        return (
-          <WorkspaceSwitcher api={this.props.api} trackMetric={this.props.trackMetric} />
-        );
-      }
-      return <div className="Navbar-patientSection"></div>;
+    if (
+      _.isEmpty(patient) &&
+      _.includes([
+        '/patients',
+        '/clinic-admin',
+        '/prescriptions',
+        '/clinic-invite',
+        '/clinic-profile',
+        '/clinic-workspace',
+        '/clinic-workspace/patients',
+        '/clinic-workspace/invites',
+        '/clinic-workspace/prescriptions',
+        '/clinician-edit',
+      ], this.props.currentPage) &&
+      personUtils.isClinicianAccount(this.props.user)
+    ) {
+      return (
+        <WorkspaceSwitcher api={this.props.api} trackMetric={this.props.trackMetric} />
+      );
     }
 
-    return null;
+    return <div className="Navbar-patientSection"></div>;
   };
 
   toggleDropdown = (e) => {
