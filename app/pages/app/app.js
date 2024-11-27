@@ -348,9 +348,14 @@ export class AppComponent extends React.Component {
     if (!this.isPatientVisibleInNavbar()) return null;
 
     const { patient, userIsCurrentPatient } = this.props;
+    const trackMetric = this.props.context.trackMetric;
     
     return (
-      <NavHeader patient={patient} isUserPatient={userIsCurrentPatient} />
+      <NavHeader 
+        patient={patient} 
+        isUserPatient={userIsCurrentPatient} 
+        trackMetric={trackMetric} 
+      />
     );
   }
 

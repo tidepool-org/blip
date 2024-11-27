@@ -21,16 +21,31 @@ const innerContainerStyleProps = {
   }
 };
 
-const NavHeader = ({ patient, isUserPatient }) => {
+const NavHeader = ({ patient, isUserPatient, trackMetric }) => {
   const history = useHistory();
   const [isUploadOverlayOpen, setIsUploadOverlayOpen] = useState(false);
 
   if (!patient?.profile) return null; // not available immediately on component mount
 
-  const handleUpload      = () => setIsUploadOverlayOpen(true);
-  const handleViewData    = () => history.push(`/patients/${patient.userid}/data`);
-  const handleViewProfile = () => history.push(`/patients/${patient.userid}/profile`);
-  const handleShare       = () => history.push(`/patients/${patient.userid}/share`);
+  const handleUpload = () => {
+    trackMetric('Clicked Navbar Upload Data');
+    setIsUploadOverlayOpen(true);
+  }
+
+  const handleViewData = () => {
+    trackMetric('Clicked Navbar View Data');
+    history.push(`/patients/${patient.userid}/data`);
+  }
+
+  const handleViewProfile = () => {
+    trackMetric('Clicked Navbar Name');
+    history.push(`/patients/${patient.userid}/profile`);
+  }
+  
+  const handleShare = () => {
+    trackMetric('Clicked Navbar Share Data');
+    history.push(`/patients/${patient.userid}/share`);
+  }
 
   return (
     <div className="patient-data-header">
