@@ -7,7 +7,6 @@ import ChevronLeftRoundedIcon from '@material-ui/icons/ChevronLeftRounded';
 import _ from 'lodash';
 
 import personUtils from '../../core/personutils';
-import NavbarPatientCard from '../navbarpatientcard';
 import WorkspaceSwitcher from '../clinic/WorkspaceSwitcher';
 import NavigationMenu from './NavigationMenu';
 import Button from '../elements/Button';
