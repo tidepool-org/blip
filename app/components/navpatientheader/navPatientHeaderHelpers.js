@@ -20,5 +20,5 @@ export const getPatientListLink = (clinicFlowActive, selectedClinicId, user, que
     isDashboardView
   );
 
-  return { showPatientListLink, patientListLink }
+  return { showPatientListLink, patientListLink, isDashboardView }
 }

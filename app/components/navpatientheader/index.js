@@ -45,6 +45,7 @@ const NavPatientHeader = ({
   if (!patient?.profile) return null;
 
   const { 
+    isDashboardView,
     showPatientListLink, 
     patientListLink,
   } = getPatientListLink(clinicFlowActive, selectedClinicId, user, query, currentPage);
@@ -54,6 +55,11 @@ const NavPatientHeader = ({
   const handleBack = () => {
     if (!showPatientListLink) return;
 
+    trackMetric('Clinic - View patient list', {
+      clinicId: selectedClinicId,
+      source: isDashboardView ? 'Dashboard' : 'Patient data',
+    });
+    
     history.push(patientListLink);
   }
 
