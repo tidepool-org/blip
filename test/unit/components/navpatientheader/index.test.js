@@ -129,11 +129,10 @@ describe('NavPatientHeader', () => {
     });
   });
 
-  describe(('button functions'), () => {
+  describe(('button functions for personal users'), () => {
     let wrapper;
 
     beforeEach(() => {
-      // Personal user with root permissions has all of the button functionality available;
       const props = { 
         user: { roles: [] },
         trackMetric: mockTrackMetric,
@@ -151,6 +150,7 @@ describe('NavPatientHeader', () => {
       const button = wrapper.find('button#navPatientHeader_viewDataButton').hostNodes();
       button.simulate('click');
   
+      expect(mockTrackMetric).calledOnceWithExactly('Clicked Navbar View Data');
       expect(mockHistory.push.calledOnceWithExactly('/patients/1234/data')).to.be.true;
     })
   
@@ -158,6 +158,7 @@ describe('NavPatientHeader', () => {
       const button = wrapper.find('button#navPatientHeader_profileButton').hostNodes();
       button.simulate('click');
   
+      expect(mockTrackMetric).calledOnceWithExactly('Clicked Navbar Name');
       expect(mockHistory.push.calledOnceWithExactly('/patients/1234/profile')).to.be.true;
     })
   
@@ -165,6 +166,7 @@ describe('NavPatientHeader', () => {
       const button = wrapper.find('button#navPatientHeader_shareButton').hostNodes();
       button.simulate('click');
   
+      expect(mockTrackMetric).calledOnceWithExactly('Clicked Navbar Share Data');
       expect(mockHistory.push.calledOnceWithExactly('/patients/1234/share')).to.be.true;
     })
   
@@ -174,6 +176,51 @@ describe('NavPatientHeader', () => {
       const button = wrapper.find('button#navPatientHeader_uploadButton').hostNodes();
       button.simulate('click');
   
+      expect(mockTrackMetric).calledOnceWithExactly('Clicked Navbar Upload Data');
+      expect(wrapper.find('.UploadLaunchOverlay').exists()).to.be.true;
+    });
+  });
+
+  describe(('button functions for clinicaian users'), () => {
+    let wrapper;
+
+    beforeEach(() => {
+      const props = { 
+        user: { roles: ['clinician'] },
+        trackMetric: mockTrackMetric,
+        patient: { ...defaultPatientProps, permissions: { root: true } },
+      };
+
+      wrapper = mount(
+        <BrowserRouter>
+          <NavPatientHeader {...props} />
+        </BrowserRouter>
+      );
+    })
+
+    it('View button links to correct page', () => {
+      const button = wrapper.find('button#navPatientHeader_viewDataButton').hostNodes();
+      button.simulate('click');
+  
+      expect(mockTrackMetric).calledOnceWithExactly('Clicked Navbar View Data');
+      expect(mockHistory.push.calledOnceWithExactly('/patients/1234/data')).to.be.true;
+    })
+  
+    it('Profile button links to correct page', () => {
+      const button = wrapper.find('button#navPatientHeader_profileButton').hostNodes();
+      button.simulate('click');
+  
+      expect(mockTrackMetric).calledOnceWithExactly('Clicked Navbar Name');    
+      expect(mockHistory.push.calledOnceWithExactly('/patients/1234/profile')).to.be.true;
+    })
+  
+    it('Upload Button opens the upload dialog', () => {
+      expect(wrapper.find('.UploadLaunchOverlay').exists()).to.be.false;
+  
+      const button = wrapper.find('button#navPatientHeader_uploadButton').hostNodes();
+      button.simulate('click');
+  
+      expect(mockTrackMetric).calledOnceWithExactly('Clicked Navbar Upload Data');
       expect(wrapper.find('.UploadLaunchOverlay').exists()).to.be.true;
     });
   });
