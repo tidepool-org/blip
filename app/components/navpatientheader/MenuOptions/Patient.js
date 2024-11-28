@@ -10,7 +10,13 @@ import ShareIcon from '@material-ui/icons/Share';
 import Button from '../../../components/elements/Button';
 import { getButtonStyleProps, getFinalSlug } from './menuOptionHelpers';
 
-const PatientMenuOptions = ({ t, onShare, onUpload, onViewProfile, onViewData }) => {
+const PatientMenuOptions = ({ 
+  t, 
+  onViewProfile, 
+  onViewData,
+  onShare = null, 
+  onUpload = null, 
+}) => {
   const { pathname } = useLocation();
   const finalSlug = getFinalSlug(pathname);
 

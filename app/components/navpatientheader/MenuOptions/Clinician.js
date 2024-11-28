@@ -9,7 +9,12 @@ import { getButtonStyleProps, getFinalSlug } from './menuOptionHelpers';
 
 import Button from '../../elements/Button';
 
-const ClinicianMenuOptions = ({ t, onViewProfile, onUpload, onViewData }) => {
+const ClinicianMenuOptions = ({ 
+  t, 
+  onViewProfile, 
+  onViewData,
+  onUpload = null,
+}) => {
   const { pathname } = useLocation();
   const finalSlug = getFinalSlug(pathname);
 

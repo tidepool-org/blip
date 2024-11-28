@@ -9,11 +9,9 @@ const DemographicsContainer = ({ children }) => (
   <Flex sx={{
     color: 'text.primary', 
     flexShrink: 0, 
-    gap: 2, 
+    gap: 5, 
     fontSize: 1, 
     alignItems: 'flex-start', 
-    pl: 24,
-    borderLeft: `2px solid ${colors.lightGrey}`,
     height: '1.5rem',
     alignItems: 'center'
   }}>
@@ -41,7 +39,7 @@ const DemographicInfo = ({ t, patient }) => {
 
       { hasMrn && 
         <Flex sx={{ color: 'text.primary', flexShrink: 0, gap: 2, fontSize: 1, alignItems: 'flex-end' }}>
-          <Text ml={24}>{t('MRN:')}</Text>
+          <Text>{t('MRN:')}</Text>
           <Flex sx={{ columnGap: 2, alignItems: 'flex-start' }}>
             <Text as="span" sx={{ whiteSpace: 'nowrap', fontWeight: 'medium' }}>
               {mrn}

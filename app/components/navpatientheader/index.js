@@ -3,11 +3,13 @@ import { useHistory } from 'react-router-dom';
 import { Box, Flex } from 'theme-ui';
 import _ from 'lodash';
 
+import Back from './Back';
 import Name from './Name';
 import DemographicInfo from './DemographicInfo';
 import PatientMenuOptions from './MenuOptions/Patient';
 import ClinicianMenuOptions from './MenuOptions/Clinician';
 import { isClinicianAccount } from '../../core/personutils';
+import getPermissions from './getPermissions';
 
 const UploadLaunchOverlay = require('../../components/uploadlaunchoverlay');
 
@@ -27,15 +29,25 @@ const HeaderContainer = ({ children }) => (
   </Box>
 );
 
-const NavPatientHeader = ({ patient, user, trackMetric, permsOfLoggedInUser }) => {
+const NavPatientHeader = ({ 
+  patient, 
+  user, 
+  permsOfLoggedInUser,
+  backLink = null,
+  trackMetric,
+}) => {
   const history = useHistory();
   const [isUploadOverlayOpen, setIsUploadOverlayOpen] = useState(false);
 
   if (!patient?.profile) return null;
 
-  const permissions = patient.permissions;
-  const canUpload = _.isEmpty(permissions) === false && permissions.root || _.has(permsOfLoggedInUser, 'upload');
-  const canShare = _.isEmpty(permissions) === false && permissions.root;
+  const { canUpload, canShare } = getPermissions(patient, permsOfLoggedInUser);
+
+  const handleBack = () => {
+    if (!backLink) return;
+
+    history.push(backLink);
+  }
 
   const handleUpload = () => {
     trackMetric('Clicked Navbar Upload Data');
@@ -62,6 +74,7 @@ const NavPatientHeader = ({ patient, user, trackMetric, permsOfLoggedInUser }) =
       <HeaderContainer>
         { isClinicianAccount(user)
           ? <>
+              <Back isRendered={!!backLink} onClick={handleBack} />
               <Name patient={patient} />
               <DemographicInfo patient={patient} />
               <ClinicianMenuOptions 
