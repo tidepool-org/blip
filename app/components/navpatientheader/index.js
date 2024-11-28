@@ -13,7 +13,7 @@ const UploadLaunchOverlay = require('../../components/uploadlaunchoverlay');
 
 const HeaderContainer = ({ children }) => (
   <Box variant="containers.largeBordered" mb={0} mx={[0, 0]} sx={{ width: ['100%', '100%'] }}>
-    <Flex id="patientDataHeader" px={4} py={3} 
+    <Flex id="navPatientHeader" px={4} py={3} 
       sx={{
         columnGap: 5,
         flexWrap: 'wrap',
@@ -58,7 +58,7 @@ const NavPatientHeader = ({ patient, user, trackMetric, permsOfLoggedInUser }) =
   }
 
   return (
-    <div className="patient-data-header">
+    <div className="nav-patient-header">
       <HeaderContainer>
         { isClinicianAccount(user)
           ? <>

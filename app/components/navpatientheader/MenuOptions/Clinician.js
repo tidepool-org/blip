@@ -18,7 +18,7 @@ const ClinicianMenuOptions = ({ t, onViewProfile, onUpload, onViewData }) => {
       {onViewData && 
         <Box>
           <Button
-            id="patientDataHeader_viewDataButton"
+            id="navPatientHeader_viewDataButton"
             onClick={onViewData}
             icon={BarChartIcon}
             iconLabel="View"
@@ -30,7 +30,7 @@ const ClinicianMenuOptions = ({ t, onViewProfile, onUpload, onViewData }) => {
       {onViewProfile && 
         <Box>
           <Button
-            id="patientDataHeader_profileButton"
+            id="navPatientHeader_profileButton"
             onClick={onViewProfile}
             icon={PersonOutlineIcon}
             iconLabel="Profile"
@@ -42,7 +42,7 @@ const ClinicianMenuOptions = ({ t, onViewProfile, onUpload, onViewData }) => {
       {onUpload && 
         <Box>
           <Button
-            id="patientDataHeader_uploadButton"
+            id="navPatientHeader_uploadButton"
             onClick={onUpload}
             icon={PublishIcon}
             iconLabel="Upload"

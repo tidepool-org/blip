@@ -45,11 +45,11 @@ describe.only('NavPatientHeader', () => {
         expect(wrapper.text()).not.to.include('567890');
         expect(wrapper.text()).not.to.include('2010-10-20');
 
-        expect(wrapper.find('button#patientDataHeader_viewDataButton').exists()).to.be.true;
-        expect(wrapper.find('button#patientDataHeader_profileButton').exists()).to.be.true;
+        expect(wrapper.find('button#navPatientHeader_viewDataButton').exists()).to.be.true;
+        expect(wrapper.find('button#navPatientHeader_profileButton').exists()).to.be.true;
 
-        expect(wrapper.find('button#patientDataHeader_shareButton').exists()).to.be.false;
-        expect(wrapper.find('button#patientDataHeader_uploadButton').exists()).to.be.false;
+        expect(wrapper.find('button#navPatientHeader_shareButton').exists()).to.be.false;
+        expect(wrapper.find('button#navPatientHeader_uploadButton').exists()).to.be.false;
       })
     });
 
@@ -71,10 +71,10 @@ describe.only('NavPatientHeader', () => {
         expect(wrapper.text()).not.to.include('567890');
         expect(wrapper.text()).not.to.include('2010-10-20');
 
-        expect(wrapper.find('button#patientDataHeader_viewDataButton').exists()).to.be.true;
-        expect(wrapper.find('button#patientDataHeader_profileButton').exists()).to.be.true;
-        expect(wrapper.find('button#patientDataHeader_shareButton').exists()).to.be.true;
-        expect(wrapper.find('button#patientDataHeader_uploadButton').exists()).to.be.true;
+        expect(wrapper.find('button#navPatientHeader_viewDataButton').exists()).to.be.true;
+        expect(wrapper.find('button#navPatientHeader_profileButton').exists()).to.be.true;
+        expect(wrapper.find('button#navPatientHeader_shareButton').exists()).to.be.true;
+        expect(wrapper.find('button#navPatientHeader_uploadButton').exists()).to.be.true;
       })
     });
 
@@ -96,10 +96,10 @@ describe.only('NavPatientHeader', () => {
         expect(wrapper.text()).to.include('567890');
         expect(wrapper.text()).to.include('2010-10-20');
 
-        expect(wrapper.find('button#patientDataHeader_viewDataButton').exists()).to.be.true;
-        expect(wrapper.find('button#patientDataHeader_profileButton').exists()).to.be.true;
-        expect(wrapper.find('button#patientDataHeader_shareButton').exists()).to.be.false;
-        expect(wrapper.find('button#patientDataHeader_uploadButton').exists()).to.be.false;
+        expect(wrapper.find('button#navPatientHeader_viewDataButton').exists()).to.be.true;
+        expect(wrapper.find('button#navPatientHeader_profileButton').exists()).to.be.true;
+        expect(wrapper.find('button#navPatientHeader_shareButton').exists()).to.be.false;
+        expect(wrapper.find('button#navPatientHeader_uploadButton').exists()).to.be.false;
       })
     });
 
@@ -121,10 +121,10 @@ describe.only('NavPatientHeader', () => {
         expect(wrapper.text()).to.include('567890');
         expect(wrapper.text()).to.include('2010-10-20');
 
-        expect(wrapper.find('button#patientDataHeader_viewDataButton').exists()).to.be.true;
-        expect(wrapper.find('button#patientDataHeader_profileButton').exists()).to.be.true;
-        expect(wrapper.find('button#patientDataHeader_shareButton').exists()).to.be.false;
-        expect(wrapper.find('button#patientDataHeader_uploadButton').exists()).to.be.true;
+        expect(wrapper.find('button#navPatientHeader_viewDataButton').exists()).to.be.true;
+        expect(wrapper.find('button#navPatientHeader_profileButton').exists()).to.be.true;
+        expect(wrapper.find('button#navPatientHeader_shareButton').exists()).to.be.false;
+        expect(wrapper.find('button#navPatientHeader_uploadButton').exists()).to.be.true;
       })
     });
   });
@@ -148,21 +148,21 @@ describe.only('NavPatientHeader', () => {
     })
 
     it('View button links to correct page', () => {
-      const button = wrapper.find('button#patientDataHeader_viewDataButton').hostNodes();
+      const button = wrapper.find('button#navPatientHeader_viewDataButton').hostNodes();
       button.simulate('click');
   
       expect(mockHistory.push.calledOnceWithExactly('/patients/1234/data')).to.be.true;
     })
   
     it('Profile button links to correct page', () => {
-      const button = wrapper.find('button#patientDataHeader_profileButton').hostNodes();
+      const button = wrapper.find('button#navPatientHeader_profileButton').hostNodes();
       button.simulate('click');
   
       expect(mockHistory.push.calledOnceWithExactly('/patients/1234/profile')).to.be.true;
     })
   
     it('Share button links to correct page', () => {
-      const button = wrapper.find('button#patientDataHeader_shareButton').hostNodes();
+      const button = wrapper.find('button#navPatientHeader_shareButton').hostNodes();
       button.simulate('click');
   
       expect(mockHistory.push.calledOnceWithExactly('/patients/1234/share')).to.be.true;
@@ -171,7 +171,7 @@ describe.only('NavPatientHeader', () => {
     it('Upload Button opens the upload dialog', () => {
       expect(wrapper.find('.UploadLaunchOverlay').exists()).to.be.false;
   
-      const button = wrapper.find('button#patientDataHeader_uploadButton').hostNodes();
+      const button = wrapper.find('button#navPatientHeader_uploadButton').hostNodes();
       button.simulate('click');
   
       expect(wrapper.find('.UploadLaunchOverlay').exists()).to.be.true;

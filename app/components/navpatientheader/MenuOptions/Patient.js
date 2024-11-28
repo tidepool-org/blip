@@ -19,7 +19,7 @@ const PatientMenuOptions = ({ t, onShare, onUpload, onViewProfile, onViewData })
       {onViewData && 
         <Box>
           <Button
-            id="patientDataHeader_viewDataButton"
+            id="navPatientHeader_viewDataButton"
             onClick={onViewData}
             icon={BarChartIcon}
             iconLabel="View"
@@ -31,7 +31,7 @@ const PatientMenuOptions = ({ t, onShare, onUpload, onViewProfile, onViewData })
       {onViewProfile && 
         <Box>
           <Button
-            id="patientDataHeader_profileButton"
+            id="navPatientHeader_profileButton"
             onClick={onViewProfile}
             icon={PersonOutlineIcon}
             iconLabel="Profile"
@@ -43,7 +43,7 @@ const PatientMenuOptions = ({ t, onShare, onUpload, onViewProfile, onViewData })
       {onShare && 
         <Box>
           <Button
-            id="patientDataHeader_shareButton"
+            id="navPatientHeader_shareButton"
             onClick={onShare}
             icon={ShareIcon}
             iconLabel="Share"
@@ -55,7 +55,7 @@ const PatientMenuOptions = ({ t, onShare, onUpload, onViewProfile, onViewData })
       {onUpload && 
         <Box>
           <Button
-            id="patientDataHeader_uploadButton"
+            id="navPatientHeader_uploadButton"
             onClick={onUpload}
             icon={PublishIcon}
             iconLabel="Upload"
