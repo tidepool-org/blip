@@ -347,7 +347,7 @@ export class AppComponent extends React.Component {
   renderNavPatientHeader() {
     const { 
       patient, 
-      userIsCurrentPatient,
+      user,
       permsOfLoggedInUser,
       context: { trackMetric }
     } = this.props;
@@ -357,7 +357,7 @@ export class AppComponent extends React.Component {
     return (
       <NavPatientHeader 
         patient={patient} 
-        isUserPatient={userIsCurrentPatient} 
+        user={user} 
         trackMetric={trackMetric} 
         permsOfLoggedInUser={permsOfLoggedInUser}
       />

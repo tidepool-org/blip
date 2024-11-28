@@ -7,22 +7,27 @@ import Name from './Name';
 import DemographicInfo from './DemographicInfo';
 import PatientMenuOptions from './MenuOptions/Patient';
 import ClinicianMenuOptions from './MenuOptions/Clinician';
+import { isClinicianAccount } from '../../core/personutils';
 
 const UploadLaunchOverlay = require('../../components/uploadlaunchoverlay');
 
-const innerContainerStyleProps = {
-  px: 4, 
-  py: 3, 
-  sx: {
-    columnGap: 5,
-    flexWrap: 'wrap',
-    justifyContent: ['center', 'space-between'],
-    alignItems: 'center',
-    rowGap: 2,
-  }
-};
+const HeaderContainer = ({ children }) => (
+  <Box variant="containers.largeBordered" mb={0} mx={[0, 0]} sx={{ width: ['100%', '100%'] }}>
+    <Flex id="patientDataHeader" px={4} py={3} 
+      sx={{
+        columnGap: 5,
+        flexWrap: 'wrap',
+        justifyContent: ['center', 'space-between'],
+        alignItems: 'center',
+        rowGap: 2,
+      }}
+    >
+      {children}
+    </Flex>
+  </Box>
+);
 
-const NavPatientHeader = ({ patient, isUserPatient, trackMetric, permsOfLoggedInUser }) => {
+const NavPatientHeader = ({ patient, user, trackMetric, permsOfLoggedInUser }) => {
   const history = useHistory();
   const [isUploadOverlayOpen, setIsUploadOverlayOpen] = useState(false);
 
@@ -54,28 +59,28 @@ const NavPatientHeader = ({ patient, isUserPatient, trackMetric, permsOfLoggedIn
 
   return (
     <div className="patient-data-header">
-      <Box variant="containers.largeBordered" mb={0} mx={[0, 0]} sx={{ width: ['100%', '100%']}}>
-        <Flex id="patientDataHeader" { ...innerContainerStyleProps }>
-
-          <Name patient={patient} />
-
-          { !isUserPatient && <DemographicInfo patient={patient} /> }
-
-          { isUserPatient 
-            ? <PatientMenuOptions 
+      <HeaderContainer>
+        { isClinicianAccount(user)
+          ? <>
+              <Name patient={patient} />
+              <DemographicInfo patient={patient} />
+              <ClinicianMenuOptions 
+                onViewData={handleViewData}
+                onViewProfile={handleViewProfile}
+                onUpload={canUpload ? handleUpload : null}
+              /> 
+            </>
+          : <>
+              <Name patient={patient} />
+              <PatientMenuOptions 
                 onViewData={handleViewData}
                 onViewProfile={handleViewProfile}
                 onUpload={canUpload ? handleUpload : null}
                 onShare={canShare ? handleShare : null}
               /> 
-            : <ClinicianMenuOptions 
-                onViewData={handleViewData}
-                onViewProfile={handleViewProfile}
-                onUpload={canUpload ? handleUpload : null}
-              /> 
-          }
-        </Flex>
-      </Box>
+            </>
+        }
+      </HeaderContainer>
       { isUploadOverlayOpen &&
         <UploadLaunchOverlay modalDismissHandler={() => setIsUploadOverlayOpen(false)} /> 
       }
