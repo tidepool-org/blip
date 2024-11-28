@@ -15,7 +15,7 @@ const defaultPatientProps = {
   }
 };
 
-describe.only('NavPatientHeader', () => {
+describe('NavPatientHeader', () => {
   const mockHistory = { push: sinon.stub() }
   const mockTrackMetric = sinon.stub();
 
