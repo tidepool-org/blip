@@ -150,7 +150,7 @@ describe('NavPatientHeader', () => {
       const button = wrapper.find('button#navPatientHeader_viewDataButton').hostNodes();
       button.simulate('click');
   
-      expect(mockTrackMetric).calledOnceWithExactly('Clicked Navbar View Data');
+      expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar View Data'));
       expect(mockHistory.push.calledOnceWithExactly('/patients/1234/data')).to.be.true;
     })
   
@@ -158,7 +158,7 @@ describe('NavPatientHeader', () => {
       const button = wrapper.find('button#navPatientHeader_profileButton').hostNodes();
       button.simulate('click');
   
-      expect(mockTrackMetric).calledOnceWithExactly('Clicked Navbar Name');
+      expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar Name'));
       expect(mockHistory.push.calledOnceWithExactly('/patients/1234/profile')).to.be.true;
     })
   
@@ -166,7 +166,7 @@ describe('NavPatientHeader', () => {
       const button = wrapper.find('button#navPatientHeader_shareButton').hostNodes();
       button.simulate('click');
   
-      expect(mockTrackMetric).calledOnceWithExactly('Clicked Navbar Share Data');
+      expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar Share Data'));
       expect(mockHistory.push.calledOnceWithExactly('/patients/1234/share')).to.be.true;
     })
   
@@ -176,7 +176,7 @@ describe('NavPatientHeader', () => {
       const button = wrapper.find('button#navPatientHeader_uploadButton').hostNodes();
       button.simulate('click');
   
-      expect(mockTrackMetric).calledOnceWithExactly('Clicked Navbar Upload Data');
+      expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar Upload Data'));
       expect(wrapper.find('.UploadLaunchOverlay').exists()).to.be.true;
     });
   });
@@ -202,7 +202,7 @@ describe('NavPatientHeader', () => {
       const button = wrapper.find('button#navPatientHeader_viewDataButton').hostNodes();
       button.simulate('click');
   
-      expect(mockTrackMetric).calledOnceWithExactly('Clicked Navbar View Data');
+      expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar View Data'));
       expect(mockHistory.push.calledOnceWithExactly('/patients/1234/data')).to.be.true;
     })
   
@@ -210,7 +210,7 @@ describe('NavPatientHeader', () => {
       const button = wrapper.find('button#navPatientHeader_profileButton').hostNodes();
       button.simulate('click');
   
-      expect(mockTrackMetric).calledOnceWithExactly('Clicked Navbar Name');    
+      expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar Name'));
       expect(mockHistory.push.calledOnceWithExactly('/patients/1234/profile')).to.be.true;
     })
   
@@ -220,7 +220,7 @@ describe('NavPatientHeader', () => {
       const button = wrapper.find('button#navPatientHeader_uploadButton').hostNodes();
       button.simulate('click');
   
-      expect(mockTrackMetric).calledOnceWithExactly('Clicked Navbar Upload Data');
+      expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar Upload Data'));
       expect(wrapper.find('.UploadLaunchOverlay').exists()).to.be.true;
     });
   });
