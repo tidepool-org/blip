@@ -147,35 +147,30 @@ describe('NavPatientHeader', () => {
     })
 
     it('View button links to correct page', () => {
-      const button = wrapper.find('button#navPatientHeader_viewDataButton').hostNodes();
-      button.simulate('click');
-  
+      wrapper.find('button#navPatientHeader_viewDataButton').simulate('click');
+
       expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar View Data'));
       expect(mockHistory.push.calledOnceWithExactly('/patients/1234/data')).to.be.true;
     })
   
     it('Profile button links to correct page', () => {
-      const button = wrapper.find('button#navPatientHeader_profileButton').hostNodes();
-      button.simulate('click');
-  
+      wrapper.find('button#navPatientHeader_profileButton').simulate('click');
+
       expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar Name'));
       expect(mockHistory.push.calledOnceWithExactly('/patients/1234/profile')).to.be.true;
     })
   
     it('Share button links to correct page', () => {
-      const button = wrapper.find('button#navPatientHeader_shareButton').hostNodes();
-      button.simulate('click');
-  
+      wrapper.find('button#navPatientHeader_shareButton').simulate('click');
+
       expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar Share Data'));
       expect(mockHistory.push.calledOnceWithExactly('/patients/1234/share')).to.be.true;
     })
   
     it('Upload Button opens the upload dialog', () => {
       expect(wrapper.find('.UploadLaunchOverlay').exists()).to.be.false;
-  
-      const button = wrapper.find('button#navPatientHeader_uploadButton').hostNodes();
-      button.simulate('click');
-  
+      wrapper.find('button#navPatientHeader_uploadButton').simulate('click');  
+
       expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar Upload Data'));
       expect(wrapper.find('.UploadLaunchOverlay').exists()).to.be.true;
     });
@@ -199,26 +194,21 @@ describe('NavPatientHeader', () => {
     })
 
     it('View button links to correct page', () => {
-      const button = wrapper.find('button#navPatientHeader_viewDataButton').hostNodes();
-      button.simulate('click');
+      wrapper.find('button#navPatientHeader_viewDataButton').simulate('click');
   
       expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar View Data'));
       expect(mockHistory.push.calledOnceWithExactly('/patients/1234/data')).to.be.true;
     })
   
     it('Profile button links to correct page', () => {
-      const button = wrapper.find('button#navPatientHeader_profileButton').hostNodes();
-      button.simulate('click');
-  
+      wrapper.find('button#navPatientHeader_profileButton').simulate('click');
       expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar Name'));
       expect(mockHistory.push.calledOnceWithExactly('/patients/1234/profile')).to.be.true;
     })
   
     it('Upload Button opens the upload dialog', () => {
       expect(wrapper.find('.UploadLaunchOverlay').exists()).to.be.false;
-  
-      const button = wrapper.find('button#navPatientHeader_uploadButton').hostNodes();
-      button.simulate('click');
+      wrapper.find('button#navPatientHeader_uploadButton').simulate('click');
   
       expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar Upload Data'));
       expect(wrapper.find('.UploadLaunchOverlay').exists()).to.be.true;
