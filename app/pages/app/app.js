@@ -352,7 +352,7 @@ export class AppComponent extends React.Component {
       context: { trackMetric }
     } = this.props;
 
-    if (!patient) return null; // only show on pages with a patient of focus
+    if (!this.isPatientVisibleInNavbar()) return null; // only show on pages with a patient of focus
     
     return (
       <NavPatientHeader 
