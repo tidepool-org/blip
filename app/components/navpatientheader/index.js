@@ -9,7 +9,7 @@ import DemographicInfo from './DemographicInfo';
 import PatientMenuOptions from './MenuOptions/Patient';
 import ClinicianMenuOptions from './MenuOptions/Clinician';
 import { isClinicianAccount } from '../../core/personutils';
-import getPermissions from './getPermissions';
+import { getPermissions, getPatientListLink } from './navPatientHeaderHelpers';
 
 const UploadLaunchOverlay = require('../../components/uploadlaunchoverlay');
 
@@ -33,20 +33,28 @@ const NavPatientHeader = ({
   patient, 
   user, 
   permsOfLoggedInUser,
-  backLink = null,
   trackMetric,
+  clinicFlowActive, 
+  selectedClinicId, 
+  query, 
+  currentPage
 }) => {
   const history = useHistory();
   const [isUploadOverlayOpen, setIsUploadOverlayOpen] = useState(false);
 
   if (!patient?.profile) return null;
 
+  const { 
+    showPatientListLink, 
+    patientListLink,
+  } = getPatientListLink(clinicFlowActive, selectedClinicId, user, query, currentPage);
+
   const { canUpload, canShare } = getPermissions(patient, permsOfLoggedInUser);
 
   const handleBack = () => {
-    if (!backLink) return;
+    if (!showPatientListLink) return;
 
-    history.push(backLink);
+    history.push(patientListLink);
   }
 
   const handleUpload = () => {
@@ -74,7 +82,7 @@ const NavPatientHeader = ({
       <HeaderContainer>
         { isClinicianAccount(user)
           ? <>
-              <Back isRendered={!!backLink} onClick={handleBack} />
+              <Back isRendered={showPatientListLink} onClick={handleBack} />
               <Name patient={patient} />
               <DemographicInfo patient={patient} />
               <ClinicianMenuOptions 

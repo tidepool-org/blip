@@ -26,7 +26,7 @@ describe('NavPatientHeader', () => {
     mockHistory.push.reset();
   });
 
-  describe(('visibility of patient info and actions'), () => {
+  describe('visibility of patient info and actions', () => {
     context('personal user with non-root permissions', () => {
       const props = { // personal user with non-root permissions;
         user: { roles: [] },
@@ -129,7 +129,7 @@ describe('NavPatientHeader', () => {
     });
   });
 
-  describe(('button functions for personal users'), () => {
+  describe('button functions for personal users', () => {
     let wrapper;
 
     beforeEach(() => {
@@ -181,7 +181,7 @@ describe('NavPatientHeader', () => {
     });
   });
 
-  describe(('button functions for clinicaian users'), () => {
+  describe('button functions for clinicaian users', () => {
     let wrapper;
 
     beforeEach(() => {
@@ -223,5 +223,87 @@ describe('NavPatientHeader', () => {
       expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar Upload Data'));
       expect(wrapper.find('.UploadLaunchOverlay').exists()).to.be.true;
     });
+  });
+
+  describe('back button', () => {
+    let wrapper;
+    let backButton;
+
+    describe('viewing patient data or profile views as a clinician user', () => {
+      const clinicianUserProps = {
+        trackMetric: mockTrackMetric,
+        patient: { ...defaultPatientProps, permissions: { root: false } },
+        user: { roles: ['clinic'] },
+      };
+
+      it('should render on data page', () => {
+        wrapper = mount(<BrowserRouter><NavPatientHeader {...clinicianUserProps} currentPage="/patients/abc123/data" /></BrowserRouter>);
+        wrapper.find('button#navPatientHeader_backButton').simulate('click');
+        expect(mockHistory.push.calledOnceWithExactly('/patients')).to.be.true;
+      })
+
+      it('should not render on patients list page', () => {
+        wrapper = mount(<BrowserRouter><NavPatientHeader {...clinicianUserProps} currentPage="/patients" /></BrowserRouter>);
+        backButton = wrapper.find('button#navPatientHeader_backButton');
+        expect(backButton.exists()).to.be.false;
+      })
+
+      it('should render on profile page', () => {
+        wrapper = mount(<BrowserRouter><NavPatientHeader {...clinicianUserProps} currentPage="/patients/abc123/profile" /></BrowserRouter>);
+        wrapper.find('button#navPatientHeader_backButton').simulate('click');
+        expect(mockHistory.push.calledOnceWithExactly('/patients')).to.be.true;
+      })
+    })
+
+    describe('viewing patient data or profile views as a clinic clinician', () => {
+      const clinicClinicianProps = {
+        trackMetric: mockTrackMetric,
+        patient: { ...defaultPatientProps, permissions: { root: false } },
+        clinicFlowActive: true,
+        user: { isClinicMember: true },
+        selectedClinicId: 'clinic123',
+      };
+
+      it ('should render on view page', () => {
+        wrapper = mount(<BrowserRouter><NavPatientHeader {...clinicClinicianProps} currentPage="/patients/abc123/data" /></BrowserRouter>);
+        wrapper.find('button#navPatientHeader_backButton').simulate('click');
+        expect(mockHistory.push.calledOnceWithExactly('/clinic-workspace/patients')).to.be.true;
+      });
+
+      it ('should not render on patient list page', () => {
+        wrapper = mount(<BrowserRouter><NavPatientHeader {...clinicClinicianProps} currentPage="/patients" /></BrowserRouter>);
+        backButton = wrapper.find('button#navPatientHeader_backButton');
+        expect(backButton.exists()).to.be.false;
+      });
+
+      it ('should render on profile page', () => {
+        wrapper = mount(<BrowserRouter><NavPatientHeader {...clinicClinicianProps} currentPage="/patients/abc123/profile" /></BrowserRouter>);
+        wrapper.find('button#navPatientHeader_backButton').simulate('click');
+        expect(mockHistory.push.calledOnceWithExactly('/clinic-workspace/patients')).to.be.true;
+      });
+
+      it ('should link to standard patients page when null selectedClinicId', () => {
+        wrapper = mount(<BrowserRouter><NavPatientHeader {...clinicClinicianProps} currentPage="/patients/abc123/profile" selectedClinicId={null} /></BrowserRouter>);
+        // If selectedClinicId is null, we redirect to the standard patient list URL
+        wrapper.find('button#navPatientHeader_backButton').simulate('click');
+        expect(mockHistory.push.calledOnceWithExactly('/patients')).to.be.true; 
+      });
+    });
+
+    describe('viewing the TIDE dashboard view as a clinic clinician', () => {
+      it('should render a patient list link', () => {
+        const clinicClinicianProps = {
+          trackMetric: mockTrackMetric,
+          patient: { ...defaultPatientProps, permissions: { root: false } },
+          clinicFlowActive: true,
+          user: { isClinicMember: true },
+          selectedClinicId: 'clinic123',
+        };
+  
+        wrapper = mount(<BrowserRouter><NavPatientHeader {...clinicClinicianProps} currentPage="/dashboard/tide" /></BrowserRouter>);
+        wrapper.find('button#navPatientHeader_backButton').simulate('click');
+        expect(mockHistory.push.calledOnceWithExactly('/clinic-workspace/patients')).to.be.true; 
+      });
+    })
   });
 });

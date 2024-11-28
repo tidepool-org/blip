@@ -36,7 +36,6 @@ import Version from '../../components/version';
 
 import { DATA_DONATION_NONPROFITS, URL_TIDEPOOL_PLUS_CONTACT_SALES } from '../../core/constants';
 import NavPatientHeader from '../../components/navpatientheader';
-import getPatientListLink from './getPatientListLink';
 
 // Styles
 require('tideline/css/tideline.less');
@@ -358,11 +357,6 @@ export class AppComponent extends React.Component {
     } = this.props;
 
     if (!this.isPatientVisibleInNavbar()) return null; // only show on pages with a patient of focus
-
-    const { 
-      showPatientListLink, 
-      patientListLink,
-    } = getPatientListLink(clinicFlowActive, selectedClinicId, currentPage, user, query);
     
     return (
       <NavPatientHeader 
@@ -370,7 +364,10 @@ export class AppComponent extends React.Component {
         user={user} 
         trackMetric={trackMetric} 
         permsOfLoggedInUser={permsOfLoggedInUser}
-        backLink={showPatientListLink ? patientListLink : null}
+        clinicFlowActive={clinicFlowActive}
+        selectedClinicId={selectedClinicId}
+        currentPage={currentPage}
+        query={query}
       />
     );
   }

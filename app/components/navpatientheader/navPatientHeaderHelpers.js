@@ -1,6 +1,15 @@
 import personUtils from '../../core/personutils';
 
-export const getPatientListLink = (clinicFlowActive, selectedClinicId, currentPage, user, query) => {
+export const getPermissions = (patient, permsOfLoggedInUser) => {
+  const permissions = patient.permissions;
+
+  const canUpload = _.isEmpty(permissions) === false && permissions.root || _.has(permsOfLoggedInUser, 'upload');
+  const canShare = _.isEmpty(permissions) === false && permissions.root;
+
+  return { canUpload, canShare };
+}
+
+export const getPatientListLink = (clinicFlowActive, selectedClinicId, user, query, currentPage) => {
   let patientListLink = clinicFlowActive && selectedClinicId ? '/clinic-workspace/patients' : '/patients';
   if (query?.dashboard) patientListLink = `/dashboard/${query.dashboard}`;
 
@@ -13,5 +22,3 @@ export const getPatientListLink = (clinicFlowActive, selectedClinicId, currentPa
 
   return { showPatientListLink, patientListLink }
 }
-
-export default getPatientListLink;

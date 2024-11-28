@@ -18,7 +18,7 @@ const Back = ({ t, isRendered = false, onClick }) => {
       }}
     >
       <Button
-        id="navPatientHeader_viewDataButton"
+        id="navPatientHeader_backButton"
         onClick={onClick}
         icon={ChevronLeftRoundedIcon}
         iconLabel="Back"
