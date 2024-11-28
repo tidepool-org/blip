@@ -122,10 +122,10 @@ const Header = withTranslation()(class Header extends Component {
     return (
       <div className="grid patient-data-subnav">
         <div className="app-no-print patient-data-subnav-left">
-          <a href="" className={basicsLinkClass} onClick={this.props.onClickBasics}>{t('Basics')}</a>
-          <a href="" className={dayLinkClass} onClick={this.props.onClickOneDay}>{t('Daily')}</a>
-          <a href="" className={bgLogLinkClass} onClick={this.props.onClickBgLog}>{t('BG Log')}</a>
-          <a href="" className={trendsLinkClass} onClick={this.props.onClickTrends}>{t('Trends')}</a>
+            <a href="" className={basicsLinkClass} onClick={this.props.onClickBasics}>{t('Basics')}</a>
+            <a href="" className={dayLinkClass} onClick={this.props.onClickOneDay}>{t('Daily')}</a>
+            <a href="" className={bgLogLinkClass} onClick={this.props.onClickBgLog}>{t('BG Log')}</a>
+            <a href="" className={trendsLinkClass} onClick={this.props.onClickTrends}>{t('Trends')}</a>
         </div>
         <div className="patient-data-subnav-center" id="tidelineLabel">
           {this.renderNavButton(backClass, this.props.onClickBack, this.props.iconBack)}
