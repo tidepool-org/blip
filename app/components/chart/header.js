@@ -126,6 +126,7 @@ const Header = withTranslation()(class Header extends Component {
             <a href="" className={dayLinkClass} onClick={this.props.onClickOneDay}>{t('Daily')}</a>
             <a href="" className={bgLogLinkClass} onClick={this.props.onClickBgLog}>{t('BG Log')}</a>
             <a href="" className={trendsLinkClass} onClick={this.props.onClickTrends}>{t('Trends')}</a>
+            <a href="" className={settingsLinkClass} onClick={this.props.onClickSettings}>{t('Devices')}</a>
         </div>
         <div className="patient-data-subnav-center" id="tidelineLabel">
           {this.renderNavButton(backClass, this.props.onClickBack, this.props.iconBack)}
@@ -166,7 +167,6 @@ const Header = withTranslation()(class Header extends Component {
             />
             {t('Print')}
           </a>
-          <a href="" className={settingsLinkClass} onClick={this.props.onClickSettings}>{t('Device settings')}</a>
         </div>
       </div>
     );

@@ -37,9 +37,7 @@
 @patient-data-subnav-vertical-padding: @spacing-small;
 @patient-data-subnav-horizontal-padding: @spacing-medium;
 
-.patient-data-subnav {
-  min-height: 40px;
-}
+@patient-data-subnav-breakpoint: 1080px;
 
 .patient-data-subnav-inner {
   color: #fff;
@@ -50,12 +48,13 @@
 }
 
 .patient-data-subnav {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  min-height: 40px;
 
-  @media (min-width: @screen-md-lg-min) {
-    justify-content: space-between;
+  display: grid;
+  grid-template-columns: 5fr 2fr 5fr;
+
+  @media screen and (max-width: @patient-data-subnav-breakpoint) {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -127,17 +126,26 @@
 .patient-data-subnav-center {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
 }
 
 .patient-data-subnav-left {
   display: flex;
   align-items: center;
+
+  @media screen and (max-width: @patient-data-subnav-breakpoint) {
+    justify-content: center;
+  }
 }
 
 .patient-data-subnav-right {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+
+  @media screen and (max-width: @patient-data-subnav-breakpoint) {
+    justify-content: center;
+  }
 }
 
 .patient-data-subnav-right-label {
