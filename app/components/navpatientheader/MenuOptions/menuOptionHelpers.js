@@ -1,4 +1,4 @@
-import colorPalette from "../../../themes/colorPalette";
+import colorPalette from '../../../themes/colorPalette';
 
 export const getButtonStyleProps = (isActive) => {
   const styleProps = {
@@ -19,5 +19,5 @@ export const getButtonStyleProps = (isActive) => {
 }
 
 export const getFinalSlug = (pathname) => {
-  return pathname.slice(pathname.lastIndexOf("/"), pathname.length);
+  return pathname.slice(pathname.lastIndexOf('/'), pathname.length);
 }

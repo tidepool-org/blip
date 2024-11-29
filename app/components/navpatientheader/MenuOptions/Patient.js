@@ -1,3 +1,4 @@
+import React from 'react';
 import { Box, Flex } from 'theme-ui';
 import { useLocation } from 'react-router-dom';
 import { withTranslation } from 'react-i18next';

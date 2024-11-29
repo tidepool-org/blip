@@ -1,3 +1,4 @@
+import React from 'react';
 import { Box } from 'theme-ui';
 import { withTranslation } from 'react-i18next';
 import colorPalette from '../../themes/colorPalette';

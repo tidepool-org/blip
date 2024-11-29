@@ -1,7 +1,7 @@
+import React from 'react';
 import { withTranslation } from 'react-i18next';
 import { Flex, Text } from 'theme-ui';
 import moment from 'moment';
-import { colors } from '../../themes/baseTheme';
 
 const JS_DATE_FORMAT = 'YYYY-MM-DD';
 

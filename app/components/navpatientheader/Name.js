@@ -1,3 +1,4 @@
+import React from 'react';
 import { Box, Text } from 'theme-ui';
 import personUtils from '../../core/personutils';
 

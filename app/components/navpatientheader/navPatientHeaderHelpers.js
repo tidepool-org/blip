@@ -1,4 +1,5 @@
 import personUtils from '../../core/personutils';
+import _ from 'lodash';
 
 export const getPermissions = (patient, permsOfLoggedInUser) => {
   const permissions = patient.permissions;
