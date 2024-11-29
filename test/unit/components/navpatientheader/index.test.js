@@ -1,3 +1,11 @@
+/* global chai */
+/* global describe */
+/* global sinon */
+/* global afterEach */
+/* global context */
+/* global it */
+/* global beforeEach */
+
 import React from 'react';
 import { mount } from 'enzyme';
 import { BrowserRouter } from 'react-router-dom';
