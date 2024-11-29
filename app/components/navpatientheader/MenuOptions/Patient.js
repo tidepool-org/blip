@@ -32,7 +32,7 @@ const PatientMenuOptions = ({
             iconLabel="View"
             {...getButtonStyleProps(finalSlug === '/data')}
           >
-            {t("View")}
+            {t('View')}
           </Button>
         </Box>}
       {onViewProfile && 
@@ -44,7 +44,7 @@ const PatientMenuOptions = ({
             iconLabel="Profile"
             {...getButtonStyleProps(finalSlug === '/profile')}
           >
-            {t("Profile")}
+            {t('Profile')}
           </Button>
         </Box>}
       {onShare && 
@@ -56,7 +56,7 @@ const PatientMenuOptions = ({
             iconLabel="Share"
             {...getButtonStyleProps(finalSlug === '/share')}
           >
-            {t("Share")}
+            {t('Share')}
           </Button>
         </Box>}
       {onUpload && 
@@ -68,7 +68,7 @@ const PatientMenuOptions = ({
             iconLabel="Upload"
             {...getButtonStyleProps(false)}
           >
-            {t("Upload Data")}
+            {t('Upload Data')}
           </Button>
         </Box>}
     </Flex>

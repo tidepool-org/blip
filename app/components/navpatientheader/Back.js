@@ -29,7 +29,7 @@ const Back = ({ t, isRendered = false, onClick }) => {
         sx={{ fontSize: 1 }}
         pl={0}
       >
-        {t("Back")}
+        {t('Back')}
       </Button>
     </Box>
   )

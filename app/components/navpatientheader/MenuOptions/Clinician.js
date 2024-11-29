@@ -30,7 +30,7 @@ const ClinicianMenuOptions = ({
             iconLabel="View"
             {...getButtonStyleProps(finalSlug === '/data')}
           >
-            {t("View")}
+            {t('View')}
           </Button>
         </Box>}
       {onViewProfile && 
@@ -42,7 +42,7 @@ const ClinicianMenuOptions = ({
             iconLabel="Profile"
             {...getButtonStyleProps(finalSlug === '/profile')}
           >
-            {t("Patient Profile")}
+            {t('Patient Profile')}
           </Button>
         </Box>}
       {onUpload && 
@@ -54,7 +54,7 @@ const ClinicianMenuOptions = ({
             iconLabel="Upload"
             {...getButtonStyleProps(false)}
           >
-            {t("Upload Data")}
+            {t('Upload Data')}
           </Button>
         </Box>}
     </Flex>
