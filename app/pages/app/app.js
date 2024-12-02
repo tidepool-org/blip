@@ -352,7 +352,6 @@ export class AppComponent extends React.Component {
       context: { trackMetric },
       clinicFlowActive,
       selectedClinicId,
-      location: currentPage,
       query,
     } = this.props;
 
@@ -366,7 +365,6 @@ export class AppComponent extends React.Component {
         permsOfLoggedInUser={permsOfLoggedInUser}
         clinicFlowActive={clinicFlowActive}
         selectedClinicId={selectedClinicId}
-        currentPage={currentPage}
         query={query}
       />
     );

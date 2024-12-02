@@ -7,9 +7,7 @@ import ChevronLeftRoundedIcon from '@material-ui/icons/ChevronLeftRounded';
 
 import Button from '../elements/Button';
 
-const Back = ({ t, isRendered = false, onClick }) => {
-  if (!isRendered) return null;
-
+const Back = ({ t, onClick }) => {
   return (
     <Box 
       pr={3} 

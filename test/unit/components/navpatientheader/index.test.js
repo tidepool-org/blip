@@ -53,6 +53,7 @@ describe('NavPatientHeader', () => {
         expect(wrapper.text()).not.to.include('567890');
         expect(wrapper.text()).not.to.include('2010-10-20');
 
+        expect(wrapper.find('button#navPatientHeader_backButton').exists()).to.be.false;
         expect(wrapper.find('button#navPatientHeader_viewDataButton').exists()).to.be.true;
         expect(wrapper.find('button#navPatientHeader_profileButton').exists()).to.be.true;
 
@@ -79,6 +80,7 @@ describe('NavPatientHeader', () => {
         expect(wrapper.text()).not.to.include('567890');
         expect(wrapper.text()).not.to.include('2010-10-20');
 
+        expect(wrapper.find('button#navPatientHeader_backButton').exists()).to.be.false;
         expect(wrapper.find('button#navPatientHeader_viewDataButton').exists()).to.be.true;
         expect(wrapper.find('button#navPatientHeader_profileButton').exists()).to.be.true;
         expect(wrapper.find('button#navPatientHeader_shareButton').exists()).to.be.true;
@@ -104,6 +106,7 @@ describe('NavPatientHeader', () => {
         expect(wrapper.text()).to.include('567890');
         expect(wrapper.text()).to.include('2010-10-20');
 
+        expect(wrapper.find('button#navPatientHeader_backButton').exists()).to.be.true;
         expect(wrapper.find('button#navPatientHeader_viewDataButton').exists()).to.be.true;
         expect(wrapper.find('button#navPatientHeader_profileButton').exists()).to.be.true;
         expect(wrapper.find('button#navPatientHeader_shareButton').exists()).to.be.false;
@@ -129,6 +132,7 @@ describe('NavPatientHeader', () => {
         expect(wrapper.text()).to.include('567890');
         expect(wrapper.text()).to.include('2010-10-20');
 
+        expect(wrapper.find('button#navPatientHeader_backButton').exists()).to.be.true;
         expect(wrapper.find('button#navPatientHeader_viewDataButton').exists()).to.be.true;
         expect(wrapper.find('button#navPatientHeader_profileButton').exists()).to.be.true;
         expect(wrapper.find('button#navPatientHeader_shareButton').exists()).to.be.false;
@@ -184,7 +188,7 @@ describe('NavPatientHeader', () => {
     });
   });
 
-  describe('button functions for clinicaian users', () => {
+  describe('button functions for clinician users', () => {
     let wrapper;
 
     beforeEach(() => {
@@ -225,7 +229,6 @@ describe('NavPatientHeader', () => {
 
   describe('back button', () => {
     let wrapper;
-    let backButton;
 
     describe('viewing patient data or profile views as a clinician user', () => {
       const clinicianUserProps = {
@@ -238,12 +241,6 @@ describe('NavPatientHeader', () => {
         wrapper = mount(<BrowserRouter><NavPatientHeader {...clinicianUserProps} currentPage="/patients/abc123/data" /></BrowserRouter>);
         wrapper.find('button#navPatientHeader_backButton').simulate('click');
         expect(mockHistory.push.calledOnceWithExactly('/patients')).to.be.true;
-      })
-
-      it('should not render on patients list page', () => {
-        wrapper = mount(<BrowserRouter><NavPatientHeader {...clinicianUserProps} currentPage="/patients" /></BrowserRouter>);
-        backButton = wrapper.find('button#navPatientHeader_backButton');
-        expect(backButton.exists()).to.be.false;
       })
 
       it('should render on profile page', () => {
@@ -266,12 +263,6 @@ describe('NavPatientHeader', () => {
         wrapper = mount(<BrowserRouter><NavPatientHeader {...clinicClinicianProps} currentPage="/patients/abc123/data" /></BrowserRouter>);
         wrapper.find('button#navPatientHeader_backButton').simulate('click');
         expect(mockHistory.push.calledOnceWithExactly('/clinic-workspace/patients')).to.be.true;
-      });
-
-      it ('should not render on patient list page', () => {
-        wrapper = mount(<BrowserRouter><NavPatientHeader {...clinicClinicianProps} currentPage="/patients" /></BrowserRouter>);
-        backButton = wrapper.find('button#navPatientHeader_backButton');
-        expect(backButton.exists()).to.be.false;
       });
 
       it ('should render on profile page', () => {

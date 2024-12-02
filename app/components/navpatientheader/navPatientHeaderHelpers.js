@@ -10,16 +10,9 @@ export const getPermissions = (patient, permsOfLoggedInUser) => {
   return { canUpload, canShare };
 }
 
-export const getPatientListLink = (clinicFlowActive, selectedClinicId, user, query, currentPage) => {
+export const getPatientListLink = (clinicFlowActive, selectedClinicId, query) => {
   let patientListLink = clinicFlowActive && selectedClinicId ? '/clinic-workspace/patients' : '/patients';
   if (query?.dashboard) patientListLink = `/dashboard/${query.dashboard}`;
 
-  const isDashboardView = /^\/dashboard\//.test(currentPage);
-
-  const showPatientListLink = personUtils.isClinicianAccount(user) && (
-    /^\/patients\/.*\/(profile|data)/.test(currentPage) ||
-    isDashboardView
-  );
-
-  return { showPatientListLink, patientListLink, isDashboardView }
+  return { patientListLink }
 }

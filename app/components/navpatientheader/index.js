@@ -37,29 +37,17 @@ const NavPatientHeader = ({
   clinicFlowActive, 
   selectedClinicId, 
   query, 
-  currentPage
 }) => {
   const history = useHistory();
   const [isUploadOverlayOpen, setIsUploadOverlayOpen] = useState(false);
 
   if (!patient?.profile) return null;
 
-  const { 
-    isDashboardView,
-    showPatientListLink, 
-    patientListLink,
-  } = getPatientListLink(clinicFlowActive, selectedClinicId, user, query, currentPage);
-
+  const { patientListLink } = getPatientListLink(clinicFlowActive, selectedClinicId, query);
   const { canUpload, canShare } = getPermissions(patient, permsOfLoggedInUser);
 
   const handleBack = () => {
-    if (!showPatientListLink) return;
-
-    trackMetric('Clinic - View patient list', {
-      clinicId: selectedClinicId,
-      source: isDashboardView ? 'Dashboard' : 'Patient data',
-    });
-    
+    trackMetric('Clinic - View patient list', { clinicId: selectedClinicId, source: 'Patient data' });
     history.push(patientListLink);
   }
 
@@ -88,7 +76,7 @@ const NavPatientHeader = ({
       <HeaderContainer>
         { isClinicianAccount(user)
           ? <>
-              <Back isRendered={showPatientListLink} onClick={handleBack} />
+              <Back onClick={handleBack} />
               <Name patient={patient} />
               <DemographicInfo patient={patient} />
               <ClinicianMenuOptions 
