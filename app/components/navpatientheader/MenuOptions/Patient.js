@@ -32,7 +32,7 @@ const PatientMenuOptions = ({
             iconLabel="View"
             {...getButtonStyleProps(finalSlug === '/data')}
           >
-            {t('View')}
+            {t('View Data')}
           </Button>
         </Box>}
       {onViewProfile && 
