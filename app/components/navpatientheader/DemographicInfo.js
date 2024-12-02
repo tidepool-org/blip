@@ -23,7 +23,6 @@ const DemographicInfo = ({ t, patient }) => {
   const { birthday, mrn } = patient.profile.patient;
 
   const hasValidBirthday = moment(birthday, 'YYYY-MM-DD', true).isValid();
-  const hasMrn = !!mrn
 
   return (
     <DemographicsContainer>
@@ -37,15 +36,14 @@ const DemographicInfo = ({ t, patient }) => {
           </Flex>
         </Flex>}
 
-      { hasMrn && 
         <Flex sx={{ color: 'text.primary', flexShrink: 0, gap: 2, fontSize: 1, alignItems: 'flex-end' }}>
           <Text>{t('MRN:')}</Text>
           <Flex sx={{ columnGap: 2, alignItems: 'flex-start' }}>
             <Text as="span" sx={{ whiteSpace: 'nowrap', fontWeight: 'medium' }}>
-              {mrn}
+              {mrn || <>&mdash;</>}
             </Text>
           </Flex>
-        </Flex>}
+        </Flex>
     </DemographicsContainer>
   )
 };
