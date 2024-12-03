@@ -46,20 +46,20 @@ describe('Navbar', ()  => {
     it('should render without problems when required props present', () => {
       expect(consoleErrorSpy.callCount).to.equal(0);
     });
-  });
 
-  it('should render a patient list link when viewing the TIDE dashboard view as a clinic clinician', () => {
-    const clinicClinicianProps = {
-      ...props,
-      clinicFlowActive: true,
-      user: {
-        isClinicMember: true,
-      },
-      selectedClinicId: 'clinic123',
-    };
-
-    wrapper = shallow(<Navbar {...clinicClinicianProps} currentPage="/dashboard/tide" />).dive();
-    expect(wrapper.find('Link[to="/clinic-workspace/patients"]')).to.have.lengthOf(1);
+    it('should render a patient list link when viewing the TIDE dashboard view as a clinic clinician', () => {
+      const clinicClinicianProps = {
+        ...props,
+        clinicFlowActive: true,
+        user: {
+          isClinicMember: true,
+        },
+        selectedClinicId: 'clinic123',
+      };
+  
+      wrapper = shallow(<Navbar {...clinicClinicianProps} currentPage="/dashboard/tide" />).dive();
+      expect(wrapper.find('Link[to="/clinic-workspace/patients"]')).to.have.lengthOf(1);
+    });
   });
 
   describe('interactions', () => {
