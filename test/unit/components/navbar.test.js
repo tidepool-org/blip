@@ -48,6 +48,20 @@ describe('Navbar', ()  => {
     });
   });
 
+  it('should render a patient list link when viewing the TIDE dashboard view as a clinic clinician', () => {
+    const clinicClinicianProps = {
+      ...props,
+      clinicFlowActive: true,
+      user: {
+        isClinicMember: true,
+      },
+      selectedClinicId: 'clinic123',
+    };
+
+    wrapper = shallow(<Navbar {...clinicClinicianProps} currentPage="/dashboard/tide" />).dive();
+    expect(wrapper.find('Link[to="/clinic-workspace/patients"]')).to.have.lengthOf(1);
+  });
+
   describe('interactions', () => {
     it('should fire trackMetric when the logo is clicked', () => {
       const logo = wrapper.find('.Navbar-logo');
