@@ -15,8 +15,8 @@ import utils from '../../../../app/core/utils';
 const expect = chai.expect;
 
 const devices = {
-  cgms: [{ id: prescriptionFormConstants.deviceIdMap.dexcomG6 }],
-  pumps: [{ id: prescriptionFormConstants.deviceIdMap.palmtree }],
+  cgms: [{ id: prescriptionFormConstants.deviceIdMap.cgmSimulator }],
+  pumps: [{ id: prescriptionFormConstants.deviceIdMap.coastal }],
 };
 
 describe('prescriptionFormConstants', function() {
@@ -55,6 +55,7 @@ describe('prescriptionFormConstants', function() {
   it('should export a device-id map with known device IDs', () => {
     expect(prescriptionFormConstants.deviceIdMap).to.eql({
       cgmSimulator: 'c97bd194-5e5e-44c1-9629-4cb87be1a4c9',
+      coastal: 'e4a46eda-02f9-4faf-b8f4-ef7b40d02e4f',
       dexcomG6: 'd25c3f1b-a2e8-44e2-b3a3-fd07806fc245',
       palmtree: 'c524b5b0-632e-4125-8f6a-df9532d8f6fe',
     });
@@ -65,13 +66,14 @@ describe('prescriptionFormConstants', function() {
       'cgms',
       'pumps',
     ]);
-    expect(prescriptionFormConstants.validDeviceIds.cgms).to.be.an('array').and.contain(prescriptionFormConstants.deviceIdMap.dexcomG6);
-    expect(prescriptionFormConstants.validDeviceIds.pumps).to.be.an('array').and.contain(prescriptionFormConstants.deviceIdMap.palmtree);
+    expect(prescriptionFormConstants.validDeviceIds.cgms).to.be.an('array').and.contain(prescriptionFormConstants.deviceIdMap.cgmSimulator);
+    expect(prescriptionFormConstants.validDeviceIds.pumps).to.be.an('array').and.contain(prescriptionFormConstants.deviceIdMap.coastal);
   });
 
   it('should export extra details about each device', () => {
     expect(prescriptionFormConstants.deviceDetails).to.be.an('object').and.have.keys([
       prescriptionFormConstants.deviceIdMap.cgmSimulator,
+      prescriptionFormConstants.deviceIdMap.coastal,
       prescriptionFormConstants.deviceIdMap.dexcomG6,
       prescriptionFormConstants.deviceIdMap.palmtree,
     ]);
@@ -85,7 +87,7 @@ describe('prescriptionFormConstants', function() {
     const pumpDeviceOptions = prescriptionFormConstants.pumpDeviceOptions(devices);
     expect(pumpDeviceOptions).to.be.an('array');
     expect(_.map(pumpDeviceOptions, 'value')).to.eql([
-      prescriptionFormConstants.deviceIdMap.palmtree,
+      prescriptionFormConstants.deviceIdMap.coastal,
     ]);
 
     _.each(pumpDeviceOptions, device => {
@@ -99,7 +101,7 @@ describe('prescriptionFormConstants', function() {
     const cgmDeviceOptions = prescriptionFormConstants.cgmDeviceOptions(devices);
     expect(cgmDeviceOptions).to.be.an('array');
     expect(_.map(cgmDeviceOptions, 'value')).to.eql([
-      prescriptionFormConstants.deviceIdMap.dexcomG6,
+      prescriptionFormConstants.deviceIdMap.cgmSimulator,
     ]);
 
     _.each(cgmDeviceOptions, device => {
