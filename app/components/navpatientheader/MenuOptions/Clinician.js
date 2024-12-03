@@ -3,12 +3,12 @@ import { Box, Flex } from 'theme-ui';
 import { useLocation } from 'react-router-dom';
 import { withTranslation } from 'react-i18next';
 
-import BarChartIcon from '@material-ui/icons/BarChart';
-import PersonOutlineIcon from '@material-ui/icons/PersonOutline';
-import PublishIcon from '@material-ui/icons/Publish';
 import { getButtonStyleProps, getFinalSlug } from './menuOptionHelpers';
 
 import Button from '../../elements/Button';
+import viewIcon from '../../../core/icons/viewIcon.svg'
+import profileIcon from '../../../core/icons/profileIcon.svg'
+import uploadIcon from '../../../core/icons/uploadIcon.svg'
 
 const ClinicianMenuOptions = ({ 
   t, 
@@ -26,7 +26,7 @@ const ClinicianMenuOptions = ({
           <Button
             id="navPatientHeader_viewDataButton"
             onClick={onViewData}
-            icon={BarChartIcon}
+            iconSrc={viewIcon}
             iconLabel="View"
             {...getButtonStyleProps(finalSlug === '/data')}
           >
@@ -38,7 +38,7 @@ const ClinicianMenuOptions = ({
           <Button
             id="navPatientHeader_profileButton"
             onClick={onViewProfile}
-            icon={PersonOutlineIcon}
+            iconSrc={profileIcon}
             iconLabel="Profile"
             {...getButtonStyleProps(finalSlug === '/profile')}
           >
@@ -50,7 +50,7 @@ const ClinicianMenuOptions = ({
           <Button
             id="navPatientHeader_uploadButton"
             onClick={onUpload}
-            icon={PublishIcon}
+            iconSrc={uploadIcon}
             iconLabel="Upload"
             {...getButtonStyleProps(false)}
           >

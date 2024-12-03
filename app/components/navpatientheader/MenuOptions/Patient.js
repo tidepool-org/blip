@@ -3,12 +3,12 @@ import { Box, Flex } from 'theme-ui';
 import { useLocation } from 'react-router-dom';
 import { withTranslation } from 'react-i18next';
 
-import BarChartIcon from '@material-ui/icons/BarChart';
-import PersonOutlineIcon from '@material-ui/icons/PersonOutline';
-import PublishIcon from '@material-ui/icons/Publish';
-import ShareIcon from '@material-ui/icons/Share';
-
 import Button from '../../../components/elements/Button';
+import viewIcon from '../../../core/icons/viewIcon.svg'
+import profileIcon from '../../../core/icons/profileIcon.svg'
+import shareIcon from '../../../core/icons/shareIcon.svg'
+import uploadIcon from '../../../core/icons/uploadIcon.svg'
+
 import { getButtonStyleProps, getFinalSlug } from './menuOptionHelpers';
 
 const PatientMenuOptions = ({ 
@@ -28,7 +28,7 @@ const PatientMenuOptions = ({
           <Button
             id="navPatientHeader_viewDataButton"
             onClick={onViewData}
-            icon={BarChartIcon}
+            iconSrc={viewIcon}
             iconLabel="View"
             {...getButtonStyleProps(finalSlug === '/data')}
           >
@@ -40,7 +40,7 @@ const PatientMenuOptions = ({
           <Button
             id="navPatientHeader_profileButton"
             onClick={onViewProfile}
-            icon={PersonOutlineIcon}
+            iconSrc={profileIcon}
             iconLabel="Profile"
             {...getButtonStyleProps(finalSlug === '/profile')}
           >
@@ -52,7 +52,7 @@ const PatientMenuOptions = ({
           <Button
             id="navPatientHeader_shareButton"
             onClick={onShare}
-            icon={ShareIcon}
+            iconSrc={shareIcon}
             iconLabel="Share"
             {...getButtonStyleProps(finalSlug === '/share')}
           >
@@ -64,7 +64,7 @@ const PatientMenuOptions = ({
           <Button
             id="navPatientHeader_uploadButton"
             onClick={onUpload}
-            icon={PublishIcon}
+            iconSrc={uploadIcon}
             iconLabel="Upload"
             {...getButtonStyleProps(false)}
           >
