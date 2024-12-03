@@ -3,11 +3,13 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Flex, Box } from 'theme-ui'
 import { withTranslation } from 'react-i18next';
+import ChevronLeftRoundedIcon from '@material-ui/icons/ChevronLeftRounded';
 import _ from 'lodash';
 
 import personUtils from '../../core/personutils';
 import WorkspaceSwitcher from '../clinic/WorkspaceSwitcher';
 import NavigationMenu from './NavigationMenu';
+import Button from '../elements/Button';
 import tidepoolLogo from './images/tidepoolLogo.svg';
 import tidepoolPlusLogo from './images/tidepool+Logo.svg';
 
@@ -76,7 +78,7 @@ export default withTranslation()(class extends React.Component {
               id="patientListLink"
               onClick={() => this.props.trackMetric('Clinic - View patient list', {
                 clinicId: this.props.selectedClinicId,
-                source: isDashboardView ? 'Dashboard' : 'Patient data',
+                source: 'Dashboard'
               })}
               sx={{ display: 'inline-flex !important' }}
             >
