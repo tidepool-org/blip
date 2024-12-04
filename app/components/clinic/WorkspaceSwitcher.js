@@ -79,10 +79,8 @@ export const WorkspaceSwitcher = props => {
 
   const handleSelect = option => {
     trackMetric(...option.metric);
-
     dispatch(actions.sync.setPatientListSearchTextInput(''));
     dispatch(actions.sync.setIsPatientListVisible(false));
-
     dispatch(actions.async.selectClinic(api, option.id));
     dispatch(push(option.id ? '/clinic-workspace' : '/patients', { selectedClinicId: option.id }));
     popupState.close();
