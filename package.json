@@ -21,7 +21,7 @@
     "build-config": "NODE_ENV=production node buildconfig",
     "server": "node server",
     "update-translations": "i18next 'app/**/*.js' 'node_modules/tideline/{plugins,js}/**/*.js' \"${TIDEPOOL_DOCKER_VIZ_DIR:-'../viz'}/{storiesDatatypes,storybookDatatypes,stories,src}/**/*.js\" -c i18next-parser.config.json -o .",
-    "storybook": "yarn sb dev -p 6006 --ci",
+    "storybook": "NODE_ENV=test yarn sb dev -p 6006 --ci",
     "build-storybook": "build-storybook",
     "lint": "yarn eslint app stories test"
   },
