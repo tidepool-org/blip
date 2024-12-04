@@ -21,30 +21,29 @@ const ClinicianMenuOptions = ({
 
   return (
     <Flex sx={{ ml: 'auto', columnGap: 32 }}>
-      {onViewData && 
-        <Box>
-          <Button
-            id="navPatientHeader_viewDataButton"
-            onClick={onViewData}
-            iconSrc={viewIcon}
-            iconLabel="View"
-            {...getButtonStyleProps(finalSlug === '/data')}
-          >
-            {t('View Data')}
-          </Button>
-        </Box>}
-      {onViewProfile && 
-        <Box>
-          <Button
-            id="navPatientHeader_profileButton"
-            onClick={onViewProfile}
-            iconSrc={profileIcon}
-            iconLabel="Profile"
-            {...getButtonStyleProps(finalSlug === '/profile')}
-          >
-            {t('Patient Profile')}
-          </Button>
-        </Box>}
+      <Box>
+        <Button
+          id="navPatientHeader_viewDataButton"
+          onClick={onViewData}
+          iconSrc={viewIcon}
+          iconLabel="View"
+          {...getButtonStyleProps(finalSlug === '/data')}
+        >
+          {t('View Data')}
+        </Button>
+      </Box>
+      <Box>
+        <Button
+          id="navPatientHeader_profileButton"
+          onClick={onViewProfile}
+          iconSrc={profileIcon}
+          iconLabel="Profile"
+          {...getButtonStyleProps(finalSlug === '/profile')}
+        >
+          {t('Patient Profile')}
+        </Button>
+      </Box>
+      
       {onUpload && 
         <Box>
           <Button
