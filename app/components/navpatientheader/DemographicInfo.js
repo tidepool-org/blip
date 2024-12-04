@@ -1,6 +1,8 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { withTranslation } from 'react-i18next';
 import { Flex, Text } from 'theme-ui';
+import { selectPatient } from '../../core/selectors/selectPatient';
 import moment from 'moment';
 
 const JS_DATE_FORMAT = 'YYYY-MM-DD';
@@ -19,7 +21,8 @@ const DemographicsContainer = ({ children }) => (
   </Flex>
 )
 
-const DemographicInfo = ({ t, patient }) => {
+const DemographicInfo = ({ t }) => {
+  const { patient } = useSelector(selectPatient);
   const { birthday, mrn } = patient.profile.patient;
 
   const hasValidBirthday = moment(birthday, 'YYYY-MM-DD', true).isValid();

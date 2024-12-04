@@ -1,8 +1,9 @@
-import { useCallback, useRef, useEffect, useState } from 'react'
+import { useCallback, useRef, useEffect, useState, useContext } from 'react'
 import update from 'immutability-helper'
 
 import { useField, useFormikContext } from 'formik';
 import { isPlainObject } from 'lodash';
+import { AppContext } from '../pages/app/app';
 
 // c.f. https://gist.github.com/joshsalverda/d808d92f46a7085be062b2cbde978ae6
 // Avoids some performance issues in Formik's native <FieldArray />
@@ -183,3 +184,9 @@ export const useIsFirstRender = () => {
 
   return isFirstRenderRef.current;
 };
+
+export const useAppContext = () => {
+  const context = useContext(AppContext);
+
+  return context;
+}

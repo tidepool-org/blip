@@ -41,6 +41,8 @@ import NavPatientHeader from '../../components/navpatientheader';
 require('tideline/css/tideline.less');
 require('../../style.less');
 
+export const AppContext = React.createContext(null);
+
 export class AppComponent extends React.Component {
   static propTypes = {
     authenticated: PropTypes.bool.isRequired,
@@ -358,15 +360,7 @@ export class AppComponent extends React.Component {
     if (!this.isPatientVisibleInNavbar()) return null; // only show on pages with a patient of focus
     
     return (
-      <NavPatientHeader 
-        patient={patient} 
-        user={user} 
-        trackMetric={trackMetric} 
-        permsOfLoggedInUser={permsOfLoggedInUser}
-        clinicFlowActive={clinicFlowActive}
-        selectedClinicId={selectedClinicId}
-        query={query}
-      />
+      <NavPatientHeader />
     );
   }
 
@@ -734,15 +728,17 @@ export class AppComponent extends React.Component {
 
     return (
       <div className="app">
-        {overlay}
-        {emailbanner}
-        {patientLimitBanner}
-        {navbar}
-        {navHeader}
-        {notification}
-        {banner}
-        {this.props.children}
-        {footer}
+        <AppContext.Provider value={this.props.context}>
+          {overlay}
+          {emailbanner}
+          {patientLimitBanner}
+          {navbar}
+          {navHeader}
+          {notification}
+          {banner}
+          {this.props.children}
+          {footer}
+        </AppContext.Provider>
       </div>
     );
   }

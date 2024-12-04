@@ -1,8 +1,11 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { Box, Text } from 'theme-ui';
 import personUtils from '../../core/personutils';
+import { selectPatient } from '../../core/selectors/selectPatient';
 
-const Name = ({ patient }) => {
+const Name = () => {
+  const { patient } = useSelector(selectPatient);
   const renderedName = personUtils.patientFullName(patient);
 
   return (

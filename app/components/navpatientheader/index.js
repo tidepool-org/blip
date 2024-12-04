@@ -6,12 +6,15 @@ import _ from 'lodash';
 import Back from './Back';
 import Name from './Name';
 import DemographicInfo from './DemographicInfo';
-import PatientMenuOptions from './MenuOptions/Patient';
-import ClinicianMenuOptions from './MenuOptions/Clinician';
 import { isClinicianAccount } from '../../core/personutils';
-import { getPermissions, getPatientListLink } from './navPatientHeaderHelpers';
+import { useSelector } from 'react-redux';
+import { mapStateToProps } from '../../pages/app/app';
+import Data from './MenuOptions/Data';
+import Profile from './MenuOptions/Profile';
+import Share from './MenuOptions/Share';
+import Upload from './MenuOptions/Upload';
 
-const UploadLaunchOverlay = require('../../components/uploadlaunchoverlay');
+const MenuOptions = ({ children }) => <Flex sx={{ ml: 'auto', columnGap: 32 }}>{children}</Flex>
 
 const HeaderContainer = ({ children }) => (
   <Box variant="containers.largeBordered" mb={0} mx={[0, 0]} sx={{ width: ['100%', '100%'] }}>
@@ -29,76 +32,36 @@ const HeaderContainer = ({ children }) => (
   </Box>
 );
 
-const NavPatientHeader = ({ 
-  patient, 
-  user, 
-  permsOfLoggedInUser,
-  trackMetric,
-  clinicFlowActive, 
-  selectedClinicId, 
-  query, 
-}) => {
-  const history = useHistory();
-  const [isUploadOverlayOpen, setIsUploadOverlayOpen] = useState(false);
+const NavPatientHeader = () => {
+  const { patient, user } = useSelector(mapStateToProps);
 
   if (!patient?.profile) return null;
-
-  const { patientListLink } = getPatientListLink(clinicFlowActive, selectedClinicId, query);
-  const { canUpload, canShare } = getPermissions(patient, permsOfLoggedInUser);
-
-  const handleBack = () => {
-    trackMetric('Clinic - View patient list', { clinicId: selectedClinicId, source: 'Patient data' });
-    history.push(patientListLink);
-  }
-
-  const handleUpload = () => {
-    trackMetric('Clicked Navbar Upload Data');
-    setIsUploadOverlayOpen(true);
-  }
-
-  const handleViewData = () => {
-    trackMetric('Clicked Navbar View Data');
-    history.push(`/patients/${patient.userid}/data`);
-  }
-
-  const handleViewProfile = () => {
-    trackMetric('Clicked Navbar Name');
-    history.push(`/patients/${patient.userid}/profile`);
-  }
-  
-  const handleShare = () => {
-    trackMetric('Clicked Navbar Share Data');
-    history.push(`/patients/${patient.userid}/share`);
-  }
 
   return (
     <div className="nav-patient-header">
       <HeaderContainer>
         { isClinicianAccount(user)
           ? <>
-              <Back onClick={handleBack} />
-              <Name patient={patient} />
-              <DemographicInfo patient={patient} />
-              <ClinicianMenuOptions 
-                onViewData={handleViewData}
-                onViewProfile={handleViewProfile}
-                onUpload={canUpload ? handleUpload : null}
-              /> 
+              <Back />
+              <Name />
+              <DemographicInfo />
+              <MenuOptions>
+                <Data />
+                <Profile />
+                <Upload />
+              </MenuOptions>
             </>
           : <>
-              <Name patient={patient} />
-              <PatientMenuOptions 
-                onViewData={handleViewData}
-                onViewProfile={handleViewProfile}
-                onUpload={canUpload ? handleUpload : null}
-                onShare={canShare ? handleShare : null}
-              /> 
+              <Name />
+              <MenuOptions>
+                <Data />
+                <Profile />
+                <Share />
+                <Upload />
+              </MenuOptions>
             </>
         }
       </HeaderContainer>
-      { isUploadOverlayOpen &&
-        <UploadLaunchOverlay modalDismissHandler={() => setIsUploadOverlayOpen(false)} /> 
-      }
     </div>
   );
 }
