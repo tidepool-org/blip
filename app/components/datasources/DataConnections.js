@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
@@ -121,7 +121,7 @@ export const getConnectStateUI = (patient, loggedInUserId, providerName) => {
   const mostRecentConnectionUpdateTime = userIsPatient
     ? max([
       find(patient?.dataSources, {providerName})?.createdTime,
-      find(patient?.dataSources, {providerName})?.latestDataTime,
+      find(patient?.dataSources, {providerName})?.latestDataTime || find(patient?.dataSources, {providerName})?.lastImportTime,
       find(patient?.dataSources, {providerName})?.modifiedTime,
     ]) : max([
       find(patient?.dataSources, { providerName })?.modifiedTime,
@@ -136,9 +136,19 @@ export const getConnectStateUI = (patient, loggedInUserId, providerName) => {
     if (daysAgo < 1)  timeAgo = hoursAgo < 1 ? minutesText : hoursText;
   }
 
-  const patientConnectedMessage = find(patient?.dataSources, {providerName})?.latestDataTime
-    ? t('Last data {{timeAgo}}', { timeAgo })
-    : t('Last update {{timeAgo}}', { timeAgo });
+  let patientConnectedMessage;
+  let patientConnectedIcon;
+  let patientConnectedText = t('Connected');
+
+  if (!find(patient?.dataSources, {providerName})?.lastImportTime) {
+    patientConnectedMessage = t('This can take a few minutes');
+    patientConnectedText = t('Connecting');
+  } else if (!find(patient?.dataSources, {providerName})?.latestDataTime) {
+    patientConnectedMessage = t('No data found as of {{timeAgo}}', { timeAgo });
+  } else {
+    patientConnectedMessage = t('Last data {{timeAgo}}', { timeAgo });
+    patientConnectedIcon = CheckCircleRoundedIcon;
+  }
 
   return {
     noPendingConnections: {
@@ -173,8 +183,8 @@ export const getConnectStateUI = (patient, loggedInUserId, providerName) => {
       color: colors.text.primary,
       handler: userIsPatient ? 'disconnect' : null,
       message: userIsPatient ? patientConnectedMessage : null,
-      icon: CheckCircleRoundedIcon,
-      text: t('Connected'),
+      icon: userIsPatient ? patientConnectedIcon : CheckCircleRoundedIcon,
+      text: userIsPatient ? patientConnectedText : t('Connected'),
     },
     disconnected: {
       color: colors.feedback.warning,
@@ -204,7 +214,7 @@ export const getConnectStateUI = (patient, loggedInUserId, providerName) => {
 export const activeProviders = [
   'dexcom',
   'libre',
-  'twiist',
+  // 'twiist',
 ];
 
 export const getDataConnectionProps = (patient, loggedInUserId, selectedClinicId, dispatch) => reduce(activeProviders, (result, providerName) => {
@@ -264,11 +274,12 @@ export function DataConnections(props) {
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const dataConnectionProps = getDataConnectionProps(patient, loggedInUserId, selectedClinicId, dispatch);
+  const [processing, setProcessing] = useState(false);
 
   return (
     <Box>
       {map(activeProviders, (provider, i) => (
-        <DataConnection { ...dataConnectionProps[provider]} key={i} id={`data-connection-${provider}`} {...themeProps} />
+        <DataConnection buttonProcessing={processing} { ...dataConnectionProps[provider]} key={i} id={`data-connection-${provider}`} {...themeProps} />
       ))}
     </Box>
   );
@@ -283,6 +294,7 @@ const clinicPatientDataSourceShape = {
 
 const userDataSourceShape = {
   createdTime: PropTypes.string,
+  lastImportTime: PropTypes.string,
   latestDataTime: PropTypes.string,
   modifiedTime: PropTypes.string,
   providerName: PropTypes.string.isRequired,

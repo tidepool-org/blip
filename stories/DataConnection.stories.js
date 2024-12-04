@@ -7,7 +7,7 @@ import map from 'lodash/map';
 import noop from 'lodash/noop';
 
 import baseTheme from '../app/themes/baseTheme';
-import { providers, getDataConnectionProps } from '../app/components/datasources/DataConnections';
+import { activeProviders, getDataConnectionProps } from '../app/components/datasources/DataConnections';
 import DataConnection from '../app/components/datasources/DataConnection';
 import { Divider } from 'theme-ui';
 import { Subheading } from '../app/components/elements/FontStyles';
@@ -26,19 +26,18 @@ export default {
   decorators: [withTheme],
 };
 
-const providerNames = keys(providers);
-
 const patientWithState = (isClinicContext, state, opts = {}) => ({
   id: 'patientId',
-  dataSources: map(providerNames, providerName => ({
+  dataSources: map(activeProviders, providerName => ({
     providerName,
     state,
     createdTime: opts.createdTime,
     modifiedTime: opts.modifiedTime,
     expirationTime: opts.expirationTime,
+    lastImportTime: opts.lastImportTime,
     latestDataTime: opts.latestDataTime,
   })),
-  connectionRequests: isClinicContext && opts.createdTime ? reduce(providerNames, (res, providerName) => {
+  connectionRequests: isClinicContext && opts.createdTime ? reduce(activeProviders, (res, providerName) => {
     res[providerName] = [{ providerName, createdTime: opts.createdTime }];
     return res;
   }, {}) : undefined,
@@ -64,7 +63,7 @@ export const ClinicUser = {
       <React.Fragment>
         <Subheading>No Pending Connections</Subheading>
 
-        {map(providerNames, (provider, index) => (
+        {map(activeProviders, (provider, index) => (
           <DataConnection
             my={2}
             key={`provider-${index}`}
@@ -76,7 +75,7 @@ export const ClinicUser = {
         <Divider pt={3} sx={{ color: 'border.dividerDark' }} />
         <Subheading>Pending</Subheading>
 
-        {map(providerNames, (provider, index) => (
+        {map(activeProviders, (provider, index) => (
           <DataConnection
             my={2}
             key={`provider-${index}`}
@@ -88,7 +87,7 @@ export const ClinicUser = {
         <Divider pt={3} sx={{ color: 'border.dividerDark' }} />
         <Subheading>Pending Reconnection</Subheading>
 
-        {map(providerNames, (provider, index) => (
+        {map(activeProviders, (provider, index) => (
           <DataConnection
             my={2}
             key={`provider-${index}`}
@@ -100,7 +99,7 @@ export const ClinicUser = {
         <Divider pt={3} sx={{ color: 'border.dividerDark' }} />
         <Subheading>Pending Expired</Subheading>
 
-        {map(providerNames, (provider, index) => (
+        {map(activeProviders, (provider, index) => (
           <DataConnection
             my={2}
             key={`provider-${index}`}
@@ -112,7 +111,7 @@ export const ClinicUser = {
         <Divider pt={3} sx={{ color: 'border.dividerDark' }} />
         <Subheading>Connected</Subheading>
 
-        {map(providerNames, (provider, index) => (
+        {map(activeProviders, (provider, index) => (
           <DataConnection
             my={2}
             key={`provider-${index}`}
@@ -124,7 +123,7 @@ export const ClinicUser = {
         <Divider pt={3} sx={{ color: 'border.dividerDark' }} />
         <Subheading>Disconnected</Subheading>
 
-        {map(providerNames, (provider, index) => (
+        {map(activeProviders, (provider, index) => (
           <DataConnection
             my={2}
             key={`provider-${index}`}
@@ -136,7 +135,7 @@ export const ClinicUser = {
         <Divider pt={3} sx={{ color: 'border.dividerDark' }} />
         <Subheading>Error</Subheading>
 
-        {map(providerNames, (provider, index) => (
+        {map(activeProviders, (provider, index) => (
           <DataConnection
             my={2}
             key={`provider-${index}`}
@@ -148,7 +147,7 @@ export const ClinicUser = {
         <Divider pt={3} sx={{ color: 'border.dividerDark' }} />
         <Subheading>Unknown</Subheading>
 
-        {map(providerNames, (provider, index) => (
+        {map(activeProviders, (provider, index) => (
           <DataConnection
             my={2}
             key={`provider-${index}`}
@@ -174,7 +173,8 @@ export const PatientUser = {
   render: () => {
     const dataConnectionUnset = getDataConnectionProps(patientWithState(false), 'patientId', null, noop);
     const dataConnectionConnected = getDataConnectionProps(patientWithState(false, 'connected', { createdTime: getDateInPast(1, 'minutes') }), 'patientId', null, noop);
-    const dataConnectionConnectedWithData = getDataConnectionProps(patientWithState(false, 'connected', { latestDataTime: getDateInPast(35, 'minutes') }), 'patientId', null, noop);
+    const dataConnectionConnectedWithNoData = getDataConnectionProps(patientWithState(false, 'connected', { lastImportTime: getDateInPast(5, 'minutes') }), 'patientId', null, noop);
+    const dataConnectionConnectedWithData = getDataConnectionProps(patientWithState(false, 'connected', { lastImportTime: getDateInPast(1, 'minutes'), latestDataTime: getDateInPast(35, 'minutes') }), 'patientId', null, noop);
     const dataConnectionDisconnected = getDataConnectionProps(patientWithState(false, 'disconnected', { modifiedTime: getDateInPast(1, 'hour') }), 'patientId', null, noop);
     const dataConnectionError = getDataConnectionProps(patientWithState(false, 'error', { modifiedTime: getDateInPast(6, 'days') }), 'patientId', null, noop);
     const dataConnectionUnknown = getDataConnectionProps(patientWithState(false, 'foo'), 'patientId', null, noop);
@@ -183,7 +183,7 @@ export const PatientUser = {
       <React.Fragment>
         <Subheading>No Pending Connections</Subheading>
 
-        {map(providerNames, (provider, index) => (
+        {map(activeProviders, (provider, index) => (
           <DataConnection
             my={2}
             key={`provider-${index}`}
@@ -195,7 +195,7 @@ export const PatientUser = {
         <Divider pt={3} sx={{ color: 'border.dividerDark' }} />
         <Subheading>Connected</Subheading>
 
-        {map(providerNames, (provider, index) => (
+        {map(activeProviders, (provider, index) => (
           <DataConnection
             my={2}
             key={`provider-${index}`}
@@ -205,9 +205,21 @@ export const PatientUser = {
         ))}
 
         <Divider pt={3} sx={{ color: 'border.dividerDark' }} />
+        <Subheading>Connected With No Data</Subheading>
+
+        {map(activeProviders, (provider, index) => (
+          <DataConnection
+            my={2}
+            key={`provider-${index}`}
+            {...dataConnectionConnectedWithNoData[provider]}
+            buttonHandler={dataConnectionConnectedWithNoData[provider]?.buttonText ? () => action(dataConnectionConnectedWithNoData[provider]?.buttonText)(provider) : undefined}
+          />
+        ))}
+
+        <Divider pt={3} sx={{ color: 'border.dividerDark' }} />
         <Subheading>Connected With Data</Subheading>
 
-        {map(providerNames, (provider, index) => (
+        {map(activeProviders, (provider, index) => (
           <DataConnection
             my={2}
             key={`provider-${index}`}
@@ -219,7 +231,7 @@ export const PatientUser = {
         <Divider pt={3} sx={{ color: 'border.dividerDark' }} />
         <Subheading>Disconnected</Subheading>
 
-        {map(providerNames, (provider, index) => (
+        {map(activeProviders, (provider, index) => (
           <DataConnection
             my={2}
             key={`provider-${index}`}
@@ -231,7 +243,7 @@ export const PatientUser = {
         <Divider pt={3} sx={{ color: 'border.dividerDark' }} />
         <Subheading>Error</Subheading>
 
-        {map(providerNames, (provider, index) => (
+        {map(activeProviders, (provider, index) => (
           <DataConnection
             my={2}
             key={`provider-${index}`}
@@ -243,7 +255,7 @@ export const PatientUser = {
         <Divider pt={3} sx={{ color: 'border.dividerDark' }} />
         <Subheading>Unknown</Subheading>
 
-        {map(providerNames, (provider, index) => (
+        {map(activeProviders, (provider, index) => (
           <DataConnection
             my={2}
             key={`provider-${index}`}

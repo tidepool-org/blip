@@ -10,8 +10,9 @@ import { Body0, Body1 } from '../elements/FontStyles';
 export function DataConnection(props) {
   const {
     buttonHandler,
-    buttonText,
+    buttonProcessing,
     buttonStyle,
+    buttonText,
     icon,
     iconLabel,
     label,
@@ -93,7 +94,15 @@ export function DataConnection(props) {
         </Flex>}
 
         <Box sx={{ flexGrow: 1, justifyItems: 'flex-end', order: [2, null, 3] }}>
-          {buttonHandler && <Button variant="textPrimary" {...buttonStyles[buttonStyle]} className="action" onClick={buttonHandler}>{buttonText}</Button>}
+          {buttonHandler && <Button
+            variant="textPrimary"
+            {...buttonStyles[buttonStyle]}
+            className="action"
+            onClick={buttonHandler}
+            processing={buttonProcessing}
+          >
+            {buttonText}
+          </Button>}
         </Box>
       </Flex>
     </Flex>
@@ -103,8 +112,9 @@ export function DataConnection(props) {
 DataConnection.propTypes = {
   ...FlexProps,
   buttonHandler: PropTypes.func,
-  buttonText: PropTypes.string,
+  buttonProcessing: PropTypes.bool,
   buttonStyle: PropTypes.oneOf(['solid', 'text']),
+  buttonText: PropTypes.string,
   icon: PropTypes.elementType,
   iconLabel: PropTypes.string,
   label: PropTypes.string.isRequired,
