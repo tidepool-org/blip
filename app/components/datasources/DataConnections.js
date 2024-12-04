@@ -107,7 +107,7 @@ export function getProviderHandlers(patient, selectedClinicId, provider) {
       args: [api, id, restrictedTokenCreate, dataSourceFilter] // TODO: need to submit patient with updated data source state
     },
     resendInvite: {
-      buttonText: t('Email Invite'),
+      buttonText: t('Resend Invite'),
       buttonStyle: 'solid',
       action: actions.async.sendPatientDataProviderConnectRequest, // TODO: need to submit patient with updated data source ste
       args: [api, id, restrictedTokenCreate, dataSourceFilter] // TODO: need to submit patient with updated data source state
