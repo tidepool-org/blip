@@ -64,8 +64,7 @@ export const ClinicianPatients = (props) => {
   const [patientFormContext, setPatientFormContext] = useState();
   const rowsPerPage = 8;
 
-  const patientListSearchTextInput = useSelector(({ blip }) => blip.patientListFilters.patientListSearchTextInput);
-  const isPatientListVisible = useSelector(({ blip }) => blip.patientListFilters.isPatientListVisible);
+  const { patientListSearchTextInput, isPatientListVisible } = useSelector(({ blip }) => blip.patientListFilters);
 
   const {
     fetchingAssociatedAccounts,
