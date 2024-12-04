@@ -23,7 +23,7 @@ const StyledPopover = (Component) => styled(Component)`
     border-radius: ${({ borderradius = `${radii.default}px` }) => borderradius};  ;
     width: ${({ width }) => width};
     min-width: ${({ minwidth }) => minwidth};
-    max-width: calc(100% - ${space[5]}px);
+    max-width: ${({ maxWidth }) => maxWidth || `calc(100% - ${space[5]}px)`};
   }
 `;
 
