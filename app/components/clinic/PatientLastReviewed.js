@@ -7,6 +7,7 @@ import moment from 'moment-timezone';
 import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
 import { utils as vizUtils } from '@tidepool/viz';
 import get from 'lodash/get';
+import upperFirst from 'lodash/upperFirst';
 
 import HoverButton from '../elements/HoverButton';
 import Icon from '../elements/Icon';
@@ -78,7 +79,7 @@ export const PatientLastReviewed = ({ api, patientId, recentlyReviewedThresholdD
   let clickHandler = handleReview;
   let buttonText = t('Mark Reviewed');
 
-  let formattedLastReviewed = { text: '-' };
+  let formattedLastReviewed = { daysText: '-' };
   let lastReviewIsToday = false;
   let reviewIsRecent = false;
   let canReview = true;
@@ -131,7 +132,7 @@ export const PatientLastReviewed = ({ api, patientId, recentlyReviewedThresholdD
           }}
         >
           {reviewIsRecent && <Icon variant="static" icon={CheckRoundedIcon} />}
-          {formattedLastReviewed.text}
+          {upperFirst(formattedLastReviewed.daysText)}
         </Text>
       </Box>
     </HoverButton>

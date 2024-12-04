@@ -22,6 +22,7 @@ import omit from 'lodash/omit';
 import orderBy from 'lodash/orderBy';
 import pick from 'lodash/pick';
 import reject from 'lodash/reject';
+import upperFirst from 'lodash/upperFirst';
 import values from 'lodash/values';
 import without from 'lodash/without';
 import { Box, Flex, Link, Text } from 'theme-ui';
@@ -109,7 +110,7 @@ import PopoverElement from '../../components/elements/PopoverElement';
 
 const { Loader } = vizComponents;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels, formatBgValue } = vizUtils.bg;
-const { getLocalizedCeiling, getTimezoneFromTimePrefs, formatTimeAgo } = vizUtils.datetime;
+const { getLocalizedCeiling, formatTimeAgo } = vizUtils.datetime;
 
 const StyledScrollToTop = styled(ScrollToTop)`
   background-color: ${colors.purpleMedium};
@@ -2790,7 +2791,7 @@ export const ClinicPatients = (props) => {
                 whiteSpace: 'nowrap',
               }}
             >
-              {formattedLastDataDateCGM.text}
+              {upperFirst(formattedLastDataDateCGM.daysText)}
             </Text>
           </Box>
         )}
@@ -2805,7 +2806,7 @@ export const ClinicPatients = (props) => {
                 whiteSpace: 'nowrap',
               }}
             >
-              {formattedLastDataDateBGM.text}
+              {upperFirst(formattedLastDataDateBGM.daysText)}
             </Text>
           </Box>
         )}
