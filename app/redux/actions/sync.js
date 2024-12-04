@@ -2463,16 +2463,16 @@ export function setPendoData(data) {
   };
 }
 
-export function setIsPatientListVisible(data) {
+export function setIsPatientListVisible(isVisible) {
   return {
     type: ActionTypes.SET_IS_PATIENT_LIST_VISIBLE,
-    payload: data,
+    payload: { isVisible },
   };
 }
 
-export function setPatientListSearchTextInput(data) {
+export function setPatientListSearchTextInput(textInput) {
   return {
     type: ActionTypes.SET_PATIENT_LIST_SEARCH_TEXT_INPUT,
-    payload: data,
+    payload: { textInput },
   };
 }

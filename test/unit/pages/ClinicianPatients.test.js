@@ -175,7 +175,7 @@ describe('ClinicianPatients', () => {
 
     it('should render a button that toggles patients to be visible', () => { 
       wrapper.find('.peopletable-names-showall').hostNodes().simulate('click');
-      expect(store.getActions()).to.eql([{ type: 'SET_IS_PATIENT_LIST_VISIBLE', payload: true }])
+      expect(store.getActions()).to.eql([{ type: 'SET_IS_PATIENT_LIST_VISIBLE', payload: { isVisible: true } }])
     })
   });
 
@@ -369,8 +369,8 @@ describe('ClinicianPatients', () => {
         // Input partial match on name for patient two
         searchInput.simulate('change', { target: { name: 'search-patients', value: 'Two' } });
         expect(store.getActions()).to.eql([
-          { type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT', payload: 'Two' },
-          { type: 'SET_IS_PATIENT_LIST_VISIBLE', payload: true } // a search query should automatically toggle the visibility to true
+          { type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT', payload: { textInput: 'Two' } },
+          { type: 'SET_IS_PATIENT_LIST_VISIBLE', payload: { isVisible: true } } // a search query should automatically toggle the visibility to true
         ])
       });
 

@@ -594,7 +594,7 @@ describe('ClinicPatients', () => {
 
     it('should render a button that toggles patients to be visible', () => { 
       wrapper.find('.peopletable-names-showall').hostNodes().simulate('click');
-      expect(store.getActions()).to.eql([{ type: 'SET_IS_PATIENT_LIST_VISIBLE', payload: true }])
+      expect(store.getActions()).to.eql([{ type: 'SET_IS_PATIENT_LIST_VISIBLE', payload: { isVisible: true } }])
     })
   });
 
@@ -966,7 +966,7 @@ describe('ClinicPatients', () => {
 
         setTimeout(() => {
           expect(store.getActions()).to.eql([
-            { type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT', payload: 'Two'},
+            { type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT', payload: { textInput: 'Two' } },
             { type: 'FETCH_PATIENTS_FOR_CLINIC_REQUEST' },
           ]);
 
