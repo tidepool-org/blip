@@ -185,6 +185,14 @@ describe('NavigationMenu', () => {
           },
         },
         {
+          type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT',
+          payload: { textInput: '' }
+        },
+        {
+          type: 'SET_IS_PATIENT_LIST_VISIBLE',
+          payload: { isVisible: false }
+        },
+        {
           type: '@@router/CALL_HISTORY_METHOD',
           payload: {
             args: ['/patients', { selectedClinicId: null }],
@@ -262,6 +270,14 @@ describe('NavigationMenu', () => {
         { type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST' },
         { type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST' },
         {
+          type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT',
+          payload: { textInput: '' }
+        },
+        {
+          type: 'SET_IS_PATIENT_LIST_VISIBLE',
+          payload: { isVisible: false }
+        },
+        {
           type: '@@router/CALL_HISTORY_METHOD',
           payload: {
             args: ['/clinic-workspace', { selectedClinicId: 'clinicID456' }],
@@ -294,6 +310,14 @@ describe('NavigationMenu', () => {
           payload: {
             clinicId: null,
           },
+        },
+        {
+          type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT',
+          payload: { textInput: '' }
+        },
+        {
+          type: 'SET_IS_PATIENT_LIST_VISIBLE',
+          payload: { isVisible: false }
         },
         {
           type: '@@router/CALL_HISTORY_METHOD',
@@ -391,6 +415,14 @@ describe('NavigationMenu', () => {
             },
           },
           {
+            type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT',
+            payload: { textInput: '' }
+          },
+          {
+            type: 'SET_IS_PATIENT_LIST_VISIBLE',
+            payload: { isVisible: false }
+          },
+          {
             type: '@@router/CALL_HISTORY_METHOD',
             payload: {
               args: ['/patients', { selectedClinicId: null }],
@@ -436,6 +468,14 @@ describe('NavigationMenu', () => {
             payload: {
               clinicId: null, // null is appropriate for switch to private workspace
             },
+          },
+          {
+            type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT',
+            payload: { textInput: '' }
+          },
+          {
+            type: 'SET_IS_PATIENT_LIST_VISIBLE',
+            payload: { isVisible: false }
           },
           {
             type: '@@router/CALL_HISTORY_METHOD',
