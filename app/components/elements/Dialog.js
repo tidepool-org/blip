@@ -24,13 +24,20 @@ export function DialogTitle(props) {
     ...dialogTitleProps
   } = props;
 
+  const ICON_WIDTH = 28;
+
   return (
     <Flex
       p={3}
-      sx={{ alignItems: 'center', justifyContent: 'space-between', borderBottom: props.divider ? borders.divider : 'unset', ...sx }}
+      sx={{ alignItems: 'center', borderBottom: props.divider ? borders.divider : 'unset', ...sx }}
       {...dialogTitleProps}
     >
-      {children}
+      <Flex 
+        mx={[0, 'auto']} 
+        pl={closeIcon ? ICON_WIDTH : 0} // ensure Title is properly centered when icon present
+      >
+        {children}
+      </Flex>
       {closeIcon && (
         <Icon
           label="close dialog"
