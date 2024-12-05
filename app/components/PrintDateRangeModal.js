@@ -276,7 +276,7 @@ export const PrintDateRangeModal = (props) => {
       <DialogTitle divider={false} onClose={handleClose}>
         <MediumTitle>{t('Print Report')}</MediumTitle>
       </DialogTitle>
-      <DialogContent divider={false} sx={{minWidth: '643px' }} py={0} px={3}>
+      <DialogContent divider={false} sx={{ minWidth: '768px' }} py={0} px={3}>
         {map(panels, panel => (
           <Element name={`${panel.key}-wrapper`}>
             <Box
