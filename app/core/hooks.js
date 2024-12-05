@@ -183,3 +183,33 @@ export const useIsFirstRender = () => {
 
   return isFirstRenderRef.current;
 };
+
+/**
+ * Disables triggering the increment/decrememnt inputs on active number inputs while scrolling
+ * c.f https://stackoverflow.com/a/56250826
+ *
+ * There are a few different approaches, but this seems to be the best.
+ * Some approaches blur for a frame then refocus, which causes the outline to flicker, and could potentially trigger onBlur validations
+ * Some approaches simple cancel out mousewheel events on active number inputs, but this means that a user can't scroll out of an active, hovered input
+ * This approach has a very small flicker on the increment/decrement controls while scrolling on an active number input, but it seems to be the most minor of compromises
+ *
+ * Note: it may be prudent to at some point stop using number inputs altogther, switch to using
+ * plain text that mimic number fields without the scroll handlers built in:
+ * <input type="text" inputmode="numeric" pattern="[0-9]*">
+ * https://technology.blog.gov.uk/2020/02/24/why-the-gov-uk-design-system-team-changed-the-input-type-for-numbers/
+ */
+export const useDisableScrollOnNumberInput = () => {
+  useEffect(() => {
+    function handleScroll(e) {
+      if (e.target.tagName.toLowerCase() === 'input'
+        && (e.target.type === 'number')
+        && (e.target === document.activeElement)
+        && !e.target.readOnly
+      ) {
+        e.target.readOnly = true;
+        setTimeout(function(el){ el.readOnly = false; }, 0, e.target);
+      }
+    }
+    document.addEventListener('wheel', function(e){ handleScroll(e); });
+  }, []);
+};
