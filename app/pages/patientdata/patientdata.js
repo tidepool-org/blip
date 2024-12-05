@@ -1420,9 +1420,10 @@ export const PatientDataClass = createReactClass({
     return aggregations;
   },
 
-  getStatsByChartType: function(chartType = this.state.chartType) {
-    const cbgSelected = _.get(this.state.chartPrefs, [chartType, 'bgSource']) === 'cbg';
-    const smbgSelected = _.get(this.state.chartPrefs, [chartType, 'bgSource']) === 'smbg';
+  getStatsByChartType: function(chartType = this.state.chartType, bgSource) {
+    const currentBgSource = bgSource || _.get(this.state.chartPrefs, [chartType, 'bgSource']);
+    const cbgSelected =  currentBgSource === 'cbg';
+    const smbgSelected = currentBgSource === 'smbg';
     const isAutomatedBasalDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isAutomatedBasalDevice');
     const isSettingsOverrideDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isSettingsOverrideDevice');
 
@@ -1782,8 +1783,21 @@ export const PatientDataClass = createReactClass({
 
       const newDataAdded = this.props.addingData.inProgress && nextProps.addingData.completed;
       if (newDataAdded) {
+        const nextBgSource = _.get(nextProps, 'data.metaData.bgSources.current');
+        const queryOpts = {}
+
+        if (nextBgSource && this.state.chartType && _.isEmpty(_.get(this.state.chartPrefs, [this.state.chartType, 'bgSource']))) {
+          // If this is the first data fetch that contained bg data, we check for it and set the
+          // bgSource state accordingly to allow generating all appropriate stats
+          this.updateChartPrefs({
+            [this.state.chartType]: { ...this.state.chartPrefs[this.state.chartType], bgSource: nextBgSource },
+          }, false, false);
+
+          queryOpts.bgSource = nextBgSource;
+        }
+
         // New data has been added. Let's query it to update the chart.
-        this.queryData();
+        this.queryData(null, queryOpts);
 
         // If new data was fetched to support requested PDF dates, kick off pdf generation.
         if (this.state.printDialogPDFOpts) {
@@ -1874,13 +1888,14 @@ export const PatientDataClass = createReactClass({
       updateChartEndpoints: options.updateChartEndpoints || !this.state.chartEndpoints,
       transitioningChartType: false,
       metaData: 'bgSources,devices,matchedDevices,excludedDevices,queryDataCount',
+      bgSource: _.get(this.state, ['chartPrefs', this.state.chartType, 'bgSource']),
     });
 
     if (this.state.queryingData) return;
     this.setState({ loading: options.showLoading, queryingData: true });
 
     let chartQuery = {
-      bgSource: _.get(this.state, ['chartPrefs', this.state.chartType, 'bgSource']),
+      bgSource: options.bgSource,
       chartType: this.state.chartType,
       excludedDevices: _.get(this.state, 'chartPrefs.excludedDevices', []),
       excludeDaysWithoutBolus: _.get(this.state, ['chartPrefs', this.state.chartType, 'stats', 'excludeDaysWithoutBolus']),
@@ -1956,7 +1971,7 @@ export const PatientDataClass = createReactClass({
 
       const { next: nextDays, prev: prevDays } = this.getDaysByType();
 
-      chartQuery.stats = this.getStatsByChartType();
+      chartQuery.stats = this.getStatsByChartType(this.state.chartType, options.bgSource);
       chartQuery.nextDays = nextDays;
       chartQuery.prevDays = prevDays;
 
