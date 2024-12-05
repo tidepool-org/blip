@@ -660,6 +660,19 @@ describe('TideDashboard', () => {
 
       expect(getTableRow(6, 0).find('th').at(2).text()).contains('Days Since Last Data');
       expect(getTableRow(6, 1).find('td').at(1).text()).contains('200');
+
+      // Verify that various connection statuses are rendering correctly
+      expect(getTableRow(6, 2).find('th').at(0).text()).contains('Willie Gambles');
+      expect(getTableRow(6, 2).find('td').at(0).text()).contains('Invite Sent');
+
+      expect(getTableRow(6, 3).find('th').at(0).text()).contains('Denys Ickov');
+      expect(getTableRow(6, 3).find('td').at(0).text()).contains('Patient Disconnected');
+
+      expect(getTableRow(6, 4).find('th').at(0).text()).contains('Johna Slatcher');
+      expect(getTableRow(6, 4).find('td').at(0).text()).contains('No Pending Connections');
+
+      expect(getTableRow(6, 5).find('th').at(0).text()).contains('Emelda Stangoe');
+      expect(getTableRow(6, 5).find('td').at(0).text()).contains('Invite Expired');
     });
 
     it('should show empty text for a section without results', () => {

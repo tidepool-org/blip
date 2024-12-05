@@ -52,7 +52,7 @@ describe('tideDashboardPatients', () => {
   });
 
   describe('updateClinicPatientSuccess', () => {
-    it('should set state to initial empty state', () => {
+    it('should update matching patient in state', () => {
       const patients = { results: { 'foo': [
         { patient: {id: 'bar' } },
         { patient: { id: 'baz'} }
@@ -61,6 +61,25 @@ describe('tideDashboardPatients', () => {
       const updatedPatient = { id: 'baz', updated: true }
       let initialStateForTest = patients;
       let action = actions.sync.updateClinicPatientSuccess('clinicId123', 'baz', updatedPatient);
+      let state = reducer(initialStateForTest, action);
+
+      expect(state).to.eql({ results: { 'foo': [
+        { patient: {id: 'bar' } },
+        { patient: { id: 'baz', updated: true } }
+      ] } });
+    });
+  });
+
+  describe('fetchPatientFromClinicSuccess', () => {
+    it('should update matching patient in state', () => {
+      const patients = { results: { 'foo': [
+        { patient: {id: 'bar' } },
+        { patient: { id: 'baz'} }
+      ] } };
+
+      const updatedPatient = { id: 'baz', updated: true }
+      let initialStateForTest = patients;
+      let action = actions.sync.fetchPatientFromClinicSuccess('clinicId123', updatedPatient);
       let state = reducer(initialStateForTest, action);
 
       expect(state).to.eql({ results: { 'foo': [

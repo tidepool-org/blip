@@ -181,7 +181,7 @@
     "terser-webpack-plugin": "5.3.9",
     "theme-ui": "0.16.1",
     "tideline": "1.30.0",
-    "tidepool-platform-client": "0.61.0-web-3178-tide-connection-status.1",
+    "tidepool-platform-client": "0.61.0",
     "tidepool-standard-action": "0.1.1",
     "ua-parser-js": "1.0.36",
     "url-loader": "4.1.1",

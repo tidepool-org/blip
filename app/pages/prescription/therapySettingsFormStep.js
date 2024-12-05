@@ -12,7 +12,7 @@ import { default as _values } from 'lodash/values';
 
 import { getFieldError, getThresholdWarning, onChangeWithDependantFields } from '../../core/forms';
 import utils from '../../core/utils';
-import { useInitialFocusedInput } from '../../core/hooks';
+import { useInitialFocusedInput, useDisableScrollOnNumberInput } from '../../core/hooks';
 import { Paragraph2, Body2, Headline, Title } from '../../components/elements/FontStyles';
 import RadioGroup from '../../components/elements/RadioGroup';
 import PopoverLabel from '../../components/elements/PopoverLabel';
@@ -554,6 +554,7 @@ export const InsulinSettings = props => {
 InsulinSettings.propTypes = fieldsetPropTypes;
 
 export const TherapySettings = withTranslation()(props => {
+  useDisableScrollOnNumberInput();
   const formikContext = useFormikContext();
 
   const {
