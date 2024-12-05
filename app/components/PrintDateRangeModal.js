@@ -273,10 +273,10 @@ export const PrintDateRangeModal = (props) => {
 
   return (
     <Dialog id="printDateRangePicker" PaperProps={{ id: 'printDateRangePickerInner'}} maxWidth="md" open={open} onClose={handleClose}>
-      <DialogTitle divider={false} onClose={handleClose}>
+      <DialogTitle divider={true} onClose={handleClose}>
         <MediumTitle>{t('Print Report')}</MediumTitle>
       </DialogTitle>
-      <DialogContent divider={false} sx={{ minWidth: '768px' }} py={0} px={3}>
+      <DialogContent divider={false} sx={{ minWidth: '768px' }} pt={3} px={3}>
         {map(panels, panel => (
           <Element name={`${panel.key}-wrapper`}>
             <Box
