@@ -32,9 +32,10 @@ export function DialogTitle(props) {
       sx={{ alignItems: 'center', borderBottom: props.divider ? borders.divider : 'unset', ...sx }}
       {...dialogTitleProps}
     >
-      <Flex 
-        mx={[0, 'auto']} 
-        pl={closeIcon ? ICON_WIDTH : 0} // ensure Title is properly centered when icon present
+      <Flex
+        // offset by Icon width to ensure Title is properly centered when closeIcon is present
+        pl={closeIcon ? ICON_WIDTH : 0}
+        mx={[0, 'auto']}
       >
         {children}
       </Flex>
