@@ -2127,12 +2127,13 @@ export const ClinicPatients = (props) => {
         aria-labelledby="dialog-title"
         open={showAddPatientDialog}
         onClose={handleCloseOverlays}
+        maxWidth="md"
       >
         <DialogTitle onClose={handleCloseOverlays}>
           <MediumTitle id="dialog-title">{t('Add New Patient Account')}</MediumTitle>
         </DialogTitle>
 
-        <DialogContent>
+        <DialogContent sx={{ width: '768px' }}>
           <PatientForm api={api} trackMetric={trackMetric} onFormChange={handlePatientFormChange} searchDebounceMs={searchDebounceMs} action="create" />
         </DialogContent>
 
