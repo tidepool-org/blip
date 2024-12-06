@@ -24,13 +24,21 @@ export function DialogTitle(props) {
     ...dialogTitleProps
   } = props;
 
+  const ICON_WIDTH = 28;
+
   return (
     <Flex
       p={3}
-      sx={{ alignItems: 'center', justifyContent: 'space-between', borderBottom: props.divider ? borders.divider : 'unset', ...sx }}
+      sx={{ alignItems: 'center', borderBottom: props.divider ? borders.divider : 'unset', ...sx }}
       {...dialogTitleProps}
     >
-      {children}
+      <Flex
+        // offset by Icon width to ensure Title is properly centered when closeIcon is present
+        pl={closeIcon ? ICON_WIDTH : 0}
+        mx={[0, 'auto']}
+      >
+        {children}
+      </Flex>
       {closeIcon && (
         <Icon
           label="close dialog"
@@ -67,6 +75,8 @@ const StyledDialogContent = styled(Box)`
   > div:last-child {
     margin-bottom: 0;
   }
+
+  overflow-y: auto;
 `;
 
 export function DialogContent({ sx = {}, ...props }) {
@@ -92,6 +102,8 @@ const StyledDialogActions = styled(Flex)`
   button {
     margin-left: ${space[2]}px;
   }
+
+  margin-top: 0;
 `;
 
 export function DialogActions(props) {
