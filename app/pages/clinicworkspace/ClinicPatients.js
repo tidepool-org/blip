@@ -2172,6 +2172,7 @@ export const ClinicPatients = (props) => {
         aria-labelledby="dialog-title"
         open={showEditPatientDialog}
         onClose={handleCloseOverlays}
+        maxWidth="md"
       >
         <DialogTitle onClose={() => {
           trackMetric('Clinic - Edit patient close', { clinicId: selectedClinicId });
@@ -2180,7 +2181,7 @@ export const ClinicPatients = (props) => {
           <MediumTitle id="dialog-title">{t('Edit Patient Details')}</MediumTitle>
         </DialogTitle>
 
-        <DialogContent>
+        <DialogContent sx={{ minWidth: '768px' }}>
           <PatientForm
             api={api}
             trackMetric={trackMetric}
