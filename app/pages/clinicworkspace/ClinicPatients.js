@@ -2127,12 +2127,13 @@ export const ClinicPatients = (props) => {
         aria-labelledby="dialog-title"
         open={showAddPatientDialog}
         onClose={handleCloseOverlays}
+        maxWidth="md"
       >
         <DialogTitle onClose={handleCloseOverlays}>
           <MediumTitle id="dialog-title">{t('Add New Patient Account')}</MediumTitle>
         </DialogTitle>
 
-        <DialogContent>
+        <DialogContent sx={{ width: '768px' }}>
           <PatientForm api={api} trackMetric={trackMetric} onFormChange={handlePatientFormChange} searchDebounceMs={searchDebounceMs} action="create" />
         </DialogContent>
 
@@ -2171,6 +2172,7 @@ export const ClinicPatients = (props) => {
         aria-labelledby="dialog-title"
         open={showEditPatientDialog}
         onClose={handleCloseOverlays}
+        maxWidth="md"
       >
         <DialogTitle onClose={() => {
           trackMetric('Clinic - Edit patient close', { clinicId: selectedClinicId });
@@ -2179,7 +2181,7 @@ export const ClinicPatients = (props) => {
           <MediumTitle id="dialog-title">{t('Edit Patient Details')}</MediumTitle>
         </DialogTitle>
 
-        <DialogContent>
+        <DialogContent sx={{ minWidth: '768px' }}>
           <PatientForm
             api={api}
             trackMetric={trackMetric}
