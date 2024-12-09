@@ -444,7 +444,7 @@ export const PatientForm = (props) => {
         </>
       )}
 
-      {showConnectDexcom && (
+      {showConnectDexcom && action === 'create' && (
         <Box mt={3} pt={3} sx={{ borderTop: borders.default }}>
           <Text sx={{ color: colors.text.primary }}>{t('Connect an Account')}</Text>
 
@@ -454,7 +454,7 @@ export const PatientForm = (props) => {
             py={3} 
             sx={{ 
               justifyContent: 'space-between', 
-              backgroundColor: '#F0F5FF', // TODO: FIX
+              backgroundColor: disableConnectDexcom ? 'lightestGrey' : '#F0F5FF', // TODO: FIX
               borderRadius: radii.default 
             }}
 >
@@ -474,6 +474,36 @@ export const PatientForm = (props) => {
           <Body0 mt={1} sx={{ fontWeight: 'medium' }}>
             {t('If this box is checked, the patient will receive an email to authorize sharing Dexcom data with Tidepool. An email must be entered above. For US users only.')}
           </Body0>
+        </Box>
+      )}
+
+      {showConnectDexcom && action === 'edit' && (
+        <Box mt={3} pt={3} sx={{ borderTop: borders.default }}>
+          <Text sx={{ color: colors.text.primary }}>{t('Connect an Account')}</Text>
+
+          <Flex 
+            mt={2}
+            px={3} 
+            py={3} 
+            sx={{ 
+              justifyContent: 'space-between', 
+              backgroundColor: '#F0F5FF', // TODO: FIX
+              borderRadius: radii.default 
+            }}
+>
+            <Icon
+              label="Dexcom"
+              variant="static"
+              iconSrc={DexcomLogoIcon}
+            />
+
+            <Button 
+              sx={{ backgroundColor: 'white', color: 'indigos.5', border: 'none' }}
+              onClick={() => {}}
+            >
+              Email Invite
+            </Button>
+          </Flex>
         </Box>
       )}
 
