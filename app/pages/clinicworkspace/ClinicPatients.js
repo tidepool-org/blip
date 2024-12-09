@@ -643,16 +643,19 @@ export const ClinicPatients = (props) => {
     });
   }, [clinicPatientTagFormContext, prefixPopHealthMetric, selectedClinicId, trackMetric]);
 
-  const handleAsyncResult = useCallback((workingState, successMessage, onComplete = handleCloseOverlays) => {
+  const handleAsyncResult = useCallback((workingState, successMessage = null, onComplete = handleCloseOverlays) => {
     const { inProgress, completed, notification, prevInProgress } = workingState;
 
     if (!isFirstRender && !inProgress && prevInProgress !== false) {
       if (completed) {
         onComplete();
-        setToast({
-          message: successMessage,
-          variant: 'success',
-        });
+
+        if (!!successMessage) {
+          setToast({
+            message: successMessage,
+            variant: 'success',
+          });
+        }
       }
 
       if (completed === false) {
@@ -667,12 +670,17 @@ export const ClinicPatients = (props) => {
   }, [isFirstRender, setToast]);
 
   useEffect(() => {
-    handleAsyncResult({ ...updatingClinicPatient, prevInProgress: previousUpdatingClinicPatient?.inProgress }, t('You have successfully updated a patient.'), () => {
-      handleCloseOverlays();
-
-      if (patientFormContext?.status === 'sendingDexcomConnectRequest') {
+    const isDexcomInvite = patientFormContext?.status === 'sendingDexcomConnectRequest' || false;
+    const successCopy = isDexcomInvite ? null : t('You have successfully updated a patient.');
+    
+    handleAsyncResult({ ...updatingClinicPatient, prevInProgress: previousUpdatingClinicPatient?.inProgress }, successCopy, () => {
+      if (isDexcomInvite) {
         dispatch(actions.async.sendPatientDexcomConnectRequest(api, selectedClinicId, updatingClinicPatient.patientId));
+
+        return;
       }
+
+      handleCloseOverlays();
     });
   }, [
     api,

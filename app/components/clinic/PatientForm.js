@@ -223,12 +223,13 @@ export const PatientForm = (props) => {
     values,
   } = formikContext;
 
-  function handleAsyncResult(workingState, successMessage) {
+  function handleAsyncResult(workingState, successMessage, onComplete) {
     const { inProgress, completed, notification } = workingState;
 
     if (!isFirstRender && !inProgress) {
       if (completed) {
         // Close the resend email modal and refetch patient details to update the connection status
+        onComplete();
         setShowResendDexcomConnectRequest(false);
         fetchPatientDetails();
 
@@ -316,9 +317,11 @@ export const PatientForm = (props) => {
   }, []);
 
   useEffect(() => {
-    handleAsyncResult(sendingPatientDexcomConnectRequest, t('Dexcom connection request to {{email}} has been resent.', {
-      email: patient?.email,
-    }));
+    handleAsyncResult(
+      sendingPatientDexcomConnectRequest, 
+      t('Dexcom connection request to {{email}} has been resent.', { email: patient?.email }),
+      () => { formikContext.setStatus(undefined) }
+    );
   }, [sendingPatientDexcomConnectRequest]);
 
   async function handleSendDexcomInitialConnectEmail() {
