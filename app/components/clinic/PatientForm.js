@@ -366,7 +366,9 @@ export const PatientForm = (props) => {
       sx={{ minWidth: [null, '320px'] }}
       {...boxProps}
     >
-      <Box mb={4}>
+      <Text sx={{ color: colors.text.primary }}>{t('Patient Details')}</Text>
+
+      <Box mb={4} mt={3}>
         <TextInput
           {...getCommonFormikFieldProps('fullName', formikContext)}
           innerRef={initialFocusedInput === 'fullName' ? initialFocusedInputRef : undefined}
@@ -442,6 +444,63 @@ export const PatientForm = (props) => {
         </>
       )}
 
+      {showConnectDexcom && (
+        <Box mt={3} pt={3} sx={{ borderTop: borders.default }}>
+          <Text sx={{ color: colors.text.primary }}>{t('Connect an Account')}</Text>
+
+          <Flex 
+            mt={2}
+            px={3} 
+            py={3} 
+            sx={{ 
+              justifyContent: 'space-between', 
+              backgroundColor: '#F0F5FF', // TODO: FIX
+              borderRadius: radii.default 
+            }}
+>
+            <Icon
+              label="Dexcom"
+              variant="static"
+              iconSrc={DexcomLogoIcon}
+              sx={{ img: { filter: disableConnectDexcom ? 'saturate(0%) brightness(130%)' : 'none' } }}
+            />
+
+            <Checkbox
+              {...getCommonFormikFieldProps('connectDexcom', formikContext, 'checked')}
+              disabled={disableConnectDexcom}
+            />
+          </Flex>
+
+          <Body0 mt={1} sx={{ fontWeight: 'medium' }}>
+            {t('If this box is checked, the patient will receive an email to authorize sharing Dexcom data with Tidepool. An email must be entered above. For US users only.')}
+          </Body0>
+        </Box>
+      )}
+
+      {showDexcomConnectState && (
+        <Box mt={3} pt={3} sx={{ borderTop: borders.default }}>
+          <Text sx={{ color: colors.text.primary }}>{t('Connect an Account')}</Text>
+
+          <PatientFormConnectionStatus 
+            iconLabel="Dexcom"
+            iconSrc={DexcomLogoIcon}
+            status={dexcomConnectState}
+            onResendEmail={handleResendDexcomConnectEmail}
+            lastRequestedAt={patient.lastRequestedDexcomConnectTime}
+          />
+        </Box>
+      )}
+
+      <ResendDexcomConnectRequestDialog
+        api={api}
+        onClose={() => setShowResendDexcomConnectRequest(false)}
+        onConfirm={handleResendDexcomConnectEmailConfirm}
+        open={showResendDexcomConnectRequest}
+        patient={patient}
+        t={t}
+        trackMetric={trackMetric}
+      />
+
       {showTags && (
         <Box
           mt={3}
@@ -487,57 +546,6 @@ export const PatientForm = (props) => {
           )}
         </Box>
       )}
-
-      {showConnectDexcom && (
-        <>
-          <Flex 
-            mt={3}
-            px={3} 
-            py={3} 
-            sx={{ 
-              justifyContent: 'space-between', 
-              backgroundColor: '#F0F5FF', // TODO: FIX
-              borderRadius: radii.default 
-            }}
->
-            <Icon
-              label="Dexcom"
-              variant="static"
-              iconSrc={DexcomLogoIcon}
-              sx={{ img: { filter: disableConnectDexcom ? 'saturate(0%) brightness(130%)' : 'none' } }}
-            />
-
-            <Checkbox
-              {...getCommonFormikFieldProps('connectDexcom', formikContext, 'checked')}
-              disabled={disableConnectDexcom}
-            />
-          </Flex>
-
-          <Body0 mt={1} sx={{ fontWeight: 'medium' }}>
-            {t('If this box is checked, the patient will receive an email to authorize sharing Dexcom data with Tidepool. An email must be entered above. For US users only.')}
-          </Body0>
-        </>
-      )}
-
-      {showDexcomConnectState && (
-        <PatientFormConnectionStatus 
-          iconLabel="Dexcom"
-          iconSrc={DexcomLogoIcon}
-          status={dexcomConnectState}
-          onResendEmail={handleResendDexcomConnectEmail}
-          lastRequestedAt={patient.lastRequestedDexcomConnectTime}
-        />
-      )}
-
-      <ResendDexcomConnectRequestDialog
-        api={api}
-        onClose={() => setShowResendDexcomConnectRequest(false)}
-        onConfirm={handleResendDexcomConnectEmailConfirm}
-        open={showResendDexcomConnectRequest}
-        patient={patient}
-        t={t}
-        trackMetric={trackMetric}
-      />
     </Box>
   );
 };
