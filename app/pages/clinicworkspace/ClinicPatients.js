@@ -643,16 +643,19 @@ export const ClinicPatients = (props) => {
     });
   }, [clinicPatientTagFormContext, prefixPopHealthMetric, selectedClinicId, trackMetric]);
 
-  const handleAsyncResult = useCallback((workingState, successMessage, onComplete = handleCloseOverlays) => {
+  const handleAsyncResult = useCallback((workingState, successMessage = null, onComplete = handleCloseOverlays) => {
     const { inProgress, completed, notification, prevInProgress } = workingState;
 
     if (!isFirstRender && !inProgress && prevInProgress !== false) {
       if (completed) {
         onComplete();
-        setToast({
-          message: successMessage,
-          variant: 'success',
-        });
+
+        if (!!successMessage) {
+          setToast({
+            message: successMessage,
+            variant: 'success',
+          });
+        }
       }
 
       if (completed === false) {
@@ -667,12 +670,17 @@ export const ClinicPatients = (props) => {
   }, [isFirstRender, setToast]);
 
   useEffect(() => {
-    handleAsyncResult({ ...updatingClinicPatient, prevInProgress: previousUpdatingClinicPatient?.inProgress }, t('You have successfully updated a patient.'), () => {
-      handleCloseOverlays();
-
-      if (patientFormContext?.status === 'sendingDexcomConnectRequest') {
+    const isDexcomInvite = patientFormContext?.status === 'sendingDexcomConnectRequest' || false;
+    const successCopy = isDexcomInvite ? null : t('You have successfully updated a patient.');
+    
+    handleAsyncResult({ ...updatingClinicPatient, prevInProgress: previousUpdatingClinicPatient?.inProgress }, successCopy, () => {
+      if (isDexcomInvite) {
         dispatch(actions.async.sendPatientDexcomConnectRequest(api, selectedClinicId, updatingClinicPatient.patientId));
+
+        return;
       }
+
+      handleCloseOverlays();
     });
   }, [
     api,
@@ -2127,12 +2135,13 @@ export const ClinicPatients = (props) => {
         aria-labelledby="dialog-title"
         open={showAddPatientDialog}
         onClose={handleCloseOverlays}
+        maxWidth="md"
       >
         <DialogTitle onClose={handleCloseOverlays}>
           <MediumTitle id="dialog-title">{t('Add New Patient Account')}</MediumTitle>
         </DialogTitle>
 
-        <DialogContent>
+        <DialogContent sx={{ width: '768px' }}>
           <PatientForm api={api} trackMetric={trackMetric} onFormChange={handlePatientFormChange} searchDebounceMs={searchDebounceMs} action="create" />
         </DialogContent>
 
@@ -2171,6 +2180,7 @@ export const ClinicPatients = (props) => {
         aria-labelledby="dialog-title"
         open={showEditPatientDialog}
         onClose={handleCloseOverlays}
+        maxWidth="md"
       >
         <DialogTitle onClose={() => {
           trackMetric('Clinic - Edit patient close', { clinicId: selectedClinicId });
@@ -2179,7 +2189,7 @@ export const ClinicPatients = (props) => {
           <MediumTitle id="dialog-title">{t('Edit Patient Details')}</MediumTitle>
         </DialogTitle>
 
-        <DialogContent>
+        <DialogContent sx={{ width: '768px', minWidth: '768px' }}>
           <PatientForm
             api={api}
             trackMetric={trackMetric}

@@ -30,14 +30,15 @@ import Button from '../../components/elements/Button';
 import { TagList } from '../../components/elements/Tag';
 import ResendDexcomConnectRequestDialog from './ResendDexcomConnectRequestDialog';
 import { useToasts } from '../../providers/ToastProvider';
-import { getCommonFormikFieldProps } from '../../core/forms';
+import { getCommonFormikFieldProps, fieldsAreValid } from '../../core/forms';
 import { useInitialFocusedInput, useIsFirstRender, usePrevious } from '../../core/hooks';
 import { dateRegex, patientSchema as validationSchema } from '../../core/clinicUtils';
 import { accountInfoFromClinicPatient } from '../../core/personutils';
 import { Body0 } from '../../components/elements/FontStyles';
-import { borders, colors } from '../../themes/baseTheme';
+import { borders, colors, radii } from '../../themes/baseTheme';
 import Icon from '../elements/Icon';
 import DexcomLogoIcon from '../../core/icons/DexcomLogo.svg';
+import PatientFormConnectionStatus from './PatientFormConnectionStatus'
 
 function getFormValues(source, clinicPatientTags, disableDexcom) {
   const hasDexcomDataSource = !!find(source?.dataSources, { providerName: 'dexcom' });
@@ -222,12 +223,13 @@ export const PatientForm = (props) => {
     values,
   } = formikContext;
 
-  function handleAsyncResult(workingState, successMessage) {
+  function handleAsyncResult(workingState, successMessage, onComplete) {
     const { inProgress, completed, notification } = workingState;
 
     if (!isFirstRender && !inProgress) {
       if (completed) {
         // Close the resend email modal and refetch patient details to update the connection status
+        onComplete();
         setShowResendDexcomConnectRequest(false);
         fetchPatientDetails();
 
@@ -299,7 +301,7 @@ export const PatientForm = (props) => {
   }, [values, clinicPatientTags, status]);
 
   useEffect(() => {
-    if (includes(['create', 'edit'], action)) {
+    if (action === 'create') {
       const hasValidEmail = !isEmpty(values.email) && !errors.email;
       setDisableConnectDexcom(!hasValidEmail);
 
@@ -315,10 +317,23 @@ export const PatientForm = (props) => {
   }, []);
 
   useEffect(() => {
-    handleAsyncResult(sendingPatientDexcomConnectRequest, t('Dexcom connection request to {{email}} has been resent.', {
-      email: patient?.email,
-    }));
+    handleAsyncResult(
+      sendingPatientDexcomConnectRequest, 
+      t('Dexcom connection request to {{email}} has been resent.', { email: patient?.email }),
+      () => { formikContext.setStatus(undefined) }
+    );
   }, [sendingPatientDexcomConnectRequest]);
+
+  async function handleSendDexcomInitialConnectEmail() {
+    await formikContext.setFieldValue('connectDexcom', true);
+    const errors = await formikContext.setFieldTouched('email');
+
+    const hasValidEmail = !isEmpty(values.email) && !errors.email;
+    if (!hasValidEmail) return;
+
+    trackMetric('Clinic - Send Dexcom connect email', { clinicId: selectedClinicId, dexcomConnectState, source: 'patientForm' });
+    formikContext.handleSubmit();
+  }
 
   function handleResendDexcomConnectEmail() {
     trackMetric('Clinic - Resend Dexcom connect email', { clinicId: selectedClinicId, dexcomConnectState, source: 'patientForm' })
@@ -365,7 +380,9 @@ export const PatientForm = (props) => {
       sx={{ minWidth: [null, '320px'] }}
       {...boxProps}
     >
-      <Box mb={4}>
+      <Text sx={{ color: colors.text.primary }}>{t('Patient Details')}</Text>
+
+      <Box mb={4} mt={3}>
         <TextInput
           {...getCommonFormikFieldProps('fullName', formikContext)}
           innerRef={initialFocusedInput === 'fullName' ? initialFocusedInputRef : undefined}
@@ -441,6 +458,93 @@ export const PatientForm = (props) => {
         </>
       )}
 
+      {showConnectDexcom && action === 'create' && (
+        <Box mt={3} pt={3} sx={{ borderTop: borders.default }}>
+          <Text sx={{ color: colors.text.primary }}>{t('Connect an Account')}</Text>
+
+          <Flex 
+            mt={2}
+            px={3} 
+            py={3} 
+            sx={{ 
+              justifyContent: 'space-between', 
+              backgroundColor: disableConnectDexcom ? 'lightestGrey' : '#F0F5FF', // TODO: FIX
+              borderRadius: radii.default 
+            }}
+          >
+            <Icon
+              label="Dexcom"
+              variant="static"
+              iconSrc={DexcomLogoIcon}
+              sx={{ img: { filter: disableConnectDexcom ? 'saturate(0%) brightness(130%)' : 'none' } }}
+            />
+
+            <Checkbox
+              {...getCommonFormikFieldProps('connectDexcom', formikContext, 'checked')}
+              disabled={disableConnectDexcom}
+            />
+          </Flex>
+
+          <Body0 mt={1} sx={{ fontWeight: 'medium' }}>
+            {t('If this box is checked, the patient will receive an email to authorize sharing Dexcom data with Tidepool. An email must be entered above. For US users only.')}
+          </Body0>
+        </Box>
+      )}
+
+      {showConnectDexcom && action === 'edit' && (
+        <Box mt={3} pt={3} sx={{ borderTop: borders.default }}>
+          <Text sx={{ color: colors.text.primary }}>{t('Connect an Account')}</Text>
+
+          <Flex 
+            mt={2}
+            px={3} 
+            py={3} 
+            sx={{ 
+              justifyContent: 'space-between', 
+              backgroundColor: '#F0F5FF', // TODO: FIX
+              borderRadius: radii.default 
+            }}
+          >
+            <Icon
+              label="Dexcom"
+              variant="static"
+              iconSrc={DexcomLogoIcon}
+            />
+
+            <Button 
+              sx={{ backgroundColor: 'white', color: 'indigos.5', border: 'none' }}
+              onClick={handleSendDexcomInitialConnectEmail}
+            >
+              {t('Email Invite')}
+            </Button>
+          </Flex>
+        </Box>
+      )}
+
+      {showDexcomConnectState && (
+        <Box mt={3} pt={3} sx={{ borderTop: borders.default }}>
+          <Text sx={{ color: colors.text.primary }}>{t('Connect an Account')}</Text>
+
+          <PatientFormConnectionStatus 
+            iconLabel="Dexcom"
+            iconSrc={DexcomLogoIcon}
+            status={dexcomConnectState}
+            onResendEmail={handleResendDexcomConnectEmail}
+            lastRequestedAt={patient.lastRequestedDexcomConnectTime}
+          />
+        </Box>
+      )}
+
+      <ResendDexcomConnectRequestDialog
+        api={api}
+        onClose={() => setShowResendDexcomConnectRequest(false)}
+        onConfirm={handleResendDexcomConnectEmailConfirm}
+        open={showResendDexcomConnectRequest}
+        patient={patient}
+        t={t}
+        trackMetric={trackMetric}
+      />
+
       {showTags && (
         <Box
           mt={3}
@@ -486,165 +590,6 @@ export const PatientForm = (props) => {
           )}
         </Box>
       )}
-
-      {showConnectDexcom && (
-        <Box
-          id="connectDexcomWrapper"
-          mt={3}
-          pt={3}
-          sx={{
-            borderTop: borders.default,
-          }}
-        >
-          <Checkbox
-            {...getCommonFormikFieldProps('connectDexcom', formikContext, 'checked')}
-            disabled={disableConnectDexcom}
-            label={(
-              <Flex sx={{ alignItems: 'center' }}>
-                <Text mr={1} mt={1} sx={{ display: 'block', fontSize: 1 }}>
-                  {t('Connect with')}
-                </Text>
-
-                <Icon
-                  variant="static"
-                  iconSrc={DexcomLogoIcon}
-                  sx={{
-                    img: {
-                      filter: disableConnectDexcom ? 'saturate(0%) brightness(130%)' : 'none',
-                    },
-                  }}
-                  label="Dexcom"
-                />
-              </Flex>
-            )}
-          />
-
-          <Body0 mt={1} sx={{ fontWeight: 'medium' }}>
-            {t('If this box is checked, patient will receive an email to authorize sharing Dexcom data with Tidepool.')}
-          </Body0>
-
-          {renderRegionalNote()}
-        </Box>
-      )}
-
-      {showDexcomConnectState && (
-        <Box
-          id="connectDexcomStatusWrapper"
-          mt={3}
-          pt={3}
-          sx={{
-            color: dexcomConnectStateUI[dexcomConnectState].color,
-            borderTop: borders.default,
-          }}
-        >
-          <Flex sx={{ alignItems: 'center' }}>
-            <Icon
-              variant="static"
-              icon={dexcomConnectStateUI[dexcomConnectState].icon}
-              label={`${dexcomConnectStateUI[dexcomConnectState].label} Dexcom`}
-              sx={dexcomConnectStateUI[dexcomConnectState].iconStyles}
-            />
-
-            <Text mx={1} mt={1} sx={{ fontSize: 0 }}>
-              {dexcomConnectStateUI[dexcomConnectState].label}
-            </Text>
-
-            <Icon
-              variant="static"
-              iconSrc={DexcomLogoIcon}
-              label="Dexcom"
-            />
-          </Flex>
-
-          {dexcomConnectState === 'pending' && (
-            <Body0 mt={2} sx={{ fontWeight: 'medium', color: colors.mediumGrey, display: 'inline-block', lineHeight: '0.5 !important'}}>
-              {t('Patient has received an email to authorize Dexcom data sharing with Tidepool but they have not taken any action yet.')}
-
-              <Button
-                id="resendDexcomConnectRequestTrigger"
-                variant="textPrimary"
-                onClick={handleResendDexcomConnectEmail}
-                sx={{ fontSize: 0, display: 'inline-block !important'}}
-              >
-                {t('Resend email')}
-              </Button>
-            </Body0>
-          )}
-
-          {dexcomConnectState === 'pendingReconnect' && (
-            <Body0 mt={2} sx={{ fontWeight: 'medium', color: colors.mediumGrey, display: 'inline-block', lineHeight: '0.5 !important'}}>
-              {t('Patient has received an email to reconnect their Dexcom data with Tidepool but they have not taken any action yet.')}
-
-              <Button
-                id="resendDexcomConnectRequestTrigger"
-                variant="textPrimary"
-                onClick={handleResendDexcomConnectEmail}
-                sx={{ fontSize: 0, display: 'inline-block !important'}}
-              >
-                {t('Resend email')}
-              </Button>
-            </Body0>
-          )}
-
-          {dexcomConnectState === 'pendingExpired' && (
-            <Body0 mt={2} sx={{ fontWeight: 'medium', color: colors.mediumGrey, display: 'inline-block', lineHeight: '0.5 !important'}}>
-              {t('Patient invitation to authorize Dexcom data sharing with Tidepool has expired. Would you like to send a new connection request?')}
-
-              <Button
-                id="resendDexcomConnectRequestTrigger"
-                variant="textPrimary"
-                onClick={handleResendDexcomConnectEmail}
-                sx={{ fontSize: 0, display: 'inline-block !important'}}
-              >
-                {t('Resend email')}
-              </Button>
-            </Body0>
-          )}
-
-          {dexcomConnectState === 'disconnected' && (
-            <Body0 mt={2} sx={{ fontWeight: 'medium', color: colors.mediumGrey, display: 'inline-block', lineHeight: '0.5 !important'}}>
-              {t('Patient has disconnected their Dexcom data sharing authorization with Tidepool. Would you like to send a new connection request?')}
-
-              <Button
-                id="resendDexcomConnectRequestTrigger"
-                variant="textPrimary"
-                onClick={handleResendDexcomConnectEmail}
-                sx={{ fontSize: 0, display: 'inline-block !important'}}
-              >
-                {t('Send email')}
-              </Button>
-            </Body0>
-          )}
-
-          {dexcomConnectState === 'error' && (
-            <Body0 mt={2} sx={{ fontWeight: 'medium', color: colors.mediumGrey, display: 'inline-block', lineHeight: '0.5 !important'}}>
-              {t('Patient\'s previous Dexcom authorization is no longer valid. Would you like to send a new connection request?')}
-
-              <Button
-                id="resendDexcomConnectRequestTrigger"
-                variant="textPrimary"
-                onClick={handleResendDexcomConnectEmail}
-                sx={{ fontSize: 0, display: 'inline-block !important'}}
-              >
-                {t('Send email')}
-              </Button>
-            </Body0>
-          )}
-
-          {dexcomConnectStateUI[dexcomConnectState].showRegionalNote && renderRegionalNote()}
-
-          <ResendDexcomConnectRequestDialog
-            api={api}
-            onClose={() => setShowResendDexcomConnectRequest(false)}
-            onConfirm={handleResendDexcomConnectEmailConfirm}
-            open={showResendDexcomConnectRequest}
-            patient={patient}
-            t={t}
-            trackMetric={trackMetric}
-          />
-        </Box>
-      )}
-
     </Box>
   );
 };
