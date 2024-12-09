@@ -36,13 +36,13 @@ const PatientFormConnectionStatus = ({
           borderRadius: radii.default 
         }}
       >
-        <Flex sx={{ gap: 3 }}>
-          <Icon variant="static" label={iconLabel} iconSrc={iconSrc} />
+        <Flex sx={{ alignItems: 'center' }}>
+          <Icon variant="static" label={iconLabel} iconSrc={iconSrc} mr={3} />
           <StatusLabel status={status} />
         </Flex>
 
         <Actions 
-          status={status} 
+          status={'status'} 
           onCopy={onCopy} 
           onResendEmail={onResendEmail} 
         />

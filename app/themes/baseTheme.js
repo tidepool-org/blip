@@ -109,6 +109,7 @@ export const colors = {
     primaryGrey: colorPalette.primary.blueGrey,
     primaryDisabled: '#A5ADBA',
     primarySubdued: colorPalette.primary.blueGreyMedium,
+    tertiary: colorPalette.neutrals.gray50,
   },
 };
 
