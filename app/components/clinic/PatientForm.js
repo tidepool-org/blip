@@ -30,7 +30,7 @@ import Button from '../../components/elements/Button';
 import { TagList } from '../../components/elements/Tag';
 import ResendDexcomConnectRequestDialog from './ResendDexcomConnectRequestDialog';
 import { useToasts } from '../../providers/ToastProvider';
-import { getCommonFormikFieldProps } from '../../core/forms';
+import { getCommonFormikFieldProps, fieldsAreValid } from '../../core/forms';
 import { useInitialFocusedInput, useIsFirstRender, usePrevious } from '../../core/hooks';
 import { dateRegex, patientSchema as validationSchema } from '../../core/clinicUtils';
 import { accountInfoFromClinicPatient } from '../../core/personutils';
@@ -300,7 +300,7 @@ export const PatientForm = (props) => {
   }, [values, clinicPatientTags, status]);
 
   useEffect(() => {
-    if (includes(['create', 'edit'], action)) {
+    if (action === 'create') {
       const hasValidEmail = !isEmpty(values.email) && !errors.email;
       setDisableConnectDexcom(!hasValidEmail);
 
@@ -321,13 +321,14 @@ export const PatientForm = (props) => {
     }));
   }, [sendingPatientDexcomConnectRequest]);
 
-  function handleSendDexcomInitialConnectEmail() {
+  async function handleSendDexcomInitialConnectEmail() {
+    await formikContext.setFieldValue('connectDexcom', true);
+    const errors = await formikContext.setFieldTouched('email');
+
     const hasValidEmail = !isEmpty(values.email) && !errors.email;
-    
     if (!hasValidEmail) return;
 
     trackMetric('Clinic - Send Dexcom connect email', { clinicId: selectedClinicId, dexcomConnectState, source: 'patientForm' });
-    formikContext.setFieldValue('connectDexcom', true);
     formikContext.handleSubmit();
   }
 

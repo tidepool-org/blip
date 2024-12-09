@@ -424,7 +424,13 @@ export const patientSchema = config => {
       .max(moment().subtract(1, 'day').format(dateFormat), t('Please enter a date prior to today'))
       .required(t('Patient\'s birthday is required')),
     mrn: mrnSchema,
-    email: yup.string().email(t('Please enter a valid email address')),
+    email: yup.string()
+              .email(t('Please enter a valid email address'))
+              .when('connectDexcom', {
+                is: true,
+                then: schema => schema.required('Please enter an email address in order to send a connection invite'),
+                otherwise: schema => schema
+              }),
     connectDexcom: yup.boolean(),
     dataSources: yup.array().of(
       yup.object().shape({
