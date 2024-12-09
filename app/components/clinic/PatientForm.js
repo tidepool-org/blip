@@ -321,6 +321,16 @@ export const PatientForm = (props) => {
     }));
   }, [sendingPatientDexcomConnectRequest]);
 
+  function handleSendDexcomInitialConnectEmail() {
+    const hasValidEmail = !isEmpty(values.email) && !errors.email;
+    
+    if (!hasValidEmail) return;
+
+    trackMetric('Clinic - Send Dexcom connect email', { clinicId: selectedClinicId, dexcomConnectState, source: 'patientForm' });
+    formikContext.setFieldValue('connectDexcom', true);
+    formikContext.handleSubmit();
+  }
+
   function handleResendDexcomConnectEmail() {
     trackMetric('Clinic - Resend Dexcom connect email', { clinicId: selectedClinicId, dexcomConnectState, source: 'patientForm' })
     setShowResendDexcomConnectRequest(true);
@@ -457,7 +467,7 @@ export const PatientForm = (props) => {
               backgroundColor: disableConnectDexcom ? 'lightestGrey' : '#F0F5FF', // TODO: FIX
               borderRadius: radii.default 
             }}
->
+          >
             <Icon
               label="Dexcom"
               variant="static"
@@ -490,7 +500,7 @@ export const PatientForm = (props) => {
               backgroundColor: '#F0F5FF', // TODO: FIX
               borderRadius: radii.default 
             }}
->
+          >
             <Icon
               label="Dexcom"
               variant="static"
@@ -499,9 +509,9 @@ export const PatientForm = (props) => {
 
             <Button 
               sx={{ backgroundColor: 'white', color: 'indigos.5', border: 'none' }}
-              onClick={() => {}}
+              onClick={handleSendDexcomInitialConnectEmail}
             >
-              Email Invite
+              {t('Email Invite')}
             </Button>
           </Flex>
         </Box>
