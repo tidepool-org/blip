@@ -2181,7 +2181,7 @@ export const ClinicPatients = (props) => {
           <MediumTitle id="dialog-title">{t('Edit Patient Details')}</MediumTitle>
         </DialogTitle>
 
-        <DialogContent sx={{ minWidth: '768px' }}>
+        <DialogContent sx={{ width: '768px', minWidth: '768px' }}>
           <PatientForm
             api={api}
             trackMetric={trackMetric}
