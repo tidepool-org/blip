@@ -2,15 +2,16 @@ import React from 'react';
 import { action } from '@storybook/addon-actions';
 import { ThemeProvider } from '@emotion/react';
 import moment from 'moment-timezone';
-import keys from 'lodash/keys';
 import map from 'lodash/map';
 import noop from 'lodash/noop';
 
 import baseTheme from '../app/themes/baseTheme';
 import { activeProviders, getDataConnectionProps } from '../app/components/datasources/DataConnections';
 import DataConnection from '../app/components/datasources/DataConnection';
+import PatientDetails from '../app/components/datasources/PatientDetails';
 import { Divider } from 'theme-ui';
 import { Subheading } from '../app/components/elements/FontStyles';
+import { clinicPatientFromAccountInfo } from '../app/core/personutils';
 import { reduce } from 'lodash';
 
 /* eslint-disable max-len */
@@ -65,91 +66,91 @@ export const ClinicUser = {
 
         {map(activeProviders, (provider, index) => (
           <DataConnection
-            my={2}
+            my={1}
             key={`provider-${index}`}
             {...dataConnectionUnset[provider]}
             buttonHandler={dataConnectionUnset[provider]?.buttonText ? () => action(dataConnectionUnset[provider]?.buttonText)(provider) : undefined}
           />
         ))}
 
-        <Divider pt={3} sx={{ color: 'border.dividerDark' }} />
+        <Divider pt={3} variant="styles.dividerDark" />
         <Subheading>Pending</Subheading>
 
         {map(activeProviders, (provider, index) => (
           <DataConnection
-            my={2}
+            my={1}
             key={`provider-${index}`}
             {...dataConnectionPending[provider]}
             buttonHandler={dataConnectionPending[provider]?.buttonText ? () => action(dataConnectionPending[provider]?.buttonText)(provider) : undefined}
           />
         ))}
 
-        <Divider pt={3} sx={{ color: 'border.dividerDark' }} />
+        <Divider pt={3} variant="styles.dividerDark" />
         <Subheading>Pending Reconnection</Subheading>
 
         {map(activeProviders, (provider, index) => (
           <DataConnection
-            my={2}
+            my={1}
             key={`provider-${index}`}
             {...dataConnectionPendingReconnect[provider]}
             buttonHandler={dataConnectionPendingReconnect[provider]?.buttonText ? () => action(dataConnectionPendingReconnect[provider]?.buttonText)(provider) : undefined}
           />
         ))}
 
-        <Divider pt={3} sx={{ color: 'border.dividerDark' }} />
+        <Divider pt={3} variant="styles.dividerDark" />
         <Subheading>Pending Expired</Subheading>
 
         {map(activeProviders, (provider, index) => (
           <DataConnection
-            my={2}
+            my={1}
             key={`provider-${index}`}
             {...dataConnectionPendingExpired[provider]}
             buttonHandler={dataConnectionPendingExpired[provider]?.buttonText ? () => action(dataConnectionPendingExpired[provider]?.buttonText)(provider) : undefined}
           />
         ))}
 
-        <Divider pt={3} sx={{ color: 'border.dividerDark' }} />
+        <Divider pt={3} variant="styles.dividerDark" />
         <Subheading>Connected</Subheading>
 
         {map(activeProviders, (provider, index) => (
           <DataConnection
-            my={2}
+            my={1}
             key={`provider-${index}`}
             {...dataConnectionConnected[provider]}
             buttonHandler={dataConnectionConnected[provider]?.buttonText ? () => action(dataConnectionConnected[provider]?.buttonText)(provider) : undefined}
           />
         ))}
 
-        <Divider pt={3} sx={{ color: 'border.dividerDark' }} />
+        <Divider pt={3} variant="styles.dividerDark" />
         <Subheading>Disconnected</Subheading>
 
         {map(activeProviders, (provider, index) => (
           <DataConnection
-            my={2}
+            my={1}
             key={`provider-${index}`}
             {...dataConnectionDisconnected[provider]}
             buttonHandler={dataConnectionDisconnected[provider]?.buttonText ? () => action(dataConnectionDisconnected[provider]?.buttonText)(provider) : undefined}
           />
         ))}
 
-        <Divider pt={3} sx={{ color: 'border.dividerDark' }} />
+        <Divider pt={3} variant="styles.dividerDark" />
         <Subheading>Error</Subheading>
 
         {map(activeProviders, (provider, index) => (
           <DataConnection
-            my={2}
+            my={1}
             key={`provider-${index}`}
             {...dataConnectionError[provider]}
             buttonHandler={dataConnectionError[provider]?.buttonText ? () => action(dataConnectionError[provider]?.buttonText)(provider) : undefined}
           />
         ))}
 
-        <Divider pt={3} sx={{ color: 'border.dividerDark' }} />
+        <Divider pt={3} variant="styles.dividerDark" />
         <Subheading>Unknown</Subheading>
 
         {map(activeProviders, (provider, index) => (
           <DataConnection
-            my={2}
+            my={1}
             key={`provider-${index}`}
             {...dataConnectionUnknown[provider]}
             buttonHandler={dataConnectionUnknown[provider]?.buttonText ? () => action(dataConnectionUnknown[provider]?.buttonText)(provider) : undefined}
@@ -185,79 +186,79 @@ export const PatientUser = {
 
         {map(activeProviders, (provider, index) => (
           <DataConnection
-            my={2}
+            my={1}
             key={`provider-${index}`}
             {...dataConnectionUnset[provider]}
             buttonHandler={dataConnectionUnset[provider]?.buttonText ? () => action(dataConnectionUnset[provider]?.buttonText)(provider) : undefined}
           />
         ))}
 
-        <Divider pt={3} sx={{ color: 'border.dividerDark' }} />
+        <Divider pt={3} variant="styles.dividerDark" />
         <Subheading>Connected</Subheading>
 
         {map(activeProviders, (provider, index) => (
           <DataConnection
-            my={2}
+            my={1}
             key={`provider-${index}`}
             {...dataConnectionConnected[provider]}
             buttonHandler={dataConnectionConnected[provider]?.buttonText ? () => action(dataConnectionConnected[provider]?.buttonText)(provider) : undefined}
           />
         ))}
 
-        <Divider pt={3} sx={{ color: 'border.dividerDark' }} />
+        <Divider pt={3} variant="styles.dividerDark" />
         <Subheading>Connected With No Data</Subheading>
 
         {map(activeProviders, (provider, index) => (
           <DataConnection
-            my={2}
+            my={1}
             key={`provider-${index}`}
             {...dataConnectionConnectedWithNoData[provider]}
             buttonHandler={dataConnectionConnectedWithNoData[provider]?.buttonText ? () => action(dataConnectionConnectedWithNoData[provider]?.buttonText)(provider) : undefined}
           />
         ))}
 
-        <Divider pt={3} sx={{ color: 'border.dividerDark' }} />
+        <Divider pt={3} variant="styles.dividerDark" />
         <Subheading>Connected With Data</Subheading>
 
         {map(activeProviders, (provider, index) => (
           <DataConnection
-            my={2}
+            my={1}
             key={`provider-${index}`}
             {...dataConnectionConnectedWithData[provider]}
             buttonHandler={dataConnectionConnectedWithData[provider]?.buttonText ? () => action(dataConnectionConnectedWithData[provider]?.buttonText)(provider) : undefined}
           />
         ))}
 
-        <Divider pt={3} sx={{ color: 'border.dividerDark' }} />
+        <Divider pt={3} variant="styles.dividerDark" />
         <Subheading>Disconnected</Subheading>
 
         {map(activeProviders, (provider, index) => (
           <DataConnection
-            my={2}
+            my={1}
             key={`provider-${index}`}
             {...dataConnectionDisconnected[provider]}
             buttonHandler={dataConnectionDisconnected[provider]?.buttonText ? () => action(dataConnectionDisconnected[provider]?.buttonText)(provider) : undefined}
           />
         ))}
 
-        <Divider pt={3} sx={{ color: 'border.dividerDark' }} />
+        <Divider pt={3} variant="styles.dividerDark" />
         <Subheading>Error</Subheading>
 
         {map(activeProviders, (provider, index) => (
           <DataConnection
-            my={2}
+            my={1}
             key={`provider-${index}`}
             {...dataConnectionError[provider]}
             buttonHandler={dataConnectionError[provider]?.buttonText ? () => action(dataConnectionError[provider]?.buttonText)(provider) : undefined}
           />
         ))}
 
-        <Divider pt={3} sx={{ color: 'border.dividerDark' }} />
+        <Divider pt={3} variant="styles.dividerDark" />
         <Subheading>Unknown</Subheading>
 
         {map(activeProviders, (provider, index) => (
           <DataConnection
-            my={2}
+            my={1}
             key={`provider-${index}`}
             {...dataConnectionUnknown[provider]}
             buttonHandler={dataConnectionUnknown[provider]?.buttonText ? () => action(dataConnectionUnknown[provider]?.buttonText)(provider) : undefined}
@@ -268,6 +269,48 @@ export const PatientUser = {
   },
 
   name: 'Patient User',
+
+  parameters: {
+    design: {
+      type: 'figma',
+      url: 'https://www.figma.com/design/LdoOQCUyQKIS2d6fUhfFJx/Cloud-to-Cloud?node-id=2212-18679&node-type=section&t=qP2OFSYnWA1USfSp-0',
+    },
+  },
+};
+
+export const PatientDetailBar = {
+  render: () => {
+    const clinicPatient = {
+      fullName: 'Jonathan Jellyfish',
+      birthDate: '1984-08-24',
+      mrn: '123456',
+    };
+
+    const noMRNPatient = {
+      fullName: 'James Jellyfish',
+      birthDate: '1994-06-20',
+    };
+
+    const accountPatient = {
+      profile: {
+        fullName: 'Jill Jellyfish',
+        patient: {
+          birthday: '1988-07-04',
+          mrn: '654321',
+        }
+      }
+    };
+
+    return (
+      <React.Fragment>
+        <PatientDetails mb={2} patient={clinicPatient}/>
+        <PatientDetails mb={2} patient={noMRNPatient}/>
+        <PatientDetails patient={clinicPatientFromAccountInfo(accountPatient)}/>
+      </React.Fragment>
+    );
+  },
+
+  name: 'Patient Details',
 
   parameters: {
     design: {
