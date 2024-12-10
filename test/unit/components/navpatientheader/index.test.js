@@ -36,7 +36,7 @@ describe('NavPatientHeader', () => {
 
   describe('visibility of patient info and actions', () => {
     context('personal user with non-root permissions', () => {
-      const props = { // personal user with non-root permissions;
+      const props = {
         user: { roles: [] },
         trackMetric: mockTrackMetric,
         patient: { ...defaultPatientProps, permissions: { } },
@@ -63,7 +63,7 @@ describe('NavPatientHeader', () => {
     });
 
     context('personal user with root permissions', () => {
-      const props = { // personal user with root permissions;
+      const props = {
         user: { roles: [] },
         trackMetric: mockTrackMetric,
         patient: { ...defaultPatientProps, permissions: { root: true } },
@@ -89,7 +89,7 @@ describe('NavPatientHeader', () => {
     });
 
     context('clinician user with non-root permissions', () => {
-      const props = { // personal user with root permissions;
+      const props = {
         user: { roles: ['clinician'] },
         trackMetric: mockTrackMetric,
         patient: { ...defaultPatientProps, permissions: { } },
@@ -115,7 +115,7 @@ describe('NavPatientHeader', () => {
     });
 
     context('clinician user with root permissions', () => {
-      const props = { // personal user with root permissions;
+      const props = {
         user: { roles: ['clinician'] },
         trackMetric: mockTrackMetric,
         patient: { ...defaultPatientProps, permissions: { root: true } },
