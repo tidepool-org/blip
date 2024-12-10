@@ -39,7 +39,7 @@ describe('NavPatientHeader', () => {
       const props = { // personal user with non-root permissions;
         user: { roles: [] },
         trackMetric: mockTrackMetric,
-        patient: { ...defaultPatientProps, permissions: { root: false } },
+        patient: { ...defaultPatientProps, permissions: { } },
       };
 
       const wrapper = mount(
@@ -92,7 +92,7 @@ describe('NavPatientHeader', () => {
       const props = { // personal user with root permissions;
         user: { roles: ['clinician'] },
         trackMetric: mockTrackMetric,
-        patient: { ...defaultPatientProps, permissions: { root: false } },
+        patient: { ...defaultPatientProps, permissions: { } },
       };
 
       const wrapper = mount(
@@ -233,7 +233,7 @@ describe('NavPatientHeader', () => {
     describe('viewing patient data or profile views as a clinician user', () => {
       const clinicianUserProps = {
         trackMetric: mockTrackMetric,
-        patient: { ...defaultPatientProps, permissions: { root: false } },
+        patient: { ...defaultPatientProps, permissions: { } },
         user: { roles: ['clinic'] },
       };
 
@@ -253,7 +253,7 @@ describe('NavPatientHeader', () => {
     describe('viewing patient data or profile views as a clinic clinician', () => {
       const clinicClinicianProps = {
         trackMetric: mockTrackMetric,
-        patient: { ...defaultPatientProps, permissions: { root: false } },
+        patient: { ...defaultPatientProps, permissions: { } },
         clinicFlowActive: true,
         user: { isClinicMember: true },
         selectedClinicId: 'clinic123',
@@ -283,7 +283,7 @@ describe('NavPatientHeader', () => {
       it('should render a patient list link', () => {
         const clinicClinicianProps = {
           trackMetric: mockTrackMetric,
-          patient: { ...defaultPatientProps, permissions: { root: false } },
+          patient: { ...defaultPatientProps, permissions: { } },
           clinicFlowActive: true,
           user: { isClinicMember: true },
           selectedClinicId: 'clinic123',
