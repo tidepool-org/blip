@@ -10,8 +10,7 @@ import PatientMenuOptions from './MenuOptions/Patient';
 import ClinicianMenuOptions from './MenuOptions/Clinician';
 import { isClinicianAccount } from '../../core/personutils';
 import { getPermissions, getPatientListLink } from './navPatientHeaderHelpers';
-
-const UploadLaunchOverlay = require('../../components/uploadlaunchoverlay');
+import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
 
 const HeaderContainer = ({ children }) => (
   <Box variant="containers.largeBordered" mb={0} mx={[0, 0]} sx={{ width: ['100%', '100%'] }}>
