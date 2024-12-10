@@ -531,7 +531,8 @@ export const ClinicPatients = (props) => {
     [clinicBgUnits]
   );
 
-  const [activeFilters, setActiveFilters] = useLocalStorage('activePatientFilters', defaultFilterState, true);
+  const activeFiltersStorageKey = `activePatientFilters/${loggedInUserId}/${selectedClinicId}`;
+  const [activeFilters, setActiveFilters] = useLocalStorage(activeFiltersStorageKey, defaultFilterState, true);
   const [pendingFilters, setPendingFilters] = useState({ ...defaultFilterState, ...activeFilters });
   const previousActiveFilters = usePrevious(activeFilters);
 
