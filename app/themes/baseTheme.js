@@ -290,6 +290,8 @@ const text = {
 
 const styles = {
   a: linkVariants.default,
+  hr: { borderBottom: borders.divider },
+  dividerDark: { borderBottom: borders.dividerDark },
 };
 
 export default {
