@@ -88,11 +88,12 @@ describe('NavPatientHeader', () => {
       })
     });
 
-    context('clinician user with non-root permissions', () => {
+    context('clinician user without upload permissions', () => {
       const props = {
         user: { roles: ['clinician'] },
         trackMetric: mockTrackMetric,
         patient: { ...defaultPatientProps, permissions: { } },
+        permsOfLoggedInUser: {}
       };
 
       const wrapper = mount(
@@ -114,11 +115,12 @@ describe('NavPatientHeader', () => {
       })
     });
 
-    context('clinician user with root permissions', () => {
+    context('clinician user with upload permissions', () => {
       const props = {
         user: { roles: ['clinician'] },
         trackMetric: mockTrackMetric,
         patient: { ...defaultPatientProps, permissions: { root: {} } },
+        permsOfLoggedInUser: { upload: {} }
       };
 
       const wrapper = mount(
