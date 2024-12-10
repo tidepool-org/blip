@@ -29,8 +29,6 @@ export function DialogTitle(props) {
     ...dialogTitleProps
   } = props;
 
-  const ICON_WIDTH = 28;
-
   return (
     <Flex
       p={3}
