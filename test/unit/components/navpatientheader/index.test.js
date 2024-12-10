@@ -197,7 +197,8 @@ describe('NavPatientHeader', () => {
       const props = { 
         user: { roles: ['clinician'] },
         trackMetric: mockTrackMetric,
-        patient: { ...defaultPatientProps, permissions: { root: {} } },
+        patient: { ...defaultPatientProps, permissions: { } },
+        permsOfLoggedInUser: { upload: {} }
       };
 
       wrapper = mount(
