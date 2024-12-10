@@ -11,7 +11,6 @@ const DemographicsContainer = ({ children }) => (
     flexShrink: 0, 
     gap: 5, 
     fontSize: 1, 
-    alignItems: 'flex-start', 
     height: '1.5rem',
     alignItems: 'center'
   }}>
