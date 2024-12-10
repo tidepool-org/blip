@@ -66,7 +66,7 @@ describe('NavPatientHeader', () => {
       const props = {
         user: { roles: [] },
         trackMetric: mockTrackMetric,
-        patient: { ...defaultPatientProps, permissions: { root: true } },
+        patient: { ...defaultPatientProps, permissions: { root: {} } },
       };
 
       const wrapper = mount(
@@ -118,7 +118,7 @@ describe('NavPatientHeader', () => {
       const props = {
         user: { roles: ['clinician'] },
         trackMetric: mockTrackMetric,
-        patient: { ...defaultPatientProps, permissions: { root: true } },
+        patient: { ...defaultPatientProps, permissions: { root: {} } },
       };
 
       const wrapper = mount(
@@ -148,7 +148,7 @@ describe('NavPatientHeader', () => {
       const props = { 
         user: { roles: [] },
         trackMetric: mockTrackMetric,
-        patient: { ...defaultPatientProps, permissions: { root: true } },
+        patient: { ...defaultPatientProps, permissions: { root: {} } },
       };
 
       wrapper = mount(
@@ -195,7 +195,7 @@ describe('NavPatientHeader', () => {
       const props = { 
         user: { roles: ['clinician'] },
         trackMetric: mockTrackMetric,
-        patient: { ...defaultPatientProps, permissions: { root: true } },
+        patient: { ...defaultPatientProps, permissions: { root: {} } },
       };
 
       wrapper = mount(
