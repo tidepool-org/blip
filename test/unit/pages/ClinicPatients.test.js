@@ -70,7 +70,7 @@ describe('ClinicPatients', () => {
   });
 
   beforeEach(() => {
-    delete localStorage["activePatientFilters/clinicianUserId123/clinicID123"];
+    delete localStorage['activePatientFilters/clinicianUserId123/clinicID123'];
     delete localStorage.activePatientSort;
     defaultProps.trackMetric.resetHistory();
     defaultProps.api.clinics.getPatientFromClinic.resetHistory();
@@ -2056,7 +2056,7 @@ describe('ClinicPatients', () => {
 
           beforeEach(() => {
             mockedLocalStorage = {
-              "activePatientFilters/clinicianUserId123/clinicID123": {
+              'activePatientFilters/clinicianUserId123/clinicID123': {
                 timeInRange: [
                     'timeInLowPercent',
                     'timeInHighPercent'
@@ -2198,7 +2198,7 @@ describe('ClinicPatients', () => {
             store = mockStore(tier0300ClinicState);
 
             mockedLocalStorage = {
-              "activePatientFilters/clinicianUserId123/clinicID123": {
+              'activePatientFilters/clinicianUserId123/clinicID123': {
                 lastData: 14,
                 timeInRange: [
                     'timeInLowPercent',
@@ -2309,7 +2309,7 @@ describe('ClinicPatients', () => {
             store = mockStore(tier0300ClinicState);
 
             mockedLocalStorage = {
-              "activePatientFilters/clinicianUserId123/clinicID123": {
+              'activePatientFilters/clinicianUserId123/clinicID123': {
                 timeInRange: [
                     'timeInLowPercent',
                     'timeInHighPercent'
