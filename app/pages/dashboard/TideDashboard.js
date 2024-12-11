@@ -831,7 +831,7 @@ export const TideDashboard = (props) => {
     }
   }, [isFirstRender, setToast]);
 
-  const handlePatientEdit = useCallback(() => {
+  const handlePatientEdited = useCallback(() => {
     if (patientFormContext?.status?.showDataConnectionsModalNext) {
       setShowEditPatientDialog(false);
       editPatientDataConnections(selectedPatient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal, 'Tide dashboard - patient modal');
@@ -841,13 +841,13 @@ export const TideDashboard = (props) => {
   }, [handleCloseOverlays, patientFormContext?.status]);
 
   useEffect(() => {
-    handleAsyncResult({ ...updatingClinicPatient, prevInProgress: previousUpdatingClinicPatient?.inProgress }, t('You have successfully updated a patient.'), handlePatientEdit)
+    handleAsyncResult({ ...updatingClinicPatient, prevInProgress: previousUpdatingClinicPatient?.inProgress }, t('You have successfully updated a patient.'), handlePatientEdited)
   }, [
     api,
     dispatch,
     selectedClinicId,
     handleAsyncResult,
-    handlePatientEdit,
+    handlePatientEdited,
     t,
     updatingClinicPatient,
     patientFormContext?.status,

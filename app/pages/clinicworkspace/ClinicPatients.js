@@ -718,26 +718,35 @@ export const ClinicPatients = (props) => {
     }
   }, [isFirstRender, setToast]);
 
-  const handlePatientCreateOrEdit = useCallback(() => {
+  const handlePatientCreatedOrEdited = useCallback(() => {
     if (patientFormContext?.status?.showDataConnectionsModalNext) {
-      if (patientFormContext?.status?.newPatient && creatingClinicCustodialAccount?.patientId) setSelectedPatient({
+      let currentPatient = selectedPatient;
+
+      if (patientFormContext?.status?.newPatient && creatingClinicCustodialAccount?.patientId) currentPatient = {
         ...patientFormContext.status.newPatient,
         id: creatingClinicCustodialAccount?.patientId,
-      });
+      };
 
       setShowAddPatientDialog(false);
       setShowEditPatientDialog(false);
-      editPatientDataConnections(selectedPatient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal, 'Patients list - patient modal');
+      editPatientDataConnections(currentPatient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal, 'Patients list - patient modal');
     } else {
       handleCloseOverlays();
     }
-  }, [handleCloseOverlays, patientFormContext?.status]);
+  }, [
+    handleCloseOverlays,
+    patientFormContext?.status,
+    creatingClinicCustodialAccount,
+    selectedClinicId,
+    selectedPatient,
+    trackMetric,
+  ]);
 
   useEffect(() => {
-    handleAsyncResult({ ...updatingClinicPatient, prevInProgress: previousUpdatingClinicPatient?.inProgress }, t('You have successfully updated a patient.'), handlePatientCreateOrEdit);
+    handleAsyncResult({ ...updatingClinicPatient, prevInProgress: previousUpdatingClinicPatient?.inProgress }, t('You have successfully updated a patient.'), handlePatientCreatedOrEdited);
   }, [
     handleAsyncResult,
-    handlePatientCreateOrEdit,
+    handlePatientCreatedOrEdited,
     t,
     updatingClinicPatient,
     patientFormContext?.status,
@@ -745,10 +754,10 @@ export const ClinicPatients = (props) => {
   ]);
 
   useEffect(() => {
-    handleAsyncResult({ ...creatingClinicCustodialAccount, prevInProgress: previousCreatingClinicCustodialAccount?.inProgress }, t('You have successfully added a new patient.'), handlePatientCreateOrEdit);
+    handleAsyncResult({ ...creatingClinicCustodialAccount, prevInProgress: previousCreatingClinicCustodialAccount?.inProgress }, t('You have successfully added a new patient.'), handlePatientCreatedOrEdited);
   }, [
     handleAsyncResult,
-    handlePatientCreateOrEdit,
+    handlePatientCreatedOrEdited,
     t,
     creatingClinicCustodialAccount,
     patientFormContext?.status,
