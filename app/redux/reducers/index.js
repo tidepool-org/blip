@@ -19,6 +19,7 @@ import { combineReducers } from 'redux';
 import working from './working';
 import pdf from './pdf';
 import data from './data';
+import patientListFilters from './patientListFilters';
 
 import {
   bgPrefs,
@@ -111,4 +112,5 @@ export default combineReducers({
   data,
   working,
   pendoData,
+  patientListFilters,
 });

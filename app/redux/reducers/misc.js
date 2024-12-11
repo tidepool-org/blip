@@ -1149,8 +1149,9 @@ export const tideDashboardPatients = (state = initialState.tideDashboardPatients
     case types.FETCH_TIDE_DASHBOARD_PATIENTS_SUCCESS:
       return action?.payload?.results || initialState.tideDashboardPatients;
     case types.UPDATE_CLINIC_PATIENT_SUCCESS:
+    case types.FETCH_PATIENT_FROM_CLINIC_SUCCESS:
       const patient = _.get(action.payload, 'patient');
-      const patientId = _.get(action.payload, 'patientId');
+      const patientId = patient.id;
 
       const newResults = _.reduce(state.results, (results, value, key) => {
         const matchingPatientIndex = _.findIndex(value, ({ patient }) => patient?.id === patientId);
