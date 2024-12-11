@@ -725,7 +725,7 @@ export const ClinicPatients = (props) => {
   }, [deletingClinicPatientTag, handleAsyncResult, handleCloseClinicPatientTagUpdateDialog, previousDeletingClinicPatientTag?.inProgress, t]);
 
   useEffect(() => {
-    // Prevent this effect from firing on logout, which would clear all activeFilters from localStorage
+    // Prevent this effect from firing on logout, which would clear all patient tags from localStorage
     if (!clinic) return;
 
     // If a tag is deleted or otherwise missing, and is still present in an active filter, remove it from the filters
