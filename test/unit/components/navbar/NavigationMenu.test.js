@@ -179,6 +179,14 @@ describe('NavigationMenu', () => {
 
       expect(store.getActions()).to.eql([
         {
+          type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT',
+          payload: { textInput: '' }
+        },
+        {
+          type: 'SET_IS_PATIENT_LIST_VISIBLE',
+          payload: { isVisible: false }
+        },
+        {
           type: 'SELECT_CLINIC_SUCCESS',
           payload: {
             clinicId: null, // null is appropriate for switch to private workspace
@@ -254,6 +262,14 @@ describe('NavigationMenu', () => {
 
       expect(store.getActions()).to.eql([
         {
+          type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT',
+          payload: { textInput: '' }
+        },
+        {
+          type: 'SET_IS_PATIENT_LIST_VISIBLE',
+          payload: { isVisible: false }
+        },
+        {
           type: 'SELECT_CLINIC_SUCCESS',
           payload: {
             clinicId: 'clinicID456',
@@ -289,6 +305,14 @@ describe('NavigationMenu', () => {
       menuOptions.at(2).simulate('click');
 
       expect(store.getActions()).to.eql([
+        {
+          type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT',
+          payload: { textInput: '' }
+        },
+        {
+          type: 'SET_IS_PATIENT_LIST_VISIBLE',
+          payload: { isVisible: false }
+        },
         {
           type: 'SELECT_CLINIC_SUCCESS',
           payload: {
@@ -385,6 +409,14 @@ describe('NavigationMenu', () => {
 
         expect(store.getActions()).to.eql([
           {
+            type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT',
+            payload: { textInput: '' }
+          },
+          {
+            type: 'SET_IS_PATIENT_LIST_VISIBLE',
+            payload: { isVisible: false }
+          },
+          {
             type: 'SELECT_CLINIC_SUCCESS',
             payload: {
               clinicId: null, // null is appropriate for switch to private workspace
@@ -431,6 +463,14 @@ describe('NavigationMenu', () => {
         menuOptions.at(2).simulate('click');
 
         expect(store.getActions()).to.eql([
+          {
+            type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT',
+            payload: { textInput: '' }
+          },
+          {
+            type: 'SET_IS_PATIENT_LIST_VISIBLE',
+            payload: { isVisible: false }
+          },
           {
             type: 'SELECT_CLINIC_SUCCESS',
             payload: {
