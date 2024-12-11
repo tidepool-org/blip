@@ -46,65 +46,62 @@ export function DataConnection(props) {
         alignItems: 'center',
         borderRadius: radii.default,
         justifyContent: 'space-between',
-        gap: 3,
+        gap: 2,
         width: '100%',
         bg: '#F0F5FF',
+        flexWrap: ['wrap', null, 'nowrap']
       }}
       {...themeProps}
     >
-      <Flex px={2} sx={{ gap: 2, flexGrow: 1, flexWrap: ['wrap', null, 'nowrap'], alignItems: 'center', justifyContent: 'flex-start' }}>
-        <Flex sx={{ order: 1 }}>
-          {logoImage && <Icon className="icon" theme={baseTheme} variant="static" label={logoImageLabel} iconSrc={logoImage} />}
-        </Flex>
-
-        {(stateText || messageText) && <Flex
-          className="state"
-          sx={{
-            alignItems: 'center',
-            borderTop: [`1px solid ${colors.border.dividerDark}`, null, 'none'],
-            pt: [1, null, 0],
-            gap: [2, null, 1],
-            justifyContent: 'flex-start',
-            order: [3, null, 2],
-            width: ['100%', null, 'auto'],
-          }}
-        >
-          {icon && <Icon className="state-icon" theme={baseTheme} variant="static" label={iconLabel} icon={icon} sx={{ color: stateColor, fontSize: 3 }} />}
-
-          <Box>
-            <Body1
-              as="strong"
-              className="state-text"
-              pt="0.25em"
-              mr="0.25em"
-              sx={{ display: 'inline-block', fontWeight: 'bold', color: stateColor }}
-            >
-              {stateText}
-            </Body1>
-
-            {messageText && <Body0
-              as="em"
-              className="message"
-              pt=".25em"
-              sx={{ color: messageColor, display: 'inline', fontWeight: 'medium' }}
-            >
-              {`- ${messageText}`}
-            </Body0>}
-          </Box>
-        </Flex>}
-
-        <Box sx={{ flexGrow: 1, justifyItems: 'flex-end', order: [2, null, 3] }}>
-          {buttonHandler && <Button
-            variant="textPrimary"
-            {...buttonStyles[buttonStyle]}
-            className="action"
-            onClick={buttonHandler}
-            processing={buttonProcessing}
-          >
-            {buttonText}
-          </Button>}
-        </Box>
+      <Flex sx={{ order: 1 }}>
+        {logoImage && <Icon className="icon" theme={baseTheme} variant="static" label={logoImageLabel} iconSrc={logoImage} />}
       </Flex>
+
+      {(stateText || messageText) && <Flex
+        className="state"
+        sx={{
+          alignItems: 'center',
+          borderTop: [`1px solid ${colors.border.dividerDark}`, null, 'none'],
+          pt: [1, null, 0],
+          gap: [2, null, 1],
+          justifyContent: 'space-between',
+          order: [3, null, 2],
+          width: ['100%', null, 'auto'],
+          flexGrow: 1,
+        }}
+      >
+        {icon && <Icon className="state-icon" theme={baseTheme} variant="static" label={iconLabel} icon={icon} sx={{ color: stateColor, fontSize: 3 }} />}
+
+        <Box as="span" pr={2} sx={{ flexGrow: 1, display: 'inline-block', alignItems: 'center' }}>
+          <Body1
+            as="strong"
+            className="state-text"
+            sx={{ display: 'inline', fontWeight: 'bold', color: stateColor }}
+          >
+            {stateText}
+          </Body1>
+
+          {messageText && <Body0
+            as="em"
+            className="state-message"
+            sx={{ color: messageColor, display: 'inline', fontWeight: 'medium' }}
+          >
+            {` - ${messageText}`}
+          </Body0>}
+        </Box>
+      </Flex>}
+
+      <Box sx={{ order: [2, null, 3] }}>
+        {buttonHandler && <Button
+          variant="textPrimary"
+          {...buttonStyles[buttonStyle]}
+          className="action"
+          onClick={buttonHandler}
+          processing={buttonProcessing}
+        >
+          {buttonText}
+        </Button>}
+      </Box>
     </Flex>
   );
 };
