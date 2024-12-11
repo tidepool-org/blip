@@ -22,11 +22,11 @@ import omit from 'lodash/omit';
 import orderBy from 'lodash/orderBy';
 import pick from 'lodash/pick';
 import reject from 'lodash/reject';
+import upperFirst from 'lodash/upperFirst';
 import values from 'lodash/values';
 import without from 'lodash/without';
 import { Box, Flex, Link, Text } from 'theme-ui';
 import AddIcon from '@material-ui/icons/Add';
-import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import DeleteIcon from '@material-ui/icons/DeleteRounded';
 import DoubleArrowIcon from '@material-ui/icons/DoubleArrow';
@@ -77,6 +77,7 @@ import Popover from '../../components/elements/Popover';
 import RadioGroup from '../../components/elements/RadioGroup';
 import Checkbox from '../../components/elements/Checkbox';
 import FilterIcon from '../../core/icons/FilterIcon.svg';
+import DataInIcon from '../../core/icons/DataInIcon.svg';
 import SendEmailIcon from '../../core/icons/SendEmailIcon.svg';
 import TabularReportIcon from '../../core/icons/TabularReportIcon.svg';
 import utils from '../../core/utils';
@@ -106,10 +107,11 @@ import {
 import { MGDL_UNITS, MMOLL_UNITS, URL_TIDEPOOL_PLUS_PLANS } from '../../core/constants';
 import { borders, radii, colors, space, fontWeights } from '../../themes/baseTheme';
 import PopoverElement from '../../components/elements/PopoverElement';
+import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
 
 const { Loader } = vizComponents;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels, formatBgValue } = vizUtils.bg;
-const { getLocalizedCeiling, getTimezoneFromTimePrefs, formatTimeAgo } = vizUtils.datetime;
+const { getLocalizedCeiling, formatTimeAgo } = vizUtils.datetime;
 
 const StyledScrollToTop = styled(ScrollToTop)`
   background-color: ${colors.purpleMedium};
@@ -143,6 +145,12 @@ const editPatient = (patient, setSelectedPatient, selectedClinicId, trackMetric,
   setShowEditPatientDialog(true);
 };
 
+const editPatientDataConnections = (patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal, source) => {
+  trackMetric('Clinic - Edit patient', { clinicId: selectedClinicId, source });
+  setSelectedPatient(patient);
+  setShowDataConnectionsModal(true);
+};
+
 const MoreMenu = ({
   patient,
   isClinicAdmin,
@@ -151,6 +159,7 @@ const MoreMenu = ({
   t,
   trackMetric,
   setSelectedPatient,
+  setShowDataConnectionsModal,
   setShowEditPatientDialog,
   prefixPopHealthMetric,
   setShowSendUploadReminderDialog,
@@ -159,6 +168,10 @@ const MoreMenu = ({
   const handleEditPatient = useCallback(() => {
     editPatient(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog, 'action menu');
   }, [patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog]);
+
+  const handleEditPatientDataConnections = useCallback(() => {
+    editPatientDataConnections(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal, 'action menu');
+  }, [patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal]);
 
   const handleSendUploadReminder = useCallback(
     (patient) => {
@@ -199,6 +212,17 @@ const MoreMenu = ({
         handleEditPatient(patient);
       },
       text: t('Edit Patient Information'),
+    }, {
+      iconSrc: DataInIcon,
+      iconLabel: t('Bring Data into Tidepool'),
+      iconPosition: 'left',
+      id: `edit-data-connections-${patient.id}`,
+      variant: 'actionListItem',
+      onClick: (_popupState) => {
+        _popupState.close();
+        handleEditPatientDataConnections(patient);
+      },
+      text: t('Bring Data into Tidepool'),
     });
 
     if (showSummaryData && patient.email && !patient.permissions?.custodian) {
@@ -451,6 +475,7 @@ export const ClinicPatients = (props) => {
   const [showRpmReportConfigDialog, setShowRpmReportConfigDialog] = useState(false);
   const [showRpmReportLimitDialog, setShowRpmReportLimitDialog] = useState(false);
   const [showTideDashboardConfigDialog, setShowTideDashboardConfigDialog] = useState(false);
+  const [showDataConnectionsModal, setShowDataConnectionsModal] = useState(false);
   const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
   const [showClinicPatientTagsDialog, setShowClinicPatientTagsDialog] = useState(false);
   const [showTimeInRangeDialog, setShowTimeInRangeDialog] = useState(false);
@@ -632,6 +657,33 @@ export const ClinicPatients = (props) => {
 
   const prefixPopHealthMetric = useCallback(metric => `Clinic - Population Health - ${metric}`, []);
 
+  const handleCloseOverlays = useCallback(() => {
+    const resetList = showAddPatientDialog || showEditPatientDialog;
+    setShowAddPatientDialog(false);
+    setShowDeleteDialog(false);
+    setShowDataConnectionsModal(false);
+    setShowEditPatientDialog(false);
+    setShowClinicPatientTagsDialog(false);
+    setShowTimeInRangeDialog(false);
+    setShowSendUploadReminderDialog(false);
+    setShowTideDashboardConfigDialog(false);
+    setShowRpmReportConfigDialog(false);
+    setShowRpmReportLimitDialog(false);
+
+    if (resetList) {
+      setPatientFetchOptions({ ...patientFetchOptions });
+    }
+
+    setTimeout(() => {
+      setPatientFormContext(null);
+      setSelectedPatient(null);
+    });
+  }, [
+    showAddPatientDialog,
+    showEditPatientDialog,
+    patientFetchOptions,
+  ]);
+
   const handleCloseClinicPatientTagUpdateDialog = useCallback(metric => {
     if (metric) trackMetric(prefixPopHealthMetric(metric, { clinicId: selectedClinicId }));
     setShowDeleteClinicPatientTagDialog(false);
@@ -666,19 +718,35 @@ export const ClinicPatients = (props) => {
     }
   }, [isFirstRender, setToast]);
 
-  useEffect(() => {
-    handleAsyncResult({ ...updatingClinicPatient, prevInProgress: previousUpdatingClinicPatient?.inProgress }, t('You have successfully updated a patient.'), () => {
-      handleCloseOverlays();
+  const handlePatientCreatedOrEdited = useCallback(() => {
+    if (patientFormContext?.status?.showDataConnectionsModalNext) {
+      let currentPatient = selectedPatient;
 
-      if (patientFormContext?.status === 'sendingDexcomConnectRequest') {
-        dispatch(actions.async.sendPatientDexcomConnectRequest(api, selectedClinicId, updatingClinicPatient.patientId));
-      }
-    });
+      if (patientFormContext?.status?.newPatient && creatingClinicCustodialAccount?.patientId) currentPatient = {
+        ...patientFormContext.status.newPatient,
+        id: creatingClinicCustodialAccount?.patientId,
+      };
+
+      setShowAddPatientDialog(false);
+      setShowEditPatientDialog(false);
+      editPatientDataConnections(currentPatient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal, 'Patients list - patient modal');
+    } else {
+      handleCloseOverlays();
+    }
   }, [
-    api,
-    dispatch,
+    handleCloseOverlays,
+    patientFormContext?.status,
+    creatingClinicCustodialAccount,
     selectedClinicId,
+    selectedPatient,
+    trackMetric,
+  ]);
+
+  useEffect(() => {
+    handleAsyncResult({ ...updatingClinicPatient, prevInProgress: previousUpdatingClinicPatient?.inProgress }, t('You have successfully updated a patient.'), handlePatientCreatedOrEdited);
+  }, [
     handleAsyncResult,
+    handlePatientCreatedOrEdited,
     t,
     updatingClinicPatient,
     patientFormContext?.status,
@@ -686,18 +754,10 @@ export const ClinicPatients = (props) => {
   ]);
 
   useEffect(() => {
-    handleAsyncResult({ ...creatingClinicCustodialAccount, prevInProgress: previousCreatingClinicCustodialAccount?.inProgress }, t('You have successfully added a new patient.'), () => {
-      handleCloseOverlays();
-
-      if (patientFormContext?.status === 'sendingDexcomConnectRequest') {
-        dispatch(actions.async.sendPatientDexcomConnectRequest(api, selectedClinicId, creatingClinicCustodialAccount.patientId));
-      }
-    });
+    handleAsyncResult({ ...creatingClinicCustodialAccount, prevInProgress: previousCreatingClinicCustodialAccount?.inProgress }, t('You have successfully added a new patient.'), handlePatientCreatedOrEdited);
   }, [
-    api,
-    dispatch,
-    selectedClinicId,
     handleAsyncResult,
+    handlePatientCreatedOrEdited,
     t,
     creatingClinicCustodialAccount,
     patientFormContext?.status,
@@ -2192,10 +2252,18 @@ export const ClinicPatients = (props) => {
 
         <DialogActions>
           <Button id="editPatientCancel" variant="secondary" onClick={() => {
-            trackMetric('Clinic - Edit patient cancel', { clinicId: selectedClinicId });
+            trackMetric('Clinic - Edit patient cancel', { clinicId: selectedClinicId, source: 'Patients list' });
             handleCloseOverlays()
           }}>
             {t('Cancel')}
+          </Button>
+
+          <Button id="editPatientNext" variant="secondary" onClick={() => {
+            trackMetric('Clinic - Edit patient next', { clinicId: selectedClinicId, source: 'Patients list' });
+            patientFormContext?.setStatus({ showDataConnectionsModalNext: true });
+            handleEditPatientConfirm();
+          }}>
+            {t('Save & Next')}
           </Button>
 
           <Button
@@ -2215,7 +2283,9 @@ export const ClinicPatients = (props) => {
     handleEditPatientConfirm,
     mrnSettings,
     existingMRNs,
-    patientFormContext?.values,
+    handleCloseOverlays,
+    patientFormContext,
+    searchDebounceMs,
     selectedClinicId,
     selectedPatient,
     showEditPatientDialog,
@@ -2710,26 +2780,23 @@ export const ClinicPatients = (props) => {
     t,
   ]);
 
-  function handleCloseOverlays() {
-    const resetList = showAddPatientDialog || showEditPatientDialog;
-    setShowDeleteDialog(false);
-    setShowAddPatientDialog(false);
-    setShowEditPatientDialog(false);
-    setShowClinicPatientTagsDialog(false);
-    setShowTimeInRangeDialog(false);
-    setShowSendUploadReminderDialog(false);
-    setShowTideDashboardConfigDialog(false);
-    setShowRpmReportConfigDialog(false);
-    setShowRpmReportLimitDialog(false);
-
-    if (resetList) {
-      setPatientFetchOptions({ ...patientFetchOptions });
-    }
-
-    setTimeout(() => {
-      setSelectedPatient(null);
-    });
-  }
+  const renderDataConnectionsModal = useCallback(() => {
+    return (
+      <DataConnectionsModal
+        open
+        patient={selectedPatient}
+        onClose={handleCloseOverlays}
+        onBack={patientFormContext?.status?.showDataConnectionsModalNext ? () => {
+          setShowDataConnectionsModal(false)
+          setShowEditPatientDialog(true)
+        } : undefined}
+      />
+    );
+  }, [
+    selectedPatient,
+    patientFormContext?.status,
+    handleCloseOverlays,
+  ]);
 
   const renderPatient = useCallback(patient => (
     <Box onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
@@ -2790,7 +2857,7 @@ export const ClinicPatients = (props) => {
                 whiteSpace: 'nowrap',
               }}
             >
-              {formattedLastDataDateCGM.text}
+              {upperFirst(formattedLastDataDateCGM.daysText)}
             </Text>
           </Box>
         )}
@@ -2805,7 +2872,7 @@ export const ClinicPatients = (props) => {
                 whiteSpace: 'nowrap',
               }}
             >
-              {formattedLastDataDateBGM.text}
+              {upperFirst(formattedLastDataDateBGM.daysText)}
             </Text>
           </Box>
         )}
@@ -2974,6 +3041,7 @@ export const ClinicPatients = (props) => {
       t={t}
       trackMetric={trackMetric}
       setSelectedPatient={setSelectedPatient}
+      setShowDataConnectionsModal={setShowDataConnectionsModal}
       setShowEditPatientDialog={setShowEditPatientDialog}
       prefixPopHealthMetric={prefixPopHealthMetric}
       setShowSendUploadReminderDialog={setShowSendUploadReminderDialog}
@@ -3246,6 +3314,7 @@ export const ClinicPatients = (props) => {
       {showTimeInRangeDialog && renderTimeInRangeDialog()}
       {showSendUploadReminderDialog && renderSendUploadReminderDialog()}
       {showClinicPatientTagsDialog && renderClinicPatientTagsDialog()}
+      {showDataConnectionsModal && renderDataConnectionsModal()}
       <StyledScrollToTop
         smooth
         top={600}

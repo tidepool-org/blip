@@ -101,7 +101,7 @@ describe('PatientInvites', () => {
         acceptingPatientInvitation: defaultWorkingState,
         deletingPatientInvitation: defaultWorkingState,
         deletingPatientInvitation: defaultWorkingState,
-        sendingPatientDexcomConnectRequest: defaultWorkingState,
+        sendingPatientDataProviderConnectRequest: defaultWorkingState,
         fetchingPatientsForClinic: defaultWorkingState,
       },
     },
