@@ -35,6 +35,7 @@ import FooterLinks from '../../components/footerlinks';
 import Version from '../../components/version';
 
 import { DATA_DONATION_NONPROFITS, URL_TIDEPOOL_PLUS_CONTACT_SALES } from '../../core/constants';
+import NavPatientHeader from '../../components/navpatientheader';
 
 // Styles
 require('tideline/css/tideline.less');
@@ -341,6 +342,32 @@ export class AppComponent extends React.Component {
       }
     }
     return null;
+  }
+
+  renderNavPatientHeader() {
+    const { 
+      patient, 
+      user,
+      permsOfLoggedInUser,
+      context: { trackMetric },
+      clinicFlowActive,
+      selectedClinicId,
+      query,
+    } = this.props;
+
+    if (!this.isPatientVisibleInNavbar()) return null; // only show on pages with a patient of focus
+    
+    return (
+      <NavPatientHeader 
+        patient={patient} 
+        user={user} 
+        trackMetric={trackMetric} 
+        permsOfLoggedInUser={permsOfLoggedInUser}
+        clinicFlowActive={clinicFlowActive}
+        selectedClinicId={selectedClinicId}
+        query={query}
+      />
+    );
   }
 
   renderBanner() {
@@ -698,6 +725,7 @@ export class AppComponent extends React.Component {
     this.props.context.log('Rendering AppComponent');
     var overlay = this.renderOverlay();
     var navbar = this.renderNavbar();
+    var navHeader = this.renderNavPatientHeader();
     var notification = this.renderNotification();
     var banner = this.renderBanner();
     var emailbanner = this.renderAddEmailBanner();
@@ -710,6 +738,7 @@ export class AppComponent extends React.Component {
         {emailbanner}
         {patientLimitBanner}
         {navbar}
+        {navHeader}
         {notification}
         {banner}
         {this.props.children}
