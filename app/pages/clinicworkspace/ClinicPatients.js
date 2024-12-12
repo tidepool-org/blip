@@ -529,7 +529,8 @@ export const ClinicPatients = (props) => {
     [clinicBgUnits]
   );
 
-  const [activeFilters, setActiveFilters] = useLocalStorage('activePatientFilters', defaultFilterState, true);
+  const activeFiltersStorageKey = `activePatientFilters/${loggedInUserId}/${selectedClinicId}`;
+  const [activeFilters, setActiveFilters] = useLocalStorage(activeFiltersStorageKey, defaultFilterState, true);
   const [pendingFilters, setPendingFilters] = useState({ ...defaultFilterState, ...activeFilters });
   const previousActiveFilters = usePrevious(activeFilters);
 
@@ -724,6 +725,9 @@ export const ClinicPatients = (props) => {
   }, [deletingClinicPatientTag, handleAsyncResult, handleCloseClinicPatientTagUpdateDialog, previousDeletingClinicPatientTag?.inProgress, t]);
 
   useEffect(() => {
+    // Prevent this effect from firing on logout, which would clear all patient tags from localStorage
+    if (!clinic) return;
+
     // If a tag is deleted or otherwise missing, and is still present in an active filter, remove it from the filters
     const missingTagsInFilter = difference(activeFilters.patientTags, map(patientTags, 'id'));
     if (missingTagsInFilter.length) {
