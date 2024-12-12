@@ -579,9 +579,9 @@ export const AccessManagement = (props) => {
     );
 
   return (
-    <>
+    <div className='container-box-outer'>
       <Box mb={8}>
-        <Box variant="containers.largeBordered" mb={4}>
+        <Box variant="containers.largeBordered" mb={4} mx={[0, 0]} sx={{ width: ['100%', '100%']}}>
           <Flex
             sx={{ borderBottom: baseTheme.borders.default, alignItems: 'center', flexWrap:['wrap', 'nowrap'] }}
             px={[3, 4]}
@@ -709,7 +709,7 @@ export const AccessManagement = (props) => {
           </Button>
         </DialogActions>
       </Dialog>
-    </>
+    </div>
   );
 };
 

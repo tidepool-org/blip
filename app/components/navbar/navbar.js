@@ -7,7 +7,6 @@ import ChevronLeftRoundedIcon from '@material-ui/icons/ChevronLeftRounded';
 import _ from 'lodash';
 
 import personUtils from '../../core/personutils';
-import NavbarPatientCard from '../navbarpatientcard';
 import WorkspaceSwitcher from '../clinic/WorkspaceSwitcher';
 import NavigationMenu from './NavigationMenu';
 import Button from '../elements/Button';
@@ -45,10 +44,7 @@ export default withTranslation()(class extends React.Component {
 
     const isDashboardView = /^\/dashboard\//.test(this.props.currentPage);
 
-    const showPatientListLink = personUtils.isClinicianAccount(this.props.user) && (
-      /^\/patients\/.*\/(profile|data)/.test(this.props.currentPage) ||
-      isDashboardView
-    );
+    const showPatientListLink = personUtils.isClinicianAccount(this.props.user) && isDashboardView;
 
     return (
       <>
@@ -82,7 +78,7 @@ export default withTranslation()(class extends React.Component {
               id="patientListLink"
               onClick={() => this.props.trackMetric('Clinic - View patient list', {
                 clinicId: this.props.selectedClinicId,
-                source: isDashboardView ? 'Dashboard' : 'Patient data',
+                source: 'Dashboard'
               })}
               sx={{ display: 'inline-flex !important' }}
             >
@@ -139,43 +135,13 @@ export default withTranslation()(class extends React.Component {
   };
 
   renderMiddleSection = () => {
-    var patient = this.props.patient;
-
-    if (_.isEmpty(patient)) {
-      if (
-        _.includes([
-          '/patients',
-          '/clinic-admin',
-          '/prescriptions',
-          '/clinic-invite',
-          '/clinic-profile',
-          '/clinic-workspace',
-          '/clinic-workspace/patients',
-          '/clinic-workspace/invites',
-          '/clinic-workspace/prescriptions',
-          '/clinician-edit',
-        ], this.props.currentPage) && personUtils.isClinicianAccount(this.props.user)
-      ) {
-        return (
-          <WorkspaceSwitcher api={this.props.api} trackMetric={this.props.trackMetric} />
-        );
-      }
-      return <div className="Navbar-patientSection"></div>;
+    if (personUtils.isClinicianAccount(this.props.user)) {
+      return (
+        <WorkspaceSwitcher api={this.props.api} trackMetric={this.props.trackMetric} />
+      );
     }
 
-    patient.link = this.getPatientLink(patient);
-
-    return (
-      <div className="Navbar-patientSection" ref="patient">
-        <NavbarPatientCard
-          href={patient.link}
-          currentPage={this.props.currentPage}
-          uploadUrl={this.props.getUploadUrl()}
-          patient={patient}
-          permsOfLoggedInUser={this.props.permsOfLoggedInUser}
-          trackMetric={this.props.trackMetric} />
-      </div>
-    );
+    return <div className="Navbar-patientSection"></div>;
   };
 
   toggleDropdown = (e) => {
