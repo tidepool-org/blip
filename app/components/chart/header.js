@@ -5,6 +5,7 @@ import cx from 'classnames';
 import { withTranslation } from 'react-i18next';
 import DateRangeRoundedIcon from '@material-ui/icons/DateRangeRounded';
 import PrintRoundedIcon from '@material-ui/icons/PrintRounded';
+import colorPalette from '../../themes/colorPalette';
 
 import Icon from '../elements/Icon';
 
@@ -138,7 +139,7 @@ const Header = withTranslation()(class Header extends Component {
                 sx={{
                   ml: 2,
                   mt: -1,
-                  color: 'white',
+                  color: colorPalette.primary.bluePrimary00,
                   outline: 'none',
                   '&:hover': { color: 'grays.6' },
                 }}
@@ -159,7 +160,7 @@ const Header = withTranslation()(class Header extends Component {
               sx={{
                 mr: 2,
                 mt: '-2px',
-                color: 'white',
+                color: colorPalette.primary.bluePrimary00,
                 outline: 'none',
               }}
               label="Print PDF report"

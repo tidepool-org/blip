@@ -5,7 +5,7 @@ export const getButtonStyleProps = (isActive) => {
     variant: 'textSecondary',
     iconPosition: 'left',
     iconFontSize: '1.25em',
-    sx: { fontSize: 1 },
+    sx: { fontSize: 1, fontWeight: 'medium' },
     pl: 0
   }
 
