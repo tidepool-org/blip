@@ -225,6 +225,7 @@ const text = {
   mediumTitle: {
     ...titleText,
     fontWeight: 'medium',
+    fontSize: 3
   },
 
   body0: {
