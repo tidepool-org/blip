@@ -744,7 +744,11 @@ export const ClinicPatients = (props) => {
   ]);
 
   useEffect(() => {
-    handleAsyncResult({ ...updatingClinicPatient, prevInProgress: previousUpdatingClinicPatient?.inProgress }, t('You have successfully updated a patient.'), handlePatientCreatedOrEdited);
+    // Only process detected updates if patient edit form is showing. Other child components, such as
+    // the PatientEmailModal, may also update the patient, and handle the results
+    if (showEditPatientDialog) {
+      handleAsyncResult({ ...updatingClinicPatient, prevInProgress: previousUpdatingClinicPatient?.inProgress }, t('You have successfully updated a patient.'), handlePatientCreatedOrEdited);
+    }
   }, [
     handleAsyncResult,
     handlePatientCreatedOrEdited,
@@ -752,6 +756,7 @@ export const ClinicPatients = (props) => {
     updatingClinicPatient,
     patientFormContext?.status,
     previousUpdatingClinicPatient?.inProgress,
+    showEditPatientDialog,
   ]);
 
   useEffect(() => {
@@ -2780,6 +2785,7 @@ export const ClinicPatients = (props) => {
       </Dialog>
     );
   }, [
+    handleCloseOverlays,
     showRpmReportLimitDialog,
     t,
   ]);
@@ -2787,7 +2793,7 @@ export const ClinicPatients = (props) => {
   const renderDataConnectionsModal = useCallback(() => {
     return (
       <DataConnectionsModal
-        open
+        open={showDataConnectionsModal}
         patient={selectedPatient}
         onClose={handleCloseOverlays}
         onBack={patientFormContext?.status?.showDataConnectionsModalNext ? () => {
@@ -2797,9 +2803,10 @@ export const ClinicPatients = (props) => {
       />
     );
   }, [
-    selectedPatient,
-    patientFormContext?.status,
     handleCloseOverlays,
+    patientFormContext?.status,
+    selectedPatient,
+    showDataConnectionsModal,
   ]);
 
   const renderPatient = useCallback(patient => (
