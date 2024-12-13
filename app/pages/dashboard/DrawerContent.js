@@ -1,5 +1,5 @@
 import React from 'react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../../redux/actions';
 import generateAGPImages from './generateAGPImages';
@@ -18,6 +18,16 @@ const DrawerContent = ({ patientId, api }) => {
   const clinicPatient = useSelector(state => {
     return state.blip.clinics[state.blip.selectedClinicId]['patients'][patientId]
   });
+
+  const agpCGMpercentInRanges = useSelector(state => state.blip.pdf?.opts?.svgDataURLS?.agpCGM?.percentInRanges);
+  const agpCGMambulatoryGlucoseProfile = useSelector(state => state.blip.pdf?.opts?.svgDataURLS?.agpCGM?.ambulatoryGlucoseProfile);
+  const agpCGMdailyGlucoseProfileTop = useSelector(state => state.blip.pdf?.opts?.svgDataURLS?.agpCGM?.dailyGlucoseProfiles?.[0]);
+  const agpCGMdailyGlucoseProfileBottom = useSelector(state => state.blip.pdf?.opts?.svgDataURLS?.agpCGM?.dailyGlucoseProfiles?.[1]);
+
+  const agpBGMpercentInRanges = useSelector(state => state.blip.pdf?.opts?.svgDataURLS?.agpCGM?.percentInRanges);
+  const agpBGMambulatoryGlucoseProfile = useSelector(state => state.blip.pdf?.opts?.svgDataURLS?.agpCGM?.ambulatoryGlucoseProfile);
+  const agpBGMdailyGlucoseProfileTop = useSelector(state => state.blip.pdf?.opts?.svgDataURLS?.agpCGM?.dailyGlucoseProfiles?.[0]);
+  const agpBGMdailyGlucoseProfileBottom = useSelector(state => state.blip.pdf?.opts?.svgDataURLS?.agpCGM?.dailyGlucoseProfiles?.[1]);
 
   useEffect(() => {
     if (!patientId) return;
@@ -81,28 +91,35 @@ const DrawerContent = ({ patientId, api }) => {
 
   useEffect(() => {
     if (!pdf.opts?.svgDataURLS) return;
-
-    // type, queries, opts, id, data
-    dispatch(actions.worker.generatePDFRequest(
-      'combined',
-      QUERIES,
-      {
-        ...pdf.opts,
-        patient: clinicPatient,
-      },
-      clinicPatient.id,
-      pdf.data,
-    ));
   }, [pdf.opts?.svgDataURLS])
 
-  useEffect(() => {
-    if (!pdf?.combined?.url) return;
+  return <div style={{ minWidth: 600 }}>
 
-    console.log(pdf?.combined?.url);
+    {[ 
+      // CGM 
+      agpCGMpercentInRanges,
+      agpCGMambulatoryGlucoseProfile,
+      agpCGMdailyGlucoseProfileTop,
+      agpCGMdailyGlucoseProfileBottom,
 
-  }, [pdf?.combined?.url])
-
-  return <div style={{ minWidth: 600 }}>Hello</div>;
+      // BGM
+      agpBGMpercentInRanges,
+      agpBGMambulatoryGlucoseProfile,
+      agpBGMdailyGlucoseProfileTop,
+      agpBGMdailyGlucoseProfileBottom,
+    ].map(dataURI => {
+      
+      return (
+        <div style={{ 
+          background: `url("${dataURI}")`,
+          minHeight: '300px',
+          minWidth: '500px',
+        }}>
+        </div>
+      )
+    })
+    }
+  </div>;
 }
 
 export default DrawerContent;
