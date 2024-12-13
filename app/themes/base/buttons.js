@@ -201,7 +201,8 @@ export default ({
       ...textButtonStyles,
       color: colors.purpleBright,
       display: 'inline-flex !important',
-      pl: 1,
+      px: 1,
+      py: 1,
       textDecoration: 'underline',
       '&:hover,&:active': {
         color: colors.text.primary,
