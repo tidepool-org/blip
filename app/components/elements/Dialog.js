@@ -99,6 +99,8 @@ const StyledDialogContent = styled(Box)`
   > div:last-child {
     margin-bottom: 0;
   }
+
+  overflow-y: auto;
 `;
 
 export function DialogContent({ sx = {}, ...props }) {
@@ -124,6 +126,8 @@ const StyledDialogActions = styled(Flex)`
   button {
     margin-left: ${space[2]}px;
   }
+
+  margin-top: 0;
 `;
 
 export function DialogActions(props) {

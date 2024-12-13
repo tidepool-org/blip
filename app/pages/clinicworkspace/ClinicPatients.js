@@ -480,8 +480,6 @@ export const ClinicPatients = (props) => {
   const [showClinicPatientTagsDialog, setShowClinicPatientTagsDialog] = useState(false);
   const [showTimeInRangeDialog, setShowTimeInRangeDialog] = useState(false);
   const [showSendUploadReminderDialog, setShowSendUploadReminderDialog] = useState(false);
-  const [showNames, setShowNames] = useState(false);
-  const [search, setSearch] = useState('');
   const [selectedPatient, setSelectedPatient] = useState(null);
   const existingMRNs = useMemo(
     () => compact(map(reject(clinic?.patients, { id: selectedPatient?.id }), 'mrn')),
@@ -556,7 +554,8 @@ export const ClinicPatients = (props) => {
     [clinicBgUnits]
   );
 
-  const [activeFilters, setActiveFilters] = useLocalStorage('activePatientFilters', defaultFilterState, true);
+  const activeFiltersStorageKey = `activePatientFilters/${loggedInUserId}/${selectedClinicId}`;
+  const [activeFilters, setActiveFilters] = useLocalStorage(activeFiltersStorageKey, defaultFilterState, true);
   const [pendingFilters, setPendingFilters] = useState({ ...defaultFilterState, ...activeFilters });
   const previousActiveFilters = usePrevious(activeFilters);
 
@@ -637,6 +636,8 @@ export const ClinicPatients = (props) => {
     fetchingTideDashboardPatients,
     fetchingRpmReportPatients,
   } = useSelector((state) => state.blip.working);
+
+  const { patientListSearchTextInput, isPatientListVisible } = useSelector(({ blip }) => blip.patientListFilters);
 
   // TODO: remove this when upgraded to React 18
   // force another render when fetching patients state changes
@@ -784,6 +785,9 @@ export const ClinicPatients = (props) => {
   }, [deletingClinicPatientTag, handleAsyncResult, handleCloseClinicPatientTagUpdateDialog, previousDeletingClinicPatientTag?.inProgress, t]);
 
   useEffect(() => {
+    // Prevent this effect from firing on logout, which would clear all patient tags from localStorage
+    if (!clinic) return;
+
     // If a tag is deleted or otherwise missing, and is still present in an active filter, remove it from the filters
     const missingTagsInFilter = difference(activeFilters.patientTags, map(patientTags, 'id'));
     if (missingTagsInFilter.length) {
@@ -825,8 +829,8 @@ export const ClinicPatients = (props) => {
 
       // For subsequent patient fetches, such as When filtering or searching, we can assume that
       // the user would like to see the results
-      if (!showNames && patientFetchCount > 0) {
-        setShowNames(true);
+      if (!isPatientListVisible && patientFetchCount > 0) {
+        dispatch(actions.sync.setIsPatientListVisible(true));
       }
       setPatientFetchCount(patientFetchCount+1);
       let newPage = patientFetchOptions.offset / patientFetchOptions.limit + 1;
@@ -846,7 +850,7 @@ export const ClinicPatients = (props) => {
     patientFetchOptions.offset,
     previousFetchingPatientsForClinic?.inProgress,
     setToast,
-    showNames,
+    isPatientListVisible,
   ]);
 
   useEffect(() => {
@@ -918,7 +922,7 @@ export const ClinicPatients = (props) => {
         sortType: showSummaryData && activeSort?.sortType ? activeSort.sortType : defaultPatientFetchOptions.sortType,
         period: activeSummaryPeriod,
         limit: 50,
-        search: patientFetchOptions.search,
+        search: patientListSearchTextInput,
       }
 
       if (isEmpty(filterOptions.search)) delete filterOptions.search;
@@ -1034,12 +1038,12 @@ export const ClinicPatients = (props) => {
 
   const handleToggleShowNames = useCallback(() => {
     const metric = showSummaryData
-      ? prefixPopHealthMetric(`${showNames ? 'Hide' : 'Show'} all icon`)
-      : `Clicked ${showNames ? 'Hide' : 'Show'} All`;
+      ? prefixPopHealthMetric(`${isPatientListVisible ? 'Hide' : 'Show'} all icon`)
+      : `Clicked ${isPatientListVisible ? 'Hide' : 'Show'} All`;
 
     trackMetric(metric, { clinicId: selectedClinicId });
-    setShowNames(!showNames);
-  }, [prefixPopHealthMetric, selectedClinicId, showNames, showSummaryData, trackMetric]);
+    dispatch(actions.sync.setIsPatientListVisible(!isPatientListVisible));
+  }, [prefixPopHealthMetric, selectedClinicId, isPatientListVisible, showSummaryData, trackMetric]);
 
   const handleClickPatient = useCallback(patient => {
     return () => {
@@ -1144,7 +1148,7 @@ export const ClinicPatients = (props) => {
   }
 
   function handleSearchChange(event) {
-    setSearch(event.target.value);
+    dispatch(actions.sync.setPatientListSearchTextInput(event.target.value));
     setLoading(true);
     debounceSearch(event.target.value);
   }
@@ -1191,7 +1195,7 @@ export const ClinicPatients = (props) => {
   ]);
 
   function handleClearSearch() {
-    setSearch('');
+    dispatch(actions.sync.setPatientListSearchTextInput(''));
     setLoading(true);
     debounceSearch('');
   }
@@ -1256,7 +1260,7 @@ export const ClinicPatients = (props) => {
       activeFilters.patientTags?.length,
     ], null, 0, undefined).length;
 
-    const VisibilityIcon = showNames ? VisibilityOffOutlinedIcon : VisibilityOutlinedIcon;
+    const VisibilityIcon = isPatientListVisible ? VisibilityOffOutlinedIcon : VisibilityOutlinedIcon;
     const hoursAgo = Math.floor(patientFetchMinutesAgo / 60);
     let timeAgoUnits = hoursAgo < 2 ? t('hour') : t('hours');
     let timeAgo = hoursAgo === 0 ? t('less than an') : t('over {{hoursAgo}}', { hoursAgo });
@@ -1376,12 +1380,12 @@ export const ClinicPatients = (props) => {
                     sx={{ fontSize: 0 }}
                     id="patients-search"
                     placeholder={t('Search')}
-                    icon={!isEmpty(search) ? CloseRoundedIcon : SearchIcon}
+                    icon={!isEmpty(patientListSearchTextInput) ? CloseRoundedIcon : SearchIcon}
                     iconLabel={t('Search')}
-                    onClickIcon={!isEmpty(search) ? handleClearSearch : null}
+                    onClickIcon={!isEmpty(patientListSearchTextInput) ? handleClearSearch : null}
                     name="search-patients"
                     onChange={handleSearchChange}
-                    value={search}
+                    value={patientListSearchTextInput}
                     variant="condensed"
                   />
                 </Flex>
@@ -1968,7 +1972,7 @@ export const ClinicPatients = (props) => {
 
             {/* Info/Visibility Icons */}
             <Flex sx={{ gap: 2, justifyContent: 'flex-end', flexGrow: 1, flexShrink: 0, alignItems: 'center' }}>
-              {showSummaryData && showNames && (
+              {showSummaryData && isPatientListVisible && (
                 <>
                   <PopoverLabel
                     id="patient-fetch-time-ago"
@@ -3292,12 +3296,12 @@ export const ClinicPatients = (props) => {
   ]);
 
   const renderPeopleArea = useCallback(() => {
-    if (!showNames) {
+    if (!isPatientListVisible) {
       return renderPeopleInstructions();
     } else {
       return renderPeopleTable();
     }
-  }, [renderPeopleInstructions, renderPeopleTable, showNames]);
+  }, [renderPeopleInstructions, renderPeopleTable, isPatientListVisible]);
 
   return (
     <div>

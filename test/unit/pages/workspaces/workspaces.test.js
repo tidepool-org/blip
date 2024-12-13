@@ -378,6 +378,14 @@ describe('Workspaces', () => {
       navigateButton.simulate('click');
       expect(store.getActions()).to.eql([
         {
+          type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT',
+          payload: { textInput: '' }
+        },
+        {
+          type: 'SET_IS_PATIENT_LIST_VISIBLE',
+          payload: { isVisible: false }
+        },
+        {
           type: 'SELECT_CLINIC_SUCCESS',
           payload: {
             clinicId: 'clinicID456',

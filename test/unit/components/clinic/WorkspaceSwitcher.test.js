@@ -212,6 +212,14 @@ describe('WorkspaceSwitcher', () => {
 
       expect(store.getActions()).to.eql([
         {
+          type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT',
+          payload: { textInput: '' }
+        },
+        {
+          type: 'SET_IS_PATIENT_LIST_VISIBLE',
+          payload: { isVisible: false }
+        },
+        {
           type: 'SELECT_CLINIC_SUCCESS',
           payload: {
             clinicId: null, // null is appropriate for switch to private workspace
@@ -231,6 +239,14 @@ describe('WorkspaceSwitcher', () => {
       workspaceButtons.at(0).simulate('click');
 
       expect(store.getActions()).to.eql([
+        {
+          type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT',
+          payload: { textInput: '' }
+        },
+        {
+          type: 'SET_IS_PATIENT_LIST_VISIBLE',
+          payload: { isVisible: false }
+        },
         {
           type: 'SELECT_CLINIC_SUCCESS',
           payload: {

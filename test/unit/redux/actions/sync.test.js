@@ -4574,4 +4574,32 @@ describe('Actions', () => {
       expect(action.payload.data).to.equal(data);
     });
   });
+
+  describe('setIsPatientListVisible', () => {
+    it('should be a TSA', () => {
+      let action = sync.setIsPatientListVisible();
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal SET_IS_PATIENT_LIST_VISIBLE', () => {
+      let value = true;
+      let action = sync.setIsPatientListVisible(value);
+      expect(action.type).to.equal('SET_IS_PATIENT_LIST_VISIBLE');
+      expect(action.payload.isVisible).to.equal(value);
+    });
+  });
+
+  describe('setPatientListSearchTextInput', () => {
+    it('should be a TSA', () => {
+      let action = sync.setPatientListSearchTextInput();
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal SET_PATIENT_LIST_SEARCH_TEXT_INPUT', () => {
+      let searchInput = 'bob';
+      let action = sync.setPatientListSearchTextInput(searchInput);
+      expect(action.type).to.equal('SET_PATIENT_LIST_SEARCH_TEXT_INPUT');
+      expect(action.payload.textInput).to.equal(searchInput);
+    });
+  });
 });
