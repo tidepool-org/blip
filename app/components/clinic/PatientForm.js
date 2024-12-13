@@ -34,7 +34,7 @@ import { accountInfoFromClinicPatient } from '../../core/personutils';
 import { Body0 } from '../../components/elements/FontStyles';
 import { borders, colors } from '../../themes/baseTheme';
 
-function getFormValues(source, clinicPatientTags) {
+export function getFormValues(source, clinicPatientTags) {
   return {
     birthDate: source?.birthDate || '',
     email: source?.email || '',
@@ -45,9 +45,9 @@ function getFormValues(source, clinicPatientTags) {
   };
 }
 
-function emptyValuesFilter(value, key) {
+export function emptyValuesFilter(value, key) {
   // We want to allow sending an empty `tags` array. Otherwise, strip empty fields from payload.
-  return !includes(['tags', 'connectDexcom'], key) && isEmpty(value);
+  return !includes(['tags'], key) && isEmpty(value);
 }
 
 export const PatientForm = (props) => {
@@ -140,7 +140,7 @@ export const PatientForm = (props) => {
   const formikContext = useFormik({
     initialValues: getFormValues(patient, clinicPatientTags),
     initialStatus: { showDataConnectionsModalNext: false },
-    onSubmit: (values, formikHelpers, other) => {
+    onSubmit: (values, formikHelpers) => {
       const context = selectedClinicId ? 'clinic' : 'vca';
 
       const actionMap = {
