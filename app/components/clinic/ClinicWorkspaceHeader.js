@@ -222,7 +222,7 @@ export const ClinicWorkspaceHeader = (props) => {
               iconPosition='left'
               iconFontSize="1.25em"
               iconLabel={navigationAction.label}
-              sx={{ fontSize: 1 }}
+              sx={{ fontSize: 1, fontWeight: 'medium' }}
               pl={0}
             >
               {navigationAction.label}
