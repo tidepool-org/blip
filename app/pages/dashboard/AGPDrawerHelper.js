@@ -40,53 +40,44 @@ const FETCH_PATIENT_OPTS = { forceDataWorkerAddDataRequest: true };
 
 export const useGenerateAGPImages = (api, patientId) => {
   const dispatch = useDispatch();
-  const dispatchAGPImagesSuccess = (imgs) => dispatch(actions.sync.generateAGPImagesSuccess(imgs));
-  const dispatchAGPImagesFailure = (err) => dispatch(actions.sync.generateAGPImagesFailure(err));
+  const dispatchAGPImagesSuccess = (images) => dispatch(actions.sync.generateAGPImagesSuccess(images));
+  const dispatchAGPImagesFailure = (error) => dispatch(actions.sync.generateAGPImagesFailure(error));
 
-  const data          = useSelector(state => state.blip.data);
-  const pdf           = useSelector(state => state.blip.pdf);
-  const clinicPatient = useSelector(state => selectClinicPatient(state));
-  const svgDataURLS   = useSelector(state => state.blip.pdf?.opts?.svgDataURLS);
+  const data        = useSelector(state => state.blip.data);
+  const pdf         = useSelector(state => state.blip.pdf);
+  const patient     = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]?.patients?.[patientId]);
+  const svgDataURLS = useSelector(state => state.blip.pdf?.opts?.svgDataURLS);
 
   const lastCompletedStep = inferLastCompletedStep(data, pdf);
 
-  // Whenever an step is successfully completed, this effect triggers the next action
-  // in the sequence. This effect will fire once for each step of image generation 
-  // to a total of four times when on the happy path. 
   useEffect(() => {
-    if (lastCompletedStep === STATUS.INITIALIZED) {
-      dispatch(actions.async.fetchPatientData(api, FETCH_PATIENT_OPTS, patientId));
-      return;
+    // Whenever a step is successfully completed, this effect triggers the next step
+    // in the sequence. This effect will fire once for each step of image generation 
+    // to a total of four times when on the happy path. 
+
+    switch(lastCompletedStep) {
+      case STATUS.INITIALIZED:
+        dispatch(actions.async.fetchPatientData(api, FETCH_PATIENT_OPTS, patientId));
+        return;
+
+      case STATUS.PATIENT_LOADED:
+        dispatch(actions.worker.dataWorkerQueryDataRequest(CHART_QUERY, patientId));
+        return;
+
+      case STATUS.DATA_PROCESSED:
+        dispatch(actions.worker.generatePDFRequest(
+          'combined', QUERIES, { ...PRINT_DIALOG_PDF_OPTS, patient }, patientId, undefined,
+        ));
+        return;
+
+      case STATUS.DATA_FORMATTED:
+        generateAGPImages(
+          pdf, dispatchAGPImagesSuccess, dispatchAGPImagesFailure, ['agpCGM', 'agpBGM']
+        );
+        return;
+      
+      // no default, so that return function can be fired on dismount
     }
-
-    if (lastCompletedStep === STATUS.PATIENT_LOADED) {
-      dispatch(actions.worker.dataWorkerQueryDataRequest(CHART_QUERY, patientId));
-      return;
-    }
-
-    if (lastCompletedStep === STATUS.DATA_PROCESSED) {
-      dispatch(actions.worker.generatePDFRequest(
-        'combined',
-        QUERIES,
-        { ...PRINT_DIALOG_PDF_OPTS, patient: clinicPatient },
-        patientId,
-        undefined,
-      ));
-      return;
-    }
-
-    if (lastCompletedStep === STATUS.DATA_FORMATTED) {
-      generateAGPImages(
-        pdf, 
-        dispatchAGPImagesSuccess,
-        dispatchAGPImagesFailure,
-        ['agpCGM', 'agpBGM']
-      );
-
-      return;
-    }
-
-    // if lastCompletedStep === STATUS.SVGS_GENERATED do nothing
 
     return () => {
       console.log('TODO: reset state for pdfs/data in Redux');
