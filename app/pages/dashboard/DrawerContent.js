@@ -1,14 +1,12 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
-
-import { STEPS, useGenerateAGPImages } from './AGPDrawerHelper';
+import { STATUS, useGenerateAGPImages } from './AGPDrawerHelper';
 
 const DrawerContent = ({ api, patientId }) => {
-  const { currentStep, svgDataURLS } = useGenerateAGPImages(api, patientId);
+  const { status, svgDataURLS } = useGenerateAGPImages(api, patientId);
 
-  console.log(currentStep);
+  console.log(status);
 
-  if (currentStep !== STEPS.SVGS_GENERATED) {
+  if (status !== STATUS.SVGS_GENERATED) {
     return <p>Loading ...</p>;
   }
 

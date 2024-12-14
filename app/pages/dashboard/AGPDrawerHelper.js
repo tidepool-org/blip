@@ -9,28 +9,31 @@ import QUERIES from './queries';
 import CHART_QUERY from './chartQuery';
 import PRINT_DIALOG_PDF_OPTS from './printDialogPDFOpts';
 
-export const STEPS = {
+export const STATUS = {
   // happy path sequence
-  INITIALIZED:     'INITIALIZED',
-  PATIENT_FETCHED: 'PATIENT_FETCHED',
-  DATA_PROCESSED:  'DATA_PROCESSED',
-  DATA_FORMATTED:  'DATA_FORMATTED',
-  SVGS_GENERATED:  'SVGS_GENERATED',
+  INITIALIZED:    'INITIALIZED',
+  PATIENT_LOADED: 'PATIENT_LOADED',
+  DATA_PROCESSED: 'DATA_PROCESSED',
+  DATA_FORMATTED: 'DATA_FORMATTED',
+  SVGS_GENERATED: 'SVGS_GENERATED',
 
-  // errors
   // TODO: Add error states
 }
 
-const inferCurrentStep = (data, pdf) => {
+const inferLastCompletedStep = (data, pdf) => {
+  // If the outputted data for a step in the process exists, we infer that
+  // the step was successful. e.g. if data.query.metaData exists,
+  // we can infer that the DataWorker successfully queried the data.
+
   // TODO: Add error states
 
-  if (pdf.opts?.svgDataURLS)     return STEPS.SVGS_GENERATED;
-  if (pdf.data?.agpCGM)          return STEPS.DATA_FORMATTED;
-  if (pdf.data?.agpBGM)          return STEPS.DATA_FORMATTED;
-  if (data?.query?.metaData)     return STEPS.DATA_PROCESSED;
-  if (data?.metaData?.patientId) return STEPS.PATIENT_FETCHED;
+  if (pdf.opts?.svgDataURLS)     return STATUS.SVGS_GENERATED;
+  if (pdf.data?.agpCGM)          return STATUS.DATA_FORMATTED;
+  if (pdf.data?.agpBGM)          return STATUS.DATA_FORMATTED;
+  if (data?.query?.metaData)     return STATUS.DATA_PROCESSED;
+  if (data?.metaData?.patientId) return STATUS.PATIENT_LOADED;
 
-  return STEPS.INITIALIZED;
+  return STATUS.INITIALIZED;
 }
 
 const FETCH_PATIENT_OPTS = { forceDataWorkerAddDataRequest: true };
@@ -45,23 +48,23 @@ export const useGenerateAGPImages = (api, patientId) => {
   const clinicPatient = useSelector(state => selectClinicPatient(state));
   const svgDataURLS   = useSelector(state => state.blip.pdf?.opts?.svgDataURLS);
 
-  const currentStep = inferCurrentStep(data, pdf);
+  const lastCompletedStep = inferLastCompletedStep(data, pdf);
 
-  // Whenever an step is successfully completed this effect triggers the next action
+  // Whenever an step is successfully completed, this effect triggers the next action
   // in the sequence. This effect will fire once for each step of image generation 
   // to a total of four times when on the happy path. 
   useEffect(() => {
-    if (currentStep === STEPS.INITIALIZED) {
+    if (lastCompletedStep === STATUS.INITIALIZED) {
       dispatch(actions.async.fetchPatientData(api, FETCH_PATIENT_OPTS, patientId));
       return;
     }
 
-    if (currentStep === STEPS.PATIENT_FETCHED) {
+    if (lastCompletedStep === STATUS.PATIENT_LOADED) {
       dispatch(actions.worker.dataWorkerQueryDataRequest(CHART_QUERY, patientId));
       return;
     }
 
-    if (currentStep === STEPS.DATA_PROCESSED) {
+    if (lastCompletedStep === STATUS.DATA_PROCESSED) {
       dispatch(actions.worker.generatePDFRequest(
         'combined',
         QUERIES,
@@ -72,7 +75,7 @@ export const useGenerateAGPImages = (api, patientId) => {
       return;
     }
 
-    if (currentStep === STEPS.DATA_FORMATTED) {
+    if (lastCompletedStep === STATUS.DATA_FORMATTED) {
       generateAGPImages(
         pdf, 
         dispatchAGPImagesSuccess,
@@ -83,12 +86,15 @@ export const useGenerateAGPImages = (api, patientId) => {
       return;
     }
 
-    // if currentStep === STEPS.SVGS_GENERATED do nothing
+    // if lastCompletedStep === STATUS.SVGS_GENERATED do nothing
 
     return () => {
       console.log('TODO: reset state for pdfs/data in Redux');
     }
-  }, [currentStep]);
+  }, [lastCompletedStep]);
 
-  return { currentStep, svgDataURLS };
+  return { 
+    status: lastCompletedStep, 
+    svgDataURLS 
+  };
 }
