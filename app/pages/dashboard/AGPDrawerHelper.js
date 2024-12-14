@@ -3,7 +3,6 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../../redux/actions';
 import generateAGPImages from './generateAGPImages';
-import { selectClinicPatient } from '../../core/selectors';
 
 import QUERIES from './queries';
 import CHART_QUERY from './chartQuery';
