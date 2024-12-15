@@ -3,9 +3,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../../redux/actions';
 import generateAGPImages from './generateAGPImages';
 
-import QUERIES from './queries';
 import CHART_QUERY from './chartQuery';
+
 import getPrintPdfOpts from './getPrintPdfOpts';
+import getQueries from './getQueries';
 
 export const STATUS = {
   // happy path sequence
@@ -43,10 +44,13 @@ export const useGenerateAGPImages = (api, patientId) => {
 
   const data        = useSelector(state => state.blip.data);
   const pdf         = useSelector(state => state.blip.pdf);
-  const patient     = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]?.patients?.[patientId]);
+  const clinic      = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
   const svgDataURLS = useSelector(state => state.blip.pdf?.opts?.svgDataURLS);
 
+  const patient = clinic?.patients?.[patientId];
+
   const printOpts = useMemo(() => getPrintPdfOpts(data), [data]);
+  const queries = useMemo(() => getQueries(data, patient, clinic, printOpts), [data, patient, clinic, printOpts]);
 
   const lastCompletedStep = inferLastCompletedStep(data, pdf);
 
@@ -66,7 +70,7 @@ export const useGenerateAGPImages = (api, patientId) => {
 
       case STATUS.DATA_PROCESSED:
         dispatch(actions.worker.generatePDFRequest(
-          'combined', QUERIES, { ...printOpts, patient }, patientId, undefined,
+          'combined', queries, { ...printOpts, patient }, patientId, undefined,
         ));
         return;
 
