@@ -25,19 +25,9 @@ const DrawerContent = ({ api, patientId }) => {
   ];
 
   return (
-    <div style={{ minWidth: 600 }}>
-      {images
-        .filter(el => !!el) // filter out non-existent images
-        .map(dataURI => {
-          return (
-            <div style={{ 
-              background: `url("${dataURI}")`,
-              minHeight: '300px',
-              minWidth: '500px',
-            }}>
-            </div>
-          )
-        })
+    <div style={{ minWidth: 600, display: 'grid', gridTemplateColumns: '1fr', gap: '12px' }}>
+      {images.filter(el => !!el) // filter out non-existent images
+             .map(dataURI => <img src={dataURI} />)
       }
     </div>
   );
