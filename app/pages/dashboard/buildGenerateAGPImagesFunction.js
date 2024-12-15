@@ -3,7 +3,7 @@ import { utils as vizUtils } from '@tidepool/viz';
 import Plotly from 'plotly.js-basic-dist-min';
 import * as actions from '../../redux/actions';
 
-const generateAGPImagesWrapper = (dispatch) => {
+const buildGenerateAGPImages = (dispatch) => {
   
   const props = {
     generateAGPImagesSuccess: (images) => dispatch(actions.sync.generateAGPImagesSuccess(images)),
@@ -55,4 +55,4 @@ const generateAGPImagesWrapper = (dispatch) => {
   }
 }
 
-export default generateAGPImagesWrapper;
+export default buildGenerateAGPImages;

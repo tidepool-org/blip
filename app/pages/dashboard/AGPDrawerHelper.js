@@ -1,9 +1,7 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../../redux/actions';
 import buildGenerateAGPImagesFunction from './buildGenerateAGPImagesFunction';
-
-import CHART_QUERY from './chartQuery';
 
 import getOpts from './getOpts';
 import getQueries from './getQueries';
@@ -13,7 +11,6 @@ export const STATUS = {
   INITIALIZED:    'INITIALIZED',
   PATIENT_LOADED: 'PATIENT_LOADED',
   DATA_PROCESSED: 'DATA_PROCESSED',
-  DATA_FORMATTED: 'DATA_FORMATTED',
   SVGS_GENERATED: 'SVGS_GENERATED',
 
   // TODO: Add error states
@@ -22,15 +19,10 @@ export const STATUS = {
 const inferLastCompletedStep = (data, pdf) => {
   // If the outputted data for a step in the process exists, we infer that the step was successful. 
 
-  // e.g. if data.query.metaData exists, we infer that the DataWorker successfully queried the
-  // data and therefore we can trigger the next step.
-
   // TODO: Add error states
 
   if (pdf?.opts?.svgDataURLS)    return STATUS.SVGS_GENERATED;
-  if (pdf?.data?.agpCGM)         return STATUS.DATA_FORMATTED;
-  if (pdf?.data?.agpBGM)         return STATUS.DATA_FORMATTED;
-  if (data?.query?.metaData)     return STATUS.DATA_PROCESSED;
+  if (pdf?.data)                 return STATUS.DATA_PROCESSED;
   if (data?.metaData?.patientId) return STATUS.PATIENT_LOADED;
 
   return STATUS.INITIALIZED;
@@ -54,7 +46,7 @@ export const useGenerateAGPImages = (api, patientId) => {
   useEffect(() => {
     // Whenever a step is successfully completed, this effect triggers the next step
     // in the sequence. This effect will fire once for each step of image generation 
-    // to a total of four times when on the happy path. 
+    // to a total of three times when on the happy path. 
 
     switch(lastCompletedStep) {
       case STATUS.INITIALIZED:
@@ -62,20 +54,14 @@ export const useGenerateAGPImages = (api, patientId) => {
         return;
 
       case STATUS.PATIENT_LOADED:
-        dispatch(actions.worker.dataWorkerQueryDataRequest(CHART_QUERY, patientId));
+        const opts    = getOpts(data);
+        const queries = getQueries(data, patient, clinic, opts);
+        const requestOpts = { ...opts, patient };
+
+        dispatch(actions.worker.generatePDFRequest('combined', queries, requestOpts, patientId));
         return;
 
       case STATUS.DATA_PROCESSED:
-        const opts    = getOpts(data);
-        const queries = getQueries(data, patient, clinic, opts);
-
-        dispatch(actions.worker.generatePDFRequest(
-          'combined', queries, { ...opts, patient }, patientId, undefined
-        ));
-
-        return;
-
-      case STATUS.DATA_FORMATTED:
         generateAGPImages(pdf, ['agpCGM', 'agpBGM']);
         return;
       
