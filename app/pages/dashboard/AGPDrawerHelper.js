@@ -44,34 +44,35 @@ export const useGenerateAGPImages = (api, patientId) => {
   const lastCompletedStep = inferLastCompletedStep(data, pdf);
 
   useEffect(() => {
-    // Whenever a step is successfully completed, this effect triggers the next step
-    // in the sequence. This effect will fire once for each step of image generation 
-    // to a total of three times when on the happy path. 
+    // Whenever a step is successfully completed, this effect triggers the next step in the sequence.
 
     switch(lastCompletedStep) {
       case STATUS.INITIALIZED:
         dispatch(actions.async.fetchPatientData(api, FETCH_PATIENT_OPTS, patientId));
-        return;
+        break;
 
       case STATUS.PATIENT_LOADED:
         const opts    = getOpts(data);
         const queries = getQueries(data, patient, clinic, opts);
-        const requestOpts = { ...opts, patient };
 
-        dispatch(actions.worker.generatePDFRequest('combined', queries, requestOpts, patientId));
-        return;
+        dispatch(actions.worker.generatePDFRequest('combined', queries, { ...opts, patient }, patientId));
+        break;
 
       case STATUS.DATA_PROCESSED:
         generateAGPImages(pdf, ['agpCGM', 'agpBGM']);
-        return;
-      
-      // no default, so that return function can be fired on dismount
-    }
+        break;
 
+      case STATUS.SVGS_GENERATED: // image generation complete, no further steps necessary
+      default:
+        break; 
+    }
+  }, [lastCompletedStep]);
+
+  useEffect(() => {
     return () => {
       console.log('TODO: reset state for pdfs/data in Redux');
     }
-  }, [lastCompletedStep]);
+  }, []);
 
   return { 
     status: lastCompletedStep, 
