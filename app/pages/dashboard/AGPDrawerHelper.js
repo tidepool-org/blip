@@ -5,7 +5,7 @@ import generateAGPImages from './generateAGPImages';
 
 import CHART_QUERY from './chartQuery';
 
-import getPrintPdfOpts from './getPrintPdfOpts';
+import getOpts from './getOpts';
 import getQueries from './getQueries';
 
 export const STATUS = {
@@ -50,9 +50,6 @@ export const useGenerateAGPImages = (api, patientId) => {
 
   const patient = clinic?.patients?.[patientId];
 
-  const printOpts = useMemo(() => getPrintPdfOpts(data), [data]);
-  const queries = useMemo(() => getQueries(data, patient, clinic, printOpts), [data, patient, clinic, printOpts]);
-
   const lastCompletedStep = inferLastCompletedStep(data, pdf);
 
   useEffect(() => {
@@ -70,9 +67,13 @@ export const useGenerateAGPImages = (api, patientId) => {
         return;
 
       case STATUS.DATA_PROCESSED:
+        const queries = getQueries(data, patient, clinic, opts);
+        const opts    = getOpts(data);
+
         dispatch(actions.worker.generatePDFRequest(
-          'combined', queries, { ...printOpts, patient }, patientId, undefined,
+          'combined', queries, { ...opts, patient }, patientId, undefined
         ));
+
         return;
 
       case STATUS.DATA_FORMATTED:

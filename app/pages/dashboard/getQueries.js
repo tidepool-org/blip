@@ -71,7 +71,7 @@ const getQueries = (
   data,
   patient,
   clinic,
-  printDialogPDFOpts,
+  opts,
 ) => {
   const bgPrefs = (() => {
     const patientSettings = patient?.settings || {};
@@ -134,9 +134,9 @@ const getQueries = (
 
   const queries = {}
 
-  if (!printDialogPDFOpts.agpBGM?.disabled) {
+  if (!opts.agpBGM?.disabled) {
     queries.agpBGM = {
-      endpoints: printDialogPDFOpts.agpBGM?.endpoints,
+      endpoints: opts.agpBGM?.endpoints,
       aggregationsByDate: 'dataByDate, statsByDate',
       bgSource: _.get(chartPrefs, 'agpBGM.bgSource'),
       stats: getStatsByChartType('agpBGM'),
@@ -145,9 +145,9 @@ const getQueries = (
     };
   }
 
-  if (!printDialogPDFOpts.agpCGM?.disabled) {
+  if (!opts.agpCGM?.disabled) {
     queries.agpCGM = {
-      endpoints: printDialogPDFOpts.agpCGM?.endpoints,
+      endpoints: opts.agpCGM?.endpoints,
       aggregationsByDate: 'dataByDate, statsByDate',
       bgSource: _.get(chartPrefs, 'agpCGM.bgSource'),
       stats: getStatsByChartType('agpCGM'),

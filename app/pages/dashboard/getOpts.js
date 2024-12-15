@@ -2,7 +2,7 @@ import moment from 'moment-timezone';
 import _ from 'lodash';
 import get from 'lodash/get';
 
-const getPrintPdfOpts = (
+const getOpts = (
   data // data from redux (state.blip.data)
 ) => {
   const getMostRecentDatumTimeByChartType = (data, chartType) => {
@@ -126,7 +126,7 @@ const getPrintPdfOpts = (
     moment.utc(endDate).tz(timezoneName).add(1, 'day').startOf('day').valueOf(),
   ] : []);
 
-  const printOpts = {
+  const opts = {
     agpCGM:   { disabled: false, endpoints: formatDateEndpoints(dates.agpCGM) },
     agpBGM:   { disabled: false, endpoints: formatDateEndpoints(dates.agpBGM) },
 
@@ -136,7 +136,7 @@ const getPrintPdfOpts = (
     settings: { disabled: true },
   };
 
-  return printOpts;
+  return opts;
 };
 
-export default getPrintPdfOpts;
+export default getOpts;
