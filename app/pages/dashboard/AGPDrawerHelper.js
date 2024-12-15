@@ -9,7 +9,7 @@ import getPrintPdfOpts from './getPrintPdfOpts';
 import getQueries from './getQueries';
 
 export const STATUS = {
-  // happy path sequence
+  // In order of happy path sequence
   INITIALIZED:    'INITIALIZED',
   PATIENT_LOADED: 'PATIENT_LOADED',
   DATA_PROCESSED: 'DATA_PROCESSED',
@@ -20,15 +20,16 @@ export const STATUS = {
 }
 
 const inferLastCompletedStep = (data, pdf) => {
-  // If the outputted data for a step in the process exists, we infer that
-  // the step was successful. e.g. if data.query.metaData exists,
-  // we can infer that the DataWorker successfully queried the data.
+  // If the outputted data for a step in the process exists, we infer that the step was successful. 
+
+  // e.g. if data.query.metaData exists, we infer that the DataWorker successfully queried the
+  // data and therefore we can trigger the next step.
 
   // TODO: Add error states
 
-  if (pdf.opts?.svgDataURLS)     return STATUS.SVGS_GENERATED;
-  if (pdf.data?.agpCGM)          return STATUS.DATA_FORMATTED;
-  if (pdf.data?.agpBGM)          return STATUS.DATA_FORMATTED;
+  if (pdf?.opts?.svgDataURLS)    return STATUS.SVGS_GENERATED;
+  if (pdf?.data?.agpCGM)         return STATUS.DATA_FORMATTED;
+  if (pdf?.data?.agpBGM)         return STATUS.DATA_FORMATTED;
   if (data?.query?.metaData)     return STATUS.DATA_PROCESSED;
   if (data?.metaData?.patientId) return STATUS.PATIENT_LOADED;
 
