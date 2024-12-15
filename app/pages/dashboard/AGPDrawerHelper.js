@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../../redux/actions';
-import generateAGPImages from './generateAGPImages';
+import buildGenerateAGPImagesFunction from './buildGenerateAGPImagesFunction';
 
 import CHART_QUERY from './chartQuery';
 
@@ -40,8 +40,7 @@ const FETCH_PATIENT_OPTS = { forceDataWorkerAddDataRequest: true };
 
 export const useGenerateAGPImages = (api, patientId) => {
   const dispatch = useDispatch();
-  const dispatchAGPImagesSuccess = (images) => dispatch(actions.sync.generateAGPImagesSuccess(images));
-  const dispatchAGPImagesFailure = (error) => dispatch(actions.sync.generateAGPImagesFailure(error));
+  const generateAGPImages = buildGenerateAGPImagesFunction(dispatch);
 
   const data        = useSelector(state => state.blip.data);
   const pdf         = useSelector(state => state.blip.pdf);
@@ -67,8 +66,8 @@ export const useGenerateAGPImages = (api, patientId) => {
         return;
 
       case STATUS.DATA_PROCESSED:
-        const queries = getQueries(data, patient, clinic, opts);
         const opts    = getOpts(data);
+        const queries = getQueries(data, patient, clinic, opts);
 
         dispatch(actions.worker.generatePDFRequest(
           'combined', queries, { ...opts, patient }, patientId, undefined
@@ -77,9 +76,7 @@ export const useGenerateAGPImages = (api, patientId) => {
         return;
 
       case STATUS.DATA_FORMATTED:
-        generateAGPImages(
-          pdf, dispatchAGPImagesSuccess, dispatchAGPImagesFailure, ['agpCGM', 'agpBGM']
-        );
+        generateAGPImages(pdf, ['agpCGM', 'agpBGM']);
         return;
       
       // no default, so that return function can be fired on dismount
