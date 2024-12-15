@@ -17,13 +17,16 @@ export const STATUS = {
 }
 
 const inferLastCompletedStep = (data, pdf) => {
-  // If the outputted data for a step in the process exists, we infer that the step was successful. 
+  // If the outputted data for a step in the process exists, we infer that the step was successful.
+  // We do the lookup in reverse order to return the LATEST completed step
 
-  // TODO: Add error states
+  const hasImagesInState  = !!pdf?.opts?.svgDataURLS;
+  const hasPDFDataInState = !!pdf?.data;
+  const hasPatientInState = !!data?.metaData?.patientId;
 
-  if (pdf?.opts?.svgDataURLS)    return STATUS.SVGS_GENERATED;
-  if (pdf?.data)                 return STATUS.DATA_PROCESSED;
-  if (data?.metaData?.patientId) return STATUS.PATIENT_LOADED;
+  if (hasImagesInState)  return STATUS.SVGS_GENERATED;
+  if (hasPDFDataInState) return STATUS.DATA_PROCESSED;
+  if (hasPatientInState) return STATUS.PATIENT_LOADED;
 
   return STATUS.INITIALIZED;
 }
@@ -42,6 +45,7 @@ export const useGenerateAGPImages = (api, patientId) => {
   const patient = clinic?.patients?.[patientId];
 
   const lastCompletedStep = inferLastCompletedStep(data, pdf);
+  // TODO: Add error states with another infer() function
 
   useEffect(() => {
     // Whenever a step is successfully completed, this effect triggers the next step in the sequence.
