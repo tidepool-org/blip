@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import keyBy from 'lodash/keyBy';
@@ -6,8 +6,6 @@ import omitBy from 'lodash/omitBy';
 import { useFormik } from 'formik';
 import { Box, BoxProps } from 'theme-ui';
 import compact from 'lodash/compact';
-import get from 'lodash/get';
-import isFunction from 'lodash/isFunction';
 import map from 'lodash/map';
 import noop from 'lodash/noop';
 import reject from 'lodash/reject';
@@ -15,9 +13,8 @@ import reject from 'lodash/reject';
 import * as actions from '../../redux/actions';
 import Banner from './../../components/elements/Banner';
 import Button from './../../components/elements/Button';
-import { useToasts } from '../../providers/ToastProvider';
 import { getCommonFormikFieldProps } from '../../core/forms';
-import { useInitialFocusedInput, useIsFirstRender, usePrevious } from '../../core/hooks';
+import { useInitialFocusedInput } from '../../core/hooks';
 import { patientSchema as validationSchema } from '../../core/clinicUtils';
 
 import {
@@ -39,14 +36,14 @@ export const PatientEmailModal = (props) => {
   const {
     open,
     onClose,
-    onComplete,
+    onFormChange,
+    onSubmit,
+    processing,
     patient,
     trackMetric,
   } = props;
 
   const dispatch = useDispatch();
-  const isFirstRender = useIsFirstRender();
-  const { set: setToast } = useToasts();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const mrnSettings = clinic?.mrnSettings ?? {};
@@ -57,14 +54,10 @@ export const PatientEmailModal = (props) => {
   const clinicPatientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
   const initialFocusedInputRef = useInitialFocusedInput();
   const action = patient?.email ? 'edit' : 'add';
-  const { updatingClinicPatient } = useSelector((state) => state.blip.working);
-  const previousUpdatingClinicPatient = usePrevious(updatingClinicPatient);
-  const [loading, setLoading] = useState(false);
 
   const formikContext = useFormik({
     initialValues: getFormValues(patient, clinicPatientTags),
     onSubmit: (values) => {
-      setLoading(true);
       trackMetric(`Data Connections - patient email ${action === 'edit' ? 'updated' : 'added'}`);
       dispatch(actions.async.updateClinicPatient(api, selectedClinicId, patient.id, omitBy({ ...patient, ...getFormValues(values, clinicPatientTags) }, emptyValuesFilter)));
     },
@@ -72,7 +65,7 @@ export const PatientEmailModal = (props) => {
   });
 
   const {
-    handleSubmit,
+    values,
   } = formikContext;
 
   const UI = {
@@ -97,39 +90,8 @@ export const PatientEmailModal = (props) => {
   };
 
   useEffect(() => {
-    const successMessage = action === 'edit'
-      ? t('You have successfully updated the patient email address.')
-      : null;
-
-    const { inProgress, completed, notification } = updatingClinicPatient;
-    const prevInProgress = previousUpdatingClinicPatient?.inProgress;
-
-    if (!isFirstRender && !inProgress && prevInProgress !== false) {
-      if (completed) {
-        if (isFunction(onComplete)) onComplete();
-        if (successMessage) setToast({
-          message: successMessage,
-          variant: 'success',
-        });
-      }
-
-      if (completed === false) {
-        setToast({
-          message: get(notification, 'message'),
-          variant: 'danger',
-        });
-      }
-
-      setLoading(false);
-    }
-  }, [
-    action,
-    isFirstRender,
-    onComplete,
-    updatingClinicPatient,
-    previousUpdatingClinicPatient?.inProgress,
-    setToast,
-  ]);
+    onFormChange(formikContext);
+  }, [values]);
 
   return (
     <Dialog
@@ -173,8 +135,8 @@ export const PatientEmailModal = (props) => {
         <Button
           id="patient-email-modal-submit"
           variant="primary"
-          onClick={handleSubmit}
-          processing={loading}
+          onClick={onSubmit}
+          processing={processing}
         >
           {UI[action].submitText}
         </Button>
@@ -185,9 +147,11 @@ export const PatientEmailModal = (props) => {
 
 PatientEmailModal.propTypes = {
   onClose: PropTypes.func.isRequired,
-  onComplete: PropTypes.func.isRequired,
+  onFormChange: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
   open: PropTypes.bool,
   patient: PropTypes.object.isRequired,
+  processing: PropTypes.bool,
   trackMetric: PropTypes.func.isRequired,
 };
 

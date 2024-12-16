@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
+import get from 'lodash/get';
 import noop from 'lodash/noop';
 import { Box, Divider, Link } from 'theme-ui';
 import EditIcon from '@material-ui/icons/EditRounded';
@@ -10,6 +11,7 @@ import Button from './../../components/elements/Button';
 import DataConnections from './DataConnections';
 import PatientDetails from './PatientDetails';
 import { clinicPatientFromAccountInfo } from '../../core/personutils';
+import { useToasts } from './../../providers/ToastProvider';
 
 import {
   Dialog,
@@ -20,6 +22,7 @@ import {
 
 import { Body1, MediumTitle, Subheading } from '../../components/elements/FontStyles';
 import api from '../../core/api';
+import { useIsFirstRender, usePrevious } from '../../core/hooks';
 import i18next from '../../core/language';
 import { URL_TIDEPOOL_EXTERNAL_DATA_CONNECTIONS, URL_UPLOADER_DOWNLOAD_PAGE } from '../../core/constants';
 import PatientEmailModal from './PatientEmailModal';
@@ -35,9 +38,15 @@ export const DataConnectionsModal = (props) => {
     trackMetric,
   } = props;
 
+  const isFirstRender = useIsFirstRender();
+  const { set: setToast } = useToasts();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
+  const { updatingClinicPatient } = useSelector((state) => state.blip.working);
+  const previousUpdatingClinicPatient = usePrevious(updatingClinicPatient);
   const patientData = (patient?.profile) ? clinicPatientFromAccountInfo(patient) : patient;
   const [showPatientEmailModal, setShowPatientEmailModal] = useState(false);
+  const [processingEmailUpdate, setProcessingEmailUpdate] = useState(false);
+  const [patientEmailFormContext, setPatientEmailFormContext] = useState();
   const dispatch = useDispatch();
 
   // Pull the patient on load to ensure the most recent dexcom connection state is made available
@@ -58,11 +67,51 @@ export const DataConnectionsModal = (props) => {
     setShowPatientEmailModal(false);
   };
 
+  function handleEditPatientEmailFormChange(formikContext) {
+    setPatientEmailFormContext({ ...formikContext });
+  }
+
+  const handleEditPatientEmailConfirm = () => {
+    trackMetric('Data Connections - edit patient email confirmed', { selectedClinicId });
+    patientEmailFormContext?.handleSubmit();
+    setProcessingEmailUpdate(true);
+  };
+
   const handleEditPatientEmailComplete = () => {
-    trackMetric('Data Connections - edited patient email', { selectedClinicId });
     fetchPatientDetails();
     setShowPatientEmailModal(false);
   };
+
+  useEffect(() => {
+    const { inProgress, completed, notification } = updatingClinicPatient;
+    const prevInProgress = previousUpdatingClinicPatient?.inProgress;
+
+    if (!isFirstRender && !inProgress && prevInProgress !== false) {
+      if (completed) {
+        handleEditPatientEmailComplete();
+
+        setToast({
+          message: t('You have successfully updated the patient email address.'),
+          variant: 'success',
+        });
+      }
+
+      if (completed === false) {
+        setToast({
+          message: get(notification, 'message'),
+          variant: 'danger',
+        });
+      }
+
+      setProcessingEmailUpdate(false);
+    }
+  }, [
+    handleEditPatientEmailComplete,
+    isFirstRender,
+    updatingClinicPatient,
+    previousUpdatingClinicPatient?.inProgress,
+    setToast,
+  ]);
 
   return (
     <>
@@ -134,9 +183,12 @@ export const DataConnectionsModal = (props) => {
 
           <PatientEmailModal
             onClose={handleEditPatientEmailClose}
-            onComplete={handleEditPatientEmailComplete}
+            onFormChange={handleEditPatientEmailFormChange}
+            onSubmit={handleEditPatientEmailConfirm}
+            action="edit"
             open={showPatientEmailModal}
             patient={patientData}
+            processing={processingEmailUpdate}
             trackMetric={trackMetric}
           />
         </DialogContent>
