@@ -12,7 +12,7 @@ const formatTime = (startEndpoint, endEndpoint, timezoneName) => {
   const startYear = startDate.year();
   const endYear   = endDate.year();
 
-  if (startYear == endYear) {
+  if (startYear !== endYear) {
     return `${startDate.format("MMMM Do, YYYY")} - ${endDate.format("MMMM Do, YYYY")}`;
   }
 
