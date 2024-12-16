@@ -37,11 +37,10 @@ export const useGenerateAGPImages = (api, patientId) => {
   const dispatch = useDispatch();
   const generateAGPImages = buildGenerateAGPImagesFunction(dispatch);
 
-  const data        = useSelector(state => state.blip.data);
-  const pdf         = useSelector(state => state.blip.pdf);
-  const clinic      = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
-  const svgDataURLS = useSelector(state => state.blip.pdf?.opts?.svgDataURLS);
-
+  const data   = useSelector(state => state.blip.data);
+  const pdf    = useSelector(state => state.blip.pdf);
+  const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
+  
   const patient = clinic?.patients?.[patientId];
 
   const lastCompletedStep = inferLastCompletedStep(data, pdf);
@@ -74,12 +73,13 @@ export const useGenerateAGPImages = (api, patientId) => {
 
   useEffect(() => {
     return () => {
-      console.log('TODO: reset state for pdfs/data in Redux');
+      dispatch(actions.worker.removeGeneratedPDFS());
+      dispatch(actions.sync.resetData());
     }
   }, []);
 
   return { 
     status: lastCompletedStep, 
-    svgDataURLS 
+    svgDataURLS: pdf?.opts?.svgDataURLS,
   };
 }
