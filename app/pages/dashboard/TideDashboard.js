@@ -307,7 +307,10 @@ const TideDashboardSection = React.memo(props => {
   const renderPatientName = useCallback(({ patient }) => (
     <Box onClick={
       // handleClickPatient(patient)
-      () => {
+
+      // TODO: Figure out correct UI interaction to trigger drawer
+
+      () => { 
         setIsAGPDrawerOpen(true);
         setSelectedPatientId(patient.id)
       }
