@@ -5,6 +5,8 @@ import get from 'lodash/get';
 const getOpts = (
   data // data from redux (state.blip.data)
 ) => {
+  console.log(data);
+
   const getMostRecentDatumTimeByChartType = (data, chartType) => {
     let latestDatums;
     const getLatestDatums = types => _.pick(_.get(data, 'metaData.latestDatumByType'), types);
@@ -75,7 +77,8 @@ const getOpts = (
     daily: getMostRecentDatumTimeByChartType(data, 'daily'),
   };
 
-  const timezoneName = 'UTC' // get this from props.data 
+  // TODO: use vizUtils
+  const timezoneName = data?.timePrefs?.timezoneName || 'UTC';
 
   const rangePresets = { // may vary; stored in localStorage
     agpBGM: 1,

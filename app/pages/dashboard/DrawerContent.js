@@ -4,6 +4,7 @@ import { useHistory } from 'react-router-dom';
 import { Flex, Box, Text } from 'theme-ui';
 import Button from '../../components/elements/Button';
 import { STATUS, useGenerateAGPImages } from './AGPDrawerHelper';
+import CGMStats from './CGMStats';
 
 const DrawerContent = ({ api, patientId }) => {
   const { t } = useTranslation();
@@ -41,6 +42,8 @@ const DrawerContent = ({ api, patientId }) => {
         <Button onClick={() => {}}>{t('Copy as Text')}</Button>
         <Text>{t('Last Reviewed')}</Text>
       </Flex>
+
+      <CGMStats />
 
       <div style={{ minWidth: 800, display: 'grid', gridTemplateColumns: '1fr', gap: '12px' }}>
         {images.filter(el => !!el) // filter out non-existent images
