@@ -51,14 +51,14 @@ const getDateInPast = (amount, unit) => moment.utc().subtract(amount, unit).toIS
 
 export const ClinicUser = {
   render: () => {
-    const dataConnectionUnset = getDataConnectionProps(patientWithState(true), 'clinicianId', 'clinicID', noop);
-    const dataConnectionPending = getDataConnectionProps(patientWithState(true, 'pending', { createdTime: getDateInPast(5, 'days') }), 'clinicianId', 'clinicID', noop);
-    const dataConnectionPendingReconnect = getDataConnectionProps(patientWithState(true, 'pendingReconnect', { createdTime: getDateInPast(10, 'days') }), 'clinicianId', 'clinicID', noop);
-    const dataConnectionPendingExpired = getDataConnectionProps(patientWithState(true, 'pending', {  createdTime: getDateInPast(31, 'days'), expirationTime: getDateInPast(1, 'days') }), 'clinicianId', 'clinicID', noop);
-    const dataConnectionConnected = getDataConnectionProps(patientWithState(true, 'connected'), 'clinicianId', 'clinicID', noop);
-    const dataConnectionDisconnected = getDataConnectionProps(patientWithState(true, 'disconnected', { modifiedTime: getDateInPast(7, 'hours') }), 'clinicianId', 'clinicID', noop);
-    const dataConnectionError = getDataConnectionProps(patientWithState(true, 'error', { modifiedTime: getDateInPast(20, 'minutes') }), 'clinicianId', 'clinicID', noop);
-    const dataConnectionUnknown = getDataConnectionProps(patientWithState(true, 'foo'), 'clinicianId', 'clinicID', noop);
+    const dataConnectionUnset = getDataConnectionProps(patientWithState(true), false, 'clinicID', noop);
+    const dataConnectionPending = getDataConnectionProps(patientWithState(true, 'pending', { createdTime: getDateInPast(5, 'days') }), false, 'clinicID', noop);
+    const dataConnectionPendingReconnect = getDataConnectionProps(patientWithState(true, 'pendingReconnect', { createdTime: getDateInPast(10, 'days') }), false, 'clinicID', noop);
+    const dataConnectionPendingExpired = getDataConnectionProps(patientWithState(true, 'pending', { createdTime: getDateInPast(31, 'days'), expirationTime: getDateInPast(1, 'days') }), false, 'clinicID', noop);
+    const dataConnectionConnected = getDataConnectionProps(patientWithState(true, 'connected'), false, 'clinicID', noop);
+    const dataConnectionDisconnected = getDataConnectionProps(patientWithState(true, 'disconnected', { modifiedTime: getDateInPast(7, 'hours') }), false, 'clinicID', noop);
+    const dataConnectionError = getDataConnectionProps(patientWithState(true, 'error', { modifiedTime: getDateInPast(20, 'minutes') }), false, 'clinicID', noop);
+    const dataConnectionUnknown = getDataConnectionProps(patientWithState(true, 'foo'), false, 'clinicID', noop);
 
     return (
       <React.Fragment>
@@ -172,13 +172,13 @@ export const ClinicUser = {
 
 export const PatientUser = {
   render: () => {
-    const dataConnectionUnset = getDataConnectionProps(patientWithState(false), 'patientId', null, noop);
-    const dataConnectionConnected = getDataConnectionProps(patientWithState(false, 'connected', { createdTime: getDateInPast(1, 'minutes') }), 'patientId', null, noop);
-    const dataConnectionConnectedWithNoData = getDataConnectionProps(patientWithState(false, 'connected', { lastImportTime: getDateInPast(5, 'minutes') }), 'patientId', null, noop);
-    const dataConnectionConnectedWithData = getDataConnectionProps(patientWithState(false, 'connected', { lastImportTime: getDateInPast(1, 'minutes'), latestDataTime: getDateInPast(35, 'minutes') }), 'patientId', null, noop);
-    const dataConnectionDisconnected = getDataConnectionProps(patientWithState(false, 'disconnected', { modifiedTime: getDateInPast(1, 'hour') }), 'patientId', null, noop);
-    const dataConnectionError = getDataConnectionProps(patientWithState(false, 'error', { modifiedTime: getDateInPast(6, 'days') }), 'patientId', null, noop);
-    const dataConnectionUnknown = getDataConnectionProps(patientWithState(false, 'foo'), 'patientId', null, noop);
+    const dataConnectionUnset = getDataConnectionProps(patientWithState(false), true, null, noop);
+    const dataConnectionConnected = getDataConnectionProps(patientWithState(false, 'connected', { createdTime: getDateInPast(1, 'minutes') }), true, null, noop);
+    const dataConnectionConnectedWithNoData = getDataConnectionProps(patientWithState(false, 'connected', { lastImportTime: getDateInPast(5, 'minutes') }), true, null, noop);
+    const dataConnectionConnectedWithData = getDataConnectionProps(patientWithState(false, 'connected', { lastImportTime: getDateInPast(1, 'minutes'), latestDataTime: getDateInPast(35, 'minutes') }), true, null, noop);
+    const dataConnectionDisconnected = getDataConnectionProps(patientWithState(false, 'disconnected', { modifiedTime: getDateInPast(1, 'hour') }), true, null, noop);
+    const dataConnectionError = getDataConnectionProps(patientWithState(false, 'error', { modifiedTime: getDateInPast(6, 'days') }), true, null, noop);
+    const dataConnectionUnknown = getDataConnectionProps(patientWithState(false, 'foo'), true, null, noop);
 
     return (
       <React.Fragment>
@@ -303,9 +303,9 @@ export const PatientDetailBar = {
 
     return (
       <React.Fragment>
-        <PatientDetails mb={2} patient={clinicPatient}/>
-        <PatientDetails mb={2} patient={noMRNPatient}/>
-        <PatientDetails patient={clinicPatientFromAccountInfo(accountPatient)}/>
+        <PatientDetails mb={2} patient={clinicPatient} />
+        <PatientDetails mb={2} patient={noMRNPatient} />
+        <PatientDetails patient={clinicPatientFromAccountInfo(accountPatient)} />
       </React.Fragment>
     );
   },

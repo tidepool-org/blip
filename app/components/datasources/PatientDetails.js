@@ -38,7 +38,7 @@ export const PatientDetails = (props) => {
 
       <Flex sx={{ flexWrap: 'wrap', columnGap: 3, flexGrow: 1, justifyContent: 'space-evenly' }}>
         <Body0 sx={{ color: 'white', fontWeight: 'medium' }}>{t('DOB: {{birthDate}}', patient)}</Body0>
-        {patient?.mrn && <Body0 sx={{ color: 'white', fontWeight: 'medium' }}>{t('MRN: {{mrn}}', patient)}</Body0>}
+        <Body0 sx={{ color: 'white', fontWeight: 'medium' }}>{t('MRN: {{mrn}}', { mrn: patient.mrn || '-' })}</Body0>
       </Flex>
     </Flex>
   );
