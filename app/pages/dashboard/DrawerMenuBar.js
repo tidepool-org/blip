@@ -20,7 +20,7 @@ const DrawerMenuBar = ({ patientId, api, trackMetric }) => {
   // TODO: DOB
 
   return (
-    <Flex sx={{ gap: '12px' }}>
+    <Flex mb={3} sx={{ gap: '12px' }}>
       <Box>
         <Box>{patient.fullName}</Box>
         <Box></Box>
