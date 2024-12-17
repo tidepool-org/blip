@@ -1,6 +1,9 @@
 import moment from 'moment-timezone';
 import _ from 'lodash';
 import get from 'lodash/get';
+import { utils as vizUtils } from '@tidepool/viz';
+
+const getTimezoneFromTimePrefs = vizUtils.datetime.getTimezoneFromTimePrefs;
 
 const getOpts = (
   data // data from redux (state.blip.data)
@@ -75,8 +78,7 @@ const getOpts = (
     daily: getMostRecentDatumTimeByChartType(data, 'daily'),
   };
 
-  // TODO: use vizUtils
-  const timezoneName = data?.timePrefs?.timezoneName || 'UTC';
+  const timezoneName = getTimezoneFromTimePrefs(data?.timePrefs);
 
   const rangePresets = { // may vary; stored in localStorage
     agpBGM: 1,
