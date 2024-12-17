@@ -12,37 +12,7 @@ const getOpts = (
     let latestDatums;
     const getLatestDatums = types => _.pick(_.get(data, 'metaData.latestDatumByType'), types);
 
-    switch (chartType) {
-      case 'basics':
-        latestDatums = getLatestDatums([
-          'basal',
-          'bolus',
-          'cbg',
-          'deviceEvent',
-          'smbg',
-          'wizard',
-        ]);
-        break
-
-      case 'daily':
-        latestDatums = getLatestDatums([
-          'basal',
-          'bolus',
-          'cbg',
-          'deviceEvent',
-          'food',
-          'message',
-          'smbg',
-          'wizard',
-        ]);
-        break;
-
-      case 'bgLog':
-        latestDatums = getLatestDatums([
-          'smbg',
-        ]);
-        break;
-
+    switch (chartType) { // cases for 'trends', 'bgLog', 'daily', and 'basics' omitted
       case 'agpBGM':
         latestDatums = getLatestDatums([
           'smbg',
@@ -52,13 +22,6 @@ const getOpts = (
       case 'agpCGM':
         latestDatums = getLatestDatums([
           'cbg',
-        ]);
-        break;
-
-      case 'trends':
-        latestDatums = getLatestDatums([
-          'cbg',
-          'smbg',
         ]);
         break;
 
@@ -73,9 +36,6 @@ const getOpts = (
   const mostRecentDatumDates = {
     agpBGM: getMostRecentDatumTimeByChartType(data, 'agpBGM'),
     agpCGM: getMostRecentDatumTimeByChartType(data, 'agpCGM'),
-    basics: getMostRecentDatumTimeByChartType(data, 'basics'),
-    bgLog: getMostRecentDatumTimeByChartType(data, 'bgLog'),
-    daily: getMostRecentDatumTimeByChartType(data, 'daily'),
   };
 
   const timezoneName = getTimezoneFromTimePrefs(data?.timePrefs);
@@ -83,17 +43,17 @@ const getOpts = (
   const rangePresets = { // may vary; stored in localStorage
     agpBGM: 1,
     agpCGM: 1,
-    basics: 0,
-    bgLog: 2,
-    daily: 0,
+    // basics: 0,
+    // bgLog: 2,
+    // daily: 0,
   };
 
   const presetDaysOptions = {
     agpBGM: [14, 30],
     agpCGM: [7, 14, 30],
-    basics: [14, 21, 30, 90],
-    bgLog: [14, 21, 30, 90],
-    daily: [14, 21, 30, 90],
+    // basics: [14, 21, 30, 90],
+    // bgLog: [14, 21, 30, 90],
+    // daily: [14, 21, 30, 90],
   };
 
   const endOfToday = moment.utc().tz(timezoneName).endOf('day').subtract(1, 'ms');
@@ -114,12 +74,9 @@ const getOpts = (
     });
   };
 
-  const defaultDates = () => ({
+  const defaultDates = () => ({ // 'trends', 'bgLog', 'daily', and 'basics' omitted
     agpBGM: getLastNDays(presetDaysOptions.agpBGM[rangePresets.agpBGM], 'agpBGM'),
     agpCGM: getLastNDays(presetDaysOptions.agpCGM[rangePresets.agpCGM], 'agpCGM'),
-    basics: getLastNDays(presetDaysOptions.basics[rangePresets.basics], 'basics'),
-    bgLog: getLastNDays(presetDaysOptions.bgLog[rangePresets.bgLog], 'bgLog'),
-    daily: getLastNDays(presetDaysOptions.daily[rangePresets.daily], 'daily'),
   });
 
   const dates = defaultDates();
@@ -133,9 +90,9 @@ const getOpts = (
     agpCGM:   { disabled: false, endpoints: formatDateEndpoints(dates.agpCGM) },
     agpBGM:   { disabled: false, endpoints: formatDateEndpoints(dates.agpBGM) },
 
-    basics:   { disabled: true,  endpoints: formatDateEndpoints(dates.basics) },
-    bgLog:    { disabled: true,  endpoints: formatDateEndpoints(dates.bgLog) },
-    daily:    { disabled: true,  endpoints: formatDateEndpoints(dates.daily) },
+    basics:   { disabled: true },
+    bgLog:    { disabled: true },
+    daily:    { disabled: true },
     settings: { disabled: true },
   };
 
