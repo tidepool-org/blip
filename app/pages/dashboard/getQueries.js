@@ -82,9 +82,7 @@ const getQueries = (
     };
 
     const localBgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, bgUnitsOverride);
-
-    // TODO: This line is breaking but it might be important
-    // localBgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
+    localBgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(localBgPrefs);
 
     return localBgPrefs;
   })();
@@ -103,7 +101,7 @@ const getQueries = (
 
     let stats = [];
 
-    switch (chartType) {
+    switch (chartType) { // cases 'basics', 'trends', 'bgLog', and 'daily' omitted
       case 'agpBGM':
         stats.push(commonStats.averageGlucose,);
         stats.push(commonStats.bgExtents,);
