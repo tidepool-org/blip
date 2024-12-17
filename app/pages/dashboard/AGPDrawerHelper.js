@@ -8,18 +8,20 @@ import getQueries from './getQueries';
 
 export const STATUS = {  
   // In order of happy path sequence
-  CLEARING_STATE: 'CLEARING_STATE',
   INITIALIZED:    'INITIALIZED',
+  STATE_CLEARED:  'STATE_CLEARED',
   PATIENT_LOADED: 'PATIENT_LOADED',
   DATA_PROCESSED: 'DATA_PROCESSED',
   SVGS_GENERATED: 'SVGS_GENERATED',
 }
 
 const inferLastCompletedStep = (currentPatientId, data, pdf) => {
-  const hasOtherPatientPdf  = !!pdf.opts && pdf.opts.patient?.id !== currentPatientId;
-  const hasOtherPatientData = !!data.metaData.patientId && data.metaData.patientId !== currentPatientId;
+  // If data already exists in 
 
-  if (hasOtherPatientPdf || hasOtherPatientData) return STATUS.CLEARING_STATE;
+  const hasOtherPatientPdfInState  = !!pdf.opts && pdf.opts.patient?.id !== currentPatientId;
+  const hasOtherPatientDataInState = !!data.metaData.patientId && data.metaData.patientId !== currentPatientId;
+
+  if (hasOtherPatientPdfInState || hasOtherPatientDataInState) return STATUS.INITIALIZED;
 
   // If the outputted data for a step in the process exists, we infer that the step was successful.
   // We do the lookup in reverse order to return the LATEST completed step
@@ -32,7 +34,7 @@ const inferLastCompletedStep = (currentPatientId, data, pdf) => {
   if (hasPDFDataInState) return STATUS.DATA_PROCESSED;
   if (hasPatientInState) return STATUS.PATIENT_LOADED;
 
-  return STATUS.INITIALIZED;
+  return STATUS.STATE_CLEARED;
 }
 
 const FETCH_PATIENT_OPTS = { forceDataWorkerAddDataRequest: true };
@@ -55,11 +57,11 @@ export const useGenerateAGPImages = (api, patientId) => {
     console.log(lastCompletedStep);
 
     switch(lastCompletedStep) {
-      case STATUS.CLEARING_STATE:
+      case STATUS.INITIALIZED:
         dispatch(actions.worker.removeGeneratedPDFS());
         dispatch(actions.sync.resetData());
 
-      case STATUS.INITIALIZED:
+      case STATUS.STATE_CLEARED:
         dispatch(actions.async.fetchPatientData(api, FETCH_PATIENT_OPTS, patientId));
         break;
 
@@ -80,10 +82,11 @@ export const useGenerateAGPImages = (api, patientId) => {
     }
   }, [lastCompletedStep]);
 
-  const hasCorrectImagesForPatient = pdf.opts?.patient?.id === patientId;
+  // Final check to guarantee that correct data is being returned
+  const hasCorrectImagesForPatient = pdf.opts?.svgDataURLS && pdf.opts?.patient?.id === patientId;
 
   return { 
     status: lastCompletedStep, 
-    svgDataURLS: hasCorrectImagesForPatient ? pdf.opts.svgDataURLS : null
+    svgDataURLS: hasCorrectImagesForPatient ? pdf.opts?.svgDataURLS : null
   };
 }
