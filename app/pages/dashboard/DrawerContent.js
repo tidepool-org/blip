@@ -2,11 +2,11 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHistory } from 'react-router-dom';
 import { Flex, Box, Text } from 'theme-ui';
-import Button from '../../components/elements/Button';
 import { STATUS, useGenerateAGPImages } from './AGPDrawerHelper';
 import AgpCGMStats from './AgpCGMStats';
+import DrawerMenuBar from './DrawerMenuBar';
 
-const DrawerContent = ({ api, patientId }) => {
+const DrawerContent = ({ api, trackMetric, patientId }) => {
   const { t } = useTranslation();
   const history = useHistory();
 
@@ -17,8 +17,6 @@ const DrawerContent = ({ api, patientId }) => {
   if (status !== STATUS.SVGS_GENERATED) {
     return <p>Loading ...</p>;
   }
-
-  const handleViewData = () => history.push(`/patients/${patientId}/data?chart=trends&dashboard=tide`);
 
   const images = [ 
     // CGM 
@@ -36,13 +34,7 @@ const DrawerContent = ({ api, patientId }) => {
 
   return (
     <>
-      <Flex sx={{ gap: '12px' }}>
-        <Box>{t('Name/DOB')}</Box>
-        <Button onClick={handleViewData}>{t('View Data')}</Button>
-        <Button onClick={() => {}}>{t('Copy as Text')}</Button>
-        <Text>{t('Last Reviewed')}</Text>
-      </Flex>
-
+      <DrawerMenuBar patientId={patientId} api={api} trackMetric={trackMetric} />
       <AgpCGMStats />
 
       <div style={{ minWidth: 800, display: 'grid', gridTemplateColumns: '1fr', gap: '12px' }}>

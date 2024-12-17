@@ -305,16 +305,12 @@ const TideDashboardSection = React.memo(props => {
   }, [dispatch, trackMetric]);
 
   const renderPatientName = useCallback(({ patient }) => (
-    <Box onClick={
-      // handleClickPatient(patient)
-
-      // TODO: Figure out correct UI interaction to trigger drawer
-
-      () => { 
+    <Box 
+      onClick={() => { 
         setIsAGPDrawerOpen(true);
-        setSelectedPatientId(patient.id)
-      }
-    } sx={{ cursor: 'pointer' }}>
+        setSelectedPatientId(patient.id);
+      }} 
+      sx={{ cursor: 'pointer' }}>
       <Text
         sx={{
           display: 'inline-block',
@@ -726,7 +722,7 @@ const TideDashboardSection = React.memo(props => {
         }}
       />
       <Drawer anchor='right' open={isAGPDrawerOpen} onClose={() => setIsAGPDrawerOpen(false)}>
-        <DrawerContent patientId={selectedPatientId} api={api} />
+        <DrawerContent patientId={selectedPatientId} api={api} trackMetric={trackMetric} />
       </Drawer>
     </Box>
   );
