@@ -12,8 +12,6 @@ const DrawerContent = ({ api, trackMetric, patientId }) => {
 
   const { status, svgDataURLS } = useGenerateAGPImages(api, patientId);
 
-  console.log(status);
-
   if (status !== STATUS.SVGS_GENERATED) {
     return <p>Loading ...</p>;
   }

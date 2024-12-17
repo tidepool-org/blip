@@ -6,17 +6,21 @@ import buildGenerateAGPImagesFunction from './buildGenerateAGPImagesFunction';
 import getOpts from './getOpts';
 import getQueries from './getQueries';
 
-export const STATUS = {
+export const STATUS = {  
   // In order of happy path sequence
+  CLEARING_STATE: 'CLEARING_STATE',
   INITIALIZED:    'INITIALIZED',
   PATIENT_LOADED: 'PATIENT_LOADED',
   DATA_PROCESSED: 'DATA_PROCESSED',
   SVGS_GENERATED: 'SVGS_GENERATED',
-
-  // TODO: Add error states
 }
 
-const inferLastCompletedStep = (data, pdf) => {
+const inferLastCompletedStep = (currentPatientId, data, pdf) => {
+  const hasOtherPatientPdf  = !!pdf.opts && pdf.opts.patient?.id !== currentPatientId;
+  const hasOtherPatientData = !!data.metaData.patientId && data.metaData.patientId !== currentPatientId;
+
+  if (hasOtherPatientPdf || hasOtherPatientData) return STATUS.CLEARING_STATE;
+
   // If the outputted data for a step in the process exists, we infer that the step was successful.
   // We do the lookup in reverse order to return the LATEST completed step
 
@@ -43,13 +47,18 @@ export const useGenerateAGPImages = (api, patientId) => {
   
   const patient = clinic?.patients?.[patientId];
 
-  const lastCompletedStep = inferLastCompletedStep(data, pdf);
+  const lastCompletedStep = inferLastCompletedStep(patientId, data, pdf);
   // TODO: Add error states with another infer() function
 
   useEffect(() => {
     // Whenever a step is successfully completed, this effect triggers the next step in the sequence.
+    console.log(lastCompletedStep);
 
     switch(lastCompletedStep) {
+      case STATUS.CLEARING_STATE:
+        dispatch(actions.worker.removeGeneratedPDFS());
+        dispatch(actions.sync.resetData());
+
       case STATUS.INITIALIZED:
         dispatch(actions.async.fetchPatientData(api, FETCH_PATIENT_OPTS, patientId));
         break;
@@ -71,15 +80,10 @@ export const useGenerateAGPImages = (api, patientId) => {
     }
   }, [lastCompletedStep]);
 
-  useEffect(() => {
-    return () => {
-      dispatch(actions.worker.removeGeneratedPDFS());
-      dispatch(actions.sync.resetData());
-    }
-  }, []);
+  const hasCorrectImagesForPatient = pdf.opts?.patient?.id === patientId;
 
   return { 
     status: lastCompletedStep, 
-    svgDataURLS: pdf?.opts?.svgDataURLS,
+    svgDataURLS: hasCorrectImagesForPatient ? pdf.opts.svgDataURLS : null
   };
 }
