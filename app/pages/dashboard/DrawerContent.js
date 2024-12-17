@@ -11,12 +11,12 @@ const BORDER_GRAY = colorPalette.extended.grays[1];
 
 const StyledDrawerContent = styled(Box)`
   padding: 32px;
-  width: 900px;
+  width: 880px;
 `
 
-const StyledImg = styled.img`
+const StyledAGPImage = styled.img`
   width: calc(100% - 24px);
-  margin: 6px 8px;
+  margin: 6px 8px 16px;
 `
 
 const StyledContainerHeader = styled(Box)`
@@ -63,7 +63,7 @@ const DrawerContent = ({ api, trackMetric, patientId }) => {
       
       <Box mb={3} sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
         <DataContainer title={t('Time in Ranges')}>
-          <StyledImg src={percentInRanges} />
+          <StyledAGPImage src={percentInRanges} alt={t('Time in Ranges')} />
         </DataContainer>
         <DataContainer>
           <Box sx={{ marginTop: '32px' }}>
@@ -74,11 +74,11 @@ const DrawerContent = ({ api, trackMetric, patientId }) => {
 
       <Box sx={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
         <DataContainer title={t('Ambulatory Glucose Profile (AGP)')}>
-          <StyledImg src={ambulatoryGlucoseProfile} />
+          <StyledAGPImage src={ambulatoryGlucoseProfile} alt={t('Ambulatory Glucose Profile (AGP)')} />
         </DataContainer>
         <DataContainer title={t('Daily Glucose Profiles')}>
-          <StyledImg src={dailyGlucoseProfilesTop} />
-          <StyledImg src={dailyGlucoseProfilesBot} />
+          <StyledAGPImage src={dailyGlucoseProfilesTop} alt={t('Daily Glucose Profiles')} />
+          <StyledAGPImage src={dailyGlucoseProfilesBot} alt={t('Daily Glucose Profiles')}/>
         </DataContainer>
       </Box>
     </StyledDrawerContent>
