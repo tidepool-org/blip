@@ -26,7 +26,7 @@ const DrawerMenuBar = ({ patientId, api, trackMetric }) => {
         <Text sx={{ 
           color: colorPalette.primary.purpleDark,
           fontWeight: 'bold',
-          fontSize: '16px'
+          fontSize: 2
         }}>
           {patient?.fullName}
         </Text>
@@ -35,13 +35,18 @@ const DrawerMenuBar = ({ patientId, api, trackMetric }) => {
       <Button onClick={handleViewData}>{t('View Data')}</Button>
       <Button onClick={() => {}}>{t('Copy as Text')}</Button>
 
-      <PatientLastReviewed 
-        api={api} 
-        trackMetric={trackMetric} 
-        metricSource="TIDE dashboard" 
-        patientId={patientId} 
-        recentlyReviewedThresholdDate={recentlyReviewedThresholdDate} 
-      />
+      <Flex sx={{ fontSize: 0, alignItems: 'center', justifyContent: 'flex-end' }}>
+        <Text sx={{ color: colorPalette.primary.purpleDark, fontWeight: 'medium', marginRight: '16px' }}>
+          {t('Last Reviewed')}
+        </Text>
+        <PatientLastReviewed 
+          api={api} 
+          trackMetric={trackMetric} 
+          metricSource="TIDE dashboard" 
+          patientId={patientId} 
+          recentlyReviewedThresholdDate={recentlyReviewedThresholdDate} 
+        />
+      </Flex>
     </Box>
   )
 }
