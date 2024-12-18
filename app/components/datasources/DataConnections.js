@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
 import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
 import moment from 'moment-timezone';
 import find from 'lodash/find';
+import get from 'lodash/get';
 import includes from 'lodash/includes';
 import keys from 'lodash/keys';
 import map from 'lodash/map';
@@ -14,21 +15,33 @@ import reduce from 'lodash/reduce';
 import { utils as vizUtils } from '@tidepool/viz';
 
 import * as actions from '../../redux/actions';
+import { useToasts } from '../../providers/ToastProvider';
 import api from '../../core/api';
+import { useIsFirstRender, usePrevious } from '../../core/hooks';
 import i18next from '../../core/language';
 import DataConnection from './DataConnection';
+import PatientEmailModal from './PatientEmailModal';
+import ResendDataSourceConnectRequestDialog from '../clinic/ResendDataSourceConnectRequestDialog';
 import { Box, BoxProps } from 'theme-ui';
 import dexcomLogo from '../../core/icons/dexcom_logo.svg';
 import libreLogo from '../../core/icons/libre_logo.svg';
 import twiistLogo from '../../core/icons/twiist_logo.svg';
 import { colors } from '../../themes/baseTheme';
+import { isFunction } from 'lodash';
 
 const { formatTimeAgo } = vizUtils.datetime;
 const t = i18next.t.bind(i18next);
 
+export const activeProviders = [
+  'dexcom',
+  'abbott',
+  // 'twiist',
+];
+
 export const providers = {
   dexcom: {
     id: 'oauth/dexcom',
+    displayName: 'Dexcom',
     restrictedTokenCreate: {
         paths: [
           '/v1/oauth/dexcom',
@@ -40,21 +53,23 @@ export const providers = {
     },
     logoImage: dexcomLogo,
   },
-  libre: {
-    id: 'oauth/libre',
+  abbott: {
+    id: 'oauth/abbott',
+    displayName: 'Freestyle Libre',
     restrictedTokenCreate: {
         paths: [
-          '/v1/oauth/libre',
+          '/v1/oauth/abbott',
         ],
     },
     dataSourceFilter: {
       providerType: 'oauth',
-      providerName: 'libre',
+      providerName: 'abbott',
     },
     logoImage: libreLogo,
   },
   twiist: {
     id: 'oauth/twiist',
+    displayName: 'Twiist',
     restrictedTokenCreate: {
         paths: [
           '/v1/oauth/twiist',
@@ -70,55 +85,64 @@ export const providers = {
 
 export function getProviderHandlers(patient, selectedClinicId, provider) {
   const { id, restrictedTokenCreate, dataSourceFilter } = provider;
-  const hasProviderDataSource = !!find(patient?.dataSources, { providerName: dataSourceFilter?.providerName });
-  const addProviderDataSource = !hasProviderDataSource;
+  const providerName = dataSourceFilter?.providerName;
 
-  const patientWithDataSourceUpdates = {
-    ...patient,
-    dataSources: addProviderDataSource ? [
-      ...patient?.dataSources || [],
-      { providerName: dataSourceFilter?.providerName, state: 'pending' },
-    ] : patient?.dataSources || [],
-  };
+  // Clinician-initiated send and resend invite handlers will potentially need to gather an email
+  // address and set the initial data source pending status on the patient if these do not exist.
+  const emailRequired = !!(selectedClinicId && !patient?.email && patient?.permissions?.custodian);
+  const hasProviderDataSource = !!find(patient?.dataSources, { providerName });
+
+  let patientUpdates;
+
+  if (!hasProviderDataSource) {
+    patientUpdates = {
+      dataSources: [
+        ...patient?.dataSources || [],
+        { providerName, state: 'pending' },
+      ],
+    };
+  }
 
   return {
     connect: {
       buttonText: t('Connect'),
       buttonStyle: 'solid',
       action: actions.async.connectDataSource,
-      args: [api, id, restrictedTokenCreate, dataSourceFilter]
+      args: [api, id, restrictedTokenCreate, dataSourceFilter],
     },
     disconnect: {
       buttonText: t('Disconnect'),
       buttonStyle: 'text',
       action: actions.async.disconnectDataSource,
-      args: [api, id, restrictedTokenCreate, dataSourceFilter]
+      args: [api, id, restrictedTokenCreate, dataSourceFilter],
     },
     reconnect: {
       buttonText: t('Reconnect'),
       buttonStyle: 'solid',
-      action: actions.async.sendPatientDataProviderConnectRequest,
-      args: [api, id, restrictedTokenCreate, dataSourceFilter]
+      action: actions.async.connectDataSource,
+      args: [api, id, restrictedTokenCreate, dataSourceFilter],
     },
     sendInvite: {
       buttonText: t('Email Invite'),
       buttonStyle: 'solid',
-      action: actions.async.sendPatientDataProviderConnectRequest, // TODO: need to submit patient with updated data source ste
-      args: [api, id, restrictedTokenCreate, dataSourceFilter] // TODO: need to submit patient with updated data source state
+      action: actions.async.sendPatientDataProviderConnectRequest,
+      args: [api, selectedClinicId, patient?.id, providerName],
+      emailRequired,
+      patientUpdates,
     },
     resendInvite: {
       buttonText: t('Resend Invite'),
       buttonStyle: 'solid',
-      action: actions.async.sendPatientDataProviderConnectRequest, // TODO: need to submit patient with updated data source ste
-      args: [api, id, restrictedTokenCreate, dataSourceFilter] // TODO: need to submit patient with updated data source state
+      action: actions.async.sendPatientDataProviderConnectRequest,
+      args: [api, selectedClinicId, patient?.id, providerName],
+      emailRequired,
+      patientUpdates,
     },
   }
 };
 
-export const getConnectStateUI = (patient, loggedInUserId, providerName) => {
-  const userIsPatient = loggedInUserId === patient?.id;
-
-  const mostRecentConnectionUpdateTime = userIsPatient
+export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
+  const mostRecentConnectionUpdateTime = isLoggedInUser
     ? max([
       find(patient?.dataSources, {providerName})?.createdTime,
       find(patient?.dataSources, {providerName})?.latestDataTime || find(patient?.dataSources, {providerName})?.lastImportTime,
@@ -153,51 +177,51 @@ export const getConnectStateUI = (patient, loggedInUserId, providerName) => {
   return {
     noPendingConnections: {
       color: colors.grays[5],
-      handler: userIsPatient ? 'connect' : 'sendInvite',
+      handler: isLoggedInUser ? 'connect' : 'sendInvite',
       icon: null,
       message: null,
-      text: userIsPatient ? null : t('No Pending Connections'),
+      text: isLoggedInUser ? null : t('No Pending Connections'),
     },
     pending: {
       color: colors.grays[5],
-      handler: userIsPatient ? 'connect' : 'resendInvite',
+      handler: isLoggedInUser ? 'connect' : 'resendInvite',
       icon: null,
       message: t('Invite sent {{timeAgo}}', { timeAgo }), // TODO: null immediately after sending
       text: t('Connection Pending'),
     },
     pendingReconnect: {
       color: colors.grays[5],
-      handler: userIsPatient ? 'connect' : 'resendInvite',
+      handler: isLoggedInUser ? 'connect' : 'resendInvite',
       icon: null,
       message: t('Invite sent {{timeAgo}}', { timeAgo }),
       text: t('Invite Sent'),
     },
     pendingExpired: {
       color: colors.feedback.warning,
-      handler: userIsPatient ? 'connect' : 'resendInvite',
+      handler: isLoggedInUser ? 'connect' : 'resendInvite',
       icon: ErrorRoundedIcon,
       message: t('Sent over one month ago'),
       text: t('Invite Expired'),
     },
     connected: {
       color: colors.text.primary,
-      handler: userIsPatient ? 'disconnect' : null,
-      message: userIsPatient ? patientConnectedMessage : null,
-      icon: userIsPatient ? patientConnectedIcon : CheckCircleRoundedIcon,
-      text: userIsPatient ? patientConnectedText : t('Connected'),
+      handler: isLoggedInUser ? 'disconnect' : null,
+      message: isLoggedInUser ? patientConnectedMessage : null,
+      icon: isLoggedInUser ? patientConnectedIcon : CheckCircleRoundedIcon,
+      text: isLoggedInUser ? patientConnectedText : t('Connected'),
     },
     disconnected: {
       color: colors.feedback.warning,
-      handler: userIsPatient ? 'connect' : 'resendInvite',
-      icon: userIsPatient ? null : ErrorRoundedIcon,
-      message: userIsPatient ? null : t('Last update {{timeAgo}}', { timeAgo }),
-      text: userIsPatient ? null : t('Patient Disconnected'),
+      handler: isLoggedInUser ? 'connect' : 'resendInvite',
+      icon: isLoggedInUser ? null : ErrorRoundedIcon,
+      message: isLoggedInUser ? null : t('Last update {{timeAgo}}', { timeAgo }),
+      text: isLoggedInUser ? null : t('Patient Disconnected'),
     },
     error: {
       color: colors.feedback.warning,
-      handler: userIsPatient ? 'reconnect' : 'resendInvite',
+      handler: isLoggedInUser ? 'reconnect' : 'resendInvite',
       icon: ErrorRoundedIcon,
-      message: userIsPatient
+      message: isLoggedInUser
         ? t('Last update {{timeAgo}}. Please reconnect your account to keep syncing data.', { timeAgo })
         : t('Last update {{timeAgo}}', { timeAgo }),
       text: t('Error Connecting'),
@@ -211,20 +235,14 @@ export const getConnectStateUI = (patient, loggedInUserId, providerName) => {
   }
 };
 
-export const activeProviders = [
-  'dexcom',
-  'libre',
-  // 'twiist',
-];
-
-export const getDataConnectionProps = (patient, loggedInUserId, selectedClinicId, dispatch) => reduce(activeProviders, (result, providerName) => {
+export const getDataConnectionProps = (patient, isLoggedInUser, selectedClinicId, setActiveHandler) => reduce(activeProviders, (result, providerName) => {
   result[providerName] = {};
 
   let connectState;
 
-  const connectStateUI = getConnectStateUI(patient, loggedInUserId, providerName);
+  const connectStateUI = getConnectStateUI(patient, isLoggedInUser, providerName);
   const dataSource = find(patient?.dataSources, { providerName: providerName });
-  const inviteExpired = dataSource.expirationTime < moment.utc().toISOString();
+  const inviteExpired = dataSource?.expirationTime < moment.utc().toISOString();
 
   if (dataSource?.state) {
     connectState = includes(keys(connectStateUI), dataSource.state)
@@ -237,12 +255,20 @@ export const getDataConnectionProps = (patient, loggedInUserId, selectedClinicId
   }
 
   const { color, icon, message, text, handler } = connectStateUI[connectState];
-  const handlerProps = getProviderHandlers(patient, selectedClinicId, providers[providerName])[handler];
 
-  if (handlerProps) {
-    result[providerName].buttonHandler = () => dispatch(handlerProps.action, ...[handlerProps.args]);
-    result[providerName].buttonText = handlerProps.buttonText;
-    result[providerName].buttonStyle = handlerProps.buttonStyle;
+  const {
+    action,
+    args,
+    buttonText,
+    buttonStyle,
+    emailRequired,
+    patientUpdates,
+  } = getProviderHandlers(patient, selectedClinicId, providers[providerName])[handler] || {};
+
+  if (action) {
+    result[providerName].buttonHandler = () => setActiveHandler({ action, args, emailRequired, patientUpdates, providerName, connectState, handler });
+    result[providerName].buttonText = buttonText;
+    result[providerName].buttonStyle = buttonStyle;
   }
 
   result[providerName].icon = icon;
@@ -259,31 +285,250 @@ export const getDataConnectionProps = (patient, loggedInUserId, selectedClinicId
   return result;
 }, {});
 
-export function DataConnections(props) {
+export const DataConnections = (props) => {
   const {
     api,
-    dataSource,
-    label,
-    message,
-    onAction,
     patient,
+    trackMetric,
     ...themeProps
   } = props;
 
   const dispatch = useDispatch();
+  const isFirstRender = useIsFirstRender();
+  const { set: setToast } = useToasts();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
-  const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
-  const dataConnectionProps = getDataConnectionProps(patient, loggedInUserId, selectedClinicId, dispatch);
-  const [processing, setProcessing] = useState(false);
+  const isLoggedInUser = useSelector((state) => state.blip.loggedInUserId === patient?.id);
+  const [showResendDataSourceConnectRequest, setShowResendDataSourceConnectRequest] = useState(false);
+  const [showPatientEmailModal, setShowPatientEmailModal] = useState(false);
+  const [patientEmailFormContext, setPatientEmailFormContext] = useState();
+  const [processingEmailUpdate, setProcessingEmailUpdate] = useState(false);
+  const [patientUpdates, setPatientUpdates] = useState({});
+  const [activeHandler, setActiveHandler] = useState(null);
+  const dataConnectionProps = getDataConnectionProps(patient, isLoggedInUser, selectedClinicId, setActiveHandler);
+
+  const {
+    sendingPatientDataProviderConnectRequest,
+    updatingClinicPatient,
+  } = useSelector((state) => state.blip.working);
+
+  const previousSendingPatientDataProviderConnectRequest = usePrevious(sendingPatientDataProviderConnectRequest);
+  const previousUpdatingClinicPatient = usePrevious(updatingClinicPatient);
+
+  const fetchPatientDetails = useCallback(() => {
+    dispatch(actions.async.fetchPatientFromClinic(api, selectedClinicId, patient?.id));
+  }, [
+    api,
+    dispatch,
+    selectedClinicId,
+    patient?.id,
+  ]);
+
+  // Pull the patient on load to ensure the most recent dexcom connection state is made available
+  useEffect(() => {
+    if (selectedClinicId && patient?.id) fetchPatientDetails();
+  }, []);
+
+  const handleAsyncResult = useCallback((workingState, successMessage, onComplete) => {
+    const { inProgress, completed, notification, prevInProgress } = workingState;
+
+    if (!isFirstRender && !inProgress && prevInProgress !== false) {
+      if (completed) {
+        if (isFunction(onComplete)) onComplete();
+
+        if (successMessage) setToast({
+          message: successMessage,
+          variant: 'success',
+        });
+      }
+
+      if (completed === false) {
+        setToast({
+          message: get(notification, 'message'),
+          variant: 'danger',
+        });
+
+        setShowPatientEmailModal(false);
+        setProcessingEmailUpdate(false);
+        setPatientUpdates({});
+        setActiveHandler(null);
+      }
+    }
+  }, [
+    isFirstRender,
+    setToast,
+  ]);
+
+  const handleAddPatientEmailOpen = useCallback(() => {
+    trackMetric('Data Connections - add patient email', { selectedClinicId });
+    setShowPatientEmailModal(true);
+  }, [
+    selectedClinicId,
+    trackMetric,
+  ]);
+
+  const handleAddPatientEmailClose = () => {
+    setShowPatientEmailModal(false);
+    setActiveHandler(null);
+  };
+
+  const handleAddPatientEmailFormChange = (formikContext) => {
+    setPatientEmailFormContext({ ...formikContext });
+  };
+
+  const handleAddPatientEmailConfirm = () => {
+    trackMetric('Data Connections - add patient email confirmed', { selectedClinicId });
+    patientEmailFormContext?.handleSubmit();
+    setProcessingEmailUpdate(true);
+  };
+
+  const handleUpdatePatientComplete = useCallback(() => {
+    fetchPatientDetails();
+    setShowPatientEmailModal(false);
+    setProcessingEmailUpdate(false);
+    setPatientUpdates({});
+
+    if (activeHandler?.action) {
+      if (activeHandler?.emailRequired) {
+        // Immediately after adding a new patient email address. There will be a small amount
+        // of time where the backend services may not be able to find the patient, so we wait
+        // a second before requesting that a connection request email be sent.
+        setTimeout(() => dispatch(activeHandler.action(...activeHandler.args)), 1000);
+      } else {
+        // If we haven't just added an email to a patient, we can fire this right away.
+        dispatch(activeHandler.action(...activeHandler.args));
+      }
+    }
+  }, [
+    activeHandler,
+    dispatch,
+    fetchPatientDetails,
+  ]);
+
+  const handleResendDataSourceConnectEmailOpen = useCallback(() => {
+    trackMetric('Clinic - Resend DataSource connect email', {
+      clinicId: selectedClinicId,
+      providerName: activeHandler?.providerName,
+      dataSourceConnectState: activeHandler?.connectState,
+      source: 'patientForm',
+    });
+
+    setShowResendDataSourceConnectRequest(true);
+  }, [
+    activeHandler?.connectState,
+    activeHandler?.providerName,
+    selectedClinicId,
+    trackMetric,
+  ]);
+
+  const handleResendDataSourceConnectEmailClose = () => {
+    setShowResendDataSourceConnectRequest(false);
+    setActiveHandler(null);
+  };
+
+  const handleResendDataSourceConnectEmailConfirm = () => {
+    trackMetric('Clinic - Resend DataSource connect email confirm', { clinicId: selectedClinicId, source: 'patientForm' });
+    if (activeHandler?.action) dispatch(activeHandler.action(...activeHandler.args));
+  };
+
+  const handleActiveHandlerComplete = () => {
+    setShowPatientEmailModal(false);
+    setShowResendDataSourceConnectRequest(false);
+    setActiveHandler(null);
+  };
+
+  useEffect(() => {
+    // TODO: still need to have confirmation modals prior
+    // to performing the update or data connection actions...
+
+    if(activeHandler?.action && !activeHandler?.inProgress) {
+      setActiveHandler({ ...activeHandler, inProgress: true });
+
+      if (activeHandler.emailRequired) {
+        // Store any patient updates in state.  We will collect the email address, and then add it
+        // to the updates obect before applying them.
+        setPatientUpdates(activeHandler.patientUpdates || {});
+        handleAddPatientEmailOpen();
+      } else if (patient && activeHandler.patientUpdates) {
+        // We have updates to apply before we can fire the data connection action.
+        dispatch(actions.async.updateClinicPatient(api, selectedClinicId, patient.id, { ...patient, ...activeHandler.patientUpdates }));
+      } else if (activeHandler.handler === 'resendInvite') {
+        handleResendDataSourceConnectEmailOpen();
+      } else {
+        // No need to update patient object prior to firing data connection action. Fire away.
+        dispatch(activeHandler.action(...activeHandler.args));
+      }
+    }
+  }, [
+    activeHandler,
+    api,
+    dispatch,
+    handleAddPatientEmailOpen,
+    handleResendDataSourceConnectEmailOpen,
+    patient,
+    selectedClinicId,
+  ]);
+
+  useEffect(() => {
+    handleAsyncResult({ ...updatingClinicPatient, prevInProgress: previousUpdatingClinicPatient?.inProgress}, t('You have successfully updated a patient.'), handleUpdatePatientComplete);
+  }, [
+    handleAsyncResult,
+    handleUpdatePatientComplete,
+    updatingClinicPatient,
+    previousUpdatingClinicPatient?.inProgress,
+    setToast,
+  ]);
+
+  useEffect(() => {
+    handleAsyncResult({ ...sendingPatientDataProviderConnectRequest, prevInProgress: previousSendingPatientDataProviderConnectRequest?.inProgress }, t('{{ providerDisplayName }} connection request to {{email}} has been sent.', {
+      email: patient?.email,
+      providerDisplayName: providers[activeHandler?.providerName]?.displayName,
+    }), handleActiveHandlerComplete);
+  }, [
+    sendingPatientDataProviderConnectRequest,
+    previousSendingPatientDataProviderConnectRequest?.inProgress,
+    handleAsyncResult,
+    activeHandler?.providerName,
+    patient?.email
+  ]);
 
   return (
-    <Box>
-      {map(activeProviders, (provider, i) => (
-        <DataConnection buttonProcessing={processing} { ...dataConnectionProps[provider]} key={i} id={`data-connection-${provider}`} {...themeProps} />
-      ))}
-    </Box>
+    <>
+      <Box id="data-connections" {...themeProps}>
+        {map(activeProviders, (provider, i) => (
+          <DataConnection
+            id={`data-connection-${provider}`}
+            key={i}
+            mb={1}
+            buttonProcessing={activeHandler?.providerName === provider && !showPatientEmailModal && !showResendDataSourceConnectRequest}
+            { ...dataConnectionProps[provider]}
+          />
+        ))}
+      </Box>
+
+      {showPatientEmailModal && <PatientEmailModal
+        action="add"
+        open
+        onClose={handleAddPatientEmailClose}
+        onFormChange={handleAddPatientEmailFormChange}
+        onSubmit={handleAddPatientEmailConfirm}
+        patient={{ ...patient, ...patientUpdates }}
+        processing={processingEmailUpdate}
+        trackMetric={trackMetric}
+      />}
+
+      <ResendDataSourceConnectRequestDialog
+        api={api}
+        onClose={handleResendDataSourceConnectEmailClose}
+        onConfirm={handleResendDataSourceConnectEmailConfirm}
+        open={showResendDataSourceConnectRequest}
+        patient={patient}
+        providerName={activeHandler?.providerName}
+        t={t}
+        trackMetric={trackMetric}
+      />
+    </>
   );
-}
+};
 
 const clinicPatientDataSourceShape = {
   expirationTime: PropTypes.string,
@@ -303,14 +548,12 @@ const userDataSourceShape = {
 
 DataConnections.propTypes = {
   ...BoxProps,
-  label: PropTypes.string.isRequired,
-  message: PropTypes.string.isRequired,
-  onSuccess: PropTypes.func,
   patient: PropTypes.oneOf([PropTypes.shape(clinicPatientDataSourceShape), PropTypes.shape(userDataSourceShape)]),
+  trackMetric: PropTypes.func.isRequired,
 };
 
 DataConnections.defaultProps = {
-  onSuccess: noop,
+  trackMetric: noop,
 };
 
 export default DataConnections;
