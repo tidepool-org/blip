@@ -15,10 +15,10 @@ const formatDateRange = (startEndpoint, endEndpoint, timezoneName) => {
   const endYear   = endDate.year();
 
   if (startYear !== endYear) {
-    return `${startDate.format("MMMM D, YYYY")} - ${endDate.format("MMMM D, YYYY")}`;
+    return `${startDate.format('MMMM D, YYYY')} - ${endDate.format('MMMM D, YYYY')}`;
   }
 
-  return `${startDate.format("MMMM D")} - ${endDate.format("MMMM D")}, ${endDate.format("YYYY")}`;
+  return `${startDate.format('MMMM D')} - ${endDate.format('MMMM D')}, ${endDate.format('YYYY')}`;
 }
 
 const TableRow = ({ label, sublabel, value, units }) => {

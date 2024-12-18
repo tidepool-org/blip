@@ -1,3 +1,3 @@
-import PatientDrawerContent from "./PatientDrawerContent";
+import PatientDrawerContent from './PatientDrawerContent';
 
 export default PatientDrawerContent;
