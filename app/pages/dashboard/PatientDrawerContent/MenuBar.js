@@ -18,6 +18,7 @@ const MenuBar = ({ patientId, api, trackMetric }) => {
   const patientDOB = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]?.patients?.[patientId]?.birthDate);
 
   useEffect(() => {
+    // DOB field in Patient object may not be populated in TIDE Dashboard, so we need to refetch
     dispatch(actions.async.fetchPatientFromClinic(api, selectedClinicId, patientId));
   }, []);
 
