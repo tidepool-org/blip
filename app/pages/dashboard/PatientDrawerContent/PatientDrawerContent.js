@@ -15,6 +15,7 @@ const BORDER_GRAY = colorPalette.extended.grays[1];
 const StyledAGPImage = styled.img`
   width: calc(100% - 24px);
   margin: 6px 8px 16px;
+  display: ${props => props.src ? 'block' : 'none' };
 `
 
 const InsufficientData = () => {
@@ -73,6 +74,10 @@ const MainContent = ({ api, patientId }) => {
   const dailyGlucoseProfilesTop  = svgDataURLS?.agpCGM?.dailyGlucoseProfiles?.[0];
   const dailyGlucoseProfilesBot  = svgDataURLS?.agpCGM?.dailyGlucoseProfiles?.[1];
 
+  const agpGraphHelpText = t('AGP is a summary of glucose values from the report period, with median (50%) and other percentiles shown as if they occurred in a single day.');
+  const agpGraphInsufficientText = t('Insufficient CGM data to generate AGP graph');
+  const dailyGlucoseProfilesHelpText = t('Each daily profile represents a midnight-to-midnight period.');
+
   return (
     <>
       <Box mb={3} sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
@@ -88,9 +93,15 @@ const MainContent = ({ api, patientId }) => {
 
       <Box sx={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
         <CategoryContainer title={t('Ambulatory Glucose Profile (AGP)')}>
+          <Box px={3} py={1} sx={{ fontSize: 0 }}>
+            { !!ambulatoryGlucoseProfile ? agpGraphHelpText : agpGraphInsufficientText }
+          </Box>
           <StyledAGPImage src={ambulatoryGlucoseProfile} alt={t('Ambulatory Glucose Profile (AGP)')} />
         </CategoryContainer>
         <CategoryContainer title={t('Daily Glucose Profiles')}>
+          <Box px={3} py={1} sx={{ fontSize: 0 }}>
+            {dailyGlucoseProfilesHelpText}
+          </Box>
           <StyledAGPImage src={dailyGlucoseProfilesTop} alt={t('Daily Glucose Profiles')} />
           <StyledAGPImage src={dailyGlucoseProfilesBot} alt={t('Daily Glucose Profiles')}/>
         </CategoryContainer>
