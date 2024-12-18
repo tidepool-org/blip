@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import * as actions from '../../../redux/actions';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { push } from 'connected-react-router';
@@ -11,8 +12,14 @@ import PatientLastReviewed from '../../../components/clinic/PatientLastReviewed'
 const MenuBar = ({ patientId, api, trackMetric }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
-  const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
-  const patient = clinic?.patients?.[patientId];
+
+  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
+  const patientName = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]?.patients?.[patientId]?.fullName);
+  const patientDOB = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]?.patients?.[patientId]?.birthDate);
+
+  useEffect(() => {
+    dispatch(actions.async.fetchPatientFromClinic(api, selectedClinicId, patientId));
+  }, []);
 
   const handleViewData = () => {
     dispatch(push(`/patients/${patientId}/data?chart=trends&dashboard=tide`));
@@ -22,14 +29,15 @@ const MenuBar = ({ patientId, api, trackMetric }) => {
 
   return (
     <Box mb={3} sx={{ display: 'grid', gridTemplateColumns: '32fr 18fr 18fr 32fr', gap: '12px' }}>
-      <Flex sx={{ alignItems: 'center' }}>
-        <Text sx={{ 
-          color: colorPalette.primary.purpleDark,
-          fontWeight: 'bold',
-          fontSize: 2
-        }}>
-          {patient?.fullName}
+      <Flex sx={{ justifyContent: 'center', flexDirection: 'column' }}>
+        <Text sx={{ color: colorPalette.primary.purpleDark, fontWeight: 'bold', fontSize: 2 }}>
+          {patientName}
         </Text>
+        { patientDOB &&
+          <Text sx={{ color: '#707070', fontWeight: 'medium', fontSize: 1 }}>
+            {patientDOB}
+          </Text>
+        }
       </Flex>
 
       <Button onClick={handleViewData}>{t('View Data')}</Button>
