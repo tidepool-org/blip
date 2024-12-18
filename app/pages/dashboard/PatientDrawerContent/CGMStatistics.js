@@ -85,8 +85,8 @@ const CGMStatistics = () => {
     <Flex sx={{ alignItems: 'center', width: '100%', height: '100%' }}>
       <Box sx={{ width: '100%' }}>
           <TableRow 
-            label={t(`${daySpan} days`)}
-            value={dateRange}
+            label={t('Time Range')}
+            value={t('{{dateRange}} ({{daySpan}} days)', { dateRange, daySpan })}
           />
           <TableRow 
             label={t('Time CGM Active')}
