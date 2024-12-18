@@ -106,6 +106,11 @@ const MainContent = ({ api, patientId }) => {
           <StyledAGPImage src={dailyGlucoseProfilesBot} alt={t('Daily Glucose Profiles')}/>
         </CategoryContainer>
       </Box>
+
+      <Flex mt={3} sx={{ color: '#707070', fontSize: 0, justifyContent: 'space-between' }}>
+        <Text>{t('Patent pending – HealthPartners Institute dba International Diabetes Center – All Rights Reserved. ©2022')}</Text>
+        <Text>{`${t('Tidepool')} | ${t('CapturAGP v5.0')}`}</Text>
+      </Flex>
     </>
   );
 }
