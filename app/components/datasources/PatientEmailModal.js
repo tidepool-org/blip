@@ -47,13 +47,15 @@ export const PatientEmailModal = (props) => {
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const mrnSettings = clinic?.mrnSettings ?? {};
+
   const existingMRNs = useMemo(
     () => compact(map(reject(clinic?.patients, { id: patient?.id }), 'mrn')),
     [clinic?.patients, patient?.id]
   );
+
   const clinicPatientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
   const initialFocusedInputRef = useInitialFocusedInput();
-  const action = patient?.email ? 'edit' : 'add';
+  const action = useMemo(() => patient?.email ? 'edit' : 'add', [patient?.email]);
 
   const formikContext = useFormik({
     initialValues: getFormValues(patient, clinicPatientTags),
