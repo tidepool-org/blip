@@ -26,7 +26,7 @@ import { URL_DEXCOM_CONNECT_INFO } from '../../core/constants';
 import { useIsFirstRender } from '../../core/hooks';
 import { async, sync } from '../../redux/actions';
 import { useToasts } from '../../providers/ToastProvider';
-import ResendDexcomConnectRequestDialog from '../clinic/ResendDexcomConnectRequestDialog';
+import ResendDataSourceConnectRequestDialog from '../clinic/ResendDataSourceConnectRequestDialog';
 
 export const DexcomBanner = withTranslation()((props) => {
   const {
@@ -177,12 +177,13 @@ export const DexcomBanner = withTranslation()((props) => {
         </div>
       </div>
 
-      <ResendDexcomConnectRequestDialog
+      <ResendDataSourceConnectRequestDialog
         api={api}
         onClose={() => setShowResendDexcomConnectRequest(false)}
         onConfirm={handleSendReconnectionEmailConfirm}
         open={showResendDexcomConnectRequest}
         patient={clinicPatient}
+        providerName="dexcom"
         t={t}
         trackMetric={trackMetric}
       />
