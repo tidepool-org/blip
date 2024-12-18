@@ -22,7 +22,37 @@ const StyledAGPImage = styled.img`
   margin: 6px 8px 16px;
 `
 
-const DataContainer = ({ title, subtitle, children }) => {
+const InsufficientDataContent = () => {
+  const { t } = useTranslation();
+  
+  return (
+    <StyledContent>
+      <Flex sx={{ justifyContent: 'center', marginTop: '400px' }}>
+        <Text>{t('Insufficient data to generate AGP Report.')}</Text>
+      </Flex>
+    </StyledContent>
+  );
+}
+
+const NoPatientDataContent = ({ patientName }) => {
+  const { t } = useTranslation();
+
+  return (
+    <StyledContent>
+      <Flex sx={{ justifyContent: 'center', marginTop: '400px' }}>
+        <Text>{t('{{patientName}} does not have any data yet.', { patientName })}</Text>
+      </Flex>
+    </StyledContent>
+  );
+}
+
+const LoadingContent = () => (
+  <StyledContent>
+    <Loader show={true} overlay={false} />
+  </StyledContent>
+)
+
+const CategoryContainer = ({ title, subtitle, children }) => {
   return (
     <Box sx={{ border: `2px solid ${BORDER_GRAY}`, borderRadius: '12px', overflow: 'hidden' }}>
       { title && (
@@ -49,23 +79,9 @@ const PatientDrawerContent = ({ api, trackMetric, patientId }) => {
   const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
   const patient = clinic?.patients?.[patientId];
 
-  if (status === STATUS.NO_DATA_FOUND) {
-    return (
-      <StyledContent>
-        <Flex sx={{ justifyContent: 'center', marginTop: '400px' }}>
-          <Text>{t('{{patientName}} does not have any data yet.', { patientName: patient?.fullName })}</Text>
-        </Flex>
-      </StyledContent>
-    );
-  }
-
-  if (status !== STATUS.SVGS_GENERATED) {
-    return (
-      <StyledContent>
-        <Loader show={true} overlay={false} />
-      </StyledContent>
-    );
-  }
+  if (status === STATUS.NO_PATIENT_DATA)   return <NoPatientDataContent patientName={patient?.fullName}/>;
+  if (status === STATUS.INSUFFICIENT_DATA) return <InsufficientDataContent />;
+  if (status !== STATUS.SVGS_GENERATED)    return <LoadingContent />;
 
   const percentInRanges          = svgDataURLS?.agpCGM?.percentInRanges;
   const ambulatoryGlucoseProfile = svgDataURLS?.agpCGM?.ambulatoryGlucoseProfile;
@@ -77,24 +93,24 @@ const PatientDrawerContent = ({ api, trackMetric, patientId }) => {
       <MenuBar patientId={patientId} api={api} trackMetric={trackMetric} />
       
       <Box mb={3} sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-        <DataContainer title={t('Time in Ranges')} subtitle={t('Goals for Type 1 and Type 2 Diabetes')}>
+        <CategoryContainer title={t('Time in Ranges')} subtitle={t('Goals for Type 1 and Type 2 Diabetes')}>
           <StyledAGPImage src={percentInRanges} alt={t('Time in Ranges')} />
-        </DataContainer>
-        <DataContainer>
+        </CategoryContainer>
+        <CategoryContainer>
           <Box sx={{ marginTop: '32px' }}>
             <CGMStatistics />
           </Box>
-        </DataContainer>
+        </CategoryContainer>
       </Box>
 
       <Box sx={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
-        <DataContainer title={t('Ambulatory Glucose Profile (AGP)')}>
+        <CategoryContainer title={t('Ambulatory Glucose Profile (AGP)')}>
           <StyledAGPImage src={ambulatoryGlucoseProfile} alt={t('Ambulatory Glucose Profile (AGP)')} />
-        </DataContainer>
-        <DataContainer title={t('Daily Glucose Profiles')}>
+        </CategoryContainer>
+        <CategoryContainer title={t('Daily Glucose Profiles')}>
           <StyledAGPImage src={dailyGlucoseProfilesTop} alt={t('Daily Glucose Profiles')} />
           <StyledAGPImage src={dailyGlucoseProfilesBot} alt={t('Daily Glucose Profiles')}/>
-        </DataContainer>
+        </CategoryContainer>
       </Box>
     </StyledContent>
   );

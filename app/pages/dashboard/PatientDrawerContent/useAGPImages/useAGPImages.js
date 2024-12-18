@@ -15,7 +15,8 @@ export const STATUS = {
   SVGS_GENERATED: 'SVGS_GENERATED',
 
   // Other states
-  NO_DATA_FOUND: 'NO_DATA_FOUND'
+  NO_PATIENT_DATA:   'NO_PATIENT_DATA',
+  INSUFFICIENT_DATA: 'INSUFFICIENT_DATA',
 }
 
 const inferLastCompletedStep = (isFirstRender, patientId, data, pdf) => {
@@ -25,16 +26,23 @@ const inferLastCompletedStep = (isFirstRender, patientId, data, pdf) => {
 
   if (isFirstRender || hasOtherUserPdfInState || hasOtherUserDataInState) return STATUS.INITIALIZED;
 
+  // Patient has no data
   const hasNoData = data.metaData?.size === 0;
 
-  if (hasNoData) return STATUS.NO_DATA_FOUND;
+  if (hasNoData) return STATUS.NO_PATIENT_DATA;
 
+  // Insufficient data to generate AGP Report - PDF worker succeeded but all fields are empty
+  const isDataInsufficient = !!pdf?.opts?.svgDataURLS && !pdf?.opts?.svgDataURLS.agpCGM;
+
+  if (isDataInsufficient) return STATUS.INSUFFICIENT_DATA;
+
+  // Happy Path:
   // If the outputted data for a step in the process exists, we infer that the step was successful.
   // We do the lookup in reverse order to return the LATEST completed step
 
-  const hasImagesInState  = !!pdf?.opts?.svgDataURLS;
-  const hasPDFDataInState = !!pdf?.data;
-  const hasPatientInState = !!data?.metaData?.patientId;
+  const hasImagesInState   = !!pdf?.opts?.svgDataURLS;
+  const hasPDFDataInState  = !!pdf?.data;
+  const hasPatientInState  = !!data?.metaData?.patientId;
 
   if (hasImagesInState)  return STATUS.SVGS_GENERATED;
   if (hasPDFDataInState) return STATUS.DATA_PROCESSED;
