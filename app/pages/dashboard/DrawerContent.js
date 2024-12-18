@@ -1,4 +1,5 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { Flex, Box, Text } from 'theme-ui';
 import colorPalette from '../../themes/colorPalette';
@@ -6,10 +7,11 @@ import styled from '@emotion/styled';
 import { STATUS, useGenerateAGPImages } from './AGPDrawerHelper';
 import CGMStatistics from './CGMStatistics';
 import DrawerMenuBar from './DrawerMenuBar';
+import personUtils from '../../core/personutils';
 
 const BORDER_GRAY = colorPalette.extended.grays[1];
 
-const StyledDrawerContent = styled(Box)`
+const StyledContent = styled(Box)`
   padding: 32px;
   width: 880px;
 `
@@ -40,13 +42,27 @@ const DataContainer = ({ title, subtitle, children }) => {
 
 const DrawerContent = ({ api, trackMetric, patientId }) => {
   const { t } = useTranslation();
+  
   const { status, svgDataURLS } = useGenerateAGPImages(api, patientId);
+
+  const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
+  const patient = clinic?.patients?.[patientId];
+
+  if (status === STATUS.NO_DATA_FOUND) {
+    return (
+      <StyledContent>
+        <Flex sx={{ justifyContent: 'center', marginTop: '400px' }}>
+          <Text>{t('{{patientName}} does not have any data yet.', { patientName: patient?.fullName })}</Text>
+        </Flex>
+      </StyledContent>
+    );
+  }
 
   if (status !== STATUS.SVGS_GENERATED) {
     return (
-      <StyledDrawerContent>
+      <StyledContent>
         <Text>{t('Loading')}</Text>
-      </StyledDrawerContent>
+      </StyledContent>
     );
   }
 
@@ -56,7 +72,7 @@ const DrawerContent = ({ api, trackMetric, patientId }) => {
   const dailyGlucoseProfilesBot  = svgDataURLS?.agpCGM?.dailyGlucoseProfiles?.[1];
 
   return (
-    <StyledDrawerContent>
+    <StyledContent>
       <DrawerMenuBar patientId={patientId} api={api} trackMetric={trackMetric} />
       
       <Box mb={3} sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
@@ -79,7 +95,7 @@ const DrawerContent = ({ api, trackMetric, patientId }) => {
           <StyledAGPImage src={dailyGlucoseProfilesBot} alt={t('Daily Glucose Profiles')}/>
         </DataContainer>
       </Box>
-    </StyledDrawerContent>
+    </StyledContent>
   );
 }
 
