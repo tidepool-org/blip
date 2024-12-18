@@ -31,7 +31,7 @@ const MenuBar = ({ patientId, api, trackMetric }) => {
   return (
     <Box mb={3} sx={{ display: 'grid', gridTemplateColumns: '32fr 18fr 18fr 32fr', gap: '12px' }}>
       <Flex sx={{ justifyContent: 'center', flexDirection: 'column' }}>
-        <Text sx={{ color: colorPalette.primary.purpleDark, fontWeight: 'bold', fontSize: 2 }}>
+        <Text sx={{ color: colorPalette.primary.purpleDark, fontWeight: 'bold', fontSize: 3 }}>
           {patientName}
         </Text>
         { patientDOB &&
@@ -44,8 +44,13 @@ const MenuBar = ({ patientId, api, trackMetric }) => {
       <Button onClick={handleViewData}>{t('View Data')}</Button>
       <Button onClick={() => {}}>{t('Copy as Text')}</Button>
 
-      <Flex sx={{ fontSize: 0, alignItems: 'center', justifyContent: 'flex-end' }}>
-        <Text sx={{ color: colorPalette.primary.purpleDark, fontWeight: 'medium', marginRight: '16px' }}>
+      <Flex sx={{ fontSize: 1, alignItems: 'center', justifyContent: 'flex-end' }}>
+        <Text sx={{ 
+          color: colorPalette.primary.purpleDark, 
+          fontWeight: 'medium', 
+          marginRight: '16px',
+          fontSize: 1
+        }}>
           {t('Last Reviewed')}
         </Text>
         <PatientLastReviewed 

@@ -26,7 +26,7 @@ const TableRow = ({ label, sublabel, value, units }) => {
     <Flex sx={{ 
       justifyContent: 'space-between', 
       margin: '0 16px', 
-      padding: '8px 0',  
+      padding: '16px 0',  
       borderBottom: `1px solid ${colorPalette.extended.grays[1]}`,
       '&:last-of-type': { borderBottom: 'none' }
     }}>
@@ -82,35 +82,37 @@ const CGMStatistics = () => {
   const cov        = utils.roundToPrecision(coefficientOfVariation, 1);
 
   return (
-    <Box>
-        <TableRow 
-          label={t(`${daySpan} days:`)}
-          value={dateRange}
-        />
-        <TableRow 
-          label={t('Time CGM Active')}
-          value={`${cgmActive}`}
-          units="%"
-        />
-        <TableRow 
-          label={t('Average Glucose')}
-          sublabel={t('(Goal <154 mg/dL)')} // TODO: variable targets?
-          value={`${avgGlucose}`}
-          units={` ${bgUnits}`}
-        />
-        <TableRow 
-          label={t('Glucose Management Indicator')}
-          sublabel={t('(Goal <7%)')} // TODO: variable targets?
-          value={`${gmi}`}
-          units="%"
-        />
-        <TableRow 
-          label={t('Glucose Variability')}
-          sublabel={t('(Defined as a percent coefficient of variation. Goal <= 36%)')} // TODO: variable targets?
-          value={`${cov}`}
-          units="%"
-        />
-    </Box>
+    <Flex sx={{ alignItems: 'center', width: '100%', height: '100%' }}>
+      <Box sx={{ width: '100%' }}>
+          <TableRow 
+            label={t(`${daySpan} days`)}
+            value={dateRange}
+          />
+          <TableRow 
+            label={t('Time CGM Active')}
+            value={`${cgmActive}`}
+            units="%"
+          />
+          <TableRow 
+            label={t('Average Glucose')}
+            sublabel={t('(Goal <154 mg/dL)')} // TODO: variable targets?
+            value={`${avgGlucose}`}
+            units={` ${bgUnits}`}
+          />
+          <TableRow 
+            label={t('Glucose Management Indicator')}
+            sublabel={t('(Goal <7%)')} // TODO: variable targets?
+            value={`${gmi}`}
+            units="%"
+          />
+          <TableRow 
+            label={t('Glucose Variability')}
+            sublabel={t('(Defined as a percent coefficient of variation. Goal <= 36%)')} // TODO: variable targets?
+            value={`${cov}`}
+            units="%"
+          />
+      </Box>
+    </Flex>
   )
 }
 

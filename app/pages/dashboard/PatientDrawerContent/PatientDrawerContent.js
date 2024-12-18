@@ -12,6 +12,8 @@ const { Loader } = vizComponents;
 
 const BORDER_GRAY = colorPalette.extended.grays[1];
 
+const DRAWER_WIDTH = '1100px';
+
 const StyledAGPImage = styled.img`
   width: calc(100% - 24px);
   margin: 6px 8px 16px;
@@ -45,7 +47,7 @@ const CategoryContainer = ({ title, subtitle, children }) => {
         <Box sx={{ backgroundColor: BORDER_GRAY, padding: '6px 12px' }}>
           <Text sx={{ fontWeight: 'bold', fontSize: 1 }}>{title}</Text>
           {subtitle && (
-            <Text sx={{ marginLeft: '24px', fontSize: 0, color: colorPalette.extended.grays[6] }}>
+            <Text sx={{ marginLeft: '24px', fontSize: 0 }}>
               {subtitle}
             </Text>
           )}
@@ -85,9 +87,7 @@ const MainContent = ({ api, patientId }) => {
           <StyledAGPImage src={percentInRanges} alt={t('Time in Ranges')} />
         </CategoryContainer>
         <CategoryContainer>
-          <Box sx={{ marginTop: '32px' }}>
-            <CGMStatistics />
-          </Box>
+          <CGMStatistics />
         </CategoryContainer>
       </Box>
 
@@ -111,7 +111,7 @@ const MainContent = ({ api, patientId }) => {
 }
 
 const PatientDrawerContent = ({ patientId, api, trackMetric }) => ( // consistent width and padding for PatientDrawerContent
-  <Box sx={{ padding: '32px', width: '880px'}}>
+  <Box px={4} py={4} sx={{ width: DRAWER_WIDTH }}>
     <MenuBar patientId={patientId} api={api} trackMetric={trackMetric} />
     <MainContent patientId={patientId} api={api} />
   </Box>
