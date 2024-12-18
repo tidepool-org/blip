@@ -53,7 +53,7 @@ import PopoverMenu from '../../components/elements/PopoverMenu';
 import RadioGroup from '../../components/elements/RadioGroup';
 import DeltaBar from '../../components/elements/DeltaBar';
 import Pill from '../../components/elements/Pill';
-import DrawerContent from './DrawerContent';
+import PatientDrawerContent from './PatientDrawerContent';
 import utils from '../../core/utils';
 
 import {
@@ -721,8 +721,9 @@ const TideDashboardSection = React.memo(props => {
           }
         }}
       />
+
       <Drawer anchor='right' open={isAGPDrawerOpen} onClose={() => setIsAGPDrawerOpen(false)}>
-        <DrawerContent patientId={selectedPatientId} api={api} trackMetric={trackMetric} />
+        <PatientDrawerContent patientId={selectedPatientId} api={api} trackMetric={trackMetric} />
       </Drawer>
     </Box>
   );

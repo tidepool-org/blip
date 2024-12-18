@@ -1,13 +1,12 @@
 import React from 'react';
-import styled from '@emotion/styled';
-import colorPalette from '../../themes/colorPalette';
+import colorPalette from '../../../themes/colorPalette';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { Flex, Box, Text } from 'theme-ui';
 import moment from 'moment';
 import { utils as vizUtils } from '@tidepool/viz';
-import utils from '../../core/utils';
-import { MGDL_UNITS } from '../../core/constants';
+import utils from '../../../core/utils';
+import { MGDL_UNITS } from '../../../core/constants';
 
 const formatDateRange = (startEndpoint, endEndpoint, timezoneName) => {
   const startDate = moment.utc(startEndpoint).tz(timezoneName);

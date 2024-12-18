@@ -3,12 +3,12 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { push } from 'connected-react-router';
 import { Flex, Box, Text } from 'theme-ui';
-import colorPalette from '../../themes/colorPalette';
-import Button from '../../components/elements/Button';
+import colorPalette from '../../../themes/colorPalette';
+import Button from '../../../components/elements/Button';
 import moment from 'moment';
-import PatientLastReviewed from '../../components/clinic/PatientLastReviewed';
+import PatientLastReviewed from '../../../components/clinic/PatientLastReviewed';
 
-const DrawerMenuBar = ({ patientId, api, trackMetric }) => {
+const MenuBar = ({ patientId, api, trackMetric }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
@@ -51,4 +51,4 @@ const DrawerMenuBar = ({ patientId, api, trackMetric }) => {
   )
 }
 
-export default DrawerMenuBar;
+export default MenuBar;

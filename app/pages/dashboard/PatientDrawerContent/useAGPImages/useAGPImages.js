@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import * as actions from '../../redux/actions';
+import * as actions from '../../../../redux/actions';
 import buildGenerateAGPImagesFunction from './buildGenerateAGPImagesFunction';
 
 import getOpts from './getOpts';
@@ -45,7 +45,7 @@ const inferLastCompletedStep = (isFirstRender, patientId, data, pdf) => {
 
 const FETCH_PATIENT_OPTS = { forceDataWorkerAddDataRequest: true, useCache: false };
 
-export const useGenerateAGPImages = (api, patientId) => {
+const useAGPImages = (api, patientId) => {
   const dispatch = useDispatch();
   const generateAGPImages = buildGenerateAGPImagesFunction(dispatch);
 
@@ -98,3 +98,5 @@ export const useGenerateAGPImages = (api, patientId) => {
     svgDataURLS: hasCorrectImagesForPatient ? pdf.opts?.svgDataURLS : null
   };
 }
+
+export default useAGPImages;

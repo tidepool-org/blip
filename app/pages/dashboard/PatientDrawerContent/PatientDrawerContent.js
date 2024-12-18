@@ -2,11 +2,11 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { Flex, Box, Text } from 'theme-ui';
-import colorPalette from '../../themes/colorPalette';
+import colorPalette from '../../../themes/colorPalette';
 import styled from '@emotion/styled';
-import { STATUS, useGenerateAGPImages } from './AGPDrawerHelper';
+import useAGPImages, { STATUS } from './useAGPImages';
 import CGMStatistics from './CGMStatistics';
-import DrawerMenuBar from './DrawerMenuBar';
+import MenuBar from './MenuBar';
 import { components as vizComponents } from '@tidepool/viz';
 const { Loader } = vizComponents;
 
@@ -41,10 +41,10 @@ const DataContainer = ({ title, subtitle, children }) => {
   );
 };
 
-const DrawerContent = ({ api, trackMetric, patientId }) => {
+const PatientDrawerContent = ({ api, trackMetric, patientId }) => {
   const { t } = useTranslation();
   
-  const { status, svgDataURLS } = useGenerateAGPImages(api, patientId);
+  const { status, svgDataURLS } = useAGPImages(api, patientId);
 
   const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
   const patient = clinic?.patients?.[patientId];
@@ -74,7 +74,7 @@ const DrawerContent = ({ api, trackMetric, patientId }) => {
 
   return (
     <StyledContent>
-      <DrawerMenuBar patientId={patientId} api={api} trackMetric={trackMetric} />
+      <MenuBar patientId={patientId} api={api} trackMetric={trackMetric} />
       
       <Box mb={3} sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
         <DataContainer title={t('Time in Ranges')} subtitle={t('Goals for Type 1 and Type 2 Diabetes')}>
@@ -100,4 +100,4 @@ const DrawerContent = ({ api, trackMetric, patientId }) => {
   );
 }
 
-export default DrawerContent;
+export default PatientDrawerContent;

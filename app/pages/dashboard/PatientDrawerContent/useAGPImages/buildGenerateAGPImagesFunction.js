@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { utils as vizUtils } from '@tidepool/viz';
 import Plotly from 'plotly.js-basic-dist-min';
-import * as actions from '../../redux/actions';
+import * as actions from '../../../../redux/actions';
 
 const buildGenerateAGPImages = (dispatch) => {
   

@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { utils as vizUtils } from '@tidepool/viz';
-import utils from '../../core/utils';
+import utils from '../../../../core/utils';
 
 const chartPrefs = {
   agpBGM: {
