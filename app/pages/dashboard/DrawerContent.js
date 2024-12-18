@@ -4,7 +4,7 @@ import { Flex, Box, Text } from 'theme-ui';
 import colorPalette from '../../themes/colorPalette';
 import styled from '@emotion/styled';
 import { STATUS, useGenerateAGPImages } from './AGPDrawerHelper';
-import AgpCGMStats from './AgpCGMStats';
+import CGMStatistics from './CGMStatistics';
 import DrawerMenuBar from './DrawerMenuBar';
 
 const BORDER_GRAY = colorPalette.extended.grays[1];
@@ -19,20 +19,18 @@ const StyledAGPImage = styled.img`
   margin: 6px 8px 16px;
 `
 
-const StyledContainerHeader = styled(Box)`
-  background-color: ${BORDER_GRAY};
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
-  padding: 6px 12px;
-`;
-
-const DataContainer = ({ title, children }) => {
+const DataContainer = ({ title, subtitle, children }) => {
   return (
-    <Box sx={{ border: `1px solid ${BORDER_GRAY}`, borderRadius: '12px' }}>
+    <Box sx={{ border: `2px solid ${BORDER_GRAY}`, borderRadius: '12px', overflow: 'hidden' }}>
       { title && (
-        <StyledContainerHeader>
-          <Text sx={{ fontWeight: 'bold', fontSize: '16px' }}>{title}</Text>
-        </StyledContainerHeader>
+        <Box sx={{ backgroundColor: BORDER_GRAY, padding: '6px 12px' }}>
+          <Text sx={{ fontWeight: 'bold', fontSize: 1 }}>{title}</Text>
+          {subtitle && (
+            <Text sx={{ marginLeft: '24px', fontSize: 0, color: colorPalette.extended.grays[6] }}>
+              {subtitle}
+            </Text>
+          )}
+        </Box>
       )}
 
       {children}
@@ -62,12 +60,12 @@ const DrawerContent = ({ api, trackMetric, patientId }) => {
       <DrawerMenuBar patientId={patientId} api={api} trackMetric={trackMetric} />
       
       <Box mb={3} sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-        <DataContainer title={t('Time in Ranges')}>
+        <DataContainer title={t('Time in Ranges')} subtitle={t('Goals for Type 1 and Type 2 Diabetes')}>
           <StyledAGPImage src={percentInRanges} alt={t('Time in Ranges')} />
         </DataContainer>
         <DataContainer>
           <Box sx={{ marginTop: '32px' }}>
-            <AgpCGMStats />
+            <CGMStatistics />
           </Box>
         </DataContainer>
       </Box>

@@ -1,4 +1,6 @@
 import React from 'react';
+import styled from '@emotion/styled';
+import colorPalette from '../../themes/colorPalette';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { Flex, Box, Text } from 'theme-ui';
@@ -20,7 +22,29 @@ const formatDateRange = (startEndpoint, endEndpoint, timezoneName) => {
   return `${startDate.format("MMMM Do")} - ${endDate.format("MMMM Do")}, ${endDate.format("YYYY")}`;
 }
 
-const AgpCGMStats = () => {
+const TableRow = ({ label, sublabel, value }) => {
+  return (
+    <Flex sx={{ 
+      justifyContent: 'space-between', 
+      margin: '0 16px', 
+      padding: '8px 0',  
+      borderBottom: `1px solid ${colorPalette.extended.grays[1]}`,
+      '&:last-of-type': { borderBottom: 'none' }
+    }}>
+      <Flex sx={{ flexDirection: 'column', maxWidth: '260px' }}>
+        <Text sx={{ color: '#707070' }}>{label}</Text>
+        {sublabel && (
+          <Text sx={{ color: '#707070', fontSize: 0, fontStyle: 'italic' }}>{sublabel}</Text>
+        )}
+      </Flex>
+      <Box>
+        <Text sx={{ fontWeight: 'bold' }}>{value}</Text>
+      </Box>
+    </Flex>
+  )
+}
+
+const CGMStatistics = () => {
   const { t } = useTranslation();
 
   // IMPORTANT: Data taken from Redux PDF slice
@@ -59,14 +83,31 @@ const AgpCGMStats = () => {
 
   return (
     <Box>
-      <Box>{ timezoneName }</Box>
-      <Box>{ daySpan } days: { dateRange }</Box>
-      <Box>Time CGM Active: { cgmActive } %</Box>
-      <Box>Average Glucose: { avgGlucose } { bgUnits }</Box>
-      <Box>GMI: { gmi } %</Box>
-      <Box>Glucose Variability: { cov } %</Box>
+        <TableRow 
+          label={t(`${daySpan} days:`)}
+          value={dateRange}
+        />
+        <TableRow 
+          label={t('Time CGM Active')}
+          value={`${cgmActive}%`}
+        />
+        <TableRow 
+          label={t('Average Glucose')}
+          sublabel={t('(Goal <154 mg/dL)')} // TODO: variable targets?
+          value={`${avgGlucose} ${bgUnits}`}
+        />
+        <TableRow 
+          label={t('Glucose Management Indicator')}
+          sublabel={t('(Goal <7%)')} // TODO: variable targets?
+          value={`${gmi}%`}
+        />
+        <TableRow 
+          label={t('Glucose Variability')}
+          sublabel={t('(Defined as a percent coefficient of variation. Goal <= 36%)')} // TODO: variable targets?
+          value={`${cov}%`}
+        />
     </Box>
   )
 }
 
-export default AgpCGMStats;
+export default CGMStatistics;
