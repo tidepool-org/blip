@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
@@ -49,14 +49,14 @@ export const DataConnectionsModal = (props) => {
   const [patientEmailFormContext, setPatientEmailFormContext] = useState();
   const dispatch = useDispatch();
 
+  const fetchPatientDetails = useCallback(() => {
+    dispatch(actions.async.fetchPatientFromClinic(api, selectedClinicId, patient.id));
+  }, [dispatch, patient.id, selectedClinicId])
+
   // Pull the patient on load to ensure the most recent dexcom connection state is made available
   useEffect(() => {
     if (selectedClinicId && patient?.id) fetchPatientDetails();
   }, []);
-
-  function fetchPatientDetails() {
-    dispatch(actions.async.fetchPatientFromClinic(api, selectedClinicId, patient.id));
-  }
 
   const handleEditPatientEmailOpen = () => {
     trackMetric('Data Connections - edit patient email', { selectedClinicId });
@@ -77,10 +77,10 @@ export const DataConnectionsModal = (props) => {
     setProcessingEmailUpdate(true);
   };
 
-  const handleEditPatientEmailComplete = () => {
+  const handleEditPatientEmailComplete = useCallback(() => {
     fetchPatientDetails();
     setShowPatientEmailModal(false);
-  };
+  }, [fetchPatientDetails, setShowPatientEmailModal]);
 
   useEffect(() => {
     const { inProgress, completed, notification } = updatingClinicPatient;
@@ -181,16 +181,16 @@ export const DataConnectionsModal = (props) => {
             {t('select the devices, and upload.')}&nbsp;
           </Body1>
 
-          <PatientEmailModal
+          {showPatientEmailModal && <PatientEmailModal
+            action="edit"
+            open
             onClose={handleEditPatientEmailClose}
             onFormChange={handleEditPatientEmailFormChange}
             onSubmit={handleEditPatientEmailConfirm}
-            action="edit"
-            open={showPatientEmailModal}
             patient={patientData}
             processing={processingEmailUpdate}
             trackMetric={trackMetric}
-          />
+          />}
         </DialogContent>
 
         <DialogActions>
