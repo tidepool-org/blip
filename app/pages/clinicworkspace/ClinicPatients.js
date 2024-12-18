@@ -1078,6 +1078,12 @@ export const ClinicPatients = (props) => {
     patientFormContext?.handleSubmit();
   }, [patientFormContext, selectedClinicId, trackMetric, selectedPatient?.tags, prefixPopHealthMetric]);
 
+  const handleEditPatientAndAddDataSourcesConfirm = useCallback(() => {
+    trackMetric('Clinic - Edit patient next', { clinicId: selectedClinicId, source: 'Patients list' });
+    patientFormContext?.setStatus({ showDataConnectionsModalNext: true });
+    handleEditPatientConfirm();
+  }, [patientFormContext, selectedClinicId, trackMetric, handleEditPatientConfirm]);
+
   function handleConfigureTideDashboard() {
     if (validateTideConfig(tideDashboardConfig[localConfigKey], patientTags)) {
       trackMetric('Clinic - Navigate to Tide Dashboard', { clinicId: selectedClinicId, source: 'Patients list' });
@@ -2267,11 +2273,13 @@ export const ClinicPatients = (props) => {
             {t('Cancel')}
           </Button>
 
-          <Button id="editPatientNext" variant="secondary" onClick={() => {
-            trackMetric('Clinic - Edit patient next', { clinicId: selectedClinicId, source: 'Patients list' });
-            patientFormContext?.setStatus({ showDataConnectionsModalNext: true });
-            handleEditPatientConfirm();
-          }}>
+          <Button
+            id="editPatientNext"
+            variant="secondary"
+            onClick={handleEditPatientAndAddDataSourcesConfirm}
+            processing={updatingClinicPatient.inProgress && patientFormContext?.status?.showDataConnectionsModalNext}
+            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema({mrnSettings, existingMRNs}), patientFormContext?.values)}
+          >
             {t('Save & Next')}
           </Button>
 
@@ -2279,7 +2287,7 @@ export const ClinicPatients = (props) => {
             id="editPatientConfirm"
             variant="primary"
             onClick={handleEditPatientConfirm}
-            processing={updatingClinicPatient.inProgress}
+            processing={updatingClinicPatient.inProgress && !patientFormContext?.status?.showDataConnectionsModalNext}
             disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema({mrnSettings, existingMRNs}), patientFormContext?.values)}
           >
             {t('Save Changes')}
@@ -2290,6 +2298,7 @@ export const ClinicPatients = (props) => {
   }, [
     api,
     handleEditPatientConfirm,
+    handleEditPatientAndAddDataSourcesConfirm,
     mrnSettings,
     existingMRNs,
     handleCloseOverlays,
@@ -2793,7 +2802,7 @@ export const ClinicPatients = (props) => {
   const renderDataConnectionsModal = useCallback(() => {
     return (
       <DataConnectionsModal
-        open={showDataConnectionsModal}
+        open
         patient={selectedPatient}
         onClose={handleCloseOverlays}
         onBack={patientFormContext?.status?.showDataConnectionsModalNext ? () => {
@@ -2806,7 +2815,6 @@ export const ClinicPatients = (props) => {
     handleCloseOverlays,
     patientFormContext?.status,
     selectedPatient,
-    showDataConnectionsModal,
   ]);
 
   const renderPatient = useCallback(patient => (

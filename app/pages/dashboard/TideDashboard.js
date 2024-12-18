@@ -933,6 +933,12 @@ export const TideDashboard = (props) => {
     patientFormContext?.handleSubmit();
   }, [patientFormContext, selectedClinicId, trackMetric, selectedPatient?.tags]);
 
+  const handleEditPatientAndAddDataSourcesConfirm = useCallback(() => {
+    trackMetric('Clinic - Edit patient next', { clinicId: selectedClinicId, source: 'Tide dashboard' });
+    patientFormContext?.setStatus({ showDataConnectionsModalNext: true });
+    handleEditPatientConfirm();
+  }, [patientFormContext, selectedClinicId, trackMetric, handleEditPatientConfirm]);
+
   function handleConfigureTideDashboard() {
     trackMetric('Clinic - Show Tide Dashboard config dialog', { clinicId: selectedClinicId, source: 'Tide dashboard' });
     setShowTideDashboardConfigDialog(true);
@@ -1108,11 +1114,13 @@ export const TideDashboard = (props) => {
             {t('Cancel')}
           </Button>
 
-          <Button id="editPatientNext" variant="secondary" onClick={() => {
-            trackMetric('Clinic - Edit patient next', { clinicId: selectedClinicId, source: 'TIDE dashboard' });
-            patientFormContext?.setStatus({ showDataConnectionsModalNext: true });
-            handleEditPatientConfirm();
-          }}>
+          <Button
+            id="editPatientNext"
+            variant="secondary"
+            onClick={handleEditPatientAndAddDataSourcesConfirm}
+            processing={updatingClinicPatient.inProgress && patientFormContext?.status?.showDataConnectionsModalNext}
+            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema({mrnSettings, existingMRNs}), patientFormContext?.values)}
+          >
             {t('Save & Next')}
           </Button>
 
@@ -1120,7 +1128,7 @@ export const TideDashboard = (props) => {
             id="editPatientConfirm"
             variant="primary"
             onClick={handleEditPatientConfirm}
-            processing={updatingClinicPatient.inProgress}
+            processing={updatingClinicPatient.inProgress && !patientFormContext?.status?.showDataConnectionsModalNext}
             disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema({mrnSettings, existingMRNs}), patientFormContext?.values)}
           >
             {t('Save Changes')}
@@ -1132,6 +1140,7 @@ export const TideDashboard = (props) => {
     api,
     existingMRNs,
     handleEditPatientConfirm,
+    handleEditPatientAndAddDataSourcesConfirm,
     mrnSettings,
     patientFormContext,
     selectedClinicId,
@@ -1155,6 +1164,8 @@ export const TideDashboard = (props) => {
       />
     );
   }, [
+    handleCloseOverlays,
+    patientFormContext?.status,
     selectedPatient,
   ]);
 
