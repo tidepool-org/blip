@@ -66,6 +66,7 @@ export const PatientEmailModal = (props) => {
 
   const {
     values,
+    isValid,
   } = formikContext;
 
   const UI = {
@@ -137,6 +138,7 @@ export const PatientEmailModal = (props) => {
           variant="primary"
           onClick={onSubmit}
           processing={processing}
+          disabled={!isValid || !values.email}
         >
           {UI[action].submitText}
         </Button>
