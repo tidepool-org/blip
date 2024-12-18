@@ -4,11 +4,13 @@ import { useTranslation } from 'react-i18next';
 import { Flex, Box, Text } from 'theme-ui';
 import colorPalette from '../../../themes/colorPalette';
 import styled from '@emotion/styled';
+
+import { components as vizComponents } from '@tidepool/viz';
+const { Loader } = vizComponents;
+
 import useAGPImages, { STATUS } from './useAGPImages';
 import CGMStatistics from './CGMStatistics';
 import MenuBar from './MenuBar';
-import { components as vizComponents } from '@tidepool/viz';
-const { Loader } = vizComponents;
 
 const BORDER_GRAY = colorPalette.extended.grays[1];
 
@@ -59,7 +61,7 @@ const CategoryContainer = ({ title, subtitle, children }) => {
   );
 };
 
-const MainContent = ({ api, patientId }) => {
+const Content = ({ api, patientId }) => {
   const { t } = useTranslation();
   
   const { status, svgDataURLS } = useAGPImages(api, patientId);
@@ -115,11 +117,4 @@ const MainContent = ({ api, patientId }) => {
   );
 }
 
-const PatientDrawerContent = ({ patientId, api, trackMetric }) => ( // consistent width and padding for PatientDrawerContent
-  <Box px={4} py={4} sx={{ width: DRAWER_WIDTH }}>
-    <MenuBar patientId={patientId} api={api} trackMetric={trackMetric} />
-    <MainContent patientId={patientId} api={api} />
-  </Box>
-)
-
-export default PatientDrawerContent;
+export default Content;

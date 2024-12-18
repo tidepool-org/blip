@@ -18,7 +18,6 @@ import map from 'lodash/map';
 import reject from 'lodash/reject';
 import values from 'lodash/values';
 import { Box, Flex, Text } from 'theme-ui';
-import Drawer from '@material-ui/core/Drawer';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
 import MoreVertRoundedIcon from '@material-ui/icons/MoreVertRounded';
@@ -53,7 +52,7 @@ import PopoverMenu from '../../components/elements/PopoverMenu';
 import RadioGroup from '../../components/elements/RadioGroup';
 import DeltaBar from '../../components/elements/DeltaBar';
 import Pill from '../../components/elements/Pill';
-import PatientDrawerContent from './PatientDrawerContent';
+import PatientDrawer from './PatientDrawer';
 import utils from '../../core/utils';
 
 import {
@@ -722,9 +721,13 @@ const TideDashboardSection = React.memo(props => {
         }}
       />
 
-      <Drawer anchor='right' open={isAGPDrawerOpen} onClose={() => setIsAGPDrawerOpen(false)}>
-        <PatientDrawerContent patientId={selectedPatientId} api={api} trackMetric={trackMetric} />
-      </Drawer>
+      <PatientDrawer 
+        isOpen={isAGPDrawerOpen} 
+        patientId={selectedPatientId} 
+        onClose={() => setIsAGPDrawerOpen(false)}
+        api={api}
+        trackMetric={trackMetric}
+      />
     </Box>
   );
 }, ((prevProps, nextProps) => (
