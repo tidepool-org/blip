@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { push } from 'connected-react-router';
 import { Flex, Box, Text } from 'theme-ui';
+import colorPalette from '../../themes/colorPalette';
 import Button from '../../components/elements/Button';
 import moment from 'moment';
 import PatientLastReviewed from '../../components/clinic/PatientLastReviewed';
@@ -20,11 +21,16 @@ const DrawerMenuBar = ({ patientId, api, trackMetric }) => {
   const recentlyReviewedThresholdDate = moment().startOf('isoWeek').toISOString();
 
   return (
-    <Flex mb={3} sx={{ gap: '12px' }}>
-      <Box>
-        <Box>{patient.fullName}</Box>
-        <Box></Box>
-      </Box>
+    <Box mb={3} sx={{ display: 'grid', gridTemplateColumns: '32fr 18fr 18fr 32fr', gap: '12px' }}>
+      <Flex sx={{ alignItems: 'center' }}>
+        <Text sx={{ 
+          color: colorPalette.primary.purpleDark,
+          fontWeight: 'bold',
+          fontSize: '16px'
+        }}>
+          {patient?.fullName}
+        </Text>
+      </Flex>
 
       <Button onClick={handleViewData}>{t('View Data')}</Button>
       <Button onClick={() => {}}>{t('Copy as Text')}</Button>
@@ -36,7 +42,7 @@ const DrawerMenuBar = ({ patientId, api, trackMetric }) => {
         patientId={patientId} 
         recentlyReviewedThresholdDate={recentlyReviewedThresholdDate} 
       />
-    </Flex>
+    </Box>
   )
 }
 
