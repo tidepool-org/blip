@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { boolean, select, optionsKnob as options } from '@storybook/addon-knobs';
+import { boolean as bool, select, optionsKnob as options } from '@storybook/addon-knobs';
 import { ThemeProvider } from '@emotion/react';
 import range from 'lodash/range';
 import { Text } from 'theme-ui';
@@ -24,9 +24,9 @@ export default {
 
 const pageCount = () => select('Page Count', range(5, 1000), 1000);
 const initialPage = () => select('Initial Page', range(1, pageCount()), 99);
-const disabled = () => boolean('Disabled', false);
-const showPrevNextControls = () => boolean('Show Prev/Next Controls', true);
-const showFirstLastControls = () => boolean('Show First/Last Controls', false);
+const disabled = () => bool('Disabled', false);
+const showPrevNextControls = () => bool('Show Prev/Next Controls', true);
+const showFirstLastControls = () => bool('Show First/Last Controls', false);
 
 const variants = {
   Default: 'default',

@@ -196,6 +196,19 @@ export default ({
         textDecoration: 'none',
       },
     },
+    textPrimaryLink: {
+      ...defaultStyles,
+      ...textButtonStyles,
+      color: colors.purpleBright,
+      display: 'inline-flex !important',
+      px: 1,
+      py: 1,
+      textDecoration: 'underline',
+      '&:hover,&:active': {
+        color: colors.text.primary,
+        textDecoration: 'underline',
+      },
+    },
     textSecondary: {
       ...defaultStyles,
       ...textButtonStyles,

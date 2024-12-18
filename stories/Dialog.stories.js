@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { boolean, text, number } from '@storybook/addon-knobs';
+import { boolean as bool, text, number } from '@storybook/addon-knobs';
 import { ThemeProvider } from '@emotion/react';
 
 import baseTheme from '../app/themes/baseTheme';
@@ -28,14 +28,14 @@ export default {
 
 export const DialogStory = {
   render: () => {
-    const initiallyOpen = () => boolean('Initially Open', true);
+    const initiallyOpen = () => bool('Initially Open', true);
 
-    const showTitle = () => boolean('Show Title', true);
-    const showTitleClose = () => boolean('Show Close Icon', true);
+    const showTitle = () => bool('Show Title', true);
+    const showTitleClose = () => bool('Show Close Icon', true);
     const titleText = () => text('Title Text', 'Dialog Title');
 
-    const showContent = () => boolean('Show Content', true);
-    const showDividers = () => boolean('Show Dividers', true);
+    const showContent = () => bool('Show Content', true);
+    const showDividers = () => bool('Show Dividers', true);
     const numberOfParagraphs = () => number('Number of Paragraphs', 2, {});
 
     const getParagraphs = () => {
@@ -56,8 +56,8 @@ export const DialogStory = {
       return paragraphs;
     };
 
-    const showActions = () => boolean('Show Actions', true);
-    const alertOnActions = () => boolean('Alert on Action', false);
+    const showActions = () => bool('Show Actions', true);
+    const alertOnActions = () => bool('Alert on Action', false);
     const showAlert = alertOnActions();
 
     const [open, setOpen] = useState(initiallyOpen());

@@ -105,7 +105,7 @@ const StyledDialogContent = styled(Box)`
 
 export function DialogContent({ sx = {}, ...props }) {
   return <StyledDialogContent
-    p={3}
+    p={4}
     sx={{ borderBottom: props.divider ? borders.divider : 'unset', ...sx }}
     {...props}
   />;
@@ -133,7 +133,8 @@ const StyledDialogActions = styled(Flex)`
 export function DialogActions(props) {
   return <StyledDialogActions
     sx={{ justifyContent: 'flex-end' }}
-    p={3}
+    px={4}
+    py={3}
     {...props}
   />;
 }

@@ -47,6 +47,7 @@ import { TagList } from '../../components/elements/Tag';
 import PatientForm from '../../components/clinic/PatientForm';
 import TideDashboardConfigForm, { validateTideConfig } from '../../components/clinic/TideDashboardConfigForm';
 import BgSummaryCell from '../../components/clinic/BgSummaryCell';
+import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
 import Popover from '../../components/elements/Popover';
 import PopoverMenu from '../../components/elements/PopoverMenu';
 import RadioGroup from '../../components/elements/RadioGroup';
@@ -74,6 +75,7 @@ import {
 } from '../../core/clinicUtils';
 
 import { DEFAULT_FILTER_THRESHOLDS, MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
+import DataInIcon from '../../core/icons/DataInIcon.svg';
 import { colors, fontWeights, radii } from '../../themes/baseTheme';
 import PatientLastReviewed from '../../components/clinic/PatientLastReviewed';
 
@@ -103,17 +105,28 @@ const editPatient = (patient, setSelectedPatient, selectedClinicId, trackMetric,
   setShowEditPatientDialog(true);
 };
 
+const editPatientDataConnections = (patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal, source) => {
+  trackMetric('Clinic - Edit patient', { clinicId: selectedClinicId, source });
+  setSelectedPatient(patient);
+  setShowDataConnectionsModal(true);
+};
+
 const MoreMenu = React.memo(({
   patient,
   selectedClinicId,
   t,
   trackMetric,
   setSelectedPatient,
+  setShowDataConnectionsModal,
   setShowEditPatientDialog,
 }) => {
   const handleEditPatient = useCallback(() => {
     editPatient(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog, 'action menu');
   }, [patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog]);
+
+  const handleEditPatientDataConnections = useCallback(() => {
+    editPatientDataConnections(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal, 'action menu');
+  }, [patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal]);
 
   const items = useMemo(() => ([{
     icon: EditIcon,
@@ -126,6 +139,17 @@ const MoreMenu = React.memo(({
       handleEditPatient(patient);
     },
     text: t('Edit Patient Information'),
+  }, {
+    iconSrc: DataInIcon,
+    iconLabel: t('Bring Data into Tidepool'),
+    iconPosition: 'left',
+    id: `edit-data-connections-${patient.id}`,
+    variant: 'actionListItem',
+    onClick: (_popupState) => {
+      _popupState.close();
+      handleEditPatientDataConnections(patient);
+    },
+    text: t('Bring Data into Tidepool'),
   }]), [
     handleEditPatient,
     patient,
@@ -223,8 +247,7 @@ const SortPopover = React.memo(props => {
       </Popover>
     </Flex>
   )
-})
-
+});
 
 const TideDashboardSection = React.memo(props => {
   const {
@@ -241,6 +264,7 @@ const TideDashboardSection = React.memo(props => {
     selectedClinicId,
     setSections,
     setSelectedPatient,
+    setShowDataConnectionsModal,
     setShowEditPatientDialog,
     showTideDashboardLastReviewed,
     t,
@@ -424,6 +448,7 @@ const TideDashboardSection = React.memo(props => {
       t={t}
       trackMetric={trackMetric}
       setSelectedPatient={setSelectedPatient}
+      setShowDataConnectionsModal={setShowDataConnectionsModal}
       setShowEditPatientDialog={setShowEditPatientDialog}
       prefixTideDashboardMetric={prefixTideDashboardMetric}
     />;
@@ -732,6 +757,7 @@ export const TideDashboard = (props) => {
   const { config, results: patientGroups } = useSelector((state) => state.blip.tideDashboardPatients);
   const timePrefs = useSelector((state) => state.blip.timePrefs);
   const [showTideDashboardConfigDialog, setShowTideDashboardConfigDialog] = useState(false);
+  const [showDataConnectionsModal, setShowDataConnectionsModal] = useState(false);
   const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -771,6 +797,17 @@ export const TideDashboard = (props) => {
 
   const [sections, setSections] = useState(defaultSections);
 
+  function handleCloseOverlays() {
+    setShowTideDashboardConfigDialog(false);
+    setShowDataConnectionsModal(false);
+    setShowEditPatientDialog(false);
+
+    setTimeout(() => {
+      setPatientFormContext(null);
+      setSelectedPatient(null);
+    });
+  }
+
   const handleAsyncResult = useCallback((workingState, successMessage, onComplete = handleCloseOverlays) => {
     const { inProgress, completed, notification, prevInProgress } = workingState;
 
@@ -794,19 +831,23 @@ export const TideDashboard = (props) => {
     }
   }, [isFirstRender, setToast]);
 
-  useEffect(() => {
-    handleAsyncResult({ ...updatingClinicPatient, prevInProgress: previousUpdatingClinicPatient?.inProgress }, t('You have successfully updated a patient.'), () => {
+  const handlePatientEdited = useCallback(() => {
+    if (patientFormContext?.status?.showDataConnectionsModalNext) {
+      setShowEditPatientDialog(false);
+      editPatientDataConnections(selectedPatient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal, 'Tide dashboard - patient modal');
+    } else {
       handleCloseOverlays();
+    }
+  }, [handleCloseOverlays, patientFormContext?.status]);
 
-      if (patientFormContext?.status === 'sendingDexcomConnectRequest') {
-        dispatch(actions.async.sendPatientDexcomConnectRequest(api, selectedClinicId, updatingClinicPatient.patientId));
-      }
-    });
+  useEffect(() => {
+    handleAsyncResult({ ...updatingClinicPatient, prevInProgress: previousUpdatingClinicPatient?.inProgress }, t('You have successfully updated a patient.'), handlePatientEdited)
   }, [
     api,
     dispatch,
     selectedClinicId,
     handleAsyncResult,
+    handlePatientEdited,
     t,
     updatingClinicPatient,
     patientFormContext?.status,
@@ -891,6 +932,12 @@ export const TideDashboard = (props) => {
     }
     patientFormContext?.handleSubmit();
   }, [patientFormContext, selectedClinicId, trackMetric, selectedPatient?.tags]);
+
+  const handleEditPatientAndAddDataSourcesConfirm = useCallback(() => {
+    trackMetric('Clinic - Edit patient next', { clinicId: selectedClinicId, source: 'Tide dashboard' });
+    patientFormContext?.setStatus({ showDataConnectionsModalNext: true });
+    handleEditPatientConfirm();
+  }, [patientFormContext, selectedClinicId, trackMetric, handleEditPatientConfirm]);
 
   function handleConfigureTideDashboard() {
     trackMetric('Clinic - Show Tide Dashboard config dialog', { clinicId: selectedClinicId, source: 'Tide dashboard' });
@@ -1061,17 +1108,27 @@ export const TideDashboard = (props) => {
 
         <DialogActions>
           <Button id="editPatientCancel" variant="secondary" onClick={() => {
-            trackMetric('Clinic - Edit patient cancel', { clinicId: selectedClinicId });
-            handleCloseOverlays()
+            trackMetric('Clinic - Edit patient cancel', { clinicId: selectedClinicId, source: 'TIDE dashboard' });
+            handleCloseOverlays();
           }}>
             {t('Cancel')}
+          </Button>
+
+          <Button
+            id="editPatientNext"
+            variant="secondary"
+            onClick={handleEditPatientAndAddDataSourcesConfirm}
+            processing={updatingClinicPatient.inProgress && patientFormContext?.status?.showDataConnectionsModalNext}
+            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema({mrnSettings, existingMRNs}), patientFormContext?.values)}
+          >
+            {t('Save & Next')}
           </Button>
 
           <Button
             id="editPatientConfirm"
             variant="primary"
             onClick={handleEditPatientConfirm}
-            processing={updatingClinicPatient.inProgress}
+            processing={updatingClinicPatient.inProgress && !patientFormContext?.status?.showDataConnectionsModalNext}
             disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema({mrnSettings, existingMRNs}), patientFormContext?.values)}
           >
             {t('Save Changes')}
@@ -1083,8 +1140,9 @@ export const TideDashboard = (props) => {
     api,
     existingMRNs,
     handleEditPatientConfirm,
+    handleEditPatientAndAddDataSourcesConfirm,
     mrnSettings,
-    patientFormContext?.values,
+    patientFormContext,
     selectedClinicId,
     selectedPatient,
     showEditPatientDialog,
@@ -1093,14 +1151,23 @@ export const TideDashboard = (props) => {
     updatingClinicPatient.inProgress
   ]);
 
-  function handleCloseOverlays() {
-    setShowTideDashboardConfigDialog(false);
-    setShowEditPatientDialog(false);
-
-    setTimeout(() => {
-      setSelectedPatient(null);
-    });
-  }
+  const renderDataConnectionsModal = useCallback(() => {
+    return (
+      <DataConnectionsModal
+        open
+        patient={selectedPatient}
+        onClose={handleCloseOverlays}
+        onBack={patientFormContext?.status?.showDataConnectionsModalNext ? () => {
+          setShowDataConnectionsModal(false)
+          setShowEditPatientDialog(true)
+        } : undefined}
+      />
+    );
+  }, [
+    handleCloseOverlays,
+    patientFormContext?.status,
+    selectedPatient,
+  ]);
 
   const renderPatientGroups = useCallback(() => {
     const sectionProps = {
@@ -1113,6 +1180,7 @@ export const TideDashboard = (props) => {
       selectedClinicId,
       setSections,
       setSelectedPatient,
+      setShowDataConnectionsModal,
       setShowEditPatientDialog,
       showTideDashboardLastReviewed,
       t,
@@ -1196,6 +1264,7 @@ export const TideDashboard = (props) => {
       {patientGroups && renderPatientGroups()}
       {showTideDashboardConfigDialog && renderTideDashboardConfigDialog()}
       {showEditPatientDialog && renderEditPatientDialog()}
+      {showDataConnectionsModal && renderDataConnectionsModal()}
 
       <StyledScrollToTop
         smooth

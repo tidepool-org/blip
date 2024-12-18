@@ -20,46 +20,41 @@ export default {
   decorators: [withTheme],
 };
 
-const bannerText = () =>
+const bannerTitleText = () =>
   text(
-    'Banner Text',
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.'
+    'Banner Title Text',
+    'Consectetur adipiscing elit, sed do eiusmod tempor.'
   );
-const bannerTextDanger = () =>
+
+const bannerMessageText = () =>
   text(
-    'Banner Text Danger',
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.'
-  );
-const bannerTextWarning = () =>
-  text(
-    'Banner Text Warning',
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.'
-  );
-const bannerTextSuccess = () =>
-  text(
-    'Banner Text Success',
+    'Banner Message Text',
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.'
   );
 
-function createBanner(message, variant, dismissable = true, actionText = '') {
-  return { message, variant, dismissable, actionText };
+function createBanner(message, title, variant, dismissable = true, actionText = '') {
+  return { message, title, variant, dismissable, actionText };
 }
 
 export const BannerStory = {
   render: () => {
     const [alerts, setAlerts] = useState([
-      createBanner(bannerText(), 'info'),
-      createBanner(bannerText(), 'info', false),
-      createBanner(bannerText(), 'info', true, 'Info Action'),
-      createBanner(bannerTextWarning(), 'warning'),
-      createBanner(bannerTextWarning(), 'warning', false),
-      createBanner(bannerTextWarning(), 'warning', true, 'Warning Action'),
-      createBanner(bannerTextDanger(), 'danger'),
-      createBanner(bannerTextDanger(), 'danger', false),
-      createBanner(bannerTextDanger(), 'danger', true, 'Danger Action'),
-      createBanner(bannerTextSuccess(), 'success'),
-      createBanner(bannerTextSuccess(), 'success', false),
-      createBanner(bannerTextSuccess(), 'success', true, 'Success Action'),
+      createBanner(bannerMessageText(), null, 'info'),
+      createBanner(bannerMessageText(), null, 'info', false),
+      createBanner(bannerMessageText(), null, 'info', true, 'Info Action'),
+      createBanner(bannerMessageText(), bannerTitleText(), 'info', false),
+      createBanner(bannerMessageText(), null, 'warning'),
+      createBanner(bannerMessageText(), null, 'warning', false),
+      createBanner(bannerMessageText(), null, 'warning', true, 'Warning Action'),
+      createBanner(bannerMessageText(), bannerTitleText(), 'warning', false),
+      createBanner(bannerMessageText(), null, 'danger'),
+      createBanner(bannerMessageText(), null, 'danger', false),
+      createBanner(bannerMessageText(), null, 'danger', true, 'Danger Action'),
+      createBanner(bannerMessageText(), bannerTitleText(), 'danger', false),
+      createBanner(bannerMessageText(), null, 'success'),
+      createBanner(bannerMessageText(), null, 'success', false),
+      createBanner(bannerMessageText(), null, 'success', true, 'Success Action'),
+      createBanner(bannerMessageText(), bannerTitleText(), 'success', false),
     ]);
 
     const handleDismissed = (index) => {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { boolean, text } from '@storybook/addon-knobs';
+import { boolean as bool, text } from '@storybook/addon-knobs';
 import { ThemeProvider } from '@emotion/react';
 
 import baseTheme from '../app/themes/baseTheme';
@@ -18,13 +18,13 @@ export default {
 
 export const CheckboxStory = {
   render: () => {
-    const defaultChecked = () => boolean('Default Checked', false);
-    const disabled = () => boolean('Disable', false);
+    const defaultChecked = () => bool('Default Checked', false);
+    const disabled = () => bool('Disable', false);
     const [isChecked, setChecked] = useState(defaultChecked());
     const handleCheckbox = (e) => setChecked(e.target.checked);
     const labelText = () => text('Label Text', 'Check Me');
-    const error = () => boolean('Errored', false);
-    const required = () => boolean('Required', false);
+    const error = () => bool('Errored', false);
+    const required = () => bool('Required', false);
 
     return (
       <>
