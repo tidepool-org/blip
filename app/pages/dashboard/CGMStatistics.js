@@ -22,7 +22,7 @@ const formatDateRange = (startEndpoint, endEndpoint, timezoneName) => {
   return `${startDate.format("MMMM D")} - ${endDate.format("MMMM D")}, ${endDate.format("YYYY")}`;
 }
 
-const TableRow = ({ label, sublabel, value }) => {
+const TableRow = ({ label, sublabel, value, units }) => {
   return (
     <Flex sx={{ 
       justifyContent: 'space-between', 
@@ -38,7 +38,8 @@ const TableRow = ({ label, sublabel, value }) => {
         )}
       </Flex>
       <Box>
-        <Text sx={{ fontWeight: 'bold' }}>{value}</Text>
+        <Text sx={{ fontWeight: 'bold', fontSize: 2 }}>{value}</Text>
+        {units && <Text sx={{ fontWeight: 'medium', fontSize: 0 }}>{units}</Text>}
       </Box>
     </Flex>
   )
@@ -89,22 +90,26 @@ const CGMStatistics = () => {
         />
         <TableRow 
           label={t('Time CGM Active')}
-          value={`${cgmActive}%`}
+          value={`${cgmActive}`}
+          units="%"
         />
         <TableRow 
           label={t('Average Glucose')}
           sublabel={t('(Goal <154 mg/dL)')} // TODO: variable targets?
-          value={`${avgGlucose} ${bgUnits}`}
+          value={`${avgGlucose}`}
+          units={` ${bgUnits}`}
         />
         <TableRow 
           label={t('Glucose Management Indicator')}
           sublabel={t('(Goal <7%)')} // TODO: variable targets?
-          value={`${gmi}%`}
+          value={`${gmi}`}
+          units="%"
         />
         <TableRow 
           label={t('Glucose Variability')}
           sublabel={t('(Defined as a percent coefficient of variation. Goal <= 36%)')} // TODO: variable targets?
-          value={`${cov}%`}
+          value={`${cov}`}
+          units="%"
         />
     </Box>
   )
