@@ -5,6 +5,8 @@ import { utils as vizUtils } from '@tidepool/viz';
 
 const getTimezoneFromTimePrefs = vizUtils.datetime.getTimezoneFromTimePrefs;
 
+const AGP_PERIOD_IN_DAYS = 7; // Temporarily using fixed value for prototype launch
+
 const getOpts = (
   data // data from redux (state.blip.data)
 ) => {
@@ -40,7 +42,7 @@ const getOpts = (
 
   const timezoneName = getTimezoneFromTimePrefs(data?.timePrefs);
 
-  const rangePresets = { // may vary; stored in localStorage
+  const _rangePresets = {
     agpBGM: 1,
     agpCGM: 1,
     // basics: 0,
@@ -48,7 +50,7 @@ const getOpts = (
     // daily: 0,
   };
 
-  const presetDaysOptions = {
+  const _presetDaysOptions = {
     agpBGM: [14, 30],
     agpCGM: [7, 14, 30],
     // basics: [14, 21, 30, 90],
@@ -74,9 +76,11 @@ const getOpts = (
     });
   };
 
-  const defaultDates = () => ({ // 'trends', 'bgLog', 'daily', and 'basics' omitted
-    agpBGM: getLastNDays(presetDaysOptions.agpBGM[rangePresets.agpBGM], 'agpBGM'),
-    agpCGM: getLastNDays(presetDaysOptions.agpCGM[rangePresets.agpCGM], 'agpCGM'),
+  const defaultDates = () => ({ 
+    agpBGM: getLastNDays(AGP_PERIOD_IN_DAYS, 'agpBGM'),
+    agpCGM: getLastNDays(AGP_PERIOD_IN_DAYS, 'agpCGM'),
+
+    // 'trends', 'bgLog', 'daily', and 'basics' omitted
   });
 
   const dates = defaultDates();
