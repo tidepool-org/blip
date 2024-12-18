@@ -25,6 +25,10 @@ const inferLastCompletedStep = (isFirstRender, patientId, data, pdf) => {
 
   if (isFirstRender || hasOtherUserPdfInState || hasOtherUserDataInState) return STATUS.INITIALIZED;
 
+  const hasNoData = data.metaData?.size === 0;
+
+  if (hasNoData) return STATUS.NO_DATA_FOUND;
+
   // If the outputted data for a step in the process exists, we infer that the step was successful.
   // We do the lookup in reverse order to return the LATEST completed step
 
