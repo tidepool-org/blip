@@ -56,7 +56,7 @@ const CategoryContainer = ({ title, subtitle, children }) => {
   );
 };
 
-const PatientDrawerContent = ({ api, trackMetric, patientId }) => {
+const MainContent = ({ api, patientId }) => {
   const { t } = useTranslation();
   
   const { status, svgDataURLS } = useAGPImages(api, patientId);
@@ -75,8 +75,6 @@ const PatientDrawerContent = ({ api, trackMetric, patientId }) => {
 
   return (
     <>
-      <MenuBar patientId={patientId} api={api} trackMetric={trackMetric} />
-      
       <Box mb={3} sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
         <CategoryContainer title={t('Time in Ranges')} subtitle={t('Goals for Type 1 and Type 2 Diabetes')}>
           <StyledAGPImage src={percentInRanges} alt={t('Time in Ranges')} />
@@ -101,10 +99,11 @@ const PatientDrawerContent = ({ api, trackMetric, patientId }) => {
   );
 }
 
-const WrappedPatientDrawerContent = (props) => ( // consistent width and padding for PatientDrawerContent
+const PatientDrawerContent = ({ patientId, api, trackMetric }) => ( // consistent width and padding for PatientDrawerContent
   <Box sx={{ padding: '32px', width: '880px'}}>
-    <PatientDrawerContent {...props} />
+    <MenuBar patientId={patientId} api={api} trackMetric={trackMetric} />
+    <MainContent patientId={patientId} api={api} />
   </Box>
 )
 
-export default WrappedPatientDrawerContent;
+export default PatientDrawerContent;
