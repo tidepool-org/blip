@@ -12,45 +12,30 @@ const { Loader } = vizComponents;
 
 const BORDER_GRAY = colorPalette.extended.grays[1];
 
-const StyledContent = styled(Box)`
-  padding: 32px;
-  width: 880px;
-`
-
 const StyledAGPImage = styled.img`
   width: calc(100% - 24px);
   margin: 6px 8px 16px;
 `
 
-const InsufficientDataContent = () => {
+const InsufficientData = () => {
   const { t } = useTranslation();
   
   return (
-    <StyledContent>
-      <Flex sx={{ justifyContent: 'center', marginTop: '400px' }}>
-        <Text>{t('Insufficient data to generate AGP Report.')}</Text>
-      </Flex>
-    </StyledContent>
+    <Flex sx={{ justifyContent: 'center', marginTop: '400px' }}>
+      <Text>{t('Insufficient data to generate AGP Report.')}</Text>
+    </Flex>
   );
-}
+};
 
-const NoPatientDataContent = ({ patientName }) => {
+const NoPatientData = ({ patientName }) => {
   const { t } = useTranslation();
 
   return (
-    <StyledContent>
-      <Flex sx={{ justifyContent: 'center', marginTop: '400px' }}>
-        <Text>{t('{{patientName}} does not have any data yet.', { patientName })}</Text>
-      </Flex>
-    </StyledContent>
+    <Flex sx={{ justifyContent: 'center', marginTop: '400px' }}>
+      <Text>{t('{{patientName}} does not have any data yet.', { patientName })}</Text>
+    </Flex>
   );
-}
-
-const LoadingContent = () => (
-  <StyledContent>
-    <Loader show={true} overlay={false} />
-  </StyledContent>
-)
+};
 
 const CategoryContainer = ({ title, subtitle, children }) => {
   return (
@@ -79,9 +64,9 @@ const PatientDrawerContent = ({ api, trackMetric, patientId }) => {
   const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
   const patient = clinic?.patients?.[patientId];
 
-  if (status === STATUS.NO_PATIENT_DATA)   return <NoPatientDataContent patientName={patient?.fullName}/>;
-  if (status === STATUS.INSUFFICIENT_DATA) return <InsufficientDataContent />;
-  if (status !== STATUS.SVGS_GENERATED)    return <LoadingContent />;
+  if (status === STATUS.NO_PATIENT_DATA)   return <NoPatientData patientName={patient?.fullName}/>;
+  if (status === STATUS.INSUFFICIENT_DATA) return <InsufficientData />;
+  if (status !== STATUS.SVGS_GENERATED)    return <Loader show={true} overlay={false} />
 
   const percentInRanges          = svgDataURLS?.agpCGM?.percentInRanges;
   const ambulatoryGlucoseProfile = svgDataURLS?.agpCGM?.ambulatoryGlucoseProfile;
@@ -89,7 +74,7 @@ const PatientDrawerContent = ({ api, trackMetric, patientId }) => {
   const dailyGlucoseProfilesBot  = svgDataURLS?.agpCGM?.dailyGlucoseProfiles?.[1];
 
   return (
-    <StyledContent>
+    <>
       <MenuBar patientId={patientId} api={api} trackMetric={trackMetric} />
       
       <Box mb={3} sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
@@ -112,8 +97,14 @@ const PatientDrawerContent = ({ api, trackMetric, patientId }) => {
           <StyledAGPImage src={dailyGlucoseProfilesBot} alt={t('Daily Glucose Profiles')}/>
         </CategoryContainer>
       </Box>
-    </StyledContent>
+    </>
   );
 }
 
-export default PatientDrawerContent;
+const WrappedPatientDrawerContent = (props) => ( // consistent width and padding for PatientDrawerContent
+  <Box sx={{ padding: '32px', width: '880px'}}>
+    <PatientDrawerContent {...props} />
+  </Box>
+)
+
+export default WrappedPatientDrawerContent;
