@@ -1,23 +1,23 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { useHistory } from 'react-router-dom';
+import { push } from 'connected-react-router';
 import { Flex, Box, Text } from 'theme-ui';
 import Button from '../../components/elements/Button';
 import moment from 'moment';
 import PatientLastReviewed from '../../components/clinic/PatientLastReviewed';
 
 const DrawerMenuBar = ({ patientId, api, trackMetric }) => {
+  const dispatch = useDispatch();
   const { t } = useTranslation();
-  const history = useHistory();
   const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
   const patient = clinic?.patients?.[patientId];
 
-  const handleViewData = () => history.push(`/patients/${patientId}/data?chart=trends&dashboard=tide`);
+  const handleViewData = () => {
+    dispatch(push(`/patients/${patientId}/data?chart=trends&dashboard=tide`));
+  };
 
   const recentlyReviewedThresholdDate = moment().startOf('isoWeek').toISOString();
-
-  // TODO: DOB
 
   return (
     <Flex mb={3} sx={{ gap: '12px' }}>
