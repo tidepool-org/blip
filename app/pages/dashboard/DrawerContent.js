@@ -7,7 +7,8 @@ import styled from '@emotion/styled';
 import { STATUS, useGenerateAGPImages } from './AGPDrawerHelper';
 import CGMStatistics from './CGMStatistics';
 import DrawerMenuBar from './DrawerMenuBar';
-import personUtils from '../../core/personutils';
+import { components as vizComponents } from '@tidepool/viz';
+const { Loader } = vizComponents;
 
 const BORDER_GRAY = colorPalette.extended.grays[1];
 
@@ -61,7 +62,7 @@ const DrawerContent = ({ api, trackMetric, patientId }) => {
   if (status !== STATUS.SVGS_GENERATED) {
     return (
       <StyledContent>
-        <Text>{t('Loading')}</Text>
+        <Loader show={true} overlay={false} />
       </StyledContent>
     );
   }
