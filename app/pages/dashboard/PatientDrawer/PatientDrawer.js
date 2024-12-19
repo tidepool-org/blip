@@ -32,7 +32,7 @@ const useStyles = makeStyles({
   paperAnchorRight: { overflow: 'visible' }
 });
 
-const DRAWER_WIDTH = '1100px';
+const DRAWER_WIDTH = '1000px';
 
 const PatientDrawer = ({ patientId, onClose, api, trackMetric }) => {
   const classes = useStyles();
