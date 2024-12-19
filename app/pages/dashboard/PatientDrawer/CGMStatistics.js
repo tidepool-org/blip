@@ -103,7 +103,7 @@ const CGMStatistics = () => {
           />
           <TableRow 
             label={t('Glucose Management Indicator')}
-            sublabel={t('(Goal <7%)')} // TODO: variable targets?
+            sublabel={t('(Goal <7%)')}
             value={`${gmi}`}
             units="%"
           />

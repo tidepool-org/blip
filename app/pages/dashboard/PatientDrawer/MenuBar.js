@@ -34,6 +34,10 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
     }, 200)
   }
 
+  const handleCopyAsText = () => {
+    // TODO: Implement  
+  }
+
   return (
     <Box mb={3} sx={{ display: 'grid', gridTemplateColumns: '32fr 18fr 18fr 32fr', gap: 3, minHeight: '40px' }}>
       <Flex sx={{ justifyContent: 'center', flexDirection: 'column' }}>
@@ -52,7 +56,7 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
       </Flex>
       
       <Flex sx={{ justifyContent: 'flex-start', alignItems: 'center' }}>
-        <Button onClick={() => {}} variant="secondary">{t('Copy as Text')}</Button>
+        <Button onClick={handleCopyAsText} variant="secondary">{t('Copy as Text')}</Button>
       </Flex>
 
       <Flex sx={{ fontSize: 0, alignItems: 'center', justifyContent: 'flex-end' }}>
