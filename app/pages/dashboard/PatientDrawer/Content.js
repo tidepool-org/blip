@@ -10,11 +10,6 @@ const { Loader } = vizComponents;
 
 import useAGPImages, { STATUS } from './useAGPImages';
 import CGMStatistics from './CGMStatistics';
-import MenuBar from './MenuBar';
-
-const BORDER_GRAY = colorPalette.extended.grays[1];
-
-const DRAWER_WIDTH = '1100px';
 
 const StyledAGPImage = styled.img`
   width: calc(100% - 24px);
@@ -44,15 +39,11 @@ const NoPatientData = ({ patientName }) => {
 
 const CategoryContainer = ({ title, subtitle, children }) => {
   return (
-    <Box sx={{ border: `2px solid ${BORDER_GRAY}`, borderRadius: '12px', overflow: 'hidden' }}>
+    <Box sx={{ border: `2px solid ${colorPalette.extended.grays[1]}`, borderRadius: '12px', overflow: 'hidden' }}>
       { title && (
-        <Box sx={{ backgroundColor: BORDER_GRAY, padding: '6px 12px' }}>
+        <Box sx={{ backgroundColor: colorPalette.extended.grays[1], padding: '6px 12px' }}>
           <Text sx={{ fontWeight: 'bold', fontSize: 1 }}>{title}</Text>
-          {subtitle && (
-            <Text sx={{ marginLeft: '24px', fontSize: 0 }}>
-              {subtitle}
-            </Text>
-          )}
+          {subtitle && <Text ml={4} sx={{ fontSize: 0 }}>{subtitle}</Text>}
         </Box>
       )}
 
@@ -84,7 +75,7 @@ const Content = ({ api, patientId }) => {
 
   return (
     <>
-      <Box mb={3} sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+      <Box mb={3} sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3 }}>
         <CategoryContainer title={t('Time in Ranges')} subtitle={t('Goals for Type 1 and Type 2 Diabetes')}>
           <StyledAGPImage src={percentInRanges} alt={t('Time in Ranges')} />
         </CategoryContainer>
@@ -93,7 +84,7 @@ const Content = ({ api, patientId }) => {
         </CategoryContainer>
       </Box>
 
-      <Box sx={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: '1fr', gap: 3 }}>
         <CategoryContainer title={t('Ambulatory Glucose Profile (AGP)')}>
           <Box px={3} py={1} sx={{ fontSize: 0 }}>
             { !!ambulatoryGlucoseProfile ? agpGraphHelpText : agpGraphInsufficientText }
@@ -109,7 +100,7 @@ const Content = ({ api, patientId }) => {
         </CategoryContainer>
       </Box>
 
-      <Flex mt={3} sx={{ color: '#707070', fontSize: 0, justifyContent: 'space-between' }}>
+      <Flex mt={3} sx={{ color: colorPalette.extended.grays[10], fontSize: 0, justifyContent: 'space-between' }}>
         <Text>{t('Patent pending – HealthPartners Institute dba International Diabetes Center – All Rights Reserved. ©2022')}</Text>
         <Text>{`${t('Tidepool')} | ${t('CapturAGP v5.0')}`}</Text>
       </Flex>

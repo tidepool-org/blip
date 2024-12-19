@@ -29,14 +29,14 @@ const MenuBar = ({ patientId, api, trackMetric }) => {
   const recentlyReviewedThresholdDate = moment().startOf('isoWeek').toISOString();
 
   return (
-    <Box mb={3} sx={{ display: 'grid', gridTemplateColumns: '32fr 18fr 18fr 32fr', gap: '12px' }}>
+    <Box mb={3} sx={{ display: 'grid', gridTemplateColumns: '32fr 18fr 18fr 32fr', gap: 3, minHeight: '40px' }}>
       <Flex sx={{ justifyContent: 'center', flexDirection: 'column' }}>
         <Text sx={{ color: colorPalette.primary.purpleDark, fontWeight: 'bold', fontSize: 3 }}>
           {patientName}
         </Text>
         { patientDOB &&
-          <Text sx={{ color: '#707070', fontWeight: 'medium', fontSize: 1 }}>
-            {patientDOB}
+          <Text sx={{ color: colorPalette.extended.grays[10], fontWeight: 'medium', fontSize: 1 }}>
+            {t('DOB: {{patientDOB}}', { patientDOB })}
           </Text>
         }
       </Flex>

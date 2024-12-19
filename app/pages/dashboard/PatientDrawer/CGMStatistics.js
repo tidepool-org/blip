@@ -31,9 +31,11 @@ const TableRow = ({ label, sublabel, value, units }) => {
       '&:last-of-type': { borderBottom: 'none' }
     }}>
       <Flex sx={{ flexDirection: 'column', maxWidth: '260px' }}>
-        <Text sx={{ color: '#707070' }}>{label}</Text>
+        <Text sx={{ color: colorPalette.extended.grays[10] }}>{label}</Text>
         {sublabel && (
-          <Text sx={{ color: '#707070', fontSize: 0, fontStyle: 'italic' }}>{sublabel}</Text>
+          <Text sx={{ color: colorPalette.extended.grays[10], fontSize: 0, fontStyle: 'italic' }}>
+            {sublabel}
+          </Text>
         )}
       </Flex>
       <Box>
