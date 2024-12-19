@@ -57,11 +57,9 @@ const CGMStatistics = () => {
     bgPrefs: { bgUnits },
     data: {
       current: {
-        endpoints: { 
-          days: endpointDays,
-          range: [startEndpoint, endEndpoint] 
-        },
+        endpoints: { days: endpointDays },
         stats: {
+          bgExtents: { newestDatum, oldestDatum },
           sensorUsage: { sensorUsageAGP },
           averageGlucose: { averageGlucose },
           glucoseManagementIndicator: { glucoseManagementIndicatorAGP },
@@ -74,7 +72,7 @@ const CGMStatistics = () => {
   const timezoneName = vizUtils.datetime.getTimezoneFromTimePrefs(timePrefs);
   const avgGlucosePrecision = bgUnits === MGDL_UNITS ? 0 : 1;
 
-  const dateRange  = formatDateRange(startEndpoint, endEndpoint, timezoneName);
+  const dateRange  = formatDateRange(oldestDatum.time, newestDatum.time, timezoneName);
   const daySpan    = endpointDays;
   const cgmActive  = utils.roundToPrecision(sensorUsageAGP, 1);
   const avgGlucose = utils.roundToPrecision(averageGlucose, avgGlucosePrecision);
