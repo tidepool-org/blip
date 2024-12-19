@@ -56,7 +56,7 @@ const PatientDrawer = ({ patientId, onClose, api, trackMetric }) => {
       }}>
         { isOpen && 
           <>
-            <MenuBar patientId={patientId} api={api} trackMetric={trackMetric} />
+            <MenuBar patientId={patientId} api={api} trackMetric={trackMetric} onClose={onClose} />
             <Content patientId={patientId} api={api} />
           </>
         }
