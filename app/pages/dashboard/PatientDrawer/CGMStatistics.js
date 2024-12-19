@@ -72,7 +72,9 @@ const CGMStatistics = () => {
   } = agpCGM;
 
   const timezoneName = vizUtils.datetime.getTimezoneFromTimePrefs(timePrefs);
+
   const avgGlucosePrecision = bgUnits === MGDL_UNITS ? 0 : 1;
+  const avgGlucoseTarget    = bgUnits === MGDL_UNITS ? '154' : '8.6';
 
   const dateRange  = formatDateRange(oldestDatum.time, newestDatum.time, timezoneName);
   const daySpan    = endpointDays;
@@ -95,7 +97,7 @@ const CGMStatistics = () => {
           />
           <TableRow 
             label={t('Average Glucose')}
-            sublabel={t('(Goal <154 mg/dL)')} // TODO: variable targets?
+            sublabel={t('(Goal <{{avgGlucoseTarget}} {{bgUnits}})', { avgGlucoseTarget, bgUnits })}
             value={`${avgGlucose}`}
             units={` ${bgUnits}`}
           />
@@ -107,7 +109,7 @@ const CGMStatistics = () => {
           />
           <TableRow 
             label={t('Glucose Variability')}
-            sublabel={t('(Defined as a percent coefficient of variation. Goal <= 36%)')} // TODO: variable targets?
+            sublabel={t('(Defined as a percent coefficient of variation. Goal <= 36%)')}
             value={`${cov}`}
             units="%"
           />
