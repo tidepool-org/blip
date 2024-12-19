@@ -31,7 +31,7 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
   const handleReviewSuccess = () => {
     setTimeout(() => {
       onClose();
-    }, 200)
+    }, 500)
   }
 
   const handleCopyAsText = () => {
