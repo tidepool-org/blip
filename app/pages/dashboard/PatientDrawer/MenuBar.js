@@ -31,25 +31,29 @@ const MenuBar = ({ patientId, api, trackMetric }) => {
   return (
     <Box mb={3} sx={{ display: 'grid', gridTemplateColumns: '32fr 18fr 18fr 32fr', gap: 3, minHeight: '40px' }}>
       <Flex sx={{ justifyContent: 'center', flexDirection: 'column' }}>
-        <Text sx={{ color: colorPalette.primary.purpleDark, fontWeight: 'bold', fontSize: 3 }}>
+        <Text sx={{ color: colorPalette.primary.purpleDark, fontWeight: 'bold', fontSize: 2 }}>
           {patientName}
         </Text>
         { patientDOB &&
-          <Text sx={{ color: colorPalette.extended.grays[10], fontWeight: 'medium', fontSize: 1 }}>
+          <Text sx={{ color: colorPalette.extended.grays[10], fontWeight: 'medium', fontSize: 0 }}>
             {t('DOB: {{patientDOB}}', { patientDOB })}
           </Text>
         }
       </Flex>
 
-      <Button onClick={handleViewData}>{t('View Data')}</Button>
-      <Button onClick={() => {}}>{t('Copy as Text')}</Button>
+      <Flex sx={{ justifyContent: 'flex-end', alignItems: 'center' }}>
+        <Button onClick={handleViewData} variant="secondary">{t('View Data')}</Button>
+      </Flex>
+      
+      <Flex sx={{ justifyContent: 'flex-start', alignItems: 'center' }}>
+        <Button onClick={() => {}} variant="secondary">{t('Copy as Text')}</Button>
+      </Flex>
 
-      <Flex sx={{ fontSize: 1, alignItems: 'center', justifyContent: 'flex-end' }}>
+      <Flex sx={{ fontSize: 0, alignItems: 'center', justifyContent: 'flex-end' }}>
         <Text sx={{ 
           color: colorPalette.primary.purpleDark, 
           fontWeight: 'medium', 
-          marginRight: '16px',
-          fontSize: 1
+          marginRight: 3,
         }}>
           {t('Last Reviewed')}
         </Text>

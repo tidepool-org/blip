@@ -32,7 +32,7 @@ const useStyles = makeStyles({
   paperAnchorRight: { overflow: 'visible' }
 });
 
-const DRAWER_WIDTH = '1000px';
+const DESKTOP_DRAWER_WIDTH = '1000px';
 
 const PatientDrawer = ({ patientId, onClose, api, trackMetric }) => {
   const classes = useStyles();
@@ -44,13 +44,16 @@ const PatientDrawer = ({ patientId, onClose, api, trackMetric }) => {
       anchor='right'
       classes={{ paperAnchorRight: classes.paperAnchorRight }}
       open={isOpen} 
-      onClose={(_event, reason) => {
-        if (reason === 'backdropClick') return; // prevent closing on outside click
-      }}
+      onClose={onClose}
     > 
       <StyledCloseButton label="close" onClick={onClose} icon={CloseRoundedIcon} variant="button" />
 
-      <Box px={4} py={4} sx={{ width: DRAWER_WIDTH,  height: '100%',  overflowY: 'scroll' }}>
+      <Box px={4} py={4} sx={{
+        width: 'calc(100vw - 70px)', // account space needed for close button
+        maxWidth: DESKTOP_DRAWER_WIDTH,  
+        height: '100%',  
+        overflowY: 'scroll' 
+      }}>
         { isOpen && 
           <>
             <MenuBar patientId={patientId} api={api} trackMetric={trackMetric} />

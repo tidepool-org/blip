@@ -31,7 +31,7 @@ const TableRow = ({ label, sublabel, value, units }) => {
       '&:last-of-type': { borderBottom: 'none' }
     }}>
       <Flex sx={{ flexDirection: 'column', maxWidth: '260px' }}>
-        <Text sx={{ color: colorPalette.extended.grays[10] }}>{label}</Text>
+        <Text sx={{ color: colorPalette.extended.grays[10], fontSize: 0 }}>{label}</Text>
         {sublabel && (
           <Text sx={{ color: colorPalette.extended.grays[10], fontSize: 0, fontStyle: 'italic' }}>
             {sublabel}
@@ -39,7 +39,7 @@ const TableRow = ({ label, sublabel, value, units }) => {
         )}
       </Flex>
       <Box>
-        <Text sx={{ fontWeight: 'bold', fontSize: 2 }}>{value}</Text>
+        <Text sx={{ fontWeight: 'bold', fontSize: 1 }}>{value}</Text>
         {units && <Text sx={{ fontWeight: 'medium', fontSize: 0 }}>{units}</Text>}
       </Box>
     </Flex>
