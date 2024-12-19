@@ -2476,9 +2476,3 @@ export function setPatientListSearchTextInput(textInput) {
     payload: { textInput },
   };
 }
-
-export function resetData() {
-  return {
-    type: ActionTypes.RESET_DATA,
-  };
-}

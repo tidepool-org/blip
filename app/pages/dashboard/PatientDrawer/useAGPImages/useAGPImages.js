@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../../../../redux/actions';
 import buildGenerateAGPImagesFunction from './buildGenerateAGPImagesFunction';
@@ -19,12 +19,12 @@ export const STATUS = {
   INSUFFICIENT_DATA: 'INSUFFICIENT_DATA',
 }
 
-const inferLastCompletedStep = (isFirstRender, patientId, data, pdf) => {
+const inferLastCompletedStep = (patientId, data, pdf) => {
   // If data already exists in Redux but for another patient, we need to wait for it to clear it first
   const hasOtherUserPdfInState  = !!pdf.opts && pdf.opts.patient?.id !== patientId;
   const hasOtherUserDataInState = !!data.metaData.patientId && data.metaData.patientId !== patientId;
 
-  if (isFirstRender || hasOtherUserPdfInState || hasOtherUserDataInState) return STATUS.INITIALIZED;
+  if (hasOtherUserPdfInState || hasOtherUserDataInState) return STATUS.INITIALIZED;
 
   // Patient has no data
   const hasNoData = data.metaData?.size === 0;
@@ -57,16 +57,13 @@ const useAGPImages = (api, patientId) => {
   const dispatch = useDispatch();
   const generateAGPImages = buildGenerateAGPImagesFunction(dispatch);
 
-  const isFirstRender = useRef(true);
-
   const data   = useSelector(state => state.blip.data);
   const pdf    = useSelector(state => state.blip.pdf);
   const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
   
   const patient = clinic?.patients?.[patientId];
 
-  const lastCompletedStep = inferLastCompletedStep(isFirstRender.current, patientId, data, pdf);
-  // TODO: Add error states with another infer() function
+  const lastCompletedStep = inferLastCompletedStep(patientId, data, pdf);
 
   useEffect(() => {
     // Whenever a step is successfully completed, this effect triggers the next step in the sequence.
@@ -74,8 +71,8 @@ const useAGPImages = (api, patientId) => {
     switch(lastCompletedStep) {
       case STATUS.INITIALIZED:
         dispatch(actions.worker.removeGeneratedPDFS());
-        dispatch(actions.sync.resetData());
-        isFirstRender.current = false;
+        dispatch(actions.worker.dataWorkerRemoveDataRequest(null, patientId));
+        break;
 
       case STATUS.STATE_CLEARED:
         dispatch(actions.async.fetchPatientData(api, FETCH_PATIENT_OPTS, patientId));
@@ -97,6 +94,13 @@ const useAGPImages = (api, patientId) => {
         break; 
     }
   }, [lastCompletedStep]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(actions.worker.removeGeneratedPDFS());
+      dispatch(actions.worker.dataWorkerRemoveDataRequest(null, patientId));
+    };
+  }, [])
 
   // Final check to guarantee that correct data is being returned
   const hasCorrectImagesForPatient = pdf.opts?.svgDataURLS && pdf.opts?.patient?.id === patientId;
