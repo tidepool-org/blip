@@ -244,6 +244,7 @@ const TideDashboardSection = React.memo(props => {
     setSelectedPatient,
     setShowEditPatientDialog,
     showTideDashboardLastReviewed,
+    showTideDashboardPatientDrawer,
     t,
     trackMetric,
   } = props;
@@ -299,13 +300,14 @@ const TideDashboardSection = React.memo(props => {
     return () => {
       trackMetric('Selected PwD');
 
-      // if (showPatientAGPDrawer) {
+      if (showTideDashboardPatientDrawer) {
         setViewingPatientId(patient.id);
-      // } else {
-      //   dispatch(push(`/patients/${patient?.id}/data?chart=trends&dashboard=tide`));
-      // }
+        return;
+      }
+      
+      dispatch(push(`/patients/${patient?.id}/data?chart=trends&dashboard=tide`));
     }
-  }, [dispatch, trackMetric]);
+  }, [dispatch, trackMetric, setViewingPatientId, showTideDashboardPatientDrawer]);
 
   const renderPatientName = useCallback(({ patient }) => (
     <Box 
@@ -653,6 +655,7 @@ const TideDashboardSection = React.memo(props => {
     renderTimeInPercent,
     renderTimeInTargetPercentDelta,
     showTideDashboardLastReviewed,
+    showTideDashboardPatientDrawer,
     t,
     veryLowGlucoseThreshold,
   ]);
@@ -758,7 +761,11 @@ export const TideDashboard = (props) => {
   const [localConfig] = useLocalStorage('tideDashboardConfig', {});
   const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
   const patientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
-  const { showTideDashboard, showTideDashboardLastReviewed } = useFlags();
+  const { 
+    showTideDashboard, 
+    showTideDashboardLastReviewed,
+    showTideDashboardPatientDrawer,
+  } = useFlags();
   const ldClient = useLDClient();
   const ldContext = ldClient.getContext();
 
@@ -1132,6 +1139,7 @@ export const TideDashboard = (props) => {
       setSelectedPatient,
       setShowEditPatientDialog,
       showTideDashboardLastReviewed,
+      showTideDashboardPatientDrawer,
       t,
       trackMetric,
     };
@@ -1192,6 +1200,7 @@ export const TideDashboard = (props) => {
     setSelectedPatient,
     setShowEditPatientDialog,
     showTideDashboardLastReviewed,
+    showTideDashboardPatientDrawer,
     t,
     trackMetric,
   ]);
