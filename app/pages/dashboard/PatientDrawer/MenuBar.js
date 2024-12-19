@@ -9,6 +9,22 @@ import Button from '../../../components/elements/Button';
 import moment from 'moment';
 import PatientLastReviewed from '../../../components/clinic/PatientLastReviewed';
 
+const getCopyToClipboardData = (agpCGM, _patientName, t) => {
+  if (!agpCGM) return { canCopy: false, clipboardText: '' };
+
+  const { veryLow, low, target, total } = agpCGM.data?.current?.stats?.timeInRange?.counts || {};
+
+  const timeInTarget = Math.round((target / total) * 100);
+  const timeInLows = Math.round(((veryLow + low) * 100 ) / total);
+
+  const clipboardText = t('Lows: {{timeInLows}}, Target: {{timeInTarget}}', { timeInLows, timeInTarget });
+
+  return {
+    canCopy: true,
+    clipboardText,
+  };
+}
+
 const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
@@ -16,6 +32,9 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const patientName = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]?.patients?.[patientId]?.fullName);
   const patientDOB = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]?.patients?.[patientId]?.birthDate);
+  const agpCGM = useSelector(state => state.blip.pdf?.data?.agpCGM); // IMPORTANT: Data taken from Redux PDF slice
+
+  const { clipboardText, canCopy } = getCopyToClipboardData(agpCGM, patientName, t);
 
   useEffect(() => {
     // DOB field in Patient object may not be populated in TIDE Dashboard, so we need to refetch
@@ -35,7 +54,7 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
   }
 
   const handleCopyAsText = () => {
-    // TODO: Implement  
+    console.log(clipboardText) // TODO: Implement  
   }
 
   return (
@@ -55,9 +74,11 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
         <Button onClick={handleViewData} variant="secondary">{t('View Data')}</Button>
       </Flex>
       
-      <Flex sx={{ justifyContent: 'flex-start', alignItems: 'center' }}>
-        <Button onClick={handleCopyAsText} variant="secondary">{t('Copy as Text')}</Button>
-      </Flex>
+        <Flex sx={{ justifyContent: 'flex-start', alignItems: 'center' }}>
+          { canCopy &&
+            <Button onClick={handleCopyAsText} variant="secondary">{t('Copy as Text')}</Button>
+          }
+        </Flex>
 
       <Flex sx={{ fontSize: 0, alignItems: 'center', justifyContent: 'flex-end' }}>
         <Text sx={{ 
