@@ -248,8 +248,7 @@ const TideDashboardSection = React.memo(props => {
     trackMetric,
   } = props;
 
-  const [isAGPDrawerOpen, setIsAGPDrawerOpen] = useState(false);
-  const [selectedPatientId, setSelectedPatientId] = useState(null);
+  const [viewingPatientId, setViewingPatientId] = useState(null);
 
   const statEmptyText = '--';
 
@@ -299,16 +298,18 @@ const TideDashboardSection = React.memo(props => {
   const handleClickPatient = useCallback(patient => {
     return () => {
       trackMetric('Selected PwD');
-      dispatch(push(`/patients/${patient?.id}/data?chart=trends&dashboard=tide`));
+
+      // if (showPatientAGPDrawer) {
+        setViewingPatientId(patient.id);
+      // } else {
+      //   dispatch(push(`/patients/${patient?.id}/data?chart=trends&dashboard=tide`));
+      // }
     }
   }, [dispatch, trackMetric]);
 
   const renderPatientName = useCallback(({ patient }) => (
     <Box 
-      onClick={() => { 
-        setIsAGPDrawerOpen(true);
-        setSelectedPatientId(patient.id);
-      }} 
+      onClick={handleClickPatient(patient)} 
       sx={{ cursor: 'pointer' }}>
       <Text
         sx={{
@@ -721,10 +722,9 @@ const TideDashboardSection = React.memo(props => {
         }}
       />
 
-      <PatientDrawer 
-        isOpen={isAGPDrawerOpen} 
-        patientId={selectedPatientId} 
-        onClose={() => setIsAGPDrawerOpen(false)}
+      <PatientDrawer  
+        patientId={viewingPatientId}
+        onClose={() => setViewingPatientId(null)}
         api={api}
         trackMetric={trackMetric}
       />

@@ -34,8 +34,10 @@ const useStyles = makeStyles({
 
 const DRAWER_WIDTH = '1100px';
 
-const PatientDrawer = ({ isOpen, patientId, onClose, api, trackMetric }) => {
+const PatientDrawer = ({ patientId, onClose, api, trackMetric }) => {
   const classes = useStyles();
+
+  const isOpen = !!patientId;
 
   return (
     <StyledDrawer 
@@ -49,8 +51,12 @@ const PatientDrawer = ({ isOpen, patientId, onClose, api, trackMetric }) => {
       <StyledCloseButton label="close" onClick={onClose} icon={CloseRoundedIcon} variant="button" />
 
       <Box px={4} py={4} sx={{ width: DRAWER_WIDTH,  height: '100%',  overflowY: 'scroll' }}>
-        <MenuBar patientId={patientId} api={api} trackMetric={trackMetric} />
-        <Content patientId={patientId} api={api} />
+        { isOpen && 
+          <>
+            <MenuBar patientId={patientId} api={api} trackMetric={trackMetric} />
+            <Content patientId={patientId} api={api} />
+          </>
+        }
       </Box>
     </StyledDrawer>
   );
