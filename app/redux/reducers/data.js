@@ -104,6 +104,23 @@ const data = (state = initialState.data, action) => {
         metaData: { $merge: result.metaData || {} },
         query: { $set: result.query || {} }
       });
+      
+    case actionTypes.RESET_DATA:
+      return update(state, { $set: {
+        data: {
+          aggregationsByDate: {},
+          combined: [],
+          current: {},
+          next: {},
+          prev: {},
+        },
+        timePrefs: {},
+        bgPrefs: {},
+        metaData: {},
+        query: {},
+        fetchedUntil: null,
+        cacheUntil: null,
+      }});
 
     default:
       return state;

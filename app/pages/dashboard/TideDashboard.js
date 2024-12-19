@@ -52,6 +52,7 @@ import PopoverMenu from '../../components/elements/PopoverMenu';
 import RadioGroup from '../../components/elements/RadioGroup';
 import DeltaBar from '../../components/elements/DeltaBar';
 import Pill from '../../components/elements/Pill';
+import PatientDrawer from './PatientDrawer';
 import utils from '../../core/utils';
 
 import {
@@ -247,6 +248,9 @@ const TideDashboardSection = React.memo(props => {
     trackMetric,
   } = props;
 
+  const [isAGPDrawerOpen, setIsAGPDrawerOpen] = useState(false);
+  const [selectedPatientId, setSelectedPatientId] = useState(null);
+
   const statEmptyText = '--';
 
   const dexcomConnectStateUI = React.useMemo(() => ({
@@ -300,7 +304,12 @@ const TideDashboardSection = React.memo(props => {
   }, [dispatch, trackMetric]);
 
   const renderPatientName = useCallback(({ patient }) => (
-    <Box onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
+    <Box 
+      onClick={() => { 
+        setIsAGPDrawerOpen(true);
+        setSelectedPatientId(patient.id);
+      }} 
+      sx={{ cursor: 'pointer' }}>
       <Text
         sx={{
           display: 'inline-block',
@@ -710,6 +719,14 @@ const TideDashboardSection = React.memo(props => {
             },
           }
         }}
+      />
+
+      <PatientDrawer 
+        isOpen={isAGPDrawerOpen} 
+        patientId={selectedPatientId} 
+        onClose={() => setIsAGPDrawerOpen(false)}
+        api={api}
+        trackMetric={trackMetric}
       />
     </Box>
   );
