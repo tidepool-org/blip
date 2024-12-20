@@ -30,7 +30,7 @@ const StyledMenuBar = styled(Box)`
   display: grid;
   grid-template-columns: 32fr 18fr 18fr 32fr;
   gap: 16px;
-  minHeight: 40px;
+  min-height: 42px;
   margin-bottom: 16px;
 `
 
@@ -79,13 +79,13 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
         }
       </Flex>
 
-      <Flex sx={{ justifyContent: 'flex-end', alignItems: 'center' }}>
+      <Flex sx={{ justifyContent: 'flex-end', alignItems: 'flex-start' }}>
         <Button onClick={handleViewData} variant="secondary">
           {t('View Data')}
         </Button>
       </Flex>
       
-      <Flex sx={{ justifyContent: 'flex-start', alignItems: 'center' }}>
+      <Flex sx={{ justifyContent: 'flex-start', alignItems: 'flex-start' }}>
         <Button disabled={!canCopy} onClick={handleCopyAsText} variant="secondary">
           {t('Copy as Text')}
         </Button>
