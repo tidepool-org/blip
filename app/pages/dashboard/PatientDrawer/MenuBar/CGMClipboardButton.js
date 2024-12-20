@@ -65,7 +65,9 @@ const CGMClipboardButton = ({ patientName, agpCGM }) => {
     }
   }, [buttonState])
 
-  const isDisabled = !agpCGM;
+  const sensorUsage = agpCGM?.data?.current?.stats?.sensorUsage?.sensorUsage || 0;
+
+  const isDisabled = !agpCGM || sensorUsage < 86400000; // minimum 24 hours
 
   const clipboardText = useMemo(() => getCGMClipboardText(patientName, agpCGM, t), [patientName, agpCGM, t]);
 
