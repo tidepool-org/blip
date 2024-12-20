@@ -1,39 +1,15 @@
 import React, { useEffect } from 'react';
-import styled from '@emotion/styled';
-import * as actions from '../../../redux/actions';
+import * as actions from '../../../../redux/actions';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { push } from 'connected-react-router';
 import { Flex, Box, Text } from 'theme-ui';
-import colorPalette from '../../../themes/colorPalette';
-import Button from '../../../components/elements/Button';
+import colorPalette from '../../../../themes/colorPalette';
+import Button from '../../../../components/elements/Button';
 import moment from 'moment';
-import PatientLastReviewed from '../../../components/clinic/PatientLastReviewed';
+import PatientLastReviewed from '../../../../components/clinic/PatientLastReviewed';
 import { useFlags } from 'launchdarkly-react-client-sdk';
-
-const getCopyToClipboardData = (agpCGM, _patientName, t) => {
-  if (!agpCGM) return { canCopy: false, clipboardText: '' };
-
-  const { veryLow, low, target, total } = agpCGM.data?.current?.stats?.timeInRange?.counts || {};
-
-  const timeInTarget = Math.round((target / total) * 100);
-  const timeInLows = Math.round(((veryLow + low) * 100 ) / total);
-
-  const clipboardText = t('Lows: {{timeInLows}}, Target: {{timeInTarget}}', { timeInLows, timeInTarget });
-
-  return {
-    canCopy: true,
-    clipboardText,
-  };
-}
-
-const StyledMenuBar = styled(Box)`
-  display: grid;
-  grid-template-columns: 32fr 18fr 18fr 32fr;
-  gap: 16px;
-  min-height: 42px;
-  margin-bottom: 16px;
-`
+import CGMClipboardButton from './CGMClipboardButton';
 
 const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
   const dispatch = useDispatch();
@@ -45,8 +21,6 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
   const patientName = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]?.patients?.[patientId]?.fullName);
   const patientDOB = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]?.patients?.[patientId]?.birthDate);
   const agpCGM = useSelector(state => state.blip.pdf?.data?.agpCGM); // IMPORTANT: Data taken from Redux PDF slice
-
-  const { clipboardText, canCopy } = getCopyToClipboardData(agpCGM, patientName, t);
 
   useEffect(() => {
     // DOB field in Patient object may not be populated in TIDE Dashboard, so we need to refetch
@@ -64,13 +38,9 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
       onClose();
     }, 500)
   }
-
-  const handleCopyAsText = () => {
-    console.log(clipboardText) // TODO: Implement  
-  }
-
+  
   return (
-    <StyledMenuBar>
+    <Box sx={{ display: 'grid', gridTemplateColumns: '32fr 18fr 18fr 32fr', gap: 3, minHeight: '42px', marginBottom: 3 }}>
       <Flex sx={{ justifyContent: 'center', flexDirection: 'column' }}>
         <Text sx={{ color: colorPalette.primary.purpleDark, fontWeight: 'bold', fontSize: 2 }}>
           {patientName}
@@ -89,9 +59,7 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
       </Flex>
       
       <Flex sx={{ justifyContent: 'flex-start', alignItems: 'center' }}>
-        <Button disabled={!canCopy} onClick={handleCopyAsText} variant="secondary">
-          {t('Copy as Text')}
-        </Button>
+        <CGMClipboardButton patientName={patientName} agpCGM={agpCGM} />
       </Flex>
 
       <Flex sx={{ fontSize: 0, alignItems: 'center', justifyContent: 'flex-end' }}>
@@ -116,7 +84,7 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
           </>
         }
       </Flex>
-    </StyledMenuBar>
+    </Box>
   )
 }
 
