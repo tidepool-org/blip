@@ -50,12 +50,12 @@ const inferLastCompletedStep = (patientId, data, pdf) => {
 
 const FETCH_PATIENT_OPTS = { forceDataWorkerAddDataRequest: true, useCache: false };
 
-const DEFAULT_AGP_PERIOD = 14;
+const DEFAULT_AGP_PERIOD_IN_DAYS = 14;
 
 const useAgpCGM = (
   api, 
   patientId,
-  agpPeriodInDays = DEFAULT_AGP_PERIOD,
+  agpPeriodInDays = DEFAULT_AGP_PERIOD_IN_DAYS,
 ) => {
   const dispatch = useDispatch();
   const generateAGPImages = buildGenerateAGPImagesFunction(dispatch);
@@ -88,7 +88,7 @@ const useAgpCGM = (
         break;
 
       case STATUS.DATA_PROCESSED:
-        generateAGPImages(pdf, ['agpCGM', 'agpBGM']);
+        generateAGPImages(pdf, ['agpCGM']);
         break;
 
       case STATUS.SVGS_GENERATED: // image generation complete, no further steps necessary
