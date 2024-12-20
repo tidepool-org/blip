@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import styled from '@emotion/styled';
 import * as actions from '../../../redux/actions';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -24,6 +25,14 @@ const getCopyToClipboardData = (agpCGM, _patientName, t) => {
     clipboardText,
   };
 }
+
+const StyledMenuBar = styled(Box)`
+  display: grid;
+  grid-template-columns: 32fr 18fr 18fr 32fr;
+  gap: 16px;
+  minHeight: 40px;
+  margin-bottom: 16px;
+`
 
 const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
   const dispatch = useDispatch();
@@ -58,7 +67,7 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
   }
 
   return (
-    <Box mb={3} sx={{ display: 'grid', gridTemplateColumns: '32fr 18fr 18fr 32fr', gap: 3, minHeight: '40px' }}>
+    <StyledMenuBar>
       <Flex sx={{ justifyContent: 'center', flexDirection: 'column' }}>
         <Text sx={{ color: colorPalette.primary.purpleDark, fontWeight: 'bold', fontSize: 2 }}>
           {patientName}
@@ -71,14 +80,16 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
       </Flex>
 
       <Flex sx={{ justifyContent: 'flex-end', alignItems: 'center' }}>
-        <Button onClick={handleViewData} variant="secondary">{t('View Data')}</Button>
+        <Button onClick={handleViewData} variant="secondary">
+          {t('View Data')}
+        </Button>
       </Flex>
       
-        <Flex sx={{ justifyContent: 'flex-start', alignItems: 'center' }}>
-          { canCopy &&
-            <Button onClick={handleCopyAsText} variant="secondary">{t('Copy as Text')}</Button>
-          }
-        </Flex>
+      <Flex sx={{ justifyContent: 'flex-start', alignItems: 'center' }}>
+        <Button disabled={!canCopy} onClick={handleCopyAsText} variant="secondary">
+          {t('Copy as Text')}
+        </Button>
+      </Flex>
 
       <Flex sx={{ fontSize: 0, alignItems: 'center', justifyContent: 'flex-end' }}>
         <Text sx={{ 
@@ -97,7 +108,7 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
           onReview={handleReviewSuccess}
         />
       </Flex>
-    </Box>
+    </StyledMenuBar>
   )
 }
 
