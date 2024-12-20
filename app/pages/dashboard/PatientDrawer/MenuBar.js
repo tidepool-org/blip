@@ -79,13 +79,13 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
         }
       </Flex>
 
-      <Flex sx={{ justifyContent: 'flex-end', alignItems: 'flex-start' }}>
+      <Flex sx={{ justifyContent: 'flex-end', alignItems: 'center' }}>
         <Button onClick={handleViewData} variant="secondary">
           {t('View Data')}
         </Button>
       </Flex>
       
-      <Flex sx={{ justifyContent: 'flex-start', alignItems: 'flex-start' }}>
+      <Flex sx={{ justifyContent: 'flex-start', alignItems: 'center' }}>
         <Button disabled={!canCopy} onClick={handleCopyAsText} variant="secondary">
           {t('Copy as Text')}
         </Button>
