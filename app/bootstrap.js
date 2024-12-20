@@ -93,6 +93,7 @@ appContext.render = async Component => {
       'showSummaryDashboardLastReviewed': false,
       'showTideDashboard': false,
       'showTideDashboardLastReviewed': false,
+      'showTideDashboardPatientDrawer': false,
     },
   });
 

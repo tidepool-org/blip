@@ -52,6 +52,7 @@ import PopoverMenu from '../../components/elements/PopoverMenu';
 import RadioGroup from '../../components/elements/RadioGroup';
 import DeltaBar from '../../components/elements/DeltaBar';
 import Pill from '../../components/elements/Pill';
+import PatientDrawer from './PatientDrawer';
 import utils from '../../core/utils';
 
 import {
@@ -243,9 +244,12 @@ const TideDashboardSection = React.memo(props => {
     setSelectedPatient,
     setShowEditPatientDialog,
     showTideDashboardLastReviewed,
+    showTideDashboardPatientDrawer,
     t,
     trackMetric,
   } = props;
+
+  const [viewingPatientId, setViewingPatientId] = useState(null);
 
   const statEmptyText = '--';
 
@@ -295,12 +299,20 @@ const TideDashboardSection = React.memo(props => {
   const handleClickPatient = useCallback(patient => {
     return () => {
       trackMetric('Selected PwD');
+
+      if (showTideDashboardPatientDrawer) {
+        setViewingPatientId(patient.id);
+        return;
+      }
+      
       dispatch(push(`/patients/${patient?.id}/data?chart=trends&dashboard=tide`));
     }
-  }, [dispatch, trackMetric]);
+  }, [dispatch, trackMetric, setViewingPatientId, showTideDashboardPatientDrawer]);
 
   const renderPatientName = useCallback(({ patient }) => (
-    <Box onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
+    <Box 
+      onClick={handleClickPatient(patient)} 
+      sx={{ cursor: 'pointer' }}>
       <Text
         sx={{
           display: 'inline-block',
@@ -643,6 +655,7 @@ const TideDashboardSection = React.memo(props => {
     renderTimeInPercent,
     renderTimeInTargetPercentDelta,
     showTideDashboardLastReviewed,
+    showTideDashboardPatientDrawer,
     t,
     veryLowGlucoseThreshold,
   ]);
@@ -711,6 +724,13 @@ const TideDashboardSection = React.memo(props => {
           }
         }}
       />
+
+      <PatientDrawer  
+        patientId={viewingPatientId}
+        onClose={() => setViewingPatientId(null)}
+        api={api}
+        trackMetric={trackMetric}
+      />
     </Box>
   );
 }, ((prevProps, nextProps) => (
@@ -741,7 +761,11 @@ export const TideDashboard = (props) => {
   const [localConfig] = useLocalStorage('tideDashboardConfig', {});
   const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
   const patientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
-  const { showTideDashboard, showTideDashboardLastReviewed } = useFlags();
+  const { 
+    showTideDashboard, 
+    showTideDashboardLastReviewed,
+    showTideDashboardPatientDrawer,
+  } = useFlags();
   const ldClient = useLDClient();
   const ldContext = ldClient.getContext();
 
@@ -1115,6 +1139,7 @@ export const TideDashboard = (props) => {
       setSelectedPatient,
       setShowEditPatientDialog,
       showTideDashboardLastReviewed,
+      showTideDashboardPatientDrawer,
       t,
       trackMetric,
     };
@@ -1175,6 +1200,7 @@ export const TideDashboard = (props) => {
     setSelectedPatient,
     setShowEditPatientDialog,
     showTideDashboardLastReviewed,
+    showTideDashboardPatientDrawer,
     t,
     trackMetric,
   ]);
