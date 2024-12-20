@@ -47,21 +47,21 @@ const getCGMClipboardText = (patientName, agpCGM, t) => {
 }
 
 const STATE = {
-  INITIAL: 'INITIAL',
+  DEFAULT: 'DEFAULT',
   CLICKED: 'CLICKED',
 }
 
 const CGMClipboardButton = ({ patientName, agpCGM }) => {
   const { t } = useTranslation();
-  const [buttonState, setButtonState] = useState(STATE.INITIAL);
+  const [buttonState, setButtonState] = useState(STATE.DEFAULT);
 
   useEffect(() => {
-    let effect = setTimeout(() => {
-      setButtonState(STATE.INITIAL)
+    let buttonTextEffect = setTimeout(() => {
+      setButtonState(STATE.DEFAULT)
     }, 1000);
 
     return () => {
-      clearTimeout(effect);
+      clearTimeout(buttonTextEffect);
     }
   }, [buttonState])
 
@@ -70,7 +70,7 @@ const CGMClipboardButton = ({ patientName, agpCGM }) => {
   const clipboardText = useMemo(() => getCGMClipboardText(patientName, agpCGM, t), [patientName, agpCGM, t]);
 
   const handleCopy = () => {
-    navigator.clipboard?.writeText(clipboardText);
+    navigator?.clipboard?.writeText(clipboardText);
     setButtonState(STATE.CLICKED);
   }
 
