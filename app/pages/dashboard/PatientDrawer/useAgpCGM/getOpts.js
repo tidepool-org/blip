@@ -5,10 +5,11 @@ import { utils as vizUtils } from '@tidepool/viz';
 
 const getTimezoneFromTimePrefs = vizUtils.datetime.getTimezoneFromTimePrefs;
 
-const AGP_PERIOD_IN_DAYS = 7; // Temporarily using fixed value for prototype launch
+const agpPeriodInDays = 7; // Temporarily using fixed value for prototype launch
 
 const getOpts = (
-  data // data from redux (state.blip.data)
+  data, // data from redux (state.blip.data)
+  agpPeriodInDays,
 ) => {
   const getMostRecentDatumTimeByChartType = (data, chartType) => {
     let latestDatums;
@@ -77,8 +78,8 @@ const getOpts = (
   };
 
   const defaultDates = () => ({ 
-    agpBGM: getLastNDays(AGP_PERIOD_IN_DAYS, 'agpBGM'),
-    agpCGM: getLastNDays(AGP_PERIOD_IN_DAYS, 'agpCGM'),
+    agpBGM: getLastNDays(agpPeriodInDays, 'agpBGM'),
+    agpCGM: getLastNDays(agpPeriodInDays, 'agpCGM'),
 
     // 'trends', 'bgLog', 'daily', and 'basics' omitted
   });

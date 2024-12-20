@@ -46,15 +46,10 @@ const TableRow = ({ label, sublabel, value, units }) => {
   )
 }
 
-const CGMStatistics = ({ patientId }) => {
+const CGMStatistics = ({ agpCGM }) => {
   const { t } = useTranslation();
 
-  // IMPORTANT: Data taken from Redux PDF slice
-  const agpCGM = useSelector(state => state.blip.pdf?.data?.agpCGM);
-  const pdfPatientId = useSelector(state => state.blip.pdf?.opts?.patient?.id);
-  const isPdfForOtherPatient = pdfPatientId !== patientId;
-
-  if (!agpCGM || isPdfForOtherPatient) return null;
+  if (!agpCGM) return null;
 
   const {
     timePrefs,

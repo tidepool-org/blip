@@ -8,7 +8,7 @@ import styled from '@emotion/styled';
 import { components as vizComponents } from '@tidepool/viz';
 const { Loader } = vizComponents;
 
-import useAGPImages, { STATUS } from './useAGPImages';
+import useAgpCGM, { STATUS } from './useAgpCGM';
 import CGMStatistics from './CGMStatistics';
 
 const StyledAGPImage = styled.img`
@@ -52,10 +52,12 @@ const CategoryContainer = ({ title, subtitle, children }) => {
   );
 };
 
+const PROTOTYPE_AGP_PERIOD = 7; // Fixed for prototype;
+
 const Content = ({ api, patientId }) => {
   const { t } = useTranslation();
   
-  const { status, svgDataURLS } = useAGPImages(api, patientId);
+  const { status, svgDataURLS, agpCGM } = useAgpCGM(api, patientId, PROTOTYPE_AGP_PERIOD);
 
   const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
   const patient = clinic?.patients?.[patientId];
@@ -80,7 +82,7 @@ const Content = ({ api, patientId }) => {
           <StyledAGPImage src={percentInRanges} alt={t('Time in Ranges')} />
         </CategoryContainer>
         <CategoryContainer>
-          <CGMStatistics patientId={patientId} />
+          <CGMStatistics agpCGM={agpCGM} />
         </CategoryContainer>
       </Box>
 

@@ -50,7 +50,13 @@ const inferLastCompletedStep = (patientId, data, pdf) => {
 
 const FETCH_PATIENT_OPTS = { forceDataWorkerAddDataRequest: true, useCache: false };
 
-const useAGPImages = (api, patientId) => {
+const DEFAULT_AGP_PERIOD = 14;
+
+const useAgpCGM = (
+  api, 
+  patientId,
+  agpPeriodInDays = DEFAULT_AGP_PERIOD,
+) => {
   const dispatch = useDispatch();
   const generateAGPImages = buildGenerateAGPImagesFunction(dispatch);
 
@@ -76,7 +82,7 @@ const useAGPImages = (api, patientId) => {
         break;
 
       case STATUS.PATIENT_LOADED:
-        const opts    = getOpts(data);
+        const opts    = getOpts(data, agpPeriodInDays);
         const queries = getQueries(data, patient, clinic, opts);
         dispatch(actions.worker.generatePDFRequest('combined', queries, { ...opts, patient }, patientId));
         break;
@@ -92,12 +98,13 @@ const useAGPImages = (api, patientId) => {
   }, [lastCompletedStep]);
 
   // Final check to guarantee that data is being returned for correct patient
-  const hasCorrectImagesForPatient = pdf.opts?.svgDataURLS && pdf.opts?.patient?.id === patientId;
+  const hasCorrectPatientInState   = pdf.opts?.patient?.id === patientId;
 
   return { 
-    status: lastCompletedStep, 
-    svgDataURLS: hasCorrectImagesForPatient ? pdf.opts?.svgDataURLS : null
+    status:      lastCompletedStep, 
+    svgDataURLS: hasCorrectPatientInState ? pdf.opts?.svgDataURLS : null,
+    agpCGM:      hasCorrectPatientInState ? pdf.data?.agpCGM : null,
   };
 }
 
-export default useAGPImages;
+export default useAgpCGM;
