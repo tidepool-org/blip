@@ -80,7 +80,7 @@ const Content = ({ api, patientId }) => {
           <StyledAGPImage src={percentInRanges} alt={t('Time in Ranges')} />
         </CategoryContainer>
         <CategoryContainer>
-          <CGMStatistics />
+          <CGMStatistics patientId={patientId} />
         </CategoryContainer>
       </Box>
 
