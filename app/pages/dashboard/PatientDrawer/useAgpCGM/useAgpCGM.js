@@ -97,6 +97,15 @@ const useAgpCGM = (
     }
   }, [lastCompletedStep]);
 
+  useEffect(() => {
+    // Clear state on component dismount
+
+    return () => {
+      dispatch(actions.worker.removeGeneratedPDFS());
+      dispatch(actions.worker.dataWorkerRemoveDataRequest(null, patientId));
+    }
+  }, [])
+
   // Final check to guarantee that data is being returned for correct patient
   const hasCorrectPatientInState   = pdf.opts?.patient?.id === patientId;
 
