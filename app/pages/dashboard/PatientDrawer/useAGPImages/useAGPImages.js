@@ -20,29 +20,26 @@ export const STATUS = {
 }
 
 const inferLastCompletedStep = (patientId, data, pdf) => {
-  // If data already exists in Redux but for another patient, we need to wait for it to clear it first
-  const hasOtherUserPdfInState  = !!pdf.opts && pdf.opts.patient?.id !== patientId;
-  const hasOtherUserDataInState = !!data.metaData.patientId && data.metaData.patientId !== patientId;
-
-  if (hasOtherUserPdfInState || hasOtherUserDataInState) return STATUS.INITIALIZED;
-
-  // Patient has no data
-  const hasNoData = data.metaData?.size === 0;
-
-  if (hasNoData) return STATUS.NO_PATIENT_DATA;
-
-  // Insufficient data to generate AGP Report - PDF worker succeeded but all fields are empty
-  const isDataInsufficient = !!pdf?.opts?.svgDataURLS && !pdf?.opts?.svgDataURLS.agpCGM;
-
-  if (isDataInsufficient) return STATUS.INSUFFICIENT_DATA;
-
-  // Happy Path:
   // If the outputted data for a step in the process exists, we infer that the step was successful.
   // We do the lookup in reverse order to return the LATEST completed step
 
-  const hasImagesInState   = !!pdf?.opts?.svgDataURLS;
-  const hasPDFDataInState  = !!pdf?.data;
-  const hasPatientInState  = !!data?.metaData?.patientId;
+  // Incorrect Patient --- (occurs when user switches patient partway through fetching)
+  const hasOtherPdfInState  = !!pdf.opts && pdf.opts.patient?.id !== patientId;
+  const hasOtherDataInState = !!data.metaData.patientId && data.metaData.patientId !== patientId;
+
+  if (hasOtherPdfInState || hasOtherDataInState) return STATUS.INITIALIZED;
+
+  // Insufficient Data States ---
+  const hasNoPatientData    = data.metaData?.size === 0;
+  const hasInsufficientData = !!pdf?.opts?.svgDataURLS && !pdf?.opts?.svgDataURLS.agpCGM;
+
+  if (hasNoPatientData)    return STATUS.NO_PATIENT_DATA;
+  if (hasInsufficientData) return STATUS.INSUFFICIENT_DATA;
+
+  // Happy Path States ---
+  const hasImagesInState  = !!pdf?.opts?.svgDataURLS;
+  const hasPDFDataInState = !!pdf?.data;
+  const hasPatientInState = !!data?.metaData?.patientId;
 
   if (hasImagesInState)  return STATUS.SVGS_GENERATED;
   if (hasPDFDataInState) return STATUS.DATA_PROCESSED;
@@ -81,7 +78,6 @@ const useAGPImages = (api, patientId) => {
       case STATUS.PATIENT_LOADED:
         const opts    = getOpts(data);
         const queries = getQueries(data, patient, clinic, opts);
-
         dispatch(actions.worker.generatePDFRequest('combined', queries, { ...opts, patient }, patientId));
         break;
 
@@ -95,14 +91,7 @@ const useAGPImages = (api, patientId) => {
     }
   }, [lastCompletedStep]);
 
-  useEffect(() => {
-    return () => {
-      dispatch(actions.worker.removeGeneratedPDFS());
-      dispatch(actions.worker.dataWorkerRemoveDataRequest(null, patientId));
-    };
-  }, [])
-
-  // Final check to guarantee that correct data is being returned
+  // Final check to guarantee that data is being returned for correct patient
   const hasCorrectImagesForPatient = pdf.opts?.svgDataURLS && pdf.opts?.patient?.id === patientId;
 
   return { 
