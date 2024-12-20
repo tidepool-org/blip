@@ -310,9 +310,7 @@ const TideDashboardSection = React.memo(props => {
   }, [dispatch, trackMetric, setViewingPatientId, showTideDashboardPatientDrawer]);
 
   const renderPatientName = useCallback(({ patient }) => (
-    <Box 
-      onClick={handleClickPatient(patient)} 
-      sx={{ cursor: 'pointer' }}>
+    <Box onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
       <Text
         sx={{
           display: 'inline-block',

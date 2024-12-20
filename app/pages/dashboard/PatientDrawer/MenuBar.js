@@ -9,6 +9,7 @@ import colorPalette from '../../../themes/colorPalette';
 import Button from '../../../components/elements/Button';
 import moment from 'moment';
 import PatientLastReviewed from '../../../components/clinic/PatientLastReviewed';
+import { useFlags } from 'launchdarkly-react-client-sdk';
 
 const getCopyToClipboardData = (agpCGM, _patientName, t) => {
   if (!agpCGM) return { canCopy: false, clipboardText: '' };
@@ -37,6 +38,8 @@ const StyledMenuBar = styled(Box)`
 const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
+
+  const { showTideDashboardLastReviewed } = useFlags();
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const patientName = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]?.patients?.[patientId]?.fullName);
@@ -92,21 +95,26 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
       </Flex>
 
       <Flex sx={{ fontSize: 0, alignItems: 'center', justifyContent: 'flex-end' }}>
-        <Text sx={{ 
-          color: colorPalette.primary.purpleDark, 
-          fontWeight: 'medium', 
-          marginRight: 3,
-        }}>
-          {t('Last Reviewed')}
-        </Text>
-        <PatientLastReviewed 
-          api={api} 
-          trackMetric={trackMetric} 
-          metricSource="TIDE dashboard" 
-          patientId={patientId} 
-          recentlyReviewedThresholdDate={recentlyReviewedThresholdDate}
-          onReview={handleReviewSuccess}
-        />
+        {
+          showTideDashboardLastReviewed &&
+            <>
+              <Text sx={{ 
+              color: colorPalette.primary.purpleDark, 
+              fontWeight: 'medium', 
+              marginRight: 3,
+            }}>
+              {t('Last Reviewed')}
+            </Text>
+            <PatientLastReviewed 
+              api={api} 
+              trackMetric={trackMetric} 
+              metricSource="TIDE dashboard" 
+              patientId={patientId} 
+              recentlyReviewedThresholdDate={recentlyReviewedThresholdDate}
+              onReview={handleReviewSuccess}
+            />
+          </>
+        }
       </Flex>
     </StyledMenuBar>
   )

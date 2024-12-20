@@ -107,12 +107,12 @@ const useAgpCGM = (
   }, [])
 
   // Final check to guarantee that data is being returned for correct patient
-  const hasCorrectPatientInState   = pdf.opts?.patient?.id === patientId;
+  const isCorrectPatientInState = pdf.opts?.patient?.id === patientId;
 
   return { 
     status:      lastCompletedStep, 
-    svgDataURLS: hasCorrectPatientInState ? pdf.opts?.svgDataURLS : null,
-    agpCGM:      hasCorrectPatientInState ? pdf.data?.agpCGM : null,
+    svgDataURLS: isCorrectPatientInState ? pdf.opts?.svgDataURLS : null,
+    agpCGM:      isCorrectPatientInState ? pdf.data?.agpCGM : null,
   };
 }
 
