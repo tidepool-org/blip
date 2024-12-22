@@ -242,14 +242,13 @@ const TideDashboardSection = React.memo(props => {
     selectedClinicId,
     setSections,
     setSelectedPatient,
+    setDrawerPatientId,
     setShowEditPatientDialog,
     showTideDashboardLastReviewed,
     showTideDashboardPatientDrawer,
     t,
     trackMetric,
   } = props;
-
-  const [viewingPatientId, setViewingPatientId] = useState(null);
 
   const statEmptyText = '--';
 
@@ -301,13 +300,13 @@ const TideDashboardSection = React.memo(props => {
       trackMetric('Selected PwD');
 
       if (showTideDashboardPatientDrawer) {
-        setViewingPatientId(patient.id);
+        setDrawerPatientId(patient.id);
         return;
       }
       
       dispatch(push(`/patients/${patient?.id}/data?chart=trends&dashboard=tide`));
     }
-  }, [dispatch, trackMetric, setViewingPatientId, showTideDashboardPatientDrawer]);
+  }, [dispatch, trackMetric, setDrawerPatientId, showTideDashboardPatientDrawer]);
 
   const renderPatientName = useCallback(({ patient }) => (
     <Box onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
@@ -722,13 +721,6 @@ const TideDashboardSection = React.memo(props => {
           }
         }}
       />
-
-      <PatientDrawer  
-        patientId={viewingPatientId}
-        onClose={() => setViewingPatientId(null)}
-        api={api}
-        trackMetric={trackMetric}
-      />
     </Box>
   );
 }, ((prevProps, nextProps) => (
@@ -752,6 +744,7 @@ export const TideDashboard = (props) => {
   const [showTideDashboardConfigDialog, setShowTideDashboardConfigDialog] = useState(false);
   const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
+  const [drawerPatientId, setDrawerPatientId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [patientFormContext, setPatientFormContext] = useState();
   const [tideDashboardFormContext, setTideDashboardFormContext] = useState();
@@ -1135,6 +1128,7 @@ export const TideDashboard = (props) => {
       selectedClinicId,
       setSections,
       setSelectedPatient,
+      setDrawerPatientId,
       setShowEditPatientDialog,
       showTideDashboardLastReviewed,
       showTideDashboardPatientDrawer,
@@ -1220,6 +1214,13 @@ export const TideDashboard = (props) => {
       {patientGroups && renderPatientGroups()}
       {showTideDashboardConfigDialog && renderTideDashboardConfigDialog()}
       {showEditPatientDialog && renderEditPatientDialog()}
+
+      <PatientDrawer  
+        patientId={drawerPatientId}
+        onClose={() => setDrawerPatientId(null)}
+        api={api}
+        trackMetric={trackMetric}
+      />
 
       <StyledScrollToTop
         smooth
