@@ -304,7 +304,7 @@ const TideDashboardSection = React.memo(props => {
       if (showTideDashboardPatientDrawer) {
         const { search, pathname } = location;
         const params = new URLSearchParams(search);
-        params.append('drawerPatientId', patient.id);
+        params.set('drawerPatientId', patient.id);
         history.replace({ pathname, search: params.toString() });
 
         return;
