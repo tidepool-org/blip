@@ -87,7 +87,7 @@ describe('PatientDrawer/Content', () => {
   describe('When AGP is fully loaded', () => {
     context('When enough data to render AGP Graph', () => {
       useAgpCGM.returns({ 
-        status: STATUS.SVGS_GENERATED, // any intermediate state prior to 'SVGS_GENERATED'
+        status: STATUS.SVGS_GENERATED,
         svgDataURLS: {
           agpCGM: {
             percentInRanges: 'percentInRanges.img.jpg',
@@ -115,7 +115,7 @@ describe('PatientDrawer/Content', () => {
 
     context('When not enough data to render AGP Graph', () => {
       useAgpCGM.returns({ 
-        status: STATUS.SVGS_GENERATED, // any intermediate state prior to 'SVGS_GENERATED'
+        status: STATUS.SVGS_GENERATED,
         svgDataURLS: {
           agpCGM: {
             percentInRanges: 'percentInRanges.img.jpg',
@@ -130,13 +130,14 @@ describe('PatientDrawer/Content', () => {
   
       it('shows the AGP Report with all images', () => {
         const wrapperText = wrapper.text();
+
+        expect(wrapperText).to.include('Insufficient CGM data to generate AGP graph');
+        expect(wrapper.find('img[src="ambulatoryGlucoseProfile.img.jpg"]').exists()).to.be.false;
   
         expect(wrapperText).to.include('Time in Ranges');
         expect(wrapperText).to.include('Ambulatory Glucose Profile (AGP)');
         expect(wrapperText).to.include('Daily Glucose Profiles');
-        expect(wrapperText).to.include('Insufficient CGM data to generate AGP graph');
         expect(wrapper.find('img[src="percentInRanges.img.jpg"]').exists()).to.be.true;
-        expect(wrapper.find('img[src="ambulatoryGlucoseProfile.img.jpg"]').exists()).to.be.false;
         expect(wrapper.find('img[src="daily.top.img.jpg"]').exists()).to.be.true;
         expect(wrapper.find('img[src="daily.bot.img.jpg"]').exists()).to.be.true;
       });
