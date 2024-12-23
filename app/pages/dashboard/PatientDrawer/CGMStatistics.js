@@ -21,15 +21,18 @@ const formatDateRange = (startEndpoint, endEndpoint, timezoneName) => {
   return `${startDate.format('MMMM D')} - ${endDate.format('MMMM D')}, ${endDate.format('YYYY')}`;
 }
 
-const TableRow = ({ label, sublabel, value, units }) => {
+const TableRow = ({ label, sublabel, value, units, id }) => {
   return (
-    <Flex sx={{ 
-      justifyContent: 'space-between', 
-      margin: '0 16px', 
-      padding: '16px 0',  
-      borderBottom: `1px solid ${colorPalette.extended.grays[1]}`,
-      '&:last-of-type': { borderBottom: 'none' }
-    }}>
+    <Flex 
+      id={id}
+      sx={{ 
+        justifyContent: 'space-between', 
+        margin: '0 16px', 
+        padding: '16px 0',  
+        borderBottom: `1px solid ${colorPalette.extended.grays[1]}`,
+        '&:last-of-type': { borderBottom: 'none' }
+      }}
+    >
       <Flex sx={{ flexDirection: 'column', maxWidth: '260px' }}>
         <Text sx={{ color: colorPalette.extended.grays[10], fontSize: 0 }}>{label}</Text>
         {sublabel && (
@@ -81,30 +84,35 @@ const CGMStatistics = ({ agpCGM }) => {
   const cov        = utils.roundToPrecision(coefficientOfVariation, 1);
 
   return (
-    <Flex sx={{ alignItems: 'center', width: '100%', height: '100%' }}>
+    <Flex sx={{ alignItems: 'center', width: '100%', height: '100%' }} id='agp-cgm-statistics'>
       <Box sx={{ width: '100%' }}>
-          <TableRow 
+          <TableRow
+            id="agp-cgm-table-time-range"
             label={t('Time Range')}
             value={t('{{dateRange}} ({{daySpan}} days)', { dateRange, daySpan })}
           />
-          <TableRow 
+          <TableRow
+            id="agp-cgm-table-cgm-active"
             label={t('Time CGM Active')}
             value={`${cgmActive}`}
             units="%"
           />
           <TableRow 
+            id="agp-cgm-table-avg-glucose"
             label={t('Average Glucose')}
             sublabel={t('(Goal <{{avgGlucoseTarget}} {{bgUnits}})', { avgGlucoseTarget, bgUnits })}
             value={`${avgGlucose}`}
             units={` ${bgUnits}`}
           />
-          <TableRow 
+          <TableRow
+            id="agp-cgm-table-gmi"
             label={t('Glucose Management Indicator')}
             sublabel={t('(Goal <7%)')}
             value={`${gmi}`}
             units="%"
           />
-          <TableRow 
+          <TableRow
+            id="agp-cgm-table-cov"
             label={t('Glucose Variability')}
             sublabel={t('(Defined as a percent coefficient of variation. Goal <= 36%)')}
             value={`${cov}`}
