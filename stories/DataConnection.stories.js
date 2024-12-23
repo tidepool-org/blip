@@ -52,6 +52,7 @@ const getDateInPast = (amount, unit) => moment.utc().subtract(amount, unit).toIS
 export const ClinicUser = {
   render: () => {
     const dataConnectionUnset = getDataConnectionProps(patientWithState(true), false, 'clinicID', noop);
+    const dataConnectionInviteJustSent = getDataConnectionProps(patientWithState(true, 'pending', { createdTime: getDateInPast(5, 'seconds') }), false, 'clinicID', noop);
     const dataConnectionPending = getDataConnectionProps(patientWithState(true, 'pending', { createdTime: getDateInPast(5, 'days') }), false, 'clinicID', noop);
     const dataConnectionPendingReconnect = getDataConnectionProps(patientWithState(true, 'pendingReconnect', { createdTime: getDateInPast(10, 'days') }), false, 'clinicID', noop);
     const dataConnectionPendingExpired = getDataConnectionProps(patientWithState(true, 'pending', { createdTime: getDateInPast(31, 'days'), expirationTime: getDateInPast(1, 'days') }), false, 'clinicID', noop);
@@ -70,6 +71,18 @@ export const ClinicUser = {
             key={`provider-${index}`}
             {...dataConnectionUnset[provider]}
             buttonHandler={dataConnectionUnset[provider]?.buttonText ? () => action(dataConnectionUnset[provider]?.buttonText)(provider) : undefined}
+          />
+        ))}
+
+        <Divider pt={3} variant="styles.dividerDark" />
+        <Subheading>Invite Just Sent</Subheading>
+
+        {map(activeProviders, (provider, index) => (
+          <DataConnection
+            my={1}
+            key={`provider-${index}`}
+            {...dataConnectionInviteJustSent[provider]}
+            buttonHandler={dataConnectionInviteJustSent[provider]?.buttonText ? () => action(dataConnectionInviteJustSent[provider]?.buttonText)(provider) : undefined}
           />
         ))}
 

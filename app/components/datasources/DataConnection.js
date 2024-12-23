@@ -9,6 +9,8 @@ import { Body0, Body1 } from '../elements/FontStyles';
 
 export function DataConnection(props) {
   const {
+    buttonDisabled,
+    buttonIcon,
     buttonHandler,
     buttonProcessing,
     buttonStyle,
@@ -35,6 +37,11 @@ export function DataConnection(props) {
       px: 3,
       py:'10px',
       sx: { textDecoration: 'underline', fontSize: 1, fontWeight: 'medium' },
+    },
+    staticText: {
+      px: 3,
+      py:'10px',
+      sx: { textDecoration: 'none', fontSize: 1, fontWeight: 'medium', pointerEvents: 'none', color: `${colors.grays[5]} !important` },
     },
   };
 
@@ -96,8 +103,11 @@ export function DataConnection(props) {
           variant="textPrimary"
           {...buttonStyles[buttonStyle]}
           className="action"
+          icon={buttonIcon}
+          iconPosition="left"
           onClick={buttonHandler}
           processing={buttonProcessing}
+          disabled={buttonDisabled}
         >
           {buttonText}
         </Button>}
@@ -108,9 +118,11 @@ export function DataConnection(props) {
 
 DataConnection.propTypes = {
   ...FlexProps,
+  buttonDisabled: PropTypes.bool,
+  buttonIcon: PropTypes.elementType,
   buttonHandler: PropTypes.func,
   buttonProcessing: PropTypes.bool,
-  buttonStyle: PropTypes.oneOf(['solid', 'text']),
+  buttonStyle: PropTypes.oneOf(['solid', 'text', 'staticText']),
   buttonText: PropTypes.string,
   icon: PropTypes.elementType,
   iconLabel: PropTypes.string,

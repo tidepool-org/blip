@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
 import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
+import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
 import moment from 'moment-timezone';
 import find from 'lodash/find';
 import get from 'lodash/get';
@@ -116,6 +117,14 @@ export function getProviderHandlers(patient, selectedClinicId, provider) {
       action: actions.async.disconnectDataSource,
       args: [api, id, restrictedTokenCreate, dataSourceFilter],
     },
+    inviteSent: {
+      buttonDisabled: true,
+      buttonIcon: CheckRoundedIcon,
+      buttonText: t('Invite Sent'),
+      buttonStyle: 'staticText',
+      action: actions.async.connectDataSource,
+      args: [api, id, restrictedTokenCreate, dataSourceFilter],
+    },
     reconnect: {
       buttonText: t('Reconnect'),
       buttonStyle: 'solid',
@@ -153,11 +162,13 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
     ]);
 
   let timeAgo;
+  let inviteJustSent;
 
   if (mostRecentConnectionUpdateTime) {
-    const { daysAgo, daysText, hoursAgo, hoursText, minutesText } = formatTimeAgo(mostRecentConnectionUpdateTime);
+    const { daysAgo, daysText, hoursAgo, hoursText, minutesAgo, minutesText } = formatTimeAgo(mostRecentConnectionUpdateTime);
     timeAgo = daysText;
     if (daysAgo < 1)  timeAgo = hoursAgo < 1 ? minutesText : hoursText;
+    if (!isLoggedInUser && minutesAgo < 1) inviteJustSent = true;
   }
 
   let patientConnectedMessage;
@@ -182,12 +193,20 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
       message: null,
       text: isLoggedInUser ? null : t('No Pending Connections'),
     },
+    inviteJustSent: {
+      color: colors.grays[5],
+      handler: 'inviteSent',
+      icon: null,
+      message: null,
+      text: t('Connection Pending'),
+    },
     pending: {
       color: colors.grays[5],
       handler: isLoggedInUser ? 'connect' : 'resendInvite',
       icon: null,
-      message: t('Invite sent {{timeAgo}}', { timeAgo }), // TODO: null immediately after sending
+      message: t('Invite sent {{timeAgo}}', { timeAgo }),
       text: t('Connection Pending'),
+      inviteJustSent,
     },
     pendingReconnect: {
       color: colors.grays[5],
@@ -195,6 +214,7 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
       icon: null,
       message: t('Invite sent {{timeAgo}}', { timeAgo }),
       text: t('Invite Sent'),
+      inviteJustSent,
     },
     pendingExpired: {
       color: colors.feedback.warning,
@@ -249,7 +269,13 @@ export const getDataConnectionProps = (patient, isLoggedInUser, selectedClinicId
       ? dataSource.state
       : 'unknown';
 
-    if (includes(['pending', 'pendingReconnect'], connectState) && inviteExpired) connectState = 'pendingExpired';
+    if (includes(['pending', 'pendingReconnect'], connectState)) {
+      if (inviteExpired) {
+        connectState = 'pendingExpired';
+      } else if (connectStateUI[connectState].inviteJustSent) {
+        connectState = 'inviteJustSent';
+      }
+    }
   } else {
     connectState = 'noPendingConnections';
   }
@@ -259,6 +285,8 @@ export const getDataConnectionProps = (patient, isLoggedInUser, selectedClinicId
   const {
     action,
     args,
+    buttonDisabled,
+    buttonIcon,
     buttonText,
     buttonStyle,
     emailRequired,
@@ -266,6 +294,8 @@ export const getDataConnectionProps = (patient, isLoggedInUser, selectedClinicId
   } = getProviderHandlers(patient, selectedClinicId, providers[providerName])[handler] || {};
 
   if (action) {
+    result[providerName].buttonDisabled = buttonDisabled;
+    result[providerName].buttonIcon = buttonIcon;
     result[providerName].buttonHandler = () => setActiveHandler({ action, args, emailRequired, patientUpdates, providerName, connectState, handler });
     result[providerName].buttonText = buttonText;
     result[providerName].buttonStyle = buttonStyle;
