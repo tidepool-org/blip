@@ -8,7 +8,7 @@ const expect = chai.expect;
 
 const dispatch = sinon.stub();
 
-describe.only('buildGenerateAGPImages', () => {
+describe('buildGenerateAGPImages', () => {
   beforeEach(() => {
     dispatch.reset();
   })
@@ -18,8 +18,8 @@ describe.only('buildGenerateAGPImages', () => {
     const vizUtils = { agp: { generateAGPFigureDefinitions: sinon.stub().resolves(['stubbed image data']) } }
 
     it('should call generateAGPImagesSuccess with image data upon successful image generation', done => {
-      const hydratedBuildGenerateAGPImages = buildGenerateAGPImagesWrapper(vizUtils, Plotly)(dispatch);
-      hydratedBuildGenerateAGPImages({ data: { agpCGM: { foo: 'bar' } } }, ['agpCGM']);
+      const injectedBuildGenerateAGPImages = buildGenerateAGPImagesWrapper(vizUtils, Plotly)(dispatch);
+      injectedBuildGenerateAGPImages({ data: { agpCGM: { foo: 'bar' } } }, ['agpCGM']);
 
       setTimeout(() => {
         expect(dispatch.getCall(0).args).to.eql([{
@@ -41,8 +41,8 @@ describe.only('buildGenerateAGPImages', () => {
     const vizUtils = { agp: { generateAGPFigureDefinitions: sinon.stub().rejects(mockError) } }
 
     it('should call generateAGPImagesFailure upon failing image generation', done => {
-      const hydratedBuildGenerateAGPImages = buildGenerateAGPImagesWrapper(vizUtils, Plotly)(dispatch);
-      hydratedBuildGenerateAGPImages({ data: { agpCGM: { foo: 'bar' } } }, ['agpCGM']);
+      const injectedBuildGenerateAGPImages = buildGenerateAGPImagesWrapper(vizUtils, Plotly)(dispatch);
+      injectedBuildGenerateAGPImages({ data: { agpCGM: { foo: 'bar' } } }, ['agpCGM']);
 
       setTimeout(() => {
         expect(dispatch.getCall(0).args).to.eql([{

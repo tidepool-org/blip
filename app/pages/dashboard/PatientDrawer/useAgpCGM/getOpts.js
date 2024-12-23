@@ -5,8 +5,6 @@ import { utils as vizUtils } from '@tidepool/viz';
 
 const getTimezoneFromTimePrefs = vizUtils.datetime.getTimezoneFromTimePrefs;
 
-const agpPeriodInDays = 7; // Temporarily using fixed value for prototype launch
-
 const getOpts = (
   data, // data from redux (state.blip.data)
   agpPeriodInDays,
