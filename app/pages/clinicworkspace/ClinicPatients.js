@@ -3334,6 +3334,7 @@ export const ClinicPatients = (props) => {
       {showSendUploadReminderDialog && renderSendUploadReminderDialog()}
       {showClinicPatientTagsDialog && renderClinicPatientTagsDialog()}
       {showDataConnectionsModal && renderDataConnectionsModal()}
+
       <StyledScrollToTop
         smooth
         top={600}

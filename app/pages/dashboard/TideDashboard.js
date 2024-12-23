@@ -841,17 +841,19 @@ export const TideDashboard = (props) => {
   }, [handleCloseOverlays, patientFormContext?.status]);
 
   useEffect(() => {
-    handleAsyncResult({ ...updatingClinicPatient, prevInProgress: previousUpdatingClinicPatient?.inProgress }, t('You have successfully updated a patient.'), handlePatientEdited)
+    // Only process detected updates if patient edit form is showing. Other child components, such as
+    // the PatientEmailModal, may also update the patient, and handle the results
+    if (showEditPatientDialog) {
+      handleAsyncResult({ ...updatingClinicPatient, prevInProgress: previousUpdatingClinicPatient?.inProgress }, t('You have successfully updated a patient.'), handlePatientEdited)
+    }
   }, [
-    api,
-    dispatch,
-    selectedClinicId,
     handleAsyncResult,
     handlePatientEdited,
     t,
     updatingClinicPatient,
     patientFormContext?.status,
     previousUpdatingClinicPatient?.inProgress,
+    showEditPatientDialog,
   ]);
 
   // Provide latest patient state for the edit form upon fetch
