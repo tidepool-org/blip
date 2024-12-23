@@ -86,7 +86,7 @@ const agpCGM = {
   "metaData": {}
 }
 
-describe.only('CGMStatistics', () => {
+describe('PatientDrawer/CGMStatistics', () => {
   describe('When data is not present', () => {
     const wrapper = mount(<CGMStatistics agpCGM={undefined} />);
 
@@ -99,23 +99,23 @@ describe.only('CGMStatistics', () => {
     const wrapper = mount(<CGMStatistics agpCGM={agpCGM} />);
 
     it('renders the time range in the expected format', () => {
-      expect(wrapper.find('#agp-cgm-table-time-range').hostNodes().text()).to.include('November 26 - December 2, 2024 (7 days)');
+      expect(wrapper.find('#agp-table-time-range').hostNodes().text()).to.include('November 26 - December 2, 2024 (7 days)');
     })
 
     it('renders the CGM Active % in the expected format', () => {
-      expect(wrapper.find('#agp-cgm-table-cgm-active').hostNodes().text()).to.include('39.5%');
+      expect(wrapper.find('#agp-table-cgm-active').hostNodes().text()).to.include('39.5%');
     })
 
     it('renders the Average Glucose in the expected format', () => {
-      expect(wrapper.find('#agp-cgm-table-avg-glucose').hostNodes().text()).to.include('121 mg/dL');
+      expect(wrapper.find('#agp-table-avg-glucose').hostNodes().text()).to.include('121 mg/dL');
     })
 
     it('renders the GMI in the expected format', () => {
-      expect(wrapper.find('#agp-cgm-table-gmi').hostNodes().text()).to.include('6.2%');
+      expect(wrapper.find('#agp-table-gmi').hostNodes().text()).to.include('6.2%');
     })
 
     it('renders the Glucose Variability in the expected format', () => {
-      expect(wrapper.find('#agp-cgm-table-cov').hostNodes().text()).to.include('49.8%');
+      expect(wrapper.find('#agp-table-cov').hostNodes().text()).to.include('49.8%');
     })
   });
 });

@@ -87,32 +87,32 @@ const CGMStatistics = ({ agpCGM }) => {
     <Flex sx={{ alignItems: 'center', width: '100%', height: '100%' }} id='agp-cgm-statistics'>
       <Box sx={{ width: '100%' }}>
           <TableRow
-            id="agp-cgm-table-time-range"
+            id="agp-table-time-range"
             label={t('Time Range')}
             value={t('{{dateRange}} ({{daySpan}} days)', { dateRange, daySpan })}
           />
           <TableRow
-            id="agp-cgm-table-cgm-active"
+            id="agp-table-cgm-active"
             label={t('Time CGM Active')}
             value={`${cgmActive}`}
             units="%"
           />
           <TableRow 
-            id="agp-cgm-table-avg-glucose"
+            id="agp-table-avg-glucose"
             label={t('Average Glucose')}
             sublabel={t('(Goal <{{avgGlucoseTarget}} {{bgUnits}})', { avgGlucoseTarget, bgUnits })}
             value={`${avgGlucose}`}
             units={` ${bgUnits}`}
           />
           <TableRow
-            id="agp-cgm-table-gmi"
+            id="agp-table-gmi"
             label={t('Glucose Management Indicator')}
             sublabel={t('(Goal <7%)')}
             value={`${gmi}`}
             units="%"
           />
           <TableRow
-            id="agp-cgm-table-cov"
+            id="agp-table-cov"
             label={t('Glucose Variability')}
             sublabel={t('(Defined as a percent coefficient of variation. Goal <= 36%)')}
             value={`${cov}`}
