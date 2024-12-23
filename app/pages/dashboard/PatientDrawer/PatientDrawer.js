@@ -33,6 +33,7 @@ const useStyles = makeStyles({
 });
 
 const DESKTOP_DRAWER_WIDTH = '1000px';
+const DRAWER_CLOSE_BUTTON_GAP = '70px';
 
 const PatientDrawer = ({ patientId, onClose, api, trackMetric }) => {
   const classes = useStyles();
@@ -49,7 +50,7 @@ const PatientDrawer = ({ patientId, onClose, api, trackMetric }) => {
       <StyledCloseButton label="close" onClick={onClose} icon={CloseRoundedIcon} variant="button" />
 
       <Box px={4} py={4} sx={{
-        width: 'calc(100vw - 70px)', // account space needed for close button
+        width: `calc(100vw - ${DRAWER_CLOSE_BUTTON_GAP})`, // account space needed for close button
         maxWidth: DESKTOP_DRAWER_WIDTH,  
         height: '100%',  
         overflowY: 'scroll' 
