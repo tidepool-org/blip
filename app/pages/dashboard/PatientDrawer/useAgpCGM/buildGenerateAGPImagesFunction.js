@@ -5,8 +5,12 @@ import { utils as vizUtils } from '@tidepool/viz';
 import Plotly from 'plotly.js-basic-dist-min';
 import * as actions from '../../../../redux/actions';
 
-const buildGenerateAGPImages = (dispatch) => {
-  
+export const buildGenerateAGPImagesWrapper = (
+  vizUtilsProvider = vizUtils, 
+  plotlyProvider = Plotly
+) => (
+  dispatch
+) => {  
   const props = {
     generateAGPImagesSuccess: (images) => dispatch(actions.sync.generateAGPImagesSuccess(images)),
     generateAGPImagesFailure: (error) => dispatch(actions.sync.generateAGPImagesFailure(error)),
@@ -20,7 +24,7 @@ const buildGenerateAGPImages = (dispatch) => {
       let images;
 
       try{
-        images = await vizUtils.agp.generateAGPFigureDefinitions({ ...pdf.data?.[reportType] });
+        images = await vizUtilsProvider.agp.generateAGPFigureDefinitions({ ...pdf.data?.[reportType] });
       } catch(e) {
         errored = true
         return props.generateAGPImagesFailure(e);
@@ -30,12 +34,12 @@ const buildGenerateAGPImages = (dispatch) => {
         if (_.isArray(image)) {
           const processedArray = await Promise.all(
             _.map(image, async (img) => {
-              return await Plotly.toImage(img, { format: 'svg' });
+              return await plotlyProvider.toImage(img, { format: 'svg' });
             })
           );
           return [reportType, [key, processedArray]];
         } else {
-          const processedValue = await Plotly.toImage(image, { format: 'svg' });
+          const processedValue = await plotlyProvider.toImage(image, { format: 'svg' });
           return [reportType, [key, processedValue]];
         }
       }));
@@ -57,4 +61,4 @@ const buildGenerateAGPImages = (dispatch) => {
   }
 }
 
-export default buildGenerateAGPImages;
+export default buildGenerateAGPImagesWrapper(vizUtils, Plotly);
