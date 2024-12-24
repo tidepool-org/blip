@@ -12,7 +12,7 @@ import _ from 'lodash';
 import { utils as vizUtils } from '@tidepool/viz';
 import Plotly from 'plotly.js-basic-dist-min';
 
-import { buildGenerateAGPImages } from '../../../../../../app/pages/dashboard/PatientDrawer/useAgpCGM/buildGenerateAGPImagesFunction';
+import { buildGenerateAGPImages } from '../../../../../../app/pages/dashboard/PatientDrawer/useAgpCGM/buildGenerateAGPImages';
 
 const expect = chai.expect;
 
@@ -26,6 +26,11 @@ describe('buildGenerateAGPImages', () => {
     dispatch.reset();
     toImage.reset();
     generateAGPFigureDefinitions.reset();
+  })
+
+  after(() => {
+    toImage.restore();
+    generateAGPFigureDefinitions.restore();
   })
 
   context('successful image generation', () => {

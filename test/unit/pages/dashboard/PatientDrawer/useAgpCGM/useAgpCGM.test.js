@@ -25,14 +25,22 @@ const mockStore = configureStore([thunk]);
 describe('useAgpCGM', () => {
   const getWrapper = (store) => ({ children }) => <Provider store={store}>{children}</Provider>;
 
-  const removeGeneratedPDFS = sinon.stub(actions.worker, 'removeGeneratedPDFS').returns({ type: 'MOCK_ACTION' });
-  const dataWorkerRemoveDataRequest = sinon.stub(actions.worker, 'dataWorkerRemoveDataRequest').returns({ type: 'MOCK_ACTION' });
-  const fetchPatientData = sinon.stub(actions.async, 'fetchPatientData').returns({ type: 'MOCK_ACTION' });
-  const generatePDFRequest = sinon.stub(actions.worker, 'generatePDFRequest').returns({ type: 'MOCK_ACTION' });
-  const generateAGPImagesSuccess = sinon.stub(actions.sync, 'generateAGPImagesSuccess').returns({ type: 'MOCK_ACTION' });
-
   const patientId = 'patient-1';
-  const api = { current: 'statistics_data_here' }
+  const api = { foo: 'bar' }
+
+  let removeGeneratedPDFS;
+  let dataWorkerRemoveDataRequest;
+  let fetchPatientData;
+  let generatePDFRequest;
+  let generateAGPImagesSuccess;
+
+  before(() => {
+    removeGeneratedPDFS = sinon.stub(actions.worker, 'removeGeneratedPDFS').returns({ type: 'MOCK_ACTION' });
+    dataWorkerRemoveDataRequest = sinon.stub(actions.worker, 'dataWorkerRemoveDataRequest').returns({ type: 'MOCK_ACTION' });
+    fetchPatientData = sinon.stub(actions.async, 'fetchPatientData').returns({ type: 'MOCK_ACTION' });
+    generatePDFRequest = sinon.stub(actions.worker, 'generatePDFRequest').returns({ type: 'MOCK_ACTION' });
+    generateAGPImagesSuccess = sinon.stub(actions.sync, 'generateAGPImagesSuccess').returns({ type: 'MOCK_ACTION' });
+  })
 
   beforeEach(() => {
     removeGeneratedPDFS.resetHistory();
@@ -41,6 +49,14 @@ describe('useAgpCGM', () => {
     generatePDFRequest.resetHistory();
     generateAGPImagesSuccess.resetHistory();
   });
+
+  after(() => {
+    removeGeneratedPDFS.restore();
+    dataWorkerRemoveDataRequest.restore();
+    fetchPatientData.restore();
+    generatePDFRequest.restore();
+    generateAGPImagesSuccess.restore();
+  })
 
   context('When another patients data is in state', () => {
     const state = {
