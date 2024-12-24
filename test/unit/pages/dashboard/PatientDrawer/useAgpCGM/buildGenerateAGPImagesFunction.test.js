@@ -12,7 +12,7 @@ import _ from 'lodash';
 import { utils as vizUtils } from '@tidepool/viz';
 import Plotly from 'plotly.js-basic-dist-min';
 
-import { buildGenerateAGPImagesWrapper } from '../../../../../../app/pages/dashboard/PatientDrawer/useAgpCGM/buildGenerateAGPImagesFunction';
+import { buildGenerateAGPImages } from '../../../../../../app/pages/dashboard/PatientDrawer/useAgpCGM/buildGenerateAGPImagesFunction';
 
 const expect = chai.expect;
 
@@ -33,7 +33,7 @@ describe('buildGenerateAGPImages', () => {
       toImage.returns('stubbed image data');
       generateAGPFigureDefinitions.resolves(['stubbed image data']);
 
-      const injectedBuildGenerateAGPImages = buildGenerateAGPImagesWrapper(dispatch);
+      const injectedBuildGenerateAGPImages = buildGenerateAGPImages(dispatch);
       injectedBuildGenerateAGPImages({ data: { agpCGM: { foo: 'bar' } } }, ['agpCGM']);
 
       setTimeout(() => {
@@ -56,7 +56,7 @@ describe('buildGenerateAGPImages', () => {
       toImage.returns('stubbed image data');
       generateAGPFigureDefinitions.rejects(mockError);
 
-      const injectedBuildGenerateAGPImages = buildGenerateAGPImagesWrapper(dispatch);
+      const injectedBuildGenerateAGPImages = buildGenerateAGPImages(dispatch);
       injectedBuildGenerateAGPImages({ data: { agpCGM: { foo: 'bar' } } }, ['agpCGM']);
 
       setTimeout(() => {

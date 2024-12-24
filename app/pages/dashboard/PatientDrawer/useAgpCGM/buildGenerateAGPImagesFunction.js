@@ -5,7 +5,7 @@ import { utils as vizUtils } from '@tidepool/viz';
 import Plotly from 'plotly.js-basic-dist-min';
 import * as actions from '../../../../redux/actions';
 
-export const buildGenerateAGPImagesWrapper = (dispatch) => {
+export const buildGenerateAGPImages = (dispatch) => {
   const props = {
     generateAGPImagesSuccess: (images) => dispatch(actions.sync.generateAGPImagesSuccess(images)),
     generateAGPImagesFailure: (error) => dispatch(actions.sync.generateAGPImagesFailure(error)),
@@ -40,7 +40,7 @@ export const buildGenerateAGPImagesWrapper = (dispatch) => {
       }));
     });
 
-    const results = await Promise.all(promises); 
+    const results = await Promise.all(promises);
 
     if (results.length) {
       const processedImages = _.reduce(results, (res, entry, i) => {
@@ -56,4 +56,4 @@ export const buildGenerateAGPImagesWrapper = (dispatch) => {
   }
 }
 
-export default buildGenerateAGPImagesWrapper;
+export default buildGenerateAGPImages;
