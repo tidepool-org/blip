@@ -19,13 +19,16 @@ const expect = chai.expect;
 describe('buildGenerateAGPImages', () => {
   const dispatch = sinon.stub();
 
-  const toImage = sinon.stub(Plotly, 'toImage')
-  const generateAGPFigureDefinitions = sinon.stub(vizUtils.agp, 'generateAGPFigureDefinitions')
+  let toImage;
+  let generateAGPFigureDefinitions;
+
+  before(() => {
+    toImage = sinon.stub(Plotly, 'toImage')
+    generateAGPFigureDefinitions = sinon.stub(vizUtils.agp, 'generateAGPFigureDefinitions')
+  })
   
   beforeEach(() => {
     dispatch.reset();
-    toImage.reset();
-    generateAGPFigureDefinitions.reset();
   })
 
   after(() => {

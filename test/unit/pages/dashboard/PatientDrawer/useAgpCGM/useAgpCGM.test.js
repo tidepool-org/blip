@@ -28,34 +28,42 @@ describe('useAgpCGM', () => {
   const patientId = 'patient-1';
   const api = { foo: 'bar' }
 
+  let toImage;
+  let generateAGPFigureDefinitions;
+
   let removeGeneratedPDFS;
   let dataWorkerRemoveDataRequest;
   let fetchPatientData;
   let generatePDFRequest;
-  let generateAGPImagesSuccess;
 
   before(() => {
+    toImage = sinon.stub(Plotly, 'toImage')
+    generateAGPFigureDefinitions = sinon.stub(vizUtils.agp, 'generateAGPFigureDefinitions')
+
     removeGeneratedPDFS = sinon.stub(actions.worker, 'removeGeneratedPDFS').returns({ type: 'MOCK_ACTION' });
     dataWorkerRemoveDataRequest = sinon.stub(actions.worker, 'dataWorkerRemoveDataRequest').returns({ type: 'MOCK_ACTION' });
     fetchPatientData = sinon.stub(actions.async, 'fetchPatientData').returns({ type: 'MOCK_ACTION' });
     generatePDFRequest = sinon.stub(actions.worker, 'generatePDFRequest').returns({ type: 'MOCK_ACTION' });
-    generateAGPImagesSuccess = sinon.stub(actions.sync, 'generateAGPImagesSuccess').returns({ type: 'MOCK_ACTION' });
   })
 
   beforeEach(() => {
+    toImage.resetHistory();
+    generateAGPFigureDefinitions.resetHistory();
+
     removeGeneratedPDFS.resetHistory();
     dataWorkerRemoveDataRequest.resetHistory();
     fetchPatientData.resetHistory();
     generatePDFRequest.resetHistory();
-    generateAGPImagesSuccess.resetHistory();
   });
 
   after(() => {
+    toImage.restore();
+    generateAGPFigureDefinitions.restore();
+
     removeGeneratedPDFS.restore();
     dataWorkerRemoveDataRequest.restore();
     fetchPatientData.restore();
     generatePDFRequest.restore();
-    generateAGPImagesSuccess.restore();
   })
 
   context('When another patients data is in state', () => {
@@ -141,6 +149,7 @@ describe('useAgpCGM', () => {
     it('returns correct status and begins AGP image generation', () => {
       const { result } = renderHook(() => useAgpCGM(api, patientId), { wrapper });
 
+      expect(generateAGPFigureDefinitions.called).to.be.true;
       expect(result.current).to.eql({ 
         status: 'DATA_PROCESSED', 
         svgDataURLS: undefined,
