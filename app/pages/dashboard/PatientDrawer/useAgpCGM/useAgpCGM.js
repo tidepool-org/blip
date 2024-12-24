@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../../../../redux/actions';
-import buildGenerateAGPImagesFunction from './buildGenerateAGPImagesFunction';
+import buildGenerateAGPImages from './buildGenerateAGPImages';
 
 import getOpts from './getOpts';
 import getQueries from './getQueries';
@@ -58,7 +58,7 @@ const useAgpCGM = (
   agpPeriodInDays = DEFAULT_AGP_PERIOD_IN_DAYS,
 ) => {
   const dispatch = useDispatch();
-  const generateAGPImages = buildGenerateAGPImagesFunction(dispatch);
+  const generateAGPImages = buildGenerateAGPImages(dispatch);
 
   const data   = useSelector(state => state.blip.data);
   const pdf    = useSelector(state => state.blip.pdf);

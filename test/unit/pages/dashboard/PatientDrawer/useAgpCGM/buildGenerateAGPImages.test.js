@@ -9,24 +9,39 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import _ from 'lodash';
+import { utils as vizUtils } from '@tidepool/viz';
+import Plotly from 'plotly.js-basic-dist-min';
 
-import { buildGenerateAGPImagesWrapper } from '../../../../../../app/pages/dashboard/PatientDrawer/useAgpCGM/buildGenerateAGPImagesFunction';
+import { buildGenerateAGPImages } from '../../../../../../app/pages/dashboard/PatientDrawer/useAgpCGM/buildGenerateAGPImages';
 
 const expect = chai.expect;
 
-const dispatch = sinon.stub();
-
 describe('buildGenerateAGPImages', () => {
+  const dispatch = sinon.stub();
+
+  let toImage;
+  let generateAGPFigureDefinitions;
+
+  before(() => {
+    toImage = sinon.stub(Plotly, 'toImage')
+    generateAGPFigureDefinitions = sinon.stub(vizUtils.agp, 'generateAGPFigureDefinitions')
+  })
+  
   beforeEach(() => {
     dispatch.reset();
   })
 
-  context('successful image generation', () => {
-    const Plotly = { toImage: sinon.stub().returns('stubbed image data') };
-    const vizUtils = { agp: { generateAGPFigureDefinitions: sinon.stub().resolves(['stubbed image data']) } }
+  after(() => {
+    toImage.restore();
+    generateAGPFigureDefinitions.restore();
+  })
 
+  context('successful image generation', () => {
     it('should call generateAGPImagesSuccess with image data upon successful image generation', done => {
-      const injectedBuildGenerateAGPImages = buildGenerateAGPImagesWrapper(vizUtils, Plotly)(dispatch);
+      toImage.returns('stubbed image data');
+      generateAGPFigureDefinitions.resolves(['stubbed image data']);
+
+      const injectedBuildGenerateAGPImages = buildGenerateAGPImages(dispatch);
       injectedBuildGenerateAGPImages({ data: { agpCGM: { foo: 'bar' } } }, ['agpCGM']);
 
       setTimeout(() => {
@@ -45,11 +60,11 @@ describe('buildGenerateAGPImages', () => {
   context('failed image generation', () => {
     const mockError = new Error('failed image generation')
 
-    const Plotly = { toImage: sinon.stub().returns('stubbed image data') };
-    const vizUtils = { agp: { generateAGPFigureDefinitions: sinon.stub().rejects(mockError) } }
-
     it('should call generateAGPImagesFailure upon failing image generation', done => {
-      const injectedBuildGenerateAGPImages = buildGenerateAGPImagesWrapper(vizUtils, Plotly)(dispatch);
+      toImage.returns('stubbed image data');
+      generateAGPFigureDefinitions.rejects(mockError);
+
+      const injectedBuildGenerateAGPImages = buildGenerateAGPImages(dispatch);
       injectedBuildGenerateAGPImages({ data: { agpCGM: { foo: 'bar' } } }, ['agpCGM']);
 
       setTimeout(() => {

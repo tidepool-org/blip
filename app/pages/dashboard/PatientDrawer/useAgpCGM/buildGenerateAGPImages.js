@@ -5,12 +5,7 @@ import { utils as vizUtils } from '@tidepool/viz';
 import Plotly from 'plotly.js-basic-dist-min';
 import * as actions from '../../../../redux/actions';
 
-export const buildGenerateAGPImagesWrapper = (
-  vizUtilsProvider = vizUtils, 
-  plotlyProvider = Plotly
-) => (
-  dispatch
-) => {  
+export const buildGenerateAGPImages = (dispatch) => {
   const props = {
     generateAGPImagesSuccess: (images) => dispatch(actions.sync.generateAGPImagesSuccess(images)),
     generateAGPImagesFailure: (error) => dispatch(actions.sync.generateAGPImagesFailure(error)),
@@ -24,7 +19,7 @@ export const buildGenerateAGPImagesWrapper = (
       let images;
 
       try{
-        images = await vizUtilsProvider.agp.generateAGPFigureDefinitions({ ...pdf.data?.[reportType] });
+        images = await vizUtils.agp.generateAGPFigureDefinitions({ ...pdf.data?.[reportType] });
       } catch(e) {
         errored = true
         return props.generateAGPImagesFailure(e);
@@ -34,18 +29,18 @@ export const buildGenerateAGPImagesWrapper = (
         if (_.isArray(image)) {
           const processedArray = await Promise.all(
             _.map(image, async (img) => {
-              return await plotlyProvider.toImage(img, { format: 'svg' });
+              return await Plotly.toImage(img, { format: 'svg' });
             })
           );
           return [reportType, [key, processedArray]];
         } else {
-          const processedValue = await plotlyProvider.toImage(image, { format: 'svg' });
+          const processedValue = await Plotly.toImage(image, { format: 'svg' });
           return [reportType, [key, processedValue]];
         }
       }));
     });
 
-    const results = await Promise.all(promises); 
+    const results = await Promise.all(promises);
 
     if (results.length) {
       const processedImages = _.reduce(results, (res, entry, i) => {
@@ -61,4 +56,4 @@ export const buildGenerateAGPImagesWrapper = (
   }
 }
 
-export default buildGenerateAGPImagesWrapper(vizUtils, Plotly);
+export default buildGenerateAGPImages;
