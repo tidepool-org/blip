@@ -8507,15 +8507,25 @@ describe('Actions', () => {
     });
 
     describe('sendPatientDataProviderConnectRequest', () => {
+      beforeEach(() => {
+        async.__Rewire__('moment', {
+          utc: () => ({ toISOString: () => '2022-02-02T00:00:00.000Z'})
+        });
+      });
+
+      afterEach(() => {
+        async.__ResetDependency__('moment');
+      });
+
       it('should trigger SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_SUCCESS and it should call clinics.sendPatientDataProviderConnectRequest once for a successful request', () => {
         const clinicId = 'clinicId1';
         const patientId = 'patientId1';
         const providerName = 'dexcom';
-        const createdTime = '2022-10-10T00:00:000Z';
+        const createdTime = '2022-02-02T00:00:00.000Z';
 
         let api = {
           clinics: {
-            sendPatientDataProviderConnectRequest: sinon.stub().callsArgWith(2, null),
+            sendPatientDataProviderConnectRequest: sinon.stub().callsArgWith(3, null),
           },
         };
 
@@ -8528,7 +8538,7 @@ describe('Actions', () => {
         });
 
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.sendPatientDataProviderConnectRequest(api, clinicId, patientId));
+        store.dispatch(async.sendPatientDataProviderConnectRequest(api, clinicId, patientId, providerName));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
@@ -8538,9 +8548,11 @@ describe('Actions', () => {
       it('should trigger SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_FAILURE and it should call error once for a failed request', () => {
         let clinicId = 'clinicId1';
         const patientId = 'patientId1';
+        const providerName = 'dexcom';
+
         let api = {
           clinics: {
-            sendPatientDataProviderConnectRequest: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}),
+            sendPatientDataProviderConnectRequest: sinon.stub().callsArgWith(3, {status: 500, body: 'Error!'}),
           },
         };
 
@@ -8555,7 +8567,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.sendPatientDataProviderConnectRequest(api, clinicId, patientId));
+        store.dispatch(async.sendPatientDataProviderConnectRequest(api, clinicId, patientId, providerName));
 
         const actions = store.getActions();
         expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_SENDING_PATIENT_DATA_PROVIDER_CONNECT_REQUEST });

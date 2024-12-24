@@ -2812,7 +2812,7 @@ export function sendPatientDataProviderConnectRequest(api, clinicId, patientId, 
           createActionError(ErrorMessages.ERR_SENDING_PATIENT_DATA_PROVIDER_CONNECT_REQUEST, err), err
         ));
       } else {
-        dispatch(sync.sendPatientDataProviderConnectRequestSuccess(clinicId, patientId, providerName, moment().toISOString()));
+        dispatch(sync.sendPatientDataProviderConnectRequestSuccess(clinicId, patientId, providerName, moment.utc().toISOString()));
       }
     });
   };

@@ -790,7 +790,7 @@ describe('clinics', () => {
       };
       let action = actions.sync.sendPatientDataProviderConnectRequestSuccess(clinicId, patientId, providerName, createdTime);
       let state = reducer(initialStateForTest, action);
-      expect(state.clinicId123.patients.patientId123.providerName).to.eql([{ providerName, createdTime }]);
+      expect(state.clinicId123.patients.patientId123.connectionRequests[providerName]).to.eql([{ providerName, createdTime }]);
     });
   });
 
