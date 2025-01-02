@@ -5,6 +5,8 @@
 /* global context */
 /* global it */
 /* global beforeEach */
+/* global before */
+/* global after */
 
 import React from 'react';
 import { mount } from 'enzyme';
