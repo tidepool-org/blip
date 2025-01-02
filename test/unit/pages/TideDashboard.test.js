@@ -13,6 +13,7 @@ import { ToastProvider } from '../../../app/providers/ToastProvider';
 import TideDashboard from '../../../app/pages/dashboard/TideDashboard';
 import Popover from '../../../app/components/elements/Popover';
 import TideDashboardConfigForm from '../../../app/components/clinic/TideDashboardConfigForm';
+import DataConnectionsModal from '../../../app/components/datasources/DataConnectionsModal';
 import { clinicUIDetails } from '../../../app/core/clinicUtils';
 import mockTideDashboardPatients from '../../fixtures/mockTideDashboardPatients.json';
 import LDClientMock from '../../fixtures/LDClientMock';
@@ -30,7 +31,7 @@ import LDClientMock from '../../fixtures/LDClientMock';
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
-describe('TideDashboard', () => {
+describe.only('TideDashboard', () => {
   let mount;
 
   const today = moment().toISOString();
@@ -62,11 +63,14 @@ describe('TideDashboard', () => {
       showTideDashboard: true,
       showSummaryDashboard: true,
     }));
+
+    DataConnectionsModal.__Rewire__('api', defaultProps.api);
   });
 
   afterEach(() => {
     TideDashboard.__ResetDependency__('useLDClient');
     TideDashboard.__ResetDependency__('useFlags');
+    DataConnectionsModal.__ResetDependency__('api');
   });
 
   const sampleTags = [
@@ -530,7 +534,7 @@ describe('TideDashboard', () => {
       expect(lastData.text()).contains('24 hours');
     });
 
-    it('should render a heading and table for dashboard section, with correctly ordered results', () => {
+    it.only('should render a heading and table for dashboard section, with correctly ordered results', () => {
       const dashboardSections = wrapper.find('.dashboard-section');
       expect(dashboardSections.hostNodes()).to.have.length(7);
 
@@ -590,7 +594,7 @@ describe('TideDashboard', () => {
       expect(getTableRow(0, 0).find('th').at(9).text()).contains('Tags');
       expect(getTableRow(0, 2).find('td').at(8).text()).contains('test tag 1');
 
-      // Should contain a "more" menu that allows opening a patient edit dialog
+      // Should contain a "more" menu that allows opening a patient edit dialog and opening a patient data connections dialog
       const moreMenuIcon = getTableRow(0, 2).find('td').at(9).find('PopoverMenu').find('Icon').at(0);
       const popoverMenu = () => wrapper.find(Popover).at(4);
       expect(popoverMenu().props().open).to.be.false;
@@ -600,15 +604,29 @@ describe('TideDashboard', () => {
       const editButton = popoverMenu().find('Button[iconLabel="Edit Patient Information"]');
       expect(editButton).to.have.lengthOf(1);
 
-      const dialog = () => wrapper.find('Dialog#editPatient');
-      expect(dialog()).to.have.length(0);
+      const editDialog = () => wrapper.find('Dialog#editPatient');
+      expect(editDialog()).to.have.length(0);
       editButton.simulate('click');
       wrapper.update();
-      expect(dialog()).to.have.length(1);
-      expect(dialog().props().open).to.be.true;
+      expect(editDialog()).to.have.length(1);
+      expect(editDialog().props().open).to.be.true;
 
       expect(defaultProps.trackMetric.calledWith('Clinic - Edit patient')).to.be.true;
       expect(defaultProps.trackMetric.callCount).to.equal(1);
+
+      const dataConnectionsButton = popoverMenu().find('Button[iconLabel="Bring Data into Tidepool"]');
+      expect(dataConnectionsButton).to.have.lengthOf(1);
+
+      const dataConnectionsDialog = () => wrapper.find('Dialog#data-connections');
+      expect(dataConnectionsDialog()).to.have.length(0);
+
+      dataConnectionsButton.simulate('click');
+      wrapper.update();
+      expect(dataConnectionsDialog()).to.have.length(1);
+      expect(dataConnectionsDialog().props().open).to.be.true;
+
+      expect(defaultProps.trackMetric.calledWith('Clinic - Edit patient data connections')).to.be.true;
+      expect(defaultProps.trackMetric.callCount).to.equal(2);
 
       // Confirm second table is sorted appropriately
       expect(getTableRow(1, 0).find('th').at(5).text()).contains('% Time 54-70');

@@ -106,7 +106,7 @@ const editPatient = (patient, setSelectedPatient, selectedClinicId, trackMetric,
 };
 
 const editPatientDataConnections = (patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal, source) => {
-  trackMetric('Clinic - Edit patient', { clinicId: selectedClinicId, source });
+  trackMetric('Clinic - Edit patient data connections', { clinicId: selectedClinicId, source });
   setSelectedPatient(patient);
   setShowDataConnectionsModal(true);
 };

@@ -146,7 +146,7 @@ const editPatient = (patient, setSelectedPatient, selectedClinicId, trackMetric,
 };
 
 const editPatientDataConnections = (patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal, source) => {
-  trackMetric('Clinic - Edit patient', { clinicId: selectedClinicId, source });
+  trackMetric('Clinic - Edit patient data connections', { clinicId: selectedClinicId, source });
   setSelectedPatient(patient);
   setShowDataConnectionsModal(true);
 };
@@ -720,6 +720,7 @@ export const ClinicPatients = (props) => {
   }, [isFirstRender, setToast]);
 
   const handlePatientCreatedOrEdited = useCallback(() => {
+    console.log('creatingClinicCustodialAccount', creatingClinicCustodialAccount);
     if (patientFormContext?.status?.showDataConnectionsModalNext) {
       let currentPatient = selectedPatient;
 

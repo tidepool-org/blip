@@ -17,6 +17,7 @@ import { URL_TIDEPOOL_PLUS_PLANS } from '../../../app/core/constants';
 import Button from '../../../app/components/elements/Button';
 import TideDashboardConfigForm from '../../../app/components/clinic/TideDashboardConfigForm';
 import RpmReportConfigForm from '../../../app/components/clinic/RpmReportConfigForm';
+import DataConnectionsModal from '../../../app/components/datasources/DataConnectionsModal';
 import mockRpmReportPatients from '../../fixtures/mockRpmReportPatients.json'
 import LDClientMock from '../../fixtures/LDClientMock';
 
@@ -81,10 +82,12 @@ describe('ClinicPatients', () => {
     defaultProps.api.clinics.updateClinicPatient.resetHistory();
     defaultProps.api.clinics.getPatientsForRpmReport.resetHistory();
     ClinicPatients.__Rewire__('useLDClient', sinon.stub().returns(new LDClientMock()));
+    DataConnectionsModal.__Rewire__('api', defaultProps.api);
   });
 
   afterEach(() => {
     ClinicPatients.__ResetDependency__('useLDClient');
+    DataConnectionsModal.__ResetDependency__('api');
   });
 
   after(() => {
@@ -1162,6 +1165,23 @@ describe('ClinicPatients', () => {
 
           done();
         }, 1000);
+      });
+
+      it('should open a modal for managing data connections when data connection menu option is clicked', () => {
+        const table = wrapper.find(Table);
+        expect(table).to.have.length(1);
+        expect(table.find('tr')).to.have.length(3); // header row + 2 invites
+        const dataConnectionsButton = table.find('tr').at(2).find('Button[iconLabel="Bring Data into Tidepool"]');
+        const dialog = () => wrapper.find('Dialog#data-connections');
+        expect(dialog()).to.have.length(0);
+
+        dataConnectionsButton.simulate('click');
+        wrapper.update();
+        expect(dialog()).to.have.length(1);
+        expect(dialog().props().open).to.be.true;
+
+        expect(defaultProps.trackMetric.calledWith('Clinic - Edit patient data connections')).to.be.true;
+        expect(defaultProps.trackMetric.callCount).to.equal(1);
       });
 
       it('should remove a patient', () => {
@@ -2740,7 +2760,7 @@ describe('ClinicPatients', () => {
 
             done();
           }, 0);
-        })
+        });
       });
 
       describe('Accessing TIDE dashboard', () => {
