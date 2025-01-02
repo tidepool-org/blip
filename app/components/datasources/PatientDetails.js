@@ -33,12 +33,12 @@ export const PatientDetails = (props) => {
       {...themeProps}
     >
       <Flex sx={{ flexWrap: 'wrap', justifyContent: 'flex-start' }}>
-        <Body1 sx={{ color: 'white', fontWeight: 'bold' }}>{patient.fullName}</Body1>
+        <Body1 id="patient-details-fullName" sx={{ color: 'white', fontWeight: 'bold' }}>{patient.fullName}</Body1>
       </Flex>
 
       <Flex sx={{ flexWrap: 'wrap', columnGap: 3, flexGrow: 1, justifyContent: 'space-evenly' }}>
-        <Body0 sx={{ color: 'white', fontWeight: 'medium' }}>{t('DOB: {{birthDate}}', patient)}</Body0>
-        <Body0 sx={{ color: 'white', fontWeight: 'medium' }}>{t('MRN: {{mrn}}', { mrn: patient.mrn || '-' })}</Body0>
+        <Body0 id="patient-details-birthDate" sx={{ color: 'white', fontWeight: 'medium' }}>{t('DOB: {{birthDate}}', patient)}</Body0>
+        <Body0 id="patient-details-mrn" sx={{ color: 'white', fontWeight: 'medium' }}>{t('MRN: {{mrn}}', { mrn: patient.mrn || '-' })}</Body0>
       </Flex>
     </Flex>
   );

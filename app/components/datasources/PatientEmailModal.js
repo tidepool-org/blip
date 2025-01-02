@@ -55,7 +55,7 @@ export const PatientEmailModal = (props) => {
 
   const clinicPatientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
   const initialFocusedInputRef = useInitialFocusedInput();
-  const action = useMemo(() => patient?.email ? 'edit' : 'add', [patient?.email]);
+  const action = useMemo(() => patient?.email ? 'edit' : 'addAndSendInvite', [patient?.email]);
 
   const formikContext = useFormik({
     initialValues: getFormValues(patient, clinicPatientTags),
@@ -72,7 +72,7 @@ export const PatientEmailModal = (props) => {
   } = formikContext;
 
   const UI = {
-    add: {
+    addAndSendInvite: {
       title: t('Add a Patient Email'),
       submitText: t('Send Invite'),
       banner: {

@@ -31,7 +31,7 @@ import LDClientMock from '../../fixtures/LDClientMock';
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
-describe.only('TideDashboard', () => {
+describe('TideDashboard', () => {
   let mount;
 
   const today = moment().toISOString();
@@ -534,7 +534,7 @@ describe.only('TideDashboard', () => {
       expect(lastData.text()).contains('24 hours');
     });
 
-    it.only('should render a heading and table for dashboard section, with correctly ordered results', () => {
+    it('should render a heading and table for dashboard section, with correctly ordered results', () => {
       const dashboardSections = wrapper.find('.dashboard-section');
       expect(dashboardSections.hostNodes()).to.have.length(7);
 
