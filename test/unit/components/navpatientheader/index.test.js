@@ -26,12 +26,15 @@ const defaultPatientProps = {
 describe('NavPatientHeader', () => {
   const mockHistory = { push: sinon.stub() }
   const mockTrackMetric = sinon.stub();
+  const mockLaunchCustomProtocol = sinon.stub();
 
   NavPatientHeader.__Rewire__('useHistory', sinon.stub().returns(mockHistory));
+  NavPatientHeader.__Rewire__('launchCustomProtocol', mockLaunchCustomProtocol);
 
   afterEach(() => {
     mockTrackMetric.reset();
     mockHistory.push.reset();
+    mockLaunchCustomProtocol.reset();
   });
 
   describe('visibility of patient info and actions', () => {
@@ -163,21 +166,21 @@ describe('NavPatientHeader', () => {
     it('View button links to correct page', () => {
       wrapper.find('button#navPatientHeader_viewDataButton').simulate('click');
 
-      expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar View Data'));
+      expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar View Data')).to.be.true;
       expect(mockHistory.push.calledOnceWithExactly('/patients/1234/data')).to.be.true;
     })
   
     it('Profile button links to correct page', () => {
       wrapper.find('button#navPatientHeader_profileButton').simulate('click');
 
-      expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar Name'));
+      expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar Name')).to.be.true;
       expect(mockHistory.push.calledOnceWithExactly('/patients/1234/profile')).to.be.true;
     })
   
     it('Share button links to correct page', () => {
       wrapper.find('button#navPatientHeader_shareButton').simulate('click');
 
-      expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar Share Data'));
+      expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar Share Data')).to.be.true;
       expect(mockHistory.push.calledOnceWithExactly('/patients/1234/share')).to.be.true;
     })
   
@@ -185,8 +188,9 @@ describe('NavPatientHeader', () => {
       expect(wrapper.find('.UploadLaunchOverlay').exists()).to.be.false;
       wrapper.find('button#navPatientHeader_uploadButton').simulate('click');  
 
-      expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar Upload Data'));
+      expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar Upload Data')).to.be.true;
       expect(wrapper.find('.UploadLaunchOverlay').exists()).to.be.true;
+      expect(mockLaunchCustomProtocol.calledOnce).to.be.true
     });
   });
 
@@ -211,13 +215,13 @@ describe('NavPatientHeader', () => {
     it('View button links to correct page', () => {
       wrapper.find('button#navPatientHeader_viewDataButton').simulate('click');
   
-      expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar View Data'));
+      expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar View Data')).to.be.true;
       expect(mockHistory.push.calledOnceWithExactly('/patients/1234/data')).to.be.true;
     })
   
     it('Profile button links to correct page', () => {
       wrapper.find('button#navPatientHeader_profileButton').simulate('click');
-      expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar Name'));
+      expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar Name')).to.be.true;
       expect(mockHistory.push.calledOnceWithExactly('/patients/1234/profile')).to.be.true;
     })
   
@@ -225,7 +229,7 @@ describe('NavPatientHeader', () => {
       expect(wrapper.find('.UploadLaunchOverlay').exists()).to.be.false;
       wrapper.find('button#navPatientHeader_uploadButton').simulate('click');
   
-      expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar Upload Data'));
+      expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar Upload Data')).to.be.true;
       expect(wrapper.find('.UploadLaunchOverlay').exists()).to.be.true;
     });
   });
