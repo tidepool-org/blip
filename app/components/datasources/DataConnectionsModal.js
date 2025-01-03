@@ -150,6 +150,7 @@ export const DataConnectionsModal = (props) => {
               <Body1 sx={{ fontWeight: 'medium'}}>
                 {t('Email:')}
                 <Button
+                  id="data-connections-open-email-modal"
                   variant="textPrimaryLink"
                   onClick={handleEditPatientEmailOpen}
                   icon={EditIcon}
@@ -163,7 +164,7 @@ export const DataConnectionsModal = (props) => {
             )}
           </Box>
 
-          <DataConnections mb={4} api={api} patient={patientData} trackMetric={trackMetric} />
+          <DataConnections mb={4} patient={patientData} trackMetric={trackMetric} />
           <Divider mb={3} />
 
           <Body1 sx={{ fontWeight: 'medium'}}>

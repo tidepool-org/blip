@@ -28,8 +28,8 @@ export default {
 };
 
 const patientWithState = (isClinicContext, state, opts = {}) => ({
-  id: 'patientId',
-  dataSources: map(activeProviders, providerName => ({
+  id: 'patient123',
+  dataSources: state ? map(activeProviders, providerName => ({
     providerName,
     state,
     createdTime: opts.createdTime,
@@ -37,7 +37,7 @@ const patientWithState = (isClinicContext, state, opts = {}) => ({
     expirationTime: opts.expirationTime,
     lastImportTime: opts.lastImportTime,
     latestDataTime: opts.latestDataTime,
-  })),
+  })) : undefined,
   connectionRequests: isClinicContext && opts.createdTime ? reduce(activeProviders, (res, providerName) => {
     res[providerName] = [{ providerName, createdTime: opts.createdTime }];
     return res;

@@ -1,7 +1,5 @@
 import React from 'react';
 import { createMount } from '@material-ui/core/test-utils';
-import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
 import PatientDetails from '../../../../app/components/datasources/PatientDetails';
 
 /* global chai */
@@ -10,7 +8,6 @@ import PatientDetails from '../../../../app/components/datasources/PatientDetail
 /* global beforeEach */
 
 const expect = chai.expect;
-const mockStore = configureStore([thunk]);
 
 describe('PatientDetails', () => {
   const mount = createMount();

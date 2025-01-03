@@ -317,7 +317,6 @@ export const getDataConnectionProps = (patient, isLoggedInUser, selectedClinicId
 
 export const DataConnections = (props) => {
   const {
-    api,
     patient,
     trackMetric,
     ...themeProps
@@ -347,7 +346,6 @@ export const DataConnections = (props) => {
   const fetchPatientDetails = useCallback(() => {
     dispatch(actions.async.fetchPatientFromClinic(api, selectedClinicId, patient?.id));
   }, [
-    api,
     dispatch,
     selectedClinicId,
     patient?.id,
@@ -460,16 +458,14 @@ export const DataConnections = (props) => {
     if (activeHandler?.action) dispatch(activeHandler.action(...activeHandler.args));
   };
 
-  const handleActiveHandlerComplete = () => {
+  const handleActiveHandlerComplete = useCallback(() => {
     setShowPatientEmailModal(false);
     setShowResendDataSourceConnectRequest(false);
     setActiveHandler(null);
-  };
+    fetchPatientDetails();
+  }, [fetchPatientDetails]);
 
   useEffect(() => {
-    // TODO: still need to have confirmation modals prior
-    // to performing the update or data connection actions...
-
     if(activeHandler?.action && !activeHandler?.inProgress) {
       setActiveHandler({ ...activeHandler, inProgress: true });
 
@@ -490,7 +486,6 @@ export const DataConnections = (props) => {
     }
   }, [
     activeHandler,
-    api,
     dispatch,
     handleAddPatientEmailOpen,
     handleResendDataSourceConnectEmailOpen,
@@ -517,6 +512,7 @@ export const DataConnections = (props) => {
     sendingPatientDataProviderConnectRequest,
     previousSendingPatientDataProviderConnectRequest?.inProgress,
     handleAsyncResult,
+    handleActiveHandlerComplete,
     activeHandler?.providerName,
     patient?.email
   ]);

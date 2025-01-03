@@ -48,6 +48,7 @@ export function DataConnection(props) {
   return (
     <Flex
       aria-label={label}
+      className="data-connection"
       p={2}
       sx={{
         alignItems: 'center',

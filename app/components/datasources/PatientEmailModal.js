@@ -105,7 +105,7 @@ export const PatientEmailModal = (props) => {
       onClose={onClose}
     >
       <DialogTitle onClose={onClose}>
-        <MediumTitle id="data-connections-title">{UI[action].title}</MediumTitle>
+        <MediumTitle id="patient-email-modal-title">{UI[action].title}</MediumTitle>
       </DialogTitle>
 
       <DialogContent>

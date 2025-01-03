@@ -98,7 +98,7 @@ describe('PatientEmailModal', () => {
     expect(dialog()).to.have.lengthOf(1);
     expect(dialog().props().open).to.be.true;
 
-    const title = dialog().find('#data-connections-title').hostNodes();
+    const title = dialog().find('#patient-email-modal-title').hostNodes();
     expect(title.text()).to.equal('Edit Patient Email');
 
     const submitButton = dialog().find('Button#patient-email-modal-submit');
