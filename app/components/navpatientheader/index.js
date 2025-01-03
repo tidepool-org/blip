@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Box, Flex } from 'theme-ui';
 import _ from 'lodash';
+import launchCustomProtocol from 'custom-protocol-detection';
 
 import Back from './Back';
 import Name from './Name';
@@ -53,6 +54,7 @@ const NavPatientHeader = ({
   const handleUpload = () => {
     trackMetric('Clicked Navbar Upload Data');
     setIsUploadOverlayOpen(true);
+    launchCustomProtocol('tidepoolupload://open');
   }
 
   const handleViewData = () => {
