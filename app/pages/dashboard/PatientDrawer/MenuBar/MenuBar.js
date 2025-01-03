@@ -18,8 +18,7 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
   const { showTideDashboardLastReviewed } = useFlags();
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
-  const patientName = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]?.patients?.[patientId]?.fullName);
-  const patientDOB = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]?.patients?.[patientId]?.birthDate);
+  const patient = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]?.patients?.[patientId]);
   const agpCGM = useSelector(state => state.blip.pdf?.data?.agpCGM); // IMPORTANT: Data taken from Redux PDF slice
 
   useEffect(() => {
@@ -38,16 +37,18 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
       onClose();
     }, 500)
   }
+
+  const { fullName, birthDate } = patient || {}; 
   
   return (
     <Box sx={{ display: 'grid', gridTemplateColumns: '32fr 18fr 18fr 32fr', gap: 3, minHeight: '42px', marginBottom: 3 }}>
       <Flex sx={{ justifyContent: 'center', flexDirection: 'column' }}>
         <Text sx={{ color: colorPalette.primary.purpleDark, fontWeight: 'bold', fontSize: 2 }}>
-          {patientName}
+          {fullName}
         </Text>
-        { patientDOB &&
+        { birthDate &&
           <Text sx={{ color: colorPalette.extended.grays[10], fontWeight: 'medium', fontSize: 0 }}>
-            {t('DOB: {{patientDOB}}', { patientDOB })}
+            {t('DOB: {{birthDate}}', { birthDate })}
           </Text>
         }
       </Flex>
@@ -59,7 +60,7 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
       </Flex>
       
       <Flex sx={{ justifyContent: 'flex-start', alignItems: 'center' }}>
-        <CGMClipboardButton patientName={patientName} agpCGM={agpCGM} />
+        <CGMClipboardButton patient={patient} agpCGM={agpCGM} />
       </Flex>
 
       <Flex sx={{ fontSize: 0, alignItems: 'center', justifyContent: 'flex-end' }}>
