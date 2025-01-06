@@ -299,14 +299,16 @@ const TideDashboardSection = React.memo(props => {
     return () => {
       trackMetric('Selected PwD');
 
-      if (showTideDashboardPatientDrawer) {
+      const isValidAgpPeriod = ['7d', '14d', '30d'].includes(config?.period);
+
+      if (showTideDashboardPatientDrawer && isValidAgpPeriod) {
         setDrawerPatientId(patient.id);
         return;
       }
       
       dispatch(push(`/patients/${patient?.id}/data?chart=trends&dashboard=tide`));
     }
-  }, [dispatch, trackMetric, setDrawerPatientId, showTideDashboardPatientDrawer]);
+  }, [dispatch, trackMetric, setDrawerPatientId, showTideDashboardPatientDrawer, config]);
 
   const renderPatientName = useCallback(({ patient }) => (
     <Box onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
@@ -1220,6 +1222,7 @@ export const TideDashboard = (props) => {
         onClose={() => setDrawerPatientId(null)}
         api={api}
         trackMetric={trackMetric}
+        period={config?.period}
       />
 
       <StyledScrollToTop

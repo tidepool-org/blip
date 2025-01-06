@@ -35,10 +35,21 @@ const useStyles = makeStyles({
 const DESKTOP_DRAWER_WIDTH = '1000px';
 const DRAWER_CLOSE_BUTTON_GAP = '70px';
 
-const PatientDrawer = ({ patientId, onClose, api, trackMetric }) => {
+const getAgpPeriodInDays = (period) => {
+  switch(period) {
+    case '1d': // minimum 7-day AGP period, so return 7
+    case '7d': return 7;
+    case '14d': return 14;
+    case '30d': return 30;
+  }
+}
+
+const PatientDrawer = ({ patientId, onClose, api, trackMetric, period }) => {
   const classes = useStyles();
 
-  const isOpen = !!patientId;
+  const isOpen = !!patientId && !!period;
+
+  const agpPeriodInDays = getAgpPeriodInDays(period);
 
   return (
     <StyledDrawer 
@@ -58,7 +69,7 @@ const PatientDrawer = ({ patientId, onClose, api, trackMetric }) => {
         { isOpen && 
           <>
             <MenuBar patientId={patientId} api={api} trackMetric={trackMetric} onClose={onClose} />
-            <Content patientId={patientId} api={api} />
+            <Content patientId={patientId} api={api} agpPeriodInDays={agpPeriodInDays} />
           </>
         }
       </Box>
