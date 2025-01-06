@@ -52,12 +52,10 @@ const CategoryContainer = ({ title, subtitle, children }) => {
   );
 };
 
-const PROTOTYPE_AGP_PERIOD = 7; // Fixed for prototype;
-
-const Content = ({ api, patientId }) => {
+const Content = ({ api, patientId, agpPeriodInDays }) => {
   const { t } = useTranslation();
   
-  const { status, svgDataURLS, agpCGM } = useAgpCGM(api, patientId, PROTOTYPE_AGP_PERIOD);
+  const { status, svgDataURLS, agpCGM } = useAgpCGM(api, patientId, agpPeriodInDays);
 
   const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
   const patient = clinic?.patients?.[patientId];
