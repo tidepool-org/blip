@@ -1236,7 +1236,7 @@ export const TideDashboard = (props) => {
       {showEditPatientDialog && renderEditPatientDialog()}
 
       <PatientDrawer  
-        patientId={drawerPatientId}
+        patientId={showTideDashboardPatientDrawer ? drawerPatientId : null}
         onClose={handleClosePatientDrawer}
         api={api}
         trackMetric={trackMetric}
