@@ -5278,9 +5278,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.44.0-web-3083-libre-2-plus-stats.1":
-  version: 1.44.0-web-3083-libre-2-plus-stats.1
-  resolution: "@tidepool/viz@npm:1.44.0-web-3083-libre-2-plus-stats.1"
+"@tidepool/viz@npm:1.44.0-web-3272-patient-data-linking-after-creation.1":
+  version: 1.44.0-web-3272-patient-data-linking-after-creation.1
+  resolution: "@tidepool/viz@npm:1.44.0-web-3272-patient-data-linking-after-creation.1"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -5340,7 +5340,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 29350f2ca441b44ba4cb097202983e55498f8c7f17a3a9478b8716acc33e25b09641d456e89a4b376b2eeed509656cfe0701f80978551c5cdb1c5f2465ffa1fe
+  checksum: 6f9799cc821eb17d6247d2e842ffe4f6725460a1f993457c4274707331044e484cf58ae0a2312f340ae7408c52afe7f0842c954df9977e962b05be1b5aa2babd
   languageName: node
   linkType: hard
 
@@ -7182,7 +7182,7 @@ __metadata:
     "@storybook/react": 7.5.0
     "@storybook/react-webpack5": 7.5.0
     "@testing-library/react-hooks": 8.0.1
-    "@tidepool/viz": 1.44.0-web-3083-libre-2-plus-stats.1
+    "@tidepool/viz": 1.44.0-web-3272-patient-data-linking-after-creation.1
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -7306,7 +7306,7 @@ __metadata:
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
     tideline: 1.30.0
-    tidepool-platform-client: 0.61.0
+    tidepool-platform-client: 0.62.0-web-3272-patient-data-linking-after-creation.1
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
     url-loader: 4.1.1
@@ -20051,15 +20051,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tidepool-platform-client@npm:0.61.0":
-  version: 0.61.0
-  resolution: "tidepool-platform-client@npm:0.61.0"
+"tidepool-platform-client@npm:0.62.0-web-3272-patient-data-linking-after-creation.1":
+  version: 0.62.0-web-3272-patient-data-linking-after-creation.1
+  resolution: "tidepool-platform-client@npm:0.62.0-web-3272-patient-data-linking-after-creation.1"
   dependencies:
     async: 0.9.0
     lodash: 4.17.21
     superagent: 5.2.2
     uuid: 3.1.0
-  checksum: 96e221a65b7a003523e03d9ba357b0c1aa371b779ffd363c325ba015b893462955188662587b502193aaf269d6784577c8d24b8c764ba4ad759d4b0ba511c8ae
+  checksum: 4d418e359f3bf9ef01245a779506c39e565f82a219765c1ae522a78aed3f78a3da5d533d2e1d615ab40d35786edb9afdd4f731817bf0563cd4407d7aeb27f57c
   languageName: node
   linkType: hard
 
