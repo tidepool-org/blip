@@ -62,6 +62,15 @@ describe('TideDashboard', () => {
       showTideDashboard: true,
       showSummaryDashboard: true,
     }));
+
+    TideDashboard.__Rewire__('useLocation', sinon.stub().returns({
+      search: '',
+      pathname: '/dashboard/tide'
+    }));
+
+    TideDashboard.__Rewire__('useHistory', sinon.stub().returns({
+      replace: sinon.stub()
+    }));
   });
 
   afterEach(() => {

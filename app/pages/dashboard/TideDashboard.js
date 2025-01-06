@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
+import { useLocation, useHistory } from 'react-router-dom';
 import { push } from 'connected-react-router';
 import { withTranslation, Trans } from 'react-i18next';
 import moment from 'moment-timezone';
@@ -230,6 +231,8 @@ const SortPopover = React.memo(props => {
 const TideDashboardSection = React.memo(props => {
   const {
     api,
+    location,
+    history,
     clinicBgUnits,
     config,
     dispatch,
@@ -242,7 +245,6 @@ const TideDashboardSection = React.memo(props => {
     selectedClinicId,
     setSections,
     setSelectedPatient,
-    setDrawerPatientId,
     setShowEditPatientDialog,
     showTideDashboardLastReviewed,
     showTideDashboardPatientDrawer,
@@ -302,13 +304,17 @@ const TideDashboardSection = React.memo(props => {
       const isValidAgpPeriod = ['7d', '14d', '30d'].includes(config?.period);
 
       if (showTideDashboardPatientDrawer && isValidAgpPeriod) {
-        setDrawerPatientId(patient.id);
+        const { search, pathname } = location;
+        const params = new URLSearchParams(search);
+        params.set('drawerPatientId', patient.id);
+        history.replace({ pathname, search: params.toString() });
+        
         return;
       }
       
       dispatch(push(`/patients/${patient?.id}/data?chart=trends&dashboard=tide`));
     }
-  }, [dispatch, trackMetric, setDrawerPatientId, showTideDashboardPatientDrawer, config]);
+  }, [dispatch, trackMetric, showTideDashboardPatientDrawer, config]);
 
   const renderPatientName = useCallback(({ patient }) => (
     <Box onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
@@ -743,10 +749,11 @@ export const TideDashboard = (props) => {
   const mrnSettings = clinic?.mrnSettings ?? {};
   const { config, results: patientGroups } = useSelector((state) => state.blip.tideDashboardPatients);
   const timePrefs = useSelector((state) => state.blip.timePrefs);
+  const location = useLocation();
+  const history = useHistory();
   const [showTideDashboardConfigDialog, setShowTideDashboardConfigDialog] = useState(false);
   const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
-  const [drawerPatientId, setDrawerPatientId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [patientFormContext, setPatientFormContext] = useState();
   const [tideDashboardFormContext, setTideDashboardFormContext] = useState();
@@ -908,6 +915,14 @@ export const TideDashboard = (props) => {
     }
     patientFormContext?.handleSubmit();
   }, [patientFormContext, selectedClinicId, trackMetric, selectedPatient?.tags]);
+
+  const handleClosePatientDrawer = useCallback(() => {
+    const { search, pathname } = location;
+
+    const params = new URLSearchParams(search);
+    params.delete('drawerPatientId');
+    history.replace({ pathname, search: params.toString() });
+  });
 
   function handleConfigureTideDashboard() {
     trackMetric('Clinic - Show Tide Dashboard config dialog', { clinicId: selectedClinicId, source: 'Tide dashboard' });
@@ -1122,6 +1137,8 @@ export const TideDashboard = (props) => {
   const renderPatientGroups = useCallback(() => {
     const sectionProps = {
       api,
+      location,
+      history,
       clinicBgUnits,
       config,
       dispatch,
@@ -1130,7 +1147,6 @@ export const TideDashboard = (props) => {
       selectedClinicId,
       setSections,
       setSelectedPatient,
-      setDrawerPatientId,
       setShowEditPatientDialog,
       showTideDashboardLastReviewed,
       showTideDashboardPatientDrawer,
@@ -1199,6 +1215,8 @@ export const TideDashboard = (props) => {
     trackMetric,
   ]);
 
+  const drawerPatientId = new URLSearchParams(location.search).get('drawerPatientId') || null;
+
   return (
     <Box
       id="tide-dashboard"
@@ -1218,8 +1236,8 @@ export const TideDashboard = (props) => {
       {showEditPatientDialog && renderEditPatientDialog()}
 
       <PatientDrawer  
-        patientId={drawerPatientId}
-        onClose={() => setDrawerPatientId(null)}
+        patientId={showTideDashboardPatientDrawer ? drawerPatientId : null}
+        onClose={handleClosePatientDrawer}
         api={api}
         trackMetric={trackMetric}
         period={config?.period}
