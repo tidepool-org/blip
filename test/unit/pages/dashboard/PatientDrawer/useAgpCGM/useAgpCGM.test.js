@@ -28,7 +28,7 @@ describe('useAgpCGM', () => {
   const getWrapper = (store) => ({ children }) => <Provider store={store}>{children}</Provider>;
 
   const patientId = 'patient-1';
-  const api = { foo: 'bar' }
+  const api = { foo: 'bar' };
 
   let toImage;
   let generateAGPFigureDefinitions;
@@ -39,8 +39,8 @@ describe('useAgpCGM', () => {
   let generatePDFRequest;
 
   before(() => {
-    toImage = sinon.stub(Plotly, 'toImage')
-    generateAGPFigureDefinitions = sinon.stub(vizUtils.agp, 'generateAGPFigureDefinitions')
+    toImage = sinon.stub(Plotly, 'toImage');
+    generateAGPFigureDefinitions = sinon.stub(vizUtils.agp, 'generateAGPFigureDefinitions');
 
     removeGeneratedPDFS = sinon.stub(actions.worker, 'removeGeneratedPDFS').returns({ type: 'MOCK_ACTION' });
     dataWorkerRemoveDataRequest = sinon.stub(actions.worker, 'dataWorkerRemoveDataRequest').returns({ type: 'MOCK_ACTION' });
@@ -76,7 +76,7 @@ describe('useAgpCGM', () => {
         selectedClinicId: 'clinic-1',
         clinics: { 'clinic-1': { patients: { 'patient-1': { fullName: 'Naoya Inoue' } } } }
       }
-    }
+    };
 
     const store = mockStore(state);
     const wrapper = getWrapper(store);
@@ -86,7 +86,7 @@ describe('useAgpCGM', () => {
 
       expect(removeGeneratedPDFS.called).to.be.true;
       expect(dataWorkerRemoveDataRequest.called).to.be.true;
-      expect(result.current).to.eql({ status: 'INITIALIZED', svgDataURLS: null, agpCGM: null })
+      expect(result.current).to.eql({ status: 'INITIALIZED', svgDataURLS: null, agpCGM: null });
     });
   });
   
