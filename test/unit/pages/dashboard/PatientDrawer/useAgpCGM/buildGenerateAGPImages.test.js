@@ -25,18 +25,18 @@ describe('buildGenerateAGPImages', () => {
   let generateAGPFigureDefinitions;
 
   before(() => {
-    toImage = sinon.stub(Plotly, 'toImage')
-    generateAGPFigureDefinitions = sinon.stub(vizUtils.agp, 'generateAGPFigureDefinitions')
-  })
+    toImage = sinon.stub(Plotly, 'toImage');
+    generateAGPFigureDefinitions = sinon.stub(vizUtils.agp, 'generateAGPFigureDefinitions');
+  });
   
   beforeEach(() => {
     dispatch.reset();
-  })
+  });
 
   after(() => {
     toImage.restore();
     generateAGPFigureDefinitions.restore();
-  })
+  });
 
   context('successful image generation', () => {
     it('should call generateAGPImagesSuccess with image data upon successful image generation', done => {

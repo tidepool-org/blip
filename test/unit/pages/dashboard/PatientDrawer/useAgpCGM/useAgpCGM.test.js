@@ -46,7 +46,7 @@ describe('useAgpCGM', () => {
     dataWorkerRemoveDataRequest = sinon.stub(actions.worker, 'dataWorkerRemoveDataRequest').returns({ type: 'MOCK_ACTION' });
     fetchPatientData = sinon.stub(actions.async, 'fetchPatientData').returns({ type: 'MOCK_ACTION' });
     generatePDFRequest = sinon.stub(actions.worker, 'generatePDFRequest').returns({ type: 'MOCK_ACTION' });
-  })
+  });
 
   beforeEach(() => {
     toImage.resetHistory();
@@ -66,7 +66,7 @@ describe('useAgpCGM', () => {
     dataWorkerRemoveDataRequest.restore();
     fetchPatientData.restore();
     generatePDFRequest.restore();
-  })
+  });
 
   context('When another patients data is in state', () => {
     const state = {
@@ -87,7 +87,7 @@ describe('useAgpCGM', () => {
       expect(removeGeneratedPDFS.called).to.be.true;
       expect(dataWorkerRemoveDataRequest.called).to.be.true;
       expect(result.current).to.eql({ status: 'INITIALIZED', svgDataURLS: null, agpCGM: null })
-    })
+    });
   });
   
   context('When state is clear', () => {
@@ -98,7 +98,7 @@ describe('useAgpCGM', () => {
         selectedClinicId: 'clinic-1',
         clinics: { 'clinic-1': { patients: { 'patient-1': { fullName: 'Naoya Inoue' } } } }
       }
-    }
+    };
 
     const store = mockStore(state);
     const wrapper = getWrapper(store);
@@ -107,8 +107,8 @@ describe('useAgpCGM', () => {
       const { result } = renderHook(() => useAgpCGM(api, patientId), { wrapper });
 
       expect(fetchPatientData.called).to.be.true;
-      expect(result.current).to.eql({ status: 'STATE_CLEARED', svgDataURLS: null, agpCGM: null })
-    })
+      expect(result.current).to.eql({ status: 'STATE_CLEARED', svgDataURLS: null, agpCGM: null });
+    });
   });
 
   context('When patient is loaded into state', () => {
@@ -119,7 +119,7 @@ describe('useAgpCGM', () => {
         selectedClinicId: 'clinic-1',
         clinics: { 'clinic-1': { patients: { 'patient-1': { fullName: 'Naoya Inoue' } } } }
       }
-    }
+    };
 
     const store = mockStore(state);
     const wrapper = getWrapper(store);
@@ -128,8 +128,8 @@ describe('useAgpCGM', () => {
       const { result } = renderHook(() => useAgpCGM(api, patientId), { wrapper });
 
       expect(generatePDFRequest.called).to.be.true;
-      expect(result.current).to.eql({ status: 'PATIENT_LOADED', svgDataURLS: null, agpCGM: null })
-    })
+      expect(result.current).to.eql({ status: 'PATIENT_LOADED', svgDataURLS: null, agpCGM: null });
+    });
   });
 
   context('When pdf has been loaded into state', () => {
@@ -143,7 +143,7 @@ describe('useAgpCGM', () => {
         selectedClinicId: 'clinic-1',
         clinics: { 'clinic-1': { patients: { 'patient-1': { fullName: 'Naoya Inoue' } } } }
       }
-    }
+    };
 
     const store = mockStore(state);
     const wrapper = getWrapper(store);
@@ -156,8 +156,8 @@ describe('useAgpCGM', () => {
         status: 'DATA_PROCESSED', 
         svgDataURLS: undefined,
         agpCGM: { current: 'statistics_data_here' },
-      })
-    })
+      });
+    });
   });
 
   context('When svgs have been successfully generated', () => {
@@ -174,7 +174,7 @@ describe('useAgpCGM', () => {
         selectedClinicId: 'clinic-1',
         clinics: { 'clinic-1': { patients: { 'patient-1': { fullName: 'Naoya Inoue' } } } }
       }
-    }
+    };
 
     const store = mockStore(state);
     const wrapper = getWrapper(store);
@@ -186,7 +186,7 @@ describe('useAgpCGM', () => {
         status: 'SVGS_GENERATED', 
         svgDataURLS: { agpCGM: { ambulatoryGlucoseProfile: 'data:image/svg..' } },
         agpCGM: { current: 'statistics_data_here' }
-      })
-    })
+      });
+    });
   });
 });

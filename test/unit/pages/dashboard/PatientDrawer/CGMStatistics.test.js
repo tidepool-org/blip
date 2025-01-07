@@ -83,8 +83,8 @@ const agpCGM = {
     'bgUnits': 'mg/dL'
   },
   'query': {},
-  'metaData': {}
-}
+  'metaData': {},
+};
 
 describe('PatientDrawer/CGMStatistics', () => {
   describe('When data is not present', () => {
@@ -92,7 +92,7 @@ describe('PatientDrawer/CGMStatistics', () => {
 
     it('renders no data', () => {
       expect(wrapper.isEmptyRender()).to.be.true;
-    })
+    });
   });
 
   describe('When data is in mg/dL', () => {
@@ -100,22 +100,22 @@ describe('PatientDrawer/CGMStatistics', () => {
 
     it('renders the time range in the expected format', () => {
       expect(wrapper.find('#agp-table-time-range').hostNodes().text()).to.include('November 26 - December 2, 2024 (7 days)');
-    })
+    });
 
     it('renders the CGM Active % in the expected format', () => {
       expect(wrapper.find('#agp-table-cgm-active').hostNodes().text()).to.include('39.5%');
-    })
+    });
 
     it('renders the Average Glucose in the expected format', () => {
       expect(wrapper.find('#agp-table-avg-glucose').hostNodes().text()).to.include('121 mg/dL');
-    })
+    });
 
     it('renders the GMI in the expected format', () => {
       expect(wrapper.find('#agp-table-gmi').hostNodes().text()).to.include('6.2%');
-    })
+    });
 
     it('renders the Glucose Variability in the expected format', () => {
       expect(wrapper.find('#agp-table-cov').hostNodes().text()).to.include('49.8%');
-    })
+    });
   });
 });

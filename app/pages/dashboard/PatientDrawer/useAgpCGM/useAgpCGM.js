@@ -19,6 +19,7 @@ export const STATUS = {
   INSUFFICIENT_DATA: 'INSUFFICIENT_DATA',
 }
 
+// TODO: Revisit best way to listen for progress when we move away from blip.working
 const inferLastCompletedStep = (patientId, data, pdf) => {
   // If the outputted data for a step in the process exists, we infer that the step was successful.
   // We do the lookup in reverse order to return the LATEST completed step

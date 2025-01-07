@@ -41,22 +41,6 @@ const getOpts = (
 
   const timezoneName = getTimezoneFromTimePrefs(data?.timePrefs);
 
-  const _rangePresets = {
-    agpBGM: 1,
-    agpCGM: 1,
-    // basics: 0,
-    // bgLog: 2,
-    // daily: 0,
-  };
-
-  const _presetDaysOptions = {
-    agpBGM: [14, 30],
-    agpCGM: [7, 14, 30],
-    // basics: [14, 21, 30, 90],
-    // bgLog: [14, 21, 30, 90],
-    // daily: [14, 21, 30, 90],
-  };
-
   const endOfToday = moment.utc().tz(timezoneName).endOf('day').subtract(1, 'ms');
 
   const setDateRangeToExtents = ({ startDate, endDate }) => ({

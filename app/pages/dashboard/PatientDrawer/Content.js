@@ -46,7 +46,6 @@ const CategoryContainer = ({ title, subtitle, children }) => {
           {subtitle && <Text ml={4} sx={{ fontSize: 0 }}>{subtitle}</Text>}
         </Box>
       )}
-
       {children}
     </Box>
   );

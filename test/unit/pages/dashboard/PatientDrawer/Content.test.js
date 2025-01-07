@@ -25,12 +25,12 @@ describe('PatientDrawer/Content', () => {
       selectedClinicId: '5678-efgh',
       clinics: { '5678-efgh': { patients: { '1234-abcd': { fullName: 'Naoya Inoue' } } } }
     }
-  })
+  });
 
   const props = {
     api: { foo: 'bar' },
     patientId: '1234-abcd',
-  }
+  };
   
   const useAgpCGM = sinon.stub();
   Content.__Rewire__('useAgpCGM', useAgpCGM);
@@ -40,14 +40,14 @@ describe('PatientDrawer/Content', () => {
   });
 
   describe('When patient has no data in the platform', () => {
-    useAgpCGM.returns({ status: STATUS.NO_PATIENT_DATA })
+    useAgpCGM.returns({ status: STATUS.NO_PATIENT_DATA });
 
     const wrapper = mount(<Provider store={store}> <Content {...props} /> </Provider>);
 
     it('shows no data fields and an appropriate message to the user', () => {
       const wrapperText = wrapper.text();
 
-      expect(wrapperText).to.include('Naoya Inoue does not have any data yet')
+      expect(wrapperText).to.include('Naoya Inoue does not have any data yet');
       expect(wrapperText).not.to.include('Time in Ranges');
       expect(wrapperText).not.to.include('Ambulatory Glucose Profile (AGP)');
       expect(wrapperText).not.to.include('Daily Glucose Profiles');
@@ -55,22 +55,22 @@ describe('PatientDrawer/Content', () => {
   });
 
   describe('shows no data fields and an appropriate message to the user', () => {
-    useAgpCGM.returns({ status: STATUS.INSUFFICIENT_DATA })
+    useAgpCGM.returns({ status: STATUS.INSUFFICIENT_DATA });
 
     const wrapper = mount(<Provider store={store}> <Content {...props} /> </Provider>);
 
     it('shows the correct info and actions', () => {
       const wrapperText = wrapper.text();
 
-      expect(wrapperText).to.include('Insufficient data to generate AGP Report.')
+      expect(wrapperText).to.include('Insufficient data to generate AGP Report.');
       expect(wrapperText).not.to.include('Time in Ranges');
       expect(wrapperText).not.to.include('Ambulatory Glucose Profile (AGP)');
       expect(wrapperText).not.to.include('Daily Glucose Profiles');
-    })
+    });
   });
 
   describe('When AGP is still loading', () => {
-    useAgpCGM.returns({ status: STATUS.PATIENT_LOADED }) // any intermediate state prior to 'SVGS_GENERATED'
+    useAgpCGM.returns({ status: STATUS.PATIENT_LOADED }); // any intermediate state prior to 'SVGS_GENERATED'
 
     const wrapper = mount(<Provider store={store}> <Content {...props} /> </Provider>);
 
@@ -81,7 +81,7 @@ describe('PatientDrawer/Content', () => {
       expect(wrapperText).not.to.include('Time in Ranges');
       expect(wrapperText).not.to.include('Ambulatory Glucose Profile (AGP)');
       expect(wrapperText).not.to.include('Daily Glucose Profiles');
-    })
+    });
   });
 
   describe('When AGP is fully loaded', () => {
@@ -96,7 +96,7 @@ describe('PatientDrawer/Content', () => {
           }
         },
         agpCGM: null,
-      }) 
+      });
   
       const wrapper = mount(<Provider store={store}> <Content {...props} /> </Provider>);
   
@@ -124,7 +124,7 @@ describe('PatientDrawer/Content', () => {
           }
         },
         agpCGM: null,
-      }) 
+      });
   
       const wrapper = mount(<Provider store={store}> <Content {...props} /> </Provider>);
   

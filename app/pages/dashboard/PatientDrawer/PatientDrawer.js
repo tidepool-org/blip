@@ -41,8 +41,9 @@ const getAgpPeriodInDays = (period) => {
     case '7d': return 7;
     case '14d': return 14;
     case '30d': return 30;
+    default: return 14; // 14 is standard for AGP
   }
-}
+};
 
 const PatientDrawer = ({ patientId, onClose, api, trackMetric, period }) => {
   const classes = useStyles();
@@ -75,6 +76,6 @@ const PatientDrawer = ({ patientId, onClose, api, trackMetric, period }) => {
       </Box>
     </StyledDrawer>
   );
-}
+};
 
 export default PatientDrawer;
