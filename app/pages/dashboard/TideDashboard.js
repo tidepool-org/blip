@@ -744,6 +744,7 @@ export const TideDashboard = (props) => {
   const { set: setToast } = useToasts();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
+  const pdf = useSelector((state) => state.blip.pdf);
   const currentPatientInViewId = useSelector((state) => state.blip.currentPatientInViewId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const mrnSettings = clinic?.mrnSettings ?? {};
@@ -904,6 +905,18 @@ export const TideDashboard = (props) => {
       dispatch(actions.sync.clearTideDashboardPatients());
     }
   }, [showTideDashboard]);
+
+  const drawerPatientId = new URLSearchParams(location.search).get('drawerPatientId') || null;
+
+  // Failsafe to ensure blip.pdf is always cleared out after drawer is closed
+  useEffect(() => {
+    const isOpen = !!drawerPatientId;
+
+    if (!isOpen && !_.isEmpty(pdf)) {
+      dispatch(actions.worker.removeGeneratedPDFS());
+      dispatch(actions.worker.dataWorkerRemoveDataRequest(null, drawerPatientId));
+    }
+  }, [drawerPatientId, pdf]);
 
   const handleEditPatientConfirm = useCallback(() => {
     trackMetric('Clinic - Edit patient confirmed', { clinicId: selectedClinicId });
@@ -1214,8 +1227,6 @@ export const TideDashboard = (props) => {
     t,
     trackMetric,
   ]);
-
-  const drawerPatientId = new URLSearchParams(location.search).get('drawerPatientId') || null;
 
   return (
     <Box
