@@ -186,7 +186,7 @@ export const ClinicUser = {
 export const PatientUser = {
   render: () => {
     const dataConnectionUnset = getDataConnectionProps(patientWithState(false), true, null, noop);
-    const dataConnectionConnected = getDataConnectionProps(patientWithState(false, 'connected', { createdTime: getDateInPast(1, 'minutes') }), true, null, noop);
+    const dataConnectionJustConnected = getDataConnectionProps(patientWithState(false, 'connected', { createdTime: getDateInPast(1, 'minutes') }), true, null, noop);
     const dataConnectionConnectedWithNoData = getDataConnectionProps(patientWithState(false, 'connected', { lastImportTime: getDateInPast(5, 'minutes') }), true, null, noop);
     const dataConnectionConnectedWithData = getDataConnectionProps(patientWithState(false, 'connected', { lastImportTime: getDateInPast(1, 'minutes'), latestDataTime: getDateInPast(35, 'minutes') }), true, null, noop);
     const dataConnectionDisconnected = getDataConnectionProps(patientWithState(false, 'disconnected', { modifiedTime: getDateInPast(1, 'hour') }), true, null, noop);
@@ -213,8 +213,8 @@ export const PatientUser = {
           <DataConnection
             my={1}
             key={`provider-${index}`}
-            {...dataConnectionConnected[provider]}
-            buttonHandler={dataConnectionConnected[provider]?.buttonText ? () => action(dataConnectionConnected[provider]?.buttonText)(provider) : undefined}
+            {...dataConnectionJustConnected[provider]}
+            buttonHandler={dataConnectionJustConnected[provider]?.buttonText ? () => action(dataConnectionJustConnected[provider]?.buttonText)(provider) : undefined}
           />
         ))}
 

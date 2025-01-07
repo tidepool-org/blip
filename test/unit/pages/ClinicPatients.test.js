@@ -18,6 +18,7 @@ import Button from '../../../app/components/elements/Button';
 import TideDashboardConfigForm from '../../../app/components/clinic/TideDashboardConfigForm';
 import RpmReportConfigForm from '../../../app/components/clinic/RpmReportConfigForm';
 import DataConnectionsModal from '../../../app/components/datasources/DataConnectionsModal';
+import DataConnections from '../../../app/components/datasources/DataConnections';
 import mockRpmReportPatients from '../../fixtures/mockRpmReportPatients.json'
 import LDClientMock from '../../fixtures/LDClientMock';
 
@@ -82,11 +83,13 @@ describe('ClinicPatients', () => {
     defaultProps.api.clinics.updateClinicPatient.resetHistory();
     defaultProps.api.clinics.getPatientsForRpmReport.resetHistory();
     ClinicPatients.__Rewire__('useLDClient', sinon.stub().returns(new LDClientMock()));
+    DataConnections.__Rewire__('api', defaultProps.api);
     DataConnectionsModal.__Rewire__('api', defaultProps.api);
   });
 
   afterEach(() => {
     ClinicPatients.__ResetDependency__('useLDClient');
+    DataConnections.__ResetDependency__('api');
     DataConnectionsModal.__ResetDependency__('api');
   });
 

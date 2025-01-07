@@ -36,7 +36,6 @@ const t = i18next.t.bind(i18next);
 export const activeProviders = [
   'dexcom',
   'abbott',
-  // 'twiist',
 ];
 
 export const providers = {
@@ -115,7 +114,7 @@ export function getProviderHandlers(patient, selectedClinicId, provider) {
       buttonText: t('Disconnect'),
       buttonStyle: 'text',
       action: actions.async.disconnectDataSource,
-      args: [api, id, restrictedTokenCreate, dataSourceFilter],
+      args: [api, id, dataSourceFilter],
     },
     inviteSent: {
       buttonDisabled: true,

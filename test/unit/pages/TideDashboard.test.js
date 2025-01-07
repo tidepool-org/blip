@@ -13,6 +13,7 @@ import { ToastProvider } from '../../../app/providers/ToastProvider';
 import TideDashboard from '../../../app/pages/dashboard/TideDashboard';
 import Popover from '../../../app/components/elements/Popover';
 import TideDashboardConfigForm from '../../../app/components/clinic/TideDashboardConfigForm';
+import DataConnections from '../../../app/components/datasources/DataConnections';
 import DataConnectionsModal from '../../../app/components/datasources/DataConnectionsModal';
 import { clinicUIDetails } from '../../../app/core/clinicUtils';
 import mockTideDashboardPatients from '../../fixtures/mockTideDashboardPatients.json';
@@ -64,12 +65,14 @@ describe('TideDashboard', () => {
       showSummaryDashboard: true,
     }));
 
+    DataConnections.__Rewire__('api', defaultProps.api);
     DataConnectionsModal.__Rewire__('api', defaultProps.api);
   });
 
   afterEach(() => {
     TideDashboard.__ResetDependency__('useLDClient');
     TideDashboard.__ResetDependency__('useFlags');
+    DataConnections.__ResetDependency__('api');
     DataConnectionsModal.__ResetDependency__('api');
   });
 
