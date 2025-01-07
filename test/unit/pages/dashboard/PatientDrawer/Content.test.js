@@ -51,7 +51,7 @@ describe('PatientDrawer/Content', () => {
       expect(wrapperText).not.to.include('Time in Ranges');
       expect(wrapperText).not.to.include('Ambulatory Glucose Profile (AGP)');
       expect(wrapperText).not.to.include('Daily Glucose Profiles');
-    })
+    });
   });
 
   describe('shows no data fields and an appropriate message to the user', () => {
