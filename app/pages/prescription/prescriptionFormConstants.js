@@ -39,16 +39,17 @@ export const dateRegex = /^(.*)[-|/](.*)[-|/](.*)$/;
 
 export const deviceIdMap = {
   cgmSimulator: 'c97bd194-5e5e-44c1-9629-4cb87be1a4c9',
+  coastal: 'e4a46eda-02f9-4faf-b8f4-ef7b40d02e4f',
   dexcomG6: 'd25c3f1b-a2e8-44e2-b3a3-fd07806fc245',
   palmtree: 'c524b5b0-632e-4125-8f6a-df9532d8f6fe',
 };
 
 export const validDeviceIds = {
   cgms: [
-    deviceIdMap.dexcomG6,
+    deviceIdMap.cgmSimulator,
   ],
   pumps: [
-    deviceIdMap.palmtree,
+    deviceIdMap.coastal,
   ],
 };
 
@@ -61,7 +62,18 @@ export const deviceDetails = {
     ),
   },
   [deviceIdMap.cgmSimulator]: {
-    description: null,
+    description: (
+      <Trans>
+        Find information on how to use the CGM Simulator <Link to="#">here</Link>.
+      </Trans>
+    ),
+  },
+  [deviceIdMap.coastal]: {
+    description: (
+      <Trans>
+        Find information on how to prescribe Coastal products <Link to="#">here</Link>.
+      </Trans>
+    ),
   },
   [deviceIdMap.palmtree]: {
     description: (
