@@ -18,26 +18,43 @@
   position: relative;
 }
 
+// Header
+// ====================================
+
+.nav-patient-header {
+  margin: 0 auto 16px;
+  width: 100%;
+  max-width: @screen-lg-min;
+
+  @media screen and (max-width: @screen-lg-min) {
+    padding: 0 20px;
+  }
+}
+
 // Subnav
 // ====================================
 
 @patient-data-subnav-vertical-padding: @spacing-small;
-@patient-data-subnav-horizontal-padding: @spacing-small;
+@patient-data-subnav-horizontal-padding: @spacing-medium;
+
+@patient-data-subnav-breakpoint: 1080px;
 
 .patient-data-subnav-inner {
-  color: #fff;
-  background-color: @gray-dark;
+  color: @blue-primary;
+  background-color: @blue-gray-dark;
+  border-radius: 3px 3px 0 0;
 
   padding: 0;
 }
 
 .patient-data-subnav {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  min-height: 40px;
 
-  @media (min-width: @screen-md-lg-min) {
-    justify-content: space-between;
+  display: grid;
+  grid-template-columns: 5fr 2fr 5fr;
+
+  @media screen and (max-width: @patient-data-subnav-breakpoint) {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -45,6 +62,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 14px;
+  text-wrap: nowrap;
 }
 
 .patient-data-subnav-dates-daily {
@@ -60,26 +79,18 @@
 }
 
 .patient-data-subnav a {
-  display: flex;
-  padding: 0 @patient-data-subnav-horizontal-padding;
+  padding: @patient-data-subnav-vertical-padding @patient-data-subnav-horizontal-padding;
+
+  font-size: 14px;
+  
   &.patient-data-icon {
     padding: 0;
   }
 
-  color: #fff;
+  color: @blue-primary;
   text-decoration: none;
 
   transition: all .2s ease-out;
-
-  &:hover,
-  &:focus {
-    color: @gray-darkest;
-    text-decoration: none;
-
-    .icon {
-      color: @gray-darkest;
-    }
-  }
 
   &:active,
   &.patient-data-subnav-disabled {
@@ -93,31 +104,49 @@
   }
 }
 
-.patient-data-subnav a.patient-data-subnav-active {
-  font-weight: bold;
+.patient-data-subnav-tablink {
+  &:first-child {
+    border-radius: 3px 0 0 0;
+  }
+
+  &:last-child {
+    border-radius: 0 3px 0 0;
+  }
+
+  &:hover,
+  &:focus {
+    background-color: @blue-gray-dark-active;
+    text-decoration: none;
+  }
 }
 
-.patient-data-footer-left a.patient-data-subnav-active {
-  font-weight: bold;
+.patient-data-subnav-active {
+  background-color: @blue-gray-dark-active;
 }
 
 .patient-data-subnav-center {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: @patient-data-subnav-vertical-padding @spacing-small;
+  justify-content: center;
 }
 
 .patient-data-subnav-left {
   display: flex;
   align-items: center;
-  padding: @patient-data-subnav-vertical-padding @spacing-small;
+
+  @media screen and (max-width: @patient-data-subnav-breakpoint) {
+    justify-content: center;
+  }
 }
 
 .patient-data-subnav-right {
   display: flex;
   align-items: center;
-  padding: @patient-data-subnav-vertical-padding @spacing-small;
+  justify-content: flex-end;
+
+  @media screen and (max-width: @patient-data-subnav-breakpoint) {
+    justify-content: center;
+  }
 }
 
 .patient-data-subnav-right-label {

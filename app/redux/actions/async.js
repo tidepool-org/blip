@@ -1039,6 +1039,7 @@ export function fetchPatientData(api, options, id) {
     useCache: true,
     initial: true,
     type: ALL_FETCHED_DATA_TYPES.join(','),
+    forceDataWorkerAddDataRequest: false,
   });
 
   let latestUpload;
@@ -1168,8 +1169,12 @@ export function fetchPatientData(api, options, id) {
       dispatch(sync.fetchPatientDataSuccess(id));
 
       // We only add the data to the worker if another patient id has not been fetched
-      // while we waited on this one, and we are still on an app view specific to that patient
-      if (location.pathname.indexOf(id) >= 0 && (!fetchingPatientId || fetchingPatientId === id)) {
+      // while we waited on this one, and we are still on an app view specific to that patient.
+      // Also, 'forceDataWorkerAddDataRequest' can be used if not on a patient-specific view.
+      if (
+        options.forceDataWorkerAddDataRequest ||
+        (location.pathname.indexOf(id) >= 0 && (!fetchingPatientId || fetchingPatientId === id))
+      ) {
         dispatch(worker.dataWorkerAddDataRequest(data, options.returnData, patientId, options.startDate));
       }
     }

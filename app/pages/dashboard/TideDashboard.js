@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
+import { useLocation, useHistory } from 'react-router-dom';
 import { push } from 'connected-react-router';
 import { withTranslation, Trans } from 'react-i18next';
 import moment from 'moment-timezone';
@@ -11,6 +12,7 @@ import flatten from 'lodash/flatten';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 import isEqual from 'lodash/isEqual';
+import isEmpty from 'lodash/isEmpty';
 import isFinite from 'lodash/isFinite';
 import keys from 'lodash/keys';
 import keyBy from 'lodash/keyBy';
@@ -52,6 +54,7 @@ import PopoverMenu from '../../components/elements/PopoverMenu';
 import RadioGroup from '../../components/elements/RadioGroup';
 import DeltaBar from '../../components/elements/DeltaBar';
 import Pill from '../../components/elements/Pill';
+import PatientDrawer from './PatientDrawer';
 import utils from '../../core/utils';
 
 import {
@@ -229,6 +232,8 @@ const SortPopover = React.memo(props => {
 const TideDashboardSection = React.memo(props => {
   const {
     api,
+    location,
+    history,
     clinicBgUnits,
     config,
     dispatch,
@@ -243,6 +248,7 @@ const TideDashboardSection = React.memo(props => {
     setSelectedPatient,
     setShowEditPatientDialog,
     showTideDashboardLastReviewed,
+    showTideDashboardPatientDrawer,
     t,
     trackMetric,
   } = props;
@@ -295,9 +301,21 @@ const TideDashboardSection = React.memo(props => {
   const handleClickPatient = useCallback(patient => {
     return () => {
       trackMetric('Selected PwD');
+
+      const isValidAgpPeriod = ['7d', '14d', '30d'].includes(config?.period);
+
+      if (showTideDashboardPatientDrawer && isValidAgpPeriod) {
+        const { search, pathname } = location;
+        const params = new URLSearchParams(search);
+        params.set('drawerPatientId', patient.id);
+        history.replace({ pathname, search: params.toString() });
+        
+        return;
+      }
+      
       dispatch(push(`/patients/${patient?.id}/data?chart=trends&dashboard=tide`));
     }
-  }, [dispatch, trackMetric]);
+  }, [dispatch, trackMetric, showTideDashboardPatientDrawer, config]);
 
   const renderPatientName = useCallback(({ patient }) => (
     <Box onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
@@ -643,6 +661,7 @@ const TideDashboardSection = React.memo(props => {
     renderTimeInPercent,
     renderTimeInTargetPercentDelta,
     showTideDashboardLastReviewed,
+    showTideDashboardPatientDrawer,
     t,
     veryLowGlucoseThreshold,
   ]);
@@ -726,11 +745,14 @@ export const TideDashboard = (props) => {
   const { set: setToast } = useToasts();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
+  const pdf = useSelector((state) => state.blip.pdf);
   const currentPatientInViewId = useSelector((state) => state.blip.currentPatientInViewId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const mrnSettings = clinic?.mrnSettings ?? {};
   const { config, results: patientGroups } = useSelector((state) => state.blip.tideDashboardPatients);
   const timePrefs = useSelector((state) => state.blip.timePrefs);
+  const location = useLocation();
+  const history = useHistory();
   const [showTideDashboardConfigDialog, setShowTideDashboardConfigDialog] = useState(false);
   const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
@@ -741,7 +763,11 @@ export const TideDashboard = (props) => {
   const [localConfig] = useLocalStorage('tideDashboardConfig', {});
   const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
   const patientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
-  const { showTideDashboard, showTideDashboardLastReviewed } = useFlags();
+  const { 
+    showTideDashboard, 
+    showTideDashboardLastReviewed,
+    showTideDashboardPatientDrawer,
+  } = useFlags();
   const ldClient = useLDClient();
   const ldContext = ldClient.getContext();
 
@@ -881,6 +907,18 @@ export const TideDashboard = (props) => {
     }
   }, [showTideDashboard]);
 
+  const drawerPatientId = new URLSearchParams(location.search).get('drawerPatientId') || null;
+
+  // Failsafe to ensure blip.pdf is always cleared out after drawer is closed
+  useEffect(() => {
+    const isOpen = !!drawerPatientId;
+
+    if (!isOpen && !isEmpty(pdf)) {
+      dispatch(actions.worker.removeGeneratedPDFS());
+      dispatch(actions.worker.dataWorkerRemoveDataRequest(null, drawerPatientId));
+    }
+  }, [drawerPatientId, pdf]);
+
   const handleEditPatientConfirm = useCallback(() => {
     trackMetric('Clinic - Edit patient confirmed', { clinicId: selectedClinicId });
     const updatedTags = [...(patientFormContext?.values?.tags || [])];
@@ -891,6 +929,14 @@ export const TideDashboard = (props) => {
     }
     patientFormContext?.handleSubmit();
   }, [patientFormContext, selectedClinicId, trackMetric, selectedPatient?.tags]);
+
+  const handleClosePatientDrawer = useCallback(() => {
+    const { search, pathname } = location;
+
+    const params = new URLSearchParams(search);
+    params.delete('drawerPatientId');
+    history.replace({ pathname, search: params.toString() });
+  });
 
   function handleConfigureTideDashboard() {
     trackMetric('Clinic - Show Tide Dashboard config dialog', { clinicId: selectedClinicId, source: 'Tide dashboard' });
@@ -1105,6 +1151,8 @@ export const TideDashboard = (props) => {
   const renderPatientGroups = useCallback(() => {
     const sectionProps = {
       api,
+      location,
+      history,
       clinicBgUnits,
       config,
       dispatch,
@@ -1115,6 +1163,7 @@ export const TideDashboard = (props) => {
       setSelectedPatient,
       setShowEditPatientDialog,
       showTideDashboardLastReviewed,
+      showTideDashboardPatientDrawer,
       t,
       trackMetric,
     };
@@ -1175,6 +1224,7 @@ export const TideDashboard = (props) => {
     setSelectedPatient,
     setShowEditPatientDialog,
     showTideDashboardLastReviewed,
+    showTideDashboardPatientDrawer,
     t,
     trackMetric,
   ]);
@@ -1196,6 +1246,14 @@ export const TideDashboard = (props) => {
       {patientGroups && renderPatientGroups()}
       {showTideDashboardConfigDialog && renderTideDashboardConfigDialog()}
       {showEditPatientDialog && renderEditPatientDialog()}
+
+      <PatientDrawer  
+        patientId={showTideDashboardPatientDrawer ? drawerPatientId : null}
+        onClose={handleClosePatientDrawer}
+        api={api}
+        trackMetric={trackMetric}
+        period={config?.period}
+      />
 
       <StyledScrollToTop
         smooth
