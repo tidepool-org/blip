@@ -23,7 +23,7 @@ const {
 
 const t = i18next.t.bind(i18next);
 
-export const PatientLastReviewed = ({ api, patientId, recentlyReviewedThresholdDate, trackMetric, metricSource }) => {
+export const PatientLastReviewed = ({ api, patientId, recentlyReviewedThresholdDate, trackMetric, metricSource, onReview = null }) => {
   const dispatch = useDispatch();
   const isFirstRender = useIsFirstRender();
   const { set: setToast } = useToasts();
@@ -69,6 +69,7 @@ export const PatientLastReviewed = ({ api, patientId, recentlyReviewedThresholdD
   const handleReview = () => {
     trackMetric('Clinic - Mark patient reviewed', { clinicId: selectedClinicId, source: metricSource });
     dispatch(actions.async.setClinicPatientLastReviewed(api, selectedClinicId, patient?.id));
+    onReview && onReview();
   };
 
   const handleUndo = () => {

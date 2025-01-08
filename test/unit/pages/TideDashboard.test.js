@@ -65,6 +65,15 @@ describe('TideDashboard', () => {
     }));
 
     DataConnectionsModal.__Rewire__('api', defaultProps.api);
+    
+    TideDashboard.__Rewire__('useLocation', sinon.stub().returns({
+      search: '',
+      pathname: '/dashboard/tide'
+    }));
+
+    TideDashboard.__Rewire__('useHistory', sinon.stub().returns({
+      replace: sinon.stub()
+    }));
   });
 
   afterEach(() => {
