@@ -84,8 +84,10 @@ const CGMStatistics = ({ agpCGM }) => {
   
   const cov        = utils.roundToPrecision(coefficientOfVariation, 1);
 
-  const avgGlucose = formatDatum({ value: averageGlucose }, 'bgValue', { bgPrefs, useAGPFormat: true });
-  const gmi        = formatDatum({ value: glucoseManagementIndicatorAGP }, 'gmi', { bgPrefs, useAGPFormat: true });
+  const formattingOpts = { bgPrefs, useAGPFormat: true }
+
+  const avgGlucose = formatDatum({ value: averageGlucose }, 'bgValue', formattingOpts);
+  const gmi        = formatDatum({ value: glucoseManagementIndicatorAGP }, 'gmi', formattingOpts);
 
   return (
     <Flex sx={{ alignItems: 'center', width: '100%', height: '100%' }} id='agp-cgm-statistics'>
