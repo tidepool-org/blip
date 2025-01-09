@@ -21,7 +21,7 @@ const DemographicsContainer = ({ children }) => (
 const DemographicInfo = ({ t, patient, clinicPatient }) => {
   const { birthday } = patient.profile.patient;
 
-  const { mrn } = clinicPatient;
+  const { mrn } = clinicPatient || {};
 
   const hasValidBirthday = moment(birthday, 'YYYY-MM-DD', true).isValid();
 
