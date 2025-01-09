@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import { Flex, Box, Text } from 'theme-ui';
 import moment from 'moment';
 import { utils as vizUtils } from '@tidepool/viz';
+const { formatDatum } = vizUtils.stat;
 import utils from '../../../core/utils';
 import { MGDL_UNITS } from '../../../core/constants';
 
@@ -56,7 +57,7 @@ const CGMStatistics = ({ agpCGM }) => {
 
   const {
     timePrefs,
-    bgPrefs: { bgUnits },
+    bgPrefs,
     data: {
       current: {
         endpoints: { days: endpointDays },
@@ -71,17 +72,20 @@ const CGMStatistics = ({ agpCGM }) => {
     }
   } = agpCGM;
 
+  const { bgUnits } = bgPrefs;
+
   const timezoneName = vizUtils.datetime.getTimezoneFromTimePrefs(timePrefs);
 
-  const avgGlucosePrecision = bgUnits === MGDL_UNITS ? 0 : 1;
-  const avgGlucoseTarget    = bgUnits === MGDL_UNITS ? '154' : '8.6';
+  const avgGlucoseTarget = bgUnits === MGDL_UNITS ? '154' : '8.6';
 
   const dateRange  = formatDateRange(oldestDatum.time, newestDatum.time, timezoneName);
   const daySpan    = endpointDays;
   const cgmActive  = utils.roundToPrecision(sensorUsageAGP, 1);
-  const avgGlucose = utils.roundToPrecision(averageGlucose, avgGlucosePrecision);
-  const gmi        = utils.roundToPrecision(glucoseManagementIndicatorAGP, 1);
+  
   const cov        = utils.roundToPrecision(coefficientOfVariation, 1);
+
+  const avgGlucose = formatDatum({ value: averageGlucose }, 'bgValue', { bgPrefs, useAGPFormat: true });
+  const gmi        = formatDatum({ value: glucoseManagementIndicatorAGP }, 'gmi', { bgPrefs, useAGPFormat: true });
 
   return (
     <Flex sx={{ alignItems: 'center', width: '100%', height: '100%' }} id='agp-cgm-statistics'>
@@ -101,15 +105,15 @@ const CGMStatistics = ({ agpCGM }) => {
             id="agp-table-avg-glucose"
             label={t('Average Glucose')}
             sublabel={t('(Goal <{{avgGlucoseTarget}} {{bgUnits}})', { avgGlucoseTarget, bgUnits })}
-            value={`${avgGlucose}`}
+            value={avgGlucose.value}
             units={` ${bgUnits}`}
           />
           <TableRow
             id="agp-table-gmi"
             label={t('Glucose Management Indicator')}
             sublabel={t('(Goal <7%)')}
-            value={`${gmi}`}
-            units="%"
+            value={gmi?.value}
+            units={gmi?.suffix}
           />
           <TableRow
             id="agp-table-cov"
