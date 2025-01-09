@@ -30,7 +30,8 @@ const HeaderContainer = ({ children }) => (
 );
 
 const NavPatientHeader = ({ 
-  patient, 
+  patient,
+  clinicPatient,
   user, 
   permsOfLoggedInUser,
   trackMetric,
@@ -79,7 +80,7 @@ const NavPatientHeader = ({
           ? <>
               <Back onClick={handleBack} />
               <Name patient={patient} />
-              <DemographicInfo patient={patient} />
+              <DemographicInfo patient={patient} clinicPatient={clinicPatient} />
               <ClinicianMenuOptions 
                 onViewData={handleViewData}
                 onViewProfile={handleViewProfile}

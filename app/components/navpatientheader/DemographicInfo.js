@@ -18,8 +18,10 @@ const DemographicsContainer = ({ children }) => (
   </Flex>
 )
 
-const DemographicInfo = ({ t, patient }) => {
-  const { birthday, mrn } = patient.profile.patient;
+const DemographicInfo = ({ t, patient, clinicPatient }) => {
+  const { birthday } = patient.profile.patient;
+
+  const { mrn } = clinicPatient;
 
   const hasValidBirthday = moment(birthday, 'YYYY-MM-DD', true).isValid();
 
