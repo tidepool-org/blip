@@ -31,7 +31,6 @@ const HeaderContainer = ({ children }) => (
 
 const NavPatientHeader = ({ 
   patient,
-  clinicPatient,
   user, 
   permsOfLoggedInUser,
   trackMetric,
@@ -42,7 +41,7 @@ const NavPatientHeader = ({
   const history = useHistory();
   const [isUploadOverlayOpen, setIsUploadOverlayOpen] = useState(false);
 
-  if (!patient?.profile) return null;
+  if (!patient?.profile?.patient) return null;
 
   const { patientListLink } = getPatientListLink(clinicFlowActive, selectedClinicId, query, patient.userid);
   const { canUpload, canShare } = getPermissions(patient, permsOfLoggedInUser);
@@ -80,7 +79,7 @@ const NavPatientHeader = ({
           ? <>
               <Back onClick={handleBack} />
               <Name patient={patient} />
-              <DemographicInfo patient={patient} clinicPatient={clinicPatient} />
+              <DemographicInfo patient={patient} />
               <ClinicianMenuOptions 
                 onViewData={handleViewData}
                 onViewProfile={handleViewProfile}

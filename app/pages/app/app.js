@@ -357,11 +357,12 @@ export class AppComponent extends React.Component {
     } = this.props;
 
     if (!this.isPatientVisibleInNavbar()) return null; // only show on pages with a patient of focus
+
+    const combinedPatient = personUtils.combinedAccountAndClinicPatient(patient, clinicPatient);
     
     return (
       <NavPatientHeader 
-        patient={patient}
-        clinicPatient={clinicPatient}
+        patient={combinedPatient}
         user={user} 
         trackMetric={trackMetric} 
         permsOfLoggedInUser={permsOfLoggedInUser}
