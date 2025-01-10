@@ -78,8 +78,6 @@ const getOpts = (
 
   const dates = defaultDates();
 
-  console.log('useAgpCGM dates', dates);
-
   const formatDateEndpoints = ({ startDate, endDate }) => (startDate && endDate ? [
     startDate.valueOf(),
     moment.utc(endDate).tz(timezoneName).add(1, 'day').startOf('day').valueOf(),
