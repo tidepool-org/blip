@@ -87,7 +87,7 @@ const CGMStatistics = ({ agpCGM }) => {
             id="agp-table-avg-glucose"
             label={t('Average Glucose')}
             sublabel={t('(Goal <{{avgGlucoseTarget}} {{bgUnits}})', { avgGlucoseTarget, bgUnits })}
-            value={avgGlucose.value}
+            value={avgGlucose?.value}
             units={` ${bgUnits}`}
           />
           <TableRow
