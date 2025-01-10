@@ -5278,9 +5278,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.44.0-web-3272-patient-data-linking-after-creation.1":
-  version: 1.44.0-web-3272-patient-data-linking-after-creation.1
-  resolution: "@tidepool/viz@npm:1.44.0-web-3272-patient-data-linking-after-creation.1"
+"@tidepool/viz@npm:1.44.0-web-3272-patient-data-linking-after-creation.2":
+  version: 1.44.0-web-3272-patient-data-linking-after-creation.2
+  resolution: "@tidepool/viz@npm:1.44.0-web-3272-patient-data-linking-after-creation.2"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -5340,7 +5340,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 6f9799cc821eb17d6247d2e842ffe4f6725460a1f993457c4274707331044e484cf58ae0a2312f340ae7408c52afe7f0842c954df9977e962b05be1b5aa2babd
+  checksum: 91bcb799bb570cc8e3eef9d0a89a13509a69bf2baef94a5a9d2c8e2000c4201db72f205468ff6efb149122bb8cd28a1bf2b07186351496221cfad744bafefd38
   languageName: node
   linkType: hard
 
@@ -7182,7 +7182,7 @@ __metadata:
     "@storybook/react": 7.5.0
     "@storybook/react-webpack5": 7.5.0
     "@testing-library/react-hooks": 8.0.1
-    "@tidepool/viz": 1.44.0-web-3272-patient-data-linking-after-creation.1
+    "@tidepool/viz": 1.44.0-web-3272-patient-data-linking-after-creation.2
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
