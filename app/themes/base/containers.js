@@ -54,7 +54,29 @@ export default ({ borders, colors, radii, space }) => {
     mb: 0,
   };
 
+  const card = {
+    ...defaultStyles,
+    ...fluid,
+    ...rounded,
+    borderLeft: ['none', borders.card],
+    borderRight: ['none', borders.card],
+    borderTop: borders.card,
+    borderBottom: borders.card,
+    bg: 'rgba(240, 245, 255, 1)',
+    mb: 0,
+    cursor: 'pointer',
+
+    '.card-content': {
+      p: space[3],
+    },
+
+    '&:hover': {
+      bg: 'rgba(112, 143, 194, 0.1)',
+    },
+  };
+
   return {
+    card,
     fluid,
     fluidRounded: {
       ...fluid,
