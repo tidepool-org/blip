@@ -28,9 +28,9 @@ const patientProps = {
 
 const clinicPatientProps = { 
   id: '1234',
-  birthDate: "1965-01-01",
-  fullName: "Naoya Inoue",
-  mrn: "999999",
+  birthDate: '1965-01-01',
+  fullName: 'Naoya Inoue',
+  mrn: '999999',
 };
 
 describe('NavPatientHeader', () => {
