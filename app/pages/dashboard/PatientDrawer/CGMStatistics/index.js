@@ -1,26 +1,11 @@
 import React from 'react';
-import colorPalette from '../../../themes/colorPalette';
+import colorPalette from '../../../../themes/colorPalette';
 import { useTranslation } from 'react-i18next';
-import { useSelector } from 'react-redux';
 import { Flex, Box, Text } from 'theme-ui';
-import moment from 'moment';
 import { utils as vizUtils } from '@tidepool/viz';
 const { formatDatum, bankersRound } = vizUtils.stat;
-import utils from '../../../core/utils';
-import { MGDL_UNITS } from '../../../core/constants';
-
-const formatDateRange = (startEndpoint, endEndpoint, timezoneName) => {
-  const startDate = moment.utc(startEndpoint).tz(timezoneName);
-  const endDate   = moment.utc(endEndpoint).tz(timezoneName);
-  const startYear = startDate.year();
-  const endYear   = endDate.year();
-
-  if (startYear !== endYear) {
-    return `${startDate.format('MMMM D, YYYY')} - ${endDate.format('MMMM D, YYYY')}`;
-  }
-
-  return `${startDate.format('MMMM D')} - ${endDate.format('MMMM D')}, ${endDate.format('YYYY')}`;
-}
+import { MGDL_UNITS } from '../../../../core/constants';
+import getReportDaysText from './getReportDaysText';
 
 const TableRow = ({ label, sublabel, value, units, id }) => {
   return (
@@ -62,7 +47,7 @@ const CGMStatistics = ({ agpCGM }) => {
       current: {
         endpoints: { days: endpointDays },
         stats: {
-          bgExtents: { newestDatum, oldestDatum },
+          bgExtents: { newestDatum, oldestDatum, bgDaysWorn },
           sensorUsage: { sensorUsageAGP },
           averageGlucose: { averageGlucose },
           glucoseManagementIndicator: { glucoseManagementIndicatorAGP },
@@ -78,11 +63,11 @@ const CGMStatistics = ({ agpCGM }) => {
 
   const avgGlucoseTarget = bgUnits === MGDL_UNITS ? '154' : '8.6';
 
-  const dateRange  = formatDateRange(oldestDatum.time, newestDatum.time, timezoneName);
   const daySpan    = endpointDays;
 
   const formattingOpts = { bgPrefs, useAGPFormat: true }
 
+  const dateRange  = getReportDaysText(newestDatum, oldestDatum, bgDaysWorn, timezoneName);
   const cgmActive  = bankersRound(sensorUsageAGP, 1);
   const avgGlucose = formatDatum({ value: averageGlucose }, 'bgValue', formattingOpts);
   const gmi        = formatDatum({ value: glucoseManagementIndicatorAGP }, 'gmi', formattingOpts);
