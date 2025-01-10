@@ -17,5 +17,15 @@ export const getPatientListLink = (clinicFlowActive, selectedClinicId, query, pa
     patientListLink = `/dashboard/${query.dashboard}?drawerPatientId=${patientId}`;
   };
 
-  return { patientListLink }
+  return { patientListLink };
+}
+
+export const getDemographicInfo = (patient, clinicPatient) => {
+  const combinedPatient = personUtils.combinedAccountAndClinicPatient(patient, clinicPatient);
+
+  const name = personUtils.patientFullName(combinedPatient);
+  const birthday = combinedPatient?.profile?.patient?.birthday;
+  const mrn = clinicPatient?.mrn;
+
+  return { name, birthday, mrn };
 }
