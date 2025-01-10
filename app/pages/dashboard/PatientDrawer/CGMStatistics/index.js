@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Flex, Box, Text } from 'theme-ui';
 import { utils as vizUtils } from '@tidepool/viz';
 const { formatDatum, bankersRound } = vizUtils.stat;
+const { getTimezoneFromTimePrefs } = vizUtils.datetime;
 import { MGDL_UNITS } from '../../../../core/constants';
 import getReportDaysText from './getReportDaysText';
 
@@ -45,33 +46,28 @@ const CGMStatistics = ({ agpCGM }) => {
     bgPrefs,
     data: {
       current: {
-        endpoints: { days: endpointDays },
         stats: {
           bgExtents: { newestDatum, oldestDatum, bgDaysWorn },
           sensorUsage: { sensorUsageAGP },
           averageGlucose: { averageGlucose },
           glucoseManagementIndicator: { glucoseManagementIndicatorAGP },
-          coefficientOfVariation: { coefficientOfVariation }
+          coefficientOfVariation: { coefficientOfVariation },
         },
       }
-    }
+    },
   } = agpCGM;
 
   const { bgUnits } = bgPrefs;
 
-  const timezoneName = vizUtils.datetime.getTimezoneFromTimePrefs(timePrefs);
+  const timezone = getTimezoneFromTimePrefs(timePrefs);
 
   const avgGlucoseTarget = bgUnits === MGDL_UNITS ? '154' : '8.6';
 
-  const daySpan    = endpointDays;
-
-  const formattingOpts = { bgPrefs, useAGPFormat: true }
-
-  const dateRange  = getReportDaysText(newestDatum, oldestDatum, bgDaysWorn, timezoneName);
+  const dateRange  = getReportDaysText(newestDatum, oldestDatum, bgDaysWorn, timezone);
   const cgmActive  = bankersRound(sensorUsageAGP, 1);
-  const avgGlucose = formatDatum({ value: averageGlucose }, 'bgValue', formattingOpts);
-  const gmi        = formatDatum({ value: glucoseManagementIndicatorAGP }, 'gmi', formattingOpts);
-  const cov        = formatDatum({ value: coefficientOfVariation }, 'cv', formattingOpts);
+  const avgGlucose = formatDatum({ value: averageGlucose }, 'bgValue', { bgPrefs, useAGPFormat: true });
+  const gmi        = formatDatum({ value: glucoseManagementIndicatorAGP }, 'gmi', { bgPrefs, useAGPFormat: true });
+  const cov        = formatDatum({ value: coefficientOfVariation }, 'cv', { bgPrefs, useAGPFormat: true });
 
   return (
     <Flex sx={{ alignItems: 'center', width: '100%', height: '100%' }} id='agp-cgm-statistics'>
@@ -79,7 +75,7 @@ const CGMStatistics = ({ agpCGM }) => {
           <TableRow
             id="agp-table-time-range"
             label={t('Time Range')}
-            value={t('{{dateRange}} ({{daySpan}} days)', { dateRange, daySpan })}
+            value={t('{{dateRange}} ({{bgDaysWorn}} days)', { dateRange, bgDaysWorn })}
           />
           <TableRow
             id="agp-table-cgm-active"

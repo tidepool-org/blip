@@ -4,7 +4,7 @@ import isNumber from 'lodash/isNumber';
 import { utils as vizUtils } from '@tidepool/viz';
 const { getOffset } = vizUtils.datetime;
 
-export const formatDateRange = (startDate, endDate, dateParseFormat, monthFormat = 'MMM') => {
+const formatDateRange = (startDate, endDate, dateParseFormat, monthFormat = 'MMM') => {
   const start = moment.utc(startDate, dateParseFormat);
   const end = moment.utc(endDate, dateParseFormat);
 
