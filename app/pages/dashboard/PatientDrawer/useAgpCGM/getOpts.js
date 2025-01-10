@@ -2,6 +2,7 @@ import moment from 'moment-timezone';
 import _ from 'lodash';
 import get from 'lodash/get';
 import { utils as vizUtils } from '@tidepool/viz';
+import utils from '../../../../core/utils';
 
 const getTimezoneFromTimePrefs = vizUtils.datetime.getTimezoneFromTimePrefs;
 
@@ -39,7 +40,16 @@ const getOpts = (
     agpCGM: getMostRecentDatumTimeByChartType(data, 'agpCGM'),
   };
 
-  const timezoneName = getTimezoneFromTimePrefs(data?.timePrefs);
+  const timePrefs = (() => {
+    const latestTimeZone = data?.metaData?.latestTimeZone;
+    const queryParams = {};
+
+    const localTimePrefs = utils.getTimePrefsForDataProcessing(latestTimeZone, queryParams);
+    
+    return localTimePrefs;
+  })()
+
+  const timezoneName = getTimezoneFromTimePrefs(timePrefs);
 
   const endOfToday = moment.utc().tz(timezoneName).endOf('day').subtract(1, 'ms');
 
@@ -67,6 +77,8 @@ const getOpts = (
   });
 
   const dates = defaultDates();
+
+  console.log('useAgpCGM dates', dates);
 
   const formatDateEndpoints = ({ startDate, endDate }) => (startDate && endDate ? [
     startDate.valueOf(),
