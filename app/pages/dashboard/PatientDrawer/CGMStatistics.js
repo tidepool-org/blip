@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 import { Flex, Box, Text } from 'theme-ui';
 import moment from 'moment';
 import { utils as vizUtils } from '@tidepool/viz';
-const { formatDatum } = vizUtils.stat;
+const { formatDatum, bankersRound } = vizUtils.stat;
 import utils from '../../../core/utils';
 import { MGDL_UNITS } from '../../../core/constants';
 
@@ -80,14 +80,13 @@ const CGMStatistics = ({ agpCGM }) => {
 
   const dateRange  = formatDateRange(oldestDatum.time, newestDatum.time, timezoneName);
   const daySpan    = endpointDays;
-  const cgmActive  = utils.roundToPrecision(sensorUsageAGP, 1);
-  
-  const cov        = utils.roundToPrecision(coefficientOfVariation, 1);
 
   const formattingOpts = { bgPrefs, useAGPFormat: true }
 
+  const cgmActive  = bankersRound(sensorUsageAGP, 1);
   const avgGlucose = formatDatum({ value: averageGlucose }, 'bgValue', formattingOpts);
   const gmi        = formatDatum({ value: glucoseManagementIndicatorAGP }, 'gmi', formattingOpts);
+  const cov        = formatDatum({ value: coefficientOfVariation }, 'cv', formattingOpts);
 
   return (
     <Flex sx={{ alignItems: 'center', width: '100%', height: '100%' }} id='agp-cgm-statistics'>
@@ -121,8 +120,8 @@ const CGMStatistics = ({ agpCGM }) => {
             id="agp-table-cov"
             label={t('Glucose Variability')}
             sublabel={t('(Defined as a percent coefficient of variation. Goal <= 36%)')}
-            value={`${cov}`}
-            units="%"
+            value={cov?.value}
+            units={cov?.suffix}
           />
       </Box>
     </Flex>
