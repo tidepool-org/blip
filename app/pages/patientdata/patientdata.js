@@ -42,7 +42,7 @@ import Stats from '../../components/chart/stats';
 import { bgLog as BgLog } from '../../components/chart';
 import { settings as Settings } from '../../components/chart';
 import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
-import baseTheme, { breakpoints, colors, radii } from '../../themes/baseTheme';
+import baseTheme, { breakpoints, radii } from '../../themes/baseTheme';
 
 import Messages from '../../components/messages';
 import ChartDateRangeModal from '../../components/ChartDateRangeModal';
@@ -52,10 +52,10 @@ import Button from '../../components/elements/Button';
 
 import ToastContext from '../../providers/ToastProvider';
 
-import { Box, Flex } from 'theme-ui';
+import { Box, Flex, Link } from 'theme-ui';
 import Checkbox from '../../components/elements/Checkbox';
 import PopoverLabel from '../../components/elements/PopoverLabel';
-import { Body2, Paragraph2 } from '../../components/elements/FontStyles';
+import { Body2, Paragraph1, Paragraph2 } from '../../components/elements/FontStyles';
 import Card from '../../components/elements/Card';
 import UploaderBanner from '../../components/elements/Card/Banners/Uploader.png';
 import DataConnectionsBanner from '../../components/elements/Card/Banners/DataConnections.png';
@@ -321,14 +321,49 @@ export const PatientDataClass = createReactClass({
             color: 'white',
             fontWeight: 'medium',
             bg: 'blueGreyDark',
-            textAlign: 'center'
+            textAlign: 'center',
           }}>{t('No Data Available')}</Body2>
 
-          <Box p={3} sx={{ bg: 'white' }}>
-            <Flex sx={{ gap: 3, flexWrap: ['wrap', null, 'nowrap'] }}>
+          <Flex
+            p={3}
+            sx={{
+              bg: 'white',
+              textAlign: 'center',
+              minHeight: [0, 0, '50vh'],
+              flexDirection: 'column'
+            }}
+          >
+            <Flex mb={4} sx={{ gap: 3, flexWrap: ['wrap', null, 'nowrap'] }}>
               {_.map(cards, card => <Card {...card} />)}
             </Flex>
-          </Box>
+
+            <Flex
+              sx={{
+                flexDirection: 'column',
+                justifyContent: ['flex-start', 'space-between'],
+                flexGrow: 1,
+              }}
+            >
+              <Trans>
+                <Paragraph1 mb="0.5em" sx={{ fontWeight: 'medium' }}>
+                  Already uploaded? <Link href="" className="uploader-color-override" onClick={this.handleClickNoDataRefresh}>Click to reload.</Link>
+                </Paragraph1>
+
+                <Paragraph1 sx={{ fontWeight: 'medium' }}>
+                  Need help? Email us at <Link className="uploader-color-override" href="mailto:support@tidepool.org">support@tidepool.org</Link> or visit our <Link className="uploader-color-override" href="http://support.tidepool.org/">help page</Link>.
+                </Paragraph1>
+              </Trans>
+
+              <Button
+                variant="secondaryCondensed"
+                onClick={this.handleClickNoDataRefresh}
+                mt={4}
+                sx={{ width: 'fit-content', alignSelf: ['center', null, 'flex-start'] }}
+              >
+                {t('Refresh')}
+              </Button>
+            </Flex>
+          </Flex>
         </Box>
 
         {uploadLaunchOverlay}
