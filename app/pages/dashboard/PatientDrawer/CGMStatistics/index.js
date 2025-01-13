@@ -33,8 +33,8 @@ const TableRow = ({ label, sublabel, value, units, id }) => {
         {units && <Text sx={{ fontWeight: 'medium', fontSize: 0 }}>{units}</Text>}
       </Box>
     </Flex>
-  )
-}
+  );
+};
 
 const CGMStatistics = ({ agpCGM }) => {
   const { t } = useTranslation();
@@ -106,7 +106,7 @@ const CGMStatistics = ({ agpCGM }) => {
           />
       </Box>
     </Flex>
-  )
-}
+  );
+};
 
 export default CGMStatistics;

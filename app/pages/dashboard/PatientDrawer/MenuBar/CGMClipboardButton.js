@@ -70,9 +70,9 @@ const getCGMClipboardText = (patient, agpCGM, t) => {
   clipboardText += textUtil.buildTextLine(t('Reporting Period: {{dateRange}}', { dateRange }));
   clipboardText += textUtil.buildTextLine('');
   clipboardText += textUtil.buildTextLine(t('Avg. Daily Time In Range ({{bgUnits}})', { bgUnits }));
-  clipboardText += textUtil.buildTextLine(t('{{targetRange}}   {{percentInTarget}}%', { targetRange, percentInTarget }));
-  clipboardText += textUtil.buildTextLine(t('{{lowRange}}   {{percentInLow}}%', { lowRange, percentInLow }));
-  clipboardText += textUtil.buildTextLine(t('{{veryLowRange}}   {{percentInVeryLow}}%', { veryLowRange, percentInVeryLow }));
+  clipboardText += textUtil.buildTextLine(t('{{targetRange}}   {{percentInTarget}}', { targetRange, percentInTarget }));
+  clipboardText += textUtil.buildTextLine(t('{{lowRange}}   {{percentInLow}}', { lowRange, percentInLow }));
+  clipboardText += textUtil.buildTextLine(t('{{veryLowRange}}   {{percentInVeryLow}}', { veryLowRange, percentInVeryLow }));
   clipboardText += textUtil.buildTextLine('');
   clipboardText += textUtil.buildTextLine(t('Avg. Glucose (CGM): {{avgGlucose}} {{bgUnits}}', { avgGlucose, bgUnits }));
 
@@ -102,6 +102,8 @@ const CGMClipboardButton = ({ patient, agpCGM }) => {
   const { count, sampleFrequency } = agpCGM?.data?.current?.stats?.sensorUsage || {};
 
   const hoursOfCGMData = count * sampleFrequency;
+
+  console.log('(hoursOfCGMData / MS_IN_HOUR)', (hoursOfCGMData / MS_IN_HOUR));
 
   const isDataInsufficient = !hoursOfCGMData || ((hoursOfCGMData / MS_IN_HOUR) < 24); // minimum 24 hours
 
