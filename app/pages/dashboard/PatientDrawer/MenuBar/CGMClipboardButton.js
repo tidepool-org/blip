@@ -54,9 +54,9 @@ const getCGMClipboardText = (patient, agpCGM, t) => {
   const lowRange     = `${veryLowThreshold}-${targetLowerBound}`;
   const veryLowRange = `<${veryLowThreshold}`;
   
-  const percentInTarget  = formatPercentage((counts.target / counts.total) * 100, 0, true);
-  const percentInLow     = formatPercentage((counts.low * 100 ) / counts.total, 0, true);
-  const percentInVeryLow = formatPercentage((counts.veryLow * 100 ) / counts.total, 0, true);
+  const percentInTarget  = formatPercentage(counts.target / counts.total, 0, true);
+  const percentInLow     = formatPercentage(counts.low / counts.total, 0, true);
+  const percentInVeryLow = formatPercentage(counts.veryLow / counts.total, 0, true);
 
   const avgGlucose = formatDatum({ value: averageGlucose }, 'bgValue', { bgPrefs, useAGPFormat: true });
 
