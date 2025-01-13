@@ -98,8 +98,9 @@ const CGMClipboardButton = ({ patient, agpCGM }) => {
 
   const { count, sampleFrequency } = agpCGM?.data?.current?.stats?.sensorUsage || {};
 
-  const isDataInsufficient = ((count * sampleFrequency) / MS_IN_HOUR) < 24; // minimum 24 hours
-  const isDisabled = !agpCGM || isDataInsufficient;
+  const hoursOfCGMData = count * sampleFrequency;
+
+  const isDataInsufficient = !hoursOfCGMData || ((hoursOfCGMData / MS_IN_HOUR) < 24); // minimum 24 hours
 
   const handleCopy = () => {
     navigator?.clipboard?.writeText(clipboardText);
@@ -107,7 +108,7 @@ const CGMClipboardButton = ({ patient, agpCGM }) => {
   };
 
   return (
-    <Button disabled={isDisabled} onClick={handleCopy} variant="secondary">
+    <Button disabled={isDataInsufficient} onClick={handleCopy} variant="secondary">
       {buttonState === STATE.CLICKED 
         ? <Box>{t('Copied ✓')}</Box> 
         : <Box>{t('Copy as Text')}</Box>
