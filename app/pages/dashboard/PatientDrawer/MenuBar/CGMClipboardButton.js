@@ -30,8 +30,6 @@ const CGMClipboardButton = ({ patient, pdf }) => {
 
   const hoursOfCGMData = count * sampleFrequency;
 
-  console.log('(hoursOfCGMData / MS_IN_HOUR)', (hoursOfCGMData / MS_IN_HOUR));
-
   const isDataInsufficient = !hoursOfCGMData || ((hoursOfCGMData / MS_IN_HOUR) < 24); // minimum 24 hours
 
   const handleCopy = () => {
