@@ -5,7 +5,8 @@ import utils from '../../../../core/utils';
 import { MGDL_UNITS, MS_IN_HOUR } from '../../../../core/constants';
 import { utils as vizUtils } from '@tidepool/viz';
 const { TextUtil } = vizUtils.text;
-import { Box } from 'theme-ui'
+const { formatPercentage, formatDatum } = vizUtils.stat;
+import { Box } from 'theme-ui';
 import moment from 'moment';
 
 const formatDateRange = (startEndpoint, endEndpoint, timezoneName) => {
@@ -28,7 +29,7 @@ const getCGMClipboardText = (patient, agpCGM, t) => {
 
   const {
     timePrefs,
-    bgPrefs: { bgUnits },
+    bgPrefs,
     data: {
       current: {
         stats: {
@@ -40,22 +41,24 @@ const getCGMClipboardText = (patient, agpCGM, t) => {
     },
   } = agpCGM;
 
+  const { bgUnits, bgBounds } = bgPrefs || {};
+  const { targetUpperBound, targetLowerBound, veryLowThreshold } = bgBounds || {};
+
   const timezoneName = vizUtils.datetime.getTimezoneFromTimePrefs(timePrefs);
 
   const currentDate = moment().format('MMMM Do, YYYY');
 
-  // TODO: Add test for no data scenario
   const dateRange = formatDateRange(oldestDatum?.time, newestDatum?.time, timezoneName);
 
-  const targetRange  = bgUnits === MGDL_UNITS ? '70-180' : '3.9-10.0';
-  const lowRange     = bgUnits === MGDL_UNITS ? '54-70' : '3.0-3.9';
-  const veryLowRange = bgUnits === MGDL_UNITS ? '<54' : '<3.0';
+  const targetRange  = `${targetLowerBound}-${targetUpperBound}`;
+  const lowRange     = `${veryLowThreshold}-${targetLowerBound}`;
+  const veryLowRange = `<${veryLowThreshold}`;
   
-  const countsInTarget  = utils.roundToPrecision((counts.target / counts.total) * 100, 0);
-  const countsInLow     = utils.roundToPrecision((counts.low * 100 ) / counts.total, 0);
-  const countsInVeryLow = utils.roundToPrecision((counts.veryLow * 100 ) / counts.total, 0);
+  const percentInTarget  = formatPercentage((counts.target / counts.total) * 100, 0, true);
+  const percentInLow     = formatPercentage((counts.low * 100 ) / counts.total, 0, true);
+  const percentInVeryLow = formatPercentage((counts.veryLow * 100 ) / counts.total, 0, true);
 
-  const avgGlucose   = utils.roundToPrecision(averageGlucose, bgUnits === MGDL_UNITS ? 0 : 1);
+  const avgGlucose = formatDatum({ value: averageGlucose }, 'bgValue', { bgPrefs, useAGPFormat: true });
 
   const textUtil = new TextUtil();
   let clipboardText = '';
@@ -67,9 +70,9 @@ const getCGMClipboardText = (patient, agpCGM, t) => {
   clipboardText += textUtil.buildTextLine(t('Reporting Period: {{dateRange}}', { dateRange }));
   clipboardText += textUtil.buildTextLine('');
   clipboardText += textUtil.buildTextLine(t('Avg. Daily Time In Range ({{bgUnits}})', { bgUnits }));
-  clipboardText += textUtil.buildTextLine(t('{{targetRange}} {{countsInTarget}}%', { targetRange, countsInTarget }));
-  clipboardText += textUtil.buildTextLine(t('{{lowRange}} {{countsInLow}}%', { lowRange, countsInLow }));
-  clipboardText += textUtil.buildTextLine(t('{{veryLowRange}} {{countsInVeryLow}}%', { veryLowRange, countsInVeryLow }));
+  clipboardText += textUtil.buildTextLine(t('{{targetRange}}   {{percentInTarget}}%', { targetRange, percentInTarget }));
+  clipboardText += textUtil.buildTextLine(t('{{lowRange}}   {{percentInLow}}%', { lowRange, percentInLow }));
+  clipboardText += textUtil.buildTextLine(t('{{veryLowRange}}   {{percentInVeryLow}}%', { veryLowRange, percentInVeryLow }));
   clipboardText += textUtil.buildTextLine('');
   clipboardText += textUtil.buildTextLine(t('Avg. Glucose (CGM): {{avgGlucose}} {{bgUnits}}', { avgGlucose, bgUnits }));
 
