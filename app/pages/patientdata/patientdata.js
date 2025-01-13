@@ -42,12 +42,9 @@ import Stats from '../../components/chart/stats';
 import { bgLog as BgLog } from '../../components/chart';
 import { settings as Settings } from '../../components/chart';
 import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
-import baseTheme, { fontWeights, borders, radii } from '../../themes/baseTheme';
-import { Body1, Title } from '../../components/elements/FontStyles';
-import DexcomLogoIcon from '../../core/icons/DexcomLogo.svg';
+import baseTheme, { breakpoints, colors, radii } from '../../themes/baseTheme';
 
 import Messages from '../../components/messages';
-import UploaderButton from '../../components/uploaderbutton';
 import ChartDateRangeModal from '../../components/ChartDateRangeModal';
 import ChartDateModal from '../../components/ChartDateModal';
 import PrintDateRangeModal from '../../components/PrintDateRangeModal';
@@ -58,8 +55,11 @@ import ToastContext from '../../providers/ToastProvider';
 import { Box, Flex } from 'theme-ui';
 import Checkbox from '../../components/elements/Checkbox';
 import PopoverLabel from '../../components/elements/PopoverLabel';
-import { Paragraph2 } from '../../components/elements/FontStyles';
-import { DIABETES_DATA_TYPES } from '../../core/constants';
+import { Body2, Paragraph2 } from '../../components/elements/FontStyles';
+import Card from '../../components/elements/Card';
+import UploaderBanner from '../../components/elements/Card/Banners/Uploader.png';
+import DataConnectionsBanner from '../../components/elements/Card/Banners/DataConnections.png';
+import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
 
 const { Loader } = vizComponents;
 const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
@@ -260,116 +260,93 @@ export const PatientDataClass = createReactClass({
   },
 
   renderNoData: function() {
-    const { t } = this.props;
-    var content = t('{{patientName}} does not have any data yet.', {patientName: personUtils.patientFullName(this.props.patient)});
-    var header = this.renderEmptyHeader('No Data Available');
-    var uploadLaunchOverlay = this.state.showUploadOverlay ? this.renderUploadOverlay() : null;
+    const { t, currentPatientInViewId, isUserPatient, selectedClinicId } = this.props;
+    const uploadLaunchOverlay = this.state.showUploadOverlay ? this.renderUploadOverlay() : null;
+    const dataConnectionsModal = this.state.showDataConnectionsModal ? this.renderDataConnectionsModal() : null;
 
-    var self = this;
-    var handleClickUpload = function() {
-      self.props.trackMetric('Clicked No Data Upload');
-    };
-    var handleClickBlipNotes = function() {
-      self.props.trackMetric('Clicked No Data Get Blip Notes');
-    };
-    var handleClickDexcomConnect = function() {
-      self.props.trackMetric('Clicked No Data Connect Dexcom');
-      self.props.history.push(`/patients/${self.props.currentPatientInViewId}/profile?dexcomConnect=patient-empty-data`);
-    };
-    var handleClickLaunch = function(e) {
+    const self = this;
+
+    var handleClickUpload = function(e) {
       if (e) {
         e.preventDefault();
         e.stopPropagation();
       }
+
+      const properties = { patientID: currentPatientInViewId };
+      if (selectedClinicId) properties.clinicId = selectedClinicId;
+      self.props.trackMetric('Clicked No Data Upload Card', properties);
       self.setState({showUploadOverlay: true});
       launchCustomProtocol('tidepoolupload://open');
-    }
+    };
 
-    if (this.props.isUserPatient) {
-      content = (
-        <Trans className="patient-data-uploader-message" i18nKey="html.patientdata-uploaded-message">
-            <Box
-              variant="containers.smallBordered"
-              py={[3, 5, 6]}
-              px={[2, 3]}
-              sx={{
-                borderTop: ['none', borders.default],
-                borderBottom: ['none', borders.default],
-              }}
-            >
-              <Title mb={3} fontSize={3} sx={{ fontWeight: fontWeights.medium }}>To upload your data, install Tidepool Uploader</Title>
+    var handleClickDataConnections = function() {
+      const properties = { patientID: currentPatientInViewId };
+      if (selectedClinicId) properties.clinicId = selectedClinicId;
+      self.props.trackMetric('Clicked No Data Data Connections Card', properties);
+      self.setState({showDataConnectionsModal: true});
+    };
 
-              <UploaderButton
-                onClick={handleClickUpload}
-                buttonText={t('Get the Tidepool Uploader')}
-              />
 
-              <Body1 color="mediumGrey" fontWeight={fontWeights.medium} mt={3} mb={6}>
-                If you already have Tidepool Uploader, launch it <a className="uploader-color-override" href='' onClick={handleClickLaunch} title="Upload data">here</a>
-              </Body1>
-
-              <Flex
-                py={1}
-                px={1}
-                mb={4}
-                sx={{
-                  alignItems: 'center',
-                  gap: 9,
-                  display: 'inline-flex !important',
-                  border: borders.input,
-                  borderRadius: radii.large,
-                }}
-              >
-                <Body1 ml={2} color="mediumGrey" fontWeight={fontWeights.medium}>
-                  Sync CGM Data
-                </Body1>
-
-                <Button
-                  id='dexcom-connect-link'
-                  variant="textPrimary"
-                  color="brand.dexcom"
-                  iconSrc={DexcomLogoIcon}
-                  label={t('Connect with Dexcom')}
-                  pr={0}
-                  sx={{
-                    fontWeight: 'medium',
-                    '&:hover': { color: 'brand.dexcom' },
-                    '.icon': { top: '-2px', left: '-2px' },
-                  }}
-                  onClick={handleClickDexcomConnect}
-                >
-                  Connect With
-                </Button>
-              </Flex>
-            </Box>
-
-            <p className="patient-no-data-help">
-              Already uploaded? <a href="" className="uploader-color-override" onClick={this.handleClickNoDataRefresh}>Click to reload.</a><br />
-              <b>Need help?</b> Email us at <a className="uploader-color-override" href="mailto:support@tidepool.org">support@tidepool.org</a> or visit our <a className="uploader-color-override" href="http://support.tidepool.org/">help page</a>.
-            </p>
-          </Trans>
-      );
-    }
+    const cards = [
+      {
+        title: isUserPatient
+          ? t('Connect an Account')
+          : t('Connect a Device Account'),
+        subtitle: isUserPatient
+          ? t('Do you have a Dexcom, LibreView or twiist account? When you connect an account, data can flow into Tidepool without any extra effort.')
+          : t('Does your patient have a Dexcom, LibreView, or twiist account? Automatically sync data from these accounts with the patient\'s permission.'),
+        bannerImage: DataConnectionsBanner,
+        onClick: handleClickDataConnections,
+      },
+      {
+        title: t('Upload Data Directly with Tidepool Uploader'),
+        subtitle: t('Tidepool Uploader supports over 85 devices. Download Tidepool Uploader to get started.'),
+        bannerImage: UploaderBanner,
+        onClick: handleClickUpload,
+      },
+    ];
 
     return (
-      <div>
-        {header}
-        <div className="container-box-outer patient-data-content-outer">
-          <div className="container-box-inner patient-data-content-inner">
-            <div className="patient-data-content">
-              <div className="patient-data-message-no-data">
-                {content}
-              </div>
-            </div>
-          </div>
-        </div>
+      <Box
+        mx={[0, 4, null, null, 'auto']}
+        sx={{
+          width: ['auto', null, null, 'calc(100% - 48px)'],
+          maxWidth: breakpoints[3],
+        }}
+      >
+        <Box>
+          <Body2 p={2} sx={{
+            borderTopLeftRadius: ['none', radii.default],
+            borderTopRightRadius: ['none', radii.default],
+            color: 'white',
+            fontWeight: 'medium',
+            bg: 'blueGreyDark',
+            textAlign: 'center'
+          }}>{t('No Data Available')}</Body2>
+
+          <Box p={3} sx={{ bg: 'white' }}>
+            <Flex sx={{ gap: 3, flexWrap: ['wrap', null, 'nowrap'] }}>
+              {_.map(cards, card => <Card {...card} />)}
+            </Flex>
+          </Box>
+        </Box>
+
         {uploadLaunchOverlay}
-      </div>
+        {dataConnectionsModal}
+      </Box>
     );
   },
 
   renderUploadOverlay: function() {
-    return <UploadLaunchOverlay modalDismissHandler={()=>{this.setState({showUploadOverlay: false})}}/>
+    return <UploadLaunchOverlay modalDismissHandler={()=>{this.setState({ showUploadOverlay: false })}}/>
+  },
+
+  renderDataConnectionsModal: function() {
+    return <DataConnectionsModal
+      open
+      patient={this.props.clinicPatient || this.props.patient}
+      onClose={() => this.setState({ showDataConnectionsModal: false })}
+    />
   },
 
   renderDatesDialog: function() {
@@ -2250,6 +2227,7 @@ export function getFetchers(dispatchProps, ownProps, stateProps, api, options) {
 export function mapStateToProps(state, props) {
   let user = null;
   let patient = null;
+  let clinicPatient = null;
   let permissions = {};
   let permsOfLoggedInUser = {};
 
@@ -2272,16 +2250,17 @@ export function mapStateToProps(state, props) {
       );
 
       if (patient && state.blip.selectedClinicId) {
+        clinicPatient = _.get(state.blip, [
+          'clinics',
+          state.blip.selectedClinicId,
+          'patients',
+          state.blip.currentPatientInViewId
+        ], null);
+
         _.set(
           patient,
           'profile.patient.mrn',
-          _.get(state.blip, [
-            'clinics',
-            state.blip.selectedClinicId,
-            'patients',
-            state.blip.currentPatientInViewId,
-            'mrn'
-          ])
+          clinicPatient?.mrn
         );
       }
 
@@ -2315,6 +2294,7 @@ export function mapStateToProps(state, props) {
     user: user,
     isUserPatient: personUtils.isSame(user, patient),
     patient: { permissions, ...patient },
+    clinicPatient,
     permsOfLoggedInUser: permsOfLoggedInUser,
     messageThread: state.blip.messageThread,
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
