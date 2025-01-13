@@ -168,9 +168,30 @@ describe('PatientDrawer/MenuBar/CGMClipboardButton', () => {
     });
   });
 
-  describe('When data is insufficient', () => {
+  describe('When data is insufficient due to too few enough readings', () => {
     const insufficientAgpCGM = _.cloneDeep(agpCGM);
     insufficientAgpCGM.data.current.stats.sensorUsage.count = 100;
+
+    const wrapper = mount(<CGMClipboardButton patient={patient} agpCGM={insufficientAgpCGM} />);
+
+    it('is disabled', () => {
+      expect(wrapper.find('button').props().disabled).to.be.true;
+    });
+  });
+
+  describe('When data is insufficient due to being BGM patient', () => {
+    const insufficientAgpCGM = _.cloneDeep(agpCGM);
+    insufficientAgpCGM.data.current.stats = {
+      averageGlucose: { averageGlucose: null, total: 0 },
+      bgExtents: { bgMax: null, bgMin: null, bgDaysWorn: 0 },
+      coefficientOfVariation: { coefficientOfVariation: null, total: 0, insufficientData: true },
+      glucoseManagementIndicator: { glucoseManagementIndicator: null, glucoseManagementIndicatorAGP: null, insufficientData: true },
+      sensorUsage: { sensorUsage: 0, sensorUsageAGP: 0, total: 2592000000, sampleFrequency: 300000, count: 0 },
+      timeInRange: { 
+        durations: { veryLow: null, low: null, target: null, high: null, veryHigh: null, total: 0 },
+        counts: { veryLow: 0, low: 0, target: 0, high: 0, veryHigh: 0, total: 0 },
+      },
+    };
 
     const wrapper = mount(<CGMClipboardButton patient={patient} agpCGM={insufficientAgpCGM} />);
 

@@ -58,7 +58,7 @@ const getCGMClipboardText = (patient, agpCGM, t) => {
   const percentInLow     = formatPercentage(counts.low / counts.total, 0, true);
   const percentInVeryLow = formatPercentage(counts.veryLow / counts.total, 0, true);
 
-  const avgGlucose = formatDatum({ value: averageGlucose }, 'bgValue', { bgPrefs, useAGPFormat: true })?.value;
+  const avgGlucose = averageGlucose ? formatDatum({ value: averageGlucose }, 'bgValue', { bgPrefs, useAGPFormat: true })?.value : null;
 
   const textUtil = new TextUtil();
   let clipboardText = '';
