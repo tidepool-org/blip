@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import Button from '../../../../components/elements/Button';
 import utils from '../../../../core/utils';
-import { MGDL_UNITS } from '../../../../core/constants';
+import { MGDL_UNITS, MS_IN_HOUR } from '../../../../core/constants';
 import { utils as vizUtils } from '@tidepool/viz';
 const { TextUtil } = vizUtils.text;
 import { Box } from 'theme-ui'
@@ -19,7 +19,7 @@ const formatDateRange = (startEndpoint, endEndpoint, timezoneName) => {
   }
 
   return `${startDate.format('MMMM D')} - ${endDate.format('MMMM D')}, ${endDate.format('YYYY')}`;
-}
+};
 
 const getCGMClipboardText = (patient, agpCGM, t) => {
   if (!agpCGM || !patient) return '';
@@ -36,8 +36,8 @@ const getCGMClipboardText = (patient, agpCGM, t) => {
           averageGlucose: { averageGlucose },
           timeInRange: { counts },
         },
-      }
-    }
+      },
+    },
   } = agpCGM;
 
   const timezoneName = vizUtils.datetime.getTimezoneFromTimePrefs(timePrefs);
@@ -74,37 +74,37 @@ const getCGMClipboardText = (patient, agpCGM, t) => {
   clipboardText += textUtil.buildTextLine(t('Avg. Glucose (CGM): {{avgGlucose}} {{bgUnits}}', { avgGlucose, bgUnits }));
 
   return clipboardText;
-}
+};
 
 const STATE = {
   DEFAULT: 'DEFAULT',
   CLICKED: 'CLICKED',
-}
+};
 
 const CGMClipboardButton = ({ patient, agpCGM }) => {
   const { t } = useTranslation();
   const [buttonState, setButtonState] = useState(STATE.DEFAULT);
+  const clipboardText = useMemo(() => getCGMClipboardText(patient, agpCGM, t), [patient, agpCGM, t]);
 
   useEffect(() => {
     let buttonTextEffect = setTimeout(() => {
-      setButtonState(STATE.DEFAULT)
+      setButtonState(STATE.DEFAULT);
     }, 1000);
 
     return () => {
       clearTimeout(buttonTextEffect);
-    }
-  }, [buttonState])
+    };
+  }, [buttonState]);
 
-  const sensorUsage = agpCGM?.data?.current?.stats?.sensorUsage?.sensorUsage || 0;
+  const { count, sampleFrequency } = agpCGM?.data?.current?.stats?.sensorUsage || {};
 
-  const isDisabled = !agpCGM || sensorUsage < 86400000; // minimum 24 hours
-
-  const clipboardText = useMemo(() => getCGMClipboardText(patient, agpCGM, t), [patient, agpCGM, t]);
+  const isDataInsufficient = ((count * sampleFrequency) / MS_IN_HOUR) < 24; // minimum 24 hours
+  const isDisabled = !agpCGM || isDataInsufficient;
 
   const handleCopy = () => {
     navigator?.clipboard?.writeText(clipboardText);
     setButtonState(STATE.CLICKED);
-  }
+  };
 
   return (
     <Button disabled={isDisabled} onClick={handleCopy} variant="secondary">
@@ -113,7 +113,7 @@ const CGMClipboardButton = ({ patient, agpCGM }) => {
         : <Box>{t('Copy as Text')}</Box>
       }
     </Button>
-  )
-}
+  );
+};
 
 export default CGMClipboardButton;
