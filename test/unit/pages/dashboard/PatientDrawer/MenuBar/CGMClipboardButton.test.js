@@ -160,7 +160,7 @@ Avg. Daily Time In Range (mg/dL)
 Avg. Glucose (CGM): 121 mg/dL
 `);
 
-describe.only('PatientDrawer/MenuBar/CGMClipboardButton', () => {
+describe('PatientDrawer/MenuBar/CGMClipboardButton', () => {
 
   const writeTextSpy = sinon.stub(window?.navigator?.clipboard, 'writeText');
 
