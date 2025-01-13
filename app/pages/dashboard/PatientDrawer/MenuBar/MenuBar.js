@@ -19,7 +19,7 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const patient = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]?.patients?.[patientId]);
-  const agpCGM = useSelector(state => state.blip.pdf?.data?.agpCGM); // IMPORTANT: Data taken from Redux PDF slice
+  const pdf = useSelector(state => state.blip.pdf); // IMPORTANT: Data taken from Redux PDF slice
 
   useEffect(() => {
     // DOB field in Patient object may not be populated in TIDE Dashboard, so we need to refetch
@@ -35,8 +35,8 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
   const handleReviewSuccess = () => {
     setTimeout(() => {
       onClose();
-    }, 500)
-  }
+    }, 500);
+  };
 
   const { fullName, birthDate } = patient || {}; 
   
@@ -60,7 +60,7 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
       </Flex>
       
       <Flex sx={{ justifyContent: 'flex-start', alignItems: 'center' }}>
-        <CGMClipboardButton patient={patient} agpCGM={agpCGM} />
+        <CGMClipboardButton patient={patient} pdf={pdf} />
       </Flex>
 
       <Flex sx={{ fontSize: 0, alignItems: 'center', justifyContent: 'flex-end' }}>
