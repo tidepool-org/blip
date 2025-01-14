@@ -2,21 +2,7 @@ import moment from 'moment';
 import { MS_IN_MIN } from '../../../../core/constants';
 import isNumber from 'lodash/isNumber';
 import { utils as vizUtils } from '@tidepool/viz';
-const { getOffset } = vizUtils.datetime;
-
-const formatDateRange = (startDate, endDate, dateParseFormat, monthFormat = 'MMM') => {
-  const start = moment.utc(startDate, dateParseFormat);
-  const end = moment.utc(endDate, dateParseFormat);
-
-  const isSameYear = start.isSame(end, 'year');
-  const isSameDay = start.isSame(end, 'day');
-  const startFormat = isSameYear ? start.format(`${monthFormat} D`) : start.format(`${monthFormat} D, YYYY`);
-  const endFormat = end.format(`${monthFormat} D, YYYY`);
-
-  const formattedRange = isSameDay ? endFormat : `${startFormat} - ${endFormat}`;
-
-  return formattedRange;
-};
+const { getOffset, formatDateRange } = vizUtils.datetime;
 
 const getDateRange = (startDate, endDate, dateParseFormat, _prefix, monthFormat, timezone) => {
   let start = startDate;

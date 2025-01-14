@@ -53,7 +53,7 @@ const CGMStatistics = ({ agpCGM }) => {
           glucoseManagementIndicator: { glucoseManagementIndicatorAGP },
           coefficientOfVariation: { coefficientOfVariation },
         },
-      }
+      },
     },
   } = agpCGM;
 
