@@ -10,33 +10,15 @@ const getOpts = (
   data, // data from redux (state.blip.data)
   agpPeriodInDays,
 ) => {
-  const getMostRecentDatumTimeByChartType = (data, chartType) => {
-    let latestDatums;
+  const getMostRecentDatumTimeByChartType = (data, _chartType) => {
     const getLatestDatums = types => _.pick(_.get(data, 'metaData.latestDatumByType'), types);
 
-    switch (chartType) { // cases for 'trends', 'bgLog', 'daily', and 'basics' omitted
-      case 'agpBGM':
-        latestDatums = getLatestDatums([
-          'smbg',
-        ]);
-        break;
-
-      case 'agpCGM':
-        latestDatums = getLatestDatums([
-          'cbg',
-        ]);
-        break;
-
-      default:
-        latestDatums = [];
-        break;
-    }
-
+    let latestDatums = getLatestDatums(['cbg']) || [];
+    
     return _.max(_.map(latestDatums, d => (d.normalEnd || d.normalTime)));
-  }
+  };
 
   const mostRecentDatumDates = {
-    agpBGM: getMostRecentDatumTimeByChartType(data, 'agpBGM'),
     agpCGM: getMostRecentDatumTimeByChartType(data, 'agpCGM'),
   };
 
@@ -47,7 +29,7 @@ const getOpts = (
     const localTimePrefs = utils.getTimePrefsForDataProcessing(latestTimeZone, queryParams);
     
     return localTimePrefs;
-  })()
+  })();
 
   const timezoneName = getTimezoneFromTimePrefs(timePrefs);
 
@@ -69,14 +51,7 @@ const getOpts = (
     });
   };
 
-  const defaultDates = () => ({ 
-    agpBGM: getLastNDays(agpPeriodInDays, 'agpBGM'),
-    agpCGM: getLastNDays(agpPeriodInDays, 'agpCGM'),
-
-    // 'trends', 'bgLog', 'daily', and 'basics' omitted
-  });
-
-  const dates = defaultDates();
+  const dates = getLastNDays(agpPeriodInDays, 'agpCGM');
 
   const formatDateEndpoints = ({ startDate, endDate }) => (startDate && endDate ? [
     startDate.valueOf(),
@@ -84,9 +59,8 @@ const getOpts = (
   ] : []);
 
   const opts = {
-    agpCGM:   { disabled: false, endpoints: formatDateEndpoints(dates.agpCGM) },
-    agpBGM:   { disabled: false, endpoints: formatDateEndpoints(dates.agpBGM) },
-
+    agpCGM:   { disabled: false, endpoints: formatDateEndpoints(dates) },
+    agpBGM:   { disabled: true },
     basics:   { disabled: true },
     bgLog:    { disabled: true },
     daily:    { disabled: true },

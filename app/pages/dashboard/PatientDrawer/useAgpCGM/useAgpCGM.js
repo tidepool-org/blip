@@ -17,7 +17,7 @@ export const STATUS = {
   // Other states
   NO_PATIENT_DATA:   'NO_PATIENT_DATA',
   INSUFFICIENT_DATA: 'INSUFFICIENT_DATA',
-}
+};
 
 // TODO: Revisit best way to listen for progress when we move away from blip.working
 const inferLastCompletedStep = (patientId, data, pdf) => {
@@ -33,9 +33,11 @@ const inferLastCompletedStep = (patientId, data, pdf) => {
   // Insufficient Data States ---
   const hasNoPatientData    = data.metaData?.size === 0;
   const hasInsufficientData = !!pdf?.opts?.svgDataURLS && !pdf?.opts?.svgDataURLS.agpCGM;
+  const hasNoCGMData        = !!pdf?.combined && !pdf?.data;
 
   if (hasNoPatientData)    return STATUS.NO_PATIENT_DATA;
   if (hasInsufficientData) return STATUS.INSUFFICIENT_DATA;
+  if (hasNoCGMData)        return STATUS.NO_CGM_DATA;
 
   // Happy Path States ---
   const hasImagesInState  = !!pdf?.opts?.svgDataURLS;
@@ -47,7 +49,7 @@ const inferLastCompletedStep = (patientId, data, pdf) => {
   if (hasPatientInState) return STATUS.PATIENT_LOADED;
 
   return STATUS.STATE_CLEARED;
-}
+};
 
 const FETCH_PATIENT_OPTS = { forceDataWorkerAddDataRequest: true, useCache: false };
 
@@ -104,7 +106,7 @@ const useAgpCGM = (
     return () => {
       dispatch(actions.worker.removeGeneratedPDFS());
       dispatch(actions.worker.dataWorkerRemoveDataRequest(null, patientId));
-    }
+    };
   }, []);
 
   // Note: probably unnecessary; failsafe to ensure that data is being returned for correct patient
@@ -115,6 +117,6 @@ const useAgpCGM = (
     svgDataURLS: isCorrectPatientInState ? pdf.opts?.svgDataURLS : null,
     agpCGM:      isCorrectPatientInState ? pdf.data?.agpCGM : null,
   };
-}
+};
 
 export default useAgpCGM;
