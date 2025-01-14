@@ -47,7 +47,7 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
           {fullName}
         </Text>
         { birthDate &&
-          <Text sx={{ color: colorPalette.extended.grays[10], fontWeight: 'medium', fontSize: 0 }}>
+          <Text sx={{ color: colorPalette.extended.grays[5], fontWeight: 'medium', fontSize: 0 }}>
             {t('DOB: {{birthDate}}', { birthDate })}
           </Text>
         }
