@@ -60,8 +60,9 @@ const Content = ({ api, patientId, agpPeriodInDays }) => {
   const patient = clinic?.patients?.[patientId];
 
   if (status === STATUS.NO_PATIENT_DATA)   return <NoPatientData patientName={patient?.fullName}/>;
-  if (status === STATUS.NO_CGM_DATA)    return <NoPatientData patientName={patient?.fullName}/>;
+  if (status === STATUS.NO_CGM_DATA)       return <InsufficientData />;
   if (status === STATUS.INSUFFICIENT_DATA) return <InsufficientData />;
+
   if (status !== STATUS.SVGS_GENERATED)    return <Loader show={true} overlay={false} />;
 
   const percentInRanges          = svgDataURLS?.agpCGM?.percentInRanges;

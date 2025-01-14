@@ -42,7 +42,7 @@ const pdf = {
   },
 };
 
-describe.only('PatientDrawer/MenuBar/CGMClipboardButton', () => {
+describe('PatientDrawer/MenuBar/CGMClipboardButton', () => {
   CGMClipboardButton.__Rewire__('agpCGMText', sinon.stub().returns('AGP_DATA_STRING_TO_COPY'));
 
   const writeTextSpy = sinon.stub(window?.navigator?.clipboard, 'writeText');
