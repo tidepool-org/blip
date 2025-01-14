@@ -37,7 +37,7 @@ const inferLastCompletedStep = (patientId, data, pdf) => {
 
   if (hasNoPatientData)    return STATUS.NO_PATIENT_DATA;
   if (hasInsufficientData) return STATUS.INSUFFICIENT_DATA;
-  if (hasNoCGMData)        return STATUS.NO_CGM_DATA;
+  if (hasNoCGMData)        return STATUS.INSUFFICIENT_DATA;
 
   // Happy Path States ---
   const hasImagesInState  = !!pdf?.opts?.svgDataURLS;
