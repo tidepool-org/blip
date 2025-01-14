@@ -10,7 +10,7 @@ import React from 'react';
 import { mount } from 'enzyme';
 import _ from 'lodash';
 
-import CGMStatistics from '../../../../../app/pages/dashboard/PatientDrawer/CGMStatistics';
+import CGMStatistics from '../../../../../../app/pages/dashboard/PatientDrawer/CGMStatistics';
 
 const expect = chai.expect;
 
