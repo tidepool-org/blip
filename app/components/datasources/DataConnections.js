@@ -8,6 +8,7 @@ import moment from 'moment-timezone';
 import find from 'lodash/find';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
+import intersection from 'lodash/intersection';
 import keys from 'lodash/keys';
 import map from 'lodash/map';
 import max from 'lodash/max';
@@ -317,6 +318,7 @@ export const getDataConnectionProps = (patient, isLoggedInUser, selectedClinicId
 export const DataConnections = (props) => {
   const {
     patient,
+    shownProviders,
     trackMetric,
     ...themeProps
   } = props;
@@ -519,7 +521,7 @@ export const DataConnections = (props) => {
   return (
     <>
       <Box id="data-connections" {...themeProps}>
-        {map(activeProviders, (provider, i) => (
+        {map(intersection(shownProviders, activeProviders), (provider, i) => (
           <DataConnection
             id={`data-connection-${provider}`}
             key={i}
@@ -574,10 +576,12 @@ const userDataSourceShape = {
 DataConnections.propTypes = {
   ...BoxProps,
   patient: PropTypes.oneOf([PropTypes.shape(clinicPatientDataSourceShape), PropTypes.shape(userDataSourceShape)]),
+  shownProviders: PropTypes.arrayOf(PropTypes.oneOf(activeProviders)),
   trackMetric: PropTypes.func.isRequired,
 };
 
 DataConnections.defaultProps = {
+  shownProviders: activeProviders,
   trackMetric: noop,
 };
 

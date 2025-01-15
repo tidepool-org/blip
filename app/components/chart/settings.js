@@ -3,10 +3,12 @@ import bows from 'bows';
 import PropTypes from 'prop-types';
 import React, { useState, useCallback, useEffect } from 'react';
 import { Trans, withTranslation } from 'react-i18next';
-import { Flex, Box, Text } from 'theme-ui';
+import { Flex, Box, Text, Divider, Link } from 'theme-ui';
 import moment from 'moment-timezone';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 import DateRangeRoundedIcon from '@material-ui/icons/DateRangeRounded';
+import AddRoundedIcon from '@material-ui/icons/AddRounded';
+import launchCustomProtocol from 'custom-protocol-detection';
 
 import {
   bindPopover,
@@ -28,7 +30,15 @@ import Button from '../elements/Button';
 import Popover from '../elements/Popover';
 import RadioGroup from '../../components/elements/RadioGroup';
 import { usePrevious } from '../../core/hooks';
+import { clinicPatientFromAccountInfo } from '../../core/personutils';
 import Icon from '../elements/Icon';
+import { useSelector } from 'react-redux';
+import DataConnections, { activeProviders } from '../../components/datasources/DataConnections';
+import DataConnectionsBanner from '../../components/elements/Card/Banners/DataConnections.png';
+import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
+import Card from '../elements/Card';
+import { Body1, MediumTitle } from '../elements/FontStyles';
+import Uploadlaunchoverlay from '../uploadlaunchoverlay';
 
 const log = bows('Settings View');
 
@@ -60,6 +70,8 @@ const Settings = ({
   onSwitchToBgLog,
   onClickPrint,
   patient,
+  clinicPatient,
+  isUserPatient,
   trackMetric,
   updateChartPrefs,
   uploadUrl,
@@ -78,6 +90,10 @@ const Settings = ({
   const [devices, setDevices] = useState([]);
   const [groupedData, setGroupedData] = useState([]);
   const previousSelectedDevice = usePrevious(selectedDevice);
+  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
+  const [showDataConnectionsModal, setShowDataConnectionsModal] = useState(false);
+  const [showUploadOverlay, setShowUploadOverlay] = useState(false);
+  const patientData = clinicPatient || clinicPatientFromAccountInfo(patient);
 
   const deviceSelectionPopupState = usePopupState({
     variant: 'popover',
@@ -258,6 +274,14 @@ const Settings = ({
     }
     onSwitchToBgLog();
   }, [onSwitchToBgLog]);
+
+
+  const handleClickDataConnections = function() {
+    const properties = { patientID: currentPatientInViewId };
+    if (selectedClinicId) properties.clinicId = selectedClinicId;
+    trackMetric('Clicked No Data Data Connections Card', properties);
+    setShowDataConnectionsModal(true);
+  };
 
   const toggleSettingsSection = useCallback((deviceKey, scheduleOrProfileKey) => {
     const prefs = _.cloneDeep(chartPrefs);
@@ -502,24 +526,97 @@ const Settings = ({
   };
 
   const renderMissingSettingsMessage = () => {
-    const handleClickUpload = () => {
-      trackMetric('Clicked Partial Data Upload, No Settings');
+    const handleClickUpload = function(e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      const properties = { patientID: currentPatientInViewId };
+      if (selectedClinicId) properties.clinicId = selectedClinicId;
+      trackMetric('Clicked Partial Data Upload, No Settings', properties);
+      setShowUploadOverlay(true);
+      launchCustomProtocol('tidepoolupload://open');
     };
 
     return (
-      <Trans className="patient-data-message patient-data-message-loading" i18nKey="html.setting-no-uploaded-data">
-        <p>The Device Settings view shows your basal rates, carb ratios, sensitivity factors and more, but it looks like you haven't uploaded pump data yet.</p>
-        <p>To see your Device Settings, <a
+      <Trans i18nKey="html.setting-no-uploaded-data">
+        <Body1 sx={{ fontWeight: 'medium' }}>
+          This section shows basal rates, carb ratios, sensitivity factors, and more. To see Therapy Settings, <Link
             href={uploadUrl}
             target="_blank"
             rel="noreferrer noopener"
-            onClick={handleClickUpload}>upload</a> your pump.</p>
-        <p>
-          If you just uploaded, try <a href="" onClick={onClickNoDataRefresh}>refreshing</a>.
-        </p>
+            onClick={handleClickUpload}
+          >upload</Link> data from a pump. If you just uploaded try <Link href="" onClick={onClickNoDataRefresh}>refreshing</Link>.
+        </Body1>
       </Trans>
     );
   };
+
+  const renderDeviceConnectionCard = () => {
+    const cardProps = {
+      title: isUserPatient
+        ? t('Connect an Account')
+        : t('Connect a Device Account'),
+      subtitle: isUserPatient
+        ? t('Do you have a Dexcom, LibreView or twiist account? When you connect an account, data can flow into Tidepool without any extra effort.')
+        : t('Does your patient have a Dexcom, LibreView, or twiist account? Automatically sync data from these accounts with the patient\'s permission.'),
+      bannerImage: DataConnectionsBanner,
+      onClick: handleClickDataConnections,
+      variant: 'containers.cardHorizontal',
+    };
+
+    return (
+      <Card {...cardProps} />
+    );
+  };
+
+  const renderDataConnectionsModal = () => {
+    const shownProviders = _.reject(activeProviders, providerName => _.find(patientData?.dataSources, { providerName }));
+
+    return (
+      <DataConnectionsModal
+        open
+        patient={clinicPatient || patient}
+        shownProviders={shownProviders}
+        onClose={() => setShowDataConnectionsModal(false)}
+      />
+    );
+  };
+
+  const renderDataConnections = () => {
+    const shownProviders = _.map(patientData?.dataSources, 'providerName');
+
+    let showAddDevicesButton = false;
+    _.each(activeProviders, providerName => {
+      if (!_.find(patientData?.dataSources, { providerName })) showAddDevicesButton = true;
+    });
+
+    return (
+      <Box>
+        <Flex mb={3} sx={{ justifyContent: 'space-between' }}>
+          <MediumTitle sx={{ color: 'black' }}>{t('Devices')}</MediumTitle>
+          {showAddDevicesButton && (
+            <Button
+            variant="primaryCondensed"
+            icon={AddRoundedIcon}
+            iconPosition="left"
+            onClick={handleClickDataConnections}
+            sx={{ fontSize: 1, '.icon': { fontSize: '1.25em' } }}
+            >
+              {t('Add a Device')}
+            </Button>
+            )}
+        </Flex>
+
+        <DataConnections mb={4} patient={patientData} shownProviders={shownProviders} trackMetric={trackMetric} />
+      </Box>
+    );
+  };
+
+  const renderUploadOverlay = () => (
+    <Uploadlaunchoverlay modalDismissHandler={() => setShowUploadOverlay(false)}/>
+  );
 
   return (
     <Box variant="containers.patientData" className='settings'>
@@ -549,6 +646,10 @@ const Settings = ({
             }}
           >
             <Box>
+              {patientData?.dataSources?.length > 0 ? renderDataConnections() : renderDeviceConnectionCard()}
+              <Divider my={4} />
+              <MediumTitle mb={2} sx={{ color: 'black' }}>{t('Therapy Settings')}</MediumTitle>
+
               {selectedSettingsId ? (
                 <>
                   {renderSettingsSelectionUI()}
@@ -568,6 +669,9 @@ const Settings = ({
           </Flex>
         </Box>
       </Box>
+
+      {showDataConnectionsModal && renderDataConnectionsModal()}
+      {showUploadOverlay && renderUploadOverlay()}
     </Box>
   );
 };

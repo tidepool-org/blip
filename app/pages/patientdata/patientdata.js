@@ -263,7 +263,7 @@ export const PatientDataClass = createReactClass({
 
     const self = this;
 
-    var handleClickUpload = function(e) {
+    const handleClickUpload = function(e) {
       if (e) {
         e.preventDefault();
         e.stopPropagation();
@@ -276,7 +276,7 @@ export const PatientDataClass = createReactClass({
       launchCustomProtocol('tidepoolupload://open');
     };
 
-    var handleClickDataConnections = function() {
+    const handleClickDataConnections = function() {
       const properties = { patientID: currentPatientInViewId };
       if (selectedClinicId) properties.clinicId = selectedClinicId;
       self.props.trackMetric('Clicked No Data Data Connections Card', properties);
@@ -500,6 +500,8 @@ export const PatientDataClass = createReactClass({
             currentPatientInViewId={this.props.currentPatientInViewId}
             data={this.props.data}
             patient={this.props.patient}
+            clinicPatient={this.props.clinicPatient}
+            isUserPatient={this.props.isUserPatient}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}

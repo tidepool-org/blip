@@ -720,7 +720,6 @@ export const ClinicPatients = (props) => {
   }, [isFirstRender, setToast]);
 
   const handlePatientCreatedOrEdited = useCallback(() => {
-    console.log('creatingClinicCustodialAccount', creatingClinicCustodialAccount);
     if (patientFormContext?.status?.showDataConnectionsModalNext) {
       let currentPatient = selectedPatient;
 

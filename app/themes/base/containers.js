@@ -106,8 +106,8 @@ export default ({ borders, colors, radii, space, breakpoints }) => {
 
   const patientDataInner = {
     display: 'flex',
-    p: 3,
-    pb: 4,
+    px: 3,
+    py: 4,
     bg: 'white',
     minHeight: [0, 0, '50vh'],
     flexDirection: 'row',
