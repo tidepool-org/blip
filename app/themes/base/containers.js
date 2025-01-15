@@ -66,12 +66,33 @@ export default ({ borders, colors, radii, space, breakpoints }) => {
     mb: 0,
     cursor: 'pointer',
 
+    '.card-banner-image': {
+      height: ['90px', null, '120px'],
+    },
+
     '.card-content': {
       p: space[3],
     },
 
     '&:hover': {
       bg: 'rgba(112, 143, 194, 0.1)',
+    },
+  };
+
+  const cardHorizontal = {
+    ...card,
+    width: '100%',
+    display: 'flex',
+    // flexWrap: ['wrap', 'nowrap'],
+    flexWrap: ['wrap', null, 'nowrap'],
+
+    '.card-banner-image': {
+      maxWidth: ['100%', null, '200px'],
+      // maxWidth: ['100%', '180px', '200px'],
+    },
+
+    '.card-content': {
+      p: space[3],
     },
   };
 
@@ -106,6 +127,7 @@ export default ({ borders, colors, radii, space, breakpoints }) => {
 
   return {
     card,
+    cardHorizontal,
     patientData,
     patientDataInner,
     patientDataContent,

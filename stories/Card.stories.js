@@ -48,7 +48,41 @@ export const Cards = {
     );
   },
 
-  name: 'Cards',
+  name: 'Default',
+
+  parameters: {
+    design: {
+      type: 'figma',
+      url: 'https://www.figma.com/design/LdoOQCUyQKIS2d6fUhfFJx/Cloud-to-Cloud?node-id=2044-16648&t=uxeFnlP3CHzgkNRt-0',
+    },
+  },
+};
+
+export const HorizontalCards = {
+  render: () => {
+    const cards = [
+      {
+        title: 'Connect a Device Account',
+        subtitle: 'Does your patient have a Dexcom, LibreView, or twiist account? Automatically sync data from these accounts with the patient\'s permission.',
+        bannerImage: DataConnectionsBanner,
+        onClick: action('Connect a Device'),
+      },
+      {
+        title: 'Upload Data Directly with Tidepool Uploader',
+        subtitle: 'Tidepool Uploader supports over 85 devices. Download Tidepool Uploader to get started.',
+        bannerImage: UploaderBanner,
+        onClick: action('Get Uploader'),
+      },
+    ];
+
+    return (
+      <Flex sx={{ flexDirection: 'column', gap: 3 }}>
+        {map(cards, card => <Card variant="containers.cardHorizontal" {...card} />)}
+      </Flex>
+    );
+  },
+
+  name: 'Horizontal',
 
   parameters: {
     design: {

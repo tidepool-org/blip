@@ -6,20 +6,15 @@ import noop from 'lodash/noop';
 import { Body1, Title } from '../FontStyles';
 
 export function Container(props) {
-  const { onClick, title, subtitle, bannerImage, children, ...themeProps } = props;
+  const { onClick, title, subtitle, bannerImage, children, variant, ...themeProps } = props;
 
   return (
     <Box
       onClick={onClick}
-      variant="containers.card"
+      variant={variant}
     >
       {bannerImage && (
-        <Flex
-          className="card-banner-image"
-          sx={{
-            height: ['90px', null, '120px'],
-          }}
-        >
+        <Flex className="card-banner-image">
           <Image
             src={bannerImage}
             sx={{
@@ -55,7 +50,6 @@ export function Container(props) {
             className="card-subtitle"
             sx={{
               mt: !!title ? 0 : 4,
-              mb: 2,
               color: 'text.primary',
               fontWeight: 'medium',
             }}
@@ -64,12 +58,15 @@ export function Container(props) {
           </Body1>
         )}
 
-        <Box
-          className="card-body"
-          {...themeProps}
-        >
-          {children}
-        </Box>
+        {!!children && (
+          <Box
+            className="card-body"
+            mt={2}
+            {...themeProps}
+          >
+            {children}
+          </Box>
+        )}
       </Box>
     </Box>
   );
@@ -81,10 +78,11 @@ Container.propTypes = {
   title: PropTypes.string,
   subtitle: PropTypes.string,
   onClick: PropTypes.func.isRequired,
+  variant: PropTypes.oneOf(['containers.card', 'containers.cardHorizontal'])
 };
 
 Container.defaultProps = {
-  variant: 'fluid',
+  variant: 'containers.card',
   bannerImage: true,
   onClick: noop,
 };
