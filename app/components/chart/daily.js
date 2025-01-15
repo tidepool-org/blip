@@ -23,7 +23,7 @@ import ReactDOM from 'react-dom';
 import sundial from 'sundial';
 import WindowSizeListener from 'react-window-size-listener';
 import { withTranslation } from 'react-i18next';
-import { Flex } from 'theme-ui';
+import { Box, Flex } from 'theme-ui';
 
 import Stats from './stats';
 import BgSourceToggle from './bgSourceToggle';
@@ -287,7 +287,7 @@ class Daily extends Component {
     const dataQueryComplete = _.get(this.props, 'data.query.chartType') === 'daily';
 
     return (
-      <div id="tidelineMain" className="daily">
+      <Box variant="containers.patientData" className="daily">
         <Header
           chartType={this.chartType}
           patient={this.props.patient}
@@ -307,48 +307,51 @@ class Daily extends Component {
           onClickSettings={this.props.onSwitchToSettings}
           onClickBgLog={this.handleClickBgLog}
           onClickPrint={this.handleClickPrint}
-          ref={this.headerRef} />
-        <div className="container-box-outer patient-data-content-outer">
-          <div className="container-box-inner patient-data-content-inner">
-            <div className="patient-data-content">
+          ref={this.headerRef}
+        />
+
+        <Box variant="containers.patientDataInner">
+          <Box className="patient-data-content" variant="containers.patientDataContent">
               <Loader show={!!this.chartRef && this.props.loading} overlay={true} />
               {dataQueryComplete && this.renderChart()}
 
-              <Flex mt={3} mb={5} pl="40px">
-                <Button className="btn-refresh" variant="secondary" onClick={this.props.onClickRefresh}>
-                  {this.props.t('Refresh')}
-                </Button>
-              </Flex>
-            </div>
-          </div>
-          <div className="container-box-inner patient-data-sidebar">
-            <div className="patient-data-sidebar-inner">
-              <Flex mb={2} sx={{ justifyContent: 'flex-end' }}>
-                <BgSourceToggle
-                  bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
-                  chartPrefs={this.props.chartPrefs}
-                  chartType={this.chartType}
-                  onClickBgSourceToggle={this.toggleBgDataSource}
-                />
-              </Flex>
-              <Stats
-                bgPrefs={bgPrefs}
+              <Button
+                className="btn-refresh"
+                variant="secondaryCondensed"
+                onClick={this.props.onClickRefresh}
+                mt={3}
+                ml="40px"
+              >
+                {this.props.t('Refresh')}
+              </Button>
+          </Box>
+
+          <Box className="patient-data-sidebar" variant="containers.patientDataSidebar">
+            <Flex mb={2} sx={{ justifyContent: 'flex-end' }}>
+              <BgSourceToggle
+                bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
-                stats={this.props.stats}
-                trackMetric={this.props.trackMetric}
+                onClickBgSourceToggle={this.toggleBgDataSource}
               />
-              <DeviceSelection
-                chartPrefs={this.props.chartPrefs}
-                chartType={this.chartType}
-                devices={_.get(this.props, 'data.metaData.devices', [])}
-                removeGeneratedPDFS={this.props.removeGeneratedPDFS}
-                trackMetric={this.props.trackMetric}
-                updateChartPrefs={this.props.updateChartPrefs}
-              />
-            </div>
-          </div>
-        </div>
+            </Flex>
+            <Stats
+              bgPrefs={bgPrefs}
+              chartPrefs={this.props.chartPrefs}
+              chartType={this.chartType}
+              stats={this.props.stats}
+              trackMetric={this.props.trackMetric}
+            />
+            <DeviceSelection
+              chartPrefs={this.props.chartPrefs}
+              chartType={this.chartType}
+              devices={_.get(this.props, 'data.metaData.devices', [])}
+              removeGeneratedPDFS={this.props.removeGeneratedPDFS}
+              trackMetric={this.props.trackMetric}
+              updateChartPrefs={this.props.updateChartPrefs}
+            />
+          </Box>
+        </Box>
         {this.state.hoveredBolus && <BolusTooltip
           position={{
             top: this.state.hoveredBolus.top,
@@ -400,7 +403,7 @@ class Daily extends Component {
           timePrefs={timePrefs}
         />}
         <WindowSizeListener onResize={this.handleWindowResize} />
-      </div>
+      </Box>
       );
   };
 

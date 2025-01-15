@@ -273,6 +273,214 @@ const Settings = ({
     updateChartPrefs(prefs, false);
   }, [chartPrefs, updateChartPrefs]);
 
+  const renderSettingsSelectionUI = () => (
+    <Flex mt={4} mb={5} pl={manufacturer === 'tandem' ? '20px' : 0}>
+      <Box
+        onClick={() => {
+          if (!deviceSelectionPopupState.isOpen)
+            trackMetric(prefixSettingsMetric('Device selection open'));
+        }}
+        sx={{ flexShrink: 0 }}
+      >
+        <Button
+          variant="filter"
+          id="device-selection"
+          {...bindTrigger(deviceSelectionPopupState)}
+          icon={KeyboardArrowDownRoundedIcon}
+          iconLabel="Select Device"
+          disabled={!devices.length}
+          sx={{
+            fontSize: 2,
+            lineHeight: 1.3,
+            ml: 2,
+            mr: 2,
+            fontWeight: 'bold',
+            px: 3,
+            py: 2,
+          }}
+        >
+          {_.find(devices, { value: selectedDevice })?.label ||
+            t('Select Device')}
+        </Button>
+      </Box>
+
+      <Popover
+        minWidth="11em"
+        closeIcon
+        {...bindPopover(deviceSelectionPopupState)}
+        onClickCloseIcon={() => {
+          trackMetric(prefixSettingsMetric('Device selection close'));
+        }}
+        onClose={() => {
+          deviceSelectionPopupState.close();
+        }}
+      >
+        <DialogContent px={2} py={3} dividers>
+          <RadioGroup
+            id="device"
+            name="device"
+            options={devices}
+            variant="vertical"
+            sx={{ fontSize: 0 }}
+            value={pendingDevice || selectedDevice}
+            onChange={(event) => {
+              setPendingDevice(event.target.value || null);
+            }}
+          />
+        </DialogContent>
+
+        <DialogActions sx={{ justifyContent: 'space-between' }} p={1}>
+          <Button
+            id="cancel-device-selection"
+            sx={{ fontSize: 1 }}
+            variant="textSecondary"
+            onClick={() => {
+              trackMetric(
+                prefixSettingsMetric('Device selection cancel')
+              );
+              setPendingDevice(null);
+              deviceSelectionPopupState.close();
+            }}
+          >
+            {t('Cancel')}
+          </Button>
+
+          <Button
+            id="apply-device-selection"
+            disabled={!pendingDevice}
+            sx={{ fontSize: 1 }}
+            variant="textPrimary"
+            onClick={() => {
+              trackMetric(
+                prefixSettingsMetric('Device selection apply')
+              );
+              setSelectedDevice(pendingDevice);
+              deviceSelectionPopupState.close();
+            }}
+          >
+            {t('Apply')}
+          </Button>
+        </DialogActions>
+      </Popover>
+
+      <Box sx={{ fontSize: 1, alignSelf: 'center' }}>
+        &mdash; View settings from
+      </Box>
+
+      <Box
+        onClick={() => {
+          if (!settingsSelectionPopupState.isOpen)
+            trackMetric(
+              prefixSettingsMetric('Settings selection open')
+            );
+        }}
+        sx={{ flexShrink: 0, alignItems: 'center' }}
+      >
+        <Button
+          variant="filter"
+          id="settings-selection"
+          {...bindTrigger(settingsSelectionPopupState)}
+          icon={KeyboardArrowDownRoundedIcon}
+          iconLabel="Select Settings"
+          disabled={!settingsOptions.length}
+          sx={{
+            fontSize: 1,
+            lineHeight: 1.2,
+            ml: 2,
+            mr: 2,
+            px: 3,
+            py: 2,
+          }}
+        >
+          <Icon
+            variant="default"
+            sx={{
+              mr: 2,
+            }}
+            label="Select Settings"
+            icon={DateRangeRoundedIcon}
+          />
+          <span style={{ alignSelf: 'end'}}>
+            {_.find(settingsOptions, { value: selectedSettingsId })
+              ?.label || t('Select Settings')}
+          </span>
+        </Button>
+      </Box>
+
+      <Popover
+        minWidth="11em"
+        closeIcon
+        {...bindPopover(settingsSelectionPopupState)}
+        onClickCloseIcon={() => {
+          trackMetric(prefixSettingsMetric('Settings selection close'));
+        }}
+        onClose={() => {
+          settingsSelectionPopupState.close();
+        }}
+      >
+        <DialogContent px={2} py={3} dividers>
+          <Box sx={{ alignItems: 'center' }} mb={2}>
+            <Text
+              sx={{
+                color: 'grays.4',
+                fontWeight: 'medium',
+                fontSize: 0,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {t('Past therapy settings')}
+            </Text>
+          </Box>
+
+          <RadioGroup
+            id="settings"
+            name="settings"
+            options={settingsOptions}
+            variant="vertical"
+            sx={{ fontSize: 0 }}
+            value={pendingSettings || selectedSettingsId}
+            onChange={(event) => {
+              setPendingSettings(event.target.value || null);
+            }}
+          />
+        </DialogContent>
+
+        <DialogActions sx={{ justifyContent: 'space-between' }} p={1}>
+          <Button
+            id="cancel-settings-selection"
+            sx={{ fontSize: 1 }}
+            variant="textSecondary"
+            onClick={() => {
+              trackMetric(
+                prefixSettingsMetric('Settings selection cancel')
+              );
+              setPendingSettings(null);
+              settingsSelectionPopupState.close();
+            }}
+          >
+            {t('Cancel')}
+          </Button>
+
+          <Button
+            id="apply-settings-selection"
+            disabled={!pendingSettings}
+            sx={{ fontSize: 1 }}
+            variant="textPrimary"
+            onClick={() => {
+              trackMetric(
+                prefixSettingsMetric('Settings selection apply')
+              );
+              setSelectedSettingsId(pendingSettings);
+              settingsSelectionPopupState.close();
+            }}
+          >
+            {t('Apply')}
+          </Button>
+        </DialogActions>
+      </Popover>
+    </Flex>
+  );
+
   const renderChart = () => {
     const pumpSettings = _.find(groupedData, { 0: selectedDevice })?.[1];
     const selectedSettings = _.find(pumpSettings, { id: selectedSettingsId });
@@ -314,7 +522,7 @@ const Settings = ({
   };
 
   return (
-    <div id="tidelineMain">
+    <Box variant="containers.patientData" className='settings'>
       <Header
         chartType="settings"
         patient={patient}
@@ -330,230 +538,37 @@ const Settings = ({
         onClickBgLog={handleClickBgLog}
         onClickPrint={handleClickPrint}
       />
-      <div className="container-box-outer patient-data-content-outer">
-        <div className="container-box-inner patient-data-content-inner">
-          <div className="patient-data-content">
-            <Flex mt={4} mb={5} pl={manufacturer === 'tandem' ? '20px' : 0}>
-              <Box
-                onClick={() => {
-                  if (!deviceSelectionPopupState.isOpen)
-                    trackMetric(prefixSettingsMetric('Device selection open'));
-                }}
-                sx={{ flexShrink: 0 }}
-              >
-                <Button
-                  variant="filter"
-                  id="device-selection"
-                  {...bindTrigger(deviceSelectionPopupState)}
-                  icon={KeyboardArrowDownRoundedIcon}
-                  iconLabel="Select Device"
-                  disabled={!devices.length}
-                  sx={{
-                    fontSize: 2,
-                    lineHeight: 1.3,
-                    ml: 2,
-                    mr: 2,
-                    fontWeight: 'bold',
-                    px: 3,
-                    py: 2,
-                  }}
-                >
-                  {_.find(devices, { value: selectedDevice })?.label ||
-                    t('Select Device')}
-                </Button>
-              </Box>
 
-              <Popover
-                minWidth="11em"
-                closeIcon
-                {...bindPopover(deviceSelectionPopupState)}
-                onClickCloseIcon={() => {
-                  trackMetric(prefixSettingsMetric('Device selection close'));
-                }}
-                onClose={() => {
-                  deviceSelectionPopupState.close();
-                }}
-              >
-                <DialogContent px={2} py={3} dividers>
-                  <RadioGroup
-                    id="device"
-                    name="device"
-                    options={devices}
-                    variant="vertical"
-                    sx={{ fontSize: 0 }}
-                    value={pendingDevice || selectedDevice}
-                    onChange={(event) => {
-                      setPendingDevice(event.target.value || null);
-                    }}
-                  />
-                </DialogContent>
-
-                <DialogActions sx={{ justifyContent: 'space-between' }} p={1}>
-                  <Button
-                    id="cancel-device-selection"
-                    sx={{ fontSize: 1 }}
-                    variant="textSecondary"
-                    onClick={() => {
-                      trackMetric(
-                        prefixSettingsMetric('Device selection cancel')
-                      );
-                      setPendingDevice(null);
-                      deviceSelectionPopupState.close();
-                    }}
-                  >
-                    {t('Cancel')}
-                  </Button>
-
-                  <Button
-                    id="apply-device-selection"
-                    disabled={!pendingDevice}
-                    sx={{ fontSize: 1 }}
-                    variant="textPrimary"
-                    onClick={() => {
-                      trackMetric(
-                        prefixSettingsMetric('Device selection apply')
-                      );
-                      setSelectedDevice(pendingDevice);
-                      deviceSelectionPopupState.close();
-                    }}
-                  >
-                    {t('Apply')}
-                  </Button>
-                </DialogActions>
-              </Popover>
-
-              <Box sx={{ fontSize: 1, alignSelf: 'center' }}>
-                &mdash; View settings from
-              </Box>
-
-              <Box
-                onClick={() => {
-                  if (!settingsSelectionPopupState.isOpen)
-                    trackMetric(
-                      prefixSettingsMetric('Settings selection open')
-                    );
-                }}
-                sx={{ flexShrink: 0, alignItems: 'center' }}
-              >
-                <Button
-                  variant="filter"
-                  id="settings-selection"
-                  {...bindTrigger(settingsSelectionPopupState)}
-                  icon={KeyboardArrowDownRoundedIcon}
-                  iconLabel="Select Settings"
-                  disabled={!settingsOptions.length}
-                  sx={{
-                    fontSize: 1,
-                    lineHeight: 1.2,
-                    ml: 2,
-                    mr: 2,
-                    px: 3,
-                    py: 2,
-                  }}
-                >
-                  <Icon
-                    variant="default"
-                    sx={{
-                      mr: 2,
-                    }}
-                    label="Select Settings"
-                    icon={DateRangeRoundedIcon}
-                  />
-                  <span style={{ alignSelf: 'end'}}>
-                    {_.find(settingsOptions, { value: selectedSettingsId })
-                      ?.label || t('Select Settings')}
-                  </span>
-                </Button>
-              </Box>
-
-              <Popover
-                minWidth="11em"
-                closeIcon
-                {...bindPopover(settingsSelectionPopupState)}
-                onClickCloseIcon={() => {
-                  trackMetric(prefixSettingsMetric('Settings selection close'));
-                }}
-                onClose={() => {
-                  settingsSelectionPopupState.close();
-                }}
-              >
-                <DialogContent px={2} py={3} dividers>
-                  <Box sx={{ alignItems: 'center' }} mb={2}>
-                    <Text
-                      sx={{
-                        color: 'grays.4',
-                        fontWeight: 'medium',
-                        fontSize: 0,
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {t('Past therapy settings')}
-                    </Text>
-                  </Box>
-
-                  <RadioGroup
-                    id="settings"
-                    name="settings"
-                    options={settingsOptions}
-                    variant="vertical"
-                    sx={{ fontSize: 0 }}
-                    value={pendingSettings || selectedSettingsId}
-                    onChange={(event) => {
-                      setPendingSettings(event.target.value || null);
-                    }}
-                  />
-                </DialogContent>
-
-                <DialogActions sx={{ justifyContent: 'space-between' }} p={1}>
-                  <Button
-                    id="cancel-settings-selection"
-                    sx={{ fontSize: 1 }}
-                    variant="textSecondary"
-                    onClick={() => {
-                      trackMetric(
-                        prefixSettingsMetric('Settings selection cancel')
-                      );
-                      setPendingSettings(null);
-                      settingsSelectionPopupState.close();
-                    }}
-                  >
-                    {t('Cancel')}
-                  </Button>
-
-                  <Button
-                    id="apply-settings-selection"
-                    disabled={!pendingSettings}
-                    sx={{ fontSize: 1 }}
-                    variant="textPrimary"
-                    onClick={() => {
-                      trackMetric(
-                        prefixSettingsMetric('Settings selection apply')
-                      );
-                      setSelectedSettingsId(pendingSettings);
-                      settingsSelectionPopupState.close();
-                    }}
-                  >
-                    {t('Apply')}
-                  </Button>
-                </DialogActions>
-              </Popover>
-            </Flex>
-
-            {selectedSettingsId ? renderChart() : renderMissingSettingsMessage()}
-
-            <Box mt={4} mb={5} pl={manufacturer === 'tandem' ? '20px' : 0} sx={{ float: 'left', clear: 'both' }}>
-              <Button
-                className="btn-refresh"
-                variant="secondary"
-                onClick={onClickRefresh}
-              >
-                {t('Refresh')}
-              </Button>
+      <Box variant="containers.patientDataInner">
+        <Box className="patient-data-content" variant="containers.patientDataContent">
+          <Flex
+            sx={{
+              flexDirection: 'column',
+              justifyContent: ['flex-start', 'space-between'],
+              height: ['auto', '100%'],
+            }}
+          >
+            <Box>
+              {selectedSettingsId ? (
+                <>
+                  {renderSettingsSelectionUI()}
+                  {renderChart()}
+                </>
+              ) : renderMissingSettingsMessage()}
             </Box>
-          </div>
-        </div>
-      </div>
-    </div>
+
+            <Button
+              variant="secondaryCondensed"
+              onClick={onClickRefresh}
+              mt={4}
+              sx={{ width: 'fit-content', alignSelf: ['center', null, 'flex-start'] }}
+            >
+              {t('Refresh')}
+            </Button>
+          </Flex>
+        </Box>
+      </Box>
+    </Box>
   );
 };
 

@@ -8,7 +8,7 @@ import React, { PureComponent } from 'react';
 import sundial from 'sundial';
 import WindowSizeListener from 'react-window-size-listener';
 import { withTranslation } from 'react-i18next';
-import { Flex } from 'theme-ui';
+import { Box, Flex } from 'theme-ui';
 
 import Header from './header';
 import SubNav from './trendssubnav';
@@ -476,102 +476,108 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     };
 
     return (
-      <div id="tidelineMain" className="trends grid">
+      <Box variant="containers.patientData" className="trends grid">
         {this.renderHeader()}
-        <div className="container-box-outer patient-data-content-outer">
-          <div className="container-box-inner patient-data-content-inner">
+
+        <Box variant="containers.patientDataInner">
+
+          <Box className="patient-data-content" variant="containers.patientDataContent">
             {this.renderSubNav()}
-            <div className="patient-data-content">
-              <Loader show={!!this.refs.chart && this.props.loading} overlay={true} />
-              <div id="tidelineContainer" className="patient-data-chart-trends">
-                {dataQueryComplete && this.renderChart()}
-              </div>
 
-              <Flex className="patient-data-footer-outer" mt="20px" mb={5} pl="40px" pr="10px" sx={{alignItems: 'center', justifyContent: 'space-between' }}>
-                <Button className="btn-refresh" variant="secondary" onClick={this.props.onClickRefresh}>
-                  {t('Refresh')}
-                </Button>
+            <Loader show={!!this.refs.chart && this.props.loading} overlay={true} />
 
-                <Flex
-                  variant="inputs.checkboxGroup.horizontal"
-                  sx={{ alignItems: 'center' }}
-                  bg="lightestGrey"
-                  px={3}
-                  py={2}
-                >
-                  {this.props.chartPrefs.trends.showingCbg && (
-                    <>
-                      <Checkbox
-                        label={t('100% of Readings')}
-                        name="hundred"
-                        checked={cbgFlags.cbg100Enabled}
-                        onChange={this.toggleDisplayFlags.bind(this, 'cbg100Enabled', !cbgFlags.cbg100Enabled)}
-                        {...checkboxStyles}
-                      />
-
-                      <Checkbox
-                        label={t('80% of Readings')}
-                        name="eighty"
-                        checked={cbgFlags.cbg80Enabled}
-                        onChange={this.toggleDisplayFlags.bind(this, 'cbg80Enabled', !cbgFlags.cbg80Enabled)}
-                        {...checkboxStyles}
-                      />
-
-                      <Checkbox
-                        label={t('50% of Readings')}
-                        name="fifty"
-                        checked={cbgFlags.cbg50Enabled}
-                        onChange={this.toggleDisplayFlags.bind(this, 'cbg50Enabled', !cbgFlags.cbg50Enabled)}
-                        {...checkboxStyles}
-                      />
-
-                      <Checkbox
-                        label={t('Median')}
-                        name="median"
-                        checked={cbgFlags.cbgMedianEnabled}
-                        onChange={this.toggleDisplayFlags.bind(this, 'cbgMedianEnabled', !cbgFlags.cbgMedianEnabled)}
-                        {...checkboxStyles}
-                      />
-                    </>
-                  )}
-
-                  {this.props.chartPrefs.trends.showingSmbg && (
-                    <>
-                      <Checkbox
-                        label={t('Range & Average')}
-                        name="overlayCheckbox"
-                        checked={this.props.chartPrefs.trends.smbgRangeOverlay}
-                        onChange={this.toggleBoxOverlay}
-                        {...checkboxStyles}
-                      />
-
-                      <Checkbox
-                        label={t('Group')}
-                        name="groupCheckbox"
-                        checked={this.props.chartPrefs.trends.smbgGrouped}
-                        onChange={this.toggleGrouping}
-                        {...checkboxStyles}
-                      />
-
-                      <Checkbox
-                        label={t('Lines')}
-                        name="linesCheckbox"
-                        checked={this.props.chartPrefs.trends.smbgLines}
-                        onChange={this.toggleLines}
-                        {...checkboxStyles}
-                      />
-                    </>
-                  )}
-                </Flex>
-              </Flex>
-
-              {dataQueryComplete && this.renderFocusedCbgDateTraceLabel()}
-              {dataQueryComplete && this.renderFocusedSMBGPointLabel()}
-              {dataQueryComplete && this.renderFocusedRangeLabels()}
+            <div id="tidelineContainer" className="patient-data-chart-trends">
+              {dataQueryComplete && this.renderChart()}
             </div>
-          </div>
-          <div className="container-box-inner patient-data-sidebar">
-            <div className="patient-data-sidebar-inner">
+
+            <Flex className="patient-data-footer-outer" mt="20px" mb={5} pl="40px" pr="10px" sx={{alignItems: 'center', justifyContent: 'space-between' }}>
+              <Button
+                className="btn-refresh"
+                variant="secondaryCondensed"
+                onClick={this.props.onClickRefresh}
+              >
+                {t('Refresh')}
+              </Button>
+
+              <Flex
+                variant="inputs.checkboxGroup.horizontal"
+                sx={{ alignItems: 'center' }}
+                bg="lightestGrey"
+                px={3}
+                py={2}
+              >
+                {this.props.chartPrefs.trends.showingCbg && (
+                  <>
+                    <Checkbox
+                      label={t('100% of Readings')}
+                      name="hundred"
+                      checked={cbgFlags.cbg100Enabled}
+                      onChange={this.toggleDisplayFlags.bind(this, 'cbg100Enabled', !cbgFlags.cbg100Enabled)}
+                      {...checkboxStyles}
+                    />
+
+                    <Checkbox
+                      label={t('80% of Readings')}
+                      name="eighty"
+                      checked={cbgFlags.cbg80Enabled}
+                      onChange={this.toggleDisplayFlags.bind(this, 'cbg80Enabled', !cbgFlags.cbg80Enabled)}
+                      {...checkboxStyles}
+                    />
+
+                    <Checkbox
+                      label={t('50% of Readings')}
+                      name="fifty"
+                      checked={cbgFlags.cbg50Enabled}
+                      onChange={this.toggleDisplayFlags.bind(this, 'cbg50Enabled', !cbgFlags.cbg50Enabled)}
+                      {...checkboxStyles}
+                    />
+
+                    <Checkbox
+                      label={t('Median')}
+                      name="median"
+                      checked={cbgFlags.cbgMedianEnabled}
+                      onChange={this.toggleDisplayFlags.bind(this, 'cbgMedianEnabled', !cbgFlags.cbgMedianEnabled)}
+                      {...checkboxStyles}
+                    />
+                  </>
+                )}
+
+                {this.props.chartPrefs.trends.showingSmbg && (
+                  <>
+                    <Checkbox
+                      label={t('Range & Average')}
+                      name="overlayCheckbox"
+                      checked={this.props.chartPrefs.trends.smbgRangeOverlay}
+                      onChange={this.toggleBoxOverlay}
+                      {...checkboxStyles}
+                    />
+
+                    <Checkbox
+                      label={t('Group')}
+                      name="groupCheckbox"
+                      checked={this.props.chartPrefs.trends.smbgGrouped}
+                      onChange={this.toggleGrouping}
+                      {...checkboxStyles}
+                    />
+
+                    <Checkbox
+                      label={t('Lines')}
+                      name="linesCheckbox"
+                      checked={this.props.chartPrefs.trends.smbgLines}
+                      onChange={this.toggleLines}
+                      {...checkboxStyles}
+                    />
+                  </>
+                )}
+              </Flex>
+            </Flex>
+
+            {dataQueryComplete && this.renderFocusedCbgDateTraceLabel()}
+            {dataQueryComplete && this.renderFocusedSMBGPointLabel()}
+            {dataQueryComplete && this.renderFocusedRangeLabels()}
+          </Box>
+
+          <Box className="patient-data-sidebar" variant="containers.patientDataSidebar">
               <Flex mb={2} sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
                 <ClipboardButton
                   buttonTitle={t('For email or notes')}
@@ -600,11 +606,10 @@ const Trends = withTranslation()(class Trends extends PureComponent {
                 trackMetric={this.props.trackMetric}
                 updateChartPrefs={this.props.updateChartPrefs}
               />
-            </div>
-          </div>
-        </div>
+          </Box>
+        </Box>
          <WindowSizeListener onResize={this.handleWindowResize} />
-      </div>
+      </Box>
     );
   }
 

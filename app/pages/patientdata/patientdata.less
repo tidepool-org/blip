@@ -29,8 +29,6 @@
 .patient-data-subnav-inner {
   color: @blue-primary;
   background-color: @blue-gray-dark;
-  border-radius: 3px 3px 0 0;
-
   padding: 0;
 }
 
@@ -138,48 +136,6 @@
 
 .patient-data-subnav-right-label {
   float: right;
-}
-
-// Content
-// ====================================
-
-.patient-data-content-outer {
-  display: block;
-
-  @media (min-width: @patient-data-sidebar-bp) {
-    display: flex;
-    flex-wrap: nowrap;
-  }
-}
-
-.patient-data-content-inner {
-  width: 100%;
-  background-color: #fff;
-  padding-top: 5px;
-  padding-bottom: 5px;
-}
-
-.patient-data-content {
-  min-height: @patient-data-chart-height;
-  position: relative;
-}
-
-// Sidebar
-// ====================================
-
-.patient-data-sidebar {
-  width: 100%;
-  background-color: #fff;
-  padding: @spacing-small;
-
-  @media (min-width: @patient-data-sidebar-bp) {
-    flex-shrink: 0;
-    width: @patient-data-sidebar-width;
-  }
-}
-
-.patient-data-sidebar-inner {
-  position: relative;
 }
 
 // Loader

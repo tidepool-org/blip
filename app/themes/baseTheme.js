@@ -178,7 +178,7 @@ const variants = {
   tables: tables({ borders, colors, fonts, fontSizes, shadows, radii }),
   tags: tags({ colors, fonts, radii, fontWeights }),
   toasts: toasts({ borders, colors, radii, fontSizes, shadows }),
-  containers: containers({ borders, colors, radii, space }),
+  containers: containers({ borders, colors, radii, space, breakpoints }),
 };
 
 const defaultText = {

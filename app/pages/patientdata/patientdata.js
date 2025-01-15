@@ -236,26 +236,23 @@ export const PatientDataClass = createReactClass({
     const { t } = this.props;
     const headerTitle = title || t('Preparing Chart Data');
     return (
-      <Header
-        chartType={'no-data'}
-        inTransition={false}
-        atMostRecent={false}
-        title={headerTitle}
-        ref="header" />
-      );
+      <Body2 className="patient-data-header" p={2} sx={{
+        color: 'white',
+        fontWeight: 'medium',
+        bg: 'blueGreyDark',
+        textAlign: 'center',
+      }}>
+        {headerTitle}
+      </Body2>
+    );
   },
 
   renderInitialLoading: function() {
-    var header = this.renderEmptyHeader();
     return (
-      <div>
-        {header}
-        <div className="container-box-outer patient-data-content-outer">
-          <div className="container-box-inner patient-data-content-inner">
-            <div className="patient-data-content"></div>
-          </div>
-        </div>
-      </div>
+      <Box variant="containers.patientData">
+        {this.renderEmptyHeader()}
+        <Box variant="containers.patientDataInner" sx={{ minHeight: '40vh !important' }} />
+      </Box>
     );
   },
 
@@ -307,31 +304,14 @@ export const PatientDataClass = createReactClass({
     ];
 
     return (
-      <Box
-        mx={[0, 4, null, null, 'auto']}
-        sx={{
-          width: ['auto', null, null, 'calc(100% - 48px)'],
-          maxWidth: breakpoints[3],
-        }}
-      >
-        <Box>
-          <Body2 p={2} sx={{
-            borderTopLeftRadius: ['none', radii.default],
-            borderTopRightRadius: ['none', radii.default],
-            color: 'white',
-            fontWeight: 'medium',
-            bg: 'blueGreyDark',
-            textAlign: 'center',
-          }}>{t('No Data Available')}</Body2>
+      <Box variant="containers.patientData" className='no-data'>
+        {this.renderEmptyHeader(t('No Data Available'))}
 
+        <Box variant="containers.patientDataInner">
           <Flex
-            p={3}
-            sx={{
-              bg: 'white',
-              textAlign: 'center',
-              minHeight: [0, 0, '50vh'],
-              flexDirection: 'column'
-            }}
+            className="patient-data-content"
+            variant="containers.patientDataContent"
+            sx={{ flexDirection: 'column' }}
           >
             <Flex mb={4} sx={{ gap: 3, flexWrap: ['wrap', null, 'nowrap'] }}>
               {_.map(cards, card => <Card {...card} />)}
@@ -342,6 +322,7 @@ export const PatientDataClass = createReactClass({
                 flexDirection: 'column',
                 justifyContent: ['flex-start', 'space-between'],
                 flexGrow: 1,
+                textAlign: 'center',
               }}
             >
               <Trans>
