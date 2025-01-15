@@ -291,6 +291,8 @@ export const Workspaces = (props) => {
       : ['Clinic - Workspaces - Go to private workspace'];
 
     trackMetric(...metric);
+    dispatch(actions.sync.setPatientListSearchTextInput(''));
+    dispatch(actions.sync.setIsPatientListVisible(false));
     dispatch(actions.async.selectClinic(api, workspace?.id || null));
     dispatch(push(workspace?.id ? '/clinic-workspace' : '/patients', { selectedClinicId: workspace.id }));
   }

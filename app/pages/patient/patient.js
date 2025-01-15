@@ -72,7 +72,7 @@ const Patient = withTranslation()(createReactClass({
 
   render: function() {
     return (
-      <div className="PatientPage js-patient-page">
+      <div className="PatientPage js-patient-page container-box-outer">
         <div className="PatientPage-layer">
           {this.renderSubnav()}
           {this.renderContent()}

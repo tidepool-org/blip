@@ -590,9 +590,7 @@
             "63d811e11710f10c0422ce6d",
             "645a9c5dd59edded4e573495"
           ],
-          "dataSources": [
-            { "providerName": "dexcom", "state": "noPendingConnections" }
-          ]
+          "dataSources": []
         }
       },
       {
@@ -615,7 +613,7 @@
             "646f7ed708e23bc18d91caa4"
           ],
           "dataSources": [
-            { "providerName": "dexcom", "state": "pendingExpired" }
+            { "providerName": "dexcom", "state": "pending", "expirationTime": "2024-11-17T15:17:20.159+00:00" }
           ]
         }
       },
@@ -640,7 +638,7 @@
             "646f7f0408e23bc18d91caa7"
           ],
           "dataSources": [
-            { "providerName": "dexcom", "state": "unknown" }
+            { "providerName": "dexcom", "state": "pending" }
           ]
         }
       }
