@@ -12,6 +12,7 @@ import flatten from 'lodash/flatten';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 import isEqual from 'lodash/isEqual';
+import isEmpty from 'lodash/isEmpty';
 import isFinite from 'lodash/isFinite';
 import keys from 'lodash/keys';
 import keyBy from 'lodash/keyBy';
@@ -955,7 +956,7 @@ export const TideDashboard = (props) => {
   useEffect(() => {
     const isOpen = !!drawerPatientId;
 
-    if (!isOpen && !_.isEmpty(pdf)) {
+    if (!isOpen && !isEmpty(pdf)) {
       dispatch(actions.worker.removeGeneratedPDFS());
       dispatch(actions.worker.dataWorkerRemoveDataRequest(null, drawerPatientId));
     }
