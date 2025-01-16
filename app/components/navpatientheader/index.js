@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
+import { useFlags } from 'launchdarkly-react-client-sdk';
 import { Box, Flex } from 'theme-ui';
 import _ from 'lodash';
 import launchCustomProtocol from 'custom-protocol-detection';
@@ -30,47 +31,52 @@ const HeaderContainer = ({ children }) => (
 );
 
 const NavPatientHeader = ({ 
-  patient, 
-  user, 
+  patient,
+  user,
   permsOfLoggedInUser,
   trackMetric,
-  clinicFlowActive, 
-  selectedClinicId, 
-  query, 
+  clinicFlowActive,
+  selectedClinicId,
 }) => {
   const history = useHistory();
+  const { query } = useLocation();
+  const { showTideDashboard } = useFlags();
   const [isUploadOverlayOpen, setIsUploadOverlayOpen] = useState(false);
 
   if (!patient?.profile) return null;
 
-  const { patientListLink } = getPatientListLink(clinicFlowActive, selectedClinicId, query, patient.userid);
+  const { patientListLink } = getPatientListLink(clinicFlowActive, selectedClinicId, query, patient.userid, showTideDashboard);
   const { canUpload, canShare } = getPermissions(patient, permsOfLoggedInUser);
 
   const handleBack = () => {
     trackMetric('Clinic - View patient list', { clinicId: selectedClinicId, source: 'Patient data' });
     history.push(patientListLink);
-  }
+  };
 
   const handleUpload = () => {
     trackMetric('Clicked Navbar Upload Data');
     setIsUploadOverlayOpen(true);
     launchCustomProtocol('tidepoolupload://open');
-  }
+  };
 
   const handleViewData = () => {
+    let viewPath = `/patients/${patient.userid}/data`;
+
+    if (showTideDashboard) viewPath += '?chart=trends';
+
     trackMetric('Clicked Navbar View Data');
-    history.push(`/patients/${patient.userid}/data`);
-  }
+    history.push(viewPath);
+  };
 
   const handleViewProfile = () => {
     trackMetric('Clicked Navbar Name');
     history.push(`/patients/${patient.userid}/profile`);
-  }
+  };
   
   const handleShare = () => {
     trackMetric('Clicked Navbar Share Data');
     history.push(`/patients/${patient.userid}/share`);
-  }
+  };
 
   return (
     <div className="nav-patient-header">
@@ -102,6 +108,6 @@ const NavPatientHeader = ({
       }
     </div>
   );
-}
+};
 
 export default NavPatientHeader;
