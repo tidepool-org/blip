@@ -39,13 +39,14 @@ const NavPatientHeader = ({
   selectedClinicId,
 }) => {
   const history = useHistory();
-  const { query } = useLocation();
+  const { search } = useLocation();
   const { showTideDashboard } = useFlags();
+  const [initialSearchParams] = useState(new URLSearchParams(search));
   const [isUploadOverlayOpen, setIsUploadOverlayOpen] = useState(false);
 
   if (!patient?.profile) return null;
 
-  const { patientListLink } = getPatientListLink(clinicFlowActive, selectedClinicId, query, patient.userid, showTideDashboard);
+  const { patientListLink } = getPatientListLink(clinicFlowActive, selectedClinicId, initialSearchParams, patient.userid);
   const { canUpload, canShare } = getPermissions(patient, permsOfLoggedInUser);
 
   const handleBack = () => {

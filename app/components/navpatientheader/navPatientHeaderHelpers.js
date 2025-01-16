@@ -8,14 +8,16 @@ export const getPermissions = (patient, permsOfLoggedInUser) => {
   const canShare = _.isEmpty(permissions) === false && permissions.root;
 
   return { canUpload, canShare };
-}
+};
 
-export const getPatientListLink = (clinicFlowActive, selectedClinicId, query, patientId) => {
+export const getPatientListLink = (clinicFlowActive, selectedClinicId, initialSearchParams, patientId) => {
   let patientListLink = clinicFlowActive && selectedClinicId ? '/clinic-workspace/patients' : '/patients';
+
+  const originDashboard = initialSearchParams.get('dashboard');
   
-  if (query?.dashboard) {
-    patientListLink = `/dashboard/${query.dashboard}?drawerPatientId=${patientId}`;
+  if (originDashboard) {
+    patientListLink = `/dashboard/${originDashboard}?drawerPatientId=${patientId}`;
   };
 
-  return { patientListLink }
-}
+  return { patientListLink };
+};
