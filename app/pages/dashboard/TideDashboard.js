@@ -925,7 +925,7 @@ export const TideDashboard = (props) => {
       dispatch(actions.worker.removeGeneratedPDFS());
       dispatch(actions.worker.dataWorkerRemoveDataRequest(null, drawerPatientId));
     }
-  }, [drawerPatientId, pdf, config]);
+  }, [drawerPatientId, pdf, config, location, history]);
 
   const handleEditPatientConfirm = useCallback(() => {
     trackMetric('Clinic - Edit patient confirmed', { clinicId: selectedClinicId });
