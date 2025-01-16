@@ -19,17 +19,23 @@ const defaultPatientProps = {
   userid: 1234,
   profile: { 
     fullName: 'Vasyl Lomachenko',
-    patient: { birthday: '2010-10-20', mrn: '567890' }
-  }
+    patient: { birthday: '2010-10-20', mrn: '567890' },
+  },
 };
 
 describe('NavPatientHeader', () => {
-  const mockHistory = { push: sinon.stub() }
+  const mockHistory = { push: sinon.stub() };
+  const mockUseLocation = sinon.stub().returns({ pathname: '/patients/1234/data', search: '' });
   const mockTrackMetric = sinon.stub();
   const mockLaunchCustomProtocol = sinon.stub();
 
   NavPatientHeader.__Rewire__('useHistory', sinon.stub().returns(mockHistory));
+  NavPatientHeader.__Rewire__('useLocation', mockUseLocation);
   NavPatientHeader.__Rewire__('launchCustomProtocol', mockLaunchCustomProtocol);
+
+  beforeEach(() => {
+    mockUseLocation.returns({ pathname: '/patients/1234/data', search: '' });
+  });
 
   afterEach(() => {
     mockTrackMetric.reset();
@@ -62,7 +68,7 @@ describe('NavPatientHeader', () => {
 
         expect(wrapper.find('button#navPatientHeader_shareButton').exists()).to.be.false;
         expect(wrapper.find('button#navPatientHeader_uploadButton').exists()).to.be.false;
-      })
+      });
     });
 
     context('personal user with root permissions', () => {
@@ -88,7 +94,7 @@ describe('NavPatientHeader', () => {
         expect(wrapper.find('button#navPatientHeader_profileButton').exists()).to.be.true;
         expect(wrapper.find('button#navPatientHeader_shareButton').exists()).to.be.true;
         expect(wrapper.find('button#navPatientHeader_uploadButton').exists()).to.be.true;
-      })
+      });
     });
 
     context('clinician user without upload permissions', () => {
@@ -96,7 +102,7 @@ describe('NavPatientHeader', () => {
         user: { roles: ['clinician'] },
         trackMetric: mockTrackMetric,
         patient: { ...defaultPatientProps, permissions: { } },
-        permsOfLoggedInUser: {}
+        permsOfLoggedInUser: {},
       };
 
       const wrapper = mount(
@@ -115,7 +121,7 @@ describe('NavPatientHeader', () => {
         expect(wrapper.find('button#navPatientHeader_profileButton').exists()).to.be.true;
         expect(wrapper.find('button#navPatientHeader_shareButton').exists()).to.be.false;
         expect(wrapper.find('button#navPatientHeader_uploadButton').exists()).to.be.false;
-      })
+      });
     });
 
     context('clinician user with upload permissions', () => {
@@ -123,7 +129,7 @@ describe('NavPatientHeader', () => {
         user: { roles: ['clinician'] },
         trackMetric: mockTrackMetric,
         patient: { ...defaultPatientProps, permissions: { root: {} } },
-        permsOfLoggedInUser: { upload: {} }
+        permsOfLoggedInUser: { upload: {} },
       };
 
       const wrapper = mount(
@@ -142,7 +148,7 @@ describe('NavPatientHeader', () => {
         expect(wrapper.find('button#navPatientHeader_profileButton').exists()).to.be.true;
         expect(wrapper.find('button#navPatientHeader_shareButton').exists()).to.be.false;
         expect(wrapper.find('button#navPatientHeader_uploadButton').exists()).to.be.true;
-      })
+      });
     });
   });
 
@@ -161,28 +167,28 @@ describe('NavPatientHeader', () => {
           <NavPatientHeader {...props} />
         </BrowserRouter>
       );
-    })
+    });
 
     it('View button links to correct page', () => {
       wrapper.find('button#navPatientHeader_viewDataButton').simulate('click');
 
       expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar View Data')).to.be.true;
       expect(mockHistory.push.calledOnceWithExactly('/patients/1234/data')).to.be.true;
-    })
+    });
   
     it('Profile button links to correct page', () => {
       wrapper.find('button#navPatientHeader_profileButton').simulate('click');
 
       expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar Name')).to.be.true;
       expect(mockHistory.push.calledOnceWithExactly('/patients/1234/profile')).to.be.true;
-    })
+    });
   
     it('Share button links to correct page', () => {
       wrapper.find('button#navPatientHeader_shareButton').simulate('click');
 
       expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar Share Data')).to.be.true;
       expect(mockHistory.push.calledOnceWithExactly('/patients/1234/share')).to.be.true;
-    })
+    });
   
     it('Upload Button opens the upload dialog', () => {
       expect(wrapper.find('.UploadLaunchOverlay').exists()).to.be.false;
@@ -210,20 +216,20 @@ describe('NavPatientHeader', () => {
           <NavPatientHeader {...props} />
         </BrowserRouter>
       );
-    })
+    });
 
     it('View button links to correct page', () => {
       wrapper.find('button#navPatientHeader_viewDataButton').simulate('click');
   
       expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar View Data')).to.be.true;
       expect(mockHistory.push.calledOnceWithExactly('/patients/1234/data')).to.be.true;
-    })
+    });
   
     it('Profile button links to correct page', () => {
       wrapper.find('button#navPatientHeader_profileButton').simulate('click');
       expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar Name')).to.be.true;
       expect(mockHistory.push.calledOnceWithExactly('/patients/1234/profile')).to.be.true;
-    })
+    });
   
     it('Upload Button opens the upload dialog', () => {
       expect(wrapper.find('.UploadLaunchOverlay').exists()).to.be.false;
@@ -248,14 +254,14 @@ describe('NavPatientHeader', () => {
         wrapper = mount(<BrowserRouter><NavPatientHeader {...clinicianUserProps} currentPage="/patients/abc123/data" /></BrowserRouter>);
         wrapper.find('button#navPatientHeader_backButton').simulate('click');
         expect(mockHistory.push.calledOnceWithExactly('/patients')).to.be.true;
-      })
+      });
 
       it('should render on profile page', () => {
         wrapper = mount(<BrowserRouter><NavPatientHeader {...clinicianUserProps} currentPage="/patients/abc123/profile" /></BrowserRouter>);
         wrapper.find('button#navPatientHeader_backButton').simulate('click');
         expect(mockHistory.push.calledOnceWithExactly('/patients')).to.be.true;
-      })
-    })
+      });
+    });
 
     describe('viewing patient data or profile views as a clinic clinician', () => {
       const clinicClinicianProps = {
@@ -286,6 +292,25 @@ describe('NavPatientHeader', () => {
       });
     });
 
+    describe('viewing patient or profile views and user originates from TIDE Dashboard', () => {
+      const clinicClinicianProps = {
+        trackMetric: mockTrackMetric,
+        patient: { ...defaultPatientProps, permissions: { } },
+        clinicFlowActive: true,
+        user: { isClinicMember: true },
+        selectedClinicId: 'clinic123',
+      };
+
+      it('should redirect to the correct path on TIDE dashboard', () => {
+        mockUseLocation.returns({ pathname: '/patients/abc1234/data', search: '?dashboard=tide' });
+
+        wrapper = mount(<BrowserRouter><NavPatientHeader {...clinicClinicianProps} currentPage="/patients/abc123/data" /></BrowserRouter>);
+        wrapper.find('button#navPatientHeader_backButton').simulate('click');
+
+        expect(mockHistory.push.calledOnceWithExactly('/dashboard/tide?drawerPatientId=1234')).to.be.true;
+      });
+    });
+
     describe('viewing the TIDE dashboard view as a clinic clinician', () => {
       it('should render a patient list link', () => {
         const clinicClinicianProps = {
@@ -300,6 +325,6 @@ describe('NavPatientHeader', () => {
         wrapper.find('button#navPatientHeader_backButton').simulate('click');
         expect(mockHistory.push.calledOnceWithExactly('/clinic-workspace/patients')).to.be.true; 
       });
-    })
+    });
   });
 });

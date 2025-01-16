@@ -11,13 +11,15 @@ export const getPermissions = (patient, permsOfLoggedInUser) => {
 };
 
 export const getPatientListLink = (clinicFlowActive, selectedClinicId, initialSearchParams, patientId) => {
-  let patientListLink = clinicFlowActive && selectedClinicId ? '/clinic-workspace/patients' : '/patients';
-
   const originDashboard = initialSearchParams.get('dashboard');
-  
-  if (originDashboard) {
-    patientListLink = `/dashboard/${originDashboard}?drawerPatientId=${patientId}`;
-  };
 
-  return { patientListLink };
+  if (originDashboard) {
+    return `/dashboard/${originDashboard}?drawerPatientId=${patientId}`;
+  };
+  
+  if (clinicFlowActive && selectedClinicId) {
+    return '/clinic-workspace/patients';
+  }
+
+  return '/patients';
 };

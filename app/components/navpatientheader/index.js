@@ -46,7 +46,7 @@ const NavPatientHeader = ({
 
   if (!patient?.profile) return null;
 
-  const { patientListLink } = getPatientListLink(clinicFlowActive, selectedClinicId, initialSearchParams, patient.userid);
+  const patientListLink = getPatientListLink(clinicFlowActive, selectedClinicId, initialSearchParams, patient.userid);
   const { canUpload, canShare } = getPermissions(patient, permsOfLoggedInUser);
 
   const handleBack = () => {

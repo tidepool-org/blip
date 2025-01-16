@@ -352,7 +352,6 @@ export class AppComponent extends React.Component {
       context: { trackMetric },
       clinicFlowActive,
       selectedClinicId,
-      query,
     } = this.props;
 
     if (!this.isPatientVisibleInNavbar()) return null; // only show on pages with a patient of focus
@@ -365,7 +364,6 @@ export class AppComponent extends React.Component {
         permsOfLoggedInUser={permsOfLoggedInUser}
         clinicFlowActive={clinicFlowActive}
         selectedClinicId={selectedClinicId}
-        query={query}
       />
     );
   }
