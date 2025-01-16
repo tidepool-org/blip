@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
-import { useFlags } from 'launchdarkly-react-client-sdk';
 import { Box, Flex } from 'theme-ui';
 import _ from 'lodash';
 import launchCustomProtocol from 'custom-protocol-detection';
@@ -40,7 +39,6 @@ const NavPatientHeader = ({
 }) => {
   const history = useHistory();
   const { search } = useLocation();
-  const { showTideDashboard } = useFlags();
   const [initialSearchParams] = useState(new URLSearchParams(search));
   const [isUploadOverlayOpen, setIsUploadOverlayOpen] = useState(false);
 
@@ -61,12 +59,8 @@ const NavPatientHeader = ({
   };
 
   const handleViewData = () => {
-    let viewPath = `/patients/${patient.userid}/data`;
-
-    if (showTideDashboard) viewPath += '?chart=trends';
-
     trackMetric('Clicked Navbar View Data');
-    history.push(viewPath);
+    history.push(`/patients/${patient.userid}/data`);
   };
 
   const handleViewProfile = () => {
