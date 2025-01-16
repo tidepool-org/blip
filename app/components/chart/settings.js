@@ -298,7 +298,14 @@ const Settings = ({
   }, [chartPrefs, updateChartPrefs]);
 
   const renderSettingsSelectionUI = () => (
-    <Flex mt={4} mb={5} pl={manufacturer === 'tandem' ? '20px' : 0}>
+  <Flex
+    mt={3}
+    mb={5}
+    sx={{
+      flexWrap: ['wrap', null, null, 'nowrap'],
+      gap: 2,
+    }}
+  >
       <Box
         onClick={() => {
           if (!deviceSelectionPopupState.isOpen)
@@ -316,8 +323,6 @@ const Settings = ({
           sx={{
             fontSize: 2,
             lineHeight: 1.3,
-            ml: 2,
-            mr: 2,
             fontWeight: 'bold',
             px: 3,
             py: 2,
@@ -387,7 +392,7 @@ const Settings = ({
         </DialogActions>
       </Popover>
 
-      <Box sx={{ fontSize: 1, alignSelf: 'center' }}>
+      <Box sx={{ fontSize: 1, alignSelf: 'center', flexShrink: 0 }}>
         &mdash; View settings from
       </Box>
 
@@ -410,8 +415,6 @@ const Settings = ({
           sx={{
             fontSize: 1,
             lineHeight: 1.2,
-            ml: 2,
-            mr: 2,
             px: 3,
             py: 2,
           }}
@@ -594,15 +597,15 @@ const Settings = ({
 
     return (
       <Box>
-        <Flex mb={3} sx={{ justifyContent: 'space-between' }}>
+        <Flex mb={3} sx={{ justifyContent: 'space-between', flexWrap: ['wrap', 'nowrap'] }}>
           <MediumTitle sx={{ color: 'black' }}>{t('Devices')}</MediumTitle>
           {showAddDevicesButton && (
             <Button
-            variant="primaryCondensed"
-            icon={AddRoundedIcon}
-            iconPosition="left"
-            onClick={handleClickDataConnections}
-            sx={{ fontSize: 1, '.icon': { fontSize: '1.25em' } }}
+              variant="primaryCondensed"
+              icon={AddRoundedIcon}
+              iconPosition="left"
+              onClick={handleClickDataConnections}
+              sx={{ fontSize: 1, '.icon': { fontSize: '1.25em' }, flex: ['initial'] }}
             >
               {t('Add a Device')}
             </Button>
