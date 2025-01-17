@@ -23,3 +23,13 @@ export const getPatientListLink = (clinicFlowActive, selectedClinicId, initialSe
 
   return '/patients';
 };
+
+export const getDemographicInfo = (patient, clinicPatient) => {
+  const combinedPatient = personUtils.combinedAccountAndClinicPatient(patient, clinicPatient);
+
+  const name = personUtils.patientFullName(combinedPatient);
+  const birthday = combinedPatient?.profile?.patient?.birthday;
+  const mrn = clinicPatient?.mrn;
+
+  return { name, birthday, mrn };
+};
