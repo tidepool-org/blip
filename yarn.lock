@@ -5278,9 +5278,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.44.0-web-3179-dep-updates.3":
-  version: 1.44.0-web-3179-dep-updates.3
-  resolution: "@tidepool/viz@npm:1.44.0-web-3179-dep-updates.3"
+"@tidepool/viz@npm:1.45.0-web-3274-device-settings-data-sources.1":
+  version: 1.45.0-web-3274-device-settings-data-sources.1
+  resolution: "@tidepool/viz@npm:1.45.0-web-3274-device-settings-data-sources.1"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -5340,7 +5340,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 050cdbc7334512123f632afc0d620b595fdcb3bd481cefd9104713b5e1e0d42e20ef1ddf367eba717232becf223a31fe56b12203c6b5aa1b616d5f0b3fe5f1af
+  checksum: cba24be88b1bf35b35615909358a062cbfbef4968ce4040adb4721a895a6838addb823578b2f56dc4746694dcaaaf5e249863eb383ab07673759672102f646fa
   languageName: node
   linkType: hard
 
@@ -7251,7 +7251,7 @@ __metadata:
     "@storybook/react": 7.5.0
     "@storybook/react-webpack5": 7.5.0
     "@testing-library/react-hooks": 8.0.1
-    "@tidepool/viz": 1.44.0-web-3179-dep-updates.3
+    "@tidepool/viz": 1.45.0-web-3274-device-settings-data-sources.1
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -7374,7 +7374,7 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.30.0
+    tideline: 1.31.0-web-3274-device-settings-data-sources.1
     tidepool-platform-client: 0.62.0-web-3272-patient-data-linking-after-creation.1
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
@@ -20026,9 +20026,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.30.0":
-  version: 1.30.0
-  resolution: "tideline@npm:1.30.0"
+"tideline@npm:1.31.0-web-3274-device-settings-data-sources.1":
+  version: 1.31.0-web-3274-device-settings-data-sources.1
+  resolution: "tideline@npm:1.31.0-web-3274-device-settings-data-sources.1"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -20048,7 +20048,7 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: faf7028567b20f5136df1d2f34c70be89929c89269a68664bfad16a5cdd5dee3c8287e49ab95a641fa772f1d806c9dddd40352c3fad07bf01565b029f01d5032
+  checksum: 8c14db4706c8410459f06b22f48318e4f963b5f8d4ef49b167fe169ee126533e784ff7ded859b60322fe856d2cae5185baf2eded61d5d8b3543136a865eace14
   languageName: node
   linkType: hard
 
