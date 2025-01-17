@@ -735,7 +735,9 @@ const TideDashboardSection = React.memo(props => {
 }, ((prevProps, nextProps) => (
   prevProps.section.sortDirection === nextProps.section.sortDirection &&
   prevProps.config === nextProps.config &&
-  prevProps.patients === nextProps.patients
+  prevProps.patients === nextProps.patients &&
+  prevProps.showTideDashboardLastReviewed === nextProps.showTideDashboardLastReviewed &&
+  prevProps.showTideDashboardPatientDrawer === nextProps.showTideDashboardPatientDrawer
 )));
 
 export const TideDashboard = (props) => {
