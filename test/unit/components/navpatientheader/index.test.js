@@ -15,12 +15,22 @@ import NavPatientHeader from '../../../../app/components/navpatientheader';
 
 const expect = chai.expect;
 
-const defaultPatientProps = { 
-  userid: 1234,
+// Demographic info stored in 'patient' and 'clinicPatient' props can be different.
+// Patient-inputted name and birthdate are saved in 'patient' and clinician-entered
+// name, birthdate, and mrn are saved in 'clinicPatient'.
+const patientProps = { 
+  userid: '1234',
   profile: { 
     fullName: 'Vasyl Lomachenko',
-    patient: { birthday: '2010-10-20', mrn: '567890' }
+    patient: { birthday: '2010-10-20', mrn: '567890' },
   }
+};
+
+const clinicPatientProps = { 
+  id: '1234',
+  birthDate: '1965-01-01',
+  fullName: 'Naoya Inoue',
+  mrn: '999999',
 };
 
 describe('NavPatientHeader', () => {
@@ -42,7 +52,8 @@ describe('NavPatientHeader', () => {
       const props = {
         user: { roles: [] },
         trackMetric: mockTrackMetric,
-        patient: { ...defaultPatientProps, permissions: { } },
+        patient: { ...patientProps, permissions: { } },
+        clinicPatient: undefined,
       };
 
       const wrapper = mount(
@@ -52,9 +63,15 @@ describe('NavPatientHeader', () => {
       );
 
       it('shows the correct info and actions', () => {
+        // should show demographic info from the 'patient' object
         expect(wrapper.text()).to.include('Vasyl Lomachenko');
         expect(wrapper.text()).not.to.include('567890');
         expect(wrapper.text()).not.to.include('2010-10-20');
+
+        // should NOT show demographic info from the 'clinicPatient' object        
+        expect(wrapper.text()).not.to.include('Naoya Inoue');
+        expect(wrapper.text()).not.to.include('999999');
+        expect(wrapper.text()).not.to.include('1965-01-01');
 
         expect(wrapper.find('button#navPatientHeader_backButton').exists()).to.be.false;
         expect(wrapper.find('button#navPatientHeader_viewDataButton').exists()).to.be.true;
@@ -69,7 +86,8 @@ describe('NavPatientHeader', () => {
       const props = {
         user: { roles: [] },
         trackMetric: mockTrackMetric,
-        patient: { ...defaultPatientProps, permissions: { root: {} } },
+        patient: { ...patientProps, permissions: { root: {} } },
+        clinicPatient: undefined,
       };
 
       const wrapper = mount(
@@ -79,9 +97,15 @@ describe('NavPatientHeader', () => {
       );
 
       it('shows the correct info and actions', () => {
+        // should show demographic info from the 'patient' object
         expect(wrapper.text()).to.include('Vasyl Lomachenko');
+        expect(wrapper.text()).not.to.include('Naoya Inoue');
         expect(wrapper.text()).not.to.include('567890');
+
+        // should NOT show demographic info from the 'clinicPatient' object
         expect(wrapper.text()).not.to.include('2010-10-20');
+        expect(wrapper.text()).not.to.include('999999');
+        expect(wrapper.text()).not.to.include('1965-01-01');
 
         expect(wrapper.find('button#navPatientHeader_backButton').exists()).to.be.false;
         expect(wrapper.find('button#navPatientHeader_viewDataButton').exists()).to.be.true;
@@ -95,7 +119,8 @@ describe('NavPatientHeader', () => {
       const props = {
         user: { roles: ['clinician'] },
         trackMetric: mockTrackMetric,
-        patient: { ...defaultPatientProps, permissions: { } },
+        patient: { ...patientProps, permissions: { } },
+        clinicPatient: { ...clinicPatientProps },
         permsOfLoggedInUser: {}
       };
 
@@ -106,9 +131,15 @@ describe('NavPatientHeader', () => {
       );
 
       it('shows the correct info and actions', () => {
-        expect(wrapper.text()).to.include('Vasyl Lomachenko');
-        expect(wrapper.text()).to.include('567890');
-        expect(wrapper.text()).to.include('2010-10-20');
+        // should show demographic info from the 'clinicPatient' object
+        expect(wrapper.text()).to.include('Naoya Inoue');
+        expect(wrapper.text()).to.include('999999');
+        expect(wrapper.text()).to.include('1965-01-01');
+
+        // should NOT show demographic info from the 'patient' object
+        expect(wrapper.text()).not.to.include('Vasyl Lomachenko');
+        expect(wrapper.text()).not.to.include('567890');
+        expect(wrapper.text()).not.to.include('2010-10-20');
 
         expect(wrapper.find('button#navPatientHeader_backButton').exists()).to.be.true;
         expect(wrapper.find('button#navPatientHeader_viewDataButton').exists()).to.be.true;
@@ -122,7 +153,8 @@ describe('NavPatientHeader', () => {
       const props = {
         user: { roles: ['clinician'] },
         trackMetric: mockTrackMetric,
-        patient: { ...defaultPatientProps, permissions: { root: {} } },
+        patient: { ...patientProps, permissions: { root: {} } },
+        clinicPatient: { ...clinicPatientProps },
         permsOfLoggedInUser: { upload: {} }
       };
 
@@ -133,9 +165,15 @@ describe('NavPatientHeader', () => {
       );
 
       it('shows the correct info and actions', () => {
-        expect(wrapper.text()).to.include('Vasyl Lomachenko');
-        expect(wrapper.text()).to.include('567890');
-        expect(wrapper.text()).to.include('2010-10-20');
+        // should show demographic info from the 'clinicPatient' object
+        expect(wrapper.text()).to.include('Naoya Inoue');
+        expect(wrapper.text()).to.include('999999');
+        expect(wrapper.text()).to.include('1965-01-01');
+
+        // should NOT show demographic info from the 'patient' object
+        expect(wrapper.text()).not.to.include('Vasyl Lomachenko');
+        expect(wrapper.text()).not.to.include('567890');
+        expect(wrapper.text()).not.to.include('2010-10-20');
 
         expect(wrapper.find('button#navPatientHeader_backButton').exists()).to.be.true;
         expect(wrapper.find('button#navPatientHeader_viewDataButton').exists()).to.be.true;
@@ -153,7 +191,8 @@ describe('NavPatientHeader', () => {
       const props = { 
         user: { roles: [] },
         trackMetric: mockTrackMetric,
-        patient: { ...defaultPatientProps, permissions: { root: {} } },
+        patient: { ...patientProps, permissions: { root: {} } },
+        clinicPatient: { ...clinicPatientProps },
       };
 
       wrapper = mount(
@@ -201,7 +240,8 @@ describe('NavPatientHeader', () => {
       const props = { 
         user: { roles: ['clinician'] },
         trackMetric: mockTrackMetric,
-        patient: { ...defaultPatientProps, permissions: { } },
+        patient: { ...patientProps, permissions: { } },
+        clinicPatient: { ...clinicPatientProps },
         permsOfLoggedInUser: { upload: {} }
       };
 
@@ -240,7 +280,8 @@ describe('NavPatientHeader', () => {
     describe('viewing patient data or profile views as a clinician user', () => {
       const clinicianUserProps = {
         trackMetric: mockTrackMetric,
-        patient: { ...defaultPatientProps, permissions: { } },
+        patient: { ...patientProps, permissions: { } },
+        clinicPatient: { ...clinicPatientProps },
         user: { roles: ['clinic'] },
       };
 
@@ -260,7 +301,8 @@ describe('NavPatientHeader', () => {
     describe('viewing patient data or profile views as a clinic clinician', () => {
       const clinicClinicianProps = {
         trackMetric: mockTrackMetric,
-        patient: { ...defaultPatientProps, permissions: { } },
+        patient: { ...patientProps, permissions: { } },
+        clinicPatient: { ...clinicPatientProps },
         clinicFlowActive: true,
         user: { isClinicMember: true },
         selectedClinicId: 'clinic123',
@@ -290,7 +332,8 @@ describe('NavPatientHeader', () => {
       it('should render a patient list link', () => {
         const clinicClinicianProps = {
           trackMetric: mockTrackMetric,
-          patient: { ...defaultPatientProps, permissions: { } },
+          patient: { ...patientProps, permissions: { } },
+          clinicPatient: { ...clinicPatientProps },
           clinicFlowActive: true,
           user: { isClinicMember: true },
           selectedClinicId: 'clinic123',
