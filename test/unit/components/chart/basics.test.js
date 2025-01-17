@@ -26,6 +26,7 @@ var expect = chai.expect;
 
 import React from 'react';
 import _ from 'lodash';
+import moment from 'moment';
 import { mount, shallow } from 'enzyme';
 import PropTypes from 'prop-types';
 
@@ -126,6 +127,7 @@ describe('Basics', () => {
           },
         }
       });
+
       const noDataMessage = wrapper.find('.patient-data-message').hostNodes();
       const chart = wrapper.hostNodes('BasicsChart');
       expect(noDataMessage.length).to.equal(0);

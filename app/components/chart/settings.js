@@ -114,6 +114,7 @@ const Settings = ({
 
     let groupedBySource = _.groupBy(sortedData, 'source');
 
+    console.log('groupedBySource', groupedBySource);
     if (_.has(groupedBySource, 'Unspecified Data Source')) {
       groupedBySource = _.omit(groupedBySource, 'Unspecified Data Source');
     }
@@ -297,8 +298,9 @@ const Settings = ({
     updateChartPrefs(prefs, false);
   }, [chartPrefs, updateChartPrefs]);
 
-  const renderSettingsSelectionUI = () => (
+  const renderDeviceSettingsSelectionUI = () => (
   <Flex
+    id="device-settings-selection"
     mt={3}
     mb={5}
     sx={{
@@ -558,6 +560,7 @@ const Settings = ({
 
   const renderDeviceConnectionCard = () => {
     const cardProps = {
+      id: 'data-connections-card',
       title: isUserPatient
         ? t('Connect an Account')
         : t('Connect a Device Account'),
@@ -622,60 +625,63 @@ const Settings = ({
   );
 
   return (
-    <Box variant="containers.patientData" className='settings'>
-      <Header
-        chartType="settings"
-        patient={patient}
-        atMostRecent={atMostRecent}
-        inTransition={inTransition}
-        title={title}
-        onClickMostRecent={handleClickMostRecent}
-        onClickBasics={onSwitchToBasics}
-        onClickOneDay={handleClickOneDay}
-        onClickTrends={handleClickTrends}
-        onClickRefresh={onClickRefresh}
-        onClickSettings={handleClickSettings}
-        onClickBgLog={handleClickBgLog}
-        onClickPrint={handleClickPrint}
-      />
+    <div id="tidelineMain" className="settings">
+      <Box variant="containers.patientData">
+        <Header
+          chartType="settings"
+          patient={patient}
+          atMostRecent={atMostRecent}
+          inTransition={inTransition}
+          title={title}
+          onClickMostRecent={handleClickMostRecent}
+          onClickBasics={onSwitchToBasics}
+          onClickOneDay={handleClickOneDay}
+          onClickTrends={handleClickTrends}
+          onClickRefresh={onClickRefresh}
+          onClickSettings={handleClickSettings}
+          onClickBgLog={handleClickBgLog}
+          onClickPrint={handleClickPrint}
+        />
 
-      <Box variant="containers.patientDataInner">
-        <Box className="patient-data-content" variant="containers.patientDataContent">
-          <Flex
-            sx={{
-              flexDirection: 'column',
-              justifyContent: ['flex-start', 'space-between'],
-              height: ['auto', '100%'],
-            }}
-          >
-            <Box>
-              {patientData?.dataSources?.length > 0 ? renderDataConnections() : renderDeviceConnectionCard()}
-              <Divider my={4} />
-              <MediumTitle mb={2} sx={{ color: 'black' }}>{t('Therapy Settings')}</MediumTitle>
-
-              {selectedSettingsId ? (
-                <>
-                  {renderSettingsSelectionUI()}
-                  {renderChart()}
-                </>
-              ) : renderMissingSettingsMessage()}
-            </Box>
-
-            <Button
-              variant="secondaryCondensed"
-              onClick={onClickRefresh}
-              mt={4}
-              sx={{ width: 'fit-content', alignSelf: ['center', null, 'flex-start'] }}
+        <Box variant="containers.patientDataInner">
+          <Box className="patient-data-content" variant="containers.patientDataContent">
+            <Flex
+              sx={{
+                flexDirection: 'column',
+                justifyContent: ['flex-start', 'space-between'],
+                height: ['auto', '100%'],
+              }}
             >
-              {t('Refresh')}
-            </Button>
-          </Flex>
-        </Box>
-      </Box>
+              <Box>
+                {patientData?.dataSources?.length > 0 ? renderDataConnections() : renderDeviceConnectionCard()}
+                <Divider my={4} />
+                <MediumTitle mb={2} sx={{ color: 'black' }}>{t('Therapy Settings')}</MediumTitle>
 
-      {showDataConnectionsModal && renderDataConnectionsModal()}
-      {showUploadOverlay && renderUploadOverlay()}
-    </Box>
+                {selectedSettingsId ? (
+                  <>
+                    {renderDeviceSettingsSelectionUI()}
+                    {renderChart()}
+                  </>
+                ) : renderMissingSettingsMessage()}
+              </Box>
+
+              <Button
+                className="btn-refresh"
+                variant="secondaryCondensed"
+                onClick={onClickRefresh}
+                mt={4}
+                sx={{ width: 'fit-content', alignSelf: ['center', null, 'flex-start'] }}
+              >
+                {t('Refresh')}
+              </Button>
+            </Flex>
+          </Box>
+        </Box>
+
+        {showDataConnectionsModal && renderDataConnectionsModal()}
+        {showUploadOverlay && renderUploadOverlay()}
+      </Box>
+    </div>
   );
 };
 

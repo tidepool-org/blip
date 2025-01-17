@@ -81,73 +81,75 @@ class Basics extends Component {
     }
 
     return (
-      <Box variant="containers.patientData" className="basics">
-        <Header
-          chartType={this.chartType}
-          patient={this.props.patient}
-          atMostRecent={true}
-          inTransition={this.state.inTransition}
-          title={this.state.title}
-          onClickBasics={this.handleClickBasics}
-          onClickChartDates={this.props.onClickChartDates}
-          onClickOneDay={this.handleClickOneDay}
-          onClickTrends={this.handleClickTrends}
-          onClickRefresh={this.props.onClickRefresh}
-          onClickSettings={this.props.onSwitchToSettings}
-          onClickBgLog={this.handleClickBgLog}
-          onClickPrint={this.handleClickPrint}
-          ref="header"
-        />
+      <div id="tidelineMain" className="basics">
+        <Box variant="containers.patientData">
+          <Header
+            chartType={this.chartType}
+            patient={this.props.patient}
+            atMostRecent={true}
+            inTransition={this.state.inTransition}
+            title={this.state.title}
+            onClickBasics={this.handleClickBasics}
+            onClickChartDates={this.props.onClickChartDates}
+            onClickOneDay={this.handleClickOneDay}
+            onClickTrends={this.handleClickTrends}
+            onClickRefresh={this.props.onClickRefresh}
+            onClickSettings={this.props.onSwitchToSettings}
+            onClickBgLog={this.handleClickBgLog}
+            onClickPrint={this.handleClickPrint}
+            ref="header"
+          />
 
-        <Box variant="containers.patientDataInner">
-          <Box className="patient-data-content" variant="containers.patientDataContent">
-            <Loader show={!!this.refs.chart && this.props.loading} overlay={true} />
-            {renderedContent}
+          <Box variant="containers.patientDataInner">
+            <Box className="patient-data-content" variant="containers.patientDataContent">
+              <Loader show={!!this.refs.chart && this.props.loading} overlay={true} />
+              {renderedContent}
 
-            {!this.isMissingBasics() && (
-              <Button
-                className="btn-refresh"
-                variant="secondaryCondensed"
-                onClick={this.props.onClickRefresh}
-                mt={3}
-              >
-                {t('Refresh')}
-              </Button>
-            )}
-          </Box>
+              {!this.isMissingBasics() && (
+                <Button
+                  className="btn-refresh"
+                  variant="secondaryCondensed"
+                  onClick={this.props.onClickRefresh}
+                  mt={3}
+                >
+                  {t('Refresh')}
+                </Button>
+              )}
+            </Box>
 
-          <Box className="patient-data-sidebar" variant="containers.patientDataSidebar">
-            <Flex mb={2} sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
-              <ClipboardButton
-                buttonTitle={t('For email or notes')}
-                onSuccess={this.handleCopyBasicsClicked}
-                getText={basicsText.bind(this, this.props.patient, this.props.data, this.props.stats, this.props.aggregations)}
-              />
-              <BgSourceToggle
-                bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
+            <Box className="patient-data-sidebar" variant="containers.patientDataSidebar">
+              <Flex mb={2} sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                <ClipboardButton
+                  buttonTitle={t('For email or notes')}
+                  onSuccess={this.handleCopyBasicsClicked}
+                  getText={basicsText.bind(this, this.props.patient, this.props.data, this.props.stats, this.props.aggregations)}
+                />
+                <BgSourceToggle
+                  bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
+                  chartPrefs={this.props.chartPrefs}
+                  chartType={this.chartType}
+                  onClickBgSourceToggle={this.toggleBgDataSource}
+                />
+              </Flex>
+              <Stats
+                bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                 chartPrefs={this.props.chartPrefs}
                 chartType={this.chartType}
-                onClickBgSourceToggle={this.toggleBgDataSource}
+                stats={statsToRender}
+                trackMetric={this.props.trackMetric}
               />
-            </Flex>
-            <Stats
-              bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
-              chartPrefs={this.props.chartPrefs}
-              chartType={this.chartType}
-              stats={statsToRender}
-              trackMetric={this.props.trackMetric}
-            />
-            <DeviceSelection
-              chartPrefs={this.props.chartPrefs}
-              chartType={this.chartType}
-              devices={_.get(this.props, 'data.metaData.devices', [])}
-              removeGeneratedPDFS={this.props.removeGeneratedPDFS}
-              trackMetric={this.props.trackMetric}
-              updateChartPrefs={this.props.updateChartPrefs}
-            />
+              <DeviceSelection
+                chartPrefs={this.props.chartPrefs}
+                chartType={this.chartType}
+                devices={_.get(this.props, 'data.metaData.devices', [])}
+                removeGeneratedPDFS={this.props.removeGeneratedPDFS}
+                trackMetric={this.props.trackMetric}
+                updateChartPrefs={this.props.updateChartPrefs}
+              />
+            </Box>
           </Box>
         </Box>
-      </Box>
+      </div>
     );
   };
 

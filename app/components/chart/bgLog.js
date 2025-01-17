@@ -259,76 +259,78 @@ class BgLog extends Component {
     }
 
     return (
-      <Box variant="containers.patientData" className="bgLog">
-        {this.isMissingSMBG() ? this.renderMissingSMBGHeader() : this.renderHeader()}
+      <div id="tidelineMain" className="bgLog">
+        <Box variant="containers.patientData">
+          {this.isMissingSMBG() ? this.renderMissingSMBGHeader() : this.renderHeader()}
 
-        <Box variant="containers.patientDataInner">
-          <Box className="patient-data-content" variant="containers.patientDataContent">
-            <Loader show={!!this.refs.chart && this.props.loading} overlay={true} />
-            {renderedContent}
-
-            <Flex
-              mt={4}
-              pl="50px"
-              pr="30px"
-              sx={{
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}
-            >
-              <Button
-                className="btn-refresh"
-                variant="secondaryCondensed"
-                onClick={this.props.onClickRefresh}
-              >
-                {t('Refresh')}
-              </Button>
+          <Box variant="containers.patientDataInner">
+            <Box className="patient-data-content" variant="containers.patientDataContent">
+              <Loader show={!!this.refs.chart && this.props.loading} overlay={true} />
+              {renderedContent}
 
               <Flex
-                variant="inputs.checkboxGroup.horizontal"
-                sx={{ alignItems: 'center' }}
-                bg="lightestGrey"
-                px={3}
-                py={2}
+                mt={4}
+                pl="50px"
+                pr="30px"
+                sx={{
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
               >
-                <Checkbox
-                  label={t('Values')}
-                  name="valuesCheckbox"
-                  checked={this.state.showingValues}
-                  onChange={this.toggleValues}
-                  {...checkboxStyles}
-                />
-              </Flex>
-            </Flex>
-          </Box>
+                <Button
+                  className="btn-refresh"
+                  variant="secondaryCondensed"
+                  onClick={this.props.onClickRefresh}
+                >
+                  {t('Refresh')}
+                </Button>
 
-          <Box className="patient-data-sidebar" variant="containers.patientDataSidebar">
-            <Box mb={2}>
-              <ClipboardButton
-                buttonTitle={t('For email or notes')}
-                onSuccess={this.handleCopyBgLogClicked}
-                getText={bgLogText.bind(this, this.props.patient, this.props.data, this.props.stats)}
+                <Flex
+                  variant="inputs.checkboxGroup.horizontal"
+                  sx={{ alignItems: 'center' }}
+                  bg="lightestGrey"
+                  px={3}
+                  py={2}
+                >
+                  <Checkbox
+                    label={t('Values')}
+                    name="valuesCheckbox"
+                    checked={this.state.showingValues}
+                    onChange={this.toggleValues}
+                    {...checkboxStyles}
+                  />
+                </Flex>
+              </Flex>
+            </Box>
+
+            <Box className="patient-data-sidebar" variant="containers.patientDataSidebar">
+              <Box mb={2}>
+                <ClipboardButton
+                  buttonTitle={t('For email or notes')}
+                  onSuccess={this.handleCopyBgLogClicked}
+                  getText={bgLogText.bind(this, this.props.patient, this.props.data, this.props.stats)}
+                />
+              </Box>
+              <Stats
+                bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
+                chartPrefs={this.props.chartPrefs}
+                chartType={this.chartType}
+                stats={this.props.stats}
+                trackMetric={this.props.trackMetric}
+              />
+              <DeviceSelection
+                chartPrefs={this.props.chartPrefs}
+                chartType={this.chartType}
+                devices={_.get(this.props, 'data.metaData.devices', [])}
+                removeGeneratedPDFS={this.props.removeGeneratedPDFS}
+                trackMetric={this.props.trackMetric}
+                updateChartPrefs={this.props.updateChartPrefs}
               />
             </Box>
-            <Stats
-              bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
-              chartPrefs={this.props.chartPrefs}
-              chartType={this.chartType}
-              stats={this.props.stats}
-              trackMetric={this.props.trackMetric}
-            />
-            <DeviceSelection
-              chartPrefs={this.props.chartPrefs}
-              chartType={this.chartType}
-              devices={_.get(this.props, 'data.metaData.devices', [])}
-              removeGeneratedPDFS={this.props.removeGeneratedPDFS}
-              trackMetric={this.props.trackMetric}
-              updateChartPrefs={this.props.updateChartPrefs}
-            />
           </Box>
+          <WindowSizeListener onResize={this.handleWindowResize} />
         </Box>
-        <WindowSizeListener onResize={this.handleWindowResize} />
-      </Box>
+      </div>
     );
   };
 

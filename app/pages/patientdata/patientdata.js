@@ -197,6 +197,8 @@ export const PatientDataClass = createReactClass({
     const isEmptyDataSet = dataFetched === 0;
     const rangeDataLoaded = isSettings || _.get(this.state, 'chartEndpoints.current.0', 0) !== 0;
 
+    console.log('isEmptyDataSet', isEmptyDataSet, this.props.data);
+
     return isEmptyDataSet
       ? false
       : !dataFetched || !rangeDataLoaded;
@@ -286,6 +288,7 @@ export const PatientDataClass = createReactClass({
 
     const cards = [
       {
+        id: 'data-connections-card',
         title: isUserPatient
           ? t('Connect an Account')
           : t('Connect a Device Account'),
@@ -296,6 +299,7 @@ export const PatientDataClass = createReactClass({
         onClick: handleClickDataConnections,
       },
       {
+        id: 'uploader-card',
         title: t('Upload Data Directly with Tidepool Uploader'),
         subtitle: t('Tidepool Uploader supports over 85 devices. Download Tidepool Uploader to get started.'),
         bannerImage: UploaderBanner,

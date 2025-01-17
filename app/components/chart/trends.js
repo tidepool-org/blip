@@ -476,140 +476,142 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     };
 
     return (
-      <Box variant="containers.patientData" className="trends grid">
-        {this.renderHeader()}
+      <div id="tidelineMain" className="trends grid">
+        <Box variant="containers.patientData">
+          {this.renderHeader()}
 
-        <Box variant="containers.patientDataInner">
+          <Box variant="containers.patientDataInner">
 
-          <Box className="patient-data-content" variant="containers.patientDataContent">
-            {this.renderSubNav()}
+            <Box className="patient-data-content" variant="containers.patientDataContent">
+              {this.renderSubNav()}
 
-            <Loader show={!!this.refs.chart && this.props.loading} overlay={true} />
+              <Loader show={!!this.refs.chart && this.props.loading} overlay={true} />
 
-            <div id="tidelineContainer" className="patient-data-chart-trends">
-              {dataQueryComplete && this.renderChart()}
-            </div>
+              <div id="tidelineContainer" className="patient-data-chart-trends">
+                {dataQueryComplete && this.renderChart()}
+              </div>
 
-            <Flex className="patient-data-footer-outer" mt="20px" mb={5} pl="40px" pr="10px" sx={{alignItems: 'center', justifyContent: 'space-between' }}>
-              <Button
-                className="btn-refresh"
-                variant="secondaryCondensed"
-                onClick={this.props.onClickRefresh}
-              >
-                {t('Refresh')}
-              </Button>
+              <Flex className="patient-data-footer-outer" mt="20px" mb={5} pl="40px" pr="10px" sx={{alignItems: 'center', justifyContent: 'space-between' }}>
+                <Button
+                  className="btn-refresh"
+                  variant="secondaryCondensed"
+                  onClick={this.props.onClickRefresh}
+                >
+                  {t('Refresh')}
+                </Button>
 
-              <Flex
-                variant="inputs.checkboxGroup.horizontal"
-                sx={{ alignItems: 'center' }}
-                bg="lightestGrey"
-                px={3}
-                py={2}
-              >
-                {this.props.chartPrefs.trends.showingCbg && (
-                  <>
-                    <Checkbox
-                      label={t('100% of Readings')}
-                      name="hundred"
-                      checked={cbgFlags.cbg100Enabled}
-                      onChange={this.toggleDisplayFlags.bind(this, 'cbg100Enabled', !cbgFlags.cbg100Enabled)}
-                      {...checkboxStyles}
-                    />
+                <Flex
+                  variant="inputs.checkboxGroup.horizontal"
+                  sx={{ alignItems: 'center' }}
+                  bg="lightestGrey"
+                  px={3}
+                  py={2}
+                >
+                  {this.props.chartPrefs.trends.showingCbg && (
+                    <>
+                      <Checkbox
+                        label={t('100% of Readings')}
+                        name="hundred"
+                        checked={cbgFlags.cbg100Enabled}
+                        onChange={this.toggleDisplayFlags.bind(this, 'cbg100Enabled', !cbgFlags.cbg100Enabled)}
+                        {...checkboxStyles}
+                      />
 
-                    <Checkbox
-                      label={t('80% of Readings')}
-                      name="eighty"
-                      checked={cbgFlags.cbg80Enabled}
-                      onChange={this.toggleDisplayFlags.bind(this, 'cbg80Enabled', !cbgFlags.cbg80Enabled)}
-                      {...checkboxStyles}
-                    />
+                      <Checkbox
+                        label={t('80% of Readings')}
+                        name="eighty"
+                        checked={cbgFlags.cbg80Enabled}
+                        onChange={this.toggleDisplayFlags.bind(this, 'cbg80Enabled', !cbgFlags.cbg80Enabled)}
+                        {...checkboxStyles}
+                      />
 
-                    <Checkbox
-                      label={t('50% of Readings')}
-                      name="fifty"
-                      checked={cbgFlags.cbg50Enabled}
-                      onChange={this.toggleDisplayFlags.bind(this, 'cbg50Enabled', !cbgFlags.cbg50Enabled)}
-                      {...checkboxStyles}
-                    />
+                      <Checkbox
+                        label={t('50% of Readings')}
+                        name="fifty"
+                        checked={cbgFlags.cbg50Enabled}
+                        onChange={this.toggleDisplayFlags.bind(this, 'cbg50Enabled', !cbgFlags.cbg50Enabled)}
+                        {...checkboxStyles}
+                      />
 
-                    <Checkbox
-                      label={t('Median')}
-                      name="median"
-                      checked={cbgFlags.cbgMedianEnabled}
-                      onChange={this.toggleDisplayFlags.bind(this, 'cbgMedianEnabled', !cbgFlags.cbgMedianEnabled)}
-                      {...checkboxStyles}
-                    />
-                  </>
-                )}
+                      <Checkbox
+                        label={t('Median')}
+                        name="median"
+                        checked={cbgFlags.cbgMedianEnabled}
+                        onChange={this.toggleDisplayFlags.bind(this, 'cbgMedianEnabled', !cbgFlags.cbgMedianEnabled)}
+                        {...checkboxStyles}
+                      />
+                    </>
+                  )}
 
-                {this.props.chartPrefs.trends.showingSmbg && (
-                  <>
-                    <Checkbox
-                      label={t('Range & Average')}
-                      name="overlayCheckbox"
-                      checked={this.props.chartPrefs.trends.smbgRangeOverlay}
-                      onChange={this.toggleBoxOverlay}
-                      {...checkboxStyles}
-                    />
+                  {this.props.chartPrefs.trends.showingSmbg && (
+                    <>
+                      <Checkbox
+                        label={t('Range & Average')}
+                        name="overlayCheckbox"
+                        checked={this.props.chartPrefs.trends.smbgRangeOverlay}
+                        onChange={this.toggleBoxOverlay}
+                        {...checkboxStyles}
+                      />
 
-                    <Checkbox
-                      label={t('Group')}
-                      name="groupCheckbox"
-                      checked={this.props.chartPrefs.trends.smbgGrouped}
-                      onChange={this.toggleGrouping}
-                      {...checkboxStyles}
-                    />
+                      <Checkbox
+                        label={t('Group')}
+                        name="groupCheckbox"
+                        checked={this.props.chartPrefs.trends.smbgGrouped}
+                        onChange={this.toggleGrouping}
+                        {...checkboxStyles}
+                      />
 
-                    <Checkbox
-                      label={t('Lines')}
-                      name="linesCheckbox"
-                      checked={this.props.chartPrefs.trends.smbgLines}
-                      onChange={this.toggleLines}
-                      {...checkboxStyles}
-                    />
-                  </>
-                )}
+                      <Checkbox
+                        label={t('Lines')}
+                        name="linesCheckbox"
+                        checked={this.props.chartPrefs.trends.smbgLines}
+                        onChange={this.toggleLines}
+                        {...checkboxStyles}
+                      />
+                    </>
+                  )}
+                </Flex>
               </Flex>
-            </Flex>
 
-            {dataQueryComplete && this.renderFocusedCbgDateTraceLabel()}
-            {dataQueryComplete && this.renderFocusedSMBGPointLabel()}
-            {dataQueryComplete && this.renderFocusedRangeLabels()}
-          </Box>
+              {dataQueryComplete && this.renderFocusedCbgDateTraceLabel()}
+              {dataQueryComplete && this.renderFocusedSMBGPointLabel()}
+              {dataQueryComplete && this.renderFocusedRangeLabels()}
+            </Box>
 
-          <Box className="patient-data-sidebar" variant="containers.patientDataSidebar">
-              <Flex mb={2} sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
-                <ClipboardButton
-                  buttonTitle={t('For email or notes')}
-                  onSuccess={this.handleCopyTrendsClicked}
-                  getText={trendsText.bind(this, this.props.patient, this.props.data, this.props.stats, this.props.chartPrefs[this.chartType])}
-                />
-                <BgSourceToggle
-                  bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
+            <Box className="patient-data-sidebar" variant="containers.patientDataSidebar">
+                <Flex mb={2} sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                  <ClipboardButton
+                    buttonTitle={t('For email or notes')}
+                    onSuccess={this.handleCopyTrendsClicked}
+                    getText={trendsText.bind(this, this.props.patient, this.props.data, this.props.stats, this.props.chartPrefs[this.chartType])}
+                  />
+                  <BgSourceToggle
+                    bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
+                    chartPrefs={this.props.chartPrefs}
+                    chartType={this.chartType}
+                    onClickBgSourceToggle={this.toggleBgDataSource}
+                  />
+                </Flex>
+                <Stats
+                  bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                   chartPrefs={this.props.chartPrefs}
                   chartType={this.chartType}
-                  onClickBgSourceToggle={this.toggleBgDataSource}
+                  stats={statsToRender}
+                  trackMetric={this.props.trackMetric}
                 />
-              </Flex>
-              <Stats
-                bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
-                chartPrefs={this.props.chartPrefs}
-                chartType={this.chartType}
-                stats={statsToRender}
-                trackMetric={this.props.trackMetric}
-              />
-              <DeviceSelection
-                chartPrefs={this.props.chartPrefs}
-                chartType={this.chartType}
-                devices={_.get(this.props, 'data.metaData.devices', [])}
-                removeGeneratedPDFS={this.props.removeGeneratedPDFS}
-                trackMetric={this.props.trackMetric}
-                updateChartPrefs={this.props.updateChartPrefs}
-              />
+                <DeviceSelection
+                  chartPrefs={this.props.chartPrefs}
+                  chartType={this.chartType}
+                  devices={_.get(this.props, 'data.metaData.devices', [])}
+                  removeGeneratedPDFS={this.props.removeGeneratedPDFS}
+                  trackMetric={this.props.trackMetric}
+                  updateChartPrefs={this.props.updateChartPrefs}
+                />
+            </Box>
           </Box>
+          <WindowSizeListener onResize={this.handleWindowResize} />
         </Box>
-         <WindowSizeListener onResize={this.handleWindowResize} />
-      </Box>
+      </div>
     );
   }
 

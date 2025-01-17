@@ -46,6 +46,21 @@ describe('Settings', () => {
     bgUnits: MGDL_UNITS,
   };
 
+  const patient = {
+    emails: ['user@example.com'],
+    userid: 'userId123',
+    username: 'user@example.com',
+    profile: {
+      fullName: 'Example User',
+      clinic: {
+        role: 'clinic_manager',
+      },
+      patient: {
+        foo: 'bar',
+      },
+    },
+  };
+
   const baseProps = {
     chartPrefs: {
       settings: {
@@ -60,6 +75,16 @@ describe('Settings', () => {
         timezoneAware: false,
         timezoneName: 'US/Pacific',
       },
+      data: {
+        combined: [
+          {
+            type: 'pumpSettings',
+            normalTime: '2023-01-01T00:00:00Z',
+            source: 'source1',
+            id: 'id1',
+          },
+        ],
+      },
     },
     printReady: false,
     trackMetric: sinon.stub(),
@@ -71,6 +96,7 @@ describe('Settings', () => {
     onSwitchToDaily: sinon.stub(),
     onSwitchToSettings: sinon.stub(),
     onSwitchToBgLog: sinon.stub(),
+    patient,
     uploadUrl: '',
   };
 
@@ -125,20 +151,7 @@ describe('Settings', () => {
   const defaultState = {
     blip: {
       allUsersMap: {
-        userId123: {
-          emails: ['user@example.com'],
-          userid: 'userId123',
-          username: 'user@example.com',
-          profile: {
-            fullName: 'Example User',
-            clinic: {
-              role: 'clinic_manager',
-            },
-            patient: {
-              foo: 'bar',
-            },
-          },
-        },
+        userId123: patient,
       },
       loggedInUserId: 'userId123',
       settings: {
@@ -197,6 +210,7 @@ describe('Settings', () => {
         onSwitchToDaily: sinon.spy(),
         onSwitchToSettings: sinon.spy(),
         onSwitchToBgLog: sinon.spy(),
+        patient,
         trackMetric: sinon.spy(),
         uploadUrl: '',
         pdf: {
@@ -204,7 +218,7 @@ describe('Settings', () => {
         },
       };
       const settingsElem = React.createElement(Settings, props);
-      const elem = mount(settingsElem);
+      const elem = mount(<Provider store={store}>{settingsElem}</Provider>);
       expect(elem).to.be.ok;
       const x = elem.find('.patient-data-message');
       expect(x).to.be.ok;
@@ -225,6 +239,7 @@ describe('Settings', () => {
         onSwitchToDaily: sinon.spy(),
         onSwitchToSettings: sinon.spy(),
         onSwitchToBgLog: sinon.spy(),
+        patient,
         trackMetric: sinon.spy(),
         uploadUrl: '',
         pdf: {
@@ -232,7 +247,7 @@ describe('Settings', () => {
         },
       };
       const settingsElem = React.createElement(Settings, props);
-      const elem = mount(settingsElem);
+      const elem = mount(<Provider store={store}>{settingsElem}</Provider>);
       const refreshButton = elem.find('.btn-refresh').hostNodes();
 
       expect(props.onClickRefresh.callCount).to.equal(0);
@@ -251,10 +266,11 @@ describe('Settings', () => {
           },
         },
         onClickPrint: sinon.spy(),
+        patient,
       });
 
       const settingsElem = React.createElement(Settings, props);
-      const elem = mount(settingsElem);
+      const elem = mount(<Provider store={store}>{settingsElem}</Provider>);
       const printLink = elem.find('.printview-print-icon');
 
       expect(printLink).to.be.ok;
@@ -356,7 +372,7 @@ describe('Settings', () => {
     expect(wrapper.find('.pump-settings-container').length).to.equal(1);
   });
 
-  it('disables device selection apply button when no sources are available', () => {
+  it('hides device settings selection UI when no sources are available', () => {
     mountWrapper({
       data: {
         data: {
@@ -366,11 +382,11 @@ describe('Settings', () => {
       },
     });
     wrapper.update();
-    const deviceButton = wrapper.find('button#device-selection');
-    expect(deviceButton.props().disabled).to.be.true;
+    const deviceSettingsSelection = wrapper.find('#device-settings-selection').hostNodes();
+    expect(deviceSettingsSelection).to.have.lengthOf(0);
   });
 
-  it('disables settings selection apply button when no settings are available', () => {
+  it('hides device settings selection UI when no settings are available', () => {
     mountWrapper({
       data: {
         data: {
@@ -380,8 +396,8 @@ describe('Settings', () => {
       },
     });
     wrapper.update();
-    const settingsButton = wrapper.find('button#settings-selection');
-    expect(settingsButton.props().disabled).to.be.true;
+    const deviceSettingsSelection = wrapper.find('#device-settings-selection').hostNodes();
+    expect(deviceSettingsSelection).to.have.lengthOf(0);
   });
 
   it('calls trackMetric when device selection popover is opened', () => {
@@ -532,12 +548,14 @@ describe('Settings', () => {
               type: 'pumpSettings',
               normalTime: moment('2023-01-01T00:00:00Z').valueOf(),
               source: 'source1',
+              id: 'id1',
               deviceSerialNumber: '1234',
             },
             {
               type: 'pumpSettings',
               normalTime: moment('2023-01-02T00:00:00Z').valueOf(),
               source: 'source2',
+              id: 'id2',
               deviceSerialNumber: '5678',
             },
           ],
@@ -562,6 +580,7 @@ describe('Settings', () => {
               type: 'pumpSettings',
               normalTime: moment('2023-01-01T00:00:00Z').valueOf(),
               source: 'source1',
+              id: 'id1',
             },
           ],
         },
@@ -584,6 +603,7 @@ describe('Settings', () => {
               type: 'pumpSettings',
               normalTime: moment('2023-01-01T00:00:00Z').valueOf(),
               source: 'Unspecified Data Source',
+              id: 'id1',
               deviceSerialNumber: '1234',
             },
           ],
@@ -604,12 +624,14 @@ describe('Settings', () => {
               type: 'pumpSettings',
               normalTime: moment('2023-01-01T00:00:00Z').valueOf(),
               source: 'Unspecified Data Source',
+              id: 'id1',
               deviceSerialNumber: '1234',
             },
             {
               type: 'pumpSettings',
               normalTime: moment('2023-01-02T00:00:00Z').valueOf(),
               source: 'source1',
+              id: 'id2',
               deviceSerialNumber: '1234',
             },
           ],
@@ -634,6 +656,7 @@ describe('Settings', () => {
               type: 'pumpSettings',
               normalTime: moment('2023-01-01T00:00:00Z').valueOf(),
               source: 'source1',
+              id: 'id1',
             },
           ],
         },
@@ -659,11 +682,13 @@ describe('Settings', () => {
               type: 'pumpSettings',
               normalTime: moment('2023-01-01T00:00:00Z').valueOf(),
               source: 'source1',
+              id: 'id1',
             },
             {
               type: 'pumpSettings',
               normalTime: moment('2023-01-02T00:00:00Z').valueOf(),
               source: 'source1',
+              id: 'id2',
             },
           ],
         },
@@ -692,16 +717,19 @@ describe('Settings', () => {
               type: 'pumpSettings',
               normalTime: moment('2023-01-01T00:00:00Z').valueOf(),
               source: 'source1',
+              id: 'id1',
             },
             {
               type: 'pumpSettings',
               normalTime: moment('2023-01-01T00:00:00Z').valueOf(),
               source: 'source2',
+              id: 'id2',
             },
             {
               type: 'pumpSettings',
               normalTime: moment('2023-01-03T00:00:00Z').valueOf(),
               source: 'source2',
+              id: 'id3',
             },
           ],
         },
@@ -730,11 +758,13 @@ describe('Settings', () => {
               type: 'pumpSettings',
               normalTime: moment('2023-01-01T20:00:00Z').valueOf(),
               source: 'source1',
+              id: 'id1',
             },
             {
               type: 'pumpSettings',
               normalTime: moment('2023-01-02T00:00:00Z').valueOf(),
               source: 'source1',
+              id: 'id2',
             },
           ],
         },
@@ -763,16 +793,19 @@ describe('Settings', () => {
               type: 'pumpSettings',
               normalTime: moment('2023-01-01T00:00:00Z').valueOf(),
               source: 'source1',
+              id: 'id1',
             },
             {
               type: 'pumpSettings',
               normalTime: moment('2023-02-01T00:00:00Z').valueOf(),
               source: 'source1',
+              id: 'id2',
             },
             {
               type: 'pumpSettings',
               normalTime: moment('2022-11-01T00:00:00Z').valueOf(),
               source: 'source1',
+              id: 'id3',
             },
           ],
         },
@@ -804,21 +837,25 @@ describe('Settings', () => {
               type: 'pumpSettings',
               normalTime: moment('2023-01-01T00:00:00Z').valueOf(),
               source: 'source1',
+              id: 'id1',
             },
             {
               type: 'pumpSettings',
               normalTime: moment('2024-01-01T00:00:00Z').valueOf(),
               source: 'source1',
+              id: 'id2',
             },
             {
               type: 'pumpSettings',
               normalTime: moment('2021-06-01T00:00:00Z').valueOf(),
               source: 'source1',
+              id: 'id3',
             },
             {
               type: 'pumpSettings',
               normalTime: moment('2018-01-01T00:00:00Z').valueOf(),
               source: 'source1',
+              id: 'id4',
             },
           ],
         },
