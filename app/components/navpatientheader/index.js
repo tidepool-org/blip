@@ -10,7 +10,7 @@ import DemographicInfo from './DemographicInfo';
 import PatientMenuOptions from './MenuOptions/Patient';
 import ClinicianMenuOptions from './MenuOptions/Clinician';
 import { isClinicianAccount } from '../../core/personutils';
-import { getPermissions, getPatientListLink } from './navPatientHeaderHelpers';
+import { getPermissions, getPatientListLink, getDemographicInfo } from './navPatientHeaderHelpers';
 import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
 
 const HeaderContainer = ({ children }) => (
@@ -30,7 +30,8 @@ const HeaderContainer = ({ children }) => (
 );
 
 const NavPatientHeader = ({ 
-  patient, 
+  patient,
+  clinicPatient,
   user, 
   permsOfLoggedInUser,
   trackMetric,
@@ -41,10 +42,11 @@ const NavPatientHeader = ({
   const history = useHistory();
   const [isUploadOverlayOpen, setIsUploadOverlayOpen] = useState(false);
 
-  if (!patient?.profile) return null;
+  if (!patient?.profile?.patient) return null;
 
   const { patientListLink } = getPatientListLink(clinicFlowActive, selectedClinicId, query, patient.userid);
   const { canUpload, canShare } = getPermissions(patient, permsOfLoggedInUser);
+  const { mrn, birthday, name } = getDemographicInfo(patient, clinicPatient);
 
   const handleBack = () => {
     trackMetric('Clinic - View patient list', { clinicId: selectedClinicId, source: 'Patient data' });
@@ -78,8 +80,8 @@ const NavPatientHeader = ({
         { isClinicianAccount(user)
           ? <>
               <Back onClick={handleBack} />
-              <Name patient={patient} />
-              <DemographicInfo patient={patient} />
+              <Name name={name} />
+              <DemographicInfo birthday={birthday} mrn={mrn} />
               <ClinicianMenuOptions 
                 onViewData={handleViewData}
                 onViewProfile={handleViewProfile}
@@ -87,7 +89,7 @@ const NavPatientHeader = ({
               /> 
             </>
           : <>
-              <Name patient={patient} />
+              <Name name={name} />
               <PatientMenuOptions 
                 onViewData={handleViewData}
                 onViewProfile={handleViewProfile}
