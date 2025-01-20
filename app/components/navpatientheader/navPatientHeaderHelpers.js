@@ -11,10 +11,10 @@ export const getPermissions = (patient, permsOfLoggedInUser) => {
 };
 
 export const getPatientListLink = (clinicFlowActive, selectedClinicId, initialSearchParams, patientId) => {
-  const originDashboard = initialSearchParams.get('dashboard');
+  const dashboard = initialSearchParams.get('dashboard');
 
-  if (originDashboard) {
-    return `/dashboard/${originDashboard}?drawerPatientId=${patientId}`;
+  if (dashboard) {
+    return `/dashboard/${dashboard}?drawerPatientId=${patientId}`;
   };
   
   if (clinicFlowActive && selectedClinicId) {
