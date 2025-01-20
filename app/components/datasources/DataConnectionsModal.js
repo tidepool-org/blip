@@ -50,8 +50,6 @@ export const DataConnectionsModal = (props) => {
   const [patientEmailFormContext, setPatientEmailFormContext] = useState();
   const dispatch = useDispatch();
 
-  console.log('updatingClinicPatient', updatingClinicPatient);
-
   const fetchPatientDetails = useCallback(() => {
     dispatch(actions.async.fetchPatientFromClinic(api, selectedClinicId, patient.id));
   }, [dispatch, patient.id, selectedClinicId])

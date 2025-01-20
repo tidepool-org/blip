@@ -197,8 +197,6 @@ export const PatientDataClass = createReactClass({
     const isEmptyDataSet = dataFetched === 0;
     const rangeDataLoaded = isSettings || _.get(this.state, 'chartEndpoints.current.0', 0) !== 0;
 
-    console.log('isEmptyDataSet', isEmptyDataSet, this.props.data);
-
     return isEmptyDataSet
       ? false
       : !dataFetched || !rangeDataLoaded;
@@ -238,14 +236,13 @@ export const PatientDataClass = createReactClass({
     const { t } = this.props;
     const headerTitle = title || t('Preparing Chart Data');
     return (
-      <Body2 className="patient-data-header" p={2} sx={{
-        color: 'white',
-        fontWeight: 'medium',
-        bg: 'blueGreyDark',
-        textAlign: 'center',
-      }}>
-        {headerTitle}
-      </Body2>
+      <Header
+        chartType={'no-data'}
+        inTransition={false}
+        atMostRecent={false}
+        title={headerTitle}
+        ref="header"
+      />
     );
   },
 

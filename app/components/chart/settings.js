@@ -114,7 +114,6 @@ const Settings = ({
 
     let groupedBySource = _.groupBy(sortedData, 'source');
 
-    console.log('groupedBySource', groupedBySource);
     if (_.has(groupedBySource, 'Unspecified Data Source')) {
       groupedBySource = _.omit(groupedBySource, 'Unspecified Data Source');
     }
