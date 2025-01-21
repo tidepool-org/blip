@@ -524,6 +524,7 @@ export const DataConnections = (props) => {
         {map(intersection(shownProviders, activeProviders), (provider, i) => (
           <DataConnection
             id={`data-connection-${provider}`}
+            className="data-connection"
             key={i}
             mb={1}
             buttonProcessing={activeHandler?.providerName === provider && !showPatientEmailModal && !showResendDataSourceConnectRequest}

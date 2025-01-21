@@ -284,12 +284,12 @@ describe('PatientData', function () {
     });
 
     describe('no data available', () => {
-      let dataConnectsionCard
+      let dataConnectionsCard
       let uploaderCard;
       let wrapper;
 
       beforeEach(() => {
-        dataConnectsionCard = () => wrapper.find('#data-connections-card');
+        dataConnectionsCard = () => wrapper.find('#data-connections-card');
         uploaderCard = () => wrapper.find('#uploader-card');
       });
 
@@ -313,8 +313,8 @@ describe('PatientData', function () {
             }
           }));
 
-          expect(dataConnectsionCard().length).to.equal(1);
-          expect(dataConnectsionCard().text()).to.contain('Connect a Device Account');
+          expect(dataConnectionsCard().length).to.equal(1);
+          expect(dataConnectionsCard().text()).to.contain('Connect a Device Account');
 
           expect(uploaderCard().length).to.equal(1);
           expect(uploaderCard().text()).to.contain('Upload Data Directly with Tidepool Uploader');
@@ -347,8 +347,8 @@ describe('PatientData', function () {
             }
           }));
 
-          expect(dataConnectsionCard().length).to.equal(1);
-          expect(dataConnectsionCard().text()).to.contain('Connect a Device Account');
+          expect(dataConnectionsCard().length).to.equal(1);
+          expect(dataConnectionsCard().text()).to.contain('Connect a Device Account');
 
           expect(uploaderCard().length).to.equal(1);
           expect(uploaderCard().text()).to.contain('Upload Data Directly with Tidepool Uploader');
@@ -374,8 +374,8 @@ describe('PatientData', function () {
             }
           }));
 
-          expect(dataConnectsionCard().length).to.equal(1);
-          expect(dataConnectsionCard().text()).to.contain('Connect an Account');
+          expect(dataConnectionsCard().length).to.equal(1);
+          expect(dataConnectionsCard().text()).to.contain('Connect an Account');
 
           expect(uploaderCard().length).to.equal(1);
           expect(uploaderCard().text()).to.contain('Upload Data Directly with Tidepool Uploader');
@@ -406,8 +406,8 @@ describe('PatientData', function () {
             }
           }));
 
-          expect(dataConnectsionCard().length).to.equal(1);
-          expect(dataConnectsionCard().text()).to.contain('Connect an Account');
+          expect(dataConnectionsCard().length).to.equal(1);
+          expect(dataConnectionsCard().text()).to.contain('Connect an Account');
 
           expect(uploaderCard().length).to.equal(1);
           expect(uploaderCard().text()).to.contain('Upload Data Directly with Tidepool Uploader');
@@ -510,9 +510,9 @@ describe('PatientData', function () {
 
           wrapper.update();
 
-          expect(dataConnectsionCard().length).to.equal(1);
+          expect(dataConnectionsCard().length).to.equal(1);
           const callCount = props.trackMetric.callCount;
-          dataConnectsionCard().simulate('click');
+          dataConnectionsCard().simulate('click');
 
           expect(props.trackMetric.callCount).to.equal(callCount + 1);
           expect(props.trackMetric.calledWith('Clicked No Data Data Connections Card')).to.be.true;

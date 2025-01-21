@@ -1,8 +1,10 @@
 /* global chai */
+/* global context */
 /* global describe */
 /* global sinon */
 /* global it */
 /* global before */
+/* global beforeEach */
 /* global after */
 /* global afterEach */
 
@@ -17,6 +19,9 @@ import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import moment from 'moment-timezone';
 
+import { ToastProvider } from '../../../../app/providers/ToastProvider.js';
+import DataConnectionsModal from '../../../../app/components/datasources/DataConnectionsModal.js';
+import DataConnections, { activeProviders } from '../../../../app/components/datasources/DataConnections.js';
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
@@ -878,5 +883,308 @@ describe('Settings', () => {
     expect(radioOptions.at(3).text()).to.equal(
       'Jan 01, 2018 - Jun 01, 2021 : Active for >3 years'
     );
+  });
+
+  describe('data connections', () => {
+    let dataConnections;
+    let dataConnectionsAddButton;
+    let dataConnectionsCard;
+    let dataConnectionsModal;
+    let dataConnectionsWrapper;
+    let wrapper;
+
+    const api = {
+      clinics: {
+        getPatientFromClinic: sinon.stub(),
+      }
+    };
+
+    const userPatient = {
+      userid: '40',
+      profile: {
+        fullName: 'Fooey McBar'
+      },
+    };
+
+    const clinicPatient = {
+      id: '40',
+      fullName: 'Fooey McBar',
+    };
+
+    const defaultProps = {
+      currentPatientInViewId: '40',
+      trackMetric: sinon.stub(),
+    };
+
+    const defaultWorkingState = {
+      inProgress: false,
+      completed: null,
+      notification: null,
+    };
+
+    const defaultState = {
+      blip: {
+        working: {
+          updatingClinicPatient: defaultWorkingState,
+          sendingPatientDataProviderConnectRequest: defaultWorkingState,
+        },
+      },
+    };
+
+    const providerWrapper = store => props => {
+      const { children } = props;
+
+      return (
+        <Provider store={store}>
+          <ToastProvider>
+            {children}
+          </ToastProvider>
+        </Provider>
+      );
+    };
+
+    beforeEach(() => {
+      dataConnections = () => wrapper.find('.data-connection').hostNodes();
+      dataConnectionsAddButton = () => wrapper.find('#add-data-connections').hostNodes();
+      dataConnectionsCard = () => wrapper.find('#data-connections-card');
+      dataConnectionsModal = () => wrapper.find('Dialog#data-connections');
+      dataConnectionsWrapper = () => wrapper.find('#data-connections').hostNodes();
+      DataConnections.__Rewire__('api', api);
+      DataConnectionsModal.__Rewire__('api', api);
+    });
+
+    afterEach(() => {
+      DataConnections.__ResetDependency__('api');
+      DataConnectionsModal.__ResetDependency__('api');
+    });
+
+    context('clinician user', () => {
+      context('no active connections', () => {
+        it('should show the data connections card and open the data connections modal when clicked', () => {
+          const props = {
+            ...defaultProps,
+            patient: clinicPatient,
+            isUserPatient: false,
+          };
+
+          const state = {
+            blip: {
+              ...defaultState.blip,
+              selectedClinicId: 'clinic123',
+            }
+          };
+
+          const store = mockStore(state);
+
+          wrapper = mount(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
+
+          expect(dataConnectionsModal().length).to.equal(0);
+          expect(dataConnectionsCard().length).to.equal(1);
+          expect(dataConnectionsCard().text()).to.include('Connect a Device Account');
+          const callCount = props.trackMetric.callCount;
+          dataConnectionsCard().simulate('click');
+
+          sinon.assert.callCount(props.trackMetric, callCount + 1);
+          sinon.assert.calledWith(props.trackMetric, 'Clicked Settings Add Data Connections', sinon.match({ source: 'card' }));
+          expect(dataConnectionsModal().length).to.equal(1);
+        });
+      });
+
+      context('active connections to some providers', () => {
+        it('should show the data connections and open the data connections modal when Add button is clicked', () => {
+          const props = {
+            ...defaultProps,
+            patient: clinicPatient,
+            isUserPatient: false,
+            patient: {
+              userid: '40',
+              dataSources: [
+                { providerName: activeProviders[0], state: 'connected' }
+              ],
+            },
+          };
+
+          const state = {
+            blip: {
+              ...defaultState.blip,
+              selectedClinicId: 'clinic123',
+            }
+          };
+
+          const store = mockStore(state);
+
+          wrapper = mount(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
+
+          expect(dataConnectionsModal().length).to.equal(0);
+          expect(dataConnectionsCard().length).to.equal(0);
+          expect(dataConnectionsWrapper().length).to.equal(1);
+          expect(dataConnectionsWrapper().find(`#data-connection-${activeProviders[0]}`).hostNodes().length).to.equal(1);
+          const callCount = props.trackMetric.callCount;
+
+          expect(dataConnectionsAddButton().length).to.equal(1);
+          dataConnectionsAddButton().simulate('click');
+
+          sinon.assert.callCount(props.trackMetric, callCount + 1);
+          sinon.assert.calledWith(props.trackMetric, 'Clicked Settings Add Data Connections', sinon.match({ source: 'button' }));
+          expect(dataConnectionsModal().length).to.equal(1);
+
+          // Modal should only contain data providers that aren't already present for patient
+          expect(dataConnectionsModal().find(`#data-connection-${activeProviders[0]}`).hostNodes().length).to.equal(0);
+          expect(dataConnectionsModal().find(`#data-connection-${activeProviders[1]}`).hostNodes().length).to.equal(1);
+        });
+      });
+
+      context('active connections to all providers', () => {
+        it('should show the data connections but not the "Add" button', () => {
+          const props = {
+            ...defaultProps,
+            isUserPatient: false,
+            patient: {
+              ...clinicPatient,
+              dataSources: _.map(activeProviders, providerName => ({ providerName, state: 'pending' })),
+            },
+          };
+
+          const state = {
+            blip: {
+              ...defaultState.blip,
+              selectedClinicId: 'clinic123',
+            }
+          };
+
+          const store = mockStore(state);
+
+          wrapper = mount(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
+
+
+          // No modal, card, or add button
+          expect(dataConnectionsModal().length).to.equal(0);
+          expect(dataConnectionsCard().length).to.equal(0);
+          expect(dataConnectionsAddButton().length).to.equal(0);
+          expect(dataConnectionsWrapper().length).to.equal(1);
+
+          // Data connections shown for each provider
+          expect(dataConnections().length).to.equal(activeProviders.length);
+
+          _.each(activeProviders, providerName => {
+            expect(dataConnections().find(`#data-connection-${providerName}`).hostNodes().length).to.equal(1);
+          });
+        });
+      });
+    });
+
+    context('patient user', () => {
+      context('no active connections', () => {
+        it('should show the data connections card and open the data connections modal when clicked', () => {
+          const props = {
+            ...defaultProps,
+            patient: userPatient,
+            isUserPatient: true,
+          };
+
+          const store = mockStore(defaultState);
+          wrapper = mount(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
+
+          expect(dataConnectionsModal().length).to.equal(0);
+          expect(dataConnectionsCard().length).to.equal(1);
+          expect(dataConnectionsCard().text()).to.include('Connect an Account');
+          const callCount = props.trackMetric.callCount;
+          dataConnectionsCard().simulate('click');
+
+          sinon.assert.callCount(props.trackMetric, callCount + 1);
+          sinon.assert.calledWith(props.trackMetric, 'Clicked Settings Add Data Connections', sinon.match({ source: 'card' }));
+          expect(dataConnectionsModal().length).to.equal(1);
+        });
+      });
+
+      context('active connections to some providers', () => {
+        it('should show the data connections and open the data connections modal when Add button is clicked', () => {
+          const props = {
+            ...defaultProps,
+            isUserPatient: true,
+            patient: {
+              ...userPatient,
+              dataSources: [
+                { providerName: activeProviders[0], state: 'connected' }
+              ],
+            },
+          };
+
+          const store = mockStore(defaultState);
+          wrapper = mount(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
+
+          expect(dataConnectionsModal().length).to.equal(0);
+          expect(dataConnectionsCard().length).to.equal(0);
+          expect(dataConnectionsWrapper().length).to.equal(1);
+          expect(dataConnectionsWrapper().find(`#data-connection-${activeProviders[0]}`).hostNodes().length).to.equal(1);
+          const callCount = props.trackMetric.callCount;
+
+          expect(dataConnectionsAddButton().length).to.equal(1);
+          dataConnectionsAddButton().simulate('click');
+
+          sinon.assert.callCount(props.trackMetric, callCount + 1);
+          sinon.assert.calledWith(props.trackMetric, 'Clicked Settings Add Data Connections', sinon.match({ source: 'button' }));
+          expect(dataConnectionsModal().length).to.equal(1);
+
+          // Modal should only contain data providers that aren't already present for patient
+          expect(dataConnectionsModal().find(`#data-connection-${activeProviders[0]}`).hostNodes().length).to.equal(0);
+          expect(dataConnectionsModal().find(`#data-connection-${activeProviders[1]}`).hostNodes().length).to.equal(1);
+        });
+      });
+
+      context('active connections to all providers', () => {
+        it('should show the data connections but not the "Add" button', () => {
+          const props = {
+            ...defaultProps,
+            isUserPatient: true,
+            patient: {
+              ...userPatient,
+              dataSources: _.map(activeProviders, providerName => ({ providerName, state: 'pending' })),
+            },
+          };
+
+          const store = mockStore(defaultState);
+          wrapper = mount(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
+
+          // No modal, card, or add button
+          expect(dataConnectionsModal().length).to.equal(0);
+          expect(dataConnectionsCard().length).to.equal(0);
+          expect(dataConnectionsAddButton().length).to.equal(0);
+          expect(dataConnectionsWrapper().length).to.equal(1);
+
+          // Data connections shown for each provider
+          expect(dataConnections().length).to.equal(activeProviders.length);
+
+          _.each(activeProviders, providerName => {
+            expect(dataConnections().find(`#data-connection-${providerName}`).hostNodes().length).to.equal(1);
+          });
+        });
+      });
+    });
+
+    context('patient is not logged in user nor are they being viewed within a clinic context', () => {
+      context('no active connections', () => {
+        it('should not show the data connections card nor the data connections wrapper', () => {
+          const props = {
+            ...defaultProps,
+            patient: userPatient,
+            isUserPatient: false,
+          };
+
+          const state = {
+            blip: {
+              ...defaultState.blip,
+              selectedClinicId: null,
+            }
+          };
+
+          const store = mockStore(state);
+          wrapper = mount(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
+
+          expect(dataConnectionsCard().length).to.equal(0);
+          expect(dataConnectionsWrapper().length).to.equal(0);
+        });
+      });
+    });
   });
 });

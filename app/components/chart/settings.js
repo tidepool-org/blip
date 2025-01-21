@@ -91,6 +91,7 @@ const Settings = ({
   const [groupedData, setGroupedData] = useState([]);
   const previousSelectedDevice = usePrevious(selectedDevice);
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
+  const isClinicContext = !!selectedClinicId;
   const [showDataConnectionsModal, setShowDataConnectionsModal] = useState(false);
   const [showUploadOverlay, setShowUploadOverlay] = useState(false);
   const patientData = clinicPatient || clinicPatientFromAccountInfo(patient);
@@ -276,10 +277,10 @@ const Settings = ({
   }, [onSwitchToBgLog]);
 
 
-  const handleClickDataConnections = function() {
-    const properties = { patientID: currentPatientInViewId };
+  const handleClickDataConnections = function(source) {
+    const properties = { patientID: currentPatientInViewId, source };
     if (selectedClinicId) properties.clinicId = selectedClinicId;
-    trackMetric('Clicked No Data Data Connections Card', properties);
+    trackMetric('Clicked Settings Add Data Connections', properties);
     setShowDataConnectionsModal(true);
   };
 
@@ -567,7 +568,7 @@ const Settings = ({
         ? t('Do you have a Dexcom, LibreView or twiist account? When you connect an account, data can flow into Tidepool without any extra effort.')
         : t('Does your patient have a Dexcom, LibreView, or twiist account? Automatically sync data from these accounts with the patient\'s permission.'),
       bannerImage: DataConnectionsBanner,
-      onClick: handleClickDataConnections,
+      onClick: handleClickDataConnections.bind(null, 'card'),
       variant: 'containers.cardHorizontal',
     };
 
@@ -603,10 +604,11 @@ const Settings = ({
           <MediumTitle sx={{ color: 'black' }}>{t('Devices')}</MediumTitle>
           {showAddDevicesButton && (
             <Button
+              id="add-data-connections"
               variant="primaryCondensed"
               icon={AddRoundedIcon}
               iconPosition="left"
-              onClick={handleClickDataConnections}
+              onClick={handleClickDataConnections.bind(null, 'button')}
               sx={{ fontSize: 1, '.icon': { fontSize: '1.25em' }, flex: ['initial'] }}
             >
               {t('Add a Device')}
@@ -652,7 +654,11 @@ const Settings = ({
               }}
             >
               <Box>
-                {patientData?.dataSources?.length > 0 ? renderDataConnections() : renderDeviceConnectionCard()}
+                {(isClinicContext || isUserPatient) && (
+                  <Box id="data-connections-wrapper">
+                    {patientData?.dataSources?.length > 0 ? renderDataConnections() : renderDeviceConnectionCard()}
+                  </Box>
+                )}
                 <Divider my={4} />
                 <MediumTitle mb={2} sx={{ color: 'black' }}>{t('Therapy Settings')}</MediumTitle>
 
