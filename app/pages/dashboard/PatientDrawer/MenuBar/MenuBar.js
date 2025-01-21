@@ -38,7 +38,7 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
     }, 500);
   };
 
-  const { fullName, birthDate } = patient || {}; 
+  const { fullName, birthDate } = patient || {};
   
   return (
     <Box sx={{ display: 'grid', gridTemplateColumns: '32fr 18fr 18fr 32fr', gap: 3, minHeight: '42px', marginBottom: 3 }}>
@@ -60,7 +60,7 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
       </Flex>
       
       <Flex sx={{ justifyContent: 'flex-start', alignItems: 'center' }}>
-        <CGMClipboardButton patient={patient} pdf={pdf} />
+        <CGMClipboardButton patient={patient} data={pdf?.data?.agpCGM} />
       </Flex>
 
       <Flex sx={{ fontSize: 0, alignItems: 'center', justifyContent: 'flex-end' }}>

@@ -11,10 +11,10 @@ const STATE = {
   CLICKED: 'CLICKED',
 };
 
-const CGMClipboardButton = ({ patient, pdf }) => {
+const CGMClipboardButton = ({ patient, data }) => {
   const { t } = useTranslation();
   const [buttonState, setButtonState] = useState(STATE.DEFAULT);
-  const clipboardText = useMemo(() => agpCGMText(patient, pdf), [patient, pdf]);
+  const clipboardText = useMemo(() => agpCGMText(patient, data), [patient, data]);
 
   useEffect(() => {
     let buttonTextEffect = setTimeout(() => {
@@ -26,7 +26,7 @@ const CGMClipboardButton = ({ patient, pdf }) => {
     };
   }, [buttonState]);
 
-  const { count, sampleFrequency } = pdf?.data?.agpCGM?.data?.current?.stats?.sensorUsage || {};
+  const { count, sampleFrequency } = data?.data?.current?.stats?.sensorUsage || {};
 
   const hoursOfCGMData = (count * sampleFrequency) / MS_IN_HOUR;
 
