@@ -28,9 +28,9 @@ const CGMClipboardButton = ({ patient, pdf }) => {
 
   const { count, sampleFrequency } = pdf?.data?.agpCGM?.data?.current?.stats?.sensorUsage || {};
 
-  const hoursOfCGMData = count * sampleFrequency;
+  const hoursOfCGMData = (count * sampleFrequency) / MS_IN_HOUR;
 
-  const isDataInsufficient = !hoursOfCGMData || ((hoursOfCGMData / MS_IN_HOUR) < 24); // minimum 24 hours
+  const isDataInsufficient = !hoursOfCGMData || hoursOfCGMData < 24;
 
   const handleCopy = () => {
     navigator?.clipboard?.writeText(clipboardText);
