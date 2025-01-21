@@ -48,8 +48,8 @@ describe('PatientDrawer/MenuBar/CGMClipboardButton', () => {
   const writeTextSpy = sinon.stub(window?.navigator?.clipboard, 'writeText');
 
   describe('When data is not present', () => {
-    const insufficientPDF = { data: {} };
-    const wrapper = mount(<CGMClipboardButton patient={patient} pdf={insufficientPDF} />);
+    const insufficientAgpCGM = null;
+    const wrapper = mount(<CGMClipboardButton patient={patient} data={insufficientAgpCGM} />);
 
     it('is disabled', () => {
       expect(wrapper.find('button').props().disabled).to.be.true;
@@ -57,10 +57,10 @@ describe('PatientDrawer/MenuBar/CGMClipboardButton', () => {
   });
 
   describe('When data is insufficient due to too few enough readings', () => {
-    const insufficientPDF = _.cloneDeep(pdf);
-    insufficientPDF.data.agpCGM.data.current.stats.sensorUsage.count = 100;
+    const insufficientAgpCGM = _.cloneDeep(pdf.data.agpCGM);
+    insufficientAgpCGM.data.current.stats.sensorUsage.count = 100;
 
-    const wrapper = mount(<CGMClipboardButton patient={patient} pdf={insufficientPDF} />);
+    const wrapper = mount(<CGMClipboardButton patient={patient} data={insufficientAgpCGM} />);
 
     it('is disabled', () => {
       expect(wrapper.find('button').props().disabled).to.be.true;
@@ -68,8 +68,8 @@ describe('PatientDrawer/MenuBar/CGMClipboardButton', () => {
   });
 
   describe('When data is insufficient due to being BGM patient', () => {
-    const insufficientPDF = _.cloneDeep(pdf);
-    insufficientPDF.data.agpCGM.data.current.stats = {
+    const insufficientAgpCGM = _.cloneDeep(pdf.data.agpCGM);
+    insufficientAgpCGM.data.current.stats = {
       sensorUsage: { 
         sensorUsage: 0, 
         sensorUsageAGP: 0, 
@@ -79,7 +79,7 @@ describe('PatientDrawer/MenuBar/CGMClipboardButton', () => {
       },
     };
 
-    const wrapper = mount(<CGMClipboardButton patient={patient} pdf={insufficientPDF} />);
+    const wrapper = mount(<CGMClipboardButton patient={patient} data={insufficientAgpCGM} />);
 
     it('is disabled', () => {
       expect(wrapper.find('button').props().disabled).to.be.true;
@@ -87,7 +87,7 @@ describe('PatientDrawer/MenuBar/CGMClipboardButton', () => {
   });
 
   describe('When data is present', () => {
-    const wrapper = mount(<CGMClipboardButton patient={patient} pdf={pdf} />);
+    const wrapper = mount(<CGMClipboardButton patient={patient} data={pdf.data.agpCGM} />);
     wrapper.find('button').simulate('click');
 
     it('calls writeText on navigator API with correct data', () => {
