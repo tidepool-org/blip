@@ -276,7 +276,6 @@ const Settings = ({
     onSwitchToBgLog();
   }, [onSwitchToBgLog]);
 
-
   const handleClickDataConnections = function(source) {
     const properties = { patientID: currentPatientInViewId, source };
     if (selectedClinicId) properties.clinicId = selectedClinicId;
