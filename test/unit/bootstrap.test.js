@@ -56,8 +56,8 @@ describe('appContext', () => {
     expect(
       appContext.api.metrics.track.calledWith('someMetric2', {
         clinicId: 'clinic123',
-        mobile: 'no',
-        clinician: 'yes',
+        mobile: false,
+        clinician: true,
       })
     ).to.be.true;
 
@@ -69,8 +69,8 @@ describe('appContext', () => {
     expect(
       appContext.api.metrics.track.calledWith('someMetric2', {
         clinicId: 'anotherClinic',
-        mobile: 'no',
-        clinician: 'yes',
+        mobile: false,
+        clinician: true,
       })
     ).to.be.true;
   });
