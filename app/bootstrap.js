@@ -47,11 +47,18 @@ export let appContext = {
 };
 
 appContext.trackMetric = (...args) => {
-  let clinicId = appContext.store?.getState()?.blip?.selectedClinicId || undefined;
-  let mobile = utils.isMobile();
+  const state = appContext.store?.getState();
+
+  const clinicId       = state?.blip?.selectedClinicId || undefined;
+  const loggedInUserId = state?.blip?.loggedInUserId;
+  const user           = state?.blip?.allUsersMap?.[loggedInUserId];
+
+  const clinician = user ? personUtils.isClinicianAccount(user) : undefined;
+  const mobile = utils.isMobile();
 
   const eventMetadata = {
     clinicId,
+    clinician,
     mobile,
   };
 

@@ -29,8 +29,12 @@ const trackMetricMap = {
 };
 
 const interpretMetricMap = {
-  LOGIN_SUCCESS: function(_action) {
-    return { eventName: 'Logged In', properties: { mobile: utils.isMobile() } };
+  LOGIN_SUCCESS: function(action) {
+    const mobile = utils.isMobile();
+    const user = _.get(action, 'payload.user');
+    const clinician = user ? isClinicianAccount(user) : undefined;
+
+    return { eventName: 'Logged In', properties: { mobile, clinician } };
   },
   SETUP_DATA_STORAGE_SUCCESS: function(action) {
     const diagnosisType = _.get(action, 'payload.patient.profile.patient.diagnosisType');
