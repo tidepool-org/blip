@@ -37,8 +37,18 @@ describe('appContext', () => {
 
   it('should call appContext.api.metrics.track with clinicId defaulted to selectedClinicId when it is present', () => {
     const selectedClinicId = 'clinic123';
+    const loggedInUserId = 'abcd-1234';
+    const allUsersMap = {
+      [loggedInUserId]: { username: 'canelo.alvarez@tidepool.test', roles: ['clinician'] },
+    };
 
-    appContext.store.getState.returns({ blip: { selectedClinicId } });
+    appContext.store.getState.returns({ 
+      blip: {
+        selectedClinicId,
+        loggedInUserId,
+        allUsersMap,
+      }, 
+    });
 
     appContext.trackMetric('someMetric2');
 
@@ -46,7 +56,8 @@ describe('appContext', () => {
     expect(
       appContext.api.metrics.track.calledWith('someMetric2', {
         clinicId: 'clinic123',
-        isMobile: false,
+        mobile: false,
+        clinician: true,
       })
     ).to.be.true;
 
@@ -58,7 +69,8 @@ describe('appContext', () => {
     expect(
       appContext.api.metrics.track.calledWith('someMetric2', {
         clinicId: 'anotherClinic',
-        isMobile: false,
+        mobile: false,
+        clinician: true,
       })
     ).to.be.true;
   });
