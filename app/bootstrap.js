@@ -47,11 +47,11 @@ export let appContext = {
 
 export const buildMetricMetadata = (appContext) => {
   let clinicId = appContext.store?.getState()?.blip?.selectedClinicId || undefined;
-  let userAgent = navigator?.userAgent || undefined;
+  let isMobile = navigator?.userAgent?.toLowerCase()?.includes('mobi') || false;
 
   return {
     clinicId,
-    userAgent,
+    isMobile,
   };
 };
 

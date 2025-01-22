@@ -12,6 +12,8 @@ import appContext from '../../app/bootstrap';
 
 describe('appContext', () => {
   before(() => {
+    Object.defineProperty(window.navigator, 'userAgent', { value: 'Mozilla/5.0 .. truncated .. Chrome/131.0.0.0' });
+
     appContext.api = {
       metrics: {
         track: sinon.stub(),
@@ -44,6 +46,7 @@ describe('appContext', () => {
     expect(
       appContext.api.metrics.track.calledWith('someMetric2', {
         clinicId: 'clinic123',
+        isMobile: false,
       })
     ).to.be.true;
 
@@ -55,6 +58,7 @@ describe('appContext', () => {
     expect(
       appContext.api.metrics.track.calledWith('someMetric2', {
         clinicId: 'anotherClinic',
+        isMobile: false,
       })
     ).to.be.true;
   });
