@@ -45,11 +45,21 @@ export let appContext = {
   config: config
 };
 
+export const buildMetricMetadata = (appContext) => {
+  let clinicId = appContext.store?.getState()?.blip?.selectedClinicId || undefined;
+  let userAgent = navigator?.userAgent || undefined;
+
+  return {
+    clinicId,
+    userAgent,
+  };
+};
+
 appContext.trackMetric = (...args) => {
-  let selectedClinicId = appContext.store?.getState()?.blip?.selectedClinicId;
-  if (selectedClinicId) {
-    _.defaultsDeep(args, [, { clinicId: selectedClinicId }]);
-  }
+  const metricMetadata = buildMetricMetadata(appContext);
+
+  _.defaultsDeep(args, [, metricMetadata]);
+
   return appContext.api.metrics.track.apply(appContext.api.metrics, args);
 };
 
