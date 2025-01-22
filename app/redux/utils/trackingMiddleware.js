@@ -30,9 +30,9 @@ const trackMetricMap = {
 
 const interpretMetricMap = {
   LOGIN_SUCCESS: function(action) {
-    const mobile = utils.isMobile();
+    const mobile = utils.isMobile() ? 'yes' : 'no';
     const user = _.get(action, 'payload.user');
-    const clinician = user ? isClinicianAccount(user) : undefined;
+    const clinician = user ? (isClinicianAccount(user) ? 'yes' : 'no') : undefined;
 
     return { eventName: 'Logged In', properties: { mobile, clinician } };
   },
