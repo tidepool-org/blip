@@ -105,7 +105,6 @@ export class AppComponent extends React.Component {
       uploaderBanner: { priority: 1, metricTrackedForPatient: {} },
       shareDataBanner: { priority: 2, metricTrackedForPatient: {} },
       donateBanner: { priority: 3, metricTrackedForPatient: {} },
-      dexcomConnectBanner: { priority: 4, metricTrackedForPatient: {} },
       updateTypeBanner: { priority: 5, metricTrackedForPatient: {} },
     }
   }
@@ -222,8 +221,7 @@ export class AppComponent extends React.Component {
 
     const dexcomDataSource = userDexcomDataSource || patientDexcomDataSource;
 
-    if (showingDexcomConnectBanner !== false) {
-      let showDexcomBanner;
+    if (showingDexcomConnectBanner !== false) { // TODO: showingDataConnectionErrorBanner
       let dexcomBannerWasAcknowledged;
 
       if (userIsCurrentPatient) {
@@ -239,19 +237,9 @@ export class AppComponent extends React.Component {
          : !_.isEmpty(latestBannerInteractionTime);
       }
 
-      const isDexcomErrorState = dexcomDataSource?.state === 'error';
-      const bannerStateUpdates = { display: true };
-
-      // Give the Dexcom banner highest priority if the connection state is 'error'
-      if (isDexcomErrorState) bannerStateUpdates.priority = 0;
-
-      if (isBannerRoute && !dexcomBannerWasAcknowledged) {
-        showDexcomBanner = isDexcomErrorState || (userIsCurrentPatient && !userHasConnectedDataSources);
-      }
-
-      if (showDexcomBanner) {
+      if (dexcomDataSource?.state === 'error') {
         this.props.showBanner('dexcom');
-        this.setState({ dexcomConnectBanner: { ...this.state.dexcomConnectBanner, ...bannerStateUpdates } });
+        this.setState({ dexcomConnectBanner: { display: true, priority: 0, metricTrackedForPatient: {} } });
       } else if (showingDexcomConnectBanner) {
         this.props.hideBanner('dexcom');
       }
@@ -345,8 +333,8 @@ export class AppComponent extends React.Component {
   }
 
   renderNavPatientHeader() {
-    const { 
-      patient, 
+    const {
+      patient,
       user,
       permsOfLoggedInUser,
       context: { trackMetric },
@@ -356,12 +344,12 @@ export class AppComponent extends React.Component {
     } = this.props;
 
     if (!this.isPatientVisibleInNavbar()) return null; // only show on pages with a patient of focus
-    
+
     return (
-      <NavPatientHeader 
-        patient={patient} 
-        user={user} 
-        trackMetric={trackMetric} 
+      <NavPatientHeader
+        patient={patient}
+        user={user}
+        trackMetric={trackMetric}
         permsOfLoggedInUser={permsOfLoggedInUser}
         clinicFlowActive={clinicFlowActive}
         selectedClinicId={selectedClinicId}
