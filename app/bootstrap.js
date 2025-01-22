@@ -31,6 +31,7 @@ import config from './config';
 import api from './core/api';
 import personUtils from './core/personutils';
 import detectTouchScreen from './core/notouch';
+import utils from './core/utils';
 
 /* global __DEV_TOOLS__ */
 
@@ -45,20 +46,16 @@ export let appContext = {
   config: config
 };
 
-export const buildMetricMetadata = (appContext) => {
-  let clinicId = appContext.store?.getState()?.blip?.selectedClinicId || undefined;
-  let isMobile = navigator?.userAgent?.toLowerCase()?.includes('mobi') || false;
-
-  return {
-    clinicId,
-    isMobile,
-  };
-};
-
 appContext.trackMetric = (...args) => {
-  const metricMetadata = buildMetricMetadata(appContext);
+  let clinicId = appContext.store?.getState()?.blip?.selectedClinicId || undefined;
+  let mobile = utils.isMobile();
 
-  _.defaultsDeep(args, [, metricMetadata]);
+  const eventMetadata = {
+    clinicId,
+    mobile,
+  };
+
+  _.defaultsDeep(args, [, eventMetadata]);
 
   return appContext.api.metrics.track.apply(appContext.api.metrics, args);
 };

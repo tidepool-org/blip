@@ -18,10 +18,10 @@
 import _ from 'lodash';
 
 import { isClinicianAccount } from '../../core/personutils';
+import utils from '../../core/utils';
 import * as ActionTypes from '../constants/actionTypes';
 
 const trackMetricMap = {
-  LOGIN_SUCCESS: 'Logged In',
   UPDATE_PATIENT_SUCCESS: 'Updated Profile',
   UPDATE_USER_SUCCESS: 'Updated Account',
   LOGOUT_REQUEST: 'Logged Out',
@@ -29,6 +29,9 @@ const trackMetricMap = {
 };
 
 const interpretMetricMap = {
+  LOGIN_SUCCESS: function(_action) {
+    return { eventName: 'Logged In', properties: { mobile: utils.isMobile() } };
+  },
   SETUP_DATA_STORAGE_SUCCESS: function(action) {
     const diagnosisType = _.get(action, 'payload.patient.profile.patient.diagnosisType');
     return { eventName: 'Created Profile', properties: diagnosisType ? { 'Diabetes Type': diagnosisType } : null };
