@@ -49,7 +49,7 @@ export let appContext = {
 appContext.trackMetric = (...args) => {
   const state = appContext.store?.getState();
 
-  // Empty values should be undefined rather than null to prevent sending blank searchParams
+  // Empty values should be undefined, not null, to prevent sending blank query params
   const clinicId       = state?.blip?.selectedClinicId || undefined;
   const loggedInUserId = state?.blip?.loggedInUserId;
   const user           = state?.blip?.allUsersMap?.[loggedInUserId];
