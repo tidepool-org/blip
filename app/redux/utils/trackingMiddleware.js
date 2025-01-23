@@ -32,11 +32,15 @@ const interpretMetricMap = {
   LOGIN_SUCCESS: function(action) {
     const user = _.get(action, 'payload.user');
 
-    // Empty values should be undefined, not null, to prevent sending blank query params
     const clinician = user ? isClinicianAccount(user) : undefined;
     const mobile = utils.isMobile();
 
-    return { eventName: 'Logged In', properties: { clinician, mobile } };
+    let eventMetadata = { clinician, mobile };
+
+    // Empty values should be omitted from the metadata object to prevent sending blank query params
+    _.omitBy(eventMetadata, _.isUndefined);
+
+    return { eventName: 'Logged In', properties: eventMetadata };
   },
   SETUP_DATA_STORAGE_SUCCESS: function(action) {
     const diagnosisType = _.get(action, 'payload.patient.profile.patient.diagnosisType');

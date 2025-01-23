@@ -49,7 +49,6 @@ export let appContext = {
 appContext.trackMetric = (...args) => {
   const state = appContext.store?.getState();
 
-  // Empty values should be undefined, not null, to prevent sending blank query params
   const clinicId = state?.blip?.selectedClinicId || undefined;
   const loggedInUserId = state?.blip?.loggedInUserId;
   const user = state?.blip?.allUsersMap?.[loggedInUserId];
@@ -57,11 +56,14 @@ appContext.trackMetric = (...args) => {
   const clinician = user ? personUtils.isClinicianAccount(user) : undefined;
   const mobile = utils.isMobile();
 
-  const eventMetadata = {
+  let eventMetadata = {
     clinicId,
     clinician,
     mobile,
   };
+
+  // Empty values should be omitted from the metadata object to prevent sending blank query params
+  _.omitBy(eventMetadata, _.isUndefined);
 
   _.defaultsDeep(args, [, eventMetadata]);
 
