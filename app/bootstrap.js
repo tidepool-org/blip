@@ -49,11 +49,11 @@ export let appContext = {
 appContext.trackMetric = (...args) => {
   const state = appContext.store?.getState();
 
-  const clinicId = state?.blip?.selectedClinicId || undefined;
+  const clinicId = state?.blip?.selectedClinicId;
   const loggedInUserId = state?.blip?.loggedInUserId;
   const user = state?.blip?.allUsersMap?.[loggedInUserId];
 
-  const clinician = user ? personUtils.isClinicianAccount(user) : undefined;
+  const clinician = personUtils.isClinicianAccount(user);
   const mobile = utils.isMobile();
 
   let eventMetadata = {
@@ -63,7 +63,7 @@ appContext.trackMetric = (...args) => {
   };
 
   // Empty values should be omitted from the metadata object to prevent sending blank query params
-  _.omitBy(eventMetadata, _.isUndefined);
+  _.omitBy(eventMetadata, _.isNil);
 
   _.defaultsDeep(args, [, eventMetadata]);
 

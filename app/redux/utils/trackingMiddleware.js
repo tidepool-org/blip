@@ -32,13 +32,13 @@ const interpretMetricMap = {
   LOGIN_SUCCESS: function(action) {
     const user = _.get(action, 'payload.user');
 
-    const clinician = user ? isClinicianAccount(user) : undefined;
+    const clinician = isClinicianAccount(user);
     const mobile = utils.isMobile();
 
     let eventMetadata = { clinician, mobile };
 
     // Empty values should be omitted from the metadata object to prevent sending blank query params
-    _.omitBy(eventMetadata, _.isUndefined);
+    _.omitBy(eventMetadata, _.isNil);
 
     return { eventName: 'Logged In', properties: eventMetadata };
   },
