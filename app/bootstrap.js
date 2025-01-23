@@ -63,9 +63,9 @@ appContext.trackMetric = (...args) => {
   };
 
   // Empty values should be omitted from the metadata object to prevent sending blank query params
-  _.omitBy(eventMetadata, _.isNil);
+  const filteredEventMetadata = _.omitBy(eventMetadata, _.isNil);
 
-  _.defaultsDeep(args, [, eventMetadata]);
+  _.defaultsDeep(args, [, filteredEventMetadata]);
 
   return appContext.api.metrics.track.apply(appContext.api.metrics, args);
 };

@@ -38,9 +38,9 @@ const interpretMetricMap = {
     let eventMetadata = { clinician, mobile };
 
     // Empty values should be omitted from the metadata object to prevent sending blank query params
-    _.omitBy(eventMetadata, _.isNil);
+    const filteredEventMetadata = _.omitBy(eventMetadata, _.isNil);
 
-    return { eventName: 'Logged In', properties: eventMetadata };
+    return { eventName: 'Logged In', properties: filteredEventMetadata };
   },
   SETUP_DATA_STORAGE_SUCCESS: function(action) {
     const diagnosisType = _.get(action, 'payload.patient.profile.patient.diagnosisType');
