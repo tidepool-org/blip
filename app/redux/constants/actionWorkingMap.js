@@ -394,10 +394,10 @@ export default (type) => {
     case types.SEND_PATIENT_UPLOAD_REMINDER_FAILURE:
       return 'sendingPatientUploadReminder';
 
-    case types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_REQUEST:
-    case types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_SUCCESS:
-    case types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_FAILURE:
-      return 'sendingPatientDexcomConnectRequest';
+    case types.SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_REQUEST:
+    case types.SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_SUCCESS:
+    case types.SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_FAILURE:
+      return 'sendingPatientDataProviderConnectRequest';
 
     case types.CREATE_CLINIC_PATIENT_TAG_REQUEST:
     case types.CREATE_CLINIC_PATIENT_TAG_SUCCESS:

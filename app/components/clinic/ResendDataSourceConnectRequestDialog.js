@@ -5,25 +5,27 @@ import { useSelector } from 'react-redux';
 import { Text } from 'theme-ui';
 import sundial from 'sundial';
 
-import Button from '../../components/elements/Button';
-import { Body1, MediumTitle } from '../../components/elements/FontStyles';
+import Button from '../elements/Button';
+import { Body1, MediumTitle } from '../elements/FontStyles';
+import { providers } from '../datasources/DataConnections';
 
 import {
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-} from '../../components/elements/Dialog';
+} from '../elements/Dialog';
 
-export const ResendDexcomConnectRequestDialog = (props) => {
-  const { t, onClose, onConfirm, open, patient } = props;
+export const ResendDataSourceConnectRequestDialog = (props) => {
+  const { t, onClose, onConfirm, open, patient, providerName } = props;
   const timePrefs = useSelector((state) => state.blip.timePrefs);
-  const { sendingPatientDexcomConnectRequest } = useSelector((state) => state.blip.working);
+  const { sendingPatientDataProviderConnectRequest } = useSelector((state) => state.blip.working);
+  const providerDisplayName = providers[providerName]?.displayName;
 
-  const formattedLastRequestedDexcomConnectDate =
-    patient?.lastRequestedDexcomConnectTime &&
+  const formattedLastRequestedDataSourceConnectDate =
+    patient?.connectionRequests?.[providerName]?.[0]?.createdTime &&
     sundial.formatInTimezone(
-      patient?.lastRequestedDexcomConnectTime,
+      patient.connectionRequests[providerName][0].createdTime,
       timePrefs?.timezoneName ||
         new Intl.DateTimeFormat().resolvedOptions().timeZone,
       'MM/DD/YYYY [at] h:mm a'
@@ -31,7 +33,7 @@ export const ResendDexcomConnectRequestDialog = (props) => {
 
   return (
     <Dialog
-      id="resendDexcomConnectRequest"
+      id="resendDataSourceConnectRequest"
       aria-labelledby="dialog-title"
       open={open}
       onClose={onClose}
@@ -41,10 +43,10 @@ export const ResendDexcomConnectRequestDialog = (props) => {
       </DialogTitle>
       <DialogContent>
         <Body1>
-          {formattedLastRequestedDexcomConnectDate && (
+          {formattedLastRequestedDataSourceConnectDate && (
             <Trans>
               <Text>
-                You requested <Text as='span' fontWeight='bold'>{{patient: patient?.fullName || patient?.email}}</Text> to connect to <Text as='span' fontWeight='bold'>Dexcom</Text> on <Text as='span' fontWeight='bold'>{{requestDate: formattedLastRequestedDexcomConnectDate}}</Text>.
+                You requested <Text as='span' fontWeight='bold'>{{patient: patient?.fullName || patient?.email}}</Text> to connect to <Text as='span' fontWeight='bold'>{{provider: providerDisplayName}}</Text> on <Text as='span' fontWeight='bold'>{{requestDate: formattedLastRequestedDataSourceConnectDate}}</Text>.
               </Text>
             </Trans>
           )}
@@ -58,9 +60,9 @@ export const ResendDexcomConnectRequestDialog = (props) => {
           {t('Cancel')}
         </Button>
         <Button
-          className="resend-dexcom-connect-request"
+          className="resend-data-source-connect-request"
           variant="primary"
-          processing={sendingPatientDexcomConnectRequest.inProgress}
+          processing={sendingPatientDataProviderConnectRequest.inProgress}
           onClick={onConfirm}
         >
           {t('Resend Request')}
@@ -70,14 +72,15 @@ export const ResendDexcomConnectRequestDialog = (props) => {
   );
 };
 
-ResendDexcomConnectRequestDialog.propTypes = {
+ResendDataSourceConnectRequestDialog.propTypes = {
   api: PropTypes.object.isRequired,
   onClose: PropTypes.func.isRequired,
   onConfirm: PropTypes.func.isRequired,
   open: PropTypes.bool,
   patient: PropTypes.object,
+  providerName: PropTypes.string.isRequired,
   t: PropTypes.func.isRequired,
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default withTranslation()(ResendDexcomConnectRequestDialog);
+export default withTranslation()(ResendDataSourceConnectRequestDialog);

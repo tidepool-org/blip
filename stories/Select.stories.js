@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { boolean, text, optionsKnob as options } from '@storybook/addon-knobs';
+import { boolean as bool, text, optionsKnob as options } from '@storybook/addon-knobs';
 import { ThemeProvider } from '@emotion/react';
 import mapValues from 'lodash/mapValues';
 import keyBy from 'lodash/keyBy';
@@ -36,9 +36,9 @@ export const Simple = {
     const label = () => text('Label', 'Field Label');
     const defaultValue = () =>
       options('Default Value', knobOptions, 'two', { display: 'inline-radio' });
-    const disabled = () => boolean('Disabled', false);
-    const error = () => boolean('Errored', false);
-    const required = () => boolean('Required', false);
+    const disabled = () => bool('Disabled', false);
+    const error = () => bool('Errored', false);
+    const required = () => bool('Required', false);
 
     const variants = {
       Default: 'default',
