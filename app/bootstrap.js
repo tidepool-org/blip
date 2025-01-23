@@ -55,7 +55,7 @@ appContext.trackMetric = (...args) => {
   const user           = state?.blip?.allUsersMap?.[loggedInUserId];
 
   const clinician = user ? personUtils.isClinicianAccount(user) : undefined;
-  const mobile = utils.isMobile();
+  const mobile    = utils.isMobile();
 
   const eventMetadata = {
     clinicId,

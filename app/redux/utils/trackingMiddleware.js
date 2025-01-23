@@ -30,11 +30,13 @@ const trackMetricMap = {
 
 const interpretMetricMap = {
   LOGIN_SUCCESS: function(action) {
-    const mobile = utils.isMobile();
     const user = _.get(action, 'payload.user');
-    const clinician = user ? isClinicianAccount(user) : undefined;
 
-    return { eventName: 'Logged In', properties: { mobile, clinician } };
+    // Empty values should be undefined, not null, to prevent sending blank query params
+    const clinician = user ? isClinicianAccount(user) : undefined;
+    const mobile    = utils.isMobile();
+
+    return { eventName: 'Logged In', properties: { clinician, mobile } };
   },
   SETUP_DATA_STORAGE_SUCCESS: function(action) {
     const diagnosisType = _.get(action, 'payload.patient.profile.patient.diagnosisType');
