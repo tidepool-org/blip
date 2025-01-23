@@ -89,7 +89,7 @@ describe('trackingMiddleware', () => {
     expect(api.metrics.track.callCount).to.equal(0);
     trackingMiddleware(api)(getStateObj)(next)(loginSuccess);
     expect(api.metrics.track.callCount).to.equal(1);
-    expect(api.metrics.track.calledWith('Logged In', { mobile: 'no', clinician: 'yes' })).to.be.true;
+    expect(api.metrics.track.calledWith('Logged In', { mobile: false, clinician: true })).to.be.true;
   });
 
   it('should call the metrics api for SETUP_DATA_STORAGE_SUCCESS', () => {
