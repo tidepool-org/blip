@@ -50,12 +50,12 @@ appContext.trackMetric = (...args) => {
   const state = appContext.store?.getState();
 
   // Empty values should be undefined, not null, to prevent sending blank query params
-  const clinicId       = state?.blip?.selectedClinicId || undefined;
+  const clinicId = state?.blip?.selectedClinicId || undefined;
   const loggedInUserId = state?.blip?.loggedInUserId;
-  const user           = state?.blip?.allUsersMap?.[loggedInUserId];
+  const user = state?.blip?.allUsersMap?.[loggedInUserId];
 
   const clinician = user ? personUtils.isClinicianAccount(user) : undefined;
-  const mobile    = utils.isMobile();
+  const mobile = utils.isMobile();
 
   const eventMetadata = {
     clinicId,

@@ -34,7 +34,7 @@ const interpretMetricMap = {
 
     // Empty values should be undefined, not null, to prevent sending blank query params
     const clinician = user ? isClinicianAccount(user) : undefined;
-    const mobile    = utils.isMobile();
+    const mobile = utils.isMobile();
 
     return { eventName: 'Logged In', properties: { clinician, mobile } };
   },
