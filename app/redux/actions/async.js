@@ -2804,8 +2804,8 @@ export function revertClinicPatientLastReviewed(api, clinicId, patientId) {
  *
  * @param {Object} api - an instance of the API wrapper
  * @param {String} clinicId - clinic Id
- * @param {String} patientId - id of the patient to send the dexcom connect request to
- * @param {String} providerName - name of the provider to send the dexcom connect request to
+ * @param {String} patientId - id of the patient to send the data source connect request to
+ * @param {String} providerName - name of the provider to send the data source connect request to
  */
 export function sendPatientDataProviderConnectRequest(api, clinicId, patientId, providerName) {
   return (dispatch) => {

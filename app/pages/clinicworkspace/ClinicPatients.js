@@ -720,13 +720,12 @@ export const ClinicPatients = (props) => {
   }, [isFirstRender, setToast]);
 
   const handlePatientCreatedOrEdited = useCallback(() => {
-    console.log('creatingClinicCustodialAccount', creatingClinicCustodialAccount);
     if (patientFormContext?.status?.showDataConnectionsModalNext) {
       let currentPatient = selectedPatient;
 
       if (patientFormContext?.status?.newPatient && creatingClinicCustodialAccount?.patientId) currentPatient = {
         ...patientFormContext.status.newPatient,
-        id: creatingClinicCustodialAccount?.patientId,
+        id: creatingClinicCustodialAccount.patientId,
       };
 
       setShowAddPatientDialog(false);

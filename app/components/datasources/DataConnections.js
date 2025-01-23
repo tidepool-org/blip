@@ -150,13 +150,15 @@ export function getProviderHandlers(patient, selectedClinicId, provider) {
 };
 
 export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
+  const dataSource = find(patient?.dataSources, {providerName});
+
   const mostRecentConnectionUpdateTime = isLoggedInUser
     ? max([
-      find(patient?.dataSources, {providerName})?.createdTime,
-      find(patient?.dataSources, {providerName})?.latestDataTime || find(patient?.dataSources, {providerName})?.lastImportTime,
-      find(patient?.dataSources, {providerName})?.modifiedTime,
+      dataSource?.createdTime,
+      dataSource?.latestDataTime || dataSource?.lastImportTime,
+      dataSource?.modifiedTime,
     ]) : max([
-      find(patient?.dataSources, { providerName })?.modifiedTime,
+      dataSource?.modifiedTime,
       patient?.connectionRequests?.[providerName]?.[0]?.createdTime
     ]);
 
@@ -174,10 +176,10 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
   let patientConnectedIcon;
   let patientConnectedText = t('Connected');
 
-  if (!find(patient?.dataSources, {providerName})?.lastImportTime) {
+  if (!dataSource?.lastImportTime) {
     patientConnectedMessage = t('This can take a few minutes');
     patientConnectedText = t('Connecting');
-  } else if (!find(patient?.dataSources, {providerName})?.latestDataTime) {
+  } else if (!dataSource?.latestDataTime) {
     patientConnectedMessage = t('No data found as of {{timeAgo}}', { timeAgo });
   } else {
     patientConnectedMessage = t('Last data {{timeAgo}}', { timeAgo });
