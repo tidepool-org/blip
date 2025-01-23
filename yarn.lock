@@ -5278,9 +5278,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.45.0-web-3346-summary-accuracy.3":
-  version: 1.45.0-web-3346-summary-accuracy.3
-  resolution: "@tidepool/viz@npm:1.45.0-web-3346-summary-accuracy.3"
+"@tidepool/viz@npm:1.45.0-web-3346-summary-accuracy.4":
+  version: 1.45.0-web-3346-summary-accuracy.4
+  resolution: "@tidepool/viz@npm:1.45.0-web-3346-summary-accuracy.4"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -5340,7 +5340,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 9510f9f7ec4978db89cb60372766403708439459d40351caa73c37365faa3d75a421a62dc3f638614eccf25893e2026fd56d8a6ddd86d88cd23df83dacd8b065
+  checksum: 18467d1d827507db3e579ab49f069ca6e26a3a2a81a5f4d6e95352aa397e17b8b112ea0c7df3d4043fc71df6eba17464bbcb44a3c257864a2334f27ff94713b9
   languageName: node
   linkType: hard
 
@@ -7374,7 +7374,7 @@ __metadata:
     "@storybook/react": 7.5.0
     "@storybook/react-webpack5": 7.5.0
     "@testing-library/react-hooks": 8.0.1
-    "@tidepool/viz": 1.45.0-web-3346-summary-accuracy.3
+    "@tidepool/viz": 1.45.0-web-3346-summary-accuracy.4
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
