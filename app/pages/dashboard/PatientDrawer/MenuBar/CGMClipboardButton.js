@@ -44,7 +44,8 @@ const getCGMClipboardText = (patient, agpCGM, t) => {
 
   const currentDate = moment().format('MMMM Do, YYYY');
 
-  const dateRange = formatDateRange(oldestDatum.time, newestDatum.time, timezoneName);
+  // TODO: Add test for no data scenario
+  const dateRange = formatDateRange(oldestDatum?.time, newestDatum?.time, timezoneName);
 
   const targetRange  = bgUnits === MGDL_UNITS ? '70-180' : '3.9-10.0';
   const lowRange     = bgUnits === MGDL_UNITS ? '54-70' : '3.0-3.9';
