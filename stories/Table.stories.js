@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { action } from '@storybook/addon-actions';
-import { boolean, optionsKnob as options } from '@storybook/addon-knobs';
+import { boolean as bool, optionsKnob as options } from '@storybook/addon-knobs';
 import { ThemeProvider } from '@emotion/react';
 import toUpper from 'lodash/toUpper';
 import random from 'lodash/random';
@@ -179,8 +179,8 @@ const data = [
   createData(createPatient('Marco Manowar', 'marco@testemail.com'), 'success', '', 'Clinic Admin'),
 ];
 
-const stickyHeader = () => boolean('Sticky Header', false);
-const rowHover = () => boolean('Enable Row Hover', true);
+const stickyHeader = () => bool('Sticky Header', false);
+const rowHover = () => bool('Enable Row Hover', true);
 
 const variants = {
   Default: 'default',

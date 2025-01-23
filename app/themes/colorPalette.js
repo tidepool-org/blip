@@ -72,7 +72,6 @@ export default {
       '#5A5A5A',
       '#505050',
       '#3E3E3E',
-      '#707070'
     ],
     greens: [
       '#E6F8ED',

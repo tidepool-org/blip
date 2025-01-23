@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Flex, Text, FlexProps } from 'theme-ui';
+import { Flex, Text, Box, FlexProps } from 'theme-ui';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
 import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
@@ -15,12 +15,13 @@ import Button from './Button';
 export function Banner(props) {
   const {
     actionText,
-    label,
-    variant,
-    message,
     dismissable,
+    label,
+    message,
     onAction,
     onDismiss,
+    title,
+    variant,
     ...themeProps
   } = props;
 
@@ -42,7 +43,10 @@ export function Banner(props) {
     >
       <Flex px={2} sx={{ gap: 2, flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}>
         <Icon className="icon" theme={baseTheme} variant="static" icon={TypeIcon} label={variant} />
-        <Text className="message">{message}</Text>
+        <Box>
+          <Text className="title">{title}</Text>
+          <Text className="message">{message}</Text>
+        </Box>
         {!!actionText && (
           <Button variant="primaryCondensed" className="action" onClick={onAction}>{actionText}</Button>
         )}
@@ -62,20 +66,21 @@ export function Banner(props) {
 
 Banner.propTypes = {
   ...FlexProps,
-  message: PropTypes.string.isRequired,
-  variant: PropTypes.oneOf(['default', 'warning', 'danger', 'success']),
-  label: PropTypes.string.isRequired,
+  actionText: PropTypes.string,
   dismissable: PropTypes.bool,
+  label: PropTypes.string.isRequired,
+  message: PropTypes.string.isRequired,
   onAction: PropTypes.func,
   onDismiss: PropTypes.func,
-  actionText: PropTypes.string,
+  title: PropTypes.string,
+  variant: PropTypes.oneOf(['default', 'warning', 'danger', 'success']),
 };
 
 Banner.defaultProps = {
-  variant: 'info',
   dismissable: true,
   onDismiss: noop,
   onAction: noop,
+  variant: 'info',
 };
 
 export default Banner;
