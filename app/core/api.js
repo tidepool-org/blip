@@ -1041,8 +1041,8 @@ api.clinics.sendPatientUploadReminder = function(clinicId, patientId, cb) {
   return tidepool.sendPatientUploadReminder(clinicId, patientId, cb);
 };
 
-api.clinics.sendPatientDexcomConnectRequest = function(clinicId, patientId, cb) {
-  return tidepool.sendPatientDexcomConnectRequest(clinicId, patientId, cb);
+api.clinics.sendPatientDataProviderConnectRequest = function(clinicId, patientId, providerName, cb) {
+  return tidepool.sendPatientDataProviderConnectRequest(clinicId, patientId, providerName, cb);
 };
 
 api.clinics.createClinicPatientTag = function(clinicId, patientTag, cb) {
