@@ -1172,6 +1172,12 @@ export function connectDataSourceSuccess(id, url) {
   };
 }
 
+export function clearAuthorizedDataSource() {
+  return {
+    type: ActionTypes.CLEAR_AUTHORIZED_DATA_SOURCE,
+  };
+}
+
 export function connectDataSourceFailure(error, apiError) {
   return {
     type: ActionTypes.CONNECT_DATA_SOURCE_FAILURE,

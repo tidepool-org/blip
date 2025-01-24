@@ -656,7 +656,8 @@ export const authorizedDataSource = (state = initialState.authorizedDataSource, 
       let authorizedDataSource = _.get(action.payload, 'authorizedDataSource', {});
       return update(state, { $set: authorizedDataSource });
     case types.LOGOUT_REQUEST:
-      return {};
+    case types.CLEAR_AUTHORIZED_DATA_SOURCE:
+      return null;
     default:
       return state;
   }
