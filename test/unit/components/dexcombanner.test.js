@@ -31,6 +31,7 @@ import thunk from 'redux-thunk';
 import { DexcomBanner } from '../../../app/components/dexcombanner';
 import { ToastProvider } from '../../../app/providers/ToastProvider';
 import Button from '../../../app/components/elements/Button';
+const async = require('../../../app/redux/actions/async');
 
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
@@ -44,7 +45,7 @@ describe('DexcomBanner', () => {
     push: sinon.stub(),
     api: {
       clinics: {
-        sendPatientDexcomConnectRequest: sinon.stub().callsArgWith(2, null, { lastRequestedDexcomConnectTime: '2022-02-02T00:00:00.000Z'}),
+        sendPatientDataProviderConnectRequest: sinon.stub().callsArgWith(3, null),
       },
     },
   };
@@ -58,7 +59,7 @@ describe('DexcomBanner', () => {
   const blipState = {
     blip: {
       working: {
-        sendingPatientDexcomConnectRequest: defaultWorkingState,
+        sendingPatientDataProviderConnectRequest: defaultWorkingState,
       },
       timePrefs: {
         timezoneName: 'UTC'
@@ -71,7 +72,7 @@ describe('DexcomBanner', () => {
     email: 'patient1@test.ca',
     fullName: 'patient1',
     birthDate: '1999-01-01',
-    lastRequestedDexcomConnectTime: '2021-10-19T16:27:59.504Z',
+    connectionRequests: { dexcom: [{ providerName: 'dexcom', createdTime: '2021-10-19T16:27:59.504Z' }] },
     dataSources: [
       { providerName: 'dexcom', state: 'error' },
     ],
@@ -95,12 +96,16 @@ describe('DexcomBanner', () => {
 
   beforeEach(() => {
     wrapper = createWrapper(props);
+    async.__Rewire__('moment', {
+      utc: () => ({ toISOString: () => '2022-02-02T00:00:00.000Z'})
+    });
   });
 
   afterEach(() => {
     props.onClose.reset();
     props.onClick.reset();
     props.trackMetric.reset();
+    async.__ResetDependency__('moment');
   });
 
   it('should render without errors when provided all required props', () => {
@@ -282,7 +287,7 @@ describe('DexcomBanner', () => {
 
       it('should open a confirmation dialog to resend the reconnection email', () => {
         const resendButton = () => wrapper.find('.dexcomBanner-action button');
-        const resendDialog = () => wrapper.find('#resendDexcomConnectRequest').at(1);
+        const resendDialog = () => wrapper.find('#resendDataSourceConnectRequest').at(1);
           expect(resendDialog().props().open).to.be.false;
           resendButton().simulate('click');
           expect(resendDialog().props().open).to.be.true;
@@ -294,14 +299,15 @@ describe('DexcomBanner', () => {
 
           const expectedActions = [
             {
-              type: 'SEND_PATIENT_DEXCOM_CONNECT_REQUEST_REQUEST',
+              type: 'SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_REQUEST',
             },
             {
-              type: 'SEND_PATIENT_DEXCOM_CONNECT_REQUEST_SUCCESS',
+              type: 'SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_SUCCESS',
               payload: {
                 clinicId: 'clinicID123',
-                lastRequestedDexcomConnectTime: '2022-02-02T00:00:00.000Z',
+                createdTime: '2022-02-02T00:00:00.000Z',
                 patientId: 'clinicPatient123',
+                providerName: 'dexcom',
               },
             },
           ];
@@ -310,9 +316,10 @@ describe('DexcomBanner', () => {
           resendInvite.props().onClick();
           expect(store.getActions()).to.eql(expectedActions);
           sinon.assert.calledWith(
-            props.api.clinics.sendPatientDexcomConnectRequest,
+            props.api.clinics.sendPatientDataProviderConnectRequest,
             'clinicID123',
-            'clinicPatient123'
+            'clinicPatient123',
+            'dexcom',
           );
       });
 

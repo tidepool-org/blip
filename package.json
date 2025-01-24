@@ -21,7 +21,7 @@
     "build-config": "NODE_ENV=production node buildconfig",
     "server": "node server",
     "update-translations": "i18next 'app/**/*.js' 'node_modules/tideline/{plugins,js}/**/*.js' \"${TIDEPOOL_DOCKER_VIZ_DIR:-'../viz'}/{storiesDatatypes,storybookDatatypes,stories,src}/**/*.js\" -c i18next-parser.config.json -o .",
-    "storybook": "yarn sb dev -c storybook -p 6006 --ci",
+    "storybook": "NODE_ENV=test yarn sb dev -p 6006 --ci",
     "build-storybook": "build-storybook",
     "lint": "yarn eslint app stories test"
   },
@@ -64,7 +64,7 @@
     "@storybook/react": "7.5.0",
     "@storybook/react-webpack5": "7.5.0",
     "@testing-library/react-hooks": "8.0.1",
-    "@tidepool/viz": "1.44.0-web-3179-dep-updates.3",
+    "@tidepool/viz": "1.45.0-web-3346-summary-accuracy.4",
     "async": "2.6.4",
     "autoprefixer": "10.4.16",
     "babel-core": "7.0.0-bridge.0",
@@ -181,7 +181,7 @@
     "terser-webpack-plugin": "5.3.9",
     "theme-ui": "0.16.1",
     "tideline": "1.30.0",
-    "tidepool-platform-client": "0.61.0",
+    "tidepool-platform-client": "0.62.0-web-3272-patient-data-linking-after-creation.1",
     "tidepool-standard-action": "0.1.1",
     "ua-parser-js": "1.0.36",
     "url-loader": "4.1.1",
@@ -205,7 +205,8 @@
     "@emotion/styled": "11.3.0",
     "crypto-js": "4.2.0",
     "lodash": "4.17.21",
+    "qs": "6.11.2",
     "react-sizeme": "2.6.12",
-    "qs": "6.11.2"
+    "webpack": "5.94.0"
   }
 }

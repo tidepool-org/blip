@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Flex } from 'theme-ui';
-import { boolean } from '@storybook/addon-knobs';
+import { boolean as bool } from '@storybook/addon-knobs';
 
 import baseTheme from '../app/themes/baseTheme';
 import Accordion from '../app/components/elements/Accordion';
@@ -14,7 +14,7 @@ export default {
 
 export const AccordionStory = {
   render: () => {
-    const initiallyExpanded = () => boolean('Panel 2 Initially Expanded', true);
+    const initiallyExpanded = () => bool('Panel 2 Initially Expanded', true);
     const [expanded, setExpanded] = React.useState(initiallyExpanded());
 
     const handleChange = (event, isExpanded) => setExpanded(isExpanded);

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { boolean, text, number, optionsKnob as options } from '@storybook/addon-knobs';
+import { boolean as bool, text, number, optionsKnob as options } from '@storybook/addon-knobs';
 import { ThemeProvider } from '@emotion/react';
 
 import baseTheme from '../app/themes/baseTheme';
@@ -21,12 +21,12 @@ export default {
 
 const label = () => text('Label', 'Name');
 const width = () => number('Width');
-const disabled = () => boolean('Disabled', false);
+const disabled = () => bool('Disabled', false);
 const placeholder = () => text('Placeholder', 'Your name');
-const error = () => boolean('Errored State', false);
-const warning = () => boolean('Warning State', false);
-const required = () => boolean('Required', false);
-const icon = () => boolean('Icon', false);
+const error = () => bool('Errored State', false);
+const warning = () => bool('Warning State', false);
+const required = () => bool('Required', false);
+const icon = () => bool('Icon', false);
 const suffix = () => text('Suffix', '');
 const prefix = () => text('Prefix', '');
 

@@ -218,4 +218,159 @@ describe('OAuthConnection', () => {
       expect(custodialWrapper.find('#oauth-claim-account-button').hostNodes()).to.have.lengthOf(0);
     });
   });
+
+  context('abbott authorized', () => {
+    beforeEach(() => {
+      wrapper = createWrapper('abbott', 'authorized');
+    });
+
+    it('should track the appropriate metric on load', () => {
+      sinon.assert.calledWith(defaultProps.trackMetric, 'Oauth - Connection', {
+        providerName: 'abbott',
+        status: 'authorized',
+        custodialSignup: false,
+      });
+
+      defaultProps.trackMetric.resetHistory();
+      createWrapper('abbott', 'authorized', '?signupKey=abc&signupEmail=patient@mail.com');
+
+      sinon.assert.calledWith(defaultProps.trackMetric, 'Oauth - Connection', {
+        providerName: 'abbott',
+        status: 'authorized',
+        custodialSignup: true,
+      });
+    });
+
+    it('should render the appropriate banner', () => {
+      expect(wrapper.find('#banner-oauth-authorized').hostNodes().text()).to.equal('You have successfully connected your Abbott account to Tidepool.');
+    });
+
+    it('should render the appropriate heading and subheading', () => {
+      expect(wrapper.find('#oauth-heading').hostNodes().text()).to.equal('Connection Authorized');
+      expect(wrapper.find('#oauth-subheading').hostNodes().text()).to.equal('Thank you for connecting with Tidepool!');
+    });
+
+    it('should render the appropriate message text', () => {
+      expect(wrapper.find('#oauth-message').hostNodes().text()).to.equal('We hope you enjoy your Tidepool experience.');
+    });
+
+    it('should render a button that claims an account if the signup query params are provided', () => {
+      const custodialWrapper = createWrapper('abbott', 'authorized', '?signupKey=abc&signupEmail=patient@mail.com');
+      expect(wrapper.find('#oauth-claim-account-button').hostNodes()).to.have.lengthOf(0);
+      expect(custodialWrapper.find('#oauth-claim-account-button').hostNodes()).to.have.lengthOf(1);
+
+      defaultProps.trackMetric.resetHistory();
+      custodialWrapper.find('#oauth-claim-account-button').hostNodes().simulate('click');
+
+      sinon.assert.calledWith(defaultProps.trackMetric, 'Oauth - Connection - Claim Account', {
+        providerName: 'abbott',
+        status: 'authorized',
+      });
+
+      let expectedActions = [
+        routeAction('/login?signupKey=abc&signupEmail=patient%40mail.com'),
+      ];
+
+      const actions = store.getActions();
+      expect(actions).to.eql(expectedActions);
+    });
+  });
+
+  context('abbott declined', () => {
+    beforeEach(() => {
+      wrapper = createWrapper('abbott', 'declined');
+    });
+
+    it('should track the appropriate metric on load', () => {
+      sinon.assert.calledWith(defaultProps.trackMetric, 'Oauth - Connection', {
+        providerName: 'abbott',
+        status: 'declined',
+        custodialSignup: false,
+      });
+
+      defaultProps.trackMetric.resetHistory();
+      createWrapper('abbott', 'declined', '?signupKey=abc&signupEmail=patient@mail.com');
+
+      sinon.assert.calledWith(defaultProps.trackMetric, 'Oauth - Connection', {
+        providerName: 'abbott',
+        status: 'declined',
+        custodialSignup: true,
+      });
+    });
+
+    it('should render the appropriate banner', () => {
+      expect(wrapper.find('#banner-oauth-declined').hostNodes().text()).to.equal('You have declined connecting your Abbott account to Tidepool.');
+    });
+
+    it('should render the appropriate heading and subheading', () => {
+      expect(wrapper.find('#oauth-heading').hostNodes().text()).to.equal('Connection Declined');
+      expect(wrapper.find('#oauth-subheading').hostNodes().text()).to.equal('You can always decide to connect at a later time.');
+    });
+
+    it('should render the appropriate message text', () => {
+      expect(wrapper.find('#oauth-message').hostNodes().text()).to.equal('We hope you enjoy your Tidepool experience.');
+    });
+
+    it('should render a button that claims an account if the signup query params are provided', () => {
+      const custodialWrapper = createWrapper('abbott', 'declined', '?signupKey=abc&signupEmail=patient@mail.com');
+      expect(wrapper.find('#oauth-claim-account-button').hostNodes()).to.have.lengthOf(0);
+      expect(custodialWrapper.find('#oauth-claim-account-button').hostNodes()).to.have.lengthOf(1);
+
+      defaultProps.trackMetric.resetHistory();
+      custodialWrapper.find('#oauth-claim-account-button').hostNodes().simulate('click');
+
+      sinon.assert.calledWith(defaultProps.trackMetric, 'Oauth - Connection - Claim Account', {
+        providerName: 'abbott',
+        status: 'declined',
+      });
+
+      let expectedActions = [
+        routeAction('/login?signupKey=abc&signupEmail=patient%40mail.com'),
+      ];
+
+      const actions = store.getActions();
+      expect(actions).to.eql(expectedActions);
+    });
+  });
+
+  context('abbott error', () => {
+    beforeEach(() => {
+      wrapper = createWrapper('abbott', 'error');
+    });
+
+    it('should track the appropriate metric on load', () => {
+      sinon.assert.calledWith(defaultProps.trackMetric, 'Oauth - Connection', {
+        providerName: 'abbott',
+        status: 'error',
+        custodialSignup: false,
+      });
+
+      defaultProps.trackMetric.resetHistory();
+      createWrapper('abbott', 'error', '?signupKey=abc&signupEmail=patient@mail.com');
+
+      sinon.assert.calledWith(defaultProps.trackMetric, 'Oauth - Connection', {
+        providerName: 'abbott',
+        status: 'error',
+        custodialSignup: true,
+      });
+    });
+
+    it('should render the appropriate banner', () => {
+      expect(wrapper.find('#banner-oauth-error').hostNodes().text()).to.equal('We were unable to determine your Abbott connection status.');
+    });
+
+    it('should render the appropriate heading and subheading', () => {
+      expect(wrapper.find('#oauth-heading').hostNodes().text()).to.equal('Connection Error');
+      expect(wrapper.find('#oauth-subheading').hostNodes().text()).to.equal('Hmm... That didn\'t work. Please try again.');
+    });
+
+    it('should not render any secondary message text', () => {
+      expect(wrapper.find('#oauth-message').hostNodes()).to.have.lengthOf(0);
+    });
+
+    it('should NOT render a button that claims an account if the signup query params are provided', () => {
+      const custodialWrapper = createWrapper('abbott', 'error', '?signupKey=abc&signupEmail=patient@mail.com');
+      expect(custodialWrapper.find('#oauth-claim-account-button').hostNodes()).to.have.lengthOf(0);
+    });
+  });
 });
