@@ -6,12 +6,12 @@ import { withTranslation } from 'react-i18next';
 import ChevronLeftRoundedIcon from '@material-ui/icons/ChevronLeftRounded';
 import _ from 'lodash';
 
-import personUtils from '../../core/personutils';
-import WorkspaceSwitcher from '../clinic/WorkspaceSwitcher';
+import personUtils from '../../../core/personutils';
+import WorkspaceSwitcher from '../../clinic/WorkspaceSwitcher';
 import NavigationMenu from './NavigationMenu';
-import Button from '../elements/Button';
-import tidepoolLogo from './images/tidepoolLogo.svg';
-import tidepoolPlusLogo from './images/tidepool+Logo.svg';
+import Button from '../../elements/Button';
+import tidepoolLogo from '../images/tidepoolLogo.svg';
+import tidepoolPlusLogo from '../images/tidepool+Logo.svg';
 
 export default withTranslation()(class extends React.Component {
   static propTypes = {

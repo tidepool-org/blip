@@ -24,12 +24,12 @@ import {
   bindTrigger,
 } from 'material-ui-popup-state/hooks';
 
-import * as actions from '../../redux/actions';
-import Button from '../elements/Button';
-import Popover from '../elements/Popover';
-import NotificationIcon from '../elements/NotificationIcon';
-import personUtils from '../../core/personutils';
-import { borders, colors, space } from '../../themes/baseTheme';
+import * as actions from '../../../redux/actions';
+import Button from '../../elements/Button';
+import Popover from '../../elements/Popover';
+import NotificationIcon from '../../elements/NotificationIcon';
+import personUtils from '../../../core/personutils';
+import { borders, colors, space } from '../../../themes/baseTheme';
 
 export const NavigationMenu = props => {
   const { t, api, trackMetric } = props;

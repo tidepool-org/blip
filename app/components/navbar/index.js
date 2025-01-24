@@ -13,4 +13,38 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-module.exports = require('./navbar');
+import React from 'react';
+import DesktopNavbar from './DesktopNavbar';
+import MobileNavbar from './MobileNavbar';
+
+import styled from '@emotion/styled';
+import { breakpoints } from '../../themes/baseTheme';
+
+const MOBILE_BREAKPOINT = breakpoints[1];
+
+const DesktopOnly = styled.div`
+  display: block;
+  @media screen and (max-width: ${MOBILE_BREAKPOINT}) {
+    display: none;
+  }
+`;
+
+const MobileOnly = styled.div`
+  display: none;
+  @media screen and (max-width: ${MOBILE_BREAKPOINT}) {
+    display: block;
+  }
+`;
+
+const Navbar = (props) => (
+  <>
+    <DesktopOnly>
+      <DesktopNavbar {...props} />
+    </DesktopOnly>
+    <MobileOnly>
+      <MobileNavbar {...props} />
+    </MobileOnly>
+  </>
+);
+
+export default Navbar;
