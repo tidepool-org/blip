@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box } from 'theme-ui';
+import styled from '@emotion/styled';
 import Popover from '../../elements/Popover';
 
 import {
@@ -18,6 +19,7 @@ const Menu = () => {
       </button>
       <Popover
         sx={{ minWidth: '15em' }}
+        classes={{ root: 'Navbar-mobileBackdrop' }}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         transformOrigin={{ vertical: 'top', horizontal: 'center' }}
         {...bindPopover(popupState)}
