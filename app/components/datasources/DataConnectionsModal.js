@@ -43,9 +43,15 @@ export const DataConnectionsModal = (props) => {
   const { set: setToast } = useToasts();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const { updatingClinicPatient } = useSelector((state) => state.blip.working);
+  const dataSources = useSelector((state) => state.blip.dataSources);
   const previousUpdatingClinicPatient = usePrevious(updatingClinicPatient);
-  const patientData = (patient?.profile) ? clinicPatientFromAccountInfo(patient) : patient;
-  const [showPatientEmailModal, setShowPatientEmailModal] = useState(false);
+
+  const patientData = (patient?.profile) ? {
+    ...clinicPatientFromAccountInfo(patient),
+    dataSources,
+   } : patient;
+
+   const [showPatientEmailModal, setShowPatientEmailModal] = useState(false);
   const [processingEmailUpdate, setProcessingEmailUpdate] = useState(false);
   const [patientEmailFormContext, setPatientEmailFormContext] = useState();
   const dispatch = useDispatch();

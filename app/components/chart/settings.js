@@ -94,7 +94,12 @@ const Settings = ({
   const isClinicContext = !!selectedClinicId;
   const [showDataConnectionsModal, setShowDataConnectionsModal] = useState(false);
   const [showUploadOverlay, setShowUploadOverlay] = useState(false);
-  const patientData = clinicPatient || clinicPatientFromAccountInfo(patient);
+  const dataSources = useSelector(state => state.blip.dataSources);
+
+  const patientData = clinicPatient || {
+    ...clinicPatientFromAccountInfo(patient),
+    dataSources,
+  };
 
   const deviceSelectionPopupState = usePopupState({
     variant: 'popover',

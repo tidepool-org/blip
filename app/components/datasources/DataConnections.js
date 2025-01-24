@@ -679,7 +679,9 @@ const userDataSourceShape = {
 
 DataConnections.propTypes = {
   ...BoxProps,
-  patient: PropTypes.oneOf([PropTypes.shape(clinicPatientDataSourceShape), PropTypes.shape(userDataSourceShape)]),
+  patient: PropTypes.shape({
+    dataSources: PropTypes.oneOf([PropTypes.shape(clinicPatientDataSourceShape), PropTypes.shape(userDataSourceShape)])
+  }),
   shownProviders: PropTypes.arrayOf(PropTypes.oneOf(activeProviders)),
   trackMetric: PropTypes.func.isRequired,
 };
