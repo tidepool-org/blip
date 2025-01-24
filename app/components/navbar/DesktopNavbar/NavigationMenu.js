@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
+import { useNavbar } from '../../../core/navutils';
 import { withTranslation } from 'react-i18next';
 import { push } from 'connected-react-router';
 import filter from 'lodash/filter';
@@ -42,20 +43,22 @@ export const NavigationMenu = props => {
   const clinicFlowActive = useSelector((state) => state.blip.clinicFlowActive);
   const pendingReceivedClinicianInvites = useSelector((state) => state.blip.pendingReceivedClinicianInvites);
 
+  const { handleSelectWorkspace, handleViewAccountSettings, handleLogout } = useNavbar(api, trackMetric);
+
   const popupState = usePopupState({
     variant: 'popover',
     popupId: 'navigationMenu',
   });
 
   const privateWorkspaceOption = {
-    action: handleSelectWorkspace.bind(null, null),
+    action: () => handleSelectWorkspace(null),
     icon: SupervisedUserCircleRoundedIcon,
     label: t('Private Workspace'),
     metric: ['Clinic - Menu - Go to private workspace'],
   };
 
   const accountSettingsOption = {
-    action: () => dispatch(push('/profile')),
+    action: handleViewAccountSettings,
     icon: SettingsRoundedIcon,
     label: t('Account Settings'),
   };
@@ -69,7 +72,7 @@ export const NavigationMenu = props => {
   });
 
   const logoutOption = {
-    action: () => dispatch(actions.async.logout(api)),
+    action: handleLogout,
     icon: ExitToAppRoundedIcon,
     label: t('Logout'),
   };
@@ -90,7 +93,7 @@ export const NavigationMenu = props => {
     } else if (clinicFlowActive) {
       const options = [
         ...map(sortBy(userClinics, clinic => clinic.name.toLowerCase()), clinic => ({
-          action: handleSelectWorkspace.bind(null, clinic.id),
+          action: () => handleSelectWorkspace(clinic.id),
           icon: DashboardRoundedIcon,
           label: t('{{name}} Workspace', { name: clinic.name }),
           metric: ['Clinic - Menu - Go to clinic workspace', { clinicId: clinic.id }],
@@ -110,13 +113,6 @@ export const NavigationMenu = props => {
   useEffect(() => {
     setIsClinicProfileFormPath(includes(['/clinic-details/profile', '/clinic-details/migrate'], pathname));
   }, [pathname]);
-
-  function handleSelectWorkspace(clinicId) {
-    dispatch(actions.sync.setPatientListSearchTextInput(''));
-    dispatch(actions.sync.setIsPatientListVisible(false));
-    dispatch(actions.async.selectClinic(api, clinicId));
-    dispatch(push(clinicId ? '/clinic-workspace' : '/patients', { selectedClinicId: clinicId }));
-  }
 
   function handleMenuAction(menuOption) {
     if (menuOption.metric?.length) trackMetric(...menuOption.metric);

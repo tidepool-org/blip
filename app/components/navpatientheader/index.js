@@ -28,11 +28,11 @@ const HeaderContainer = ({ children }) => (
   </Box>
 );
 
-const NavPatientHeader = ({ trackMetric }) => {
+const NavPatientHeader = ({ api, trackMetric }) => {
   const {
-    birthday,
-    mrn,
-    name,
+    patientBirthday,
+    patientMrn,
+    patientName,
     patient,
     user,
     canUpload,
@@ -42,7 +42,7 @@ const NavPatientHeader = ({ trackMetric }) => {
     handleViewData,
     handleViewProfile,
     handleShare,
-  } = useNavbar(trackMetric);
+  } = useNavbar(api, trackMetric);
 
   const [isUploadOverlayOpen, setIsUploadOverlayOpen] = useState(false);
 
@@ -67,8 +67,8 @@ const NavPatientHeader = ({ trackMetric }) => {
         { isClinicianAccount(user)
           ? <>
               <Back onClick={handleBack} />
-              <Name name={name} />
-              <DemographicInfo birthday={birthday} mrn={mrn} />
+              <Name name={patientName} />
+              <DemographicInfo birthday={patientBirthday} mrn={patientMrn} />
               <ClinicianMenuOptions
                 onViewData={handleViewData}
                 onViewProfile={handleViewProfile}
@@ -76,7 +76,7 @@ const NavPatientHeader = ({ trackMetric }) => {
               />
             </>
           : <>
-              <Name name={name} />
+              <Name name={patientName} />
               <PatientMenuOptions
                 onViewData={handleViewData}
                 onViewProfile={handleViewProfile}

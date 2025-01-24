@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavbar } from '../../../core/navutils';
 import styled from '@emotion/styled';
 import { Box, Flex } from 'theme-ui';
 import { useTranslation } from 'react-i18next';
@@ -19,6 +20,10 @@ const MenuOption = styled.div`
   width: 100%;
   justify-content: flex-end;
   border-top: 1px solid ${colorPalette.primary.gray10};
+
+  :first-child {
+    border-top: none;
+  }
 `;
 
 const AccountMenuOption = styled.div`
@@ -42,9 +47,11 @@ const StyledPopover = styled(Popover)`
   }
 `;
 
-const Menu = () => {
+const Menu = ({ api, trackMetric }) => {
   const popupState = usePopupState({ variant: 'popover', popupId: 'mobileNavigationMenu' });
   const { t } = useTranslation();
+
+  const { patientName, handleViewData, canShare, handleShare } = useNavbar(api, trackMetric);
 
   return (
     <>
@@ -58,36 +65,35 @@ const Menu = () => {
         {...bindPopover(popupState)}
       >
         <Box px={4}>
-          <Box py={3}>
-            Patient Name
-          </Box>
-          <Box>
-            <MenuOption>
-              <Button
-                id="mobileNavbar_viewDataButton"
-                onClick={() => {}}
-                iconSrc={viewIcon}
-                iconLabel="View"
-                {...buttonStyleProps}
-              >
-                {t('Summary Stats')}
-              </Button>
-            </MenuOption>
-            <MenuOption>
-              <Button
-                id="mobileNavbar_devicesButton"
-                onClick={() => {}}
-                iconSrc={viewIcon}
-                iconLabel="Devices"
-                {...buttonStyleProps}
-              >
-                {t('Devices')}
-              </Button>
-            </MenuOption>
+          { patientName && <Box py={3}>{patientName}</Box>}
+          <MenuOption>
+            <Button
+              id="mobileNavbar_viewDataButton"
+              onClick={handleViewData}
+              iconSrc={viewIcon}
+              iconLabel="View"
+              {...buttonStyleProps}
+            >
+              {t('Summary Stats')}
+            </Button>
+          </MenuOption>
+          <MenuOption>
+            <Button
+              id="mobileNavbar_devicesButton"
+              onClick={() => {}}
+              iconSrc={viewIcon}
+              iconLabel="Devices"
+              {...buttonStyleProps}
+            >
+              {t('Devices')}
+            </Button>
+          </MenuOption>
+          {
+            canShare &&
             <MenuOption>
               <Button
                 id="mobileNavbar_shareButton"
-                onClick={() => {}}
+                onClick={handleShare}
                 iconSrc={shareIcon}
                 iconLabel="Share"
                 {...buttonStyleProps}
@@ -95,7 +101,7 @@ const Menu = () => {
                 {t('Share')}
               </Button>
             </MenuOption>
-          </Box>
+          }
         </Box>
         <Box px={4} py={3} sx={{ background: colorPalette.primary.bluePrimary00 }}>
           <AccountMenuOption>

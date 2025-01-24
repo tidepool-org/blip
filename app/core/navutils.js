@@ -1,9 +1,11 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { push } from 'connected-react-router';
 import _ from 'lodash';
 import personUtils from './personutils';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import launchCustomProtocol from 'custom-protocol-detection';
+import * as actions from '../redux/actions';
 
 import {
   selectPatient,
@@ -40,16 +42,16 @@ export const getPatientListLink = (clinicFlowActive, selectedClinicId, query, pa
 export const getDemographicInfo = (patient, clinicPatient) => {
   const combinedPatient = personUtils.combinedAccountAndClinicPatient(patient, clinicPatient);
 
-  const name = personUtils.patientFullName(combinedPatient);
-  const birthday = combinedPatient?.profile?.patient?.birthday;
-  const mrn = clinicPatient?.mrn;
+  const patientName = personUtils.patientFullName(combinedPatient);
+  const patientBirthday = combinedPatient?.profile?.patient?.birthday;
+  const patientMrn = clinicPatient?.mrn;
 
-  return { name, birthday, mrn };
+  return { patientName, patientBirthday, patientMrn };
 };
 
-export const useNavbar = (trackMetric) => {
-  const history = useHistory();
+export const useNavbar = (api, trackMetric) => {
   const { query } = useLocation();
+  const dispatch = useDispatch();
 
   const clinicFlowActive = useSelector(selectClinicFlowActive);
   const clinicPatient = useSelector(selectClinicPatient);
@@ -60,11 +62,11 @@ export const useNavbar = (trackMetric) => {
 
   const { patientListLink } = getPatientListLink(clinicFlowActive, selectedClinicId, query, patient?.userid);
   const { canUpload, canShare } = getPermissions(patient, permsOfLoggedInUser);
-  const { mrn, birthday, name } = getDemographicInfo(patient, clinicPatient);
+  const { patientMrn, patientBirthday, patientName } = getDemographicInfo(patient, clinicPatient);
 
   const handleBack = () => {
     trackMetric('Clinic - View patient list', { clinicId: selectedClinicId, source: 'Patient data' });
-    history.push(patientListLink);
+    dispatch(push(patientListLink));
   };
 
   const handleLaunchUploader = () => {
@@ -74,23 +76,34 @@ export const useNavbar = (trackMetric) => {
 
   const handleViewData = () => {    
     trackMetric('Clicked Navbar View Data');
-    history.push(`/patients/${patient?.userid}/data`);
+    dispatch(push(`/patients/${patient?.userid}/data`));
   };
 
   const handleViewProfile = () => {    
     trackMetric('Clicked Navbar Name');
-    history.push(`/patients/${patient?.userid}/profile`);
+    dispatch(push(`/patients/${patient?.userid}/profile`));
   };
 
   const handleShare = () => {    
     trackMetric('Clicked Navbar Share Data');
-    history.push(`/patients/${patient?.userid}/share`);
+    dispatch(push(`/patients/${patient?.userid}/share`));
   };
 
+  const handleSelectWorkspace = (clinicId) => {
+    dispatch(actions.sync.setPatientListSearchTextInput(''));
+    dispatch(actions.sync.setIsPatientListVisible(false));
+    dispatch(actions.async.selectClinic(api, clinicId));
+    dispatch(push(clinicId ? '/clinic-workspace' : '/patients', { selectedClinicId: clinicId }));
+  };
+
+  const handleViewAccountSettings = () => dispatch(push('/profile'));
+
+  const handleLogout = () => dispatch(actions.async.logout(api));
+
   return {
-    birthday,
-    mrn,
-    name,
+    patientBirthday,
+    patientMrn,
+    patientName,
     patient,
     user,
 
@@ -99,6 +112,9 @@ export const useNavbar = (trackMetric) => {
 
     handleBack,
     handleLaunchUploader,
+    handleSelectWorkspace,
+    handleViewAccountSettings,
+    handleLogout,
 
     handleViewData: patient ? handleViewData : _.noop,
     handleViewProfile: patient ? handleViewProfile : _.noop,

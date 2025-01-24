@@ -23,7 +23,7 @@ const MobileNavbar = ({ api, trackMetric }) => {
     <Container>
       <Logo src={logo} alt="Tidepool"></Logo>
       <Header />
-      <Menu />
+      <Menu api={api} trackMetric={trackMetric} />
     </Container>
   );
 };
