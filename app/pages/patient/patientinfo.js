@@ -28,7 +28,6 @@ var personUtils = require('../../core/personutils');
 import PatientSettings from './patientsettings';
 import PatientBgUnits from '../../components/patientBgUnits';
 import DonateForm from '../../components/donateform';
-import DataSources from '../../components/datasources';
 import Export from '../../components/export';
 import { DIABETES_TYPES } from '../../core/constants';
 
@@ -55,11 +54,6 @@ var PatientInfo = withTranslation()(class extends React.Component {
     updatingDataDonationAccounts: PropTypes.bool,
     updatingPatientBgUnits: PropTypes.bool,
     user: PropTypes.object,
-    dataSources: PropTypes.array,
-    fetchDataSources: PropTypes.func,
-    connectDataSource: PropTypes.func,
-    disconnectDataSource: PropTypes.func,
-    authorizedDataSource: PropTypes.object,
     api: PropTypes.object.isRequired,
   };
 
@@ -158,7 +152,6 @@ var PatientInfo = withTranslation()(class extends React.Component {
         {this.renderPatientSettings()}
         {this.renderBgUnitSettings()}
         {this.renderDonateForm()}
-        {this.renderDataSources()}
         {this.renderExport()}
       </div>
     );
@@ -254,7 +247,6 @@ var PatientInfo = withTranslation()(class extends React.Component {
         {this.renderPatientSettings()}
         {this.renderBgUnitSettings()}
         {this.renderDonateForm()}
-        {this.renderDataSources()}
       </div>
     );
   };
@@ -485,30 +477,6 @@ var PatientInfo = withTranslation()(class extends React.Component {
             />
           </div>
         </div>
-      );
-    }
-
-    return null;
-  };
-
-  renderDataSources = () => {
-    const { t } = this.props;
-    if (this.isSamePersonUserAndPatient()) {
-      return (
-        <Element name="dexcomConnect" className="PatientPage-dataSources">
-          <div className="PatientPage-sectionTitle">{t('My Data Sources')}</div>
-          <div className="PatientInfo-content">
-            <DataSources
-              dataSources={this.props.dataSources}
-              fetchDataSources={this.props.fetchDataSources}
-              connectDataSource={this.props.connectDataSource}
-              disconnectDataSource={this.props.disconnectDataSource}
-              authorizedDataSource={this.props.authorizedDataSource}
-              trackMetric={this.props.trackMetric}
-              queryParams={this.props.queryParams}
-            />
-          </div>
-        </Element>
       );
     }
 
