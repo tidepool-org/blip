@@ -84,6 +84,10 @@ export const useNavbar = (api, trackMetric) => {
     dispatch(push(`/patients/${patient?.userid}/profile`));
   };
 
+  const handleViewSettingsChart = () => {
+    dispatch(push(`/patients/${patient?.userid}/data?chart=settings`));
+  };
+
   const handleShare = () => {    
     trackMetric('Clicked Navbar Share Data');
     dispatch(push(`/patients/${patient?.userid}/share`));
@@ -111,6 +115,7 @@ export const useNavbar = (api, trackMetric) => {
     canShare,
 
     handleBack,
+    handleViewSettingsChart,
     handleLaunchUploader,
     handleSelectWorkspace,
     handleViewAccountSettings,

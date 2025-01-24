@@ -54,6 +54,7 @@ const Menu = ({ api, trackMetric }) => {
   const {
     patientName,
     handleViewData,
+    handleViewSettingsChart,
     canShare,
     handleShare,
     handleSelectWorkspace,
@@ -87,8 +88,8 @@ const Menu = ({ api, trackMetric }) => {
           </MenuOption>
           <MenuOption>
             <Button
-              id="mobileNavbar_devicesButton"
-              onClick={() => {}}
+              id="mobileNavbar_settingsChartButton"
+              onClick={handleViewSettingsChart}
               iconSrc={viewIcon}
               iconLabel="Devices"
               {...buttonStyleProps}
