@@ -51,7 +51,15 @@ const Menu = ({ api, trackMetric }) => {
   const popupState = usePopupState({ variant: 'popover', popupId: 'mobileNavigationMenu' });
   const { t } = useTranslation();
 
-  const { patientName, handleViewData, canShare, handleShare } = useNavbar(api, trackMetric);
+  const {
+    patientName,
+    handleViewData,
+    canShare,
+    handleShare,
+    handleSelectWorkspace,
+    handleViewAccountSettings,
+    handleLogout,
+  } = useNavbar(api, trackMetric);
 
   return (
     <>
@@ -107,7 +115,7 @@ const Menu = ({ api, trackMetric }) => {
           <AccountMenuOption>
             <Button // TODO: Need one for every workspace
               id="mobileNavbar_workspaceButton"
-              onClick={() => {}}
+              onClick={() => handleSelectWorkspace(null)}
               icon={SupervisedUserCircleRoundedIcon}
               iconLabel="Private Workspace"
               {...buttonStyleProps}
@@ -116,7 +124,7 @@ const Menu = ({ api, trackMetric }) => {
             </Button>
             <Button // TODO: Need one for every workspace
               id="mobileNavbar_accountSettingsButton"
-              onClick={() => {}}
+              onClick={handleViewAccountSettings}
               icon={SettingsRoundedIcon}
               iconLabel="Account Settings"
               {...buttonStyleProps}
@@ -125,7 +133,7 @@ const Menu = ({ api, trackMetric }) => {
             </Button>
             <Button // TODO: Need one for every workspace
               id="mobileNavbar_logoutButton"
-              onClick={() => {}}
+              onClick={handleLogout}
               icon={ExitToAppRoundedIcon}
               iconLabel="Logout"
               {...buttonStyleProps}
