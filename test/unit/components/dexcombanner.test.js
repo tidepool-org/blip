@@ -218,8 +218,8 @@ describe('DexcomBanner', () => {
         expect(messageText.text()).contains(expectedText);
       });
 
-      it('should render a "Fix in My Data Sources" button', () => {
-        const expectedText = 'Fix in My Data Sources'
+      it('should render a "Fix in My Device Settings" button', () => {
+        const expectedText = 'Fix in My Device Settings'
         const button = wrapper.find('.dexcomBanner-action button');
 
         expect(button).to.have.length(1);

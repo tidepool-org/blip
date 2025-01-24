@@ -22,7 +22,6 @@ import { push } from 'connected-react-router';
 import { connect, useDispatch, useSelector } from 'react-redux';
 import get from 'lodash/get';
 
-import { URL_DEXCOM_CONNECT_INFO } from '../../core/constants';
 import { useIsFirstRender } from '../../core/hooks';
 import { async, sync } from '../../redux/actions';
 import { useToasts } from '../../providers/ToastProvider';
@@ -49,8 +48,8 @@ export const DexcomBanner = withTranslation()((props) => {
   const [showResendDexcomConnectRequest, setShowResendDexcomConnectRequest] = useState(false);
   const { sendingPatientDataProviderConnectRequest } = useSelector((state) => state.blip.working);
 
-  const redirectToProfile = (source = 'banner') => {
-    push(`/patients/${patient.userid}/profile?dexcomConnect=${source}`);
+  const redirectToDeviceSettings = () => {
+    push(`/patients/${patient.userid}/data?chart=settings&source=reconnectBanner&providerName=dexcom`);
   };
 
   function handleAsyncResult(workingState, successMessage) {
@@ -101,12 +100,6 @@ export const DexcomBanner = withTranslation()((props) => {
     }
   };
 
-  const handleClickLearnMore = () => {
-    if (trackMetric) {
-      trackMetric('clicked learn more Dexcom OAuth banner');
-    }
-  };
-
   const handleSubmit = () => {
     onClick(clinicPatient?.id || patient?.userid);
     let metric = 'clicked get started on Dexcom banner';
@@ -118,7 +111,7 @@ export const DexcomBanner = withTranslation()((props) => {
         source = 'reconnectBanner';
       }
 
-      redirectToProfile(source);
+      redirectToDeviceSettings(source);
     } else if (clinicPatient) {
       metric = 'clicked request reconnection on Dexcom banner';
       handleSendReconnectionEmail();
@@ -152,7 +145,7 @@ export const DexcomBanner = withTranslation()((props) => {
 
     if (dataSourceState === 'error') {
       text = userIsCurrentPatient
-        ? t('Fix in My Data Sources')
+        ? t('Fix in My Device Settings')
         : t('Request Reconnection');
     }
 

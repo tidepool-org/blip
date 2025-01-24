@@ -90,10 +90,6 @@ describe('App', () => {
       expect(wrapper.state().donateBanner.metricTrackedForPatient).to.eql({});
     });
 
-    it('should set the `dexcomConnectBanner.metricTrackedForPatient` state to an empty object', () => {
-      expect(wrapper.state().dexcomConnectBanner.metricTrackedForPatient).to.eql({});
-    });
-
     it('should set the `updateTypeBanner.metricTrackedForPatient` state to an empty object', () => {
       expect(wrapper.state().updateTypeBanner.metricTrackedForPatient).to.eql({});
     });
@@ -753,57 +749,6 @@ describe('App', () => {
         });
       });
 
-      context('user has uploaded data and has not already connected to a datasource', () => {
-        it('should show the dexcom banner, but only if user is on a patient data view', () => {
-          wrapper.setProps({
-            userIsCurrentPatient: true,
-            userHasConnectedDataSources: false,
-            userHasData: true,
-          });
-
-          sinon.assert.neverCalledWith(props.showBanner, 'dexcom');
-          expect(wrapper.find('.App-dexcombanner')).to.have.lengthOf(0);
-
-          wrapper.setProps({ location: '/patients/1234/data' })
-          sinon.assert.calledWith(props.showBanner, 'dexcom');
-          wrapper.setProps({ ...wrapper.props, showingDexcomConnectBanner: true });
-          expect(wrapper.find('.App-dexcombanner')).to.have.lengthOf(1);
-        });
-
-        it('should not show the dexcom banner if user has dismissed it', () => {
-          wrapper.setProps({
-            userIsCurrentPatient: true,
-            userHasConnectedDataSources: false,
-            userHasData: true,
-            location: '/patients/1234/data',
-          });
-
-          sinon.assert.calledWith(props.showBanner, 'dexcom');
-          props.showBanner.reset();
-
-          wrapper.setProps({
-            user: { preferences: { dismissedDexcomConnectBannerTime: '2022-01-01T00:00:00.000z' } },
-          });
-
-          sinon.assert.neverCalledWithMatch(props.showBanner, 'dexcom');
-        });
-      });
-
-      context('user has not uploaded data and has not connected to a data source', () => {
-        it('should show the dexcom banner', () => {
-          wrapper.setProps({
-            userIsCurrentPatient: true,
-            userHasConnectedDataSources: false,
-            userHasData: false,
-            location: '/patients/1234/data',
-          });
-
-          sinon.assert.calledWith(props.showBanner, 'dexcom');
-          wrapper.setProps({ ...wrapper.props, showingDexcomConnectBanner: true });
-          expect(wrapper.find('.App-dexcombanner')).to.have.lengthOf(1);
-        });
-      });
-
       context('user has uploaded data but is not the current patient in view', () => {
         it('should not show the dexcom banner', () => {
           wrapper.setProps({
@@ -813,21 +758,6 @@ describe('App', () => {
           });
 
           sinon.assert.neverCalledWithMatch(props.showBanner, 'dexcom')
-        });
-      });
-
-      context('user has uploaded data, but has not connected a data source', () => {
-        it('should show the dexcom banner', () => {
-          wrapper.setProps({
-            userIsCurrentPatient: true,
-            userHasData: true,
-            userHasConnectedDataSources: false,
-            location: '/patients/1234/data',
-          });
-
-          sinon.assert.calledWith(props.showBanner, 'dexcom');
-          wrapper.setProps({ ...wrapper.props, showingDexcomConnectBanner: true });
-          expect(wrapper.find('.App-dexcombanner')).to.have.lengthOf(1);
         });
       });
 
@@ -897,53 +827,6 @@ describe('App', () => {
     });
 
     context('dexcom banner is showing', () => {
-      it('should track the display banner metric', () => {
-        wrapper.setProps({
-          userIsCurrentPatient: true,
-          userHasData: true,
-          location: '/patients/1234/data',
-          showingUploaderBanner: false,
-          showingShareDataBanner: false,
-          showingDonateBanner: false,
-        });
-
-        sinon.assert.calledWithMatch(props.showBanner, 'dexcom');
-        wrapper.setProps({ ...wrapper.props, showingDexcomConnectBanner: true });
-        expect(wrapper.find('.App-dexcombanner')).to.have.lengthOf(1);
-        sinon.assert.calledWith(props.context.trackMetric, 'Dexcom OAuth banner displayed');
-      });
-
-      it('should only track the display banner metric once per patient', () => {
-        wrapper.setProps({
-          userIsCurrentPatient: true,
-          userHasData: true,
-          location: '/patients/1234/data',
-          patient: {
-            userid: '1234'
-          },
-          showingDexcomConnectBanner: true,
-          updateShareDataBannerSeen: sinon.stub(),
-        });
-
-        expect(wrapper.find('.App-dexcombanner')).to.have.lengthOf(1);
-        sinon.assert.callCount(props.context.trackMetric, 1);
-
-        wrapper.setProps({});
-        wrapper.setProps({});
-
-        sinon.assert.callCount(props.context.trackMetric, 1);
-
-        wrapper.setProps({
-          userIsCurrentPatient: true,
-          currentPatientInViewId: 'patient456',
-          userHasData: true,
-          location: '/patients/1234/data',
-          showingDexcomConnectBanner: true,
-        });
-
-        sinon.assert.callCount(props.context.trackMetric, 2);
-      });
-
       it('should prioritize over other banners, but only if connection is in error state', () => {
         wrapper.setProps({
           userIsCurrentPatient: true,
