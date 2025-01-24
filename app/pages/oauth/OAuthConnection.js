@@ -12,6 +12,7 @@ import { components as vizComponents } from '@tidepool/viz';
 import Banner from '../../components/elements/Banner';
 import Button from '../../components/elements/Button';
 import { Title, Subheading, Body1 } from '../../components/elements/FontStyles';
+import { activeProviders } from '../../components/datasources/DataConnections';
 
 const { Loader } = vizComponents;
 
@@ -22,7 +23,6 @@ export const OAuthConnection = (props) => {
   const queryParams = new URLSearchParams(search)
   const dispatch = useDispatch();
   const [isCustodial, setIsCustodial] = useState();
-  const allowedProviderNames = ['dexcom'];
   const [authStatus, setAuthStatus] = useState();
 
   const statusContent = {
@@ -64,7 +64,7 @@ export const OAuthConnection = (props) => {
     const custodialSignup = queryParams.has('signupEmail') && queryParams.has('signupKey');
     setIsCustodial(custodialSignup);
 
-    if (includes(allowedProviderNames, providerName) && statusContent[status]) {
+    if (includes(activeProviders, providerName) && statusContent[status]) {
       setAuthStatus(statusContent[status]);
     } else {
       setAuthStatus(statusContent.error)

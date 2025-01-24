@@ -1,6 +1,6 @@
 import React from 'react';
 import { action } from '@storybook/addon-actions';
-import { boolean, text } from '@storybook/addon-knobs';
+import { boolean as bool, text } from '@storybook/addon-knobs';
 import { ThemeProvider } from '@emotion/react';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 import OpenInNewRoundedIcon from '@material-ui/icons/OpenInNewRounded';
@@ -23,8 +23,8 @@ export default {
   decorators: [withTheme],
 };
 
-const disabled = () => boolean('Disabled', false);
-const processing = () => boolean('Processing', false);
+const disabled = () => bool('Disabled', false);
+const processing = () => bool('Processing', false);
 
 export const Primary = {
   render: () => {
@@ -148,7 +148,7 @@ export const Text = {
 export const Filter = {
   render: () => {
     const buttonText = () => text('Button Text', 'Filter');
-    const selected = () => boolean('Selected', false);
+    const selected = () => bool('Selected', false);
 
     return (
       <Button
