@@ -160,6 +160,19 @@
   }
 }
 
+// Content
+// ====================================
+
+@patient-data-content-breakpoint: 768px;
+
+.patient-data-content {
+  display: block;
+
+  @media screen and (max-width: @patient-data-content-breakpoint) {
+    display: none;
+  }
+}
+
 // Chart
 // ====================================
 
