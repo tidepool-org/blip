@@ -174,11 +174,16 @@
 // Content
 // ====================================
 
-.patient-data-content {
-  display: block;
+#tidelineMain.basics,
+#tidelineMain.daily,
+#tidelineMain.bgLog,
+#tidelineMain.trends {
+  .patient-data-content {
+    display: block;
 
-  @media screen and (max-width: @mobile-breakpoint) {
-    display: none;
+    @media screen and (max-width: @mobile-breakpoint) {
+      display: none;
+    }
   }
 }
 
