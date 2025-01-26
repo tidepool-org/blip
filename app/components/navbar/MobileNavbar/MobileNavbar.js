@@ -17,13 +17,18 @@ const Container = styled(Flex)`
   height: '60px';
 `;
 
-const MobileNavbar = ({ api, trackMetric }) => {
-
+const MobileNavbar = ({ api, trackMetric, patient, clinicPatient, permsOfLoggedInUser }) => {
   return (
     <Container>
       <Logo src={logo} alt="Tidepool"></Logo>
       <Header />
-      <Menu api={api} trackMetric={trackMetric} />
+      <Menu
+        api={api}
+        trackMetric={trackMetric}
+        patient={patient}
+        clinicPatient={clinicPatient}
+        permsOfLoggedInUser={permsOfLoggedInUser}
+      />
     </Container>
   );
 };

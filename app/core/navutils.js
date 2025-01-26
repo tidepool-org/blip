@@ -7,15 +7,6 @@ import { useLocation } from 'react-router-dom';
 import launchCustomProtocol from 'custom-protocol-detection';
 import * as actions from '../redux/actions';
 
-import {
-  selectPatient,
-  selectClinicFlowActive,
-  selectSelectedClinicId,
-  selectPermsOfLoggedInUser,
-  selectClinicPatient,
-  selectUser,
-} from './selectors';
-
 export const getPermissions = (patient, permsOfLoggedInUser) => {
   const permissions = patient?.permissions || {};
 
@@ -27,7 +18,7 @@ export const getPermissions = (patient, permsOfLoggedInUser) => {
 
 export const getPatientListLink = (clinicFlowActive, selectedClinicId, query, patientId) => {
   let patientListLink = clinicFlowActive && selectedClinicId ? '/clinic-workspace/patients' : '/patients';
-  
+
   if (query?.dashboard) {
     patientListLink = `/dashboard/${query.dashboard}`;
 
@@ -49,20 +40,15 @@ export const getDemographicInfo = (patient, clinicPatient) => {
   return { patientName, patientBirthday, patientMrn };
 };
 
-export const useNavbar = (api, trackMetric) => {
+export const useNavigation = (api, trackMetric) => {
   const { query } = useLocation();
   const dispatch = useDispatch();
 
-  const clinicFlowActive = useSelector(selectClinicFlowActive);
-  const clinicPatient = useSelector(selectClinicPatient);
-  const patient = useSelector(selectPatient);
-  const permsOfLoggedInUser = useSelector(selectPermsOfLoggedInUser);
-  const selectedClinicId = useSelector(selectSelectedClinicId);
-  const user = useSelector(selectUser);
+  const clinicFlowActive = useSelector(state => state.blip.clinicFlowActive);
+  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
+  const currentPatientInViewId = useSelector(state => state.blip.currentPatientInViewId);
 
-  const { patientListLink } = getPatientListLink(clinicFlowActive, selectedClinicId, query, patient?.userid);
-  const { canUpload, canShare } = getPermissions(patient, permsOfLoggedInUser);
-  const { patientMrn, patientBirthday, patientName } = getDemographicInfo(patient, clinicPatient);
+  const { patientListLink } = getPatientListLink(clinicFlowActive, selectedClinicId, query, currentPatientInViewId);
 
   const handleBack = () => {
     trackMetric('Clinic - View patient list', { clinicId: selectedClinicId, source: 'Patient data' });
@@ -74,23 +60,23 @@ export const useNavbar = (api, trackMetric) => {
     launchCustomProtocol('tidepoolupload://open');
   };
 
-  const handleViewData = () => {    
+  const handleViewData = () => {
     trackMetric('Clicked Navbar View Data');
-    dispatch(push(`/patients/${patient?.userid}/data`));
+    dispatch(push(`/patients/${currentPatientInViewId}/data`));
   };
 
-  const handleViewProfile = () => {    
+  const handleViewProfile = () => {
     trackMetric('Clicked Navbar Name');
-    dispatch(push(`/patients/${patient?.userid}/profile`));
+    dispatch(push(`/patients/${currentPatientInViewId}/profile`));
   };
 
   const handleViewSettingsChart = () => {
-    dispatch(push(`/patients/${patient?.userid}/data?chart=settings`));
+    dispatch(push(`/patients/${currentPatientInViewId}/data?chart=settings`));
   };
 
-  const handleShare = () => {    
+  const handleShare = () => {
     trackMetric('Clicked Navbar Share Data');
-    dispatch(push(`/patients/${patient?.userid}/share`));
+    dispatch(push(`/patients/${currentPatientInViewId}/share`));
   };
 
   const handleSelectWorkspace = (clinicId) => {
@@ -105,15 +91,6 @@ export const useNavbar = (api, trackMetric) => {
   const handleLogout = () => dispatch(actions.async.logout(api));
 
   return {
-    patientBirthday,
-    patientMrn,
-    patientName,
-    patient,
-    user,
-
-    canUpload,
-    canShare,
-
     handleBack,
     handleViewSettingsChart,
     handleLaunchUploader,
@@ -121,8 +98,8 @@ export const useNavbar = (api, trackMetric) => {
     handleViewAccountSettings,
     handleLogout,
 
-    handleViewData: patient ? handleViewData : _.noop,
-    handleViewProfile: patient ? handleViewProfile : _.noop,
-    handleShare: patient ? handleShare : _.noop,
+    handleViewData: currentPatientInViewId ? handleViewData : _.noop,
+    handleViewProfile: currentPatientInViewId ? handleViewProfile : _.noop,
+    handleShare: currentPatientInViewId ? handleShare : _.noop,
   };
 };

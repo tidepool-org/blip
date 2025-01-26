@@ -345,11 +345,26 @@ export class AppComponent extends React.Component {
   }
 
   renderNavPatientHeader() {
-    const { context: { api, trackMetric } } = this.props;
+    const {
+      patient,
+      clinicPatient,
+      user,
+      permsOfLoggedInUser,
+      context: { trackMetric, api },
+    } = this.props;
 
     if (!this.isPatientVisibleInNavbar()) return null; // only show on pages with a patient of focus
-    
-    return <NavPatientHeader api={api} trackMetric={trackMetric} />;
+
+    return (
+      <NavPatientHeader
+        patient={patient}
+        clinicPatient={clinicPatient}
+        user={user}
+        permsOfLoggedInUser={permsOfLoggedInUser}
+        trackMetric={trackMetric}
+        api={api}
+      />
+    );
   }
 
   renderBanner() {

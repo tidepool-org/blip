@@ -1,5 +1,6 @@
 import React from 'react';
-import { useNavbar } from '../../../core/navutils';
+import { getDemographicInfo, getPermissions, useNavigation } from '../../../core/navutils';
+import { useSelector } from 'react-redux';
 import styled from '@emotion/styled';
 import { Box, Flex } from 'theme-ui';
 import { useTranslation } from 'react-i18next';
@@ -47,20 +48,21 @@ const StyledPopover = styled(Popover)`
   }
 `;
 
-const Menu = ({ api, trackMetric }) => {
+const Menu = ({ api, trackMetric, patient, clinicPatient, permsOfLoggedInUser }) => {
   const popupState = usePopupState({ variant: 'popover', popupId: 'mobileNavigationMenu' });
   const { t } = useTranslation();
 
+  const { name: patientName } = getDemographicInfo(patient, clinicPatient);
+  const { canShare } = getPermissions(patient, permsOfLoggedInUser);
+
   const {
-    patientName,
     handleViewData,
     handleViewSettingsChart,
-    canShare,
     handleShare,
     handleSelectWorkspace,
     handleViewAccountSettings,
     handleLogout,
-  } = useNavbar(api, trackMetric);
+  } = useNavigation(api, trackMetric);
 
   return (
     <>
@@ -147,5 +149,5 @@ const Menu = ({ api, trackMetric }) => {
     </>
   );
 };
- 
+
 export default Menu;

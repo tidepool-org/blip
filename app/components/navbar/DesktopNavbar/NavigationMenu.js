@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
-import { useNavbar } from '../../../core/navutils';
+import { useNavigation } from '../../../core/navutils';
 import { withTranslation } from 'react-i18next';
 import { push } from 'connected-react-router';
 import filter from 'lodash/filter';
@@ -43,7 +43,7 @@ export const NavigationMenu = props => {
   const clinicFlowActive = useSelector((state) => state.blip.clinicFlowActive);
   const pendingReceivedClinicianInvites = useSelector((state) => state.blip.pendingReceivedClinicianInvites);
 
-  const { handleSelectWorkspace, handleViewAccountSettings, handleLogout } = useNavbar(api, trackMetric);
+  const { handleSelectWorkspace, handleViewAccountSettings, handleLogout } = useNavigation(api, trackMetric);
 
   const popupState = usePopupState({
     variant: 'popover',

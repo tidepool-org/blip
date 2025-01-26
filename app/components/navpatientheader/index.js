@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavbar } from '../../core/navutils';
+import { useNavigation } from '../../core/navutils';
 import { Box, Flex } from 'theme-ui';
 import _ from 'lodash';
 
@@ -42,7 +42,7 @@ const NavPatientHeader = ({ api, trackMetric }) => {
     handleViewData,
     handleViewProfile,
     handleShare,
-  } = useNavbar(api, trackMetric);
+  } = useNavigation(api, trackMetric);
 
   const [isUploadOverlayOpen, setIsUploadOverlayOpen] = useState(false);
 
