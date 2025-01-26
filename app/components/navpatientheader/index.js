@@ -59,7 +59,7 @@ const NavPatientHeader = ({ api, trackMetric, patient, clinicPatient, user, perm
         maxWidth: breakpoints[3],
 
         // Hide on mobile
-        [`@media screen and (max-width: ${breakpoints[2]})`]: {
+        [`@media screen and (max-width: ${breakpoints[1]})`]: {
           display: 'none',
         },
       }}
