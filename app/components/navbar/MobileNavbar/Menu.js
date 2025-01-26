@@ -37,7 +37,7 @@ const buttonStyleProps = {
   variant: 'textSecondary',
   iconPosition: 'left',
   iconFontSize: '1.25em',
-  sx: { fontSize: 1, fontWeight: 'medium' },
+  sx: { fontSize: 1, fontWeight: 'medium', color: colorPalette.primary.blueGreyDark },
   pl: 0,
 };
 
