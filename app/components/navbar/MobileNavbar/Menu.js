@@ -64,6 +64,11 @@ const Menu = ({ api, trackMetric, patient, clinicPatient, permsOfLoggedInUser })
     handleLogout,
   } = useNavigation(api, trackMetric);
 
+  const closeDropdownOnClick = (handleEvent) => () => {
+    handleEvent();
+    popupState.close();
+  };
+
   return (
     <>
       <button {...bindTrigger(popupState)}>
@@ -80,7 +85,7 @@ const Menu = ({ api, trackMetric, patient, clinicPatient, permsOfLoggedInUser })
           <MenuOption>
             <Button
               id="mobileNavbar_viewDataButton"
-              onClick={handleViewData}
+              onClick={closeDropdownOnClick(handleViewData)}
               iconSrc={viewIcon}
               iconLabel="View"
               {...buttonStyleProps}
@@ -91,7 +96,7 @@ const Menu = ({ api, trackMetric, patient, clinicPatient, permsOfLoggedInUser })
           <MenuOption>
             <Button
               id="mobileNavbar_settingsChartButton"
-              onClick={handleViewSettingsChart}
+              onClick={closeDropdownOnClick(handleViewSettingsChart)}
               iconSrc={viewIcon}
               iconLabel="Devices"
               {...buttonStyleProps}
@@ -104,7 +109,7 @@ const Menu = ({ api, trackMetric, patient, clinicPatient, permsOfLoggedInUser })
             <MenuOption>
               <Button
                 id="mobileNavbar_shareButton"
-                onClick={handleShare}
+                onClick={closeDropdownOnClick(handleShare)}
                 iconSrc={shareIcon}
                 iconLabel="Share"
                 {...buttonStyleProps}
@@ -118,7 +123,7 @@ const Menu = ({ api, trackMetric, patient, clinicPatient, permsOfLoggedInUser })
           <AccountMenuOption>
             <Button // TODO: Need one for every workspace
               id="mobileNavbar_workspaceButton"
-              onClick={() => handleSelectWorkspace(null)}
+              onClick={closeDropdownOnClick(() => handleSelectWorkspace(null))}
               icon={SupervisedUserCircleRoundedIcon}
               iconLabel="Private Workspace"
               {...buttonStyleProps}
@@ -127,7 +132,7 @@ const Menu = ({ api, trackMetric, patient, clinicPatient, permsOfLoggedInUser })
             </Button>
             <Button // TODO: Need one for every workspace
               id="mobileNavbar_accountSettingsButton"
-              onClick={handleViewAccountSettings}
+              onClick={closeDropdownOnClick(handleViewAccountSettings)}
               icon={SettingsRoundedIcon}
               iconLabel="Account Settings"
               {...buttonStyleProps}
@@ -136,7 +141,7 @@ const Menu = ({ api, trackMetric, patient, clinicPatient, permsOfLoggedInUser })
             </Button>
             <Button // TODO: Need one for every workspace
               id="mobileNavbar_logoutButton"
-              onClick={handleLogout}
+              onClick={closeDropdownOnClick(handleLogout)}
               icon={ExitToAppRoundedIcon}
               iconLabel="Logout"
               {...buttonStyleProps}

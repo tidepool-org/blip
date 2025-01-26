@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigation } from '../../core/navutils';
+import { useNavigation, getPermissions, getDemographicInfo } from '../../core/navutils';
 import { Box, Flex } from 'theme-ui';
 import _ from 'lodash';
 
@@ -28,15 +28,8 @@ const HeaderContainer = ({ children }) => (
   </Box>
 );
 
-const NavPatientHeader = ({ api, trackMetric }) => {
+const NavPatientHeader = ({ api, trackMetric, patient, clinicPatient, user, permsOfLoggedInUser }) => {
   const {
-    patientBirthday,
-    patientMrn,
-    patientName,
-    patient,
-    user,
-    canUpload,
-    canShare,
     handleBack,
     handleLaunchUploader,
     handleViewData,
@@ -47,6 +40,9 @@ const NavPatientHeader = ({ api, trackMetric }) => {
   const [isUploadOverlayOpen, setIsUploadOverlayOpen] = useState(false);
 
   if (!patient?.profile?.patient) return null;
+
+  const { canUpload, canShare } = getPermissions(patient, permsOfLoggedInUser);
+  const { mrn, birthday, name } = getDemographicInfo(patient, clinicPatient);
 
   const handleOpenUploader = () => {
     handleLaunchUploader();
@@ -67,8 +63,8 @@ const NavPatientHeader = ({ api, trackMetric }) => {
         { isClinicianAccount(user)
           ? <>
               <Back onClick={handleBack} />
-              <Name name={patientName} />
-              <DemographicInfo birthday={patientBirthday} mrn={patientMrn} />
+              <Name name={name} />
+              <DemographicInfo birthday={birthday} mrn={mrn} />
               <ClinicianMenuOptions
                 onViewData={handleViewData}
                 onViewProfile={handleViewProfile}
@@ -76,7 +72,7 @@ const NavPatientHeader = ({ api, trackMetric }) => {
               />
             </>
           : <>
-              <Name name={patientName} />
+              <Name name={name} />
               <PatientMenuOptions
                 onViewData={handleViewData}
                 onViewProfile={handleViewProfile}
