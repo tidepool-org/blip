@@ -16,6 +16,7 @@
 import React from 'react';
 import DesktopNavbar from './DesktopNavbar';
 import MobileNavbar from './MobileNavbar';
+import personUtils from '../../core/personutils';
 
 import styled from '@emotion/styled';
 import { breakpoints } from '../../themes/baseTheme';
@@ -36,15 +37,22 @@ const MobileOnly = styled.div`
   }
 `;
 
-const Navbar = (props) => (
-  <>
-    <DesktopOnly>
-      <DesktopNavbar {...props} />
-    </DesktopOnly>
-    <MobileOnly>
-      <MobileNavbar {...props} />
-    </MobileOnly>
-  </>
-);
+const Navbar = (props) => {
+  // TEMPORARY: Clinician users do not have a completed mobile navbar yet.
+  if (personUtils.isClinicianAccount(props.user)) {
+    return <DesktopNavbar {...props} />;
+  }
+
+  return (
+    <>
+      <DesktopOnly>
+        <DesktopNavbar {...props} />
+      </DesktopOnly>
+      <MobileOnly>
+        <MobileNavbar {...props} />
+      </MobileOnly>
+    </>
+  );
+};
 
 export default Navbar;
