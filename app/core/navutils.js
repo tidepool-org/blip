@@ -7,6 +7,10 @@ import { useLocation } from 'react-router-dom';
 import launchCustomProtocol from 'custom-protocol-detection';
 import * as actions from '../redux/actions';
 
+export const getFinalSlug = (pathname) => {
+  return pathname.slice(pathname.lastIndexOf('/'), pathname.length);
+};
+
 export const getPermissions = (patient, permsOfLoggedInUser) => {
   const permissions = patient?.permissions || {};
 

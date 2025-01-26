@@ -6,8 +6,8 @@ export const getButtonStyleProps = (isActive) => {
     iconPosition: 'left',
     iconFontSize: '1.25em',
     sx: { fontSize: 1, fontWeight: 'medium' },
-    pl: 0
-  }
+    pl: 0,
+  };
 
   // if button represents the current page, it should be highlighted
   if (isActive) {
@@ -16,8 +16,4 @@ export const getButtonStyleProps = (isActive) => {
   }
 
   return styleProps;
-}
-
-export const getFinalSlug = (pathname) => {
-  return pathname.slice(pathname.lastIndexOf('/'), pathname.length);
-}
+};

@@ -38,7 +38,7 @@ const MobileOnly = styled.div`
 `;
 
 const Navbar = (props) => {
-  // TEMPORARY: Clinician users do not have a completed mobile navbar yet.
+  // Temporary; clinician users do not have a completed mobile navbar yet.
   if (personUtils.isClinicianAccount(props.user)) {
     return <DesktopNavbar {...props} />;
   }

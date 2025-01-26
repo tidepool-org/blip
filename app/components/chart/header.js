@@ -1,6 +1,8 @@
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React, { Component, useEffect } from 'react';
+import { setNavbarChartTypeForTitle } from '../../redux/actions/sync';
+import { useDispatch } from 'react-redux';
 import cx from 'classnames';
 import { withTranslation } from 'react-i18next';
 import DateRangeRoundedIcon from '@material-ui/icons/DateRangeRounded';
@@ -9,6 +11,18 @@ import colorPalette from '../../themes/colorPalette';
 
 import Icon from '../elements/Icon';
 import { Box } from 'theme-ui';
+
+const NavbarChartTypeForTitleSetter = ({ chartType }) => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(setNavbarChartTypeForTitle(chartType));
+
+    return () => dispatch(setNavbarChartTypeForTitle(null));
+  }, [chartType]);
+
+  return null;
+};
 
 const Header = withTranslation()(class Header extends Component {
   static propTypes = {
@@ -170,6 +184,7 @@ const Header = withTranslation()(class Header extends Component {
             {t('Print')}
           </a>
         </div>
+        <NavbarChartTypeForTitleSetter chartType={this.props.chartType} />
       </Box>
     );
   };
