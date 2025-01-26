@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import styled from '@emotion/styled';
 import { useNavigation, getPermissions, getDemographicInfo } from '../../core/navutils';
 import { Box, Flex } from 'theme-ui';
 import _ from 'lodash';
@@ -51,12 +52,16 @@ const NavPatientHeader = ({ api, trackMetric, patient, clinicPatient, user, perm
 
   return (
     <Box
-      className="nav-patient-header"
       mb={3}
       mx={[0, 4, null, null, 'auto']}
       sx={{
         width: ['auto', null, null, 'calc(100% - 48px)'],
         maxWidth: breakpoints[3],
+
+        // Hide on mobile
+        [`@media screen and (max-width: ${breakpoints[2]})`]: {
+          display: 'none',
+        },
       }}
     >
       <HeaderContainer>
