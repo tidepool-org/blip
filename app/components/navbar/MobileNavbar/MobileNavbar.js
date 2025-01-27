@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { Flex } from 'theme-ui';
-import logo from '../images/tidepool-mobile.png';
+import logo from '../images/tidepool-t-icon.png';
 import Header from './Header';
 import Menu from './Menu';
 
