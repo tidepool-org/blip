@@ -96,12 +96,12 @@ export const useNavigation = (api, trackMetric) => {
 
   return {
     handleBack,
-    handleViewSettingsChart,
     handleLaunchUploader,
     handleSelectWorkspace,
     handleViewAccountSettings,
     handleLogout,
 
+    handleViewSettingsChart: currentPatientInViewId ? handleViewSettingsChart : _.noop,
     handleViewData: currentPatientInViewId ? handleViewData : _.noop,
     handleViewProfile: currentPatientInViewId ? handleViewProfile : _.noop,
     handleShare: currentPatientInViewId ? handleShare : _.noop,

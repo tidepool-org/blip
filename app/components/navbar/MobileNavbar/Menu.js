@@ -52,6 +52,7 @@ const Menu = ({ api, trackMetric, patient, clinicPatient, permsOfLoggedInUser })
   const popupState = usePopupState({ variant: 'popover', popupId: 'mobileNavigationMenu' });
   const { t } = useTranslation();
 
+  const currentPatientInViewId = useSelector(state => state.blip.currentPatientInViewId);
   const { name: patientName } = getDemographicInfo(patient, clinicPatient);
   const { canShare } = getPermissions(patient, permsOfLoggedInUser);
 
@@ -80,45 +81,47 @@ const Menu = ({ api, trackMetric, patient, clinicPatient, permsOfLoggedInUser })
         transformOrigin={{ vertical: 'top', horizontal: 'center' }}
         {...bindPopover(popupState)}
       >
-        <Box px={4}>
-          { patientName && <Box py={3}>{patientName}</Box>}
-          <MenuOption>
-            <Button
-              id="mobileNavbar_viewDataButton"
-              onClick={closeDropdownOnClick(handleViewData)}
-              iconSrc={viewIcon}
-              iconLabel="View"
-              {...buttonStyleProps}
-            >
-              {t('Summary Stats')}
-            </Button>
-          </MenuOption>
-          <MenuOption>
-            <Button
-              id="mobileNavbar_settingsChartButton"
-              onClick={closeDropdownOnClick(handleViewSettingsChart)}
-              iconSrc={viewIcon}
-              iconLabel="Devices"
-              {...buttonStyleProps}
-            >
-              {t('Devices')}
-            </Button>
-          </MenuOption>
-          {
-            canShare &&
+        {!!currentPatientInViewId &&
+          <Box px={4}>
+            { patientName && <Box py={3}>{patientName}</Box>}
             <MenuOption>
               <Button
-                id="mobileNavbar_shareButton"
-                onClick={closeDropdownOnClick(handleShare)}
-                iconSrc={shareIcon}
-                iconLabel="Share"
+                id="mobileNavbar_viewDataButton"
+                onClick={closeDropdownOnClick(handleViewData)}
+                iconSrc={viewIcon}
+                iconLabel="View"
                 {...buttonStyleProps}
               >
-                {t('Share')}
+                {t('Summary Stats')}
               </Button>
             </MenuOption>
-          }
-        </Box>
+            <MenuOption>
+              <Button
+                id="mobileNavbar_settingsChartButton"
+                onClick={closeDropdownOnClick(handleViewSettingsChart)}
+                iconSrc={viewIcon}
+                iconLabel="Devices"
+                {...buttonStyleProps}
+              >
+                {t('Devices')}
+              </Button>
+            </MenuOption>
+            {
+              canShare &&
+              <MenuOption>
+                <Button
+                  id="mobileNavbar_shareButton"
+                  onClick={closeDropdownOnClick(handleShare)}
+                  iconSrc={shareIcon}
+                  iconLabel="Share"
+                  {...buttonStyleProps}
+                >
+                  {t('Share')}
+                </Button>
+              </MenuOption>
+            }
+          </Box>
+        }
         <Box px={4} py={3} sx={{ background: colorPalette.primary.bluePrimary00 }}>
           <AccountMenuOption>
             <Button // TODO: Need one for every workspace
