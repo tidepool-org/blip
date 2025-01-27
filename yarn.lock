@@ -7375,7 +7375,7 @@ __metadata:
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
     tideline: 1.31.0-web-3274-device-settings-data-sources.1
-    tidepool-platform-client: 0.62.0-web-3272-patient-data-linking-after-creation.1
+    tidepool-platform-client: 0.62.0-web-3400-strip-clinic-patient-update-fields.1
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
     url-loader: 4.1.1
@@ -20052,15 +20052,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tidepool-platform-client@npm:0.62.0-web-3272-patient-data-linking-after-creation.1":
-  version: 0.62.0-web-3272-patient-data-linking-after-creation.1
-  resolution: "tidepool-platform-client@npm:0.62.0-web-3272-patient-data-linking-after-creation.1"
+"tidepool-platform-client@npm:0.62.0-web-3400-strip-clinic-patient-update-fields.1":
+  version: 0.62.0-web-3400-strip-clinic-patient-update-fields.1
+  resolution: "tidepool-platform-client@npm:0.62.0-web-3400-strip-clinic-patient-update-fields.1"
   dependencies:
     async: 0.9.0
     lodash: 4.17.21
     superagent: 5.2.2
     uuid: 3.1.0
-  checksum: 4d418e359f3bf9ef01245a779506c39e565f82a219765c1ae522a78aed3f78a3da5d533d2e1d615ab40d35786edb9afdd4f731817bf0563cd4407d7aeb27f57c
+  checksum: 3097938fdeee7bdefc8f8afb3702eee307019ce7cd0f0aed8e25001f436096c1503b54590368a5076199158ae9398bdd94bf1e506e7edfd076db517f07355281
   languageName: node
   linkType: hard
 
