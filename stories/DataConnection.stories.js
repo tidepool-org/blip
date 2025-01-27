@@ -46,9 +46,6 @@ const patientWithState = (isClinicContext, state, opts = {}) => ({
 
 const getDateInPast = (amount, unit) => moment.utc().subtract(amount, unit).toISOString();
 
-// TODO: one story for clinic context, one for patient
-// Show each provider in the same state, for all states
-
 export const ClinicUser = {
   render: () => {
     const dataConnectionUnset = getDataConnectionProps(patientWithState(true), false, 'clinicID', noop);

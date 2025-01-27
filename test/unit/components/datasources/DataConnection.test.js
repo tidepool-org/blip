@@ -64,7 +64,7 @@ describe('DataConnection', () => {
     expect(button).to.have.lengthOf(0);
   });
 
-  it('should not show a disabled button if dictated by prop', () => {
+  it('should show a disabled button if dictated by prop', () => {
     wrapper = mount(<DataConnection {...{ ...defaultProps, buttonDisabled: true } } />);
 
     const button = wrapper.find('.action').hostNodes();
@@ -72,7 +72,7 @@ describe('DataConnection', () => {
     expect(button.props().disabled).to.be.true;
   });
 
-  it('should not show a processing button if dictated by prop', () => {
+  it('should show a processing button if dictated by prop', () => {
     wrapper = mount(<DataConnection {...{ ...defaultProps, buttonProcessing: true } } />);
 
     const button = wrapper.find('.action').hostNodes();

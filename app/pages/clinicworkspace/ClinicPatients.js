@@ -725,7 +725,7 @@ export const ClinicPatients = (props) => {
 
       if (patientFormContext?.status?.newPatient && creatingClinicCustodialAccount?.patientId) currentPatient = {
         ...patientFormContext.status.newPatient,
-        id: creatingClinicCustodialAccount?.patientId,
+        id: creatingClinicCustodialAccount.patientId,
       };
 
       setShowAddPatientDialog(false);

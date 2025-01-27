@@ -5,7 +5,7 @@ import noop from 'lodash/noop';
 
 import { Body1, Title } from '../FontStyles';
 
-export function Container(props) {
+export function Card(props) {
   const { onClick, title, subtitle, bannerImage, children, variant, ...themeProps } = props;
 
   return (
@@ -72,7 +72,7 @@ export function Container(props) {
   );
 }
 
-Container.propTypes = {
+Card.propTypes = {
   ...BoxProps,
   bannerImage: PropTypes.elementType,
   title: PropTypes.string,
@@ -81,10 +81,10 @@ Container.propTypes = {
   variant: PropTypes.oneOf(['containers.card', 'containers.cardHorizontal'])
 };
 
-Container.defaultProps = {
+Card.defaultProps = {
   variant: 'containers.card',
   bannerImage: true,
   onClick: noop,
 };
 
-export default Container;
+export default Card;
