@@ -2242,29 +2242,10 @@ export function createVCACustodialAccount(api, profile) {
  * @param {String} [patient.email] - The email address of the patient
  */
 export function updateClinicPatient(api, clinicId, patientId, patient) {
-  // Explicitly omit any fields that are never expected to be updated from frontend clients.
-  // Note that some fields that we don't provide a means to update are still sent along if they don't
-  // implement `omitEmpty` when being written to the database, as they would otherwise be deleted.
-  const patientUpdate = _.omit(patient, [
-    'clinicId',
-    'createdTime',
-    'ehrSubscriptions',
-    'id',
-    'isMigrated',
-    'legacyClinicianIds',
-    'invitedBy',
-    'lastUploadReminderTime',
-    'permissions',
-    'reviews',
-    'summary',
-    'updatedTime',
-    'userId',
-  ]);
-
   return (dispatch) => {
     dispatch(sync.updateClinicPatientRequest());
 
-    api.clinics.updateClinicPatient(clinicId, patientId, patientUpdate, (err, patient) => {
+    api.clinics.updateClinicPatient(clinicId, patientId, patient, (err, patient) => {
       if (err) {
         let errMsg = ErrorMessages.ERR_UPDATING_CLINIC_PATIENT;
         if (err?.status === 403) {
