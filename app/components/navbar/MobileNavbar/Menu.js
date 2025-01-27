@@ -1,4 +1,5 @@
 import React from 'react';
+import _ from 'lodash';
 import { getDemographicInfo, getPermissions, useNavigation } from '../../../core/navutils';
 import { useSelector } from 'react-redux';
 import styled from '@emotion/styled';
@@ -13,6 +14,7 @@ import Icon from '../../elements/Icon';
 
 import SupervisedUserCircleRoundedIcon from '@material-ui/icons/SupervisedUserCircleRounded';
 import SettingsRoundedIcon from '@material-ui/icons/SettingsRounded';
+import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import ExitToAppRoundedIcon from '@material-ui/icons/ExitToAppRounded';
 import MenuRoundedIcon from '@material-ui/icons/MenuRounded';
 import viewIcon from '../../../core/icons/viewIcon.svg';
@@ -90,8 +92,18 @@ const Menu = ({ api, trackMetric, patient, clinicPatient, permsOfLoggedInUser })
 
   return (
     <Box sx={{ gridColumn: '3/4' }}>
-      <StyledMenuDropdownButton {...bindTrigger(popupState)} data-is-open={popupState.isOpen}>
-        <Icon icon={MenuRoundedIcon} color="blueGreyMedium" variant="static" label='Menu' tabIndex='-1' />
+      <StyledMenuDropdownButton
+        {...bindTrigger(popupState)}
+        onClick={popupState.isOpen ? popupState.close : bindTrigger(popupState).onClick}
+        data-is-open={popupState.isOpen}
+      >
+        <Icon
+          icon={popupState.isOpen ? CloseRoundedIcon : MenuRoundedIcon}
+          color="blueGreyMedium"
+          variant="static"
+          label='Menu'
+          tabIndex='-1'
+        />
       </StyledMenuDropdownButton>
       <StyledPopover
         classes={{ root: 'Navbar-mobileBackdrop' }}
