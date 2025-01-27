@@ -586,20 +586,25 @@ export const AccessManagement = (props) => {
             sx={{ borderBottom: baseTheme.borders.default, alignItems: 'center', flexWrap:['wrap', 'nowrap'] }}
             px={[3, 4]}
           >
-            <Title sx={{ flexGrow: 1, textAlign: ['center', 'left'] }} pr={[0, 3]} py={[3, 4]}>
+            <Title sx={{
+              flexGrow: 1,
+              textAlign: ['center', 'left'],
+              '@media screen and (max-width: 512px)': { display: 'none' },
+            }} pr={[0, 3]} py={[3, 4]}>
               {t('Access Management')}
             </Title>
-            <Flex width={['100%', 'auto']} sx={{ justifyContent: 'center' }} pb={[3, 0]}>
-              <Button
-                id="invite"
-                variant="primary"
-                onClick={() => {
-                  dispatch(push(`/patients/${loggedInUserId}/share/invite`));
-                }}
-              >
-                {t('Share Data')}
-              </Button>
-            </Flex>
+            <Button
+              id="invite"
+              variant="primary"
+              sx={{
+                '@media screen and (max-width: 512px)': { width: '100%', margin: '16px 0' },
+              }}
+              onClick={() => {
+                dispatch(push(`/patients/${loggedInUserId}/share/invite`));
+              }}
+            >
+              {t('Share Data')}
+            </Button>
           </Flex>
 
           <Body2 id="member-invites-label" px={[3, 4]} py={[4, 5]}>{sharedAccounts.length
