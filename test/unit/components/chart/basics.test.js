@@ -26,7 +26,6 @@ var expect = chai.expect;
 
 import React from 'react';
 import _ from 'lodash';
-import moment from 'moment';
 import { mount, shallow } from 'enzyme';
 import PropTypes from 'prop-types';
 
