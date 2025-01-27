@@ -1738,10 +1738,9 @@ export function connectDataSource(api, id, restrictedTokenCreate, dataSourceFilt
  * Disconnect Data Source
  *
  * @param  {Object} api an instance of the API wrapper
- * @param  {String} id the internal provider id
  * @param  {Object} dataSourceFilter the filter for the data source
  */
-export function disconnectDataSource(api, id, dataSourceFilter) {
+export function disconnectDataSource(api, dataSourceFilter) {
   return (dispatch) => {
     dispatch(sync.disconnectDataSourceRequest());
 

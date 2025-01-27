@@ -117,7 +117,7 @@ export function getProviderHandlers(patient, selectedClinicId, provider) {
       buttonText: t('Disconnect'),
       buttonStyle: 'text',
       action: actions.async.disconnectDataSource,
-      args: [api, id, dataSourceFilter],
+      args: [api, dataSourceFilter],
     },
     inviteSent: {
       buttonDisabled: true,
@@ -371,10 +371,12 @@ export const DataConnections = (props) => {
   const {
     sendingPatientDataProviderConnectRequest,
     updatingClinicPatient,
+    disconnectingDataSource,
   } = useSelector((state) => state.blip.working);
 
   const previousSendingPatientDataProviderConnectRequest = usePrevious(sendingPatientDataProviderConnectRequest);
   const previousUpdatingClinicPatient = usePrevious(updatingClinicPatient);
+  const previousDisconnectingDataSource = usePrevious(disconnectingDataSource);
 
   const fetchPatientDetails = useCallback(() => {
     dispatch(actions.async.fetchPatientFromClinic(api, selectedClinicId, patient?.id));
@@ -495,8 +497,13 @@ export const DataConnections = (props) => {
     setShowPatientEmailModal(false);
     setShowResendDataSourceConnectRequest(false);
     setActiveHandler(null);
-    if (selectedClinicId) fetchPatientDetails();
-  }, [fetchPatientDetails, selectedClinicId]);
+
+    if (selectedClinicId) {
+      fetchPatientDetails();
+    } else {
+      dispatch(actions.async.fetchDataSources(api));
+    }
+  }, [fetchPatientDetails, selectedClinicId, dispatch]);
 
   useEffect(() => {
     if(activeHandler?.action && !activeHandler?.inProgress) {
@@ -551,6 +558,18 @@ export const DataConnections = (props) => {
   ]);
 
   useEffect(() => {
+    handleAsyncResult({ ...disconnectingDataSource, prevInProgress: previousDisconnectingDataSource?.inProgress }, t('{{ providerDisplayName }} connection has been disconnected.', {
+      providerDisplayName: providers[activeHandler?.providerName]?.displayName,
+    }), handleActiveHandlerComplete);
+  }, [
+    disconnectingDataSource,
+    previousDisconnectingDataSource?.inProgress,
+    handleAsyncResult,
+    handleActiveHandlerComplete,
+    activeHandler?.providerName,
+  ]);
+
+  useEffect(() => {
     if (authorizedDataSource?.id) {
       const provider = find(providers, { id: authorizedDataSource.id});
       if (provider) openProviderConnectionPopup(authorizedDataSource?.url, provider?.displayName);
@@ -578,18 +597,14 @@ export const DataConnections = (props) => {
 
         if (!currentUrl) return;
 
-        console.log('currentUrl', currentUrl);
-
         if (currentUrl.indexOf(authorizedDataSource?.id) !== -1) {
           providerConnectionPopup.close();
           const status = last(currentPath.split('/'));
 
-          console.log('status', status);
-
           const toastMessages = {
-            authorized: t('Connection Authorized. Thank you for connecting!', ),
-            declined: t('Connection Declined. You can always decide to connect at a later time.', ),
-            error: t('Connection Authorization Error. Please try again.', ),
+            authorized: t('Connection Authorized. Thank you for connecting!'),
+            declined: t('Connection Declined. You can always decide to connect at a later time.'),
+            error: t('Connection Authorization Error. Please try again.'),
           };
 
           const toastVariants = {
@@ -609,7 +624,6 @@ export const DataConnections = (props) => {
         // Once they complete the authorization flow, they will be redirected to our
         // /oauth/[providerName]/[status] route where we can react to the results and then close the
         // modal. So, we just return while this loop runs in the meantime.
-        console.log('currentUrl', 'Blocked by CORS');
         return;
       }
     }, 500);
