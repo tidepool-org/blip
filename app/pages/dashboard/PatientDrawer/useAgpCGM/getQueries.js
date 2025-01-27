@@ -1,19 +1,8 @@
 import _ from 'lodash';
 import { utils as vizUtils } from '@tidepool/viz';
-import utils from '../../../../core/utils';
+const { commonStats } = vizUtils.stat;
 
-const chartPrefs = {
-  agpBGM: {
-    bgSource: 'smbg',
-  },
-  agpCGM: {
-    bgSource: 'cbg',
-  },
-  settings: {
-    touched: false,
-  },
-  excludedDevices: [],
-};
+import utils from '../../../../core/utils';
 
 const getQueries = (
   data,
@@ -44,65 +33,30 @@ const getQueries = (
     return localTimePrefs;
   })();
 
-  const getStatsByChartType = (chartType, _bgSource) => {
-    const { commonStats } = vizUtils.stat;
+  let stats = [
+    commonStats.averageGlucose,
+    commonStats.bgExtents,
+    commonStats.coefficientOfVariation,
+    commonStats.glucoseManagementIndicator,
+    commonStats.sensorUsage,
+    commonStats.timeInRange,
+  ];
 
-    let stats = [];
-
-    switch (chartType) { // cases 'basics', 'trends', 'bgLog', and 'daily' omitted
-      case 'agpBGM':
-        stats.push(commonStats.averageGlucose,);
-        stats.push(commonStats.bgExtents,);
-        stats.push(commonStats.coefficientOfVariation,);
-        stats.push(commonStats.glucoseManagementIndicator,);
-        stats.push(commonStats.readingsInRange,);
-        break;
-
-      case 'agpCGM':
-        stats.push(commonStats.averageGlucose);
-        stats.push(commonStats.bgExtents);
-        stats.push(commonStats.coefficientOfVariation);
-        stats.push(commonStats.glucoseManagementIndicator);
-        stats.push(commonStats.sensorUsage);
-        stats.push(commonStats.timeInRange);
-        break;
-    }
-
-    return stats;
-  }
-
-  const commonQueries = {
-    bgPrefs: bgPrefs,
-    metaData: 'latestPumpUpload, bgSources',
-    timePrefs: timePrefs,
-    excludedDevices: chartPrefs?.excludedDevices,
-  };
-
-  const queries = {}
-
-  if (!opts.agpBGM?.disabled) {
-    queries.agpBGM = {
-      endpoints: opts.agpBGM?.endpoints,
-      aggregationsByDate: 'dataByDate, statsByDate',
-      bgSource: _.get(chartPrefs, 'agpBGM.bgSource'),
-      stats: getStatsByChartType('agpBGM'),
-      types: { smbg: {} },
-      ...commonQueries,
-    };
-  }
-
-  if (!opts.agpCGM?.disabled) {
-    queries.agpCGM = {
+  const queries = {
+    agpCGM: {
       endpoints: opts.agpCGM?.endpoints,
       aggregationsByDate: 'dataByDate, statsByDate',
-      bgSource: _.get(chartPrefs, 'agpCGM.bgSource'),
-      stats: getStatsByChartType('agpCGM'),
+      bgSource: 'cbg',
+      stats,
       types: { cbg: {} },
-      ...commonQueries,
-    };
-  }
+      bgPrefs,
+      metaData: 'latestPumpUpload, bgSources',
+      timePrefs,
+      excludedDevices: [],
+    },
+  };
 
   return queries;
-}
+};
 
 export default getQueries;
