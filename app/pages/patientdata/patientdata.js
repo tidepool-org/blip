@@ -1739,6 +1739,11 @@ export const PatientDataClass = createReactClass({
           window.patientData = 'No patient data has been loaded yet. Run `window.loadPatientData()` to popuplate this.'
           window.loadPatientData = this.saveDataToDestination.bind(this, 'window');
           window.downloadPatientData = this.saveDataToDestination.bind(this, 'download');
+
+        // A new chart type can be requested by changing queryParams, in which case we need to
+        // fire setInitialChartView again to change the chart rendered
+        } else if (this.props.queryParams.chart !== nextProps.queryParams.chart) {
+          this.setInitialChartView(nextProps);
         }
 
         // Only update the chartEndpoints and transitioningChartType state immediately after querying
