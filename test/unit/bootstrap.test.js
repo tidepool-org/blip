@@ -12,6 +12,8 @@ import appContext from '../../app/bootstrap';
 
 describe('appContext', () => {
   before(() => {
+    Object.defineProperty(window.navigator, 'userAgent', { value: 'Mozilla/5.0 .. truncated .. Chrome/131.0.0.0' });
+
     appContext.api = {
       metrics: {
         track: sinon.stub(),
@@ -35,8 +37,18 @@ describe('appContext', () => {
 
   it('should call appContext.api.metrics.track with clinicId defaulted to selectedClinicId when it is present', () => {
     const selectedClinicId = 'clinic123';
+    const loggedInUserId = 'abcd-1234';
+    const allUsersMap = {
+      [loggedInUserId]: { username: 'canelo.alvarez@tidepool.test', roles: ['clinician'] },
+    };
 
-    appContext.store.getState.returns({ blip: { selectedClinicId } });
+    appContext.store.getState.returns({ 
+      blip: {
+        selectedClinicId,
+        loggedInUserId,
+        allUsersMap,
+      }, 
+    });
 
     appContext.trackMetric('someMetric2');
 
@@ -44,6 +56,8 @@ describe('appContext', () => {
     expect(
       appContext.api.metrics.track.calledWith('someMetric2', {
         clinicId: 'clinic123',
+        mobile: false,
+        clinician: true,
       })
     ).to.be.true;
 
@@ -55,6 +69,8 @@ describe('appContext', () => {
     expect(
       appContext.api.metrics.track.calledWith('someMetric2', {
         clinicId: 'anotherClinic',
+        mobile: false,
+        clinician: true,
       })
     ).to.be.true;
   });

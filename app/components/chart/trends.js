@@ -8,7 +8,7 @@ import React, { PureComponent } from 'react';
 import sundial from 'sundial';
 import WindowSizeListener from 'react-window-size-listener';
 import { withTranslation } from 'react-i18next';
-import { Flex } from 'theme-ui';
+import { Box, Flex } from 'theme-ui';
 
 import Header from './header';
 import SubNav from './trendssubnav';
@@ -477,18 +477,26 @@ const Trends = withTranslation()(class Trends extends PureComponent {
 
     return (
       <div id="tidelineMain" className="trends grid">
-        {this.renderHeader()}
-        <div className="container-box-outer patient-data-content-outer">
-          <div className="container-box-inner patient-data-content-inner">
-            {this.renderSubNav()}
-            <div className="patient-data-content">
+        <Box variant="containers.patientData">
+          {this.renderHeader()}
+
+          <Box variant="containers.patientDataInner">
+
+            <Box className="patient-data-content" variant="containers.patientDataContent">
+              {this.renderSubNav()}
+
               <Loader show={!!this.refs.chart && this.props.loading} overlay={true} />
+
               <div id="tidelineContainer" className="patient-data-chart-trends">
                 {dataQueryComplete && this.renderChart()}
               </div>
 
               <Flex className="patient-data-footer-outer" mt="20px" mb={5} pl="40px" pr="10px" sx={{alignItems: 'center', justifyContent: 'space-between' }}>
-                <Button className="btn-refresh" variant="secondary" onClick={this.props.onClickRefresh}>
+                <Button
+                  className="btn-refresh"
+                  variant="secondaryCondensed"
+                  onClick={this.props.onClickRefresh}
+                >
                   {t('Refresh')}
                 </Button>
 
@@ -568,42 +576,41 @@ const Trends = withTranslation()(class Trends extends PureComponent {
               {dataQueryComplete && this.renderFocusedCbgDateTraceLabel()}
               {dataQueryComplete && this.renderFocusedSMBGPointLabel()}
               {dataQueryComplete && this.renderFocusedRangeLabels()}
-            </div>
-          </div>
-          <div className="container-box-inner patient-data-sidebar">
-            <div className="patient-data-sidebar-inner">
-              <Flex mb={2} sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
-                <ClipboardButton
-                  buttonTitle={t('For email or notes')}
-                  onSuccess={this.handleCopyTrendsClicked}
-                  getText={trendsText.bind(this, this.props.patient, this.props.data, this.props.stats, this.props.chartPrefs[this.chartType])}
-                />
-                <BgSourceToggle
-                  bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
+            </Box>
+
+            <Box className="patient-data-sidebar" variant="containers.patientDataSidebar">
+                <Flex mb={2} sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                  <ClipboardButton
+                    buttonTitle={t('For email or notes')}
+                    onSuccess={this.handleCopyTrendsClicked}
+                    getText={trendsText.bind(this, this.props.patient, this.props.data, this.props.stats, this.props.chartPrefs[this.chartType])}
+                  />
+                  <BgSourceToggle
+                    bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
+                    chartPrefs={this.props.chartPrefs}
+                    chartType={this.chartType}
+                    onClickBgSourceToggle={this.toggleBgDataSource}
+                  />
+                </Flex>
+                <Stats
+                  bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
                   chartPrefs={this.props.chartPrefs}
                   chartType={this.chartType}
-                  onClickBgSourceToggle={this.toggleBgDataSource}
+                  stats={statsToRender}
+                  trackMetric={this.props.trackMetric}
                 />
-              </Flex>
-              <Stats
-                bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
-                chartPrefs={this.props.chartPrefs}
-                chartType={this.chartType}
-                stats={statsToRender}
-                trackMetric={this.props.trackMetric}
-              />
-              <DeviceSelection
-                chartPrefs={this.props.chartPrefs}
-                chartType={this.chartType}
-                devices={_.get(this.props, 'data.metaData.devices', [])}
-                removeGeneratedPDFS={this.props.removeGeneratedPDFS}
-                trackMetric={this.props.trackMetric}
-                updateChartPrefs={this.props.updateChartPrefs}
-              />
-            </div>
-          </div>
-        </div>
-         <WindowSizeListener onResize={this.handleWindowResize} />
+                <DeviceSelection
+                  chartPrefs={this.props.chartPrefs}
+                  chartType={this.chartType}
+                  devices={_.get(this.props, 'data.metaData.devices', [])}
+                  removeGeneratedPDFS={this.props.removeGeneratedPDFS}
+                  trackMetric={this.props.trackMetric}
+                  updateChartPrefs={this.props.updateChartPrefs}
+                />
+            </Box>
+          </Box>
+          <WindowSizeListener onResize={this.handleWindowResize} />
+        </Box>
       </div>
     );
   }
