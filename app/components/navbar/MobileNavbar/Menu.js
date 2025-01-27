@@ -9,12 +9,25 @@ import colorPalette from '../../../themes/colorPalette';
 
 import Popover from '../../elements/Popover';
 import Button from '../../elements/Button';
+import Icon from '../../elements/Icon';
 
 import SupervisedUserCircleRoundedIcon from '@material-ui/icons/SupervisedUserCircleRounded';
 import SettingsRoundedIcon from '@material-ui/icons/SettingsRounded';
 import ExitToAppRoundedIcon from '@material-ui/icons/ExitToAppRounded';
+import MenuRoundedIcon from '@material-ui/icons/MenuRounded';
 import viewIcon from '../../../core/icons/viewIcon.svg';
 import shareIcon from '../../../core/icons/shareIcon.svg';
+
+const StyledMenuDropdownButton = styled(Button)`
+  background: none;
+  padding: 4px;
+  border: none;
+  font-size: 24px;
+
+  &:focus:not(:focus-visible) {
+    box-shadow: none;
+  }
+`;
 
 const MenuOption = styled.div`
   padding: 8px 0;
@@ -72,9 +85,11 @@ const Menu = ({ api, trackMetric, patient, clinicPatient, permsOfLoggedInUser })
 
   return (
     <>
-      <button {...bindTrigger(popupState)}>
-        { 'Menu' }
-      </button>
+      <StyledMenuDropdownButton
+        {...bindTrigger(popupState)}
+      >
+        <Icon icon={MenuRoundedIcon} color="blueGreyMedium" variant="static" label='Menu' tabIndex='-1' />
+      </StyledMenuDropdownButton>
       <StyledPopover
         classes={{ root: 'Navbar-mobileBackdrop' }}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}

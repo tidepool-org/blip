@@ -5,16 +5,20 @@ import logo from '../images/tidepool-mobile.png';
 import Header from './Header';
 import Menu from './Menu';
 
+const LOGO_SIZE = '34px';
+
 const Logo = styled.img`
-  width: 34px;
-  height: 34px;
+  width: ${LOGO_SIZE};
+  height: ${LOGO_SIZE};
   border-radius: 6px;
 `;
 
-const Container = styled(Flex)`
-  justify-content: space-between;
+const Container = styled.div`
+  display: grid;
+  grid-template-columns: ${LOGO_SIZE} 1fr ${LOGO_SIZE};
   align-items: center;
   height: '60px';
+  margin: 0 8px;
 `;
 
 const MobileNavbar = ({ api, trackMetric, patient, clinicPatient, permsOfLoggedInUser }) => {

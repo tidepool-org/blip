@@ -41,7 +41,7 @@ const BoldTitle = ({ icon, label, iconSrc }) => {
   const color = colorPalette.primary.purpleDark;
 
   return (
-    <Flex sx={{ alignItems: 'center' }}>
+    <Flex sx={{ justifyContent: 'center', alignItems: 'center' }}>
       <Icon tabIndex={-1} className="icon" mr={2} color={color} variant="static" icon={icon} iconSrc={iconSrc} label={label} />
       <Box sx={{ color, fontSize: 2, fontWeight: fontWeights.bold }}>{label}</Box>
     </Flex>
@@ -52,7 +52,7 @@ const LightTitle = ({ label, icon, iconSrc }) => {
   const color = colorPalette.primary.blueGreyDark;
 
   return (
-    <Flex sx={{ alignItems: 'center' }}>
+    <Flex sx={{ justifyContent: 'center', alignItems: 'center' }}>
       <Icon tabIndex={-1} className="icon" mr={2} color={color} variant="static" icon={icon} iconSrc={iconSrc} label={label} />
       <Box sx={{ color }}>{label}</Box>
     </Flex>
