@@ -9,70 +9,72 @@ import { fontWeights } from '../../../themes/baseTheme';
 import shareIcon from '../../../core/icons/shareIcon.svg';
 import viewIcon from '../../../core/icons/viewIcon.svg';
 import colorPalette from '../../../themes/colorPalette';
+import { clinicPatientFromAccountInfo } from '../../../core/personutils';
 import SettingsRoundedIcon from '@material-ui/icons/SettingsRounded';
 import SupervisedUserCircleRoundedIcon from '@material-ui/icons/SupervisedUserCircleRounded';
 
 const TITLE_STATE = {
   PRIVATE_WORKSPACE: 'PRIVATE_WORKSPACE',
   ACCOUNT_SETTINGS: 'ACCOUNT_SETTINGS',
-  WELCOME: 'WELCOME', // TODO: make exception for welcome
+  WELCOME: 'WELCOME',
   DEVICES: 'DEVICES',
   SUMMARY_STATS: 'SUMMARY_STATS',
   SHARE: 'SHARE',
 };
 
-const getTitleState = (pathname, chartType) => {
+const getTitleState = (pathname, chartType, patient, clinicPatient) => {
   const finalSlug = getFinalSlug(pathname);
 
   if (finalSlug === '/profile') return TITLE_STATE.ACCOUNT_SETTINGS;
   if (finalSlug === '/patients') return TITLE_STATE.PRIVATE_WORKSPACE;
   if (finalSlug === '/share') return TITLE_STATE.SHARE;
 
+  const patientData = clinicPatient || (patient ? clinicPatientFromAccountInfo(patient) : null);
+  const hasDataSources = patientData?.dataSources?.length > 0;
+
+  if (finalSlug === '/data' && chartType === 'settings' && !hasDataSources) return TITLE_STATE.WELCOME;
   if (finalSlug === '/data' && chartType === 'settings') return TITLE_STATE.DEVICES;
-
-  // Insert option for 'welcome' when blank data
-
   if (finalSlug === '/data') return TITLE_STATE.SUMMARY_STATS;
 
   return TITLE_STATE.DEFAULT;
 };
 
-const BoldTitle = ({ icon, label, iconSrc }) => {
+const BoldTitle = ({ label, icon = null, iconSrc = null }) => {
   const color = colorPalette.primary.purpleDark;
 
   return (
     <Flex sx={{ justifyContent: 'center', alignItems: 'center' }}>
-      <Icon tabIndex={-1} className="icon" mr={2} color={color} variant="static" icon={icon} iconSrc={iconSrc} label={label} />
+      {(icon || iconSrc) && <Icon tabIndex={-1} className="icon" mr={2} color={color} variant="static" icon={icon} iconSrc={iconSrc} label={label} />}
       <Box sx={{ color, fontSize: 2, fontWeight: fontWeights.bold }}>{label}</Box>
     </Flex>
   );
 };
 
-const LightTitle = ({ label, icon, iconSrc }) => {
+const LightTitle = ({ label, icon = null, iconSrc = null }) => {
   const color = colorPalette.primary.blueGreyDark;
 
   return (
     <Flex sx={{ justifyContent: 'center', alignItems: 'center' }}>
-      <Icon tabIndex={-1} className="icon" mr={2} color={color} variant="static" icon={icon} iconSrc={iconSrc} label={label} />
+      {(icon || iconSrc) && <Icon tabIndex={-1} className="icon" mr={2} color={color} variant="static" icon={icon} iconSrc={iconSrc} label={label} />}
       <Box sx={{ color }}>{label}</Box>
     </Flex>
   );
 };
 
-const Header = () => {
+const Header = ({ patient, clinicPatient }) => {
   const { t } = useTranslation();
   const { pathname } = useLocation();
-  const navbarChartTypeForTitle = useSelector(state => state.blip.navbarChartTypeForTitle);
+  const chartType = useSelector(state => state.blip.navbarChartTypeForTitle);
 
-  const titleState = getTitleState(pathname, navbarChartTypeForTitle);
+  const titleState = getTitleState(pathname, chartType, patient, clinicPatient);
 
   switch(titleState) {
     case TITLE_STATE.PRIVATE_WORKSPACE:
       return <LightTitle label={t('Private Workspace')} icon={SupervisedUserCircleRoundedIcon} />;
     case TITLE_STATE.ACCOUNT_SETTINGS:
       return <LightTitle label={t('Account Settings')} icon={SettingsRoundedIcon} />;
-    // case TITLE_STATE.WELCOME:
-    //   return 'Welcome';
+    case TITLE_STATE.WELCOME:
+      return <BoldTitle label={t('Welcome')} />;
     case TITLE_STATE.DEVICES:
       return <BoldTitle label={t('Devices')} icon={SettingsRoundedIcon} />;
     case TITLE_STATE.SUMMARY_STATS:

@@ -306,7 +306,7 @@ export const PatientDataClass = createReactClass({
 
     return (
       <Box variant="containers.patientData" className='no-data'>
-        {this.renderEmptyHeader(t('No Data Available'))}
+        {this.renderEmptyHeader(t('Welcome'))}
 
         <Box variant="containers.patientDataInner">
           <Flex
