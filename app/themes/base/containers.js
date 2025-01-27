@@ -83,7 +83,6 @@ export default ({ borders, colors, radii, space, breakpoints }) => {
     ...card,
     width: '100%',
     display: 'flex',
-    // flexWrap: ['wrap', 'nowrap'],
     flexWrap: ['wrap', null, 'nowrap'],
 
     '.card-banner-image': {
