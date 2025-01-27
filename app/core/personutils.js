@@ -208,6 +208,7 @@ personUtils.clinicPatientFromAccountInfo = patient => ({
   fullName: personUtils.patientFullName(patient),
   birthDate: _.get(patient, 'profile.patient.birthday'),
   mrn: _.get(patient, 'profile.patient.mrn'),
+  dataSources: patient.dataSources,
 });
 
 personUtils.clinicPatientFromPatientInvite = invite => ({

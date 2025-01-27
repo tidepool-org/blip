@@ -1,4 +1,4 @@
-export default ({ borders, colors, radii, space }) => {
+export default ({ borders, colors, radii, space, breakpoints }) => {
   const defaultStyles = {
     mx: [0, 'auto'],
     bg: colors.white,
@@ -54,7 +54,83 @@ export default ({ borders, colors, radii, space }) => {
     mb: 0,
   };
 
+  const card = {
+    ...defaultStyles,
+    ...fluid,
+    ...rounded,
+    borderLeft: borders.card,
+    borderRight: borders.card,
+    borderTop: borders.card,
+    borderBottom: borders.card,
+    bg: 'rgba(240, 245, 255, 1)',
+    mb: 0,
+    cursor: 'pointer',
+
+    '.card-banner-image': {
+      height: ['90px', null, '120px'],
+    },
+
+    '.card-content': {
+      p: space[3],
+    },
+
+    '&:hover': {
+      bg: 'rgba(112, 143, 194, 0.1)',
+    },
+  };
+
+  const cardHorizontal = {
+    ...card,
+    width: '100%',
+    display: 'flex',
+    flexWrap: ['wrap', null, 'nowrap'],
+
+    '.card-banner-image': {
+      maxWidth: ['100%', null, '200px'],
+      // maxWidth: ['100%', '180px', '200px'],
+    },
+
+    '.card-content': {
+      p: space[3],
+    },
+  };
+
+  const patientData = {
+    ...bordered,
+    mx: [0, 4, null, null, 'auto'],
+    width: ['auto', null, null, 'calc(100% - 48px)'],
+    maxWidth: breakpoints[3],
+    overflow: 'hidden',
+  };
+
+  const patientDataInner = {
+    display: 'flex',
+    px: 3,
+    py: 4,
+    bg: 'white',
+    minHeight: [0, 0, '50vh'],
+    flexDirection: 'row',
+    flexWrap: ['wrap', null, 'nowrap'],
+    gap: 4,
+  };
+
+  const patientDataContent = {
+    width: ['100%', null, 'auto'],
+    flexGrow: 1,
+  };
+
+  const patientDataSidebar = {
+    width: ['100%', null, '240px', '320px'],
+    flexShrink: 0,
+  };
+
   return {
+    card,
+    cardHorizontal,
+    patientData,
+    patientDataInner,
+    patientDataContent,
+    patientDataSidebar,
     fluid,
     fluidRounded: {
       ...fluid,
