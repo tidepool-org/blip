@@ -27,6 +27,11 @@ const StyledMenuDropdownButton = styled(Button)`
   &:focus:not(:focus-visible) {
     box-shadow: none;
   }
+
+  &[data-is-open="true"] {
+    z-index: 1310;
+    background: ${colorPalette.neutrals.white};
+  }
 `;
 
 const MenuOption = styled.div`
@@ -83,11 +88,11 @@ const Menu = ({ api, trackMetric, patient, clinicPatient, permsOfLoggedInUser })
     popupState.close();
   };
 
+  console.log(popupState);
+
   return (
     <>
-      <StyledMenuDropdownButton
-        {...bindTrigger(popupState)}
-      >
+      <StyledMenuDropdownButton {...bindTrigger(popupState)} data-is-open={popupState.isOpen}>
         <Icon icon={MenuRoundedIcon} color="blueGreyMedium" variant="static" label='Menu' tabIndex='-1' />
       </StyledMenuDropdownButton>
       <StyledPopover
