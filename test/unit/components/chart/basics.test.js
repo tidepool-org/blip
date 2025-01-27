@@ -126,6 +126,7 @@ describe('Basics', () => {
           },
         }
       });
+
       const noDataMessage = wrapper.find('.patient-data-message').hostNodes();
       const chart = wrapper.hostNodes('BasicsChart');
       expect(noDataMessage.length).to.equal(0);

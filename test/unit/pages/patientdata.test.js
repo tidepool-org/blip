@@ -17,6 +17,9 @@ import { components as vizComponents } from '@tidepool/viz';
 import i18next from '../../../app/core/language';
 import createReactClass from 'create-react-class';
 import { ThemeProvider } from '@emotion/react';
+import { Provider } from 'react-redux';
+import thunk from 'redux-thunk';
+import configureStore from 'redux-mock-store';
 
 import baseTheme from '../../../app/themes/baseTheme';
 
@@ -24,6 +27,7 @@ const { Loader } = vizComponents;
 
 var assert = chai.assert;
 var expect = chai.expect;
+const mockStore = configureStore([thunk]);
 
 const t = i18next.t.bind(i18next);
 
@@ -31,6 +35,7 @@ const t = i18next.t.bind(i18next);
 // otherwise dependencies mocked will be bound to the wrong scope!
 import PD, { PatientData, PatientDataClass, getFetchers, mapStateToProps } from '../../../app/pages/patientdata/patientdata.js';
 import { MGDL_UNITS } from '../../../app/core/constants';
+import { ToastProvider } from '../../../app/providers/ToastProvider.js';
 
 describe('PatientData', function () {
   const defaultProps = {
@@ -71,6 +76,7 @@ describe('PatientData', function () {
   };
 
   before(() => {
+    PD.__Rewire__('launchCustomProtocol', _.noop);
     PD.__Rewire__('Basics', createReactClass({
       render: function() {
         return (<div className='fake-basics-view'></div>);
@@ -103,6 +109,7 @@ describe('PatientData', function () {
   });
 
   after(() => {
+    PD.__ResetDependency__('launchCustomProtocol');
     PD.__ResetDependency__('Basics');
     PD.__ResetDependency__('Trends');
     PD.__ResetDependency__('BgLog');
@@ -276,16 +283,18 @@ describe('PatientData', function () {
       });
     });
 
-    describe('no data message', () => {
+    describe('no data available', () => {
+      let dataConnectionsCard
+      let uploaderCard;
       let wrapper;
-      let noData;
 
       beforeEach(() => {
-        noData = () => wrapper.find('.patient-data-message-no-data');
+        dataConnectionsCard = () => wrapper.find('#data-connections-card');
+        uploaderCard = () => wrapper.find('#uploader-card');
       });
 
       describe('logged-in user is not current patient targeted for viewing', () => {
-        it('should render the no data message when no data is present and loading and processingData are false', function() {
+        it('should render the device connections and uploader cards when no data is present and loading and processingData are false', function() {
           var props = _.assign({}, defaultProps, {
             patient: {
               profile: {
@@ -304,11 +313,14 @@ describe('PatientData', function () {
             }
           }));
 
-          expect(noData().length).to.equal(1);
-          expect(noData().text()).to.equal('Fooey McBar does not have any data yet.');
+          expect(dataConnectionsCard().length).to.equal(1);
+          expect(dataConnectionsCard().text()).to.contain('Connect a Device Account');
+
+          expect(uploaderCard().length).to.equal(1);
+          expect(uploaderCard().text()).to.contain('Upload Data Directly with Tidepool Uploader');
         });
 
-        it('should render the no data message when no data is present for current patient', function() {
+        it('should render the device connections and uploader cards when no data is present for current patient', function() {
           var props = _.assign({}, defaultProps, {
             currentPatientInViewId: '40',
             patient: {
@@ -335,13 +347,16 @@ describe('PatientData', function () {
             }
           }));
 
-          expect(noData().length).to.equal(1);
-          expect(noData().text()).to.equal('Fooey McBar does not have any data yet.');
+          expect(dataConnectionsCard().length).to.equal(1);
+          expect(dataConnectionsCard().text()).to.contain('Connect a Device Account');
+
+          expect(uploaderCard().length).to.equal(1);
+          expect(uploaderCard().text()).to.contain('Upload Data Directly with Tidepool Uploader');
         });
       });
 
       describe('logged-in user is viewing own data', () => {
-        it('should render the no data message when no data is present and loading and processingData are false', function() {
+        it('should render the device connections and uploader cards when no data is present and loading and processingData are false', function() {
           var props = {
             isUserPatient: true,
             fetchingPatient: false,
@@ -359,10 +374,14 @@ describe('PatientData', function () {
             }
           }));
 
-          expect(noData().length).to.equal(1);
+          expect(dataConnectionsCard().length).to.equal(1);
+          expect(dataConnectionsCard().text()).to.contain('Connect an Account');
+
+          expect(uploaderCard().length).to.equal(1);
+          expect(uploaderCard().text()).to.contain('Upload Data Directly with Tidepool Uploader');
         });
 
-        it('should render the no data message when no data is present for current patient', function() {
+        it('should render the device connections and uploader cards when no data is present for current patient', function() {
           var props = {
             currentPatientInViewId: '40',
             isUserPatient: true,
@@ -379,7 +398,7 @@ describe('PatientData', function () {
             pdf: {},
           };
 
-          wrapper = mount(<PatientData {...props} />);
+          wrapper = mount(<PatientData {...props} />, {});
 
           wrapper.setProps(_.assign({}, props, {
             data: {
@@ -387,11 +406,15 @@ describe('PatientData', function () {
             }
           }));
 
-          expect(noData().length).to.equal(1);
+          expect(dataConnectionsCard().length).to.equal(1);
+          expect(dataConnectionsCard().text()).to.contain('Connect an Account');
+
+          expect(uploaderCard().length).to.equal(1);
+          expect(uploaderCard().text()).to.contain('Upload Data Directly with Tidepool Uploader');
         });
 
-        it('should track click on main upload button', function() {
-          var props = {
+        it('should track click on Uploader card', function() {
+          const props = {
             currentPatientInViewId: '40',
             isUserPatient: true,
             patient: {
@@ -418,19 +441,16 @@ describe('PatientData', function () {
 
           wrapper.update();
 
-          expect(noData().length).to.equal(1);
-
-          var links = wrapper.find('.patient-data-uploader-message a');
-          var callCount = props.trackMetric.callCount;
-
-          links.at(0).simulate('click');
+          expect(uploaderCard().length).to.equal(1);
+          const callCount = props.trackMetric.callCount;
+          uploaderCard().simulate('click');
 
           expect(props.trackMetric.callCount).to.equal(callCount + 1);
-          expect(props.trackMetric.calledWith('Clicked No Data Upload')).to.be.true;
+          expect(props.trackMetric.calledWith('Clicked No Data Upload Card')).to.be.true;
         });
 
-        it('should track click on Dexcom Connect link', function() {
-          var props = {
+        it('should track click on Data Connections card', function() {
+          const props = {
             currentPatientInViewId: '40',
             isUserPatient: true,
             patient: {
@@ -444,11 +464,43 @@ describe('PatientData', function () {
             removingData: { inProgress: false },
             generatingPDF: { inProgress: false },
             pdf: {},
-            history: { push: sinon.stub() },
-            trackMetric: sinon.stub()
+            trackMetric: sinon.stub(),
+            removeGeneratedPDFS: sinon.stub(),
+            dataWorkerRemoveDataSuccess: sinon.stub(),
           };
 
-          wrapper = mount(<PatientData {...props} />);
+          const defaultWorkingState = {
+            inProgress: false,
+            completed: null,
+            notification: null,
+          };
+
+          const defaultState = {
+            blip: {
+              working: {
+                updatingClinicPatient: defaultWorkingState,
+                sendingPatientDataProviderConnectRequest: defaultWorkingState,
+              },
+            },
+          };
+
+          const store = mockStore(defaultState);
+
+          function ProviderWrapper(props) {
+            const { children } = props;
+
+            return (
+              <Provider store={store}>
+                <ToastProvider>
+                  {children}
+                </ToastProvider>
+              </Provider>
+            );
+          }
+
+          wrapper = mount(<PatientData {...props} />, { wrappingComponent: ProviderWrapper });
+
+          wrapper.update();
 
           wrapper.setProps(_.assign({}, props, {
             data: {
@@ -458,16 +510,12 @@ describe('PatientData', function () {
 
           wrapper.update();
 
-          var link = wrapper.find('#dexcom-connect-link').hostNodes();
-          var callCount = props.trackMetric.callCount;
-
-          link.simulate('click');
-
-          expect(props.history.push.callCount).to.equal(1);
-          sinon.assert.calledWith(props.history.push, '/patients/40/profile?dexcomConnect=patient-empty-data');
+          expect(dataConnectionsCard().length).to.equal(1);
+          const callCount = props.trackMetric.callCount;
+          dataConnectionsCard().simulate('click');
 
           expect(props.trackMetric.callCount).to.equal(callCount + 1);
-          expect(props.trackMetric.calledWith('Clicked No Data Connect Dexcom')).to.be.true;
+          expect(props.trackMetric.calledWith('Clicked No Data Data Connections Card')).to.be.true;
         });
       });
     });

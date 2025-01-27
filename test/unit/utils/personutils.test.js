@@ -623,6 +623,7 @@ describe('personutils', () => {
         username: 'someEmail',
         userid: 'someID',
         permissions: { foo: 'bar' },
+        dataSources: 'data sources',
         profile: {
           fullName: 'Joe Jackson',
           emails: ['someEmail'],
@@ -637,6 +638,7 @@ describe('personutils', () => {
         email: 'someEmail',
         fullName: 'Joe Jackson',
         birthDate: '1979-01-01',
+        dataSources: 'data sources',
         mrn: 'someMRN',
         id: 'someID',
         permissions: { foo: 'bar' },
