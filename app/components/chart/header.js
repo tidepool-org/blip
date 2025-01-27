@@ -136,7 +136,7 @@ const Header = withTranslation()(class Header extends Component {
     });
 
     return (
-      <Box sx={{ gap: 2 }} className="grid patient-data-subnav">
+      <Box sx={{ gap: 2 }} className="grid patient-data-subnav" data-chart-type={this.props.chartType}>
         <div className="app-no-print patient-data-subnav-left">
             <a href="" className={basicsLinkClass} onClick={this.props.onClickBasics}>{t('Basics')}</a>
             <a href="" className={dayLinkClass} onClick={this.props.onClickOneDay}>{t('Daily')}</a>
