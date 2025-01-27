@@ -1,9 +1,8 @@
 import React from 'react';
 import _ from 'lodash';
 import { getDemographicInfo, getPermissions, useNavigation } from '../../../core/navutils';
-import { useSelector } from 'react-redux';
 import styled from '@emotion/styled';
-import { Box, Flex } from 'theme-ui';
+import { Box } from 'theme-ui';
 import { useTranslation } from 'react-i18next';
 import { usePopupState, bindPopover, bindTrigger } from 'material-ui-popup-state/hooks';
 import colorPalette from '../../../themes/colorPalette';
@@ -47,13 +46,15 @@ const MenuOption = styled.div`
   }
 `;
 
-const AccountMenuOption = styled.div`
-  padding: 4px 0;
-  width: 100%;
-  justify-content: flex-end;
-`;
+const dataOptionStyles = {
+  variant: 'textSecondary',
+  iconPosition: 'left',
+  iconFontSize: '1.25em',
+  sx: { fontSize: 1, fontWeight: 'medium', color: colorPalette.primary.purpleDark },
+  pl: 0,
+};
 
-const buttonStyleProps = {
+const accountOptionStyles = {
   variant: 'textSecondary',
   iconPosition: 'left',
   iconFontSize: '1.25em',
@@ -72,7 +73,6 @@ const Menu = ({ api, trackMetric, patient, clinicPatient, permsOfLoggedInUser })
   const popupState = usePopupState({ variant: 'popover', popupId: 'mobileNavigationMenu' });
   const { t } = useTranslation();
 
-  const currentPatientInViewId = useSelector(state => state.blip.currentPatientInViewId);
   const { name: patientName } = getDemographicInfo(patient, clinicPatient);
   const { canShare } = getPermissions(patient, permsOfLoggedInUser);
 
@@ -89,6 +89,48 @@ const Menu = ({ api, trackMetric, patient, clinicPatient, permsOfLoggedInUser })
     handleEvent();
     popupState.close();
   };
+
+  const menuOptions = [
+    {
+      id: 'mobileNavbar_viewDataButton',
+      onClick: handleViewData,
+      iconSrc: viewIcon,
+      label: t('Summary Stats'),
+    },
+    {
+      id: 'mobileNavbar_settingsChartButton',
+      onClick: handleViewSettingsChart,
+      iconSrc: viewIcon,
+      label: t('Devices'),
+    },
+    (canShare && {
+      id: 'mobileNavbar_shareButton',
+      onClick: handleShare,
+      iconSrc: shareIcon,
+      label: t('Share'),
+    }),
+  ].filter(Boolean);
+
+  const accountOptions = [
+    {
+      id: 'mobileNavbar_workspaceButton',
+      onClick: () => handleSelectWorkspace(null),
+      icon: SupervisedUserCircleRoundedIcon,
+      label: 'Private Workspace',
+    },
+    {
+      id: 'mobileNavbar_accountSettingsButton',
+      onClick: handleViewAccountSettings,
+      icon: SettingsRoundedIcon,
+      label: 'Account Settings',
+    },
+    {
+      id: 'mobileNavbar_logoutButton',
+      onClick: handleLogout,
+      icon: ExitToAppRoundedIcon,
+      label: 'Logout',
+    },
+  ];
 
   return (
     <Box sx={{ gridColumn: '3/4' }}>
@@ -111,77 +153,40 @@ const Menu = ({ api, trackMetric, patient, clinicPatient, permsOfLoggedInUser })
         transformOrigin={{ vertical: 'top', horizontal: 'center' }}
         {...bindPopover(popupState)}
       >
-        {!!currentPatientInViewId &&
-          <Box px={4}>
-            { patientName && <Box py={3}>{patientName}</Box>}
-            <MenuOption>
-              <Button
-                id="mobileNavbar_viewDataButton"
-                onClick={closeDropdownOnClick(handleViewData)}
-                iconSrc={viewIcon}
-                iconLabel="View"
-                {...buttonStyleProps}
-              >
-                {t('Summary Stats')}
-              </Button>
-            </MenuOption>
-            <MenuOption>
-              <Button
-                id="mobileNavbar_settingsChartButton"
-                onClick={closeDropdownOnClick(handleViewSettingsChart)}
-                iconSrc={viewIcon}
-                iconLabel="Devices"
-                {...buttonStyleProps}
-              >
-                {t('Devices')}
-              </Button>
-            </MenuOption>
-            {
-              canShare &&
-              <MenuOption>
-                <Button
-                  id="mobileNavbar_shareButton"
-                  onClick={closeDropdownOnClick(handleShare)}
-                  iconSrc={shareIcon}
-                  iconLabel="Share"
-                  {...buttonStyleProps}
-                >
-                  {t('Share')}
-                </Button>
-              </MenuOption>
+        {!!patient &&
+          <Box id="mobile-navbar-data-options" px={4}>
+            { patientName &&
+              <Box pt={4} pb={3} sx={{ color: colorPalette.extended.grays[5], fontWeight: 'medium', fontSize: 2 }}>
+                {patientName}
+              </Box>
             }
+            { menuOptions.map(({ id, onClick, iconSrc, label }) => (
+                <MenuOption>
+                  <Button
+                    id={id}
+                    onClick={closeDropdownOnClick(onClick)}
+                    iconSrc={iconSrc}
+                    iconLabel={label}
+                    {...dataOptionStyles}
+                  >
+                    {label}
+                  </Button>
+                </MenuOption>
+              ))}
           </Box>
         }
-        <Box px={4} py={3} sx={{ background: colorPalette.primary.bluePrimary00 }}>
-          <AccountMenuOption>
-            <Button // TODO: Need one for every workspace
-              id="mobileNavbar_workspaceButton"
-              onClick={closeDropdownOnClick(() => handleSelectWorkspace(null))}
-              icon={SupervisedUserCircleRoundedIcon}
-              iconLabel="Private Workspace"
-              {...buttonStyleProps}
+        <Box id="mobile-navbar-account-options" px={4} py={4} sx={{ background: colorPalette.primary.bluePrimary00 }}>
+          {accountOptions.map(({ id, onClick, icon, label }) => (
+            <Button
+              id={id}
+              onClick={closeDropdownOnClick(onClick)}
+              icon={icon}
+              iconLabel={label}
+              {...accountOptionStyles}
             >
-              {t('Private Workspace')}
+              {label}
             </Button>
-            <Button // TODO: Need one for every workspace
-              id="mobileNavbar_accountSettingsButton"
-              onClick={closeDropdownOnClick(handleViewAccountSettings)}
-              icon={SettingsRoundedIcon}
-              iconLabel="Account Settings"
-              {...buttonStyleProps}
-            >
-              {t('Account Settings')}
-            </Button>
-            <Button // TODO: Need one for every workspace
-              id="mobileNavbar_logoutButton"
-              onClick={closeDropdownOnClick(handleLogout)}
-              icon={ExitToAppRoundedIcon}
-              iconLabel="Logout"
-              {...buttonStyleProps}
-            >
-              {t('Logout')}
-            </Button>
-          </AccountMenuOption>
+          ))}
         </Box>
       </StyledPopover>
     </Box>
