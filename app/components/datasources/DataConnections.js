@@ -495,8 +495,8 @@ export const DataConnections = (props) => {
     setShowPatientEmailModal(false);
     setShowResendDataSourceConnectRequest(false);
     setActiveHandler(null);
-    fetchPatientDetails();
-  }, [fetchPatientDetails]);
+    if (selectedClinicId) fetchPatientDetails();
+  }, [fetchPatientDetails, selectedClinicId]);
 
   useEffect(() => {
     if(activeHandler?.action && !activeHandler?.inProgress) {
