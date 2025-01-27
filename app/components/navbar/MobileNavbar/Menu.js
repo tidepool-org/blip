@@ -88,10 +88,8 @@ const Menu = ({ api, trackMetric, patient, clinicPatient, permsOfLoggedInUser })
     popupState.close();
   };
 
-  console.log(popupState);
-
   return (
-    <>
+    <Box sx={{ gridColumn: '3/4' }}>
       <StyledMenuDropdownButton {...bindTrigger(popupState)} data-is-open={popupState.isOpen}>
         <Icon icon={MenuRoundedIcon} color="blueGreyMedium" variant="static" label='Menu' tabIndex='-1' />
       </StyledMenuDropdownButton>
@@ -174,7 +172,7 @@ const Menu = ({ api, trackMetric, patient, clinicPatient, permsOfLoggedInUser })
           </AccountMenuOption>
         </Box>
       </StyledPopover>
-    </>
+    </Box>
   );
 };
 
