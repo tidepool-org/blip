@@ -13,10 +13,13 @@ const t = i18next.t.bind(i18next);
 
 import {
   borders,
+  breakpoints,
   radii,
   space,
   shadows,
 } from '../../themes/baseTheme';
+
+const MOBILE_BREAKPOINT = breakpoints[1];
 
 /* Dialog Title Start */
 export function DialogTitle(props) {
@@ -101,6 +104,11 @@ const StyledDialogContent = styled(Box)`
   }
 
   overflow-y: auto;
+
+  @media screen and (max-width: ${MOBILE_BREAKPOINT}) {
+    // The (A) title bar and (B) actions footer are each 64px in height
+    min-height: calc(100% - 64px - 64px);
+  }
 `;
 
 export function DialogContent({ sx = {}, ...props }) {
@@ -125,6 +133,10 @@ DialogContent.defaultProps = {
 const StyledDialogActions = styled(Flex)`
   button {
     margin-left: ${space[2]}px;
+
+    @media screen and (max-width: ${MOBILE_BREAKPOINT}) {
+      margin: 0;
+    }
   }
 
   margin-top: 0;
@@ -159,6 +171,12 @@ const StyledDialog = styled(MuiDialog)`
     border: ${borders.modal};
     box-shadow: ${shadows.large};
     border-radius: ${radii.default}px;
+
+    @media screen and (max-width: ${MOBILE_BREAKPOINT}) {
+      margin: 0;
+      height: 100%;
+      max-height: 100%;
+    }
   }
 `;
 
