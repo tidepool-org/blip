@@ -71,7 +71,7 @@ export const ClinicWorkspaceHeader = (props) => {
       <Flex
         id="clinicProfileDetails"
         px={4}
-        py={3}
+        py="12px"
         sx={{
           columnGap: 5,
           flexWrap: 'wrap',

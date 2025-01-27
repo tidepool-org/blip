@@ -8,7 +8,7 @@ import EditIcon from '@material-ui/icons/EditRounded';
 
 import * as actions from '../../redux/actions';
 import Button from './../../components/elements/Button';
-import DataConnections from './DataConnections';
+import DataConnections, { activeProviders } from './DataConnections';
 import PatientDetails from './PatientDetails';
 import { clinicPatientFromAccountInfo } from '../../core/personutils';
 import { useToasts } from './../../providers/ToastProvider';
@@ -35,6 +35,7 @@ export const DataConnectionsModal = (props) => {
     onClose,
     onBack,
     patient,
+    shownProviders,
     trackMetric,
   } = props;
 
@@ -164,7 +165,7 @@ export const DataConnectionsModal = (props) => {
             )}
           </Box>
 
-          <DataConnections mb={4} patient={patientData} trackMetric={trackMetric} />
+          <DataConnections mb={4} patient={patientData} shownProviders={shownProviders} trackMetric={trackMetric} />
           <Divider mb={3} />
 
           <Body1 sx={{ fontWeight: 'medium'}}>
@@ -213,6 +214,7 @@ DataConnectionsModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool,
   patient: PropTypes.object.isRequired,
+  shownProviders: PropTypes.arrayOf(PropTypes.oneOf(activeProviders)),
   trackMetric: PropTypes.func.isRequired,
 };
 
