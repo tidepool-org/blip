@@ -17,7 +17,7 @@ const Container = styled.div`
   display: grid;
   grid-template-columns: ${LOGO_SIZE} 1fr ${LOGO_SIZE};
   align-items: center;
-  height: '60px';
+  height: 56px;
   margin: 0 8px;
 `;
 
