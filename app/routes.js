@@ -45,8 +45,24 @@ import * as ErrorMessages from './redux/constants/errorMessages';
  *
  * @param  {Function} next
  */
+export const requireSupportedBrowser = (next, ...args) => (dispatch) => {
+  if (!utils.isSupportedBrowser()) {
+    dispatch(push('/browser-warning'));
+  } else {
+    !!next && dispatch(next(...args));
+  }
+}
 
-export const requireSupportedBrowser = (api, next, ...args) => (dispatch, getState) => {
+/**
+ * This function checks if the user is using a supported browser based on whether they are
+ * a clinician or not. This is a temporary measure, as only personal users can access
+ * the mobile views in this iteration. In the future, clinicians will also be able to access
+ * the mobile views.
+ *
+ * @param  {Object} api
+ * @param  {Function} next
+ */
+export const requireSupportedBrowserForUserType = (api, next, ...args) => (dispatch, getState) => {
   const { blip: state } = getState();
   const user = _.get(state.allUsersMap, state.loggedInUserId, {});
 
@@ -413,7 +429,8 @@ export const getRoutes = (appContext) => {
   const boundRequireAuth = requireAuth.bind(null, api);
   const boundRequireNotVerified = requireNotVerified.bind(null, api);
   const boundRequireAuthAndNoPatient = requireAuthAndNoPatient.bind(null, api);
-  const boundRequireSupportedBrowser = requireSupportedBrowser.bind(null, api, boundRequireAuth);
+  const boundRequireSupportedBrowser = requireSupportedBrowser.bind(null, boundRequireAuth);
+  const boundRequireSupportedBrowserForUserType = requireSupportedBrowserForUserType.bind(null, api, boundRequireAuth);
   const boundEnsureNoAuth = ensureNoAuth.bind(null, api);
   const boundOnUploaderPasswordReset = onUploaderPasswordReset.bind(null, api);
   const authenticatedFallbackRoute = state.selectedClinicId ? '/workspaces' : '/patients';
@@ -439,10 +456,10 @@ export const getRoutes = (appContext) => {
           <Route exact path='/patients/new' render={routeProps => (<Gate onEnter={boundRequireAuthAndNoPatient} key={routeProps.match.path}><PatientNew {...routeProps} {...props} /></Gate>)} />
           <Route exact path='/prescriptions/new' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><PrescriptionForm {...routeProps} {...props} /></Gate>)} />}
           <Route exact path='/prescriptions/:id' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><PrescriptionForm {...routeProps} {...props} /></Gate>)} />}
-          <Route exact path='/patients/:id/profile' render={routeProps => (<Gate onEnter={boundRequireSupportedBrowser} key={routeProps.match.path}><PatientProfile {...routeProps} {...props} /></Gate>)} />
+          <Route exact path='/patients/:id/profile' render={routeProps => (<Gate onEnter={boundRequireSupportedBrowserForUserType} key={routeProps.match.path}><PatientProfile {...routeProps} {...props} /></Gate>)} />
           <Route exact path='/patients/:id/share' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><AccessManagement {...routeProps} {...props} /></Gate>)} />
           <Route exact path='/patients/:id/share/invite' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ShareInvite {...routeProps} {...props} /></Gate>)} />
-          <Route exact path='/patients/:id/data' render={routeProps => (<Gate onEnter={boundRequireSupportedBrowser} key={routeProps.match.path}><PatientData {...routeProps} {...props} /></Gate>)} />
+          <Route exact path='/patients/:id/data' render={routeProps => (<Gate onEnter={boundRequireSupportedBrowserForUserType} key={routeProps.match.path}><PatientData {...routeProps} {...props} /></Gate>)} />
           <Route path='/request-password-reset' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><RequestPasswordReset {...routeProps} {...props} /></Gate>)} />
           <Route path='/confirm-password-reset' render={routeProps => (<Gate onEnter={boundEnsureNoAuth} key={routeProps.match.path}><ConfirmPasswordReset {...routeProps} {...props} /></Gate>)} />
           <Route path='/oauth/:providerName/:status' render={routeProps => (<OAuthConnection {...routeProps} {...props} />)} />

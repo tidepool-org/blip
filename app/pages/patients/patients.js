@@ -204,10 +204,11 @@ export let Patients = withTranslation()(class extends React.Component {
     return (
       <div className="container-box-inner patients-section js-patients-shared">
         <div className="patients-section-title-wrapper">
+          <div className="spacer"></div>
           <div className="patients-section-title">{t('View data for:')}</div>
+          {this.renderAddDataStorage()}
         </div>
         <div className="patients-section-content">
-          {this.renderAddDataStorage()}
           <div className='clear'></div>
           <PeopleList
             people={patients}
