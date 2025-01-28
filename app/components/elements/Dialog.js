@@ -131,6 +131,10 @@ DialogContent.defaultProps = {
 
 /* Dialog Actions Start */
 const StyledDialogActions = styled(Flex)`
+  @media screen and (max-width: ${MOBILE_BREAKPOINT}) {
+    gap: 16px;
+  }
+
   button {
     margin-left: ${space[2]}px;
 

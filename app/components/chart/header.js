@@ -8,6 +8,7 @@ import { withTranslation } from 'react-i18next';
 import DateRangeRoundedIcon from '@material-ui/icons/DateRangeRounded';
 import PrintRoundedIcon from '@material-ui/icons/PrintRounded';
 import colorPalette from '../../themes/colorPalette';
+import Button from '../elements/Button';
 
 import Icon from '../elements/Icon';
 import { Box } from 'theme-ui';
@@ -82,8 +83,9 @@ const Header = withTranslation()(class Header extends Component {
       'patient-data-subnav-hidden': this.props.chartType === 'no-data',
     });
 
-    const dateLinkClass = cx({
+    const desktopDateLinkClass = cx({ // renders only on wider screens
       'js-date': true,
+      'patient-data-subnav-desktop': true,
       'patient-data-subnav-text' : this.props.chartType === 'basics' ||
         this.props.chartType === 'daily' ||
         this.props.chartType === 'bgLog' ||
@@ -92,6 +94,11 @@ const Header = withTranslation()(class Header extends Component {
       'patient-data-subnav-dates-daily': this.props.chartType === 'daily',
       'patient-data-subnav-dates-bgLog': this.props.chartType === 'bgLog',
       'patient-data-subnav-dates-trends': this.props.chartType === 'trends',
+    });
+
+    const mobileDateLinkClass = cx({ // renders only on smaller screens
+      'js-date': true,
+      'patient-data-subnav-mobile': true,
     });
 
     const mostRecentClass = cx({
@@ -135,6 +142,8 @@ const Header = withTranslation()(class Header extends Component {
       'patient-data-subnav-hidden': this.props.chartType === 'no-data',
     });
 
+    const canSelectDateRange = _.includes(['basics', 'daily'], this.props.chartType);
+
     return (
       <Box sx={{ gap: 2 }} className="grid patient-data-subnav" data-chart-type={this.props.chartType}>
         <div className="app-no-print patient-data-subnav-left">
@@ -146,9 +155,9 @@ const Header = withTranslation()(class Header extends Component {
         </div>
         <div className="patient-data-subnav-center" id="tidelineLabel">
           {this.renderNavButton(backClass, this.props.onClickBack, this.props.iconBack)}
-          <div className={dateLinkClass}>
-            {this.props.title}
-            {_.includes(['basics', 'daily'], this.props.chartType) && (
+          <div className={desktopDateLinkClass}>
+            <span>{this.props.title}</span>
+            {canSelectDateRange && (
               <Icon
                 variant="default"
                 sx={{
@@ -163,6 +172,24 @@ const Header = withTranslation()(class Header extends Component {
                 onClick={this.props.onClickChartDates}
               />
             )}
+          </div>
+          <div className={mobileDateLinkClass}>
+            {
+              canSelectDateRange
+              ? <Button
+                  onClick={this.props.onClickChartDates}
+                  sx={{
+                    backgroundColor: colorPalette.neutrals.white,
+                    color: colorPalette.primary.blueGreyDark,
+                    border: `1px solid ${colorPalette.primary.blueGreyDark}`,
+                    padding: '8px 48px',
+                    margin: '16px 0',
+                  }}
+                >
+                  {this.props.title}
+                </Button>
+              : <Box my={3} sx={{ fontSize: 1 }}>{this.props.title}</Box>
+            }
           </div>
           {this.renderNavButton(nextClass, this.props.onClickNext, this.props.iconNext)}
           {this.renderNavButton(mostRecentClass, this.props.onClickMostRecent, this.props.iconMostRecent)}
