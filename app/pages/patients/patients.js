@@ -175,12 +175,23 @@ export let Patients = withTranslation()(class extends React.Component {
   };
 
   renderPatients = () => {
-    const { t } = this.props;
+    const { t, user } = this.props;
     if (!this.hasPatients()) {
       return null;
     }
 
-    if (!utils.isSupportedBrowser()) {
+    // Temporary: Only personal users may access the mobile views in this iteration.
+    // In the future, clinicians will also be able to access mobile views
+    let isBrowserSufficient = false;
+    const isClinician = personUtils.isClinicianAccount(user) || false;
+
+    if (isClinician) {
+      isBrowserSufficient = utils.isSupportedBrowser() && !utils.isMobile();
+    } else {
+      isBrowserSufficient = utils.isSupportedBrowser();
+    }
+
+    if (!isBrowserSufficient) {
       return <BrowserWarning
         trackMetric={this.props.trackMetric} />;
     }
