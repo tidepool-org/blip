@@ -45,13 +45,34 @@ import * as ErrorMessages from './redux/constants/errorMessages';
  *
  * @param  {Function} next
  */
-export const requireSupportedBrowser = (next, ...args) => (dispatch) => {
-  if (!utils.isSupportedBrowser()) {
-    dispatch(push('/browser-warning'));
+
+export const requireSupportedBrowser = (api, next, ...args) => (dispatch, getState) => {
+  const { blip: state } = getState();
+  const user = _.get(state.allUsersMap, state.loggedInUserId, {});
+
+  if (!_.isEmpty(user)) {
+    redirectIfUnsupported(user);
   } else {
-    !!next && dispatch(next(...args));
+    dispatch(actions.async.fetchUser(api, (_err, user) => redirectIfUnsupported(user)));
   }
-}
+
+  function redirectIfUnsupported(user) {
+    let isBrowserSufficient = false;
+    const isClinician = personUtils.isClinicianAccount(user) || false;
+
+    if (isClinician) {
+      isBrowserSufficient = utils.isSupportedBrowser() && !utils.isMobile();
+    } else {
+      isBrowserSufficient = utils.isSupportedBrowser();
+    }
+
+    if (!isBrowserSufficient) {
+      dispatch(push('/browser-warning'));
+    } else {
+      !!next && dispatch(next(...args));
+    }
+  }
+};
 
 /**
  * This function redirects any requests that land on pages that should only be
@@ -392,7 +413,7 @@ export const getRoutes = (appContext) => {
   const boundRequireAuth = requireAuth.bind(null, api);
   const boundRequireNotVerified = requireNotVerified.bind(null, api);
   const boundRequireAuthAndNoPatient = requireAuthAndNoPatient.bind(null, api);
-  const boundRequireSupportedBrowser = requireSupportedBrowser.bind(null, boundRequireAuth);
+  const boundRequireSupportedBrowser = requireSupportedBrowser.bind(null, api, boundRequireAuth);
   const boundEnsureNoAuth = ensureNoAuth.bind(null, api);
   const boundOnUploaderPasswordReset = onUploaderPasswordReset.bind(null, api);
   const authenticatedFallbackRoute = state.selectedClinicId ? '/workspaces' : '/patients';
