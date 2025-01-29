@@ -2,7 +2,7 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { Flex } from 'theme-ui';
 import logo from '../images/tidepool-t-icon.png';
-import Header from './Header';
+import Title from './Title';
 import Menu from './Menu';
 
 const LOGO_SIZE = '34px';
@@ -25,10 +25,7 @@ const MobileNavbar = ({ api, trackMetric, patient, clinicPatient, permsOfLoggedI
   return (
     <Container>
       <Logo src={logo} alt="Tidepool"></Logo>
-      <Header
-        patient={patient}
-        clinicPatient={clinicPatient}
-      />
+      <Title patient={patient} clinicPatient={clinicPatient} />
       <Menu
         api={api}
         trackMetric={trackMetric}

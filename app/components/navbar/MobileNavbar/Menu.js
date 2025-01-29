@@ -18,6 +18,7 @@ import ExitToAppRoundedIcon from '@material-ui/icons/ExitToAppRounded';
 import MenuRoundedIcon from '@material-ui/icons/MenuRounded';
 import viewIcon from '../../../core/icons/viewIcon.svg';
 import shareIcon from '../../../core/icons/shareIcon.svg';
+import devicesIcon from '../../../core/icons/devicesIcon.svg';
 
 const StyledMenuDropdownButton = styled(Button)`
   background: none;
@@ -43,6 +44,10 @@ const MenuOption = styled.div`
 
   :first-child {
     border-top: none;
+  }
+
+  .icon-custom-svg {
+    filter: brightness(0) saturate(100%) invert(13%) sepia(47%) saturate(861%) hue-rotate(216deg) brightness(93%) contrast(101%);
   }
 `;
 
@@ -100,7 +105,7 @@ const Menu = ({ api, trackMetric, patient, clinicPatient, permsOfLoggedInUser })
     {
       id: 'mobileNavbar_settingsChartButton',
       onClick: handleViewSettingsChart,
-      iconSrc: viewIcon,
+      iconSrc: devicesIcon,
       label: t('Devices'),
     },
     (canShare && {
