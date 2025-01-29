@@ -156,13 +156,7 @@ export const ChartDateRangeModal = (props) => {
       <DialogTitle divider={false} onClose={handleClose}>
         <MediumTitle>{title}</MediumTitle>
       </DialogTitle>
-      <DialogContent
-        p={0}
-        sx={{
-          minWidth: '400px',
-          [MOBILE_BREAKPOINT_QUERY]: { minWidth: '100vw' },
-        }}
-      >
+      <DialogContent divider sx={{ minWidth: '400px' }} p={0}>
         <Box px={3}>
           <Box mb={5}>
             <Body1 mb={2}>{t('Number of days (most recent)')}</Body1>
