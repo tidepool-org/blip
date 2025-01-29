@@ -77,6 +77,11 @@ describe('PatientData', function () {
 
   before(() => {
     PD.__Rewire__('launchCustomProtocol', _.noop);
+    PD.__Rewire__('NavbarChartTypeSetter', createReactClass({
+      render: function() {
+        return (<div className='fake-navbar-chart-type-setter'></div>);
+      },
+    }));
     PD.__Rewire__('Basics', createReactClass({
       render: function() {
         return (<div className='fake-basics-view'></div>);
@@ -110,6 +115,7 @@ describe('PatientData', function () {
 
   after(() => {
     PD.__ResetDependency__('launchCustomProtocol');
+    PD.__ResetDependency__('NavbarChartTypeSetter');
     PD.__ResetDependency__('Basics');
     PD.__ResetDependency__('Trends');
     PD.__ResetDependency__('BgLog');
