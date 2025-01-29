@@ -18,24 +18,7 @@ import DesktopNavbar from './DesktopNavbar';
 import MobileNavbar from './MobileNavbar';
 import personUtils from '../../core/personutils';
 
-import styled from '@emotion/styled';
-import { breakpoints } from '../../themes/baseTheme';
-
-const MOBILE_BREAKPOINT = breakpoints[1];
-
-const DesktopOnly = styled.div`
-  display: block;
-  @media screen and (max-width: ${MOBILE_BREAKPOINT}) {
-    display: none;
-  }
-`;
-
-const MobileOnly = styled.div`
-  display: none;
-  @media screen and (max-width: ${MOBILE_BREAKPOINT}) {
-    display: block;
-  }
-`;
+import { DesktopOnly, MobileOnly } from '../mediaqueries';
 
 const Navbar = (props) => {
   // Temporary; Clinician users do not have a completed mobile navbar yet in this iteration.

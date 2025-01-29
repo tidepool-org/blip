@@ -43,6 +43,7 @@ import { bgLog as BgLog } from '../../components/chart';
 import { settings as Settings } from '../../components/chart';
 import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
 import baseTheme, { breakpoints, radii } from '../../themes/baseTheme';
+import { DesktopOnly, MobileOnly } from '../../components/mediaqueries';
 
 import Messages from '../../components/messages';
 import ChartDateRangeModal from '../../components/ChartDateRangeModal';
@@ -52,12 +53,13 @@ import Button from '../../components/elements/Button';
 
 import ToastContext from '../../providers/ToastProvider';
 
-import { Box, Flex, Link } from 'theme-ui';
+import { Box, Flex, Grid, Link } from 'theme-ui';
 import Checkbox from '../../components/elements/Checkbox';
 import PopoverLabel from '../../components/elements/PopoverLabel';
 import { Body2, Paragraph1, Paragraph2 } from '../../components/elements/FontStyles';
 import Card from '../../components/elements/Card';
 import UploaderBanner from '../../components/elements/Card/Banners/Uploader.png';
+import ShareBanner from '../../components/elements/Card/Banners/Share.png';
 import DataConnectionsBanner from '../../components/elements/Card/Banners/DataConnections.png';
 import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
 import NavbarChartTypeSetter from './navbarcharttypesetter';
@@ -284,27 +286,9 @@ export const PatientDataClass = createReactClass({
       self.setState({showDataConnectionsModal: true});
     };
 
-
-    const cards = [
-      {
-        id: 'data-connections-card',
-        title: isUserPatient
-          ? t('Connect an Account')
-          : t('Connect a Device Account'),
-        subtitle: isUserPatient
-          ? t('Do you have a Dexcom, LibreView or twiist account? When you connect an account, data can flow into Tidepool without any extra effort.')
-          : t('Does your patient have a Dexcom, LibreView, or twiist account? Automatically sync data from these accounts with the patient\'s permission.'),
-        bannerImage: DataConnectionsBanner,
-        onClick: handleClickDataConnections,
-      },
-      {
-        id: 'uploader-card',
-        title: t('Upload Data Directly with Tidepool Uploader'),
-        subtitle: t('Tidepool Uploader supports over 85 devices. Download Tidepool Uploader to get started.'),
-        bannerImage: UploaderBanner,
-        onClick: handleClickUpload,
-      },
-    ];
+    const handleShare = function() {
+      self.props.history.push(`/patients/${self.props.currentPatientInViewId}/share`);
+    };
 
     return (
       <Box variant="containers.patientData" className='no-data'>
@@ -316,9 +300,42 @@ export const PatientDataClass = createReactClass({
             variant="containers.patientDataContent"
             sx={{ flexDirection: 'column' }}
           >
-            <Flex mb={4} sx={{ gap: 3, flexWrap: ['wrap', null, 'nowrap'] }}>
-              {_.map(cards, card => <Card {...card} />)}
-            </Flex>
+            <Grid
+              mb={4}
+              columns={['1fr', '1fr', '1fr 1fr']}
+              sx={{ gap: 3 }}
+            >
+              <Box>
+                <Card
+                  id='data-connections-card'
+                  title={isUserPatient ? t('Connect an Account') : t('Connect a Device Account')}
+                  subtitle={isUserPatient
+                    ? t('Do you have a Dexcom, LibreView or twiist account? When you connect an account, data can flow into Tidepool without any extra effort.')
+                    : t('Does your patient have a Dexcom, LibreView, or twiist account? Automatically sync data from these accounts with the patient\'s permission.')
+                  }
+                  bannerImage={DataConnectionsBanner}
+                  onClick={handleClickDataConnections}
+                />
+              </Box>
+              <DesktopOnly>
+                <Card
+                  id='uploader-card'
+                  title={t('Upload Data Directly with Tidepool Uploader')}
+                  subtitle={t('Tidepool Uploader supports over 85 devices. Download Tidepool Uploader to get started.')}
+                  bannerImage={UploaderBanner}
+                  onClick={handleClickUpload}
+                />
+              </DesktopOnly>
+              <MobileOnly>
+                <Card
+                  id='share-card'
+                  title={t('Share Your Data')}
+                  subtitle={t('Share your data with another person (Email) or your Clinician (Share Code). You can remove their access at any time.')}
+                  bannerImage={ShareBanner}
+                  onClick={handleShare}
+                />
+              </MobileOnly>
+            </Grid>
 
             <Flex
               sx={{
