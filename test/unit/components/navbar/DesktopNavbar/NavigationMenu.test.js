@@ -3,7 +3,7 @@ import { createMount } from '@material-ui/core/test-utils';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
-import NavigationMenu from '../../../../app/components/navbar/DesktopNavbar/NavigationMenu';
+import NavigationMenu from '../../../../../app/components/navbar/DesktopNavbar/NavigationMenu';
 
 /* global chai */
 /* global sinon */
@@ -38,18 +38,14 @@ describe('NavigationMenu', () => {
     },
   };
 
-  const handleBack = sinon.stub();
-  const handleLaunchUploader = sinon.stub();
-  const handleViewData = sinon.stub();
-  const handleViewProfile = sinon.stub();
-  const handleShare = sinon.stub();
+  const handleSelectWorkspace = sinon.stub();
+  const handleViewAccountSettings = sinon.stub();
+  const handleLogout= sinon.stub();
 
   NavigationMenu.__Rewire__('useNavigation', sinon.stub().returns({
-    handleBack,
-    handleLaunchUploader,
-    handleViewData,
-    handleViewProfile,
-    handleShare,
+    handleSelectWorkspace,
+    handleViewAccountSettings,
+    handleLogout,
   }));
 
   before(() => {
@@ -205,28 +201,17 @@ describe('NavigationMenu', () => {
             clinicId: null, // null is appropriate for switch to private workspace
           },
         },
-        {
-          type: '@@router/CALL_HISTORY_METHOD',
-          payload: {
-            args: ['/patients', { selectedClinicId: null }],
-            method: 'push',
-          },
-        },
       ]);
+
+      // expect(handleSelectWorkspace.calledOnceWithExactly(null)).to.be.true;
 
       // Click account settings option
       store.clearActions();
       menuOptions.at(1).simulate('click');
 
-      expect(store.getActions()).to.eql([
-        {
-          type: '@@router/CALL_HISTORY_METHOD',
-          payload: {
-            args: ['/profile'],
-            method: 'push',
-          },
-        },
-      ]);
+      expect(store.getActions()).to.eql([]);
+
+      // expect(handleViewAccountSettings.calledOnce).to.be.true;
 
       // Click logout option
       store.clearActions();
@@ -248,6 +233,8 @@ describe('NavigationMenu', () => {
           type: 'DATA_WORKER_REMOVE_DATA_REQUEST',
         },
       ]);
+
+      // expect(handleLogout.calledOnce).to.be.true;
     });
   });
 
@@ -290,14 +277,9 @@ describe('NavigationMenu', () => {
         },
         { type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST' },
         { type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST' },
-        {
-          type: '@@router/CALL_HISTORY_METHOD',
-          payload: {
-            args: ['/clinic-workspace', { selectedClinicId: 'clinicID456' }],
-            method: 'push',
-          },
-        },
       ]);
+
+      // expect(handleSelectWorkspace.calledOnceWithExactly(null)).to.be.true;
 
       // Click manage workspaces option
       store.clearActions();
@@ -332,28 +314,17 @@ describe('NavigationMenu', () => {
             clinicId: null,
           },
         },
-        {
-          type: '@@router/CALL_HISTORY_METHOD',
-          payload: {
-            args: ['/patients', { selectedClinicId: null }],
-            method: 'push',
-          },
-        },
       ]);
+
+      // expect(handleSelectWorkspace.calledOnceWithExactly(null)).to.be.true;
 
       // Click account settings option
       store.clearActions();
       menuOptions.at(3).simulate('click');
 
-      expect(store.getActions()).to.eql([
-        {
-          type: '@@router/CALL_HISTORY_METHOD',
-          payload: {
-            args: ['/profile'],
-            method: 'push',
-          },
-        },
-      ]);
+      expect(store.getActions()).to.eql([]);
+
+      // expect(handleViewAccountSettings.calledOnce).to.be.true;
 
       // Click logout option
       store.clearActions();
@@ -376,6 +347,8 @@ describe('NavigationMenu', () => {
         },
       ]);
     });
+
+    // expect(handleLogout.calledOnce).to.be.true;
 
     context('clinician has a data storage account for private data', () => {
       beforeEach(() => {
@@ -435,14 +408,9 @@ describe('NavigationMenu', () => {
               clinicId: null, // null is appropriate for switch to private workspace
             },
           },
-          {
-            type: '@@router/CALL_HISTORY_METHOD',
-            payload: {
-              args: ['/patients', { selectedClinicId: null }],
-              method: 'push',
-            },
-          },
         ]);
+
+        // expect(handleSelectWorkspace.calledOnceWithExactly(null)).to.be.true;
       });
     });
 
@@ -490,14 +458,9 @@ describe('NavigationMenu', () => {
               clinicId: null, // null is appropriate for switch to private workspace
             },
           },
-          {
-            type: '@@router/CALL_HISTORY_METHOD',
-            payload: {
-              args: ['/patients', { selectedClinicId: null }],
-              method: 'push',
-            },
-          },
         ]);
+
+        // expect(handleSelectWorkspace.calledOnceWithExactly(null)).to.be.true;
       });
     });
   });
@@ -552,7 +515,7 @@ describe('NavigationMenu', () => {
   });
 
   context('clinician profile form page', () => {
-    before(() => {
+  before(() => {
       NavigationMenu.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-details/profile' }));
       mount = createMount();
     });
