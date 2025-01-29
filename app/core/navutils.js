@@ -69,6 +69,9 @@ export const getDemographicInfo = (patient, clinicPatient) => {
   return { name, birthday, mrn };
 };
 
+// For ease of testing
+export const uploadUtils = { launchCustomProtocol };
+
 /**
  * Returns event handlers for use in any navbar
  *
@@ -92,7 +95,7 @@ export const useNavigation = (api, trackMetric) => {
 
   const handleLaunchUploader = () => {
     trackMetric('Clicked Navbar Upload Data');
-    launchCustomProtocol('tidepoolupload://open');
+    uploadUtils.launchCustomProtocol('tidepoolupload://open');
   };
 
   const handleViewData = () => {
@@ -125,9 +128,13 @@ export const useNavigation = (api, trackMetric) => {
     dispatch(push('/workspaces'));
   };
 
-  const handleViewAccountSettings = () => dispatch(push('/profile'));
+  const handleViewAccountSettings = () => {
+    dispatch(push('/profile'));
+  };
 
-  const handleLogout = () => dispatch(actions.async.logout(api));
+  const handleLogout = () => {
+    dispatch(actions.async.logout(api));
+  };
 
   return {
     handleBack,

@@ -19,7 +19,7 @@ import _ from 'lodash';
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
-describe.only('MobileNavbar/Menu', () => {
+describe('MobileNavbar/Menu', () => {
   let mount;
 
   const patientProps = {
