@@ -4,7 +4,9 @@
 /* global afterEach */
 /* global context */
 /* global it */
+/* global before */
 /* global beforeEach */
+/* global after */
 
 import React from 'react';
 import { mount } from 'enzyme';
@@ -50,6 +52,10 @@ describe('NavPatientHeader', () => {
     handleViewProfile,
     handleShare,
   }));
+
+  after(() => {
+    NavPatientHeader.__ResetDependency__('useNavigation');
+  });
 
   afterEach(() => {
     handleBack.reset();

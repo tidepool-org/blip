@@ -38,13 +38,26 @@ describe('NavigationMenu', () => {
     },
   };
 
+  const handleBack = sinon.stub();
+  const handleLaunchUploader = sinon.stub();
+  const handleViewData = sinon.stub();
+  const handleViewProfile = sinon.stub();
+  const handleShare = sinon.stub();
+
+  NavigationMenu.__Rewire__('useNavigation', sinon.stub().returns({
+    handleBack,
+    handleLaunchUploader,
+    handleViewData,
+    handleViewProfile,
+    handleShare,
+  }));
+
   before(() => {
-    NavigationMenu.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-workspace' }));
     mount = createMount();
   });
 
   after(() => {
-    NavigationMenu.__ResetDependency__('useLocation');
+    NavigationMenu.__ResetDependency__('useNavigation');
     mount.cleanUp();
   });
 
