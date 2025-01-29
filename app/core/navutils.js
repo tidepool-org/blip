@@ -90,6 +90,10 @@ export const useNavigation = (api, trackMetric) => {
     dispatch(push(clinicId ? '/clinic-workspace' : '/patients', { selectedClinicId: clinicId }));
   };
 
+  const handleViewManageWorkspaces = () => {
+    dispatch(push('/workspaces'));
+  };
+
   const handleViewAccountSettings = () => dispatch(push('/profile'));
 
   const handleLogout = () => dispatch(actions.async.logout(api));
@@ -98,6 +102,7 @@ export const useNavigation = (api, trackMetric) => {
     handleBack,
     handleLaunchUploader,
     handleSelectWorkspace,
+    handleViewManageWorkspaces,
     handleViewAccountSettings,
     handleLogout,
 

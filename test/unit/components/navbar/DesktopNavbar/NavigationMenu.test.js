@@ -39,6 +39,7 @@ describe('NavigationMenu', () => {
   };
 
   const handleSelectWorkspace = sinon.stub();
+  const handleViewManageWorkspaces = sinon.stub();
   const handleViewAccountSettings = sinon.stub();
   const handleLogout= sinon.stub();
 
@@ -47,6 +48,7 @@ describe('NavigationMenu', () => {
     NavigationMenu.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-workspace' }));
     NavigationMenu.__Rewire__('useNavigation', sinon.stub().returns({
       handleSelectWorkspace,
+      handleViewManageWorkspaces,
       handleViewAccountSettings,
       handleLogout,
     }));
@@ -54,9 +56,10 @@ describe('NavigationMenu', () => {
 
   beforeEach(() => {
     handleSelectWorkspace.resetHistory();
+    handleViewManageWorkspaces.resetHistory();
     handleViewAccountSettings.resetHistory();
     handleLogout.resetHistory();
-  })
+  });
 
   after(() => {
     NavigationMenu.__ResetDependency__('useNavigation');
@@ -190,22 +193,16 @@ describe('NavigationMenu', () => {
       expect(menuOptions.at(2).text()).to.equal('Logout');
 
       // Click private workspace option
-      store.clearActions();
       menuOptions.at(0).simulate('click');
-
       expect(handleSelectWorkspace.calledOnce).to.be.true;
 
       // Click account settings option
-      store.clearActions();
       menuOptions.at(1).simulate('click');
-
-      // expect(handleViewAccountSettings.calledOnce).to.be.true;
+      expect(handleViewAccountSettings.calledOnce).to.be.true;
 
       // Click logout option
-      store.clearActions();
       menuOptions.at(2).simulate('click');
-
-      // expect(handleLogout.calledOnce).to.be.true;
+      expect(handleLogout.calledOnce).to.be.true;
     });
   });
 
@@ -228,43 +225,23 @@ describe('NavigationMenu', () => {
       expect(menuOptions.at(4).text()).to.equal('Logout');
 
       // Click clinic workspace option
-      store.clearActions();
       menuOptions.at(0).simulate('click');
-
       expect(handleSelectWorkspace.getCall(0).args).to.eql(['clinicID456']);
 
       // Click manage workspaces option
-      store.clearActions();
       menuOptions.at(1).simulate('click');
-
-      expect(store.getActions()).to.eql([
-        {
-          type: '@@router/CALL_HISTORY_METHOD',
-          payload: {
-            args: ['/workspaces'],
-            method: 'push',
-          },
-        },
-      ]);
+      expect(handleViewManageWorkspaces.calledOnce).to.be.true;
 
       // Click private workspace option
-      store.clearActions();
       menuOptions.at(2).simulate('click');
-
       expect(handleSelectWorkspace.getCall(1).args).to.eql([null]);
 
       // Click account settings option
-      store.clearActions();
       menuOptions.at(3).simulate('click');
-
-      expect(store.getActions()).to.eql([]);
-
       expect(handleViewAccountSettings.calledOnce).to.be.true;
 
       // Click logout option
-      store.clearActions();
       menuOptions.at(4).simulate('click');
-
       expect(handleLogout.calledOnce).to.be.true;
     });
 
@@ -309,10 +286,8 @@ describe('NavigationMenu', () => {
         expect(menuOptions.at(4).text()).to.equal('Logout');
 
         // Click private workspace option
-        store.clearActions();
         menuOptions.at(2).simulate('click');
 
-        expect(store.getActions()).to.eql([]);
 
         expect(handleSelectWorkspace.calledOnceWithExactly(null)).to.be.true;
       });
@@ -344,10 +319,8 @@ describe('NavigationMenu', () => {
         expect(menuOptions.at(4).text()).to.equal('Logout');
 
         // Click private workspace option
-        store.clearActions();
         menuOptions.at(2).simulate('click');
 
-        expect(store.getActions()).to.eql([]);
 
         expect(handleSelectWorkspace.calledOnceWithExactly(null)).to.be.true;
       });

@@ -43,7 +43,12 @@ export const NavigationMenu = props => {
   const clinicFlowActive = useSelector((state) => state.blip.clinicFlowActive);
   const pendingReceivedClinicianInvites = useSelector((state) => state.blip.pendingReceivedClinicianInvites);
 
-  const { handleSelectWorkspace, handleViewAccountSettings, handleLogout } = useNavigation(api, trackMetric);
+  const {
+    handleSelectWorkspace,
+    handleViewManageWorkspaces,
+    handleViewAccountSettings,
+    handleLogout,
+  } = useNavigation(api, trackMetric);
 
   const popupState = usePopupState({
     variant: 'popover',
@@ -64,7 +69,7 @@ export const NavigationMenu = props => {
   };
 
   const manageWorkspacesOption = () => ({
-    action: () => dispatch(push('/workspaces')),
+    action: handleViewManageWorkspaces,
     icon: ViewListRoundedIcon,
     label: t('Manage Workspaces'),
     metric: ['Clinic - Menu - Manage workspaces'],
