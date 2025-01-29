@@ -48,8 +48,9 @@
 
   // Mobile
   @media screen and (max-width: @mobile-breakpoint) {
-    // Hide the entire bar if viewing settings chart
-    &[data-chart-type="settings"] {
+    // Hide the entire bar if viewing settings chart or if no data
+    &[data-chart-type="settings"],
+    &[data-chart-type="no-data"] {
       display: none;
     }
 
