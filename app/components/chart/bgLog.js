@@ -82,6 +82,11 @@ class BgLogChart extends Component {
 
   mountChart = (node, props = {}) => {
     this.log('Mounting...');
+
+    // When on mobile, the chart will be hidden and therefore have zero width and height.
+    // This prevents an error from occurring in tideline due to the zeroes.
+    if (!node?.offsetHeight || !node?.offsetWidth) return;
+
     this.chart = chartBgLogFactory(node, props);
     this.chart.node = node;
     this.bindEvents();
