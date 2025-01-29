@@ -184,7 +184,7 @@ const initialState = {
     account: {},
     visitor: {},
   },
-  navbarChartTypeForTitle: null,
+  navbarChartType: null,
 };
 
 export default initialState;

@@ -2478,9 +2478,9 @@ export function setPatientListSearchTextInput(textInput) {
   };
 }
 
-export function setNavbarChartTypeForTitle(chartType) {
+export function setNavbarChartType(chartType) {
   return {
-    type: ActionTypes.SET_NAVBAR_CHART_TYPE_FOR_TITLE,
+    type: ActionTypes.SET_NAVBAR_CHART_TYPE,
     payload: { chartType },
   };
 }

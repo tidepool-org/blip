@@ -1220,10 +1220,11 @@ export const pendoData = (state = initialState.pendoData, action) => {
   }
 };
 
-export const navbarChartTypeForTitle = (state = initialState.navbarChartTypeForTitle, action) => {
+export const navbarChartType = (state = initialState.navbarChartType, action) => {
   switch(action.type) {
-    case types.SET_NAVBAR_CHART_TYPE_FOR_TITLE:
+    case types.SET_NAVBAR_CHART_TYPE:
       return action.payload.chartType;
-    default: return state;
+    default:
+      return state;
   }
 };

@@ -64,7 +64,7 @@ const LightTitle = ({ label, icon = null, iconSrc = null }) => {
 const Header = ({ patient, clinicPatient }) => {
   const { t } = useTranslation();
   const { pathname } = useLocation();
-  const chartType = useSelector(state => state.blip.navbarChartTypeForTitle);
+  const chartType = useSelector(state => state.blip.navbarChartType);
 
   const titleState = getTitleState(pathname, chartType, patient, clinicPatient);
 
