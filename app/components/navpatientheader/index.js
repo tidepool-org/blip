@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import styled from '@emotion/styled';
 import { useNavigation, getPermissions, getDemographicInfo } from '../../core/navutils';
 import { Box, Flex } from 'theme-ui';
 import _ from 'lodash';

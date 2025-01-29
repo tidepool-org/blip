@@ -38,7 +38,9 @@ const MobileOnly = styled.div`
 `;
 
 const Navbar = (props) => {
-  // Temporary; clinician users do not have a completed mobile navbar yet.
+  // Temporary; Clinician users do not have a completed mobile navbar yet in this iteration.
+  // For now, we will continue to show <DesktopNavbar /> for clinicians viewing on mobile.
+  // Once a mobile navbar for clinicians is done, this early return statement should be removed.
   if (personUtils.isClinicianAccount(props.user)) {
     return <DesktopNavbar {...props} />;
   }

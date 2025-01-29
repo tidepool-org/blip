@@ -18,15 +18,15 @@ const expect = chai.expect;
 // Demographic info stored in 'patient' and 'clinicPatient' props can be different.
 // Patient-inputted name and birthdate are saved in 'patient' and clinician-entered
 // name, birthdate, and mrn are saved in 'clinicPatient'.
-const patientProps = { 
+const patientProps = {
   userid: '1234',
-  profile: { 
+  profile: {
     fullName: 'Vasyl Lomachenko',
     patient: { birthday: '2010-10-20', mrn: '567890' },
-  }
+  },
 };
 
-const clinicPatientProps = { 
+const clinicPatientProps = {
   id: '1234',
   birthDate: '1965-01-01',
   fullName: 'Naoya Inoue',
@@ -34,24 +34,37 @@ const clinicPatientProps = {
 };
 
 describe('NavPatientHeader', () => {
-  const mockHistory = { push: sinon.stub() }
-  const mockTrackMetric = sinon.stub();
-  const mockLaunchCustomProtocol = sinon.stub();
+  const api = sinon.stub();
+  const trackMetric = sinon.stub();
 
-  NavPatientHeader.__Rewire__('useHistory', sinon.stub().returns(mockHistory));
-  NavPatientHeader.__Rewire__('launchCustomProtocol', mockLaunchCustomProtocol);
+  const handleBack = sinon.stub();
+  const handleLaunchUploader = sinon.stub();
+  const handleViewData = sinon.stub();
+  const handleViewProfile = sinon.stub();
+  const handleShare = sinon.stub();
+
+  NavPatientHeader.__Rewire__('useNavigation', sinon.stub().returns({
+    handleBack,
+    handleLaunchUploader,
+    handleViewData,
+    handleViewProfile,
+    handleShare,
+  }));
 
   afterEach(() => {
-    mockTrackMetric.reset();
-    mockHistory.push.reset();
-    mockLaunchCustomProtocol.reset();
+    handleBack.reset();
+    handleLaunchUploader.reset();
+    handleViewData.reset();
+    handleViewProfile.reset();
+    handleShare.reset();
   });
 
   describe('visibility of patient info and actions', () => {
     context('personal user with non-root permissions', () => {
       const props = {
         user: { roles: [] },
-        trackMetric: mockTrackMetric,
+        trackMetric,
+        api,
         patient: { ...patientProps, permissions: { } },
         clinicPatient: undefined,
       };
@@ -68,7 +81,7 @@ describe('NavPatientHeader', () => {
         expect(wrapper.text()).not.to.include('567890');
         expect(wrapper.text()).not.to.include('2010-10-20');
 
-        // should NOT show demographic info from the 'clinicPatient' object        
+        // should NOT show demographic info from the 'clinicPatient' object
         expect(wrapper.text()).not.to.include('Naoya Inoue');
         expect(wrapper.text()).not.to.include('999999');
         expect(wrapper.text()).not.to.include('1965-01-01');
@@ -85,7 +98,8 @@ describe('NavPatientHeader', () => {
     context('personal user with root permissions', () => {
       const props = {
         user: { roles: [] },
-        trackMetric: mockTrackMetric,
+        trackMetric,
+        api,
         patient: { ...patientProps, permissions: { root: {} } },
         clinicPatient: undefined,
       };
@@ -118,10 +132,11 @@ describe('NavPatientHeader', () => {
     context('clinician user without upload permissions', () => {
       const props = {
         user: { roles: ['clinician'] },
-        trackMetric: mockTrackMetric,
+        trackMetric,
+        api,
         patient: { ...patientProps, permissions: { } },
         clinicPatient: { ...clinicPatientProps },
-        permsOfLoggedInUser: {}
+        permsOfLoggedInUser: {},
       };
 
       const wrapper = mount(
@@ -152,10 +167,11 @@ describe('NavPatientHeader', () => {
     context('clinician user with upload permissions', () => {
       const props = {
         user: { roles: ['clinician'] },
-        trackMetric: mockTrackMetric,
+        trackMetric,
+        api,
         patient: { ...patientProps, permissions: { root: {} } },
         clinicPatient: { ...clinicPatientProps },
-        permsOfLoggedInUser: { upload: {} }
+        permsOfLoggedInUser: { upload: {} },
       };
 
       const wrapper = mount(
@@ -188,9 +204,10 @@ describe('NavPatientHeader', () => {
     let wrapper;
 
     beforeEach(() => {
-      const props = { 
+      const props = {
         user: { roles: [] },
-        trackMetric: mockTrackMetric,
+        trackMetric,
+        api,
         patient: { ...patientProps, permissions: { root: {} } },
         clinicPatient: { ...clinicPatientProps },
       };
@@ -200,36 +217,30 @@ describe('NavPatientHeader', () => {
           <NavPatientHeader {...props} />
         </BrowserRouter>
       );
-    })
+    });
 
     it('View button links to correct page', () => {
       wrapper.find('button#navPatientHeader_viewDataButton').simulate('click');
+      expect(handleViewData.calledOnce).to.be.true;
+    });
 
-      expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar View Data')).to.be.true;
-      expect(mockHistory.push.calledOnceWithExactly('/patients/1234/data')).to.be.true;
-    })
-  
     it('Profile button links to correct page', () => {
       wrapper.find('button#navPatientHeader_profileButton').simulate('click');
 
-      expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar Name')).to.be.true;
-      expect(mockHistory.push.calledOnceWithExactly('/patients/1234/profile')).to.be.true;
-    })
-  
+      expect(handleViewProfile.calledOnce).to.be.true;
+    });
+
     it('Share button links to correct page', () => {
       wrapper.find('button#navPatientHeader_shareButton').simulate('click');
 
-      expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar Share Data')).to.be.true;
-      expect(mockHistory.push.calledOnceWithExactly('/patients/1234/share')).to.be.true;
-    })
-  
+      expect(handleShare.calledOnce).to.be.true;
+    });
+
     it('Upload Button opens the upload dialog', () => {
       expect(wrapper.find('.UploadLaunchOverlay').exists()).to.be.false;
-      wrapper.find('button#navPatientHeader_uploadButton').simulate('click');  
+      wrapper.find('button#navPatientHeader_uploadButton').simulate('click');
 
-      expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar Upload Data')).to.be.true;
-      expect(wrapper.find('.UploadLaunchOverlay').exists()).to.be.true;
-      expect(mockLaunchCustomProtocol.calledOnce).to.be.true
+      expect(handleLaunchUploader.calledOnce).to.be.true;
     });
   });
 
@@ -237,9 +248,10 @@ describe('NavPatientHeader', () => {
     let wrapper;
 
     beforeEach(() => {
-      const props = { 
+      const props = {
         user: { roles: ['clinician'] },
-        trackMetric: mockTrackMetric,
+        trackMetric,
+        api,
         patient: { ...patientProps, permissions: { } },
         clinicPatient: { ...clinicPatientProps },
         permsOfLoggedInUser: { upload: {} }
@@ -250,26 +262,24 @@ describe('NavPatientHeader', () => {
           <NavPatientHeader {...props} />
         </BrowserRouter>
       );
-    })
+    });
 
     it('View button links to correct page', () => {
       wrapper.find('button#navPatientHeader_viewDataButton').simulate('click');
-  
-      expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar View Data')).to.be.true;
-      expect(mockHistory.push.calledOnceWithExactly('/patients/1234/data')).to.be.true;
-    })
-  
+
+      expect(handleViewData.calledOnce).to.be.true;
+    });
+
     it('Profile button links to correct page', () => {
       wrapper.find('button#navPatientHeader_profileButton').simulate('click');
-      expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar Name')).to.be.true;
-      expect(mockHistory.push.calledOnceWithExactly('/patients/1234/profile')).to.be.true;
-    })
-  
+      expect(handleViewProfile.calledOnce).to.be.true;
+    });
+
     it('Upload Button opens the upload dialog', () => {
       expect(wrapper.find('.UploadLaunchOverlay').exists()).to.be.false;
       wrapper.find('button#navPatientHeader_uploadButton').simulate('click');
-  
-      expect(mockTrackMetric.calledOnceWithExactly('Clicked Navbar Upload Data')).to.be.true;
+
+      expect(handleLaunchUploader.calledOnce).to.be.true;
       expect(wrapper.find('.UploadLaunchOverlay').exists()).to.be.true;
     });
   });
@@ -279,7 +289,8 @@ describe('NavPatientHeader', () => {
 
     describe('viewing patient data or profile views as a clinician user', () => {
       const clinicianUserProps = {
-        trackMetric: mockTrackMetric,
+        trackMetric,
+        api,
         patient: { ...patientProps, permissions: { } },
         clinicPatient: { ...clinicPatientProps },
         user: { roles: ['clinic'] },
@@ -288,19 +299,20 @@ describe('NavPatientHeader', () => {
       it('should render on data page', () => {
         wrapper = mount(<BrowserRouter><NavPatientHeader {...clinicianUserProps} currentPage="/patients/abc123/data" /></BrowserRouter>);
         wrapper.find('button#navPatientHeader_backButton').simulate('click');
-        expect(mockHistory.push.calledOnceWithExactly('/patients')).to.be.true;
-      })
+        expect(handleBack.calledOnce).to.be.true;
+      });
 
       it('should render on profile page', () => {
         wrapper = mount(<BrowserRouter><NavPatientHeader {...clinicianUserProps} currentPage="/patients/abc123/profile" /></BrowserRouter>);
         wrapper.find('button#navPatientHeader_backButton').simulate('click');
-        expect(mockHistory.push.calledOnceWithExactly('/patients')).to.be.true;
-      })
-    })
+        expect(handleBack.calledOnce).to.be.true;
+      });
+    });
 
     describe('viewing patient data or profile views as a clinic clinician', () => {
       const clinicClinicianProps = {
-        trackMetric: mockTrackMetric,
+        trackMetric,
+        api,
         patient: { ...patientProps, permissions: { } },
         clinicPatient: { ...clinicPatientProps },
         clinicFlowActive: true,
@@ -311,37 +323,31 @@ describe('NavPatientHeader', () => {
       it ('should render on view page', () => {
         wrapper = mount(<BrowserRouter><NavPatientHeader {...clinicClinicianProps} currentPage="/patients/abc123/data" /></BrowserRouter>);
         wrapper.find('button#navPatientHeader_backButton').simulate('click');
-        expect(mockHistory.push.calledOnceWithExactly('/clinic-workspace/patients')).to.be.true;
+        expect(handleBack.calledOnce).to.be.true;
       });
 
       it ('should render on profile page', () => {
         wrapper = mount(<BrowserRouter><NavPatientHeader {...clinicClinicianProps} currentPage="/patients/abc123/profile" /></BrowserRouter>);
         wrapper.find('button#navPatientHeader_backButton').simulate('click');
-        expect(mockHistory.push.calledOnceWithExactly('/clinic-workspace/patients')).to.be.true;
-      });
-
-      it ('should link to standard patients page when null selectedClinicId', () => {
-        wrapper = mount(<BrowserRouter><NavPatientHeader {...clinicClinicianProps} currentPage="/patients/abc123/profile" selectedClinicId={null} /></BrowserRouter>);
-        // If selectedClinicId is null, we redirect to the standard patient list URL
-        wrapper.find('button#navPatientHeader_backButton').simulate('click');
-        expect(mockHistory.push.calledOnceWithExactly('/patients')).to.be.true; 
+        expect(handleBack.calledOnce).to.be.true;
       });
     });
 
     describe('viewing the TIDE dashboard view as a clinic clinician', () => {
       it('should render a patient list link', () => {
         const clinicClinicianProps = {
-          trackMetric: mockTrackMetric,
+          trackMetric,
+          api,
           patient: { ...patientProps, permissions: { } },
           clinicPatient: { ...clinicPatientProps },
           clinicFlowActive: true,
           user: { isClinicMember: true },
           selectedClinicId: 'clinic123',
         };
-  
+
         wrapper = mount(<BrowserRouter><NavPatientHeader {...clinicClinicianProps} currentPage="/dashboard/tide" /></BrowserRouter>);
         wrapper.find('button#navPatientHeader_backButton').simulate('click');
-        expect(mockHistory.push.calledOnceWithExactly('/clinic-workspace/patients')).to.be.true; 
+        expect(handleBack.calledOnce).to.be.true;
       });
     })
   });
