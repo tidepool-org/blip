@@ -22,7 +22,6 @@ export default withTranslation()(class extends React.Component {
     fetchingUser: PropTypes.bool,
     patient: PropTypes.object,
     fetchingPatient: PropTypes.bool,
-    getUploadUrl: PropTypes.func,
     onLogout: PropTypes.func,
     trackMetric: PropTypes.func.isRequired,
     permsOfLoggedInUser: PropTypes.object,
@@ -126,14 +125,6 @@ export default withTranslation()(class extends React.Component {
     );
   };
 
-  getPatientLink = (patient) => {
-    if (!patient || !patient.userid) {
-      return '';
-    }
-
-    return '/patients/' + patient.userid + '/data';
-  };
-
   renderMiddleSection = () => {
     if (personUtils.isClinicianAccount(this.props.user)) {
       return (
@@ -187,10 +178,6 @@ export default withTranslation()(class extends React.Component {
 
   getUserDisplayName = () => {
     return personUtils.fullName(this.props.user);
-  };
-
-  isSamePersonUserAndPatient = () => {
-    return personUtils.isSame(this.props.user, this.props.patient);
   };
 
   handleLogout = (e) => {

@@ -63,6 +63,18 @@ export let Patients = withTranslation()(class extends React.Component {
     user: PropTypes.object,
   };
 
+  // Temporary: Only personal users may access the mobile views in this iteration.
+  // In the future, clinicians will also be able to access mobile views
+  isBrowserSufficient = () => {
+    const isClinician = personUtils.isClinicianAccount(this.props.user) || false;
+
+    if (isClinician) {
+      return utils.isSupportedBrowser() && !utils.isMobile();
+    }
+
+    return utils.isSupportedBrowser();
+  }
+
   render() {
     var welcomeTitle = this.renderWelcomeTitle();
     var welcomeSetup = this.renderWelcomeSetup();
@@ -175,23 +187,12 @@ export let Patients = withTranslation()(class extends React.Component {
   };
 
   renderPatients = () => {
-    const { t, user } = this.props;
+    const { t } = this.props;
     if (!this.hasPatients()) {
       return null;
     }
 
-    // Temporary: Only personal users may access the mobile views in this iteration.
-    // In the future, clinicians will also be able to access mobile views
-    let isBrowserSufficient = false;
-    const isClinician = personUtils.isClinicianAccount(user) || false;
-
-    if (isClinician) {
-      isBrowserSufficient = utils.isSupportedBrowser() && !utils.isMobile();
-    } else {
-      isBrowserSufficient = utils.isSupportedBrowser();
-    }
-
-    if (!isBrowserSufficient) {
+    if (!this.isBrowserSufficient()) {
       return <BrowserWarning
         trackMetric={this.props.trackMetric} />;
     }
@@ -320,7 +321,9 @@ export let Patients = withTranslation()(class extends React.Component {
   UNSAFE_componentWillMount() {
     this.props.dataWorkerRemoveDataRequest(null, this.props.currentPatientInViewId);
 
-    if (this.props.clearPatientInView) {
+    const isClinician = personUtils.isClinicianAccount(this.props.user);
+
+    if (isClinician && this.props.clearPatientInView) {
       this.props.clearPatientInView();
     }
 
