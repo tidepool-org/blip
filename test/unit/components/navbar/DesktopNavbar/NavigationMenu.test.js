@@ -41,7 +41,7 @@ describe('NavigationMenu', () => {
   const handleSelectWorkspace = sinon.stub();
   const handleViewManageWorkspaces = sinon.stub();
   const handleViewAccountSettings = sinon.stub();
-  const handleLogout= sinon.stub();
+  const handleLogout = sinon.stub();
 
   before(() => {
     mount = createMount();

@@ -140,6 +140,7 @@ const Menu = ({ api, trackMetric, patient, clinicPatient, permsOfLoggedInUser })
   return (
     <Box sx={{ gridColumn: '3/4' }}>
       <StyledMenuDropdownButton
+        id='mobile-navigation-menu-trigger'
         {...bindTrigger(popupState)}
         onClick={popupState.isOpen ? popupState.close : bindTrigger(popupState).onClick}
         data-is-open={popupState.isOpen}
