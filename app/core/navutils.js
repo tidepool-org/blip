@@ -7,10 +7,21 @@ import { useLocation } from 'react-router-dom';
 import launchCustomProtocol from 'custom-protocol-detection';
 import * as actions from '../redux/actions';
 
+/**
+ * Returns the final slug of the specified url path
+ *
+ * @param {String} pathname the current url path from the window.location object
+ */
 export const getFinalSlug = (pathname) => {
   return pathname.slice(pathname.lastIndexOf('/'), pathname.length);
 };
 
+/**
+ * Get permissions for uploading and sharing as booleans based on permsOfLoggedInUser
+ *
+ * @param {Object} patient
+ * @param {Object} permsOfLoggedInUser
+ */
 export const getPermissions = (patient, permsOfLoggedInUser) => {
   const permissions = patient?.permissions || {};
 
@@ -20,6 +31,14 @@ export const getPermissions = (patient, permsOfLoggedInUser) => {
   return { canUpload, canShare };
 };
 
+/**
+ * Returns the link path back to get back to the patient list based on the user's current workflow
+ *
+ * @param {boolean} clinicFlowActive
+ * @param {String} selectedClinicId
+ * @param {Object} query query from the window location object
+ * @param {String} patientId
+ */
 export const getPatientListLink = (clinicFlowActive, selectedClinicId, query, patientId) => {
   let patientListLink = clinicFlowActive && selectedClinicId ? '/clinic-workspace/patients' : '/patients';
 
@@ -34,6 +53,12 @@ export const getPatientListLink = (clinicFlowActive, selectedClinicId, query, pa
   return { patientListLink };
 };
 
+/**
+ * Returns the name, birthday, and mrn based on combining the relevant data from patient and clinicPatient
+ *
+ * @param {Object} patient
+ * @param {Object} clinicPatient
+ */
 export const getDemographicInfo = (patient, clinicPatient) => {
   const combinedPatient = personUtils.combinedAccountAndClinicPatient(patient, clinicPatient);
 
@@ -44,6 +69,12 @@ export const getDemographicInfo = (patient, clinicPatient) => {
   return { name, birthday, mrn };
 };
 
+/**
+ * Returns event handlers for use in any navbar
+ *
+ * @param {Object} api
+ * @param {Object} trackMetric
+ */
 export const useNavigation = (api, trackMetric) => {
   const { query } = useLocation();
   const dispatch = useDispatch();
