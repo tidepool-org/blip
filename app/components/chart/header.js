@@ -7,6 +7,7 @@ import DateRangeRoundedIcon from '@material-ui/icons/DateRangeRounded';
 import PrintRoundedIcon from '@material-ui/icons/PrintRounded';
 import colorPalette from '../../themes/colorPalette';
 import Button from '../elements/Button';
+import { DesktopOnly, MobileOnly } from '../mediaqueries';
 
 import Icon from '../elements/Icon';
 import { Box } from 'theme-ui';
@@ -69,9 +70,8 @@ const Header = withTranslation()(class Header extends Component {
       'patient-data-subnav-hidden': this.props.chartType === 'no-data',
     });
 
-    const desktopDateLinkClass = cx({ // renders only on wider screens
+    const dateLinkClass = cx({
       'js-date': true,
-      'patient-data-subnav-desktop': true,
       'patient-data-subnav-text' : this.props.chartType === 'basics' ||
         this.props.chartType === 'daily' ||
         this.props.chartType === 'bgLog' ||
@@ -80,11 +80,6 @@ const Header = withTranslation()(class Header extends Component {
       'patient-data-subnav-dates-daily': this.props.chartType === 'daily',
       'patient-data-subnav-dates-bgLog': this.props.chartType === 'bgLog',
       'patient-data-subnav-dates-trends': this.props.chartType === 'trends',
-    });
-
-    const mobileDateLinkClass = cx({ // renders only on smaller screens
-      'js-date': true,
-      'patient-data-subnav-mobile': true,
     });
 
     const mostRecentClass = cx({
@@ -141,42 +136,46 @@ const Header = withTranslation()(class Header extends Component {
         </div>
         <div className="patient-data-subnav-center" id="tidelineLabel">
           {this.renderNavButton(backClass, this.props.onClickBack, this.props.iconBack)}
-          <div className={desktopDateLinkClass}>
-            <span>{this.props.title}</span>
-            {canSelectDateRange && (
-              <Icon
-                variant="default"
-                sx={{
-                  ml: 2,
-                  mt: -1,
-                  color: colorPalette.primary.bluePrimary00,
-                  outline: 'none',
-                  '&:hover': { color: 'grays.6' },
-                }}
-                label="Choose custom date range"
-                icon={DateRangeRoundedIcon}
-                onClick={this.props.onClickChartDates}
-              />
-            )}
-          </div>
-          <div className={mobileDateLinkClass}>
-            {
-              canSelectDateRange
-              ? <Button
-                  onClick={this.props.onClickChartDates}
+          <DesktopOnly>
+            <div className={dateLinkClass}>
+              <span>{this.props.title}</span>
+              {canSelectDateRange && (
+                <Icon
+                  variant="default"
                   sx={{
-                    backgroundColor: colorPalette.neutrals.white,
-                    color: colorPalette.primary.blueGreyDark,
-                    border: `1px solid ${colorPalette.primary.blueGreyDark}`,
-                    padding: '8px 48px',
-                    margin: '16px 0',
+                    ml: 2,
+                    mt: -1,
+                    color: colorPalette.primary.bluePrimary00,
+                    outline: 'none',
+                    '&:hover': { color: 'grays.6' },
                   }}
-                >
-                  {this.props.title}
-                </Button>
-              : <Box my={3} sx={{ fontSize: 1 }}>{this.props.title}</Box>
-            }
-          </div>
+                  label="Choose custom date range"
+                  icon={DateRangeRoundedIcon}
+                  onClick={this.props.onClickChartDates}
+                />
+              )}
+            </div>
+          </DesktopOnly>
+          <MobileOnly>
+            <div className={dateLinkClass}>
+              {
+                canSelectDateRange
+                ? <Button
+                    onClick={this.props.onClickChartDates}
+                    sx={{
+                      backgroundColor: colorPalette.neutrals.white,
+                      color: colorPalette.primary.blueGreyDark,
+                      border: `1px solid ${colorPalette.primary.blueGreyDark}`,
+                      padding: '8px 48px',
+                      margin: '16px 0',
+                    }}
+                  >
+                    {this.props.title}
+                  </Button>
+                : <Box my={3} sx={{ fontSize: 1 }}>{this.props.title}</Box>
+              }
+            </div>
+          </MobileOnly>
           {this.renderNavButton(nextClass, this.props.onClickNext, this.props.iconNext)}
           {this.renderNavButton(mostRecentClass, this.props.onClickMostRecent, this.props.iconMostRecent)}
         </div>
