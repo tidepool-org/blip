@@ -20,7 +20,6 @@ export default withTranslation()(class extends React.Component {
     currentPage: PropTypes.string,
     user: PropTypes.object,
     fetchingUser: PropTypes.bool,
-    patient: PropTypes.object,
     fetchingPatient: PropTypes.bool,
     onLogout: PropTypes.func,
     trackMetric: PropTypes.func.isRequired,
