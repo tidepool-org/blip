@@ -46,6 +46,7 @@ import baseTheme, { colors } from '../../themes/baseTheme';
 import * as actions from '../../redux/actions';
 import { useIsFirstRender } from '../../core/hooks';
 import config from '../../config';
+import { DesktopOnly } from '../../components/mediaqueries';
 
 export const AccessManagement = (props) => {
   const { t, api, trackMetric } = props;
@@ -586,17 +587,16 @@ export const AccessManagement = (props) => {
             sx={{ borderBottom: baseTheme.borders.default, alignItems: 'center', flexWrap:['wrap', 'nowrap'] }}
             px={[3, 4]}
           >
-            <Title sx={{
-              flexGrow: 1,
-              textAlign: ['center', 'left'],
-              '@media screen and (max-width: 512px)': { display: 'none' },
-            }} pr={[0, 3]} py={[3, 4]}>
-              {t('Access Management')}
-            </Title>
+            <DesktopOnly breakpoint="512px" sx={{ width: '100%' }}>
+              <Title sx={{ flexGrow: 1, textAlign: ['center', 'left'] }} pr={[0, 3]} py={[3, 4]}>
+                {t('Access Management')}
+              </Title>
+            </DesktopOnly>
             <Button
               id="invite"
               variant="primary"
               sx={{
+                minWidth: '160px',
                 '@media screen and (max-width: 512px)': { width: '100%', margin: '16px 0' },
               }}
               onClick={() => {
