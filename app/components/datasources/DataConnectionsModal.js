@@ -26,6 +26,7 @@ import { useIsFirstRender, usePrevious } from '../../core/hooks';
 import i18next from '../../core/language';
 import { URL_TIDEPOOL_EXTERNAL_DATA_CONNECTIONS, URL_UPLOADER_DOWNLOAD_PAGE } from '../../core/constants';
 import PatientEmailModal from './PatientEmailModal';
+import { DesktopOnly } from '../mediaqueries';
 
 const t = i18next.t.bind(i18next);
 
@@ -129,7 +130,9 @@ export const DataConnectionsModal = (props) => {
         </DialogTitle>
 
         <DialogContent>
-          <PatientDetails mb={3} patient={patientData} />
+          <DesktopOnly>
+            <PatientDetails mb={3} patient={patientData} />
+          </DesktopOnly>
           <Subheading sx={{ fontWeight: 'bold'}}>{t('Connect a Device Account')}</Subheading>
 
           <Box mb={3}>
