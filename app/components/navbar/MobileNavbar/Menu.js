@@ -116,6 +116,7 @@ const Menu = ({ api, trackMetric, patient, clinicPatient, permsOfLoggedInUser })
     }),
   ].filter(Boolean);
 
+  // TODO: Missing clinician-specific options. To be implemented along with clinician mobile navbar.
   const accountOptions = [
     {
       id: 'mobileNavbar_workspaceButton',

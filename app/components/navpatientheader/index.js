@@ -11,6 +11,7 @@ import ClinicianMenuOptions from './MenuOptions/Clinician';
 import { isClinicianAccount } from '../../core/personutils';
 import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
 import { breakpoints } from '../../themes/baseTheme';
+import { DesktopOnly } from '../mediaqueries';
 
 const HeaderContainer = ({ children }) => (
   <Box variant="containers.largeBordered" mb={0} mx={[0, 0]} sx={{ width: ['100%', '100%'] }}>
@@ -56,11 +57,6 @@ const NavPatientHeader = ({ api, trackMetric, patient, clinicPatient, user, perm
       sx={{
         width: ['auto', null, null, 'calc(100% - 48px)'],
         maxWidth: breakpoints[3],
-
-        // Hide on mobile
-        [`@media screen and (max-width: ${breakpoints[1]})`]: {
-          display: 'none',
-        },
       }}
     >
       <HeaderContainer>
@@ -93,4 +89,10 @@ const NavPatientHeader = ({ api, trackMetric, patient, clinicPatient, user, perm
   );
 };
 
-export default NavPatientHeader;
+const WrappedNavPatientHeader = (props) => ( // Hide on mobile
+  <DesktopOnly>
+    <NavPatientHeader {...props} />
+  </DesktopOnly>
+);
+
+export default WrappedNavPatientHeader;
