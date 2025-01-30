@@ -24,7 +24,7 @@ const DEFAULT_MOBILE_BREAKPOINT = breakpoints[1];
 /**
  * Renders the children only if the viewport width exceeds the specified breakpoint
  *
- * @param {Number} [breakpoint] Viewport width below which any children will be hidden
+ * @param {String} [breakpoint] Viewport width below which any children will be hidden (e.g. '512px')
  * @param {Object} [sx] sx prop from theme-ui
  */
 export const DesktopOnly = styled(Box)`
@@ -37,7 +37,7 @@ export const DesktopOnly = styled(Box)`
 /**
  * Renders the children only if the viewport width is below the specified breakpoint
  *
- * @param {Number} [breakpoint] Viewport width above which any children will be hidden
+ * @param {String} [breakpoint] Viewport width above which any children will be hidden (e.g. '512px')
  * @param {Object} [sx] sx prop from theme-ui
  */
 export const MobileOnly = styled(Box)`
