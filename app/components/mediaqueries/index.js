@@ -20,16 +20,26 @@ import { breakpoints } from '../../themes/baseTheme';
 
 const DEFAULT_MOBILE_BREAKPOINT = breakpoints[1];
 
+/**
+ * Renders the children only if the viewport width exceeds the specified breakpoint
+ *
+ * @param {Number} [breakpoint] Viewport width (in px) below which any children will be hidden
+ */
 export const DesktopOnly = styled.div`
   display: block;
-  @media screen and (max-width: ${props => (props.width || DEFAULT_MOBILE_BREAKPOINT)}) {
+  @media screen and (max-width: ${props => (props.breakpoint || DEFAULT_MOBILE_BREAKPOINT)}) {
     display: none;
   }
 `;
 
+/**
+ * Renders the children only if the viewport width is below the specified breakpoint
+ *
+ * @param {Number} [breakpoint] Viewport width (in px) above which any children will be hidden
+ */
 export const MobileOnly = styled.div`
   display: none;
-  @media screen and (max-width: ${props => (props.width || DEFAULT_MOBILE_BREAKPOINT)}) {
+  @media screen and (max-width: ${props => (props.breakpoint || DEFAULT_MOBILE_BREAKPOINT)}) {
     display: block;
   }
 `;
