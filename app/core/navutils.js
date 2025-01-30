@@ -129,7 +129,7 @@ export const useNavigation = (api, trackMetric) => {
     dispatch(actions.sync.setPatientListSearchTextInput(''));
     dispatch(actions.sync.setIsPatientListVisible(false));
     dispatch(actions.async.selectClinic(api, clinicId));
-    dispatch(push(isPrivateWorkspace ? '/clinic-workspace' : '/patients', { selectedClinicId: clinicId }));
+    dispatch(push(isPrivateWorkspace ? '/patients' : '/clinic-workspace', { selectedClinicId: clinicId }));
   };
 
   const handleViewManageWorkspaces = () => {
