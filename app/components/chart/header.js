@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import React, { Component, useEffect } from 'react';
+import React, { Component } from 'react';
 import cx from 'classnames';
 import { withTranslation } from 'react-i18next';
 import DateRangeRoundedIcon from '@material-ui/icons/DateRangeRounded';

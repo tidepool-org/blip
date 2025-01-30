@@ -19,6 +19,7 @@ import {
 import { MediumTitle, Caption, Body1 } from './elements/FontStyles';
 import i18next from '../core/language';
 import { breakpoints } from '../themes/baseTheme';
+import { DesktopOnly } from './mediaqueries';
 
 const t = i18next.t.bind(i18next);
 
@@ -181,10 +182,7 @@ export const ChartDateRangeModal = (props) => {
               ))}
             </Flex>
           </Box>
-          <Box
-            mb={3}
-            sx={{ [MOBILE_BREAKPOINT_QUERY]: { display: 'none' } }}
-          >
+          <DesktopOnly sx={{ marginBottom: 3 }}>
             <Body1 mb={2}>{t('Or select a custom date range ({{maxDays}} days max)', { maxDays })}</Body1>
             <DateRangePicker
               startDate={dates.startDate}
@@ -206,7 +204,7 @@ export const ChartDateRangeModal = (props) => {
                 },
               }}
             />
-          </Box>
+          </DesktopOnly>
           {errors && (
             <Caption mt={2} sx={{ color: 'feedback.danger' }} id="chart-dates-error">
               {errors}
