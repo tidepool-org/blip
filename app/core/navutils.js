@@ -118,13 +118,22 @@ export const useNavigation = (api, trackMetric) => {
   };
 
   const handleSelectWorkspace = (clinicId) => {
+    const isPrivateWorkspace = !clinicId;
+
+    if (isPrivateWorkspace) {
+      trackMetric('Clinic - Menu - Go to private workspace');
+    } else {
+      trackMetric('Clinic - Menu - Go to clinic workspace', { clinicId });
+    }
+
     dispatch(actions.sync.setPatientListSearchTextInput(''));
     dispatch(actions.sync.setIsPatientListVisible(false));
     dispatch(actions.async.selectClinic(api, clinicId));
-    dispatch(push(clinicId ? '/clinic-workspace' : '/patients', { selectedClinicId: clinicId }));
+    dispatch(push(isPrivateWorkspace ? '/clinic-workspace' : '/patients', { selectedClinicId: clinicId }));
   };
 
   const handleViewManageWorkspaces = () => {
+    trackMetric('Clinic - Menu - Manage workspaces');
     dispatch(push('/workspaces'));
   };
 

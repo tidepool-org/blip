@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { useNavigation } from '../../../core/navutils';
 import { withTranslation } from 'react-i18next';
-import { push } from 'connected-react-router';
 import filter from 'lodash/filter';
 import has from 'lodash/has';
 import includes from 'lodash/includes';
@@ -25,7 +24,6 @@ import {
   bindTrigger,
 } from 'material-ui-popup-state/hooks';
 
-import * as actions from '../../../redux/actions';
 import Button from '../../elements/Button';
 import Popover from '../../elements/Popover';
 import NotificationIcon from '../../elements/NotificationIcon';
@@ -34,7 +32,6 @@ import { borders, colors, space } from '../../../themes/baseTheme';
 
 export const NavigationMenu = props => {
   const { t, api, trackMetric } = props;
-  const dispatch = useDispatch();
   const { pathname } = useLocation();
   const [isClinicProfileFormPath, setIsClinicProfileFormPath] = useState();
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
@@ -59,7 +56,6 @@ export const NavigationMenu = props => {
     action: () => handleSelectWorkspace(null),
     icon: SupervisedUserCircleRoundedIcon,
     label: t('Private Workspace'),
-    metric: ['Clinic - Menu - Go to private workspace'],
   };
 
   const accountSettingsOption = {
@@ -72,7 +68,6 @@ export const NavigationMenu = props => {
     action: handleViewManageWorkspaces,
     icon: ViewListRoundedIcon,
     label: t('Manage Workspaces'),
-    metric: ['Clinic - Menu - Manage workspaces'],
     notification: pendingReceivedClinicianInvites.length > 0,
   });
 
@@ -101,7 +96,6 @@ export const NavigationMenu = props => {
           action: () => handleSelectWorkspace(clinic.id),
           icon: DashboardRoundedIcon,
           label: t('{{name}} Workspace', { name: clinic.name }),
-          metric: ['Clinic - Menu - Go to clinic workspace', { clinicId: clinic.id }],
         })),
         manageWorkspacesOption(),
         privateWorkspaceOption,
@@ -120,7 +114,6 @@ export const NavigationMenu = props => {
   }, [pathname]);
 
   function handleMenuAction(menuOption) {
-    if (menuOption.metric?.length) trackMetric(...menuOption.metric);
     menuOption.action();
     popupState.close();
   }
