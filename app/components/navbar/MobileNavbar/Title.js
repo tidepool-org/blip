@@ -56,6 +56,8 @@ const getTitleState = (pathname, chartType, patient, data) => {
 };
 
 const StyledTitle = styled(Flex)`
+  // HACK: This adjusts the icon color to purpleDark from its hardcoded value defined in the SVG file.
+  // We will need to figure out a way to allow dynamic coloring of Icons in the future.
   .icon-custom-svg {
     filter: brightness(0) saturate(100%) invert(13%) sepia(47%) saturate(861%) hue-rotate(216deg) brightness(93%) contrast(101%);
   }
