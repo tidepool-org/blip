@@ -321,6 +321,7 @@ export class AppComponent extends React.Component {
               user={this.props.user}
               fetchingUser={_.get(this.props.fetchingUser, 'inProgress')}
               patient={this.props.patient}
+              clinicPatient={this.props.clinicPatient}
               fetchingPatient={this.props.fetchingPatient}
               currentPage={this.props.location}
               query={this.props.query}

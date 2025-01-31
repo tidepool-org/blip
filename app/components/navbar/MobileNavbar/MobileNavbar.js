@@ -25,7 +25,7 @@ const MobileNavbar = ({ api, trackMetric, patient, clinicPatient, permsOfLoggedI
   return (
     <Container>
       <Logo src={logo} alt="Tidepool"></Logo>
-      <Title patient={patient} clinicPatient={clinicPatient} />
+      <Title patient={patient} />
       <Menu
         api={api}
         trackMetric={trackMetric}
