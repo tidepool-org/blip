@@ -1761,7 +1761,7 @@ export const PatientDataClass = createReactClass({
             settings: this.handleSwitchToSettings,
           };
 
-          if (chartTypeHandlers[nextChart]) chartTypeHandlers[nextChart]();
+          if (chartTypeHandlers[nextChart]) return chartTypeHandlers[nextChart]();
         }
 
         // Only update the chartEndpoints and transitioningChartType state immediately after querying
