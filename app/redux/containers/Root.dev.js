@@ -9,6 +9,7 @@ import createCache from '@emotion/cache'
 import baseTheme from '../../themes/baseTheme';
 import { history } from '../store/configureStore.dev';
 import { ToastProvider } from '../../providers/ToastProvider';
+import { AppBannerProvider } from '../../providers/AppBanner/AppBannerProvider';
 
 const myCache = createCache({
   key: 'tp-emotion-cache',
@@ -23,17 +24,19 @@ class Root extends Component {
     return (
       <CacheProvider value={myCache}>
         <ThemeUIProvider theme={baseTheme}>
-          <ToastProvider>
-            <Provider store={store}>
-              <KeycloakWrapper>
-                <div>
-                  <ConnectedRouter history={history}>
-                    {routing}
-                  </ConnectedRouter>
-                </div>
-              </KeycloakWrapper>
-            </Provider>
-          </ToastProvider>
+            <ToastProvider>
+              <Provider store={store}>
+                <KeycloakWrapper>
+                  <div>
+                    <ConnectedRouter history={history}>
+                      <AppBannerProvider>
+                        {routing}
+                      </AppBannerProvider>
+                    </ConnectedRouter>
+                  </div>
+                </KeycloakWrapper>
+              </Provider>
+            </ToastProvider>
         </ThemeUIProvider>
       </CacheProvider>
     );
