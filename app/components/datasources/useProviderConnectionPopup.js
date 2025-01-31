@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { find, last, min } from 'lodash';
+import { find, last, min, noop } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { sync, async } from '../../redux/actions';
@@ -10,7 +10,7 @@ import i18next from '../../core/language';
 
 const t = i18next.t.bind(i18next);
 
-const useProviderConnectionPopup = (onComplete) => {
+const useProviderConnectionPopup = () => {
   const dispatch = useDispatch();
   const { set: setToast } = useToasts();
   const [providerConnectionPopup, setProviderConnectionPopup] = useState(null);
@@ -65,7 +65,6 @@ const useProviderConnectionPopup = (onComplete) => {
         timer && clearInterval(timer);
         dispatch(sync.clearAuthorizedDataSource());
         setProviderConnectionPopup(null);
-        onComplete();
         return;
       }
 
@@ -112,6 +111,8 @@ const useProviderConnectionPopup = (onComplete) => {
     authorizedDataSource?.id,
     setToast,
   ]);
+
+  return providerConnectionPopup;
 };
 
 export default useProviderConnectionPopup;

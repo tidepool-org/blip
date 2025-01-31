@@ -10,10 +10,8 @@ import get from 'lodash/get';
 import includes from 'lodash/includes';
 import intersection from 'lodash/intersection';
 import keys from 'lodash/keys';
-import last from 'lodash/last';
 import map from 'lodash/map';
 import max from 'lodash/max';
-import min from 'lodash/min';
 import noop from 'lodash/noop';
 import reduce from 'lodash/reduce';
 import { utils as vizUtils } from '@tidepool/viz';
@@ -32,7 +30,6 @@ import libreLogo from '../../core/icons/libre_logo.svg';
 import twiistLogo from '../../core/icons/twiist_logo.svg';
 import { colors } from '../../themes/baseTheme';
 import { isFunction } from 'lodash';
-import useProviderConnectionPopup from './useProviderConnectionPopup';
 
 const { formatTimeAgo } = vizUtils.datetime;
 const t = i18next.t.bind(i18next);
@@ -480,7 +477,19 @@ export const DataConnections = (props) => {
     }
   }, [fetchPatientDetails, selectedClinicId, fetchingDataSources?.inProgress, dispatch]);
 
-  useProviderConnectionPopup(handleActiveHandlerComplete);
+  const authorizedDataSource = useSelector(state => state.blip.authorizedDataSource);
+  const previousAuthorizedDataSource = usePrevious(authorizedDataSource);
+
+  useEffect(() => {
+    if (!!previousAuthorizedDataSource && !authorizedDataSource && activeHandler) {
+      handleActiveHandlerComplete()
+    }
+  }, [
+    activeHandler,
+    authorizedDataSource,
+    handleActiveHandlerComplete,
+    previousAuthorizedDataSource,
+  ]);
 
   useEffect(() => {
     if(activeHandler?.action && !activeHandler?.inProgress) {
