@@ -14,6 +14,7 @@ import colorPalette from '../../../themes/colorPalette';
 import SettingsRoundedIcon from '@material-ui/icons/SettingsRounded';
 import SupervisedUserCircleRoundedIcon from '@material-ui/icons/SupervisedUserCircleRounded';
 import styled from '@emotion/styled';
+import { selectPatient } from '../../../core/selectors';
 
 const TITLE_STATE = {
   PRIVATE_WORKSPACE: 'PRIVATE_WORKSPACE',
@@ -82,11 +83,13 @@ const LightTitle = ({ label, icon = null, iconSrc = null }) => {
   );
 };
 
-const Title = ({ patient }) => {
+const Title = () => {
   const { t } = useTranslation();
   const { pathname } = useLocation();
+
   const chartType = useSelector(state => state.blip.navbarChartType);
   const data = useSelector(state => state.blip.data);
+  const patient = useSelector(state => selectPatient(state));
 
   const titleState = getTitleState(pathname, chartType, patient, data);
 

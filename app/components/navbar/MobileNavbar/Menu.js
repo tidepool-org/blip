@@ -1,6 +1,6 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import _ from 'lodash';
-import { getDemographicInfo, getPermissions, useNavigation } from '../../../core/navutils';
 import styled from '@emotion/styled';
 import { Box } from 'theme-ui';
 import { useTranslation } from 'react-i18next';
@@ -19,6 +19,9 @@ import MenuRoundedIcon from '@material-ui/icons/MenuRounded';
 import viewIcon from '../../../core/icons/viewIcon.svg';
 import shareIcon from '../../../core/icons/shareIcon.svg';
 import devicesIcon from '../../../core/icons/devicesIcon.svg';
+
+import { getDemographicInfo, getPermissions, useNavigation } from '../../../core/navutils';
+import { selectClinicPatient, selectPatient, selectPermsOfLoggedInUser } from '../../../core/selectors';
 
 const StyledMenuDropdownButton = styled(Button)`
   background: none;
@@ -51,22 +54,6 @@ const MenuOption = styled.div`
   }
 `;
 
-const dataOptionStyles = {
-  variant: 'textSecondary',
-  iconPosition: 'left',
-  iconFontSize: '1.25em',
-  sx: { fontSize: 1, fontWeight: 'medium', color: colorPalette.primary.purpleDark },
-  pl: 0,
-};
-
-const accountOptionStyles = {
-  variant: 'textSecondary',
-  iconPosition: 'left',
-  iconFontSize: '1.25em',
-  sx: { fontSize: 1, fontWeight: 'medium', color: colorPalette.primary.blueGreyDark },
-  pl: 0,
-};
-
 const StyledPopover = styled(Popover)`
   .MuiPopover-paper {
     width: 100%;
@@ -74,9 +61,14 @@ const StyledPopover = styled(Popover)`
   }
 `;
 
-const Menu = ({ api, trackMetric, patient, clinicPatient, permsOfLoggedInUser }) => {
-  const popupState = usePopupState({ variant: 'popover', popupId: 'mobileNavigationMenu' });
+const Menu = ({ api, trackMetric }) => {
   const { t } = useTranslation();
+
+  const patient = useSelector(state => selectPatient(state));
+  const clinicPatient = useSelector(state => selectClinicPatient(state));
+  const permsOfLoggedInUser = useSelector(state => selectPermsOfLoggedInUser(state));
+
+  const popupState = usePopupState({ variant: 'popover', popupId: 'mobileNavigationMenu' });
 
   const { name: patientName } = getDemographicInfo(patient, clinicPatient);
   const { canShare } = getPermissions(patient, permsOfLoggedInUser);
@@ -174,7 +166,11 @@ const Menu = ({ api, trackMetric, patient, clinicPatient, permsOfLoggedInUser })
                     onClick={closeDropdownOnClick(onClick)}
                     iconSrc={iconSrc}
                     iconLabel={label}
-                    {...dataOptionStyles}
+                    variant='textSecondary'
+                    iconPosition='left'
+                    iconFontSize='1.25em'
+                    sx={{ fontSize: 1, fontWeight: 'medium', color: colorPalette.primary.purpleDark }}
+                    pl={0}
                   >
                     {label}
                   </Button>
@@ -189,7 +185,11 @@ const Menu = ({ api, trackMetric, patient, clinicPatient, permsOfLoggedInUser })
               onClick={closeDropdownOnClick(onClick)}
               icon={icon}
               iconLabel={label}
-              {...accountOptionStyles}
+              variant='textSecondary'
+              iconPosition='left'
+              iconFontSize='1.25em'
+              sx={{ fontSize: 1, fontWeight: 'medium', color: colorPalette.primary.blueGreyDark }}
+              pl={0}
             >
               {label}
             </Button>
