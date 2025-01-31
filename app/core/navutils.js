@@ -84,15 +84,14 @@ export const uploadUtils = { launchCustomProtocol };
 export const useNavigation = (api, trackMetric) => {
   const { query } = useLocation();
   const dispatch = useDispatch();
-  const [initialQuery] = useState(query); // retain query retrieved on component mount
+  const [initialQuery] = useState(query || {}); // keep a copy of the original value
 
   const clinicFlowActive = useSelector(state => state.blip.clinicFlowActive);
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const currentPatientInViewId = useSelector(state => state.blip.currentPatientInViewId);
 
-  const patientListLink = getPatientListLink(clinicFlowActive, selectedClinicId, initialQuery, currentPatientInViewId);
-
   const handleBack = () => {
+    const patientListLink = getPatientListLink(clinicFlowActive, selectedClinicId, initialQuery, currentPatientInViewId);
     trackMetric('Clinic - View patient list', { clinicId: selectedClinicId, source: 'Patient data' });
     dispatch(push(patientListLink));
   };
