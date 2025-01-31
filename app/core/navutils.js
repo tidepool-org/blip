@@ -76,7 +76,7 @@ export const uploadUtils = { launchCustomProtocol };
  * Returns event handlers for use in any navbar
  *
  * @param {Object} api
- * @param {Object} trackMetric
+ * @param {Function} trackMetric
  */
 export const useNavigation = (api, trackMetric) => {
   const { query } = useLocation();
