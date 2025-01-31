@@ -29,18 +29,15 @@ const HeaderContainer = ({ children }) => (
   </Box>
 );
 
-const NavPatientHeader = ({
-  patient,
-  clinicPatient,
-  user,
-  permsOfLoggedInUser,
-  trackMetric,
-  clinicFlowActive,
-  selectedClinicId,
-}) => {
-  const history = useHistory();
-  const { search } = useLocation();
-  const [initialSearchParams] = useState(new URLSearchParams(search));
+const NavPatientHeader = ({ api, trackMetric, patient, clinicPatient, user, permsOfLoggedInUser }) => {
+  const {
+    handleBack,
+    handleLaunchUploader,
+    handleViewData,
+    handleViewProfile,
+    handleShare,
+  } = useNavigation(api, trackMetric);
+
   const [isUploadOverlayOpen, setIsUploadOverlayOpen] = useState(false);
 
   if (!patient?.profile?.patient) return null;

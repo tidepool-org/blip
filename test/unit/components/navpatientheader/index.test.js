@@ -57,10 +57,6 @@ describe('NavPatientHeader', () => {
     NavPatientHeader.__ResetDependency__('useNavigation');
   });
 
-  beforeEach(() => {
-    mockUseLocation.returns({ pathname: '/patients/1234/data', search: '' });
-  });
-
   afterEach(() => {
     handleBack.reset();
     handleLaunchUploader.reset();
@@ -340,25 +336,6 @@ describe('NavPatientHeader', () => {
         wrapper = mount(<BrowserRouter><NavPatientHeader {...clinicClinicianProps} currentPage="/patients/abc123/profile" /></BrowserRouter>);
         wrapper.find('button#navPatientHeader_backButton').simulate('click');
         expect(handleBack.calledOnce).to.be.true;
-      });
-    });
-
-    describe('viewing patient or profile views and user originates from TIDE Dashboard', () => {
-      const clinicClinicianProps = {
-        trackMetric: mockTrackMetric,
-        patient: { ...patientProps, permissions: { } },
-        clinicFlowActive: true,
-        user: { isClinicMember: true },
-        selectedClinicId: 'clinic123',
-      };
-
-      it('should redirect to the correct path on TIDE dashboard', () => {
-        mockUseLocation.returns({ pathname: '/patients/abc1234/data', search: '?dashboard=tide' });
-
-        wrapper = mount(<BrowserRouter><NavPatientHeader {...clinicClinicianProps} currentPage="/patients/abc123/data" /></BrowserRouter>);
-        wrapper.find('button#navPatientHeader_backButton').simulate('click');
-
-        expect(mockHistory.push.calledOnceWithExactly('/dashboard/tide?drawerPatientId=1234')).to.be.true;
       });
     });
 
