@@ -5186,7 +5186,7 @@ describe('Actions', () => {
         });
 
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.disconnectDataSource(api, 'fitbit', { providerType: 'oauth', providerName: 'fitbit' }));
+        store.dispatch(async.disconnectDataSource(api, { providerType: 'oauth', providerName: 'fitbit' }));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
@@ -5210,7 +5210,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.disconnectDataSource(api, 'strava', { providerType: 'unexpected', providerName: 'strava' }));
+        store.dispatch(async.disconnectDataSource(api, { providerType: 'unexpected', providerName: 'strava' }));
 
         const actions = store.getActions();
         expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_DISCONNECTING_DATA_SOURCE });
@@ -5237,7 +5237,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.disconnectDataSource(api, 'strava', { providerType: 'oauth', providerName: 'strava' }));
+        store.dispatch(async.disconnectDataSource(api, { providerType: 'oauth', providerName: 'strava' }));
 
         const actions = store.getActions();
         expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_DISCONNECTING_DATA_SOURCE });

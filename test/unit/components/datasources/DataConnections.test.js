@@ -100,7 +100,7 @@ describe('getProviderHandlers', () => {
         buttonText: 'Disconnect',
         buttonStyle: 'text',
         action: 'disconnectDataSourceStub',
-        args: ['api123', 'oauth/provider123', provider.dataSourceFilter],
+        args: ['api123', provider.dataSourceFilter],
       },
       inviteSent: {
         buttonDisabled: true,

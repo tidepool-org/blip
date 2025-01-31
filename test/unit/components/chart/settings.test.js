@@ -994,9 +994,8 @@ describe('Settings', () => {
         it('should show the data connections and open the data connections modal when Add button is clicked', () => {
           const props = {
             ...defaultProps,
-            patient: clinicPatient,
             isUserPatient: false,
-            patient: {
+            clinicPatient: {
               userid: '40',
               dataSources: [
                 { providerName: activeProviders[0], state: 'connected' }
@@ -1039,7 +1038,7 @@ describe('Settings', () => {
           const props = {
             ...defaultProps,
             isUserPatient: false,
-            patient: {
+            clinicPatient: {
               ...clinicPatient,
               dataSources: _.map(activeProviders, providerName => ({ providerName, state: 'pending' })),
             },
@@ -1102,15 +1101,19 @@ describe('Settings', () => {
           const props = {
             ...defaultProps,
             isUserPatient: true,
-            patient: {
-              ...userPatient,
+            patient: userPatient,
+          };
+
+          const state = {
+            blip: {
+              ...defaultState.blip,
               dataSources: [
                 { providerName: activeProviders[0], state: 'connected' }
               ],
-            },
+            }
           };
 
-          const store = mockStore(defaultState);
+          const store = mockStore(state);
           wrapper = mount(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
 
           expect(dataConnectionsModal().length).to.equal(0);
@@ -1137,13 +1140,17 @@ describe('Settings', () => {
           const props = {
             ...defaultProps,
             isUserPatient: true,
-            patient: {
-              ...userPatient,
-              dataSources: _.map(activeProviders, providerName => ({ providerName, state: 'pending' })),
-            },
+            patient: userPatient,
           };
 
-          const store = mockStore(defaultState);
+          const state = {
+            blip: {
+              ...defaultState.blip,
+              dataSources: _.map(activeProviders, providerName => ({ providerName, state: 'pending' })),
+            }
+          };
+
+          const store = mockStore(state);
           wrapper = mount(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
 
           // No modal, card, or add button
