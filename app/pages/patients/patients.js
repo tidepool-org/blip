@@ -63,6 +63,18 @@ export let Patients = withTranslation()(class extends React.Component {
     user: PropTypes.object,
   };
 
+  // Temporary: Only personal users may access the mobile views in this iteration.
+  // In the future, clinicians will also be able to access mobile views
+  isBrowserSufficient = () => {
+    const isClinician = personUtils.isClinicianAccount(this.props.user) || false;
+
+    if (isClinician) {
+      return utils.isSupportedBrowser() && !utils.isMobile();
+    }
+
+    return utils.isSupportedBrowser();
+  }
+
   render() {
     var welcomeTitle = this.renderWelcomeTitle();
     var welcomeSetup = this.renderWelcomeSetup();
@@ -180,7 +192,7 @@ export let Patients = withTranslation()(class extends React.Component {
       return null;
     }
 
-    if (!utils.isSupportedBrowser()) {
+    if (!this.isBrowserSufficient()) {
       return <BrowserWarning
         trackMetric={this.props.trackMetric} />;
     }
@@ -204,10 +216,11 @@ export let Patients = withTranslation()(class extends React.Component {
     return (
       <div className="container-box-inner patients-section js-patients-shared">
         <div className="patients-section-title-wrapper">
+          <div className="spacer"></div>
           <div className="patients-section-title">{t('View data for:')}</div>
+          {this.renderAddDataStorage()}
         </div>
         <div className="patients-section-content">
-          {this.renderAddDataStorage()}
           <div className='clear'></div>
           <PeopleList
             people={patients}
@@ -307,10 +320,6 @@ export let Patients = withTranslation()(class extends React.Component {
 
   UNSAFE_componentWillMount() {
     this.props.dataWorkerRemoveDataRequest(null, this.props.currentPatientInViewId);
-
-    if (this.props.clearPatientInView) {
-      this.props.clearPatientInView();
-    }
 
     if (this.props.selectedClinicId) {
       this.props.selectClinic(null);

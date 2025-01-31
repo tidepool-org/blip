@@ -12,6 +12,7 @@ export function Card(props) {
     <Box
       onClick={onClick}
       variant={variant}
+      sx={{ height: '100%' }}
     >
       {bannerImage && (
         <Flex className="card-banner-image">
@@ -25,6 +26,7 @@ export function Card(props) {
               maxWidth: '796px',
               objectFit: 'cover',
               objectPosition: '50% 50%',
+              borderRadius: '4px',
             }}
           />
         </Flex>
