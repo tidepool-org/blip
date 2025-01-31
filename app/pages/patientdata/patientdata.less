@@ -18,19 +18,6 @@
   position: relative;
 }
 
-// Header
-// ====================================
-
-.nav-patient-header {
-  margin: 0 auto 16px;
-  width: 100%;
-  max-width: @screen-lg-min;
-
-  @media screen and (max-width: @screen-lg-min) {
-    padding: 0 20px;
-  }
-}
-
 // Subnav
 // ====================================
 
@@ -42,8 +29,6 @@
 .patient-data-subnav-inner {
   color: @blue-primary;
   background-color: @blue-gray-dark;
-  border-radius: 3px 3px 0 0;
-
   padding: 0;
 }
 
@@ -82,7 +67,7 @@
   padding: @patient-data-subnav-vertical-padding @patient-data-subnav-horizontal-padding;
 
   font-size: 14px;
-  
+
   &.patient-data-icon {
     padding: 0;
   }
@@ -151,48 +136,6 @@
 
 .patient-data-subnav-right-label {
   float: right;
-}
-
-// Content
-// ====================================
-
-.patient-data-content-outer {
-  display: block;
-
-  @media (min-width: @patient-data-sidebar-bp) {
-    display: flex;
-    flex-wrap: nowrap;
-  }
-}
-
-.patient-data-content-inner {
-  width: 100%;
-  background-color: #fff;
-  padding-top: 5px;
-  padding-bottom: 5px;
-}
-
-.patient-data-content {
-  min-height: @patient-data-chart-height;
-  position: relative;
-}
-
-// Sidebar
-// ====================================
-
-.patient-data-sidebar {
-  width: 100%;
-  background-color: #fff;
-  padding: @spacing-small;
-
-  @media (min-width: @patient-data-sidebar-bp) {
-    flex-shrink: 0;
-    width: @patient-data-sidebar-width;
-  }
-}
-
-.patient-data-sidebar-inner {
-  position: relative;
 }
 
 // Loader
@@ -313,11 +256,6 @@
       text-decoration: none;
     }
   }
-}
-
-.patient-no-data-help {
-  margin-top: 100px;
-  line-height: 25px;
 }
 
 // Footer

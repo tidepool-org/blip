@@ -12,7 +12,15 @@ export default ({ colors, fonts, fontSizes, fontWeights }) => {
       fontSize: fontSizes[4],
     },
 
+    '.title': {
+      display: 'block',
+      fontFamily: fonts.default,
+      fontSize: fontSizes[0],
+      fontWeight: fontWeights.bold,
+    },
+
     '.message': {
+      display: 'block',
       fontFamily: fonts.default,
       fontSize: fontSizes[0],
       fontWeight: fontWeights.medium,

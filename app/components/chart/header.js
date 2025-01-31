@@ -8,6 +8,7 @@ import PrintRoundedIcon from '@material-ui/icons/PrintRounded';
 import colorPalette from '../../themes/colorPalette';
 
 import Icon from '../elements/Icon';
+import { Box } from 'theme-ui';
 
 const Header = withTranslation()(class Header extends Component {
   static propTypes = {
@@ -121,7 +122,7 @@ const Header = withTranslation()(class Header extends Component {
     });
 
     return (
-      <div className="grid patient-data-subnav">
+      <Box sx={{ gap: 2 }} className="grid patient-data-subnav">
         <div className="app-no-print patient-data-subnav-left">
             <a href="" className={basicsLinkClass} onClick={this.props.onClickBasics}>{t('Basics')}</a>
             <a href="" className={dayLinkClass} onClick={this.props.onClickOneDay}>{t('Daily')}</a>
@@ -169,7 +170,7 @@ const Header = withTranslation()(class Header extends Component {
             {t('Print')}
           </a>
         </div>
-      </div>
+      </Box>
     );
   };
 
@@ -194,11 +195,9 @@ const Header = withTranslation()(class Header extends Component {
 
   render = () => {
     return (
-      <div className="container-box-outer patient-data-subnav-outer">
-        <div className="container-box-inner patient-data-subnav-inner">
-          {this.renderStandard()}
-        </div>
-      </div>
+      <Box className="patient-data-subnav-inner">
+        {this.renderStandard()}
+      </Box>
     );
   };
 

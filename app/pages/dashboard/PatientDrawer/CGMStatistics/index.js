@@ -1,25 +1,12 @@
 import React from 'react';
-import colorPalette from '../../../themes/colorPalette';
+import colorPalette from '../../../../themes/colorPalette';
 import { useTranslation } from 'react-i18next';
-import { useSelector } from 'react-redux';
 import { Flex, Box, Text } from 'theme-ui';
-import moment from 'moment';
 import { utils as vizUtils } from '@tidepool/viz';
-import utils from '../../../core/utils';
-import { MGDL_UNITS } from '../../../core/constants';
-
-const formatDateRange = (startEndpoint, endEndpoint, timezoneName) => {
-  const startDate = moment.utc(startEndpoint).tz(timezoneName);
-  const endDate   = moment.utc(endEndpoint).tz(timezoneName);
-  const startYear = startDate.year();
-  const endYear   = endDate.year();
-
-  if (startYear !== endYear) {
-    return `${startDate.format('MMMM D, YYYY')} - ${endDate.format('MMMM D, YYYY')}`;
-  }
-
-  return `${startDate.format('MMMM D')} - ${endDate.format('MMMM D')}, ${endDate.format('YYYY')}`;
-}
+const { formatDatum, bankersRound } = vizUtils.stat;
+const { getTimezoneFromTimePrefs } = vizUtils.datetime;
+import { MGDL_UNITS } from '../../../../core/constants';
+import getReportDaysText from './getReportDaysText';
 
 const TableRow = ({ label, sublabel, value, units, id }) => {
   return (
@@ -46,8 +33,8 @@ const TableRow = ({ label, sublabel, value, units, id }) => {
         {units && <Text sx={{ fontWeight: 'medium', fontSize: 0 }}>{units}</Text>}
       </Box>
     </Flex>
-  )
-}
+  );
+};
 
 const CGMStatistics = ({ agpCGM }) => {
   const { t } = useTranslation();
@@ -56,32 +43,31 @@ const CGMStatistics = ({ agpCGM }) => {
 
   const {
     timePrefs,
-    bgPrefs: { bgUnits },
+    bgPrefs,
     data: {
       current: {
-        endpoints: { days: endpointDays },
         stats: {
-          bgExtents: { newestDatum, oldestDatum },
+          bgExtents: { newestDatum, oldestDatum, bgDaysWorn },
           sensorUsage: { sensorUsageAGP },
           averageGlucose: { averageGlucose },
           glucoseManagementIndicator: { glucoseManagementIndicatorAGP },
-          coefficientOfVariation: { coefficientOfVariation }
+          coefficientOfVariation: { coefficientOfVariation },
         },
-      }
-    }
+      },
+    },
   } = agpCGM;
 
-  const timezoneName = vizUtils.datetime.getTimezoneFromTimePrefs(timePrefs);
+  const { bgUnits } = bgPrefs;
 
-  const avgGlucosePrecision = bgUnits === MGDL_UNITS ? 0 : 1;
-  const avgGlucoseTarget    = bgUnits === MGDL_UNITS ? '154' : '8.6';
+  const timezone = getTimezoneFromTimePrefs(timePrefs);
 
-  const dateRange  = formatDateRange(oldestDatum.time, newestDatum.time, timezoneName);
-  const daySpan    = endpointDays;
-  const cgmActive  = utils.roundToPrecision(sensorUsageAGP, 1);
-  const avgGlucose = utils.roundToPrecision(averageGlucose, avgGlucosePrecision);
-  const gmi        = utils.roundToPrecision(glucoseManagementIndicatorAGP, 1);
-  const cov        = utils.roundToPrecision(coefficientOfVariation, 1);
+  const avgGlucoseTarget = bgUnits === MGDL_UNITS ? '154' : '8.6';
+
+  const dateRange  = getReportDaysText(newestDatum, oldestDatum, bgDaysWorn, timezone);
+  const cgmActive  = bankersRound(sensorUsageAGP, 1);
+  const avgGlucose = formatDatum({ value: averageGlucose }, 'bgValue', { bgPrefs, useAGPFormat: true });
+  const gmi        = formatDatum({ value: glucoseManagementIndicatorAGP }, 'gmi', { bgPrefs, useAGPFormat: true });
+  const cov        = formatDatum({ value: coefficientOfVariation }, 'cv', { bgPrefs, useAGPFormat: true });
 
   return (
     <Flex sx={{ alignItems: 'center', width: '100%', height: '100%' }} id='agp-cgm-statistics'>
@@ -89,7 +75,7 @@ const CGMStatistics = ({ agpCGM }) => {
           <TableRow
             id="agp-table-time-range"
             label={t('Time Range')}
-            value={t('{{dateRange}} ({{daySpan}} days)', { dateRange, daySpan })}
+            value={t('{{dateRange}} ({{bgDaysWorn}} days)', { dateRange, bgDaysWorn })}
           />
           <TableRow
             id="agp-table-cgm-active"
@@ -101,26 +87,26 @@ const CGMStatistics = ({ agpCGM }) => {
             id="agp-table-avg-glucose"
             label={t('Average Glucose')}
             sublabel={t('(Goal <{{avgGlucoseTarget}} {{bgUnits}})', { avgGlucoseTarget, bgUnits })}
-            value={`${avgGlucose}`}
+            value={avgGlucose?.value}
             units={` ${bgUnits}`}
           />
           <TableRow
             id="agp-table-gmi"
             label={t('Glucose Management Indicator')}
             sublabel={t('(Goal <7%)')}
-            value={`${gmi}`}
-            units="%"
+            value={gmi?.value}
+            units={gmi?.suffix}
           />
           <TableRow
             id="agp-table-cov"
             label={t('Glucose Variability')}
             sublabel={t('(Defined as a percent coefficient of variation. Goal <= 36%)')}
-            value={`${cov}`}
-            units="%"
+            value={cov?.value}
+            units={cov?.suffix}
           />
       </Box>
     </Flex>
-  )
-}
+  );
+};
 
 export default CGMStatistics;

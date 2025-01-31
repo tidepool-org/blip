@@ -120,6 +120,7 @@ export const borders = {
   modal: `1px solid ${colors.border.modal}`,
   divider: `2px solid ${colors.border.divider}`,
   dividerDark: `2px solid ${colors.border.dividerDark}`,
+  card: '1px solid rgba(225, 234, 249, 1)',
 };
 
 export const fonts = {
@@ -177,7 +178,7 @@ const variants = {
   tables: tables({ borders, colors, fonts, fontSizes, shadows, radii }),
   tags: tags({ colors, fonts, radii, fontWeights }),
   toasts: toasts({ borders, colors, radii, fontSizes, shadows }),
-  containers: containers({ borders, colors, radii, space }),
+  containers: containers({ borders, colors, radii, space, breakpoints }),
 };
 
 const defaultText = {
@@ -291,6 +292,8 @@ const text = {
 
 const styles = {
   a: linkVariants.default,
+  hr: { borderBottom: borders.divider },
+  dividerDark: { borderBottom: borders.dividerDark },
 };
 
 export default {

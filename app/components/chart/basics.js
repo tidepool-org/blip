@@ -4,7 +4,7 @@ import _ from 'lodash';
 import bows from 'bows';
 import sundial from 'sundial';
 import { withTranslation, Trans } from 'react-i18next';
-import { Flex } from 'theme-ui';
+import { Box, Flex } from 'theme-ui';
 
 // tideline dependencies & plugins
 import tidelineBlip from 'tideline/plugins/blip';
@@ -82,73 +82,75 @@ class Basics extends Component {
 
     return (
       <div id="tidelineMain" className="basics">
-        <Header
-          chartType={this.chartType}
-          patient={this.props.patient}
-          atMostRecent={true}
-          inTransition={this.state.inTransition}
-          title={this.state.title}
-          onClickBasics={this.handleClickBasics}
-          onClickChartDates={this.props.onClickChartDates}
-          onClickOneDay={this.handleClickOneDay}
-          onClickTrends={this.handleClickTrends}
-          onClickRefresh={this.props.onClickRefresh}
-          onClickSettings={this.props.onSwitchToSettings}
-          onClickBgLog={this.handleClickBgLog}
-          onClickPrint={this.handleClickPrint}
-          ref="header" />
-        <div className="container-box-outer patient-data-content-outer">
-          <div className="container-box-inner patient-data-content-inner">
-            <div className="patient-data-content">
+        <Box variant="containers.patientData">
+          <Header
+            chartType={this.chartType}
+            patient={this.props.patient}
+            atMostRecent={true}
+            inTransition={this.state.inTransition}
+            title={this.state.title}
+            onClickBasics={this.handleClickBasics}
+            onClickChartDates={this.props.onClickChartDates}
+            onClickOneDay={this.handleClickOneDay}
+            onClickTrends={this.handleClickTrends}
+            onClickRefresh={this.props.onClickRefresh}
+            onClickSettings={this.props.onSwitchToSettings}
+            onClickBgLog={this.handleClickBgLog}
+            onClickPrint={this.handleClickPrint}
+            ref="header"
+          />
+
+          <Box variant="containers.patientDataInner">
+            <Box className="patient-data-content" variant="containers.patientDataContent">
               <Loader show={!!this.refs.chart && this.props.loading} overlay={true} />
               {renderedContent}
 
               {!this.isMissingBasics() && (
-                <Flex mt={4} mb={5} pl="10px">
-                  <Button className="btn-refresh" variant="secondary" onClick={this.props.onClickRefresh}>
-                    {this.props.t('Refresh')}
-                  </Button>
-                </Flex>
+                <Button
+                  className="btn-refresh"
+                  variant="secondaryCondensed"
+                  onClick={this.props.onClickRefresh}
+                  mt={3}
+                >
+                  {t('Refresh')}
+                </Button>
               )}
-            </div>
-          </div>
-          <div className="container-box-inner patient-data-sidebar">
-            <div className="patient-data-sidebar-inner">
-              <div>
-                <Flex mb={2} sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
-                  <ClipboardButton
-                    buttonTitle={t('For email or notes')}
-                    onSuccess={this.handleCopyBasicsClicked}
-                    getText={basicsText.bind(this, this.props.patient, this.props.data, this.props.stats, this.props.aggregations)}
-                  />
-                  <BgSourceToggle
-                    bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
-                    chartPrefs={this.props.chartPrefs}
-                    chartType={this.chartType}
-                    onClickBgSourceToggle={this.toggleBgDataSource}
-                  />
-                </Flex>
-                <Stats
-                  bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
+            </Box>
+
+            <Box className="patient-data-sidebar" variant="containers.patientDataSidebar">
+              <Flex mb={2} sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                <ClipboardButton
+                  buttonTitle={t('For email or notes')}
+                  onSuccess={this.handleCopyBasicsClicked}
+                  getText={basicsText.bind(this, this.props.patient, this.props.data, this.props.stats, this.props.aggregations)}
+                />
+                <BgSourceToggle
+                  bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
                   chartPrefs={this.props.chartPrefs}
                   chartType={this.chartType}
-                  stats={statsToRender}
-                  trackMetric={this.props.trackMetric}
+                  onClickBgSourceToggle={this.toggleBgDataSource}
                 />
-                <DeviceSelection
-                  chartPrefs={this.props.chartPrefs}
-                  chartType={this.chartType}
-                  devices={_.get(this.props, 'data.metaData.devices', [])}
-                  removeGeneratedPDFS={this.props.removeGeneratedPDFS}
-                  trackMetric={this.props.trackMetric}
-                  updateChartPrefs={this.props.updateChartPrefs}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+              </Flex>
+              <Stats
+                bgPrefs={_.get(this.props, 'data.bgPrefs', {})}
+                chartPrefs={this.props.chartPrefs}
+                chartType={this.chartType}
+                stats={statsToRender}
+                trackMetric={this.props.trackMetric}
+              />
+              <DeviceSelection
+                chartPrefs={this.props.chartPrefs}
+                chartType={this.chartType}
+                devices={_.get(this.props, 'data.metaData.devices', [])}
+                removeGeneratedPDFS={this.props.removeGeneratedPDFS}
+                trackMetric={this.props.trackMetric}
+                updateChartPrefs={this.props.updateChartPrefs}
+              />
+            </Box>
+          </Box>
+        </Box>
       </div>
-      );
+    );
   };
 
   renderChart = () => {
