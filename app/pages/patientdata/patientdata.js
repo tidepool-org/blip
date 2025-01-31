@@ -1637,6 +1637,15 @@ export const PatientDataClass = createReactClass({
       }) : undefined;
 
     this.setState(state, cb);
+
+    // Update chart query param to match current chart
+    const { search, pathname } = this.props.location;
+    const params = new URLSearchParams(search);
+
+    if(params.get('chart') !== chartType) {
+      params.set('chart', chartType);
+      this.props.history.push({ pathname, search: params.toString() });
+    }
   },
 
   UNSAFE_componentWillMount: function() {
@@ -1739,6 +1748,20 @@ export const PatientDataClass = createReactClass({
           window.patientData = 'No patient data has been loaded yet. Run `window.loadPatientData()` to popuplate this.'
           window.loadPatientData = this.saveDataToDestination.bind(this, 'window');
           window.downloadPatientData = this.saveDataToDestination.bind(this, 'download');
+        } else if (this.props.queryParams.chart !== nextProps.queryParams.chart) {
+          // A new chart type can be requested by changing queryParams, in which case we need to
+          // fire the appropriate handler to change the chart rendered
+          const nextChart = nextProps.queryParams.chart;
+
+          const chartTypeHandlers = {
+            basics: this.handleSwitchToBasics,
+            daily: this.handleSwitchToDaily,
+            bgLog: this.handleSwitchToBgLog,
+            trends: this.handleSwitchToTrends,
+            settings: this.handleSwitchToSettings,
+          };
+
+          if (chartTypeHandlers[nextChart]) chartTypeHandlers[nextChart]();
         }
 
         // Only update the chartEndpoints and transitioningChartType state immediately after querying
@@ -2375,6 +2398,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   return Object.assign({}, _.pick(dispatchProps, assignedDispatchProps), stateProps, {
     fetchers: getFetchers(dispatchProps, ownProps, stateProps, api, { carelink, dexcom, medtronic }),
     history: ownProps.history,
+    location: ownProps.location,
     uploadUrl: api.getUploadUrl(),
     onRefresh: (patientId, chartType) => {
       const fetchOptions = {
