@@ -109,17 +109,17 @@ describe('MobileNavbar/Menu', () => {
       expect(handleShare.calledOnce).to.be.true;
     });
 
-    it('should navigate to private workspace action when button is pressed', () => {
+    it('should navigate to private workspace when button is pressed', () => {
       wrapper.find('Button#mobileNavbar_workspaceButton').simulate('click');
       expect(handleSelectWorkspace.calledOnceWithExactly(null)).to.be.true;
     });
 
-    it('should navigate to private workspace action when button is pressed', () => {
+    it('should navigate to account settings when button is pressed', () => {
       wrapper.find('Button#mobileNavbar_accountSettingsButton').simulate('click');
       expect(handleViewAccountSettings.calledOnce).to.be.true;
     });
 
-    it('should navigate to private workspace action when button is pressed', () => {
+    it('should logout when button is pressed', () => {
       wrapper.find('Button#mobileNavbar_logoutButton').simulate('click');
       expect(handleLogout.calledOnce).to.be.true;
     });
