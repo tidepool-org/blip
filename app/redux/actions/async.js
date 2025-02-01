@@ -947,6 +947,8 @@ export function fetchPendingReceivedInvites(api) {
  */
 export function fetchPatient(api, id, cb = _.noop) {
   return (dispatch, getState) => {
+    dispatch(sync.clearPatientInView());
+
     // If we have a valid cache of the patient in our redux store, return without dispatching the fetch
     if(checkCacheValid(getState, 'allUsersMap', cacheByIdOptions(id))) {
       const patient = _.get(getState(), ['blip', 'allUsersMap', id]);
