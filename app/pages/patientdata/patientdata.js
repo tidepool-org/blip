@@ -1668,7 +1668,6 @@ export const PatientDataClass = createReactClass({
   },
 
   UNSAFE_componentWillMount: function() {
-    this.clearPatientInView();
     this.doFetching(this.props);
     var params = this.props.queryParams;
 
@@ -2179,10 +2178,6 @@ export const PatientDataClass = createReactClass({
     }, timeout);
   },
 
-  clearPatientInView: function () {
-    this.props.clearPatientInView();
-  },
-
   doFetching: function(nextProps) {
     if (this.props.trackMetric) {
       const carelink = nextProps.carelink;
@@ -2377,7 +2372,6 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   dataWorkerRemoveDataRequest: actions.worker.dataWorkerRemoveDataRequest,
   dataWorkerRemoveDataSuccess: actions.worker.dataWorkerRemoveDataSuccess,
   dataWorkerQueryDataRequest: actions.worker.dataWorkerQueryDataRequest,
-  clearPatientInView: actions.sync.clearPatientInView,
   closeMessageThread: actions.sync.closeMessageThread,
   createMessageThread: actions.async.createMessageThread,
   editMessageThread: actions.async.editMessageThread,
@@ -2401,7 +2395,6 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   const medtronic = utils.getMedtronic(ownProps.location);
   const api = ownProps.api;
   const assignedDispatchProps = [
-    'clearPatientInView',
     'dataWorkerRemoveDataRequest',
     'dataWorkerRemoveDataSuccess',
     'dataWorkerQueryDataRequest',
