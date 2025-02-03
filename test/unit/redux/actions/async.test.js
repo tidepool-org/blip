@@ -646,6 +646,7 @@ describe('Actions', () => {
           { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] } },
           { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
           { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] } },
+          { type: 'CLEAR_PATIENT_IN_VIEW'},
           { type: 'FETCH_PATIENT_REQUEST' },
           { type: 'FETCH_PATIENT_SUCCESS', payload: { patient: patient } },
           { type: 'LOGIN_SUCCESS', payload: { user: _.merge({}, user, patient) } },
@@ -699,6 +700,7 @@ describe('Actions', () => {
           { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] } },
           { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
           { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] } },
+          { type: 'CLEAR_PATIENT_IN_VIEW' },
           { type: 'FETCH_PATIENT_REQUEST' },
           { type: 'FETCH_PATIENT_SUCCESS', payload: { patient: patient } },
           { type: 'LOGIN_SUCCESS', payload: { user: _.merge({}, user, patient) } },
@@ -1921,6 +1923,7 @@ describe('Actions', () => {
           { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
           { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
           { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
+          { type: 'CLEAR_PATIENT_IN_VIEW' },
           { type: 'FETCH_PATIENT_REQUEST' },
           { type: 'FETCH_PATIENT_FAILURE', error: err, payload: { link: null }, meta: { apiError: {status: 500, body: 'Error!'} } },
           { type: 'LOGIN_FAILURE', error: err, payload: null, meta: { apiError: {status: 500, body: 'Error!'} } },
@@ -1946,10 +1949,10 @@ describe('Actions', () => {
         store.dispatch(async.login(api, creds));
 
         const actions = store.getActions();
-        expect(actions[10].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENT });
-        expectedActions[10].error = actions[10].error;
         expect(actions[11].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENT });
         expectedActions[11].error = actions[11].error;
+        expect(actions[12].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENT });
+        expectedActions[12].error = actions[12].error;
         expect(actions).to.eql(expectedActions);
         expect(api.user.login.calledWith(creds)).to.be.true;
         expect(api.user.login.callCount).to.equal(1);
@@ -2218,6 +2221,7 @@ describe('Actions', () => {
         let expectedActions = [
           { type: 'REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_REQUEST' },
           { type: 'REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_SUCCESS', payload: { removedMemberId: memberId } },
+          { type: 'CLEAR_PATIENT_IN_VIEW'},
           { type: 'FETCH_PATIENT_REQUEST' },
           { type: 'FETCH_PATIENT_SUCCESS', payload: { patient: patient } }
         ];
@@ -2845,6 +2849,7 @@ describe('Actions', () => {
         let expectedActions = [
           { type: 'ACCEPT_RECEIVED_INVITE_REQUEST', payload: { acceptedReceivedInvite: invitation } },
           { type: 'ACCEPT_RECEIVED_INVITE_SUCCESS', payload: { acceptedReceivedInvite: invitation } },
+          { type: 'CLEAR_PATIENT_IN_VIEW'},
           { type: 'FETCH_PATIENT_REQUEST' },
           { type: 'FETCH_PATIENT_SUCCESS', payload: { patient : patient } }
         ];
@@ -2968,6 +2973,7 @@ describe('Actions', () => {
               permissions: permissions
             }
           },
+          { type: 'CLEAR_PATIENT_IN_VIEW'},
           { type: 'FETCH_PATIENT_REQUEST' },
           { type: 'FETCH_PATIENT_SUCCESS', payload: { patient: patient } },
         ];
@@ -3893,6 +3899,7 @@ describe('Actions', () => {
         };
 
         let expectedActions = [
+          { type: 'CLEAR_PATIENT_IN_VIEW'},
           { type: 'FETCH_PATIENT_REQUEST' },
           { type: 'FETCH_PATIENT_SUCCESS', payload: { patient : patient } }
         ];
@@ -3917,6 +3924,7 @@ describe('Actions', () => {
         };
 
         let expectedActions = [
+          { type: 'CLEAR_PATIENT_IN_VIEW'},
           { type: 'FETCH_PATIENT_SUCCESS', payload: { patient : patient } }
         ];
         _.each(expectedActions, (action) => {
@@ -3946,6 +3954,7 @@ describe('Actions', () => {
         };
 
         let expectedActions = [
+          { type: 'CLEAR_PATIENT_IN_VIEW'},
           { type: 'FETCH_PATIENT_REQUEST' },
           { type: 'FETCH_PATIENT_SUCCESS', payload: { patient : patient } }
         ];
@@ -3979,6 +3988,7 @@ describe('Actions', () => {
         err.status = 500;
 
         let expectedActions = [
+          { type: 'CLEAR_PATIENT_IN_VIEW' },
           { type: 'FETCH_PATIENT_REQUEST' },
           { type: 'FETCH_PATIENT_FAILURE', error: err, payload: {link: null}, meta: { apiError: {status: 500, body: 'Error!'} } }
         ];
@@ -3989,8 +3999,8 @@ describe('Actions', () => {
         store.dispatch(async.fetchPatient(api, 58686));
 
         const actions = store.getActions();
-        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENT });
-        expectedActions[1].error = actions[1].error;
+        expect(actions[2].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_PATIENT });
+        expectedActions[2].error = actions[2].error;
         expect(actions).to.eql(expectedActions);
         expect(api.patient.get.withArgs(58686).callCount).to.equal(1);
       });
@@ -4009,6 +4019,7 @@ describe('Actions', () => {
         err.status = 404;
 
         let expectedActions = [
+          { type: 'CLEAR_PATIENT_IN_VIEW' },
           { type: 'FETCH_PATIENT_REQUEST' },
           { type: 'FETCH_PATIENT_FAILURE', error: err, payload: {link: {to: '/patients/new', text: UserMessages.YOUR_ACCOUNT_DATA_SETUP}}, meta: { apiError: {status: 404, body: 'Error!'} } }
         ];
@@ -4019,8 +4030,8 @@ describe('Actions', () => {
         store.dispatch(async.fetchPatient(api, 58686));
 
         const actions = store.getActions();
-        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_YOUR_ACCOUNT_NOT_CONFIGURED });
-        expectedActions[1].error = actions[1].error;
+        expect(actions[2].error).to.deep.include({ message: ErrorMessages.ERR_YOUR_ACCOUNT_NOT_CONFIGURED });
+        expectedActions[2].error = actions[2].error;
         expect(actions).to.eql(expectedActions);
         expect(api.patient.get.withArgs(58686).callCount).to.equal(1);
       });
@@ -4041,6 +4052,7 @@ describe('Actions', () => {
         err.status = 401;
 
         let expectedActions = [
+          { type: 'CLEAR_PATIENT_IN_VIEW' },
           { type: 'FETCH_PATIENT_REQUEST' },
           {
             type: 'FETCH_PATIENT_FAILURE',
@@ -4058,10 +4070,10 @@ describe('Actions', () => {
         store.dispatch(async.fetchPatient(api, 58686));
 
         const actions = store.getActions();
-        expect(actions[1].error).to.deep.include({
+        expect(actions[2].error).to.deep.include({
           message: ErrorMessages.ERR_FETCHING_PATIENT_UNAUTHORIZED,
         });
-        expectedActions[1].error = actions[1].error;
+        expectedActions[2].error = actions[2].error;
         expect(actions).to.eql(expectedActions);
         expect(api.patient.get.withArgs(58686).callCount).to.equal(1);
       });
@@ -4084,6 +4096,7 @@ describe('Actions', () => {
         err.status = 404;
 
         let expectedActions = [
+          { type: 'CLEAR_PATIENT_IN_VIEW' },
           { type: 'FETCH_PATIENT_REQUEST' },
           {
             type: 'FETCH_PATIENT_FAILURE',
@@ -4101,10 +4114,10 @@ describe('Actions', () => {
         store.dispatch(async.fetchPatient(api, 58686));
 
         const actions = store.getActions();
-        expect(actions[1].error).to.deep.include({
+        expect(actions[2].error).to.deep.include({
           message: ErrorMessages.ERR_FETCHING_PATIENT_CLINICIAN_UNAUTHORIZED,
         });
-        expectedActions[1].error = actions[1].error;
+        expectedActions[2].error = actions[2].error;
         expect(actions).to.eql(expectedActions);
         expect(api.patient.get.withArgs(58686).callCount).to.equal(1);
       });
