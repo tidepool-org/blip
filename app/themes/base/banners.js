@@ -15,15 +15,22 @@ export default ({ colors, fonts, fontSizes, fontWeights }) => {
     '.title': {
       display: 'block',
       fontFamily: fonts.default,
-      fontSize: fontSizes[0],
+      fontSize: fontSizes[1],
       fontWeight: fontWeights.bold,
     },
 
     '.message': {
       display: 'block',
       fontFamily: fonts.default,
-      fontSize: fontSizes[0],
+      fontSize: fontSizes[1],
       fontWeight: fontWeights.medium,
+    },
+
+    '.message-link': {
+      color: colors.banner[variant].messageLink,
+      '&:hover, &:active, &:focus': {
+        color: colors.banner[variant].messageLink,
+      },
     },
 
     'button.action': {

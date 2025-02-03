@@ -29,7 +29,6 @@ export function Banner(props) {
 
   const iconMap = {
     danger: ErrorRoundedIcon,
-    info: InfoRoundedIcon,
     warning: WarningRoundedIcon,
     success: CheckCircleRoundedIcon,
   };
@@ -44,7 +43,7 @@ export function Banner(props) {
       {...themeProps}
     >
       <Flex px={2} sx={{ gap: 2, flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Icon className="icon" theme={baseTheme} variant="static" icon={TypeIcon} label={variant} />
+        {TypeIcon && <Icon className="icon" theme={baseTheme} variant="static" icon={TypeIcon} label={variant} />}
         <Box>
           {title && <Text className="title">{title}</Text>}
           <Box className="message">

@@ -19,6 +19,7 @@ const AppBanner = ({ trackMetric }) => {
   const currentPatientInViewId = useSelector(state => state.blip.currentPatientInViewId);
   const userIsCurrentPatient = loggedInUserId === currentPatientInViewId;
 
+  // Send a metric the first time a banner is shown to a patient for the current session
   useEffect(() => {
     if(banner?.show?.metric &&!bannerShownMetricsForPatient[banner.id]?.[currentPatientInViewId]) {
       setBannerShownMetricsForPatient({
