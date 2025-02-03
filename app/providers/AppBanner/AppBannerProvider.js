@@ -32,6 +32,11 @@ const AppBannerProvider = ({ children }) => {
     { state: 'error' },
   );
 
+  const justConnectedDataSource = find(
+    userIsCurrentPatient ? dataSources : clinic?.patients[currentPatientInViewId]?.dataSources,
+    ({state, lastImportTime}) => state === 'connected' && !lastImportTime,
+  );
+
   const [currentBanner, setCurrentBanner] = useState(null);
   const [bannerShownMetricsForPatient, setBannerShownMetricsForPatient] = useState({});
 
@@ -43,6 +48,11 @@ const AppBannerProvider = ({ children }) => {
       bannerArgs: [dispatch, providers[erroredDataSource?.providerName]]
     },
 
+    dataSourceJustConnected: {
+      show: !!justConnectedDataSource?.providerName,
+      bannerArgs: [providers[justConnectedDataSource?.providerName]]
+    },
+
     uploader: {
       show: userIsCurrentPatient && dataSources.length && !userHasPumpData,
       bannerArgs: [],
@@ -51,6 +61,7 @@ const AppBannerProvider = ({ children }) => {
     dataSources.length,
     dispatch,
     erroredDataSource?.providerName,
+    justConnectedDataSource?.providerName,
     userIsCurrentPatient,
     userHasPumpData,
   ]);

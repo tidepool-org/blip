@@ -44,6 +44,26 @@ export const appBanners = [
   },
 
   {
+    id: 'dataSourceJustConnected',
+    variant: 'info',
+    priority: 1,
+    context: ['patient'],
+    paths: [/^\/patients\/\S+\/data/],
+    getProps: provider => ({
+      label: t('Data Source Just Connected Banner'),
+      title: t('Data from {{displayName}} is on its way. This usually takes a few minutes but occasionally takes a bit longer.', provider),
+      show: {
+        metric: 'Displayed Data Source Just Connected Banner',
+        metricProps: { providerName: provider?.dataSourceFilter?.providerName },
+      },
+      dismiss: {
+        metric: 'Dismissed Data Source Just Connected Banner',
+        metricProps: { providerName: provider?.dataSourceFilter?.providerName }
+      },
+    }),
+  },
+
+  {
     id: 'uploader',
     priority: 10,
     context: ['patient', 'clinic'],
