@@ -1656,6 +1656,15 @@ export const PatientDataClass = createReactClass({
       }) : undefined;
 
     this.setState(state, cb);
+
+    // Update chart query param to match current chart
+    const { search, pathname } = this.props.location;
+    const params = new URLSearchParams(search);
+
+    if (params.get('chart') !== chartType) {
+      params.set('chart', chartType);
+      this.props.history.push({ pathname, search: params.toString() });
+    }
   },
 
   UNSAFE_componentWillMount: function() {
@@ -2399,6 +2408,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   return Object.assign({}, _.pick(dispatchProps, assignedDispatchProps), stateProps, {
     fetchers: getFetchers(dispatchProps, ownProps, stateProps, api, { carelink, dexcom, medtronic }),
     history: ownProps.history,
+    location: ownProps.location,
     uploadUrl: api.getUploadUrl(),
     onRefresh: (patientId, chartType) => {
       const fetchOptions = {

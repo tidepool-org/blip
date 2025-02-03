@@ -123,7 +123,7 @@ const DailyChart = withTranslation(null, { withRef: true })(class DailyChart ext
     const node = ReactDOM.findDOMNode(this);
 
     // When on mobile, the chart will be hidden and therefore have zero width and height.
-    // This prevents an error from occurring in tideline due to the zeroes.
+    // This safety check prevents an error from occurring in tideline due to the zeroes.
     if (!node?.offsetHeight || !node?.offsetWidth) return;
 
     this.chart = chartDailyFactory(node, _.pick(props, this.chartOpts))

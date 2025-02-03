@@ -26,7 +26,6 @@ export function Card(props) {
               maxWidth: '796px',
               objectFit: 'cover',
               objectPosition: '50% 50%',
-              borderRadius: '4px',
             }}
           />
         </Flex>

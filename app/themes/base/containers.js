@@ -62,6 +62,8 @@ export default ({ borders, colors, radii, space, breakpoints }) => {
     borderRight: borders.card,
     borderTop: borders.card,
     borderBottom: borders.card,
+    borderRadius: '8px',
+    overflow: 'hidden',
     bg: 'rgba(240, 245, 255, 1)',
     mb: 0,
     cursor: 'pointer',
@@ -71,7 +73,7 @@ export default ({ borders, colors, radii, space, breakpoints }) => {
     },
 
     '.card-content': {
-      p: space[3],
+      p: space[4],
     },
 
     '&:hover': {
@@ -91,7 +93,7 @@ export default ({ borders, colors, radii, space, breakpoints }) => {
     },
 
     '.card-content': {
-      p: space[3],
+      p: space[4],
     },
   };
 

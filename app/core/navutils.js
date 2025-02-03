@@ -79,7 +79,7 @@ export const uploadUtils = { launchCustomProtocol };
  * Returns event handlers for use in any navbar
  *
  * @param {Object} api
- * @param {Object} trackMetric
+ * @param {Function} trackMetric
  */
 export const useNavigation = (api, trackMetric) => {
   const { query } = useLocation();
@@ -112,6 +112,7 @@ export const useNavigation = (api, trackMetric) => {
   };
 
   const handleViewSettingsChart = () => {
+    trackMetric('Clicked Navbar View Devices');
     dispatch(push(`/patients/${currentPatientInViewId}/data?chart=settings`));
   };
 

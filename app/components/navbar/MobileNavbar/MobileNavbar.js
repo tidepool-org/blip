@@ -21,18 +21,12 @@ const Container = styled.div`
   margin: 0 8px;
 `;
 
-const MobileNavbar = ({ api, trackMetric, patient, clinicPatient, permsOfLoggedInUser }) => {
+const MobileNavbar = ({ api, trackMetric }) => {
   return (
     <Container>
       <Logo src={logo} alt="Tidepool"></Logo>
-      <Title patient={patient} clinicPatient={clinicPatient} />
-      <Menu
-        api={api}
-        trackMetric={trackMetric}
-        patient={patient}
-        clinicPatient={clinicPatient}
-        permsOfLoggedInUser={permsOfLoggedInUser}
-      />
+      <Title />
+      <Menu api={api} trackMetric={trackMetric} />
     </Container>
   );
 };

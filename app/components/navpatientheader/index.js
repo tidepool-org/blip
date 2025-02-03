@@ -12,6 +12,7 @@ import { isClinicianAccount } from '../../core/personutils';
 import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
 import { breakpoints } from '../../themes/baseTheme';
 import { DesktopOnly } from '../mediaqueries';
+import utils from '../../core/utils';
 
 const HeaderContainer = ({ children }) => (
   <Box variant="containers.largeBordered" mb={0} mx={[0, 0]} sx={{ width: ['100%', '100%'] }}>
@@ -45,6 +46,8 @@ const NavPatientHeader = ({ api, trackMetric, patient, clinicPatient, user, perm
   const { canUpload, canShare } = getPermissions(patient, permsOfLoggedInUser);
   const { mrn, birthday, name } = getDemographicInfo(patient, clinicPatient);
 
+  const isUploadVisible = canUpload && !utils.isMobile();
+
   const handleOpenUploader = () => {
     handleLaunchUploader();
     setIsUploadOverlayOpen(true);
@@ -68,7 +71,7 @@ const NavPatientHeader = ({ api, trackMetric, patient, clinicPatient, user, perm
               <ClinicianMenuOptions
                 onViewData={handleViewData}
                 onViewProfile={handleViewProfile}
-                onUpload={canUpload ? handleOpenUploader : null}
+                onUpload={isUploadVisible ? handleOpenUploader : null}
               />
             </>
           : <>
@@ -76,7 +79,7 @@ const NavPatientHeader = ({ api, trackMetric, patient, clinicPatient, user, perm
               <PatientMenuOptions
                 onViewData={handleViewData}
                 onViewProfile={handleViewProfile}
-                onUpload={canUpload ? handleOpenUploader : null}
+                onUpload={isUploadVisible ? handleOpenUploader : null}
                 onShare={canShare ? handleShare : null}
               />
             </>

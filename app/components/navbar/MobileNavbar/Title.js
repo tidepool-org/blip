@@ -1,4 +1,5 @@
 import React from 'react';
+import _ from 'lodash';
 import { Box, Flex } from 'theme-ui';
 import Icon from '../../elements/Icon';
 import { useLocation } from 'react-router-dom';
@@ -10,10 +11,10 @@ import shareIcon from '../../../core/icons/shareIcon.svg';
 import viewIcon from '../../../core/icons/viewIcon.svg';
 import devicesIcon from '../../../core/icons/devicesIcon.svg';
 import colorPalette from '../../../themes/colorPalette';
-import { clinicPatientFromAccountInfo } from '../../../core/personutils';
 import SettingsRoundedIcon from '@material-ui/icons/SettingsRounded';
 import SupervisedUserCircleRoundedIcon from '@material-ui/icons/SupervisedUserCircleRounded';
 import styled from '@emotion/styled';
+import { selectPatient } from '../../../core/selectors';
 
 const TITLE_STATE = {
   PRIVATE_WORKSPACE: 'PRIVATE_WORKSPACE',
@@ -24,17 +25,30 @@ const TITLE_STATE = {
   SHARE: 'SHARE',
 };
 
-const getTitleState = (pathname, chartType, patient, clinicPatient) => {
+const isEmptyPatientData = (patient, data) => {
+  return (!_.get(patient, 'userid', false) || _.get(data, 'metaData.size', 0) <= 0);
+};
+
+const isInsufficientPatientData = (data) => {
+  var latestDataByType = _.values(_.get(data, 'metaData.latestDatumByType', {}));
+
+  if (_.reject(latestDataByType, function(d) { return d.type === 'message'; }).length === 0) {
+    return true;
+  }
+  return false;
+};
+
+const getTitleState = (pathname, chartType, patient, data) => {
   const finalSlug = getFinalSlug(pathname);
 
   if (finalSlug === '/profile') return TITLE_STATE.ACCOUNT_SETTINGS;
   if (finalSlug === '/patients') return TITLE_STATE.PRIVATE_WORKSPACE;
   if (finalSlug === '/share') return TITLE_STATE.SHARE;
 
-  const patientData = clinicPatient || (patient ? clinicPatientFromAccountInfo(patient) : null);
-  const hasDataSources = patientData?.dataSources?.length > 0;
+  const isEmpty = isEmptyPatientData(patient, data);
+  const isInsufficient = isInsufficientPatientData(data);
 
-  if (finalSlug === '/data' && chartType === 'settings' && hasDataSources) return TITLE_STATE.WELCOME;
+  if (finalSlug === '/data' && (isEmpty || isInsufficient)) return TITLE_STATE.WELCOME;
   if (finalSlug === '/data' && chartType === 'settings') return TITLE_STATE.DEVICES;
   if (finalSlug === '/data') return TITLE_STATE.SUMMARY_STATS;
 
@@ -42,6 +56,8 @@ const getTitleState = (pathname, chartType, patient, clinicPatient) => {
 };
 
 const StyledTitle = styled(Flex)`
+  // HACK: This adjusts the icon color to purpleDark from its hardcoded value defined in the SVG file.
+  // We will need to figure out a way to allow dynamic coloring of Icons in the future.
   .icon-custom-svg {
     filter: brightness(0) saturate(100%) invert(13%) sepia(47%) saturate(861%) hue-rotate(216deg) brightness(93%) contrast(101%);
   }
@@ -69,13 +85,15 @@ const LightTitle = ({ label, icon = null, iconSrc = null }) => {
   );
 };
 
-const Title = ({ patient, clinicPatient }) => {
+const Title = () => {
   const { t } = useTranslation();
   const { pathname } = useLocation();
+
   const chartType = useSelector(state => state.blip.navbarChartType);
   const data = useSelector(state => state.blip.data);
+  const patient = useSelector(state => selectPatient(state));
 
-  const titleState = getTitleState(pathname, chartType, patient, clinicPatient);
+  const titleState = getTitleState(pathname, chartType, patient, data);
 
   switch(titleState) {
     case TITLE_STATE.PRIVATE_WORKSPACE:
