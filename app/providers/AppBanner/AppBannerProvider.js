@@ -1,11 +1,13 @@
-import { filter, find, includes, some } from 'lodash';
 import React, { createContext, useState, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
+import { filter, find, includes, intersection, keys, map, some, upperFirst } from 'lodash';
 
 import { appBanners } from './appBanners';
 import { providers } from '../../components/datasources/DataConnections';
-import api from '../../core/api';
+
+export const CLICKED_BANNER_ACTION = 'clicked';
+export const DISMISSED_BANNER_ACTION = 'dismissed';
 
 // Create a context
 const AppBannerContext = createContext();
@@ -17,6 +19,7 @@ const AppBannerProvider = ({ children }) => {
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics[selectedClinicId]);
   const loggedInUserId = useSelector(state => state.blip.loggedInUserId);
+  const user = useSelector(state => state.blip.allUsersMap[loggedInUserId]);
   const dataSources = useSelector(state => state.blip.dataSources);
   const currentPatientInViewId = useSelector(state => state.blip.currentPatientInViewId);
   const userIsCurrentPatient = loggedInUserId === currentPatientInViewId;
@@ -29,24 +32,18 @@ const AppBannerProvider = ({ children }) => {
     { state: 'error' },
   );
 
-  // TODO: implement banner dismiss state, as well as initialize based on previous dismissals in user.preferences
-  // this.state = {
-  //   uploaderBanner: { priority: 1, metricTrackedForPatient: {} },
-  //   shareDataBanner: { priority: 2, metricTrackedForPatient: {} },
-  //   donateBanner: { priority: 3, metricTrackedForPatient: {} },
-  //   updateTypeBanner: { priority: 5, metricTrackedForPatient: {} },
-  // }
-
   const [currentBanner, setCurrentBanner] = useState(null);
+  const [bannerShownMetricsForPatient, setBannerShownMetricsForPatient] = useState({});
+
+  const bannerInteractionKeys = banner => map([CLICKED_BANNER_ACTION, DISMISSED_BANNER_ACTION], action => `${action}${upperFirst(banner.id)}BannerTime`);
 
   const processBanner = useCallback(() => ({
-    dataSourceReconnectBanner: {
-      show: true,
-      // show: !!erroredDataSource?.providerName,
+    dataSourceReconnect: {
+      show: !!erroredDataSource?.providerName,
       bannerArgs: [dispatch, providers[erroredDataSource?.providerName]]
     },
 
-    uploaderBanner: {
+    uploader: {
       show: userIsCurrentPatient && dataSources.length && !userHasPumpData,
       bannerArgs: [],
     },
@@ -55,14 +52,18 @@ const AppBannerProvider = ({ children }) => {
     dispatch,
     erroredDataSource?.providerName,
     userIsCurrentPatient,
-    userHasPumpData
+    userHasPumpData,
   ]);
 
   useEffect(() => {
+    setCurrentBanner(null)
     const context = userIsCurrentPatient ? 'patient' : 'clinic';
 
     const filteredBanners = filter(appBanners, banner => {
-      return includes(banner.context, context) && some(banner.paths, path => path.test(pathname));
+      const previousInteractions = intersection(keys(user?.preferences), bannerInteractionKeys(banner));
+      const matchesContext = includes(banner.context, context);
+      const matchesPath = some(banner.paths, path => path.test(pathname));
+      return !previousInteractions.length && matchesContext && matchesPath;
     });
 
     // Sort banners based on priority (lower values mean higher priority)
@@ -76,10 +77,16 @@ const AppBannerProvider = ({ children }) => {
         break;
       }
     }
-  }, [pathname, selectedClinicId, userIsCurrentPatient, processBanner]);
+  }, [pathname, selectedClinicId, userIsCurrentPatient, processBanner, user?.preferences]);
+
+  const bannerContext = {
+    banner: currentBanner,
+    bannerShownMetricsForPatient,
+    setBannerShownMetricsForPatient,
+  };
 
   return (
-    <AppBannerContext.Provider value={currentBanner}>
+    <AppBannerContext.Provider value={bannerContext}>
       {children}
     </AppBannerContext.Provider>
   );

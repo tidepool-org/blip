@@ -1,14 +1,36 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import Banner from '../../components/elements/Banner';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { isFunction } from 'lodash';
-import { AppBannerContext } from './AppBannerProvider';
-import { sync } from '../../redux/actions';
+import { AppBannerContext, CLICKED_BANNER_ACTION, DISMISSED_BANNER_ACTION } from './AppBannerProvider';
+import { async } from '../../redux/actions';
+import api from '../../core/api';
 
 const AppBanner = ({ trackMetric }) => {
   // Use the banner context
-  const banner = useContext(AppBannerContext);
+  const {
+    banner,
+    bannerShownMetricsForPatient,
+    setBannerShownMetricsForPatient,
+  } = useContext(AppBannerContext);
+
   const dispatch = useDispatch();
+  const loggedInUserId = useSelector(state => state.blip.loggedInUserId);
+  const currentPatientInViewId = useSelector(state => state.blip.currentPatientInViewId);
+  const userIsCurrentPatient = loggedInUserId === currentPatientInViewId;
+
+  useEffect(() => {
+    if(banner?.show?.metric &&!bannerShownMetricsForPatient[banner.id]?.[currentPatientInViewId]) {
+      setBannerShownMetricsForPatient({
+        [banner.id]: {
+          ...(bannerShownMetricsForPatient[banner.id] || {}),
+          [currentPatientInViewId]: true,
+        },
+      });
+
+      trackMetric(banner.show.metric, banner.show?.metricProps);
+    }
+  }, [banner, bannerShownMetricsForPatient, currentPatientInViewId, setBannerShownMetricsForPatient, trackMetric]);
 
   // Render nothing if no banner is available
   if (!banner) {
@@ -16,25 +38,22 @@ const AppBanner = ({ trackMetric }) => {
   }
 
   const handleClickMessageLink = () => {
-    // onClickUploaderBanner(user.userid);
-    isFunction(banner.messageLink?.onClick) && banner.messageLink.onClick();
+    isFunction(banner.messageLink?.handler) && banner.messageLink.handler();
     banner.messageLink?.metric && trackMetric(banner.messageLink.metric);
   };
 
   const handleClickAction = () => {
-    // onClickUploaderBanner(user.userid);
-    isFunction(banner.action?.onClick) && banner.action.onClick();
-    banner.action?.metric && trackMetric(banner.action.metric);
-    dispatch(sync.dismissBanner(banner.id));
+    userIsCurrentPatient && dispatch(async.handleBannerInteraction(api, loggedInUserId, banner.id, CLICKED_BANNER_ACTION));
+    isFunction(banner.action?.handler) && banner.action.handler();
+    banner.action?.metric && trackMetric(banner.action.metric, banner.action?.metricProps);
   };
 
   const handleDismiss = () => {
-    // onDismissUploaderBanner(user.userid);
-    trackMetric(banner.dismiss.metric);
-    dispatch(sync.dismissBanner(banner.id));
+    userIsCurrentPatient && dispatch(async.handleBannerInteraction(api, loggedInUserId, banner.id, DISMISSED_BANNER_ACTION));
+    isFunction(banner.dismiss?.handler) && banner.dismiss.handler();
+    banner.dismiss?.metric && trackMetric(banner.dismiss.metric, banner.dismiss?.metricProps);
   };
 
-  // Customize this component to display your banner as needed
   return (
     <Banner
       id={banner.id}

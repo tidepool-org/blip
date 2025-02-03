@@ -697,7 +697,7 @@ export function updatePreferences(api, patientId, preferences) {
           createActionError(ErrorMessages.ERR_UPDATING_PREFERENCES, err), err
         ));
       } else {
-        dispatch(sync.updatePreferencesSuccess(updatedPreferences));
+        dispatch(sync.updatePreferencesSuccess(patientId, updatedPreferences));
       }
     });
   };
@@ -1466,209 +1466,59 @@ export function updateDataDonationAccounts(api, addAccounts = [], removeAccounts
   };
 }
 
+// /**
+//  * Count Share Data Banner Seen Action Creator
+//  *
+//  * @param  {Object} api an instance of the API wrapper
+//  */
+// export function updateShareDataBannerSeen(api, patientId) {
+//   const viewDate = sundial.utcDateString();
+//   const viewMoment = moment(viewDate);
+
+//   return (dispatch, getState) => {
+//     const { blip: { loggedInUserId, allUsersMap } } = getState();
+//     const loggedInUser = allUsersMap[loggedInUserId];
+//     var seenShareDataBannerDate = _.get(loggedInUser, 'preferences.seenShareDataBannerDate', 0);
+//     var seenShareDataBannerCount = _.get(loggedInUser, 'preferences.seenShareDataBannerCount', 0);
+
+//     const seenShareDataBannerMoment = moment(seenShareDataBannerDate);
+
+//     const diffMoment = viewMoment.diff(seenShareDataBannerMoment, 'days');
+
+//     if(diffMoment > 0) {
+//       seenShareDataBannerCount += 1;
+//       seenShareDataBannerDate = viewDate;
+//     }
+
+//     const preferences = {
+//       seenShareDataBannerDate: seenShareDataBannerDate,
+//       seenShareDataBannerCount: seenShareDataBannerCount,
+//     };
+
+//     dispatch(sync.bannerCount(seenShareDataBannerCount));
+//     dispatch(updatePreferences(api, patientId, preferences));
+//   };
+// }
+
+
 /**
- * Dismiss Donate Banner Action Creator
+ * Handle Banner Interaction Action Creator
  *
  * @param  {Object} api an instance of the API wrapper
+ * @param {String} userId - Id of the logged in user
+ * @param {String} patienbannerIdtId - Id of the banner
+ * @param {String} interactionType - One of [clicked, dismissed]
  */
-export function dismissDonateBanner(api, patientId, dismissedDate) {
-  dismissedDate = dismissedDate || sundial.utcDateString();
-
+export function handleBannerInteraction(api, userId, bannerId, interactionType) {
   return (dispatch) => {
-    dispatch(sync.dismissBanner('donate'));
+    const interationTime = sundial.utcDateString();
+    const preferenceKey = `${interactionType}${_.upperFirst(bannerId)}BannerTime`;
 
     const preferences = {
-      dismissedDonateYourDataBannerTime: dismissedDate,
+      [preferenceKey]: interationTime,
     };
 
-    dispatch(updatePreferences(api, patientId, preferences));
-  };
-}
-
-/**
- * Dismiss Dexcom Connect Banner Action Creator
- *
- * @param  {Object} api an instance of the API wrapper
- */
-export function dismissDexcomConnectBanner(api, patientId, dismissedDate) {
-  dismissedDate = dismissedDate || sundial.utcDateString();
-
-  return (dispatch) => {
-    dispatch(sync.dismissBanner('dexcom'));
-
-    const preferences = {
-      dismissedDexcomConnectBannerTime: dismissedDate,
-    };
-
-    dispatch(updatePreferences(api, patientId, preferences));
-  };
-}
-
-/**
- * Click Dexcom Banner Action Creator
- *
- * @param  {Object} api an instance of the API wrapper
- */
-export function clickDexcomConnectBanner(api, patientId, clickedDate) {
-  clickedDate = clickedDate || sundial.utcDateString();
-
-  return (dispatch) => {
-    dispatch(sync.dismissBanner('dexcom'));
-
-    const preferences = {
-      clickedDexcomConnectBannerTime: clickedDate,
-    };
-
-    dispatch(updatePreferences(api, patientId, preferences));
-  };
-}
-
-/**
- * Dismiss Update Type Banner Action Creator
- *
- * @param  {Object} api an instance of the API wrapper
- */
-export function dismissUpdateTypeBanner(api, patientId, dismissedDate) {
-  dismissedDate = dismissedDate || sundial.utcDateString();
-
-  return (dispatch) => {
-    dispatch(sync.dismissBanner('updatetype'));
-
-    const preferences = {
-      dismissedUpdateTypeBannerTime: dismissedDate,
-    };
-
-    dispatch(updatePreferences(api, patientId, preferences));
-  };
-}
-
-/**
- * Click Update Type Banner Action Creator
- *
- * @param  {Object} api an instance of the API wrapper
- */
-export function clickUpdateTypeBanner(api, patientId, clickedDate) {
-  clickedDate = clickedDate || sundial.utcDateString();
-
-  return (dispatch) => {
-    dispatch(sync.dismissBanner('updatetype'));
-
-    const preferences = {
-      clickedUpdateTypeBannerTime: clickedDate,
-    };
-
-    dispatch(updatePreferences(api, patientId, preferences));
-  };
-}
-
-/**
- * Dismiss Uploader Banner Action Creator
- *
- * @param  {Object} api an instance of the API wrapper
- */
-export function dismissUploaderBanner(api, patientId, dismissedDate) {
-  dismissedDate = dismissedDate || sundial.utcDateString();
-
-  return (dispatch) => {
-    dispatch(sync.dismissBanner('uploader'));
-
-    const preferences = {
-      dismissedUploaderBannerTime: dismissedDate,
-    };
-
-    dispatch(updatePreferences(api, patientId, preferences));
-  };
-}
-
-/**
- * Click Uploader Banner Action Creator
- *
- * @param  {Object} api an instance of the API wrapper
- */
-export function clickUploaderBanner(api, patientId, clickedDate) {
-  clickedDate = clickedDate || sundial.utcDateString();
-
-  return (dispatch) => {
-    dispatch(sync.dismissBanner('uploader'));
-
-    const preferences = {
-      clickedUploaderBannerTime: clickedDate,
-    };
-
-    dispatch(updatePreferences(api, patientId, preferences));
-  };
-}
-
-
-/**
- * Dismiss Share Data Connect Banner Action Creator
- *
- * @param  {Object} api an instance of the API wrapper
- */
-export function dismissShareDataBanner(api, patientId, dismissedDate) {
-  dismissedDate = dismissedDate || sundial.utcDateString();
-
-  return (dispatch) => {
-    dispatch(sync.dismissBanner('sharedata'));
-
-    const preferences = {
-      dismissedShareDataBannerTime: dismissedDate,
-    };
-
-    dispatch(updatePreferences(api, patientId, preferences));
-  };
-}
-
-/**
- * Click Share Data Banner Action Creator
- *
- * @param  {Object} api an instance of the API wrapper
- */
-export function clickShareDataBanner(api, patientId, clickedDate) {
-  clickedDate = clickedDate || sundial.utcDateString();
-
-  return (dispatch) => {
-    dispatch(sync.dismissBanner('sharedata'));
-
-    const preferences = {
-      clickedShareDataBannerTime: clickedDate,
-    };
-
-    dispatch(updatePreferences(api, patientId, preferences));
-  };
-}
-
-/**
- * Count Share Data Banner Seen Action Creator
- *
- * @param  {Object} api an instance of the API wrapper
- */
-export function updateShareDataBannerSeen(api, patientId) {
-  const viewDate = sundial.utcDateString();
-  const viewMoment = moment(viewDate);
-
-  return (dispatch, getState) => {
-    const { blip: { loggedInUserId, allUsersMap } } = getState();
-    const loggedInUser = allUsersMap[loggedInUserId];
-    var seenShareDataBannerDate = _.get(loggedInUser, 'preferences.seenShareDataBannerDate', 0);
-    var seenShareDataBannerCount = _.get(loggedInUser, 'preferences.seenShareDataBannerCount', 0);
-
-    const seenShareDataBannerMoment = moment(seenShareDataBannerDate);
-
-    const diffMoment = viewMoment.diff(seenShareDataBannerMoment, 'days');
-
-    if(diffMoment > 0) {
-      seenShareDataBannerCount += 1;
-      seenShareDataBannerDate = viewDate;
-    }
-
-    const preferences = {
-      seenShareDataBannerDate: seenShareDataBannerDate,
-      seenShareDataBannerCount: seenShareDataBannerCount,
-    };
-
-    dispatch(sync.bannerCount(seenShareDataBannerCount));
-    dispatch(updatePreferences(api, patientId, preferences));
+    dispatch(updatePreferences(api, userId, preferences));
   };
 }
 

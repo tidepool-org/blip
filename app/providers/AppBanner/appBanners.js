@@ -1,12 +1,20 @@
-import { push } from 'connected-react-router';
 import i18next from '../../core/language';
-import { async, sync } from '../../redux/actions';
+import { async } from '../../redux/actions';
+import api from '../../core/api';
 
 const t = i18next.t.bind(i18next);
 
+// const bannerMetricsArgs = {
+//   uploaderBanner: ['Uploader banner displayed'],
+//   shareDataBanner: ['Share Data banner displayed'],
+//   donateBanner: ['Big Data banner displayed'],
+//   dexcomConnectBanner: ['Dexcom OAuth banner displayed', { clinicId: this.props.selectedClinicId, dexcomConnectState: dexcomDataSource?.state }],
+//   updateTypeBanner: ['Update Type banner displayed'],
+// };
+
 export const appBanners = [
   {
-    id: 'dataSourceReconnectBanner',
+    id: 'dataSourceReconnect',
     variant: 'warning',
     priority: 0,
     context: ['patient'],
@@ -14,34 +22,47 @@ export const appBanners = [
     getProps: (dispatch, provider) => ({
       label: t('Data Source Reconnect Banner'),
       message: t('Tidepool is no longer receiving data from your {{displayName}} account.', provider),
+      show: {
+        metric: 'Displayed Data Source Reconnect Banner',
+        metricProps: { providerName: provider?.dataSourceFilter?.providerName },
+      },
       action: {
         text: t('Reconnect my Account'),
-        metric: 'clicked get started on Uploader Install banner',
-        onClick: () => dispatch(push(`${window.location.pathname}?chart=settings`)),
+        metric: 'Clicked Data Source Reconnect Banner',
+        handler: () => {
+          if (provider) {
+            const { id, restrictedTokenCreate, dataSourceFilter } = provider;
+            return dispatch(async.connectDataSource(api, id, restrictedTokenCreate, dataSourceFilter));
+          }
+        },
       },
       dismiss: {
-        metric: 'dismiss Uploader Install banner',
+        metric: 'Dismissed Data Source Reconnect Banner',
+        metricProps: { providerName: provider?.dataSourceFilter?.providerName }
       },
     }),
   },
 
   {
-    id: 'uploaderBanner',
+    id: 'uploader',
     priority: 10,
     context: ['patient', 'clinic'],
     paths: [/^\/patients\/\S+\/data/],
     getProps: () => ({
       label: t('Uploader Banner'),
       message: t('If you\'ll be uploading your devices at home, download the latest version of Tidepool Uploader.'),
+      show: {
+        metric: 'Uploader banner displayed',
+      },
       action: {
         text: t('Download Latest'),
         metric: 'clicked get started on Uploader Install banner',
-        onClick: () => window.open('https://www.tidepool.org/download'),
+        handler: () => window.open('https://www.tidepool.org/download'),
       },
       messageLink: {
         text: t('See the Install Guide'),
         metric: 'clicked learn more on Uploader Install banner',
-        onClick: () => window.open('https://support.tidepool.org/hc/en-us/articles/360029368552-Installing-Tidepool-Uploader'),
+        handler: () => window.open('https://support.tidepool.org/hc/en-us/articles/360029368552-Installing-Tidepool-Uploader'),
       },
       dismiss: {
         metric: 'dismiss Uploader Install banner',

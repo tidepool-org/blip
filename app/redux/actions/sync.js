@@ -32,33 +32,33 @@ export function hideWelcomeMessage() {
   };
 }
 
-export function showBanner(type) {
-  return {
-    type: ActionTypes.SHOW_BANNER,
-    payload: { type },
-  };
-}
+// export function showBanner(type) {
+//   return {
+//     type: ActionTypes.SHOW_BANNER,
+//     payload: { type },
+//   };
+// }
 
-export function hideBanner(type) {
-  return {
-    type: ActionTypes.HIDE_BANNER,
-    payload: { type },
-  };
-}
+// export function hideBanner(type) {
+//   return {
+//     type: ActionTypes.HIDE_BANNER,
+//     payload: { type },
+//   };
+// }
 
-export function dismissBanner(type) {
-  return {
-    type: ActionTypes.DISMISS_BANNER,
-    payload: { type },
-  };
-}
+// export function dismissBanner(type) {
+//   return {
+//     type: ActionTypes.DISMISS_BANNER,
+//     payload: { type },
+//   };
+// }
 
-export function bannerCount(count) {
-  return {
-    type: ActionTypes.SHOW_BANNER,
-    payload: { count },
-  };
-}
+// export function bannerCount(count) {
+//   return {
+//     type: ActionTypes.SHOW_BANNER,
+//     payload: { count },
+//   };
+// }
 
 export function acknowledgeNotification(acknowledgedNotification) {
   return {
@@ -582,10 +582,11 @@ export function updatePreferencesRequest() {
   };
 }
 
-export function updatePreferencesSuccess(preferences) {
+export function updatePreferencesSuccess(patientId, preferences) {
   return {
     type: ActionTypes.UPDATE_PREFERENCES_SUCCESS,
     payload: {
+      patientId: patientId,
       updatedPreferences: preferences,
     },
   };
