@@ -1,34 +1,56 @@
+import { push } from 'connected-react-router';
+
 import i18next from '../../core/language';
 import { async } from '../../redux/actions';
 import api from '../../core/api';
+import personUtils from '../../core/personutils';
+import { resendEmailVerification } from '../../redux/actions/async';
 
 const t = i18next.t.bind(i18next);
 
 // const bannerMetricsArgs = {
-//   uploaderBanner: ['Uploader banner displayed'],
 //   shareDataBanner: ['Share Data banner displayed'],
 //   donateBanner: ['Big Data banner displayed'],
-//   dexcomConnectBanner: ['Dexcom OAuth banner displayed', { clinicId: this.props.selectedClinicId, dexcomConnectState: dexcomDataSource?.state }],
 //   updateTypeBanner: ['Update Type banner displayed'],
 // };
 
 export const appBanners = [
   {
-    id: 'dataSourceReconnect',
-    variant: 'warning',
+    id: 'dataSourceJustConnected',
+    variant: 'info',
     priority: 0,
     context: ['patient'],
     paths: [/^\/patients\/\S+\/data/],
+    getProps: provider => ({
+      label: t('Data Source Just Connected banner'),
+      title: t('Data from {{displayName}} is on its way. This usually takes a few minutes but occasionally takes a bit longer.', provider),
+      show: {
+        metric: 'Data Source Just Connected banner displayed',
+        metricProps: { providerName: provider?.dataSourceFilter?.providerName },
+      },
+      dismiss: {
+        metric: 'Data Source Just Connected banner dismissed',
+        metricProps: { providerName: provider?.dataSourceFilter?.providerName }
+      },
+    }),
+  },
+
+  {
+    id: 'dataSourceReconnect',
+    variant: 'warning',
+    priority: 1,
+    context: ['patient'],
+    paths: [/^\/patients\/\S+\/data/],
     getProps: (dispatch, provider) => ({
-      label: t('Data Source Reconnect Banner'),
+      label: t('Data Source Reconnect banner'),
       message: t('Tidepool is no longer receiving data from your {{displayName}} account.', provider),
       show: {
-        metric: 'Displayed Data Source Reconnect Banner',
+        metric: 'Displayed Data Source Reconnect banner displayed',
         metricProps: { providerName: provider?.dataSourceFilter?.providerName },
       },
       action: {
         text: t('Reconnect my Account'),
-        metric: 'Clicked Data Source Reconnect Banner',
+        metric: 'Data Source Reconnect banner clicked',
         handler: () => {
           if (provider) {
             const { id, restrictedTokenCreate, dataSourceFilter } = provider;
@@ -37,27 +59,7 @@ export const appBanners = [
         },
       },
       dismiss: {
-        metric: 'Dismissed Data Source Reconnect Banner',
-        metricProps: { providerName: provider?.dataSourceFilter?.providerName }
-      },
-    }),
-  },
-
-  {
-    id: 'dataSourceJustConnected',
-    variant: 'info',
-    priority: 1,
-    context: ['patient'],
-    paths: [/^\/patients\/\S+\/data/],
-    getProps: provider => ({
-      label: t('Data Source Just Connected Banner'),
-      title: t('Data from {{displayName}} is on its way. This usually takes a few minutes but occasionally takes a bit longer.', provider),
-      show: {
-        metric: 'Displayed Data Source Just Connected Banner',
-        metricProps: { providerName: provider?.dataSourceFilter?.providerName },
-      },
-      dismiss: {
-        metric: 'Dismissed Data Source Just Connected Banner',
+        metric: 'Data Source Reconnect banner dismissed',
         metricProps: { providerName: provider?.dataSourceFilter?.providerName }
       },
     }),
@@ -65,11 +67,11 @@ export const appBanners = [
 
   {
     id: 'uploader',
-    priority: 10,
-    context: ['patient', 'clinic'],
+    priority: 2,
+    context: ['patient'],
     paths: [/^\/patients\/\S+\/data/],
     getProps: () => ({
-      label: t('Uploader Banner'),
+      label: t('Uploader banner'),
       message: t('If you\'ll be uploading your devices at home, download the latest version of Tidepool Uploader.'),
       show: {
         metric: 'Uploader banner displayed',
@@ -86,6 +88,60 @@ export const appBanners = [
       },
       dismiss: {
         metric: 'dismiss Uploader Install banner',
+      },
+    }),
+  },
+
+  {
+    id: 'addEmail',
+    priority: 3,
+    context: ['clinic'],
+    paths: [/^\/patients\/\S+\/data/],
+    showIcon: false,
+    getProps: (dispatch, patient) => ({
+      label: t('Add Email banner'),
+      message: t('Add {{fullName}}\'s email to invite them to upload and view data from home', { fullName: personUtils.patientFullName(patient)}),
+      show: {
+        metric: 'Banner displayed Add Email',
+      },
+      action: {
+        text: t('Add Email'),
+        metric: 'Clicked Banner Add Email',
+        metricProps: { source: 'none', location: 'banner' },
+        handler: () => dispatch(push(`/patients/${patient?.userid}/profile#edit`)),
+      },
+      dismiss: {
+        metric: 'Add Email banner dismissed',
+      },
+    }),
+  },
+
+  {
+    id: 'sendVerification',
+    priority: 4,
+    context: ['clinic'],
+    paths: [/^\/patients\/\S+\/data/],
+    showIcon: false,
+    getProps: (dispatch, patient) => ({
+      label: t('Send Verification banner'),
+      message: t('Resend {{fullName}}\'s email to invite them to upload and view data from home', { fullName: personUtils.patientFullName(patient)}),
+      show: {
+        metric: 'Banner displayed Send Verification',
+      },
+      action: {
+        text: t('Resend Verification Email'),
+        processingText: t('Resending Verification Email'),
+        metric: 'Clicked Banner Resend Verification',
+        metricProps: { source: 'none', location: 'banner' },
+        handler: () => dispatch(resendEmailVerification(api, patient?.email)),
+        working: {
+          key: 'resendingEmailVerification',
+          successMessage: t('Verification email sent to {{email}}', { email: patient?.email }),
+          errorMessage: t('Error sending verification email'),
+        },
+      },
+      dismiss: {
+        metric: 'Send Verification banner banner dismissed',
       },
     }),
   },

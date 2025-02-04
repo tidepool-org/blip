@@ -1,7 +1,7 @@
-import React, { createContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
-import { filter, find, includes, intersection, keys, map, some, upperFirst } from 'lodash';
+import { filter, find, has, includes, intersection, keys, map, some, upperFirst } from 'lodash';
 
 import { appBanners } from './appBanners';
 import { providers } from '../../components/datasources/DataConnections';
@@ -17,64 +17,86 @@ const AppBannerProvider = ({ children }) => {
   // State to hold the currently displayed banner
   const dispatch = useDispatch();
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
-  const clinic = useSelector(state => state.blip.clinics[selectedClinicId]);
+  const clinics = useSelector(state => state.blip.clinics);
+  const clinic = clinics?.[selectedClinicId];
+
   const loggedInUserId = useSelector(state => state.blip.loggedInUserId);
-  const user = useSelector(state => state.blip.allUsersMap[loggedInUserId]);
-  const dataSources = useSelector(state => state.blip.dataSources);
+  const loggedInUser = useSelector(state => state.blip.allUsersMap[loggedInUserId]);
+
   const currentPatientInViewId = useSelector(state => state.blip.currentPatientInViewId);
+  const clinicPatient = clinic?.patients?.[currentPatientInViewId];
   const userIsCurrentPatient = loggedInUserId === currentPatientInViewId;
+  const isCustodialPatient = has(clinicPatient?.permissions, 'custodian');
+
   const patientDevices = useSelector(state => state.blip.data.metaData.devices);
   const userHasPumpData = filter(patientDevices, { pump: true }).length > 0;
+  const dataSources = useSelector(state => state.blip.dataSources);
   const { pathname } = useLocation();
 
   const erroredDataSource = find(
-    userIsCurrentPatient ? dataSources : clinic?.patients[currentPatientInViewId]?.dataSources,
+    userIsCurrentPatient ? dataSources : clinic?.patients?.[currentPatientInViewId]?.dataSources,
     { state: 'error' },
   );
 
   const justConnectedDataSource = find(
-    userIsCurrentPatient ? dataSources : clinic?.patients[currentPatientInViewId]?.dataSources,
+    userIsCurrentPatient ? dataSources : clinic?.patients?.[currentPatientInViewId]?.dataSources,
     ({state, lastImportTime}) => state === 'connected' && !lastImportTime,
   );
 
   const [currentBanner, setCurrentBanner] = useState(null);
   const [bannerShownMetricsForPatient, setBannerShownMetricsForPatient] = useState({});
+  const [bannerInteractedForPatient, setBannerInteractedForPatient] = useState({});
 
   const bannerInteractionKeys = banner => map([CLICKED_BANNER_ACTION, DISMISSED_BANNER_ACTION], action => `${action}${upperFirst(banner.id)}BannerTime`);
 
-  const processBanner = useCallback(() => ({
-    dataSourceReconnect: {
-      show: !!erroredDataSource?.providerName,
-      bannerArgs: [dispatch, providers[erroredDataSource?.providerName]]
-    },
-
+  const processedBanners = useMemo(() => ({
     dataSourceJustConnected: {
       show: !!justConnectedDataSource?.providerName,
       bannerArgs: [providers[justConnectedDataSource?.providerName]]
     },
 
+    dataSourceReconnect: {
+      show: !!erroredDataSource?.providerName,
+      bannerArgs: [dispatch, providers[erroredDataSource?.providerName]]
+    },
+
     uploader: {
-      show: userIsCurrentPatient && dataSources.length && !userHasPumpData,
+      show: userIsCurrentPatient && dataSources?.length && !userHasPumpData,
       bannerArgs: [],
     },
+
+    addEmail: {
+      show: isCustodialPatient && !!clinicPatient && !clinicPatient?.email,
+      bannerArgs: [dispatch, clinicPatient],
+    },
+
+    sendVerification: {
+      show: !bannerInteractedForPatient?.addEmail?.[currentPatientInViewId] && isCustodialPatient && !!clinicPatient?.email,
+      bannerArgs: [dispatch, clinicPatient],
+    },
   }), [
-    dataSources.length,
+    bannerInteractedForPatient?.addEmail,
+    clinicPatient,
+    currentPatientInViewId,
+    dataSources?.length,
     dispatch,
     erroredDataSource?.providerName,
+    isCustodialPatient,
     justConnectedDataSource?.providerName,
     userIsCurrentPatient,
     userHasPumpData,
   ]);
 
   useEffect(() => {
-    setCurrentBanner(null)
+    setCurrentBanner(null);
     const context = userIsCurrentPatient ? 'patient' : 'clinic';
 
     const filteredBanners = filter(appBanners, banner => {
-      const previousInteractions = intersection(keys(user?.preferences), bannerInteractionKeys(banner));
+      const previousPatientInteractions = intersection(keys(loggedInUser?.preferences), bannerInteractionKeys(banner));
+      const sessionInteraction = bannerInteractedForPatient[banner.id]?.[currentPatientInViewId];
       const matchesContext = includes(banner.context, context);
       const matchesPath = some(banner.paths, path => path.test(pathname));
-      return !previousInteractions.length && matchesContext && matchesPath;
+      return !sessionInteraction && !previousPatientInteractions.length && matchesContext && matchesPath;
     });
 
     // Sort banners based on priority (lower values mean higher priority)
@@ -82,17 +104,28 @@ const AppBannerProvider = ({ children }) => {
 
     // Find and display the first available banner
     for (const banner of sortedBanners) {
-      const processedBanner = processBanner()[banner.id];
+      const processedBanner = processedBanners[banner.id];
+
       if (processedBanner?.show) {
         setCurrentBanner({ ...banner, ...banner.getProps(...processedBanner.bannerArgs) });
         break;
       }
     }
-  }, [pathname, selectedClinicId, userIsCurrentPatient, processBanner, user?.preferences]);
+  }, [
+    bannerInteractedForPatient,
+    currentPatientInViewId,
+    loggedInUser?.preferences,
+    pathname,
+    processedBanners,
+    selectedClinicId,
+    userIsCurrentPatient,
+  ]);
 
   const bannerContext = {
     banner: currentBanner,
+    bannerInteractedForPatient,
     bannerShownMetricsForPatient,
+    setBannerInteractedForPatient,
     setBannerShownMetricsForPatient,
   };
 
