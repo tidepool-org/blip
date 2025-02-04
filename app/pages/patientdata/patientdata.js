@@ -2226,6 +2226,9 @@ export function getFetchers(dispatchProps, ownProps, stateProps, api, options) {
     !stateProps.fetchingPatientFromClinic.inProgress
   ) {
     if (clinicsWithPatient.length > 0) {
+      // In most cases, the clinicsWithPatient array will have length of 1. In cases where the same clinician and patient
+      // are in several of the same clinics, we select one arbitrarily, as we have no further information about which
+      // clinic the clinician is arriving from.
       const clinicToSelect = clinicsWithPatient[0];
       dispatchProps.selectClinic(api, clinicToSelect);
     } else {
