@@ -28,13 +28,6 @@ const working = {
 const initialState = {
   passwordResetConfirmed: false,
   showingWelcomeMessage: null,
-  // showingDonateBanner: null,
-  // showingDexcomConnectBanner: null,
-  // showingShareDataBanner: null,
-  // seenShareDataBannerMax: false,
-  // showingUpdateTypeBanner: null,
-  // showingUploaderBanner: null,
-  // showingPatientLimitBanner: null,
   signupKey: null,
   isLoggedIn: false,
   sentEmailVerification: false,

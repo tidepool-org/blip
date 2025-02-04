@@ -52,17 +52,13 @@ export const colors = {
     info: {
       action: {
         bg: colorPalette.primary.purpleMedium,
-        // bg: '#2A1948',
         text: colorPalette.neutrals.white,
       },
       bg: '#2A1948',
-      // bg: colorPalette.primary.purpleLight,
       closeIcon: colorPalette.neutrals.white,
-      // closeIcon: '#4F6A92',
       icon: colorPalette.primary.purpleMedium,
       message: colorPalette.neutrals.white,
       messageLink: colorPalette.primary.purpleLight,
-      // message: '#2A1948',
     },
     warning: {
       action: {
