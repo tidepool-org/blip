@@ -2226,7 +2226,8 @@ export function getFetchers(dispatchProps, ownProps, stateProps, api, options) {
     !stateProps.fetchingPatientFromClinic.inProgress
   ) {
     if (clinicsWithPatient.length > 0) {
-      dispatchProps.selectClinic(api, clinicsWithPatient[0]);
+      const clinicToSelect = clinicsWithPatient[0];
+      dispatchProps.selectClinic(api, clinicToSelect);
     } else {
       _.forEach(stateProps.clinics, (clinic, clinicId) => {
         fetchers.push(
