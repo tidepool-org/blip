@@ -65,6 +65,11 @@ const AppBannerProvider = ({ children }) => {
       bannerArgs: [],
     },
 
+    patientLimit: {
+      show: clinic?.patientLimitEnforced && !!clinic?.ui?.warnings?.limitReached,
+      bannerArgs: [clinic],
+    },
+
     addEmail: {
       show: isCustodialPatient && !!clinicPatient && !clinicPatient?.email,
       bannerArgs: [dispatch, clinicPatient],
@@ -76,6 +81,7 @@ const AppBannerProvider = ({ children }) => {
     },
   }), [
     bannerInteractedForPatient?.addEmail,
+    clinic,
     clinicPatient,
     currentPatientInViewId,
     dataSources?.length,

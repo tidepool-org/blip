@@ -5,8 +5,14 @@ import { async } from '../../redux/actions';
 import api from '../../core/api';
 import personUtils from '../../core/personutils';
 import { resendEmailVerification } from '../../redux/actions/async';
+import { URL_TIDEPOOL_PLUS_CONTACT_SALES } from '../../core/constants';
 
 const t = i18next.t.bind(i18next);
+
+const pathRegexes = {
+  clinicWorkspace: /^\/clinic-workspace/,
+  patientData: /^\/patients\/\S+\/data/,
+};
 
 // const bannerMetricsArgs = {
 //   shareDataBanner: ['Share Data banner displayed'],
@@ -20,7 +26,7 @@ export const appBanners = [
     variant: 'info',
     priority: 0,
     context: ['patient'],
-    paths: [/^\/patients\/\S+\/data/],
+    paths: [pathRegexes.patientData],
     getProps: provider => ({
       label: t('Data Source Just Connected banner'),
       title: t('Data from {{displayName}} is on its way. This usually takes a few minutes but occasionally takes a bit longer.', provider),
@@ -40,7 +46,7 @@ export const appBanners = [
     variant: 'warning',
     priority: 1,
     context: ['patient'],
-    paths: [/^\/patients\/\S+\/data/],
+    paths: [pathRegexes.patientData],
     getProps: (dispatch, provider) => ({
       label: t('Data Source Reconnect banner'),
       message: t('Tidepool is no longer receiving data from your {{displayName}} account.', provider),
@@ -67,9 +73,10 @@ export const appBanners = [
 
   {
     id: 'uploader',
+    variant: 'info',
     priority: 2,
     context: ['patient'],
-    paths: [/^\/patients\/\S+\/data/],
+    paths: [pathRegexes.patientData],
     getProps: () => ({
       label: t('Uploader banner'),
       message: t('If you\'ll be uploading your devices at home, download the latest version of Tidepool Uploader.'),
@@ -79,12 +86,12 @@ export const appBanners = [
       action: {
         text: t('Download Latest'),
         metric: 'clicked get started on Uploader Install banner',
-        handler: () => window.open('https://www.tidepool.org/download'),
+        handler: () => window.open('https://www.tidepool.org/download', '_blank'),
       },
       messageLink: {
         text: t('See the Install Guide'),
         metric: 'clicked learn more on Uploader Install banner',
-        handler: () => window.open('https://support.tidepool.org/hc/en-us/articles/360029368552-Installing-Tidepool-Uploader'),
+        handler: () => window.open('https://support.tidepool.org/hc/en-us/articles/360029368552-Installing-Tidepool-Uploader', '_blank'),
       },
       dismiss: {
         metric: 'dismiss Uploader Install banner',
@@ -93,10 +100,34 @@ export const appBanners = [
   },
 
   {
-    id: 'addEmail',
+    id: 'patientLimit',
+    variant: 'warning',
     priority: 3,
     context: ['clinic'],
-    paths: [/^\/patients\/\S+\/data/],
+    paths: [pathRegexes.clinicWorkspace],
+    getProps: clinic => ({
+      label: t('Patient Limit banner'),
+      message: t('{{name}} has reached the maximum number of patient accounts.', clinic),
+      show: {
+        metric: 'Patient limit banner: displayed',
+      },
+      action: {
+        text: t('Contact us to unlock plans'),
+        metric: 'Patient limit banner: contact sales clicked',
+        handler: () => window.open(URL_TIDEPOOL_PLUS_CONTACT_SALES, '_blank'),
+      },
+      dismiss: {
+        metric: 'Patient limit banner: dismissed',
+      },
+    }),
+  },
+
+  {
+    id: 'addEmail',
+    variant: 'info',
+    priority: 4,
+    context: ['clinic'],
+    paths: [pathRegexes.patientData],
     showIcon: false,
     getProps: (dispatch, patient) => ({
       label: t('Add Email banner'),
@@ -118,9 +149,10 @@ export const appBanners = [
 
   {
     id: 'sendVerification',
-    priority: 4,
+    variant: 'info',
+    priority: 5,
     context: ['clinic'],
-    paths: [/^\/patients\/\S+\/data/],
+    paths: [pathRegexes.patientData],
     showIcon: false,
     getProps: (dispatch, patient) => ({
       label: t('Send Verification banner'),

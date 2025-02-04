@@ -133,17 +133,6 @@ export class AppComponent extends React.Component {
       this.doFetching(nextProps);
     }
 
-    // const isBannerRoute = /^\/patients\/\S+\/data/.test(location);
-
-    // if (showingUploaderBanner !== false) {
-    //   const showUploaderBanner = isBannerRoute && userIsCurrentPatient && !!userDexcomDataSource && !userHasPumpData;
-    //   if (showUploaderBanner) {
-    //     this.props.showBanner('uploader');
-    //   } else if (showingUploaderBanner) {
-    //     this.props.hideBanner('uploader');
-    //   }
-    // }
-
     // if (showingShareDataBanner !== false) {
     //   const showShareDataBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasSharedDataWithClinician && !seenShareDataBannerMax;
 
@@ -165,32 +154,6 @@ export class AppComponent extends React.Component {
     //   }
     // }
 
-    // const dexcomDataSource = userDexcomDataSource || patientDexcomDataSource;
-
-    // if (showingDexcomConnectBanner !== false) { // TODO: showingDataConnectionErrorBanner
-    //   let dexcomBannerWasAcknowledged;
-
-    //   if (userIsCurrentPatient) {
-    //     // Hide the Dexcom banner if the currently logged-in patient has already interacted with the
-    //     // banner and there hasn't been a Dexcom data source update since
-    //     const dexcomDataSourceModifiedTime = dexcomDataSource?.modifiedTime || '';
-    //     const dismissedBannerTime = _.get(nextProps, 'user.preferences.dismissedDexcomConnectBannerTime', '');
-    //     const clickedBannerTime = _.get(nextProps, 'user.preferences.clickedDexcomConnectBannerTime', '');
-    //     const latestBannerInteractionTime = _.max([dismissedBannerTime, clickedBannerTime]);
-
-    //     dexcomBannerWasAcknowledged = !_.isEmpty(dexcomDataSourceModifiedTime)
-    //      ? latestBannerInteractionTime > dexcomDataSourceModifiedTime
-    //      : !_.isEmpty(latestBannerInteractionTime);
-    //   }
-
-    //   if (dexcomDataSource?.state === 'error') {
-    //     this.props.showBanner('dexcom');
-    //     this.setState({ dexcomConnectBanner: { display: true, priority: 0, metricTrackedForPatient: {} } });
-    //   } else if (showingDexcomConnectBanner) {
-    //     this.props.hideBanner('dexcom');
-    //   }
-    // }
-
     // if (showingUpdateTypeBanner !== false) {
     //   const showUpdateTypeBanner = isBannerRoute && userIsCurrentPatient && !userHasDiabetesType;
 
@@ -198,18 +161,6 @@ export class AppComponent extends React.Component {
     //     this.props.showBanner('updatetype');
     //   } else if (showingUpdateTypeBanner) {
     //     this.props.hideBanner('updatetype');
-    //   }
-    // }
-
-    // if (showingPatientLimitBanner !== false) {
-    //   const isClinicWorkspaceRoute = /^\/clinic-workspace/.test(location);
-    //   const clinic = clinics?.[selectedClinicId];
-    //   const showPatientLimitBanner = isClinicWorkspaceRoute && clinic?.patientLimitEnforced && !!clinic?.ui?.warnings?.limitReached;
-
-    //   if (showPatientLimitBanner) {
-    //     this.props.showBanner('patientLimit');
-    //   } else if (showingPatientLimitBanner) {
-    //     this.props.hideBanner('patientLimit');
     //   }
     // }
   }
@@ -381,86 +332,6 @@ export class AppComponent extends React.Component {
   //       </div>
   //     );
   //   }
-
-  //   return null;
-  // }
-
-  // renderAddEmailBanner() {
-  //   this.props.context.log('Rendering clinician add email banner');
-
-  //   const {
-  //     patient,
-  //     clinicPatient,
-  //     permsOfLoggedInUser,
-  //     onResendEmailVerification,
-  //     resendEmailVerificationInProgress,
-  //     resentEmailVerification,
-  //   } = this.props;
-  //   if (_.has(permsOfLoggedInUser, 'custodian')) {
-  //     const combinedPatient = personUtils.combinedAccountAndClinicPatient(patient, clinicPatient);
-  //     if (_.isNil(combinedPatient.username)) {
-  //       this.props.context.trackMetric('Banner displayed Add Email');
-  //       return (
-  //         <div className="App-addemailbanner">
-  //           <AddEmailBanner
-  //             trackMetric={this.props.context.trackMetric}
-  //             patient={combinedPatient}
-  //           />
-  //         </div>
-  //       );
-  //     } else {
-  //       this.props.context.trackMetric('Banner displayed Send Verification');
-  //       return (
-  //         <div className="App-sendverificationbanner">
-  //           <SendVerificationBanner
-  //             trackMetric={this.props.context.trackMetric}
-  //             patient={combinedPatient}
-  //             resendVerification={onResendEmailVerification}
-  //             resendEmailVerificationInProgress={resendEmailVerificationInProgress}
-  //             resentEmailVerification={resentEmailVerification}
-  //           />
-  //         </div>
-  //       );
-  //     }
-  //   }
-  //   return null;
-  // }
-
-  // renderPatientLimitBanner() {
-  //   const {
-  //     clinics,
-  //     dismissBanner,
-  //     selectedClinicId,
-  //     showingPatientLimitBanner,
-  //     t,
-  //   } = this.props;
-
-  //   if (showingPatientLimitBanner) {
-  //       const clinic = clinics?.[selectedClinicId];
-  //       this.props.context.trackMetric('Patient limit banner: displayed');
-
-  //       return (
-  //         <Banner
-  //           id="patientLimitBanner"
-  //           variant="warning"
-  //           label={t('Patient limit banner')}
-  //           actionText={t('Contact us to unlock plans')}
-  //           onAction={() => {
-  //             this.props.context.trackMetric('Patient limit banner: contact sales clicked');
-  //             dismissBanner('patientLimit');
-  //             window.open(URL_TIDEPOOL_PLUS_CONTACT_SALES, '_blank')
-  //           }}
-  //           onDismiss={() => {
-  //             this.props.context.trackMetric('Patient limit banner: dismissed');
-  //             dismissBanner('patientLimit');
-  //           }}
-  //           message={t('{{clinic.name}} has reached the maximum number of patient accounts.', { clinic })}
-  //         />
-  //       );
-  //   }
-
-  //   return null;
-  // }
 
   renderNotification() {
     var notification = this.props.notification;
