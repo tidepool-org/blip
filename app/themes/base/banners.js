@@ -4,7 +4,7 @@ export default ({ colors, fonts, fontSizes, fontWeights }) => {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: '12px',
+    padding: 3,
     bg: colors.banner[variant].bg,
 
     '.icon': {
