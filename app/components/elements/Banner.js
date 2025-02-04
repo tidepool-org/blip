@@ -22,12 +22,14 @@ export function Banner(props) {
     onAction,
     onClickMessageLink,
     onDismiss,
+    showIcon,
     title,
     variant,
     ...themeProps
   } = props;
 
   const iconMap = {
+    info: InfoRoundedIcon,
     danger: ErrorRoundedIcon,
     warning: WarningRoundedIcon,
     success: CheckCircleRoundedIcon,
@@ -43,8 +45,8 @@ export function Banner(props) {
       {...themeProps}
     >
       <Flex px={2} sx={{ gap: 2, flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}>
-        {TypeIcon && <Icon className="icon" theme={baseTheme} variant="static" icon={TypeIcon} label={variant} />}
-        <Box>
+        {showIcon && TypeIcon && <Icon className="icon" theme={baseTheme} variant="static" icon={TypeIcon} label={variant} />}
+        <Box py={1}>
           {title && <Text className="title">{title}</Text>}
           <Box className="message">
             <Text className="message-text">{message}</Text>
@@ -89,6 +91,7 @@ Banner.propTypes = {
   onAction: PropTypes.func,
   onClickMessageLink: PropTypes.func,
   onDismiss: PropTypes.func,
+  showIcon: PropTypes.bool,
   title: PropTypes.string,
   variant: PropTypes.oneOf(['info', 'warning', 'danger', 'success']),
 };
@@ -98,6 +101,7 @@ Banner.defaultProps = {
   onAction: noop,
   onClickMessageLink: noop,
   onDismiss: noop,
+  showIcon: true,
   variant: 'info',
 };
 
