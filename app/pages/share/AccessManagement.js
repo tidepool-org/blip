@@ -628,10 +628,11 @@ export const AccessManagement = (props) => {
               <Text>
                 You invited <Text as='span' fontWeight='bold'>{{inviteName: selectedSharedAccount?.name || selectedSharedAccount?.email}}</Text> to view your data on <Text as='span' fontWeight='bold'>{{inviteDate: formattedInviteDate}}</Text>.
               </Text>
-              <Text>
-                Are you sure you want to resend this invite?
-              </Text>
             </Trans>
+          </Body1>
+
+          <Body1>
+            {t('Are you sure you want to resend this invite?')}
           </Body1>
         </DialogContent>
         <DialogActions>
