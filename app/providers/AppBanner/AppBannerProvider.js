@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
-import { filter, find, has, includes, intersection, keys, map, some, upperFirst } from 'lodash';
+import { filter, find, has, includes, intersection, keys, map, noop, some, upperFirst } from 'lodash';
 
 import { appBanners } from './appBanners';
 import { providers } from '../../components/datasources/DataConnections';
@@ -32,6 +32,7 @@ const AppBannerProvider = ({ children }) => {
   const userHasPumpData = filter(patientDevices, { pump: true }).length > 0;
   const dataSources = useSelector(state => state.blip.dataSources);
   const { pathname } = useLocation();
+  const [trackMetric, setTrackMetric] = useState(noop);
 
   const erroredDataSource = find(
     userIsCurrentPatient ? dataSources : clinic?.patients?.[currentPatientInViewId]?.dataSources,
@@ -70,6 +71,11 @@ const AppBannerProvider = ({ children }) => {
       bannerArgs: [clinic],
     },
 
+    dataSourceReconnectInvite: {
+      show: !!erroredDataSource?.providerName,
+      bannerArgs: [dispatch, trackMetric, selectedClinicId, clinicPatient, providers[erroredDataSource?.providerName]],
+    },
+
     addEmail: {
       show: isCustodialPatient && !!clinicPatient && !clinicPatient?.email,
       bannerArgs: [dispatch, clinicPatient],
@@ -89,6 +95,8 @@ const AppBannerProvider = ({ children }) => {
     erroredDataSource?.providerName,
     isCustodialPatient,
     justConnectedDataSource?.providerName,
+    selectedClinicId,
+    trackMetric,
     userIsCurrentPatient,
     userHasPumpData,
   ]);
@@ -133,6 +141,8 @@ const AppBannerProvider = ({ children }) => {
     bannerShownMetricsForPatient,
     setBannerInteractedForPatient,
     setBannerShownMetricsForPatient,
+    trackMetric,
+    setTrackMetric,
   };
 
   return (

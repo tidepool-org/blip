@@ -1,3 +1,4 @@
+import React from 'react';
 import { push } from 'connected-react-router';
 
 import i18next from '../../core/language';
@@ -6,6 +7,7 @@ import api from '../../core/api';
 import personUtils from '../../core/personutils';
 import { resendEmailVerification } from '../../redux/actions/async';
 import { URL_TIDEPOOL_PLUS_CONTACT_SALES } from '../../core/constants';
+import { ResendDataSourceConnectRequestDialog } from '../../components/clinic/ResendDataSourceConnectRequestDialog';
 
 const t = i18next.t.bind(i18next);
 
@@ -47,7 +49,7 @@ export const appBanners = [
     priority: 1,
     context: ['patient'],
     paths: [pathRegexes.patientData],
-    getProps: (dispatch, provider) => ({
+    getProps: (dispatch, provider = {}) => ({
       label: t('Data Source Reconnect banner'),
       message: t('Tidepool is no longer receiving data from your {{displayName}} account.', provider),
       show: {
@@ -57,12 +59,7 @@ export const appBanners = [
       action: {
         text: t('Reconnect my Account'),
         metric: 'Data Source Reconnect banner clicked',
-        handler: () => {
-          if (provider) {
-            const { id, restrictedTokenCreate, dataSourceFilter } = provider;
-            return dispatch(async.connectDataSource(api, id, restrictedTokenCreate, dataSourceFilter));
-          }
-        },
+        handler: ({ id, restrictedTokenCreate, dataSourceFilter }) => dispatch(async.connectDataSource(api, id, restrictedTokenCreate, dataSourceFilter)),
       },
       dismiss: {
         metric: 'Data Source Reconnect banner dismissed',
@@ -123,9 +120,44 @@ export const appBanners = [
   },
 
   {
+    id: 'dataSourceReconnectInvite',
+    variant: 'warning',
+    priority: 4,
+    context: ['clinic'],
+    paths: [pathRegexes.patientData],
+    getProps: (dispatch, trackMetric, clinicId, patient, provider = {}) => ({
+      label: t('Data Source Reconnect Invite banner'),
+      message: t('Tidepool is no longer receiving data from your patient\'s {{displayName}} account. Would you like to email an invite to reconnect?', provider),
+      show: {
+        metric: 'Displayed Data Source Reconnect Invite banner displayed',
+        metricProps: { providerName: provider?.dataSourceFilter?.providerName },
+      },
+      action: {
+        text: t('Invite to Reconnect'),
+        processingText: t('Sending Reconnection Email'),
+        metric: 'Data Source Reconnect Invite banner clicked',
+        handler: () => dispatch(async.sendPatientDataProviderConnectRequest(api, clinicId, patient?.id, provider?.dataSourceFilter?.providerName)),
+        working: {
+          key: 'sendingPatientDataProviderConnectRequest',
+          successMessage: t('Reconnection email sent to {{email}}', { email: patient?.email }),
+          errorMessage: t('Error sending reconnection email'),
+        },
+        modal: {
+          component: ResendDataSourceConnectRequestDialog,
+          props: { api, patient, providerName: provider?.dataSourceFilter?.providerName, t, trackMetric },
+        }
+      },
+      dismiss: {
+        metric: 'Data Source Reconnect Invite banner dismissed',
+        metricProps: { providerName: provider?.dataSourceFilter?.providerName }
+      },
+    }),
+  },
+
+  {
     id: 'addEmail',
     variant: 'info',
-    priority: 4,
+    priority: 5,
     context: ['clinic'],
     paths: [pathRegexes.patientData],
     showIcon: false,
@@ -150,7 +182,7 @@ export const appBanners = [
   {
     id: 'sendVerification',
     variant: 'info',
-    priority: 5,
+    priority: 6,
     context: ['clinic'],
     paths: [pathRegexes.patientData],
     showIcon: false,

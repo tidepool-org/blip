@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import Banner from '../../components/elements/Banner';
 import { useDispatch, useSelector } from 'react-redux';
 import { isFunction } from 'lodash';
@@ -16,6 +16,7 @@ const AppBanner = ({ trackMetric }) => {
     setBannerShownMetricsForPatient,
     bannerInteractedForPatient,
     setBannerInteractedForPatient,
+    setTrackMetric,
   } = useContext(AppBannerContext);
 
   const dispatch = useDispatch();
@@ -26,11 +27,12 @@ const AppBanner = ({ trackMetric }) => {
   const working = useSelector(state => state.blip.working);
   const { set: setToast } = useToasts();
   const workingState = working[banner?.action?.working?.key];
-
+  const [showModal, setShowModal] = useState(false);
 
   const completeClickAction = useCallback(() => {
     userIsCurrentPatient && dispatch(async.handleBannerInteraction(api, loggedInUserId, banner?.id, CLICKED_BANNER_ACTION));
     banner?.action?.metric && trackMetric(banner.action.metric, banner.action.metricProps);
+    showModal && setShowModal(false);
 
     setBannerInteractedForPatient({
       [banner?.id]: {
@@ -46,6 +48,7 @@ const AppBanner = ({ trackMetric }) => {
     dispatch,
     loggedInUserId,
     setBannerInteractedForPatient,
+    showModal,
     trackMetric,
     userIsCurrentPatient,
   ]);
@@ -90,6 +93,10 @@ const AppBanner = ({ trackMetric }) => {
     handleAsyncResult(workingState, banner?.action?.working?.successMessage, banner?.action?.working?.errorMessage);
   }, [banner?.id, banner?.action, handleAsyncResult, workingState]);
 
+  useEffect(() => {
+    setTrackMetric(trackMetric);
+  }, [setTrackMetric, trackMetric]);
+
   // Render nothing if no banner is available
   if (!banner) {
     return null;
@@ -101,6 +108,13 @@ const AppBanner = ({ trackMetric }) => {
   }
 
   function handleClickAction() {
+    if (banner?.action?.modal?.component) {
+      // If the banner has a modal, show it instead of executing the action
+      // The action will be executed when the modal is confirmed
+      setShowModal(true);
+      return;
+    }
+
     isFunction(banner.action?.handler) && banner.action.handler();
 
     if (!banner?.action?.working?.key) {
@@ -122,19 +136,30 @@ const AppBanner = ({ trackMetric }) => {
   }
 
   return (
-    <Banner
-      id={banner.id}
-      label={banner.label}
-      message={banner.message}
-      title={banner.title}
-      actionText={workingState?.inProgress ? banner.action?.processingText : banner.action?.text}
-      messageLinkText={banner.messageLink?.text}
-      onAction={handleClickAction}
-      onClickMessageLink={handleClickMessageLink}
-      onDismiss={handleDismiss}
-      showIcon={banner.showIcon}
-      variant={banner.variant}
-    />
+    <>
+      <Banner
+        id={banner.id}
+        label={banner.label}
+        message={banner.message}
+        title={banner.title}
+        actionText={workingState?.inProgress ? banner.action?.processingText || banner.action?.text : banner.action?.text}
+        messageLinkText={banner.messageLink?.text}
+        onAction={handleClickAction}
+        onClickMessageLink={handleClickMessageLink}
+        onDismiss={handleDismiss}
+        showIcon={banner.showIcon}
+        variant={banner.variant}
+      />
+
+      {banner.action?.modal?.component && (
+        <banner.action.modal.component
+          {...banner.action.modal.props}
+          open={showModal}
+          onConfirm={banner.action.handler}
+          onClose={() => setShowModal(false)}
+        />
+      )}
+    </>
   );
 };
 

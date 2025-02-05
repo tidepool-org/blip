@@ -57,7 +57,7 @@ export function Banner(props) {
                 <Link /* eslint-disable-line jsx-a11y/anchor-is-valid */
                   className="message-link"
                   onClick={onClickMessageLink}
-                  >
+                >
                   {messageLinkText}
                 </Link>
               </>
