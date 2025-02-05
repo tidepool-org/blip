@@ -571,7 +571,6 @@ export const DataConnections = (props) => {
       </Box>
 
       {showPatientEmailModal && <PatientEmailModal
-        action="add"
         open
         onClose={handleAddPatientEmailClose}
         onFormChange={handleAddPatientEmailFormChange}
