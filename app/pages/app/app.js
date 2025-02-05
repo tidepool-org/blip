@@ -69,7 +69,6 @@ export class AppComponent extends React.Component {
     selectedClinicId: PropTypes.string,
     termsAccepted: PropTypes.string,
     user: PropTypes.object,
-    userHasData: PropTypes.bool.isRequired,
     userIsCurrentPatient: PropTypes.bool.isRequired,
     userIsDonor: PropTypes.bool.isRequired,
     userIsSupportingNonprofit: PropTypes.bool.isRequired,
@@ -440,8 +439,6 @@ export function mapStateToProps(state) {
   let userHasSharedDataWithClinician = false;
   let userIsSupportingNonprofit = false;
   let userIsCurrentPatient = false;
-  let userHasData = false;
-  let userHasPumpData = false;
   let userHasDiabetesType = false;
 
   if (userHasSharedData) {
@@ -454,9 +451,6 @@ export function mapStateToProps(state) {
   if (state.blip.allUsersMap) {
     if (state.blip.loggedInUserId) {
       user = state.blip.allUsersMap[state.blip.loggedInUserId];
-
-      userHasData = _.get(state, 'blip.data.metaData.patientId') === state.blip.loggedInUserId && _.get(state, 'blip.data.metaData.size', 0) > 0;
-      userHasPumpData = _.filter(_.get(state, 'blip.data.metaData.devices', []), { pump: true }).length > 0;
 
       if (state.blip.loggedInUserId === state.blip.currentPatientInViewId) {
         userIsCurrentPatient = true;
@@ -576,8 +570,6 @@ export function mapStateToProps(state) {
     permsOfLoggedInUser: permsOfLoggedInUser,
     selectedClinicId: state.blip.selectedClinicId,
     userIsCurrentPatient,
-    userHasData,
-    userHasPumpData,
     userHasDiabetesType,
     userIsDonor,
     userHasConnectedDataSources,

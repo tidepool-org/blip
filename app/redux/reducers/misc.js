@@ -95,17 +95,6 @@ export const showingWelcomeMessage = (state = initialState.showingWelcomeMessage
   }
 };
 
-// export const seenShareDataBannerMax = (state = initialState.seenShareDataBannerMax, action) => {
-//   switch (action.type) {
-//     case types.SHOW_BANNER:
-//       return (action.payload.count > 2) ? true : state;
-//     case types.LOGOUT_REQUEST:
-//       return null;
-//     default:
-//       return state;
-//   }
-// };
-
 export const signupKey = (state = initialState.signupKey, action) => {
   switch(action.type) {
     case types.CONFIRM_SIGNUP_FAILURE:
