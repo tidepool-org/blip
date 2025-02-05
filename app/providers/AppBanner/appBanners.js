@@ -18,7 +18,6 @@ const pathRegexes = {
 
 // const bannerMetricsArgs = {
 //   donateBanner: ['Big Data banner displayed'],
-//   updateTypeBanner: ['Update Type banner displayed'],
 // };
 
 export const appBanners = [
@@ -120,6 +119,35 @@ export const appBanners = [
       },
       dismiss: {
         metric: 'dismiss Share Data banner',
+      },
+    }),
+  },
+
+  {
+    id: 'updateType',
+    variant: 'info',
+    priority: 5,
+    context: ['patient'],
+    paths: [pathRegexes.patientData],
+    getProps: (dispatch, loggedInUserId) => ({
+      label: t('Update Type banner'),
+      message: t('Complete your profile.'),
+      show: {
+        metric: 'Update Type banner displayed',
+      },
+      action: {
+        text: t('Update My Profile'),
+        metric: 'clicked get started on Update Type banner',
+        handler: () => dispatch(push(`/patients/${loggedInUserId}/profile`)),
+      },
+      messageLink: {
+        text: t('Add your birthday, diagnosis date, and type'),
+        metric: 'clicked learn more Update Type banner',
+        handler: () => dispatch(push(`/patients/${loggedInUserId}/profile`)),
+        trackInteraction: true,
+      },
+      dismiss: {
+        metric: 'dismiss Update Type banner',
       },
     }),
   },

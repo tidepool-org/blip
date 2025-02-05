@@ -32,7 +32,6 @@ const AppBanner = ({ trackMetric }) => {
 
   const completeClickAction = useCallback(() => {
     userIsCurrentPatient && dispatch(async.handleBannerInteraction(api, loggedInUserId, banner?.id, CLICKED_BANNER_ACTION));
-    banner?.action?.metric && trackMetric(banner.action.metric, banner.action.metricProps);
     showModal && setShowModal(false);
 
     setBannerInteractedForPatient({
@@ -111,10 +110,13 @@ const AppBanner = ({ trackMetric }) => {
   function handleClickMessageLink() {
     isFunction(banner.messageLink?.handler) && banner.messageLink.handler();
     banner.messageLink?.metric && trackMetric(banner.messageLink.metric);
+    if (banner.messageLink?.trackInteraction) completeClickAction();
   }
 
   function handleClickAction() {
-    if (banner?.action?.modal?.component) {
+    banner.action?.metric && trackMetric(banner.action.metric, banner.action.metricProps);
+
+    if (banner.action?.modal?.component) {
       // If the banner has a modal, show it instead of executing the action
       // The action will be executed when the modal is confirmed
       setShowModal(true);
@@ -123,7 +125,7 @@ const AppBanner = ({ trackMetric }) => {
 
     isFunction(banner.action?.handler) && banner.action.handler();
 
-    if (!banner?.action?.working?.key) {
+    if (!banner.action?.working?.key) {
       completeClickAction();
     }
   }

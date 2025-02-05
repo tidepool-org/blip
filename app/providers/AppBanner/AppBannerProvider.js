@@ -33,6 +33,7 @@ const AppBannerProvider = ({ children }) => {
   const clinicPatient = clinic?.patients?.[currentPatientInViewId];
   const userIsCurrentPatient = loggedInUserId === currentPatientInViewId;
   const isCustodialPatient = has(clinicPatient?.permissions, 'custodian');
+  const userHasDiabetesType = !!loggedInUser?.profile?.patient?.diagnosisType;
 
   const patientMetaData = useSelector(state => state.blip.data.metaData);
   const patientDevices = patientMetaData?.devices;
@@ -75,6 +76,11 @@ const AppBannerProvider = ({ children }) => {
       bannerArgs: [dispatch, loggedInUserId],
     },
 
+    updateType: {
+      show: userIsCurrentPatient && userHasData && !userHasDiabetesType,
+      bannerArgs: [dispatch, loggedInUserId],
+    },
+
     patientLimit: {
       show: clinic?.patientLimitEnforced && !!clinic?.ui?.warnings?.limitReached,
       bannerArgs: [clinic],
@@ -109,6 +115,7 @@ const AppBannerProvider = ({ children }) => {
     selectedClinicId,
     sharedAccounts,
     userHasData,
+    userHasDiabetesType,
     userHasPumpData,
     userIsCurrentPatient,
   ]);
