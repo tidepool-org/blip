@@ -8,6 +8,7 @@ import personUtils from '../../core/personutils';
 import { resendEmailVerification } from '../../redux/actions/async';
 import { URL_TIDEPOOL_PLUS_CONTACT_SALES } from '../../core/constants';
 import { ResendDataSourceConnectRequestDialog } from '../../components/clinic/ResendDataSourceConnectRequestDialog';
+import PatientEmailModal from '../../components/datasources/PatientEmailModal';
 
 const t = i18next.t.bind(i18next);
 
@@ -125,7 +126,7 @@ export const appBanners = [
     priority: 4,
     context: ['clinic'],
     paths: [pathRegexes.patientData],
-    getProps: (dispatch, trackMetric, clinicId, patient, provider = {}) => ({
+    getProps: (dispatch, clinicId, patient = {}, provider = {}) => ({
       label: t('Data Source Reconnect Invite banner'),
       message: t('Tidepool is no longer receiving data from your patient\'s {{displayName}} account. Would you like to email an invite to reconnect?', provider),
       show: {
@@ -136,15 +137,15 @@ export const appBanners = [
         text: t('Invite to Reconnect'),
         processingText: t('Sending Reconnection Email'),
         metric: 'Data Source Reconnect Invite banner clicked',
-        handler: () => dispatch(async.sendPatientDataProviderConnectRequest(api, clinicId, patient?.id, provider?.dataSourceFilter?.providerName)),
+        handler: () => dispatch(async.sendPatientDataProviderConnectRequest(api, clinicId, patient.id, provider?.dataSourceFilter?.providerName)),
         working: {
           key: 'sendingPatientDataProviderConnectRequest',
-          successMessage: t('Reconnection email sent to {{email}}', { email: patient?.email }),
+          successMessage: t('Reconnection email sent to {{email}}', patient),
           errorMessage: t('Error sending reconnection email'),
         },
         modal: {
           component: ResendDataSourceConnectRequestDialog,
-          props: { api, patient, providerName: provider?.dataSourceFilter?.providerName, t, trackMetric },
+          props: { api, patient, providerName: provider?.dataSourceFilter?.providerName, t },
         }
       },
       dismiss: {
@@ -161,9 +162,9 @@ export const appBanners = [
     context: ['clinic'],
     paths: [pathRegexes.patientData],
     showIcon: false,
-    getProps: (dispatch, patient) => ({
+    getProps: (formikContext, patient = {}) => ({
       label: t('Add Email banner'),
-      message: t('Add {{fullName}}\'s email to invite them to upload and view data from home', { fullName: personUtils.patientFullName(patient)}),
+      message: t('Add {{fullName}}\'s email to invite them to upload and view data from home', patient),
       show: {
         metric: 'Banner displayed Add Email',
       },
@@ -171,7 +172,17 @@ export const appBanners = [
         text: t('Add Email'),
         metric: 'Clicked Banner Add Email',
         metricProps: { source: 'none', location: 'banner' },
-        handler: () => dispatch(push(`/patients/${patient?.userid}/profile#edit`)),
+        handler: () => formikContext.handleSubmit(),
+        modal: {
+          component: PatientEmailModal,
+          confirmHandlerProp: 'onSubmit',
+          props: { patient },
+        },
+        working: {
+          key: 'updatingClinicPatient',
+          successMessage: t('Email added and invitation sent to {{email}}', formikContext.values),
+          errorMessage: t('Error adding patient email'),
+        },
       },
       dismiss: {
         metric: 'Add Email banner dismissed',
@@ -186,9 +197,9 @@ export const appBanners = [
     context: ['clinic'],
     paths: [pathRegexes.patientData],
     showIcon: false,
-    getProps: (dispatch, patient) => ({
+    getProps: (dispatch, patient = {}) => ({
       label: t('Send Verification banner'),
-      message: t('Resend {{fullName}}\'s email to invite them to upload and view data from home', { fullName: personUtils.patientFullName(patient)}),
+      message: t('Resend {{fullName}}\'s email to invite them to upload and view data from home', patient),
       show: {
         metric: 'Banner displayed Send Verification',
       },
@@ -197,10 +208,10 @@ export const appBanners = [
         processingText: t('Resending Verification Email'),
         metric: 'Clicked Banner Resend Verification',
         metricProps: { source: 'none', location: 'banner' },
-        handler: () => dispatch(resendEmailVerification(api, patient?.email)),
+        handler: () => dispatch(resendEmailVerification(api, patient.email)),
         working: {
           key: 'resendingEmailVerification',
-          successMessage: t('Verification email sent to {{email}}', { email: patient?.email }),
+          successMessage: t('Verification email sent to {{email}}', patient),
           errorMessage: t('Error sending verification email'),
         },
       },

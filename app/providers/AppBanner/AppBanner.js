@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import Banner from '../../components/elements/Banner';
 import { useDispatch, useSelector } from 'react-redux';
-import { isFunction } from 'lodash';
+import { isFunction, noop } from 'lodash';
 import { AppBannerContext, CLICKED_BANNER_ACTION, DISMISSED_BANNER_ACTION } from './AppBannerProvider';
 import { async } from '../../redux/actions';
 import api from '../../core/api';
@@ -16,6 +16,7 @@ const AppBanner = ({ trackMetric }) => {
     setBannerShownMetricsForPatient,
     bannerInteractedForPatient,
     setBannerInteractedForPatient,
+    setFormikContext,
     setTrackMetric,
   } = useContext(AppBannerContext);
 
@@ -154,9 +155,12 @@ const AppBanner = ({ trackMetric }) => {
       {banner.action?.modal?.component && (
         <banner.action.modal.component
           {...banner.action.modal.props}
-          open={showModal}
-          onConfirm={banner.action.handler}
+          {...{[banner.action.modal.confirmHandlerProp || 'onConfirm']: banner.action.handler}}
           onClose={() => setShowModal(false)}
+          onFormChange={formikContext => setFormikContext(formikContext)}
+          open={showModal}
+          processing={workingState?.inProgress}
+          trackMetric={trackMetric}
         />
       )}
     </>

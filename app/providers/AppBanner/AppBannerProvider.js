@@ -33,6 +33,7 @@ const AppBannerProvider = ({ children }) => {
   const dataSources = useSelector(state => state.blip.dataSources);
   const { pathname } = useLocation();
   const [trackMetric, setTrackMetric] = useState(noop);
+  const [formikContext, setFormikContext] = useState({});
 
   const erroredDataSource = find(
     userIsCurrentPatient ? dataSources : clinic?.patients?.[currentPatientInViewId]?.dataSources,
@@ -73,12 +74,12 @@ const AppBannerProvider = ({ children }) => {
 
     dataSourceReconnectInvite: {
       show: !!erroredDataSource?.providerName,
-      bannerArgs: [dispatch, trackMetric, selectedClinicId, clinicPatient, providers[erroredDataSource?.providerName]],
+      bannerArgs: [dispatch, selectedClinicId, clinicPatient, providers[erroredDataSource?.providerName]],
     },
 
     addEmail: {
       show: isCustodialPatient && !!clinicPatient && !clinicPatient?.email,
-      bannerArgs: [dispatch, clinicPatient],
+      bannerArgs: [formikContext, clinicPatient],
     },
 
     sendVerification: {
@@ -93,10 +94,10 @@ const AppBannerProvider = ({ children }) => {
     dataSources?.length,
     dispatch,
     erroredDataSource?.providerName,
+    formikContext,
     isCustodialPatient,
     justConnectedDataSource?.providerName,
     selectedClinicId,
-    trackMetric,
     userIsCurrentPatient,
     userHasPumpData,
   ]);
@@ -141,8 +142,9 @@ const AppBannerProvider = ({ children }) => {
     bannerShownMetricsForPatient,
     setBannerInteractedForPatient,
     setBannerShownMetricsForPatient,
-    trackMetric,
+    setFormikContext,
     setTrackMetric,
+    trackMetric,
   };
 
   return (
