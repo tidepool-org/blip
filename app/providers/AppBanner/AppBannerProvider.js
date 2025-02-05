@@ -5,6 +5,7 @@ import { filter, find, has, includes, intersection, keys, map, noop, some, upper
 
 import { appBanners } from './appBanners';
 import { providers } from '../../components/datasources/DataConnections';
+import { selectPatientSharedAccounts } from '../../core/selectors';
 
 export const CLICKED_BANNER_ACTION = 'clicked';
 export const DISMISSED_BANNER_ACTION = 'dismissed';
@@ -24,6 +25,7 @@ const AppBannerProvider = ({ children }) => {
   const loggedInUser = useSelector(state => state.blip.allUsersMap[loggedInUserId]);
 
   const currentPatientInViewId = useSelector(state => state.blip.currentPatientInViewId);
+  const sharedAccounts = useSelector(state => selectPatientSharedAccounts(state));
   const clinicPatient = clinic?.patients?.[currentPatientInViewId];
   const userIsCurrentPatient = loggedInUserId === currentPatientInViewId;
   const isCustodialPatient = has(clinicPatient?.permissions, 'custodian');
@@ -67,6 +69,11 @@ const AppBannerProvider = ({ children }) => {
       bannerArgs: [],
     },
 
+    shareData: {
+      show: userIsCurrentPatient && !sharedAccounts.length,
+      bannerArgs: [dispatch, loggedInUserId],
+    },
+
     patientLimit: {
       show: clinic?.patientLimitEnforced && !!clinic?.ui?.warnings?.limitReached,
       bannerArgs: [clinic],
@@ -97,7 +104,9 @@ const AppBannerProvider = ({ children }) => {
     formikContext,
     isCustodialPatient,
     justConnectedDataSource?.providerName,
+    loggedInUserId,
     selectedClinicId,
+    sharedAccounts,
     userIsCurrentPatient,
     userHasPumpData,
   ]);

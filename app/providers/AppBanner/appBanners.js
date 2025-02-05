@@ -4,9 +4,8 @@ import { push } from 'connected-react-router';
 import i18next from '../../core/language';
 import { async } from '../../redux/actions';
 import api from '../../core/api';
-import personUtils from '../../core/personutils';
 import { resendEmailVerification } from '../../redux/actions/async';
-import { URL_TIDEPOOL_PLUS_CONTACT_SALES } from '../../core/constants';
+import { URL_SHARE_DATA_INFO, URL_TIDEPOOL_PLUS_CONTACT_SALES } from '../../core/constants';
 import { ResendDataSourceConnectRequestDialog } from '../../components/clinic/ResendDataSourceConnectRequestDialog';
 import PatientEmailModal from '../../components/datasources/PatientEmailModal';
 
@@ -18,7 +17,6 @@ const pathRegexes = {
 };
 
 // const bannerMetricsArgs = {
-//   shareDataBanner: ['Share Data banner displayed'],
 //   donateBanner: ['Big Data banner displayed'],
 //   updateTypeBanner: ['Update Type banner displayed'],
 // };
@@ -98,9 +96,37 @@ export const appBanners = [
   },
 
   {
+    id: 'shareData',
+    variant: 'info',
+    priority: 3,
+    context: ['patient'],
+    paths: [pathRegexes.patientData],
+    getProps: (dispatch, loggedInUserId) => ({
+      label: t('Share Data banner'),
+      message: t('New Tidepool Account? Share Your Data with your healthcare team.'),
+      show: {
+        metric: 'Share Data banner displayed',
+      },
+      action: {
+        text: t('Get Started'),
+        metric: 'clicked get started on Share Data banner',
+        handler: () => dispatch(push(`/patients/${loggedInUserId}/share`)),
+      },
+      messageLink: {
+        text: t('Learn More'),
+        metric: 'clicked learn more Share Data banner',
+        handler: () => window.open(URL_SHARE_DATA_INFO, '_blank'),
+      },
+      dismiss: {
+        metric: 'dismiss Share Data banner',
+      },
+    }),
+  },
+
+  {
     id: 'patientLimit',
     variant: 'warning',
-    priority: 3,
+    priority: 6,
     context: ['clinic'],
     paths: [pathRegexes.clinicWorkspace],
     getProps: clinic => ({
@@ -123,7 +149,7 @@ export const appBanners = [
   {
     id: 'dataSourceReconnectInvite',
     variant: 'warning',
-    priority: 4,
+    priority: 7,
     context: ['clinic'],
     paths: [pathRegexes.patientData],
     getProps: (dispatch, clinicId, patient = {}, provider = {}) => ({
@@ -158,7 +184,7 @@ export const appBanners = [
   {
     id: 'addEmail',
     variant: 'info',
-    priority: 5,
+    priority: 8,
     context: ['clinic'],
     paths: [pathRegexes.patientData],
     showIcon: false,
@@ -193,7 +219,7 @@ export const appBanners = [
   {
     id: 'sendVerification',
     variant: 'info',
-    priority: 6,
+    priority: 9,
     context: ['clinic'],
     paths: [pathRegexes.patientData],
     showIcon: false,
