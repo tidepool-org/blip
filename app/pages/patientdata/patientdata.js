@@ -254,7 +254,9 @@ export const PatientDataClass = createReactClass({
     return (
       <Box variant="containers.patientData">
         {this.renderEmptyHeader()}
-        <Box variant="containers.patientDataInner" sx={{ minHeight: '40vh !important' }} />
+        <Box
+          variant="containers.patientDataInner"
+          sx={{ minHeight: ['70vh !important', '70vh !important', '40vh !important'] }} />
       </Box>
     );
   },
