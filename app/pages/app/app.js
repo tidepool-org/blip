@@ -133,17 +133,6 @@ export class AppComponent extends React.Component {
       this.doFetching(nextProps);
     }
 
-    // if (showingShareDataBanner !== false) {
-    //   const showShareDataBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userHasSharedDataWithClinician && !seenShareDataBannerMax;
-
-    //   if (showShareDataBanner) {
-    //     this.props.showBanner('sharedata');
-    //     updateShareDataBannerSeen(currentPatientInViewId);
-    //   } else if (showingShareDataBanner) {
-    //     this.props.hideBanner('sharedata');
-    //   }
-    // }
-
     // if (showingDonateBanner !== false) {
     //   const showDonateBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userIsSupportingNonprofit;
 
@@ -256,32 +245,6 @@ export class AppComponent extends React.Component {
       />
     );
   }
-
-  // renderShareDataBanner() {
-  //   this.props.context.log('Rendering share data banner');
-
-  //   const {
-  //     showingShareDataBanner,
-  //     onClickShareDataBanner,
-  //     onDismissShareDataBanner,
-  //     patient,
-  //   } = this.props;
-
-  //   if (showingShareDataBanner) {
-  //     return (
-  //       <div className="App-sharedatabanner">
-  //         <ShareDataBanner
-  //           onClick={onClickShareDataBanner}
-  //           onClose={onDismissShareDataBanner}
-  //           trackMetric={this.props.context.trackMetric}
-  //           patient={patient}
-  //           history={this.props.history}/>
-  //       </div>
-  //     );
-  //   }
-
-  //   return null;
-  // }
 
   // renderDonateBanner() {
   //   this.props.context.log('Rendering donation banner');
