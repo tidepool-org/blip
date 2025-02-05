@@ -26,6 +26,7 @@ describe('MobileNavbar/Menu', () => {
       selectedClinicId: null,
       currentPatientInViewId: '1234-abcd',
       permissionsOfMembersInTargetCareTeam: { '1234-abcd': { root: {} } },
+      loggedInUserId: '1234-abcd',
       allUsersMap: {
         '1234-abcd': {
           userid: '1234',
@@ -90,6 +91,10 @@ describe('MobileNavbar/Menu', () => {
   describe('Component Visibility', () => {
     it('should show Share button when user has correct permissions', () => {
       expect(wrapper.find('Button#mobileNavbar_shareButton').exists()).to.be.true;
+    });
+
+    it('should show Devices button when user has correct context', () => {
+      expect(wrapper.find('Button#mobileNavbar_settingsChartButton').exists()).to.be.true;
     });
   });
 

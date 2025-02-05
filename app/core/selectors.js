@@ -60,3 +60,15 @@ export const selectPermsOfLoggedInUser = (state) => {
 
   return permsOfLoggedInUser;
 };
+
+export const selectUser = (state) => {
+  let user = null;
+
+  if (state.blip.allUsersMap) {
+    if (state.blip.loggedInUserId) {
+      user = state.blip.allUsersMap[state.blip.loggedInUserId];
+    }
+  }
+
+  return user;
+};
