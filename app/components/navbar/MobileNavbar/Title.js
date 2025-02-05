@@ -44,6 +44,7 @@ const getTitleState = (pathname, chartType, patient, data) => {
   if (finalSlug === '/profile') return TITLE_STATE.ACCOUNT_SETTINGS;
   if (finalSlug === '/patients') return TITLE_STATE.PRIVATE_WORKSPACE;
   if (finalSlug === '/share') return TITLE_STATE.SHARE;
+  if (finalSlug === '/invite') return TITLE_STATE.SHARE;
 
   const isEmpty = isEmptyPatientData(patient, data);
   const isInsufficient = isInsufficientPatientData(data);
