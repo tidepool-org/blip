@@ -393,16 +393,10 @@ export const AccessManagement = (props) => {
   };
 
   const renderMember = ({ email, name }) => (
-    email ? (
-      <Box>
-        <Text fontWeight="medium">{name}</Text>
-        <Text>{email}</Text>
-      </Box>
-    ) : (
-      <Box>
-        <Text fontWeight="medium">{name}</Text>
-      </Box>
-    )
+    <Box>
+      {name && <Text mr={4} fontWeight="medium">{name}</Text>}
+      {email && <Text>{email}</Text>}
+    </Box>
   );
 
   const renderStatus = ({ status }) => (
