@@ -5142,6 +5142,42 @@ describe('PatientData', function () {
       expect(dispatchProps.selectClinic.calledWith(undefined, 'clinic1234')).to.be.true;
     });
 
+    it.only('should not select a clinic if viewing a patient that is in one of the available clinics', () => {
+      expect(dispatchProps.selectClinic.callCount).to.equal(0);
+      const fetchPatientsResult = getFetchers(dispatchProps, ownProps, {
+        user: {
+          userid: 'clinician123',
+          isClinicMember: true,
+        },
+        clinics: {
+          clinic1234: {
+            patients: { '12345': {} },
+          },
+          clinic6789: {
+            patients: { '12345': {} },
+          },
+        },
+        selectedClinicId: 'clinic1234',
+        fetchingPatientFromClinic: {
+          inProgress: false,
+        },
+        fetchingPendingSentInvites: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingAssociatedAccounts: {
+          inProgress: false,
+          completed: true,
+        },
+      });
+
+      expect(fetchPatientsResult.length).to.equal(3);
+      expect(fetchPatientsResult[0]()).to.equal('fetchPatient');
+      expect(fetchPatientsResult[1]()).to.equal('fetchPatientData');
+      expect(fetchPatientsResult[2]()).to.equal('fetchPatientFromClinic');
+      expect(dispatchProps.selectClinic.callCount).to.equal(0);
+    });
+
     it('should fetch patients from clinics if a clinician is viewing a patient with a different selected clinic', () => {
       expect(dispatchProps.selectClinic.callCount).to.equal(0);
       const fetchPatientsResult = getFetchers(dispatchProps, ownProps, {
