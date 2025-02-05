@@ -5142,7 +5142,7 @@ describe('PatientData', function () {
       expect(dispatchProps.selectClinic.calledWith(undefined, 'clinic1234')).to.be.true;
     });
 
-    it('should not select a clinic if viewing a patient that is in one of the available clinics', () => {
+    it('should not select a clinic if viewing a patient that is in both of the available clinics', () => {
       expect(dispatchProps.selectClinic.callCount).to.equal(0);
       const fetchPatientsResult = getFetchers(dispatchProps, ownProps, {
         user: {
