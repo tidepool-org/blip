@@ -141,16 +141,6 @@ export class AppComponent extends React.Component {
     //     this.props.hideBanner('donate');
     //   }
     // }
-
-    // if (showingUpdateTypeBanner !== false) {
-    //   const showUpdateTypeBanner = isBannerRoute && userIsCurrentPatient && !userHasDiabetesType;
-
-    //   if (showUpdateTypeBanner) {
-    //     this.props.showBanner('updatetype');
-    //   } else if (showingUpdateTypeBanner) {
-    //     this.props.hideBanner('updatetype');
-    //   }
-    // }
   }
 
   /**
@@ -272,28 +262,6 @@ export class AppComponent extends React.Component {
 
   //   return null;
   // }
-
-  // renderUpdateTypeBanner() {
-  //   this.props.context.log('Rendering update type banner');
-
-  //   const {
-  //     showingUpdateTypeBanner,
-  //     onClickUpdateTypeBanner,
-  //     onDismissUpdateTypeBanner,
-  //     patient,
-  //   } = this.props;
-
-  //   if (showingUpdateTypeBanner) {
-  //     return (
-  //       <div className="App-updatetypebanner">
-  //         <UpdateTypeBanner
-  //           onClick={onClickUpdateTypeBanner}
-  //           onClose={onDismissUpdateTypeBanner}
-  //           trackMetric={this.props.context.trackMetric}
-  //           patient={patient} />
-  //       </div>
-  //     );
-  //   }
 
   renderNotification() {
     var notification = this.props.notification;
@@ -439,7 +407,6 @@ export function mapStateToProps(state) {
   let userHasSharedDataWithClinician = false;
   let userIsSupportingNonprofit = false;
   let userIsCurrentPatient = false;
-  let userHasDiabetesType = false;
 
   if (userHasSharedData) {
     let userCareTeam = Object.values(_.get(state, 'blip.allUsersMap'));
@@ -458,10 +425,6 @@ export function mapStateToProps(state) {
 
       if (config.I18N_ENABLED && _.get(user, 'preferences.displayLanguageCode')) {
         i18next.changeLanguage(user.preferences.displayLanguageCode);
-      }
-
-      if (_.get(user, 'profile.patient.diagnosisType')) {
-          userHasDiabetesType = true;
       }
     }
 
@@ -570,7 +533,6 @@ export function mapStateToProps(state) {
     permsOfLoggedInUser: permsOfLoggedInUser,
     selectedClinicId: state.blip.selectedClinicId,
     userIsCurrentPatient,
-    userHasDiabetesType,
     userIsDonor,
     userHasConnectedDataSources,
     userDexcomDataSource,
