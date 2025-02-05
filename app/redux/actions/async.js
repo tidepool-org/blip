@@ -1466,59 +1466,47 @@ export function updateDataDonationAccounts(api, addAccounts = [], removeAccounts
   };
 }
 
-// /**
-//  * Count Share Data Banner Seen Action Creator
-//  *
-//  * @param  {Object} api an instance of the API wrapper
-//  */
-// export function updateShareDataBannerSeen(api, patientId) {
-//   const viewDate = sundial.utcDateString();
-//   const viewMoment = moment(viewDate);
-
-//   return (dispatch, getState) => {
-//     const { blip: { loggedInUserId, allUsersMap } } = getState();
-//     const loggedInUser = allUsersMap[loggedInUserId];
-//     var seenShareDataBannerDate = _.get(loggedInUser, 'preferences.seenShareDataBannerDate', 0);
-//     var seenShareDataBannerCount = _.get(loggedInUser, 'preferences.seenShareDataBannerCount', 0);
-
-//     const seenShareDataBannerMoment = moment(seenShareDataBannerDate);
-
-//     const diffMoment = viewMoment.diff(seenShareDataBannerMoment, 'days');
-
-//     if(diffMoment > 0) {
-//       seenShareDataBannerCount += 1;
-//       seenShareDataBannerDate = viewDate;
-//     }
-
-//     const preferences = {
-//       seenShareDataBannerDate: seenShareDataBannerDate,
-//       seenShareDataBannerCount: seenShareDataBannerCount,
-//     };
-
-//     dispatch(sync.bannerCount(seenShareDataBannerCount));
-//     dispatch(updatePreferences(api, patientId, preferences));
-//   };
-// }
-
-
 /**
  * Handle Banner Interaction Action Creator
  *
  * @param  {Object} api an instance of the API wrapper
  * @param {String} userId - Id of the logged in user
  * @param {String} patienbannerIdtId - Id of the banner
- * @param {String} interactionType - One of [clicked, dismissed]
+ * @param {String} interactionType - One of [clicked, dismissed, seen]
  */
 export function handleBannerInteraction(api, userId, bannerId, interactionType) {
-  return (dispatch) => {
-    const interationTime = sundial.utcDateString();
-    const preferenceKey = `${interactionType}${_.upperFirst(bannerId)}BannerTime`;
+  return (dispatch, getState) => {
+    if (!_.includes(['clicked', 'dismissed', 'seen'], interactionType)) {
+      return;
+    }
 
-    const preferences = {
-      [preferenceKey]: interationTime,
-    };
+    const interactionTime = sundial.utcDateString();
+    let preferences;
 
-    dispatch(updatePreferences(api, userId, preferences));
+    if (interactionType === 'seen') {
+      const { blip: { loggedInUserId, allUsersMap } } = getState();
+      const loggedInUser = allUsersMap[loggedInUserId];
+      const preferenceDateKey = `seen${_.upperFirst(bannerId)}BannerDate`;
+      const preferenceCountKey = `seen${_.upperFirst(bannerId)}BannerCount`;
+      let bannerDate = loggedInUser?.preferences?.[preferenceDateKey] || 0;
+      let bannerCount = loggedInUser?.preferences?.[preferenceCountKey] || 0;
+
+      // If it has been more than a day since the last interaction, update the count and date
+      if(moment(interactionTime).diff(moment(bannerDate), 'days') > 0) {
+        preferences = {
+          [preferenceCountKey]: bannerCount + 1,
+          [preferenceDateKey]: interactionTime,
+        };
+      }
+    } else {
+      const preferenceKey = `${interactionType}${_.upperFirst(bannerId)}BannerTime`;
+
+      preferences = {
+        [preferenceKey]: interactionTime,
+      };
+    }
+
+    if (preferences) dispatch(updatePreferences(api, userId, preferences));
   };
 }
 

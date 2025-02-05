@@ -101,6 +101,7 @@ export const appBanners = [
     priority: 3,
     context: ['patient'],
     paths: [pathRegexes.patientData],
+    maxUniqueDaysShown: 3,
     getProps: (dispatch, loggedInUserId) => ({
       label: t('Share Data banner'),
       message: t('New Tidepool Account? Share Your Data with your healthcare team.'),

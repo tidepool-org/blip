@@ -9,14 +9,18 @@ import { selectPatientSharedAccounts } from '../../core/selectors';
 
 export const CLICKED_BANNER_ACTION = 'clicked';
 export const DISMISSED_BANNER_ACTION = 'dismissed';
+export const SEEN_BANNER_ACTION = 'seen';
 
 // Create a context
 const AppBannerContext = createContext();
 
 // Create a provider component
 const AppBannerProvider = ({ children }) => {
-  // State to hold the currently displayed banner
   const dispatch = useDispatch();
+  const { pathname } = useLocation();
+  const [trackMetric, setTrackMetric] = useState(noop);
+  const [formikContext, setFormikContext] = useState({});
+
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const clinics = useSelector(state => state.blip.clinics);
   const clinic = clinics?.[selectedClinicId];
@@ -30,12 +34,11 @@ const AppBannerProvider = ({ children }) => {
   const userIsCurrentPatient = loggedInUserId === currentPatientInViewId;
   const isCustodialPatient = has(clinicPatient?.permissions, 'custodian');
 
-  const patientDevices = useSelector(state => state.blip.data.metaData.devices);
+  const patientMetaData = useSelector(state => state.blip.data.metaData);
+  const patientDevices = patientMetaData?.devices;
+  const userHasData = userIsCurrentPatient && patientMetaData?.size > 0;
   const userHasPumpData = filter(patientDevices, { pump: true }).length > 0;
   const dataSources = useSelector(state => state.blip.dataSources);
-  const { pathname } = useLocation();
-  const [trackMetric, setTrackMetric] = useState(noop);
-  const [formikContext, setFormikContext] = useState({});
 
   const erroredDataSource = find(
     userIsCurrentPatient ? dataSources : clinic?.patients?.[currentPatientInViewId]?.dataSources,
@@ -48,10 +51,8 @@ const AppBannerProvider = ({ children }) => {
   );
 
   const [currentBanner, setCurrentBanner] = useState(null);
-  const [bannerShownMetricsForPatient, setBannerShownMetricsForPatient] = useState({});
+  const [bannerShownForPatient, setBannerShownForPatient] = useState({});
   const [bannerInteractedForPatient, setBannerInteractedForPatient] = useState({});
-
-  const bannerInteractionKeys = banner => map([CLICKED_BANNER_ACTION, DISMISSED_BANNER_ACTION], action => `${action}${upperFirst(banner.id)}BannerTime`);
 
   const processedBanners = useMemo(() => ({
     dataSourceJustConnected: {
@@ -70,7 +71,7 @@ const AppBannerProvider = ({ children }) => {
     },
 
     shareData: {
-      show: userIsCurrentPatient && !sharedAccounts.length,
+      show: userIsCurrentPatient && userHasData && !sharedAccounts.length,
       bannerArgs: [dispatch, loggedInUserId],
     },
 
@@ -107,20 +108,24 @@ const AppBannerProvider = ({ children }) => {
     loggedInUserId,
     selectedClinicId,
     sharedAccounts,
-    userIsCurrentPatient,
+    userHasData,
     userHasPumpData,
+    userIsCurrentPatient,
   ]);
 
   useEffect(() => {
     setCurrentBanner(null);
     const context = userIsCurrentPatient ? 'patient' : 'clinic';
+    const bannerInteractionKeys = banner => map([CLICKED_BANNER_ACTION, DISMISSED_BANNER_ACTION], action => `${action}${upperFirst(banner.id)}BannerTime`);
 
     const filteredBanners = filter(appBanners, banner => {
       const previousPatientInteractions = intersection(keys(loggedInUser?.preferences), bannerInteractionKeys(banner));
+      const bannerCountKey = `seen${upperFirst(banner.id)}BannerCount`;
+      const countExceeded = banner.maxUniqueDaysShown && loggedInUser?.preferences?.[bannerCountKey] > banner.maxUniqueDaysShown;
       const sessionInteraction = bannerInteractedForPatient[banner.id]?.[currentPatientInViewId];
       const matchesContext = includes(banner.context, context);
       const matchesPath = some(banner.paths, path => path.test(pathname));
-      return !sessionInteraction && !previousPatientInteractions.length && matchesContext && matchesPath;
+      return !countExceeded && !sessionInteraction && !previousPatientInteractions.length && matchesContext && matchesPath;
     });
 
     // Sort banners based on priority (lower values mean higher priority)
@@ -148,9 +153,9 @@ const AppBannerProvider = ({ children }) => {
   const bannerContext = {
     banner: currentBanner,
     bannerInteractedForPatient,
-    bannerShownMetricsForPatient,
+    bannerShownForPatient,
     setBannerInteractedForPatient,
-    setBannerShownMetricsForPatient,
+    setBannerShownForPatient,
     setFormikContext,
     setTrackMetric,
     trackMetric,

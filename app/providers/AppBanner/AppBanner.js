@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import Banner from '../../components/elements/Banner';
 import { useDispatch, useSelector } from 'react-redux';
 import { isFunction, noop } from 'lodash';
-import { AppBannerContext, CLICKED_BANNER_ACTION, DISMISSED_BANNER_ACTION } from './AppBannerProvider';
+import { AppBannerContext, CLICKED_BANNER_ACTION, DISMISSED_BANNER_ACTION, SEEN_BANNER_ACTION } from './AppBannerProvider';
 import { async } from '../../redux/actions';
 import api from '../../core/api';
 import { useIsFirstRender } from '../../core/hooks';
@@ -12,8 +12,8 @@ const AppBanner = ({ trackMetric }) => {
   // Use the banner context
   const {
     banner,
-    bannerShownMetricsForPatient,
-    setBannerShownMetricsForPatient,
+    bannerShownForPatient,
+    setBannerShownForPatient,
     bannerInteractedForPatient,
     setBannerInteractedForPatient,
     setFormikContext,
@@ -76,19 +76,24 @@ const AppBanner = ({ trackMetric }) => {
     }
   }, [completeClickAction, isFirstRender, setToast]);
 
-  // Send a metric the first time a banner is shown to a patient for the current session
   useEffect(() => {
-    if(banner?.show?.metric && !bannerShownMetricsForPatient[banner.id]?.[currentPatientInViewId]) {
-      setBannerShownMetricsForPatient({
+    // Send a metric the first time a banner is shown to a patient for the current session
+    if(banner?.show?.metric && !bannerShownForPatient[banner.id]?.[currentPatientInViewId]) {
+      setBannerShownForPatient({
         [banner.id]: {
-          ...(bannerShownMetricsForPatient[banner.id] || {}),
+          ...(bannerShownForPatient[banner.id] || {}),
           [currentPatientInViewId]: true,
         },
       });
 
       trackMetric(banner.show.metric, banner.show?.metricProps);
+
+      // Update banner show count if necessary
+      if (banner?.maxUniqueDaysShown) {
+        dispatch(async.handleBannerInteraction(api, loggedInUserId, banner.id, SEEN_BANNER_ACTION));
+      }
     }
-  }, [banner, bannerShownMetricsForPatient, currentPatientInViewId, setBannerShownMetricsForPatient, trackMetric]);
+  }, [banner, bannerShownForPatient, currentPatientInViewId, setBannerShownForPatient, trackMetric]);
 
   useEffect(() => {
     handleAsyncResult(workingState, banner?.action?.working?.successMessage, banner?.action?.working?.errorMessage);
