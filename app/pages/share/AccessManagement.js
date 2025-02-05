@@ -45,7 +45,7 @@ import personUtils from '../../core/personutils';
 import baseTheme, { colors } from '../../themes/baseTheme';
 import * as actions from '../../redux/actions';
 import { useIsFirstRender } from '../../core/hooks';
-import config from '../../config';
+import { selectPatientSharedAccounts } from '../../core/selectors';
 
 export const AccessManagement = (props) => {
   const { t, api, trackMetric } = props;
@@ -56,7 +56,7 @@ export const AccessManagement = (props) => {
   const [pageCount, setPageCount] = useState();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showResendInviteDialog, setShowResendInviteDialog] = useState(false);
-  const [sharedAccounts, setSharedAccounts] = useState([]);
+  const sharedAccounts = useSelector(state => selectPatientSharedAccounts(state));
   const [pendingClinicInvites, setPendingClinicInvites] = useState([]);
   const [selectedSharedAccount, setSelectedSharedAccount] = useState(null);
   const [deleteDialogContent, setDeleteDialogContent] = useState(null);
@@ -69,11 +69,8 @@ export const AccessManagement = (props) => {
     }
   }, []);
 
-  const allUsers = useSelector((state) => state.blip.allUsersMap);
   const clinics = useSelector((state) => state.blip.clinics);
-  const dataDonationAccounts = useSelector((state) => state.blip.dataDonationAccounts);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
-  const membersOfTargetCareTeam = useSelector((state) => state.blip.membersOfTargetCareTeam);
   const pendingSentInvites = useSelector((state) => state.blip.pendingSentInvites);
   const permissionsOfMembersInTargetCareTeam = useSelector((state) => state.blip.permissionsOfMembersInTargetCareTeam);
   const timePrefs = useSelector((state) => state.blip.timePrefs);
@@ -223,62 +220,10 @@ export const AccessManagement = (props) => {
 
   useEffect(() => {
     const pendingInvites = reject(pendingSentInvites, personUtils.isDataDonationAccount);
-    const pendingMemberInvites = filter(pendingInvites, ({ email }) => !isEmpty(email));
-    const patientClinics = filter(values(clinics), ({ patients }) => has(patients, loggedInUserId));
     const clinicInvites = filter(pendingInvites, ({ clinicId }) => !isEmpty(clinicId));
     setPendingClinicInvites(clinicInvites);
-
-    const accounts = [
-      ...(map(patientClinics, clinic => ({
-        id: clinic.id,
-        name: clinic.name,
-        nameOrderable: clinic.name.toLowerCase(),
-        permissions: get(clinic, ['patients', loggedInUserId, 'permissions']),
-        role: 'clinic',
-        type: 'clinic',
-        uploadPermission: !!get(clinic, ['patients', loggedInUserId, 'permissions', 'upload']),
-      }))),
-      ...(map(membersOfTargetCareTeam, memberId => ({
-        email: get(allUsers, [memberId, 'emails', '0']),
-        id: get(allUsers, [memberId, 'userid']),
-        name: personUtils.fullName(allUsers[memberId]),
-        nameOrderable: (personUtils.fullName(allUsers[memberId]) || '').toLowerCase(),
-        permissions: get(permissionsOfMembersInTargetCareTeam, [memberId]),
-        role: hasClinicRole(allUsers[memberId]) ? 'clinician' : 'member',
-        type: 'account',
-        uploadPermission: !!get(permissionsOfMembersInTargetCareTeam, [memberId, 'upload']),
-      }))),
-      ...(map(pendingMemberInvites, invite => ({
-        email: invite.email,
-        key: invite.key,
-        nameOrderable: invite.email,
-        permissions: invite.context,
-        role: 'member',
-        status: invite.status,
-        type: invite.type,
-        uploadPermission: !!get(invite, ['context', 'upload']),
-        created: invite.created,
-      }))),
-      ...(map(clinicInvites, invite => ({
-        id: invite.clinicId,
-        key: invite.key,
-        name: get(clinics, [invite.clinicId, 'name'], ''),
-        nameOrderable: get(clinics, [invite.clinicId, 'name'], '').toLowerCase(),
-        permissions: invite.context,
-        role: 'clinic',
-        status: invite.status,
-        type: invite.type,
-        uploadPermission: !!get(invite, ['context', 'upload']),
-      }))),
-    ];
-
-    setSharedAccounts(accounts);
   }, [
-    clinics,
-    membersOfTargetCareTeam,
     pendingSentInvites,
-    dataDonationAccounts,
-    permissionsOfMembersInTargetCareTeam,
   ]);
 
   useEffect(() => {
@@ -316,10 +261,6 @@ export const AccessManagement = (props) => {
   useEffect(() => {
     setPageCount(Math.ceil(sharedAccounts.length / rowsPerPage));
   }, [sharedAccounts]);
-
-  function hasClinicRole(user){
-    return indexOf(get(user, 'roles', []), 'clinic') !== -1
-  }
 
   function handleUploadPermissionsToggle(member) {
     trackMetric(`upload permission turned ${member.uploadPermission ? 'off' : 'on'}`);
