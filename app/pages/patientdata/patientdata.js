@@ -42,7 +42,7 @@ import Stats from '../../components/chart/stats';
 import { bgLog as BgLog } from '../../components/chart';
 import { settings as Settings } from '../../components/chart';
 import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
-import baseTheme, { breakpoints, radii } from '../../themes/baseTheme';
+import baseTheme from '../../themes/baseTheme';
 
 import Messages from '../../components/messages';
 import ChartDateRangeModal from '../../components/ChartDateRangeModal';
@@ -55,7 +55,7 @@ import ToastContext from '../../providers/ToastProvider';
 import { Box, Flex, Link } from 'theme-ui';
 import Checkbox from '../../components/elements/Checkbox';
 import PopoverLabel from '../../components/elements/PopoverLabel';
-import { Body2, Paragraph1, Paragraph2 } from '../../components/elements/FontStyles';
+import { Paragraph1, Paragraph2 } from '../../components/elements/FontStyles';
 import Card from '../../components/elements/Card';
 import UploaderBanner from '../../components/elements/Card/Banners/Uploader.png';
 import DataConnectionsBanner from '../../components/elements/Card/Banners/DataConnections.png';
@@ -2221,6 +2221,10 @@ export function getFetchers(dispatchProps, ownProps, stateProps, api, options) {
     fetchers.push(dispatchProps.fetchPendingSentInvites.bind(null, api));
   }
 
+  if (!stateProps.fetchingClinicsForPatient.inProgress && !stateProps.fetchingClinicsForPatient.completed) {
+    fetchers.push(dispatchProps.fetchClinicsForPatient.bind(null, api, ownProps.match.params.id));
+  }
+
   // Need fetchAssociatedAccounts here because the result includes of data donation accounts sharing info
   if (!stateProps.fetchingAssociatedAccounts.inProgress && !stateProps.fetchingAssociatedAccounts.completed) {
     fetchers.push(dispatchProps.fetchAssociatedAccounts.bind(null, api));
@@ -2342,6 +2346,7 @@ export function mapStateToProps(state, props) {
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
     fetchingPatientData: state.blip.working.fetchingPatientData.inProgress,
     fetchingPatientFromClinic: state.blip.working.fetchingPatientFromClinic,
+    fetchingClinicsForPatient: state.blip.working.fetchingClinicsForPatient,
     fetchingUser: state.blip.working.fetchingUser.inProgress,
     fetchingPendingSentInvites: state.blip.working.fetchingPendingSentInvites,
     fetchingAssociatedAccounts: state.blip.working.fetchingAssociatedAccounts,
@@ -2369,6 +2374,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   fetchPatient: actions.async.fetchPatient,
   fetchPatientData: actions.async.fetchPatientData,
   fetchPatientFromClinic: actions.async.fetchPatientFromClinic,
+  fetchClinicsForPatient: actions.async.fetchClinicsForPatient,
   fetchPendingSentInvites: actions.async.fetchPendingSentInvites,
   fetchMessageThread: actions.async.fetchMessageThread,
   generatePDFRequest: actions.worker.generatePDFRequest,
