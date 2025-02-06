@@ -6,6 +6,7 @@ import { filter, find, has, includes, intersection, keys, map, noop, some, upper
 import { appBanners } from './appBanners';
 import { providers } from '../../components/datasources/DataConnections';
 import { selectPatientSharedAccounts } from '../../core/selectors';
+import { DATA_DONATION_NONPROFITS } from '../../core/constants';
 
 export const CLICKED_BANNER_ACTION = 'clicked';
 export const DISMISSED_BANNER_ACTION = 'dismissed';
@@ -55,6 +56,21 @@ const AppBannerProvider = ({ children }) => {
   const [bannerShownForPatient, setBannerShownForPatient] = useState({});
   const [bannerInteractedForPatient, setBannerInteractedForPatient] = useState({});
 
+  const userIsDonor = useSelector(state => state.blip.dataDonationAccounts?.length > 0);
+
+  // Check to see if a data-donating patient has selected a nonprofit to support
+  const userIsSupportingNonprofit = useSelector(state => {
+    const allDonationAccountEmails = map(DATA_DONATION_NONPROFITS(), nonprofit => `bigdata+${nonprofit.value}@tidepool.org`); // eslint-disable-line new-cap
+    const userDonationAccountEmails = map(state.blip.dataDonationAccounts, 'email');
+    return intersection(allDonationAccountEmails, userDonationAccountEmails).length > 0;
+  });
+
+  // Because the original donate banner has been split into two separate banners, we need to check if the user has interacted with the original donate banner
+  // and not show the new support proceeds banner unless they just interacted with the donate banner during this session
+  const previouslyInteractedWithDonateBanner = loggedInUser?.preferences?.clickedDonateBannerTime || loggedInUser?.preferences?.dismissedDonateBannerTime;
+  const thisSessionInteractedWithDonateBanner = bannerInteractedForPatient?.donate?.[currentPatientInViewId];
+  const canShowShareProceedsBanner = !previouslyInteractedWithDonateBanner || thisSessionInteractedWithDonateBanner;
+
   const processedBanners = useMemo(() => ({
     dataSourceJustConnected: {
       show: !!justConnectedDataSource?.providerName,
@@ -73,6 +89,16 @@ const AppBannerProvider = ({ children }) => {
 
     shareData: {
       show: userIsCurrentPatient && userHasData && !sharedAccounts.length,
+      bannerArgs: [dispatch, loggedInUserId],
+    },
+
+    donate: {
+      show: userIsCurrentPatient && userHasData && !userIsDonor,
+      bannerArgs: [dispatch],
+    },
+
+    shareProceeds: {
+      show: canShowShareProceedsBanner && userIsCurrentPatient && userHasData && userIsDonor && !userIsSupportingNonprofit,
       bannerArgs: [dispatch, loggedInUserId],
     },
 
@@ -102,6 +128,7 @@ const AppBannerProvider = ({ children }) => {
     },
   }), [
     bannerInteractedForPatient?.addEmail,
+    canShowShareProceedsBanner,
     clinic,
     clinicPatient,
     currentPatientInViewId,
@@ -118,6 +145,8 @@ const AppBannerProvider = ({ children }) => {
     userHasDiabetesType,
     userHasPumpData,
     userIsCurrentPatient,
+    userIsDonor,
+    userIsSupportingNonprofit,
   ]);
 
   useEffect(() => {

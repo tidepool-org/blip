@@ -122,16 +122,6 @@ export class AppComponent extends React.Component {
     ) {
       this.doFetching(nextProps);
     }
-
-    // if (showingDonateBanner !== false) {
-    //   const showDonateBanner = isBannerRoute && userIsCurrentPatient && userHasData && !userIsSupportingNonprofit;
-
-    //   if (showDonateBanner) {
-    //     this.props.showBanner('donate');
-    //   } else if (showingDonateBanner) {
-    //     this.props.hideBanner('donate');
-    //   }
-    // }
   }
 
   /**
@@ -225,34 +215,6 @@ export class AppComponent extends React.Component {
       />
     );
   }
-
-  // renderDonateBanner() {
-  //   this.props.context.log('Rendering donation banner');
-
-  //   const {
-  //     showingDonateBanner,
-  //     onDismissDonateBanner,
-  //     onUpdateDataDonationAccounts,
-  //     patient,
-  //     userIsDonor,
-  //   } = this.props;
-
-  //   if (showingDonateBanner) {
-  //     return (
-  //       <div className="App-donatebanner">
-  //         <DonateBanner
-  //           onClose={onDismissDonateBanner}
-  //           onConfirm={onUpdateDataDonationAccounts}
-  //           processingDonation={this.props.updatingDataDonationAccounts || this.props.fetchingPendingSentInvites}
-  //           trackMetric={this.props.context.trackMetric}
-  //           patient={patient}
-  //           userIsDonor={userIsDonor} />
-  //       </div>
-  //     );
-  //   }
-
-  //   return null;
-  // }
 
   renderNotification() {
     var notification = this.props.notification;

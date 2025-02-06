@@ -4,8 +4,7 @@ import { push } from 'connected-react-router';
 import i18next from '../../core/language';
 import { async } from '../../redux/actions';
 import api from '../../core/api';
-import { resendEmailVerification } from '../../redux/actions/async';
-import { URL_SHARE_DATA_INFO, URL_TIDEPOOL_PLUS_CONTACT_SALES } from '../../core/constants';
+import { TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL, URL_BIG_DATA_DONATION_INFO, URL_SHARE_DATA_INFO, URL_TIDEPOOL_PLUS_CONTACT_SALES } from '../../core/constants';
 import { ResendDataSourceConnectRequestDialog } from '../../components/clinic/ResendDataSourceConnectRequestDialog';
 import PatientEmailModal from '../../components/datasources/PatientEmailModal';
 
@@ -15,10 +14,6 @@ const pathRegexes = {
   clinicWorkspace: /^\/clinic-workspace/,
   patientData: /^\/patients\/\S+\/data/,
 };
-
-// const bannerMetricsArgs = {
-//   donateBanner: ['Big Data banner displayed'],
-// };
 
 export const appBanners = [
   {
@@ -124,9 +119,73 @@ export const appBanners = [
   },
 
   {
-    id: 'updateType',
+    id: 'donate',
+    variant: 'info',
+    priority: 4,
+    context: ['patient'],
+    paths: [pathRegexes.patientData],
+    getProps: dispatch => ({
+      label: t('Donate banner'),
+      message: t('Donate your data. Contribute to research.'),
+      show: {
+        metric: 'Big Data banner displayed',
+      },
+      action: {
+        text: t('Donate my anonymized data'),
+        processingText: t('Donating anonymized data...'),
+        metric: 'web - big data sign up',
+        metricProps: { source: 'none', location: 'banner' },
+        handler: () => dispatch(async.updateDataDonationAccounts(api, [ TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL ])),
+        working: {
+          key: 'updatingDataDonationAccounts',
+          successMessage: t('Thank you! Your anonymized data is now being shared'),
+          errorMessage: t('Error sharing anonymized data'),
+        },
+      },
+      messageLink: {
+        text: t('Learn More'),
+        metric: 'clicked learn more Donate banner',
+        handler: () => window.open(URL_BIG_DATA_DONATION_INFO, '_blank'),
+      },
+      dismiss: {
+        metric: 'web - dismiss big data sign up banner',
+      },
+    }),
+  },
+
+  {
+    id: 'shareProceeds',
     variant: 'info',
     priority: 5,
+    context: ['patient'],
+    paths: [pathRegexes.patientData],
+    getProps: (dispatch, loggedInUserId) => ({
+      label: t('Share Proceeds banner'),
+      message: t('Thanks for contributing! Donate proceeds to a diabetes nonprofit.'),
+      show: {
+        metric: 'Big Data Share Proceeds banner displayed',
+      },
+      action: {
+        text: t('Choose a diabetes nonprofit'),
+        metric: 'web - big data share proceeds',
+        metricProps: { source: 'none', location: 'banner' },
+        handler: () => dispatch(push(`/patients/${loggedInUserId}/profile`)),
+      },
+      messageLink: {
+        text: t('Learn More'),
+        metric: 'clicked learn more Share Proceeds banner',
+        handler: () => window.open(URL_BIG_DATA_DONATION_INFO, '_blank'),
+      },
+      dismiss: {
+        metric: 'web - dismiss big data share proceeds banner',
+      },
+    }),
+  },
+
+  {
+    id: 'updateType',
+    variant: 'info',
+    priority: 6,
     context: ['patient'],
     paths: [pathRegexes.patientData],
     getProps: (dispatch, loggedInUserId) => ({
@@ -155,7 +214,7 @@ export const appBanners = [
   {
     id: 'patientLimit',
     variant: 'warning',
-    priority: 6,
+    priority: 7,
     context: ['clinic'],
     paths: [pathRegexes.clinicWorkspace],
     getProps: clinic => ({
@@ -178,7 +237,7 @@ export const appBanners = [
   {
     id: 'dataSourceReconnectInvite',
     variant: 'warning',
-    priority: 7,
+    priority: 8,
     context: ['clinic'],
     paths: [pathRegexes.patientData],
     getProps: (dispatch, clinicId, patient = {}, provider = {}) => ({
@@ -213,7 +272,7 @@ export const appBanners = [
   {
     id: 'addEmail',
     variant: 'info',
-    priority: 8,
+    priority: 9,
     context: ['clinic'],
     paths: [pathRegexes.patientData],
     showIcon: false,
@@ -248,7 +307,7 @@ export const appBanners = [
   {
     id: 'sendVerification',
     variant: 'info',
-    priority: 9,
+    priority: 10,
     context: ['clinic'],
     paths: [pathRegexes.patientData],
     showIcon: false,
@@ -263,7 +322,7 @@ export const appBanners = [
         processingText: t('Resending Verification Email'),
         metric: 'Clicked Banner Resend Verification',
         metricProps: { source: 'none', location: 'banner' },
-        handler: () => dispatch(resendEmailVerification(api, patient.email)),
+        handler: () => dispatch(async.resendEmailVerification(api, patient.email)),
         working: {
           key: 'resendingEmailVerification',
           successMessage: t('Verification email sent to {{email}}', patient),
