@@ -17,11 +17,8 @@
 
 import PropTypes from 'prop-types';
 import React from 'react';
+import { Grid } from 'theme-ui';
 import i18next from '../../core/language';
-
-require('./images/jdrf.png');
-require('./images/jdrf_hover.png');
-
 
 const t = i18next.t.bind(i18next);
 
@@ -30,7 +27,7 @@ const FooterLinks = (props) => {
     return () => { props.trackMetric(`Clicked Footer ${link}`); };
   };
   return (
-    <div className='footer-section footer-section-top'>
+    <Grid mb={3} columns="1fr 1fr 1fr" sx={{ alignItems: 'center' }}>
       <div className='footer-link social-media large-format-only'>
         <a
           className='footer-twitter'
@@ -71,18 +68,7 @@ const FooterLinks = (props) => {
           target='_blank'
           rel="noreferrer noopener">{t('Privacy and Terms of Use')}</a>
       </div>
-      <div className='footer-link footer-jdrf'>
-        <a
-          href='http://jdrf.org/'
-          id='jdrf'
-          onClick={metricFnMkr('JDRF')}
-          target='_blank'
-          rel="noreferrer noopener">
-          {t('Made possible by')}
-          <img />
-        </a>
-      </div>
-    </div>
+    </Grid>
   );
 };
 

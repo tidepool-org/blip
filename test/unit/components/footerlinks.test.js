@@ -40,9 +40,6 @@ describe('FooterLinks', () => {
     }, {
       id: 'legal',
       metric: 'PP and TOU',
-    }, {
-      id: 'jdrf',
-      metric: 'JDRF',
     }];
 
     links.forEach((link) => {
