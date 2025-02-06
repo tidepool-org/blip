@@ -12,7 +12,6 @@ import * as actions from '../../redux/actions';
 import { ldContext } from '../../redux/utils/launchDarklyMiddleware';
 
 import utils from '../../core/utils';
-import personUtils from '../../core/personutils';
 import config from '../../config';
 
 import * as ErrorMessages from '../../redux/constants/errorMessages';
@@ -25,7 +24,6 @@ import TidepoolNotification from '../../components/notification';
 import FooterLinks from '../../components/footerlinks';
 import Version from '../../components/version';
 
-import { DATA_DONATION_NONPROFITS } from '../../core/constants';
 import NavPatientHeader from '../../components/navpatientheader';
 import AppWrapper from './AppWrapper';
 
@@ -40,7 +38,6 @@ export class AppComponent extends React.Component {
     currentPatientInViewId: PropTypes.string,
     fetchers: PropTypes.array.isRequired,
     fetchingPatient: PropTypes.bool.isRequired,
-    fetchingPendingSentInvites: PropTypes.bool.isRequired,
     fetchingUser: PropTypes.shape({
       inProgress: PropTypes.bool.isRequired,
       completed: PropTypes.bool,
@@ -51,11 +48,9 @@ export class AppComponent extends React.Component {
     }).isRequired,
     location: PropTypes.string.isRequired,
     loggingOut: PropTypes.bool.isRequired,
-    updatingDataDonationAccounts: PropTypes.bool.isRequired,
     notification: PropTypes.object,
     onAcceptTerms: PropTypes.func.isRequired,
     onCloseNotification: PropTypes.func.isRequired,
-    onUpdateDataDonationAccounts: PropTypes.func.isRequired,
     onLogout: PropTypes.func.isRequired,
     patient: PropTypes.object,
     context: PropTypes.shape({
@@ -69,11 +64,7 @@ export class AppComponent extends React.Component {
     selectedClinicId: PropTypes.string,
     termsAccepted: PropTypes.string,
     user: PropTypes.object,
-    userIsCurrentPatient: PropTypes.bool.isRequired,
-    userIsDonor: PropTypes.bool.isRequired,
-    userIsSupportingNonprofit: PropTypes.bool.isRequired,
     permsOfLoggedInUser: PropTypes.object,
-    resentEmailVerification: PropTypes.bool.isRequired,
   };
 
   /**
@@ -395,33 +386,13 @@ export function getFetchers(stateProps, dispatchProps, api) {
 export function mapStateToProps(state) {
   let user = null;
   let patient = null;
-  let patientDexcomDataSource;
   let clinicPatient;
   let permissions = null;
   let permsOfLoggedInUser = null;
-  let userIsDonor = _.get(state, 'blip.dataDonationAccounts', []).length > 0;
-  let dataSources = _.get(state, 'blip.dataSources', []);
-  let userHasConnectedDataSources = dataSources.length > 0;
-  let userDexcomDataSource = _.find(dataSources, { providerName: 'dexcom' });
-  let userHasSharedData = _.get(state, 'blip.membersOfTargetCareTeam', []).length > 0;
-  let userHasSharedDataWithClinician = false;
-  let userIsSupportingNonprofit = false;
-  let userIsCurrentPatient = false;
-
-  if (userHasSharedData) {
-    let userCareTeam = Object.values(_.get(state, 'blip.allUsersMap'));
-    userHasSharedDataWithClinician = userCareTeam.some(user => {
-      return personUtils.isClinicianAccount(user);
-    });
-  }
 
   if (state.blip.allUsersMap) {
     if (state.blip.loggedInUserId) {
       user = state.blip.allUsersMap[state.blip.loggedInUserId];
-
-      if (state.blip.loggedInUserId === state.blip.currentPatientInViewId) {
-        userIsCurrentPatient = true;
-      }
 
       if (config.I18N_ENABLED && _.get(user, 'preferences.displayLanguageCode')) {
         i18next.changeLanguage(user.preferences.displayLanguageCode);
@@ -458,18 +429,6 @@ export function mapStateToProps(state) {
           state.blip.currentPatientInViewId,
           {}
         );
-
-      if (clinicPatient) {
-        patientDexcomDataSource = _.find(clinicPatient.dataSources, { providerName: 'dexcom' });
-      }
-    }
-
-    // Check to see if a data-donating patient has selected a nonprofit to support
-    if (userIsDonor) {
-      //eslint-disable-next-line new-cap
-      let allDonationAccountEmails = _.map(DATA_DONATION_NONPROFITS(), nonprofit => `bigdata+${nonprofit.value}@tidepool.org`);
-      let userDonationAccountEmails = _.map(state.blip.dataDonationAccounts, 'email');
-      userIsSupportingNonprofit = _.intersection(allDonationAccountEmails, userDonationAccountEmails).length > 0;
     }
   }
 
@@ -523,24 +482,13 @@ export function mapStateToProps(state) {
     fetchingUser: state.blip.working.fetchingUser,
     fetchingDataSources: state.blip.working.fetchingDataSources,
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
-    fetchingPendingSentInvites: state.blip.working.fetchingPendingSentInvites.inProgress,
     loggingOut: state.blip.working.loggingOut.inProgress,
-    updatingDataDonationAccounts: state.blip.working.updatingDataDonationAccounts.inProgress,
     notification: displayNotification,
     termsAccepted: _.get(user, 'termsAccepted', null),
     user: user,
     patient: patient ? { permissions, ...patient } : null,
     permsOfLoggedInUser: permsOfLoggedInUser,
     selectedClinicId: state.blip.selectedClinicId,
-    userIsCurrentPatient,
-    userIsDonor,
-    userHasConnectedDataSources,
-    userDexcomDataSource,
-    patientDexcomDataSource,
-    userHasSharedDataWithClinician,
-    userIsSupportingNonprofit,
-    resendEmailVerificationInProgress: state.blip.working.resendingEmailVerification.inProgress,
-    resentEmailVerification: state.blip.resentEmailVerification,
     fetchingInfo: state.blip.working.fetchingInfo,
   };
 }
@@ -573,7 +521,6 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     query: ownProps.location.query,
     onAcceptTerms: dispatchProps.acceptTerms.bind(null, api),
     onCloseNotification: dispatchProps.onCloseNotification,
-    onUpdateDataDonationAccounts: dispatchProps.updateDataDonationAccounts.bind(null, api),
     onResendEmailVerification: dispatchProps.resendEmailVerification.bind(null, api),
     onLogout: dispatchProps.logout.bind(null, api),
   });
