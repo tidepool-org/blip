@@ -83,7 +83,6 @@ describe('constants', function() {
       'DYF',
       'DIABETESSISTERS',
       'DIATRIBE',
-      'JDRF',
       'NSF',
       'T1DX',
     ]);
