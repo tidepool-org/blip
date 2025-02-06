@@ -24,19 +24,19 @@ class Root extends Component {
     return (
       <CacheProvider value={myCache}>
         <ThemeUIProvider theme={baseTheme}>
-            <ToastProvider>
-              <Provider store={store}>
-                <KeycloakWrapper>
-                  <div>
-                    <ConnectedRouter history={history}>
-                      <AppBannerProvider>
-                        {routing}
-                      </AppBannerProvider>
-                    </ConnectedRouter>
-                  </div>
-                </KeycloakWrapper>
-              </Provider>
-            </ToastProvider>
+          <ToastProvider>
+            <Provider store={store}>
+              <KeycloakWrapper>
+                <div>
+                  <ConnectedRouter history={history}>
+                    <AppBannerProvider>
+                      {routing}
+                    </AppBannerProvider>
+                  </ConnectedRouter>
+                </div>
+              </KeycloakWrapper>
+            </Provider>
+          </ToastProvider>
         </ThemeUIProvider>
       </CacheProvider>
     );
