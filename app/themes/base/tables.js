@@ -96,6 +96,15 @@ export default ({ borders, colors, fonts, fontSizes, shadows, radii }) => {
       },
     },
 
+    // Mobile: If a Row has an ActionMenu, limit the width of the first row to prevent collision
+    '.MuiTableRow-root:has(.action-menu) .MuiTableCell-root:first-child': {
+      '&.MuiTableCell-body': {
+        '@media screen and (max-width: 768px)': {
+          maxWidth: 'calc(100% - 24px)'
+        },
+      },
+    },
+
     '.MuiTableBody-root .MuiTableRow-root': {
       backgroundColor: 'white',
       borderRadius: [radii.medium, null, 0],
