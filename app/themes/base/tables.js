@@ -96,7 +96,7 @@ export default ({ borders, colors, fonts, fontSizes, shadows, radii }) => {
       },
     },
 
-    // Mobile: If a Row has an ActionMenu, limit the width of the first row to prevent collision
+    // Mobile: If a Row has an ActionMenu, limit the width of the first cell, preventing collision
     '.MuiTableRow-root:has(.action-menu) .MuiTableCell-root:first-child': {
       '&.MuiTableCell-body': {
         '@media screen and (max-width: 768px)': {
