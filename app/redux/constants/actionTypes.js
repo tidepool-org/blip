@@ -21,10 +21,6 @@
 export const SHOW_WELCOME_MESSAGE = 'SHOW_WELCOME_MESSAGE';
 export const HIDE_WELCOME_MESSAGE = 'HIDE_WELCOME_MESSAGE';
 
-export const SHOW_BANNER = 'SHOW_BANNER';
-export const HIDE_BANNER = 'HIDE_BANNER';
-export const DISMISS_BANNER = 'DISMISS_BANNER';
-
 export const ACKNOWLEDGE_NOTIFICATION = 'ACKNOWLEDGE_NOTIFICATION';
 
 // these two aren't being used yet!

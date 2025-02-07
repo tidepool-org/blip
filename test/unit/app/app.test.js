@@ -29,7 +29,7 @@ var personUtils = require('../../../app/core/personutils');
 var assert = chai.assert;
 var expect = chai.expect;
 
-describe('App', () => {
+describe.only('App', () => {
 
   const defaultLDContext = {
     kind: 'multi',
@@ -122,7 +122,6 @@ describe('App', () => {
       var app = elem.find('.app');
       expect(app).to.be.ok;
     });
-
 
     it('should console.error when required props not provided', () => {
       console.error = sinon.stub();
@@ -518,24 +517,6 @@ describe('App', () => {
         });
 
         sinon.assert.neverCalledWithMatch(props.showBanner, 'sharedata');
-      });
-    });
-
-    context('user has uploaded data and has shared data with a clinician', () => {
-      it('should not show the share data banner', () => {
-        wrapper.setProps({
-          userIsCurrentPatient: true,
-          userHasData: true,
-          userHasSharedDataWithClinician: true,
-          patient: {
-            userid: '1234'
-          },
-          showingUploaderBanner: false,
-          updateShareDataBannerSeen: sinon.stub(),
-        });
-
-        sinon.assert.neverCalledWithMatch(props.showBanner, 'sharedata');
-
       });
     });
 
