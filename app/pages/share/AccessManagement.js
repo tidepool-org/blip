@@ -605,7 +605,7 @@ export const AccessManagement = (props) => {
           </Body2>
 
           {!!sharedAccounts.length && (
-            <Box px={[3, 4]} pb={0}>
+            <Box px={['calc(24px - 3px)', 'calc(24px - 3px)']} pb={0}>
               <Table
                 id="clinicianTable"
                 label={t('Clinician Table')}
