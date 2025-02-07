@@ -48,3 +48,6 @@ locales/*/*_old.json
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+.codegpt
+*.code-workspace
