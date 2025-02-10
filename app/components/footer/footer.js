@@ -18,18 +18,15 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import i18next from '../../core/language';
-import { useLocation } from 'react-router-dom';
 import _ from 'lodash';
 import Version from '../version';
 import { Flex } from 'theme-ui';
 
 const t = i18next.t.bind(i18next);
 
-const Footer = (props) => {
-  const { pathname } = useLocation();
-
+const Footer = ({ version, location, trackMetric }) => {
   const metricFnMkr = (link) => {
-    return () => { props.trackMetric(`Clicked Footer ${link}`); };
+    return () => { trackMetric(`Clicked Footer ${link}`); };
   };
 
   const shouldDisplayFooterLinks = !_.includes(
@@ -42,7 +39,7 @@ const Footer = (props) => {
       '/terms',
       '/patients/new',
     ],
-    pathname
+    location
   );
 
   return (
@@ -97,13 +94,14 @@ const Footer = (props) => {
         </div>
       }
       <div className='footer-section'>
-        <Version version={props.version} />
+        {version && <Version version={version} />}
       </div>
     </Flex>
   );
 };
 
 Footer.propTypes = {
+  version: PropTypes.string,
   trackMetric: PropTypes.func.isRequired,
 };
 

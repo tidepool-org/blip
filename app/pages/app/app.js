@@ -668,8 +668,9 @@ export class AppComponent extends React.Component {
   renderFooter() {
     const version = this.getVersion();
     const trackMetric = this.props.context.trackMetric;
+    const location = this.props.location;
 
-    return <Footer version={version} trackMetric={trackMetric} />;
+    return <Footer version={version} trackMetric={trackMetric} location={location} />;
   }
 
   getVersion() {

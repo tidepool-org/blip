@@ -3,18 +3,18 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import FooterLinks from '../../../app/components/footerlinks/';
+import Footer from '../../../app/components/footer/';
 
 const expect = chai.expect;
 
-describe('FooterLinks', () => {
+describe('Footer', () => {
   let wrapper;
   const props = {
     trackMetric: sinon.spy(),
   };
 
   before(() => {
-    wrapper = shallow(<FooterLinks {...props} />);
+    wrapper = shallow(<Footer {...props} />);
   });
 
   afterEach(() => {
