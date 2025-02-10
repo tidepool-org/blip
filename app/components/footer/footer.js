@@ -54,8 +54,7 @@ const Footer = (props) => {
         <div className='footer-section'>
           <div className='footer-link social-media large-format-only'>
             <a
-              className='footer-twitter'
-              href="https://twitter.com/tidepool_org"
+              href="https://x.com/tidepool_org"
               id='twitter'
               onClick={metricFnMkr('Twitter')}
               target="_blank"
@@ -66,7 +65,6 @@ const Footer = (props) => {
               </svg>
             </a>
             <a
-              className='footer-facebook'
               href="https://www.facebook.com/TidepoolOrg"
               id='facebook'
               onClick={metricFnMkr('Facebook')}
