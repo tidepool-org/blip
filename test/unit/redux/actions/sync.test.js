@@ -1130,22 +1130,25 @@ describe('Actions', () => {
     });
 
     describe('updatePreferencesSuccess', () => {
+      const patientId = '1234';
       it('should be a TSA', () => {
         let preference = {
           display: 'all'
         };
-        let action = sync.updatePreferencesSuccess(preference);
+        let action = sync.updatePreferencesSuccess(patientId, preference);
 
         expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal UPDATE_PREFERENCES_SUCCESS', () => {
+        const patientId = '1234';
         let preference = {
           display: 'all'
         };
-        let action = sync.updatePreferencesSuccess(preference);
+        let action = sync.updatePreferencesSuccess(patientId, preference);
 
         expect(action.type).to.equal('UPDATE_PREFERENCES_SUCCESS');
+        expect(action.payload.patientId).to.equal('1234');
         expect(action.payload.updatedPreferences).to.equal(preference);
       });
     });

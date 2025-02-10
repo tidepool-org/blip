@@ -2941,7 +2941,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'UPDATE_PREFERENCES_REQUEST' },
-          { type: 'UPDATE_PREFERENCES_SUCCESS', payload: { updatedPreferences: preferences } }
+          { type: 'UPDATE_PREFERENCES_SUCCESS', payload: { updatedPreferences: preferences, patientId } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;

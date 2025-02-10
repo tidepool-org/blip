@@ -4997,6 +4997,10 @@ describe('PatientData', function () {
         inProgress: false,
         completed: null,
       },
+      fetchingClinicsForPatient: {
+        inProgress: false,
+        completed: null,
+      },
     };
 
     const ownProps = {
@@ -5012,6 +5016,7 @@ describe('PatientData', function () {
       fetchPendingSentInvites: sinon.stub().returns('fetchPendingSentInvites'),
       fetchAssociatedAccounts: sinon.stub().returns('fetchAssociatedAccounts'),
       fetchPatientFromClinic: sinon.stub().returns('fetchPatientFromClinic'),
+      fetchClinicsForPatient: sinon.stub().returns('fetchClinicsForPatient'),
       selectClinic: sinon.stub().returns('selectClinic'),
     };
 
@@ -5032,15 +5037,21 @@ describe('PatientData', function () {
       expect(result[2]).to.be.a('function');
       expect(result[2]()).to.equal('fetchPendingSentInvites');
       expect(result[3]).to.be.a('function');
-      expect(result[3]()).to.equal('fetchAssociatedAccounts');
+      expect(result[3]()).to.equal('fetchClinicsForPatient');
+      expect(result[4]).to.be.a('function');
+      expect(result[4]()).to.equal('fetchAssociatedAccounts');
     });
 
-    it('should only add the associated accounts and pending invites fetchers if fetches are not already in progress or completed', () => {
+    it('should only add the associated accounts, patient clinics, and pending invites fetchers if fetches are not already in progress or completed', () => {
       const standardResult = getFetchers(dispatchProps, ownProps, stateProps, api);
-      expect(standardResult.length).to.equal(4);
+      expect(standardResult.length).to.equal(5);
 
       const inProgressResult = getFetchers(dispatchProps, ownProps, {
         fetchingPendingSentInvites: {
+          inProgress: true,
+          completed: null,
+        },
+        fetchingClinicsForPatient: {
           inProgress: true,
           completed: null,
         },
@@ -5056,6 +5067,10 @@ describe('PatientData', function () {
 
       const completedResult = getFetchers(dispatchProps, ownProps, {
         fetchingPendingSentInvites: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingClinicsForPatient: {
           inProgress: false,
           completed: true,
         },
@@ -5089,6 +5104,10 @@ describe('PatientData', function () {
           inProgress: false,
         },
         fetchingPendingSentInvites: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingClinicsForPatient: {
           inProgress: false,
           completed: true,
         },
@@ -5128,6 +5147,10 @@ describe('PatientData', function () {
           inProgress: false,
           completed: true,
         },
+        fetchingClinicsForPatient: {
+          inProgress: false,
+          completed: true,
+        },
         fetchingAssociatedAccounts: {
           inProgress: false,
           completed: true,
@@ -5162,6 +5185,10 @@ describe('PatientData', function () {
           inProgress: false,
         },
         fetchingPendingSentInvites: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingClinicsForPatient: {
           inProgress: false,
           completed: true,
         },
@@ -5204,6 +5231,10 @@ describe('PatientData', function () {
           inProgress: false,
         },
         fetchingPendingSentInvites: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingClinicsForPatient: {
           inProgress: false,
           completed: true,
         },
