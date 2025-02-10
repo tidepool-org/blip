@@ -4,7 +4,7 @@ import { createSelector } from 'reselect';
 
 export const selectPatientSharedAccounts = createSelector([state => state.blip], state => {
   const {
-    allUsers,
+    allUsersMap,
     clinics,
     loggedInUserId,
     membersOfTargetCareTeam,
@@ -28,12 +28,12 @@ export const selectPatientSharedAccounts = createSelector([state => state.blip],
       uploadPermission: !!get(clinic, ['patients', loggedInUserId, 'permissions', 'upload']),
     }))),
     ...(map(membersOfTargetCareTeam, memberId => ({
-      email: get(allUsers, [memberId, 'emails', '0']),
-      id: get(allUsers, [memberId, 'userid']),
-      name: personUtils.fullName(allUsers[memberId]),
-      nameOrderable: (personUtils.fullName(allUsers[memberId]) || '').toLowerCase(),
+      email: get(allUsersMap, [memberId, 'emails', '0']),
+      id: get(allUsersMap, [memberId, 'userid']),
+      name: personUtils.fullName(allUsersMap[memberId]),
+      nameOrderable: (personUtils.fullName(allUsersMap[memberId]) || '').toLowerCase(),
       permissions: get(permissionsOfMembersInTargetCareTeam, [memberId]),
-      role: personUtils.hasClinicRole(allUsers[memberId]) ? 'clinician' : 'member',
+      role: personUtils.hasClinicRole(allUsersMap[memberId]) ? 'clinician' : 'member',
       type: 'account',
       uploadPermission: !!get(permissionsOfMembersInTargetCareTeam, [memberId, 'upload']),
     }))),
