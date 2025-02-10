@@ -4,7 +4,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import i18next from '../../core/language';
-import { Box } from 'theme-ui';
+import { Box, Flex } from 'theme-ui';
 import { withLDConsumer } from 'launchdarkly-react-client-sdk';
 import { withTranslation } from 'react-i18next';
 
@@ -31,8 +31,7 @@ import UpdateTypeBanner from '../../components/updatetypebanner';
 import UploaderBanner from '../../components/uploaderbanner';
 import Banner from '../../components/elements/Banner';
 
-import FooterLinks from '../../components/footerlinks';
-import Version from '../../components/version';
+import Footer from '../../components/footer';
 
 import { DATA_DONATION_NONPROFITS, URL_TIDEPOOL_PLUS_CONTACT_SALES } from '../../core/constants';
 import NavPatientHeader from '../../components/navpatientheader';
@@ -345,7 +344,7 @@ export class AppComponent extends React.Component {
   }
 
   renderNavPatientHeader() {
-    const { 
+    const {
       patient,
       clinicPatient,
       user,
@@ -357,13 +356,13 @@ export class AppComponent extends React.Component {
     } = this.props;
 
     if (!this.isPatientVisibleInNavbar()) return null; // only show on pages with a patient of focus
-    
+
     return (
-      <NavPatientHeader 
+      <NavPatientHeader
         patient={patient}
         clinicPatient={clinicPatient}
-        user={user} 
-        trackMetric={trackMetric} 
+        user={user}
+        trackMetric={trackMetric}
         permsOfLoggedInUser={permsOfLoggedInUser}
         clinicFlowActive={clinicFlowActive}
         selectedClinicId={selectedClinicId}
@@ -667,33 +666,13 @@ export class AppComponent extends React.Component {
   }
 
   renderFooter() {
-    var shouldDisplayFooterLinks = !_.includes(
-      [
-        '/signup',
-        '/signup/personal',
-        '/signup/clinician',
-        '/email-verification',
-        '/request-password-reset',
-        '/terms',
-        '/patients/new'
-      ],
-      this.props.location
-    );
+    const version = this.getVersion();
+    const trackMetric = this.props.context.trackMetric;
 
-    return (
-      <div className='container-nav-outer footer'>
-        <div className='container-nav-inner'>
-          {shouldDisplayFooterLinks ?
-              <FooterLinks trackMetric={this.props.context.trackMetric} /> : null}
-          <div className='footer-section'>
-            {this.renderVersion()}
-          </div>
-        </div>
-      </div>
-    );
+    return <Footer version={version} trackMetric={trackMetric} />;
   }
 
-  renderVersion() {
+  getVersion() {
     var version = [this.props.context.config.VERSION];
 
     // get environment from first subdomain on API_HOST, if present
@@ -715,9 +694,7 @@ export class AppComponent extends React.Component {
     version = _.compact(version);
 
     if (version.length) {
-      return (
-        <Version version={version.join('-')} />
-      );
+      return version.join('-');
     }
 
     return null;
