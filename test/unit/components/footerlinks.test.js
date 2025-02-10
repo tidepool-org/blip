@@ -22,8 +22,8 @@ describe('FooterLinks', () => {
   });
 
   describe('render', () => {
-    it('should render five links', () => {
-      expect(wrapper.find('a').length).to.equal(5);
+    it('should render four links', () => {
+      expect(wrapper.find('a').length).to.equal(4);
     });
   });
 
