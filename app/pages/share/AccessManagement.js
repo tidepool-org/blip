@@ -392,18 +392,15 @@ export const AccessManagement = (props) => {
     setPageCount(Math.ceil(data.length / rowsPerPage));
   };
 
-  const renderMember = ({ email, name }) => (
-    email ? (
+  const renderMember = ({ email, name }) => {
+    const inviteeInfo = [name, email].filter(string => !!string).join(' – ');
+
+    return (
       <Box>
-        <Text fontWeight="medium">{name}</Text>
-        <Text>{email}</Text>
+        <Text>{inviteeInfo}</Text>
       </Box>
-    ) : (
-      <Box>
-        <Text fontWeight="medium">{name}</Text>
-      </Box>
-    )
-  );
+    );
+  };
 
   const renderStatus = ({ status }) => (
     <Box sx={{ whiteSpace: 'nowrap' }}>
