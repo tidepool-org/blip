@@ -32,10 +32,14 @@
   a {
     &:extend(.link-secondary all);
 
+    &:hover {
+      color: @blue-gray-dark;
+    }
+
     svg {
       fill: @gray-dark;
       &:hover {
-        fill: @blue-green-light;
+        fill: @blue-gray-dark;
       }
     }
   }
