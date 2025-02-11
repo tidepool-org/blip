@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { find, last, min, noop } from 'lodash';
+import { find, last, min } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { sync, async } from '../../redux/actions';
@@ -10,7 +10,7 @@ import i18next from '../../core/language';
 
 const t = i18next.t.bind(i18next);
 
-const useProviderConnectionPopup = () => {
+const useProviderConnectionPopup = ({ popupWatchTimeout = 500 } = {}) => {
   const dispatch = useDispatch();
   const { set: setToast } = useToasts();
   const [providerConnectionPopup, setProviderConnectionPopup] = useState(null);
@@ -41,11 +41,6 @@ const useProviderConnectionPopup = () => {
     const popup = window.open(url, `Connect ${displayName} to Tidepool`, popupOptions.join(','));
     setProviderConnectionPopup(popup);
   }, []);
-
-  const updatePatientDataSources = useCallback(() => {
-    dispatch(async.fetchDataSources(api));
-    if (!fetchingDataSources?.inProgress) dispatch(async.fetchDataSources(api));
-  }, [dispatch, fetchingDataSources?.inProgress]);
 
   useEffect(() => {
     if (authorizedDataSource?.id) {
@@ -103,12 +98,12 @@ const useProviderConnectionPopup = () => {
         // modal. So, we just return while this loop runs in the meantime.
         return;
       }
-    }, 500);
+    }, popupWatchTimeout);
   }, [
-    dispatch,
-    updatePatientDataSources,
-    providerConnectionPopup,
     authorizedDataSource?.id,
+    dispatch,
+    popupWatchTimeout,
+    providerConnectionPopup,
     setToast,
   ]);
 
