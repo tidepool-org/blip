@@ -75,13 +75,19 @@ utils.isSupportedBrowser = () => {
   const userAgent = navigator.userAgent.toLowerCase();
 
   const isOpera = userAgent.indexOf('opr') > -1;
-
-  if (isOpera) return false;
-
+  const isBrave = userAgent.indexOf('brave') > -1;
+  const isFirefox = userAgent.indexOf('firefox') > -1;
+  const isFirefoxIOS = userAgent.indexOf('fxios') > -1;
   const isChrome = userAgent.indexOf('chrome') > -1;
-  const isChromeIOS = userAgent.indexOf('crios') > -1;
+  const isSafariIOS = userAgent.indexOf('safari') > -1 && /iphone|ipad/.test(userAgent);
 
-  return isChrome || isChromeIOS;
+  if (isOpera || isBrave || isFirefox || isFirefoxIOS) return false;
+
+  if (isChrome) return true;
+
+  if (isSafariIOS) return true;
+
+  return false;
 };
 
 utils.isMobile = () => {
