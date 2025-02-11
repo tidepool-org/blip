@@ -93,6 +93,11 @@ utils.isSupportedBrowser = () => {
 
 utils.isMobile = () => {
   var userAgent = navigator.userAgent.toLowerCase();
+
+  const isIOSDevice = /iphone|ipad/.test(userAgent);
+
+  if (isIOSDevice) return true;
+
   return (userAgent.indexOf('mobi') > -1);
 };
 
