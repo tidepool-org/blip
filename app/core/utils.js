@@ -78,15 +78,15 @@ utils.isSupportedBrowser = () => {
   const isBrave = userAgent.indexOf('brave') > -1;
   const isFirefox = userAgent.indexOf('firefox') > -1;
   const isFirefoxIOS = userAgent.indexOf('fxios') > -1;
+
+  if (isOpera || isBrave || isFirefox || isFirefoxIOS) return false;
+
   const isEdgeIOS = userAgent.indexOf('edgios') > -1;
-
-  if (isOpera || isBrave || isFirefox || isFirefoxIOS || isEdgeIOS) return false;
-
   const isChrome = userAgent.indexOf('chrome') > -1;
   const isChromeIOS = userAgent.indexOf('crios') > -1;
   const isSafariIOS = userAgent.indexOf('safari') > -1 && /iphone|ipad/.test(userAgent);
 
-  if (isChrome || isChromeIOS || isSafariIOS) return true;
+  if (isChrome || isChromeIOS || isEdgeIOS || isSafariIOS) return true;
 
   return false;
 };

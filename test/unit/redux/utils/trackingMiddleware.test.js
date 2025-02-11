@@ -38,7 +38,7 @@ describe('trackingMiddleware', () => {
   const next = sinon.stub();
 
   beforeEach(() => {
-    Object.defineProperty(window.navigator, 'userAgent', { value: 'Mozilla/5.0 .. truncated .. Chrome/131.0.0.0' });
+    Object.defineProperty(window.navigator, 'userAgent', { value: 'Mozilla/5.0 .. truncated .. Chrome/131.0.0.0', configurable: true });
     api.metrics.track.resetHistory();
   });
 

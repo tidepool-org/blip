@@ -12,7 +12,7 @@ import appContext from '../../app/bootstrap';
 
 describe('appContext', () => {
   before(() => {
-    Object.defineProperty(window.navigator, 'userAgent', { value: 'Mozilla/5.0 .. truncated .. Chrome/131.0.0.0' });
+    Object.defineProperty(window.navigator, 'userAgent', { value: 'Mozilla/5.0 .. truncated .. Chrome/131.0.0.0', configurable: true });
 
     appContext.api = {
       metrics: {
@@ -42,12 +42,12 @@ describe('appContext', () => {
       [loggedInUserId]: { username: 'canelo.alvarez@tidepool.test', roles: ['clinician'] },
     };
 
-    appContext.store.getState.returns({ 
+    appContext.store.getState.returns({
       blip: {
         selectedClinicId,
         loggedInUserId,
         allUsersMap,
-      }, 
+      },
     });
 
     appContext.trackMetric('someMetric2');

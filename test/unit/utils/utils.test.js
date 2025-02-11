@@ -72,6 +72,63 @@ describe('utils', () => {
     });
   });
 
+  describe('isSupportedBrowser', () => {
+    const tests = {
+      chromeWin: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36',
+      chromeMac: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36',
+      chromeIPad: 'Mozilla/5.0 (iPad; CPU OS 17_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/133.0.6943.33 Mobile/15E148 Safari/604.1',
+      chromeIPhone: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/133.0.6943.33 Mobile/15E148 Safari/604.1',
+      chromeAndroid: 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.6943.49 Mobile Safari/537.36',
+
+      firefoxWin: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:135.0) Gecko/20100101 Firefox/135.0',
+      firefoxMac: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14.7; rv:135.0) Gecko/20100101 Firefox/135.0',
+      firefoxIPhone: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_7_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) FxiOS/135.0 Mobile/15E148 Safari/605.1.15',
+      firefoxAndroid: 'Mozilla/5.0 (Android 15; Mobile; rv:135.0) Gecko/135.0 Firefox/135.0',
+
+      edgeWin: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36 Edg/131.0.2903.86',
+      edgeMac: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36 Edg/131.0.2903.86',
+      edgeAndroid: 'Mozilla/5.0 (Linux; Android 10; HD1913) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.6943.49 Mobile Safari/537.36 EdgA/131.0.2903.87',
+      edgeIPhone: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_7_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 EdgiOS/131.2903.92 Mobile/15E148 Safari/605.1.15',
+
+      safariMac: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_7_3) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3 Safari/605.1.15',
+      safariIPhone: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_7_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3 Mobile/15E148 Safari/604.1',
+      safariIPad: 'Mozilla/5.0 (iPad; CPU OS 17_7_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3 Mobile/15E148 Safari/604.1',
+    };
+
+    it('returns true for only supported devices', () => {
+      _.each(Object.values(tests), userAgent => {
+        Object.defineProperty(window.navigator, 'userAgent', { value: userAgent, configurable: true });
+
+        switch(userAgent) {
+          case tests.chromeWin:
+          case tests.chromeMac:
+          case tests.chromeIPad:
+          case tests.chromeIPhone:
+          case tests.chromeAndroid:
+          case tests.edgeWin:
+          case tests.edgeMac:
+          case tests.edgeAndroid:
+          case tests.edgeIPhone:
+          case tests.safariIPhone:
+          case tests.safariIPad:
+            expect(utils.isSupportedBrowser()).to.be.true;
+            break;
+
+          case tests.firefoxWin:
+          case tests.firefoxMac:
+          case tests.firefoxIPhone:
+          case tests.firefoxAndroid:
+          case tests.safariMac:
+            expect(utils.isSupportedBrowser()).to.be.false;
+            break;
+
+          default:
+            throw new Error('Agent in test list not checked in switch statement');
+        }
+      });
+    });
+  });
+
   describe('validateEmail', () => {
     it('should validate jane@tidepool.org as email', () => {
       expect(utils.validateEmail('jane@tidepool.org')).to.be.true;
