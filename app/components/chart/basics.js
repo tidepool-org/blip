@@ -200,6 +200,12 @@ class Basics extends Component {
       return '';
     }
 
+    const endpointsRange = _.get(props, 'data.data.current.endpoints.range', []);
+
+    if (endpointsRange[0] <= 0 || endpointsRange[1] <= 0) {
+      return '';
+    }
+
     const timePrefs = _.get(props, 'data.timePrefs', {});
     let timezone;
     if (!timePrefs.timezoneAware) {
@@ -210,8 +216,8 @@ class Basics extends Component {
     }
 
     const dtMask = t('MMM D, YYYY');
-    return sundial.formatInTimezone(_.get(props, 'data.data.current.endpoints.range', [])[0], timezone, dtMask) +
-      ' - ' + sundial.formatInTimezone(_.get(props, 'data.data.current.endpoints.range', [])[1] - 1, timezone, dtMask);
+    return sundial.formatInTimezone(endpointsRange[0], timezone, dtMask) +
+      ' - ' + sundial.formatInTimezone(endpointsRange[1] - 1, timezone, dtMask);
   }
 
   isMissingBasics = (props = this.props) => {

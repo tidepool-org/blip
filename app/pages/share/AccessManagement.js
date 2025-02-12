@@ -46,6 +46,7 @@ import baseTheme, { colors } from '../../themes/baseTheme';
 import * as actions from '../../redux/actions';
 import { useIsFirstRender } from '../../core/hooks';
 import config from '../../config';
+import { DesktopOnly } from '../../components/mediaqueries';
 
 export const AccessManagement = (props) => {
   const { t, api, trackMetric } = props;
@@ -392,18 +393,15 @@ export const AccessManagement = (props) => {
     setPageCount(Math.ceil(data.length / rowsPerPage));
   };
 
-  const renderMember = ({ email, name }) => (
-    email ? (
+  const renderMember = ({ email, name }) => {
+    const inviteeInfo = [name, email].filter(string => !!string).join(' – ');
+
+    return (
       <Box>
-        <Text fontWeight="medium">{name}</Text>
-        <Text>{email}</Text>
+        <Text>{inviteeInfo}</Text>
       </Box>
-    ) : (
-      <Box>
-        <Text fontWeight="medium">{name}</Text>
-      </Box>
-    )
-  );
+    );
+  };
 
   const renderStatus = ({ status }) => (
     <Box sx={{ whiteSpace: 'nowrap' }}>
@@ -586,20 +584,24 @@ export const AccessManagement = (props) => {
             sx={{ borderBottom: baseTheme.borders.default, alignItems: 'center', flexWrap:['wrap', 'nowrap'] }}
             px={[3, 4]}
           >
-            <Title sx={{ flexGrow: 1, textAlign: ['center', 'left'] }} pr={[0, 3]} py={[3, 4]}>
-              {t('Access Management')}
-            </Title>
-            <Flex width={['100%', 'auto']} sx={{ justifyContent: 'center' }} pb={[3, 0]}>
-              <Button
-                id="invite"
-                variant="primary"
-                onClick={() => {
-                  dispatch(push(`/patients/${loggedInUserId}/share/invite`));
-                }}
-              >
-                {t('Share Data')}
-              </Button>
-            </Flex>
+            <DesktopOnly breakpoint="512px" sx={{ width: '100%' }}>
+              <Title sx={{ flexGrow: 1, textAlign: ['center', 'left'] }} pr={[0, 3]} py={[3, 4]}>
+                {t('Access Management')}
+              </Title>
+            </DesktopOnly>
+            <Button
+              id="invite"
+              variant="primary"
+              sx={{
+                minWidth: '160px',
+                '@media screen and (max-width: 512px)': { width: '100%', margin: '16px 0' },
+              }}
+              onClick={() => {
+                dispatch(push(`/patients/${loggedInUserId}/share/invite`));
+              }}
+            >
+              {t('Share Data')}
+            </Button>
           </Flex>
 
           <Body2 id="member-invites-label" px={[3, 4]} py={[4, 5]}>{sharedAccounts.length

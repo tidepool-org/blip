@@ -3,12 +3,12 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import '../../../app/core/language';
-import Navbar from '../../../app/components/navbar';
+import '../../../../../app/core/language';
+import DesktopNavbar from '../../../../../app/components/navbar/DesktopNavbar/DesktopNavbar';
 
 const expect = chai.expect;
 
-describe('Navbar', ()  => {
+describe('DesktopNavbar', ()  => {
   let wrapper;
   let consoleErrorSpy;
 
@@ -21,7 +21,7 @@ describe('Navbar', ()  => {
     consoleErrorSpy = sinon.spy(console, 'error');
     // we have to rewire IndexLink because React Router throws an error
     // when rendering a IndexLink or Link out of the routing context :(
-    Navbar.__Rewire__('IndexLink', (props) => {
+    DesktopNavbar.__Rewire__('IndexLink', (props) => {
       return (
         <div>
           {props.children}
@@ -31,15 +31,15 @@ describe('Navbar', ()  => {
     // The HOC makes it difficult to access / set properties of the pure component,
     // in this case the trackMetric property of PureNavbar. So we test
     // on the pure component instead.
-    wrapper = shallow(<Navbar {...props} />).dive();
+    wrapper = shallow(<DesktopNavbar {...props} />).dive();
   });
 
   after(() => {
-    Navbar.__ResetDependency__('IndexLink');
+    DesktopNavbar.__ResetDependency__('IndexLink');
   });
 
   it('should be exposed as a module and be of type function', function() {
-    expect(Navbar).to.be.a('function');
+    expect(DesktopNavbar).to.be.a('function');
   });
 
   describe('render', () => {
@@ -56,8 +56,8 @@ describe('Navbar', ()  => {
         },
         selectedClinicId: 'clinic123',
       };
-  
-      wrapper = shallow(<Navbar {...clinicClinicianProps} currentPage="/dashboard/tide" />).dive();
+
+      wrapper = shallow(<DesktopNavbar {...clinicClinicianProps} currentPage="/dashboard/tide" />).dive();
       expect(wrapper.find('Link[to="/clinic-workspace/patients"]')).to.have.lengthOf(1);
     });
   });
