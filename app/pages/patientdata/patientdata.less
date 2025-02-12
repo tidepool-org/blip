@@ -18,6 +18,8 @@
   position: relative;
 }
 
+@mobile-breakpoint: 768px;
+
 // Subnav
 // ====================================
 
@@ -33,13 +35,45 @@
 }
 
 .patient-data-subnav {
+  // Desktop
   min-height: 40px;
 
   display: grid;
   grid-template-columns: 5fr 2fr 5fr;
 
+  // Tablet / Smaller Screen
   @media screen and (max-width: @patient-data-subnav-breakpoint) {
     grid-template-columns: 1fr;
+  }
+
+  // Mobile
+  @media screen and (max-width: @mobile-breakpoint) {
+    // Hide the entire bar if viewing settings chart or if no data
+    &[data-chart-type="settings"],
+    &[data-chart-type="no-data"] {
+      display: none;
+    }
+
+    // Use dark text on light background if viewing data charts
+    &[data-chart-type="daily"],
+    &[data-chart-type="bgLog"],
+    &[data-chart-type="basics"],
+    &[data-chart-type="trends"] {
+      background: @white-color;
+      color: @blue-gray-dark;
+      border-bottom: 1px solid #D9D9D9;
+    }
+
+    // Hide chart selection and print pdf button
+    .patient-data-subnav-left,
+    .patient-data-subnav-right {
+      display: none;
+    }
+
+    // Hide date navigation icons
+    a.patient-data-icon {
+      display: none;
+    }
   }
 }
 
@@ -157,6 +191,22 @@
   > div {
     margin: 0 0 8px;
     max-width: 100%;
+  }
+}
+
+// Content
+// ====================================
+
+#tidelineMain.basics,
+#tidelineMain.daily,
+#tidelineMain.bgLog,
+#tidelineMain.trends {
+  .patient-data-content {
+    display: block;
+
+    @media screen and (max-width: @mobile-breakpoint) {
+      display: none;
+    }
   }
 }
 

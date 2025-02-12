@@ -18,8 +18,12 @@ import {
 } from './elements/Dialog';
 import { MediumTitle, Caption, Body1 } from './elements/FontStyles';
 import i18next from '../core/language';
+import { breakpoints } from '../themes/baseTheme';
+import { DesktopOnly } from './mediaqueries';
 
 const t = i18next.t.bind(i18next);
+
+const MOBILE_BREAKPOINT_QUERY = `@media screen and (max-width: ${breakpoints[1]})`;
 
 export const ChartDateRangeModal = (props) => {
   const {
@@ -157,9 +161,13 @@ export const ChartDateRangeModal = (props) => {
         <Box px={3}>
           <Box mb={5}>
             <Body1 mb={2}>{t('Number of days (most recent)')}</Body1>
-            <Flex id="days-chart">
+            <Flex
+              id="days-chart"
+              sx={{ [MOBILE_BREAKPOINT_QUERY]: { flexDirection: 'column' } }}
+            >
               {map(presetDaysOptions, (days, i) => (
                 <Button
+                  sx={{ [MOBILE_BREAKPOINT_QUERY]: { padding: '16px 0', marginBottom: '8px' }, }}
                   mr={2}
                   variant="chip"
                   id={`days-chart-${i}`}
@@ -174,7 +182,7 @@ export const ChartDateRangeModal = (props) => {
               ))}
             </Flex>
           </Box>
-          <Box mb={3}>
+          <DesktopOnly sx={{ marginBottom: 3 }}>
             <Body1 mb={2}>{t('Or select a custom date range ({{maxDays}} days max)', { maxDays })}</Body1>
             <DateRangePicker
               startDate={dates.startDate}
@@ -196,7 +204,7 @@ export const ChartDateRangeModal = (props) => {
                 },
               }}
             />
-          </Box>
+          </DesktopOnly>
           {errors && (
             <Caption mt={2} sx={{ color: 'feedback.danger' }} id="chart-dates-error">
               {errors}
