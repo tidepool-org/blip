@@ -92,7 +92,7 @@ const AppBannerProvider = ({ children }) => {
       bannerArgs: [dispatch, loggedInUserId],
     },
 
-    donate: {
+    donateYourData: {
       show: userIsCurrentPatient && userHasData && !userIsDonor,
       bannerArgs: [dispatch],
     },
@@ -190,6 +190,7 @@ const AppBannerProvider = ({ children }) => {
     banner: currentBanner,
     bannerInteractedForPatient,
     bannerShownForPatient,
+    processedBanners,
     setBannerInteractedForPatient,
     setBannerShownForPatient,
     setFormikContext,

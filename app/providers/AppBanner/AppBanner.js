@@ -42,14 +42,12 @@ const AppBanner = ({ trackMetric }) => {
     });
   }, [
     banner?.id,
-    banner?.action,
     bannerInteractedForPatient,
     currentPatientInViewId,
     dispatch,
     loggedInUserId,
     setBannerInteractedForPatient,
     showModal,
-    trackMetric,
     userIsCurrentPatient,
   ]);
 
@@ -92,7 +90,15 @@ const AppBanner = ({ trackMetric }) => {
         dispatch(async.handleBannerInteraction(api, loggedInUserId, banner.id, SEEN_BANNER_ACTION));
       }
     }
-  }, [banner, bannerShownForPatient, currentPatientInViewId, setBannerShownForPatient, trackMetric]);
+  }, [
+    banner,
+    bannerShownForPatient,
+    dispatch,
+    currentPatientInViewId,
+    loggedInUserId,
+    setBannerShownForPatient,
+    trackMetric
+  ]);
 
   useEffect(() => {
     handleAsyncResult(workingState, banner?.action?.working?.successMessage, banner?.action?.working?.errorMessage);

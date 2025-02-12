@@ -4843,6 +4843,157 @@ describe('Actions', () => {
       });
     });
 
+    describe('handleBannerInteraction', () => {
+      it('should should call updatePreferences once for a successful clicked interaction', () => {
+        const interactionType = 'clicked';
+        const bannerId = 'testBanner';
+        const patient = { id: 'testUser', name: 'Test User', age: 65 };
+        const preferences = { clickedTestBannerBannerTime: '2024-11-28T00:00:00.000Z' };
+
+        let api = {
+          metadata: {
+            preferences: {
+              put: sinon.stub().callsArgWith(2, null, preferences),
+            },
+          },
+          patient: {
+            get: sinon.stub().callsArgWith(1, null, patient),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'UPDATE_PREFERENCES_REQUEST' },
+          { type: 'UPDATE_PREFERENCES_SUCCESS',
+            payload: {
+              patientId: 'testUser',
+              updatedPreferences: {
+                clickedTestBannerBannerTime: preferences.clickedTestBannerBannerTime,
+              },
+            },
+          },
+        ];
+
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.handleBannerInteraction(api, patient.id, bannerId, interactionType));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+      });
+
+      it('should should call updatePreferences once for a successful dismissed interaction', () => {
+        const interactionType = 'dismissed';
+        const bannerId = 'testBanner';
+        const patient = { id: 'testUser', name: 'Test User', age: 65 };
+        const preferences = { dismissedTestBannerBannerTime: '2024-11-28T00:00:00.000Z' };
+
+        let api = {
+          metadata: {
+            preferences: {
+              put: sinon.stub().callsArgWith(2, null, preferences),
+            },
+          },
+          patient: {
+            get: sinon.stub().callsArgWith(1, null, patient),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'UPDATE_PREFERENCES_REQUEST' },
+          { type: 'UPDATE_PREFERENCES_SUCCESS',
+            payload: {
+              patientId: 'testUser',
+              updatedPreferences: {
+                dismissedTestBannerBannerTime: preferences.dismissedTestBannerBannerTime,
+              },
+            },
+          },
+        ];
+
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.handleBannerInteraction(api, patient.id, bannerId, interactionType));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+      });
+
+      it('should should call updatePreferences once for a successful seen interaction', () => {
+        const interactionType = 'seen';
+        const bannerId = 'testBanner';
+        const patient = { id: 'testUser', name: 'Test User', age: 65 };
+        const preferences = { seenTestBannerBannerTime: '2024-11-28T00:00:00.000Z' };
+
+        let api = {
+          metadata: {
+            preferences: {
+              put: sinon.stub().callsArgWith(2, null, preferences),
+            },
+          },
+          patient: {
+            get: sinon.stub().callsArgWith(1, null, patient),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'UPDATE_PREFERENCES_REQUEST' },
+          { type: 'UPDATE_PREFERENCES_SUCCESS',
+            payload: {
+              patientId: 'testUser',
+              updatedPreferences: {
+                seenTestBannerBannerTime: preferences.seenTestBannerBannerTime,
+              },
+            },
+          },
+        ];
+
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.handleBannerInteraction(api, patient.id, bannerId, interactionType));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+      });
+
+      it('should should not call updatePreferences once for an unknown interaction type', () => {
+        const interactionType = 'foobar';
+        const bannerId = 'testBanner';
+        const patient = { id: 'testUser', name: 'Test User', age: 65 };
+
+        let api = {
+          metadata: {
+            preferences: {
+              put: sinon.stub().callsArgWith(2, null, {}),
+            },
+          },
+          patient: {
+            get: sinon.stub().callsArgWith(1, null, patient),
+          },
+        };
+
+        let expectedActions = [];
+
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.handleBannerInteraction(api, patient.id, bannerId, interactionType));
+
+        const actions = store.getActions();
+        expect(actions.length).to.equal(0);
+      });
+    });
+
     describe('fetchDataSources', () => {
       it('should trigger FETCH_DATA_SOURCES_SUCCESS and it should call error once for a successful request', () => {
         let dataSources = [

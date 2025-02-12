@@ -10,7 +10,7 @@ import PatientEmailModal from '../../components/datasources/PatientEmailModal';
 
 const t = i18next.t.bind(i18next);
 
-const pathRegexes = {
+export const pathRegexes = {
   clinicWorkspace: /^\/clinic-workspace/,
   patientData: /^\/patients\/\S+\/data/,
 };
@@ -119,13 +119,13 @@ export const appBanners = [
   },
 
   {
-    id: 'donate',
+    id: 'donateYourData',
     variant: 'info',
     priority: 4,
     context: ['patient'],
     paths: [pathRegexes.patientData],
     getProps: dispatch => ({
-      label: t('Donate banner'),
+      label: t('Donate your data banner'),
       message: t('Donate your data. Contribute to research.'),
       show: {
         metric: 'Big Data banner displayed',
