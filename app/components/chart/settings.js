@@ -653,7 +653,7 @@ const Settings = ({
                 height: ['auto', '100%'],
               }}
             >
-              <Box id="box-1">
+              <Box>
                 {(isClinicContext || isUserPatient) && (
                   <Box id="data-connections-wrapper">
                     {patientData?.dataSources?.length > 0 ? renderDataConnections() : renderDeviceConnectionCard()}

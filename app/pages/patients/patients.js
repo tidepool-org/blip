@@ -321,6 +321,10 @@ export let Patients = withTranslation()(class extends React.Component {
   UNSAFE_componentWillMount() {
     this.props.dataWorkerRemoveDataRequest(null, this.props.currentPatientInViewId);
 
+    if (this.props.clearPatientInView) {
+      this.props.clearPatientInView();
+    }
+
     if (this.props.selectedClinicId) {
       this.props.selectClinic(null);
     }

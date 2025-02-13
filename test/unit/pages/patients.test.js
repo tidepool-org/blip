@@ -24,6 +24,7 @@ describe('Patients', () => {
   });
 
   let props = {
+    clearPatientInView: sinon.stub(),
     dataWorkerRemoveDataRequest: sinon.stub(),
   };
 
@@ -41,11 +42,16 @@ describe('Patients', () => {
 
   afterEach(() => {
     props.dataWorkerRemoveDataRequest.reset();
+    props.clearPatientInView.reset();
   });
 
   describe('componentWillMount', () => {
     it('should clear previously viewed patient data', () => {
       sinon.assert.calledOnce(props.dataWorkerRemoveDataRequest);
+    });
+
+    it('should call the `clearPatientInView` prop when provided', () => {
+      sinon.assert.calledOnce(props.clearPatientInView);
     });
   });
 

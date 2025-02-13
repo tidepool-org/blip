@@ -6,6 +6,7 @@ import { Box } from 'theme-ui';
 import { useTranslation } from 'react-i18next';
 import { usePopupState, bindPopover, bindTrigger } from 'material-ui-popup-state/hooks';
 import colorPalette from '../../../themes/colorPalette';
+import personUtils from '../../../core/personutils';
 
 import Popover from '../../elements/Popover';
 import Button from '../../elements/Button';
@@ -21,7 +22,7 @@ import shareIcon from '../../../core/icons/shareIcon.svg';
 import devicesIcon from '../../../core/icons/devicesIcon.svg';
 
 import { getDemographicInfo, getPermissions, useNavigation } from '../../../core/navutils';
-import { selectClinicPatient, selectPatient, selectPermsOfLoggedInUser } from '../../../core/selectors';
+import { selectClinicPatient, selectPatient, selectUser, selectPermsOfLoggedInUser } from '../../../core/selectors';
 
 const StyledMenuDropdownButton = styled(Button)`
   background: none;
@@ -67,13 +68,12 @@ const Menu = ({ api, trackMetric }) => {
   const { t } = useTranslation();
 
   const patient = useSelector(state => selectPatient(state));
+  const user = useSelector(state => selectUser(state));
   const clinicPatient = useSelector(state => selectClinicPatient(state));
   const permsOfLoggedInUser = useSelector(state => selectPermsOfLoggedInUser(state));
+  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
 
   const popupState = usePopupState({ variant: 'popover', popupId: 'mobileNavigationMenu' });
-
-  const { name: patientName } = getDemographicInfo(patient, clinicPatient);
-  const { canShare } = getPermissions(patient, permsOfLoggedInUser);
 
   const {
     handleViewData,
@@ -89,6 +89,13 @@ const Menu = ({ api, trackMetric }) => {
     popupState.close();
   };
 
+  const { name: patientName } = getDemographicInfo(patient, clinicPatient);
+  const { canShare } = getPermissions(patient, permsOfLoggedInUser);
+
+  const isClinicContext = !!selectedClinicId;
+  const isUserPatient = personUtils.isSame(user, patient);
+  const canViewDevices = isClinicContext || isUserPatient;
+
   const menuOptions = [
     {
       id: 'mobileNavbar_viewDataButton',
@@ -96,12 +103,12 @@ const Menu = ({ api, trackMetric }) => {
       iconSrc: viewIcon,
       label: t('Summary Stats'),
     },
-    {
+    (canViewDevices && {
       id: 'mobileNavbar_settingsChartButton',
       onClick: handleViewSettingsChart,
       iconSrc: devicesIcon,
       label: t('Devices'),
-    },
+    }),
     (canShare && {
       id: 'mobileNavbar_shareButton',
       onClick: handleShare,
