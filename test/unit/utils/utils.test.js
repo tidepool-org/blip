@@ -3,6 +3,7 @@
 /* global it */
 /* global context */
 /* global sinon */
+/* global after */
 /* global afterEach */
 /* global assert */
 
@@ -14,6 +15,11 @@ import releases from '../../fixtures/githubreleasefixture';
 const expect = chai.expect;
 
 describe('utils', () => {
+  after(() => {
+    const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36';
+    Object.defineProperty(window.navigator, 'userAgent', { value: userAgent, configurable: true });
+  });
+
   describe('capitalize', () => {
     it('should return a capitalized string', () => {
       expect(utils.capitalize('lower')).to.equal('Lower');
@@ -123,7 +129,7 @@ describe('utils', () => {
             break;
 
           default:
-            throw new Error('Agent in list not checked in switch statement');
+            throw new Error('Each string in USER_AGENTS should have an expected result in the test');
         }
       });
     });
@@ -158,7 +164,7 @@ describe('utils', () => {
             break;
 
           default:
-            throw new Error('Agent in list not checked in switch statement');
+            throw new Error('Each string in USER_AGENTS should have an expected result in the test');
         }
       });
     });
