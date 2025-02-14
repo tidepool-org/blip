@@ -9,14 +9,15 @@ import profileIcon from '../../../core/icons/profileIcon.svg'
 import shareIcon from '../../../core/icons/shareIcon.svg'
 import uploadIcon from '../../../core/icons/uploadIcon.svg'
 
-import { getButtonStyleProps, getFinalSlug } from './menuOptionHelpers';
+import { getFinalSlug } from '../../../core/navutils';
+import { getButtonStyleProps } from './menuOptionHelpers';
 
-const PatientMenuOptions = ({ 
-  t, 
-  onViewProfile, 
+const PatientMenuOptions = ({
+  t,
+  onViewProfile,
   onViewData,
-  onShare = null, 
-  onUpload = null, 
+  onShare = null,
+  onUpload = null,
 }) => {
   const { pathname } = useLocation();
   const finalSlug = getFinalSlug(pathname);
@@ -46,7 +47,7 @@ const PatientMenuOptions = ({
         </Button>
       </Box>
 
-      {onShare && 
+      {onShare &&
         <Box>
           <Button
             id="navPatientHeader_shareButton"
@@ -59,7 +60,7 @@ const PatientMenuOptions = ({
           </Button>
         </Box>}
 
-      {onUpload && 
+      {onUpload &&
         <Box>
           <Button
             id="navPatientHeader_uploadButton"

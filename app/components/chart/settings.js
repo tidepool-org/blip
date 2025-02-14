@@ -9,6 +9,7 @@ import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRo
 import DateRangeRoundedIcon from '@material-ui/icons/DateRangeRounded';
 import AddRoundedIcon from '@material-ui/icons/AddRounded';
 import launchCustomProtocol from 'custom-protocol-detection';
+import { DesktopOnly } from '../mediaqueries';
 
 import {
   bindPopover,
@@ -658,15 +659,18 @@ const Settings = ({
                     {patientData?.dataSources?.length > 0 ? renderDataConnections() : renderDeviceConnectionCard()}
                   </Box>
                 )}
-                <Divider my={4} />
-                <MediumTitle mb={2} sx={{ color: 'black' }}>{t('Therapy Settings')}</MediumTitle>
 
-                {selectedSettingsId ? (
-                  <>
-                    {renderDeviceSettingsSelectionUI()}
-                    {renderChart()}
-                  </>
-                ) : renderMissingSettingsMessage()}
+                <DesktopOnly>
+                  <Divider my={4} />
+                  <MediumTitle mb={2} sx={{ color: 'black' }}>{t('Therapy Settings')}</MediumTitle>
+
+                  {selectedSettingsId ? (
+                    <>
+                      {renderDeviceSettingsSelectionUI()}
+                      {renderChart()}
+                    </>
+                  ) : renderMissingSettingsMessage()}
+                </DesktopOnly>
               </Box>
 
               <Button
