@@ -52,11 +52,15 @@ export const DeviceSelection = (props) => {
           <Checkbox
             checked={!includes(excludedDevices, id)}
             onChange={toggleDevice}
-            label={label || id}
             name={`${id}-toggle`}
             value={id}
             key={id}
             themeProps={{ sx: { color: colors.stat.text } }}
+            label={
+              <Box sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {label || id}
+              </Box>
+            }
           />
         </Box>
       ))}
