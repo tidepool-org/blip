@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigation, getPermissions, getDemographicInfo } from '../../core/navutils';
 import { Box, Flex } from 'theme-ui';
 import _ from 'lodash';
-import launchCustomProtocol from 'custom-protocol-detection';
 
 import Back from './Back';
 import Name from './Name';
@@ -10,9 +9,10 @@ import DemographicInfo from './DemographicInfo';
 import PatientMenuOptions from './MenuOptions/Patient';
 import ClinicianMenuOptions from './MenuOptions/Clinician';
 import { isClinicianAccount } from '../../core/personutils';
-import { getPermissions, getPatientListLink, getDemographicInfo } from './navPatientHeaderHelpers';
 import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
 import { breakpoints } from '../../themes/baseTheme';
+import { DesktopOnly } from '../mediaqueries';
+import utils from '../../core/utils';
 
 const HeaderContainer = ({ children }) => (
   <Box variant="containers.largeBordered" mb={0} mx={[0, 0]} sx={{ width: ['100%', '100%'] }}>
@@ -30,54 +30,31 @@ const HeaderContainer = ({ children }) => (
   </Box>
 );
 
-const NavPatientHeader = ({
-  patient,
-  clinicPatient,
-  user,
-  permsOfLoggedInUser,
-  trackMetric,
-  clinicFlowActive,
-  selectedClinicId,
-  query,
-}) => {
-  const history = useHistory();
+const NavPatientHeader = ({ api, trackMetric, patient, clinicPatient, user, permsOfLoggedInUser }) => {
+  const {
+    handleBack,
+    handleLaunchUploader,
+    handleViewData,
+    handleViewProfile,
+    handleShare,
+  } = useNavigation(api, trackMetric);
+
   const [isUploadOverlayOpen, setIsUploadOverlayOpen] = useState(false);
 
   if (!patient?.profile?.patient) return null;
 
-  const { patientListLink } = getPatientListLink(clinicFlowActive, selectedClinicId, query, patient.userid);
   const { canUpload, canShare } = getPermissions(patient, permsOfLoggedInUser);
   const { mrn, birthday, name } = getDemographicInfo(patient, clinicPatient);
 
-  const handleBack = () => {
-    trackMetric('Clinic - View patient list', { clinicId: selectedClinicId, source: 'Patient data' });
-    history.push(patientListLink);
-  }
+  const isUploadVisible = canUpload && !utils.isMobile();
 
-  const handleUpload = () => {
-    trackMetric('Clicked Navbar Upload Data');
+  const handleOpenUploader = () => {
+    handleLaunchUploader();
     setIsUploadOverlayOpen(true);
-    launchCustomProtocol('tidepoolupload://open');
-  }
-
-  const handleViewData = () => {
-    trackMetric('Clicked Navbar View Data');
-    history.push(`/patients/${patient.userid}/data`);
-  }
-
-  const handleViewProfile = () => {
-    trackMetric('Clicked Navbar Name');
-    history.push(`/patients/${patient.userid}/profile`);
-  }
-
-  const handleShare = () => {
-    trackMetric('Clicked Navbar Share Data');
-    history.push(`/patients/${patient.userid}/share`);
-  }
+  };
 
   return (
     <Box
-      className="nav-patient-header"
       mb={3}
       mx={[0, 4, null, null, 'auto']}
       sx={{
@@ -94,7 +71,7 @@ const NavPatientHeader = ({
               <ClinicianMenuOptions
                 onViewData={handleViewData}
                 onViewProfile={handleViewProfile}
-                onUpload={canUpload ? handleUpload : null}
+                onUpload={isUploadVisible ? handleOpenUploader : null}
               />
             </>
           : <>
@@ -102,7 +79,7 @@ const NavPatientHeader = ({
               <PatientMenuOptions
                 onViewData={handleViewData}
                 onViewProfile={handleViewProfile}
-                onUpload={canUpload ? handleUpload : null}
+                onUpload={isUploadVisible ? handleOpenUploader : null}
                 onShare={canShare ? handleShare : null}
               />
             </>
@@ -113,6 +90,12 @@ const NavPatientHeader = ({
       }
     </Box>
   );
-}
+};
 
-export default NavPatientHeader;
+const WrappedNavPatientHeader = (props) => ( // Hide on mobile
+  <DesktopOnly>
+    <NavPatientHeader {...props} />
+  </DesktopOnly>
+);
+
+export default WrappedNavPatientHeader;

@@ -64,6 +64,7 @@ import {
   rpmReportPatients,
   ssoEnabledDisplay,
   pendoData,
+  navbarChartType,
 } from './misc';
 
 export default combineReducers({
@@ -113,4 +114,5 @@ export default combineReducers({
   working,
   pendoData,
   patientListFilters,
+  navbarChartType,
 });

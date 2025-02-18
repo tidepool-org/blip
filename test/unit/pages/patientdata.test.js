@@ -54,7 +54,9 @@ describe('PatientData', function () {
     fetchingUser: false,
     generatePDFRequest: sinon.stub(),
     generatingPDF: {},
+    history: { push: sinon.stub() },
     isUserPatient: false,
+    location: { search: '', pathname: '/data' },
     messageThread: [],
     onCloseMessageThread: sinon.stub(),
     onCreateMessage: sinon.stub(),
@@ -77,6 +79,11 @@ describe('PatientData', function () {
 
   before(() => {
     PD.__Rewire__('launchCustomProtocol', _.noop);
+    PD.__Rewire__('NavbarChartTypeSetter', createReactClass({
+      render: function() {
+        return (<div className='fake-navbar-chart-type-setter'></div>);
+      },
+    }));
     PD.__Rewire__('Basics', createReactClass({
       render: function() {
         return (<div className='fake-basics-view'></div>);
@@ -110,6 +117,7 @@ describe('PatientData', function () {
 
   after(() => {
     PD.__ResetDependency__('launchCustomProtocol');
+    PD.__ResetDependency__('NavbarChartTypeSetter');
     PD.__ResetDependency__('Basics');
     PD.__ResetDependency__('Trends');
     PD.__ResetDependency__('BgLog');
@@ -575,6 +583,8 @@ describe('PatientData', function () {
       context('setting default view based on device type of last upload', () => {
         it('should set the default view to <Basics /> when latest data is from a pump', () => {
           wrapper.setProps(_.assign({}, props, {
+            location: { search: '', pathname: '/data' },
+            history: { push: sinon.stub() },
             data: {
               data: { current: {
                 data: { upload: uploads },
@@ -604,6 +614,8 @@ describe('PatientData', function () {
 
         it('should set the default view to <Trends /> with CGM selected when latest data is from a cgm', () => {
           wrapper.setProps(_.assign({}, props, {
+            location: { search: '', pathname: '/data' },
+            history: { push: sinon.stub() },
             data: {
               data: { current: {
                 data: { upload: uploads },
@@ -633,6 +645,8 @@ describe('PatientData', function () {
 
         it('should set the default view to <BgLog /> when latest data is from a bgm', () => {
           wrapper.setProps(_.assign({}, props, {
+            location: { search: '', pathname: '/data' },
+            history: { push: sinon.stub() },
             data: {
               data: { current: {
                 data: { upload: uploads },
@@ -662,6 +676,8 @@ describe('PatientData', function () {
 
         it('should set the default view to <Basics /> when latest data type is cbg but came from a pump', () => {
           wrapper.setProps(_.assign({}, props, {
+            location: { search: '', pathname: '/data' },
+            history: { push: sinon.stub() },
             data: {
               data: { current: {
                 data: { upload: uploads },
@@ -693,6 +709,8 @@ describe('PatientData', function () {
       context('unable to determine device, falling back to data.type', () => {
         it('should set the default view to <Basics /> when type is bolus', () => {
           wrapper.setProps(_.assign({}, props, {
+            location: { search: '', pathname: '/data' },
+            history: { push: sinon.stub() },
             data: {
               data: { current: {
                 data: { upload: uploads },
@@ -722,6 +740,8 @@ describe('PatientData', function () {
 
         it('should set the default view to <Basics /> when type is basal', () => {
           wrapper.setProps(_.assign({}, props, {
+            location: { search: '', pathname: '/data' },
+            history: { push: sinon.stub() },
             data: {
               data: { current: {
                 data: { upload: uploads },
@@ -751,6 +771,8 @@ describe('PatientData', function () {
 
         it('should set the default view to <Basics /> when type is wizard', () => {
           wrapper.setProps(_.assign({}, props, {
+            location: { search: '', pathname: '/data' },
+            history: { push: sinon.stub() },
             data: {
               data: { current: {
                 data: { upload: uploads },
@@ -780,6 +802,8 @@ describe('PatientData', function () {
 
         it('should set the default view to <Trends /> when type is cbg', () => {
           wrapper.setProps(_.assign({}, props, {
+            location: { search: '', pathname: '/data' },
+            history: { push: sinon.stub() },
             data: {
               data: { current: {
                 data: { upload: uploads },
@@ -809,6 +833,8 @@ describe('PatientData', function () {
 
         it('should set the default view to <BgLog /> when type is smbg', () => {
           wrapper.setProps(_.assign({}, props, {
+            location: { search: '', pathname: '/data' },
+            history: { push: sinon.stub() },
             data: {
               data: { current: {
                 data: { upload: uploads },
@@ -840,6 +866,8 @@ describe('PatientData', function () {
       context('with no upload records, falling back to data.type', () => {
         it('should set the default view to <Basics /> when type is bolus', () => {
           wrapper.setProps(_.assign({}, props, {
+            location: { search: '', pathname: '/data' },
+            history: { push: sinon.stub() },
             data: {
               data: { current: {
                 data: { upload: [] },
@@ -869,6 +897,8 @@ describe('PatientData', function () {
 
         it('should set the default view to <Basics /> when type is basal', () => {
           wrapper.setProps(_.assign({}, props, {
+            location: { search: '', pathname: '/data' },
+            history: { push: sinon.stub() },
             data: {
               data: { current: {
                 data: { upload: [] },
@@ -898,6 +928,8 @@ describe('PatientData', function () {
 
         it('should set the default view to <Basics /> when type is wizard', () => {
           wrapper.setProps(_.assign({}, props, {
+            location: { search: '', pathname: '/data' },
+            history: { push: sinon.stub() },
             data: {
               data: { current: {
                 data: { upload: [] },
@@ -927,6 +959,8 @@ describe('PatientData', function () {
 
         it('should set the default view to <Trends /> when type is cbg', () => {
           wrapper.setProps(_.assign({}, props, {
+            location: { search: '', pathname: '/data' },
+            history: { push: sinon.stub() },
             data: {
               data: { current: {
                 data: { upload: [] },
@@ -956,6 +990,8 @@ describe('PatientData', function () {
 
         it('should set the default view to <BgLog /> when type is smbg', () => {
           wrapper.setProps(_.assign({}, props, {
+            location: { search: '', pathname: '/data' },
+            history: { push: sinon.stub() },
             data: {
               data: { current: {
                 data: { upload: [] },
@@ -1073,6 +1109,8 @@ describe('PatientData', function () {
       describe('logged-in user is not current patient targeted for viewing', () => {
         it ('should render the correct view when data is present for current patient', function() {
           wrapper.setProps(_.assign({}, props, {
+            location: { search: '', pathname: '/data' },
+            history: { push: sinon.stub() },
             data: {
               data: { current: {
                 data: { upload: [] },
@@ -1103,6 +1141,8 @@ describe('PatientData', function () {
       describe('logged-in user is viewing own data', () => {
         it ('should render the correct view when data is present for current patient', function() {
           wrapper.setProps(_.assign({}, props, {
+            location: { search: '', pathname: '/data' },
+            history: { push: sinon.stub() },
             data: {
               data: { current: {
                 data: { upload: [] },
@@ -4613,6 +4653,8 @@ describe('PatientData', function () {
       var props = {
         currentPatientInViewId: '40',
         dataWorkerQueryDataRequest: sinon.stub(),
+        location: { search: '', pathname: '/data' },
+        history: { push: sinon.stub() },
         isUserPatient: true,
         patient: {
           userid: '40',
@@ -4667,6 +4709,8 @@ describe('PatientData', function () {
       var props = {
         currentPatientInViewId: '40',
         dataWorkerQueryDataRequest: sinon.stub(),
+        location: { search: '', pathname: '/data' },
+        history: { push: sinon.stub() },
         isUserPatient: true,
         patient: {
           userid: '40',
@@ -4766,6 +4810,8 @@ describe('PatientData', function () {
       var props = {
         currentPatientInViewId: '40',
         dataWorkerQueryDataRequest: sinon.stub(),
+        location: { search: '', pathname: '/data' },
+        history: { push: sinon.stub() },
         isUserPatient: true,
         patient: {
           userid: '40',
@@ -4858,6 +4904,8 @@ describe('PatientData', function () {
       var props = {
         currentPatientInViewId: '40',
         dataWorkerQueryDataRequest: sinon.stub(),
+        location: { search: '', pathname: '/data' },
+        history: { push: sinon.stub() },
         isUserPatient: true,
         patient: {
           userid: '40',
@@ -4942,6 +4990,8 @@ describe('PatientData', function () {
       var props = {
         currentPatientInViewId: '40',
         dataWorkerQueryDataRequest: sinon.stub(),
+        location: { search: '', pathname: '/data' },
+        history: { push: sinon.stub() },
         isUserPatient: true,
         patient: {
           userid: '40',
