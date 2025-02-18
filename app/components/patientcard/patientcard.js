@@ -21,6 +21,7 @@ import { Link } from 'react-router-dom';
 import _ from 'lodash';
 import cx from 'classnames';
 import launchCustomProtocol from 'custom-protocol-detection';
+import utils from '../../core/utils';
 
 var personUtils = require('../../core/personutils');
 var ModalOverlay = require('../modaloverlay');
@@ -167,7 +168,9 @@ var PatientCard = withTranslation()(class extends React.Component {
       self.props.trackMetric('Clicked VDF Upload Data');
     };
 
-    if(_.isEmpty(patient.permissions) === false && patient.permissions.root || _.has(patient.permissions, ['upload'])) {
+    const hasPermission = _.isEmpty(patient.permissions) === false && patient.permissions.root || _.has(patient.permissions, ['upload']);
+
+    if (hasPermission && !utils.isMobile()) {
       return (
         <a className={classes} href='' onClick={handleClick} onMouseEnter={this.setHighlight('upload')} onMouseLeave={this.setHighlight('')} title={t('Upload data')}>{t('Upload')}</a>
       );

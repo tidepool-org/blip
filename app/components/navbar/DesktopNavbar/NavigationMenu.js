@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
+import { useNavigation } from '../../../core/navutils';
 import { withTranslation } from 'react-i18next';
-import { push } from 'connected-react-router';
 import filter from 'lodash/filter';
 import has from 'lodash/has';
 import includes from 'lodash/includes';
@@ -24,16 +24,14 @@ import {
   bindTrigger,
 } from 'material-ui-popup-state/hooks';
 
-import * as actions from '../../redux/actions';
-import Button from '../elements/Button';
-import Popover from '../elements/Popover';
-import NotificationIcon from '../elements/NotificationIcon';
-import personUtils from '../../core/personutils';
-import { borders, colors, space } from '../../themes/baseTheme';
+import Button from '../../elements/Button';
+import Popover from '../../elements/Popover';
+import NotificationIcon from '../../elements/NotificationIcon';
+import personUtils from '../../../core/personutils';
+import { borders, colors, space } from '../../../themes/baseTheme';
 
 export const NavigationMenu = props => {
   const { t, api, trackMetric } = props;
-  const dispatch = useDispatch();
   const { pathname } = useLocation();
   const [isClinicProfileFormPath, setIsClinicProfileFormPath] = useState();
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
@@ -42,34 +40,39 @@ export const NavigationMenu = props => {
   const clinicFlowActive = useSelector((state) => state.blip.clinicFlowActive);
   const pendingReceivedClinicianInvites = useSelector((state) => state.blip.pendingReceivedClinicianInvites);
 
+  const {
+    handleSelectWorkspace,
+    handleViewManageWorkspaces,
+    handleViewAccountSettings,
+    handleLogout,
+  } = useNavigation(api, trackMetric);
+
   const popupState = usePopupState({
     variant: 'popover',
     popupId: 'navigationMenu',
   });
 
   const privateWorkspaceOption = {
-    action: handleSelectWorkspace.bind(null, null),
+    action: () => handleSelectWorkspace(null),
     icon: SupervisedUserCircleRoundedIcon,
     label: t('Private Workspace'),
-    metric: ['Clinic - Menu - Go to private workspace'],
   };
 
   const accountSettingsOption = {
-    action: () => dispatch(push('/profile')),
+    action: handleViewAccountSettings,
     icon: SettingsRoundedIcon,
     label: t('Account Settings'),
   };
 
   const manageWorkspacesOption = () => ({
-    action: () => dispatch(push('/workspaces')),
+    action: handleViewManageWorkspaces,
     icon: ViewListRoundedIcon,
     label: t('Manage Workspaces'),
-    metric: ['Clinic - Menu - Manage workspaces'],
     notification: pendingReceivedClinicianInvites.length > 0,
   });
 
   const logoutOption = {
-    action: () => dispatch(actions.async.logout(api)),
+    action: handleLogout,
     icon: ExitToAppRoundedIcon,
     label: t('Logout'),
   };
@@ -90,10 +93,9 @@ export const NavigationMenu = props => {
     } else if (clinicFlowActive) {
       const options = [
         ...map(sortBy(userClinics, clinic => clinic.name.toLowerCase()), clinic => ({
-          action: handleSelectWorkspace.bind(null, clinic.id),
+          action: () => handleSelectWorkspace(clinic.id),
           icon: DashboardRoundedIcon,
           label: t('{{name}} Workspace', { name: clinic.name }),
-          metric: ['Clinic - Menu - Go to clinic workspace', { clinicId: clinic.id }],
         })),
         manageWorkspacesOption(),
         privateWorkspaceOption,
@@ -111,15 +113,7 @@ export const NavigationMenu = props => {
     setIsClinicProfileFormPath(includes(['/clinic-details/profile', '/clinic-details/migrate'], pathname));
   }, [pathname]);
 
-  function handleSelectWorkspace(clinicId) {
-    dispatch(actions.sync.setPatientListSearchTextInput(''));
-    dispatch(actions.sync.setIsPatientListVisible(false));
-    dispatch(actions.async.selectClinic(api, clinicId));
-    dispatch(push(clinicId ? '/clinic-workspace' : '/patients', { selectedClinicId: clinicId }));
-  }
-
   function handleMenuAction(menuOption) {
-    if (menuOption.metric?.length) trackMetric(...menuOption.metric);
     menuOption.action();
     popupState.close();
   }

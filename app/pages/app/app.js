@@ -302,23 +302,19 @@ export class AppComponent extends React.Component {
     if (!_.includes(LOGIN_NAV_ROUTES, this.props.location)) {
       if (this.props.authenticated ||
         (_.get(this.props.fetchingUser, 'inProgress') || this.props.fetchingPatient)) {
-        var patient, getUploadUrl;
-        if (this.isPatientVisibleInNavbar()) {
-          patient = this.props.patient;
-          getUploadUrl = this.props.context.api.getUploadUrl.bind(this.props.context.api);
-        }
+
         return (
           <Box className="App-navbar" variant="containers.large" bg="transparent" mb={0} py={2}>
             <Navbar
               user={this.props.user}
               fetchingUser={_.get(this.props.fetchingUser, 'inProgress')}
-              patient={patient}
+              patient={this.props.patient}
+              clinicPatient={this.props.clinicPatient}
               fetchingPatient={this.props.fetchingPatient}
               currentPage={this.props.location}
               query={this.props.query}
               clinicFlowActive={this.props.clinicFlowActive}
               clinics={this.props.clinics}
-              getUploadUrl={getUploadUrl}
               onLogout={this.props.onLogout}
               trackMetric={this.props.context.trackMetric}
               permsOfLoggedInUser={this.props.permsOfLoggedInUser}
@@ -338,10 +334,7 @@ export class AppComponent extends React.Component {
       clinicPatient,
       user,
       permsOfLoggedInUser,
-      context: { trackMetric },
-      clinicFlowActive,
-      selectedClinicId,
-      query,
+      context: { trackMetric, api },
     } = this.props;
 
     if (!this.isPatientVisibleInNavbar()) return null; // only show on pages with a patient of focus
@@ -351,11 +344,9 @@ export class AppComponent extends React.Component {
         patient={patient}
         clinicPatient={clinicPatient}
         user={user}
-        trackMetric={trackMetric}
         permsOfLoggedInUser={permsOfLoggedInUser}
-        clinicFlowActive={clinicFlowActive}
-        selectedClinicId={selectedClinicId}
-        query={query}
+        trackMetric={trackMetric}
+        api={api}
       />
     );
   }

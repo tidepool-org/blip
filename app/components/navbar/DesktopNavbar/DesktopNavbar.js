@@ -6,12 +6,12 @@ import { withTranslation } from 'react-i18next';
 import ChevronLeftRoundedIcon from '@material-ui/icons/ChevronLeftRounded';
 import _ from 'lodash';
 
-import personUtils from '../../core/personutils';
-import WorkspaceSwitcher from '../clinic/WorkspaceSwitcher';
+import personUtils from '../../../core/personutils';
+import WorkspaceSwitcher from '../../clinic/WorkspaceSwitcher';
 import NavigationMenu from './NavigationMenu';
-import Button from '../elements/Button';
-import tidepoolLogo from './images/tidepoolLogo.svg';
-import tidepoolPlusLogo from './images/tidepool+Logo.svg';
+import Button from '../../elements/Button';
+import tidepoolLogo from '../images/tidepoolLogo.svg';
+import tidepoolPlusLogo from '../images/tidepool+Logo.svg';
 
 export default withTranslation()(class extends React.Component {
   static propTypes = {
@@ -20,9 +20,7 @@ export default withTranslation()(class extends React.Component {
     currentPage: PropTypes.string,
     user: PropTypes.object,
     fetchingUser: PropTypes.bool,
-    patient: PropTypes.object,
     fetchingPatient: PropTypes.bool,
-    getUploadUrl: PropTypes.func,
     onLogout: PropTypes.func,
     trackMetric: PropTypes.func.isRequired,
     permsOfLoggedInUser: PropTypes.object,
@@ -126,14 +124,6 @@ export default withTranslation()(class extends React.Component {
     );
   };
 
-  getPatientLink = (patient) => {
-    if (!patient || !patient.userid) {
-      return '';
-    }
-
-    return '/patients/' + patient.userid + '/data';
-  };
-
   renderMiddleSection = () => {
     if (personUtils.isClinicianAccount(this.props.user)) {
       return (
@@ -187,10 +177,6 @@ export default withTranslation()(class extends React.Component {
 
   getUserDisplayName = () => {
     return personUtils.fullName(this.props.user);
-  };
-
-  isSamePersonUserAndPatient = () => {
-    return personUtils.isSame(this.props.user, this.props.patient);
   };
 
   handleLogout = (e) => {

@@ -43,6 +43,7 @@ import { bgLog as BgLog } from '../../components/chart';
 import { settings as Settings } from '../../components/chart';
 import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
 import baseTheme, { breakpoints, radii } from '../../themes/baseTheme';
+import { DesktopOnly, MobileOnly } from '../../components/mediaqueries';
 
 import Messages from '../../components/messages';
 import ChartDateRangeModal from '../../components/ChartDateRangeModal';
@@ -52,14 +53,16 @@ import Button from '../../components/elements/Button';
 
 import ToastContext from '../../providers/ToastProvider';
 
-import { Box, Flex, Link } from 'theme-ui';
+import { Box, Flex, Grid, Link } from 'theme-ui';
 import Checkbox from '../../components/elements/Checkbox';
 import PopoverLabel from '../../components/elements/PopoverLabel';
 import { Body2, Paragraph1, Paragraph2 } from '../../components/elements/FontStyles';
 import Card from '../../components/elements/Card';
 import UploaderBanner from '../../components/elements/Card/Banners/Uploader.png';
+import ShareBanner from '../../components/elements/Card/Banners/Share.png';
 import DataConnectionsBanner from '../../components/elements/Card/Banners/DataConnections.png';
 import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
+import NavbarChartTypeSetter from './navbarcharttypesetter';
 
 const { Loader } = vizComponents;
 const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
@@ -215,6 +218,7 @@ export const PatientDataClass = createReactClass({
         {patientData}
         {this.state.datesDialogOpen && datesDialog}
         {printDialog}
+        <NavbarChartTypeSetter chartType={this.state.chartType} />
         <Loader show={showLoader} />
       </div>
     );
@@ -250,7 +254,9 @@ export const PatientDataClass = createReactClass({
     return (
       <Box variant="containers.patientData">
         {this.renderEmptyHeader()}
-        <Box variant="containers.patientDataInner" sx={{ minHeight: '40vh !important' }} />
+        <Box
+          variant="containers.patientDataInner"
+          sx={{ minHeight: ['70vh !important', '70vh !important', '40vh !important'] }} />
       </Box>
     );
   },
@@ -282,31 +288,13 @@ export const PatientDataClass = createReactClass({
       self.setState({showDataConnectionsModal: true});
     };
 
-
-    const cards = [
-      {
-        id: 'data-connections-card',
-        title: isUserPatient
-          ? t('Connect an Account')
-          : t('Connect a Device Account'),
-        subtitle: isUserPatient
-          ? t('Do you have a Dexcom, LibreView or twiist account? When you connect an account, data can flow into Tidepool without any extra effort.')
-          : t('Does your patient have a Dexcom, LibreView, or twiist account? Automatically sync data from these accounts with the patient\'s permission.'),
-        bannerImage: DataConnectionsBanner,
-        onClick: handleClickDataConnections,
-      },
-      {
-        id: 'uploader-card',
-        title: t('Upload Data Directly with Tidepool Uploader'),
-        subtitle: t('Tidepool Uploader supports over 85 devices. Download Tidepool Uploader to get started.'),
-        bannerImage: UploaderBanner,
-        onClick: handleClickUpload,
-      },
-    ];
+    const handleShare = function() {
+      self.props.history.push(`/patients/${self.props.currentPatientInViewId}/share`);
+    };
 
     return (
       <Box variant="containers.patientData" className='no-data'>
-        {this.renderEmptyHeader(t('No Data Available'))}
+        {this.renderEmptyHeader(t('Welcome'))}
 
         <Box variant="containers.patientDataInner">
           <Flex
@@ -314,9 +302,42 @@ export const PatientDataClass = createReactClass({
             variant="containers.patientDataContent"
             sx={{ flexDirection: 'column' }}
           >
-            <Flex mb={4} sx={{ gap: 3, flexWrap: ['wrap', null, 'nowrap'] }}>
-              {_.map(cards, card => <Card {...card} />)}
-            </Flex>
+            <Grid
+              mb={4}
+              columns={['1fr', '1fr', '1fr 1fr']}
+              sx={{ gap: 3 }}
+            >
+              <Box>
+                <Card
+                  id='data-connections-card'
+                  title={isUserPatient ? t('Connect an Account') : t('Connect a Device Account')}
+                  subtitle={isUserPatient
+                    ? t('Do you have a Dexcom, LibreView or twiist account? When you connect an account, data can flow into Tidepool without any extra effort.')
+                    : t('Does your patient have a Dexcom, LibreView, or twiist account? Automatically sync data from these accounts with the patient\'s permission.')
+                  }
+                  bannerImage={DataConnectionsBanner}
+                  onClick={handleClickDataConnections}
+                />
+              </Box>
+              <DesktopOnly>
+                <Card
+                  id='uploader-card'
+                  title={t('Upload Data Directly with Tidepool Uploader')}
+                  subtitle={t('Tidepool Uploader supports over 85 devices. Download Tidepool Uploader to get started.')}
+                  bannerImage={UploaderBanner}
+                  onClick={handleClickUpload}
+                />
+              </DesktopOnly>
+              <MobileOnly>
+                <Card
+                  id='share-card'
+                  title={t('Share Your Data')}
+                  subtitle={t('Share your data with another person (Email) or your Clinician (Share Code). You can remove their access at any time.')}
+                  bannerImage={ShareBanner}
+                  onClick={handleShare}
+                />
+              </MobileOnly>
+            </Grid>
 
             <Flex
               sx={{
@@ -1637,6 +1658,15 @@ export const PatientDataClass = createReactClass({
       }) : undefined;
 
     this.setState(state, cb);
+
+    // Update chart query param to match current chart
+    const { search, pathname } = this.props.location;
+    const params = new URLSearchParams(search);
+
+    if (params.get('chart') !== chartType) {
+      params.set('chart', chartType);
+      this.props.history.push({ pathname, search: params.toString() });
+    }
   },
 
   UNSAFE_componentWillMount: function() {
@@ -1739,6 +1769,11 @@ export const PatientDataClass = createReactClass({
           window.patientData = 'No patient data has been loaded yet. Run `window.loadPatientData()` to popuplate this.'
           window.loadPatientData = this.saveDataToDestination.bind(this, 'window');
           window.downloadPatientData = this.saveDataToDestination.bind(this, 'download');
+
+        // A new chart type can be requested by changing queryParams, in which case we need to
+        // fire setInitialChartView again to change the chart rendered
+        } else if (this.props.queryParams.chart !== nextProps.queryParams.chart) {
+          this.setInitialChartView(nextProps);
         }
 
         // Only update the chartEndpoints and transitioningChartType state immediately after querying
@@ -2210,21 +2245,26 @@ export function getFetchers(dispatchProps, ownProps, stateProps, api, options) {
   // if is clinician user viewing a patient's data with no selected clinic
   // we need to check clinics for patient and then select the relevant clinic
 
-  let clinicToSelect = null;
+  const clinicsWithPatient = [];
+
   _.forEach(stateProps.clinics, (clinic, clinicId) => {
     let patient = _.get(clinic.patients, ownProps.match.params.id, null);
     if (patient) {
-      clinicToSelect = clinicId;
+      clinicsWithPatient.push(clinicId);
     }
   });
 
   if (
     personUtils.isClinicianAccount(stateProps.user) &&
     stateProps.user.userid !== ownProps.match.params.id &&
-    (!stateProps.selectedClinicId || stateProps.selectedClinicId !== clinicToSelect) &&
+    (!stateProps.selectedClinicId || !clinicsWithPatient.includes(stateProps.selectedClinicId)) &&
     !stateProps.fetchingPatientFromClinic.inProgress
   ) {
-    if (clinicToSelect) {
+    if (clinicsWithPatient.length > 0) {
+      // In most cases, the clinicsWithPatient array will have length of 1. In cases where the same clinician and patient
+      // are in several of the same clinics, we select one arbitrarily, as we have no further information about which
+      // clinic the clinician is arriving from.
+      const clinicToSelect = clinicsWithPatient[0];
       dispatchProps.selectClinic(api, clinicToSelect);
     } else {
       _.forEach(stateProps.clinics, (clinic, clinicId) => {
@@ -2375,6 +2415,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   return Object.assign({}, _.pick(dispatchProps, assignedDispatchProps), stateProps, {
     fetchers: getFetchers(dispatchProps, ownProps, stateProps, api, { carelink, dexcom, medtronic }),
     history: ownProps.history,
+    location: ownProps.location,
     uploadUrl: api.getUploadUrl(),
     onRefresh: (patientId, chartType) => {
       const fetchOptions = {
