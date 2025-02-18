@@ -2456,3 +2456,10 @@ export function setPatientListSearchTextInput(textInput) {
     payload: { textInput },
   };
 }
+
+export function setNavbarChartType(chartType) {
+  return {
+    type: ActionTypes.SET_NAVBAR_CHART_TYPE,
+    payload: { chartType },
+  };
+}

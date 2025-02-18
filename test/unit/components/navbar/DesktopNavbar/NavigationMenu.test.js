@@ -3,7 +3,7 @@ import { createMount } from '@material-ui/core/test-utils';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
-import NavigationMenu from '../../../../app/components/navbar/NavigationMenu';
+import NavigationMenu from '../../../../../app/components/navbar/DesktopNavbar/NavigationMenu';
 
 /* global chai */
 /* global sinon */
@@ -38,12 +38,31 @@ describe('NavigationMenu', () => {
     },
   };
 
+  const handleSelectWorkspace = sinon.stub();
+  const handleViewManageWorkspaces = sinon.stub();
+  const handleViewAccountSettings = sinon.stub();
+  const handleLogout = sinon.stub();
+
   before(() => {
-    NavigationMenu.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-workspace' }));
     mount = createMount();
+    NavigationMenu.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-workspace' }));
+    NavigationMenu.__Rewire__('useNavigation', sinon.stub().returns({
+      handleSelectWorkspace,
+      handleViewManageWorkspaces,
+      handleViewAccountSettings,
+      handleLogout,
+    }));
+  });
+
+  beforeEach(() => {
+    handleSelectWorkspace.resetHistory();
+    handleViewManageWorkspaces.resetHistory();
+    handleViewAccountSettings.resetHistory();
+    handleLogout.resetHistory();
   });
 
   after(() => {
+    NavigationMenu.__ResetDependency__('useNavigation');
     NavigationMenu.__ResetDependency__('useLocation');
     mount.cleanUp();
   });
@@ -174,67 +193,16 @@ describe('NavigationMenu', () => {
       expect(menuOptions.at(2).text()).to.equal('Logout');
 
       // Click private workspace option
-      store.clearActions();
       menuOptions.at(0).simulate('click');
-
-      expect(store.getActions()).to.eql([
-        {
-          type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT',
-          payload: { textInput: '' }
-        },
-        {
-          type: 'SET_IS_PATIENT_LIST_VISIBLE',
-          payload: { isVisible: false }
-        },
-        {
-          type: 'SELECT_CLINIC_SUCCESS',
-          payload: {
-            clinicId: null, // null is appropriate for switch to private workspace
-          },
-        },
-        {
-          type: '@@router/CALL_HISTORY_METHOD',
-          payload: {
-            args: ['/patients', { selectedClinicId: null }],
-            method: 'push',
-          },
-        },
-      ]);
+      expect(handleSelectWorkspace.calledOnce).to.be.true;
 
       // Click account settings option
-      store.clearActions();
       menuOptions.at(1).simulate('click');
-
-      expect(store.getActions()).to.eql([
-        {
-          type: '@@router/CALL_HISTORY_METHOD',
-          payload: {
-            args: ['/profile'],
-            method: 'push',
-          },
-        },
-      ]);
+      expect(handleViewAccountSettings.calledOnce).to.be.true;
 
       // Click logout option
-      store.clearActions();
       menuOptions.at(2).simulate('click');
-
-      expect(store.getActions()).to.eql([
-        {
-          type: 'LOGOUT_REQUEST',
-        },
-        {
-          meta: {
-            WebWorker: true,
-            id: undefined,
-            worker: 'data',
-          },
-          payload: {
-            predicate: undefined,
-          },
-          type: 'DATA_WORKER_REMOVE_DATA_REQUEST',
-        },
-      ]);
+      expect(handleLogout.calledOnce).to.be.true;
     });
   });
 
@@ -257,112 +225,26 @@ describe('NavigationMenu', () => {
       expect(menuOptions.at(4).text()).to.equal('Logout');
 
       // Click clinic workspace option
-      store.clearActions();
       menuOptions.at(0).simulate('click');
-
-      expect(store.getActions()).to.eql([
-        {
-          type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT',
-          payload: { textInput: '' }
-        },
-        {
-          type: 'SET_IS_PATIENT_LIST_VISIBLE',
-          payload: { isVisible: false }
-        },
-        {
-          type: 'SELECT_CLINIC_SUCCESS',
-          payload: {
-            clinicId: 'clinicID456',
-          },
-        },
-        { type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST' },
-        { type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST' },
-        {
-          type: '@@router/CALL_HISTORY_METHOD',
-          payload: {
-            args: ['/clinic-workspace', { selectedClinicId: 'clinicID456' }],
-            method: 'push',
-          },
-        },
-      ]);
+      expect(handleSelectWorkspace.getCall(0).args).to.eql(['clinicID456']);
 
       // Click manage workspaces option
-      store.clearActions();
       menuOptions.at(1).simulate('click');
-
-      expect(store.getActions()).to.eql([
-        {
-          type: '@@router/CALL_HISTORY_METHOD',
-          payload: {
-            args: ['/workspaces'],
-            method: 'push',
-          },
-        },
-      ]);
+      expect(handleViewManageWorkspaces.calledOnce).to.be.true;
 
       // Click private workspace option
-      store.clearActions();
       menuOptions.at(2).simulate('click');
-
-      expect(store.getActions()).to.eql([
-        {
-          type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT',
-          payload: { textInput: '' }
-        },
-        {
-          type: 'SET_IS_PATIENT_LIST_VISIBLE',
-          payload: { isVisible: false }
-        },
-        {
-          type: 'SELECT_CLINIC_SUCCESS',
-          payload: {
-            clinicId: null,
-          },
-        },
-        {
-          type: '@@router/CALL_HISTORY_METHOD',
-          payload: {
-            args: ['/patients', { selectedClinicId: null }],
-            method: 'push',
-          },
-        },
-      ]);
+      expect(handleSelectWorkspace.getCall(1).args).to.eql([null]);
 
       // Click account settings option
-      store.clearActions();
       menuOptions.at(3).simulate('click');
-
-      expect(store.getActions()).to.eql([
-        {
-          type: '@@router/CALL_HISTORY_METHOD',
-          payload: {
-            args: ['/profile'],
-            method: 'push',
-          },
-        },
-      ]);
+      expect(handleViewAccountSettings.calledOnce).to.be.true;
 
       // Click logout option
-      store.clearActions();
       menuOptions.at(4).simulate('click');
-
-      expect(store.getActions()).to.eql([
-        {
-          type: 'LOGOUT_REQUEST',
-        },
-        {
-          meta: {
-            WebWorker: true,
-            id: undefined,
-            worker: 'data',
-          },
-          payload: {
-            predicate: undefined,
-          },
-          type: 'DATA_WORKER_REMOVE_DATA_REQUEST',
-        },
-      ]);
+      expect(handleLogout.calledOnce).to.be.true;
     });
+
 
     context('clinician has a data storage account for private data', () => {
       beforeEach(() => {
@@ -404,32 +286,10 @@ describe('NavigationMenu', () => {
         expect(menuOptions.at(4).text()).to.equal('Logout');
 
         // Click private workspace option
-        store.clearActions();
         menuOptions.at(2).simulate('click');
 
-        expect(store.getActions()).to.eql([
-          {
-            type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT',
-            payload: { textInput: '' }
-          },
-          {
-            type: 'SET_IS_PATIENT_LIST_VISIBLE',
-            payload: { isVisible: false }
-          },
-          {
-            type: 'SELECT_CLINIC_SUCCESS',
-            payload: {
-              clinicId: null, // null is appropriate for switch to private workspace
-            },
-          },
-          {
-            type: '@@router/CALL_HISTORY_METHOD',
-            payload: {
-              args: ['/patients', { selectedClinicId: null }],
-              method: 'push',
-            },
-          },
-        ]);
+
+        expect(handleSelectWorkspace.calledOnceWithExactly(null)).to.be.true;
       });
     });
 
@@ -459,32 +319,10 @@ describe('NavigationMenu', () => {
         expect(menuOptions.at(4).text()).to.equal('Logout');
 
         // Click private workspace option
-        store.clearActions();
         menuOptions.at(2).simulate('click');
 
-        expect(store.getActions()).to.eql([
-          {
-            type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT',
-            payload: { textInput: '' }
-          },
-          {
-            type: 'SET_IS_PATIENT_LIST_VISIBLE',
-            payload: { isVisible: false }
-          },
-          {
-            type: 'SELECT_CLINIC_SUCCESS',
-            payload: {
-              clinicId: null, // null is appropriate for switch to private workspace
-            },
-          },
-          {
-            type: '@@router/CALL_HISTORY_METHOD',
-            payload: {
-              args: ['/patients', { selectedClinicId: null }],
-              method: 'push',
-            },
-          },
-        ]);
+
+        expect(handleSelectWorkspace.calledOnceWithExactly(null)).to.be.true;
       });
     });
   });
@@ -539,7 +377,7 @@ describe('NavigationMenu', () => {
   });
 
   context('clinician profile form page', () => {
-    before(() => {
+  before(() => {
       NavigationMenu.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-details/profile' }));
       mount = createMount();
     });

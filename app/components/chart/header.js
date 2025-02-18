@@ -6,6 +6,8 @@ import { withTranslation } from 'react-i18next';
 import DateRangeRoundedIcon from '@material-ui/icons/DateRangeRounded';
 import PrintRoundedIcon from '@material-ui/icons/PrintRounded';
 import colorPalette from '../../themes/colorPalette';
+import Button from '../elements/Button';
+import { DesktopOnly, MobileOnly } from '../mediaqueries';
 
 import Icon from '../elements/Icon';
 import { Box } from 'theme-ui';
@@ -121,8 +123,10 @@ const Header = withTranslation()(class Header extends Component {
       'patient-data-subnav-hidden': this.props.chartType === 'no-data',
     });
 
+    const canSelectDateRange = _.includes(['basics', 'daily'], this.props.chartType);
+
     return (
-      <Box sx={{ gap: 2 }} className="grid patient-data-subnav">
+      <Box sx={{ gap: 2 }} className="grid patient-data-subnav" data-chart-type={this.props.chartType}>
         <div className="app-no-print patient-data-subnav-left">
             <a href="" className={basicsLinkClass} onClick={this.props.onClickBasics}>{t('Basics')}</a>
             <a href="" className={dayLinkClass} onClick={this.props.onClickOneDay}>{t('Daily')}</a>
@@ -132,24 +136,46 @@ const Header = withTranslation()(class Header extends Component {
         </div>
         <div className="patient-data-subnav-center" id="tidelineLabel">
           {this.renderNavButton(backClass, this.props.onClickBack, this.props.iconBack)}
-          <div className={dateLinkClass}>
-            {this.props.title}
-            {_.includes(['basics', 'daily'], this.props.chartType) && (
-              <Icon
-                variant="default"
-                sx={{
-                  ml: 2,
-                  mt: -1,
-                  color: colorPalette.primary.bluePrimary00,
-                  outline: 'none',
-                  '&:hover': { color: 'grays.6' },
-                }}
-                label="Choose custom date range"
-                icon={DateRangeRoundedIcon}
-                onClick={this.props.onClickChartDates}
-              />
-            )}
-          </div>
+          <DesktopOnly>
+            <div className={dateLinkClass}>
+              <span>{this.props.title}</span>
+              {canSelectDateRange && (
+                <Icon
+                  variant="default"
+                  sx={{
+                    ml: 2,
+                    mt: -1,
+                    color: colorPalette.primary.bluePrimary00,
+                    outline: 'none',
+                    '&:hover': { color: 'grays.6' },
+                  }}
+                  label="Choose custom date range"
+                  icon={DateRangeRoundedIcon}
+                  onClick={this.props.onClickChartDates}
+                />
+              )}
+            </div>
+          </DesktopOnly>
+          <MobileOnly>
+            <div className={dateLinkClass}>
+              {
+                canSelectDateRange
+                ? <Button
+                    onClick={this.props.onClickChartDates}
+                    sx={{
+                      backgroundColor: colorPalette.neutrals.white,
+                      color: colorPalette.primary.blueGreyDark,
+                      border: `1px solid ${colorPalette.primary.blueGreyDark}`,
+                      padding: '8px 48px',
+                      margin: '16px 0',
+                    }}
+                  >
+                    {this.props.title}
+                  </Button>
+                : <Box my={3} sx={{ fontSize: 1 }}>{this.props.title}</Box>
+              }
+            </div>
+          </MobileOnly>
           {this.renderNavButton(nextClass, this.props.onClickNext, this.props.iconNext)}
           {this.renderNavButton(mostRecentClass, this.props.onClickMostRecent, this.props.iconMostRecent)}
         </div>
