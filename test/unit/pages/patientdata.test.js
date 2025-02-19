@@ -5234,6 +5234,10 @@ describe('PatientData', function () {
         fetchingPatientFromClinic: {
           inProgress: false,
         },
+        fetchingClinicsForPatient: {
+          inProgress: false,
+          completed: true,
+        },
         fetchingPendingSentInvites: {
           inProgress: false,
           completed: true,

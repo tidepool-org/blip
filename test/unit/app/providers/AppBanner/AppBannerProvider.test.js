@@ -34,7 +34,7 @@ const DummyConsumer = () => {
   );
 };
 
-describe.only('AppBannerProvider', () => {
+describe('AppBannerProvider', () => {
   const mockStore = configureStore([]);
   const initialState = {
     blip: {
@@ -125,8 +125,6 @@ describe.only('AppBannerProvider', () => {
       'setBannerInteractedForPatient',
       'setBannerShownForPatient',
       'setFormikContext',
-      'setTrackMetric',
-      'trackMetric',
     ]);
     expect(contextData.hasBanner).to.be.false;
   });
