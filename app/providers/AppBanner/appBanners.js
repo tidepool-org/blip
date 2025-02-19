@@ -24,7 +24,7 @@ export const appBanners = [
     paths: [pathRegexes.patientData],
     getProps: provider => ({
       label: t('Data Source Just Connected banner'),
-      title: t('Data from {{displayName}} is on its way. This usually takes a few minutes but occasionally takes a bit longer.', provider),
+      title: t('{{displayName}} data is on its way. This usually takes a few minutes but occasionally takes longer. Refresh the page to see data.', provider),
       show: {
         metric: 'Data Source Just Connected banner displayed',
         metricProps: { providerName: provider?.dataSourceFilter?.providerName },
@@ -44,13 +44,13 @@ export const appBanners = [
     paths: [pathRegexes.patientData],
     getProps: (dispatch, provider = {}) => ({
       label: t('Data Source Reconnect banner'),
-      message: t('Tidepool is no longer receiving data from your {{displayName}} account.', provider),
+      message: t('Tidepool is no longer receiving {{displayName}} data from your account.', provider),
       show: {
         metric: 'Displayed Data Source Reconnect banner displayed',
         metricProps: { providerName: provider?.dataSourceFilter?.providerName },
       },
       action: {
-        text: t('Reconnect my Account'),
+        text: t('Reconnect My Account'),
         metric: 'Data Source Reconnect banner clicked',
         handler: ({ id, restrictedTokenCreate, dataSourceFilter }) => dispatch(async.connectDataSource(api, id, restrictedTokenCreate, dataSourceFilter)),
       },
@@ -242,7 +242,7 @@ export const appBanners = [
     paths: [pathRegexes.patientData],
     getProps: (dispatch, clinicId, patient = {}, provider = {}) => ({
       label: t('Data Source Reconnect Invite banner'),
-      message: t('Tidepool is no longer receiving data from your patient\'s {{displayName}} account. Would you like to email an invite to reconnect?', provider),
+      message: t('Tidepool is no longer receiving {{displayName}} data from your patient\'s account. Would you like to email them an invite to reconnect?', provider),
       show: {
         metric: 'Displayed Data Source Reconnect Invite banner displayed',
         metricProps: { providerName: provider?.dataSourceFilter?.providerName },

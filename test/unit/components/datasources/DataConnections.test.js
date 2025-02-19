@@ -50,7 +50,7 @@ describe('providers', () => {
     expect(dexcom.logoImage).to.be.a('string');
 
     expect(abbott.id).to.equal('oauth/abbott');
-    expect(abbott.displayName).to.equal('Freestyle Libre');
+    expect(abbott.displayName).to.equal('FreeStyle Libre');
     expect(abbott.restrictedTokenCreate).to.eql({ paths: ['/v1/oauth/abbott'] });
     expect(abbott.dataSourceFilter).to.eql({ providerType: 'oauth', providerName: 'abbott' });
     expect(abbott.logoImage).to.be.a('string');
