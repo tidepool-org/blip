@@ -56,7 +56,7 @@ export const providers = {
   },
   abbott: {
     id: 'oauth/abbott',
-    displayName: 'Freestyle Libre',
+    displayName: 'FreeStyle Libre',
     restrictedTokenCreate: {
         paths: [
           '/v1/oauth/abbott',
