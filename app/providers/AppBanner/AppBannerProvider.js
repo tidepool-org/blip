@@ -19,7 +19,6 @@ const AppBannerContext = createContext();
 const AppBannerProvider = ({ children }) => {
   const dispatch = useDispatch();
   const { pathname } = useLocation();
-  const [trackMetric, setTrackMetric] = useState(noop);
   const [formikContext, setFormikContext] = useState({});
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
@@ -194,8 +193,6 @@ const AppBannerProvider = ({ children }) => {
     setBannerInteractedForPatient,
     setBannerShownForPatient,
     setFormikContext,
-    setTrackMetric,
-    trackMetric,
   };
 
   return (

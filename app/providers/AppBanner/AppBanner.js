@@ -17,13 +17,12 @@ const AppBanner = ({ trackMetric }) => {
     bannerInteractedForPatient,
     setBannerInteractedForPatient,
     setFormikContext,
-    setTrackMetric,
   } = useContext(AppBannerContext);
 
   const dispatch = useDispatch();
   const loggedInUserId = useSelector(state => state.blip.loggedInUserId);
   const currentPatientInViewId = useSelector(state => state.blip.currentPatientInViewId);
-  const userIsCurrentPatient = loggedInUserId === currentPatientInViewId;
+  const userIsCurrentPatient = loggedInUserId && loggedInUserId === currentPatientInViewId;
   const isFirstRender = useIsFirstRender();
   const working = useSelector(state => state.blip.working);
   const { set: setToast } = useToasts();
@@ -103,10 +102,6 @@ const AppBanner = ({ trackMetric }) => {
   useEffect(() => {
     handleAsyncResult(workingState, banner?.action?.working?.successMessage, banner?.action?.working?.errorMessage);
   }, [banner?.id, banner?.action, handleAsyncResult, workingState]);
-
-  useEffect(() => {
-    setTrackMetric(trackMetric);
-  }, [setTrackMetric, trackMetric]);
 
   // Render nothing if no banner is available
   if (!banner) {
