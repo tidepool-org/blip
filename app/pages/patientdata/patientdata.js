@@ -1663,8 +1663,13 @@ export const PatientDataClass = createReactClass({
     const { search, pathname } = this.props.location;
     const params = new URLSearchParams(search);
 
-    if (params.get('chart') !== chartType) {
-      params.set('chart', chartType);
+    const isChartParamsDiff = params.get('chart') !== chartType;
+    const isDatetimeLocationParamsDiff = params.get('datetime') !== datetimeLocation;
+
+    if (isChartParamsDiff) params.set('chart', chartType);
+    if (isDatetimeLocationParamsDiff) params.set('datetime', datetimeLocation);
+
+    if (isChartParamsDiff || isDatetimeLocationParamsDiff) {
       this.props.history.push({ pathname, search: params.toString() });
     }
   },
