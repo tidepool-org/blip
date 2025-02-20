@@ -75,7 +75,7 @@ export const requireSupportedBrowserForUserType = (api, next, ...args) => (dispa
   function redirectIfUnsupported(user) {
     let isBrowserSufficient = false;
 
-    isBrowserSufficient = utils.isSupportedBrowser();
+    isBrowserSufficient = utils.isSupportedBrowser() && !utils.isMobile();
 
     // TEMPORARY: Mobile disabled. Uncomment the lines below to enable.
 
