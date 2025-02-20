@@ -582,18 +582,13 @@ const Settings = ({
     );
   };
 
-  const renderDataConnectionsModal = () => {
-    const shownProviders = _.reject(activeProviders, providerName => _.find(patientData?.dataSources, { providerName }));
-
-    return (
-      <DataConnectionsModal
-        open
-        patient={clinicPatient || patient}
-        shownProviders={shownProviders}
-        onClose={() => setShowDataConnectionsModal(false)}
-      />
-    );
-  };
+  const renderDataConnectionsModal = () => (
+    <DataConnectionsModal
+      open
+      patient={clinicPatient || patient}
+      onClose={() => setShowDataConnectionsModal(false)}
+    />
+  );
 
   const renderDataConnections = () => {
     const shownProviders = _.map(patientData?.dataSources, 'providerName');

@@ -1026,10 +1026,6 @@ describe('Settings', () => {
           sinon.assert.callCount(props.trackMetric, callCount + 1);
           sinon.assert.calledWith(props.trackMetric, 'Clicked Settings Add Data Connections', sinon.match({ source: 'button' }));
           expect(dataConnectionsModal().length).to.equal(1);
-
-          // Modal should only contain data providers that aren't already present for patient
-          expect(dataConnectionsModal().find(`#data-connection-${activeProviders[0]}`).hostNodes().length).to.equal(0);
-          expect(dataConnectionsModal().find(`#data-connection-${activeProviders[1]}`).hostNodes().length).to.equal(1);
         });
       });
 
@@ -1128,10 +1124,6 @@ describe('Settings', () => {
           sinon.assert.callCount(props.trackMetric, callCount + 1);
           sinon.assert.calledWith(props.trackMetric, 'Clicked Settings Add Data Connections', sinon.match({ source: 'button' }));
           expect(dataConnectionsModal().length).to.equal(1);
-
-          // Modal should only contain data providers that aren't already present for patient
-          expect(dataConnectionsModal().find(`#data-connection-${activeProviders[0]}`).hostNodes().length).to.equal(0);
-          expect(dataConnectionsModal().find(`#data-connection-${activeProviders[1]}`).hostNodes().length).to.equal(1);
         });
       });
 
