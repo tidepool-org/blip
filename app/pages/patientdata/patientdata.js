@@ -1658,15 +1658,6 @@ export const PatientDataClass = createReactClass({
       }) : undefined;
 
     this.setState(state, cb);
-
-    // Update chart query param to match current chart
-    const { search, pathname } = this.props.location;
-    const params = new URLSearchParams(search);
-
-    if (params.get('chart') !== chartType) {
-      params.set('chart', chartType);
-      this.props.history.push({ pathname, search: params.toString() });
-    }
   },
 
   UNSAFE_componentWillMount: function() {
@@ -1769,11 +1760,6 @@ export const PatientDataClass = createReactClass({
           window.patientData = 'No patient data has been loaded yet. Run `window.loadPatientData()` to popuplate this.'
           window.loadPatientData = this.saveDataToDestination.bind(this, 'window');
           window.downloadPatientData = this.saveDataToDestination.bind(this, 'download');
-
-        // A new chart type can be requested by changing queryParams, in which case we need to
-        // fire setInitialChartView again to change the chart rendered
-        } else if (this.props.queryParams.chart !== nextProps.queryParams.chart) {
-          this.setInitialChartView(nextProps);
         }
 
         // Only update the chartEndpoints and transitioningChartType state immediately after querying
@@ -2075,10 +2061,22 @@ export const PatientDataClass = createReactClass({
 
     if (uploads && latestDatum) {
       // Allow overriding the default chart type via a query param (helps for development);
-      const chartType = this.state.refreshChartType || _.get(
+      let chartType = this.state.refreshChartType || _.get(
         props, 'queryParams.chart',
         this.deriveChartTypeFromLatestData(latestDatum, uploads)
       );
+
+      if (props.location.pathname.includes('/data/settings')) {
+        chartType = 'settings';
+      } else if (props.location.pathname.includes('/data/trends')) {
+        chartType = 'trends';
+      } else if (props.location.pathname.includes('/data/daily')) {
+        chartType = 'daily';
+      } else if (props.location.pathname.includes('/data/basics')) {
+        chartType = 'basics';
+      } else if (props.location.pathname.includes('/data/bgLog')) {
+        chartType = 'bgLog';
+      }
 
       const isDaily = chartType === 'daily';
       const isBgLog = chartType === 'bgLog';
