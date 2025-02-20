@@ -2065,21 +2065,19 @@ export const PatientDataClass = createReactClass({
     const excludedDevices = this.getMetaData('excludedDevices', undefined, props);
 
     if (uploads && latestDatum) {
-      // Allow overriding the default chart type via a query param (helps for development);
-      let chartType = this.state.refreshChartType || _.get(
-        props, 'queryParams.chart',
-        this.deriveChartTypeFromLatestData(latestDatum, uploads)
-      );
+      let chartType = this.state.refreshChartType || this.deriveChartTypeFromLatestData(latestDatum, uploads);
 
-      if (props.location.pathname.includes('/data/settings')) {
+      const pathname = props.location?.pathname;
+
+      if (pathname.includes('/data/settings')) {
         chartType = 'settings';
-      } else if (props.location.pathname.includes('/data/trends')) {
+      } else if (pathname.includes('/data/trends')) {
         chartType = 'trends';
-      } else if (props.location.pathname.includes('/data/daily')) {
+      } else if (pathname.includes('/data/daily')) {
         chartType = 'daily';
-      } else if (props.location.pathname.includes('/data/basics')) {
+      } else if (pathname.includes('/data/basics')) {
         chartType = 'basics';
-      } else if (props.location.pathname.includes('/data/bgLog')) {
+      } else if (pathname.includes('/data/bgLog')) {
         chartType = 'bgLog';
       }
 
