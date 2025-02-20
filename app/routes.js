@@ -74,13 +74,18 @@ export const requireSupportedBrowserForUserType = (api, next, ...args) => (dispa
 
   function redirectIfUnsupported(user) {
     let isBrowserSufficient = false;
-    const isClinician = personUtils.isClinicianAccount(user) || false;
 
-    if (isClinician) {
-      isBrowserSufficient = utils.isSupportedBrowser() && !utils.isMobile();
-    } else {
-      isBrowserSufficient = utils.isSupportedBrowser();
-    }
+    isBrowserSufficient = utils.isSupportedBrowser();
+
+    // TEMPORARY: Mobile disabled. Uncomment the lines below to enable.
+
+    // const isClinician = personUtils.isClinicianAccount(user) || false;
+
+    // if (isClinician) {
+    //   isBrowserSufficient = utils.isSupportedBrowser() && !utils.isMobile();
+    // } else {
+    //   isBrowserSufficient = utils.isSupportedBrowser();
+    // }
 
     if (!isBrowserSufficient) {
       dispatch(push('/browser-warning'));

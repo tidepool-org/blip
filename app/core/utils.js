@@ -79,9 +79,13 @@ utils.isSupportedBrowser = () => {
   if (isOpera) return false;
 
   const isChrome = userAgent.indexOf('chrome') > -1;
-  const isChromeIOS = userAgent.indexOf('crios') > -1;
 
-  return isChrome || isChromeIOS;
+  // TEMPORARY: Mobile disabled. Uncomment the lines below to enable.
+
+  // const isChromeIOS = userAgent.indexOf('crios') > -1;
+  // return isChrome || isChromeIOS;
+
+  return isChrome;
 };
 
 utils.isMobile = () => {
