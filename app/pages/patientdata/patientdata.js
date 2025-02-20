@@ -1186,6 +1186,7 @@ export const PatientDataClass = createReactClass({
 
     const updateOpts = { updateChartEndpoints: true };
 
+    this.props.history.push(`/patients/${this.props.currentPatientInViewId}/data/basics`);
     this.updateChart(chartType, datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType }), updateOpts);
   },
 
@@ -1211,6 +1212,7 @@ export const PatientDataClass = createReactClass({
       updateOpts.mostRecentDatetimeLocation = getDatetimeLocation(getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs));
     }
 
+    this.props.history.push(`/patients/${this.props.currentPatientInViewId}/data/daily`);
     this.updateChart(chartType, datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType }), updateOpts);
   },
 
@@ -1233,6 +1235,7 @@ export const PatientDataClass = createReactClass({
       updateOpts.mostRecentDatetimeLocation = getDatetimeLocation(mostRecentDatumTime)
     }
 
+    this.props.history.push(`/patients/${this.props.currentPatientInViewId}/data/trends`);
     this.updateChart(chartType, datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType }), updateOpts);
   },
 
@@ -1256,6 +1259,7 @@ export const PatientDataClass = createReactClass({
       updateOpts.mostRecentDatetimeLocation = getDatetimeLocation(getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs))
     }
 
+    this.props.history.push(`/patients/${this.props.currentPatientInViewId}/data/bgLog`);
     this.updateChart(chartType, datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType }), updateOpts);
   },
 
@@ -1275,6 +1279,7 @@ export const PatientDataClass = createReactClass({
       type: 'pumpSettings,upload',
     });
 
+    this.props.history.push(`/patients/${this.props.currentPatientInViewId}/data/settings`);
     this.updateChart('settings');
   },
 

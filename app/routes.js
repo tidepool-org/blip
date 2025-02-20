@@ -435,6 +435,15 @@ export const getRoutes = (appContext) => {
   const boundOnUploaderPasswordReset = onUploaderPasswordReset.bind(null, api);
   const authenticatedFallbackRoute = state.selectedClinicId ? '/workspaces' : '/patients';
 
+  const patientDataRoutes = [
+    '/patients/:id/data',
+    '/patients/:id/data/trends',
+    '/patients/:id/data/bgLog',
+    '/patients/:id/data/daily',
+    '/patients/:id/data/basics',
+    '/patients/:id/data/settings',
+  ];
+
   return (
     <Route path='/' {...props} render={routeProps => (
       <AppComponent {...routeProps} {...props}>
@@ -459,14 +468,7 @@ export const getRoutes = (appContext) => {
           <Route exact path='/patients/:id/profile' render={routeProps => (<Gate onEnter={boundRequireSupportedBrowserForUserType} key={routeProps.match.path}><PatientProfile {...routeProps} {...props} /></Gate>)} />
           <Route exact path='/patients/:id/share' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><AccessManagement {...routeProps} {...props} /></Gate>)} />
           <Route exact path='/patients/:id/share/invite' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ShareInvite {...routeProps} {...props} /></Gate>)} />
-          <Route exact path='/patients/:id/data' render={routeProps => (<Gate onEnter={boundRequireSupportedBrowserForUserType} key={routeProps.match.path}><PatientData {...routeProps} {...props} /></Gate>)} />
-
-          <Route exact path='/patients/:id/data/trends' render={routeProps => (<Gate onEnter={boundRequireSupportedBrowserForUserType} key={routeProps.match.path}><PatientData {...routeProps} {...props} /></Gate>)} />
-          <Route exact path='/patients/:id/data/daily' render={routeProps => (<Gate onEnter={boundRequireSupportedBrowserForUserType} key={routeProps.match.path}><PatientData {...routeProps} {...props} /></Gate>)} />
-          <Route exact path='/patients/:id/data/bgLog' render={routeProps => (<Gate onEnter={boundRequireSupportedBrowserForUserType} key={routeProps.match.path}><PatientData {...routeProps} {...props} /></Gate>)} />
-          <Route exact path='/patients/:id/data/basics' render={routeProps => (<Gate onEnter={boundRequireSupportedBrowserForUserType} key={routeProps.match.path}><PatientData {...routeProps} {...props} /></Gate>)} />
-          <Route exact path='/patients/:id/data/settings' render={routeProps => (<Gate onEnter={boundRequireSupportedBrowserForUserType} key={routeProps.match.path}><PatientData {...routeProps} {...props} /></Gate>)} />
-
+          <Route exact path={patientDataRoutes} render={routeProps => (<Gate onEnter={boundRequireSupportedBrowserForUserType} key={routeProps.match.path}><PatientData {...routeProps} {...props} /></Gate>)} />
           <Route path='/request-password-reset' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><RequestPasswordReset {...routeProps} {...props} /></Gate>)} />
           <Route path='/confirm-password-reset' render={routeProps => (<Gate onEnter={boundEnsureNoAuth} key={routeProps.match.path}><ConfirmPasswordReset {...routeProps} {...props} /></Gate>)} />
           <Route path='/oauth/:providerName/:status' render={routeProps => (<OAuthConnection {...routeProps} {...props} />)} />
