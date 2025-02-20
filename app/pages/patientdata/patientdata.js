@@ -1184,7 +1184,9 @@ export const PatientDataClass = createReactClass({
     const dateCeiling = getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs);
     const datetimeLocation = getDatetimeLocation(dateCeiling);
 
-    this.props.history.push(`/patients/${this.props.currentPatientInViewId}/data/basics?datetime=${datetimeLocation}`);
+    const updateOpts = { updateChartEndpoints: true };
+
+    this.updateChart(chartType, datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType }), updateOpts);
   },
 
   handleSwitchToDaily: function(datetime, title) {
@@ -1204,7 +1206,12 @@ export const PatientDataClass = createReactClass({
     const dateCeiling = getLocalizedCeiling(_.min([datetimeInteger, mostRecentDatumTime]), this.state.timePrefs);
     const datetimeLocation = getDatetimeLocation(dateCeiling);
 
-    this.props.history.push(`/patients/${this.props.currentPatientInViewId}/data/daily?datetime=${datetimeLocation}`);
+    const updateOpts = { updateChartEndpoints: true, forceRemountAfterQuery: true };
+    if (datetime && mostRecentDatumTime) {
+      updateOpts.mostRecentDatetimeLocation = getDatetimeLocation(getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs));
+    }
+
+    this.updateChart(chartType, datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType }), updateOpts);
   },
 
   handleSwitchToTrends: function(datetime) {
@@ -1221,7 +1228,12 @@ export const PatientDataClass = createReactClass({
     const dateCeiling = getLocalizedCeiling(_.min([Date.parse(datetime), mostRecentDatumTime]), this.state.timePrefs);
     const datetimeLocation = getDatetimeLocation(dateCeiling);
 
-    this.props.history.push(`/patients/${this.props.currentPatientInViewId}/data/trends?datetime=${datetimeLocation}`);
+    const updateOpts = { updateChartEndpoints: true };
+    if (datetime && mostRecentDatumTime) {
+      updateOpts.mostRecentDatetimeLocation = getDatetimeLocation(mostRecentDatumTime)
+    }
+
+    this.updateChart(chartType, datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType }), updateOpts);
   },
 
   handleSwitchToBgLog: function(datetime) {
@@ -1239,7 +1251,12 @@ export const PatientDataClass = createReactClass({
     const dateCeiling = getLocalizedCeiling(_.min([Date.parse(datetime), mostRecentDatumTime]), this.state.timePrefs);
     const datetimeLocation = getDatetimeLocation(dateCeiling);
 
-    this.props.history.push(`/patients/${this.props.currentPatientInViewId}/data/bgLog?datetime=${datetimeLocation}`);
+    const updateOpts = { updateChartEndpoints: true };
+    if (datetime && mostRecentDatumTime) {
+      updateOpts.mostRecentDatetimeLocation = getDatetimeLocation(getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs))
+    }
+
+    this.updateChart(chartType, datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType }), updateOpts);
   },
 
   handleSwitchToSettings: function(e) {
@@ -1251,7 +1268,14 @@ export const PatientDataClass = createReactClass({
       e.preventDefault();
     }
 
-    this.props.history.push(`/patients/${this.props.currentPatientInViewId}/data/settings`);
+    this.fetchEarlierData({
+      returnData: false,
+      showLoading: true,
+      noDates: true,
+      type: 'pumpSettings,upload',
+    });
+
+    this.updateChart('settings');
   },
 
   handleClickPrint: function() {
