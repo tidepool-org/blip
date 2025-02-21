@@ -15,6 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-import FooterLinks from './footerlinks';
+import Footer from './footer';
 
-export default FooterLinks;
+export default Footer;
