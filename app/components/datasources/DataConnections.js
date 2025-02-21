@@ -193,7 +193,7 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
       handler: isLoggedInUser ? 'connect' : 'sendInvite',
       icon: null,
       message: null,
-      text: isLoggedInUser ? null : t('No Pending Connections'),
+      text: null,
     },
     inviteJustSent: {
       color: colors.grays[5],
