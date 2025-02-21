@@ -1761,7 +1761,9 @@ export const PatientDataClass = createReactClass({
 
         // With initial query for upload data completed, set the initial chart type
         if (!this.state.chartType) {
-          this.setInitialChartView(nextProps);
+          const refreshChartType = this.setInitialChartView(nextProps);
+          stateUpdates.refreshChartType = refreshChartType;
+
           window.patientData = 'No patient data has been loaded yet. Run `window.loadPatientData()` to popuplate this.'
           window.loadPatientData = this.saveDataToDestination.bind(this, 'window');
           window.downloadPatientData = this.saveDataToDestination.bind(this, 'download');
@@ -2082,23 +2084,27 @@ export const PatientDataClass = createReactClass({
     const latestDatum = _.last(_.sortBy(_.values(_.get(props.data, 'metaData.latestDatumByType')), ['normalTime']));
     const bgSource = this.getMetaData('bgSources.current');
     const excludedDevices = this.getMetaData('excludedDevices', undefined, props);
+    let refreshChartType;
 
     if (uploads && latestDatum) {
       let chartType = this.state.refreshChartType || this.deriveChartTypeFromLatestData(latestDatum, uploads);
 
       const pathname = props.location?.pathname;
 
-      if (pathname.includes('/data/settings')) {
-        chartType = 'settings';
-      } else if (pathname.includes('/data/trends')) {
-        chartType = 'trends';
-      } else if (pathname.includes('/data/daily')) {
-        chartType = 'daily';
-      } else if (pathname.includes('/data/basics')) {
-        chartType = 'basics';
-      } else if (pathname.includes('/data/bgLog')) {
-        chartType = 'bgLog';
+      switch(true) {
+        case pathname.includes('/data/settings'):
+          chartType = 'settings';
+        case pathname.includes('/data/trends'):
+          chartType = 'trends';
+        case pathname.includes('/data/daily'):
+          chartType = 'daily';
+        case pathname.includes('/data/basics'):
+          chartType = 'basics';
+        case pathname.includes('/data/bgLog'):
+          chartType = 'bgLog';
       }
+
+      refreshChartType = chartType;
 
       const isDaily = chartType === 'daily';
       const isBgLog = chartType === 'bgLog';
@@ -2129,6 +2135,8 @@ export const PatientDataClass = createReactClass({
     }
 
     this.props.history.push(`/patients/${this.props.currentPatientInViewId}/data`);
+
+    return refreshChartType;
   },
 
 /**
