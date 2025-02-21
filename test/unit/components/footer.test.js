@@ -3,18 +3,18 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import FooterLinks from '../../../app/components/footerlinks/';
+import Footer from '../../../app/components/footer/';
 
 const expect = chai.expect;
 
-describe('FooterLinks', () => {
+describe('Footer', () => {
   let wrapper;
   const props = {
     trackMetric: sinon.spy(),
   };
 
   before(() => {
-    wrapper = shallow(<FooterLinks {...props} />);
+    wrapper = shallow(<Footer {...props} />);
   });
 
   afterEach(() => {
@@ -22,8 +22,8 @@ describe('FooterLinks', () => {
   });
 
   describe('render', () => {
-    it('should render five links', () => {
-      expect(wrapper.find('a').length).to.equal(5);
+    it('should render four links', () => {
+      expect(wrapper.find('a').length).to.equal(4);
     });
   });
 
@@ -40,9 +40,6 @@ describe('FooterLinks', () => {
     }, {
       id: 'legal',
       metric: 'PP and TOU',
-    }, {
-      id: 'jdrf',
-      metric: 'JDRF',
     }];
 
     links.forEach((link) => {
