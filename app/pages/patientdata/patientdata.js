@@ -1333,18 +1333,6 @@ export const PatientDataClass = createReactClass({
     this.setState({ printDialogOpen: true });
   },
 
-  handleSelectTrendsChartDate: function(date) {
-    this.props.trackMetric('Clicked Switch To Modal', { fromChart: this.state.chartType });
-
-    this.props.history.push(`/patients/${this.props.currentPatientInViewId}/data/daily?datetime=${date}`);
-  },
-
-  handleSelectBgLogChartDate: function(date) {
-    this.props.trackMetric('Clicked Switch To Two Week', { fromChart: this.state.chartType });
-
-    this.props.history.push(`/patients/${this.props.currentPatientInViewId}/data/daily?datetime=${date}`);
-  },
-
   handleClickChartDates: function() {
     this.props.trackMetric('Clicked Chart Dates', {
       fromChart: this.state.chartType
