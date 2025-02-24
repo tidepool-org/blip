@@ -1808,11 +1808,11 @@ export const PatientDataClass = createReactClass({
               break;
             case targetPath.includes('/data/trends'):
             case isDefaultPath && this.state.defaultChartType === 'trends':
-              this.handleSwitchToTrends();
+              this.handleSwitchToTrends(nextProps.queryParams.datetime);
               break;
             case targetPath.includes('/data/bgLog'):
             case isDefaultPath && this.state.defaultChartType === 'bgLog':
-              this.handleSwitchToBgLog();
+              this.handleSwitchToBgLog(nextProps.queryParams.datetime);
               break;
             case targetPath.includes('/data'):
               this.setInitialChartView(nextProps);
