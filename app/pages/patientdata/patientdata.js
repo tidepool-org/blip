@@ -1801,6 +1801,8 @@ export const PatientDataClass = createReactClass({
         // If the route has changed, we need to update the chartType
         } else if (this.props.location.pathname !== nextProps.location.pathname) {
           const targetPath = nextProps.location.pathname;
+          const targetDate = utils.parseDatetimeParamToInteger(nextProps.queryParams.datetime);
+
           const isDefaultPath = targetPath.slice(-5) === '/data';
 
           switch(true) {
@@ -1813,15 +1815,15 @@ export const PatientDataClass = createReactClass({
               break;
             case targetPath.includes('/data/daily'):
             case isDefaultPath && this.state.defaultChartType === 'daily':
-              this.handleSwitchToDaily(nextProps.queryParams.datetime);
+              this.handleSwitchToDaily(targetDate);
               break;
             case targetPath.includes('/data/trends'):
             case isDefaultPath && this.state.defaultChartType === 'trends':
-              this.handleSwitchToTrends(nextProps.queryParams.datetime);
+              this.handleSwitchToTrends(targetDate);
               break;
             case targetPath.includes('/data/bgLog'):
             case isDefaultPath && this.state.defaultChartType === 'bgLog':
-              this.handleSwitchToBgLog(nextProps.queryParams.datetime);
+              this.handleSwitchToBgLog(targetDate);
               break;
             case targetPath.includes('/data'):
               this.setInitialChartView(nextProps);

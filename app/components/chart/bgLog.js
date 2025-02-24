@@ -538,8 +538,7 @@ class BgLog extends Component {
     this.refs.chart.panForward();
   };
 
-  handleSelectSMBG = unixTimestamp => {
-    const datetime = new Date(unixTimestamp).toISOString();
+  handleSelectSMBG = datetime => {
     this.props.onSwitchToDaily(datetime);
   };
 

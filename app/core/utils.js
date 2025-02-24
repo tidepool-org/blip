@@ -536,4 +536,20 @@ utils.formatThresholdPercentage = (value, comparator, threshold, defaultPrecisio
   return format(`.${precision}f`)(utils.roundToPrecision(percentage, precision));
 }
 
+utils.parseDatetimeParamToInteger = (datetime) => {
+  if (_.isInteger(datetime)) {
+    return datetime;
+  }
+
+  if (_.toInteger(datetime)) {
+    return _.toInteger(datetime);
+  }
+
+  if (_.isString(datetime)) {
+    return Date.parse(datetime) || null;
+  }
+
+  return null;
+}
+
 export default utils;
