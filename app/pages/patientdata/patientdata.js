@@ -1260,11 +1260,7 @@ export const PatientDataClass = createReactClass({
     this.updateChart(chartType, datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType }), updateOpts);
   },
 
-  handleSwitchToDaily: function(datetime, title) {
-    if (title) this.props.trackMetric(`Clicked Basics ${title} calendar`, {
-      fromChart: this.state.chartType
-    });
-
+  handleSwitchToDaily: function(datetime) {
     const chartType = 'daily';
 
     const getDatetimeLocation = d => moment.utc(d.valueOf())
@@ -2135,15 +2131,15 @@ export const PatientDataClass = createReactClass({
     const latestDatum = _.last(_.sortBy(_.values(_.get(props.data, 'metaData.latestDatumByType')), ['normalTime']));
     const bgSource = this.getMetaData('bgSources.current');
     const excludedDevices = this.getMetaData('excludedDevices', undefined, props);
+    const pathname = props.location?.pathname;
+
     let defaultChartTypeForPatient = null;
 
     if (uploads && latestDatum) {
+      let chartType = null;
       defaultChartTypeForPatient = this.deriveChartTypeFromLatestData(latestDatum, uploads);
 
-      let chartType = this.state.refreshChartType || defaultChartTypeForPatient;
-
-      const pathname = props.location?.pathname;
-
+      // Figure out which chart to show based on the current route
       switch(true) {
         case pathname.includes('/data/settings'):
           chartType = 'settings';
@@ -2159,6 +2155,12 @@ export const PatientDataClass = createReactClass({
           break;
         case pathname.includes('/data/bgLog'):
           chartType = 'bgLog';
+          break;
+        case !!this.state.refreshChartType:
+          chartType = this.state.refreshChartType;
+          break;
+        default:
+          chartType = defaultChartTypeForPatient;
           break;
       }
 

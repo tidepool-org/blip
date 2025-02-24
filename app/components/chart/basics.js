@@ -277,7 +277,11 @@ class Basics extends Component {
   };
 
   handleSelectDay = (date, title) => {
-    this.props.onSwitchToDaily(date, title);
+    if (title) {
+      this.props.trackMetric(`Clicked Basics ${title} calendar`, { fromChart: 'basics' });
+    }
+
+    this.props.onSwitchToDaily(date);
   };
 
   handleCopyBasicsClicked = () => {
