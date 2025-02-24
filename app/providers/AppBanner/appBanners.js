@@ -7,6 +7,7 @@ import api from '../../core/api';
 import { TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL, URL_BIG_DATA_DONATION_INFO, URL_SHARE_DATA_INFO, URL_TIDEPOOL_PLUS_CONTACT_SALES } from '../../core/constants';
 import { ResendDataSourceConnectRequestDialog } from '../../components/clinic/ResendDataSourceConnectRequestDialog';
 import PatientEmailModal from '../../components/datasources/PatientEmailModal';
+import { upperFirst } from 'lodash';
 
 const t = i18next.t.bind(i18next);
 
@@ -23,6 +24,7 @@ export const appBanners = [
     context: ['patient'],
     paths: [pathRegexes.patientData],
     getProps: provider => ({
+      interactionId: `${upperFirst(provider?.dataSourceFilter?.providerName)}DataSourceJustConnected`,
       label: t('Data Source Just Connected banner'),
       title: t('{{displayName}} data is on its way. This usually takes a few minutes but occasionally takes longer. Refresh the page to see data.', provider),
       show: {
@@ -43,6 +45,7 @@ export const appBanners = [
     context: ['patient'],
     paths: [pathRegexes.patientData],
     getProps: (dispatch, provider = {}) => ({
+      interactionId: `${upperFirst(provider?.dataSourceFilter?.providerName)}DataSourceReconnect`,
       label: t('Data Source Reconnect banner'),
       message: t('Tidepool is no longer receiving {{displayName}} data from your account.', provider),
       show: {
@@ -68,6 +71,7 @@ export const appBanners = [
     context: ['patient'],
     paths: [pathRegexes.patientData],
     getProps: () => ({
+      interactionId: 'Uploader',
       label: t('Uploader banner'),
       message: t('If you\'ll be uploading your devices at home, download the latest version of Tidepool Uploader.'),
       show: {
@@ -97,6 +101,7 @@ export const appBanners = [
     paths: [pathRegexes.patientData],
     maxUniqueDaysShown: 3,
     getProps: (dispatch, loggedInUserId) => ({
+      interactionId: 'ShareData',
       label: t('Share Data banner'),
       message: t('New Tidepool Account? Share Your Data with your healthcare team.'),
       show: {
@@ -125,6 +130,7 @@ export const appBanners = [
     context: ['patient'],
     paths: [pathRegexes.patientData],
     getProps: dispatch => ({
+      interactionId: 'DonateYourData',
       label: t('Donate your data banner'),
       message: t('Donate your data. Contribute to research.'),
       show: {
@@ -160,6 +166,7 @@ export const appBanners = [
     context: ['patient'],
     paths: [pathRegexes.patientData],
     getProps: (dispatch, loggedInUserId) => ({
+      interactionId: 'ShareProceeds',
       label: t('Share Proceeds banner'),
       message: t('Thanks for contributing! Donate proceeds to a diabetes nonprofit.'),
       show: {
@@ -189,6 +196,7 @@ export const appBanners = [
     context: ['patient'],
     paths: [pathRegexes.patientData],
     getProps: (dispatch, loggedInUserId) => ({
+      interactionId: 'UpdateType',
       label: t('Update Type banner'),
       message: t('Complete your profile.'),
       show: {
@@ -218,6 +226,7 @@ export const appBanners = [
     context: ['clinic'],
     paths: [pathRegexes.clinicWorkspace],
     getProps: clinic => ({
+      interactionId: 'PatientLimit',
       label: t('Patient Limit banner'),
       message: t('{{name}} has reached the maximum number of patient accounts.', clinic),
       show: {
@@ -241,6 +250,7 @@ export const appBanners = [
     context: ['clinic'],
     paths: [pathRegexes.patientData],
     getProps: (dispatch, clinicId, patient = {}, provider = {}) => ({
+      interactionId: `${upperFirst(provider?.dataSourceFilter?.providerName)}DataSourceReconnectInvite`,
       label: t('Data Source Reconnect Invite banner'),
       message: t('Tidepool is no longer receiving {{displayName}} data from your patient\'s account. Would you like to email them an invite to reconnect?', provider),
       show: {
@@ -277,6 +287,7 @@ export const appBanners = [
     paths: [pathRegexes.patientData],
     showIcon: false,
     getProps: (formikContext, patient = {}) => ({
+      interactionId: 'AddEmail',
       label: t('Add Email banner'),
       message: t('Add {{fullName}}\'s email to invite them to upload and view data from home', patient),
       show: {
@@ -312,6 +323,7 @@ export const appBanners = [
     paths: [pathRegexes.patientData],
     showIcon: false,
     getProps: (dispatch, patient = {}) => ({
+      interactionId: 'SendVerification',
       label: t('Send Verification banner'),
       message: t('Resend {{fullName}}\'s email to invite them to upload and view data from home', patient),
       show: {

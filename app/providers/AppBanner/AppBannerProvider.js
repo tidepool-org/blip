@@ -1,7 +1,21 @@
 import React, { createContext, useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
-import { filter, find, has, includes, intersection, keys, map, noop, some, upperFirst } from 'lodash';
+
+import {
+  each,
+  filter,
+  find,
+  first,
+  has,
+  includes,
+  intersection,
+  isEmpty,
+  keys,
+  map,
+  max,
+  some
+} from 'lodash';
 
 import { appBanners } from './appBanners';
 import { providers } from '../../components/datasources/DataConnections';
@@ -151,33 +165,88 @@ const AppBannerProvider = ({ children }) => {
   useEffect(() => {
     setCurrentBanner(null);
     const context = userIsCurrentPatient ? 'patient' : 'clinic';
-    const bannerInteractionKeys = banner => map([CLICKED_BANNER_ACTION, DISMISSED_BANNER_ACTION], action => `${action}${upperFirst(banner.id)}BannerTime`);
+    const bannerInteractionKeys = banner => map([CLICKED_BANNER_ACTION, DISMISSED_BANNER_ACTION], action => `${action}${banner.interactionId}BannerTime`);
 
-    const filteredBanners = filter(appBanners, banner => {
-      const previousPatientInteractions = intersection(keys(loggedInUser?.preferences), bannerInteractionKeys(banner));
-      const bannerCountKey = `seen${upperFirst(banner.id)}BannerCount`;
-      const countExceeded = banner.maxUniqueDaysShown && loggedInUser?.preferences?.[bannerCountKey] > banner.maxUniqueDaysShown;
-      const sessionInteraction = bannerInteractedForPatient[banner.id]?.[currentPatientInViewId];
-      const matchesContext = includes(banner.context, context);
-      const matchesPath = some(banner.paths, path => path.test(pathname));
-      return !countExceeded && !sessionInteraction && !previousPatientInteractions.length && matchesContext && matchesPath;
+    const filteredBanners = [];
+
+    each(appBanners, banner => {
+      // Filter out if data conditions are not met for showing the banner
+      if (!processedBanners[banner.id]?.show) return;
+
+      // Filter out if banner path or context conditions are not met
+      if (!some(banner.paths, path => path.test(pathname)) || !includes(banner.context, context)) return;
+
+      // Process the banner props. Important to do this before filtering by previous banner interactions
+      // since we need the sometimes-dynamic banner.interactionId to generate the keys
+      const processedBanner = {
+        ...banner,
+        ...banner.getProps(...processedBanners[banner.id]?.bannerArgs),
+      };
+
+      // Filter further by previous banner interactions
+      const latestBannerInteractionTime = max(map(
+        intersection(keys(loggedInUser?.preferences), bannerInteractionKeys(processedBanner)),
+        key => loggedInUser?.preferences[key]
+      ));
+
+      const bannerCountKey = `seen${processedBanner.interactionId}BannerCount`;
+      const countExceeded = processedBanner.maxUniqueDaysShown && loggedInUser?.preferences?.[bannerCountKey] > processedBanner.maxUniqueDaysShown;
+      const sessionInteraction = bannerInteractedForPatient[processedBanner.id]?.[currentPatientInViewId];
+
+      console.log('latestBannerInteractionTime', processedBanner.id, latestBannerInteractionTime);
+
+
+      // Handle any banner-unique filtering conditions here
+      if (processedBanner.id === 'dataSourceReconnect') {
+        // const dexcomDataSourceModifiedTime = erroredDataSource?.modifiedTime || '';
+        // const dataSourceBannerWasAcknowledged = !isEmpty(dexcomDataSourceModifiedTime)
+        //   ? latestBannerInteractionTime > dexcomDataSourceModifiedTime
+        //   : !isEmpty(latestBannerInteractionTime);
+      }
+
+      if (processedBanner.id === 'dataSourceJustConnected') {
+
+        console.log('justConnectedDataSource', justConnectedDataSource);
+      }
+
+
+      // TODO: need to also figure out how to handle:
+      // 1. connection error banners that were dismissed/handled, connection was resumed, and fell into error state again
+      //   - I think we handled this with the dismissedBannerTime for the dexcom one, but need to confirm
+
+
+       // Hide the Dexcom banner if the currently logged-in patient has already interacted with the
+      // banner and there hasn't been a Dexcom data source update since
+      // const dexcomDataSourceModifiedTime = dexcomDataSource?.modifiedTime || '';
+      // const dismissedBannerTime = _.get(nextProps, 'user.preferences.dismissedDexcomConnectBannerTime', '');
+      // const clickedBannerTime = _.get(nextProps, 'user.preferences.clickedDexcomConnectBannerTime', '');
+      // const latestBannerInteractionTime = _.max([dismissedBannerTime, clickedBannerTime]);
+
+
+
+
+      // 2. data just connected banners for patient disconnect, and then reconnect
+      //   - do we need to clear the previous banner interation when reconnecting?  Or, again, consider the time.
+      //   - how about the within the same session - do we show it?
+
+
+      if (countExceeded || sessionInteraction ||latestBannerInteractionTime) return;
+
+
+      // Banner is a candidtate to be shown
+      filteredBanners.push(processedBanner);
     });
 
     // Sort banners based on priority (lower values mean higher priority)
     const sortedBanners = filteredBanners.sort((a, b) => a.priority - b.priority);
 
-    // Find and display the first available banner
-    for (const banner of sortedBanners) {
-      const processedBanner = processedBanners[banner.id];
-
-      if (processedBanner?.show) {
-        setCurrentBanner({ ...banner, ...banner.getProps(...processedBanner.bannerArgs) });
-        break;
-      }
-    }
+    // Set the first available banner to display, else null
+    setCurrentBanner(first(sortedBanners) || null);
   }, [
     bannerInteractedForPatient,
     currentPatientInViewId,
+    erroredDataSource,
+    justConnectedDataSource,
     loggedInUser?.preferences,
     pathname,
     processedBanners,
