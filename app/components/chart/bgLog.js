@@ -196,6 +196,7 @@ class BgLog extends Component {
     onSwitchToDaily: PropTypes.func.isRequired,
     onSwitchToSettings: PropTypes.func.isRequired,
     onSwitchToBgLog: PropTypes.func.isRequired,
+    onSelectDate: PropTypes.func.isRequired,
     onUpdateChartDateRange: PropTypes.func.isRequired,
     queryDataCount: PropTypes.number.isRequired,
     stats: PropTypes.array.isRequired,
@@ -538,8 +539,9 @@ class BgLog extends Component {
     this.refs.chart.panForward();
   };
 
-  handleSelectSMBG = datetime => {
-    this.props.onSwitchToDaily(datetime);
+  handleSelectSMBG = unixTimestamp => {
+    const datetime = new Date(unixTimestamp).toISOString();
+    this.props.onSelectDate(datetime);
   };
 
   toggleValues = e => {

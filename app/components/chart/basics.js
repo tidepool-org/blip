@@ -36,6 +36,7 @@ class Basics extends Component {
     onClickPrint: PropTypes.func.isRequired,
     onSwitchToSettings: PropTypes.func.isRequired,
     onSwitchToBgLog: PropTypes.func.isRequired,
+    onSelectDate: PropTypes.func.isRequired,
     onUpdateChartDateRange: PropTypes.func.isRequired,
     patient: PropTypes.object.isRequired,
     stats: PropTypes.array.isRequired,
@@ -162,7 +163,7 @@ class Basics extends Component {
           bgUnits={_.get(this.props, 'data.bgPrefs', {}).bgUnits}
           data={this.props.data}
           excludeDaysWithoutBolus={_.get(this.props, 'chartPrefs.basics.stats.excludeDaysWithoutBolus')}
-          onSelectDay={this.handleSelectDay}
+          onSelectDate={this.handleSelectDay}
           patient={this.props.patient}
           permsOfLoggedInUser={this.props.permsOfLoggedInUser}
           timePrefs={_.get(this.props, 'data.timePrefs', {})}
@@ -276,7 +277,7 @@ class Basics extends Component {
   };
 
   handleSelectDay = (date, title) => {
-    this.props.onSelectDay(date, title);
+    this.props.onSelectDate(date, title);
   };
 
   handleCopyBasicsClicked = () => {

@@ -569,7 +569,7 @@ export const PatientDataClass = createReactClass({
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
             onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
-            onSelectDay={this.handleSelectBasicsChartDate}
+            onSelectDate={this.handleSelectBasicsChartDate}
             onClickPrint={this.handleClickPrint}
             onSwitchToTrends={this.handleSwitchToTrends}
             onSwitchToSettings={this.handleSwitchToSettings}
@@ -634,6 +634,7 @@ export const PatientDataClass = createReactClass({
             onSwitchToTrends={this.handleSwitchToTrends}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToBgLog={this.handleSwitchToBgLog}
+            onSelectDate={this.handleSelectTrendsChartDate}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             patient={this.props.patient}
             stats={stats}
@@ -663,6 +664,7 @@ export const PatientDataClass = createReactClass({
             onSwitchToTrends={this.handleSwitchToTrends}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToBgLog={this.handleSwitchToBgLog}
+            onSelectDate={this.handleSelectBgLogChartDate}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             patient={this.props.patient}
             stats={stats}
@@ -1306,6 +1308,18 @@ export const PatientDataClass = createReactClass({
 
   handleSelectBasicsChartDate: function(date, title) {
     if (title) this.props.trackMetric(`Clicked Basics ${title} calendar`, { fromChart: this.state.chartType });
+
+    this.props.history.push(`/patients/${this.props.currentPatientInViewId}/data/daily?datetime=${date}`);
+  },
+
+  handleSelectTrendsChartDate: function(date) {
+    this.props.trackMetric('Clicked Switch To Modal', { fromChart: this.state.chartType });
+
+    this.props.history.push(`/patients/${this.props.currentPatientInViewId}/data/daily?datetime=${date}`);
+  },
+
+  handleSelectBgLogChartDate: function(date) {
+    this.props.trackMetric('Clicked Switch To Two Week', { fromChart: this.state.chartType });
 
     this.props.history.push(`/patients/${this.props.currentPatientInViewId}/data/daily?datetime=${date}`);
   },
