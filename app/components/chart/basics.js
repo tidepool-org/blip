@@ -163,7 +163,7 @@ class Basics extends Component {
           bgUnits={_.get(this.props, 'data.bgPrefs', {}).bgUnits}
           data={this.props.data}
           excludeDaysWithoutBolus={_.get(this.props, 'chartPrefs.basics.stats.excludeDaysWithoutBolus')}
-          onSelectDate={this.handleSelectDay}
+          onSelectDay={this.handleSelectDay}
           patient={this.props.patient}
           permsOfLoggedInUser={this.props.permsOfLoggedInUser}
           timePrefs={_.get(this.props, 'data.timePrefs', {})}
