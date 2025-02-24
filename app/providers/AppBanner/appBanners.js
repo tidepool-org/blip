@@ -1,4 +1,3 @@
-import React from 'react';
 import { push } from 'connected-react-router';
 
 import i18next from '../../core/language';
@@ -23,7 +22,8 @@ export const appBanners = [
     priority: 0,
     context: ['patient'],
     paths: [pathRegexes.patientData],
-    getProps: provider => ({
+    getProps: (provider = {}, dataSource) => ({
+      ignoreBannerInteractionsBeforeTime: dataSource?.modifiedTime,
       interactionId: `${upperFirst(provider?.dataSourceFilter?.providerName)}DataSourceJustConnected`,
       label: t('Data Source Just Connected banner'),
       title: t('{{displayName}} data is on its way. This usually takes a few minutes but occasionally takes longer. Refresh the page to see data.', provider),
@@ -44,7 +44,8 @@ export const appBanners = [
     priority: 1,
     context: ['patient'],
     paths: [pathRegexes.patientData],
-    getProps: (dispatch, provider = {}) => ({
+    getProps: (dispatch, provider = {}, dataSource) => ({
+      ignoreBannerInteractionsBeforeTime: dataSource?.modifiedTime,
       interactionId: `${upperFirst(provider?.dataSourceFilter?.providerName)}DataSourceReconnect`,
       label: t('Data Source Reconnect banner'),
       message: t('Tidepool is no longer receiving {{displayName}} data from your account.', provider),

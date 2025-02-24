@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
+import moment from 'moment';
 
 import {
   each,
@@ -87,12 +88,12 @@ const AppBannerProvider = ({ children }) => {
   const processedBanners = useMemo(() => ({
     dataSourceJustConnected: {
       show: !!justConnectedDataSource?.providerName,
-      bannerArgs: [providers[justConnectedDataSource?.providerName]]
+      bannerArgs: [providers[justConnectedDataSource?.providerName], justConnectedDataSource],
     },
 
     dataSourceReconnect: {
       show: !!erroredDataSource?.providerName,
-      bannerArgs: [dispatch, providers[erroredDataSource?.providerName]]
+      bannerArgs: [dispatch, providers[erroredDataSource?.providerName], erroredDataSource],
     },
 
     uploader: {
@@ -147,10 +148,10 @@ const AppBannerProvider = ({ children }) => {
     currentPatientInViewId,
     dataSources?.length,
     dispatch,
-    erroredDataSource?.providerName,
+    erroredDataSource,
     formikContext,
     isCustodialPatient,
-    justConnectedDataSource?.providerName,
+    justConnectedDataSource,
     loggedInUserId,
     selectedClinicId,
     sharedAccounts,
@@ -184,7 +185,7 @@ const AppBannerProvider = ({ children }) => {
       };
 
       // Filter further by previous banner interactions
-      const latestBannerInteractionTime = max(map(
+      let latestBannerInteractionTime = max(map(
         intersection(keys(loggedInUser?.preferences), bannerInteractionKeys(processedBanner)),
         key => loggedInUser?.preferences[key]
       ));
@@ -193,23 +194,19 @@ const AppBannerProvider = ({ children }) => {
       const countExceeded = processedBanner.maxUniqueDaysShown && loggedInUser?.preferences?.[bannerCountKey] > processedBanner.maxUniqueDaysShown;
       const sessionInteraction = bannerInteractedForPatient[processedBanner.id]?.[currentPatientInViewId];
 
-      // Handle any data source banners that may be dismissed and then shown again at a future point
-      if (includes(['dataSourceReconnect', 'dataSourceJustConnected'], processedBanner.id)) {
-        const dataSource = processedBanner.id === 'dataSourceJustConnected' ? justConnectedDataSource : erroredDataSource;
-        const dataSourceModifiedTime = dataSource?.modifiedTime || '';
+      // Handle any banners with outdate previous interactions that may be candidates for display again
+      if (processedBanner?.ignoreBannerInteractionsBeforeTime) {
+        // Ignore the previous banner interactions if they are older than the ignoreBannerInteractionsBeforeTime
+        const ignorePreviousBannerInteractions = moment(latestBannerInteractionTime).isBefore(processedBanner.ignoreBannerInteractionsBeforeTime);
+        if (ignorePreviousBannerInteractions) latestBannerInteractionTime = null;
+      }
 
-        const dataSourceBannerWasAcknowledged = !isEmpty(dataSourceModifiedTime)
-          ? latestBannerInteractionTime > dataSourceModifiedTime
-          : !isEmpty(latestBannerInteractionTime);
-
-        // Hide the banner if the currently logged-in patient has interacted with the banner since the data source was last modified
-        if (dataSourceBannerWasAcknowledged) return;
-      } else if (countExceeded || sessionInteraction || latestBannerInteractionTime) {
-        // Handle general banner filtering conditions for non-data source banners
+      // Filter out based on previous view counts or interactions
+      if (countExceeded || sessionInteraction || latestBannerInteractionTime) {
         return;
       }
 
-      // Banner is a candidtate to be shown
+      // No filters were applicable. Banner is a candidtate to be shown
       filteredBanners.push(processedBanner);
     });
 
