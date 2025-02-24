@@ -52,7 +52,6 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     onSwitchToTrends: PropTypes.func.isRequired,
     onSwitchToSettings: PropTypes.func.isRequired,
     onSwitchToBgLog: PropTypes.func.isRequired,
-    onSelectDate: PropTypes.func.isRequired,
     onUpdateChartDateRange: PropTypes.func.isRequired,
     patient: PropTypes.object,
     queryDataCount: PropTypes.number.isRequired,
@@ -291,7 +290,7 @@ const Trends = withTranslation()(class Trends extends PureComponent {
   }
 
   handleSelectDate(date) {
-    this.props.onSelectDate(date);
+    this.props.onSwitchToDaily(date);
   }
 
   handleFocusCbgSlice(data, position, focusedKeys) {

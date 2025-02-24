@@ -567,7 +567,6 @@ export const PatientDataClass = createReactClass({
             loading={this.state.loading}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
-            onSelectDate={this.handleSelectBasicsChartDate}
             onClickPrint={this.handleClickPrint}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             onClickChartDates={this.handleClickChartDates}
@@ -631,7 +630,6 @@ export const PatientDataClass = createReactClass({
             mostRecentDatetimeLocation={this.state.mostRecentDatetimeLocation}
             onClickRefresh={this.handleClickRefresh}
             onClickPrint={this.handleClickPrint}
-            onSelectDate={this.handleSelectTrendsChartDate}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             patient={this.props.patient}
             stats={stats}
@@ -662,7 +660,6 @@ export const PatientDataClass = createReactClass({
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
             onClickPrint={this.handleClickPrint}
-            onSelectDate={this.handleSelectBgLogChartDate}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             patient={this.props.patient}
             stats={stats}
@@ -1334,12 +1331,6 @@ export const PatientDataClass = createReactClass({
 
     this.props.removeGeneratedPDFS();
     this.setState({ printDialogOpen: true });
-  },
-
-  handleSelectBasicsChartDate: function(date, title) {
-    if (title) this.props.trackMetric(`Clicked Basics ${title} calendar`, { fromChart: this.state.chartType });
-
-    this.props.history.push(`/patients/${this.props.currentPatientInViewId}/data/daily?datetime=${date}`);
   },
 
   handleSelectTrendsChartDate: function(date) {
