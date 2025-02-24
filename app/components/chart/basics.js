@@ -36,6 +36,7 @@ class Basics extends Component {
     onClickPrint: PropTypes.func.isRequired,
     onSwitchToSettings: PropTypes.func.isRequired,
     onSwitchToBgLog: PropTypes.func.isRequired,
+    onSwitchToTrends: PropTypes.func.isRequired,
     onSelectDate: PropTypes.func.isRequired,
     onUpdateChartDateRange: PropTypes.func.isRequired,
     patient: PropTypes.object.isRequired,

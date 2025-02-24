@@ -526,11 +526,11 @@ export const PatientDataClass = createReactClass({
             isUserPatient={this.props.isUserPatient}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
-            onSwitchToBasics={this.handleSwitchToBasics}
-            onSwitchToDaily={this.handleSwitchToDaily}
-            onSwitchToTrends={this.handleSwitchToTrends}
-            onSwitchToSettings={this.handleSwitchToSettings}
-            onSwitchToBgLog={this.handleSwitchToBgLog}
+            onSwitchToBasics={this.handleSwitchToBasicsRoute}
+            onSwitchToDaily={this.handleSwitchToDailyRoute}
+            onSwitchToTrends={this.handleSwitchToTrendsRoute}
+            onSwitchToSettings={this.handleSwitchToSettingsRoute}
+            onSwitchToBgLog={this.handleSwitchToBgLogRoute}
             onClickPrint={this.handleClickPrint}
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
@@ -567,13 +567,8 @@ export const PatientDataClass = createReactClass({
             loading={this.state.loading}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
-            onSwitchToBasics={this.handleSwitchToBasics}
-            onSwitchToDaily={this.handleSwitchToDaily}
             onSelectDate={this.handleSelectBasicsChartDate}
             onClickPrint={this.handleClickPrint}
-            onSwitchToTrends={this.handleSwitchToTrends}
-            onSwitchToSettings={this.handleSwitchToSettings}
-            onSwitchToBgLog={this.handleSwitchToBgLog}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             onClickChartDates={this.handleClickChartDates}
             patient={this.props.patient}
@@ -585,7 +580,13 @@ export const PatientDataClass = createReactClass({
             updateChartPrefs={this.updateChartPrefs}
             uploadUrl={this.props.uploadUrl}
             ref="tideline"
-            removeGeneratedPDFS={this.props.removeGeneratedPDFS} />
+            removeGeneratedPDFS={this.props.removeGeneratedPDFS}
+            onSwitchToTrends={this.handleSwitchToTrendsRoute}
+            onSwitchToSettings={this.handleSwitchToSettingsRoute}
+            onSwitchToBgLog={this.handleSwitchToBgLogRoute}
+            onSwitchToBasics={this.handleSwitchToBasicsRoute}
+            onSwitchToDaily={this.handleSwitchToDailyRoute}
+            />
           );
       case 'daily':
         return (
@@ -599,12 +600,7 @@ export const PatientDataClass = createReactClass({
             onClickRefresh={this.handleClickRefresh}
             onCreateMessage={this.handleShowMessageCreation}
             onShowMessageThread={this.handleShowMessageThread}
-            onSwitchToBasics={this.handleSwitchToBasics}
-            onSwitchToDaily={this.handleSwitchToDaily}
             onClickPrint={this.handleClickPrint}
-            onSwitchToTrends={this.handleSwitchToTrends}
-            onSwitchToSettings={this.handleSwitchToSettings}
-            onSwitchToBgLog={this.handleSwitchToBgLog}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             onClickChartDates={this.handleClickChartDates}
             patient={this.props.patient}
@@ -615,7 +611,13 @@ export const PatientDataClass = createReactClass({
             queryDataCount={this.getMetaData('queryDataCount')}
             key={this.state.chartKey}
             ref="tideline"
-            removeGeneratedPDFS={this.props.removeGeneratedPDFS} />
+            removeGeneratedPDFS={this.props.removeGeneratedPDFS}
+            onSwitchToTrends={this.handleSwitchToTrendsRoute}
+            onSwitchToSettings={this.handleSwitchToSettingsRoute}
+            onSwitchToBgLog={this.handleSwitchToBgLogRoute}
+            onSwitchToBasics={this.handleSwitchToBasicsRoute}
+            onSwitchToDaily={this.handleSwitchToDailyRoute}
+            />
           );
       case 'trends':
         return (
@@ -629,11 +631,6 @@ export const PatientDataClass = createReactClass({
             mostRecentDatetimeLocation={this.state.mostRecentDatetimeLocation}
             onClickRefresh={this.handleClickRefresh}
             onClickPrint={this.handleClickPrint}
-            onSwitchToBasics={this.handleSwitchToBasics}
-            onSwitchToDaily={this.handleSwitchToDaily}
-            onSwitchToTrends={this.handleSwitchToTrends}
-            onSwitchToSettings={this.handleSwitchToSettings}
-            onSwitchToBgLog={this.handleSwitchToBgLog}
             onSelectDate={this.handleSelectTrendsChartDate}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             patient={this.props.patient}
@@ -644,7 +641,13 @@ export const PatientDataClass = createReactClass({
             queryDataCount={this.getMetaData('queryDataCount')}
             key={this.state.chartKey}
             ref="tideline"
-            removeGeneratedPDFS={this.props.removeGeneratedPDFS} />
+            removeGeneratedPDFS={this.props.removeGeneratedPDFS}
+            onSwitchToTrends={this.handleSwitchToTrendsRoute}
+            onSwitchToSettings={this.handleSwitchToSettingsRoute}
+            onSwitchToBgLog={this.handleSwitchToBgLogRoute}
+            onSwitchToBasics={this.handleSwitchToBasicsRoute}
+            onSwitchToDaily={this.handleSwitchToDailyRoute}
+            />
           );
       case 'bgLog':
         return (
@@ -659,11 +662,6 @@ export const PatientDataClass = createReactClass({
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
             onClickPrint={this.handleClickPrint}
-            onSwitchToBasics={this.handleSwitchToBasics}
-            onSwitchToDaily={this.handleSwitchToDaily}
-            onSwitchToTrends={this.handleSwitchToTrends}
-            onSwitchToSettings={this.handleSwitchToSettings}
-            onSwitchToBgLog={this.handleSwitchToBgLog}
             onSelectDate={this.handleSelectBgLogChartDate}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             patient={this.props.patient}
@@ -674,7 +672,13 @@ export const PatientDataClass = createReactClass({
             queryDataCount={this.getMetaData('queryDataCount')}
             key={this.state.chartKey}
             ref="tideline"
-            removeGeneratedPDFS={this.props.removeGeneratedPDFS} />
+            removeGeneratedPDFS={this.props.removeGeneratedPDFS}
+            onSwitchToTrends={this.handleSwitchToTrendsRoute}
+            onSwitchToSettings={this.handleSwitchToSettingsRoute}
+            onSwitchToBgLog={this.handleSwitchToBgLogRoute}
+            onSwitchToBasics={this.handleSwitchToBasicsRoute}
+            onSwitchToDaily={this.handleSwitchToDailyRoute}
+            />
           );
       case 'settings':
         return this.renderSettings();
@@ -1170,6 +1174,37 @@ export const PatientDataClass = createReactClass({
     this.props.trackMetric('Clicked Message Pool Background');
   },
 
+  handleSwitchToBasicsRoute: function(e) {
+    e?.preventDefault();
+    this.props.history.push(`/patients/${this.props.currentPatientInViewId}/data/basics`);
+  },
+
+  handleSwitchToDailyRoute: function(datetime) {
+    targetPath = `/patients/${this.props.currentPatientInViewId}/data/daily`;
+    if (datetime) targetPath += `?datetime=${datetime}`;
+
+    this.props.history.push(targetPath);
+  },
+
+  handleSwitchToTrendsRoute: function(datetime) {
+    targetPath = `/patients/${this.props.currentPatientInViewId}/data/trends`;
+    if (datetime) targetPath += `?datetime=${datetime}`;
+
+    this.props.history.push(targetPath);
+  },
+
+  handleSwitchToBgLogRoute: function(datetime) {
+    targetPath = `/patients/${this.props.currentPatientInViewId}/data/bgLog`;
+    if (datetime) targetPath += `?datetime=${datetime}`;
+
+    this.props.history.push(targetPath);
+  },
+
+  handleSwitchToSettingsRoute: function(e) {
+    e?.preventDefault();
+    this.props.history.push(`/patients/${this.props.currentPatientInViewId}/data/settings`);
+  },
+
   handleSwitchToBasics: function(e) {
     this.props.trackMetric('Clicked Switch To Basics', {
       fromChart: this.state.chartType
@@ -1190,7 +1225,6 @@ export const PatientDataClass = createReactClass({
     const updateOpts = { updateChartEndpoints: true };
 
     this.updateChart(chartType, datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType }), updateOpts);
-    this.props.history.push(`/patients/${this.props.currentPatientInViewId}/data/basics`);
   },
 
   handleSwitchToDaily: function(datetime, title) {
@@ -1216,7 +1250,6 @@ export const PatientDataClass = createReactClass({
     }
 
     this.updateChart(chartType, datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType }), updateOpts);
-    this.props.history.push(`/patients/${this.props.currentPatientInViewId}/data/daily`);
   },
 
   handleSwitchToTrends: function(datetime) {
@@ -1239,7 +1272,6 @@ export const PatientDataClass = createReactClass({
     }
 
     this.updateChart(chartType, datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType }), updateOpts);
-    this.props.history.push(`/patients/${this.props.currentPatientInViewId}/data/trends`);
   },
 
   handleSwitchToBgLog: function(datetime) {
@@ -1263,7 +1295,6 @@ export const PatientDataClass = createReactClass({
     }
 
     this.updateChart(chartType, datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType }), updateOpts);
-    this.props.history.push(`/patients/${this.props.currentPatientInViewId}/data/bgLog`);
   },
 
   handleSwitchToSettings: function(e) {
@@ -1283,7 +1314,6 @@ export const PatientDataClass = createReactClass({
     });
 
     this.updateChart('settings');
-    this.props.history.push(`/patients/${this.props.currentPatientInViewId}/data/settings`);
   },
 
   handleClickPrint: function() {
