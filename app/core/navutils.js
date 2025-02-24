@@ -103,7 +103,7 @@ export const useNavigation = (api, trackMetric) => {
 
   const handleViewData = () => {
     trackMetric('Clicked Navbar View Data');
-    dispatch(push(`/patients/${currentPatientInViewId}/data/default`));
+    dispatch(push(`/patients/${currentPatientInViewId}/data`));
   };
 
   const handleViewProfile = () => {

@@ -276,7 +276,7 @@ class Basics extends Component {
   };
 
   handleSelectDay = (date, title) => {
-    this.props.onSwitchToDaily(date, title);
+    this.props.onSelectDay(date, title);
   };
 
   handleCopyBasicsClicked = () => {
