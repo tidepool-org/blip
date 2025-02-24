@@ -1171,6 +1171,42 @@ export const PatientDataClass = createReactClass({
     this.props.trackMetric('Clicked Message Pool Background');
   },
 
+  handleRouteChangeEvent: function(nextProps) {
+    const targetPath = nextProps.location.pathname;
+    const targetDate = utils.parseDatetimeParamToInteger(nextProps.queryParams.datetime);
+
+    const isDefaultPath = targetPath.slice(-5) === '/data';
+
+    // state.defaultChartTypeForPatient will only exist if the user has visited the data view before. In the case
+    // that defaultChartTypeForPatient does exist and the user is navigating to '/data', we should use its stored
+    // value rather than calling setInitialChartView() again to determine the patient's default chart type.
+
+    switch(true) {
+      case targetPath.includes('/data/settings'):
+        this.handleSwitchToSettings();
+        break;
+      case targetPath.includes('/data/basics'):
+      case isDefaultPath && this.state.defaultChartTypeForPatient === 'basics':
+        this.handleSwitchToBasics();
+        break;
+      case targetPath.includes('/data/daily'):
+      case isDefaultPath && this.state.defaultChartTypeForPatient === 'daily':
+        this.handleSwitchToDaily(targetDate);
+        break;
+      case targetPath.includes('/data/trends'):
+      case isDefaultPath && this.state.defaultChartTypeForPatient === 'trends':
+        this.handleSwitchToTrends(targetDate);
+        break;
+      case targetPath.includes('/data/bgLog'):
+      case isDefaultPath && this.state.defaultChartTypeForPatient === 'bgLog':
+        this.handleSwitchToBgLog(targetDate);
+        break;
+      case isDefaultPath:
+        this.setInitialChartView(nextProps);
+        break;
+    }
+  },
+
   handleSwitchToBasicsRoute: function(e) {
     e?.preventDefault();
     this.props.history.push(`/patients/${this.props.currentPatientInViewId}/data/basics`);
@@ -1791,8 +1827,8 @@ export const PatientDataClass = createReactClass({
 
         // With initial query for upload data completed, set the initial chart type
         if (!this.state.chartType) {
-          const defaultChartType = this.setInitialChartView(nextProps);
-          stateUpdates.defaultChartType = defaultChartType;
+          const defaultChartTypeForPatient = this.setInitialChartView(nextProps);
+          stateUpdates.defaultChartTypeForPatient = defaultChartTypeForPatient;
 
           window.patientData = 'No patient data has been loaded yet. Run `window.loadPatientData()` to popuplate this.'
           window.loadPatientData = this.saveDataToDestination.bind(this, 'window');
@@ -1800,35 +1836,7 @@ export const PatientDataClass = createReactClass({
 
         // If the route has changed, we need to update the chartType
         } else if (this.props.location.pathname !== nextProps.location.pathname) {
-          const targetPath = nextProps.location.pathname;
-          const targetDate = utils.parseDatetimeParamToInteger(nextProps.queryParams.datetime);
-
-          const isDefaultPath = targetPath.slice(-5) === '/data';
-
-          switch(true) {
-            case targetPath.includes('/data/settings'):
-              this.handleSwitchToSettings();
-              break;
-            case targetPath.includes('/data/basics'):
-            case isDefaultPath && this.state.defaultChartType === 'basics':
-              this.handleSwitchToBasics();
-              break;
-            case targetPath.includes('/data/daily'):
-            case isDefaultPath && this.state.defaultChartType === 'daily':
-              this.handleSwitchToDaily(targetDate);
-              break;
-            case targetPath.includes('/data/trends'):
-            case isDefaultPath && this.state.defaultChartType === 'trends':
-              this.handleSwitchToTrends(targetDate);
-              break;
-            case targetPath.includes('/data/bgLog'):
-            case isDefaultPath && this.state.defaultChartType === 'bgLog':
-              this.handleSwitchToBgLog(targetDate);
-              break;
-            case targetPath.includes('/data'):
-              this.setInitialChartView(nextProps);
-              break;
-          }
+          this.handleRouteChangeEvent(nextProps);
         }
 
         // Only update the chartEndpoints and transitioningChartType state immediately after querying
@@ -2127,12 +2135,12 @@ export const PatientDataClass = createReactClass({
     const latestDatum = _.last(_.sortBy(_.values(_.get(props.data, 'metaData.latestDatumByType')), ['normalTime']));
     const bgSource = this.getMetaData('bgSources.current');
     const excludedDevices = this.getMetaData('excludedDevices', undefined, props);
-    let defaultChartType = null;
+    let defaultChartTypeForPatient = null;
 
     if (uploads && latestDatum) {
-      defaultChartType = this.deriveChartTypeFromLatestData(latestDatum, uploads);
+      defaultChartTypeForPatient = this.deriveChartTypeFromLatestData(latestDatum, uploads);
 
-      let chartType = this.state.refreshChartType || defaultChartType;
+      let chartType = this.state.refreshChartType || defaultChartTypeForPatient;
 
       const pathname = props.location?.pathname;
 
@@ -2182,7 +2190,7 @@ export const PatientDataClass = createReactClass({
       props.trackMetric(`web - default to ${chartType === 'bgLog' ? 'weekly' : chartType}`);
     }
 
-    return defaultChartType;
+    return defaultChartTypeForPatient;
   },
 
 /**

@@ -536,20 +536,22 @@ utils.formatThresholdPercentage = (value, comparator, threshold, defaultPrecisio
   return format(`.${precision}f`)(utils.roundToPrecision(percentage, precision));
 }
 
-utils.parseDatetimeParamToInteger = (datetime) => {
-  if (_.isInteger(datetime)) {
-    return datetime;
+utils.parseDatetimeParamToInteger = (queryParam) => {
+  if (!queryParam) return null;
+
+  if (_.isInteger(queryParam)) return queryParam;
+
+  // arg can be a string representation of an integer, e.g. '1690135500000'
+  if (_.toInteger(queryParam)) {
+    return _.toInteger(queryParam);
   }
 
-  if (_.toInteger(datetime)) {
-    return _.toInteger(datetime);
-  }
-
-  if (_.isString(datetime)) {
-    return Date.parse(datetime) || null;
+  // arg can be an ISO string, e.g. '2023-07-20T16:00:00.000Z'
+  if (_.isString(queryParam)) {
+    return Date.parse(queryParam) || null;
   }
 
   return null;
-}
+};
 
 export default utils;
