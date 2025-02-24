@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import _ from 'lodash';
@@ -36,23 +36,26 @@ export const getPermissions = (patient, permsOfLoggedInUser) => {
  *
  * @param {boolean} clinicFlowActive
  * @param {String} selectedClinicId
- * @param {Object} query query from the window location object
+ * @param {Object} query 'query' object of the window 'location' object
  * @param {String} patientId
  */
 export const getPatientListLink = (clinicFlowActive, selectedClinicId, query, patientId) => {
-  let patientListLink = clinicFlowActive && selectedClinicId ? '/clinic-workspace/patients' : '/patients';
+  const dashboard = query?.dashboard;
 
-  if (query?.dashboard) {
-    patientListLink = `/dashboard/${query.dashboard}`;
+  if (dashboard && patientId) {
+    return `/dashboard/${dashboard}?drawerPatientId=${patientId}`;
+  }
 
-    if (patientId) {
-      patientListLink += `?drawerPatientId=${patientId}`;
-    }
-  };
+  if (dashboard) {
+    return `/dashboard/${dashboard}`;
+  }
 
-  return { patientListLink };
+  if (clinicFlowActive && selectedClinicId) {
+    return '/clinic-workspace/patients';
+  }
+
+  return '/patients';
 };
-
 /**
  * Returns the name, birthday, and mrn based on combining the relevant data from patient and clinicPatient
  *
@@ -81,14 +84,14 @@ export const uploadUtils = { launchCustomProtocol };
 export const useNavigation = (api, trackMetric) => {
   const { query } = useLocation();
   const dispatch = useDispatch();
+  const [initialQuery] = useState(query || {}); // keep a copy of the original value
 
   const clinicFlowActive = useSelector(state => state.blip.clinicFlowActive);
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const currentPatientInViewId = useSelector(state => state.blip.currentPatientInViewId);
 
-  const { patientListLink } = getPatientListLink(clinicFlowActive, selectedClinicId, query, currentPatientInViewId);
-
   const handleBack = () => {
+    const patientListLink = getPatientListLink(clinicFlowActive, selectedClinicId, initialQuery, currentPatientInViewId);
     trackMetric('Clinic - View patient list', { clinicId: selectedClinicId, source: 'Patient data' });
     dispatch(push(patientListLink));
   };

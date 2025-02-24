@@ -55,7 +55,7 @@ import PopoverMenu from '../../components/elements/PopoverMenu';
 import RadioGroup from '../../components/elements/RadioGroup';
 import DeltaBar from '../../components/elements/DeltaBar';
 import Pill from '../../components/elements/Pill';
-import PatientDrawer from './PatientDrawer';
+import PatientDrawer, { isValidAgpPeriod } from './PatientDrawer';
 import utils from '../../core/utils';
 
 import {
@@ -954,15 +954,23 @@ export const TideDashboard = (props) => {
 
   const drawerPatientId = new URLSearchParams(location.search).get('drawerPatientId') || null;
 
-  // Failsafe to ensure blip.pdf is always cleared out after drawer is closed
+  // Patient Drawer effects
   useEffect(() => {
-    const isOpen = !!drawerPatientId;
+    // If invalid period for AGP (ie. 1 day), clear drawerPatientId from searchParams
+    if (!!drawerPatientId && !!config?.period && !isValidAgpPeriod(config.period)) {
+      const { search, pathname } = location;
 
-    if (!isOpen && !isEmpty(pdf)) {
+      const params = new URLSearchParams(search);
+      params.delete('drawerPatientId');
+      history.replace({ pathname, search: params.toString() });
+    }
+
+    // Failsafe to ensure blip.pdf is always cleared out after drawer is closed
+    if (!drawerPatientId && !isEmpty(pdf)) {
       dispatch(actions.worker.removeGeneratedPDFS());
       dispatch(actions.worker.dataWorkerRemoveDataRequest(null, drawerPatientId));
     }
-  }, [drawerPatientId, pdf]);
+  }, [drawerPatientId, pdf, config, location, history]);
 
   const handleEditPatientConfirm = useCallback(() => {
     trackMetric('Clinic - Edit patient confirmed', { clinicId: selectedClinicId });
@@ -1321,7 +1329,7 @@ export const TideDashboard = (props) => {
       {showDataConnectionsModal && renderDataConnectionsModal()}
 
       <PatientDrawer
-        patientId={showTideDashboardPatientDrawer ? drawerPatientId : null}
+        patientId={drawerPatientId}
         onClose={handleClosePatientDrawer}
         api={api}
         trackMetric={trackMetric}
