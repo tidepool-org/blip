@@ -193,45 +193,21 @@ const AppBannerProvider = ({ children }) => {
       const countExceeded = processedBanner.maxUniqueDaysShown && loggedInUser?.preferences?.[bannerCountKey] > processedBanner.maxUniqueDaysShown;
       const sessionInteraction = bannerInteractedForPatient[processedBanner.id]?.[currentPatientInViewId];
 
-      console.log('latestBannerInteractionTime', processedBanner.id, latestBannerInteractionTime);
+      // Handle any data source banners that may be dismissed and then shown again at a future point
+      if (includes(['dataSourceReconnect', 'dataSourceJustConnected'], processedBanner.id)) {
+        const dataSource = processedBanner.id === 'dataSourceJustConnected' ? justConnectedDataSource : erroredDataSource;
+        const dataSourceModifiedTime = dataSource?.modifiedTime || '';
 
+        const dataSourceBannerWasAcknowledged = !isEmpty(dataSourceModifiedTime)
+          ? latestBannerInteractionTime > dataSourceModifiedTime
+          : !isEmpty(latestBannerInteractionTime);
 
-      // Handle any banner-unique filtering conditions here
-      if (processedBanner.id === 'dataSourceReconnect') {
-        // const dexcomDataSourceModifiedTime = erroredDataSource?.modifiedTime || '';
-        // const dataSourceBannerWasAcknowledged = !isEmpty(dexcomDataSourceModifiedTime)
-        //   ? latestBannerInteractionTime > dexcomDataSourceModifiedTime
-        //   : !isEmpty(latestBannerInteractionTime);
+        // Hide the banner if the currently logged-in patient has interacted with the banner since the data source was last modified
+        if (dataSourceBannerWasAcknowledged) return;
+      } else if (countExceeded || sessionInteraction || latestBannerInteractionTime) {
+        // Handle general banner filtering conditions for non-data source banners
+        return;
       }
-
-      if (processedBanner.id === 'dataSourceJustConnected') {
-
-        console.log('justConnectedDataSource', justConnectedDataSource);
-      }
-
-
-      // TODO: need to also figure out how to handle:
-      // 1. connection error banners that were dismissed/handled, connection was resumed, and fell into error state again
-      //   - I think we handled this with the dismissedBannerTime for the dexcom one, but need to confirm
-
-
-       // Hide the Dexcom banner if the currently logged-in patient has already interacted with the
-      // banner and there hasn't been a Dexcom data source update since
-      // const dexcomDataSourceModifiedTime = dexcomDataSource?.modifiedTime || '';
-      // const dismissedBannerTime = _.get(nextProps, 'user.preferences.dismissedDexcomConnectBannerTime', '');
-      // const clickedBannerTime = _.get(nextProps, 'user.preferences.clickedDexcomConnectBannerTime', '');
-      // const latestBannerInteractionTime = _.max([dismissedBannerTime, clickedBannerTime]);
-
-
-
-
-      // 2. data just connected banners for patient disconnect, and then reconnect
-      //   - do we need to clear the previous banner interation when reconnecting?  Or, again, consider the time.
-      //   - how about the within the same session - do we show it?
-
-
-      if (countExceeded || sessionInteraction ||latestBannerInteractionTime) return;
-
 
       // Banner is a candidtate to be shown
       filteredBanners.push(processedBanner);
