@@ -1213,7 +1213,8 @@ export const PatientDataClass = createReactClass({
         this.handleSwitchToBgLog(targetDate);
         break;
 
-      // If we have no information, we must call setInitialChartView() to derive the default chart type.
+      // At this point, there is insufficient information; we need to call setInitialChartView() to derive
+      // the default chart type for this patient
       default:
         this.setInitialChartView(nextProps);
         break;

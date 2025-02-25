@@ -5019,7 +5019,7 @@ describe('PatientData', function () {
       instance.setInitialChartView();
     });
 
-    describe(('chartType is explicitly targetted in path'), () => {
+    describe(('chartType is explicitly targetted in URL'), () => {
       it('should call `handleSwitchToBasics` when the route changes to `/data/basics`', () => {
         const nextProps = { location: { pathname: '/data/basics' } };
 
@@ -5061,7 +5061,7 @@ describe('PatientData', function () {
       });
     });
 
-    describe('chartType is not specified path', () => {
+    describe('chartType is not specified in URL', () => {
       it('should call `handleSwitchToBasics` when the defaultChartType is set to basics', () => {
         const nextProps = { location: { pathname: '/data' } };
         instance.setState({ defaultChartTypeForPatient: 'basics' });
@@ -5096,6 +5096,16 @@ describe('PatientData', function () {
         instance.handleSwitchToBgLog = sinon.stub();
         instance.handleRouteChangeEvent(nextProps);
         sinon.assert.calledOnce(instance.handleSwitchToBgLog);
+      });
+    });
+
+    describe('chartType is not specified in path and defaultChartTypeForPatient is not set', () => {
+      it('should call setInitialChartView()', () => {
+        const nextProps = { location: { pathname: '/data' } };
+
+        instance.setInitialChartView = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.setInitialChartView);
       });
     });
   });
