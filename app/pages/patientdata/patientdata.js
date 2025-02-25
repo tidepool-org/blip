@@ -1173,7 +1173,7 @@ export const PatientDataClass = createReactClass({
 
   handleRouteChangeEvent: function(nextProps) {
     const targetPath = nextProps.location.pathname;
-    const targetDate = utils.parseDatetimeParamToInteger(nextProps.queryParams.datetime);
+    const targetDate = utils.parseDatetimeParamToInteger(nextProps.queryParams?.datetime);
 
     const isDefaultPath = targetPath.slice(-5) === '/data';
 

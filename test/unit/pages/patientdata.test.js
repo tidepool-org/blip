@@ -5007,6 +5007,99 @@ describe('PatientData', function () {
     });
   });
 
+  describe('handleRouteChangeEvent', function() {
+    const props = {...defaultProps};
+
+    let wrapper;
+    let instance;
+
+    beforeEach(() => {
+      wrapper = shallow(<PatientDataClass {...props} />);
+      instance = wrapper.instance();
+      instance.setInitialChartView();
+    });
+
+    describe(('chartType is explicitly targetted in path'), () => {
+      it('should call `handleSwitchToBasics` when the route changes to `/data/basics`', () => {
+        const nextProps = { location: { pathname: '/data/basics' } };
+
+        instance.handleSwitchToBasics = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToBasics);
+      });
+
+      it('should call `handleSwitchToDaily` when the route changes to `/data/daily`', () => {
+        const nextProps = { location: { pathname: '/data/daily' } };
+
+        instance.handleSwitchToDaily = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToDaily);
+      });
+
+      it('should call `handleSwitchToTrends` when the route changes to `/data/trends`', () => {
+        const nextProps = { location: { pathname: '/data/trends' } };
+
+        instance.handleSwitchToTrends = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToTrends);
+      });
+
+      it('should call `handleSwitchToBgLog` when the route changes to `/data/bgLog`', () => {
+        const nextProps = { location: { pathname: '/data/bgLog' } };
+
+        instance.handleSwitchToBgLog = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToBgLog);
+      });
+
+      it('should call `handleSwitchToSettings` when the route changes to `/data/settings`', () => {
+        const nextProps = { location: { pathname: '/data/settings' } };
+
+        instance.handleSwitchToSettings = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToSettings);
+      });
+    });
+
+    describe('chartType is not specified path', () => {
+      it('should call `handleSwitchToBasics` when the defaultChartType is set to basics', () => {
+        const nextProps = { location: { pathname: '/data' } };
+        instance.setState({ defaultChartTypeForPatient: 'basics' });
+
+        instance.handleSwitchToBasics = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToBasics);
+      });
+
+      it('should call `handleSwitchToDaily` when the defaultChartTypeForPatient is set to Daily', () => {
+        const nextProps = { location: { pathname: '/data' } };
+        instance.setState({ defaultChartTypeForPatient: 'daily' });
+
+        instance.handleSwitchToDaily = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToDaily);
+      });
+
+      it('should call `handleSwitchToTrends` when the defaultChartTypeForPatient is set to Trends', () => {
+        const nextProps = { location: { pathname: '/data' } };
+        instance.setState({ defaultChartTypeForPatient: 'trends' });
+
+        instance.handleSwitchToTrends = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToTrends);
+      });
+
+      it('should call `handleSwitchToBgLog` when the defaultChartTypeForPatient is set to BgLog', () => {
+        const nextProps = { location: { pathname: '/data' } };
+        instance.setState({ defaultChartTypeForPatient: 'bgLog' });
+
+        instance.handleSwitchToBgLog = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToBgLog);
+      });
+    });
+  });
+
   describe('getFetchers', () => {
     const stateProps = {
       fetchingPendingSentInvites: {
