@@ -216,7 +216,7 @@ describe('AppBannerProvider', () => {
     const contextData = JSON.parse(wrapper.find('[data-testid="context"]').text());
     expect(contextData.hasBanner).to.be.true;
     expect(contextData.banner.id).to.equal('dataSourceJustConnected');
-    expect(contextData.processedBanner.bannerArgs).to.eql(['provider1', dataSource]);
+    expect(contextData.processedBanner.bannerArgs).to.eql([providersStub.provider1, dataSource]);
   });
 
   it('should show dataSourceReconnect banner when a data source has an error', () => {
@@ -247,7 +247,7 @@ describe('AppBannerProvider', () => {
 
     expect(contextData.hasBanner).to.be.true;
     expect(contextData.banner.id).to.equal('dataSourceReconnect');
-    expect(contextData.processedBanner.bannerArgs).to.eql([dispatchStub, 'provider1', dataSource]);
+    expect(contextData.processedBanner.bannerArgs).to.eql([dispatchStub, providersStub.provider1, dataSource]);
   });
 
   it('should show uploader banner when user is current patient and has a data source connection but no pump data', () => {
@@ -498,7 +498,7 @@ describe('AppBannerProvider', () => {
 
     expect(contextData.hasBanner).to.be.true;
     expect(contextData.banner.id).to.equal('dataSourceReconnectInvite');
-    expect(contextData.processedBanner.bannerArgs).to.eql([dispatchStub, 'clinic1', stateWithDataSourceReconnectInvite.blip.clinics.clinic1.patients.user1, 'provider1']);
+    expect(contextData.processedBanner.bannerArgs).to.eql([dispatchStub, 'clinic1', stateWithDataSourceReconnectInvite.blip.clinics.clinic1.patients.user1, providersStub.provider1]);
   });
 
   it('should show addEmail banner when user is a custodial patient and has no email', () => {
