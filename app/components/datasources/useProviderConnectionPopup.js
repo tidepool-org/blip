@@ -2,10 +2,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { find, last, min } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { sync, async } from '../../redux/actions';
+import { sync } from '../../redux/actions';
 import { providers } from './DataConnections';
 import { useToasts } from '../../providers/ToastProvider';
-import api from '../../core/api';
 import i18next from '../../core/language';
 
 const t = i18next.t.bind(i18next);
@@ -15,7 +14,6 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500 } = {}) => {
   const { set: setToast } = useToasts();
   const [providerConnectionPopup, setProviderConnectionPopup] = useState(null);
   const authorizedDataSource = useSelector(state => state.blip.authorizedDataSource);
-  const { fetchingDataSources } = useSelector(state => state.blip.working);
 
   const openProviderConnectionPopup = useCallback((url, displayName) => {
     const popupWidth = min([window.innerWidth * .85, 1080]);
@@ -57,7 +55,6 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500 } = {}) => {
 
     timer = setInterval(() => {
       if (!providerConnectionPopup || providerConnectionPopup.closed) {
-        timer && clearInterval(timer);
         dispatch(sync.clearAuthorizedDataSource());
         setProviderConnectionPopup(null);
         return;
@@ -99,6 +96,10 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500 } = {}) => {
         return;
       }
     }, popupWatchTimeout);
+
+    return () => {
+      clearInterval(timer);
+    };
   }, [
     authorizedDataSource?.id,
     dispatch,
