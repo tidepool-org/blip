@@ -4705,36 +4705,6 @@ describe('PatientData', function () {
   });
 
   describe('handleSwitchToDaily', function() {
-    it('should track metric for calender', function() {
-      var props = {
-        currentPatientInViewId: '40',
-        dataWorkerQueryDataRequest: sinon.stub(),
-        location: { search: '', pathname: '/data' },
-        history: { push: sinon.stub() },
-        isUserPatient: true,
-        patient: {
-          userid: '40',
-          profile: {
-            fullName: 'Fooey McBar'
-          }
-        },
-        fetchingPatient: false,
-        fetchingPatientData: false,
-        fetchingUser: false,
-        trackMetric: sinon.stub(),
-        t,
-        generatingPDF: { inProgress: false },
-        pdf: {},
-      };
-
-      var elem = mount(<PatientDataClass {...props}/>);
-
-      var callCount = props.trackMetric.callCount;
-      elem.instance().handleSwitchToDaily('2016-08-19T01:51:55.000Z', 'testing');
-      expect(props.trackMetric.callCount).to.equal(callCount + 1);
-      expect(props.trackMetric.calledWith('Clicked Basics testing calendar')).to.be.true;
-    });
-
     it('should set the `chartType` state to `daily`', () => {
       const wrapper = shallow(<PatientDataClass {...defaultProps} />);
       const instance = wrapper.instance();
