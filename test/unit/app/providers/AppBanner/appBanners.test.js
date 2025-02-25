@@ -130,7 +130,7 @@ describe('appBanners', () => {
     expect(bannerMap.sendVerification.paths).to.eql([pathRegexes.patientData]);
   });
 
-  describe.only('getProps', () => {
+  describe('getProps', () => {
     const dispatchStub = sinon.stub();
     const providerStub = {};
     const clinicIdStub = 'fakeClinicId';

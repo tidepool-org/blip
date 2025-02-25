@@ -1499,7 +1499,7 @@ export function handleBannerInteraction(api, userId, interactionId, interactionT
         };
       }
     } else {
-      const preferenceKey = `${interactionType}${_.upperFirst(interactionId)}BannerTime`;
+      const preferenceKey = `${interactionType}${interactionId}BannerTime`;
 
       preferences = {
         [preferenceKey]: interactionTime,
