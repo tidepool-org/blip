@@ -56,7 +56,7 @@ export const appBanners = [
       action: {
         text: t('Reconnect My Account'),
         metric: 'Data Source Reconnect banner clicked',
-        handler: ({ id, restrictedTokenCreate, dataSourceFilter }) => dispatch(async.connectDataSource(api, id, restrictedTokenCreate, dataSourceFilter)),
+        handler: () => dispatch(async.connectDataSource(api, provider.id, provider.restrictedTokenCreate, provider.dataSourceFilter)),
       },
       dismiss: {
         metric: 'Data Source Reconnect banner dismissed',
