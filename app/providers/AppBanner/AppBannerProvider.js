@@ -192,7 +192,7 @@ const AppBannerProvider = ({ children }) => {
 
       const bannerCountKey = `seen${processedBanner.interactionId}BannerCount`;
       const countExceeded = processedBanner.maxUniqueDaysShown && loggedInUser?.preferences?.[bannerCountKey] > processedBanner.maxUniqueDaysShown;
-      const sessionInteraction = bannerInteractedForPatient[processedBanner.id]?.[currentPatientInViewId];
+      const sessionInteraction = bannerInteractedForPatient[processedBanner.interactionId]?.[currentPatientInViewId];
 
       // Handle any banners with outdate previous interactions that may be candidates for display again
       if (processedBanner?.ignoreBannerInteractionsBeforeTime) {
