@@ -1195,11 +1195,9 @@ export const PatientDataClass = createReactClass({
         this.handleSwitchToBgLog(targetDate);
         break;
 
-      // If the chart is not specified in the URL, we should switch to the patient's default chart type.
-
-      // state.defaultChartTypeForPatient will only exist if the user has visited the data view before. If
-      // the user is navigating to '/data' and defaultChartTypeForPatient does exist, we should use its stored
-      // value rather than calling setInitialChartView() again to derive the patient's default chart type.
+      // If the chart is not specified in the URL, we should switch to the patient's default chart type,
+      // which is derived from the patient's data values. If state.defaultChartTypeForPatient
+      // exists, we should use its value rather than deriving it again using setInitialChartView().
       case isDefaultPath && this.state.defaultChartTypeForPatient === 'basics':
         this.handleSwitchToBasics();
         break;
@@ -1226,31 +1224,34 @@ export const PatientDataClass = createReactClass({
     this.props.history.push(`/patients/${this.props.currentPatientInViewId}/data/basics`);
   },
 
-  handleSwitchToDailyRoute: function(datetime) {
-    let targetPath = `/patients/${this.props.currentPatientInViewId}/data/daily`;
-    const targetDate = utils.parseDatetimeParamToInteger(datetime);
+  handleSwitchToDailyRoute: function(isoOrUnixTimestamp) {
+    // Arg may be ISO or unix timestamp due to variability in underlying components
+    const datetime = utils.parseDatetimeParamToInteger(isoOrUnixTimestamp);
+    let path = `/patients/${this.props.currentPatientInViewId}/data/daily`;
 
-    if (targetDate) targetPath += `?datetime=${targetDate}`;
+    if (datetime) path += `?datetime=${datetime}`;
 
-    this.props.history.push(targetPath);
+    this.props.history.push(path);
   },
 
-  handleSwitchToTrendsRoute: function(datetime) {
-    let targetPath = `/patients/${this.props.currentPatientInViewId}/data/trends`;
-    const targetDate = utils.parseDatetimeParamToInteger(datetime);
+  handleSwitchToTrendsRoute: function(isoOrUnixTimestamp) {
+    // Arg may be ISO or unix timestamp due to variability in underlying components
+    const datetime = utils.parseDatetimeParamToInteger(isoOrUnixTimestamp);
+    let path = `/patients/${this.props.currentPatientInViewId}/data/trends`;
 
-    if (targetDate) targetPath += `?datetime=${targetDate}`;
+    if (datetime) path += `?datetime=${datetime}`;
 
-    this.props.history.push(targetPath);
+    this.props.history.push(path);
   },
 
-  handleSwitchToBgLogRoute: function(datetime) {
-    let targetPath = `/patients/${this.props.currentPatientInViewId}/data/bgLog`;
-    const targetDate = utils.parseDatetimeParamToInteger(datetime);
+  handleSwitchToBgLogRoute: function(isoOrUnixTimestamp) {
+    // Arg may be ISO or unix timestamp due to variability in underlying components
+    const datetime = utils.parseDatetimeParamToInteger(isoOrUnixTimestamp);
+    let path = `/patients/${this.props.currentPatientInViewId}/data/bgLog`;
 
-    if (targetDate) targetPath += `?datetime=${targetDate}`;
+    if (datetime) path += `?datetime=${datetime}`;
 
-    this.props.history.push(targetPath);
+    this.props.history.push(path);
   },
 
   handleSwitchToSettingsRoute: function(e) {
@@ -1844,7 +1845,7 @@ export const PatientDataClass = createReactClass({
         // With initial query for upload data completed, set the initial chart type
         if (!this.state.chartType) {
           const { defaultChartTypeForPatient } = this.setInitialChartView(nextProps);
-          stateUpdates.defaultChartTypeForPatient = defaultChartTypeForPatient;
+          stateUpdates.defaultChartTypeForPatient = defaultChartTypeForPatient; // cache value for future route changes
 
           window.patientData = 'No patient data has been loaded yet. Run `window.loadPatientData()` to popuplate this.'
           window.loadPatientData = this.saveDataToDestination.bind(this, 'window');
