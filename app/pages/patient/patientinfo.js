@@ -737,7 +737,7 @@ var PatientInfo = withTranslation()(class extends React.Component {
     }
 
     if (personUtils.isClinicianAccount(this.props.user)) {
-      if (!formValues.mrn && updatedPatientProfile.mrn) {
+      if (_.isEmpty(formValues.mrn)) {
         delete updatedPatientProfile.mrn;
       } else {
         updatedPatientProfile.mrn = formValues.mrn;

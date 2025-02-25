@@ -4,7 +4,7 @@
     "node": "20.8.0"
   },
   "packageManager": "yarn@3.6.4",
-  "version": "1.84.0-web-3275-patient-data-source-management.2",
+  "version": "1.84.0-web-3395-banner-overhaul.3",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' yarn karma start",
@@ -180,7 +180,7 @@
     "terser": "5.22.0",
     "terser-webpack-plugin": "5.3.9",
     "theme-ui": "0.16.1",
-    "tideline": "1.31.0-web-3274-device-settings-data-sources.1",
+    "tideline": "1.31.0-WEB-3415-blood-glucose-heading-update.1",
     "tidepool-platform-client": "0.62.0-web-3400-strip-clinic-patient-update-fields.1",
     "tidepool-standard-action": "0.1.1",
     "ua-parser-js": "1.0.36",

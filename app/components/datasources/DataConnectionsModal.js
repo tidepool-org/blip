@@ -224,7 +224,6 @@ export const DataConnectionsModal = (props) => {
           )}
 
           {showPatientEmailModal && <PatientEmailModal
-            action="edit"
             open
             onClose={handleEditPatientEmailClose}
             onFormChange={handleEditPatientEmailFormChange}

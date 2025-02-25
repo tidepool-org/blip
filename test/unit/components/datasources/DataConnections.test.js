@@ -50,7 +50,7 @@ describe('providers', () => {
     expect(dexcom.logoImage).to.be.a('string');
 
     expect(abbott.id).to.equal('oauth/abbott');
-    expect(abbott.displayName).to.equal('Freestyle Libre');
+    expect(abbott.displayName).to.equal('FreeStyle Libre');
     expect(abbott.restrictedTokenCreate).to.eql({ paths: ['/v1/oauth/abbott'] });
     expect(abbott.dataSourceFilter).to.eql({ providerType: 'oauth', providerName: 'abbott' });
     expect(abbott.logoImage).to.be.a('string');
@@ -204,7 +204,7 @@ describe('getConnectStateUI', () => {
       const UIJustSent = getConnectStateUI(clinicPatientJustSent, false, 'provider123');
 
       expect(UI.noPendingConnections.message).to.equal(null);
-      expect(UI.noPendingConnections.text).to.equal('No Pending Connections');
+      expect(UI.noPendingConnections.text).to.equal(null);
       expect(UI.noPendingConnections.handler).to.equal('sendInvite');
 
       expect(UI.inviteJustSent.message).to.equal(null);
@@ -547,12 +547,12 @@ describe('DataConnections', () => {
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
-        expect(dexcomConnection.find('.state-text').hostNodes().text()).to.equal('No Pending Connections');
+        expect(dexcomConnection.find('.state-text')).to.have.lengthOf(0);
         expect(dexcomConnection.find('.state-message')).to.have.lengthOf(0);
 
         const abbottConnection = wrapper.find('#data-connection-abbott').hostNodes();
         expect(abbottConnection).to.have.lengthOf(1);
-        expect(abbottConnection.find('.state-text').hostNodes().text()).to.equal('No Pending Connections');
+        expect(abbottConnection.find('.state-text')).to.have.lengthOf(0);
         expect(abbottConnection.find('.state-message')).to.have.lengthOf(0);
       });
 

@@ -40,60 +40,6 @@ describe('Actions', () => {
       });
     });
 
-    describe('showBanner', () => {
-      it('should be a TSA', () => {
-        let action = sync.showBanner();
-
-        expect(isTSA(action)).to.be.true;
-      });
-
-      it('type should equal SHOW_BANNER', () => {
-        let action = sync.showBanner();
-        expect(action.type).to.equal('SHOW_BANNER');
-      });
-
-      it('should set the payload `type` from argument', () => {
-        let action = sync.showBanner('myType');
-        expect(action.payload.type).to.equal('myType');
-      });
-    });
-
-    describe('hideBanner', () => {
-      it('should be a TSA', () => {
-        let action = sync.hideBanner();
-
-        expect(isTSA(action)).to.be.true;
-      });
-
-      it('type should equal HIDE_BANNER', () => {
-        let action = sync.hideBanner();
-        expect(action.type).to.equal('HIDE_BANNER');
-      });
-
-      it('should set the payload `type` from argument', () => {
-        let action = sync.hideBanner('myType');
-        expect(action.payload.type).to.equal('myType');
-      });
-    });
-
-    describe('dismissBanner', () => {
-      it('should be a TSA', () => {
-        let action = sync.dismissBanner();
-
-        expect(isTSA(action)).to.be.true;
-      });
-
-      it('type should equal DISMISS_BANNER', () => {
-        let action = sync.dismissBanner();
-        expect(action.type).to.equal('DISMISS_BANNER');
-      });
-
-      it('should set the payload `type` from argument', () => {
-        let action = sync.dismissBanner('myType');
-        expect(action.payload.type).to.equal('myType');
-      });
-    });
-
     describe('acknowledgeNotification', () => {
       it('should be a TSA', () => {
         let action = sync.acknowledgeNotification();
@@ -1184,22 +1130,25 @@ describe('Actions', () => {
     });
 
     describe('updatePreferencesSuccess', () => {
+      const patientId = '1234';
       it('should be a TSA', () => {
         let preference = {
           display: 'all'
         };
-        let action = sync.updatePreferencesSuccess(preference);
+        let action = sync.updatePreferencesSuccess(patientId, preference);
 
         expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal UPDATE_PREFERENCES_SUCCESS', () => {
+        const patientId = '1234';
         let preference = {
           display: 'all'
         };
-        let action = sync.updatePreferencesSuccess(preference);
+        let action = sync.updatePreferencesSuccess(patientId, preference);
 
         expect(action.type).to.equal('UPDATE_PREFERENCES_SUCCESS');
+        expect(action.payload.patientId).to.equal('1234');
         expect(action.payload.updatedPreferences).to.equal(preference);
       });
     });

@@ -12,6 +12,11 @@ var _ = require('lodash');
 
 import { mount, shallow } from 'enzyme';
 import mutationTracker from 'object-invariant-test-helper';
+import { Provider } from 'react-redux';
+import configureStore from 'redux-mock-store';
+import thunk from 'redux-thunk';
+import { BrowserRouter } from 'react-router-dom';
+
 import {
   mapStateToProps,
   getFetchers,
@@ -20,6 +25,8 @@ import initialState from '../../../app/redux/reducers/initialState';
 import LDClientMock from '../../fixtures/LDClientMock';
 
 import * as ErrorMessages from '../../../app/redux/constants/errorMessages';
+import { ToastProvider } from '../../../app/providers/ToastProvider.js';
+import { AppBannerProvider } from '../../../app/providers/AppBanner/AppBannerProvider.js';
 
 var AppWrapper = require('../../../app/pages/app/app.js');
 var App = require('../../../app/pages/app/app.js').AppComponent;
@@ -28,9 +35,9 @@ var personUtils = require('../../../app/core/personutils');
 
 var assert = chai.assert;
 var expect = chai.expect;
+const mockStore = configureStore([thunk]);
 
 describe('App', () => {
-
   const defaultLDContext = {
     kind: 'multi',
     user: { key: 'anon' },
@@ -48,8 +55,47 @@ describe('App', () => {
       personUtils: personUtils,
       trackMetric: sinon.stub(),
     },
-    updateShareDataBannerSeen: sinon.stub(),
     ldClient: new LDClientMock(defaultLDContext),
+  };
+
+  const defaultWorkingState = {
+    inProgress: false,
+    completed: null,
+    notification: null,
+  };
+
+  const defaultState = {
+    blip: {
+      authorizedDataSource: null,
+      working: {
+        fetchingDataSources: defaultWorkingState,
+      },
+      allUsersMap: {},
+      clinics: {},
+      loggedInUserId: 'patient123',
+      membersOfTargetCareTeam: {},
+      pendingSentInvites: {},
+      permissionsOfMembersInTargetCareTeam: {},
+      data: {}
+    },
+  };
+
+  const store = mockStore(defaultState);
+
+  const providerWrapper = store => props => {
+    const { children } = props;
+
+    return (
+      <Provider store={store}>
+        <ToastProvider>
+          <BrowserRouter>
+            <AppBannerProvider>
+              {children}
+            </AppBannerProvider>
+          </BrowserRouter>
+        </ToastProvider>
+      </Provider>
+    );
   };
 
   describe('constructor', () => {
@@ -77,22 +123,6 @@ describe('App', () => {
     beforeEach(() => {
       wrapper = shallow(<App {...props} />);
     });
-
-    it('should set the `uploaderBanner.metricTrackedForPatient` state to an empty object', () => {
-      expect(wrapper.state().uploaderBanner.metricTrackedForPatient).to.eql({});
-    });
-
-    it('should set the `shareDataBanner.metricTrackedForPatient` state to an empty object', () => {
-      expect(wrapper.state().shareDataBanner.metricTrackedForPatient).to.eql({});
-    });
-
-    it('should set the `donateBanner.metricTrackedForPatient` state to an empty object', () => {
-      expect(wrapper.state().donateBanner.metricTrackedForPatient).to.eql({});
-    });
-
-    it('should set the `updateTypeBanner.metricTrackedForPatient` state to an empty object', () => {
-      expect(wrapper.state().updateTypeBanner.metricTrackedForPatient).to.eql({});
-    });
   });
 
   describe('render', () => {
@@ -117,17 +147,16 @@ describe('App', () => {
         onLogout: sinon.stub()
       });
 
-      var elem = mount(<App {...props}/>);
+      var elem = mount(<App {...props} />, { wrappingComponent: providerWrapper(store) });
       expect(elem).to.be.ok;
       var app = elem.find('.app');
       expect(app).to.be.ok;
     });
 
-
     it('should console.error when required props not provided', () => {
       console.error = sinon.stub();
 
-      var elem = mount(<App {...baseProps}/>);
+      var elem = mount(<App {...baseProps} />, { wrappingComponent: providerWrapper(store) });
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(11);
       var app = elem.find('.app');
@@ -135,7 +164,7 @@ describe('App', () => {
     });
 
     it('should render footer', () => {
-      var elem = mount(<App {...baseProps} />);
+      var elem = mount(<App {...baseProps} />, { wrappingComponent: providerWrapper(store) });
       var footer = elem.find('.footer');
       expect(footer).to.be.ok;
     });
@@ -143,7 +172,7 @@ describe('App', () => {
     it('should not render a version element when version not set in config', () => {
       var props = _.clone(baseProps);
       props.context.config = { VERSION : null };
-      var elem = mount(<App {...props} />);
+      var elem = mount(<App {...props} />, { wrappingComponent: providerWrapper(store) });
       var versionElems = elem.find('.Navbar-version');
       expect(versionElems.length).to.equal(0);
     });
@@ -151,7 +180,7 @@ describe('App', () => {
     it('should render version and hostname when version present in config', () => {
       var props = _.clone(baseProps);
       props.context.config = { VERSION : 1.4 };
-      var elem = mount(<App {...props} />);
+      var elem = mount(<App {...props} />, { wrappingComponent: providerWrapper(store) });
       var versionElems = elem.find('.Version');
       expect(versionElems.length).to.equal(1);
       expect(versionElems.text()).to.equal('v1.4-localhost');
@@ -160,7 +189,7 @@ describe('App', () => {
     it('should include api enviroment in version when available', () => {
       var props = _.clone(baseProps);
       props.context.config = { VERSION : 1.4, API_HOST: 'qa2.development.tidepool.org' };
-      var elem = mount(<App {...props} />);
+      var elem = mount(<App {...props} />, { wrappingComponent: providerWrapper(store) });
       var versionElems = elem.find('.Version');
       expect(versionElems.length).to.equal(1);
       expect(versionElems.text()).to.equal('v1.4-localhost-qa2');
@@ -169,7 +198,7 @@ describe('App', () => {
     it('should not include the hostname in version if it matches api environment', () => {
       var props = _.clone(baseProps);
       props.context.config = { VERSION : 1.4, API_HOST: 'localhost.tidepool.org' };
-      var elem = mount(<App {...props} />);
+      var elem = mount(<App {...props} />, { wrappingComponent: providerWrapper(store) });
       var versionElems = elem.find('.Version');
       expect(versionElems.length).to.equal(1);
       expect(versionElems.text()).to.equal('v1.4-localhost');
@@ -178,227 +207,15 @@ describe('App', () => {
     it('should not include hostname or api enviroment in version for production environment', () => {
       var props = _.clone(baseProps);
       props.context.config = { VERSION : 1.4, API_HOST: 'app.tidepool.org' };
-      var elem = mount(<App {...props} />);
+      var elem = mount(<App {...props} />, { wrappingComponent: providerWrapper(store) });
       var versionElems = elem.find('.Version');
       expect(versionElems.length).to.equal(1);
       expect(versionElems.text()).to.equal('v1.4');
     });
   });
 
-  describe('renderPatientLimitBanner', () => {
-    let props = _.assign({}, baseProps, {
-      showingPatientLimitBanner: null,
-      showBanner: sinon.stub(),
-      hideBanner: sinon.stub(),
-      dismissBanner: sinon.stub(),
-      t: sinon.stub().callsFake((string) => string),
-      user: {},
-    });
-
-    let wrapper;
-    beforeEach(() => {
-      wrapper = shallow(<App {...props} />);
-    });
-
-    it('should render the banner or not based on the `showingPatientLimitBanner` prop value', () => {
-      wrapper.setProps({ showingPatientLimitBanner: true });
-      expect(wrapper.find('#patientLimitBanner').length).to.equal(1);
-
-      wrapper.setProps({ showingPatientLimitBanner: null });
-      expect(wrapper.find('#patientLimitBanner').length).to.equal(0);
-
-      wrapper.setProps({ showingPatientLimitBanner: false });
-      expect(wrapper.find('#patientLimitBanner').length).to.equal(0);
-    });
-  });
-
-  describe('renderUploaderBanner', () => {
-    let props = _.assign({}, baseProps, {
-      showingUploaderBanner: null,
-      onClickUploaderBanner: sinon.stub(),
-      onDismissUploaderBanner: sinon.stub(),
-      showBanner: sinon.stub(),
-      hideBanner: sinon.stub(),
-      user: {},
-    });
-
-    let wrapper;
-    beforeEach(() => {
-      wrapper = shallow(<App {...props} />);
-    });
-
-    it('should render the banner or not based on the `showingUploaderBanner` prop value', () => {
-      wrapper.setProps({ showingUploaderBanner: true });
-      expect(wrapper.find('.App-uploaderbanner').length).to.equal(1);
-
-      wrapper.setProps({ showingUploaderBanner: null });
-      expect(wrapper.find('.App-uploaderbanner').length).to.equal(0);
-
-      wrapper.setProps({ showingUploaderBanner: false });
-      expect(wrapper.find('.App-uploaderbanner').length).to.equal(0);
-    });
-  });
-
-  describe('renderShareDataBanner', () => {
-    let props = _.assign({}, baseProps, {
-      showingShareDataBanner: null,
-      onClickShareDataBanner: sinon.stub(),
-      onDismissShareDataBanner: sinon.stub(),
-      showBanner: sinon.stub(),
-      hideBanner: sinon.stub(),
-      patient: {},
-    });
-
-    let wrapper;
-    beforeEach(() => {
-      wrapper = shallow(<App {...props} />);
-    });
-
-    it('should render the banner or not based on the `showingShareDataBanner` prop value', () => {
-      wrapper.setProps({ showingShareDataBanner: true });
-      expect(wrapper.find('.App-sharedatabanner').length).to.equal(1);
-
-      wrapper.setProps({ showingShareDataBanner: null });
-      expect(wrapper.find('.App-sharedatabanner').length).to.equal(0);
-
-      wrapper.setProps({ showingShareDataBanner: false });
-      expect(wrapper.find('.App-sharedatabanner').length).to.equal(0);
-    });
-  });
-
-  describe('renderDonateBanner', () => {
-    let props = _.assign({}, baseProps, {
-      showingDonateBanner: null,
-      onDismissDonateBanner: sinon.stub(),
-      onUpdateDataDonationAccounts: sinon.stub(),
-      showBanner: sinon.stub(),
-      hideBanner: sinon.stub(),
-      patient: {},
-      userIsDonor: true,
-    });
-
-    let wrapper;
-    beforeEach(() => {
-      wrapper = shallow(<App {...props} />);
-    });
-
-    it('should render the banner or not based on the `showingDonateBanner` prop value', () => {
-      wrapper.setProps({ showingDonateBanner: true });
-      expect(wrapper.find('.App-donatebanner').length).to.equal(1);
-
-      wrapper.setProps({ showingDonateBanner: null });
-      expect(wrapper.find('.App-donatebanner').length).to.equal(0);
-
-      wrapper.setProps({ showingDonateBanner: false });
-      expect(wrapper.find('.App-donatebanner').length).to.equal(0);
-    });
-  });
-
-  describe('renderDexcomConnectBanner', () => {
-    let props = _.assign({}, baseProps, {
-      showingDexcomConnectBanner: null,
-      onClickDexcomConnectBanner: sinon.stub(),
-      onDismissDexcomConnectBanner: sinon.stub(),
-      showBanner: sinon.stub(),
-      hideBanner: sinon.stub(),
-      patient: {},
-    });
-
-    let wrapper;
-    beforeEach(() => {
-      wrapper = shallow(<App {...props} />);
-    });
-
-    it('should render the banner or not based on the `showingDexcomConnectBanner` prop value', () => {
-      wrapper.setProps({ showingDexcomConnectBanner: true });
-      expect(wrapper.find('.App-dexcombanner').length).to.equal(1);
-
-      wrapper.setProps({ showingDexcomConnectBanner: null });
-      expect(wrapper.find('.App-dexcombanner').length).to.equal(0);
-
-      wrapper.setProps({ showingDexcomConnectBanner: false });
-      expect(wrapper.find('.App-dexcombanner').length).to.equal(0);
-    });
-  });
-
-  describe('renderUpdateTypeBanner', () => {
-    let props = _.assign({}, baseProps, {
-      showingUpdateTypeBanner: null,
-      onClickUpdateTypeBanner: sinon.stub(),
-      onDismissUpdateTypeBanner: sinon.stub(),
-      showBanner: sinon.stub(),
-      hideBanner: sinon.stub(),
-      patient: {},
-    });
-
-    let wrapper;
-    beforeEach(() => {
-      wrapper = shallow(<App {...props} />);
-    });
-
-    it('should render the banner or not based on the `showingUpdateTypeBanner` prop value', () => {
-      wrapper.setProps({ showingUpdateTypeBanner: true });
-      expect(wrapper.find('.App-updatetypebanner').length).to.equal(1);
-
-      wrapper.setProps({ showingUpdateTypeBanner: null });
-      expect(wrapper.find('.App-updatetypebanner').length).to.equal(0);
-
-      wrapper.setProps({ showingUpdateTypeBanner: false });
-      expect(wrapper.find('.App-updatetypebanner').length).to.equal(0);
-    });
-  });
-
-  describe('renderEmailBanner', () => {
-    let props = _.assign({}, baseProps, {
-      showingDexcomConnectBanner: null,
-      onClickDexcomConnectBanner: sinon.stub(),
-      onDismissDexcomConnectBanner: sinon.stub(),
-      showBanner: sinon.stub(),
-      hideBanner: sinon.stub(),
-      patient: {},
-      resendEmailVerificationProgress: false,
-      resentEmailVerification: false,
-    });
-
-    let wrapper;
-    beforeEach(() => {
-      wrapper = shallow(<App {...props} />);
-    });
-
-    it('should render the banner or not based on the patient username and permsOfLoggedInUser prop values', () => {
-      expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
-      expect(wrapper.find('.App-sendverificationbanner').length).to.equal(0);
-
-      wrapper.setProps({ patient: { username: 'someEmail' }, clinicPatient: {}, permsOfLoggedInUser: { custodian: {} } });
-      expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
-      expect(wrapper.find('.App-sendverificationbanner').length).to.equal(1);
-
-      wrapper.setProps({ patient: {}, clinicPatient: { email: 'someEmail' }, permsOfLoggedInUser: { custodian: {} } });
-      expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
-      expect(wrapper.find('.App-sendverificationbanner').length).to.equal(1);
-
-      wrapper.setProps({ patient: {}, clinicPatient: {}, permsOfLoggedInUser: { custodian:{}} });
-      expect(wrapper.find('.App-addemailbanner').length).to.equal(1);
-      expect(wrapper.find('.App-sendverificationbanner').length).to.equal(0);
-
-      wrapper.setProps({ patient: {}, clinicPatient: {}, permsOfLoggedInUser: {} });
-      expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
-      expect(wrapper.find('.App-sendverificationbanner').length).to.equal(0);
-
-      wrapper.setProps({ patient: { username: 'someEmail' }, clinicPatient: {}, permsOfLoggedInUser: {} });
-      expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
-      expect(wrapper.find('.App-sendverificationbanner').length).to.equal(0);
-
-      wrapper.setProps({ patient: {}, clinicPatient: { email: 'someEmail' }, permsOfLoggedInUser: {} });
-      expect(wrapper.find('.App-addemailbanner').length).to.equal(0);
-      expect(wrapper.find('.App-sendverificationbanner').length).to.equal(0);
-    });
-  });
-
   describe('componentWillReceiveProps', () => {
     let props = _.assign({}, baseProps, {
-      showBanner: sinon.stub(),
-      hideBanner: sinon.stub(),
       currentPatientInViewId: 'patient123',
       context: {
         log: sinon.stub(),
@@ -413,8 +230,6 @@ describe('App', () => {
     });
 
     afterEach(() => {
-      props.showBanner.reset();
-      props.hideBanner.reset();
       props.context.trackMetric.reset();
     });
 
@@ -459,534 +274,18 @@ describe('App', () => {
         sinon.assert.calledWith(ldClient.identify, updatedLDContext);
       });
     });
-
-    context('user has uploaded data, dismissed the uploader banner, and has not shared data with a clinician', () => {
-      it('should show the share data banner, but only if user is on a patient data view', () => {
-        wrapper.setProps({
-          userIsCurrentPatient: true,
-          userHasData: true,
-          patient: {
-            userid: '1234'
-          },
-          showingUploaderBanner: false,
-          updateShareDataBannerSeen: sinon.stub(),
-        });
-        sinon.assert.callCount(props.showBanner, 0);
-
-        wrapper.setProps({ location: '/patients/1234/data' })
-        expect(wrapper.find('.App-sharedatabanner')).to.have.lengthOf(0);
-        sinon.assert.calledWith(props.showBanner, 'sharedata');
-        wrapper.setProps({ ...wrapper.props, showingShareDataBanner: true });
-
-        sinon.assert.callCount(props.context.trackMetric, 1);
-        sinon.assert.calledWith(props.context.trackMetric, 'Share Data banner displayed');
-        expect(wrapper.find('.App-sharedatabanner')).to.have.lengthOf(1);
-      });
-
-      it('should not show the share data banner if user has dismissed it', () => {
-        wrapper.setProps({
-          userIsCurrentPatient: true,
-          userHasData: true,
-          location: '/patients/1234/data',
-          patient: {
-            userid: '1234'
-          },
-          showingUploaderBanner: false,
-          updateShareDataBannerSeen: sinon.stub(),
-        });
-
-        sinon.assert.calledWith(props.showBanner, 'sharedata');
-        props.showBanner.reset();
-
-        wrapper.setProps({
-          showingShareDataBanner: false,
-        });
-
-        sinon.assert.neverCalledWithMatch(props.showBanner, 'sharedata');
-      });
-
-      it('should not show the share data banner if user has seen it three times', () => {
-        wrapper.setProps({
-          userIsCurrentPatient: true,
-          userHasData: true,
-          location: '/patients/1234/data',
-          patient: {
-            userid: '1234'
-          },
-          showingUploaderBanner: false,
-          seenShareDataBannerMax: true,
-        });
-
-        sinon.assert.neverCalledWithMatch(props.showBanner, 'sharedata');
-      });
-    });
-
-    context('user has uploaded data and has shared data with a clinician', () => {
-      it('should not show the share data banner', () => {
-        wrapper.setProps({
-          userIsCurrentPatient: true,
-          userHasData: true,
-          userHasSharedDataWithClinician: true,
-          patient: {
-            userid: '1234'
-          },
-          showingUploaderBanner: false,
-          updateShareDataBannerSeen: sinon.stub(),
-        });
-
-        sinon.assert.neverCalledWithMatch(props.showBanner, 'sharedata');
-
-      });
-    });
-
-    context('user has uploaded data, dismissed the uploader banner, dismissed share data banner, and has not donated data', () => {
-      it('should show the donate banner, but only if user is on a patient data view', () => {
-        wrapper.setProps({
-          userIsCurrentPatient: true,
-          userHasData: true,
-          showingUploaderBanner: false,
-          showingShareDataBanner: false,
-        });
-
-        sinon.assert.callCount(props.showBanner, 0);
-        expect(wrapper.find('.App-donatebanner')).to.have.lengthOf(0);
-
-        wrapper.setProps({ location: '/patients/1234/data' })
-        sinon.assert.calledWith(props.showBanner, 'donate');
-        wrapper.setProps({ ...wrapper.props, showingDonateBanner: true });
-
-        sinon.assert.callCount(props.context.trackMetric, 1);
-        sinon.assert.calledWith(props.context.trackMetric, 'Big Data banner displayed');
-        expect(wrapper.find('.App-donatebanner')).to.have.lengthOf(1);
-      });
-
-      it('should not show the donate banner if user has dismissed it', () => {
-        wrapper.setProps({
-          userIsCurrentPatient: true,
-          userHasData: true,
-          showingUploaderBanner: false,
-          showingShareDataBanner: false,
-          location: '/patients/1234/data',
-        });
-
-        sinon.assert.calledWith(props.showBanner, 'donate');
-        props.showBanner.reset();
-
-        wrapper.setProps({
-          showingDonateBanner: false,
-        });
-
-        sinon.assert.neverCalledWithMatch(props.showBanner, 'donate');
-      });
-    });
-
-    context('enforced clinic patient limit has been reached', () => {
-      it('should show the patientLimit banner, but only if user is on a clinic workspace view', () => {
-        wrapper.setProps({
-          clinics: {
-            clinicId123: {
-              patientLimitEnforced: true,
-              ui: { warnings: { limitReached: 'yep' } }
-            },
-          },
-          location: '/patients/1234/data',
-          selectedClinicId: 'clinicId123',
-          showingPatientLimitBanner: null,
-          t: sinon.stub().callsFake((string) => string),
-        });
-
-        sinon.assert.callCount(props.showBanner, 0);
-        expect(wrapper.find('#patientLimitBanner')).to.have.lengthOf(0);
-
-        wrapper.setProps({ location: '/clinic-workspace/patients' })
-        sinon.assert.calledWith(props.showBanner, 'patientLimit');
-        wrapper.setProps({ ...wrapper.props, showingPatientLimitBanner: true });
-
-        sinon.assert.callCount(props.context.trackMetric, 1);
-        sinon.assert.calledWith(props.context.trackMetric, 'Patient limit banner: displayed');
-        expect(wrapper.find('#patientLimitBanner')).to.have.lengthOf(1);
-      });
-
-      it('should not show the donate banner if user has dismissed it', () => {
-        wrapper.setProps({
-          clinics: {
-            clinicId123: {
-              patientLimitEnforced: true,
-              ui: { warnings: { limitReached: 'yep' } }
-            },
-          },
-          location: '/clinic-workspace/patients',
-          selectedClinicId: 'clinicId123',
-          showingPatientLimitBanner: null,
-        });
-
-        sinon.assert.calledWith(props.showBanner, 'patientLimit');
-        props.showBanner.reset();
-
-        wrapper.setProps({
-          showingPatientLimitBanner: false,
-        });
-
-        sinon.assert.neverCalledWithMatch(props.showBanner, 'patientLimit');
-      });
-    });
-
-    context('user has not uploaded data and has not donated data', () => {
-      it('should not show the banner', () => {
-        wrapper.setProps({
-          userIsCurrentPatient: true,
-          userHasData: false,
-          showingDonateBanner: true,
-          location: '/patients/1234/data',
-        });
-
-        sinon.assert.neverCalledWith(props.showBanner, 'donate');
-        sinon.assert.callCount(props.hideBanner, 1);
-        sinon.assert.calledWith(props.hideBanner, 'donate');
-      });
-    });
-
-    context('user has uploaded data but is not the current patient in view', () => {
-      it('should not show the banner', () => {
-        wrapper.setProps({
-          userIsCurrentPatient: false,
-          userHasData: true,
-          showingDonateBanner: true,
-          location: '/patients/1234/data',
-        });
-
-        sinon.assert.neverCalledWith(props.showBanner, 'donate');
-        sinon.assert.callCount(props.hideBanner, 1);
-        sinon.assert.calledWith(props.hideBanner, 'donate');
-      });
-    });
-
-    context('user has dismissed the uploader banner, dismissed the share data banner, uploaded data and has donated data, but not chosen a nonprofit to share proceeds with', () => {
-      it('should show the banner', () => {
-        wrapper.setProps({
-          userIsCurrentPatient: true,
-          userHasData: true,
-          showingUploaderBanner: false,
-          showingShareDataBanner: false,
-          showingDonateBanner: true,
-          userIsSupportingNonprofit: false,
-          location: '/patients/1234/data',
-        });
-
-        sinon.assert.calledWith(props.showBanner, 'donate');
-        sinon.assert.callCount(props.context.trackMetric, 1);
-        sinon.assert.calledWith(props.context.trackMetric, 'Big Data banner displayed');
-      });
-    });
-
-    context('user has uploaded data and has donated data and has chosen a nonprofit to share proceeds with', () => {
-      it('should hide the donate banner', () => {
-        wrapper.setProps({
-          userHasUploadedData: true,
-          showingDonateBanner: true,
-          userIsSupportingNonprofit: true,
-          location: '/patients/1234/data',
-        });
-
-        sinon.assert.callCount(props.hideBanner, 1);
-        sinon.assert.calledWith(props.hideBanner, 'donate');
-      });
-    });
-
-    context('donate banner is showing', () => {
-      it('should not show the dexcom banner', () => {
-        wrapper.setProps({
-          userIsCurrentPatient: true,
-          userHasData: true,
-          location: '/patients/1234/data',
-          showingUploaderBanner: false,
-          showingShareDataBanner: false,
-          showingDonateBanner: true,
-        });
-
-        expect(wrapper.find('.App-donatebanner')).to.have.lengthOf(1);
-        expect(wrapper.find('.App-dexcombanner')).to.have.lengthOf(0);
-        sinon.assert.calledWithMatch(props.showBanner, 'donate');
-        sinon.assert.calledWith(props.context.trackMetric, 'Big Data banner displayed');
-      });
-
-      it('should only track the display banner metric once per patient', () => {
-        wrapper.setProps({
-          userIsCurrentPatient: true,
-          userHasData: true,
-          location: '/patients/1234/data',
-          showingUploaderBanner: false,
-          showingShareDataBanner: false,
-          showingDonateBanner: true,
-        });
-
-        expect(wrapper.find('.App-donatebanner')).to.have.lengthOf(1);
-        sinon.assert.callCount(props.context.trackMetric, 1);
-
-        wrapper.setProps({});
-        wrapper.setProps({});
-
-        sinon.assert.callCount(props.context.trackMetric, 1);
-
-        wrapper.setProps({
-          userIsCurrentPatient: true,
-          currentPatientInViewId: 'patient456',
-          userHasData: true,
-          location: '/patients/1234/data',
-          showingShareDataBanner: true,
-        });
-
-        sinon.assert.callCount(props.context.trackMetric, 2);
-      });
-    });
-
-    context('uploader, share data, and donate banners are not showing', () => {
-      beforeEach(() => {
-        wrapper.setProps({
-          showingUploaderBanner: false,
-          showingDonateBanner: false,
-          showingShareDataBanner: false,
-        });
-      });
-
-      context('user has uploaded data but is not the current patient in view', () => {
-        it('should not show the dexcom banner', () => {
-          wrapper.setProps({
-            userIsCurrentPatient: false,
-            userHasData: true,
-            location: '/patients/1234/data',
-          });
-
-          sinon.assert.neverCalledWithMatch(props.showBanner, 'dexcom')
-        });
-      });
-
-      context('user has uploaded data and has connected a data source', () => {
-        it('should not show the banner', () => {
-          wrapper.setProps({
-            userHasUploadedData: true,
-            userHasConnectedDataSources: true,
-            location: '/patients/1234/data',
-          });
-
-          sinon.assert.neverCalledWithMatch(props.showBanner, 'dexcom')
-        });
-      });
-    });
-
-    context('user has seen, dismissed, or satisfied the requirements for the uploader, share data, donate data, and dexcom banners', () => {
-      beforeEach(() => {
-        wrapper.setProps({
-          userIsCurrentPatient: true,
-          userHasData: true,
-          showingUploaderBanner: false,
-          showingShareDataBanner: false,
-          showingDonateBanner: false,
-          showingDexcomConnectBanner: false,
-        });
-      });
-
-      it('should show the update type banner, but only if user is on a patient data view', () => {
-        sinon.assert.callCount(props.showBanner, 0);
-        wrapper.setProps({ location: '/patients/1234/data' })
-        sinon.assert.callCount(props.showBanner, 1);
-        sinon.assert.calledWith(props.showBanner, 'updatetype');
-      });
-
-      it('should show only the update type banner', () => {
-        wrapper.setProps({
-          location: '/patients/1234/data',
-        });
-
-        sinon.assert.callCount(props.showBanner, 1);
-        sinon.assert.calledWithMatch(props.showBanner, 'updatetype');
-        sinon.assert.neverCalledWithMatch(props.showBanner, 'dexcom');
-        sinon.assert.neverCalledWithMatch(props.showBanner, 'donate');
-        sinon.assert.neverCalledWithMatch(props.showBanner, 'sharedata');
-      });
-
-      it('should not show the update type banner if user has diabetes type in profile', () => {
-        wrapper.setProps({
-          userHasDiabetesType: true,
-        });
-
-        sinon.assert.neverCalledWithMatch(props.showBanner, 'updatetype');
-      });
-
-      it('should hide the update type banner if the user has dismissed it', () => {
-        wrapper.setProps({
-          userHasUploadedData: true,
-          showingUpdateTypeBanner: true,
-          userHasDiabetesType: true,
-          location: '/patients/1234/data',
-        });
-
-        sinon.assert.callCount(props.hideBanner, 1);
-        sinon.assert.calledWith(props.hideBanner, 'updatetype');
-      });
-    });
-
-    context('dexcom banner is showing', () => {
-      it('should prioritize over other banners, but only if connection is in error state', () => {
-        wrapper.setProps({
-          userIsCurrentPatient: true,
-          userHasData: true,
-          location: '/patients/1234/data',
-          showingUploaderBanner: true,
-          showingDexcomConnectBanner: true,
-        });
-
-        expect(wrapper.find('.App-uploaderbanner')).to.have.lengthOf(1);
-        expect(wrapper.find('.App-dexcombanner')).to.have.lengthOf(0);
-
-        wrapper.setProps({ patientDexcomDataSource: { state: 'error' } })
-
-        expect(wrapper.find('.App-uploaderbanner')).to.have.lengthOf(0);
-        expect(wrapper.find('.App-dexcombanner')).to.have.lengthOf(1);
-      });
-    });
-
-    context('share data banner is showing', () => {
-      it('should track the display banner metric', () => {
-        wrapper.setProps({
-          userIsCurrentPatient: true,
-          userHasData: true,
-          location: '/patients/1234/data',
-          showingUploaderBanner: false,
-          showingDonateBanner: false,
-          showingDexcomConnectBanner: false,
-          patient: {
-            userid: '1234'
-          },
-          updateShareDataBannerSeen: sinon.stub(),
-        });
-
-        sinon.assert.calledWithMatch(props.showBanner, 'sharedata');
-        wrapper.setProps({ ...wrapper.props, showingShareDataBanner: true });
-        expect(wrapper.find('.App-sharedatabanner')).to.have.lengthOf(1);
-        sinon.assert.calledWith(props.context.trackMetric, 'Share Data banner displayed');
-      });
-
-      it('should only track the display banner metric once per patient', () => {
-        wrapper.setProps({
-          userIsCurrentPatient: true,
-          userHasData: true,
-          location: '/patients/1234/data',
-          patient: {
-            userid: '1234'
-          },
-          updateShareDataBannerSeen: sinon.stub(),
-          showingShareDataBanner: true,
-        });
-
-        expect(wrapper.find('.App-sharedatabanner')).to.have.lengthOf(1);
-        sinon.assert.callCount(props.context.trackMetric, 1);
-
-        wrapper.setProps({});
-        wrapper.setProps({});
-
-        sinon.assert.callCount(props.context.trackMetric, 1);
-
-        wrapper.setProps({
-          userIsCurrentPatient: true,
-          currentPatientInViewId: 'patient456',
-          userHasData: true,
-          location: '/patients/1234/data',
-          showingShareDataBanner: true,
-        });
-
-        sinon.assert.callCount(props.context.trackMetric, 2);
-      });
-    });
-
-    context('update type banner is showing', () => {
-      it('should track the display banner metric', () => {
-        wrapper.setProps({
-          userIsCurrentPatient: true,
-          userHasData: true,
-          location: '/patients/1234/data',
-          showingUploaderBanner: false,
-          showingShareDataBanner: false,
-          showingDonateBanner: false,
-          showingDexcomConnectBanner: false,
-        });
-
-        sinon.assert.calledWithMatch(props.showBanner, 'updatetype');
-        wrapper.setProps({ ...wrapper.props, showingUpdateTypeBanner: true });
-        expect(wrapper.find('.App-updatetypebanner')).to.have.lengthOf(1);
-        sinon.assert.calledWith(props.context.trackMetric, 'Update Type banner displayed');
-      });
-
-      it('should only track the display banner metric once per patient', () => {
-        wrapper.setProps({
-          userIsCurrentPatient: true,
-          userHasData: true,
-          location: '/patients/1234/data',
-          showingUploaderBanner: false,
-          showingShareDataBanner: false,
-          showingUpdateTypeBanner: true,
-        });
-
-        expect(wrapper.find('.App-updatetypebanner')).to.have.lengthOf(1);
-        sinon.assert.callCount(props.context.trackMetric, 1);
-
-        wrapper.setProps({});
-        wrapper.setProps({});
-
-        sinon.assert.callCount(props.context.trackMetric, 1);
-
-        wrapper.setProps({
-          userIsCurrentPatient: true,
-          currentPatientInViewId: 'patient456',
-          userHasData: true,
-          location: '/patients/1234/data',
-          showingUpdateTypeBanner: true,
-        });
-
-        sinon.assert.callCount(props.context.trackMetric, 2);
-      });
-    });
-
-    context('doFetching', () => {
-      let initialProps = _.assign({}, baseProps, {
-        authenticated: false,
-        fetchers: [sinon.stub()],
-        location: 'page1',
-      });
-      let wrapper;
-      before(() => {
-        wrapper = shallow(<App {...initialProps} />);
-        initialProps.fetchers[0].reset();
-      });
-      afterEach(() => {
-        initialProps.fetchers[0].reset();
-      });
-      it('when neither authenticated nor page changes, it should not run fetchers', () => {
-        wrapper.setProps({ test: true });
-        sinon.assert.callCount(initialProps.fetchers[0], 0);
-      });
-      it('when user becomes authenticated, it should run any pending fetchers', () => {
-        wrapper.setProps({ authenticated: true });
-        sinon.assert.callCount(initialProps.fetchers[0], 1);
-      });
-      it('when page transitions, it should run any pending fetchers', () => {
-        wrapper.setProps({ location: 'page2' });
-        sinon.assert.callCount(initialProps.fetchers[0], 1);
-      });
-    });
-
   });
 
   describe('isPatientVisibleInNavbar', () => {
     it('should return true when page is /patients/a1b2c3/data', () => {
-      var context = _.assign({}, baseProps, {location: '/patients/a1b2c3'});
-      var elem = mount(<App {...context} />);
+      var props = _.assign({}, baseProps, { location: '/patients/a1b2c3' });
+      var elem = mount(<App {...props} />, { wrappingComponent: providerWrapper(store) });
       expect(elem).to.be.ok;
       expect(elem.instance().isPatientVisibleInNavbar()).to.be.true;
     });
 
     it('should return false when page is /patients', () => {
-      var elem = mount(<App {...baseProps} />);
+      var elem = mount(<App {...baseProps} />, { wrappingComponent: providerWrapper(store) });
       expect(elem).to.be.ok;
 
       elem.setState({page: '/patients'});
@@ -994,7 +293,7 @@ describe('App', () => {
     });
 
     it('should return false when page is /profile', () => {
-      var elem = mount(<App {...baseProps} />);
+      var elem = mount(<App {...baseProps} />, { wrappingComponent: providerWrapper(store) });
       expect(elem).to.be.ok;
 
       elem.setState({page: '/profile'});
@@ -1002,7 +301,7 @@ describe('App', () => {
     });
 
     it('should return false when page is /foo', () => {
-      var elem = mount(<App {...baseProps} />);
+      var elem = mount(<App {...baseProps} />, { wrappingComponent: providerWrapper(store) });
       expect(elem).to.be.ok;
 
       elem.setState({page: '/foo'});
@@ -1059,14 +358,6 @@ describe('App', () => {
       it('should return null for permsOfLoggedInUser', () => {
         expect(result.permsOfLoggedInUser).to.be.null;
       });
-
-      it('should map working.resendingEmailVerification.inProgress to resendEmailVerificationInProgress', () => {
-        expect(result.resendEmailVerificationInProgress).to.be.false;
-      });
-
-      it('should map resentEmailVerification to resentEmailVerification', () => {
-        expect(result.resentEmailVerification).to.be.false;
-      });
     });
 
     describe('logged-in state', () => {
@@ -1096,8 +387,6 @@ describe('App', () => {
         },
         dataDonationAccounts: [],
         datasources: [],
-        showingDonateBanner: null,
-        showingDexcomConnectBanner: null,
         working: {
           fetchingUser: {inProgress: false},
           fetchingPendingSentInvites: {inProgress: false},
@@ -1209,8 +498,6 @@ describe('App', () => {
           },
           dataDonationAccounts: [],
           datasources: [],
-          showingDonateBanner: null,
-          showingDexcomConnectBanner: null,
           working: {
             fetchingUser: {inProgress: false},
             fetchingPendingSentInvites: {inProgress: false},
@@ -1254,8 +541,6 @@ describe('App', () => {
           },
           dataDonationAccounts: [],
           datasources: [],
-          showingDonateBanner: null,
-          showingDexcomConnectBanner: null,
           working: {
             fetchingUser: {inProgress: false},
             fetchingPendingSentInvites: {inProgress: false},
@@ -1317,8 +602,6 @@ describe('App', () => {
           },
           dataDonationAccounts: [],
           datasources: [],
-          showingDonateBanner: null,
-          showingDexcomConnectBanner: null,
           working: {
             fetchingUser: {inProgress: false},
             fetchingPendingSentInvites: {inProgress: false},
@@ -1417,148 +700,6 @@ describe('App', () => {
           const loggedInResult = getFetchers(_.assign({}, stateProps, { authenticated: true } ), dispatchProps, api);
           expect(loggedInResult[1]).to.be.a('function');
           expect(loggedInResult[1]()).to.equal('fetchDataSources');
-        });
-      });
-
-      describe('Data donation props', () => {
-        context('User has donated data but is not the current patient in view', () => {
-          it('should set props appropriately', () => {
-            const state = _.assign({}, loggedIn, {
-              dataDonationAccounts: [
-                { email: 'bigdata@tidepool.org' },
-                { email: 'bigdata+CWD@tidepool.org' },
-              ],
-            });
-
-            const result = mapStateToProps({ blip: state });
-
-            expect(result.userIsCurrentPatient).to.be.false;
-            expect(result.userIsDonor).to.be.true;
-          });
-        });
-
-        context('User has donated data and is the current patient in view, and has supported a nonprofit', () => {
-          it('should set props appropriately', () => {
-            const state = _.assign({}, loggedIn, {
-              loggedInUserId: '1234',
-              currentPatientInViewId: '1234',
-              dataDonationAccounts: [
-                { email: 'bigdata@tidepool.org' },
-                { email: 'bigdata+CWD@tidepool.org' },
-              ],
-            });
-
-            const result = mapStateToProps({ blip: state });
-
-            expect(result.userIsDonor).to.be.true;
-            expect(result.userIsSupportingNonprofit).to.be.true;
-            expect(result.userIsCurrentPatient).to.be.true;
-          });
-        });
-
-        context('User has donated data and is the current patient in view, and has not supported a nonprofit', () => {
-          it('should set props appropriately', () => {
-            const state = _.assign({}, loggedIn, {
-              loggedInUserId: '1234',
-              currentPatientInViewId: '1234',
-              dataDonationAccounts: [
-                { email: 'bigdata@tidepool.org' },
-              ],
-            });
-
-            const result = mapStateToProps({ blip: state });
-
-            expect(result.userIsDonor).to.be.true;
-            expect(result.userIsSupportingNonprofit).to.be.false;
-            expect(result.userIsCurrentPatient).to.be.true;
-          });
-        });
-
-        context('User is current patient and has not uploaded data', () => {
-          it('should set props appropriately', () => {
-            const state = _.assign({}, loggedIn, {
-              loggedInUserId: '1234',
-              currentPatientInViewId: '1234',
-            });
-
-            const result = mapStateToProps({ blip: state });
-
-            expect(result.userHasData).to.be.false;
-            expect(result.userIsCurrentPatient).to.be.true;
-          });
-        });
-
-        context('User is not current patient and has uploaded data', () => {
-          it('should set props appropriately', () => {
-            const state = _.assign({}, loggedIn, {
-              loggedInUserId: '1234',
-              currentPatientInViewId: '5678',
-              data: {
-                metaData: {
-                  patientId: '1234',
-                  size: 2,
-                },
-              },
-            });
-
-            const result = mapStateToProps({ blip: state });
-
-            expect(result.userHasData).to.be.true;
-            expect(result.userIsCurrentPatient).to.be.false;
-          });
-        });
-
-        context('User is current patient and has uploaded data', () => {
-          it('should set props appropriately', () => {
-            const state = _.assign({}, loggedIn, {
-              loggedInUserId: '1234',
-              currentPatientInViewId: '1234',
-              data: {
-                metaData: {
-                  patientId: '1234',
-                  size: 2,
-                },
-              },
-            });
-
-            const result = mapStateToProps({ blip: state });
-
-            expect(result.userHasData).to.be.true;
-            expect(result.userIsCurrentPatient).to.be.true;
-          });
-        });
-      });
-
-      describe('Dexcom banner props', () => {
-        it('should map the `showingDexcomConnectBanner` state to a prop', () => {
-          const result = mapStateToProps({ blip: loggedIn });
-          expect(result.showingDexcomConnectBanner).to.equal(loggedIn.showingDexcomConnectBanner);
-        });
-
-        context('User has connected to a data source', () => {
-          it('should set props appropriately', () => {
-            const state = _.assign({}, loggedIn, {
-              dataSources: [
-                { id: 'dexcom/oauth' },
-              ],
-            });
-
-            const result = mapStateToProps({ blip: state });
-
-            expect(result.userHasConnectedDataSources).to.be.true;
-          });
-        });
-
-        context('User has connected to a data source', () => {
-          it('should set props appropriately', () => {
-            const state = _.assign({}, loggedIn, {
-              datasources: [],
-            });
-
-            const result = mapStateToProps({ blip: state });
-
-            expect(result.userHasConnectedDataSources).to.be.false;
-          });
         });
       });
     });
