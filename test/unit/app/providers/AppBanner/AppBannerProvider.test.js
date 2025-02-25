@@ -184,10 +184,12 @@ describe('AppBannerProvider', () => {
   });
 
   it('should show dataSourceJustConnected banner when a data source is just connected', () => {
+    const dataSource = { state: 'connected', providerName: 'provider1', lastImportTime: null };
+
     const stateWithJustConnectedDataSource = {
       blip: {
         ...initialState.blip,
-        dataSources: [{ state: 'connected', providerName: 'provider1', lastImportTime: null }],
+        dataSources: [dataSource],
       },
     };
 
@@ -208,14 +210,16 @@ describe('AppBannerProvider', () => {
     const contextData = JSON.parse(wrapper.find('[data-testid="context"]').text());
     expect(contextData.hasBanner).to.be.true;
     expect(contextData.banner.id).to.equal('dataSourceJustConnected');
-    expect(contextData.processedBanner.bannerArgs).to.eql(['provider1']);
+    expect(contextData.processedBanner.bannerArgs).to.eql(['provider1', dataSource]);
   });
 
   it('should show dataSourceReconnect banner when a data source has an error', () => {
+    const dataSource = { state: 'error', providerName: 'provider1' };
+
     const stateWithErroredDataSource = {
       blip: {
         ...initialState.blip,
-        dataSources: [{ state: 'error', providerName: 'provider1' }],
+        dataSources: [dataSource],
       },
     };
 
@@ -237,7 +241,7 @@ describe('AppBannerProvider', () => {
 
     expect(contextData.hasBanner).to.be.true;
     expect(contextData.banner.id).to.equal('dataSourceReconnect');
-    expect(contextData.processedBanner.bannerArgs).to.eql([dispatchStub, 'provider1']);
+    expect(contextData.processedBanner.bannerArgs).to.eql([dispatchStub, 'provider1', dataSource]);
   });
 
   it('should show uploader banner when user is current patient and has a data source connection but no pump data', () => {

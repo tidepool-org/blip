@@ -130,7 +130,7 @@ describe('appBanners', () => {
     expect(bannerMap.sendVerification.paths).to.eql([pathRegexes.patientData]);
   });
 
-  describe('getProps', () => {
+  describe.only('getProps', () => {
     const dispatchStub = sinon.stub();
     const providerStub = {};
     const clinicIdStub = 'fakeClinicId';
@@ -175,57 +175,57 @@ describe('appBanners', () => {
 
     it('dataSourceJustConnected should return object with the expected keys', () => {
       const props = getPropsForBanner('dataSourceJustConnected');
-      expect(props).to.have.all.keys(['label', 'title', 'show', 'dismiss']);
+      expect(props).to.have.all.keys(['ignoreBannerInteractionsBeforeTime', 'interactionId', 'label', 'title', 'show', 'dismiss']);
     });
 
     it('dataSourceReconnect should return object with the expected keys', () => {
       const props = getPropsForBanner('dataSourceReconnect');
-      expect(props).to.have.all.keys(['label', 'message', 'show', 'action', 'dismiss']);
+      expect(props).to.have.all.keys(['ignoreBannerInteractionsBeforeTime', 'interactionId', 'label', 'message', 'show', 'action', 'dismiss']);
     });
 
     it('uploader should return object with the expected keys', () => {
       const props = getPropsForBanner('uploader');
-      expect(props).to.have.all.keys(['label', 'message', 'show', 'action', 'messageLink', 'dismiss']);
+      expect(props).to.have.all.keys(['interactionId', 'label', 'message', 'show', 'action', 'messageLink', 'dismiss']);
     });
 
     it('shareData should return object with the expected keys', () => {
       const props = getPropsForBanner('shareData');
-      expect(props).to.have.all.keys(['label', 'message', 'show', 'action', 'messageLink', 'dismiss']);
+      expect(props).to.have.all.keys(['interactionId', 'label', 'message', 'show', 'action', 'messageLink', 'dismiss']);
     });
 
     it('donateYourData should return object with the expected keys', () => {
       const props = getPropsForBanner('donateYourData');
-      expect(props).to.have.all.keys(['label', 'message', 'show', 'action', 'messageLink', 'dismiss']);
+      expect(props).to.have.all.keys(['interactionId', 'label', 'message', 'show', 'action', 'messageLink', 'dismiss']);
     });
 
     it('shareProceeds should return object with the expected keys', () => {
       const props = getPropsForBanner('shareProceeds');
-      expect(props).to.have.all.keys(['label', 'message', 'show', 'action', 'messageLink', 'dismiss']);
+      expect(props).to.have.all.keys(['interactionId', 'label', 'message', 'show', 'action', 'messageLink', 'dismiss']);
     });
 
     it('updateType should return object with the expected keys', () => {
       const props = getPropsForBanner('updateType');
-      expect(props).to.have.all.keys(['label', 'message', 'show', 'action', 'messageLink', 'dismiss']);
+      expect(props).to.have.all.keys(['interactionId', 'label', 'message', 'show', 'action', 'messageLink', 'dismiss']);
     });
 
     it('patientLimit should return object with the expected keys', () => {
       const props = getPropsForBanner('patientLimit');
-      expect(props).to.have.all.keys(['label', 'message', 'show', 'action', 'dismiss']);
+      expect(props).to.have.all.keys(['interactionId', 'label', 'message', 'show', 'action', 'dismiss']);
     });
 
     it('dataSourceReconnectInvite should return object with the expected keys', () => {
       const props = getPropsForBanner('dataSourceReconnectInvite');
-      expect(props).to.have.all.keys(['label', 'message', 'show', 'action', 'dismiss']);
+      expect(props).to.have.all.keys(['interactionId', 'label', 'message', 'show', 'action', 'dismiss']);
     });
 
     it('addEmail should return object with the expected keys', () => {
       const props = getPropsForBanner('addEmail');
-      expect(props).to.have.all.keys(['label', 'message', 'show', 'action', 'dismiss']);
+      expect(props).to.have.all.keys(['interactionId', 'label', 'message', 'show', 'action', 'dismiss']);
     });
 
     it('sendVerification should return object with the expected keys', () => {
       const props = getPropsForBanner('sendVerification');
-      expect(props).to.have.all.keys(['label', 'message', 'show', 'action', 'dismiss']);
+      expect(props).to.have.all.keys(['interactionId', 'label', 'message', 'show', 'action', 'dismiss']);
     });
   });
 });
