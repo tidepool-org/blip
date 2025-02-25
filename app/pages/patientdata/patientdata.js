@@ -1227,22 +1227,28 @@ export const PatientDataClass = createReactClass({
   },
 
   handleSwitchToDailyRoute: function(datetime) {
-    targetPath = `/patients/${this.props.currentPatientInViewId}/data/daily`;
-    if (datetime) targetPath += `?datetime=${datetime}`;
+    let targetPath = `/patients/${this.props.currentPatientInViewId}/data/daily`;
+    const targetDate = utils.parseDatetimeParamToInteger(datetime);
+
+    if (targetDate) targetPath += `?datetime=${targetDate}`;
 
     this.props.history.push(targetPath);
   },
 
   handleSwitchToTrendsRoute: function(datetime) {
-    targetPath = `/patients/${this.props.currentPatientInViewId}/data/trends`;
-    if (datetime) targetPath += `?datetime=${datetime}`;
+    let targetPath = `/patients/${this.props.currentPatientInViewId}/data/trends`;
+    const targetDate = utils.parseDatetimeParamToInteger(datetime);
+
+    if (targetDate) targetPath += `?datetime=${targetDate}`;
 
     this.props.history.push(targetPath);
   },
 
   handleSwitchToBgLogRoute: function(datetime) {
-    targetPath = `/patients/${this.props.currentPatientInViewId}/data/bgLog`;
-    if (datetime) targetPath += `?datetime=${datetime}`;
+    let targetPath = `/patients/${this.props.currentPatientInViewId}/data/bgLog`;
+    const targetDate = utils.parseDatetimeParamToInteger(datetime);
+
+    if (targetDate) targetPath += `?datetime=${targetDate}`;
 
     this.props.history.push(targetPath);
   },
