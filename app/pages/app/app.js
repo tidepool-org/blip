@@ -4,7 +4,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import i18next from '../../core/language';
-import { Box } from 'theme-ui';
+import { Box, Flex } from 'theme-ui';
 import { withLDConsumer } from 'launchdarkly-react-client-sdk';
 import { withTranslation } from 'react-i18next';
 
@@ -21,8 +21,7 @@ import * as UserMessages from '../../redux/constants/usrMessages';
 import Navbar from '../../components/navbar';
 import LogoutOverlay from '../../components/logoutoverlay';
 import TidepoolNotification from '../../components/notification';
-import FooterLinks from '../../components/footerlinks';
-import Version from '../../components/version';
+import Footer from '../../components/footer';
 
 import NavPatientHeader from '../../components/navpatientheader';
 import AppWrapper from './AppWrapper';
@@ -237,33 +236,14 @@ export class AppComponent extends React.Component {
   }
 
   renderFooter() {
-    var shouldDisplayFooterLinks = !_.includes(
-      [
-        '/signup',
-        '/signup/personal',
-        '/signup/clinician',
-        '/email-verification',
-        '/request-password-reset',
-        '/terms',
-        '/patients/new'
-      ],
-      this.props.location
-    );
+    const version = this.getVersion();
+    const trackMetric = this.props.context.trackMetric;
+    const location = this.props.location;
 
-    return (
-      <div className='container-nav-outer footer'>
-        <div className='container-nav-inner'>
-          {shouldDisplayFooterLinks ?
-              <FooterLinks trackMetric={this.props.context.trackMetric} /> : null}
-          <div className='footer-section'>
-            {this.renderVersion()}
-          </div>
-        </div>
-      </div>
-    );
+    return <Footer version={version} trackMetric={trackMetric} location={location} />;
   }
 
-  renderVersion() {
+  getVersion() {
     var version = [this.props.context.config.VERSION];
 
     // get environment from first subdomain on API_HOST, if present
@@ -285,9 +265,7 @@ export class AppComponent extends React.Component {
     version = _.compact(version);
 
     if (version.length) {
-      return (
-        <Version version={version.join('-')} />
-      );
+      return version.join('-');
     }
 
     return null;
