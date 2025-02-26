@@ -1172,42 +1172,40 @@ export const PatientDataClass = createReactClass({
   },
 
   handleRouteChangeEvent: function(nextProps) {
-    const targetPath = nextProps.location.pathname;
+    const chartTypeFromPath = nextProps.match?.params?.chartType;
     const targetDate = utils.parseDatetimeParamToInteger(nextProps.queryParams?.datetime);
-
-    const isDefaultPath = targetPath.slice(-5) === '/data';
 
     switch(true) {
       // If the chart is explicitly specified in the URL, we switch to that chart type.
-      case targetPath.includes('/data/settings'):
+      case chartTypeFromPath === 'settings':
         this.handleSwitchToSettings();
         break;
-      case targetPath.includes('/data/basics'):
+      case chartTypeFromPath === 'basics':
         this.handleSwitchToBasics();
         break;
-      case targetPath.includes('/data/daily'):
+      case chartTypeFromPath === 'daily':
         this.handleSwitchToDaily(targetDate);
         break;
-      case targetPath.includes('/data/trends'):
+      case chartTypeFromPath === 'trends':
         this.handleSwitchToTrends(targetDate);
         break;
-      case targetPath.includes('/data/bgLog'):
+      case chartTypeFromPath === 'bgLog':
         this.handleSwitchToBgLog(targetDate);
         break;
 
       // If the chart is not specified in the URL, we should switch to the patient's default chart type,
       // which is derived from the patient's data values. If state.defaultChartTypeForPatient
       // exists, we should use its value rather than deriving it again using setInitialChartView().
-      case isDefaultPath && this.state.defaultChartTypeForPatient === 'basics':
+      case this.state.defaultChartTypeForPatient === 'basics':
         this.handleSwitchToBasics();
         break;
-      case isDefaultPath && this.state.defaultChartTypeForPatient === 'daily':
+      case this.state.defaultChartTypeForPatient === 'daily':
         this.handleSwitchToDaily(targetDate);
         break;
-      case isDefaultPath && this.state.defaultChartTypeForPatient === 'trends':
+      case this.state.defaultChartTypeForPatient === 'trends':
         this.handleSwitchToTrends(targetDate);
         break;
-      case isDefaultPath && this.state.defaultChartTypeForPatient === 'bgLog':
+      case this.state.defaultChartTypeForPatient === 'bgLog':
         this.handleSwitchToBgLog(targetDate);
         break;
 
@@ -2152,7 +2150,7 @@ export const PatientDataClass = createReactClass({
     const latestDatum = _.last(_.sortBy(_.values(_.get(props.data, 'metaData.latestDatumByType')), ['normalTime']));
     const bgSource = this.getMetaData('bgSources.current');
     const excludedDevices = this.getMetaData('excludedDevices', undefined, props);
-    const pathname = props.location?.pathname;
+    const chartTypeFromPath = props.match?.params?.chartType;
 
     let defaultChartTypeForPatient = null;
 
@@ -2162,19 +2160,19 @@ export const PatientDataClass = createReactClass({
 
       // Figure out which chart to show based on the current route
       switch(true) {
-        case pathname.includes('/data/settings'):
+        case chartTypeFromPath === 'settings':
           chartType = 'settings';
           break;
-        case pathname.includes('/data/trends'):
+        case chartTypeFromPath === 'trends':
           chartType = 'trends';
           break;
-        case pathname.includes('/data/daily'):
+        case chartTypeFromPath === 'daily':
           chartType = 'daily';
           break;
-        case pathname.includes('/data/basics'):
+        case chartTypeFromPath === 'basics':
           chartType = 'basics';
           break;
-        case pathname.includes('/data/bgLog'):
+        case chartTypeFromPath === 'bgLog':
           chartType = 'bgLog';
           break;
         case !!this.state.refreshChartType:
@@ -2529,6 +2527,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     fetchers: getFetchers(dispatchProps, ownProps, stateProps, api, { carelink, dexcom, medtronic }),
     history: ownProps.history,
     location: ownProps.location,
+    match: ownProps.match,
     uploadUrl: api.getUploadUrl(),
     onRefresh: (patientId, chartType) => {
       const fetchOptions = {

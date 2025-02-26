@@ -5021,7 +5021,7 @@ describe('PatientData', function () {
 
     describe(('chartType is explicitly targetted in URL'), () => {
       it('should call `handleSwitchToBasics` when the route changes to `/data/basics`', () => {
-        const nextProps = { location: { pathname: '/data/basics' } };
+        const nextProps = { match: { params: { chartType: 'basics' } } };
 
         instance.handleSwitchToBasics = sinon.stub();
         instance.handleRouteChangeEvent(nextProps);
@@ -5029,7 +5029,7 @@ describe('PatientData', function () {
       });
 
       it('should call `handleSwitchToDaily` when the route changes to `/data/daily`', () => {
-        const nextProps = { location: { pathname: '/data/daily' } };
+        const nextProps = { match: { params: { chartType: 'daily' } } };
 
         instance.handleSwitchToDaily = sinon.stub();
         instance.handleRouteChangeEvent(nextProps);
@@ -5037,7 +5037,7 @@ describe('PatientData', function () {
       });
 
       it('should call `handleSwitchToTrends` when the route changes to `/data/trends`', () => {
-        const nextProps = { location: { pathname: '/data/trends' } };
+        const nextProps = { match: { params: { chartType: 'trends' } } };
 
         instance.handleSwitchToTrends = sinon.stub();
         instance.handleRouteChangeEvent(nextProps);
@@ -5045,7 +5045,7 @@ describe('PatientData', function () {
       });
 
       it('should call `handleSwitchToBgLog` when the route changes to `/data/bgLog`', () => {
-        const nextProps = { location: { pathname: '/data/bgLog' } };
+        const nextProps = { match: { params: { chartType: 'bgLog' } } };
 
         instance.handleSwitchToBgLog = sinon.stub();
         instance.handleRouteChangeEvent(nextProps);
@@ -5053,7 +5053,7 @@ describe('PatientData', function () {
       });
 
       it('should call `handleSwitchToSettings` when the route changes to `/data/settings`', () => {
-        const nextProps = { location: { pathname: '/data/settings' } };
+        const nextProps = { match: { params: { chartType: 'settings' } } };
 
         instance.handleSwitchToSettings = sinon.stub();
         instance.handleRouteChangeEvent(nextProps);
@@ -5063,7 +5063,7 @@ describe('PatientData', function () {
 
     describe('chartType is not specified in URL', () => {
       it('should call `handleSwitchToBasics` when the defaultChartType is set to basics', () => {
-        const nextProps = { location: { pathname: '/data' } };
+        const nextProps = { };
         instance.setState({ defaultChartTypeForPatient: 'basics' });
 
         instance.handleSwitchToBasics = sinon.stub();
@@ -5072,7 +5072,7 @@ describe('PatientData', function () {
       });
 
       it('should call `handleSwitchToDaily` when the defaultChartTypeForPatient is set to Daily', () => {
-        const nextProps = { location: { pathname: '/data' } };
+        const nextProps = { };
         instance.setState({ defaultChartTypeForPatient: 'daily' });
 
         instance.handleSwitchToDaily = sinon.stub();
@@ -5081,7 +5081,7 @@ describe('PatientData', function () {
       });
 
       it('should call `handleSwitchToTrends` when the defaultChartTypeForPatient is set to Trends', () => {
-        const nextProps = { location: { pathname: '/data' } };
+        const nextProps = { };
         instance.setState({ defaultChartTypeForPatient: 'trends' });
 
         instance.handleSwitchToTrends = sinon.stub();
@@ -5090,7 +5090,7 @@ describe('PatientData', function () {
       });
 
       it('should call `handleSwitchToBgLog` when the defaultChartTypeForPatient is set to BgLog', () => {
-        const nextProps = { location: { pathname: '/data' } };
+        const nextProps = { };
         instance.setState({ defaultChartTypeForPatient: 'bgLog' });
 
         instance.handleSwitchToBgLog = sinon.stub();
@@ -5101,7 +5101,7 @@ describe('PatientData', function () {
 
     describe('chartType is not specified in path and defaultChartTypeForPatient is not set', () => {
       it('should call setInitialChartView()', () => {
-        const nextProps = { location: { pathname: '/data' } };
+        const nextProps = { };
 
         instance.setInitialChartView = sinon.stub();
         instance.handleRouteChangeEvent(nextProps);
