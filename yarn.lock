@@ -7374,8 +7374,8 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.31.0-web-3274-device-settings-data-sources.1
-    tidepool-platform-client: 0.62.0-web-3272-patient-data-linking-after-creation.1
+    tideline: 1.31.0-WEB-3415-blood-glucose-heading-update.1
+    tidepool-platform-client: 0.62.0-web-3400-strip-clinic-patient-update-fields.1
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
     url-loader: 4.1.1
@@ -20026,9 +20026,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.31.0-web-3274-device-settings-data-sources.1":
-  version: 1.31.0-web-3274-device-settings-data-sources.1
-  resolution: "tideline@npm:1.31.0-web-3274-device-settings-data-sources.1"
+"tideline@npm:1.31.0-WEB-3415-blood-glucose-heading-update.1":
+  version: 1.31.0-WEB-3415-blood-glucose-heading-update.1
+  resolution: "tideline@npm:1.31.0-WEB-3415-blood-glucose-heading-update.1"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -20048,19 +20048,19 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: 8c14db4706c8410459f06b22f48318e4f963b5f8d4ef49b167fe169ee126533e784ff7ded859b60322fe856d2cae5185baf2eded61d5d8b3543136a865eace14
+  checksum: a72ff66a008c1feaef9b7bf9fd805e7a0de0d773573e46aa93495bcd3beee3a98717b8f8dc6a0c3bb3fe599608582128694cba526b0cb0359726085885c209c0
   languageName: node
   linkType: hard
 
-"tidepool-platform-client@npm:0.62.0-web-3272-patient-data-linking-after-creation.1":
-  version: 0.62.0-web-3272-patient-data-linking-after-creation.1
-  resolution: "tidepool-platform-client@npm:0.62.0-web-3272-patient-data-linking-after-creation.1"
+"tidepool-platform-client@npm:0.62.0-web-3400-strip-clinic-patient-update-fields.1":
+  version: 0.62.0-web-3400-strip-clinic-patient-update-fields.1
+  resolution: "tidepool-platform-client@npm:0.62.0-web-3400-strip-clinic-patient-update-fields.1"
   dependencies:
     async: 0.9.0
     lodash: 4.17.21
     superagent: 5.2.2
     uuid: 3.1.0
-  checksum: 4d418e359f3bf9ef01245a779506c39e565f82a219765c1ae522a78aed3f78a3da5d533d2e1d615ab40d35786edb9afdd4f731817bf0563cd4407d7aeb27f57c
+  checksum: 3097938fdeee7bdefc8f8afb3702eee307019ce7cd0f0aed8e25001f436096c1503b54590368a5076199158ae9398bdd94bf1e506e7edfd076db517f07355281
   languageName: node
   linkType: hard
 

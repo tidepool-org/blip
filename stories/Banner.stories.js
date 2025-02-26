@@ -32,8 +32,8 @@ const bannerMessageText = () =>
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.'
   );
 
-function createBanner(message, title, variant, dismissable = true, actionText = '') {
-  return { message, title, variant, dismissable, actionText };
+function createBanner(message, title, variant, dismissable = true, actionText = '', messageLinkText = '') {
+  return { message, title, variant, dismissable, actionText, messageLinkText };
 }
 
 export const BannerStory = {
@@ -42,19 +42,19 @@ export const BannerStory = {
       createBanner(bannerMessageText(), null, 'info'),
       createBanner(bannerMessageText(), null, 'info', false),
       createBanner(bannerMessageText(), null, 'info', true, 'Info Action'),
-      createBanner(bannerMessageText(), bannerTitleText(), 'info', false),
+      createBanner(bannerMessageText(), bannerTitleText(), 'info', false, null, 'Message Link'),
       createBanner(bannerMessageText(), null, 'warning'),
       createBanner(bannerMessageText(), null, 'warning', false),
       createBanner(bannerMessageText(), null, 'warning', true, 'Warning Action'),
-      createBanner(bannerMessageText(), bannerTitleText(), 'warning', false),
+      createBanner(bannerMessageText(), bannerTitleText(), 'warning', false, null, 'Message Link'),
       createBanner(bannerMessageText(), null, 'danger'),
       createBanner(bannerMessageText(), null, 'danger', false),
       createBanner(bannerMessageText(), null, 'danger', true, 'Danger Action'),
-      createBanner(bannerMessageText(), bannerTitleText(), 'danger', false),
+      createBanner(bannerMessageText(), bannerTitleText(), 'danger', false, null, 'Message Link'),
       createBanner(bannerMessageText(), null, 'success'),
       createBanner(bannerMessageText(), null, 'success', false),
       createBanner(bannerMessageText(), null, 'success', true, 'Success Action'),
-      createBanner(bannerMessageText(), bannerTitleText(), 'success', false),
+      createBanner(bannerMessageText(), bannerTitleText(), 'success', false, null, 'Message Link'),
     ]);
 
     const handleDismissed = (index) => {

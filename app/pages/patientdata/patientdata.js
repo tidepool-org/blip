@@ -56,7 +56,7 @@ import ToastContext from '../../providers/ToastProvider';
 import { Box, Flex, Grid, Link } from 'theme-ui';
 import Checkbox from '../../components/elements/Checkbox';
 import PopoverLabel from '../../components/elements/PopoverLabel';
-import { Body2, Paragraph1, Paragraph2 } from '../../components/elements/FontStyles';
+import { Paragraph1, Paragraph2 } from '../../components/elements/FontStyles';
 import Card from '../../components/elements/Card';
 import UploaderBanner from '../../components/elements/Card/Banners/Uploader.png';
 import ShareBanner from '../../components/elements/Card/Banners/Share.png';
@@ -312,8 +312,8 @@ export const PatientDataClass = createReactClass({
                   id='data-connections-card'
                   title={isUserPatient ? t('Connect an Account') : t('Connect a Device Account')}
                   subtitle={isUserPatient
-                    ? t('Do you have a Dexcom, LibreView or twiist account? When you connect an account, data can flow into Tidepool without any extra effort.')
-                    : t('Does your patient have a Dexcom, LibreView, or twiist account? Automatically sync data from these accounts with the patient\'s permission.')
+                    ? t('Do you have a Dexcom or FreeStyle Libre device? When you connect a device account, data can flow into Tidepool without any extra effort.')
+                    : t('Does your patient use a Dexcom or FreeStyle Libre device? Automatically sync data from those devices with the patient\'s permission.')
                   }
                   bannerImage={DataConnectionsBanner}
                   onClick={handleClickDataConnections}
@@ -2340,6 +2340,10 @@ export function getFetchers(dispatchProps, ownProps, stateProps, api, options) {
     fetchers.push(dispatchProps.fetchPendingSentInvites.bind(null, api));
   }
 
+  if (!stateProps.fetchingClinicsForPatient.inProgress && !stateProps.fetchingClinicsForPatient.completed) {
+    fetchers.push(dispatchProps.fetchClinicsForPatient.bind(null, api, ownProps.match.params.id));
+  }
+
   // Need fetchAssociatedAccounts here because the result includes of data donation accounts sharing info
   if (!stateProps.fetchingAssociatedAccounts.inProgress && !stateProps.fetchingAssociatedAccounts.completed) {
     fetchers.push(dispatchProps.fetchAssociatedAccounts.bind(null, api));
@@ -2466,6 +2470,7 @@ export function mapStateToProps(state, props) {
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
     fetchingPatientData: state.blip.working.fetchingPatientData.inProgress,
     fetchingPatientFromClinic: state.blip.working.fetchingPatientFromClinic,
+    fetchingClinicsForPatient: state.blip.working.fetchingClinicsForPatient,
     fetchingUser: state.blip.working.fetchingUser.inProgress,
     fetchingPendingSentInvites: state.blip.working.fetchingPendingSentInvites,
     fetchingAssociatedAccounts: state.blip.working.fetchingAssociatedAccounts,
@@ -2493,6 +2498,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   fetchPatient: actions.async.fetchPatient,
   fetchPatientData: actions.async.fetchPatientData,
   fetchPatientFromClinic: actions.async.fetchPatientFromClinic,
+  fetchClinicsForPatient: actions.async.fetchClinicsForPatient,
   fetchPendingSentInvites: actions.async.fetchPendingSentInvites,
   fetchMessageThread: actions.async.fetchMessageThread,
   generatePDFRequest: actions.worker.generatePDFRequest,
