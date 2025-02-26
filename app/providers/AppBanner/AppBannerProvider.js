@@ -65,7 +65,7 @@ const AppBannerProvider = ({ children }) => {
 
   const justConnectedDataSource = find(
     userIsCurrentPatient ? dataSources : clinic?.patients?.[currentPatientInViewId]?.dataSources,
-    ({providerName}) => providerName === justConnectedDataSourceProviderName,
+    ({providerName}) => !!justConnectedDataSourceProviderName && providerName === justConnectedDataSourceProviderName,
   );
 
   const [currentBanner, setCurrentBanner] = useState(null);

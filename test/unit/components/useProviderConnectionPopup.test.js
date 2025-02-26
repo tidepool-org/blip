@@ -36,9 +36,16 @@ describe('useProviderConnectionPopup', function () {
     },
   };
 
+  const api = {
+    user: {
+      getDataSources: sinon.stub(),
+    },
+  };
+
   beforeEach(() => {
     useProviderConnectionPopup.__Rewire__('useToasts', () => ({ set: setToast }));
     useProviderConnectionPopup.__Rewire__('providers', providers);
+    useProviderConnectionPopup.__Rewire__('api', api);
 
     const TestComponent = () => {
       const popup = useProviderConnectionPopup({ popupWatchTimeout: 0 });
@@ -51,8 +58,10 @@ describe('useProviderConnectionPopup', function () {
   });
 
   afterEach(() => {
+    api.user.getDataSources.resetHistory();
     useProviderConnectionPopup.__ResetDependency__('useToasts');
     useProviderConnectionPopup.__ResetDependency__('providers');
+    useProviderConnectionPopup.__ResetDependency__('api');
     setToast.resetHistory();
   });
 
@@ -69,11 +78,13 @@ describe('useProviderConnectionPopup', function () {
     })
   });
 
-  it('should close the popup and show a toast message on authorization success when popup url matches error oauth path', (done) => {
+  it('should close the popup, show a toast message, and set justConnectedDataSourceProviderName on authorization success when popup url matches error oauth path', (done) => {
     // Simulate success redirect path
     const authorizedDataSource = { id: 'oauth/testProvider', url: `${window.location.origin}/oauth/testProvider/authorized`};
     store.dispatch(actions.sync.connectDataSourceSuccess(authorizedDataSource.id, authorizedDataSource.url));
     wrapper.update();
+
+    sinon.spy(actions.sync, 'setJustConnectedDataSourceProviderName');
 
     setTimeout(() => {
       expect(setToast.calledOnce).to.be.true;
@@ -82,6 +93,11 @@ describe('useProviderConnectionPopup', function () {
         message: 'Connection Authorized. Thank you for connecting!',
         variant: 'success',
       })).to.be.true;
+
+      sinon.assert.calledOnce(actions.sync.setJustConnectedDataSourceProviderName);
+      sinon.assert.calledWith(actions.sync.setJustConnectedDataSourceProviderName, 'testProvider');
+
+      sinon.restore();
 
       done();
     }, 100);
@@ -102,5 +118,17 @@ describe('useProviderConnectionPopup', function () {
 
       done();
     }, 100);
+  });
+
+  it('should fetch patient data sources when justConnectedDataSourceProviderName state is set', (done) => {
+    sinon.assert.notCalled(api.user.getDataSources);
+
+    store.dispatch(actions.sync.setJustConnectedDataSourceProviderName('testProvider'));
+    wrapper.update();
+
+    setTimeout(() => {
+      sinon.assert.calledOnce(api.user.getDataSources);
+      done();
+    })
   });
 });

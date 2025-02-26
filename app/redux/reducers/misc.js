@@ -548,7 +548,6 @@ export const justConnectedDataSourceProviderName = (state = initialState.justCon
   switch (action.type) {
     case types.SET_JUST_CONNECTED_DATA_SOURCE_PROVIDER_NAME:
       const providerName = _.get(action.payload, 'providerName', null);
-      console.log('providerName', providerName);
       return update(state, { $set: providerName });
     case types.LOGOUT_REQUEST:
     case types.CLEAR_PATIENT_IN_VIEW:

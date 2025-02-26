@@ -14,10 +14,8 @@ import sinon from 'sinon';
 import ABP, { AppBannerProvider, AppBannerContext } from '../../../../../app/providers/AppBanner/AppBannerProvider';
 import { ToastProvider } from '../../../../../app/providers/ToastProvider';
 import { DATA_DONATION_NONPROFITS } from '../../../../../app/core/constants';
-import { log } from 'async';
 import { find, keys, pickBy } from 'lodash';
-import { appBanners, pathRegexes } from '../../../../../app/providers/AppBanner/appBanners';
-import { loggedInUserId } from '../../../../../app/redux/reducers/misc';
+import { appBanners } from '../../../../../app/providers/AppBanner/appBanners';
 
 // Create a dummy child component that consumes the AppBannerContext
 const DummyConsumer = () => {
@@ -65,6 +63,7 @@ describe('AppBannerProvider', () => {
         metaData: { size: 0, devices: [] },
       },
       dataSources: [],
+      justConnectedDataSourceProviderName: null,
       dataDonationAccounts: [],
     },
   };
@@ -196,6 +195,7 @@ describe('AppBannerProvider', () => {
       blip: {
         ...initialState.blip,
         dataSources: [dataSource],
+        justConnectedDataSourceProviderName: 'provider1',
       },
     };
 
@@ -598,6 +598,7 @@ describe('AppBannerProvider', () => {
         loggedInUserId: 'user1',
         currentPatientInViewId: 'user1',
         dataSources: [{ state: 'connected', providerName: 'provider1', modifiedTime, createdTime, lastImportTime: null }],
+        justConnectedDataSourceProviderName: 'provider1',
         data: {
           metaData: { size: 1, devices: [] },
         },
@@ -650,6 +651,7 @@ describe('AppBannerProvider', () => {
         loggedInUserId: 'user1',
         currentPatientInViewId: 'user1',
         dataSources: [{ state: 'connected', providerName: 'provider1', modifiedTime, createdTime, lastImportTime: null }],
+        justConnectedDataSourceProviderName: 'provider1',
         data: {
           metaData: { size: 1, devices: [] },
         },
@@ -700,6 +702,7 @@ describe('AppBannerProvider', () => {
       blip: {
         ...initialState.blip,
         dataSources: [{ state: 'connected', providerName: 'provider1', lastImportTime: null }],
+        justConnectedDataSourceProviderName: 'provider1',
         data: {
           metaData: { size: 1, devices: [] },
         },

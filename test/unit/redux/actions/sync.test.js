@@ -2335,6 +2335,31 @@ describe('Actions', () => {
       });
     });
 
+    describe('clearAuthorizedDataSource', () => {
+      it('should be a TSA', () => {
+        let action = sync.clearAuthorizedDataSource();
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal CLEAR_AUTHORIZED_DATA_SOURCE', () => {
+        let action = sync.clearAuthorizedDataSource();
+        expect(action.type).to.equal('CLEAR_AUTHORIZED_DATA_SOURCE');
+      });
+    });
+
+    describe('setJustConnectedDataSourceProviderName', () => {
+      it('should be a TSA', () => {
+        let action = sync.setJustConnectedDataSourceProviderName();
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal CLEAR_AUTHORIZED_DATA_SOURCE', () => {
+        let action = sync.setJustConnectedDataSourceProviderName('providerName123');
+        expect(action.type).to.equal('SET_JUST_CONNECTED_DATA_SOURCE_PROVIDER_NAME');
+        expect(action.payload.providerName).to.equal('providerName123');
+      });
+    });
+
     describe('disconnectDataSourceRequest', () => {
       it('should be a TSA', () => {
         let action = sync.disconnectDataSourceRequest();
