@@ -55,6 +55,8 @@ const AppBannerProvider = ({ children }) => {
   const userHasData = userIsCurrentPatient && patientMetaData?.size > 0;
   const userHasPumpData = filter(patientDevices, { pump: true }).length > 0;
   const dataSources = useSelector(state => state.blip.dataSources);
+  const justConnectedDataSourceProviderName = useSelector(state => state.blip.justConnectedDataSourceProviderName);
+  const justConnectedDataSourceProvider = providers[justConnectedDataSourceProviderName];
 
   const erroredDataSource = find(
     userIsCurrentPatient ? dataSources : clinic?.patients?.[currentPatientInViewId]?.dataSources,
@@ -63,7 +65,7 @@ const AppBannerProvider = ({ children }) => {
 
   const justConnectedDataSource = find(
     userIsCurrentPatient ? dataSources : clinic?.patients?.[currentPatientInViewId]?.dataSources,
-    ({state, lastImportTime}) => state === 'connected' && !lastImportTime,
+    ({providerName}) => providerName === justConnectedDataSourceProviderName,
   );
 
   const [currentBanner, setCurrentBanner] = useState(null);
@@ -87,8 +89,8 @@ const AppBannerProvider = ({ children }) => {
 
   const processedBanners = useMemo(() => ({
     dataSourceJustConnected: {
-      show: !!justConnectedDataSource?.providerName,
-      bannerArgs: [providers[justConnectedDataSource?.providerName], justConnectedDataSource],
+      show: !!justConnectedDataSource,
+      bannerArgs: [justConnectedDataSourceProvider, justConnectedDataSource],
     },
 
     dataSourceReconnect: {
@@ -152,6 +154,7 @@ const AppBannerProvider = ({ children }) => {
     formikContext,
     isCustodialPatient,
     justConnectedDataSource,
+    justConnectedDataSourceProvider,
     loggedInUserId,
     selectedClinicId,
     sharedAccounts,

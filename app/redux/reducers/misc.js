@@ -544,6 +544,20 @@ export const authorizedDataSource = (state = initialState.authorizedDataSource, 
   }
 };
 
+export const justConnectedDataSourceProviderName = (state = initialState.justConnectedDataSourceProviderName, action) => {
+  switch (action.type) {
+    case types.SET_JUST_CONNECTED_DATA_SOURCE_PROVIDER_NAME:
+      const providerName = _.get(action.payload, 'providerName', null);
+      console.log('providerName', providerName);
+      return update(state, { $set: providerName });
+    case types.LOGOUT_REQUEST:
+    case types.CLEAR_PATIENT_IN_VIEW:
+      return null;
+    default:
+      return state;
+  }
+};
+
 export const prescriptions = (state = initialState.prescriptions, action) => {
   switch (action.type) {
     case types.FETCH_CLINIC_PRESCRIPTIONS_SUCCESS:
