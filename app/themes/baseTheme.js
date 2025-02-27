@@ -51,13 +51,14 @@ export const colors = {
   banner: {
     info: {
       action: {
-        bg: '#2A1948',
+        bg: colorPalette.primary.purpleMedium,
         text: colorPalette.neutrals.white,
       },
-      bg: colorPalette.primary.purpleLight,
-      closeIcon: '#4F6A92',
+      bg: '#2A1948',
+      closeIcon: colorPalette.neutrals.white,
       icon: colorPalette.primary.purpleMedium,
-      message: '#2A1948',
+      message: colorPalette.neutrals.white,
+      messageLink: colorPalette.primary.purpleLight,
     },
     warning: {
       action: {
@@ -68,6 +69,7 @@ export const colors = {
       closeIcon: '#4F6A92',
       icon: '#CC6D00',
       message: '#2A1948',
+      messageLink: colorPalette.primary.purpleBright,
     },
     danger: {
       action: {
@@ -78,6 +80,7 @@ export const colors = {
       closeIcon: '#4F6A92',
       icon: '#EC4C47',
       message: '#2A1948',
+      messageLink: colorPalette.primary.purpleBright,
     },
     success: {
       action: {
@@ -88,6 +91,7 @@ export const colors = {
       closeIcon: '#4F6A92',
       icon: '#08A057',
       message: '#2A1948',
+      messageLink: colorPalette.primary.purpleBright,
     },
   },
   stat: {

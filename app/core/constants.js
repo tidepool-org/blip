@@ -28,7 +28,7 @@ export const URL_UPLOADER_DOWNLOAD_PAGE = 'https://tidepool.org/products/tidepoo
 export const URL_SHARE_DATA_INFO = 'https://support.tidepool.org/hc/en-us/articles/360029684951-Share-your-Data';
 export const URL_TIDEPOOL_PLUS_PLANS = 'https://tidepool.org/providers/tidepoolplus/plans';
 export const URL_TIDEPOOL_PLUS_CONTACT_SALES = 'https://app.cronofy.com/add_to_calendar/scheduling/-hq0nDA6';
-export const URL_TIDEPOOL_EXTERNAL_DATA_CONNECTIONS = 'https://support.tidepool.org/hc/en-us/articles/360029369552-Connecting-your-Dexcom-account-to-Tidepool';
+export const URL_TIDEPOOL_EXTERNAL_DATA_CONNECTIONS = 'https://support.tidepool.org/hc/en-us/articles/34686287140884';
 
 export const TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL = 'bigdata@tidepool.org';
 
@@ -40,7 +40,7 @@ export const DATA_DONATION_NONPROFITS = () => [
   { value: 'DYF', label: t('Diabetes Youth Families (DYF)') },
   { value: 'DIABETESSISTERS', label: t('DiabetesSisters') },
   { value: 'DIATRIBE', label: t('The diaTribe Foundation') },
-  { value: 'JDRF', label: t('JDRF') },
+  { value: 'JDRF', label: t('Breakthrough T1D') },
   { value: 'NSF', label: t('Nightscout Foundation') },
   { value: 'T1DX', label: t('T1D Exchange') },
 ];

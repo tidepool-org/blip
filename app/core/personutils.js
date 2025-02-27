@@ -50,6 +50,10 @@ personUtils.isClinicianAccount = (user) => {
   return _.intersection(userRoles, ['clinic', 'migrated_clinic', 'clinician']).length > 0 || user?.isClinicMember;
 };
 
+personUtils.hasClinicRole = (user) => {
+  return _.indexOf(_.get(user, 'roles', []), 'clinic') !== -1;
+}
+
 personUtils.isDataDonationAccount = (account) => {
   const username = account.username || account.email || '';
   return /^bigdata(.+)?@tidepool\.org$/.test(username);
@@ -208,7 +212,6 @@ personUtils.clinicPatientFromAccountInfo = patient => ({
   fullName: personUtils.patientFullName(patient),
   birthDate: _.get(patient, 'profile.patient.birthday'),
   mrn: _.get(patient, 'profile.patient.mrn'),
-  dataSources: patient.dataSources,
 });
 
 personUtils.clinicPatientFromPatientInvite = invite => ({
