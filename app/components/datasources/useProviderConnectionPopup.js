@@ -2,10 +2,12 @@ import { useCallback, useEffect, useState } from 'react';
 import { find, last, min } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { sync } from '../../redux/actions';
+import { async, sync } from '../../redux/actions';
 import { providers } from './DataConnections';
 import { useToasts } from '../../providers/ToastProvider';
 import i18next from '../../core/language';
+import api from '../../core/api';
+import { usePrevious } from '../../core/hooks';
 
 const t = i18next.t.bind(i18next);
 
@@ -14,6 +16,9 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500 } = {}) => {
   const { set: setToast } = useToasts();
   const [providerConnectionPopup, setProviderConnectionPopup] = useState(null);
   const authorizedDataSource = useSelector(state => state.blip.authorizedDataSource);
+  const justConnectedDataSourceProviderName = useSelector(state => state.blip.justConnectedDataSourceProviderName);
+  const fetchingDataSources = useSelector(state => state.blip.working.fetchingDataSources);
+  const previousJustConnectedDataSourceProviderName = usePrevious(justConnectedDataSourceProviderName);
 
   const openProviderConnectionPopup = useCallback((url, displayName) => {
     const popupWidth = min([window.innerWidth * .85, 1080]);
@@ -41,9 +46,15 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500 } = {}) => {
   }, []);
 
   useEffect(() => {
+    if (justConnectedDataSourceProviderName && justConnectedDataSourceProviderName !== previousJustConnectedDataSourceProviderName) {
+      if (!fetchingDataSources?.inProgress) dispatch(async.fetchDataSources(api));
+    }
+  }, [justConnectedDataSourceProviderName, fetchingDataSources?.inProgress, previousJustConnectedDataSourceProviderName, dispatch]);
+
+  useEffect(() => {
     if (authorizedDataSource?.id) {
-      const provider = find(providers, { id: authorizedDataSource.id});
-      if (provider) openProviderConnectionPopup(authorizedDataSource?.url, provider?.displayName);
+      const authorizedProvider = find(providers, { id: authorizedDataSource.id});
+      if (authorizedProvider) openProviderConnectionPopup(authorizedDataSource?.url, authorizedProvider?.displayName);
     }
   }, [authorizedDataSource, openProviderConnectionPopup]);
 
@@ -67,7 +78,6 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500 } = {}) => {
         if (!currentUrl) return;
 
         if (currentUrl.indexOf(authorizedDataSource?.id) !== -1) {
-          providerConnectionPopup.close();
           const status = last(currentPath.split('/'));
 
           const toastMessages = {
@@ -86,6 +96,13 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500 } = {}) => {
             message: toastMessages[status],
             variant: toastVariants[status],
           });
+
+          if (status === 'authorized') {
+            const authorizedProvider = find(providers, { id: authorizedDataSource.id});
+            dispatch(sync.setJustConnectedDataSourceProviderName(authorizedProvider?.dataSourceFilter?.providerName));
+          }
+
+          providerConnectionPopup.close();
         }
       } catch (e) {
         // The above try block will fail while the user is navigated to an external site, due to
@@ -101,7 +118,7 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500 } = {}) => {
       clearInterval(timer);
     };
   }, [
-    authorizedDataSource?.id,
+    authorizedDataSource,
     dispatch,
     popupWatchTimeout,
     providerConnectionPopup,

@@ -44,6 +44,7 @@ describe('AppBanner handleClickAction', () => {
     contextValue = {
       banner: {
         id: 'testBanner',
+        interactionId: 'TestBanner',
         label: 'Test Label',
         message: 'Test Message',
         title: 'Test Title',
@@ -132,7 +133,7 @@ describe('AppBanner handleClickAction', () => {
 
     // completeClickAction dispatches handleBannerInteraction with CLICKED_BANNER_ACTION
     expect(dispatchSpy.called).to.be.true;
-    expect(handleBannerInteractionStub.calledWith('api', 'user123', 'testBanner', CLICKED_BANNER_ACTION)).to.be.true;
+    expect(handleBannerInteractionStub.calledWith('api', 'user123', 'TestBanner', CLICKED_BANNER_ACTION)).to.be.true;
   });
 
   it('should NOT call completeClickAction if a working key is defined', () => {
@@ -161,8 +162,8 @@ describe('AppBanner handleClickAction', () => {
     wrapper.update();
     expect(dispatchSpy.called).to.be.true;
     expect(trackMetricStub.calledWith('showMetric', { someProp: true })).to.be.true;
-    expect(setBannerShownForPatientStub.calledWith({ testBanner: { user123: true } })).to.be.true;
-    expect(handleBannerInteractionStub.calledWith('api', 'user123', 'testBanner', SEEN_BANNER_ACTION)).to.be.true;
+    expect(setBannerShownForPatientStub.calledWith({ TestBanner: { user123: true } })).to.be.true;
+    expect(handleBannerInteractionStub.calledWith('api', 'user123', 'TestBanner', SEEN_BANNER_ACTION)).to.be.true;
   });
 
   it('should call handleBannerInteraction with DISMISSED_BANNER_ACTION when banner is dismissed', () => {
@@ -178,6 +179,6 @@ describe('AppBanner handleClickAction', () => {
 
     // completeClickAction dispatches handleBannerInteraction with DISMISSED_BANNER_ACTION
     expect(dispatchSpy.called).to.be.true;
-    expect(handleBannerInteractionStub.calledWith('api', 'user123', 'testBanner', DISMISSED_BANNER_ACTION)).to.be.true;
+    expect(handleBannerInteractionStub.calledWith('api', 'user123', 'TestBanner', DISMISSED_BANNER_ACTION)).to.be.true;
   });
 });

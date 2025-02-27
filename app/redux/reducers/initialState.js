@@ -165,6 +165,7 @@ const initialState = {
   dataDonationAccounts: [],
   dataSources: [],
   authorizedDataSource: null,
+  justConnectedDataSourceProviderName: null,
   clinics: {},
   selectedClinicId: null,
   pendingReceivedClinicianInvites: [],

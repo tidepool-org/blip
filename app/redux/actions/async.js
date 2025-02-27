@@ -1471,10 +1471,10 @@ export function updateDataDonationAccounts(api, addAccounts = [], removeAccounts
  *
  * @param  {Object} api an instance of the API wrapper
  * @param {String} userId - Id of the logged in user
- * @param {String} patienbannerIdtId - Id of the banner
+ * @param {String} interactionId - Identifier used to create banner interaction keys
  * @param {String} interactionType - One of [clicked, dismissed, seen]
  */
-export function handleBannerInteraction(api, userId, bannerId, interactionType) {
+export function handleBannerInteraction(api, userId, interactionId, interactionType) {
   return (dispatch, getState) => {
     if (!_.includes(['clicked', 'dismissed', 'seen'], interactionType)) {
       return;
@@ -1486,8 +1486,8 @@ export function handleBannerInteraction(api, userId, bannerId, interactionType) 
     if (interactionType === 'seen') {
       const { blip: { loggedInUserId, allUsersMap } } = getState();
       const loggedInUser = allUsersMap[loggedInUserId];
-      const preferenceDateKey = `seen${_.upperFirst(bannerId)}BannerDate`;
-      const preferenceCountKey = `seen${_.upperFirst(bannerId)}BannerCount`;
+      const preferenceDateKey = `seen${interactionId}BannerDate`;
+      const preferenceCountKey = `seen${interactionId}BannerCount`;
       let bannerDate = loggedInUser?.preferences?.[preferenceDateKey] || 0;
       let bannerCount = loggedInUser?.preferences?.[preferenceCountKey] || 0;
 
@@ -1499,7 +1499,7 @@ export function handleBannerInteraction(api, userId, bannerId, interactionType) 
         };
       }
     } else {
-      const preferenceKey = `${interactionType}${_.upperFirst(bannerId)}BannerTime`;
+      const preferenceKey = `${interactionType}${interactionId}BannerTime`;
 
       preferences = {
         [preferenceKey]: interactionTime,

@@ -4846,7 +4846,7 @@ describe('Actions', () => {
     describe('handleBannerInteraction', () => {
       it('should should call updatePreferences once for a successful clicked interaction', () => {
         const interactionType = 'clicked';
-        const bannerId = 'testBanner';
+        const interactionId = 'TestBanner';
         const patient = { id: 'testUser', name: 'Test User', age: 65 };
         const preferences = { clickedTestBannerBannerTime: '2024-11-28T00:00:00.000Z' };
 
@@ -4878,7 +4878,7 @@ describe('Actions', () => {
         });
 
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.handleBannerInteraction(api, patient.id, bannerId, interactionType));
+        store.dispatch(async.handleBannerInteraction(api, patient.id, interactionId, interactionType));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
@@ -4886,7 +4886,7 @@ describe('Actions', () => {
 
       it('should should call updatePreferences once for a successful dismissed interaction', () => {
         const interactionType = 'dismissed';
-        const bannerId = 'testBanner';
+        const interactionId = 'TestBanner';
         const patient = { id: 'testUser', name: 'Test User', age: 65 };
         const preferences = { dismissedTestBannerBannerTime: '2024-11-28T00:00:00.000Z' };
 
@@ -4918,7 +4918,7 @@ describe('Actions', () => {
         });
 
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.handleBannerInteraction(api, patient.id, bannerId, interactionType));
+        store.dispatch(async.handleBannerInteraction(api, patient.id, interactionId, interactionType));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
@@ -4926,7 +4926,7 @@ describe('Actions', () => {
 
       it('should should call updatePreferences once for a successful seen interaction', () => {
         const interactionType = 'seen';
-        const bannerId = 'testBanner';
+        const interactionId = 'TestBanner';
         const patient = { id: 'testUser', name: 'Test User', age: 65 };
         const preferences = { seenTestBannerBannerTime: '2024-11-28T00:00:00.000Z' };
 
@@ -4958,7 +4958,7 @@ describe('Actions', () => {
         });
 
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.handleBannerInteraction(api, patient.id, bannerId, interactionType));
+        store.dispatch(async.handleBannerInteraction(api, patient.id, interactionId, interactionType));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
@@ -4966,7 +4966,7 @@ describe('Actions', () => {
 
       it('should should not call updatePreferences once for an unknown interaction type', () => {
         const interactionType = 'foobar';
-        const bannerId = 'testBanner';
+        const interactionId = 'TestBanner';
         const patient = { id: 'testUser', name: 'Test User', age: 65 };
 
         let api = {
@@ -4987,7 +4987,7 @@ describe('Actions', () => {
         });
 
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.handleBannerInteraction(api, patient.id, bannerId, interactionType));
+        store.dispatch(async.handleBannerInteraction(api, patient.id, interactionId, interactionType));
 
         const actions = store.getActions();
         expect(actions.length).to.equal(0);

@@ -14,7 +14,6 @@ import sinon from 'sinon';
 import ABP, { AppBannerProvider, AppBannerContext } from '../../../../../app/providers/AppBanner/AppBannerProvider';
 import { ToastProvider } from '../../../../../app/providers/ToastProvider';
 import { DATA_DONATION_NONPROFITS } from '../../../../../app/core/constants';
-import { log } from 'async';
 import { find, keys, pickBy } from 'lodash';
 import { appBanners } from '../../../../../app/providers/AppBanner/appBanners';
 
@@ -64,6 +63,7 @@ describe('AppBannerProvider', () => {
         metaData: { size: 0, devices: [] },
       },
       dataSources: [],
+      justConnectedDataSourceProviderName: null,
       dataDonationAccounts: [],
     },
   };
@@ -71,7 +71,12 @@ describe('AppBannerProvider', () => {
   let store, dispatchStub;
 
   const providersStub = {
-    provider1: 'provider1',
+    provider1: {
+      dataSourceFilter: {
+        providerType: 'oauth',
+        providerName: 'provider1',
+      },
+    },
   };
 
   beforeEach(() => {
@@ -184,10 +189,13 @@ describe('AppBannerProvider', () => {
   });
 
   it('should show dataSourceJustConnected banner when a data source is just connected', () => {
+    const dataSource = { state: 'connected', providerName: 'provider1', lastImportTime: null };
+
     const stateWithJustConnectedDataSource = {
       blip: {
         ...initialState.blip,
-        dataSources: [{ state: 'connected', providerName: 'provider1', lastImportTime: null }],
+        dataSources: [dataSource],
+        justConnectedDataSourceProviderName: 'provider1',
       },
     };
 
@@ -208,14 +216,16 @@ describe('AppBannerProvider', () => {
     const contextData = JSON.parse(wrapper.find('[data-testid="context"]').text());
     expect(contextData.hasBanner).to.be.true;
     expect(contextData.banner.id).to.equal('dataSourceJustConnected');
-    expect(contextData.processedBanner.bannerArgs).to.eql(['provider1']);
+    expect(contextData.processedBanner.bannerArgs).to.eql([providersStub.provider1, dataSource]);
   });
 
   it('should show dataSourceReconnect banner when a data source has an error', () => {
+    const dataSource = { state: 'error', providerName: 'provider1' };
+
     const stateWithErroredDataSource = {
       blip: {
         ...initialState.blip,
-        dataSources: [{ state: 'error', providerName: 'provider1' }],
+        dataSources: [dataSource],
       },
     };
 
@@ -237,7 +247,7 @@ describe('AppBannerProvider', () => {
 
     expect(contextData.hasBanner).to.be.true;
     expect(contextData.banner.id).to.equal('dataSourceReconnect');
-    expect(contextData.processedBanner.bannerArgs).to.eql([dispatchStub, 'provider1']);
+    expect(contextData.processedBanner.bannerArgs).to.eql([dispatchStub, providersStub.provider1, dataSource]);
   });
 
   it('should show uploader banner when user is current patient and has a data source connection but no pump data', () => {
@@ -488,7 +498,7 @@ describe('AppBannerProvider', () => {
 
     expect(contextData.hasBanner).to.be.true;
     expect(contextData.banner.id).to.equal('dataSourceReconnectInvite');
-    expect(contextData.processedBanner.bannerArgs).to.eql([dispatchStub, 'clinic1', stateWithDataSourceReconnectInvite.blip.clinics.clinic1.patients.user1, 'provider1']);
+    expect(contextData.processedBanner.bannerArgs).to.eql([dispatchStub, 'clinic1', stateWithDataSourceReconnectInvite.blip.clinics.clinic1.patients.user1, providersStub.provider1]);
   });
 
   it('should show addEmail banner when user is a custodial patient and has no email', () => {
@@ -573,6 +583,113 @@ describe('AppBannerProvider', () => {
     expect(contextData.processedBanner.bannerArgs).to.eql([dispatchStub, stateWithSendVerification.blip.clinics.clinic1.patients.user1]);
   });
 
+  it('should hide a banner when user interaction occurred after ignoreBannerInteractionsBeforeTime', () => {
+    const createdTime = '2025-02-25T08:00:00.000Z';
+    const modifiedTime = '2025-02-25T10:00:00.000Z';
+    const interactionTime = '2025-02-25T11:00:00.000Z';
+
+    ABP.__Rewire__('appBanners', [
+      { ...find(appBanners, { id: 'dataSourceJustConnected' }), ignoreBannerInteractionsBeforeTime: modifiedTime },
+    ]);
+
+    const stateWithInteraction = {
+      blip: {
+        ...initialState.blip,
+        loggedInUserId: 'user1',
+        currentPatientInViewId: 'user1',
+        dataSources: [{ state: 'connected', providerName: 'provider1', modifiedTime, createdTime, lastImportTime: null }],
+        justConnectedDataSourceProviderName: 'provider1',
+        data: {
+          metaData: { size: 1, devices: [] },
+        },
+        allUsersMap: {
+          user1: {
+            profile: { patient: {} },
+            preferences: {
+              // Simulate that the user has already interacted with the banner after modifiedTime
+              dismissedProvider1DataSourceJustConnectedBannerTime: interactionTime,
+            },
+          },
+        },
+      },
+    };
+
+    store = mockStore(stateWithInteraction);
+
+    const wrapper = mount(
+      <Provider store={store}>
+        <ToastProvider>
+          <MemoryRouter initialEntries={['/patients/user1/data']}>
+            <AppBannerProvider>
+              <DummyConsumer />
+            </AppBannerProvider>
+          </MemoryRouter>
+        </ToastProvider>
+      </Provider>
+    );
+
+    const contextData = JSON.parse(wrapper.find('[data-testid="context"]').text());
+
+    // Since the user interaction occurred after modifiedTime,
+    // we expect the provider to show the banner.
+    expect(contextData.hasBanner).to.be.false;
+    ABP.__ResetDependency__('appBanners');
+  });
+
+  it('should show a banner when user interaction occurred before ignoreBannerInteractionsBeforeTime', () => {
+    const createdTime = '2025-02-25T08:00:00.000Z';
+    const modifiedTime = '2025-02-25T10:00:00.000Z';
+    const interactionTime = '2025-02-25T09:00:00.000Z';
+
+    ABP.__Rewire__('appBanners', [
+      { ...find(appBanners, { id: 'dataSourceJustConnected' }), ignoreBannerInteractionsBeforeTime: modifiedTime },
+    ]);
+
+    const stateWithInteraction = {
+      blip: {
+        ...initialState.blip,
+        loggedInUserId: 'user1',
+        currentPatientInViewId: 'user1',
+        dataSources: [{ state: 'connected', providerName: 'provider1', modifiedTime, createdTime, lastImportTime: null }],
+        justConnectedDataSourceProviderName: 'provider1',
+        data: {
+          metaData: { size: 1, devices: [] },
+        },
+        allUsersMap: {
+          user1: {
+            profile: { patient: {} },
+            preferences: {
+              // Simulate that the user has already interacted with the banner before modifiedTime
+              dismissedProvider1DataSourceJustConnectedBannerTime: interactionTime,
+            },
+          },
+        },
+      },
+    };
+
+    store = mockStore(stateWithInteraction);
+
+    const wrapper = mount(
+      <Provider store={store}>
+        <ToastProvider>
+          <MemoryRouter initialEntries={['/patients/user1/data']}>
+            <AppBannerProvider>
+              <DummyConsumer />
+            </AppBannerProvider>
+          </MemoryRouter>
+        </ToastProvider>
+      </Provider>
+    );
+
+    const contextData = JSON.parse(wrapper.find('[data-testid="context"]').text());
+
+    // Since the user interaction occurred before modifiedTime,
+    // we expect the provider to show the banner.
+    expect(contextData.hasBanner).to.be.true;
+    expect(contextData.banner.id).to.equal('dataSourceJustConnected');
+    ABP.__ResetDependency__('appBanners');
+  });
+
   it('should show the banner with the lowest priority value when multiple banners are available', () => {
     ABP.__Rewire__('appBanners', [
       { ...find(appBanners, { id: 'dataSourceJustConnected' }), priority: 2 },
@@ -585,6 +702,7 @@ describe('AppBannerProvider', () => {
       blip: {
         ...initialState.blip,
         dataSources: [{ state: 'connected', providerName: 'provider1', lastImportTime: null }],
+        justConnectedDataSourceProviderName: 'provider1',
         data: {
           metaData: { size: 1, devices: [] },
         },
@@ -610,5 +728,6 @@ describe('AppBannerProvider', () => {
     expect(keys(bannerCandidates)).to.have.lengthOf(4);
     expect(contextData.hasBanner).to.be.true;
     expect(contextData.banner.id).to.equal('donateYourData');
+    ABP.__ResetDependency__('appBanners');
   });
 });
