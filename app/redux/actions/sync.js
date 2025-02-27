@@ -1151,6 +1151,15 @@ export function clearAuthorizedDataSource() {
   };
 }
 
+export function setJustConnectedDataSourceProviderName(providerName) {
+  return {
+    type: ActionTypes.SET_JUST_CONNECTED_DATA_SOURCE_PROVIDER_NAME,
+    payload: {
+      providerName: providerName,
+    },
+  };
+}
+
 export function connectDataSourceFailure(error, apiError) {
   return {
     type: ActionTypes.CONNECT_DATA_SOURCE_FAILURE,

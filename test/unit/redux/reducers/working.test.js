@@ -3938,7 +3938,7 @@ describe('dataWorkerQueryData', () => {
 
   describe('fetchDataSources', () => {
     describe('request', () => {
-      it('should leave fetchingDataSources.completed unchanged', () => {
+      it('should set fetchingDataSources.completed to null', () => {
         expect(initialState.fetchingDataSources.completed).to.be.null;
 
         let requestAction = actions.sync.fetchDataSourcesRequest();
@@ -3952,7 +3952,7 @@ describe('dataWorkerQueryData', () => {
         expect(successState.fetchingDataSources.completed).to.be.true;
 
         let state = reducer(successState, requestAction);
-        expect(state.fetchingDataSources.completed).to.be.true;
+        expect(state.fetchingDataSources.completed).to.be.null;
         expect(mutationTracker.hasMutated(tracked)).to.be.false;
       });
 

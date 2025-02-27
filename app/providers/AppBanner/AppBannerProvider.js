@@ -1,7 +1,22 @@
 import React, { createContext, useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
-import { filter, find, has, includes, intersection, keys, map, noop, some, upperFirst } from 'lodash';
+import moment from 'moment';
+
+import {
+  each,
+  filter,
+  find,
+  first,
+  has,
+  includes,
+  intersection,
+  isEmpty,
+  keys,
+  map,
+  max,
+  some
+} from 'lodash';
 
 import { appBanners } from './appBanners';
 import { providers } from '../../components/datasources/DataConnections';
@@ -40,6 +55,8 @@ const AppBannerProvider = ({ children }) => {
   const userHasData = userIsCurrentPatient && patientMetaData?.size > 0;
   const userHasPumpData = filter(patientDevices, { pump: true }).length > 0;
   const dataSources = useSelector(state => state.blip.dataSources);
+  const justConnectedDataSourceProviderName = useSelector(state => state.blip.justConnectedDataSourceProviderName);
+  const justConnectedDataSourceProvider = providers[justConnectedDataSourceProviderName];
 
   const erroredDataSource = find(
     userIsCurrentPatient ? dataSources : clinic?.patients?.[currentPatientInViewId]?.dataSources,
@@ -48,7 +65,7 @@ const AppBannerProvider = ({ children }) => {
 
   const justConnectedDataSource = find(
     userIsCurrentPatient ? dataSources : clinic?.patients?.[currentPatientInViewId]?.dataSources,
-    ({state, lastImportTime}) => state === 'connected' && !lastImportTime,
+    ({providerName}) => !!justConnectedDataSourceProviderName && providerName === justConnectedDataSourceProviderName,
   );
 
   const [currentBanner, setCurrentBanner] = useState(null);
@@ -72,13 +89,13 @@ const AppBannerProvider = ({ children }) => {
 
   const processedBanners = useMemo(() => ({
     dataSourceJustConnected: {
-      show: !!justConnectedDataSource?.providerName,
-      bannerArgs: [providers[justConnectedDataSource?.providerName]]
+      show: !!justConnectedDataSource,
+      bannerArgs: [justConnectedDataSourceProvider, justConnectedDataSource],
     },
 
     dataSourceReconnect: {
       show: !!erroredDataSource?.providerName,
-      bannerArgs: [dispatch, providers[erroredDataSource?.providerName]]
+      bannerArgs: [dispatch, providers[erroredDataSource?.providerName], erroredDataSource],
     },
 
     uploader: {
@@ -133,10 +150,11 @@ const AppBannerProvider = ({ children }) => {
     currentPatientInViewId,
     dataSources?.length,
     dispatch,
-    erroredDataSource?.providerName,
+    erroredDataSource,
     formikContext,
     isCustodialPatient,
-    justConnectedDataSource?.providerName,
+    justConnectedDataSource,
+    justConnectedDataSourceProvider,
     loggedInUserId,
     selectedClinicId,
     sharedAccounts,
@@ -151,33 +169,60 @@ const AppBannerProvider = ({ children }) => {
   useEffect(() => {
     setCurrentBanner(null);
     const context = userIsCurrentPatient ? 'patient' : 'clinic';
-    const bannerInteractionKeys = banner => map([CLICKED_BANNER_ACTION, DISMISSED_BANNER_ACTION], action => `${action}${upperFirst(banner.id)}BannerTime`);
+    const bannerInteractionKeys = banner => map([CLICKED_BANNER_ACTION, DISMISSED_BANNER_ACTION], action => `${action}${banner.interactionId}BannerTime`);
 
-    const filteredBanners = filter(appBanners, banner => {
-      const previousPatientInteractions = intersection(keys(loggedInUser?.preferences), bannerInteractionKeys(banner));
-      const bannerCountKey = `seen${upperFirst(banner.id)}BannerCount`;
-      const countExceeded = banner.maxUniqueDaysShown && loggedInUser?.preferences?.[bannerCountKey] > banner.maxUniqueDaysShown;
-      const sessionInteraction = bannerInteractedForPatient[banner.id]?.[currentPatientInViewId];
-      const matchesContext = includes(banner.context, context);
-      const matchesPath = some(banner.paths, path => path.test(pathname));
-      return !countExceeded && !sessionInteraction && !previousPatientInteractions.length && matchesContext && matchesPath;
+    const filteredBanners = [];
+
+    each(appBanners, banner => {
+      // Filter out if data conditions are not met for showing the banner
+      if (!processedBanners[banner.id]?.show) return;
+
+      // Filter out if banner path or context conditions are not met
+      if (!some(banner.paths, path => path.test(pathname)) || !includes(banner.context, context)) return;
+
+      // Process the banner props. Important to do this before filtering by previous banner interactions
+      // since we need the sometimes-dynamic banner.interactionId to generate the keys
+      const processedBanner = {
+        ...banner,
+        ...banner.getProps(...processedBanners[banner.id]?.bannerArgs),
+      };
+
+      // Filter further by previous banner interactions
+      let latestBannerInteractionTime = max(map(
+        intersection(keys(loggedInUser?.preferences), bannerInteractionKeys(processedBanner)),
+        key => loggedInUser?.preferences[key]
+      ));
+
+      const bannerCountKey = `seen${processedBanner.interactionId}BannerCount`;
+      const countExceeded = processedBanner.maxUniqueDaysShown && loggedInUser?.preferences?.[bannerCountKey] > processedBanner.maxUniqueDaysShown;
+      const sessionInteraction = bannerInteractedForPatient[processedBanner.interactionId]?.[currentPatientInViewId];
+
+      // Handle any banners with outdate previous interactions that may be candidates for display again
+      if (processedBanner?.ignoreBannerInteractionsBeforeTime) {
+        // Ignore the previous banner interactions if they are older than the ignoreBannerInteractionsBeforeTime
+        const ignorePreviousBannerInteractions = moment(latestBannerInteractionTime).isBefore(processedBanner.ignoreBannerInteractionsBeforeTime);
+        if (ignorePreviousBannerInteractions) latestBannerInteractionTime = null;
+      }
+
+      // Filter out based on previous view counts or interactions
+      if (countExceeded || sessionInteraction || latestBannerInteractionTime) {
+        return;
+      }
+
+      // No filters were applicable. Banner is a candidtate to be shown
+      filteredBanners.push(processedBanner);
     });
 
     // Sort banners based on priority (lower values mean higher priority)
     const sortedBanners = filteredBanners.sort((a, b) => a.priority - b.priority);
 
-    // Find and display the first available banner
-    for (const banner of sortedBanners) {
-      const processedBanner = processedBanners[banner.id];
-
-      if (processedBanner?.show) {
-        setCurrentBanner({ ...banner, ...banner.getProps(...processedBanner.bannerArgs) });
-        break;
-      }
-    }
+    // Set the first available banner to display, else null
+    setCurrentBanner(first(sortedBanners) || null);
   }, [
     bannerInteractedForPatient,
     currentPatientInViewId,
+    erroredDataSource,
+    justConnectedDataSource,
     loggedInUser?.preferences,
     pathname,
     processedBanners,

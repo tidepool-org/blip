@@ -30,17 +30,17 @@ const AppBanner = ({ trackMetric }) => {
   const [showModal, setShowModal] = useState(false);
 
   const completeClickAction = useCallback(() => {
-    userIsCurrentPatient && dispatch(async.handleBannerInteraction(api, loggedInUserId, banner?.id, CLICKED_BANNER_ACTION));
+    userIsCurrentPatient && dispatch(async.handleBannerInteraction(api, loggedInUserId, banner?.interactionId, CLICKED_BANNER_ACTION));
     showModal && setShowModal(false);
 
     setBannerInteractedForPatient({
-      [banner?.id]: {
-        ...(bannerInteractedForPatient[banner?.id] || {}),
+      [banner?.interactionId]: {
+        ...(bannerInteractedForPatient[banner?.interactionId] || {}),
         [currentPatientInViewId]: true,
       },
     });
   }, [
-    banner?.id,
+    banner?.interactionId,
     bannerInteractedForPatient,
     currentPatientInViewId,
     dispatch,
@@ -74,10 +74,10 @@ const AppBanner = ({ trackMetric }) => {
 
   useEffect(() => {
     // Send a metric the first time a banner is shown to a patient for the current session
-    if(banner?.show?.metric && !bannerShownForPatient[banner.id]?.[currentPatientInViewId]) {
+    if(banner?.show?.metric && !bannerShownForPatient[banner.interactionId]?.[currentPatientInViewId]) {
       setBannerShownForPatient({
-        [banner.id]: {
-          ...(bannerShownForPatient[banner.id] || {}),
+        [banner.interactionId]: {
+          ...(bannerShownForPatient[banner.interactionId] || {}),
           [currentPatientInViewId]: true,
         },
       });
@@ -86,7 +86,7 @@ const AppBanner = ({ trackMetric }) => {
 
       // Update banner show count if necessary
       if (banner?.maxUniqueDaysShown) {
-        dispatch(async.handleBannerInteraction(api, loggedInUserId, banner.id, SEEN_BANNER_ACTION));
+        dispatch(async.handleBannerInteraction(api, loggedInUserId, banner.interactionId, SEEN_BANNER_ACTION));
       }
     }
   }, [
@@ -132,13 +132,13 @@ const AppBanner = ({ trackMetric }) => {
   }
 
   function handleDismiss() {
-    userIsCurrentPatient && dispatch(async.handleBannerInteraction(api, loggedInUserId, banner.id, DISMISSED_BANNER_ACTION));
+    userIsCurrentPatient && dispatch(async.handleBannerInteraction(api, loggedInUserId, banner.interactionId, DISMISSED_BANNER_ACTION));
     isFunction(banner.dismiss?.handler) && banner.dismiss.handler();
     banner.dismiss?.metric && trackMetric(banner.dismiss.metric, banner.dismiss?.metricProps);
 
     setBannerInteractedForPatient({
-      [banner.id]: {
-        ...(bannerInteractedForPatient[banner.id] || {}),
+      [banner.interactionId]: {
+        ...(bannerInteractedForPatient[banner.interactionId] || {}),
         [currentPatientInViewId]: true,
       },
     });
