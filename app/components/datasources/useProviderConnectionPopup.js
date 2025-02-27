@@ -17,8 +17,7 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500 } = {}) => {
   const [providerConnectionPopup, setProviderConnectionPopup] = useState(null);
   const authorizedDataSource = useSelector(state => state.blip.authorizedDataSource);
   const justConnectedDataSourceProviderName = useSelector(state => state.blip.justConnectedDataSourceProviderName);
-  const { fetchingDataSources } = useSelector(state => state.blip.working);
-  const [provider, setProvider] = useState(null);
+  const fetchingDataSources = useSelector(state => state.blip.working.fetchingDataSources);
   const previousJustConnectedDataSourceProviderName = usePrevious(justConnectedDataSourceProviderName);
 
   const openProviderConnectionPopup = useCallback((url, displayName) => {
@@ -55,7 +54,6 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500 } = {}) => {
   useEffect(() => {
     if (authorizedDataSource?.id) {
       const authorizedProvider = find(providers, { id: authorizedDataSource.id});
-      setProvider(authorizedProvider);
       if (authorizedProvider) openProviderConnectionPopup(authorizedDataSource?.url, authorizedProvider?.displayName);
     }
   }, [authorizedDataSource, openProviderConnectionPopup]);
@@ -100,7 +98,8 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500 } = {}) => {
           });
 
           if (status === 'authorized') {
-            dispatch(sync.setJustConnectedDataSourceProviderName(provider?.dataSourceFilter?.providerName));
+            const authorizedProvider = find(providers, { id: authorizedDataSource.id});
+            dispatch(sync.setJustConnectedDataSourceProviderName(authorizedProvider?.dataSourceFilter?.providerName));
           }
 
           providerConnectionPopup.close();
@@ -123,7 +122,6 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500 } = {}) => {
     dispatch,
     popupWatchTimeout,
     providerConnectionPopup,
-    provider?.dataSourceFilter?.providerName,
     setToast,
   ]);
 
