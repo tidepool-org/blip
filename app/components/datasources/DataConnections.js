@@ -56,7 +56,7 @@ export const providers = {
   },
   abbott: {
     id: 'oauth/abbott',
-    displayName: 'Freestyle Libre',
+    displayName: 'FreeStyle Libre',
     restrictedTokenCreate: {
         paths: [
           '/v1/oauth/abbott',
@@ -115,7 +115,7 @@ export function getProviderHandlers(patient, selectedClinicId, provider) {
       buttonText: t('Disconnect'),
       buttonStyle: 'text',
       action: actions.async.disconnectDataSource,
-      args: [api, id, dataSourceFilter],
+      args: [api, dataSourceFilter],
     },
     inviteSent: {
       buttonDisabled: true,
@@ -193,7 +193,7 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
       handler: isLoggedInUser ? 'connect' : 'sendInvite',
       icon: null,
       message: null,
-      text: isLoggedInUser ? null : t('No Pending Connections'),
+      text: null,
     },
     inviteJustSent: {
       color: colors.grays[5],
@@ -338,13 +338,17 @@ export const DataConnections = (props) => {
   const [activeHandler, setActiveHandler] = useState(null);
   const dataConnectionProps = getDataConnectionProps(patient, isLoggedInUser, selectedClinicId, setActiveHandler);
 
+
   const {
     sendingPatientDataProviderConnectRequest,
     updatingClinicPatient,
+    disconnectingDataSource,
+    fetchingDataSources,
   } = useSelector((state) => state.blip.working);
 
   const previousSendingPatientDataProviderConnectRequest = usePrevious(sendingPatientDataProviderConnectRequest);
   const previousUpdatingClinicPatient = usePrevious(updatingClinicPatient);
+  const previousDisconnectingDataSource = usePrevious(disconnectingDataSource);
 
   const fetchPatientDetails = useCallback(() => {
     dispatch(actions.async.fetchPatientFromClinic(api, selectedClinicId, patient?.id));
@@ -465,8 +469,27 @@ export const DataConnections = (props) => {
     setShowPatientEmailModal(false);
     setShowResendDataSourceConnectRequest(false);
     setActiveHandler(null);
-    fetchPatientDetails();
-  }, [fetchPatientDetails]);
+
+    if (selectedClinicId) {
+      fetchPatientDetails();
+    } else {
+      if (!fetchingDataSources?.inProgress) dispatch(actions.async.fetchDataSources(api));
+    }
+  }, [fetchPatientDetails, selectedClinicId, fetchingDataSources?.inProgress, dispatch]);
+
+  const authorizedDataSource = useSelector(state => state.blip.authorizedDataSource);
+  const previousAuthorizedDataSource = usePrevious(authorizedDataSource);
+
+  useEffect(() => {
+    if (!!previousAuthorizedDataSource && !authorizedDataSource && activeHandler) {
+      handleActiveHandlerComplete()
+    }
+  }, [
+    activeHandler,
+    authorizedDataSource,
+    handleActiveHandlerComplete,
+    previousAuthorizedDataSource,
+  ]);
 
   useEffect(() => {
     if(activeHandler?.action && !activeHandler?.inProgress) {
@@ -520,6 +543,18 @@ export const DataConnections = (props) => {
     patient?.email
   ]);
 
+  useEffect(() => {
+    handleAsyncResult({ ...disconnectingDataSource, prevInProgress: previousDisconnectingDataSource?.inProgress }, t('{{ providerDisplayName }} connection has been disconnected.', {
+      providerDisplayName: providers[activeHandler?.providerName]?.displayName,
+    }), handleActiveHandlerComplete);
+  }, [
+    disconnectingDataSource,
+    previousDisconnectingDataSource?.inProgress,
+    handleAsyncResult,
+    handleActiveHandlerComplete,
+    activeHandler?.providerName,
+  ]);
+
   return (
     <>
       <Box id="data-connections" {...themeProps}>
@@ -536,7 +571,6 @@ export const DataConnections = (props) => {
       </Box>
 
       {showPatientEmailModal && <PatientEmailModal
-        action="add"
         open
         onClose={handleAddPatientEmailClose}
         onFormChange={handleAddPatientEmailFormChange}
@@ -578,7 +612,9 @@ const userDataSourceShape = {
 
 DataConnections.propTypes = {
   ...BoxProps,
-  patient: PropTypes.oneOf([PropTypes.shape(clinicPatientDataSourceShape), PropTypes.shape(userDataSourceShape)]),
+  patient: PropTypes.shape({
+    dataSources: PropTypes.oneOf([PropTypes.shape(clinicPatientDataSourceShape), PropTypes.shape(userDataSourceShape)])
+  }),
   shownProviders: PropTypes.arrayOf(PropTypes.oneOf(activeProviders)),
   trackMetric: PropTypes.func.isRequired,
 };

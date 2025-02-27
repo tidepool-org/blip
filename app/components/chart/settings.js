@@ -95,7 +95,12 @@ const Settings = ({
   const isClinicContext = !!selectedClinicId;
   const [showDataConnectionsModal, setShowDataConnectionsModal] = useState(false);
   const [showUploadOverlay, setShowUploadOverlay] = useState(false);
-  const patientData = clinicPatient || clinicPatientFromAccountInfo(patient);
+  const dataSources = useSelector(state => state.blip.dataSources);
+
+  const patientData = clinicPatient || {
+    ...clinicPatientFromAccountInfo(patient),
+    dataSources,
+  };
 
   const deviceSelectionPopupState = usePopupState({
     variant: 'popover',
@@ -565,8 +570,8 @@ const Settings = ({
         ? t('Connect an Account')
         : t('Connect a Device Account'),
       subtitle: isUserPatient
-        ? t('Do you have a Dexcom, LibreView or twiist account? When you connect an account, data can flow into Tidepool without any extra effort.')
-        : t('Does your patient have a Dexcom, LibreView, or twiist account? Automatically sync data from these accounts with the patient\'s permission.'),
+        ? t('Do you have a Dexcom or FreeStyle Libre device? When you connect a device account, data can flow into Tidepool without any extra effort.')
+        : t('Does your patient use a Dexcom or FreeStyle Libre device? Automatically sync data from those devices with the patient\'s permission.'),
       bannerImage: DataConnectionsBanner,
       onClick: handleClickDataConnections.bind(null, 'card'),
       variant: 'containers.cardHorizontal',
@@ -577,18 +582,13 @@ const Settings = ({
     );
   };
 
-  const renderDataConnectionsModal = () => {
-    const shownProviders = _.reject(activeProviders, providerName => _.find(patientData?.dataSources, { providerName }));
-
-    return (
-      <DataConnectionsModal
-        open
-        patient={clinicPatient || patient}
-        shownProviders={shownProviders}
-        onClose={() => setShowDataConnectionsModal(false)}
-      />
-    );
-  };
+  const renderDataConnectionsModal = () => (
+    <DataConnectionsModal
+      open
+      patient={clinicPatient || patient}
+      onClose={() => setShowDataConnectionsModal(false)}
+    />
+  );
 
   const renderDataConnections = () => {
     const shownProviders = _.map(patientData?.dataSources, 'providerName');
