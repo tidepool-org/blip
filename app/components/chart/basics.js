@@ -36,6 +36,7 @@ class Basics extends Component {
     onClickPrint: PropTypes.func.isRequired,
     onSwitchToSettings: PropTypes.func.isRequired,
     onSwitchToBgLog: PropTypes.func.isRequired,
+    onSwitchToTrends: PropTypes.func.isRequired,
     onUpdateChartDateRange: PropTypes.func.isRequired,
     patient: PropTypes.object.isRequired,
     stats: PropTypes.array.isRequired,
@@ -276,7 +277,11 @@ class Basics extends Component {
   };
 
   handleSelectDay = (date, title) => {
-    this.props.onSwitchToDaily(date, title);
+    if (title) {
+      this.props.trackMetric(`Clicked Basics ${title} calendar`, { fromChart: 'basics' });
+    }
+
+    this.props.onSwitchToDaily(date);
   };
 
   handleCopyBasicsClicked = () => {
