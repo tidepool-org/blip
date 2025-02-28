@@ -113,7 +113,7 @@ export const useNavigation = (api, trackMetric) => {
 
   const handleViewSettingsChart = () => {
     trackMetric('Clicked Navbar View Devices');
-    dispatch(push(`/patients/${currentPatientInViewId}/data?chart=settings`));
+    dispatch(push(`/patients/${currentPatientInViewId}/data/settings`));
   };
 
   const handleShare = () => {

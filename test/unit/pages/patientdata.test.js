@@ -4705,36 +4705,6 @@ describe('PatientData', function () {
   });
 
   describe('handleSwitchToDaily', function() {
-    it('should track metric for calender', function() {
-      var props = {
-        currentPatientInViewId: '40',
-        dataWorkerQueryDataRequest: sinon.stub(),
-        location: { search: '', pathname: '/data' },
-        history: { push: sinon.stub() },
-        isUserPatient: true,
-        patient: {
-          userid: '40',
-          profile: {
-            fullName: 'Fooey McBar'
-          }
-        },
-        fetchingPatient: false,
-        fetchingPatientData: false,
-        fetchingUser: false,
-        trackMetric: sinon.stub(),
-        t,
-        generatingPDF: { inProgress: false },
-        pdf: {},
-      };
-
-      var elem = mount(<PatientDataClass {...props}/>);
-
-      var callCount = props.trackMetric.callCount;
-      elem.instance().handleSwitchToDaily('2016-08-19T01:51:55.000Z', 'testing');
-      expect(props.trackMetric.callCount).to.equal(callCount + 1);
-      expect(props.trackMetric.calledWith('Clicked Basics testing calendar')).to.be.true;
-    });
-
     it('should set the `chartType` state to `daily`', () => {
       const wrapper = shallow(<PatientDataClass {...defaultProps} />);
       const instance = wrapper.instance();
@@ -5034,6 +5004,109 @@ describe('PatientData', function () {
 
       instance.handleSwitchToSettings();
       expect(wrapper.state('chartType')).to.equal('settings');
+    });
+  });
+
+  describe('handleRouteChangeEvent', function() {
+    const props = {...defaultProps};
+
+    let wrapper;
+    let instance;
+
+    beforeEach(() => {
+      wrapper = shallow(<PatientDataClass {...props} />);
+      instance = wrapper.instance();
+      instance.setInitialChartView();
+    });
+
+    describe(('chartType is explicitly targetted in URL'), () => {
+      it('should call `handleSwitchToBasics` when the route changes to `/data/basics`', () => {
+        const nextProps = { match: { params: { chartType: 'basics' } } };
+
+        instance.handleSwitchToBasics = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToBasics);
+      });
+
+      it('should call `handleSwitchToDaily` when the route changes to `/data/daily`', () => {
+        const nextProps = { match: { params: { chartType: 'daily' } } };
+
+        instance.handleSwitchToDaily = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToDaily);
+      });
+
+      it('should call `handleSwitchToTrends` when the route changes to `/data/trends`', () => {
+        const nextProps = { match: { params: { chartType: 'trends' } } };
+
+        instance.handleSwitchToTrends = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToTrends);
+      });
+
+      it('should call `handleSwitchToBgLog` when the route changes to `/data/bgLog`', () => {
+        const nextProps = { match: { params: { chartType: 'bgLog' } } };
+
+        instance.handleSwitchToBgLog = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToBgLog);
+      });
+
+      it('should call `handleSwitchToSettings` when the route changes to `/data/settings`', () => {
+        const nextProps = { match: { params: { chartType: 'settings' } } };
+
+        instance.handleSwitchToSettings = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToSettings);
+      });
+    });
+
+    describe('chartType is not specified in URL', () => {
+      it('should call `handleSwitchToBasics` when the defaultChartType is set to basics', () => {
+        const nextProps = { };
+        instance.setState({ defaultChartTypeForPatient: 'basics' });
+
+        instance.handleSwitchToBasics = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToBasics);
+      });
+
+      it('should call `handleSwitchToDaily` when the defaultChartTypeForPatient is set to Daily', () => {
+        const nextProps = { };
+        instance.setState({ defaultChartTypeForPatient: 'daily' });
+
+        instance.handleSwitchToDaily = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToDaily);
+      });
+
+      it('should call `handleSwitchToTrends` when the defaultChartTypeForPatient is set to Trends', () => {
+        const nextProps = { };
+        instance.setState({ defaultChartTypeForPatient: 'trends' });
+
+        instance.handleSwitchToTrends = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToTrends);
+      });
+
+      it('should call `handleSwitchToBgLog` when the defaultChartTypeForPatient is set to BgLog', () => {
+        const nextProps = { };
+        instance.setState({ defaultChartTypeForPatient: 'bgLog' });
+
+        instance.handleSwitchToBgLog = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToBgLog);
+      });
+    });
+
+    describe('chartType is not specified in path and defaultChartTypeForPatient is not set', () => {
+      it('should call setInitialChartView()', () => {
+        const nextProps = { };
+
+        instance.setInitialChartView = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.setInitialChartView);
+      });
     });
   });
 

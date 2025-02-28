@@ -834,4 +834,27 @@ describe('utils', () => {
       expect(utils.formatThresholdPercentage(0.00015)).to.equal('0.02');
     });
   });
+
+  describe('parseDatetimeParamToInteger', () => {
+    it('returns null when falsy or nullish arg provided', () => {
+      expect(utils.parseDatetimeParamToInteger()).to.be.null;
+      expect(utils.parseDatetimeParamToInteger(null)).to.be.null;
+    });
+
+    it('returns the arg unchanged when it is already an integer', () => {
+      expect(utils.parseDatetimeParamToInteger(1234567890)).to.equal(1234567890);
+    });
+
+    it('returns the arg as an integer when it is a string', () => {
+      expect(utils.parseDatetimeParamToInteger('001234567890')).to.equal(1234567890);
+    });
+
+    it('parses the arg as an ISO string to unix timestamp', () => {
+      expect(utils.parseDatetimeParamToInteger('2017-01-01T00:00:00.000Z')).to.equal(1483228800000);
+    });
+
+    it('returns null if the arg is not a valid date string', () => {
+      expect(utils.parseDatetimeParamToInteger('not-a-date')).to.be.null;
+    });
+  });
 });

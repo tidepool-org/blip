@@ -333,11 +333,11 @@ const TideDashboardSection = React.memo(props => {
         const params = new URLSearchParams(search);
         params.set('drawerPatientId', patient.id);
         history.replace({ pathname, search: params.toString() });
-        
+
         return;
       }
-      
-      dispatch(push(`/patients/${patient?.id}/data?chart=trends&dashboard=tide`));
+
+      dispatch(push(`/patients/${patient?.id}/data/trends?dashboard=tide`));
     }
   }, [dispatch, trackMetric, showTideDashboardPatientDrawer, config]);
 
@@ -791,8 +791,8 @@ export const TideDashboard = (props) => {
   const [localConfig] = useLocalStorage('tideDashboardConfig', {});
   const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
   const patientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
-  const { 
-    showTideDashboard, 
+  const {
+    showTideDashboard,
     showTideDashboardLastReviewed,
     showTideDashboardPatientDrawer,
   } = useFlags();
@@ -1328,7 +1328,7 @@ export const TideDashboard = (props) => {
       {showEditPatientDialog && renderEditPatientDialog()}
       {showDataConnectionsModal && renderDataConnectionsModal()}
 
-      <PatientDrawer  
+      <PatientDrawer
         patientId={drawerPatientId}
         onClose={handleClosePatientDrawer}
         api={api}

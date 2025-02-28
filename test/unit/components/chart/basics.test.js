@@ -97,6 +97,7 @@ describe('Basics', () => {
     baseProps.onUpdateChartDateRange.reset();
     baseProps.trackMetric.reset();
     baseProps.updateChartPrefs.reset();
+    baseProps.onSwitchToDaily.reset();
   });
 
   describe('render', () => {
@@ -178,6 +179,15 @@ describe('Basics', () => {
       instance.handleCopyBasicsClicked();
       sinon.assert.callCount(baseProps.trackMetric, 1);
       sinon.assert.calledWith(baseProps.trackMetric, 'Clicked Copy Settings', { source: 'Basics' });
+    });
+  });
+
+  describe('handleSelectDay', () => {
+    it('should track metric when called', () => {
+      const instance = wrapper.instance();
+      instance.handleSelectDay('2025-01-27', 'TEST_TITLE');
+      sinon.assert.callCount(baseProps.trackMetric, 1);
+      sinon.assert.calledWith(baseProps.trackMetric, 'Clicked Basics TEST_TITLE calendar', { fromChart: 'basics' });
     });
   });
 
