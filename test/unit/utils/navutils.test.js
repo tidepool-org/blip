@@ -107,7 +107,7 @@ describe('navutils', () => {
 
         expect(store.getActions()).to.eql([{
           type: '@@router/CALL_HISTORY_METHOD',
-          payload: { args: ['/patients/1234-abcd/data?chart=settings'], method: 'push' },
+          payload: { args: ['/patients/1234-abcd/data/settings'], method: 'push' },
         }]);
       });
 

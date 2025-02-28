@@ -526,11 +526,11 @@ export const PatientDataClass = createReactClass({
             isUserPatient={this.props.isUserPatient}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
-            onSwitchToBasics={this.handleSwitchToBasics}
-            onSwitchToDaily={this.handleSwitchToDaily}
-            onSwitchToTrends={this.handleSwitchToTrends}
-            onSwitchToSettings={this.handleSwitchToSettings}
-            onSwitchToBgLog={this.handleSwitchToBgLog}
+            onSwitchToBasics={this.handleSwitchToBasicsRoute}
+            onSwitchToDaily={this.handleSwitchToDailyRoute}
+            onSwitchToTrends={this.handleSwitchToTrendsRoute}
+            onSwitchToSettings={this.handleSwitchToSettingsRoute}
+            onSwitchToBgLog={this.handleSwitchToBgLogRoute}
             onClickPrint={this.handleClickPrint}
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
@@ -567,12 +567,7 @@ export const PatientDataClass = createReactClass({
             loading={this.state.loading}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
-            onSwitchToBasics={this.handleSwitchToBasics}
-            onSwitchToDaily={this.handleSwitchToDaily}
             onClickPrint={this.handleClickPrint}
-            onSwitchToTrends={this.handleSwitchToTrends}
-            onSwitchToSettings={this.handleSwitchToSettings}
-            onSwitchToBgLog={this.handleSwitchToBgLog}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             onClickChartDates={this.handleClickChartDates}
             patient={this.props.patient}
@@ -584,7 +579,13 @@ export const PatientDataClass = createReactClass({
             updateChartPrefs={this.updateChartPrefs}
             uploadUrl={this.props.uploadUrl}
             ref="tideline"
-            removeGeneratedPDFS={this.props.removeGeneratedPDFS} />
+            removeGeneratedPDFS={this.props.removeGeneratedPDFS}
+            onSwitchToTrends={this.handleSwitchToTrendsRoute}
+            onSwitchToSettings={this.handleSwitchToSettingsRoute}
+            onSwitchToBgLog={this.handleSwitchToBgLogRoute}
+            onSwitchToBasics={this.handleSwitchToBasicsRoute}
+            onSwitchToDaily={this.handleSwitchToDailyRoute}
+            />
           );
       case 'daily':
         return (
@@ -598,12 +599,7 @@ export const PatientDataClass = createReactClass({
             onClickRefresh={this.handleClickRefresh}
             onCreateMessage={this.handleShowMessageCreation}
             onShowMessageThread={this.handleShowMessageThread}
-            onSwitchToBasics={this.handleSwitchToBasics}
-            onSwitchToDaily={this.handleSwitchToDaily}
             onClickPrint={this.handleClickPrint}
-            onSwitchToTrends={this.handleSwitchToTrends}
-            onSwitchToSettings={this.handleSwitchToSettings}
-            onSwitchToBgLog={this.handleSwitchToBgLog}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             onClickChartDates={this.handleClickChartDates}
             patient={this.props.patient}
@@ -614,7 +610,13 @@ export const PatientDataClass = createReactClass({
             queryDataCount={this.getMetaData('queryDataCount')}
             key={this.state.chartKey}
             ref="tideline"
-            removeGeneratedPDFS={this.props.removeGeneratedPDFS} />
+            removeGeneratedPDFS={this.props.removeGeneratedPDFS}
+            onSwitchToTrends={this.handleSwitchToTrendsRoute}
+            onSwitchToSettings={this.handleSwitchToSettingsRoute}
+            onSwitchToBgLog={this.handleSwitchToBgLogRoute}
+            onSwitchToBasics={this.handleSwitchToBasicsRoute}
+            onSwitchToDaily={this.handleSwitchToDailyRoute}
+            />
           );
       case 'trends':
         return (
@@ -628,11 +630,6 @@ export const PatientDataClass = createReactClass({
             mostRecentDatetimeLocation={this.state.mostRecentDatetimeLocation}
             onClickRefresh={this.handleClickRefresh}
             onClickPrint={this.handleClickPrint}
-            onSwitchToBasics={this.handleSwitchToBasics}
-            onSwitchToDaily={this.handleSwitchToDaily}
-            onSwitchToTrends={this.handleSwitchToTrends}
-            onSwitchToSettings={this.handleSwitchToSettings}
-            onSwitchToBgLog={this.handleSwitchToBgLog}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             patient={this.props.patient}
             stats={stats}
@@ -642,7 +639,13 @@ export const PatientDataClass = createReactClass({
             queryDataCount={this.getMetaData('queryDataCount')}
             key={this.state.chartKey}
             ref="tideline"
-            removeGeneratedPDFS={this.props.removeGeneratedPDFS} />
+            removeGeneratedPDFS={this.props.removeGeneratedPDFS}
+            onSwitchToTrends={this.handleSwitchToTrendsRoute}
+            onSwitchToSettings={this.handleSwitchToSettingsRoute}
+            onSwitchToBgLog={this.handleSwitchToBgLogRoute}
+            onSwitchToBasics={this.handleSwitchToBasicsRoute}
+            onSwitchToDaily={this.handleSwitchToDailyRoute}
+            />
           );
       case 'bgLog':
         return (
@@ -657,11 +660,6 @@ export const PatientDataClass = createReactClass({
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
             onClickPrint={this.handleClickPrint}
-            onSwitchToBasics={this.handleSwitchToBasics}
-            onSwitchToDaily={this.handleSwitchToDaily}
-            onSwitchToTrends={this.handleSwitchToTrends}
-            onSwitchToSettings={this.handleSwitchToSettings}
-            onSwitchToBgLog={this.handleSwitchToBgLog}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             patient={this.props.patient}
             stats={stats}
@@ -671,7 +669,13 @@ export const PatientDataClass = createReactClass({
             queryDataCount={this.getMetaData('queryDataCount')}
             key={this.state.chartKey}
             ref="tideline"
-            removeGeneratedPDFS={this.props.removeGeneratedPDFS} />
+            removeGeneratedPDFS={this.props.removeGeneratedPDFS}
+            onSwitchToTrends={this.handleSwitchToTrendsRoute}
+            onSwitchToSettings={this.handleSwitchToSettingsRoute}
+            onSwitchToBgLog={this.handleSwitchToBgLogRoute}
+            onSwitchToBasics={this.handleSwitchToBasicsRoute}
+            onSwitchToDaily={this.handleSwitchToDailyRoute}
+            />
           );
       case 'settings':
         return this.renderSettings();
@@ -1167,6 +1171,92 @@ export const PatientDataClass = createReactClass({
     this.props.trackMetric('Clicked Message Pool Background');
   },
 
+  handleRouteChangeEvent: function(nextProps) {
+    const chartTypeFromPath = nextProps.match?.params?.chartType;
+    const targetDate = utils.parseDatetimeParamToInteger(nextProps.queryParams?.datetime);
+
+    switch(true) {
+      // If the chart is explicitly specified in the URL, we switch to that chart type.
+      case chartTypeFromPath === 'settings':
+        this.handleSwitchToSettings();
+        break;
+      case chartTypeFromPath === 'basics':
+        this.handleSwitchToBasics();
+        break;
+      case chartTypeFromPath === 'daily':
+        this.handleSwitchToDaily(targetDate);
+        break;
+      case chartTypeFromPath === 'trends':
+        this.handleSwitchToTrends(targetDate);
+        break;
+      case chartTypeFromPath === 'bgLog':
+        this.handleSwitchToBgLog(targetDate);
+        break;
+
+      // If the chart is not specified in the URL, we should switch to the patient's default chart type,
+      // which is derived from the patient's data values. If state.defaultChartTypeForPatient
+      // exists, we should use its value rather than deriving it again using setInitialChartView().
+      case this.state.defaultChartTypeForPatient === 'basics':
+        this.handleSwitchToBasics();
+        break;
+      case this.state.defaultChartTypeForPatient === 'daily':
+        this.handleSwitchToDaily(targetDate);
+        break;
+      case this.state.defaultChartTypeForPatient === 'trends':
+        this.handleSwitchToTrends(targetDate);
+        break;
+      case this.state.defaultChartTypeForPatient === 'bgLog':
+        this.handleSwitchToBgLog(targetDate);
+        break;
+
+      // At this point, there is insufficient information; we need to call setInitialChartView() to derive
+      // the default chart type for this patient
+      default:
+        this.setInitialChartView(nextProps);
+        break;
+    }
+  },
+
+  handleSwitchToBasicsRoute: function(e) {
+    e?.preventDefault();
+    this.props.history.push(`/patients/${this.props.currentPatientInViewId}/data/basics`);
+  },
+
+  handleSwitchToDailyRoute: function(isoOrUnixTimestamp) {
+    // Arg may be ISO or unix timestamp due to variability in underlying components
+    const datetime = utils.parseDatetimeParamToInteger(isoOrUnixTimestamp);
+    let path = `/patients/${this.props.currentPatientInViewId}/data/daily`;
+
+    if (datetime) path += `?datetime=${datetime}`;
+
+    this.props.history.push(path);
+  },
+
+  handleSwitchToTrendsRoute: function(isoOrUnixTimestamp) {
+    // Arg may be ISO or unix timestamp due to variability in underlying components
+    const datetime = utils.parseDatetimeParamToInteger(isoOrUnixTimestamp);
+    let path = `/patients/${this.props.currentPatientInViewId}/data/trends`;
+
+    if (datetime) path += `?datetime=${datetime}`;
+
+    this.props.history.push(path);
+  },
+
+  handleSwitchToBgLogRoute: function(isoOrUnixTimestamp) {
+    // Arg may be ISO or unix timestamp due to variability in underlying components
+    const datetime = utils.parseDatetimeParamToInteger(isoOrUnixTimestamp);
+    let path = `/patients/${this.props.currentPatientInViewId}/data/bgLog`;
+
+    if (datetime) path += `?datetime=${datetime}`;
+
+    this.props.history.push(path);
+  },
+
+  handleSwitchToSettingsRoute: function(e) {
+    e?.preventDefault();
+    this.props.history.push(`/patients/${this.props.currentPatientInViewId}/data/settings`);
+  },
+
   handleSwitchToBasics: function(e) {
     this.props.trackMetric('Clicked Switch To Basics', {
       fromChart: this.state.chartType
@@ -1189,11 +1279,7 @@ export const PatientDataClass = createReactClass({
     this.updateChart(chartType, datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType }), updateOpts);
   },
 
-  handleSwitchToDaily: function(datetime, title) {
-    if (title) this.props.trackMetric(`Clicked Basics ${title} calendar`, {
-      fromChart: this.state.chartType
-    });
-
+  handleSwitchToDaily: function(datetime) {
     const chartType = 'daily';
 
     const getDatetimeLocation = d => moment.utc(d.valueOf())
@@ -1658,15 +1744,6 @@ export const PatientDataClass = createReactClass({
       }) : undefined;
 
     this.setState(state, cb);
-
-    // Update chart query param to match current chart
-    const { search, pathname } = this.props.location;
-    const params = new URLSearchParams(search);
-
-    if (params.get('chart') !== chartType) {
-      params.set('chart', chartType);
-      this.props.history.push({ pathname, search: params.toString() });
-    }
   },
 
   UNSAFE_componentWillMount: function() {
@@ -1765,15 +1842,16 @@ export const PatientDataClass = createReactClass({
 
         // With initial query for upload data completed, set the initial chart type
         if (!this.state.chartType) {
-          this.setInitialChartView(nextProps);
+          const { defaultChartTypeForPatient } = this.setInitialChartView(nextProps);
+          stateUpdates.defaultChartTypeForPatient = defaultChartTypeForPatient; // cache value for future route changes
+
           window.patientData = 'No patient data has been loaded yet. Run `window.loadPatientData()` to popuplate this.'
           window.loadPatientData = this.saveDataToDestination.bind(this, 'window');
           window.downloadPatientData = this.saveDataToDestination.bind(this, 'download');
 
-        // A new chart type can be requested by changing queryParams, in which case we need to
-        // fire setInitialChartView again to change the chart rendered
-        } else if (this.props.queryParams.chart !== nextProps.queryParams.chart) {
-          this.setInitialChartView(nextProps);
+        // If the route has changed, we need to update the chartType
+        } else if (this.props.location.pathname !== nextProps.location.pathname) {
+          this.handleRouteChangeEvent(nextProps);
         }
 
         // Only update the chartEndpoints and transitioningChartType state immediately after querying
@@ -2072,13 +2150,38 @@ export const PatientDataClass = createReactClass({
     const latestDatum = _.last(_.sortBy(_.values(_.get(props.data, 'metaData.latestDatumByType')), ['normalTime']));
     const bgSource = this.getMetaData('bgSources.current');
     const excludedDevices = this.getMetaData('excludedDevices', undefined, props);
+    const chartTypeFromPath = props.match?.params?.chartType;
+
+    let defaultChartTypeForPatient = null;
 
     if (uploads && latestDatum) {
-      // Allow overriding the default chart type via a query param (helps for development);
-      const chartType = this.state.refreshChartType || _.get(
-        props, 'queryParams.chart',
-        this.deriveChartTypeFromLatestData(latestDatum, uploads)
-      );
+      let chartType = null;
+      defaultChartTypeForPatient = this.deriveChartTypeFromLatestData(latestDatum, uploads);
+
+      // Figure out which chart to show based on the current route
+      switch(true) {
+        case chartTypeFromPath === 'settings':
+          chartType = 'settings';
+          break;
+        case chartTypeFromPath === 'trends':
+          chartType = 'trends';
+          break;
+        case chartTypeFromPath === 'daily':
+          chartType = 'daily';
+          break;
+        case chartTypeFromPath === 'basics':
+          chartType = 'basics';
+          break;
+        case chartTypeFromPath === 'bgLog':
+          chartType = 'bgLog';
+          break;
+        case !!this.state.refreshChartType:
+          chartType = this.state.refreshChartType;
+          break;
+        default:
+          chartType = defaultChartTypeForPatient;
+          break;
+      }
 
       const isDaily = chartType === 'daily';
       const isBgLog = chartType === 'bgLog';
@@ -2107,6 +2210,8 @@ export const PatientDataClass = createReactClass({
       this.updateChart(chartType, datetimeLocation, endpoints);
       props.trackMetric(`web - default to ${chartType === 'bgLog' ? 'weekly' : chartType}`);
     }
+
+    return { defaultChartTypeForPatient };
   },
 
 /**
@@ -2422,6 +2527,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     fetchers: getFetchers(dispatchProps, ownProps, stateProps, api, { carelink, dexcom, medtronic }),
     history: ownProps.history,
     location: ownProps.location,
+    match: ownProps.match,
     uploadUrl: api.getUploadUrl(),
     onRefresh: (patientId, chartType) => {
       const fetchOptions = {
