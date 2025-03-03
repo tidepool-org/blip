@@ -87,7 +87,7 @@ describe('OAuthConnection', () => {
     });
 
     it('should render the appropriate banner', () => {
-      expect(wrapper.find('#banner-oauth-authorized').hostNodes().text()).to.equal('You have successfully connected your Dexcom account to Tidepool.');
+      expect(wrapper.find('#banner-oauth-authorized').hostNodes().text()).to.equal('You have successfully connected your Dexcom data to Tidepool.');
     });
 
     it('should render the appropriate heading and subheading', () => {
@@ -144,7 +144,7 @@ describe('OAuthConnection', () => {
     });
 
     it('should render the appropriate banner', () => {
-      expect(wrapper.find('#banner-oauth-declined').hostNodes().text()).to.equal('You have declined connecting your Dexcom account to Tidepool.');
+      expect(wrapper.find('#banner-oauth-declined').hostNodes().text()).to.equal('You have declined connecting your Dexcom data to Tidepool.');
     });
 
     it('should render the appropriate heading and subheading', () => {
@@ -242,7 +242,7 @@ describe('OAuthConnection', () => {
     });
 
     it('should render the appropriate banner', () => {
-      expect(wrapper.find('#banner-oauth-authorized').hostNodes().text()).to.equal('You have successfully connected your Abbott account to Tidepool.');
+      expect(wrapper.find('#banner-oauth-authorized').hostNodes().text()).to.equal('You have successfully connected your FreeStyle Libre data to Tidepool.');
     });
 
     it('should render the appropriate heading and subheading', () => {
@@ -299,7 +299,7 @@ describe('OAuthConnection', () => {
     });
 
     it('should render the appropriate banner', () => {
-      expect(wrapper.find('#banner-oauth-declined').hostNodes().text()).to.equal('You have declined connecting your Abbott account to Tidepool.');
+      expect(wrapper.find('#banner-oauth-declined').hostNodes().text()).to.equal('You have declined connecting your FreeStyle Libre data to Tidepool.');
     });
 
     it('should render the appropriate heading and subheading', () => {
@@ -356,7 +356,7 @@ describe('OAuthConnection', () => {
     });
 
     it('should render the appropriate banner', () => {
-      expect(wrapper.find('#banner-oauth-error').hostNodes().text()).to.equal('We were unable to determine your Abbott connection status.');
+      expect(wrapper.find('#banner-oauth-error').hostNodes().text()).to.equal('We were unable to determine your FreeStyle Libre connection status.');
     });
 
     it('should render the appropriate heading and subheading', () => {
