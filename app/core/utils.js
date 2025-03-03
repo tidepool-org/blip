@@ -75,17 +75,29 @@ utils.isSupportedBrowser = () => {
   const userAgent = navigator.userAgent.toLowerCase();
 
   const isOpera = userAgent.indexOf('opr') > -1;
+  const isBrave = userAgent.indexOf('brave') > -1;
+  const isFirefox = userAgent.indexOf('firefox') > -1;
+  const isFirefoxIOS = userAgent.indexOf('fxios') > -1;
 
-  if (isOpera) return false;
+  if (isOpera || isBrave || isFirefox || isFirefoxIOS) return false;
 
+  const isEdgeIOS = userAgent.indexOf('edgios') > -1;
   const isChrome = userAgent.indexOf('chrome') > -1;
   const isChromeIOS = userAgent.indexOf('crios') > -1;
+  const isSafariIOS = userAgent.indexOf('safari') > -1 && /iphone|ipad/.test(userAgent);
 
-  return isChrome || isChromeIOS;
+  if (isChrome || isChromeIOS || isEdgeIOS || isSafariIOS) return true;
+
+  return false;
 };
 
 utils.isMobile = () => {
   var userAgent = navigator.userAgent.toLowerCase();
+
+  const isIOSDevice = /iphone|ipad/.test(userAgent);
+
+  if (isIOSDevice) return true;
+
   return (userAgent.indexOf('mobi') > -1);
 };
 
