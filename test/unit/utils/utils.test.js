@@ -3,6 +3,7 @@
 /* global it */
 /* global context */
 /* global sinon */
+/* global after */
 /* global afterEach */
 /* global assert */
 
@@ -14,6 +15,11 @@ import releases from '../../fixtures/githubreleasefixture';
 const expect = chai.expect;
 
 describe('utils', () => {
+  after(() => {
+    const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36';
+    Object.defineProperty(window.navigator, 'userAgent', { value: userAgent, configurable: true });
+  });
+
   describe('capitalize', () => {
     it('should return a capitalized string', () => {
       expect(utils.capitalize('lower')).to.equal('Lower');
@@ -69,6 +75,98 @@ describe('utils', () => {
     it('should return undefined if value given is not an object', () => {
       var result = utils.getIn(null, ['a', 'b']);
       expect(result).to.be.undefined;
+    });
+  });
+
+  const USER_AGENTS = {
+    chromeWin: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36',
+    chromeMac: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36',
+    chromeIPad: 'Mozilla/5.0 (iPad; CPU OS 17_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/133.0.6943.33 Mobile/15E148 Safari/604.1',
+    chromeIPhone: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/133.0.6943.33 Mobile/15E148 Safari/604.1',
+    chromeAndroid: 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.6943.49 Mobile Safari/537.36',
+
+    firefoxWin: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:135.0) Gecko/20100101 Firefox/135.0',
+    firefoxMac: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14.7; rv:135.0) Gecko/20100101 Firefox/135.0',
+    firefoxIPhone: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_7_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) FxiOS/135.0 Mobile/15E148 Safari/605.1.15',
+    firefoxAndroid: 'Mozilla/5.0 (Android 15; Mobile; rv:135.0) Gecko/135.0 Firefox/135.0',
+
+    edgeWin: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36 Edg/131.0.2903.86',
+    edgeMac: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36 Edg/131.0.2903.86',
+    edgeAndroid: 'Mozilla/5.0 (Linux; Android 10; HD1913) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.6943.49 Mobile Safari/537.36 EdgA/131.0.2903.87',
+    edgeIPhone: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_7_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 EdgiOS/131.2903.92 Mobile/15E148 Safari/605.1.15',
+
+    safariMac: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_7_3) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3 Safari/605.1.15',
+    safariIPhone: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_7_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3 Mobile/15E148 Safari/604.1',
+    safariIPad: 'Mozilla/5.0 (iPad; CPU OS 17_7_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.3 Mobile/15E148 Safari/604.1',
+  };
+
+  describe('isSupportedBrowser', () => {
+    it('returns true for only supported devices', () => {
+      _.each(Object.values(USER_AGENTS), userAgent => {
+        Object.defineProperty(window.navigator, 'userAgent', { value: userAgent, configurable: true });
+
+        switch(userAgent) {
+          case USER_AGENTS.chromeWin:
+          case USER_AGENTS.chromeMac:
+          case USER_AGENTS.chromeIPad:
+          case USER_AGENTS.chromeIPhone:
+          case USER_AGENTS.chromeAndroid:
+          case USER_AGENTS.edgeWin:
+          case USER_AGENTS.edgeMac:
+          case USER_AGENTS.edgeAndroid:
+          case USER_AGENTS.edgeIPhone:
+          case USER_AGENTS.safariIPhone:
+          case USER_AGENTS.safariIPad:
+            expect(utils.isSupportedBrowser()).to.be.true;
+            break;
+
+          case USER_AGENTS.firefoxWin:
+          case USER_AGENTS.firefoxMac:
+          case USER_AGENTS.firefoxIPhone:
+          case USER_AGENTS.firefoxAndroid:
+          case USER_AGENTS.safariMac:
+            expect(utils.isSupportedBrowser()).to.be.false;
+            break;
+
+          default:
+            throw new Error('Each string in USER_AGENTS should have an expected result in the test');
+        }
+      });
+    });
+  });
+
+  describe('isMobile', () => {
+    it('returns true for only supported devices', () => {
+      _.each(Object.values(USER_AGENTS), userAgent => {
+        Object.defineProperty(window.navigator, 'userAgent', { value: userAgent, configurable: true });
+
+        switch(userAgent) {
+          case USER_AGENTS.chromeIPad:
+          case USER_AGENTS.chromeIPhone:
+          case USER_AGENTS.chromeAndroid:
+          case USER_AGENTS.edgeAndroid:
+          case USER_AGENTS.edgeIPhone:
+          case USER_AGENTS.safariIPhone:
+          case USER_AGENTS.safariIPad:
+          case USER_AGENTS.firefoxIPhone:
+          case USER_AGENTS.firefoxAndroid:
+            expect(utils.isMobile()).to.be.true;
+            break;
+
+          case USER_AGENTS.chromeWin:
+          case USER_AGENTS.chromeMac:
+          case USER_AGENTS.edgeWin:
+          case USER_AGENTS.edgeMac:
+          case USER_AGENTS.firefoxWin:
+          case USER_AGENTS.firefoxMac:
+          case USER_AGENTS.safariMac:
+            expect(utils.isMobile()).to.be.false;
+            break;
+
+          default:
+            throw new Error('Each string in USER_AGENTS should have an expected result in the test');
+        }
+      });
     });
   });
 
