@@ -593,27 +593,21 @@ const Settings = ({
   const renderDataConnections = () => {
     const shownProviders = _.map(patientData?.dataSources, 'providerName');
 
-    let showAddDevicesButton = false;
-    _.each(activeProviders, providerName => {
-      if (!_.find(patientData?.dataSources, { providerName })) showAddDevicesButton = true;
-    });
-
     return (
       <Box>
         <Flex mb={3} sx={{ justifyContent: 'space-between', flexWrap: ['wrap', 'nowrap'] }}>
           <MediumTitle sx={{ color: 'black' }}>{t('Devices')}</MediumTitle>
-          {showAddDevicesButton && (
-            <Button
-              id="add-data-connections"
-              variant="primaryCondensed"
-              icon={AddRoundedIcon}
-              iconPosition="left"
-              onClick={handleClickDataConnections.bind(null, 'button')}
-              sx={{ fontSize: 1, '.icon': { fontSize: '1.25em' }, flex: ['initial'] }}
-            >
-              {t('Add a Device')}
-            </Button>
-            )}
+
+          <Button
+            id="add-data-connections"
+            variant="primaryCondensed"
+            icon={AddRoundedIcon}
+            iconPosition="left"
+            onClick={handleClickDataConnections.bind(null, 'button')}
+            sx={{ fontSize: 1, '.icon': { fontSize: '1.25em' }, flex: ['initial'] }}
+          >
+            {t('Add a Device')}
+          </Button>
         </Flex>
 
         <DataConnections mb={4} patient={patientData} shownProviders={shownProviders} trackMetric={trackMetric} />
