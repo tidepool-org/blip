@@ -51,7 +51,7 @@ export function Banner(props) {
           flexGrow: 1,
           alignItems: 'center',
           justifyContent: 'center',
-          flexDirection: ['column', 'column', 'row']
+          flexWrap: ['wrap', 'wrap', 'nowrap']
         }}>
         {showIcon && TypeIcon && <Icon className="icon" theme={baseTheme} variant="static" icon={TypeIcon} label={variant} />}
         <Box py={1}>
