@@ -10,7 +10,7 @@ import shareIcon from '../../../core/icons/shareIcon.svg'
 import uploadIcon from '../../../core/icons/uploadIcon.svg'
 
 import { getFinalSlug } from '../../../core/navutils';
-import { getButtonStyleProps } from './menuOptionHelpers';
+import { getButtonStyleProps, isDataView } from './menuOptionHelpers';
 
 const PatientMenuOptions = ({
   t,
@@ -22,8 +22,6 @@ const PatientMenuOptions = ({
   const { pathname } = useLocation();
   const finalSlug = getFinalSlug(pathname);
 
-  const isDataView = ['/data', '/basics', '/trends', '/bgLog', '/daily'].includes(finalSlug);
-
   return (
     <Flex sx={{ ml: 'auto', columnGap: 32 }}>
       <Box>
@@ -32,7 +30,7 @@ const PatientMenuOptions = ({
           onClick={onViewData}
           iconSrc={viewIcon}
           iconLabel="View"
-          {...getButtonStyleProps(isDataView)}
+          {...getButtonStyleProps(isDataView(finalSlug))}
         >
           {t('View Data')}
         </Button>
