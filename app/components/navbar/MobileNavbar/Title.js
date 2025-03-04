@@ -2,7 +2,7 @@ import React from 'react';
 import _ from 'lodash';
 import { Box, Flex } from 'theme-ui';
 import Icon from '../../elements/Icon';
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { getFinalSlug } from '../../../core/navutils';
