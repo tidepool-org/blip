@@ -41,7 +41,7 @@ export function Banner(props) {
     <Flex
       aria-label={label}
       variant={`banners.${variant}`}
-      sx={{ gap: 3 }}
+      sx={{ gap: [0, 0, 3] }}
       {...themeProps}
     >
       <Flex
@@ -85,7 +85,10 @@ export function Banner(props) {
           icon={CloseRoundedIcon}
           label="Close banner"
           onClick={() => onDismiss()}
-          sx={{ alignSelf: ['baseline', 'baseline', 'auto'] }}
+          sx={{
+            alignSelf: ['baseline', 'baseline', 'auto'],
+            marginLeft: [-2, -2, 0],
+          }}
         />
       )}
     </Flex>
