@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Flex } from 'theme-ui';
 import { useLocation } from 'react-router-dom';
 import { withTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
 
 import { getFinalSlug } from '../../../core/navutils';
 import { getButtonStyleProps } from './menuOptionHelpers';
@@ -20,6 +21,8 @@ const ClinicianMenuOptions = ({
   const { pathname } = useLocation();
   const finalSlug = getFinalSlug(pathname);
 
+  const isDataView = ['/data', '/basics', '/trends', '/bgLog', '/daily', '/settings'].includes(finalSlug);
+
   return (
     <Flex sx={{ ml: 'auto', columnGap: 32 }}>
       <Box>
@@ -28,7 +31,7 @@ const ClinicianMenuOptions = ({
           onClick={onViewData}
           iconSrc={viewIcon}
           iconLabel="View"
-          {...getButtonStyleProps(finalSlug === '/data')}
+          {...getButtonStyleProps(isDataView)}
         >
           {t('View Data')}
         </Button>

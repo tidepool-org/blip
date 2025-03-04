@@ -22,6 +22,8 @@ const PatientMenuOptions = ({
   const { pathname } = useLocation();
   const finalSlug = getFinalSlug(pathname);
 
+  const isDataView = ['/data', '/basics', '/trends', '/bgLog', '/daily'].includes(finalSlug);
+
   return (
     <Flex sx={{ ml: 'auto', columnGap: 32 }}>
       <Box>
@@ -30,7 +32,7 @@ const PatientMenuOptions = ({
           onClick={onViewData}
           iconSrc={viewIcon}
           iconLabel="View"
-          {...getButtonStyleProps(finalSlug === '/data')}
+          {...getButtonStyleProps(isDataView)}
         >
           {t('View Data')}
         </Button>
