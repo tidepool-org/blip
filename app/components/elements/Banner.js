@@ -44,11 +44,19 @@ export function Banner(props) {
       sx={{ gap: 3 }}
       {...themeProps}
     >
-      <Flex px={2} sx={{ gap: 2, flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <Flex
+        px={2}
+        sx={{
+          gap: 2,
+          flexGrow: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexDirection: ['column', 'column', 'row']
+        }}>
         {showIcon && TypeIcon && <Icon className="icon" theme={baseTheme} variant="static" icon={TypeIcon} label={variant} />}
         <Box py={1}>
           {title && <Text className="title">{title}</Text>}
-          <Box className="message">
+          <Box className="message" sx={{ textAlign: ['center', 'center', 'initial'] }}>
             <Text className="message-text">{message}</Text>
 
             {messageLinkText && (
