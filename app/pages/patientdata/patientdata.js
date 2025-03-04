@@ -2147,16 +2147,17 @@ export const PatientDataClass = createReactClass({
   setInitialChartView: function(props = this.props) {
     // Determine default chart type and date from latest data
     const uploads = _.get(props.data, 'data.current.data.upload', []);
-    const latestDatum = _.last(_.sortBy(_.values(_.get(props.data, 'metaData.latestDatumByType')), ['normalTime']));
+    const latestDiabetesDatums = _.filter(_.values(_.get(props.data, 'metaData.latestDatumByType')), d => _.includes(['cbg', 'smbg', 'bolus', 'basal', 'wizard'], d.type));
+    const latestDiabetesDatum = _.last(_.sortBy(latestDiabetesDatums, ['normalTime']));
     const bgSource = this.getMetaData('bgSources.current');
     const excludedDevices = this.getMetaData('excludedDevices', undefined, props);
     const chartTypeFromPath = props.match?.params?.chartType;
 
     let defaultChartTypeForPatient = null;
 
-    if (uploads && latestDatum) {
+    if (uploads && latestDiabetesDatum) {
       let chartType = null;
-      defaultChartTypeForPatient = this.deriveChartTypeFromLatestData(latestDatum, uploads);
+      defaultChartTypeForPatient = this.deriveChartTypeFromLatestData(latestDiabetesDatum, uploads);
 
       // Figure out which chart to show based on the current route
       switch(true) {
