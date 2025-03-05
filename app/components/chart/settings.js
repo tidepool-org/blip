@@ -118,6 +118,7 @@ const Settings = ({
 
   useEffect(() => {
     const sortedData = _.sortBy(_.filter(_.cloneDeep(data?.data?.combined), { type: 'pumpSettings' }), 'normalTime');
+    const latestPumpUploadTime = data?.metaData?.latestPumpUpload?.settings?.normalTime;
 
     let groupedBySource = _.groupBy(sortedData, 'source');
 
@@ -142,7 +143,7 @@ const Settings = ({
       group.reverse();
 
       group.forEach((obj, index) => {
-        const previousObj = index > 0 ? group[index - 1] : { normalTime: new Date().getTime() };
+        const previousObj = index > 0 ? group[index - 1] : { normalTime: latestPumpUploadTime };
         obj.previousNormalTime = previousObj.normalTime;
         obj.elapsedTime = previousObj.normalTime - obj.normalTime;
         obj.durationString = formatDuration(obj.elapsedTime);
