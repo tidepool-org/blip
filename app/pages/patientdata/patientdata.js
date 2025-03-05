@@ -2121,7 +2121,7 @@ export const PatientDataClass = createReactClass({
       else {
         // If we were unable, for some reason, to get the device tags for the
         // latest upload, we can fall back to setting the default view by the data type of the latest diabetes datum
-        const type = latestDiabetesDatum.type;
+        const type = latestDiabetesDatum?.type;
 
         switch(type) {
           case 'bolus':
