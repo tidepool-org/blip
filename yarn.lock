@@ -7138,7 +7138,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"base64-js@npm:^1.1.2, base64-js@npm:^1.3.0, base64-js@npm:^1.3.1, base64-js@npm:^1.5.1":
+"base64-js@npm:^1.1.2, base64-js@npm:^1.3.0, base64-js@npm:^1.3.1":
   version: 1.5.1
   resolution: "base64-js@npm:1.5.1"
   checksum: 669632eb3745404c2f822a18fc3a0122d2f9a7a13f7fb8b5823ee19d1d2ff9ee5b52c53367176ea4ad093c332fd5ab4bd0ebae5a8e27917a4105a4cfc86b1005
@@ -7312,7 +7312,7 @@ __metadata:
     karma-sinon: 1.0.5
     karma-sourcemap-loader: 0.4.0
     karma-webpack: 5.0.0
-    keycloak-js: 22.0.4
+    keycloak-js: 26.1.3
     launchdarkly-react-client-sdk: 3.0.9
     less: 4.2.0
     less-loader: 11.1.3
@@ -13342,13 +13342,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"js-sha256@npm:^0.9.0":
-  version: 0.9.0
-  resolution: "js-sha256@npm:0.9.0"
-  checksum: ffad54b3373f81581e245866abfda50a62c483803a28176dd5c28fd2d313e0bdf830e77dac7ff8afd193c53031618920f3d98daf21cbbe80082753ab639c0365
-  languageName: node
-  linkType: hard
-
 "js-tokens@npm:^3.0.0 || ^4.0.0, js-tokens@npm:^4.0.0":
   version: 4.0.0
   resolution: "js-tokens@npm:4.0.0"
@@ -13750,13 +13743,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"keycloak-js@npm:22.0.4":
-  version: 22.0.4
-  resolution: "keycloak-js@npm:22.0.4"
-  dependencies:
-    base64-js: ^1.5.1
-    js-sha256: ^0.9.0
-  checksum: 60703ccbc06ffd485392fa5384b5fbe1ea716f97519a4b5e5b0057ce48a3310d691292d2faf452be1755be5253695c2024701a8125aeb39d154ab8610879be35
+"keycloak-js@npm:26.1.3":
+  version: 26.1.3
+  resolution: "keycloak-js@npm:26.1.3"
+  checksum: 083d242f14cd07f533211e2657c0e8632bfdecb4403af0c12015be6f95d6697cdc97fb4f93136ff98717acaf0b3a8391a72eaf1c86b9c7d08634ebb7504e94c6
   languageName: node
   linkType: hard
 

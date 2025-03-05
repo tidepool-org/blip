@@ -468,8 +468,12 @@ export const getRoutes = (appContext) => {
           <Route path='/browser-warning' render={routeProps => (<BrowserWarning {...routeProps} {...props} />)} />
           <Route path="/upload-redirect" render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><UploadRedirect {...routeProps} {...props} /></Gate>)} />
           <Route path="/logged-out" render={routeProps => (<LoggedOut {...routeProps} {...props}/>)} />
-          <Route>
-            { api.user.isAuthenticated() ? <Redirect to={authenticatedFallbackRoute} /> : <Redirect to='/login' /> }
+          <Route component={({ location }) =>
+              api.user.isAuthenticated() ? <Redirect to={authenticatedFallbackRoute} /> : <Redirect to={{
+                ...location,
+                pathname: '/login'
+             }} />
+            }>
           </Route>
         </Switch>
       </AppComponent>

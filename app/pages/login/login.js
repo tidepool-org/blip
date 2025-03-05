@@ -19,9 +19,9 @@ import Button from '../../components/elements/Button';
 import { components as vizComponents} from '@tidepool/viz';
 const { Loader } = vizComponents;
 import { keycloak } from '../../keycloak';
-let win = window;
+const win = window;
 
-export let Login = withTranslation()(class extends React.Component {
+export const Login = withTranslation()(class extends React.Component {
   static propTypes = {
     acknowledgeNotification: PropTypes.func.isRequired,
     confirmSignup: PropTypes.func.isRequired,
@@ -42,12 +42,12 @@ export let Login = withTranslation()(class extends React.Component {
 
   constructor(props) {
     super(props);
-    var formValues = {
+    const formValues = {
       username : '',
       password: '',
       remember: true,
     };
-    var email = props.seedEmail;
+    const email = props.seedEmail;
 
     if (email) {
       formValues.username = email;
@@ -72,15 +72,15 @@ export let Login = withTranslation()(class extends React.Component {
 
   render() {
     const { t, keycloakConfig, fetchingInfo, signupEmail, signupKey, routerState } = this.props;
-    var form = this.renderForm();
-    var inviteIntro = this.renderInviteIntroduction();
-    var loggingIn = this.props.working;
-    var isLoading =
+    const form = this.renderForm();
+    const inviteIntro = this.renderInviteIntroduction();
+    const loggingIn = this.props.working;
+    const isLoading =
       fetchingInfo.inProgress ||
       !(fetchingInfo.completed || !!fetchingInfo.notification) ||
       (!!keycloakConfig.url && !keycloakConfig.initialized && !keycloakConfig.error);
-    var isClaimFlow = !!signupEmail && !!signupKey;
-    var login = keycloakConfig.url && keycloakConfig.initialized ? (
+    const isClaimFlow = !!signupEmail && !!signupKey;
+    const login = keycloakConfig.url && keycloakConfig.initialized ? (
       <Button onClick={() => keycloak.login()} disabled={loggingIn}>
         {loggingIn ? t('Logging in...') : t('Login')}
       </Button>
@@ -92,6 +92,19 @@ export let Login = withTranslation()(class extends React.Component {
     let redirectUri = win.location.origin;
     if (hasDest) {
       redirectUri += dest;
+    }
+    const urlParams = new URLSearchParams(routerState?.location?.search);
+    const iss = urlParams.get('iss');
+    const launch = urlParams.get('launch');
+    let correlationId;
+    if (iss && launch && !sessionStorage.getItem('smart_correlation_id')) {
+      correlationId = crypto.randomUUID();
+      sessionStorage.setItem('smart_correlation_id', correlationId);
+      sessionStorage.setItem('smart_iss', iss);
+      sessionStorage.setItem('smart_launch', launch);
+
+      // adding these to the redirectUri causes Epic to fail with a query param too long error right now
+      // redirectUri += `?iss=${iss}&launch=${launch}&correlation_id=${correlationId}`;
     }
 
     // for those accepting an invite, forward to keycloak login when available
@@ -118,8 +131,23 @@ export let Login = withTranslation()(class extends React.Component {
         !isClaimFlow
       ) || keycloakConfig?.error === 'access_denied'
     ) {
-      keycloak.login({
+      keycloak.createLoginUrl({
         redirectUri: redirectUri,
+      }).then((url) => {
+        const iss = sessionStorage.getItem('smart_iss') || urlParams.get('iss');
+        const launch = sessionStorage.getItem('smart_launch') || urlParams.get('launch');
+        const correlationId = sessionStorage.getItem('smart_correlation_id') || urlParams.get('correlation_id');
+
+        if (iss && launch && correlationId) {
+          const additionalParams = new URLSearchParams();
+          additionalParams.append('aud', iss);
+          additionalParams.append('iss', iss);
+          additionalParams.append('launch', launch);
+          additionalParams.append('correlation_id', correlationId);
+          url += `&${additionalParams.toString()}`;
+        }
+
+        window.location.href = url;
       });
       return <></>;
     }
@@ -160,8 +188,8 @@ export let Login = withTranslation()(class extends React.Component {
   renderForm = () => {
     const { t } = this.props;
 
-    var submitButtonText = this.props.working ? t('Logging in...') : t('Login');
-    var forgotPassword = this.renderForgotPassword();
+    const submitButtonText = this.props.working ? t('Logging in...') : t('Login');
+    const forgotPassword = this.renderForgotPassword();
 
     return (
       <SimpleForm
@@ -187,15 +215,13 @@ export let Login = withTranslation()(class extends React.Component {
   };
 
   handleSubmit = (formValues) => {
-    var self = this;
-
     if (this.props.working) {
       return;
     }
 
     this.resetFormStateBeforeSubmit(formValues);
 
-    var validationErrors = this.validateFormValues(formValues);
+    const validationErrors = this.validateFormValues(formValues);
     if (!_.isEmpty(validationErrors)) {
       return;
     }
@@ -216,12 +242,12 @@ export let Login = withTranslation()(class extends React.Component {
 
   validateFormValues = (formValues) => {
     const { t } = this.props;
-    var form = [
+    const form = [
       { type: 'name', name: 'password', label: t('this field'), value: formValues.password },
       { type: 'email', name: 'username', label: t('this field'), value: formValues.username },
     ];
 
-    var validationErrors = validateForm(form);
+    const validationErrors = validateForm(form);
 
     if (!_.isEmpty(validationErrors)) {
       this.setState({
@@ -271,7 +297,7 @@ export let Login = withTranslation()(class extends React.Component {
  * Expose "Smart" Component that is connect-ed to Redux
  */
 
-let getFetchers = (dispatchProps, ownProps, other, api) => {
+const getFetchers = (dispatchProps, ownProps, other, api) => {
   if (other.signupKey && !other.confirmingSignup.inProgress) {
     return [
       dispatchProps.confirmSignup.bind(null, api, other.signupKey, other.signupEmail)
@@ -292,21 +318,21 @@ export function mapStateToProps(state) {
   };
 }
 
-let mapDispatchToProps = dispatch => bindActionCreators({
+const mapDispatchToProps = dispatch => bindActionCreators({
   onSubmit: actions.async.login,
   acknowledgeNotification: actions.sync.acknowledgeNotification,
   confirmSignup: actions.async.confirmSignup
 }, dispatch);
 
-let mergeProps = (stateProps, dispatchProps, ownProps) => {
-  let location = ownProps.location;
-  let signupEmail = utils.getSignupEmail(location);
-  let inviteEmail = utils.getInviteEmail(location);
-  let seedEmail = inviteEmail || signupEmail;
-  let signupKey = utils.getSignupKey(location);
-  let isInvite = !_.isEmpty(inviteEmail);
-  let api = ownProps.api;
-  let isAuthenticated = api.user.isAuthenticated();
+const mergeProps = (stateProps, dispatchProps, ownProps) => {
+  const location = ownProps.location;
+  const signupEmail = utils.getSignupEmail(location);
+  const inviteEmail = utils.getInviteEmail(location);
+  const seedEmail = inviteEmail || signupEmail;
+  const signupKey = utils.getSignupKey(location);
+  const isInvite = !_.isEmpty(inviteEmail);
+  const api = ownProps.api;
+  const isAuthenticated = api.user.isAuthenticated();
   return Object.assign({}, stateProps, dispatchProps, {
     fetchers: getFetchers(dispatchProps, ownProps, { signupKey, signupEmail: seedEmail, confirmingSignup: stateProps.confirmingSignup }, api),
     isAuthenticated: isAuthenticated,
