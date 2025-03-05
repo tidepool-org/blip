@@ -2091,18 +2091,18 @@ export const PatientDataClass = createReactClass({
     }
   },
 
-  deriveChartTypeFromLatestData: function(latestData, uploads) {
+  deriveChartTypeFromLatestData: function(latestDatum, latestDiabetesDatum, uploads) {
     let chartType = 'basics'; // Default to 'basics'
 
-    if (latestData && uploads) {
+    if (latestDatum && uploads) {
       // Ideally, we determine the default view based on the device type
       // so that, for instance, if the latest data type is cgm, but comes from
       // an insulin-pump, we still direct them to the basics view
       const deviceMap = _.keyBy(uploads, 'deviceId');
-      const latestDataDevice = deviceMap[latestData.deviceId];
+      const latestDataDevice = deviceMap[latestDatum.deviceId];
 
       if (latestDataDevice) {
-        const tags = deviceMap[latestData.deviceId].deviceTags;
+        const tags = deviceMap[latestDatum.deviceId].deviceTags;
 
         switch(true) {
           case (_.includes(tags, 'insulin-pump')):
@@ -2120,8 +2120,8 @@ export const PatientDataClass = createReactClass({
       }
       else {
         // If we were unable, for some reason, to get the device tags for the
-        // latest upload, we can fall back to setting the default view by the data type
-        const type = latestData.type;
+        // latest upload, we can fall back to setting the default view by the data type of the latest diabetes datum
+        const type = latestDiabetesDatum.type;
 
         switch(type) {
           case 'bolus':
@@ -2147,6 +2147,7 @@ export const PatientDataClass = createReactClass({
   setInitialChartView: function(props = this.props) {
     // Determine default chart type and date from latest data
     const uploads = _.get(props.data, 'data.current.data.upload', []);
+    const latestDatum = _.last(_.sortBy(_.values(_.get(props.data, 'metaData.latestDatumByType')), ['normalTime']));
     const latestDiabetesDatums = _.filter(_.values(_.get(props.data, 'metaData.latestDatumByType')), d => _.includes(['cbg', 'smbg', 'bolus', 'basal', 'wizard'], d.type));
     const latestDiabetesDatum = _.last(_.sortBy(latestDiabetesDatums, ['normalTime']));
     const bgSource = this.getMetaData('bgSources.current');
@@ -2155,9 +2156,9 @@ export const PatientDataClass = createReactClass({
 
     let defaultChartTypeForPatient = null;
 
-    if (uploads && latestDiabetesDatum) {
+    if (uploads && latestDatum) {
       let chartType = null;
-      defaultChartTypeForPatient = this.deriveChartTypeFromLatestData(latestDiabetesDatum, uploads);
+      defaultChartTypeForPatient = this.deriveChartTypeFromLatestData(latestDatum, latestDiabetesDatum, uploads);
 
       // Figure out which chart to show based on the current route
       switch(true) {
