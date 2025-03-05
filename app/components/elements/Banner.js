@@ -41,12 +41,20 @@ export function Banner(props) {
     <Flex
       aria-label={label}
       variant={`banners.${variant}`}
-      sx={{ gap: 3 }}
+      sx={{ gap: [0, 0, 3] }}
       {...themeProps}
     >
-      <Flex px={2} sx={{ gap: 2, flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}>
-        {showIcon && TypeIcon && <Icon className="icon" theme={baseTheme} variant="static" icon={TypeIcon} label={variant} />}
-        <Box py={1}>
+      <Flex
+        px={2}
+        sx={{
+          gap: 2,
+          flexGrow: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexWrap: ['wrap', 'wrap', 'nowrap'],
+        }}>
+        {showIcon && TypeIcon && <Icon className="icon" theme={baseTheme} variant="static" icon={TypeIcon} label={variant} sx={{ flexBasis: 0 }} />}
+        <Box py={1} sx={{ flexBasis: ['85%', '85%', 'auto'] }}>
           {title && <Text className="title">{title}</Text>}
           <Box className="message">
             <Text className="message-text">{message}</Text>
@@ -65,7 +73,9 @@ export function Banner(props) {
           </Box>
         </Box>
         {!!actionText && (
-          <Button variant="primaryCondensed" className="action" onClick={onAction}>{actionText}</Button>
+          <Flex sx={{ flexBasis: ['100%', '100%', 'auto'], justifyContent: 'center' }}>
+            <Button variant="primaryCondensed" className="action" onClick={onAction}>{actionText}</Button>
+          </Flex>
         )}
       </Flex>
 
@@ -75,6 +85,10 @@ export function Banner(props) {
           icon={CloseRoundedIcon}
           label="Close banner"
           onClick={() => onDismiss()}
+          sx={{
+            alignSelf: ['baseline', 'baseline', 'auto'],
+            marginLeft: [-2, -2, 0],
+          }}
         />
       )}
     </Flex>
