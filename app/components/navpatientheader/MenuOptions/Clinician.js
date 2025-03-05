@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { withTranslation } from 'react-i18next';
 
 import { getFinalSlug } from '../../../core/navutils';
-import { getButtonStyleProps } from './menuOptionHelpers';
+import { getButtonStyleProps, isDataView } from './menuOptionHelpers';
 
 import Button from '../../elements/Button';
 import viewIcon from '../../../core/icons/viewIcon.svg'
@@ -28,7 +28,7 @@ const ClinicianMenuOptions = ({
           onClick={onViewData}
           iconSrc={viewIcon}
           iconLabel="View"
-          {...getButtonStyleProps(finalSlug === '/data')}
+          {...getButtonStyleProps(isDataView(finalSlug))}
         >
           {t('View Data')}
         </Button>

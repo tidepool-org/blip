@@ -1114,14 +1114,3 @@ export const pendoData = (state = initialState.pendoData, action) => {
       return state;
   }
 };
-
-export const navbarChartType = (state = initialState.navbarChartType, action) => {
-  switch(action.type) {
-    case types.SET_NAVBAR_CHART_TYPE:
-      return action.payload.chartType;
-    case types.LOGOUT_REQUEST:
-      return null;
-    default:
-      return state;
-  }
-};

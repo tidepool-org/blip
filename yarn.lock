@@ -7374,7 +7374,7 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.31.0-WEB-3415-blood-glucose-heading-update.1
+    tideline: 1.31.0-web-3399-underride-precision.1
     tidepool-platform-client: 0.62.0-web-3400-strip-clinic-patient-update-fields.1
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
@@ -20016,9 +20016,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.31.0-WEB-3415-blood-glucose-heading-update.1":
-  version: 1.31.0-WEB-3415-blood-glucose-heading-update.1
-  resolution: "tideline@npm:1.31.0-WEB-3415-blood-glucose-heading-update.1"
+"tideline@npm:1.31.0-web-3399-underride-precision.1":
+  version: 1.31.0-web-3399-underride-precision.1
+  resolution: "tideline@npm:1.31.0-web-3399-underride-precision.1"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -20038,7 +20038,7 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: a72ff66a008c1feaef9b7bf9fd805e7a0de0d773573e46aa93495bcd3beee3a98717b8f8dc6a0c3bb3fe599608582128694cba526b0cb0359726085885c209c0
+  checksum: 0ca7453fc768de270da6e7f5aad97b44f6df37ef85225980a67f85a98cd616f65705e273608db88d8dfbeca783dda20631cd9ac890061ec9eb71f1a3f761df9a
   languageName: node
   linkType: hard
 

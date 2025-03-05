@@ -62,7 +62,6 @@ import UploaderBanner from '../../components/elements/Card/Banners/Uploader.png'
 import ShareBanner from '../../components/elements/Card/Banners/Share.png';
 import DataConnectionsBanner from '../../components/elements/Card/Banners/DataConnections.png';
 import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
-import NavbarChartTypeSetter from './navbarcharttypesetter';
 
 const { Loader } = vizComponents;
 const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
@@ -218,7 +217,6 @@ export const PatientDataClass = createReactClass({
         {patientData}
         {this.state.datesDialogOpen && datesDialog}
         {printDialog}
-        <NavbarChartTypeSetter chartType={this.state.chartType} />
         <Loader show={showLoader} />
       </div>
     );
