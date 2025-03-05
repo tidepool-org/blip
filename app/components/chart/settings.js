@@ -596,7 +596,9 @@ const Settings = ({
     return (
       <Box>
         <Flex mb={3} sx={{ justifyContent: 'space-between', flexWrap: ['wrap', 'nowrap'] }}>
-          <MediumTitle sx={{ color: 'black' }}>{t('Devices')}</MediumTitle>
+          <DesktopOnly>
+            <MediumTitle sx={{ color: 'black' }}>{t('Devices')}</MediumTitle>
+          </DesktopOnly>
 
           <Button
             id="add-data-connections"
@@ -604,7 +606,7 @@ const Settings = ({
             icon={AddRoundedIcon}
             iconPosition="left"
             onClick={handleClickDataConnections.bind(null, 'button')}
-            sx={{ fontSize: 1, '.icon': { fontSize: '1.25em' }, flex: ['initial'] }}
+            sx={{ fontSize: 1, '.icon': { fontSize: '1.25em' }, flex: ['initial'], width: ['100%', '100%', 'auto'] }}
           >
             {t('Add a Device')}
           </Button>

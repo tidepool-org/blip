@@ -38,7 +38,7 @@ const isInsufficientPatientData = (data) => {
   return false;
 };
 
-const getTitleState = (pathname, chartType, patient, data) => {
+const getTitleState = (pathname, patient, data) => {
   const finalSlug = getFinalSlug(pathname);
 
   if (finalSlug === '/profile') return TITLE_STATE.ACCOUNT_SETTINGS;
@@ -50,8 +50,10 @@ const getTitleState = (pathname, chartType, patient, data) => {
   const isInsufficient = isInsufficientPatientData(data);
 
   if (finalSlug === '/data' && (isEmpty || isInsufficient)) return TITLE_STATE.WELCOME;
-  if (finalSlug === '/data' && chartType === 'settings') return TITLE_STATE.DEVICES;
-  if (finalSlug === '/data') return TITLE_STATE.SUMMARY_STATS;
+  if (finalSlug === '/settings') return TITLE_STATE.DEVICES;
+
+  const dataRoutes = ['/data', '/trends', '/basics', '/bgLog', '/daily'];
+  if (dataRoutes.includes(finalSlug)) return TITLE_STATE.SUMMARY_STATS;
 
   return TITLE_STATE.DEFAULT;
 };
@@ -90,11 +92,10 @@ const Title = () => {
   const { t } = useTranslation();
   const { pathname } = useLocation();
 
-  const chartType = useSelector(state => state.blip.navbarChartType);
   const data = useSelector(state => state.blip.data);
   const patient = useSelector(state => selectPatient(state));
 
-  const titleState = getTitleState(pathname, chartType, patient, data);
+  const titleState = getTitleState(pathname, patient, data);
 
   switch(titleState) {
     case TITLE_STATE.PRIVATE_WORKSPACE:
