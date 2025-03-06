@@ -1,6 +1,7 @@
 /* global chai */
 /* global describe */
 /* global sinon */
+/* global Promise */
 /* global it */
 /* global before */
 /* global after */
@@ -120,7 +121,7 @@ describe('Login', () => {
       });
 
       it('should include a destination if provided in router state', () => {
-        let destStoreState = {
+        const destStoreState = {
           ...storeState,
           router: {
             location: {
@@ -130,7 +131,7 @@ describe('Login', () => {
             }
           }
         };
-        let destStore = mockStore(destStoreState);
+        const destStore = mockStore(destStoreState);
 
         wrapper = mount(
           <Provider store={destStore}>
@@ -149,7 +150,7 @@ describe('Login', () => {
 
       describe('when error from declining TOS', () => {
         it('should forward to keycloak login', () => {
-          let errorProps = {
+          const errorProps = {
             ...props,
             keycloakConfig: {
               error: 'access_denied',
@@ -172,7 +173,7 @@ describe('Login', () => {
 
       describe('when claiming an account', () => {
         it('should forward user to verification-with-password if signupEmail+signupKey present and 409 on confirm', () => {
-          let claimProps = {
+          const claimProps = {
             ...props,
             api: {
               user: {
@@ -190,7 +191,7 @@ describe('Login', () => {
           const err = new Error(ErrorMessages.ERR_CONFIRMING_SIGNUP);
           err.status = 409;
 
-          let expectedActions = [
+          const expectedActions = [
             {
               type: 'CONFIRM_SIGNUP_REQUEST',
             },
@@ -225,7 +226,7 @@ describe('Login', () => {
             </Provider>
           );
 
-          let actions = store.getActions();
+          const actions = store.getActions();
           expect(actions[1].error).to.deep.include({
             message: ErrorMessages.ERR_CONFIRMING_SIGNUP,
           });
