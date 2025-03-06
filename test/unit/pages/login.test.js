@@ -18,16 +18,16 @@ import thunk from 'redux-thunk';
 
 import * as ErrorMessages from '../../../app/redux/constants/errorMessages';
 
-let assert = chai.assert;
-let expect = chai.expect;
+const assert = chai.assert;
+const expect = chai.expect;
 
-describe('Login', function () {
-  it('should be exposed as a module and be of type function', function() {
+describe('Login', () => {
+  it('should be exposed as a module and be of type function', () => {
     expect(LoginFunction).to.be.a('function');
   });
 
-  describe('render', function() {
-    var props = {
+  describe('render', () => {
+    const props = {
       acknowledgeNotification: sinon.stub(),
       confirmSignup: sinon.stub(),
       fetchers: [],
@@ -54,7 +54,7 @@ describe('Login', function () {
       },
     };
 
-    it('should render without problems when required props are present', function () {
+    it('should render without problems when required props are present', () => {
       console.error = sinon.stub();
 
       mount(<BrowserRouter><LoginFunction {...props} /></BrowserRouter>)
@@ -85,6 +85,7 @@ describe('Login', function () {
 
       const keycloakMock = {
         login: sinon.stub(),
+        createLoginUrl: sinon.stub().returns(Promise.resolve('loginUrl')),
       };
       let RewiredLogin;
       let wrapper;
@@ -108,13 +109,14 @@ describe('Login', function () {
       });
 
       afterEach(() => {
-        keycloakMock.login.reset();
+        keycloakMock.login.resetHistory();
+        keycloakMock.createLoginUrl.resetHistory();
         store.clearActions();
       });
 
       it('should forward a user to keycloak login when initialized', () => {
-        expect(keycloakMock.login.callCount).to.equal(1);
-        expect(keycloakMock.login.calledWith({ redirectUri: 'testOrigin' })).to.be.true;
+        expect(keycloakMock.createLoginUrl.callCount).to.equal(1);
+        expect(keycloakMock.createLoginUrl.calledWith({ redirectUri: 'testOrigin' })).to.be.true;
       });
 
       it('should include a destination if provided in router state', () => {
@@ -137,9 +139,9 @@ describe('Login', function () {
             </BrowserRouter>
           </Provider>
         );
-        expect(keycloakMock.login.callCount).to.equal(1);
+        expect(keycloakMock.createLoginUrl.callCount).to.equal(1);
         expect(
-          keycloakMock.login.calledWith({
+          keycloakMock.createLoginUrl.calledWith({
             redirectUri: 'testOrigin/a_destination',
           })
         ).to.be.true;
@@ -162,8 +164,8 @@ describe('Login', function () {
             </Provider>
           );
 
-          expect(keycloakMock.login.callCount).to.equal(1);
-          expect(keycloakMock.login.calledWith({ redirectUri: 'testOrigin' }))
+          expect(keycloakMock.createLoginUrl.callCount).to.equal(1);
+          expect(keycloakMock.createLoginUrl.calledWith({ redirectUri: 'testOrigin' }))
             .to.be.true;
         });
       });
@@ -185,7 +187,7 @@ describe('Login', function () {
               },
             },
           };
-          let err = new Error(ErrorMessages.ERR_CONFIRMING_SIGNUP);
+          const err = new Error(ErrorMessages.ERR_CONFIRMING_SIGNUP);
           err.status = 409;
 
           let expectedActions = [
@@ -229,12 +231,12 @@ describe('Login', function () {
           });
           expectedActions[1].error = actions[1].error;
           expect(actions).to.eql(expectedActions);
-          expect(keycloakMock.login.callCount).to.equal(0);
+          expect(keycloakMock.createLoginUrl.callCount).to.equal(0);
           expect(claimProps.api.user.confirmSignUp.callCount).to.equal(1);
         });
 
         it('should confirm signup if signupEmail+signupKey present and no error on confirm', () => {
-          let claimProps = {
+          const claimProps = {
             ...props,
             location: {
               query: {
@@ -244,7 +246,7 @@ describe('Login', function () {
             },
           };
 
-          let expectedActions = [
+          const expectedActions = [
             {
               type: 'CONFIRM_SIGNUP_REQUEST',
             },
@@ -261,7 +263,7 @@ describe('Login', function () {
             </Provider>
           );
 
-          let actions = store.getActions();
+          const actions = store.getActions();
           expect(actions).to.eql(expectedActions);
           expect(keycloakMock.login.callCount).to.equal(0);
           expect(claimProps.api.user.confirmSignUp.callCount).to.equal(1);

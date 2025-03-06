@@ -147,7 +147,7 @@ export const Login = withTranslation()(class extends React.Component {
           url += `&${additionalParams.toString()}`;
         }
 
-        window.location.href = url;
+        win.location.href = url;
       });
       return <></>;
     }
