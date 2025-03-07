@@ -217,10 +217,10 @@ const Settings = ({
     const selectedDevicePair = _.find(groupedData, { 0: selectedDevice });
     if(selectedDevice && selectedDevicePair) {
       setSettingsOptions(_.map(selectedDevicePair[1], (setting, index) => {
-        const isAbbreviated = index === 0 && setting.previousNormalTime - setting.normalTime < (MS_IN_DAY / 1000);
+        const isSameDayAsLastUpload = index === 0 && setting.previousNormalTime - setting.normalTime < (MS_IN_DAY / 1000);
         let labelTimeRange;
 
-        if (isAbbreviated) {
+        if (isSameDayAsLastUpload) {
           labelTimeRange = moment(setting.normalTime).tz(timezoneName).format('MMM DD, YYYY')
                            + ' '
                            + t('(Last Upload Date)');
@@ -236,7 +236,7 @@ const Settings = ({
           label: (
             <span>
               {labelTimeRange}
-              {!isAbbreviated &&
+              {!isSameDayAsLastUpload &&
                 <span style={{ fontWeight: 'bold' }}>
                   Active for {setting.durationString}
                 </span>
