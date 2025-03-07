@@ -67,6 +67,8 @@ const getLatestDatumTime = (latestDatumByType) => {
                            .filter(datum => relevantTypes.includes(datum.type))
                            .map(datum => datum.normalTime);
 
+  if (!timestamps.length) return null;
+
   return _.max(timestamps);
 };
 
@@ -153,7 +155,10 @@ const Settings = ({
       group.reverse();
 
       group.forEach((obj, index) => {
-        const previousObj = index > 0 ? group[index - 1] : { normalTime: getLatestDatumTime(latestDatumByType) };
+        const previousObj = index > 0
+          ? group[index - 1]
+          : { normalTime: getLatestDatumTime(latestDatumByType) || obj.normalTime };
+
         obj.previousNormalTime = previousObj.normalTime;
         obj.elapsedTime = previousObj.normalTime - obj.normalTime;
         obj.durationString = formatDuration(obj.elapsedTime);
