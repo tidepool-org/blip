@@ -222,7 +222,7 @@ const Settings = ({
     const selectedDevicePair = _.find(groupedData, { 0: selectedDevice });
     if(selectedDevice && selectedDevicePair) {
       setSettingsOptions(_.map(selectedDevicePair[1], (setting, index) => {
-        const isSameDayAsLastUpload = index === 0 && setting.previousNormalTime - setting.normalTime < (MS_IN_DAY / 1000);
+        const isSameDayAsLastUpload = (index === 0) && ((setting.previousNormalTime - setting.normalTime) < (MS_IN_DAY / 1000));
         let labelTimeRange;
 
         if (isSameDayAsLastUpload) {
