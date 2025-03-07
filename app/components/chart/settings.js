@@ -10,6 +10,7 @@ import DateRangeRoundedIcon from '@material-ui/icons/DateRangeRounded';
 import AddRoundedIcon from '@material-ui/icons/AddRounded';
 import launchCustomProtocol from 'custom-protocol-detection';
 import { DesktopOnly } from '../mediaqueries';
+import { MS_IN_DAY } from '../../core/constants';
 
 import {
   bindPopover,
@@ -60,6 +61,15 @@ function formatDuration(milliseconds) {
   return `>${years} year${years === 1 ? '' : 's'}`;
 }
 
+const getLatestDatumTime = (latestDatumByType) => {
+  const relevantTypes = ['cbg', 'smbg', 'basal', 'bolus', 'pumpSettings'];
+  const timestamps = Object.values(latestDatumByType)
+                           .filter(datum => relevantTypes.includes(datum.type))
+                           .map(datum => datum.normalTime);
+
+  return _.max(timestamps);
+};
+
 const Settings = ({
   chartPrefs,
   data,
@@ -96,6 +106,7 @@ const Settings = ({
   const [showDataConnectionsModal, setShowDataConnectionsModal] = useState(false);
   const [showUploadOverlay, setShowUploadOverlay] = useState(false);
   const dataSources = useSelector(state => state.blip.dataSources);
+  const latestDatumByType = useSelector(state => state.blip.data?.metaData?.latestDatumByType);
 
   const patientData = clinicPatient || {
     ...clinicPatientFromAccountInfo(patient),
@@ -142,7 +153,7 @@ const Settings = ({
       group.reverse();
 
       group.forEach((obj, index) => {
-        const previousObj = index > 0 ? group[index - 1] : { normalTime: new Date().getTime() };
+        const previousObj = index > 0 ? group[index - 1] : { normalTime: getLatestDatumTime(latestDatumByType) };
         obj.previousNormalTime = previousObj.normalTime;
         obj.elapsedTime = previousObj.normalTime - obj.normalTime;
         obj.durationString = formatDuration(obj.elapsedTime);
@@ -206,21 +217,30 @@ const Settings = ({
     const selectedDevicePair = _.find(groupedData, { 0: selectedDevice });
     if(selectedDevice && selectedDevicePair) {
       setSettingsOptions(_.map(selectedDevicePair[1], (setting, index) => {
+        const isAbbreviated = index === 0 && setting.previousNormalTime - setting.normalTime < (MS_IN_DAY / 1000);
+        let labelTimeRange;
+
+        if (isAbbreviated) {
+          labelTimeRange = moment(setting.normalTime).tz(timezoneName).format('MMM DD, YYYY')
+                           + ' '
+                           + t('(Last Upload Date)');
+        } else {
+          labelTimeRange = moment(setting.normalTime).tz(timezoneName).format('MMM DD, YYYY')
+                           + ' - '
+                           + moment(setting.previousNormalTime).tz(timezoneName).format('MMM DD, YYYY')
+                           + ' : ';
+        }
+
         return {
           value: setting.id,
           label: (
             <span>
-              {moment(setting.normalTime)
-                .tz(timezoneName)
-                .format('MMM DD, YYYY')}
-              {' '}-{' '}
-              {moment(setting.previousNormalTime)
-                .tz(timezoneName)
-                .format('MMM DD, YYYY')}
-              {' '}:{' '}
-              <span style={{ fontWeight: 'bold' }}>
-                Active for {setting.durationString}
-              </span>
+              {labelTimeRange}
+              {!isAbbreviated &&
+                <span style={{ fontWeight: 'bold' }}>
+                  Active for {setting.durationString}
+                </span>
+              }
             </span>
           ),
         };
