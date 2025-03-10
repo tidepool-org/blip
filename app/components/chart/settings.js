@@ -61,13 +61,16 @@ function formatDuration(milliseconds) {
   return `>${years} year${years === 1 ? '' : 's'}`;
 }
 
-const getLatestDatumInUpload = (combined, uploadId) => {
-  if (!combined.length || !uploadId) return null;
+// Given an array of mixed datums, return the latest datum (i.e. highest normalTime value)
+const getLatestDatumOfUpload = (datums, uploadId) => {
+  if (!datums.length || !uploadId) return null;
 
-  const relevantDatums = combined.filter(datum => datum.uploadId === uploadId)
-                                 .filter(datum => !(datum.type === 'upload' || datum.dataSetType === 'continuous'));
+  // Filter out loop upload datum ('type' == upload && dataSetType == 'continuous') because that
+  // datum will have date defaulted to now()
+  const relevantDatums = datums.filter(datum => datum.uploadId === uploadId)
+                               .filter(datum => !(datum.type === 'upload' && datum.dataSetType === 'continuous'));
 
-  return relevantDatums.length ? _.maxBy(relevantDatums, 'normalTime')?.normalTime : null;
+  return relevantDatums.length ? _.maxBy(relevantDatums, 'normalTime') : null;
 };
 
 const Settings = ({
@@ -154,7 +157,7 @@ const Settings = ({
       group.forEach((obj, index) => {
         const previousObj = index > 0
           ? group[index - 1]
-          : { normalTime: getLatestDatumInUpload(data?.data?.combined, obj.uploadId) || obj.normalTime };
+          : { normalTime: getLatestDatumOfUpload(data?.data?.combined, obj.uploadId)?.normalTime || obj.normalTime };
 
         obj.previousNormalTime = previousObj.normalTime;
         obj.elapsedTime = previousObj.normalTime - obj.normalTime;
@@ -219,7 +222,8 @@ const Settings = ({
     const selectedDevicePair = _.find(groupedData, { 0: selectedDevice });
     if(selectedDevice && selectedDevicePair) {
       setSettingsOptions(_.map(selectedDevicePair[1], (setting, index) => {
-        const isSameDayAsLastUpload = (index === 0) && ((setting.previousNormalTime - setting.normalTime) < (MS_IN_DAY / 1000));
+        // If the latest setting option starts and ends on the same date, we show '(Last Upload Date)' in place of end date
+        const isSameDayAsLastUpload = index === 0 && (setting.previousNormalTime - setting.normalTime) < (MS_IN_DAY / 1000);
 
         if (isSameDayAsLastUpload) {
           return {
