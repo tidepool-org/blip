@@ -63,27 +63,6 @@ function formatDuration(milliseconds) {
   return `>${years} year${years === 1 ? '' : 's'}`;
 }
 
-const getLatestDatumOfUpload = (patientId, uploadId, setUploadDatumsRequest) => {
-  if (!uploadId) return;
-
-  const fetchOpts = {
-    uploadId,
-    type: ['cbg', 'smbg', 'basal', 'bolus', 'wizard', 'food', 'pumpSettings', 'upload'].join(','),
-    latest: 1,
-  };
-
-  api.patientData.get(patientId, fetchOpts, (err, latestDatums) => {
-    if (err) setUploadDatumsRequest({ state: 'ERROR', value: null });
-
-    const latestISOTimestamp = _.maxBy(latestDatums, 'time')?.time;
-    const latestUnixTimestamp = latestISOTimestamp && moment(latestISOTimestamp).valueOf();
-
-    if (!latestUnixTimestamp) setUploadDatumsRequest({ state: 'NO_DATA', value: null });
-
-    setUploadDatumsRequest({ state: 'SUCCESS', value: latestUnixTimestamp });
-  });
-};
-
 const useLatestDatumTime = (uploadId) => {
   const { id: patientId } = useParams();
   const [latestNormalTime, setLatestNormalTime] = useState(null);
