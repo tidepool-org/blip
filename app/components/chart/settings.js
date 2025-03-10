@@ -65,10 +65,13 @@ function formatDuration(milliseconds) {
 const getLatestDatumOfUpload = (datums, uploadId) => {
   if (!datums.length || !uploadId) return null;
 
-  // Filter out loop upload datum ('type' == upload && dataSetType == 'continuous') because that
-  // datum will have date defaulted to now()
-  const relevantDatums = datums.filter(datum => datum.uploadId === uploadId)
-                               .filter(datum => !(datum.type === 'upload' && datum.dataSetType === 'continuous'));
+  const relevantDatums = datums.filter(datum => {
+    // Filter out loop upload datum ('type' == upload && dataSetType == 'continuous') because it
+    // will have its date defaulted to now() and does not reflect the latest upload time
+    if (datum.type === 'upload' && datum.dataSetType === 'continuous') return false;
+
+    return datum.uploadId === uploadId;
+  });
 
   return relevantDatums.length ? _.maxBy(relevantDatums, 'normalTime') : null;
 };
@@ -155,9 +158,18 @@ const Settings = ({
       group.reverse();
 
       group.forEach((obj, index) => {
-        const previousObj = index > 0
-          ? group[index - 1]
-          : { normalTime: getLatestDatumOfUpload(data?.data?.combined, obj.uploadId)?.normalTime || obj.normalTime };
+        let previousObj = group[index - 1];
+
+        // For the latest setting option, there is no end date, but we need to display when those pumpSettings
+        // are known to be valid until. We instead use the latest timestamp of ANY datum within the same upload,
+        // assuming that those settings were at least valid until the latest timestamp of else in the upload it
+        // was batched together with
+        if (index === 0) {
+          const latestDatumOfUpload = getLatestDatumOfUpload(data?.data?.combined, obj.uploadId);
+          const latestDatumTime = latestDatumOfUpload?.normalTime || obj.normalTime;
+
+          previousObj = { normalTime: latestDatumTime };
+        }
 
         obj.previousNormalTime = previousObj.normalTime;
         obj.elapsedTime = previousObj.normalTime - obj.normalTime;
