@@ -106,7 +106,6 @@ const Settings = ({
   const [showDataConnectionsModal, setShowDataConnectionsModal] = useState(false);
   const [showUploadOverlay, setShowUploadOverlay] = useState(false);
   const dataSources = useSelector(state => state.blip.dataSources);
-  const latestDatumByType = useSelector(state => state.blip.data?.metaData?.latestDatumByType);
 
   const patientData = clinicPatient || {
     ...clinicPatientFromAccountInfo(patient),
