@@ -61,15 +61,13 @@ function formatDuration(milliseconds) {
   return `>${years} year${years === 1 ? '' : 's'}`;
 }
 
-const getLatestDatumTime = (latestDatumByType) => {
-  const relevantTypes = ['cbg', 'smbg', 'basal', 'bolus', 'pumpSettings'];
-  const timestamps = Object.values(latestDatumByType)
-                           .filter(datum => relevantTypes.includes(datum.type))
-                           .map(datum => datum.normalTime);
+const getLatestDatumInUpload = (combined, uploadId) => {
+  if (!combined.length || !uploadId) return null;
 
-  if (!timestamps.length) return null;
+  const relevantDatums = combined.filter(datum => datum.uploadId === uploadId)
+                                 .filter(datum => !(datum.type === 'upload' || datum.dataSetType === 'continuous'));
 
-  return _.max(timestamps);
+  return relevantDatums.length ? _.maxBy(relevantDatums, 'normalTime')?.normalTime : null;
 };
 
 const Settings = ({
@@ -157,7 +155,7 @@ const Settings = ({
       group.forEach((obj, index) => {
         const previousObj = index > 0
           ? group[index - 1]
-          : { normalTime: getLatestDatumTime(latestDatumByType) || obj.normalTime };
+          : { normalTime: getLatestDatumInUpload(data?.data?.combined, obj.uploadId) || obj.normalTime };
 
         obj.previousNormalTime = previousObj.normalTime;
         obj.elapsedTime = previousObj.normalTime - obj.normalTime;

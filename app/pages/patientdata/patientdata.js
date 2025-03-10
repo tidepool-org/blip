@@ -2069,6 +2069,14 @@ export const PatientDataClass = createReactClass({
 
         case 'settings':
           chartQuery.types = {
+            basal: {},
+            bolus: {},
+            cbg: {},
+            deviceEvent: {},
+            food: {},
+            message: {},
+            smbg: {},
+            wizard: {},
             pumpSettings: {},
             upload: {},
           };
