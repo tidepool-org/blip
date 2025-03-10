@@ -162,8 +162,8 @@ const Settings = ({
 
         // For the latest setting option, there is no end date, but we need to display when those pumpSettings
         // are known to be valid until. We instead use the latest timestamp of ANY datum within the same upload,
-        // assuming that those settings were at least valid until the latest timestamp of else in the upload it
-        // was batched together with
+        // assuming that those pumpSettings were at least valid until the latest timestamp of any other data
+        // in the upload it was batched together with.
         if (index === 0) {
           const latestDatumOfUpload = getLatestDatumOfUpload(data?.data?.combined, obj.uploadId);
           const latestDatumTime = latestDatumOfUpload?.normalTime || obj.normalTime;
