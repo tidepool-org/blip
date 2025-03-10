@@ -2,6 +2,7 @@ import _ from 'lodash';
 import bows from 'bows';
 import PropTypes from 'prop-types';
 import React, { useState, useCallback, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { Trans, withTranslation } from 'react-i18next';
 import { Flex, Box, Text, Divider, Link } from 'theme-ui';
 import moment from 'moment-timezone';
@@ -41,6 +42,7 @@ import DataConnectionsModal from '../../components/datasources/DataConnectionsMo
 import Card from '../elements/Card';
 import { Body1, MediumTitle } from '../elements/FontStyles';
 import Uploadlaunchoverlay from '../uploadlaunchoverlay';
+import api from '../../core/api';
 
 const log = bows('Settings View');
 
@@ -61,19 +63,55 @@ function formatDuration(milliseconds) {
   return `>${years} year${years === 1 ? '' : 's'}`;
 }
 
-// Given an array of mixed datums, return the latest datum (i.e. highest normalTime value)
-const getLatestDatumOfUpload = (datums, uploadId) => {
-  if (!datums.length || !uploadId) return null;
+const getLatestDatumOfUpload = (patientId, uploadId, setUploadDatumsRequest) => {
+  if (!uploadId) return;
 
-  const relevantDatums = datums.filter(datum => {
-    // Filter out loop upload datum ('type' == upload && dataSetType == 'continuous') because it
-    // will have its date defaulted to now() and does not reflect the latest upload time
-    if (datum.type === 'upload' && datum.dataSetType === 'continuous') return false;
+  const fetchOpts = {
+    uploadId,
+    type: ['cbg', 'smbg', 'basal', 'bolus', 'wizard', 'food', 'pumpSettings', 'upload'].join(','),
+    latest: 1,
+  };
 
-    return datum.uploadId === uploadId;
+  api.patientData.get(patientId, fetchOpts, (err, latestDatums) => {
+    if (err) setUploadDatumsRequest({ state: 'ERROR', value: null });
+
+    const latestISOTimestamp = _.maxBy(latestDatums, 'time')?.time;
+    const latestUnixTimestamp = latestISOTimestamp && moment(latestISOTimestamp).valueOf();
+
+    if (!latestUnixTimestamp) setUploadDatumsRequest({ state: 'NO_DATA', value: null });
+
+    setUploadDatumsRequest({ state: 'SUCCESS', value: latestUnixTimestamp });
   });
+};
 
-  return relevantDatums.length ? _.maxBy(relevantDatums, 'normalTime') : null;
+const useLatestDatumTime = (uploadId) => {
+  const { id: patientId } = useParams();
+  const [latestNormalTime, setLatestNormalTime] = useState(null);
+
+  useEffect(() => {
+    setLatestNormalTime(null);
+
+    if (!uploadId) return;
+
+    const fetchOpts = {
+      uploadId,
+      type: ['cbg', 'smbg', 'basal', 'bolus', 'wizard', 'food', 'pumpSettings', 'upload'].join(','),
+      latest: 1,
+    };
+
+    api.patientData.get(patientId, fetchOpts, (err, latestDatums) => {
+      if (err || !latestDatums.length) return;
+
+      const latestISOTimestamp = _.maxBy(latestDatums, 'time')?.time;
+      const latestUnixTimestamp = latestISOTimestamp && moment(latestISOTimestamp).valueOf();
+
+      if (!latestUnixTimestamp) return;
+
+      setLatestNormalTime(latestUnixTimestamp);
+    });
+  }, [patientId, uploadId]);
+
+  return latestNormalTime;
 };
 
 const Settings = ({
@@ -113,6 +151,9 @@ const Settings = ({
   const [showUploadOverlay, setShowUploadOverlay] = useState(false);
   const dataSources = useSelector(state => state.blip.dataSources);
 
+  const [latestUploadId, setLatestUploadId] = useState(null);
+  const latestNormalTime = useLatestDatumTime(latestUploadId);
+
   const patientData = clinicPatient || {
     ...clinicPatientFromAccountInfo(patient),
     dataSources,
@@ -132,8 +173,10 @@ const Settings = ({
 
   const timezoneName = _.get(data, 'timePrefs.timezoneName', 'UTC');
 
+  const combinedData = data?.data?.combined;
+
   useEffect(() => {
-    const sortedData = _.sortBy(_.filter(_.cloneDeep(data?.data?.combined), { type: 'pumpSettings' }), 'normalTime');
+    const sortedData = _.sortBy(_.filter(_.cloneDeep(combinedData), { type: 'pumpSettings' }), 'normalTime');
 
     let groupedBySource = _.groupBy(sortedData, 'source');
 
@@ -160,13 +203,13 @@ const Settings = ({
       group.forEach((obj, index) => {
         let previousObj = group[index - 1];
 
-        // For the latest setting option, there is no end date, but we need to display when those pumpSettings
-        // are known to be valid until. We instead use the latest timestamp of ANY datum within the same upload,
-        // assuming that those pumpSettings were at least valid until the latest timestamp of any other data
-        // in the upload it was batched together with.
         if (index === 0) {
-          const latestDatumOfUpload = getLatestDatumOfUpload(data?.data?.combined, obj.uploadId);
-          const latestDatumTime = latestDatumOfUpload?.normalTime || obj.normalTime;
+          // For the latest setting option, there is no end date, but we need to display when those pumpSettings
+          // are known to be valid until. We instead use the latest timestamp of ANY datum within the same upload,
+          // assuming that those pumpSettings were at least valid until the latest timestamp of any other data
+          // in the upload it was batched together with.
+          setLatestUploadId(obj.uploadId);
+          const latestDatumTime = latestNormalTime || obj.normalTime;
 
           previousObj = { normalTime: latestDatumTime };
         }
