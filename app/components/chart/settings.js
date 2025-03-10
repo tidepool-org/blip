@@ -11,7 +11,6 @@ import DateRangeRoundedIcon from '@material-ui/icons/DateRangeRounded';
 import AddRoundedIcon from '@material-ui/icons/AddRounded';
 import launchCustomProtocol from 'custom-protocol-detection';
 import { DesktopOnly } from '../mediaqueries';
-import { MS_IN_DAY } from '../../core/constants';
 
 import {
   bindPopover,
@@ -256,8 +255,9 @@ const Settings = ({
     const selectedDevicePair = _.find(groupedData, { 0: selectedDevice });
     if(selectedDevice && selectedDevicePair) {
       setSettingsOptions(_.map(selectedDevicePair[1], (setting, index) => {
-        // If the latest setting option starts and ends on the same date, we show '(Last Upload Date)' in place of end date
-        const isSameDayAsLastUpload = index === 0 && (setting.previousNormalTime - setting.normalTime) < (MS_IN_DAY / 1000);
+        // If the latest setting option starts and ends on the same day, we show '(Last Upload Date)' in place of end date
+        const { previousNormalTime, normalTime } = setting;
+        const isSameDayAsLastUpload = index === 0 && (moment(previousNormalTime).isSame(normalTime, 'day'));
 
         if (isSameDayAsLastUpload) {
           return {
