@@ -220,29 +220,35 @@ const Settings = ({
     if(selectedDevice && selectedDevicePair) {
       setSettingsOptions(_.map(selectedDevicePair[1], (setting, index) => {
         const isSameDayAsLastUpload = (index === 0) && ((setting.previousNormalTime - setting.normalTime) < (MS_IN_DAY / 1000));
-        let labelTimeRange;
 
         if (isSameDayAsLastUpload) {
-          labelTimeRange = moment(setting.normalTime).tz(timezoneName).format('MMM DD, YYYY')
-                           + ' '
-                           + t('(Last Upload Date)');
-        } else {
-          labelTimeRange = moment(setting.normalTime).tz(timezoneName).format('MMM DD, YYYY')
-                           + ' - '
-                           + moment(setting.previousNormalTime).tz(timezoneName).format('MMM DD, YYYY')
-                           + ' : ';
+          return {
+            value: setting.id,
+            label: (
+              <span>
+                {moment(setting.normalTime).tz(timezoneName).format('MMM DD, YYYY')}
+                {' '}
+                {t('(Last Upload Date)')}
+              </span>
+            ),
+          };
         }
 
         return {
           value: setting.id,
           label: (
             <span>
-              {labelTimeRange}
-              {!isSameDayAsLastUpload &&
-                <span style={{ fontWeight: 'bold' }}>
-                  Active for {setting.durationString}
-                </span>
-              }
+              {moment(setting.normalTime)
+                .tz(timezoneName)
+                .format('MMM DD, YYYY')}
+              {' '}-{' '}
+              {moment(setting.previousNormalTime)
+                .tz(timezoneName)
+                .format('MMM DD, YYYY')}
+              {' '}:{' '}
+              <span style={{ fontWeight: 'bold' }}>
+                Active for {setting.durationString}
+              </span>
             </span>
           ),
         };
