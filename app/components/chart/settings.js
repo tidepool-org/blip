@@ -64,10 +64,10 @@ function formatDuration(milliseconds) {
 
 const useLatestDatumTime = (uploadId) => {
   const { id: patientId } = useParams();
-  const [latestNormalTime, setLatestNormalTime] = useState(null);
+  const [latestTimestamp, setLatestTimestamp] = useState(null);
 
   useEffect(() => {
-    setLatestNormalTime(null);
+    setLatestTimestamp(null);
 
     if (!uploadId) return;
 
@@ -85,11 +85,11 @@ const useLatestDatumTime = (uploadId) => {
 
       if (!latestUnixTimestamp) return;
 
-      setLatestNormalTime(latestUnixTimestamp);
+      setLatestTimestamp(latestUnixTimestamp);
     });
   }, [patientId, uploadId]);
 
-  return latestNormalTime;
+  return latestTimestamp;
 };
 
 const Settings = ({
@@ -130,7 +130,7 @@ const Settings = ({
   const dataSources = useSelector(state => state.blip.dataSources);
 
   const [latestUploadId, setLatestUploadId] = useState(null);
-  const latestNormalTime = useLatestDatumTime(latestUploadId);
+  const latestDatumFromUploadTimestamp = useLatestDatumTime(latestUploadId);
 
   const patientData = clinicPatient || {
     ...clinicPatientFromAccountInfo(patient),
@@ -181,15 +181,15 @@ const Settings = ({
       group.forEach((obj, index) => {
         let previousObj = group[index - 1];
 
+        // For the latest setting option, there is no end date, but we need to display when those pumpSettings
+        // are known to be valid until. We instead use the latest timestamp of ANY datum within the same upload,
+        // assuming that those pumpSettings were at least valid until the latest timestamp of any other data
+        // in the upload it was batched together with.
         if (index === 0) {
-          // For the latest setting option, there is no end date, but we need to display when those pumpSettings
-          // are known to be valid until. We instead use the latest timestamp of ANY datum within the same upload,
-          // assuming that those pumpSettings were at least valid until the latest timestamp of any other data
-          // in the upload it was batched together with.
-          setLatestUploadId(obj.uploadId);
-          const latestDatumTime = latestNormalTime || obj.normalTime;
+          setLatestUploadId(obj.uploadId); // triggers a fetch for the latest datums of this upload id
+          const endTimestamp = latestDatumFromUploadTimestamp || obj.normalTime;
 
-          previousObj = { normalTime: latestDatumTime };
+          previousObj = { normalTime: endTimestamp };
         }
 
         obj.previousNormalTime = previousObj.normalTime;
