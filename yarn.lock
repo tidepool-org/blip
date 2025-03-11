@@ -5278,9 +5278,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.44.1-web-3428-twiist-loop.1":
-  version: 1.44.1-web-3428-twiist-loop.1
-  resolution: "@tidepool/viz@npm:1.44.1-web-3428-twiist-loop.1"
+"@tidepool/viz@npm:1.44.1-web-3428-twiist-loop.2":
+  version: 1.44.1-web-3428-twiist-loop.2
+  resolution: "@tidepool/viz@npm:1.44.1-web-3428-twiist-loop.2"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -5340,7 +5340,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 557d1a4f55720e4b96efa3de7612e1171823e87624dceb9cb9133f70d1cdb247c2fe108ef3b76fb3f7f6fac3fd71a50a73aa9d56afb74c0b83a2d29f60ee38af
+  checksum: 22b162460b7184d84a956ff1962e870f1c05b9b269ac8c7548ad7ce769164b217a80fbe5c0ae4dfffd12bd884dba4591bc330c448b438b911da6b375539e4cb3
   languageName: node
   linkType: hard
 
@@ -7305,7 +7305,7 @@ __metadata:
     "@storybook/react": 7.5.0
     "@storybook/react-webpack5": 7.5.0
     "@testing-library/react-hooks": 8.0.1
-    "@tidepool/viz": 1.44.1-web-3428-twiist-loop.1
+    "@tidepool/viz": 1.44.1-web-3428-twiist-loop.2
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -7428,7 +7428,7 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.30.1-web-3428-twiist-loop.1
+    tideline: 1.30.1-web-3428-twiist-loop.2
     tidepool-platform-client: 0.61.0
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
@@ -20158,9 +20158,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.30.1-web-3428-twiist-loop.1":
-  version: 1.30.1-web-3428-twiist-loop.1
-  resolution: "tideline@npm:1.30.1-web-3428-twiist-loop.1"
+"tideline@npm:1.30.1-web-3428-twiist-loop.2":
+  version: 1.30.1-web-3428-twiist-loop.2
+  resolution: "tideline@npm:1.30.1-web-3428-twiist-loop.2"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -20180,7 +20180,7 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: 0ebe429b864302e6fb7305087d9447ac49a8d401d2ad366092724a088347173ff743ee9a840e21ffc737d2c0cd3aeb7d246423ece3c17dbe45a3cb9adb88e727
+  checksum: 6ac576da27ff592af2b3b53cf64d2f9bf06e8ad6e2ea6dde6366e7bee33bdda8875022ba8f38f9a128fd292f9384d4207f53d1221458ab2ad53b021b3f6db1c5
   languageName: node
   linkType: hard
 
