@@ -3269,22 +3269,33 @@ export const ClinicPatients = (props) => {
     const page = Math.ceil(patientFetchOptions.offset / patientFetchOptions.limit) + 1;
     const sort = patientFetchOptions.sort || defaultPatientFetchOptions.sort;
 
-    console.log(clinic?.patientCount);
-
     return (
       <Box>
         <Loader show={loading} overlay={true} />
 
-        <Box
-          sx={{ backgroundColor: colorPalette.primary.bluePrimary00 }}
+        <Flex
           px={2}
           py={2}
+          sx={{
+            backgroundColor: colorPalette.primary.bluePrimary00,
+            justifyContent: 'space-between',
+          }}
         >
-          {t('Showing {{ shown }} of {{ total }} patients', {
-            shown: clinic?.fetchedPatientCount,
-            total: clinic?.patientCount,
-          })}
-        </Box>
+          <Text>
+            {t('Showing {{ shown }} of {{ total }} patients', {
+              shown: clinic?.fetchedPatientCount,
+              total: clinic?.patientCount,
+            })}
+          </Text>
+
+          <Text onClick={handleResetFilters}>
+            <span onClick={handleResetFilters}>{t('Reset Filters')}</span>
+            {' '}
+            <span>{t('or')}</span>
+            {' '}
+            <span onClick={handleClearSearch}>{t('Clear Search')}</span>
+          </Text>
+        </Flex>
 
         <Table
           id={'peopleTable'}
