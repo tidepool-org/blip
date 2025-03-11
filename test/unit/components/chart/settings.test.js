@@ -842,13 +842,13 @@ describe.only('Settings', () => {
           combined: [
             {
               type: 'pumpSettings',
-              normalTime: moment('2023-01-01T00:00:00Z').valueOf(),
+              normalTime: moment('2022-12-01T00:00:00Z').valueOf(),
               source: 'source1',
               id: 'id1',
             },
             {
               type: 'pumpSettings',
-              normalTime: moment('2024-01-01T00:00:00Z').valueOf(),
+              normalTime: moment('2023-12-01T00:00:00Z').valueOf(),
               source: 'source1',
               id: 'id2',
             },
@@ -864,6 +864,12 @@ describe.only('Settings', () => {
               source: 'source1',
               id: 'id4',
             },
+            {
+              type: 'pumpSettings',
+              normalTime: moment('2024-02-01T00:00:00Z').valueOf(),
+              source: 'source1',
+              id: 'id4',
+            },
           ],
         },
         timePrefs: { timezoneName: 'UTC' },
@@ -872,17 +878,20 @@ describe.only('Settings', () => {
     wrapper.update();
     const settingsRadioGroup = wrapper.find('RadioGroup#settings');
     const radioOptions = settingsRadioGroup.find('Radio');
-    expect(radioOptions).to.have.lengthOf(4);
+    expect(radioOptions).to.have.lengthOf(5);
     expect(radioOptions.at(0).text()).to.equal(
-      'Jan 01, 2024 (Last Upload Date)'
+      'Feb 01, 2024 (Last Upload Date)'
     );
     expect(radioOptions.at(1).text()).to.equal(
-      'Jan 01, 2023 - Jan 01, 2024 : Active for >12 months'
+      'Dec 01, 2023 - Feb 01, 2024 : Active for >2 months'
     );
     expect(radioOptions.at(2).text()).to.equal(
-      'Jun 01, 2021 - Jan 01, 2023 : Active for >1 year'
+      'Dec 01, 2022 - Dec 01, 2023 : Active for >12 months'
     );
     expect(radioOptions.at(3).text()).to.equal(
+      'Jun 01, 2021 - Dec 01, 2022 : Active for >1 year'
+    );
+    expect(radioOptions.at(4).text()).to.equal(
       'Jan 01, 2018 - Jun 01, 2021 : Active for >3 years'
     );
   });
