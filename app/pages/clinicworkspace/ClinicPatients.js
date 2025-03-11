@@ -108,6 +108,7 @@ import { MGDL_UNITS, MMOLL_UNITS, URL_TIDEPOOL_PLUS_PLANS } from '../../core/con
 import { borders, radii, colors, space, fontWeights } from '../../themes/baseTheme';
 import PopoverElement from '../../components/elements/PopoverElement';
 import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
+import colorPalette from '../../themes/colorPalette';
 
 const { Loader } = vizComponents;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels, formatBgValue } = vizUtils.bg;
@@ -3267,9 +3268,24 @@ export const ClinicPatients = (props) => {
     const pageCount = Math.ceil(clinic?.fetchedPatientCount / patientFetchOptions.limit);
     const page = Math.ceil(patientFetchOptions.offset / patientFetchOptions.limit) + 1;
     const sort = patientFetchOptions.sort || defaultPatientFetchOptions.sort;
+
+    console.log(clinic?.patientCount);
+
     return (
       <Box>
         <Loader show={loading} overlay={true} />
+
+        <Box
+          sx={{ backgroundColor: colorPalette.primary.bluePrimary00 }}
+          px={2}
+          py={2}
+        >
+          {t('Showing {{ shown }} of {{ total }} patients', {
+            shown: clinic?.fetchedPatientCount,
+            total: clinic?.patientCount,
+          })}
+        </Box>
+
         <Table
           id={'peopleTable'}
           variant={showSummaryData ? 'condensed' : 'default'}
