@@ -25,7 +25,7 @@ import DataConnections, { activeProviders } from '../../../../app/components/dat
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
-describe('Settings', () => {
+describe.only('Settings', () => {
   let wrapper;
   let props;
   let clock;
@@ -107,6 +107,7 @@ describe('Settings', () => {
 
   before(() => {
     props = _.merge({}, baseProps);
+    Settings.__Rewire__('useLatestDatumTime', () => 12387398274);
     Settings.__Rewire__(
       'PumpSettingsContainer',
       ({
@@ -139,6 +140,7 @@ describe('Settings', () => {
 
   after(() => {
     Settings.__ResetDependency__('PumpSettingsContainer');
+    Settings.__ResetDependency__('useLatestDatumTime');
     clock.uninstall();
   });
 
