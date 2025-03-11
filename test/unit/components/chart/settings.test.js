@@ -791,7 +791,7 @@ describe.only('Settings', () => {
   });
 
   it('formats duration correctly for longer periods in settings selection options', () => {
-    clock.jump(new Date('2023-03-01T00:00:00Z').getTime());
+    clock.jump(new Date('2023-04-01T00:00:00Z').getTime());
     mountWrapper({
       data: {
         data: {
@@ -814,6 +814,12 @@ describe.only('Settings', () => {
               source: 'source1',
               id: 'id3',
             },
+            {
+              type: 'pumpSettings',
+              normalTime: moment('2023-03-01T00:00:00Z').valueOf(),
+              source: 'source1',
+              id: 'id4',
+            },
           ],
         },
         timePrefs: { timezoneName: 'UTC' },
@@ -822,14 +828,17 @@ describe.only('Settings', () => {
     wrapper.update();
     const settingsRadioGroup = wrapper.find('RadioGroup#settings');
     const radioOptions = settingsRadioGroup.find('Radio');
-    expect(radioOptions).to.have.lengthOf(3);
+    expect(radioOptions).to.have.lengthOf(4);
     expect(radioOptions.at(0).text()).to.equal(
-      'Feb 01, 2023 (Last Upload Date)'
+      'Mar 01, 2023 (Last Upload Date)'
     );
     expect(radioOptions.at(1).text()).to.equal(
-      'Jan 01, 2023 - Feb 01, 2023 : Active for 31 days'
+      'Feb 01, 2023 - Mar 01, 2023 : Active for 28 days'
     );
     expect(radioOptions.at(2).text()).to.equal(
+      'Jan 01, 2023 - Feb 01, 2023 : Active for 31 days'
+    );
+    expect(radioOptions.at(3).text()).to.equal(
       'Nov 01, 2022 - Jan 01, 2023 : Active for >2 months'
     );
   });
@@ -868,7 +877,7 @@ describe.only('Settings', () => {
               type: 'pumpSettings',
               normalTime: moment('2024-02-01T00:00:00Z').valueOf(),
               source: 'source1',
-              id: 'id4',
+              id: 'id5',
             },
           ],
         },
