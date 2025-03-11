@@ -42,6 +42,7 @@ import Card from '../elements/Card';
 import { Body1, MediumTitle } from '../elements/FontStyles';
 import Uploadlaunchoverlay from '../uploadlaunchoverlay';
 import api from '../../core/api';
+import styled from '@emotion/styled';
 
 const log = bows('Settings View');
 
@@ -91,6 +92,12 @@ export const useLatestDatumTime = (tidepoolApi = api, uploadId) => {
 
   return latestTimestamp;
 };
+
+const SettingsPopover = styled(Popover)`
+  .MuiPopover-paper {
+    overflow: hidden;
+  }
+`;
 
 const Settings = ({
   chartPrefs,
@@ -507,7 +514,7 @@ const Settings = ({
         </Button>
       </Box>
 
-      <Popover
+      <SettingsPopover
         minWidth="11em"
         closeIcon
         {...bindPopover(settingsSelectionPopupState)}
@@ -537,7 +544,7 @@ const Settings = ({
             name="settings"
             options={settingsOptions}
             variant="vertical"
-            sx={{ fontSize: 0 }}
+            sx={{ fontSize: 0, maxHeight: '40vh' }}
             value={pendingSettings || selectedSettingsId}
             onChange={(event) => {
               setPendingSettings(event.target.value || null);
@@ -577,7 +584,7 @@ const Settings = ({
             {t('Apply')}
           </Button>
         </DialogActions>
-      </Popover>
+      </SettingsPopover>
     </Flex>
   );
 
