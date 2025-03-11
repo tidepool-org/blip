@@ -107,7 +107,6 @@ describe.only('Settings', () => {
 
   before(() => {
     props = _.merge({}, baseProps);
-    Settings.__Rewire__('useLatestDatumTime', () => null);
     Settings.__Rewire__(
       'PumpSettingsContainer',
       ({
@@ -136,6 +135,10 @@ describe.only('Settings', () => {
       )
     );
     clock = sinon.useFakeTimers();
+  });
+
+  beforeEach(() => {
+    Settings.__Rewire__('useLatestDatumTime', () => null);
   });
 
   after(() => {
@@ -902,6 +905,43 @@ describe.only('Settings', () => {
     );
     expect(radioOptions.at(4).text()).to.equal(
       'Jan 01, 2018 - Jun 01, 2021 : Active for >3 years'
+    );
+  });
+
+  it('formats duration correctly when useLatestDatumTime returns a later date', () => {
+    Settings.__Rewire__('useLatestDatumTime', () => 1678579200000); // March 12, 2023
+
+    clock.jump(new Date('2023-04-01T00:00:00Z').getTime());
+    mountWrapper({
+      data: {
+        data: {
+          combined: [
+            {
+              type: 'pumpSettings',
+              normalTime: moment('2023-02-01T00:00:00Z').valueOf(),
+              source: 'source1',
+              id: 'id1',
+            },
+            {
+              type: 'pumpSettings',
+              normalTime: moment('2023-03-01T00:00:00Z').valueOf(),
+              source: 'source1',
+              id: 'id2',
+            },
+          ],
+        },
+        timePrefs: { timezoneName: 'UTC' },
+      },
+    });
+    wrapper.update();
+    const settingsRadioGroup = wrapper.find('RadioGroup#settings');
+    const radioOptions = settingsRadioGroup.find('Radio');
+    expect(radioOptions).to.have.lengthOf(2);
+    expect(radioOptions.at(0).text()).to.equal(
+      'Mar 01, 2023 - Mar 12, 2023 : Active for 11 days'
+    );
+    expect(radioOptions.at(1).text()).to.equal(
+      'Feb 01, 2023 - Mar 01, 2023 : Active for 28 days'
     );
   });
 
