@@ -11,7 +11,9 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import _ from 'lodash';
-import Settings from '../../../../app/components/chart/settings';
+import { MemoryRouter, Route } from 'react-router-dom';
+import Settings, { useLatestDatumTime } from '../../../../app/components/chart/settings';
+import { renderHook } from '@testing-library/react-hooks/dom';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 import i18next from '../../../../app/core/language';
 import { Provider } from 'react-redux';
@@ -25,7 +27,7 @@ import DataConnections, { activeProviders } from '../../../../app/components/dat
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
-describe.only('Settings', () => {
+describe('Settings', () => {
   let wrapper;
   let props;
   let clock;
@@ -943,6 +945,86 @@ describe.only('Settings', () => {
     expect(radioOptions.at(1).text()).to.equal(
       'Feb 01, 2023 - Mar 01, 2023 : Active for 28 days'
     );
+  });
+
+  describe('useLatestDatumTime hook', () => {
+    const wrapper = ({ children }) => (
+      <MemoryRouter initialEntries={['/patients/1234-abcd/data/settings']}>
+        <Route path='/patients/:id/data'>
+          {children}
+        </Route>
+      </MemoryRouter>
+    );
+
+    it('calls the API with correct args and returns the timestamp of the latest datum', () => {
+      const mockApiCall = sinon.stub();
+
+      mockApiCall.callsFake((_patientId, _fetchOpts, callback) => {
+        callback(
+          null,
+          [
+            {
+              type: 'smbg',
+              time: '2023-03-02T00:00:00Z',
+              source: 'source1',
+              id: 'id2',
+            },
+            {
+              type: 'cbg',
+              time: '2023-03-01T00:00:00Z',
+              source: 'source1',
+              id: 'id2',
+            },
+          ]
+        );
+      });
+
+      const mockApi = {
+        patientData: {
+          get: mockApiCall,
+        },
+      };
+
+      const { result } = renderHook(() => useLatestDatumTime(mockApi, 'mock-upload-id'), { wrapper });
+      const latestDatumTime = result.current;
+
+      expect(latestDatumTime).to.equal(1677715200000); // March 2, 2023
+
+      expect(mockApiCall.getCall(0).args[0]).to.equal('1234-abcd');
+      expect(mockApiCall.getCall(0).args[1]['latest']).to.equal(1);
+      expect(mockApiCall.getCall(0).args[1]['type']).to.equal('cbg,smbg,basal,bolus,wizard,food,pumpSettings,upload');
+      expect(mockApiCall.getCall(0).args[1]['uploadId']).to.equal('mock-upload-id');
+    });
+
+    it('returns null when resulting dataset is empty', () => {
+      const mockApi = {
+        patientData: {
+          get: (_patientId, _fetchOpts, callback) => {
+            callback(null, []);
+          },
+        },
+      };
+
+      const { result } = renderHook(() => useLatestDatumTime(mockApi, 'mock-upload-id'), { wrapper });
+      const latestDatumTime = result.current;
+
+      expect(latestDatumTime).to.equal(null); // March 2, 2023
+    });
+
+    it('returns null when API throws an error', () => {
+      const mockApi = {
+        patientData: {
+          get: (_patientId, _fetchOpts, callback) => {
+            callback(new Error('API request failed'));
+          },
+        },
+      };
+
+      const { result } = renderHook(() => useLatestDatumTime(mockApi, 'mock-upload-id'), { wrapper });
+      const latestDatumTime = result.current;
+
+      expect(latestDatumTime).to.equal(null);
+    });
   });
 
   describe('data connections', () => {

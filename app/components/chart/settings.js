@@ -62,7 +62,7 @@ function formatDuration(milliseconds) {
   return `>${years} year${years === 1 ? '' : 's'}`;
 }
 
-const useLatestDatumTime = (uploadId) => {
+export const useLatestDatumTime = (tidepoolApi = api, uploadId) => {
   const { id: patientId } = useParams();
   const [latestTimestamp, setLatestTimestamp] = useState(null);
 
@@ -77,7 +77,7 @@ const useLatestDatumTime = (uploadId) => {
       latest: 1,
     };
 
-    api.patientData.get(patientId, fetchOpts, (err, latestDatums) => {
+    tidepoolApi.patientData.get(patientId, fetchOpts, (err, latestDatums) => {
       if (err || !latestDatums.length) return;
 
       const latestISOTimestamp = _.maxBy(latestDatums, 'time')?.time;
@@ -130,7 +130,7 @@ const Settings = ({
   const dataSources = useSelector(state => state.blip.dataSources);
 
   const [latestUploadId, setLatestUploadId] = useState(null);
-  const latestDatumFromUploadTimestamp = useLatestDatumTime(latestUploadId);
+  const latestDatumFromUploadTimestamp = useLatestDatumTime(api, latestUploadId);
 
   const patientData = clinicPatient || {
     ...clinicPatientFromAccountInfo(patient),
