@@ -107,7 +107,7 @@ describe.only('Settings', () => {
 
   before(() => {
     props = _.merge({}, baseProps);
-    Settings.__Rewire__('useLatestDatumTime', () => 12387398274);
+    Settings.__Rewire__('useLatestDatumTime', () => null);
     Settings.__Rewire__(
       'PumpSettingsContainer',
       ({
@@ -675,7 +675,7 @@ describe.only('Settings', () => {
     const radioOptions = settingsRadioGroup.find('Radio');
     expect(radioOptions).to.have.lengthOf(1);
     expect(radioOptions.at(0).text()).to.equal(
-      'Jan 01, 2023 - Jan 02, 2023 : Active for 1 day'
+      'Jan 01, 2023 (Last Upload Date)'
     );
   });
 
@@ -707,7 +707,7 @@ describe.only('Settings', () => {
     const radioOptions = settingsRadioGroup.find('Radio');
     expect(radioOptions).to.have.lengthOf(2);
     expect(radioOptions.at(0).text()).to.equal(
-      'Jan 02, 2023 - Jan 03, 2023 : Active for 1 day'
+      'Jan 02, 2023 (Last Upload Date)'
     );
     expect(radioOptions.at(1).text()).to.equal(
       'Jan 01, 2023 - Jan 02, 2023 : Active for 1 day'
@@ -748,7 +748,7 @@ describe.only('Settings', () => {
     const radioOptions = settingsRadioGroup.find('Radio');
     expect(radioOptions).to.have.lengthOf(2);
     expect(radioOptions.at(0).text()).to.equal(
-      'Jan 03, 2023 - Jan 05, 2023 : Active for 2 days'
+      'Jan 03, 2023 (Last Upload Date)'
     );
     expect(radioOptions.at(1).text()).to.equal(
       'Jan 01, 2023 - Jan 03, 2023 : Active for 2 days'
@@ -783,7 +783,7 @@ describe.only('Settings', () => {
     const radioOptions = settingsRadioGroup.find('Radio');
     expect(radioOptions).to.have.lengthOf(2);
     expect(radioOptions.at(0).text()).to.equal(
-      'Jan 02, 2023 - Jan 03, 2023 : Active for 1 day'
+      'Jan 02, 2023 (Last Upload Date)'
     );
     expect(radioOptions.at(1).text()).to.equal(
       'Jan 01, 2023 - Jan 02, 2023 : Active for <1 day'
@@ -824,7 +824,7 @@ describe.only('Settings', () => {
     const radioOptions = settingsRadioGroup.find('Radio');
     expect(radioOptions).to.have.lengthOf(3);
     expect(radioOptions.at(0).text()).to.equal(
-      'Feb 01, 2023 - Mar 01, 2023 : Active for 28 days'
+      'Feb 01, 2023 (Last Upload Date)'
     );
     expect(radioOptions.at(1).text()).to.equal(
       'Jan 01, 2023 - Feb 01, 2023 : Active for 31 days'
@@ -874,7 +874,7 @@ describe.only('Settings', () => {
     const radioOptions = settingsRadioGroup.find('Radio');
     expect(radioOptions).to.have.lengthOf(4);
     expect(radioOptions.at(0).text()).to.equal(
-      'Jan 01, 2024 - Mar 01, 2024 : Active for >2 months'
+      'Jan 01, 2024 (Last Upload Date)'
     );
     expect(radioOptions.at(1).text()).to.equal(
       'Jan 01, 2023 - Jan 01, 2024 : Active for >12 months'
