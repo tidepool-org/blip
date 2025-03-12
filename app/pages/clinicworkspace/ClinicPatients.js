@@ -159,7 +159,6 @@ const ClearButton = styled.button`
   padding: 0;
   font: inherit;
   cursor: pointer;
-  outline: inherit;
   text-underline-offset: 4px;
   text-decoration: underline;
 `;
