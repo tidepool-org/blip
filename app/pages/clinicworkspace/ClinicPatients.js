@@ -3145,6 +3145,29 @@ export const ClinicPatients = (props) => {
     setShowDeleteDialog,
   ]);
 
+  const renderEmptyContentNode = useCallback(() => (
+    <Flex sx={{
+      backgroundColor: colorPalette.primary.bluePrimary00,
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '90px',
+      flexDirection: 'column',
+      gap: 2,
+      marginBottom: 4,
+      borderBottom: '1px solid #D1D6E1',
+    }}>
+      <Text className="table-empty-text" sx={{ fontWeight: 'medium' }}>
+        {t('There are no results to show')}
+      </Text>
+
+      <ClearFilterButtons
+        activeFilters={activeFilters}
+        onClearSearch={handleClearSearch}
+        onResetFilters={handleResetFilters}
+      />
+    </Flex>
+  ), [activeFilters, handleClearSearch, handleResetFilters])
+
   const columns = useMemo(() => {
     const cols = [
       {
@@ -3366,28 +3389,7 @@ export const ClinicPatients = (props) => {
           onSort={handleSortChange}
           order={sort?.substring(0, 1) === '+' ? 'asc' : 'desc'}
           orderBy={sort?.substring(1)}
-          emptyContentNode={
-            <Flex sx={{
-              backgroundColor: colorPalette.primary.bluePrimary00,
-              justifyContent: 'center',
-              alignItems: 'center',
-              minHeight: '90px',
-              flexDirection: 'column',
-              gap: 2,
-              marginBottom: 4,
-              borderBottom: '1px solid #D1D6E1',
-            }}>
-              <Text className="table-empty-text" sx={{ fontWeight: 'medium' }}>
-                {t('There are no results to show')}
-              </Text>
-
-              <ClearFilterButtons
-                activeFilters={activeFilters}
-                onClearSearch={handleClearSearch}
-                onResetFilters={handleResetFilters}
-              />
-            </Flex>
-          }
+          emptyContentNode={renderEmptyContentNode()}
         />
 
         {pageCount > 1 && (
