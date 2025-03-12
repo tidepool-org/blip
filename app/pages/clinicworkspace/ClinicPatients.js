@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
-import { withTranslation, Trans } from 'react-i18next';
+import { withTranslation, Trans, useTranslation } from 'react-i18next';
 import moment from 'moment';
 import compact from 'lodash/compact';
 import debounce from 'lodash/debounce';
@@ -150,6 +150,35 @@ const editPatientDataConnections = (patient, setSelectedPatient, selectedClinicI
   trackMetric('Clinic - Edit patient data connections', { clinicId: selectedClinicId, source });
   setSelectedPatient(patient);
   setShowDataConnectionsModal(true);
+};
+
+const ClearFilterMenu = ({ activeFilters = {}, onClearSearch, onResetFilters }) => {
+  const { t } = useTranslation();
+  const { patientListSearchTextInput } = useSelector(state => state.blip.patientListFilters);
+  const { lastData, lastDataType, timeCGMUsePercent, timeInRange, patientTags } = activeFilters;
+
+  const hasSearchActive = !!patientListSearchTextInput;
+
+  const hasFiltersActive = (
+    lastData ||
+    lastDataType ||
+    timeCGMUsePercent ||
+    timeInRange?.length > 0 ||
+    patientTags?.length > 0
+  );
+
+  if (!hasSearchActive && !hasFiltersActive) return null;
+
+  return (
+    <Text>
+      { hasFiltersActive &&
+        <span onClick={onResetFilters}>{t('Reset Filters')}</span> }
+      { hasSearchActive && hasFiltersActive &&
+        <>{' '}{t('or')}{' '}</> }
+      { hasSearchActive &&
+        <span onClick={onClearSearch}>{t('Clear Search')}</span> }
+    </Text>
+  );
 };
 
 const MoreMenu = ({
@@ -3288,13 +3317,11 @@ export const ClinicPatients = (props) => {
             })}
           </Text>
 
-          <Text onClick={handleResetFilters}>
-            <span onClick={handleResetFilters}>{t('Reset Filters')}</span>
-            {' '}
-            <span>{t('or')}</span>
-            {' '}
-            <span onClick={handleClearSearch}>{t('Clear Search')}</span>
-          </Text>
+          <ClearFilterMenu
+            activeFilters={activeFilters}
+            onClearSearch={handleClearSearch}
+            onResetFilters={handleResetFilters}
+          />
         </Flex>
 
         <Table
