@@ -182,11 +182,17 @@ const ClearFilterButtons = withTranslation()(({ t, activeFilters = {}, onClearSe
   return (
     <Box>
       { hasFiltersActive &&
-        <ClearButton onClick={onResetFilters}>{t('Reset Filters')}</ClearButton> }
+        <ClearButton
+          className='reset-filters-button'
+          onClick={onResetFilters}>{t('Reset Filters')}
+        </ClearButton> }
       { hasSearchActive && hasFiltersActive &&
         <>{' '}{t('or')}{' '}</> }
       { hasSearchActive &&
-        <ClearButton onClick={onClearSearch}>{t('Clear Search')}</ClearButton> }
+        <ClearButton
+          className='clear-search-button'
+          onClick={onClearSearch}>{t('Clear Search')}
+        </ClearButton> }
     </Box>
   );
 });
@@ -3166,7 +3172,7 @@ export const ClinicPatients = (props) => {
         onResetFilters={handleResetFilters}
       />
     </Flex>
-  ), [activeFilters, handleClearSearch, handleResetFilters])
+  ), [activeFilters, handleClearSearch, handleResetFilters]);
 
   const columns = useMemo(() => {
     const cols = [
