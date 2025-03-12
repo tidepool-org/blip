@@ -3327,11 +3327,12 @@ export const ClinicPatients = (props) => {
             py={2}
             sx={{
               backgroundColor: colorPalette.primary.bluePrimary00,
+              borderBottom: '1px solid #D1D6E1',
               justifyContent: 'space-between',
             }}
           >
-            <Text>
-              {t('Showing {{ shown }} of {{ total }} patients', {
+            <Text sx={{ fontWeight: 'medium' }}>
+              {t('Showing {{ shown }} of {{ total }} patient accounts', {
                 shown: clinic?.fetchedPatientCount,
                 total: clinic?.patientCount,
               })}
@@ -3366,7 +3367,7 @@ export const ClinicPatients = (props) => {
               marginBottom: 4,
               borderBottom: '1px solid #D1D6E1',
             }}>
-              <Text>{t('There are no results to show')}</Text>
+              <Text sx={{ fontWeight: 'medium' }}>{t('There are no results to show')}</Text>
 
               <ClearFilterMenu
                 activeFilters={activeFilters}
