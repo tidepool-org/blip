@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
-import { withTranslation, Trans, useTranslation } from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import moment from 'moment';
 import compact from 'lodash/compact';
 import debounce from 'lodash/debounce';
@@ -152,8 +152,7 @@ const editPatientDataConnections = (patient, setSelectedPatient, selectedClinicI
   setShowDataConnectionsModal(true);
 };
 
-const ClearFilterMenu = ({ activeFilters = {}, onClearSearch, onResetFilters }) => {
-  const { t } = useTranslation();
+const ClearFilterMenu = withTranslation()(({ t, activeFilters = {}, onClearSearch, onResetFilters }) => {
   const { patientListSearchTextInput } = useSelector(state => state.blip.patientListFilters);
   const { lastData, lastDataType, timeCGMUsePercent, timeInRange, patientTags } = activeFilters;
 
@@ -179,7 +178,7 @@ const ClearFilterMenu = ({ activeFilters = {}, onClearSearch, onResetFilters }) 
         <span onClick={onClearSearch}>{t('Clear Search')}</span> }
     </Text>
   );
-};
+});
 
 const MoreMenu = ({
   patient,
