@@ -164,7 +164,7 @@ const ClearButton = styled.button`
   text-decoration: underline;
 `;
 
-const ClearFilterMenu = withTranslation()(({ t, activeFilters = {}, onClearSearch, onResetFilters }) => {
+const ClearFilterButtons = withTranslation()(({ t, activeFilters = {}, onClearSearch, onResetFilters }) => {
   const { patientListSearchTextInput } = useSelector(state => state.blip.patientListFilters);
   const { lastData, lastDataType, timeCGMUsePercent, timeInRange, patientTags } = activeFilters;
 
@@ -189,6 +189,32 @@ const ClearFilterMenu = withTranslation()(({ t, activeFilters = {}, onClearSearc
       { hasSearchActive &&
         <ClearButton onClick={onClearSearch}>{t('Clear Search')}</ClearButton> }
     </Box>
+  );
+});
+
+const FilterResetBar = withTranslation()(({ t, rightSideContent }) => {
+  const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+
+  return (
+    <Flex
+      px={2}
+      py={2}
+      sx={{
+        backgroundColor: colorPalette.primary.bluePrimary00,
+        borderBottom: '1px solid #D1D6E1',
+        justifyContent: 'space-between',
+      }}
+    >
+      <Text sx={{ fontWeight: 'medium' }}>
+        {t('Showing {{ shown }} of {{ total }} patient accounts', {
+          shown: clinic?.fetchedPatientCount,
+          total: clinic?.patientCount,
+        })}
+      </Text>
+
+      <Box>{rightSideContent}</Box>
+    </Flex>
   );
 });
 
@@ -3322,28 +3348,13 @@ export const ClinicPatients = (props) => {
         <Loader show={loading} overlay={true} />
 
         { data?.length > 0 &&
-          <Flex
-            px={2}
-            py={2}
-            sx={{
-              backgroundColor: colorPalette.primary.bluePrimary00,
-              borderBottom: '1px solid #D1D6E1',
-              justifyContent: 'space-between',
-            }}
-          >
-            <Text sx={{ fontWeight: 'medium' }}>
-              {t('Showing {{ shown }} of {{ total }} patient accounts', {
-                shown: clinic?.fetchedPatientCount,
-                total: clinic?.patientCount,
-              })}
-            </Text>
-
-            <ClearFilterMenu
+          <FilterResetBar rightSideContent={
+            <ClearFilterButtons
               activeFilters={activeFilters}
               onClearSearch={handleClearSearch}
               onResetFilters={handleResetFilters}
             />
-          </Flex>
+          }/>
         }
 
         <Table
@@ -3369,7 +3380,7 @@ export const ClinicPatients = (props) => {
             }}>
               <Text sx={{ fontWeight: 'medium' }}>{t('There are no results to show')}</Text>
 
-              <ClearFilterMenu
+              <ClearFilterButtons
                 activeFilters={activeFilters}
                 onClearSearch={handleClearSearch}
                 onResetFilters={handleResetFilters}
