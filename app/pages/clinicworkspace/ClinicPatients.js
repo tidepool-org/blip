@@ -3377,7 +3377,9 @@ export const ClinicPatients = (props) => {
               marginBottom: 4,
               borderBottom: '1px solid #D1D6E1',
             }}>
-              <Text sx={{ fontWeight: 'medium' }}>{t('There are no results to show')}</Text>
+              <Text className="table-empty-text" sx={{ fontWeight: 'medium' }}>
+                {t('There are no results to show')}
+              </Text>
 
               <ClearFilterButtons
                 activeFilters={activeFilters}

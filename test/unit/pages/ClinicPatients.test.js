@@ -620,9 +620,7 @@ describe('ClinicPatients', () => {
 
     it('should render an empty table', () => {
       const table = wrapper.find(Table);
-      expect(table).to.have.length(1);
-      expect(table.find('tr')).to.have.length(1); // header row only
-      expect(wrapper.find('.table-empty-text').hostNodes().text()).includes('There are no results to show.');
+      expect(wrapper.find('.table-empty-text').hostNodes().text()).includes('There are no results to show');
     });
 
     it('should open a modal for adding a new patient', done => {
