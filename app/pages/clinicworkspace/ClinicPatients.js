@@ -152,6 +152,18 @@ const editPatientDataConnections = (patient, setSelectedPatient, selectedClinicI
   setShowDataConnectionsModal(true);
 };
 
+const ClearButton = styled.button`
+  background: none;
+  color: ${colorPalette.extended.indigos[5]};
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  outline: inherit;
+  text-underline-offset: 4px;
+  text-decoration: underline;
+`;
+
 const ClearFilterMenu = withTranslation()(({ t, activeFilters = {}, onClearSearch, onResetFilters }) => {
   const { patientListSearchTextInput } = useSelector(state => state.blip.patientListFilters);
   const { lastData, lastDataType, timeCGMUsePercent, timeInRange, patientTags } = activeFilters;
@@ -169,14 +181,14 @@ const ClearFilterMenu = withTranslation()(({ t, activeFilters = {}, onClearSearc
   if (!hasSearchActive && !hasFiltersActive) return null;
 
   return (
-    <Text>
+    <Box>
       { hasFiltersActive &&
-        <span onClick={onResetFilters}>{t('Reset Filters')}</span> }
+        <ClearButton onClick={onResetFilters}>{t('Reset Filters')}</ClearButton> }
       { hasSearchActive && hasFiltersActive &&
         <>{' '}{t('or')}{' '}</> }
       { hasSearchActive &&
-        <span onClick={onClearSearch}>{t('Clear Search')}</span> }
-    </Text>
+        <ClearButton onClick={onClearSearch}>{t('Clear Search')}</ClearButton> }
+    </Box>
   );
 });
 
