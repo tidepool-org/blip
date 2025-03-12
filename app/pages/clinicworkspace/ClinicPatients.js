@@ -3151,7 +3151,7 @@ export const ClinicPatients = (props) => {
     setShowDeleteDialog,
   ]);
 
-  const renderEmptyContentNode = useCallback(() => (
+  const EmptyContentNode = () => (
     <Flex sx={{
       backgroundColor: colorPalette.primary.bluePrimary00,
       justifyContent: 'center',
@@ -3172,7 +3172,7 @@ export const ClinicPatients = (props) => {
         onResetFilters={handleResetFilters}
       />
     </Flex>
-  ), [activeFilters, handleClearSearch, handleResetFilters]);
+  );
 
   const columns = useMemo(() => {
     const cols = [
@@ -3395,7 +3395,7 @@ export const ClinicPatients = (props) => {
           onSort={handleSortChange}
           order={sort?.substring(0, 1) === '+' ? 'asc' : 'desc'}
           orderBy={sort?.substring(1)}
-          emptyContentNode={renderEmptyContentNode()}
+          emptyContentNode={<EmptyContentNode />}
         />
 
         {pageCount > 1 && (
