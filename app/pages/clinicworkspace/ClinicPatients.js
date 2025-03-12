@@ -3302,7 +3302,15 @@ export const ClinicPatients = (props) => {
   ]);
 
   const data = useMemo(() => orderBy(values(clinic?.patients), 'sortIndex'), [clinic?.patients]);
-  const tableStyle = useMemo(() => ({ fontSize: showSummaryData ? 0 : 1 }), [showSummaryData]);
+
+  const tableStyle = useMemo(() => ({
+    fontSize: showSummaryData ? 0 : 1,
+
+    // Hide table if no data
+    '&.MuiTable-root': {
+      display: data?.length > 0 ? 'table' : 'none',
+    },
+  }), [data?.length, showSummaryData]);
 
   const renderPeopleTable = useCallback(() => {
     const pageCount = Math.ceil(clinic?.fetchedPatientCount / patientFetchOptions.limit);
@@ -3313,27 +3321,29 @@ export const ClinicPatients = (props) => {
       <Box>
         <Loader show={loading} overlay={true} />
 
-        <Flex
-          px={2}
-          py={2}
-          sx={{
-            backgroundColor: colorPalette.primary.bluePrimary00,
-            justifyContent: 'space-between',
-          }}
-        >
-          <Text>
-            {t('Showing {{ shown }} of {{ total }} patients', {
-              shown: clinic?.fetchedPatientCount,
-              total: clinic?.patientCount,
-            })}
-          </Text>
+        { data?.length > 0 &&
+          <Flex
+            px={2}
+            py={2}
+            sx={{
+              backgroundColor: colorPalette.primary.bluePrimary00,
+              justifyContent: 'space-between',
+            }}
+          >
+            <Text>
+              {t('Showing {{ shown }} of {{ total }} patients', {
+                shown: clinic?.fetchedPatientCount,
+                total: clinic?.patientCount,
+              })}
+            </Text>
 
-          <ClearFilterMenu
-            activeFilters={activeFilters}
-            onClearSearch={handleClearSearch}
-            onResetFilters={handleResetFilters}
-          />
-        </Flex>
+            <ClearFilterMenu
+              activeFilters={activeFilters}
+              onClearSearch={handleClearSearch}
+              onResetFilters={handleResetFilters}
+            />
+          </Flex>
+        }
 
         <Table
           id={'peopleTable'}
@@ -3345,6 +3355,26 @@ export const ClinicPatients = (props) => {
           onSort={handleSortChange}
           order={sort?.substring(0, 1) === '+' ? 'asc' : 'desc'}
           orderBy={sort?.substring(1)}
+          emptyContentNode={
+            <Flex sx={{
+              backgroundColor: colorPalette.primary.bluePrimary00,
+              justifyContent: 'center',
+              alignItems: 'center',
+              minHeight: '90px',
+              flexDirection: 'column',
+              gap: 2,
+              marginBottom: 4,
+              borderBottom: '1px solid #D1D6E1',
+            }}>
+              <Text>{t('There are no results to show')}</Text>
+
+              <ClearFilterMenu
+                activeFilters={activeFilters}
+                onClearSearch={handleClearSearch}
+                onResetFilters={handleResetFilters}
+              />
+            </Flex>
+          }
         />
 
         {pageCount > 1 && (
