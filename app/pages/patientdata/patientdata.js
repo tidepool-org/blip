@@ -1003,6 +1003,7 @@ export const PatientDataClass = createReactClass({
         aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
         bgSource: _.get(state.chartPrefs, 'basics.bgSource'),
         stats: this.getStatsByChartType('basics'),
+        excludeDaysWithoutBolus: false, // deprecated for basics chartType
         ...commonQueries,
       };
     }
