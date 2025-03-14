@@ -110,9 +110,7 @@ export const PatientDataClass = createReactClass({
     var state = {
       chartPrefs: {
         basics: {
-          stats: {
-            excludeDaysWithoutBolus: false,
-          },
+          stats: {},
           sections: {},
           extentSize: 14,
         },
@@ -917,7 +915,7 @@ export const PatientDataClass = createReactClass({
           </Box>
         );
 
-        if (daysWithBoluses > 0 && daysWithBoluses < activeDays) {
+        if (state.chartType !== 'basics' && daysWithBoluses > 0 && daysWithBoluses < activeDays) {
           // If any of the calendar dates within the range are missing boluses,
           // present a checkbox to disable them from insulin stat calculations
           stat.children = (
@@ -1005,7 +1003,6 @@ export const PatientDataClass = createReactClass({
         aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
         bgSource: _.get(state.chartPrefs, 'basics.bgSource'),
         stats: this.getStatsByChartType('basics'),
-        excludeDaysWithoutBolus: _.get(state, 'chartPrefs.basics.stats.excludeDaysWithoutBolus'),
         ...commonQueries,
       };
     }
