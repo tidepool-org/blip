@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
+import utils from '../../core/utils';
 import moment from 'moment';
 
 import {
@@ -98,8 +99,8 @@ const AppBannerProvider = ({ children }) => {
       bannerArgs: [dispatch, providers[erroredDataSource?.providerName], erroredDataSource],
     },
 
-    uploader: {
-      show: userIsCurrentPatient && dataSources?.length && !userHasPumpData,
+    uploader: { // Temporary: hide on mobile until we have a mobile-friendly profile page
+      show: !utils.isMobile() && userIsCurrentPatient && dataSources?.length && !userHasPumpData,
       bannerArgs: [],
     },
 
@@ -108,8 +109,8 @@ const AppBannerProvider = ({ children }) => {
       bannerArgs: [dispatch, loggedInUserId],
     },
 
-    donateYourData: {
-      show: userIsCurrentPatient && userHasData && !userIsDonor,
+    donateYourData: { // Temporary: hide on mobile until we have a mobile-friendly profile page
+      show: !utils.isMobile() && userIsCurrentPatient && userHasData && !userIsDonor,
       bannerArgs: [dispatch],
     },
 
@@ -118,8 +119,8 @@ const AppBannerProvider = ({ children }) => {
       bannerArgs: [dispatch, loggedInUserId],
     },
 
-    updateType: {
-      show: userIsCurrentPatient && userHasData && !userHasDiabetesType,
+    updateType: { // Temporary: hide on mobile until we have a mobile-friendly profile page
+      show: !utils.isMobile() && userIsCurrentPatient && userHasData && !userHasDiabetesType,
       bannerArgs: [dispatch, loggedInUserId],
     },
 
