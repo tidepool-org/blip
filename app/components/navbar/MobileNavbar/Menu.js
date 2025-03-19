@@ -6,6 +6,7 @@ import { Box } from 'theme-ui';
 import { useTranslation } from 'react-i18next';
 import { usePopupState, bindPopover, bindTrigger } from 'material-ui-popup-state/hooks';
 import colorPalette from '../../../themes/colorPalette';
+import { colors as vizColors } from '@tidepool/viz';
 import personUtils from '../../../core/personutils';
 
 import Popover from '../../elements/Popover';
@@ -36,7 +37,7 @@ const StyledMenuDropdownButton = styled(Button)`
 
   &[data-is-open="true"] {
     z-index: 1310;
-    background: ${colorPalette.neutrals.white};
+    background: ${vizColors.white};
   }
 `;
 
@@ -44,7 +45,7 @@ const MenuOption = styled.div`
   padding: 8px 0;
   width: 100%;
   justify-content: flex-end;
-  border-top: 1px solid ${colorPalette.primary.gray10};
+  border-top: 1px solid ${vizColors.gray10};
 
   :first-child {
     border-top: none;
@@ -178,7 +179,7 @@ const Menu = ({ api, trackMetric }) => {
                     variant='textSecondary'
                     iconPosition='left'
                     iconFontSize='1.25em'
-                    sx={{ fontSize: 1, fontWeight: 'medium', color: colorPalette.primary.purpleDark }}
+                    sx={{ fontSize: 1, fontWeight: 'medium', color: vizColors.purple }}
                     pl={0}
                   >
                     {label}
@@ -187,7 +188,7 @@ const Menu = ({ api, trackMetric }) => {
               ))}
           </Box>
         }
-        <Box id="mobile-navbar-account-options" px={4} py={4} sx={{ background: colorPalette.primary.bluePrimary00 }}>
+        <Box id="mobile-navbar-account-options" px={4} py={4} sx={{ background: vizColors.blue00 }}>
           {accountOptions.map(({ id, onClick, icon, label }) => (
             <Button
               id={id}
@@ -197,7 +198,7 @@ const Menu = ({ api, trackMetric }) => {
               variant='textSecondary'
               iconPosition='left'
               iconFontSize='1.25em'
-              sx={{ fontSize: 1, fontWeight: 'medium', color: colorPalette.primary.blueGreyDark }}
+              sx={{ fontSize: 1, fontWeight: 'medium', color: vizColors.blue50 }}
               pl={0}
             >
               {label}

@@ -1,4 +1,5 @@
 import colorPalette from './colorPalette';
+import { colors as vizColors } from '@tidepool/viz';
 import avatars from './base/avatars';
 import banners from './base/banners';
 import buttons from './base/buttons';
@@ -23,11 +24,11 @@ export const colors = {
   ...colorPalette.neutrals,
   ...colorPalette.extended,
   bg: {
-    veryLow: '#E9695E',
-    low: '#F19181',
-    target: '#8DD0A9',
-    high: '#B69CE2',
-    veryHigh: '#856ACF',
+    veryLow: vizColors.veryLow,
+    low: vizColors.low,
+    target: vizColors.target,
+    high: vizColors.high,
+    veryHigh: vizColors.veryHigh,
     extremeHigh: '#5438A3',
   },
   border: {
@@ -44,9 +45,9 @@ export const colors = {
   },
   feedback: {
     info: colorPalette.primary.purpleMedium,
-    warning: '#A35700',
-    danger: '#EC4C47',
-    success: '#00754E',
+    warning: vizColors.gold50,
+    danger: vizColors.red30,
+    success: vizColors.green50,
   },
   banner: {
     info: {
@@ -65,9 +66,9 @@ export const colors = {
         bg: '#2A1948',
         text: colorPalette.neutrals.white,
       },
-      bg: '#FFE8CF',
-      closeIcon: '#4F6A92',
-      icon: '#CC6D00',
+      bg: vizColors.gold05,
+      closeIcon: vizColors.blue50,
+      icon: vizColors.gold30,
       message: '#2A1948',
       messageLink: colorPalette.primary.purpleBright,
     },
@@ -77,8 +78,8 @@ export const colors = {
         text: colorPalette.neutrals.white,
       },
       bg: '#FFEEEC',
-      closeIcon: '#4F6A92',
-      icon: '#EC4C47',
+      closeIcon: vizColors.blue50,
+      icon: vizColors.red30,
       message: '#2A1948',
       messageLink: colorPalette.primary.purpleBright,
     },
@@ -89,7 +90,7 @@ export const colors = {
       },
       bg: '#EBFBF0',
       closeIcon: '#4F6A92',
-      icon: '#08A057',
+      icon: vizColors.green30,
       message: '#2A1948',
       messageLink: colorPalette.primary.purpleBright,
     },
@@ -109,7 +110,7 @@ export const colors = {
   },
   text: {
     link: colorPalette.primary.purpleBright,
-    primary: colorPalette.primary.blueGreyDark,
+    primary: vizColors.blue50,
     primaryGrey: colorPalette.primary.blueGrey,
     primaryDisabled: '#A5ADBA',
     primarySubdued: colorPalette.primary.blueGreyMedium,

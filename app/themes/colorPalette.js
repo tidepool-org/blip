@@ -1,17 +1,17 @@
 /* See https://tidepool-design.netlify.app/#/Utilities/Color for swatches */
+import { colors as vizColors } from '@tidepool/viz';
+
 export default {
   primary: {
-    background: '#FFFFFF',
+    background: vizColors.white,
     purpleLight: '#DCE0F9',
     purpleMedium: '#617DFF',
-    purpleDark: '#271B46',
+    purpleDark: vizColors.purple,
     purpleBright: '#6784FA',
-    blueGreyDark: '#4F6A92',
+    blueGreyDark: vizColors.blue50,
     blueGreyMedium: '#7E98C3',
     blueGreyLight: '#A6B1BB',
     blueGrey: '#66788A',
-    bluePrimary00: '#F0F5FF',
-    gray10: '#D9D9D9',
   },
   secondary: {
     coral: '#F9706B',
@@ -21,12 +21,12 @@ export default {
     peach: '#FCCE9F',
   },
   neutrals: {
-    white: '#FFFFFF',
-    lightestGrey: '#F6F6F6',
+    white: vizColors.white,
+    lightestGrey: vizColors.gray00,
     lightGrey: '#EDEDED',
     mediumGrey: '#979797',
     darkGrey: '#606060',
-    black: '#000000',
+    black: vizColors.black,
   },
   extended: {
     blues: [
@@ -95,13 +95,13 @@ export default {
       '#B1BEFF',
       '#91A3FF',
       '#7990FF',
-      '#627CFF',
+      vizColors.indigo30,
       '#536BEE',
       '#4457D9',
       '#3446BE',
       '#1F2B98',
       '#8C9EFF',
-      '#627CFF',
+      vizColors.indigo30,
       '#3D5AFE',
       '#304FFE',
     ],

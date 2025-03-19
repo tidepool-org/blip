@@ -1,4 +1,4 @@
-import colorPalette from '../../../themes/colorPalette';
+import { vizColors } from '@tidepool/viz';
 
 export const getButtonStyleProps = (isActive) => {
   const styleProps = {
@@ -11,7 +11,7 @@ export const getButtonStyleProps = (isActive) => {
 
   // if button represents the current page, it should be highlighted
   if (isActive) {
-    styleProps.sx.color = colorPalette.primary.purpleDark;
+    styleProps.sx.color = vizColors.purple;
     styleProps.sx.textDecoration = 'underline';
   }
 
