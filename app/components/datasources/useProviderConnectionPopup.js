@@ -8,6 +8,7 @@ import { useToasts } from '../../providers/ToastProvider';
 import i18next from '../../core/language';
 import api from '../../core/api';
 import { usePrevious } from '../../core/hooks';
+import utils from '../../core/utils';
 
 const t = i18next.t.bind(i18next);
 
@@ -41,8 +42,12 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500 } = {}) => {
       `top=${popupTop}`,
     ];
 
-    const popup = window.open(url, `Connect ${displayName} to Tidepool`, popupOptions.join(','));
-    setProviderConnectionPopup(popup);
+    if (utils.isMobile()) {
+      window.location.href = url; // Safari iOS doesn't like window.open, so we redirect
+    } else {
+      const popup = window.open(url, `Connect ${displayName} to Tidepool`, popupOptions.join(','));
+      setProviderConnectionPopup(popup);
+    }
   }, []);
 
   useEffect(() => {

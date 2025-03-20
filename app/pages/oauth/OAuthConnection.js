@@ -8,6 +8,8 @@ import capitalize from 'lodash/capitalize';
 import includes from 'lodash/includes';
 import { Box, Flex } from 'theme-ui';
 import { components as vizComponents } from '@tidepool/viz';
+import { useHistory } from 'react-router-dom';
+import utils from '../../core/utils';
 
 import Banner from '../../components/elements/Banner';
 import Button from '../../components/elements/Button';
@@ -20,7 +22,8 @@ export const OAuthConnection = (props) => {
   const { t, trackMetric } = props;
   const { providerName, status } = useParams();
   const { search } = useLocation();
-  const queryParams = new URLSearchParams(search)
+  const queryParams = new URLSearchParams(search);
+  const history = useHistory();
   const dispatch = useDispatch();
   const [isCustodial, setIsCustodial] = useState();
   const [authStatus, setAuthStatus] = useState();
@@ -112,6 +115,18 @@ export const OAuthConnection = (props) => {
             </Body1>
           </Trans>
         )}
+
+        { utils.isMobile() && // on desktop, users can just close the pop-up
+          <Button
+            id="oauth-redirect-home-button"
+            variant="primary"
+            onClick={() => history.push('/')}
+            mx="auto"
+            mt={4}
+          >
+            {t('Back to Tidepool')}
+          </Button>
+        }
 
         {isCustodial && authStatus.status !== 'error' && (
           <Box>
