@@ -81,6 +81,23 @@ export const OAuthConnection = (props) => {
     dispatch(push(`/login?${queryParams.toString()}`));
   };
 
+  const handleRedirectToTidepool = () => {
+    // When redirecting after a successful connection, we want to show the devices page
+    // because the connection can take a few minutes. The data page would still be blank.
+    if (authStatus.status === 'authorized') {
+      trackMetric('Oauth - Connection - Redirect to Tidepool', { providerName, status });
+
+      // What should this path be??
+      history.push('/patients?justLoggedIn=true&justConnectedDataSource=true');
+
+      // -> patients -> oauth param -> /data with oauth param -> make popup open??
+
+      return;
+    }
+
+    history.push('/');
+  };
+
   return authStatus ? (
     <>
       <Banner id={`banner-oauth-${authStatus.status}`} {...authStatus.banner} dismissable={false} />
@@ -142,7 +159,7 @@ export const OAuthConnection = (props) => {
           <Button
             id="oauth-redirect-home-button"
             variant="primary"
-            onClick={() => history.push('/')}
+            onClick={handleRedirectToTidepool}
             mx="auto"
             mt={4}
           >
