@@ -67,7 +67,7 @@ const StyledTitle = styled(Flex)`
 `;
 
 const BoldTitle = ({ label, icon = null, iconSrc = null }) => {
-  const color = vizColors.purple;
+  const color = vizColors.purple90;
 
   return (
     <StyledTitle sx={{ justifyContent: 'center', alignItems: 'center' }}>

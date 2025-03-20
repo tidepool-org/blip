@@ -44,7 +44,7 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
   return (
     <Box sx={{ display: 'grid', gridTemplateColumns: '32fr 18fr 18fr 32fr', gap: 3, minHeight: '42px', marginBottom: 3 }}>
       <Flex sx={{ justifyContent: 'center', flexDirection: 'column' }}>
-        <Text sx={{ color: vizColors.purple, fontWeight: 'bold', fontSize: 2 }}>
+        <Text sx={{ color: vizColors.purple90, fontWeight: 'bold', fontSize: 2 }}>
           {fullName}
         </Text>
         { birthDate &&
@@ -69,7 +69,7 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
           showTideDashboardLastReviewed &&
             <>
               <Text sx={{
-              color: vizColors.purple,
+              color: vizColors.purple90,
               fontWeight: 'medium',
               marginRight: 3,
             }}>

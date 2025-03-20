@@ -179,7 +179,7 @@ const Menu = ({ api, trackMetric }) => {
                     variant='textSecondary'
                     iconPosition='left'
                     iconFontSize='1.25em'
-                    sx={{ fontSize: 1, fontWeight: 'medium', color: vizColors.purple }}
+                    sx={{ fontSize: 1, fontWeight: 'medium', color: vizColors.purple90 }}
                     pl={0}
                   >
                     {label}
