@@ -36,6 +36,7 @@ const AppBannerProvider = ({ children }) => {
   const dispatch = useDispatch();
   const { pathname } = useLocation();
   const [formikContext, setFormikContext] = useState({});
+  const [isMobile] = useState(utils.isMobile());
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const clinics = useSelector(state => state.blip.clinics);
@@ -100,7 +101,7 @@ const AppBannerProvider = ({ children }) => {
     },
 
     uploader: { // Temporary: hide on mobile until we have a mobile-friendly profile page
-      show: !utils.isMobile() && userIsCurrentPatient && dataSources?.length && !userHasPumpData,
+      show: !isMobile && userIsCurrentPatient && dataSources?.length && !userHasPumpData,
       bannerArgs: [],
     },
 
@@ -110,7 +111,7 @@ const AppBannerProvider = ({ children }) => {
     },
 
     donateYourData: { // Temporary: hide on mobile until we have a mobile-friendly profile page
-      show: !utils.isMobile() && userIsCurrentPatient && userHasData && !userIsDonor,
+      show: !isMobile && userIsCurrentPatient && userHasData && !userIsDonor,
       bannerArgs: [dispatch],
     },
 
@@ -120,7 +121,7 @@ const AppBannerProvider = ({ children }) => {
     },
 
     updateType: { // Temporary: hide on mobile until we have a mobile-friendly profile page
-      show: !utils.isMobile() && userIsCurrentPatient && userHasData && !userHasDiabetesType,
+      show: !isMobile && userIsCurrentPatient && userHasData && !userHasDiabetesType,
       bannerArgs: [dispatch, loggedInUserId],
     },
 
@@ -165,6 +166,7 @@ const AppBannerProvider = ({ children }) => {
     userIsCurrentPatient,
     userIsDonor,
     userIsSupportingNonprofit,
+    isMobile,
   ]);
 
   useEffect(() => {
