@@ -33,11 +33,11 @@ export const colors = {
   },
   border: {
     focus: '#4C9AFF',
-    default: colorPalette.extended.grays[1],
+    default: vizColors.gray10,
     divider: colorPalette.extended.grays[0],
-    dividerDark: colorPalette.extended.grays[1],
+    dividerDark: vizColors.gray10,
     modal: colorPalette.extended.grays[0],
-    inputLight: '#DFE2E6',
+    inputLight: vizColors.gray10,
     inputDark: '#A6B1BB',
   },
   brand: {
@@ -120,7 +120,7 @@ export const colors = {
 export const borders = {
   default: `1px solid ${colors.border.default}`,
   thick: `2px solid ${colors.border.default}`,
-  input: `1px solid ${colors.border.inputLight}`,
+  input: `1px solid ${colors.border.default}`,
   inputDark: `1px solid ${colors.border.inputDark}`,
   modal: `1px solid ${colors.border.modal}`,
   divider: `2px solid ${colors.border.divider}`,

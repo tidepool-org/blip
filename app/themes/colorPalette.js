@@ -63,7 +63,7 @@ export default {
     ],
     grays: [
       '#EDEDED',
-      '#D3D3D3',
+      vizColors.gray10,
       '#B6B6B6',
       '#999999',
       '#838383',

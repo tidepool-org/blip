@@ -7,6 +7,7 @@ import map from 'lodash/map';
 
 import utils from '../../core/utils';
 import { colors, radii } from '../../themes/baseTheme';
+import { colors as vizColors } from '@tidepool/viz';
 
 export const DeltaBar = React.memo(props => {
   const { delta, max, threshold, ...themeProps } = props;
@@ -36,7 +37,7 @@ export const DeltaBar = React.memo(props => {
               alignItems: 'center',
               justifyContent: 'flex-end',
               gap: 1,
-              borderRight: i === 0 ? `1px solid ${colors.grays[1]}` : 'none'
+              borderRight: i === 0 ? `1px solid ${vizColors.gray10}` : 'none'
             }}
           >
             {value !== 0 && (

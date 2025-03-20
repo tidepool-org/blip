@@ -1,5 +1,6 @@
 import React from 'react';
 import colorPalette from '../../../../themes/colorPalette';
+import { colors as vizColors } from '@tidepool/viz';
 import { useTranslation } from 'react-i18next';
 import { Flex, Box, Text } from 'theme-ui';
 import { utils as vizUtils } from '@tidepool/viz';
@@ -10,13 +11,13 @@ import getReportDaysText from './getReportDaysText';
 
 const TableRow = ({ label, sublabel, value, units, id }) => {
   return (
-    <Flex 
+    <Flex
       id={id}
-      sx={{ 
-        justifyContent: 'space-between', 
-        margin: '0 16px', 
-        padding: '16px 0',  
-        borderBottom: `1px solid ${colorPalette.extended.grays[1]}`,
+      sx={{
+        justifyContent: 'space-between',
+        margin: '0 16px',
+        padding: '16px 0',
+        borderBottom: `1px solid ${vizColors.gray10}`,
         '&:last-of-type': { borderBottom: 'none' }
       }}
     >
@@ -83,7 +84,7 @@ const CGMStatistics = ({ agpCGM }) => {
             value={`${cgmActive}`}
             units="%"
           />
-          <TableRow 
+          <TableRow
             id="agp-table-avg-glucose"
             label={t('Average Glucose')}
             sublabel={t('(Goal <{{avgGlucoseTarget}} {{bgUnits}})', { avgGlucoseTarget, bgUnits })}
