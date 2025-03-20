@@ -116,18 +116,6 @@ export const OAuthConnection = (props) => {
           </Trans>
         )}
 
-        { utils.isMobile() && // on desktop, users can just close the pop-up
-          <Button
-            id="oauth-redirect-home-button"
-            variant="primary"
-            onClick={() => history.push('/')}
-            mx="auto"
-            mt={4}
-          >
-            {t('Back to Tidepool')}
-          </Button>
-        }
-
         {isCustodial && authStatus.status !== 'error' && (
           <Box>
             <Body1 mb={3}>
@@ -149,6 +137,18 @@ export const OAuthConnection = (props) => {
             </Flex>
           </Box>
         )}
+
+        { utils.isMobile() && // on desktop, users can just close the pop-up
+          <Button
+            id="oauth-redirect-home-button"
+            variant="primary"
+            onClick={() => history.push('/')}
+            mx="auto"
+            mt={4}
+          >
+            {t('Back to Tidepool')}
+          </Button>
+        }
       </Box>
     </>
   ) : <Loader />;
