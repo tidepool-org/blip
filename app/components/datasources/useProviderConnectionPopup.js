@@ -107,7 +107,7 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500 } = {}) => {
             dispatch(sync.setJustConnectedDataSourceProviderName(authorizedProvider?.dataSourceFilter?.providerName));
           }
 
-          // providerConnectionPopup.close();
+          providerConnectionPopup.close();
         }
       } catch (e) {
         // The above try block will fail while the user is navigated to an external site, due to
