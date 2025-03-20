@@ -36,7 +36,7 @@ const AppBannerProvider = ({ children }) => {
   const dispatch = useDispatch();
   const { pathname } = useLocation();
   const [formikContext, setFormikContext] = useState({});
-  const [isMobile] = useState(utils.isMobile());
+  const isMobile = useMemo(() => utils.isMobile(), []);
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const clinics = useSelector(state => state.blip.clinics);
