@@ -8,7 +8,6 @@ import capitalize from 'lodash/capitalize';
 import includes from 'lodash/includes';
 import { Box, Flex } from 'theme-ui';
 import { components as vizComponents } from '@tidepool/viz';
-import { useHistory } from 'react-router-dom';
 import utils from '../../core/utils';
 
 import Banner from '../../components/elements/Banner';
@@ -23,7 +22,6 @@ export const OAuthConnection = (props) => {
   const { providerName, status } = useParams();
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search);
-  const history = useHistory();
   const dispatch = useDispatch();
   const [isCustodial, setIsCustodial] = useState();
   const [authStatus, setAuthStatus] = useState();
@@ -82,16 +80,12 @@ export const OAuthConnection = (props) => {
   };
 
   const handleRedirectToTidepool = () => {
-    // When redirecting after a successful connection, we want to show the devices page
-    // because the connection can take a few minutes. The data page would still be blank.
-    if (authStatus.status === 'authorized') {
-      trackMetric('Oauth - Connection - Redirect back to Tidepool App', { providerName, status });
-      history.push('/patients?justLoggedIn=true&openDataConnectionsModal=true');
+    // When redirecting after a connection, we want to redirect to the devices page
+    // because the connection can take a few minutes; the charts will still be blank.
+    trackMetric('Oauth - Connection - Redirect back to Tidepool App', { providerName, status });
+    dispatch(push('/patients?justLoggedIn=true&openDataConnectionsModal=true'));
 
-      return;
-    }
-
-    history.push('/');
+    return;
   };
 
   return authStatus ? (
