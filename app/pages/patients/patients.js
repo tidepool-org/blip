@@ -348,7 +348,13 @@ export let Patients = withTranslation()(class extends React.Component {
     if (!loading && loggedInUserId && location.query.justLoggedIn) {
       if (!personUtils.isClinicianAccount(user) && patients.length === 1 && invites.length === 0) {
         let patient = patients[0];
-        this.props.history.push(`/patients/${patient.userid}/data`);
+        let targetPath = `/patients/${patient.userid}/data`;
+
+        if (location.query.justConnectedDataSource) {
+          targetPath += '/settings?justConnectedDataSource=true';
+        }
+
+        this.props.history.push(targetPath);
       } else if (patients.length === 0 && invites.length === 0 && showingWelcomeMessage === null) {
         this.props.showWelcomeMessage();
       }
