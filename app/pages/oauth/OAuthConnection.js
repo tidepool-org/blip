@@ -86,11 +86,7 @@ export const OAuthConnection = (props) => {
     // because the connection can take a few minutes. The data page would still be blank.
     if (authStatus.status === 'authorized') {
       trackMetric('Oauth - Connection - Redirect to Tidepool', { providerName, status });
-
-      // What should this path be??
       history.push('/patients?justLoggedIn=true&justConnectedDataSource=true');
-
-      // -> patients -> oauth param -> /data with oauth param -> make popup open??
 
       return;
     }
