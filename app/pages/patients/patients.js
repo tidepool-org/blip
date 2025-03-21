@@ -346,12 +346,16 @@ export let Patients = withTranslation()(class extends React.Component {
     let { loading, loggedInUserId, patients, invites, location, showingWelcomeMessage, user } = nextProps;
 
     if (!loading && loggedInUserId && location.query.justLoggedIn) {
+      // If a personal user has just logged in and they are associated with only one patient,
+      // redirect them to the data view for that patient
       if (!personUtils.isClinicianAccount(user) && patients.length === 1 && invites.length === 0) {
         let patient = patients[0];
         let targetPath = `/patients/${patient.userid}/data`;
 
-        if (location.query.justConnectedDataSource) {
-          targetPath += '/settings?justConnectedDataSource=true';
+        // If they are being redirected here due to an oauth callback, we redirect them
+        // back to the data connections modal they came from
+        if (location.query.openDataConnectionsModal) {
+          targetPath += '/settings?openDataConnectionsModal=true';
         }
 
         this.props.history.push(targetPath);

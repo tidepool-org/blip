@@ -85,8 +85,8 @@ export const OAuthConnection = (props) => {
     // When redirecting after a successful connection, we want to show the devices page
     // because the connection can take a few minutes. The data page would still be blank.
     if (authStatus.status === 'authorized') {
-      trackMetric('Oauth - Connection - Redirect to Tidepool', { providerName, status });
-      history.push('/patients?justLoggedIn=true&justConnectedDataSource=true');
+      trackMetric('Oauth - Connection - Redirect back to Tidepool App', { providerName, status });
+      history.push('/patients?justLoggedIn=true&openDataConnectionsModal=true');
 
       return;
     }
