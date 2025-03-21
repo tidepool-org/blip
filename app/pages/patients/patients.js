@@ -354,8 +354,9 @@ export let Patients = withTranslation()(class extends React.Component {
 
         // If they are being redirected here due to an oauth callback, we redirect them
         // back to the data connections modal they came from
-        if (location.query.openDataConnectionsModal) {
-          targetPath += '/settings?openDataConnectionsModal=true';
+        if (location.query.openDataConnectionsModalWithStatus) {
+          const status = location.query.openDataConnectionsModalWithStatus;
+          targetPath += `/settings?openDataConnectionsModalWithStatus=${status}`;
         }
 
         this.props.history.push(targetPath);

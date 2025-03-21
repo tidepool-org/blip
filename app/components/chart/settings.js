@@ -82,7 +82,9 @@ const Settings = ({
   t
 }) => {
   const { location } = useHistory();
+  const isJustConnected = !!location?.query?.openDataConnectionsModalWithStatus;
 
+  const [showDataConnectionsModal, setShowDataConnectionsModal] = useState(isJustConnected);
   const [atMostRecent, setAtMostRecent] = useState(true);
   const [inTransition, setInTransition] = useState(false);
   const [title, setTitle] = useState('');
@@ -96,7 +98,6 @@ const Settings = ({
   const previousSelectedDevice = usePrevious(selectedDevice);
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const isClinicContext = !!selectedClinicId;
-  const [showDataConnectionsModal, setShowDataConnectionsModal] = useState(location?.query?.openDataConnectionsModal || false);
   const [showUploadOverlay, setShowUploadOverlay] = useState(false);
   const dataSources = useSelector(state => state.blip.dataSources);
 
