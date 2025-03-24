@@ -132,7 +132,7 @@ describe('OAuthConnection', () => {
       });
 
       let expectedActions = [
-        routeAction('/patients?justLoggedIn=true&openDataConnectionsModal=true'),
+        routeAction('/patients?justLoggedIn=true&openDataConnectionsModalWithStatus=authorized'),
       ];
 
       const actions = store.getActions();
@@ -304,7 +304,7 @@ describe('OAuthConnection', () => {
       });
 
       let expectedActions = [
-        routeAction('/patients?justLoggedIn=true&openDataConnectionsModal=true'),
+        routeAction('/patients?justLoggedIn=true&openDataConnectionsModalWithStatus=authorized'),
       ];
 
       const actions = store.getActions();
