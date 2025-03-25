@@ -1,4 +1,4 @@
-import { vizColors } from '@tidepool/viz';
+import { colors as vizColors } from '@tidepool/viz';
 
 export const getButtonStyleProps = (isActive) => {
   const styleProps = {

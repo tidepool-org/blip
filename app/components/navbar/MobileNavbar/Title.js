@@ -10,7 +10,7 @@ import { fontWeights } from '../../../themes/baseTheme';
 import shareIcon from '../../../core/icons/shareIcon.svg';
 import viewIcon from '../../../core/icons/viewIcon.svg';
 import devicesIcon from '../../../core/icons/devicesIcon.svg';
-import { vizColors } from '@tidepool/viz';
+import { colors as vizColors } from '@tidepool/viz';
 import SettingsRoundedIcon from '@material-ui/icons/SettingsRounded';
 import SupervisedUserCircleRoundedIcon from '@material-ui/icons/SupervisedUserCircleRounded';
 import styled from '@emotion/styled';
