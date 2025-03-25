@@ -134,11 +134,15 @@ describe('Settings', () => {
         </div>
       )
     );
+
+    Settings.__Rewire__('useHistory', sinon.stub().returns({ location: { query: {} } }));
+
     clock = sinon.useFakeTimers();
   });
 
   after(() => {
     Settings.__ResetDependency__('PumpSettingsContainer');
+    Settings.__ResetDependency__('useHistory');
     clock.uninstall();
   });
 

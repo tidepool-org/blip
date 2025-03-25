@@ -2,6 +2,7 @@ import _ from 'lodash';
 import bows from 'bows';
 import PropTypes from 'prop-types';
 import React, { useState, useCallback, useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
 import { Trans, withTranslation } from 'react-i18next';
 import { Flex, Box, Text, Divider, Link } from 'theme-ui';
 import moment from 'moment-timezone';
@@ -80,6 +81,10 @@ const Settings = ({
   currentPatientInViewId,
   t
 }) => {
+  const { location } = useHistory();
+  const isJustConnected = !!location?.query?.openDataConnectionsModalWithStatus;
+
+  const [showDataConnectionsModal, setShowDataConnectionsModal] = useState(isJustConnected);
   const [atMostRecent, setAtMostRecent] = useState(true);
   const [inTransition, setInTransition] = useState(false);
   const [title, setTitle] = useState('');
@@ -93,7 +98,6 @@ const Settings = ({
   const previousSelectedDevice = usePrevious(selectedDevice);
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const isClinicContext = !!selectedClinicId;
-  const [showDataConnectionsModal, setShowDataConnectionsModal] = useState(false);
   const [showUploadOverlay, setShowUploadOverlay] = useState(false);
   const dataSources = useSelector(state => state.blip.dataSources);
 
