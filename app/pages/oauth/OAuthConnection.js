@@ -80,9 +80,9 @@ export const OAuthConnection = (props) => {
   };
 
   const handleRedirectToTidepool = () => {
-    // After the connection, we want to open the DataConnections modal up so the user can see the connection
-    // status. We can't just show their data view because the data transfer can take a few minutes and so the
-    // chart will still be blank.
+    // After the connection, we want to get back to the /data view but we don't have access to the
+    // patientId after the OAuth callback. We'll redirect back to '/patients' which does have
+    // access to the patientId, with a flag to open the DataConnections modal back up on load.
     trackMetric('Oauth - Connection - Redirect back to Tidepool App', { providerName, status });
     dispatch(push(`/patients?justLoggedIn=true&openDataConnectionsModalWithStatus=${status}`));
 
