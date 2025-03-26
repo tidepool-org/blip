@@ -615,7 +615,7 @@ export const clinics = (state = initialState.clinics, action) => {
             ...state[clinicId],
             patients: newPatientSet,
             fetchedPatientCount: count,
-            initialFetchedPatientCount: _.max([count, state[clinicId].totalPatientCount]),
+            initialFetchedPatientCount: state[clinicId].initialFetchedPatientCount || count, // cache the first ever value
             lastPatientFetchTime: moment.utc().valueOf(),
           },
         },
