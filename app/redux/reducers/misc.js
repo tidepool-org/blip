@@ -610,15 +610,7 @@ export const clinics = (state = initialState.clinics, action) => {
         return newSet;
       }, {});
       return update(state, {
-        [clinicId]: {
-          $set: {
-            ...state[clinicId],
-            patients: newPatientSet,
-            fetchedPatientCount: count,
-            patientCount: Math.max(state[clinicId].patientCount, count),
-            lastPatientFetchTime: moment.utc().valueOf(),
-          },
-        },
+        [clinicId]: { $set: { ...state[clinicId], patients: newPatientSet, fetchedPatientCount: count, lastPatientFetchTime: moment.utc().valueOf() } },
       });
     }
     case types.FETCH_PATIENTS_FOR_CLINIC_FAILURE: {
