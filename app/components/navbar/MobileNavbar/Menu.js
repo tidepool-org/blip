@@ -5,7 +5,6 @@ import styled from '@emotion/styled';
 import { Box } from 'theme-ui';
 import { useTranslation } from 'react-i18next';
 import { usePopupState, bindPopover, bindTrigger } from 'material-ui-popup-state/hooks';
-import colorPalette from '../../../themes/colorPalette';
 import { colors as vizColors } from '@tidepool/viz';
 import personUtils from '../../../core/personutils';
 
@@ -165,7 +164,7 @@ const Menu = ({ api, trackMetric }) => {
         {!!patient &&
           <Box id="mobile-navbar-data-options" px={4}>
             { patientName &&
-              <Box pt={4} pb={3} sx={{ color: colorPalette.extended.grays[5], fontWeight: 'medium', fontSize: 2 }}>
+              <Box pt={4} pb={3} sx={{ color: 'grays.5', fontWeight: 'medium', fontSize: 2 }}>
                 {patientName}
               </Box>
             }

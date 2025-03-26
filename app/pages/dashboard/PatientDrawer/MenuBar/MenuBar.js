@@ -4,7 +4,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { push } from 'connected-react-router';
 import { Flex, Box, Text } from 'theme-ui';
-import colorPalette from '../../../../themes/colorPalette';
 import { colors as vizColors } from '@tidepool/viz';
 import Button from '../../../../components/elements/Button';
 import moment from 'moment';
@@ -48,7 +47,7 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
           {fullName}
         </Text>
         { birthDate &&
-          <Text sx={{ color: colorPalette.extended.grays[5], fontWeight: 'medium', fontSize: 0 }}>
+          <Text sx={{ color: 'grays.5', fontWeight: 'medium', fontSize: 0 }}>
             {t('DOB: {{birthDate}}', { birthDate })}
           </Text>
         }

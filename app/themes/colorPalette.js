@@ -5,13 +5,13 @@ export default {
   primary: {
     background: vizColors.white,
     purpleLight: '#DCE0F9',
-    purpleMedium: '#617DFF',
+    purpleMedium: vizColors.indigo50,
     purpleDark: vizColors.purple90,
-    purpleBright: '#6784FA',
+    purpleBright: vizColors.indigo30,
     blueGreyDark: vizColors.blue50,
-    blueGreyMedium: '#7E98C3',
-    blueGreyLight: '#A6B1BB',
-    blueGrey: '#66788A',
+    blueGreyMedium: vizColors.blue30,
+    blueGreyLight: vizColors.blueGray50,
+    blueGrey: vizColors.blueGray30,
   },
   secondary: {
     coral: '#F9706B',
@@ -23,9 +23,9 @@ export default {
   neutrals: {
     white: vizColors.white,
     lightestGrey: vizColors.gray00,
-    lightGrey: '#EDEDED',
-    mediumGrey: '#979797',
-    darkGrey: '#606060',
+    lightGrey: vizColors.gray10,
+    mediumGrey: vizColors.gray30,
+    darkGrey: vizColors.gray50,
     black: vizColors.black,
   },
   extended: {

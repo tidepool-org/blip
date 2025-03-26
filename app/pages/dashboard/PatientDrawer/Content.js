@@ -101,7 +101,7 @@ const Content = ({ api, patientId, agpPeriodInDays }) => {
         </CategoryContainer>
       </Box>
 
-      <Flex mt={3} sx={{ color: colorPalette.extended.grays[10], fontSize: 0, justifyContent: 'space-between' }}>
+      <Flex mt={3} sx={{ color: 'grays.10', fontSize: 0, justifyContent: 'space-between' }}>
         <Text>{t('Patent pending – HealthPartners Institute dba International Diabetes Center – All Rights Reserved. ©2022')}</Text>
         <Text>{`${t('Tidepool')} | ${t('CapturAGP v5.0')}`}</Text>
       </Flex>
