@@ -201,6 +201,12 @@ const FilterResetBar = withTranslation()(({ t, rightSideContent }) => {
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
 
+  // HACK: Ideally we would use clinic.patientCount here. Due to insertion of Jill + James Jellyfish
+  // in QA + Demo envs, clinic.patientCount can be off-by-one because those two accounts do not impact
+  // the patientCount value. However, fetchedPatientCount on first load (before any filtering by user)
+  // will reflect all patients including Jill + James Jellyfish.
+  const [maxPatientCount] = useState(clinic?.fetchedPatientCount || 0);
+
   return (
     <Flex
       px={2}
@@ -214,7 +220,7 @@ const FilterResetBar = withTranslation()(({ t, rightSideContent }) => {
       <Text sx={{ fontWeight: 'medium' }}>
         {t('Showing {{ shown }} of {{ total }} patient accounts', {
           shown: clinic?.fetchedPatientCount,
-          total: clinic?.patientCount,
+          total: maxPatientCount,
         })}
       </Text>
 
