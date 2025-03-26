@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import _ from 'lodash';
@@ -162,20 +162,4 @@ export const useNavigation = (api, trackMetric) => {
     handleViewProfile: currentPatientInViewId ? handleViewProfile : _.noop,
     handleShare: currentPatientInViewId ? handleShare : _.noop,
   };
-};
-
-export const useClinicTotalPatientCount = (clinic) => {
-  // HACK: Ideally this value would just be clinic.patientCount. Due to insertion of Jill + James Jellyfish
-  // in QA + Demo envs, clinic.patientCount can be incorrect because those two accounts are not accounted
-  // for in the patientCount value. However, fetchedPatientCount on first load (before any filtering by user)
-  // will reflect all patients including Jill + James Jellyfish.
-  const [count, setCount] = useState(clinic?.fetchedPatientCount || 0);
-
-  useEffect(() => {
-    if (!clinic?.fetchedPatientCount) return;
-
-    setCount(count => Math.max(count, clinic.fetchedPatientCount));
-  }, [clinic?.fetchedPatientCount]);
-
-  return count;
 };
