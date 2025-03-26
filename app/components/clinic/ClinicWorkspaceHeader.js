@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { withTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
@@ -11,6 +11,7 @@ import GroupRoundedIcon from '@material-ui/icons/GroupRounded';
 import SettingsRoundedIcon from '@material-ui/icons/SettingsRounded';
 import WarningRoundedIcon from '@material-ui/icons/WarningRounded';
 import { components as vizComponents } from '@tidepool/viz';
+import { useClinicTotalPatientCount } from '../../core/navutils';
 
 import Button from '../elements/Button';
 import Icon from '../elements/Icon';
@@ -26,6 +27,7 @@ export const ClinicWorkspaceHeader = (props) => {
   const clinics = useSelector((state) => state.blip.clinics);
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = get(clinics, selectedClinicId);
+  const totalPatientCount = useClinicTotalPatientCount(clinic);
   const isWorkspacePath = pathname.indexOf('/clinic-workspace') === 0;
 
   const buttonText = useMemo(() =>
@@ -149,14 +151,14 @@ export const ClinicWorkspaceHeader = (props) => {
             <Flex sx={{ color: 'text.primary', flexShrink: 0, gap: 2, fontSize: 1, alignItems: 'flex-end' }}>
               <Text>{t('Patient Accounts:')}</Text>
               <Box>
-                {clinic?.ui.display.patientCount && (
+                {totalPatientCount > 0 && (
                   <Pill
                     id="clinicPatientLimits"
                     sx={{ fontSize: 1 }}
                     px={1}
                     pt="2px"
                     pb={0}
-                    text={`${clinic.patientCount}${clinic.ui.display?.patientLimit ? ' / ' + clinic.patientCountSettings?.hardLimit?.patientCount : '' }`}
+                    text={`${totalPatientCount}${clinic.ui.display?.patientLimit ? ' / ' + clinic.patientCountSettings?.hardLimit?.patientCount : '' }`}
                     icon={clinic?.ui.warnings.limitReached ? WarningRoundedIcon : null}
                     label={t('Patient Count')}
                     colorPalette={clinic?.ui.warnings.limitReached || clinic?.ui.warnings.limitApproaching ? 'warning' : 'transparent'}
