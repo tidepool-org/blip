@@ -89,7 +89,7 @@ export const colors = {
         text: vizColors.white,
       },
       bg: '#EBFBF0',
-      closeIcon: '#4F6A92',
+      closeIcon: vizColors.blue50,
       icon: vizColors.green30,
       message: '#2A1948',
       messageLink: vizColors.indigo30,
