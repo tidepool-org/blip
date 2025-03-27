@@ -5278,9 +5278,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.45.0-web-3418-redirect-oauth.2":
-  version: 1.45.0-web-3418-redirect-oauth.2
-  resolution: "@tidepool/viz@npm:1.45.0-web-3418-redirect-oauth.2"
+"@tidepool/viz@npm:1.45.0-web-3511-color-scheme.2":
+  version: 1.45.0-web-3511-color-scheme.2
+  resolution: "@tidepool/viz@npm:1.45.0-web-3511-color-scheme.2"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -5340,7 +5340,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 54002c87242f6f973c921fae304923c7579fa0c7a19236e953234b43b149b17dbf9a4bcdcfd2d998bbe195709a5cc1a695d0f158f3bf27346c8c5b640220a83b
+  checksum: 014bf808cd2800280a502f94d38a2947c1b835cd0ff053d00a65dfc424bf37cda6944e9163956f496a2c9ebd5da477caa4ebf0367cb362ef3ef95dc2903dda20
   languageName: node
   linkType: hard
 
@@ -7251,7 +7251,7 @@ __metadata:
     "@storybook/react": 7.5.0
     "@storybook/react-webpack5": 7.5.0
     "@testing-library/react-hooks": 8.0.1
-    "@tidepool/viz": 1.45.0-web-3418-redirect-oauth.2
+    "@tidepool/viz": 1.45.0-web-3511-color-scheme.2
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
