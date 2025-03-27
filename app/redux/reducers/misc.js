@@ -609,13 +609,19 @@ export const clinics = (state = initialState.clinics, action) => {
         newSet[patient.id] = { ...patient, sortIndex: i };
         return newSet;
       }, {});
+
+      // We store the first-ever fetchedPatientCount value in fetchPatientCountOnInit,
+      // and we use that value to represent the total number of patients in the clinic
+      const fetchedPatientCount = count;
+      const fetchedPatientCountOnInit = state[clinicId]?.fetchedPatientCountOnInit || count;
+
       return update(state, {
         [clinicId]: {
           $set: {
             ...state[clinicId],
             patients: newPatientSet,
-            fetchedPatientCount: count,
-            initialFetchedPatientCount: state[clinicId].initialFetchedPatientCount || count, // cache the first ever value
+            fetchedPatientCount,
+            fetchedPatientCountOnInit,
             lastPatientFetchTime: moment.utc().valueOf(),
           },
         },
