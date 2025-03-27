@@ -8,6 +8,7 @@ import capitalize from 'lodash/capitalize';
 import includes from 'lodash/includes';
 import { Box, Flex } from 'theme-ui';
 import { components as vizComponents } from '@tidepool/viz';
+import utils from '../../core/utils';
 
 import Banner from '../../components/elements/Banner';
 import Button from '../../components/elements/Button';
@@ -21,7 +22,7 @@ export const OAuthConnection = (props) => {
   const { providerName, status } = useParams();
   const { displayName } = providers[providerName] || {};
   const { search } = useLocation();
-  const queryParams = new URLSearchParams(search)
+  const queryParams = new URLSearchParams(search);
   const dispatch = useDispatch();
   const [isCustodial, setIsCustodial] = useState();
   const [authStatus, setAuthStatus] = useState();
@@ -72,6 +73,16 @@ export const OAuthConnection = (props) => {
   const handleClickClaimAccount = () => {
     trackMetric('Oauth - Connection - Claim Account', { providerName, status });
     dispatch(push(`/login?${queryParams.toString()}`));
+  };
+
+  const handleRedirectToTidepool = () => {
+    // After the connection, we want to get back to the /data view but we don't have access to the
+    // patientId after the OAuth callback. We'll redirect back to '/patients' which does have
+    // access to the patientId, with a flag to open the DataConnections modal back up on load.
+    trackMetric('Oauth - Connection - Redirect back to Tidepool App', { providerName, status });
+    dispatch(push(`/patients?justLoggedIn=true&openDataConnectionsModalWithStatus=${status}`));
+
+    return;
   };
 
   return authStatus ? (
@@ -130,6 +141,18 @@ export const OAuthConnection = (props) => {
             </Flex>
           </Box>
         )}
+
+        { utils.isMobile() && // on desktop, users can just close the pop-up
+          <Button
+            id="oauth-redirect-home-button"
+            variant="primary"
+            onClick={handleRedirectToTidepool}
+            mx="auto"
+            mt={4}
+          >
+            {t('Back to Tidepool')}
+          </Button>
+        }
       </Box>
     </>
   ) : <Loader />;

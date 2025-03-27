@@ -25,7 +25,7 @@ import DataConnection from './DataConnection';
 import PatientEmailModal from './PatientEmailModal';
 import ResendDataSourceConnectRequestDialog from '../clinic/ResendDataSourceConnectRequestDialog';
 import { Box, BoxProps } from 'theme-ui';
-import dexcomLogo from '../../core/icons/dexcom_logo.svg';
+import dexcomLogo from '../../core/icons/dexcom_logo.png';
 import libreLogo from '../../core/icons/libre_logo.svg';
 import twiistLogo from '../../core/icons/twiist_logo.svg';
 import { colors } from '../../themes/baseTheme';
