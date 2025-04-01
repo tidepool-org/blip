@@ -22,7 +22,7 @@ export const DataSourceDisconnectDialog = (props) => {
 
   return (
     <Dialog
-      id="resendDataSourceConnectRequest"
+      id="dataSourceDisconnectInstructions"
       aria-labelledby="dialog-title"
       open={open}
       onClose={onClose}
