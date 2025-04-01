@@ -599,7 +599,7 @@ const TideDashboardSection = React.memo(props => {
         render: renderTimeInPercent.bind(null, 'timeInVeryLowPercent'),
       },
       {
-        title: t('% Time {{lower}}-{{upper}}', { lower: veryLowGlucoseThreshold, upper: lowGlucoseThreshold }),
+        title: t('% Time < {{upper}}', { upper: lowGlucoseThreshold }),
         field: 'timeInLowPercent',
         align: 'center',
         render: renderTimeInPercent.bind(null, 'timeInLowPercent'),
