@@ -122,7 +122,7 @@ export const BgRangeSummary = React.memo(props => {
                 >
                 <Flex className={`range-summary-value-${key}`} mb={1} sx={{ flexWrap: 'nowrap', textAlign: 'center', alignItems: 'flex-end',  color: `bg.${key}` }} key={key}>
                   <Text sx={{ fontWeight: 'bold', lineHeight: 0, fontSize: 1 }}>
-                    {utils.formatThresholdPercentage(value, ...DEFAULT_FILTER_THRESHOLDS[key])}
+                    {utils.formatThresholdPercentage(value, ...DEFAULT_FILTER_THRESHOLDS[key], true)}
                   </Text>
                   <Text sx={{ color: 'inherit', fontSize: '9px', fontWeight: 'bold' }}>%</Text>
                 </Flex>
