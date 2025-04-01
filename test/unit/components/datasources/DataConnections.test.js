@@ -48,18 +48,23 @@ describe('providers', () => {
     expect(dexcom.restrictedTokenCreate).to.eql({ paths: ['/v1/oauth/dexcom'] });
     expect(dexcom.dataSourceFilter).to.eql({ providerType: 'oauth', providerName: 'dexcom' });
     expect(dexcom.logoImage).to.be.a('string');
+    expect(dexcom.disconnectInstructions).to.be.undefined;
 
     expect(abbott.id).to.equal('oauth/abbott');
     expect(abbott.displayName).to.equal('FreeStyle Libre');
     expect(abbott.restrictedTokenCreate).to.eql({ paths: ['/v1/oauth/abbott'] });
     expect(abbott.dataSourceFilter).to.eql({ providerType: 'oauth', providerName: 'abbott' });
     expect(abbott.logoImage).to.be.a('string');
+    expect(abbott.disconnectInstructions).to.be.an('object');
+    expect(abbott.disconnectInstructions.title).to.be.a('string');
+    expect(abbott.disconnectInstructions.message).to.be.a('string');
 
     expect(twiist.id).to.equal('oauth/twiist');
     expect(twiist.displayName).to.equal('Twiist');
     expect(twiist.restrictedTokenCreate).to.eql({ paths: ['/v1/oauth/twiist'] });
     expect(twiist.dataSourceFilter).to.eql({ providerType: 'oauth', providerName: 'twiist' });
     expect(twiist.logoImage).to.be.a('string');
+    expect(twiist.disconnectInstructions).to.be.undefined;
   });
 });
 
@@ -502,6 +507,7 @@ describe('DataConnections', () => {
       working: {
         sendingPatientDataProviderConnectRequest: defaultWorkingState,
         updatingClinicPatient: defaultWorkingState,
+        disconnectingDataSource: defaultWorkingState,
       },
       selectedClinicId: 'clinicID123',
       loggedInUserId: 'patient123',
