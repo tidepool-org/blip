@@ -305,9 +305,11 @@ describe('getDataConnectionProps', () => {
     'connectState2',
   ];
 
-  const createPatientWithConnectionState = state => ({
+  const createPatientWithConnectionState = (state, modifiedTime) => ({
     id: 'patient123',
-    dataSources: [ { providerName: 'provider123', state }],
+    dataSources: [
+      { providerName: 'provider123', state, modifiedTime },
+    ],
     connectionRequests: { provider123: [{ createdTime: moment.utc().subtract(20, 'days') }] },
   });
 
@@ -359,7 +361,7 @@ describe('getDataConnectionProps', () => {
   });
 
   it('should merge the the appropriate connect state UI and handler props based on the current provider connection state for a patient', () => {
-    const connectState1PatientProps = getDataConnectionProps(createPatientWithConnectionState('connectState1'), false, 'clinic125', setActiveHandlerStub).provider123;
+    const connectState1PatientProps = getDataConnectionProps(createPatientWithConnectionState('connectState1', moment.utc().subtract(2, 'days').toISOString()), false, 'clinic125', setActiveHandlerStub).provider123;
 
     expect(connectState1PatientProps.buttonDisabled).to.equal('connectState1 handler buttonDisabled stub');
     expect(connectState1PatientProps.buttonHandler).to.be.a('function');
@@ -377,7 +379,7 @@ describe('getDataConnectionProps', () => {
     expect(connectState1PatientProps.stateColor).to.equal('connectState1 color stub');
     expect(connectState1PatientProps.stateText).to.equal('connectState1 text stub');
 
-    const connectState2PatientProps = getDataConnectionProps(createPatientWithConnectionState('connectState2'), false, 'clinic125', setActiveHandlerStub).provider123;
+    const connectState2PatientProps = getDataConnectionProps(createPatientWithConnectionState('connectState2', moment.utc().subtract(1, 'days').toISOString()), false, 'clinic125', setActiveHandlerStub).provider123;
 
     expect(connectState2PatientProps.buttonDisabled).to.equal('connectState2 handler buttonDisabled stub');
     expect(connectState2PatientProps.buttonHandler).to.be.a('function');
@@ -397,7 +399,7 @@ describe('getDataConnectionProps', () => {
   });
 
   it('should set the button handler to call the provided active handler setter with the appropriate args', () => {
-    const connectState1PatientProps = getDataConnectionProps(createPatientWithConnectionState('connectState1'), false, 'clinic125', setActiveHandlerStub).provider123;
+    const connectState1PatientProps = getDataConnectionProps(createPatientWithConnectionState('connectState1', moment.utc().subtract(2, 'days').toISOString()), false, 'clinic125', setActiveHandlerStub).provider123;
 
     expect(connectState1PatientProps.buttonHandler).to.be.a('function');
     sinon.assert.notCalled(setActiveHandlerStub);
@@ -412,6 +414,21 @@ describe('getDataConnectionProps', () => {
       connectState: 'connectState1',
       handler: 'connectState1 handler stub',
     });
+  });
+
+  it('should choose the most recently modified data source for a given providerName', () => {
+    const patient = {
+      id: 'patient123',
+      dataSources: [
+        { providerName: 'provider123', state: 'connectState1', modifiedTime: moment.utc().subtract(2, 'days').toISOString() },
+        { providerName: 'provider123', state: 'connectState2', modifiedTime: moment.utc().subtract(1, 'days').toISOString() },
+      ],
+    };
+
+    const props = getDataConnectionProps(patient, false, 'clinic123', sinon.stub()).provider123;
+
+    expect(props.stateText).to.equal('connectState2 text stub');
+    expect(props.messageText).to.equal('connectState2 message stub');
   });
 });
 
