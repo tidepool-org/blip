@@ -133,8 +133,10 @@ const defaultFilterState = {
 const glycemicTargetThresholds = {
   timeInVeryLowPercent: { value: 1, comparator: '>' },
   timeInLowPercent: { value: 4, comparator: '>' },
+  timeInAnyLowPercent: { value: 4, comparator: '>' },
   timeInTargetPercent: { value: 70, comparator: '<' },
   timeInHighPercent: { value: 25, comparator: '>' },
+  timeInAnyHighPercent: { value: 25, comparator: '>' },
   timeInVeryHighPercent: { value: 5, comparator: '>' },
   timeInExtremeHighPercent: { value: 1, comparator: '>' },
 };
@@ -2532,8 +2534,8 @@ export const ClinicPatients = (props) => {
         rangeName: 'veryLow',
       },
       {
-        value: 'timeInLowPercent',
-        threshold: glycemicTargetThresholds.timeInLowPercent.value,
+        value: 'timeInAnyLowPercent',
+        threshold: glycemicTargetThresholds.timeInAnyLowPercent.value,
         prefix: t('Greater than'),
         tag: t('Hypoglycemia'),
         rangeName: 'low',
@@ -2546,8 +2548,8 @@ export const ClinicPatients = (props) => {
         rangeName: 'target',
       },
       {
-        value: 'timeInHighPercent',
-        threshold: glycemicTargetThresholds.timeInHighPercent.value,
+        value: 'timeInAnyHighPercent',
+        threshold: glycemicTargetThresholds.timeInAnyHighPercent.value,
         prefix: t('Greater than'),
         tag: t('Hyperglycemia'),
         rangeName: 'high',
