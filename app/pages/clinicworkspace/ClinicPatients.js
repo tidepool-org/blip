@@ -2527,49 +2527,51 @@ export const ClinicPatients = (props) => {
   const renderTimeInRangeDialog = useCallback(() => {
     const timeInRangeFilterOptions = [
       {
+        title: t('Very Low'),
         value: 'timeInVeryLowPercent',
         threshold: glycemicTargetThresholds.timeInVeryLowPercent.value,
         prefix: t('Greater than'),
-        tag: t('Severe hypoglycemia'),
         rangeName: 'veryLow',
       },
       {
+        title: t('Low'),
         value: 'timeInAnyLowPercent',
         threshold: glycemicTargetThresholds.timeInAnyLowPercent.value,
         prefix: t('Greater than'),
-        tag: t('Hypoglycemia'),
         rangeName: 'anyLow',
       },
       {
+        title: t('Not meeting TIR'),
         value: 'timeInTargetPercent',
         threshold: glycemicTargetThresholds.timeInTargetPercent.value,
         prefix: t('Less than'),
-        tag: t('Normal'),
         rangeName: 'target',
       },
       {
+        title: t('High'),
         value: 'timeInAnyHighPercent',
         threshold: glycemicTargetThresholds.timeInAnyHighPercent.value,
         prefix: t('Greater than'),
-        tag: t('Hyperglycemia'),
         rangeName: 'anyHigh',
       },
       {
+        title: t('Very High'),
         value: 'timeInVeryHighPercent',
         threshold: glycemicTargetThresholds.timeInVeryHighPercent.value,
         prefix: t('Greater than'),
-        tag: t('Severe hyperglycemia'),
         rangeName: 'veryHigh',
       },
     ];
 
     if (showExtremeHigh) timeInRangeFilterOptions.push({
+      title: t('Highest'),
       value: 'timeInExtremeHighPercent',
       threshold: glycemicTargetThresholds.timeInExtremeHighPercent.value,
       prefix: t('Greater than'),
-      tag: t('Extreme hyperglycemia'),
       rangeName: 'extremeHigh',
     });
+
+    timeInRangeFilterOptions.reverse();
 
     return (
       <Dialog
@@ -2602,9 +2604,8 @@ export const ClinicPatients = (props) => {
             </Text>
           </Flex>
 
-          {map(timeInRangeFilterOptions, ({ value, rangeName, tag, threshold, prefix }) => {
+          {map(timeInRangeFilterOptions, ({ value, title, rangeName, threshold, prefix }) => {
             const {prefix: bgPrefix, suffix, value:glucoseTargetValue} = bgLabels[rangeName];
-            const labelBackgroundColor = `${colors.bg[rangeName]}1A`; // reduce opacity to 0.1;
 
             return (
               <Flex
@@ -2628,12 +2629,54 @@ export const ClinicPatients = (props) => {
                 />
 
               <Box
-                sx={{ backgroundColor: labelBackgroundColor, borderRadius: 4 }}
-                px={2}
+                px={1}
                 py={1}
+                ml={-2}
+                sx={{
+                  backgroundColor: `${colors.bg[rangeName]}1A`, // Adding '1A' reduces opacity to 0.1
+                  borderRadius: 4,
+                }}
               >
                 <Flex as="label" htmlFor={`range-${value}-filter`} sx={{ alignItems: 'center' }}>
-                  <Text sx={{ fontSize: 1 }} mr={2}>
+                  <Box
+                    id={`range-${value}-filter-option-color-indicator`}
+                    sx={{
+                      position: 'relative',
+                      borderRadius: 4,
+                      backgroundColor: colors.bg[rangeName],
+                      width: '12px',
+                      height: '12px',
+
+                      // The styles within the :after pseudo-class below create a diagonal line
+
+                      border: value === 'timeInTargetPercent' && `1.5px solid ${colors.blueGreyDark}`,
+                      '&::after': value === 'timeInTargetPercent' && {
+                        content: '""',
+                        height: '1.5px',
+                        width: '141.421%',
+                        backgroundColor: colors.blueGreyDark,
+                        position: 'absolute',
+                        bottom: '0px',
+                        transform: 'rotate(-45deg)',
+                        transformOrigin: '1px 1px',
+                      },
+                    }}
+                    mr={2}
+                  >
+                  </Box>
+
+                  <Text
+                    id={`range-${value}-filter-option-title`}
+                    sx={{ fontSize: 1, fontWeight: 'bold', color: 'black' }}
+                    mr={2}
+                  >
+                    {title}
+                  </Text>
+
+                  <Text
+                    id={`range-${value}-filter-option-definition`}
+                    sx={{ fontSize: 1 }} mr={2}
+                  >
                     {prefix}{' '}
                     <Text sx={{ fontSize: 2, fontWeight: 'bold' }}>
                       {threshold}
@@ -2644,13 +2687,6 @@ export const ClinicPatients = (props) => {
                     </Text>{' '}
                     {suffix}
                   </Text>
-                  <Pill
-                    label={tag}
-                    py="2px"
-                    sx={{ fontSize: '12px', fontWeight: 'normal', borderRadius: radii.input }}
-                    colorPalette={[`bg.${rangeName}`, 'white']}
-                    text={tag}
-                  />
                 </Flex>
               </Box>
             </Flex>
