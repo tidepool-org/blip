@@ -1177,9 +1177,7 @@ describe('PatientData', function () {
           bgSource: 'cbg',
         },
         basics: {
-          stats: {
-            excludeDaysWithoutBolus: false,
-          },
+          stats: {},
           sections: {},
           extentSize: 14,
         },
