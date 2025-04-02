@@ -13,6 +13,7 @@ import keys from 'lodash/keys';
 import map from 'lodash/map';
 import max from 'lodash/max';
 import noop from 'lodash/noop';
+import orderBy from 'lodash/orderBy';
 import reduce from 'lodash/reduce';
 import { utils as vizUtils } from '@tidepool/viz';
 
@@ -268,7 +269,7 @@ export const getDataConnectionProps = (patient, isLoggedInUser, selectedClinicId
   let connectState;
 
   const connectStateUI = getConnectStateUI(patient, isLoggedInUser, providerName);
-  const dataSource = find(patient?.dataSources, { providerName: providerName });
+  const dataSource = find(orderBy(patient?.dataSources, 'modifiedTime', 'desc'), { providerName: providerName });
   const inviteExpired = dataSource?.expirationTime < moment.utc().toISOString();
 
   if (dataSource?.state) {
@@ -343,7 +344,6 @@ export const DataConnections = (props) => {
   const [patientUpdates, setPatientUpdates] = useState({});
   const [activeHandler, setActiveHandler] = useState(null);
   const dataConnectionProps = getDataConnectionProps(patient, isLoggedInUser, selectedClinicId, setActiveHandler);
-
 
   const {
     sendingPatientDataProviderConnectRequest,
