@@ -25,8 +25,10 @@ export const colors = {
   bg: {
     veryLow: '#E9695E',
     low: '#F19181',
+    anyLow: '#F19181',
     target: '#8DD0A9',
     high: '#B69CE2',
+    anyHigh: '#B69CE2',
     veryHigh: '#856ACF',
     extremeHigh: '#5438A3',
   },

@@ -2538,7 +2538,7 @@ export const ClinicPatients = (props) => {
         threshold: glycemicTargetThresholds.timeInAnyLowPercent.value,
         prefix: t('Greater than'),
         tag: t('Hypoglycemia'),
-        rangeName: 'low',
+        rangeName: 'anyLow',
       },
       {
         value: 'timeInTargetPercent',
@@ -2552,7 +2552,7 @@ export const ClinicPatients = (props) => {
         threshold: glycemicTargetThresholds.timeInAnyHighPercent.value,
         prefix: t('Greater than'),
         tag: t('Hyperglycemia'),
-        rangeName: 'high',
+        rangeName: 'anyHigh',
       },
       {
         value: 'timeInVeryHighPercent',
@@ -2604,6 +2604,7 @@ export const ClinicPatients = (props) => {
 
           {map(timeInRangeFilterOptions, ({ value, rangeName, tag, threshold, prefix }) => {
             const {prefix: bgPrefix, suffix, value:glucoseTargetValue} = bgLabels[rangeName];
+            const labelBackgroundColor = `${colors.bg[rangeName]}1A`; // reduce opacity to 0.1;
 
             return (
               <Flex
@@ -2626,7 +2627,11 @@ export const ClinicPatients = (props) => {
                   }}
                 />
 
-              <Box>
+              <Box
+                sx={{ backgroundColor: labelBackgroundColor, borderRadius: 4 }}
+                px={2}
+                py={1}
+              >
                 <Flex as="label" htmlFor={`range-${value}-filter`} sx={{ alignItems: 'center' }}>
                   <Text sx={{ fontSize: 1 }} mr={2}>
                     {prefix}{' '}
