@@ -8,11 +8,26 @@ import { useToasts } from '../../providers/ToastProvider';
 import i18next from '../../core/language';
 import api from '../../core/api';
 import { usePrevious } from '../../core/hooks';
+import utils from '../../core/utils';
+import { useHistory } from 'react-router-dom';
 
 const t = i18next.t.bind(i18next);
 
+export const toastMessages = {
+  authorized: t('Connection Authorized. Thank you for connecting!'),
+  declined: t('Connection Declined. You can always decide to connect at a later time.'),
+  error: t('Connection Authorization Error. Please try again.'),
+};
+
+export const toastVariants = {
+  authorized: 'success',
+  declined: 'info',
+  error: 'danger',
+};
+
 const useProviderConnectionPopup = ({ popupWatchTimeout = 500 } = {}) => {
   const dispatch = useDispatch();
+  const { location } = useHistory();
   const { set: setToast } = useToasts();
   const [providerConnectionPopup, setProviderConnectionPopup] = useState(null);
   const authorizedDataSource = useSelector(state => state.blip.authorizedDataSource);
@@ -41,8 +56,12 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500 } = {}) => {
       `top=${popupTop}`,
     ];
 
-    const popup = window.open(url, `Connect ${displayName} to Tidepool`, popupOptions.join(','));
-    setProviderConnectionPopup(popup);
+    if (utils.isMobile()) {
+      window.location.href = url; // Safari iOS doesn't like window.open, so we redirect
+    } else {
+      const popup = window.open(url, `Connect ${displayName} to Tidepool`, popupOptions.join(','));
+      setProviderConnectionPopup(popup);
+    }
   }, []);
 
   useEffect(() => {
@@ -57,6 +76,19 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500 } = {}) => {
       if (authorizedProvider) openProviderConnectionPopup(authorizedDataSource?.url, authorizedProvider?.displayName);
     }
   }, [authorizedDataSource, openProviderConnectionPopup]);
+
+  // If a user just connected a provider using a mobile device, they will have this query param.
+  // In that case, we still want to show the toast message indicating the status of their connection.
+  useEffect(() => {
+    if (location?.query?.openDataConnectionsModalWithStatus) {
+      const status = location.query.openDataConnectionsModalWithStatus;
+
+      setToast({
+        message: toastMessages[status],
+        variant: toastVariants[status],
+      });
+    }
+  }, [location, setToast, toastMessages, toastVariants]);
 
   useEffect(() => {
     let timer;
@@ -79,18 +111,6 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500 } = {}) => {
 
         if (currentUrl.indexOf(authorizedDataSource?.id) !== -1) {
           const status = last(currentPath.split('/'));
-
-          const toastMessages = {
-            authorized: t('Connection Authorized. Thank you for connecting!'),
-            declined: t('Connection Declined. You can always decide to connect at a later time.'),
-            error: t('Connection Authorization Error. Please try again.'),
-          };
-
-          const toastVariants = {
-            authorized: 'success',
-            declined: 'info',
-            error: 'danger',
-          };
 
           setToast({
             message: toastMessages[status],
@@ -123,6 +143,8 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500 } = {}) => {
     popupWatchTimeout,
     providerConnectionPopup,
     setToast,
+    toastMessages,
+    toastVariants,
   ]);
 
   return providerConnectionPopup;
