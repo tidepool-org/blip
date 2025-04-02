@@ -395,15 +395,22 @@ const TideDashboardSection = React.memo(props => {
   }, [config?.period]);
 
   const renderTimeInPercent = useCallback((summaryKey, summary) => {
+
+    // Defined a new derived field anyLow as the sum of (low + veryLow)
+    const expandedSummary = {
+      ...summary,
+      timeInAnyLowPercent: summary.timeInLowPercent + summary.timeInVeryLowPercent,
+    };
+
     const formattingKeyMap = {
       timeCGMUsePercent: 'cgmUse',
       timeInAnyLowPercent: 'low',
       timeInLowPercent: 'low',
       timeInVeryLowPercent: 'veryLow',
       timeInTargetPercent: 'target',
-    }
+    };
 
-    const rawValue = (summary?.[summaryKey]);
+    const rawValue = (expandedSummary?.[summaryKey]);
 
     let formattedValue = isFinite(rawValue)
       ? utils.formatThresholdPercentage(rawValue, ...DEFAULT_FILTER_THRESHOLDS[formattingKeyMap[summaryKey]])
@@ -602,7 +609,7 @@ const TideDashboardSection = React.memo(props => {
         title: t('% Time < {{upper}}', { upper: lowGlucoseThreshold }),
         field: 'timeInLowPercent',
         align: 'center',
-        render: renderTimeInPercent.bind(null, 'timeInLowPercent'),
+        render: renderTimeInPercent.bind(null, 'timeInAnyLowPercent'),
       },
       {
         title: t('% TIR {{lower}}-{{upper}}', { lower: lowGlucoseThreshold, upper: highGlucoseThreshold }),
