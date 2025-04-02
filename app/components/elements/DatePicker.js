@@ -10,6 +10,7 @@ import noop from 'lodash/noop';
 import styled from '@emotion/styled';
 import { Label, Box, Flex, BoxProps } from 'theme-ui';
 import cx from 'classnames';
+import { colors as vizColors } from '@tidepool/viz';
 
 import { Caption } from './FontStyles';
 import Select from './Select';
@@ -29,7 +30,7 @@ import {
 const StyledDatePicker = styled(StyledDatePickerBase)`
   .SingleDatePickerInput {
     border-radius: ${radii.input}px;
-    border-color: ${colors.border.inputLight};
+    border-color: ${vizColors.gray10};
 
     .DateInput {
       border-radius: ${radii.input}px;
