@@ -77,7 +77,7 @@ import {
   summaryPeriodOptions,
 } from '../../core/clinicUtils';
 
-import { DEFAULT_FILTER_THRESHOLDS, MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
+import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
 import DataInIcon from '../../core/icons/DataInIcon.svg';
 import { colors, fontWeights, radii } from '../../themes/baseTheme';
 import PatientLastReviewed from '../../components/clinic/PatientLastReviewed';
@@ -459,7 +459,6 @@ const TideDashboardSection = React.memo(props => {
         sx={{ fontWeight: 'medium' }}
         delta={timeInTargetPercentDelta * 100}
         max={30}
-        threshold={DEFAULT_FILTER_THRESHOLDS.timeInTargetPercentDelta}
       />
     ) : (
       <Text sx={{ fontWeight: 'medium' }}>{statEmptyText}</Text>

@@ -9,7 +9,7 @@ import { utils as vizUtils } from '@tidepool/viz';
 import { colors, radii } from '../../themes/baseTheme';
 
 export const DeltaBar = React.memo(props => {
-  const { delta, max, threshold, ...themeProps } = props;
+  const { delta, max, ...themeProps } = props;
   const values = [delta, 0].sort();
   const labelMaxPercentage = 100;
 
@@ -76,11 +76,6 @@ export const DeltaBar = React.memo(props => {
 DeltaBar.propTypes = {
   delta: PropTypes.number.isRequired,
   max: PropTypes.number.isRequired,
-  threshold: PropTypes.array.isRequired,
-};
-
-DeltaBar.defaultProps = {
-  threshold: [],
 };
 
 export default withTranslation()(DeltaBar);
