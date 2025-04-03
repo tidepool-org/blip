@@ -2681,7 +2681,8 @@ export const ClinicPatients = (props) => {
                     <Text sx={{ fontSize: 2, fontWeight: 'bold' }}>
                       {threshold}
                     </Text>
-                    % {t('Time')} {t(bgPrefix)}{' '}
+                    % {t('Time')}{' '}
+                    {bgPrefix && `${t(bgPrefix)} `}
                     <Text sx={{ fontSize: 2, fontWeight: 'bold' }}>
                       {glucoseTargetValue}
                     </Text>{' '}
