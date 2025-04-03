@@ -2600,7 +2600,7 @@ export const ClinicPatients = (props) => {
         <DialogContent color="text.primary" pl={4} pr={6} pb={3}>
           <Flex mb={3} sx={{ alignItems: 'center', fontSize: 1, fontWeight: 'medium' }}>
             <Text mr={2} sx={{ whiteSpace: 'nowrap' }}>
-              {t('View Patients that spend:')}
+              {t('Filter by Time in Range')}
             </Text>
           </Flex>
 
