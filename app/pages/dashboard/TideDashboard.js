@@ -413,7 +413,7 @@ const TideDashboardSection = React.memo(props => {
     const rawValue = (expandedSummary?.[summaryKey]);
 
     let formattedValue = isFinite(rawValue)
-      ? utils.formatThresholdPercentage(rawValue, ...DEFAULT_FILTER_THRESHOLDS[formattingKeyMap[summaryKey]])
+      ? vizUtils.stat.formatDisplayedPercentage(rawValue)
       : statEmptyText;
 
     return (

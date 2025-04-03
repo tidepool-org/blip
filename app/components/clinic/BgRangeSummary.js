@@ -15,8 +15,6 @@ import {
 import Popover from '../elements/Popover';
 import { space, shadows, radii } from '../../themes/baseTheme';
 
-import utils from '../../core/utils';
-import { DEFAULT_FILTER_THRESHOLDS } from '../../core/constants';
 import { utils as vizUtils } from '@tidepool/viz';
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels } = vizUtils.bg;
 
@@ -122,7 +120,7 @@ export const BgRangeSummary = React.memo(props => {
                 >
                 <Flex className={`range-summary-value-${key}`} mb={1} sx={{ flexWrap: 'nowrap', textAlign: 'center', alignItems: 'flex-end',  color: `bg.${key}` }} key={key}>
                   <Text sx={{ fontWeight: 'bold', lineHeight: 0, fontSize: 1 }}>
-                    {utils.formatThresholdPercentage(value, ...DEFAULT_FILTER_THRESHOLDS[key])}
+                    {vizUtils.stat.formatDisplayedPercentage(value)}
                   </Text>
                   <Text sx={{ color: 'inherit', fontSize: '9px', fontWeight: 'bold' }}>%</Text>
                 </Flex>
@@ -135,7 +133,7 @@ export const BgRangeSummary = React.memo(props => {
             <Text className={'range-summary-bg-units'} sx={{ lineHeight: 0, color: 'grays.4', fontSize: '10px' }}>{t('Units in {{bgUnits}}', { bgUnits: formattedBgUnits })}</Text>
             <Flex className={'range-summary-cgm-use'} sx={{ gap: 1, alignItems: 'flex-end', justifyContent: 'flex-start', flexWrap: 'nowrap' }}>
               <Text sx={{ lineHeight: 0, color: 'text.primary', fontSize: '10px', fontWeight: 'medium' }}>{t('% CGM Use: ')}</Text>
-              <Text sx={{ lineHeight: '10px', color: 'text.primary', fontSize: '12px', fontWeight: 'bold' }}>{t('{{cgmUsePercent}} %', { cgmUsePercent: utils.formatThresholdPercentage(cgmUsePercent, ...DEFAULT_FILTER_THRESHOLDS.cgmUse) })}</Text>
+              <Text sx={{ lineHeight: '10px', color: 'text.primary', fontSize: '12px', fontWeight: 'bold' }}>{t('{{cgmUsePercent}} %', { cgmUsePercent: vizUtils.stat.formatDisplayedPercentage(cgmUsePercent) })}</Text>
             </Flex>
           </Flex>
         </Box>
