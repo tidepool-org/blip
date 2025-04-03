@@ -94,13 +94,13 @@ export const LBS_PER_KG = 2.2046226218;
 // Passed as arguments to utils.formatThresholdPercentage
 // [comparator, threshold, defaultPrecision = 0]
 export const DEFAULT_FILTER_THRESHOLDS = {
-  veryLow: ['>', 1, 0],
-  low: ['>', 4, 0],
-  target: ['<', 70, 0],
-  high: ['>', 25, 0],
-  veryHigh: ['>', 5, 0],
-  extremeHigh: ['>', 1, 0],
-  cgmUse: ['<', 70, 0],
+  veryLow: ['>', 1],
+  low: ['>', 4],
+  target: ['<', 70],
+  high: ['>', 25],
+  veryHigh: ['>', 5],
+  extremeHigh: ['>', 1],
+  cgmUse: ['<', 70],
   timeInTargetPercentDelta: ['>', 15, 1],
 };
 
