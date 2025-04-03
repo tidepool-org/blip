@@ -490,7 +490,7 @@ utils.roundDown = (value, precision = 0) => {
   return Math.floor(value * shift) / shift;
 };
 
-utils.formatThresholdPercentage = (value, comparator, threshold, defaultPrecision = 0, isHoverBar = false) => {
+utils.formatThresholdPercentage = (value, comparator, threshold, defaultPrecision = 0) => {
   let precision = defaultPrecision;
   let percentage = value * 100;
   let customRoundingRange;
@@ -541,10 +541,6 @@ utils.formatThresholdPercentage = (value, comparator, threshold, defaultPrecisio
 
       if (percentage < 0.005) {
         percentage = utils.roundUp(percentage, precision);
-      }
-
-      if (isHoverBar) {
-        precision = 1;
       }
     }
   }
