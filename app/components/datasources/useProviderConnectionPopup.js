@@ -40,7 +40,7 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500, trackMetric = noo
     const providerName = authorizedProvider?.dataSourceFilter?.providerName;
     const isMobile = utils.isMobile();
     const action = status ? 'Completed' : 'Started';
-    trackMetric(`${action} Provider connection flow`, { providerName, isMobile, status });
+    trackMetric(`${action} provider connection flow`, { providerName, isMobile, status });
   } , [trackMetric, authorizedDataSource]);
 
   const openProviderConnectionPopup = useCallback((url, displayName) => {
@@ -78,12 +78,12 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500, trackMetric = noo
     if (justConnectedDataSourceProviderName && justConnectedDataSourceProviderName !== previousJustConnectedDataSourceProviderName) {
       if (!fetchingDataSources?.inProgress) dispatch(async.fetchDataSources(api));
     }
-  }, [justConnectedDataSourceProviderName, fetchingDataSources?.inProgress, previousJustConnectedDataSourceProviderName, dispatch, trackMetric]);
+  }, [justConnectedDataSourceProviderName, fetchingDataSources?.inProgress, previousJustConnectedDataSourceProviderName, dispatch]);
 
   useEffect(() => {
     if (authorizedDataSource?.id) {
       const authorizedProvider = find(providers, { id: authorizedDataSource.id});
-      if (authorizedProvider) openProviderConnectionPopup(authorizedDataSource?.url, authorizedProvider?.displayName, authorizedProvider?.dataSourceFilter?.providerName);
+      if (authorizedProvider) openProviderConnectionPopup(authorizedDataSource?.url, authorizedProvider?.displayName);
     }
   }, [authorizedDataSource, openProviderConnectionPopup]);
 
@@ -100,7 +100,7 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500, trackMetric = noo
 
       trackConnectionMetric(status);
     }
-  }, [location, setToast, trackMetric, authorizedDataSource, trackConnectionMetric]);
+  }, [location, setToast, trackConnectionMetric]);
 
   useEffect(() => {
     let timer;

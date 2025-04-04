@@ -16,7 +16,7 @@ import { mountWithProviders } from '../../utils/mountWithProviders';
 
 const expect = chai.expect;
 
-describe.only('useProviderConnectionPopup', function () {
+describe('useProviderConnectionPopup', function () {
   let wrapper, store;
 
   const setToast = sinon.stub();
@@ -79,7 +79,7 @@ describe.only('useProviderConnectionPopup', function () {
     setTimeout(() => {
       expect(wrapper.text()).to.equal('Popup Open');
 
-      sinon.assert.calledWith(trackMetric, 'Started Provider connection flow', {
+      sinon.assert.calledWith(trackMetric, 'Started provider connection flow', {
         providerName: 'testProvider',
         isMobile: false,
         status: null,
@@ -110,7 +110,7 @@ describe.only('useProviderConnectionPopup', function () {
       sinon.assert.calledOnce(actions.sync.setJustConnectedDataSourceProviderName);
       sinon.assert.calledWith(actions.sync.setJustConnectedDataSourceProviderName, 'testProvider');
 
-      sinon.assert.calledWith(trackMetric, 'Completed Provider connection flow', {
+      sinon.assert.calledWith(trackMetric, 'Completed provider connection flow', {
         providerName: 'testProvider',
         isMobile: false,
         status: 'authorized',
