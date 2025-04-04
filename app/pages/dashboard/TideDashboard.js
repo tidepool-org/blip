@@ -413,7 +413,7 @@ const TideDashboardSection = React.memo(props => {
     const rawValue = (expandedSummary?.[summaryKey]);
 
     let formattedValue = isFinite(rawValue)
-      ? vizUtils.stat.formatDisplayedPercentage(rawValue)
+      ? utils.formatDisplayedPercentage(rawValue)
       : statEmptyText;
 
     return (

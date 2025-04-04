@@ -546,7 +546,19 @@ utils.formatThresholdPercentage = (value, comparator, threshold, defaultPrecisio
   }
 
   return format(`.${precision}f`)(utils.roundToPrecision(percentage, precision));
-}
+};
+
+utils.formatDisplayedPercentage = (val) => {
+  if (Number.isNaN(val)) return '--';
+
+  const percentage = val * 100;
+
+  // Show 1 decimal place if below 1, and no decimal place if above 1;
+  const precision = percentage >= 1 ? 0 : 1;
+  const returnValue = vizUtils.stat.bankersRound(percentage, precision);
+
+  return _.toString(returnValue);
+};
 
 utils.parseDatetimeParamToInteger = (queryParam) => {
   if (!queryParam) return null;

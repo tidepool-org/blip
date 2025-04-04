@@ -5,6 +5,7 @@ import { withTranslation } from 'react-i18next';
 import isEqual from 'lodash/isEqual';
 import map from 'lodash/map';
 import { utils as vizUtils } from '@tidepool/viz';
+import utils from '../../core/utils';
 
 import { colors, radii } from '../../themes/baseTheme';
 
@@ -14,7 +15,7 @@ export const DeltaBar = React.memo(props => {
   const labelMaxPercentage = 100;
 
   const labels = map(values, value => (Math.abs(value) <= labelMaxPercentage
-    ? vizUtils.stat.formatDisplayedPercentage(Math.abs(value / 100))
+    ? utils.formatDisplayedPercentage(Math.abs(value / 100))
     : labelMaxPercentage
   ));
 
