@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { find, last, min } from 'lodash';
+import { find, last, min, noop } from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { async, sync } from '../../redux/actions';
@@ -25,7 +25,7 @@ export const toastVariants = {
   error: 'danger',
 };
 
-const useProviderConnectionPopup = ({ popupWatchTimeout = 500 } = {}) => {
+const useProviderConnectionPopup = ({ popupWatchTimeout = 500, trackMetric = noop } = {}) => {
   const dispatch = useDispatch();
   const { location } = useHistory();
   const { set: setToast } = useToasts();
@@ -35,34 +35,44 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500 } = {}) => {
   const fetchingDataSources = useSelector(state => state.blip.working.fetchingDataSources);
   const previousJustConnectedDataSourceProviderName = usePrevious(justConnectedDataSourceProviderName);
 
+  const trackConnectionMetric = useCallback((status = null) => {
+    const authorizedProvider = find(providers, { id: authorizedDataSource.id});
+    const providerName = authorizedProvider?.dataSourceFilter?.providerName;
+    const isMobile = utils.isMobile();
+    const action = status ? 'Completed' : 'Started';
+    trackMetric(`${action} provider connection flow`, { providerName, isMobile, status });
+  } , [trackMetric, authorizedDataSource]);
+
   const openProviderConnectionPopup = useCallback((url, displayName) => {
     const popupWidth = min([window.innerWidth * .85, 1080]);
     const popupHeight = min([window.innerHeight * .85, 840]);
     const popupLeft = window.screenX + (window.outerWidth - popupWidth) / 2;
     const popupTop = window.screenY + (window.outerHeight - popupHeight) / 2;
 
-    const popupOptions = [
-      'toolbar=no',
-      'location=no',
-      'directories=no',
-      'status=no',
-      'menubar=no',
-      'scrollbars=yes',
-      'resizable=yes',
-      'copyhistory=no',
-      `width=${popupWidth}`,
-      `height=${popupHeight}`,
-      `left=${popupLeft}`,
-      `top=${popupTop}`,
-    ];
+    trackConnectionMetric();
 
     if (utils.isMobile()) {
       window.location.href = url; // Safari iOS doesn't like window.open, so we redirect
     } else {
+      const popupOptions = [
+        'toolbar=no',
+        'location=no',
+        'directories=no',
+        'status=no',
+        'menubar=no',
+        'scrollbars=yes',
+        'resizable=yes',
+        'copyhistory=no',
+        `width=${popupWidth}`,
+        `height=${popupHeight}`,
+        `left=${popupLeft}`,
+        `top=${popupTop}`,
+      ];
+
       const popup = window.open(url, `Connect ${displayName} to Tidepool`, popupOptions.join(','));
       setProviderConnectionPopup(popup);
     }
-  }, []);
+  }, [trackConnectionMetric]);
 
   useEffect(() => {
     if (justConnectedDataSourceProviderName && justConnectedDataSourceProviderName !== previousJustConnectedDataSourceProviderName) {
@@ -87,8 +97,10 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500 } = {}) => {
         message: toastMessages[status],
         variant: toastVariants[status],
       });
+
+      trackConnectionMetric(status);
     }
-  }, [location, setToast, toastMessages, toastVariants]);
+  }, [location, setToast, trackConnectionMetric]);
 
   useEffect(() => {
     let timer;
@@ -117,11 +129,13 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500 } = {}) => {
             variant: toastVariants[status],
           });
 
+          const authorizedProvider = find(providers, { id: authorizedDataSource.id});
+
           if (status === 'authorized') {
-            const authorizedProvider = find(providers, { id: authorizedDataSource.id});
             dispatch(sync.setJustConnectedDataSourceProviderName(authorizedProvider?.dataSourceFilter?.providerName));
           }
 
+          trackConnectionMetric(status);
           providerConnectionPopup.close();
         }
       } catch (e) {
@@ -143,8 +157,7 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500 } = {}) => {
     popupWatchTimeout,
     providerConnectionPopup,
     setToast,
-    toastMessages,
-    toastVariants,
+    trackConnectionMetric,
   ]);
 
   return providerConnectionPopup;
