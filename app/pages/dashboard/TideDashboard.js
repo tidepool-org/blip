@@ -84,6 +84,7 @@ import PatientLastReviewed from '../../components/clinic/PatientLastReviewed';
 
 const { Loader } = vizComponents;
 const { formatBgValue } = vizUtils.bg;
+const { formatStatsPercentage } = vizUtils.stat;
 
 const {
   formatDateRange,
@@ -396,24 +397,10 @@ const TideDashboardSection = React.memo(props => {
 
   const renderTimeInPercent = useCallback((summaryKey, summary) => {
 
-    // Defined a new derived field anyLow as the sum of (low + veryLow)
-    const expandedSummary = {
-      ...summary,
-      timeInAnyLowPercent: summary.timeInLowPercent + summary.timeInVeryLowPercent,
-    };
-
-    const formattingKeyMap = {
-      timeCGMUsePercent: 'cgmUse',
-      timeInAnyLowPercent: 'low',
-      timeInLowPercent: 'low',
-      timeInVeryLowPercent: 'veryLow',
-      timeInTargetPercent: 'target',
-    };
-
-    const rawValue = (expandedSummary?.[summaryKey]);
+    const rawValue = (summary?.[summaryKey]);
 
     let formattedValue = isFinite(rawValue)
-      ? utils.formatDisplayedPercentage(rawValue)
+      ? formatStatsPercentage(rawValue)
       : statEmptyText;
 
     return (

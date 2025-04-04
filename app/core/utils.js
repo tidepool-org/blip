@@ -490,6 +490,7 @@ utils.roundDown = (value, precision = 0) => {
   return Math.floor(value * shift) / shift;
 };
 
+// Deprecated as of WEB-3501. See WEB-2551 for original intent and logic behind function.
 utils.formatThresholdPercentage = (value, comparator, threshold, defaultPrecision = 0) => {
   let precision = defaultPrecision;
   let percentage = value * 100;
@@ -546,18 +547,6 @@ utils.formatThresholdPercentage = (value, comparator, threshold, defaultPrecisio
   }
 
   return format(`.${precision}f`)(utils.roundToPrecision(percentage, precision));
-};
-
-utils.formatDisplayedPercentage = (val) => {
-  if (Number.isNaN(val)) return '--';
-
-  const percentage = val * 100;
-
-  // Show 1 decimal place if below 1, and no decimal place if above 1;
-  const precision = percentage >= 1 ? 0 : 1;
-  const returnValue = vizUtils.stat.bankersRound(percentage, precision);
-
-  return _.toString(returnValue);
 };
 
 utils.parseDatetimeParamToInteger = (queryParam) => {
