@@ -2189,13 +2189,17 @@ export const PatientDataClass = createReactClass({
       const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(props, chartType);
       const latestDatumDateCeiling = getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs);
 
-      const datetimeLocation = _.get(props, 'queryParams.datetime', (isDaily || isBgLog)
+      let datetimeLocation = _.get(props, 'queryParams.datetime', (isDaily || isBgLog)
         ? moment.utc(latestDatumDateCeiling.valueOf())
           .tz(isDaily ? getTimezoneFromTimePrefs(this.state.timePrefs) : 'UTC')
           .subtract(12, 'hours')
           .toISOString()
         : moment.utc(latestDatumDateCeiling.valueOf())
           .toISOString());
+
+      if (_.isInteger(_.toNumber(datetimeLocation))) {
+        datetimeLocation = moment.utc(_.toNumber(datetimeLocation)).toISOString();
+      }
 
       const endpoints = this.getChartEndpoints(datetimeLocation, { chartType });
 
