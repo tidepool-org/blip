@@ -44,7 +44,7 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500, trackMetric = noo
       const authorizedProvider = find(providers, { id: authorizedDataSource.id });
       providerName = authorizedProvider?.dataSourceFilter?.providerName;
     } else {
-      providerName = location?.query?.dataConnectionStatus;
+      providerName = location?.query?.dataConnectionProviderName;
     }
 
     trackMetric(`${action} provider connection flow`, { providerName, isMobile, status });
