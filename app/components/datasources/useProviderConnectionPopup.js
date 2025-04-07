@@ -97,8 +97,8 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500, trackMetric = noo
   // If a user just connected a provider using a mobile device, they will have this query param.
   // In that case, we still want to show the toast message indicating the status of their connection.
   useEffect(() => {
-    if (location?.query?.openDataConnectionsModalWithStatus) {
-      const status = location.query.openDataConnectionsModalWithStatus;
+    if (location?.query?.dataConnectionStatus) {
+      const status = location.query.dataConnectionStatus;
 
       setToast({
         message: toastMessages[status],
