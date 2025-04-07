@@ -121,7 +121,7 @@ const Settings = ({
   t
 }) => {
   const { location } = useHistory();
-  const isJustConnected = !!location?.query?.openDataConnectionsModalWithStatus;
+  const isJustConnected = !!location?.query?.dataConnectionStatus;
 
   const [showDataConnectionsModal, setShowDataConnectionsModal] = useState(isJustConnected);
   const [atMostRecent, setAtMostRecent] = useState(true);

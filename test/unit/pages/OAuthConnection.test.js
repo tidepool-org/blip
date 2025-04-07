@@ -132,7 +132,9 @@ describe('OAuthConnection', () => {
       });
 
       let expectedActions = [
-        routeAction('/patients?justLoggedIn=true&openDataConnectionsModalWithStatus=authorized'),
+        routeAction(
+          '/patients?justLoggedIn=true&dataConnectionStatus=authorized&dataConnectionProviderName=dexcom'
+        ),
       ];
 
       const actions = store.getActions();
@@ -304,7 +306,7 @@ describe('OAuthConnection', () => {
       });
 
       let expectedActions = [
-        routeAction('/patients?justLoggedIn=true&openDataConnectionsModalWithStatus=authorized'),
+        routeAction('/patients?justLoggedIn=true&dataConnectionStatus=authorized&dataConnectionProviderName=abbott'),
       ];
 
       const actions = store.getActions();

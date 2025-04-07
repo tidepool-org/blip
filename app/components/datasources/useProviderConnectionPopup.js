@@ -36,10 +36,17 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500, trackMetric = noo
   const previousJustConnectedDataSourceProviderName = usePrevious(justConnectedDataSourceProviderName);
 
   const trackConnectionMetric = useCallback((status = null) => {
-    const authorizedProvider = find(providers, { id: authorizedDataSource.id});
-    const providerName = authorizedProvider?.dataSourceFilter?.providerName;
     const isMobile = utils.isMobile();
     const action = status ? 'Completed' : 'Started';
+
+    let providerName;
+    if (authorizedDataSource?.id) {
+      const authorizedProvider = find(providers, { id: authorizedDataSource.id });
+      providerName = authorizedProvider?.dataSourceFilter?.providerName;
+    } else {
+      providerName = location?.query?.dataConnectionProviderName;
+    }
+
     trackMetric(`${action} provider connection flow`, { providerName, isMobile, status });
   } , [trackMetric, authorizedDataSource]);
 
@@ -90,8 +97,8 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500, trackMetric = noo
   // If a user just connected a provider using a mobile device, they will have this query param.
   // In that case, we still want to show the toast message indicating the status of their connection.
   useEffect(() => {
-    if (location?.query?.openDataConnectionsModalWithStatus) {
-      const status = location.query.openDataConnectionsModalWithStatus;
+    if (location?.query?.dataConnectionStatus) {
+      const status = location.query.dataConnectionStatus;
 
       setToast({
         message: toastMessages[status],
