@@ -306,7 +306,7 @@ describe('OAuthConnection', () => {
       });
 
       let expectedActions = [
-        routeAction('/patients?justLoggedIn=true&dataConnectionStatus=authorized'),
+        routeAction('/patients?justLoggedIn=true&dataConnectionStatus=authorized&dataConnectionProviderName=abbott'),
       ];
 
       const actions = store.getActions();
