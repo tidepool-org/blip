@@ -36,10 +36,17 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500, trackMetric = noo
   const previousJustConnectedDataSourceProviderName = usePrevious(justConnectedDataSourceProviderName);
 
   const trackConnectionMetric = useCallback((status = null) => {
-    const authorizedProvider = find(providers, { id: authorizedDataSource.id});
-    const providerName = authorizedProvider?.dataSourceFilter?.providerName;
     const isMobile = utils.isMobile();
     const action = status ? 'Completed' : 'Started';
+
+    let providerName;
+    if (authorizedDataSource?.id) {
+      const authorizedProvider = find(providers, { id: authorizedDataSource.id });
+      providerName = authorizedProvider?.dataSourceFilter?.providerName;
+    } else {
+      providerName = location?.query?.dataConnectionStatus;
+    }
+
     trackMetric(`${action} provider connection flow`, { providerName, isMobile, status });
   } , [trackMetric, authorizedDataSource]);
 
