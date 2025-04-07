@@ -16,7 +16,7 @@ import Popover from '../elements/Popover';
 import { space, shadows, radii } from '../../themes/baseTheme';
 
 import { utils as vizUtils } from '@tidepool/viz';
-const { formatStatsPercentage } = vizUtils;
+const { formatStatsPercentage } = vizUtils.stat;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels } = vizUtils.bg;
 
 export const BgRangeSummary = React.memo(props => {

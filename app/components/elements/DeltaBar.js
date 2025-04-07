@@ -5,7 +5,7 @@ import { withTranslation } from 'react-i18next';
 import isEqual from 'lodash/isEqual';
 import map from 'lodash/map';
 import { utils as vizUtils } from '@tidepool/viz';
-const { formatStatsPercentage } = vizUtils;
+const { formatStatsPercentage } = vizUtils.stat;
 
 import { colors, radii } from '../../themes/baseTheme';
 
