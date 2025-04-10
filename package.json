@@ -4,7 +4,7 @@
     "node": "20.8.0"
   },
   "packageManager": "yarn@3.6.4",
-  "version": "1.83.2-rc.9",
+  "version": "1.83.2-rc.10",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' yarn karma start",
@@ -180,7 +180,7 @@
     "terser": "5.22.0",
     "terser-webpack-plugin": "5.3.9",
     "theme-ui": "0.16.1",
-    "tideline": "1.30.1-rc.2",
+    "tideline": "1.30.1-rc.4",
     "tidepool-platform-client": "0.61.1-rc.1",
     "tidepool-standard-action": "0.1.1",
     "ua-parser-js": "1.0.36",
