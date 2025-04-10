@@ -10,12 +10,12 @@ import getReportDaysText from './getReportDaysText';
 
 const TableRow = ({ label, sublabel, value, units, id }) => {
   return (
-    <Flex 
+    <Flex
       id={id}
-      sx={{ 
-        justifyContent: 'space-between', 
-        margin: '0 16px', 
-        padding: '16px 0',  
+      sx={{
+        justifyContent: 'space-between',
+        margin: '0 16px',
+        padding: '16px 0',
         borderBottom: `1px solid ${colorPalette.extended.grays[1]}`,
         '&:last-of-type': { borderBottom: 'none' }
       }}
@@ -69,13 +69,15 @@ const CGMStatistics = ({ agpCGM }) => {
   const gmi        = formatDatum({ value: glucoseManagementIndicatorAGP }, 'gmi', { bgPrefs, useAGPFormat: true });
   const cov        = formatDatum({ value: coefficientOfVariation }, 'cv', { bgPrefs, useAGPFormat: true });
 
+  const roundedBgDaysWorn = bankersRound(bgDaysWorn, 1);
+
   return (
     <Flex sx={{ alignItems: 'center', width: '100%', height: '100%' }} id='agp-cgm-statistics'>
       <Box sx={{ width: '100%' }}>
           <TableRow
             id="agp-table-time-range"
             label={t('Time Range')}
-            value={t('{{dateRange}} ({{bgDaysWorn}} days)', { dateRange, bgDaysWorn })}
+            value={t('{{dateRange}} ({{bgDaysWorn}} days)', { dateRange, bgDaysWorn: roundedBgDaysWorn })}
           />
           <TableRow
             id="agp-table-cgm-active"
@@ -83,7 +85,7 @@ const CGMStatistics = ({ agpCGM }) => {
             value={`${cgmActive}`}
             units="%"
           />
-          <TableRow 
+          <TableRow
             id="agp-table-avg-glucose"
             label={t('Average Glucose')}
             sublabel={t('(Goal <{{avgGlucoseTarget}} {{bgUnits}})', { avgGlucoseTarget, bgUnits })}
