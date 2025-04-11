@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { boolean } from '@storybook/addon-knobs';
+import { boolean as bool } from '@storybook/addon-knobs';
 import { ThemeProvider } from '@emotion/react';
 import { Switch } from 'theme-ui';
 
@@ -18,8 +18,8 @@ export default {
 
 export const ToggleStory = {
   render: () => {
-    const defaultChecked = () => boolean('Default Checked', true);
-    const disabled = () => boolean('Disable', false);
+    const defaultChecked = () => bool('Default Checked', true);
+    const disabled = () => bool('Disable', false);
     const [isChecked, setChecked] = useState(defaultChecked());
     const handleToggle = () => setChecked(!isChecked);
 

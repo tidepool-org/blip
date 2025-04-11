@@ -697,7 +697,7 @@ export function updatePreferences(api, patientId, preferences) {
           createActionError(ErrorMessages.ERR_UPDATING_PREFERENCES, err), err
         ));
       } else {
-        dispatch(sync.updatePreferencesSuccess(updatedPreferences));
+        dispatch(sync.updatePreferencesSuccess(patientId, updatedPreferences));
       }
     });
   };
@@ -1468,208 +1468,46 @@ export function updateDataDonationAccounts(api, addAccounts = [], removeAccounts
 }
 
 /**
- * Dismiss Donate Banner Action Creator
+ * Handle Banner Interaction Action Creator
  *
  * @param  {Object} api an instance of the API wrapper
+ * @param {String} userId - Id of the logged in user
+ * @param {String} interactionId - Identifier used to create banner interaction keys
+ * @param {String} interactionType - One of [clicked, dismissed, seen]
  */
-export function dismissDonateBanner(api, patientId, dismissedDate) {
-  dismissedDate = dismissedDate || sundial.utcDateString();
-
-  return (dispatch) => {
-    dispatch(sync.dismissBanner('donate'));
-
-    const preferences = {
-      dismissedDonateYourDataBannerTime: dismissedDate,
-    };
-
-    dispatch(updatePreferences(api, patientId, preferences));
-  };
-}
-
-/**
- * Dismiss Dexcom Connect Banner Action Creator
- *
- * @param  {Object} api an instance of the API wrapper
- */
-export function dismissDexcomConnectBanner(api, patientId, dismissedDate) {
-  dismissedDate = dismissedDate || sundial.utcDateString();
-
-  return (dispatch) => {
-    dispatch(sync.dismissBanner('dexcom'));
-
-    const preferences = {
-      dismissedDexcomConnectBannerTime: dismissedDate,
-    };
-
-    dispatch(updatePreferences(api, patientId, preferences));
-  };
-}
-
-/**
- * Click Dexcom Banner Action Creator
- *
- * @param  {Object} api an instance of the API wrapper
- */
-export function clickDexcomConnectBanner(api, patientId, clickedDate) {
-  clickedDate = clickedDate || sundial.utcDateString();
-
-  return (dispatch) => {
-    dispatch(sync.dismissBanner('dexcom'));
-
-    const preferences = {
-      clickedDexcomConnectBannerTime: clickedDate,
-    };
-
-    dispatch(updatePreferences(api, patientId, preferences));
-  };
-}
-
-/**
- * Dismiss Update Type Banner Action Creator
- *
- * @param  {Object} api an instance of the API wrapper
- */
-export function dismissUpdateTypeBanner(api, patientId, dismissedDate) {
-  dismissedDate = dismissedDate || sundial.utcDateString();
-
-  return (dispatch) => {
-    dispatch(sync.dismissBanner('updatetype'));
-
-    const preferences = {
-      dismissedUpdateTypeBannerTime: dismissedDate,
-    };
-
-    dispatch(updatePreferences(api, patientId, preferences));
-  };
-}
-
-/**
- * Click Update Type Banner Action Creator
- *
- * @param  {Object} api an instance of the API wrapper
- */
-export function clickUpdateTypeBanner(api, patientId, clickedDate) {
-  clickedDate = clickedDate || sundial.utcDateString();
-
-  return (dispatch) => {
-    dispatch(sync.dismissBanner('updatetype'));
-
-    const preferences = {
-      clickedUpdateTypeBannerTime: clickedDate,
-    };
-
-    dispatch(updatePreferences(api, patientId, preferences));
-  };
-}
-
-/**
- * Dismiss Uploader Banner Action Creator
- *
- * @param  {Object} api an instance of the API wrapper
- */
-export function dismissUploaderBanner(api, patientId, dismissedDate) {
-  dismissedDate = dismissedDate || sundial.utcDateString();
-
-  return (dispatch) => {
-    dispatch(sync.dismissBanner('uploader'));
-
-    const preferences = {
-      dismissedUploaderBannerTime: dismissedDate,
-    };
-
-    dispatch(updatePreferences(api, patientId, preferences));
-  };
-}
-
-/**
- * Click Uploader Banner Action Creator
- *
- * @param  {Object} api an instance of the API wrapper
- */
-export function clickUploaderBanner(api, patientId, clickedDate) {
-  clickedDate = clickedDate || sundial.utcDateString();
-
-  return (dispatch) => {
-    dispatch(sync.dismissBanner('uploader'));
-
-    const preferences = {
-      clickedUploaderBannerTime: clickedDate,
-    };
-
-    dispatch(updatePreferences(api, patientId, preferences));
-  };
-}
-
-
-/**
- * Dismiss Share Data Connect Banner Action Creator
- *
- * @param  {Object} api an instance of the API wrapper
- */
-export function dismissShareDataBanner(api, patientId, dismissedDate) {
-  dismissedDate = dismissedDate || sundial.utcDateString();
-
-  return (dispatch) => {
-    dispatch(sync.dismissBanner('sharedata'));
-
-    const preferences = {
-      dismissedShareDataBannerTime: dismissedDate,
-    };
-
-    dispatch(updatePreferences(api, patientId, preferences));
-  };
-}
-
-/**
- * Click Share Data Banner Action Creator
- *
- * @param  {Object} api an instance of the API wrapper
- */
-export function clickShareDataBanner(api, patientId, clickedDate) {
-  clickedDate = clickedDate || sundial.utcDateString();
-
-  return (dispatch) => {
-    dispatch(sync.dismissBanner('sharedata'));
-
-    const preferences = {
-      clickedShareDataBannerTime: clickedDate,
-    };
-
-    dispatch(updatePreferences(api, patientId, preferences));
-  };
-}
-
-/**
- * Count Share Data Banner Seen Action Creator
- *
- * @param  {Object} api an instance of the API wrapper
- */
-export function updateShareDataBannerSeen(api, patientId) {
-  const viewDate = sundial.utcDateString();
-  const viewMoment = moment(viewDate);
-
+export function handleBannerInteraction(api, userId, interactionId, interactionType) {
   return (dispatch, getState) => {
-    const { blip: { loggedInUserId, allUsersMap } } = getState();
-    const loggedInUser = allUsersMap[loggedInUserId];
-    var seenShareDataBannerDate = _.get(loggedInUser, 'preferences.seenShareDataBannerDate', 0);
-    var seenShareDataBannerCount = _.get(loggedInUser, 'preferences.seenShareDataBannerCount', 0);
-
-    const seenShareDataBannerMoment = moment(seenShareDataBannerDate);
-
-    const diffMoment = viewMoment.diff(seenShareDataBannerMoment, 'days');
-
-    if(diffMoment > 0) {
-      seenShareDataBannerCount += 1;
-      seenShareDataBannerDate = viewDate;
+    if (!_.includes(['clicked', 'dismissed', 'seen'], interactionType)) {
+      return;
     }
 
-    const preferences = {
-      seenShareDataBannerDate: seenShareDataBannerDate,
-      seenShareDataBannerCount: seenShareDataBannerCount,
-    };
+    const interactionTime = sundial.utcDateString();
+    let preferences;
 
-    dispatch(sync.bannerCount(seenShareDataBannerCount));
-    dispatch(updatePreferences(api, patientId, preferences));
+    if (interactionType === 'seen') {
+      const { blip: { loggedInUserId, allUsersMap } } = getState();
+      const loggedInUser = allUsersMap[loggedInUserId];
+      const preferenceDateKey = `seen${interactionId}BannerDate`;
+      const preferenceCountKey = `seen${interactionId}BannerCount`;
+      let bannerDate = loggedInUser?.preferences?.[preferenceDateKey] || 0;
+      let bannerCount = loggedInUser?.preferences?.[preferenceCountKey] || 0;
+
+      // If it has been more than a day since the last interaction, update the count and date
+      if(moment(interactionTime).diff(moment(bannerDate), 'days') > 0) {
+        preferences = {
+          [preferenceCountKey]: bannerCount + 1,
+          [preferenceDateKey]: interactionTime,
+        };
+      }
+    } else {
+      const preferenceKey = `${interactionType}${interactionId}BannerTime`;
+
+      preferences = {
+        [preferenceKey]: interactionTime,
+      };
+    }
+
+    if (preferences) dispatch(updatePreferences(api, userId, preferences));
   };
 }
 
@@ -1739,10 +1577,9 @@ export function connectDataSource(api, id, restrictedTokenCreate, dataSourceFilt
  * Disconnect Data Source
  *
  * @param  {Object} api an instance of the API wrapper
- * @param  {String} id the internal provider id
  * @param  {Object} dataSourceFilter the filter for the data source
  */
-export function disconnectDataSource(api, id, dataSourceFilter) {
+export function disconnectDataSource(api, dataSourceFilter) {
   return (dispatch) => {
     dispatch(sync.disconnectDataSourceRequest());
 
@@ -2801,22 +2638,24 @@ export function revertClinicPatientLastReviewed(api, clinicId, patientId) {
 }
 
 /**
- * Send a dexcom connect reqeust email to a clinic patient
+ * Send a data source connection request email to a clinic patient
  *
  * @param {Object} api - an instance of the API wrapper
- * @param {String} clinicId - Id of the clinic
+ * @param {String} clinicId - clinic Id
+ * @param {String} patientId - id of the patient to send the data source connect request to
+ * @param {String} providerName - name of the provider to send the data source connect request to
  */
-export function sendPatientDexcomConnectRequest(api, clinicId, patientId) {
+export function sendPatientDataProviderConnectRequest(api, clinicId, patientId, providerName) {
   return (dispatch) => {
-    dispatch(sync.sendPatientDexcomConnectRequestRequest());
+    dispatch(sync.sendPatientDataProviderConnectRequestRequest());
 
-    api.clinics.sendPatientDexcomConnectRequest(clinicId, patientId, (err, result) => {
+    api.clinics.sendPatientDataProviderConnectRequest(clinicId, patientId, providerName, err => {
       if (err) {
-        dispatch(sync.sendPatientDexcomConnectRequestFailure(
-          createActionError(ErrorMessages.ERR_SENDING_PATIENT_DEXCOM_CONNECT_REQUEST, err), err
+        dispatch(sync.sendPatientDataProviderConnectRequestFailure(
+          createActionError(ErrorMessages.ERR_SENDING_PATIENT_DATA_PROVIDER_CONNECT_REQUEST, err), err
         ));
       } else {
-        dispatch(sync.sendPatientDexcomConnectRequestSuccess(clinicId, patientId, _.get(result, 'lastRequestedDexcomConnectTime', moment().toISOString())));
+        dispatch(sync.sendPatientDataProviderConnectRequestSuccess(clinicId, patientId, providerName, moment.utc().toISOString()));
       }
     });
   };

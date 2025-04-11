@@ -4,7 +4,7 @@ export default ({ colors, fonts, fontSizes, fontWeights }) => {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: '12px',
+    padding: 3,
     bg: colors.banner[variant].bg,
 
     '.icon': {
@@ -12,10 +12,25 @@ export default ({ colors, fonts, fontSizes, fontWeights }) => {
       fontSize: fontSizes[4],
     },
 
-    '.message': {
+    '.title': {
+      display: 'block',
       fontFamily: fonts.default,
-      fontSize: fontSizes[0],
+      fontSize: fontSizes[1],
+      fontWeight: fontWeights.bold,
+    },
+
+    '.message': {
+      display: 'block',
+      fontFamily: fonts.default,
+      fontSize: fontSizes[1],
       fontWeight: fontWeights.medium,
+    },
+
+    '.message-link': {
+      color: colors.banner[variant].messageLink,
+      '&:hover, &:active, &:focus': {
+        color: colors.banner[variant].messageLink,
+      },
     },
 
     'button.action': {

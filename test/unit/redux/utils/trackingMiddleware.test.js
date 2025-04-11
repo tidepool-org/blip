@@ -38,6 +38,8 @@ describe('trackingMiddleware', () => {
   const next = sinon.stub();
 
   beforeEach(() => {
+    const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36';
+    Object.defineProperty(window.navigator, 'userAgent', { value: userAgent, configurable: true });
     api.metrics.track.resetHistory();
   });
 
@@ -80,12 +82,15 @@ describe('trackingMiddleware', () => {
 
   it('should call the metrics api for LOGIN_SUCCESS', () => {
     const loginSuccess = {
-      type: ActionTypes.LOGIN_SUCCESS
+      type: ActionTypes.LOGIN_SUCCESS,
+      payload: {
+        user: { roles: ['clinic'] },
+      },
     };
     expect(api.metrics.track.callCount).to.equal(0);
     trackingMiddleware(api)(getStateObj)(next)(loginSuccess);
     expect(api.metrics.track.callCount).to.equal(1);
-    expect(api.metrics.track.calledWith('Logged In')).to.be.true;
+    expect(api.metrics.track.calledWith('Logged In', { mobile: false, clinician: true })).to.be.true;
   });
 
   it('should call the metrics api for SETUP_DATA_STORAGE_SUCCESS', () => {

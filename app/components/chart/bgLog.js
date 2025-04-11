@@ -82,6 +82,11 @@ class BgLogChart extends Component {
 
   mountChart = (node, props = {}) => {
     this.log('Mounting...');
+
+    // When on mobile, the chart will be hidden and therefore have zero width and height.
+    // This safety check prevents an error from occurring in tideline due to the zeroes.
+    if (!node?.offsetHeight || !node?.offsetWidth) return;
+
     this.chart = chartBgLogFactory(node, props);
     this.chart.node = node;
     this.bindEvents();
@@ -260,16 +265,16 @@ class BgLog extends Component {
 
     return (
       <div id="tidelineMain" className="bgLog">
-        {this.isMissingSMBG() ? this.renderMissingSMBGHeader() : this.renderHeader()}
-        <div className="container-box-outer patient-data-content-outer">
-          <div className="container-box-inner patient-data-content-inner">
-            <div className="patient-data-content">
+        <Box variant="containers.patientData">
+          {this.isMissingSMBG() ? this.renderMissingSMBGHeader() : this.renderHeader()}
+
+          <Box variant="containers.patientDataInner">
+            <Box className="patient-data-content" variant="containers.patientDataContent">
               <Loader show={!!this.refs.chart && this.props.loading} overlay={true} />
               {renderedContent}
 
               <Flex
                 mt={4}
-                mb={5}
                 pl="50px"
                 pr="30px"
                 sx={{
@@ -277,7 +282,11 @@ class BgLog extends Component {
                   justifyContent: 'space-between',
                 }}
               >
-                <Button className="btn-refresh" variant="secondary" onClick={this.props.onClickRefresh}>
+                <Button
+                  className="btn-refresh"
+                  variant="secondaryCondensed"
+                  onClick={this.props.onClickRefresh}
+                >
                   {t('Refresh')}
                 </Button>
 
@@ -297,10 +306,9 @@ class BgLog extends Component {
                   />
                 </Flex>
               </Flex>
-            </div>
-          </div>
-          <div className="container-box-inner patient-data-sidebar">
-            <div className="patient-data-sidebar-inner">
+            </Box>
+
+            <Box className="patient-data-sidebar" variant="containers.patientDataSidebar">
               <Box mb={2}>
                 <ClipboardButton
                   buttonTitle={t('For email or notes')}
@@ -323,10 +331,10 @@ class BgLog extends Component {
                 trackMetric={this.props.trackMetric}
                 updateChartPrefs={this.props.updateChartPrefs}
               />
-            </div>
-          </div>
-        </div>
-        <WindowSizeListener onResize={this.handleWindowResize} />
+            </Box>
+          </Box>
+          <WindowSizeListener onResize={this.handleWindowResize} />
+        </Box>
       </div>
     );
   };

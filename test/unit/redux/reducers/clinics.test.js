@@ -774,11 +774,12 @@ describe('clinics', () => {
     });
   });
 
-  describe('sendPatientDexcomConnectRequestSuccess', () => {
-    it('should update patient `lastRequestedDexcomConnectTime` in state', () => {
+  describe('sendPatientDataProviderConnectRequestSuccess', () => {
+    it('should update patient `createdTime` in state', () => {
       let clinicId = 'clinicId123';
       let patientId = 'patientId123';
-      const lastRequestedDexcomConnectTime = '2022-10-10T00:00:000Z';
+      let providerName = 'providerName';
+      const createdTime = '2022-10-10T00:00:000Z';
       let initialStateForTest = {
         [clinicId]: {
           id: clinicId,
@@ -787,9 +788,9 @@ describe('clinics', () => {
           },
         },
       };
-      let action = actions.sync.sendPatientDexcomConnectRequestSuccess(clinicId, patientId, lastRequestedDexcomConnectTime);
+      let action = actions.sync.sendPatientDataProviderConnectRequestSuccess(clinicId, patientId, providerName, createdTime);
       let state = reducer(initialStateForTest, action);
-      expect(state.clinicId123.patients.patientId123.lastRequestedDexcomConnectTime).to.eql(lastRequestedDexcomConnectTime);
+      expect(state.clinicId123.patients.patientId123.connectionRequests[providerName]).to.eql([{ providerName, createdTime }]);
     });
   });
 

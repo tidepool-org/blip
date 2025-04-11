@@ -194,6 +194,36 @@ describe('personutils', () => {
     });
   });
 
+  describe('hasClinicRole', () => {
+    it('should return true if user has clinic role', () => {
+      const user = {
+        roles: ['clinic']
+      };
+
+      const result = personUtils.hasClinicRole(user);
+
+      expect(result).to.be.true;
+    });
+
+    it('should return false if user does not have clinic role', () => {
+      const user = {
+        roles: ['patient']
+      };
+
+      const result = personUtils.hasClinicRole(user);
+
+      expect(result).to.be.false;
+    });
+
+    it('should return false if user has no roles', () => {
+      const user = {};
+
+      const result = personUtils.hasClinicRole(user);
+
+      expect(result).to.be.false;
+    });
+  });
+
   describe('isDataDonationAccount', () => {
     it('should return true if the account username or email matches the donation account format', function () {
       var account1 = { email: 'bigdata+BT1@tidepool.org' };

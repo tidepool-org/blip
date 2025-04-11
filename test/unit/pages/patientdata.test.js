@@ -17,6 +17,9 @@ import { components as vizComponents } from '@tidepool/viz';
 import i18next from '../../../app/core/language';
 import createReactClass from 'create-react-class';
 import { ThemeProvider } from '@emotion/react';
+import { Provider } from 'react-redux';
+import thunk from 'redux-thunk';
+import configureStore from 'redux-mock-store';
 
 import baseTheme from '../../../app/themes/baseTheme';
 
@@ -24,6 +27,7 @@ const { Loader } = vizComponents;
 
 var assert = chai.assert;
 var expect = chai.expect;
+const mockStore = configureStore([thunk]);
 
 const t = i18next.t.bind(i18next);
 
@@ -31,6 +35,7 @@ const t = i18next.t.bind(i18next);
 // otherwise dependencies mocked will be bound to the wrong scope!
 import PD, { PatientData, PatientDataClass, getFetchers, mapStateToProps } from '../../../app/pages/patientdata/patientdata.js';
 import { MGDL_UNITS } from '../../../app/core/constants';
+import { ToastProvider } from '../../../app/providers/ToastProvider.js';
 
 describe('PatientData', function () {
   const defaultProps = {
@@ -49,7 +54,9 @@ describe('PatientData', function () {
     fetchingUser: false,
     generatePDFRequest: sinon.stub(),
     generatingPDF: {},
+    history: { push: sinon.stub() },
     isUserPatient: false,
+    location: { search: '', pathname: '/data' },
     messageThread: [],
     onCloseMessageThread: sinon.stub(),
     onCreateMessage: sinon.stub(),
@@ -71,6 +78,7 @@ describe('PatientData', function () {
   };
 
   before(() => {
+    PD.__Rewire__('launchCustomProtocol', _.noop);
     PD.__Rewire__('Basics', createReactClass({
       render: function() {
         return (<div className='fake-basics-view'></div>);
@@ -103,6 +111,7 @@ describe('PatientData', function () {
   });
 
   after(() => {
+    PD.__ResetDependency__('launchCustomProtocol');
     PD.__ResetDependency__('Basics');
     PD.__ResetDependency__('Trends');
     PD.__ResetDependency__('BgLog');
@@ -276,16 +285,18 @@ describe('PatientData', function () {
       });
     });
 
-    describe('no data message', () => {
+    describe('no data available', () => {
+      let dataConnectionsCard
+      let uploaderCard;
       let wrapper;
-      let noData;
 
       beforeEach(() => {
-        noData = () => wrapper.find('.patient-data-message-no-data');
+        dataConnectionsCard = () => wrapper.find('#data-connections-card');
+        uploaderCard = () => wrapper.find('#uploader-card');
       });
 
       describe('logged-in user is not current patient targeted for viewing', () => {
-        it('should render the no data message when no data is present and loading and processingData are false', function() {
+        it('should render the device connections and uploader cards when no data is present and loading and processingData are false', function() {
           var props = _.assign({}, defaultProps, {
             patient: {
               profile: {
@@ -304,11 +315,14 @@ describe('PatientData', function () {
             }
           }));
 
-          expect(noData().length).to.equal(1);
-          expect(noData().text()).to.equal('Fooey McBar does not have any data yet.');
+          expect(dataConnectionsCard().length).to.equal(1);
+          expect(dataConnectionsCard().text()).to.contain('Connect a Device Account');
+
+          expect(uploaderCard().length).to.equal(1);
+          expect(uploaderCard().text()).to.contain('Upload Data Directly with Tidepool Uploader');
         });
 
-        it('should render the no data message when no data is present for current patient', function() {
+        it('should render the device connections and uploader cards when no data is present for current patient', function() {
           var props = _.assign({}, defaultProps, {
             currentPatientInViewId: '40',
             patient: {
@@ -335,13 +349,16 @@ describe('PatientData', function () {
             }
           }));
 
-          expect(noData().length).to.equal(1);
-          expect(noData().text()).to.equal('Fooey McBar does not have any data yet.');
+          expect(dataConnectionsCard().length).to.equal(1);
+          expect(dataConnectionsCard().text()).to.contain('Connect a Device Account');
+
+          expect(uploaderCard().length).to.equal(1);
+          expect(uploaderCard().text()).to.contain('Upload Data Directly with Tidepool Uploader');
         });
       });
 
       describe('logged-in user is viewing own data', () => {
-        it('should render the no data message when no data is present and loading and processingData are false', function() {
+        it('should render the device connections and uploader cards when no data is present and loading and processingData are false', function() {
           var props = {
             isUserPatient: true,
             fetchingPatient: false,
@@ -359,10 +376,14 @@ describe('PatientData', function () {
             }
           }));
 
-          expect(noData().length).to.equal(1);
+          expect(dataConnectionsCard().length).to.equal(1);
+          expect(dataConnectionsCard().text()).to.contain('Connect an Account');
+
+          expect(uploaderCard().length).to.equal(1);
+          expect(uploaderCard().text()).to.contain('Upload Data Directly with Tidepool Uploader');
         });
 
-        it('should render the no data message when no data is present for current patient', function() {
+        it('should render the device connections and uploader cards when no data is present for current patient', function() {
           var props = {
             currentPatientInViewId: '40',
             isUserPatient: true,
@@ -379,7 +400,7 @@ describe('PatientData', function () {
             pdf: {},
           };
 
-          wrapper = mount(<PatientData {...props} />);
+          wrapper = mount(<PatientData {...props} />, {});
 
           wrapper.setProps(_.assign({}, props, {
             data: {
@@ -387,11 +408,15 @@ describe('PatientData', function () {
             }
           }));
 
-          expect(noData().length).to.equal(1);
+          expect(dataConnectionsCard().length).to.equal(1);
+          expect(dataConnectionsCard().text()).to.contain('Connect an Account');
+
+          expect(uploaderCard().length).to.equal(1);
+          expect(uploaderCard().text()).to.contain('Upload Data Directly with Tidepool Uploader');
         });
 
-        it('should track click on main upload button', function() {
-          var props = {
+        it('should track click on Uploader card', function() {
+          const props = {
             currentPatientInViewId: '40',
             isUserPatient: true,
             patient: {
@@ -418,19 +443,16 @@ describe('PatientData', function () {
 
           wrapper.update();
 
-          expect(noData().length).to.equal(1);
-
-          var links = wrapper.find('.patient-data-uploader-message a');
-          var callCount = props.trackMetric.callCount;
-
-          links.at(0).simulate('click');
+          expect(uploaderCard().length).to.equal(1);
+          const callCount = props.trackMetric.callCount;
+          uploaderCard().simulate('click');
 
           expect(props.trackMetric.callCount).to.equal(callCount + 1);
-          expect(props.trackMetric.calledWith('Clicked No Data Upload')).to.be.true;
+          expect(props.trackMetric.calledWith('Clicked No Data Upload Card')).to.be.true;
         });
 
-        it('should track click on Dexcom Connect link', function() {
-          var props = {
+        it('should track click on Data Connections card', function() {
+          const props = {
             currentPatientInViewId: '40',
             isUserPatient: true,
             patient: {
@@ -444,11 +466,43 @@ describe('PatientData', function () {
             removingData: { inProgress: false },
             generatingPDF: { inProgress: false },
             pdf: {},
-            history: { push: sinon.stub() },
-            trackMetric: sinon.stub()
+            trackMetric: sinon.stub(),
+            removeGeneratedPDFS: sinon.stub(),
+            dataWorkerRemoveDataSuccess: sinon.stub(),
           };
 
-          wrapper = mount(<PatientData {...props} />);
+          const defaultWorkingState = {
+            inProgress: false,
+            completed: null,
+            notification: null,
+          };
+
+          const defaultState = {
+            blip: {
+              working: {
+                updatingClinicPatient: defaultWorkingState,
+                sendingPatientDataProviderConnectRequest: defaultWorkingState,
+              },
+            },
+          };
+
+          const store = mockStore(defaultState);
+
+          function ProviderWrapper(props) {
+            const { children } = props;
+
+            return (
+              <Provider store={store}>
+                <ToastProvider>
+                  {children}
+                </ToastProvider>
+              </Provider>
+            );
+          }
+
+          wrapper = mount(<PatientData {...props} />, { wrappingComponent: ProviderWrapper });
+
+          wrapper.update();
 
           wrapper.setProps(_.assign({}, props, {
             data: {
@@ -458,16 +512,12 @@ describe('PatientData', function () {
 
           wrapper.update();
 
-          var link = wrapper.find('#dexcom-connect-link').hostNodes();
-          var callCount = props.trackMetric.callCount;
-
-          link.simulate('click');
-
-          expect(props.history.push.callCount).to.equal(1);
-          sinon.assert.calledWith(props.history.push, '/patients/40/profile?dexcomConnect=patient-empty-data');
+          expect(dataConnectionsCard().length).to.equal(1);
+          const callCount = props.trackMetric.callCount;
+          dataConnectionsCard().simulate('click');
 
           expect(props.trackMetric.callCount).to.equal(callCount + 1);
-          expect(props.trackMetric.calledWith('Clicked No Data Connect Dexcom')).to.be.true;
+          expect(props.trackMetric.calledWith('Clicked No Data Data Connections Card')).to.be.true;
         });
       });
     });
@@ -527,6 +577,8 @@ describe('PatientData', function () {
       context('setting default view based on device type of last upload', () => {
         it('should set the default view to <Basics /> when latest data is from a pump', () => {
           wrapper.setProps(_.assign({}, props, {
+            location: { search: '', pathname: '/data' },
+            history: { push: sinon.stub() },
             data: {
               data: { current: {
                 data: { upload: uploads },
@@ -556,6 +608,8 @@ describe('PatientData', function () {
 
         it('should set the default view to <Trends /> with CGM selected when latest data is from a cgm', () => {
           wrapper.setProps(_.assign({}, props, {
+            location: { search: '', pathname: '/data' },
+            history: { push: sinon.stub() },
             data: {
               data: { current: {
                 data: { upload: uploads },
@@ -585,6 +639,8 @@ describe('PatientData', function () {
 
         it('should set the default view to <BgLog /> when latest data is from a bgm', () => {
           wrapper.setProps(_.assign({}, props, {
+            location: { search: '', pathname: '/data' },
+            history: { push: sinon.stub() },
             data: {
               data: { current: {
                 data: { upload: uploads },
@@ -614,6 +670,8 @@ describe('PatientData', function () {
 
         it('should set the default view to <Basics /> when latest data type is cbg but came from a pump', () => {
           wrapper.setProps(_.assign({}, props, {
+            location: { search: '', pathname: '/data' },
+            history: { push: sinon.stub() },
             data: {
               data: { current: {
                 data: { upload: uploads },
@@ -645,6 +703,8 @@ describe('PatientData', function () {
       context('unable to determine device, falling back to data.type', () => {
         it('should set the default view to <Basics /> when type is bolus', () => {
           wrapper.setProps(_.assign({}, props, {
+            location: { search: '', pathname: '/data' },
+            history: { push: sinon.stub() },
             data: {
               data: { current: {
                 data: { upload: uploads },
@@ -674,6 +734,8 @@ describe('PatientData', function () {
 
         it('should set the default view to <Basics /> when type is basal', () => {
           wrapper.setProps(_.assign({}, props, {
+            location: { search: '', pathname: '/data' },
+            history: { push: sinon.stub() },
             data: {
               data: { current: {
                 data: { upload: uploads },
@@ -703,6 +765,8 @@ describe('PatientData', function () {
 
         it('should set the default view to <Basics /> when type is wizard', () => {
           wrapper.setProps(_.assign({}, props, {
+            location: { search: '', pathname: '/data' },
+            history: { push: sinon.stub() },
             data: {
               data: { current: {
                 data: { upload: uploads },
@@ -732,6 +796,8 @@ describe('PatientData', function () {
 
         it('should set the default view to <Trends /> when type is cbg', () => {
           wrapper.setProps(_.assign({}, props, {
+            location: { search: '', pathname: '/data' },
+            history: { push: sinon.stub() },
             data: {
               data: { current: {
                 data: { upload: uploads },
@@ -761,6 +827,8 @@ describe('PatientData', function () {
 
         it('should set the default view to <BgLog /> when type is smbg', () => {
           wrapper.setProps(_.assign({}, props, {
+            location: { search: '', pathname: '/data' },
+            history: { push: sinon.stub() },
             data: {
               data: { current: {
                 data: { upload: uploads },
@@ -792,6 +860,8 @@ describe('PatientData', function () {
       context('with no upload records, falling back to data.type', () => {
         it('should set the default view to <Basics /> when type is bolus', () => {
           wrapper.setProps(_.assign({}, props, {
+            location: { search: '', pathname: '/data' },
+            history: { push: sinon.stub() },
             data: {
               data: { current: {
                 data: { upload: [] },
@@ -821,6 +891,8 @@ describe('PatientData', function () {
 
         it('should set the default view to <Basics /> when type is basal', () => {
           wrapper.setProps(_.assign({}, props, {
+            location: { search: '', pathname: '/data' },
+            history: { push: sinon.stub() },
             data: {
               data: { current: {
                 data: { upload: [] },
@@ -850,6 +922,8 @@ describe('PatientData', function () {
 
         it('should set the default view to <Basics /> when type is wizard', () => {
           wrapper.setProps(_.assign({}, props, {
+            location: { search: '', pathname: '/data' },
+            history: { push: sinon.stub() },
             data: {
               data: { current: {
                 data: { upload: [] },
@@ -879,6 +953,8 @@ describe('PatientData', function () {
 
         it('should set the default view to <Trends /> when type is cbg', () => {
           wrapper.setProps(_.assign({}, props, {
+            location: { search: '', pathname: '/data' },
+            history: { push: sinon.stub() },
             data: {
               data: { current: {
                 data: { upload: [] },
@@ -908,6 +984,8 @@ describe('PatientData', function () {
 
         it('should set the default view to <BgLog /> when type is smbg', () => {
           wrapper.setProps(_.assign({}, props, {
+            location: { search: '', pathname: '/data' },
+            history: { push: sinon.stub() },
             data: {
               data: { current: {
                 data: { upload: [] },
@@ -1025,6 +1103,8 @@ describe('PatientData', function () {
       describe('logged-in user is not current patient targeted for viewing', () => {
         it ('should render the correct view when data is present for current patient', function() {
           wrapper.setProps(_.assign({}, props, {
+            location: { search: '', pathname: '/data' },
+            history: { push: sinon.stub() },
             data: {
               data: { current: {
                 data: { upload: [] },
@@ -1055,6 +1135,8 @@ describe('PatientData', function () {
       describe('logged-in user is viewing own data', () => {
         it ('should render the correct view when data is present for current patient', function() {
           wrapper.setProps(_.assign({}, props, {
+            location: { search: '', pathname: '/data' },
+            history: { push: sinon.stub() },
             data: {
               data: { current: {
                 data: { upload: [] },
@@ -4565,6 +4647,8 @@ describe('PatientData', function () {
       var props = {
         currentPatientInViewId: '40',
         dataWorkerQueryDataRequest: sinon.stub(),
+        location: { search: '', pathname: '/data' },
+        history: { push: sinon.stub() },
         isUserPatient: true,
         patient: {
           userid: '40',
@@ -4615,34 +4699,6 @@ describe('PatientData', function () {
   });
 
   describe('handleSwitchToDaily', function() {
-    it('should track metric for calender', function() {
-      var props = {
-        currentPatientInViewId: '40',
-        dataWorkerQueryDataRequest: sinon.stub(),
-        isUserPatient: true,
-        patient: {
-          userid: '40',
-          profile: {
-            fullName: 'Fooey McBar'
-          }
-        },
-        fetchingPatient: false,
-        fetchingPatientData: false,
-        fetchingUser: false,
-        trackMetric: sinon.stub(),
-        t,
-        generatingPDF: { inProgress: false },
-        pdf: {},
-      };
-
-      var elem = mount(<PatientDataClass {...props}/>);
-
-      var callCount = props.trackMetric.callCount;
-      elem.instance().handleSwitchToDaily('2016-08-19T01:51:55.000Z', 'testing');
-      expect(props.trackMetric.callCount).to.equal(callCount + 1);
-      expect(props.trackMetric.calledWith('Clicked Basics testing calendar')).to.be.true;
-    });
-
     it('should set the `chartType` state to `daily`', () => {
       const wrapper = shallow(<PatientDataClass {...defaultProps} />);
       const instance = wrapper.instance();
@@ -4718,6 +4774,8 @@ describe('PatientData', function () {
       var props = {
         currentPatientInViewId: '40',
         dataWorkerQueryDataRequest: sinon.stub(),
+        location: { search: '', pathname: '/data' },
+        history: { push: sinon.stub() },
         isUserPatient: true,
         patient: {
           userid: '40',
@@ -4810,6 +4868,8 @@ describe('PatientData', function () {
       var props = {
         currentPatientInViewId: '40',
         dataWorkerQueryDataRequest: sinon.stub(),
+        location: { search: '', pathname: '/data' },
+        history: { push: sinon.stub() },
         isUserPatient: true,
         patient: {
           userid: '40',
@@ -4894,6 +4954,8 @@ describe('PatientData', function () {
       var props = {
         currentPatientInViewId: '40',
         dataWorkerQueryDataRequest: sinon.stub(),
+        location: { search: '', pathname: '/data' },
+        history: { push: sinon.stub() },
         isUserPatient: true,
         patient: {
           userid: '40',
@@ -4939,6 +5001,109 @@ describe('PatientData', function () {
     });
   });
 
+  describe('handleRouteChangeEvent', function() {
+    const props = {...defaultProps};
+
+    let wrapper;
+    let instance;
+
+    beforeEach(() => {
+      wrapper = shallow(<PatientDataClass {...props} />);
+      instance = wrapper.instance();
+      instance.setInitialChartView();
+    });
+
+    describe(('chartType is explicitly targetted in URL'), () => {
+      it('should call `handleSwitchToBasics` when the route changes to `/data/basics`', () => {
+        const nextProps = { match: { params: { chartType: 'basics' } } };
+
+        instance.handleSwitchToBasics = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToBasics);
+      });
+
+      it('should call `handleSwitchToDaily` when the route changes to `/data/daily`', () => {
+        const nextProps = { match: { params: { chartType: 'daily' } } };
+
+        instance.handleSwitchToDaily = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToDaily);
+      });
+
+      it('should call `handleSwitchToTrends` when the route changes to `/data/trends`', () => {
+        const nextProps = { match: { params: { chartType: 'trends' } } };
+
+        instance.handleSwitchToTrends = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToTrends);
+      });
+
+      it('should call `handleSwitchToBgLog` when the route changes to `/data/bgLog`', () => {
+        const nextProps = { match: { params: { chartType: 'bgLog' } } };
+
+        instance.handleSwitchToBgLog = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToBgLog);
+      });
+
+      it('should call `handleSwitchToSettings` when the route changes to `/data/settings`', () => {
+        const nextProps = { match: { params: { chartType: 'settings' } } };
+
+        instance.handleSwitchToSettings = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToSettings);
+      });
+    });
+
+    describe('chartType is not specified in URL', () => {
+      it('should call `handleSwitchToBasics` when the defaultChartType is set to basics', () => {
+        const nextProps = { };
+        instance.setState({ defaultChartTypeForPatient: 'basics' });
+
+        instance.handleSwitchToBasics = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToBasics);
+      });
+
+      it('should call `handleSwitchToDaily` when the defaultChartTypeForPatient is set to Daily', () => {
+        const nextProps = { };
+        instance.setState({ defaultChartTypeForPatient: 'daily' });
+
+        instance.handleSwitchToDaily = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToDaily);
+      });
+
+      it('should call `handleSwitchToTrends` when the defaultChartTypeForPatient is set to Trends', () => {
+        const nextProps = { };
+        instance.setState({ defaultChartTypeForPatient: 'trends' });
+
+        instance.handleSwitchToTrends = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToTrends);
+      });
+
+      it('should call `handleSwitchToBgLog` when the defaultChartTypeForPatient is set to BgLog', () => {
+        const nextProps = { };
+        instance.setState({ defaultChartTypeForPatient: 'bgLog' });
+
+        instance.handleSwitchToBgLog = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToBgLog);
+      });
+    });
+
+    describe('chartType is not specified in path and defaultChartTypeForPatient is not set', () => {
+      it('should call setInitialChartView()', () => {
+        const nextProps = { };
+
+        instance.setInitialChartView = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.setInitialChartView);
+      });
+    });
+  });
+
   describe('getFetchers', () => {
     const stateProps = {
       fetchingPendingSentInvites: {
@@ -4946,6 +5111,10 @@ describe('PatientData', function () {
         completed: null,
       },
       fetchingAssociatedAccounts: {
+        inProgress: false,
+        completed: null,
+      },
+      fetchingClinicsForPatient: {
         inProgress: false,
         completed: null,
       },
@@ -4964,6 +5133,7 @@ describe('PatientData', function () {
       fetchPendingSentInvites: sinon.stub().returns('fetchPendingSentInvites'),
       fetchAssociatedAccounts: sinon.stub().returns('fetchAssociatedAccounts'),
       fetchPatientFromClinic: sinon.stub().returns('fetchPatientFromClinic'),
+      fetchClinicsForPatient: sinon.stub().returns('fetchClinicsForPatient'),
       selectClinic: sinon.stub().returns('selectClinic'),
     };
 
@@ -4984,15 +5154,21 @@ describe('PatientData', function () {
       expect(result[2]).to.be.a('function');
       expect(result[2]()).to.equal('fetchPendingSentInvites');
       expect(result[3]).to.be.a('function');
-      expect(result[3]()).to.equal('fetchAssociatedAccounts');
+      expect(result[3]()).to.equal('fetchClinicsForPatient');
+      expect(result[4]).to.be.a('function');
+      expect(result[4]()).to.equal('fetchAssociatedAccounts');
     });
 
-    it('should only add the associated accounts and pending invites fetchers if fetches are not already in progress or completed', () => {
+    it('should only add the associated accounts, patient clinics, and pending invites fetchers if fetches are not already in progress or completed', () => {
       const standardResult = getFetchers(dispatchProps, ownProps, stateProps, api);
-      expect(standardResult.length).to.equal(4);
+      expect(standardResult.length).to.equal(5);
 
       const inProgressResult = getFetchers(dispatchProps, ownProps, {
         fetchingPendingSentInvites: {
+          inProgress: true,
+          completed: null,
+        },
+        fetchingClinicsForPatient: {
           inProgress: true,
           completed: null,
         },
@@ -5008,6 +5184,10 @@ describe('PatientData', function () {
 
       const completedResult = getFetchers(dispatchProps, ownProps, {
         fetchingPendingSentInvites: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingClinicsForPatient: {
           inProgress: false,
           completed: true,
         },
@@ -5041,6 +5221,10 @@ describe('PatientData', function () {
           inProgress: false,
         },
         fetchingPendingSentInvites: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingClinicsForPatient: {
           inProgress: false,
           completed: true,
         },
@@ -5080,6 +5264,10 @@ describe('PatientData', function () {
           inProgress: false,
           completed: true,
         },
+        fetchingClinicsForPatient: {
+          inProgress: false,
+          completed: true,
+        },
         fetchingAssociatedAccounts: {
           inProgress: false,
           completed: true,
@@ -5092,6 +5280,46 @@ describe('PatientData', function () {
       expect(fetchPatientsResult[2]()).to.equal('fetchPatientFromClinic');
       expect(dispatchProps.selectClinic.callCount).to.equal(1);
       expect(dispatchProps.selectClinic.calledWith(undefined, 'clinic1234')).to.be.true;
+    });
+
+    it('should not select a clinic if viewing a patient that is in both of the available clinics', () => {
+      expect(dispatchProps.selectClinic.callCount).to.equal(0);
+      const fetchPatientsResult = getFetchers(dispatchProps, ownProps, {
+        user: {
+          userid: 'clinician123',
+          isClinicMember: true,
+        },
+        clinics: {
+          clinic1234: {
+            patients: { '12345': {} },
+          },
+          clinic6789: {
+            patients: { '12345': {} },
+          },
+        },
+        selectedClinicId: 'clinic1234',
+        fetchingPatientFromClinic: {
+          inProgress: false,
+        },
+        fetchingClinicsForPatient: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingPendingSentInvites: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingAssociatedAccounts: {
+          inProgress: false,
+          completed: true,
+        },
+      });
+
+      expect(fetchPatientsResult.length).to.equal(3);
+      expect(fetchPatientsResult[0]()).to.equal('fetchPatient');
+      expect(fetchPatientsResult[1]()).to.equal('fetchPatientData');
+      expect(fetchPatientsResult[2]()).to.equal('fetchPatientFromClinic');
+      expect(dispatchProps.selectClinic.callCount).to.equal(0);
     });
 
     it('should fetch patients from clinics if a clinician is viewing a patient with a different selected clinic', () => {
@@ -5114,6 +5342,10 @@ describe('PatientData', function () {
           inProgress: false,
         },
         fetchingPendingSentInvites: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingClinicsForPatient: {
           inProgress: false,
           completed: true,
         },
@@ -5156,6 +5388,10 @@ describe('PatientData', function () {
           inProgress: false,
         },
         fetchingPendingSentInvites: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingClinicsForPatient: {
           inProgress: false,
           completed: true,
         },
