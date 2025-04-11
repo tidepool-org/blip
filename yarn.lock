@@ -5278,9 +5278,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.45.0-web-3274-device-settings-data-sources.3":
-  version: 1.45.0-web-3274-device-settings-data-sources.3
-  resolution: "@tidepool/viz@npm:1.45.0-web-3274-device-settings-data-sources.3"
+"@tidepool/viz@npm:1.45.0-web-2965-exclude-days.2":
+  version: 1.45.0-web-2965-exclude-days.2
+  resolution: "@tidepool/viz@npm:1.45.0-web-2965-exclude-days.2"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -5340,7 +5340,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: ed3bbe5fd1da450ff5e33c7d1b3ce4492868d96f8d233081b60dedd02da56ab85b9f9a634b7e4a06c3a6df7546e1a4bf9ec57bcf4a0e6c4bd2d06fe561d93e8a
+  checksum: d879bc59334a50a66e110448b6e79629dbb17ccb89107220e80e127fc3b2d428a004453595687645ffd9e15528bef083471a76358c112282ae130d57f41403f0
   languageName: node
   linkType: hard
 
@@ -7251,7 +7251,7 @@ __metadata:
     "@storybook/react": 7.5.0
     "@storybook/react-webpack5": 7.5.0
     "@testing-library/react-hooks": 8.0.1
-    "@tidepool/viz": 1.45.0-web-3274-device-settings-data-sources.3
+    "@tidepool/viz": 1.45.0-web-2965-exclude-days.2
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -7374,7 +7374,7 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.31.0-web-3399-underride-precision.1
+    tideline: 1.31.0-web-2965-exclude-days.1
     tidepool-platform-client: 0.62.0-web-3400-strip-clinic-patient-update-fields.1
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
@@ -20016,9 +20016,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.31.0-web-3399-underride-precision.1":
-  version: 1.31.0-web-3399-underride-precision.1
-  resolution: "tideline@npm:1.31.0-web-3399-underride-precision.1"
+"tideline@npm:1.31.0-web-2965-exclude-days.1":
+  version: 1.31.0-web-2965-exclude-days.1
+  resolution: "tideline@npm:1.31.0-web-2965-exclude-days.1"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -20038,7 +20038,7 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: 0ca7453fc768de270da6e7f5aad97b44f6df37ef85225980a67f85a98cd616f65705e273608db88d8dfbeca783dda20631cd9ac890061ec9eb71f1a3f761df9a
+  checksum: ecceefda34096128872026935b39fb98dea109b8f739d28878b9d7462facb59e449faa8613d2a02a31f5b732c2f049ca723fb726ce7e25fa19e36c56d47b37f6
   languageName: node
   linkType: hard
 
