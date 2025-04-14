@@ -18,6 +18,7 @@ const trackingActions = [
   ActionTypes.SELECT_CLINIC_SUCCESS,
   ActionTypes.DATA_WORKER_ADD_DATA_SUCCESS,
   ActionTypes.DATA_WORKER_QUERY_DATA_SUCCESS,
+  ActionTypes.DATA_WORKER_REMOVE_DATA_SUCCESS,
   ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SUCCESS,
   ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS,
   ActionTypes.SET_CLINIC_UI_DETAILS,
@@ -299,7 +300,7 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
       break;
     }
     case ActionTypes.LOGOUT_REQUEST:
-    case ActionTypes.CLEAR_PATIENT_IN_VIEW: {
+    case ActionTypes.DATA_WORKER_REMOVE_DATA_SUCCESS: {
       const {
         blip: { loggedInUserId },
       } = getState();
