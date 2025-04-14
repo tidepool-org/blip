@@ -5278,9 +5278,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.45.0-rc.6":
-  version: 1.45.0-rc.6
-  resolution: "@tidepool/viz@npm:1.45.0-rc.6"
+"@tidepool/viz@npm:1.45.0-web-3527-twiist-annotations.3":
+  version: 1.45.0-web-3527-twiist-annotations.3
+  resolution: "@tidepool/viz@npm:1.45.0-web-3527-twiist-annotations.3"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -5340,7 +5340,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 5bbd8245134b111b3bdffc7cb86c9277cab9dc292eb500d9afdc6ce5545908985cb3a9e1bf8c08c2ac0bc1212a97eda98e013c5f7f4a653afe2d94af07c126f3
+  checksum: 04ba56fafdade72cad7a075aff0bbffb441e9be92ba89ca6977c79ddd86ae4734c756003370c6694fa2df7dfbffab98fb4340cd59a1717205188cac453315f72
   languageName: node
   linkType: hard
 
@@ -7251,7 +7251,7 @@ __metadata:
     "@storybook/react": 7.5.0
     "@storybook/react-webpack5": 7.5.0
     "@testing-library/react-hooks": 8.0.1
-    "@tidepool/viz": 1.45.0-rc.6
+    "@tidepool/viz": 1.45.0-web-3527-twiist-annotations.3
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
