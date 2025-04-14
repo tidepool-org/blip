@@ -13,6 +13,9 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+ @patient-section-title-width: 260px;
+ @mobile-breakpoint: 768px;
+
 .patients,
 .patients-welcome {
   margin-right: auto;
@@ -35,16 +38,26 @@
 }
 
 .patients-section-title-wrapper {
-  text-align: center;
+  display: grid;
+  grid-template-columns: 1fr @patient-section-title-width 1fr;
   margin-bottom: @spacing-base;
+
+  @media screen and (max-width: @mobile-breakpoint) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .patients-section-title {
   display: inline-block;
-  min-width: 260px;
+  min-width: @patient-section-title-width;
   background-color: @gray-light;
   font-weight: 200;
   padding: @spacing-small;
+
+  @media screen and (max-width: @mobile-breakpoint) {
+    text-align: center;
+    margin: 0 @spacing-large;
+  }
 }
 
 .patients-section-content {
@@ -86,9 +99,12 @@
 }
 
 .patients-new-account {
-  position: absolute;
-  top: 10px;
-  right: 145px;
+  margin-left: auto;
+  margin-top: 16px;
+
+  @media screen and (max-width: @mobile-breakpoint) {
+    margin-right: auto;
+  }
 
   > span {
     padding-right: 4px;

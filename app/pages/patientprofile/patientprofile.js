@@ -132,7 +132,6 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   updatePatient: actions.async.updatePatient,
   updatePatientSettings: actions.async.updateSettings,
   connectDataSource: actions.async.connectDataSource,
-  disconnectDataSource: actions.async.disconnectDataSource,
   fetchPatientFromClinic: actions.async.fetchPatientFromClinic,
   updateClinicPatient: actions.async.updateClinicPatient,
 }, dispatch);
@@ -154,7 +153,6 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     onUpdatePatientSettings: dispatchProps.updatePatientSettings.bind(null, api),
     fetchDataSources: dispatchProps.fetchDataSources.bind(null, api),
     connectDataSource: dispatchProps.connectDataSource.bind(null, api),
-    disconnectDataSource: dispatchProps.disconnectDataSource.bind(null, api),
     trackMetric: ownProps.trackMetric,
     queryParams: ownProps.location.query,
     api: api

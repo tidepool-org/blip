@@ -1042,18 +1042,6 @@ describe('PatientInfo', function () {
     });
   });
 
-  describe('renderDataSources', function() {
-    it('should not render the data sources if the patient is NOT the logged in user', function() {
-      expect(wrapper.find(PatientInfo).childAt(0).instance().isSamePersonUserAndPatient()).to.equal(false);
-      expect(wrapper.find('.PatientPage-dataSources').hostNodes()).to.have.length(0);
-    });
-    it('should render the data sources if the patient is the logged in user', function() {
-      wrapper.setProps({ patient: { userid: 5678 }});
-      expect(wrapper.find(PatientInfo).childAt(0).instance().isSamePersonUserAndPatient()).to.equal(true);
-      expect(wrapper.find('.PatientPage-dataSources').hostNodes()).to.have.length(1);
-    });
-  });
-
   describe('renderMRNInput', function(){
     let props = {
       user: { userid: 5678 },
