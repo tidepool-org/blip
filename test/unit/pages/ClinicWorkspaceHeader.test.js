@@ -87,7 +87,7 @@ describe('ClinicWorkspaceHeader', () => {
           preferredBgUnits: 'mmol/L',
           tier: 'tier0100',
           patientCount: 251,
-          fetchedTotalPatientCount: 251,
+          fetchedPatientTotalCount: 251,
           patientCountSettings: {
             hardLimit: {
               patientCount: 250,

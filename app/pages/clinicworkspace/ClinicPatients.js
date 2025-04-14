@@ -200,7 +200,7 @@ const ClearFilterButtons = withTranslation()(({ t, activeFilters = {}, onClearSe
 const FilterResetBar = withTranslation()(({ t, rightSideContent }) => {
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
-  const fetchedTotalPatientCount = clinic?.fetchedTotalPatientCount || 0;
+  const fetchedPatientTotalCount = clinic?.fetchedPatientTotalCount || 0;
 
   return (
     <Flex
@@ -215,7 +215,7 @@ const FilterResetBar = withTranslation()(({ t, rightSideContent }) => {
       <Text sx={{ fontWeight: 'medium' }}>
         {t('Showing {{ shown }} of {{ total }} patient accounts', {
           shown: clinic?.fetchedPatientCount,
-          total: fetchedTotalPatientCount,
+          total: fetchedPatientTotalCount,
         })}
       </Text>
 
