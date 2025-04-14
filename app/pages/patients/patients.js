@@ -346,9 +346,20 @@ export let Patients = withTranslation()(class extends React.Component {
     let { loading, loggedInUserId, patients, invites, location, showingWelcomeMessage, user } = nextProps;
 
     if (!loading && loggedInUserId && location.query.justLoggedIn) {
+      // If a personal user has just logged in and they are associated with only one patient, redirect
+      // them to the data view for that patient
       if (!personUtils.isClinicianAccount(user) && patients.length === 1 && invites.length === 0) {
         let patient = patients[0];
-        this.props.history.push(`/patients/${patient.userid}/data`);
+        let targetPath = `/patients/${patient.userid}/data`;
+
+        // If they are being redirected here after connecting to a provider, we open up the DataConnections modal
+        // immediately so that they can see the status of their connection.
+        if (location.query.openDataConnectionsModalWithStatus) {
+          const status = location.query.openDataConnectionsModalWithStatus;
+          targetPath += `/settings?openDataConnectionsModalWithStatus=${status}`;
+        }
+
+        this.props.history.push(targetPath);
       } else if (patients.length === 0 && invites.length === 0 && showingWelcomeMessage === null) {
         this.props.showWelcomeMessage();
       }

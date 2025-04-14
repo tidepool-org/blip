@@ -5278,9 +5278,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.45.0-web-3274-device-settings-data-sources.3":
-  version: 1.45.0-web-3274-device-settings-data-sources.3
-  resolution: "@tidepool/viz@npm:1.45.0-web-3274-device-settings-data-sources.3"
+"@tidepool/viz@npm:1.45.0-web-3418-redirect-oauth.2":
+  version: 1.45.0-web-3418-redirect-oauth.2
+  resolution: "@tidepool/viz@npm:1.45.0-web-3418-redirect-oauth.2"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -5340,7 +5340,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: ed3bbe5fd1da450ff5e33c7d1b3ce4492868d96f8d233081b60dedd02da56ab85b9f9a634b7e4a06c3a6df7546e1a4bf9ec57bcf4a0e6c4bd2d06fe561d93e8a
+  checksum: 54002c87242f6f973c921fae304923c7579fa0c7a19236e953234b43b149b17dbf9a4bcdcfd2d998bbe195709a5cc1a695d0f158f3bf27346c8c5b640220a83b
   languageName: node
   linkType: hard
 
@@ -7251,7 +7251,7 @@ __metadata:
     "@storybook/react": 7.5.0
     "@storybook/react-webpack5": 7.5.0
     "@testing-library/react-hooks": 8.0.1
-    "@tidepool/viz": 1.45.0-web-3274-device-settings-data-sources.3
+    "@tidepool/viz": 1.45.0-web-3418-redirect-oauth.2
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
