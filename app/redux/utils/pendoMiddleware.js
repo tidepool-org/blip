@@ -28,6 +28,7 @@ const environments = {
   'qa4.development.tidepool.org': 'qa4',
   'qa5.development.tidepool.org': 'qa5',
   'int-app.tidepool.org': 'int',
+  'int-api.tidepool.org': 'int',
   'external.integration.tidepool.org': 'int',
   'app.tidepool.org': 'prd',
   localhost: 'local',
