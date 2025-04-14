@@ -15,6 +15,7 @@ import { setPendoData } from '../actions/sync';
 
 const trackingActions = [
   ActionTypes.LOGIN_SUCCESS,
+  ActionTypes.LOGOUT_REQUEST,
   ActionTypes.SELECT_CLINIC_SUCCESS,
   ActionTypes.DATA_WORKER_ADD_DATA_SUCCESS,
   ActionTypes.DATA_WORKER_QUERY_DATA_SUCCESS,
