@@ -27,7 +27,7 @@ export const ClinicWorkspaceHeader = (props) => {
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = get(clinics, selectedClinicId);
   const isWorkspacePath = pathname.indexOf('/clinic-workspace') === 0;
-  const fetchedPatientCountOnInit = clinic?.fetchedPatientCountOnInit || 0;
+  const fetchedTotalPatientCount = clinic?.fetchedTotalPatientCount || 0;
 
   const buttonText = useMemo(() =>
     <Icon
@@ -157,7 +157,7 @@ export const ClinicWorkspaceHeader = (props) => {
                     px={1}
                     pt="2px"
                     pb={0}
-                    text={`${fetchedPatientCountOnInit}${clinic.ui.display?.patientLimit ? ' / ' + clinic.patientCountSettings?.hardLimit?.patientCount : '' }`}
+                    text={`${fetchedTotalPatientCount}${clinic.ui.display?.patientLimit ? ' / ' + clinic.patientCountSettings?.hardLimit?.patientCount : '' }`}
                     icon={clinic?.ui.warnings.limitReached ? WarningRoundedIcon : null}
                     label={t('Patient Count')}
                     colorPalette={clinic?.ui.warnings.limitReached || clinic?.ui.warnings.limitApproaching ? 'warning' : 'transparent'}

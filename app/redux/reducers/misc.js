@@ -604,24 +604,19 @@ export const clinics = (state = initialState.clinics, action) => {
       return _.merge({}, state, newClinics);
     }
     case types.FETCH_PATIENTS_FOR_CLINIC_SUCCESS: {
-      let { clinicId, patients, count } = action.payload;
+      let { clinicId, patients, count, totalCount } = action.payload;
       const newPatientSet = _.reduce(patients, (newSet, patient, i) => {
         newSet[patient.id] = { ...patient, sortIndex: i };
         return newSet;
       }, {});
-
-      // We store the first-ever fetchedPatientCount value in fetchPatientCountOnInit,
-      // and we use that value to represent the total number of patients in the clinic
-      const fetchedPatientCount = count;
-      const fetchedPatientCountOnInit = state[clinicId]?.fetchedPatientCountOnInit || count;
 
       return update(state, {
         [clinicId]: {
           $set: {
             ...state[clinicId],
             patients: newPatientSet,
-            fetchedPatientCount,
-            fetchedPatientCountOnInit,
+            fetchedPatientCount: count,
+            fetchedTotalPatientCount: totalCount,
             lastPatientFetchTime: moment.utc().valueOf(),
           },
         },
@@ -635,7 +630,12 @@ export const clinics = (state = initialState.clinics, action) => {
         } = action;
         return update(state, {
           [clinicId]: {
-            $set: { ...state[clinicId], patients: {}, fetchedPatientCount: 0 },
+            $set: {
+              ...state[clinicId],
+              patients: {},
+              fetchedPatientCount: 0,
+              fetchedTotalPatientCount: 0,
+            },
           },
         });
       }
