@@ -2,6 +2,8 @@ import _ from 'lodash';
 import bows from 'bows';
 import PropTypes from 'prop-types';
 import React, { useState, useCallback, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { Trans, withTranslation } from 'react-i18next';
 import { Flex, Box, Text, Divider, Link } from 'theme-ui';
 import moment from 'moment-timezone';
@@ -40,6 +42,8 @@ import DataConnectionsModal from '../../components/datasources/DataConnectionsMo
 import Card from '../elements/Card';
 import { Body1, MediumTitle } from '../elements/FontStyles';
 import Uploadlaunchoverlay from '../uploadlaunchoverlay';
+import api from '../../core/api';
+import styled from '@emotion/styled';
 
 const log = bows('Settings View');
 
@@ -59,6 +63,42 @@ function formatDuration(milliseconds) {
   const years = Math.floor(days / 365);
   return `>${years} year${years === 1 ? '' : 's'}`;
 }
+
+export const useLatestDatumTime = (tidepoolApi = api, uploadId) => {
+  const { id: patientId } = useParams();
+  const [latestTimestamp, setLatestTimestamp] = useState(null);
+
+  useEffect(() => {
+    setLatestTimestamp(null);
+
+    if (!uploadId) return;
+
+    const fetchOpts = {
+      uploadId,
+      type: ['cbg', 'smbg', 'basal', 'bolus', 'wizard', 'food', 'pumpSettings', 'upload'].join(','),
+      latest: 1,
+    };
+
+    tidepoolApi.patientData.get(patientId, fetchOpts, (err, latestDatums) => {
+      if (err || !latestDatums.length) return;
+
+      const latestISOTimestamp = _.maxBy(latestDatums, 'time')?.time;
+      const latestUnixTimestamp = latestISOTimestamp && moment(latestISOTimestamp).valueOf();
+
+      if (!latestUnixTimestamp) return;
+
+      setLatestTimestamp(latestUnixTimestamp);
+    });
+  }, [patientId, uploadId]);
+
+  return latestTimestamp;
+};
+
+const SettingsPopover = styled(Popover)`
+  .MuiPopover-paper {
+    overflow: hidden;
+  }
+`;
 
 const Settings = ({
   chartPrefs,
@@ -80,6 +120,10 @@ const Settings = ({
   currentPatientInViewId,
   t
 }) => {
+  const { location } = useHistory();
+  const isJustConnected = !!location?.query?.dataConnectionStatus;
+
+  const [showDataConnectionsModal, setShowDataConnectionsModal] = useState(isJustConnected);
   const [atMostRecent, setAtMostRecent] = useState(true);
   const [inTransition, setInTransition] = useState(false);
   const [title, setTitle] = useState('');
@@ -93,9 +137,11 @@ const Settings = ({
   const previousSelectedDevice = usePrevious(selectedDevice);
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const isClinicContext = !!selectedClinicId;
-  const [showDataConnectionsModal, setShowDataConnectionsModal] = useState(false);
   const [showUploadOverlay, setShowUploadOverlay] = useState(false);
   const dataSources = useSelector(state => state.blip.dataSources);
+
+  const [latestUploadId, setLatestUploadId] = useState(null);
+  const latestDatumFromUploadTimestamp = useLatestDatumTime(api, latestUploadId);
 
   const patientData = clinicPatient || {
     ...clinicPatientFromAccountInfo(patient),
@@ -116,8 +162,10 @@ const Settings = ({
 
   const timezoneName = _.get(data, 'timePrefs.timezoneName', 'UTC');
 
+  const combinedData = data?.data?.combined;
+
   useEffect(() => {
-    const sortedData = _.sortBy(_.filter(_.cloneDeep(data?.data?.combined), { type: 'pumpSettings' }), 'normalTime');
+    const sortedData = _.sortBy(_.filter(_.cloneDeep(combinedData), { type: 'pumpSettings' }), 'normalTime');
 
     let groupedBySource = _.groupBy(sortedData, 'source');
 
@@ -142,7 +190,19 @@ const Settings = ({
       group.reverse();
 
       group.forEach((obj, index) => {
-        const previousObj = index > 0 ? group[index - 1] : { normalTime: new Date().getTime() };
+        let previousObj = group[index - 1];
+
+        // For the latest setting option, there is no end date, but we need to display when those pumpSettings
+        // are known to be valid until. We instead use the latest timestamp of ANY datum within the same upload,
+        // assuming that those pumpSettings were at least valid until the latest timestamp of any other data
+        // in the upload it was batched together with.
+        if (index === 0) {
+          setLatestUploadId(obj.uploadId); // triggers a fetch for the latest datums of this upload id
+          const endTimestamp = latestDatumFromUploadTimestamp || obj.normalTime;
+
+          previousObj = { normalTime: endTimestamp };
+        }
+
         obj.previousNormalTime = previousObj.normalTime;
         obj.elapsedTime = previousObj.normalTime - obj.normalTime;
         obj.durationString = formatDuration(obj.elapsedTime);
@@ -206,6 +266,23 @@ const Settings = ({
     const selectedDevicePair = _.find(groupedData, { 0: selectedDevice });
     if(selectedDevice && selectedDevicePair) {
       setSettingsOptions(_.map(selectedDevicePair[1], (setting, index) => {
+        // If the latest setting option starts and ends on the same day, we show '(Last Upload Date)' in place of end date
+        const { previousNormalTime, normalTime } = setting;
+        const isSameDayAsLastUpload = index === 0 && (moment(previousNormalTime).isSame(normalTime, 'day'));
+
+        if (isSameDayAsLastUpload) {
+          return {
+            value: setting.id,
+            label: (
+              <span>
+                {moment(setting.normalTime).tz(timezoneName).format('MMM DD, YYYY')}
+                {' '}
+                {t('(Last Upload Date)')}
+              </span>
+            ),
+          };
+        }
+
         return {
           value: setting.id,
           label: (
@@ -441,7 +518,7 @@ const Settings = ({
         </Button>
       </Box>
 
-      <Popover
+      <SettingsPopover
         minWidth="11em"
         closeIcon
         {...bindPopover(settingsSelectionPopupState)}
@@ -471,7 +548,7 @@ const Settings = ({
             name="settings"
             options={settingsOptions}
             variant="vertical"
-            sx={{ fontSize: 0 }}
+            sx={{ fontSize: 0, maxHeight: '40vh' }}
             value={pendingSettings || selectedSettingsId}
             onChange={(event) => {
               setPendingSettings(event.target.value || null);
@@ -511,7 +588,7 @@ const Settings = ({
             {t('Apply')}
           </Button>
         </DialogActions>
-      </Popover>
+      </SettingsPopover>
     </Flex>
   );
 

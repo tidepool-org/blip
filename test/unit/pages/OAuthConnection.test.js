@@ -40,10 +40,12 @@ describe('OAuthConnection', () => {
 
   before(() => {
     mount = createMount();
+    OAuthConnection.__Rewire__('utils', { isMobile: () => true });
   });
 
   after(() => {
     mount.cleanUp();
+    OAuthConnection.__ResetDependency__('utils');
   });
 
   afterEach(() => {
@@ -114,6 +116,25 @@ describe('OAuthConnection', () => {
 
       let expectedActions = [
         routeAction('/login?signupKey=abc&signupEmail=patient%40mail.com'),
+      ];
+
+      const actions = store.getActions();
+      expect(actions).to.eql(expectedActions);
+    });
+
+    it('should render a button to redirect back to tidepool app when on mobile', () => {
+      defaultProps.trackMetric.resetHistory();
+      wrapper.find('#oauth-redirect-home-button').hostNodes().simulate('click');
+
+      sinon.assert.calledWith(defaultProps.trackMetric, 'Oauth - Connection - Redirect back to Tidepool App', {
+        providerName: 'dexcom',
+        status: 'authorized',
+      });
+
+      let expectedActions = [
+        routeAction(
+          '/patients?justLoggedIn=true&dataConnectionStatus=authorized&dataConnectionProviderName=dexcom'
+        ),
       ];
 
       const actions = store.getActions();
@@ -269,6 +290,23 @@ describe('OAuthConnection', () => {
 
       let expectedActions = [
         routeAction('/login?signupKey=abc&signupEmail=patient%40mail.com'),
+      ];
+
+      const actions = store.getActions();
+      expect(actions).to.eql(expectedActions);
+    });
+
+    it('should render a button to redirect back to tidepool app when on mobile', () => {
+      defaultProps.trackMetric.resetHistory();
+      wrapper.find('#oauth-redirect-home-button').hostNodes().simulate('click');
+
+      sinon.assert.calledWith(defaultProps.trackMetric, 'Oauth - Connection - Redirect back to Tidepool App', {
+        providerName: 'abbott',
+        status: 'authorized',
+      });
+
+      let expectedActions = [
+        routeAction('/patients?justLoggedIn=true&dataConnectionStatus=authorized&dataConnectionProviderName=abbott'),
       ];
 
       const actions = store.getActions();

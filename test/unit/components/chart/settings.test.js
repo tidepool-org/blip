@@ -11,7 +11,9 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import _ from 'lodash';
-import Settings from '../../../../app/components/chart/settings';
+import { MemoryRouter, Route } from 'react-router-dom';
+import Settings, { useLatestDatumTime } from '../../../../app/components/chart/settings';
+import { renderHook } from '@testing-library/react-hooks/dom';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 import i18next from '../../../../app/core/language';
 import { Provider } from 'react-redux';
@@ -134,11 +136,20 @@ describe('Settings', () => {
         </div>
       )
     );
+
+    Settings.__Rewire__('useHistory', sinon.stub().returns({ location: { query: {} } }));
+
     clock = sinon.useFakeTimers();
+  });
+
+  beforeEach(() => {
+    Settings.__Rewire__('useLatestDatumTime', () => null);
   });
 
   after(() => {
     Settings.__ResetDependency__('PumpSettingsContainer');
+    Settings.__ResetDependency__('useLatestDatumTime');
+    Settings.__ResetDependency__('useHistory');
     clock.uninstall();
   });
 
@@ -673,7 +684,7 @@ describe('Settings', () => {
     const radioOptions = settingsRadioGroup.find('Radio');
     expect(radioOptions).to.have.lengthOf(1);
     expect(radioOptions.at(0).text()).to.equal(
-      'Jan 01, 2023 - Jan 02, 2023 : Active for 1 day'
+      'Jan 01, 2023 (Last Upload Date)'
     );
   });
 
@@ -705,7 +716,7 @@ describe('Settings', () => {
     const radioOptions = settingsRadioGroup.find('Radio');
     expect(radioOptions).to.have.lengthOf(2);
     expect(radioOptions.at(0).text()).to.equal(
-      'Jan 02, 2023 - Jan 03, 2023 : Active for 1 day'
+      'Jan 02, 2023 (Last Upload Date)'
     );
     expect(radioOptions.at(1).text()).to.equal(
       'Jan 01, 2023 - Jan 02, 2023 : Active for 1 day'
@@ -746,7 +757,7 @@ describe('Settings', () => {
     const radioOptions = settingsRadioGroup.find('Radio');
     expect(radioOptions).to.have.lengthOf(2);
     expect(radioOptions.at(0).text()).to.equal(
-      'Jan 03, 2023 - Jan 05, 2023 : Active for 2 days'
+      'Jan 03, 2023 (Last Upload Date)'
     );
     expect(radioOptions.at(1).text()).to.equal(
       'Jan 01, 2023 - Jan 03, 2023 : Active for 2 days'
@@ -781,7 +792,7 @@ describe('Settings', () => {
     const radioOptions = settingsRadioGroup.find('Radio');
     expect(radioOptions).to.have.lengthOf(2);
     expect(radioOptions.at(0).text()).to.equal(
-      'Jan 02, 2023 - Jan 03, 2023 : Active for 1 day'
+      'Jan 02, 2023 (Last Upload Date)'
     );
     expect(radioOptions.at(1).text()).to.equal(
       'Jan 01, 2023 - Jan 02, 2023 : Active for <1 day'
@@ -789,7 +800,7 @@ describe('Settings', () => {
   });
 
   it('formats duration correctly for longer periods in settings selection options', () => {
-    clock.jump(new Date('2023-03-01T00:00:00Z').getTime());
+    clock.jump(new Date('2023-04-01T00:00:00Z').getTime());
     mountWrapper({
       data: {
         data: {
@@ -812,6 +823,12 @@ describe('Settings', () => {
               source: 'source1',
               id: 'id3',
             },
+            {
+              type: 'pumpSettings',
+              normalTime: moment('2023-03-01T00:00:00Z').valueOf(),
+              source: 'source1',
+              id: 'id4',
+            },
           ],
         },
         timePrefs: { timezoneName: 'UTC' },
@@ -820,14 +837,17 @@ describe('Settings', () => {
     wrapper.update();
     const settingsRadioGroup = wrapper.find('RadioGroup#settings');
     const radioOptions = settingsRadioGroup.find('Radio');
-    expect(radioOptions).to.have.lengthOf(3);
+    expect(radioOptions).to.have.lengthOf(4);
     expect(radioOptions.at(0).text()).to.equal(
-      'Feb 01, 2023 - Mar 01, 2023 : Active for 28 days'
+      'Mar 01, 2023 (Last Upload Date)'
     );
     expect(radioOptions.at(1).text()).to.equal(
-      'Jan 01, 2023 - Feb 01, 2023 : Active for 31 days'
+      'Feb 01, 2023 - Mar 01, 2023 : Active for 28 days'
     );
     expect(radioOptions.at(2).text()).to.equal(
+      'Jan 01, 2023 - Feb 01, 2023 : Active for 31 days'
+    );
+    expect(radioOptions.at(3).text()).to.equal(
       'Nov 01, 2022 - Jan 01, 2023 : Active for >2 months'
     );
   });
@@ -840,13 +860,13 @@ describe('Settings', () => {
           combined: [
             {
               type: 'pumpSettings',
-              normalTime: moment('2023-01-01T00:00:00Z').valueOf(),
+              normalTime: moment('2022-12-01T00:00:00Z').valueOf(),
               source: 'source1',
               id: 'id1',
             },
             {
               type: 'pumpSettings',
-              normalTime: moment('2024-01-01T00:00:00Z').valueOf(),
+              normalTime: moment('2023-12-01T00:00:00Z').valueOf(),
               source: 'source1',
               id: 'id2',
             },
@@ -862,6 +882,12 @@ describe('Settings', () => {
               source: 'source1',
               id: 'id4',
             },
+            {
+              type: 'pumpSettings',
+              normalTime: moment('2024-02-01T00:00:00Z').valueOf(),
+              source: 'source1',
+              id: 'id5',
+            },
           ],
         },
         timePrefs: { timezoneName: 'UTC' },
@@ -870,19 +896,139 @@ describe('Settings', () => {
     wrapper.update();
     const settingsRadioGroup = wrapper.find('RadioGroup#settings');
     const radioOptions = settingsRadioGroup.find('Radio');
-    expect(radioOptions).to.have.lengthOf(4);
+    expect(radioOptions).to.have.lengthOf(5);
     expect(radioOptions.at(0).text()).to.equal(
-      'Jan 01, 2024 - Mar 01, 2024 : Active for >2 months'
+      'Feb 01, 2024 (Last Upload Date)'
     );
     expect(radioOptions.at(1).text()).to.equal(
-      'Jan 01, 2023 - Jan 01, 2024 : Active for >12 months'
+      'Dec 01, 2023 - Feb 01, 2024 : Active for >2 months'
     );
     expect(radioOptions.at(2).text()).to.equal(
-      'Jun 01, 2021 - Jan 01, 2023 : Active for >1 year'
+      'Dec 01, 2022 - Dec 01, 2023 : Active for >12 months'
     );
     expect(radioOptions.at(3).text()).to.equal(
+      'Jun 01, 2021 - Dec 01, 2022 : Active for >1 year'
+    );
+    expect(radioOptions.at(4).text()).to.equal(
       'Jan 01, 2018 - Jun 01, 2021 : Active for >3 years'
     );
+  });
+
+  it('formats duration correctly when useLatestDatumTime returns a later date', () => {
+    Settings.__Rewire__('useLatestDatumTime', () => 1678579200000); // March 12, 2023
+
+    clock.jump(new Date('2023-04-01T00:00:00Z').getTime());
+    mountWrapper({
+      data: {
+        data: {
+          combined: [
+            {
+              type: 'pumpSettings',
+              normalTime: moment('2023-02-01T00:00:00Z').valueOf(),
+              source: 'source1',
+              id: 'id1',
+            },
+            {
+              type: 'pumpSettings',
+              normalTime: moment('2023-03-01T00:00:00Z').valueOf(),
+              source: 'source1',
+              id: 'id2',
+            },
+          ],
+        },
+        timePrefs: { timezoneName: 'UTC' },
+      },
+    });
+    wrapper.update();
+    const settingsRadioGroup = wrapper.find('RadioGroup#settings');
+    const radioOptions = settingsRadioGroup.find('Radio');
+    expect(radioOptions).to.have.lengthOf(2);
+    expect(radioOptions.at(0).text()).to.equal(
+      'Mar 01, 2023 - Mar 12, 2023 : Active for 11 days'
+    );
+    expect(radioOptions.at(1).text()).to.equal(
+      'Feb 01, 2023 - Mar 01, 2023 : Active for 28 days'
+    );
+  });
+
+  describe('useLatestDatumTime hook', () => {
+    const wrapper = ({ children }) => (
+      <MemoryRouter initialEntries={['/patients/1234-abcd/data/settings']}>
+        <Route path='/patients/:id/data'>
+          {children}
+        </Route>
+      </MemoryRouter>
+    );
+
+    it('calls the API with correct args and returns the timestamp of the latest datum', () => {
+      const mockApiCall = sinon.stub();
+
+      mockApiCall.callsFake((_patientId, _fetchOpts, callback) => {
+        callback(
+          null,
+          [
+            {
+              type: 'smbg',
+              time: '2023-03-02T00:00:00Z',
+              source: 'source1',
+              id: 'id2',
+            },
+            {
+              type: 'cbg',
+              time: '2023-03-01T00:00:00Z',
+              source: 'source1',
+              id: 'id2',
+            },
+          ]
+        );
+      });
+
+      const mockApi = {
+        patientData: {
+          get: mockApiCall,
+        },
+      };
+
+      const { result } = renderHook(() => useLatestDatumTime(mockApi, 'mock-upload-id'), { wrapper });
+      const latestDatumTime = result.current;
+
+      expect(latestDatumTime).to.equal(1677715200000); // March 2, 2023
+
+      expect(mockApiCall.getCall(0).args[0]).to.equal('1234-abcd');
+      expect(mockApiCall.getCall(0).args[1]['latest']).to.equal(1);
+      expect(mockApiCall.getCall(0).args[1]['type']).to.equal('cbg,smbg,basal,bolus,wizard,food,pumpSettings,upload');
+      expect(mockApiCall.getCall(0).args[1]['uploadId']).to.equal('mock-upload-id');
+    });
+
+    it('returns null when resulting dataset is empty', () => {
+      const mockApi = {
+        patientData: {
+          get: (_patientId, _fetchOpts, callback) => {
+            callback(null, []);
+          },
+        },
+      };
+
+      const { result } = renderHook(() => useLatestDatumTime(mockApi, 'mock-upload-id'), { wrapper });
+      const latestDatumTime = result.current;
+
+      expect(latestDatumTime).to.equal(null); // March 2, 2023
+    });
+
+    it('returns null when API throws an error', () => {
+      const mockApi = {
+        patientData: {
+          get: (_patientId, _fetchOpts, callback) => {
+            callback(new Error('API request failed'));
+          },
+        },
+      };
+
+      const { result } = renderHook(() => useLatestDatumTime(mockApi, 'mock-upload-id'), { wrapper });
+      const latestDatumTime = result.current;
+
+      expect(latestDatumTime).to.equal(null);
+    });
   });
 
   describe('data connections', () => {
