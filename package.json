@@ -181,7 +181,7 @@
     "terser-webpack-plugin": "5.3.9",
     "theme-ui": "0.16.1",
     "tideline": "1.31.0-web-2965-exclude-days.1",
-    "tidepool-platform-client": "0.62.0-web-3400-strip-clinic-patient-update-fields.1",
+    "tidepool-platform-client": "0.62.0-web-3071-smart-on-fhir.1",
     "tidepool-standard-action": "0.1.1",
     "ua-parser-js": "1.0.36",
     "url-loader": "4.1.1",

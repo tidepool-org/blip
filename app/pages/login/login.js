@@ -93,18 +93,17 @@ export const Login = withTranslation()(class extends React.Component {
     if (hasDest) {
       redirectUri += dest;
     }
+
     const urlParams = new URLSearchParams(routerState?.location?.search);
-    const iss = urlParams.get('iss');
-    const launch = urlParams.get('launch');
-    let correlationId;
-    if (iss && launch && !sessionStorage.getItem('smart_correlation_id')) {
+    const iss = sessionStorage.getItem('smart_iss') || urlParams.get('iss');
+    const launch = sessionStorage.getItem('smart_launch') || urlParams.get('launch');
+    let correlationId = sessionStorage.getItem('smart_correlation_id');
+
+    if (iss && launch && !correlationId) {
       correlationId = crypto.randomUUID();
       sessionStorage.setItem('smart_correlation_id', correlationId);
       sessionStorage.setItem('smart_iss', iss);
       sessionStorage.setItem('smart_launch', launch);
-
-      // adding these to the redirectUri causes Epic to fail with a query param too long error right now
-      // redirectUri += `?iss=${iss}&launch=${launch}&correlation_id=${correlationId}`;
     }
 
     // for those accepting an invite, forward to keycloak login when available

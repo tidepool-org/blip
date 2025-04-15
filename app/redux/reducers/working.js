@@ -49,6 +49,7 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_ASSOCIATED_ACCOUNTS_REQUEST:
     case types.FETCH_PATIENT_REQUEST:
     case types.FETCH_PATIENT_DATA_REQUEST:
+    case types.FETCH_PATIENTS_REQUEST:
     case types.FETCH_CLINIC_PRESCRIPTIONS_REQUEST:
     case types.CREATE_PRESCRIPTION_REQUEST:
     case types.CREATE_PRESCRIPTION_REVISION_REQUEST:
@@ -228,6 +229,7 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_ASSOCIATED_ACCOUNTS_SUCCESS:
     case types.FETCH_PATIENT_SUCCESS:
     case types.FETCH_PATIENT_DATA_SUCCESS:
+    case types.FETCH_PATIENTS_SUCCESS:
     case types.FETCH_CLINIC_PRESCRIPTIONS_SUCCESS:
     case types.CREATE_PRESCRIPTION_SUCCESS:
     case types.CREATE_PRESCRIPTION_REVISION_SUCCESS:
@@ -413,6 +415,7 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_ASSOCIATED_ACCOUNTS_FAILURE:
     case types.FETCH_PATIENT_FAILURE:
     case types.FETCH_PATIENT_DATA_FAILURE:
+    case types.FETCH_PATIENTS_FAILURE:
     case types.FETCH_CLINIC_PRESCRIPTIONS_FAILURE:
     case types.CREATE_PRESCRIPTION_FAILURE:
     case types.CREATE_PRESCRIPTION_REVISION_FAILURE:

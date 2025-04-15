@@ -43,6 +43,7 @@ export const ERR_EDITING_MESSAGE_THREAD = t('Something went wrong while editing 
 export const ERR_FETCHING_PATIENT = t('Something went wrong while fetching patient.');
 export const ERR_FETCHING_PATIENT_UNAUTHORIZED = t('Something went wrong while fetching patient. You are not authorized to view this patient.');
 export const ERR_FETCHING_PATIENT_CLINICIAN_UNAUTHORIZED = t('Something went wrong with your account authorization. Please check with your administrator to verify your level of access.');
+export const ERR_FETCHING_PATIENTS = t('Something went wrong while fetching patients.');
 export const ERR_FETCHING_PATIENT_DATA = t('Something went wrong while fetching data for the current patient.');
 export const ERR_FETCHING_PATIENT_DATA_UNAUTHORIZED = t('Something went wrong while fetching data for the current patient. You are not authorized to view this patient data.');
 export const ERR_FETCHING_PATIENT_DATA_CLINICIAN_UNAUTHORIZED = t('Something went wrong with your account authorization. Please check with your administrator to verify your level of access.');

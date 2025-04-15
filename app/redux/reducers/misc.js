@@ -603,6 +603,21 @@ export const clinics = (state = initialState.clinics, action) => {
       );
       return _.merge({}, state, newClinics);
     }
+    case types.FETCH_PATIENTS_SUCCESS: {
+      const results = _.get(action, 'payload.results', []);
+
+      let updatedState = _.cloneDeep(state);
+      for (const result of results) {
+        const { clinic, patient } = result;
+        if (clinic && patient) {
+          updatedState[clinic.id] = {
+            ...updatedState[clinic.id],
+            patients: { ...updatedState[clinic.id]?.patients || {}, [patient.userid]: patient },
+          };
+        }
+      }
+      return updatedState;
+    }
     case types.FETCH_PATIENTS_FOR_CLINIC_SUCCESS: {
       let { clinicId, patients, count } = action.payload;
       const newPatientSet = _.reduce(patients, (newSet, patient, i) => {
@@ -1050,6 +1065,17 @@ export const keycloakConfig = (state = initialState.keycloakConfig, action) => {
       let error = _.get(action.payload, 'error', {});
       let message = _.get(error, 'error', null);
       return _.extend({}, state, { error: message });
+    default:
+      return state;
+  }
+};
+
+export const smartOnFhirData = (state = initialState.smartOnFhirData, action) => {
+  switch (action.type) {
+    case types.SMART_ON_FHIR_AUTH_SUCCESS:
+      return action.payload.smartOnFhirData;
+    case types.LOGOUT_REQUEST:
+      return null;
     default:
       return state;
   }

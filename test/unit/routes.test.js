@@ -20,6 +20,7 @@ import {
   onUploaderPasswordReset,
   ensureNoAuth,
   requireSupportedBrowser,
+  requireSmartOnFhir,
 } from '../../app/routes';
 
 import config from '../../app/config';
@@ -1457,6 +1458,59 @@ describe('routes', () => {
 
       const actions = store.getActions();
       expect(actions).to.eql(expectedActions);
+    });
+  });
+
+  describe('requireSmartOnFhir', () => {
+    let api;
+    let dispatch;
+    let getState;
+    let cb;
+
+    beforeEach(() => {
+      api = {};
+      dispatch = sinon.stub();
+      getState = sinon.stub().returns({
+        blip: {
+          smartOnFhirData: null
+        }
+      });
+      cb = sinon.stub();
+    });
+
+    afterEach(() => {
+      dispatch.reset();
+      getState.reset();
+      cb.reset();
+    });
+
+    it('should redirect to login if no Smart on FHIR data is available', () => {
+      requireSmartOnFhir(api, cb)(dispatch, getState);
+
+      expect(dispatch.callCount).to.equal(1);
+      expect(dispatch.args[0][0].payload.args[0]).to.equal('/login');
+      expect(cb.callCount).to.equal(1);
+      expect(cb.args[0][0]).to.equal(false);
+    });
+
+    it('should call callback with true if Smart on FHIR data is available', () => {
+      getState.returns({
+        blip: {
+          smartOnFhirData: {
+            patients: {
+              'correlation-123': {
+                mrn: '12345'
+              }
+            }
+          }
+        }
+      });
+
+      requireSmartOnFhir(api, cb)(dispatch, getState);
+
+      expect(dispatch.callCount).to.equal(0);
+      expect(cb.callCount).to.equal(1);
+      expect(cb.args[0][0]).to.equal(true);
     });
   });
 });

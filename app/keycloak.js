@@ -126,6 +126,11 @@ export const onKeycloakTokens = (store) => (tokens) => {
     );
     setTokenRefresh(keycloak);
   }
+  const hasSmartOnFhirData = keycloak?.idTokenParsed?.['smart-on-fhir']?.patients;
+
+  if (hasSmartOnFhirData) {
+    store.dispatch(sync.smartOnFhirAuthSuccess(keycloak.idTokenParsed['smart-on-fhir']));
+  }
 };
 
 export const keycloakMiddleware = (api) => (storeAPI) => (next) => (action) => {

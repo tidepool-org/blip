@@ -9,6 +9,7 @@ import isTSA from 'tidepool-standard-action';
 
 import * as sync from '../../../../app/redux/actions/sync';
 import * as UserMessages from '../../../../app/redux/constants/usrMessages';
+import * as ActionTypes from '../../../../app/redux/constants/actionTypes';
 
 import { MMOLL_UNITS } from '../../../../app/core/constants';
 
@@ -4574,6 +4575,104 @@ describe('Actions', () => {
       let action = sync.setPatientListSearchTextInput(searchInput);
       expect(action.type).to.equal('SET_PATIENT_LIST_SEARCH_TEXT_INPUT');
       expect(action.payload.textInput).to.equal(searchInput);
+    });
+  });
+
+  describe('smartOnFhirAuthSuccess', () => {
+    it('should be a TSA', () => {
+      let smartOnFhirData = { foo: 'bar' };
+      let action = sync.smartOnFhirAuthSuccess(smartOnFhirData);
+
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal SMART_ON_FHIR_AUTH_SUCCESS', () => {
+      let smartOnFhirData = { foo: 'bar' };
+      let action = sync.smartOnFhirAuthSuccess(smartOnFhirData);
+
+      expect(action.type).to.equal(ActionTypes.SMART_ON_FHIR_AUTH_SUCCESS);
+    });
+
+    it('payload should contain smartOnFhirData', () => {
+      let smartOnFhirData = { foo: 'bar' };
+      let action = sync.smartOnFhirAuthSuccess(smartOnFhirData);
+
+      expect(action.payload.smartOnFhirData).to.equal(smartOnFhirData);
+    });
+  });
+
+  describe('fetchPatientsRequest', () => {
+    it('should be a TSA', () => {
+      let action = sync.fetchPatientsRequest();
+
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal FETCH_PATIENTS_REQUEST', () => {
+      let action = sync.fetchPatientsRequest();
+
+      expect(action.type).to.equal(ActionTypes.FETCH_PATIENTS_REQUEST);
+    });
+  });
+
+  describe('fetchPatientsSuccess', () => {
+    it('should be a TSA', () => {
+      let patients = [{patient:{ userid: 'a1b2c3' },clinic: { id: 'clinicId' }}];
+      let action = sync.fetchPatientsSuccess(patients);
+
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal FETCH_PATIENTS_SUCCESS', () => {
+      let patients = [{patient:{ userid: 'a1b2c3' },clinic: { id: 'clinicId' }}];
+      let action = sync.fetchPatientsSuccess(patients);
+
+      expect(action.type).to.equal(ActionTypes.FETCH_PATIENTS_SUCCESS);
+    });
+
+    it('payload should contain patients', () => {
+      let patients = [{patient:{ userid: 'a1b2c3' },clinic: { id: 'clinicId' }}];
+      let action = sync.fetchPatientsSuccess(patients);
+
+      expect(action.payload).to.deep.equal({results: patients});
+    });
+  });
+
+  describe('fetchPatientsFailure', () => {
+    it('should be a TSA', () => {
+      let error = new Error('Something bad happened :(');
+      let action = sync.fetchPatientsFailure(error);
+
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal FETCH_PATIENTS_FAILURE', () => {
+      let error = new Error('Something bad happened :(');
+      let action = sync.fetchPatientsFailure(error);
+
+      expect(action.type).to.equal(ActionTypes.FETCH_PATIENTS_FAILURE);
+    });
+
+    it('error should be set', () => {
+      let error = new Error('Something bad happened :(');
+      let action = sync.fetchPatientsFailure(error);
+
+      expect(action.error).to.equal(error);
+    });
+
+    it('should set apiError in meta if provided', () => {
+      let error = new Error('Something bad happened :(');
+      let apiError = { status: 500, body: 'Server error' };
+      let action = sync.fetchPatientsFailure(error, apiError);
+
+      expect(action.meta.apiError).to.equal(apiError);
+    });
+
+    it('should set apiError to null in meta if not provided', () => {
+      let error = new Error('Something bad happened :(');
+      let action = sync.fetchPatientsFailure(error);
+
+      expect(action.meta.apiError).to.be.null;
     });
   });
 });

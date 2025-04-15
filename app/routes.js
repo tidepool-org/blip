@@ -27,6 +27,7 @@ import Signup from './pages/signup';
 import Terms from './pages/terms';
 import UserProfile from './pages/userprofile';
 import VerificationWithPassword from './pages/verificationwithpassword';
+import SmartOnFhir from './pages/smartonfhir';
 import Gate from './components/gate';
 import UploadRedirect from './pages/uploadredirect';
 import LoggedOut from './pages/loggedout';
@@ -414,6 +415,22 @@ export const onUploaderPasswordReset = (api, cb = _.noop) => (dispatch) => {
 }
 
 /**
+ * This function handles the Smart on FHIR authentication flow
+ *
+ * @param {Object} api
+ */
+export const requireSmartOnFhir = (api, cb = _.noop) => (dispatch, getState) => {
+  const { blip: state } = getState();
+
+  if (!state.smartOnFhirData) {
+    dispatch(push('/login'));
+    return cb(false);
+  }
+
+  cb(true);
+}
+
+/**
  * Creates the route map with authentication associated with each route built in.
  *
  * @param  {Object} appContext
@@ -429,6 +446,7 @@ export const getRoutes = (appContext) => {
   const boundRequireAuth = requireAuth.bind(null, api);
   const boundRequireNotVerified = requireNotVerified.bind(null, api);
   const boundRequireAuthAndNoPatient = requireAuthAndNoPatient.bind(null, api);
+  const boundRequireSmartOnFhir = requireSmartOnFhir.bind(null, api);
   const boundRequireSupportedBrowser = requireSupportedBrowser.bind(null, boundRequireAuth);
   const boundRequireSupportedBrowserForUserType = requireSupportedBrowserForUserType.bind(null, api, boundRequireAuth);
   const boundEnsureNoAuth = ensureNoAuth.bind(null, api);
@@ -441,6 +459,7 @@ export const getRoutes = (appContext) => {
         <Switch>
           <Route exact path='/' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><Login {...routeProps} {...props} /></Gate>)} />
           <Route path='/login' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><Login {...routeProps} {...props} /></Gate>)} />
+          <Route path='/smart-on-fhir' render={routeProps => (<Gate onEnter={boundRequireSmartOnFhir} key={routeProps.match.path}><SmartOnFhir {...routeProps} {...props} /></Gate>)} />
           <Route path='/terms' render={routeProps => (<Terms {...routeProps} {...props} />)} />
           <Route path='/signup' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><Signup {...routeProps} {...props} /></Gate>)} />
           <Route path='/clinic-admin' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicAdmin {...routeProps} {...props} /></Gate>)} />
@@ -454,8 +473,8 @@ export const getRoutes = (appContext) => {
           <Route path='/profile' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><UserProfile {...routeProps} {...props} /></Gate>)} />
           <Route exact path='/patients' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><Patients {...routeProps} {...props} /></Gate>)} />
           <Route exact path='/patients/new' render={routeProps => (<Gate onEnter={boundRequireAuthAndNoPatient} key={routeProps.match.path}><PatientNew {...routeProps} {...props} /></Gate>)} />
-          <Route exact path='/prescriptions/new' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><PrescriptionForm {...routeProps} {...props} /></Gate>)} />}
-          <Route exact path='/prescriptions/:id' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><PrescriptionForm {...routeProps} {...props} /></Gate>)} />}
+          <Route exact path='/prescriptions/new' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><PrescriptionForm {...routeProps} {...props} /></Gate>)} />
+          <Route exact path='/prescriptions/:id' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><PrescriptionForm {...routeProps} {...props} /></Gate>)} />
           <Route exact path='/patients/:id/profile' render={routeProps => (<Gate onEnter={boundRequireSupportedBrowserForUserType} key={routeProps.match.path}><PatientProfile {...routeProps} {...props} /></Gate>)} />
           <Route exact path='/patients/:id/share' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><AccessManagement {...routeProps} {...props} /></Gate>)} />
           <Route exact path='/patients/:id/share/invite' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ShareInvite {...routeProps} {...props} /></Gate>)} />
