@@ -533,7 +533,7 @@ export const PatientDataClass = createReactClass({
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
             uploadUrl={this.props.uploadUrl}
-            ref="tideline" />
+          />
         </div>
       </div>
     );
@@ -576,7 +576,6 @@ export const PatientDataClass = createReactClass({
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
             uploadUrl={this.props.uploadUrl}
-            ref="tideline"
             removeGeneratedPDFS={this.props.removeGeneratedPDFS}
             onSwitchToTrends={this.handleSwitchToTrendsRoute}
             onSwitchToSettings={this.handleSwitchToSettingsRoute}
@@ -607,7 +606,6 @@ export const PatientDataClass = createReactClass({
             updatingDatum={this.props.updatingDatum}
             queryDataCount={this.getMetaData('queryDataCount')}
             key={this.state.chartKey}
-            ref="tideline"
             removeGeneratedPDFS={this.props.removeGeneratedPDFS}
             onSwitchToTrends={this.handleSwitchToTrendsRoute}
             onSwitchToSettings={this.handleSwitchToSettingsRoute}
@@ -636,7 +634,6 @@ export const PatientDataClass = createReactClass({
             uploadUrl={this.props.uploadUrl}
             queryDataCount={this.getMetaData('queryDataCount')}
             key={this.state.chartKey}
-            ref="tideline"
             removeGeneratedPDFS={this.props.removeGeneratedPDFS}
             onSwitchToTrends={this.handleSwitchToTrendsRoute}
             onSwitchToSettings={this.handleSwitchToSettingsRoute}
@@ -666,7 +663,6 @@ export const PatientDataClass = createReactClass({
             uploadUrl={this.props.uploadUrl}
             queryDataCount={this.getMetaData('queryDataCount')}
             key={this.state.chartKey}
-            ref="tideline"
             removeGeneratedPDFS={this.props.removeGeneratedPDFS}
             onSwitchToTrends={this.handleSwitchToTrendsRoute}
             onSwitchToSettings={this.handleSwitchToSettingsRoute}
@@ -836,13 +832,11 @@ export const PatientDataClass = createReactClass({
 
   closeMessageThread: function(){
     this.props.onCloseMessageThread();
-    this.refs.tideline.closeMessageThread();
     this.props.trackMetric('Closed Message Thread Modal');
   },
 
   closeMessageCreation: function(){
     this.setState({ createMessageDatetime: null });
-    this.refs.tideline.closeMessageThread();
     this.props.trackMetric('Closed New Message Modal');
   },
 
