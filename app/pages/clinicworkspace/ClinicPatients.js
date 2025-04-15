@@ -2400,14 +2400,31 @@ export const ClinicPatients = (props) => {
               }
             </Text>
 
-            <TagList
-              tags={clinic?.patientTags}
-              tagProps={{
-                icon: isClinicAdmin ? DeleteIcon : undefined,
-                onClickIcon: isClinicAdmin ? tagId => handleDeleteClinicPatientTag(tagId) : undefined,
-                onClick: tagId => handleUpdateClinicPatientTag(tagId),
-              }}
-            />
+            <Box mt={2}>
+              {
+                clinic?.patientTags?.map(({ id, name }) => (
+                  <Flex py={2} sx={{
+                    justifyContent: 'space-between',
+                    borderTop: `1px solid ${colors.gray05}`,
+                    alignItems: 'center',
+                  }}>
+                    <Flex sx={{ alignItems: 'center' }}>
+                      <Text sx={{ fontSize: 1, color: 'text.primary' }}>{name}</Text>
+                      <Icon
+                        icon={EditIcon}
+                        sx={{ fontSize: 1, marginLeft: 2 }}
+                        onClick={isClinicAdmin ? () => handleUpdateClinicPatientTag(id) : undefined}
+                      />
+                    </Flex>
+                    <Icon
+                      icon={DeleteIcon}
+                      sx={{ fontSize: 1 }}
+                      onClick={isClinicAdmin ? () => handleDeleteClinicPatientTag(id) : undefined}
+                    />
+                  </Flex>
+                ))
+              }
+            </Box>
           </DialogContent>
         </Box>
       </Dialog>
