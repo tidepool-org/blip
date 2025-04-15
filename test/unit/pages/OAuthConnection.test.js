@@ -240,30 +240,30 @@ describe('OAuthConnection', () => {
     });
   });
 
-  context('abbott authorized', () => {
+  context('twiist authorized', () => {
     beforeEach(() => {
-      wrapper = createWrapper('abbott', 'authorized');
+      wrapper = createWrapper('twiist', 'authorized');
     });
 
     it('should track the appropriate metric on load', () => {
       sinon.assert.calledWith(defaultProps.trackMetric, 'Oauth - Connection', {
-        providerName: 'abbott',
+        providerName: 'twiist',
         status: 'authorized',
         custodialSignup: false,
       });
 
       defaultProps.trackMetric.resetHistory();
-      createWrapper('abbott', 'authorized', '?signupKey=abc&signupEmail=patient@mail.com');
+      createWrapper('twiist', 'authorized', '?signupKey=abc&signupEmail=patient@mail.com');
 
       sinon.assert.calledWith(defaultProps.trackMetric, 'Oauth - Connection', {
-        providerName: 'abbott',
+        providerName: 'twiist',
         status: 'authorized',
         custodialSignup: true,
       });
     });
 
     it('should render the appropriate banner', () => {
-      expect(wrapper.find('#banner-oauth-authorized').hostNodes().text()).to.equal('You have successfully connected your FreeStyle Libre data to Tidepool.');
+      expect(wrapper.find('#banner-oauth-authorized').hostNodes().text()).to.equal('You have successfully connected your Twiist data to Tidepool.');
     });
 
     it('should render the appropriate heading and subheading', () => {
@@ -276,7 +276,7 @@ describe('OAuthConnection', () => {
     });
 
     it('should render a button that claims an account if the signup query params are provided', () => {
-      const custodialWrapper = createWrapper('abbott', 'authorized', '?signupKey=abc&signupEmail=patient@mail.com');
+      const custodialWrapper = createWrapper('twiist', 'authorized', '?signupKey=abc&signupEmail=patient@mail.com');
       expect(wrapper.find('#oauth-claim-account-button').hostNodes()).to.have.lengthOf(0);
       expect(custodialWrapper.find('#oauth-claim-account-button').hostNodes()).to.have.lengthOf(1);
 
@@ -284,7 +284,7 @@ describe('OAuthConnection', () => {
       custodialWrapper.find('#oauth-claim-account-button').hostNodes().simulate('click');
 
       sinon.assert.calledWith(defaultProps.trackMetric, 'Oauth - Connection - Claim Account', {
-        providerName: 'abbott',
+        providerName: 'twiist',
         status: 'authorized',
       });
 
@@ -314,30 +314,30 @@ describe('OAuthConnection', () => {
     });
   });
 
-  context('abbott declined', () => {
+  context('twiist declined', () => {
     beforeEach(() => {
-      wrapper = createWrapper('abbott', 'declined');
+      wrapper = createWrapper('twiist', 'declined');
     });
 
     it('should track the appropriate metric on load', () => {
       sinon.assert.calledWith(defaultProps.trackMetric, 'Oauth - Connection', {
-        providerName: 'abbott',
+        providerName: 'twiist',
         status: 'declined',
         custodialSignup: false,
       });
 
       defaultProps.trackMetric.resetHistory();
-      createWrapper('abbott', 'declined', '?signupKey=abc&signupEmail=patient@mail.com');
+      createWrapper('twiist', 'declined', '?signupKey=abc&signupEmail=patient@mail.com');
 
       sinon.assert.calledWith(defaultProps.trackMetric, 'Oauth - Connection', {
-        providerName: 'abbott',
+        providerName: 'twiist',
         status: 'declined',
         custodialSignup: true,
       });
     });
 
     it('should render the appropriate banner', () => {
-      expect(wrapper.find('#banner-oauth-declined').hostNodes().text()).to.equal('You have declined connecting your FreeStyle Libre data to Tidepool.');
+      expect(wrapper.find('#banner-oauth-declined').hostNodes().text()).to.equal('You have declined connecting your Twiist data to Tidepool.');
     });
 
     it('should render the appropriate heading and subheading', () => {
@@ -350,7 +350,7 @@ describe('OAuthConnection', () => {
     });
 
     it('should render a button that claims an account if the signup query params are provided', () => {
-      const custodialWrapper = createWrapper('abbott', 'declined', '?signupKey=abc&signupEmail=patient@mail.com');
+      const custodialWrapper = createWrapper('twiist', 'declined', '?signupKey=abc&signupEmail=patient@mail.com');
       expect(wrapper.find('#oauth-claim-account-button').hostNodes()).to.have.lengthOf(0);
       expect(custodialWrapper.find('#oauth-claim-account-button').hostNodes()).to.have.lengthOf(1);
 
@@ -358,7 +358,7 @@ describe('OAuthConnection', () => {
       custodialWrapper.find('#oauth-claim-account-button').hostNodes().simulate('click');
 
       sinon.assert.calledWith(defaultProps.trackMetric, 'Oauth - Connection - Claim Account', {
-        providerName: 'abbott',
+        providerName: 'twiist',
         status: 'declined',
       });
 
@@ -371,30 +371,30 @@ describe('OAuthConnection', () => {
     });
   });
 
-  context('abbott error', () => {
+  context('twiist error', () => {
     beforeEach(() => {
-      wrapper = createWrapper('abbott', 'error');
+      wrapper = createWrapper('twiist', 'error');
     });
 
     it('should track the appropriate metric on load', () => {
       sinon.assert.calledWith(defaultProps.trackMetric, 'Oauth - Connection', {
-        providerName: 'abbott',
+        providerName: 'twiist',
         status: 'error',
         custodialSignup: false,
       });
 
       defaultProps.trackMetric.resetHistory();
-      createWrapper('abbott', 'error', '?signupKey=abc&signupEmail=patient@mail.com');
+      createWrapper('twiist', 'error', '?signupKey=abc&signupEmail=patient@mail.com');
 
       sinon.assert.calledWith(defaultProps.trackMetric, 'Oauth - Connection', {
-        providerName: 'abbott',
+        providerName: 'twiist',
         status: 'error',
         custodialSignup: true,
       });
     });
 
     it('should render the appropriate banner', () => {
-      expect(wrapper.find('#banner-oauth-error').hostNodes().text()).to.equal('We were unable to determine your FreeStyle Libre connection status.');
+      expect(wrapper.find('#banner-oauth-error').hostNodes().text()).to.equal('We were unable to determine your Twiist connection status.');
     });
 
     it('should render the appropriate heading and subheading', () => {
@@ -407,7 +407,7 @@ describe('OAuthConnection', () => {
     });
 
     it('should NOT render a button that claims an account if the signup query params are provided', () => {
-      const custodialWrapper = createWrapper('abbott', 'error', '?signupKey=abc&signupEmail=patient@mail.com');
+      const custodialWrapper = createWrapper('twiist', 'error', '?signupKey=abc&signupEmail=patient@mail.com');
       expect(custodialWrapper.find('#oauth-claim-account-button').hostNodes()).to.have.lengthOf(0);
     });
   });
