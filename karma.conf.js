@@ -63,6 +63,8 @@ module.exports = function karmaConfig(config) {
           '--enable-automation',
           '--no-sandbox',
           '--remote-debugging-port=9222',
+          '--disable-dev-shm-usage',
+          '--use-gl=desktop',
         ],
       },
     },
