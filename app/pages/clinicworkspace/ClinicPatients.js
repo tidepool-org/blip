@@ -1655,27 +1655,13 @@ export const ClinicPatients = (props) => {
                   >
                     <DialogContent px={2} pt={1} pb={3} sx={{ maxHeight: '400px' }} dividers>
                       <Box variant="containers.small">
-                        <Box>
-                          <Text sx={{ display: 'block', color: 'text.primary', fontSize: 1, fontWeight: 'medium', whiteSpace: 'nowrap' }}>
+                        <Box mb={2}>
+                          <Text sx={{ display: 'block', color: colors.gray50, fontSize: 1, fontWeight: 'medium' }}>
                             {t('Tags')}
                           </Text>
-                          <Text sx={{ display: 'block', color: 'text.primary', fontSize: 1, fontWeight: 'medium', whiteSpace: 'nowrap' }}>
+                          <Text sx={{ display: 'block', color: colors.gray50, fontSize: 0, fontStyle: 'italic', maxWidth: '208px', whiteSpace: 'wrap', lineHeight: 1 }}>
                             {t('Only patients with ALL of the tags you select below will be shown.')}
                           </Text>
-
-                          {showTideDashboard && !clinic?.patientTags?.length && (
-                            <Flex mt={3} sx={{ gap: 1, alignItems: 'flex-start' }}>
-                              <Icon
-                                variant="static"
-                                icon={InfoOutlinedIcon}
-                                sx={{ color: 'text.primary', fontSize: '14px' }}
-                              />
-
-                              <Text sx={{ color: 'text.primary', fontSize: 0, fontWeight: 'medium', lineHeight: 2 }}>
-                                {t('To use the TIDE Dashboard, add and apply patient tags.')}
-                              </Text>
-                            </Flex>
-                          )}
                         </Box>
 
                         {
@@ -1684,9 +1670,8 @@ export const ClinicPatients = (props) => {
                             const isChecked = patientTags?.includes(id);
 
                             return (
-                              <Box>
+                              <Box mt={1}>
                                 <Checkbox
-                                  label={label}
                                   checked={isChecked}
                                   onChange={() => {
                                     if (isChecked) {
@@ -1695,6 +1680,11 @@ export const ClinicPatients = (props) => {
                                       setPendingFilters({ ...pendingFilters, patientTags: [...patientTags, id] });
                                     }
                                   }}
+                                  label={(
+                                    <Text sx={{ fontSize: 0, fontWeight: 'normal' }}>
+                                      {label}
+                                    </Text>
+                                  )}
                                 />
                               </Box>
                             );
@@ -1703,7 +1693,7 @@ export const ClinicPatients = (props) => {
                       </Box>
                     </DialogContent>
 
-                    <DialogActions sx={{ justifyContent: 'space-between' }} p={1}>
+                    <DialogActions sx={{ justifyContent: 'space-around', padding: 2 }} p={1}>
                       <Button
                         id="clear-patient-tags-filter"
                         sx={{ fontSize: 1 }}
@@ -1727,10 +1717,7 @@ export const ClinicPatients = (props) => {
                       </Button>
                     </DialogActions>
 
-                    <DialogActions
-                      p={1}
-                      sx={{ borderTop: borders.divider, justifyContent: 'space-between' }}
-                    >
+                    <DialogActions p={1} sx={{ borderTop: borders.divider }} py={2} px={0}>
                       <Button
                         id="show-edit-clinic-patient-tags-dialog"
                         icon={EditIcon}
@@ -1742,7 +1729,7 @@ export const ClinicPatients = (props) => {
                           setShowClinicPatientTagsDialog(true);
                         }}
                       >
-                        {t('Edit Available Patient Tags')}
+                        {t('Edit Tags')}
                       </Button>
 
                     </DialogActions>
