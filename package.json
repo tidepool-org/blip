@@ -80,7 +80,7 @@
     "buffer": "6.0.3",
     "canonicalize": "2.0.0",
     "chai": "4.3.10",
-    "chromedriver": "119.0.1",
+    "chromedriver": "135.0.1",
     "classnames": "2.3.2",
     "concurrently": "8.2.2",
     "connected-react-router": "6.9.3",
