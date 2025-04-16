@@ -1,0 +1,56 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@7.1.0
+  browser-tools: circleci/browser-tools@1.5.3
+
+executors:
+  node-chrome-executor:
+    docker:
+      - image: cimg/node:20.8.0-browsers
+    resource_class: medium
+
+jobs:
+  test:
+    executor: node-chrome-executor
+    steps:
+      - checkout
+      - browser-tools/install-chrome
+      - browser-tools/install-chromedriver
+      - run:
+          name: Check Chrome installation
+          command: |
+            google-chrome --version
+            chromedriver --version
+      - run:
+          name: Enable corepack
+          command: |
+            corepack enable
+            yarn set version 3.6.4
+      - restore_cache:
+          keys:
+            - yarn-deps-v1-{{ checksum "yarn.lock" }}
+            - yarn-deps-v1-
+      - run:
+          name: Install dependencies
+          command: yarn install --immutable
+      - save_cache:
+          paths:
+            - ~/.cache/yarn
+            - node_modules
+          key: yarn-deps-v1-{{ checksum "yarn.lock" }}
+      - run:
+          name: Run tests
+          command: npm test
+      - run:
+          name: Build artifacts
+          command: ./artifact.sh
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./deploy
+
+workflows:
+  build_test:
+    jobs:
+      - test
