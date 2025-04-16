@@ -31,5 +31,5 @@ services:
   - docker
 
 script:
-  # - npm test
+  - docker build -t blip-test --target test .
   - ./artifact.sh
