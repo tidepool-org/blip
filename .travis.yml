@@ -21,7 +21,7 @@ addons:
       - $(git ls-files -o deploy/*/*-*.tar.gz | tr "\n" ":")
     target_paths:
       - /
-  chrome: stable
+  # chrome: stable
 
 services:
   - docker
