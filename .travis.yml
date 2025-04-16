@@ -6,7 +6,7 @@ node_js:
   - "20.8.0"
 
 cache:
-  yarn: true
+  yarn: false
   directories:
     - node_modules
 
