@@ -14,6 +14,9 @@ before_install:
   - corepack enable
   - yarn set version 3.6.4
 
+install:
+  - yarn install --immutable
+
 addons:
   artifacts:
     region: us-west-2
@@ -21,11 +24,10 @@ addons:
       - $(git ls-files -o deploy/*/*-*.tar.gz | tr "\n" ":")
     target_paths:
       - /
-  # chrome: stable
 
 services:
   - docker
 
 script:
-  # - npm test
+  - npm test
   - ./artifact.sh
