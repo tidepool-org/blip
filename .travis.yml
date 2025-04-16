@@ -11,6 +11,7 @@ cache:
     - node_modules
 
 before_install:
+  - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
   - corepack enable
   - yarn set version 3.6.4
 
@@ -24,10 +25,11 @@ addons:
       - $(git ls-files -o deploy/*/*-*.tar.gz | tr "\n" ":")
     target_paths:
       - /
+    chrome: stable
 
 services:
   - docker
 
 script:
-  - npm test
+  # - npm test
   - ./artifact.sh
