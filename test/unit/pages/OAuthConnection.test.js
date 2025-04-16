@@ -301,12 +301,12 @@ describe('OAuthConnection', () => {
       wrapper.find('#oauth-redirect-home-button').hostNodes().simulate('click');
 
       sinon.assert.calledWith(defaultProps.trackMetric, 'Oauth - Connection - Redirect back to Tidepool App', {
-        providerName: 'abbott',
+        providerName: 'twiist',
         status: 'authorized',
       });
 
       let expectedActions = [
-        routeAction('/patients?justLoggedIn=true&dataConnectionStatus=authorized&dataConnectionProviderName=abbott'),
+        routeAction('/patients?justLoggedIn=true&dataConnectionStatus=authorized&dataConnectionProviderName=twiist'),
       ];
 
       const actions = store.getActions();
