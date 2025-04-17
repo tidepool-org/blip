@@ -8577,4 +8577,96 @@ describe('dataWorkerQueryData', () => {
       });
     });
   });
+
+  describe('fetchPatients', () => {
+    describe('request', () => {
+      it('should leave fetchingPatients.completed unchanged', () => {
+        expect(initialState.fetchingPatients.completed).to.be.null;
+
+        let requestAction = actions.sync.fetchPatientsRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.fetchingPatients.completed).to.be.null;
+
+        let successAction = actions.sync.fetchPatientsSuccess([]);
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.fetchingPatients.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.fetchingPatients.completed).to.be.true;
+        expect(mutationTracker.hasMutated(mutationTracker.trackObj(initialState))).to.be.false;
+      });
+
+      it('should set fetchingPatients.inProgress to be true', () => {
+        let action = actions.sync.fetchPatientsRequest();
+
+        expect(initialState.fetchingPatients.inProgress).to.be.false;
+
+        let state = reducer(initialState, action);
+        expect(state.fetchingPatients.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(mutationTracker.trackObj(initialState))).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set fetchingPatients.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.fetchingPatients.completed).to.be.null;
+
+        let failureAction = actions.sync.fetchPatientsFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.fetchingPatients.completed).to.be.false;
+        expect(mutationTracker.hasMutated(mutationTracker.trackObj(initialState))).to.be.false;
+      });
+
+      it('should set fetchingPatients.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, { fetchingPatients: { inProgress: true, notification: null } });
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.fetchPatientsFailure(error);
+
+        expect(initialStateForTest.fetchingPatients.inProgress).to.be.true;
+        expect(initialStateForTest.fetchingPatients.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.fetchingPatients.inProgress).to.be.false;
+        expect(state.fetchingPatients.notification.type).to.equal('error');
+        expect(state.fetchingPatients.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set fetchingPatients.completed to be true', () => {
+        expect(initialState.fetchingPatients.completed).to.be.null;
+
+        let successAction = actions.sync.fetchPatientsSuccess([]);
+        let state = reducer(initialState, successAction);
+
+        expect(state.fetchingPatients.completed).to.be.true;
+        expect(mutationTracker.hasMutated(mutationTracker.trackObj(initialState))).to.be.false;
+      });
+
+      it('should set fetchingPatients.inProgress to be false', () => {
+        let initialStateForTest = _.merge({}, initialState, { fetchingPatients: { inProgress: true, notification: null } });
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let patients = [
+          { userid: 'a1b2c3', name: 'Jenny' },
+          { userid: 'd4e5f6', name: 'John' },
+        ];
+        let action = actions.sync.fetchPatientsSuccess(patients);
+
+        expect(initialStateForTest.fetchingPatients.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.fetchingPatients.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
 });
