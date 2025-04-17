@@ -39,6 +39,7 @@ const t = i18next.t.bind(i18next);
 export const activeProviders = [
   'dexcom',
   'twiist',
+  'abbott',
 ];
 
 export const providers = {
