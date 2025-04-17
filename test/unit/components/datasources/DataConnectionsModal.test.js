@@ -157,7 +157,7 @@ describe('DataConnectionsModal', () => {
 
     expect(connections.at(0).is('#data-connection-dexcom')).to.be.true;
     expect(connections.at(1).is('#data-connection-twiist')).to.be.true;
-    expect(connections.at(1).is('#data-connection-abbott')).to.be.true;
+    expect(connections.at(2).is('#data-connection-abbott')).to.be.true;
   });
 
   it('should allow opening a dialog for updating an existing email address for a custodial patient', () => {
