@@ -1941,8 +1941,8 @@ export function fetchPatientsForClinic(api, clinicId, options = {}) {
           createActionError(errMsg, err), err, clinicId
         ));
       } else {
-        const { data, meta } = results;
-        dispatch(sync.fetchPatientsForClinicSuccess(clinicId, data, meta.count));
+        const { data, meta: { count, totalCount } } = results;
+        dispatch(sync.fetchPatientsForClinicSuccess(clinicId, data, count, totalCount));
       }
     });
   };
