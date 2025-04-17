@@ -36,7 +36,6 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500, trackMetric = noo
   const previousJustConnectedDataSourceProviderName = usePrevious(justConnectedDataSourceProviderName);
 
   const trackConnectionMetric = useCallback((status = null) => {
-    const isMobile = utils.isMobile();
     const action = status ? 'Completed' : 'Started';
 
     let providerName;
@@ -47,8 +46,12 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500, trackMetric = noo
       providerName = location?.query?.dataConnectionProviderName;
     }
 
-    trackMetric(`${action} provider connection flow`, { providerName, isMobile, status });
-  } , [trackMetric, authorizedDataSource]);
+    trackMetric(`${action} provider connection flow`, { providerName, status });
+  } , [
+    trackMetric,
+    authorizedDataSource,
+    location?.query?.dataConnectionProviderName,
+  ]);
 
   const openProviderConnectionPopup = useCallback((url, displayName) => {
     const popupWidth = min([window.innerWidth * .85, 1080]);
