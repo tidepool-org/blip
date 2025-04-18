@@ -23,7 +23,7 @@ import ReactDOM from 'react-dom';
 import sundial from 'sundial';
 import WindowSizeListener from 'react-window-size-listener';
 import { withTranslation } from 'react-i18next';
-import { Flex } from 'theme-ui';
+import { Box, Flex } from 'theme-ui';
 
 import Stats from './stats';
 import BgSourceToggle from './bgSourceToggle';
@@ -119,7 +119,14 @@ const DailyChart = withTranslation(null, { withRef: true })(class DailyChart ext
 
   mountChart = (props = this.props) => {
     this.log('Mounting...');
-    this.chart = chartDailyFactory(ReactDOM.findDOMNode(this), _.pick(props, this.chartOpts))
+
+    const node = ReactDOM.findDOMNode(this);
+
+    // When on mobile, the chart will be hidden and therefore have zero width and height.
+    // This safety check prevents an error from occurring in tideline due to the zeroes.
+    if (!node?.offsetHeight || !node?.offsetWidth) return;
+
+    this.chart = chartDailyFactory(node, _.pick(props, this.chartOpts))
       .setupPools();
     this.bindEvents();
   };
@@ -288,41 +295,46 @@ class Daily extends Component {
 
     return (
       <div id="tidelineMain" className="daily">
-        <Header
-          chartType={this.chartType}
-          patient={this.props.patient}
-          inTransition={this.state.inTransition}
-          atMostRecent={this.state.atMostRecent}
-          title={this.state.title}
-          iconBack={'icon-back'}
-          iconNext={'icon-next'}
-          iconMostRecent={'icon-most-recent'}
-          onClickBack={this.handlePanBack}
-          onClickBasics={this.props.onSwitchToBasics}
-          onClickChartDates={this.props.onClickChartDates}
-          onClickTrends={this.handleClickTrends}
-          onClickMostRecent={this.handleClickMostRecent}
-          onClickNext={this.handlePanForward}
-          onClickOneDay={this.handleClickOneDay}
-          onClickSettings={this.props.onSwitchToSettings}
-          onClickBgLog={this.handleClickBgLog}
-          onClickPrint={this.handleClickPrint}
-          ref={this.headerRef} />
-        <div className="container-box-outer patient-data-content-outer">
-          <div className="container-box-inner patient-data-content-inner">
-            <div className="patient-data-content">
-              <Loader show={!!this.chartRef && this.props.loading} overlay={true} />
-              {dataQueryComplete && this.renderChart()}
+        <Box variant="containers.patientData">
+          <Header
+            chartType={this.chartType}
+            patient={this.props.patient}
+            inTransition={this.state.inTransition}
+            atMostRecent={this.state.atMostRecent}
+            title={this.state.title}
+            iconBack={'icon-back'}
+            iconNext={'icon-next'}
+            iconMostRecent={'icon-most-recent'}
+            onClickBack={this.handlePanBack}
+            onClickBasics={this.props.onSwitchToBasics}
+            onClickChartDates={this.props.onClickChartDates}
+            onClickTrends={this.handleClickTrends}
+            onClickMostRecent={this.handleClickMostRecent}
+            onClickNext={this.handlePanForward}
+            onClickOneDay={this.handleClickOneDay}
+            onClickSettings={this.props.onSwitchToSettings}
+            onClickBgLog={this.handleClickBgLog}
+            onClickPrint={this.handleClickPrint}
+            ref={this.headerRef}
+          />
 
-              <Flex mt={3} mb={5} pl="40px">
-                <Button className="btn-refresh" variant="secondary" onClick={this.props.onClickRefresh}>
+          <Box variant="containers.patientDataInner">
+            <Box className="patient-data-content" variant="containers.patientDataContent">
+                <Loader show={!!this.chartRef && this.props.loading} overlay={true} />
+                {dataQueryComplete && this.renderChart()}
+
+                <Button
+                  className="btn-refresh"
+                  variant="secondaryCondensed"
+                  onClick={this.props.onClickRefresh}
+                  mt={3}
+                  ml="40px"
+                >
                   {this.props.t('Refresh')}
                 </Button>
-              </Flex>
-            </div>
-          </div>
-          <div className="container-box-inner patient-data-sidebar">
-            <div className="patient-data-sidebar-inner">
+            </Box>
+
+            <Box className="patient-data-sidebar" variant="containers.patientDataSidebar">
               <Flex mb={2} sx={{ justifyContent: 'flex-end' }}>
                 <BgSourceToggle
                   bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
@@ -346,60 +358,60 @@ class Daily extends Component {
                 trackMetric={this.props.trackMetric}
                 updateChartPrefs={this.props.updateChartPrefs}
               />
-            </div>
-          </div>
-        </div>
-        {this.state.hoveredBolus && <BolusTooltip
-          position={{
-            top: this.state.hoveredBolus.top,
-            left: this.state.hoveredBolus.left
-          }}
-          side={this.state.hoveredBolus.side}
-          bolus={this.state.hoveredBolus.data}
-          bgPrefs={bgPrefs}
-          timePrefs={timePrefs}
-        />}
-        {this.state.hoveredSMBG && <SMBGTooltip
-          position={{
-            top: this.state.hoveredSMBG.top,
-            left: this.state.hoveredSMBG.left
-          }}
-          side={this.state.hoveredSMBG.side}
-          smbg={this.state.hoveredSMBG.data}
-          timePrefs={timePrefs}
-          bgPrefs={bgPrefs}
-        />}
-        {this.state.hoveredCBG && <CBGTooltip
-          position={{
-            top: this.state.hoveredCBG.top,
-            left: this.state.hoveredCBG.left
-          }}
-          side={this.state.hoveredCBG.side}
-          cbg={this.state.hoveredCBG.data}
-          timePrefs={timePrefs}
-          bgPrefs={bgPrefs}
-        />}
-        {this.state.hoveredCarb && <FoodTooltip
-          position={{
-            top: this.state.hoveredCarb.top,
-            left: this.state.hoveredCarb.left
-          }}
-          side={this.state.hoveredCarb.side}
-          food={this.state.hoveredCarb.data}
-          bgPrefs={bgPrefs}
-          timePrefs={timePrefs}
-        />}
-        {this.state.hoveredPumpSettingsOverride && <PumpSettingsOverrideTooltip
-          position={{
-            top: this.state.hoveredPumpSettingsOverride.top,
-            left: this.state.hoveredPumpSettingsOverride.left
-          }}
-          side={this.state.hoveredPumpSettingsOverride.side}
-          override={this.state.hoveredPumpSettingsOverride.data}
-          bgPrefs={bgPrefs}
-          timePrefs={timePrefs}
-        />}
-        <WindowSizeListener onResize={this.handleWindowResize} />
+            </Box>
+          </Box>
+          {this.state.hoveredBolus && <BolusTooltip
+            position={{
+              top: this.state.hoveredBolus.top,
+              left: this.state.hoveredBolus.left
+            }}
+            side={this.state.hoveredBolus.side}
+            bolus={this.state.hoveredBolus.data}
+            bgPrefs={bgPrefs}
+            timePrefs={timePrefs}
+          />}
+          {this.state.hoveredSMBG && <SMBGTooltip
+            position={{
+              top: this.state.hoveredSMBG.top,
+              left: this.state.hoveredSMBG.left
+            }}
+            side={this.state.hoveredSMBG.side}
+            smbg={this.state.hoveredSMBG.data}
+            timePrefs={timePrefs}
+            bgPrefs={bgPrefs}
+          />}
+          {this.state.hoveredCBG && <CBGTooltip
+            position={{
+              top: this.state.hoveredCBG.top,
+              left: this.state.hoveredCBG.left
+            }}
+            side={this.state.hoveredCBG.side}
+            cbg={this.state.hoveredCBG.data}
+            timePrefs={timePrefs}
+            bgPrefs={bgPrefs}
+          />}
+          {this.state.hoveredCarb && <FoodTooltip
+            position={{
+              top: this.state.hoveredCarb.top,
+              left: this.state.hoveredCarb.left
+            }}
+            side={this.state.hoveredCarb.side}
+            food={this.state.hoveredCarb.data}
+            bgPrefs={bgPrefs}
+            timePrefs={timePrefs}
+          />}
+          {this.state.hoveredPumpSettingsOverride && <PumpSettingsOverrideTooltip
+            position={{
+              top: this.state.hoveredPumpSettingsOverride.top,
+              left: this.state.hoveredPumpSettingsOverride.left
+            }}
+            side={this.state.hoveredPumpSettingsOverride.side}
+            override={this.state.hoveredPumpSettingsOverride.data}
+            bgPrefs={bgPrefs}
+            timePrefs={timePrefs}
+          />}
+          <WindowSizeListener onResize={this.handleWindowResize} />
+        </Box>
       </div>
       );
   };
@@ -700,19 +712,6 @@ class Daily extends Component {
       e.preventDefault();
     }
     this.chartRef.current?.panForward();
-  };
-
-  // methods for messages
-  closeMessageThread = () => {
-    return this.chartRef.current?.closeMessage();
-  };
-
-  createMessageThread = message => {
-    return this.chartRef.current?.createMessage(message);
-  };
-
-  editMessageThread = message => {
-    return this.chartRef.current?.editMessage(message);
   };
 }
 

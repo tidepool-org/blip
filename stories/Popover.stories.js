@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 import { action } from '@storybook/addon-actions';
 
-import { boolean } from '@storybook/addon-knobs';
+import { boolean as bool } from '@storybook/addon-knobs';
 import { ThemeProvider } from '@emotion/react';
 import { Text, Box, Flex } from 'theme-ui';
 import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded';
@@ -41,7 +41,7 @@ export default {
 
 export const Simple = {
   render: () => {
-    const onHover = () => boolean('Trigger On Hover', false);
+    const onHover = () => bool('Trigger On Hover', false);
 
     const popupState = usePopupState({
       variant: 'popover',

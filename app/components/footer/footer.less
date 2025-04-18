@@ -1,0 +1,40 @@
+.footer-link {
+  display: inline-block;
+  font-size: @font-size-small;
+
+  &.social-media {
+    display: flex;
+    gap: 26px;
+  }
+
+  &.large-format-only {
+    @media(max-width: @screen-md-max) {
+      display: none;
+    }
+  }
+
+  a {
+    &:extend(.link-secondary all);
+
+    color: @gray-darker;
+
+    &:hover {
+      color: @blue-gray-dark;
+    }
+
+    svg {
+      fill: #8c8c8c;
+      &:hover {
+        fill: @blue-gray-dark;
+      }
+    }
+  }
+
+  &.secondary a {
+    margin: 0 1.5em;
+  }
+
+  img {
+    margin: 0 12px;
+  }
+}

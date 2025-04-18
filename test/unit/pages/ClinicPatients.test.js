@@ -17,6 +17,8 @@ import { URL_TIDEPOOL_PLUS_PLANS } from '../../../app/core/constants';
 import Button from '../../../app/components/elements/Button';
 import TideDashboardConfigForm from '../../../app/components/clinic/TideDashboardConfigForm';
 import RpmReportConfigForm from '../../../app/components/clinic/RpmReportConfigForm';
+import DataConnectionsModal from '../../../app/components/datasources/DataConnectionsModal';
+import DataConnections from '../../../app/components/datasources/DataConnections';
 import mockRpmReportPatients from '../../fixtures/mockRpmReportPatients.json'
 import LDClientMock from '../../fixtures/LDClientMock';
 
@@ -53,7 +55,7 @@ describe('ClinicPatients', () => {
         createClinicCustodialAccount: sinon.stub().callsArgWith(2, null, { id: 'stubbedId' }),
         updateClinicPatient: sinon.stub().callsArgWith(3, null, { id: 'stubbedId', stubbedUpdates: 'foo' }),
         sendPatientUploadReminder: sinon.stub().callsArgWith(2, null, { lastUploadReminderTime: '2022-02-02T00:00:00.000Z'}),
-        sendPatientDexcomConnectRequest: sinon.stub().callsArgWith(2, null, { lastRequestedDexcomConnectTime: '2022-02-02T00:00:00.000Z'}),
+        sendPatientDataProviderConnectRequest: sinon.stub().callsArgWith(2, null),
         createClinicPatientTag: sinon.stub(),
         updateClinicPatientTag: sinon.stub(),
         deleteClinicPatientTag: sinon.stub(),
@@ -77,14 +79,18 @@ describe('ClinicPatients', () => {
     defaultProps.api.clinics.getPatientsForClinic.resetHistory();
     defaultProps.api.clinics.deletePatientFromClinic.resetHistory();
     defaultProps.api.clinics.createClinicCustodialAccount.resetHistory();
-    defaultProps.api.clinics.sendPatientDexcomConnectRequest.resetHistory();
+    defaultProps.api.clinics.sendPatientDataProviderConnectRequest.resetHistory();
     defaultProps.api.clinics.updateClinicPatient.resetHistory();
     defaultProps.api.clinics.getPatientsForRpmReport.resetHistory();
     ClinicPatients.__Rewire__('useLDClient', sinon.stub().returns(new LDClientMock()));
+    DataConnections.__Rewire__('api', defaultProps.api);
+    DataConnectionsModal.__Rewire__('api', defaultProps.api);
   });
 
   afterEach(() => {
     ClinicPatients.__ResetDependency__('useLDClient');
+    DataConnections.__ResetDependency__('api');
+    DataConnectionsModal.__ResetDependency__('api');
   });
 
   after(() => {
@@ -140,7 +146,7 @@ describe('ClinicPatients', () => {
         updatingClinicPatient: defaultWorkingState,
         creatingClinicCustodialAccount: defaultWorkingState,
         sendingPatientUploadReminder: defaultWorkingState,
-        sendingPatientDexcomConnectRequest: defaultWorkingState,
+        sendingPatientDataProviderConnectRequest: defaultWorkingState,
         creatingClinicPatientTag: defaultWorkingState,
         updatingClinicPatientTag: defaultWorkingState,
         deletingClinicPatientTag: defaultWorkingState,
@@ -215,7 +221,7 @@ describe('ClinicPatients', () => {
               email: 'patient1@test.ca',
               fullName: 'patient1',
               birthDate: '1999-01-01',
-              lastRequestedDexcomConnectTime: '2021-10-19T16:27:59.504Z',
+              createdTime: '2021-10-19T16:27:59.504Z',
               dataSources: [
                 { providerName: 'dexcom', state: 'pending' },
               ],
@@ -234,7 +240,7 @@ describe('ClinicPatients', () => {
               email: 'patient3@test.ca',
               fullName: 'patient3',
               birthDate: '1999-01-01',
-              lastRequestedDexcomConnectTime: '2021-10-19T16:27:59.504Z',
+              createdTime: '2021-10-19T16:27:59.504Z',
               dataSources: [
                 { providerName: 'dexcom', state: 'disconnected' },
               ],
@@ -572,11 +578,11 @@ describe('ClinicPatients', () => {
 
   context('patients hidden', () => {
     beforeEach(() => {
-      const initialState = { 
-        blip: { 
+      const initialState = {
+        blip: {
           ...hasPatientsState.blip,
           patientListFilters: { isPatientListVisible: false, patientListSearchTextInput: '' }
-        } 
+        }
       }
 
       store = mockStore(initialState);
@@ -592,7 +598,7 @@ describe('ClinicPatients', () => {
       defaultProps.trackMetric.resetHistory();
     });
 
-    it('should render a button that toggles patients to be visible', () => { 
+    it('should render a button that toggles patients to be visible', () => {
       wrapper.find('.peopletable-names-showall').hostNodes().simulate('click');
       expect(store.getActions()).to.eql([{ type: 'SET_IS_PATIENT_LIST_VISIBLE', payload: { isVisible: true } }])
     })
@@ -664,7 +670,6 @@ describe('ClinicPatients', () => {
           'clinicID123',
           {
             fullName: 'Patient Name',
-            connectDexcom: false,
             birthDate: '1999-11-21',
             mrn: '123456',
             email: 'patient@test.ca',
@@ -1054,10 +1059,6 @@ describe('ClinicPatients', () => {
         patientForm().find('input[name="email"]').simulate('change', { persist: noop, target: { name: 'email', value: 'patient-two@test.ca' } });
         expect(patientForm().find('input[name="email"]').prop('value')).to.equal('patient-two@test.ca');
 
-        expect(patientForm().find('input[name="connectDexcom"]').find('input').props().checked).to.be.false;
-        patientForm().find('input[name="connectDexcom"]').find('input').simulate('change', { persist: noop, target: { name: 'connectDexcom', checked: true, value: true } });
-        expect(patientForm().find('input[name="connectDexcom"]').find('input').props().checked).to.be.true;
-
         store.clearActions();
         dialog().find('Button#editPatientConfirm').simulate('click');
 
@@ -1070,8 +1071,6 @@ describe('ClinicPatients', () => {
             'patient2',
             {
               fullName: 'Patient 2',
-              connectDexcom: true,
-              dataSources: [{ providerName: 'dexcom', state: 'pending' }],
               birthDate: '1999-01-01',
               mrn: 'MRN456',
               id: 'patient2',
@@ -1145,7 +1144,6 @@ describe('ClinicPatients', () => {
             'patient1',
             {
               fullName: 'Patient 2',
-              connectDexcom: false,
               birthDate: '1999-02-02',
               mrn: 'MRN456',
               id: 'patient1',
@@ -1170,6 +1168,23 @@ describe('ClinicPatients', () => {
 
           done();
         }, 1000);
+      });
+
+      it('should open a modal for managing data connections when data connection menu option is clicked', () => {
+        const table = wrapper.find(Table);
+        expect(table).to.have.length(1);
+        expect(table.find('tr')).to.have.length(3); // header row + 2 invites
+        const dataConnectionsButton = table.find('tr').at(2).find('Button[iconLabel="Bring Data into Tidepool"]');
+        const dialog = () => wrapper.find('Dialog#data-connections');
+        expect(dialog()).to.have.length(0);
+
+        dataConnectionsButton.simulate('click');
+        wrapper.update();
+        expect(dialog()).to.have.length(1);
+        expect(dialog().props().open).to.be.true;
+
+        expect(defaultProps.trackMetric.calledWith('Clinic - Edit patient data connections')).to.be.true;
+        expect(defaultProps.trackMetric.callCount).to.equal(1);
       });
 
       it('should remove a patient', () => {
@@ -1200,206 +1215,6 @@ describe('ClinicPatients', () => {
 
         expect(defaultProps.trackMetric.calledWith('Clinic - Remove patient confirmed')).to.be.true;
         expect(defaultProps.trackMetric.callCount).to.equal(2);
-      });
-
-      context('dexcom connection status - patient add', () => {
-        let patientForm;
-
-        beforeEach(() => {
-          const addButton = wrapper.find('button#add-patient');
-          expect(addButton.text()).to.equal('Add New Patient');
-
-          const dialog = () => wrapper.find('Dialog#addPatient');
-
-          expect(dialog()).to.have.length(0);
-          addButton.simulate('click');
-          wrapper.update();
-          expect(dialog()).to.have.length(1);
-          expect(dialog().props().open).to.be.true;
-
-          patientForm = () => dialog().find('form#clinic-patient-form');
-          expect(patientForm()).to.have.lengthOf(1);
-        });
-
-        it('should render the dexcom connect request input', () => {
-          expect(patientForm().find('input[name="connectDexcom"]').hostNodes()).to.have.lengthOf(1);
-        });
-
-        it('should disable the dexcom connect input if email is empty', () => {
-          expect(patientForm().find('input[name="email"]').prop('value')).to.equal('');
-          expect(patientForm().find('input[name="connectDexcom"]').find('input').props().disabled).to.be.true;
-
-          patientForm().find('input[name="email"]').simulate('change', { persist: noop, target: { name: 'email', value: 'patient-two@test.ca' } });
-          expect(patientForm().find('input[name="email"]').prop('value')).to.equal('patient-two@test.ca');
-          expect(patientForm().find('input[name="connectDexcom"]').find('input').props().disabled).to.be.false;
-        });
-
-        it('should disable and uncheck the dexcom connect checkbox if email is cleared', () => {
-          // Set the email and check the dexcom request box
-          patientForm().find('input[name="email"]').simulate('change', { persist: noop, target: { name: 'email', value: 'patient-two@test.ca' } });
-          expect(patientForm().find('input[name="email"]').prop('value')).to.equal('patient-two@test.ca');
-          expect(patientForm().find('input[name="connectDexcom"]').find('input').props().disabled).to.be.false;
-
-          patientForm().find('input[name="connectDexcom"]').find('input').simulate('change', { persist: noop, target: { name: 'connectDexcom', checked: true, value: true } });
-          expect(patientForm().find('input[name="connectDexcom"]').find('input').props().checked).to.be.true;
-
-          // Clear the email input
-          patientForm().find('input[name="email"]').simulate('change', { persist: noop, target: { name: 'email', value: '' } });
-          expect(patientForm().find('input[name="email"]').prop('value')).to.equal('');
-
-          expect(patientForm().find('input[name="connectDexcom"]').find('input').props().disabled).to.be.true;
-          expect(patientForm().find('input[name="connectDexcom"]').find('input').props().checked).to.be.false;
-        });
-      });
-
-      context('dexcom connection status - patient edit', () => {
-        let patientForm;
-
-        const getPatientForm = (patientIndex) => {
-          const table = wrapper.find(Table);
-          const editButton = table.find('tbody tr').at(patientIndex).find('Button[iconLabel="Edit Patient Information"]');
-          const dialog = () => wrapper.find('Dialog#editPatient');
-
-          editButton.simulate('click');
-          wrapper.update();
-          expect(dialog()).to.have.length(1);
-          expect(dialog().props().open).to.be.true;
-
-          patientForm = () => dialog().find('form#clinic-patient-form');
-          expect(patientForm()).to.have.lengthOf(1);
-        }
-
-        beforeEach(() => {
-          store = mockStore(dexcomPatientsClinicState);
-          defaultProps.trackMetric.resetHistory();
-          wrapper = mount(
-            <Provider store={store}>
-              <ToastProvider>
-                <ClinicPatients {...defaultProps} />
-              </ToastProvider>
-            </Provider>
-          );
-
-          defaultProps.trackMetric.resetHistory();
-
-          getPatientForm(0);
-        });
-
-        it('should render the dexcom connect request input, but only if the patient does not have a dexcom data source', () => {
-          getPatientForm(5); // no dexcom source
-          expect(patientForm().find('#connectDexcomWrapper').hostNodes()).to.have.lengthOf(1)
-
-          getPatientForm(0); // pending dexcom state
-          expect(patientForm().find('#connectDexcomWrapper').hostNodes()).to.have.lengthOf(0)
-        });
-
-        it('should show the current dexcom connection status if the patient has it set', () => {
-          const stateWrapper = () => patientForm().find('#connectDexcomStatusWrapper').hostNodes();
-
-          getPatientForm(0);
-          expect(stateWrapper()).to.have.lengthOf(1);
-          expect(stateWrapper().text()).includes('Pending connection with');
-
-          getPatientForm(1);
-          expect(stateWrapper()).to.have.lengthOf(1);
-          expect(stateWrapper().text()).includes('Connected with');
-
-          getPatientForm(2);
-          expect(stateWrapper()).to.have.lengthOf(1);
-          expect(stateWrapper().text()).includes('Disconnected from');
-
-          getPatientForm(3);
-          expect(stateWrapper()).to.have.lengthOf(1);
-          expect(stateWrapper().text()).includes('Error connecting to');
-
-          getPatientForm(4);
-          expect(stateWrapper()).to.have.lengthOf(1);
-          expect(stateWrapper().text()).includes('Unknown connection to');
-
-          getPatientForm(6);
-          expect(stateWrapper()).to.have.lengthOf(1);
-          expect(stateWrapper().text()).includes('Pending reconnection with');
-        });
-
-        it('should have a valid form state for all legitimate dexcom connection states', () => {
-          const stateWrapper = () => patientForm().find('#connectDexcomStatusWrapper').hostNodes();
-          const submitButton = () => wrapper.find('#editPatientConfirm').hostNodes();
-
-          getPatientForm(0);
-          expect(stateWrapper().text()).includes('Pending connection with');
-          expect(submitButton().prop('disabled')).to.be.false;
-
-          getPatientForm(1);
-          expect(stateWrapper().text()).includes('Connected with');
-          expect(submitButton().prop('disabled')).to.be.false;
-
-          getPatientForm(2);
-          expect(stateWrapper().text()).includes('Disconnected from');
-          expect(submitButton().prop('disabled')).to.be.false;
-
-          getPatientForm(3);
-          expect(stateWrapper().text()).includes('Error connecting to');
-          expect(submitButton().prop('disabled')).to.be.false;
-
-          getPatientForm(6);
-          expect(stateWrapper().text()).includes('Pending reconnection with');
-          expect(submitButton().prop('disabled')).to.be.false;
-        });
-
-        it('should allow resending a pending dexcom connection reminder', () => {
-          const stateWrapper = () => patientForm().find('#connectDexcomStatusWrapper').hostNodes();
-          const resendButton = () => stateWrapper().find('#resendDexcomConnectRequestTrigger').hostNodes();
-
-          getPatientForm(1);
-          expect(stateWrapper()).to.have.lengthOf(1);
-          expect(stateWrapper().text()).includes('Connected with');
-          expect(resendButton()).to.have.lengthOf(0);
-
-          // Show for disconnected state
-          getPatientForm(2);
-          expect(stateWrapper()).to.have.lengthOf(1);
-          expect(stateWrapper().text()).includes('Disconnected from');
-          expect(resendButton()).to.have.lengthOf(1);
-
-          // Show for pending state
-          getPatientForm(0);
-          expect(stateWrapper()).to.have.lengthOf(1);
-          expect(stateWrapper().text()).includes('Pending connection');
-          expect(resendButton()).to.have.lengthOf(1);
-
-          const resendDialog = () => stateWrapper().find('#resendDexcomConnectRequest').at(1);
-          expect(resendDialog().props().open).to.be.false;
-          resendButton().simulate('click');
-          expect(resendDialog().props().open).to.be.true;
-
-          expect(resendDialog().text()).to.have.string('10/19/2021 at 4:27 pm');
-
-          const resendInvite = resendDialog().find(Button).filter({variant: 'primary'});
-          expect(resendInvite).to.have.length(1);
-
-          const expectedActions = [
-            {
-              type: 'SEND_PATIENT_DEXCOM_CONNECT_REQUEST_REQUEST',
-            },
-            {
-              type: 'SEND_PATIENT_DEXCOM_CONNECT_REQUEST_SUCCESS',
-              payload: {
-                clinicId: 'clinicID123',
-                lastRequestedDexcomConnectTime: '2022-02-02T00:00:00.000Z',
-                patientId: 'patient1',
-              },
-            },
-          ];
-
-          store.clearActions();
-          resendInvite.props().onClick();
-          expect(store.getActions()).to.eql(expectedActions);
-          sinon.assert.calledWith(
-            defaultProps.api.clinics.sendPatientDexcomConnectRequest,
-            'clinicID123',
-            'patient1'
-          );
-        });
       });
 
       context('tier0100 clinic', () => {
@@ -2902,7 +2717,6 @@ describe('ClinicPatients', () => {
                 email: 'patient2@test.ca',
                 fullName: 'Patient Two',
                 birthDate: '1999-02-02',
-                connectDexcom: false,
                 mrn: 'MRN123',
                 permissions: { custodian : undefined },
                 summary: {
@@ -2949,7 +2763,7 @@ describe('ClinicPatients', () => {
 
             done();
           }, 0);
-        })
+        });
       });
 
       describe('Accessing TIDE dashboard', () => {

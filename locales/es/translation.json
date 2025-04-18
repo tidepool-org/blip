@@ -493,7 +493,7 @@
   "html.peopletable-instructions": "Escriba el nombre de un paciente en el cuadro de búsqueda o haga clic en <1> Mostrar todo </1> para consultar todos los pacientes.",
   "html.peopletable-remove-patient-confirm": "<0><0>¿Está seguro de que desea eliminar a este paciente: </0><1>{{fullName}}</1><2>de su lista?</2></0><1>Ya no podrá ver ni comentar sus datos. </1>",
   "html.peopletable-remove-patient-tag-confirm": "<0>Are you sure you want to remove the tag: <1><0>{{name}}</0></1> from the clinic?</0><1>This tag will also be removed from any patients who have been tagged with it.</1>",
-  "html.setting-no-uploaded-data": "<0> La vista Configuración del dispositivo muestra las tasas basales, las proporciones de carbohidratos, los factores de sensibilidad y más, pero parece que aún no ha cargado los datos de la bomba. </1> su bomba. </1> <2> Si acaba de cargar, intente <1> actualizar </1>. </2>",
+  "html.setting-no-uploaded-data": "",
   "html.signup-clinician": "Si usted quiere brindar atención médica y desea crear una cuenta, <1> haga clic aquí </1>.",
   "html.signup-invited": "<0> Ha sido invitado a Tidepool. </0> <1> Regístrese para ver la invitación. </1>",
   "html.signup-personal": "Si usted es un personal medico que tiene diabetes y desea rastrear y administrar sus datos personales sobre diabetes, cree una <1> cuenta personal </1> separada.",

@@ -1,15 +1,19 @@
 /* global chai */
+/* global context */
 /* global describe */
 /* global sinon */
 /* global it */
 /* global before */
+/* global beforeEach */
 /* global after */
 /* global afterEach */
 
 import React from 'react';
 import { mount } from 'enzyme';
 import _ from 'lodash';
-import Settings from '../../../../app/components/chart/settings';
+import { MemoryRouter, Route } from 'react-router-dom';
+import Settings, { useLatestDatumTime } from '../../../../app/components/chart/settings';
+import { renderHook } from '@testing-library/react-hooks/dom';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 import i18next from '../../../../app/core/language';
 import { Provider } from 'react-redux';
@@ -17,6 +21,9 @@ import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import moment from 'moment-timezone';
 
+import { ToastProvider } from '../../../../app/providers/ToastProvider.js';
+import DataConnectionsModal from '../../../../app/components/datasources/DataConnectionsModal.js';
+import DataConnections, { activeProviders } from '../../../../app/components/datasources/DataConnections.js';
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
@@ -46,6 +53,21 @@ describe('Settings', () => {
     bgUnits: MGDL_UNITS,
   };
 
+  const patient = {
+    emails: ['user@example.com'],
+    userid: 'userId123',
+    username: 'user@example.com',
+    profile: {
+      fullName: 'Example User',
+      clinic: {
+        role: 'clinic_manager',
+      },
+      patient: {
+        foo: 'bar',
+      },
+    },
+  };
+
   const baseProps = {
     chartPrefs: {
       settings: {
@@ -60,6 +82,16 @@ describe('Settings', () => {
         timezoneAware: false,
         timezoneName: 'US/Pacific',
       },
+      data: {
+        combined: [
+          {
+            type: 'pumpSettings',
+            normalTime: '2023-01-01T00:00:00Z',
+            source: 'source1',
+            id: 'id1',
+          },
+        ],
+      },
     },
     printReady: false,
     trackMetric: sinon.stub(),
@@ -71,6 +103,7 @@ describe('Settings', () => {
     onSwitchToDaily: sinon.stub(),
     onSwitchToSettings: sinon.stub(),
     onSwitchToBgLog: sinon.stub(),
+    patient,
     uploadUrl: '',
   };
 
@@ -103,11 +136,20 @@ describe('Settings', () => {
         </div>
       )
     );
+
+    Settings.__Rewire__('useHistory', sinon.stub().returns({ location: { query: {} } }));
+
     clock = sinon.useFakeTimers();
+  });
+
+  beforeEach(() => {
+    Settings.__Rewire__('useLatestDatumTime', () => null);
   });
 
   after(() => {
     Settings.__ResetDependency__('PumpSettingsContainer');
+    Settings.__ResetDependency__('useLatestDatumTime');
+    Settings.__ResetDependency__('useHistory');
     clock.uninstall();
   });
 
@@ -125,20 +167,7 @@ describe('Settings', () => {
   const defaultState = {
     blip: {
       allUsersMap: {
-        userId123: {
-          emails: ['user@example.com'],
-          userid: 'userId123',
-          username: 'user@example.com',
-          profile: {
-            fullName: 'Example User',
-            clinic: {
-              role: 'clinic_manager',
-            },
-            patient: {
-              foo: 'bar',
-            },
-          },
-        },
+        userId123: patient,
       },
       loggedInUserId: 'userId123',
       settings: {
@@ -197,6 +226,7 @@ describe('Settings', () => {
         onSwitchToDaily: sinon.spy(),
         onSwitchToSettings: sinon.spy(),
         onSwitchToBgLog: sinon.spy(),
+        patient,
         trackMetric: sinon.spy(),
         uploadUrl: '',
         pdf: {
@@ -204,7 +234,7 @@ describe('Settings', () => {
         },
       };
       const settingsElem = React.createElement(Settings, props);
-      const elem = mount(settingsElem);
+      const elem = mount(<Provider store={store}>{settingsElem}</Provider>);
       expect(elem).to.be.ok;
       const x = elem.find('.patient-data-message');
       expect(x).to.be.ok;
@@ -225,6 +255,7 @@ describe('Settings', () => {
         onSwitchToDaily: sinon.spy(),
         onSwitchToSettings: sinon.spy(),
         onSwitchToBgLog: sinon.spy(),
+        patient,
         trackMetric: sinon.spy(),
         uploadUrl: '',
         pdf: {
@@ -232,7 +263,7 @@ describe('Settings', () => {
         },
       };
       const settingsElem = React.createElement(Settings, props);
-      const elem = mount(settingsElem);
+      const elem = mount(<Provider store={store}>{settingsElem}</Provider>);
       const refreshButton = elem.find('.btn-refresh').hostNodes();
 
       expect(props.onClickRefresh.callCount).to.equal(0);
@@ -251,10 +282,11 @@ describe('Settings', () => {
           },
         },
         onClickPrint: sinon.spy(),
+        patient,
       });
 
       const settingsElem = React.createElement(Settings, props);
-      const elem = mount(settingsElem);
+      const elem = mount(<Provider store={store}>{settingsElem}</Provider>);
       const printLink = elem.find('.printview-print-icon');
 
       expect(printLink).to.be.ok;
@@ -356,7 +388,7 @@ describe('Settings', () => {
     expect(wrapper.find('.pump-settings-container').length).to.equal(1);
   });
 
-  it('disables device selection apply button when no sources are available', () => {
+  it('hides device settings selection UI when no sources are available', () => {
     mountWrapper({
       data: {
         data: {
@@ -366,11 +398,11 @@ describe('Settings', () => {
       },
     });
     wrapper.update();
-    const deviceButton = wrapper.find('button#device-selection');
-    expect(deviceButton.props().disabled).to.be.true;
+    const deviceSettingsSelection = wrapper.find('#device-settings-selection').hostNodes();
+    expect(deviceSettingsSelection).to.have.lengthOf(0);
   });
 
-  it('disables settings selection apply button when no settings are available', () => {
+  it('hides device settings selection UI when no settings are available', () => {
     mountWrapper({
       data: {
         data: {
@@ -380,8 +412,8 @@ describe('Settings', () => {
       },
     });
     wrapper.update();
-    const settingsButton = wrapper.find('button#settings-selection');
-    expect(settingsButton.props().disabled).to.be.true;
+    const deviceSettingsSelection = wrapper.find('#device-settings-selection').hostNodes();
+    expect(deviceSettingsSelection).to.have.lengthOf(0);
   });
 
   it('calls trackMetric when device selection popover is opened', () => {
@@ -532,12 +564,14 @@ describe('Settings', () => {
               type: 'pumpSettings',
               normalTime: moment('2023-01-01T00:00:00Z').valueOf(),
               source: 'source1',
+              id: 'id1',
               deviceSerialNumber: '1234',
             },
             {
               type: 'pumpSettings',
               normalTime: moment('2023-01-02T00:00:00Z').valueOf(),
               source: 'source2',
+              id: 'id2',
               deviceSerialNumber: '5678',
             },
           ],
@@ -562,6 +596,7 @@ describe('Settings', () => {
               type: 'pumpSettings',
               normalTime: moment('2023-01-01T00:00:00Z').valueOf(),
               source: 'source1',
+              id: 'id1',
             },
           ],
         },
@@ -584,6 +619,7 @@ describe('Settings', () => {
               type: 'pumpSettings',
               normalTime: moment('2023-01-01T00:00:00Z').valueOf(),
               source: 'Unspecified Data Source',
+              id: 'id1',
               deviceSerialNumber: '1234',
             },
           ],
@@ -604,12 +640,14 @@ describe('Settings', () => {
               type: 'pumpSettings',
               normalTime: moment('2023-01-01T00:00:00Z').valueOf(),
               source: 'Unspecified Data Source',
+              id: 'id1',
               deviceSerialNumber: '1234',
             },
             {
               type: 'pumpSettings',
               normalTime: moment('2023-01-02T00:00:00Z').valueOf(),
               source: 'source1',
+              id: 'id2',
               deviceSerialNumber: '1234',
             },
           ],
@@ -634,6 +672,7 @@ describe('Settings', () => {
               type: 'pumpSettings',
               normalTime: moment('2023-01-01T00:00:00Z').valueOf(),
               source: 'source1',
+              id: 'id1',
             },
           ],
         },
@@ -645,7 +684,7 @@ describe('Settings', () => {
     const radioOptions = settingsRadioGroup.find('Radio');
     expect(radioOptions).to.have.lengthOf(1);
     expect(radioOptions.at(0).text()).to.equal(
-      'Jan 01, 2023 - Jan 02, 2023 : Active for 1 day'
+      'Jan 01, 2023 (Last Upload Date)'
     );
   });
 
@@ -659,11 +698,13 @@ describe('Settings', () => {
               type: 'pumpSettings',
               normalTime: moment('2023-01-01T00:00:00Z').valueOf(),
               source: 'source1',
+              id: 'id1',
             },
             {
               type: 'pumpSettings',
               normalTime: moment('2023-01-02T00:00:00Z').valueOf(),
               source: 'source1',
+              id: 'id2',
             },
           ],
         },
@@ -675,7 +716,7 @@ describe('Settings', () => {
     const radioOptions = settingsRadioGroup.find('Radio');
     expect(radioOptions).to.have.lengthOf(2);
     expect(radioOptions.at(0).text()).to.equal(
-      'Jan 02, 2023 - Jan 03, 2023 : Active for 1 day'
+      'Jan 02, 2023 (Last Upload Date)'
     );
     expect(radioOptions.at(1).text()).to.equal(
       'Jan 01, 2023 - Jan 02, 2023 : Active for 1 day'
@@ -692,16 +733,19 @@ describe('Settings', () => {
               type: 'pumpSettings',
               normalTime: moment('2023-01-01T00:00:00Z').valueOf(),
               source: 'source1',
+              id: 'id1',
             },
             {
               type: 'pumpSettings',
               normalTime: moment('2023-01-01T00:00:00Z').valueOf(),
               source: 'source2',
+              id: 'id2',
             },
             {
               type: 'pumpSettings',
               normalTime: moment('2023-01-03T00:00:00Z').valueOf(),
               source: 'source2',
+              id: 'id3',
             },
           ],
         },
@@ -713,7 +757,7 @@ describe('Settings', () => {
     const radioOptions = settingsRadioGroup.find('Radio');
     expect(radioOptions).to.have.lengthOf(2);
     expect(radioOptions.at(0).text()).to.equal(
-      'Jan 03, 2023 - Jan 05, 2023 : Active for 2 days'
+      'Jan 03, 2023 (Last Upload Date)'
     );
     expect(radioOptions.at(1).text()).to.equal(
       'Jan 01, 2023 - Jan 03, 2023 : Active for 2 days'
@@ -730,11 +774,13 @@ describe('Settings', () => {
               type: 'pumpSettings',
               normalTime: moment('2023-01-01T20:00:00Z').valueOf(),
               source: 'source1',
+              id: 'id1',
             },
             {
               type: 'pumpSettings',
               normalTime: moment('2023-01-02T00:00:00Z').valueOf(),
               source: 'source1',
+              id: 'id2',
             },
           ],
         },
@@ -746,7 +792,7 @@ describe('Settings', () => {
     const radioOptions = settingsRadioGroup.find('Radio');
     expect(radioOptions).to.have.lengthOf(2);
     expect(radioOptions.at(0).text()).to.equal(
-      'Jan 02, 2023 - Jan 03, 2023 : Active for 1 day'
+      'Jan 02, 2023 (Last Upload Date)'
     );
     expect(radioOptions.at(1).text()).to.equal(
       'Jan 01, 2023 - Jan 02, 2023 : Active for <1 day'
@@ -754,7 +800,7 @@ describe('Settings', () => {
   });
 
   it('formats duration correctly for longer periods in settings selection options', () => {
-    clock.jump(new Date('2023-03-01T00:00:00Z').getTime());
+    clock.jump(new Date('2023-04-01T00:00:00Z').getTime());
     mountWrapper({
       data: {
         data: {
@@ -763,16 +809,25 @@ describe('Settings', () => {
               type: 'pumpSettings',
               normalTime: moment('2023-01-01T00:00:00Z').valueOf(),
               source: 'source1',
+              id: 'id1',
             },
             {
               type: 'pumpSettings',
               normalTime: moment('2023-02-01T00:00:00Z').valueOf(),
               source: 'source1',
+              id: 'id2',
             },
             {
               type: 'pumpSettings',
               normalTime: moment('2022-11-01T00:00:00Z').valueOf(),
               source: 'source1',
+              id: 'id3',
+            },
+            {
+              type: 'pumpSettings',
+              normalTime: moment('2023-03-01T00:00:00Z').valueOf(),
+              source: 'source1',
+              id: 'id4',
             },
           ],
         },
@@ -782,14 +837,17 @@ describe('Settings', () => {
     wrapper.update();
     const settingsRadioGroup = wrapper.find('RadioGroup#settings');
     const radioOptions = settingsRadioGroup.find('Radio');
-    expect(radioOptions).to.have.lengthOf(3);
+    expect(radioOptions).to.have.lengthOf(4);
     expect(radioOptions.at(0).text()).to.equal(
-      'Feb 01, 2023 - Mar 01, 2023 : Active for 28 days'
+      'Mar 01, 2023 (Last Upload Date)'
     );
     expect(radioOptions.at(1).text()).to.equal(
-      'Jan 01, 2023 - Feb 01, 2023 : Active for 31 days'
+      'Feb 01, 2023 - Mar 01, 2023 : Active for 28 days'
     );
     expect(radioOptions.at(2).text()).to.equal(
+      'Jan 01, 2023 - Feb 01, 2023 : Active for 31 days'
+    );
+    expect(radioOptions.at(3).text()).to.equal(
       'Nov 01, 2022 - Jan 01, 2023 : Active for >2 months'
     );
   });
@@ -802,23 +860,33 @@ describe('Settings', () => {
           combined: [
             {
               type: 'pumpSettings',
-              normalTime: moment('2023-01-01T00:00:00Z').valueOf(),
+              normalTime: moment('2022-12-01T00:00:00Z').valueOf(),
               source: 'source1',
+              id: 'id1',
             },
             {
               type: 'pumpSettings',
-              normalTime: moment('2024-01-01T00:00:00Z').valueOf(),
+              normalTime: moment('2023-12-01T00:00:00Z').valueOf(),
               source: 'source1',
+              id: 'id2',
             },
             {
               type: 'pumpSettings',
               normalTime: moment('2021-06-01T00:00:00Z').valueOf(),
               source: 'source1',
+              id: 'id3',
             },
             {
               type: 'pumpSettings',
               normalTime: moment('2018-01-01T00:00:00Z').valueOf(),
               source: 'source1',
+              id: 'id4',
+            },
+            {
+              type: 'pumpSettings',
+              normalTime: moment('2024-02-01T00:00:00Z').valueOf(),
+              source: 'source1',
+              id: 'id5',
             },
           ],
         },
@@ -828,18 +896,440 @@ describe('Settings', () => {
     wrapper.update();
     const settingsRadioGroup = wrapper.find('RadioGroup#settings');
     const radioOptions = settingsRadioGroup.find('Radio');
-    expect(radioOptions).to.have.lengthOf(4);
+    expect(radioOptions).to.have.lengthOf(5);
     expect(radioOptions.at(0).text()).to.equal(
-      'Jan 01, 2024 - Mar 01, 2024 : Active for >2 months'
+      'Feb 01, 2024 (Last Upload Date)'
     );
     expect(radioOptions.at(1).text()).to.equal(
-      'Jan 01, 2023 - Jan 01, 2024 : Active for >12 months'
+      'Dec 01, 2023 - Feb 01, 2024 : Active for >2 months'
     );
     expect(radioOptions.at(2).text()).to.equal(
-      'Jun 01, 2021 - Jan 01, 2023 : Active for >1 year'
+      'Dec 01, 2022 - Dec 01, 2023 : Active for >12 months'
     );
     expect(radioOptions.at(3).text()).to.equal(
+      'Jun 01, 2021 - Dec 01, 2022 : Active for >1 year'
+    );
+    expect(radioOptions.at(4).text()).to.equal(
       'Jan 01, 2018 - Jun 01, 2021 : Active for >3 years'
     );
+  });
+
+  it('formats duration correctly when useLatestDatumTime returns a later date', () => {
+    Settings.__Rewire__('useLatestDatumTime', () => 1678579200000); // March 12, 2023
+
+    clock.jump(new Date('2023-04-01T00:00:00Z').getTime());
+    mountWrapper({
+      data: {
+        data: {
+          combined: [
+            {
+              type: 'pumpSettings',
+              normalTime: moment('2023-02-01T00:00:00Z').valueOf(),
+              source: 'source1',
+              id: 'id1',
+            },
+            {
+              type: 'pumpSettings',
+              normalTime: moment('2023-03-01T00:00:00Z').valueOf(),
+              source: 'source1',
+              id: 'id2',
+            },
+          ],
+        },
+        timePrefs: { timezoneName: 'UTC' },
+      },
+    });
+    wrapper.update();
+    const settingsRadioGroup = wrapper.find('RadioGroup#settings');
+    const radioOptions = settingsRadioGroup.find('Radio');
+    expect(radioOptions).to.have.lengthOf(2);
+    expect(radioOptions.at(0).text()).to.equal(
+      'Mar 01, 2023 - Mar 12, 2023 : Active for 11 days'
+    );
+    expect(radioOptions.at(1).text()).to.equal(
+      'Feb 01, 2023 - Mar 01, 2023 : Active for 28 days'
+    );
+  });
+
+  describe('useLatestDatumTime hook', () => {
+    const wrapper = ({ children }) => (
+      <MemoryRouter initialEntries={['/patients/1234-abcd/data/settings']}>
+        <Route path='/patients/:id/data'>
+          {children}
+        </Route>
+      </MemoryRouter>
+    );
+
+    it('calls the API with correct args and returns the timestamp of the latest datum', () => {
+      const mockApiCall = sinon.stub();
+
+      mockApiCall.callsFake((_patientId, _fetchOpts, callback) => {
+        callback(
+          null,
+          [
+            {
+              type: 'smbg',
+              time: '2023-03-02T00:00:00Z',
+              source: 'source1',
+              id: 'id2',
+            },
+            {
+              type: 'cbg',
+              time: '2023-03-01T00:00:00Z',
+              source: 'source1',
+              id: 'id2',
+            },
+          ]
+        );
+      });
+
+      const mockApi = {
+        patientData: {
+          get: mockApiCall,
+        },
+      };
+
+      const { result } = renderHook(() => useLatestDatumTime(mockApi, 'mock-upload-id'), { wrapper });
+      const latestDatumTime = result.current;
+
+      expect(latestDatumTime).to.equal(1677715200000); // March 2, 2023
+
+      expect(mockApiCall.getCall(0).args[0]).to.equal('1234-abcd');
+      expect(mockApiCall.getCall(0).args[1]['latest']).to.equal(1);
+      expect(mockApiCall.getCall(0).args[1]['type']).to.equal('cbg,smbg,basal,bolus,wizard,food,pumpSettings,upload');
+      expect(mockApiCall.getCall(0).args[1]['uploadId']).to.equal('mock-upload-id');
+    });
+
+    it('returns null when resulting dataset is empty', () => {
+      const mockApi = {
+        patientData: {
+          get: (_patientId, _fetchOpts, callback) => {
+            callback(null, []);
+          },
+        },
+      };
+
+      const { result } = renderHook(() => useLatestDatumTime(mockApi, 'mock-upload-id'), { wrapper });
+      const latestDatumTime = result.current;
+
+      expect(latestDatumTime).to.equal(null); // March 2, 2023
+    });
+
+    it('returns null when API throws an error', () => {
+      const mockApi = {
+        patientData: {
+          get: (_patientId, _fetchOpts, callback) => {
+            callback(new Error('API request failed'));
+          },
+        },
+      };
+
+      const { result } = renderHook(() => useLatestDatumTime(mockApi, 'mock-upload-id'), { wrapper });
+      const latestDatumTime = result.current;
+
+      expect(latestDatumTime).to.equal(null);
+    });
+  });
+
+  describe('data connections', () => {
+    let dataConnections;
+    let dataConnectionsAddButton;
+    let dataConnectionsCard;
+    let dataConnectionsModal;
+    let dataConnectionsWrapper;
+    let wrapper;
+
+    const api = {
+      clinics: {
+        getPatientFromClinic: sinon.stub(),
+      }
+    };
+
+    const userPatient = {
+      userid: '40',
+      profile: {
+        fullName: 'Fooey McBar'
+      },
+    };
+
+    const clinicPatient = {
+      id: '40',
+      fullName: 'Fooey McBar',
+    };
+
+    const defaultProps = {
+      currentPatientInViewId: '40',
+      trackMetric: sinon.stub(),
+    };
+
+    const defaultWorkingState = {
+      inProgress: false,
+      completed: null,
+      notification: null,
+    };
+
+    const defaultState = {
+      blip: {
+        working: {
+          updatingClinicPatient: defaultWorkingState,
+          sendingPatientDataProviderConnectRequest: defaultWorkingState,
+        },
+      },
+    };
+
+    const providerWrapper = store => props => {
+      const { children } = props;
+
+      return (
+        <Provider store={store}>
+          <ToastProvider>
+            {children}
+          </ToastProvider>
+        </Provider>
+      );
+    };
+
+    beforeEach(() => {
+      dataConnections = () => wrapper.find('.data-connection').hostNodes();
+      dataConnectionsAddButton = () => wrapper.find('#add-data-connections').hostNodes();
+      dataConnectionsCard = () => wrapper.find('#data-connections-card');
+      dataConnectionsModal = () => wrapper.find('Dialog#data-connections');
+      dataConnectionsWrapper = () => wrapper.find('#data-connections').hostNodes();
+      DataConnections.__Rewire__('api', api);
+      DataConnectionsModal.__Rewire__('api', api);
+    });
+
+    afterEach(() => {
+      DataConnections.__ResetDependency__('api');
+      DataConnectionsModal.__ResetDependency__('api');
+    });
+
+    context('clinician user', () => {
+      context('no active connections', () => {
+        it('should show the data connections card and open the data connections modal when clicked', () => {
+          const props = {
+            ...defaultProps,
+            patient: clinicPatient,
+            isUserPatient: false,
+          };
+
+          const state = {
+            blip: {
+              ...defaultState.blip,
+              selectedClinicId: 'clinic123',
+            }
+          };
+
+          const store = mockStore(state);
+
+          wrapper = mount(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
+
+          expect(dataConnectionsModal().length).to.equal(0);
+          expect(dataConnectionsCard().length).to.equal(1);
+          expect(dataConnectionsCard().text()).to.include('Connect a Device Account');
+          const callCount = props.trackMetric.callCount;
+          dataConnectionsCard().simulate('click');
+
+          sinon.assert.callCount(props.trackMetric, callCount + 1);
+          sinon.assert.calledWith(props.trackMetric, 'Clicked Settings Add Data Connections', sinon.match({ source: 'card' }));
+          expect(dataConnectionsModal().length).to.equal(1);
+        });
+      });
+
+      context('active connections to some providers', () => {
+        it('should show the data connections and open the data connections modal when Add button is clicked', () => {
+          const props = {
+            ...defaultProps,
+            isUserPatient: false,
+            clinicPatient: {
+              userid: '40',
+              dataSources: [
+                { providerName: activeProviders[0], state: 'connected' }
+              ],
+            },
+          };
+
+          const state = {
+            blip: {
+              ...defaultState.blip,
+              selectedClinicId: 'clinic123',
+            }
+          };
+
+          const store = mockStore(state);
+
+          wrapper = mount(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
+
+          expect(dataConnectionsModal().length).to.equal(0);
+          expect(dataConnectionsCard().length).to.equal(0);
+          expect(dataConnectionsWrapper().length).to.equal(1);
+          expect(dataConnectionsWrapper().find(`#data-connection-${activeProviders[0]}`).hostNodes().length).to.equal(1);
+          const callCount = props.trackMetric.callCount;
+
+          expect(dataConnectionsAddButton().length).to.equal(1);
+          dataConnectionsAddButton().simulate('click');
+
+          sinon.assert.callCount(props.trackMetric, callCount + 1);
+          sinon.assert.calledWith(props.trackMetric, 'Clicked Settings Add Data Connections', sinon.match({ source: 'button' }));
+          expect(dataConnectionsModal().length).to.equal(1);
+        });
+      });
+
+      context('active connections to all providers', () => {
+        it('should show the data connections and the "Add" button', () => {
+          const props = {
+            ...defaultProps,
+            isUserPatient: false,
+            clinicPatient: {
+              ...clinicPatient,
+              dataSources: _.map(activeProviders, providerName => ({ providerName, state: 'pending' })),
+            },
+          };
+
+          const state = {
+            blip: {
+              ...defaultState.blip,
+              selectedClinicId: 'clinic123',
+            }
+          };
+
+          const store = mockStore(state);
+
+          wrapper = mount(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
+
+
+          // No modal, card, or add button
+          expect(dataConnectionsModal().length).to.equal(0);
+          expect(dataConnectionsCard().length).to.equal(0);
+          expect(dataConnectionsAddButton().length).to.equal(1);
+          expect(dataConnectionsWrapper().length).to.equal(1);
+
+          // Data connections shown for each provider
+          expect(dataConnections().length).to.equal(activeProviders.length);
+
+          _.each(activeProviders, providerName => {
+            expect(dataConnections().find(`#data-connection-${providerName}`).hostNodes().length).to.equal(1);
+          });
+        });
+      });
+    });
+
+    context('patient user', () => {
+      context('no active connections', () => {
+        it('should show the data connections card and open the data connections modal when clicked', () => {
+          const props = {
+            ...defaultProps,
+            patient: userPatient,
+            isUserPatient: true,
+          };
+
+          const store = mockStore(defaultState);
+          wrapper = mount(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
+
+          expect(dataConnectionsModal().length).to.equal(0);
+          expect(dataConnectionsCard().length).to.equal(1);
+          expect(dataConnectionsCard().text()).to.include('Connect an Account');
+          const callCount = props.trackMetric.callCount;
+          dataConnectionsCard().simulate('click');
+
+          sinon.assert.callCount(props.trackMetric, callCount + 1);
+          sinon.assert.calledWith(props.trackMetric, 'Clicked Settings Add Data Connections', sinon.match({ source: 'card' }));
+          expect(dataConnectionsModal().length).to.equal(1);
+        });
+      });
+
+      context('active connections to some providers', () => {
+        it('should show the data connections and open the data connections modal when Add button is clicked', () => {
+          const props = {
+            ...defaultProps,
+            isUserPatient: true,
+            patient: userPatient,
+          };
+
+          const state = {
+            blip: {
+              ...defaultState.blip,
+              dataSources: [
+                { providerName: activeProviders[0], state: 'connected' }
+              ],
+            }
+          };
+
+          const store = mockStore(state);
+          wrapper = mount(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
+
+          expect(dataConnectionsModal().length).to.equal(0);
+          expect(dataConnectionsCard().length).to.equal(0);
+          expect(dataConnectionsWrapper().length).to.equal(1);
+          expect(dataConnectionsWrapper().find(`#data-connection-${activeProviders[0]}`).hostNodes().length).to.equal(1);
+          const callCount = props.trackMetric.callCount;
+
+          expect(dataConnectionsAddButton().length).to.equal(1);
+          dataConnectionsAddButton().simulate('click');
+
+          sinon.assert.callCount(props.trackMetric, callCount + 1);
+          sinon.assert.calledWith(props.trackMetric, 'Clicked Settings Add Data Connections', sinon.match({ source: 'button' }));
+          expect(dataConnectionsModal().length).to.equal(1);
+        });
+      });
+
+      context('active connections to all providers', () => {
+        it('should show the data connections and the "Add" button', () => {
+          const props = {
+            ...defaultProps,
+            isUserPatient: true,
+            patient: userPatient,
+          };
+
+          const state = {
+            blip: {
+              ...defaultState.blip,
+              dataSources: _.map(activeProviders, providerName => ({ providerName, state: 'pending' })),
+            }
+          };
+
+          const store = mockStore(state);
+          wrapper = mount(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
+
+          // No modal, card, or add button
+          expect(dataConnectionsModal().length).to.equal(0);
+          expect(dataConnectionsCard().length).to.equal(0);
+          expect(dataConnectionsAddButton().length).to.equal(1);
+          expect(dataConnectionsWrapper().length).to.equal(1);
+
+          // Data connections shown for each provider
+          expect(dataConnections().length).to.equal(activeProviders.length);
+
+          _.each(activeProviders, providerName => {
+            expect(dataConnections().find(`#data-connection-${providerName}`).hostNodes().length).to.equal(1);
+          });
+        });
+      });
+    });
+
+    context('patient is not logged in user nor are they being viewed within a clinic context', () => {
+      context('no active connections', () => {
+        it('should not show the data connections card nor the data connections wrapper', () => {
+          const props = {
+            ...defaultProps,
+            patient: userPatient,
+            isUserPatient: false,
+          };
+
+          const state = {
+            blip: {
+              ...defaultState.blip,
+              selectedClinicId: null,
+            }
+          };
+
+          const store = mockStore(state);
+          wrapper = mount(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
+
+          expect(dataConnectionsCard().length).to.equal(0);
+          expect(dataConnectionsWrapper().length).to.equal(0);
+        });
+      });
+    });
   });
 });

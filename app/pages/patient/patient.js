@@ -57,7 +57,6 @@ const Patient = withTranslation()(createReactClass({
     dataSources: PropTypes.array,
     fetchDataSources: PropTypes.func,
     connectDataSource: PropTypes.func,
-    disconnectDataSource: PropTypes.func,
     authorizedDataSource: PropTypes.object,
     queryParams: PropTypes.object,
     api: PropTypes.object,
@@ -130,11 +129,6 @@ const Patient = withTranslation()(createReactClass({
           dataDonationAccountsFetched={this.props.dataDonationAccountsFetched}
           updatingDataDonationAccounts={this.props.updatingDataDonationAccounts}
           updatingPatientBgUnits={this.props.updatingPatientBgUnits}
-          dataSources={this.props.dataSources}
-          fetchDataSources={this.props.fetchDataSources}
-          connectDataSource={this.props.connectDataSource}
-          disconnectDataSource={this.props.disconnectDataSource}
-          authorizedDataSource={this.props.authorizedDataSource}
           queryParams={this.props.queryParams}
           trackMetric={this.props.trackMetric} />
       </div>

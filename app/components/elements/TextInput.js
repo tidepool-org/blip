@@ -6,7 +6,9 @@ import cx from 'classnames';
 
 import { Caption } from './FontStyles';
 import { Icon } from './Icon';
-import { fontWeights, shadows } from '../../themes/baseTheme';
+import { fontWeights, shadows, breakpoints } from '../../themes/baseTheme';
+
+const MOBILE_BREAKPOINT = breakpoints[1];
 
 const StyledWrapper = styled(Flex)`
   position: relative;
@@ -14,6 +16,11 @@ const StyledWrapper = styled(Flex)`
 
   > input {
     flex: 1;
+
+    // Below 16px, iOS will zoom in when focusing an input field, which is unwanted behaviour
+    @media screen and (max-width: ${MOBILE_BREAKPOINT}) {
+      font-size: 16px;
+    }
   }
 
   .MuiSvgIcon-root {
@@ -53,6 +60,7 @@ export function TextInput(props) {
     required,
     warning: !error && warning,
   });
+
   return (
     <Box sx={{ width, ...sx }} {...themeProps}>
       {label && (

@@ -3,6 +3,7 @@ export default ({ colors, fonts }) => {
     fontFamily: fonts.default,
     textDecoration: 'underline',
     color: colors.text.link,
+    cursor: 'pointer',
     '&:hover, &:active': {
       color: colors.text.link,
       textDecoration: 'underline',

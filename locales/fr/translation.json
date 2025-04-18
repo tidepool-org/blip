@@ -493,7 +493,7 @@
   "html.peopletable-instructions": "Saisissez le nom d'un patient dans le champ de recherche ou cliquez sur <1>Tout afficher</1> pour afficher tous les patients.",
   "html.peopletable-remove-patient-confirm": "<0><0>Désirez-vous vraiment retirer les données du patient: </0><1>{{fullName}}</1><2> de votre liste?</2></0><1>Vous n'aurez plus consulter ou commenter ses données.</1>",
   "html.peopletable-remove-patient-tag-confirm": "<0>Are you sure you want to remove the tag: <1><0>{{name}}</0></1> from the clinic?</0><1>This tag will also be removed from any patients who have been tagged with it.</1>",
-  "html.setting-no-uploaded-data": "<0>La vue Paramètres de l'appareil affiche votre taux de basale, les ratios de glucides, les facteurs de sensibilité, et plus, mais il semblerait que vous n'avez pas encore téléchargé les données de votre pompe.</0><1>Pour voir vos Paramètres de l'appareil, <1>téléchargez</1> les données de votre pompe.</1><2>Si vous venez de faire le téléchargement, essayez de <1>rafraîchir la fenêtre</1>.</2>",
+  "html.setting-no-uploaded-data": "",
   "html.signup-clinician": "Si vous êtes un professionnel de la santé et voulez créer un compte, s'il vous plaît <1>cliquez ici</1>.",
   "html.signup-invited": "<0>Une invitation à rejoindre Tidepool vous a été envoyé.</0><1>Enregistrez vous pour consulter l'invitation.</1>",
   "html.signup-personal": " Si vous êtes un aidant naturel qui vit avec le diabète et que vous désirez enregistrer et gérer vos propres données de diabète, veuillez s'il vous plaît créer un <1>compte personnel</1> séparé.",

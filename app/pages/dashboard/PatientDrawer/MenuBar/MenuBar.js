@@ -19,7 +19,7 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const patient = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]?.patients?.[patientId]);
-  const agpCGM = useSelector(state => state.blip.pdf?.data?.agpCGM); // IMPORTANT: Data taken from Redux PDF slice
+  const pdf = useSelector(state => state.blip.pdf); // IMPORTANT: Data taken from Redux PDF slice
 
   useEffect(() => {
     // DOB field in Patient object may not be populated in TIDE Dashboard, so we need to refetch
@@ -27,7 +27,7 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
   }, []);
 
   const handleViewData = () => {
-    dispatch(push(`/patients/${patientId}/data?chart=trends&dashboard=tide`));
+    dispatch(push(`/patients/${patientId}/data/trends?dashboard=tide`));
   };
 
   const recentlyReviewedThresholdDate = moment().startOf('isoWeek').toISOString();
@@ -35,11 +35,11 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
   const handleReviewSuccess = () => {
     setTimeout(() => {
       onClose();
-    }, 500)
-  }
+    }, 500);
+  };
 
-  const { fullName, birthDate } = patient || {}; 
-  
+  const { fullName, birthDate } = patient || {};
+
   return (
     <Box sx={{ display: 'grid', gridTemplateColumns: '32fr 18fr 18fr 32fr', gap: 3, minHeight: '42px', marginBottom: 3 }}>
       <Flex sx={{ justifyContent: 'center', flexDirection: 'column' }}>
@@ -47,7 +47,7 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
           {fullName}
         </Text>
         { birthDate &&
-          <Text sx={{ color: colorPalette.extended.grays[10], fontWeight: 'medium', fontSize: 0 }}>
+          <Text sx={{ color: colorPalette.extended.grays[5], fontWeight: 'medium', fontSize: 0 }}>
             {t('DOB: {{birthDate}}', { birthDate })}
           </Text>
         }
@@ -58,27 +58,27 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
           {t('View Data')}
         </Button>
       </Flex>
-      
+
       <Flex sx={{ justifyContent: 'flex-start', alignItems: 'center' }}>
-        <CGMClipboardButton patient={patient} agpCGM={agpCGM} />
+        <CGMClipboardButton patient={patient} data={pdf?.data?.agpCGM} />
       </Flex>
 
       <Flex sx={{ fontSize: 0, alignItems: 'center', justifyContent: 'flex-end' }}>
         {
           showTideDashboardLastReviewed &&
             <>
-              <Text sx={{ 
-              color: colorPalette.primary.purpleDark, 
-              fontWeight: 'medium', 
+              <Text sx={{
+              color: colorPalette.primary.purpleDark,
+              fontWeight: 'medium',
               marginRight: 3,
             }}>
               {t('Last Reviewed')}
             </Text>
-            <PatientLastReviewed 
-              api={api} 
-              trackMetric={trackMetric} 
-              metricSource="TIDE dashboard" 
-              patientId={patientId} 
+            <PatientLastReviewed
+              api={api}
+              trackMetric={trackMetric}
+              metricSource="TIDE dashboard"
+              patientId={patientId}
               recentlyReviewedThresholdDate={recentlyReviewedThresholdDate}
               onReview={handleReviewSuccess}
             />

@@ -353,7 +353,7 @@ const ShareInvite = (props) => {
       </Box>
 
       <Box
-        mx={6}
+        mx={[3, 3, 6]}
         mt={5}
         sx={{
           border: baseTheme.borders.default,
@@ -495,7 +495,7 @@ const ShareInvite = (props) => {
         </Box>
       </Box>
 
-      <Box px={5} py={5}>
+      <Box px={[3, 3, 5]} py={5}>
         <Flex sx={{ justifyContent: ['center', 'flex-end'] }}>
           <Button id="cancel" variant="secondary" onClick={handleBack}>
             {backButtonText}

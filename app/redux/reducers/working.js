@@ -123,7 +123,7 @@ export default (state = initialWorkingState, action) => {
     case types.SEND_PATIENT_UPLOAD_REMINDER_REQUEST:
     case types.SET_CLINIC_PATIENT_LAST_REVIEWED_REQUEST:
     case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_REQUEST:
-    case types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_REQUEST:
+    case types.SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_REQUEST:
     case types.CREATE_CLINIC_PATIENT_TAG_REQUEST:
     case types.UPDATE_CLINIC_PATIENT_TAG_REQUEST:
     case types.DELETE_CLINIC_PATIENT_TAG_REQUEST:
@@ -180,7 +180,7 @@ export default (state = initialWorkingState, action) => {
           types.SEND_PATIENT_UPLOAD_REMINDER_REQUEST,
           types.SET_CLINIC_PATIENT_LAST_REVIEWED_REQUEST,
           types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_REQUEST,
-          types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_REQUEST,
+          types.SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_REQUEST,
           types.DATA_WORKER_REMOVE_DATA_REQUEST,
           types.CREATE_CLINIC_PATIENT_TAG_REQUEST,
           types.UPDATE_CLINIC_PATIENT_TAG_REQUEST,
@@ -189,6 +189,7 @@ export default (state = initialWorkingState, action) => {
           types.FETCH_RPM_REPORT_PATIENTS_REQUEST,
           types.FETCH_CLINIC_PATIENT_COUNT_REQUEST,
           types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST,
+          types.FETCH_DATA_SOURCES_REQUEST,
         ], action.type)) {
           return update(state, {
             [key]: {
@@ -302,7 +303,7 @@ export default (state = initialWorkingState, action) => {
     case types.SEND_PATIENT_UPLOAD_REMINDER_SUCCESS:
     case types.SET_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS:
     case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS:
-    case types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_SUCCESS:
+    case types.SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_SUCCESS:
     case types.CREATE_CLINIC_PATIENT_TAG_SUCCESS:
     case types.UPDATE_CLINIC_PATIENT_TAG_SUCCESS:
     case types.DELETE_CLINIC_PATIENT_TAG_SUCCESS:
@@ -372,7 +373,7 @@ export default (state = initialWorkingState, action) => {
         } else if (_.includes([
           types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS,
           types.UPDATE_CLINIC_PATIENT_SUCCESS,
-          types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_SUCCESS,
+          types.SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_SUCCESS,
           types.ACCEPT_PATIENT_INVITATION_SUCCESS,
         ], action.type)) {
           return update(state, {
@@ -485,7 +486,7 @@ export default (state = initialWorkingState, action) => {
     case types.SEND_PATIENT_UPLOAD_REMINDER_FAILURE:
     case types.SET_CLINIC_PATIENT_LAST_REVIEWED_FAILURE:
     case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_FAILURE:
-    case types.SEND_PATIENT_DEXCOM_CONNECT_REQUEST_FAILURE:
+    case types.SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_FAILURE:
     case types.CREATE_CLINIC_PATIENT_TAG_FAILURE:
     case types.UPDATE_CLINIC_PATIENT_TAG_FAILURE:
     case types.DELETE_CLINIC_PATIENT_TAG_FAILURE:

@@ -902,14 +902,15 @@ export const ClinicAdmin = (props) => {
 
         <DialogContent>
           <Body1>
-          <Trans>
-            <Text>
-              You invited <Text sx={{ fontWeight: 'bold' }}>{{inviteName: selectedInvite?.name || selectedInvite?.email}}</Text> to your clinic on <Text sx={{ fontWeight: 'bold' }}>{{inviteDate: formattedInviteDate}}</Text>.
-            </Text>
-            <Text>
-              Are you sure you want to resend this invite?
-            </Text>
-          </Trans>
+            <Trans>
+              <Text>
+                You invited <Text sx={{ fontWeight: 'bold' }}>{{inviteName: selectedInvite?.name || selectedInvite?.email}}</Text> to your clinic on <Text sx={{ fontWeight: 'bold' }}>{{inviteDate: formattedInviteDate}}</Text>.
+              </Text>
+            </Trans>
+          </Body1>
+
+          <Body1>
+            {t('Are you sure you want to resend this invite?')}
           </Body1>
         </DialogContent>
 

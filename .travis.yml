@@ -1,19 +1,5 @@
-language: node_js
+os: linux
 dist: jammy
-
-node_js:
-  - "20.8.0"
-  - "stable"
-
-cache:
-  yarn: true
-  directories:
-    - node_modules
-
-before_install:
-  - google-chrome-stable --headless --disable-gpu --remote-debugging-port=9222 http://localhost &
-  - corepack enable
-  - yarn set version 3.6.4
 
 addons:
   artifacts:
@@ -22,15 +8,10 @@ addons:
       - $(git ls-files -o deploy/*/*-*.tar.gz | tr "\n" ":")
     target_paths:
       - /
-  chrome: stable
 
 services:
   - docker
 
 script:
-  - npm test
+  - docker build -t blip-test --target test .
   - ./artifact.sh
-
-jobs:
-  allow_failures:
-    - node_js: stable

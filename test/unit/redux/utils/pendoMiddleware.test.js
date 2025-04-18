@@ -180,6 +180,7 @@ describe('pendoMiddleware', () => {
         application: 'Web',
         environment: 'local',
         id: 'clinicAdminID',
+        currentlyViewedDevices: [],
         permission: 'administrator',
         role: 'clinician',
         domain: 'example.com',
@@ -328,6 +329,7 @@ describe('pendoMiddleware', () => {
         application: 'Web',
         environment: 'local',
         id: 'clinicAdminID',
+        currentlyViewedDevices: [],
         permission: 'administrator',
         role: 'clinician',
         domain: 'example.com',
@@ -371,6 +373,7 @@ describe('pendoMiddleware', () => {
         application: 'Web',
         environment: 'local',
         id: 'clinicAdminID',
+        currentlyViewedDevices: [],
         role: 'clinician',
         termsAccepted: '2020-02-02T00:00:00.000Z',
       },
@@ -413,6 +416,7 @@ describe('pendoMiddleware', () => {
         application: 'Web',
         environment: 'local',
         id: 'clinicAdminID',
+        currentlyViewedDevices: [],
         permission: 'administrator',
         role: 'clinician',
         domain: 'example.com',
@@ -457,6 +461,7 @@ describe('pendoMiddleware', () => {
         domain: 'example.com',
         environment: 'prd',
         id: 'clinicAdminID',
+        currentlyViewedDevices: [],
         permission: 'administrator',
         role: 'clinician',
         termsAccepted: '2020-02-02T00:00:00.000Z',
@@ -472,6 +477,7 @@ describe('pendoMiddleware', () => {
         domain: 'example.com',
         environment: 'qa1',
         id: 'clinicAdminID',
+        currentlyViewedDevices: [],
         permission: 'administrator',
         role: 'clinician',
         termsAccepted: '2020-02-02T00:00:00.000Z',
@@ -535,6 +541,7 @@ describe('pendoMiddleware', () => {
       },
       visitor: {
         id: 'clinicMemberID',
+        currentlyViewedDevices: [],
         permission: 'member',
       },
     };
@@ -581,6 +588,7 @@ describe('pendoMiddleware', () => {
       visitor: {
         existingVisitorData: 'existingVisitorData',
         id: 'clinicMemberID',
+        currentlyViewedDevices: [],
         permission: 'member',
       },
     };
@@ -618,6 +626,7 @@ describe('pendoMiddleware', () => {
             },
             visitor: {
               id: 'clinicMemberID',
+              currentlyViewedDevices: [],
               permission: 'member',
             },
           },
@@ -636,6 +645,7 @@ describe('pendoMiddleware', () => {
       },
       visitor: {
         id: 'clinicAdminID',
+        currentlyViewedDevices: [],
         permission: null,
       },
     };
@@ -877,5 +887,148 @@ describe('pendoMiddleware', () => {
     expect(winMock.pendo.updateOptions.callCount).to.equal(0);
     pendoMiddleware(api, winMock)(getStateObj)(next)(dataWorkerAddDataSuccess);
     expect(winMock.pendo.updateOptions.callCount).to.equal(0);
+  });
+
+  it('should update Pendo correctly on DATA_WORKER_QUERY_DATA_SUCCESS', () => {
+    winMock.pendo.visitorId = 'clinicAdminID';
+    const dataWorkerQueryDataSuccess = {
+      type: ActionTypes.DATA_WORKER_QUERY_DATA_SUCCESS,
+      payload: {
+        result: {
+          metaData: {
+            matchedDevices: {
+              deviceType1: { device1: {}, device2: {} },
+              deviceType2: { device3: {} },
+            },
+          },
+        },
+      },
+    };
+
+    getStateObj.getState.returns({
+      ...emptyState,
+      ...{
+        blip: {
+          loggedInUserId: 'clinicAdminID',
+          currentPatientInViewId: 'patient123',
+          allUsersMap: _.pick(users, 'clinicAdminID'),
+          pendoData: {
+            account: {
+              clinic: 'Mock Clinic Name',
+              id: 'clinicID123',
+            },
+            visitor: {
+              id: 'clinicAdminID',
+              currentlyViewedDevices: [],
+            },
+          },
+        },
+      },
+    });
+
+    const expectedConfig = {
+      account: {
+        clinic: 'Mock Clinic Name',
+        id: 'clinicID123',
+      },
+      visitor: {
+        id: 'clinicAdminID',
+        currentlyViewedDevices: ['device1', 'device2', 'device3'],
+      },
+    };
+
+    expect(winMock.pendo.updateOptions.callCount).to.equal(0);
+    pendoMiddleware(api, winMock)(getStateObj)(next)(dataWorkerQueryDataSuccess);
+    expect(winMock.pendo.updateOptions.callCount).to.equal(1);
+    expect(winMock.pendo.updateOptions.getCall(0).args[0]).to.eql(expectedConfig);
+    expect(winMock.pendo.updateOptions.calledWith(expectedConfig)).to.be.true;
+  });
+
+  it('should update Pendo correctly on LOGOUT_REQUEST', () => {
+    winMock.pendo.visitorId = 'clinicAdminID';
+    const logoutRequest = {
+      type: ActionTypes.LOGOUT_REQUEST,
+    };
+
+    getStateObj.getState.returns({
+      ...emptyState,
+      ...{
+        blip: {
+          loggedInUserId: 'clinicAdminID',
+          allUsersMap: _.pick(users, 'clinicAdminID'),
+          pendoData: {
+            account: {
+              clinic: 'Mock Clinic Name',
+              id: 'clinicID123',
+            },
+            visitor: {
+              id: 'clinicAdminID',
+              currentlyViewedDevices: ['Device1', 'Device2'],
+            },
+          },
+        },
+      },
+    });
+
+    const expectedConfig = {
+      account: {
+        clinic: 'Mock Clinic Name',
+        id: 'clinicID123',
+      },
+      visitor: {
+        id: 'clinicAdminID',
+        currentlyViewedDevices: [],
+      },
+    };
+
+    expect(winMock.pendo.updateOptions.callCount).to.equal(0);
+    pendoMiddleware(api, winMock)(getStateObj)(next)(logoutRequest);
+    expect(winMock.pendo.updateOptions.callCount).to.equal(1);
+    expect(winMock.pendo.updateOptions.getCall(0).args[0]).to.eql(expectedConfig);
+    expect(winMock.pendo.updateOptions.calledWith(expectedConfig)).to.be.true;
+  });
+
+  it('should update Pendo correctly on DATA_WORKER_REMOVE_DATA_SUCCESS', () => {
+    winMock.pendo.visitorId = 'clinicAdminID';
+    const dataWorkerRemoveDataSuccess = {
+      type: ActionTypes.DATA_WORKER_REMOVE_DATA_SUCCESS,
+    };
+
+    getStateObj.getState.returns({
+      ...emptyState,
+      ...{
+        blip: {
+          loggedInUserId: 'clinicAdminID',
+          allUsersMap: _.pick(users, 'clinicAdminID'),
+          pendoData: {
+            account: {
+              clinic: 'Mock Clinic Name',
+              id: 'clinicID123',
+            },
+            visitor: {
+              id: 'clinicAdminID',
+              currentlyViewedDevices: ['Device1', 'Device2'],
+            },
+          },
+        },
+      },
+    });
+
+    const expectedConfig = {
+      account: {
+        clinic: 'Mock Clinic Name',
+        id: 'clinicID123',
+      },
+      visitor: {
+        id: 'clinicAdminID',
+        currentlyViewedDevices: [],
+      },
+    };
+
+    expect(winMock.pendo.updateOptions.callCount).to.equal(0);
+    pendoMiddleware(api, winMock)(getStateObj)(next)(dataWorkerRemoveDataSuccess);
+    expect(winMock.pendo.updateOptions.callCount).to.equal(1);
+    expect(winMock.pendo.updateOptions.getCall(0).args[0]).to.eql(expectedConfig);
+    expect(winMock.pendo.updateOptions.calledWith(expectedConfig)).to.be.true;
   });
 });

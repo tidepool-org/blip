@@ -17,6 +17,19 @@
 @profile-form-width:               260px;
 // Match `.container-small` breakpoint
 @profile-form-breakpoint:          (2*130px + @profile-form-width);
+@mobile-breakpoint: 768px;
+
+.profile {
+  @media screen and (max-width: @mobile-breakpoint) {
+    border-top: 1px solid #D9D9D9;
+  }
+}
+
+.profile-subnav {
+  @media screen and (max-width: @mobile-breakpoint) {
+    display: none;
+  }
+}
 
 .profile-subnav-box {
   color: #fff;

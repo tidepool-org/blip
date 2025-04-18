@@ -97,6 +97,7 @@ describe('Basics', () => {
     baseProps.onUpdateChartDateRange.reset();
     baseProps.trackMetric.reset();
     baseProps.updateChartPrefs.reset();
+    baseProps.onSwitchToDaily.reset();
   });
 
   describe('render', () => {
@@ -126,6 +127,7 @@ describe('Basics', () => {
           },
         }
       });
+
       const noDataMessage = wrapper.find('.patient-data-message').hostNodes();
       const chart = wrapper.hostNodes('BasicsChart');
       expect(noDataMessage.length).to.equal(0);
@@ -167,7 +169,6 @@ describe('Basics', () => {
       wrapper = shallow(<Basics.WrappedComponent {...baseProps} />);
       expect(wrapper.state('atMostRecent')).to.be.true;
       expect(wrapper.state('inTransition')).to.be.false;
-      expect(wrapper.state('title')).to.be.a('string');
     });
   });
 
@@ -177,6 +178,15 @@ describe('Basics', () => {
       instance.handleCopyBasicsClicked();
       sinon.assert.callCount(baseProps.trackMetric, 1);
       sinon.assert.calledWith(baseProps.trackMetric, 'Clicked Copy Settings', { source: 'Basics' });
+    });
+  });
+
+  describe('handleSelectDay', () => {
+    it('should track metric when called', () => {
+      const instance = wrapper.instance();
+      instance.handleSelectDay('2025-01-27', 'TEST_TITLE');
+      sinon.assert.callCount(baseProps.trackMetric, 1);
+      sinon.assert.calledWith(baseProps.trackMetric, 'Clicked Basics TEST_TITLE calendar', { fromChart: 'basics' });
     });
   });
 

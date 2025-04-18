@@ -5,6 +5,7 @@ import styled from '@emotion/styled';
 import { makeStyles } from '@material-ui/core/styles';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import { Box } from 'theme-ui';
+import { useFlags } from 'launchdarkly-react-client-sdk';
 
 import Content from './Content';
 import MenuBar from './MenuBar';
@@ -35,6 +36,8 @@ const useStyles = makeStyles({
 const DESKTOP_DRAWER_WIDTH = '1000px';
 const DRAWER_CLOSE_BUTTON_GAP = '70px';
 
+export const isValidAgpPeriod = period => ['7d', '14d', '30d'].includes(period);
+
 const getAgpPeriodInDays = (period) => {
   switch(period) {
     case '1d': // minimum 7-day AGP period, so return 7
@@ -47,8 +50,11 @@ const getAgpPeriodInDays = (period) => {
 
 const PatientDrawer = ({ patientId, onClose, api, trackMetric, period }) => {
   const classes = useStyles();
+  const { showTideDashboardPatientDrawer } = useFlags(); 
 
-  const isOpen = !!patientId && !!period;
+  if (!showTideDashboardPatientDrawer) return null;
+
+  const isOpen = !!patientId && isValidAgpPeriod(period);
 
   const agpPeriodInDays = getAgpPeriodInDays(period);
 

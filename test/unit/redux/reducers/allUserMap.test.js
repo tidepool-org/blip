@@ -333,6 +333,44 @@ describe('allUsersMap', () => {
     });
   });
 
+  describe('updateSettingsSuccess', () => {
+    it('should update the settings for the user', () => {
+      const userId = 'a1b2c3';
+
+      const initialStateForTest = {
+        a1b2c3:  { userId, settings: { foo: 'bar' } },
+      };
+
+      const tracked = mutationTracker.trackObj(initialStateForTest);
+      const settings = { bar: 'baz' };
+      const action = actions.sync.updateSettingsSuccess(userId, settings);
+      const state = reducer(initialStateForTest, action);
+
+      expect(Object.keys(state).length).to.equal(1);
+      expect(state[userId].settings).to.eql({ foo: 'bar', bar: 'baz' });
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
+  });
+
+  describe('updatePreferencesSuccess', () => {
+    it('should update the preferences for the user', () => {
+      const userId = 'a1b2c3';
+
+      const initialStateForTest = {
+        a1b2c3:  { userId, preferences: { foo: 'bar' } },
+      };
+
+      const tracked = mutationTracker.trackObj(initialStateForTest);
+      const preferences = { bar: 'baz' };
+      const action = actions.sync.updatePreferencesSuccess(userId, preferences);
+      const state = reducer(initialStateForTest, action);
+
+      expect(Object.keys(state).length).to.equal(1);
+      expect(state[userId].preferences).to.eql({ foo: 'bar', bar: 'baz' });
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
+  });
+
   describe('logoutRequest', () => {
     it('should set state to a hash map of patients', () => {
       let initialStateForTest = {
