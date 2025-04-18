@@ -110,9 +110,7 @@ export const PatientDataClass = createReactClass({
     var state = {
       chartPrefs: {
         basics: {
-          stats: {
-            excludeDaysWithoutBolus: false,
-          },
+          stats: {},
           sections: {},
           extentSize: 14,
         },
@@ -310,8 +308,8 @@ export const PatientDataClass = createReactClass({
                   id='data-connections-card'
                   title={isUserPatient ? t('Connect an Account') : t('Connect a Device Account')}
                   subtitle={isUserPatient
-                    ? t('Do you have a Dexcom or FreeStyle Libre device? When you connect a device account, data can flow into Tidepool without any extra effort.')
-                    : t('Does your patient use a Dexcom or FreeStyle Libre device? Automatically sync data from those devices with the patient\'s permission.')
+                    ? t('Do you have a Dexcom or twiist device? When you connect a device account, data can flow into Tidepool without any extra effort.')
+                    : t('Does your patient use a Dexcom or twiist device? Automatically sync data from those devices with the patient\'s permission.')
                   }
                   bannerImage={DataConnectionsBanner}
                   onClick={handleClickDataConnections}
@@ -911,7 +909,7 @@ export const PatientDataClass = createReactClass({
           </Box>
         );
 
-        if (daysWithBoluses > 0 && daysWithBoluses < activeDays) {
+        if (state.chartType !== 'basics' && daysWithBoluses > 0 && daysWithBoluses < activeDays) {
           // If any of the calendar dates within the range are missing boluses,
           // present a checkbox to disable them from insulin stat calculations
           stat.children = (
@@ -999,7 +997,7 @@ export const PatientDataClass = createReactClass({
         aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
         bgSource: _.get(state.chartPrefs, 'basics.bgSource'),
         stats: this.getStatsByChartType('basics'),
-        excludeDaysWithoutBolus: _.get(state, 'chartPrefs.basics.stats.excludeDaysWithoutBolus'),
+        excludeDaysWithoutBolus: false, // deprecated for basics chartType
         ...commonQueries,
       };
     }
