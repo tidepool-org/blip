@@ -42,13 +42,15 @@ describe('useProviderConnectionPopup', function () {
     },
   };
 
+  const trackMetric = sinon.stub();
+
   beforeEach(() => {
     useProviderConnectionPopup.__Rewire__('useToasts', () => ({ set: setToast }));
     useProviderConnectionPopup.__Rewire__('providers', providers);
     useProviderConnectionPopup.__Rewire__('api', api);
 
     const TestComponent = () => {
-      const popup = useProviderConnectionPopup({ popupWatchTimeout: 0 });
+      const popup = useProviderConnectionPopup({ popupWatchTimeout: 0, trackMetric });
       return <div>{popup?.location?.href ? 'Popup Open' : 'No Popup'}</div>;
     };
 
@@ -63,9 +65,11 @@ describe('useProviderConnectionPopup', function () {
     useProviderConnectionPopup.__ResetDependency__('providers');
     useProviderConnectionPopup.__ResetDependency__('api');
     setToast.resetHistory();
+    trackMetric.resetHistory();
   });
 
   it('should open a popup when authorizedDataSource is set', (done) => {
+    sinon.assert.notCalled(trackMetric);
     expect(wrapper.text()).to.equal('No Popup');
 
     const authorizedDataSource = { id: 'oauth/testProvider', url: `${window.location.origin}/foobar.html`};
@@ -74,11 +78,20 @@ describe('useProviderConnectionPopup', function () {
 
     setTimeout(() => {
       expect(wrapper.text()).to.equal('Popup Open');
+
+      sinon.assert.calledWith(trackMetric, 'Started provider connection flow', {
+        providerName: 'testProvider',
+        isMobile: false,
+        status: null,
+      });
+
       done();
-    })
+    });
   });
 
   it('should close the popup, show a toast message, and set justConnectedDataSourceProviderName on authorization success when popup url matches error oauth path', (done) => {
+    sinon.assert.notCalled(trackMetric);
+
     // Simulate success redirect path
     const authorizedDataSource = { id: 'oauth/testProvider', url: `${window.location.origin}/oauth/testProvider/authorized`};
     store.dispatch(actions.sync.connectDataSourceSuccess(authorizedDataSource.id, authorizedDataSource.url));
@@ -96,6 +109,12 @@ describe('useProviderConnectionPopup', function () {
 
       sinon.assert.calledOnce(actions.sync.setJustConnectedDataSourceProviderName);
       sinon.assert.calledWith(actions.sync.setJustConnectedDataSourceProviderName, 'testProvider');
+
+      sinon.assert.calledWith(trackMetric, 'Completed provider connection flow', {
+        providerName: 'testProvider',
+        isMobile: false,
+        status: 'authorized',
+      });
 
       sinon.restore();
 

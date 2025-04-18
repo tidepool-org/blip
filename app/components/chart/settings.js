@@ -121,7 +121,7 @@ const Settings = ({
   t
 }) => {
   const { location } = useHistory();
-  const isJustConnected = !!location?.query?.openDataConnectionsModalWithStatus;
+  const isJustConnected = !!location?.query?.dataConnectionStatus;
 
   const [showDataConnectionsModal, setShowDataConnectionsModal] = useState(isJustConnected);
   const [atMostRecent, setAtMostRecent] = useState(true);
@@ -647,8 +647,8 @@ const Settings = ({
         ? t('Connect an Account')
         : t('Connect a Device Account'),
       subtitle: isUserPatient
-        ? t('Do you have a Dexcom or FreeStyle Libre device? When you connect a device account, data can flow into Tidepool without any extra effort.')
-        : t('Does your patient use a Dexcom or FreeStyle Libre device? Automatically sync data from those devices with the patient\'s permission.'),
+        ? t('Do you have a Dexcom or twiist device? When you connect a device account, data can flow into Tidepool without any extra effort.')
+        : t('Does your patient use a Dexcom or twiist device? Automatically sync data from those devices with the patient\'s permission.'),
       bannerImage: DataConnectionsBanner,
       onClick: handleClickDataConnections.bind(null, 'card'),
       variant: 'containers.cardHorizontal',
@@ -670,29 +670,23 @@ const Settings = ({
   const renderDataConnections = () => {
     const shownProviders = _.map(patientData?.dataSources, 'providerName');
 
-    let showAddDevicesButton = false;
-    _.each(activeProviders, providerName => {
-      if (!_.find(patientData?.dataSources, { providerName })) showAddDevicesButton = true;
-    });
-
     return (
       <Box>
         <Flex mb={3} sx={{ justifyContent: 'space-between', flexWrap: ['wrap', 'nowrap'] }}>
           <DesktopOnly>
             <MediumTitle sx={{ color: 'black' }}>{t('Devices')}</MediumTitle>
           </DesktopOnly>
-          {showAddDevicesButton && (
-            <Button
-              id="add-data-connections"
-              variant="primaryCondensed"
-              icon={AddRoundedIcon}
-              iconPosition="left"
-              onClick={handleClickDataConnections.bind(null, 'button')}
-              sx={{ fontSize: 1, '.icon': { fontSize: '1.25em' }, flex: ['initial'], width: ['100%', '100%', 'auto'] }}
-            >
-              {t('Add a Device')}
-            </Button>
-            )}
+
+          <Button
+            id="add-data-connections"
+            variant="primaryCondensed"
+            icon={AddRoundedIcon}
+            iconPosition="left"
+            onClick={handleClickDataConnections.bind(null, 'button')}
+            sx={{ fontSize: 1, '.icon': { fontSize: '1.25em' }, flex: ['initial'], width: ['100%', '100%', 'auto'] }}
+          >
+            {t('Add a Device')}
+          </Button>
         </Flex>
 
         <DataConnections mb={4} patient={patientData} shownProviders={shownProviders} trackMetric={trackMetric} />

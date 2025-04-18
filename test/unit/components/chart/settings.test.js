@@ -1176,7 +1176,7 @@ describe('Settings', () => {
       });
 
       context('active connections to all providers', () => {
-        it('should show the data connections but not the "Add" button', () => {
+        it('should show the data connections and the "Add" button', () => {
           const props = {
             ...defaultProps,
             isUserPatient: false,
@@ -1201,7 +1201,7 @@ describe('Settings', () => {
           // No modal, card, or add button
           expect(dataConnectionsModal().length).to.equal(0);
           expect(dataConnectionsCard().length).to.equal(0);
-          expect(dataConnectionsAddButton().length).to.equal(0);
+          expect(dataConnectionsAddButton().length).to.equal(1);
           expect(dataConnectionsWrapper().length).to.equal(1);
 
           // Data connections shown for each provider
@@ -1274,7 +1274,7 @@ describe('Settings', () => {
       });
 
       context('active connections to all providers', () => {
-        it('should show the data connections but not the "Add" button', () => {
+        it('should show the data connections and the "Add" button', () => {
           const props = {
             ...defaultProps,
             isUserPatient: true,
@@ -1294,7 +1294,7 @@ describe('Settings', () => {
           // No modal, card, or add button
           expect(dataConnectionsModal().length).to.equal(0);
           expect(dataConnectionsCard().length).to.equal(0);
-          expect(dataConnectionsAddButton().length).to.equal(0);
+          expect(dataConnectionsAddButton().length).to.equal(1);
           expect(dataConnectionsWrapper().length).to.equal(1);
 
           // Data connections shown for each provider

@@ -5,7 +5,7 @@ import { isFunction, noop } from 'lodash';
 import { AppBannerContext, CLICKED_BANNER_ACTION, DISMISSED_BANNER_ACTION, SEEN_BANNER_ACTION } from './AppBannerProvider';
 import { async } from '../../redux/actions';
 import api from '../../core/api';
-import { useIsFirstRender } from '../../core/hooks';
+import { useIsFirstRender, usePrevious } from '../../core/hooks';
 import { useToasts } from '../ToastProvider';
 
 const AppBanner = ({ trackMetric }) => {
@@ -27,7 +27,9 @@ const AppBanner = ({ trackMetric }) => {
   const working = useSelector(state => state.blip.working);
   const { set: setToast } = useToasts();
   const workingState = working[banner?.action?.working?.key];
+  const previousWorkingState = usePrevious(workingState);
   const [showModal, setShowModal] = useState(false);
+  const [bannerActionClicked, setBannerActionClicked] = useState(false);
 
   const completeClickAction = useCallback(() => {
     userIsCurrentPatient && dispatch(async.handleBannerInteraction(api, loggedInUserId, banner?.interactionId, CLICKED_BANNER_ACTION));
@@ -39,6 +41,9 @@ const AppBanner = ({ trackMetric }) => {
         [currentPatientInViewId]: true,
       },
     });
+
+    // Reset the banner action clicked state to false whenever the click action is completed
+    setBannerActionClicked(false);
   }, [
     banner?.interactionId,
     bannerInteractedForPatient,
@@ -51,11 +56,11 @@ const AppBanner = ({ trackMetric }) => {
   ]);
 
   const handleAsyncResult = useCallback((workingState, successMessage, errorMessage) => {
-    const { inProgress, completed } = workingState || {};
+    const { inProgress, completed, notification, prevInProgress } = workingState;
 
-    if (!isFirstRender && !inProgress) {
+    if (bannerActionClicked && !isFirstRender && !inProgress && prevInProgress !== false) {
       if (completed) {
-        completeClickAction()
+        completeClickAction();
 
         setToast({
           message: successMessage,
@@ -65,12 +70,12 @@ const AppBanner = ({ trackMetric }) => {
 
       if (completed === false) {
         setToast({
-          message: errorMessage,
+          message: errorMessage || notification?.message || 'An error occurred',
           variant: 'danger',
         });
       }
     }
-  }, [completeClickAction, isFirstRender, setToast]);
+  }, [completeClickAction, isFirstRender, bannerActionClicked, setToast]);
 
   useEffect(() => {
     // Send a metric the first time a banner is shown to a patient for the current session
@@ -100,8 +105,13 @@ const AppBanner = ({ trackMetric }) => {
   ]);
 
   useEffect(() => {
-    handleAsyncResult(workingState, banner?.action?.working?.successMessage, banner?.action?.working?.errorMessage);
-  }, [banner?.id, banner?.action, handleAsyncResult, workingState]);
+    // Reset the banner action clicked state to false whenever the banner changes
+    setBannerActionClicked(false);
+  }, [banner?.id]);
+
+  useEffect(() => {
+    handleAsyncResult({ ...workingState, prevInProgress: previousWorkingState?.inProgress}, banner?.action?.working?.successMessage, banner?.action?.working?.errorMessage);
+  }, [banner?.id, banner?.action, handleAsyncResult, workingState, previousWorkingState?.inProgress]);
 
   // Render nothing if no banner is available
   if (!banner) {
@@ -115,6 +125,9 @@ const AppBanner = ({ trackMetric }) => {
   }
 
   function handleClickAction() {
+    // We set the banner action clicked state to true to prevent reacting to working state changes that were initiated by other components.
+    setBannerActionClicked(true);
+
     banner.action?.metric && trackMetric(banner.action.metric, banner.action.metricProps);
 
     if (banner.action?.modal?.component) {

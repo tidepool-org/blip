@@ -29,7 +29,7 @@ export const Cards = {
     const cards = [
       {
         title: 'Connect a Device Account',
-        subtitle: 'Does your patient use a Dexcom or FreeStyle Libre device? Automatically sync data from those devices with the patient\'s permission.',
+        subtitle: 'Does your patient use a Dexcom or twiist device? Automatically sync data from those devices with the patient\'s permission.',
         bannerImage: DataConnectionsBanner,
         onClick: action('Connect a Device'),
       },
@@ -63,7 +63,7 @@ export const HorizontalCards = {
     const cards = [
       {
         title: 'Connect a Device Account',
-        subtitle: 'Does your patient use a Dexcom or FreeStyle Libre device? Automatically sync data from those devices with the patient\'s permission.',
+        subtitle: 'Does your patient use a Dexcom or twiist device? Automatically sync data from those devices with the patient\'s permission.',
         bannerImage: DataConnectionsBanner,
         onClick: action('Connect a Device'),
       },
