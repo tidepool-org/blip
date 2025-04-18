@@ -25,7 +25,7 @@ import reject from 'lodash/reject';
 import upperFirst from 'lodash/upperFirst';
 import values from 'lodash/values';
 import without from 'lodash/without';
-import { Box, Flex, Link, Text } from 'theme-ui';
+import { Box, Flex, Link, Text, Grid } from 'theme-ui';
 import AddIcon from '@material-ui/icons/Add';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import DeleteIcon from '@material-ui/icons/DeleteRounded';
@@ -1653,68 +1653,47 @@ export const ClinicPatients = (props) => {
                       setPendingFilters(activeFilters);
                     }}
                   >
-                    <DialogContent px={2} pt={1} pb={3} dividers>
+                    <DialogContent px={2} pt={1} pb={3} sx={{ maxHeight: '400px' }} dividers>
                       <Box variant="containers.small">
-                        <Box>
-                          <Text sx={{ color: 'text.primary', fontSize: 1, fontWeight: 'medium', whiteSpace: 'nowrap' }}>
-                            {t('Filter by Patient Tags')}
+                        <Box mb={2}>
+                          <Text sx={{ display: 'block', color: colors.gray50, fontSize: 1, fontWeight: 'medium' }}>
+                            {t('Tags')}
                           </Text>
-
-                          {showTideDashboard && !clinic?.patientTags?.length && (
-                            <Flex mt={3} sx={{ gap: 1, alignItems: 'flex-start' }}>
-                              <Icon
-                                variant="static"
-                                icon={InfoOutlinedIcon}
-                                sx={{ color: 'text.primary', fontSize: '14px' }}
-                              />
-
-                              <Text sx={{ color: 'text.primary', fontSize: 0, fontWeight: 'medium', lineHeight: 2 }}>
-                                {t('To use the TIDE Dashboard, add and apply patient tags.')}
-                              </Text>
-                            </Flex>
-                          )}
+                          <Text sx={{ display: 'block', color: colors.gray50, fontSize: 0, fontStyle: 'italic', maxWidth: '208px', whiteSpace: 'wrap', lineHeight: 1 }}>
+                            {t('Only patients with ALL of the tags you select below will be shown.')}
+                          </Text>
                         </Box>
 
-                        {!!pendingFilters.patientTags?.length && (
-                          <Box id="selected-tag-filters" mb={1} sx={{ fontSize: 0, fontWeight: 'medium' }}>
-                            <Text sx={{ fontSize: '10px', color: 'grays.4' }}>{t('Selected Tags')}</Text>
+                        {
+                          patientTagsFilterOptions.map(({ id, label }) => {
+                            const { patientTags } = pendingFilters;
+                            const isChecked = patientTags?.includes(id);
 
-                            <TagList
-                              tags={map(pendingFilters.patientTags, tagId => patientTags?.[tagId])}
-                              tagProps={{
-                                onClickIcon: tagId => {
-                                  setPendingFilters({ ...pendingFilters, patientTags: without(pendingFilters.patientTags, tagId) });
-                                },
-                                icon: CloseRoundedIcon,
-                                iconColor: 'white',
-                                iconFontSize: 1,
-                                sx: {
-                                  color: 'white',
-                                  backgroundColor: 'purpleMedium',
-                                },
-                              }}
-                            />
-                          </Box>
-                        )}
-
-                        {pendingFilters.patientTags?.length < patientTagsFilterOptions?.length && (
-                          <Box id="available-tag-filters" sx={{ alignItems: 'center', fontSize:0, fontWeight:'medium' }} mt={2} mb={1}>
-                            {!!pendingFilters.patientTags?.length && <Text sx={{ fontSize: '10px', color: 'grays.4' }}>{t('Available Tags')}</Text>}
-
-                            <TagList
-                              tags={map(reject(patientTagsFilterOptions, ({ id }) => includes(pendingFilters.patientTags, id)), ({ id }) => patientTags?.[id])}
-                              tagProps={{
-                                onClick: tagId => {
-                                  setPendingFilters({ ...pendingFilters, patientTags: [...pendingFilters.patientTags, tagId] });
-                                },
-                              }}
-                            />
-                          </Box>
-                        )}
+                            return (
+                              <Box mt={1}>
+                                <Checkbox
+                                  checked={isChecked}
+                                  onChange={() => {
+                                    if (isChecked) {
+                                      setPendingFilters({ ...pendingFilters, patientTags: without(patientTags, id) });
+                                    } else {
+                                      setPendingFilters({ ...pendingFilters, patientTags: [...patientTags, id] });
+                                    }
+                                  }}
+                                  label={(
+                                    <Text sx={{ fontSize: 0, fontWeight: 'normal' }}>
+                                      {label}
+                                    </Text>
+                                  )}
+                                />
+                              </Box>
+                            );
+                          })
+                        }
                       </Box>
                     </DialogContent>
 
-                    <DialogActions sx={{ justifyContent: 'space-between' }} p={1}>
+                    <DialogActions sx={{ justifyContent: 'space-around', padding: 2 }} p={1}>
                       <Button
                         id="clear-patient-tags-filter"
                         sx={{ fontSize: 1 }}
@@ -1738,10 +1717,7 @@ export const ClinicPatients = (props) => {
                       </Button>
                     </DialogActions>
 
-                    <DialogActions
-                      p={1}
-                      sx={{ borderTop: borders.divider, justifyContent: 'space-between' }}
-                    >
+                    <DialogActions p={1} sx={{ borderTop: borders.divider }} py={2} px={0}>
                       <Button
                         id="show-edit-clinic-patient-tags-dialog"
                         icon={EditIcon}
@@ -1753,7 +1729,7 @@ export const ClinicPatients = (props) => {
                           setShowClinicPatientTagsDialog(true);
                         }}
                       >
-                        {t('Edit Available Patient Tags')}
+                        {t('Edit Tags')}
                       </Button>
 
                     </DialogActions>
@@ -2365,7 +2341,7 @@ export const ClinicPatients = (props) => {
           handleCloseOverlays();
         }}
       >
-        <Box variant="containers.extraSmall" mb={0} sx={{ width: ['100%', '100%'] }}>
+        <Box variant="containers.small" mb={0} sx={{ width: ['100%', '100%'] }}>
           <DialogTitle
             divider={false}
             onClose={() => {
@@ -2388,11 +2364,11 @@ export const ClinicPatients = (props) => {
             >
               {patientTagFormikContext => (
                 <Form id="patient-tag-add">
-                  <Flex mb={3} sx={{ gap: 2 }}>
+                  <Flex mb={3} mt={1} sx={{ gap: 2, position: 'relative' }}>
                     <TextInput
                       themeProps={{
                         width: '100%',
-                        sx: { input: { height: '22px', py: '0 !important' } },
+                        sx: { width: '100%', input: { height: '38px', py: '0 !important' } },
                         flex: 1,
                         fontSize: '12px',
                       }}
@@ -2408,7 +2384,12 @@ export const ClinicPatients = (props) => {
                     <Button
                       disabled={!patientTagFormikContext.values.name.trim().length || clinic?.patientTags?.length >= maxClinicPatientTags || !patientTagFormikContext.isValid}
                       type="submit"
-                      sx={{ height: '24px', alignSelf: 'flex-start' }}
+                      sx={{
+                        height: '32px',
+                        position: 'absolute',
+                        top: 1,
+                        right: 1,
+                      }}
                     >
                       {t('Add')}
                     </Button>
@@ -2424,14 +2405,36 @@ export const ClinicPatients = (props) => {
               }
             </Text>
 
-            <TagList
-              tags={clinic?.patientTags}
-              tagProps={{
-                icon: isClinicAdmin ? DeleteIcon : undefined,
-                onClickIcon: isClinicAdmin ? tagId => handleDeleteClinicPatientTag(tagId) : undefined,
-                onClick: tagId => handleUpdateClinicPatientTag(tagId),
-              }}
-            />
+            <Box mt={2}>
+              {
+                clinic?.patientTags?.map(({ id, name }) => (
+                  <Grid py={2} sx={{
+                    gridTemplateColumns: '1fr 72px 16px',
+                    borderTop: `1px solid ${colors.gray05}`,
+                    alignItems: 'center',
+                  }}>
+                    <Box>
+                      <Text sx={{ fontSize: 1, color: 'text.primary' }}>{name}</Text>
+                      <Icon
+                        icon={EditIcon}
+                        sx={{ fontSize: 1, marginLeft: 2 }}
+                        onClick={isClinicAdmin ? () => handleUpdateClinicPatientTag(id) : undefined}
+                      />
+                    </Box>
+                    <Box>
+                      {/* TODO: Insert per-tag patient counts here */}
+                    </Box>
+                    <Flex sx={{ justifyContent: 'flex-end' }}>
+                      <Icon
+                        icon={DeleteIcon}
+                        sx={{ fontSize: 1 }}
+                        onClick={isClinicAdmin ? () => handleDeleteClinicPatientTag(id) : undefined}
+                      />
+                    </Flex>
+                  </Grid>
+                ))
+              }
+            </Box>
           </DialogContent>
         </Box>
       </Dialog>

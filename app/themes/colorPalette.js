@@ -11,7 +11,9 @@ export default {
     blueGreyLight: '#A6B1BB',
     blueGrey: '#66788A',
     bluePrimary00: '#F0F5FF',
+    gray05: '#EBEBEB',
     gray10: '#D9D9D9',
+    gray50: '#707070',
   },
   secondary: {
     coral: '#F9706B',
