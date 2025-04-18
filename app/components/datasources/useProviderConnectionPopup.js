@@ -107,8 +107,6 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500, trackMetric = noo
         message: toastMessages[status],
         variant: toastVariants[status],
       });
-
-      trackConnectionMetric(status);
     }
   }, [location, setToast, trackConnectionMetric]);
 
