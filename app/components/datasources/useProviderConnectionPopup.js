@@ -110,7 +110,7 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500, trackMetric = noo
 
       trackConnectionMetric(status);
     }
-  }, []);
+  }, [location?.query?.dataConnectionStatus, setToast, trackConnectionMetric]);
 
   useEffect(() => {
     let timer;
