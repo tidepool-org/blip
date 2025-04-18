@@ -108,6 +108,8 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500, trackMetric = noo
         variant: toastVariants[status],
       });
     }
+
+    console.log('TEST')
   }, []);
 
   useEffect(() => {
