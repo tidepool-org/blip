@@ -108,7 +108,7 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500, trackMetric = noo
         variant: toastVariants[status],
       });
     }
-  }, [location, setToast, trackConnectionMetric]);
+  }, []);
 
   useEffect(() => {
     let timer;
