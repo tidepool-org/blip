@@ -10,6 +10,7 @@ import api from '../../core/api';
 import { usePrevious } from '../../core/hooks';
 import utils from '../../core/utils';
 import { useHistory } from 'react-router-dom';
+import { selectUser } from '../../core/selectors';
 
 const t = i18next.t.bind(i18next);
 
@@ -34,6 +35,8 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500, trackMetric = noo
   const justConnectedDataSourceProviderName = useSelector(state => state.blip.justConnectedDataSourceProviderName);
   const fetchingDataSources = useSelector(state => state.blip.working.fetchingDataSources);
   const previousJustConnectedDataSourceProviderName = usePrevious(justConnectedDataSourceProviderName);
+  const user = useSelector(state => selectUser(state));
+  const hasUser = !!user;
 
   const trackConnectionMetric = useCallback((status = null) => {
     const action = status ? 'Completed' : 'Started';
@@ -100,7 +103,7 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500, trackMetric = noo
   // If a user just connected a provider using a mobile device, they will have this query param.
   // In that case, we still want to show the toast message indicating the status of their connection.
   useEffect(() => {
-    if (location?.query?.dataConnectionStatus) {
+    if (hasUser && location?.query?.dataConnectionStatus) {
       const status = location.query.dataConnectionStatus;
 
       setToast({
@@ -110,7 +113,12 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500, trackMetric = noo
 
       trackConnectionMetric(status);
     }
-  }, [location?.query?.dataConnectionStatus, setToast, trackConnectionMetric]);
+  }, [
+    location?.query?.dataConnectionStatus,
+    setToast,
+    trackConnectionMetric,
+    hasUser,
+  ]);
 
   useEffect(() => {
     let timer;
