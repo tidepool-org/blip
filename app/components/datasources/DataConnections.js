@@ -119,7 +119,7 @@ export function getProviderHandlers(patient, selectedClinicId, provider) {
     },
     disconnect: {
       buttonText: t('Disconnect'),
-      buttonStyle: 'text',
+      buttonStyle: providerName === 'twiist' ? 'hidden' : 'text',
       action: actions.async.disconnectDataSource,
       args: [api, dataSourceFilter],
     },
