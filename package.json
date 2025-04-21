@@ -4,7 +4,7 @@
     "node": "20.8.0"
   },
   "packageManager": "yarn@3.6.4",
-  "version": "1.84.0-rc.29",
+  "version": "1.84.0-web-3437-connected-status-last-data.1",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' yarn karma start",
