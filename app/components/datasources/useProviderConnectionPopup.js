@@ -112,7 +112,7 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500, trackMetric = noo
         variant: toastVariants[status],
       });
 
-      history.replace({ pathname, search: new URLSearchParams() });
+      history.replace({ pathname, search: '' });
       trackConnectionMetric(status);
     }
   }, [
