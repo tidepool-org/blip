@@ -5278,9 +5278,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.45.0-fix-override.1":
-  version: 1.45.0-fix-override.1
-  resolution: "@tidepool/viz@npm:1.45.0-fix-override.1"
+"@tidepool/viz@npm:1.45.0-fix-override.2":
+  version: 1.45.0-fix-override.2
+  resolution: "@tidepool/viz@npm:1.45.0-fix-override.2"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -5340,7 +5340,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 2cdb5e86e7b81f2fa35e0100e4e9da238840f8bdc9d540dbf4cf59b9dc182365b91027000460c2657edc600baed2dd0886531952293e7b21e4b664f84f455195
+  checksum: dceba30b3f54321bfa2bbe9d5a360526cc15b67c11e8df943fde3e81da04acbdfe86245e4ab75e809143a3851b5f8bae86dc6e8c5f65606c35564dffce43f0fa
   languageName: node
   linkType: hard
 
@@ -7272,7 +7272,7 @@ __metadata:
     "@storybook/react": 7.5.0
     "@storybook/react-webpack5": 7.5.0
     "@testing-library/react-hooks": 8.0.1
-    "@tidepool/viz": 1.45.0-fix-override.1
+    "@tidepool/viz": 1.45.0-fix-override.2
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -7395,7 +7395,7 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.31.0-fix-override.1
+    tideline: 1.31.0-fix-override.2
     tidepool-platform-client: 0.62.0-rc.2
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
@@ -20180,9 +20180,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.31.0-fix-override.1":
-  version: 1.31.0-fix-override.1
-  resolution: "tideline@npm:1.31.0-fix-override.1"
+"tideline@npm:1.31.0-fix-override.2":
+  version: 1.31.0-fix-override.2
+  resolution: "tideline@npm:1.31.0-fix-override.2"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -20202,7 +20202,7 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: 0c2320f33127931a822bc2802e44e9d3dff9e9232b43875406d0ce3a585db81a772e5afbb6aa2c993a581613121ab4a184324f02f1c5b4983174b9cf2f639e18
+  checksum: bc16a26f1548c1fc43a73e6a999020169d04219bb77169b43740ad204e02c229a0853c61f2a073792bd05b83397d05731bcb31c60000411e8cea8745f613acf2
   languageName: node
   linkType: hard
 
