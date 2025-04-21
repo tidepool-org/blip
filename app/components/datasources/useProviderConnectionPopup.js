@@ -28,7 +28,7 @@ export const toastVariants = {
 
 const useProviderConnectionPopup = ({ popupWatchTimeout = 500, trackMetric = noop } = {}) => {
   const dispatch = useDispatch();
-  const history = useHistory();
+  const { location } = useHistory();
   const { set: setToast } = useToasts();
   const [providerConnectionPopup, setProviderConnectionPopup] = useState(null);
   const authorizedDataSource = useSelector(state => state.blip.authorizedDataSource);
@@ -36,7 +36,6 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500, trackMetric = noo
   const fetchingDataSources = useSelector(state => state.blip.working.fetchingDataSources);
   const previousJustConnectedDataSourceProviderName = usePrevious(justConnectedDataSourceProviderName);
   const user = useSelector(state => selectUser(state));
-  const { location, pathname } = history;
   const hasUser = !!user;
 
   const trackConnectionMetric = useCallback((status = null) => {
@@ -112,7 +111,6 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500, trackMetric = noo
         variant: toastVariants[status],
       });
 
-      history.replace({ pathname, search: '' });
       trackConnectionMetric(status);
     }
   }, [

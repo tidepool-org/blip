@@ -1,5 +1,6 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import noop from 'lodash/noop';
@@ -40,6 +41,7 @@ export const DataConnectionsModal = (props) => {
     trackMetric,
   } = props;
 
+  const history = useHistory();
   const isFirstRender = useIsFirstRender();
   const { set: setToast } = useToasts();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
@@ -120,6 +122,11 @@ export const DataConnectionsModal = (props) => {
     previousUpdatingClinicPatient?.inProgress,
     setToast,
   ]);
+
+  useEffect(() => {
+    // clear out dataConnectionStatus and dataConnectionProviderName query params
+    history.replace({ pathname: history.location.pathname, search: '' });
+  }, []);
 
   const dataSourcesText = selectedClinicId
     ? t('Invite patients to authorize syncing from these accounts. Only available in the US at this time.')
