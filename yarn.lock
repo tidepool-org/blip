@@ -5996,7 +5996,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/trusted-types@npm:^2.0.2":
+"@types/trusted-types@npm:^2.0.2, @types/trusted-types@npm:^2.0.7":
   version: 2.0.7
   resolution: "@types/trusted-types@npm:2.0.7"
   checksum: 8e4202766a65877efcf5d5a41b7dd458480b36195e580a3b1085ad21e948bc417d55d6f8af1fd2a7ad008015d4117d5fdfe432731157da3c68678487174e4ba3
@@ -7395,7 +7395,7 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.31.0-fix-override.3
+    tideline: 1.31.0-fix-override.4
     tidepool-platform-client: 0.62.0-rc.2
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
@@ -9665,6 +9665,18 @@ __metadata:
   dependencies:
     domelementtype: ^2.3.0
   checksum: 0f58f4a6af63e6f3a4320aa446d28b5790a009018707bce2859dcb1d21144c7876482b5188395a188dfa974238c019e0a1e610d2fc269a12b2c192ea2b0b131c
+  languageName: node
+  linkType: hard
+
+"dompurify@npm:3.2.5":
+  version: 3.2.5
+  resolution: "dompurify@npm:3.2.5"
+  dependencies:
+    "@types/trusted-types": ^2.0.7
+  dependenciesMeta:
+    "@types/trusted-types":
+      optional: true
+  checksum: bd3b40810cc74312970dc6b99d38450ec839c81fb56c27d2c1b815ce0206b73e9cd4fe2e9021f735a1aaebf017990a63e6454e7d9c893f72b365b94d030ec9c4
   languageName: node
   linkType: hard
 
@@ -20180,15 +20192,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.31.0-fix-override.3":
-  version: 1.31.0-fix-override.3
-  resolution: "tideline@npm:1.31.0-fix-override.3"
+"tideline@npm:1.31.0-fix-override.4":
+  version: 1.31.0-fix-override.4
+  resolution: "tideline@npm:1.31.0-fix-override.4"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
     crossfilter: 1.3.12
     d3: 3.5.17
     d3.chart: 0.3.0
+    dompurify: 3.2.5
     duration-js: 4.0.0
     i18next: 23.6.0
     intl: 1.2.5
@@ -20202,7 +20215,7 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: 6dd62d231a202bbc7538349c3ed260207b8979fcb3c68f05747a8ef559c7cd3892cec37e1ee7f8a026fe57c0012efcab3d3d9659b563739557ad1522ef0602c0
+  checksum: 0f8ee02af5b839dce2ff3eaa99b9ca689ba3af444c09bf462070b7ff969b35004592d28c524338232ae03ae3329ef33c8422ad310a3c92936b7e333d82edbede
   languageName: node
   linkType: hard
 
