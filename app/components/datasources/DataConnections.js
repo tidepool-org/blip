@@ -187,9 +187,9 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
   if (!dataSource?.lastImportTime && !providers[providerName]?.lastImportTimeOptional) {
     patientConnectedMessage = t('This can take a few minutes');
     patientConnectedText = t('Connecting');
-  } else if (!dataSource?.latestDataTime && !providers[providerName]?.lastImportTimeOptional) {
+  } else if (!dataSource?.latestDataTime) {
     patientConnectedMessage = t('No data found as of {{timeAgo}}', { timeAgo });
-  } else if (dataSource?.latestDataTime) {
+  } else {
     patientConnectedMessage = t('Last data {{timeAgo}}', { timeAgo });
     patientConnectedIcon = CheckCircleRoundedIcon;
   }
