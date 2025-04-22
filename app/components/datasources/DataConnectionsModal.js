@@ -125,7 +125,7 @@ export const DataConnectionsModal = (props) => {
 
   useEffect(() => {
     // clear out dataConnectionStatus and dataConnectionProviderName query params
-    history.replace({ pathname: history.location.pathname, search: '' });
+    history?.replace({ pathname: history?.location?.pathname, search: '' });
   }, []);
 
   const dataSourcesText = selectedClinicId
