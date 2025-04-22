@@ -49,6 +49,7 @@ describe('providers', () => {
     expect(dexcom.dataSourceFilter).to.eql({ providerType: 'oauth', providerName: 'dexcom' });
     expect(dexcom.logoImage).to.be.a('string');
     expect(dexcom.disconnectInstructions).to.be.undefined;
+    expect(dexcom.lastImportTimeOptional).to.be.undefined;
 
     expect(abbott.id).to.equal('oauth/abbott');
     expect(abbott.displayName).to.equal('FreeStyle Libre');
@@ -58,13 +59,15 @@ describe('providers', () => {
     expect(abbott.disconnectInstructions).to.be.an('object');
     expect(abbott.disconnectInstructions.title).to.be.a('string');
     expect(abbott.disconnectInstructions.message).to.be.a('string');
+    expect(abbott.lastImportTimeOptional).to.be.undefined;
 
     expect(twiist.id).to.equal('oauth/twiist');
-    expect(twiist.displayName).to.equal('Twiist');
+    expect(twiist.displayName).to.equal('twiist');
     expect(twiist.restrictedTokenCreate).to.eql({ paths: ['/v1/oauth/twiist'] });
     expect(twiist.dataSourceFilter).to.eql({ providerType: 'oauth', providerName: 'twiist' });
     expect(twiist.logoImage).to.be.a('string');
     expect(twiist.disconnectInstructions).to.be.undefined;
+    expect(twiist.lastImportTimeOptional).to.be.true;
   });
 });
 
@@ -1086,8 +1089,8 @@ describe('DataConnections', () => {
 
         const twiistConnection = wrapper.find('#data-connection-twiist').hostNodes();
         expect(twiistConnection).to.have.lengthOf(1);
-        expect(twiistConnection.find('.state-text').hostNodes().text()).to.equal('Connecting');
-        expect(twiistConnection.find('.state-message').hostNodes().text()).to.equal(' - This can take a few minutes');
+        expect(twiistConnection.find('.state-text').hostNodes().text()).to.equal('Connected');
+        expect(twiistConnection.find('.state-message').hostNodes().text()).to.equal(' - No data found as of 1 minute ago');
       });
 
       it('should render appropriate buttons and dispatch appropriate actions when clicked', done => {

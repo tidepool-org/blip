@@ -76,7 +76,7 @@ export const providers = {
   },
   twiist: {
     id: 'oauth/twiist',
-    displayName: 'Twiist',
+    displayName: 'twiist',
     restrictedTokenCreate: {
         paths: [
           '/v1/oauth/twiist',
@@ -87,6 +87,7 @@ export const providers = {
       providerName: 'twiist',
     },
     logoImage: twiistLogo,
+    lastImportTimeOptional: true,
   },
 };
 
@@ -183,7 +184,7 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
   let patientConnectedIcon;
   let patientConnectedText = t('Connected');
 
-  if (!dataSource?.lastImportTime) {
+  if (!dataSource?.lastImportTime && !providers[providerName]?.lastImportTimeOptional) {
     patientConnectedMessage = t('This can take a few minutes');
     patientConnectedText = t('Connecting');
   } else if (!dataSource?.latestDataTime) {
