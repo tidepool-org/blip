@@ -56,7 +56,7 @@ describe('appContext', () => {
     expect(appContext.api.metrics.track.calledOnce).to.be.true;
     expect(
       appContext.api.metrics.track.calledWith('someMetric2', {
-        clinicId: 'clinic123',
+        selectedClinicId: 'clinic123',
         mobile: false,
         clinician: true,
       })
@@ -64,12 +64,12 @@ describe('appContext', () => {
 
     appContext.api.metrics.track.resetHistory();
 
-    appContext.trackMetric('someMetric2', { clinicId: 'anotherClinic' });
+    appContext.trackMetric('someMetric2', { selectedClinicId: 'anotherClinic' });
 
     expect(appContext.api.metrics.track.calledOnce).to.be.true;
     expect(
       appContext.api.metrics.track.calledWith('someMetric2', {
-        clinicId: 'anotherClinic',
+        selectedClinicId: 'anotherClinic',
         mobile: false,
         clinician: true,
       })

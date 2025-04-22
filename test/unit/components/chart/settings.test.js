@@ -137,7 +137,10 @@ describe('Settings', () => {
       )
     );
 
-    Settings.__Rewire__('useHistory', sinon.stub().returns({ location: { query: {} } }));
+    Settings.__Rewire__('useHistory', sinon.stub().returns({
+      location: { query: {}, pathname: '/settings' },
+      replace: sinon.stub(),
+    }));
 
     clock = sinon.useFakeTimers();
   });
@@ -1097,11 +1100,16 @@ describe('Settings', () => {
       dataConnectionsWrapper = () => wrapper.find('#data-connections').hostNodes();
       DataConnections.__Rewire__('api', api);
       DataConnectionsModal.__Rewire__('api', api);
+      DataConnectionsModal.__Rewire__('useHistory', sinon.stub().returns({
+        location: { query: {}, pathname: '/settings' },
+        replace: sinon.stub(),
+      }));
     });
 
     afterEach(() => {
       DataConnections.__ResetDependency__('api');
       DataConnectionsModal.__ResetDependency__('api');
+      DataConnectionsModal.__ResetDependency__('useHistory');
     });
 
     context('clinician user', () => {

@@ -81,12 +81,11 @@ describe('useProviderConnectionPopup', function () {
 
       sinon.assert.calledWith(trackMetric, 'Started provider connection flow', {
         providerName: 'testProvider',
-        isMobile: false,
         status: null,
       });
 
       done();
-    });
+    }, 100);
   });
 
   it('should close the popup, show a toast message, and set justConnectedDataSourceProviderName on authorization success when popup url matches error oauth path', (done) => {
@@ -112,7 +111,6 @@ describe('useProviderConnectionPopup', function () {
 
       sinon.assert.calledWith(trackMetric, 'Completed provider connection flow', {
         providerName: 'testProvider',
-        isMobile: false,
         status: 'authorized',
       });
 
@@ -148,6 +146,6 @@ describe('useProviderConnectionPopup', function () {
     setTimeout(() => {
       sinon.assert.calledOnce(api.user.getDataSources);
       done();
-    })
+    }, 100);
   });
 });
