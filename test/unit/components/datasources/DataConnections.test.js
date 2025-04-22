@@ -201,8 +201,9 @@ describe('getConnectStateUI', () => {
       providerName: 'provider123',
       state: 'pending',
       createdTime: moment.utc().subtract(20, 'days'),
+      modifiedTime: moment.utc().subtract(5, 'days'),
       lastImportTime: moment.utc().subtract(10, 'days'),
-      latestDataTime: moment.utc().subtract(5, 'days'),
+      latestDataTime: moment.utc().subtract(15, 'days'),
     }],
   }
 
@@ -286,7 +287,7 @@ describe('getConnectStateUI', () => {
       expect(UINoDataFound.connected.text).to.equal('Connected');
       expect(UINoDataFound.connected.handler).to.equal('disconnect');
       expect(UIDataFound.connected.text).to.equal('Connected');
-      expect(UIDataFound.connected.message).to.equal('Last data 5 days ago');
+      expect(UIDataFound.connected.message).to.equal('Last data 15 days ago');
       expect(UIDataFound.connected.handler).to.equal('disconnect');
 
       expect(UI.disconnected.message).to.equal(null);
