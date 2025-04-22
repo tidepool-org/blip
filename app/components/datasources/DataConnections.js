@@ -189,7 +189,12 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
   } else if (!dataSource?.latestDataTime) {
     patientConnectedMessage = t('No data found as of {{timeAgo}}', { timeAgo });
   } else {
-    patientConnectedMessage = t('Last data {{timeAgo}}', { timeAgo });
+    // the general connection update timeAgo variable above is not always the latest data time so we
+    // need to use the latest data time specifically for the displaying it in the connected state
+    const { daysAgo, daysText, hoursAgo, hoursText, minutesText } = formatTimeAgo(dataSource.latestDataTime);
+    let dataTimeAgo = daysText;
+    if (daysAgo < 1)  dataTimeAgo = hoursAgo < 1 ? minutesText : hoursText;
+    patientConnectedMessage = t('Last data {{dataTimeAgo}}', { dataTimeAgo });
     patientConnectedIcon = CheckCircleRoundedIcon;
   }
 
