@@ -77,7 +77,7 @@ export const providers = {
   },
   twiist: {
     id: 'oauth/twiist',
-    displayName: 'Twiist',
+    displayName: 'twiist',
     restrictedTokenCreate: {
         paths: [
           '/v1/oauth/twiist',
@@ -88,6 +88,7 @@ export const providers = {
       providerName: 'twiist',
     },
     logoImage: twiistLogo,
+    lastImportTimeOptional: true,
   },
 };
 
@@ -184,13 +185,18 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
   let patientConnectedIcon;
   let patientConnectedText = t('Connected');
 
-  if (!dataSource?.lastImportTime) {
+  if (!dataSource?.lastImportTime && !providers[providerName]?.lastImportTimeOptional) {
     patientConnectedMessage = t('This can take a few minutes');
     patientConnectedText = t('Connecting');
   } else if (!dataSource?.latestDataTime) {
     patientConnectedMessage = t('No data found as of {{timeAgo}}', { timeAgo });
   } else {
-    patientConnectedMessage = t('Last data {{timeAgo}}', { timeAgo });
+    // the general connection update timeAgo variable above is not always the latest data time so we
+    // need to use the latest data time specifically for the displaying it in the connected state
+    const { daysAgo, daysText, hoursAgo, hoursText, minutesText } = formatTimeAgo(dataSource.latestDataTime);
+    let dataTimeAgo = daysText;
+    if (daysAgo < 1)  dataTimeAgo = hoursAgo < 1 ? minutesText : hoursText;
+    patientConnectedMessage = t('Last data {{dataTimeAgo}}', { dataTimeAgo });
     patientConnectedIcon = CheckCircleRoundedIcon;
   }
 

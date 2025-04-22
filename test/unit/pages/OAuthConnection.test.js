@@ -263,7 +263,7 @@ describe('OAuthConnection', () => {
     });
 
     it('should render the appropriate banner', () => {
-      expect(wrapper.find('#banner-oauth-authorized').hostNodes().text()).to.equal('You have successfully connected your Twiist data to Tidepool.');
+      expect(wrapper.find('#banner-oauth-authorized').hostNodes().text()).to.equal('You have successfully connected your twiist data to Tidepool.');
     });
 
     it('should render the appropriate heading and subheading', () => {
@@ -337,7 +337,7 @@ describe('OAuthConnection', () => {
     });
 
     it('should render the appropriate banner', () => {
-      expect(wrapper.find('#banner-oauth-declined').hostNodes().text()).to.equal('You have declined connecting your Twiist data to Tidepool.');
+      expect(wrapper.find('#banner-oauth-declined').hostNodes().text()).to.equal('You have declined connecting your twiist data to Tidepool.');
     });
 
     it('should render the appropriate heading and subheading', () => {
@@ -394,7 +394,7 @@ describe('OAuthConnection', () => {
     });
 
     it('should render the appropriate banner', () => {
-      expect(wrapper.find('#banner-oauth-error').hostNodes().text()).to.equal('We were unable to determine your Twiist connection status.');
+      expect(wrapper.find('#banner-oauth-error').hostNodes().text()).to.equal('We were unable to determine your twiist connection status.');
     });
 
     it('should render the appropriate heading and subheading', () => {

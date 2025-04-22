@@ -111,6 +111,11 @@ describe('DataConnectionsModal', () => {
     DataConnectionsModal.__Rewire__('api', api);
     DataConnections.__Rewire__('api', api);
 
+    DataConnectionsModal.__Rewire__('useHistory', sinon.stub().returns({
+      location: { query: {}, pathname: '/settings' },
+      replace: sinon.stub(),
+    }));
+
     wrapper = mount(
       <Provider store={store}>
         <ToastProvider>
@@ -126,6 +131,7 @@ describe('DataConnectionsModal', () => {
     defaultProps.onBack.resetHistory();
     DataConnections.__ResetDependency__('api');
     DataConnectionsModal.__ResetDependency__('api');
+    DataConnectionsModal.__ResetDependency__('useHistory');
   });
 
   it('should render the modal title', () => {

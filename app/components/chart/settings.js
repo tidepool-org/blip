@@ -10,6 +10,7 @@ import moment from 'moment-timezone';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 import DateRangeRoundedIcon from '@material-ui/icons/DateRangeRounded';
 import AddRoundedIcon from '@material-ui/icons/AddRounded';
+import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
 import launchCustomProtocol from 'custom-protocol-detection';
 import { DesktopOnly } from '../mediaqueries';
 
@@ -31,6 +32,7 @@ const deviceName = viz.utils.settings.deviceName;
 import Header from './header';
 import Button from '../elements/Button';
 import Popover from '../elements/Popover';
+import PopoverLabel from '../elements/PopoverLabel';
 import RadioGroup from '../../components/elements/RadioGroup';
 import { usePrevious } from '../../core/hooks';
 import { clinicPatientFromAccountInfo } from '../../core/personutils';
@@ -589,6 +591,30 @@ const Settings = ({
           </Button>
         </DialogActions>
       </SettingsPopover>
+
+      <PopoverLabel
+        id="device-settings-info"
+        icon={InfoRoundedIcon}
+        popoverContent={(
+          <Body1 id="device-settings-info-message">{t('If multiple device settings changes were made in a single day, only the final settings are shown.')}</Body1>
+        )}
+        popoverProps={{
+          anchorOrigin: {
+            vertical: 'center',
+            horizontal: 'right',
+          },
+          transformOrigin: {
+            vertical: 'center',
+            horizontal: 'left',
+          },
+          width: 'auto',
+          marginTop: 0,
+          marginBottom: 0,
+          marginLeft: '8px',
+          marginRight: '8px',
+        }}
+        triggerOnHover
+      />
     </Flex>
   );
 
