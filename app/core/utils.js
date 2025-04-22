@@ -490,6 +490,7 @@ utils.roundDown = (value, precision = 0) => {
   return Math.floor(value * shift) / shift;
 };
 
+// Deprecated as of WEB-3501. See WEB-2551 for original intent and logic behind function.
 utils.formatThresholdPercentage = (value, comparator, threshold, defaultPrecision = 0) => {
   let precision = defaultPrecision;
   let percentage = value * 100;
@@ -546,7 +547,7 @@ utils.formatThresholdPercentage = (value, comparator, threshold, defaultPrecisio
   }
 
   return format(`.${precision}f`)(utils.roundToPrecision(percentage, precision));
-}
+};
 
 utils.parseDatetimeParamToInteger = (queryParam) => {
   if (!queryParam) return null;
