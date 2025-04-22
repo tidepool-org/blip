@@ -647,8 +647,8 @@ const Settings = ({
         ? t('Connect an Account')
         : t('Connect a Device Account'),
       subtitle: isUserPatient
-        ? t('Do you have a Dexcom or FreeStyle Libre device? When you connect a device account, data can flow into Tidepool without any extra effort.')
-        : t('Does your patient use a Dexcom or FreeStyle Libre device? Automatically sync data from those devices with the patient\'s permission.'),
+        ? t('Do you have a Dexcom or twiist device? When you connect a device account, data can flow into Tidepool without any extra effort.')
+        : t('Does your patient use a Dexcom or twiist device? Automatically sync data from those devices with the patient\'s permission.'),
       bannerImage: DataConnectionsBanner,
       onClick: handleClickDataConnections.bind(null, 'card'),
       variant: 'containers.cardHorizontal',
