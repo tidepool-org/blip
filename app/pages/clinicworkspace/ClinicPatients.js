@@ -45,6 +45,7 @@ import styled from '@emotion/styled';
 import { scroller } from 'react-scroll';
 import { Formik, Form } from 'formik';
 import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
+import { Link as RouterLink } from 'react-router-dom';
 
 import {
   bindPopover,
@@ -1655,7 +1656,7 @@ export const ClinicPatients = (props) => {
                   >
                     <DialogContent px={2} pt={1} pb={3} sx={{ maxHeight: '400px', maxWidth: '240px' }} dividers>
                       <Box variant="containers.small">
-                        <Box mb={2}>
+                        <Box mb={3}>
                           <Text sx={{ display: 'block', color: colors.gray50, fontSize: 1, fontWeight: 'medium' }}>
                             {t('Tags')}
                           </Text>
@@ -1706,7 +1707,7 @@ export const ClinicPatients = (props) => {
                               >
                                 {t('Tags help you segment your patient population based on criteria you define, such as clinician, type of diabetes, or care groups.')}
                               </Box>
-                              { !isClinicAdmin &&
+                              { isClinicAdmin &&
                                 <Box
                                   mt={2}
                                   pt={2}
@@ -1716,7 +1717,10 @@ export const ClinicPatients = (props) => {
                                     color: colors.gray50,
                                     lineHeight: 1,
                                   }}>
-                                  {t('Tags can only be created by your Workspace Admins. Not sure who the admins are? Check the Clinic Members list in your Workspace Settings.')}
+                                  <Trans t={t}>
+                                    Tags can only be created by your Workspace Admins. Not sure who the admins are? Check the Clinic Members list in your&nbsp;
+                                    <RouterLink to='/clinic-admin' style={{ color: colors.purpleBright }}>Workspace Settings.</RouterLink>
+                                  </Trans>
                                 </Box>
                               }
                             </Box>
