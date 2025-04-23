@@ -1236,7 +1236,7 @@ describe('Settings', () => {
 
           expect(dataConnectionsModal().length).to.equal(0);
           expect(dataConnectionsCard().length).to.equal(1);
-          expect(dataConnectionsCard().text()).to.include('Connect an Account');
+          expect(dataConnectionsCard().text()).to.include('Connect a Device Account');
           const callCount = props.trackMetric.callCount;
           dataConnectionsCard().simulate('click');
 
