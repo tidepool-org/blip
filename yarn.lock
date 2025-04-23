@@ -5278,9 +5278,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.45.0-fix-override.3":
-  version: 1.45.0-fix-override.3
-  resolution: "@tidepool/viz@npm:1.45.0-fix-override.3"
+"@tidepool/viz@npm:1.45.0-rc.9":
+  version: 1.45.0-rc.9
+  resolution: "@tidepool/viz@npm:1.45.0-rc.9"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -5340,7 +5340,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 9a075266baf81b9ecc6015240cafb556bdc8ed3a0a3e297890d028a9c87389347f94659978da40bffc9bb0fac11297b62580820711aa021d7d10cad79a50f3c6
+  checksum: 0b96b3c55c3c6222110df4cfbd9f16a3964925261620dfc63e7755e8671c6ad2043511a40513642fe1ad4cd013a01d9fa3e70ce81ffe6c3fe4462f2777154d02
   languageName: node
   linkType: hard
 
@@ -7272,7 +7272,7 @@ __metadata:
     "@storybook/react": 7.5.0
     "@storybook/react-webpack5": 7.5.0
     "@testing-library/react-hooks": 8.0.1
-    "@tidepool/viz": 1.45.0-fix-override.3
+    "@tidepool/viz": 1.45.0-rc.9
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
