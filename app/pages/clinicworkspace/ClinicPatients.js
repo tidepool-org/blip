@@ -1707,7 +1707,7 @@ export const ClinicPatients = (props) => {
                               >
                                 {t('Tags help you segment your patient population based on criteria you define, such as clinician, type of diabetes, or care groups.')}
                               </Box>
-                              { isClinicAdmin &&
+                              { !isClinicAdmin &&
                                 <Box
                                   mt={2}
                                   pt={2}
