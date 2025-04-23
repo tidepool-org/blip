@@ -38,6 +38,7 @@ import SearchIcon from '@material-ui/icons/Search';
 import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined';
 import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
+import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
 import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
 import sundial from 'sundial';
 import ScrollToTop from 'react-scroll-to-top';
@@ -106,9 +107,10 @@ import {
 } from '../../core/clinicUtils';
 
 import { MGDL_UNITS, MMOLL_UNITS, URL_TIDEPOOL_PLUS_PLANS } from '../../core/constants';
-import { borders, radii, colors, space, fontWeights } from '../../themes/baseTheme';
+import baseTheme, { borders, radii, colors, space, fontWeights } from '../../themes/baseTheme';
 import PopoverElement from '../../components/elements/PopoverElement';
 import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
+import Banner from '../../components/elements/Banner';
 
 const { Loader } = vizComponents;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels, formatBgValue } = vizUtils.bg;
@@ -2183,15 +2185,14 @@ export const ClinicPatients = (props) => {
         </DialogTitle>
 
         <DialogContent>
-          <Trans className="ModalOverlay-content" i18nKey="html.peopletable-remove-patient-tag-confirm">
+          <Flex variant="banners.danger" py={3} sx={{ justifyContent: 'flex-start', gap: 2, borderRadius: '4px' }}>
+            <Icon className="icon" theme={baseTheme} variant="static" icon={ErrorRoundedIcon} label='danger' />
             <Body1>
-              Are you sure you want to remove the tag: <strong>{{name}}</strong> from the clinic?
+              <Text sx={{ fontWeight: 'medium' }}>
+                {t('Are you sure you want to remove the tag: "{{name}}" from the workspace?', { name })}
+              </Text>
             </Body1>
-
-            <Body1>
-              This tag will also be removed from any patients who have been tagged with it.
-            </Body1>
-          </Trans>
+          </Flex>
         </DialogContent>
 
         <DialogActions>
