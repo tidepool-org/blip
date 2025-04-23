@@ -2352,7 +2352,7 @@ export const ClinicPatients = (props) => {
             <Body1 sx={{ fontWeight: 'medium' }}>{t('Available Patient Tags')}</Body1>
           </DialogTitle>
 
-          <DialogContent pt={0} divider={false}>
+          <DialogContent pt={0} divider={false} sx={{ minWidth: ['100%', '512px'] }}>
             <Formik
               initialValues={{ name: '' }}
               onSubmit={(tag, context) => {
@@ -2364,6 +2364,14 @@ export const ClinicPatients = (props) => {
             >
               {patientTagFormikContext => (
                 <Form id="patient-tag-add">
+                  <Box>
+                    <Text sx={{ fontSize: 1, color: 'text.primary', fontWeight: 'medium' }}>
+                      {t('Add a Tag')}{' - '}
+                    </Text>
+                    <Text sx={{ fontSize: 0, color: 'text.primary' }}>
+                      {t('You may add up to {{ maxClinicPatientTags }} tags', { maxClinicPatientTags })}
+                    </Text>
+                  </Box>
                   <Flex mb={3} mt={1} sx={{ gap: 2, position: 'relative' }}>
                     <TextInput
                       themeProps={{
@@ -2374,8 +2382,7 @@ export const ClinicPatients = (props) => {
                       }}
                       disabled={clinic?.patientTags?.length >= maxClinicPatientTags}
                       maxLength={20}
-                      placeholder={t('Add a new tag...')}
-                      description={t('You can add up to {{maxClinicPatientTags}} tags per clinic', { maxClinicPatientTags })}
+                      placeholder={t('Add a tag...')}
                       captionProps={{ mt: 0, fontSize: '10px', color: colors.grays[4] }}
                       variant="condensed"
                       {...getCommonFormikFieldProps('name', patientTagFormikContext)}
@@ -2398,14 +2405,22 @@ export const ClinicPatients = (props) => {
               )}
             </Formik>
 
-            <Text mb={2} sx={{ color: 'text.primary', fontWeight: 'medium', fontSize: 0 }}>
-              {isClinicAdmin
-                ? t('Click a tag\'s text to rename it, or click the trash can icon to delete it.')
-                : t('Click a tag\'s text to rename it.')
-              }
-            </Text>
+            <Box>
+              <Text sx={{ fontSize: 1, color: 'text.primary', fontWeight: 'medium' }}>
+                {t('Tags ({{ count }})', { count: clinic?.patientTags?.length || '0' })}{' - '}
+              </Text>
+              <Text sx={{ fontSize: 0, color: 'text.primary' }}>
+                {t('Click on the edit icon to rename the tag or trash icon to delete it.')}
+              </Text>
+            </Box>
 
-            <Box mt={2}>
+            <Box mt={1} mb={0}>
+              <Text sx={{ fontSize: 0, color: colors.gray50, fontStyle: 'italic' }}>
+                {t('Name')}
+              </Text>
+            </Box>
+
+            <Box mt={1}>
               {
                 clinic?.patientTags?.map(({ id, name }) => (
                   <Grid py={2} sx={{
@@ -2413,14 +2428,14 @@ export const ClinicPatients = (props) => {
                     borderTop: `1px solid ${colors.gray05}`,
                     alignItems: 'center',
                   }}>
-                    <Box>
+                    <Flex sx={{ alignItems: 'center'}}>
                       <Text sx={{ fontSize: 1, color: 'text.primary' }}>{name}</Text>
                       <Icon
                         icon={EditIcon}
                         sx={{ fontSize: 1, marginLeft: 2 }}
                         onClick={isClinicAdmin ? () => handleUpdateClinicPatientTag(id) : undefined}
                       />
-                    </Box>
+                    </Flex>
                     <Box>
                       {/* TODO: Insert per-tag patient counts here */}
                     </Box>
