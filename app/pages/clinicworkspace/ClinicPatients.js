@@ -2384,13 +2384,13 @@ export const ClinicPatients = (props) => {
       >
         <Box variant="containers.small" mb={0} sx={{ width: ['100%', '100%'] }}>
           <DialogTitle
-            divider={false}
+            divider
             onClose={() => {
               trackMetric(prefixPopHealthMetric('Edit clinic tags close'), { clinicId: selectedClinicId });
               handleCloseOverlays();
             }}
           >
-            <Body1 sx={{ fontWeight: 'medium' }}>{t('Available Patient Tags')}</Body1>
+            <Body1 sx={{ fontWeight: 'medium', fontSize: 3 }}>{t('Edit Tags')}</Body1>
           </DialogTitle>
 
           <DialogContent pt={0} divider={false} sx={{ minWidth: ['100%', '512px'] }}>
@@ -2405,7 +2405,7 @@ export const ClinicPatients = (props) => {
             >
               {patientTagFormikContext => (
                 <Form id="patient-tag-add">
-                  <Box>
+                  <Box mt={3}>
                     <Text sx={{ fontSize: 1, color: 'text.primary', fontWeight: 'medium' }}>
                       {t('Add a Tag')}{' - '}
                     </Text>
@@ -2423,7 +2423,7 @@ export const ClinicPatients = (props) => {
                       }}
                       disabled={clinic?.patientTags?.length >= maxClinicPatientTags}
                       maxLength={20}
-                      placeholder={t('Add a tag...')}
+                      placeholder={t('Add a Tag')}
                       captionProps={{ mt: 0, fontSize: '10px', color: colors.grays[4] }}
                       variant="condensed"
                       {...getCommonFormikFieldProps('name', patientTagFormikContext)}
