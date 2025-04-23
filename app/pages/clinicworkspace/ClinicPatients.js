@@ -1619,7 +1619,7 @@ export const ClinicPatients = (props) => {
                           sx={{ fontSize: '14px' }}
                         />}
 
-                        {t('Patient Tags')}
+                        {t('Tags')}
 
                         {!!activeFilters.patientTags?.length && (
                           <Pill
@@ -1653,86 +1653,122 @@ export const ClinicPatients = (props) => {
                       setPendingFilters(activeFilters);
                     }}
                   >
-                    <DialogContent px={2} pt={1} pb={3} sx={{ maxHeight: '400px' }} dividers>
+                    <DialogContent px={2} pt={1} pb={3} sx={{ maxHeight: '400px', maxWidth: '240px' }} dividers>
                       <Box variant="containers.small">
                         <Box mb={2}>
                           <Text sx={{ display: 'block', color: colors.gray50, fontSize: 1, fontWeight: 'medium' }}>
                             {t('Tags')}
                           </Text>
-                          <Text sx={{ display: 'block', color: colors.gray50, fontSize: 0, fontStyle: 'italic', maxWidth: '208px', whiteSpace: 'wrap', lineHeight: 1 }}>
-                            {t('Only patients with ALL of the tags you select below will be shown.')}
-                          </Text>
+                          { patientTagsFilterOptions.length > 0 &&
+                            <Text sx={{ display: 'block', color: colors.gray50, fontSize: 0, fontStyle: 'italic', maxWidth: '208px', whiteSpace: 'wrap', lineHeight: 1 }}>
+                              {t('Only patients with ALL of the tags you select below will be shown.')}
+                            </Text>
+                          }
                         </Box>
 
-                        {
-                          patientTagsFilterOptions.map(({ id, label }) => {
-                            const { patientTags } = pendingFilters;
-                            const isChecked = patientTags?.includes(id);
+                        { patientTagsFilterOptions.length > 0 ? (
 
-                            return (
-                              <Box mt={1}>
-                                <Checkbox
-                                  checked={isChecked}
-                                  onChange={() => {
-                                    if (isChecked) {
-                                      setPendingFilters({ ...pendingFilters, patientTags: without(patientTags, id) });
-                                    } else {
-                                      setPendingFilters({ ...pendingFilters, patientTags: [...patientTags, id] });
-                                    }
-                                  }}
-                                  label={(
-                                    <Text sx={{ fontSize: 0, fontWeight: 'normal' }}>
-                                      {label}
-                                    </Text>
-                                  )}
-                                />
+                            // If tags exist, render a list of checkboxes
+                            patientTagsFilterOptions.map(({ id, label }) => {
+                              const { patientTags } = pendingFilters;
+                              const isChecked = patientTags?.includes(id);
+
+                              return (
+                                <Box mt={1}>
+                                  <Checkbox
+                                    checked={isChecked}
+                                    onChange={() => {
+                                      if (isChecked) {
+                                        setPendingFilters({ ...pendingFilters, patientTags: without(patientTags, id) });
+                                      } else {
+                                        setPendingFilters({ ...pendingFilters, patientTags: [...patientTags, id] });
+                                      }
+                                    }}
+                                    label={(
+                                      <Text sx={{ fontSize: 0, fontWeight: 'normal' }}>
+                                        {label}
+                                      </Text>
+                                    )}
+                                  />
+                                </Box>
+                              );
+                            })
+                          ) : (
+
+                            // If no tags exist, display a message
+                            <Box>
+                              <Box
+                                sx={{
+                                  fontSize: 1,
+                                  color: colors.gray50,
+                                  lineHeight: 1,
+                                }}
+                              >
+                                {t('Tags help you segment your patient population based on criteria you define, such as clinician, type of diabetes, or care groups.')}
                               </Box>
-                            );
-                          })
+                              { !isClinicAdmin &&
+                                <Box
+                                  mt={2}
+                                  pt={2}
+                                  sx={{
+                                    borderTop: `1px solid ${colors.gray05}`,
+                                    fontSize: 0,
+                                    color: colors.gray50,
+                                    lineHeight: 1,
+                                  }}>
+                                  {t('Tags can only be created by your Workspace Admins. Not sure who the admins are? Check the Clinic Members list in your Workspace Settings.')}
+                                </Box>
+                              }
+                            </Box>
+                          )
                         }
                       </Box>
                     </DialogContent>
 
-                    <DialogActions sx={{ justifyContent: 'space-around', padding: 2 }} p={1}>
-                      <Button
-                        id="clear-patient-tags-filter"
-                        sx={{ fontSize: 1 }}
-                        variant="textSecondary"
-                        onClick={() => {
-                          trackMetric(prefixPopHealthMetric('Patient tag filter clear'), { clinicId: selectedClinicId });
-                          setPendingFilters({ ...activeFilters, patientTags: defaultFilterState.patientTags });
-                          setActiveFilters({ ...activeFilters, patientTags: defaultFilterState.patientTags });
+                    { patientTagsFilterOptions.length > 0 &&
+                      <DialogActions sx={{ justifyContent: 'space-around', padding: 2 }} p={1}>
+                        <Button
+                          id="clear-patient-tags-filter"
+                          sx={{ fontSize: 1 }}
+                          variant="textSecondary"
+                          onClick={() => {
+                            trackMetric(prefixPopHealthMetric('Patient tag filter clear'), { clinicId: selectedClinicId });
+                            setPendingFilters({ ...activeFilters, patientTags: defaultFilterState.patientTags });
+                            setActiveFilters({ ...activeFilters, patientTags: defaultFilterState.patientTags });
+                            patientTagsPopupFilterState.close();
+                          }}
+                        >
+                          {t('Clear')}
+                        </Button>
+
+                        <Button id="apply-patient-tags-filter" disabled={!pendingFilters.patientTags?.length} sx={{ fontSize: 1 }} variant="textPrimary" onClick={() => {
+                          trackMetric(prefixPopHealthMetric('Patient tag filter apply'), { clinicId: selectedClinicId });
+                          setActiveFilters(pendingFilters);
                           patientTagsPopupFilterState.close();
-                        }}
-                      >
-                        {t('Clear')}
-                      </Button>
+                        }}>
+                          {t('Apply')}
+                        </Button>
+                      </DialogActions>
+                    }
 
-                      <Button id="apply-patient-tags-filter" disabled={!pendingFilters.patientTags?.length} sx={{ fontSize: 1 }} variant="textPrimary" onClick={() => {
-                        trackMetric(prefixPopHealthMetric('Patient tag filter apply'), { clinicId: selectedClinicId });
-                        setActiveFilters(pendingFilters);
-                        patientTagsPopupFilterState.close();
-                      }}>
-                        {t('Apply')}
-                      </Button>
-                    </DialogActions>
+                    {isClinicAdmin &&
+                      <DialogActions p={1} sx={{ borderTop: borders.divider }} py={2} px={0}>
+                        <Button
+                          id="show-edit-clinic-patient-tags-dialog"
+                          icon={EditIcon}
+                          iconPosition="left"
+                          sx={{ fontSize: 1 }}
+                          variant="textPrimary"
+                          onClick={() => {
+                            trackMetric(prefixPopHealthMetric('Edit clinic tags open'), { clinicId: selectedClinicId, source: 'Filter menu' });
+                            setShowClinicPatientTagsDialog(true);
+                          }}
+                        >
+                          {t('Edit Tags')}
+                        </Button>
 
-                    <DialogActions p={1} sx={{ borderTop: borders.divider }} py={2} px={0}>
-                      <Button
-                        id="show-edit-clinic-patient-tags-dialog"
-                        icon={EditIcon}
-                        iconPosition="left"
-                        sx={{ fontSize: 1 }}
-                        variant="textPrimary"
-                        onClick={() => {
-                          trackMetric(prefixPopHealthMetric('Edit clinic tags open'), { clinicId: selectedClinicId, source: 'Filter menu' });
-                          setShowClinicPatientTagsDialog(true);
-                        }}
-                      >
-                        {t('Edit Tags')}
-                      </Button>
-
-                    </DialogActions>
+                      </DialogActions>
+                    }
                   </Popover>
 
                   <Box
