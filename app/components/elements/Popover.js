@@ -15,7 +15,9 @@ const StyledPopover = (Component) => styled(Component)`
     font-family: ${fonts.default};
     padding: ${({ padding = `${space[2]}px` }) => padding};
     margin-top: ${({ margintop = `${space[2]}px` }) => margintop};
+    margin-bottom: ${({ marginbottom = `${space[2]}px` }) => marginbottom};
     margin-left: ${({ marginleft = 0 }) => marginleft};
+    margin-right: ${({ marginright = 0 }) => marginright};
     margin-bottom: ${space[2]}px;
     border: ${({ border = borders.modal }) => border};
     background-color: ${({ backgroundcolor = 'white' }) => backgroundcolor};
@@ -45,7 +47,9 @@ function Popover(props) {
     borderRadius,
     boxShadow,
     marginLeft,
+    marginRight,
     marginTop,
+    marginBottom,
     onClickCloseIcon,
     padding,
     ...popoverProps
@@ -65,7 +69,9 @@ function Popover(props) {
       borderradius={borderRadius}
       boxshadow={boxShadow}
       marginleft={marginLeft}
+      marginright={marginRight}
       margintop={marginTop}
+      marginbottom={marginBottom}
       minwidth={minWidth}
       padding={padding}
       container={() => document.getElementById('dialog-container')}

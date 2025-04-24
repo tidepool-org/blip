@@ -5278,9 +5278,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.45.0-web-2965-exclude-days.2":
-  version: 1.45.0-web-2965-exclude-days.2
-  resolution: "@tidepool/viz@npm:1.45.0-web-2965-exclude-days.2"
+"@tidepool/viz@npm:1.45.0":
+  version: 1.45.0
+  resolution: "@tidepool/viz@npm:1.45.0"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -5340,7 +5340,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: d879bc59334a50a66e110448b6e79629dbb17ccb89107220e80e127fc3b2d428a004453595687645ffd9e15528bef083471a76358c112282ae130d57f41403f0
+  checksum: 284fed1d182fbd98cb0c16842a7142295ed0e7d3e4b6f58f2361a7b8d6bdf5691a9da83097b93b38adfdda558821850fe297616753ee59470aca728751e216cc
   languageName: node
   linkType: hard
 
@@ -5996,7 +5996,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/trusted-types@npm:^2.0.2":
+"@types/trusted-types@npm:^2.0.2, @types/trusted-types@npm:^2.0.7":
   version: 2.0.7
   resolution: "@types/trusted-types@npm:2.0.7"
   checksum: 8e4202766a65877efcf5d5a41b7dd458480b36195e580a3b1085ad21e948bc417d55d6f8af1fd2a7ad008015d4117d5fdfe432731157da3c68678487174e4ba3
@@ -7272,7 +7272,7 @@ __metadata:
     "@storybook/react": 7.5.0
     "@storybook/react-webpack5": 7.5.0
     "@testing-library/react-hooks": 8.0.1
-    "@tidepool/viz": 1.45.0-web-2965-exclude-days.2
+    "@tidepool/viz": 1.45.0
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -7395,8 +7395,8 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.31.0-web-2965-exclude-days.1
-    tidepool-platform-client: 0.62.0-web-3400-strip-clinic-patient-update-fields.1
+    tideline: 1.31.0
+    tidepool-platform-client: 0.62.0
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
     url-loader: 4.1.1
@@ -9665,6 +9665,18 @@ __metadata:
   dependencies:
     domelementtype: ^2.3.0
   checksum: 0f58f4a6af63e6f3a4320aa446d28b5790a009018707bce2859dcb1d21144c7876482b5188395a188dfa974238c019e0a1e610d2fc269a12b2c192ea2b0b131c
+  languageName: node
+  linkType: hard
+
+"dompurify@npm:3.2.5":
+  version: 3.2.5
+  resolution: "dompurify@npm:3.2.5"
+  dependencies:
+    "@types/trusted-types": ^2.0.7
+  dependenciesMeta:
+    "@types/trusted-types":
+      optional: true
+  checksum: bd3b40810cc74312970dc6b99d38450ec839c81fb56c27d2c1b815ce0206b73e9cd4fe2e9021f735a1aaebf017990a63e6454e7d9c893f72b365b94d030ec9c4
   languageName: node
   linkType: hard
 
@@ -20180,15 +20192,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.31.0-web-2965-exclude-days.1":
-  version: 1.31.0-web-2965-exclude-days.1
-  resolution: "tideline@npm:1.31.0-web-2965-exclude-days.1"
+"tideline@npm:1.31.0":
+  version: 1.31.0
+  resolution: "tideline@npm:1.31.0"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
     crossfilter: 1.3.12
     d3: 3.5.17
     d3.chart: 0.3.0
+    dompurify: 3.2.5
     duration-js: 4.0.0
     i18next: 23.6.0
     intl: 1.2.5
@@ -20202,19 +20215,19 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: ecceefda34096128872026935b39fb98dea109b8f739d28878b9d7462facb59e449faa8613d2a02a31f5b732c2f049ca723fb726ce7e25fa19e36c56d47b37f6
+  checksum: 3c1976c361e8b1373001ab767c20b5bb12a915bf783d19fe870dd1262043b64733382cf88ab2641b055a9327c13a6ca06a534ae221c8f08344ed6346ec32b098
   languageName: node
   linkType: hard
 
-"tidepool-platform-client@npm:0.62.0-web-3400-strip-clinic-patient-update-fields.1":
-  version: 0.62.0-web-3400-strip-clinic-patient-update-fields.1
-  resolution: "tidepool-platform-client@npm:0.62.0-web-3400-strip-clinic-patient-update-fields.1"
+"tidepool-platform-client@npm:0.62.0":
+  version: 0.62.0
+  resolution: "tidepool-platform-client@npm:0.62.0"
   dependencies:
     async: 0.9.0
     lodash: 4.17.21
     superagent: 5.2.2
     uuid: 3.1.0
-  checksum: 3097938fdeee7bdefc8f8afb3702eee307019ce7cd0f0aed8e25001f436096c1503b54590368a5076199158ae9398bdd94bf1e506e7edfd076db517f07355281
+  checksum: dd30018894fb0a0a437190973029f414b4c4e52a0fabc84624b0d52bd8844b345d058f79660badda5f063d115ae9281a78ed27f550839a088f070a60fea18a6d
   languageName: node
   linkType: hard
 
