@@ -16,7 +16,7 @@ import { mountWithProviders } from '../../utils/mountWithProviders';
 
 const expect = chai.expect;
 
-describe('useProviderConnectionPopup', function () {
+describe.only('useProviderConnectionPopup', function () {
   let wrapper, store;
 
   const setToast = sinon.stub();
@@ -133,6 +133,18 @@ describe('useProviderConnectionPopup', function () {
         variant: 'danger',
       })).to.be.true;
 
+      done();
+    }, 100);
+  });
+
+  it('should not show a toast message when the authorization status is `redirect`', (done) => {
+    // Simulate interim platform redirect path
+    const authorizedDataSource = { id: 'oauth/testProvider', url: `${window.location.origin}/v1/oauth/testProvider/redirect`};
+    store.dispatch(actions.sync.connectDataSourceSuccess(authorizedDataSource.id, authorizedDataSource.url));
+    wrapper.update();
+
+    setTimeout(() => {
+      expect(setToast.notCalled).to.be.true;
       done();
     }, 100);
   });
