@@ -49,7 +49,7 @@ describe('providers', () => {
     expect(dexcom.dataSourceFilter).to.eql({ providerType: 'oauth', providerName: 'dexcom' });
     expect(dexcom.logoImage).to.be.a('string');
     expect(dexcom.disconnectInstructions).to.be.undefined;
-    expect(dexcom.lastImportTimeOptional).to.be.undefined;
+    expect(dexcom.indeterminateDataImportTime).to.be.undefined;
 
     expect(abbott.id).to.equal('oauth/abbott');
     expect(abbott.displayName).to.equal('FreeStyle Libre');
@@ -59,7 +59,7 @@ describe('providers', () => {
     expect(abbott.disconnectInstructions).to.be.an('object');
     expect(abbott.disconnectInstructions.title).to.be.a('string');
     expect(abbott.disconnectInstructions.message).to.be.a('string');
-    expect(abbott.lastImportTimeOptional).to.be.undefined;
+    expect(abbott.indeterminateDataImportTime).to.be.undefined;
 
     expect(twiist.id).to.equal('oauth/twiist');
     expect(twiist.displayName).to.equal('twiist');
@@ -67,7 +67,7 @@ describe('providers', () => {
     expect(twiist.dataSourceFilter).to.eql({ providerType: 'oauth', providerName: 'twiist' });
     expect(twiist.logoImage).to.be.a('string');
     expect(twiist.disconnectInstructions).to.be.undefined;
-    expect(twiist.lastImportTimeOptional).to.be.true;
+    expect(twiist.indeterminateDataImportTime).to.be.true;
   });
 });
 
