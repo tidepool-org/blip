@@ -88,7 +88,7 @@ export const providers = {
       providerName: 'twiist',
     },
     logoImage: twiistLogo,
-    lastImportTimeOptional: true,
+    indeterminateDataImportTime: true,
   },
 };
 
@@ -185,7 +185,7 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
   let patientConnectedIcon;
   let patientConnectedText = t('Connected');
 
-  if (!dataSource?.lastImportTime && !providers[providerName]?.lastImportTimeOptional) {
+  if (!dataSource?.lastImportTime && !providers[providerName]?.indeterminateDataImportTime) {
     patientConnectedMessage = t('This can take a few minutes');
     patientConnectedText = t('Connecting');
   } else if (!dataSource?.latestDataTime) {
@@ -241,7 +241,7 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
     connected: {
       color: colors.text.primary,
       handler: isLoggedInUser ? 'disconnect' : null,
-      message: isLoggedInUser ? patientConnectedMessage : null,
+      message: isLoggedInUser && (providerName !== 'twiist') ? patientConnectedMessage : null, // Temporarily hide the message for twiist while we await a backend data source fix
       icon: isLoggedInUser ? patientConnectedIcon : CheckCircleRoundedIcon,
       text: isLoggedInUser ? patientConnectedText : t('Connected'),
     },

@@ -377,7 +377,7 @@ describe('PatientData', function () {
           }));
 
           expect(dataConnectionsCard().length).to.equal(1);
-          expect(dataConnectionsCard().text()).to.contain('Connect an Account');
+          expect(dataConnectionsCard().text()).to.contain('Connect a Device Account');
 
           expect(uploaderCard().length).to.equal(1);
           expect(uploaderCard().text()).to.contain('Upload Data Directly with Tidepool Uploader');
@@ -409,7 +409,7 @@ describe('PatientData', function () {
           }));
 
           expect(dataConnectionsCard().length).to.equal(1);
-          expect(dataConnectionsCard().text()).to.contain('Connect an Account');
+          expect(dataConnectionsCard().text()).to.contain('Connect a Device Account');
 
           expect(uploaderCard().length).to.equal(1);
           expect(uploaderCard().text()).to.contain('Upload Data Directly with Tidepool Uploader');

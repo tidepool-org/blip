@@ -142,6 +142,12 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500, trackMetric = noo
         if (currentUrl.indexOf(authorizedDataSource?.id) !== -1) {
           const status = last(currentPath.split('/'));
 
+          // The initial platorm oauth redirect url is in the format of /v1/oauth/[providerName]/redirect
+          // It then issues the redirect to the /oauth/[providerName]/[status] url that we want to watch for.
+          // Depending on the timing of this interval check, we may get the redirect url
+          // We return early in this case, and wait for the final redirect to happen.
+          if (status === 'redirect') return;
+
           setToast({
             message: toastMessages[status],
             variant: toastVariants[status],

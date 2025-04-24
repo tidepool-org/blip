@@ -306,7 +306,7 @@ export const PatientDataClass = createReactClass({
               <Box>
                 <Card
                   id='data-connections-card'
-                  title={isUserPatient ? t('Connect an Account') : t('Connect a Device Account')}
+                  title={t('Connect a Device Account')}
                   subtitle={isUserPatient
                     ? t('Do you have a Dexcom or twiist device? When you connect a device account, data can flow into Tidepool without any extra effort.')
                     : t('Does your patient use a Dexcom or twiist device? Automatically sync data from those devices with the patient\'s permission.')
