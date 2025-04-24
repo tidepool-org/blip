@@ -50,3 +50,4 @@ locales/*/*_old.json
 !.yarn/versions
 
 .codegpt
+*.code-workspace

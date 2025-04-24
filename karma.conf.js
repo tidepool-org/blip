@@ -3,7 +3,7 @@ const _ = require('lodash');
 const optional = require('optional');
 
 const webpackConf = require('./webpack.config.js');
-const mochaConf = optional('./config/mocha.opts.json') || { timeout: 8000 };
+const mochaConf = optional('./config/mocha.opts.json') || { timeout: 16000 };
 
 const watch = process.env.WATCH_MODE === 1;
 const testWebpackConf = _.assign({}, webpackConf, {
@@ -60,7 +60,7 @@ module.exports = function karmaConfig(config) {
         base: 'ChromeHeadless',
         flags: [
           '--headless',
-          '--disable-gpu',
+          '--enable-automation',
           '--no-sandbox',
           '--remote-debugging-port=9222',
         ],

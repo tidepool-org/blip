@@ -1,4 +1,69 @@
-import _ from 'lodash';
+
+import { filter, get, has, isEmpty, map, reject, values } from 'lodash';
+import personUtils from './personutils';
+import { createSelector } from 'reselect';
+
+export const selectPatientSharedAccounts = createSelector([state => state.blip], state => {
+  const {
+    allUsersMap,
+    clinics,
+    loggedInUserId,
+    membersOfTargetCareTeam,
+    pendingSentInvites,
+    permissionsOfMembersInTargetCareTeam,
+  } = state;
+
+  const pendingInvites = reject(pendingSentInvites, personUtils.isDataDonationAccount);
+  const pendingMemberInvites = filter(pendingInvites, ({ email }) => !isEmpty(email));
+  const patientClinics = filter(values(clinics), ({ patients }) => has(patients, loggedInUserId));
+  const clinicInvites = filter(pendingInvites, ({ clinicId }) => !isEmpty(clinicId));
+
+  const accounts = [
+    ...(map(patientClinics, clinic => ({
+      id: clinic.id,
+      name: clinic.name,
+      nameOrderable: clinic.name.toLowerCase(),
+      permissions: get(clinic, ['patients', loggedInUserId, 'permissions']),
+      role: 'clinic',
+      type: 'clinic',
+      uploadPermission: !!get(clinic, ['patients', loggedInUserId, 'permissions', 'upload']),
+    }))),
+    ...(map(membersOfTargetCareTeam, memberId => ({
+      email: get(allUsersMap, [memberId, 'emails', '0']),
+      id: get(allUsersMap, [memberId, 'userid']),
+      name: personUtils.fullName(allUsersMap[memberId]),
+      nameOrderable: (personUtils.fullName(allUsersMap[memberId]) || '').toLowerCase(),
+      permissions: get(permissionsOfMembersInTargetCareTeam, [memberId]),
+      role: personUtils.hasClinicRole(allUsersMap[memberId]) ? 'clinician' : 'member',
+      type: 'account',
+      uploadPermission: !!get(permissionsOfMembersInTargetCareTeam, [memberId, 'upload']),
+    }))),
+    ...(map(pendingMemberInvites, invite => ({
+      email: invite.email,
+      key: invite.key,
+      nameOrderable: invite.email,
+      permissions: invite.context,
+      role: 'member',
+      status: invite.status,
+      type: invite.type,
+      uploadPermission: !!get(invite, ['context', 'upload']),
+      created: invite.created,
+    }))),
+    ...(map(clinicInvites, invite => ({
+      id: invite.clinicId,
+      key: invite.key,
+      name: get(clinics, [invite.clinicId, 'name'], ''),
+      nameOrderable: get(clinics, [invite.clinicId, 'name'], '').toLowerCase(),
+      permissions: invite.context,
+      role: 'clinic',
+      status: invite.status,
+      type: invite.type,
+      uploadPermission: !!get(invite, ['context', 'upload']),
+    }))),
+  ];
+
+  return accounts;
+});
 
 export const selectPatient = (state) => {
   let patient = null;
@@ -6,13 +71,13 @@ export const selectPatient = (state) => {
 
   if (state.blip.allUsersMap) {
     if (state.blip.currentPatientInViewId) {
-      patient = _.get(
+      patient = get(
         state.blip.allUsersMap,
         state.blip.currentPatientInViewId,
         null
       );
 
-      permissions = _.get(
+      permissions = get(
         state.blip.permissionsOfMembersInTargetCareTeam,
         state.blip.currentPatientInViewId,
         {}
@@ -28,7 +93,7 @@ export const selectClinicPatient = (state) => {
 
   if (state.blip.allUsersMap) {
     if (state.blip.currentPatientInViewId) {
-      clinicPatient = _.get(state.blip.clinics, [state.blip.selectedClinicId, 'patients', state.blip.currentPatientInViewId]);
+      clinicPatient = get(state.blip.clinics, [state.blip.selectedClinicId, 'patients', state.blip.currentPatientInViewId]);
     }
   }
 
@@ -41,7 +106,7 @@ export const selectPermsOfLoggedInUser = (state) => {
   if (state.blip.allUsersMap) {
     if (state.blip.currentPatientInViewId) {
       permsOfLoggedInUser = state.blip.selectedClinicId
-        ? _.get(
+        ? get(
           state.blip.clinics,
           [
             state.blip.selectedClinicId,
@@ -50,7 +115,7 @@ export const selectPermsOfLoggedInUser = (state) => {
             'permissions',
           ],
           {}
-        ) : _.get(
+        ) : get(
           state.blip.membershipPermissionsInOtherCareTeams,
           state.blip.currentPatientInViewId,
           {}

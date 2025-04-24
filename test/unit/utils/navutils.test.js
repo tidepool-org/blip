@@ -18,7 +18,7 @@ import _ from 'lodash';
 import thunk from 'redux-thunk';
 import configureStore from 'redux-mock-store';
 
-import * as navutils from '../../../app/core/navutils';
+import NU, * as navutils from '../../../app/core/navutils';
 
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
@@ -36,7 +36,7 @@ describe('navutils', () => {
 
     const api = { user: { logout: sinon.stub() } };
     const trackMetric = sinon.stub();
-    const launchCustomProtocolStub = sinon.stub(uploadUtils, 'launchCustomProtocol');
+    const launchCustomProtocolStub = sinon.stub();
 
     const state = {
       blip: {
@@ -51,11 +51,13 @@ describe('navutils', () => {
     let wrapper;
 
     beforeEach(() => {
+      NU.__Rewire__('uploadUtils', { launchCustomProtocol: launchCustomProtocolStub });
       store = mockStore(state);
       wrapper = getWrapper(store);
     });
 
     afterEach(() => {
+      NU.__ResetDependency__('uploadUtils');
       trackMetric.resetHistory();
       launchCustomProtocolStub.resetHistory();
       store.clearActions();
@@ -105,7 +107,7 @@ describe('navutils', () => {
 
         expect(store.getActions()).to.eql([{
           type: '@@router/CALL_HISTORY_METHOD',
-          payload: { args: ['/patients/1234-abcd/data?chart=settings'], method: 'push' },
+          payload: { args: ['/patients/1234-abcd/data/settings'], method: 'push' },
         }]);
       });
 

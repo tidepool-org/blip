@@ -49,7 +49,7 @@ export let appContext = {
 appContext.trackMetric = (...args) => {
   const state = appContext.store?.getState();
 
-  const clinicId = state?.blip?.selectedClinicId;
+  const selectedClinicId = state?.blip?.selectedClinicId;
   const loggedInUserId = state?.blip?.loggedInUserId;
   const user = state?.blip?.allUsersMap?.[loggedInUserId];
 
@@ -57,7 +57,7 @@ appContext.trackMetric = (...args) => {
   const mobile = utils.isMobile();
 
   let eventMetadata = {
-    clinicId,
+    selectedClinicId,
     clinician,
     mobile,
   };

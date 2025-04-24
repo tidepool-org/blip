@@ -55,7 +55,7 @@ import PopoverMenu from '../../components/elements/PopoverMenu';
 import RadioGroup from '../../components/elements/RadioGroup';
 import DeltaBar from '../../components/elements/DeltaBar';
 import Pill from '../../components/elements/Pill';
-import PatientDrawer from './PatientDrawer';
+import PatientDrawer, { isValidAgpPeriod } from './PatientDrawer';
 import utils from '../../core/utils';
 
 import {
@@ -333,13 +333,17 @@ const TideDashboardSection = React.memo(props => {
         const params = new URLSearchParams(search);
         params.set('drawerPatientId', patient.id);
         history.replace({ pathname, search: params.toString() });
-        
+
         return;
       }
-      
-      dispatch(push(`/patients/${patient?.id}/data?chart=trends&dashboard=tide`));
+
+      dispatch(push(`/patients/${patient?.id}/data/trends?dashboard=tide`));
     }
   }, [dispatch, trackMetric, showTideDashboardPatientDrawer, config]);
+
+  const handleEditPatientDataConnections = useCallback((patient) => {
+    editPatientDataConnections(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal, 'dexcom connection status');
+  }, [setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal]);
 
   const renderPatientName = useCallback(({ patient }) => (
     <Box onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
@@ -518,7 +522,7 @@ const TideDashboardSection = React.memo(props => {
         <HoverButton
           buttonText={t('View')}
           buttonProps={{
-            onClick: () => editPatient(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog, 'dexcom connection status'),
+            onClick: () => handleEditPatientDataConnections(patient),
             variant: 'textSecondary',
             ml: -2,
             sx: {
@@ -791,8 +795,8 @@ export const TideDashboard = (props) => {
   const [localConfig] = useLocalStorage('tideDashboardConfig', {});
   const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
   const patientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
-  const { 
-    showTideDashboard, 
+  const {
+    showTideDashboard,
     showTideDashboardLastReviewed,
     showTideDashboardPatientDrawer,
   } = useFlags();
@@ -954,15 +958,23 @@ export const TideDashboard = (props) => {
 
   const drawerPatientId = new URLSearchParams(location.search).get('drawerPatientId') || null;
 
-  // Failsafe to ensure blip.pdf is always cleared out after drawer is closed
+  // Patient Drawer effects
   useEffect(() => {
-    const isOpen = !!drawerPatientId;
+    // If invalid period for AGP (ie. 1 day), clear drawerPatientId from searchParams
+    if (!!drawerPatientId && !!config?.period && !isValidAgpPeriod(config.period)) {
+      const { search, pathname } = location;
 
-    if (!isOpen && !isEmpty(pdf)) {
+      const params = new URLSearchParams(search);
+      params.delete('drawerPatientId');
+      history.replace({ pathname, search: params.toString() });
+    }
+
+    // Failsafe to ensure blip.pdf is always cleared out after drawer is closed
+    if (!drawerPatientId && !isEmpty(pdf)) {
       dispatch(actions.worker.removeGeneratedPDFS());
       dispatch(actions.worker.dataWorkerRemoveDataRequest(null, drawerPatientId));
     }
-  }, [drawerPatientId, pdf]);
+  }, [drawerPatientId, pdf, config, location, history]);
 
   const handleEditPatientConfirm = useCallback(() => {
     trackMetric('Clinic - Edit patient confirmed', { clinicId: selectedClinicId });
@@ -1320,8 +1332,8 @@ export const TideDashboard = (props) => {
       {showEditPatientDialog && renderEditPatientDialog()}
       {showDataConnectionsModal && renderDataConnectionsModal()}
 
-      <PatientDrawer  
-        patientId={showTideDashboardPatientDrawer ? drawerPatientId : null}
+      <PatientDrawer
+        patientId={drawerPatientId}
         onClose={handleClosePatientDrawer}
         api={api}
         trackMetric={trackMetric}

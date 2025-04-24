@@ -27,7 +27,7 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
   }, []);
 
   const handleViewData = () => {
-    dispatch(push(`/patients/${patientId}/data?chart=trends&dashboard=tide`));
+    dispatch(push(`/patients/${patientId}/data/trends?dashboard=tide`));
   };
 
   const recentlyReviewedThresholdDate = moment().startOf('isoWeek').toISOString();
@@ -39,7 +39,7 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
   };
 
   const { fullName, birthDate } = patient || {};
-  
+
   return (
     <Box sx={{ display: 'grid', gridTemplateColumns: '32fr 18fr 18fr 32fr', gap: 3, minHeight: '42px', marginBottom: 3 }}>
       <Flex sx={{ justifyContent: 'center', flexDirection: 'column' }}>
@@ -58,7 +58,7 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
           {t('View Data')}
         </Button>
       </Flex>
-      
+
       <Flex sx={{ justifyContent: 'flex-start', alignItems: 'center' }}>
         <CGMClipboardButton patient={patient} data={pdf?.data?.agpCGM} />
       </Flex>
@@ -67,18 +67,18 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
         {
           showTideDashboardLastReviewed &&
             <>
-              <Text sx={{ 
-              color: colorPalette.primary.purpleDark, 
-              fontWeight: 'medium', 
+              <Text sx={{
+              color: colorPalette.primary.purpleDark,
+              fontWeight: 'medium',
               marginRight: 3,
             }}>
               {t('Last Reviewed')}
             </Text>
-            <PatientLastReviewed 
-              api={api} 
-              trackMetric={trackMetric} 
-              metricSource="TIDE dashboard" 
-              patientId={patientId} 
+            <PatientLastReviewed
+              api={api}
+              trackMetric={trackMetric}
+              metricSource="TIDE dashboard"
+              patientId={patientId}
               recentlyReviewedThresholdDate={recentlyReviewedThresholdDate}
               onReview={handleReviewSuccess}
             />

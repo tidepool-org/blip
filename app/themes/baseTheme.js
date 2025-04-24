@@ -15,6 +15,8 @@ import tags from './base/tags';
 import toasts from './base/toasts';
 import forms from './base/forms';
 
+/* eslint-disable max-len */
+
 export const breakpoints = ['512px', '768px', '1024px', '1280px'];
 
 export const colors = {
@@ -51,13 +53,14 @@ export const colors = {
   banner: {
     info: {
       action: {
-        bg: '#2A1948',
+        bg: colorPalette.primary.purpleMedium,
         text: colorPalette.neutrals.white,
       },
-      bg: colorPalette.primary.purpleLight,
-      closeIcon: '#4F6A92',
+      bg: '#2A1948',
+      closeIcon: colorPalette.neutrals.white,
       icon: colorPalette.primary.purpleMedium,
-      message: '#2A1948',
+      message: colorPalette.neutrals.white,
+      messageLink: colorPalette.primary.purpleLight,
     },
     warning: {
       action: {
@@ -68,6 +71,7 @@ export const colors = {
       closeIcon: '#4F6A92',
       icon: '#CC6D00',
       message: '#2A1948',
+      messageLink: colorPalette.primary.purpleBright,
     },
     danger: {
       action: {
@@ -78,6 +82,7 @@ export const colors = {
       closeIcon: '#4F6A92',
       icon: '#EC4C47',
       message: '#2A1948',
+      messageLink: colorPalette.primary.purpleBright,
     },
     success: {
       action: {
@@ -88,6 +93,7 @@ export const colors = {
       closeIcon: '#4F6A92',
       icon: '#08A057',
       message: '#2A1948',
+      messageLink: colorPalette.primary.purpleBright,
     },
   },
   stat: {
@@ -178,7 +184,7 @@ const variants = {
   tables: tables({ borders, colors, fonts, fontSizes, shadows, radii }),
   tags: tags({ colors, fonts, radii, fontWeights }),
   toasts: toasts({ borders, colors, radii, fontSizes, shadows }),
-  containers: containers({ borders, colors, radii, space, breakpoints }),
+  containers: containers({ borders, colors, radii, space, breakpoints, fonts, fontSizes, fontWeights }),
 };
 
 const defaultText = {

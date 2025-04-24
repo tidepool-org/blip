@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Flex, Text, Box, FlexProps } from 'theme-ui';
+import { Flex, Text, Box, Link, FlexProps } from 'theme-ui';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
 import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
@@ -18,16 +18,19 @@ export function Banner(props) {
     dismissable,
     label,
     message,
+    messageLinkText,
     onAction,
+    onClickMessageLink,
     onDismiss,
+    showIcon,
     title,
     variant,
     ...themeProps
   } = props;
 
   const iconMap = {
-    danger: ErrorRoundedIcon,
     info: InfoRoundedIcon,
+    danger: ErrorRoundedIcon,
     warning: WarningRoundedIcon,
     success: CheckCircleRoundedIcon,
   };
@@ -38,17 +41,41 @@ export function Banner(props) {
     <Flex
       aria-label={label}
       variant={`banners.${variant}`}
-      sx={{ gap: 3 }}
+      sx={{ gap: [0, 0, 3] }}
       {...themeProps}
     >
-      <Flex px={2} sx={{ gap: 2, flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Icon className="icon" theme={baseTheme} variant="static" icon={TypeIcon} label={variant} />
-        <Box>
-          <Text className="title">{title}</Text>
-          <Text className="message">{message}</Text>
+      <Flex
+        px={2}
+        sx={{
+          gap: 2,
+          flexGrow: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexWrap: ['wrap', 'wrap', 'nowrap'],
+        }}>
+        {showIcon && TypeIcon && <Icon className="icon" theme={baseTheme} variant="static" icon={TypeIcon} label={variant} sx={{ flexBasis: 0 }} />}
+        <Box py={1} sx={{ flexBasis: ['85%', '85%', 'auto'] }}>
+          {title && <Text className="title">{title}</Text>}
+          <Box className="message">
+            <Text className="message-text">{message}</Text>
+
+            {messageLinkText && (
+              <>
+                &nbsp;
+                <Link /* eslint-disable-line jsx-a11y/anchor-is-valid */
+                  className="message-link"
+                  onClick={onClickMessageLink}
+                >
+                  {messageLinkText}
+                </Link>
+              </>
+            )}
+          </Box>
         </Box>
         {!!actionText && (
-          <Button variant="primaryCondensed" className="action" onClick={onAction}>{actionText}</Button>
+          <Flex sx={{ flexBasis: ['100%', '100%', 'auto'], justifyContent: 'center' }}>
+            <Button variant="primaryCondensed" className="action" onClick={onAction}>{actionText}</Button>
+          </Flex>
         )}
       </Flex>
 
@@ -58,6 +85,10 @@ export function Banner(props) {
           icon={CloseRoundedIcon}
           label="Close banner"
           onClick={() => onDismiss()}
+          sx={{
+            alignSelf: ['baseline', 'baseline', 'auto'],
+            marginLeft: [-2, -2, 0],
+          }}
         />
       )}
     </Flex>
@@ -70,16 +101,21 @@ Banner.propTypes = {
   dismissable: PropTypes.bool,
   label: PropTypes.string.isRequired,
   message: PropTypes.string.isRequired,
+  messageLinkText: PropTypes.string,
   onAction: PropTypes.func,
+  onClickMessageLink: PropTypes.func,
   onDismiss: PropTypes.func,
+  showIcon: PropTypes.bool,
   title: PropTypes.string,
-  variant: PropTypes.oneOf(['default', 'warning', 'danger', 'success']),
+  variant: PropTypes.oneOf(['info', 'warning', 'danger', 'success']),
 };
 
 Banner.defaultProps = {
   dismissable: true,
-  onDismiss: noop,
   onAction: noop,
+  onClickMessageLink: noop,
+  onDismiss: noop,
+  showIcon: true,
   variant: 'info',
 };
 

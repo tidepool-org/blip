@@ -79,11 +79,6 @@ describe('PatientData', function () {
 
   before(() => {
     PD.__Rewire__('launchCustomProtocol', _.noop);
-    PD.__Rewire__('NavbarChartTypeSetter', createReactClass({
-      render: function() {
-        return (<div className='fake-navbar-chart-type-setter'></div>);
-      },
-    }));
     PD.__Rewire__('Basics', createReactClass({
       render: function() {
         return (<div className='fake-basics-view'></div>);
@@ -117,7 +112,6 @@ describe('PatientData', function () {
 
   after(() => {
     PD.__ResetDependency__('launchCustomProtocol');
-    PD.__ResetDependency__('NavbarChartTypeSetter');
     PD.__ResetDependency__('Basics');
     PD.__ResetDependency__('Trends');
     PD.__ResetDependency__('BgLog');
@@ -383,7 +377,7 @@ describe('PatientData', function () {
           }));
 
           expect(dataConnectionsCard().length).to.equal(1);
-          expect(dataConnectionsCard().text()).to.contain('Connect an Account');
+          expect(dataConnectionsCard().text()).to.contain('Connect a Device Account');
 
           expect(uploaderCard().length).to.equal(1);
           expect(uploaderCard().text()).to.contain('Upload Data Directly with Tidepool Uploader');
@@ -415,7 +409,7 @@ describe('PatientData', function () {
           }));
 
           expect(dataConnectionsCard().length).to.equal(1);
-          expect(dataConnectionsCard().text()).to.contain('Connect an Account');
+          expect(dataConnectionsCard().text()).to.contain('Connect a Device Account');
 
           expect(uploaderCard().length).to.equal(1);
           expect(uploaderCard().text()).to.contain('Upload Data Directly with Tidepool Uploader');
@@ -1183,9 +1177,7 @@ describe('PatientData', function () {
           bgSource: 'cbg',
         },
         basics: {
-          stats: {
-            excludeDaysWithoutBolus: false,
-          },
+          stats: {},
           sections: {},
           extentSize: 14,
         },
@@ -4705,36 +4697,6 @@ describe('PatientData', function () {
   });
 
   describe('handleSwitchToDaily', function() {
-    it('should track metric for calender', function() {
-      var props = {
-        currentPatientInViewId: '40',
-        dataWorkerQueryDataRequest: sinon.stub(),
-        location: { search: '', pathname: '/data' },
-        history: { push: sinon.stub() },
-        isUserPatient: true,
-        patient: {
-          userid: '40',
-          profile: {
-            fullName: 'Fooey McBar'
-          }
-        },
-        fetchingPatient: false,
-        fetchingPatientData: false,
-        fetchingUser: false,
-        trackMetric: sinon.stub(),
-        t,
-        generatingPDF: { inProgress: false },
-        pdf: {},
-      };
-
-      var elem = mount(<PatientDataClass {...props}/>);
-
-      var callCount = props.trackMetric.callCount;
-      elem.instance().handleSwitchToDaily('2016-08-19T01:51:55.000Z', 'testing');
-      expect(props.trackMetric.callCount).to.equal(callCount + 1);
-      expect(props.trackMetric.calledWith('Clicked Basics testing calendar')).to.be.true;
-    });
-
     it('should set the `chartType` state to `daily`', () => {
       const wrapper = shallow(<PatientDataClass {...defaultProps} />);
       const instance = wrapper.instance();
@@ -5037,6 +4999,109 @@ describe('PatientData', function () {
     });
   });
 
+  describe('handleRouteChangeEvent', function() {
+    const props = {...defaultProps};
+
+    let wrapper;
+    let instance;
+
+    beforeEach(() => {
+      wrapper = shallow(<PatientDataClass {...props} />);
+      instance = wrapper.instance();
+      instance.setInitialChartView();
+    });
+
+    describe(('chartType is explicitly targetted in URL'), () => {
+      it('should call `handleSwitchToBasics` when the route changes to `/data/basics`', () => {
+        const nextProps = { match: { params: { chartType: 'basics' } } };
+
+        instance.handleSwitchToBasics = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToBasics);
+      });
+
+      it('should call `handleSwitchToDaily` when the route changes to `/data/daily`', () => {
+        const nextProps = { match: { params: { chartType: 'daily' } } };
+
+        instance.handleSwitchToDaily = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToDaily);
+      });
+
+      it('should call `handleSwitchToTrends` when the route changes to `/data/trends`', () => {
+        const nextProps = { match: { params: { chartType: 'trends' } } };
+
+        instance.handleSwitchToTrends = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToTrends);
+      });
+
+      it('should call `handleSwitchToBgLog` when the route changes to `/data/bgLog`', () => {
+        const nextProps = { match: { params: { chartType: 'bgLog' } } };
+
+        instance.handleSwitchToBgLog = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToBgLog);
+      });
+
+      it('should call `handleSwitchToSettings` when the route changes to `/data/settings`', () => {
+        const nextProps = { match: { params: { chartType: 'settings' } } };
+
+        instance.handleSwitchToSettings = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToSettings);
+      });
+    });
+
+    describe('chartType is not specified in URL', () => {
+      it('should call `handleSwitchToBasics` when the defaultChartType is set to basics', () => {
+        const nextProps = { };
+        instance.setState({ defaultChartTypeForPatient: 'basics' });
+
+        instance.handleSwitchToBasics = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToBasics);
+      });
+
+      it('should call `handleSwitchToDaily` when the defaultChartTypeForPatient is set to Daily', () => {
+        const nextProps = { };
+        instance.setState({ defaultChartTypeForPatient: 'daily' });
+
+        instance.handleSwitchToDaily = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToDaily);
+      });
+
+      it('should call `handleSwitchToTrends` when the defaultChartTypeForPatient is set to Trends', () => {
+        const nextProps = { };
+        instance.setState({ defaultChartTypeForPatient: 'trends' });
+
+        instance.handleSwitchToTrends = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToTrends);
+      });
+
+      it('should call `handleSwitchToBgLog` when the defaultChartTypeForPatient is set to BgLog', () => {
+        const nextProps = { };
+        instance.setState({ defaultChartTypeForPatient: 'bgLog' });
+
+        instance.handleSwitchToBgLog = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.handleSwitchToBgLog);
+      });
+    });
+
+    describe('chartType is not specified in path and defaultChartTypeForPatient is not set', () => {
+      it('should call setInitialChartView()', () => {
+        const nextProps = { };
+
+        instance.setInitialChartView = sinon.stub();
+        instance.handleRouteChangeEvent(nextProps);
+        sinon.assert.calledOnce(instance.setInitialChartView);
+      });
+    });
+  });
+
   describe('getFetchers', () => {
     const stateProps = {
       fetchingPendingSentInvites: {
@@ -5044,6 +5109,10 @@ describe('PatientData', function () {
         completed: null,
       },
       fetchingAssociatedAccounts: {
+        inProgress: false,
+        completed: null,
+      },
+      fetchingClinicsForPatient: {
         inProgress: false,
         completed: null,
       },
@@ -5062,6 +5131,7 @@ describe('PatientData', function () {
       fetchPendingSentInvites: sinon.stub().returns('fetchPendingSentInvites'),
       fetchAssociatedAccounts: sinon.stub().returns('fetchAssociatedAccounts'),
       fetchPatientFromClinic: sinon.stub().returns('fetchPatientFromClinic'),
+      fetchClinicsForPatient: sinon.stub().returns('fetchClinicsForPatient'),
       selectClinic: sinon.stub().returns('selectClinic'),
     };
 
@@ -5082,15 +5152,21 @@ describe('PatientData', function () {
       expect(result[2]).to.be.a('function');
       expect(result[2]()).to.equal('fetchPendingSentInvites');
       expect(result[3]).to.be.a('function');
-      expect(result[3]()).to.equal('fetchAssociatedAccounts');
+      expect(result[3]()).to.equal('fetchClinicsForPatient');
+      expect(result[4]).to.be.a('function');
+      expect(result[4]()).to.equal('fetchAssociatedAccounts');
     });
 
-    it('should only add the associated accounts and pending invites fetchers if fetches are not already in progress or completed', () => {
+    it('should only add the associated accounts, patient clinics, and pending invites fetchers if fetches are not already in progress or completed', () => {
       const standardResult = getFetchers(dispatchProps, ownProps, stateProps, api);
-      expect(standardResult.length).to.equal(4);
+      expect(standardResult.length).to.equal(5);
 
       const inProgressResult = getFetchers(dispatchProps, ownProps, {
         fetchingPendingSentInvites: {
+          inProgress: true,
+          completed: null,
+        },
+        fetchingClinicsForPatient: {
           inProgress: true,
           completed: null,
         },
@@ -5106,6 +5182,10 @@ describe('PatientData', function () {
 
       const completedResult = getFetchers(dispatchProps, ownProps, {
         fetchingPendingSentInvites: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingClinicsForPatient: {
           inProgress: false,
           completed: true,
         },
@@ -5139,6 +5219,10 @@ describe('PatientData', function () {
           inProgress: false,
         },
         fetchingPendingSentInvites: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingClinicsForPatient: {
           inProgress: false,
           completed: true,
         },
@@ -5178,6 +5262,10 @@ describe('PatientData', function () {
           inProgress: false,
           completed: true,
         },
+        fetchingClinicsForPatient: {
+          inProgress: false,
+          completed: true,
+        },
         fetchingAssociatedAccounts: {
           inProgress: false,
           completed: true,
@@ -5210,6 +5298,10 @@ describe('PatientData', function () {
         selectedClinicId: 'clinic1234',
         fetchingPatientFromClinic: {
           inProgress: false,
+        },
+        fetchingClinicsForPatient: {
+          inProgress: false,
+          completed: true,
         },
         fetchingPendingSentInvites: {
           inProgress: false,
@@ -5248,6 +5340,10 @@ describe('PatientData', function () {
           inProgress: false,
         },
         fetchingPendingSentInvites: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingClinicsForPatient: {
           inProgress: false,
           completed: true,
         },
@@ -5290,6 +5386,10 @@ describe('PatientData', function () {
           inProgress: false,
         },
         fetchingPendingSentInvites: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingClinicsForPatient: {
           inProgress: false,
           completed: true,
         },

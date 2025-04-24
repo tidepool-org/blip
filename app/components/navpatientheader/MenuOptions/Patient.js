@@ -10,7 +10,7 @@ import shareIcon from '../../../core/icons/shareIcon.svg'
 import uploadIcon from '../../../core/icons/uploadIcon.svg'
 
 import { getFinalSlug } from '../../../core/navutils';
-import { getButtonStyleProps } from './menuOptionHelpers';
+import { getButtonStyleProps, isDataView } from './menuOptionHelpers';
 
 const PatientMenuOptions = ({
   t,
@@ -30,7 +30,7 @@ const PatientMenuOptions = ({
           onClick={onViewData}
           iconSrc={viewIcon}
           iconLabel="View"
-          {...getButtonStyleProps(finalSlug === '/data')}
+          {...getButtonStyleProps(isDataView(finalSlug))}
         >
           {t('View Data')}
         </Button>

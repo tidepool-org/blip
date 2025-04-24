@@ -40,10 +40,12 @@ describe('OAuthConnection', () => {
 
   before(() => {
     mount = createMount();
+    OAuthConnection.__Rewire__('utils', { isMobile: () => true });
   });
 
   after(() => {
     mount.cleanUp();
+    OAuthConnection.__ResetDependency__('utils');
   });
 
   afterEach(() => {
@@ -87,7 +89,7 @@ describe('OAuthConnection', () => {
     });
 
     it('should render the appropriate banner', () => {
-      expect(wrapper.find('#banner-oauth-authorized').hostNodes().text()).to.equal('You have successfully connected your Dexcom account to Tidepool.');
+      expect(wrapper.find('#banner-oauth-authorized').hostNodes().text()).to.equal('You have successfully connected your Dexcom data to Tidepool.');
     });
 
     it('should render the appropriate heading and subheading', () => {
@@ -119,6 +121,25 @@ describe('OAuthConnection', () => {
       const actions = store.getActions();
       expect(actions).to.eql(expectedActions);
     });
+
+    it('should render a button to redirect back to tidepool app when on mobile', () => {
+      defaultProps.trackMetric.resetHistory();
+      wrapper.find('#oauth-redirect-home-button').hostNodes().simulate('click');
+
+      sinon.assert.calledWith(defaultProps.trackMetric, 'Oauth - Connection - Redirect back to Tidepool App', {
+        providerName: 'dexcom',
+        status: 'authorized',
+      });
+
+      let expectedActions = [
+        routeAction(
+          '/patients?justLoggedIn=true&dataConnectionStatus=authorized&dataConnectionProviderName=dexcom'
+        ),
+      ];
+
+      const actions = store.getActions();
+      expect(actions).to.eql(expectedActions);
+    });
   });
 
   context('dexcom declined', () => {
@@ -144,7 +165,7 @@ describe('OAuthConnection', () => {
     });
 
     it('should render the appropriate banner', () => {
-      expect(wrapper.find('#banner-oauth-declined').hostNodes().text()).to.equal('You have declined connecting your Dexcom account to Tidepool.');
+      expect(wrapper.find('#banner-oauth-declined').hostNodes().text()).to.equal('You have declined connecting your Dexcom data to Tidepool.');
     });
 
     it('should render the appropriate heading and subheading', () => {
@@ -219,30 +240,30 @@ describe('OAuthConnection', () => {
     });
   });
 
-  context('abbott authorized', () => {
+  context('twiist authorized', () => {
     beforeEach(() => {
-      wrapper = createWrapper('abbott', 'authorized');
+      wrapper = createWrapper('twiist', 'authorized');
     });
 
     it('should track the appropriate metric on load', () => {
       sinon.assert.calledWith(defaultProps.trackMetric, 'Oauth - Connection', {
-        providerName: 'abbott',
+        providerName: 'twiist',
         status: 'authorized',
         custodialSignup: false,
       });
 
       defaultProps.trackMetric.resetHistory();
-      createWrapper('abbott', 'authorized', '?signupKey=abc&signupEmail=patient@mail.com');
+      createWrapper('twiist', 'authorized', '?signupKey=abc&signupEmail=patient@mail.com');
 
       sinon.assert.calledWith(defaultProps.trackMetric, 'Oauth - Connection', {
-        providerName: 'abbott',
+        providerName: 'twiist',
         status: 'authorized',
         custodialSignup: true,
       });
     });
 
     it('should render the appropriate banner', () => {
-      expect(wrapper.find('#banner-oauth-authorized').hostNodes().text()).to.equal('You have successfully connected your Abbott account to Tidepool.');
+      expect(wrapper.find('#banner-oauth-authorized').hostNodes().text()).to.equal('You have successfully connected your twiist data to Tidepool.');
     });
 
     it('should render the appropriate heading and subheading', () => {
@@ -255,7 +276,7 @@ describe('OAuthConnection', () => {
     });
 
     it('should render a button that claims an account if the signup query params are provided', () => {
-      const custodialWrapper = createWrapper('abbott', 'authorized', '?signupKey=abc&signupEmail=patient@mail.com');
+      const custodialWrapper = createWrapper('twiist', 'authorized', '?signupKey=abc&signupEmail=patient@mail.com');
       expect(wrapper.find('#oauth-claim-account-button').hostNodes()).to.have.lengthOf(0);
       expect(custodialWrapper.find('#oauth-claim-account-button').hostNodes()).to.have.lengthOf(1);
 
@@ -263,7 +284,7 @@ describe('OAuthConnection', () => {
       custodialWrapper.find('#oauth-claim-account-button').hostNodes().simulate('click');
 
       sinon.assert.calledWith(defaultProps.trackMetric, 'Oauth - Connection - Claim Account', {
-        providerName: 'abbott',
+        providerName: 'twiist',
         status: 'authorized',
       });
 
@@ -274,32 +295,49 @@ describe('OAuthConnection', () => {
       const actions = store.getActions();
       expect(actions).to.eql(expectedActions);
     });
+
+    it('should render a button to redirect back to tidepool app when on mobile', () => {
+      defaultProps.trackMetric.resetHistory();
+      wrapper.find('#oauth-redirect-home-button').hostNodes().simulate('click');
+
+      sinon.assert.calledWith(defaultProps.trackMetric, 'Oauth - Connection - Redirect back to Tidepool App', {
+        providerName: 'twiist',
+        status: 'authorized',
+      });
+
+      let expectedActions = [
+        routeAction('/patients?justLoggedIn=true&dataConnectionStatus=authorized&dataConnectionProviderName=twiist'),
+      ];
+
+      const actions = store.getActions();
+      expect(actions).to.eql(expectedActions);
+    });
   });
 
-  context('abbott declined', () => {
+  context('twiist declined', () => {
     beforeEach(() => {
-      wrapper = createWrapper('abbott', 'declined');
+      wrapper = createWrapper('twiist', 'declined');
     });
 
     it('should track the appropriate metric on load', () => {
       sinon.assert.calledWith(defaultProps.trackMetric, 'Oauth - Connection', {
-        providerName: 'abbott',
+        providerName: 'twiist',
         status: 'declined',
         custodialSignup: false,
       });
 
       defaultProps.trackMetric.resetHistory();
-      createWrapper('abbott', 'declined', '?signupKey=abc&signupEmail=patient@mail.com');
+      createWrapper('twiist', 'declined', '?signupKey=abc&signupEmail=patient@mail.com');
 
       sinon.assert.calledWith(defaultProps.trackMetric, 'Oauth - Connection', {
-        providerName: 'abbott',
+        providerName: 'twiist',
         status: 'declined',
         custodialSignup: true,
       });
     });
 
     it('should render the appropriate banner', () => {
-      expect(wrapper.find('#banner-oauth-declined').hostNodes().text()).to.equal('You have declined connecting your Abbott account to Tidepool.');
+      expect(wrapper.find('#banner-oauth-declined').hostNodes().text()).to.equal('You have declined connecting your twiist data to Tidepool.');
     });
 
     it('should render the appropriate heading and subheading', () => {
@@ -312,7 +350,7 @@ describe('OAuthConnection', () => {
     });
 
     it('should render a button that claims an account if the signup query params are provided', () => {
-      const custodialWrapper = createWrapper('abbott', 'declined', '?signupKey=abc&signupEmail=patient@mail.com');
+      const custodialWrapper = createWrapper('twiist', 'declined', '?signupKey=abc&signupEmail=patient@mail.com');
       expect(wrapper.find('#oauth-claim-account-button').hostNodes()).to.have.lengthOf(0);
       expect(custodialWrapper.find('#oauth-claim-account-button').hostNodes()).to.have.lengthOf(1);
 
@@ -320,7 +358,7 @@ describe('OAuthConnection', () => {
       custodialWrapper.find('#oauth-claim-account-button').hostNodes().simulate('click');
 
       sinon.assert.calledWith(defaultProps.trackMetric, 'Oauth - Connection - Claim Account', {
-        providerName: 'abbott',
+        providerName: 'twiist',
         status: 'declined',
       });
 
@@ -333,30 +371,30 @@ describe('OAuthConnection', () => {
     });
   });
 
-  context('abbott error', () => {
+  context('twiist error', () => {
     beforeEach(() => {
-      wrapper = createWrapper('abbott', 'error');
+      wrapper = createWrapper('twiist', 'error');
     });
 
     it('should track the appropriate metric on load', () => {
       sinon.assert.calledWith(defaultProps.trackMetric, 'Oauth - Connection', {
-        providerName: 'abbott',
+        providerName: 'twiist',
         status: 'error',
         custodialSignup: false,
       });
 
       defaultProps.trackMetric.resetHistory();
-      createWrapper('abbott', 'error', '?signupKey=abc&signupEmail=patient@mail.com');
+      createWrapper('twiist', 'error', '?signupKey=abc&signupEmail=patient@mail.com');
 
       sinon.assert.calledWith(defaultProps.trackMetric, 'Oauth - Connection', {
-        providerName: 'abbott',
+        providerName: 'twiist',
         status: 'error',
         custodialSignup: true,
       });
     });
 
     it('should render the appropriate banner', () => {
-      expect(wrapper.find('#banner-oauth-error').hostNodes().text()).to.equal('We were unable to determine your Abbott connection status.');
+      expect(wrapper.find('#banner-oauth-error').hostNodes().text()).to.equal('We were unable to determine your twiist connection status.');
     });
 
     it('should render the appropriate heading and subheading', () => {
@@ -369,7 +407,7 @@ describe('OAuthConnection', () => {
     });
 
     it('should NOT render a button that claims an account if the signup query params are provided', () => {
-      const custodialWrapper = createWrapper('abbott', 'error', '?signupKey=abc&signupEmail=patient@mail.com');
+      const custodialWrapper = createWrapper('twiist', 'error', '?signupKey=abc&signupEmail=patient@mail.com');
       expect(custodialWrapper.find('#oauth-claim-account-button').hostNodes()).to.have.lengthOf(0);
     });
   });

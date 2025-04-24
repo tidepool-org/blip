@@ -17,3 +17,7 @@ export const getButtonStyleProps = (isActive) => {
 
   return styleProps;
 };
+
+export const isDataView = (finalSlug) => {
+  return ['/data', '/basics', '/trends', '/bgLog', '/daily', '/settings'].includes(finalSlug);
+};

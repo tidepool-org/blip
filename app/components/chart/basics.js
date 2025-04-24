@@ -36,6 +36,7 @@ class Basics extends Component {
     onClickPrint: PropTypes.func.isRequired,
     onSwitchToSettings: PropTypes.func.isRequired,
     onSwitchToBgLog: PropTypes.func.isRequired,
+    onSwitchToTrends: PropTypes.func.isRequired,
     onUpdateChartDateRange: PropTypes.func.isRequired,
     patient: PropTypes.object.isRequired,
     stats: PropTypes.array.isRequired,
@@ -60,20 +61,13 @@ class Basics extends Component {
   getInitialState = () => ({
     atMostRecent: true,
     inTransition: false,
-    title: this.getTitle(),
   });
-
-  UNSAFE_componentWillReceiveProps = nextProps => {
-    const newEndpointsRecieved = _.get(this.props, 'data.data.current.endpoints.range') !== _.get(nextProps, 'data.data.current.endpoints.range');
-    if (newEndpointsRecieved) {
-      this.setState({ title: this.getTitle(nextProps, false) });
-    }
-  };
 
   render = () => {
     const { t } = this.props;
     const dataQueryComplete = _.get(this.props, 'data.query.chartType') === 'basics';
     const statsToRender = this.props.stats.filter((stat) => stat.id !== 'bgExtents');
+    const title = this.getTitle(this.props);
 
     let renderedContent;
     if (dataQueryComplete) {
@@ -88,7 +82,7 @@ class Basics extends Component {
             patient={this.props.patient}
             atMostRecent={true}
             inTransition={this.state.inTransition}
-            title={this.state.title}
+            title={title}
             onClickBasics={this.handleClickBasics}
             onClickChartDates={this.props.onClickChartDates}
             onClickOneDay={this.handleClickOneDay}
@@ -161,7 +155,6 @@ class Basics extends Component {
           bgClasses={_.get(this.props, 'data.bgPrefs', {}).bgClasses}
           bgUnits={_.get(this.props, 'data.bgPrefs', {}).bgUnits}
           data={this.props.data}
-          excludeDaysWithoutBolus={_.get(this.props, 'chartPrefs.basics.stats.excludeDaysWithoutBolus')}
           onSelectDay={this.handleSelectDay}
           patient={this.props.patient}
           permsOfLoggedInUser={this.props.permsOfLoggedInUser}
@@ -194,15 +187,11 @@ class Basics extends Component {
     );
   };
 
-  getTitle = (props = this.props, checkMissing = true) => {
+  getTitle = (props = this.props) => {
     const { t } = props;
-    if (checkMissing && this.isMissingBasics(props)) {
-      return '';
-    }
-
     const endpointsRange = _.get(props, 'data.data.current.endpoints.range', []);
 
-    if (endpointsRange[0] <= 0 || endpointsRange[1] <= 0) {
+    if (!endpointsRange.length || endpointsRange[0] <= 0 || endpointsRange[1] <= 0) {
       return '';
     }
 
@@ -276,7 +265,11 @@ class Basics extends Component {
   };
 
   handleSelectDay = (date, title) => {
-    this.props.onSwitchToDaily(date, title);
+    if (title) {
+      this.props.trackMetric(`Clicked Basics ${title} calendar`, { fromChart: 'basics' });
+    }
+
+    this.props.onSwitchToDaily(date);
   };
 
   handleCopyBasicsClicked = () => {

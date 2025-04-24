@@ -28,13 +28,6 @@ const working = {
 const initialState = {
   passwordResetConfirmed: false,
   showingWelcomeMessage: null,
-  showingDonateBanner: null,
-  showingDexcomConnectBanner: null,
-  showingShareDataBanner: null,
-  seenShareDataBannerMax: false,
-  showingUpdateTypeBanner: null,
-  showingUploaderBanner: null,
-  showingPatientLimitBanner: null,
   signupKey: null,
   isLoggedIn: false,
   sentEmailVerification: false,
@@ -172,6 +165,7 @@ const initialState = {
   dataDonationAccounts: [],
   dataSources: [],
   authorizedDataSource: null,
+  justConnectedDataSourceProviderName: null,
   clinics: {},
   selectedClinicId: null,
   pendingReceivedClinicianInvites: [],
@@ -184,7 +178,6 @@ const initialState = {
     account: {},
     visitor: {},
   },
-  navbarChartType: null,
 };
 
 export default initialState;

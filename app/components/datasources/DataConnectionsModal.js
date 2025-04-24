@@ -1,5 +1,6 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import noop from 'lodash/noop';
@@ -40,13 +41,20 @@ export const DataConnectionsModal = (props) => {
     trackMetric,
   } = props;
 
+  const history = useHistory();
   const isFirstRender = useIsFirstRender();
   const { set: setToast } = useToasts();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const { updatingClinicPatient } = useSelector((state) => state.blip.working);
+  const dataSources = useSelector((state) => state.blip.dataSources);
   const previousUpdatingClinicPatient = usePrevious(updatingClinicPatient);
-  const patientData = (patient?.profile) ? clinicPatientFromAccountInfo(patient) : patient;
-  const [showPatientEmailModal, setShowPatientEmailModal] = useState(false);
+
+  const patientData = (patient?.profile) ? {
+    ...clinicPatientFromAccountInfo(patient),
+    dataSources,
+   } : patient;
+
+   const [showPatientEmailModal, setShowPatientEmailModal] = useState(false);
   const [processingEmailUpdate, setProcessingEmailUpdate] = useState(false);
   const [patientEmailFormContext, setPatientEmailFormContext] = useState();
   const dispatch = useDispatch();
@@ -115,6 +123,19 @@ export const DataConnectionsModal = (props) => {
     setToast,
   ]);
 
+  useEffect(() => {
+    // clear out dataConnectionStatus and dataConnectionProviderName query params
+    history?.replace({ pathname: history?.location?.pathname, search: '' });
+  }, []);
+
+  const dataSourcesText = selectedClinicId
+    ? t('Invite patients to authorize syncing from these accounts. Only available in the US at this time.')
+    : t('When you connect an account, data can flow into Tidepool without any extra effort. Only available in the US at this time.');
+
+  const learnMoreText = selectedClinicId
+    ? t('Learn more.')
+    : t('Learn more here.');
+
   return (
     <>
       <Dialog
@@ -131,13 +152,13 @@ export const DataConnectionsModal = (props) => {
 
         <DialogContent>
           <DesktopOnly>
-            <PatientDetails mb={3} patient={patientData} />
+            {!!selectedClinicId && <PatientDetails mb={3} patient={patientData} />}
           </DesktopOnly>
           <Subheading sx={{ fontWeight: 'bold'}}>{t('Connect a Device Account')}</Subheading>
 
           <Box mb={3}>
             <Body1 sx={{ fontWeight: 'medium'}}>
-              {t('Invite patients to authorize syncing from these accounts. Only available in the US at this time.')}&nbsp;
+              {dataSourcesText}&nbsp;
               <Link
                 id="data-connections-restrictions-link"
                 href={URL_TIDEPOOL_EXTERNAL_DATA_CONNECTIONS}
@@ -147,7 +168,7 @@ export const DataConnectionsModal = (props) => {
                   fontSize: 1,
                   fontWeight: 'medium',
                 }}
-              >{t('Learn more.')}</Link>
+              >{learnMoreText}</Link>
             </Body1>
 
             {patientData?.email && patient?.permissions?.custodian && (
@@ -171,23 +192,45 @@ export const DataConnectionsModal = (props) => {
           <DataConnections mb={4} patient={patientData} shownProviders={shownProviders} trackMetric={trackMetric} />
           <Divider mb={3} />
 
-          <Body1 sx={{ fontWeight: 'medium'}}>
-            {t('Have other devices with data to view? Tidepool supports over 85 devices. To add data from a device directly, search for this patient in')}&nbsp;
-            <Link
-              id="data-connections-restrictions-link"
-              href={URL_UPLOADER_DOWNLOAD_PAGE}
-              target="_blank"
-              rel="noreferrer noopener"
-              sx={{
-                fontSize: 1,
-                fontWeight: 'medium',
-              }}
-            >{t('Tidepool Uploader')}</Link>,&nbsp;
-            {t('select the devices, and upload.')}&nbsp;
-          </Body1>
+          {!!selectedClinicId && (
+            <Body1 sx={{ fontWeight: 'medium'}}>
+              {t('Have other devices with data to view? Tidepool supports over 85 devices. To add data from a device directly, search for this patient in')}&nbsp;
+
+              <Link
+                id="data-connections-restrictions-link"
+                href={URL_UPLOADER_DOWNLOAD_PAGE}
+                target="_blank"
+                rel="noreferrer noopener"
+                sx={{
+                  fontSize: 1,
+                  fontWeight: 'medium',
+                }}
+              >{t('Tidepool Uploader')}</Link>,&nbsp;
+
+              {t('select the devices, and upload.')}&nbsp;
+            </Body1>
+          )}
+
+          {!selectedClinicId && (
+            <Body1 sx={{ fontWeight: 'medium'}}>
+              {t('Don’t have any of the accounts above? Tidepool supports over 85 devices. Open')}&nbsp;
+
+              <Link
+                id="data-connections-restrictions-link"
+                href={URL_UPLOADER_DOWNLOAD_PAGE}
+                target="_blank"
+                rel="noreferrer noopener"
+                sx={{
+                  fontSize: 1,
+                  fontWeight: 'medium',
+                }}
+              >{t('Tidepool Uploader')}</Link>,&nbsp;
+
+              {t('select your devices, and upload directly.')}&nbsp;
+            </Body1>
+          )}
 
           {showPatientEmailModal && <PatientEmailModal
-            action="edit"
             open
             onClose={handleEditPatientEmailClose}
             onFormChange={handleEditPatientEmailFormChange}

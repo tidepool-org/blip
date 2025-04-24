@@ -95,127 +95,6 @@ export const showingWelcomeMessage = (state = initialState.showingWelcomeMessage
   }
 };
 
-export const showingDonateBanner = (state = initialState.showingDonateBanner, action) => {
-  switch (action.type) {
-    case types.SHOW_BANNER:
-      return (action.payload.type === 'donate' && state !== false) ? true : state;
-    case types.DISMISS_BANNER:
-      return (action.payload.type === 'donate') ? false : state;
-    case types.FETCH_USER_SUCCESS:
-      const dismissedBanner = _.get(action.payload, 'user.preferences.dismissedDonateYourDataBannerTime');
-      return dismissedBanner ? false : state;
-    case types.HIDE_BANNER:
-      return (action.payload.type === 'donate') ? null : state;
-    case types.LOGOUT_REQUEST:
-      return null;
-    default:
-      return state;
-  }
-};
-
-export const showingDexcomConnectBanner = (state = initialState.showingDexcomConnectBanner, action) => {
-  switch (action.type) {
-    case types.SHOW_BANNER:
-      return (action.payload.type === 'dexcom' && state !== false) ? true : state;
-    case types.DISMISS_BANNER:
-      return (action.payload.type === 'dexcom') ? false : state;
-    case types.FETCH_PATIENT_FROM_CLINIC_SUCCESS:
-      const patientDexcomDataSourceConnectState = (_.find(action.payload.patient?.dataSources, { providerName: 'dexcom' }) || {}).state;
-      return patientDexcomDataSourceConnectState === 'error' || state;
-    case types.HIDE_BANNER:
-      return (action.payload.type === 'dexcom') ? null : state;
-    case types.DATA_WORKER_REMOVE_DATA_REQUEST:
-    case types.LOGOUT_REQUEST:
-      return null;
-    default:
-      return state;
-  }
-};
-
-export const showingUpdateTypeBanner = (state = initialState.showingUpdateTypeBanner, action) => {
-  switch (action.type) {
-    case types.SHOW_BANNER:
-      return (action.payload.type === 'updatetype' && state !== false) ? true : state;
-    case types.DISMISS_BANNER:
-      return (action.payload.type === 'updatetype') ? false : state;
-    case types.FETCH_USER_SUCCESS:
-      const dismissedBanner = _.get(action.payload, 'user.preferences.dismissedUpdateTypeBannerTime');
-      const clickedBanner = _.get(action.payload, 'user.preferences.clickedUpdateTypeBannerTime');
-      return (dismissedBanner || clickedBanner) ? false : state;
-    case types.HIDE_BANNER:
-      return (action.payload.type === 'updatetype') ? null : state;
-    case types.LOGOUT_REQUEST:
-      return null;
-    default:
-      return state;
-  }
-};
-
-export const showingUploaderBanner = (state = initialState.showingUploaderBanner, action) => {
-  switch (action.type) {
-    case types.SHOW_BANNER:
-      return (action.payload.type === 'uploader' && state !== false) ? true : state;
-    case types.DISMISS_BANNER:
-      return (action.payload.type === 'uploader') ? false : state;
-    case types.FETCH_USER_SUCCESS:
-      const dismissedBanner = _.get(action.payload, 'user.preferences.dismissedUploaderBannerTime');
-      const clickedBanner = _.get(action.payload, 'user.preferences.clickedUploaderBannerTime');
-      return (dismissedBanner || clickedBanner) ? false : state;
-    case types.HIDE_BANNER:
-      return (action.payload.type === 'uploader') ? null : state;
-    case types.LOGOUT_REQUEST:
-      return null;
-    default:
-      return state;
-  }
-};
-
-export const showingShareDataBanner = (state = initialState.showingShareDataBanner, action) => {
-  switch (action.type) {
-    case types.SHOW_BANNER:
-      return (action.payload.type === 'sharedata' && state !== false) ? true : state;
-    case types.DISMISS_BANNER:
-      return (action.payload.type === 'sharedata') ? false : state;
-    case types.FETCH_USER_SUCCESS:
-      const dismissedBanner = _.get(action.payload, 'user.preferences.dismissedShareDataBannerTime');
-      const clickedBanner = _.get(action.payload, 'user.preferences.clickedShareDataBannerTime');
-      return (dismissedBanner || clickedBanner) ? false : state;
-    case types.HIDE_BANNER:
-      return (action.payload.type === 'sharedata') ? null : state;
-    case types.LOGOUT_REQUEST:
-      return null;
-    default:
-      return state;
-  }
-};
-
-export const seenShareDataBannerMax = (state = initialState.seenShareDataBannerMax, action) => {
-  switch (action.type) {
-    case types.SHOW_BANNER:
-      return (action.payload.count > 2) ? true : state;
-    case types.LOGOUT_REQUEST:
-      return null;
-    default:
-      return state;
-  }
-};
-
-export const showingPatientLimitBanner = (state = initialState.showingShareDataBanner, action) => {
-  switch (action.type) {
-    case types.SHOW_BANNER:
-      return (action.payload.type === 'patientLimit' && state !== false) ? true : state;
-    case types.DISMISS_BANNER:
-      return (action.payload.type === 'patientLimit') ? false : state;
-    case types.HIDE_BANNER:
-      return (action.payload.type === 'patientLimit') ? null : state;
-    case types.LOGOUT_REQUEST:
-    case types.SELECT_CLINIC_SUCCESS:
-      return null;
-    default:
-      return state;
-  }
-};
-
 export const signupKey = (state = initialState.signupKey, action) => {
   switch(action.type) {
     case types.CONFIRM_SIGNUP_FAILURE:
@@ -340,6 +219,8 @@ export const allUsersMap = (state = initialState.allUsersMap, action) => {
       return update(state, { [action.payload.patientId]: { $set: action.payload.patient }});
     case types.UPDATE_SETTINGS_SUCCESS:
       return update(state, { [action.payload.userId]: { settings: { $merge: action.payload.updatedSettings }}});
+    case types.UPDATE_PREFERENCES_SUCCESS:
+      return update(state, { [action.payload.patientId]: { preferences: { $merge: action.payload.updatedPreferences }}});
     case types.LOGOUT_REQUEST:
       return {};
     default:
@@ -656,7 +537,21 @@ export const authorizedDataSource = (state = initialState.authorizedDataSource, 
       let authorizedDataSource = _.get(action.payload, 'authorizedDataSource', {});
       return update(state, { $set: authorizedDataSource });
     case types.LOGOUT_REQUEST:
-      return {};
+    case types.CLEAR_AUTHORIZED_DATA_SOURCE:
+      return null;
+    default:
+      return state;
+  }
+};
+
+export const justConnectedDataSourceProviderName = (state = initialState.justConnectedDataSourceProviderName, action) => {
+  switch (action.type) {
+    case types.SET_JUST_CONNECTED_DATA_SOURCE_PROVIDER_NAME:
+      const providerName = _.get(action.payload, 'providerName', null);
+      return update(state, { $set: providerName });
+    case types.LOGOUT_REQUEST:
+    case types.CLEAR_PATIENT_IN_VIEW:
+      return null;
     default:
       return state;
   }
@@ -1215,17 +1110,6 @@ export const pendoData = (state = initialState.pendoData, action) => {
       return action.payload.data;
     case types.LOGOUT_REQUEST:
       return initialState.pendoData;
-    default:
-      return state;
-  }
-};
-
-export const navbarChartType = (state = initialState.navbarChartType, action) => {
-  switch(action.type) {
-    case types.SET_NAVBAR_CHART_TYPE:
-      return action.payload.chartType;
-    case types.LOGOUT_REQUEST:
-      return null;
     default:
       return state;
   }

@@ -75,17 +75,29 @@ utils.isSupportedBrowser = () => {
   const userAgent = navigator.userAgent.toLowerCase();
 
   const isOpera = userAgent.indexOf('opr') > -1;
+  const isBrave = userAgent.indexOf('brave') > -1;
+  const isFirefox = userAgent.indexOf('firefox') > -1;
+  const isFirefoxIOS = userAgent.indexOf('fxios') > -1;
 
-  if (isOpera) return false;
+  if (isOpera || isBrave || isFirefox || isFirefoxIOS) return false;
 
+  const isEdgeIOS = userAgent.indexOf('edgios') > -1;
   const isChrome = userAgent.indexOf('chrome') > -1;
   const isChromeIOS = userAgent.indexOf('crios') > -1;
+  const isSafariIOS = userAgent.indexOf('safari') > -1 && /iphone|ipad/.test(userAgent);
 
-  return isChrome || isChromeIOS;
+  if (isChrome || isChromeIOS || isEdgeIOS || isSafariIOS) return true;
+
+  return false;
 };
 
 utils.isMobile = () => {
   var userAgent = navigator.userAgent.toLowerCase();
+
+  const isIOSDevice = /iphone|ipad/.test(userAgent);
+
+  if (isIOSDevice) return true;
+
   return (userAgent.indexOf('mobi') > -1);
 };
 
@@ -535,5 +547,23 @@ utils.formatThresholdPercentage = (value, comparator, threshold, defaultPrecisio
 
   return format(`.${precision}f`)(utils.roundToPrecision(percentage, precision));
 }
+
+utils.parseDatetimeParamToInteger = (queryParam) => {
+  if (!queryParam) return null;
+
+  if (_.isInteger(queryParam)) return queryParam;
+
+  // arg can be a string representation of an integer, e.g. '1690135500000'
+  if (_.toInteger(queryParam)) {
+    return _.toInteger(queryParam);
+  }
+
+  // arg can be an ISO string, e.g. '2023-07-20T16:00:00.000Z'
+  if (_.isString(queryParam)) {
+    return Date.parse(queryParam) || null;
+  }
+
+  return null;
+};
 
 export default utils;

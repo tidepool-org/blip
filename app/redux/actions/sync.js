@@ -32,34 +32,6 @@ export function hideWelcomeMessage() {
   };
 }
 
-export function showBanner(type) {
-  return {
-    type: ActionTypes.SHOW_BANNER,
-    payload: { type },
-  };
-}
-
-export function hideBanner(type) {
-  return {
-    type: ActionTypes.HIDE_BANNER,
-    payload: { type },
-  };
-}
-
-export function dismissBanner(type) {
-  return {
-    type: ActionTypes.DISMISS_BANNER,
-    payload: { type },
-  };
-}
-
-export function bannerCount(count) {
-  return {
-    type: ActionTypes.SHOW_BANNER,
-    payload: { count },
-  };
-}
-
 export function acknowledgeNotification(acknowledgedNotification) {
   return {
     type: ActionTypes.ACKNOWLEDGE_NOTIFICATION,
@@ -582,10 +554,11 @@ export function updatePreferencesRequest() {
   };
 }
 
-export function updatePreferencesSuccess(preferences) {
+export function updatePreferencesSuccess(patientId, preferences) {
   return {
     type: ActionTypes.UPDATE_PREFERENCES_SUCCESS,
     payload: {
+      patientId: patientId,
       updatedPreferences: preferences,
     },
   };
@@ -1168,6 +1141,21 @@ export function connectDataSourceSuccess(id, url) {
         id,
         url,
       }
+    },
+  };
+}
+
+export function clearAuthorizedDataSource() {
+  return {
+    type: ActionTypes.CLEAR_AUTHORIZED_DATA_SOURCE,
+  };
+}
+
+export function setJustConnectedDataSourceProviderName(providerName) {
+  return {
+    type: ActionTypes.SET_JUST_CONNECTED_DATA_SOURCE_PROVIDER_NAME,
+    payload: {
+      providerName: providerName,
     },
   };
 }
@@ -2475,12 +2463,5 @@ export function setPatientListSearchTextInput(textInput) {
   return {
     type: ActionTypes.SET_PATIENT_LIST_SEARCH_TEXT_INPUT,
     payload: { textInput },
-  };
-}
-
-export function setNavbarChartType(chartType) {
-  return {
-    type: ActionTypes.SET_NAVBAR_CHART_TYPE,
-    payload: { chartType },
   };
 }

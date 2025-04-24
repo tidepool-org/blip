@@ -98,7 +98,7 @@ describe('NavPatientHeader', () => {
 
         expect(wrapper.find('button#navPatientHeader_shareButton').exists()).to.be.false;
         expect(wrapper.find('button#navPatientHeader_uploadButton').exists()).to.be.false;
-      })
+      });
     });
 
     context('personal user with root permissions', () => {
@@ -132,7 +132,7 @@ describe('NavPatientHeader', () => {
         expect(wrapper.find('button#navPatientHeader_profileButton').exists()).to.be.true;
         expect(wrapper.find('button#navPatientHeader_shareButton').exists()).to.be.true;
         expect(wrapper.find('button#navPatientHeader_uploadButton').exists()).to.be.true;
-      })
+      });
     });
 
     context('clinician user without upload permissions', () => {
@@ -167,7 +167,7 @@ describe('NavPatientHeader', () => {
         expect(wrapper.find('button#navPatientHeader_profileButton').exists()).to.be.true;
         expect(wrapper.find('button#navPatientHeader_shareButton').exists()).to.be.false;
         expect(wrapper.find('button#navPatientHeader_uploadButton').exists()).to.be.false;
-      })
+      });
     });
 
     context('clinician user with upload permissions', () => {
@@ -202,7 +202,7 @@ describe('NavPatientHeader', () => {
         expect(wrapper.find('button#navPatientHeader_profileButton').exists()).to.be.true;
         expect(wrapper.find('button#navPatientHeader_shareButton').exists()).to.be.false;
         expect(wrapper.find('button#navPatientHeader_uploadButton').exists()).to.be.true;
-      })
+      });
     });
   });
 
@@ -355,6 +355,6 @@ describe('NavPatientHeader', () => {
         wrapper.find('button#navPatientHeader_backButton').simulate('click');
         expect(handleBack.calledOnce).to.be.true;
       });
-    })
+    });
   });
 });
