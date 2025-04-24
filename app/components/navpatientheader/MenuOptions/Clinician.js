@@ -3,16 +3,17 @@ import { Box, Flex } from 'theme-ui';
 import { useLocation } from 'react-router-dom';
 import { withTranslation } from 'react-i18next';
 
-import { getButtonStyleProps, getFinalSlug } from './menuOptionHelpers';
+import { getFinalSlug } from '../../../core/navutils';
+import { getButtonStyleProps, isDataView } from './menuOptionHelpers';
 
 import Button from '../../elements/Button';
 import viewIcon from '../../../core/icons/viewIcon.svg'
 import profileIcon from '../../../core/icons/profileIcon.svg'
 import uploadIcon from '../../../core/icons/uploadIcon.svg'
 
-const ClinicianMenuOptions = ({ 
-  t, 
-  onViewProfile, 
+const ClinicianMenuOptions = ({
+  t,
+  onViewProfile,
   onViewData,
   onUpload = null,
 }) => {
@@ -27,7 +28,7 @@ const ClinicianMenuOptions = ({
           onClick={onViewData}
           iconSrc={viewIcon}
           iconLabel="View"
-          {...getButtonStyleProps(finalSlug === '/data')}
+          {...getButtonStyleProps(isDataView(finalSlug))}
         >
           {t('View Data')}
         </Button>
@@ -43,8 +44,8 @@ const ClinicianMenuOptions = ({
           {t('Patient Profile')}
         </Button>
       </Box>
-      
-      {onUpload && 
+
+      {onUpload &&
         <Box>
           <Button
             id="navPatientHeader_uploadButton"

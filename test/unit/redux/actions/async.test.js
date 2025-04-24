@@ -2648,186 +2648,6 @@ describe('Actions', () => {
       });
     });
 
-    describe('dismissDonateBanner', () => {
-      it('should trigger DISMISS_BANNER and it should call updatePreferences once for a successful request', () => {
-        let preferences = { dismissedDonateYourDataBannerTime: '2017-11-28T00:00:00.000Z' };
-        let patient = { id: 500, name: 'Buddy Holly', age: 65 };
-
-        let api = {
-          metadata: {
-            preferences: {
-              put: sinon.stub().callsArgWith(2, null, preferences),
-            },
-          },
-          patient: {
-            get: sinon.stub().callsArgWith(1, null, patient)
-          }
-        };
-
-        let expectedActions = [
-          { type: 'DISMISS_BANNER', payload: { type: 'donate' } },
-          { type: 'UPDATE_PREFERENCES_REQUEST' },
-          { type: 'UPDATE_PREFERENCES_SUCCESS', payload: { updatedPreferences: {
-            dismissedDonateYourDataBannerTime: preferences.dismissedDonateYourDataBannerTime,
-          } } },
-        ];
-
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
-        });
-
-        let store = mockStore({ blip: initialState });
-        store.dispatch(async.dismissDonateBanner(api, patient.id));
-
-        const actions = store.getActions();
-        expect(actions).to.eql(expectedActions);
-      });
-    });
-
-    describe('dismissDexcomConnectBanner', () => {
-      it('should trigger DISMISS_BANNER and it should call updatePreferences once for a successful request', () => {
-        let preferences = { dismissedDexcomConnectBannerTime: '2017-11-28T00:00:00.000Z' };
-        let patient = { id: 500, name: 'Buddy Holly', age: 65 };
-
-        let api = {
-          metadata: {
-            preferences: {
-              put: sinon.stub().callsArgWith(2, null, preferences),
-            },
-          },
-          patient: {
-            get: sinon.stub().callsArgWith(1, null, patient)
-          }
-        };
-
-        let expectedActions = [
-          { type: 'DISMISS_BANNER', payload: { type: 'dexcom' } },
-          { type: 'UPDATE_PREFERENCES_REQUEST' },
-          { type: 'UPDATE_PREFERENCES_SUCCESS', payload: { updatedPreferences: {
-            dismissedDexcomConnectBannerTime: preferences.dismissedDexcomConnectBannerTime,
-          } } },
-        ];
-
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
-        });
-
-        let store = mockStore({ blip: initialState });
-        store.dispatch(async.dismissDexcomConnectBanner(api, patient.id));
-
-        const actions = store.getActions();
-        expect(actions).to.eql(expectedActions);
-      });
-    });
-
-    describe('clickDexcomConnectBanner', () => {
-      it('should trigger DISMISS_BANNER and it should call updatePreferences once for a successful request', () => {
-        let preferences = { clickedDexcomConnectBannerTime: '2017-11-28T00:00:00.000Z' };
-        let patient = { id: 500, name: 'Buddy Holly', age: 65 };
-
-        let api = {
-          metadata: {
-            preferences: {
-              put: sinon.stub().callsArgWith(2, null, preferences),
-            },
-          },
-          patient: {
-            get: sinon.stub().callsArgWith(1, null, patient)
-          }
-        };
-
-        let expectedActions = [
-          { type: 'DISMISS_BANNER', payload: { type: 'dexcom' } },
-          { type: 'UPDATE_PREFERENCES_REQUEST' },
-          { type: 'UPDATE_PREFERENCES_SUCCESS', payload: { updatedPreferences: {
-            clickedDexcomConnectBannerTime: preferences.clickedDexcomConnectBannerTime,
-          } } },
-        ];
-
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
-        });
-
-        let store = mockStore({ blip: initialState });
-        store.dispatch(async.clickDexcomConnectBanner(api, patient.id));
-
-        const actions = store.getActions();
-        expect(actions).to.eql(expectedActions);
-      });
-    });
-
-    describe('dismissShareDataBanner', () => {
-      it('should trigger DISMISS_BANNER and it should call updatePreferences once for a successful request', () => {
-        let preferences = { dismissedShareDataBannerTime: '2017-11-28T00:00:00.000Z' };
-        let patient = { id: 500, name: 'Buddy Holly', age: 65 };
-
-        let api = {
-          metadata: {
-            preferences: {
-              put: sinon.stub().callsArgWith(2, null, preferences),
-            },
-          },
-          patient: {
-            get: sinon.stub().callsArgWith(1, null, patient)
-          }
-        };
-
-        let expectedActions = [
-          { type: 'DISMISS_BANNER', payload: { type: 'sharedata' } },
-          { type: 'UPDATE_PREFERENCES_REQUEST' },
-          { type: 'UPDATE_PREFERENCES_SUCCESS', payload: { updatedPreferences: {
-            dismissedShareDataBannerTime: preferences.dismissedShareDataBannerTime,
-          } } },
-        ];
-
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
-        });
-
-        let store = mockStore({ blip: initialState });
-        store.dispatch(async.dismissShareDataBanner(api, patient.id));
-
-        const actions = store.getActions();
-        expect(actions).to.eql(expectedActions);
-      });
-    });
-
-    describe('clickShareDataBanner', () => {
-      it('should trigger DISMISS_BANNER and it should call updatePreferences once for a successful request', () => {
-        let preferences = { clickedShareDataBannerTime: '2017-11-28T00:00:00.000Z' };
-        let patient = { id: 500, name: 'Buddy Holly', age: 65 };
-
-        let api = {
-          metadata: {
-            preferences: {
-              put: sinon.stub().callsArgWith(2, null, preferences),
-            },
-          },
-          patient: {
-            get: sinon.stub().callsArgWith(1, null, patient)
-          }
-        };
-
-        let expectedActions = [
-          { type: 'DISMISS_BANNER', payload: { type: 'sharedata' } },
-          { type: 'UPDATE_PREFERENCES_REQUEST' },
-          { type: 'UPDATE_PREFERENCES_SUCCESS', payload: { updatedPreferences: {
-            clickedShareDataBannerTime: preferences.clickedShareDataBannerTime,
-          } } },
-        ];
-
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
-        });
-
-        let store = mockStore({ blip: initialState });
-        store.dispatch(async.clickShareDataBanner(api, patient.id));
-
-        const actions = store.getActions();
-        expect(actions).to.eql(expectedActions);
-      });
-    });
-
     describe('acceptReceivedInvite', () => {
       it('should trigger ACCEPT_RECEIVED_INVITE_SUCCESS and it should call acceptReceivedInvite once for a successful request', () => {
         let invitation = { key: 'foo', creator: { userid: 500 } };
@@ -3121,7 +2941,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'UPDATE_PREFERENCES_REQUEST' },
-          { type: 'UPDATE_PREFERENCES_SUCCESS', payload: { updatedPreferences: preferences } }
+          { type: 'UPDATE_PREFERENCES_SUCCESS', payload: { updatedPreferences: preferences, patientId } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -5023,6 +4843,157 @@ describe('Actions', () => {
       });
     });
 
+    describe('handleBannerInteraction', () => {
+      it('should should call updatePreferences once for a successful clicked interaction', () => {
+        const interactionType = 'clicked';
+        const interactionId = 'TestBanner';
+        const patient = { id: 'testUser', name: 'Test User', age: 65 };
+        const preferences = { clickedTestBannerBannerTime: '2024-11-28T00:00:00.000Z' };
+
+        let api = {
+          metadata: {
+            preferences: {
+              put: sinon.stub().callsArgWith(2, null, preferences),
+            },
+          },
+          patient: {
+            get: sinon.stub().callsArgWith(1, null, patient),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'UPDATE_PREFERENCES_REQUEST' },
+          { type: 'UPDATE_PREFERENCES_SUCCESS',
+            payload: {
+              patientId: 'testUser',
+              updatedPreferences: {
+                clickedTestBannerBannerTime: preferences.clickedTestBannerBannerTime,
+              },
+            },
+          },
+        ];
+
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.handleBannerInteraction(api, patient.id, interactionId, interactionType));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+      });
+
+      it('should should call updatePreferences once for a successful dismissed interaction', () => {
+        const interactionType = 'dismissed';
+        const interactionId = 'TestBanner';
+        const patient = { id: 'testUser', name: 'Test User', age: 65 };
+        const preferences = { dismissedTestBannerBannerTime: '2024-11-28T00:00:00.000Z' };
+
+        let api = {
+          metadata: {
+            preferences: {
+              put: sinon.stub().callsArgWith(2, null, preferences),
+            },
+          },
+          patient: {
+            get: sinon.stub().callsArgWith(1, null, patient),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'UPDATE_PREFERENCES_REQUEST' },
+          { type: 'UPDATE_PREFERENCES_SUCCESS',
+            payload: {
+              patientId: 'testUser',
+              updatedPreferences: {
+                dismissedTestBannerBannerTime: preferences.dismissedTestBannerBannerTime,
+              },
+            },
+          },
+        ];
+
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.handleBannerInteraction(api, patient.id, interactionId, interactionType));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+      });
+
+      it('should should call updatePreferences once for a successful seen interaction', () => {
+        const interactionType = 'seen';
+        const interactionId = 'TestBanner';
+        const patient = { id: 'testUser', name: 'Test User', age: 65 };
+        const preferences = { seenTestBannerBannerTime: '2024-11-28T00:00:00.000Z' };
+
+        let api = {
+          metadata: {
+            preferences: {
+              put: sinon.stub().callsArgWith(2, null, preferences),
+            },
+          },
+          patient: {
+            get: sinon.stub().callsArgWith(1, null, patient),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'UPDATE_PREFERENCES_REQUEST' },
+          { type: 'UPDATE_PREFERENCES_SUCCESS',
+            payload: {
+              patientId: 'testUser',
+              updatedPreferences: {
+                seenTestBannerBannerTime: preferences.seenTestBannerBannerTime,
+              },
+            },
+          },
+        ];
+
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.handleBannerInteraction(api, patient.id, interactionId, interactionType));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+      });
+
+      it('should should not call updatePreferences once for an unknown interaction type', () => {
+        const interactionType = 'foobar';
+        const interactionId = 'TestBanner';
+        const patient = { id: 'testUser', name: 'Test User', age: 65 };
+
+        let api = {
+          metadata: {
+            preferences: {
+              put: sinon.stub().callsArgWith(2, null, {}),
+            },
+          },
+          patient: {
+            get: sinon.stub().callsArgWith(1, null, patient),
+          },
+        };
+
+        let expectedActions = [];
+
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: initialState });
+        store.dispatch(async.handleBannerInteraction(api, patient.id, interactionId, interactionType));
+
+        const actions = store.getActions();
+        expect(actions.length).to.equal(0);
+      });
+    });
+
     describe('fetchDataSources', () => {
       it('should trigger FETCH_DATA_SOURCES_SUCCESS and it should call error once for a successful request', () => {
         let dataSources = [
@@ -5186,7 +5157,7 @@ describe('Actions', () => {
         });
 
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.disconnectDataSource(api, 'fitbit', { providerType: 'oauth', providerName: 'fitbit' }));
+        store.dispatch(async.disconnectDataSource(api, { providerType: 'oauth', providerName: 'fitbit' }));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
@@ -5210,7 +5181,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.disconnectDataSource(api, 'strava', { providerType: 'unexpected', providerName: 'strava' }));
+        store.dispatch(async.disconnectDataSource(api, { providerType: 'unexpected', providerName: 'strava' }));
 
         const actions = store.getActions();
         expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_DISCONNECTING_DATA_SOURCE });
@@ -5237,7 +5208,7 @@ describe('Actions', () => {
           expect(isTSA(action)).to.be.true;
         });
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.disconnectDataSource(api, 'strava', { providerType: 'oauth', providerName: 'strava' }));
+        store.dispatch(async.disconnectDataSource(api, { providerType: 'oauth', providerName: 'strava' }));
 
         const actions = store.getActions();
         expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_DISCONNECTING_DATA_SOURCE });
@@ -8506,61 +8477,74 @@ describe('Actions', () => {
       });
     });
 
-    describe('sendPatientDexcomConnectRequest', () => {
-      it('should trigger SEND_PATIENT_DEXCOM_CONNECT_REQUEST_SUCCESS and it should call clinics.sendPatientDexcomConnectRequest once for a successful request', () => {
+    describe('sendPatientDataProviderConnectRequest', () => {
+      beforeEach(() => {
+        async.__Rewire__('moment', {
+          utc: () => ({ toISOString: () => '2022-02-02T00:00:00.000Z'})
+        });
+      });
+
+      afterEach(() => {
+        async.__ResetDependency__('moment');
+      });
+
+      it('should trigger SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_SUCCESS and it should call clinics.sendPatientDataProviderConnectRequest once for a successful request', () => {
         const clinicId = 'clinicId1';
         const patientId = 'patientId1';
-        const lastRequestedDexcomConnectTime = '2022-10-10T00:00:000Z';
+        const providerName = 'dexcom';
+        const createdTime = '2022-02-02T00:00:00.000Z';
 
         let api = {
           clinics: {
-            sendPatientDexcomConnectRequest: sinon.stub().callsArgWith(2, null, { id: patientId, lastRequestedDexcomConnectTime }),
+            sendPatientDataProviderConnectRequest: sinon.stub().callsArgWith(3, null),
           },
         };
 
         let expectedActions = [
-          { type: 'SEND_PATIENT_DEXCOM_CONNECT_REQUEST_REQUEST' },
-          { type: 'SEND_PATIENT_DEXCOM_CONNECT_REQUEST_SUCCESS', payload: { clinicId, patientId, lastRequestedDexcomConnectTime } }
+          { type: 'SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_REQUEST' },
+          { type: 'SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_SUCCESS', payload: { clinicId, patientId, providerName, createdTime } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
 
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.sendPatientDexcomConnectRequest(api, clinicId, patientId));
+        store.dispatch(async.sendPatientDataProviderConnectRequest(api, clinicId, patientId, providerName));
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
-        expect(api.clinics.sendPatientDexcomConnectRequest.callCount).to.equal(1);
+        expect(api.clinics.sendPatientDataProviderConnectRequest.callCount).to.equal(1);
       });
 
-      it('should trigger SEND_PATIENT_DEXCOM_CONNECT_REQUEST_FAILURE and it should call error once for a failed request', () => {
+      it('should trigger SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_FAILURE and it should call error once for a failed request', () => {
         let clinicId = 'clinicId1';
         const patientId = 'patientId1';
+        const providerName = 'dexcom';
+
         let api = {
           clinics: {
-            sendPatientDexcomConnectRequest: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null),
+            sendPatientDataProviderConnectRequest: sinon.stub().callsArgWith(3, {status: 500, body: 'Error!'}),
           },
         };
 
-        let err = new Error(ErrorMessages.ERR_SENDING_PATIENT_DEXCOM_CONNECT_REQUEST);
+        let err = new Error(ErrorMessages.ERR_SENDING_PATIENT_DATA_PROVIDER_CONNECT_REQUEST);
         err.status = 500;
 
         let expectedActions = [
-          { type: 'SEND_PATIENT_DEXCOM_CONNECT_REQUEST_REQUEST' },
-          { type: 'SEND_PATIENT_DEXCOM_CONNECT_REQUEST_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+          { type: 'SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_REQUEST' },
+          { type: 'SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
         });
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.sendPatientDexcomConnectRequest(api, clinicId, patientId));
+        store.dispatch(async.sendPatientDataProviderConnectRequest(api, clinicId, patientId, providerName));
 
         const actions = store.getActions();
-        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_SENDING_PATIENT_DEXCOM_CONNECT_REQUEST });
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_SENDING_PATIENT_DATA_PROVIDER_CONNECT_REQUEST });
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
-        expect(api.clinics.sendPatientDexcomConnectRequest.callCount).to.equal(1);
+        expect(api.clinics.sendPatientDataProviderConnectRequest.callCount).to.equal(1);
       });
     });
 

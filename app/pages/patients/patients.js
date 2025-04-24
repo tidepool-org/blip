@@ -63,6 +63,18 @@ export let Patients = withTranslation()(class extends React.Component {
     user: PropTypes.object,
   };
 
+  // Temporary: Only personal users may access the mobile views in this iteration.
+  // In the future, clinicians will also be able to access mobile views
+  isBrowserSufficient = () => {
+    const isClinician = personUtils.isClinicianAccount(this.props.user) || false;
+
+    if (isClinician) {
+      return utils.isSupportedBrowser() && !utils.isMobile();
+    }
+
+    return utils.isSupportedBrowser();
+  }
+
   render() {
     var welcomeTitle = this.renderWelcomeTitle();
     var welcomeSetup = this.renderWelcomeSetup();
@@ -180,7 +192,7 @@ export let Patients = withTranslation()(class extends React.Component {
       return null;
     }
 
-    if (!utils.isSupportedBrowser()) {
+    if (!this.isBrowserSufficient()) {
       return <BrowserWarning
         trackMetric={this.props.trackMetric} />;
     }
@@ -204,10 +216,11 @@ export let Patients = withTranslation()(class extends React.Component {
     return (
       <div className="container-box-inner patients-section js-patients-shared">
         <div className="patients-section-title-wrapper">
+          <div className="spacer"></div>
           <div className="patients-section-title">{t('View data for:')}</div>
+          {this.renderAddDataStorage()}
         </div>
         <div className="patients-section-content">
-          {this.renderAddDataStorage()}
           <div className='clear'></div>
           <PeopleList
             people={patients}
@@ -333,9 +346,24 @@ export let Patients = withTranslation()(class extends React.Component {
     let { loading, loggedInUserId, patients, invites, location, showingWelcomeMessage, user } = nextProps;
 
     if (!loading && loggedInUserId && location.query.justLoggedIn) {
+      // If a personal user has just logged in and they are associated with only one patient, redirect
+      // them to the data view for that patient
       if (!personUtils.isClinicianAccount(user) && patients.length === 1 && invites.length === 0) {
         let patient = patients[0];
-        this.props.history.push(`/patients/${patient.userid}/data`);
+        let targetPath = `/patients/${patient.userid}/data`;
+
+        // If they are being redirected here after connecting to a provider, we open up the DataConnections modal
+        // immediately so that they can see the status of their connection.
+        if (location.query.dataConnectionStatus && location.query.dataConnectionProviderName) {
+          const status = location.query.dataConnectionStatus;
+          const providerName = location.query.dataConnectionProviderName;
+
+          targetPath = `/patients/${patient.userid}/data/settings`
+                     + `?dataConnectionStatus=${status}`
+                     + `&dataConnectionProviderName=${providerName}`;
+        }
+
+        this.props.history.push(targetPath);
       } else if (patients.length === 0 && invites.length === 0 && showingWelcomeMessage === null) {
         this.props.showWelcomeMessage();
       }

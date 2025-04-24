@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { boolean, optionsKnob as options } from '@storybook/addon-knobs';
+import { boolean as bool, optionsKnob as options } from '@storybook/addon-knobs';
 import { ThemeProvider } from '@emotion/react';
 import { Box } from 'theme-ui';
 import MoreHorizRoundedIcon from '@material-ui/icons/MoreHorizRounded';
@@ -24,7 +24,7 @@ export default {
   decorators: [withTheme],
 };
 
-const tabDisabled = (i) => boolean(`Tab ${i + 1} Disabled`, false);
+const tabDisabled = (i) => bool(`Tab ${i + 1} Disabled`, false);
 
 const orientations = {
   Horizontal: 'horizontal',

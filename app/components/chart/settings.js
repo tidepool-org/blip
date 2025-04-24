@@ -2,11 +2,17 @@ import _ from 'lodash';
 import bows from 'bows';
 import PropTypes from 'prop-types';
 import React, { useState, useCallback, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { Trans, withTranslation } from 'react-i18next';
-import { Flex, Box, Text } from 'theme-ui';
+import { Flex, Box, Text, Divider, Link } from 'theme-ui';
 import moment from 'moment-timezone';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 import DateRangeRoundedIcon from '@material-ui/icons/DateRangeRounded';
+import AddRoundedIcon from '@material-ui/icons/AddRounded';
+import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
+import launchCustomProtocol from 'custom-protocol-detection';
+import { DesktopOnly } from '../mediaqueries';
 
 import {
   bindPopover,
@@ -26,9 +32,20 @@ const deviceName = viz.utils.settings.deviceName;
 import Header from './header';
 import Button from '../elements/Button';
 import Popover from '../elements/Popover';
+import PopoverLabel from '../elements/PopoverLabel';
 import RadioGroup from '../../components/elements/RadioGroup';
 import { usePrevious } from '../../core/hooks';
+import { clinicPatientFromAccountInfo } from '../../core/personutils';
 import Icon from '../elements/Icon';
+import { useSelector } from 'react-redux';
+import DataConnections, { activeProviders } from '../../components/datasources/DataConnections';
+import DataConnectionsBanner from '../../components/elements/Card/Banners/DataConnections.png';
+import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
+import Card from '../elements/Card';
+import { Body1, MediumTitle } from '../elements/FontStyles';
+import Uploadlaunchoverlay from '../uploadlaunchoverlay';
+import api from '../../core/api';
+import styled from '@emotion/styled';
 
 const log = bows('Settings View');
 
@@ -49,6 +66,42 @@ function formatDuration(milliseconds) {
   return `>${years} year${years === 1 ? '' : 's'}`;
 }
 
+export const useLatestDatumTime = (tidepoolApi = api, uploadId) => {
+  const { id: patientId } = useParams();
+  const [latestTimestamp, setLatestTimestamp] = useState(null);
+
+  useEffect(() => {
+    setLatestTimestamp(null);
+
+    if (!uploadId) return;
+
+    const fetchOpts = {
+      uploadId,
+      type: ['cbg', 'smbg', 'basal', 'bolus', 'wizard', 'food', 'pumpSettings', 'upload'].join(','),
+      latest: 1,
+    };
+
+    tidepoolApi.patientData.get(patientId, fetchOpts, (err, latestDatums) => {
+      if (err || !latestDatums.length) return;
+
+      const latestISOTimestamp = _.maxBy(latestDatums, 'time')?.time;
+      const latestUnixTimestamp = latestISOTimestamp && moment(latestISOTimestamp).valueOf();
+
+      if (!latestUnixTimestamp) return;
+
+      setLatestTimestamp(latestUnixTimestamp);
+    });
+  }, [patientId, uploadId]);
+
+  return latestTimestamp;
+};
+
+const SettingsPopover = styled(Popover)`
+  .MuiPopover-paper {
+    overflow: hidden;
+  }
+`;
+
 const Settings = ({
   chartPrefs,
   data,
@@ -60,6 +113,8 @@ const Settings = ({
   onSwitchToBgLog,
   onClickPrint,
   patient,
+  clinicPatient,
+  isUserPatient,
   trackMetric,
   updateChartPrefs,
   uploadUrl,
@@ -67,6 +122,10 @@ const Settings = ({
   currentPatientInViewId,
   t
 }) => {
+  const { location } = useHistory();
+  const isJustConnected = !!location?.query?.dataConnectionStatus;
+
+  const [showDataConnectionsModal, setShowDataConnectionsModal] = useState(isJustConnected);
   const [atMostRecent, setAtMostRecent] = useState(true);
   const [inTransition, setInTransition] = useState(false);
   const [title, setTitle] = useState('');
@@ -78,6 +137,18 @@ const Settings = ({
   const [devices, setDevices] = useState([]);
   const [groupedData, setGroupedData] = useState([]);
   const previousSelectedDevice = usePrevious(selectedDevice);
+  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
+  const isClinicContext = !!selectedClinicId;
+  const [showUploadOverlay, setShowUploadOverlay] = useState(false);
+  const dataSources = useSelector(state => state.blip.dataSources);
+
+  const [latestUploadId, setLatestUploadId] = useState(null);
+  const latestDatumFromUploadTimestamp = useLatestDatumTime(api, latestUploadId);
+
+  const patientData = clinicPatient || {
+    ...clinicPatientFromAccountInfo(patient),
+    dataSources,
+  };
 
   const deviceSelectionPopupState = usePopupState({
     variant: 'popover',
@@ -93,8 +164,10 @@ const Settings = ({
 
   const timezoneName = _.get(data, 'timePrefs.timezoneName', 'UTC');
 
+  const combinedData = data?.data?.combined;
+
   useEffect(() => {
-    const sortedData = _.sortBy(_.filter(_.cloneDeep(data?.data?.combined), { type: 'pumpSettings' }), 'normalTime');
+    const sortedData = _.sortBy(_.filter(_.cloneDeep(combinedData), { type: 'pumpSettings' }), 'normalTime');
 
     let groupedBySource = _.groupBy(sortedData, 'source');
 
@@ -119,7 +192,19 @@ const Settings = ({
       group.reverse();
 
       group.forEach((obj, index) => {
-        const previousObj = index > 0 ? group[index - 1] : { normalTime: new Date().getTime() };
+        let previousObj = group[index - 1];
+
+        // For the latest setting option, there is no end date, but we need to display when those pumpSettings
+        // are known to be valid until. We instead use the latest timestamp of ANY datum within the same upload,
+        // assuming that those pumpSettings were at least valid until the latest timestamp of any other data
+        // in the upload it was batched together with.
+        if (index === 0) {
+          setLatestUploadId(obj.uploadId); // triggers a fetch for the latest datums of this upload id
+          const endTimestamp = latestDatumFromUploadTimestamp || obj.normalTime;
+
+          previousObj = { normalTime: endTimestamp };
+        }
+
         obj.previousNormalTime = previousObj.normalTime;
         obj.elapsedTime = previousObj.normalTime - obj.normalTime;
         obj.durationString = formatDuration(obj.elapsedTime);
@@ -183,6 +268,23 @@ const Settings = ({
     const selectedDevicePair = _.find(groupedData, { 0: selectedDevice });
     if(selectedDevice && selectedDevicePair) {
       setSettingsOptions(_.map(selectedDevicePair[1], (setting, index) => {
+        // If the latest setting option starts and ends on the same day, we show '(Last Upload Date)' in place of end date
+        const { previousNormalTime, normalTime } = setting;
+        const isSameDayAsLastUpload = index === 0 && (moment(previousNormalTime).isSame(normalTime, 'day'));
+
+        if (isSameDayAsLastUpload) {
+          return {
+            value: setting.id,
+            label: (
+              <span>
+                {moment(setting.normalTime).tz(timezoneName).format('MMM DD, YYYY')}
+                {' '}
+                {t('(Last Upload Date)')}
+              </span>
+            ),
+          };
+        }
+
         return {
           value: setting.id,
           label: (
@@ -259,6 +361,13 @@ const Settings = ({
     onSwitchToBgLog();
   }, [onSwitchToBgLog]);
 
+  const handleClickDataConnections = function(source) {
+    const properties = { patientID: currentPatientInViewId, source };
+    if (selectedClinicId) properties.clinicId = selectedClinicId;
+    trackMetric('Clicked Settings Add Data Connections', properties);
+    setShowDataConnectionsModal(true);
+  };
+
   const toggleSettingsSection = useCallback((deviceKey, scheduleOrProfileKey) => {
     const prefs = _.cloneDeep(chartPrefs);
 
@@ -272,6 +381,242 @@ const Settings = ({
 
     updateChartPrefs(prefs, false);
   }, [chartPrefs, updateChartPrefs]);
+
+  const renderDeviceSettingsSelectionUI = () => (
+  <Flex
+    id="device-settings-selection"
+    mt={3}
+    mb={5}
+    sx={{
+      flexWrap: ['wrap', null, null, 'nowrap'],
+      gap: 2,
+    }}
+  >
+      <Box
+        onClick={() => {
+          if (!deviceSelectionPopupState.isOpen)
+            trackMetric(prefixSettingsMetric('Device selection open'));
+        }}
+        sx={{ flexShrink: 0 }}
+      >
+        <Button
+          variant="filter"
+          id="device-selection"
+          {...bindTrigger(deviceSelectionPopupState)}
+          icon={KeyboardArrowDownRoundedIcon}
+          iconLabel="Select Device"
+          disabled={!devices.length}
+          sx={{
+            fontSize: 2,
+            lineHeight: 1.3,
+            fontWeight: 'bold',
+            px: 3,
+            py: 2,
+          }}
+        >
+          {_.find(devices, { value: selectedDevice })?.label ||
+            t('Select Device')}
+        </Button>
+      </Box>
+
+      <Popover
+        minWidth="11em"
+        closeIcon
+        {...bindPopover(deviceSelectionPopupState)}
+        onClickCloseIcon={() => {
+          trackMetric(prefixSettingsMetric('Device selection close'));
+        }}
+        onClose={() => {
+          deviceSelectionPopupState.close();
+        }}
+      >
+        <DialogContent px={2} py={3} dividers>
+          <RadioGroup
+            id="device"
+            name="device"
+            options={devices}
+            variant="vertical"
+            sx={{ fontSize: 0 }}
+            value={pendingDevice || selectedDevice}
+            onChange={(event) => {
+              setPendingDevice(event.target.value || null);
+            }}
+          />
+        </DialogContent>
+
+        <DialogActions sx={{ justifyContent: 'space-between' }} p={1}>
+          <Button
+            id="cancel-device-selection"
+            sx={{ fontSize: 1 }}
+            variant="textSecondary"
+            onClick={() => {
+              trackMetric(
+                prefixSettingsMetric('Device selection cancel')
+              );
+              setPendingDevice(null);
+              deviceSelectionPopupState.close();
+            }}
+          >
+            {t('Cancel')}
+          </Button>
+
+          <Button
+            id="apply-device-selection"
+            disabled={!pendingDevice}
+            sx={{ fontSize: 1 }}
+            variant="textPrimary"
+            onClick={() => {
+              trackMetric(
+                prefixSettingsMetric('Device selection apply')
+              );
+              setSelectedDevice(pendingDevice);
+              deviceSelectionPopupState.close();
+            }}
+          >
+            {t('Apply')}
+          </Button>
+        </DialogActions>
+      </Popover>
+
+      <Box sx={{ fontSize: 1, alignSelf: 'center', flexShrink: 0 }}>
+        &mdash; View settings from
+      </Box>
+
+      <Box
+        onClick={() => {
+          if (!settingsSelectionPopupState.isOpen)
+            trackMetric(
+              prefixSettingsMetric('Settings selection open')
+            );
+        }}
+        sx={{ flexShrink: 0, alignItems: 'center' }}
+      >
+        <Button
+          variant="filter"
+          id="settings-selection"
+          {...bindTrigger(settingsSelectionPopupState)}
+          icon={KeyboardArrowDownRoundedIcon}
+          iconLabel="Select Settings"
+          disabled={!settingsOptions.length}
+          sx={{
+            fontSize: 1,
+            lineHeight: 1.2,
+            px: 3,
+            py: 2,
+          }}
+        >
+          <Icon
+            variant="default"
+            sx={{
+              mr: 2,
+            }}
+            label="Select Settings"
+            icon={DateRangeRoundedIcon}
+          />
+          <span style={{ alignSelf: 'end'}}>
+            {_.find(settingsOptions, { value: selectedSettingsId })
+              ?.label || t('Select Settings')}
+          </span>
+        </Button>
+      </Box>
+
+      <SettingsPopover
+        minWidth="11em"
+        closeIcon
+        {...bindPopover(settingsSelectionPopupState)}
+        onClickCloseIcon={() => {
+          trackMetric(prefixSettingsMetric('Settings selection close'));
+        }}
+        onClose={() => {
+          settingsSelectionPopupState.close();
+        }}
+      >
+        <DialogContent px={2} py={3} dividers>
+          <Box sx={{ alignItems: 'center' }} mb={2}>
+            <Text
+              sx={{
+                color: 'grays.4',
+                fontWeight: 'medium',
+                fontSize: 0,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {t('Past therapy settings')}
+            </Text>
+          </Box>
+
+          <RadioGroup
+            id="settings"
+            name="settings"
+            options={settingsOptions}
+            variant="vertical"
+            sx={{ fontSize: 0, maxHeight: '40vh' }}
+            value={pendingSettings || selectedSettingsId}
+            onChange={(event) => {
+              setPendingSettings(event.target.value || null);
+            }}
+          />
+        </DialogContent>
+
+        <DialogActions sx={{ justifyContent: 'space-between' }} p={1}>
+          <Button
+            id="cancel-settings-selection"
+            sx={{ fontSize: 1 }}
+            variant="textSecondary"
+            onClick={() => {
+              trackMetric(
+                prefixSettingsMetric('Settings selection cancel')
+              );
+              setPendingSettings(null);
+              settingsSelectionPopupState.close();
+            }}
+          >
+            {t('Cancel')}
+          </Button>
+
+          <Button
+            id="apply-settings-selection"
+            disabled={!pendingSettings}
+            sx={{ fontSize: 1 }}
+            variant="textPrimary"
+            onClick={() => {
+              trackMetric(
+                prefixSettingsMetric('Settings selection apply')
+              );
+              setSelectedSettingsId(pendingSettings);
+              settingsSelectionPopupState.close();
+            }}
+          >
+            {t('Apply')}
+          </Button>
+        </DialogActions>
+      </SettingsPopover>
+
+      <PopoverLabel
+        id="device-settings-info"
+        icon={InfoRoundedIcon}
+        popoverContent={(
+          <Body1 id="device-settings-info-message">{t('If multiple device settings changes were made in a single day, only the final settings are shown.')}</Body1>
+        )}
+        popoverProps={{
+          anchorOrigin: {
+            vertical: 'center',
+            horizontal: 'right',
+          },
+          transformOrigin: {
+            vertical: 'center',
+            horizontal: 'left',
+          },
+          width: 'auto',
+          marginTop: 0,
+          marginBottom: 0,
+          marginLeft: '8px',
+          marginRight: '8px',
+        }}
+        triggerOnHover
+      />
+    </Flex>
+  );
 
   const renderChart = () => {
     const pumpSettings = _.find(groupedData, { 0: selectedDevice })?.[1];
@@ -294,265 +639,153 @@ const Settings = ({
   };
 
   const renderMissingSettingsMessage = () => {
-    const handleClickUpload = () => {
-      trackMetric('Clicked Partial Data Upload, No Settings');
+    const handleClickUpload = function(e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      const properties = { patientID: currentPatientInViewId };
+      if (selectedClinicId) properties.clinicId = selectedClinicId;
+      trackMetric('Clicked Partial Data Upload, No Settings', properties);
+      setShowUploadOverlay(true);
+      launchCustomProtocol('tidepoolupload://open');
     };
 
     return (
-      <Trans className="patient-data-message patient-data-message-loading" i18nKey="html.setting-no-uploaded-data">
-        <p>The Device Settings view shows your basal rates, carb ratios, sensitivity factors and more, but it looks like you haven't uploaded pump data yet.</p>
-        <p>To see your Device Settings, <a
+      <Trans i18nKey="html.setting-no-uploaded-data">
+        <Body1 sx={{ fontWeight: 'medium' }}>
+          This section shows basal rates, carb ratios, sensitivity factors, and more. To see Therapy Settings, <Link
             href={uploadUrl}
             target="_blank"
             rel="noreferrer noopener"
-            onClick={handleClickUpload}>upload</a> your pump.</p>
-        <p>
-          If you just uploaded, try <a href="" onClick={onClickNoDataRefresh}>refreshing</a>.
-        </p>
+            onClick={handleClickUpload}
+          >upload</Link> data from a pump. If you just uploaded try <Link href="" onClick={onClickNoDataRefresh}>refreshing</Link>.
+        </Body1>
       </Trans>
     );
   };
 
+  const renderDeviceConnectionCard = () => {
+    const cardProps = {
+      id: 'data-connections-card',
+      title: t('Connect a Device Account'),
+      subtitle: isUserPatient
+        ? t('Do you have a Dexcom or twiist device? When you connect a device account, data can flow into Tidepool without any extra effort.')
+        : t('Does your patient use a Dexcom or twiist device? Automatically sync data from those devices with the patient\'s permission.'),
+      bannerImage: DataConnectionsBanner,
+      onClick: handleClickDataConnections.bind(null, 'card'),
+      variant: 'containers.cardHorizontal',
+    };
+
+    return (
+      <Card {...cardProps} />
+    );
+  };
+
+  const renderDataConnectionsModal = () => (
+    <DataConnectionsModal
+      open
+      patient={clinicPatient || patient}
+      onClose={() => setShowDataConnectionsModal(false)}
+    />
+  );
+
+  const renderDataConnections = () => {
+    const shownProviders = _.map(patientData?.dataSources, 'providerName');
+
+    return (
+      <Box>
+        <Flex mb={3} sx={{ justifyContent: 'space-between', flexWrap: ['wrap', 'nowrap'] }}>
+          <DesktopOnly>
+            <MediumTitle sx={{ color: 'black' }}>{t('Devices')}</MediumTitle>
+          </DesktopOnly>
+
+          <Button
+            id="add-data-connections"
+            variant="primaryCondensed"
+            icon={AddRoundedIcon}
+            iconPosition="left"
+            onClick={handleClickDataConnections.bind(null, 'button')}
+            sx={{ fontSize: 1, '.icon': { fontSize: '1.25em' }, flex: ['initial'], width: ['100%', '100%', 'auto'] }}
+          >
+            {t('Add a Device')}
+          </Button>
+        </Flex>
+
+        <DataConnections mb={4} patient={patientData} shownProviders={shownProviders} trackMetric={trackMetric} />
+      </Box>
+    );
+  };
+
+  const renderUploadOverlay = () => (
+    <Uploadlaunchoverlay modalDismissHandler={() => setShowUploadOverlay(false)}/>
+  );
+
   return (
-    <div id="tidelineMain">
-      <Header
-        chartType="settings"
-        patient={patient}
-        atMostRecent={atMostRecent}
-        inTransition={inTransition}
-        title={title}
-        onClickMostRecent={handleClickMostRecent}
-        onClickBasics={onSwitchToBasics}
-        onClickOneDay={handleClickOneDay}
-        onClickTrends={handleClickTrends}
-        onClickRefresh={onClickRefresh}
-        onClickSettings={handleClickSettings}
-        onClickBgLog={handleClickBgLog}
-        onClickPrint={handleClickPrint}
-      />
-      <div className="container-box-outer patient-data-content-outer">
-        <div className="container-box-inner patient-data-content-inner">
-          <div className="patient-data-content">
-            <Flex mt={4} mb={5} pl={manufacturer === 'tandem' ? '20px' : 0}>
-              <Box
-                onClick={() => {
-                  if (!deviceSelectionPopupState.isOpen)
-                    trackMetric(prefixSettingsMetric('Device selection open'));
-                }}
-                sx={{ flexShrink: 0 }}
-              >
-                <Button
-                  variant="filter"
-                  id="device-selection"
-                  {...bindTrigger(deviceSelectionPopupState)}
-                  icon={KeyboardArrowDownRoundedIcon}
-                  iconLabel="Select Device"
-                  disabled={!devices.length}
-                  sx={{
-                    fontSize: 2,
-                    lineHeight: 1.3,
-                    ml: 2,
-                    mr: 2,
-                    fontWeight: 'bold',
-                    px: 3,
-                    py: 2,
-                  }}
-                >
-                  {_.find(devices, { value: selectedDevice })?.label ||
-                    t('Select Device')}
-                </Button>
-              </Box>
+    <div id="tidelineMain" className="settings">
+      <Box variant="containers.patientData">
+        <Header
+          chartType="settings"
+          patient={patient}
+          atMostRecent={atMostRecent}
+          inTransition={inTransition}
+          title={title}
+          onClickMostRecent={handleClickMostRecent}
+          onClickBasics={onSwitchToBasics}
+          onClickOneDay={handleClickOneDay}
+          onClickTrends={handleClickTrends}
+          onClickRefresh={onClickRefresh}
+          onClickSettings={handleClickSettings}
+          onClickBgLog={handleClickBgLog}
+          onClickPrint={handleClickPrint}
+        />
 
-              <Popover
-                minWidth="11em"
-                closeIcon
-                {...bindPopover(deviceSelectionPopupState)}
-                onClickCloseIcon={() => {
-                  trackMetric(prefixSettingsMetric('Device selection close'));
-                }}
-                onClose={() => {
-                  deviceSelectionPopupState.close();
-                }}
-              >
-                <DialogContent px={2} py={3} dividers>
-                  <RadioGroup
-                    id="device"
-                    name="device"
-                    options={devices}
-                    variant="vertical"
-                    sx={{ fontSize: 0 }}
-                    value={pendingDevice || selectedDevice}
-                    onChange={(event) => {
-                      setPendingDevice(event.target.value || null);
-                    }}
-                  />
-                </DialogContent>
-
-                <DialogActions sx={{ justifyContent: 'space-between' }} p={1}>
-                  <Button
-                    id="cancel-device-selection"
-                    sx={{ fontSize: 1 }}
-                    variant="textSecondary"
-                    onClick={() => {
-                      trackMetric(
-                        prefixSettingsMetric('Device selection cancel')
-                      );
-                      setPendingDevice(null);
-                      deviceSelectionPopupState.close();
-                    }}
-                  >
-                    {t('Cancel')}
-                  </Button>
-
-                  <Button
-                    id="apply-device-selection"
-                    disabled={!pendingDevice}
-                    sx={{ fontSize: 1 }}
-                    variant="textPrimary"
-                    onClick={() => {
-                      trackMetric(
-                        prefixSettingsMetric('Device selection apply')
-                      );
-                      setSelectedDevice(pendingDevice);
-                      deviceSelectionPopupState.close();
-                    }}
-                  >
-                    {t('Apply')}
-                  </Button>
-                </DialogActions>
-              </Popover>
-
-              <Box sx={{ fontSize: 1, alignSelf: 'center' }}>
-                &mdash; View settings from
-              </Box>
-
-              <Box
-                onClick={() => {
-                  if (!settingsSelectionPopupState.isOpen)
-                    trackMetric(
-                      prefixSettingsMetric('Settings selection open')
-                    );
-                }}
-                sx={{ flexShrink: 0, alignItems: 'center' }}
-              >
-                <Button
-                  variant="filter"
-                  id="settings-selection"
-                  {...bindTrigger(settingsSelectionPopupState)}
-                  icon={KeyboardArrowDownRoundedIcon}
-                  iconLabel="Select Settings"
-                  disabled={!settingsOptions.length}
-                  sx={{
-                    fontSize: 1,
-                    lineHeight: 1.2,
-                    ml: 2,
-                    mr: 2,
-                    px: 3,
-                    py: 2,
-                  }}
-                >
-                  <Icon
-                    variant="default"
-                    sx={{
-                      mr: 2,
-                    }}
-                    label="Select Settings"
-                    icon={DateRangeRoundedIcon}
-                  />
-                  <span style={{ alignSelf: 'end'}}>
-                    {_.find(settingsOptions, { value: selectedSettingsId })
-                      ?.label || t('Select Settings')}
-                  </span>
-                </Button>
-              </Box>
-
-              <Popover
-                minWidth="11em"
-                closeIcon
-                {...bindPopover(settingsSelectionPopupState)}
-                onClickCloseIcon={() => {
-                  trackMetric(prefixSettingsMetric('Settings selection close'));
-                }}
-                onClose={() => {
-                  settingsSelectionPopupState.close();
-                }}
-              >
-                <DialogContent px={2} py={3} dividers>
-                  <Box sx={{ alignItems: 'center' }} mb={2}>
-                    <Text
-                      sx={{
-                        color: 'grays.4',
-                        fontWeight: 'medium',
-                        fontSize: 0,
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {t('Past therapy settings')}
-                    </Text>
+        <Box variant="containers.patientDataInner">
+          <Box className="patient-data-content" variant="containers.patientDataContent">
+            <Flex
+              sx={{
+                flexDirection: 'column',
+                justifyContent: ['flex-start', 'space-between'],
+                height: ['auto', '100%'],
+              }}
+            >
+              <Box>
+                {(isClinicContext || isUserPatient) && (
+                  <Box id="data-connections-wrapper">
+                    {patientData?.dataSources?.length > 0 ? renderDataConnections() : renderDeviceConnectionCard()}
                   </Box>
+                )}
 
-                  <RadioGroup
-                    id="settings"
-                    name="settings"
-                    options={settingsOptions}
-                    variant="vertical"
-                    sx={{ fontSize: 0 }}
-                    value={pendingSettings || selectedSettingsId}
-                    onChange={(event) => {
-                      setPendingSettings(event.target.value || null);
-                    }}
-                  />
-                </DialogContent>
+                <DesktopOnly>
+                  <Divider my={4} />
+                  <MediumTitle mb={2} sx={{ color: 'black' }}>{t('Therapy Settings')}</MediumTitle>
 
-                <DialogActions sx={{ justifyContent: 'space-between' }} p={1}>
-                  <Button
-                    id="cancel-settings-selection"
-                    sx={{ fontSize: 1 }}
-                    variant="textSecondary"
-                    onClick={() => {
-                      trackMetric(
-                        prefixSettingsMetric('Settings selection cancel')
-                      );
-                      setPendingSettings(null);
-                      settingsSelectionPopupState.close();
-                    }}
-                  >
-                    {t('Cancel')}
-                  </Button>
+                  {selectedSettingsId ? (
+                    <>
+                      {renderDeviceSettingsSelectionUI()}
+                      {renderChart()}
+                    </>
+                  ) : renderMissingSettingsMessage()}
+                </DesktopOnly>
+              </Box>
 
-                  <Button
-                    id="apply-settings-selection"
-                    disabled={!pendingSettings}
-                    sx={{ fontSize: 1 }}
-                    variant="textPrimary"
-                    onClick={() => {
-                      trackMetric(
-                        prefixSettingsMetric('Settings selection apply')
-                      );
-                      setSelectedSettingsId(pendingSettings);
-                      settingsSelectionPopupState.close();
-                    }}
-                  >
-                    {t('Apply')}
-                  </Button>
-                </DialogActions>
-              </Popover>
-            </Flex>
-
-            {selectedSettingsId ? renderChart() : renderMissingSettingsMessage()}
-
-            <Box mt={4} mb={5} pl={manufacturer === 'tandem' ? '20px' : 0} sx={{ float: 'left', clear: 'both' }}>
               <Button
                 className="btn-refresh"
-                variant="secondary"
+                variant="secondaryCondensed"
                 onClick={onClickRefresh}
+                mt={4}
+                sx={{ width: 'fit-content', alignSelf: ['center', null, 'flex-start'] }}
               >
                 {t('Refresh')}
               </Button>
-            </Box>
-          </div>
-        </div>
-      </div>
+            </Flex>
+          </Box>
+        </Box>
+
+        {showDataConnectionsModal && renderDataConnectionsModal()}
+        {showUploadOverlay && renderUploadOverlay()}
+      </Box>
     </div>
   );
 };

@@ -31,6 +31,7 @@ import config from './config';
 import api from './core/api';
 import personUtils from './core/personutils';
 import detectTouchScreen from './core/notouch';
+import utils from './core/utils';
 
 /* global __DEV_TOOLS__ */
 
@@ -46,10 +47,26 @@ export let appContext = {
 };
 
 appContext.trackMetric = (...args) => {
-  let selectedClinicId = appContext.store?.getState()?.blip?.selectedClinicId;
-  if (selectedClinicId) {
-    _.defaultsDeep(args, [, { clinicId: selectedClinicId }]);
-  }
+  const state = appContext.store?.getState();
+
+  const selectedClinicId = state?.blip?.selectedClinicId;
+  const loggedInUserId = state?.blip?.loggedInUserId;
+  const user = state?.blip?.allUsersMap?.[loggedInUserId];
+
+  const clinician = personUtils.isClinicianAccount(user);
+  const mobile = utils.isMobile();
+
+  let eventMetadata = {
+    selectedClinicId,
+    clinician,
+    mobile,
+  };
+
+  // Empty values should be omitted from the metadata object to prevent sending blank query params
+  const filteredEventMetadata = _.omitBy(eventMetadata, _.isNil);
+
+  _.defaultsDeep(args, [, filteredEventMetadata]);
+
   return appContext.api.metrics.track.apply(appContext.api.metrics, args);
 };
 

@@ -13,6 +13,8 @@ import { ToastProvider } from '../../../app/providers/ToastProvider';
 import TideDashboard from '../../../app/pages/dashboard/TideDashboard';
 import Popover from '../../../app/components/elements/Popover';
 import TideDashboardConfigForm from '../../../app/components/clinic/TideDashboardConfigForm';
+import DataConnections from '../../../app/components/datasources/DataConnections';
+import DataConnectionsModal from '../../../app/components/datasources/DataConnectionsModal';
 import { clinicUIDetails } from '../../../app/core/clinicUtils';
 import mockTideDashboardPatients from '../../fixtures/mockTideDashboardPatients.json';
 import LDClientMock from '../../fixtures/LDClientMock';
@@ -63,6 +65,13 @@ describe('TideDashboard', () => {
       showSummaryDashboard: true,
     }));
 
+    DataConnections.__Rewire__('api', defaultProps.api);
+    DataConnectionsModal.__Rewire__('api', defaultProps.api);
+    DataConnectionsModal.__Rewire__('useHistory', sinon.stub().returns({
+      location: { query: {}, pathname: '/settings' },
+      replace: sinon.stub(),
+    }));
+
     TideDashboard.__Rewire__('useLocation', sinon.stub().returns({
       search: '',
       pathname: '/dashboard/tide'
@@ -76,6 +85,9 @@ describe('TideDashboard', () => {
   afterEach(() => {
     TideDashboard.__ResetDependency__('useLDClient');
     TideDashboard.__ResetDependency__('useFlags');
+    DataConnections.__ResetDependency__('api');
+    DataConnectionsModal.__ResetDependency__('api');
+    DataConnectionsModal.__ResetDependency__('useHistory');
   });
 
   const sampleTags = [
@@ -199,7 +211,7 @@ describe('TideDashboard', () => {
         fetchingPatientFromClinic: defaultWorkingState,
         fetchingTideDashboardPatients: completedState,
         updatingClinicPatient: defaultWorkingState,
-        sendingPatientDexcomConnectRequest: defaultWorkingState,
+        sendingPatientDataProviderConnectRequest: defaultWorkingState,
         settingClinicPatientLastReviewed: defaultWorkingState,
         revertingClinicPatientLastReviewed: defaultWorkingState,
       },
@@ -599,7 +611,7 @@ describe('TideDashboard', () => {
       expect(getTableRow(0, 0).find('th').at(9).text()).contains('Tags');
       expect(getTableRow(0, 2).find('td').at(8).text()).contains('test tag 1');
 
-      // Should contain a "more" menu that allows opening a patient edit dialog
+      // Should contain a "more" menu that allows opening a patient edit dialog and opening a patient data connections dialog
       const moreMenuIcon = getTableRow(0, 2).find('td').at(9).find('PopoverMenu').find('Icon').at(0);
       const popoverMenu = () => wrapper.find(Popover).at(4);
       expect(popoverMenu().props().open).to.be.false;
@@ -609,15 +621,29 @@ describe('TideDashboard', () => {
       const editButton = popoverMenu().find('Button[iconLabel="Edit Patient Information"]');
       expect(editButton).to.have.lengthOf(1);
 
-      const dialog = () => wrapper.find('Dialog#editPatient');
-      expect(dialog()).to.have.length(0);
+      const editDialog = () => wrapper.find('Dialog#editPatient');
+      expect(editDialog()).to.have.length(0);
       editButton.simulate('click');
       wrapper.update();
-      expect(dialog()).to.have.length(1);
-      expect(dialog().props().open).to.be.true;
+      expect(editDialog()).to.have.length(1);
+      expect(editDialog().props().open).to.be.true;
 
       expect(defaultProps.trackMetric.calledWith('Clinic - Edit patient')).to.be.true;
       expect(defaultProps.trackMetric.callCount).to.equal(1);
+
+      const dataConnectionsButton = popoverMenu().find('Button[iconLabel="Bring Data into Tidepool"]');
+      expect(dataConnectionsButton).to.have.lengthOf(1);
+
+      const dataConnectionsDialog = () => wrapper.find('Dialog#data-connections');
+      expect(dataConnectionsDialog()).to.have.length(0);
+
+      dataConnectionsButton.simulate('click');
+      wrapper.update();
+      expect(dataConnectionsDialog()).to.have.length(1);
+      expect(dataConnectionsDialog().props().open).to.be.true;
+
+      expect(defaultProps.trackMetric.calledWith('Clinic - Edit patient data connections')).to.be.true;
+      expect(defaultProps.trackMetric.callCount).to.equal(2);
 
       // Confirm second table is sorted appropriately
       expect(getTableRow(1, 0).find('th').at(5).text()).contains('% Time 54-70');
@@ -729,7 +755,7 @@ describe('TideDashboard', () => {
       expect(store.getActions()).to.eql([
         {
           type: '@@router/CALL_HISTORY_METHOD',
-          payload: { method: 'push', args: [`/patients/${expectedPatientId}/data?chart=trends&dashboard=tide`]}
+          payload: { method: 'push', args: [`/patients/${expectedPatientId}/data/trends?dashboard=tide`]}
         },
       ]);
     });
