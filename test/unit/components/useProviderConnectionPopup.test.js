@@ -16,7 +16,7 @@ import { mountWithProviders } from '../../utils/mountWithProviders';
 
 const expect = chai.expect;
 
-describe.only('useProviderConnectionPopup', function () {
+describe('useProviderConnectionPopup', function () {
   let wrapper, store;
 
   const setToast = sinon.stub();
