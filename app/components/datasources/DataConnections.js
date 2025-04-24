@@ -87,7 +87,7 @@ export const providers = {
       providerName: 'twiist',
     },
     logoImage: twiistLogo,
-    lastImportTimeOptional: true,
+    indeterminateDataImportTime: true,
   },
 };
 
@@ -184,7 +184,7 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
   let patientConnectedIcon;
   let patientConnectedText = t('Connected');
 
-  if (!dataSource?.lastImportTime && !providers[providerName]?.lastImportTimeOptional) {
+  if (!dataSource?.lastImportTime && !providers[providerName]?.indeterminateDataImportTime) {
     patientConnectedMessage = t('This can take a few minutes');
     patientConnectedText = t('Connecting');
   } else if (!dataSource?.latestDataTime) {
