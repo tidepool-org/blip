@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { withTranslation, Trans } from 'react-i18next';
@@ -136,7 +136,7 @@ export const ClinicDetails = (props) => {
     if (referrer) dispatch(push(referrer));
   }
 
-  function redirectToWorkspace() {
+  const redirectToWorkspace = useCallback(() => {
     const redirectPath = isEmpty(pendingReceivedClinicianInvites) && keys(clinics).length === 1
       ? '/clinic-workspace'
       : '/workspaces';
@@ -149,7 +149,11 @@ export const ClinicDetails = (props) => {
     };
 
     dispatch(push(redirectPath, redirectState));
-  }
+  }, [
+    dispatch,
+    pendingReceivedClinicianInvites,
+    clinics,
+  ]);
 
   useEffect(() => {
     if (pendingReceivedClinicianInvites.length) {
@@ -169,14 +173,21 @@ export const ClinicDetails = (props) => {
           // clinic patients have not been migrated, we open the prompt to complete the migration
           openMigrationConfirmationModal();
         } else {
-          if (action !== 'new' || (action === 'new' && previousSubmitting)) {
+          if (action !== 'new') {
             // If there is no reason for the user to be here, we redirect them appropriately
             redirectToWorkspace();
           }
         }
       }
     }
-  }, [clinic, submitting]);
+  }, [
+    action,
+    clinic,
+    submitting,
+    previousSubmitting,
+    userHasClinicProfile,
+    redirectToWorkspace,
+  ]);
 
   // Fetchers
   useEffect(() => {
@@ -276,10 +287,21 @@ export const ClinicDetails = (props) => {
             message: t('"{{name}}" clinic created', clinics[clinicId]),
             variant: 'success',
           });
+
+          redirectToWorkspace();
         }
       }
     }
-  }, [working.updatingClinic, working.creatingClinic]);
+  }, [
+    working,
+    previousWorking,
+    action,
+    clinic,
+    clinics,
+    redirectToWorkspace,
+    setToast,
+    t,
+  ]);
 
   useEffect(() => {
     const {
