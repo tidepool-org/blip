@@ -95,7 +95,6 @@ export const ClinicDetails = (props) => {
   const [logoutPending, setLogoutPending] = useState(false);
   const [clinicInvite, setClinicInvite] = useState();
   const [formikReady, setFormikReady] = useState(false);
-  const previousSubmitting = usePrevious(submitting);
   const location = useLocation();
   const referrer = location.state?.referrer;
   const isUploadLaunch = referrer === 'upload-launch';
@@ -184,7 +183,6 @@ export const ClinicDetails = (props) => {
     action,
     clinic,
     submitting,
-    previousSubmitting,
     userHasClinicProfile,
     redirectToWorkspace,
   ]);
