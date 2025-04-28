@@ -1718,37 +1718,27 @@ export const ClinicPatients = (props) => {
                             }
                           </>
                         ) : (
-
-                            // If no tags exist, display a message
-                            <Box>
-                              <Box
-                                sx={{
-                                  fontSize: 1,
-                                  color: colors.gray50,
-                                  lineHeight: 1,
-                                }}
-                              >
-                                {t('Tags help you segment your patient population based on criteria you define, such as clinician, type of diabetes, or care groups.')}
-                              </Box>
-                              { !isClinicAdmin &&
-                                <Box
-                                  mt={2}
-                                  pt={2}
-                                  sx={{
-                                    borderTop: `1px solid ${colors.gray05}`,
-                                    fontSize: 0,
-                                    color: colors.gray50,
-                                    lineHeight: 1,
-                                  }}>
-                                  <Trans t={t}>
-                                    Tags can only be created by your Workspace Admins. Not sure who the admins are? Check the Clinic Members list in your&nbsp;
-                                    <RouterLink to='/clinic-admin' style={{ color: colors.purpleBright }}>Workspace Settings.</RouterLink>
-                                  </Trans>
-                                </Box>
-                              }
+                          // If no tags exist, display a message
+                          <Box>
+                            <Box
+                              sx={{ fontSize: 1, color: colors.gray50, lineHeight: 1 }}
+                            >
+                              {t('Tags help you segment your patient population based on criteria you define, such as clinician, type of diabetes, or care groups.')}
                             </Box>
-                          )
-                        }
+                            { !isClinicAdmin &&
+                              <Box
+                                mt={2}
+                                pt={2}
+                                sx={{ borderTop: `1px solid ${colors.gray05}`, fontSize: 0, color: colors.gray50, lineHeight: 1 }}>
+                                <Trans t={t}>
+                                  Tags can only be created by your Workspace Admins. Not sure who the admins are? Check the Clinic Members list in your&nbsp;
+                                  <RouterLink to='/clinic-admin' style={{ color: colors.purpleBright }}>Workspace Settings.</RouterLink>
+                                </Trans>
+                              </Box>
+                            }
+                          </Box>
+                        )
+                      }
                       </Box>
                     </DialogContent>
 
