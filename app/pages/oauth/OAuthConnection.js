@@ -147,7 +147,7 @@ export const OAuthConnection = (props) => {
           </Box>
         )}
 
-        { utils.isMobile() && // on desktop, users can just close the pop-up
+        {!isCustodial && utils.isMobile() && // on desktop, non-custodial users can just close the pop-up
           <Button
             id="oauth-redirect-home-button"
             variant="primary"
