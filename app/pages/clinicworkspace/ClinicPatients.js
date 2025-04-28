@@ -1670,33 +1670,54 @@ export const ClinicPatients = (props) => {
                         </Box>
 
                         { patientTagsFilterOptions.length > 0 ? (
+                          <>
+                            {
+                              // If tags exist, render a list of checkboxes
+                              patientTagsFilterOptions.map(({ id, label }) => {
+                                const { patientTags } = pendingFilters;
+                                const isChecked = patientTags?.includes(id);
 
-                            // If tags exist, render a list of checkboxes
-                            patientTagsFilterOptions.map(({ id, label }) => {
-                              const { patientTags } = pendingFilters;
-                              const isChecked = patientTags?.includes(id);
+                                console.log(patientTags);
 
-                              return (
-                                <Box mt={1}>
-                                  <Checkbox
-                                    checked={isChecked}
-                                    onChange={() => {
-                                      if (isChecked) {
-                                        setPendingFilters({ ...pendingFilters, patientTags: without(patientTags, id) });
-                                      } else {
-                                        setPendingFilters({ ...pendingFilters, patientTags: [...patientTags, id] });
-                                      }
-                                    }}
-                                    label={(
-                                      <Text sx={{ fontSize: 0, fontWeight: 'normal' }}>
-                                        {label}
-                                      </Text>
-                                    )}
-                                  />
-                                </Box>
-                              );
-                            })
-                          ) : (
+                                return (
+                                  <Box mt={1}>
+                                    <Checkbox
+                                      checked={isChecked}
+                                      onChange={() => {
+                                        if (isChecked) {
+                                          setPendingFilters({ ...pendingFilters, patientTags: without(patientTags, id) });
+                                        } else {
+                                          setPendingFilters({ ...pendingFilters, patientTags: [...patientTags, id] });
+                                        }
+                                      }}
+                                      label={(
+                                        <Text sx={{ fontSize: 0, fontWeight: 'normal' }}>
+                                          {label}
+                                        </Text>
+                                      )}
+                                    />
+                                  </Box>
+                                );
+                              })
+                            }
+
+                            { pendingFilters.patientTags?.length > 0 &&
+                              <Box mt={3} pt={3} sx={{ borderTop: borders.divider }}>
+                                <Checkbox
+                                  checked={false}
+                                  onChange={() => {
+                                    setPendingFilters({ ...pendingFilters, patientTags: [] });
+                                  }}
+                                  label={(
+                                    <Text sx={{ fontSize: 0, fontWeight: 'normal' }}>
+                                      {t('Patients without any tags')}
+                                    </Text>
+                                  )}
+                                />
+                              </Box>
+                            }
+                          </>
+                        ) : (
 
                             // If no tags exist, display a message
                             <Box>
@@ -1747,7 +1768,7 @@ export const ClinicPatients = (props) => {
                           {t('Clear')}
                         </Button>
 
-                        <Button id="apply-patient-tags-filter" disabled={!pendingFilters.patientTags?.length} sx={{ fontSize: 1 }} variant="textPrimary" onClick={() => {
+                        <Button id="apply-patient-tags-filter" sx={{ fontSize: 1 }} variant="textPrimary" onClick={() => {
                           trackMetric(prefixPopHealthMetric('Patient tag filter apply'), { clinicId: selectedClinicId });
                           setActiveFilters(pendingFilters);
                           patientTagsPopupFilterState.close();
