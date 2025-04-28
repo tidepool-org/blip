@@ -2393,7 +2393,7 @@ export const ClinicPatients = (props) => {
             <Body1 sx={{ fontWeight: 'medium', fontSize: 3 }}>{t('Edit Tags')}</Body1>
           </DialogTitle>
 
-          <DialogContent pt={0} divider={false} sx={{ minWidth: ['100%', '512px'] }}>
+          <DialogContent pt={0} divider={false} sx={{ minWidth: '100%', maxHeight: '70vh' }}>
             <Formik
               initialValues={{ name: '' }}
               onSubmit={(tag, context) => {
