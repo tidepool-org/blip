@@ -3,7 +3,7 @@ import AppBanner from '../../providers/AppBanner/AppBanner';
 import useProviderConnectionPopup from '../../components/datasources/useProviderConnectionPopup';
 
 const AppWrapper = ({ trackMetric, children }) => {
-  useProviderConnectionPopup();
+  useProviderConnectionPopup({ trackMetric });
 
   return (
     <div className="app">

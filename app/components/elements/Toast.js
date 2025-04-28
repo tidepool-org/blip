@@ -6,6 +6,7 @@ import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
 import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
 import WarningRoundedIcon from '@material-ui/icons/WarningRounded';
 import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
+import { isEmpty } from 'lodash';
 import { Flex } from 'theme-ui';
 
 import { Body1 } from './FontStyles';
@@ -33,7 +34,7 @@ export function Toast(props) {
     if (reason !== 'clickaway') onClose();
   };
 
-  return (
+  return message && !isEmpty(message) ? (
     <Snackbar open={open} onClose={handleClose} {...snackbarProps}>
       <Flex
         sx={{ justifyContent: 'space-between', alignItems: 'center' }}
@@ -57,7 +58,7 @@ export function Toast(props) {
         />
       </Flex>
     </Snackbar>
-  );
+  ) : null;
 }
 
 Toast.displayName = 'Toast';

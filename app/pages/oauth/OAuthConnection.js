@@ -13,18 +13,20 @@ import utils from '../../core/utils';
 import Banner from '../../components/elements/Banner';
 import Button from '../../components/elements/Button';
 import { Title, Subheading, Body1 } from '../../components/elements/FontStyles';
-import { activeProviders } from '../../components/datasources/DataConnections';
+import { activeProviders, providers } from '../../components/datasources/DataConnections';
 
 const { Loader } = vizComponents;
 
 export const OAuthConnection = (props) => {
   const { t, trackMetric } = props;
   const { providerName, status } = useParams();
+  const { displayName } = providers[providerName] || {};
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search);
   const dispatch = useDispatch();
   const [isCustodial, setIsCustodial] = useState();
   const [authStatus, setAuthStatus] = useState();
+
 
   const statusContent = {
     authorized: {
@@ -32,9 +34,7 @@ export const OAuthConnection = (props) => {
       subheading: t('Thank you for connecting with Tidepool!'),
       message: t('We hope you enjoy your Tidepool experience.'),
       banner: {
-        message: t('You have successfully connected your {{providerName}} account to Tidepool.', {
-          providerName: capitalize(providerName),
-        }),
+        message: t('You have successfully connected your {{displayName}} data to Tidepool.', { displayName }),
         variant: 'success',
       },
     },
@@ -43,9 +43,7 @@ export const OAuthConnection = (props) => {
       subheading: t('You can always decide to connect at a later time.'),
       message: t('We hope you enjoy your Tidepool experience.'),
       banner: {
-        message: t('You have declined connecting your {{providerName}} account to Tidepool.', {
-          providerName: capitalize(providerName),
-        }),
+        message: t('You have declined connecting your {{displayName}} data to Tidepool.', { displayName }),
         variant: 'info',
       },
     },
@@ -53,9 +51,7 @@ export const OAuthConnection = (props) => {
       status: 'error',
       subheading: t('Hmm... That didn\'t work. Please try again.'),
       banner: {
-        message: t('We were unable to determine your {{providerName}} connection status.', {
-          providerName: capitalize(providerName),
-        }),
+        message: t('We were unable to determine your {{displayName}} connection status.', { displayName }),
         variant: 'danger',
       },
     },
@@ -84,7 +80,12 @@ export const OAuthConnection = (props) => {
     // patientId after the OAuth callback. We'll redirect back to '/patients' which does have
     // access to the patientId, with a flag to open the DataConnections modal back up on load.
     trackMetric('Oauth - Connection - Redirect back to Tidepool App', { providerName, status });
-    dispatch(push(`/patients?justLoggedIn=true&openDataConnectionsModalWithStatus=${status}`));
+
+    let path = '/patients?justLoggedIn=true'
+             + `&dataConnectionStatus=${status}`
+             + `&dataConnectionProviderName=${providerName}`;
+
+    dispatch(push(path));
 
     return;
   };

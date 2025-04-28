@@ -85,12 +85,17 @@ describe('ClinicPatients', () => {
     ClinicPatients.__Rewire__('useLDClient', sinon.stub().returns(new LDClientMock()));
     DataConnections.__Rewire__('api', defaultProps.api);
     DataConnectionsModal.__Rewire__('api', defaultProps.api);
+    DataConnectionsModal.__Rewire__('useHistory', sinon.stub().returns({
+      location: { query: {}, pathname: '/settings' },
+      replace: sinon.stub(),
+    }));
   });
 
   afterEach(() => {
     ClinicPatients.__ResetDependency__('useLDClient');
     DataConnections.__ResetDependency__('api');
     DataConnectionsModal.__ResetDependency__('api');
+    DataConnectionsModal.__ResetDependency__('useHistory');
   });
 
   after(() => {
