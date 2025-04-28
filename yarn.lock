@@ -5278,9 +5278,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.45.0":
-  version: 1.45.0
-  resolution: "@tidepool/viz@npm:1.45.0"
+"@tidepool/viz@npm:1.46.0-override-tooltip.1":
+  version: 1.46.0-override-tooltip.1
+  resolution: "@tidepool/viz@npm:1.46.0-override-tooltip.1"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -5340,7 +5340,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 284fed1d182fbd98cb0c16842a7142295ed0e7d3e4b6f58f2361a7b8d6bdf5691a9da83097b93b38adfdda558821850fe297616753ee59470aca728751e216cc
+  checksum: 71b3a37e50777d438239615c6544519fc4b96584ca946c34ac90f8d42cb7c56c4a74f2537da15b16f63f48b0fc581946a3c8d207273bae30dabd9aa18fbfba49
   languageName: node
   linkType: hard
 
@@ -7272,7 +7272,7 @@ __metadata:
     "@storybook/react": 7.5.0
     "@storybook/react-webpack5": 7.5.0
     "@testing-library/react-hooks": 8.0.1
-    "@tidepool/viz": 1.45.0
+    "@tidepool/viz": 1.46.0-override-tooltip.1
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
