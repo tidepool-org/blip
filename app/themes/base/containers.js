@@ -1,4 +1,4 @@
-export default ({ borders, colors, radii, space, breakpoints }) => {
+export default ({ borders, colors, radii, space, breakpoints, fonts, fontSizes, fontWeights }) => {
   const defaultStyles = {
     mx: [0, 'auto'],
     bg: colors.white,
@@ -52,6 +52,35 @@ export default ({ borders, colors, radii, space, breakpoints }) => {
     bg: colors.lightestGrey,
     p: space[3],
     mb: 0,
+  };
+
+  const infoWell = {
+    ...well,
+    bg: colors.bluePrimary00,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+    gap: 3,
+    py: 4,
+
+    '.icon': {
+      color: colors.bluePrimary30,
+      fontSize: fontSizes[4],
+    },
+
+    '.title': {
+      display: 'block',
+      fontFamily: fonts.default,
+      fontSize: fontSizes[1],
+      fontWeight: fontWeights.bold,
+    },
+
+    '.message': {
+      display: 'block',
+      fontFamily: fonts.default,
+      fontSize: fontSizes[1],
+      fontWeight: fontWeights.medium,
+    },
   };
 
   const card = {
@@ -133,6 +162,7 @@ export default ({ borders, colors, radii, space, breakpoints }) => {
     patientDataInner,
     patientDataContent,
     patientDataSidebar,
+    infoWell,
     fluid,
     fluidRounded: {
       ...fluid,
