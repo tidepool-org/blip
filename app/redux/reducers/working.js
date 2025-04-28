@@ -190,6 +190,7 @@ export default (state = initialWorkingState, action) => {
           types.FETCH_CLINIC_PATIENT_COUNT_REQUEST,
           types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST,
           types.FETCH_DATA_SOURCES_REQUEST,
+          types.CREATE_CLINIC_REQUEST
         ], action.type)) {
           return update(state, {
             [key]: {
