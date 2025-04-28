@@ -1677,11 +1677,10 @@ export const ClinicPatients = (props) => {
                                 const { patientTags } = pendingFilters;
                                 const isChecked = patientTags?.includes(id);
 
-                                console.log(patientTags);
-
                                 return (
-                                  <Box mt={1}>
+                                  <Box mt={1} className="clinic-patients-tag-list">
                                     <Checkbox
+                                      id={`tag-filter-option-${id}`}
                                       checked={isChecked}
                                       onChange={() => {
                                         if (isChecked) {
@@ -2476,7 +2475,7 @@ export const ClinicPatients = (props) => {
               </Box>
             }
 
-            <Box mt={1}>
+            <Box mt={1} id="clinic-patients-edit-tag-list">
               {
                 clinic?.patientTags?.map(({ id, name }) => (
                   <Grid py={2} sx={{
@@ -2485,8 +2484,9 @@ export const ClinicPatients = (props) => {
                     alignItems: 'center',
                   }}>
                     <Flex sx={{ alignItems: 'center'}}>
-                      <Text sx={{ fontSize: 1, color: 'text.primary' }}>{name}</Text>
+                      <Text className="tag-text" sx={{ fontSize: 1, color: 'text.primary' }}>{name}</Text>
                       <Icon
+                        id={`edit-clinic-patient-tag-${id}`}
                         icon={EditIcon}
                         sx={{ fontSize: 1, marginLeft: 2 }}
                         onClick={isClinicAdmin ? () => handleUpdateClinicPatientTag(id) : undefined}
@@ -2497,6 +2497,7 @@ export const ClinicPatients = (props) => {
                     </Box>
                     <Flex sx={{ justifyContent: 'flex-end' }}>
                       <Icon
+                        id={`delete-clinic-patient-tag-${id}`}
                         icon={DeleteIcon}
                         sx={{ fontSize: 1 }}
                         onClick={isClinicAdmin ? () => handleDeleteClinicPatientTag(id) : undefined}
