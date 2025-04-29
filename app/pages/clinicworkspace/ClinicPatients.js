@@ -1669,66 +1669,49 @@ export const ClinicPatients = (props) => {
                           }
                         </Box>
 
-                        { patientTagsFilterOptions.length > 0 ? (
-                          <>
-                            {
-                              // If tags exist, render a list of checkboxes
-                              patientTagsFilterOptions.map(({ id, label }) => {
-                                const { patientTags } = pendingFilters;
-                                const isChecked = patientTags?.includes(id);
+                        { // Render a list of checkboxes
+                          patientTagsFilterOptions.map(({ id, label }) => {
+                            const { patientTags } = pendingFilters;
+                            const isChecked = patientTags?.includes(id);
 
-                                return (
-                                  <Box mt={1} className="clinic-patients-tag-list">
-                                    <Checkbox
-                                      id={`tag-filter-option-${id}`}
-                                      checked={isChecked}
-                                      onChange={() => {
-                                        if (isChecked) {
-                                          setPendingFilters({ ...pendingFilters, patientTags: without(patientTags, id) });
-                                        } else {
-                                          setPendingFilters({ ...pendingFilters, patientTags: [...patientTags, id] });
-                                        }
-                                      }}
-                                      label={(
-                                        <Text sx={{ fontSize: 0, fontWeight: 'normal' }}>
-                                          {label}
-                                        </Text>
-                                      )}
-                                    />
-                                  </Box>
-                                );
-                              })
-                            }
-
-                            { pendingFilters.patientTags?.length > 0 &&
-                              <Box mt={3} pt={3} sx={{ borderTop: borders.divider }}>
+                            return (
+                              <Box mt={1} className="clinic-patients-tag-list">
                                 <Checkbox
-                                  checked={false}
+                                  id={`tag-filter-option-${id}`}
+                                  label={<Text sx={{ fontSize: 0, fontWeight: 'normal' }}>{label}</Text>}
+                                  checked={isChecked}
                                   onChange={() => {
-                                    setPendingFilters({ ...pendingFilters, patientTags: [] });
+                                    if (isChecked) {
+                                      setPendingFilters({ ...pendingFilters, patientTags: without(patientTags, id) });
+                                    } else {
+                                      setPendingFilters({ ...pendingFilters, patientTags: [...patientTags, id] });
+                                    }
                                   }}
-                                  label={(
-                                    <Text sx={{ fontSize: 0, fontWeight: 'normal' }}>
-                                      {t('Patients without any tags')}
-                                    </Text>
-                                  )}
                                 />
                               </Box>
-                            }
-                          </>
-                        ) : (
-                          // If no tags exist, display a message
+                            );
+                          })
+                        }
+
+                        { // If tags selected, show the option to clear all tags
+                          pendingFilters.patientTags?.length > 0 &&
+                          <Box mt={3} pt={3} sx={{ borderTop: borders.divider }}>
+                            <Checkbox
+                              label={<Text sx={{ fontSize: 0, fontWeight: 'normal' }}>{t('Patients without any tags')}</Text>}
+                              checked={false}
+                              onChange={() => setPendingFilters({ ...pendingFilters, patientTags: [] })}
+                            />
+                          </Box>
+                        }
+
+                        { // If no tags exist, display a message
+                          patientTagsFilterOptions.length <= 0 &&
                           <Box>
-                            <Box
-                              sx={{ fontSize: 1, color: colors.gray50, lineHeight: 1 }}
-                            >
+                            <Box sx={{ fontSize: 1, color: colors.gray50, lineHeight: 1 }}>
                               {t('Tags help you segment your patient population based on criteria you define, such as clinician, type of diabetes, or care groups.')}
                             </Box>
                             { !isClinicAdmin &&
-                              <Box
-                                mt={2}
-                                pt={2}
-                                sx={{ borderTop: `1px solid ${colors.gray05}`, fontSize: 0, color: colors.gray50, lineHeight: 1 }}>
+                              <Box mt={3} pt={3} sx={{ borderTop: `1px solid ${colors.gray05}`, fontSize: 0, color: colors.gray50, lineHeight: 1 }}>
                                 <Trans t={t}>
                                   Tags can only be created by your Workspace Admins. Not sure who the admins are? Check the Clinic Members list in your&nbsp;
                                   <RouterLink to='/clinic-admin' style={{ color: colors.purpleBright }}>Workspace Settings.</RouterLink>
@@ -1736,8 +1719,7 @@ export const ClinicPatients = (props) => {
                               </Box>
                             }
                           </Box>
-                        )
-                      }
+                        }
                       </Box>
                     </DialogContent>
 

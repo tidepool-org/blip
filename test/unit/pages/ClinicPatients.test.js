@@ -2078,8 +2078,8 @@ describe('ClinicPatients', () => {
             expect(popover().props().style.visibility).to.be.undefined;
 
             // Ensure selected filter is set
-            const selectedFilters = popover().find('#selected-tag-filters').hostNodes();
-            expect(selectedFilters.find('.tag-text').hostNodes().text()).to.equal('test tag 2');
+            const tag2Filter = popover().find('#tag-filter-option-tag2').hostNodes().find('input').hostNodes();
+            expect(tag2Filter.props().checked).to.be.true;
           });
 
           it('should set the time in range filters on load based on the stored filters', () => {
