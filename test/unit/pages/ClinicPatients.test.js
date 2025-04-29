@@ -2078,8 +2078,12 @@ describe('ClinicPatients', () => {
             expect(popover().props().style.visibility).to.be.undefined;
 
             // Ensure selected filter is set
+            const tag1Filter = popover().find('#tag-filter-option-checkbox-tag1').hostNodes().find('input').hostNodes();
             const tag2Filter = popover().find('#tag-filter-option-checkbox-tag2').hostNodes().find('input').hostNodes();
+            const tag3Filter = popover().find('#tag-filter-option-checkbox-tag3').hostNodes().find('input').hostNodes();
+            expect(tag1Filter.props().checked).to.be.false;
             expect(tag2Filter.props().checked).to.be.true;
+            expect(tag3Filter.props().checked).to.be.false;
           });
 
           it('should set the time in range filters on load based on the stored filters', () => {

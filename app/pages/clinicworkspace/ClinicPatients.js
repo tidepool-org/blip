@@ -2422,7 +2422,7 @@ export const ClinicPatients = (props) => {
                     />
 
                     <Button
-                      disabled={!patientTagFormikContext.values.name.trim().length || clinic?.patientTags?.length >= maxClinicPatientTags || !patientTagFormikContext.isValid}
+                      disabled={!patientTagFormikContext.values.name.trim().length || clinic?.patientTags?.length >= maxClinicPatientTags || !patientTagFormikContext.isValid || patientTagFormikContext.isSubmitting}
                       type="submit"
                       sx={{
                         height: '32px',
@@ -2439,22 +2439,21 @@ export const ClinicPatients = (props) => {
             </Formik>
 
             { patientTagsFilterOptions.length > 0 &&
-              <Box>
-                <Text sx={{ fontSize: 1, color: 'text.primary', fontWeight: 'medium' }}>
-                  {t('Tags ({{ count }})', { count: clinic?.patientTags?.length || '0' })}{' - '}
-                </Text>
-                <Text sx={{ fontSize: 0, color: 'text.primary' }}>
-                  {t('Click on the edit icon to rename the tag or trash icon to delete it.')}
-                </Text>
-              </Box>
-            }
-
-            { patientTagsFilterOptions.length > 0 &&
-              <Box mt={1} mb={0}>
-                <Text sx={{ fontSize: 0, color: colors.gray50, fontStyle: 'italic' }}>
-                  {t('Name')}
-                </Text>
-              </Box>
+              <>
+                <Box>
+                  <Text sx={{ fontSize: 1, color: 'text.primary', fontWeight: 'medium' }}>
+                    {t('Tags ({{ count }})', { count: clinic?.patientTags?.length || '0' })}{' - '}
+                  </Text>
+                  <Text sx={{ fontSize: 0, color: 'text.primary' }}>
+                    {t('Click on the edit icon to rename the tag or trash icon to delete it.')}
+                  </Text>
+                </Box>
+                <Box mt={1} mb={0}>
+                  <Text sx={{ fontSize: 0, color: colors.gray50, fontStyle: 'italic' }}>
+                    {t('Name')}
+                  </Text>
+                </Box>
+              </>
             }
 
             <Box mt={1} id="clinic-patients-edit-tag-list">
