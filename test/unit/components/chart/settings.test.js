@@ -137,7 +137,10 @@ describe('Settings', () => {
       )
     );
 
-    Settings.__Rewire__('useHistory', sinon.stub().returns({ location: { query: {} } }));
+    Settings.__Rewire__('useHistory', sinon.stub().returns({
+      location: { query: {}, pathname: '/settings' },
+      replace: sinon.stub(),
+    }));
 
     clock = sinon.useFakeTimers();
   });
@@ -1097,11 +1100,16 @@ describe('Settings', () => {
       dataConnectionsWrapper = () => wrapper.find('#data-connections').hostNodes();
       DataConnections.__Rewire__('api', api);
       DataConnectionsModal.__Rewire__('api', api);
+      DataConnectionsModal.__Rewire__('useHistory', sinon.stub().returns({
+        location: { query: {}, pathname: '/settings' },
+        replace: sinon.stub(),
+      }));
     });
 
     afterEach(() => {
       DataConnections.__ResetDependency__('api');
       DataConnectionsModal.__ResetDependency__('api');
+      DataConnectionsModal.__ResetDependency__('useHistory');
     });
 
     context('clinician user', () => {
@@ -1176,7 +1184,7 @@ describe('Settings', () => {
       });
 
       context('active connections to all providers', () => {
-        it('should show the data connections but not the "Add" button', () => {
+        it('should show the data connections and the "Add" button', () => {
           const props = {
             ...defaultProps,
             isUserPatient: false,
@@ -1201,7 +1209,7 @@ describe('Settings', () => {
           // No modal, card, or add button
           expect(dataConnectionsModal().length).to.equal(0);
           expect(dataConnectionsCard().length).to.equal(0);
-          expect(dataConnectionsAddButton().length).to.equal(0);
+          expect(dataConnectionsAddButton().length).to.equal(1);
           expect(dataConnectionsWrapper().length).to.equal(1);
 
           // Data connections shown for each provider
@@ -1228,7 +1236,7 @@ describe('Settings', () => {
 
           expect(dataConnectionsModal().length).to.equal(0);
           expect(dataConnectionsCard().length).to.equal(1);
-          expect(dataConnectionsCard().text()).to.include('Connect an Account');
+          expect(dataConnectionsCard().text()).to.include('Connect a Device Account');
           const callCount = props.trackMetric.callCount;
           dataConnectionsCard().simulate('click');
 
@@ -1274,7 +1282,7 @@ describe('Settings', () => {
       });
 
       context('active connections to all providers', () => {
-        it('should show the data connections but not the "Add" button', () => {
+        it('should show the data connections and the "Add" button', () => {
           const props = {
             ...defaultProps,
             isUserPatient: true,
@@ -1294,7 +1302,7 @@ describe('Settings', () => {
           // No modal, card, or add button
           expect(dataConnectionsModal().length).to.equal(0);
           expect(dataConnectionsCard().length).to.equal(0);
-          expect(dataConnectionsAddButton().length).to.equal(0);
+          expect(dataConnectionsAddButton().length).to.equal(1);
           expect(dataConnectionsWrapper().length).to.equal(1);
 
           // Data connections shown for each provider

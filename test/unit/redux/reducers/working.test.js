@@ -4435,7 +4435,7 @@ describe('dataWorkerQueryData', () => {
 
   describe('createClinic', () => {
     describe('request', () => {
-      it('should leave creatingClinic.completed unchanged', () => {
+      it('should set creatingClinic.completed to null', () => {
         expect(initialState.creatingClinic.completed).to.be.null;
 
         let requestAction = actions.sync.createClinicRequest();
@@ -4449,7 +4449,7 @@ describe('dataWorkerQueryData', () => {
         expect(successState.creatingClinic.completed).to.be.true;
 
         let state = reducer(successState, requestAction);
-        expect(state.creatingClinic.completed).to.be.true;
+        expect(state.creatingClinic.completed).to.be.null;
         expect(mutationTracker.hasMutated(tracked)).to.be.false;
       });
 

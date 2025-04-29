@@ -13,6 +13,7 @@ import keys from 'lodash/keys';
 import map from 'lodash/map';
 import max from 'lodash/max';
 import noop from 'lodash/noop';
+import orderBy from 'lodash/orderBy';
 import reduce from 'lodash/reduce';
 import { utils as vizUtils } from '@tidepool/viz';
 
@@ -24,6 +25,7 @@ import i18next from '../../core/language';
 import DataConnection from './DataConnection';
 import PatientEmailModal from './PatientEmailModal';
 import ResendDataSourceConnectRequestDialog from '../clinic/ResendDataSourceConnectRequestDialog';
+import DataSourceDisconnectDialog from './DataSourceDisconnectDialog';
 import { Box, BoxProps } from 'theme-ui';
 import dexcomLogo from '../../core/icons/dexcom_logo.png';
 import libreLogo from '../../core/icons/libre_logo.svg';
@@ -36,7 +38,7 @@ const t = i18next.t.bind(i18next);
 
 export const activeProviders = [
   'dexcom',
-  'abbott',
+  'twiist',
 ];
 
 export const providers = {
@@ -67,10 +69,14 @@ export const providers = {
       providerName: 'abbott',
     },
     logoImage: libreLogo,
+    disconnectInstructions: {
+      title: t('Please disconnect in your FreeStyle Libre or LibreView application as well.'),
+      message: t('Disconnecting here has stopped new data collection from your FreeStyle Libre device. To fully revoke consent for sharing data with Tidepool, log into your FreeStyle Libre or LibreView app, access the "Connected Apps" page, and click "Manage" and then "Disconnect" next to Tidepool.'),
+    },
   },
   twiist: {
     id: 'oauth/twiist',
-    displayName: 'Twiist',
+    displayName: 'twiist',
     restrictedTokenCreate: {
         paths: [
           '/v1/oauth/twiist',
@@ -81,6 +87,7 @@ export const providers = {
       providerName: 'twiist',
     },
     logoImage: twiistLogo,
+    indeterminateDataImportTime: true,
   },
 };
 
@@ -113,7 +120,7 @@ export function getProviderHandlers(patient, selectedClinicId, provider) {
     },
     disconnect: {
       buttonText: t('Disconnect'),
-      buttonStyle: 'text',
+      buttonStyle: providerName === 'twiist' ? 'hidden' : 'text',
       action: actions.async.disconnectDataSource,
       args: [api, dataSourceFilter],
     },
@@ -177,13 +184,18 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
   let patientConnectedIcon;
   let patientConnectedText = t('Connected');
 
-  if (!dataSource?.lastImportTime) {
+  if (!dataSource?.lastImportTime && !providers[providerName]?.indeterminateDataImportTime) {
     patientConnectedMessage = t('This can take a few minutes');
     patientConnectedText = t('Connecting');
   } else if (!dataSource?.latestDataTime) {
     patientConnectedMessage = t('No data found as of {{timeAgo}}', { timeAgo });
   } else {
-    patientConnectedMessage = t('Last data {{timeAgo}}', { timeAgo });
+    // the general connection update timeAgo variable above is not always the latest data time so we
+    // need to use the latest data time specifically for the displaying it in the connected state
+    const { daysAgo, daysText, hoursAgo, hoursText, minutesText } = formatTimeAgo(dataSource.latestDataTime);
+    let dataTimeAgo = daysText;
+    if (daysAgo < 1)  dataTimeAgo = hoursAgo < 1 ? minutesText : hoursText;
+    patientConnectedMessage = t('Last data {{dataTimeAgo}}', { dataTimeAgo });
     patientConnectedIcon = CheckCircleRoundedIcon;
   }
 
@@ -228,7 +240,7 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
     connected: {
       color: colors.text.primary,
       handler: isLoggedInUser ? 'disconnect' : null,
-      message: isLoggedInUser ? patientConnectedMessage : null,
+      message: isLoggedInUser && (providerName !== 'twiist') ? patientConnectedMessage : null, // Temporarily hide the message for twiist while we await a backend data source fix
       icon: isLoggedInUser ? patientConnectedIcon : CheckCircleRoundedIcon,
       text: isLoggedInUser ? patientConnectedText : t('Connected'),
     },
@@ -263,7 +275,7 @@ export const getDataConnectionProps = (patient, isLoggedInUser, selectedClinicId
   let connectState;
 
   const connectStateUI = getConnectStateUI(patient, isLoggedInUser, providerName);
-  const dataSource = find(patient?.dataSources, { providerName: providerName });
+  const dataSource = find(orderBy(patient?.dataSources, 'modifiedTime', 'desc'), { providerName: providerName });
   const inviteExpired = dataSource?.expirationTime < moment.utc().toISOString();
 
   if (dataSource?.state) {
@@ -331,13 +343,13 @@ export const DataConnections = (props) => {
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const isLoggedInUser = useSelector((state) => state.blip.loggedInUserId === patient?.id);
   const [showResendDataSourceConnectRequest, setShowResendDataSourceConnectRequest] = useState(false);
+  const [dataSourceDisconnectInstructions, setDataSourceDisconnectInstructions] = useState();
   const [showPatientEmailModal, setShowPatientEmailModal] = useState(false);
   const [patientEmailFormContext, setPatientEmailFormContext] = useState();
   const [processingEmailUpdate, setProcessingEmailUpdate] = useState(false);
   const [patientUpdates, setPatientUpdates] = useState({});
   const [activeHandler, setActiveHandler] = useState(null);
   const dataConnectionProps = getDataConnectionProps(patient, isLoggedInUser, selectedClinicId, setActiveHandler);
-
 
   const {
     sendingPatientDataProviderConnectRequest,
@@ -460,6 +472,10 @@ export const DataConnections = (props) => {
     setActiveHandler(null);
   };
 
+  const handleDataSourceDisconnectDialogClose = () => {
+    setDataSourceDisconnectInstructions();
+  };
+
   const handleResendDataSourceConnectEmailConfirm = () => {
     trackMetric('Clinic - Resend DataSource connect email confirm', { clinicId: selectedClinicId, source: 'patientForm' });
     if (activeHandler?.action) dispatch(activeHandler.action(...activeHandler.args));
@@ -546,7 +562,10 @@ export const DataConnections = (props) => {
   useEffect(() => {
     handleAsyncResult({ ...disconnectingDataSource, prevInProgress: previousDisconnectingDataSource?.inProgress }, t('{{ providerDisplayName }} connection has been disconnected.', {
       providerDisplayName: providers[activeHandler?.providerName]?.displayName,
-    }), handleActiveHandlerComplete);
+    }), () => {
+      setDataSourceDisconnectInstructions(providers?.[activeHandler?.providerName]?.disconnectInstructions);
+      handleActiveHandlerComplete();
+    });
   }, [
     disconnectingDataSource,
     previousDisconnectingDataSource?.inProgress,
@@ -589,6 +608,13 @@ export const DataConnections = (props) => {
         providerName={activeHandler?.providerName}
         t={t}
         trackMetric={trackMetric}
+      />
+
+      <DataSourceDisconnectDialog
+        onClose={handleDataSourceDisconnectDialogClose}
+        onConfirm={handleDataSourceDisconnectDialogClose}
+        open={!!dataSourceDisconnectInstructions}
+        disconnectInstructions={dataSourceDisconnectInstructions}
       />
     </>
   );
