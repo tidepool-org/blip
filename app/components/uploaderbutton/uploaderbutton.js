@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import GitHub from 'github-api';
+import { Octokit } from '@octokit/rest';
 import _ from 'lodash';
 import utils from '../../core/utils';
 import { withTranslation } from 'react-i18next';
@@ -11,7 +11,7 @@ import AppleIcon from '../../core/icons/Apple.svg';
 import WindowsIcon from '../../core/icons/Windows.svg';
 import Button from '../elements/Button';
 
-const github = new GitHub();
+const octokit = new Octokit();
 
 export default withTranslation()(class UploaderButton extends Component {
   constructor(props) {
@@ -29,12 +29,13 @@ export default withTranslation()(class UploaderButton extends Component {
   };
 
   UNSAFE_componentWillMount = () => {
-    const uploaderRepo = github.getRepo('tidepool-org/uploader');
-    uploaderRepo.listReleases((err, releases, request) => {
-      if (err) {
-        this.setState({ error: true });
-      }
-      this.setState(utils.getUploaderDownloadURL(releases));
+    octokit.repos.listReleases({
+      owner: 'tidepool-org',
+      repo: 'uploader'
+    }).then(({ data }) => {
+      this.setState(utils.getUploaderDownloadURL(data));
+    }).catch((error) => {
+      this.setState({ error: true });
     });
   }
 
