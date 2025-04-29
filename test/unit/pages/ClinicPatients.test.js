@@ -1626,14 +1626,14 @@ describe('ClinicPatients', () => {
           expect(popover().props().style.visibility).to.be.undefined;
 
           // Ensure filter options present
-          const filterOptions = popover().find('.clinic-patients-tag-list').find('input').hostNodes();
+          const filterOptions = popover().find('.tag-filter-option').find('input').hostNodes();
           expect(filterOptions).to.have.lengthOf(3);
 
           // Apply button disabled until selection made
           const applyButton = () => popover().find('#apply-patient-tags-filter').hostNodes();
 
-          popover().find('#tag-filter-option-tag1').hostNodes().simulate('change', { target: { checked: true } });
-          popover().find('#tag-filter-option-tag2').hostNodes().simulate('change', { target: { checked: true } });
+          popover().find('#tag-filter-option-checkbox-tag1').hostNodes().simulate('change', { target: { checked: true } });
+          popover().find('#tag-filter-option-checkbox-tag2').hostNodes().simulate('change', { target: { checked: true } });
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           applyButton().simulate('click');
@@ -1730,7 +1730,7 @@ describe('ClinicPatients', () => {
             expect(confirmDialog()).to.have.length(0);
 
             // Open confirm dialog
-            editTagsDialog().find('#edit-clinic-patient-tag-tag1').hostNodes().simulate('click');
+            editTagsDialog().find('#edit-tag-button-tag1').hostNodes().simulate('click');
             wrapper.update();
             expect(confirmDialog()).to.have.length(1);
             expect(confirmDialog().props().open).to.be.true;
@@ -1765,7 +1765,7 @@ describe('ClinicPatients', () => {
             expect(confirmDialog()).to.have.length(0);
 
             // Open confirm dialog
-            editTagsDialog().find('#delete-clinic-patient-tag-tag1').hostNodes().simulate('click');
+            editTagsDialog().find('#delete-tag-button-tag1').hostNodes().simulate('click');
             wrapper.update();
             expect(confirmDialog()).to.have.length(1);
             expect(confirmDialog().props().open).to.be.true;
@@ -2078,7 +2078,7 @@ describe('ClinicPatients', () => {
             expect(popover().props().style.visibility).to.be.undefined;
 
             // Ensure selected filter is set
-            const tag2Filter = popover().find('#tag-filter-option-tag2').hostNodes().find('input').hostNodes();
+            const tag2Filter = popover().find('#tag-filter-option-checkbox-tag2').hostNodes().find('input').hostNodes();
             expect(tag2Filter.props().checked).to.be.true;
           });
 

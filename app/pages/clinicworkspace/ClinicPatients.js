@@ -1675,9 +1675,9 @@ export const ClinicPatients = (props) => {
                             const isChecked = patientTags?.includes(id);
 
                             return (
-                              <Box mt={1} className="clinic-patients-tag-list">
+                              <Box mt={1} className="tag-filter-option">
                                 <Checkbox
-                                  id={`tag-filter-option-${id}`}
+                                  id={`tag-filter-option-checkbox-${id}`}
                                   label={<Text sx={{ fontSize: 0, fontWeight: 'normal' }}>{label}</Text>}
                                   checked={isChecked}
                                   onChange={() => {
@@ -2468,7 +2468,7 @@ export const ClinicPatients = (props) => {
                     <Flex sx={{ alignItems: 'center'}}>
                       <Text className="tag-text" sx={{ fontSize: 1, color: 'text.primary' }}>{name}</Text>
                       <Icon
-                        id={`edit-clinic-patient-tag-${id}`}
+                        id={`edit-tag-button-${id}`}
                         icon={EditIcon}
                         sx={{ fontSize: 1, marginLeft: 2 }}
                         onClick={isClinicAdmin ? () => handleUpdateClinicPatientTag(id) : undefined}
@@ -2479,7 +2479,7 @@ export const ClinicPatients = (props) => {
                     </Box>
                     <Flex sx={{ justifyContent: 'flex-end' }}>
                       <Icon
-                        id={`delete-clinic-patient-tag-${id}`}
+                        id={`delete-tag-button-${id}`}
                         icon={DeleteIcon}
                         sx={{ fontSize: 1 }}
                         onClick={isClinicAdmin ? () => handleDeleteClinicPatientTag(id) : undefined}
