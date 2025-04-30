@@ -23,9 +23,13 @@ enzyme.configure({
 
 chai.use(chaiDOM);
 
-// Load .js files in /test
+// Load RTL tests in ./__tests__'
+console.log('Running RTL tests');
 const rtlContext = require.context('./__tests__', true, /\.test\.js$/);
 rtlContext.keys().forEach(rtlContext);
 
+// Load Enzyme tests in './test
+console.log('Running Enzyme tests');
 const enzymeContext = require.context('./test', true, /\.test\.js$/);
 enzymeContext.keys().forEach(enzymeContext);
+
