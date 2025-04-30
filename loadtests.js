@@ -1,3 +1,5 @@
+/* global chai */
+
 require('@babel/polyfill');
 require('intl/locale-data/jsonp/en.js');
 require('intl-pluralrules');
@@ -6,6 +8,7 @@ const _ = require('lodash');
 const enzyme = require('enzyme');
 const Adapter = require('enzyme-adapter-react-16');
 const i18next = require('i18next');
+const chaiDOM = require('chai-dom');
 
 // Should be initialized in calling module
 if (_.get(i18next, 'options.returnEmptyString') === undefined) {
@@ -18,5 +21,11 @@ enzyme.configure({
   disableLifecycleMethods: true,
 });
 
-const context = require.context('./test', true, /\.test\.js$/); // Load .js files in /test
-context.keys().forEach(context);
+chai.use(chaiDOM);
+
+// Load .js files in /test
+const rtlContext = require.context('./__tests__', true, /\.test\.js$/);
+rtlContext.keys().forEach(rtlContext);
+
+const enzymeContext = require.context('./test', true, /\.test\.js$/);
+enzymeContext.keys().forEach(enzymeContext);

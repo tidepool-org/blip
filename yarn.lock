@@ -70,6 +70,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/code-frame@npm:^7.10.4":
+  version: 7.26.2
+  resolution: "@babel/code-frame@npm:7.26.2"
+  dependencies:
+    "@babel/helper-validator-identifier": ^7.25.9
+    js-tokens: ^4.0.0
+    picocolors: ^1.0.0
+  checksum: db13f5c42d54b76c1480916485e6900748bbcb0014a8aca87f50a091f70ff4e0d0a6db63cade75eb41fcc3d2b6ba0a7f89e343def4f96f00269b41b8ab8dd7b8
+  languageName: node
+  linkType: hard
+
 "@babel/compat-data@npm:^7.22.6, @babel/compat-data@npm:^7.22.9, @babel/compat-data@npm:^7.23.2, @babel/compat-data@npm:^7.23.3":
   version: 7.23.3
   resolution: "@babel/compat-data@npm:7.23.3"
@@ -366,6 +377,13 @@ __metadata:
   version: 7.22.20
   resolution: "@babel/helper-validator-identifier@npm:7.22.20"
   checksum: 136412784d9428266bcdd4d91c32bcf9ff0e8d25534a9d94b044f77fe76bc50f941a90319b05aafd1ec04f7d127cd57a179a3716009ff7f3412ef835ada95bdc
+  languageName: node
+  linkType: hard
+
+"@babel/helper-validator-identifier@npm:^7.25.9":
+  version: 7.25.9
+  resolution: "@babel/helper-validator-identifier@npm:7.25.9"
+  checksum: 5b85918cb1a92a7f3f508ea02699e8d2422fe17ea8e82acd445006c0ef7520fbf48e3dbcdaf7b0a1d571fc3a2715a29719e5226636cb6042e15fe6ed2a590944
   languageName: node
   linkType: hard
 
@@ -5297,6 +5315,38 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@testing-library/dom@npm:^10.4.0":
+  version: 10.4.0
+  resolution: "@testing-library/dom@npm:10.4.0"
+  dependencies:
+    "@babel/code-frame": ^7.10.4
+    "@babel/runtime": ^7.12.5
+    "@types/aria-query": ^5.0.1
+    aria-query: 5.3.0
+    chalk: ^4.1.0
+    dom-accessibility-api: ^0.5.9
+    lz-string: ^1.5.0
+    pretty-format: ^27.0.2
+  checksum: bb128b90be0c8cd78c5f5e67aa45f53de614cc048a2b50b230e736ec710805ac6c73375af354b83c74d710b3928d52b83a273a4cb89de4eb3efe49e91e706837
+  languageName: node
+  linkType: hard
+
+"@testing-library/dom@npm:^8.0.0":
+  version: 8.20.1
+  resolution: "@testing-library/dom@npm:8.20.1"
+  dependencies:
+    "@babel/code-frame": ^7.10.4
+    "@babel/runtime": ^7.12.5
+    "@types/aria-query": ^5.0.1
+    aria-query: 5.1.3
+    chalk: ^4.1.0
+    dom-accessibility-api: ^0.5.9
+    lz-string: ^1.5.0
+    pretty-format: ^27.0.2
+  checksum: 06fc8dc67849aadb726cbbad0e7546afdf8923bd39acb64c576d706249bd7d0d05f08e08a31913fb621162e3b9c2bd0dce15964437f030f9fa4476326fdd3007
+  languageName: node
+  linkType: hard
+
 "@testing-library/react-hooks@npm:8.0.1":
   version: 8.0.1
   resolution: "@testing-library/react-hooks@npm:8.0.1"
@@ -5316,6 +5366,20 @@ __metadata:
     react-test-renderer:
       optional: true
   checksum: 7fe44352e920deb5cb1876f80d64e48615232072c9d5382f1e0284b3aab46bb1c659a040b774c45cdf084a5257b8fe463f7e08695ad8480d8a15635d4d3d1f6d
+  languageName: node
+  linkType: hard
+
+"@testing-library/react@npm:^12.1.5":
+  version: 12.1.5
+  resolution: "@testing-library/react@npm:12.1.5"
+  dependencies:
+    "@babel/runtime": ^7.12.5
+    "@testing-library/dom": ^8.0.0
+    "@types/react-dom": <18.0.0
+  peerDependencies:
+    react: <18.0.0
+    react-dom: <18.0.0
+  checksum: 4abd0490405e709a7df584a0db604e508a4612398bb1326e8fa32dd9393b15badc826dcf6d2f7525437886d507871f719f127b9860ed69ddd204d1fa834f576a
   languageName: node
   linkType: hard
 
@@ -5479,6 +5543,13 @@ __metadata:
   version: 0.2.0
   resolution: "@trysound/sax@npm:0.2.0"
   checksum: 11226c39b52b391719a2a92e10183e4260d9651f86edced166da1d95f39a0a1eaa470e44d14ac685ccd6d3df7e2002433782872c0feeb260d61e80f21250e65c
+  languageName: node
+  linkType: hard
+
+"@types/aria-query@npm:^5.0.1":
+  version: 5.0.4
+  resolution: "@types/aria-query@npm:5.0.4"
+  checksum: ad8b87e4ad64255db5f0a73bc2b4da9b146c38a3a8ab4d9306154334e0fc67ae64e76bfa298eebd1e71830591fb15987e5de7111bdb36a2221bdc379e3415fb0
   languageName: node
   linkType: hard
 
@@ -6005,6 +6076,15 @@ __metadata:
   version: 1.2.7
   resolution: "@types/range-parser@npm:1.2.7"
   checksum: 95640233b689dfbd85b8c6ee268812a732cf36d5affead89e806fe30da9a430767af8ef2cd661024fd97e19d61f3dec75af2df5e80ec3bea000019ab7028629a
+  languageName: node
+  linkType: hard
+
+"@types/react-dom@npm:<18.0.0":
+  version: 17.0.26
+  resolution: "@types/react-dom@npm:17.0.26"
+  peerDependencies:
+    "@types/react": ^17.0.0
+  checksum: 2b62bf86c22b5e84a99d356bf50f5ea681aa70d11d0669c3ab6d5855751677ffb7e7b8d2cec01fff4d3923d0da3221821f7f55ddaa1cf42bc7a06545fe7cf2f1
   languageName: node
   linkType: hard
 
@@ -6666,6 +6746,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ansi-styles@npm:^5.0.0":
+  version: 5.2.0
+  resolution: "ansi-styles@npm:5.2.0"
+  checksum: d7f4e97ce0623aea6bc0d90dcd28881ee04cba06c570b97fd3391bd7a268eedfd9d5e2dd4fdcbdd82b8105df5faf6f24aaedc08eaf3da898e702db5948f63469
+  languageName: node
+  linkType: hard
+
 "ansi-styles@npm:^6.1.0":
   version: 6.2.1
   resolution: "ansi-styles@npm:6.2.1"
@@ -6715,7 +6802,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"aria-query@npm:^5.1.3":
+"aria-query@npm:5.1.3":
+  version: 5.1.3
+  resolution: "aria-query@npm:5.1.3"
+  dependencies:
+    deep-equal: ^2.0.5
+  checksum: 929ff95f02857b650fb4cbcd2f41072eee2f46159a6605ea03bf63aa572e35ffdff43d69e815ddc462e16e07de8faba3978afc2813650b4448ee18c9895d982b
+  languageName: node
+  linkType: hard
+
+"aria-query@npm:5.3.0, aria-query@npm:^5.1.3":
   version: 5.3.0
   resolution: "aria-query@npm:5.3.0"
   dependencies:
@@ -7394,6 +7490,8 @@ __metadata:
     "@storybook/cli": 7.5.0
     "@storybook/react": 7.5.0
     "@storybook/react-webpack5": 7.5.0
+    "@testing-library/dom": ^10.4.0
+    "@testing-library/react": ^12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@tidepool/viz": 1.46.0-web-3029-dep-updates.2
     async: 2.6.4
@@ -7412,6 +7510,7 @@ __metadata:
     buffer: 6.0.3
     canonicalize: 2.0.0
     chai: 4.3.10
+    chai-dom: ^1.12.1
     chromedriver: 135.0.2
     classnames: 2.3.2
     concurrently: 8.2.2
@@ -7942,6 +8041,15 @@ __metadata:
   version: 2.4.0
   resolution: "case-sensitive-paths-webpack-plugin@npm:2.4.0"
   checksum: bcf469446eeee9ac0046e30860074ebb9aa4803aab9140e6bb72b600b23b1d70635690754be4504ce35cd99cdf05226bee8d894ba362a3f5485d5f6310fc6d02
+  languageName: node
+  linkType: hard
+
+"chai-dom@npm:^1.12.1":
+  version: 1.12.1
+  resolution: "chai-dom@npm:1.12.1"
+  peerDependencies:
+    chai: ">= 3"
+  checksum: 4b112c35ace5e16fc52df70d879464001982449709381fe43f1ed2d318b99f183f7fec7cbac67e452aa3f7bdad6d5fe2a1b71bcad43e8738961fade470a4a017
   languageName: node
   linkType: hard
 
@@ -9694,6 +9802,13 @@ __metadata:
   dependencies:
     define-properties: ^1.1.3
   checksum: dbb8c1f6ec0fa85f9132549ea9fdb11b2b1038171f38f788fbb59f155b02de25236c6ea262bf2052f3811a51e2328180abd206598d00953e502c0dd30e466043
+  languageName: node
+  linkType: hard
+
+"dom-accessibility-api@npm:^0.5.9":
+  version: 0.5.16
+  resolution: "dom-accessibility-api@npm:0.5.16"
+  checksum: 005eb283caef57fc1adec4d5df4dd49189b628f2f575af45decb210e04d634459e3f1ee64f18b41e2dcf200c844bc1d9279d80807e686a30d69a4756151ad248
   languageName: node
   linkType: hard
 
@@ -14572,6 +14687,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lz-string@npm:^1.5.0":
+  version: 1.5.0
+  resolution: "lz-string@npm:1.5.0"
+  bin:
+    lz-string: bin/bin.js
+  checksum: 1ee98b4580246fd90dd54da6e346fb1caefcf05f677c686d9af237a157fdea3fd7c83a4bc58f858cd5b10a34d27afe0fdcbd0505a47e0590726a873dc8b8f65d
+  languageName: node
+  linkType: hard
+
 "make-dir@npm:^2.0.0, make-dir@npm:^2.1.0":
   version: 2.1.0
   resolution: "make-dir@npm:2.1.0"
@@ -16870,6 +16994,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"pretty-format@npm:^27.0.2":
+  version: 27.5.1
+  resolution: "pretty-format@npm:27.5.1"
+  dependencies:
+    ansi-regex: ^5.0.1
+    ansi-styles: ^5.0.0
+    react-is: ^17.0.1
+  checksum: cf610cffcb793885d16f184a62162f2dd0df31642d9a18edf4ca298e909a8fe80bdbf556d5c9573992c102ce8bf948691da91bf9739bee0ffb6e79c8a8a6e088
+  languageName: node
+  linkType: hard
+
 "pretty-hrtime@npm:^1.0.3":
   version: 1.0.3
   resolution: "pretty-hrtime@npm:1.0.3"
@@ -17448,7 +17583,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-is@npm:^16.8.0 || ^17.0.0":
+"react-is@npm:^16.8.0 || ^17.0.0, react-is@npm:^17.0.1":
   version: 17.0.2
   resolution: "react-is@npm:17.0.2"
   checksum: 9d6d111d8990dc98bc5402c1266a808b0459b5d54830bbea24c12d908b536df7883f268a7868cfaedde3dd9d4e0d574db456f84d2e6df9c4526f99bb4b5344d8
