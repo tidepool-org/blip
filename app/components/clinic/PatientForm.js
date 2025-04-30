@@ -182,10 +182,14 @@ export const PatientForm = (props) => {
       const handlerArgs = actionMap[action][context].args();
 
       if (context === 'clinic' && action === 'create' && clinic?.country === 'US') {
+        // For new patients where we need to show the data connections modal after the patient is created,
+        // we don't dispatch the create action until the data connections modal is closed, or a
+        // connection request is initiated. This avoids the backend sending 2 emails in succession to
+        // the new patient - one for the account creation and one for the data connection.
         formikHelpers.setStatus({ showDataConnectionsModalNext: true, newPatient: handlerArgs[1] });
+      } else {
+        dispatch(actions.async[actionMap[action][context].handler](api, ...handlerArgs));
       }
-
-      dispatch(actions.async[actionMap[action][context].handler](api, ...handlerArgs));
     },
     validationSchema: validationSchema({mrnSettings, existingMRNs}),
   });

@@ -61,7 +61,13 @@ export const PatientEmailModal = (props) => {
     initialValues: getFormValues(patient, clinicPatientTags),
     onSubmit: (values) => {
       trackMetric(`Data Connections - patient email ${action === 'edit' ? 'updated' : 'added'}`);
-      dispatch(actions.async.updateClinicPatient(api, selectedClinicId, patient.id, omitBy({ ...patient, ...getFormValues(values, clinicPatientTags) }, emptyValuesFilter)));
+      if (patient?.id) {
+        // Update existing patient
+        dispatch(actions.async.updateClinicPatient(api, selectedClinicId, patient.id, omitBy({ ...patient, ...getFormValues(values, clinicPatientTags) }, emptyValuesFilter)));
+      } else {
+        // Create new patient from pending patient that was passed in but not yet created.
+        dispatch(actions.async.createClinicCustodialAccount(api, selectedClinicId, omitBy({ ...patient, ...getFormValues(values, clinicPatientTags) }, emptyValuesFilter)));
+      }
     },
     validationSchema: validationSchema({mrnSettings, existingMRNs}),
   });

@@ -658,8 +658,20 @@ export const ClinicPatients = (props) => {
 
   const prefixPopHealthMetric = useCallback(metric => `Clinic - Population Health - ${metric}`, []);
 
+  const handleCreateUnsentPendingPatient = useCallback(newPatient => {
+    if (!creatingClinicCustodialAccount?.inProgress) {
+      dispatch(actions.async.createClinicCustodialAccount(api, selectedClinicId, { ...newPatient }));
+    }
+  }, [api, dispatch, selectedClinicId, creatingClinicCustodialAccount?.inProgress]);
+
   const handleCloseOverlays = useCallback(() => {
     const resetList = showAddPatientDialog || showEditPatientDialog;
+
+    // If we have a selectedPateint that does not yet have an id when the data connections modal is
+    // closed, it means that the user did not formally create the patient by requesting a data connection,
+    // after beginning the patient creation process in the create patient modal.
+    const createUnsentPendingPatient = showDataConnectionsModal && selectedPatient && !selectedPatient?.id;
+
     setShowAddPatientDialog(false);
     setShowDeleteDialog(false);
     setShowDataConnectionsModal(false);
@@ -675,14 +687,21 @@ export const ClinicPatients = (props) => {
       setPatientFetchOptions({ ...patientFetchOptions });
     }
 
+    if (createUnsentPendingPatient) {
+      handleCreateUnsentPendingPatient(selectedPatient);
+    }
+
     setTimeout(() => {
       setPatientFormContext(null);
       setSelectedPatient(null);
     });
   }, [
-    showAddPatientDialog,
-    showEditPatientDialog,
+    handleCreateUnsentPendingPatient,
     patientFetchOptions,
+    selectedPatient,
+    showAddPatientDialog,
+    showDataConnectionsModal,
+    showEditPatientDialog,
   ]);
 
   const handleCloseClinicPatientTagUpdateDialog = useCallback(metric => {
@@ -720,27 +739,32 @@ export const ClinicPatients = (props) => {
   }, [isFirstRender, setToast]);
 
   const handlePatientCreatedOrEdited = useCallback(() => {
-    if (patientFormContext?.status?.showDataConnectionsModalNext) {
-      let currentPatient = selectedPatient;
-
-      if (patientFormContext?.status?.newPatient && creatingClinicCustodialAccount?.patientId) currentPatient = {
+    // If a new pending patient was created while the data connections modal is open, we need to set
+    // the patientId on the selectedPatient so that the data connections modal patient prop will be up
+    // to date so that if subsequent actions are taken in the modal that affect the patient, the
+    // update patient action will be used instead of the create action.
+    if (
+      showDataConnectionsModal
+      && patientFormContext?.status?.newPatient
+      && creatingClinicCustodialAccount?.patientId
+      && !previousCreatingClinicCustodialAccount?.patientId
+      && selectedPatient
+      && !selectedPatient?.id
+    ) {
+      setSelectedPatient({
         ...patientFormContext.status.newPatient,
-        id: creatingClinicCustodialAccount.patientId,
-      };
-
-      setShowAddPatientDialog(false);
-      setShowEditPatientDialog(false);
-      editPatientDataConnections(currentPatient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal, 'Patients list - patient modal');
+        id: creatingClinicCustodialAccount?.patientId,
+      });
     } else {
       handleCloseOverlays();
     }
   }, [
     handleCloseOverlays,
     patientFormContext?.status,
-    creatingClinicCustodialAccount,
-    selectedClinicId,
+    creatingClinicCustodialAccount?.patientId,
+    previousCreatingClinicCustodialAccount?.patientId,
     selectedPatient,
-    trackMetric,
+    showDataConnectionsModal,
   ]);
 
   useEffect(() => {
@@ -768,6 +792,20 @@ export const ClinicPatients = (props) => {
     creatingClinicCustodialAccount,
     patientFormContext?.status,
     previousCreatingClinicCustodialAccount?.inProgress,
+  ]);
+
+  // When a pending new patient is created, we need to set the selectedPatient to the new pending
+  // patient and then switch to the data connections modal.
+  useEffect(() => {
+    if (!selectedPatient?.id && patientFormContext?.status?.showDataConnectionsModalNext && patientFormContext?.status?.newPatient) {
+      setSelectedPatient(patientFormContext?.status?.newPatient);
+      setShowAddPatientDialog(false);
+      setShowDataConnectionsModal(true);
+    }
+  }, [
+    patientFormContext?.status,
+    selectedPatient?.id,
+    setSelectedPatient,
   ]);
 
   useEffect(() => {
@@ -1016,7 +1054,7 @@ export const ClinicPatients = (props) => {
 
   // Provide latest patient state for the edit form upon fetch
   useEffect(() => {
-    if (fetchingPatientFromClinic.completed && selectedPatient?.id) setSelectedPatient(clinic.patients[selectedPatient.id]);
+    if (fetchingPatientFromClinic.completed && clinic?.patients?.[selectedPatient?.id]) setSelectedPatient(clinic.patients[selectedPatient.id]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchingPatientFromClinic, selectedPatient?.id]);
 
@@ -2208,7 +2246,14 @@ export const ClinicPatients = (props) => {
         </DialogTitle>
 
         <DialogContent>
-          <PatientForm api={api} trackMetric={trackMetric} onFormChange={handlePatientFormChange} searchDebounceMs={searchDebounceMs} action="create" />
+          <PatientForm
+            api={api}
+            trackMetric={trackMetric}
+            onFormChange={handlePatientFormChange}
+            patient={selectedPatient || undefined}
+            searchDebounceMs={searchDebounceMs}
+            action="create"
+          />
         </DialogContent>
 
         <DialogActions>
@@ -2233,7 +2278,10 @@ export const ClinicPatients = (props) => {
     handleAddPatientConfirm,
     mrnSettings,
     existingMRNs,
+    handleCloseOverlays,
     patientFormContext?.values,
+    searchDebounceMs,
+    selectedPatient,
     showAddPatientDialog,
     t,
     trackMetric
@@ -2806,8 +2854,14 @@ export const ClinicPatients = (props) => {
         patient={selectedPatient}
         onClose={handleCloseOverlays}
         onBack={patientFormContext?.status?.showDataConnectionsModalNext ? () => {
-          setShowDataConnectionsModal(false)
-          setShowEditPatientDialog(true)
+          setShowDataConnectionsModal(false);
+
+          if (patientFormContext?.status?.newPatient && !selectedPatient?.id) {
+            setSelectedPatient({ ...patientFormContext?.status?.newPatient });
+            setShowAddPatientDialog(true);
+          } else {
+            setShowEditPatientDialog(true);
+          }
         } : undefined}
       />
     );

@@ -97,7 +97,9 @@ export function getProviderHandlers(patient, selectedClinicId, provider) {
 
   // Clinician-initiated send and resend invite handlers will potentially need to gather an email
   // address and set the initial data source pending status on the patient if these do not exist.
-  const emailRequired = !!(selectedClinicId && !patient?.email && patient?.permissions?.custodian);
+  const isCustodialPatient = !!(selectedClinicId && patient?.permissions?.custodian);
+  const isPendingCustodialPatient = !!(selectedClinicId && !patient?.id);
+  const emailRequired = !!(selectedClinicId && !patient?.email && (isCustodialPatient || isPendingCustodialPatient));
   const hasProviderDataSource = !!find(patient?.dataSources, { providerName });
 
   let patientUpdates;
@@ -352,15 +354,17 @@ export const DataConnections = (props) => {
   const dataConnectionProps = getDataConnectionProps(patient, isLoggedInUser, selectedClinicId, setActiveHandler);
 
   const {
-    sendingPatientDataProviderConnectRequest,
-    updatingClinicPatient,
+    creatingClinicCustodialAccount,
     disconnectingDataSource,
     fetchingDataSources,
+    sendingPatientDataProviderConnectRequest,
+    updatingClinicPatient,
   } = useSelector((state) => state.blip.working);
 
+  const previousCreatingClinicCustodialAccount = usePrevious(creatingClinicCustodialAccount);
+  const previousDisconnectingDataSource = usePrevious(disconnectingDataSource);
   const previousSendingPatientDataProviderConnectRequest = usePrevious(sendingPatientDataProviderConnectRequest);
   const previousUpdatingClinicPatient = usePrevious(updatingClinicPatient);
-  const previousDisconnectingDataSource = usePrevious(disconnectingDataSource);
 
   const fetchPatientDetails = useCallback(() => {
     dispatch(actions.async.fetchPatientFromClinic(api, selectedClinicId, patient?.id));
@@ -428,26 +432,54 @@ export const DataConnections = (props) => {
     setProcessingEmailUpdate(true);
   };
 
-  const handleUpdatePatientComplete = useCallback(() => {
+  const completePostPatientUpdateAction = useCallback(() => {
+    if (activeHandler?.emailRequired) {
+      // Immediately after adding a new patient email address. There will be a small amount
+      // of time where the backend services may not be able to find the patient, so we wait
+      // a second before requesting that a connection request email be sent.
+      setTimeout(() => dispatch(activeHandler.action(...activeHandler.args)), 1000);
+    } else {
+      // If we haven't just added an email to a patient, we can fire this right away.
+      dispatch(activeHandler.action(...activeHandler.args));
+    }
+  }, [
+    activeHandler,
+    dispatch,
+  ]);
+
+  const handleCreatePatientComplete = useCallback(() => {
     fetchPatientDetails();
     setShowPatientEmailModal(false);
     setProcessingEmailUpdate(false);
     setPatientUpdates({});
 
     if (activeHandler?.action) {
-      if (activeHandler?.emailRequired) {
-        // Immediately after adding a new patient email address. There will be a small amount
-        // of time where the backend services may not be able to find the patient, so we wait
-        // a second before requesting that a connection request email be sent.
-        setTimeout(() => dispatch(activeHandler.action(...activeHandler.args)), 1000);
-      } else {
-        // If we haven't just added an email to a patient, we can fire this right away.
-        dispatch(activeHandler.action(...activeHandler.args));
+      // If we have just created a new patient, it will not have had an patientId argument available
+      // when the action handler was created. We need to add it now.
+      if (creatingClinicCustodialAccount?.patientId && activeHandler.handler === 'sendInvite' && !activeHandler.args[2]) {
+        activeHandler.args[2] = creatingClinicCustodialAccount?.patientId;
+        setActiveHandler({ ...activeHandler });
       }
+
+      completePostPatientUpdateAction();
     }
   }, [
+    completePostPatientUpdateAction,
+    creatingClinicCustodialAccount,
     activeHandler,
-    dispatch,
+    fetchPatientDetails,
+  ]);
+
+  const handleUpdatePatientComplete = useCallback(() => {
+    fetchPatientDetails();
+    setShowPatientEmailModal(false);
+    setProcessingEmailUpdate(false);
+    setPatientUpdates({});
+
+    if (activeHandler?.action) completePostPatientUpdateAction();
+  }, [
+    completePostPatientUpdateAction,
+    activeHandler,
     fetchPatientDetails,
   ]);
 
@@ -518,10 +550,16 @@ export const DataConnections = (props) => {
         handleAddPatientEmailOpen();
       } else if (patient && activeHandler.patientUpdates) {
         // We have updates to apply before we can fire the data connection action.
-        dispatch(actions.async.updateClinicPatient(api, selectedClinicId, patient.id, { ...patient, ...activeHandler.patientUpdates }));
+        if (patient.id) {
+          // Update existing patient
+          dispatch(actions.async.updateClinicPatient(api, selectedClinicId, patient.id, { ...patient, ...activeHandler.patientUpdates }));
+        } else {
+          // Create new patient from pending patient that was passed in but not yet created.
+          dispatch(actions.async.createClinicCustodialAccount(api, selectedClinicId, { ...patient, ...activeHandler.patientUpdates }));
+        }
       } else if (activeHandler.handler === 'resendInvite') {
         handleResendDataSourceConnectEmailOpen();
-      } else {
+      } else if (patient?.id) {
         // No need to update patient object prior to firing data connection action. Fire away.
         dispatch(activeHandler.action(...activeHandler.args));
       }
@@ -536,12 +574,22 @@ export const DataConnections = (props) => {
   ]);
 
   useEffect(() => {
-    handleAsyncResult({ ...updatingClinicPatient, prevInProgress: previousUpdatingClinicPatient?.inProgress}, t('You have successfully updated a patient.'), handleUpdatePatientComplete);
+    handleAsyncResult({ ...updatingClinicPatient, prevInProgress: previousUpdatingClinicPatient?.inProgress}, t('You have successfully updated a patient.'), handleCreateOrUpdatePatientComplete);
   }, [
     handleAsyncResult,
     handleUpdatePatientComplete,
     updatingClinicPatient,
     previousUpdatingClinicPatient?.inProgress,
+    setToast,
+  ]);
+
+  useEffect(() => {
+    handleAsyncResult({ ...creatingClinicCustodialAccount, prevInProgress: previousCreatingClinicCustodialAccount?.inProgress}, t('You have successfully updated a patient.'), handleCreateOrUpdatePatientComplete);
+  }, [
+    handleAsyncResult,
+    handleCreatePatientComplete,
+    creatingClinicCustodialAccount,
+    previousCreatingClinicCustodialAccount?.inProgress,
     setToast,
   ]);
 
