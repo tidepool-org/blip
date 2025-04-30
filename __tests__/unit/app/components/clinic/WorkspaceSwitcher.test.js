@@ -1,4 +1,4 @@
-/* global expect, after, before, chai, describe, it, sinon, beforeEach, context */
+/* global jest, test, expect, describe */
 
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
@@ -7,9 +7,17 @@ import configureStore from 'redux-mock-store'; // for mockStore
 import thunk from 'redux-thunk';
 
 import api from '../../../../../app/core/api';
-import * as actions from '../../../../../app/redux/actions';
 
-const expect = chai.expect;
+// Mock the actions
+jest.mock('../../../../../app/redux/actions', () => ({
+  sync: {
+    setPatientListSearchTextInput: jest.fn().mockReturnValue({ type: 'MOCK_ACTION' }),
+    setIsPatientListVisible: jest.fn().mockReturnValue({ type: 'MOCK_ACTION' }),
+  },
+  async: {
+    selectClinic: jest.fn().mockReturnValue({ type: 'MOCK_ACTION' }),
+  },
+}));
 
 import WorkspaceSwitcher from '../../../../../app/components/clinic/WorkspaceSwitcher';
 import { Provider } from 'react-redux';
@@ -43,13 +51,9 @@ describe('WorkspaceSwitcher', ()  => {
   const mockStore = configureStore([thunk]);
   let store = mockStore(storeFixture);
 
-  const trackMetric = sinon.stub();
+  const trackMetric = jest.fn();
 
-  sinon.stub(actions.sync, 'setPatientListSearchTextInput').returns({ type: 'MOCK_ACTION' });
-  sinon.stub(actions.sync, 'setIsPatientListVisible').returns({ type: 'MOCK_ACTION' });
-  sinon.stub(actions.async, 'selectClinic').returns({ type: 'MOCK_ACTION' });
-
-  it('Displays the name ofthe selected clinic', async () => {
+  test('Displays the name of the selected clinic', async () => {
     render(
       <Provider store={store}>
         <MemoryRouter initialEntries={['/']}>
@@ -64,19 +68,19 @@ describe('WorkspaceSwitcher', ()  => {
 
     // Workspace switcher should be labelled with currently selected clinic name
     const dropdownButton = screen.getByRole('button', { id: 'workspace-switcher-button' });
-    expect(dropdownButton.textContent).to.equal('Second Clinic Workspace');
+    expect(dropdownButton.textContent).toBe('Second Clinic Workspace');
 
     // Open the dropdown
     fireEvent.click(dropdownButton);
-    await screen.getByText('First Clinic Workspace').closest('button');
+    const firstClinicButton = screen.getByText('First Clinic Workspace').closest('button');
 
     // Select a different workspace option
-    const targetButton = screen.getByText('First Clinic Workspace').closest('button');
-    fireEvent.click(targetButton);
+    fireEvent.click(firstClinicButton);
 
     // Trackmetric is called with the correct arguments
-    expect(trackMetric.getCall(0).args).to.eql(
-      ['Clinic - Workspace Switcher - Go to clinic workspace', { clinicId: '521cf' }]
+    expect(trackMetric).toHaveBeenCalledWith(
+      'Clinic - Workspace Switcher - Go to clinic workspace',
+      { clinicId: '521cf' }
     );
   });
 });

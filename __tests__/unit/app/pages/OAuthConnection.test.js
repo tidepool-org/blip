@@ -1,35 +1,35 @@
-/* global expect, after, before, chai, describe, it, sinon, beforeEach, context */
+/* global jest, test, expect, describe, it */
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom'; // for useParams
 import configureStore from 'redux-mock-store'; // for mockStore
 import { Switch, Route } from 'react-router-dom';
-
-const expect = chai.expect;
-
-import OAuthConnection from '../../../../app/pages/oauth/OAuthConnection';
 import { Provider } from 'react-redux';
+
+// Import the mocked component
+import OAuthConnection from '../../../../app/pages/oauth/OAuthConnection';
 
 describe('OAuthConnection', ()  => {
   const mockStore = configureStore([]);
   let store = mockStore({});
-  const trackMetric = sinon.stub();
+  const trackMetric = jest.fn();
+  const mockTranslate = jest.fn().mockImplementation(string => string);
 
-  it('displays an error message when unable to detect', () => {
+  test('displays an error message when unable to detect', () => {
     render(
       <Provider store={store}>
         <MemoryRouter initialEntries={['/oauth/dexcom/unknown']}>
           <Switch>
             <Route path='/oauth/:providerName/:status'>
-              <OAuthConnection trackMetric={trackMetric} />
+              <OAuthConnection trackMetric={trackMetric}/>
             </Route>
           </Switch>
         </MemoryRouter>
       </Provider>
     );
 
-    expect(screen.getByText('We were unable to determine your Dexcom connection status.')).to.exist;
+    expect(screen.getByText('We were unable to determine your Dexcom connection status.')).toBeInTheDocument();
   });
 
   it('displays a success message when dexcom & authorized', () => {
@@ -46,6 +46,6 @@ describe('OAuthConnection', ()  => {
       </Provider>
     );
 
-    expect(screen.getByText('You have successfully connected your Dexcom data to Tidepool.')).to.exist;
+    expect(screen.getByText('You have successfully connected your Dexcom data to Tidepool.')).toBeInTheDocument();
   });
 });
