@@ -4,14 +4,14 @@ import React, { Component } from 'react';
 import { withTranslation, Trans } from 'react-i18next';
 import { Flex } from 'theme-ui';
 import cx from 'classnames';
-import GitHub from 'github-api';
+import { Octokit } from '@octokit/rest';
 import ModalOverlay from '../modaloverlay';
 import utils from '../../core/utils';
 import { URL_UPLOADER_DOWNLOAD_PAGE } from '../../core/constants';
 import logoSrc from '../uploaderbutton/images/T-logo-dark-512x512.png';
 import UploaderButton from '../uploaderbutton'
 
-const github = new GitHub();
+const octokit = new Octokit();
 
 const UploadLaunchOverlay = withTranslation()(class UploadLaunchOverlay extends Component {
   constructor(props) {
@@ -28,12 +28,13 @@ const UploadLaunchOverlay = withTranslation()(class UploadLaunchOverlay extends 
   };
 
   UNSAFE_componentWillMount = () => {
-    const uploaderRepo = github.getRepo('tidepool-org/uploader');
-    uploaderRepo.listReleases((err, releases, request) => {
-      if(err){
-        this.setState({error: true});
-      }
-      this.setState(utils.getUploaderDownloadURL(releases));
+    octokit.repos.listReleases({
+      owner: 'tidepool-org',
+      repo: 'uploader'
+    }).then(({ data }) => {
+      this.setState(utils.getUploaderDownloadURL(data));
+    }).catch((error) => {
+      this.setState({ error: true });
     });
   }
 
