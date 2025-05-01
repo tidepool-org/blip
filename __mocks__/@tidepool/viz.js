@@ -1,5 +1,7 @@
 // Mock for @tidepool/viz
-const jest = require('jest-mock');
+
+/* global jest */
+
 module.exports = {
   components: {
     Loader: () => null,
@@ -21,11 +23,11 @@ module.exports = {
       MGDL_PER_MMOLL: 18.01559,
     },
     datetime: {
-      formatDateRange: jest.fn(() => 'Jan 1 - Jan 31'),
-      formatLocalizedFromUTC: jest.fn(() => 'Jan 1, 2023'),
+      formatDateRange: jest.fn(() => 'FORMATTED_DATE'),
+      formatLocalizedFromUTC: jest.fn(() => 'FORMATTED_DATE'),
     },
     format: {
-      formatBgValue: jest.fn((val) => val.toString()),
+      formatBgValue: jest.fn((val) => `${val}%`),
       formatPercentage: jest.fn((val) => `${val}%`),
     },
   },

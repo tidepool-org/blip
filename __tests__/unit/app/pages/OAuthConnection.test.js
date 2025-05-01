@@ -14,7 +14,6 @@ describe('OAuthConnection', ()  => {
   const mockStore = configureStore([]);
   let store = mockStore({});
   const trackMetric = jest.fn();
-  const mockTranslate = jest.fn().mockImplementation(string => string);
 
   test('displays an error message when unable to detect', () => {
     render(
