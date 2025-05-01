@@ -1693,17 +1693,6 @@ export const ClinicPatients = (props) => {
                           })
                         }
 
-                        { // If tags selected, show the option to clear all tags
-                          pendingFilters.patientTags?.length > 0 &&
-                          <Box mt={3} pt={3} sx={{ borderTop: borders.divider }}>
-                            <Checkbox
-                              label={<Text sx={{ fontSize: 0, fontWeight: 'normal' }}>{t('Patients without any tags')}</Text>}
-                              checked={false}
-                              onChange={() => setPendingFilters({ ...pendingFilters, patientTags: [] })}
-                            />
-                          </Box>
-                        }
-
                         { // If no tags exist, display a message
                           patientTagsFilterOptions.length <= 0 &&
                           <Box>
