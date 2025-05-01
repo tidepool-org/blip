@@ -128,7 +128,7 @@ describe('ClinicPatients', () => {
     patients: {},
     id: 'clinicID123',
     address: '2 Address Ln, City Zip',
-    country: 'US',
+    country: 'CA',
     name: 'other_clinic_name',
     email: 'other_clinic_email_address@example.com',
     timezone: 'US/Eastern',
