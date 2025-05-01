@@ -1,5 +1,3 @@
-/* global chai */
-
 require('@babel/polyfill');
 require('intl/locale-data/jsonp/en.js');
 require('intl-pluralrules');
