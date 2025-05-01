@@ -574,7 +574,7 @@ export const DataConnections = (props) => {
   ]);
 
   useEffect(() => {
-    handleAsyncResult({ ...updatingClinicPatient, prevInProgress: previousUpdatingClinicPatient?.inProgress}, t('You have successfully updated a patient.'), handleCreateOrUpdatePatientComplete);
+    handleAsyncResult({ ...updatingClinicPatient, prevInProgress: previousUpdatingClinicPatient?.inProgress}, t('You have successfully updated a patient.'), handleUpdatePatientComplete);
   }, [
     handleAsyncResult,
     handleUpdatePatientComplete,
@@ -584,7 +584,7 @@ export const DataConnections = (props) => {
   ]);
 
   useEffect(() => {
-    handleAsyncResult({ ...creatingClinicCustodialAccount, prevInProgress: previousCreatingClinicCustodialAccount?.inProgress}, t('You have successfully updated a patient.'), handleCreateOrUpdatePatientComplete);
+    handleAsyncResult({ ...creatingClinicCustodialAccount, prevInProgress: previousCreatingClinicCustodialAccount?.inProgress}, t('You have successfully updated a patient.'), handleCreatePatientComplete);
   }, [
     handleAsyncResult,
     handleCreatePatientComplete,
