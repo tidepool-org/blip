@@ -20,7 +20,5 @@ enzyme.configure({
   disableLifecycleMethods: true,
 });
 
-// Load Enzyme tests in './test
-const context = require.context('./test', true, /\.test\.js$/);
+const context = require.context('./test', true, /\.test\.js$/); // Load .js files in /test
 context.keys().forEach(context);
-
