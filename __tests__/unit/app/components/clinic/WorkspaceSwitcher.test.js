@@ -1,4 +1,4 @@
-/* global jest, test, expect, describe */
+/* global jest, it, test, expect, describe */
 
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
@@ -7,15 +7,16 @@ import configureStore from 'redux-mock-store'; // for mockStore
 import thunk from 'redux-thunk';
 
 import api from '../../../../../app/core/api';
+import * as actions from '../../../../../app/redux/actions';
 
 // Mock the actions
 jest.mock('../../../../../app/redux/actions', () => ({
   sync: {
-    setPatientListSearchTextInput: jest.fn().mockReturnValue({ type: 'MOCK_ACTION' }),
-    setIsPatientListVisible: jest.fn().mockReturnValue({ type: 'MOCK_ACTION' }),
+    setPatientListSearchTextInput: jest.fn(),
+    setIsPatientListVisible: jest.fn(),
   },
   async: {
-    selectClinic: jest.fn().mockReturnValue({ type: 'MOCK_ACTION' }),
+    selectClinic: jest.fn(),
   },
 }));
 
@@ -23,6 +24,10 @@ import WorkspaceSwitcher from '../../../../../app/components/clinic/WorkspaceSwi
 import { Provider } from 'react-redux';
 
 describe('WorkspaceSwitcher', ()  => {
+  actions.sync.setPatientListSearchTextInput.mockReturnValue({ type: 'MOCK_ACTION' });
+  actions.sync.setIsPatientListVisible.mockReturnValue({ type: 'MOCK_ACTION' });
+  actions.async.selectClinic.mockReturnValue({ type: 'MOCK_ACTION' });
+
   const mockUserId = '51263e09-799c-4be8-b03e-16c79dee76c7';
   const storeFixture = {
     blip: {
@@ -53,7 +58,7 @@ describe('WorkspaceSwitcher', ()  => {
 
   const trackMetric = jest.fn();
 
-  test('Displays the name of the selected clinic', async () => {
+  it('Allows switching of workspace', async () => {
     render(
       <Provider store={store}>
         <MemoryRouter initialEntries={['/']}>
@@ -76,6 +81,13 @@ describe('WorkspaceSwitcher', ()  => {
 
     // Select a different workspace option
     fireEvent.click(firstClinicButton);
+
+    // It resets the filter status
+    expect(actions.sync.setPatientListSearchTextInput).toHaveBeenCalledWith('');
+    expect(actions.sync.setIsPatientListVisible).toHaveBeenCalledWith(false);
+
+    // It calls the API to fetch data for the new clinic
+    expect(actions.async.selectClinic).toHaveBeenCalledWith(api, '521cf');
 
     // Trackmetric is called with the correct arguments
     expect(trackMetric).toHaveBeenCalledWith(
