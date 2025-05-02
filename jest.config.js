@@ -28,7 +28,10 @@ module.exports = {
     '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
   },
   transformIgnorePatterns: [
-    // This pattern ensures that Babel processes @tidepool/viz and all its dependencies
+    // This pattern ensures that Babel processes @tidepool/viz and all its dependencies.
+    // In the event that a `Jest failed to parse a file` error is encountered and it is
+    // a node_module, the module name can be added here to be processed by Babel.
+
     'node_modules/(?!(.*\\.mjs$|@tidepool/viz|internmap|react-markdown|vfile|unist-util-stringify-position|unified|bail|is-plain-obj|trough|remark-parse|mdast-util-from-markdown|mdast-util-to-string|mdast-util-to-hast|micromark|decode-named-character-reference|remark-rehype|unist-util-position|trim-lines|unist-util-visit|unist-util-is|unist-util-generated|mdast-util-definitions|property-information|hast-util-whitespace|space-separated-tokens|comma-separated-tokens))',
   ],
   collectCoverageFrom: [
