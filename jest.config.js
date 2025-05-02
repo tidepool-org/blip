@@ -4,7 +4,6 @@ module.exports = {
   moduleNameMapper: {
     '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$':
       '<rootDir>/__mocks__/fileMock.js',
-    '\\.(css|less)$': 'identity-obj-proxy',
 
     // use minified versions of d3 modules
     'd3-format': '<rootDir>/node_modules/d3-format/dist/d3-format.js',
