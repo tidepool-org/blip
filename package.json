@@ -70,6 +70,7 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^12.1.5",
     "@testing-library/react-hooks": "8.0.1",
+    "@testing-library/user-event": "^14.6.1",
     "@tidepool/viz": "1.46.0-web-3029-dep-updates.2",
     "async": "2.6.4",
     "autoprefixer": "10.4.16",
