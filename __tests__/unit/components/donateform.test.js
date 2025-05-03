@@ -60,6 +60,9 @@ describe('DonateForm', ()  => {
     expect(saveButton).toHaveAttribute('disabled');
     expect(saveButton).toHaveTextContent('Save');
 
+    // No select options should be visible
+    expect(screen.queryByText('ADCES Foundation')).toBeFalsy();
+
     // Click open the Select dropdown
     await userEvent.click(screen.queryByRole('combobox'));
 
