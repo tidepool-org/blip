@@ -71,6 +71,8 @@ describe('WorkspaceSwitcher', ()  => {
       </Provider>
     );
 
+    expect(true).toBe(false);
+
     // Workspace switcher should be labelled with currently selected clinic name
     const dropdownButton = screen.getByRole('button', { id: 'workspace-switcher-button' });
     expect(dropdownButton.textContent).toBe('Second Clinic Workspace');
