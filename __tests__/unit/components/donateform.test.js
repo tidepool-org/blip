@@ -27,8 +27,6 @@ describe('DonateForm', ()  => {
 
     render(<DonateForm {...testProps} />);
 
-    expect(true).toBe(false);
-
     // Data donate checkbox should be unchecked and enabled
     expect(screen.getByLabelText('Donate my anonymized data')).not.toBeChecked();
     expect(screen.getByLabelText('Donate my anonymized data')).toBeDisabled();

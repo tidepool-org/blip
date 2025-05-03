@@ -7,7 +7,7 @@
   "version": "1.85.0-web-3029-dep-updates.2",
   "private": true,
   "scripts": {
-    "test": "TZ=UTC NODE_ENV=test yarn jest __tests__ --verbose; TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' yarn karma start",
+    "test": "TZ=UTC NODE_ENV=test yarn jest __tests__ --verbose; JEST_EXIT_CODE=$?; TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' yarn karma start; KARMA_EXIT_CODE=$?; [ $JEST_EXIT_CODE -eq 0 ] && [ $KARMA_EXIT_CODE -eq 0 ]",
     "test-enzyme": "TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' yarn karma start",
     "test-rtl": "TZ=UTC NODE_ENV=test yarn jest __tests__ --verbose",
     "pretest": "NODE_ENV=test npm run lint",
