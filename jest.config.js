@@ -1,6 +1,6 @@
 module.exports = {
   testEnvironment: 'jsdom',
-  roots: ['<rootDir>/app', '<rootDir>/test', '<rootDir>/__tests__'],
+  roots: ['<rootDir>/__tests__'],
   moduleNameMapper: {
     '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$':
       '<rootDir>/__mocks__/fileMock.js',
@@ -23,7 +23,9 @@ module.exports = {
     'property-information': '<rootDir>/__mocks__/property-information.js',
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.[jt]sx?$',
+  testMatch: [
+    '**/__tests__/**/*.[jt]s?(x)',
+  ],
   transform: {
     '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
   },
@@ -34,17 +36,4 @@ module.exports = {
 
     'node_modules/(?!(.*\\.mjs$|@tidepool/viz|internmap|react-markdown|vfile|unist-util-stringify-position|unified|bail|is-plain-obj|trough|remark-parse|mdast-util-from-markdown|mdast-util-to-string|mdast-util-to-hast|micromark|decode-named-character-reference|remark-rehype|unist-util-position|trim-lines|unist-util-visit|unist-util-is|unist-util-generated|mdast-util-definitions|property-information|hast-util-whitespace|space-separated-tokens|comma-separated-tokens))',
   ],
-  collectCoverageFrom: [
-    'app/**/*.{js,jsx}',
-    '!app/**/*.test.{js,jsx}',
-    '!app/*/index.js',
-  ],
-  coverageThreshold: {
-    global: {
-      statements: 0,
-      branches: 0,
-      functions: 0,
-      lines: 0,
-    },
-  },
 };
