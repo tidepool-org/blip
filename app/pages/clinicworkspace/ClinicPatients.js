@@ -3377,13 +3377,16 @@ export const ClinicPatients = (props) => {
     const sort = patientFetchOptions.sort || defaultPatientFetchOptions.sort;
 
     const hasActiveFilters = hasAppliedFilters(activeFilters);
-    const hasData = data?.length > 0;
+    const hasSearchActive = !!patientListSearchTextInput;
+
+    // Show the Filter Reset Bar only if data exists and any filters are applied
+    const showFilterResetBar = (data?.length > 0) && (hasActiveFilters || hasSearchActive);
 
     return (
       <Box>
         <Loader show={loading} overlay={true} />
 
-        { hasData && hasActiveFilters &&
+        { showFilterResetBar &&
           <FilterResetBar rightSideContent={
             <ClearFilterButtons
               activeFilters={activeFilters}
