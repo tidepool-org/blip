@@ -163,19 +163,23 @@ const ClearButton = styled.button`
   text-decoration: underline;
 `;
 
-const ClearFilterButtons = withTranslation()(({ t, activeFilters = {}, onClearSearch, onResetFilters }) => {
-  const { patientListSearchTextInput } = useSelector(state => state.blip.patientListFilters);
+const hasAppliedFilters = (activeFilters = {}) => {
   const { lastData, lastDataType, timeCGMUsePercent, timeInRange, patientTags } = activeFilters;
 
-  const hasSearchActive = !!patientListSearchTextInput;
-
-  const hasFiltersActive = (
+  return (
     lastData ||
     lastDataType ||
     timeCGMUsePercent ||
     timeInRange?.length > 0 ||
     patientTags?.length > 0
   );
+};
+
+const ClearFilterButtons = withTranslation()(({ t, activeFilters = {}, onClearSearch, onResetFilters }) => {
+  const { patientListSearchTextInput } = useSelector(state => state.blip.patientListFilters);
+
+  const hasFiltersActive = hasAppliedFilters(activeFilters);
+  const hasSearchActive = !!patientListSearchTextInput;
 
   if (!hasSearchActive && !hasFiltersActive) return null;
 
@@ -3372,11 +3376,14 @@ export const ClinicPatients = (props) => {
     const page = Math.ceil(patientFetchOptions.offset / patientFetchOptions.limit) + 1;
     const sort = patientFetchOptions.sort || defaultPatientFetchOptions.sort;
 
+    const hasActiveFilters = hasAppliedFilters(activeFilters);
+    const hasData = data?.length > 0;
+
     return (
       <Box>
         <Loader show={loading} overlay={true} />
 
-        { data?.length > 0 &&
+        { hasData && hasActiveFilters &&
           <FilterResetBar rightSideContent={
             <ClearFilterButtons
               activeFilters={activeFilters}
