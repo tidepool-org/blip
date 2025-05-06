@@ -627,6 +627,13 @@ describe('ClinicPatients', () => {
       expect(wrapper.find('.table-empty-text').hostNodes().text()).includes('There are no results to show');
     });
 
+    describe('Filter Reset Bar', () => {
+      it('should hide the Filter Reset Bar', () => {
+        const filterResetBar = wrapper.find('.filter-reset-bar').hostNodes();
+        expect(filterResetBar).to.have.lengthOf(0);
+      });
+    });
+
     it('should open a modal for adding a new patient', done => {
       const addButton = wrapper.find('button#add-patient');
       expect(addButton.text()).to.equal('Add New Patient');
@@ -949,6 +956,13 @@ describe('ClinicPatients', () => {
 
     afterEach(() => {
       ClinicPatients.__ResetDependency__('useLocalStorage');
+    });
+
+    describe('Filter Reset Bar', () => {
+      it('should hide the Filter Reset Bar', () => {
+        const filterResetBar = wrapper.find('.filter-reset-bar').hostNodes();
+        expect(filterResetBar).to.have.lengthOf(0);
+      });
     });
 
     describe('when Reset Filters button is clicked', function () {
@@ -2007,6 +2021,11 @@ describe('ClinicPatients', () => {
 
           afterEach(() => {
             ClinicPatients.__ResetDependency__('useLocalStorage');
+          });
+
+          it('should show the Filter Reset Bar', () => {
+            const filterResetBar = wrapper.find('.filter-reset-bar').hostNodes();
+            expect(filterResetBar).to.have.lengthOf(1);
           });
 
           it('should allow filtering by summary period', () => {
