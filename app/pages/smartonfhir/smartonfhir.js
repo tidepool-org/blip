@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import PropTypes from 'prop-types';
@@ -31,9 +31,18 @@ export const SmartOnFhir = (props) => {
   const working = useSelector(state => state.blip.working);
 
   const dispatch = useDispatch();
-  const fetchPatients = (api, params, callback) => dispatch(async.fetchPatients(api, params, callback));
-  const setSmartCorrelationId = (correlationId) => dispatch(sync.setSmartCorrelationId(correlationId));
-  const navigateTo = (path) => dispatch(push(path));
+  const fetchPatients = useCallback((api, params, callback) =>
+    dispatch(async.fetchPatients(api, params, callback)),
+    [dispatch]
+  );
+  const setSmartCorrelationId = useCallback((correlationId) =>
+    dispatch(sync.setSmartCorrelationId(correlationId)),
+    [dispatch]
+  );
+  const navigateTo = useCallback((path) =>
+    dispatch(push(path)),
+    [dispatch]
+  );
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState(null);

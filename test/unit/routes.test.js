@@ -1488,7 +1488,7 @@ describe('routes', () => {
       requireSmartOnFhir(api, cb)(dispatch, getState);
 
       expect(dispatch.callCount).to.equal(1);
-      expect(dispatch.args[0][0].payload.args[0]).to.equal('/login');
+      expect(dispatch.args[0][0].payload.args[0]).to.eql({ pathname: '/login'});
       expect(cb.callCount).to.equal(1);
       expect(cb.args[0][0]).to.equal(false);
     });

@@ -420,10 +420,10 @@ export const onUploaderPasswordReset = (api, cb = _.noop) => (dispatch) => {
  * @param {Object} api
  */
 export const requireSmartOnFhir = (api, cb = _.noop) => (dispatch, getState) => {
-  const { blip: state } = getState();
+  const { blip: state, router: routerState } = getState();
 
   if (!state.smartOnFhirData) {
-    dispatch(push('/login'));
+    dispatch(push({ ...routerState?.location, pathname: '/login' }));
     return cb(false);
   }
 
