@@ -163,19 +163,23 @@ const ClearButton = styled.button`
   text-decoration: underline;
 `;
 
-const ClearFilterButtons = withTranslation()(({ t, activeFilters = {}, onClearSearch, onResetFilters }) => {
-  const { patientListSearchTextInput } = useSelector(state => state.blip.patientListFilters);
+const hasAppliedFilters = (activeFilters = {}) => {
   const { lastData, lastDataType, timeCGMUsePercent, timeInRange, patientTags } = activeFilters;
 
-  const hasSearchActive = !!patientListSearchTextInput;
-
-  const hasFiltersActive = (
+  return (
     lastData ||
     lastDataType ||
     timeCGMUsePercent ||
     timeInRange?.length > 0 ||
     patientTags?.length > 0
   );
+};
+
+const ClearFilterButtons = withTranslation()(({ t, activeFilters = {}, onClearSearch, onResetFilters }) => {
+  const { patientListSearchTextInput } = useSelector(state => state.blip.patientListFilters);
+
+  const hasFiltersActive = hasAppliedFilters(activeFilters);
+  const hasSearchActive = !!patientListSearchTextInput;
 
   if (!hasSearchActive && !hasFiltersActive) return null;
 
@@ -204,6 +208,7 @@ const FilterResetBar = withTranslation()(({ t, rightSideContent }) => {
 
   return (
     <Flex
+      className='filter-reset-bar'
       px={2}
       py={2}
       sx={{
@@ -3372,11 +3377,17 @@ export const ClinicPatients = (props) => {
     const page = Math.ceil(patientFetchOptions.offset / patientFetchOptions.limit) + 1;
     const sort = patientFetchOptions.sort || defaultPatientFetchOptions.sort;
 
+    const hasActiveFilters = hasAppliedFilters(activeFilters);
+    const hasSearchActive = !!patientListSearchTextInput;
+
+    // Show the Filter Reset Bar only if data exists and any filters are applied
+    const showFilterResetBar = (data?.length > 0) && (hasActiveFilters || hasSearchActive);
+
     return (
       <Box>
         <Loader show={loading} overlay={true} />
 
-        { data?.length > 0 &&
+        { showFilterResetBar &&
           <FilterResetBar rightSideContent={
             <ClearFilterButtons
               activeFilters={activeFilters}
