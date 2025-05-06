@@ -25,10 +25,15 @@ module.exports = {
   ],
   transform: {
     '^.+\\.(js|jsx|ts|tsx)$': [
-      'esbuild-jest',
+      '@swc/jest',
       {
-        sourcemap: true,
-        loaders: { '.js': 'jsx' },
+        'test': '.js?$',
+        'jsc': {
+          'parser': {
+            'syntax': 'ecmascript',
+            'jsx': true,
+          },
+        },
       },
     ],
   },
