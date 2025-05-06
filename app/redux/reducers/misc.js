@@ -1081,6 +1081,20 @@ export const smartOnFhirData = (state = initialState.smartOnFhirData, action) =>
   }
 };
 
+export const smartCorrelationId = (state = null, action) => {
+  switch (action.type) {
+    case types.SET_SMART_CORRELATION_ID:
+      if (state === null) {
+        return action.payload.correlationId;
+      }
+      return state;
+    case types.LOGOUT_REQUEST:
+      return null;
+    default:
+      return state;
+  }
+};
+
 export const tideDashboardPatients = (state = initialState.tideDashboardPatients, action) => {
   switch (action.type) {
     case types.FETCH_TIDE_DASHBOARD_PATIENTS_SUCCESS:

@@ -2294,6 +2294,13 @@ export function smartOnFhirAuthSuccess(smartOnFhirData) {
   };
 }
 
+export function setSmartCorrelationId(correlationId) {
+  return {
+    type: ActionTypes.SET_SMART_CORRELATION_ID,
+    payload: { correlationId },
+  };
+}
+
 export function fetchInfoRequest() {
   return {
     type: ActionTypes.FETCH_INFO_REQUEST,

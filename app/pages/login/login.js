@@ -38,6 +38,8 @@ export const Login = withTranslation()(class extends React.Component {
     signupEmail: PropTypes.string,
     signupKey: PropTypes.string,
     routerState: PropTypes.object.isRequired,
+    smartCorrelationId: PropTypes.string,
+    setSmartCorrelationId: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -97,13 +99,21 @@ export const Login = withTranslation()(class extends React.Component {
     const urlParams = new URLSearchParams(routerState?.location?.search);
     const iss = sessionStorage.getItem('smart_iss') || urlParams.get('iss');
     const launch = sessionStorage.getItem('smart_launch') || urlParams.get('launch');
-    let correlationId = sessionStorage.getItem('smart_correlation_id');
+
+    let correlationId = this.props.smartCorrelationId;
+
+    if (!correlationId) {
+      correlationId = sessionStorage.getItem('smart_correlation_id');
+    }
 
     if (iss && launch && !correlationId) {
       correlationId = crypto.randomUUID();
+
       sessionStorage.setItem('smart_correlation_id', correlationId);
       sessionStorage.setItem('smart_iss', iss);
       sessionStorage.setItem('smart_launch', launch);
+
+      this.props.setSmartCorrelationId(correlationId);
     }
 
     // for those accepting an invite, forward to keycloak login when available
@@ -314,13 +324,15 @@ export function mapStateToProps(state) {
     keycloakConfig: state.blip.keycloakConfig,
     confirmingSignup: state.blip.working.confirmingSignup,
     routerState: state.router,
+    smartCorrelationId: state.blip.smartCorrelationId,
   };
 }
 
 const mapDispatchToProps = dispatch => bindActionCreators({
   onSubmit: actions.async.login,
   acknowledgeNotification: actions.sync.acknowledgeNotification,
-  confirmSignup: actions.async.confirmSignup
+  confirmSignup: actions.async.confirmSignup,
+  setSmartCorrelationId: actions.sync.setSmartCorrelationId
 }, dispatch);
 
 const mergeProps = (stateProps, dispatchProps, ownProps) => {

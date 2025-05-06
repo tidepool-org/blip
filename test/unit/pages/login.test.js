@@ -7,12 +7,13 @@
 /* global after */
 /* global afterEach */
 
-import React from'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import mutationTracker from 'object-invariant-test-helper';
 import { BrowserRouter } from 'react-router-dom';
 import { mount } from 'enzyme';
 
-import Login, { Login as LoginFunction, mapStateToProps } from'../../../app/pages/login/login.js';
+import Login, { Login as LoginFunction, mapStateToProps } from '../../../app/pages/login/login.js';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
@@ -35,6 +36,7 @@ describe('Login', () => {
       isInvite: false,
       onSubmit: sinon.stub(),
       trackMetric: sinon.stub(),
+      setSmartCorrelationId: sinon.stub(),
       working: false,
       fetchingInfo: {
         inProgress: false,
@@ -59,6 +61,7 @@ describe('Login', () => {
       console.error = sinon.stub();
 
       mount(<BrowserRouter><LoginFunction {...props} /></BrowserRouter>)
+      console.log('console.error', console.error.getCall(0));
       expect(console.error.callCount).to.equal(0);
     });
 
@@ -73,7 +76,7 @@ describe('Login', () => {
           working: {
             loggingIn: defaultWorkingState,
             confirmingSignup: defaultWorkingState,
-            fetchingInfo: {...defaultWorkingState, completed: true},
+            fetchingInfo: { ...defaultWorkingState, completed: true },
           },
           keycloakConfig: {
             url: 'someUrl',
@@ -178,7 +181,7 @@ describe('Login', () => {
             api: {
               user: {
                 isAuthenticated: sinon.stub().returns(false),
-                confirmSignUp: sinon.stub().callsArgWith(1, {status: 409}),
+                confirmSignUp: sinon.stub().callsArgWith(1, { status: 409 }),
               }
             },
             location: {
@@ -280,13 +283,13 @@ describe('Login', () => {
         initialized: false,
       },
       working: {
-        confirmingSignup: {inProgress: false, notification: null},
-        loggingIn: {inProgress: false, notification: {type: 'alert', message: 'Hi!'}}
+        confirmingSignup: { inProgress: false, notification: null },
+        loggingIn: { inProgress: false, notification: { type: 'alert', message: 'Hi!' } }
       }
     };
 
     const tracked = mutationTracker.trackObj(state);
-    const result = mapStateToProps({blip: state});
+    const result = mapStateToProps({ blip: state });
 
     it('should not mutate the state', () => {
       expect(mutationTracker.hasMutated(tracked)).to.be.false;
@@ -311,24 +314,24 @@ describe('Login', () => {
     it('should map working.confirmingSignup.notification to notification if working.loggingIn.notification is null', () => {
       const anotherState = {
         working: {
-          loggingIn: {inProgress: false, notification: null},
-          confirmingSignup: {inProgress: false, notification: {status: 500, body: 'Error :('}}
+          loggingIn: { inProgress: false, notification: null },
+          confirmingSignup: { inProgress: false, notification: { status: 500, body: 'Error :(' } }
         }
       };
-      const anotherRes = mapStateToProps({blip: anotherState});
+      const anotherRes = mapStateToProps({ blip: anotherState });
       expect(anotherRes.notification).to.equal(anotherState.working.confirmingSignup.notification);
     });
 
     describe('when some state is `null`', () => {
       const state = {
         working: {
-          confirmingSignup: {inProgress: false, notification: null},
-          loggingIn: {inProgress: false, notification: null}
+          confirmingSignup: { inProgress: false, notification: null },
+          loggingIn: { inProgress: false, notification: null }
         }
       };
 
       const tracked = mutationTracker.trackObj(state);
-      const result = mapStateToProps({blip: state});
+      const result = mapStateToProps({ blip: state });
 
       it('should not mutate the state', () => {
         expect(mutationTracker.hasMutated(tracked)).to.be.false;
@@ -340,3 +343,23 @@ describe('Login', () => {
     });
   });
 });
+
+LoginFunction.propTypes = {
+  acknowledgeNotification: PropTypes.func.isRequired,
+  confirmSignup: PropTypes.func.isRequired,
+  fetchers: PropTypes.array.isRequired,
+  isInvite: PropTypes.bool.isRequired,
+  notification: PropTypes.object,
+  onSubmit: PropTypes.func.isRequired,
+  seedEmail: PropTypes.string,
+  trackMetric: PropTypes.func.isRequired,
+  working: PropTypes.bool.isRequired,
+  keycloakConfig: PropTypes.object,
+  fetchingInfo: PropTypes.object.isRequired,
+  location: PropTypes.object.isRequired,
+  signupEmail: PropTypes.string,
+  signupKey: PropTypes.string,
+  routerState: PropTypes.object.isRequired,
+  smartCorrelationId: PropTypes.string,
+  setSmartCorrelationId: PropTypes.func.isRequired,
+};

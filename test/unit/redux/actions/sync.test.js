@@ -4580,24 +4580,41 @@ describe('Actions', () => {
 
   describe('smartOnFhirAuthSuccess', () => {
     it('should be a TSA', () => {
-      let smartOnFhirData = { foo: 'bar' };
+      let smartOnFhirData = { patients: { 'patient123': { mrn: '123456' } } };
       let action = sync.smartOnFhirAuthSuccess(smartOnFhirData);
-
       expect(isTSA(action)).to.be.true;
     });
 
     it('type should equal SMART_ON_FHIR_AUTH_SUCCESS', () => {
-      let smartOnFhirData = { foo: 'bar' };
+      let smartOnFhirData = { patients: { 'patient123': { mrn: '123456' } } };
       let action = sync.smartOnFhirAuthSuccess(smartOnFhirData);
-
-      expect(action.type).to.equal(ActionTypes.SMART_ON_FHIR_AUTH_SUCCESS);
+      expect(action.type).to.equal('SMART_ON_FHIR_AUTH_SUCCESS');
     });
 
     it('payload should contain smartOnFhirData', () => {
-      let smartOnFhirData = { foo: 'bar' };
+      let smartOnFhirData = { patients: { 'patient123': { mrn: '123456' } } };
       let action = sync.smartOnFhirAuthSuccess(smartOnFhirData);
-
       expect(action.payload.smartOnFhirData).to.equal(smartOnFhirData);
+    });
+  });
+
+  describe('setSmartCorrelationId', () => {
+    it('should be a TSA', () => {
+      let correlationId = 'correlation123';
+      let action = sync.setSmartCorrelationId(correlationId);
+      expect(isTSA(action)).to.be.true;
+    });
+
+    it('type should equal SET_SMART_CORRELATION_ID', () => {
+      let correlationId = 'correlation123';
+      let action = sync.setSmartCorrelationId(correlationId);
+      expect(action.type).to.equal('SET_SMART_CORRELATION_ID');
+    });
+
+    it('payload should contain correlationId', () => {
+      let correlationId = 'correlation123';
+      let action = sync.setSmartCorrelationId(correlationId);
+      expect(action.payload.correlationId).to.equal(correlationId);
     });
   });
 
