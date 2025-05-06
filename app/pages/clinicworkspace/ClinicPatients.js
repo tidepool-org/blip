@@ -25,7 +25,7 @@ import reject from 'lodash/reject';
 import upperFirst from 'lodash/upperFirst';
 import values from 'lodash/values';
 import without from 'lodash/without';
-import { Box, Flex, Link, Text } from 'theme-ui';
+import { Box, Flex, Link, Text, Grid } from 'theme-ui';
 import AddIcon from '@material-ui/icons/Add';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import DeleteIcon from '@material-ui/icons/DeleteRounded';
@@ -38,6 +38,7 @@ import SearchIcon from '@material-ui/icons/Search';
 import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined';
 import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
+import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
 import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
 import sundial from 'sundial';
 import ScrollToTop from 'react-scroll-to-top';
@@ -45,6 +46,7 @@ import styled from '@emotion/styled';
 import { scroller } from 'react-scroll';
 import { Formik, Form } from 'formik';
 import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
+import { Link as RouterLink } from 'react-router-dom';
 
 import {
   bindPopover,
@@ -105,9 +107,10 @@ import {
 } from '../../core/clinicUtils';
 
 import { MGDL_UNITS, MMOLL_UNITS, URL_TIDEPOOL_PLUS_PLANS } from '../../core/constants';
-import { borders, radii, colors, space, fontWeights } from '../../themes/baseTheme';
+import baseTheme, { borders, radii, colors, space, fontWeights } from '../../themes/baseTheme';
 import PopoverElement from '../../components/elements/PopoverElement';
 import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
+import Banner from '../../components/elements/Banner';
 import colorPalette from '../../themes/colorPalette';
 
 const { Loader } = vizComponents;
@@ -1697,7 +1700,7 @@ export const ClinicPatients = (props) => {
                           sx={{ fontSize: '14px' }}
                         />}
 
-                        {t('Patient Tags')}
+                        {t('Tags')}
 
                         {!!activeFilters.patientTags?.length && (
                           <Pill
@@ -1731,110 +1734,106 @@ export const ClinicPatients = (props) => {
                       setPendingFilters(activeFilters);
                     }}
                   >
-                    <DialogContent px={2} pt={1} pb={3} dividers>
+                    <DialogContent px={2} pt={1} pb={3} sx={{ maxHeight: '400px', maxWidth: '240px' }} dividers>
                       <Box variant="containers.small">
-                        <Box>
-                          <Text sx={{ color: 'text.primary', fontSize: 1, fontWeight: 'medium', whiteSpace: 'nowrap' }}>
-                            {t('Filter by Patient Tags')}
+                        <Box mb={3}>
+                          <Text sx={{ display: 'block', color: colors.gray50, fontSize: 1, fontWeight: 'medium' }}>
+                            {t('Tags')}
                           </Text>
-
-                          {showTideDashboard && !clinic?.patientTags?.length && (
-                            <Flex mt={3} sx={{ gap: 1, alignItems: 'flex-start' }}>
-                              <Icon
-                                variant="static"
-                                icon={InfoOutlinedIcon}
-                                sx={{ color: 'text.primary', fontSize: '14px' }}
-                              />
-
-                              <Text sx={{ color: 'text.primary', fontSize: 0, fontWeight: 'medium', lineHeight: 2 }}>
-                                {t('To use the TIDE Dashboard, add and apply patient tags.')}
-                              </Text>
-                            </Flex>
-                          )}
+                          { patientTagsFilterOptions.length > 0 &&
+                            <Text sx={{ display: 'block', color: colors.gray50, fontSize: 0, fontStyle: 'italic', maxWidth: '208px', whiteSpace: 'wrap', lineHeight: 1 }}>
+                              {t('Only patients with ALL of the tags you select below will be shown.')}
+                            </Text>
+                          }
                         </Box>
 
-                        {!!pendingFilters.patientTags?.length && (
-                          <Box id="selected-tag-filters" mb={1} sx={{ fontSize: 0, fontWeight: 'medium' }}>
-                            <Text sx={{ fontSize: '10px', color: 'grays.4' }}>{t('Selected Tags')}</Text>
+                        { // Render a list of checkboxes
+                          patientTagsFilterOptions.map(({ id, label }) => {
+                            const { patientTags } = pendingFilters;
+                            const isChecked = patientTags?.includes(id);
 
-                            <TagList
-                              tags={map(pendingFilters.patientTags, tagId => patientTags?.[tagId])}
-                              tagProps={{
-                                onClickIcon: tagId => {
-                                  setPendingFilters({ ...pendingFilters, patientTags: without(pendingFilters.patientTags, tagId) });
-                                },
-                                icon: CloseRoundedIcon,
-                                iconColor: 'white',
-                                iconFontSize: 1,
-                                sx: {
-                                  color: 'white',
-                                  backgroundColor: 'purpleMedium',
-                                },
-                              }}
-                            />
+                            return (
+                              <Box mt={1} className="tag-filter-option" key={`tag-filter-option-${id}`}>
+                                <Checkbox
+                                  id={`tag-filter-option-checkbox-${id}`}
+                                  label={<Text sx={{ fontSize: 0, fontWeight: 'normal' }}>{label}</Text>}
+                                  checked={isChecked}
+                                  onChange={() => {
+                                    if (isChecked) {
+                                      setPendingFilters({ ...pendingFilters, patientTags: without(patientTags, id) });
+                                    } else {
+                                      setPendingFilters({ ...pendingFilters, patientTags: [...patientTags, id] });
+                                    }
+                                  }}
+                                />
+                              </Box>
+                            );
+                          })
+                        }
+
+                        { // If no tags exist, display a message
+                          patientTagsFilterOptions.length <= 0 &&
+                          <Box>
+                            <Box sx={{ fontSize: 1, color: colors.gray50, lineHeight: 1 }}>
+                              {t('Tags help you segment your patient population based on criteria you define, such as clinician, type of diabetes, or care groups.')}
+                            </Box>
+                            { !isClinicAdmin &&
+                              <Box mt={3} pt={3} sx={{ borderTop: `1px solid ${colors.gray05}`, fontSize: 0, color: colors.gray50, lineHeight: 1 }}>
+                                <Trans t={t}>
+                                  Tags can only be created by your Workspace Admins. Not sure who the admins are? Check the Clinic Members list in your&nbsp;
+                                  <RouterLink to='/clinic-admin' style={{ color: colors.purpleBright }}>Workspace Settings.</RouterLink>
+                                </Trans>
+                              </Box>
+                            }
                           </Box>
-                        )}
-
-                        {pendingFilters.patientTags?.length < patientTagsFilterOptions?.length && (
-                          <Box id="available-tag-filters" sx={{ alignItems: 'center', fontSize:0, fontWeight:'medium' }} mt={2} mb={1}>
-                            {!!pendingFilters.patientTags?.length && <Text sx={{ fontSize: '10px', color: 'grays.4' }}>{t('Available Tags')}</Text>}
-
-                            <TagList
-                              tags={map(reject(patientTagsFilterOptions, ({ id }) => includes(pendingFilters.patientTags, id)), ({ id }) => patientTags?.[id])}
-                              tagProps={{
-                                onClick: tagId => {
-                                  setPendingFilters({ ...pendingFilters, patientTags: [...pendingFilters.patientTags, tagId] });
-                                },
-                              }}
-                            />
-                          </Box>
-                        )}
+                        }
                       </Box>
                     </DialogContent>
 
-                    <DialogActions sx={{ justifyContent: 'space-between' }} p={1}>
-                      <Button
-                        id="clear-patient-tags-filter"
-                        sx={{ fontSize: 1 }}
-                        variant="textSecondary"
-                        onClick={() => {
-                          trackMetric(prefixPopHealthMetric('Patient tag filter clear'), { clinicId: selectedClinicId });
-                          setPendingFilters({ ...activeFilters, patientTags: defaultFilterState.patientTags });
-                          setActiveFilters({ ...activeFilters, patientTags: defaultFilterState.patientTags });
+                    { patientTagsFilterOptions.length > 0 &&
+                      <DialogActions sx={{ justifyContent: 'space-around', padding: 2 }} p={1}>
+                        <Button
+                          id="clear-patient-tags-filter"
+                          sx={{ fontSize: 1 }}
+                          variant="textSecondary"
+                          onClick={() => {
+                            trackMetric(prefixPopHealthMetric('Patient tag filter clear'), { clinicId: selectedClinicId });
+                            setPendingFilters({ ...activeFilters, patientTags: defaultFilterState.patientTags });
+                            setActiveFilters({ ...activeFilters, patientTags: defaultFilterState.patientTags });
+                            patientTagsPopupFilterState.close();
+                          }}
+                        >
+                          {t('Clear')}
+                        </Button>
+
+                        <Button id="apply-patient-tags-filter" sx={{ fontSize: 1 }} variant="textPrimary" onClick={() => {
+                          trackMetric(prefixPopHealthMetric('Patient tag filter apply'), { clinicId: selectedClinicId });
+                          setActiveFilters(pendingFilters);
                           patientTagsPopupFilterState.close();
-                        }}
-                      >
-                        {t('Clear')}
-                      </Button>
+                        }}>
+                          {t('Apply')}
+                        </Button>
+                      </DialogActions>
+                    }
 
-                      <Button id="apply-patient-tags-filter" disabled={!pendingFilters.patientTags?.length} sx={{ fontSize: 1 }} variant="textPrimary" onClick={() => {
-                        trackMetric(prefixPopHealthMetric('Patient tag filter apply'), { clinicId: selectedClinicId });
-                        setActiveFilters(pendingFilters);
-                        patientTagsPopupFilterState.close();
-                      }}>
-                        {t('Apply')}
-                      </Button>
-                    </DialogActions>
+                    {isClinicAdmin &&
+                      <DialogActions p={1} sx={{ borderTop: borders.divider }} py={2} px={0}>
+                        <Button
+                          id="show-edit-clinic-patient-tags-dialog"
+                          icon={EditIcon}
+                          iconPosition="left"
+                          sx={{ fontSize: 1 }}
+                          variant="textPrimary"
+                          onClick={() => {
+                            trackMetric(prefixPopHealthMetric('Edit clinic tags open'), { clinicId: selectedClinicId, source: 'Filter menu' });
+                            setShowClinicPatientTagsDialog(true);
+                          }}
+                        >
+                          {t('Edit Tags')}
+                        </Button>
 
-                    <DialogActions
-                      p={1}
-                      sx={{ borderTop: borders.divider, justifyContent: 'space-between' }}
-                    >
-                      <Button
-                        id="show-edit-clinic-patient-tags-dialog"
-                        icon={EditIcon}
-                        iconPosition="left"
-                        sx={{ fontSize: 1 }}
-                        variant="textPrimary"
-                        onClick={() => {
-                          trackMetric(prefixPopHealthMetric('Edit clinic tags open'), { clinicId: selectedClinicId, source: 'Filter menu' });
-                          setShowClinicPatientTagsDialog(true);
-                        }}
-                      >
-                        {t('Edit Available Patient Tags')}
-                      </Button>
-
-                    </DialogActions>
+                      </DialogActions>
+                    }
                   </Popover>
 
                   <Box
@@ -2245,15 +2244,14 @@ export const ClinicPatients = (props) => {
         </DialogTitle>
 
         <DialogContent>
-          <Trans className="ModalOverlay-content" i18nKey="html.peopletable-remove-patient-tag-confirm">
+          <Flex variant="banners.danger" py={3} sx={{ justifyContent: 'flex-start', gap: 2, borderRadius: '4px' }}>
+            <Icon className="icon" theme={baseTheme} variant="static" icon={ErrorRoundedIcon} label='danger' />
             <Body1>
-              Are you sure you want to remove the tag: <strong>{{name}}</strong> from the clinic?
+              <Text sx={{ fontWeight: 'medium' }}>
+                {t('Are you sure you want to remove the tag: "{{name}}" from the workspace?', { name })}
+              </Text>
             </Body1>
-
-            <Body1>
-              This tag will also be removed from any patients who have been tagged with it.
-            </Body1>
-          </Trans>
+          </Flex>
         </DialogContent>
 
         <DialogActions>
@@ -2443,18 +2441,18 @@ export const ClinicPatients = (props) => {
           handleCloseOverlays();
         }}
       >
-        <Box variant="containers.extraSmall" mb={0} sx={{ width: ['100%', '100%'] }}>
+        <Box variant="containers.small" mb={0} sx={{ width: ['100%', '100%'] }}>
           <DialogTitle
-            divider={false}
+            divider
             onClose={() => {
               trackMetric(prefixPopHealthMetric('Edit clinic tags close'), { clinicId: selectedClinicId });
               handleCloseOverlays();
             }}
           >
-            <Body1 sx={{ fontWeight: 'medium' }}>{t('Available Patient Tags')}</Body1>
+            <Body1 sx={{ fontWeight: 'medium', fontSize: 3 }}>{t('Edit Tags')}</Body1>
           </DialogTitle>
 
-          <DialogContent pt={0} divider={false}>
+          <DialogContent pt={0} divider={false} sx={{ minWidth: '512px', maxHeight: '70vh' }}>
             <Formik
               initialValues={{ name: '' }}
               onSubmit={(tag, context) => {
@@ -2466,27 +2464,39 @@ export const ClinicPatients = (props) => {
             >
               {patientTagFormikContext => (
                 <Form id="patient-tag-add">
-                  <Flex mb={3} sx={{ gap: 2 }}>
+                  <Box mt={3}>
+                    <Text sx={{ fontSize: 1, color: 'text.primary', fontWeight: 'medium' }}>
+                      {t('Add a Tag')}{' - '}
+                    </Text>
+                    <Text sx={{ fontSize: 0, color: 'text.primary' }}>
+                      {t('You may add up to {{ maxClinicPatientTags }} tags', { maxClinicPatientTags })}
+                    </Text>
+                  </Box>
+                  <Flex mb={3} mt={1} sx={{ gap: 2, position: 'relative' }}>
                     <TextInput
                       themeProps={{
                         width: '100%',
-                        sx: { input: { height: '22px', py: '0 !important' } },
+                        sx: { width: '100%', input: { height: '38px', py: '0 !important' } },
                         flex: 1,
                         fontSize: '12px',
                       }}
                       disabled={clinic?.patientTags?.length >= maxClinicPatientTags}
                       maxLength={20}
-                      placeholder={t('Add a new tag...')}
-                      description={t('You can add up to {{maxClinicPatientTags}} tags per clinic', { maxClinicPatientTags })}
+                      placeholder={t('Add a Tag')}
                       captionProps={{ mt: 0, fontSize: '10px', color: colors.grays[4] }}
                       variant="condensed"
                       {...getCommonFormikFieldProps('name', patientTagFormikContext)}
                     />
 
                     <Button
-                      disabled={!patientTagFormikContext.values.name.trim().length || clinic?.patientTags?.length >= maxClinicPatientTags || !patientTagFormikContext.isValid}
+                      disabled={!patientTagFormikContext.values.name.trim().length || clinic?.patientTags?.length >= maxClinicPatientTags || !patientTagFormikContext.isValid || patientTagFormikContext.isSubmitting}
                       type="submit"
-                      sx={{ height: '24px', alignSelf: 'flex-start' }}
+                      sx={{
+                        height: '32px',
+                        position: 'absolute',
+                        top: 1,
+                        right: 1,
+                      }}
                     >
                       {t('Add')}
                     </Button>
@@ -2495,21 +2505,56 @@ export const ClinicPatients = (props) => {
               )}
             </Formik>
 
-            <Text mb={2} sx={{ color: 'text.primary', fontWeight: 'medium', fontSize: 0 }}>
-              {isClinicAdmin
-                ? t('Click a tag\'s text to rename it, or click the trash can icon to delete it.')
-                : t('Click a tag\'s text to rename it.')
-              }
-            </Text>
+            { patientTagsFilterOptions.length > 0 &&
+              <>
+                <Box>
+                  <Text sx={{ fontSize: 1, color: 'text.primary', fontWeight: 'medium' }}>
+                    {t('Tags ({{ count }})', { count: clinic?.patientTags?.length || '0' })}{' - '}
+                  </Text>
+                  <Text sx={{ fontSize: 0, color: 'text.primary' }}>
+                    {t('Click on the edit icon to rename the tag or trash icon to delete it.')}
+                  </Text>
+                </Box>
+                <Box mt={1} mb={0}>
+                  <Text sx={{ fontSize: 0, color: colors.gray50, fontStyle: 'italic' }}>
+                    {t('Name')}
+                  </Text>
+                </Box>
+              </>
+            }
 
-            <TagList
-              tags={clinic?.patientTags}
-              tagProps={{
-                icon: isClinicAdmin ? DeleteIcon : undefined,
-                onClickIcon: isClinicAdmin ? tagId => handleDeleteClinicPatientTag(tagId) : undefined,
-                onClick: tagId => handleUpdateClinicPatientTag(tagId),
-              }}
-            />
+            <Box mt={1} id="clinic-patients-edit-tag-list">
+              {
+                clinic?.patientTags?.map(({ id, name }) => (
+                  <Grid py={2} sx={{
+                    gridTemplateColumns: '1fr 72px 16px',
+                    borderTop: `1px solid ${colors.gray05}`,
+                    alignItems: 'center',
+                  }}>
+                    <Flex sx={{ alignItems: 'center'}}>
+                      <Text className="tag-text" sx={{ fontSize: 1, color: 'text.primary' }}>{name}</Text>
+                      <Icon
+                        id={`edit-tag-button-${id}`}
+                        icon={EditIcon}
+                        sx={{ fontSize: 1, marginLeft: 2 }}
+                        onClick={isClinicAdmin ? () => handleUpdateClinicPatientTag(id) : undefined}
+                      />
+                    </Flex>
+                    <Box>
+
+                    </Box>
+                    <Flex sx={{ justifyContent: 'flex-end' }}>
+                      <Icon
+                        id={`delete-tag-button-${id}`}
+                        icon={DeleteIcon}
+                        sx={{ fontSize: 1 }}
+                        onClick={isClinicAdmin ? () => handleDeleteClinicPatientTag(id) : undefined}
+                      />
+                    </Flex>
+                  </Grid>
+                ))
+              }
+            </Box>
           </DialogContent>
         </Box>
       </Dialog>
