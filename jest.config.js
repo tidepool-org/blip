@@ -18,9 +18,6 @@ module.exports = {
     'd3-timer': '<rootDir>/node_modules/d3-timer/dist/d3-timer.min.js',
     'd3-voronoi': '<rootDir>/node_modules/d3-voronoi/dist/d3-voronoi.min.js',
     'd3-time-format': '<rootDir>/node_modules/d3-time-format/dist/d3-time-format.min.js',
-
-    // Mock problematic ES modules
-    'property-information': '<rootDir>/__mocks__/property-information.js',
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testMatch: [
@@ -36,9 +33,9 @@ module.exports = {
     ],
   },
   transformIgnorePatterns: [
-    // This pattern ensures that Babel processes @tidepool/viz and all its dependencies.
+    // This pattern ensures that esbuild processes @tidepool/viz and all its dependencies.
     // In the event that a `Jest failed to parse a file` error is encountered and it is
-    // a node_module, the module name can be added here to be processed by Babel.
+    // a node_module, the module name can be added here to be processed by esbuild.
 
     'node_modules/(?!(.*\\.mjs$|@tidepool/viz|internmap|react-markdown|vfile|unist-util-stringify-position|unified|bail|is-plain-obj|trough|remark-parse|mdast-util-from-markdown|mdast-util-to-string|mdast-util-to-hast|micromark|decode-named-character-reference|remark-rehype|unist-util-position|trim-lines|unist-util-visit|unist-util-is|unist-util-generated|mdast-util-definitions|property-information|hast-util-whitespace|space-separated-tokens|comma-separated-tokens))',
   ],
