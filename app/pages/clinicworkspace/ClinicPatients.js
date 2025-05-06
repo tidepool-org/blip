@@ -1675,7 +1675,7 @@ export const ClinicPatients = (props) => {
                             const isChecked = patientTags?.includes(id);
 
                             return (
-                              <Box mt={1} className="tag-filter-option">
+                              <Box mt={1} className="tag-filter-option" key={`tag-filter-option-${id}`}>
                                 <Checkbox
                                   id={`tag-filter-option-checkbox-${id}`}
                                   label={<Text sx={{ fontSize: 0, fontWeight: 'normal' }}>{label}</Text>}
@@ -2463,7 +2463,7 @@ export const ClinicPatients = (props) => {
                       />
                     </Flex>
                     <Box>
-                      {/* TODO: Insert per-tag patient counts here */}
+
                     </Box>
                     <Flex sx={{ justifyContent: 'flex-end' }}>
                       <Icon
