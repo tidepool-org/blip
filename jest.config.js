@@ -27,7 +27,13 @@ module.exports = {
     '**/__tests__/**/*.[jt]s?(x)',
   ],
   transform: {
-    '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
+    '^.+\\.(js|jsx|ts|tsx)$': [
+      'esbuild-jest',
+      {
+        sourcemap: true,
+        loaders: { '.js': 'jsx' },
+      },
+    ],
   },
   transformIgnorePatterns: [
     // This pattern ensures that Babel processes @tidepool/viz and all its dependencies.
