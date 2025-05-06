@@ -45,6 +45,7 @@ export function Button(props) {
   const themeContext = useContext(ThemeContext);
   const isLeftIcon = iconPosition === 'left';
   const flexDirection = isLeftIcon ? 'row-reverse' : 'row';
+  const hasIcon = !!(icon || iconSrc);
 
   const iconMargins = {
     left: isLeftIcon ? 0 : 2,
@@ -59,7 +60,7 @@ export function Button(props) {
   };
 
   let justifyContent = 'center';
-  if (icon) justifyContent = isLeftIcon ? 'flex-end' : 'flex-start';
+  if (hasIcon) justifyContent = isLeftIcon ? 'flex-end' : 'flex-start';
 
   return (
     <Flex
@@ -87,7 +88,7 @@ export function Button(props) {
           text={tag}
         />
       )}
-      {(icon || iconSrc) && (
+      {hasIcon && (
         <Icon
           tabIndex={-1}
           className="icon"
