@@ -111,6 +111,7 @@ import baseTheme, { borders, radii, colors, space, fontWeights } from '../../the
 import PopoverElement from '../../components/elements/PopoverElement';
 import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
 import Banner from '../../components/elements/Banner';
+import colorPalette from '../../themes/colorPalette';
 
 const { Loader } = vizComponents;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels, formatBgValue } = vizUtils.bg;
@@ -153,6 +154,83 @@ const editPatientDataConnections = (patient, setSelectedPatient, selectedClinicI
   setSelectedPatient(patient);
   setShowDataConnectionsModal(true);
 };
+
+const ClearButton = styled.button`
+  background: none;
+  color: ${colorPalette.extended.indigos[5]};
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  text-underline-offset: 4px;
+  text-decoration: underline;
+`;
+
+const hasAppliedFilters = (activeFilters = {}) => {
+  const { lastData, lastDataType, timeCGMUsePercent, timeInRange, patientTags } = activeFilters;
+
+  return (
+    lastData ||
+    lastDataType ||
+    timeCGMUsePercent ||
+    timeInRange?.length > 0 ||
+    patientTags?.length > 0
+  );
+};
+
+const ClearFilterButtons = withTranslation()(({ t, activeFilters = {}, onClearSearch, onResetFilters }) => {
+  const { patientListSearchTextInput } = useSelector(state => state.blip.patientListFilters);
+
+  const hasFiltersActive = hasAppliedFilters(activeFilters);
+  const hasSearchActive = !!patientListSearchTextInput;
+
+  if (!hasSearchActive && !hasFiltersActive) return null;
+
+  return (
+    <Box>
+      { hasFiltersActive &&
+        <ClearButton
+          className='reset-filters-button'
+          onClick={onResetFilters}>{t('Reset Filters')}
+        </ClearButton> }
+      { hasSearchActive && hasFiltersActive &&
+        <>{' '}{t('or')}{' '}</> }
+      { hasSearchActive &&
+        <ClearButton
+          className='clear-search-button'
+          onClick={onClearSearch}>{t('Clear Search')}
+        </ClearButton> }
+    </Box>
+  );
+});
+
+const FilterResetBar = withTranslation()(({ t, rightSideContent }) => {
+  const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+  const fetchedPatientTotalCount = clinic?.fetchedPatientTotalCount || 0;
+
+  return (
+    <Flex
+      className='filter-reset-bar'
+      px={2}
+      py={2}
+      sx={{
+        backgroundColor: colorPalette.primary.bluePrimary00,
+        borderBottom: '1px solid #D1D6E1',
+        justifyContent: 'space-between',
+      }}
+    >
+      <Text sx={{ fontWeight: 'medium' }}>
+        {t('Showing {{ shown }} of {{ total }} patient accounts', {
+          shown: clinic?.fetchedPatientCount,
+          total: fetchedPatientTotalCount,
+        })}
+      </Text>
+
+      <Box>{rightSideContent}</Box>
+    </Flex>
+  );
+});
 
 const MoreMenu = ({
   patient,
@@ -3124,6 +3202,29 @@ export const ClinicPatients = (props) => {
     setShowDeleteDialog,
   ]);
 
+  const EmptyContentNode = () => (
+    <Flex sx={{
+      backgroundColor: colorPalette.primary.bluePrimary00,
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '90px',
+      flexDirection: 'column',
+      gap: 2,
+      marginBottom: 4,
+      borderBottom: '1px solid #D1D6E1',
+    }}>
+      <Text className="table-empty-text" sx={{ fontWeight: 'medium' }}>
+        {t('There are no results to show')}
+      </Text>
+
+      <ClearFilterButtons
+        activeFilters={activeFilters}
+        onClearSearch={handleClearSearch}
+        onResetFilters={handleResetFilters}
+      />
+    </Flex>
+  );
+
   const columns = useMemo(() => {
     const cols = [
       {
@@ -3306,15 +3407,41 @@ export const ClinicPatients = (props) => {
   ]);
 
   const data = useMemo(() => orderBy(values(clinic?.patients), 'sortIndex'), [clinic?.patients]);
-  const tableStyle = useMemo(() => ({ fontSize: showSummaryData ? 0 : 1 }), [showSummaryData]);
+
+  const tableStyle = useMemo(() => ({
+    fontSize: showSummaryData ? 0 : 1,
+
+    // Hide table if no data
+    '&.MuiTable-root': {
+      display: data?.length > 0 ? 'table' : 'none',
+    },
+  }), [data?.length, showSummaryData]);
 
   const renderPeopleTable = useCallback(() => {
     const pageCount = Math.ceil(clinic?.fetchedPatientCount / patientFetchOptions.limit);
     const page = Math.ceil(patientFetchOptions.offset / patientFetchOptions.limit) + 1;
     const sort = patientFetchOptions.sort || defaultPatientFetchOptions.sort;
+
+    const hasActiveFilters = hasAppliedFilters(activeFilters);
+    const hasSearchActive = !!patientListSearchTextInput;
+
+    // Show the Filter Reset Bar only if data exists and any filters are applied
+    const showFilterResetBar = (data?.length > 0) && (hasActiveFilters || hasSearchActive);
+
     return (
       <Box>
         <Loader show={loading} overlay={true} />
+
+        { showFilterResetBar &&
+          <FilterResetBar rightSideContent={
+            <ClearFilterButtons
+              activeFilters={activeFilters}
+              onClearSearch={handleClearSearch}
+              onResetFilters={handleResetFilters}
+            />
+          }/>
+        }
+
         <Table
           id={'peopleTable'}
           variant={showSummaryData ? 'condensed' : 'default'}
@@ -3325,6 +3452,7 @@ export const ClinicPatients = (props) => {
           onSort={handleSortChange}
           order={sort?.substring(0, 1) === '+' ? 'asc' : 'desc'}
           orderBy={sort?.substring(1)}
+          emptyContentNode={<EmptyContentNode />}
         />
 
         {pageCount > 1 && (

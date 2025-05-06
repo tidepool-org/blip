@@ -354,9 +354,13 @@ export let Patients = withTranslation()(class extends React.Component {
 
         // If they are being redirected here after connecting to a provider, we open up the DataConnections modal
         // immediately so that they can see the status of their connection.
-        if (location.query.openDataConnectionsModalWithStatus) {
-          const status = location.query.openDataConnectionsModalWithStatus;
-          targetPath += `/settings?openDataConnectionsModalWithStatus=${status}`;
+        if (location.query.dataConnectionStatus && location.query.dataConnectionProviderName) {
+          const status = location.query.dataConnectionStatus;
+          const providerName = location.query.dataConnectionProviderName;
+
+          targetPath = `/patients/${patient.userid}/data/settings`
+                     + `?dataConnectionStatus=${status}`
+                     + `&dataConnectionProviderName=${providerName}`;
         }
 
         this.props.history.push(targetPath);

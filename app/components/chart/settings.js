@@ -10,6 +10,7 @@ import moment from 'moment-timezone';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 import DateRangeRoundedIcon from '@material-ui/icons/DateRangeRounded';
 import AddRoundedIcon from '@material-ui/icons/AddRounded';
+import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
 import launchCustomProtocol from 'custom-protocol-detection';
 import { DesktopOnly } from '../mediaqueries';
 
@@ -31,6 +32,7 @@ const deviceName = viz.utils.settings.deviceName;
 import Header from './header';
 import Button from '../elements/Button';
 import Popover from '../elements/Popover';
+import PopoverLabel from '../elements/PopoverLabel';
 import RadioGroup from '../../components/elements/RadioGroup';
 import { usePrevious } from '../../core/hooks';
 import { clinicPatientFromAccountInfo } from '../../core/personutils';
@@ -121,7 +123,7 @@ const Settings = ({
   t
 }) => {
   const { location } = useHistory();
-  const isJustConnected = !!location?.query?.openDataConnectionsModalWithStatus;
+  const isJustConnected = !!location?.query?.dataConnectionStatus;
 
   const [showDataConnectionsModal, setShowDataConnectionsModal] = useState(isJustConnected);
   const [atMostRecent, setAtMostRecent] = useState(true);
@@ -589,6 +591,30 @@ const Settings = ({
           </Button>
         </DialogActions>
       </SettingsPopover>
+
+      <PopoverLabel
+        id="device-settings-info"
+        icon={InfoRoundedIcon}
+        popoverContent={(
+          <Body1 id="device-settings-info-message">{t('If multiple device settings changes were made in a single day, only the final settings are shown.')}</Body1>
+        )}
+        popoverProps={{
+          anchorOrigin: {
+            vertical: 'center',
+            horizontal: 'right',
+          },
+          transformOrigin: {
+            vertical: 'center',
+            horizontal: 'left',
+          },
+          width: 'auto',
+          marginTop: 0,
+          marginBottom: 0,
+          marginLeft: '8px',
+          marginRight: '8px',
+        }}
+        triggerOnHover
+      />
     </Flex>
   );
 
@@ -643,12 +669,10 @@ const Settings = ({
   const renderDeviceConnectionCard = () => {
     const cardProps = {
       id: 'data-connections-card',
-      title: isUserPatient
-        ? t('Connect an Account')
-        : t('Connect a Device Account'),
+      title: t('Connect a Device Account'),
       subtitle: isUserPatient
-        ? t('Do you have a Dexcom or FreeStyle Libre device? When you connect a device account, data can flow into Tidepool without any extra effort.')
-        : t('Does your patient use a Dexcom or FreeStyle Libre device? Automatically sync data from those devices with the patient\'s permission.'),
+        ? t('Do you have a Dexcom or twiist device? When you connect a device account, data can flow into Tidepool without any extra effort.')
+        : t('Does your patient use a Dexcom or twiist device? Automatically sync data from those devices with the patient\'s permission.'),
       bannerImage: DataConnectionsBanner,
       onClick: handleClickDataConnections.bind(null, 'card'),
       variant: 'containers.cardHorizontal',
@@ -668,12 +692,7 @@ const Settings = ({
   );
 
   const renderDataConnections = () => {
-    const shownProviders = _.map(patientData?.dataSources, 'providerName');
-
-    let showAddDevicesButton = false;
-    _.each(activeProviders, providerName => {
-      if (!_.find(patientData?.dataSources, { providerName })) showAddDevicesButton = true;
-    });
+    const shownProviders = _.map(_.filter(patientData?.dataSources, ({ state }) => state !== 'disconnected'), 'providerName');
 
     return (
       <Box>
@@ -681,18 +700,17 @@ const Settings = ({
           <DesktopOnly>
             <MediumTitle sx={{ color: 'black' }}>{t('Devices')}</MediumTitle>
           </DesktopOnly>
-          {showAddDevicesButton && (
-            <Button
-              id="add-data-connections"
-              variant="primaryCondensed"
-              icon={AddRoundedIcon}
-              iconPosition="left"
-              onClick={handleClickDataConnections.bind(null, 'button')}
-              sx={{ fontSize: 1, '.icon': { fontSize: '1.25em' }, flex: ['initial'], width: ['100%', '100%', 'auto'] }}
-            >
-              {t('Add a Device')}
-            </Button>
-            )}
+
+          <Button
+            id="add-data-connections"
+            variant="primaryCondensed"
+            icon={AddRoundedIcon}
+            iconPosition="left"
+            onClick={handleClickDataConnections.bind(null, 'button')}
+            sx={{ fontSize: 1, '.icon': { fontSize: '1.25em' }, flex: ['initial'], width: ['100%', '100%', 'auto'] }}
+          >
+            {t('Add a Device')}
+          </Button>
         </Flex>
 
         <DataConnections mb={4} patient={patientData} shownProviders={shownProviders} trackMetric={trackMetric} />
