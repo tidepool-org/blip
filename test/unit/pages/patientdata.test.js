@@ -5143,8 +5143,9 @@ describe('PatientData', function () {
       });
     });
 
-    it('should return an array containing the patient and patient data fetchers from dispatchProps', () => {
-      const result = getFetchers(dispatchProps, ownProps, stateProps, api);
+    it('should return an array containing the patient and patient data fetchers from dispatchProps when viewing own patient data', () => {
+      const result = getFetchers(dispatchProps, ownProps, { ...stateProps, isUserPatient: true }, api);
+      expect(result).to.have.lengthOf(5);
       expect(result[0]).to.be.a('function');
       expect(result[0]()).to.equal('fetchPatient');
       expect(result[1]).to.be.a('function');
@@ -5157,8 +5158,21 @@ describe('PatientData', function () {
       expect(result[4]()).to.equal('fetchAssociatedAccounts');
     });
 
+    it('should return an array containing the patient and patient data fetchers from dispatchProps when viewing another patient', () => {
+      const result = getFetchers(dispatchProps, ownProps, { ...stateProps, isUserPatient: false }, api);
+      expect(result).to.have.lengthOf(4);
+      expect(result[0]).to.be.a('function');
+      expect(result[0]()).to.equal('fetchPatient');
+      expect(result[1]).to.be.a('function');
+      expect(result[1]()).to.equal('fetchPatientData');
+      expect(result[2]).to.be.a('function');
+      expect(result[2]()).to.equal('fetchPendingSentInvites');
+      expect(result[3]).to.be.a('function');
+      expect(result[3]()).to.equal('fetchAssociatedAccounts');
+    });
+
     it('should only add the associated accounts, patient clinics, and pending invites fetchers if fetches are not already in progress or completed', () => {
-      const standardResult = getFetchers(dispatchProps, ownProps, stateProps, api);
+      const standardResult = getFetchers(dispatchProps, ownProps, { ...stateProps, isUserPatient: true }, api);
       expect(standardResult.length).to.equal(5);
 
       const inProgressResult = getFetchers(dispatchProps, ownProps, {
