@@ -40,5 +40,14 @@
   },
   "plugins": [
     "react"
-  ]
+  ],
+  "overrides": [
+		{
+			"files": ["**/__tests__/**/*.test.[jt]s?(x)"],
+			"extends": ["plugin:testing-library/react"],
+      "rules": {
+        "testing-library/prefer-presence-queries": "off"
+      }
+		}
+	]
 }

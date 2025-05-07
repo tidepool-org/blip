@@ -25,7 +25,7 @@
     "update-translations": "i18next 'app/**/*.js' 'node_modules/tideline/{plugins,js}/**/*.js' \"${TIDEPOOL_DOCKER_VIZ_DIR:-'../viz'}/{storiesDatatypes,storybookDatatypes,stories,src}/**/*.js\" -c i18next-parser.config.json -o .",
     "storybook": "NODE_ENV=test yarn sb dev -p 6006 --ci",
     "build-storybook": "build-storybook",
-    "lint": "yarn eslint app stories test"
+    "lint": "yarn eslint app stories test __tests__"
   },
   "dependencies": {
     "body-parser": "1.20.3",
@@ -109,6 +109,7 @@
     "eslint-plugin-lodash": "7.4.0",
     "eslint-plugin-react": "7.33.2",
     "eslint-plugin-react-hooks": "4.6.0",
+    "eslint-plugin-testing-library": "^7.1.1",
     "file-loader": "6.2.0",
     "formik": "2.4.5",
     "formik-persist-values": "1.4.1",
