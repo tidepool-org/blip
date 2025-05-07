@@ -517,6 +517,7 @@ export const ClinicPatients = (props) => {
   const [showSendPatientSignupEmailDialog, setShowSendPatientSignupEmailDialog] = useState(false);
   const [showSendUploadReminderDialog, setShowSendUploadReminderDialog] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
+  // const [patientSignupEmailSkipped, setPatientSignupEmailSkipped] = useState(false);
   const existingMRNs = useMemo(
     () => compact(map(reject(clinic?.patients, { id: selectedPatient?.id }), 'mrn')),
     [clinic?.patients, selectedPatient?.id]
@@ -698,6 +699,8 @@ export const ClinicPatients = (props) => {
 
   const handleCloseOverlays = useCallback(() => {
     const resetList = showAddPatientDialog || showEditPatientDialog;
+    const sendSignupEmail = selectedPatient?.lastSignupEmailTime === null;
+
     setShowAddPatientDialog(false);
     setShowDeleteDialog(false);
     setShowDataConnectionsModal(false);
@@ -714,11 +717,16 @@ export const ClinicPatients = (props) => {
       setPatientFetchOptions({ ...patientFetchOptions });
     }
 
+    if (sendSignupEmail) {
+      console.log('Send Signup Email Here');
+    }
+
     setTimeout(() => {
       setPatientFormContext(null);
       setSelectedPatient(null);
     });
   }, [
+    selectedPatient,
     showAddPatientDialog,
     showEditPatientDialog,
     patientFetchOptions,
@@ -762,10 +770,15 @@ export const ClinicPatients = (props) => {
     if (patientFormContext?.status?.showDataConnectionsModalNext) {
       let currentPatient = selectedPatient;
 
-      if (patientFormContext?.status?.newPatient && creatingClinicCustodialAccount?.patientId) currentPatient = {
-        ...patientFormContext.status.newPatient,
-        id: creatingClinicCustodialAccount.patientId,
-      };
+      if (patientFormContext?.status?.newPatient && creatingClinicCustodialAccount?.patientId) {
+        currentPatient = {
+          ...patientFormContext.status.newPatient,
+          id: creatingClinicCustodialAccount.patientId,
+          lastSignupEmailTime: null,
+        };
+
+        // setPatientSignupEmailSkipped(true);
+      }
 
       setShowAddPatientDialog(false);
       setShowEditPatientDialog(false);
