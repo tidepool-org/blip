@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Switch, Route } from 'react-router-dom'; // for useParams
 import configureStore from 'redux-mock-store'; // for mockStore
 import thunk from 'redux-thunk';
@@ -76,11 +77,11 @@ describe('WorkspaceSwitcher', ()  => {
     expect(dropdownButton.textContent).toBe('Second Clinic Workspace');
 
     // Open the dropdown
-    fireEvent.click(dropdownButton);
-    const firstClinicButton = screen.getByText('First Clinic Workspace').closest('button');
+    await userEvent.click(dropdownButton);
+    const firstClinicButton = screen.getByRole('button', { name: 'First Clinic Workspace' });
 
     // Select a different workspace option
-    fireEvent.click(firstClinicButton);
+    await userEvent.click(firstClinicButton);
 
     // It resets the filter status
     expect(actions.sync.setPatientListSearchTextInput).toHaveBeenCalledWith('');
