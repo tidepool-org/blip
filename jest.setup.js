@@ -6,6 +6,7 @@ require('@babel/polyfill');
 // Setup Intl polyfill
 global.IntlPolyfill = require('intl');
 require('intl/locale-data/jsonp/en.js');
+require('intl-pluralrules');
 
 // Setup Jest DOM matchers
 require('@testing-library/jest-dom');
