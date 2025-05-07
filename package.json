@@ -8,8 +8,8 @@
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test yarn jest --verbose --runInBand; JEST_EXIT_CODE=$?; TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' yarn karma start; KARMA_EXIT_CODE=$?; [ $JEST_EXIT_CODE -eq 0 ] && [ $KARMA_EXIT_CODE -eq 0 ]",
-    "test-enzyme": "TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' yarn karma start",
-    "test-rtl": "TZ=UTC NODE_ENV=test yarn jest --verbose --runInBand",
+    "test:enzyme": "TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' yarn karma start",
+    "test:rtl": "TZ=UTC NODE_ENV=test yarn jest --verbose --runInBand",
     "pretest": "NODE_ENV=test npm run lint",
     "browser-tests": "TZ=UTC NODE_ENV=test yarn karma start --browsers Chrome",
     "test-watch": "WATCH_MODE=1 TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' yarn karma start --no-single-run --reporters=mocha",
@@ -109,6 +109,7 @@
     "eslint-plugin-lodash": "7.4.0",
     "eslint-plugin-react": "7.33.2",
     "eslint-plugin-react-hooks": "4.6.0",
+    "eslint-plugin-testing-library": "^7.1.1",
     "file-loader": "6.2.0",
     "formik": "2.4.5",
     "formik-persist-values": "1.4.1",

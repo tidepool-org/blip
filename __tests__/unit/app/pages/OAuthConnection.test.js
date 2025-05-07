@@ -15,7 +15,7 @@ describe('OAuthConnection', ()  => {
   let store = mockStore({});
   const trackMetric = jest.fn();
 
-  test('displays an error message when unable to detect', () => {
+  it('displays an error message when unable to detect', () => {
     render(
       <Provider store={store}>
         <MemoryRouter initialEntries={['/oauth/dexcom/unknown']}>
