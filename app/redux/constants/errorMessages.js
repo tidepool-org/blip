@@ -58,6 +58,7 @@ export const ERR_REJECTING_INVITE = t('Something went wrong while rejecting a re
 export const ERR_REMOVING_MEMBER = t('Something went wrong trying to remove a member from a care team.');
 export const ERR_REMOVING_MEMBERSHIP = t('Something went wrong trying to leave a care team.');
 export const ERR_REQUESTING_PASSWORD_RESET = t('Something went wrong trying to request a password reset e-mail.');
+export const ERR_SENDING_PATIENT_SIGNUP_EMAIL = t('Something went wrong trying to send the patient signup e-mail.');
 export const ERR_RESENDING_EMAIL_VERIFICATION = t('Something went wrong trying to resend verification e-mail.');
 export const ERR_SENDING_INVITE = t('Something went wrong sending an outgoing invitation to a care team.');
 export const ERR_SENDING_CLINIC_INVITE = t('Something went wrong sending an outgoing invitation to a clinic.');

@@ -2563,6 +2563,28 @@ export function triggerInitialClinicMigration(api, clinicId) {
 }
 
 /**
+ * Send Signup Email Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ * @param  {String} userId
+ */
+export function sendPatientSignupEmail(api, clinicId, patientId) {
+  return (dispatch) => {
+    dispatch(sync.sendPatientSignupEmailRequest());
+
+    api.user.sendPatientSignupEmail(patientId, function(err) {
+      if (err) {
+        dispatch(sync.sendPatientSignupEmailFailure(
+          createActionError(ErrorMessages.ERR_SENDING_PATIENT_SIGNUP_EMAIL, err), err
+        ));
+      } else {
+        dispatch(sync.sendPatientSignupEmailSuccess(clinicId, patientId, moment().toISOString()))
+      }
+    })
+  };
+}
+
+/**
  * Send an upload reminder email to a clinic patient
  *
  * @param {Object} api - an instance of the API wrapper

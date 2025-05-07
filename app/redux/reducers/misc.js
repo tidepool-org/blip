@@ -822,6 +822,22 @@ export const clinics = (state = initialState.clinics, action) => {
         [clinicId]: { canMigrate: { $set: false } },
       });
     }
+    case types.SEND_PATIENT_SIGNUP_EMAIL_SUCCESS: {
+      const {
+        clinicId,
+        patientId,
+        lastSignupEmailTime,
+      } = action.payload;
+
+      return update(state, {
+        [clinicId]: {
+          patients: { [patientId]: { $set: {
+            ...state[clinicId].patients[patientId],
+            lastSignupEmailTime,
+          } } },
+        },
+      });
+    }
     case types.SEND_PATIENT_UPLOAD_REMINDER_SUCCESS: {
       const {
         clinicId,

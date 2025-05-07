@@ -162,6 +162,7 @@ const MoreMenu = ({
   setShowDataConnectionsModal,
   setShowEditPatientDialog,
   prefixPopHealthMetric,
+  setShowSendPatientSignupEmailDialog,
   setShowSendUploadReminderDialog,
   setShowDeleteDialog,
 }) => {
@@ -172,6 +173,23 @@ const MoreMenu = ({
   const handleEditPatientDataConnections = useCallback(() => {
     editPatientDataConnections(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal, 'action menu');
   }, [patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal]);
+
+  const handleSendPatientSignupEmail = useCallback(
+    (patient) => {
+      trackMetric(prefixPopHealthMetric('Send signup email'), {
+        clinicId: selectedClinicId,
+      });
+      setSelectedPatient(patient);
+      setShowSendPatientSignupEmailDialog(true);
+    },
+    [
+      prefixPopHealthMetric,
+      selectedClinicId,
+      setSelectedPatient,
+      setShowSendPatientSignupEmailDialog,
+      trackMetric,
+    ]
+  );
 
   const handleSendUploadReminder = useCallback(
     (patient) => {
@@ -225,19 +243,34 @@ const MoreMenu = ({
       text: t('Bring Data into Tidepool'),
     });
 
-    if (showSummaryData && patient.email && !patient.permissions?.custodian) {
-      arr.push({
-        iconSrc: SendEmailIcon,
-        iconLabel: t('Send Upload Reminder'),
-        iconPosition: 'left',
-        id: `send-upload-reminder-${patient.id}`,
-        variant: 'actionListItem',
-        onClick: (_popupState) => {
-          _popupState.close();
-          handleSendUploadReminder(patient);
-        },
-        text: t('Send Upload Reminder'),
-      });
+    if (patient.email) {
+      if (showSummaryData && !patient.permissions?.custodian) {
+        arr.push({
+          iconSrc: SendEmailIcon,
+          iconLabel: t('Send Upload Reminder'),
+          iconPosition: 'left',
+          id: `send-upload-reminder-${patient.id}`,
+          variant: 'actionListItem',
+          onClick: (_popupState) => {
+            _popupState.close();
+            handleSendUploadReminder(patient);
+          },
+          text: t('Send Upload Reminder'),
+        });
+      } else if (patient.permissions?.custodian) {
+        arr.push({
+          iconSrc: SendEmailIcon,
+          iconLabel: t('Send Signup Email'),
+          iconPosition: 'left',
+          id: `send-signup-email-${patient.id}`,
+          variant: 'actionListItem',
+          onClick: (_popupState) => {
+            _popupState.close();
+            handleSendPatientSignupEmail(patient);
+          },
+          text: t('Send Signup Email'),
+        });
+      }
     }
 
     if (isClinicAdmin) {
@@ -257,7 +290,9 @@ const MoreMenu = ({
     return arr;
   }, [
     handleEditPatient,
+    handleEditPatientDataConnections,
     handleRemove,
+    handleSendPatientSignupEmail,
     handleSendUploadReminder,
     isClinicAdmin,
     patient,
@@ -479,6 +514,7 @@ export const ClinicPatients = (props) => {
   const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
   const [showClinicPatientTagsDialog, setShowClinicPatientTagsDialog] = useState(false);
   const [showTimeInRangeDialog, setShowTimeInRangeDialog] = useState(false);
+  const [showSendPatientSignupEmailDialog, setShowSendPatientSignupEmailDialog] = useState(false);
   const [showSendUploadReminderDialog, setShowSendUploadReminderDialog] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const existingMRNs = useMemo(
@@ -630,6 +666,7 @@ export const ClinicPatients = (props) => {
     updatingClinicPatient,
     creatingClinicCustodialAccount,
     sendingPatientUploadReminder,
+    sendingPatientSignupEmail,
     creatingClinicPatientTag,
     updatingClinicPatientTag,
     deletingClinicPatientTag,
@@ -648,6 +685,7 @@ export const ClinicPatients = (props) => {
 
   const previousFetchingPatientsForClinic = usePrevious(fetchingPatientsForClinic);
   const previousDeletingPatientFromClinic = usePrevious(deletingPatientFromClinic);
+  const previousSendingPatientSignupEmail = usePrevious(sendingPatientSignupEmail);
   const previousSendingPatientUploadReminder = usePrevious(sendingPatientUploadReminder);
   const previousUpdatingClinicPatient = usePrevious(updatingClinicPatient);
   const previousCreatingClinicCustodialAccount = usePrevious(creatingClinicCustodialAccount);
@@ -666,6 +704,7 @@ export const ClinicPatients = (props) => {
     setShowEditPatientDialog(false);
     setShowClinicPatientTagsDialog(false);
     setShowTimeInRangeDialog(false);
+    setShowSendPatientSignupEmailDialog(false);
     setShowSendUploadReminderDialog(false);
     setShowTideDashboardConfigDialog(false);
     setShowRpmReportConfigDialog(false);
@@ -809,6 +848,13 @@ export const ClinicPatients = (props) => {
     handleAsyncResult({ ...deletingPatientFromClinic, prevInProgress: previousDeletingPatientFromClinic?.inProgress }, successMessage);
   }, [handleAsyncResult, selectedPatient, deletingPatientFromClinic, previousDeletingPatientFromClinic?.inProgress, t]);
 
+  useEffect(() => {
+    const successMessage = t('Uploader reminder email for {{name}} has been sent.', {
+      name: get(selectedPatient, 'fullName', t('this patient')),
+    });
+
+    handleAsyncResult({ ...sendingPatientSignupEmail, prevInProgress: previousSendingPatientSignupEmail?.inProgress }, successMessage);
+  }, [handleAsyncResult, selectedPatient, sendingPatientSignupEmail, previousSendingPatientSignupEmail?.inProgress, t]);
 
   useEffect(() => {
     const successMessage = t('Uploader reminder email for {{name}} has been sent.', {
@@ -1140,6 +1186,12 @@ export const ClinicPatients = (props) => {
     trackMetric(prefixPopHealthMetric('Edit clinic tags confirm delete tag'), { clinicId: selectedClinicId });
     dispatch(actions.async.deleteClinicPatientTag(api, selectedClinicId, selectedPatientTag?.id));
   }, [api, dispatch, selectedClinicId, selectedPatientTag?.id, trackMetric, prefixPopHealthMetric]);
+
+  const handleSendPatientSignupEmailConfirm = useCallback(() => {
+    console.log('selectedPatient', selectedPatient);
+    trackMetric(prefixPopHealthMetric('Send signup email confirmed'), { clinicId: selectedClinicId });
+    dispatch(actions.async.sendPatientSignupEmail(api, selectedClinicId, selectedPatient?.id));
+  }, [api, dispatch, prefixPopHealthMetric, selectedClinicId, selectedPatient?.id, trackMetric]);
 
   const handleSendUploadReminderConfirm = useCallback(() => {
     trackMetric(prefixPopHealthMetric('Send upload reminder confirmed'), { clinicId: selectedClinicId });
@@ -2449,6 +2501,80 @@ export const ClinicPatients = (props) => {
     t,
   ]);
 
+  const renderSendPatientSignupEmailDialog = useCallback(() => {
+    const formattedLastSignupEmailTime = selectedPatient?.lastSignupEmailTime && sundial.formatInTimezone(
+      selectedPatient?.lastSignupEmailTime,
+      timePrefs?.timezoneName || new Intl.DateTimeFormat().resolvedOptions().timeZone,
+      'MM/DD/YYYY [at] h:mm a'
+    );
+
+    return (
+      <Dialog
+        id="SendPatientSignupEmailDialog"
+        aria-labelledby="dialog-title"
+        open={showSendPatientSignupEmailDialog}
+        onClose={handleCloseOverlays}
+      >
+        <DialogTitle onClose={handleCloseOverlays}>
+          <MediumTitle id="dialog-title">{t('Send Signup Email')}</MediumTitle>
+        </DialogTitle>
+        <DialogContent>
+          <Body1>
+            {formattedLastSignupEmailTime ? (
+              <Trans>
+                <Text mb={2}>
+                  An signup email was last sent to <Text as='span' sx={{ fontWeight: 'bold' }}>{{name: selectedPatient?.fullName}}</Text> on <Text as='span' sx={{ fontWeight: 'bold' }}>{{date: formattedLastSignupEmailTime}}</Text>.
+                </Text>
+
+                <Text>
+                  Are you sure you want to send a signup email?
+                </Text>
+              </Trans>
+            ) : (
+              <Trans>
+                <Text>
+                  Are you sure you want to send a signup email to <Text as='span' sx={{ fontWeight: 'bold' }}>{{name: selectedPatient?.fullName}}</Text>?
+                </Text>
+              </Trans>
+            )}
+          </Body1>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              trackMetric(prefixPopHealthMetric('Send signup email declined'), { clinicId: selectedClinicId });
+              handleCloseOverlays();
+            }}
+            >
+            {t('Cancel')}
+          </Button>
+          <Button
+            id="resend-upload-reminder"
+            variant="primary"
+            processing={sendingPatientSignupEmail.inProgress}
+            onClick={() => {
+              handleSendPatientSignupEmailConfirm();
+            }}
+          >
+            {t('Send ')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  }, [
+    handleCloseOverlays,
+    handleSendPatientSignupEmailConfirm,
+    prefixPopHealthMetric,
+    selectedClinicId,
+    selectedPatient,
+    sendingPatientSignupEmail.inProgress,
+    showSendPatientSignupEmailDialog,
+    t,
+    timePrefs?.timezoneName,
+    trackMetric,
+  ]);
+
   const renderSendUploadReminderDialog = useCallback(() => {
     const formattedLastUploadReminderTime = selectedPatient?.lastUploadReminderTime && sundial.formatInTimezone(
       selectedPatient?.lastUploadReminderTime,
@@ -2511,6 +2637,7 @@ export const ClinicPatients = (props) => {
       </Dialog>
     );
   }, [
+    handleCloseOverlays,
     handleSendUploadReminderConfirm,
     prefixPopHealthMetric,
     selectedClinicId,
@@ -3063,6 +3190,7 @@ export const ClinicPatients = (props) => {
       setShowDataConnectionsModal={setShowDataConnectionsModal}
       setShowEditPatientDialog={setShowEditPatientDialog}
       prefixPopHealthMetric={prefixPopHealthMetric}
+      setShowSendPatientSignupEmailDialog={setShowSendPatientSignupEmailDialog}
       setShowSendUploadReminderDialog={setShowSendUploadReminderDialog}
       setShowDeleteDialog={setShowDeleteDialog}
     />;
@@ -3331,6 +3459,7 @@ export const ClinicPatients = (props) => {
       {showRpmReportUI && renderRpmReportConfigDialog()}
       {showRpmReportUI && renderRpmReportLimitDialog()}
       {showTimeInRangeDialog && renderTimeInRangeDialog()}
+      {showSendPatientSignupEmailDialog && renderSendPatientSignupEmailDialog()}
       {showSendUploadReminderDialog && renderSendUploadReminderDialog()}
       {showClinicPatientTagsDialog && renderClinicPatientTagsDialog()}
       {showDataConnectionsModal && renderDataConnectionsModal()}

@@ -374,6 +374,11 @@ function userFromAccountAndProfile(results) {
   return user;
 }
 
+api.user.sendPatientSignupEmail = function(userId, callback) {
+  api.log('POST /confirm/send/signup/' + userId);
+  return tidepool.signupStart(userId, callback);
+};
+
 api.user.resendEmailVerification = function(email, callback) {
   api.log('POST /confirm/resend/signup/' + email);
   return tidepool.signupResend(email, callback);

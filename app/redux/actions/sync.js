@@ -2011,6 +2011,33 @@ export function triggerInitialClinicMigrationFailure(error, apiError) {
   };
 }
 
+export function sendPatientSignupEmailRequest() {
+  return {
+    type: ActionTypes.SEND_PATIENT_SIGNUP_EMAIL_REQUEST,
+  };
+}
+
+export function sendPatientSignupEmailSuccess(clinicId, patientId, lastSignupEmailTime) {
+  return {
+    type: ActionTypes.SEND_PATIENT_SIGNUP_EMAIL_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+      patientId: patientId,
+      lastSignupEmailTime: lastSignupEmailTime,
+    },
+  };
+}
+
+export function sendPatientSignupEmailFailure(error, apiError) {
+  return {
+    type: ActionTypes.SEND_PATIENT_SIGNUP_EMAIL_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
 export function sendPatientUploadReminderRequest() {
   return {
     type: ActionTypes.SEND_PATIENT_UPLOAD_REMINDER_REQUEST,
