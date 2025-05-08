@@ -33,11 +33,11 @@ describe('DonateForm', ()  => {
 
     // Save button should be disabled
     const saveButton = screen.getByText('Save', { selector: 'button' });
-    expect(saveButton).toHaveAttribute('disabled');
+    expect(saveButton).toBeDisabled();
     expect(saveButton).toHaveTextContent('Save');
 
     // Select dropdown should be disabled
-    expect(screen.queryByRole('combobox')).toBeFalsy();
+    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
   });
 
   it('Allows addition of nonprofits when there are no existing selections', async () => {
@@ -53,46 +53,46 @@ describe('DonateForm', ()  => {
 
     // Data donate checkbox should be unchecked and enabled
     expect(screen.getByLabelText('Donate my anonymized data')).not.toBeChecked();
-    expect(screen.getByLabelText('Donate my anonymized data')).not.toBeDisabled();
+    expect(screen.getByLabelText('Donate my anonymized data')).toBeEnabled();
 
     // Save button should be disabled
     const saveButton = screen.getByText('Save', { selector: 'button' });
-    expect(saveButton).toHaveAttribute('disabled');
+    expect(saveButton).toBeDisabled();
     expect(saveButton).toHaveTextContent('Save');
 
     // No select options should be visible
-    expect(screen.queryByText('ADCES Foundation')).toBeFalsy();
+    expect(screen.queryByText('ADCES Foundation')).not.toBeInTheDocument();
 
     // Click open the Select dropdown
-    await userEvent.click(screen.queryByRole('combobox'));
+    await userEvent.click(screen.getByRole('combobox'));
 
     // These select options should be visible
-    expect(screen.queryByText('ADCES Foundation')).toBeTruthy();
-    expect(screen.queryByText('Breakthrough T1D')).toBeTruthy();
-    expect(screen.queryByText('Children with Diabetes')).toBeTruthy();
-    expect(screen.queryByText('The Diabetes Link')).toBeTruthy();
-    expect(screen.queryByText('Diabetes Youth Families (DYF)')).toBeTruthy();
-    expect(screen.queryByText('DiabetesSisters')).toBeTruthy();
-    expect(screen.queryByText('The diaTribe Foundation')).toBeTruthy();
-    expect(screen.queryByText('Breakthrough T1D')).toBeTruthy();
-    expect(screen.queryByText('Nightscout Foundation')).toBeTruthy();
-    expect(screen.queryByText('T1D Exchange')).toBeTruthy();
+    expect(screen.getByText('ADCES Foundation')).toBeInTheDocument();
+    expect(screen.getByText('Breakthrough T1D')).toBeInTheDocument();
+    expect(screen.getByText('Children with Diabetes')).toBeInTheDocument();
+    expect(screen.getByText('The Diabetes Link')).toBeInTheDocument();
+    expect(screen.getByText('Diabetes Youth Families (DYF)')).toBeInTheDocument();
+    expect(screen.getByText('DiabetesSisters')).toBeInTheDocument();
+    expect(screen.getByText('The diaTribe Foundation')).toBeInTheDocument();
+    expect(screen.getByText('Breakthrough T1D')).toBeInTheDocument();
+    expect(screen.getByText('Nightscout Foundation')).toBeInTheDocument();
+    expect(screen.getByText('T1D Exchange')).toBeInTheDocument();
 
     // Select Children with Diabetes
-    await userEvent.click(screen.queryByText('Children with Diabetes'));
+    await userEvent.click(screen.getByText('Children with Diabetes'));
 
     // Data donate checkbox should now be checked and disabled
     expect(screen.getByLabelText('Donate my anonymized data')).toBeChecked();
     expect(screen.getByLabelText('Donate my anonymized data')).toBeDisabled();
 
     // Click on Save button, which should now be enabled
-    expect(saveButton).not.toHaveAttribute('disabled');
+    expect(saveButton).toBeEnabled();
     expect(saveButton).toHaveTextContent('Save');
     await userEvent.click(saveButton);
 
     // Save button should now be disabled
     expect(saveButton).toHaveTextContent('Saved');
-    expect(saveButton).toHaveAttribute('disabled');
+    expect(saveButton).toBeDisabled();
 
     // Callback should be passed arrays of orgs to add or remove. Unchanged orgs are not passed.
     expect(onUpdateDataDonationAccounts).toHaveBeenCalledTimes(1);
@@ -132,26 +132,26 @@ describe('DonateForm', ()  => {
 
     // Save button should be disabled
     const saveButton = screen.getByText('Saved', { selector: 'button' });
-    expect(saveButton).toHaveAttribute('disabled');
+    expect(saveButton).toBeDisabled();
     expect(saveButton).toHaveTextContent('Saved');
 
     // Click open the Select dropdown
-    await userEvent.click(screen.queryByRole('combobox'));
+    await userEvent.click(screen.getByRole('combobox'));
 
     // Select Breakthrough T1D
-    await userEvent.click(screen.queryByText('Breakthrough T1D'));
+    await userEvent.click(screen.getByText('Breakthrough T1D'));
 
     // Remove Children with Diabetes
     await userEvent.click(screen.getByLabelText('Remove Children with Diabetes'));
 
     // Click on Save button, which should now be enabled
-    expect(saveButton).not.toHaveAttribute('disabled');
+    expect(saveButton).toBeEnabled();
     expect(saveButton).toHaveTextContent('Save');
     await userEvent.click(saveButton);
 
     // Save button should now be disabled
     expect(saveButton).toHaveTextContent('Saved');
-    expect(saveButton).toHaveAttribute('disabled');
+    expect(saveButton).toBeDisabled();
 
     // Callback should be passed arrays of orgs to add or remove. Unchanged orgs are not passed.
     expect(onUpdateDataDonationAccounts).toHaveBeenCalledTimes(1);
