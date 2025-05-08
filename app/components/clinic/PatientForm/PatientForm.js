@@ -23,16 +23,18 @@ import ErrorOutlineRoundedIcon from '@material-ui/icons/ErrorOutlineRounded';
 import { Box, Text, BoxProps } from 'theme-ui';
 import moment from 'moment';
 
-import * as actions from '../../redux/actions';
-import TextInput from '../../components/elements/TextInput';
-import { TagList } from '../../components/elements/Tag';
-import { useToasts } from '../../providers/ToastProvider';
-import { getCommonFormikFieldProps } from '../../core/forms';
-import { useInitialFocusedInput, useIsFirstRender, usePrevious } from '../../core/hooks';
-import { dateRegex, patientSchema as validationSchema } from '../../core/clinicUtils';
-import { accountInfoFromClinicPatient } from '../../core/personutils';
-import { Body0 } from '../../components/elements/FontStyles';
-import { borders, colors } from '../../themes/baseTheme';
+import * as actions from '../../../redux/actions';
+import TextInput from '../../../components/elements/TextInput';
+import { TagList } from '../../../components/elements/Tag';
+import { useToasts } from '../../../providers/ToastProvider';
+import { getCommonFormikFieldProps } from '../../../core/forms';
+import { useInitialFocusedInput, useIsFirstRender, usePrevious } from '../../../core/hooks';
+import { dateRegex, patientSchema as validationSchema } from '../../../core/clinicUtils';
+import { accountInfoFromClinicPatient } from '../../../core/personutils';
+import { Body0 } from '../../../components/elements/FontStyles';
+import { borders, colors } from '../../../themes/baseTheme';
+
+import SelectTags from './SelectTags';
 
 export function getFormValues(source, clinicPatientTags) {
   return {
@@ -357,49 +359,10 @@ export const PatientForm = (props) => {
       )}
 
       {showTags && (
-        <Box
-          mt={3}
-          sx={{
-            borderTop: borders.default,
-          }}
-        >
-          {!!values.tags.length && (
-            <Box className='selected-tags' mt={3} mb={1} sx={{ fontSize: 0 }}>
-              <Text mb={1} sx={{ display: 'block', fontWeight: 'medium', color: 'text.primary' }}>{t('Assigned Patient Tags')}</Text>
-
-              <TagList
-                tags={compact(map(values.tags, tagId => clinicPatientTags[tagId]))}
-                tagProps={{
-                  onClickIcon: tagId => {
-                    setFieldValue('tags', without(values.tags, tagId));
-                  },
-                  icon: CloseRoundedIcon,
-                  iconColor: 'white',
-                  iconFontSize: 1,
-                  sx: {
-                    color: 'white',
-                    backgroundColor: 'purpleMedium',
-                  },
-                }}
-              />
-            </Box>
-          )}
-
-          {values.tags.length < (clinic?.patientTags || []).length && (
-            <Box className='available-tags' mb={1} mt={3} sx={{ alignItems: 'center', fontSize: 0 }}>
-              <Text mb={1} sx={{ display: 'block', fontWeight: 'medium', color: 'text.primary' }}>{t('Available Patient Tags')}</Text>
-
-              <TagList
-                tags={map(reject(clinic?.patientTags, ({ id }) => includes(values.tags, id)), ({ id }) => clinicPatientTags?.[id])}
-                tagProps={{
-                  onClick: tagId => {
-                    setFieldValue('tags', [...values.tags, tagId]);
-                  },
-                }}
-              />
-            </Box>
-          )}
-        </Box>
+        <SelectTags
+          currentTagIds={values.tags || []}
+          onChange={tagIds => setFieldValue('tags', tagIds)}
+        />
       )}
     </Box>
   );
