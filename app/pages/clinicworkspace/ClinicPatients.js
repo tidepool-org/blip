@@ -661,10 +661,11 @@ export const ClinicPatients = (props) => {
 
   const patientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
 
-  const patientTagsFilterOptions = useMemo(
-    () => map(clinic?.patientTags, ({ id, name }) => ({ id, label: name })),
-    [clinic?.patientTags]
-  );
+  const patientTagsFilterOptions = useMemo(() => {
+    const options = map(clinic?.patientTags, ({ id, name }) => ({ id, label: name }));
+
+    return orderBy(options, 'label');
+  }, [clinic?.patientTags]);
 
   const defaultSummaryPeriod = '14d';
   const [activeSummaryPeriod, setActiveSummaryPeriod] = useLocalStorage('activePatientSummaryPeriod', defaultSummaryPeriod);
@@ -2525,7 +2526,7 @@ export const ClinicPatients = (props) => {
 
             <Box mt={1} id="clinic-patients-edit-tag-list">
               {
-                clinic?.patientTags?.map(({ id, name }) => (
+                orderBy(clinic?.patientTags, 'name').map(({ id, name }) => (
                   <Grid py={2} sx={{
                     gridTemplateColumns: '1fr 72px 16px',
                     borderTop: `1px solid ${colors.gray05}`,
