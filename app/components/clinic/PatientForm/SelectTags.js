@@ -92,13 +92,11 @@ const SelectTags = ({
     onChange(tagIds);
   };
 
-  // Suggest tags only if clinic has tags feature and current page is the Clinic Patient list (where
-  // the Active Filters show up).
+  // Suggest tags only if clinic has tags feature and user is viewing ClinicPatients list (where Filters are used)
   const shouldSuggestTags = clinic?.entitlements?.patientTags && pathname === '/clinic-workspace';
 
-  const selectOptions = buildSelectOptions(t, clinic?.patientTags, activeFilters, currentTagIds, shouldSuggestTags);
+  const selectOptions = buildSelectOptions( t, clinic?.patientTags, activeFilters, currentTagIds, shouldSuggestTags);
 
-  // Format the currentTagIds for React-Select
   const selectValue = currentTagIds.map(tagId => ({
     label: clinicPatientTags[tagId]?.name || '',
     value: tagId,
