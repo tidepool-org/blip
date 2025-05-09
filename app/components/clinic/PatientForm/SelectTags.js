@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import keyBy from 'lodash/keyBy';
 import partition from 'lodash/partition';
 import difference from 'lodash/difference';
+import orderBy from 'lodash/orderBy';
 import Select from 'react-select';
 import { Box } from 'theme-ui';
 import { useLocation } from 'react-router-dom';
@@ -18,15 +19,22 @@ export const getSelectOptions = (
   shouldSuggestTags = false,
 ) => {
   // Format tags for React-Select (label and value properties)
-  const allOptions = clinicTags.map(tag => ({ label: tag.name, value: tag.id }));
+  const unorderedOptions = clinicTags.map(tag => ({ label: tag.name, value: tag.id }));
+  const options = orderBy(unorderedOptions, 'label');
 
   // If we shouldn't be suggesting, return a single group of all options
   if (!shouldSuggestTags) return (
-    [{ label: '', options: allOptions, hideTopBorder: true }]
+    [
+      {
+        label: '',
+        options: options,
+        hideTopBorder: true,
+      },
+    ]
   );
 
   // Otherwise, partition into suggested and non-suggested groups, then return the two groups
-  const [suggested, nonSuggested] = partition(allOptions, option => {
+  const [suggested, nonSuggested] = partition(options, option => {
     const currentFilterTagIds = activeFilters?.patientTags || [];
     return currentFilterTagIds.includes(option.value);
   });
