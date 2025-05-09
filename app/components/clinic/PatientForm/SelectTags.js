@@ -5,46 +5,77 @@ import partition from 'lodash/partition';
 import Select from 'react-select';
 import { Box } from 'theme-ui';
 import { useLocation } from 'react-router-dom';
+import { colors } from '../../../themes/baseTheme';
 import useClinicPatientsFilters from '../../../pages/clinicworkspace/useClinicPatientsFilters';
+import { useTranslation } from 'react-i18next';
 
 export const getSelectOptions = (
+  t,
   clinicTags = [],
-  activeFilters,
+  activeFilters = { patientTags: [] },
   shouldSuggestTags = false,
 ) => {
+  // Format tags for React-Select (label and value properties)
   const allOptions = clinicTags.map(tag => ({ label: tag.name, value: tag.id }));
 
-  if (!shouldSuggestTags) return allOptions;
+  // If we shouldn't be suggesting, return a single group of all options
+  if (!shouldSuggestTags) {
+    return [{ label: '', options: allOptions, hideTopBorder: true }];
+  };
 
+  // Otherwise, partition into suggested and non-suggested groups, then return the two groups
   const [suggested, nonSuggested] = partition(allOptions, option => {
     const currentFilterTagIds = activeFilters?.patientTags || [];
     return currentFilterTagIds.includes(option.value);
   });
 
-  const groupedOptions = [
-    { label: 'Suggested', options: suggested },
-    { label: '', options: nonSuggested },
+  return [
+    { label: t('Suggested - based on current dashboard filters'), options: suggested, hideTopBorder: true },
+    { label: '', options: nonSuggested, hideTopBorder: suggested.length <= 0 },
   ];
+};
 
-  return groupedOptions;
+export const selectElementStyleOverrides = {
+  group: (baseStyles, state) => ({
+    ...baseStyles,
+    borderTop: state.headingProps?.data?.hideTopBorder ? 'none' : `1px solid ${colors.blueGray10}`,
+    marginLeft: '12px',
+    marginRight: '12px',
+  }),
+  groupHeading: (baseStyles) => ({
+    ...baseStyles,
+    textTransform: 'none',
+    fontWeight: 'normal',
+    paddingLeft: '0',
+    paddingRight: '0',
+  }),
+  option: (baseStyles) => ({
+    ...baseStyles,
+    paddingLeft: '2px',
+    paddingRight: '2px',
+  }),
 };
 
 const SelectTags = ({ onChange, currentTagIds }) => {
   const { pathname } = useLocation();
+  const { t } = useTranslation();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const clinicPatientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
   const [activeFilters] = useClinicPatientsFilters();
 
-  const handleSelect = (tags) => {
+  const handleTagSelectionChange = (tags) => {
     const tagIds = tags.map(tag => tag.value);
     onChange(tagIds);
   };
 
-  // If clinic has tags feature and the current page is the patient list, suggest tags
+  // Suggest tags only if clinic has tags feature and current page is the Clinic Patient list (where
+  // the Active Filters show up).
   const shouldSuggestTags = clinic?.entitlements?.patientTags && pathname === '/clinic-workspace';
 
-  const selectOptions = getSelectOptions(clinic?.patientTags, activeFilters, shouldSuggestTags);
+  const selectOptions = getSelectOptions(t, clinic?.patientTags, activeFilters, shouldSuggestTags);
+
+  // Format the currentTagIds for React-Select
   const selectValue = currentTagIds.map(tagId => ({
     label: clinicPatientTags[tagId]?.name || '',
     value: tagId,
@@ -55,11 +86,12 @@ const SelectTags = ({ onChange, currentTagIds }) => {
       <Select
         className='input-group-control form-control Select'
         classNamePrefix="Select"
+        styles={selectElementStyleOverrides}
         name="add-patient-select-tags"
         id="add-patient-select-tags"
-        placeholder={'blah'}
+        placeholder={t('Add a Tag')}
         value={selectValue}
-        onChange={handleSelect}
+        onChange={handleTagSelectionChange}
         options={selectOptions}
         closeMenuOnSelect={false}
         isMulti
