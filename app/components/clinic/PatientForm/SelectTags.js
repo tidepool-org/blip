@@ -56,6 +56,16 @@ export const getSelectOptions = (
 };
 
 export const selectElementStyleOverrides = {
+  control: (baseStyles) => ({
+    ...baseStyles,
+    borderRadius: '3px',
+    border: '1px solid #DFE2E6',
+  }),
+  placeholder: (baseStyles) => ({
+    ...baseStyles,
+    fontSize: 14,
+    color: colors.blueGreyMedium,
+  }),
   group: (baseStyles, state) => ({
     ...baseStyles,
     borderTop: state.headingProps?.data?.hideTopBorder ? 'none' : `1px solid ${colors.blueGray10}`,
@@ -66,13 +76,15 @@ export const selectElementStyleOverrides = {
     ...baseStyles,
     textTransform: 'none',
     fontWeight: 'normal',
-    paddingLeft: '0',
+    paddingLeft: '4px',
     paddingRight: '0',
   }),
   option: (baseStyles) => ({
     ...baseStyles,
-    paddingLeft: '2px',
-    paddingRight: '2px',
+    paddingLeft: '4px',
+    paddingRight: '4px',
+    fontSize: 14,
+    color: colors.blueGreyDark,
   }),
 };
 
@@ -114,6 +126,7 @@ const SelectTags = ({ onChange, currentTagIds }) => {
         onChange={handleTagSelectionChange}
         options={selectOptions}
         closeMenuOnSelect={false}
+        maxMenuHeight={180}
         isMulti
         isClearable
       />

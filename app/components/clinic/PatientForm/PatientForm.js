@@ -33,6 +33,7 @@ import { dateRegex, patientSchema as validationSchema } from '../../../core/clin
 import { accountInfoFromClinicPatient } from '../../../core/personutils';
 import { Body0 } from '../../../components/elements/FontStyles';
 import { borders, colors } from '../../../themes/baseTheme';
+import { MediumTitle } from '../../../components/elements/FontStyles';
 
 import SelectTags from './SelectTags';
 
@@ -282,7 +283,11 @@ export const PatientForm = (props) => {
       sx={{ minWidth: [null, '320px'] }}
       {...boxProps}
     >
-      <Box mb={4}>
+      <Box mb={2}>
+        <MediumTitle sx={{ fontWeight: 'bold', fontSize: 2 }}>{t('Patient Details')}</MediumTitle>
+      </Box>
+
+      <Box mb={3}>
         <TextInput
           {...getCommonFormikFieldProps('fullName', formikContext)}
           innerRef={initialFocusedInput === 'fullName' ? initialFocusedInputRef : undefined}
@@ -293,7 +298,7 @@ export const PatientForm = (props) => {
         />
       </Box>
 
-      <Box mb={4}>
+      <Box mb={3}>
         <InputMask
           mask={dateMaskFormat}
           maskPlaceholder={dateInputFormat.toLowerCase()}
@@ -318,7 +323,7 @@ export const PatientForm = (props) => {
         </InputMask>
       </Box>
 
-      <Box mb={4}>
+      <Box mb={3}>
         <TextInput
           {...getCommonFormikFieldProps('mrn', formikContext)}
           innerRef={initialFocusedInput === 'mrn' ? initialFocusedInputRef : undefined}
@@ -340,7 +345,7 @@ export const PatientForm = (props) => {
 
       {showEmail && (
         <>
-          <Box mb={2}>
+          <Box mb={1}>
             <TextInput
               {...getCommonFormikFieldProps('email', formikContext)}
               innerRef={initialFocusedInput === 'email' ? initialFocusedInputRef : undefined}
@@ -352,17 +357,23 @@ export const PatientForm = (props) => {
               />
           </Box>
 
-          <Body0 sx={{ fontWeight: 'medium' }}>
+          <Body0 sx={{ fontWeight: 'medium' }} mb={3}>
             {t('If you want your patients to upload their data from home, you must include their email address.')}
           </Body0>
         </>
       )}
 
       {showTags && (
-        <SelectTags
-          currentTagIds={values.tags || []}
-          onChange={tagIds => setFieldValue('tags', tagIds)}
-        />
+        <Box mb="180px">
+          <Box mb={2}>
+            <MediumTitle sx={{ fontWeight: 'bold', fontSize: 2 }}>{t('Tags')}</MediumTitle>
+          </Box>
+
+          <SelectTags
+            currentTagIds={values.tags || []}
+            onChange={tagIds => setFieldValue('tags', tagIds)}
+          />
+        </Box>
       )}
     </Box>
   );
