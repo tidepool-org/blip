@@ -11,7 +11,9 @@ import { colors } from '../../../themes/baseTheme';
 import useClinicPatientsFilters from '../../../pages/clinicworkspace/useClinicPatientsFilters';
 import { useTranslation } from 'react-i18next';
 
-export const getSelectOptions = (
+const SELECT_MENU_HEIGHT = 240;
+
+export const buildSelectOptions = (
   t,
   clinicTags = [],
   activeFilters = { patientTags: [] },
@@ -23,17 +25,10 @@ export const getSelectOptions = (
   const options = orderBy(unorderedOptions, 'label');
 
   // If we shouldn't be suggesting, return a single group of all options
-  if (!shouldSuggestTags) return (
-    [
-      {
-        label: '',
-        options: options,
-        hideTopBorder: true,
-      },
-    ]
-  );
+  if (!shouldSuggestTags) return [{ options: options, label: '' }];
 
-  // Otherwise, partition into suggested and non-suggested groups, then return the two groups
+  // Otherwise, partition into suggested and non-suggested groups, then return the two groups.
+  // The suggested tags are the tags currently applied as filters on the clinic patient dashboard.
   const [suggested, nonSuggested] = partition(options, option => {
     const currentFilterTagIds = activeFilters?.patientTags || [];
     return currentFilterTagIds.includes(option.value);
@@ -42,16 +37,8 @@ export const getSelectOptions = (
   const hasSuggestionsToRender = difference(suggested.map(t => t.value), currentTagIds).length > 0;
 
   return [
-    {
-      label: t('Suggested - based on current dashboard filters'),
-      options: suggested,
-      hideTopBorder: true,
-    },
-    {
-      label: '',
-      options: nonSuggested,
-      hideTopBorder: !hasSuggestionsToRender,
-    },
+    { options: suggested, label: t('Suggested - based on current dashboard filters') },
+    { options: nonSuggested, label: '', hasDivider: hasSuggestionsToRender },
   ];
 };
 
@@ -68,7 +55,7 @@ export const selectElementStyleOverrides = {
   }),
   group: (baseStyles, state) => ({
     ...baseStyles,
-    borderTop: state.headingProps?.data?.hideTopBorder ? 'none' : `1px solid ${colors.blueGray10}`,
+    borderTop: state.headingProps?.data?.hasDivider ? `1px solid ${colors.blueGray10}` : 'none',
     marginLeft: '12px',
     marginRight: '12px',
   }),
@@ -105,7 +92,7 @@ const SelectTags = ({ onChange, currentTagIds }) => {
   // the Active Filters show up).
   const shouldSuggestTags = clinic?.entitlements?.patientTags && pathname === '/clinic-workspace';
 
-  const selectOptions = getSelectOptions(t, clinic?.patientTags, activeFilters, currentTagIds, shouldSuggestTags);
+  const selectOptions = buildSelectOptions(t, clinic?.patientTags, activeFilters, currentTagIds, shouldSuggestTags);
 
   // Format the currentTagIds for React-Select
   const selectValue = currentTagIds.map(tagId => ({
@@ -126,8 +113,8 @@ const SelectTags = ({ onChange, currentTagIds }) => {
         onChange={handleTagSelectionChange}
         options={selectOptions}
         closeMenuOnSelect={false}
-        minMenuHeight={240}
-        maxMenuHeight={240}
+        minMenuHeight={SELECT_MENU_HEIGHT}
+        maxMenuHeight={SELECT_MENU_HEIGHT}
         isMulti
         isClearable
       />
