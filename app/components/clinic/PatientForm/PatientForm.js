@@ -91,7 +91,7 @@ export const PatientForm = (props) => {
   const previousFetchingPatientsForClinic = usePrevious(fetchingPatientsForClinic);
   const previousFetchOptions = usePrevious(patientFetchOptions);
   const initialFocusedInputRef = useInitialFocusedInput();
-  const tagInputRef = useRef(null);
+  const tagSectionRef = useRef(null);
 
   const dexcomConnectStateUI = {
     pending: {
@@ -365,17 +365,14 @@ export const PatientForm = (props) => {
       )}
 
       {showTags && (
-        <Box mb="240px">
-          <Box mb={2}>
-            <MediumTitle sx={{ fontWeight: 'bold', fontSize: 2 }}>{t('Tags')}</MediumTitle>
-          </Box>
+        <Box mb="240px" ref={tagSectionRef}>
+          <MediumTitle mb={2} sx={{ fontWeight: 'bold', fontSize: 2 }}>{t('Tags')}</MediumTitle>
 
-          <Box ref={tagInputRef} onClick={() => tagInputRef?.current?.scrollIntoView()}>
-            <SelectTags
-              currentTagIds={values.tags || []}
-              onChange={tagIds => setFieldValue('tags', tagIds)}
-            />
-          </Box>
+          <SelectTags
+            currentTagIds={values.tags || []}
+            onChange={tagIds => setFieldValue('tags', tagIds)}
+            onMenuOpen={() => tagSectionRef?.current?.scrollIntoView()}
+          />
         </Box>
       )}
     </Box>

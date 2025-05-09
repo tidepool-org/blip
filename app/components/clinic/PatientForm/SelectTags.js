@@ -75,7 +75,11 @@ export const selectElementStyleOverrides = {
   }),
 };
 
-const SelectTags = ({ onChange, currentTagIds }) => {
+const SelectTags = ({
+  currentTagIds,
+  onChange,
+  onMenuOpen,
+}) => {
   const { pathname } = useLocation();
   const { t } = useTranslation();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
@@ -111,6 +115,7 @@ const SelectTags = ({ onChange, currentTagIds }) => {
         placeholder={t('Add a Tag')}
         value={selectValue}
         onChange={handleTagSelectionChange}
+        onMenuOpen={onMenuOpen}
         options={selectOptions}
         closeMenuOnSelect={false}
         minMenuHeight={SELECT_MENU_HEIGHT}
