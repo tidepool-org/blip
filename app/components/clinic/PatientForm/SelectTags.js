@@ -56,7 +56,7 @@ export const getSelectOptions = (
 };
 
 export const selectElementStyleOverrides = {
-  group: (baseStyles, state) => (!console.log(state) && {
+  group: (baseStyles, state) => ({
     ...baseStyles,
     borderTop: state.headingProps?.data?.hideTopBorder ? 'none' : `1px solid ${colors.blueGray10}`,
     marginLeft: '12px',
