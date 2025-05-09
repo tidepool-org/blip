@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import keyBy from 'lodash/keyBy';
 import partition from 'lodash/partition';
+import difference from 'lodash/difference';
 import Select from 'react-select';
 import { Box } from 'theme-ui';
 import { useLocation } from 'react-router-dom';
@@ -13,6 +14,7 @@ export const getSelectOptions = (
   t,
   clinicTags = [],
   activeFilters = { patientTags: [] },
+  currentTagIds = [],
   shouldSuggestTags = false,
 ) => {
   // Format tags for React-Select (label and value properties)
@@ -29,14 +31,24 @@ export const getSelectOptions = (
     return currentFilterTagIds.includes(option.value);
   });
 
+  const hasSuggestionsToRender = difference(suggested.map(t => t.value), currentTagIds).length > 0;
+
   return [
-    { label: t('Suggested - based on current dashboard filters'), options: suggested, hideTopBorder: true },
-    { label: '', options: nonSuggested, hideTopBorder: suggested.length <= 0 },
+    {
+      label: t('Suggested - based on current dashboard filters'),
+      options: suggested,
+      hideTopBorder: true,
+    },
+    {
+      label: '',
+      options: nonSuggested,
+      hideTopBorder: !hasSuggestionsToRender,
+    },
   ];
 };
 
 export const selectElementStyleOverrides = {
-  group: (baseStyles, state) => ({
+  group: (baseStyles, state) => (!console.log(state) && {
     ...baseStyles,
     borderTop: state.headingProps?.data?.hideTopBorder ? 'none' : `1px solid ${colors.blueGray10}`,
     marginLeft: '12px',
@@ -73,7 +85,7 @@ const SelectTags = ({ onChange, currentTagIds }) => {
   // the Active Filters show up).
   const shouldSuggestTags = clinic?.entitlements?.patientTags && pathname === '/clinic-workspace';
 
-  const selectOptions = getSelectOptions(t, clinic?.patientTags, activeFilters, shouldSuggestTags);
+  const selectOptions = getSelectOptions(t, clinic?.patientTags, activeFilters, currentTagIds, shouldSuggestTags);
 
   // Format the currentTagIds for React-Select
   const selectValue = currentTagIds.map(tagId => ({
