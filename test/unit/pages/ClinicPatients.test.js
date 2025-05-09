@@ -624,10 +624,14 @@ describe('ClinicPatients', () => {
     });
 
     it('should render an empty table', () => {
-      const table = wrapper.find(Table);
-      expect(table).to.have.length(1);
-      expect(table.find('tr')).to.have.length(1); // header row only
-      expect(wrapper.find('.table-empty-text').hostNodes().text()).includes('There are no results to show.');
+      expect(wrapper.find('.table-empty-text').hostNodes().text()).includes('There are no results to show');
+    });
+
+    describe('Filter Reset Bar', () => {
+      it('should hide the Filter Reset Bar', () => {
+        const filterResetBar = wrapper.find('.filter-reset-bar').hostNodes();
+        expect(filterResetBar).to.have.lengthOf(0);
+      });
     });
 
     it('should open a modal for adding a new patient', done => {
@@ -909,6 +913,94 @@ describe('ClinicPatients', () => {
       expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('MRN12345');
 
       expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.false;
+    });
+  });
+
+  context('has patients but none matching filter criteria', () => {
+    let mockedLocalStorage = {
+      'activePatientFilters/clinicianUserId123/clinicID123': {
+        timeInRange: ['timeInLowPercent'],
+        patientTags: [],
+        meetsGlycemicTargets: false,
+      },
+      activePatientSummaryPeriod: '14d',
+    };
+
+    beforeEach(() => {
+      ClinicPatients.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
+        defaults(mockedLocalStorage, { [key]: {} });
+        return [
+          mockedLocalStorage[key],
+          sinon.stub().callsFake(val => mockedLocalStorage[key] = val),
+        ];
+      }));
+
+      const noPatientsButWithFiltersState = merge({}, noPatientsState, {
+        blip: {
+          patientListFilters: {
+            patientListSearchTextInput: 'CantMatchThis',
+          },
+        },
+      });
+
+      store = mockStore(noPatientsButWithFiltersState);
+      defaultProps.trackMetric.resetHistory();
+      wrapper = mount(
+        <Provider store={store}>
+          <ToastProvider>
+            <ClinicPatients {...defaultProps} />
+          </ToastProvider>
+        </Provider>
+      );
+    });
+
+    afterEach(() => {
+      ClinicPatients.__ResetDependency__('useLocalStorage');
+    });
+
+    describe('Filter Reset Bar', () => {
+      it('should hide the Filter Reset Bar', () => {
+        const filterResetBar = wrapper.find('.filter-reset-bar').hostNodes();
+        expect(filterResetBar).to.have.lengthOf(0);
+      });
+    });
+
+    describe('when Reset Filters button is clicked', function () {
+      it('should show the No Results text', () => {
+        expect(wrapper.find('.MuiTableRow-root')).to.have.length(1); // only header
+        expect(wrapper.find('.table-empty-text').hostNodes().text()).includes('There are no results to show');
+      });
+
+      it('should remove the active filters from localStorage', function () {
+        expect(mockedLocalStorage['activePatientFilters/clinicianUserId123/clinicID123']
+                                 ['timeInRange'].length).to.eql(1);
+
+        wrapper.find('.reset-filters-button').hostNodes().simulate('click');
+
+        expect(mockedLocalStorage['activePatientFilters/clinicianUserId123/clinicID123']
+                                 ['timeInRange'].length).to.eql(0);
+      });
+    });
+
+    describe('when Clear Search button is clicked', () => {
+      it('should clear the search input text in Redux', (done) => {
+        store.clearActions();
+
+        expect(store.getActions()).to.eql([]);
+
+        wrapper.find('.clear-search-button').hostNodes().simulate('click');
+        setTimeout(() => {
+          expect(store.getActions()).to.eql([
+            {
+              type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT',
+              payload: { textInput: '' },
+            },
+            { type: 'FETCH_PATIENTS_FOR_CLINIC_REQUEST' },
+          ]);
+
+          done();
+        }, 1000);
+      });
     });
   });
 
@@ -1929,6 +2021,11 @@ describe('ClinicPatients', () => {
 
           afterEach(() => {
             ClinicPatients.__ResetDependency__('useLocalStorage');
+          });
+
+          it('should show the Filter Reset Bar', () => {
+            const filterResetBar = wrapper.find('.filter-reset-bar').hostNodes();
+            expect(filterResetBar).to.have.lengthOf(1);
           });
 
           it('should allow filtering by summary period', () => {
