@@ -99,7 +99,7 @@ Banner.propTypes = {
   ...FlexProps,
   actionText: PropTypes.string,
   dismissable: PropTypes.bool,
-  label: PropTypes.string.isRequired,
+  label: PropTypes.string,
   message: PropTypes.string.isRequired,
   messageLinkText: PropTypes.string,
   onAction: PropTypes.func,
