@@ -21,9 +21,9 @@ export const getSelectOptions = (
   const allOptions = clinicTags.map(tag => ({ label: tag.name, value: tag.id }));
 
   // If we shouldn't be suggesting, return a single group of all options
-  if (!shouldSuggestTags) {
-    return [{ label: '', options: allOptions, hideTopBorder: true }];
-  };
+  if (!shouldSuggestTags) return (
+    [{ label: '', options: allOptions, hideTopBorder: true }]
+  );
 
   // Otherwise, partition into suggested and non-suggested groups, then return the two groups
   const [suggested, nonSuggested] = partition(allOptions, option => {
