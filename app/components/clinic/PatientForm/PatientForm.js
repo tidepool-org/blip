@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { withTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
@@ -91,6 +91,7 @@ export const PatientForm = (props) => {
   const previousFetchingPatientsForClinic = usePrevious(fetchingPatientsForClinic);
   const previousFetchOptions = usePrevious(patientFetchOptions);
   const initialFocusedInputRef = useInitialFocusedInput();
+  const tagInputRef = useRef(null);
 
   const dexcomConnectStateUI = {
     pending: {
@@ -364,15 +365,17 @@ export const PatientForm = (props) => {
       )}
 
       {showTags && (
-        <Box mb="180px">
+        <Box mb="240px">
           <Box mb={2}>
             <MediumTitle sx={{ fontWeight: 'bold', fontSize: 2 }}>{t('Tags')}</MediumTitle>
           </Box>
 
-          <SelectTags
-            currentTagIds={values.tags || []}
-            onChange={tagIds => setFieldValue('tags', tagIds)}
-          />
+          <Box ref={tagInputRef} onClick={() => tagInputRef?.current?.scrollIntoView()}>
+            <SelectTags
+              currentTagIds={values.tags || []}
+              onChange={tagIds => setFieldValue('tags', tagIds)}
+            />
+          </Box>
         </Box>
       )}
     </Box>

@@ -126,7 +126,8 @@ const SelectTags = ({ onChange, currentTagIds }) => {
         onChange={handleTagSelectionChange}
         options={selectOptions}
         closeMenuOnSelect={false}
-        maxMenuHeight={180}
+        minMenuHeight={240}
+        maxMenuHeight={240}
         isMulti
         isClearable
       />
