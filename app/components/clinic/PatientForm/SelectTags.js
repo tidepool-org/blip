@@ -20,11 +20,11 @@ export const buildSelectOptions = (
   currentTagIds = [],
   shouldSuggestTags = false,
 ) => {
-  // Format tags for React-Select (label and value properties)
+  // Format tags for react-select (label and value properties), then sort alphabetically
   const unorderedOptions = clinicTags.map(tag => ({ label: tag.name, value: tag.id }));
   const options = orderBy(unorderedOptions, 'label');
 
-  // If we shouldn't be suggesting, return a single group of all options
+  // If suggesting is disabled, return a single group of all options
   if (!shouldSuggestTags) return [{ options: options, label: '' }];
 
   // Otherwise, partition into suggested and non-suggested groups, then return the two groups.
