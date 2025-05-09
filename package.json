@@ -4,7 +4,7 @@
     "node": "20.8.0"
   },
   "packageManager": "yarn@3.6.4",
-  "version": "1.85.0-web-3636-remove-disconnected-from-list.1",
+  "version": "1.85.0-feature-sites",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' yarn karma start",
