@@ -66,6 +66,27 @@ export const selectElementStyleOverrides = {
     paddingLeft: '4px',
     paddingRight: '0',
   }),
+  multiValue: (baseStyles) => ({
+    ...baseStyles,
+    borderRadius: '3px',
+    background: colors.blueGreyDark,
+    border: 'none',
+  }),
+  multiValueLabel: (baseStyles) => ({
+    ...baseStyles,
+    borderRadius: '0',
+    color: colors.white,
+  }),
+  multiValueRemove: (baseStyles, state) => (!console.log(state) && {
+    ...baseStyles,
+    borderRadius: '3px',
+    color: colors.white,
+    '&:hover': {
+      background: 'none',
+      cursor: 'pointer',
+      color: colors.white,
+    },
+  }),
   option: (baseStyles) => ({
     ...baseStyles,
     paddingLeft: '4px',
@@ -95,7 +116,7 @@ const SelectTags = ({
   // Suggest tags only if clinic has tags feature and user is viewing ClinicPatients list (where Filters are used)
   const shouldSuggestTags = clinic?.entitlements?.patientTags && pathname === '/clinic-workspace';
 
-  const selectOptions = buildSelectOptions( t, clinic?.patientTags, activeFilters, currentTagIds, shouldSuggestTags);
+  const selectOptions = buildSelectOptions(t, clinic?.patientTags, activeFilters, currentTagIds, shouldSuggestTags);
 
   const selectValue = currentTagIds.map(tagId => ({
     label: clinicPatientTags[tagId]?.name || '',
@@ -106,7 +127,7 @@ const SelectTags = ({
     <Box className='input-group form-group clearfix'>
       <Select
         className='input-group-control form-control Select'
-        classNamePrefix="Select"
+        classNamePrefix="SelectTags"
         styles={selectElementStyleOverrides}
         name="patient-form-select-tags"
         id="patient-form-select-tags"
