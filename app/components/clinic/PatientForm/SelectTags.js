@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import keyBy from 'lodash/keyBy';
 import partition from 'lodash/partition';
-import difference from 'lodash/difference';
 import orderBy from 'lodash/orderBy';
 import Select from 'react-select';
 import { Box } from 'theme-ui';
@@ -17,7 +16,6 @@ export const buildSelectOptions = (
   t,
   clinicTags = [],
   activeFilters = { patientTags: [] },
-  currentTagIds = [],
   shouldSuggestTags = false,
 ) => {
   // Format tags for react-select (label and value properties), then sort alphabetically
@@ -34,11 +32,9 @@ export const buildSelectOptions = (
     return currentFilterTagIds.includes(option.value);
   });
 
-  const hasSuggestionsToRender = difference(suggested.map(t => t.value), currentTagIds).length > 0;
-
   return [
     { options: suggested, label: t('Suggested - based on current dashboard filters') },
-    { options: nonSuggested, label: '', hasDivider: hasSuggestionsToRender },
+    { options: nonSuggested, label: '' },
   ];
 };
 
@@ -49,13 +45,15 @@ export const selectElementStyleOverrides = {
   groupHeading: base => ({ ...base, textTransform: 'none', fontWeight: 'normal', paddingLeft: '4px', paddingRight: '0' }),
   multiValue: base => ({ ...base, borderRadius: '3px', background: colors.blueGreyDark, border: 'none' }),
   multiValueLabel: base => ({ ...base, borderRadius: '0', color: colors.white }),
-  group: (base, state) => ({
+  group: base => ({
     ...base,
-    borderTop: state.headingProps?.data?.hasDivider ? `1px solid ${colors.blueGray10}` : 'none',
     marginLeft: '12px',
     marginRight: '12px',
+    '&:nth-of-type(2)': {
+      borderTop: `1px solid ${colors.blueGray10}`,
+    },
   }),
-  multiValueRemove: (base) => ({
+  multiValueRemove: base => ({
     ...base,
     borderRadius: '3px',
     color: colors.white,
@@ -87,7 +85,7 @@ const SelectTags = ({
   // Suggest tags only if clinic has tags feature and user is viewing ClinicPatients list (where Filters are used)
   const shouldSuggestTags = clinic?.entitlements?.patientTags && pathname === '/clinic-workspace';
 
-  const selectOptions = buildSelectOptions(t, clinic?.patientTags, activeFilters, currentTagIds, shouldSuggestTags);
+  const selectOptions = buildSelectOptions(t, clinic?.patientTags, activeFilters, shouldSuggestTags);
 
   const selectValue = currentTagIds.map(tagId => ({
     label: clinicPatientTags[tagId]?.name || '',
