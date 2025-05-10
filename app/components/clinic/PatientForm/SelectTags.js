@@ -77,7 +77,7 @@ export const selectElementStyleOverrides = {
     borderRadius: '0',
     color: colors.white,
   }),
-  multiValueRemove: (baseStyles, state) => (!console.log(state) && {
+  multiValueRemove: (baseStyles) => ({
     ...baseStyles,
     borderRadius: '3px',
     color: colors.white,
