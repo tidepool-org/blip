@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { withTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
@@ -23,16 +23,19 @@ import ErrorOutlineRoundedIcon from '@material-ui/icons/ErrorOutlineRounded';
 import { Box, Text, BoxProps } from 'theme-ui';
 import moment from 'moment';
 
-import * as actions from '../../redux/actions';
-import TextInput from '../../components/elements/TextInput';
-import { TagList } from '../../components/elements/Tag';
-import { useToasts } from '../../providers/ToastProvider';
-import { getCommonFormikFieldProps } from '../../core/forms';
-import { useInitialFocusedInput, useIsFirstRender, usePrevious } from '../../core/hooks';
-import { dateRegex, patientSchema as validationSchema } from '../../core/clinicUtils';
-import { accountInfoFromClinicPatient } from '../../core/personutils';
-import { Body0 } from '../../components/elements/FontStyles';
-import { borders, colors } from '../../themes/baseTheme';
+import * as actions from '../../../redux/actions';
+import TextInput from '../../../components/elements/TextInput';
+import { TagList } from '../../../components/elements/Tag';
+import { useToasts } from '../../../providers/ToastProvider';
+import { getCommonFormikFieldProps } from '../../../core/forms';
+import { useInitialFocusedInput, useIsFirstRender, usePrevious } from '../../../core/hooks';
+import { dateRegex, patientSchema as validationSchema } from '../../../core/clinicUtils';
+import { accountInfoFromClinicPatient } from '../../../core/personutils';
+import { Body0 } from '../../../components/elements/FontStyles';
+import { borders, colors } from '../../../themes/baseTheme';
+import { MediumTitle } from '../../../components/elements/FontStyles';
+
+import SelectTags from './SelectTags';
 
 export function getFormValues(source, clinicPatientTags) {
   return {
@@ -88,6 +91,7 @@ export const PatientForm = (props) => {
   const previousFetchingPatientsForClinic = usePrevious(fetchingPatientsForClinic);
   const previousFetchOptions = usePrevious(patientFetchOptions);
   const initialFocusedInputRef = useInitialFocusedInput();
+  const tagSectionRef = useRef(null);
 
   const dexcomConnectStateUI = {
     pending: {
@@ -280,7 +284,11 @@ export const PatientForm = (props) => {
       sx={{ minWidth: [null, '320px'] }}
       {...boxProps}
     >
-      <Box mb={4}>
+      <Box mb={2}>
+        <MediumTitle sx={{ fontWeight: 'bold', fontSize: 2 }}>{t('Patient Details')}</MediumTitle>
+      </Box>
+
+      <Box mb={3}>
         <TextInput
           {...getCommonFormikFieldProps('fullName', formikContext)}
           innerRef={initialFocusedInput === 'fullName' ? initialFocusedInputRef : undefined}
@@ -291,7 +299,7 @@ export const PatientForm = (props) => {
         />
       </Box>
 
-      <Box mb={4}>
+      <Box mb={3}>
         <InputMask
           mask={dateMaskFormat}
           maskPlaceholder={dateInputFormat.toLowerCase()}
@@ -316,7 +324,7 @@ export const PatientForm = (props) => {
         </InputMask>
       </Box>
 
-      <Box mb={4}>
+      <Box mb={3}>
         <TextInput
           {...getCommonFormikFieldProps('mrn', formikContext)}
           innerRef={initialFocusedInput === 'mrn' ? initialFocusedInputRef : undefined}
@@ -338,7 +346,7 @@ export const PatientForm = (props) => {
 
       {showEmail && (
         <>
-          <Box mb={2}>
+          <Box mb={1}>
             <TextInput
               {...getCommonFormikFieldProps('email', formikContext)}
               innerRef={initialFocusedInput === 'email' ? initialFocusedInputRef : undefined}
@@ -350,55 +358,21 @@ export const PatientForm = (props) => {
               />
           </Box>
 
-          <Body0 sx={{ fontWeight: 'medium' }}>
+          <Body0 sx={{ fontWeight: 'medium' }} mb={3}>
             {t('If you want your patients to upload their data from home, you must include their email address.')}
           </Body0>
         </>
       )}
 
       {showTags && (
-        <Box
-          mt={3}
-          sx={{
-            borderTop: borders.default,
-          }}
-        >
-          {!!values.tags.length && (
-            <Box className='selected-tags' mt={3} mb={1} sx={{ fontSize: 0 }}>
-              <Text mb={1} sx={{ display: 'block', fontWeight: 'medium', color: 'text.primary' }}>{t('Assigned Patient Tags')}</Text>
+        <Box mb="240px" ref={tagSectionRef}>
+          <MediumTitle mb={2} sx={{ fontWeight: 'bold', fontSize: 2 }}>{t('Tags')}</MediumTitle>
 
-              <TagList
-                tags={compact(map(values.tags, tagId => clinicPatientTags[tagId]))}
-                tagProps={{
-                  onClickIcon: tagId => {
-                    setFieldValue('tags', without(values.tags, tagId));
-                  },
-                  icon: CloseRoundedIcon,
-                  iconColor: 'white',
-                  iconFontSize: 1,
-                  sx: {
-                    color: 'white',
-                    backgroundColor: 'purpleMedium',
-                  },
-                }}
-              />
-            </Box>
-          )}
-
-          {values.tags.length < (clinic?.patientTags || []).length && (
-            <Box className='available-tags' mb={1} mt={3} sx={{ alignItems: 'center', fontSize: 0 }}>
-              <Text mb={1} sx={{ display: 'block', fontWeight: 'medium', color: 'text.primary' }}>{t('Available Patient Tags')}</Text>
-
-              <TagList
-                tags={map(reject(clinic?.patientTags, ({ id }) => includes(values.tags, id)), ({ id }) => clinicPatientTags?.[id])}
-                tagProps={{
-                  onClick: tagId => {
-                    setFieldValue('tags', [...values.tags, tagId]);
-                  },
-                }}
-              />
-            </Box>
-          )}
+          <SelectTags
+            currentTagIds={values.tags || []}
+            onChange={tagIds => setFieldValue('tags', tagIds)}
+            onMenuOpen={() => tagSectionRef?.current?.scrollIntoView()}
+          />
         </Box>
       )}
     </Box>
