@@ -9,8 +9,7 @@ import { useLocation } from 'react-router-dom';
 import { colors } from '../../../themes/baseTheme';
 import useClinicPatientsFilters from '../../../pages/clinicworkspace/useClinicPatientsFilters';
 import { useTranslation } from 'react-i18next';
-
-const SELECT_MENU_HEIGHT = 240;
+import { noop } from 'lodash';
 
 export const buildSelectOptions = (
   t,
@@ -68,7 +67,8 @@ export const selectElementStyleOverrides = {
 const SelectTags = ({
   currentTagIds,
   onChange,
-  onMenuOpen,
+  selectMenuHeight = 240,
+  onMenuOpen = noop,
 }) => {
   const { pathname } = useLocation();
   const { t } = useTranslation();
@@ -106,8 +106,8 @@ const SelectTags = ({
         onMenuOpen={onMenuOpen}
         options={selectOptions}
         closeMenuOnSelect={false}
-        minMenuHeight={SELECT_MENU_HEIGHT}
-        maxMenuHeight={SELECT_MENU_HEIGHT}
+        minMenuHeight={selectMenuHeight}
+        maxMenuHeight={selectMenuHeight}
         filterOption={createFilter({ stringify: opt => opt.label })}
         isMulti
         isClearable

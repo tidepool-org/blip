@@ -365,13 +365,20 @@ export const PatientForm = (props) => {
       )}
 
       {showTags && (
-        <Box mb="240px" ref={tagSectionRef}>
+        <Box
+          // Add height to modal when select menu opens, allowing room for dropdown expansion
+          sx={{ '&:has(.SelectTags__control--menu-is-open)': { marginBottom: '246px' } }}
+          ref={tagSectionRef}
+        >
           <MediumTitle mb={2} sx={{ fontWeight: 'bold', fontSize: 2 }}>{t('Tags')}</MediumTitle>
 
           <SelectTags
             currentTagIds={values.tags || []}
             onChange={tagIds => setFieldValue('tags', tagIds)}
-            onMenuOpen={() => tagSectionRef?.current?.scrollIntoView()}
+            onMenuOpen={() => {
+              // Wait for height to be added to modal, then scroll to enhance dropdown visibility
+              setTimeout(() => tagSectionRef?.current?.scrollIntoView({ block: 'start' }), 50);
+            }}
           />
         </Box>
       )}
