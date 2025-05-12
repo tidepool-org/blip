@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import keyBy from 'lodash/keyBy';
 import partition from 'lodash/partition';
 import orderBy from 'lodash/orderBy';
-import Select from 'react-select';
+import Select, { createFilter } from 'react-select';
 import { Box } from 'theme-ui';
 import { useLocation } from 'react-router-dom';
 import { colors } from '../../../themes/baseTheme';
@@ -108,6 +108,7 @@ const SelectTags = ({
         closeMenuOnSelect={false}
         minMenuHeight={SELECT_MENU_HEIGHT}
         maxMenuHeight={SELECT_MENU_HEIGHT}
+        filterOption={createFilter({ stringify: opt => opt.label })}
         isMulti
         isClearable
       />
