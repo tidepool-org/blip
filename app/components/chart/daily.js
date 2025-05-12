@@ -133,15 +133,15 @@ const DailyChart = withTranslation(null, { withRef: true })(class DailyChart ext
 
   unmountChart = () => {
     this.log('Unmounting...');
-    this.chart.destroy();
+    this.chart?.destroy();
   };
 
   bindEvents = () => {
-    this.chart.emitter.on('createMessage', this.props.onCreateMessage);
-    this.chart.emitter.on('inTransition', this.props.onTransition);
-    this.chart.emitter.on('messageThread', this.props.onShowMessageThread);
-    this.chart.emitter.on('mostRecent', this.props.onMostRecent);
-    this.chart.emitter.on('navigated', this.handleDatetimeLocationChange);
+    this.chart?.emitter.on('createMessage', this.props.onCreateMessage);
+    this.chart?.emitter.on('inTransition', this.props.onTransition);
+    this.chart?.emitter.on('messageThread', this.props.onShowMessageThread);
+    this.chart?.emitter.on('mostRecent', this.props.onMostRecent);
+    this.chart?.emitter.on('navigated', this.handleDatetimeLocationChange);
   };
 
   initializeChart = (props = this.props, datetime) => {
@@ -151,15 +151,15 @@ const DailyChart = withTranslation(null, { withRef: true })(class DailyChart ext
       throw new Error(t('Cannot create new chart with no data'));
     }
 
-    this.chart.load(props.data);
+    this.chart?.load(props.data);
     if (datetime) {
-      this.chart.locate(datetime);
+      this.chart?.locate(datetime);
     }
     else if (this.state.datetimeLocation !== null) {
-      this.chart.locate(this.state.datetimeLocation);
+      this.chart?.locate(this.state.datetimeLocation);
     }
     else {
-      this.chart.locate();
+      this.chart?.locate();
     }
   };
 
@@ -183,36 +183,36 @@ const DailyChart = withTranslation(null, { withRef: true })(class DailyChart ext
     this.unmountChart();
     this.mountChart(chartProps);
     this.initializeChart(chartProps);
-    this.chart.emitter.emit('inTransition', false);
+    this.chart?.emitter.emit('inTransition', false);
   };
 
   getCurrentDay = () => {
-    return this.chart.getCurrentDay().toISOString();
+    return this.chart?.getCurrentDay().toISOString();
   };
 
   goToMostRecent = () => {
-    this.chart.setAtDate(null, true);
+    this.chart?.setAtDate(null, true);
   };
 
   panBack = () => {
-    this.chart.panBack();
+    this.chart?.panBack();
   };
 
   panForward = () => {
-    this.chart.panForward();
+    this.chart?.panForward();
   };
 
   // methods for messages
   closeMessage = () => {
-    return this.chart.closeMessage();
+    return this.chart?.closeMessage();
   };
 
   createMessage = message => {
-    return this.chart.createMessage(message);
+    return this.chart?.createMessage(message);
   };
 
   editMessage = message => {
-    return this.chart.editMessage(message);
+    return this.chart?.editMessage(message);
   };
 });
 
