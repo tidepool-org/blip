@@ -42,6 +42,7 @@ export const selectElementStyleOverrides = {
   control: base => ({ ...base, borderRadius: '3px', border: '1px solid #DFE2E6' }),
   placeholder: base => ({ ...base, fontSize: 14, color: colors.blueGreyMedium }),
   groupHeading: base => ({ ...base, textTransform: 'none', fontWeight: 'normal', paddingLeft: '4px', paddingRight: '0' }),
+  menu: base => ({ ...base, top: 'unset' }),
   multiValue: base => ({ ...base, borderRadius: '3px', background: colors.blueGreyDark, border: 'none' }),
   multiValueLabel: base => ({ ...base, borderRadius: '0', color: colors.white }),
   group: base => ({

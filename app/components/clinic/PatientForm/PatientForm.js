@@ -369,6 +369,7 @@ export const PatientForm = (props) => {
           // Add height to modal when select menu opens, allowing room for dropdown expansion
           sx={{ '&:has(.SelectTags__control--menu-is-open)': { marginBottom: '246px' } }}
           ref={tagSectionRef}
+          mb={3}
         >
           <MediumTitle mb={2} sx={{ fontWeight: 'bold', fontSize: 2 }}>{t('Tags')}</MediumTitle>
 
