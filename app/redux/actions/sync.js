@@ -1482,11 +1482,12 @@ export function fetchPatientsForClinicRequest() {
   };
 }
 
-export function fetchPatientsForClinicSuccess(clinicId, patients, count) {
+export function fetchPatientsForClinicSuccess(clinicId, patients, count, totalCount) {
   return {
     type: ActionTypes.FETCH_PATIENTS_FOR_CLINIC_SUCCESS,
     payload: {
       count: count,
+      totalCount: totalCount,
       patients: patients,
       clinicId: clinicId,
     },
