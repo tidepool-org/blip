@@ -5402,9 +5402,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.46.0-web-3029-dep-updates.2":
-  version: 1.46.0-web-3029-dep-updates.2
-  resolution: "@tidepool/viz@npm:1.46.0-web-3029-dep-updates.2"
+"@tidepool/viz@npm:1.46.0-web-3471-one-button-bolus.1":
+  version: 1.46.0-web-3471-one-button-bolus.1
+  resolution: "@tidepool/viz@npm:1.46.0-web-3471-one-button-bolus.1"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -5464,7 +5464,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 3766a40264cc6c2473dd51a24a92ac258aedfbc6d258739b8ce71f7712145e31111fde97ae526b61c9acb443015c76307a07f235cc03e97857f32d8fcdeb9c8e
+  checksum: 7e74c45bed1cc75080c88ee9744656b20f37899490890cd20e9daf81a1c4cc9c6d84eb57f22225c95b3d81a1caa55aea15fbce9b77aeacdb6a7c426c684c2a5c
   languageName: node
   linkType: hard
 
@@ -7395,7 +7395,7 @@ __metadata:
     "@storybook/react": 7.5.0
     "@storybook/react-webpack5": 7.5.0
     "@testing-library/react-hooks": 8.0.1
-    "@tidepool/viz": 1.46.0-web-3029-dep-updates.2
+    "@tidepool/viz": 1.46.0-web-3471-one-button-bolus.1
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
