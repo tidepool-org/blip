@@ -281,7 +281,12 @@ export const PatientForm = (props) => {
     <Box
       as="form"
       id="clinic-patient-form"
-      sx={{ minWidth: [null, '320px'] }}
+      sx={{
+        minWidth: [null, '320px'],
+
+        // When the select Tags or Sites dropdowns are open, expand the modal to give extra room
+        '&:has(.SelectTags__control--menu-is-open)': { paddingBottom: '248px' },
+      }}
       {...boxProps}
     >
       <Box mb={2}>
@@ -365,19 +370,14 @@ export const PatientForm = (props) => {
       )}
 
       {showTags && (
-        <Box
-          // Add height to modal when select menu opens, allowing room for dropdown expansion
-          sx={{ '&:has(.SelectTags__control--menu-is-open)': { marginBottom: '246px' } }}
-          ref={tagSectionRef}
-          mb={3}
-        >
+        <Box ref={tagSectionRef} mb={3}>
           <MediumTitle mb={2} sx={{ fontWeight: 'bold', fontSize: 2 }}>{t('Tags')}</MediumTitle>
 
           <SelectTags
             currentTagIds={values.tags || []}
             onChange={tagIds => setFieldValue('tags', tagIds)}
             onMenuOpen={() => {
-              // Wait for height to be added to modal, then scroll to enhance dropdown visibility
+              // Wait for height modal to expand via CSS, then scroll down to enhance dropdown visibility
               setTimeout(() => tagSectionRef?.current?.scrollIntoView({ block: 'start' }), 50);
             }}
           />
