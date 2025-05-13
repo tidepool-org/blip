@@ -12,7 +12,7 @@ import {
   has,
   includes,
   intersection,
-  isEmpty,
+  isFinite,
   keys,
   map,
   max,
@@ -56,9 +56,11 @@ const AppBannerProvider = ({ children }) => {
   const patientDevices = patientMetaData?.devices;
   const userHasData = userIsCurrentPatient && patientMetaData?.size > 0;
   const userHasPumpData = filter(patientDevices, { pump: true }).length > 0;
+  const patientDataFetched = isFinite(patientMetaData?.size);
   const dataSources = useSelector(state => state.blip.dataSources);
   const justConnectedDataSourceProviderName = useSelector(state => state.blip.justConnectedDataSourceProviderName);
   const justConnectedDataSourceProvider = providers[justConnectedDataSourceProviderName];
+  const isInitialProcessing = !patientDataFetched || (userHasData && !patientDevices);
 
   const erroredDataSource = find(
     userIsCurrentPatient ? dataSources : clinic?.patients?.[currentPatientInViewId]?.dataSources,
@@ -101,7 +103,7 @@ const AppBannerProvider = ({ children }) => {
     },
 
     uploader: { // Temporary: hide on mobile until we have a mobile-friendly profile page
-      show: !isMobile && userIsCurrentPatient && dataSources?.length && !userHasPumpData,
+      show: !isMobile && userIsCurrentPatient && dataSources?.length && !isInitialProcessing && !userHasPumpData,
       bannerArgs: [],
     },
 
@@ -155,6 +157,7 @@ const AppBannerProvider = ({ children }) => {
     erroredDataSource,
     formikContext,
     isCustodialPatient,
+    isInitialProcessing,
     justConnectedDataSource,
     justConnectedDataSourceProvider,
     loggedInUserId,

@@ -604,13 +604,22 @@ export const clinics = (state = initialState.clinics, action) => {
       return _.merge({}, state, newClinics);
     }
     case types.FETCH_PATIENTS_FOR_CLINIC_SUCCESS: {
-      let { clinicId, patients, count } = action.payload;
+      let { clinicId, patients, count, totalCount } = action.payload;
       const newPatientSet = _.reduce(patients, (newSet, patient, i) => {
         newSet[patient.id] = { ...patient, sortIndex: i };
         return newSet;
       }, {});
+
       return update(state, {
-        [clinicId]: { $set: { ...state[clinicId], patients: newPatientSet, fetchedPatientCount: count, lastPatientFetchTime: moment.utc().valueOf() } },
+        [clinicId]: {
+          $set: {
+            ...state[clinicId],
+            patients: newPatientSet,
+            fetchedPatientCount: count,
+            fetchedPatientTotalCount: totalCount,
+            lastPatientFetchTime: moment.utc().valueOf(),
+          },
+        },
       });
     }
     case types.FETCH_PATIENTS_FOR_CLINIC_FAILURE: {
@@ -621,7 +630,12 @@ export const clinics = (state = initialState.clinics, action) => {
         } = action;
         return update(state, {
           [clinicId]: {
-            $set: { ...state[clinicId], patients: {}, fetchedPatientCount: 0 },
+            $set: {
+              ...state[clinicId],
+              patients: {},
+              fetchedPatientCount: 0,
+              fetchedPatientTotalCount: 0,
+            },
           },
         });
       }
@@ -723,6 +737,7 @@ export const clinics = (state = initialState.clinics, action) => {
       const patientId = _.get(action.payload, 'patientId');
       const clinicId = _.get(action.payload, 'clinicId');
       let fetchedPatientCount = state[clinicId].fetchedPatientCount;
+      let fetchedPatientTotalCount = state[clinicId].fetchedPatientTotalCount;
       let patientCount = state[clinicId].patientCount;
 
       // Retain existing sortIndex, or, in the case of a new custodial patient, set to -1 to show at top of
@@ -731,11 +746,18 @@ export const clinics = (state = initialState.clinics, action) => {
 
       if (action.type === types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS) {
         fetchedPatientCount++;
+        fetchedPatientTotalCount++;
         patientCount++;
       }
 
       return update(state, {
-        [clinicId]: { patients: { [patientId]: { $set: { ...patient, sortIndex: existingSortIndex } } }, fetchedPatientCount: { $set: fetchedPatientCount }, patientCount: { $set: patientCount } },
+        [clinicId]: {
+          patients: {
+            [patientId]: { $set: { ...patient, sortIndex: existingSortIndex } } },
+            fetchedPatientCount: { $set: fetchedPatientCount },
+            fetchedPatientTotalCount: { $set: fetchedPatientTotalCount },
+            patientCount: { $set: patientCount },
+          },
       });
     }
     case types.DELETE_CLINICIAN_FROM_CLINIC_SUCCESS: {
@@ -751,6 +773,7 @@ export const clinics = (state = initialState.clinics, action) => {
       let newState = _.cloneDeep(state);
       delete newState[clinicId]?.patients?.[patientId];
       if (newState[clinicId]?.fetchedPatientCount) newState[clinicId].fetchedPatientCount--;
+      if (newState[clinicId]?.fetchedPatientTotalCount) newState[clinicId].fetchedPatientTotalCount--;
       if (newState[clinicId]?.patientCount) newState[clinicId].patientCount--;
       return newState;
     }
