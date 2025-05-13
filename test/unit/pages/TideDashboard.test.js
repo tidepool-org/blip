@@ -67,6 +67,10 @@ describe('TideDashboard', () => {
 
     DataConnections.__Rewire__('api', defaultProps.api);
     DataConnectionsModal.__Rewire__('api', defaultProps.api);
+    DataConnectionsModal.__Rewire__('useHistory', sinon.stub().returns({
+      location: { query: {}, pathname: '/settings' },
+      replace: sinon.stub(),
+    }));
 
     TideDashboard.__Rewire__('useLocation', sinon.stub().returns({
       search: '',
@@ -83,6 +87,7 @@ describe('TideDashboard', () => {
     TideDashboard.__ResetDependency__('useFlags');
     DataConnections.__ResetDependency__('api');
     DataConnectionsModal.__ResetDependency__('api');
+    DataConnectionsModal.__ResetDependency__('useHistory');
   });
 
   const sampleTags = [

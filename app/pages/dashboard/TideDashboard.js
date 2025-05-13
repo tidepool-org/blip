@@ -342,6 +342,10 @@ const TideDashboardSection = React.memo(props => {
     }
   }, [dispatch, trackMetric, showTideDashboardPatientDrawer, config]);
 
+  const handleEditPatientDataConnections = useCallback((patient) => {
+    editPatientDataConnections(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal, 'dexcom connection status');
+  }, [setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal]);
+
   const renderPatientName = useCallback(({ patient }) => (
     <Box onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
       <Text
@@ -511,7 +515,7 @@ const TideDashboardSection = React.memo(props => {
         <HoverButton
           buttonText={t('View')}
           buttonProps={{
-            onClick: () => editPatient(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog, 'dexcom connection status'),
+            onClick: () => handleEditPatientDataConnections(patient),
             variant: 'textSecondary',
             ml: -2,
             sx: {

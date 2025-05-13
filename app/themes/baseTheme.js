@@ -15,6 +15,8 @@ import tags from './base/tags';
 import toasts from './base/toasts';
 import forms from './base/forms';
 
+/* eslint-disable max-len */
+
 export const breakpoints = ['512px', '768px', '1024px', '1280px'];
 
 export const colors = {
@@ -184,7 +186,7 @@ const variants = {
   tables: tables({ borders, colors, fonts, fontSizes, shadows, radii }),
   tags: tags({ colors, fonts, radii, fontWeights }),
   toasts: toasts({ borders, colors, radii, fontSizes, shadows }),
-  containers: containers({ borders, colors, radii, space, breakpoints }),
+  containers: containers({ borders, colors, radii, space, breakpoints, fonts, fontSizes, fontWeights }),
 };
 
 const defaultText = {
