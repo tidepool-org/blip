@@ -39,29 +39,29 @@ export const buildSelectOptions = (
 
 export const selectElementStyleOverrides = {
   option: base => ({ ...base, paddingLeft: '4px', paddingRight: '4px', fontSize: 14, color: colors.blueGreyDark }),
-  control: base => ({ ...base, borderRadius: '3px', border: '1px solid #DFE2E6' }),
   placeholder: base => ({ ...base, fontSize: 14, color: colors.blueGreyMedium }),
   groupHeading: base => ({ ...base, textTransform: 'none', fontWeight: 'normal', paddingLeft: '4px', paddingRight: '0' }),
   menu: base => ({ ...base, top: 'unset' }),
   multiValue: base => ({ ...base, borderRadius: '3px', background: colors.blueGreyDark, border: 'none' }),
   multiValueLabel: base => ({ ...base, borderRadius: '0', color: colors.white }),
+  input: base => ({ ...base, color: colors.blueGreyDark, fontSize: 14 }),
+  control: base => ({
+    ...base,
+    borderRadius: '3px',
+    border: '1px solid #DFE2E6',
+    '&:hover': { border: '1px solid #DFE2E6' },
+  }),
   group: base => ({
     ...base,
     marginLeft: '12px',
     marginRight: '12px',
-    '&:nth-of-type(2)': {
-      borderTop: `1px solid ${colors.blueGray10}`,
-    },
+    '&:nth-of-type(2)': { borderTop: `1px solid ${colors.blueGray10}` },
   }),
   multiValueRemove: base => ({
     ...base,
     borderRadius: '3px',
     color: colors.white,
-    '&:hover': {
-      background: 'none',
-      cursor: 'pointer',
-      color: colors.white,
-    },
+    '&:hover': { background: 'none', cursor: 'pointer', color: colors.white },
   }),
 };
 
@@ -94,26 +94,22 @@ const SelectTags = ({
   }));
 
   return (
-    <Box className='input-group form-group clearfix'>
-      <Select
-        className='input-group-control form-control Select'
-        classNamePrefix="SelectTags"
-        styles={selectElementStyleOverrides}
-        name="patient-form-select-tags"
-        id="patient-form-select-tags"
-        placeholder={t('Add a Tag')}
-        value={selectValue}
-        onChange={handleTagSelectionChange}
-        onMenuOpen={onMenuOpen}
-        options={selectOptions}
-        closeMenuOnSelect={false}
-        minMenuHeight={selectMenuHeight}
-        maxMenuHeight={selectMenuHeight}
-        filterOption={createFilter({ stringify: opt => opt.label })}
-        isMulti
-        isClearable
-      />
-    </Box>
+    <Select
+      styles={selectElementStyleOverrides}
+      name="patient-form-select-tags"
+      id="patient-form-select-tags"
+      placeholder={t('Add a Tag')}
+      value={selectValue}
+      onChange={handleTagSelectionChange}
+      onMenuOpen={onMenuOpen}
+      options={selectOptions}
+      closeMenuOnSelect={false}
+      minMenuHeight={selectMenuHeight}
+      maxMenuHeight={selectMenuHeight}
+      filterOption={createFilter({ stringify: opt => opt.label })}
+      isMulti
+      isClearable
+    />
   );
 };
 
