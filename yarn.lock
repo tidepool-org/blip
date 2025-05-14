@@ -5402,9 +5402,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.45.0-web-3501-range-thresholds.4":
-  version: 1.45.0-web-3501-range-thresholds.4
-  resolution: "@tidepool/viz@npm:1.45.0-web-3501-range-thresholds.4"
+"@tidepool/viz@npm:1.46.0-web-3501-range-thresholds.5":
+  version: 1.46.0-web-3501-range-thresholds.5
+  resolution: "@tidepool/viz@npm:1.46.0-web-3501-range-thresholds.5"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -5464,7 +5464,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 91ab819c3ade1f3545f09e04fd754efd16662beaaa1e13a307b244643b8721bb66b86b248b6eea460a6d617dd0a529126ed072a495165e1977c3f9dd9c3565fc
+  checksum: c7fa11f4cdefde4ae31a1251b61a1cfa5b96b4646f1cac877568925d570146af8f4f347d3ffb05c3ca0f8e24ee280e8fd62e1ccb3163caf3d7fa9707f12b23c1
   languageName: node
   linkType: hard
 
@@ -7395,7 +7395,7 @@ __metadata:
     "@storybook/react": 7.5.0
     "@storybook/react-webpack5": 7.5.0
     "@testing-library/react-hooks": 8.0.1
-    "@tidepool/viz": 1.45.0-web-3501-range-thresholds.4
+    "@tidepool/viz": 1.46.0-web-3501-range-thresholds.5
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
