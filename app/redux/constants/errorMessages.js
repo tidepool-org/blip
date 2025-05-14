@@ -43,6 +43,7 @@ export const ERR_EDITING_MESSAGE_THREAD = t('Something went wrong while editing 
 export const ERR_FETCHING_PATIENT = t('Something went wrong while fetching patient.');
 export const ERR_FETCHING_PATIENT_UNAUTHORIZED = t('Something went wrong while fetching patient. You are not authorized to view this patient.');
 export const ERR_FETCHING_PATIENT_CLINICIAN_UNAUTHORIZED = t('Something went wrong with your account authorization. Please check with your administrator to verify your level of access.');
+export const ERR_FETCHING_PATIENTS = t('Something went wrong while fetching patients.');
 export const ERR_FETCHING_PATIENT_DATA = t('Something went wrong while fetching data for the current patient.');
 export const ERR_FETCHING_PATIENT_DATA_UNAUTHORIZED = t('Something went wrong while fetching data for the current patient. You are not authorized to view this patient data.');
 export const ERR_FETCHING_PATIENT_DATA_CLINICIAN_UNAUTHORIZED = t('Something went wrong with your account authorization. Please check with your administrator to verify your level of access.');
@@ -155,3 +156,14 @@ export const VERIFY_CUSTODIAL_ERRORS = {
   1005: ERR_BIRTHDAY_INVALID,
   1006: ERR_BIRTHDAY_MISMATCH
 };
+
+// Smart on FHIR specific errors
+export const ERR_SMARTONFHIR_MISSING_CORRELATION_ID = t('Missing correlation ID. Please try again or contact your healthcare provider.');
+export const ERR_SMARTONFHIR_PATIENT_INFO_NOT_FOUND = t('Patient information not found in token. Please try again or contact your healthcare provider.');
+export const ERR_SMARTONFHIR_MRN_NOT_FOUND = t('MRN not found in patient information. Please contact your healthcare provider.');
+export const ERR_SMARTONFHIR_NO_PATIENTS_FOUND = t('No patients found with the provided MRN. Please contact your healthcare provider.');
+export const ERR_SMARTONFHIR_MULTIPLE_PATIENTS_FOUND = t('Multiple patients found with the provided MRN and date of birth.');
+export const ERR_SMARTONFHIR_FETCHING_PATIENT = t('Error fetching patient. Please try again or contact your healthcare provider.');
+export const ERR_SMARTONFHIR_CONTACT_PROVIDER = t('Please contact your healthcare provider for assistance.');
+export const ERR_SMARTONFHIR_INITIALIZING = t('Initializing Smart on FHIR...');
+export const ERR_SMARTONFHIR_LOADING_PATIENT_DATA = t('Loading patient data...');

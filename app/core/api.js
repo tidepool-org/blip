@@ -476,6 +476,23 @@ api.user.createCustodialAccount = (profile, cb) => {
 
 api.patient = {};
 
+/**
+ * Get all accessible patients by search criteria
+ *
+ * @param {Object} options - search options
+ * @param {String} [options.mrn] - Medical Record Number
+ * @param {String} [options.birthDate] - Patient birth date (YYYY-MM-DD)
+ * @param {String} [options.workspaceId] - Workspace identifier
+ * @param {String} [options.workspaceIdType] - Type of workspace ID (clinicId or ehrSourceId)
+ * @param {Number} [options.offset] - search page offset
+ * @param {Number} [options.limit] - results per page
+ * @param {Function} cb - function(err, [{clinic:Object, patient:Object}...])
+ */
+api.patient.getAll = function(options, cb) {
+  api.log('GET /patients');
+  return tidepool.getPatients(options, cb);
+};
+
 // Get a user's public info
 function getPerson(userId, cb) {
   var person = {userid: userId};

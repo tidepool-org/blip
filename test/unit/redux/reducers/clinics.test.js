@@ -4,6 +4,8 @@
 /* global it */
 /* global expect */
 
+import mutationTracker from 'object-invariant-test-helper';
+
 import { clinics as reducer } from '../../../../app/redux/reducers/misc';
 
 import * as actions from '../../../../app/redux/actions/index';
@@ -40,6 +42,47 @@ describe('clinics', () => {
           patientInvites: {},
         },
       });
+    });
+  });
+
+  describe('fetchPatientsSuccess', () => {
+    it('should add patients to state when they do not currently exist in state', () => {
+      let initialStateForTest = {};
+      let tracked = mutationTracker.trackObj(initialStateForTest);
+
+      let results = [
+        { patient: { userid: 'a1b2c3', name: 'Jenny' }, clinic: { id: 'clinic1' } },
+        { patient: { userid: 'd4e5f6', name: 'John' }, clinic: { id: 'clinic2' } },
+      ];
+
+      let action = actions.sync.fetchPatientsSuccess(results);
+      let state = reducer(initialStateForTest, action);
+
+      expect(Object.keys(state).length).to.equal(2); // 2 clinics
+      console.log(state)
+      expect(state[results[0].clinic.id].patients[results[0].patient.userid]).to.eql({
+        userid: results[0].patient.userid,
+        name: results[0].patient.name,
+      });
+      expect(state[results[1].clinic.id].patients[results[1].patient.userid]).to.eql({
+        userid: results[1].patient.userid,
+        name: results[1].patient.name,
+      });
+
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
+
+    it('should handle empty patients array', () => {
+      let initialStateForTest = {};
+      let tracked = mutationTracker.trackObj(initialStateForTest);
+
+      let patients = [];
+
+      let action = actions.sync.fetchPatientsSuccess(patients);
+      let state = reducer(initialStateForTest, action);
+
+      expect(Object.keys(state).length).to.equal(0);
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 
