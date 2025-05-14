@@ -2605,25 +2605,11 @@ export const ClinicPatients = (props) => {
   const renderTimeInRangeDialog = useCallback(() => {
     const timeInRangeFilterOptions = [
       {
-        title: t('Very Low'),
-        value: 'timeInVeryLowPercent',
-        threshold: glycemicTargetThresholds.timeInVeryLowPercent.value,
+        title: t('Very High'),
+        value: 'timeInVeryHighPercent',
+        threshold: glycemicTargetThresholds.timeInVeryHighPercent.value,
         prefix: t('Greater than'),
-        rangeName: 'veryLow',
-      },
-      {
-        title: t('Low'),
-        value: 'timeInAnyLowPercent',
-        threshold: glycemicTargetThresholds.timeInAnyLowPercent.value,
-        prefix: t('Greater than'),
-        rangeName: 'anyLow',
-      },
-      {
-        title: t('Not meeting TIR'),
-        value: 'timeInTargetPercent',
-        threshold: glycemicTargetThresholds.timeInTargetPercent.value,
-        prefix: t('Less than'),
-        rangeName: 'target',
+        rangeName: 'veryHigh',
       },
       {
         title: t('High'),
@@ -2633,23 +2619,35 @@ export const ClinicPatients = (props) => {
         rangeName: 'anyHigh',
       },
       {
-        title: t('Very High'),
-        value: 'timeInVeryHighPercent',
-        threshold: glycemicTargetThresholds.timeInVeryHighPercent.value,
+        title: t('Not meeting TIR'),
+        value: 'timeInTargetPercent',
+        threshold: glycemicTargetThresholds.timeInTargetPercent.value,
+        prefix: t('Less than'),
+        rangeName: 'target',
+      },
+      {
+        title: t('Low'),
+        value: 'timeInAnyLowPercent',
+        threshold: glycemicTargetThresholds.timeInAnyLowPercent.value,
         prefix: t('Greater than'),
-        rangeName: 'veryHigh',
+        rangeName: 'anyLow',
+      },
+      {
+        title: t('Very Low'),
+        value: 'timeInVeryLowPercent',
+        threshold: glycemicTargetThresholds.timeInVeryLowPercent.value,
+        prefix: t('Greater than'),
+        rangeName: 'veryLow',
       },
     ];
 
-    if (showExtremeHigh) timeInRangeFilterOptions.push({
+    if (showExtremeHigh) timeInRangeFilterOptions.unshift({
       title: t('Highest'),
       value: 'timeInExtremeHighPercent',
       threshold: glycemicTargetThresholds.timeInExtremeHighPercent.value,
       prefix: t('Greater than'),
       rangeName: 'extremeHigh',
     });
-
-    timeInRangeFilterOptions.reverse();
 
     return (
       <Dialog
