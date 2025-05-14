@@ -5402,9 +5402,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.46.0-web-3667-device-filter-menu-sequel-to-twiist.1":
-  version: 1.46.0-web-3667-device-filter-menu-sequel-to-twiist.1
-  resolution: "@tidepool/viz@npm:1.46.0-web-3667-device-filter-menu-sequel-to-twiist.1"
+"@tidepool/viz@npm:1.46.0-develop.1":
+  version: 1.46.0-develop.1
+  resolution: "@tidepool/viz@npm:1.46.0-develop.1"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -5464,7 +5464,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 6f736a861fd2f574f76b83d9ce006ea2062e03cf796f60b5881338d77b657c38461b0e770444b4e19af049053ad8e848309c686a960634ad0dbe6aa2df764d3f
+  checksum: 032e7e1405ac82dc72aa29d5ae7bac4a3a37c1f6942a8ae4fbaa87fd2067cd6e6d6b0bf367b2c97bf95c64216f39dc87373820cdb04f437179616964f60d3cd7
   languageName: node
   linkType: hard
 
@@ -7395,7 +7395,7 @@ __metadata:
     "@storybook/react": 7.5.0
     "@storybook/react-webpack5": 7.5.0
     "@testing-library/react-hooks": 8.0.1
-    "@tidepool/viz": 1.46.0-web-3667-device-filter-menu-sequel-to-twiist.1
+    "@tidepool/viz": 1.46.0-develop.1
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
