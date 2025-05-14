@@ -14,25 +14,20 @@ import map from 'lodash/map';
 import omitBy from 'lodash/omitBy';
 import pick from 'lodash/pick';
 import reject from 'lodash/reject';
-import without from 'lodash/without';
 import { useFormik } from 'formik';
 import InputMask from 'react-input-mask';
-import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
 import ErrorOutlineRoundedIcon from '@material-ui/icons/ErrorOutlineRounded';
-import { Box, Text, BoxProps } from 'theme-ui';
+import { Box } from 'theme-ui';
 import moment from 'moment';
 
 import * as actions from '../../../redux/actions';
 import TextInput from '../../../components/elements/TextInput';
-import { TagList } from '../../../components/elements/Tag';
-import { useToasts } from '../../../providers/ToastProvider';
 import { getCommonFormikFieldProps } from '../../../core/forms';
-import { useInitialFocusedInput, useIsFirstRender, usePrevious } from '../../../core/hooks';
+import { useInitialFocusedInput, usePrevious } from '../../../core/hooks';
 import { dateRegex, patientSchema as validationSchema } from '../../../core/clinicUtils';
 import { accountInfoFromClinicPatient } from '../../../core/personutils';
 import { Body0 } from '../../../components/elements/FontStyles';
-import { borders, colors } from '../../../themes/baseTheme';
 import { MediumTitle } from '../../../components/elements/FontStyles';
 
 import SelectTags from './SelectTags';
@@ -68,8 +63,6 @@ export const PatientForm = (props) => {
   } = props;
 
   const dispatch = useDispatch();
-  const isFirstRender = useIsFirstRender();
-  const { set: setToast } = useToasts();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const mrnSettings = clinic?.mrnSettings ?? {};
