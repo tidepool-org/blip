@@ -4,7 +4,6 @@ import keyBy from 'lodash/keyBy';
 import partition from 'lodash/partition';
 import orderBy from 'lodash/orderBy';
 import Select, { createFilter } from 'react-select';
-import { Box } from 'theme-ui';
 import { useLocation } from 'react-router-dom';
 import { colors } from '../../../themes/baseTheme';
 import useClinicPatientsFilters from '../../../pages/clinicworkspace/useClinicPatientsFilters';
@@ -24,12 +23,9 @@ export const buildSelectOptions = (
   // If suggesting is disabled, return a single group of all options
   if (!shouldSuggestTags) return [{ options: options, label: '' }];
 
-  // Otherwise, partition into suggested and non-suggested groups, then return the two groups.
-  // The suggested tags are the tags currently applied as filters on the clinic patient dashboard.
-  const [suggested, nonSuggested] = partition(options, option => {
-    const currentFilterTagIds = activeFilters?.patientTags || [];
-    return currentFilterTagIds.includes(option.value);
-  });
+  // Otherwise, partition into suggested and non-suggested groups. The tags to suggest are
+  // tags currently applied as filters on the clinic patient dashboard.
+  const [suggested, nonSuggested] = partition(options, opt => activeFilters?.patientTags?.includes(opt.value));
 
   return [
     { options: suggested, label: t('Suggested - based on current dashboard filters') },
