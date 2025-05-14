@@ -7517,7 +7517,7 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.32.0-web-3029-dep-updates.2
+    tideline: 1.32.0-web-3501-range-thresholds.2
     tidepool-platform-client: 0.62.0
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
@@ -20274,9 +20274,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.32.0-web-3029-dep-updates.2":
-  version: 1.32.0-web-3029-dep-updates.2
-  resolution: "tideline@npm:1.32.0-web-3029-dep-updates.2"
+"tideline@npm:1.32.0-web-3501-range-thresholds.2":
+  version: 1.32.0-web-3501-range-thresholds.2
+  resolution: "tideline@npm:1.32.0-web-3501-range-thresholds.2"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -20297,7 +20297,7 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: ff5c66023b4839435585d6d11077da28f54a7560c882a8b5e241aea057e9eeaca6b62dc563960acc3cb6c390cc500240774e93f9bd056891d99a3065216f9365
+  checksum: 6b37d50270c9d1001564291bbd30a5f6619f6e6b33a741737e931c4c177075f51e48fb9a689b1674cdc6fe2d3808d7d89808b8d80c3c48eb77c95c5b18e3deb4
   languageName: node
   linkType: hard
 
