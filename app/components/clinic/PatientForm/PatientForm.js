@@ -18,7 +18,7 @@ import { useFormik } from 'formik';
 import InputMask from 'react-input-mask';
 import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
 import ErrorOutlineRoundedIcon from '@material-ui/icons/ErrorOutlineRounded';
-import { Box } from 'theme-ui';
+import { Box, BoxProps } from 'theme-ui';
 import moment from 'moment';
 
 import * as actions from '../../../redux/actions';
