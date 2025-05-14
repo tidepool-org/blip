@@ -475,6 +475,44 @@ describe('utils', () => {
     });
   });
 
+
+  describe('getCBGFilter', () => {
+    it('should return cbgFilter from query property of location object', () => {
+      var location = {
+        query: {
+          cbgFilter: 'true'
+        }
+      };
+      expect(utils.getCBGFilter(location)).to.equal('true');
+    });
+
+    it('should return empty string if empty cbgFilter in query property of location object', () => {
+      var location = {
+        query: {
+          cbgFilter: ''
+        }
+      };
+      expect(utils.getCBGFilter(location)).to.equal('');
+    });
+
+    it('should return null if no location object', () => {
+      expect(utils.getCBGFilter()).to.equal(null);
+    });
+
+    it('should return null if no query property of location object', () => {
+      expect(utils.getCBGFilter({})).to.equal(null);
+    });
+
+    it('should return null if no cbgFilter in query property of location object', () => {
+      var location = {
+        query: {
+          signupEmail: 'jane@tidepool.org'
+        }
+      };
+      expect(utils.getCBGFilter(location)).to.equal(null);
+    });
+  });
+    
   describe('translateBg', () => {
     it('should translate a BG value to the desired target unit', () => {
       expect(utils.translateBg(180, MMOLL_UNITS)).to.equal(10);
