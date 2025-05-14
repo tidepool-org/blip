@@ -79,8 +79,8 @@ const SelectTags = ({
     onChange(tagIds);
   };
 
-  // Suggest tags only if clinic has tags feature and user is viewing ClinicPatients list (where Filters are used)
-  const shouldSuggestTags = clinic?.entitlements?.patientTags && pathname === '/clinic-workspace';
+  // Suggest tags only if user is viewing ClinicPatients list (where Filters are used)
+  const shouldSuggestTags = pathname === '/clinic-workspace';
 
   const selectOptions = buildSelectOptions(t, clinic?.patientTags, activeFilters, shouldSuggestTags);
 
