@@ -9,15 +9,12 @@ import get from 'lodash/get';
 import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
 import keyBy from 'lodash/keyBy';
-import keys from 'lodash/keys';
 import map from 'lodash/map';
 import omitBy from 'lodash/omitBy';
 import pick from 'lodash/pick';
 import reject from 'lodash/reject';
 import { useFormik } from 'formik';
 import InputMask from 'react-input-mask';
-import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
-import ErrorOutlineRoundedIcon from '@material-ui/icons/ErrorOutlineRounded';
 import { Box, BoxProps } from 'theme-ui';
 import moment from 'moment';
 
@@ -31,6 +28,16 @@ import { Body0 } from '../../../components/elements/FontStyles';
 import { MediumTitle } from '../../../components/elements/FontStyles';
 
 import SelectTags from './SelectTags';
+
+export const DEXCOM_CONNECTION_STATES = [
+  'pending',
+  'pendingReconnect',
+  'pendingExpired',
+  'connected',
+  'disconnected',
+  'error',
+  'unknown',
+];
 
 export function getFormValues(source, clinicPatientTags) {
   return {
@@ -86,49 +93,7 @@ export const PatientForm = (props) => {
   const initialFocusedInputRef = useInitialFocusedInput();
   const tagSectionRef = useRef(null);
 
-  const dexcomConnectStateUI = {
-    pending: {
-      color: 'mediumGrey',
-      icon: ErrorOutlineRoundedIcon,
-      label: t('Pending connection with'),
-      showRegionalNote: true,
-    },
-    pendingReconnect: {
-      color: 'mediumGrey',
-      icon: ErrorOutlineRoundedIcon,
-      label: t('Pending reconnection with'),
-    },
-    pendingExpired: {
-      color: 'mediumGrey',
-      icon: ErrorOutlineRoundedIcon,
-      label: t('Pending connection expired with'),
-      showRegionalNote: true,
-    },
-    connected: {
-      color: 'brand.dexcom',
-      icon: CheckCircleRoundedIcon,
-      label: t('Connected with'),
-    },
-    disconnected: {
-      color: 'mediumGrey',
-      icon: ErrorOutlineRoundedIcon,
-      label: t('Disconnected from'),
-    },
-    error: {
-      color: 'feedback.danger',
-      icon: ErrorOutlineRoundedIcon,
-      label: t('Error connecting to'),
-      showRegionalNote: true,
-    },
-    unknown: {
-      color: 'mediumGrey',
-      icon: ErrorOutlineRoundedIcon,
-      label: t('Unknown connection to'),
-      showRegionalNote: true,
-    },
-  };
-
-  let dexcomConnectState = includes(keys(dexcomConnectStateUI), dexcomDataSource?.state)
+  let dexcomConnectState = includes(DEXCOM_CONNECTION_STATES, dexcomDataSource?.state)
     ? dexcomDataSource.state
     : 'unknown';
 
