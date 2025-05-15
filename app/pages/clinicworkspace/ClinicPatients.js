@@ -47,6 +47,7 @@ import { scroller } from 'react-scroll';
 import { Formik, Form } from 'formik';
 import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
 import { Link as RouterLink } from 'react-router-dom';
+import useClinicPatientsFilters, { defaultFilterState } from './useClinicPatientsFilters';
 
 import {
   bindPopover,
@@ -124,15 +125,6 @@ const StyledScrollToTop = styled(ScrollToTop)`
   border-radius: 20px;
   padding-top: 4px;
 `;
-
-const defaultFilterState = {
-  timeCGMUsePercent: null,
-  lastData: null,
-  lastDataType: null,
-  timeInRange: [],
-  meetsGlycemicTargets: true,
-  patientTags: [],
-};
 
 const glycemicTargetThresholds = {
   timeInVeryLowPercent: { value: 1, comparator: '>' },
@@ -635,8 +627,7 @@ export const ClinicPatients = (props) => {
     [clinicBgUnits]
   );
 
-  const activeFiltersStorageKey = `activePatientFilters/${loggedInUserId}/${selectedClinicId}`;
-  const [activeFilters, setActiveFilters] = useLocalStorage(activeFiltersStorageKey, defaultFilterState, true);
+  const [activeFilters, setActiveFilters] = useClinicPatientsFilters();
   const [pendingFilters, setPendingFilters] = useState({ ...defaultFilterState, ...activeFilters });
   const previousActiveFilters = usePrevious(activeFilters);
 
