@@ -692,7 +692,7 @@ const Settings = ({
   );
 
   const renderDataConnections = () => {
-    const shownProviders = _.map(patientData?.dataSources, 'providerName');
+    const shownProviders = _.map(_.filter(patientData?.dataSources, ({ state }) => state !== 'disconnected'), 'providerName');
 
     return (
       <Box>

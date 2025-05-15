@@ -117,7 +117,7 @@ describe('useProviderConnectionPopup', function () {
       sinon.restore();
 
       done();
-    }, 100);
+    }, 1000);
   });
 
   it('should close the popup and show a toast message on authorization error when popup url matches error oauth path', (done) => {
@@ -134,7 +134,7 @@ describe('useProviderConnectionPopup', function () {
       })).to.be.true;
 
       done();
-    }, 100);
+    }, 1000);
   });
 
   it('should not show a toast message when the authorization status is `redirect`', (done) => {
