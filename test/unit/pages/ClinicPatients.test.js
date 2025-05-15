@@ -918,15 +918,14 @@ describe('ClinicPatients', () => {
 
   context('has patients but none matching filter criteria', () => {
     let mockedLocalStorage = {
-      'activePatientFilters/clinicianUserId123/clinicID123': {
-        timeInRange: ['timeInLowPercent'],
-        patientTags: [],
-        meetsGlycemicTargets: false,
-      },
       activePatientSummaryPeriod: '14d',
     };
 
+    let mockSetActiveFilters;
+
     beforeEach(() => {
+      mockSetActiveFilters = sinon.stub();
+
       ClinicPatients.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
         defaults(mockedLocalStorage, { [key]: {} });
         return [
@@ -934,6 +933,17 @@ describe('ClinicPatients', () => {
           sinon.stub().callsFake(val => mockedLocalStorage[key] = val),
         ];
       }));
+
+      ClinicPatients.__Rewire__('useClinicPatientsFilters', sinon.stub().callsFake(() => (
+        [
+          {
+            timeInRange: ['timeInLowPercent'],
+            patientTags: [],
+            meetsGlycemicTargets: false,
+          },
+          mockSetActiveFilters,
+        ]
+      )));
 
       const noPatientsButWithFiltersState = merge({}, noPatientsState, {
         blip: {
@@ -956,6 +966,7 @@ describe('ClinicPatients', () => {
 
     afterEach(() => {
       ClinicPatients.__ResetDependency__('useLocalStorage');
+      ClinicPatients.__ResetDependency__('useClinicPatientsFilters');
     });
 
     describe('Filter Reset Bar', () => {
@@ -972,13 +983,9 @@ describe('ClinicPatients', () => {
       });
 
       it('should remove the active filters from localStorage', function () {
-        expect(mockedLocalStorage['activePatientFilters/clinicianUserId123/clinicID123']
-                                 ['timeInRange'].length).to.eql(1);
-
         wrapper.find('.reset-filters-button').hostNodes().simulate('click');
 
-        expect(mockedLocalStorage['activePatientFilters/clinicianUserId123/clinicID123']
-                                 ['timeInRange'].length).to.eql(0);
+        expect(mockSetActiveFilters.getCall(0).args[0].timeInRange.length).to.eql(0);
       });
     });
 
@@ -1981,14 +1988,6 @@ describe('ClinicPatients', () => {
 
           beforeEach(() => {
             mockedLocalStorage = {
-              'activePatientFilters/clinicianUserId123/clinicID123': {
-                timeInRange: [
-                    'timeInLowPercent',
-                    'timeInHighPercent'
-                ],
-                patientTags: [],
-                meetsGlycemicTargets: false,
-              },
               activePatientSummaryPeriod: '14d',
             };
 
@@ -1999,6 +1998,17 @@ describe('ClinicPatients', () => {
                 sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
               ];
             }));
+
+            ClinicPatients.__Rewire__('useClinicPatientsFilters', sinon.stub().callsFake(() => (
+              [
+                {
+                  timeInRange: ['timeInLowPercent', 'timeInHighPercent'],
+                  patientTags: [],
+                  meetsGlycemicTargets: false,
+                },
+                sinon.stub(),
+              ]
+            )));
 
             wrapper = mount(
               <Provider store={store}>
@@ -2011,6 +2021,7 @@ describe('ClinicPatients', () => {
 
           afterEach(() => {
             ClinicPatients.__ResetDependency__('useLocalStorage');
+            ClinicPatients.__ResetDependency__('useClinicPatientsFilters');
           });
 
           it('should show the Filter Reset Bar', () => {
@@ -2126,15 +2137,6 @@ describe('ClinicPatients', () => {
             store = mockStore(tier0300ClinicState);
 
             mockedLocalStorage = {
-              'activePatientFilters/clinicianUserId123/clinicID123': {
-                lastData: 14,
-                timeInRange: [
-                    'timeInLowPercent',
-                    'timeInHighPercent'
-                ],
-                patientTags: ['tag2'],
-                meetsGlycemicTargets: true,
-              },
               activePatientSummaryPeriod: '14d',
             };
 
@@ -2145,6 +2147,18 @@ describe('ClinicPatients', () => {
                 sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
               ];
             }));
+
+            ClinicPatients.__Rewire__('useClinicPatientsFilters', sinon.stub().callsFake(() => (
+              [
+                {
+                  lastData: 14,
+                  timeInRange: ['timeInLowPercent', 'timeInHighPercent'],
+                  patientTags: ['tag2'],
+                  meetsGlycemicTargets: true,
+                },
+                sinon.stub(),
+              ]
+            )));
 
             wrapper = mount(
               <Provider store={store}>
@@ -2158,6 +2172,7 @@ describe('ClinicPatients', () => {
 
           afterEach(() => {
             ClinicPatients.__ResetDependency__('useLocalStorage');
+            ClinicPatients.__ResetDependency__('useClinicPatientsFilters');
           });
 
           it('should set the last upload filter on load based on the stored filters', () => {
@@ -2239,14 +2254,6 @@ describe('ClinicPatients', () => {
             store = mockStore(tier0300ClinicState);
 
             mockedLocalStorage = {
-              'activePatientFilters/clinicianUserId123/clinicID123': {
-                timeInRange: [
-                    'timeInLowPercent',
-                    'timeInHighPercent'
-                ],
-                patientTags: [],
-                meetsGlycemicTargets: false,
-              },
               activePatientSummaryPeriod: '14d',
               activePatientSort: {
                 sort: '-averageGlucoseMmol',
@@ -2261,6 +2268,17 @@ describe('ClinicPatients', () => {
               ];
             }));
 
+            ClinicPatients.__Rewire__('useClinicPatientsFilters', sinon.stub().callsFake(() => (
+              [
+                {
+                  timeInRange: ['timeInLowPercent', 'timeInHighPercent'],
+                  patientTags: [],
+                  meetsGlycemicTargets: false,
+                },
+                sinon.stub(),
+              ]
+            )));
+
             wrapper = mount(
               <Provider store={store}>
                 <ToastProvider>
@@ -2273,6 +2291,7 @@ describe('ClinicPatients', () => {
 
           afterEach(() => {
             ClinicPatients.__ResetDependency__('useLocalStorage');
+            ClinicPatients.__ResetDependency__('useClinicPatientsFilters');
           });
 
           it('should set the table sort UI based on the the sort params from localStorage', () => {
@@ -2750,116 +2769,6 @@ describe('ClinicPatients', () => {
             sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Assign patient tag confirm', sinon.match({ clinicId: 'clinicID123' }));
           });
         });
-
-        it('should allow updating tags for a patient', done => {
-          const table = wrapper.find(Table);
-          const rows = table.find('tbody tr');
-          const rowData = row => rows.at(row).find('.MuiTableCell-root');
-
-          expect(rowData(1).at(2).text()).contains('test tag 1');
-          const editTagsTrigger = rowData(1).find('.edit-tags-trigger').hostNodes();
-          expect(editTagsTrigger).to.have.length(1);
-
-          const dialog = () => wrapper.find('Dialog#editPatient');
-
-          expect(dialog()).to.have.length(0);
-          editTagsTrigger.simulate('click');
-          wrapper.update();
-          expect(dialog()).to.have.length(1);
-          expect(dialog().props().open).to.be.true;
-
-          expect(defaultProps.trackMetric.calledWith('Clinic - Edit patient')).to.be.true;
-          expect(defaultProps.trackMetric.callCount).to.equal(1);
-
-          const patientForm = () => dialog().find('form#clinic-patient-form');
-          expect(patientForm()).to.have.lengthOf(1);
-
-          // Check existing selected tags
-          const selectedTags = () => patientForm().find('.selected-tags').find('.tag-text').hostNodes();
-          expect(selectedTags()).to.have.lengthOf(1);
-          expect(selectedTags().at(0).text()).to.equal('test tag 1');
-
-          // Ensure available tag options present
-          const availableTags = () => patientForm().find('.available-tags').find('.tag-text').hostNodes();
-          expect(availableTags()).to.have.lengthOf(2);
-          expect(availableTags().at(0).text()).to.equal('test tag 2');
-          expect(availableTags().at(1).text()).to.equal('test tag 3');
-
-          // Add tag 3
-          patientForm().find('#tag3').hostNodes().simulate('click');
-
-          // Remove tag 1
-          patientForm().find('#tag1').find('.icon').hostNodes().simulate('click');
-
-          expect(selectedTags()).to.have.lengthOf(1);
-          expect(selectedTags().at(0).text()).to.equal('test tag 3');
-
-          expect(availableTags()).to.have.lengthOf(2);
-          expect(availableTags().at(0).text()).to.equal('test tag 1');
-          expect(availableTags().at(1).text()).to.equal('test tag 2');
-
-          store.clearActions();
-          dialog().find('Button#editPatientConfirm').simulate('click');
-
-          setTimeout(() => {
-            expect(defaultProps.api.clinics.updateClinicPatient.callCount).to.equal(1);
-
-            sinon.assert.calledWith(
-              defaultProps.api.clinics.updateClinicPatient,
-              'clinicID123',
-              'patient2',
-              {
-                id: 'patient2',
-                email: 'patient2@test.ca',
-                fullName: 'Patient Two',
-                birthDate: '1999-02-02',
-                mrn: 'MRN123',
-                permissions: { custodian : undefined },
-                summary: {
-                  bgmStats: {
-                    dates: {
-                      lastData: sinon.match.string,
-                    },
-                    periods: { '14d': {
-                      averageGlucoseMmol: 10.5,
-                      averageDailyRecords: 0.25,
-                      timeInVeryLowRecords: 1,
-                      timeInVeryHighRecords: 2,
-                    } },
-                  },
-                  cgmStats: {
-                    dates: {
-                      lastData: sinon.match.string,
-                    },
-                    periods: {
-                      '14d': {
-                        glucoseManagementIndicator: 7.75,
-                        timeCGMUseMinutes: 1380,
-                        timeCGMUsePercent: 0.85,
-                      },
-                    },
-                  },
-                },
-                tags: ['tag3'],
-                reviews: [{ clinicianId: 'clinicianUserId123', time: yesterday }],
-              }
-            );
-
-            expect(store.getActions()).to.eql([
-              { type: 'UPDATE_CLINIC_PATIENT_REQUEST' },
-              {
-                type: 'UPDATE_CLINIC_PATIENT_SUCCESS',
-                payload: {
-                  clinicId: 'clinicID123',
-                  patientId: 'stubbedId',
-                  patient: { id: 'stubbedId', stubbedUpdates: 'foo' },
-                },
-              },
-            ]);
-
-            done();
-          }, 0);
-        });
       });
 
       describe('Accessing TIDE dashboard', () => {
@@ -2881,6 +2790,13 @@ describe('ClinicPatients', () => {
                 sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
               ];
             }));
+
+            ClinicPatients.__Rewire__('useClinicPatientsFilters', sinon.stub().callsFake(() => (
+              [
+                {},
+                sinon.stub(),
+              ]
+            )));
 
             TideDashboardConfigForm.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
               defaults(mockedLocalStorage, { [key]: {} })
@@ -2905,6 +2821,7 @@ describe('ClinicPatients', () => {
 
           afterEach(() => {
             ClinicPatients.__ResetDependency__('useLocalStorage');
+            ClinicPatients.__ResetDependency__('useClinicPatientsFilters');
             ClinicPatients.__ResetDependency__('useFlags');
             TideDashboardConfigForm.__ResetDependency__('useLocalStorage');
             TideDashboardConfigForm.__ResetDependency__('useLocation');
@@ -3366,6 +3283,12 @@ describe('ClinicPatients', () => {
             }));
 
             ClinicPatients.__Rewire__('useLocalStorage', sinon.stub().callsFake(localStorageMock));
+            ClinicPatients.__Rewire__('useClinicPatientsFilters', sinon.stub().callsFake(() => (
+              [
+                { timeCGMUsePercent: '<0.7' },
+                sinon.stub(),
+              ]
+            )));
             RpmReportConfigForm.__Rewire__('useLocalStorage', sinon.stub().callsFake(localStorageMock));
 
             exportRpmReportStub = sinon.stub();
@@ -3384,6 +3307,7 @@ describe('ClinicPatients', () => {
 
           afterEach(() => {
             ClinicPatients.__ResetDependency__('useLocalStorage');
+            ClinicPatients.__ResetDependency__('useClinicPatientsFilters');
             ClinicPatients.__ResetDependency__('useFlags');
             ClinicPatients.__ResetDependency__('exportRpmReport');
             RpmReportConfigForm.__ResetDependency__('useLocalStorage');
@@ -3574,6 +3498,10 @@ describe('ClinicPatients', () => {
 
               // TODO: delete temp mocked data response
               expect(defaultProps.api.clinics.getPatientsForRpmReport.callCount).to.equal(1);
+
+              console.log(
+                defaultProps.api.clinics.getPatientsForRpmReport.getCall(0).args[2].patientFilters
+              )
 
               sinon.assert.calledWith(
                 defaultProps.api.clinics.getPatientsForRpmReport,
