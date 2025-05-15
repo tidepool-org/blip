@@ -3499,10 +3499,6 @@ describe('ClinicPatients', () => {
               // TODO: delete temp mocked data response
               expect(defaultProps.api.clinics.getPatientsForRpmReport.callCount).to.equal(1);
 
-              console.log(
-                defaultProps.api.clinics.getPatientsForRpmReport.getCall(0).args[2].patientFilters
-              )
-
               sinon.assert.calledWith(
                 defaultProps.api.clinics.getPatientsForRpmReport,
                 'clinicID123',
