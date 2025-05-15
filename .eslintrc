@@ -40,5 +40,17 @@
   },
   "plugins": [
     "react"
-  ]
+  ],
+  "overrides": [
+		{
+			"files": ["**/__tests__/**/*.test.[jt]s?(x)"],
+			"extends": [
+        "plugin:testing-library/react",
+        "plugin:jest-dom/recommended"
+      ],
+      "rules": {
+        "testing-library/prefer-presence-queries": "warn"
+      }
+		}
+	]
 }
