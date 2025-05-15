@@ -2228,6 +2228,7 @@ export const PatientDataClass = createReactClass({
  * @param {boolean} [options.carelink=this.props.carelink] - Whether to include Carelink data.
  * @param {boolean} [options.dexcom=this.props.dexcom] - Whether to include Dexcom data.
  * @param {boolean} [options.medtronic=this.props.medtronic] - Whether to include Medtronic data.
+ * @param {boolean} [options.cbgFilter=this.props.cbgFilter] - Whether to apply the CBG filter for cloud versus non-cloud data.
  * @param {boolean} [options.useCache=false] - Whether to use cached data.
  * @param {boolean} [options.initial=false] - Whether this is the initial data fetch.
  * @param {boolean} [options.noDates=false] - Whether to fetch data without start and end dates..
@@ -2249,6 +2250,7 @@ export const PatientDataClass = createReactClass({
       carelink: this.props.carelink,
       dexcom: this.props.dexcom,
       medtronic: this.props.medtronic,
+      cbgFilter: this.props.cbgFilter,
       useCache: false,
       initial: false,
       noDates: false,
@@ -2299,6 +2301,11 @@ export const PatientDataClass = createReactClass({
       const medtronic = nextProps.medtronic;
       if (!_.isEmpty(medtronic)) {
         this.props.trackMetric('Web - Medtronic Import URL Param', { medtronic });
+      }
+
+      const cbgFilter = nextProps.cbgFilter;
+      if (!_.isEmpty(cbgFilter)) {
+        this.props.trackMetric('Web - CBG Filter URL Param', { cbgFilter });
       }
 
       const properties = { patientID: nextProps.currentPatientInViewId };
@@ -2510,6 +2517,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   const carelink = utils.getCarelink(ownProps.location);
   const dexcom = utils.getDexcom(ownProps.location);
   const medtronic = utils.getMedtronic(ownProps.location);
+  const cbgFilter = utils.getCBGFilter(ownProps.location);
   const api = ownProps.api;
   const assignedDispatchProps = [
     'dataWorkerRemoveDataRequest',
@@ -2523,7 +2531,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   ];
 
   return Object.assign({}, _.pick(dispatchProps, assignedDispatchProps), stateProps, {
-    fetchers: getFetchers(dispatchProps, ownProps, stateProps, api, { carelink, dexcom, medtronic }),
+    fetchers: getFetchers(dispatchProps, ownProps, stateProps, api, { carelink, dexcom, medtronic, cbgFilter }),
     history: ownProps.history,
     location: ownProps.location,
     match: ownProps.match,
@@ -2532,7 +2540,8 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
       const fetchOptions = {
         carelink,
         dexcom,
-        medtronic
+        medtronic,
+        cbgFilter,
       };
       if(chartType === 'settings') {
         _.extend(fetchOptions, {
@@ -2558,6 +2567,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     carelink: carelink,
     dexcom: dexcom,
     medtronic: medtronic,
+    cbgFilter: cbgFilter,
   });
 };
 

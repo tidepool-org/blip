@@ -181,7 +181,7 @@
     "terser-webpack-plugin": "5.3.9",
     "theme-ui": "0.16.1",
     "tideline": "1.32.0-web-3501-range-thresholds.2",
-    "tidepool-platform-client": "0.62.0",
+    "tidepool-platform-client": "0.63.0-web-3670-add-cbgfilter-query-parameter",
     "tidepool-standard-action": "0.1.1",
     "ua-parser-js": "1.0.36",
     "url-loader": "4.1.1",

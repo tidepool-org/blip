@@ -281,6 +281,17 @@ utils.getMedtronic = function(location) {
   return null;
 }
 
+utils.getCBGFilter = function(location) {
+  if (location && location.query) {
+    let { cbgFilter } = location.query;
+
+    if (!_.isUndefined(cbgFilter)) {
+      return cbgFilter;
+    }
+  }
+  return null;
+}
+
 /**
  * Translate a BG value to the desired target unit
  *
