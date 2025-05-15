@@ -134,8 +134,10 @@ const defaultFilterState = {
 const glycemicTargetThresholds = {
   timeInVeryLowPercent: { value: 1, comparator: '>' },
   timeInLowPercent: { value: 4, comparator: '>' },
+  timeInAnyLowPercent: { value: 4, comparator: '>' },
   timeInTargetPercent: { value: 70, comparator: '<' },
   timeInHighPercent: { value: 25, comparator: '>' },
+  timeInAnyHighPercent: { value: 25, comparator: '>' },
   timeInVeryHighPercent: { value: 5, comparator: '>' },
   timeInExtremeHighPercent: { value: 1, comparator: '>' },
 };
@@ -1051,9 +1053,9 @@ export const ClinicPatients = (props) => {
           'tags',
           'cgm.timeCGMUsePercent',
           'cgm.timeInVeryLowPercent',
-          'cgm.timeInLowPercent',
+          'cgm.timeInAnyLowPercent',
           'cgm.timeInTargetPercent',
-          'cgm.timeInHighPercent',
+          'cgm.timeInAnyHighPercent',
           'cgm.timeInVeryHighPercent',
           'cgm.timeInExtremeHighPercent',
         ]),
@@ -1312,9 +1314,9 @@ export const ClinicPatients = (props) => {
       clinicId: selectedClinicId,
       meetsCriteria: pendingFilters.meetsGlycemicTargets,
       severeHypo: includes(pendingFilters.timeInRange, 'timeInVeryLowPercent'),
-      hypo: includes(pendingFilters.timeInRange, 'timeInLowPercent'),
+      hypo: includes(pendingFilters.timeInRange, 'timeInAnyLowPercent'),
       inRange: includes(pendingFilters.timeInRange, 'timeInTargetPercent'),
-      hyper: includes(pendingFilters.timeInRange, 'timeInHighPercent'),
+      hyper: includes(pendingFilters.timeInRange, 'timeInAnyHighPercent'),
       severeHyper: includes(pendingFilters.timeInRange, 'timeInVeryHighPercent'),
       extremeHyper: includes(pendingFilters.timeInRange, 'timeInExtremeHighPercent'),
     });
@@ -2603,47 +2605,47 @@ export const ClinicPatients = (props) => {
   const renderTimeInRangeDialog = useCallback(() => {
     const timeInRangeFilterOptions = [
       {
-        value: 'timeInVeryLowPercent',
-        threshold: glycemicTargetThresholds.timeInVeryLowPercent.value,
-        prefix: t('Greater than'),
-        tag: t('Severe hypoglycemia'),
-        rangeName: 'veryLow',
-      },
-      {
-        value: 'timeInLowPercent',
-        threshold: glycemicTargetThresholds.timeInLowPercent.value,
-        prefix: t('Greater than'),
-        tag: t('Hypoglycemia'),
-        rangeName: 'low',
-      },
-      {
-        value: 'timeInTargetPercent',
-        threshold: glycemicTargetThresholds.timeInTargetPercent.value,
-        prefix: t('Less than'),
-        tag: t('Normal'),
-        rangeName: 'target',
-      },
-      {
-        value: 'timeInHighPercent',
-        threshold: glycemicTargetThresholds.timeInHighPercent.value,
-        prefix: t('Greater than'),
-        tag: t('Hyperglycemia'),
-        rangeName: 'high',
-      },
-      {
+        title: t('Very High'),
         value: 'timeInVeryHighPercent',
         threshold: glycemicTargetThresholds.timeInVeryHighPercent.value,
         prefix: t('Greater than'),
-        tag: t('Severe hyperglycemia'),
         rangeName: 'veryHigh',
+      },
+      {
+        title: t('High'),
+        value: 'timeInAnyHighPercent',
+        threshold: glycemicTargetThresholds.timeInAnyHighPercent.value,
+        prefix: t('Greater than'),
+        rangeName: 'anyHigh',
+      },
+      {
+        title: t('Not meeting TIR'),
+        value: 'timeInTargetPercent',
+        threshold: glycemicTargetThresholds.timeInTargetPercent.value,
+        prefix: t('Less than'),
+        rangeName: 'target',
+      },
+      {
+        title: t('Low'),
+        value: 'timeInAnyLowPercent',
+        threshold: glycemicTargetThresholds.timeInAnyLowPercent.value,
+        prefix: t('Greater than'),
+        rangeName: 'anyLow',
+      },
+      {
+        title: t('Very Low'),
+        value: 'timeInVeryLowPercent',
+        threshold: glycemicTargetThresholds.timeInVeryLowPercent.value,
+        prefix: t('Greater than'),
+        rangeName: 'veryLow',
       },
     ];
 
-    if (showExtremeHigh) timeInRangeFilterOptions.push({
+    if (showExtremeHigh) timeInRangeFilterOptions.unshift({
+      title: t('Highest'),
       value: 'timeInExtremeHighPercent',
       threshold: glycemicTargetThresholds.timeInExtremeHighPercent.value,
       prefix: t('Greater than'),
-      tag: t('Extreme hyperglycemia'),
       rangeName: 'extremeHigh',
     });
 
@@ -2674,11 +2676,11 @@ export const ClinicPatients = (props) => {
         <DialogContent color="text.primary" pl={4} pr={6} pb={3}>
           <Flex mb={3} sx={{ alignItems: 'center', fontSize: 1, fontWeight: 'medium' }}>
             <Text mr={2} sx={{ whiteSpace: 'nowrap' }}>
-              {t('View Patients that spend:')}
+              {t('Filter by Time in Range')}
             </Text>
           </Flex>
 
-          {map(timeInRangeFilterOptions, ({ value, rangeName, tag, threshold, prefix }) => {
+          {map(timeInRangeFilterOptions, ({ value, title, rangeName, threshold, prefix }) => {
             const {prefix: bgPrefix, suffix, value:glucoseTargetValue} = bgLabels[rangeName];
 
             return (
@@ -2702,26 +2704,66 @@ export const ClinicPatients = (props) => {
                   }}
                 />
 
-              <Box>
+              <Box
+                px={1}
+                py={1}
+                ml={-2}
+                sx={{
+                  backgroundColor: `${colors.bg[rangeName]}1A`, // Adding '1A' reduces opacity to 0.1
+                  borderRadius: 4,
+                }}
+              >
                 <Flex as="label" htmlFor={`range-${value}-filter`} sx={{ alignItems: 'center' }}>
-                  <Text sx={{ fontSize: 1 }} mr={2}>
+                  <Box
+                    id={`range-${value}-filter-option-color-indicator`}
+                    sx={{
+                      position: 'relative',
+                      borderRadius: 4,
+                      backgroundColor: colors.bg[rangeName],
+                      width: '12px',
+                      height: '12px',
+
+                      // The styles within the :after pseudo-class below create a diagonal line
+
+                      border: value === 'timeInTargetPercent' && `1.5px solid ${colors.blueGreyDark}`,
+                      '&::after': value === 'timeInTargetPercent' && {
+                        content: '""',
+                        height: '1.5px',
+                        width: '141.421%',
+                        backgroundColor: colors.blueGreyDark,
+                        position: 'absolute',
+                        bottom: '0px',
+                        transform: 'rotate(-45deg)',
+                        transformOrigin: '1px 1px',
+                      },
+                    }}
+                    mr={2}
+                  >
+                  </Box>
+
+                  <Text
+                    id={`range-${value}-filter-option-title`}
+                    sx={{ fontSize: 1, fontWeight: 'bold', color: 'black' }}
+                    mr={2}
+                  >
+                    {title}
+                  </Text>
+
+                  <Text
+                    id={`range-${value}-filter-option-definition`}
+                    sx={{ fontSize: 1 }} mr={2}
+                  >
                     {prefix}{' '}
                     <Text sx={{ fontSize: 2, fontWeight: 'bold' }}>
                       {threshold}
                     </Text>
-                    % {t('Time')} {t(bgPrefix)}{' '}
+                    % {t('Time')}{' '}
+                    {bgPrefix && `${t(bgPrefix)} `}
                     <Text sx={{ fontSize: 2, fontWeight: 'bold' }}>
                       {glucoseTargetValue}
                     </Text>{' '}
                     {suffix}
                   </Text>
-                  <Pill
-                    label={tag}
-                    py="2px"
-                    sx={{ fontSize: '12px', fontWeight: 'normal', borderRadius: radii.input }}
-                    colorPalette={[`bg.${rangeName}`, 'white']}
-                    text={tag}
-                  />
                 </Flex>
               </Box>
             </Flex>
