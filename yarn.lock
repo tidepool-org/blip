@@ -5402,9 +5402,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.46.0-web-3501-range-thresholds.5":
-  version: 1.46.0-web-3501-range-thresholds.5
-  resolution: "@tidepool/viz@npm:1.46.0-web-3501-range-thresholds.5"
+"@tidepool/viz@npm:1.46.0-web-2016-ciq-pump-settings-targets-annotations.2":
+  version: 1.46.0-web-2016-ciq-pump-settings-targets-annotations.2
+  resolution: "@tidepool/viz@npm:1.46.0-web-2016-ciq-pump-settings-targets-annotations.2"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -5438,6 +5438,7 @@ __metadata:
     react-collapse: 5.1.1
     react-dimensions: 1.3.1
     react-dom: 16.14.0
+    react-i18next: 13.3.1
     react-markdown: 8.0.7
     react-motion: 0.5.2
     react-redux: 8.1.3
@@ -5464,7 +5465,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: c7fa11f4cdefde4ae31a1251b61a1cfa5b96b4646f1cac877568925d570146af8f4f347d3ffb05c3ca0f8e24ee280e8fd62e1ccb3163caf3d7fa9707f12b23c1
+  checksum: 3cf2559c0db84f8fe398f337697d41af55f7e10417b155c82300741d5ce187bc7dc982fe94b7ccdcbc31fc42b2c1567f19539a19e97419c84896b97382ab1d1a
   languageName: node
   linkType: hard
 
@@ -7395,7 +7396,7 @@ __metadata:
     "@storybook/react": 7.5.0
     "@storybook/react-webpack5": 7.5.0
     "@testing-library/react-hooks": 8.0.1
-    "@tidepool/viz": 1.46.0-web-3501-range-thresholds.5
+    "@tidepool/viz": 1.46.0-web-2016-ciq-pump-settings-targets-annotations.2
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
