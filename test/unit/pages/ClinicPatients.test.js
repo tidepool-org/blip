@@ -1898,50 +1898,45 @@ describe('ClinicPatients', () => {
           // Ensure filter options present and in default unchecked state
           const veryLowFilter = () => dialog().find('#time-in-range-filter-veryLow').hostNodes();
           expect(veryLowFilter()).to.have.lengthOf(1);
-          expect(veryLowFilter().text()).contains('Severe hypoglycemia');
           expect(veryLowFilter().text()).contains('Greater than 1% Time');
-          expect(veryLowFilter().text()).contains('below 54 mg/dL');
+          expect(veryLowFilter().text()).contains('<54 mg/dL');
           expect(veryLowFilter().find('input').props().checked).to.be.false;
 
-          const lowFilter = () => dialog().find('#time-in-range-filter-low').hostNodes();
+          const lowFilter = () => dialog().find('#time-in-range-filter-anyLow').hostNodes();
           expect(lowFilter()).to.have.lengthOf(1);
-          expect(lowFilter().text()).contains('Hypoglycemia');
           expect(lowFilter().text()).contains('Greater than 4% Time');
-          expect(lowFilter().text()).contains('between 54-70 mg/dL');
+          expect(lowFilter().text()).contains('<70 mg/dL');
           expect(lowFilter().find('input').props().checked).to.be.false;
 
           const targetFilter = () => dialog().find('#time-in-range-filter-target').hostNodes();
           expect(targetFilter()).to.have.lengthOf(1);
-          expect(targetFilter().text()).contains('Normal');
           expect(targetFilter().text()).contains('Less than 70% Time');
           expect(targetFilter().text()).contains('between 70-180 mg/dL');
           expect(targetFilter().find('input').props().checked).to.be.false;
 
-          const highFilter = () => dialog().find('#time-in-range-filter-high').hostNodes();
+          const highFilter = () => dialog().find('#time-in-range-filter-anyHigh').hostNodes();
           expect(highFilter()).to.have.lengthOf(1);
-          expect(highFilter().text()).contains('Hyperglycemia');
           expect(highFilter().text()).contains('Greater than 25% Time');
-          expect(highFilter().text()).contains('between 180-250 mg/dL');
+          expect(highFilter().text()).contains('>180 mg/dL');
           expect(highFilter().find('input').props().checked).to.be.false;
 
           const veryHighFilter = () => dialog().find('#time-in-range-filter-veryHigh').hostNodes();
           expect(veryHighFilter()).to.have.lengthOf(1);
-          expect(veryHighFilter().text()).contains('Severe hyperglycemia');
-          expect(veryHighFilter().text()).contains('Greater than 5% Time ');
-          expect(veryHighFilter().text()).contains('above 250 mg/dL');
+          expect(veryHighFilter().text()).contains('Greater than 5% Time');
+          expect(veryHighFilter().text()).contains('>250 mg/dL');
           expect(veryHighFilter().find('input').props().checked).to.be.false;
 
           // Select all filter ranges
           veryLowFilter().find('input').simulate('change', { target: { name: 'range-timeInVeryLowPercent-filter', checked: true } });
           expect(veryLowFilter().find('input').props().checked).to.be.true;
 
-          lowFilter().find('input').simulate('change', { target: { name: 'range-timeInLowPercent-filter', checked: true } });
+          lowFilter().find('input').simulate('change', { target: { name: 'range-timeInAnyLowPercent-filter', checked: true } });
           expect(lowFilter().find('input').props().checked).to.be.true;
 
           targetFilter().find('input').simulate('change', { target: { name: 'range-timeInTargetPercent-filter', checked: true } });
           expect(targetFilter().find('input').props().checked).to.be.true;
 
-          highFilter().find('input').simulate('change', { target: { name: 'range-timeInHighPercent-filter', checked: true } });
+          highFilter().find('input').simulate('change', { target: { name: 'range-timeInAnyHighPercent-filter', checked: true } });
           expect(highFilter().find('input').props().checked).to.be.true;
 
           veryHighFilter().find('input').simulate('change', { target: { name: 'range-timeInVeryHighPercent-filter', checked: true } });
@@ -1955,8 +1950,8 @@ describe('ClinicPatients', () => {
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({
             ...defaultFetchOptions,
             sort: '-lastData',
-            'cgm.timeInHighPercent': '>=0.25',
-            'cgm.timeInLowPercent': '>=0.04',
+            'cgm.timeInAnyHighPercent': '>=0.25',
+            'cgm.timeInAnyLowPercent': '>=0.04',
             'cgm.timeInTargetPercent': '<=0.7',
             'cgm.timeInVeryHighPercent': '>=0.05',
             'cgm.timeInVeryLowPercent': '>=0.01',
@@ -1983,8 +1978,8 @@ describe('ClinicPatients', () => {
             mockedLocalStorage = {
               'activePatientFilters/clinicianUserId123/clinicID123': {
                 timeInRange: [
-                    'timeInLowPercent',
-                    'timeInHighPercent'
+                    'timeInAnyLowPercent',
+                    'timeInAnyHighPercent'
                 ],
                 patientTags: [],
                 meetsGlycemicTargets: false,
@@ -2059,8 +2054,8 @@ describe('ClinicPatients', () => {
               ...defaultFetchOptions,
               sort: '-lastData',
               period: '7d',
-              'cgm.timeInHighPercent': '>0.25',
-              'cgm.timeInLowPercent': '>0.04',
+              'cgm.timeInAnyHighPercent': '>0.25',
+              'cgm.timeInAnyLowPercent': '>0.04',
             }));
 
             sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Summary period apply filter', sinon.match({ clinicId: 'clinicID123', summaryPeriod: '7d' }));
@@ -2129,8 +2124,8 @@ describe('ClinicPatients', () => {
               'activePatientFilters/clinicianUserId123/clinicID123': {
                 lastData: 14,
                 timeInRange: [
-                    'timeInLowPercent',
-                    'timeInHighPercent'
+                    'timeInAnyLowPercent',
+                    'timeInAnyHighPercent'
                 ],
                 patientTags: ['tag2'],
                 meetsGlycemicTargets: true,
@@ -2208,13 +2203,13 @@ describe('ClinicPatients', () => {
             const veryLowFilter = () => dialog().find('#time-in-range-filter-veryLow').hostNodes();
             expect(veryLowFilter().find('input').props().checked).to.be.false;
 
-            const lowFilter = () => dialog().find('#time-in-range-filter-low').hostNodes();
+            const lowFilter = () => dialog().find('#time-in-range-filter-anyLow').hostNodes();
             expect(lowFilter().find('input').props().checked).to.be.true;
 
             const targetFilter = () => dialog().find('#time-in-range-filter-target').hostNodes();
             expect(targetFilter().find('input').props().checked).to.be.false;
 
-            const highFilter = () => dialog().find('#time-in-range-filter-high').hostNodes();
+            const highFilter = () => dialog().find('#time-in-range-filter-anyHigh').hostNodes();
             expect(highFilter().find('input').props().checked).to.be.true;
 
             const veryHighFilter = () => dialog().find('#time-in-range-filter-veryHigh').hostNodes();
@@ -2225,8 +2220,8 @@ describe('ClinicPatients', () => {
             sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({
               ...defaultFetchOptions,
               sort: '-lastData',
-              'cgm.timeInHighPercent': '>=0.25',
-              'cgm.timeInLowPercent': '>=0.04',
+              'cgm.timeInAnyHighPercent': '>=0.25',
+              'cgm.timeInAnyLowPercent': '>=0.04',
               tags: sinon.match.array,
             }));
           });
@@ -2241,8 +2236,8 @@ describe('ClinicPatients', () => {
             mockedLocalStorage = {
               'activePatientFilters/clinicianUserId123/clinicID123': {
                 timeInRange: [
-                    'timeInLowPercent',
-                    'timeInHighPercent'
+                    'timeInAnyLowPercent',
+                    'timeInAnyHighPercent'
                 ],
                 patientTags: [],
                 meetsGlycemicTargets: false,
@@ -2341,37 +2336,32 @@ describe('ClinicPatients', () => {
             // Ensure filter options present and in default unchecked state
             const veryLowFilter = () => dialog().find('#time-in-range-filter-veryLow').hostNodes();
             expect(veryLowFilter()).to.have.lengthOf(1);
-            expect(veryLowFilter().text()).contains('Severe hypoglycemia');
             expect(veryLowFilter().text()).contains('Greater than 1% Time');
-            expect(veryLowFilter().text()).contains('below 3.0 mmol/L');
+            expect(veryLowFilter().text()).contains('<3.0 mmol/L');
             expect(veryLowFilter().find('input').props().checked).to.be.false;
 
-            const lowFilter = () => dialog().find('#time-in-range-filter-low').hostNodes();
+            const lowFilter = () => dialog().find('#time-in-range-filter-anyLow').hostNodes();
             expect(lowFilter()).to.have.lengthOf(1);
-            expect(lowFilter().text()).contains('Hypoglycemia');
             expect(lowFilter().text()).contains('Greater than 4% Time');
-            expect(lowFilter().text()).contains('between 3.0-3.9 mmol/L');
+            expect(lowFilter().text()).contains('<3.9 mmol/L');
             expect(lowFilter().find('input').props().checked).to.be.false;
 
             const targetFilter = () => dialog().find('#time-in-range-filter-target').hostNodes();
             expect(targetFilter()).to.have.lengthOf(1);
-            expect(targetFilter().text()).contains('Normal');
             expect(targetFilter().text()).contains('Less than 70% Time');
             expect(targetFilter().text()).contains('between 3.9-10.0 mmol/L');
             expect(targetFilter().find('input').props().checked).to.be.false;
 
-            const highFilter = () => dialog().find('#time-in-range-filter-high').hostNodes();
+            const highFilter = () => dialog().find('#time-in-range-filter-anyHigh').hostNodes();
             expect(highFilter()).to.have.lengthOf(1);
-            expect(highFilter().text()).contains('Hyperglycemia');
             expect(highFilter().text()).contains('Greater than 25% Time');
-            expect(highFilter().text()).contains('between 10.0-13.9 mmol/L');
+            expect(highFilter().text()).contains('>10.0 mmol/L');
             expect(highFilter().find('input').props().checked).to.be.false;
 
             const veryHighFilter = () => dialog().find('#time-in-range-filter-veryHigh').hostNodes();
             expect(veryHighFilter()).to.have.lengthOf(1);
-            expect(veryHighFilter().text()).contains('Severe hyperglycemia');
             expect(veryHighFilter().text()).contains('Greater than 5% Time');
-            expect(veryHighFilter().text()).contains('above 13.9 mmol/L');
+            expect(veryHighFilter().text()).contains('>13.9 mmol/L');
             expect(veryHighFilter().find('input').props().checked).to.be.false;
           });
         });
@@ -2416,12 +2406,12 @@ describe('ClinicPatients', () => {
           veryLowFilter().find('input').simulate('change', { target: { name: 'range-timeInVeryLowPercent-filter', checked: true } });
           expect(veryLowFilter().find('input').props().checked).to.be.true;
 
-          const lowFilter = () => dialog().find('#time-in-range-filter-low').hostNodes();
-          lowFilter().find('input').simulate('change', { target: { name: 'range-timeInLowPercent-filter', checked: true } });
+          const lowFilter = () => dialog().find('#time-in-range-filter-anyLow').hostNodes();
+          lowFilter().find('input').simulate('change', { target: { name: 'range-timeInAnyLowPercent-filter', checked: true } });
           expect(lowFilter().find('input').props().checked).to.be.true;
 
-          const highFilter = () => dialog().find('#time-in-range-filter-high').hostNodes();
-          highFilter().find('input').simulate('change', { target: { name: 'range-timeInHighPercent-filter', checked: true } });
+          const highFilter = () => dialog().find('#time-in-range-filter-anyHigh').hostNodes();
+          highFilter().find('input').simulate('change', { target: { name: 'range-timeInAnyHighPercent-filter', checked: true } });
           expect(highFilter().find('input').props().checked).to.be.true;
 
           // Submit the form
@@ -2497,12 +2487,12 @@ describe('ClinicPatients', () => {
           veryLowFilter().find('input').simulate('change', { target: { name: 'range-timeInVeryLowPercent-filter', checked: true } });
           expect(veryLowFilter().find('input').props().checked).to.be.true;
 
-          const lowFilter = () => dialog().find('#time-in-range-filter-low').hostNodes();
-          lowFilter().find('input').simulate('change', { target: { name: 'range-timeInLowPercent-filter', checked: true } });
+          const lowFilter = () => dialog().find('#time-in-range-filter-anyLow').hostNodes();
+          lowFilter().find('input').simulate('change', { target: { name: 'range-timeInAnyLowPercent-filter', checked: true } });
           expect(lowFilter().find('input').props().checked).to.be.true;
 
-          const highFilter = () => dialog().find('#time-in-range-filter-high').hostNodes();
-          highFilter().find('input').simulate('change', { target: { name: 'range-timeInHighPercent-filter', checked: true } });
+          const highFilter = () => dialog().find('#time-in-range-filter-anyHigh').hostNodes();
+          highFilter().find('input').simulate('change', { target: { name: 'range-timeInAnyHighPercent-filter', checked: true } });
           expect(highFilter().find('input').props().checked).to.be.true;
 
           // Submit the form
@@ -2547,12 +2537,12 @@ describe('ClinicPatients', () => {
           veryLowFilter().find('input').simulate('change', { target: { name: 'range-timeInVeryLowPercent-filter', checked: true } });
           expect(veryLowFilter().find('input').props().checked).to.be.true;
 
-          const lowFilter = () => dialog().find('#time-in-range-filter-low').hostNodes();
-          lowFilter().find('input').simulate('change', { target: { name: 'range-timeInLowPercent-filter', checked: true } });
+          const lowFilter = () => dialog().find('#time-in-range-filter-anyLow').hostNodes();
+          lowFilter().find('input').simulate('change', { target: { name: 'range-timeInAnyLowPercent-filter', checked: true } });
           expect(lowFilter().find('input').props().checked).to.be.true;
 
-          const highFilter = () => dialog().find('#time-in-range-filter-high').hostNodes();
-          highFilter().find('input').simulate('change', { target: { name: 'range-timeInHighPercent-filter', checked: true } });
+          const highFilter = () => dialog().find('#time-in-range-filter-anyHigh').hostNodes();
+          highFilter().find('input').simulate('change', { target: { name: 'range-timeInAnyHighPercent-filter', checked: true } });
           expect(highFilter().find('input').props().checked).to.be.true;
 
           // Close dialog without applying filter
@@ -2600,12 +2590,12 @@ describe('ClinicPatients', () => {
           veryLowFilter().find('input').simulate('change', { target: { name: 'range-timeInVeryLowPercent-filter', checked: true } });
           expect(veryLowFilter().find('input').props().checked).to.be.true;
 
-          const lowFilter = () => dialog().find('#time-in-range-filter-low').hostNodes();
-          lowFilter().find('input').simulate('change', { target: { name: 'range-timeInLowPercent-filter', checked: true } });
+          const lowFilter = () => dialog().find('#time-in-range-filter-anyLow').hostNodes();
+          lowFilter().find('input').simulate('change', { target: { name: 'range-timeInAnyLowPercent-filter', checked: true } });
           expect(lowFilter().find('input').props().checked).to.be.true;
 
-          const highFilter = () => dialog().find('#time-in-range-filter-high').hostNodes();
-          highFilter().find('input').simulate('change', { target: { name: 'range-timeInHighPercent-filter', checked: true } });
+          const highFilter = () => dialog().find('#time-in-range-filter-anyHigh').hostNodes();
+          highFilter().find('input').simulate('change', { target: { name: 'range-timeInAnyHighPercent-filter', checked: true } });
           expect(highFilter().find('input').props().checked).to.be.true;
 
           // Close dialog without applying filter
