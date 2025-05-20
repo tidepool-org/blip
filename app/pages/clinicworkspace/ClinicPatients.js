@@ -1353,7 +1353,7 @@ export const ClinicPatients = (props) => {
       activeFilters.patientTags?.length,
     ], null, 0, undefined).length;
 
-    const sortedFilterOptions = patientTagsFilterOptions?.toSorted((a, b) => a.label.localeCompare(b.label));
+    const sortedFilterOptions = patientTagsFilterOptions?.toSorted((a, b) => a.label.localeCompare(b.label)) || [];
 
     const VisibilityIcon = isPatientListVisible ? VisibilityOffOutlinedIcon : VisibilityOutlinedIcon;
     const hoursAgo = Math.floor(patientFetchMinutesAgo / 60);
