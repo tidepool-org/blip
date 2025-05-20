@@ -3534,6 +3534,13 @@ export const ClinicPatients = (props) => {
     }
   }, [renderPeopleInstructions, renderPeopleTable, isPatientListVisible]);
 
+  // Prevent visual glitch from multiple overlapping dialogs
+  const isClinicPatientTagsDialogVisible = (
+    showClinicPatientTagsDialog &&
+    !showUpdateClinicPatientTagDialog &&
+    !showDeleteClinicPatientTagDialog
+  );
+
   return (
     <div>
       {renderHeader()}
@@ -3548,7 +3555,7 @@ export const ClinicPatients = (props) => {
       {showRpmReportUI && renderRpmReportLimitDialog()}
       {showTimeInRangeDialog && renderTimeInRangeDialog()}
       {showSendUploadReminderDialog && renderSendUploadReminderDialog()}
-      {showClinicPatientTagsDialog && renderClinicPatientTagsDialog()}
+      {isClinicPatientTagsDialogVisible && renderClinicPatientTagsDialog()}
       {showDataConnectionsModal && renderDataConnectionsModal()}
 
       <StyledScrollToTop
