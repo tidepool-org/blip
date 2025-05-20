@@ -2433,6 +2433,8 @@ export const ClinicPatients = (props) => {
   ]);
 
   const renderClinicPatientTagsDialog = useCallback(() => {
+    const orderedTags = clinic?.patientTags?.toSorted((a, b) => a.name.localeCompare(b.name)) || [];
+
     return (
       <Dialog
         id="editClinicPatientTags"
@@ -2526,7 +2528,7 @@ export const ClinicPatients = (props) => {
 
             <Box mt={1} id="clinic-patients-edit-tag-list">
               {
-                orderBy(clinic?.patientTags, 'name').map(({ id, name }) => (
+                orderedTags.map(({ id, name }) => (
                   <Grid py={2} sx={{
                     gridTemplateColumns: '1fr 72px 16px',
                     borderTop: `1px solid ${colors.gray05}`,
