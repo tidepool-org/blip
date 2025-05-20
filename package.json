@@ -4,7 +4,7 @@
     "node": "20.8.0"
   },
   "packageManager": "yarn@3.6.4",
-  "version": "1.85.0-feature-sites",
+  "version": "1.85.0-feature-sites.2",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' yarn karma start",
@@ -65,7 +65,7 @@
     "@storybook/react": "7.5.0",
     "@storybook/react-webpack5": "7.5.0",
     "@testing-library/react-hooks": "8.0.1",
-    "@tidepool/viz": "1.46.0-web-3029-dep-updates.2",
+    "@tidepool/viz": "1.46.0-web-2016-ciq-pump-settings-targets-annotations.2",
     "async": "2.6.4",
     "autoprefixer": "10.4.16",
     "babel-core": "7.0.0-bridge.0",
@@ -180,8 +180,8 @@
     "terser": "5.22.0",
     "terser-webpack-plugin": "5.3.9",
     "theme-ui": "0.16.1",
-    "tideline": "1.32.0-web-3029-dep-updates.2",
-    "tidepool-platform-client": "0.62.0",
+    "tideline": "1.32.0-web-3501-range-thresholds.2",
+    "tidepool-platform-client": "0.63.0-web-3670-add-cbgfilter-query-parameter",
     "tidepool-standard-action": "0.1.1",
     "ua-parser-js": "1.0.36",
     "url-loader": "4.1.1",
