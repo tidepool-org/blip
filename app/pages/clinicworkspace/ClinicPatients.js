@@ -1738,7 +1738,7 @@ export const ClinicPatients = (props) => {
                       setPendingFilters(activeFilters);
                     }}
                   >
-                    <DialogContent px={2} pt={1} pb={3} sx={{ maxHeight: '400px', maxWidth: '240px' }} dividers>
+                    <DialogContent px={2} pt={1} pb={3} mt={3} sx={{ maxHeight: '400px', maxWidth: '240px' }} dividers>
                       <Box variant="containers.small">
                         <Box mb={3}>
                           <Text sx={{ display: 'block', color: colors.gray50, fontSize: 1, fontWeight: 'medium' }}>
