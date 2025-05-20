@@ -2495,7 +2495,7 @@ export const ClinicPatients = (props) => {
                     />
 
                     <Button
-                      disabled={!patientTagFormikContext.values.name.trim().length || clinic?.patientTags?.length >= maxClinicPatientTags || !patientTagFormikContext.isValid || patientTagFormikContext.isSubmitting}
+                      disabled={!patientTagFormikContext.values.name.trim().length || clinic?.patientTags?.length >= maxClinicPatientTags || !patientTagFormikContext.isValid}
                       type="submit"
                       sx={{
                         height: '32px',
