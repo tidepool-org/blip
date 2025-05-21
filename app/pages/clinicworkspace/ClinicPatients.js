@@ -1355,12 +1355,15 @@ export const ClinicPatients = (props) => {
       activeFilters.patientTags?.length,
     ], null, 0, undefined).length;
 
+    const sortedFilterOptions = patientTagsFilterOptions?.toSorted((a, b) => a.label.localeCompare(b.label)) || [];
+
     const VisibilityIcon = isPatientListVisible ? VisibilityOffOutlinedIcon : VisibilityOutlinedIcon;
     const hoursAgo = Math.floor(patientFetchMinutesAgo / 60);
     let timeAgoUnits = hoursAgo < 2 ? t('hour') : t('hours');
     let timeAgo = hoursAgo === 0 ? t('less than an') : t('over {{hoursAgo}}', { hoursAgo });
     if (hoursAgo >= 24) timeAgo = t('over 24');
     const timeAgoMessage = t('Last updated {{timeAgo}} {{timeAgoUnits}} ago', { timeAgo, timeAgoUnits });
+
     return (
       <>
         <Flex mb={4} sx={{ alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 3 }}>
@@ -1737,13 +1740,13 @@ export const ClinicPatients = (props) => {
                       setPendingFilters(activeFilters);
                     }}
                   >
-                    <DialogContent px={2} pt={1} pb={3} sx={{ maxHeight: '400px', maxWidth: '240px' }} dividers>
+                    <DialogContent px={2} pt={1} pb={3} mt={3} sx={{ maxHeight: '400px', maxWidth: '240px' }} dividers>
                       <Box variant="containers.small">
                         <Box mb={3}>
                           <Text sx={{ display: 'block', color: colors.gray50, fontSize: 1, fontWeight: 'medium' }}>
                             {t('Tags')}
                           </Text>
-                          { patientTagsFilterOptions.length > 0 &&
+                          { sortedFilterOptions.length > 0 &&
                             <Text sx={{ display: 'block', color: colors.gray50, fontSize: 0, fontStyle: 'italic', maxWidth: '208px', whiteSpace: 'wrap', lineHeight: 1 }}>
                               {t('Only patients with ALL of the tags you select below will be shown.')}
                             </Text>
@@ -1751,7 +1754,7 @@ export const ClinicPatients = (props) => {
                         </Box>
 
                         { // Render a list of checkboxes
-                          patientTagsFilterOptions.map(({ id, label }) => {
+                          sortedFilterOptions.map(({ id, label }) => {
                             const { patientTags } = pendingFilters;
                             const isChecked = patientTags?.includes(id);
 
@@ -1775,7 +1778,7 @@ export const ClinicPatients = (props) => {
                         }
 
                         { // If no tags exist, display a message
-                          patientTagsFilterOptions.length <= 0 &&
+                          sortedFilterOptions.length <= 0 &&
                           <Box>
                             <Box sx={{ fontSize: 1, color: colors.gray50, lineHeight: 1 }}>
                               {t('Tags help you segment your patient population based on criteria you define, such as clinician, type of diabetes, or care groups.')}
@@ -1793,7 +1796,7 @@ export const ClinicPatients = (props) => {
                       </Box>
                     </DialogContent>
 
-                    { patientTagsFilterOptions.length > 0 &&
+                    { sortedFilterOptions.length > 0 &&
                       <DialogActions sx={{ justifyContent: 'space-around', padding: 2 }} p={1}>
                         <Button
                           id="clear-patient-tags-filter"
@@ -2435,6 +2438,8 @@ export const ClinicPatients = (props) => {
   ]);
 
   const renderClinicPatientTagsDialog = useCallback(() => {
+    const orderedTags = clinic?.patientTags?.toSorted((a, b) => a.name.localeCompare(b.name)) || [];
+
     return (
       <Dialog
         id="editClinicPatientTags"
@@ -2492,7 +2497,7 @@ export const ClinicPatients = (props) => {
                     />
 
                     <Button
-                      disabled={!patientTagFormikContext.values.name.trim().length || clinic?.patientTags?.length >= maxClinicPatientTags || !patientTagFormikContext.isValid || patientTagFormikContext.isSubmitting}
+                      disabled={!patientTagFormikContext.values.name.trim().length || clinic?.patientTags?.length >= maxClinicPatientTags || !patientTagFormikContext.isValid}
                       type="submit"
                       sx={{
                         height: '32px',
@@ -2528,7 +2533,7 @@ export const ClinicPatients = (props) => {
 
             <Box mt={1} id="clinic-patients-edit-tag-list">
               {
-                orderBy(clinic?.patientTags, 'name').map(({ id, name }) => (
+                orderedTags.map(({ id, name }) => (
                   <Grid py={2} sx={{
                     gridTemplateColumns: '1fr 72px 16px',
                     borderTop: `1px solid ${colors.gray05}`,
