@@ -395,7 +395,7 @@ const PatientTags = ({
 
   // If clinic requires MRN but the patient lacks one, open Edit Patient modal instead of Add Tags dropdown
   const hasMrnError = !patient.mrn && clinic?.mrnSettings?.required;
-  const addTagsBindTrigger = hasMrnError ? {} : bindTrigger(addPatientTagsPopupState);
+  const addTagsBindTrigger = hasMrnError ? {} : bindTrigger(addPatientTagsPopupState); // if MRN error, do not pass bindTrigger
 
   return !!filteredPatientTags.length ? (
     <TagList
