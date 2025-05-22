@@ -62,6 +62,7 @@ import UploaderBanner from '../../components/elements/Card/Banners/Uploader.png'
 import ShareBanner from '../../components/elements/Card/Banners/Share.png';
 import DataConnectionsBanner from '../../components/elements/Card/Banners/DataConnections.png';
 import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
+import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE } from '../../core/constants';
 
 const { Loader } = vizComponents;
 const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
@@ -116,6 +117,7 @@ export const PatientDataClass = createReactClass({
         },
         daily: {
           extentSize: 1,
+          cgmSampleIntervalRange: DEFAULT_CGM_SAMPLE_INTERVAL_RANGE,
         },
         trends: {
           activeDays: {
@@ -1032,6 +1034,7 @@ export const PatientDataClass = createReactClass({
           wizard: {},
         },
         bgSource: _.get(state.chartPrefs, 'daily.bgSource'),
+        cgmSampleIntervalRange: _.get(state.chartPrefs, 'daily.cgmSampleIntervalRange'),
         ...commonQueries,
       };
     }
@@ -2042,6 +2045,7 @@ export const PatientDataClass = createReactClass({
             wizard: {},
           };
 
+          chartQuery.cgmSampleIntervalRange = _.get(this.state.chartPrefs, 'daily.cgmSampleIntervalRange');
           chartQuery.fillData = { adjustForDSTChanges: true };
           break;
 
