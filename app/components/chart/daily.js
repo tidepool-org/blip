@@ -43,6 +43,8 @@ const FoodTooltip = vizComponents.FoodTooltip;
 const PumpSettingsOverrideTooltip = vizComponents.PumpSettingsOverrideTooltip;
 
 import Header from './header';
+import CgmSampleIntervalRangeToggle from './cgmSampleIntervalRangeToggle';
+import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE } from '../../core/constants';
 
 const DailyChart = withTranslation(null, { withRef: true })(class DailyChart extends Component {
   static propTypes = {
@@ -434,37 +436,48 @@ class Daily extends Component {
     if (hasCarbExchanges) carbUnits.push('exchanges');
 
     return (
-      <DailyChart
-        automatedBasal={isAutomatedBasalDevice}
-        automatedBolus={isAutomatedBolusDevice}
-        bgClasses={bgPrefs.bgClasses}
-        bgUnits={bgPrefs.bgUnits}
-        bolusRatio={this.props.chartPrefs.bolusRatio}
-        carbUnits={carbUnits}
-        data={this.props.data}
-        dynamicCarbs={this.props.chartPrefs.dynamicCarbs}
-        initialDatetimeLocation={this.props.initialDatetimeLocation}
-        timePrefs={timePrefs}
-        // message handlers
-        onCreateMessage={this.props.onCreateMessage}
-        onShowMessageThread={this.props.onShowMessageThread}
-        // other handlers
-        onDatetimeLocationChange={this.handleDatetimeLocationChange}
-        onHideBasalSettings={this.handleHideBasalSettings}
-        onMostRecent={this.handleMostRecent}
-        onShowBasalSettings={this.handleShowBasalSettings}
-        onTransition={this.handleInTransition}
-        onBolusHover={this.handleBolusHover}
-        onBolusOut={this.handleBolusOut}
-        onSMBGHover={this.handleSMBGHover}
-        onSMBGOut={this.handleSMBGOut}
-        onCBGHover={this.handleCBGHover}
-        onCBGOut={this.handleCBGOut}
-        onCarbHover={this.handleCarbHover}
-        onCarbOut={this.handleCarbOut}
-        onPumpSettingsOverrideHover={this.handlePumpSettingsOverrideHover}
-        onPumpSettingsOverrideOut={this.handlePumpSettingsOverrideOut}
-        ref={this.chartRef} />
+      <>
+        <Flex sx={{ justifyContent: 'flex-end', alignItems: 'center' }}>
+          <CgmSampleIntervalRangeToggle
+            bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
+            chartPrefs={this.props.chartPrefs}
+            chartType={this.chartType}
+            onClickCgmSampleIntervalRangeToggle={this.toggleCgmSampleIntervalRange}
+          />
+        </Flex>
+
+        <DailyChart
+          automatedBasal={isAutomatedBasalDevice}
+          automatedBolus={isAutomatedBolusDevice}
+          bgClasses={bgPrefs.bgClasses}
+          bgUnits={bgPrefs.bgUnits}
+          bolusRatio={this.props.chartPrefs.bolusRatio}
+          carbUnits={carbUnits}
+          data={this.props.data}
+          dynamicCarbs={this.props.chartPrefs.dynamicCarbs}
+          initialDatetimeLocation={this.props.initialDatetimeLocation}
+          timePrefs={timePrefs}
+          // message handlers
+          onCreateMessage={this.props.onCreateMessage}
+          onShowMessageThread={this.props.onShowMessageThread}
+          // other handlers
+          onDatetimeLocationChange={this.handleDatetimeLocationChange}
+          onHideBasalSettings={this.handleHideBasalSettings}
+          onMostRecent={this.handleMostRecent}
+          onShowBasalSettings={this.handleShowBasalSettings}
+          onTransition={this.handleInTransition}
+          onBolusHover={this.handleBolusHover}
+          onBolusOut={this.handleBolusOut}
+          onSMBGHover={this.handleSMBGHover}
+          onSMBGOut={this.handleSMBGOut}
+          onCBGHover={this.handleCBGHover}
+          onCBGOut={this.handleCBGOut}
+          onCarbHover={this.handleCarbHover}
+          onCarbOut={this.handleCarbOut}
+          onPumpSettingsOverrideHover={this.handlePumpSettingsOverrideHover}
+          onPumpSettingsOverrideOut={this.handlePumpSettingsOverrideOut}
+          ref={this.chartRef} />
+      </>
     );
   }
 
@@ -494,6 +507,19 @@ class Daily extends Component {
     const prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.daily.bgSource = bgSource;
     this.props.updateChartPrefs(prefs, false, true);
+  };
+
+  toggleCgmSampleIntervalRange = (e, cgmSampleIntervalRange) => {
+    if (e) {
+      e.preventDefault();
+    }
+
+    const changedTo = _.isEqual(cgmSampleIntervalRange, DEFAULT_CGM_SAMPLE_INTERVAL_RANGE) ? '5min' : '1min';
+    this.props.trackMetric(`Daily Click CGM Sample Interval to ${changedTo}`);
+
+    const prefs = _.cloneDeep(this.props.chartPrefs);
+    prefs.daily.cgmSampleIntervalRange = cgmSampleIntervalRange;
+    this.props.updateChartPrefs(prefs);
   };
 
   handleWindowResize = () => {
