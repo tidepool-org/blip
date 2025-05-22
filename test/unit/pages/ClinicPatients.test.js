@@ -2745,6 +2745,51 @@ describe('ClinicPatients', () => {
 
             sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Assign patient tag confirm', sinon.match({ clinicId: 'clinicID123' }));
           });
+
+          it('Opens the Edit Patient modal when trying to add tags to patient not meeting MRN requirements', () => {
+            const testStoreProperties = {
+              blip: {
+                ...tier0300ClinicState.blip,
+                clinics: {
+                  clinicID123: {
+                    ...tier0300ClinicState.blip.clinics.clinicID123,
+                    patientTags: [],
+                    mrnSettings: {
+                      required: true,
+                    },
+                  },
+                },
+              },
+            };
+
+            testStoreProperties.blip.clinics.clinicID123.patients.patient6 = {
+              ...hasPatientsState.blip.clinics.clinicID123.patient1,
+            };
+
+            const testStore = mockStore(testStoreProperties);
+
+            wrapper = mount(
+              <Provider store={testStore}>
+                <ToastProvider>
+                  <ClinicPatients {...defaultProps} />
+                </ToastProvider>
+              </Provider>
+            );
+
+            const table = wrapper.find(Table);
+            const rows = table.find('tbody tr');
+            const rowData = row => rows.at(row).find('.MuiTableCell-root');
+
+            // Patient 5 has an MRN, so the button will open the Add Tags dropdown
+            rowData(4).find('#add-tags-to-patient-trigger').hostNodes().simulate('click');
+            wrapper.update();
+            expect(wrapper.find('Dialog#editPatient').exists()).to.be.false;
+
+            // Patient 6 has no MRN, so the button will instead open the Edit Patient Modal
+            rowData(5).find('#add-tags-to-patient-trigger').hostNodes().simulate('click');
+            wrapper.update();
+            expect(wrapper.find('Dialog#editPatient').exists()).to.be.true;
+          });
         });
 
         it('should allow updating tags for a patient', done => {
