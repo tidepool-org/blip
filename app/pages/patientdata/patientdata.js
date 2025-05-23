@@ -1147,6 +1147,7 @@ export const PatientDataClass = createReactClass({
       const options = {
         showLoading: true,
         returnData: false,
+        type: 'cbg',
       };
 
       this.fetchAdditionalData(options);
