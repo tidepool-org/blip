@@ -91,19 +91,6 @@ export const MS_IN_MIN = MS_IN_HOUR / 60;
 
 export const LBS_PER_KG = 2.2046226218;
 
-// Passed as arguments to utils.formatThresholdPercentage
-// [comparator, threshold, defaultPrecision = 0]
-export const DEFAULT_FILTER_THRESHOLDS = {
-  veryLow: ['>', 1],
-  low: ['>', 4],
-  target: ['<', 70],
-  high: ['>', 25],
-  veryHigh: ['>', 5],
-  extremeHigh: ['>', 1],
-  cgmUse: ['<', 70],
-  timeInTargetPercentDelta: ['>', 15, 1],
-};
-
 export const DEFAULT_CLINIC_TIER = 'tier0100';
 export const DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT = 250;
 export const CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD = 40;

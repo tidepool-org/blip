@@ -569,7 +569,7 @@ export const ClinicAdmin = (props) => {
       sortBy: 'fullNameOrderable',
       render: renderClinician,
       searchable: true,
-      searchBy: ['fullName'],
+      searchBy: ['fullName', 'email'],
     },
     {
       title: t('Status'),

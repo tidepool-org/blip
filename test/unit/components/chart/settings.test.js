@@ -1183,6 +1183,39 @@ describe('Settings', () => {
         });
       });
 
+      context('disconnected connection to some providers', () => {
+        it('should show the data connections and open the data connections modal when Add button is clicked', () => {
+          const props = {
+            ...defaultProps,
+            isUserPatient: false,
+            clinicPatient: {
+              userid: '40',
+              dataSources: [
+                { providerName: activeProviders[0], state: 'connected' },
+                { providerName: activeProviders[1], state: 'disconnected' }
+              ],
+            },
+          };
+
+          const state = {
+            blip: {
+              ...defaultState.blip,
+              selectedClinicId: 'clinic123',
+            }
+          };
+
+          const store = mockStore(state);
+
+          wrapper = mount(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
+
+          expect(dataConnectionsModal().length).to.equal(0);
+          expect(dataConnectionsCard().length).to.equal(0);
+          expect(dataConnectionsWrapper().length).to.equal(1);
+          expect(dataConnectionsWrapper().find(`#data-connection-${activeProviders[0]}`).hostNodes().length).to.equal(1);
+          expect(dataConnectionsWrapper().find(`#data-connection-${activeProviders[1]}`).hostNodes().length).to.equal(0); // disconnected providers should not be shown
+        });
+      });
+
       context('active connections to all providers', () => {
         it('should show the data connections and the "Add" button', () => {
           const props = {

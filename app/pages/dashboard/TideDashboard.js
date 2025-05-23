@@ -77,13 +77,14 @@ import {
   summaryPeriodOptions,
 } from '../../core/clinicUtils';
 
-import { DEFAULT_FILTER_THRESHOLDS, MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
+import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
 import DataInIcon from '../../core/icons/DataInIcon.svg';
 import { colors, fontWeights, radii } from '../../themes/baseTheme';
 import PatientLastReviewed from '../../components/clinic/PatientLastReviewed';
 
 const { Loader } = vizComponents;
 const { formatBgValue } = vizUtils.bg;
+const { formatStatsPercentage } = vizUtils.stat;
 
 const {
   formatDateRange,
@@ -399,18 +400,11 @@ const TideDashboardSection = React.memo(props => {
   }, [config?.period]);
 
   const renderTimeInPercent = useCallback((summaryKey, summary) => {
-    const formattingKeyMap = {
-      timeCGMUsePercent: 'cgmUse',
-      timeInAnyLowPercent: 'low',
-      timeInLowPercent: 'low',
-      timeInVeryLowPercent: 'veryLow',
-      timeInTargetPercent: 'target',
-    }
 
     const rawValue = (summary?.[summaryKey]);
 
     let formattedValue = isFinite(rawValue)
-      ? utils.formatThresholdPercentage(rawValue, ...DEFAULT_FILTER_THRESHOLDS[formattingKeyMap[summaryKey]])
+      ? formatStatsPercentage(rawValue)
       : statEmptyText;
 
     return (
@@ -456,7 +450,6 @@ const TideDashboardSection = React.memo(props => {
         sx={{ fontWeight: 'medium' }}
         delta={timeInTargetPercentDelta * 100}
         max={30}
-        threshold={DEFAULT_FILTER_THRESHOLDS.timeInTargetPercentDelta}
       />
     ) : (
       <Text sx={{ fontWeight: 'medium' }}>{statEmptyText}</Text>
@@ -603,10 +596,10 @@ const TideDashboardSection = React.memo(props => {
         render: renderTimeInPercent.bind(null, 'timeInVeryLowPercent'),
       },
       {
-        title: t('% Time {{lower}}-{{upper}}', { lower: veryLowGlucoseThreshold, upper: lowGlucoseThreshold }),
+        title: t('% Time < {{upper}}', { upper: lowGlucoseThreshold }),
         field: 'timeInLowPercent',
         align: 'center',
-        render: renderTimeInPercent.bind(null, 'timeInLowPercent'),
+        render: renderTimeInPercent.bind(null, 'timeInAnyLowPercent'),
       },
       {
         title: t('% TIR {{lower}}-{{upper}}', { lower: lowGlucoseThreshold, upper: highGlucoseThreshold }),
