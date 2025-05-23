@@ -3,13 +3,17 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { withTranslation } from 'react-i18next';
 import { components as vizComponents } from '@tidepool/viz';
+import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 
 import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE, ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE } from '../../core/constants';
+import { Box, Flex } from 'theme-ui';
+import Icon from '../elements/Icon';
 
-const { TwoOptionToggle } = vizComponents;
+const { TwoOptionToggle, CgmSampleIntervalTooltip } = vizComponents;
 
 const CgmSampleIntervalRangeToggle = props => {
   const { t } = props;
+  const [showTooltip, setShowTooltip] = React.useState(false);
 
   const getBgSource = () => {
     return _.get(props, `chartPrefs[${props.chartType}].bgSource`, _.get(props, 'bgSources.current'));
@@ -36,15 +40,30 @@ const CgmSampleIntervalRangeToggle = props => {
   const currentCgmSampleIntervalRange = getCgmSampleInterval();
   const showToggle = getBgSource() === 'cbg'; // TODO: only show if user has a cgm device that supports 1min intervals
 
-  return (
-    <div className="toggle-container">
-      {showToggle ? <TwoOptionToggle
+  return showToggle ? (
+    <Flex className="toggle-container" sx={{ alignItems: 'center' }}>
+      <TwoOptionToggle
         left={{ label: t('1min Data'), state: _.isEqual(currentCgmSampleIntervalRange, ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE) }}
         right={{ label: t('5min Data'), state: _.isEqual(currentCgmSampleIntervalRange, DEFAULT_CGM_SAMPLE_INTERVAL_RANGE) }}
         toggleFn={handleCgmSampleIntervalToggle}
-      /> : null}
-    </div>
-  );
+      />
+
+      <Flex sx={{ position: 'relative', alignItems: 'center' }}>
+        <Icon
+          icon={InfoOutlinedIcon}
+          color="stat.text"
+          sx={{ fontSize: 1 }}
+          onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+        />
+        {showTooltip && (
+          <Box sx={{ zIndex: 1, position: 'relative' }}>
+            <CgmSampleIntervalTooltip position={{ top: 0, left: 0 }} />
+          </Box>
+        )}
+      </Flex>
+    </Flex>
+  ) : null;
 };
 
 CgmSampleIntervalRangeToggle.displayName = 'CgmSampleIntervalRangeToggle';
