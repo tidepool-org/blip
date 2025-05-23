@@ -96,6 +96,7 @@
     "concurrently": "8.2.2",
     "connected-react-router": "6.9.3",
     "copy-webpack-plugin": "11.0.0",
+    "core-js": "3.42.0",
     "create-react-class": "15.7.0",
     "crypto-hash": "3.0.0",
     "crypto-js": "4.2.0",

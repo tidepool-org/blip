@@ -1,7 +1,7 @@
 /* global jest */
 
 // Add any global setup for Jest tests here
-require('@babel/polyfill');
+import "core-js/stable";
 
 // Setup Intl polyfill
 global.IntlPolyfill = require('intl');

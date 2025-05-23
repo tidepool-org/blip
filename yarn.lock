@@ -8357,6 +8357,7 @@ __metadata:
     concurrently: 8.2.2
     connected-react-router: 6.9.3
     copy-webpack-plugin: 11.0.0
+    core-js: 3.42.0
     create-react-class: 15.7.0
     crypto-hash: 3.0.0
     crypto-js: 4.2.0
@@ -9638,6 +9639,13 @@ __metadata:
   version: 3.33.3
   resolution: "core-js-pure@npm:3.33.3"
   checksum: 369f01a8b544f413da96c606039c1b9beea57fd7252b56524fcfa4276103e3e6a0f857452ed9cc5638e9d203763e2a6f8466c6915c95b64b88b3aa976467b325
+  languageName: node
+  linkType: hard
+
+"core-js@npm:3.42.0":
+  version: 3.42.0
+  resolution: "core-js@npm:3.42.0"
+  checksum: 270b5532511e2e6cc8e6b10c1434306208dca377aba3850875941316ce605b008ddbdeca0b6dd6eb2a4b188899dab259c0aecd7dc265bc5e7df19563e4e284b7
   languageName: node
   linkType: hard
 
