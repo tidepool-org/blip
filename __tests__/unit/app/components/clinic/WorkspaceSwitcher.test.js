@@ -73,8 +73,8 @@ describe('WorkspaceSwitcher', ()  => {
     );
 
     // Workspace switcher should be labelled with currently selected clinic name
-    const dropdownButton = screen.getByTestId('workspace-switcher-current');
-    expect(dropdownButton).toHaveTextContent('Second Clinic Workspace');
+    const dropdownButton = screen.getByRole('button');
+    expect(dropdownButton).toHaveTextContent('Second Clinic Workspace')
 
     // Workspaces in dropdown should not be visible
     expect(screen.queryByRole('button', { name: 'First Clinic Workspace' })).not.toBeInTheDocument();
