@@ -1154,7 +1154,6 @@ export const PatientDataClass = createReactClass({
     }
   },
 
-
   handleMessageCreation: function(message) {
     this.props.trackMetric('Created New Message');
   },
