@@ -3999,7 +3999,7 @@ describe('PatientData', function () {
       instance.getChartEndpoints = sinon.stub().returns(prevLimitReachedEndpoints);
       instance.getDaysByType = sinon.stub().returns(daysByTypeStub);
       instance.getStatsByChartType = sinon.stub().returns('stats stub');
-      instance.fetchEarlierData = sinon.stub();
+      instance.fetchAdditionalData = sinon.stub();
       instance.updateChart = sinon.stub();
     });
 
@@ -4022,11 +4022,11 @@ describe('PatientData', function () {
       context('next requested date range requires data fetch', () => {
         it('should fetch data', () => {
           wrapper.setProps(shouldFetchDataProps);
-          sinon.assert.callCount(instance.fetchEarlierData, 0);
+          sinon.assert.callCount(instance.fetchAdditionalData, 0);
 
           instance.handleChartDateRangeUpdate(dateTimeLocation);
-          sinon.assert.callCount(instance.fetchEarlierData, 1);
-          sinon.assert.calledWith(instance.fetchEarlierData, {
+          sinon.assert.callCount(instance.fetchAdditionalData, 1);
+          sinon.assert.calledWith(instance.fetchAdditionalData, {
             showLoading: true,
             returnData: false,
           });
@@ -4037,7 +4037,7 @@ describe('PatientData', function () {
         it('should not fetch data', () => {
           wrapper.setProps(shouldNotFetchDataProps);
           instance.handleChartDateRangeUpdate(dateTimeLocation);
-          sinon.assert.callCount(instance.fetchEarlierData, 0);
+          sinon.assert.callCount(instance.fetchAdditionalData, 0);
         });
       });
 
@@ -4049,7 +4049,7 @@ describe('PatientData', function () {
           });
 
           instance.handleChartDateRangeUpdate(dateTimeLocation);
-          sinon.assert.callCount(instance.fetchEarlierData, 0);
+          sinon.assert.callCount(instance.fetchAdditionalData, 0);
         });
       });
     });
@@ -4326,7 +4326,7 @@ describe('PatientData', function () {
     });
   });
 
-  describe('fetchEarlierData', () => {
+  describe('fetchAdditionalData', () => {
     let wrapper;
     let instance;
     let props;
@@ -4335,7 +4335,7 @@ describe('PatientData', function () {
 
     beforeEach(() => {
       props = _.assign({}, defaultProps, {
-        onFetchEarlierData: sinon.stub(),
+        onFetchAdditionalData: sinon.stub(),
         trackMetric: sinon.stub(),
         log: sinon.stub(),
       });
@@ -4348,7 +4348,7 @@ describe('PatientData', function () {
     });
 
     afterEach(() => {
-      props.onFetchEarlierData.reset();
+      props.onFetchAdditionalData.reset();
       props.trackMetric.reset();
       setStateSpy.resetHistory();
       logSpy.resetHistory();
@@ -4365,10 +4365,10 @@ describe('PatientData', function () {
           fetchingPatientData: true,
         });
 
-        instance.fetchEarlierData();
+        instance.fetchAdditionalData();
 
         sinon.assert.notCalled(setStateSpy);
-        sinon.assert.notCalled(props.onFetchEarlierData);
+        sinon.assert.notCalled(props.onFetchAdditionalData);
       });
     });
 
@@ -4386,10 +4386,10 @@ describe('PatientData', function () {
         const expectedStart = moment.utc(fetchedUntil).subtract(16, 'weeks').toISOString();
         const expectedEnd = moment.utc(fetchedUntil).subtract(1, 'milliseconds').toISOString();
 
-        instance.fetchEarlierData();
+        instance.fetchAdditionalData();
 
-        sinon.assert.calledOnce(props.onFetchEarlierData);
-        sinon.assert.calledWith(props.onFetchEarlierData, {
+        sinon.assert.calledOnce(props.onFetchAdditionalData);
+        sinon.assert.calledWith(props.onFetchAdditionalData, {
           showLoading: true,
           startDate: expectedStart,
           endDate: expectedEnd,
@@ -4420,10 +4420,10 @@ describe('PatientData', function () {
           useCache: true,
         };
 
-        instance.fetchEarlierData(options);
+        instance.fetchAdditionalData(options);
 
-        sinon.assert.calledOnce(props.onFetchEarlierData);
-        sinon.assert.calledWithMatch(props.onFetchEarlierData, {
+        sinon.assert.calledOnce(props.onFetchAdditionalData);
+        sinon.assert.calledWithMatch(props.onFetchAdditionalData, {
           showLoading: false,
           startDate: null,
           endDate: null,
@@ -4450,10 +4450,10 @@ describe('PatientData', function () {
         assert.isTrue(instance.props.medtronic);
         assert.isTrue(instance.props.cbgFilter);
 
-        instance.fetchEarlierData();
+        instance.fetchAdditionalData();
 
-        sinon.assert.calledOnce(props.onFetchEarlierData);
-        sinon.assert.calledWithMatch(props.onFetchEarlierData, {
+        sinon.assert.calledOnce(props.onFetchAdditionalData);
+        sinon.assert.calledWithMatch(props.onFetchAdditionalData, {
           carelink: true,
           dexcom: true,
           medtronic: true,
@@ -4476,9 +4476,9 @@ describe('PatientData', function () {
         assert.isFalse(instance.props.medtronic);
         assert.isFalse(instance.props.cbgFilter);
 
-        instance.fetchEarlierData();
+        instance.fetchAdditionalData();
 
-        sinon.assert.calledWithMatch(props.onFetchEarlierData, {
+        sinon.assert.calledWithMatch(props.onFetchAdditionalData, {
           carelink: false,
           dexcom: false,
           medtronic: false,
@@ -4486,7 +4486,7 @@ describe('PatientData', function () {
         }, '40');
       });
 
-      it('should set the `loading`, `fetchEarlierDataCount` and `requestedPatientDataRange` state', () => {
+      it('should set the `loading`, `fetchAdditionalDataCount` and `requestedPatientDataRange` state', () => {
         const fetchedUntil = '2018-01-01T00:00:00.000Z';
 
         wrapper.setProps({
@@ -4498,14 +4498,14 @@ describe('PatientData', function () {
         const expectedStart = moment.utc(fetchedUntil).subtract(16, 'weeks').toISOString();
         const expectedEnd = moment.utc(fetchedUntil).subtract(1, 'milliseconds').toISOString();
 
-        expect(wrapper.state().fetchEarlierDataCount).to.equal(0);
+        expect(wrapper.state().fetchAdditionalDataCount).to.equal(0);
 
-        instance.fetchEarlierData();
+        instance.fetchAdditionalData();
 
         sinon.assert.calledOnce(setStateSpy);
         sinon.assert.calledWith(setStateSpy, {
           loading: true,
-          fetchEarlierDataCount: 1,
+          fetchAdditionalDataCount: 1,
         });
       });
 
@@ -4520,9 +4520,9 @@ describe('PatientData', function () {
           selectedClinicId: undefined,
         });
 
-        expect(wrapper.state().fetchEarlierDataCount).to.equal(0);
+        expect(wrapper.state().fetchAdditionalDataCount).to.equal(0);
 
-        instance.fetchEarlierData();
+        instance.fetchAdditionalData();
 
         sinon.assert.calledWithExactly(props.trackMetric, 'Fetched earlier patient data', {
           count: 1,
@@ -4537,7 +4537,7 @@ describe('PatientData', function () {
           selectedClinicId: 'clinic123',
         });
 
-        instance.fetchEarlierData();
+        instance.fetchAdditionalData();
 
         sinon.assert.calledWithExactly(props.trackMetric, 'Fetched earlier patient data', {
           count: 2,
@@ -4560,17 +4560,17 @@ describe('PatientData', function () {
           noDates: true,
         };
 
-        instance.fetchEarlierData(options);
+        instance.fetchAdditionalData(options);
 
-        sinon.assert.calledOnce(props.onFetchEarlierData);
-        sinon.assert.calledWithMatch(props.onFetchEarlierData, {
+        sinon.assert.calledOnce(props.onFetchAdditionalData);
+        sinon.assert.calledWithMatch(props.onFetchAdditionalData, {
           startDate: undefined,
           endDate: undefined,
         }, '40');
       });
 
       it('should call the log method', () => {
-        instance.fetchEarlierData();
+        instance.fetchAdditionalData();
 
         sinon.assert.calledOnce(logSpy);
         sinon.assert.calledWith(logSpy, 'fetching');
@@ -4590,10 +4590,10 @@ describe('PatientData', function () {
           initial: true,
         };
 
-        instance.fetchEarlierData(options);
+        instance.fetchAdditionalData(options);
 
-        sinon.assert.calledOnce(props.onFetchEarlierData);
-        sinon.assert.calledWithMatch(props.onFetchEarlierData, {
+        sinon.assert.calledOnce(props.onFetchAdditionalData);
+        sinon.assert.calledWithMatch(props.onFetchAdditionalData, {
           initial: true,
         }, '40');
       });
@@ -4968,7 +4968,7 @@ describe('PatientData', function () {
             fullName: 'Fooey McBar'
           }
         },
-        onFetchEarlierData: sinon.stub(),
+        onFetchAdditionalData: sinon.stub(),
         fetchingPatient: false,
         fetchingPatientData: false,
         fetchingUser: false,
@@ -4991,7 +4991,7 @@ describe('PatientData', function () {
     it('should set the `chartType` state to `settings`', () => {
       var props = {
         ...defaultProps,
-        onFetchEarlierData: sinon.stub(),
+        onFetchAdditionalData: sinon.stub(),
       };
       const wrapper = shallow(<PatientDataClass {...props} />);
       const instance = wrapper.instance();

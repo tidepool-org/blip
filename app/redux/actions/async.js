@@ -1040,8 +1040,7 @@ export function fetchPatientData(api, options, id) {
     initial: true,
     type: ALL_FETCHED_DATA_TYPES.join(','),
     forceDataWorkerAddDataRequest: false,
-    // sampleIntervalMinimum: DEFAULT_CGM_SAMPLE_INTERVAL,
-    sampleIntervalMinimum: MS_IN_MIN, // TODO: remove this and fetch the 1-min cbg data in a separate request once the user selects it from the UI
+    sampleIntervalMinimum: DEFAULT_CGM_SAMPLE_INTERVAL,
   });
 
   let latestUpload;
@@ -1177,7 +1176,8 @@ export function fetchPatientData(api, options, id) {
         options.forceDataWorkerAddDataRequest ||
         (location.pathname.indexOf(id) >= 0 && (!fetchingPatientId || fetchingPatientId === id))
       ) {
-        dispatch(worker.dataWorkerAddDataRequest(data, options.returnData, patientId, options.startDate));
+        if (options.sampleIntervalMinimum === MS_IN_MIN) options.oneMinCgmFetchedUntil = options.startDate;
+        dispatch(worker.dataWorkerAddDataRequest(data, options.returnData, patientId, options.startDate, options.oneMinCgmFetchedUntil));
       }
     }
 
