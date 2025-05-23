@@ -92,6 +92,7 @@ export const WorkspaceSwitcher = props => {
         <>
           <Button
             id="workspace-switcher-current"
+            data-testid="workspace-switcher-current"
             variant="textPrimary"
             color="text.primary"
             {...bindTrigger(popupState)}
