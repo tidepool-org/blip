@@ -422,6 +422,7 @@ class Daily extends Component {
     const timePrefs = _.get(this.props, 'data.timePrefs', {});
     const bgPrefs = _.get(this.props, 'data.bgPrefs', {});
     const carbUnits = ['grams'];
+    const showingCgmData = _.get(this.props, 'chartPrefs.daily.bgSource')  === 'cbg';
 
     const {
       isAutomatedBasalDevice,
@@ -433,18 +434,24 @@ class Daily extends Component {
       { type: 'wizard', carbUnits: 'exchanges' }
     );
 
+    const hasOneMinCgmSampleIntervalDevice = _.some(
+      _.get(this.props, 'data.metaData.devices'),
+      { oneMinCgmSampleInterval: true }
+    );
+
     if (hasCarbExchanges) carbUnits.push('exchanges');
 
     return (
       <>
-        <Flex sx={{ justifyContent: 'flex-end', alignItems: 'center' }}>
-          <CgmSampleIntervalRangeToggle
-            bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
-            chartPrefs={this.props.chartPrefs}
-            chartType={this.chartType}
-            onClickCgmSampleIntervalRangeToggle={this.toggleCgmSampleIntervalRange}
-          />
-        </Flex>
+        {showingCgmData && hasOneMinCgmSampleIntervalDevice && (
+          <Flex sx={{ justifyContent: 'flex-end', alignItems: 'center' }}>
+            <CgmSampleIntervalRangeToggle
+              chartPrefs={this.props.chartPrefs}
+              chartType={this.chartType}
+              onClickCgmSampleIntervalRangeToggle={this.toggleCgmSampleIntervalRange}
+            />
+          </Flex>
+        )}
 
         <DailyChart
           automatedBasal={isAutomatedBasalDevice}
