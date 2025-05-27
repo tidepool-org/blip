@@ -366,8 +366,10 @@ const PatientTags = ({
   trackMetric,
 }) => {
   const dispatch = useDispatch();
+  const { set: setToast } = useToasts();
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const defaultPatientTags = reject(patient?.tags || [], tagId => !patientTags[tagId]);
-  const [pendingPatientTags, setPendingPatientTags] = useState(defaultPatientTags)
+  const [pendingPatientTags, setPendingPatientTags] = useState(defaultPatientTags);
 
   useEffect(() => {
     setPendingPatientTags(reject(patient?.tags || [], tagId => !patientTags[tagId]));
@@ -394,6 +396,10 @@ const PatientTags = ({
     editPatient(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog, 'tag list');
   }, [patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog]);
 
+  // If clinic requires MRN but the patient lacks one, open Edit Patient modal instead of Add Tags dropdown
+  const hasMrnError = !patient.mrn && clinic?.mrnSettings?.required;
+  const addTagsBindTrigger = hasMrnError ? {} : bindTrigger(addPatientTagsPopupState); // if MRN error, do not pass bindTrigger
+
   return !!filteredPatientTags.length ? (
     <TagList
       maxTagsVisible={4}
@@ -405,7 +411,7 @@ const PatientTags = ({
     />
   ) : (
     <React.Fragment>
-      <Box {...bindTrigger(addPatientTagsPopupState)}>
+      <Box {...addTagsBindTrigger}>
         <Button
           id="add-tags-to-patient-trigger"
           variant="textPrimary"
@@ -417,6 +423,12 @@ const PatientTags = ({
           iconFontSize="16px"
           selected={addPatientTagsPopupState.isOpen && selectedPatient?.id === patient?.id}
           onClick={() => {
+            if (hasMrnError) {
+              handleEditPatient(patient);
+              setToast({ message: t('To add tags, please first add an MRN for this patient.'), variant: 'warning' });
+              return;
+            }
+
             trackMetric(prefixPopHealthMetric('Assign patient tag open'), { clinicId: selectedClinicId });
             setSelectedPatient(patient);
             addPatientTagsPopupState.open();
