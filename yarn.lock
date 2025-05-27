@@ -5278,9 +5278,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.45.0-web-3511-color-scheme.2":
-  version: 1.45.0-web-3511-color-scheme.2
-  resolution: "@tidepool/viz@npm:1.45.0-web-3511-color-scheme.2"
+"@tidepool/viz@npm:1.45.0-web-3511-color-scheme.4":
+  version: 1.45.0-web-3511-color-scheme.4
+  resolution: "@tidepool/viz@npm:1.45.0-web-3511-color-scheme.4"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -5314,6 +5314,7 @@ __metadata:
     react-collapse: 5.1.1
     react-dimensions: 1.3.1
     react-dom: 16.14.0
+    react-i18next: 13.3.1
     react-markdown: 8.0.7
     react-motion: 0.5.2
     react-redux: 8.1.3
@@ -5340,7 +5341,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 014bf808cd2800280a502f94d38a2947c1b835cd0ff053d00a65dfc424bf37cda6944e9163956f496a2c9ebd5da477caa4ebf0367cb362ef3ef95dc2903dda20
+  checksum: 6192998b1ab2ece6e7f5bb4dde66293873854cf891d87edfa84683f7df10fb5ef2bed2ed71946c9e05bd1ebd645676c68ac04d4c62077202b0fb4dc4e915aeaf
   languageName: node
   linkType: hard
 
@@ -7251,7 +7252,7 @@ __metadata:
     "@storybook/react": 7.5.0
     "@storybook/react-webpack5": 7.5.0
     "@testing-library/react-hooks": 8.0.1
-    "@tidepool/viz": 1.45.0-web-3511-color-scheme.2
+    "@tidepool/viz": 1.45.0-web-3511-color-scheme.4
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
