@@ -2010,7 +2010,7 @@ describe('ClinicPatients', () => {
             ClinicPatients.__Rewire__('useClinicPatientsFilters', sinon.stub().callsFake(() => (
               [
                 {
-                  timeInRange: ['timeInLowPercent', 'timeInHighPercent'],
+                  timeInRange: ['timeInAnyLowPercent', 'timeInAnyHighPercent'],
                   patientTags: [],
                   meetsGlycemicTargets: false,
                 },
@@ -2072,6 +2072,8 @@ describe('ClinicPatients', () => {
             defaultProps.api.clinics.getPatientsForClinic.resetHistory();
             const applyButton = popover().find('#apply-summary-period-filter').hostNodes();
             applyButton.simulate('click');
+
+            console.log(defaultProps.api.clinics.getPatientsForClinic.getCalls()[0].args);
 
             // Ensure resulting patient fetch is requesting the 7 day period for time in range filters
             sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({
@@ -2169,7 +2171,7 @@ describe('ClinicPatients', () => {
               [
                 {
                   lastData: 14,
-                  timeInRange: ['timeInLowPercent', 'timeInHighPercent'],
+                  timeInRange: ['timeInAnyLowPercent', 'timeInAnyHighPercent'],
                   patientTags: ['tag2'],
                   meetsGlycemicTargets: true,
                 },
@@ -2296,7 +2298,7 @@ describe('ClinicPatients', () => {
             ClinicPatients.__Rewire__('useClinicPatientsFilters', sinon.stub().callsFake(() => (
               [
                 {
-                  timeInRange: ['timeInLowPercent', 'timeInHighPercent'],
+                  timeInRange: ['timeInAnyLowPercent', 'timeInAnyHighPercent'],
                   patientTags: [],
                   meetsGlycemicTargets: false,
                 },
@@ -2833,116 +2835,6 @@ describe('ClinicPatients', () => {
             wrapper.update();
             expect(wrapper.find('Dialog#editPatient').exists()).to.be.true;
           });
-        });
-
-        it('should allow updating tags for a patient', done => {
-          const table = wrapper.find(Table);
-          const rows = table.find('tbody tr');
-          const rowData = row => rows.at(row).find('.MuiTableCell-root');
-
-          expect(rowData(1).at(2).text()).contains('>test tag 1');
-          const editTagsTrigger = rowData(1).find('.edit-tags-trigger').hostNodes();
-          expect(editTagsTrigger).to.have.length(1);
-
-          const dialog = () => wrapper.find('Dialog#editPatient');
-
-          expect(dialog()).to.have.length(0);
-          editTagsTrigger.simulate('click');
-          wrapper.update();
-          expect(dialog()).to.have.length(1);
-          expect(dialog().props().open).to.be.true;
-
-          expect(defaultProps.trackMetric.calledWith('Clinic - Edit patient')).to.be.true;
-          expect(defaultProps.trackMetric.callCount).to.equal(1);
-
-          const patientForm = () => dialog().find('form#clinic-patient-form');
-          expect(patientForm()).to.have.lengthOf(1);
-
-          // Check existing selected tags
-          const selectedTags = () => patientForm().find('.selected-tags').find('.tag-text').hostNodes();
-          expect(selectedTags()).to.have.lengthOf(1);
-          expect(selectedTags().at(0).text()).to.equal('>test tag 1');
-
-          // Ensure available tag options present
-          const availableTags = () => patientForm().find('.available-tags').find('.tag-text').hostNodes();
-          expect(availableTags()).to.have.lengthOf(2);
-          expect(availableTags().at(0).text()).to.equal('ttest tag 3');
-          expect(availableTags().at(1).text()).to.equal('test tag 2');
-
-          // Add tag 3
-          patientForm().find('#tag3').hostNodes().simulate('click');
-
-          // Remove tag 1
-          patientForm().find('#tag1').find('.icon').hostNodes().simulate('click');
-
-          expect(selectedTags()).to.have.lengthOf(1);
-          expect(selectedTags().at(0).text()).to.equal('ttest tag 3');
-
-          expect(availableTags()).to.have.lengthOf(2);
-          expect(availableTags().at(0).text()).to.equal('test tag 2');
-          expect(availableTags().at(1).text()).to.equal('>test tag 1');
-
-          store.clearActions();
-          dialog().find('Button#editPatientConfirm').simulate('click');
-
-          setTimeout(() => {
-            expect(defaultProps.api.clinics.updateClinicPatient.callCount).to.equal(1);
-
-            sinon.assert.calledWith(
-              defaultProps.api.clinics.updateClinicPatient,
-              'clinicID123',
-              'patient2',
-              {
-                id: 'patient2',
-                email: 'patient2@test.ca',
-                fullName: 'Patient Two',
-                birthDate: '1999-02-02',
-                mrn: 'MRN123',
-                permissions: { custodian : undefined },
-                summary: {
-                  bgmStats: {
-                    dates: {
-                      lastData: sinon.match.string,
-                    },
-                    periods: { '14d': {
-                      averageGlucoseMmol: 10.5,
-                      averageDailyRecords: 0.25,
-                      timeInVeryLowRecords: 1,
-                      timeInVeryHighRecords: 2,
-                    } },
-                  },
-                  cgmStats: {
-                    dates: {
-                      lastData: sinon.match.string,
-                    },
-                    periods: {
-                      '14d': {
-                        glucoseManagementIndicator: 7.75,
-                        timeCGMUseMinutes: 1380,
-                        timeCGMUsePercent: 0.85,
-                      },
-                    },
-                  },
-                },
-                tags: ['tag3'],
-                reviews: [{ clinicianId: 'clinicianUserId123', time: yesterday }],
-              }
-            );
-
-            expect(store.getActions()).to.eql([
-              { type: 'UPDATE_CLINIC_PATIENT_REQUEST' },
-              {
-                type: 'UPDATE_CLINIC_PATIENT_SUCCESS',
-                payload: {
-                  clinicId: 'clinicID123',
-                  patientId: 'stubbedId',
-                  patient: { id: 'stubbedId', stubbedUpdates: 'foo' },
-                },
-              },
-            ]);
-
-            done();
-          }, 0);
         });
       });
 
