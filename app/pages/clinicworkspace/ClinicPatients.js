@@ -1355,7 +1355,7 @@ export const ClinicPatients = (props) => {
       activeFilters.patientTags?.length,
     ], null, 0, undefined).length;
 
-    const sortedFilterOptions = patientTagsFilterOptions?.toSorted((a, b) => a.label.localeCompare(b.label)) || [];
+    const sortedFilterOptions = patientTagsFilterOptions?.toSorted((a, b) => utils.sortByLabel(a.label, b.label)) || [];
 
     const VisibilityIcon = isPatientListVisible ? VisibilityOffOutlinedIcon : VisibilityOutlinedIcon;
     const hoursAgo = Math.floor(patientFetchMinutesAgo / 60);
@@ -2438,7 +2438,7 @@ export const ClinicPatients = (props) => {
   ]);
 
   const renderClinicPatientTagsDialog = useCallback(() => {
-    const orderedTags = clinic?.patientTags?.toSorted((a, b) => a.name.localeCompare(b.name)) || [];
+    const orderedTags = clinic?.patientTags?.toSorted((a, b) => utils.sortByLabel(a.name, b.name)) || [];
 
     return (
       <Dialog
