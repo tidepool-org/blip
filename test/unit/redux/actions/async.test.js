@@ -4289,6 +4289,7 @@ describe('Actions', () => {
                   fetchedCount: 6,
                   patientId: patientId,
                   fetchedUntil: '2018-01-01T00:00:00.000Z',
+                  oneMinCgmFetchedUntil: undefined,
                   returnData: false,
                 },
               },

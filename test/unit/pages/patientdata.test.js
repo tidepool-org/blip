@@ -34,7 +34,7 @@ const t = i18next.t.bind(i18next);
 // We must remember to require the base module when mocking dependencies,
 // otherwise dependencies mocked will be bound to the wrong scope!
 import PD, { PatientData, PatientDataClass, getFetchers, mapStateToProps } from '../../../app/pages/patientdata/patientdata.js';
-import { MGDL_UNITS } from '../../../app/core/constants';
+import { MGDL_UNITS, MS_IN_MIN } from '../../../app/core/constants';
 import { ToastProvider } from '../../../app/providers/ToastProvider.js';
 
 describe('PatientData', function () {
@@ -1182,6 +1182,7 @@ describe('PatientData', function () {
           extentSize: 14,
         },
         daily: {
+          cgmSampleIntervalRange: [MS_IN_MIN * 5, Infinity],
           extentSize: 1,
         },
         trends: {
@@ -1404,6 +1405,7 @@ describe('PatientData', function () {
       wrapper.setState({
         chartPrefs: {
           basics: 'foo',
+          daily: 'baz',
         },
       })
     });
@@ -1413,6 +1415,7 @@ describe('PatientData', function () {
       expect(instance.state.chartPrefs).to.eql({
         basics: 'foo',
         trends: 'bar',
+        daily: 'baz',
       })
     });
 
@@ -4400,6 +4403,7 @@ describe('PatientData', function () {
           initial: false,
           useCache: false,
           noDates: false,
+          sampleIntervalMinimum: MS_IN_MIN * 5,
         }, '40');
       });
 

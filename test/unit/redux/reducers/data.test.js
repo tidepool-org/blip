@@ -40,6 +40,7 @@ describe('data reducer', () => {
       metaData: {},
       query: {},
       fetchedUntil: null,
+      oneMinCgmFetchedUntil: null,
       cacheUntil: null,
     });
   });
