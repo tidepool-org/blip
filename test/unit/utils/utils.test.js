@@ -512,7 +512,7 @@ describe('utils', () => {
       expect(utils.getCBGFilter(location)).to.equal(null);
     });
   });
-    
+
   describe('translateBg', () => {
     it('should translate a BG value to the desired target unit', () => {
       expect(utils.translateBg(180, MMOLL_UNITS)).to.equal(10);
@@ -686,6 +686,17 @@ describe('utils', () => {
       expect(utils.formatDecimal(1.23456, 2)).to.equal('1.23');
       expect(utils.formatDecimal(1.23456, 3)).to.equal('1.235');
       expect(utils.formatDecimal(1.23456)).to.equal('1');
+    });
+
+    it('should round to nearest whole integer when precision not specified', () => {
+      expect(utils.formatDecimal(3.85)).to.equal('4');
+    });
+
+    it('should utilize use bankers rounding', () => {
+      expect(utils.formatDecimal(3.85, 1)).to.equal('3.8');
+      expect(utils.formatDecimal(3.75, 1)).to.equal('3.8');
+      expect(utils.formatDecimal(3.05, 1)).to.equal('3.0');
+      expect(utils.formatDecimal(3, 1)).to.equal('3.0');
     });
   });
 
