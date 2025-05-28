@@ -110,9 +110,7 @@ export const PatientDataClass = createReactClass({
     var state = {
       chartPrefs: {
         basics: {
-          stats: {
-            excludeDaysWithoutBolus: false,
-          },
+          stats: {},
           sections: {},
           extentSize: 14,
         },
@@ -308,10 +306,10 @@ export const PatientDataClass = createReactClass({
               <Box>
                 <Card
                   id='data-connections-card'
-                  title={isUserPatient ? t('Connect an Account') : t('Connect a Device Account')}
+                  title={t('Connect a Device Account')}
                   subtitle={isUserPatient
-                    ? t('Do you have a Dexcom or FreeStyle Libre device? When you connect a device account, data can flow into Tidepool without any extra effort.')
-                    : t('Does your patient use a Dexcom or FreeStyle Libre device? Automatically sync data from those devices with the patient\'s permission.')
+                    ? t('Do you have a Dexcom or twiist device? When you connect a device account, data can flow into Tidepool without any extra effort.')
+                    : t('Does your patient use a Dexcom or twiist device? Automatically sync data from those devices with the patient\'s permission.')
                   }
                   bannerImage={DataConnectionsBanner}
                   onClick={handleClickDataConnections}
@@ -533,7 +531,7 @@ export const PatientDataClass = createReactClass({
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
             uploadUrl={this.props.uploadUrl}
-            ref="tideline" />
+          />
         </div>
       </div>
     );
@@ -576,7 +574,6 @@ export const PatientDataClass = createReactClass({
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
             uploadUrl={this.props.uploadUrl}
-            ref="tideline"
             removeGeneratedPDFS={this.props.removeGeneratedPDFS}
             onSwitchToTrends={this.handleSwitchToTrendsRoute}
             onSwitchToSettings={this.handleSwitchToSettingsRoute}
@@ -607,7 +604,6 @@ export const PatientDataClass = createReactClass({
             updatingDatum={this.props.updatingDatum}
             queryDataCount={this.getMetaData('queryDataCount')}
             key={this.state.chartKey}
-            ref="tideline"
             removeGeneratedPDFS={this.props.removeGeneratedPDFS}
             onSwitchToTrends={this.handleSwitchToTrendsRoute}
             onSwitchToSettings={this.handleSwitchToSettingsRoute}
@@ -636,7 +632,6 @@ export const PatientDataClass = createReactClass({
             uploadUrl={this.props.uploadUrl}
             queryDataCount={this.getMetaData('queryDataCount')}
             key={this.state.chartKey}
-            ref="tideline"
             removeGeneratedPDFS={this.props.removeGeneratedPDFS}
             onSwitchToTrends={this.handleSwitchToTrendsRoute}
             onSwitchToSettings={this.handleSwitchToSettingsRoute}
@@ -666,7 +661,6 @@ export const PatientDataClass = createReactClass({
             uploadUrl={this.props.uploadUrl}
             queryDataCount={this.getMetaData('queryDataCount')}
             key={this.state.chartKey}
-            ref="tideline"
             removeGeneratedPDFS={this.props.removeGeneratedPDFS}
             onSwitchToTrends={this.handleSwitchToTrendsRoute}
             onSwitchToSettings={this.handleSwitchToSettingsRoute}
@@ -836,13 +830,11 @@ export const PatientDataClass = createReactClass({
 
   closeMessageThread: function(){
     this.props.onCloseMessageThread();
-    this.refs.tideline.closeMessageThread();
     this.props.trackMetric('Closed Message Thread Modal');
   },
 
   closeMessageCreation: function(){
     this.setState({ createMessageDatetime: null });
-    this.refs.tideline.closeMessageThread();
     this.props.trackMetric('Closed New Message Modal');
   },
 
@@ -917,7 +909,7 @@ export const PatientDataClass = createReactClass({
           </Box>
         );
 
-        if (daysWithBoluses > 0 && daysWithBoluses < activeDays) {
+        if (state.chartType !== 'basics' && daysWithBoluses > 0 && daysWithBoluses < activeDays) {
           // If any of the calendar dates within the range are missing boluses,
           // present a checkbox to disable them from insulin stat calculations
           stat.children = (
@@ -986,7 +978,10 @@ export const PatientDataClass = createReactClass({
     const patientSettings = _.get(props, 'patient.settings', {});
     const printDialogPDFOpts = state.printDialogPDFOpts || {};
     const siteChangeSource = state.updatedSiteChangeSource || _.get(props, 'patient.settings.siteChangeSource');
-    const pdfPatient = _.assign({}, props.patient, {
+    const combinedPatient = props.clinicPatient ? personUtils.combinedAccountAndClinicPatient(props.patient, props.clinicPatient) : null;
+    const sourcePatient = personUtils.isClinicianAccount(props.user) && !!combinedPatient ? combinedPatient : props.patient;
+
+    const pdfPatient = _.assign({}, sourcePatient, {
       settings: _.assign({}, patientSettings, { siteChangeSource }),
     });
 
@@ -1005,7 +1000,7 @@ export const PatientDataClass = createReactClass({
         aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
         bgSource: _.get(state.chartPrefs, 'basics.bgSource'),
         stats: this.getStatsByChartType('basics'),
-        excludeDaysWithoutBolus: _.get(state, 'chartPrefs.basics.stats.excludeDaysWithoutBolus'),
+        excludeDaysWithoutBolus: false, // deprecated for basics chartType
         ...commonQueries,
       };
     }
@@ -2089,18 +2084,18 @@ export const PatientDataClass = createReactClass({
     }
   },
 
-  deriveChartTypeFromLatestData: function(latestData, uploads) {
+  deriveChartTypeFromLatestData: function(latestDatum, latestDiabetesDatum, uploads) {
     let chartType = 'basics'; // Default to 'basics'
 
-    if (latestData && uploads) {
+    if (latestDatum && uploads) {
       // Ideally, we determine the default view based on the device type
       // so that, for instance, if the latest data type is cgm, but comes from
       // an insulin-pump, we still direct them to the basics view
       const deviceMap = _.keyBy(uploads, 'deviceId');
-      const latestDataDevice = deviceMap[latestData.deviceId];
+      const latestDataDevice = deviceMap[latestDatum.deviceId];
 
       if (latestDataDevice) {
-        const tags = deviceMap[latestData.deviceId].deviceTags;
+        const tags = deviceMap[latestDatum.deviceId].deviceTags;
 
         switch(true) {
           case (_.includes(tags, 'insulin-pump')):
@@ -2118,8 +2113,8 @@ export const PatientDataClass = createReactClass({
       }
       else {
         // If we were unable, for some reason, to get the device tags for the
-        // latest upload, we can fall back to setting the default view by the data type
-        const type = latestData.type;
+        // latest upload, we can fall back to setting the default view by the data type of the latest diabetes datum
+        const type = latestDiabetesDatum?.type;
 
         switch(type) {
           case 'bolus':
@@ -2146,6 +2141,8 @@ export const PatientDataClass = createReactClass({
     // Determine default chart type and date from latest data
     const uploads = _.get(props.data, 'data.current.data.upload', []);
     const latestDatum = _.last(_.sortBy(_.values(_.get(props.data, 'metaData.latestDatumByType')), ['normalTime']));
+    const latestDiabetesDatums = _.filter(_.values(_.get(props.data, 'metaData.latestDatumByType')), d => _.includes(['cbg', 'smbg', 'bolus', 'basal', 'wizard'], d.type));
+    const latestDiabetesDatum = _.last(_.sortBy(latestDiabetesDatums, ['normalTime']));
     const bgSource = this.getMetaData('bgSources.current');
     const excludedDevices = this.getMetaData('excludedDevices', undefined, props);
     const chartTypeFromPath = props.match?.params?.chartType;
@@ -2154,7 +2151,7 @@ export const PatientDataClass = createReactClass({
 
     if (uploads && latestDatum) {
       let chartType = null;
-      defaultChartTypeForPatient = this.deriveChartTypeFromLatestData(latestDatum, uploads);
+      defaultChartTypeForPatient = this.deriveChartTypeFromLatestData(latestDatum, latestDiabetesDatum, uploads);
 
       // Figure out which chart to show based on the current route
       switch(true) {
@@ -2187,13 +2184,17 @@ export const PatientDataClass = createReactClass({
       const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(props, chartType);
       const latestDatumDateCeiling = getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs);
 
-      const datetimeLocation = _.get(props, 'queryParams.datetime', (isDaily || isBgLog)
+      let datetimeLocation = _.get(props, 'queryParams.datetime', (isDaily || isBgLog)
         ? moment.utc(latestDatumDateCeiling.valueOf())
           .tz(isDaily ? getTimezoneFromTimePrefs(this.state.timePrefs) : 'UTC')
           .subtract(12, 'hours')
           .toISOString()
         : moment.utc(latestDatumDateCeiling.valueOf())
           .toISOString());
+
+      if (_.isInteger(_.toNumber(datetimeLocation))) {
+        datetimeLocation = moment.utc(_.toNumber(datetimeLocation)).toISOString();
+      }
 
       const endpoints = this.getChartEndpoints(datetimeLocation, { chartType });
 
@@ -2227,6 +2228,7 @@ export const PatientDataClass = createReactClass({
  * @param {boolean} [options.carelink=this.props.carelink] - Whether to include Carelink data.
  * @param {boolean} [options.dexcom=this.props.dexcom] - Whether to include Dexcom data.
  * @param {boolean} [options.medtronic=this.props.medtronic] - Whether to include Medtronic data.
+ * @param {boolean} [options.cbgFilter=this.props.cbgFilter] - Whether to apply the CBG filter for cloud versus non-cloud data.
  * @param {boolean} [options.useCache=false] - Whether to use cached data.
  * @param {boolean} [options.initial=false] - Whether this is the initial data fetch.
  * @param {boolean} [options.noDates=false] - Whether to fetch data without start and end dates..
@@ -2248,6 +2250,7 @@ export const PatientDataClass = createReactClass({
       carelink: this.props.carelink,
       dexcom: this.props.dexcom,
       medtronic: this.props.medtronic,
+      cbgFilter: this.props.cbgFilter,
       useCache: false,
       initial: false,
       noDates: false,
@@ -2300,6 +2303,11 @@ export const PatientDataClass = createReactClass({
         this.props.trackMetric('Web - Medtronic Import URL Param', { medtronic });
       }
 
+      const cbgFilter = nextProps.cbgFilter;
+      if (!_.isEmpty(cbgFilter)) {
+        this.props.trackMetric('Web - CBG Filter URL Param', { cbgFilter });
+      }
+
       const properties = { patientID: nextProps.currentPatientInViewId };
       if (this.props.selectedClinicId) properties.clinicId = this.props.selectedClinicId;
       this.props.trackMetric('Fetched initial patient data', properties);
@@ -2336,7 +2344,7 @@ export function getFetchers(dispatchProps, ownProps, stateProps, api, options) {
     fetchers.push(dispatchProps.fetchPendingSentInvites.bind(null, api));
   }
 
-  if (!stateProps.fetchingClinicsForPatient.inProgress && !stateProps.fetchingClinicsForPatient.completed) {
+  if (stateProps.isUserPatient && !stateProps.fetchingClinicsForPatient.inProgress && !stateProps.fetchingClinicsForPatient.completed) {
     fetchers.push(dispatchProps.fetchClinicsForPatient.bind(null, api, ownProps.match.params.id));
   }
 
@@ -2509,6 +2517,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   const carelink = utils.getCarelink(ownProps.location);
   const dexcom = utils.getDexcom(ownProps.location);
   const medtronic = utils.getMedtronic(ownProps.location);
+  const cbgFilter = utils.getCBGFilter(ownProps.location);
   const api = ownProps.api;
   const assignedDispatchProps = [
     'dataWorkerRemoveDataRequest',
@@ -2522,7 +2531,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   ];
 
   return Object.assign({}, _.pick(dispatchProps, assignedDispatchProps), stateProps, {
-    fetchers: getFetchers(dispatchProps, ownProps, stateProps, api, { carelink, dexcom, medtronic }),
+    fetchers: getFetchers(dispatchProps, ownProps, stateProps, api, { carelink, dexcom, medtronic, cbgFilter }),
     history: ownProps.history,
     location: ownProps.location,
     match: ownProps.match,
@@ -2531,7 +2540,8 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
       const fetchOptions = {
         carelink,
         dexcom,
-        medtronic
+        medtronic,
+        cbgFilter,
       };
       if(chartType === 'settings') {
         _.extend(fetchOptions, {
@@ -2557,6 +2567,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     carelink: carelink,
     dexcom: dexcom,
     medtronic: medtronic,
+    cbgFilter: cbgFilter,
   });
 };
 

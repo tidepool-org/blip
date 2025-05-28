@@ -16,6 +16,8 @@ import tags from './base/tags';
 import toasts from './base/toasts';
 import forms from './base/forms';
 
+/* eslint-disable max-len */
+
 export const breakpoints = ['512px', '768px', '1024px', '1280px'];
 
 export const colors = {
@@ -26,8 +28,10 @@ export const colors = {
   bg: {
     veryLow: vizColors.veryLow,
     low: vizColors.low,
+    anyLow: '#F19181',
     target: vizColors.target,
     high: vizColors.high,
+    anyHigh: '#B69CE2',
     veryHigh: vizColors.veryHigh,
     extremeHigh: '#5438A3',
   },
@@ -183,7 +187,7 @@ const variants = {
   tables: tables({ borders, colors, fonts, fontSizes, shadows, radii }),
   tags: tags({ colors, fonts, radii, fontWeights }),
   toasts: toasts({ borders, colors, radii, fontSizes, shadows }),
-  containers: containers({ borders, colors, radii, space, breakpoints }),
+  containers: containers({ borders, colors, radii, space, breakpoints, fonts, fontSizes, fontWeights }),
 };
 
 const defaultText = {

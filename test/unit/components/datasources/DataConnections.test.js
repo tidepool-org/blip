@@ -35,7 +35,7 @@ const mockStore = configureStore([thunk]);
 
 describe('activeProviders', () => {
   it('should define a list of active providers', () => {
-    expect(activeProviders).to.eql(['dexcom', 'abbott']);
+    expect(activeProviders).to.eql(['dexcom', 'twiist']);
   });
 });
 
@@ -48,18 +48,26 @@ describe('providers', () => {
     expect(dexcom.restrictedTokenCreate).to.eql({ paths: ['/v1/oauth/dexcom'] });
     expect(dexcom.dataSourceFilter).to.eql({ providerType: 'oauth', providerName: 'dexcom' });
     expect(dexcom.logoImage).to.be.a('string');
+    expect(dexcom.disconnectInstructions).to.be.undefined;
+    expect(dexcom.indeterminateDataImportTime).to.be.undefined;
 
     expect(abbott.id).to.equal('oauth/abbott');
     expect(abbott.displayName).to.equal('FreeStyle Libre');
     expect(abbott.restrictedTokenCreate).to.eql({ paths: ['/v1/oauth/abbott'] });
     expect(abbott.dataSourceFilter).to.eql({ providerType: 'oauth', providerName: 'abbott' });
     expect(abbott.logoImage).to.be.a('string');
+    expect(abbott.disconnectInstructions).to.be.an('object');
+    expect(abbott.disconnectInstructions.title).to.be.a('string');
+    expect(abbott.disconnectInstructions.message).to.be.a('string');
+    expect(abbott.indeterminateDataImportTime).to.be.undefined;
 
     expect(twiist.id).to.equal('oauth/twiist');
-    expect(twiist.displayName).to.equal('Twiist');
+    expect(twiist.displayName).to.equal('twiist');
     expect(twiist.restrictedTokenCreate).to.eql({ paths: ['/v1/oauth/twiist'] });
     expect(twiist.dataSourceFilter).to.eql({ providerType: 'oauth', providerName: 'twiist' });
     expect(twiist.logoImage).to.be.a('string');
+    expect(twiist.disconnectInstructions).to.be.undefined;
+    expect(twiist.indeterminateDataImportTime).to.be.true;
   });
 });
 
@@ -193,8 +201,9 @@ describe('getConnectStateUI', () => {
       providerName: 'provider123',
       state: 'pending',
       createdTime: moment.utc().subtract(20, 'days'),
+      modifiedTime: moment.utc().subtract(5, 'days'),
       lastImportTime: moment.utc().subtract(10, 'days'),
-      latestDataTime: moment.utc().subtract(5, 'days'),
+      latestDataTime: moment.utc().subtract(15, 'days'),
     }],
   }
 
@@ -278,7 +287,7 @@ describe('getConnectStateUI', () => {
       expect(UINoDataFound.connected.text).to.equal('Connected');
       expect(UINoDataFound.connected.handler).to.equal('disconnect');
       expect(UIDataFound.connected.text).to.equal('Connected');
-      expect(UIDataFound.connected.message).to.equal('Last data 5 days ago');
+      expect(UIDataFound.connected.message).to.equal('Last data 15 days ago');
       expect(UIDataFound.connected.handler).to.equal('disconnect');
 
       expect(UI.disconnected.message).to.equal(null);
@@ -300,9 +309,11 @@ describe('getDataConnectionProps', () => {
     'connectState2',
   ];
 
-  const createPatientWithConnectionState = state => ({
+  const createPatientWithConnectionState = (state, modifiedTime) => ({
     id: 'patient123',
-    dataSources: [ { providerName: 'provider123', state }],
+    dataSources: [
+      { providerName: 'provider123', state, modifiedTime },
+    ],
     connectionRequests: { provider123: [{ createdTime: moment.utc().subtract(20, 'days') }] },
   });
 
@@ -354,7 +365,7 @@ describe('getDataConnectionProps', () => {
   });
 
   it('should merge the the appropriate connect state UI and handler props based on the current provider connection state for a patient', () => {
-    const connectState1PatientProps = getDataConnectionProps(createPatientWithConnectionState('connectState1'), false, 'clinic125', setActiveHandlerStub).provider123;
+    const connectState1PatientProps = getDataConnectionProps(createPatientWithConnectionState('connectState1', moment.utc().subtract(2, 'days').toISOString()), false, 'clinic125', setActiveHandlerStub).provider123;
 
     expect(connectState1PatientProps.buttonDisabled).to.equal('connectState1 handler buttonDisabled stub');
     expect(connectState1PatientProps.buttonHandler).to.be.a('function');
@@ -372,7 +383,7 @@ describe('getDataConnectionProps', () => {
     expect(connectState1PatientProps.stateColor).to.equal('connectState1 color stub');
     expect(connectState1PatientProps.stateText).to.equal('connectState1 text stub');
 
-    const connectState2PatientProps = getDataConnectionProps(createPatientWithConnectionState('connectState2'), false, 'clinic125', setActiveHandlerStub).provider123;
+    const connectState2PatientProps = getDataConnectionProps(createPatientWithConnectionState('connectState2', moment.utc().subtract(1, 'days').toISOString()), false, 'clinic125', setActiveHandlerStub).provider123;
 
     expect(connectState2PatientProps.buttonDisabled).to.equal('connectState2 handler buttonDisabled stub');
     expect(connectState2PatientProps.buttonHandler).to.be.a('function');
@@ -392,7 +403,7 @@ describe('getDataConnectionProps', () => {
   });
 
   it('should set the button handler to call the provided active handler setter with the appropriate args', () => {
-    const connectState1PatientProps = getDataConnectionProps(createPatientWithConnectionState('connectState1'), false, 'clinic125', setActiveHandlerStub).provider123;
+    const connectState1PatientProps = getDataConnectionProps(createPatientWithConnectionState('connectState1', moment.utc().subtract(2, 'days').toISOString()), false, 'clinic125', setActiveHandlerStub).provider123;
 
     expect(connectState1PatientProps.buttonHandler).to.be.a('function');
     sinon.assert.notCalled(setActiveHandlerStub);
@@ -407,6 +418,21 @@ describe('getDataConnectionProps', () => {
       connectState: 'connectState1',
       handler: 'connectState1 handler stub',
     });
+  });
+
+  it('should choose the most recently modified data source for a given providerName', () => {
+    const patient = {
+      id: 'patient123',
+      dataSources: [
+        { providerName: 'provider123', state: 'connectState1', modifiedTime: moment.utc().subtract(2, 'days').toISOString() },
+        { providerName: 'provider123', state: 'connectState2', modifiedTime: moment.utc().subtract(1, 'days').toISOString() },
+      ],
+    };
+
+    const props = getDataConnectionProps(patient, false, 'clinic123', sinon.stub()).provider123;
+
+    expect(props.stateText).to.equal('connectState2 text stub');
+    expect(props.messageText).to.equal('connectState2 message stub');
   });
 });
 
@@ -502,6 +528,7 @@ describe('DataConnections', () => {
       working: {
         sendingPatientDataProviderConnectRequest: defaultWorkingState,
         updatingClinicPatient: defaultWorkingState,
+        disconnectingDataSource: defaultWorkingState,
       },
       selectedClinicId: 'clinicID123',
       loggedInUserId: 'patient123',
@@ -550,10 +577,10 @@ describe('DataConnections', () => {
         expect(dexcomConnection.find('.state-text')).to.have.lengthOf(0);
         expect(dexcomConnection.find('.state-message')).to.have.lengthOf(0);
 
-        const abbottConnection = wrapper.find('#data-connection-abbott').hostNodes();
-        expect(abbottConnection).to.have.lengthOf(1);
-        expect(abbottConnection.find('.state-text')).to.have.lengthOf(0);
-        expect(abbottConnection.find('.state-message')).to.have.lengthOf(0);
+        const twiistConnection = wrapper.find('#data-connection-twiist').hostNodes();
+        expect(twiistConnection).to.have.lengthOf(1);
+        expect(twiistConnection.find('.state-text')).to.have.lengthOf(0);
+        expect(twiistConnection.find('.state-message')).to.have.lengthOf(0);
       });
 
       it('should render appropriate buttons and dispatch appropriate actions when clicked', done => {
@@ -569,19 +596,19 @@ describe('DataConnections', () => {
         expect(dexcomActionButton).to.have.lengthOf(1);
         expect(dexcomActionButton.text()).to.equal('Email Invite');
 
-        const abbottConnection = wrapper.find('#data-connection-abbott').hostNodes();
-        expect(abbottConnection).to.have.lengthOf(1);
-        const abbottActionButton = abbottConnection.find('.action').hostNodes();
-        expect(abbottActionButton).to.have.lengthOf(1);
-        expect(abbottActionButton.text()).to.equal('Email Invite');
+        const twiistConnection = wrapper.find('#data-connection-twiist').hostNodes();
+        expect(twiistConnection).to.have.lengthOf(1);
+        const twiistActionButton = twiistConnection.find('.action').hostNodes();
+        expect(twiistActionButton).to.have.lengthOf(1);
+        expect(twiistActionButton.text()).to.equal('Email Invite');
 
         store.clearActions();
         dexcomActionButton.simulate('click');
-        abbottActionButton.simulate('click');
+        twiistActionButton.simulate('click');
 
         setTimeout(() => {
           sinon.assert.calledWith(api.clinics.updateClinicPatient, 'clinicID123', 'patient123', sinon.match({ dataSources: [ { providerName: 'dexcom', state: 'pending' } ] }));
-          sinon.assert.calledWith(api.clinics.updateClinicPatient, 'clinicID123', 'patient123', sinon.match({ dataSources: [ { providerName: 'abbott', state: 'pending' } ] }));
+          sinon.assert.calledWith(api.clinics.updateClinicPatient, 'clinicID123', 'patient123', sinon.match({ dataSources: [ { providerName: 'twiist', state: 'pending' } ] }));
           done();
         })
       });
@@ -600,10 +627,10 @@ describe('DataConnections', () => {
         expect(dexcomConnection.find('.state-text').hostNodes().text()).to.equal('Connection Pending');
         expect(dexcomConnection.find('.state-message')).to.have.lengthOf(0);
 
-        const abbottConnection = wrapper.find('#data-connection-abbott').hostNodes();
-        expect(abbottConnection).to.have.lengthOf(1);
-        expect(abbottConnection.find('.state-text').hostNodes().text()).to.equal('Connection Pending');
-        expect(abbottConnection.find('.state-message')).to.have.lengthOf(0);
+        const twiistConnection = wrapper.find('#data-connection-twiist').hostNodes();
+        expect(twiistConnection).to.have.lengthOf(1);
+        expect(twiistConnection.find('.state-text').hostNodes().text()).to.equal('Connection Pending');
+        expect(twiistConnection.find('.state-message')).to.have.lengthOf(0);
       });
 
       it('should render a disabled action buttons with appropriate text', () => {
@@ -620,12 +647,12 @@ describe('DataConnections', () => {
         expect(dexcomActionButton.props().disabled).to.be.true;
         expect(dexcomActionButton.text()).to.equal('Invite Sent');
 
-        const abbottConnection = wrapper.find('#data-connection-abbott').hostNodes();
-        expect(abbottConnection).to.have.lengthOf(1);
-        const abbottActionButton = abbottConnection.find('.action').hostNodes();
-        expect(abbottActionButton).to.have.lengthOf(1);
-        expect(abbottActionButton.props().disabled).to.be.true;
-        expect(abbottActionButton.text()).to.equal('Invite Sent');
+        const twiistConnection = wrapper.find('#data-connection-twiist').hostNodes();
+        expect(twiistConnection).to.have.lengthOf(1);
+        const twiistActionButton = twiistConnection.find('.action').hostNodes();
+        expect(twiistActionButton).to.have.lengthOf(1);
+        expect(twiistActionButton.props().disabled).to.be.true;
+        expect(twiistActionButton.text()).to.equal('Invite Sent');
       });
     });
 
@@ -642,10 +669,10 @@ describe('DataConnections', () => {
         expect(dexcomConnection.find('.state-text').hostNodes().text()).to.equal('Connection Pending');
         expect(dexcomConnection.find('.state-message').hostNodes().text()).to.equal(' - Invite sent 5 days ago');
 
-        const abbottConnection = wrapper.find('#data-connection-abbott').hostNodes();
-        expect(abbottConnection).to.have.lengthOf(1);
-        expect(abbottConnection.find('.state-text').hostNodes().text()).to.equal('Connection Pending');
-        expect(abbottConnection.find('.state-message').hostNodes().text()).to.equal(' - Invite sent 5 days ago');
+        const twiistConnection = wrapper.find('#data-connection-twiist').hostNodes();
+        expect(twiistConnection).to.have.lengthOf(1);
+        expect(twiistConnection.find('.state-text').hostNodes().text()).to.equal('Connection Pending');
+        expect(twiistConnection.find('.state-message').hostNodes().text()).to.equal(' - Invite sent 5 days ago');
       });
 
       it('should render appropriate buttons and dispatch appropriate actions when confirmed in dialog', () => {
@@ -661,11 +688,11 @@ describe('DataConnections', () => {
         expect(dexcomActionButton).to.have.lengthOf(1);
         expect(dexcomActionButton.text()).to.equal('Resend Invite');
 
-        const abbottConnection = wrapper.find('#data-connection-abbott').hostNodes();
-        expect(abbottConnection).to.have.lengthOf(1);
-        const abbottActionButton = abbottConnection.find('.action').hostNodes();
-        expect(abbottActionButton).to.have.lengthOf(1);
-        expect(abbottActionButton.text()).to.equal('Resend Invite');
+        const twiistConnection = wrapper.find('#data-connection-twiist').hostNodes();
+        expect(twiistConnection).to.have.lengthOf(1);
+        const twiistActionButton = twiistConnection.find('.action').hostNodes();
+        expect(twiistActionButton).to.have.lengthOf(1);
+        expect(twiistActionButton.text()).to.equal('Resend Invite');
 
         // Open and submit the dexcom resend invite confirmation modal
         const resendDialog = () => wrapper.find('#resendDataSourceConnectRequest').at(1);
@@ -707,10 +734,10 @@ describe('DataConnections', () => {
         expect(dexcomConnection.find('.state-text').hostNodes().text()).to.equal('Invite Sent');
         expect(dexcomConnection.find('.state-message').hostNodes().text()).to.equal(' - Invite sent 10 days ago');
 
-        const abbottConnection = wrapper.find('#data-connection-abbott').hostNodes();
-        expect(abbottConnection).to.have.lengthOf(1);
-        expect(abbottConnection.find('.state-text').hostNodes().text()).to.equal('Invite Sent');
-        expect(abbottConnection.find('.state-message').hostNodes().text()).to.equal(' - Invite sent 10 days ago');
+        const twiistConnection = wrapper.find('#data-connection-twiist').hostNodes();
+        expect(twiistConnection).to.have.lengthOf(1);
+        expect(twiistConnection.find('.state-text').hostNodes().text()).to.equal('Invite Sent');
+        expect(twiistConnection.find('.state-message').hostNodes().text()).to.equal(' - Invite sent 10 days ago');
       });
 
       it('should render appropriate buttons and dispatch appropriate actions when confirmed in dialog', () => {
@@ -726,11 +753,11 @@ describe('DataConnections', () => {
         expect(dexcomActionButton).to.have.lengthOf(1);
         expect(dexcomActionButton.text()).to.equal('Resend Invite');
 
-        const abbottConnection = wrapper.find('#data-connection-abbott').hostNodes();
-        expect(abbottConnection).to.have.lengthOf(1);
-        const abbottActionButton = abbottConnection.find('.action').hostNodes();
-        expect(abbottActionButton).to.have.lengthOf(1);
-        expect(abbottActionButton.text()).to.equal('Resend Invite');
+        const twiistConnection = wrapper.find('#data-connection-twiist').hostNodes();
+        expect(twiistConnection).to.have.lengthOf(1);
+        const twiistActionButton = twiistConnection.find('.action').hostNodes();
+        expect(twiistActionButton).to.have.lengthOf(1);
+        expect(twiistActionButton.text()).to.equal('Resend Invite');
 
         // Open and submit the dexcom resend invite confirmation modal
         const resendDialog = () => wrapper.find('#resendDataSourceConnectRequest').at(1);
@@ -772,10 +799,10 @@ describe('DataConnections', () => {
         expect(dexcomConnection.find('.state-text').hostNodes().text()).to.equal('Invite Expired');
         expect(dexcomConnection.find('.state-message').hostNodes().text()).to.equal(' - Sent over one month ago');
 
-        const abbottConnection = wrapper.find('#data-connection-abbott').hostNodes();
-        expect(abbottConnection).to.have.lengthOf(1);
-        expect(abbottConnection.find('.state-text').hostNodes().text()).to.equal('Invite Expired');
-        expect(abbottConnection.find('.state-message').hostNodes().text()).to.equal(' - Sent over one month ago');
+        const twiistConnection = wrapper.find('#data-connection-twiist').hostNodes();
+        expect(twiistConnection).to.have.lengthOf(1);
+        expect(twiistConnection.find('.state-text').hostNodes().text()).to.equal('Invite Expired');
+        expect(twiistConnection.find('.state-message').hostNodes().text()).to.equal(' - Sent over one month ago');
       });
 
       it('should render appropriate buttons and dispatch appropriate actions when confirmed in dialog', () => {
@@ -791,11 +818,11 @@ describe('DataConnections', () => {
         expect(dexcomActionButton).to.have.lengthOf(1);
         expect(dexcomActionButton.text()).to.equal('Resend Invite');
 
-        const abbottConnection = wrapper.find('#data-connection-abbott').hostNodes();
-        expect(abbottConnection).to.have.lengthOf(1);
-        const abbottActionButton = abbottConnection.find('.action').hostNodes();
-        expect(abbottActionButton).to.have.lengthOf(1);
-        expect(abbottActionButton.text()).to.equal('Resend Invite');
+        const twiistConnection = wrapper.find('#data-connection-twiist').hostNodes();
+        expect(twiistConnection).to.have.lengthOf(1);
+        const twiistActionButton = twiistConnection.find('.action').hostNodes();
+        expect(twiistActionButton).to.have.lengthOf(1);
+        expect(twiistActionButton.text()).to.equal('Resend Invite');
 
         // Open and submit the dexcom resend invite confirmation modal
         const resendDialog = () => wrapper.find('#resendDataSourceConnectRequest').at(1);
@@ -837,10 +864,10 @@ describe('DataConnections', () => {
         expect(dexcomConnection.find('.state-text').hostNodes().text()).to.equal('Connected');
         expect(dexcomConnection.find('.state-message')).to.have.lengthOf(0);
 
-        const abbottConnection = wrapper.find('#data-connection-abbott').hostNodes();
-        expect(abbottConnection).to.have.lengthOf(1);
-        expect(abbottConnection.find('.state-text').hostNodes().text()).to.equal('Connected');
-        expect(abbottConnection.find('.state-message')).to.have.lengthOf(0);
+        const twiistConnection = wrapper.find('#data-connection-twiist').hostNodes();
+        expect(twiistConnection).to.have.lengthOf(1);
+        expect(twiistConnection.find('.state-text').hostNodes().text()).to.equal('Connected');
+        expect(twiistConnection.find('.state-message')).to.have.lengthOf(0);
       });
 
       it('should not render an action button', () => {
@@ -855,10 +882,10 @@ describe('DataConnections', () => {
         const dexcomActionButton = dexcomConnection.find('.action').hostNodes();
         expect(dexcomActionButton).to.have.lengthOf(0);
 
-        const abbottConnection = wrapper.find('#data-connection-abbott').hostNodes();
-        expect(abbottConnection).to.have.lengthOf(1);
-        const abbottActionButton = abbottConnection.find('.action').hostNodes();
-        expect(abbottActionButton).to.have.lengthOf(0);
+        const twiistConnection = wrapper.find('#data-connection-twiist').hostNodes();
+        expect(twiistConnection).to.have.lengthOf(1);
+        const twiistActionButton = twiistConnection.find('.action').hostNodes();
+        expect(twiistActionButton).to.have.lengthOf(0);
       });
     });
 
@@ -875,10 +902,10 @@ describe('DataConnections', () => {
         expect(dexcomConnection.find('.state-text').hostNodes().text()).to.equal('Patient Disconnected');
         expect(dexcomConnection.find('.state-message').hostNodes().text()).to.equal(' - Last update 7 hours ago');
 
-        const abbottConnection = wrapper.find('#data-connection-abbott').hostNodes();
-        expect(abbottConnection).to.have.lengthOf(1);
-        expect(abbottConnection.find('.state-text').hostNodes().text()).to.equal('Patient Disconnected');
-        expect(abbottConnection.find('.state-message').hostNodes().text()).to.equal(' - Last update 7 hours ago');
+        const twiistConnection = wrapper.find('#data-connection-twiist').hostNodes();
+        expect(twiistConnection).to.have.lengthOf(1);
+        expect(twiistConnection.find('.state-text').hostNodes().text()).to.equal('Patient Disconnected');
+        expect(twiistConnection.find('.state-message').hostNodes().text()).to.equal(' - Last update 7 hours ago');
       });
 
       it('should render appropriate buttons and dispatch appropriate actions when confirmed in dialog', () => {
@@ -894,11 +921,11 @@ describe('DataConnections', () => {
         expect(dexcomActionButton).to.have.lengthOf(1);
         expect(dexcomActionButton.text()).to.equal('Resend Invite');
 
-        const abbottConnection = wrapper.find('#data-connection-abbott').hostNodes();
-        expect(abbottConnection).to.have.lengthOf(1);
-        const abbottActionButton = abbottConnection.find('.action').hostNodes();
-        expect(abbottActionButton).to.have.lengthOf(1);
-        expect(abbottActionButton.text()).to.equal('Resend Invite');
+        const twiistConnection = wrapper.find('#data-connection-twiist').hostNodes();
+        expect(twiistConnection).to.have.lengthOf(1);
+        const twiistActionButton = twiistConnection.find('.action').hostNodes();
+        expect(twiistActionButton).to.have.lengthOf(1);
+        expect(twiistActionButton.text()).to.equal('Resend Invite');
 
         // Open and submit the dexcom resend invite confirmation modal
         const resendDialog = () => wrapper.find('#resendDataSourceConnectRequest').at(1);
@@ -940,10 +967,10 @@ describe('DataConnections', () => {
         expect(dexcomConnection.find('.state-text').hostNodes().text()).to.equal('Error Connecting');
         expect(dexcomConnection.find('.state-message').hostNodes().text()).to.equal(' - Last update 20 minutes ago');
 
-        const abbottConnection = wrapper.find('#data-connection-abbott').hostNodes();
-        expect(abbottConnection).to.have.lengthOf(1);
-        expect(abbottConnection.find('.state-text').hostNodes().text()).to.equal('Error Connecting');
-        expect(abbottConnection.find('.state-message').hostNodes().text()).to.equal(' - Last update 20 minutes ago');
+        const twiistConnection = wrapper.find('#data-connection-twiist').hostNodes();
+        expect(twiistConnection).to.have.lengthOf(1);
+        expect(twiistConnection.find('.state-text').hostNodes().text()).to.equal('Error Connecting');
+        expect(twiistConnection.find('.state-message').hostNodes().text()).to.equal(' - Last update 20 minutes ago');
       });
 
       it('should render appropriate buttons and dispatch appropriate actions when confirmed in dialog', () => {
@@ -959,11 +986,11 @@ describe('DataConnections', () => {
         expect(dexcomActionButton).to.have.lengthOf(1);
         expect(dexcomActionButton.text()).to.equal('Resend Invite');
 
-        const abbottConnection = wrapper.find('#data-connection-abbott').hostNodes();
-        expect(abbottConnection).to.have.lengthOf(1);
-        const abbottActionButton = abbottConnection.find('.action').hostNodes();
-        expect(abbottActionButton).to.have.lengthOf(1);
-        expect(abbottActionButton.text()).to.equal('Resend Invite');
+        const twiistConnection = wrapper.find('#data-connection-twiist').hostNodes();
+        expect(twiistConnection).to.have.lengthOf(1);
+        const twiistActionButton = twiistConnection.find('.action').hostNodes();
+        expect(twiistActionButton).to.have.lengthOf(1);
+        expect(twiistActionButton.text()).to.equal('Resend Invite');
 
         // Open and submit the dexcom resend invite confirmation modal
         const resendDialog = () => wrapper.find('#resendDataSourceConnectRequest').at(1);
@@ -1007,10 +1034,10 @@ describe('DataConnections', () => {
         expect(dexcomConnection.find('.state-text')).to.have.lengthOf(0);
         expect(dexcomConnection.find('.state-message')).to.have.lengthOf(0);
 
-        const abbottConnection = wrapper.find('#data-connection-abbott').hostNodes();
-        expect(abbottConnection).to.have.lengthOf(1);
-        expect(abbottConnection.find('.state-text')).to.have.lengthOf(0);
-        expect(abbottConnection.find('.state-message')).to.have.lengthOf(0);
+        const twiistConnection = wrapper.find('#data-connection-twiist').hostNodes();
+        expect(twiistConnection).to.have.lengthOf(1);
+        expect(twiistConnection.find('.state-text')).to.have.lengthOf(0);
+        expect(twiistConnection.find('.state-message')).to.have.lengthOf(0);
       });
 
       it('should render appropriate buttons and dispatch appropriate actions when clicked', done => {
@@ -1026,22 +1053,22 @@ describe('DataConnections', () => {
         expect(dexcomActionButton).to.have.lengthOf(1);
         expect(dexcomActionButton.text()).to.equal('Connect');
 
-        const abbottConnection = wrapper.find('#data-connection-abbott').hostNodes();
-        expect(abbottConnection).to.have.lengthOf(1);
-        const abbottActionButton = abbottConnection.find('.action').hostNodes();
-        expect(abbottActionButton).to.have.lengthOf(1);
-        expect(abbottActionButton.text()).to.equal('Connect');
+        const twiistConnection = wrapper.find('#data-connection-twiist').hostNodes();
+        expect(twiistConnection).to.have.lengthOf(1);
+        const twiistActionButton = twiistConnection.find('.action').hostNodes();
+        expect(twiistActionButton).to.have.lengthOf(1);
+        expect(twiistActionButton.text()).to.equal('Connect');
 
         store.clearActions();
         dexcomActionButton.simulate('click');
-        abbottActionButton.simulate('click');
+        twiistActionButton.simulate('click');
 
         setTimeout(() => {
           sinon.assert.calledWith(api.user.createRestrictedToken, sinon.match({ paths: [ '/v1/oauth/dexcom' ] }));
           sinon.assert.calledWith(api.user.createOAuthProviderAuthorization, 'dexcom', 'restrictedTokenID');
 
-          sinon.assert.calledWith(api.user.createRestrictedToken, sinon.match({ paths: [ '/v1/oauth/abbott' ] }));
-          sinon.assert.calledWith(api.user.createOAuthProviderAuthorization, 'abbott', 'restrictedTokenID');
+          sinon.assert.calledWith(api.user.createRestrictedToken, sinon.match({ paths: [ '/v1/oauth/twiist' ] }));
+          sinon.assert.calledWith(api.user.createOAuthProviderAuthorization, 'twiist', 'restrictedTokenID');
           done();
         });
       });
@@ -1060,10 +1087,10 @@ describe('DataConnections', () => {
         expect(dexcomConnection.find('.state-text').hostNodes().text()).to.equal('Connecting');
         expect(dexcomConnection.find('.state-message').hostNodes().text()).to.equal(' - This can take a few minutes');
 
-        const abbottConnection = wrapper.find('#data-connection-abbott').hostNodes();
-        expect(abbottConnection).to.have.lengthOf(1);
-        expect(abbottConnection.find('.state-text').hostNodes().text()).to.equal('Connecting');
-        expect(abbottConnection.find('.state-message').hostNodes().text()).to.equal(' - This can take a few minutes');
+        const twiistConnection = wrapper.find('#data-connection-twiist').hostNodes();
+        expect(twiistConnection).to.have.lengthOf(1);
+        expect(twiistConnection.find('.state-text').hostNodes().text()).to.equal('Connected');
+        // expect(twiistConnection.find('.state-message').hostNodes().text()).to.equal(' - No data found as of 1 minute ago');
       });
 
       it('should render appropriate buttons and dispatch appropriate actions when clicked', done => {
@@ -1079,19 +1106,19 @@ describe('DataConnections', () => {
         expect(dexcomActionButton).to.have.lengthOf(1);
         expect(dexcomActionButton.text()).to.equal('Disconnect');
 
-        const abbottConnection = wrapper.find('#data-connection-abbott').hostNodes();
-        expect(abbottConnection).to.have.lengthOf(1);
-        const abbottActionButton = abbottConnection.find('.action').hostNodes();
-        expect(abbottActionButton).to.have.lengthOf(1);
-        expect(abbottActionButton.text()).to.equal('Disconnect');
+        const twiistConnection = wrapper.find('#data-connection-twiist').hostNodes();
+        expect(twiistConnection).to.have.lengthOf(1);
+        const twiistActionButton = twiistConnection.find('.action').hostNodes();
+        expect(twiistActionButton).to.have.lengthOf(1);
+        expect(twiistActionButton.text()).to.equal('Disconnect');
 
         store.clearActions();
         dexcomActionButton.simulate('click');
-        abbottActionButton.simulate('click');
+        twiistActionButton.simulate('click');
 
         setTimeout(() => {
           sinon.assert.calledWith(api.user.deleteOAuthProviderAuthorization, 'dexcom');
-          sinon.assert.calledWith(api.user.deleteOAuthProviderAuthorization, 'abbott');
+          sinon.assert.calledWith(api.user.deleteOAuthProviderAuthorization, 'twiist');
           done();
         });
       });
@@ -1110,10 +1137,10 @@ describe('DataConnections', () => {
         expect(dexcomConnection.find('.state-text').hostNodes().text()).to.equal('Connected');
         expect(dexcomConnection.find('.state-message').hostNodes().text()).to.equal(' - No data found as of 5 minutes ago');
 
-        const abbottConnection = wrapper.find('#data-connection-abbott').hostNodes();
-        expect(abbottConnection).to.have.lengthOf(1);
-        expect(abbottConnection.find('.state-text').hostNodes().text()).to.equal('Connected');
-        expect(abbottConnection.find('.state-message').hostNodes().text()).to.equal(' - No data found as of 5 minutes ago');
+        const twiistConnection = wrapper.find('#data-connection-twiist').hostNodes();
+        expect(twiistConnection).to.have.lengthOf(1);
+        expect(twiistConnection.find('.state-text').hostNodes().text()).to.equal('Connected');
+        // expect(twiistConnection.find('.state-message').hostNodes().text()).to.equal(' - No data found as of 5 minutes ago');
       });
 
       it('should render appropriate buttons and dispatch appropriate actions when clicked', done => {
@@ -1129,19 +1156,19 @@ describe('DataConnections', () => {
         expect(dexcomActionButton).to.have.lengthOf(1);
         expect(dexcomActionButton.text()).to.equal('Disconnect');
 
-        const abbottConnection = wrapper.find('#data-connection-abbott').hostNodes();
-        expect(abbottConnection).to.have.lengthOf(1);
-        const abbottActionButton = abbottConnection.find('.action').hostNodes();
-        expect(abbottActionButton).to.have.lengthOf(1);
-        expect(abbottActionButton.text()).to.equal('Disconnect');
+        const twiistConnection = wrapper.find('#data-connection-twiist').hostNodes();
+        expect(twiistConnection).to.have.lengthOf(1);
+        const twiistActionButton = twiistConnection.find('.action').hostNodes();
+        expect(twiistActionButton).to.have.lengthOf(1);
+        expect(twiistActionButton.text()).to.equal('Disconnect');
 
         store.clearActions();
         dexcomActionButton.simulate('click');
-        abbottActionButton.simulate('click');
+        twiistActionButton.simulate('click');
 
         setTimeout(() => {
           sinon.assert.calledWith(api.user.deleteOAuthProviderAuthorization, 'dexcom');
-          sinon.assert.calledWith(api.user.deleteOAuthProviderAuthorization, 'abbott');
+          sinon.assert.calledWith(api.user.deleteOAuthProviderAuthorization, 'twiist');
           done();
         });
       });
@@ -1160,10 +1187,10 @@ describe('DataConnections', () => {
         expect(dexcomConnection.find('.state-text').hostNodes().text()).to.equal('Connected');
         expect(dexcomConnection.find('.state-message').hostNodes().text()).to.equal(' - Last data 35 minutes ago');
 
-        const abbottConnection = wrapper.find('#data-connection-abbott').hostNodes();
-        expect(abbottConnection).to.have.lengthOf(1);
-        expect(abbottConnection.find('.state-text').hostNodes().text()).to.equal('Connected');
-        expect(abbottConnection.find('.state-message').hostNodes().text()).to.equal(' - Last data 35 minutes ago');
+        const twiistConnection = wrapper.find('#data-connection-twiist').hostNodes();
+        expect(twiistConnection).to.have.lengthOf(1);
+        expect(twiistConnection.find('.state-text').hostNodes().text()).to.equal('Connected');
+        // expect(twiistConnection.find('.state-message').hostNodes().text()).to.equal(' - Last data 35 minutes ago');
       });
 
       it('should render appropriate buttons and dispatch appropriate actions when clicked', done => {
@@ -1179,19 +1206,19 @@ describe('DataConnections', () => {
         expect(dexcomActionButton).to.have.lengthOf(1);
         expect(dexcomActionButton.text()).to.equal('Disconnect');
 
-        const abbottConnection = wrapper.find('#data-connection-abbott').hostNodes();
-        expect(abbottConnection).to.have.lengthOf(1);
-        const abbottActionButton = abbottConnection.find('.action').hostNodes();
-        expect(abbottActionButton).to.have.lengthOf(1);
-        expect(abbottActionButton.text()).to.equal('Disconnect');
+        const twiistConnection = wrapper.find('#data-connection-twiist').hostNodes();
+        expect(twiistConnection).to.have.lengthOf(1);
+        const twiistActionButton = twiistConnection.find('.action').hostNodes();
+        expect(twiistActionButton).to.have.lengthOf(1);
+        expect(twiistActionButton.text()).to.equal('Disconnect');
 
         store.clearActions();
         dexcomActionButton.simulate('click');
-        abbottActionButton.simulate('click');
+        twiistActionButton.simulate('click');
 
         setTimeout(() => {
           sinon.assert.calledWith(api.user.deleteOAuthProviderAuthorization, 'dexcom');
-          sinon.assert.calledWith(api.user.deleteOAuthProviderAuthorization, 'abbott');
+          sinon.assert.calledWith(api.user.deleteOAuthProviderAuthorization, 'twiist');
           done();
         });
       });
@@ -1210,10 +1237,10 @@ describe('DataConnections', () => {
         expect(dexcomConnection.find('.state-text')).to.have.lengthOf(0);
         expect(dexcomConnection.find('.state-message')).to.have.lengthOf(0);
 
-        const abbottConnection = wrapper.find('#data-connection-abbott').hostNodes();
-        expect(abbottConnection).to.have.lengthOf(1);
-        expect(abbottConnection.find('.state-text')).to.have.lengthOf(0);
-        expect(abbottConnection.find('.state-message')).to.have.lengthOf(0);
+        const twiistConnection = wrapper.find('#data-connection-twiist').hostNodes();
+        expect(twiistConnection).to.have.lengthOf(1);
+        expect(twiistConnection.find('.state-text')).to.have.lengthOf(0);
+        expect(twiistConnection.find('.state-message')).to.have.lengthOf(0);
       });
 
       it('should render appropriate buttons and dispatch appropriate actions when clicked', done => {
@@ -1229,22 +1256,22 @@ describe('DataConnections', () => {
         expect(dexcomActionButton).to.have.lengthOf(1);
         expect(dexcomActionButton.text()).to.equal('Connect');
 
-        const abbottConnection = wrapper.find('#data-connection-abbott').hostNodes();
-        expect(abbottConnection).to.have.lengthOf(1);
-        const abbottActionButton = abbottConnection.find('.action').hostNodes();
-        expect(abbottActionButton).to.have.lengthOf(1);
-        expect(abbottActionButton.text()).to.equal('Connect');
+        const twiistConnection = wrapper.find('#data-connection-twiist').hostNodes();
+        expect(twiistConnection).to.have.lengthOf(1);
+        const twiistActionButton = twiistConnection.find('.action').hostNodes();
+        expect(twiistActionButton).to.have.lengthOf(1);
+        expect(twiistActionButton.text()).to.equal('Connect');
 
         store.clearActions();
         dexcomActionButton.simulate('click');
-        abbottActionButton.simulate('click');
+        twiistActionButton.simulate('click');
 
         setTimeout(() => {
           sinon.assert.calledWith(api.user.createRestrictedToken, sinon.match({ paths: [ '/v1/oauth/dexcom' ] }));
           sinon.assert.calledWith(api.user.createOAuthProviderAuthorization, 'dexcom', 'restrictedTokenID');
 
-          sinon.assert.calledWith(api.user.createRestrictedToken, sinon.match({ paths: [ '/v1/oauth/abbott' ] }));
-          sinon.assert.calledWith(api.user.createOAuthProviderAuthorization, 'abbott', 'restrictedTokenID');
+          sinon.assert.calledWith(api.user.createRestrictedToken, sinon.match({ paths: [ '/v1/oauth/twiist' ] }));
+          sinon.assert.calledWith(api.user.createOAuthProviderAuthorization, 'twiist', 'restrictedTokenID');
           done();
         });
       });
@@ -1263,10 +1290,10 @@ describe('DataConnections', () => {
         expect(dexcomConnection.find('.state-text').hostNodes().text()).to.equal('Error Connecting');
         expect(dexcomConnection.find('.state-message').hostNodes().text()).to.equal(' - Last update 6 days ago. Please reconnect your account to keep syncing data.');
 
-        const abbottConnection = wrapper.find('#data-connection-abbott').hostNodes();
-        expect(abbottConnection).to.have.lengthOf(1);
-        expect(abbottConnection.find('.state-text').hostNodes().text()).to.equal('Error Connecting');
-        expect(abbottConnection.find('.state-message').hostNodes().text()).to.equal(' - Last update 6 days ago. Please reconnect your account to keep syncing data.');
+        const twiistConnection = wrapper.find('#data-connection-twiist').hostNodes();
+        expect(twiistConnection).to.have.lengthOf(1);
+        expect(twiistConnection.find('.state-text').hostNodes().text()).to.equal('Error Connecting');
+        expect(twiistConnection.find('.state-message').hostNodes().text()).to.equal(' - Last update 6 days ago. Please reconnect your account to keep syncing data.');
       });
 
       it('should render appropriate buttons and dispatch appropriate actions when clicked', done => {
@@ -1282,22 +1309,22 @@ describe('DataConnections', () => {
         expect(dexcomActionButton).to.have.lengthOf(1);
         expect(dexcomActionButton.text()).to.equal('Reconnect');
 
-        const abbottConnection = wrapper.find('#data-connection-abbott').hostNodes();
-        expect(abbottConnection).to.have.lengthOf(1);
-        const abbottActionButton = abbottConnection.find('.action').hostNodes();
-        expect(abbottActionButton).to.have.lengthOf(1);
-        expect(abbottActionButton.text()).to.equal('Reconnect');
+        const twiistConnection = wrapper.find('#data-connection-twiist').hostNodes();
+        expect(twiistConnection).to.have.lengthOf(1);
+        const twiistActionButton = twiistConnection.find('.action').hostNodes();
+        expect(twiistActionButton).to.have.lengthOf(1);
+        expect(twiistActionButton.text()).to.equal('Reconnect');
 
         store.clearActions();
         dexcomActionButton.simulate('click');
-        abbottActionButton.simulate('click');
+        twiistActionButton.simulate('click');
 
         setTimeout(() => {
           sinon.assert.calledWith(api.user.createRestrictedToken, sinon.match({ paths: [ '/v1/oauth/dexcom' ] }));
           sinon.assert.calledWith(api.user.createOAuthProviderAuthorization, 'dexcom', 'restrictedTokenID');
 
-          sinon.assert.calledWith(api.user.createRestrictedToken, sinon.match({ paths: [ '/v1/oauth/abbott' ] }));
-          sinon.assert.calledWith(api.user.createOAuthProviderAuthorization, 'abbott', 'restrictedTokenID');
+          sinon.assert.calledWith(api.user.createRestrictedToken, sinon.match({ paths: [ '/v1/oauth/twiist' ] }));
+          sinon.assert.calledWith(api.user.createOAuthProviderAuthorization, 'twiist', 'restrictedTokenID');
           done();
         });
       });

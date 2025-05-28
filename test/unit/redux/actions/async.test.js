@@ -6280,14 +6280,14 @@ describe('Actions', () => {
           clinics: {
             getPatientsForClinic: sinon.stub().callsArgWith(2, null, {
               data: patients,
-              meta: { count: 1 },
+              meta: { count: 1, totalCount: 3 },
             }),
           },
         };
 
         let expectedActions = [
           { type: 'FETCH_PATIENTS_FOR_CLINIC_REQUEST' },
-          { type: 'FETCH_PATIENTS_FOR_CLINIC_SUCCESS', payload: { clinicId: '5f85fbe6686e6bb9170ab5d0', count: 1, patients } }
+          { type: 'FETCH_PATIENTS_FOR_CLINIC_SUCCESS', payload: { clinicId: '5f85fbe6686e6bb9170ab5d0', count: 1, totalCount: 3, patients } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;

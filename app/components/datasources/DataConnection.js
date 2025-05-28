@@ -44,6 +44,9 @@ export function DataConnection(props) {
       py:'10px',
       sx: { textDecoration: 'none', fontSize: 1, fontWeight: 'medium', pointerEvents: 'none', color: `${colors.grays[5]} !important` },
     },
+    hidden: {
+      sx: { display: 'none' },
+    },
   };
 
   return (
@@ -124,7 +127,7 @@ DataConnection.propTypes = {
   buttonIcon: PropTypes.elementType,
   buttonHandler: PropTypes.func,
   buttonProcessing: PropTypes.bool,
-  buttonStyle: PropTypes.oneOf(['solid', 'text', 'staticText']),
+  buttonStyle: PropTypes.oneOf(['solid', 'text', 'staticText', 'hidden']),
   buttonText: PropTypes.string,
   icon: PropTypes.elementType,
   iconLabel: PropTypes.string,

@@ -60,7 +60,7 @@ module.exports = function karmaConfig(config) {
         base: 'ChromeHeadless',
         flags: [
           '--headless',
-          '--disable-gpu',
+          '--enable-automation',
           '--no-sandbox',
           '--remote-debugging-port=9222',
         ],

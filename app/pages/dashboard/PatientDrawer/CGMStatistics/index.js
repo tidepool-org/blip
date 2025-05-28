@@ -69,13 +69,15 @@ const CGMStatistics = ({ agpCGM }) => {
   const gmi        = formatDatum({ value: glucoseManagementIndicatorAGP }, 'gmi', { bgPrefs, useAGPFormat: true });
   const cov        = formatDatum({ value: coefficientOfVariation }, 'cv', { bgPrefs, useAGPFormat: true });
 
+  const roundedBgDaysWorn = bankersRound(bgDaysWorn, 0);
+
   return (
     <Flex sx={{ alignItems: 'center', width: '100%', height: '100%' }} id='agp-cgm-statistics'>
       <Box sx={{ width: '100%' }}>
           <TableRow
             id="agp-table-time-range"
             label={t('Time Range')}
-            value={t('{{dateRange}} ({{bgDaysWorn}} days)', { dateRange, bgDaysWorn })}
+            value={t('{{dateRange}} ({{bgDaysWorn}} days)', { dateRange, bgDaysWorn: roundedBgDaysWorn })}
           />
           <TableRow
             id="agp-table-cgm-active"

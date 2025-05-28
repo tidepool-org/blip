@@ -713,19 +713,6 @@ class Daily extends Component {
     }
     this.chartRef.current?.panForward();
   };
-
-  // methods for messages
-  closeMessageThread = () => {
-    return this.chartRef.current?.closeMessage();
-  };
-
-  createMessageThread = message => {
-    return this.chartRef.current?.createMessage(message);
-  };
-
-  editMessageThread = message => {
-    return this.chartRef.current?.editMessage(message);
-  };
 }
 
 export default withTranslation()(Daily);
