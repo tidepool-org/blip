@@ -5,7 +5,7 @@ import cx from 'classnames';
 import { withTranslation } from 'react-i18next';
 import DateRangeRoundedIcon from '@material-ui/icons/DateRangeRounded';
 import PrintRoundedIcon from '@material-ui/icons/PrintRounded';
-import colorPalette from '../../themes/colorPalette';
+import { colors as vizColors } from '@tidepool/viz';
 import Button from '../elements/Button';
 import { DesktopOnly, MobileOnly } from '../mediaqueries';
 
@@ -145,7 +145,7 @@ const Header = withTranslation()(class Header extends Component {
                   sx={{
                     ml: 2,
                     mt: -1,
-                    color: colorPalette.primary.bluePrimary00,
+                    color: vizColors.blue00,
                     outline: 'none',
                     '&:hover': { color: 'grays.6' },
                   }}
@@ -163,9 +163,9 @@ const Header = withTranslation()(class Header extends Component {
                 ? <Button
                     onClick={this.props.onClickChartDates}
                     sx={{
-                      backgroundColor: colorPalette.neutrals.white,
-                      color: colorPalette.primary.blueGreyDark,
-                      border: `1px solid ${colorPalette.primary.blueGreyDark}`,
+                      backgroundColor: vizColors.white,
+                      color: vizColors.blue50,
+                      border: `1px solid ${vizColors.blue50}`,
                       padding: '8px 48px',
                       margin: '16px 0',
                     }}
@@ -187,7 +187,7 @@ const Header = withTranslation()(class Header extends Component {
               sx={{
                 mr: 2,
                 mt: '-2px',
-                color: colorPalette.primary.bluePrimary00,
+                color: vizColors.blue00,
                 outline: 'none',
               }}
               label="Print PDF report"
