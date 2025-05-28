@@ -12,9 +12,6 @@ export default {
     blueGreyMedium: vizColors.blue30,
     blueGreyLight: vizColors.blueGray50,
     blueGrey: vizColors.blueGray30,
-    bluePrimary00: '#F0F5FF',
-    bluePrimary30: '#708FC2',
-    gray10: '#D9D9D9',
   },
   secondary: {
     coral: '#F9706B',

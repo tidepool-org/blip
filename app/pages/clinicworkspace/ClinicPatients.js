@@ -38,7 +38,7 @@ import SearchIcon from '@material-ui/icons/Search';
 import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined';
 import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
-import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
+import { components as vizComponents, utils as vizUtils, colors as vizColors } from '@tidepool/viz';
 import sundial from 'sundial';
 import ScrollToTop from 'react-scroll-to-top';
 import styled from '@emotion/styled';
@@ -214,7 +214,7 @@ const FilterResetBar = withTranslation()(({ t, rightSideContent }) => {
       px={2}
       py={2}
       sx={{
-        backgroundColor: colorPalette.primary.bluePrimary00,
+        backgroundColor: vizColors.blue00,
         borderBottom: '1px solid #D1D6E1',
         justifyContent: 'space-between',
       }}
@@ -3213,7 +3213,7 @@ export const ClinicPatients = (props) => {
 
   const EmptyContentNode = () => (
     <Flex sx={{
-      backgroundColor: colorPalette.primary.bluePrimary00,
+      backgroundColor: vizColors.blue00,
       justifyContent: 'center',
       alignItems: 'center',
       minHeight: '90px',

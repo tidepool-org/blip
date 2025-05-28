@@ -21,6 +21,7 @@ import forms from './base/forms';
 export const breakpoints = ['512px', '768px', '1024px', '1280px'];
 
 export const colors = {
+  ...vizColors,
   ...colorPalette.primary,
   ...colorPalette.secondary,
   ...colorPalette.neutrals,
