@@ -687,6 +687,17 @@ describe('utils', () => {
       expect(utils.formatDecimal(1.23456, 3)).to.equal('1.235');
       expect(utils.formatDecimal(1.23456)).to.equal('1');
     });
+
+    it('should round to nearest whole integer when precision not specified', () => {
+      expect(utils.formatDecimal(3.85)).to.equal('4');
+    });
+
+    it('should utilize use bankers rounding', () => {
+      expect(utils.formatDecimal(3.85, 1)).to.equal('3.8');
+      expect(utils.formatDecimal(3.75, 1)).to.equal('3.8');
+      expect(utils.formatDecimal(3.05, 1)).to.equal('3.0');
+      expect(utils.formatDecimal(3, 1)).to.equal('3.0');
+    });
   });
 
   describe('roundToPrecision', function() {
