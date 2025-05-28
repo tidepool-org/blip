@@ -34,7 +34,7 @@ const t = i18next.t.bind(i18next);
 // We must remember to require the base module when mocking dependencies,
 // otherwise dependencies mocked will be bound to the wrong scope!
 import PD, { PatientData, PatientDataClass, getFetchers, mapStateToProps } from '../../../app/pages/patientdata/patientdata.js';
-import { MGDL_UNITS, MS_IN_MIN } from '../../../app/core/constants';
+import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE, MGDL_UNITS, MS_IN_MIN, ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE } from '../../../app/core/constants';
 import { ToastProvider } from '../../../app/providers/ToastProvider.js';
 
 describe('PatientData', function () {
@@ -1182,7 +1182,7 @@ describe('PatientData', function () {
           extentSize: 14,
         },
         daily: {
-          cgmSampleIntervalRange: [MS_IN_MIN * 5, Infinity],
+          cgmSampleIntervalRange: DEFAULT_CGM_SAMPLE_INTERVAL_RANGE,
           extentSize: 1,
         },
         trends: {
@@ -1689,6 +1689,42 @@ describe('PatientData', function () {
       it('should fall back to an empty object when empty value not set', () => {
         expect(instance.getCurrentData('badPath')).to.eql({});
       });
+    });
+  });
+
+  describe('getCurrentFetchedUntilDate', () => {
+    let wrapper;
+    let instance;
+
+    beforeEach(() => {
+      wrapper = shallow(<PatientDataClass {...defaultProps} />);
+      instance = wrapper.instance();
+
+      wrapper.setProps({
+        data: {
+          oneMinCgmFetchedUntil: '2023-11-01T00:00:00.000Z',
+          fetchedUntil: '2023-10-01T00:00:00.000Z',
+        },
+      });
+
+    });
+
+    it('should return the fetchedUntil date for if default CGM sample interval data is being viewed', () => {
+      wrapper.setState({
+        chartPrefs: { daily: { cgmSampleIntervalRange: DEFAULT_CGM_SAMPLE_INTERVAL_RANGE } }
+      });
+
+      const fetchedUntil = instance.getCurrentFetchedUntilDate();
+      expect(fetchedUntil).to.equal('2023-10-01T00:00:00.000Z');
+    });
+
+    it('should return the oneMinCgmFetchedUntil date for if one minute CGM sample interval data is being viewed', () => {
+      wrapper.setState({
+        chartPrefs: { daily: { cgmSampleIntervalRange: ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE } }
+      });
+
+      const fetchedUntil = instance.getCurrentFetchedUntilDate();
+      expect(fetchedUntil).to.equal('2023-11-01T00:00:00.000Z');
     });
   });
 
@@ -4274,6 +4310,94 @@ describe('PatientData', function () {
           }));
         });
       });
+    });
+  });
+
+  describe('handleCgmSampleIntervalRangeUpdate', () => {
+    let wrapper, instance, fetchAdditionalDataStub;
+
+    beforeEach(() => {
+      fetchAdditionalDataStub = sinon.stub();
+
+      wrapper = shallow(<PatientDataClass {...defaultProps} />);
+      instance = wrapper.instance();
+      instance.fetchAdditionalData = fetchAdditionalDataStub;
+
+      // Set up state for chartEndpoints and chartPrefs
+      wrapper.setState({
+        chartPrefs: {
+          daily: {
+            cgmSampleIntervalRange: DEFAULT_CGM_SAMPLE_INTERVAL_RANGE,
+          }
+        },
+        chartEndpoints: {
+          current: [1000, 2000],
+        }
+      });
+
+      // Stub getCurrentFetchedUntilDate to control its value
+      sinon.stub(instance, 'getCurrentFetchedUntilDate');
+    });
+
+    afterEach(() => {
+      sinon.restore();
+    });
+
+    it('should not call fetchAdditionalData if cgmSampleIntervalRange[0] equals DEFAULT_CGM_SAMPLE_INTERVAL', () => {
+      instance.getCurrentFetchedUntilDate.returns('2024-01-01T00:00:00Z');
+      instance.handleCgmSampleIntervalRangeUpdate(DEFAULT_CGM_SAMPLE_INTERVAL_RANGE);
+      sinon.assert.notCalled(fetchAdditionalDataStub);
+    });
+
+    it('should call fetchAdditionalData if cgmSampleIntervalRange[0] does not equal DEFAULT_CGM_SAMPLE_INTERVAL and data needs fetching', () => {
+      // Set up so that newCgmSampleIntervalRangeNeedsDataFetch is true
+      instance.getCurrentFetchedUntilDate.returns('2024-06-01T00:00:00Z');
+      wrapper.setState({
+        chartPrefs: {
+          daily: {
+            cgmSampleIntervalRange: ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE,
+          }
+        },
+      });
+      // fetchingPatientData is false
+      wrapper.setProps({ fetchingPatientData: false });
+      instance.handleCgmSampleIntervalRangeUpdate(ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE);
+      sinon.assert.calledOnce(fetchAdditionalDataStub);
+      sinon.assert.calledWithMatch(fetchAdditionalDataStub, sinon.match({
+        showLoading: true,
+        returnData: false,
+        type: 'cbg',
+      }));
+    });
+
+    it('should not call fetchAdditionalData if fetchingPatientData is true', () => {
+      instance.getCurrentFetchedUntilDate.returns('2024-06-01T00:00:00Z');
+      wrapper.setState({
+        chartPrefs: {
+          daily: {
+            cgmSampleIntervalRange: ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE,
+          }
+        },
+      });
+      // Same setup as previous test, but fetchingPatientData is true
+      wrapper.setProps({ fetchingPatientData: true });
+      instance.handleCgmSampleIntervalRangeUpdate(ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE);
+      sinon.assert.notCalled(fetchAdditionalDataStub);
+    });
+
+    it('should not call fetchAdditionalData if newCgmSampleIntervalRangeNeedsDataFetch is false', () => {
+      // fetchedUntil is before currentChartStartEndpoint
+      instance.getCurrentFetchedUntilDate.returns('1970-01-01T00:00:00Z');
+      wrapper.setState({
+        chartPrefs: {
+          daily: {
+            cgmSampleIntervalRange: ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE,
+          }
+        },
+      });
+      wrapper.setProps({ fetchingPatientData: false });
+      instance.handleCgmSampleIntervalRangeUpdate(ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE);
+      sinon.assert.notCalled(fetchAdditionalDataStub);
     });
   });
 

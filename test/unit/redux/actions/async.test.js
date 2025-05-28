@@ -22,7 +22,7 @@ import initialState from '../../../../app/redux/reducers/initialState';
 import * as ErrorMessages from '../../../../app/redux/constants/errorMessages';
 import * as UserMessages from '../../../../app/redux/constants/usrMessages';
 
-import { TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL, MMOLL_UNITS, ALL_FETCHED_DATA_TYPES } from '../../../../app/core/constants';
+import { TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL, MMOLL_UNITS, ALL_FETCHED_DATA_TYPES, MS_IN_MIN } from '../../../../app/core/constants';
 
 // need to require() async in order to rewire utils inside
 const async = require('../../../../app/redux/actions/async');
@@ -4290,6 +4290,47 @@ describe('Actions', () => {
                   patientId: patientId,
                   fetchedUntil: '2018-01-01T00:00:00.000Z',
                   oneMinCgmFetchedUntil: undefined,
+                  returnData: false,
+                },
+              },
+            ];
+            _.each(expectedActions, (action) => {
+              expect(isTSA(action)).to.be.true;
+            });
+
+            let store = mockStore({ blip: {
+              ...initialState,
+            }, router: { location: { pathname: `data/${patientId}` } } });
+            store.dispatch(async.fetchPatientData(api, options, patientId));
+
+            const actions = store.getActions();
+            expect(actions).to.eql(expectedActions);
+            expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
+            expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
+          });
+        });
+
+        context('fetching 1 minute cgm data for current patient in view', () => {
+          it('should trigger FETCH_PATIENT_DATA_SUCCESS and DATA_WORKER_ADD_DATA_REQUEST with oneMinCgmFetchedUntil', () => {
+            options.sampleIntervalMinimum = MS_IN_MIN;
+
+            api.patientData = {
+              get: sinon.stub()
+                .onFirstCall().callsArgWith(2, null, patientData)
+            };
+
+            let expectedActions = [
+              { type: 'FETCH_PATIENT_DATA_REQUEST', payload: { patientId } },
+              { type: 'FETCH_PATIENT_DATA_SUCCESS', payload: { patientId } },
+              {
+                type: 'DATA_WORKER_ADD_DATA_REQUEST',
+                meta: { WebWorker: true, worker: 'data', id: patientId },
+                payload: {
+                  data: JSON.stringify([...patientData, ...teamNotes]),
+                  fetchedCount: 5,
+                  patientId: patientId,
+                  fetchedUntil: '2018-01-01T00:00:00.000Z',
+                  oneMinCgmFetchedUntil: '2018-01-01T00:00:00.000Z',
                   returnData: false,
                 },
               },

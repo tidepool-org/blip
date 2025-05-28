@@ -74,6 +74,34 @@ describe('data reducer', () => {
       expect(state.fetchedUntil).to.equal('2019-11-27T00:00:00.000Z');
     });
 
+    it('should set the `oneMinCgmFetchedUntil` state as provided', () => {
+      const oneMinCgmFetchedUntil = '2019-11-27T00:00:00.000Z';
+
+      const state = reducer(initialStateForTest, {
+        type: actionTypes.DATA_WORKER_ADD_DATA_REQUEST,
+        payload: {
+          oneMinCgmFetchedUntil,
+        },
+      });
+
+      expect(state.oneMinCgmFetchedUntil).to.equal(oneMinCgmFetchedUntil);
+    });
+
+    it('should fall back to the stored `oneMinCgmFetchedUntil` state', () => {
+      initialStateForTest.oneMinCgmFetchedUntil = '2019-11-27T00:00:00.000Z';
+
+      tracked = mutationTracker.trackObj(initialStateForTest);
+
+      const state = reducer(initialStateForTest, {
+        type: actionTypes.DATA_WORKER_ADD_DATA_REQUEST,
+        payload: {
+          oneMinCgmFetchedUntil: undefined,
+        },
+      });
+
+      expect(state.oneMinCgmFetchedUntil).to.equal('2019-11-27T00:00:00.000Z');
+    });
+
     it('should set the `cacheUntil` state', () => {
       const state = reducer(initialStateForTest, {
         type: actionTypes.DATA_WORKER_ADD_DATA_REQUEST,
@@ -210,6 +238,7 @@ describe('data reducer', () => {
 
       initialStateForTest.cacheUntil = 12345;
       initialStateForTest.fetchedUntil = '2019-11-27T00:00:00.000Z';
+      initialStateForTest.oneMinCgmFetchedUntil = '2019-11-27T00:00:00.000Z';
 
       initialStateForTest.metaData = {
         patientId: 'abc123',
@@ -237,6 +266,7 @@ describe('data reducer', () => {
           ...initialState.data,
           cacheUntil: 12345,
           fetchedUntil: '2019-11-27T00:00:00.000Z',
+          oneMinCgmFetchedUntil: '2019-11-27T00:00:00.000Z',
           metaData: {
             patientId: 'abc123',
             foo: 'bar',

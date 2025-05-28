@@ -1140,8 +1140,8 @@ export const PatientDataClass = createReactClass({
     if (cgmSampleIntervalRange?.[0] === DEFAULT_CGM_SAMPLE_INTERVAL) return;
 
     const fetchedUntil = this.getCurrentFetchedUntilDate();
-    currentChartStartEndpoint = _.get(this.state, 'chartEndpoints.current.0', 0);
-    newCgmSampleIntervalRangeNeedsDataFetch = !fetchedUntil || moment.utc(fetchedUntil).valueOf() > currentChartStartEndpoint;
+    const currentChartStartEndpoint = _.get(this.state, 'chartEndpoints.current.0', 0);
+    const newCgmSampleIntervalRangeNeedsDataFetch = !fetchedUntil || moment.utc(fetchedUntil).valueOf() > currentChartStartEndpoint;
 
     if (!this.props.fetchingPatientData && newCgmSampleIntervalRangeNeedsDataFetch) {
       const options = {
