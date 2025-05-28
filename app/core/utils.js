@@ -519,12 +519,12 @@ utils.parseDatetimeParamToInteger = (queryParam) => {
   return null;
 };
 
-utils.sortByLabel = (a, b) => {
-  if (!a && !b) return 0;
-  if (!a && b) return -1;
-  if (a && !b) return 1;
+utils.compareLabels = (string1, string2) => {
+  if (!string1 && !string2) return 0;
+  if (!string1 && string2) return -1;
+  if (string1 && !string2) return 1;
 
-  return a.localeCompare(b, undefined, { caseFirst: 'upper', numeric: true });
+  return string1.localeCompare(string2, undefined, { caseFirst: 'upper', numeric: true });
 };
 
 export default utils;

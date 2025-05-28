@@ -739,34 +739,34 @@ describe('utils', () => {
     });
   });
 
-  describe('sortByLabel', function() {
+  describe('compareLabels', function() {
     it('Sorts a blank arg first', function() {
-      expect(utils.sortByLabel(undefined, undefined)).to.equal(0);
-      expect(utils.sortByLabel('', undefined)).to.equal(0);
-      expect(utils.sortByLabel(undefined, '')).to.equal(0);
-      expect(utils.sortByLabel(undefined, 'test')).to.equal(-1);
-      expect(utils.sortByLabel('', 'test')).to.equal(-1);
-      expect(utils.sortByLabel('test', undefined)).to.equal(1);
-      expect(utils.sortByLabel('test', '')).to.equal(1);
+      expect(utils.compareLabels(undefined, undefined)).to.equal(0);
+      expect(utils.compareLabels('', undefined)).to.equal(0);
+      expect(utils.compareLabels(undefined, '')).to.equal(0);
+      expect(utils.compareLabels(undefined, 'test')).to.equal(-1);
+      expect(utils.compareLabels('', 'test')).to.equal(-1);
+      expect(utils.compareLabels('test', undefined)).to.equal(1);
+      expect(utils.compareLabels('test', '')).to.equal(1);
     });
 
     it('Sorts numerically rather than lexicographically', () => {
       let arr = ['Tag 12', 'Tag 8', 'Tag 9a', 'Tag 9'];
-      arr.sort((a, b) => utils.sortByLabel(a, b));
+      arr.sort((a, b) => utils.compareLabels(a, b));
 
       expect(arr).to.eql(['Tag 8', 'Tag 9', 'Tag 9a', 'Tag 12']);
     });
 
     it('Sorts base characters ahead of variant characters', () => {
       let arr = ['café', 'cafe'];
-      arr.sort((a, b) => utils.sortByLabel(a, b));
+      arr.sort((a, b) => utils.compareLabels(a, b));
 
       expect(arr).to.eql(['cafe', 'café']);
     });
 
     it('Sorts uppercase characters ahead of lowercase characters', () => {
       let arr = ['john', 'jOhn', 'John'];
-      arr.sort((a, b) => utils.sortByLabel(a, b));
+      arr.sort((a, b) => utils.compareLabels(a, b));
 
       expect(arr).to.eql(['John', 'jOhn', 'john']);
     });
