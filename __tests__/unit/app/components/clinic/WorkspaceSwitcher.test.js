@@ -76,10 +76,10 @@ describe('WorkspaceSwitcher', ()  => {
     const dropdownButton = screen.getByRole('button');
     expect(dropdownButton).toHaveTextContent('Second Clinic Workspace')
 
-    // Workspaces in dropdown should not be visible
+    // Workspaces in dropdown should not be visible because it's closed
     expect(screen.queryByRole('button', { name: 'First Clinic Workspace' })).not.toBeInTheDocument();
 
-    // Open the dropdown
+    // Open the dropdown, then the button is visible
     await userEvent.click(dropdownButton);
     const firstClinicButton = screen.getByRole('button', { name: 'First Clinic Workspace' });
 
