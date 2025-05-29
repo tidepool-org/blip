@@ -482,7 +482,7 @@ utils.readableChartName = chartType => ({
 
 utils.formatDecimal = (val, precision) => {
   if (precision === null || precision === undefined) {
-    bankersRound(val).toString();
+    return bankersRound(val).toString();
   }
   return bankersRound(val, precision).toFixed(precision);
 };
