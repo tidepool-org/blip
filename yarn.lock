@@ -5760,7 +5760,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swc/core@npm:^1.11.24":
+"@swc/core@npm:1.11.24":
   version: 1.11.24
   resolution: "@swc/core@npm:1.11.24"
   dependencies:
@@ -5872,7 +5872,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swc/jest@npm:^0.2.38":
+"@swc/jest@npm:0.2.38":
   version: 0.2.38
   resolution: "@swc/jest@npm:0.2.38"
   dependencies:
@@ -5908,7 +5908,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/dom@npm:^10.4.0":
+"@testing-library/dom@npm:10.4.0":
   version: 10.4.0
   resolution: "@testing-library/dom@npm:10.4.0"
   dependencies:
@@ -5940,7 +5940,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/jest-dom@npm:^6.6.3":
+"@testing-library/jest-dom@npm:6.6.3":
   version: 6.6.3
   resolution: "@testing-library/jest-dom@npm:6.6.3"
   dependencies:
@@ -5977,7 +5977,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react@npm:^12.1.5":
+"@testing-library/react@npm:12.1.5":
   version: 12.1.5
   resolution: "@testing-library/react@npm:12.1.5"
   dependencies:
@@ -5991,7 +5991,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/user-event@npm:^14.6.1":
+"@testing-library/user-event@npm:14.6.1":
   version: 14.6.1
   resolution: "@testing-library/user-event@npm:14.6.1"
   peerDependencies:
@@ -8328,13 +8328,13 @@ __metadata:
     "@storybook/cli": 7.5.0
     "@storybook/react": 7.5.0
     "@storybook/react-webpack5": 7.5.0
-    "@swc/core": ^1.11.24
-    "@swc/jest": ^0.2.38
-    "@testing-library/dom": ^10.4.0
-    "@testing-library/jest-dom": ^6.6.3
-    "@testing-library/react": ^12.1.5
+    "@swc/core": 1.11.24
+    "@swc/jest": 0.2.38
+    "@testing-library/dom": 10.4.0
+    "@testing-library/jest-dom": 6.6.3
+    "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
-    "@testing-library/user-event": ^14.6.1
+    "@testing-library/user-event": 14.6.1
     "@tidepool/viz": 1.46.0-web-3677-one-five-min-cgm-toggle.2
     async: 2.6.4
     autoprefixer: 10.4.16
@@ -8370,12 +8370,12 @@ __metadata:
     eslint: 8.51.0
     eslint-config-airbnb: 19.0.4
     eslint-plugin-import: 2.28.1
-    eslint-plugin-jest-dom: ^5.5.0
+    eslint-plugin-jest-dom: 5.5.0
     eslint-plugin-jsx-a11y: 6.7.1
     eslint-plugin-lodash: 7.4.0
     eslint-plugin-react: 7.33.2
     eslint-plugin-react-hooks: 4.6.0
-    eslint-plugin-testing-library: ^7.1.1
+    eslint-plugin-testing-library: 7.1.1
     express: 4.21.2
     file-loader: 6.2.0
     formik: 2.4.5
@@ -8388,8 +8388,8 @@ __metadata:
     i18next-parser: 8.9.0
     immutability-helper: 3.1.1
     intl: 1.2.5
-    jest: ^29.7.0
-    jest-environment-jsdom: ^29.7.0
+    jest: 29.7.0
+    jest-environment-jsdom: 29.7.0
     karma: 6.4.2
     karma-chai: 0.1.0
     karma-chrome-launcher: 3.2.0
@@ -11788,7 +11788,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-jest-dom@npm:^5.5.0":
+"eslint-plugin-jest-dom@npm:5.5.0":
   version: 5.5.0
   resolution: "eslint-plugin-jest-dom@npm:5.5.0"
   dependencies:
@@ -11876,7 +11876,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-testing-library@npm:^7.1.1":
+"eslint-plugin-testing-library@npm:7.1.1":
   version: 7.1.1
   resolution: "eslint-plugin-testing-library@npm:7.1.1"
   dependencies:
@@ -14887,7 +14887,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-environment-jsdom@npm:^29.7.0":
+"jest-environment-jsdom@npm:29.7.0":
   version: 29.7.0
   resolution: "jest-environment-jsdom@npm:29.7.0"
   dependencies:
@@ -15202,7 +15202,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest@npm:^29.7.0":
+"jest@npm:29.7.0":
   version: 29.7.0
   resolution: "jest@npm:29.7.0"
   dependencies:
