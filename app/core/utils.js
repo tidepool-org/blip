@@ -22,6 +22,7 @@ import { format } from 'd3-format';
 
 import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL } from './constants';
 import { utils as vizUtils } from '@tidepool/viz';
+const { bankersRound } = vizUtils.stat;
 
 const { DEFAULT_BG_BOUNDS } = vizUtils.constants;
 
@@ -481,9 +482,9 @@ utils.readableChartName = chartType => ({
 
 utils.formatDecimal = (val, precision) => {
   if (precision === null || precision === undefined) {
-    return format('d')(val);
+    bankersRound(val).toString();
   }
-  return format(`.${precision}f`)(val);
+  return bankersRound(val, precision).toFixed(precision);
 };
 
 utils.roundToPrecision = (value, precision = 0) => {
@@ -517,6 +518,14 @@ utils.parseDatetimeParamToInteger = (queryParam) => {
   }
 
   return null;
+};
+
+utils.compareLabels = (string1, string2) => {
+  if (!string1 && !string2) return 0;
+  if (!string1 && string2) return -1;
+  if (string1 && !string2) return 1;
+
+  return string1.localeCompare(string2, undefined, { caseFirst: 'upper', numeric: true });
 };
 
 export default utils;

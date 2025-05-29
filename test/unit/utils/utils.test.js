@@ -512,7 +512,7 @@ describe('utils', () => {
       expect(utils.getCBGFilter(location)).to.equal(null);
     });
   });
-    
+
   describe('translateBg', () => {
     it('should translate a BG value to the desired target unit', () => {
       expect(utils.translateBg(180, MMOLL_UNITS)).to.equal(10);
@@ -687,6 +687,17 @@ describe('utils', () => {
       expect(utils.formatDecimal(1.23456, 3)).to.equal('1.235');
       expect(utils.formatDecimal(1.23456)).to.equal('1');
     });
+
+    it('should round to nearest whole integer when precision not specified', () => {
+      expect(utils.formatDecimal(3.85)).to.equal('4');
+    });
+
+    it('should utilize use bankers rounding', () => {
+      expect(utils.formatDecimal(3.85, 1)).to.equal('3.8');
+      expect(utils.formatDecimal(3.75, 1)).to.equal('3.8');
+      expect(utils.formatDecimal(3.05, 1)).to.equal('3.0');
+      expect(utils.formatDecimal(3, 1)).to.equal('3.0');
+    });
   });
 
   describe('roundToPrecision', function() {
@@ -736,6 +747,39 @@ describe('utils', () => {
 
     it('returns null if the arg is not a valid date string', () => {
       expect(utils.parseDatetimeParamToInteger('not-a-date')).to.be.null;
+    });
+  });
+
+  describe('compareLabels', function() {
+    it('Sorts a blank arg first', function() {
+      expect(utils.compareLabels(undefined, undefined)).to.equal(0);
+      expect(utils.compareLabels('', undefined)).to.equal(0);
+      expect(utils.compareLabels(undefined, '')).to.equal(0);
+      expect(utils.compareLabels(undefined, 'test')).to.equal(-1);
+      expect(utils.compareLabels('', 'test')).to.equal(-1);
+      expect(utils.compareLabels('test', undefined)).to.equal(1);
+      expect(utils.compareLabels('test', '')).to.equal(1);
+    });
+
+    it('Sorts numerically rather than lexicographically', () => {
+      let arr = ['Tag 12', 'Tag 8', 'Tag 9a', 'Tag 9'];
+      arr.sort((a, b) => utils.compareLabels(a, b));
+
+      expect(arr).to.eql(['Tag 8', 'Tag 9', 'Tag 9a', 'Tag 12']);
+    });
+
+    it('Sorts base characters ahead of variant characters', () => {
+      let arr = ['café', 'cafe'];
+      arr.sort((a, b) => utils.compareLabels(a, b));
+
+      expect(arr).to.eql(['cafe', 'café']);
+    });
+
+    it('Sorts uppercase characters ahead of lowercase characters', () => {
+      let arr = ['john', 'jOhn', 'John'];
+      arr.sort((a, b) => utils.compareLabels(a, b));
+
+      expect(arr).to.eql(['John', 'jOhn', 'john']);
     });
   });
 });

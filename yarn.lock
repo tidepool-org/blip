@@ -5402,9 +5402,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.46.0-web-2016-ciq-pump-settings-targets-annotations.2":
-  version: 1.46.0-web-2016-ciq-pump-settings-targets-annotations.2
-  resolution: "@tidepool/viz@npm:1.46.0-web-2016-ciq-pump-settings-targets-annotations.2"
+"@tidepool/viz@npm:1.46.0-web-3677-one-five-min-cgm-toggle.2":
+  version: 1.46.0-web-3677-one-five-min-cgm-toggle.2
+  resolution: "@tidepool/viz@npm:1.46.0-web-3677-one-five-min-cgm-toggle.2"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -5465,7 +5465,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 3cf2559c0db84f8fe398f337697d41af55f7e10417b155c82300741d5ce187bc7dc982fe94b7ccdcbc31fc42b2c1567f19539a19e97419c84896b97382ab1d1a
+  checksum: 4532e061b064bf4d9743d53671e492bf7e1ecc673a7fed767e15b166b033e4250c5fe281250827582993b39fc3968fff10f3588de929052303aab467d8853540
   languageName: node
   linkType: hard
 
@@ -7396,7 +7396,7 @@ __metadata:
     "@storybook/react": 7.5.0
     "@storybook/react-webpack5": 7.5.0
     "@testing-library/react-hooks": 8.0.1
-    "@tidepool/viz": 1.46.0-web-2016-ciq-pump-settings-targets-annotations.2
+    "@tidepool/viz": 1.46.0-web-3677-one-five-min-cgm-toggle.2
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
