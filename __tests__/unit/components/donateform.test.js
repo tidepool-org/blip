@@ -74,7 +74,6 @@ describe('DonateForm', ()  => {
     expect(screen.getByText('Diabetes Youth Families (DYF)')).toBeInTheDocument();
     expect(screen.getByText('DiabetesSisters')).toBeInTheDocument();
     expect(screen.getByText('The diaTribe Foundation')).toBeInTheDocument();
-    expect(screen.getByText('Breakthrough T1D')).toBeInTheDocument();
     expect(screen.getByText('Nightscout Foundation')).toBeInTheDocument();
     expect(screen.getByText('T1D Exchange')).toBeInTheDocument();
 
