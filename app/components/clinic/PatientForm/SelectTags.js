@@ -2,13 +2,13 @@ import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import keyBy from 'lodash/keyBy';
 import partition from 'lodash/partition';
-import orderBy from 'lodash/orderBy';
 import Select, { createFilter } from 'react-select';
 import { useLocation } from 'react-router-dom';
 import { colors } from '../../../themes/baseTheme';
 import useClinicPatientsFilters from '../../../pages/clinicworkspace/useClinicPatientsFilters';
 import { useTranslation } from 'react-i18next';
 import { noop } from 'lodash';
+import utils from '../../../core/utils';
 
 export const buildSelectOptions = (
   t,
@@ -16,9 +16,9 @@ export const buildSelectOptions = (
   activeFilters = { patientTags: [] },
   shouldSuggestTags = false,
 ) => {
-  // Format tags for react-select (label and value properties), then sort alphabetically
-  const unorderedOptions = clinicTags.map(tag => ({ label: tag.name, value: tag.id }));
-  const options = orderBy(unorderedOptions, 'label');
+  // Format tags for react-select (label and value properties), then sort
+  const options = clinicTags.map(tag => ({ label: tag.name, value: tag.id }))
+                            .toSorted((a, b) => utils.compareLabels(a.label, b.label));
 
   // If suggesting is disabled, return a single group of all options
   if (!shouldSuggestTags) return [{ options: options, label: '' }];
