@@ -12,10 +12,12 @@ const data = (state = initialState.data, action) => {
     case actionTypes.DATA_WORKER_ADD_DATA_REQUEST:
       const {
         fetchedUntil = state.fetchedUntil,
+        oneMinCgmFetchedUntil = state.oneMinCgmFetchedUntil,
       } = action.payload;
 
       return update(state, {
         fetchedUntil: { $set: fetchedUntil ? fetchedUntil : state.fetchedUntil },
+        oneMinCgmFetchedUntil: { $set: oneMinCgmFetchedUntil ? oneMinCgmFetchedUntil : state.oneMinCgmFetchedUntil },
         cacheUntil: { $set: generateCacheTTL(36e5) },
         metaData: { $merge: { size: _.get(state, 'metaData.size', 0) + action.payload.fetchedCount } },
       });
@@ -54,6 +56,7 @@ const data = (state = initialState.data, action) => {
         ...initialState.data,
         cacheUntil: _.get(action.payload, 'preserveCache') ? state.cacheUntil : null,
         fetchedUntil: _.get(action.payload, 'preserveCache') ? state.fetchedUntil : null,
+        oneMinCgmFetchedUntil: _.get(action.payload, 'preserveCache') ? state.oneMinCgmFetchedUntil : null,
         metaData: _.get(action.payload, 'preserveCache') ? { ...state.metaData, queryDataCount: 0 } : {},
       } });
 
