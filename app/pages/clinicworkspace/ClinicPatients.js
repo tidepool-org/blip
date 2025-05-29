@@ -156,7 +156,7 @@ const editPatientDataConnections = (patient, setSelectedPatient, selectedClinicI
 
 const ClearButton = styled.button`
   background: none;
-  color: ${colorPalette.extended.indigos[5]};
+  color: ${vizColors.indigo30};
   border: none;
   padding: 0;
   font: inherit;
