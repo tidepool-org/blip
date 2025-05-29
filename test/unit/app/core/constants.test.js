@@ -129,4 +129,16 @@ describe('constants', function() {
   it('should define CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD', () => {
     expect(Constants.CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD).to.equal(40);
   });
+
+  it('should define DEFAULT_CGM_SAMPLE_INTERVAL', () => {
+    expect(Constants.DEFAULT_CGM_SAMPLE_INTERVAL).to.equal(5 * Constants.MS_IN_MIN);
+  });
+
+  it('should define DEFAULT_CGM_SAMPLE_INTERVAL_RANGE', () => {
+    expect(Constants.DEFAULT_CGM_SAMPLE_INTERVAL_RANGE).to.eql([Constants.DEFAULT_CGM_SAMPLE_INTERVAL, Infinity]);
+  });
+
+  it('should define ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE', () => {
+    expect(Constants.ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE).to.eql([Constants.MS_IN_MIN, Constants.MS_IN_MIN]);
+  });
 });
