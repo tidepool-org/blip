@@ -1043,6 +1043,11 @@ export function fetchPatientData(api, options, id) {
     sampleIntervalMinimum: 5 * MS_IN_MIN,
   });
 
+  // Only fetch relevant dosing decision data
+  if (options.type.indexOf('dosingDecision') !== -1) {
+    options['dosingDecision.reason'] = 'normalBolus,simpleBolus,watchBolus';
+  }
+
   let latestUpload;
   let latestPumpSettings;
 
