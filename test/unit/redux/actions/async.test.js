@@ -22,7 +22,7 @@ import initialState from '../../../../app/redux/reducers/initialState';
 import * as ErrorMessages from '../../../../app/redux/constants/errorMessages';
 import * as UserMessages from '../../../../app/redux/constants/usrMessages';
 
-import { TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL, MMOLL_UNITS, ALL_FETCHED_DATA_TYPES } from '../../../../app/core/constants';
+import { TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL, MMOLL_UNITS, ALL_FETCHED_DATA_TYPES, MS_IN_MIN } from '../../../../app/core/constants';
 
 // need to require() async in order to rewire utils inside
 const async = require('../../../../app/redux/actions/async');
@@ -434,9 +434,11 @@ describe('Actions', () => {
 
     describe('acceptTerms', () => {
       it('should trigger ACCEPT_TERMS_SUCCESS and it should call acceptTerms once for a successful request', () => {
-        let acceptedDate = new Date();
+        const now = new Date();
+
+        let acceptedDate = now;
         let loggedInUserId = 500;
-        let termsData = { termsAccepted: new Date() };
+        let termsData = { termsAccepted: now };
         let api = {
           user: {
             acceptTerms: sinon.stub().callsArgWith(1, null)
@@ -464,9 +466,11 @@ describe('Actions', () => {
       });
 
       it('should trigger ACCEPT_TERMS_SUCCESS and it should call acceptTerms once for a successful request, routing to clinic info for clinician', () => {
-        let acceptedDate = new Date();
+        const now = new Date()
+
+        let acceptedDate = now;
         let loggedInUserId = 500;
-        let termsData = { termsAccepted: new Date() };
+        let termsData = { termsAccepted: now };
         let user = {
           roles: ['clinic']
         };
@@ -497,9 +501,11 @@ describe('Actions', () => {
       });
 
       it('should trigger ACCEPT_TERMS_SUCCESS and should not trigger a route transition if the user is not logged in', () => {
-        let acceptedDate = new Date();
+        const now = new Date()
+
+        let acceptedDate = now;
         let loggedInUserId = false;
-        let termsData = { termsAccepted: new Date() };
+        let termsData = { termsAccepted: now };
         let user = {
           id: 27,
           roles: ['clinic'],
@@ -4289,6 +4295,48 @@ describe('Actions', () => {
                   fetchedCount: 6,
                   patientId: patientId,
                   fetchedUntil: '2018-01-01T00:00:00.000Z',
+                  oneMinCgmFetchedUntil: undefined,
+                  returnData: false,
+                },
+              },
+            ];
+            _.each(expectedActions, (action) => {
+              expect(isTSA(action)).to.be.true;
+            });
+
+            let store = mockStore({ blip: {
+              ...initialState,
+            }, router: { location: { pathname: `data/${patientId}` } } });
+            store.dispatch(async.fetchPatientData(api, options, patientId));
+
+            const actions = store.getActions();
+            expect(actions).to.eql(expectedActions);
+            expect(api.patientData.get.withArgs(patientId, options).callCount).to.equal(1);
+            expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
+          });
+        });
+
+        context('fetching 1 minute cgm data for current patient in view', () => {
+          it('should trigger FETCH_PATIENT_DATA_SUCCESS and DATA_WORKER_ADD_DATA_REQUEST with oneMinCgmFetchedUntil', () => {
+            options.sampleIntervalMinimum = MS_IN_MIN;
+
+            api.patientData = {
+              get: sinon.stub()
+                .onFirstCall().callsArgWith(2, null, patientData)
+            };
+
+            let expectedActions = [
+              { type: 'FETCH_PATIENT_DATA_REQUEST', payload: { patientId } },
+              { type: 'FETCH_PATIENT_DATA_SUCCESS', payload: { patientId } },
+              {
+                type: 'DATA_WORKER_ADD_DATA_REQUEST',
+                meta: { WebWorker: true, worker: 'data', id: patientId },
+                payload: {
+                  data: JSON.stringify([...patientData, ...teamNotes]),
+                  fetchedCount: 5,
+                  patientId: patientId,
+                  fetchedUntil: '2018-01-01T00:00:00.000Z',
+                  oneMinCgmFetchedUntil: '2018-01-01T00:00:00.000Z',
                   returnData: false,
                 },
               },
@@ -6280,14 +6328,14 @@ describe('Actions', () => {
           clinics: {
             getPatientsForClinic: sinon.stub().callsArgWith(2, null, {
               data: patients,
-              meta: { count: 1 },
+              meta: { count: 1, totalCount: 3 },
             }),
           },
         };
 
         let expectedActions = [
           { type: 'FETCH_PATIENTS_FOR_CLINIC_REQUEST' },
-          { type: 'FETCH_PATIENTS_FOR_CLINIC_SUCCESS', payload: { clinicId: '5f85fbe6686e6bb9170ab5d0', count: 1, patients } }
+          { type: 'FETCH_PATIENTS_FOR_CLINIC_SUCCESS', payload: { clinicId: '5f85fbe6686e6bb9170ab5d0', count: 1, totalCount: 3, patients } }
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
