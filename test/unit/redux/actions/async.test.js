@@ -434,9 +434,11 @@ describe('Actions', () => {
 
     describe('acceptTerms', () => {
       it('should trigger ACCEPT_TERMS_SUCCESS and it should call acceptTerms once for a successful request', () => {
-        let acceptedDate = new Date();
+        const now = new Date();
+
+        let acceptedDate = now;
         let loggedInUserId = 500;
-        let termsData = { termsAccepted: new Date() };
+        let termsData = { termsAccepted: now };
         let api = {
           user: {
             acceptTerms: sinon.stub().callsArgWith(1, null)
@@ -464,9 +466,11 @@ describe('Actions', () => {
       });
 
       it('should trigger ACCEPT_TERMS_SUCCESS and it should call acceptTerms once for a successful request, routing to clinic info for clinician', () => {
-        let acceptedDate = new Date();
+        const now = new Date()
+
+        let acceptedDate = now;
         let loggedInUserId = 500;
-        let termsData = { termsAccepted: new Date() };
+        let termsData = { termsAccepted: now };
         let user = {
           roles: ['clinic']
         };
@@ -497,9 +501,11 @@ describe('Actions', () => {
       });
 
       it('should trigger ACCEPT_TERMS_SUCCESS and should not trigger a route transition if the user is not logged in', () => {
-        let acceptedDate = new Date();
+        const now = new Date()
+
+        let acceptedDate = now;
         let loggedInUserId = false;
-        let termsData = { termsAccepted: new Date() };
+        let termsData = { termsAccepted: now };
         let user = {
           id: 27,
           roles: ['clinic'],
