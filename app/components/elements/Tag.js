@@ -176,6 +176,7 @@ export const TagList = withTranslation()(props => {
         fontSize: editIconFontSize,
       }}
       label={t('Edit tags')}
+      data-testid="edit-tags-icon"
       onClick={() => {
         popupState.close();
         onClickEdit();

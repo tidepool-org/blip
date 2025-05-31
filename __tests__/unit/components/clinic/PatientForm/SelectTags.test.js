@@ -9,8 +9,7 @@ import { MemoryRouter, Route, Switch } from 'react-router-dom';
 import thunk from 'redux-thunk';
 import mockLocalStorage from '../../../../utils/mockLocalStorage';
 
-// Import the mocked component
-import SelectTags from '../../../../../app/components/clinic/PatientForm/SelectTags';
+import SelectTags from '@app/components/clinic/PatientForm/SelectTags';
 
 describe('SelectTags', ()  => {
   const storeFixture = {
@@ -65,10 +64,9 @@ describe('SelectTags', ()  => {
       </Provider>
     );
 
-    // Current tags of patient should be shown
+    // Current tags of patient should be shown, Tag options in dropdown should be hidden
     expect(screen.getByText('Delta')).toBeInTheDocument();
 
-    // Tag options should not be shown
     expect(screen.queryByText('Alpha')).not.toBeInTheDocument();
     expect(screen.queryByText('Bravo')).not.toBeInTheDocument();
     expect(screen.queryByText('Charlie')).not.toBeInTheDocument();
@@ -82,7 +80,6 @@ describe('SelectTags', ()  => {
     expect(screen.getByText('Bravo')).toBeInTheDocument();
     expect(screen.getByText('Charlie')).toBeInTheDocument();
     expect(screen.getByText('Delta')).toBeInTheDocument();
-
 
     // Suggested tags should be shown before non-suggesteds. Suggested tags are the ones in active filters.
     // Order should be Alpha, Charlie, Bravo

@@ -1,8 +1,6 @@
 /* global jest */
 
-const mockLocalStorage = (
-  mockStore = {}
-) => {
+const mockLocalStorage = (mockStore = {}) => {
   Object.defineProperty(window, 'localStorage', {
     value: {
       getItem: jest.fn((key) => mockStore[key] || null),

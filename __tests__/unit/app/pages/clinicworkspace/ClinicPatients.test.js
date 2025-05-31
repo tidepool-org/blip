@@ -1,0 +1,370 @@
+/* global jest, before, beforeEach, afterEach, test, expect, describe, it */
+
+import React from 'react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import configureStore from 'redux-mock-store';
+import { Provider } from 'react-redux';
+import { MemoryRouter, Route, Switch } from 'react-router-dom';
+import thunk from 'redux-thunk';
+import merge from 'lodash/merge';
+import moment from 'moment';
+
+import { ToastProvider } from '@app/providers/ToastProvider';
+import { clinicUIDetails } from '@app/core/clinicUtils';
+import ClinicPatients from '@app/pages/clinicworkspace/ClinicPatients';
+
+import { useLDClient, useFlags } from 'launchdarkly-react-client-sdk';
+jest.mock('launchdarkly-react-client-sdk');
+
+describe('ClinicPatients', ()  => {
+  const today = moment().toISOString();
+  const yesterday = moment(today).subtract(1, 'day').toISOString();
+
+  const defaultWorkingState = {
+    inProgress: false,
+    completed: false,
+    notification: null,
+  };
+
+  const completedState = {
+    ...defaultWorkingState,
+    completed: true,
+  };
+
+  const loggedInUserId = 'clinicianUserId123';
+
+  const clinicianUserId123 = {
+    email: 'clinic@example.com',
+    roles: ['CLINIC_ADMIN'],
+    id: 'clinicianUserId123',
+  };
+
+  const defaultClinic = {
+    clinicians:{
+      clinicianUserId123,
+    },
+    patients: {},
+    id: 'clinicID123',
+    address: '2 Address Ln, City Zip',
+    country: 'US',
+    name: 'other_clinic_name',
+    email: 'other_clinic_email_address@example.com',
+    timezone: 'US/Eastern',
+  };
+
+  const noPatientsState = {
+    blip: {
+      loggedInUserId,
+      clinics: {
+        clinicID123: {
+          ...defaultClinic,
+          ...clinicUIDetails(defaultClinic),
+        },
+      },
+      selectedClinicId: 'clinicID123',
+      working: {
+        fetchingPatientFromClinic: defaultWorkingState,
+        fetchingPatientsForClinic: completedState,
+        deletingPatientFromClinic: defaultWorkingState,
+        updatingClinicPatient: defaultWorkingState,
+        creatingClinicCustodialAccount: defaultWorkingState,
+        sendingPatientUploadReminder: defaultWorkingState,
+        sendingPatientDataProviderConnectRequest: defaultWorkingState,
+        creatingClinicPatientTag: defaultWorkingState,
+        updatingClinicPatientTag: defaultWorkingState,
+        deletingClinicPatientTag: defaultWorkingState,
+        fetchingTideDashboardPatients: defaultWorkingState,
+        fetchingRpmReportPatients: defaultWorkingState,
+        settingClinicPatientLastReviewed: defaultWorkingState,
+        revertingClinicPatientLastReviewed: defaultWorkingState,
+      },
+      patientListFilters: {
+        patientListSearchTextInput: '',
+        isPatientListVisible: true,
+      },
+    },
+  };
+
+  const hasPatientsState = merge({}, noPatientsState, {
+    blip: {
+      allUsersMap: {
+        clinicianUserId123,
+      },
+      clinics: {
+        clinicID123: {
+          ...defaultClinic,
+          clinicians:{
+            clinicianUserId123,
+          },
+          patients: {
+            patient1: {
+              id: 'patient1',
+              email: 'patient1@test.ca',
+              fullName: 'Patient One',
+              birthDate: '1999-01-01' ,
+              permissions: { view : {} }
+            },
+            patient2: {
+              id: 'patient2',
+              email: 'patient2@test.ca',
+              fullName: 'Patient Two',
+              birthDate: '1999-02-02',
+              mrn: 'MRN123',
+              permissions: { custodian : {} }
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const tier0300ClinicState = {
+    blip: {
+      ...hasPatientsState.blip,
+      clinics: {
+        clinicID123: {
+          ...hasPatientsState.blip.clinics.clinicID123,
+          ...clinicUIDetails({
+            ...hasPatientsState.blip.clinics.clinicID123,
+            tier: 'tier0300',
+          }),
+          tier: 'tier0300',
+          patientTags: [
+            { id: 'tag3', name: 'ttest tag 3'},
+            { id: 'tag2', name: 'test tag 2'},
+            { id: 'tag1', name: '>test tag 1'},
+          ],
+          patients: {
+            patient1: {
+              id: 'patient1',
+              email: 'patient1@test.ca',
+              fullName: 'Patient One',
+              birthDate: '1999-01-01',
+              mrn: 'MRN012',
+              summary: {},
+              permissions: { custodian : {} },
+              tags: [],
+              reviews: [
+                { clinicianId: 'clinicianUserId123', time: today },
+                { clinicianId: 'clinicianUserId123', time: yesterday },
+              ],
+            },
+            patient2: {
+              id: 'patient2',
+              email: 'patient2@test.ca',
+              fullName: 'Patient Two',
+              birthDate: '1999-02-02',
+              mrn: 'MRN123',
+              summary:{
+                bgmStats: {
+                  dates: {
+                    lastData: yesterday,
+                  },
+                  periods: { '14d': {
+                    averageGlucoseMmol: 10.5,
+                    averageDailyRecords: 0.25,
+                    timeInVeryLowRecords: 1,
+                    timeInVeryHighRecords: 2,
+                  } },
+                },
+                cgmStats: {
+                  dates: {
+                    lastData: today,
+                  },
+                  periods: { '14d': {
+                    timeCGMUsePercent: 0.85,
+                    timeCGMUseMinutes: 23 * 60,
+                    glucoseManagementIndicator: 7.75,
+                  } },
+                },
+              },
+              permissions: { custodian : undefined },
+              tags: ['tag1'],
+              reviews: [{ clinicianId: 'clinicianUserId123', time: yesterday }],
+            },
+            patient3: {
+              id: 'patient3',
+              email: 'patient3@test.ca',
+              fullName: 'Patient Three',
+              birthDate: '1999-03-03',
+              mrn: 'mrn456',
+              summary: {
+                bgmStats: {
+                  dates: {
+                    lastData: moment().subtract(1, 'day').toISOString(),
+                  },
+                  periods: { '14d': {
+                    averageGlucoseMmol: 11.5,
+                    averageDailyRecords: 1.25,
+                    timeInVeryLowRecords: 3,
+                    timeInVeryHighRecords: 4,
+                  } },
+                },
+                cgmStats: {
+                  dates: {
+                    lastData: yesterday,
+                  },
+                  periods: {
+                    '30d': {
+                      timeCGMUsePercent: 0.70,
+                      timeCGMUseMinutes:  7 * 24 * 60,
+                      glucoseManagementIndicator: 7.5,
+                    },
+                    '14d': {
+                      timeCGMUsePercent: 0.70,
+                      timeCGMUseMinutes:  7 * 24 * 60,
+                      glucoseManagementIndicator: 6.5,
+                    },
+                    '7d': {
+                      timeCGMUsePercent: 0.70,
+                      timeCGMUseMinutes:  7 * 24 * 60,
+                      glucoseManagementIndicator: 5.5,
+                    },
+                    '1d': {
+                      timeCGMUsePercent: 0.70,
+                      timeCGMUseMinutes:  7 * 24 * 60,
+                      glucoseManagementIndicator: 4.5,
+                    },
+                  },
+                },
+              },
+              tags: ['tag1', 'tag2', 'tag3'],
+              reviews: [{ clinicianId: 'clinicianUserId123', time: moment(today).subtract(30, 'd').toISOString() }],
+            },
+            patient4: {
+              id: 'patient4',
+              email: 'patient4@test.ca',
+              fullName: 'Patient Four',
+              birthDate: '1999-04-04',
+              mrn: 'mrn789',
+              summary: {
+                bgmStats: {
+                  dates: {
+                    lastData: yesterday,
+                  },
+                  periods: { '14d': {
+                    averageGlucoseMmol: 12.5,
+                    averageDailyRecords: 1.5,
+                    timeInVeryLowRecords: 0,
+                    timeInVeryHighRecords: 0,
+                  } },
+                },
+                cgmStats: {
+                  dates: {
+                    lastData: moment().subtract(30, 'days').toISOString(),
+                  },
+                  periods: { '14d': {
+                    timeCGMUsePercent: 0.69,
+                    timeCGMUseMinutes:  7 * 24 * 60,
+                    glucoseManagementIndicator: 8.5,
+                  } },
+                },
+              },
+              reviews: [{ clinicianId: 'clinicianUserId123', time: moment('2024-03-05T12:00:00.000Z').toISOString() }],
+            },
+            patient5: {
+              id: 'patient5',
+              email: 'patient5@test.ca',
+              fullName: 'Patient Five',
+              birthDate: '1999-05-05',
+              mrn: 'mrn101',
+              summary: {
+                cgmStats: {
+                  dates: {
+                    lastData: moment().subtract(31, 'days').toISOString(),
+                  },
+                  periods: { '14d': {
+                    timeCGMUsePercent: 0.69,
+                    timeCGMUseMinutes:  30 * 24 * 60,
+                    glucoseManagementIndicator: 8.5,
+                  } },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  };
+
+  let defaultProps = {
+    trackMetric: jest.fn(),
+    t: jest.fn(),
+    searchDebounceMs: 0,
+    api: {
+      clinics: {
+        getPatientFromClinic: jest.fn(),
+        getPatientsForClinic: jest.fn(),
+        deletePatientFromClinic: jest.fn(),
+        createClinicCustodialAccount: jest.fn(),
+        updateClinicPatient: jest.fn(),
+        sendPatientUploadReminder: jest.fn(),
+        sendPatientDataProviderConnectRequest: jest.fn(),
+        createClinicPatientTag: jest.fn(),
+        updateClinicPatientTag: jest.fn(),
+        deleteClinicPatientTag: jest.fn(),
+        deleteClinicPatientTag: jest.fn(),
+        getPatientsForRpmReport: jest.fn(),
+        setClinicPatientLastReviewed: jest.fn(),
+        revertClinicPatientLastReviewed: jest.fn(),
+      },
+    },
+  };
+
+  const mockStore = configureStore([thunk]);
+  let store;
+
+  describe('has patients', () => {
+    describe('show names clicked', () => {
+      describe('tier0300 clinic', () => {
+
+        beforeEach(() => {
+          window.HTMLElement.prototype.scrollIntoView = jest.fn();
+          store = mockStore(tier0300ClinicState);
+
+          useFlags.mockReturnValue({
+            showSummaryDashboard: true,
+            showSummaryDashboardLastReviewed: true,
+          });
+
+          useLDClient.mockReturnValue({
+            getContext: jest.fn(() => ({
+              clinic: { tier: 'tier0300' },
+            })),
+          });
+        });
+
+        describe('managing patient tags', () => {
+          it('should allow updating tags for a patient', async () => {
+            render(
+              <Provider store={store}>
+                <MemoryRouter initialEntries={['/clinic-workspace']}>
+                  <Switch>
+                    <Route path='/clinic-workspace'>
+                      <ToastProvider>
+                        <ClinicPatients {...defaultProps} />
+                      </ToastProvider>
+                    </Route>
+                  </Switch>
+                </MemoryRouter>
+              </Provider>
+            );
+
+            // // Click the Edit Tags icon for a patient. The Dialog for Edit Patient Details should open.
+            expect(screen.queryByText('Edit Patient Details')).not.toBeInTheDocument();
+            await userEvent.click(screen.getAllByTestId('edit-tags-icon')[1]); // Open patient2
+            expect(screen.getByText('Edit Patient Details')).toBeInTheDocument();
+
+            // Click open the Tags combobox
+            await userEvent.click(screen.getByRole('combobox'));
+
+            await userEvent.click(screen.getByText('ttest tag 3', { selector: 'div' }));
+            await userEvent.click(screen.getByRole('button', { name: /test tag 1/i }));
+            await userEvent.click(screen.getByRole('button', { name: /Save Changes/ }));
+          });
+        });
+      });
+    });
+  });
+});
