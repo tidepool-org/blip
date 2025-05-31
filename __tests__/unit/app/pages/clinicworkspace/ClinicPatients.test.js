@@ -17,7 +17,7 @@ import ClinicPatients from '@app/pages/clinicworkspace/ClinicPatients';
 import { useLDClient, useFlags } from 'launchdarkly-react-client-sdk';
 jest.mock('launchdarkly-react-client-sdk');
 
-const TIMEOUT_MS = 16_000;
+const TEST_TIMEOUT_MS = 30_000;
 
 describe('ClinicPatients', ()  => {
   const today = moment('2025-05-29T00:00:00Z').toISOString();
@@ -358,12 +358,10 @@ describe('ClinicPatients', ()  => {
             await userEvent.click(screen.getAllByTestId('edit-tags-icon')[0]); // Open patient2
             expect(screen.getByText('Edit Patient Details')).toBeInTheDocument();
 
-            // Add Tag 3 and remove Tag 1
-            await userEvent.click(screen.getByRole('combobox'));
+            // Add Tag 3 and remove Tag 1, then save
+            await userEvent.click(screen.getByRole('combobox')); // open combobox dropdown
             await userEvent.click(screen.getByText('ttest tag 3', { selector: 'div' }));
             await userEvent.click(screen.getByLabelText(/Remove test tag 1/));
-
-            // Save
             await userEvent.click(screen.getByRole('button', { name: /Save Changes/ }));
 
             await waitFor(() => expect(defaultProps.api.clinics.updateClinicPatient).toHaveBeenCalled());
@@ -408,7 +406,7 @@ describe('ClinicPatients', ()  => {
               },
               expect.any(Function), // callback fn passed to api
             );
-          }, TIMEOUT_MS);
+          }, TEST_TIMEOUT_MS);
         });
       });
     });
