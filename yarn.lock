@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.46.0-rc.6":
-  version: 1.46.0-rc.6
-  resolution: "@tidepool/viz@npm:1.46.0-rc.6"
+"@tidepool/viz@npm:1.46.1-web-3698-dosing-decision-bolus-normal":
+  version: 1.46.1-web-3698-dosing-decision-bolus-normal
+  resolution: "@tidepool/viz@npm:1.46.1-web-3698-dosing-decision-bolus-normal"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 2105c62e6d0455c2d34f65395912d049b4d751401a1e886f1228a45e649e2e41a682870cadf822d4125641a37968e7a62d85f3d62554efc83e7948eae6b9e9b1
+  checksum: dea3af61939163514aa16c15864d016b9caf0446151aacdcced2687aa30f90c6767f8e412066080d5a7054ee73fc9785587dcac1cf698fab6abd1ddf2ddddc4e
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.46.0-rc.6
+    "@tidepool/viz": 1.46.1-web-3698-dosing-decision-bolus-normal
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -8462,7 +8462,7 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.32.0-rc.2
+    tideline: 1.32.1-web-3698-dosing-decision-bolus-normal
     tidepool-platform-client: 0.63.0-web-3670-add-cbgfilter-query-parameter
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
@@ -22218,9 +22218,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.32.0-rc.2":
-  version: 1.32.0-rc.2
-  resolution: "tideline@npm:1.32.0-rc.2"
+"tideline@npm:1.32.1-web-3698-dosing-decision-bolus-normal":
+  version: 1.32.1-web-3698-dosing-decision-bolus-normal
+  resolution: "tideline@npm:1.32.1-web-3698-dosing-decision-bolus-normal"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -22241,7 +22241,7 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: 8dd0ebf834b5261fdd631b431f26ae259c9bdf69821ef3349e5d14a933f6c4b9b6d1cf6edfbe3e4c253d5cd04d8a6ced66b12346497bafbe9ae8d6d138ec9e62
+  checksum: 3852925e03ec5117b7918d73ec80f104f51ef109375d1aefb50c1b53532e75509bd8ab2dff0ea80acaeb5d782c48766fbc29bc965621275543670b3ac96168d3
   languageName: node
   linkType: hard
 
