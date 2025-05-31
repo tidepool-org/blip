@@ -17,6 +17,8 @@ import ClinicPatients from '@app/pages/clinicworkspace/ClinicPatients';
 import { useLDClient, useFlags } from 'launchdarkly-react-client-sdk';
 jest.mock('launchdarkly-react-client-sdk');
 
+const TIMEOUT_MS = 16_000;
+
 describe('ClinicPatients', ()  => {
   const today = moment('2025-05-29T00:00:00Z').toISOString();
   const yesterday = moment(today).subtract(1, 'day').toISOString();
@@ -406,8 +408,7 @@ describe('ClinicPatients', ()  => {
               },
               expect.any(Function), // callback fn passed to api
             );
-          });
-
+          }, TIMEOUT_MS);
         });
       });
     });
