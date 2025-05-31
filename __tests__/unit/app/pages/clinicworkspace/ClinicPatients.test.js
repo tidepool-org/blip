@@ -18,7 +18,7 @@ import { useLDClient, useFlags } from 'launchdarkly-react-client-sdk';
 jest.mock('launchdarkly-react-client-sdk');
 
 describe('ClinicPatients', ()  => {
-  const today = moment().toISOString();
+  const today = moment('2025-05-29T00:00:00Z').toISOString();
   const yesterday = moment(today).subtract(1, 'day').toISOString();
 
   const defaultWorkingState = {
@@ -133,7 +133,7 @@ describe('ClinicPatients', ()  => {
           patientTags: [
             { id: 'tag3', name: 'ttest tag 3'},
             { id: 'tag2', name: 'test tag 2'},
-            { id: 'tag1', name: '>test tag 1'},
+            { id: 'tag1', name: 'test tag 1'},
           ],
           patients: {
             patient1: {
@@ -192,7 +192,7 @@ describe('ClinicPatients', ()  => {
               summary: {
                 bgmStats: {
                   dates: {
-                    lastData: moment().subtract(1, 'day').toISOString(),
+                    lastData: moment(today).subtract(1, 'day').toISOString(),
                   },
                   periods: { '14d': {
                     averageGlucoseMmol: 11.5,
@@ -252,7 +252,7 @@ describe('ClinicPatients', ()  => {
                 },
                 cgmStats: {
                   dates: {
-                    lastData: moment().subtract(30, 'days').toISOString(),
+                    lastData: moment(today).subtract(30, 'days').toISOString(),
                   },
                   periods: { '14d': {
                     timeCGMUsePercent: 0.69,
@@ -272,7 +272,7 @@ describe('ClinicPatients', ()  => {
               summary: {
                 cgmStats: {
                   dates: {
-                    lastData: moment().subtract(31, 'days').toISOString(),
+                    lastData: moment(today).subtract(31, 'days').toISOString(),
                   },
                   periods: { '14d': {
                     timeCGMUsePercent: 0.69,
@@ -351,18 +351,63 @@ describe('ClinicPatients', ()  => {
               </Provider>
             );
 
-            // // Click the Edit Tags icon for a patient. The Dialog for Edit Patient Details should open.
+            // Click the Edit Tags icon for a patient. The Dialog for Edit Patient Details should open.
             expect(screen.queryByText('Edit Patient Details')).not.toBeInTheDocument();
-            await userEvent.click(screen.getAllByTestId('edit-tags-icon')[1]); // Open patient2
+            await userEvent.click(screen.getAllByTestId('edit-tags-icon')[0]); // Open patient2
             expect(screen.getByText('Edit Patient Details')).toBeInTheDocument();
 
-            // Click open the Tags combobox
+            // Add Tag 3 and remove Tag 1
             await userEvent.click(screen.getByRole('combobox'));
-
             await userEvent.click(screen.getByText('ttest tag 3', { selector: 'div' }));
-            await userEvent.click(screen.getByRole('button', { name: /test tag 1/i }));
+            await userEvent.click(screen.getByLabelText(/Remove test tag 1/));
+
+            // Save
             await userEvent.click(screen.getByRole('button', { name: /Save Changes/ }));
+
+            await waitFor(() => expect(defaultProps.api.clinics.updateClinicPatient).toHaveBeenCalled());
+
+            expect(defaultProps.api.clinics.updateClinicPatient).toHaveBeenCalledWith(
+              'clinicID123',
+              'patient2',
+              {
+                id: 'patient2',
+                email: 'patient2@test.ca',
+                fullName: 'Patient Two',
+                birthDate: '1999-02-02',
+                mrn: 'MRN123',
+                permissions: { custodian : undefined },
+                summary: {
+                  bgmStats: {
+                    dates: {
+                      lastData: '2025-05-28T00:00:00.000Z',
+                    },
+                    periods: { '14d': {
+                      averageGlucoseMmol: 10.5,
+                      averageDailyRecords: 0.25,
+                      timeInVeryLowRecords: 1,
+                      timeInVeryHighRecords: 2,
+                    } },
+                  },
+                  cgmStats: {
+                    dates: {
+                      lastData: '2025-05-29T00:00:00.000Z',
+                    },
+                    periods: {
+                      '14d': {
+                        glucoseManagementIndicator: 7.75,
+                        timeCGMUseMinutes: 1380,
+                        timeCGMUsePercent: 0.85,
+                      },
+                    },
+                  },
+                },
+                tags: ['tag3'],
+                reviews: [{ clinicianId: 'clinicianUserId123', time: yesterday }],
+              },
+              expect.any(Function), // callback fn passed to api
+            );
           });
+
         });
       });
     });
