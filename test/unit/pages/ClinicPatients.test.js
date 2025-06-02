@@ -2073,8 +2073,6 @@ describe('ClinicPatients', () => {
             const applyButton = popover().find('#apply-summary-period-filter').hostNodes();
             applyButton.simulate('click');
 
-            console.log(defaultProps.api.clinics.getPatientsForClinic.getCalls()[0].args);
-
             // Ensure resulting patient fetch is requesting the 7 day period for time in range filters
             sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({
               ...defaultFetchOptions,
