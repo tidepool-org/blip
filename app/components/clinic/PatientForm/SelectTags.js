@@ -94,6 +94,7 @@ const SelectTags = ({
       styles={selectElementStyleOverrides}
       name="patient-form-select-tags"
       id="patient-form-select-tags"
+      classNamePrefix="PatientFormSelectTags"
       placeholder={t('Add a Tag')}
       value={selectValue}
       onChange={handleTagSelectionChange}

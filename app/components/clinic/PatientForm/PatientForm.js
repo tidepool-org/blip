@@ -243,7 +243,7 @@ export const PatientForm = (props) => {
         minWidth: [null, '320px'],
 
         // When the select Tags or Sites dropdowns are open, expand the modal to give extra room
-        '&:has(.SelectTags__control--menu-is-open)': { paddingBottom: '248px' },
+        '&:has(.PatientFormSelectTags__control--menu-is-open)': { paddingBottom: '242px' },
       }}
       {...boxProps}
     >
@@ -336,7 +336,7 @@ export const PatientForm = (props) => {
             onChange={tagIds => setFieldValue('tags', tagIds)}
             onMenuOpen={() => {
               // Wait for height modal to expand via CSS, then scroll down to enhance dropdown visibility
-              setTimeout(() => tagSectionRef?.current?.scrollIntoView({ block: 'start' }), 50);
+              setTimeout(() => tagSectionRef?.current?.scrollIntoView(), 50);
             }}
           />
         </Box>
