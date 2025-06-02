@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { withTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
@@ -9,30 +9,35 @@ import get from 'lodash/get';
 import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
 import keyBy from 'lodash/keyBy';
-import keys from 'lodash/keys';
 import map from 'lodash/map';
 import omitBy from 'lodash/omitBy';
 import pick from 'lodash/pick';
 import reject from 'lodash/reject';
-import without from 'lodash/without';
 import { useFormik } from 'formik';
 import InputMask from 'react-input-mask';
-import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
-import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
-import ErrorOutlineRoundedIcon from '@material-ui/icons/ErrorOutlineRounded';
-import { Box, Text, BoxProps } from 'theme-ui';
+import { Box, BoxProps } from 'theme-ui';
 import moment from 'moment';
 
-import * as actions from '../../redux/actions';
-import TextInput from '../../components/elements/TextInput';
-import { TagList } from '../../components/elements/Tag';
-import { useToasts } from '../../providers/ToastProvider';
-import { getCommonFormikFieldProps } from '../../core/forms';
-import { useInitialFocusedInput, useIsFirstRender, usePrevious } from '../../core/hooks';
-import { dateRegex, patientSchema as validationSchema } from '../../core/clinicUtils';
-import { accountInfoFromClinicPatient } from '../../core/personutils';
-import { Body0 } from '../../components/elements/FontStyles';
-import { borders, colors } from '../../themes/baseTheme';
+import * as actions from '../../../redux/actions';
+import TextInput from '../../../components/elements/TextInput';
+import { getCommonFormikFieldProps } from '../../../core/forms';
+import { useInitialFocusedInput, usePrevious } from '../../../core/hooks';
+import { dateRegex, patientSchema as validationSchema } from '../../../core/clinicUtils';
+import { accountInfoFromClinicPatient } from '../../../core/personutils';
+import { Body0 } from '../../../components/elements/FontStyles';
+import { MediumTitle } from '../../../components/elements/FontStyles';
+
+import SelectTags from './SelectTags';
+
+export const DEXCOM_CONNECTION_STATES = [
+  'pending',
+  'pendingReconnect',
+  'pendingExpired',
+  'connected',
+  'disconnected',
+  'error',
+  'unknown',
+];
 
 export function getFormValues(source, clinicPatientTags) {
   return {
@@ -65,8 +70,6 @@ export const PatientForm = (props) => {
   } = props;
 
   const dispatch = useDispatch();
-  const isFirstRender = useIsFirstRender();
-  const { set: setToast } = useToasts();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const mrnSettings = clinic?.mrnSettings ?? {};
@@ -88,50 +91,9 @@ export const PatientForm = (props) => {
   const previousFetchingPatientsForClinic = usePrevious(fetchingPatientsForClinic);
   const previousFetchOptions = usePrevious(patientFetchOptions);
   const initialFocusedInputRef = useInitialFocusedInput();
+  const tagSectionRef = useRef(null);
 
-  const dexcomConnectStateUI = {
-    pending: {
-      color: 'mediumGrey',
-      icon: ErrorOutlineRoundedIcon,
-      label: t('Pending connection with'),
-      showRegionalNote: true,
-    },
-    pendingReconnect: {
-      color: 'mediumGrey',
-      icon: ErrorOutlineRoundedIcon,
-      label: t('Pending reconnection with'),
-    },
-    pendingExpired: {
-      color: 'mediumGrey',
-      icon: ErrorOutlineRoundedIcon,
-      label: t('Pending connection expired with'),
-      showRegionalNote: true,
-    },
-    connected: {
-      color: 'brand.dexcom',
-      icon: CheckCircleRoundedIcon,
-      label: t('Connected with'),
-    },
-    disconnected: {
-      color: 'mediumGrey',
-      icon: ErrorOutlineRoundedIcon,
-      label: t('Disconnected from'),
-    },
-    error: {
-      color: 'feedback.danger',
-      icon: ErrorOutlineRoundedIcon,
-      label: t('Error connecting to'),
-      showRegionalNote: true,
-    },
-    unknown: {
-      color: 'mediumGrey',
-      icon: ErrorOutlineRoundedIcon,
-      label: t('Unknown connection to'),
-      showRegionalNote: true,
-    },
-  };
-
-  let dexcomConnectState = includes(keys(dexcomConnectStateUI), dexcomDataSource?.state)
+  let dexcomConnectState = includes(DEXCOM_CONNECTION_STATES, dexcomDataSource?.state)
     ? dexcomDataSource.state
     : 'unknown';
 
@@ -277,10 +239,19 @@ export const PatientForm = (props) => {
     <Box
       as="form"
       id="clinic-patient-form"
-      sx={{ minWidth: [null, '320px'] }}
+      sx={{
+        minWidth: [null, '320px'],
+
+        // When the select Tags or Sites dropdowns are open, expand the modal to give extra room
+        '&:has(.PatientFormSelectTags__control--menu-is-open)': { paddingBottom: '242px' },
+      }}
       {...boxProps}
     >
-      <Box mb={4}>
+      <Box mb={2}>
+        <MediumTitle sx={{ fontWeight: 'bold', fontSize: 2 }}>{t('Patient Details')}</MediumTitle>
+      </Box>
+
+      <Box mb={3}>
         <TextInput
           {...getCommonFormikFieldProps('fullName', formikContext)}
           innerRef={initialFocusedInput === 'fullName' ? initialFocusedInputRef : undefined}
@@ -291,7 +262,7 @@ export const PatientForm = (props) => {
         />
       </Box>
 
-      <Box mb={4}>
+      <Box mb={3}>
         <InputMask
           mask={dateMaskFormat}
           maskPlaceholder={dateInputFormat.toLowerCase()}
@@ -316,7 +287,7 @@ export const PatientForm = (props) => {
         </InputMask>
       </Box>
 
-      <Box mb={4}>
+      <Box mb={3}>
         <TextInput
           {...getCommonFormikFieldProps('mrn', formikContext)}
           innerRef={initialFocusedInput === 'mrn' ? initialFocusedInputRef : undefined}
@@ -338,7 +309,7 @@ export const PatientForm = (props) => {
 
       {showEmail && (
         <>
-          <Box mb={2}>
+          <Box mb={1}>
             <TextInput
               {...getCommonFormikFieldProps('email', formikContext)}
               innerRef={initialFocusedInput === 'email' ? initialFocusedInputRef : undefined}
@@ -350,55 +321,24 @@ export const PatientForm = (props) => {
               />
           </Box>
 
-          <Body0 sx={{ fontWeight: 'medium' }}>
+          <Body0 sx={{ fontWeight: 'medium' }} mb={3}>
             {t('If you want your patients to upload their data from home, you must include their email address.')}
           </Body0>
         </>
       )}
 
       {showTags && (
-        <Box
-          mt={3}
-          sx={{
-            borderTop: borders.default,
-          }}
-        >
-          {!!values.tags.length && (
-            <Box className='selected-tags' mt={3} mb={1} sx={{ fontSize: 0 }}>
-              <Text mb={1} sx={{ display: 'block', fontWeight: 'medium', color: 'text.primary' }}>{t('Assigned Patient Tags')}</Text>
+        <Box ref={tagSectionRef} mb={3}>
+          <MediumTitle mb={2} sx={{ fontWeight: 'bold', fontSize: 2 }}>{t('Tags')}</MediumTitle>
 
-              <TagList
-                tags={compact(map(values.tags, tagId => clinicPatientTags[tagId]))}
-                tagProps={{
-                  onClickIcon: tagId => {
-                    setFieldValue('tags', without(values.tags, tagId));
-                  },
-                  icon: CloseRoundedIcon,
-                  iconColor: 'white',
-                  iconFontSize: 1,
-                  sx: {
-                    color: 'white',
-                    backgroundColor: 'purpleMedium',
-                  },
-                }}
-              />
-            </Box>
-          )}
-
-          {values.tags.length < (clinic?.patientTags || []).length && (
-            <Box className='available-tags' mb={1} mt={3} sx={{ alignItems: 'center', fontSize: 0 }}>
-              <Text mb={1} sx={{ display: 'block', fontWeight: 'medium', color: 'text.primary' }}>{t('Available Patient Tags')}</Text>
-
-              <TagList
-                tags={map(reject(clinic?.patientTags, ({ id }) => includes(values.tags, id)), ({ id }) => clinicPatientTags?.[id])}
-                tagProps={{
-                  onClick: tagId => {
-                    setFieldValue('tags', [...values.tags, tagId]);
-                  },
-                }}
-              />
-            </Box>
-          )}
+          <SelectTags
+            currentTagIds={values.tags || []}
+            onChange={tagIds => setFieldValue('tags', tagIds)}
+            onMenuOpen={() => {
+              // Wait for height modal to expand via CSS, then scroll down to enhance dropdown visibility
+              setTimeout(() => tagSectionRef?.current?.scrollIntoView(), 50);
+            }}
+          />
         </Box>
       )}
     </Box>
