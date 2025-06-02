@@ -2537,11 +2537,14 @@ export const ClinicPatients = (props) => {
             <Box mt={1} id="clinic-patients-edit-tag-list">
               {
                 orderedTags.map(({ id, name }) => (
-                  <Grid py={2} sx={{
-                    gridTemplateColumns: '1fr 72px 16px',
-                    borderTop: `1px solid ${colors.gray05}`,
-                    alignItems: 'center',
-                  }}>
+                  <Grid
+                    key={`edit-tags-list-${id}`}
+                    py={2}
+                    sx={{
+                      gridTemplateColumns: '1fr 72px 16px',
+                      borderTop: `1px solid ${colors.gray05}`,
+                      alignItems: 'center',
+                    }}>
                     <Flex sx={{ alignItems: 'center'}}>
                       <Text className="tag-text" sx={{ fontSize: 1, color: 'text.primary' }}>{name}</Text>
                       <Icon
