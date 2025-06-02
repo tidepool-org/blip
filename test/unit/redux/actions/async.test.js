@@ -4259,6 +4259,7 @@ describe('Actions', () => {
             startDate: '2017-12-31T00:00:00.000Z',
             endDate: '2018-06-02T00:00:00.000Z',
             type: ALL_FETCHED_DATA_TYPES.join(','),
+            'dosingDecision.reason': 'normalBolus,simpleBolus,watchBolus',
           }).callCount).to.equal(1);
         });
       });
