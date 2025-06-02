@@ -17,3 +17,5 @@ global.__TEST__ = true;
 global.__PROD__ = false;
 global.__I18N_ENABLED__ = 'false';
 global.__DEV_TOOLS__ = false;
+
+window.getComputedStyle = () => ({ getPropertyValue: () => undefined });
