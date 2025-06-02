@@ -50,7 +50,7 @@ export const colors = {
   },
   feedback: {
     info: vizColors.indigo50,
-    warning: vizColors.gold30,
+    warning: vizColors.gold50,
     danger: vizColors.red30,
     success: vizColors.green30,
   },
