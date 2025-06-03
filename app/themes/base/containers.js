@@ -131,7 +131,7 @@ export default ({ borders, colors, radii, space, breakpoints, fonts, fontSizes, 
     mx: [0, 4, null, null, 'auto'],
     width: ['auto', null, null, 'calc(100% - 48px)'],
     maxWidth: breakpoints[3],
-    overflow: 'hidden',
+    overflow: ['hidden', null, 'visible'],
   };
 
   const patientDataInner = {

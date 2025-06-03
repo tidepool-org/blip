@@ -62,6 +62,7 @@ import UploaderBanner from '../../components/elements/Card/Banners/Uploader.png'
 import ShareBanner from '../../components/elements/Card/Banners/Share.png';
 import DataConnectionsBanner from '../../components/elements/Card/Banners/DataConnections.png';
 import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
+import { DEFAULT_CGM_SAMPLE_INTERVAL, DEFAULT_CGM_SAMPLE_INTERVAL_RANGE, MS_IN_MIN } from '../../core/constants';
 
 const { Loader } = vizComponents;
 const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
@@ -116,6 +117,7 @@ export const PatientDataClass = createReactClass({
         },
         daily: {
           extentSize: 1,
+          cgmSampleIntervalRange: DEFAULT_CGM_SAMPLE_INTERVAL_RANGE,
         },
         trends: {
           activeDays: {
@@ -179,7 +181,7 @@ export const PatientDataClass = createReactClass({
       createMessage: null,
       createMessageDatetime: null,
       datetimeLocation: null,
-      fetchEarlierDataCount: 0,
+      fetchAdditionalDataCount: 0,
       loading: true,
       transitioningChartType: false,
       timePrefs: {},
@@ -407,7 +409,7 @@ export const PatientDataClass = createReactClass({
           // Determine the earliest startDate needed to fetch data to.
           const startDate = moment.utc(dates[0]).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).toISOString();
           const endDate = moment.utc(dates[1]).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).toISOString();
-          const fetchedUntil = _.get(this.props, 'data.fetchedUntil');
+          const fetchedUntil = this.getCurrentFetchedUntilDate();
 
           const updateOpts = {
             showLoading: true,
@@ -417,7 +419,7 @@ export const PatientDataClass = createReactClass({
           if (startDate < fetchedUntil) {
             this.setState({ datesDialogFetchingData: true });
 
-            this.fetchEarlierData({
+            this.fetchAdditionalData({
               returnData: false,
               showLoading: true,
               startDate,
@@ -461,13 +463,13 @@ export const PatientDataClass = createReactClass({
           // Determine the earliest startDate needed to fetch data to.
           const enabledOpts = _.filter(opts, { disabled: false });
           const earliestPrintDate = _.min(_.at(enabledOpts, _.map(_.keys(enabledOpts), key => `${key}.endpoints.0`)));
-          const startDate = moment.utc(earliestPrintDate).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).toISOString()
-          const fetchedUntil = _.get(this.props, 'data.fetchedUntil');
+          const startDate = moment.utc(earliestPrintDate).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).toISOString();
+          const fetchedUntil = this.getCurrentFetchedUntilDate();
 
           let setStateCallback = this.generatePDF;
 
           if (startDate < fetchedUntil) {
-            this.fetchEarlierData({
+            this.fetchAdditionalData({
               returnData: false,
               showLoading: false,
               startDate,
@@ -978,7 +980,10 @@ export const PatientDataClass = createReactClass({
     const patientSettings = _.get(props, 'patient.settings', {});
     const printDialogPDFOpts = state.printDialogPDFOpts || {};
     const siteChangeSource = state.updatedSiteChangeSource || _.get(props, 'patient.settings.siteChangeSource');
-    const pdfPatient = _.assign({}, props.patient, {
+    const combinedPatient = props.clinicPatient ? personUtils.combinedAccountAndClinicPatient(props.patient, props.clinicPatient) : null;
+    const sourcePatient = personUtils.isClinicianAccount(props.user) && !!combinedPatient ? combinedPatient : props.patient;
+
+    const pdfPatient = _.assign({}, sourcePatient, {
       settings: _.assign({}, patientSettings, { siteChangeSource }),
     });
 
@@ -1029,6 +1034,7 @@ export const PatientDataClass = createReactClass({
           wizard: {},
         },
         bgSource: _.get(state.chartPrefs, 'daily.bgSource'),
+        cgmSampleIntervalRange: _.get(state.chartPrefs, 'daily.cgmSampleIntervalRange'),
         ...commonQueries,
       };
     }
@@ -1104,7 +1110,7 @@ export const PatientDataClass = createReactClass({
     const prevLimitReached = newEndpoints[0] <= prevEndpoints[0];
     const nextLimitReached = newEndpoints[1] >= nextEndpoints[1];
     const updateChartData = forceChartDataUpdate || (!isOnMostRecentDay && (prevLimitReached || nextLimitReached));
-    const fetchedUntil = _.get(this.props, 'data.fetchedUntil');
+    const fetchedUntil = this.getCurrentFetchedUntilDate();
     const newChartRangeNeedsDataFetch = moment.utc(newEndpoints[0]).subtract(nextDays, 'days').startOf('day').toISOString() <= fetchedUntil;
 
     const updateOpts = {
@@ -1124,10 +1130,28 @@ export const PatientDataClass = createReactClass({
         returnData: false,
       };
 
-      this.fetchEarlierData(options);
+      this.fetchAdditionalData(options);
     }
 
     this.updateChart(this.state.chartType, datetimeLocation, newEndpoints, updateOpts);
+  },
+
+  handleCgmSampleIntervalRangeUpdate: function(cgmSampleIntervalRange) {
+    if (cgmSampleIntervalRange?.[0] === DEFAULT_CGM_SAMPLE_INTERVAL) return;
+
+    const fetchedUntil = this.getCurrentFetchedUntilDate();
+    const currentChartStartEndpoint = _.get(this.state, 'chartEndpoints.current.0', 0);
+    const newCgmSampleIntervalRangeNeedsDataFetch = !fetchedUntil || moment.utc(fetchedUntil).valueOf() > currentChartStartEndpoint;
+
+    if (!this.props.fetchingPatientData && newCgmSampleIntervalRangeNeedsDataFetch) {
+      const options = {
+        showLoading: true,
+        returnData: false,
+        type: 'cbg',
+      };
+
+      this.fetchAdditionalData(options);
+    }
   },
 
   handleMessageCreation: function(message) {
@@ -1344,7 +1368,7 @@ export const PatientDataClass = createReactClass({
       e.preventDefault();
     }
 
-    this.fetchEarlierData({
+    this.fetchAdditionalData({
       returnData: false,
       showLoading: true,
       noDates: true,
@@ -1425,10 +1449,14 @@ export const PatientDataClass = createReactClass({
       ...updates,
     };
 
+    const cgmSampleIntervalRangeUpdated = !_.isEqual(this.state.chartPrefs.daily.cgmSampleIntervalRange, newPrefs.daily.cgmSampleIntervalRange);
+
     this.setState({
       chartPrefs: newPrefs,
     }, () => {
       const queryOpts = { showLoading: false };
+
+      if (cgmSampleIntervalRangeUpdated) this.handleCgmSampleIntervalRangeUpdate(newPrefs.daily.cgmSampleIntervalRange);
 
       if (queryData) {
         this.queryData(undefined, queryOpts);
@@ -1466,6 +1494,12 @@ export const PatientDataClass = createReactClass({
 
   getCurrentData: function(path, emptyValue = {}) {
     return _.get(this.props, `data.data.current.${path}`, emptyValue);
+  },
+
+  getCurrentFetchedUntilDate: function() {
+    return this.state.chartPrefs.daily.cgmSampleIntervalRange?.[0] === MS_IN_MIN
+      ? _.get(this.props, 'data.oneMinCgmFetchedUntil') || moment.utc().toISOString()
+      : _.get(this.props, 'data.fetchedUntil');
   },
 
   getMetaData: function(path, emptyValue = {}, props = this.props) {
@@ -2039,6 +2073,7 @@ export const PatientDataClass = createReactClass({
             wizard: {},
           };
 
+          chartQuery.cgmSampleIntervalRange = _.get(this.state.chartPrefs, 'daily.cgmSampleIntervalRange');
           chartQuery.fillData = { adjustForDSTChanges: true };
           break;
 
@@ -2214,12 +2249,12 @@ export const PatientDataClass = createReactClass({
   },
 
 /**
- * Fetches earlier data for the current patient.
+ * Fetches additional data for the current patient.
  *
- * This function is responsible for fetching earlier data for the patient currently in view.
+ * This function is responsible for fetching additional data for the patient currently in view.
  * It checks if data is already being fetched and returns early if so. Otherwise, it constructs
  * the options for the data fetch, updates the component state to indicate loading, logs the
- * fetching action, and triggers the data fetch via the `onFetchEarlierData` prop.
+ * fetching action, and triggers the data fetch via the `onFetchAdditionalData` prop.
  *
  * @param {Object} [options={}] - Optional configuration object for the data fetch.
  * @param {boolean} [options.showLoading=true] - Whether to show the loading indicator.
@@ -2228,19 +2263,20 @@ export const PatientDataClass = createReactClass({
  * @param {boolean} [options.carelink=this.props.carelink] - Whether to include Carelink data.
  * @param {boolean} [options.dexcom=this.props.dexcom] - Whether to include Dexcom data.
  * @param {boolean} [options.medtronic=this.props.medtronic] - Whether to include Medtronic data.
+ * @param {boolean} [options.cbgFilter=this.props.cbgFilter] - Whether to apply the CBG filter for cloud versus non-cloud data.
  * @param {boolean} [options.useCache=false] - Whether to use cached data.
  * @param {boolean} [options.initial=false] - Whether this is the initial data fetch.
  * @param {boolean} [options.noDates=false] - Whether to fetch data without start and end dates..
  *
  * @returns {void}
  */
-  fetchEarlierData: function(options = {}) {
+  fetchAdditionalData: function(options = {}) {
     // Return if we are currently fetching data
     if (this.props.fetchingPatientData) {
       return;
     };
 
-    const earliestRequestedData = _.get(this.props, 'data.fetchedUntil');
+    const earliestRequestedData = this.getCurrentFetchedUntilDate();
 
     const fetchOpts = _.defaults(options, {
       showLoading: true,
@@ -2249,9 +2285,11 @@ export const PatientDataClass = createReactClass({
       carelink: this.props.carelink,
       dexcom: this.props.dexcom,
       medtronic: this.props.medtronic,
+      cbgFilter: this.props.cbgFilter,
       useCache: false,
       initial: false,
       noDates: false,
+      sampleIntervalMinimum: this.state.chartPrefs.daily.cgmSampleIntervalRange?.[0] || DEFAULT_CGM_SAMPLE_INTERVAL,
     });
 
     if (fetchOpts.noDates) {
@@ -2259,16 +2297,16 @@ export const PatientDataClass = createReactClass({
       fetchOpts.endDate = undefined;
     }
 
-    const count = this.state.fetchEarlierDataCount + 1;
+    const count = this.state.fetchAdditionalDataCount + 1;
 
     this.setState({
       loading: options.showLoading,
-      fetchEarlierDataCount: count,
+      fetchAdditionalDataCount: count,
     });
 
     this.log('fetching');
 
-    this.props.onFetchEarlierData(fetchOpts, this.props.currentPatientInViewId);
+    this.props.onFetchAdditionalData(fetchOpts, this.props.currentPatientInViewId);
 
     const properties = { patientID: this.props.currentPatientInViewId, count };
     if (this.props.selectedClinicId) properties.clinicId = this.props.selectedClinicId;
@@ -2299,6 +2337,11 @@ export const PatientDataClass = createReactClass({
       const medtronic = nextProps.medtronic;
       if (!_.isEmpty(medtronic)) {
         this.props.trackMetric('Web - Medtronic Import URL Param', { medtronic });
+      }
+
+      const cbgFilter = nextProps.cbgFilter;
+      if (!_.isEmpty(cbgFilter)) {
+        this.props.trackMetric('Web - CBG Filter URL Param', { cbgFilter });
       }
 
       const properties = { patientID: nextProps.currentPatientInViewId };
@@ -2337,7 +2380,7 @@ export function getFetchers(dispatchProps, ownProps, stateProps, api, options) {
     fetchers.push(dispatchProps.fetchPendingSentInvites.bind(null, api));
   }
 
-  if (!stateProps.fetchingClinicsForPatient.inProgress && !stateProps.fetchingClinicsForPatient.completed) {
+  if (stateProps.isUserPatient && !stateProps.fetchingClinicsForPatient.inProgress && !stateProps.fetchingClinicsForPatient.completed) {
     fetchers.push(dispatchProps.fetchClinicsForPatient.bind(null, api, ownProps.match.params.id));
   }
 
@@ -2510,6 +2553,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   const carelink = utils.getCarelink(ownProps.location);
   const dexcom = utils.getDexcom(ownProps.location);
   const medtronic = utils.getMedtronic(ownProps.location);
+  const cbgFilter = utils.getCBGFilter(ownProps.location);
   const api = ownProps.api;
   const assignedDispatchProps = [
     'dataWorkerRemoveDataRequest',
@@ -2523,7 +2567,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   ];
 
   return Object.assign({}, _.pick(dispatchProps, assignedDispatchProps), stateProps, {
-    fetchers: getFetchers(dispatchProps, ownProps, stateProps, api, { carelink, dexcom, medtronic }),
+    fetchers: getFetchers(dispatchProps, ownProps, stateProps, api, { carelink, dexcom, medtronic, cbgFilter }),
     history: ownProps.history,
     location: ownProps.location,
     match: ownProps.match,
@@ -2532,7 +2576,8 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
       const fetchOptions = {
         carelink,
         dexcom,
-        medtronic
+        medtronic,
+        cbgFilter,
       };
       if(chartType === 'settings') {
         _.extend(fetchOptions, {
@@ -2553,11 +2598,12 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     queryParams: ownProps.location.query,
     currentPatientInViewId: ownProps.match.params.id,
     updateBasicsSettings: dispatchProps.updateSettings.bind(null, api),
-    onFetchEarlierData: dispatchProps.fetchPatientData.bind(null, api),
+    onFetchAdditionalData: dispatchProps.fetchPatientData.bind(null, api),
     selectClinic: dispatchProps.selectClinic.bind(null, api),
     carelink: carelink,
     dexcom: dexcom,
     medtronic: medtronic,
+    cbgFilter: cbgFilter,
   });
 };
 

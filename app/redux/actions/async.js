@@ -6,7 +6,7 @@ import { checkCacheValid } from 'redux-cache';
 
 import * as ErrorMessages from '../constants/errorMessages';
 import * as UserMessages from '../constants/usrMessages';
-import { ALL_FETCHED_DATA_TYPES, DIABETES_DATA_TYPES, MS_IN_MIN } from '../../core/constants';
+import { ALL_FETCHED_DATA_TYPES, DIABETES_DATA_TYPES, MS_IN_MIN, DEFAULT_CGM_SAMPLE_INTERVAL } from '../../core/constants';
 import * as sync from './sync.js';
 import update from 'immutability-helper';
 import personUtils from '../../core/personutils';
@@ -1040,7 +1040,7 @@ export function fetchPatientData(api, options, id) {
     initial: true,
     type: ALL_FETCHED_DATA_TYPES.join(','),
     forceDataWorkerAddDataRequest: false,
-    sampleIntervalMinimum: 5 * MS_IN_MIN,
+    sampleIntervalMinimum: DEFAULT_CGM_SAMPLE_INTERVAL,
   });
 
   // Only fetch relevant dosing decision data
@@ -1181,7 +1181,8 @@ export function fetchPatientData(api, options, id) {
         options.forceDataWorkerAddDataRequest ||
         (location.pathname.indexOf(id) >= 0 && (!fetchingPatientId || fetchingPatientId === id))
       ) {
-        dispatch(worker.dataWorkerAddDataRequest(data, options.returnData, patientId, options.startDate));
+        if (options.sampleIntervalMinimum === MS_IN_MIN) options.oneMinCgmFetchedUntil = options.startDate;
+        dispatch(worker.dataWorkerAddDataRequest(data, options.returnData, patientId, options.startDate, options.oneMinCgmFetchedUntil));
       }
     }
 
@@ -1947,8 +1948,8 @@ export function fetchPatientsForClinic(api, clinicId, options = {}) {
           createActionError(errMsg, err), err, clinicId
         ));
       } else {
-        const { data, meta } = results;
-        dispatch(sync.fetchPatientsForClinicSuccess(clinicId, data, meta.count));
+        const { data, meta: { count, totalCount } } = results;
+        dispatch(sync.fetchPatientsForClinicSuccess(clinicId, data, count, totalCount));
       }
     });
   };
