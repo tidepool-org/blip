@@ -237,21 +237,21 @@ const ClearFilterButtons = withTranslation()(({ t, patientListQueryState, onClea
 
   switch(patientListQueryState) {
     case SEARCH_ONLY:
-      return (
+      return <Box>
         <ClearButton className='clear-search-button' onClick={onClearSearch}>
           {t('Clear Search')}
         </ClearButton>
-      );
+      </Box>;
 
     case FILTER_ONLY:
-      return (
+      return <Box>
         <ClearButton className='reset-filters-button' onClick={onResetFilters}>
           {t('Reset Filters')}
         </ClearButton>
-      );
+      </Box>;
 
     case FILTER_AND_SEARCH:
-      return <>
+      return <Box>
         <ClearButton className='reset-filters-button' onClick={onResetFilters}>
           {t('Reset Filters')}
         </ClearButton>
@@ -259,7 +259,7 @@ const ClearFilterButtons = withTranslation()(({ t, patientListQueryState, onClea
         <ClearButton className='clear-search-button' onClick={onClearSearch}>
           {t('Clear Search')}
         </ClearButton>
-      </>;
+      </Box>;
 
     case NONE:
     default:
