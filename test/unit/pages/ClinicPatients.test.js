@@ -323,9 +323,9 @@ describe('ClinicPatients', () => {
           }),
           tier: 'tier0300',
           patientTags: [
-            { id: 'tag1', name: 'test tag 1'},
+            { id: 'tag3', name: 'ttest tag 3'},
             { id: 'tag2', name: 'test tag 2'},
-            { id: 'tag3', name: 'test tag 3'},
+            { id: 'tag1', name: '>test tag 1'},
           ],
           patients: {
             patient1: {
@@ -1526,8 +1526,8 @@ describe('ClinicPatients', () => {
 
           // Patient tags in third column
           expect(rowData(0).at(2).text()).contains('Add'); // Add tag link when no tags avail
-          expect(rowData(1).at(2).text()).contains('test tag 1');
-          expect(rowData(2).at(2).text()).contains(['test tag 1', '+2'].join('')); // +1 for tag overflow
+          expect(rowData(1).at(2).text()).contains('>test tag 1');
+          expect(rowData(2).at(2).text()).contains(['>test tag 1', '+2'].join('')); // +1 for tag overflow
 
           // GMI in fifth column
           expect(rowData(0).at(4).text()).contains(emptyStatText);// GMI undefined
@@ -1550,7 +1550,7 @@ describe('ClinicPatients', () => {
           const overflowTags = popover().find('.tag-text').hostNodes();
           expect(overflowTags).to.have.length(2);
           expect(overflowTags.at(0).text()).to.equal('test tag 2');
-          expect(overflowTags.at(1).text()).to.equal('test tag 3');
+          expect(overflowTags.at(1).text()).to.equal('ttest tag 3');
 
           // BG summary in sixth column
           expect(rowData(0).at(5).text()).to.not.contain('CGM Use <24 hours'); // no cgm stats
@@ -1723,22 +1723,23 @@ describe('ClinicPatients', () => {
           expect(popover().props().style.visibility).to.be.undefined;
 
           // Ensure filter options present
-          const filterOptions = popover().find('.tag-list').find('.tag-text').hostNodes();
+          const filterOptions = popover().find('.tag-filter-option').hostNodes();
           expect(filterOptions).to.have.lengthOf(3);
-          expect(filterOptions.at(0).text()).to.equal('test tag 1');
+
+          // Ensure filter options are presented sorted alphabetically
+          expect(filterOptions.at(0).text()).to.equal('>test tag 1');
           expect(filterOptions.at(1).text()).to.equal('test tag 2');
-          expect(filterOptions.at(2).text()).to.equal('test tag 3');
+          expect(filterOptions.at(2).text()).to.equal('ttest tag 3');
 
           // Apply button disabled until selection made
           const applyButton = () => popover().find('#apply-patient-tags-filter').hostNodes();
-          expect(applyButton().props().disabled).to.be.true;
 
-          popover().find('#tag1').hostNodes().simulate('click');
-          popover().find('#tag2').hostNodes().simulate('click');
-          expect(applyButton().props().disabled).to.be.false;
+          popover().find('#tag-filter-option-checkbox-tag1').hostNodes().simulate('change', { target: { checked: true } });
+          popover().find('#tag-filter-option-checkbox-tag2').hostNodes().simulate('change', { target: { checked: true } });
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           applyButton().simulate('click');
+
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ ...defaultFetchOptions, sort: '-lastData', tags: ['tag1', 'tag2'] }));
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Patient tag filter apply', sinon.match({ clinicId: 'clinicID123' }));
         });
@@ -1824,17 +1825,14 @@ describe('ClinicPatients', () => {
 
           it('should allow updating a clinic patient tag', done => {
             // Ensure tags present
-            const tags = editTagsDialog().find('.tag-list').find('.tag-text').hostNodes();
+            const tags = editTagsDialog().find('#clinic-patients-edit-tag-list').find('.tag-text').hostNodes();
             expect(tags).to.have.lengthOf(3);
-            expect(tags.at(0).text()).to.equal('test tag 1');
-            expect(tags.at(1).text()).to.equal('test tag 2');
-            expect(tags.at(2).text()).to.equal('test tag 3');
 
             const confirmDialog = () => wrapper.find('Dialog#updatePatientTag');
             expect(confirmDialog()).to.have.length(0);
 
             // Open confirm dialog
-            editTagsDialog().find('#tag1').hostNodes().simulate('click');
+            editTagsDialog().find('#edit-tag-button-tag1').hostNodes().simulate('click');
             wrapper.update();
             expect(confirmDialog()).to.have.length(1);
             expect(confirmDialog().props().open).to.be.true;
@@ -1862,17 +1860,14 @@ describe('ClinicPatients', () => {
 
           it('should allow deleting a clinic patient tag', () => {
             // Ensure tags present
-            const tags = editTagsDialog().find('.tag-list').find('.tag-text').hostNodes();
+            const tags = editTagsDialog().find('#clinic-patients-edit-tag-list').find('.tag-text').hostNodes();
             expect(tags).to.have.lengthOf(3);
-            expect(tags.at(0).text()).to.equal('test tag 1');
-            expect(tags.at(1).text()).to.equal('test tag 2');
-            expect(tags.at(2).text()).to.equal('test tag 3');
 
             const confirmDialog = () => wrapper.find('Dialog#deletePatientTag');
             expect(confirmDialog()).to.have.length(0);
 
             // Open confirm dialog
-            editTagsDialog().find('#tag1').find('.icon').hostNodes().simulate('click');
+            editTagsDialog().find('#delete-tag-button-tag1').hostNodes().simulate('click');
             wrapper.update();
             expect(confirmDialog()).to.have.length(1);
             expect(confirmDialog().props().open).to.be.true;
@@ -2185,8 +2180,12 @@ describe('ClinicPatients', () => {
             expect(popover().props().style.visibility).to.be.undefined;
 
             // Ensure selected filter is set
-            const selectedFilters = popover().find('#selected-tag-filters').hostNodes();
-            expect(selectedFilters.find('.tag-text').hostNodes().text()).to.equal('test tag 2');
+            const tag1Filter = popover().find('#tag-filter-option-checkbox-tag1').hostNodes().find('input').hostNodes();
+            const tag2Filter = popover().find('#tag-filter-option-checkbox-tag2').hostNodes().find('input').hostNodes();
+            const tag3Filter = popover().find('#tag-filter-option-checkbox-tag3').hostNodes().find('input').hostNodes();
+            expect(tag1Filter.props().checked).to.be.false;
+            expect(tag2Filter.props().checked).to.be.true;
+            expect(tag3Filter.props().checked).to.be.false;
           });
 
           it('should set the time in range filters on load based on the stored filters', () => {
@@ -2700,9 +2699,9 @@ describe('ClinicPatients', () => {
             // Ensure tag options present
             const availableTags = () => addTagsPopover().find('.available-tags').find('.tag-text').hostNodes();
             expect(availableTags()).to.have.lengthOf(3);
-            expect(availableTags().at(0).text()).to.equal('test tag 1');
+            expect(availableTags().at(0).text()).to.equal('>test tag 1');
             expect(availableTags().at(1).text()).to.equal('test tag 2');
-            expect(availableTags().at(2).text()).to.equal('test tag 3');
+            expect(availableTags().at(2).text()).to.equal('ttest tag 3');
 
             // Apply button disabled until selection made
             const applyButton = () => addTagsPopover().find('#apply-patient-tags-dialog').hostNodes();
@@ -2714,11 +2713,11 @@ describe('ClinicPatients', () => {
 
             // Tags should now be moved to selected group
             expect(selectedTags()).to.have.lengthOf(2);
-            expect(selectedTags().at(0).text()).to.equal('test tag 1');
+            expect(selectedTags().at(0).text()).to.equal('>test tag 1');
             expect(selectedTags().at(1).text()).to.equal('test tag 2');
 
             expect(availableTags()).to.have.lengthOf(1);
-            expect(availableTags().at(0).text()).to.equal('test tag 3');
+            expect(availableTags().at(0).text()).to.equal('ttest tag 3');
 
             defaultProps.api.clinics.getPatientsForClinic.resetHistory();
             applyButton().simulate('click');
@@ -2797,7 +2796,7 @@ describe('ClinicPatients', () => {
           const rows = table.find('tbody tr');
           const rowData = row => rows.at(row).find('.MuiTableCell-root');
 
-          expect(rowData(1).at(2).text()).contains('test tag 1');
+          expect(rowData(1).at(2).text()).contains('>test tag 1');
           const editTagsTrigger = rowData(1).find('.edit-tags-trigger').hostNodes();
           expect(editTagsTrigger).to.have.length(1);
 
@@ -2818,13 +2817,13 @@ describe('ClinicPatients', () => {
           // Check existing selected tags
           const selectedTags = () => patientForm().find('.selected-tags').find('.tag-text').hostNodes();
           expect(selectedTags()).to.have.lengthOf(1);
-          expect(selectedTags().at(0).text()).to.equal('test tag 1');
+          expect(selectedTags().at(0).text()).to.equal('>test tag 1');
 
           // Ensure available tag options present
           const availableTags = () => patientForm().find('.available-tags').find('.tag-text').hostNodes();
           expect(availableTags()).to.have.lengthOf(2);
-          expect(availableTags().at(0).text()).to.equal('test tag 2');
-          expect(availableTags().at(1).text()).to.equal('test tag 3');
+          expect(availableTags().at(0).text()).to.equal('ttest tag 3');
+          expect(availableTags().at(1).text()).to.equal('test tag 2');
 
           // Add tag 3
           patientForm().find('#tag3').hostNodes().simulate('click');
@@ -2833,11 +2832,11 @@ describe('ClinicPatients', () => {
           patientForm().find('#tag1').find('.icon').hostNodes().simulate('click');
 
           expect(selectedTags()).to.have.lengthOf(1);
-          expect(selectedTags().at(0).text()).to.equal('test tag 3');
+          expect(selectedTags().at(0).text()).to.equal('ttest tag 3');
 
           expect(availableTags()).to.have.lengthOf(2);
-          expect(availableTags().at(0).text()).to.equal('test tag 1');
-          expect(availableTags().at(1).text()).to.equal('test tag 2');
+          expect(availableTags().at(0).text()).to.equal('test tag 2');
+          expect(availableTags().at(1).text()).to.equal('>test tag 1');
 
           store.clearActions();
           dialog().find('Button#editPatientConfirm').simulate('click');
@@ -3011,9 +3010,9 @@ describe('ClinicPatients', () => {
             // Ensure tag options present
             const tags = dialog().find('.tag-text').hostNodes();
             expect(tags).to.have.lengthOf(3);
-            expect(tags.at(0).text()).to.equal('test tag 1');
+            expect(tags.at(0).text()).to.equal('ttest tag 3');
             expect(tags.at(1).text()).to.equal('test tag 2');
-            expect(tags.at(2).text()).to.equal('test tag 3');
+            expect(tags.at(2).text()).to.equal('>test tag 1');
 
             // No initial selected tags
             const selectedTags = () => dialog().find('.tag-text.selected').hostNodes();
@@ -3028,8 +3027,8 @@ describe('ClinicPatients', () => {
 
             // Tags should now be selected
             expect(selectedTags()).to.have.lengthOf(2);
-            expect(selectedTags().at(0).text()).to.equal('test tag 1');
-            expect(selectedTags().at(1).text()).to.equal('test tag 3');
+            expect(selectedTags().at(0).text()).to.equal('ttest tag 3');
+            expect(selectedTags().at(1).text()).to.equal('>test tag 1');
 
             // Ensure period filter options present
             const summaryPeriodOptions = dialog().find('#period').find('label').hostNodes();
@@ -3095,7 +3094,7 @@ describe('ClinicPatients', () => {
               expect(mockedLocalStorage.tideDashboardConfig?.['clinicianUserId123|clinicID123']).to.eql({
                 period: '30d',
                 lastData: 14,
-                tags: ['tag1', 'tag3'],
+                tags: ['tag3', 'tag1'],
               });
 
               done();
