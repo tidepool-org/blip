@@ -274,6 +274,8 @@ const FilterResetBar = withTranslation()(({ t, rightSideContent, patientListQuer
 
   const { FILTER_AND_SEARCH, FILTER_ONLY, SEARCH_ONLY, NONE } = PATIENT_LIST_QUERY_STATE;
 
+  if (patientListQueryState === PATIENT_LIST_QUERY_STATE.NONE) return null; // hide when no search or filters applied
+
   const fetchedPatientCountCopyDefs = {
     [FILTER_AND_SEARCH]: t('Showing {{ shown }} patient accounts with the current filter(s) that match your search', { shown }),
     [FILTER_ONLY]: t('Showing {{ shown }} patient accounts with the current filter(s)', { shown }),
