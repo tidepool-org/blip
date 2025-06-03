@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.46.0-web-3677-one-five-min-cgm-toggle.2":
-  version: 1.46.0-web-3677-one-five-min-cgm-toggle.2
-  resolution: "@tidepool/viz@npm:1.46.0-web-3677-one-five-min-cgm-toggle.2"
+"@tidepool/viz@npm:1.46.0":
+  version: 1.46.0
+  resolution: "@tidepool/viz@npm:1.46.0"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 4532e061b064bf4d9743d53671e492bf7e1ecc673a7fed767e15b166b033e4250c5fe281250827582993b39fc3968fff10f3588de929052303aab467d8853540
+  checksum: 21f68191ca62ab82ed7004985054b62abb44bdc1e48a1dadf57b195d0852c16d7f80dd1bbb983e2877c4f9694672a453f0093af31a6ba10582e9c7ffb59e831d
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.46.0-web-3677-one-five-min-cgm-toggle.2
+    "@tidepool/viz": 1.46.0
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -8462,8 +8462,8 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.32.0-web-3501-range-thresholds.2
-    tidepool-platform-client: 0.63.0-web-3670-add-cbgfilter-query-parameter
+    tideline: 1.32.0
+    tidepool-platform-client: 0.63.0
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
     url-loader: 4.1.1
@@ -22218,9 +22218,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.32.0-web-3501-range-thresholds.2":
-  version: 1.32.0-web-3501-range-thresholds.2
-  resolution: "tideline@npm:1.32.0-web-3501-range-thresholds.2"
+"tideline@npm:1.32.0":
+  version: 1.32.0
+  resolution: "tideline@npm:1.32.0"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -22241,19 +22241,19 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: 6b37d50270c9d1001564291bbd30a5f6619f6e6b33a741737e931c4c177075f51e48fb9a689b1674cdc6fe2d3808d7d89808b8d80c3c48eb77c95c5b18e3deb4
+  checksum: 031fc606a46c062081ffd5dcc58ea1bb863bb98acb04c82d537490caed865d4c62bce7943fb2e69ceb165148957ef6c4e2381c97a456f50bc74ba29b0f899d75
   languageName: node
   linkType: hard
 
-"tidepool-platform-client@npm:0.63.0-web-3670-add-cbgfilter-query-parameter":
-  version: 0.63.0-web-3670-add-cbgfilter-query-parameter
-  resolution: "tidepool-platform-client@npm:0.63.0-web-3670-add-cbgfilter-query-parameter"
+"tidepool-platform-client@npm:0.63.0":
+  version: 0.63.0
+  resolution: "tidepool-platform-client@npm:0.63.0"
   dependencies:
     async: 0.9.0
     lodash: 4.17.21
     superagent: 5.2.2
     uuid: 3.1.0
-  checksum: 5e4dc0e9579344211332fe34aa3305a1eb44f19a0a050501c8404702d24a08b7d4e3b268bb729c3a1f766750b5001637bec94d6c41bcde9b22f46f0aa6daaab8
+  checksum: 1cec76360bde635bc4446a231b006ecc37bd5c70e22ecd0e0c7ba1c756151fdb15433709c604a09e570b4200cdf74c4b6e8ca3ffd5438c9aa275c648e3e5ca44
   languageName: node
   linkType: hard
 
