@@ -18,8 +18,8 @@ const agpCGM = {
     'current': {
       'aggregationsByDate': {},
       'stats': {
-        'averageGlucose': { 
-          'averageGlucose': 121.4013071783735, 
+        'averageGlucose': {
+          'averageGlucose': 121.4013071783735,
           'total': 8442,
         },
         'bgExtents': {
@@ -29,8 +29,8 @@ const agpCGM = {
           'newestDatum': { 'time': 1736783190269 },
           'oldestDatum': { 'time': 1734249705225 },
         },
-        'coefficientOfVariation': { 
-          'coefficientOfVariation': 49.82047988955789, 
+        'coefficientOfVariation': {
+          'coefficientOfVariation': 49.82047988955789,
           'total': 8442,
         },
         'glucoseManagementIndicator': {
@@ -42,7 +42,7 @@ const agpCGM = {
           'sensorUsage': 2532600000,
           'sensorUsageAGP': 99.95264030310206,
           'total': 2592000000,
-          'sampleFrequency': 300000,
+          'sampleInterval': 300000,
           'count': 8442,
         },
         'timeInRange': {
@@ -108,10 +108,10 @@ const agpCGM = {
     'types': { 'cbg': {} },
     'bgPrefs': {
       'bgUnits': 'mg/dL',
-      'bgClasses': { 
-        'low': { 'boundary': 70 }, 
-        'target': { 'boundary': 180 }, 
-        'very-low': { 'boundary': 54 }, 
+      'bgClasses': {
+        'low': { 'boundary': 70 },
+        'target': { 'boundary': 180 },
+        'very-low': { 'boundary': 54 },
         'high': { 'boundary': 250 },
       },
       'bgBounds': {
