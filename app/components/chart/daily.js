@@ -422,7 +422,8 @@ class Daily extends Component {
     const timePrefs = _.get(this.props, 'data.timePrefs', {});
     const bgPrefs = _.get(this.props, 'data.bgPrefs', {});
     const carbUnits = ['grams'];
-    const showingCgmData = _.get(this.props, 'chartPrefs.daily.bgSource')  === 'cbg';
+    // const showingCgmData = _.get(this.props, 'chartPrefs.daily.bgSource')  === 'cbg';
+    const showingCgmData = false;
 
     const {
       isAutomatedBasalDevice,
