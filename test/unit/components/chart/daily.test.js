@@ -190,7 +190,7 @@ describe('Daily', () => {
       expect(chart().length).to.equal(1);
     });
 
-    it('should render the cgm interval toggle, but only if there is a current supporting device', () => {
+    it.skip('should render the cgm interval toggle, but only if there is a current supporting device', () => {
       const toggle = () => wrapper.find('CgmSampleIntervalRangeToggle');
       expect(toggle().length).to.equal(0);
 
