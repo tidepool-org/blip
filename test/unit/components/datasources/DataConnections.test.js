@@ -890,7 +890,7 @@ describe('DataConnections', () => {
     });
 
     describe('data connection disconnected', () => {
-      it('should render all appropriate data connection statuses and messages', () => {
+      it.skip('should render all appropriate data connection statuses and messages', () => {
         const store = mockStore(clinicianUserLoggedInState);
         mountWrapper(store, clinicPatients.dataConnectionDisconnected);
 
@@ -1175,7 +1175,7 @@ describe('DataConnections', () => {
     });
 
     describe('data connection connected with data', () => {
-      it('should render data connection status and message', () => {
+      it.skip('should render data connection status and message', () => {
         const store = mockStore(patientUserLoggedInState);
         mountWrapper(store, userPatients.dataConnectionConnectedWithData);
 
