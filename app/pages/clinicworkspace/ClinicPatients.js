@@ -270,16 +270,16 @@ const ClearFilterButtons = withTranslation()(({ t, patientListQueryState, onClea
 const FilterResetBar = withTranslation()(({ t, rightSideContent, patientListQueryState }) => {
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
-  const shown = clinic?.fetchedPatientCount || 0;
+  const count = clinic?.fetchedPatientCount || 0;
 
   const { FILTER_AND_SEARCH, FILTER_ONLY, SEARCH_ONLY, NONE } = PATIENT_LIST_QUERY_STATE;
 
   if (patientListQueryState === PATIENT_LIST_QUERY_STATE.NONE) return null; // hide when no search or filters applied
 
   const fetchedPatientCountCopyDefs = {
-    [FILTER_AND_SEARCH]: t('Showing {{ shown }} patient accounts with the current filter(s) that match your search', { shown }),
-    [FILTER_ONLY]: t('Showing {{ shown }} patient accounts with the current filter(s)', { shown }),
-    [SEARCH_ONLY]: t('Showing {{ shown }} patient accounts that match your search', { shown }),
+    [FILTER_AND_SEARCH]: t('Showing {{ count }} patient accounts with the current filter(s) that match your search', { count }),
+    [FILTER_ONLY]: t('Showing {{ count }} patient accounts with the current filter(s)', { count }),
+    [SEARCH_ONLY]: t('Showing {{ count }} patient accounts that match your search', { count }),
     [NONE]: t('There are no results to show'),
   };
 
