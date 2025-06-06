@@ -49,7 +49,7 @@ export const colors = {
     dexcom: '#56A846',
   },
   feedback: {
-    info: vizColors.indigo50,
+    info: vizColors.indigo30,
     warning: vizColors.gold50,
     danger: vizColors.red30,
     success: vizColors.green30,
@@ -57,12 +57,12 @@ export const colors = {
   banner: {
     info: {
       action: {
-        bg: vizColors.indigo50,
+        bg: vizColors.indigo30,
         text: vizColors.white,
       },
       bg: '#2A1948',
       closeIcon: vizColors.white,
-      icon: vizColors.indigo50,
+      icon: vizColors.indigo30,
       message: vizColors.white,
       messageLink: colorPalette.primary.purpleLight,
     },
@@ -111,7 +111,7 @@ export const colors = {
   tab: {
     primary: vizColors.blueGray30,
     disabled: '#A5ADBA',
-    selected: vizColors.indigo50,
+    selected: vizColors.indigo30,
   },
   text: {
     link: vizColors.indigo30,

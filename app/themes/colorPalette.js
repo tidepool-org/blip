@@ -5,7 +5,7 @@ export default {
   primary: {
     background: vizColors.white,
     purpleLight: '#DCE0F9',
-    purpleMedium: vizColors.indigo50,
+    purpleMedium: vizColors.indigo30,
     purpleDark: vizColors.purple90,
     purpleBright: vizColors.indigo30,
     blueGreyDark: vizColors.blue50,
