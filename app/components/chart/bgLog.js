@@ -94,7 +94,7 @@ class BgLogChart extends Component {
 
   unmountChart = () => {
     this.log('Unmounting...');
-    if (this.chart) this.chart.destroy();
+    if (this.chart) this.chart?.destroy();
   };
 
   remountChart = (updates = {}) => {
@@ -102,15 +102,15 @@ class BgLogChart extends Component {
     this.log('Remounting...');
     this.unmountChart();
     this.mount(chartProps);
-    this.chart.emitter.emit('inTransition', false);
+    this.chart?.emitter.emit('inTransition', false);
   }
 
   rerenderChart = (updates = {}) => {
     const chartProps = { ...this.props, ...updates };
     this.log('Rerendering...');
-    this.chart.clear();
+    this.chart?.clear();
     this.bindEvents();
-    this.chart.load(chartProps.data, chartProps.initialDatetimeLocation);
+    this.chart?.load(chartProps.data, chartProps.initialDatetimeLocation);
     if (chartProps.showingValues) {
       this.showValues();
     } else {
@@ -119,10 +119,10 @@ class BgLogChart extends Component {
   };
 
   bindEvents = () => {
-    this.chart.emitter.on('inTransition', this.props.onTransition);
-    this.chart.emitter.on('navigated', this.handleDatetimeLocationChange);
-    this.chart.emitter.on('mostRecent', this.props.onMostRecent);
-    this.chart.emitter.on('selectSMBG', this.props.onSelectSMBG);
+    this.chart?.emitter.on('inTransition', this.props.onTransition);
+    this.chart?.emitter.on('navigated', this.handleDatetimeLocationChange);
+    this.chart?.emitter.on('mostRecent', this.props.onMostRecent);
+    this.chart?.emitter.on('selectSMBG', this.props.onSelectSMBG);
   };
 
   initializeChart = (data, datetimeLocation, showingValues) => {
@@ -132,14 +132,14 @@ class BgLogChart extends Component {
     }
 
     if (datetimeLocation) {
-      this.chart.load(data, datetimeLocation);
+      this.chart?.load(data, datetimeLocation);
     }
     else {
-      this.chart.load(data);
+      this.chart?.load(data);
     }
 
     if (this.props.isClinicianAccount || showingValues) {
-      this.chart.showValues();
+      this.chart?.showValues();
     }
   };
 
@@ -155,29 +155,29 @@ class BgLogChart extends Component {
   }
 
   getCurrentDay = timePrefs => {
-    return this.chart.getCurrentDay(timePrefs).toISOString();
+    return this.chart?.getCurrentDay(timePrefs).toISOString();
   };
 
   goToMostRecent = () => {
-    this.chart.clear();
+    this.chart?.clear();
     this.bindEvents();
-    this.chart.load(this.props.data);
+    this.chart?.load(this.props.data);
   };
 
   hideValues = () => {
-    this.chart.hideValues();
+    this.chart?.hideValues();
   };
 
   panBack = () => {
-    this.chart.panBack();
+    this.chart?.panBack();
   };
 
   panForward = () => {
-    this.chart.panForward();
+    this.chart?.panForward();
   };
 
   showValues = () => {
-    this.chart.showValues();
+    this.chart?.showValues();
   };
 }
 
