@@ -99,6 +99,7 @@ import { fieldsAreValid, getCommonFormikFieldProps } from '../../core/forms';
 
 import {
   patientSchema as validationSchema,
+  clinicSiteSchema,
   clinicPatientTagSchema,
   lastDataFilterOptions,
   tideDashboardConfigSchema,
@@ -587,6 +588,7 @@ export const ClinicPatients = (props) => {
   const [patientFormContext, setPatientFormContext] = useState();
   const [rpmReportFormContext, setRpmReportFormContext] = useState();
   const [tideDashboardFormContext, setTideDashboardFormContext] = useState();
+  const [clinicSiteFormContext, setClinicSiteFormContext] = useState();
   const [clinicPatientTagFormContext, setClinicPatientTagFormContext] = useState();
   const [patientFetchMinutesAgo, setPatientFetchMinutesAgo] = useState();
   const statEmptyText = '--';
@@ -676,6 +678,7 @@ export const ClinicPatients = (props) => {
   ];
 
   const patientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
+  const clinicSites = []; // TODO: set to clinic?.sites
 
   const patientTagsFilterOptions = useMemo(() => {
     const options = map(clinic?.patientTags, ({ id, name }) => ({ id, label: name }));
@@ -1217,6 +1220,11 @@ export const ClinicPatients = (props) => {
     trackMetric('Clinic - Show RPM Report config dialog confirmed', { clinicId: selectedClinicId, source: 'Patients list' });
     rpmReportFormContext?.handleSubmit();
   }, [rpmReportFormContext, selectedClinicId, trackMetric]);
+
+  const handleCreateClinicSite = useCallback(site => {
+    trackMetric('Clinic - Create clinic site', { clinicId: selectedClinicId });
+    dispatch(actions.async.createClinicSite(api, selectedClinicId, site));
+  }, [api, dispatch, selectedClinicId, trackMetric]);
 
   const handleCreateClinicPatientTag = useCallback(tag => {
     trackMetric('Clinic - Create patient tag', { clinicId: selectedClinicId });
@@ -2618,7 +2626,7 @@ export const ClinicPatients = (props) => {
   ]);
 
   const renderClinicSitesDialog = useCallback(() => {
-    const orderedTags = clinic?.patientTags?.toSorted((a, b) => utils.compareLabels(a.name, b.name)) || [];
+    const orderedSites = clinic?.sites?.toSorted((a, b) => utils.compareLabels(a.name, b.name)) || [];
 
     return (
       <Dialog
@@ -2643,14 +2651,15 @@ export const ClinicPatients = (props) => {
           <DialogContent pt={0} divider={false} sx={{ minWidth: '512px', maxHeight: '70vh' }}>
             <Formik
               initialValues={{ name: '' }}
-              onSubmit={(tag, context) => {
+              onSubmit={(clinicSite, context) => {
                 trackMetric(prefixPopHealthMetric('Edit clinic sites add'), { clinicId: selectedClinicId });
-                setClinicPatientTagFormContext(context);
-                handleCreateClinicPatientTag(tag);
+                setClinicSiteFormContext(context);
+                console.log(clinicSite);
+                handleCreateClinicSite(clinicSite);
               }}
-              validationSchema={clinicPatientTagSchema}
+              validationSchema={clinicSiteSchema}
             >
-              {patientTagFormikContext => (
+              {clinicSitesFormikContext => (
                 <Form id="patient-tag-add">
                   <Box mt={3}>
                     <Text sx={{ fontSize: 1, color: 'text.primary', fontWeight: 'medium' }}>
@@ -2668,16 +2677,16 @@ export const ClinicPatients = (props) => {
                         flex: 1,
                         fontSize: '12px',
                       }}
-                      disabled={clinic?.patientTags?.length >= maxWorkspaceClinicSites}
+                      disabled={clinic?.sites?.length >= maxWorkspaceClinicSites}
                       maxLength={20}
-                      placeholder={t('Add a Tag')}
+                      placeholder={t('Add a Site')}
                       captionProps={{ mt: 0, fontSize: '10px', color: colors.grays[4] }}
                       variant="condensed"
-                      {...getCommonFormikFieldProps('name', patientTagFormikContext)}
+                      {...getCommonFormikFieldProps('name', clinicSitesFormikContext)}
                     />
 
                     <Button
-                      disabled={!patientTagFormikContext.values.name.trim().length || clinic?.patientTags?.length >= maxWorkspaceClinicSites || !patientTagFormikContext.isValid}
+                      disabled={!clinicSitesFormikContext.values.name.trim().length || clinic?.sites?.length >= maxWorkspaceClinicSites || !clinicSitesFormikContext.isValid}
                       type="submit"
                       sx={{
                         height: '32px',
@@ -2697,10 +2706,10 @@ export const ClinicPatients = (props) => {
               <>
                 <Box>
                   <Text sx={{ fontSize: 1, color: 'text.primary', fontWeight: 'medium' }}>
-                    {t('Tags ({{ count }})', { count: clinic?.patientTags?.length || '0' })}{' - '}
+                    {t('Sites ({{ count }})', { count: clinic?.sites?.length || '0' })}{' - '}
                   </Text>
                   <Text sx={{ fontSize: 0, color: 'text.primary' }}>
-                    {t('Click on the edit icon to rename the tag or trash icon to delete it.')}
+                    {t('Click on the edit icon to rename the site or trash icon to delete it.')}
                   </Text>
                 </Box>
                 <Box mt={1} mb={0}>
@@ -2711,9 +2720,9 @@ export const ClinicPatients = (props) => {
               </>
             }
 
-            <Box mt={1} id="clinic-patients-edit-tag-list">
+            <Box mt={1} id="clinic-patients-edit-site-list">
               {
-                orderedTags.map(({ id, name }) => (
+                orderedSites.map(({ id, name }) => (
                   <Grid py={2} sx={{
                     gridTemplateColumns: '1fr 72px 16px',
                     borderTop: `1px solid ${colors.gray05}`,
@@ -2748,8 +2757,8 @@ export const ClinicPatients = (props) => {
       </Dialog>
     );
   }, [
-    clinic?.patientTags,
-    handleCreateClinicPatientTag,
+    clinic?.sites,
+    handleCreateClinicSite,
     handleUpdateClinicPatientTag,
     handleDeleteClinicPatientTag,
     isClinicAdmin,
