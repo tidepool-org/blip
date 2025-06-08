@@ -16,7 +16,7 @@ import { withTranslation } from 'react-i18next';
 
 import i18next from '../../../../app/core/language';
 import Daily from '../../../../app/components/chart/daily';
-import { MGDL_UNITS } from '../../../../app/core/constants';
+import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE, MGDL_UNITS, ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE } from '../../../../app/core/constants';
 import { components as vizComponents } from '@tidepool/viz';
 import createReactClass from 'create-react-class';
 
@@ -190,6 +190,25 @@ describe('Daily', () => {
       expect(chart().length).to.equal(1);
     });
 
+    it.skip('should render the cgm interval toggle, but only if there is a current supporting device', () => {
+      const toggle = () => wrapper.find('CgmSampleIntervalRangeToggle');
+      expect(toggle().length).to.equal(0);
+
+      var hasOneMinCgmSampleIntervalDeviceProps = _.assign({}, baseProps, {
+        loading: false,
+        data: {
+          query: { chartType: 'daily' },
+          metaData: { devices: [{ oneMinCgmSampleInterval: true }] },
+        },
+        chartPrefs: {
+          daily: { bgSource: 'cbg' },
+        },
+      });
+
+      wrapper.setProps(hasOneMinCgmSampleIntervalDeviceProps);
+      expect(toggle().length).to.equal(1);
+    });
+
     it('should render the bg toggle', () => {
       const toggle = wrapper.find('BgSourceToggle');
       expect(toggle.length).to.equal(1);
@@ -259,6 +278,34 @@ describe('Daily', () => {
       sinon.assert.callCount(baseProps.updateChartPrefs, 2);
       sinon.assert.calledWith(baseProps.updateChartPrefs, {
         daily: { bgSource: 'smbg' },
+      });
+    });
+  });
+
+  describe('toggleCgmSampleIntervalRange', () => {
+    it('should track metric when toggled', () => {
+      instance.toggleCgmSampleIntervalRange(null, ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE);
+      sinon.assert.callCount(baseProps.trackMetric, 1);
+      sinon.assert.calledWith(baseProps.trackMetric, 'Daily Click CGM Sample Interval to 1min');
+
+      instance.toggleCgmSampleIntervalRange(null, DEFAULT_CGM_SAMPLE_INTERVAL_RANGE);
+      sinon.assert.callCount(baseProps.trackMetric, 2);
+      sinon.assert.calledWith(baseProps.trackMetric, 'Daily Click CGM Sample Interval to 5min');
+    });
+
+    it('should call the `updateChartPrefs` handler to update the cgmSampleIntervalRange', () => {
+      instance.toggleCgmSampleIntervalRange(null, ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE);
+
+      sinon.assert.callCount(baseProps.updateChartPrefs, 1);
+      sinon.assert.calledWith(baseProps.updateChartPrefs, {
+        daily: { cgmSampleIntervalRange: ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE },
+      });
+
+      instance.toggleCgmSampleIntervalRange(null, DEFAULT_CGM_SAMPLE_INTERVAL_RANGE);
+
+      sinon.assert.callCount(baseProps.updateChartPrefs, 2);
+      sinon.assert.calledWith(baseProps.updateChartPrefs, {
+        daily: { cgmSampleIntervalRange: DEFAULT_CGM_SAMPLE_INTERVAL_RANGE },
       });
     });
   });
