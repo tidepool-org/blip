@@ -92,6 +92,7 @@ export const timezoneOptions = map(
 );
 
 export const maxClinicPatientTags = 50;
+export const maxWorkspaceClinicSites = 50;
 
 export const clinicPlansNames = {
   base: t('Base'),
