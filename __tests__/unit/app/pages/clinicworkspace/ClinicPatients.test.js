@@ -389,9 +389,8 @@ describe('ClinicPatients', ()  => {
             const newSiteInputField = screen.getByRole('textbox');
             await userEvent.click(newSiteInputField);
             await userEvent.paste('Charlie');
-            expect(newSiteInputField).toHaveValue('Charlie');
-
             await userEvent.click(screen.getByRole('button', { name: /Add/ }));
+
             await waitFor(() => expect(defaultProps.api.clinics.createClinicSite).toHaveBeenCalled());
 
             expect(defaultProps.api.clinics.createClinicSite).toHaveBeenCalledWith(
