@@ -336,6 +336,10 @@ describe('ClinicPatients', ()  => {
     </Provider>
   );
 
+  beforeEach(() => {
+    defaultProps.trackMetric.mockClear();
+  });
+
   describe('has patients', () => {
     describe('show names clicked', () => {
       describe('tier0300 clinic', () => {
@@ -371,15 +375,53 @@ describe('ClinicPatients', ()  => {
             // Type in a new site "Charlie" into the textbox and click add
             const newSiteInputField = screen.getByRole('textbox');
             await userEvent.click(newSiteInputField);
-            await userEvent.paste('Charlie');
+            await userEvent.paste('Site Charlie');
             await userEvent.click(screen.getByRole('button', { name: /Add/ }));
 
             await waitFor(() => expect(defaultProps.api.clinics.createClinicSite).toHaveBeenCalled());
 
             expect(defaultProps.api.clinics.createClinicSite).toHaveBeenCalledWith(
               'clinicID123', // clinicId,
-              { name: 'Charlie' }, // new site to be created
+              { name: 'Site Charlie' }, // new site to be created
               expect.any(Function), // callback fn passed to api
+            );
+
+            expect(defaultProps.trackMetric).toHaveBeenCalledWith(
+              'Clinic - Population Health - Edit clinic sites add',
+              { clinicId: 'clinicID123' },
+            );
+          }, 30_000);
+        });
+
+        describe('managing clinic patient tags', () => {
+          it('should allow creating a new tag for a workspace', async () => {
+            render(
+              <Wrappers>
+                <ClinicPatients {...defaultProps} />
+              </Wrappers>
+            );
+
+            // Open the Edit Sites Dialog
+            await userEvent.click(screen.getByRole('button', { name: /Tags/ }));
+            await userEvent.click(screen.getByRole('button', { name: /Edit Tags/ }));
+
+            // Type in a new site "Charlie" into the textbox and click add
+            const newTag = screen.getByRole('textbox');
+            await userEvent.click(newTag);
+            await userEvent.paste('Tag Delta');
+            await userEvent.click(screen.getByRole('button', { name: /Add/ }));
+
+            await waitFor(() => expect(defaultProps.api.clinics.createClinicSite).toHaveBeenCalled());
+
+            expect(defaultProps.api.clinics.createClinicPatientTag).toHaveBeenCalledWith(
+              'clinicID123', // clinicId,
+              { name: 'Tag Delta' }, // new site to be created
+              expect.any(Function), // callback fn passed to api
+            );
+
+            expect(defaultProps.trackMetric).toHaveBeenCalledWith(
+              'Clinic - Population Health - Edit clinic tags add',
+              { clinicId: 'clinicID123' },
             );
           }, 30_000);
         });
