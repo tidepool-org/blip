@@ -1859,6 +1859,7 @@ export const ClinicPatients = (props) => {
                           id="show-edit-clinic-sites-dialog"
                           icon={EditIcon}
                           iconPosition="left"
+                          iconLabel="Edit Sites"
                           sx={{ fontSize: 1 }}
                           variant="textPrimary"
                           onClick={() => {
@@ -2018,6 +2019,7 @@ export const ClinicPatients = (props) => {
                           id="show-edit-clinic-patient-tags-dialog"
                           icon={EditIcon}
                           iconPosition="left"
+                          iconLabel="Edit patient tags"
                           sx={{ fontSize: 1 }}
                           variant="textPrimary"
                           onClick={() => {
