@@ -2667,14 +2667,15 @@ export function sendPatientDataProviderConnectRequest(api, clinicId, patientId, 
  *
  * @param {Object} api - an instance of the API wrapper
  * @param {String} clinicId - Id of the clinic
- * @param {Object} clinicSite - the tag to create
- * @param {String} clinicSite.name - the tag name
+ * @param {Object} clinicSites - all existing clinic sites
+ * @param {Object} siteToCreate - the site to create
+ * @param {String} siteToCreate.name - the site name
  */
-export function createClinicSite(api, clinicId, clinicSite) {
+export function createClinicSite(api, clinicId, clinicSites = [], siteToCreate) {
   return (dispatch) => {
     dispatch(sync.createClinicSiteRequest());
 
-    api.clinics.createClinicSite(clinicId, clinicSite, (err, clinicSites) => {
+    api.clinics.createClinicSite(clinicId, siteToCreate, (err, site) => {
       if (err) {
         let message = ErrorMessages.ERR_CREATING_CLINIC_PATIENT_TAG; // TODO: CHANGE TO APPROPRIATE
 
@@ -2688,7 +2689,7 @@ export function createClinicSite(api, clinicId, clinicSite) {
           createActionError(message, err), err
         ));
       } else {
-        dispatch(sync.createClinicSiteSuccess(clinicId, clinicSites));
+        dispatch(sync.createClinicSiteSuccess(clinicId, clinicSites, site));
       }
     });
   };

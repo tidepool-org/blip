@@ -1223,8 +1223,8 @@ export const ClinicPatients = (props) => {
 
   const handleCreateClinicSite = useCallback(site => {
     trackMetric('Clinic - Create clinic site', { clinicId: selectedClinicId });
-    dispatch(actions.async.createClinicSite(api, selectedClinicId, site));
-  }, [api, dispatch, selectedClinicId, trackMetric]);
+    dispatch(actions.async.createClinicSite(api, selectedClinicId, clinic?.sites, site));
+  }, [api, dispatch, selectedClinicId, clinic?.sites, trackMetric]);
 
   const handleCreateClinicPatientTag = useCallback(tag => {
     trackMetric('Clinic - Create patient tag', { clinicId: selectedClinicId });
@@ -2654,7 +2654,6 @@ export const ClinicPatients = (props) => {
               onSubmit={(clinicSite, context) => {
                 trackMetric(prefixPopHealthMetric('Edit clinic sites add'), { clinicId: selectedClinicId });
                 setClinicSiteFormContext(context);
-                console.log(clinicSite);
                 handleCreateClinicSite(clinicSite);
               }}
               validationSchema={clinicSiteSchema}
