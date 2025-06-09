@@ -2183,7 +2183,10 @@ export const PatientDataClass = createReactClass({
 
     if (uploads && latestDatum) {
       let chartType = null;
-      defaultChartTypeForPatient = this.deriveChartTypeFromLatestData(latestDatum, latestDiabetesDatum, uploads);
+
+      defaultChartTypeForPatient = !utils.isMobile()
+        ? this.deriveChartTypeFromLatestData(latestDatum, latestDiabetesDatum, uploads)
+        : 'basics';
 
       // Figure out which chart to show based on the current route
       switch(true) {
