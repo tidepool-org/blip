@@ -42,7 +42,7 @@ import Stats from '../../components/chart/stats';
 import { bgLog as BgLog } from '../../components/chart';
 import { settings as Settings } from '../../components/chart';
 import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
-import baseTheme, { breakpoints, radii } from '../../themes/baseTheme';
+import baseTheme from '../../themes/baseTheme';
 import { DesktopOnly, MobileOnly } from '../../components/mediaqueries';
 
 import Messages from '../../components/messages';
@@ -1454,7 +1454,7 @@ export const PatientDataClass = createReactClass({
     this.setState({
       chartPrefs: newPrefs,
     }, () => {
-      const queryOpts = { showLoading: false };
+      const queryOpts = { showLoading: cgmSampleIntervalRangeUpdated };
 
       if (cgmSampleIntervalRangeUpdated) this.handleCgmSampleIntervalRangeUpdate(newPrefs.daily.cgmSampleIntervalRange);
 
