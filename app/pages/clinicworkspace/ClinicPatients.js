@@ -677,8 +677,14 @@ export const ClinicPatients = (props) => {
     { value: '30d', label: t('30 days') },
   ];
 
+  const clinicSites = useMemo(() => keyBy(clinic?.sites, 'id'), [clinic?.sites]);
   const patientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
-  const clinicSites = []; // TODO: set to clinic?.sites
+
+  const clinicSitesFilterOptions = useMemo(() => {
+    const options = map(clinic?.sites, ({ id, name }) => ({ id, label: name }));
+
+    return orderBy(options, 'label');
+  }, [clinic?.sites]);
 
   const patientTagsFilterOptions = useMemo(() => {
     const options = map(clinic?.patientTags, ({ id, name }) => ({ id, label: name }));
@@ -1383,7 +1389,8 @@ export const ClinicPatients = (props) => {
       activeFilters.patientTags?.length,
     ], null, 0, undefined).length;
 
-    const sortedFilterOptions = patientTagsFilterOptions?.toSorted((a, b) => utils.compareLabels(a.label, b.label)) || [];
+    const sortedSiteFilterOptions = clinicSitesFilterOptions?.toSorted((a, b) => utils.compareLabels(a.label, b.label)) || [];
+    const sortedTagFilterOptions = patientTagsFilterOptions?.toSorted((a, b) => utils.compareLabels(a.label, b.label)) || [];
 
     const VisibilityIcon = isPatientListVisible ? VisibilityOffOutlinedIcon : VisibilityOutlinedIcon;
     const hoursAgo = Math.floor(patientFetchMinutesAgo / 60);
@@ -1775,7 +1782,7 @@ export const ClinicPatients = (props) => {
                           <Text sx={{ display: 'block', color: colors.gray50, fontSize: 1, fontWeight: 'medium' }}>
                             {t('Sites')}
                           </Text>
-                          { sortedFilterOptions.length > 0 &&
+                          { sortedSiteFilterOptions.length > 0 &&
                             <Text sx={{ display: 'block', color: colors.gray50, fontSize: 0, fontStyle: 'italic', maxWidth: '208px', whiteSpace: 'wrap', lineHeight: 1 }}>
                               {t('Any patient with one or more of the sites you select below will be shown.')}
                             </Text>
@@ -1783,9 +1790,11 @@ export const ClinicPatients = (props) => {
                         </Box>
 
                         { // Render a list of checkboxes
-                          sortedFilterOptions.map(({ id, label }) => {
-                            const { patientTags } = pendingFilters;
-                            const isChecked = patientTags?.includes(id);
+                          sortedSiteFilterOptions.map(({ id, label }) => {
+                            // const { patientTags } = pendingFilters;
+                            // const isChecked = patientTags?.includes(id);
+
+                            const isChecked = false;
 
                             return (
                               <Box mt={1} className="clinic-site-filter-option" key={`clinic-site-filter-option-${id}`}>
@@ -1794,11 +1803,11 @@ export const ClinicPatients = (props) => {
                                   label={<Text sx={{ fontSize: 0, fontWeight: 'normal' }}>{label}</Text>}
                                   checked={isChecked}
                                   onChange={() => {
-                                    if (isChecked) {
-                                      setPendingFilters({ ...pendingFilters, patientTags: without(patientTags, id) });
-                                    } else {
-                                      setPendingFilters({ ...pendingFilters, patientTags: [...patientTags, id] });
-                                    }
+                                    // if (isChecked) {
+                                    //   setPendingFilters({ ...pendingFilters, patientTags: without(patientTags, id) });
+                                    // } else {
+                                    //   setPendingFilters({ ...pendingFilters, patientTags: [...patientTags, id] });
+                                    // }
                                   }}
                                 />
                               </Box>
@@ -1807,7 +1816,7 @@ export const ClinicPatients = (props) => {
                         }
 
                         { // If no sites exist, display a message
-                          sortedFilterOptions.length <= 0 &&
+                          sortedSiteFilterOptions.length <= 0 &&
                           <Box>
                             <Box sx={{ fontSize: 1, color: colors.gray50, lineHeight: 1 }}>
                               {t('Create and assign sites to patient accounts to segment your patient population by location.')}
@@ -1825,7 +1834,7 @@ export const ClinicPatients = (props) => {
                       </Box>
                     </DialogContent>
 
-                    { sortedFilterOptions.length > 0 &&
+                    { sortedSiteFilterOptions.length > 0 &&
                       <DialogActions sx={{ justifyContent: 'space-around', padding: 2 }} p={1}>
                         <Button
                           id="clear-clinic-sites-filter"
@@ -1934,7 +1943,7 @@ export const ClinicPatients = (props) => {
                           <Text sx={{ display: 'block', color: colors.gray50, fontSize: 1, fontWeight: 'medium' }}>
                             {t('Tags')}
                           </Text>
-                          { sortedFilterOptions.length > 0 &&
+                          { sortedTagFilterOptions.length > 0 &&
                             <Text sx={{ display: 'block', color: colors.gray50, fontSize: 0, fontStyle: 'italic', maxWidth: '208px', whiteSpace: 'wrap', lineHeight: 1 }}>
                               {t('Only patients with ALL of the tags you select below will be shown.')}
                             </Text>
@@ -1942,7 +1951,7 @@ export const ClinicPatients = (props) => {
                         </Box>
 
                         { // Render a list of checkboxes
-                          sortedFilterOptions.map(({ id, label }) => {
+                          sortedTagFilterOptions.map(({ id, label }) => {
                             const { patientTags } = pendingFilters;
                             const isChecked = patientTags?.includes(id);
 
@@ -1966,7 +1975,7 @@ export const ClinicPatients = (props) => {
                         }
 
                         { // If no tags exist, display a message
-                          sortedFilterOptions.length <= 0 &&
+                          sortedTagFilterOptions.length <= 0 &&
                           <Box>
                             <Box sx={{ fontSize: 1, color: colors.gray50, lineHeight: 1 }}>
                               {t('Tags help you segment your patient population based on criteria you define, such as clinician, type of diabetes, or care groups.')}
@@ -1984,7 +1993,7 @@ export const ClinicPatients = (props) => {
                       </Box>
                     </DialogContent>
 
-                    { sortedFilterOptions.length > 0 &&
+                    { sortedTagFilterOptions.length > 0 &&
                       <DialogActions sx={{ justifyContent: 'space-around', padding: 2 }} p={1}>
                         <Button
                           id="clear-patient-tags-filter"
@@ -2665,7 +2674,7 @@ export const ClinicPatients = (props) => {
                       {t('Add a Site')}{' - '}
                     </Text>
                     <Text sx={{ fontSize: 0, color: 'text.primary' }}>
-                      {t('You may add up to {{ maxWorkspaceClinicSites }} tags', { maxWorkspaceClinicSites })}
+                      {t('You may add up to {{ maxWorkspaceClinicSites }} sites', { maxWorkspaceClinicSites })}
                     </Text>
                   </Box>
                   <Flex mb={3} mt={1} sx={{ gap: 2, position: 'relative' }}>
@@ -2701,7 +2710,7 @@ export const ClinicPatients = (props) => {
               )}
             </Formik>
 
-            { patientTagsFilterOptions.length > 0 &&
+            { clinicSitesFilterOptions.length > 0 &&
               <>
                 <Box>
                   <Text sx={{ fontSize: 1, color: 'text.primary', fontWeight: 'medium' }}>
@@ -2729,23 +2738,25 @@ export const ClinicPatients = (props) => {
                   }}>
                     <Flex sx={{ alignItems: 'center'}}>
                       <Text className="tag-text" sx={{ fontSize: 1, color: 'text.primary' }}>{name}</Text>
-                      <Icon
+                      {/* TODO: Add Edit functionality in future ticket */}
+                      {/* <Icon
                         id={`edit-tag-button-${id}`}
                         icon={EditIcon}
                         sx={{ fontSize: 1, marginLeft: 2 }}
                         onClick={isClinicAdmin ? () => handleUpdateClinicPatientTag(id) : undefined}
-                      />
+                      /> */}
                     </Flex>
                     <Box>
 
                     </Box>
                     <Flex sx={{ justifyContent: 'flex-end' }}>
-                      <Icon
+                      {/* TODO: Add delete functionality in future ticket */}
+                      {/* <Icon
                         id={`delete-tag-button-${id}`}
                         icon={DeleteIcon}
                         sx={{ fontSize: 1 }}
                         onClick={isClinicAdmin ? () => handleDeleteClinicPatientTag(id) : undefined}
-                      />
+                      /> */}
                     </Flex>
                   </Grid>
                 ))
@@ -2844,7 +2855,7 @@ export const ClinicPatients = (props) => {
               )}
             </Formik>
 
-            { patientTagsFilterOptions.length > 0 &&
+            { clinicSitesFilterOptions.length > 0 &&
               <>
                 <Box>
                   <Text sx={{ fontSize: 1, color: 'text.primary', fontWeight: 'medium' }}>
