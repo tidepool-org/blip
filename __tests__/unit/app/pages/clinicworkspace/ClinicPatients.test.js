@@ -17,9 +17,26 @@ import ClinicPatients from '@app/pages/clinicworkspace/ClinicPatients';
 import { useLDClient, useFlags } from 'launchdarkly-react-client-sdk';
 jest.mock('launchdarkly-react-client-sdk');
 
+// import * as actions from '../../../../../app/redux/actions';
+// jest.mock('../../../../../app/redux/actions', () => ({
+//   sync: {
+
+//   },
+//   async: {
+//     updateClinicPatient: jest.fn(),
+//     fetchPatientsForClinic: jest.fn(),
+//     fetchPatientFromClinic: jest.fn(),
+//     createClinicSite: jest.fn(),
+//   },
+// }));
+
 const TEST_TIMEOUT_MS = 30_000;
 
 describe('ClinicPatients', ()  => {
+  // actions.async.fetchPatientsForClinic.mockReturnValue({ type: 'MOCK_ACTION' });
+  // actions.async.fetchPatientFromClinic.mockReturnValue({ type: 'MOCK_ACTION' });
+  // actions.async.createClinicSite.mockReturnValue({ type: 'MOCK_ACTION' });
+
   const today = moment('2025-05-29T00:00:00Z').toISOString();
   const yesterday = moment(today).subtract(1, 'day').toISOString();
 
@@ -136,6 +153,10 @@ describe('ClinicPatients', ()  => {
             { id: 'tag3', name: 'ttest tag 3'},
             { id: 'tag2', name: 'test tag 2'},
             { id: 'tag1', name: 'test tag 1'},
+          ],
+          sites: [
+            { id: 'site-1-id', name: 'Site Alpha' },
+            { id: 'site-2-id', name: 'Site Bravo' },
           ],
           patients: {
             patient1: {
@@ -310,12 +331,27 @@ describe('ClinicPatients', ()  => {
         getPatientsForRpmReport: jest.fn(),
         setClinicPatientLastReviewed: jest.fn(),
         revertClinicPatientLastReviewed: jest.fn(),
+        createClinicSite: jest.fn(),
       },
     },
   };
 
   const mockStore = configureStore([thunk]);
   let store;
+
+  const Wrappers = ({ children }) => (
+    <Provider store={store}>
+      <MemoryRouter initialEntries={['/clinic-workspace']}>
+        <Switch>
+          <Route path='/clinic-workspace'>
+            <ToastProvider>
+              {children}
+            </ToastProvider>
+          </Route>
+        </Switch>
+      </MemoryRouter>
+    </Provider>
+  );
 
   describe('has patients', () => {
     describe('show names clicked', () => {
@@ -337,20 +373,41 @@ describe('ClinicPatients', ()  => {
           });
         });
 
+        describe('managing sites', () => {
+          it('should allow creating a new site for a workspace', async () => {
+            render(
+              <Wrappers>
+                <ClinicPatients {...defaultProps} />
+              </Wrappers>
+            );
+
+            // Open the Edit Sites Dialog
+            await userEvent.click(screen.getByRole('button', { name: /Sites/ }));
+            await userEvent.click(screen.getByRole('button', { name: /Edit Sites/ }));
+
+            // Type in a new site "Charlie" into the textbox and click add
+            const newSiteInputField = screen.getByRole('textbox');
+            await userEvent.click(newSiteInputField);
+            await userEvent.paste('Charlie');
+            expect(newSiteInputField).toHaveValue('Charlie');
+
+            await userEvent.click(screen.getByRole('button', { name: /Add/ }));
+            await waitFor(() => expect(defaultProps.api.clinics.createClinicSite).toHaveBeenCalled());
+
+            expect(defaultProps.api.clinics.createClinicSite).toHaveBeenCalledWith(
+              'clinicID123', // clinicId,
+              { name: 'Charlie' }, // new site to be created
+              expect.any(Function), // callback fn passed to api
+            );
+          });
+        });
+
         describe('managing patient tags', () => {
           it('should allow updating tags for a patient', async () => {
             render(
-              <Provider store={store}>
-                <MemoryRouter initialEntries={['/clinic-workspace']}>
-                  <Switch>
-                    <Route path='/clinic-workspace'>
-                      <ToastProvider>
-                        <ClinicPatients {...defaultProps} />
-                      </ToastProvider>
-                    </Route>
-                  </Switch>
-                </MemoryRouter>
-              </Provider>
+              <Wrappers>
+                <ClinicPatients {...defaultProps} />
+              </Wrappers>
             );
 
             // Click the Edit Tags icon for a patient. The Dialog for Edit Patient Details should open.
