@@ -1728,14 +1728,14 @@ export const ClinicPatients = (props) => {
                     <Button
                       variant="filter"
                       id="clinic-sites-filter-trigger"
-                      selected={activeFilters.patientTags?.length > 0}
+                      selected={activeFilters.clinicSites?.length > 0}
                       {...bindTrigger(clinicSitesPopupFilterState)}
                       icon={KeyboardArrowDownRoundedIcon}
                       iconLabel="Filter by clinic sites"
                       sx={{ fontSize: 0, lineHeight: 1.3 }}
                     >
                       <Flex sx={{ alignItems: 'center', gap: 1 }}>
-                        {showTideDashboard && !clinic?.patientTags?.length && <Icon
+                        {showTideDashboard && !clinic?.sites?.length && <Icon
                           variant="static"
                           icon={InfoOutlinedIcon}
                           sx={{ fontSize: '14px' }}
@@ -1743,7 +1743,7 @@ export const ClinicPatients = (props) => {
 
                         {t('Sites')}
 
-                        {!!activeFilters.patientTags?.length && (
+                        {!!activeFilters.clinicSites?.length && (
                           <Pill
                             id="clinic-sites-filter-count"
                             label="clinic site count"
@@ -1756,7 +1756,7 @@ export const ClinicPatients = (props) => {
                               display: 'inline-block',
                             }}
                             colorPalette={['purpleMedium', 'white']}
-                            text={`${activeFilters.patientTags?.length}`}
+                            text={`${activeFilters.clinicSites?.length}`}
                           />
                         )}
                       </Flex>
@@ -1791,11 +1791,8 @@ export const ClinicPatients = (props) => {
 
                         { // Render a list of checkboxes
                           sortedSiteFilterOptions.map(({ id, label }) => {
-                            // const { patientTags } = pendingFilters;
-                            // const isChecked = patientTags?.includes(id);
-
-                            const isChecked = false;
-                            const isDisabled = true; // Temporary; remove in next ticket
+                            const isChecked = false; // Temporary; functionality to be implemented in future ticket
+                            const isDisabled = true; // Temporary; functionality to be implemented in future ticket
 
                             return (
                               <Box mt={1} className="clinic-site-filter-option" key={`clinic-site-filter-option-${id}`}>
@@ -1805,11 +1802,7 @@ export const ClinicPatients = (props) => {
                                   checked={isChecked}
                                   disabled={isDisabled}
                                   onChange={() => {
-                                    // if (isChecked) {
-                                    //   setPendingFilters({ ...pendingFilters, patientTags: without(patientTags, id) });
-                                    // } else {
-                                    //   setPendingFilters({ ...pendingFilters, patientTags: [...patientTags, id] });
-                                    // }
+                                    // TODO: Temporary; functionality to be implemented in future ticket
                                   }}
                                 />
                               </Box>
