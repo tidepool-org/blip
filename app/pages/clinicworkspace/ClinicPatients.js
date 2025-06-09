@@ -1795,6 +1795,7 @@ export const ClinicPatients = (props) => {
                             // const isChecked = patientTags?.includes(id);
 
                             const isChecked = false;
+                            const isDisabled = true; // Temporary; remove in next ticket
 
                             return (
                               <Box mt={1} className="clinic-site-filter-option" key={`clinic-site-filter-option-${id}`}>
@@ -1802,6 +1803,7 @@ export const ClinicPatients = (props) => {
                                   id={`clinic-site-filter-option-checkbox-${id}`}
                                   label={<Text sx={{ fontSize: 0, fontWeight: 'normal' }}>{label}</Text>}
                                   checked={isChecked}
+                                  disabled={isDisabled}
                                   onChange={() => {
                                     // if (isChecked) {
                                     //   setPendingFilters({ ...pendingFilters, patientTags: without(patientTags, id) });
