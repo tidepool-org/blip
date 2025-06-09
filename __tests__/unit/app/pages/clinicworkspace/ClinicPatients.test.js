@@ -17,26 +17,9 @@ import ClinicPatients from '@app/pages/clinicworkspace/ClinicPatients';
 import { useLDClient, useFlags } from 'launchdarkly-react-client-sdk';
 jest.mock('launchdarkly-react-client-sdk');
 
-// import * as actions from '../../../../../app/redux/actions';
-// jest.mock('../../../../../app/redux/actions', () => ({
-//   sync: {
-
-//   },
-//   async: {
-//     updateClinicPatient: jest.fn(),
-//     fetchPatientsForClinic: jest.fn(),
-//     fetchPatientFromClinic: jest.fn(),
-//     createClinicSite: jest.fn(),
-//   },
-// }));
-
 const TEST_TIMEOUT_MS = 30_000;
 
 describe('ClinicPatients', ()  => {
-  // actions.async.fetchPatientsForClinic.mockReturnValue({ type: 'MOCK_ACTION' });
-  // actions.async.fetchPatientFromClinic.mockReturnValue({ type: 'MOCK_ACTION' });
-  // actions.async.createClinicSite.mockReturnValue({ type: 'MOCK_ACTION' });
-
   const today = moment('2025-05-29T00:00:00Z').toISOString();
   const yesterday = moment(today).subtract(1, 'day').toISOString();
 

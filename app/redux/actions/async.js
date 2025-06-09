@@ -2677,12 +2677,12 @@ export function createClinicSite(api, clinicId, clinicSites = [], siteToCreate) 
 
     api.clinics.createClinicSite(clinicId, siteToCreate, (err, site) => {
       if (err) {
-        let message = ErrorMessages.ERR_CREATING_CLINIC_PATIENT_TAG; // TODO: CHANGE TO APPROPRIATE
+        let message = ErrorMessages.ERR_CREATING_CLINIC_SITE;
 
         if (err.status === 422) {
-          message = ErrorMessages.ERR_CREATING_CLINIC_PATIENT_TAG_MAX_EXCEEDED; // TODO: CHANGE TO APPROPRIATE
+          message = ErrorMessages.ERR_CREATING_CLINIC_SITE_MAX_EXCEEDED;
         } else if (err.status === 409) {
-          message = ErrorMessages.ERR_CREATING_CLINIC_PATIENT_TAG_DUPLICATE; // TODO: CHANGE TO APPROPRIATE
+          message = ErrorMessages.ERR_CREATING_CLINIC_SITE_DUPLICATE;
         }
 
         dispatch(sync.createClinicSiteFailure(
