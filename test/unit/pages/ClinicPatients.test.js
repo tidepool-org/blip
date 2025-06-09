@@ -152,6 +152,7 @@ describe('ClinicPatients', () => {
         creatingClinicCustodialAccount: defaultWorkingState,
         sendingPatientUploadReminder: defaultWorkingState,
         sendingPatientDataProviderConnectRequest: defaultWorkingState,
+        creatingClinicSite: defaultWorkingState,
         creatingClinicPatientTag: defaultWorkingState,
         updatingClinicPatientTag: defaultWorkingState,
         deletingClinicPatientTag: defaultWorkingState,
