@@ -322,7 +322,7 @@ describe('ClinicPatients', ()  => {
   const mockStore = configureStore([thunk]);
   let store;
 
-  const Wrappers = ({ children }) => (
+  const MockedProviderWrappers = ({ children }) => (
     <Provider store={store}>
       <MemoryRouter initialEntries={['/clinic-workspace']}>
         <Switch>
@@ -363,9 +363,9 @@ describe('ClinicPatients', ()  => {
         describe('managing sites', () => {
           it('should allow creating a new site for a workspace', async () => {
             render(
-              <Wrappers>
+              <MockedProviderWrappers>
                 <ClinicPatients {...defaultProps} />
-              </Wrappers>
+              </MockedProviderWrappers>
             );
 
             // Open the Edit Sites Dialog
@@ -396,16 +396,16 @@ describe('ClinicPatients', ()  => {
         describe('managing clinic patient tags', () => {
           it('should allow creating a new tag for a workspace', async () => {
             render(
-              <Wrappers>
+              <MockedProviderWrappers>
                 <ClinicPatients {...defaultProps} />
-              </Wrappers>
+              </MockedProviderWrappers>
             );
 
             // Open the Edit Sites Dialog
             await userEvent.click(screen.getByRole('button', { name: /Tags/ }));
             await userEvent.click(screen.getByRole('button', { name: /Edit Tags/ }));
 
-            // Type in a new site "Charlie" into the textbox and click add
+            // Type in a new tag "Delta" into the textbox and click add
             const newTag = screen.getByRole('textbox');
             await userEvent.click(newTag);
             await userEvent.paste('Tag Delta');
@@ -429,9 +429,9 @@ describe('ClinicPatients', ()  => {
         describe('managing patient tags', () => {
           it('should allow updating tags for a patient', async () => {
             render(
-              <Wrappers>
+              <MockedProviderWrappers>
                 <ClinicPatients {...defaultProps} />
-              </Wrappers>
+              </MockedProviderWrappers>
             );
 
             // Click the Edit Tags icon for a patient. The Dialog for Edit Patient Details should open.

@@ -1831,10 +1831,7 @@ export const ClinicPatients = (props) => {
                           sx={{ fontSize: 1 }}
                           variant="textSecondary"
                           onClick={() => {
-                            trackMetric(prefixPopHealthMetric('Clinic sites filter clear'), { clinicId: selectedClinicId });
-                            setPendingFilters({ ...activeFilters, patientTags: defaultFilterState.patientTags });
-                            setActiveFilters({ ...activeFilters, patientTags: defaultFilterState.patientTags });
-                            clinicSitesPopupFilterState.close();
+                            // TODO: Implement in future ticket
                           }}
                         >
                           {t('Clear')}
@@ -2658,7 +2655,7 @@ export const ClinicPatients = (props) => {
               validationSchema={clinicSiteSchema}
             >
               {clinicSitesFormikContext => (
-                <Form id="patient-tag-add">
+                <Form id="patient-site-add">
                   <Box mt={3}>
                     <Text sx={{ fontSize: 1, color: 'text.primary', fontWeight: 'medium' }}>
                       {t('Add a Site')}{' - '}
@@ -2734,7 +2731,7 @@ export const ClinicPatients = (props) => {
                     alignItems: 'center',
                   }}>
                     <Flex sx={{ alignItems: 'center'}}>
-                      <Text className="tag-text" sx={{ fontSize: 1, color: 'text.primary' }}>{name}</Text>
+                      <Text className="clinic-site-text" sx={{ fontSize: 1, color: 'text.primary' }}>{name}</Text>
                       {/* TODO: Add Edit functionality in future ticket */}
                       {/* <Icon
                         id={`edit-tag-button-${id}`}
@@ -2766,8 +2763,8 @@ export const ClinicPatients = (props) => {
   }, [
     clinic?.sites,
     handleCreateClinicSite,
-    handleUpdateClinicPatientTag,
-    handleDeleteClinicPatientTag,
+    // handleUpdateClinicPatientTag, // TODO: add handleUpdateClinicSite dep in future ticket
+    // handleDeleteClinicPatientTag, // TODO: add handleDeleteClinicSite dep in future ticket
     isClinicAdmin,
     prefixPopHealthMetric,
     selectedClinicId,
