@@ -390,7 +390,7 @@ describe('ClinicPatients', ()  => {
               'Clinic - Population Health - Edit clinic sites add',
               { clinicId: 'clinicID123' },
             );
-          }, 30_000);
+          }, TEST_TIMEOUT_MS);
         });
 
         describe('managing clinic patient tags', () => {
@@ -423,7 +423,7 @@ describe('ClinicPatients', ()  => {
               'Clinic - Population Health - Edit clinic tags add',
               { clinicId: 'clinicID123' },
             );
-          }, 30_000);
+          }, TEST_TIMEOUT_MS);
         });
 
         describe('managing patient tags', () => {
