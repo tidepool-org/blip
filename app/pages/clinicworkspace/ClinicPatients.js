@@ -1798,7 +1798,11 @@ export const ClinicPatients = (props) => {
                               <Box mt={1} className="clinic-site-filter-option" key={`clinic-site-filter-option-${id}`}>
                                 <Checkbox
                                   id={`clinic-site-filter-option-checkbox-${id}`}
-                                  label={<Text sx={{ fontSize: 0, fontWeight: 'normal' }}>{label}</Text>}
+                                  label={
+                                    <Text sx={{ fontSize: 0, fontWeight: 'normal', display: 'inline-block', maxWidth: '172px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                                      {label}
+                                    </Text>
+                                  }
                                   checked={isChecked}
                                   disabled={isDisabled}
                                   onChange={() => {
@@ -2676,12 +2680,19 @@ export const ClinicPatients = (props) => {
                     <TextInput
                       themeProps={{
                         width: '100%',
-                        sx: { width: '100%', input: { height: '38px', py: '0 !important' } },
+                        sx: {
+                          width: '100%',
+                          input: {
+                            height: '38px',
+                            py: '0 !important',
+                            paddingRight: '90px', // creates visual space for the Add Button
+                          },
+                        },
                         flex: 1,
                         fontSize: '12px',
                       }}
                       disabled={clinic?.sites?.length >= maxWorkspaceClinicSites}
-                      maxLength={20}
+                      maxLength={200}
                       placeholder={t('Add a Site')}
                       captionProps={{ mt: 0, fontSize: '10px', color: colors.grays[4] }}
                       variant="condensed"

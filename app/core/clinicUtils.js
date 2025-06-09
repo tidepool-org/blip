@@ -377,7 +377,7 @@ export const clinicSchema = yup.object().shape({
 
 export const clinicSiteSchema = yup.object().shape({
   name: yup.string()
-    .max(20, t('Site name max length is ${max} characters'))
+    .max(200, t('Site name max length is ${max} characters'))
     .matches(/^[\p{L}\p{N}_+><-]{1}[\p{L}\p{N}\s_+><-]*$/u, t('Allowed special characters: - _ + > <'))
 });
 
