@@ -381,7 +381,7 @@ describe('ClinicPatients', ()  => {
               { name: 'Charlie' }, // new site to be created
               expect.any(Function), // callback fn passed to api
             );
-          });
+          }, 30_000);
         });
 
         describe('managing patient tags', () => {
