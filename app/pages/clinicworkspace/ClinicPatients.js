@@ -530,6 +530,7 @@ const PatientTags = ({
             id="show-edit-clinic-patient-tags-dialog"
             icon={EditIcon}
             iconPosition="left"
+            iconLabel="show-edit-clinic-patient-tags-dialog"
             sx={{ fontSize: 1 }}
             variant="textPrimary"
             onClick={() => {
@@ -2733,11 +2734,15 @@ export const ClinicPatients = (props) => {
             <Box mt={1} id="clinic-patients-edit-site-list">
               {
                 orderedSites.map(({ id, name }) => (
-                  <Grid py={2} sx={{
-                    gridTemplateColumns: '1fr 72px 16px',
-                    borderTop: `1px solid ${colors.gray05}`,
-                    alignItems: 'center',
-                  }}>
+                  <Grid
+                    key={`edit-sites-list-${id}`}
+                    py={2}
+                    sx={{
+                      gridTemplateColumns: '1fr 72px 16px',
+                      borderTop: `1px solid ${colors.gray05}`,
+                      alignItems: 'center',
+                    }}
+                  >
                     <Flex sx={{ alignItems: 'center'}}>
                       <Text className="clinic-site-text" sx={{ fontSize: 1, color: 'text.primary' }}>{name}</Text>
                       {/* TODO: Add Edit functionality in future ticket */}
@@ -3383,7 +3388,7 @@ export const ClinicPatients = (props) => {
     }
 
     return (
-      <Box classname="patient-last-upload">
+      <Box className="patient-last-upload">
         {formattedLastDataDateCGM && (
           <Box sx={{ whiteSpace: 'nowrap' }}>
             <Text>{t('CGM: ')}</Text>
@@ -3738,6 +3743,7 @@ export const ClinicPatients = (props) => {
           {
             titleComponent: () => (
               <PopoverLabel
+                id="bg-events-info-popover"
                 icon={InfoOutlinedIcon}
                 iconProps={{
                   sx: { fontSize: '16px' },
