@@ -28,6 +28,7 @@ import { Body0 } from '../../../components/elements/FontStyles';
 import { MediumTitle } from '../../../components/elements/FontStyles';
 
 import SelectTags from './SelectTags';
+import SelectSites from './SelectSites';
 
 export const DEXCOM_CONNECTION_STATES = [
   'pending',
@@ -39,7 +40,7 @@ export const DEXCOM_CONNECTION_STATES = [
   'unknown',
 ];
 
-export function getFormValues(source, clinicPatientTags) {
+export function getFormValues(source, clinicPatientTags, clinicSites) {
   return {
     birthDate: source?.birthDate || '',
     email: source?.email || '',
@@ -47,6 +48,7 @@ export function getFormValues(source, clinicPatientTags) {
     mrn: source?.mrn || '',
     tags: reject(source?.tags || [], tagId => !clinicPatientTags?.[tagId]),
     dataSources: source?.dataSources || [],
+    sites: source?.sites?.filter(site => !!clinicSites[site.id]),
   };
 }
 
@@ -81,7 +83,9 @@ export const PatientForm = (props) => {
   const dateMaskFormat = dateInputFormat.replace(/[A-Z]/g, '9');
   const [initialValues, setInitialValues] = useState({});
   const showTags = clinic?.entitlements?.patientTags && !!clinic?.patientTags?.length;
+  const showSites = clinic?.entitlements?.clinicSites && !!clinic?.sites?.length;
   const clinicPatientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
+  const clinicSites = useMemo(() => keyBy(clinic?.sites, 'id'), [clinic?.sites]);
   const dexcomDataSource = find(patient?.dataSources, { providerName: 'dexcom' });
   const dexcomAuthInviteExpired = dexcomDataSource?.expirationTime < moment.utc().toISOString();
   const showEmail = action !== 'acceptInvite';
@@ -92,6 +96,7 @@ export const PatientForm = (props) => {
   const previousFetchOptions = usePrevious(patientFetchOptions);
   const initialFocusedInputRef = useInitialFocusedInput();
   const tagSectionRef = useRef(null);
+  const siteSectionRef = useRef(null);
 
   let dexcomConnectState = includes(DEXCOM_CONNECTION_STATES, dexcomDataSource?.state)
     ? dexcomDataSource.state
@@ -100,7 +105,7 @@ export const PatientForm = (props) => {
   if (includes(['pending', 'pendingReconnect'], dexcomConnectState) && dexcomAuthInviteExpired) dexcomConnectState = 'pendingExpired';
 
   const formikContext = useFormik({
-    initialValues: getFormValues(patient, clinicPatientTags),
+    initialValues: getFormValues(patient, clinicPatientTags, clinicSites),
     initialStatus: { showDataConnectionsModalNext: false },
     onSubmit: (values, formikHelpers) => {
       const context = selectedClinicId ? 'clinic' : 'vca';
@@ -109,17 +114,17 @@ export const PatientForm = (props) => {
         edit: {
           clinic: {
             handler: 'updateClinicPatient',
-            args: () => [selectedClinicId, patient.id, omitBy({ ...patient, ...getFormValues(values, clinicPatientTags) }, emptyValuesFilter)],
+            args: () => [selectedClinicId, patient.id, omitBy({ ...patient, ...getFormValues(values, clinicPatientTags, clinicSites) }, emptyValuesFilter)],
           },
           vca: {
             handler: 'updatePatient',
-            args: () => [accountInfoFromClinicPatient(omitBy({ ...patient, ...getFormValues(values, clinicPatientTags) }, emptyValuesFilter))],
+            args: () => [accountInfoFromClinicPatient(omitBy({ ...patient, ...getFormValues(values, clinicPatientTags, clinicSites) }, emptyValuesFilter))],
           },
         },
         create: {
           clinic: {
             handler: 'createClinicCustodialAccount',
-            args: () => [selectedClinicId, omitBy(getFormValues(values, clinicPatientTags), emptyValuesFilter)],
+            args: () => [selectedClinicId, omitBy(getFormValues(values, clinicPatientTags, clinicSites), emptyValuesFilter)],
           },
           vca: {
             handler: 'createVCACustodialAccount',
@@ -130,7 +135,7 @@ export const PatientForm = (props) => {
           clinic: {
             handler: 'acceptPatientInvitation',
             args: () => [selectedClinicId, invite.key, invite.creatorId, omitBy(
-              pick(getFormValues(values, clinicPatientTags), ['mrn', 'birthDate', 'fullName', 'tags']),
+              pick(getFormValues(values, clinicPatientTags, clinicSites), ['mrn', 'birthDate', 'fullName', 'tags']),
               emptyValuesFilter
             )],
           },
@@ -202,7 +207,7 @@ export const PatientForm = (props) => {
 
   useEffect(() => {
     // set form field values and store initial patient values on patient load
-    const patientValues = getFormValues(patient, clinicPatientTags);
+    const patientValues = getFormValues(patient, clinicPatientTags, clinicSites);
     setValues(patientValues);
     setInitialValues(patientValues);
   }, [patient, clinicPatientTags]);
@@ -337,6 +342,21 @@ export const PatientForm = (props) => {
             onMenuOpen={() => {
               // Wait for height modal to expand via CSS, then scroll down to enhance dropdown visibility
               setTimeout(() => tagSectionRef?.current?.scrollIntoView(), 50);
+            }}
+          />
+        </Box>
+      )}
+
+      {showSites && (
+        <Box ref={siteSectionRef} mb={3}>
+          <MediumTitle mb={2} sx={{ fontWeight: 'bold', fontSize: 2 }}>{t('Sites')}</MediumTitle>
+
+          <SelectSites
+            currentSites={values.sites || []}
+            onChange={sites => setFieldValue('sites', sites)}
+            onMenuOpen={() => {
+              // Wait for height modal to expand via CSS, then scroll down to enhance dropdown visibility
+              setTimeout(() => siteSectionRef?.current?.scrollIntoView(), 50);
             }}
           />
         </Box>
