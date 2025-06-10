@@ -1227,8 +1227,8 @@ export const ClinicPatients = (props) => {
 
   const handleCreateClinicSite = useCallback(site => {
     trackMetric('Clinic - Create clinic site', { clinicId: selectedClinicId });
-    dispatch(actions.async.createClinicSite(api, selectedClinicId, clinic?.sites, site));
-  }, [api, dispatch, selectedClinicId, clinic?.sites, trackMetric]);
+    dispatch(actions.async.createClinicSite(api, selectedClinicId, site));
+  }, [api, dispatch, selectedClinicId, trackMetric]);
 
   const handleCreateClinicPatientTag = useCallback(tag => {
     trackMetric('Clinic - Create patient tag', { clinicId: selectedClinicId });

@@ -2127,13 +2127,12 @@ export function createClinicSiteRequest() {
   };
 }
 
-export function createClinicSiteSuccess(clinicId, clinicSites, newSite) {
+export function createClinicSiteSuccess(clinicId, sites) {
   return {
     type: ActionTypes.CREATE_CLINIC_SITE_SUCCESS,
     payload: {
       clinicId: clinicId,
-      clinicSites: clinicSites,
-      newSite: newSite,
+      sites: sites,
     },
   };
 }

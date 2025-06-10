@@ -36,25 +36,24 @@ describe('Actions', () => {
     describe('createClinicSite', () => {
       it('should trigger CREATE_CLINIC_SITE_SUCCESS and it should call clinics.createClinicSite once for a successful request', () => {
         const clinicId = 'clinicId1';
-        const currentSites = [{ id: 'site-alpha-id', name: 'Site Alpha'}];
-        const newSite = { name: 'Site Bravo' };
+        const updatedSites = [{ id: 'site-alpha-id', name: 'Site Alpha' }];
 
         let api = {
           clinics: {
-            createClinicSite: jest.fn().mockImplementation((_arg1, _arg2, cb) => cb(null, newSite)),
+            createClinicSite: jest.fn().mockImplementation((_arg1, _arg2, cb) => cb(null, updatedSites)),
           },
         };
 
         let expectedActions = [
           { type: 'CREATE_CLINIC_SITE_REQUEST' },
-          { type: 'CREATE_CLINIC_SITE_SUCCESS', payload: { clinicId, clinicSites: currentSites, newSite: newSite } },
+          { type: 'CREATE_CLINIC_SITE_SUCCESS', payload: { clinicId, sites: updatedSites } },
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).toBe(true);
         });
 
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.createClinicSite(api, clinicId, currentSites, newSite));
+        store.dispatch(async.createClinicSite(api, clinicId, { name: 'Site Alpha' }));
 
         const actions = store.getActions();
         expect(actions).toStrictEqual(expectedActions);
@@ -63,8 +62,6 @@ describe('Actions', () => {
 
       it('should trigger CREATE_CLINIC_SITE_FAILURE and it should call error once for a failed request', () => {
         let clinicId = 'clinicId1';
-        const currentSites = [{ id: 'site-alpha-id', name: 'Site Alpha'}];
-        const newSite = { name: 'Site Charlie' };
 
         let api = {
           clinics: {
@@ -83,7 +80,7 @@ describe('Actions', () => {
           expect(isTSA(action)).toBe(true);
         });
         let store = mockStore({ blip: initialState });
-        store.dispatch(async.createClinicSite(api, clinicId, currentSites, newSite));
+        store.dispatch(async.createClinicSite(api, clinicId, { name: 'Site Charlie' }));
 
         const actions = store.getActions();
         expect(actions).toStrictEqual(expectedActions);

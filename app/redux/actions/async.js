@@ -2671,11 +2671,11 @@ export function sendPatientDataProviderConnectRequest(api, clinicId, patientId, 
  * @param {Object} siteToCreate - the site to create
  * @param {String} siteToCreate.name - the site name
  */
-export function createClinicSite(api, clinicId, clinicSites = [], siteToCreate) {
+export function createClinicSite(api, clinicId, site) {
   return (dispatch) => {
     dispatch(sync.createClinicSiteRequest());
 
-    api.clinics.createClinicSite(clinicId, siteToCreate, (err, site) => {
+    api.clinics.createClinicSite(clinicId, site, (err, updatedSites) => {
       if (err) {
         let message = ErrorMessages.ERR_CREATING_CLINIC_SITE;
 
@@ -2689,7 +2689,7 @@ export function createClinicSite(api, clinicId, clinicSites = [], siteToCreate) 
           createActionError(message, err), err
         ));
       } else {
-        dispatch(sync.createClinicSiteSuccess(clinicId, clinicSites, site));
+        dispatch(sync.createClinicSiteSuccess(clinicId, updatedSites));
       }
     });
   };

@@ -947,12 +947,11 @@ export const clinics = (state = initialState.clinics, action) => {
     case types.CREATE_CLINIC_SITE_SUCCESS: {
       const {
         clinicId,
-        clinicSites,
-        newSite,
+        sites
       } = action.payload;
 
       return update(state, {
-        [clinicId]: { sites: { $set: [...clinicSites, newSite] } },
+        [clinicId]: { sites: { $set: sites } },
       });
     }
     case types.FETCH_CLINIC_EHR_SETTINGS_SUCCESS: {
