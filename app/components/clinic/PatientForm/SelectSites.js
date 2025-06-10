@@ -34,7 +34,7 @@ export const buildSelectOptions = (
 };
 
 const SelectSites = ({
-  currentSites = [],
+  currentSites = [], // Array of sites, e.g. [{ id: 'id1', name: 'Site1' }]
   onChange,
   selectMenuHeight = 240,
   onMenuOpen = noop,
@@ -46,8 +46,9 @@ const SelectSites = ({
   const [activeFilters] = useClinicPatientsFilters();
 
   const handleSiteSelectionChange = (sites) => {
-    const translatedSites = sites.map(site => ({ name: site.label, id: site.value }));
-    onChange(translatedSites);
+    const formattedSites = sites.map(site => ({ name: site.label, id: site.value }));
+    // Call onChange with array of sites, e.g. [{ id: 'id1', name: 'Site1' }]
+    onChange(formattedSites);
   };
 
   // Suggest tags only if user is viewing ClinicPatients list (where Filters are used)
