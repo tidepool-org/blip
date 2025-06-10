@@ -441,7 +441,7 @@ describe('ClinicPatients', ()  => {
             expect(screen.getByText('Edit Patient Details')).toBeInTheDocument();
 
             // Add Tag 3 and remove Tag 1, then save
-            await userEvent.click(screen.getByRole('combobox')); // open combobox dropdown
+            await userEvent.click(screen.getAllByRole('combobox')[0]); // open combobox dropdown
             await userEvent.click(screen.getByText('ttest tag 3', { selector: 'div' }));
             await userEvent.click(screen.getByLabelText(/Remove test tag 1/));
             await userEvent.click(screen.getByRole('button', { name: /Save Changes/ }));
