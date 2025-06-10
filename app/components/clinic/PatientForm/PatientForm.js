@@ -248,7 +248,8 @@ export const PatientForm = (props) => {
         minWidth: [null, '320px'],
 
         // When the select Tags or Sites dropdowns are open, expand the modal to give extra room
-        '&:has(.PatientFormSelectTags__control--menu-is-open)': { paddingBottom: '242px' },
+        '&:has(.PatientFormSelectTags__control--menu-is-open)': { paddingBottom: '162px' },
+        '&:has(.PatientFormSelectSites__control--menu-is-open)': { paddingBottom: '242px' },
       }}
       {...boxProps}
     >
