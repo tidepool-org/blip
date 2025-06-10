@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.47.0-rc.1":
-  version: 1.47.0-rc.1
-  resolution: "@tidepool/viz@npm:1.47.0-rc.1"
+"@tidepool/viz@npm:1.47.0-rc.2":
+  version: 1.47.0-rc.2
+  resolution: "@tidepool/viz@npm:1.47.0-rc.2"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 4641eea4d2e54b58444e6a5abe8d6d32b151cbc569ef33aa6622460268d484daed4fd587acaa8dfb0dedc8891af8c2f27d414383424950343b9f5ddf09e7941d
+  checksum: b581c01b2908ec8d76212797689ef9e62131b7152d8ce9ab80553e4927a42b1b151704b21d63f8e4a21b65f95410ff23ec02ea6cbd898efc509e2ff4cffa4133
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.47.0-rc.1
+    "@tidepool/viz": 1.47.0-rc.2
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -8462,7 +8462,7 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.32.0
+    tideline: 1.33.0-rc.1
     tidepool-platform-client: 0.63.0
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
@@ -22218,9 +22218,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.32.0":
-  version: 1.32.0
-  resolution: "tideline@npm:1.32.0"
+"tideline@npm:1.33.0-rc.1":
+  version: 1.33.0-rc.1
+  resolution: "tideline@npm:1.33.0-rc.1"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -22241,7 +22241,7 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: 031fc606a46c062081ffd5dcc58ea1bb863bb98acb04c82d537490caed865d4c62bce7943fb2e69ceb165148957ef6c4e2381c97a456f50bc74ba29b0f899d75
+  checksum: ec3fdb436d5e12566b98d21a1f46d40b4878db37e7defedbb974fdb2bc8e4aabef5cf43cd0b27daa173abe471ac0f7e90da3872000f16b1b53468ef6f7978ba2
   languageName: node
   linkType: hard
 
