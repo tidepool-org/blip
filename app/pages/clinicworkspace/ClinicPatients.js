@@ -1846,7 +1846,10 @@ export const ClinicPatients = (props) => {
                           sx={{ fontSize: 1 }}
                           variant="textSecondary"
                           onClick={() => {
-                            // TODO: Implement in future ticket
+                            trackMetric(prefixPopHealthMetric('Clinic site filter clear'), { clinicId: selectedClinicId });
+                            setPendingFilters({ ...activeFilters, clinicSites: defaultFilterState.clinicSites });
+                            setActiveFilters({ ...activeFilters, clinicSites: defaultFilterState.clinicSites });
+                            clinicSitesPopupFilterState.close();
                           }}
                         >
                           {t('Clear')}
