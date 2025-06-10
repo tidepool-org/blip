@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.47.0-web-3688-twiist-suppressed-basal-data.1":
-  version: 1.47.0-web-3688-twiist-suppressed-basal-data.1
-  resolution: "@tidepool/viz@npm:1.47.0-web-3688-twiist-suppressed-basal-data.1"
+"@tidepool/viz@npm:1.47.0-web-3688-twiist-suppressed-basal-data.2":
+  version: 1.47.0-web-3688-twiist-suppressed-basal-data.2
+  resolution: "@tidepool/viz@npm:1.47.0-web-3688-twiist-suppressed-basal-data.2"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 6bb67e07a5ce5dc1bf6eec813c9d8ba48e390483cf3baadc1f21e5c8bc873b0ba9d9cbef1631cbac49336dc390029911f920bd37ff8cf23152cce0b07cdc9d08
+  checksum: 98d7fffd5915a90ebd67d5cf3de0b24e62957ac191e16bdeb7bb062fd1f2f940645c12268f4b411f41e02761fed3a36ecc73e4341a2a3c26b3edff2e182cb7ca
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.47.0-web-3688-twiist-suppressed-basal-data.1
+    "@tidepool/viz": 1.47.0-web-3688-twiist-suppressed-basal-data.2
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
