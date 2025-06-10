@@ -163,13 +163,14 @@ const ClearButton = styled.button`
 `;
 
 const hasAppliedFilters = (activeFilters = {}) => {
-  const { lastData, lastDataType, timeCGMUsePercent, timeInRange, patientTags } = activeFilters;
+  const { lastData, lastDataType, timeCGMUsePercent, timeInRange, clinicSites, patientTags } = activeFilters;
 
   return (
     lastData ||
     lastDataType ||
     timeCGMUsePercent ||
     timeInRange?.length > 0 ||
+    clinicSites?.length > 0 ||
     patientTags?.length > 0
   );
 };
@@ -669,7 +670,6 @@ export const ClinicPatients = (props) => {
     { value: '30d', label: t('30 days') },
   ];
 
-  const clinicSites = useMemo(() => keyBy(clinic?.sites, 'id'), [clinic?.sites]);
   const patientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
 
   const clinicSitesFilterOptions = useMemo(() => {
@@ -1055,6 +1055,10 @@ export const ClinicPatients = (props) => {
           filterOptions[`${activeFilters.lastDataType}.lastDataFrom`] = moment(filterOptions[`${activeFilters.lastDataType}.lastDataTo`]).subtract(activeFilters.lastData, 'days').toISOString();
         }
 
+        if (activeFilters.clinicSites?.length) {
+          filterOptions['sites'] = activeFilters.clinicSites;
+        }
+
         if (activeFilters.patientTags?.length) {
           filterOptions['tags'] = activeFilters.patientTags;
         }
@@ -1081,6 +1085,7 @@ export const ClinicPatients = (props) => {
           'bgm.lastDataTo',
           'cgm.lastDataFrom',
           'cgm.lastDataTo',
+          'sites',
           'tags',
           'cgm.timeCGMUsePercent',
           'cgm.timeInVeryLowPercent',
@@ -1789,8 +1794,8 @@ export const ClinicPatients = (props) => {
 
                         { // Render a list of checkboxes
                           sortedSiteFilterOptions.map(({ id, label }) => {
-                            const isChecked = false; // Temporary; functionality to be implemented in future ticket
-                            const isDisabled = true; // Temporary; functionality to be implemented in future ticket
+                            const { clinicSites } = pendingFilters;
+                            const isChecked = clinicSites?.includes(id);
 
                             return (
                               <Box mt={1} className="clinic-site-filter-option" key={`clinic-site-filter-option-${id}`}>
@@ -1802,9 +1807,12 @@ export const ClinicPatients = (props) => {
                                     </Text>
                                   }
                                   checked={isChecked}
-                                  disabled={isDisabled}
                                   onChange={() => {
-                                    // TODO: Temporary; functionality to be implemented in future ticket
+                                    if (isChecked) {
+                                      setPendingFilters({ ...pendingFilters, clinicSites: without(clinicSites, id) });
+                                    } else {
+                                      setPendingFilters({ ...pendingFilters, clinicSites: [...clinicSites, id] });
+                                    }
                                   }}
                                 />
                               </Box>
