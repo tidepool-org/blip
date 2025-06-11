@@ -88,7 +88,7 @@ var PatientInfo = withTranslation()(class extends React.Component {
     var nameNode;
     var ageNode;
     var diagnosisNode;
-    if (this.isSamePersonUserAndPatient()) {
+    if (this.isSamePersonUserAndPatient() && !this.props.isSmartOnFhirMode) {
       nameNode = (
         <a href="" onClick={handleClick} className="PatientInfo-block PatientInfo-block--withArrow">
           {this.getDisplayName(patient)}
@@ -487,6 +487,10 @@ var PatientInfo = withTranslation()(class extends React.Component {
 
   renderExport = () => {
     const { t } = this.props;
+    if (this.props.isSmartOnFhirMode) {
+      return null;
+    }
+
     return (
       <div className="PatientPage-export">
         <div className="PatientPage-sectionTitle">{t('Export My Data')}</div>

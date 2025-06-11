@@ -206,6 +206,158 @@ describe('NavPatientHeader', () => {
     });
   });
 
+  describe('Smart-on-FHIR mode', () => {
+    context('personal user with root permissions in Smart-on-FHIR mode', () => {
+      const props = {
+        user: { roles: [] },
+        trackMetric,
+        api,
+        patient: { ...patientProps, permissions: { root: {} } },
+        clinicPatient: undefined,
+        isSmartOnFhirMode: true,
+      };
+
+      const wrapper = mount(
+        <BrowserRouter>
+          <NavPatientHeader {...props} />
+        </BrowserRouter>
+      );
+
+      it('should hide upload button even with root permissions', () => {
+        // should show demographic info from the 'patient' object
+        expect(wrapper.text()).to.include('Vasyl Lomachenko');
+        expect(wrapper.text()).not.to.include('Naoya Inoue');
+
+        // should show standard buttons
+        expect(wrapper.find('button#navPatientHeader_backButton').exists()).to.be.false;
+        expect(wrapper.find('button#navPatientHeader_viewDataButton').exists()).to.be.true;
+        expect(wrapper.find('button#navPatientHeader_profileButton').exists()).to.be.true;
+        expect(wrapper.find('button#navPatientHeader_shareButton').exists()).to.be.true;
+
+        // should NOT show upload button in Smart-on-FHIR mode
+        expect(wrapper.find('button#navPatientHeader_uploadButton').exists()).to.be.false;
+      });
+    });
+
+    context('clinician user with upload permissions in Smart-on-FHIR mode', () => {
+      const props = {
+        user: { roles: ['clinician'] },
+        trackMetric,
+        api,
+        patient: { ...patientProps, permissions: { root: {} } },
+        clinicPatient: { ...clinicPatientProps },
+        permsOfLoggedInUser: { upload: {} },
+        isSmartOnFhirMode: true,
+      };
+
+      const wrapper = mount(
+        <BrowserRouter>
+          <NavPatientHeader {...props} />
+        </BrowserRouter>
+      );
+
+      it('should hide upload button even with upload permissions', () => {
+        // should show demographic info from the 'clinicPatient' object
+        expect(wrapper.text()).to.include('Naoya Inoue');
+        expect(wrapper.text()).to.include('999999');
+        expect(wrapper.text()).to.include('1965-01-01');
+
+        // should show standard clinician buttons
+        expect(wrapper.find('button#navPatientHeader_backButton').exists()).to.be.true;
+        expect(wrapper.find('button#navPatientHeader_viewDataButton').exists()).to.be.true;
+        expect(wrapper.find('button#navPatientHeader_profileButton').exists()).to.be.true;
+        expect(wrapper.find('button#navPatientHeader_shareButton').exists()).to.be.false;
+
+        // should NOT show upload button in Smart-on-FHIR mode
+        expect(wrapper.find('button#navPatientHeader_uploadButton').exists()).to.be.false;
+      });
+    });
+
+    context('button functionality remains intact in Smart-on-FHIR mode', () => {
+      let wrapper;
+
+      beforeEach(() => {
+        const props = {
+          user: { roles: [] },
+          trackMetric,
+          api,
+          patient: { ...patientProps, permissions: { root: {} } },
+          clinicPatient: { ...clinicPatientProps },
+          isSmartOnFhirMode: true,
+        };
+
+        wrapper = mount(
+          <BrowserRouter>
+            <NavPatientHeader {...props} />
+          </BrowserRouter>
+        );
+      });
+
+      it('View button should still function correctly', () => {
+        wrapper.find('button#navPatientHeader_viewDataButton').simulate('click');
+        expect(handleViewData.calledOnce).to.be.true;
+      });
+
+      it('Profile button should still function correctly', () => {
+        wrapper.find('button#navPatientHeader_profileButton').simulate('click');
+        expect(handleViewProfile.calledOnce).to.be.true;
+      });
+
+      it('Share button should still function correctly', () => {
+        wrapper.find('button#navPatientHeader_shareButton').simulate('click');
+        expect(handleShare.calledOnce).to.be.true;
+      });
+
+      it('should not render upload overlay in Smart-on-FHIR mode', () => {
+        // Upload button should not exist, so overlay should never appear
+        expect(wrapper.find('.UploadLaunchOverlay').exists()).to.be.false;
+        expect(wrapper.find('button#navPatientHeader_uploadButton').exists()).to.be.false;
+      });
+    });
+
+    context('comparison with non-Smart-on-FHIR mode', () => {
+      it('should show upload button when Smart-on-FHIR mode is disabled', () => {
+        const propsWithoutSmartOnFhir = {
+          user: { roles: [] },
+          trackMetric,
+          api,
+          patient: { ...patientProps, permissions: { root: {} } },
+          clinicPatient: undefined,
+          isSmartOnFhirMode: false,
+        };
+
+        const wrapper = mount(
+          <BrowserRouter>
+            <NavPatientHeader {...propsWithoutSmartOnFhir} />
+          </BrowserRouter>
+        );
+
+        // Upload button should be visible when Smart-on-FHIR mode is disabled
+        expect(wrapper.find('button#navPatientHeader_uploadButton').exists()).to.be.true;
+      });
+
+      it('should hide upload button when Smart-on-FHIR mode is enabled', () => {
+        const propsWithSmartOnFhir = {
+          user: { roles: [] },
+          trackMetric,
+          api,
+          patient: { ...patientProps, permissions: { root: {} } },
+          clinicPatient: undefined,
+          isSmartOnFhirMode: true,
+        };
+
+        const wrapper = mount(
+          <BrowserRouter>
+            <NavPatientHeader {...propsWithSmartOnFhir} />
+          </BrowserRouter>
+        );
+
+        // Upload button should be hidden when Smart-on-FHIR mode is enabled
+        expect(wrapper.find('button#navPatientHeader_uploadButton').exists()).to.be.false;
+      });
+    });
+  });
+
   describe('button functions for personal users', () => {
     let wrapper;
 
