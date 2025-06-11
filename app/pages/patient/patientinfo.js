@@ -45,6 +45,7 @@ var PatientInfo = withTranslation()(class extends React.Component {
     dataDonationAccountsFetched: PropTypes.bool,
     fetchingPatient: PropTypes.bool.isRequired,
     fetchingUser: PropTypes.bool.isRequired,
+    isSmartOnFhirMode: PropTypes.bool.isRequired,
     onUpdateDataDonationAccounts: PropTypes.func,
     onUpdatePatient: PropTypes.func.isRequired,
     onUpdatePatientSettings: PropTypes.func,
@@ -187,7 +188,8 @@ var PatientInfo = withTranslation()(class extends React.Component {
 
   renderEditLink = () => {
     const { t } = this.props;
-    if (!this.isSamePersonUserAndPatient() && !this.isEditingAllowed(this.props.permsOfLoggedInUser)) {
+    if (this.props.isSmartOnFhirMode ||
+        (!this.isSamePersonUserAndPatient() && !this.isEditingAllowed(this.props.permsOfLoggedInUser))) {
       return null;
     }
 

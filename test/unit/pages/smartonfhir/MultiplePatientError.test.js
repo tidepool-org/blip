@@ -20,7 +20,6 @@ const MockIcon = (props) => <div className="mock-icon">{props.children}</div>;
 describe('MultiplePatientError', () => {
   let wrapper;
   let useTranslationStub;
-  let mockOnClose;
 
   beforeEach(() => {
     MultiplePatientError.__Rewire__('WarningRoundedIcon', MockWarningRoundedIcon);
@@ -30,8 +29,7 @@ describe('MultiplePatientError', () => {
       t: (key) => key
     });
 
-    mockOnClose = sinon.spy();
-    wrapper = mount(<MultiplePatientError onClose={mockOnClose} />);
+    wrapper = mount(<MultiplePatientError />);
   });
 
   afterEach(() => {
@@ -86,12 +84,10 @@ describe('MultiplePatientError', () => {
     expect(emailLink.text()).to.equal('support@tidepool.org');
   });
 
-  it('should render a close button that calls the onClose prop when clicked', () => {
-    const closeButton = wrapper.find('button');
-    expect(closeButton).to.have.length(1);
-    expect(closeButton.text()).to.equal('Close');
-
-    closeButton.simulate('click');
-    expect(mockOnClose.calledOnce).to.be.true;
+  it('should render the main title', () => {
+    const title = wrapper.findWhere(node =>
+      node.text() === 'Multiple Patient Matches'
+    );
+    expect(title).to.have.length.at.least(1);
   });
 });

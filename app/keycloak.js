@@ -160,19 +160,25 @@ export const keycloakMiddleware = (api) => (storeAPI) => (next) => (action) => {
 export const KeycloakWrapper = (props) => {
   const keycloakConfig = useSelector((state) => state.blip.keycloakConfig);
   const store = useStore();
-  const Wrapper = keycloakConfig?.url ? ReactKeycloakProvider : React.Fragment;
-  const wrapperProps = keycloakConfig?.url ? {
-    ...props,
-    authClient: keycloak,
-    onEvent: onKeycloakEvent(store),
-    onTokens: onKeycloakTokens(store),
-    initOptions: {
-      //checkLoginIframe: false,
-      onLoad: 'check-sso',
-      enableLogging: true,
-      silentCheckSsoRedirectUri: `${window.location.origin}/silent-check-sso.html`,
-    }
-  } : props;
+
+  const { Wrapper, wrapperProps } = React.useMemo(() => {
+    const Wrapper = keycloakConfig?.url ? ReactKeycloakProvider : React.Fragment;
+    const wrapperProps = keycloakConfig?.url ? {
+      ...props,
+      authClient: keycloak,
+      onEvent: onKeycloakEvent(store),
+      onTokens: onKeycloakTokens(store),
+      initOptions: {
+        //checkLoginIframe: false,
+        onLoad: 'check-sso',
+        enableLogging: true,
+        silentCheckSsoRedirectUri: `${window.location.origin}/silent-check-sso.html`,
+      }
+    } : props;
+
+    return { Wrapper, wrapperProps };
+  }, [keycloakConfig?.url, props, store]);
+
   return <Wrapper {...wrapperProps}>{props.children}</Wrapper>;
 };
 

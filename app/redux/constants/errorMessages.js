@@ -158,12 +158,12 @@ export const VERIFY_CUSTODIAL_ERRORS = {
 };
 
 // Smart on FHIR specific errors
-export const ERR_SMARTONFHIR_MISSING_CORRELATION_ID = t('Missing correlation ID. Please try again or contact your healthcare provider.');
-export const ERR_SMARTONFHIR_PATIENT_INFO_NOT_FOUND = t('Patient information not found in token. Please try again or contact your healthcare provider.');
-export const ERR_SMARTONFHIR_MRN_NOT_FOUND = t('MRN not found in patient information. Please contact your healthcare provider.');
-export const ERR_SMARTONFHIR_NO_PATIENTS_FOUND = t('No patients found with the provided MRN. Please contact your healthcare provider.');
+export const ERR_SMARTONFHIR_MISSING_CORRELATION_ID = t('Missing correlation ID.');
+export const ERR_SMARTONFHIR_PATIENT_INFO_NOT_FOUND = t('Patient information not found in token.');
+export const ERR_SMARTONFHIR_MRN_NOT_FOUND = t('MRN not found in patient information.');
+export const ERR_SMARTONFHIR_DOB_NOT_FOUND = t('Date of birth information not found in patient data.');
+export const ERR_SMARTONFHIR_NO_PATIENTS_FOUND = t('No patients found with the provided MRN.');
 export const ERR_SMARTONFHIR_MULTIPLE_PATIENTS_FOUND = t('Multiple patients found with the provided MRN and date of birth.');
-export const ERR_SMARTONFHIR_FETCHING_PATIENT = t('Error fetching patient. Please try again or contact your healthcare provider.');
-export const ERR_SMARTONFHIR_CONTACT_PROVIDER = t('Please contact your healthcare provider for assistance.');
+export const ERR_SMARTONFHIR_FETCHING_PATIENT = t('Error fetching patient.');
 export const ERR_SMARTONFHIR_INITIALIZING = t('Initializing Smart on FHIR...');
 export const ERR_SMARTONFHIR_LOADING_PATIENT_DATA = t('Loading patient data...');

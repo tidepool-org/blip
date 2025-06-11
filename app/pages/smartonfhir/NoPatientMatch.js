@@ -6,12 +6,12 @@ import WarningRoundedIcon from '@material-ui/icons/WarningRounded';
 import Icon from '../../components/elements/Icon';
 import baseTheme, { fontWeights, fonts } from '../../themes/baseTheme';
 
-export const MultiplePatientError = () => {
+export const NoPatientMatch = () => {
   const { t } = useTranslation();
   return (
     <Box sx={{ color: 'text.primary', p: 4 }}>
       <Title sx={{ mb: 3, textAlign: 'center' }}>
-        {t('Multiple Patient Matches')}
+        {t('No Patient Match')}
       </Title>
       <Box
         sx={{
@@ -38,32 +38,34 @@ export const MultiplePatientError = () => {
           }}
         />
         <Body1 sx={{ fontWeight: fontWeights.medium }}>
-          {t('There are multiple patient records in Tidepool with identical MRN and date of birth to this patient.')}
+          {t('There is no patient with that MRN and date of birth in your Tidepool workspace.')}
         </Body1>
       </Box>
 
       <Body1 sx={{ mb: 2 }}>
-        {t('To resolve this issue:')}
+        {t('To add this patient to Tidepool:')}
       </Body1>
 
-      <Box as="ol" sx={{ pl: 4, mb: 3, fontFamily: fonts.default }}>
+      <Box as="ol" sx={{ pl: 4, mb: 2 , fontFamily: fonts.default}}>
         <Box as="li" sx={{ mb: 2 }}>
           <Body1>{t('Log into Tidepool (app.tidepool.org) in a new browser')}</Body1>
         </Box>
         <Box as="li" sx={{ mb: 2 }}>
-          <Body1>{t('Search for this patient\'s MRN in the Patient List')}</Body1>
+          <Body1>{t('Click “Add New Patient” in your Clinic Workspace')}</Body1>
         </Box>
-        <Box as="li" sx={{ mb: 2 }}>
+        <Box as="li" sx={{  }}>
           <Body1>
-            {t('Review duplicate accounts and either remove duplicates if appropriate or update MRNs to ensure each patient has a unique identifier')}
+            {t('Enter the required information, making sure the MRN and birthdate match the EHR')}
           </Body1>
         </Box>
-        <Box as="li" sx={{ mb: 2 }}>
-          <Body1>{t('Once resolved, return to the EHR and try again')}</Body1>
-        </Box>
       </Box>
+      <Box sx={{ mb: 2 }}>
+          <Body1>
+            {t('After this, you’ll be able to open their Tidepool account from your EHR system.')}
+          </Body1>
+        </Box>
 
-      <Paragraph1 sx={{ mt: 3 }}>
+      <Paragraph1 sx={{ mt: 2 }}>
         {t('Need help? Contact ')}
         <Text as="a" href="mailto:support@tidepool.org" sx={{ color: 'text.link', '&:hover': { textDecoration: 'underline' } }}>
           support@tidepool.org
@@ -75,4 +77,4 @@ export const MultiplePatientError = () => {
   );
 };
 
-export default MultiplePatientError;
+export default NoPatientMatch;

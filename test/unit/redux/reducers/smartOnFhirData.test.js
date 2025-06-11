@@ -2,15 +2,12 @@
 /* global sinon */
 /* global describe */
 /* global it */
-/* global expect */
 
-import { smartOnFhirData as reducer } from '../../../../app/redux/reducers/misc';
+ import { smartOnFhirData as reducer } from '../../../../app/redux/reducers/misc';
 
-import * as actions from '../../../../app/redux/actions/index';
+ import * as actions from '../../../../app/redux/actions/index';
 
-import { smartOnFhirData as initialState } from '../../../../app/redux/reducers/initialState';
-
-const expect = chai.expect;
+ const expect = chai.expect;
 
 describe('smartOnFhirData', () => {
   describe('SMART_ON_FHIR_AUTH_SUCCESS', () => {

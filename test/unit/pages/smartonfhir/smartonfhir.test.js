@@ -41,6 +41,7 @@ describe('SmartOnFhir', () => {
           patients: {
             'correlation-123': {
               mrn: '12345',
+              dob: '1990-01-01',
             },
           },
         },
@@ -75,16 +76,17 @@ describe('SmartOnFhir', () => {
   });
 
   it('should render loading message initially', () => {
-    expect(wrapper.text()).to.include('Loading patient data');
+    expect(wrapper.text()).to.include('Loading patient data...');
   });
 
-  it('should dispatch fetchPatients action with MRN from Smart on FHIR data', () => {
+  it('should dispatch fetchPatients action with MRN and DOB from Smart on FHIR data', () => {
     const actions = store.getActions();
     const fetchPatientsAction = actions.find(action =>
       action.type === 'FETCH_PATIENTS_REQUEST'
     );
 
     expect(fetchPatientsAction).to.exist;
+    sinon.assert.calledWith(mockApi.patient.getAll, { mrn: '12345', birthDate: '1990-01-01' });
   });
 
   it('should dispatch push action to navigate when patient is found', () => {
@@ -175,7 +177,7 @@ describe('SmartOnFhir', () => {
         smartOnFhirData: {
           patients: {
             'correlation-123': {
-
+              dob: '1990-01-01',
             },
           },
         },
@@ -202,6 +204,39 @@ describe('SmartOnFhir', () => {
     expect(newWrapper.text()).to.include('MRN not found');
   });
 
+  it('should show error when DOB is missing', () => {
+    const newStore = mockStore({
+      blip: {
+        smartOnFhirData: {
+          patients: {
+            'correlation-123': {
+              mrn: '12345',
+            },
+          },
+        },
+        smartCorrelationId: 'correlation-123',
+        working: {
+          fetchingPatients: {
+            inProgress: false,
+          },
+        },
+      }
+    });
+
+    const newWrapper = mount(
+      <Provider store={newStore}>
+        <MemoryRouter>
+          <SmartOnFhir
+            api={mockApi}
+            window={{ sessionStorage: mockSessionStorage }}
+          />
+        </MemoryRouter>
+      </Provider>
+    );
+
+    expect(newWrapper.text()).to.include('Date of birth information not found');
+  });
+
   it('should use correlation ID from Redux when available', () => {
     const newStore = mockStore({
       blip: {
@@ -209,6 +244,7 @@ describe('SmartOnFhir', () => {
           patients: {
             'correlation-123': {
               mrn: '12345',
+              dob: '1990-01-01',
             },
           },
         },
@@ -241,5 +277,29 @@ describe('SmartOnFhir', () => {
       action.type === 'FETCH_PATIENTS_REQUEST'
     );
     expect(fetchPatientsAction).to.exist;
+  });
+
+  it('should hide Zendesk widget in Smart-on-FHIR mode', () => {
+    // Setup mock Zendesk widget
+    global.zE = sinon.stub();
+    global.zE.withArgs('webWidget', 'hide').returns();
+
+    // Force component to remount to trigger useEffect for Zendesk
+    wrapper.unmount();
+    wrapper = mount(
+      <Provider store={store}>
+        <MemoryRouter>
+          <SmartOnFhir
+            api={mockApi}
+            window={{ sessionStorage: mockSessionStorage }}
+          />
+        </MemoryRouter>
+      </Provider>
+    );
+
+    expect(global.zE.calledWith('webWidget', 'hide')).to.be.true;
+
+    // Cleanup
+    delete global.zE;
   });
 });

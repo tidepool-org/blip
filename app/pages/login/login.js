@@ -97,8 +97,9 @@ export const Login = withTranslation()(class extends React.Component {
     }
 
     const urlParams = new URLSearchParams(routerState?.location?.search);
-    const iss = sessionStorage.getItem('smart_iss') || urlParams.get('iss');
-    const launch = sessionStorage.getItem('smart_launch') || urlParams.get('launch');
+
+    const iss = urlParams.get('iss');
+    const launch = urlParams.get('launch');
 
     let correlationId = this.props.smartCorrelationId;
 
@@ -143,9 +144,9 @@ export const Login = withTranslation()(class extends React.Component {
       keycloak.createLoginUrl({
         redirectUri: redirectUri,
       }).then((url) => {
-        const iss = sessionStorage.getItem('smart_iss') || urlParams.get('iss');
-        const launch = sessionStorage.getItem('smart_launch') || urlParams.get('launch');
-        const correlationId = sessionStorage.getItem('smart_correlation_id') || urlParams.get('correlation_id');
+        const iss = urlParams.get('iss');
+        const launch = urlParams.get('launch');
+        const correlationId = urlParams.get('correlation_id') || sessionStorage.getItem('smart_correlation_id');
 
         if (iss && launch && correlationId) {
           const additionalParams = new URLSearchParams();
@@ -153,7 +154,11 @@ export const Login = withTranslation()(class extends React.Component {
           additionalParams.append('iss', iss);
           additionalParams.append('launch', launch);
           additionalParams.append('correlation_id', correlationId);
-          url += `&${additionalParams.toString()}`;
+          const urlObj = new URL(url);
+          additionalParams.forEach((value, key) => {
+            urlObj.searchParams.append(key, value);
+          });
+          url = urlObj.toString();
         }
 
         win.location.href = url;

@@ -8,6 +8,7 @@ import thunk from 'redux-thunk';
 import baseTheme from '../app/themes/baseTheme';
 import { SmartOnFhir } from '../app/pages/smartonfhir/smartonfhir';
 import MultiplePatientError from '../app/pages/smartonfhir/MultiplePatientError';
+import NoPatientMatch from '../app/pages/smartonfhir/NoPatientMatch';
 
 const mockStore = configureStore([thunk]);
 
@@ -47,6 +48,7 @@ export const Loading = {
           patients: {
             'correlation-123': {
               mrn: '12345',
+              dob: '1990-01-01',
             },
           },
         },
@@ -70,6 +72,7 @@ export const Loading = {
               patients: {
                 'correlation-123': {
                   mrn: '12345',
+                  dob: '1990-01-01',
                 },
               },
             }}
@@ -97,6 +100,7 @@ export const Initializing = {
           patients: {
             'correlation-123': {
               mrn: '12345',
+              dob: '1990-01-01',
             },
           },
         },
@@ -120,6 +124,7 @@ export const Initializing = {
               patients: {
                 'correlation-123': {
                   mrn: '12345',
+                  dob: '1990-01-01',
                 },
               },
             }}
@@ -280,66 +285,29 @@ export const ErrorMRNNotFound = {
   name: 'Error - MRN Not Found',
 };
 
-export const ErrorFetchingPatient = {
-  render: () => {
-    const store = mockStore({
-      blip: {
-        smartOnFhirData: {
-          patients: {
-            'correlation-123': {
-              mrn: '12345',
-            },
-          },
-        },
-        smartCorrelationId: 'correlation-123',
-        working: {
-          fetchingPatients: {
-            inProgress: false,
-          },
-        },
-      },
-    });
-
-    return (
-      <Provider store={store}>
-        <MemoryRouter>
-          <SmartOnFhir
-            api={mockApi}
-            fetchPatients={(api, params, callback) => {
-              callback(new Error('API error'), null);
-            }}
-            push={() => {}}
-            smartOnFhirData={{
-              patients: {
-                'correlation-123': {
-                  mrn: '12345',
-                },
-              },
-            }}
-            smartCorrelationId="correlation-123"
-            setSmartCorrelationId={() => {}}
-            working={{
-              fetchingPatients: {
-                inProgress: false,
-              },
-            }}
-            window={mockWindow}
-          />
-        </MemoryRouter>
-      </Provider>
-    );
-  },
-  name: 'Error - Fetching Patient',
-};
-
 export const ErrorNoPatientsFound = {
   render: () => {
+    // This story should display the NoPatientMatch component
+    // because the fetchPatients callback returns an empty array,
+    // which triggers the ERR_SMARTONFHIR_NO_PATIENTS_FOUND error
+
+    // Create a mock api that simulates a patient not found situation
+    const noPatientFoundMockApi = {
+      patient: {
+        getAll: (params, callback) => {
+          // Return an empty array to simulate no patient found
+          callback(null, []);
+        },
+      },
+    };
+
     const store = mockStore({
       blip: {
         smartOnFhirData: {
           patients: {
             'correlation-123': {
               mrn: '12345',
+              dob: '1990-01-01',
             },
           },
         },
@@ -356,24 +324,10 @@ export const ErrorNoPatientsFound = {
       <Provider store={store}>
         <MemoryRouter>
           <SmartOnFhir
-            api={mockApi}
+            api={noPatientFoundMockApi}
             fetchPatients={(api, params, callback) => {
-              callback(null, []);
-            }}
-            push={() => {}}
-            smartOnFhirData={{
-              patients: {
-                'correlation-123': {
-                  mrn: '12345',
-                },
-              },
-            }}
-            smartCorrelationId="correlation-123"
-            setSmartCorrelationId={() => {}}
-            working={{
-              fetchingPatients: {
-                inProgress: false,
-              },
+              // This simulates the action creator, calling the API method
+              api.patient.getAll(params, callback);
             }}
             window={mockWindow}
           />
@@ -386,12 +340,14 @@ export const ErrorNoPatientsFound = {
 
 export const ErrorMultiplePatientsFound = {
   render: () => {
+    // Create a store with the necessary state for the multiple patients error scenario
     const store = mockStore({
       blip: {
         smartOnFhirData: {
           patients: {
             'correlation-123': {
               mrn: '12345',
+              dob: '1990-01-01',
             },
           },
         },
@@ -404,19 +360,34 @@ export const ErrorMultiplePatientsFound = {
       },
     });
 
+    // Create a mock API that will return multiple patients to trigger the error
+    const multiplePatientsMockApi = {
+      patient: {
+        getAll: (params, callback) => {
+          // Return an array with multiple patient objects
+          callback(null, [
+            { patient: { id: 'patient1', name: 'Patient One' } },
+            { patient: { id: 'patient2', name: 'Patient Two' } }
+          ]);
+        },
+      },
+    };
+
     return (
       <Provider store={store}>
         <MemoryRouter>
           <SmartOnFhir
-            api={mockApi}
+            api={multiplePatientsMockApi}
             fetchPatients={(api, params, callback) => {
-              callback(null, [{}, {}]);
+              // This simulates the action creator, calling the API method
+              api.patient.getAll(params, callback);
             }}
             push={() => {}}
             smartOnFhirData={{
               patients: {
                 'correlation-123': {
                   mrn: '12345',
+                  dob: '1990-01-01',
                 },
               },
             }}
@@ -436,20 +407,19 @@ export const ErrorMultiplePatientsFound = {
   name: 'Error - Multiple Patients Found',
 };
 
-export const RetrieveFromSessionStorage = {
+export const ErrorDOBNotFound = {
   render: () => {
-    const setSmartCorrelationIdStub = () => console.log('setSmartCorrelationId called');
-
     const store = mockStore({
       blip: {
         smartOnFhirData: {
           patients: {
             'correlation-123': {
               mrn: '12345',
+              // No DOB
             },
           },
         },
-        smartCorrelationId: null,
+        smartCorrelationId: 'correlation-123',
         working: {
           fetchingPatients: {
             inProgress: false,
@@ -463,31 +433,58 @@ export const RetrieveFromSessionStorage = {
         <MemoryRouter>
           <SmartOnFhir
             api={mockApi}
-            fetchPatients={(api, params, callback) => {
-              callback(null, [{ patient: { id: 'user1' } }]);
-            }}
-            push={() => {}}
-            smartOnFhirData={{
-              patients: {
-                'correlation-123': {
-                  mrn: '12345',
-                },
-              },
-            }}
-            smartCorrelationId={null}
-            setSmartCorrelationId={setSmartCorrelationIdStub}
-            working={{
-              fetchingPatients: {
-                inProgress: false,
-              },
-            }}
             window={mockWindow}
           />
         </MemoryRouter>
       </Provider>
     );
   },
-  name: 'Retrieve From SessionStorage',
+  name: 'Error - DOB Not Found',
+};
+
+export const ErrorInvalidPatientData = {
+  render: () => {
+    const store = mockStore({
+      blip: {
+        smartOnFhirData: {
+          patients: {
+            'correlation-123': {
+              mrn: '12345',
+              dob: '1990-01-01',
+            },
+          },
+        },
+        smartCorrelationId: 'correlation-123',
+        working: {
+          fetchingPatients: {
+            inProgress: false,
+          },
+        },
+      },
+    });
+
+    // Create a mock API that returns patient data without proper ID
+    const invalidPatientDataMockApi = {
+      patient: {
+        getAll: (params, callback) => {
+          // Return a patient object without proper structure
+          callback(null, [{ patient: null }]);
+        },
+      },
+    };
+
+    return (
+      <Provider store={store}>
+        <MemoryRouter>
+          <SmartOnFhir
+            api={invalidPatientDataMockApi}
+            window={mockWindow}
+          />
+        </MemoryRouter>
+      </Provider>
+    );
+  },
+  name: 'Error - Invalid Patient Data',
 };
 
 export const MultiplePatientErrorComponent = {
@@ -495,4 +492,11 @@ export const MultiplePatientErrorComponent = {
     <MultiplePatientError onClose={() => {}} />
   ),
   name: 'Multiple Patient Error Component',
+};
+
+export const NoPatientMatchComponent = {
+  render: () => (
+    <NoPatientMatch onClose={() => {}} />
+  ),
+  name: 'No Patient Match Component',
 };

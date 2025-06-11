@@ -8,9 +8,10 @@ import { Body1 } from '../../components/elements/FontStyles';
 import { async, sync } from '../../redux/actions';
 import * as ErrorMessages from '../../redux/constants/errorMessages';
 import MultiplePatientError from './MultiplePatientError';
+import NoPatientMatch from './NoPatientMatch';
 
 const SmartOnFhirLayout = ({ children }) => (
-  <Flex sx={{ justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+  <Flex sx={{ justifyContent: 'center', alignItems: 'center' }}>
     <Box sx={{ maxWidth: '600px', width: '100%', p: 3 }}>
       <Card sx={{ p: 4, boxShadow: 'small', borderRadius: 'default' }}>
         {children}
@@ -47,6 +48,26 @@ export const SmartOnFhir = (props) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState(null);
 
+  // Hide Zendesk widget in Smart-on-FHIR mode
+  useEffect(() => {
+    let attempts = 0;
+    const maxAttempts = 50; // 5 seconds max (50 * 100ms)
+
+    const checkZendesk = () => {
+      if (window.zE) {
+        window.zE('webWidget', 'hide');
+        return;
+      }
+
+      attempts++;
+      if (attempts < maxAttempts) {
+        setTimeout(checkZendesk, 100);
+      }
+    };
+
+    checkZendesk();
+  }, []);
+
   useEffect(() => {
     if (smartOnFhirData && !isProcessing && !working.fetchingPatients.inProgress && !error) {
       setIsProcessing(true);
@@ -72,16 +93,19 @@ export const SmartOnFhir = (props) => {
         return;
       }
 
-      const { mrn } = patientInfo;
+      const { mrn, dob } = patientInfo;
       if (!mrn) {
         setError(ErrorMessages.ERR_SMARTONFHIR_MRN_NOT_FOUND);
         setIsProcessing(false);
         return;
       }
+      if (!dob) {
+        setError(ErrorMessages.ERR_SMARTONFHIR_DOB_NOT_FOUND);
+        setIsProcessing(false);
+        return;
+      }
 
-      // Fetch the patient by MRN
-      // TODO: add dob when available
-      fetchPatients(api, { mrn }, (err, results) => {
+      fetchPatients(api, { mrn, birthDate: dob }, (err, results) => {
         if (err) {
           setError(ErrorMessages.ERR_SMARTONFHIR_FETCHING_PATIENT);
           setIsProcessing(false);
@@ -98,7 +122,12 @@ export const SmartOnFhir = (props) => {
           return;
         }
 
-        const { patient } = results[0];
+        const patient = results[0]?.patient;
+        if (!patient || !patient.id) {
+          setError('Invalid patient data received');
+          setIsProcessing(false);
+          return;
+        }
         navigateTo(`/patients/${patient.id}/data`);
       });
     }
@@ -116,12 +145,16 @@ export const SmartOnFhir = (props) => {
 
   if (error) {
     const isMultiplePatientError = error === ErrorMessages.ERR_SMARTONFHIR_MULTIPLE_PATIENTS_FOUND;
+    const isNoPatientMatchError = error === ErrorMessages.ERR_SMARTONFHIR_NO_PATIENTS_FOUND;
+    const isCustomError = isMultiplePatientError || isNoPatientMatchError;
 
     return (
       <SmartOnFhirLayout>
-        <Box sx={{ color: isMultiplePatientError ? 'text.primary' : 'feedback.danger' }}>
+        <Box sx={{ color: isCustomError ? 'text.primary' : 'feedback.danger' }}>
           {isMultiplePatientError ? (
             <MultiplePatientError />
+          ) : isNoPatientMatchError ? (
+            <NoPatientMatch />
           ) : (
             <Body1>Error: {error}</Body1>
           )}

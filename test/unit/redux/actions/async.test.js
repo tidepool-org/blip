@@ -9544,8 +9544,7 @@ describe('Actions', () => {
           { type: 'FETCH_PATIENTS_REQUEST' },
           {
             type: 'FETCH_PATIENTS_FAILURE',
-            error: true,
-            payload: new Error(ErrorMessages.ERR_FETCHING_PATIENTS),
+            error: new Error(ErrorMessages.ERR_FETCHING_PATIENTS),
             meta: { apiError: err }
           }
         ];

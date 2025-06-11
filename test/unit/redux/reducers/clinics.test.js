@@ -59,7 +59,7 @@ describe('clinics', () => {
       let state = reducer(initialStateForTest, action);
 
       expect(Object.keys(state).length).to.equal(2); // 2 clinics
-      console.log(state)
+
       expect(state[results[0].clinic.id].patients[results[0].patient.userid]).to.eql({
         userid: results[0].patient.userid,
         name: results[0].patient.name,
