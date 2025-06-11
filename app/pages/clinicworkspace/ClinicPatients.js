@@ -115,6 +115,7 @@ import PopoverElement from '../../components/elements/PopoverElement';
 import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
 import Banner from '../../components/elements/Banner';
 import colorPalette from '../../themes/colorPalette';
+import noop from 'lodash/noop';
 
 const { Loader } = vizComponents;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels, formatBgValue } = vizUtils.bg;
@@ -559,6 +560,7 @@ export const ClinicPatients = (props) => {
   const rpmReportPatients = useSelector(state => state.blip.rpmReportPatients);
   const isClinicAdmin = includes(get(clinic, ['clinicians', loggedInUserId, 'roles'], []), 'CLINIC_ADMIN');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showUpdateClinicSiteDialog, setShowUpdateClinicSiteDialog] = useState(false);
   const [showDeleteClinicPatientTagDialog, setShowDeleteClinicPatientTagDialog] = useState(false);
   const [showUpdateClinicPatientTagDialog, setShowUpdateClinicPatientTagDialog] = useState(false);
   const [showAddPatientDialog, setShowAddPatientDialog] = useState(false);
@@ -576,6 +578,7 @@ export const ClinicPatients = (props) => {
     () => compact(map(reject(clinic?.patients, { id: selectedPatient?.id }), 'mrn')),
     [clinic?.patients, selectedPatient?.id]
   );
+  const [selectedClinicSite, setSelectedClinicSite] = useState(null);
   const [selectedPatientTag, setSelectedPatientTag] = useState(null);
   const [loading, setLoading] = useState(false);
   const [patientFormContext, setPatientFormContext] = useState();
@@ -791,6 +794,17 @@ export const ClinicPatients = (props) => {
     showEditPatientDialog,
     patientFetchOptions,
   ]);
+
+  const handleCloseClinicSiteUpdateDialog = useCallback(metric => {
+    if (metric) trackMetric(prefixPopHealthMetric(metric, { clinicId: selectedClinicId }));
+    // setShowDeleteClinicSiteDialog(false);
+    setShowUpdateClinicSiteDialog(false);
+
+    setTimeout(() => {
+      clinicPatientTagFormContext?.resetForm()
+      setSelectedPatientTag(null);
+    });
+  }, [clinicPatientTagFormContext, prefixPopHealthMetric, selectedClinicId, trackMetric]);
 
   const handleCloseClinicPatientTagUpdateDialog = useCallback(metric => {
     if (metric) trackMetric(prefixPopHealthMetric(metric, { clinicId: selectedClinicId }));
@@ -1235,11 +1249,22 @@ export const ClinicPatients = (props) => {
     dispatch(actions.async.createClinicPatientTag(api, selectedClinicId, tag));
   }, [api, dispatch, selectedClinicId, trackMetric]);
 
+  const handleUpdateClinicSite = useCallback(siteId => {
+    trackMetric(prefixPopHealthMetric('Edit clinic tags update'), { clinicId: selectedClinicId });
+    setSelectedClinicSite(clinicSites[siteId]);
+    setShowUpdateClinicSiteDialog(true);
+  }, [selectedClinicId, patientTags, trackMetric, prefixPopHealthMetric]);
+
   const handleUpdateClinicPatientTag = useCallback(tagId => {
     trackMetric(prefixPopHealthMetric('Edit clinic tags update'), { clinicId: selectedClinicId });
     setSelectedPatientTag(patientTags[tagId]);
     setShowUpdateClinicPatientTagDialog(true);
   }, [selectedClinicId, patientTags, trackMetric, prefixPopHealthMetric]);
+
+  const handleUpdateClinicSiteConfirm = useCallback(site => {
+    trackMetric(prefixPopHealthMetric('Edit clinic sites confirm update site'), { clinicId: selectedClinicId });
+    dispatch(actions.async.updateClinicSite(api, selectedClinicId, selectedClinicSite?.id, site));
+  }, [api, dispatch, selectedClinicId, selectedClinicSite?.id, trackMetric, prefixPopHealthMetric]);
 
   const handleUpdateClinicPatientTagConfirm = useCallback(tag => {
     trackMetric(prefixPopHealthMetric('Edit clinic tags confirm update tag'), { clinicId: selectedClinicId });
@@ -2360,6 +2385,74 @@ export const ClinicPatients = (props) => {
     );
   }, [handleRemovePatient, selectedPatient?.fullName, showDeleteDialog, t]);
 
+  const renderUpdateClinicSiteDialog = useCallback(() => {
+    const name = selectedClinicSite?.name || '';
+
+    return (
+      <Dialog
+        id="updateClinicSite"
+        aria-labelledby="dialog-title"
+        open={showUpdateClinicSiteDialog}
+        onClose={handleCloseClinicSiteUpdateDialog}
+      >
+        <DialogTitle onClose={handleCloseClinicSiteUpdateDialog}>
+          <MediumTitle id="dialog-title">{t('Update "{{name}}"', { name })}</MediumTitle>
+        </DialogTitle>
+
+        <Formik
+          initialValues={{ name }}
+          onSubmit={(tag, context) => {
+            setClinicSiteFormContext(context);
+            handleUpdateClinicSiteConfirm(tag);
+          }}
+          validationSchema={clinicSiteSchema}
+        >
+          {clinicSiteFormikContext => (
+            <Form id="clinic-site-update">
+              <DialogContent>
+                <Flex mb={3} sx={{ gap: 2 }}>
+                  <TextInput
+                    themeProps={{
+                      width: '100%',
+                      sx: { input: { height: '22px', py: '0 !important' } },
+                      flex: 1,
+                      fontSize: '12px',
+                    }}
+                    maxLength={20}
+                    placeholder={t('Add a new tag...')}
+                    description={t('You can add up to {{ maxSites }} sites per clinic', { maxSites: maxWorkspaceClinicSites })}
+                    captionProps={{ mt: 0, fontSize: '10px', color: colors.grays[4] }}
+                    variant="condensed"
+                    {...getCommonFormikFieldProps('name', clinicSiteFormikContext)}
+                  />
+                </Flex>
+
+                <Body1>
+                  {t('This site will also be updated for any patients associated with it.')}
+                </Body1>
+              </DialogContent>
+
+              <DialogActions>
+                <Button id="clinicSiteUpdateCancel" variant="secondary" onClick={handleCloseClinicSiteUpdateDialog.bind(null, 'Edit clinic sites cancel update site')}>
+                  {t('Cancel')}
+                </Button>
+
+                <Button
+                  id="clinic-site-update-confirm"
+                  disabled={!clinicSiteFormikContext.values.name.trim().length || !clinicSiteFormikContext.isValid}
+                  type="submit"
+                  variant="primary"
+                >
+                  {t('Update')}
+                </Button>
+              </DialogActions>
+            </Form>
+          )}
+        </Formik>
+      </Dialog>
+    );
+  }, [handleUpdateClinicSiteConfirm, handleCloseClinicSiteUpdateDialog, selectedClinicSite?.name, showUpdateClinicSiteDialog, t]);
+
   const renderUpdateClinicPatientTagDialog = useCallback(() => {
     const name = selectedPatientTag?.name || '';
 
@@ -2745,13 +2838,12 @@ export const ClinicPatients = (props) => {
                   >
                     <Flex sx={{ alignItems: 'center'}}>
                       <Text className="clinic-site-text" sx={{ fontSize: 1, color: 'text.primary' }}>{name}</Text>
-                      {/* TODO: Add Edit functionality in future ticket */}
-                      {/* <Icon
-                        id={`edit-tag-button-${id}`}
+                      <Icon
+                        id={`edit-site-button-${id}`}
                         icon={EditIcon}
                         sx={{ fontSize: 1, marginLeft: 2 }}
-                        onClick={isClinicAdmin ? () => handleUpdateClinicPatientTag(id) : undefined}
-                      /> */}
+                        onClick={isClinicAdmin ? () => handleUpdateClinicSite(id) : noop}
+                      />
                     </Flex>
                     <Box>
 
@@ -2897,7 +2989,7 @@ export const ClinicPatients = (props) => {
                         id={`edit-tag-button-${id}`}
                         icon={EditIcon}
                         sx={{ fontSize: 1, marginLeft: 2 }}
-                        onClick={isClinicAdmin ? () => handleUpdateClinicPatientTag(id) : undefined}
+                        onClick={isClinicAdmin ? () => handleUpdateClinicPatientTag(id) : noop}
                       />
                     </Flex>
                     <Box>
@@ -2908,7 +3000,7 @@ export const ClinicPatients = (props) => {
                         id={`delete-tag-button-${id}`}
                         icon={DeleteIcon}
                         sx={{ fontSize: 1 }}
-                        onClick={isClinicAdmin ? () => handleDeleteClinicPatientTag(id) : undefined}
+                        onClick={isClinicAdmin ? () => handleDeleteClinicPatientTag(id) : noop}
                       />
                     </Flex>
                   </Grid>
@@ -3894,8 +3986,8 @@ export const ClinicPatients = (props) => {
 
   // Prevent visual glitch from multiple overlapping dialogs
   const isClinicSitesDialogVisible = (
-    showClinicSitesDialog // &&
-    // !showUpdateClinicPatientTagDialog &&
+    showClinicSitesDialog &&
+    !showUpdateClinicSiteDialog // &&
     // !showDeleteClinicPatientTagDialog
   );
 
@@ -3910,6 +4002,7 @@ export const ClinicPatients = (props) => {
       {renderHeader()}
       {clinic && renderPeopleArea()}
       {renderRemoveDialog()}
+      {showUpdateClinicSiteDialog && renderUpdateClinicSiteDialog()}
       {showDeleteClinicPatientTagDialog && renderDeleteClinicPatientTagDialog()}
       {showUpdateClinicPatientTagDialog && renderUpdateClinicPatientTagDialog()}
       {showAddPatientDialog && renderAddPatientDialog()}

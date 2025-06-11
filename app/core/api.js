@@ -1053,6 +1053,10 @@ api.clinics.createClinicPatientTag = function(clinicId, patientTag, cb) {
   return tidepool.createClinicPatientTag(clinicId, patientTag, cb);
 };
 
+api.clinics.updateClinicSite = function(clinicId, siteId, site, cb) {
+  return tidepool.updateClinicSite(clinicId, siteId, site, cb);
+};
+
 api.clinics.updateClinicPatientTag = function(clinicId, patientTagId, patientTag, cb) {
   return tidepool.updateClinicPatientTag(clinicId, patientTagId, patientTag, cb);
 };
