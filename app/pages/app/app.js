@@ -64,6 +64,7 @@ export class AppComponent extends React.Component {
     termsAccepted: PropTypes.string,
     user: PropTypes.object,
     permsOfLoggedInUser: PropTypes.object,
+    isSmartOnFhirMode: PropTypes.bool.isRequired,
   };
 
   /**
@@ -202,6 +203,7 @@ export class AppComponent extends React.Component {
         permsOfLoggedInUser={permsOfLoggedInUser}
         trackMetric={trackMetric}
         api={api}
+        isSmartOnFhirMode={this.props.isSmartOnFhirMode}
       />
     );
   }
@@ -421,6 +423,7 @@ export function mapStateToProps(state) {
     permsOfLoggedInUser: permsOfLoggedInUser,
     selectedClinicId: state.blip.selectedClinicId,
     fetchingInfo: state.blip.working.fetchingInfo,
+    isSmartOnFhirMode: state.blip.smartCorrelationId !== null,
   };
 }
 

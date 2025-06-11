@@ -1,4 +1,4 @@
-import Keycloak from 'keycloak-js/dist/keycloak.js';
+import Keycloak from 'keycloak-js';
 import React from 'react';
 import { ReactKeycloakProvider } from '@react-keycloak/web';
 import { useSelector, useStore } from 'react-redux';
@@ -19,18 +19,39 @@ export const setTokenRefresh = (keycloak) => {
     clearTimeout(refreshTimeout);
     refreshTimeout = null;
   }
-  var expiresIn = (keycloak.tokenParsed['exp'] - new Date().getTime() / 1000 + keycloak.timeSkew) * 1000;
+  const expiresIn = (keycloak.tokenParsed.exp - new Date().getTime() / 1000 + keycloak.timeSkew) * 1000;
   refreshTimeout = setTimeout(() => { keycloak.updateToken(-1); }, expiresIn - 10000);
 };
 
 export const updateKeycloakConfig = (info, store) => {
   if (!(isEmpty(info) || isEqual(_keycloakConfig, info))) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const iss = sessionStorage.getItem('smart_iss') || urlParams.get('iss');
+    const launch = sessionStorage.getItem('smart_launch') || urlParams.get('launch');
+
+    let clientConfig;
+
+    if (iss && launch) {
+      const keycloakUrl = new URL(info.url);
+
+      clientConfig = {
+        url: keycloakUrl.toString(),
+        realm: info.realm,
+        clientId: 'blip-smart-on-fhir',
+        initOptions: {
+          scope: 'openid',
+        }
+      };
+    } else {
+      clientConfig = {
+        url: info.url,
+        realm: info.realm,
+        clientId: 'blip'
+      };
+    }
+
     // eslint-disable-next-line new-cap
-    keycloak = new Keycloak({
-      url: info.url,
-      realm: info.realm,
-      clientId: 'blip',
-    });
+    keycloak = new Keycloak(clientConfig);
     _keycloakConfig = info;
   }
 };
@@ -38,7 +59,7 @@ export const updateKeycloakConfig = (info, store) => {
 export const onKeycloakEvent = (store) => (event, error) => {
   switch (event) {
     case 'onReady': {
-      let logoutUrl = keycloak.createLogoutUrl({
+      const logoutUrl = keycloak.createLogoutUrl({
         redirectUri: window.location.origin
       });
       store.dispatch(sync.keycloakReady(event, error, logoutUrl));
@@ -105,6 +126,11 @@ export const onKeycloakTokens = (store) => (tokens) => {
     );
     setTokenRefresh(keycloak);
   }
+  const hasSmartOnFhirData = keycloak?.idTokenParsed?.['smart-on-fhir']?.patients;
+
+  if (hasSmartOnFhirData) {
+    store.dispatch(sync.smartOnFhirAuthSuccess(keycloak.idTokenParsed['smart-on-fhir']));
+  }
 };
 
 export const keycloakMiddleware = (api) => (storeAPI) => (next) => (action) => {
@@ -134,12 +160,11 @@ export const keycloakMiddleware = (api) => (storeAPI) => (next) => (action) => {
 export const KeycloakWrapper = (props) => {
   const keycloakConfig = useSelector((state) => state.blip.keycloakConfig);
   const store = useStore();
-  let Wrapper = React.Fragment;
-  let wrapperProps = props;
-  if (keycloakConfig?.url) {
-    Wrapper = ReactKeycloakProvider;
-    wrapperProps = {
-      ...wrapperProps,
+
+  const { Wrapper, wrapperProps } = React.useMemo(() => {
+    const Wrapper = keycloakConfig?.url ? ReactKeycloakProvider : React.Fragment;
+    const wrapperProps = keycloakConfig?.url ? {
+      ...props,
       authClient: keycloak,
       onEvent: onKeycloakEvent(store),
       onTokens: onKeycloakTokens(store),
@@ -149,8 +174,11 @@ export const KeycloakWrapper = (props) => {
         enableLogging: true,
         silentCheckSsoRedirectUri: `${window.location.origin}/silent-check-sso.html`,
       }
-    };
-  }
+    } : props;
+
+    return { Wrapper, wrapperProps };
+  }, [keycloakConfig?.url, props, store]);
+
   return <Wrapper {...wrapperProps}>{props.children}</Wrapper>;
 };
 
@@ -162,19 +190,18 @@ export const KeycloakWrapper = (props) => {
  * @param {String} [nonce] - optional nonce
  * @returns
  */
-export function generateSSOLinkUri(idp, redirectUri, nonce) {
-  nonce ??= cryptoJS.enc.Base64url.stringify(
+export function generateSSOLinkUri(idp, redirectUri, originalNonce) {
+  const nonce = originalNonce ?? cryptoJS.enc.Base64url.stringify(
     // eslint-disable-next-line new-cap
     cryptoJS.SHA256(crypto.randomUUID())
   );
 
-  let uri = new URL(`${keycloak.authServerUrl}/realms/${keycloak.realm}/broker/${idp}/link`);
-  const input =
-    nonce + keycloak.tokenParsed.session_state + keycloak.clientId + idp;
+  const uri = new URL(`${keycloak.authServerUrl}/realms/${keycloak.realm}/broker/${idp}/link`);
+  const input = nonce + keycloak.tokenParsed.session_state + keycloak.clientId + idp;
   // eslint-disable-next-line new-cap
   const check = cryptoJS.SHA256(cryptoJS.enc.Utf8.parse(input));
   const hash = cryptoJS.enc.Base64url.stringify(check);
-  let params = new URLSearchParams({
+  const params = new URLSearchParams({
     nonce,
     hash,
     // eslint-disable-next-line camelcase
@@ -186,7 +213,7 @@ export function generateSSOLinkUri(idp, redirectUri, nonce) {
   uri.search = params.toString();
 
   return uri.toString();
-};
+}
 
 export default {
   keycloak,
