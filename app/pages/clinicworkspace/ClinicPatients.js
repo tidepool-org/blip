@@ -1687,36 +1687,6 @@ export const ClinicPatients = (props) => {
                     </DialogActions>
                   </Popover>
 
-                  <Button
-                    id="time-in-range-filter-trigger"
-                    variant="filter"
-                    selected={!!activeFilters.timeInRange?.length}
-                    onClick={handleOpenTimeInRangeFilter}
-                    icon={KeyboardArrowDownRoundedIcon}
-                    iconLabel="Filter by Time In Range"
-                    sx={{ fontSize: 0, lineHeight: 1.3, flexShrink: 0 }}
-                  >
-                    <Flex sx={{ gap: 1 }}>
-                      {t('% Time in Range')}
-                      {!!activeFilters.timeInRange?.length && (
-                        <Pill
-                          id="time-in-range-filter-count"
-                          label="filter count"
-                          round
-                          sx={{
-                            width: '14px',
-                            fontSize: '9px',
-                            lineHeight: '15px',
-                            textAlign: 'center',
-                            display: 'inline-block',
-                          }}
-                          colorPalette={['purpleMedium', 'white']}
-                          text={`${activeFilters.timeInRange?.length}`}
-                        />
-                      )}
-                      </Flex>
-                  </Button>
-
                   <Box
                     onClick={() => {
                       if (!clinicSitesPopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('clinic sites filter open'), { clinicId: selectedClinicId });
@@ -2034,6 +2004,36 @@ export const ClinicPatients = (props) => {
                       </DialogActions>
                     }
                   </Popover>
+
+                  <Button
+                    id="time-in-range-filter-trigger"
+                    variant="filter"
+                    selected={!!activeFilters.timeInRange?.length}
+                    onClick={handleOpenTimeInRangeFilter}
+                    icon={KeyboardArrowDownRoundedIcon}
+                    iconLabel="Filter by Time In Range"
+                    sx={{ fontSize: 0, lineHeight: 1.3, flexShrink: 0 }}
+                  >
+                    <Flex sx={{ gap: 1 }}>
+                      {t('% Time in Range')}
+                      {!!activeFilters.timeInRange?.length && (
+                        <Pill
+                          id="time-in-range-filter-count"
+                          label="filter count"
+                          round
+                          sx={{
+                            width: '14px',
+                            fontSize: '9px',
+                            lineHeight: '15px',
+                            textAlign: 'center',
+                            display: 'inline-block',
+                          }}
+                          colorPalette={['purpleMedium', 'white']}
+                          text={`${activeFilters.timeInRange?.length}`}
+                        />
+                      )}
+                      </Flex>
+                  </Button>
 
                   <Box
                     onClick={() => {
