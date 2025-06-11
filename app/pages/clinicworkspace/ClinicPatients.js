@@ -2415,18 +2415,17 @@ export const ClinicPatients = (props) => {
         >
           {clinicSiteFormikContext => (
             <Form id="clinic-site-update">
-              <DialogContent>
+              <DialogContent sx={{ minWidth: '512px' }}>
                 <Flex mb={3} sx={{ gap: 2 }}>
                   <TextInput
                     themeProps={{
                       width: '100%',
-                      sx: { input: { height: '22px', py: '0 !important' } },
+                      sx: { width: '100%' },
                       flex: 1,
                       fontSize: '12px',
                     }}
-                    maxLength={20}
+                    maxLength={200}
                     placeholder={t('Add a new tag...')}
-                    description={t('You can add up to {{ maxSites }} sites per clinic', { maxSites: maxWorkspaceClinicSites })}
                     captionProps={{ mt: 0, fontSize: '10px', color: colors.grays[4] }}
                     variant="condensed"
                     {...getCommonFormikFieldProps('name', clinicSiteFormikContext)}
@@ -2483,18 +2482,17 @@ export const ClinicPatients = (props) => {
         >
           {patientTagFormikContext => (
             <Form id="patient-tag-update">
-              <DialogContent>
+              <DialogContent sx={{ minWidth: '512px' }}>
                 <Flex mb={3} sx={{ gap: 2 }}>
                   <TextInput
                     themeProps={{
                       width: '100%',
-                      sx: { input: { height: '22px', py: '0 !important' } },
+                      sx: { width: '100%' },
                       flex: 1,
                       fontSize: '12px',
                     }}
                     maxLength={20}
                     placeholder={t('Add a new tag...')}
-                    description={t('You can add up to {{maxClinicPatientTags}} tags per clinic', { maxClinicPatientTags })}
                     captionProps={{ mt: 0, fontSize: '10px', color: colors.grays[4] }}
                     variant="condensed"
                     {...getCommonFormikFieldProps('name', patientTagFormikContext)}
@@ -2502,7 +2500,7 @@ export const ClinicPatients = (props) => {
                 </Flex>
 
                 <Body1>
-                  This tag will also be updated for any patients who have been tagged with it.
+                  {t('The tag\'s name will be updated for any patients associated with it.')}
                 </Body1>
               </DialogContent>
 
