@@ -2770,6 +2770,17 @@ export const ClinicPatients = (props) => {
               }
             </Box>
           </DialogContent>
+
+          <DialogActions sx={{ borderTop: borders.divider, display: 'flex', justifyContent: 'flex-end' }}>
+            <Button
+              id="edit-sites-dialog-done"
+              variant="secondary"
+              sx={{ minWidth: '120px'}}
+              onClick={handleCloseOverlays}
+            >
+              {t('Done')}
+            </Button>
+          </DialogActions>
         </Box>
       </Dialog>
     );
@@ -2916,6 +2927,17 @@ export const ClinicPatients = (props) => {
               }
             </Box>
           </DialogContent>
+
+          <DialogActions sx={{ borderTop: borders.divider, display: 'flex', justifyContent: 'flex-end' }}>
+            <Button
+              id="edit-patient-tags-dialog-done"
+              variant="secondary"
+              sx={{ minWidth: '120px'}}
+              onClick={handleCloseOverlays}
+            >
+              {t('Done')}
+            </Button>
+          </DialogActions>
         </Box>
       </Dialog>
     );
