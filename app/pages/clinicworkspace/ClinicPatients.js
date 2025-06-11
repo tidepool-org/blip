@@ -801,10 +801,10 @@ export const ClinicPatients = (props) => {
     setShowUpdateClinicSiteDialog(false);
 
     setTimeout(() => {
-      clinicPatientTagFormContext?.resetForm()
+      clinicSiteFormContext?.resetForm();
       setSelectedPatientTag(null);
     });
-  }, [clinicPatientTagFormContext, prefixPopHealthMetric, selectedClinicId, trackMetric]);
+  }, [clinicSiteFormContext, prefixPopHealthMetric, selectedClinicId, trackMetric]);
 
   const handleCloseClinicPatientTagUpdateDialog = useCallback(metric => {
     if (metric) trackMetric(prefixPopHealthMetric(metric, { clinicId: selectedClinicId }));
@@ -1253,7 +1253,7 @@ export const ClinicPatients = (props) => {
     trackMetric(prefixPopHealthMetric('Edit clinic tags update'), { clinicId: selectedClinicId });
     setSelectedClinicSite(clinicSites[siteId]);
     setShowUpdateClinicSiteDialog(true);
-  }, [selectedClinicId, patientTags, trackMetric, prefixPopHealthMetric]);
+  }, [selectedClinicId, clinicSites, trackMetric, prefixPopHealthMetric]);
 
   const handleUpdateClinicPatientTag = useCallback(tagId => {
     trackMetric(prefixPopHealthMetric('Edit clinic tags update'), { clinicId: selectedClinicId });
@@ -2868,7 +2868,7 @@ export const ClinicPatients = (props) => {
   }, [
     clinic?.sites,
     handleCreateClinicSite,
-    // handleUpdateClinicPatientTag, // TODO: add handleUpdateClinicSite dep in future ticket
+    handleUpdateClinicPatientTag,
     // handleDeleteClinicPatientTag, // TODO: add handleDeleteClinicSite dep in future ticket
     isClinicAdmin,
     prefixPopHealthMetric,
