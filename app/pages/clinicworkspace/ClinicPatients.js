@@ -738,6 +738,7 @@ export const ClinicPatients = (props) => {
     creatingClinicCustodialAccount,
     sendingPatientUploadReminder,
     creatingClinicSite,
+    updatingClinicSite,
     creatingClinicPatientTag,
     updatingClinicPatientTag,
     deletingClinicPatientTag,
@@ -760,6 +761,7 @@ export const ClinicPatients = (props) => {
   const previousUpdatingClinicPatient = usePrevious(updatingClinicPatient);
   const previousCreatingClinicCustodialAccount = usePrevious(creatingClinicCustodialAccount);
   const previousCreatingClinicSite = usePrevious(creatingClinicSite);
+  const previousUpdatingClinicSite = usePrevious(updatingClinicSite);
   const previousCreatingClinicPatientTag = usePrevious(creatingClinicPatientTag);
   const previousUpdatingClinicPatientTag = usePrevious(updatingClinicPatientTag);
   const previousDeletingClinicPatientTag = usePrevious(deletingClinicPatientTag);
@@ -901,6 +903,10 @@ export const ClinicPatients = (props) => {
   useEffect(() => {
     handleAsyncResult({ ...creatingClinicSite, prevInProgress: previousCreatingClinicSite?.inProgress }, t('Site created.'), () => clinicSiteFormContext?.resetForm());
   }, [clinicSiteFormContext, creatingClinicSite, handleAsyncResult, previousCreatingClinicSite?.inProgress, t]);
+
+  useEffect(() => {
+    handleAsyncResult({ ...updatingClinicSite, prevInProgress: previousUpdatingClinicSite?.inProgress }, t('Site updated.'), handleCloseClinicSiteUpdateDialog);
+  }, [clinicSiteFormContext, updatingClinicSite, handleAsyncResult, previousUpdatingClinicSite?.inProgress, t]);
 
   useEffect(() => {
     handleAsyncResult({ ...creatingClinicPatientTag, prevInProgress: previousCreatingClinicPatientTag?.inProgress }, t('Tag created.'), () => clinicPatientTagFormContext?.resetForm());

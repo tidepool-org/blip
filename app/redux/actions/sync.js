@@ -2147,32 +2147,6 @@ export function createClinicSiteFailure(error, apiError) {
   };
 }
 
-export function createClinicPatientTagRequest() {
-  return {
-    type: ActionTypes.CREATE_CLINIC_PATIENT_TAG_REQUEST,
-  };
-}
-
-export function createClinicPatientTagSuccess(clinicId, patientTags) {
-  return {
-    type: ActionTypes.CREATE_CLINIC_PATIENT_TAG_SUCCESS,
-    payload: {
-      clinicId: clinicId,
-      patientTags: patientTags,
-    },
-  };
-}
-
-export function createClinicPatientTagFailure(error, apiError) {
-  return {
-    type: ActionTypes.CREATE_CLINIC_PATIENT_TAG_FAILURE,
-    error: error,
-    meta: {
-      apiError: apiError || null,
-    },
-  };
-}
-
 export function updateClinicSiteRequest() {
   return {
     type: ActionTypes.UPDATE_CLINIC_SITE_REQUEST,
@@ -2192,6 +2166,32 @@ export function updateClinicSiteSuccess(clinicId, sites) {
 export function updateClinicSiteFailure(error, apiError) {
   return {
     type: ActionTypes.UPDATE_CLINIC_SITE_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function createClinicPatientTagRequest() {
+  return {
+    type: ActionTypes.CREATE_CLINIC_PATIENT_TAG_REQUEST,
+  };
+}
+
+export function createClinicPatientTagSuccess(clinicId, patientTags) {
+  return {
+    type: ActionTypes.CREATE_CLINIC_PATIENT_TAG_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+      patientTags: patientTags,
+    },
+  };
+}
+
+export function createClinicPatientTagFailure(error, apiError) {
+  return {
+    type: ActionTypes.CREATE_CLINIC_PATIENT_TAG_FAILURE,
     error: error,
     meta: {
       apiError: apiError || null,

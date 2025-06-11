@@ -404,15 +404,15 @@ export default (type) => {
     case types.CREATE_CLINIC_SITE_FAILURE:
       return 'creatingClinicSite';
 
+    case types.UPDATE_CLINIC_SITE_REQUEST:
+    case types.UPDATE_CLINIC_SITE_SUCCESS:
+    case types.UPDATE_CLINIC_SITE_FAILURE:
+      return 'updatingClinicSite';
+
     case types.CREATE_CLINIC_PATIENT_TAG_REQUEST:
     case types.CREATE_CLINIC_PATIENT_TAG_SUCCESS:
     case types.CREATE_CLINIC_PATIENT_TAG_FAILURE:
       return 'creatingClinicPatientTag';
-
-    case types.UPDATE_CLINIC_SITE_REQUEST:
-    case types.UPDATE_CLINIC_SITE_SUCCESS:
-    case types.UPDATE_CLINIC_SITE_FAILURE:
-      return 'updatingClinicPatientTag';
 
     case types.UPDATE_CLINIC_PATIENT_TAG_REQUEST:
     case types.UPDATE_CLINIC_PATIENT_TAG_SUCCESS:

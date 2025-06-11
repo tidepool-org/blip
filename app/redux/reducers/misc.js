@@ -948,7 +948,7 @@ export const clinics = (state = initialState.clinics, action) => {
     case types.UPDATE_CLINIC_SITE_SUCCESS: {
       const {
         clinicId,
-        sites
+        sites,
       } = action.payload;
 
       return update(state, {
