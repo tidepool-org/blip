@@ -8,6 +8,7 @@ import { utils as vizUtils } from '@tidepool/viz';
 const { formatStatsPercentage } = vizUtils.stat;
 
 import { colors, radii } from '../../themes/baseTheme';
+import { colors as vizColors } from '@tidepool/viz';
 
 export const DeltaBar = React.memo(props => {
   const { delta, max, ...themeProps } = props;
@@ -37,7 +38,7 @@ export const DeltaBar = React.memo(props => {
               alignItems: 'center',
               justifyContent: 'flex-end',
               gap: 1,
-              borderRight: i === 0 ? `1px solid ${colors.grays[1]}` : 'none'
+              borderRight: i === 0 ? `1px solid ${vizColors.gray10}` : 'none'
             }}
           >
             {value !== 0 && (

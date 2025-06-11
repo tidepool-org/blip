@@ -7,6 +7,7 @@ import intersectionBy from 'lodash/intersectionBy';
 import isEmpty from 'lodash/isEmpty';
 import map from 'lodash/map';
 import noop from 'lodash/noop';
+import { colors as vizColors } from '@tidepool/viz';
 
 import { fontWeights, fontSizes, colors, radii } from '../../themes/baseTheme';
 import { Caption } from './FontStyles';
@@ -84,7 +85,7 @@ export function MultiSelect(props) {
                 ? colors.border.focus
                 : isDisabled
                   ? colors.lightestGrey
-                  : colors.border.inputLight,
+                  : vizColors.gray10,
               boxShadow: isFocused ? `0 0 0 1px ${colors.border.focus}` : styles.boxShadow,
             }),
             clearIndicator: styles => ({
