@@ -2742,10 +2742,10 @@ export function updateClinicSite(api, clinicId, siteId, site) {
 
     api.clinics.updateClinicSite(clinicId, siteId, site, (err, sites) => {
       if (err) {
-        let message = ErrorMessages.ERR_UPDATING_CLINIC_PATIENT_TAG;
+        let message = ErrorMessages.ERR_UPDATING_CLINIC_SITE;
 
         if (err.status === 409) {
-          message = ErrorMessages.ERR_CREATING_CLINIC_PATIENT_TAG_DUPLICATE;
+          message = ErrorMessages.ERR_UPDATING_CLINIC_SITE_DUPLICATE;
         }
 
         dispatch(sync.updateClinicSiteFailure(
@@ -2776,7 +2776,7 @@ export function updateClinicPatientTag(api, clinicId, patientTagId, patientTag) 
         let message = ErrorMessages.ERR_UPDATING_CLINIC_PATIENT_TAG;
 
         if (err.status === 409) {
-          message = ErrorMessages.ERR_CREATING_CLINIC_PATIENT_TAG_DUPLICATE;
+          message = ErrorMessages.ERR_UPDATING_CLINIC_PATIENT_TAG_DUPLICATE;
         }
 
         dispatch(sync.updateClinicPatientTagFailure(
