@@ -1411,9 +1411,9 @@ export const ClinicPatients = (props) => {
     if (hoursAgo >= 24) timeAgo = t('over 24');
     const timeAgoMessage = t('Last updated {{timeAgo}} {{timeAgoUnits}} ago', { timeAgo, timeAgoUnits });
 
-    // Filtering for patients "Zero Sites/Tags" is different than not filtering. If we do not pass any filters
-    // to backend, we request all patients with zero or many sites/tags. We need to pass an argument to the
-    // backend to give us patients with exactly zero sites/tags ("Siteless" or "Tagless" patients).
+    // Filtering for patients "zero sites/tags" is different than not filtering. If we don't pass any filters
+    // to backend, we receive a list of PwDs with zero or many sites/tags. We need to explicitly filter for
+    // PwDs with exactly zero sites/tags.
     const isFilteringForZeroSites = isEqual(pendingFilters?.clinicSites, SPECIAL_FILTER_STATES.ZERO_SITES);
     const isFilteringForZeroTags = isEqual(pendingFilters?.patientTags, SPECIAL_FILTER_STATES.ZERO_TAGS);
 
