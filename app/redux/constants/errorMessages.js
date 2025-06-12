@@ -134,6 +134,7 @@ export const ERR_CREATING_CLINIC_PATIENT_TAG_MAX_EXCEEDED = t('Sorry, you alread
 export const ERR_CREATING_CLINIC_PATIENT_TAG_DUPLICATE = t('Sorry, you already have a tag with that name.');
 export const ERR_UPDATING_CLINIC_PATIENT_TAG = t('Something went wrong while updating the patient tag.');
 export const ERR_UPDATING_CLINIC_PATIENT_TAG_DUPLICATE = t('Sorry, you already have a tag with that name.');
+export const ERR_DELETING_CLINIC_SITE = t('Something went wrong while deleting the site.');
 export const ERR_DELETING_CLINIC_PATIENT_TAG = t('Something went wrong while deleting the patient tag.');
 export const ERR_FETCHING_INFO = t('Something went wrong while fetching server configuration.');
 export const ERR_FETCHING_TIDE_DASHBOARD_PATIENTS = t('Something went wrong while fetching patients for the dashboard.');
