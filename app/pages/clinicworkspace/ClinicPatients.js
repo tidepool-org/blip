@@ -547,8 +547,14 @@ const PatientTags = ({
   );
 };
 
-export const FILTERING_FOR_ZERO_SITES_STATE = ['_'];
-export const FILTERING_FOR_ZERO_TAGS_STATE = ['_'];
+// If we HTTP GET `/patients` without a sites/tags query arg, we receive a list of PwDs with zero
+// or many sites/tags. We need to pass an explicit argument to request PwDs with exactly zero
+// sites/tags. By setting the filter to `['_']`, the query path is set to `/patients?sites=_` or
+// `/patients?tags=_`, which the backend understands as a request for PwDs with zero sites/tags
+export const SPECIAL_FILTER_STATES = {
+  ZERO_SITES: ['_'],
+  ZERO_TAGS: ['_'],
+};
 
 export const ClinicPatients = (props) => {
   const { t, api, trackMetric, searchDebounceMs } = props;
@@ -1408,8 +1414,8 @@ export const ClinicPatients = (props) => {
     // Filtering for patients "Zero Sites/Tags" is different than not filtering. If we do not pass any filters
     // to backend, we request all patients with zero or many sites/tags. We need to pass an argument to the
     // backend to give us patients with exactly zero sites/tags ("Siteless" or "Tagless" patients).
-    const isFilteringForZeroSites = isEqual(pendingFilters?.clinicSites, FILTERING_FOR_ZERO_SITES_STATE);
-    const isFilteringForZeroTags = isEqual(pendingFilters?.patientTags, FILTERING_FOR_ZERO_TAGS_STATE);
+    const isFilteringForZeroSites = isEqual(pendingFilters?.clinicSites, SPECIAL_FILTER_STATES.ZERO_SITES);
+    const isFilteringForZeroTags = isEqual(pendingFilters?.patientTags, SPECIAL_FILTER_STATES.ZERO_TAGS);
 
     return (
       <>
@@ -1813,7 +1819,7 @@ export const ClinicPatients = (props) => {
                                 if (isFilteringForZeroSites) {
                                   setPendingFilters({ ...pendingFilters, clinicSites: [] });
                                 } else {
-                                  setPendingFilters({ ...pendingFilters, clinicSites: FILTERING_FOR_ZERO_SITES_STATE });
+                                  setPendingFilters({ ...pendingFilters, clinicSites: SPECIAL_FILTER_STATES.ZERO_SITES });
                                 }
                               }}
                             />
@@ -1994,7 +2000,7 @@ export const ClinicPatients = (props) => {
                                 if (isFilteringForZeroTags) {
                                   setPendingFilters({ ...pendingFilters, patientTags: [] });
                                 } else {
-                                  setPendingFilters({ ...pendingFilters, patientTags: FILTERING_FOR_ZERO_TAGS_STATE });
+                                  setPendingFilters({ ...pendingFilters, patientTags: SPECIAL_FILTER_STATES.ZERO_TAGS });
                                 }
                               }}
                             />
