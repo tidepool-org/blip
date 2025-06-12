@@ -1803,8 +1803,8 @@ export const ClinicPatients = (props) => {
 
                         { // Display an option to filter for patients with zero sites
                           sortedSiteFilterOptions.length > 0 &&
-                          <Box mt={2} mx={-2} pt={3} px={2} sx={{ borderTop: borders.divider }} className="clinic-site-filter-option" key="clinic-site-filter-option-PATIENTS_WITHOUT_SITES">
-                            <Checkbox id="clinic-site-filter-option-checkbox-PATIENTS_WITHOUT_SITES"
+                          <Box mt={2} mx={-2} pt={3} px={2} sx={{ borderTop: borders.divider }} className="clinic-site-filter-option" key="clinic-site-filter-option-PWDS_WITH_ZERO_SITES">
+                            <Checkbox id="clinic-site-filter-option-checkbox-PWDS_WITH_ZERO_SITES"
                               label={<Text sx={{ fontSize: 0, fontWeight: 'normal', display: 'inline-block', maxWidth: '172px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                                 {t('Patients without any sites')}
                               </Text>}
@@ -1968,7 +1968,9 @@ export const ClinicPatients = (props) => {
                                   label={<Text sx={{ fontSize: 0, fontWeight: 'normal' }}>{label}</Text>}
                                   checked={isChecked}
                                   onChange={() => {
-                                    if (isChecked) {
+                                    if (isFilteringForZeroTags) {
+                                      setPendingFilters({ ...pendingFilters, patientTags: [id] });
+                                    } else if (isChecked) {
                                       setPendingFilters({ ...pendingFilters, patientTags: without(patientTags, id) });
                                     } else {
                                       setPendingFilters({ ...pendingFilters, patientTags: [...patientTags, id] });
@@ -1978,6 +1980,25 @@ export const ClinicPatients = (props) => {
                               </Box>
                             );
                           })
+                        }
+
+                        { // Display an option to filter for patients with zero tags
+                          sortedSiteFilterOptions.length > 0 &&
+                          <Box mt={2} mx={-2} pt={3} px={2} sx={{ borderTop: borders.divider }} className="clinic-site-filter-option" key="clinic-site-filter-option-PWDS_WITH_ZERO_TAGS">
+                            <Checkbox id="clinic-site-filter-option-checkbox-PWDS_WITH_ZERO_TAGS"
+                              label={<Text sx={{ fontSize: 0, fontWeight: 'normal', display: 'inline-block', maxWidth: '172px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                                {t('Patients without any tags')}
+                              </Text>}
+                              checked={isFilteringForZeroTags}
+                              onChange={() => {
+                                if (isFilteringForZeroTags) {
+                                  setPendingFilters({ ...pendingFilters, patientTags: [] });
+                                } else {
+                                  setPendingFilters({ ...pendingFilters, patientTags: FILTERING_FOR_ZERO_TAGS_STATE });
+                                }
+                              }}
+                            />
+                          </Box>
                         }
 
                         { // If no tags exist, display a message
