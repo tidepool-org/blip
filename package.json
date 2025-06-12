@@ -4,7 +4,7 @@
     "node": "20.8.0"
   },
   "packageManager": "yarn@3.6.4",
-  "version": "1.85.2",
+  "version": "1.85.3",
   "private": true,
   "scripts": {
     "test": "concurrently \"TZ=UTC NODE_ENV=test yarn jest --verbose --runInBand\" \"TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' yarn karma start\" --group --success=all",
@@ -196,7 +196,7 @@
     "terser-webpack-plugin": "5.3.9",
     "theme-ui": "0.16.1",
     "tideline": "1.32.0",
-    "tidepool-platform-client": "0.63.0",
+    "tidepool-platform-client": "0.63.1",
     "tidepool-standard-action": "0.1.1",
     "ua-parser-js": "1.0.36",
     "url-loader": "4.1.1",
