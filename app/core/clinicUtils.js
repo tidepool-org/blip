@@ -92,6 +92,7 @@ export const timezoneOptions = map(
 );
 
 export const maxClinicPatientTags = 50;
+export const maxWorkspaceClinicSites = 50;
 
 export const clinicPlansNames = {
   base: t('Base'),
@@ -139,6 +140,7 @@ export const clinicTierDetails = (clinic = {}) => {
     summaryDashboard: false,
     tideDashboard: false,
     patientTags: false,
+    clinicSites: false,
     prescriptions: false,
   };
 
@@ -182,31 +184,31 @@ export const clinicTierDetails = (clinic = {}) => {
     },
     tier0201: {
       planName: 'essential',
-      entitlements: { ...entitlements, patientTags: true, summaryDashboard: true },
+      entitlements: { ...entitlements, patientTags: true, clinicSites: true, summaryDashboard: true },
     },
     tier0202: {
       planName: 'professional',
-      entitlements: { ...entitlements, patientTags: true, summaryDashboard: true },
+      entitlements: { ...entitlements, patientTags: true, clinicSites: true, summaryDashboard: true },
     },
     tier0300: {
       planName: 'professional',
-      entitlements: { ...entitlements, patientTags: true, summaryDashboard: true },
+      entitlements: { ...entitlements, patientTags: true, clinicSites: true, summaryDashboard: true },
     },
     tier0301: {
       planName: 'professional',
-      entitlements: { ...entitlements, rpmReport: true, patientTags: true, summaryDashboard: true, tideDashboard: true },
+      entitlements: { ...entitlements, rpmReport: true, patientTags: true, clinicSites: true, summaryDashboard: true, tideDashboard: true },
     },
     tier0302: {
       planName: 'professional',
-      entitlements: { ...entitlements, rpmReport: true, patientTags: true, summaryDashboard: true },
+      entitlements: { ...entitlements, rpmReport: true, patientTags: true, clinicSites: true, summaryDashboard: true },
     },
     tier0303: {
       planName: 'professional',
-      entitlements: { ...entitlements, rpmReport: true, patientTags: true, summaryDashboard: true, tideDashboard: true },
+      entitlements: { ...entitlements, rpmReport: true, patientTags: true, clinicSites: true, summaryDashboard: true, tideDashboard: true },
     },
     tier0400: {
       planName: 'enterprise',
-      entitlements: { ...entitlements, rpmReport: true, patientTags: true, summaryDashboard: true, tideDashboard: true },
+      entitlements: { ...entitlements, rpmReport: true, patientTags: true, clinicSites: true, summaryDashboard: true, tideDashboard: true },
     },
   };
 
@@ -373,11 +375,17 @@ export const clinicSchema = yup.object().shape({
   timezone: yup.string(),
 });
 
+export const clinicSiteSchema = yup.object().shape({
+  name: yup.string()
+    .max(200, t('Site name max length is ${max} characters'))
+    .matches(/^[\p{L}\p{N}_+><-]{1}[\p{L}\p{N}\s_+><-]*$/u, t('Allowed special characters: - _ + > <'))
+});
+
 export const clinicPatientTagSchema = yup.object().shape({
   name: yup.string()
     .max(20, t('Tag name max length is ${max} characters'))
     .matches(/^[\p{L}\p{N}_+><-]{1}[\p{L}\p{N}\s_+><-]*$/u, t('Allowed special characters: - _ + > <'))
-})
+});
 
 /**
  * yup schema for patient form

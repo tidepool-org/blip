@@ -6033,6 +6033,7 @@ describe('Actions', () => {
               uiDetails: {
                 entitlements: {
                   patientTags: false,
+                  clinicSites: false,
                   prescriptions: false,
                   rpmReport: false,
                   summaryDashboard: false,
@@ -6514,6 +6515,7 @@ describe('Actions', () => {
               uiDetails: {
                 entitlements: {
                   patientTags: false,
+                  clinicSites: false,
                   prescriptions: false,
                   rpmReport: false,
                   summaryDashboard: false,
@@ -6729,6 +6731,7 @@ describe('Actions', () => {
               uiDetails: {
                 entitlements: {
                   patientTags: false,
+                  clinicSites: false,
                   prescriptions: false,
                   rpmReport: false,
                   summaryDashboard: false,
@@ -7658,6 +7661,7 @@ describe('Actions', () => {
               uiDetails: {
                 entitlements: {
                   patientTags: false,
+                  clinicSites: false,
                   prescriptions: false,
                   rpmReport: false,
                   summaryDashboard: false,
@@ -9125,6 +9129,7 @@ describe('Actions', () => {
               uiDetails: {
                 entitlements: {
                   patientTags: false,
+                  clinicSites: false,
                   prescriptions: false,
                   rpmReport: false,
                   summaryDashboard: false,
@@ -9200,6 +9205,7 @@ describe('Actions', () => {
               uiDetails: {
                 entitlements: {
                   patientTags: false,
+                  clinicSites: false,
                   prescriptions: false,
                   rpmReport: false,
                   summaryDashboard: false,
