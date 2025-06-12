@@ -1256,7 +1256,7 @@ export const ClinicPatients = (props) => {
   }, [api, dispatch, selectedClinicId, trackMetric]);
 
   const handleUpdateClinicSite = useCallback(siteId => {
-    trackMetric(prefixPopHealthMetric('Edit clinic tags update'), { clinicId: selectedClinicId });
+    trackMetric(prefixPopHealthMetric('Edit clinic sites update'), { clinicId: selectedClinicId });
     setSelectedClinicSite(clinicSites[siteId]);
     setShowUpdateClinicSiteDialog(true);
   }, [selectedClinicId, clinicSites, trackMetric, prefixPopHealthMetric]);
@@ -2844,6 +2844,7 @@ export const ClinicPatients = (props) => {
                       <Text className="clinic-site-text" sx={{ fontSize: 1, color: 'text.primary' }}>{name}</Text>
                       <Icon
                         id={`edit-site-button-${id}`}
+                        data-testid={`edit-site-button-${id}`}
                         icon={EditIcon}
                         sx={{ fontSize: 1, marginLeft: 2 }}
                         onClick={isClinicAdmin ? () => handleUpdateClinicSite(id) : noop}
@@ -3002,6 +3003,7 @@ export const ClinicPatients = (props) => {
                       <Text className="tag-text" sx={{ fontSize: 1, color: 'text.primary' }}>{name}</Text>
                       <Icon
                         id={`edit-tag-button-${id}`}
+                        data-testid={`edit-tag-button-${id}`}
                         icon={EditIcon}
                         sx={{ fontSize: 1, marginLeft: 2 }}
                         onClick={isClinicAdmin ? () => handleUpdateClinicPatientTag(id) : noop}
