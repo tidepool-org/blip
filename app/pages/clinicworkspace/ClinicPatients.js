@@ -2944,7 +2944,7 @@ export const ClinicPatients = (props) => {
     clinic?.sites,
     handleCreateClinicSite,
     handleUpdateClinicSite,
-    // handleDeleteClinicSite, // TODO: add handleDeleteClinicSite dep in future ticket
+    handleDeleteClinicSite,
     isClinicAdmin,
     prefixPopHealthMetric,
     selectedClinicId,
