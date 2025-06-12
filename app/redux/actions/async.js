@@ -1045,7 +1045,7 @@ export function fetchPatientData(api, options, id) {
 
   // Only fetch relevant dosing decision data
   if (options.type.indexOf('dosingDecision') !== -1) {
-    options['dosingDecision.reason'] = 'normalBolus,simpleBolus,watchBolus';
+    options['dosingDecision.reason'] = 'normalBolus,simpleBolus,watchBolus,oneButtonBolus';
   }
 
   let latestUpload;
