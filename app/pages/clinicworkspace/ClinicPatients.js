@@ -547,6 +547,9 @@ const PatientTags = ({
   );
 };
 
+export const FILTERING_FOR_ZERO_SITES_STATE = ['_'];
+export const FILTERING_FOR_ZERO_TAGS_STATE = ['_'];
+
 export const ClinicPatients = (props) => {
   const { t, api, trackMetric, searchDebounceMs } = props;
   const isFirstRender = useIsFirstRender();
@@ -1402,6 +1405,12 @@ export const ClinicPatients = (props) => {
     if (hoursAgo >= 24) timeAgo = t('over 24');
     const timeAgoMessage = t('Last updated {{timeAgo}} {{timeAgoUnits}} ago', { timeAgo, timeAgoUnits });
 
+    // Filtering for patients "Zero Sites/Tags" is different than not filtering. If we do not pass any filters
+    // to backend, we request all patients with zero or many sites/tags. We need to pass an argument to the
+    // backend to give us patients with exactly zero sites/tags ("Siteless" or "Tagless" patients).
+    const isFilteringForZeroSites = isEqual(pendingFilters?.clinicSites, FILTERING_FOR_ZERO_SITES_STATE);
+    const isFilteringForZeroTags = isEqual(pendingFilters?.patientTags, FILTERING_FOR_ZERO_TAGS_STATE);
+
     return (
       <>
         <Flex mb={4} sx={{ alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 3 }}>
@@ -1778,7 +1787,9 @@ export const ClinicPatients = (props) => {
                                   }
                                   checked={isChecked}
                                   onChange={() => {
-                                    if (isChecked) {
+                                    if (isFilteringForZeroSites) {
+                                      setPendingFilters({ ...pendingFilters, clinicSites: [id] });
+                                    } else if (isChecked) {
                                       setPendingFilters({ ...pendingFilters, clinicSites: without(clinicSites, id) });
                                     } else {
                                       setPendingFilters({ ...pendingFilters, clinicSites: [...clinicSites, id] });
@@ -1788,6 +1799,25 @@ export const ClinicPatients = (props) => {
                               </Box>
                             );
                           })
+                        }
+
+                        { // Display an option to filter for patients with zero sites
+                          sortedSiteFilterOptions.length > 0 &&
+                          <Box mt={2} mx={-2} pt={3} px={2} sx={{ borderTop: borders.divider }} className="clinic-site-filter-option" key="clinic-site-filter-option-PATIENTS_WITHOUT_SITES">
+                            <Checkbox id="clinic-site-filter-option-checkbox-PATIENTS_WITHOUT_SITES"
+                              label={<Text sx={{ fontSize: 0, fontWeight: 'normal', display: 'inline-block', maxWidth: '172px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                                {t('Patients without any sites')}
+                              </Text>}
+                              checked={isFilteringForZeroSites}
+                              onChange={() => {
+                                if (isFilteringForZeroSites) {
+                                  setPendingFilters({ ...pendingFilters, clinicSites: [] });
+                                } else {
+                                  setPendingFilters({ ...pendingFilters, clinicSites: FILTERING_FOR_ZERO_SITES_STATE });
+                                }
+                              }}
+                            />
+                          </Box>
                         }
 
                         { // If no sites exist, display a message
