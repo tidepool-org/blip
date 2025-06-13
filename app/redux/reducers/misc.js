@@ -945,7 +945,8 @@ export const clinics = (state = initialState.clinics, action) => {
       });
     }
     case types.CREATE_CLINIC_SITE_SUCCESS:
-    case types.UPDATE_CLINIC_SITE_SUCCESS: {
+    case types.UPDATE_CLINIC_SITE_SUCCESS:
+    case types.DELETE_CLINIC_SITE_SUCCESS: {
       const {
         clinicId,
         sites,

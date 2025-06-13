@@ -1057,6 +1057,10 @@ api.clinics.updateClinicSite = function(clinicId, siteId, site, cb) {
   return tidepool.updateClinicSite(clinicId, siteId, site, cb);
 };
 
+api.clinics.deleteClinicSite = function(clinicId, siteId, cb) {
+  return tidepool.deleteClinicSite(clinicId, siteId, cb);
+};
+
 api.clinics.updateClinicPatientTag = function(clinicId, patientTagId, patientTag, cb) {
   return tidepool.updateClinicPatientTag(clinicId, patientTagId, patientTag, cb);
 };
