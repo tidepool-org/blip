@@ -1811,7 +1811,9 @@ export const ClinicPatients = (props) => {
                         { // Display an option to filter for patients with zero sites
                           sortedSiteFilterOptions.length > 0 &&
                           <Box mt={2} mx={-2} pt={3} px={2} sx={{ borderTop: borders.divider }} className="clinic-site-filter-option" key="clinic-site-filter-option-PWDS_WITH_ZERO_SITES">
-                            <Checkbox id="clinic-site-filter-option-checkbox-PWDS_WITH_ZERO_SITES"
+                            <Checkbox
+                              id="clinic-site-filter-option-checkbox-PWDS_WITH_ZERO_SITES"
+                              data-testid="clinic-site-filter-option-checkbox-PWDS_WITH_ZERO_SITES"
                               label={<Text sx={{ fontSize: 0, fontWeight: 'normal', display: 'inline-block', maxWidth: '172px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                                 {t('Patients without any sites')}
                               </Text>}
@@ -1993,7 +1995,9 @@ export const ClinicPatients = (props) => {
                         { // Display an option to filter for patients with zero tags
                           sortedSiteFilterOptions.length > 0 &&
                           <Box mt={2} mx={-2} pt={3} px={2} sx={{ borderTop: borders.divider }} className="clinic-site-filter-option" key="clinic-site-filter-option-PWDS_WITH_ZERO_TAGS">
-                            <Checkbox id="clinic-site-filter-option-checkbox-PWDS_WITH_ZERO_TAGS"
+                            <Checkbox
+                              id="tag-filter-option-checkbox-PWDS_WITH_ZERO_TAGS"
+                              data-testid="tag-filter-option-checkbox-PWDS_WITH_ZERO_TAGS"
                               label={<Text sx={{ fontSize: 0, fontWeight: 'normal', display: 'inline-block', maxWidth: '172px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                                 {t('Patients without any tags')}
                               </Text>}
