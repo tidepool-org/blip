@@ -1785,59 +1785,6 @@ describe('ClinicPatients', () => {
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - CGM use apply filter', sinon.match({ clinicId: 'clinicID123', filter: '<0.7' }));
         });
 
-        describe('managing clinic patient tags', () => {
-          let filterPopover, editTagsDialog, patientTagsFilterTrigger, patientTagsEditTrigger;
-
-          beforeEach(() => {
-            patientTagsFilterTrigger = wrapper.find('#patient-tags-filter-trigger').hostNodes();
-            filterPopover = () => wrapper.find('#patientTagFilters').hostNodes();
-
-            patientTagsEditTrigger = filterPopover().find('#show-edit-clinic-patient-tags-dialog').hostNodes();
-            editTagsDialog = () => wrapper.find('#editClinicPatientTags').hostNodes();
-
-            expect(patientTagsFilterTrigger).to.have.lengthOf(1);
-            expect(filterPopover().props().style.visibility).to.equal('hidden');
-            expect(editTagsDialog()).to.have.length(0);
-
-            // Open filters popover
-            patientTagsFilterTrigger.simulate('click');
-            expect(filterPopover().props().style.visibility).to.be.undefined;
-
-            // Open clinic tags edit popover
-            patientTagsEditTrigger.simulate('click');
-            wrapper.update();
-            expect(editTagsDialog()).to.have.length(1);
-            expect(editTagsDialog().childAt(0).props().open).to.be.true;
-
-
-            sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Edit clinic tags open', sinon.match({ clinicId: 'clinicID123', source: 'Filter menu' }));
-          });
-
-          it('should allow deleting a clinic patient tag', () => {
-            // Ensure tags present
-            const tags = editTagsDialog().find('#clinic-patients-edit-tag-list').find('.tag-text').hostNodes();
-            expect(tags).to.have.lengthOf(3);
-
-            const confirmDialog = () => wrapper.find('Dialog#deletePatientTag');
-            expect(confirmDialog()).to.have.length(0);
-
-            // Open confirm dialog
-            editTagsDialog().find('#delete-tag-button-tag1').hostNodes().simulate('click');
-            wrapper.update();
-            expect(confirmDialog()).to.have.length(1);
-            expect(confirmDialog().props().open).to.be.true;
-
-            const confirmButton = () => confirmDialog().find('button#patientTagRemoveConfirm').hostNodes();
-            expect(confirmButton()).to.have.length(1);
-
-            defaultProps.api.clinics.deleteClinicPatientTag.resetHistory();
-            confirmButton().simulate('click');
-
-            sinon.assert.calledWith(defaultProps.api.clinics.deleteClinicPatientTag, 'clinicID123', 'tag1');
-            sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Edit clinic tags delete', sinon.match({ clinicId: 'clinicID123' }));
-          });
-        });
-
         it('should allow filtering by bg range targets that DO NOT meet selected criteria', () => {
           const timeInRangeFilterTrigger = wrapper.find('#time-in-range-filter-trigger').hostNodes();
           expect(timeInRangeFilterTrigger).to.have.lengthOf(1);

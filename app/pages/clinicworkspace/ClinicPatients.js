@@ -1285,7 +1285,7 @@ export const ClinicPatients = (props) => {
   }, [api, dispatch, selectedClinicId, selectedPatientTag?.id, trackMetric, prefixPopHealthMetric]);
 
   const handleDeleteClinicSite = useCallback(siteId => {
-    trackMetric(prefixPopHealthMetric('Edit clinic tags delete'), { clinicId: selectedClinicId });
+    trackMetric(prefixPopHealthMetric('Edit clinic sites delete'), { clinicId: selectedClinicId });
     setSelectedClinicSite(clinicSites[siteId]);
     setShowDeleteClinicSiteDialog(true);
   }, [selectedClinicId, clinicSites, trackMetric, prefixPopHealthMetric]);
@@ -2915,7 +2915,8 @@ export const ClinicPatients = (props) => {
                     </Box>
                     <Flex sx={{ justifyContent: 'flex-end' }}>
                       <Icon
-                        id={`delete-tag-button-${id}`}
+                        id={`delete-site-button-${id}`}
+                        data-testid={`delete-site-button-${id}`}
                         icon={DeleteIcon}
                         sx={{ fontSize: 1 }}
                         onClick={isClinicAdmin ? () => handleDeleteClinicSite(id) : noop}
@@ -3074,6 +3075,7 @@ export const ClinicPatients = (props) => {
                     <Flex sx={{ justifyContent: 'flex-end' }}>
                       <Icon
                         id={`delete-tag-button-${id}`}
+                        data-testid={`delete-tag-button-${id}`}
                         icon={DeleteIcon}
                         sx={{ fontSize: 1 }}
                         onClick={isClinicAdmin ? () => handleDeleteClinicPatientTag(id) : noop}

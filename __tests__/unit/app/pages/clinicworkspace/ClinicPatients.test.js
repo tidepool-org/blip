@@ -317,6 +317,7 @@ describe('ClinicPatients', ()  => {
         revertClinicPatientLastReviewed: jest.fn(),
         createClinicSite: jest.fn(),
         updateClinicSite: jest.fn(),
+        deleteClinicSite: jest.fn(),
       },
     },
   };
@@ -424,13 +425,45 @@ describe('ClinicPatients', ()  => {
 
             expect(defaultProps.api.clinics.updateClinicSite).toHaveBeenCalledWith(
               'clinicID123', // clinicId,
-              'site-2-id', // tag id
+              'site-2-id', // site id
               { name: 'Site Zulu' }, // updated site
               expect.any(Function), // callback fn passed to api
             );
 
             expect(defaultProps.trackMetric).toHaveBeenCalledWith(
               'Clinic - Population Health - Edit clinic sites update',
+              { clinicId: 'clinicID123' },
+            );
+          }, TEST_TIMEOUT_MS);
+
+          it('should allow deleting an existing site for a workspace', async () => {
+            render(
+              <MockedProviderWrappers>
+                <ClinicPatients {...defaultProps} />
+              </MockedProviderWrappers>
+            );
+
+            // Open the Edit Sites Dialog
+            await userEvent.click(screen.getByRole('button', { name: /Sites/ }));
+            await userEvent.click(screen.getByRole('button', { name: /Edit Sites/ }));
+
+            // Click on Icon to delete site 2. Dialog titled ` Remove "Site Bravo" ` should be open
+            await userEvent.click(screen.getByTestId('delete-site-button-site-2-id'));
+            expect(screen.getByText('Remove "Site Bravo"')).toBeInTheDocument();
+
+            // Confirm
+            await userEvent.click(screen.getByRole('button', { name : /Remove/ }));
+
+            await waitFor(() => expect(defaultProps.api.clinics.deleteClinicSite).toHaveBeenCalled());
+
+            expect(defaultProps.api.clinics.deleteClinicSite).toHaveBeenCalledWith(
+              'clinicID123', // clinicId,
+              'site-2-id', // site id
+              expect.any(Function), // callback fn passed to api
+            );
+
+            expect(defaultProps.trackMetric).toHaveBeenCalledWith(
+              'Clinic - Population Health - Edit clinic sites delete',
               { clinicId: 'clinicID123' },
             );
           }, TEST_TIMEOUT_MS);
@@ -506,6 +539,38 @@ describe('ClinicPatients', ()  => {
 
           expect(defaultProps.trackMetric).toHaveBeenCalledWith(
             'Clinic - Population Health - Edit clinic tags update',
+            { clinicId: 'clinicID123' },
+          );
+        }, TEST_TIMEOUT_MS);
+
+        it('should allow deleting an existing site for a workspace', async () => {
+          render(
+            <MockedProviderWrappers>
+              <ClinicPatients {...defaultProps} />
+            </MockedProviderWrappers>
+          );
+
+          // Open the Edit Sites Dialog
+          await userEvent.click(screen.getByRole('button', { name: /Tags/ }));
+          await userEvent.click(screen.getByRole('button', { name: /Edit Tags/ }));
+
+          // Click on Icon to delete tag 2. Dialog titled ` Remove "test tag 2" ` should be open
+          await userEvent.click(screen.getByTestId('delete-tag-button-tag2'));
+          expect(screen.getByText('Remove "test tag 2"')).toBeInTheDocument();
+
+          // Confirm
+          await userEvent.click(screen.getByRole('button', { name : /Remove/ }));
+
+          await waitFor(() => expect(defaultProps.api.clinics.deleteClinicPatientTag).toHaveBeenCalled());
+
+          expect(defaultProps.api.clinics.deleteClinicPatientTag).toHaveBeenCalledWith(
+            'clinicID123', // clinicId,
+            'tag2', // site id
+            expect.any(Function), // callback fn passed to api
+          );
+
+          expect(defaultProps.trackMetric).toHaveBeenCalledWith(
+            'Clinic - Population Health - Edit clinic tags delete',
             { clinicId: 'clinicID123' },
           );
         }, TEST_TIMEOUT_MS);
