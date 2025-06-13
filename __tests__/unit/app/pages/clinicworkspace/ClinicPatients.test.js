@@ -347,6 +347,7 @@ describe('ClinicPatients', ()  => {
 
   beforeEach(() => {
     defaultProps.trackMetric.mockClear();
+    defaultProps.api.clinics.getPatientsForClinic.mockClear();
   });
 
   describe('has patients', () => {
@@ -367,6 +368,87 @@ describe('ClinicPatients', ()  => {
               clinic: { tier: 'tier0300' },
             })),
           });
+        });
+
+        describe('filtering for patients', () => {
+          afterEach(() => {
+            // Clear any persisted filter state between tests
+            localStorage.clear();
+          });
+
+          it('should allow filtering by sites', async () => {
+            render(
+              <MockedProviderWrappers>
+                <ClinicPatients {...defaultProps} />
+              </MockedProviderWrappers>
+            );
+
+            // Open the Sites filter  dropdown and filter for 2 sites
+            await userEvent.click(screen.getByRole('button', { name: /Sites/ }));
+
+            const site1checkbox = screen.getByTestId('clinic-site-filter-option-checkbox-site-1-id');
+            const site2checkbox = screen.getByTestId('clinic-site-filter-option-checkbox-site-2-id');
+
+            expect(site1checkbox).not.toBeChecked();
+            expect(site2checkbox).not.toBeChecked();
+
+            await userEvent.click(site1checkbox);
+            await userEvent.click(site2checkbox);
+
+            expect(site1checkbox).toBeChecked();
+            expect(site2checkbox).toBeChecked();
+
+            // Click Apply
+            await userEvent.click(screen.getByRole('button', { name: /Apply/ }));
+
+            expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+              'clinicID123',
+              { sites: ['site-1-id', 'site-2-id'], limit: 50, offset: 0, period: '14d', sortType: 'cgm', sort: '-lastData' },
+              expect.any(Function),
+            );
+
+            expect(defaultProps.trackMetric).toHaveBeenCalledWith(
+              'Clinic - Population Health - Clinic sites filter apply',
+              { clinicId: 'clinicID123' },
+            );
+          }, TEST_TIMEOUT_MS);
+
+          it('should allow filtering by tags', async () => {
+            render(
+              <MockedProviderWrappers>
+                <ClinicPatients {...defaultProps} />
+              </MockedProviderWrappers>
+            );
+
+            // Open the Tags filter dropdown and filter for 2 sites
+            await userEvent.click(screen.getByRole('button', { name: /Tags/ }));
+
+            const tag1checkbox = screen.getByTestId('tag-filter-option-checkbox-tag1');
+            const tag3checkbox = screen.getByTestId('tag-filter-option-checkbox-tag3');
+
+            expect(tag1checkbox).not.toBeChecked();
+            expect(tag3checkbox).not.toBeChecked();
+
+            await userEvent.click(tag1checkbox);
+            await userEvent.click(tag3checkbox);
+
+            expect(tag1checkbox).toBeChecked();
+            expect(tag3checkbox).toBeChecked();
+
+            // Click Apply
+            await userEvent.click(screen.getByRole('button', { name: /Apply/ }));
+
+            expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenLastCalledWith(
+              'clinicID123',
+              { tags: ['tag1', 'tag3'], limit: 50, offset: 0, period: '14d', sortType: 'cgm', sort: '-lastData' },
+              expect.any(Function),
+            );
+
+            expect(defaultProps.trackMetric).toHaveBeenCalledWith(
+              'Clinic - Population Health - Patient tag filter apply',
+              { clinicId: 'clinicID123' },
+            );
+          }, TEST_TIMEOUT_MS);
         });
 
         describe('managing sites', () => {

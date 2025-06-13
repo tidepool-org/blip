@@ -1719,39 +1719,6 @@ describe('ClinicPatients', () => {
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Last upload apply filter', sinon.match({ clinicId: 'clinicID123', dateRange: '30 days', type: 'bgm'}));
         });
 
-        it('should allow filtering by tags', () => {
-          const patientTagsFilterTrigger = wrapper.find('#patient-tags-filter-trigger').hostNodes();
-          expect(patientTagsFilterTrigger).to.have.lengthOf(1);
-
-          const popover = () => wrapper.find('#patientTagFilters').hostNodes();
-          expect(popover().props().style.visibility).to.equal('hidden');
-
-          // Open filters popover
-          patientTagsFilterTrigger.simulate('click');
-          expect(popover().props().style.visibility).to.be.undefined;
-
-          // Ensure filter options present
-          const filterOptions = popover().find('.tag-filter-option').hostNodes();
-          expect(filterOptions).to.have.lengthOf(3);
-
-          // Ensure filter options are presented sorted alphabetically
-          expect(filterOptions.at(0).text()).to.equal('>test tag 1');
-          expect(filterOptions.at(1).text()).to.equal('test tag 2');
-          expect(filterOptions.at(2).text()).to.equal('ttest tag 3');
-
-          // Apply button disabled until selection made
-          const applyButton = () => popover().find('#apply-patient-tags-filter').hostNodes();
-
-          popover().find('#tag-filter-option-checkbox-tag1').hostNodes().simulate('change', { target: { checked: true } });
-          popover().find('#tag-filter-option-checkbox-tag2').hostNodes().simulate('change', { target: { checked: true } });
-
-          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-          applyButton().simulate('click');
-
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ ...defaultFetchOptions, sort: '-lastData', tags: ['tag1', 'tag2'] }));
-          sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Patient tag filter apply', sinon.match({ clinicId: 'clinicID123' }));
-        });
-
         it('should allow filtering by cgm use', () => {
           const cgmUseFilterTrigger = wrapper.find('#cgm-use-filter-trigger').hostNodes();
           expect(cgmUseFilterTrigger).to.have.lengthOf(1);

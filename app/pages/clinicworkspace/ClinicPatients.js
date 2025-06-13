@@ -1771,6 +1771,7 @@ export const ClinicPatients = (props) => {
                               <Box mt={1} className="clinic-site-filter-option" key={`clinic-site-filter-option-${id}`}>
                                 <Checkbox
                                   id={`clinic-site-filter-option-checkbox-${id}`}
+                                  data-testid={`clinic-site-filter-option-checkbox-${id}`}
                                   label={
                                     <Text sx={{ fontSize: 0, fontWeight: 'normal', display: 'inline-block', maxWidth: '172px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                                       {label}
@@ -1935,6 +1936,7 @@ export const ClinicPatients = (props) => {
                               <Box mt={1} className="tag-filter-option" key={`tag-filter-option-${id}`}>
                                 <Checkbox
                                   id={`tag-filter-option-checkbox-${id}`}
+                                  data-testid={`tag-filter-option-checkbox-${id}`}
                                   label={<Text sx={{ fontSize: 0, fontWeight: 'normal' }}>{label}</Text>}
                                   checked={isChecked}
                                   onChange={() => {
