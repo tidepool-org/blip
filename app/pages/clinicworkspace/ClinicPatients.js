@@ -547,6 +547,15 @@ const PatientTags = ({
   );
 };
 
+// If we HTTP GET `/patients` without a sites/tags query arg, we receive a list of PwDs with zero
+// or many sites/tags. We need to pass an explicit argument to request PwDs with exactly zero
+// sites/tags. By setting the filter to `['_']`, the query path is set to `/patients?sites=_` or
+// `/patients?tags=_`, which the backend understands as a request for PwDs with zero sites/tags
+export const SPECIAL_FILTER_STATES = {
+  ZERO_SITES: ['_'],
+  ZERO_TAGS: ['_'],
+};
+
 export const ClinicPatients = (props) => {
   const { t, api, trackMetric, searchDebounceMs } = props;
   const isFirstRender = useIsFirstRender();
@@ -1402,6 +1411,12 @@ export const ClinicPatients = (props) => {
     if (hoursAgo >= 24) timeAgo = t('over 24');
     const timeAgoMessage = t('Last updated {{timeAgo}} {{timeAgoUnits}} ago', { timeAgo, timeAgoUnits });
 
+    // Filtering for patients "zero sites/tags" is different than not filtering. If we don't pass any filters
+    // to backend, we receive a list of PwDs with zero or many sites/tags. We need to explicitly filter for
+    // PwDs with exactly zero sites/tags.
+    const isFilteringForZeroSites = isEqual(pendingFilters?.clinicSites, SPECIAL_FILTER_STATES.ZERO_SITES);
+    const isFilteringForZeroTags = isEqual(pendingFilters?.patientTags, SPECIAL_FILTER_STATES.ZERO_TAGS);
+
     return (
       <>
         <Flex mb={4} sx={{ alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 3 }}>
@@ -1779,7 +1794,9 @@ export const ClinicPatients = (props) => {
                                   }
                                   checked={isChecked}
                                   onChange={() => {
-                                    if (isChecked) {
+                                    if (isFilteringForZeroSites) {
+                                      setPendingFilters({ ...pendingFilters, clinicSites: [id] });
+                                    } else if (isChecked) {
                                       setPendingFilters({ ...pendingFilters, clinicSites: without(clinicSites, id) });
                                     } else {
                                       setPendingFilters({ ...pendingFilters, clinicSites: [...clinicSites, id] });
@@ -1789,6 +1806,25 @@ export const ClinicPatients = (props) => {
                               </Box>
                             );
                           })
+                        }
+
+                        { // Display an option to filter for patients with zero sites
+                          sortedSiteFilterOptions.length > 0 &&
+                          <Box mt={2} mx={-2} pt={3} px={2} sx={{ borderTop: borders.divider }} className="clinic-site-filter-option" key="clinic-site-filter-option-PWDS_WITH_ZERO_SITES">
+                            <Checkbox id="clinic-site-filter-option-checkbox-PWDS_WITH_ZERO_SITES"
+                              label={<Text sx={{ fontSize: 0, fontWeight: 'normal', display: 'inline-block', maxWidth: '172px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                                {t('Patients without any sites')}
+                              </Text>}
+                              checked={isFilteringForZeroSites}
+                              onChange={() => {
+                                if (isFilteringForZeroSites) {
+                                  setPendingFilters({ ...pendingFilters, clinicSites: [] });
+                                } else {
+                                  setPendingFilters({ ...pendingFilters, clinicSites: SPECIAL_FILTER_STATES.ZERO_SITES });
+                                }
+                              }}
+                            />
+                          </Box>
                         }
 
                         { // If no sites exist, display a message
@@ -1940,7 +1976,9 @@ export const ClinicPatients = (props) => {
                                   label={<Text sx={{ fontSize: 0, fontWeight: 'normal' }}>{label}</Text>}
                                   checked={isChecked}
                                   onChange={() => {
-                                    if (isChecked) {
+                                    if (isFilteringForZeroTags) {
+                                      setPendingFilters({ ...pendingFilters, patientTags: [id] });
+                                    } else if (isChecked) {
                                       setPendingFilters({ ...pendingFilters, patientTags: without(patientTags, id) });
                                     } else {
                                       setPendingFilters({ ...pendingFilters, patientTags: [...patientTags, id] });
@@ -1950,6 +1988,25 @@ export const ClinicPatients = (props) => {
                               </Box>
                             );
                           })
+                        }
+
+                        { // Display an option to filter for patients with zero tags
+                          sortedSiteFilterOptions.length > 0 &&
+                          <Box mt={2} mx={-2} pt={3} px={2} sx={{ borderTop: borders.divider }} className="clinic-site-filter-option" key="clinic-site-filter-option-PWDS_WITH_ZERO_TAGS">
+                            <Checkbox id="clinic-site-filter-option-checkbox-PWDS_WITH_ZERO_TAGS"
+                              label={<Text sx={{ fontSize: 0, fontWeight: 'normal', display: 'inline-block', maxWidth: '172px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                                {t('Patients without any tags')}
+                              </Text>}
+                              checked={isFilteringForZeroTags}
+                              onChange={() => {
+                                if (isFilteringForZeroTags) {
+                                  setPendingFilters({ ...pendingFilters, patientTags: [] });
+                                } else {
+                                  setPendingFilters({ ...pendingFilters, patientTags: SPECIAL_FILTER_STATES.ZERO_TAGS });
+                                }
+                              }}
+                            />
+                          </Box>
                         }
 
                         { // If no tags exist, display a message
