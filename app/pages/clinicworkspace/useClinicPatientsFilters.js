@@ -8,6 +8,7 @@ export const defaultFilterState = {
   timeInRange: [],
   meetsGlycemicTargets: true,
   patientTags: [],
+  clinicSites: [],
 };
 
 const useClinicPatientsFilters = () => {
