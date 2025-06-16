@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.47.0-web-3688-twiist-suppressed-basal-data.2":
-  version: 1.47.0-web-3688-twiist-suppressed-basal-data.2
-  resolution: "@tidepool/viz@npm:1.47.0-web-3688-twiist-suppressed-basal-data.2"
+"@tidepool/viz@npm:1.47.0-web-3687-new-dosing-decision-extended-duration-props.1":
+  version: 1.47.0-web-3687-new-dosing-decision-extended-duration-props.1
+  resolution: "@tidepool/viz@npm:1.47.0-web-3687-new-dosing-decision-extended-duration-props.1"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 98d7fffd5915a90ebd67d5cf3de0b24e62957ac191e16bdeb7bb062fd1f2f940645c12268f4b411f41e02761fed3a36ecc73e4341a2a3c26b3edff2e182cb7ca
+  checksum: e42062cc701542a9ac683d857b7d5699cbec055c8345f6d1df05c363852cf3266cc0c403033921b32d9195b1e7a26d44285ceec8074584ea05d86fa570c09fb3
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.47.0-web-3688-twiist-suppressed-basal-data.2
+    "@tidepool/viz": 1.47.0-web-3687-new-dosing-decision-extended-duration-props.1
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -8462,7 +8462,7 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.32.0
+    tideline: 1.33.0-web-3687-new-dosing-decision-extended-duration-props.1
     tidepool-platform-client: 0.63.0
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
@@ -22218,9 +22218,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.32.0":
-  version: 1.32.0
-  resolution: "tideline@npm:1.32.0"
+"tideline@npm:1.33.0-web-3687-new-dosing-decision-extended-duration-props.1":
+  version: 1.33.0-web-3687-new-dosing-decision-extended-duration-props.1
+  resolution: "tideline@npm:1.33.0-web-3687-new-dosing-decision-extended-duration-props.1"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -22241,7 +22241,7 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: 031fc606a46c062081ffd5dcc58ea1bb863bb98acb04c82d537490caed865d4c62bce7943fb2e69ceb165148957ef6c4e2381c97a456f50bc74ba29b0f899d75
+  checksum: d2122068e949fb3e536a334705bcb43f63b0c4ecfd1b5135ce9064d9a3500ce4f3aae85073ee631ecc78b84afee276b8d2572abda99e4111bf291264e623fc8d
   languageName: node
   linkType: hard
 
