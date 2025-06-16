@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.47.0-web-3687-new-dosing-decision-extended-duration-props.1":
-  version: 1.47.0-web-3687-new-dosing-decision-extended-duration-props.1
-  resolution: "@tidepool/viz@npm:1.47.0-web-3687-new-dosing-decision-extended-duration-props.1"
+"@tidepool/viz@npm:1.47.0-web-3687-new-dosing-decision-extended-duration-props.2":
+  version: 1.47.0-web-3687-new-dosing-decision-extended-duration-props.2
+  resolution: "@tidepool/viz@npm:1.47.0-web-3687-new-dosing-decision-extended-duration-props.2"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: e42062cc701542a9ac683d857b7d5699cbec055c8345f6d1df05c363852cf3266cc0c403033921b32d9195b1e7a26d44285ceec8074584ea05d86fa570c09fb3
+  checksum: a6608eea697c2ed7ec262afd504325cb2e67b9147889bb177c7c4659e1fed30f80eff5b06ded10ccb3755036a91bb5165a99a3db81657e05404f91942cd985dc
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.47.0-web-3687-new-dosing-decision-extended-duration-props.1
+    "@tidepool/viz": 1.47.0-web-3687-new-dosing-decision-extended-duration-props.2
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
