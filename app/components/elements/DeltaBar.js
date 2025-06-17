@@ -4,11 +4,10 @@ import { Text, Box, Flex } from 'theme-ui';
 import { withTranslation } from 'react-i18next';
 import isEqual from 'lodash/isEqual';
 import map from 'lodash/map';
-import { utils as vizUtils } from '@tidepool/viz';
+import { utils as vizUtils, colors as vizColors } from '@tidepool/viz';
 const { formatStatsPercentage } = vizUtils.stat;
 
 import { colors, radii } from '../../themes/baseTheme';
-import { colors as vizColors } from '@tidepool/viz';
 
 export const DeltaBar = React.memo(props => {
   const { delta, max, ...themeProps } = props;
