@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.48.0-web-3511-color-scheme.9":
-  version: 1.48.0-web-3511-color-scheme.9
-  resolution: "@tidepool/viz@npm:1.48.0-web-3511-color-scheme.9"
+"@tidepool/viz@npm:1.48.0-web-3720-re-enable-one-min-cgm.1":
+  version: 1.48.0-web-3720-re-enable-one-min-cgm.1
+  resolution: "@tidepool/viz@npm:1.48.0-web-3720-re-enable-one-min-cgm.1"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 5e9e930990660bc9e9749425e33f93e8ba46d26c39a84a4e06b8d75106e13189bda459eb0aeba0aab9686bc77810041581b6f8fad31f5b94fb5dc486399892af
+  checksum: eb580c96382f1b92d5d9ad064512f8cb19a62a0bc95cf7dac0165151f8806c113dcbf56e5d2cc0d910d70f95d53e46868f931f16140b6248b86d0dc30fa8d35c
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.48.0-web-3511-color-scheme.9
+    "@tidepool/viz": 1.48.0-web-3720-re-enable-one-min-cgm.1
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
