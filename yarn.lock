@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.47.0-web-3687-new-dosing-decision-extended-duration-props.2":
-  version: 1.47.0-web-3687-new-dosing-decision-extended-duration-props.2
-  resolution: "@tidepool/viz@npm:1.47.0-web-3687-new-dosing-decision-extended-duration-props.2"
+"@tidepool/viz@npm:1.48.0-web-3511-color-scheme.9":
+  version: 1.48.0-web-3511-color-scheme.9
+  resolution: "@tidepool/viz@npm:1.48.0-web-3511-color-scheme.9"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: a6608eea697c2ed7ec262afd504325cb2e67b9147889bb177c7c4659e1fed30f80eff5b06ded10ccb3755036a91bb5165a99a3db81657e05404f91942cd985dc
+  checksum: 5e9e930990660bc9e9749425e33f93e8ba46d26c39a84a4e06b8d75106e13189bda459eb0aeba0aab9686bc77810041581b6f8fad31f5b94fb5dc486399892af
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.47.0-web-3687-new-dosing-decision-extended-duration-props.2
+    "@tidepool/viz": 1.48.0-web-3511-color-scheme.9
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
