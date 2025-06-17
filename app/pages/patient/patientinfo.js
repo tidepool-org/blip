@@ -511,6 +511,10 @@ var PatientInfo = withTranslation()(class extends React.Component {
   };
 
   isEditingAllowed = (permissions) => {
+    if (this.props.isSmartOnFhirMode) {
+      return false;
+    }
+
     if (_.isPlainObject(permissions)) {
       return permissions.hasOwnProperty('custodian') || permissions.hasOwnProperty('root');
     }

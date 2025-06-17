@@ -263,7 +263,7 @@ describe('NavPatientHeader', () => {
         expect(wrapper.text()).to.include('1965-01-01');
 
         // should show standard clinician buttons
-        expect(wrapper.find('button#navPatientHeader_backButton').exists()).to.be.true;
+        expect(wrapper.find('button#navPatientHeader_backButton').exists()).to.be.false;
         expect(wrapper.find('button#navPatientHeader_viewDataButton').exists()).to.be.true;
         expect(wrapper.find('button#navPatientHeader_profileButton').exists()).to.be.true;
         expect(wrapper.find('button#navPatientHeader_shareButton').exists()).to.be.false;

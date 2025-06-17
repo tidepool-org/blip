@@ -65,7 +65,7 @@ const NavPatientHeader = ({ api, trackMetric, patient, clinicPatient, user, perm
       <HeaderContainer>
         { isClinicianAccount(user)
           ? <>
-              <Back onClick={handleBack} />
+              {!isSmartOnFhirMode && <Back onClick={handleBack} />}
               <Name name={name} />
               <DemographicInfo birthday={birthday} mrn={mrn} />
               <ClinicianMenuOptions
