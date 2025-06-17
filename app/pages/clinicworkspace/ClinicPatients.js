@@ -1277,6 +1277,11 @@ export const ClinicPatients = (props) => {
 
       const sortColumnLabels = {
         fullName: 'Patient details',
+        lastData: 'Data recency',
+        glucoseManagementIndicator: 'GMI',
+        averageGlucoseMmol: 'Average glucose',
+        timeInVeryLowRecords: 'Time in very low',
+        timeInVeryHighRecords: 'Time in very high',
         'summary.lastData': 'Data recency',
         [`summary.periods.${activeSummaryPeriod}.timeCGMUsePercent`]: 'CGM use',
         [`summary.periods.${activeSummaryPeriod}.glucoseManagementIndicator`]: 'GMI',
