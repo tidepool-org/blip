@@ -4,7 +4,7 @@
     "node": "20.8.0"
   },
   "packageManager": "yarn@3.6.4",
-  "version": "1.85.2",
+  "version": "1.86.0-web-3687-new-dosing-decision-extended-duration-props.1",
   "private": true,
   "scripts": {
     "test": "concurrently \"TZ=UTC NODE_ENV=test yarn jest --verbose --runInBand\" \"TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' yarn karma start\" --group --success=all",
@@ -195,7 +195,7 @@
     "terser": "5.22.0",
     "terser-webpack-plugin": "5.3.9",
     "theme-ui": "0.16.1",
-    "tideline": "1.32.0",
+    "tideline": "1.33.0-web-3687-new-dosing-decision-extended-duration-props.1",
     "tidepool-platform-client": "0.63.0",
     "tidepool-standard-action": "0.1.1",
     "ua-parser-js": "1.0.36",
