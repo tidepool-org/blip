@@ -343,6 +343,129 @@ describe('ClinicPatients', ()  => {
     defaultProps.trackMetric.mockClear();
   });
 
+  describe('on mount', () => {
+    beforeEach(() => {
+      useFlags.mockReturnValue({
+        showSummaryDashboard: true,
+        showSummaryDashboardLastReviewed: true,
+        showExtremeHigh: false,
+      });
+
+      useLDClient.mockReturnValue({
+        getContext: jest.fn(() => ({
+          clinic: { tier: 'tier0300' },
+        })),
+      });
+    });
+
+    it('should not fetch patients for clinic if already in progress', () => {
+      store = mockStore(
+        merge({}, hasPatientsState, {
+          blip: {
+            working: {
+              fetchingPatientsForClinic: {
+                inProgress: true,
+              },
+            },
+          },
+        })
+      );
+
+      render(
+        <MockedProviderWrappers store={store}>
+          <ClinicPatients {...defaultProps} />
+        </MockedProviderWrappers>
+      );
+
+      expect(store.getActions()).toStrictEqual([]);
+    });
+
+    it('should fetch patients for clinic', () => {
+      store = mockStore(hasPatientsState);
+
+      render(
+        <MockedProviderWrappers store={store}>
+          <ClinicPatients {...defaultProps} />
+        </MockedProviderWrappers>
+      );
+
+      const expectedActions = [
+        { type: 'FETCH_PATIENTS_FOR_CLINIC_REQUEST' },
+      ];
+      expect(store.getActions()).toStrictEqual(expectedActions);
+    });
+
+    it('should fetch patients for clinic if previously errored', () => {
+      store = mockStore(
+        merge({}, hasPatientsState, {
+          blip: {
+            working: {
+              fetchingPatientsForClinic: {
+                notification: {
+                  message: 'Errored',
+                },
+              },
+            },
+          },
+        })
+      );
+
+      render(
+        <MockedProviderWrappers store={store}>
+          <ClinicPatients {...defaultProps} />
+        </MockedProviderWrappers>
+      );
+
+      const expectedActions = [
+        { type: 'FETCH_PATIENTS_FOR_CLINIC_REQUEST' },
+      ];
+      expect(store.getActions()).toStrictEqual(expectedActions);
+    });
+  });
+
+  describe('patients hidden', () => {
+    beforeEach(() => {
+      const initialState = {
+        blip: {
+          ...hasPatientsState.blip,
+          patientListFilters: { isPatientListVisible: false, patientListSearchTextInput: '' },
+        },
+      };
+
+      store = mockStore(initialState);
+    });
+
+    it('should render a button that toggles patients to be visible', async () => {
+      render(
+        <MockedProviderWrappers>
+          <ClinicPatients {...defaultProps} />
+        </MockedProviderWrappers>
+      );
+
+      store.clearActions();
+
+      await userEvent.click(screen.getByText(/Show All/));
+      expect(store.getActions()).toStrictEqual([{ type: 'SET_IS_PATIENT_LIST_VISIBLE', payload: { isVisible: true } }])
+    });
+  });
+
+  describe('no patients', () => {
+    beforeEach(() => {
+      store = mockStore(noPatientsState);
+      defaultProps.trackMetric.mockClear();
+    });
+
+    it('should render an empty table', () => {
+      render(
+        <MockedProviderWrappers>
+          <ClinicPatients {...defaultProps} />
+        </MockedProviderWrappers>
+      );
+
+      expect(screen.getByText('There are no results to show')).toBeInTheDocument();
+    });
+  });
+
   describe('has patients', () => {
     describe('show names clicked', () => {
       describe('tier0300 clinic', () => {
