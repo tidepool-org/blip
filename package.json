@@ -4,7 +4,7 @@
     "node": "20.8.0"
   },
   "packageManager": "yarn@3.6.4",
-  "version": "1.86.0-web-3687-new-dosing-decision-extended-duration-props.1",
+  "version": "1.87.0-web-3720-re-enable-one-min-cgm.1",
   "private": true,
   "scripts": {
     "test": "concurrently \"TZ=UTC NODE_ENV=test yarn jest --verbose --runInBand\" \"TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' yarn karma start\" --group --success=all",
