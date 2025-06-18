@@ -1708,12 +1708,6 @@ export const ClinicPatients = (props) => {
                       sx={{ fontSize: 0, lineHeight: 1.3 }}
                     >
                       <Flex sx={{ alignItems: 'center', gap: 1 }}>
-                        {showTideDashboard && !clinic?.sites?.length && <Icon
-                          variant="static"
-                          icon={InfoOutlinedIcon}
-                          sx={{ fontSize: '14px' }}
-                        />}
-
                         {t('Sites')}
 
                         {!!activeFilters.clinicSites?.length && (
