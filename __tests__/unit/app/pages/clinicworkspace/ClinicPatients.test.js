@@ -122,6 +122,18 @@ describe('ClinicPatients', ()  => {
     },
   });
 
+  const mrnRequiredState = merge({}, noPatientsState, {
+    blip: {
+      clinics: {
+        clinicID123: {
+          mrnSettings: {
+            required: true,
+          },
+        },
+      },
+    },
+  });
+
   const tier0300ClinicState = {
     blip: {
       ...hasPatientsState.blip,
@@ -467,6 +479,7 @@ describe('ClinicPatients', ()  => {
     }, TEST_TIMEOUT_MS);
 
     it('should open a modal for adding a new patient', async () => {
+      store = mockStore(noPatientsState);
       render(
         <MockedProviderWrappers>
           <ClinicPatients {...defaultProps} />
@@ -518,6 +531,181 @@ describe('ClinicPatients', ()  => {
       });
     }, TEST_TIMEOUT_MS);
   });
+
+  it('should prevent adding a new patient with an invalid Date of Birth', async () => {
+    store = mockStore(noPatientsState);
+    render(
+      <MockedProviderWrappers>
+        <ClinicPatients {...defaultProps} />
+      </MockedProviderWrappers>
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: /Add New Patient/}));
+
+    // Fill in the Pwd's demographic info
+    const nameField = screen.getByRole('textbox', { name: 'Full Name' });
+    const dobField = screen.getByRole('textbox', { name: 'Birthdate' });
+    const mrnField = screen.getByRole('textbox', { name: 'MRN (optional)' });
+    const emailField = screen.getByRole('textbox', { name: 'Email (optional)' });
+    const submitButton = screen.getByRole('button', { name: /Add Patient/ });
+
+    // Input valid values into all fields; submit button should be enabled
+    await userEvent.click(nameField);
+    await userEvent.paste('Vasily Lomachenko');
+
+    await userEvent.click(dobField);
+    await userEvent.paste('11/21/1999');
+
+    await userEvent.click(mrnField);
+    await userEvent.paste('123456');
+
+    await userEvent.click(emailField);
+    await userEvent.paste('patient@test.ca');
+    expect(submitButton).toBeEnabled();
+
+    // Disabled after invalid DOB
+    await userEvent.click(dobField);
+    await userEvent.clear(dobField);
+    await userEvent.paste('13/21/1999');
+
+    expect(submitButton).toBeDisabled();
+
+    // Re-entering valid DOB should re-enable it
+    await userEvent.clear(dobField);
+    await userEvent.paste('09/21/1999');
+
+    expect(submitButton).toBeEnabled();
+  }, TEST_TIMEOUT_MS);
+
+  it('should prevent adding a new patient without an MRN if MRN required by the clinic', async () => {
+    store = mockStore(mrnRequiredState);
+    render(
+      <MockedProviderWrappers>
+        <ClinicPatients {...defaultProps} />
+      </MockedProviderWrappers>
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: /Add New Patient/}));
+
+    // Fill in the Pwd's demographic info
+    const nameField = screen.getByRole('textbox', { name: 'Full Name' });
+    const dobField = screen.getByRole('textbox', { name: 'Birthdate' });
+    const mrnField = screen.getByRole('textbox', { name: 'MRN' }); // Missing "(optional)" copy
+    const emailField = screen.getByRole('textbox', { name: 'Email (optional)' });
+    const submitButton = screen.getByRole('button', { name: /Add Patient/ });
+
+    // Enter valid values into all fields except leaving MRN blank; submit button is disabled
+    await userEvent.click(nameField);
+    await userEvent.paste('Vasily Lomachenko');
+
+    await userEvent.click(dobField);
+    await userEvent.paste('11/21/1999');
+
+    await userEvent.click(emailField);
+    await userEvent.paste('patient@test.ca');
+
+    expect(submitButton).toBeDisabled();
+
+    // Entering an MRN enables the submit button
+    await userEvent.click(mrnField);
+    await userEvent.paste('A1234');
+
+    expect(submitButton).toBeEnabled();
+
+    // Entering an MRN over char limit disables the submit button
+    await userEvent.click(mrnField);
+    await userEvent.paste('1234567890123456789012345677890');
+    expect(screen.getByText('Maximum length: 25 characters')).toBeInTheDocument();
+
+    expect(submitButton).toBeDisabled();
+  }, TEST_TIMEOUT_MS);
+
+  it('should prevent adding a new patient with an MRN already in use', async () => {
+    store = mockStore(hasPatientsState);
+    render(
+      <MockedProviderWrappers>
+        <ClinicPatients {...defaultProps} />
+      </MockedProviderWrappers>
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: /Add New Patient/}));
+
+    // Fill in the Pwd's demographic info
+    const nameField = screen.getByRole('textbox', { name: 'Full Name' });
+    const dobField = screen.getByRole('textbox', { name: 'Birthdate' });
+    const mrnField = screen.getByRole('textbox', { name: 'MRN (optional)' }); // Missing "(optional)" copy
+    const emailField = screen.getByRole('textbox', { name: 'Email (optional)' });
+    const submitButton = screen.getByRole('button', { name: /Add Patient/ });
+
+    // Enter valid values into all fields but an already-in-use MRN. Submit should be disabled
+    await userEvent.click(nameField);
+    await userEvent.paste('Vasily Lomachenko');
+
+    await userEvent.click(dobField);
+    await userEvent.paste('11/21/1999');
+
+    await userEvent.click(mrnField);
+    await userEvent.paste('MRN123');
+
+    await userEvent.click(emailField);
+    await userEvent.paste('patient@test.ca');
+
+    expect(submitButton).toBeDisabled();
+    expect(screen.getByText('This MRN is already in use. Please enter a valid MRN.')).toBeInTheDocument();
+
+    // Changing the MRN re-enables the submit button
+    await userEvent.click(mrnField);
+    await userEvent.clear(mrnField);
+    await userEvent.paste('MRN12345');
+
+    expect(submitButton).toBeEnabled();
+  }, TEST_TIMEOUT_MS);
+
+  it('should prevent adding a new patient with an invalid Date of Birth', async () => {
+    store = mockStore(noPatientsState);
+    render(
+      <MockedProviderWrappers>
+        <ClinicPatients {...defaultProps} />
+      </MockedProviderWrappers>
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: /Add New Patient/}));
+
+    // Fill in the Pwd's demographic info
+    const nameField = screen.getByRole('textbox', { name: 'Full Name' });
+    const dobField = screen.getByRole('textbox', { name: 'Birthdate' });
+    const mrnField = screen.getByRole('textbox', { name: 'MRN (optional)' });
+    const emailField = screen.getByRole('textbox', { name: 'Email (optional)' });
+    const submitButton = screen.getByRole('button', { name: /Add Patient/ });
+
+    // All fields valid; should be enabled
+    await userEvent.click(nameField);
+    await userEvent.paste('Vasily Lomachenko');
+
+    await userEvent.click(dobField);
+    await userEvent.paste('11/21/1999');
+
+    await userEvent.click(mrnField);
+    await userEvent.paste('123456');
+
+    await userEvent.click(emailField);
+    await userEvent.paste('patient@test.ca');
+
+    expect(submitButton).toBeEnabled();
+
+    // Disabled after invalid DOB
+    await userEvent.click(dobField);
+    await userEvent.clear(dobField);
+    await userEvent.paste('13/21/1999');
+
+    expect(submitButton).toBeDisabled();
+
+    // Re-entering valid DOB should re-enable it
+    await userEvent.clear(dobField);
+    await userEvent.paste('09/21/1999');
+
+    expect(submitButton).toBeEnabled();
+  }, TEST_TIMEOUT_MS);
 
   describe('has patients', () => {
     describe('show names clicked', () => {
