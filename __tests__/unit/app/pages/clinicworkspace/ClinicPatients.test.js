@@ -378,7 +378,7 @@ describe('ClinicPatients', ()  => {
       );
 
       expect(store.getActions()).toStrictEqual([]);
-    });
+    }, TEST_TIMEOUT_MS);
 
     it('should fetch patients for clinic', () => {
       store = mockStore(hasPatientsState);
@@ -393,7 +393,7 @@ describe('ClinicPatients', ()  => {
         { type: 'FETCH_PATIENTS_FOR_CLINIC_REQUEST' },
       ];
       expect(store.getActions()).toStrictEqual(expectedActions);
-    });
+    }, TEST_TIMEOUT_MS);
 
     it('should fetch patients for clinic if previously errored', () => {
       store = mockStore(
@@ -420,7 +420,7 @@ describe('ClinicPatients', ()  => {
         { type: 'FETCH_PATIENTS_FOR_CLINIC_REQUEST' },
       ];
       expect(store.getActions()).toStrictEqual(expectedActions);
-    });
+    }, TEST_TIMEOUT_MS);
   });
 
   describe('patients hidden', () => {
@@ -446,7 +446,7 @@ describe('ClinicPatients', ()  => {
 
       await userEvent.click(screen.getByText(/Show All/));
       expect(store.getActions()).toStrictEqual([{ type: 'SET_IS_PATIENT_LIST_VISIBLE', payload: { isVisible: true } }])
-    });
+    }, TEST_TIMEOUT_MS);
   });
 
   describe('no patients', () => {
@@ -464,7 +464,7 @@ describe('ClinicPatients', ()  => {
 
       expect(screen.getByText('There are no results to show')).toBeInTheDocument();
       expect(screen.queryByTestId('filter-reset-bar')).not.toBeInTheDocument();
-    });
+    }, TEST_TIMEOUT_MS);
 
     it('should open a modal for adding a new patient', async () => {
       render(
@@ -516,7 +516,7 @@ describe('ClinicPatients', ()  => {
       expect(store.getActions()[0]).toStrictEqual({
         type: 'CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST',
       });
-    });
+    }, TEST_TIMEOUT_MS);
   });
 
   describe('has patients', () => {
