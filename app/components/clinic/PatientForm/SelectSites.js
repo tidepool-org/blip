@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import partition from 'lodash/partition';
 import Select, { createFilter } from 'react-select';
@@ -80,6 +81,23 @@ const SelectSites = ({
       isClearable
     />
   );
+};
+
+SelectSites.propTypes = {
+  currentSites: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string,
+      name: PropTypes.string,
+    })
+  ).isRequired,
+  onChange: PropTypes.func.isRequired,
+  selectMenuHeight: PropTypes.number,
+  onMenuOpen: PropTypes.func,
+};
+
+SelectSites.defaultProps = {
+  selectMenuHeight: 240,
+  onMenuOpen: noop,
 };
 
 export default SelectSites;
