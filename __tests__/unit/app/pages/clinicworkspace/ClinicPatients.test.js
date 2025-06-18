@@ -438,6 +438,7 @@ describe('ClinicPatients', ()  => {
             // Click the Edit Tags icon for a patient. The Dialog for Edit Patient Details should open.
             expect(screen.queryByText('Edit Patient Details')).not.toBeInTheDocument();
             await userEvent.click(screen.getAllByTestId('edit-tags-icon')[0]); // Open patient2
+            await userEvent.click(screen.getAllByTestId('edit-tags-icon')[0]); // Open patient2
             expect(screen.getByText('Edit Patient Details')).toBeInTheDocument();
 
             // Add Tag 3 and remove Tag 1, then save

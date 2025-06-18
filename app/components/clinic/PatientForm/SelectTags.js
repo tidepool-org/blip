@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import keyBy from 'lodash/keyBy';
 import partition from 'lodash/partition';
@@ -108,6 +109,18 @@ const SelectTags = ({
       isClearable
     />
   );
+};
+
+SelectTags.propTypes = {
+  currentTagIds: PropTypes.arrayOf(PropTypes.string).isRequired,
+  onChange: PropTypes.func.isRequired,
+  selectMenuHeight: PropTypes.number,
+  onMenuOpen: PropTypes.func,
+};
+
+SelectTags.defaultProps = {
+  selectMenuHeight: 240,
+  onMenuOpen: noop,
 };
 
 export default SelectTags;
