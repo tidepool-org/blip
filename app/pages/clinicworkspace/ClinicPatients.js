@@ -2872,7 +2872,7 @@ export const ClinicPatients = (props) => {
               )}
             </Formik>
 
-            { clinicSitesFilterOptions.length > 0 &&
+            { patientTagsFilterOptions.length > 0 &&
               <>
                 <Box>
                   <Text sx={{ fontSize: 1, color: 'text.primary', fontWeight: 'medium' }}>
