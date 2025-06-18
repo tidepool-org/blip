@@ -17,7 +17,7 @@ export const buildSelectOptions = (
   activeFilters = { clinicSites: [] },
   shouldSuggestSites = false,
 ) => {
-  // Format tags for react-select (label and value properties), then sort
+  // Format sites for react-select (label and value properties), then sort
   const options = clinicSites.map(site => ({ label: site.name, value: site.id }))
                              .toSorted((a, b) => utils.compareLabels(a.label, b.label));
 
@@ -52,7 +52,7 @@ const SelectSites = ({
     onChange(formattedSites);
   };
 
-  // Suggest tags only if user is viewing ClinicPatients list (where Filters are used)
+  // Suggest sites only if user is viewing ClinicPatients list (where Filters are used)
   const shouldSuggestSites = pathname === '/clinic-workspace';
 
   const selectOptions = buildSelectOptions(t, clinic?.sites, activeFilters, shouldSuggestSites);
