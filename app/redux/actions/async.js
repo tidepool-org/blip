@@ -2727,6 +2727,37 @@ export function createClinicPatientTag(api, clinicId, patientTag) {
 }
 
 /**
+ * Update a site for a clinic
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {String} siteId - Id of the site
+ * @param {Object} site - the updated site
+ * @param {String} site.name - the site name
+ */
+export function updateClinicSite(api, clinicId, siteId, site) {
+  return (dispatch) => {
+    dispatch(sync.updateClinicSiteRequest());
+
+    api.clinics.updateClinicSite(clinicId, siteId, site, (err, sites) => {
+      if (err) {
+        let message = ErrorMessages.ERR_UPDATING_CLINIC_SITE;
+
+        if (err.status === 409) {
+          message = ErrorMessages.ERR_UPDATING_CLINIC_SITE_DUPLICATE;
+        }
+
+        dispatch(sync.updateClinicSiteFailure(
+          createActionError(message, err), err
+        ));
+      } else {
+        dispatch(sync.updateClinicSiteSuccess(clinicId, sites));
+      }
+    });
+  };
+}
+
+/**
  * Update a patient tag for a clinic
  *
  * @param {Object} api - an instance of the API wrapper
@@ -2744,7 +2775,7 @@ export function updateClinicPatientTag(api, clinicId, patientTagId, patientTag) 
         let message = ErrorMessages.ERR_UPDATING_CLINIC_PATIENT_TAG;
 
         if (err.status === 409) {
-          message = ErrorMessages.ERR_CREATING_CLINIC_PATIENT_TAG_DUPLICATE;
+          message = ErrorMessages.ERR_UPDATING_CLINIC_PATIENT_TAG_DUPLICATE;
         }
 
         dispatch(sync.updateClinicPatientTagFailure(
