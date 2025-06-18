@@ -271,7 +271,7 @@ export const ClinicAdmin = (props) => {
         isAdmin: includes(roles, 'CLINIC_ADMIN'),
         userId: clinicianId,
         inviteId,
-        status: inviteId ? t('invite sent') : '',
+        status: inviteId ? t('Invite sent') : '',
         email,
         roles,
         createdTime,

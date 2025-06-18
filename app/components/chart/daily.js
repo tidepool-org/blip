@@ -434,12 +434,10 @@ class Daily extends Component {
       { type: 'wizard', carbUnits: 'exchanges' }
     );
 
-    // const hasOneMinCgmSampleIntervalDevice = _.some(
-    //   _.get(this.props, 'data.metaData.devices'),
-    //   { oneMinCgmSampleInterval: true }
-    // );
-
-    const hasOneMinCgmSampleIntervalDevice = false;
+    const hasOneMinCgmSampleIntervalDevice = _.some(
+      _.get(this.props, 'data.metaData.devices'),
+      { oneMinCgmSampleInterval: true }
+    );
 
     if (hasCarbExchanges) carbUnits.push('exchanges');
 

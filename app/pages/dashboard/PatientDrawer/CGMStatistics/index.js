@@ -1,5 +1,5 @@
 import React from 'react';
-import colorPalette from '../../../../themes/colorPalette';
+import { colors as vizColors } from '@tidepool/viz';
 import { useTranslation } from 'react-i18next';
 import { Flex, Box, Text } from 'theme-ui';
 import { utils as vizUtils } from '@tidepool/viz';
@@ -16,14 +16,14 @@ const TableRow = ({ label, sublabel, value, units, id }) => {
         justifyContent: 'space-between',
         margin: '0 16px',
         padding: '16px 0',
-        borderBottom: `1px solid ${colorPalette.extended.grays[1]}`,
+        borderBottom: `1px solid ${vizColors.gray10}`,
         '&:last-of-type': { borderBottom: 'none' }
       }}
     >
       <Flex sx={{ flexDirection: 'column', maxWidth: '260px' }}>
-        <Text sx={{ color: colorPalette.extended.grays[10], fontSize: 0 }}>{label}</Text>
+        <Text sx={{ color: 'grays.10', fontSize: 0 }}>{label}</Text>
         {sublabel && (
-          <Text sx={{ color: colorPalette.extended.grays[10], fontSize: 0, fontStyle: 'italic' }}>
+          <Text sx={{ color: 'grays.10', fontSize: 0, fontStyle: 'italic' }}>
             {sublabel}
           </Text>
         )}
