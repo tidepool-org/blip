@@ -9,7 +9,7 @@ import { MemoryRouter, Route, Switch } from 'react-router-dom';
 import thunk from 'redux-thunk';
 import mockLocalStorage from '../../../../utils/mockLocalStorage';
 
-import SelectTags from '@app/components/clinic/PatientForm/SelectTags';
+import SelectTags, { buildSelectOptions } from '@app/components/clinic/PatientForm/SelectTags';
 
 describe('SelectTags', ()  => {
   const storeFixture = {
@@ -98,5 +98,64 @@ describe('SelectTags', ()  => {
       'id-for-delta', // Patient's current tags
       'id-for-bravo', // New tag that has been selected
     ]);
+  });
+
+  describe('buildSelectOptions', ()  => {
+    const tMock = jest.fn().mockImplementation(string => string);
+
+    const clinicTagsMock = [
+      { name: 'Hotel', id: 'id-for-hotel' },
+      { name: 'Golf', id: 'id-for-golf' },
+      { name: 'Foxtrot', id: 'id-for-foxtrot' },
+      { name: 'Echo', id: 'id-for-echo' },
+    ];
+
+    const activeFiltersMock = {
+      patientTags: ['id-for-golf', 'id-for-echo'], // should suggest based on these
+    };
+
+    describe('When tags are suggested', () => {
+      it('Should output arrays of suggested and non-suggested groups sorted alphabetically', () => {
+        const result = buildSelectOptions(tMock, clinicTagsMock, activeFiltersMock, true);
+
+        const expected = [
+          {
+            label: 'Suggested - based on current dashboard filters',
+            options: [
+              { label: 'Echo', value: 'id-for-echo' },
+              { label: 'Golf', value: 'id-for-golf' },
+            ],
+          },
+          { label: '',
+            options: [
+              { label: 'Foxtrot', value: 'id-for-foxtrot' },
+              { label: 'Hotel', value: 'id-for-hotel' },
+            ],
+          },
+        ];
+
+        expect(result).toStrictEqual(expected);
+      });
+    });
+
+    describe('When tags are not suggested', () => {
+      it('Should output a singly array sorted alphabetically', () => {
+        const result = buildSelectOptions(tMock, clinicTagsMock, activeFiltersMock, false);
+
+        const expected = [
+          {
+            label: '',
+            options: [
+              { label: 'Echo', value: 'id-for-echo' },
+              { label: 'Foxtrot', value: 'id-for-foxtrot' },
+              { label: 'Golf', value: 'id-for-golf' },
+              { label: 'Hotel', value: 'id-for-hotel' },
+            ],
+          },
+        ];
+
+        expect(result).toStrictEqual(expected);
+      });
+    });
   });
 });

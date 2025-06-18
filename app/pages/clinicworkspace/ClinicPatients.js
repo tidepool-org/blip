@@ -1739,12 +1739,6 @@ export const ClinicPatients = (props) => {
                       sx={{ fontSize: 0, lineHeight: 1.3 }}
                     >
                       <Flex sx={{ alignItems: 'center', gap: 1 }}>
-                        {showTideDashboard && !clinic?.sites?.length && <Icon
-                          variant="static"
-                          icon={InfoOutlinedIcon}
-                          sx={{ fontSize: '14px' }}
-                        />}
-
                         {t('Sites')}
 
                         {!!activeFilters.clinicSites?.length && (
@@ -2975,7 +2969,7 @@ export const ClinicPatients = (props) => {
               )}
             </Formik>
 
-            { clinicSitesFilterOptions.length > 0 &&
+            { patientTagsFilterOptions.length > 0 &&
               <>
                 <Box>
                   <Text sx={{ fontSize: 1, color: 'text.primary', fontWeight: 'medium' }}>
