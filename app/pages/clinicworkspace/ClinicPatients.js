@@ -39,7 +39,7 @@ import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined'
 import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
-import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
+import { components as vizComponents, utils as vizUtils, colors as vizColors } from '@tidepool/viz';
 import sundial from 'sundial';
 import ScrollToTop from 'react-scroll-to-top';
 import styled from '@emotion/styled';
@@ -153,7 +153,7 @@ const editPatientDataConnections = (patient, setSelectedPatient, selectedClinicI
 
 const ClearButton = styled.button`
   background: none;
-  color: ${colorPalette.extended.indigos[5]};
+  color: ${vizColors.indigo30};
   border: none;
   padding: 0;
   font: inherit;
@@ -211,7 +211,7 @@ const FilterResetBar = withTranslation()(({ t, rightSideContent }) => {
       px={2}
       py={2}
       sx={{
-        backgroundColor: colorPalette.primary.bluePrimary00,
+        backgroundColor: vizColors.blue00,
         borderBottom: '1px solid #D1D6E1',
         justifyContent: 'space-between',
       }}
@@ -1301,6 +1301,11 @@ export const ClinicPatients = (props) => {
 
       const sortColumnLabels = {
         fullName: 'Patient details',
+        lastData: 'Data recency',
+        glucoseManagementIndicator: 'GMI',
+        averageGlucoseMmol: 'Average glucose',
+        timeInVeryLowRecords: 'Time in very low',
+        timeInVeryHighRecords: 'Time in very high',
         'summary.lastData': 'Data recency',
         [`summary.periods.${activeSummaryPeriod}.timeCGMUsePercent`]: 'CGM use',
         [`summary.periods.${activeSummaryPeriod}.glucoseManagementIndicator`]: 'GMI',
@@ -3626,7 +3631,7 @@ export const ClinicPatients = (props) => {
 
   const EmptyContentNode = () => (
     <Flex sx={{
-      backgroundColor: colorPalette.primary.bluePrimary00,
+      backgroundColor: vizColors.blue00,
       justifyContent: 'center',
       alignItems: 'center',
       minHeight: '90px',
