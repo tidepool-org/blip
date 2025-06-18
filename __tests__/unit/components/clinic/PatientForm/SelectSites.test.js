@@ -9,7 +9,7 @@ import { MemoryRouter, Route, Switch } from 'react-router-dom';
 import thunk from 'redux-thunk';
 import mockLocalStorage from '../../../../utils/mockLocalStorage';
 
-import SelectSites from '@app/components/clinic/PatientForm/SelectSites';
+import SelectSites, { buildSelectOptions } from '@app/components/clinic/PatientForm/SelectSites';
 
 describe('SelectSites', ()  => {
   const storeFixture = {
@@ -66,39 +66,98 @@ describe('SelectSites', ()  => {
       </Provider>
     );
 
-    // Current tags of patient should be shown, Tag options in dropdown should be hidden
+    // Current sites of patient should be shown, Site options in dropdown should be hidden
     expect(screen.getByText('Site Hotel')).toBeInTheDocument();
 
     expect(screen.queryByText('Site Echo')).not.toBeInTheDocument();
     expect(screen.queryByText('Site Foxtrot')).not.toBeInTheDocument();
     expect(screen.queryByText('Site Golf')).not.toBeInTheDocument();
 
-    // Open the dropdown to see the suggested tags
+    // Open the dropdown to see the suggested sites
     const selectInput = screen.getByRole('combobox');
     await userEvent.click(selectInput);
 
-    // Tags options are now visible
+    // Sites options are now visible
     expect(screen.getByText('Site Echo')).toBeInTheDocument();
     expect(screen.getByText('Site Foxtrot')).toBeInTheDocument();
     expect(screen.getByText('Site Golf')).toBeInTheDocument();
     expect(screen.getByText('Site Hotel')).toBeInTheDocument();
 
-    // Suggested tags should be shown before non-suggesteds. Suggested tags are the ones in active filters.
+    // Suggested sites should be shown before non-suggesteds. Suggested sites are the ones in active filters.
     // Order should be Echo, Golf, Foxtrot
     const suggestedHeader = screen.getByText('Suggested - based on current dashboard filters');
-    const tagEcho = screen.getByText('Site Echo');
-    const tagFoxtrot = screen.getByText('Site Foxtrot');
-    const tagGolf = screen.getByText('Site Golf');
+    const siteEcho = screen.getByText('Site Echo');
+    const siteFoxtrot = screen.getByText('Site Foxtrot');
+    const siteGolf = screen.getByText('Site Golf');
 
-    expect(suggestedHeader.compareDocumentPosition(tagEcho)).toEqual(Node.DOCUMENT_POSITION_FOLLOWING);
-    expect(tagEcho.compareDocumentPosition(tagGolf)).toEqual(Node.DOCUMENT_POSITION_FOLLOWING);
-    expect(tagGolf.compareDocumentPosition(tagFoxtrot)).toEqual(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(suggestedHeader.compareDocumentPosition(siteEcho)).toEqual(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(siteEcho.compareDocumentPosition(siteGolf)).toEqual(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(siteGolf.compareDocumentPosition(siteFoxtrot)).toEqual(Node.DOCUMENT_POSITION_FOLLOWING);
 
-    // Clicking on a Tag fires the onChange handler with the clicked tag
+    // Clicking on a Site fires the onChange handler with the clicked site
     await userEvent.click(screen.getByText('Site Foxtrot'));
     expect(testProps.onChange).toHaveBeenCalledWith([
-      { id: 'id-for-hotel', name: 'Site Hotel' }, // Patient's current tags
-      { id: 'id-for-foxtrot', name: 'Site Foxtrot' },, // New tag that has been selected
+      { id: 'id-for-hotel', name: 'Site Hotel' }, // Patient's current sites
+      { id: 'id-for-foxtrot', name: 'Site Foxtrot' },, // New site that has been selected
     ]);
+  });
+
+  describe('buildSelectOptions', ()  => {
+    const tMock = jest.fn().mockImplementation(string => string);
+
+    const clinicSitesMock = [
+      { name: 'Hotel', id: 'id-for-hotel' },
+      { name: 'Golf', id: 'id-for-golf' },
+      { name: 'Foxtrot', id: 'id-for-foxtrot' },
+      { name: 'Echo', id: 'id-for-echo' },
+    ];
+
+    const activeFiltersMock = {
+      clinicSites: [{ name: 'Golf', id: 'id-for-golf' }, { name: 'Echo', id: 'id-for-echo' }], // should suggest based on these
+    };
+
+    describe('When sites are suggested', () => {
+      it('Should output arrays of suggested and non-suggested groups sorted alphabetically', () => {
+        const result = buildSelectOptions(tMock, clinicSitesMock, activeFiltersMock, true);
+
+        const expected = [
+          {
+            label: 'Suggested - based on current dashboard filters',
+            options: [
+              { label: 'Echo', value: 'id-for-echo' },
+              { label: 'Golf', value: 'id-for-golf' },
+            ],
+          },
+          { label: '',
+            options: [
+              { label: 'Foxtrot', value: 'id-for-foxtrot' },
+              { label: 'Hotel', value: 'id-for-hotel' },
+            ],
+          },
+        ];
+
+        expect(result).toStrictEqual(expected);
+      });
+    });
+
+    describe('When sites are not suggested', () => {
+      it('Should output a singly array sorted alphabetically', () => {
+        const result = buildSelectOptions(tMock, clinicSitesMock, activeFiltersMock, false);
+
+        const expected = [
+          {
+            label: '',
+            options: [
+              { label: 'Echo', value: 'id-for-echo' },
+              { label: 'Foxtrot', value: 'id-for-foxtrot' },
+              { label: 'Golf', value: 'id-for-golf' },
+              { label: 'Hotel', value: 'id-for-hotel' },
+            ],
+          },
+        ];
+
+        expect(result).toStrictEqual(expected);
+      });
+    });
   });
 });

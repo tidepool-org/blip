@@ -562,12 +562,13 @@ describe('ClinicPatients', ()  => {
               </MockedProviderWrappers>
             );
 
-            // Click the Edit Tags icon for a patient. The Dialog for Edit Patient Details should open.
+            // Click the Edit Sites icon for a patient. The Dialog for Edit Patient Details should open.
             expect(screen.queryByText('Edit Patient Details')).not.toBeInTheDocument();
-            await userEvent.click(screen.getAllByTestId('edit-tags-icon')[0]); // Open patient2
+            await userEvent.click(screen.getByTestId('action-menu-patient2-icon'));
+            await userEvent.click(screen.getByRole('button', { name: /Edit Patient Information/ }));
             expect(screen.getByText('Edit Patient Details')).toBeInTheDocument();
 
-            // Add Tag 3 and remove Tag 1, then save
+            // Add Site 3 and remove Site 1, then save
             await userEvent.click(screen.getAllByRole('combobox')[1]); // open combobox dropdown
             await userEvent.click(screen.getByText('Site Charlie', { selector: 'div' }));
             await userEvent.click(screen.getByLabelText(/Remove Site Alpha/));

@@ -343,7 +343,7 @@ const MoreMenu = ({
     t,
   ]);
 
-  return <PopoverMenu id={`action-menu-${patient.id}`} items={items} />;
+  return <PopoverMenu id={`action-menu-${patient.id}`} data-testid={`action-menu-${patient.id}-icon`} items={items} />;
 };
 
 const PatientTags = ({
