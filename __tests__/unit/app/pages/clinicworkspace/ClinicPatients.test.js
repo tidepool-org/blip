@@ -359,6 +359,10 @@ describe('ClinicPatients', ()  => {
               clinic: { tier: 'tier0300' },
             })),
           });
+
+          defaultProps.api.clinics.updateClinicPatient.mockClear();
+          defaultProps.api.clinics.createClinicPatientTag.mockClear();
+          defaultProps.api.clinics.createClinicSite.mockClear();
         });
 
         describe('managing sites', () => {
@@ -412,7 +416,7 @@ describe('ClinicPatients', ()  => {
             await userEvent.paste('Tag Delta');
             await userEvent.click(screen.getByRole('button', { name: /Add/ }));
 
-            await waitFor(() => expect(defaultProps.api.clinics.createClinicSite).toHaveBeenCalled());
+            await waitFor(() => expect(defaultProps.api.clinics.createClinicPatientTag).toHaveBeenCalled());
 
             expect(defaultProps.api.clinics.createClinicPatientTag).toHaveBeenCalledWith(
               'clinicID123', // clinicId,
@@ -437,7 +441,6 @@ describe('ClinicPatients', ()  => {
 
             // Click the Edit Tags icon for a patient. The Dialog for Edit Patient Details should open.
             expect(screen.queryByText('Edit Patient Details')).not.toBeInTheDocument();
-            await userEvent.click(screen.getAllByTestId('edit-tags-icon')[0]); // Open patient2
             await userEvent.click(screen.getAllByTestId('edit-tags-icon')[0]); // Open patient2
             expect(screen.getByText('Edit Patient Details')).toBeInTheDocument();
 
