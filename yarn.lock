@@ -8463,7 +8463,7 @@ __metadata:
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
     tideline: 1.33.0-web-3687-new-dosing-decision-extended-duration-props.1
-    tidepool-platform-client: 0.64.0-web-3571-delete-sites.2
+    tidepool-platform-client: 0.64.0-web-3571-delete-sites.3
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
     url-loader: 4.1.1
@@ -22245,15 +22245,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tidepool-platform-client@npm:0.64.0-web-3571-delete-sites.2":
-  version: 0.64.0-web-3571-delete-sites.2
-  resolution: "tidepool-platform-client@npm:0.64.0-web-3571-delete-sites.2"
+"tidepool-platform-client@npm:0.64.0-web-3571-delete-sites.3":
+  version: 0.64.0-web-3571-delete-sites.3
+  resolution: "tidepool-platform-client@npm:0.64.0-web-3571-delete-sites.3"
   dependencies:
     async: 0.9.0
     lodash: 4.17.21
     superagent: 5.2.2
     uuid: 3.1.0
-  checksum: 899953bc14bce89103ce5695629dd662972e8d0d58c29f102ffc059022f7b1d506128e298883e3dd1e10c06da494e9ba5b9d3affa1f1ad6a9697a9cc0e817b1d
+  checksum: 3d10c0f97036ec6616c0081e2d8af839df685412dc86446f8ea1c77e4bde71a30cbf460525b45e4582fb6c5ef2269787144e61884dacff1c3d10fe240381f04b
   languageName: node
   linkType: hard
 
