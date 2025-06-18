@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box } from 'theme-ui';
 import { withTranslation } from 'react-i18next';
-import colorPalette from '../../themes/colorPalette';
+import { colors as vizColors } from '@tidepool/viz';
 
 import ChevronLeftRoundedIcon from '@material-ui/icons/ChevronLeftRounded';
 
@@ -9,12 +9,10 @@ import Button from '../elements/Button';
 
 const Back = ({ t, onClick }) => {
   return (
-    <Box 
-      pr={3} 
+    <Box
+      pr={3}
       mx={[0, '-16px', 0, '-8px']}
-      sx={{ 
-        borderRight: `1px solid ${colorPalette.primary.gray10}`
-      }}
+      sx={{ borderRight: `1px solid ${vizColors.gray10}` }}
     >
       <Button
         id="navPatientHeader_backButton"
