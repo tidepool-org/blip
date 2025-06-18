@@ -2731,9 +2731,9 @@ export function createClinicPatientTag(api, clinicId, patientTag) {
  *
  * @param {Object} api - an instance of the API wrapper
  * @param {String} clinicId - Id of the clinic
- * @param {String} siteId - Id of the tag
- * @param {Object} site - the updated tag
- * @param {String} site.name - the tag name
+ * @param {String} siteId - Id of the site
+ * @param {Object} site - the updated site
+ * @param {String} site.name - the site name
  */
 export function updateClinicSite(api, clinicId, siteId, site) {
   return (dispatch) => {

@@ -2406,9 +2406,9 @@ export const ClinicPatients = (props) => {
 
         <Formik
           initialValues={{ name }}
-          onSubmit={(tag, context) => {
+          onSubmit={(site, context) => {
             setClinicSiteFormContext(context);
-            handleUpdateClinicSiteConfirm(tag);
+            handleUpdateClinicSiteConfirm(site);
           }}
           validationSchema={clinicSiteSchema}
         >
@@ -2424,7 +2424,7 @@ export const ClinicPatients = (props) => {
                       fontSize: '12px',
                     }}
                     maxLength={200}
-                    placeholder={t('Add a new tag...')}
+                    placeholder={t('Add a new site...')}
                     captionProps={{ mt: 0, fontSize: '10px', color: colors.grays[4] }}
                     variant="condensed"
                     {...getCommonFormikFieldProps('name', clinicSiteFormikContext)}

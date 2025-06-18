@@ -414,13 +414,13 @@ describe('ClinicPatients', ()  => {
             expect(screen.getByText('Update "Site Bravo"')).toBeInTheDocument();
 
             // Change the name of the tag, then click "Update" button
-            const editTagNameInputField = screen.getByRole('textbox');
-            expect(editTagNameInputField).toHaveValue('Site Bravo');
+            const editSiteNameInputField = screen.getByRole('textbox');
+            expect(editSiteNameInputField).toHaveValue('Site Bravo');
 
-            await userEvent.clear(editTagNameInputField);
-            await userEvent.click(editTagNameInputField);
+            await userEvent.clear(editSiteNameInputField);
+            await userEvent.click(editSiteNameInputField);
             await userEvent.paste('Site Zulu');
-            expect(editTagNameInputField).toHaveValue('Site Zulu');
+            expect(editSiteNameInputField).toHaveValue('Site Zulu');
 
             await userEvent.click(screen.getByRole('button', { name: /Update/ }));
 
@@ -428,7 +428,7 @@ describe('ClinicPatients', ()  => {
 
             expect(defaultProps.api.clinics.updateClinicSite).toHaveBeenCalledWith(
               'clinicID123', // clinicId,
-              'site-2-id', // tag id
+              'site-2-id', // site id
               { name: 'Site Zulu' }, // updated site
               expect.any(Function), // callback fn passed to api
             );
