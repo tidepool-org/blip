@@ -1757,12 +1757,6 @@ export const ClinicPatients = (props) => {
                       sx={{ fontSize: 0, lineHeight: 1.3 }}
                     >
                       <Flex sx={{ alignItems: 'center', gap: 1 }}>
-                        {showTideDashboard && !clinic?.sites?.length && <Icon
-                          variant="static"
-                          icon={InfoOutlinedIcon}
-                          sx={{ fontSize: '14px' }}
-                        />}
-
                         {t('Sites')}
 
                         {!!activeFilters.clinicSites?.length && (
@@ -2430,9 +2424,9 @@ export const ClinicPatients = (props) => {
 
         <Formik
           initialValues={{ name }}
-          onSubmit={(tag, context) => {
+          onSubmit={(site, context) => {
             setClinicSiteFormContext(context);
-            handleUpdateClinicSiteConfirm(tag);
+            handleUpdateClinicSiteConfirm(site);
           }}
           validationSchema={clinicSiteSchema}
         >
@@ -2448,7 +2442,7 @@ export const ClinicPatients = (props) => {
                       fontSize: '12px',
                     }}
                     maxLength={200}
-                    placeholder={t('Add a new tag...')}
+                    placeholder={t('Add a new site...')}
                     captionProps={{ mt: 0, fontSize: '10px', color: colors.grays[4] }}
                     variant="condensed"
                     {...getCommonFormikFieldProps('name', clinicSiteFormikContext)}
@@ -3035,7 +3029,7 @@ export const ClinicPatients = (props) => {
               )}
             </Formik>
 
-            { clinicSitesFilterOptions.length > 0 &&
+            { patientTagsFilterOptions.length > 0 &&
               <>
                 <Box>
                   <Text sx={{ fontSize: 1, color: 'text.primary', fontWeight: 'medium' }}>
