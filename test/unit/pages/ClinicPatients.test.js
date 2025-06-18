@@ -1599,62 +1599,86 @@ describe('ClinicPatients', () => {
           const patientHeader = table.find('#peopleTable-header-fullName .MuiTableSortLabel-root').at(0);
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          defaultProps.trackMetric.resetHistory();
           patientHeader.simulate('click');
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+fullName' }));
+          sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Patient details sort ascending', { clinicId: 'clinicID123' });
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          defaultProps.trackMetric.resetHistory();
           patientHeader.simulate('click');
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-fullName' }));
+          sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Patient details sort descending', { clinicId: 'clinicID123' });
 
           const lastDataDateHeader = table.find('#peopleTable-header-cgm-lastData .MuiTableSortLabel-root').at(0);
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          defaultProps.trackMetric.resetHistory();
           lastDataDateHeader.simulate('click');
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-lastData', sortType: 'cgm' }));
+          sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Data recency sort descending', { clinicId: 'clinicID123' });
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          defaultProps.trackMetric.resetHistory();
           lastDataDateHeader.simulate('click');
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+lastData', sortType: 'cgm' }));
+          sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Data recency sort ascending', { clinicId: 'clinicID123' });
 
           const gmiHeader = table.find('#peopleTable-header-cgm-glucoseManagementIndicator .MuiTableSortLabel-root').at(0);
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          defaultProps.trackMetric.resetHistory();
           gmiHeader.simulate('click');
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-glucoseManagementIndicator', sortType: 'cgm' }));
+          sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - GMI sort descending', { clinicId: 'clinicID123' });
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          defaultProps.trackMetric.resetHistory();
           gmiHeader.simulate('click');
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+glucoseManagementIndicator', sortType: 'cgm' }));
+          sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - GMI sort ascending', { clinicId: 'clinicID123' });
 
           const averageGlucoseHeader = table.find('#peopleTable-header-bgm-averageGlucoseMmol .MuiTableSortLabel-root').at(0);
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          defaultProps.trackMetric.resetHistory();
           averageGlucoseHeader.simulate('click');
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-averageGlucoseMmol', sortType: 'bgm' }));
+          sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Average glucose sort descending', { clinicId: 'clinicID123' });
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          defaultProps.trackMetric.resetHistory();
           averageGlucoseHeader.simulate('click');
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+averageGlucoseMmol', sortType: 'bgm' }));
+          sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Average glucose sort ascending', { clinicId: 'clinicID123' });
 
           const lowsHeader = table.find('#peopleTable-header-bgm-timeInVeryLowRecords .MuiTableSortLabel-root').at(0);
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          defaultProps.trackMetric.resetHistory();
           lowsHeader.simulate('click');
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-timeInVeryLowRecords', sortType: 'bgm' }));
+          sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Time in very low sort descending', { clinicId: 'clinicID123' });
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          defaultProps.trackMetric.resetHistory();
           lowsHeader.simulate('click');
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+timeInVeryLowRecords', sortType: 'bgm' }));
+          sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Time in very low sort ascending', { clinicId: 'clinicID123' });
 
           const highsHeader = table.find('#peopleTable-header-bgm-timeInVeryHighRecords .MuiTableSortLabel-root').at(0);
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          defaultProps.trackMetric.resetHistory();
           highsHeader.simulate('click');
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-timeInVeryHighRecords', sortType: 'bgm' }));
+          sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Time in very high sort descending', { clinicId: 'clinicID123' });
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          defaultProps.trackMetric.resetHistory();
           highsHeader.simulate('click');
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+timeInVeryHighRecords', sortType: 'bgm' }));
+          sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Time in very high sort ascending', { clinicId: 'clinicID123' });
         });
 
         it('should allow refreshing the patient list and maintain', () => {
