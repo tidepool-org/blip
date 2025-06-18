@@ -56,7 +56,7 @@ export default ({ borders, colors, radii, space, breakpoints, fonts, fontSizes, 
 
   const infoWell = {
     ...well,
-    bg: colors.bluePrimary00,
+    bg: colors.blue00,
     alignItems: 'center',
     justifyContent: 'space-between',
     flexDirection: 'row',
@@ -64,7 +64,7 @@ export default ({ borders, colors, radii, space, breakpoints, fonts, fontSizes, 
     py: 4,
 
     '.icon': {
-      color: colors.bluePrimary30,
+      color: colors.blue30,
       fontSize: fontSizes[4],
     },
 

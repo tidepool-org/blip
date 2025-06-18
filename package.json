@@ -4,7 +4,7 @@
     "node": "20.8.0"
   },
   "packageManager": "yarn@3.6.4",
-  "version": "1.85.2",
+  "version": "1.87.0-web-3720-re-enable-one-min-cgm.1",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test yarn jest --verbose --runInBand; JEST_EXIT_CODE=$?; TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' yarn karma start; KARMA_EXIT_CODE=$?; [ $JEST_EXIT_CODE -eq 0 ] && [ $KARMA_EXIT_CODE -eq 0 ]",
@@ -75,7 +75,7 @@
     "@testing-library/react": "12.1.5",
     "@testing-library/react-hooks": "8.0.1",
     "@testing-library/user-event": "14.6.1",
-    "@tidepool/viz": "1.46.0",
+    "@tidepool/viz": "1.48.0-web-3720-re-enable-one-min-cgm.1",
     "async": "2.6.4",
     "autoprefixer": "10.4.16",
     "babel-core": "7.0.0-bridge.0",
@@ -195,7 +195,7 @@
     "terser": "5.22.0",
     "terser-webpack-plugin": "5.3.9",
     "theme-ui": "0.16.1",
-    "tideline": "1.32.0",
+    "tideline": "1.33.0-web-3687-new-dosing-decision-extended-duration-props.1",
     "tidepool-platform-client": "0.64.0-web-3571-delete-sites.2",
     "tidepool-standard-action": "0.1.1",
     "ua-parser-js": "1.0.36",

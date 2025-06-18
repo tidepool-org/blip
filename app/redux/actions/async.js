@@ -2667,9 +2667,8 @@ export function sendPatientDataProviderConnectRequest(api, clinicId, patientId, 
  *
  * @param {Object} api - an instance of the API wrapper
  * @param {String} clinicId - Id of the clinic
- * @param {Object} clinicSites - all existing clinic sites
- * @param {Object} siteToCreate - the site to create
- * @param {String} siteToCreate.name - the site name
+ * @param {Object} site - the site to create
+ * @param {String} site.name - the site name
  */
 export function createClinicSite(api, clinicId, site) {
   return (dispatch) => {
@@ -2732,9 +2731,9 @@ export function createClinicPatientTag(api, clinicId, patientTag) {
  *
  * @param {Object} api - an instance of the API wrapper
  * @param {String} clinicId - Id of the clinic
- * @param {String} siteId - Id of the tag
- * @param {Object} site - the updated tag
- * @param {String} site.name - the tag name
+ * @param {String} siteId - Id of the site
+ * @param {Object} site - the updated site
+ * @param {String} site.name - the site name
  */
 export function updateClinicSite(api, clinicId, siteId, site) {
   return (dispatch) => {

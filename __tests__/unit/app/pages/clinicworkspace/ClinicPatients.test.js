@@ -725,6 +725,10 @@ describe('ClinicPatients', ()  => {
               clinic: { tier: 'tier0300' },
             })),
           });
+
+          defaultProps.api.clinics.updateClinicPatient.mockClear();
+          defaultProps.api.clinics.createClinicPatientTag.mockClear();
+          defaultProps.api.clinics.createClinicSite.mockClear();
         });
 
         describe('managing sites', () => {
@@ -774,14 +778,14 @@ describe('ClinicPatients', ()  => {
             await userEvent.click(screen.getByTestId('edit-site-button-site-2-id'));
             expect(screen.getByText('Update "Site Bravo"')).toBeInTheDocument();
 
-            // Change the name of the tag, then click "Update" button
-            const editTagNameInputField = screen.getByRole('textbox');
-            expect(editTagNameInputField).toHaveValue('Site Bravo');
+            // Change the name of the site, then click "Update" button
+            const editSiteNameInputField = screen.getByRole('textbox');
+            expect(editSiteNameInputField).toHaveValue('Site Bravo');
 
-            await userEvent.clear(editTagNameInputField);
-            await userEvent.click(editTagNameInputField);
+            await userEvent.clear(editSiteNameInputField);
+            await userEvent.click(editSiteNameInputField);
             await userEvent.paste('Site Zulu');
-            expect(editTagNameInputField).toHaveValue('Site Zulu');
+            expect(editSiteNameInputField).toHaveValue('Site Zulu');
 
             await userEvent.click(screen.getByRole('button', { name: /Update/ }));
 
@@ -851,7 +855,7 @@ describe('ClinicPatients', ()  => {
             await userEvent.paste('Tag Delta');
             await userEvent.click(screen.getByRole('button', { name: /Add/ }));
 
-            await waitFor(() => expect(defaultProps.api.clinics.createClinicSite).toHaveBeenCalled());
+            await waitFor(() => expect(defaultProps.api.clinics.createClinicPatientTag).toHaveBeenCalled());
 
             expect(defaultProps.api.clinics.createClinicPatientTag).toHaveBeenCalledWith(
               'clinicID123', // clinicId,

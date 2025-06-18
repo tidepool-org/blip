@@ -39,7 +39,7 @@ import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined'
 import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
-import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
+import { components as vizComponents, utils as vizUtils, colors as vizColors } from '@tidepool/viz';
 import sundial from 'sundial';
 import ScrollToTop from 'react-scroll-to-top';
 import styled from '@emotion/styled';
@@ -154,7 +154,7 @@ const editPatientDataConnections = (patient, setSelectedPatient, selectedClinicI
 
 const ClearButton = styled.button`
   background: none;
-  color: ${colorPalette.extended.indigos[5]};
+  color: ${vizColors.indigo30};
   border: none;
   padding: 0;
   font: inherit;
@@ -213,7 +213,7 @@ const FilterResetBar = withTranslation()(({ t, rightSideContent }) => {
       px={2}
       py={2}
       sx={{
-        backgroundColor: colorPalette.primary.bluePrimary00,
+        backgroundColor: vizColors.blue00,
         borderBottom: '1px solid #D1D6E1',
         justifyContent: 'space-between',
       }}
@@ -1351,6 +1351,11 @@ export const ClinicPatients = (props) => {
 
       const sortColumnLabels = {
         fullName: 'Patient details',
+        lastData: 'Data recency',
+        glucoseManagementIndicator: 'GMI',
+        averageGlucoseMmol: 'Average glucose',
+        timeInVeryLowRecords: 'Time in very low',
+        timeInVeryHighRecords: 'Time in very high',
         'summary.lastData': 'Data recency',
         [`summary.periods.${activeSummaryPeriod}.timeCGMUsePercent`]: 'CGM use',
         [`summary.periods.${activeSummaryPeriod}.glucoseManagementIndicator`]: 'GMI',
@@ -1753,12 +1758,6 @@ export const ClinicPatients = (props) => {
                       sx={{ fontSize: 0, lineHeight: 1.3 }}
                     >
                       <Flex sx={{ alignItems: 'center', gap: 1 }}>
-                        {showTideDashboard && !clinic?.sites?.length && <Icon
-                          variant="static"
-                          icon={InfoOutlinedIcon}
-                          sx={{ fontSize: '14px' }}
-                        />}
-
                         {t('Sites')}
 
                         {!!activeFilters.clinicSites?.length && (
@@ -2426,9 +2425,9 @@ export const ClinicPatients = (props) => {
 
         <Formik
           initialValues={{ name }}
-          onSubmit={(tag, context) => {
+          onSubmit={(site, context) => {
             setClinicSiteFormContext(context);
-            handleUpdateClinicSiteConfirm(tag);
+            handleUpdateClinicSiteConfirm(site);
           }}
           validationSchema={clinicSiteSchema}
         >
@@ -2444,7 +2443,7 @@ export const ClinicPatients = (props) => {
                       fontSize: '12px',
                     }}
                     maxLength={200}
-                    placeholder={t('Add a new tag...')}
+                    placeholder={t('Add a new site...')}
                     captionProps={{ mt: 0, fontSize: '10px', color: colors.grays[4] }}
                     variant="condensed"
                     {...getCommonFormikFieldProps('name', clinicSiteFormikContext)}
@@ -3031,7 +3030,7 @@ export const ClinicPatients = (props) => {
               )}
             </Formik>
 
-            { clinicSitesFilterOptions.length > 0 &&
+            { patientTagsFilterOptions.length > 0 &&
               <>
                 <Box>
                   <Text sx={{ fontSize: 1, color: 'text.primary', fontWeight: 'medium' }}>
@@ -3786,7 +3785,7 @@ export const ClinicPatients = (props) => {
 
   const EmptyContentNode = () => (
     <Flex sx={{
-      backgroundColor: colorPalette.primary.bluePrimary00,
+      backgroundColor: vizColors.blue00,
       justifyContent: 'center',
       alignItems: 'center',
       minHeight: '90px',
