@@ -30,16 +30,6 @@ import { MediumTitle } from '../../../components/elements/FontStyles';
 import SelectTags from './SelectTags';
 import SelectSites from './SelectSites';
 
-export const DEXCOM_CONNECTION_STATES = [
-  'pending',
-  'pendingReconnect',
-  'pendingExpired',
-  'connected',
-  'disconnected',
-  'error',
-  'unknown',
-];
-
 export function getFormValues(source, clinicPatientTags, clinicSites) {
   return {
     birthDate: source?.birthDate || '',
@@ -86,8 +76,6 @@ export const PatientForm = (props) => {
   const showSites = clinic?.entitlements?.clinicSites && !!clinic?.sites?.length;
   const clinicPatientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
   const clinicSites = useMemo(() => keyBy(clinic?.sites, 'id'), [clinic?.sites]);
-  const dexcomDataSource = find(patient?.dataSources, { providerName: 'dexcom' });
-  const dexcomAuthInviteExpired = dexcomDataSource?.expirationTime < moment.utc().toISOString();
   const showEmail = action !== 'acceptInvite';
   const { fetchingPatientsForClinic } = useSelector((state) => state.blip.working);
   const [patientFetchOptions, setPatientFetchOptions] = useState({});
@@ -97,12 +85,6 @@ export const PatientForm = (props) => {
   const initialFocusedInputRef = useInitialFocusedInput();
   const tagSectionRef = useRef(null);
   const siteSectionRef = useRef(null);
-
-  let dexcomConnectState = includes(DEXCOM_CONNECTION_STATES, dexcomDataSource?.state)
-    ? dexcomDataSource.state
-    : 'unknown';
-
-  if (includes(['pending', 'pendingReconnect'], dexcomConnectState) && dexcomAuthInviteExpired) dexcomConnectState = 'pendingExpired';
 
   const formikContext = useFormik({
     initialValues: getFormValues(patient, clinicPatientTags, clinicSites),

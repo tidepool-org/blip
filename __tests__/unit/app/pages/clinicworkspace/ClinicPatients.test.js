@@ -368,6 +368,10 @@ describe('ClinicPatients', ()  => {
               clinic: { tier: 'tier0300' },
             })),
           });
+
+          defaultProps.api.clinics.updateClinicPatient.mockClear();
+          defaultProps.api.clinics.createClinicPatientTag.mockClear();
+          defaultProps.api.clinics.createClinicSite.mockClear();
         });
 
         describe('filtering for patients', () => {
@@ -633,7 +637,7 @@ describe('ClinicPatients', ()  => {
             await userEvent.paste('Tag Delta');
             await userEvent.click(screen.getByRole('button', { name: /Add/ }));
 
-            await waitFor(() => expect(defaultProps.api.clinics.createClinicSite).toHaveBeenCalled());
+            await waitFor(() => expect(defaultProps.api.clinics.createClinicPatientTag).toHaveBeenCalled());
 
             expect(defaultProps.api.clinics.createClinicPatientTag).toHaveBeenCalledWith(
               'clinicID123', // clinicId,
