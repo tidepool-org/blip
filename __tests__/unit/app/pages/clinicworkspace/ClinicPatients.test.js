@@ -413,7 +413,7 @@ describe('ClinicPatients', ()  => {
             await userEvent.click(screen.getByTestId('edit-site-button-site-2-id'));
             expect(screen.getByText('Update "Site Bravo"')).toBeInTheDocument();
 
-            // Change the name of the tag, then click "Update" button
+            // Change the name of the site, then click "Update" button
             const editSiteNameInputField = screen.getByRole('textbox');
             expect(editSiteNameInputField).toHaveValue('Site Bravo');
 
