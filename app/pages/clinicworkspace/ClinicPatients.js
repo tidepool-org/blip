@@ -1797,7 +1797,7 @@ export const ClinicPatients = (props) => {
                                 <Checkbox
                                   id={`clinic-site-filter-option-checkbox-${id}`}
                                   label={
-                                    <Text sx={{ fontSize: 0, fontWeight: 'normal', display: 'inline-block', maxWidth: '172px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                                    <Text sx={{ fontSize: 0, fontWeight: 'normal', display: 'inline-block', maxWidth: '160px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                                       {label}
                                     </Text>
                                   }
