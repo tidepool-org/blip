@@ -463,6 +463,59 @@ describe('ClinicPatients', ()  => {
       );
 
       expect(screen.getByText('There are no results to show')).toBeInTheDocument();
+      expect(screen.queryByTestId('filter-reset-bar')).not.toBeInTheDocument();
+    });
+
+    it('should open a modal for adding a new patient', async () => {
+      render(
+        <MockedProviderWrappers>
+          <ClinicPatients {...defaultProps} />
+        </MockedProviderWrappers>
+      );
+
+      // Open the modal. The modal title should exist.
+      expect(screen.queryByText('Add New Patient Account')).not.toBeInTheDocument();
+      await userEvent.click(screen.getByRole('button', { name: /Add New Patient/}));
+      expect(screen.getByText('Add New Patient Account')).toBeInTheDocument();
+
+      expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Add patient', { 'clinicId': 'clinicID123' });
+      expect(defaultProps.trackMetric).toHaveBeenCalledTimes(1);
+
+      // Fill in the Pwd's demographic info
+      await userEvent.click(screen.getByRole('textbox', { name: 'Full Name' }));
+      await userEvent.paste('Vasily Lomachenko');
+
+      await userEvent.click(screen.getByRole('textbox', { name: 'Birthdate' }));
+      await userEvent.paste('11/21/1999');
+
+      await userEvent.click(screen.getByRole('textbox', { name: 'MRN (optional)' }));
+      await userEvent.paste('123456');
+
+      await userEvent.click(screen.getByRole('textbox', { name: 'Email (optional)' }));
+      await userEvent.paste('patient@test.ca');
+
+      store.clearActions();
+
+      // Submit the form. Pwd should be created.
+      await userEvent.click(screen.getByRole('button', { name: /Add Patient/ }));
+
+      await waitFor(() => expect(defaultProps.api.clinics.createClinicCustodialAccount).toHaveBeenCalled());
+
+      expect(defaultProps.api.clinics.createClinicCustodialAccount).toHaveBeenCalledWith(
+        'clinicID123', // clinicId,
+          {
+            fullName: 'Vasily Lomachenko',
+            birthDate: '1999-11-21',
+            mrn: '123456',
+            email: 'patient@test.ca',
+            tags: [],
+          },
+        expect.any(Function), // callback fn passed to api
+      );
+
+      expect(store.getActions()[0]).toStrictEqual({
+        type: 'CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST',
+      });
     });
   });
 

@@ -209,6 +209,7 @@ const FilterResetBar = withTranslation()(({ t, rightSideContent }) => {
   return (
     <Flex
       className='filter-reset-bar'
+      data-testid='filter-reset-bar'
       px={2}
       py={2}
       sx={{
