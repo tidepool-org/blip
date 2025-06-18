@@ -113,7 +113,7 @@ describe('SelectSites', ()  => {
     ];
 
     const activeFiltersMock = {
-      clinicSites: [{ name: 'Golf', id: 'id-for-golf' }, { name: 'Echo', id: 'id-for-echo' }], // should suggest based on these
+      clinicSites: ['id-for-golf', 'id-for-echo'], // should suggest based on these
     };
 
     describe('When sites are suggested', () => {

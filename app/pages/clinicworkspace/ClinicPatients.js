@@ -1787,7 +1787,7 @@ export const ClinicPatients = (props) => {
                                   id={`clinic-site-filter-option-checkbox-${id}`}
                                   data-testid={`clinic-site-filter-option-checkbox-${id}`}
                                   label={
-                                    <Text sx={{ fontSize: 0, fontWeight: 'normal', display: 'inline-block', maxWidth: '172px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                                    <Text sx={{ fontSize: 0, fontWeight: 'normal', display: 'inline-block', maxWidth: '168px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                                       {label}
                                     </Text>
                                   }
@@ -1813,7 +1813,7 @@ export const ClinicPatients = (props) => {
                             <Checkbox
                               id="clinic-site-filter-option-checkbox-PWDS_WITH_ZERO_SITES"
                               data-testid="clinic-site-filter-option-checkbox-PWDS_WITH_ZERO_SITES"
-                              label={<Text sx={{ fontSize: 0, fontWeight: 'normal', display: 'inline-block', maxWidth: '172px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                              label={<Text sx={{ fontSize: 0, fontWeight: 'normal' }}>
                                 {t('Patients without any sites')}
                               </Text>}
                               checked={isFilteringForZeroSites}
@@ -1997,7 +1997,7 @@ export const ClinicPatients = (props) => {
                             <Checkbox
                               id="tag-filter-option-checkbox-PWDS_WITH_ZERO_TAGS"
                               data-testid="tag-filter-option-checkbox-PWDS_WITH_ZERO_TAGS"
-                              label={<Text sx={{ fontSize: 0, fontWeight: 'normal', display: 'inline-block', maxWidth: '172px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                              label={<Text sx={{ fontSize: 0, fontWeight: 'normal' }}>
                                 {t('Patients without any tags')}
                               </Text>}
                               checked={isFilteringForZeroTags}
