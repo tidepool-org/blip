@@ -443,7 +443,13 @@ export const patientSchema = config => {
     tags: yup.array().of(
       yup.string()
     ),
-  })
+    sites: yup.array().of(
+      yup.object().shape({
+        id: yup.string(),
+        name: yup.string(),
+      })
+    ),
+  });
 };
 
 export const tideDashboardConfigSchema = yup.object().shape({

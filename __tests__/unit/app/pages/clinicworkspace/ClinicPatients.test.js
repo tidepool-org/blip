@@ -157,6 +157,7 @@ describe('ClinicPatients', ()  => {
           sites: [
             { id: 'site-1-id', name: 'Site Alpha' },
             { id: 'site-2-id', name: 'Site Bravo' },
+            { id: 'site-3-id', name: 'Site Charlie' },
           ],
           patients: {
             patient1: {
@@ -168,6 +169,7 @@ describe('ClinicPatients', ()  => {
               summary: {},
               permissions: { custodian : {} },
               tags: [],
+              sites: [],
               reviews: [
                 { clinicianId: 'clinicianUserId123', time: today },
                 { clinicianId: 'clinicianUserId123', time: yesterday },
@@ -204,6 +206,7 @@ describe('ClinicPatients', ()  => {
               },
               permissions: { custodian : undefined },
               tags: ['tag1'],
+              sites: [{ id: 'site-1-id', name: 'Site Alpha'}],
               reviews: [{ clinicianId: 'clinicianUserId123', time: yesterday }],
             },
             patient3: {
@@ -253,6 +256,7 @@ describe('ClinicPatients', ()  => {
                 },
               },
               tags: ['tag1', 'tag2', 'tag3'],
+              sites: [],
               reviews: [{ clinicianId: 'clinicianUserId123', time: moment(today).subtract(30, 'd').toISOString() }],
             },
             patient4: {
@@ -284,6 +288,8 @@ describe('ClinicPatients', ()  => {
                   } },
                 },
               },
+              tags: [],
+              sites: [],
               reviews: [{ clinicianId: 'clinicianUserId123', time: moment('2024-03-05T12:00:00.000Z').toISOString() }],
             },
             patient5: {
@@ -292,6 +298,8 @@ describe('ClinicPatients', ()  => {
               fullName: 'Patient Five',
               birthDate: '1999-05-05',
               mrn: 'mrn101',
+              tags: [],
+              sites: [],
               summary: {
                 cgmStats: {
                   dates: {
@@ -882,6 +890,153 @@ describe('ClinicPatients', ()  => {
           });
         });
 
+        describe('filtering for patients', () => {
+          afterEach(() => {
+            // Clear any persisted filter state between tests
+            localStorage.clear();
+          });
+
+          it('should allow filtering by sites', async () => {
+            render(
+              <MockedProviderWrappers>
+                <ClinicPatients {...defaultProps} />
+              </MockedProviderWrappers>
+            );
+
+            // Open the Sites filter  dropdown and filter for 2 sites
+            await userEvent.click(screen.getByRole('button', { name: /Sites/ }));
+
+            const site1checkbox = screen.getByTestId('clinic-site-filter-option-checkbox-site-1-id');
+            const site2checkbox = screen.getByTestId('clinic-site-filter-option-checkbox-site-2-id');
+
+            expect(site1checkbox).not.toBeChecked();
+            expect(site2checkbox).not.toBeChecked();
+
+            await userEvent.click(site1checkbox);
+            await userEvent.click(site2checkbox);
+
+            expect(site1checkbox).toBeChecked();
+            expect(site2checkbox).toBeChecked();
+
+            // Click Apply
+            await userEvent.click(screen.getByRole('button', { name: /Apply/ }));
+
+            expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+              'clinicID123',
+              { sites: ['site-1-id', 'site-2-id'], limit: 50, offset: 0, period: '14d', sortType: 'cgm', sort: '-lastData' },
+              expect.any(Function),
+            );
+
+            expect(defaultProps.trackMetric).toHaveBeenCalledWith(
+              'Clinic - Population Health - Clinic sites filter apply',
+              { clinicId: 'clinicID123' },
+            );
+          }, TEST_TIMEOUT_MS);
+
+          it('should allow filtering by for patients with zero sites', async () => {
+            render(
+              <MockedProviderWrappers>
+                <ClinicPatients {...defaultProps} />
+              </MockedProviderWrappers>
+            );
+
+            // Open the Sites filter dropdown and filter for 2 sites
+            await userEvent.click(screen.getByRole('button', { name: /Sites/ }));
+
+            const site1checkbox = screen.getByTestId('clinic-site-filter-option-checkbox-site-1-id');
+            const site2checkbox = screen.getByTestId('clinic-site-filter-option-checkbox-site-2-id');
+            await userEvent.click(site1checkbox);
+            await userEvent.click(site2checkbox);
+            expect(site1checkbox).toBeChecked();
+            expect(site2checkbox).toBeChecked();
+
+            // Click the checkbox to filter for pwds with zero sites. Others should uncheck.
+            const zeroSiteCheckbox = screen.getByTestId('clinic-site-filter-option-checkbox-PWDS_WITH_ZERO_SITES');
+            await userEvent.click(zeroSiteCheckbox);
+            expect(site1checkbox).not.toBeChecked();
+            expect(site2checkbox).not.toBeChecked();
+
+            // Click Apply. A query of `['_']` should be made for sites.
+            await userEvent.click(screen.getByRole('button', { name: /Apply/ }));
+
+            expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+              'clinicID123',
+              { sites: ['_'], limit: 50, offset: 0, period: '14d', sortType: 'cgm', sort: '-lastData' },
+              expect.any(Function),
+            );
+          }, TEST_TIMEOUT_MS);
+
+          it('should allow filtering by tags', async () => {
+            render(
+              <MockedProviderWrappers>
+                <ClinicPatients {...defaultProps} />
+              </MockedProviderWrappers>
+            );
+
+            // Open the Tags filter dropdown and filter for 2 sites
+            await userEvent.click(screen.getByRole('button', { name: /Tags/ }));
+
+            const tag1checkbox = screen.getByTestId('tag-filter-option-checkbox-tag1');
+            const tag3checkbox = screen.getByTestId('tag-filter-option-checkbox-tag3');
+
+            expect(tag1checkbox).not.toBeChecked();
+            expect(tag3checkbox).not.toBeChecked();
+
+            await userEvent.click(tag1checkbox);
+            await userEvent.click(tag3checkbox);
+
+            expect(tag1checkbox).toBeChecked();
+            expect(tag3checkbox).toBeChecked();
+
+            // Click Apply
+            await userEvent.click(screen.getByRole('button', { name: /Apply/ }));
+
+            expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenLastCalledWith(
+              'clinicID123',
+              { tags: ['tag1', 'tag3'], limit: 50, offset: 0, period: '14d', sortType: 'cgm', sort: '-lastData' },
+              expect.any(Function),
+            );
+
+            expect(defaultProps.trackMetric).toHaveBeenCalledWith(
+              'Clinic - Population Health - Patient tag filter apply',
+              { clinicId: 'clinicID123' },
+            );
+          }, TEST_TIMEOUT_MS);
+
+          it('should allow filtering by for patients with zero tags', async () => {
+            render(
+              <MockedProviderWrappers>
+                <ClinicPatients {...defaultProps} />
+              </MockedProviderWrappers>
+            );
+
+            // Open the Tags filter dropdown and filter for 2 tags
+            await userEvent.click(screen.getByRole('button', { name: /Tags/ }));
+
+            const tag1checkbox = screen.getByTestId('tag-filter-option-checkbox-tag1');
+            const tag2checkbox = screen.getByTestId('tag-filter-option-checkbox-tag2');
+            await userEvent.click(tag1checkbox);
+            await userEvent.click(tag2checkbox);
+            expect(tag1checkbox).toBeChecked();
+            expect(tag2checkbox).toBeChecked();
+
+            // Click the checkbox to filter for pwds with zero tags. Others should uncheck.
+            const zeroTagCheckbox = screen.getByTestId('tag-filter-option-checkbox-PWDS_WITH_ZERO_TAGS');
+            await userEvent.click(zeroTagCheckbox);
+            expect(tag1checkbox).not.toBeChecked();
+            expect(tag2checkbox).not.toBeChecked();
+
+            // Click Apply. A query of `['_']` should be made for sites.
+            await userEvent.click(screen.getByRole('button', { name: /Apply/ }));
+
+            expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+              'clinicID123',
+              { tags: ['_'], limit: 50, offset: 0, period: '14d', sortType: 'cgm', sort: '-lastData' },
+              expect.any(Function),
+            );
+          }, TEST_TIMEOUT_MS);
+        });
+
         describe('managing sites', () => {
           it('should allow creating a new site for a workspace', async () => {
             render(
@@ -984,6 +1139,72 @@ describe('ClinicPatients', ()  => {
             expect(defaultProps.trackMetric).toHaveBeenCalledWith(
               'Clinic - Population Health - Edit clinic sites delete',
               { clinicId: 'clinicID123' },
+            );
+          }, TEST_TIMEOUT_MS);
+        });
+
+        describe('managing patient sites', () => {
+          it('should allow updating sites for a patient', async () => {
+            render(
+              <MockedProviderWrappers>
+                <ClinicPatients {...defaultProps} />
+              </MockedProviderWrappers>
+            );
+
+            // Click the Edit Sites icon for a patient. The Dialog for Edit Patient Details should open.
+            expect(screen.queryByText('Edit Patient Details')).not.toBeInTheDocument();
+            await userEvent.click(screen.getByTestId('action-menu-patient2-icon'));
+            await userEvent.click(screen.getByRole('button', { name: /Edit Patient Information/ }));
+            expect(screen.getByText('Edit Patient Details')).toBeInTheDocument();
+
+            // Add Site 3 and remove Site 1, then save
+            await userEvent.click(screen.getAllByRole('combobox')[1]); // open combobox dropdown
+            await userEvent.click(screen.getByText('Site Charlie', { selector: 'div' }));
+            await userEvent.click(screen.getByLabelText(/Remove Site Alpha/));
+            await userEvent.click(screen.getByRole('button', { name: /Save Changes/ }));
+
+            await waitFor(() => expect(defaultProps.api.clinics.updateClinicPatient).toHaveBeenCalled());
+
+            expect(defaultProps.api.clinics.updateClinicPatient).toHaveBeenCalledWith(
+              'clinicID123',
+              'patient2',
+              {
+                id: 'patient2',
+                email: 'patient2@test.ca',
+                fullName: 'Patient Two',
+                birthDate: '1999-02-02',
+                mrn: 'MRN123',
+                permissions: { custodian : undefined },
+                summary: {
+                  bgmStats: {
+                    dates: {
+                      lastData: '2025-05-28T00:00:00.000Z',
+                    },
+                    periods: { '14d': {
+                      averageGlucoseMmol: 10.5,
+                      averageDailyRecords: 0.25,
+                      timeInVeryLowRecords: 1,
+                      timeInVeryHighRecords: 2,
+                    } },
+                  },
+                  cgmStats: {
+                    dates: {
+                      lastData: '2025-05-29T00:00:00.000Z',
+                    },
+                    periods: {
+                      '14d': {
+                        glucoseManagementIndicator: 7.75,
+                        timeCGMUseMinutes: 1380,
+                        timeCGMUsePercent: 0.85,
+                      },
+                    },
+                  },
+                },
+                tags: ['tag1'],
+                sites: [{ id: 'site-3-id', name: 'Site Charlie' }],
+                reviews: [{ clinicianId: 'clinicianUserId123', time: yesterday }],
+              },
+              expect.any(Function), // callback fn passed to api
             );
           }, TEST_TIMEOUT_MS);
         });
@@ -1108,7 +1329,7 @@ describe('ClinicPatients', ()  => {
             expect(screen.getByText('Edit Patient Details')).toBeInTheDocument();
 
             // Add Tag 3 and remove Tag 1, then save
-            await userEvent.click(screen.getByRole('combobox')); // open combobox dropdown
+            await userEvent.click(screen.getAllByRole('combobox')[0]); // open combobox dropdown
             await userEvent.click(screen.getByText('ttest tag 3', { selector: 'div' }));
             await userEvent.click(screen.getByLabelText(/Remove test tag 1/));
             await userEvent.click(screen.getByRole('button', { name: /Save Changes/ }));
@@ -1151,6 +1372,7 @@ describe('ClinicPatients', ()  => {
                   },
                 },
                 tags: ['tag3'],
+                sites: [{ id: 'site-1-id', name: 'Site Alpha' }],
                 reviews: [{ clinicianId: 'clinicianUserId123', time: yesterday }],
               },
               expect.any(Function), // callback fn passed to api
