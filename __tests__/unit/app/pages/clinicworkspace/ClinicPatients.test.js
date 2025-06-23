@@ -834,7 +834,9 @@ describe('ClinicPatients', ()  => {
         await userEvent.click(screen.getByTestId('clinic-patients-view-toggle-icon'));
         expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - Hide all icon', { clinicId: 'clinicID123' });
       });
+    });
 
+    describe('show names clicked', () => {
       it('should allow searching patients', async () => {
         store = mockStore(hasPatientsState);
         render(
@@ -862,9 +864,7 @@ describe('ClinicPatients', ()  => {
           expect.any(Function)
         );
       });
-    });
 
-    describe('show names clicked', () => {
       describe('tier0300 clinic', () => {
         beforeEach(() => {
           window.HTMLElement.prototype.scrollIntoView = jest.fn();
