@@ -44,6 +44,8 @@ describe('ClinicPatients', ()  => {
     id: 'clinicianUserId123',
   };
 
+  const defaultFetchOptions = { limit: 50, offset: 0, period: '14d', sortType: 'cgm' };
+
   const defaultClinic = {
     clinicians:{
       clinicianUserId123,
@@ -810,9 +812,60 @@ describe('ClinicPatients', ()  => {
   });
 
   describe('has patients', () => {
+    describe('showNames', () => {
+      it('should show data for each person', async () => {
+        store = mockStore(hasPatientsState);
+        render(
+          <MockedProviderWrappers>
+            <ClinicPatients {...defaultProps} />
+          </MockedProviderWrappers>
+        );
+
+        // Should show data for patients
+        expect(screen.getByText('Patient One')).toBeInTheDocument();
+        expect(screen.getByText('DOB: 1999-01-01')).toBeInTheDocument();
+        expect(screen.getByText('Patient Two')).toBeInTheDocument();
+        expect(screen.getByText('DOB: 1999-02-02')).toBeInTheDocument();
+
+        // Should not show peopletable instructions
+        expect(screen.queryByTestId('clinic-patients-people-table-instructions')).not.toBeInTheDocument();
+
+        // Should fire trackmetric when toggling hide/show
+        await userEvent.click(screen.getByTestId('clinic-patients-view-toggle-icon'));
+        expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - Hide all icon', { clinicId: 'clinicID123' });
+      });
+
+      it('should allow searching patients', async () => {
+        store = mockStore(hasPatientsState);
+        render(
+          <MockedProviderWrappers>
+            <ClinicPatients {...defaultProps} />
+          </MockedProviderWrappers>
+        );
+
+        store.clearActions();
+
+        // Click on the input, then type "Two". An action should be dispatched to Redux and API request should be made.
+        await userEvent.click(screen.getByPlaceholderText('Search'));
+        await userEvent.paste('Two');
+
+        await waitFor(() =>
+          expect(store.getActions()).toStrictEqual([
+            { type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT', payload: { textInput: 'Two' } },
+            { type: 'FETCH_PATIENTS_FOR_CLINIC_REQUEST' },
+          ])
+        );
+
+        expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+          'clinicID123',
+          { ...defaultFetchOptions, search: 'Two', sort: '+fullName' },
+          expect.any(Function)
+        );
+      });
+    });
+
     describe('show names clicked', () => {
       describe('tier0300 clinic', () => {
-
         beforeEach(() => {
           window.HTMLElement.prototype.scrollIntoView = jest.fn();
           store = mockStore(tier0300ClinicState);

@@ -2351,6 +2351,7 @@ export const ClinicPatients = (props) => {
                 icon={VisibilityIcon}
                 label={t('Toggle visibility')}
                 onClick={handleToggleShowNames}
+                data-testid="clinic-patients-view-toggle-icon"
               />
             </Flex>
           </Flex>
@@ -2362,7 +2363,7 @@ export const ClinicPatients = (props) => {
 
   const renderPeopleInstructions = useCallback(() => {
     return (
-      <Text py={4} mb={4} sx={{ display: 'block', fontSize: 1, textAlign: 'center', a: { color: 'text.link', cursor: 'pointer' } }}>
+      <Text py={4} mb={4} sx={{ display: 'block', fontSize: 1, textAlign: 'center', a: { color: 'text.link', cursor: 'pointer' } }} data-testid="clinic-patients-people-table-instructions">
         <Trans className="peopletable-instructions" i18nKey="html.peopletable-instructions">
           Type a patient name in the search box or click <a className="peopletable-names-showall" onClick={handleToggleShowNames}>Show All</a> to display all patients.
         </Trans>
