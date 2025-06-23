@@ -726,6 +726,14 @@ describe('ClinicPatients', ()  => {
   }, TEST_TIMEOUT_MS);
 
   describe('has patients but none matching filter criteria', () => {
+    const noPatientsButWithFiltersState = merge({}, noPatientsState, {
+      blip: {
+        patientListFilters: {
+          patientListSearchTextInput: 'CantMatchThis',
+        },
+      },
+    });
+
     describe('when Reset Filters button is clicked', () => {
       it('should show the No Results text and reset filters', async () => {
         mockLocalStorage({
@@ -736,7 +744,7 @@ describe('ClinicPatients', ()  => {
           }),
         });
 
-        store = mockStore(noPatientsState);
+        store = mockStore(noPatientsButWithFiltersState);
 
         render(
           <MockedProviderWrappers>
@@ -765,6 +773,37 @@ describe('ClinicPatients', ()  => {
             meetsGlycemicTargets:true,
             patientTags: [],
           }),
+        );
+      });
+    });
+
+    describe('when Clear Search button is clicked', () => {
+      it('should clear the search input text in Redux', async () => {
+        store = mockStore(noPatientsButWithFiltersState);
+
+        render(
+          <MockedProviderWrappers>
+            <ClinicPatients {...defaultProps} />
+          </MockedProviderWrappers>
+        );
+
+        // Header should be visible. Should indicate there are no results
+        expect(screen.getByTestId('clinic-patients-header')).toBeInTheDocument();
+        expect(screen.getByText('There are no results to show')).toBeInTheDocument();
+
+        store.clearActions();
+
+        // Clicking "Clear Search" should clear the serach in redux
+        await userEvent.click(
+          within(screen.getByTestId('clinic-patients-people-table'))
+                       .getByRole('button', { name: /Clear Search/ })
+        );
+
+        await waitFor(() =>
+          expect(store.getActions()).toStrictEqual([
+            { type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT', payload: { textInput: '' } },
+            { type: 'FETCH_PATIENTS_FOR_CLINIC_REQUEST' },
+          ])
         );
       });
     });
