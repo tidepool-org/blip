@@ -750,6 +750,7 @@ describe('ClinicPatients', ()  => {
           'activePatientFilters/clinicianUserId123/clinicID123': JSON.stringify({
             timeInRange: ['timeInLowPercent'],
             patientTags: [],
+            clinicSites: [],
             meetsGlycemicTargets: false,
           }),
         });
@@ -782,6 +783,7 @@ describe('ClinicPatients', ()  => {
             timeInRange :[],
             meetsGlycemicTargets:true,
             patientTags: [],
+            clinicSites: [],
           }),
         );
       });
