@@ -33,6 +33,7 @@ const Header = withTranslation()(class Header extends Component {
     onClickBgLog: PropTypes.func,
     onClickSettings: PropTypes.func,
     onClickPrint: PropTypes.func,
+    isSmartOnFhirMode: PropTypes.bool.isRequired,
   };
 
   static defaultProps = {
@@ -180,6 +181,7 @@ const Header = withTranslation()(class Header extends Component {
           {this.renderNavButton(mostRecentClass, this.props.onClickMostRecent, this.props.iconMostRecent)}
         </div>
         <div className="app-no-print patient-data-subnav-right">
+        {!this.props.isSmartOnFhirMode && (
           <a href="" className={printLinkClass} onClick={this.props.onClickPrint}>
             <Icon
               className="icon"
@@ -195,6 +197,7 @@ const Header = withTranslation()(class Header extends Component {
             />
             {t('Print')}
           </a>
+        )}
         </div>
       </Box>
     );

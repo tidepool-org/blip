@@ -228,6 +228,7 @@ export let Patients = withTranslation()(class extends React.Component {
             uploadUrl={this.props.uploadUrl}
             onClickPerson={this.handleClickPatient}
             onRemovePatient={this.props.onRemovePatient}
+            isSmartOnFhirMode={this.props.isSmartOnFhirMode}
           />
         </div>
       </div>
@@ -448,6 +449,7 @@ export function mapStateToProps(state) {
     selectedClinicId: state.blip.selectedClinicId,
     showingWelcomeMessage: state.blip.showingWelcomeMessage,
     user,
+    isSmartOnFhirMode: state.blip.smartCorrelationId !== null,
   }
 }
 

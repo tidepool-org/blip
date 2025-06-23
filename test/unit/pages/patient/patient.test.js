@@ -39,6 +39,7 @@ describe('Patient', function () {
         fetchDataSources: sinon.stub(),
         connectDataSource: sinon.stub(),
         disconnectDataSource: sinon.stub(),
+        isSmartOnFhirMode: false,
       };
       var patientElem = React.createElement(Patient, props);
       var elem = mount(patientElem);

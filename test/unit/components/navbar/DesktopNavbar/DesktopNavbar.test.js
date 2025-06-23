@@ -15,6 +15,7 @@ describe('DesktopNavbar', ()  => {
   const props = {
     trackMetric: sinon.spy(),
     t: sinon.stub().callsFake((string) => string),
+    isSmartOnFhirMode: false,
   };
 
   before(() => {
