@@ -52,6 +52,7 @@ export const SmartOnFhir = (props) => {
   useEffect(() => {
     let attempts = 0;
     const maxAttempts = 50; // 5 seconds max (50 * 100ms)
+    let timeoutId;
 
     const checkZendesk = () => {
       if (window.zE) {
@@ -61,11 +62,15 @@ export const SmartOnFhir = (props) => {
 
       attempts++;
       if (attempts < maxAttempts) {
-        setTimeout(checkZendesk, 100);
+        timeoutId = setTimeout(checkZendesk, 100);
       }
     };
 
     checkZendesk();
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, []);
 
   useEffect(() => {

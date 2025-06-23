@@ -63,6 +63,7 @@ import ShareBanner from '../../components/elements/Card/Banners/Share.png';
 import DataConnectionsBanner from '../../components/elements/Card/Banners/DataConnections.png';
 import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
 import { DEFAULT_CGM_SAMPLE_INTERVAL, DEFAULT_CGM_SAMPLE_INTERVAL_RANGE, MS_IN_MIN } from '../../core/constants';
+import { selectIsSmartOnFhirMode } from '../../core/selectors';
 
 const { Loader } = vizComponents;
 const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
@@ -105,6 +106,7 @@ export const PatientDataClass = createReactClass({
     updatingDatum: PropTypes.object.isRequired,
     uploadUrl: PropTypes.string.isRequired,
     user: PropTypes.object,
+    isSmartOnFhirMode: PropTypes.bool.isRequired,
   },
 
   getInitialState: function() {
@@ -533,6 +535,7 @@ export const PatientDataClass = createReactClass({
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
             uploadUrl={this.props.uploadUrl}
+            isSmartOnFhirMode={this.props.isSmartOnFhirMode}
           />
         </div>
       </div>
@@ -582,6 +585,7 @@ export const PatientDataClass = createReactClass({
             onSwitchToBgLog={this.handleSwitchToBgLogRoute}
             onSwitchToBasics={this.handleSwitchToBasicsRoute}
             onSwitchToDaily={this.handleSwitchToDailyRoute}
+            isSmartOnFhirMode={this.props.isSmartOnFhirMode}
             />
           );
       case 'daily':
@@ -612,6 +616,7 @@ export const PatientDataClass = createReactClass({
             onSwitchToBgLog={this.handleSwitchToBgLogRoute}
             onSwitchToBasics={this.handleSwitchToBasicsRoute}
             onSwitchToDaily={this.handleSwitchToDailyRoute}
+            isSmartOnFhirMode={this.props.isSmartOnFhirMode}
             />
           );
       case 'trends':
@@ -640,6 +645,7 @@ export const PatientDataClass = createReactClass({
             onSwitchToBgLog={this.handleSwitchToBgLogRoute}
             onSwitchToBasics={this.handleSwitchToBasicsRoute}
             onSwitchToDaily={this.handleSwitchToDailyRoute}
+            isSmartOnFhirMode={this.props.isSmartOnFhirMode}
             />
           );
       case 'bgLog':
@@ -669,6 +675,7 @@ export const PatientDataClass = createReactClass({
             onSwitchToBgLog={this.handleSwitchToBgLogRoute}
             onSwitchToBasics={this.handleSwitchToBasicsRoute}
             onSwitchToDaily={this.handleSwitchToDailyRoute}
+            isSmartOnFhirMode={this.props.isSmartOnFhirMode}
             />
           );
       case 'settings':
@@ -2524,6 +2531,7 @@ export function mapStateToProps(state, props) {
     selectedClinicId: state.blip.selectedClinicId,
     clinic: state.blip.clinics?.[state.blip.selectedClinicId],
     clinics: state.blip.clinics,
+    isSmartOnFhirMode: selectIsSmartOnFhirMode(state),
   };
 }
 

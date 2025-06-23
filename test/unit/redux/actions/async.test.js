@@ -9468,7 +9468,7 @@ describe('Actions', () => {
           { type: 'FETCH_PATIENTS_REQUEST' },
           {
             type: 'FETCH_PATIENTS_SUCCESS',
-            payload: mockResults
+            payload: { results: mockResults }
           }
         ];
 
@@ -9480,7 +9480,7 @@ describe('Actions', () => {
         const actions = store.getActions();
         expect(actions[0].type).to.equal(expectedActions[0].type);
         expect(actions[1].type).to.equal(expectedActions[1].type);
-        expect(actions[1].payload).to.deep.equal({results: mockResults});
+        expect(actions[1].payload).to.deep.equal(expectedActions[1].payload);
 
         expect(api.patient.getAll.calledWith(options)).to.be.true;
         expect(callback.calledWith(null, mockResults)).to.be.true;
@@ -9493,7 +9493,7 @@ describe('Actions', () => {
           { type: 'FETCH_PATIENTS_REQUEST' },
           {
             type: 'FETCH_PATIENTS_SUCCESS',
-            payload: mockResults
+            payload: { results: mockResults }
           }
         ];
 
@@ -9505,7 +9505,7 @@ describe('Actions', () => {
         const actions = store.getActions();
         expect(actions[0].type).to.equal(expectedActions[0].type);
         expect(actions[1].type).to.equal(expectedActions[1].type);
-        expect(actions[1].payload).to.deep.equal({results: mockResults});
+        expect(actions[1].payload).to.deep.equal(expectedActions[1].payload);
 
         expect(api.patient.getAll.calledWith(options)).to.be.true;
         expect(callback.calledWith(null, mockResults)).to.be.true;
@@ -9518,7 +9518,7 @@ describe('Actions', () => {
           { type: 'FETCH_PATIENTS_REQUEST' },
           {
             type: 'FETCH_PATIENTS_SUCCESS',
-            payload: mockResults
+            payload: { results: mockResults }
           }
         ];
 
@@ -9530,7 +9530,7 @@ describe('Actions', () => {
         const actions = store.getActions();
         expect(actions[0].type).to.equal(expectedActions[0].type);
         expect(actions[1].type).to.equal(expectedActions[1].type);
-        expect(actions[1].payload).to.deep.equal({results: mockResults});
+        expect(actions[1].payload).to.deep.equal(expectedActions[1].payload);
 
         expect(api.patient.getAll.calledWith(options)).to.be.true;
         expect(callback.calledWith(null, mockResults)).to.be.true;
