@@ -63,7 +63,7 @@ export const selectElementStyleOverrides = {
 };
 
 const SelectTags = ({
-  currentTagIds,
+  currentTagIds, // Array of tag IDs, e.g. ['id1', 'id2', 'id3']
   onChange,
   selectMenuHeight = 240,
   onMenuOpen = noop,
@@ -77,6 +77,7 @@ const SelectTags = ({
 
   const handleTagSelectionChange = (tags) => {
     const tagIds = tags.map(tag => tag.value);
+    // Call onChange with array of tag IDs, e.g. ['id1', 'id2', 'id3']
     onChange(tagIds);
   };
 
