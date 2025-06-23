@@ -938,16 +938,27 @@ export const ClinicPatients = (props) => {
   }, [deletingClinicPatientTag, handleAsyncResult, handleCloseClinicPatientTagUpdateDialog, previousDeletingClinicPatientTag?.inProgress, t]);
 
   useEffect(() => {
-    // Prevent this effect from firing on logout, which would clear all patient tags from localStorage
+    // Prevent this effect from firing on logout, which would clear all patient tags and clinic sites from localStorage
     if (!clinic) return;
 
-    // If a tag is deleted or otherwise missing, and is still present in an active filter, remove it from the filters
+    // If a tag or site is deleted or otherwise missing, and is still present in an active filter, remove it from the filters
     const missingTagsInFilter = difference(activeFilters.patientTags, map(patientTags, 'id'));
-    if (missingTagsInFilter.length) {
-      setActiveFilters({ ...activeFilters, patientTags: without(activeFilters.patientTags, ...missingTagsInFilter) });
-      setPendingFilters({ ...pendingFilters, patientTags: without(activeFilters.patientTags, ...missingTagsInFilter) });
+    const missingSitesInFilter = difference(activeFilters.clinicSites, map(clinicSites, 'id'));
+
+    if (missingTagsInFilter.length || missingSitesInFilter.length) {
+      setActiveFilters({
+        ...activeFilters,
+        patientTags: without(activeFilters.patientTags, ...missingTagsInFilter),
+        clinicSites: without(activeFilters.clinicSites, ...missingSitesInFilter),
+      });
+
+      setPendingFilters({
+        ...pendingFilters,
+        patientTags: without(activeFilters.patientTags, ...missingTagsInFilter),
+        clinicSites: without(activeFilters.clinicSites, ...missingSitesInFilter),
+      });
     }
-  }, [patientTags]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [patientTags, clinicSites]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const successMessage = t('{{name}} has been removed from the clinic.', {
