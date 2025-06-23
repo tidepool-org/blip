@@ -1,7 +1,7 @@
 /* global jest, before, beforeEach, afterEach, test, expect, describe, it */
 
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
@@ -13,6 +13,8 @@ import moment from 'moment';
 import { ToastProvider } from '@app/providers/ToastProvider';
 import { clinicUIDetails } from '@app/core/clinicUtils';
 import ClinicPatients from '@app/pages/clinicworkspace/ClinicPatients';
+
+import mockLocalStorage from '../../../../utils/mockLocalStorage';
 
 import { useLDClient, useFlags } from 'launchdarkly-react-client-sdk';
 jest.mock('launchdarkly-react-client-sdk');
@@ -353,6 +355,23 @@ describe('ClinicPatients', ()  => {
 
   beforeEach(() => {
     defaultProps.trackMetric.mockClear();
+    defaultProps.api.clinics.getPatientFromClinic.mockClear();
+    defaultProps.api.clinics.getPatientsForClinic.mockClear();
+    defaultProps.api.clinics.deletePatientFromClinic.mockClear();
+    defaultProps.api.clinics.createClinicCustodialAccount.mockClear();
+    defaultProps.api.clinics.updateClinicPatient.mockClear();
+    defaultProps.api.clinics.sendPatientUploadReminder.mockClear();
+    defaultProps.api.clinics.sendPatientDataProviderConnectRequest.mockClear();
+    defaultProps.api.clinics.createClinicPatientTag.mockClear();
+    defaultProps.api.clinics.updateClinicPatientTag.mockClear();
+    defaultProps.api.clinics.deleteClinicPatientTag.mockClear();
+    defaultProps.api.clinics.deleteClinicPatientTag.mockClear();
+    defaultProps.api.clinics.getPatientsForRpmReport.mockClear();
+    defaultProps.api.clinics.setClinicPatientLastReviewed.mockClear();
+    defaultProps.api.clinics.revertClinicPatientLastReviewed.mockClear();
+    defaultProps.api.clinics.createClinicSite.mockClear();
+    defaultProps.api.clinics.updateClinicSite.mockClear();
+    defaultProps.api.clinics.deleteClinicSite.mockClear();
   });
 
   describe('on mount', () => {
@@ -464,7 +483,6 @@ describe('ClinicPatients', ()  => {
   describe('no patients', () => {
     beforeEach(() => {
       store = mockStore(noPatientsState);
-      defaultProps.trackMetric.mockClear();
     });
 
     it('should render an empty table', () => {
@@ -661,7 +679,7 @@ describe('ClinicPatients', ()  => {
     expect(submitButton).toBeEnabled();
   }, TEST_TIMEOUT_MS);
 
-  it('should prevent adding a new patient with an invalid Date of Birth', async () => {
+  it('should prevent adding a new patient with an invalid MRN', async () => {
     store = mockStore(noPatientsState);
     render(
       <MockedProviderWrappers>
@@ -693,19 +711,64 @@ describe('ClinicPatients', ()  => {
 
     expect(submitButton).toBeEnabled();
 
-    // Disabled after invalid DOB
-    await userEvent.click(dobField);
-    await userEvent.clear(dobField);
-    await userEvent.paste('13/21/1999');
+    // Disabled after invalid MRN
+    await userEvent.click(mrnField);
+    await userEvent.clear(mrnField);
+    await userEvent.paste('MRN876THISWILLEXCEEDTHELENGTHLIMIT');
 
     expect(submitButton).toBeDisabled();
 
-    // Re-entering valid DOB should re-enable it
-    await userEvent.clear(dobField);
-    await userEvent.paste('09/21/1999');
+    // Re-entering valid MRN should re-enable it
+    await userEvent.clear(mrnField);
+    await userEvent.paste('MRN8768934');
 
     expect(submitButton).toBeEnabled();
   }, TEST_TIMEOUT_MS);
+
+  describe('has patients but none matching filter criteria', () => {
+    describe('when Reset Filters button is clicked', () => {
+      it('should show the No Results text and reset filters', async () => {
+        mockLocalStorage({
+          'activePatientFilters/clinicianUserId123/clinicID123': JSON.stringify({
+            timeInRange: ['timeInLowPercent'],
+            patientTags: [],
+            meetsGlycemicTargets: false,
+          }),
+        });
+
+        store = mockStore(noPatientsState);
+
+        render(
+          <MockedProviderWrappers>
+            <ClinicPatients {...defaultProps} />
+          </MockedProviderWrappers>
+        );
+
+        // Header should be visible. Should indicate there are no results
+        expect(screen.getByTestId('clinic-patients-header')).toBeInTheDocument();
+        expect(screen.getByText('There are no results to show')).toBeInTheDocument();
+
+
+        // Clicking "Reset Filters" should reset the filters in localStorage
+        await userEvent.click(
+          within(screen.getByTestId('clinic-patients-people-table'))
+                       .getByRole('button', { name: /Reset Filters/ })
+        );
+
+        expect(window.localStorage.setItem).toHaveBeenCalledWith(
+          'activePatientFilters/clinicianUserId123/clinicID123',
+           JSON.stringify({
+            timeCGMUsePercent: null,
+            lastData: null,
+            lastDataType: null,
+            timeInRange :[],
+            meetsGlycemicTargets:true,
+            patientTags: [],
+          }),
+        );
+      });
+    });
+  });
 
   describe('has patients', () => {
     describe('show names clicked', () => {
@@ -725,10 +788,6 @@ describe('ClinicPatients', ()  => {
               clinic: { tier: 'tier0300' },
             })),
           });
-
-          defaultProps.api.clinics.updateClinicPatient.mockClear();
-          defaultProps.api.clinics.createClinicPatientTag.mockClear();
-          defaultProps.api.clinics.createClinicSite.mockClear();
         });
 
         describe('managing sites', () => {

@@ -1454,7 +1454,11 @@ export const ClinicPatients = (props) => {
 
     return (
       <>
-        <Flex mb={4} sx={{ alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 3 }}>
+        <Flex
+          data-testid="clinic-patients-header"
+          mb={4}
+          sx={{ alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 3 }}
+        >
           {/* Flex Group 1: Search Box and Add Patient button */}
           <Flex
             sx={{
@@ -4011,7 +4015,7 @@ export const ClinicPatients = (props) => {
     const showFilterResetBar = (data?.length > 0) && (hasActiveFilters || hasSearchActive);
 
     return (
-      <Box>
+      <Box data-testid="clinic-patients-people-table">
         <Loader show={loading} overlay={true} />
 
         { showFilterResetBar &&
