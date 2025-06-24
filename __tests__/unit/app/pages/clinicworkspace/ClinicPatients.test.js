@@ -127,6 +127,22 @@ describe('ClinicPatients', ()  => {
     },
   });
 
+  const tier0100ClinicState = {
+    blip: {
+      ...hasPatientsState.blip,
+      clinics: {
+        clinicID123: {
+          ...hasPatientsState.blip.clinics.clinicID123,
+          ...clinicUIDetails({
+            ...hasPatientsState.blip.clinics.clinicID123,
+            tier: 'tier0100',
+          }),
+          tier: 'tier0100',
+        },
+      },
+    },
+  };
+
   const mrnRequiredState = merge({}, noPatientsState, {
     blip: {
       clinics: {
@@ -1119,6 +1135,94 @@ describe('ClinicPatients', ()  => {
         );
 
         expect(store.getActions()).toStrictEqual([{ type: 'DELETE_PATIENT_FROM_CLINIC_REQUEST' }]);
+      });
+
+      describe('tier0100 clinic', () => {
+        beforeEach(() => {
+          useFlags.mockReturnValue({
+            showSummaryDashboard: false,
+            showSummaryDashboardLastReviewed: false,
+            showExtremeHigh: false,
+          });
+
+          useLDClient.mockReturnValue({
+            getContext: jest.fn(() => ({
+              clinic: { tier: 'tier0100' },
+            })),
+          });
+        });
+
+        it('should show the standard table columns and refetch patients with sort parameter when headers are clicked', async () => {
+          store = mockStore(tier0100ClinicState);
+          render(
+            <MockedProviderWrappers>
+              <ClinicPatients {...defaultProps} />
+            </MockedProviderWrappers>
+          );
+
+          const patientHeader = screen.getByRole('button', { name: 'Patient Details' });
+          const dobHeader = screen.getByRole('button', { name: 'Birthday' });
+
+          // Headers should exist
+          expect(patientHeader).toBeInTheDocument();
+          expect(dobHeader).toBeInTheDocument();
+          expect(screen.getAllByText('MRN').length > 0).toBe(true);
+
+          // Clicking on patient header should sort by name (ascending/descending)
+          await userEvent.click(patientHeader);
+          expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+            'clinicID123',
+            expect.objectContaining({ sort: '-fullName' }),
+            expect.any(Function),
+          );
+
+          defaultProps.api.clinics.getPatientsForClinic.mockClear();
+
+          await userEvent.click(patientHeader);
+          expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+            'clinicID123',
+            expect.objectContaining({ sort: '+fullName' }),
+            expect.any(Function),
+          );
+
+          defaultProps.api.clinics.getPatientsForClinic.mockClear();
+
+          // Clicking on patient header should sort by date of birth (ascending/descending)
+          await userEvent.click(dobHeader);
+          expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+            'clinicID123',
+            expect.objectContaining({ sort: '+birthDate' }),
+            expect.any(Function),
+          );
+
+          defaultProps.api.clinics.getPatientsForClinic.mockClear();
+
+          await userEvent.click(dobHeader);
+          expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+            'clinicID123',
+            expect.objectContaining({ sort: '-birthDate' }),
+            expect.any(Function),
+          );
+        });
+      });
+
+      describe('showSummaryDashboard flag is true', () => {
+        useFlags.mockReturnValue({
+          showSummaryDashboard: true,
+          showSummaryDashboardLastReviewed: true,
+          showExtremeHigh: false,
+        });
+
+        it('should show the summary dashboard instead of the standard patient table', () => {
+          store = mockStore(tier0100ClinicState);
+          render(
+            <MockedProviderWrappers>
+              <ClinicPatients {...defaultProps} />
+            </MockedProviderWrappers>
+          );
+
+          expect(screen.getByTestId('summary-dashboard-filters')).toBeInTheDocument();
+        });
       });
 
       describe('tier0300 clinic', () => {

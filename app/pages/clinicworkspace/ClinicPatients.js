@@ -1624,6 +1624,7 @@ export const ClinicPatients = (props) => {
               <Flex
                 sx={{ alignItems: 'center', gap: 2, justifyContent: 'flex-start', flexWrap: 'wrap' }}
                 id='summary-dashboard-filters'
+                data-testid='summary-dashboard-filters'
               >
                 <Flex
                   pl={[0, 0, 2]}
