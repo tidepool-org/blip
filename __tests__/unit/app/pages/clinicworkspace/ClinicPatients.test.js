@@ -10,6 +10,7 @@ import thunk from 'redux-thunk';
 import merge from 'lodash/merge';
 import moment from 'moment';
 import api from '../../../../../app/core/api';
+import { URL_TIDEPOOL_PLUS_PLANS } from '../../../../../app/core/constants';
 
 import { ToastProvider } from '@app/providers/ToastProvider';
 import { clinicUIDetails } from '@app/core/clinicUtils';
@@ -1204,24 +1205,61 @@ describe('ClinicPatients', ()  => {
             expect.any(Function),
           );
         });
-      });
 
-      describe('showSummaryDashboard flag is true', () => {
-        useFlags.mockReturnValue({
-          showSummaryDashboard: true,
-          showSummaryDashboardLastReviewed: true,
-          showExtremeHigh: false,
+        describe('showSummaryDashboard flag is true', () => {
+          it('should show the summary dashboard instead of the standard patient table', () => {
+            useFlags.mockReturnValue({
+              showSummaryDashboard: true,
+              showSummaryDashboardLastReviewed: true,
+              showExtremeHigh: false,
+            });
+
+            store = mockStore(tier0100ClinicState);
+            render(
+              <MockedProviderWrappers>
+                <ClinicPatients {...defaultProps} />
+              </MockedProviderWrappers>
+            );
+
+            expect(screen.getByTestId('summary-dashboard-filters')).toBeInTheDocument();
+          });
         });
 
-        it('should show the summary dashboard instead of the standard patient table', () => {
-          store = mockStore(tier0100ClinicState);
-          render(
-            <MockedProviderWrappers>
-              <ClinicPatients {...defaultProps} />
-            </MockedProviderWrappers>
-          );
+        describe('patient limit is reached', () => {
+          it('should show a popover with a link to the plans url if add patient button hovered', async () => {
+            store = mockStore({
+              blip: {
+                ...tier0100ClinicState.blip,
+                clinics: {
+                  clinicID123: {
+                    ...tier0100ClinicState.blip.clinics.clinicID123,
+                    patientLimitEnforced: true,
+                    ui: {
+                      warnings: {
+                        limitReached: 'yep',
+                      },
+                    },
+                  },
+                },
+              },
+            });
 
-          expect(screen.getByTestId('summary-dashboard-filters')).toBeInTheDocument();
+            render(
+              <MockedProviderWrappers>
+                <ClinicPatients {...defaultProps} />
+              </MockedProviderWrappers>
+            );
+
+            // Add New Patient should be disabled
+            const AddNewPatientButton = screen.getByRole('button', { name: /Add New Patient/ });
+            expect(AddNewPatientButton).toBeInTheDocument();
+            expect(AddNewPatientButton).toBeDisabled();
+
+            // Should be a hover indicator to show patient limit reached
+            await userEvent.hover(AddNewPatientButton);
+            expect(screen.getByAltText('Patient Limit Reached')).toBeVisible();
+            expect(screen.getByRole('link', { name: 'learn more about our plans.' })).toHaveAttribute('href', URL_TIDEPOOL_PLUS_PLANS);
+          });
         });
       });
 
