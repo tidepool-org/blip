@@ -9,6 +9,7 @@ import { MemoryRouter, Route, Switch } from 'react-router-dom';
 import thunk from 'redux-thunk';
 import merge from 'lodash/merge';
 import moment from 'moment';
+import api from '../../../../../app/core/api';
 
 import { ToastProvider } from '@app/providers/ToastProvider';
 import { clinicUIDetails } from '@app/core/clinicUtils';
@@ -364,6 +365,18 @@ describe('ClinicPatients', ()  => {
   );
 
   beforeEach(() => {
+    useFlags.mockReturnValue({
+      showSummaryDashboard: true,
+      showSummaryDashboardLastReviewed: true,
+      showExtremeHigh: false,
+    });
+
+    useLDClient.mockReturnValue({
+      getContext: jest.fn(() => ({
+        clinic: { tier: 'tier0300' },
+      })),
+    });
+
     defaultProps.trackMetric.mockClear();
     defaultProps.api.clinics.getPatientFromClinic.mockClear();
     defaultProps.api.clinics.getPatientsForClinic.mockClear();
@@ -385,20 +398,6 @@ describe('ClinicPatients', ()  => {
   });
 
   describe('on mount', () => {
-    beforeEach(() => {
-      useFlags.mockReturnValue({
-        showSummaryDashboard: true,
-        showSummaryDashboardLastReviewed: true,
-        showExtremeHigh: false,
-      });
-
-      useLDClient.mockReturnValue({
-        getContext: jest.fn(() => ({
-          clinic: { tier: 'tier0300' },
-        })),
-      });
-    });
-
     it('should not fetch patients for clinic if already in progress', () => {
       store = mockStore(
         merge({}, hasPatientsState, {
@@ -873,6 +872,253 @@ describe('ClinicPatients', ()  => {
           { ...defaultFetchOptions, search: 'Two', sort: '+fullName' },
           expect.any(Function)
         );
+      });
+
+      it('should link to a patient data view when patient demographic details are clicked', async () => {
+        store = mockStore(hasPatientsState);
+        render(
+          <MockedProviderWrappers>
+            <ClinicPatients {...defaultProps} />
+          </MockedProviderWrappers>
+        );
+
+        store.clearActions();
+        expect(store.getActions()).toStrictEqual([]);
+
+        // Clicking on a pwd name should navigate to the pwd
+        await userEvent.click(screen.getByText('Patient One'));
+
+        expect(store.getActions()).toStrictEqual([
+          {
+            type: '@@router/CALL_HISTORY_METHOD',
+            payload: { method: 'push', args: ['/patients/patient1/data'] },
+          },
+        ]);
+
+        store.clearActions();
+        expect(store.getActions()).toStrictEqual([]);
+
+        // Clicking on a pwd birthday should navigate to the pwd
+        await userEvent.click(screen.getByText('DOB: 1999-01-01'));
+
+        expect(store.getActions()).toStrictEqual([
+          {
+            type: '@@router/CALL_HISTORY_METHOD',
+            payload: { method: 'push', args: ['/patients/patient1/data'] },
+          },
+        ]);
+      });
+
+      it('should display menu when "More" icon is clicked', async () => {
+        store = mockStore(hasPatientsState);
+        render(
+          <MockedProviderWrappers>
+            <ClinicPatients {...defaultProps} />
+          </MockedProviderWrappers>
+        );
+
+        // Dropdown buttons should not exist
+        expect(screen.queryByRole('button', { name: /Edit Patient Information/})).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: /Bring Data into Tidepool/})).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: /Remove Patient/})).not.toBeInTheDocument();
+
+        // Dropdown buttons should appear after dropdown clicked
+        await userEvent.click(screen.getByTestId('action-menu-patient1-icon'));
+        expect(screen.getByRole('button', { name: /Edit Patient Information/})).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /Bring Data into Tidepool/})).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /Remove Patient/})).toBeInTheDocument();
+      });
+
+      it('should open a modal for patient editing when edit link is clicked', async () => {
+        store = mockStore(hasPatientsState);
+        render(
+          <MockedProviderWrappers>
+            <ClinicPatients {...defaultProps} />
+          </MockedProviderWrappers>
+        );
+
+        // Modal title should not be present
+        expect(screen.queryByText('Edit Patient Details')).not.toBeInTheDocument();
+
+        // Modal title should be present after clicking "Edit Patient Information"
+        await userEvent.click(screen.getByTestId('action-menu-patient2-icon'));
+        await userEvent.click(screen.getByRole('button', { name: /Edit Patient Information/}));
+        expect(screen.getByText('Edit Patient Details')).toBeInTheDocument();
+        expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Edit patient', { clinicId: 'clinicID123', source: 'action menu' });
+        expect(defaultProps.trackMetric).toHaveBeenCalledTimes(1);
+
+        // Edit the Pwd's demographic info
+        const nameField = screen.getByRole('textbox', { name: 'Full Name' });
+        const dobField = screen.getByRole('textbox', { name: 'Birthdate' });
+        const mrnField = screen.getByRole('textbox', { name: 'MRN (optional)' });
+        const emailField = screen.getByRole('textbox', { name: 'Email (optional)' });
+
+        expect(nameField).toHaveValue('Patient Two');
+        await userEvent.click(nameField);
+        await userEvent.clear(nameField);
+        await userEvent.paste('Patient 2');
+        expect(nameField).toHaveValue('Patient 2');
+
+        expect(dobField).toHaveValue('02/02/1999');
+        await userEvent.click(dobField);
+        await userEvent.clear(dobField);
+        await userEvent.paste('01/01/1999');
+        expect(dobField).toHaveValue('01/01/1999');
+
+        expect(mrnField).toHaveValue('MRN123');
+        await userEvent.click(mrnField);
+        await userEvent.clear(mrnField);
+        await userEvent.paste('MRN456');
+        expect(mrnField).toHaveValue('MRN456');
+
+        expect(emailField).toHaveValue('patient2@test.ca');
+        await userEvent.click(emailField);
+        await userEvent.clear(emailField);
+        await userEvent.paste('patient-two@test.ca');
+        expect(emailField).toHaveValue('patient-two@test.ca');
+
+        store.clearActions();
+
+        await userEvent.click(screen.getByRole('button', { name: /Save Changes/ }));
+
+        await waitFor(() => expect(defaultProps.api.clinics.updateClinicPatient).toHaveBeenCalled());
+
+        expect(defaultProps.api.clinics.updateClinicPatient).toHaveBeenCalledWith(
+          'clinicID123', // clinicId,
+          'patient2', // patientId,
+          {
+            fullName: 'Patient 2',
+            birthDate: '1999-01-01',
+            mrn: 'MRN456',
+            id: 'patient2',
+            email: 'patient-two@test.ca',
+            permissions: { custodian: {} },
+            tags: [],
+          },
+          expect.any(Function), // callback fn passed to api
+        );
+      });
+
+      it('should disable email editing for non-custodial patients', async () => {
+        store = mockStore(hasPatientsState);
+        render(
+          <MockedProviderWrappers>
+            <ClinicPatients {...defaultProps} />
+          </MockedProviderWrappers>
+        );
+
+        // Modal title should not be present
+        expect(screen.queryByText('Edit Patient Details')).not.toBeInTheDocument();
+
+        // Modal title should be present after clicking "Edit Patient Information"
+        await userEvent.click(screen.getByTestId('action-menu-patient1-icon'));
+        await userEvent.click(screen.getByRole('button', { name: /Edit Patient Information/}));
+        expect(screen.getByText('Edit Patient Details')).toBeInTheDocument();
+        expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Edit patient', { clinicId: 'clinicID123', source: 'action menu' });
+        expect(defaultProps.trackMetric).toHaveBeenCalledTimes(1);
+
+        // Edit the Pwd's demographic info
+        const nameField = screen.getByRole('textbox', { name: 'Full Name' });
+        const dobField = screen.getByRole('textbox', { name: 'Birthdate' });
+        const mrnField = screen.getByRole('textbox', { name: 'MRN (optional)' });
+        const emailField = screen.getByRole('textbox', { name: 'Email (optional)' });
+
+        expect(nameField).toHaveValue('Patient One');
+        await userEvent.click(nameField);
+        await userEvent.clear(nameField);
+        await userEvent.paste('Patient 3');
+        expect(nameField).toHaveValue('Patient 3');
+
+        expect(dobField).toHaveValue('01/01/1999');
+        await userEvent.click(dobField);
+        await userEvent.clear(dobField);
+        await userEvent.paste('03/03/1999');
+        expect(dobField).toHaveValue('03/03/1999');
+
+        expect(mrnField).toHaveValue('');
+        await userEvent.click(mrnField);
+        await userEvent.clear(mrnField);
+        await userEvent.paste('mrn456');
+        expect(mrnField).toHaveValue('MRN456'); // capitalizes
+
+        expect(emailField).toHaveValue('patient1@test.ca');
+        expect(emailField).toBeDisabled();
+
+        store.clearActions();
+
+        await userEvent.click(screen.getByRole('button', { name: /Save Changes/ }));
+
+        await waitFor(() => expect(defaultProps.api.clinics.updateClinicPatient).toHaveBeenCalled());
+
+        expect(defaultProps.api.clinics.updateClinicPatient).toHaveBeenCalledWith(
+          'clinicID123', // clinicId,
+          'patient1', // patientId,
+          {
+            fullName: 'Patient 3',
+            birthDate: '1999-03-03',
+            mrn: 'MRN456',
+            id: 'patient1',
+            email: 'patient1@test.ca',
+            permissions: { view: {} },
+            tags: [],
+          },
+          expect.any(Function), // callback fn passed to api
+        );
+      });
+
+      it('should open a modal for managing data connections when data connection menu option is clicked', async () => {
+        const getPatientFromClinicSpy = jest.spyOn(api.clinics, 'getPatientFromClinic').mockReturnValue({});
+        store = mockStore(hasPatientsState);
+        render(
+          <MockedProviderWrappers>
+            <ClinicPatients {...defaultProps} />
+          </MockedProviderWrappers>
+        );
+
+        // Modal title should be present after clicking "Bring Data into Tidepool"
+        await userEvent.click(screen.getByTestId('action-menu-patient1-icon'));
+        await userEvent.click(screen.getByRole('button', { name: /Bring Data into Tidepool/ }));
+
+        expect(screen.getByText('Connect a Device Account')).toBeInTheDocument();
+        expect(screen.getByText('Invite patients to authorize syncing from these accounts. Only available in the US at this time.')).toBeInTheDocument();
+
+        expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Edit patient data connections', { clinicId: 'clinicID123', source: 'action menu' });
+        expect(defaultProps.trackMetric).toHaveBeenCalledTimes(1);
+
+        getPatientFromClinicSpy.mockRestore();
+      });
+
+
+      it('should remove a patient', async () => {
+        store = mockStore(hasPatientsState);
+        render(
+          <MockedProviderWrappers>
+            <ClinicPatients {...defaultProps} />
+          </MockedProviderWrappers>
+        );
+
+        // Modal title should be present after clicking "Remove Patient"
+        await userEvent.click(screen.getByTestId('action-menu-patient1-icon'));
+        await userEvent.click(screen.getByRole('button', { name: /Remove Patient/ }));
+
+        expect(screen.getByRole('heading', { name: /Remove Patient One/ })).toBeInTheDocument();
+        expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Remove patient', { clinicId: 'clinicID123' });
+        expect(defaultProps.trackMetric).toHaveBeenCalledTimes(1);
+
+        store.clearActions();
+
+        // Confirm removal. Correct actions should be fired.
+        await userEvent.click(screen.getByRole('button', { name: /Remove/ }));
+
+        await waitFor(() => expect(defaultProps.api.clinics.deletePatientFromClinic).toHaveBeenCalled());
+
+        expect(defaultProps.api.clinics.deletePatientFromClinic).toHaveBeenCalledWith(
+          'clinicID123',
+          'patient1',
+          expect.any(Function),
+        );
+
+        expect(store.getActions()).toStrictEqual([{ type: 'DELETE_PATIENT_FROM_CLINIC_REQUEST' }]);
       });
 
       describe('tier0300 clinic', () => {
