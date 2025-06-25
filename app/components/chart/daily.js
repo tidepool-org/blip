@@ -41,6 +41,7 @@ const SMBGTooltip = vizComponents.SMBGTooltip;
 const CBGTooltip = vizComponents.CBGTooltip;
 const FoodTooltip = vizComponents.FoodTooltip;
 const PumpSettingsOverrideTooltip = vizComponents.PumpSettingsOverrideTooltip;
+const AlarmTooltip = vizComponents.AlarmTooltip;
 
 import Header from './header';
 import CgmSampleIntervalRangeToggle from './cgmSampleIntervalRangeToggle';
@@ -97,6 +98,8 @@ const DailyChart = withTranslation(null, { withRef: true })(class DailyChart ext
       'onCarbOut',
       'onPumpSettingsOverrideHover',
       'onPumpSettingsOverrideOut',
+      'onPumpAlarmHover',
+      'onPumpAlarmOut',
     ];
 
     this.log = bows('Daily Chart');
@@ -412,6 +415,19 @@ class Daily extends Component {
             bgPrefs={bgPrefs}
             timePrefs={timePrefs}
           />}
+          {this.state.hoveredPumpAlarm && <AlarmTooltip
+            position={{
+              top: this.state.hoveredPumpAlarm.top,
+              left: this.state.hoveredPumpAlarm.left
+            }}
+            offset={{
+              top: 0,
+              left: this.state.hoveredPumpAlarm.leftOffset || 0
+            }}
+            side={this.state.hoveredPumpAlarm.side}
+            alarm={this.state.hoveredPumpAlarm.data}
+            timePrefs={timePrefs}
+          />}
           <WindowSizeListener onResize={this.handleWindowResize} />
         </Box>
       </div>
@@ -483,6 +499,8 @@ class Daily extends Component {
           onCarbOut={this.handleCarbOut}
           onPumpSettingsOverrideHover={this.handlePumpSettingsOverrideHover}
           onPumpSettingsOverrideOut={this.handlePumpSettingsOverrideOut}
+          onPumpAlarmHover={this.handlePumpAlarmHover}
+          onPumpAlarmOut={this.handlePumpAlarmOut}
           ref={this.chartRef} />
       </>
     );
@@ -701,6 +719,36 @@ class Daily extends Component {
   handlePumpSettingsOverrideOut = () => {
     this.setState({
       hoveredPumpSettingsOverride: false
+    });
+  };
+
+  handlePumpAlarmHover = alarm => {
+    this.throttledMetric('hovered over daily alarm tooltip');
+    const rect = alarm.rect;
+    alarm.top = rect.top + rect.height;
+    alarm.left = rect.left + (rect.width / 2);
+    alarm.side = 'bottom';
+
+    // Prevent the tooltip from spilling over chart edges
+    const leftOffset = alarm.left - alarm.chartExtents.left;
+    const rightOffset = alarm.left - alarm.chartExtents.right;
+
+    if (leftOffset < 35) {
+      alarm.leftOffset = 35;
+    }
+
+    if (rightOffset > -35) {
+      alarm.leftOffset = -35;
+    }
+
+    this.setState({
+      hoveredPumpAlarm: alarm
+    });
+  };
+
+  handlePumpAlarmOut = () => {
+    this.setState({
+      hoveredPumpAlarm: false
     });
   };
 
