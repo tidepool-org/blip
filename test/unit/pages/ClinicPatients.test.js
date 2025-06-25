@@ -2838,9 +2838,9 @@ describe('ClinicPatients', () => {
             // Ensure tag options present
             const tags = dialog().find('.tag-text').hostNodes();
             expect(tags).to.have.lengthOf(3);
-            expect(tags.at(0).text()).to.equal('ttest tag 3');
+            expect(tags.at(0).text()).to.equal('>test tag 1');
             expect(tags.at(1).text()).to.equal('test tag 2');
-            expect(tags.at(2).text()).to.equal('>test tag 1');
+            expect(tags.at(2).text()).to.equal('ttest tag 3');
 
             // No initial selected tags
             const selectedTags = () => dialog().find('.tag-text.selected').hostNodes();
@@ -2855,8 +2855,8 @@ describe('ClinicPatients', () => {
 
             // Tags should now be selected
             expect(selectedTags()).to.have.lengthOf(2);
-            expect(selectedTags().at(0).text()).to.equal('ttest tag 3');
-            expect(selectedTags().at(1).text()).to.equal('>test tag 1');
+            expect(selectedTags().at(0).text()).to.equal('>test tag 1');
+            expect(selectedTags().at(1).text()).to.equal('ttest tag 3');
 
             // Ensure period filter options present
             const summaryPeriodOptions = dialog().find('#period').find('label').hostNodes();
@@ -2922,7 +2922,7 @@ describe('ClinicPatients', () => {
               expect(mockedLocalStorage.tideDashboardConfig?.['clinicianUserId123|clinicID123']).to.eql({
                 period: '30d',
                 lastData: 14,
-                tags: ['tag3', 'tag1'],
+                tags: ['tag1', 'tag3'],
               });
 
               done();
