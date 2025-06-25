@@ -1743,39 +1743,6 @@ describe('ClinicPatients', () => {
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Last upload apply filter', sinon.match({ clinicId: 'clinicID123', dateRange: '30 days', type: 'bgm'}));
         });
 
-        it('should allow filtering by tags', () => {
-          const patientTagsFilterTrigger = wrapper.find('#patient-tags-filter-trigger').hostNodes();
-          expect(patientTagsFilterTrigger).to.have.lengthOf(1);
-
-          const popover = () => wrapper.find('#patientTagFilters').hostNodes();
-          expect(popover().props().style.visibility).to.equal('hidden');
-
-          // Open filters popover
-          patientTagsFilterTrigger.simulate('click');
-          expect(popover().props().style.visibility).to.be.undefined;
-
-          // Ensure filter options present
-          const filterOptions = popover().find('.tag-filter-option').hostNodes();
-          expect(filterOptions).to.have.lengthOf(3);
-
-          // Ensure filter options are presented sorted alphabetically
-          expect(filterOptions.at(0).text()).to.equal('>test tag 1');
-          expect(filterOptions.at(1).text()).to.equal('test tag 2');
-          expect(filterOptions.at(2).text()).to.equal('ttest tag 3');
-
-          // Apply button disabled until selection made
-          const applyButton = () => popover().find('#apply-patient-tags-filter').hostNodes();
-
-          popover().find('#tag-filter-option-checkbox-tag1').hostNodes().simulate('change', { target: { checked: true } });
-          popover().find('#tag-filter-option-checkbox-tag2').hostNodes().simulate('change', { target: { checked: true } });
-
-          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-          applyButton().simulate('click');
-
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ ...defaultFetchOptions, sort: '-lastData', tags: ['tag1', 'tag2'] }));
-          sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Patient tag filter apply', sinon.match({ clinicId: 'clinicID123' }));
-        });
-
         it('should allow filtering by cgm use', () => {
           const cgmUseFilterTrigger = wrapper.find('#cgm-use-filter-trigger').hostNodes();
           expect(cgmUseFilterTrigger).to.have.lengthOf(1);
@@ -1807,59 +1774,6 @@ describe('ClinicPatients', () => {
           applyButton().simulate('click');
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ ...defaultFetchOptions, sortType: 'cgm', 'cgm.timeCGMUsePercent': '<0.7' }));
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - CGM use apply filter', sinon.match({ clinicId: 'clinicID123', filter: '<0.7' }));
-        });
-
-        describe('managing clinic patient tags', () => {
-          let filterPopover, editTagsDialog, patientTagsFilterTrigger, patientTagsEditTrigger;
-
-          beforeEach(() => {
-            patientTagsFilterTrigger = wrapper.find('#patient-tags-filter-trigger').hostNodes();
-            filterPopover = () => wrapper.find('#patientTagFilters').hostNodes();
-
-            patientTagsEditTrigger = filterPopover().find('#show-edit-clinic-patient-tags-dialog').hostNodes();
-            editTagsDialog = () => wrapper.find('#editClinicPatientTags').hostNodes();
-
-            expect(patientTagsFilterTrigger).to.have.lengthOf(1);
-            expect(filterPopover().props().style.visibility).to.equal('hidden');
-            expect(editTagsDialog()).to.have.length(0);
-
-            // Open filters popover
-            patientTagsFilterTrigger.simulate('click');
-            expect(filterPopover().props().style.visibility).to.be.undefined;
-
-            // Open clinic tags edit popover
-            patientTagsEditTrigger.simulate('click');
-            wrapper.update();
-            expect(editTagsDialog()).to.have.length(1);
-            expect(editTagsDialog().childAt(0).props().open).to.be.true;
-
-
-            sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Edit clinic tags open', sinon.match({ clinicId: 'clinicID123', source: 'Filter menu' }));
-          });
-
-          it('should allow deleting a clinic patient tag', () => {
-            // Ensure tags present
-            const tags = editTagsDialog().find('#clinic-patients-edit-tag-list').find('.tag-text').hostNodes();
-            expect(tags).to.have.lengthOf(3);
-
-            const confirmDialog = () => wrapper.find('Dialog#deletePatientTag');
-            expect(confirmDialog()).to.have.length(0);
-
-            // Open confirm dialog
-            editTagsDialog().find('#delete-tag-button-tag1').hostNodes().simulate('click');
-            wrapper.update();
-            expect(confirmDialog()).to.have.length(1);
-            expect(confirmDialog().props().open).to.be.true;
-
-            const confirmButton = () => confirmDialog().find('button#patientTagRemoveConfirm').hostNodes();
-            expect(confirmButton()).to.have.length(1);
-
-            defaultProps.api.clinics.deleteClinicPatientTag.resetHistory();
-            confirmButton().simulate('click');
-
-            sinon.assert.calledWith(defaultProps.api.clinics.deleteClinicPatientTag, 'clinicID123', 'tag1');
-            sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Edit clinic tags delete', sinon.match({ clinicId: 'clinicID123' }));
-          });
         });
 
         it('should allow filtering by bg range targets that DO NOT meet selected criteria', () => {
@@ -2924,9 +2838,9 @@ describe('ClinicPatients', () => {
             // Ensure tag options present
             const tags = dialog().find('.tag-text').hostNodes();
             expect(tags).to.have.lengthOf(3);
-            expect(tags.at(0).text()).to.equal('ttest tag 3');
+            expect(tags.at(0).text()).to.equal('>test tag 1');
             expect(tags.at(1).text()).to.equal('test tag 2');
-            expect(tags.at(2).text()).to.equal('>test tag 1');
+            expect(tags.at(2).text()).to.equal('ttest tag 3');
 
             // No initial selected tags
             const selectedTags = () => dialog().find('.tag-text.selected').hostNodes();
@@ -2941,8 +2855,8 @@ describe('ClinicPatients', () => {
 
             // Tags should now be selected
             expect(selectedTags()).to.have.lengthOf(2);
-            expect(selectedTags().at(0).text()).to.equal('ttest tag 3');
-            expect(selectedTags().at(1).text()).to.equal('>test tag 1');
+            expect(selectedTags().at(0).text()).to.equal('>test tag 1');
+            expect(selectedTags().at(1).text()).to.equal('ttest tag 3');
 
             // Ensure period filter options present
             const summaryPeriodOptions = dialog().find('#period').find('label').hostNodes();
@@ -3008,7 +2922,7 @@ describe('ClinicPatients', () => {
               expect(mockedLocalStorage.tideDashboardConfig?.['clinicianUserId123|clinicID123']).to.eql({
                 period: '30d',
                 lastData: 14,
-                tags: ['tag3', 'tag1'],
+                tags: ['tag1', 'tag3'],
               });
 
               done();

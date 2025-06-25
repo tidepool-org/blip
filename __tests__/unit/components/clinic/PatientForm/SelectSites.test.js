@@ -9,9 +9,9 @@ import { MemoryRouter, Route, Switch } from 'react-router-dom';
 import thunk from 'redux-thunk';
 import mockLocalStorage from '../../../../utils/mockLocalStorage';
 
-import SelectTags, { buildSelectOptions } from '@app/components/clinic/PatientForm/SelectTags';
+import SelectSites, { buildSelectOptions } from '@app/components/clinic/PatientForm/SelectSites';
 
-describe('SelectTags', ()  => {
+describe('SelectSites', ()  => {
   const storeFixture = {
     blip: {
       loggedInUserId: 'abcd-1234',
@@ -21,12 +21,12 @@ describe('SelectTags', ()  => {
         '4b68d': {
           id: '4b68d',
           name: 'Test Clinic',
-          clinicSites: [],
-          patientTags: [
-            { id: 'id-for-delta', name: 'Delta' },
-            { id: 'id-for-charlie', name: 'Charlie' },
-            { id: 'id-for-bravo', name: 'Bravo' },
-            { id: 'id-for-alpha', name: 'Alpha' },
+          patientTags: [],
+          sites: [
+            { id: 'id-for-golf', name: 'Site Golf' },
+            { id: 'id-for-hotel', name: 'Site Hotel' },
+            { id: 'id-for-echo', name: 'Site Echo' },
+            { id: 'id-for-foxtrot', name: 'Site Foxtrot' },
           ],
         },
       },
@@ -36,7 +36,7 @@ describe('SelectTags', ()  => {
   const mockStore = configureStore([thunk]);
   let store = mockStore(storeFixture);
 
-  it('Should fire the onChange handler with all of the selected tags', async () => {
+  it('Should fire the onChange handler with all of the selected sites', async () => {
     mockLocalStorage({
       'activePatientFilters/abcd-1234/4b68d': JSON.stringify({
         timeCGMUsePercent: null,
@@ -44,13 +44,13 @@ describe('SelectTags', ()  => {
         lastDataType: null,
         timeInRange: [],
         meetsGlycemicTargets: true,
-        patientTags: ['id-for-alpha', 'id-for-charlie'],
-        sites: [],
+        patientTags: [],
+        clinicSites: ['id-for-echo', 'id-for-golf'],
       }),
     });
 
     const testProps = {
-      currentTagIds: ['id-for-delta'], // Patient currently has Delta tag
+      currentSites: [{ id: 'id-for-hotel', name: 'Site Hotel' }], // Patient is in Site Hotel
       onChange: jest.fn(),
     };
 
@@ -59,53 +59,53 @@ describe('SelectTags', ()  => {
         <MemoryRouter initialEntries={['/clinic-workspace']}>
           <Switch>
             <Route path='/clinic-workspace'>
-              <SelectTags {...testProps} />
+              <SelectSites {...testProps} />
             </Route>
           </Switch>
         </MemoryRouter>
       </Provider>
     );
 
-    // Current tags of patient should be shown, Tag options in dropdown should be hidden
-    expect(screen.getByText('Delta')).toBeInTheDocument();
+    // Current sites of patient should be shown, Site options in dropdown should be hidden
+    expect(screen.getByText('Site Hotel')).toBeInTheDocument();
 
-    expect(screen.queryByText('Alpha')).not.toBeInTheDocument();
-    expect(screen.queryByText('Bravo')).not.toBeInTheDocument();
-    expect(screen.queryByText('Charlie')).not.toBeInTheDocument();
+    expect(screen.queryByText('Site Echo')).not.toBeInTheDocument();
+    expect(screen.queryByText('Site Foxtrot')).not.toBeInTheDocument();
+    expect(screen.queryByText('Site Golf')).not.toBeInTheDocument();
 
-    // Open the dropdown to see the suggested tags
+    // Open the dropdown to see the suggested sites
     const selectInput = screen.getByRole('combobox');
     await userEvent.click(selectInput);
 
-    // Tags options are now visible
-    expect(screen.getByText('Alpha')).toBeInTheDocument();
-    expect(screen.getByText('Bravo')).toBeInTheDocument();
-    expect(screen.getByText('Charlie')).toBeInTheDocument();
-    expect(screen.getByText('Delta')).toBeInTheDocument();
+    // Sites options are now visible
+    expect(screen.getByText('Site Echo')).toBeInTheDocument();
+    expect(screen.getByText('Site Foxtrot')).toBeInTheDocument();
+    expect(screen.getByText('Site Golf')).toBeInTheDocument();
+    expect(screen.getByText('Site Hotel')).toBeInTheDocument();
 
-    // Suggested tags should be shown before non-suggesteds. Suggested tags are the ones in active filters.
-    // Order should be Alpha, Charlie, Bravo
+    // Suggested sites should be shown before non-suggesteds. Suggested sites are the ones in active filters.
+    // Order should be Echo, Golf, Foxtrot
     const suggestedHeader = screen.getByText('Suggested - based on current dashboard filters');
-    const tagAlpha = screen.getByText('Alpha');
-    const tagBravo = screen.getByText('Bravo');
-    const tagCharlie = screen.getByText('Charlie');
+    const siteEcho = screen.getByText('Site Echo');
+    const siteFoxtrot = screen.getByText('Site Foxtrot');
+    const siteGolf = screen.getByText('Site Golf');
 
-    expect(suggestedHeader.compareDocumentPosition(tagAlpha)).toEqual(Node.DOCUMENT_POSITION_FOLLOWING);
-    expect(tagAlpha.compareDocumentPosition(tagCharlie)).toEqual(Node.DOCUMENT_POSITION_FOLLOWING);
-    expect(tagCharlie.compareDocumentPosition(tagBravo)).toEqual(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(suggestedHeader.compareDocumentPosition(siteEcho)).toEqual(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(siteEcho.compareDocumentPosition(siteGolf)).toEqual(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(siteGolf.compareDocumentPosition(siteFoxtrot)).toEqual(Node.DOCUMENT_POSITION_FOLLOWING);
 
-    // Clicking on a Tag fires the onChange handler with the clicked tag
-    await userEvent.click(screen.getByText('Bravo'));
+    // Clicking on a Site fires the onChange handler with the clicked site
+    await userEvent.click(screen.getByText('Site Foxtrot'));
     expect(testProps.onChange).toHaveBeenCalledWith([
-      'id-for-delta', // Patient's current tags
-      'id-for-bravo', // New tag that has been selected
+      { id: 'id-for-hotel', name: 'Site Hotel' }, // Patient's current sites
+      { id: 'id-for-foxtrot', name: 'Site Foxtrot' },, // New site that has been selected
     ]);
   });
 
   describe('buildSelectOptions', ()  => {
     const tMock = jest.fn().mockImplementation(string => string);
 
-    const clinicTagsMock = [
+    const clinicSitesMock = [
       { name: 'Hotel', id: 'id-for-hotel' },
       { name: 'Golf', id: 'id-for-golf' },
       { name: 'Foxtrot', id: 'id-for-foxtrot' },
@@ -113,12 +113,12 @@ describe('SelectTags', ()  => {
     ];
 
     const activeFiltersMock = {
-      patientTags: ['id-for-golf', 'id-for-echo'], // should suggest based on these
+      clinicSites: ['id-for-golf', 'id-for-echo'], // should suggest based on these
     };
 
-    describe('When tags are suggested', () => {
+    describe('When sites are suggested', () => {
       it('Should output arrays of suggested and non-suggested groups sorted alphabetically', () => {
-        const result = buildSelectOptions(tMock, clinicTagsMock, activeFiltersMock, true);
+        const result = buildSelectOptions(tMock, clinicSitesMock, activeFiltersMock, true);
 
         const expected = [
           {
@@ -140,9 +140,9 @@ describe('SelectTags', ()  => {
       });
     });
 
-    describe('When tags are not suggested', () => {
+    describe('When sites are not suggested', () => {
       it('Should output a singly array sorted alphabetically', () => {
-        const result = buildSelectOptions(tMock, clinicTagsMock, activeFiltersMock, false);
+        const result = buildSelectOptions(tMock, clinicSitesMock, activeFiltersMock, false);
 
         const expected = [
           {

@@ -409,6 +409,11 @@ export default (type) => {
     case types.UPDATE_CLINIC_SITE_FAILURE:
       return 'updatingClinicSite';
 
+    case types.DELETE_CLINIC_SITE_REQUEST:
+    case types.DELETE_CLINIC_SITE_SUCCESS:
+    case types.DELETE_CLINIC_SITE_FAILURE:
+      return 'deletingClinicSite';
+
     case types.CREATE_CLINIC_PATIENT_TAG_REQUEST:
     case types.CREATE_CLINIC_PATIENT_TAG_SUCCESS:
     case types.CREATE_CLINIC_PATIENT_TAG_FAILURE:
