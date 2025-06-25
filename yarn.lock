@@ -8462,7 +8462,7 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.33.0
+    tideline: 1.33.1-web-3762-twiist-data-console-error.1
     tidepool-platform-client: 0.63.1
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
@@ -22218,9 +22218,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.33.0":
-  version: 1.33.0
-  resolution: "tideline@npm:1.33.0"
+"tideline@npm:1.33.1-web-3762-twiist-data-console-error.1":
+  version: 1.33.1-web-3762-twiist-data-console-error.1
+  resolution: "tideline@npm:1.33.1-web-3762-twiist-data-console-error.1"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -22241,7 +22241,7 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: 82bdd80e65e9d14869078879c0b83ef4dd5f6024a4f32c01fd72962278ed00d8e307649d061433e3282ddc55ba1f15c1cf94ce7b21b7daa91157562613ada56f
+  checksum: bde10f5f3c9ff13b61301545d33eb85e22ea1108aedc781ee31ccccd2982cc5d080d9ea7e084dbb13e7e81b40a82ae733673d9c52ccb4e4ab7ef9974d951797e
   languageName: node
   linkType: hard
 
