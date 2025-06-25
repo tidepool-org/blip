@@ -24,7 +24,7 @@ jest.mock('launchdarkly-react-client-sdk');
 const TEST_TIMEOUT_MS = 30_000;
 
 describe('ClinicPatients', ()  => {
-  const today = moment('2025-05-29T00:00:00Z').toISOString();
+  const today = moment().toISOString();
   const yesterday = moment(today).subtract(1, 'day').toISOString();
 
   const defaultWorkingState = {
@@ -1278,6 +1278,77 @@ describe('ClinicPatients', ()  => {
               clinic: { tier: 'tier0300' },
             })),
           });
+        });
+
+        it('should show data appropriately based on availablity', async () => {
+          store = mockStore(tier0300ClinicState);
+          render(
+            <MockedProviderWrappers>
+              <ClinicPatients {...defaultProps} />
+            </MockedProviderWrappers>
+          );
+
+          const table = document.querySelector('table') // eslint-disable-line
+          const columns = table.querySelectorAll('.MuiTableCell-head'); // eslint-disable-line
+
+          expect(columns[0]).toHaveTextContent('Patient Details');
+          expect(columns[1]).toHaveTextContent('Data Recency');
+          expect(columns[2]).toHaveTextContent('Patient Tags');
+          expect(columns[3]).toHaveTextContent('CGM');
+          expect(columns[4]).toHaveTextContent('GMI');
+          expect(columns[5]).toHaveTextContent('% Time in Range');
+          expect(columns[7]).toHaveTextContent('BGM');
+          expect(columns[8]).toHaveTextContent('Avg. Glucose (mg/dL)');
+          expect(columns[9]).toHaveTextContent('Lows');
+          expect(columns[10]).toHaveTextContent('Highs');
+
+          const rows = table.querySelectorAll('tbody tr'); // eslint-disable-line
+          expect(rows.length).toBe(5);
+
+          expect(rows[0]).toHaveTextContent(/Patient One/i);
+          expect(rows[0]).toHaveTextContent(/1999-01-01/i);
+          expect(rows[0]).toHaveTextContent(/MRN012/i);
+          expect(rows[0]).toHaveTextContent(/--/i); // empty stat text
+
+          // Last upload date
+          expect(rows[0]).toHaveTextContent(/--/);
+          expect(rows[1]).toHaveTextContent(/CGM: Today/i);
+          expect(rows[1]).toHaveTextContent(/BGM: Yesterday/i);
+          expect(rows[2]).toHaveTextContent(/CGM: Yesterday/i);
+          expect(rows[3]).toHaveTextContent(/CGM: 30 days ago/i);
+
+          // Patient Tags
+          expect(rows[0]).toHaveTextContent(/Add/i);
+          expect(rows[1]).toHaveTextContent(/test tag 1/i);
+          expect(rows[2]).toHaveTextContent(/test tag 1\+2/i);
+
+          // // GMI
+          expect(rows[0]).toHaveTextContent(/--/);// GMI undefined
+          expect(rows[1]).toHaveTextContent(/--/); // <24h cgm use shows empty text
+          expect(rows[2]).toHaveTextContent(/6.5 %/i);
+          expect(rows[3]).toHaveTextContent(/--/); // <70% cgm use
+
+          // Ensure tags hidden by overflow are visible on hover
+          await userEvent.hover(screen.getByTestId('tag-overflow-trigger'));
+          expect(screen.getByTestId('tag-list-overflow')).toBeVisible();
+
+          // Average glucose and readings/day
+          expect(rows[1]).toHaveTextContent('189'); // 10.5 mmol/L -> mg/dL
+          expect(rows[1]).toHaveTextContent('<1 reading/day');
+          expect(rows[2]).toHaveTextContent('207'); // 11.5 mmol/L -> mg/dL
+          expect(rows[2]).toHaveTextContent('1 reading/day');
+          expect(rows[3]).toHaveTextContent('225'); // 12.5 mmol/L -> mg/dL
+          expect(rows[3]).toHaveTextContent('2 readings/day');
+
+          // Low events
+          expect(rows[1]).toHaveTextContent('1');
+          expect(rows[2]).toHaveTextContent('3');
+          expect(rows[3]).toHaveTextContent('0');
+
+          // High events
+          expect(rows[1]).toHaveTextContent('2');
+          expect(rows[2]).toHaveTextContent('4');
+          expect(rows[3]).toHaveTextContent('0');
         });
 
         describe('filtering for patients', () => {
