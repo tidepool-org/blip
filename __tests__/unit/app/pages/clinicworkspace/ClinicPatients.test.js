@@ -1281,7 +1281,6 @@ describe('ClinicPatients', ()  => {
         });
 
         it('should show data appropriately based on availablity', async () => {
-          store = mockStore(tier0300ClinicState);
           render(
             <MockedProviderWrappers>
               <ClinicPatients {...defaultProps} />
@@ -1352,7 +1351,6 @@ describe('ClinicPatients', ()  => {
         });
 
         it('should refetch patients with updated sort parameter when sortable column headers are clicked', async () => {
-          store = mockStore(tier0300ClinicState);
           render(
             <MockedProviderWrappers>
               <ClinicPatients {...defaultProps} />
@@ -1533,6 +1531,174 @@ describe('ClinicPatients', ()  => {
             expect.any(Function),
           );
         }, TEST_TIMEOUT_MS);
+
+        it('should allow refreshing the patient list and maintain', async () => {
+          store = mockStore(tier0300ClinicState);
+          render(
+            <MockedProviderWrappers>
+              <ClinicPatients {...defaultProps} />
+            </MockedProviderWrappers>
+          );
+
+          // should show the last time since patient data fetch
+          expect(screen.getByText('Last updated less than an hour ago')).toBeInTheDocument();
+
+          // clicking refresh should fresh the patient list
+          await userEvent.click(screen.getByLabelText('Refresh patients list'));
+
+          expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+            'clinicID123',
+            expect.objectContaining({ ...defaultFetchOptions, sort: '-lastData' }),
+            expect.any(Function),
+          );
+        });
+
+        it('should allow filtering by last upload', async () => {
+          store = mockStore(tier0300ClinicState);
+          render(
+            <MockedProviderWrappers>
+              <ClinicPatients {...defaultProps} />
+            </MockedProviderWrappers>
+          );
+
+          // Filter options should not be visible yet
+          expect(screen.queryByRole('radio', { name: 'CGM' })).not.toBeInTheDocument();
+
+          // Open the filter dropdown
+          await userEvent.click(screen.getByTestId('last-data-filter-trigger'));
+
+          expect(screen.getByRole('radio', { name: 'CGM' })).toBeInTheDocument();
+          expect(screen.getByRole('radio', { name: 'BGM' })).toBeInTheDocument();
+
+          expect(screen.getByRole('radio', { name: 'Within 24 hours' })).toBeInTheDocument();
+          expect(screen.getByRole('radio', { name: 'Within 2 days' })).toBeInTheDocument();
+          expect(screen.getByRole('radio', { name: 'Within 14 days' })).toBeInTheDocument();
+          expect(screen.getByRole('radio', { name: 'Within 30 days' })).toBeInTheDocument();
+
+          // Apply button should be disabled since no options are selected
+          const applyFilterButton = screen.getByRole('button', { name: 'Apply' });
+          expect(applyFilterButton).toBeDisabled();
+
+          // Select some options. Apply button should enable
+          await userEvent.click(screen.getByRole('radio', { name: 'BGM' }));
+          await userEvent.click(screen.getByRole('radio', { name: 'Within 30 days' }));
+          expect(applyFilterButton).toBeEnabled();
+
+          await userEvent.click(applyFilterButton);
+
+          expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+            'clinicID123',
+            expect.objectContaining({ ...defaultFetchOptions, sortType: 'bgm', sort: '-lastData', 'bgm.lastDataFrom': expect.any(String), 'bgm.lastDataTo': expect.any(String) }),
+            expect.any(Function),
+          );
+
+          expect(defaultProps.trackMetric).toHaveBeenCalledWith(
+            'Clinic - Population Health - Last upload apply filter',
+            expect.objectContaining({ clinicId: 'clinicID123', dateRange: '30 days', type: 'bgm'}),
+          );
+        });
+
+        it('should allow filtering by cgm use', async () => {
+          store = mockStore(tier0300ClinicState);
+          render(
+            <MockedProviderWrappers>
+              <ClinicPatients {...defaultProps} />
+            </MockedProviderWrappers>
+          );
+
+          // Filter options should not be visible yet
+          expect(screen.queryByRole('radio', { name: 'Less than 70%' })).not.toBeInTheDocument();
+
+          // Open filter dropdown
+          await userEvent.click(screen.getByTestId('cgm-use-filter-trigger'));
+
+          // Query options should be visible. Apply button should be disabled due to no option selected
+          expect(screen.getByRole('radio', { name: 'Less than 70%' })).toBeInTheDocument();
+          expect(screen.getByRole('radio', { name: '70% or more' })).toBeInTheDocument();
+
+          const applyFilterButton = screen.getByRole('button', { name: 'Apply' });
+          expect(applyFilterButton).toBeDisabled();
+
+          await userEvent.click(screen.getByRole('radio', { name: 'Less than 70%' }));
+          expect(applyFilterButton).toBeEnabled();
+
+          await userEvent.click(applyFilterButton);
+
+          expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+            'clinicID123',
+            expect.objectContaining({ 'cgm.timeCGMUsePercent': '<0.7' }),
+            expect.any(Function),
+          );
+
+          expect(defaultProps.trackMetric).toHaveBeenCalledWith(
+            'Clinic - Population Health - CGM use apply filter',
+            expect.objectContaining({ clinicId: 'clinicID123', filter: '<0.7' }),
+          );
+        });
+
+
+        it('should allow filtering by bg range targets that DO NOT meet selected criteria', async () => {
+          store = mockStore(tier0300ClinicState);
+          render(
+            <MockedProviderWrappers>
+              <ClinicPatients {...defaultProps} />
+            </MockedProviderWrappers>
+          );
+
+          await userEvent.click(screen.getByTestId('time-in-range-filter-trigger'));
+
+          // Modal title and checkbox options should be present in unchecked state
+          expect(screen.getByText('Filter by Time in Range')).toBeInTheDocument();
+
+          const optVeryHigh = screen.getByRole('checkbox', { name: /Very High Greater than 5 % Time >250 mg\/dL/ });
+          const optHigh = screen.getByRole('checkbox', { name: /High Greater than 25 % Time >180 mg\/dL/ });
+          const optNotMeetingTIR = screen.getByRole('checkbox', { name: /Not meeting TIR Less than 70 % Time between 70-180 mg\/dL/ });
+          const optLow = screen.getByRole('checkbox', { name: /Low Greater than 4 % Time <70 mg\/dL/ });
+          const optVeryLow = screen.getByRole('checkbox', { name: /Very Low Greater than 1 % Time <54 mg\/dL/ });
+
+          expect(optVeryHigh).not.toBeChecked();
+          expect(optHigh).not.toBeChecked();
+          expect(optNotMeetingTIR).not.toBeChecked();
+          expect(optLow).not.toBeChecked();
+          expect(optVeryLow).not.toBeChecked();
+
+          // Select all filter ranges and submit form
+          await userEvent.click(optVeryHigh);
+          await userEvent.click(optHigh);
+          await userEvent.click(optNotMeetingTIR);
+          await userEvent.click(optLow);
+          await userEvent.click(optVeryLow);
+
+          await userEvent.click(screen.getByRole('button', { name: 'Apply Filter' }));
+
+          await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalled());
+
+          expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+            'clinicID123',
+            expect.objectContaining({
+              sort: '-lastData',
+              'cgm.timeInAnyHighPercent': '>=0.25',
+              'cgm.timeInAnyLowPercent': '>=0.04',
+              'cgm.timeInTargetPercent': '<=0.7',
+              'cgm.timeInVeryHighPercent': '>=0.05',
+              'cgm.timeInVeryLowPercent': '>=0.01',
+            }),
+            expect.any(Function)
+          );
+
+          expect(defaultProps.trackMetric).toHaveBeenCalledWith(
+            'Clinic - Population Health - Time in range apply filter',
+            expect.objectContaining({
+              clinicId: 'clinicID123',
+              hyper: true,
+              hypo: true,
+              inRange: true,
+              meetsCriteria: true,
+              severeHyper: true,
+              severeHypo: true,
+            }),
+          );
+        });
 
         describe('filtering for patients', () => {
           afterEach(() => {

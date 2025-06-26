@@ -1668,6 +1668,7 @@ export const ClinicPatients = (props) => {
                     <Button
                       variant="filter"
                       id="last-data-filter-trigger"
+                      data-testid="last-data-filter-trigger"
                       selected={!!activeFilters.lastData}
                       {...bindTrigger(lastDataPopupFilterState)}
                       icon={KeyboardArrowDownRoundedIcon}
@@ -2147,6 +2148,7 @@ export const ClinicPatients = (props) => {
 
                   <Button
                     id="time-in-range-filter-trigger"
+                    data-testid="time-in-range-filter-trigger"
                     variant="filter"
                     selected={!!activeFilters.timeInRange?.length}
                     onClick={handleOpenTimeInRangeFilter}
@@ -2184,6 +2186,7 @@ export const ClinicPatients = (props) => {
                     <Button
                       variant="filter"
                       id="cgm-use-filter-trigger"
+                      data-testid="cgm-use-filter-trigger"
                       selected={!!activeFilters.timeCGMUsePercent}
                       {...bindTrigger(cgmUsePopupFilterState)}
                       icon={KeyboardArrowDownRoundedIcon}
