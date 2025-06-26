@@ -687,6 +687,7 @@ describe('clinicUtils', function() {
         'birthDate',
         'email',
         'mrn',
+        'sites',
         'tags',
         'connectDexcom',
         'dataSources',
