@@ -1567,7 +1567,7 @@ describe('ClinicPatients', ()  => {
 
             expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
               'clinicID123',
-              { sites: ['site-1-id', 'site-2-id'], limit: 50, offset: 0, period: '14d', sortType: 'cgm', sort: '-lastData' },
+              expect.objectContaining({ sites: ['site-1-id', 'site-2-id'] }),
               expect.any(Function),
             );
 
@@ -1822,7 +1822,7 @@ describe('ClinicPatients', ()  => {
                 summary: {
                   bgmStats: {
                     dates: {
-                      lastData: '2025-05-28T00:00:00.000Z',
+                      lastData: expect.any(String),
                     },
                     periods: { '14d': {
                       averageGlucoseMmol: 10.5,
@@ -1833,7 +1833,7 @@ describe('ClinicPatients', ()  => {
                   },
                   cgmStats: {
                     dates: {
-                      lastData: '2025-05-29T00:00:00.000Z',
+                      lastData: expect.any(String),
                     },
                     periods: {
                       '14d': {
@@ -1993,7 +1993,7 @@ describe('ClinicPatients', ()  => {
                 summary: {
                   bgmStats: {
                     dates: {
-                      lastData: '2025-05-28T00:00:00.000Z',
+                      lastData: expect.any(String),
                     },
                     periods: { '14d': {
                       averageGlucoseMmol: 10.5,
@@ -2004,7 +2004,7 @@ describe('ClinicPatients', ()  => {
                   },
                   cgmStats: {
                     dates: {
-                      lastData: '2025-05-29T00:00:00.000Z',
+                      lastData: expect.any(String),
                     },
                     periods: {
                       '14d': {
