@@ -158,8 +158,11 @@ export function getProviderHandlers(patient, selectedClinicId, provider) {
   }
 };
 
+export const getCurrentDataSourceForProvider = (patient, providerName) =>
+  find(orderBy(patient?.dataSources, 'modifiedTime', 'desc'), { providerName: providerName });
+
 export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
-  const dataSource = find(patient?.dataSources, {providerName});
+  const dataSource = getCurrentDataSourceForProvider(patient, providerName);
 
   const mostRecentConnectionUpdateTime = isLoggedInUser
     ? max([
@@ -275,8 +278,8 @@ export const getDataConnectionProps = (patient, isLoggedInUser, selectedClinicId
 
   let connectState;
 
+  const dataSource = getCurrentDataSourceForProvider(patient, providerName);
   const connectStateUI = getConnectStateUI(patient, isLoggedInUser, providerName);
-  const dataSource = find(orderBy(patient?.dataSources, 'modifiedTime', 'desc'), { providerName: providerName });
   const inviteExpired = dataSource?.expirationTime < moment.utc().toISOString();
 
   if (dataSource?.state) {
