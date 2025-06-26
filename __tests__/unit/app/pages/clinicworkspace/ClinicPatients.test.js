@@ -1351,6 +1351,189 @@ describe('ClinicPatients', ()  => {
           expect(rows[3]).toHaveTextContent('0');
         });
 
+        it('should refetch patients with updated sort parameter when sortable column headers are clicked', async () => {
+          store = mockStore(tier0300ClinicState);
+          render(
+            <MockedProviderWrappers>
+              <ClinicPatients {...defaultProps} />
+            </MockedProviderWrappers>
+          );
+
+          defaultProps.api.clinics.getPatientsForClinic.mockClear();
+          defaultProps.trackMetric.mockClear();
+
+          const patientHeader = screen.getByRole('button', { name: /Patient Details/ });
+          await userEvent.click(patientHeader);
+
+          await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalled());
+
+          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - Patient details sort ascending', { clinicId: 'clinicID123' })
+          expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+            'clinicID123',
+            expect.objectContaining({ sort: '+fullName' }),
+            expect.any(Function),
+          );
+
+          defaultProps.api.clinics.getPatientsForClinic.mockClear();
+          defaultProps.trackMetric.mockClear();
+
+          await userEvent.click(patientHeader);
+
+          await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalled());
+
+          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - Patient details sort descending', { clinicId: 'clinicID123' })
+          expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+            'clinicID123',
+            expect.objectContaining({ sort: '-fullName' }),
+            expect.any(Function),
+          );
+
+          defaultProps.api.clinics.getPatientsForClinic.mockClear();
+          defaultProps.trackMetric.mockClear();
+
+          const lastDataDateHeader = screen.getAllByRole('button', { name: /Data Recency/ })[1];
+          await userEvent.click(lastDataDateHeader);
+
+          await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalled());
+
+          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - Data recency sort descending', { clinicId: 'clinicID123' })
+          expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+            'clinicID123',
+            expect.objectContaining({ sort: '-lastData' }),
+            expect.any(Function),
+          );
+
+          defaultProps.api.clinics.getPatientsForClinic.mockClear();
+          defaultProps.trackMetric.mockClear();
+
+          await userEvent.click(lastDataDateHeader);
+
+          await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalled());
+
+          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - Data recency sort ascending', { clinicId: 'clinicID123' })
+          expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+            'clinicID123',
+            expect.objectContaining({ sort: '+lastData' }),
+            expect.any(Function),
+          );
+
+          defaultProps.api.clinics.getPatientsForClinic.mockClear();
+          defaultProps.trackMetric.mockClear();
+
+          const gmiHeader = screen.getByRole('button', { name: /GMI/ });
+          await userEvent.click(gmiHeader);
+
+          await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalled());
+
+          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - GMI sort descending', { clinicId: 'clinicID123' })
+          expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+            'clinicID123',
+            expect.objectContaining({ sort: '-glucoseManagementIndicator' }),
+            expect.any(Function),
+          );
+
+          defaultProps.api.clinics.getPatientsForClinic.mockClear();
+          defaultProps.trackMetric.mockClear();
+
+          await userEvent.click(gmiHeader);
+
+          await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalled());
+
+          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - GMI sort ascending', { clinicId: 'clinicID123' })
+          expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+            'clinicID123',
+            expect.objectContaining({ sort: '+glucoseManagementIndicator' }),
+            expect.any(Function),
+          );
+
+          defaultProps.api.clinics.getPatientsForClinic.mockClear();
+          defaultProps.trackMetric.mockClear();
+
+          const averageGlucoseHeader = screen.getByRole('button', { name: /Avg. Glucose/i });
+          await userEvent.click(averageGlucoseHeader);
+
+          await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalled());
+
+          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - Average glucose sort descending', { clinicId: 'clinicID123' })
+          expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+            'clinicID123',
+            expect.objectContaining({ sort: '-averageGlucoseMmol' }),
+            expect.any(Function),
+          );
+
+          defaultProps.api.clinics.getPatientsForClinic.mockClear();
+          defaultProps.trackMetric.mockClear();
+
+          await userEvent.click(averageGlucoseHeader);
+
+          await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalled());
+
+          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - Average glucose sort ascending', { clinicId: 'clinicID123' })
+          expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+            'clinicID123',
+            expect.objectContaining({ sort: '+averageGlucoseMmol' }),
+            expect.any(Function),
+          );
+
+          defaultProps.api.clinics.getPatientsForClinic.mockClear();
+          defaultProps.trackMetric.mockClear();
+
+          const lowsHeader = screen.getByRole('button', { name: /Lows/i });
+          await userEvent.click(lowsHeader);
+
+          await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalled());
+
+          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - Time in very low sort descending', { clinicId: 'clinicID123' })
+          expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+            'clinicID123',
+            expect.objectContaining({ sort: '-timeInVeryLowRecords' }),
+            expect.any(Function),
+          );
+
+          defaultProps.api.clinics.getPatientsForClinic.mockClear();
+          defaultProps.trackMetric.mockClear();
+
+          await userEvent.click(lowsHeader);
+
+          await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalled());
+
+          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - Time in very low sort ascending', { clinicId: 'clinicID123' })
+          expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+            'clinicID123',
+            expect.objectContaining({ sort: '+timeInVeryLowRecords' }),
+            expect.any(Function),
+          );
+
+          defaultProps.api.clinics.getPatientsForClinic.mockClear();
+          defaultProps.trackMetric.mockClear();
+
+          const highsHeader = screen.getByRole('button', { name: /Highs/i });
+          await userEvent.click(highsHeader);
+
+          await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalled());
+
+          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - Time in very high sort descending', { clinicId: 'clinicID123' })
+          expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+            'clinicID123',
+            expect.objectContaining({ sort: '-timeInVeryHighRecords' }),
+            expect.any(Function),
+          );
+
+          defaultProps.api.clinics.getPatientsForClinic.mockClear();
+          defaultProps.trackMetric.mockClear();
+
+          await userEvent.click(highsHeader);
+
+          await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalled());
+
+          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - Time in very high sort ascending', { clinicId: 'clinicID123' })
+          expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+            'clinicID123',
+            expect.objectContaining({ sort: '+timeInVeryHighRecords' }),
+            expect.any(Function),
+          );
+        }, TEST_TIMEOUT_MS);
+
         describe('filtering for patients', () => {
           afterEach(() => {
             // Clear any persisted filter state between tests
