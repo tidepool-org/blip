@@ -2,9 +2,9 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { Flex, Box, Text } from 'theme-ui';
-import colorPalette from '../../../themes/colorPalette';
-import { colors as vizColors } from '@tidepool/viz';
+import { utils as vizUtils, colors as vizColors } from '@tidepool/viz';
 import styled from '@emotion/styled';
+const { formatStatsPercentage } = vizUtils.stat;
 
 import { components as vizComponents } from '@tidepool/viz';
 const { Loader } = vizComponents;
@@ -16,7 +16,7 @@ const StyledAGPImage = styled.img`
   width: calc(100% - 24px);
   margin: 6px 8px 16px;
   display: ${props => props.src ? 'block' : 'none' };
-`
+`;
 
 const InsufficientData = () => {
   const { t } = useTranslation();
@@ -52,6 +52,34 @@ const CategoryContainer = ({ title, subtitle, children }) => {
   );
 };
 
+const PeriodDeltaSummary = ({ patient }) => {
+  const { config } = useSelector((state) => state.blip.tideDashboardPatients);
+  const period = config?.period; // 7d, 14d, 30d
+  const summaryPeriodMap = patient?.summary?.cgmStats?.periods || {};
+  const summary = summaryPeriodMap[period];
+
+  console.log(patient);
+
+  if (!patient || !summary) return null;
+
+  console.log(patient)
+
+  // TODO: Safe to compare [blip -> data.agpCGM.data.current.stats] with [blip -> patient.summary.cgmStats]
+  // TODO: Value from last period needs to be added into BE response
+  // TODO: Confirm deltas are ABSOLUTE deltas, not RELATIVE deltas
+  // TODO: Define criteria for "Did Not Change" copy
+
+  return (
+    <Flex sx={{ justifyContent: 'space-around' }}>
+      <p>{formatStatsPercentage(summary?.timeInVeryLowPercentDelta)}</p>
+      <p>{formatStatsPercentage(summary?.timeInLowPercentDelta)}</p>
+      <p>{formatStatsPercentage(summary?.timeInTargetPercentDelta)}</p>
+      <p>{formatStatsPercentage(summary?.timeInHighPercentDelta)}</p>
+      <p>{formatStatsPercentage(summary?.timeInVeryHighPercentDelta)}</p>
+    </Flex>
+  );
+};
+
 const Content = ({ api, patientId, agpPeriodInDays }) => {
   const { t } = useTranslation();
 
@@ -76,6 +104,8 @@ const Content = ({ api, patientId, agpPeriodInDays }) => {
 
   return (
     <>
+      <PeriodDeltaSummary patient={patient} period={agpPeriodInDays} />
+
       <Box mb={3} sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3 }}>
         <CategoryContainer title={t('Time in Ranges')} subtitle={t('Goals for Type 1 and Type 2 Diabetes')}>
           <StyledAGPImage src={percentInRanges} alt={t('Time in Ranges')} />
