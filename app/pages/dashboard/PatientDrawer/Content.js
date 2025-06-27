@@ -58,7 +58,7 @@ const CategoryContainer = ({ title, subtitle, children }) => {
 const formatPercentChangeCopy = (currentValue, previousValue, t) => {
   const renderedDelta = formatStatsPercentage(Math.abs(currentValue - previousValue));
 
-  if (renderedDelta === '0.0') {
+  if (renderedDelta === '0') {
     return t('Did not change');
   } else if (currentValue > previousValue) {
     return t('Increased by {{ delta }}%', { delta: renderedDelta });
