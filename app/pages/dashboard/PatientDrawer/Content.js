@@ -55,6 +55,18 @@ const CategoryContainer = ({ title, subtitle, children }) => {
   );
 };
 
+const formatPercentChangeCopy = (currentValue, previousValue, t) => {
+  const renderedDelta = formatStatsPercentage(Math.abs(currentValue - previousValue));
+
+  if (renderedDelta === '0.0') {
+    return t('Did not change');
+  } else if (currentValue > previousValue) {
+    return t('Increased by {{ delta }}%', { delta: renderedDelta });
+  } else {
+    return t('Decreased by {{ delta }}%', { delta: renderedDelta });
+  }
+};
+
 const PeriodDeltaSummary = ({ agpCGM, offsetAgpCGM }) => {
   const { t } = useTranslation();
 
@@ -103,45 +115,50 @@ const PeriodDeltaSummary = ({ agpCGM, offsetAgpCGM }) => {
   const offsetVeryLowPct = _.toNumber(offsetCounts.veryLow) / offsetCounts.total * 1;
 
   // Change since Past Period
-  const veryHighPctDelta = formatStatsPercentage(veryHighPct - offsetVeryHighPct, 0);
-  const highPctDelta = formatStatsPercentage(highPct - offsetHighPct, 0);
-  const targetPctDelta = formatStatsPercentage(targetPct - offsetTargetPct, 0);
-  const lowPctDelta = formatStatsPercentage(lowPct - offsetLowPct, 0);
-  const veryLowPctDelta = formatStatsPercentage(veryLowPct - offsetVeryLowPct, 0);
-
-  const sensorUsageAGPDelta = sensorUsageAGP - offsetSensorUsageAGP;
+  const veryHighPctDelta = formatPercentChangeCopy(veryHighPct, offsetVeryHighPct, t);
+  const highPctDelta = formatPercentChangeCopy(highPct, offsetHighPct, t);
+  const targetPctDelta = formatPercentChangeCopy(targetPct, offsetTargetPct, t);
+  const lowPctDelta = formatPercentChangeCopy(lowPct, offsetLowPct, t);
+  const veryLowPctDelta = formatPercentChangeCopy(veryLowPct, offsetVeryLowPct, t);
+  const sensorUsageAGPDelta = formatPercentChangeCopy(sensorUsageAGP / 100, offsetSensorUsageAGP / 100, t);
 
   return (
     <>
-      <Flex sx={{ justifyContent: 'space-between'}}>
+      <Flex sx={{ justifyContent: 'space-between' }}>
         <p>{t('Tidepool Summary: Changes Since Last Time Period')}</p>
         <p>{t('{{dateRange}} ({{bgDaysWorn}} days)', { dateRange, bgDaysWorn: roundedBgDaysWorn })}</p>
       </Flex>
-      <Flex sx={{ justifyContent: 'space-between' }}>
-        <Box>
-          <p>{veryLowPctDelta}{' %'}</p>
-          <p>{t('Was {{ value }}%', { value: formatStatsPercentage(offsetVeryLowPct) })}</p>
-        </Box>
-        <Box>
-          <p>{lowPctDelta}{' %'}</p>
-          <p>{t('Was {{ value }}%', { value: formatStatsPercentage(offsetLowPct) })}</p>
-        </Box>
-        <Box>
-          <p>{targetPctDelta}{' %'}</p>
-          <p>{t('Was {{ value }}%', { value: formatStatsPercentage(offsetTargetPct) })}</p>
-        </Box>
-        <Box>
-          <p>{highPctDelta}{' %'}</p>
-          <p>{t('Was {{ value }}%', { value: formatStatsPercentage(offsetHighPct) })}</p>
-        </Box>
-        <Box>
-          <p>{veryHighPctDelta}{' %'}</p>
-          <p>{t('Was {{ value }}%', { value: formatStatsPercentage(offsetVeryHighPct) })}</p>
-        </Box>
-        <Box>
-          <p>{formatStatsPercentage(sensorUsageAGPDelta / 100)}{' %'}</p>
-          <p>{t('Was {{ value }}%', { value: bankersRound(offsetSensorUsageAGP, 1) })}</p>
-        </Box>
+      <Flex sx={{ justifyContent:'space-between', background: vizColors.blue00, padding: 3, borderRadius: '8px' }}>
+        <Flex sx={{ flexDirection: 'column', alignItems: 'center' }}>
+          <Box sx={{ fontSize: 0, color: vizColors.gray50 }}>{t('Time in Very Low')}</Box>
+          <Box sx={{ fontSize: 1, fontWeight: 'bold', color: vizColors.purple90 }}>{veryLowPctDelta}</Box>
+          <Box sx={{ fontSize: 1, color: vizColors.gray50, fontStyle: 'italic' }}>{t('Was {{ value }}%', { value: formatStatsPercentage(offsetVeryLowPct) })}</Box>
+        </Flex>
+        <Flex sx={{ flexDirection: 'column', alignItems: 'center' }}>
+          <Box sx={{ fontSize: 0, color: vizColors.gray50 }}>{t('Time in Low')}</Box>
+          <Box sx={{ fontSize: 1, fontWeight: 'bold', color: vizColors.purple90 }}>{lowPctDelta}</Box>
+          <Box sx={{ fontSize: 1, color: vizColors.gray50, fontStyle: 'italic' }}>{t('Was {{ value }}%', { value: formatStatsPercentage(offsetLowPct) })}</Box>
+        </Flex>
+        <Flex sx={{ flexDirection: 'column', alignItems: 'center' }}>
+          <Box sx={{ fontSize: 0, color: vizColors.gray50 }}>{t('Time in Target')}</Box>
+          <Box sx={{ fontSize: 1, fontWeight: 'bold', color: vizColors.purple90 }}>{targetPctDelta}</Box>
+          <Box sx={{ fontSize: 1, color: vizColors.gray50, fontStyle: 'italic' }}>{t('Was {{ value }}%', { value: formatStatsPercentage(offsetTargetPct) })}</Box>
+        </Flex>
+        <Flex sx={{ flexDirection: 'column', alignItems: 'center' }}>
+          <Box sx={{ fontSize: 0, color: vizColors.gray50 }}>{t('Time in High')}</Box>
+          <Box sx={{ fontSize: 1, fontWeight: 'bold', color: vizColors.purple90 }}>{highPctDelta}</Box>
+          <Box sx={{ fontSize: 1, color: vizColors.gray50, fontStyle: 'italic' }}>{t('Was {{ value }}%', { value: formatStatsPercentage(offsetHighPct) })}</Box>
+        </Flex>
+        <Flex sx={{ flexDirection: 'column', alignItems: 'center' }}>
+          <Box sx={{ fontSize: 0, color: vizColors.gray50 }}>{t('Time in Very High')}</Box>
+          <Box sx={{ fontSize: 1, fontWeight: 'bold', color: vizColors.purple90 }}>{veryHighPctDelta}</Box>
+          <Box sx={{ fontSize: 1, color: vizColors.gray50, fontStyle: 'italic' }}>{t('Was {{ value }}%', { value: formatStatsPercentage(offsetVeryHighPct) })}</Box>
+        </Flex>
+        <Flex sx={{ flexDirection: 'column', alignItems: 'center' }}>
+          <Box sx={{ fontSize: 0, color: vizColors.gray50 }}>{t('Time CGM Active')}</Box>
+          <Box sx={{ fontSize: 1, fontWeight: 'bold', color: vizColors.purple90 }}>{sensorUsageAGPDelta}</Box>
+          <Box sx={{ fontSize: 1, color: vizColors.gray50, fontStyle: 'italic' }}>{t('Was {{ value }}%', { value: bankersRound(offsetSensorUsageAGP, 1) })}</Box>
+        </Flex>
       </Flex>
     </>
   );
