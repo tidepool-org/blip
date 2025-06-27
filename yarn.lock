@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.47.1-web-3773-re-enable-empty-twiist-bolus-filters":
-  version: 1.47.1-web-3773-re-enable-empty-twiist-bolus-filters
-  resolution: "@tidepool/viz@npm:1.47.1-web-3773-re-enable-empty-twiist-bolus-filters"
+"@tidepool/viz@npm:1.47.1-rc.1":
+  version: 1.47.1-rc.1
+  resolution: "@tidepool/viz@npm:1.47.1-rc.1"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 4dfc1050b85fa91330a8fb53eadecb9002ca83de35645ac99d9ceb37da9a0a079f608628524dbf055c00527c18c9bfe3f45f0481df0c366cde3e39136111f80a
+  checksum: 1ec6852a7d8efc9c049231a904126fbd4c26039b5208ff0c8c75e70e5d9f40f3960d5dc9436b7bca44fb320db26aab86b72d96923fa14f15535bcd39b33466be
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.47.1-web-3773-re-enable-empty-twiist-bolus-filters
+    "@tidepool/viz": 1.47.1-rc.1
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
