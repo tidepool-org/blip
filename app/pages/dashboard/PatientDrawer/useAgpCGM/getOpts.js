@@ -53,6 +53,11 @@ const getOpts = (
 
   const dates = getLastNDays(agpPeriodInDays, 'agpCGM');
 
+  const offsetDates = {
+    startDate: moment(dates.startDate).subtract(agpPeriodInDays, 'days'),
+    endDate: moment(dates.endDate).subtract(agpPeriodInDays, 'days'),
+  };
+
   const formatDateEndpoints = ({ startDate, endDate }) => (startDate && endDate ? [
     startDate.valueOf(),
     moment.utc(endDate).tz(timezoneName).add(1, 'day').startOf('day').valueOf(),
@@ -60,8 +65,7 @@ const getOpts = (
 
   const opts = {
     agpCGM:       { disabled: false, endpoints: formatDateEndpoints(dates) },
-    offsetAgpCGM: { disabled: false, endpoints: formatDateEndpoints(dates) },
-
+    offsetAgpCGM: { disabled: false, endpoints: formatDateEndpoints(offsetDates) },
     agpBGM:   { disabled: true },
     basics:   { disabled: true },
     bgLog:    { disabled: true },
