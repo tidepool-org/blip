@@ -14,7 +14,7 @@ const getOpts = (
     const getLatestDatums = types => _.pick(_.get(data, 'metaData.latestDatumByType'), types);
 
     let latestDatums = getLatestDatums(['cbg']) || [];
-    
+
     return _.max(_.map(latestDatums, d => (d.normalEnd || d.normalTime)));
   };
 
@@ -27,7 +27,7 @@ const getOpts = (
     const queryParams = {};
 
     const localTimePrefs = utils.getTimePrefsForDataProcessing(latestTimeZone, queryParams);
-    
+
     return localTimePrefs;
   })();
 
@@ -59,7 +59,9 @@ const getOpts = (
   ] : []);
 
   const opts = {
-    agpCGM:   { disabled: false, endpoints: formatDateEndpoints(dates) },
+    agpCGM:       { disabled: false, endpoints: formatDateEndpoints(dates) },
+    offsetAgpCGM: { disabled: false, endpoints: formatDateEndpoints(dates) },
+
     agpBGM:   { disabled: true },
     basics:   { disabled: true },
     bgLog:    { disabled: true },

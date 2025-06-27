@@ -29,7 +29,7 @@ const getQueries = (
     const queryParams = {};
 
     const localTimePrefs = utils.getTimePrefsForDataProcessing(latestTimeZone, queryParams);
-    
+
     return localTimePrefs;
   })();
 
@@ -45,6 +45,17 @@ const getQueries = (
   const queries = {
     agpCGM: {
       endpoints: opts.agpCGM?.endpoints,
+      aggregationsByDate: 'dataByDate, statsByDate',
+      bgSource: 'cbg',
+      stats,
+      types: { cbg: {} },
+      bgPrefs,
+      metaData: 'latestPumpUpload, bgSources',
+      timePrefs,
+      excludedDevices: [],
+    },
+    offsetAgpCGM: {
+      endpoints: opts.offsetAgpCGM?.endpoints,
       aggregationsByDate: 'dataByDate, statsByDate',
       bgSource: 'cbg',
       stats,

@@ -53,31 +53,7 @@ const CategoryContainer = ({ title, subtitle, children }) => {
 };
 
 const PeriodDeltaSummary = ({ patient }) => {
-  const { config } = useSelector((state) => state.blip.tideDashboardPatients);
-  const period = config?.period; // 7d, 14d, 30d
-  const summaryPeriodMap = patient?.summary?.cgmStats?.periods || {};
-  const summary = summaryPeriodMap[period];
-
-  console.log(patient);
-
-  if (!patient || !summary) return null;
-
-  console.log(patient)
-
-  // TODO: Safe to compare [blip -> data.agpCGM.data.current.stats] with [blip -> patient.summary.cgmStats]
-  // TODO: Value from last period needs to be added into BE response
-  // TODO: Confirm deltas are ABSOLUTE deltas, not RELATIVE deltas
-  // TODO: Define criteria for "Did Not Change" copy
-
-  return (
-    <Flex sx={{ justifyContent: 'space-around' }}>
-      <p>{formatStatsPercentage(summary?.timeInVeryLowPercentDelta)}</p>
-      <p>{formatStatsPercentage(summary?.timeInLowPercentDelta)}</p>
-      <p>{formatStatsPercentage(summary?.timeInTargetPercentDelta)}</p>
-      <p>{formatStatsPercentage(summary?.timeInHighPercentDelta)}</p>
-      <p>{formatStatsPercentage(summary?.timeInVeryHighPercentDelta)}</p>
-    </Flex>
-  );
+  return null;
 };
 
 const Content = ({ api, patientId, agpPeriodInDays }) => {
