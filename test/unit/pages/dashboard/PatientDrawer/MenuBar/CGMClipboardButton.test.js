@@ -32,7 +32,7 @@ const pdf = {
               'sensorUsage': 2532600000,
               'sensorUsageAGP': 99.95264030310206,
               'total': 2592000000,
-              'sampleFrequency': 300000,
+              'sampleInterval': 300000,
               'count': 8442,
             },
           },
@@ -70,11 +70,11 @@ describe('PatientDrawer/MenuBar/CGMClipboardButton', () => {
   describe('When data is insufficient due to being BGM patient', () => {
     const insufficientAgpCGM = _.cloneDeep(pdf.data.agpCGM);
     insufficientAgpCGM.data.current.stats = {
-      sensorUsage: { 
-        sensorUsage: 0, 
-        sensorUsageAGP: 0, 
-        total: 2592000000, 
-        sampleFrequency: 300000, 
+      sensorUsage: {
+        sensorUsage: 0,
+        sensorUsageAGP: 0,
+        total: 2592000000,
+        sampleInterval: 300000,
         count: 0,
       },
     };

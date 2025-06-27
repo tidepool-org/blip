@@ -54,6 +54,7 @@ const initialState = {
     metaData: {},
     query: {},
     fetchedUntil: null,
+    oneMinCgmFetchedUntil: null,
     cacheUntil: null,
   },
   pendingReceivedInvites: [],

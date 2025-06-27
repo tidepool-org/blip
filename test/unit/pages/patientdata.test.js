@@ -34,7 +34,7 @@ const t = i18next.t.bind(i18next);
 // We must remember to require the base module when mocking dependencies,
 // otherwise dependencies mocked will be bound to the wrong scope!
 import PD, { PatientData, PatientDataClass, getFetchers, mapStateToProps } from '../../../app/pages/patientdata/patientdata.js';
-import { MGDL_UNITS } from '../../../app/core/constants';
+import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE, MGDL_UNITS, MS_IN_MIN, ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE } from '../../../app/core/constants';
 import { ToastProvider } from '../../../app/providers/ToastProvider.js';
 
 describe('PatientData', function () {
@@ -1182,6 +1182,7 @@ describe('PatientData', function () {
           extentSize: 14,
         },
         daily: {
+          cgmSampleIntervalRange: DEFAULT_CGM_SAMPLE_INTERVAL_RANGE,
           extentSize: 1,
         },
         trends: {
@@ -1404,6 +1405,7 @@ describe('PatientData', function () {
       wrapper.setState({
         chartPrefs: {
           basics: 'foo',
+          daily: 'baz',
         },
       })
     });
@@ -1413,6 +1415,7 @@ describe('PatientData', function () {
       expect(instance.state.chartPrefs).to.eql({
         basics: 'foo',
         trends: 'bar',
+        daily: 'baz',
       })
     });
 
@@ -1686,6 +1689,42 @@ describe('PatientData', function () {
       it('should fall back to an empty object when empty value not set', () => {
         expect(instance.getCurrentData('badPath')).to.eql({});
       });
+    });
+  });
+
+  describe('getCurrentFetchedUntilDate', () => {
+    let wrapper;
+    let instance;
+
+    beforeEach(() => {
+      wrapper = shallow(<PatientDataClass {...defaultProps} />);
+      instance = wrapper.instance();
+
+      wrapper.setProps({
+        data: {
+          oneMinCgmFetchedUntil: '2023-11-01T00:00:00.000Z',
+          fetchedUntil: '2023-10-01T00:00:00.000Z',
+        },
+      });
+
+    });
+
+    it('should return the fetchedUntil date for if default CGM sample interval data is being viewed', () => {
+      wrapper.setState({
+        chartPrefs: { daily: { cgmSampleIntervalRange: DEFAULT_CGM_SAMPLE_INTERVAL_RANGE } }
+      });
+
+      const fetchedUntil = instance.getCurrentFetchedUntilDate();
+      expect(fetchedUntil).to.equal('2023-10-01T00:00:00.000Z');
+    });
+
+    it('should return the oneMinCgmFetchedUntil date for if one minute CGM sample interval data is being viewed', () => {
+      wrapper.setState({
+        chartPrefs: { daily: { cgmSampleIntervalRange: ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE } }
+      });
+
+      const fetchedUntil = instance.getCurrentFetchedUntilDate();
+      expect(fetchedUntil).to.equal('2023-11-01T00:00:00.000Z');
     });
   });
 
@@ -3999,7 +4038,7 @@ describe('PatientData', function () {
       instance.getChartEndpoints = sinon.stub().returns(prevLimitReachedEndpoints);
       instance.getDaysByType = sinon.stub().returns(daysByTypeStub);
       instance.getStatsByChartType = sinon.stub().returns('stats stub');
-      instance.fetchEarlierData = sinon.stub();
+      instance.fetchAdditionalData = sinon.stub();
       instance.updateChart = sinon.stub();
     });
 
@@ -4022,11 +4061,11 @@ describe('PatientData', function () {
       context('next requested date range requires data fetch', () => {
         it('should fetch data', () => {
           wrapper.setProps(shouldFetchDataProps);
-          sinon.assert.callCount(instance.fetchEarlierData, 0);
+          sinon.assert.callCount(instance.fetchAdditionalData, 0);
 
           instance.handleChartDateRangeUpdate(dateTimeLocation);
-          sinon.assert.callCount(instance.fetchEarlierData, 1);
-          sinon.assert.calledWith(instance.fetchEarlierData, {
+          sinon.assert.callCount(instance.fetchAdditionalData, 1);
+          sinon.assert.calledWith(instance.fetchAdditionalData, {
             showLoading: true,
             returnData: false,
           });
@@ -4037,7 +4076,7 @@ describe('PatientData', function () {
         it('should not fetch data', () => {
           wrapper.setProps(shouldNotFetchDataProps);
           instance.handleChartDateRangeUpdate(dateTimeLocation);
-          sinon.assert.callCount(instance.fetchEarlierData, 0);
+          sinon.assert.callCount(instance.fetchAdditionalData, 0);
         });
       });
 
@@ -4049,7 +4088,7 @@ describe('PatientData', function () {
           });
 
           instance.handleChartDateRangeUpdate(dateTimeLocation);
-          sinon.assert.callCount(instance.fetchEarlierData, 0);
+          sinon.assert.callCount(instance.fetchAdditionalData, 0);
         });
       });
     });
@@ -4274,6 +4313,94 @@ describe('PatientData', function () {
     });
   });
 
+  describe('handleCgmSampleIntervalRangeUpdate', () => {
+    let wrapper, instance, fetchAdditionalDataStub;
+
+    beforeEach(() => {
+      fetchAdditionalDataStub = sinon.stub();
+
+      wrapper = shallow(<PatientDataClass {...defaultProps} />);
+      instance = wrapper.instance();
+      instance.fetchAdditionalData = fetchAdditionalDataStub;
+
+      // Set up state for chartEndpoints and chartPrefs
+      wrapper.setState({
+        chartPrefs: {
+          daily: {
+            cgmSampleIntervalRange: DEFAULT_CGM_SAMPLE_INTERVAL_RANGE,
+          }
+        },
+        chartEndpoints: {
+          current: [1000, 2000],
+        }
+      });
+
+      // Stub getCurrentFetchedUntilDate to control its value
+      sinon.stub(instance, 'getCurrentFetchedUntilDate');
+    });
+
+    afterEach(() => {
+      sinon.restore();
+    });
+
+    it('should not call fetchAdditionalData if cgmSampleIntervalRange[0] equals DEFAULT_CGM_SAMPLE_INTERVAL', () => {
+      instance.getCurrentFetchedUntilDate.returns('2024-01-01T00:00:00Z');
+      instance.handleCgmSampleIntervalRangeUpdate(DEFAULT_CGM_SAMPLE_INTERVAL_RANGE);
+      sinon.assert.notCalled(fetchAdditionalDataStub);
+    });
+
+    it('should call fetchAdditionalData if cgmSampleIntervalRange[0] does not equal DEFAULT_CGM_SAMPLE_INTERVAL and data needs fetching', () => {
+      // Set up so that newCgmSampleIntervalRangeNeedsDataFetch is true
+      instance.getCurrentFetchedUntilDate.returns('2024-06-01T00:00:00Z');
+      wrapper.setState({
+        chartPrefs: {
+          daily: {
+            cgmSampleIntervalRange: ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE,
+          }
+        },
+      });
+      // fetchingPatientData is false
+      wrapper.setProps({ fetchingPatientData: false });
+      instance.handleCgmSampleIntervalRangeUpdate(ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE);
+      sinon.assert.calledOnce(fetchAdditionalDataStub);
+      sinon.assert.calledWithMatch(fetchAdditionalDataStub, sinon.match({
+        showLoading: true,
+        returnData: false,
+        type: 'cbg',
+      }));
+    });
+
+    it('should not call fetchAdditionalData if fetchingPatientData is true', () => {
+      instance.getCurrentFetchedUntilDate.returns('2024-06-01T00:00:00Z');
+      wrapper.setState({
+        chartPrefs: {
+          daily: {
+            cgmSampleIntervalRange: ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE,
+          }
+        },
+      });
+      // Same setup as previous test, but fetchingPatientData is true
+      wrapper.setProps({ fetchingPatientData: true });
+      instance.handleCgmSampleIntervalRangeUpdate(ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE);
+      sinon.assert.notCalled(fetchAdditionalDataStub);
+    });
+
+    it('should not call fetchAdditionalData if newCgmSampleIntervalRangeNeedsDataFetch is false', () => {
+      // fetchedUntil is before currentChartStartEndpoint
+      instance.getCurrentFetchedUntilDate.returns('1970-01-01T00:00:00Z');
+      wrapper.setState({
+        chartPrefs: {
+          daily: {
+            cgmSampleIntervalRange: ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE,
+          }
+        },
+      });
+      wrapper.setProps({ fetchingPatientData: false });
+      instance.handleCgmSampleIntervalRangeUpdate(ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE);
+      sinon.assert.notCalled(fetchAdditionalDataStub);
+    });
+  });
+
   describe('handleMessageCreation', () => {
     let props;
     let BaseObject;
@@ -4326,7 +4453,7 @@ describe('PatientData', function () {
     });
   });
 
-  describe('fetchEarlierData', () => {
+  describe('fetchAdditionalData', () => {
     let wrapper;
     let instance;
     let props;
@@ -4335,7 +4462,7 @@ describe('PatientData', function () {
 
     beforeEach(() => {
       props = _.assign({}, defaultProps, {
-        onFetchEarlierData: sinon.stub(),
+        onFetchAdditionalData: sinon.stub(),
         trackMetric: sinon.stub(),
         log: sinon.stub(),
       });
@@ -4348,7 +4475,7 @@ describe('PatientData', function () {
     });
 
     afterEach(() => {
-      props.onFetchEarlierData.reset();
+      props.onFetchAdditionalData.reset();
       props.trackMetric.reset();
       setStateSpy.resetHistory();
       logSpy.resetHistory();
@@ -4365,10 +4492,10 @@ describe('PatientData', function () {
           fetchingPatientData: true,
         });
 
-        instance.fetchEarlierData();
+        instance.fetchAdditionalData();
 
         sinon.assert.notCalled(setStateSpy);
-        sinon.assert.notCalled(props.onFetchEarlierData);
+        sinon.assert.notCalled(props.onFetchAdditionalData);
       });
     });
 
@@ -4386,10 +4513,10 @@ describe('PatientData', function () {
         const expectedStart = moment.utc(fetchedUntil).subtract(16, 'weeks').toISOString();
         const expectedEnd = moment.utc(fetchedUntil).subtract(1, 'milliseconds').toISOString();
 
-        instance.fetchEarlierData();
+        instance.fetchAdditionalData();
 
-        sinon.assert.calledOnce(props.onFetchEarlierData);
-        sinon.assert.calledWith(props.onFetchEarlierData, {
+        sinon.assert.calledOnce(props.onFetchAdditionalData);
+        sinon.assert.calledWith(props.onFetchAdditionalData, {
           showLoading: true,
           startDate: expectedStart,
           endDate: expectedEnd,
@@ -4400,6 +4527,7 @@ describe('PatientData', function () {
           initial: false,
           useCache: false,
           noDates: false,
+          sampleIntervalMinimum: MS_IN_MIN * 5,
         }, '40');
       });
 
@@ -4420,10 +4548,10 @@ describe('PatientData', function () {
           useCache: true,
         };
 
-        instance.fetchEarlierData(options);
+        instance.fetchAdditionalData(options);
 
-        sinon.assert.calledOnce(props.onFetchEarlierData);
-        sinon.assert.calledWithMatch(props.onFetchEarlierData, {
+        sinon.assert.calledOnce(props.onFetchAdditionalData);
+        sinon.assert.calledWithMatch(props.onFetchAdditionalData, {
           showLoading: false,
           startDate: null,
           endDate: null,
@@ -4450,10 +4578,10 @@ describe('PatientData', function () {
         assert.isTrue(instance.props.medtronic);
         assert.isTrue(instance.props.cbgFilter);
 
-        instance.fetchEarlierData();
+        instance.fetchAdditionalData();
 
-        sinon.assert.calledOnce(props.onFetchEarlierData);
-        sinon.assert.calledWithMatch(props.onFetchEarlierData, {
+        sinon.assert.calledOnce(props.onFetchAdditionalData);
+        sinon.assert.calledWithMatch(props.onFetchAdditionalData, {
           carelink: true,
           dexcom: true,
           medtronic: true,
@@ -4476,9 +4604,9 @@ describe('PatientData', function () {
         assert.isFalse(instance.props.medtronic);
         assert.isFalse(instance.props.cbgFilter);
 
-        instance.fetchEarlierData();
+        instance.fetchAdditionalData();
 
-        sinon.assert.calledWithMatch(props.onFetchEarlierData, {
+        sinon.assert.calledWithMatch(props.onFetchAdditionalData, {
           carelink: false,
           dexcom: false,
           medtronic: false,
@@ -4486,7 +4614,7 @@ describe('PatientData', function () {
         }, '40');
       });
 
-      it('should set the `loading`, `fetchEarlierDataCount` and `requestedPatientDataRange` state', () => {
+      it('should set the `loading`, `fetchAdditionalDataCount` and `requestedPatientDataRange` state', () => {
         const fetchedUntil = '2018-01-01T00:00:00.000Z';
 
         wrapper.setProps({
@@ -4498,14 +4626,14 @@ describe('PatientData', function () {
         const expectedStart = moment.utc(fetchedUntil).subtract(16, 'weeks').toISOString();
         const expectedEnd = moment.utc(fetchedUntil).subtract(1, 'milliseconds').toISOString();
 
-        expect(wrapper.state().fetchEarlierDataCount).to.equal(0);
+        expect(wrapper.state().fetchAdditionalDataCount).to.equal(0);
 
-        instance.fetchEarlierData();
+        instance.fetchAdditionalData();
 
         sinon.assert.calledOnce(setStateSpy);
         sinon.assert.calledWith(setStateSpy, {
           loading: true,
-          fetchEarlierDataCount: 1,
+          fetchAdditionalDataCount: 1,
         });
       });
 
@@ -4520,9 +4648,9 @@ describe('PatientData', function () {
           selectedClinicId: undefined,
         });
 
-        expect(wrapper.state().fetchEarlierDataCount).to.equal(0);
+        expect(wrapper.state().fetchAdditionalDataCount).to.equal(0);
 
-        instance.fetchEarlierData();
+        instance.fetchAdditionalData();
 
         sinon.assert.calledWithExactly(props.trackMetric, 'Fetched earlier patient data', {
           count: 1,
@@ -4537,7 +4665,7 @@ describe('PatientData', function () {
           selectedClinicId: 'clinic123',
         });
 
-        instance.fetchEarlierData();
+        instance.fetchAdditionalData();
 
         sinon.assert.calledWithExactly(props.trackMetric, 'Fetched earlier patient data', {
           count: 2,
@@ -4560,17 +4688,17 @@ describe('PatientData', function () {
           noDates: true,
         };
 
-        instance.fetchEarlierData(options);
+        instance.fetchAdditionalData(options);
 
-        sinon.assert.calledOnce(props.onFetchEarlierData);
-        sinon.assert.calledWithMatch(props.onFetchEarlierData, {
+        sinon.assert.calledOnce(props.onFetchAdditionalData);
+        sinon.assert.calledWithMatch(props.onFetchAdditionalData, {
           startDate: undefined,
           endDate: undefined,
         }, '40');
       });
 
       it('should call the log method', () => {
-        instance.fetchEarlierData();
+        instance.fetchAdditionalData();
 
         sinon.assert.calledOnce(logSpy);
         sinon.assert.calledWith(logSpy, 'fetching');
@@ -4590,10 +4718,10 @@ describe('PatientData', function () {
           initial: true,
         };
 
-        instance.fetchEarlierData(options);
+        instance.fetchAdditionalData(options);
 
-        sinon.assert.calledOnce(props.onFetchEarlierData);
-        sinon.assert.calledWithMatch(props.onFetchEarlierData, {
+        sinon.assert.calledOnce(props.onFetchAdditionalData);
+        sinon.assert.calledWithMatch(props.onFetchAdditionalData, {
           initial: true,
         }, '40');
       });
@@ -4968,7 +5096,7 @@ describe('PatientData', function () {
             fullName: 'Fooey McBar'
           }
         },
-        onFetchEarlierData: sinon.stub(),
+        onFetchAdditionalData: sinon.stub(),
         fetchingPatient: false,
         fetchingPatientData: false,
         fetchingUser: false,
@@ -4991,7 +5119,7 @@ describe('PatientData', function () {
     it('should set the `chartType` state to `settings`', () => {
       var props = {
         ...defaultProps,
-        onFetchEarlierData: sinon.stub(),
+        onFetchAdditionalData: sinon.stub(),
       };
       const wrapper = shallow(<PatientDataClass {...props} />);
       const instance = wrapper.instance();
