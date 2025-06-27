@@ -5,15 +5,13 @@ import { useTranslation } from 'react-i18next';
 import { Flex, Box, Text } from 'theme-ui';
 import { utils as vizUtils, colors as vizColors } from '@tidepool/viz';
 import styled from '@emotion/styled';
-const { bankersRound, formatStatsPercentage } = vizUtils.stat;
-const { getTimezoneFromTimePrefs } = vizUtils.datetime;
 
 import { components as vizComponents } from '@tidepool/viz';
 const { Loader } = vizComponents;
 
 import useAgpCGM, { STATUS } from './useAgpCGM';
 import CGMStatistics from './CGMStatistics';
-import getReportDaysText from './CGMStatistics/getReportDaysText';
+import PeriodDeltaSummary from './PeriodDeltaSummary';
 
 const StyledAGPImage = styled.img`
   width: calc(100% - 24px);
@@ -52,115 +50,6 @@ const CategoryContainer = ({ title, subtitle, children }) => {
       )}
       {children}
     </Box>
-  );
-};
-
-const formatPercentChangeCopy = (currentValue, previousValue, t) => {
-  const renderedDelta = formatStatsPercentage(Math.abs(currentValue - previousValue));
-
-  if (renderedDelta === '0') {
-    return t('Did not change');
-  } else if (currentValue > previousValue) {
-    return t('Increased by {{ delta }}%', { delta: renderedDelta });
-  } else {
-    return t('Decreased by {{ delta }}%', { delta: renderedDelta });
-  }
-};
-
-const PeriodDeltaSummary = ({ agpCGM, offsetAgpCGM }) => {
-  const { t } = useTranslation();
-
-  if (!agpCGM || !offsetAgpCGM) return null;
-
-  const {
-    timePrefs,
-    data: {
-      current: {
-        stats: {
-          sensorUsage: { sensorUsageAGP },
-          timeInRange: { counts },
-        },
-      },
-    },
-  } = agpCGM;
-
-  const {
-    data: {
-      current: {
-        stats: {
-          bgExtents: { newestDatum, oldestDatum, bgDaysWorn },
-          sensorUsage: { sensorUsageAGP: offsetSensorUsageAGP },
-          timeInRange: { counts: offsetCounts },
-        },
-      },
-    },
-  } = offsetAgpCGM;
-
-  const timezone = getTimezoneFromTimePrefs(timePrefs);
-  const dateRange  = getReportDaysText(newestDatum, oldestDatum, bgDaysWorn, timezone);
-  const roundedBgDaysWorn = bankersRound(bgDaysWorn, 0);
-
-  // Current Period Values
-  const veryHighPct = _.toNumber(counts.veryHigh) / counts.total * 1;
-  const highPct = _.toNumber(counts.high) / counts.total * 1;
-  const targetPct = _.toNumber(counts.target) / counts.total * 1;
-  const lowPct = _.toNumber(counts.low) / counts.total * 1;
-  const veryLowPct = _.toNumber(counts.veryLow) / counts.total * 1;
-
-  // Past Period Values
-  const offsetVeryHighPct = _.toNumber(offsetCounts.veryHigh) / offsetCounts.total * 1;
-  const offsetHighPct = _.toNumber(offsetCounts.high) / offsetCounts.total * 1;
-  const offsetTargetPct = _.toNumber(offsetCounts.target) / offsetCounts.total * 1;
-  const offsetLowPct = _.toNumber(offsetCounts.low) / offsetCounts.total * 1;
-  const offsetVeryLowPct = _.toNumber(offsetCounts.veryLow) / offsetCounts.total * 1;
-
-  // Change since Past Period
-  const veryHighPctDelta = formatPercentChangeCopy(veryHighPct, offsetVeryHighPct, t);
-  const highPctDelta = formatPercentChangeCopy(highPct, offsetHighPct, t);
-  const targetPctDelta = formatPercentChangeCopy(targetPct, offsetTargetPct, t);
-  const lowPctDelta = formatPercentChangeCopy(lowPct, offsetLowPct, t);
-  const veryLowPctDelta = formatPercentChangeCopy(veryLowPct, offsetVeryLowPct, t);
-  const sensorUsageAGPDelta = formatPercentChangeCopy(sensorUsageAGP / 100, offsetSensorUsageAGP / 100, t);
-
-  return (
-    <>
-      <Flex sx={{ justifyContent: 'space-between' }}>
-        <p>{t('Tidepool Summary: Changes Since Last Time Period')}</p>
-        <p>{t('{{dateRange}} ({{bgDaysWorn}} days)', { dateRange, bgDaysWorn: roundedBgDaysWorn })}</p>
-      </Flex>
-      <Flex sx={{ justifyContent:'space-between', background: vizColors.blue00, padding: 3, borderRadius: '8px' }}>
-        <Flex sx={{ flexDirection: 'column', alignItems: 'center' }}>
-          <Box sx={{ fontSize: 0, color: vizColors.gray50 }}>{t('Time in Very Low')}</Box>
-          <Box sx={{ fontSize: 1, fontWeight: 'bold', color: vizColors.purple90 }}>{veryLowPctDelta}</Box>
-          <Box sx={{ fontSize: 1, color: vizColors.gray50, fontStyle: 'italic' }}>{t('Was {{ value }}%', { value: formatStatsPercentage(offsetVeryLowPct) })}</Box>
-        </Flex>
-        <Flex sx={{ flexDirection: 'column', alignItems: 'center' }}>
-          <Box sx={{ fontSize: 0, color: vizColors.gray50 }}>{t('Time in Low')}</Box>
-          <Box sx={{ fontSize: 1, fontWeight: 'bold', color: vizColors.purple90 }}>{lowPctDelta}</Box>
-          <Box sx={{ fontSize: 1, color: vizColors.gray50, fontStyle: 'italic' }}>{t('Was {{ value }}%', { value: formatStatsPercentage(offsetLowPct) })}</Box>
-        </Flex>
-        <Flex sx={{ flexDirection: 'column', alignItems: 'center' }}>
-          <Box sx={{ fontSize: 0, color: vizColors.gray50 }}>{t('Time in Target')}</Box>
-          <Box sx={{ fontSize: 1, fontWeight: 'bold', color: vizColors.purple90 }}>{targetPctDelta}</Box>
-          <Box sx={{ fontSize: 1, color: vizColors.gray50, fontStyle: 'italic' }}>{t('Was {{ value }}%', { value: formatStatsPercentage(offsetTargetPct) })}</Box>
-        </Flex>
-        <Flex sx={{ flexDirection: 'column', alignItems: 'center' }}>
-          <Box sx={{ fontSize: 0, color: vizColors.gray50 }}>{t('Time in High')}</Box>
-          <Box sx={{ fontSize: 1, fontWeight: 'bold', color: vizColors.purple90 }}>{highPctDelta}</Box>
-          <Box sx={{ fontSize: 1, color: vizColors.gray50, fontStyle: 'italic' }}>{t('Was {{ value }}%', { value: formatStatsPercentage(offsetHighPct) })}</Box>
-        </Flex>
-        <Flex sx={{ flexDirection: 'column', alignItems: 'center' }}>
-          <Box sx={{ fontSize: 0, color: vizColors.gray50 }}>{t('Time in Very High')}</Box>
-          <Box sx={{ fontSize: 1, fontWeight: 'bold', color: vizColors.purple90 }}>{veryHighPctDelta}</Box>
-          <Box sx={{ fontSize: 1, color: vizColors.gray50, fontStyle: 'italic' }}>{t('Was {{ value }}%', { value: formatStatsPercentage(offsetVeryHighPct) })}</Box>
-        </Flex>
-        <Flex sx={{ flexDirection: 'column', alignItems: 'center' }}>
-          <Box sx={{ fontSize: 0, color: vizColors.gray50 }}>{t('Time CGM Active')}</Box>
-          <Box sx={{ fontSize: 1, fontWeight: 'bold', color: vizColors.purple90 }}>{sensorUsageAGPDelta}</Box>
-          <Box sx={{ fontSize: 1, color: vizColors.gray50, fontStyle: 'italic' }}>{t('Was {{ value }}%', { value: bankersRound(offsetSensorUsageAGP, 1) })}</Box>
-        </Flex>
-      </Flex>
-    </>
   );
 };
 
