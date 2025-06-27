@@ -139,7 +139,7 @@ const PeriodDeltaSummary = ({ agpCGM, offsetAgpCGM }) => {
           <p>{t('Was {{ value }}%', { value: formatStatsPercentage(offsetVeryHighPct) })}</p>
         </Box>
         <Box>
-          <p>{sensorUsageAGPDelta}{' %'}</p>
+          <p>{formatStatsPercentage(sensorUsageAGPDelta / 100)}{' %'}</p>
           <p>{t('Was {{ value }}%', { value: bankersRound(offsetSensorUsageAGP, 1) })}</p>
         </Box>
       </Flex>
