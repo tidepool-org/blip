@@ -98,8 +98,8 @@ const DailyChart = withTranslation(null, { withRef: true })(class DailyChart ext
       'onCarbOut',
       'onPumpSettingsOverrideHover',
       'onPumpSettingsOverrideOut',
-      'onPumpAlarmHover',
-      'onPumpAlarmOut',
+      'onAlarmHover',
+      'onAlarmOut',
     ];
 
     this.log = bows('Daily Chart');
@@ -415,17 +415,17 @@ class Daily extends Component {
             bgPrefs={bgPrefs}
             timePrefs={timePrefs}
           />}
-          {this.state.hoveredPumpAlarm && <AlarmTooltip
+          {this.state.hoveredAlarm && <AlarmTooltip
             position={{
-              top: this.state.hoveredPumpAlarm.top,
-              left: this.state.hoveredPumpAlarm.left
+              top: this.state.hoveredAlarm.top,
+              left: this.state.hoveredAlarm.left
             }}
             offset={{
               top: 0,
-              left: this.state.hoveredPumpAlarm.leftOffset || 0
+              left: this.state.hoveredAlarm.leftOffset || 0
             }}
-            side={this.state.hoveredPumpAlarm.side}
-            alarm={this.state.hoveredPumpAlarm.data}
+            side={this.state.hoveredAlarm.side}
+            alarm={this.state.hoveredAlarm.data}
             timePrefs={timePrefs}
           />}
           <WindowSizeListener onResize={this.handleWindowResize} />
@@ -499,8 +499,8 @@ class Daily extends Component {
           onCarbOut={this.handleCarbOut}
           onPumpSettingsOverrideHover={this.handlePumpSettingsOverrideHover}
           onPumpSettingsOverrideOut={this.handlePumpSettingsOverrideOut}
-          onPumpAlarmHover={this.handlePumpAlarmHover}
-          onPumpAlarmOut={this.handlePumpAlarmOut}
+          onAlarmHover={this.handleAlarmHover}
+          onAlarmOut={this.handleAlarmOut}
           ref={this.chartRef} />
       </>
     );
@@ -722,7 +722,7 @@ class Daily extends Component {
     });
   };
 
-  handlePumpAlarmHover = alarm => {
+  handleAlarmHover = alarm => {
     this.throttledMetric('hovered over daily alarm tooltip');
     const rect = alarm.rect;
     alarm.top = rect.top + rect.height;
@@ -742,13 +742,13 @@ class Daily extends Component {
     }
 
     this.setState({
-      hoveredPumpAlarm: alarm
+      hoveredAlarm: alarm
     });
   };
 
-  handlePumpAlarmOut = () => {
+  handleAlarmOut = () => {
     this.setState({
-      hoveredPumpAlarm: false
+      hoveredAlarm: false
     });
   };
 
