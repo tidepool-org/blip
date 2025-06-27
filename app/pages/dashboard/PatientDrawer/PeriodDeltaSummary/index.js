@@ -27,7 +27,7 @@ const Category = styled(Flex)`
 `;
 
 const Label = styled(Box)`
-  fontSize: 12px;
+  font-size: 12px;
   color: ${vizColors.gray50};
 `;
 
