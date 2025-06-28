@@ -66,11 +66,11 @@ const getOpts = (
   const opts = {
     agpCGM:       { disabled: false, endpoints: formatDateEndpoints(dates) },
     offsetAgpCGM: { disabled: false, endpoints: formatDateEndpoints(offsetDates) },
-    agpBGM:   { disabled: true },
-    basics:   { disabled: true },
-    bgLog:    { disabled: true },
-    daily:    { disabled: true },
-    settings: { disabled: true },
+    agpBGM:       { disabled: true },
+    basics:       { disabled: true },
+    bgLog:        { disabled: true },
+    daily:        { disabled: true },
+    settings:     { disabled: true },
   };
 
   return opts;

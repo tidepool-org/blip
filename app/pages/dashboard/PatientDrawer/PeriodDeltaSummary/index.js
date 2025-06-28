@@ -43,11 +43,7 @@ const Previous = styled(Box)`
   color: ${vizColors.gray50};
 `;
 
-const PeriodDeltaSummary = ({ agpCGM, offsetAgpCGM }) => {
-  const { t } = useTranslation();
-
-  if (!agpCGM || !offsetAgpCGM) return null;
-
+const getRenderedValues = (agpCGM, offsetAgpCGM, t) => {
   const {
     timePrefs,
     data: {
@@ -65,7 +61,7 @@ const PeriodDeltaSummary = ({ agpCGM, offsetAgpCGM }) => {
       current: {
         stats: {
           bgExtents: { newestDatum, oldestDatum, bgDaysWorn },
-          sensorUsage: { sensorUsageAGP: offsetSensorUsageAGP },
+          sensorUsage: { sensorUsageAGP: offsetSensorUsageAGPRaw },
           timeInRange: { counts: offsetCounts },
         },
       },
@@ -96,44 +92,75 @@ const PeriodDeltaSummary = ({ agpCGM, offsetAgpCGM }) => {
   const targetPctDelta = formatPercentChangeCopy(targetPct, offsetTargetPct, t);
   const lowPctDelta = formatPercentChangeCopy(lowPct, offsetLowPct, t);
   const veryLowPctDelta = formatPercentChangeCopy(veryLowPct, offsetVeryLowPct, t);
-  const sensorUsageAGPDelta = formatPercentChangeCopy(sensorUsageAGP / 100, offsetSensorUsageAGP / 100, t);
+  const sensorUsageAGPDelta = formatPercentChangeCopy(sensorUsageAGP / 100, offsetSensorUsageAGPRaw / 100, t);
+  const offsetSensorUsageAGP = bankersRound(offsetSensorUsageAGPRaw, 1);
+
+  return {
+    dateRange,
+    roundedBgDaysWorn,
+    veryHighPct,
+    highPct,
+    targetPct,
+    lowPct,
+    veryLowPct,
+    offsetVeryHighPct: formatStatsPercentage(offsetVeryHighPct),
+    offsetHighPct: formatStatsPercentage(offsetHighPct),
+    offsetTargetPct: formatStatsPercentage(offsetTargetPct),
+    offsetLowPct: formatStatsPercentage(offsetLowPct),
+    offsetVeryLowPct: formatStatsPercentage(offsetVeryLowPct),
+    veryHighPctDelta,
+    highPctDelta,
+    targetPctDelta,
+    lowPctDelta,
+    veryLowPctDelta,
+    sensorUsageAGPDelta,
+    offsetSensorUsageAGP,
+  };
+};
+
+const PeriodDeltaSummary = ({ agpCGM, offsetAgpCGM }) => {
+  const { t } = useTranslation();
+
+  if (!agpCGM || !offsetAgpCGM) return null;
+
+  const values = getRenderedValues(agpCGM, offsetAgpCGM, t);
 
   return (
     <>
       <Flex sx={{ justifyContent: 'space-between' }}>
         <p>{t('Tidepool Summary: Changes Since Last Time Period')}</p>
-        <p>{t('{{dateRange}} ({{bgDaysWorn}} days)', { dateRange, bgDaysWorn: roundedBgDaysWorn })}</p>
+        <p>{t('{{dateRange}} ({{bgDaysWorn}} days)', { dateRange: values.dateRange, bgDaysWorn: values.roundedBgDaysWorn })}</p>
       </Flex>
       <Flex sx={{ justifyContent:'space-between', background: vizColors.blue00, padding: 3, borderRadius: '8px' }}>
         <Category>
           <Label>{t('Time in Very Low')}</Label>
-          <Delta>{veryLowPctDelta}</Delta>
-          <Previous>{t('Was {{ value }}%', { value: formatStatsPercentage(offsetVeryLowPct) })}</Previous>
+          <Delta>{values.veryLowPctDelta}</Delta>
+          <Previous>{t('Was {{ value }}%', { value: values.offsetVeryLowPct })}</Previous>
         </Category>
         <Category>
           <Label>{t('Time in Low')}</Label>
-          <Delta>{lowPctDelta}</Delta>
-          <Previous>{t('Was {{ value }}%', { value: formatStatsPercentage(offsetLowPct) })}</Previous>
+          <Delta>{values.lowPctDelta}</Delta>
+          <Previous>{t('Was {{ value }}%', { value: values.offsetLowPct })}</Previous>
         </Category>
         <Category>
           <Label>{t('Time in Target')}</Label>
-          <Delta>{targetPctDelta}</Delta>
-          <Previous>{t('Was {{ value }}%', { value: formatStatsPercentage(offsetTargetPct) })}</Previous>
+          <Delta>{values.targetPctDelta}</Delta>
+          <Previous>{t('Was {{ value }}%', { value: values.offsetTargetPct })}</Previous>
         </Category>
         <Category>
           <Label>{t('Time in High')}</Label>
-          <Delta>{highPctDelta}</Delta>
-          <Previous>{t('Was {{ value }}%', { value: formatStatsPercentage(offsetHighPct) })}</Previous>
+          <Delta>{values.highPctDelta}</Delta>
+          <Previous>{t('Was {{ value }}%', { value: values.offsetHighPct })}</Previous>
         </Category>
         <Category>
           <Label>{t('Time in Very High')}</Label>
-          <Delta>{veryHighPctDelta}</Delta>
-          <Previous>{t('Was {{ value }}%', { value: formatStatsPercentage(offsetVeryHighPct) })}</Previous>
+          <Delta>{values.veryHighPctDelta}</Delta>
+          <Previous>{t('Was {{ value }}%', { value: values.offsetVeryHighPct })}</Previous>
         </Category>
         <Category>
           <Label>{t('Time CGM Active')}</Label>
-          <Delta>{sensorUsageAGPDelta}</Delta>
-          <Previous>{t('Was {{ value }}%', { value: bankersRound(offsetSensorUsageAGP, 1) })}</Previous>
+          <Delta>{values.sensorUsageAGPDelta}</Delta>
+          <Previous>{t('Was {{ value }}%', { value: values.offsetSensorUsageAGP })}</Previous>
         </Category>
       </Flex>
     </>
