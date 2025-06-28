@@ -81,6 +81,9 @@ const Content = ({ api, patientId, agpPeriodInDays }) => {
         <PeriodDeltaSummary agpCGM={agpCGM} offsetAgpCGM={offsetAgpCGM} />
       </Box>
 
+      <Flex mb={2} sx={{ fontSize: 1, fontWeight: 'medium', color: vizColors.gray50, gridColumn: '1 / 3' }}>
+        <Box>{t('AGP Report: Continuous Glucose Monitoring')}</Box>
+      </Flex>
       <Box mb={3} sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3 }}>
         <CategoryContainer title={t('Time in Ranges')} subtitle={t('Goals for Type 1 and Type 2 Diabetes')}>
           <StyledAGPImage src={percentInRanges} alt={t('Time in Ranges')} />
@@ -112,6 +115,6 @@ const Content = ({ api, patientId, agpPeriodInDays }) => {
       </Flex>
     </>
   );
-}
+};
 
 export default Content;

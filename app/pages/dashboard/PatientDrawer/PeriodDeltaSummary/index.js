@@ -127,9 +127,11 @@ const PeriodDeltaSummary = ({ agpCGM, offsetAgpCGM }) => {
 
   return (
     <>
-      <Flex sx={{ justifyContent: 'space-between' }}>
-        <p>{t('Tidepool Summary: Changes Since Last Time Period')}</p>
-        <p>{t('{{dateRange}} ({{bgDaysWorn}} days)', { dateRange: values.dateRange, bgDaysWorn: values.roundedBgDaysWorn })}</p>
+      <Flex mb={2} sx={{ justifyContent: 'space-between', fontSize: 1, fontWeight: 'medium', color: vizColors.gray50 }}>
+        <Box>{t('Tidepool Summary: Changes Since Last Time Period')}</Box>
+        <Box sx={{ fontWeight: 'normal' }}>
+          {t('{{dateRange}} ({{bgDaysWorn}} days)', { dateRange: values.dateRange, bgDaysWorn: values.roundedBgDaysWorn })}
+        </Box>
       </Flex>
       <Flex sx={{ justifyContent:'space-between', background: vizColors.blue00, padding: 3, borderRadius: '8px' }}>
         <Category>
