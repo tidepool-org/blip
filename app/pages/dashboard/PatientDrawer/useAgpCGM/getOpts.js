@@ -54,8 +54,8 @@ const getOpts = (
   const dates = getLastNDays(agpPeriodInDays, 'agpCGM');
 
   const offsetDates = {
-    startDate: moment(dates.startDate).subtract(agpPeriodInDays, 'days'),
-    endDate: moment(dates.endDate).subtract(agpPeriodInDays, 'days'),
+    startDate: dates.startDate.clone().subtract(agpPeriodInDays, 'days'),
+    endDate: dates.endDate.clone().subtract(agpPeriodInDays, 'days'),
   };
 
   const formatDateEndpoints = ({ startDate, endDate }) => (startDate && endDate ? [
