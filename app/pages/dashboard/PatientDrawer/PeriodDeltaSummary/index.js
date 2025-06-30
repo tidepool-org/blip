@@ -6,6 +6,7 @@ import { utils as vizUtils, colors as vizColors } from '@tidepool/viz';
 import styled from '@emotion/styled';
 const { bankersRound, formatStatsPercentage } = vizUtils.stat;
 const { getTimezoneFromTimePrefs } = vizUtils.datetime;
+import { MS_IN_HOUR } from '../../../../core/constants';
 
 import getReportDaysText from '../CGMStatistics/getReportDaysText';
 
@@ -121,7 +122,26 @@ const getRenderedValues = (agpCGM, offsetAgpCGM, t) => {
 const PeriodDeltaSummary = ({ agpCGM, offsetAgpCGM }) => {
   const { t } = useTranslation();
 
-  if (!agpCGM || !offsetAgpCGM) return null;
+  if (!agpCGM) return null;
+
+  const { count, sampleInterval } = offsetAgpCGM?.data?.current?.stats?.sensorUsage || {};
+
+  const hoursOfCGMData = (count * sampleInterval) / MS_IN_HOUR;
+
+  const isDataInsufficient = !hoursOfCGMData || hoursOfCGMData < 24;
+
+  if (!offsetAgpCGM || isDataInsufficient) {
+    return (
+      <>
+        <Flex mb={2} sx={{ justifyContent: 'space-between', fontSize: 1, fontWeight: 'medium', color: vizColors.gray50 }}>
+          <Box>{t('Tidepool Summary: Changes Since Last Time Period')}</Box>
+        </Flex>
+        <Flex sx={{ justifyContent:'center', background: vizColors.blue00, padding: 3, borderRadius: '8px' }}>
+          <Previous>{t('Insufficient data to calculate Time in Ranges')}</Previous>
+        </Flex>
+      </>
+    );
+  }
 
   const values = getRenderedValues(agpCGM, offsetAgpCGM, t);
 
