@@ -10,8 +10,8 @@ import { MS_IN_HOUR } from '../../../../core/constants';
 
 import getReportDaysText from '../CGMStatistics/getReportDaysText';
 
-const formatPercentChangeCopy = (currentValue, previousValue, t) => {
-  const renderedDelta = formatStatsPercentage(Math.abs(currentValue - previousValue));
+const formatPercentChangeCopy = (t, currentValue, previousValue, precision = 0) => {
+  const renderedDelta = bankersRound(Math.abs(currentValue - previousValue), precision);
 
   if (renderedDelta === '0') {
     return t('Did not change');
@@ -74,46 +74,56 @@ const getRenderedValues = (agpCGM, offsetAgpCGM, t) => {
   const roundedBgDaysWorn = bankersRound(bgDaysWorn, 0);
 
   // Current Period Values
-  const veryHighPct = _.toNumber(counts.veryHigh) / counts.total * 1;
-  const highPct = _.toNumber(counts.high) / counts.total * 1;
-  const targetPct = _.toNumber(counts.target) / counts.total * 1;
-  const lowPct = _.toNumber(counts.low) / counts.total * 1;
-  const veryLowPct = _.toNumber(counts.veryLow) / counts.total * 1;
+  const timeInVeryHighFraction = _.toNumber(counts.veryHigh) / counts.total * 1;
+  const timeInHighFraction = _.toNumber(counts.high) / counts.total * 1;
+  const timeInTargetFraction = _.toNumber(counts.target) / counts.total * 1;
+  const timeInLowFraction = _.toNumber(counts.low) / counts.total * 1;
+  const timeInVeryLowFraction = _.toNumber(counts.veryLow) / counts.total * 1;
+
+  const timeInVeryHighPercent = bankersRound(timeInVeryHighFraction * 100, 0);
+  const timeInHighPercent = bankersRound(timeInHighFraction * 100, 0);
+  const timeInTargetPercent = bankersRound(timeInTargetFraction * 100, 0);
+  const timeInLowPercent = bankersRound(timeInLowFraction * 100, 0);
+  const timeInVeryLowPercent = bankersRound(timeInVeryLowFraction * 100, 0);
 
   // Past Period Values
-  const offsetVeryHighPct = _.toNumber(offsetCounts.veryHigh) / offsetCounts.total * 1;
-  const offsetHighPct = _.toNumber(offsetCounts.high) / offsetCounts.total * 1;
-  const offsetTargetPct = _.toNumber(offsetCounts.target) / offsetCounts.total * 1;
-  const offsetLowPct = _.toNumber(offsetCounts.low) / offsetCounts.total * 1;
-  const offsetVeryLowPct = _.toNumber(offsetCounts.veryLow) / offsetCounts.total * 1;
+  const offsetTimeInVeryHighFraction = _.toNumber(offsetCounts.veryHigh) / offsetCounts.total * 1;
+  const offsetTimeInHighFraction = _.toNumber(offsetCounts.high) / offsetCounts.total * 1;
+  const offsetTimeInTargetFraction = _.toNumber(offsetCounts.target) / offsetCounts.total * 1;
+  const offsetTimeInLowFraction = _.toNumber(offsetCounts.low) / offsetCounts.total * 1;
+  const offsetTimeInVeryLowFraction = _.toNumber(offsetCounts.veryLow) / offsetCounts.total * 1;
+
+  const offsetTimeInVeryHighPercent = bankersRound(offsetTimeInVeryHighFraction * 100, 0);
+  const offsetTimeInHighPercent = bankersRound(offsetTimeInHighFraction * 100, 0);
+  const offsetTimeInTargetPercent = bankersRound(offsetTimeInTargetFraction * 100, 0);
+  const offsetTimeInLowPercent = bankersRound(offsetTimeInLowFraction * 100, 0);
+  const offsetTimeInVeryLowPercent = bankersRound(offsetTimeInVeryLowFraction * 100, 0);
 
   // Change since Past Period
-  const veryHighPctDelta = formatPercentChangeCopy(veryHighPct, offsetVeryHighPct, t);
-  const highPctDelta = formatPercentChangeCopy(highPct, offsetHighPct, t);
-  const targetPctDelta = formatPercentChangeCopy(targetPct, offsetTargetPct, t);
-  const lowPctDelta = formatPercentChangeCopy(lowPct, offsetLowPct, t);
-  const veryLowPctDelta = formatPercentChangeCopy(veryLowPct, offsetVeryLowPct, t);
-  const sensorUsageAGPDelta = formatPercentChangeCopy(sensorUsageAGP / 100, offsetSensorUsageAGPRaw / 100, t);
+  const timeInVeryHighPercentDelta = formatPercentChangeCopy(t, timeInVeryHighPercent, offsetTimeInVeryHighPercent);
+  const timeInHighPercentDelta = formatPercentChangeCopy(t, timeInHighPercent, offsetTimeInHighPercent);
+  const timeInTargetPercentDelta = formatPercentChangeCopy(t, timeInTargetPercent, offsetTimeInTargetPercent);
+  const timeInLowPercentDelta = formatPercentChangeCopy(t, timeInLowPercent, offsetTimeInLowPercent);
+  const timeInVeryLowPercentDelta = formatPercentChangeCopy(t, timeInVeryLowPercent, offsetTimeInVeryLowPercent);
+  const sensorUsageAGPDelta = formatPercentChangeCopy(t, sensorUsageAGP / 100, offsetSensorUsageAGPRaw / 100, 1);
   const offsetSensorUsageAGP = bankersRound(offsetSensorUsageAGPRaw, 1);
 
   return {
     dateRange,
     roundedBgDaysWorn,
-    veryHighPct,
-    highPct,
-    targetPct,
-    lowPct,
-    veryLowPct,
-    offsetVeryHighPct: formatStatsPercentage(offsetVeryHighPct),
-    offsetHighPct: formatStatsPercentage(offsetHighPct),
-    offsetTargetPct: formatStatsPercentage(offsetTargetPct),
-    offsetLowPct: formatStatsPercentage(offsetLowPct),
-    offsetVeryLowPct: formatStatsPercentage(offsetVeryLowPct),
-    veryHighPctDelta,
-    highPctDelta,
-    targetPctDelta,
-    lowPctDelta,
-    veryLowPctDelta,
+
+    timeInVeryHighPercentDelta,
+    timeInHighPercentDelta,
+    timeInTargetPercentDelta,
+    timeInLowPercentDelta,
+    timeInVeryLowPercentDelta,
+
+    offsetTimeInVeryHighPercent,
+    offsetTimeInHighPercent,
+    offsetTimeInTargetPercent,
+    offsetTimeInLowPercent,
+    offsetTimeInVeryLowPercent,
+
     sensorUsageAGPDelta,
     offsetSensorUsageAGP,
   };
@@ -160,28 +170,28 @@ const PeriodDeltaSummary = ({ agpCGM, offsetAgpCGM }) => {
       <Flex sx={{ justifyContent:'space-between', background: vizColors.blue00, padding: 3, borderRadius: '8px' }}>
         <Category>
           <Label>{t('Time in Very Low')}</Label>
-          <Delta>{values.veryLowPctDelta}</Delta>
-          <Previous>{t('Was {{ value }}%', { value: values.offsetVeryLowPct })}</Previous>
+          <Delta>{values.timeInVeryLowPercentDelta}</Delta>
+          <Previous>{t('Was {{ value }}%', { value: values.offsetTimeInVeryLowPercent })}</Previous>
         </Category>
         <Category>
           <Label>{t('Time in Low')}</Label>
-          <Delta>{values.lowPctDelta}</Delta>
-          <Previous>{t('Was {{ value }}%', { value: values.offsetLowPct })}</Previous>
+          <Delta>{values.timeInLowPercentDelta}</Delta>
+          <Previous>{t('Was {{ value }}%', { value: values.offsetTimeInLowPercent })}</Previous>
         </Category>
         <Category>
           <Label>{t('Time in Target')}</Label>
-          <Delta>{values.targetPctDelta}</Delta>
-          <Previous>{t('Was {{ value }}%', { value: values.offsetTargetPct })}</Previous>
+          <Delta>{values.timeInTargetPercentDelta}</Delta>
+          <Previous>{t('Was {{ value }}%', { value: values.offsetTimeInTargetPercent })}</Previous>
         </Category>
         <Category>
           <Label>{t('Time in High')}</Label>
-          <Delta>{values.highPctDelta}</Delta>
-          <Previous>{t('Was {{ value }}%', { value: values.offsetHighPct })}</Previous>
+          <Delta>{values.timeInHighPercentDelta}</Delta>
+          <Previous>{t('Was {{ value }}%', { value: values.offsetTimeInHighPercent })}</Previous>
         </Category>
         <Category>
           <Label>{t('Time in Very High')}</Label>
-          <Delta>{values.veryHighPctDelta}</Delta>
-          <Previous>{t('Was {{ value }}%', { value: values.offsetVeryHighPct })}</Previous>
+          <Delta>{values.timeInVeryHighPercentDelta}</Delta>
+          <Previous>{t('Was {{ value }}%', { value: values.offsetTimeInVeryHighPercent })}</Previous>
         </Category>
         <Category>
           <Label>{t('Time CGM Active')}</Label>
