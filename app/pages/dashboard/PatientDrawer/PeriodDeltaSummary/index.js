@@ -10,10 +10,10 @@ import { MS_IN_HOUR } from '../../../../core/constants';
 
 import getReportDaysText from '../CGMStatistics/getReportDaysText';
 
-const formatPercentChangeCopy = (t, currentValue, previousValue, precision = 0) => {
-  const renderedDelta = bankersRound(Math.abs(currentValue - previousValue), precision);
+const formatPercentChangeCopy = (t, currentValue, previousValue) => {
+  const renderedDelta = bankersRound(Math.abs(currentValue - previousValue), 1);
 
-  if (renderedDelta === '0') {
+  if (renderedDelta === 0) {
     return t('Did not change');
   } else if (currentValue > previousValue) {
     return t('Increased by {{ delta }}%', { delta: renderedDelta });
@@ -105,8 +105,9 @@ const getRenderedValues = (agpCGM, offsetAgpCGM, t) => {
   const timeInTargetPercentDelta = formatPercentChangeCopy(t, timeInTargetPercent, offsetTimeInTargetPercent);
   const timeInLowPercentDelta = formatPercentChangeCopy(t, timeInLowPercent, offsetTimeInLowPercent);
   const timeInVeryLowPercentDelta = formatPercentChangeCopy(t, timeInVeryLowPercent, offsetTimeInVeryLowPercent);
-  const sensorUsageAGPDelta = formatPercentChangeCopy(t, sensorUsageAGP / 100, offsetSensorUsageAGPRaw / 100, 1);
+
   const offsetSensorUsageAGP = bankersRound(offsetSensorUsageAGPRaw, 1);
+  const sensorUsageAGPDelta = formatPercentChangeCopy(t, bankersRound(sensorUsageAGP, 1), bankersRound(offsetSensorUsageAGPRaw, 1));
 
   return {
     dateRange,
