@@ -4,11 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { Flex, Box } from 'theme-ui';
 import { utils as vizUtils, colors as vizColors } from '@tidepool/viz';
 import styled from '@emotion/styled';
-const { bankersRound, formatStatsPercentage } = vizUtils.stat;
+const { bankersRound } = vizUtils.stat;
 const { getTimezoneFromTimePrefs } = vizUtils.datetime;
 import { MS_IN_HOUR } from '../../../../core/constants';
 
-import getReportDaysText from '../CGMStatistics/getReportDaysText';
+import getReportDaysText from '../getReportDaysText';
 
 const formatPercentChangeCopy = (t, currentValue, previousValue) => {
   const renderedDelta = bankersRound(Math.abs(currentValue - previousValue), 1);

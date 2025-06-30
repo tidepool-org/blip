@@ -6,7 +6,7 @@ import { utils as vizUtils } from '@tidepool/viz';
 const { formatDatum, bankersRound } = vizUtils.stat;
 const { getTimezoneFromTimePrefs } = vizUtils.datetime;
 import { MGDL_UNITS } from '../../../../core/constants';
-import getReportDaysText from './getReportDaysText';
+import getReportDaysText from '../getReportDaysText';
 
 const TableRow = ({ label, sublabel, value, units, id }) => {
   return (
