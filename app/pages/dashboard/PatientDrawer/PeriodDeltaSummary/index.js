@@ -119,19 +119,10 @@ const getRenderedValues = (agpCGM, offsetAgpCGM, t) => {
   };
 };
 
-const PeriodDeltaSummary = ({ agpCGM, offsetAgpCGM }) => {
+const InsufficientData = () => {
   const { t } = useTranslation();
 
-  if (!agpCGM) return null;
-
-  const { count, sampleInterval } = offsetAgpCGM?.data?.current?.stats?.sensorUsage || {};
-
-  const hoursOfCGMData = (count * sampleInterval) / MS_IN_HOUR;
-
-  const isDataInsufficient = !hoursOfCGMData || hoursOfCGMData < 24;
-
-  if (!offsetAgpCGM || isDataInsufficient) {
-    return (
+  return (
       <>
         <Flex mb={2} sx={{ justifyContent: 'space-between', fontSize: 1, fontWeight: 'medium', color: vizColors.gray50 }}>
           <Box>{t('Tidepool Summary: Changes Since Last Time Period')}</Box>
@@ -141,7 +132,20 @@ const PeriodDeltaSummary = ({ agpCGM, offsetAgpCGM }) => {
         </Flex>
       </>
     );
-  }
+};
+
+const PeriodDeltaSummary = ({ agpCGM, offsetAgpCGM }) => {
+  const { t } = useTranslation();
+
+  if (!agpCGM) return null;
+
+  if (!offsetAgpCGM) return <InsufficientData />;
+
+  const { count, sampleInterval } = offsetAgpCGM?.data?.current?.stats?.sensorUsage || {};
+  const hoursOfCGMData = (count * sampleInterval) / MS_IN_HOUR;
+  const isDataInsufficient = !hoursOfCGMData || hoursOfCGMData < 24;
+
+  if (isDataInsufficient) return <InsufficientData />;
 
   const values = getRenderedValues(agpCGM, offsetAgpCGM, t);
 
