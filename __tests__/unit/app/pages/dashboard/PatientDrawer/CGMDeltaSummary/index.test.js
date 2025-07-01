@@ -162,34 +162,40 @@ describe('PatientDrawer/CGMDeltaSummary', () => {
     it('renders the data in the expected format', () => {
       render(<CGMDeltaSummary agpCGM={agpCGM} offsetAgpCGM={offsetAgpCGM} />);
 
-      const veryLowContainer = screen.queryByTestId('cgm-delta-summary-time-in-very-low');
-      const lowContainer = screen.queryByTestId('cgm-delta-summary-time-in-low');
-      const targetContainer = screen.queryByTestId('cgm-delta-summary-time-in-target');
-      const highContainer = screen.queryByTestId('cgm-delta-summary-time-in-high');
-      const veryHighContainer = screen.queryByTestId('cgm-delta-summary-time-in-very-high');
-      const cgmActiveContainer = screen.queryByTestId('cgm-delta-summary-time-cgm-active');
+      const veryLowContainer = screen.queryByTestId('cgm-delta-summary-very-low');
+      const lowContainer = screen.queryByTestId('cgm-delta-summary-low');
+      const targetContainer = screen.queryByTestId('cgm-delta-summary-target');
+      const highContainer = screen.queryByTestId('cgm-delta-summary-high');
+      const veryHighContainer = screen.queryByTestId('cgm-delta-summary-very-high');
+      const cgmActiveContainer = screen.queryByTestId('cgm-delta-summary-cgm-active');
 
       expect(veryLowContainer).toBeInTheDocument();
+      expect(within(veryLowContainer).getByText('Time in Very Low')).toBeInTheDocument();
       expect(within(veryLowContainer).getByText('Did not change')).toBeInTheDocument();
       expect(within(veryLowContainer).getByText('Was 1%')).toBeInTheDocument();
 
       expect(lowContainer).toBeInTheDocument();
+      expect(within(lowContainer).getByText('Time in Low')).toBeInTheDocument();
       expect(within(lowContainer).getByText('Decreased by 1%')).toBeInTheDocument();
       expect(within(lowContainer).getByText('Was 3%')).toBeInTheDocument();
 
       expect(targetContainer).toBeInTheDocument();
+      expect(within(targetContainer).getByText('Time in Target')).toBeInTheDocument();
       expect(within(targetContainer).getByText('Increased by 6%')).toBeInTheDocument();
       expect(within(targetContainer).getByText('Was 78%')).toBeInTheDocument();
 
       expect(highContainer).toBeInTheDocument();
+      expect(within(highContainer).getByText('Time in High')).toBeInTheDocument();
       expect(within(highContainer).getByText('Decreased by 3%')).toBeInTheDocument();
       expect(within(highContainer).getByText('Was 15%')).toBeInTheDocument();
 
       expect(veryHighContainer).toBeInTheDocument();
+      expect(within(veryHighContainer).getByText('Time in Very High')).toBeInTheDocument();
       expect(within(veryHighContainer).getByText('Decreased by 1%')).toBeInTheDocument();
       expect(within(veryHighContainer).getByText('Was 3%')).toBeInTheDocument();
 
       expect(cgmActiveContainer).toBeInTheDocument();
+      expect(within(cgmActiveContainer).getByText('Time CGM Active')).toBeInTheDocument();
       expect(within(cgmActiveContainer).getByText('Increased by 2.4%')).toBeInTheDocument();
       expect(within(cgmActiveContainer).getByText('Was 98.2%')).toBeInTheDocument();
     });
