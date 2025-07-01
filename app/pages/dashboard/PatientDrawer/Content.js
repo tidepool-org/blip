@@ -86,7 +86,7 @@ const Content = ({ api, patientId, agpPeriodInDays }) => {
       </Flex>
       <Box mb={3} sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3 }}>
         <CategoryContainer title={t('Time in Ranges')} subtitle={t('Goals for Type 1 and Type 2 Diabetes')}>
-          <StyledAGPImage src={percentInRanges} alt={t('Time in Ranges')} />
+          <StyledAGPImage src={percentInRanges} alt={t('Time in Ranges Chart')} />
         </CategoryContainer>
         <CategoryContainer>
           <CGMStatistics agpCGM={agpCGM} />
@@ -98,14 +98,14 @@ const Content = ({ api, patientId, agpPeriodInDays }) => {
           <Box px={3} py={1} sx={{ fontSize: 0 }}>
             { !!ambulatoryGlucoseProfile ? agpGraphHelpText : agpGraphInsufficientText }
           </Box>
-          <StyledAGPImage src={ambulatoryGlucoseProfile} alt={t('Ambulatory Glucose Profile (AGP)')} />
+          <StyledAGPImage src={ambulatoryGlucoseProfile} alt={t('Ambulatory Glucose Profile (AGP) Chart')} />
         </CategoryContainer>
         <CategoryContainer title={t('Daily Glucose Profiles')}>
           <Box px={3} py={1} sx={{ fontSize: 0 }}>
             {dailyGlucoseProfilesHelpText}
           </Box>
-          <StyledAGPImage src={dailyGlucoseProfilesTop} alt={t('Daily Glucose Profiles')} />
-          <StyledAGPImage src={dailyGlucoseProfilesBot} alt={t('Daily Glucose Profiles')}/>
+          <StyledAGPImage src={dailyGlucoseProfilesTop} alt={t('Daily Glucose Profiles First Chart')} />
+          <StyledAGPImage src={dailyGlucoseProfilesBot} alt={t('Daily Glucose Profiles Second Chart')}/>
         </CategoryContainer>
       </Box>
 
