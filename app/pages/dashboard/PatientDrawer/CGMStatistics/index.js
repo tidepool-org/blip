@@ -12,6 +12,7 @@ const TableRow = ({ label, sublabel, value, units, id }) => {
   return (
     <Flex
       id={id}
+      data-testid={id}
       sx={{
         justifyContent: 'space-between',
         margin: '0 16px',
