@@ -145,7 +145,7 @@ const InsufficientData = () => {
     );
 };
 
-const PeriodDeltaSummary = ({ agpCGM, offsetAgpCGM }) => {
+const CGMDeltaSummary = ({ agpCGM, offsetAgpCGM }) => {
   const { t } = useTranslation();
 
   if (!agpCGM) return null;
@@ -169,32 +169,32 @@ const PeriodDeltaSummary = ({ agpCGM, offsetAgpCGM }) => {
         </Box>
       </Flex>
       <Flex sx={{ justifyContent:'space-between', background: vizColors.blue00, padding: 3, borderRadius: '8px' }}>
-        <Category data-testid="period-delta-summary-time-in-very-low">
+        <Category data-testid="cgm-delta-summary-time-in-very-low">
           <Label>{t('Time in Very Low')}</Label>
           <Delta>{values.timeInVeryLowPercentDelta}</Delta>
           <Previous>{t('Was {{ value }}%', { value: values.offsetTimeInVeryLowPercent })}</Previous>
         </Category>
-        <Category data-testid="period-delta-summary-time-in-low">
+        <Category data-testid="cgm-delta-summary-time-in-low">
           <Label>{t('Time in Low')}</Label>
           <Delta>{values.timeInLowPercentDelta}</Delta>
           <Previous>{t('Was {{ value }}%', { value: values.offsetTimeInLowPercent })}</Previous>
         </Category>
-        <Category data-testid="period-delta-summary-time-in-target">
+        <Category data-testid="cgm-delta-summary-time-in-target">
           <Label>{t('Time in Target')}</Label>
           <Delta>{values.timeInTargetPercentDelta}</Delta>
           <Previous>{t('Was {{ value }}%', { value: values.offsetTimeInTargetPercent })}</Previous>
         </Category>
-        <Category data-testid="period-delta-summary-time-in-high">
+        <Category data-testid="cgm-delta-summary-time-in-high">
           <Label>{t('Time in High')}</Label>
           <Delta>{values.timeInHighPercentDelta}</Delta>
           <Previous>{t('Was {{ value }}%', { value: values.offsetTimeInHighPercent })}</Previous>
         </Category>
-        <Category data-testid="period-delta-summary-time-in-very-high">
+        <Category data-testid="cgm-delta-summary-time-in-very-high">
           <Label>{t('Time in Very High')}</Label>
           <Delta>{values.timeInVeryHighPercentDelta}</Delta>
           <Previous>{t('Was {{ value }}%', { value: values.offsetTimeInVeryHighPercent })}</Previous>
         </Category>
-        <Category data-testid="period-delta-summary-time-cgm-active">
+        <Category data-testid="cgm-delta-summary-time-cgm-active">
           <Label>{t('Time CGM Active')}</Label>
           <Delta>{values.sensorUsageAGPDelta}</Delta>
           <Previous>{t('Was {{ value }}%', { value: values.offsetSensorUsageAGP })}</Previous>
@@ -204,4 +204,4 @@ const PeriodDeltaSummary = ({ agpCGM, offsetAgpCGM }) => {
   );
 };
 
-export default PeriodDeltaSummary;
+export default CGMDeltaSummary;

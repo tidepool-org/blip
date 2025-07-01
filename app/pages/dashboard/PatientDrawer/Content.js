@@ -11,7 +11,7 @@ const { Loader } = vizComponents;
 
 import useAgpCGM, { STATUS } from './useAgpCGM';
 import CGMStatistics from './CGMStatistics';
-import PeriodDeltaSummary from './PeriodDeltaSummary';
+import CGMDeltaSummary from './CGMDeltaSummary';
 
 const StyledAGPImage = styled.img`
   width: calc(100% - 24px);
@@ -78,7 +78,7 @@ const Content = ({ api, patientId, agpPeriodInDays }) => {
   return (
     <>
       <Box mb={3}>
-        <PeriodDeltaSummary agpCGM={agpCGM} offsetAgpCGM={offsetAgpCGM} />
+        <CGMDeltaSummary agpCGM={agpCGM} offsetAgpCGM={offsetAgpCGM} />
       </Box>
 
       <Flex mb={2} sx={{ fontSize: 1, fontWeight: 'medium', color: vizColors.gray50, gridColumn: '1 / 3' }}>

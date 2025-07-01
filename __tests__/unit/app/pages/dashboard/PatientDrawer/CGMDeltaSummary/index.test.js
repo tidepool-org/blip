@@ -8,7 +8,7 @@
 import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 
-import PeriodDeltaSummary from '@app/pages/dashboard/PatientDrawer/PeriodDeltaSummary';
+import CGMDeltaSummary from '@app/pages/dashboard/PatientDrawer/CGMDeltaSummary';
 
 const agpCGM = {
   timePrefs: {
@@ -134,10 +134,10 @@ const offsetAgpCGM = {
   },
 };
 
-describe('PatientDrawer/PeriodDeltaSummary', () => {
+describe('PatientDrawer/CGMDeltaSummary', () => {
   describe('When data is not present', () => {
     it('renders nothing', () => {
-      const { container } = render(<PeriodDeltaSummary agpCGM={undefined} offsetAgpCGM={undefined} />);
+      const { container } = render(<CGMDeltaSummary agpCGM={undefined} offsetAgpCGM={undefined} />);
 
       expect(container).toBeEmptyDOMElement();
     });
@@ -145,29 +145,29 @@ describe('PatientDrawer/PeriodDeltaSummary', () => {
 
   describe('When data for previous period is not present', () => {
     it('renders a message for insufficient data', () => {
-      render(<PeriodDeltaSummary agpCGM={agpCGM} offsetAgpCGM={undefined} />);
+      render(<CGMDeltaSummary agpCGM={agpCGM} offsetAgpCGM={undefined} />);
 
       expect(screen.getByText('Insufficient data to calculate Time in Ranges')).toBeInTheDocument();
 
-      expect(screen.queryByTestId('period-delta-summary-time-in-very-low')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('period-delta-summary-time-in-low')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('period-delta-summary-time-in-target')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('period-delta-summary-time-in-high')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('period-delta-summary-time-in-very')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('period-delta-summary-time-cgm-active')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('cgm-delta-summary-time-in-very-low')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('cgm-delta-summary-time-in-low')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('cgm-delta-summary-time-in-target')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('cgm-delta-summary-time-in-high')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('cgm-delta-summary-time-in-very')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('cgm-delta-summary-time-cgm-active')).not.toBeInTheDocument();
     });
   });
 
   describe('When data is present', () => {
     it('renders the data in the expected format', () => {
-      render(<PeriodDeltaSummary agpCGM={agpCGM} offsetAgpCGM={offsetAgpCGM} />);
+      render(<CGMDeltaSummary agpCGM={agpCGM} offsetAgpCGM={offsetAgpCGM} />);
 
-      const veryLowContainer = screen.queryByTestId('period-delta-summary-time-in-very-low');
-      const lowContainer = screen.queryByTestId('period-delta-summary-time-in-low');
-      const targetContainer = screen.queryByTestId('period-delta-summary-time-in-target');
-      const highContainer = screen.queryByTestId('period-delta-summary-time-in-high');
-      const veryHighContainer = screen.queryByTestId('period-delta-summary-time-in-very-high');
-      const cgmActiveContainer = screen.queryByTestId('period-delta-summary-time-cgm-active');
+      const veryLowContainer = screen.queryByTestId('cgm-delta-summary-time-in-very-low');
+      const lowContainer = screen.queryByTestId('cgm-delta-summary-time-in-low');
+      const targetContainer = screen.queryByTestId('cgm-delta-summary-time-in-target');
+      const highContainer = screen.queryByTestId('cgm-delta-summary-time-in-high');
+      const veryHighContainer = screen.queryByTestId('cgm-delta-summary-time-in-very-high');
+      const cgmActiveContainer = screen.queryByTestId('cgm-delta-summary-time-cgm-active');
 
       expect(veryLowContainer).toBeInTheDocument();
       expect(within(veryLowContainer).getByText('Did not change')).toBeInTheDocument();
