@@ -96,6 +96,10 @@ export default class PDFWorker {
                   opts[key].disabled = !_.flatten(_.valuesIn(_.get(data, 'agpCGM.data.current.data', {}))).length > 0;
                   break;
 
+                case 'offsetAgpCGM':
+                  opts[key].disabled = !_.flatten(_.valuesIn(_.get(data, 'offsetAgpCGM.data.current.data', {}))).length > 0;
+                  break;
+
                 case 'settings':
                   opts[key].disabled = !_.get(data, 'settings.metaData.latestPumpUpload.settings');
                   break;
