@@ -100,24 +100,24 @@ const getRenderedValues = (agpCGM, offsetAgpCGM, t) => {
   const offsetTimeInVeryLowPercent = bankersRound(offsetTimeInVeryLowFraction * 100, 0);
 
   // Change since Past Period
-  const timeInVeryHighPercentDelta = formatPercentChangeCopy(t, timeInVeryHighPercent, offsetTimeInVeryHighPercent);
-  const timeInHighPercentDelta = formatPercentChangeCopy(t, timeInHighPercent, offsetTimeInHighPercent);
-  const timeInTargetPercentDelta = formatPercentChangeCopy(t, timeInTargetPercent, offsetTimeInTargetPercent);
-  const timeInLowPercentDelta = formatPercentChangeCopy(t, timeInLowPercent, offsetTimeInLowPercent);
-  const timeInVeryLowPercentDelta = formatPercentChangeCopy(t, timeInVeryLowPercent, offsetTimeInVeryLowPercent);
+  const timeInVeryHighPercentDeltaCopy = formatPercentChangeCopy(t, timeInVeryHighPercent, offsetTimeInVeryHighPercent);
+  const timeInHighPercentDeltaCopy = formatPercentChangeCopy(t, timeInHighPercent, offsetTimeInHighPercent);
+  const timeInTargetPercentDeltaCopy = formatPercentChangeCopy(t, timeInTargetPercent, offsetTimeInTargetPercent);
+  const timeInLowPercentDeltaCopy = formatPercentChangeCopy(t, timeInLowPercent, offsetTimeInLowPercent);
+  const timeInVeryLowPercentDeltaCopy = formatPercentChangeCopy(t, timeInVeryLowPercent, offsetTimeInVeryLowPercent);
 
   const offsetSensorUsageAGP = bankersRound(offsetSensorUsageAGPRaw, 1);
-  const sensorUsageAGPDelta = formatPercentChangeCopy(t, bankersRound(sensorUsageAGP, 1), bankersRound(offsetSensorUsageAGPRaw, 1));
+  const sensorUsageAGPDeltaCopy = formatPercentChangeCopy(t, bankersRound(sensorUsageAGP, 1), bankersRound(offsetSensorUsageAGPRaw, 1));
 
   return {
     dateRange,
     roundedBgDaysWorn,
 
-    timeInVeryHighPercentDelta,
-    timeInHighPercentDelta,
-    timeInTargetPercentDelta,
-    timeInLowPercentDelta,
-    timeInVeryLowPercentDelta,
+    timeInVeryHighPercentDeltaCopy,
+    timeInHighPercentDeltaCopy,
+    timeInTargetPercentDeltaCopy,
+    timeInLowPercentDeltaCopy,
+    timeInVeryLowPercentDeltaCopy,
 
     offsetTimeInVeryHighPercent,
     offsetTimeInHighPercent,
@@ -125,7 +125,7 @@ const getRenderedValues = (agpCGM, offsetAgpCGM, t) => {
     offsetTimeInLowPercent,
     offsetTimeInVeryLowPercent,
 
-    sensorUsageAGPDelta,
+    sensorUsageAGPDeltaCopy,
     offsetSensorUsageAGP,
   };
 };
@@ -171,32 +171,32 @@ const CGMDeltaSummary = ({ agpCGM, offsetAgpCGM }) => {
       <Flex sx={{ justifyContent:'space-between', background: vizColors.blue00, padding: 3, borderRadius: '8px' }}>
         <Category data-testid="cgm-delta-summary-very-low">
           <Label>{t('Time in Very Low')}</Label>
-          <Delta>{values.timeInVeryLowPercentDelta}</Delta>
+          <Delta>{values.timeInVeryLowPercentDeltaCopy}</Delta>
           <Previous>{t('Was {{ value }}%', { value: values.offsetTimeInVeryLowPercent })}</Previous>
         </Category>
         <Category data-testid="cgm-delta-summary-low">
           <Label>{t('Time in Low')}</Label>
-          <Delta>{values.timeInLowPercentDelta}</Delta>
+          <Delta>{values.timeInLowPercentDeltaCopy}</Delta>
           <Previous>{t('Was {{ value }}%', { value: values.offsetTimeInLowPercent })}</Previous>
         </Category>
         <Category data-testid="cgm-delta-summary-target">
           <Label>{t('Time in Target')}</Label>
-          <Delta>{values.timeInTargetPercentDelta}</Delta>
+          <Delta>{values.timeInTargetPercentDeltaCopy}</Delta>
           <Previous>{t('Was {{ value }}%', { value: values.offsetTimeInTargetPercent })}</Previous>
         </Category>
         <Category data-testid="cgm-delta-summary-high">
           <Label>{t('Time in High')}</Label>
-          <Delta>{values.timeInHighPercentDelta}</Delta>
+          <Delta>{values.timeInHighPercentDeltaCopy}</Delta>
           <Previous>{t('Was {{ value }}%', { value: values.offsetTimeInHighPercent })}</Previous>
         </Category>
         <Category data-testid="cgm-delta-summary-very-high">
           <Label>{t('Time in Very High')}</Label>
-          <Delta>{values.timeInVeryHighPercentDelta}</Delta>
+          <Delta>{values.timeInVeryHighPercentDeltaCopy}</Delta>
           <Previous>{t('Was {{ value }}%', { value: values.offsetTimeInVeryHighPercent })}</Previous>
         </Category>
         <Category data-testid="cgm-delta-summary-cgm-active">
           <Label>{t('Time CGM Active')}</Label>
-          <Delta>{values.sensorUsageAGPDelta}</Delta>
+          <Delta>{values.sensorUsageAGPDeltaCopy}</Delta>
           <Previous>{t('Was {{ value }}%', { value: values.offsetSensorUsageAGP })}</Previous>
         </Category>
       </Flex>
