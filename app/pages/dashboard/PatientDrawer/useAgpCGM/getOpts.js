@@ -51,11 +51,14 @@ const getOpts = (
     });
   };
 
+  // Get the date range for the current AGP, ending the date of the latest datum
   const dates = getLastNDays(agpPeriodInDays, 'agpCGM');
 
+  // Get the date range for the offset AGP, ending the moment before the start of current AGP
+  const offsetEndDate = dates.startDate.clone().subtract(1, 'ms');
   const offsetDates = {
-    startDate: dates.startDate.clone().subtract(agpPeriodInDays, 'days'),
-    endDate: dates.endDate.clone().subtract(agpPeriodInDays, 'days'),
+    startDate: offsetEndDate.clone().subtract(agpPeriodInDays, 'days'),
+    endDate: offsetEndDate,
   };
 
   const formatDateEndpoints = ({ startDate, endDate }) => (startDate && endDate ? [
