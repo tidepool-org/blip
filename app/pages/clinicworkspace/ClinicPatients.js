@@ -1972,6 +1972,7 @@ export const ClinicPatients = (props) => {
                     <Button
                       variant="filter"
                       id="patient-tags-filter-trigger"
+                      data-testid="patient-tags-filter-trigger"
                       selected={activeFilters.patientTags?.length > 0}
                       {...bindTrigger(patientTagsPopupFilterState)}
                       icon={KeyboardArrowDownRoundedIcon}

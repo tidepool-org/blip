@@ -1534,6 +1534,9 @@ describe('ClinicPatients', ()  => {
 
         it('should allow refreshing the patient list and maintain', async () => {
           store = mockStore(tier0300ClinicState);
+
+          mockLocalStorage({ activePatientSort: '-lastData' });
+
           render(
             <MockedProviderWrappers>
               <ClinicPatients {...defaultProps} />
@@ -1546,11 +1549,11 @@ describe('ClinicPatients', ()  => {
           // clicking refresh should fresh the patient list
           await userEvent.click(screen.getByLabelText('Refresh patients list'));
 
-          expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+          await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
             'clinicID123',
             expect.objectContaining({ ...defaultFetchOptions, sort: '-lastData' }),
             expect.any(Function),
-          );
+          ));
         });
 
         it('should allow filtering by last upload', async () => {
@@ -1586,11 +1589,11 @@ describe('ClinicPatients', ()  => {
 
           await userEvent.click(applyFilterButton);
 
-          expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+          await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
             'clinicID123',
             expect.objectContaining({ ...defaultFetchOptions, sortType: 'bgm', sort: '-lastData', 'bgm.lastDataFrom': expect.any(String), 'bgm.lastDataTo': expect.any(String) }),
             expect.any(Function),
-          );
+          ));
 
           expect(defaultProps.trackMetric).toHaveBeenCalledWith(
             'Clinic - Population Health - Last upload apply filter',
@@ -1698,6 +1701,208 @@ describe('ClinicPatients', ()  => {
               severeHypo: true,
             }),
           );
+        });
+
+        describe('summary period filtering', () => {
+          it('should allow filtering by summary period', async () => {
+            mockLocalStorage({
+              'activePatientFilters/clinicianUserId123/clinicID123': JSON.stringify({
+                timeInRange: ['timeInAnyLowPercent', 'timeInAnyHighPercent'],
+                patientTags: [],
+                meetsGlycemicTargets: false,
+              }),
+              activePatientSummaryPeriod: '14d',
+            });
+
+            render(
+              <MockedProviderWrappers>
+                <ClinicPatients {...defaultProps} />
+              </MockedProviderWrappers>
+            );
+
+            expect(screen.getByTestId('filter-reset-bar')).toBeInTheDocument();
+            expect(screen.queryByRole('radio', { name: '24 hours' })).not.toBeInTheDocument();
+
+            // Open the dropdown. Radio options should appear. 14 days should be checked.
+            await userEvent.click(screen.getByRole('button', { name: /14 days of data/ }));
+
+            const radio24h = screen.getByRole('radio', { name: '24 hours' });
+            const radio7d = screen.getByRole('radio', { name: '7 days' });
+            const radio14d = screen.getByRole('radio', { name: '14 days' });
+            const radio30d = screen.getByRole('radio', { name: '30 days' });
+
+            expect(radio24h).not.toBeChecked();
+            expect(radio7d).not.toBeChecked();
+            expect(radio14d).toBeChecked();
+            expect(radio30d).not.toBeChecked();
+
+            await userEvent.click(radio7d);
+            await userEvent.click(screen.getByRole('button', { name: /Apply/ }));
+
+            await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalled());
+
+            expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+              'clinicID123',
+              expect.objectContaining({
+                ...defaultFetchOptions,
+                sort: '-lastData',
+                period: '7d',
+                'cgm.timeInAnyHighPercent': '>0.25',
+                'cgm.timeInAnyLowPercent': '>0.04',
+              }),
+              expect.any(Function),
+            );
+
+            expect(defaultProps.trackMetric).toHaveBeenCalledWith(
+              'Clinic - Population Health - Summary period apply filter',
+              expect.objectContaining({ clinicId: 'clinicID123', summaryPeriod: '7d' }),
+            );
+          });
+        });
+
+        it('should not show the GMI if selected period is less than 14 days', async () => {
+          mockLocalStorage({
+            'activePatientFilters/clinicianUserId123/clinicID123': JSON.stringify({
+              timeInRange: ['timeInAnyLowPercent', 'timeInAnyHighPercent'],
+              patientTags: [],
+              meetsGlycemicTargets: false,
+            }),
+            activePatientSummaryPeriod: '14d',
+          });
+
+          render(
+            <MockedProviderWrappers>
+              <ClinicPatients {...defaultProps} />
+            </MockedProviderWrappers>
+          );
+
+          expect(screen.getByTestId('filter-reset-bar')).toBeInTheDocument();
+          expect(screen.queryByRole('radio', { name: '24 hours' })).not.toBeInTheDocument();
+
+          const gmiIndicator = document.getElementById('peopleTable-row-2-cgm.glucoseManagementIndicator'); // eslint-disable-line
+
+          // GMI Indicator should initially have 6.5%
+          expect(gmiIndicator).toHaveTextContent('GMI6.5 %');
+
+          // Open the dropdown. Click on 7 days. GMI Indicator should be hidden.
+          await userEvent.click(screen.getByRole('button', { name: /14 days of data/ }));
+          await userEvent.click(screen.getByRole('radio', { name: '7 days' }));
+          await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+          expect(gmiIndicator).toHaveTextContent('GMI--');
+
+          // Open the dropdown. Click on 30 days. GMI Indicator should still be shown and show new value.
+          await userEvent.click(screen.getByRole('button', { name: /7 days of data/ }));
+          await userEvent.click(screen.getByRole('radio', { name: '30 days' }));
+          await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+          expect(gmiIndicator).toHaveTextContent('GMI7.5 %');
+
+          // Open the dropdown. Click on 24 hours. GMI Indicator should be hidden.
+          await userEvent.click(screen.getByRole('button', { name: /30 days of data/ }));
+          await userEvent.click(screen.getByRole('radio', { name: '24 hours' }));
+          await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+          expect(gmiIndicator).toHaveTextContent('GMI--');
+        });
+
+        describe('persisted filter state', () => {
+          it('should set the last upload filter on load based on the stored filters', async () => {
+            mockLocalStorage({
+              'activePatientFilters/clinicianUserId123/clinicID123': JSON.stringify({
+                lastData: 14,
+                timeInRange: ['timeInAnyLowPercent', 'timeInAnyHighPercent'],
+                patientTags: ['tag2'],
+                meetsGlycemicTargets: true,
+              }),
+              activePatientSummaryPeriod: '14d',
+            });
+
+            render(
+              <MockedProviderWrappers>
+                <ClinicPatients {...defaultProps} />
+              </MockedProviderWrappers>
+            );
+
+            // Data Recency button should have correct copy reflecting current 14 day filter
+            expect(screen.getByTestId('last-data-filter-trigger')).toHaveTextContent('Data within 14 days');
+
+            // Tags button should have a 1 appended to it, reflecting 1 currently applied tag
+            const tagsDropdownTrigger = screen.getByTestId('patient-tags-filter-trigger');
+            expect(tagsDropdownTrigger).toHaveTextContent('Tags1');
+
+            // Open the dropdown. The applied tag should already be checked
+            await userEvent.click(tagsDropdownTrigger);
+
+            expect(screen.getByRole('checkbox', { name: 'ttest tag 3' })).not.toBeChecked();
+            expect(screen.getByRole('checkbox', { name: 'test tag 2' })).toBeChecked();
+            expect(screen.getByRole('checkbox', { name: 'test tag 1' })).not.toBeChecked();
+          });
+
+          it('should set the time in range filters on load based on the stored filters', async () => {
+            mockLocalStorage({
+              'activePatientFilters/clinicianUserId123/clinicID123': JSON.stringify({
+                lastData: 14,
+                timeInRange: ['timeInAnyLowPercent', 'timeInAnyHighPercent'],
+                patientTags: ['tag2'],
+                meetsGlycemicTargets: true,
+              }),
+              activePatientSummaryPeriod: '14d',
+            });
+
+            render(
+              <MockedProviderWrappers>
+                <ClinicPatients {...defaultProps} />
+              </MockedProviderWrappers>
+            );
+
+            // Should show 2 active time in range filters
+            const timeInRangeFilterTrigger = screen.getByTestId('time-in-range-filter-trigger');
+            expect(timeInRangeFilterTrigger).toHaveTextContent('Time in Range2');
+
+            // Open the dialog
+            expect(screen.queryByText('Filter by Time in Range')).not.toBeInTheDocument();
+            await userEvent.click(timeInRangeFilterTrigger);
+
+            // anyLow and anyHigh are already selected
+            expect(screen.getByText('Filter by Time in Range')).toBeInTheDocument();
+
+            expect(screen.getByRole('checkbox', { name: /^Very High\b/ })).not.toBeChecked();
+            expect(screen.getByRole('checkbox', { name: /^High\b/ })).toBeChecked();
+            expect(screen.getByRole('checkbox', { name: /^Not meeting TIR\b/ })).not.toBeChecked();
+            expect(screen.getByRole('checkbox', { name: /^Low\b/ })).toBeChecked();
+            expect(screen.getByRole('checkbox', { name: /^Very Low\b/ })).not.toBeChecked();
+          });
+
+          it('should fetch the initial patient based on the stored filters', async () => {
+            mockLocalStorage({
+              'activePatientFilters/clinicianUserId123/clinicID123': JSON.stringify({
+                lastData: 14,
+                timeInRange: ['timeInAnyLowPercent', 'timeInAnyHighPercent'],
+                patientTags: ['tag2'],
+                meetsGlycemicTargets: true,
+              }),
+              activePatientSummaryPeriod: '14d',
+            });
+
+            render(
+              <MockedProviderWrappers>
+                <ClinicPatients {...defaultProps} />
+              </MockedProviderWrappers>
+            );
+
+            await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+              'clinicID123',
+              {
+                ...defaultFetchOptions,
+                sort: '-lastData',
+                'cgm.timeInAnyHighPercent': '>=0.25',
+                'cgm.timeInAnyLowPercent': '>=0.04',
+                tags: expect.any(Array),
+              },
+              expect.any(Function),
+            ));
+          });
         });
 
         describe('filtering for patients', () => {
