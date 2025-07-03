@@ -2270,6 +2270,7 @@ export const ClinicPatients = (props) => {
                 {activeFiltersCount > 0 && (
                   <Button
                     id="reset-all-active-filters"
+                    data-testid="reset-all-active-filters"
                     variant="textSecondary"
                     onClick={handleResetFilters}
                     sx={{ fontSize: 0, color: 'grays.4', flexShrink: 0 }}

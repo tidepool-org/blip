@@ -2034,7 +2034,132 @@ describe('ClinicPatients', ()  => {
           await userEvent.click(screen.getByRole('button', { name: 'Clear' }));
 
           expect(filterCountIndicator).not.toBeInTheDocument();
-        });
+        }, TEST_TIMEOUT_MS);
+
+        it('should reset all active filters at once', async () => {
+          store = mockStore(tier0300ClinicState);
+          mockLocalStorage({});
+
+          render(
+            <MockedProviderWrappers>
+              <ClinicPatients {...defaultProps} />
+            </MockedProviderWrappers>
+          );
+
+          // Reset Filters button only shows when filters are active
+          expect(screen.queryByTestId('filter-count')).not.toBeInTheDocument();
+          expect(screen.queryByTestId('reset-all-active-filters')).not.toBeInTheDocument();
+
+          // Set lastData filter
+          await userEvent.click(screen.getByTestId('last-data-filter-trigger'));
+          await userEvent.click(screen.getByRole('radio', { name: 'CGM' }));
+          await userEvent.click(screen.getByRole('radio', { name: 'Within 30 days' }));
+          await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+          const filterCountIndicator = screen.getByTestId('filter-count');
+          expect(filterCountIndicator).toHaveTextContent('1');
+
+          const resetButton = await screen.findByTestId('reset-all-active-filters');
+          expect(resetButton).toBeInTheDocument();
+          expect(resetButton).toHaveTextContent('Reset Filters');
+
+          // Set time in range filter
+          await userEvent.click(screen.getByRole('button', { name: /% Time in Range/ }));
+
+          await userEvent.click(screen.getByRole('checkbox', { name: /^High\b/ }));
+          await userEvent.click(screen.getByRole('checkbox', { name: /^Low\b/ }));
+          await userEvent.click(screen.getByRole('checkbox', { name: /^Very Low\b/ }));
+          await userEvent.click(screen.getByRole('button', { name: 'Apply Filter' }));
+
+          // Filter count should be 2, reset button should still be visible
+          expect(filterCountIndicator).toHaveTextContent('2');
+          expect(resetButton).toBeInTheDocument();
+
+          await userEvent.click(resetButton);
+
+          // Total filter count and time in range filter count should be unset
+          expect(filterCountIndicator).not.toBeInTheDocument();
+          expect(resetButton).not.toBeInTheDocument();
+        }, TEST_TIMEOUT_MS);
+
+        it('should clear pending filter edits when time in range filter dialog closed', async () => {
+          store = mockStore(tier0300ClinicState);
+          mockLocalStorage({});
+
+          render(
+            <MockedProviderWrappers>
+              <ClinicPatients {...defaultProps} />
+            </MockedProviderWrappers>
+          );
+
+          expect(screen.queryByTestId('filter-count')).not.toBeInTheDocument();
+          expect(screen.queryByTestId('time-in-range-filter-count')).not.toBeInTheDocument();
+          expect(screen.queryByTestId('reset-all-active-filters')).not.toBeInTheDocument();
+
+          await userEvent.click(screen.getByTestId('time-in-range-filter-trigger'));
+          expect(screen.getByText('Filter by Time in Range')).toBeInTheDocument();
+
+          await userEvent.click(screen.getByRole('checkbox', { name: /^High\b/ }));
+          await userEvent.click(screen.getByRole('checkbox', { name: /^Low\b/ }));
+          await userEvent.click(screen.getByRole('checkbox', { name: /^Very Low\b/ }));
+
+          // Close dialog without applying filter
+          const closeDialogButton = within(screen.getByRole('dialog')).getByLabelText('close dialog');
+          await userEvent.click(closeDialogButton);
+          await waitFor(() => expect(screen.queryByText('Filter by Time in Range')).not.toBeInTheDocument());
+
+          // Re-open dialog
+          await userEvent.click(screen.getByTestId('time-in-range-filter-trigger'));
+          expect(screen.getByText('Filter by Time in Range')).toBeInTheDocument();
+
+          expect(screen.getByRole('checkbox', { name: /^Very High\b/ })).not.toBeChecked();
+          expect(screen.getByRole('checkbox', { name: /^High\b/ })).not.toBeChecked();
+          expect(screen.getByRole('checkbox', { name: /^Not meeting TIR\b/ })).not.toBeChecked();
+          expect(screen.getByRole('checkbox', { name: /^Low\b/ })).not.toBeChecked();
+          expect(screen.getByRole('checkbox', { name: /^Very Low\b/ })).not.toBeChecked();
+
+          expect(screen.queryByTestId('filter-count')).not.toBeInTheDocument();
+          expect(screen.queryByTestId('reset-all-active-filters')).not.toBeInTheDocument();
+        }, TEST_TIMEOUT_MS);
+
+        it('should clear pending filter edits when time in range filter dialog closed by exiting the dialog', async () => {
+          store = mockStore(tier0300ClinicState);
+          mockLocalStorage({});
+
+          render(
+            <MockedProviderWrappers>
+              <ClinicPatients {...defaultProps} />
+            </MockedProviderWrappers>
+          );
+
+          expect(screen.queryByTestId('filter-count')).not.toBeInTheDocument();
+          expect(screen.queryByTestId('time-in-range-filter-count')).not.toBeInTheDocument();
+          expect(screen.queryByTestId('reset-all-active-filters')).not.toBeInTheDocument();
+
+          await userEvent.click(screen.getByTestId('time-in-range-filter-trigger'));
+          expect(screen.getByText('Filter by Time in Range')).toBeInTheDocument();
+
+          await userEvent.click(screen.getByRole('checkbox', { name: /^High\b/ }));
+          await userEvent.click(screen.getByRole('checkbox', { name: /^Low\b/ }));
+          await userEvent.click(screen.getByRole('checkbox', { name: /^Very Low\b/ }));
+
+          // Close dialog without applying filter
+          await userEvent.keyboard('{Escape}');
+          await waitFor(() => expect(screen.queryByText('Filter by Time in Range')).not.toBeInTheDocument());
+
+          // Re-open dialog
+          await userEvent.click(screen.getByTestId('time-in-range-filter-trigger'));
+          expect(screen.getByText('Filter by Time in Range')).toBeInTheDocument();
+
+          expect(screen.getByRole('checkbox', { name: /^Very High\b/ })).not.toBeChecked();
+          expect(screen.getByRole('checkbox', { name: /^High\b/ })).not.toBeChecked();
+          expect(screen.getByRole('checkbox', { name: /^Not meeting TIR\b/ })).not.toBeChecked();
+          expect(screen.getByRole('checkbox', { name: /^Low\b/ })).not.toBeChecked();
+          expect(screen.getByRole('checkbox', { name: /^Very Low\b/ })).not.toBeChecked();
+
+          expect(screen.queryByTestId('filter-count')).not.toBeInTheDocument();
+          expect(screen.queryByTestId('reset-all-active-filters')).not.toBeInTheDocument();
+        }, TEST_TIMEOUT_MS);
 
         // *** Migration Current Position ***
 
@@ -2045,6 +2170,9 @@ describe('ClinicPatients', ()  => {
           });
 
           it('should allow filtering by sites', async () => {
+            store = mockStore(tier0300ClinicState);
+            mockLocalStorage({});
+
             render(
               <MockedProviderWrappers>
                 <ClinicPatients {...defaultProps} />
@@ -2069,11 +2197,11 @@ describe('ClinicPatients', ()  => {
             // Click Apply
             await userEvent.click(screen.getByRole('button', { name: /Apply/ }));
 
-            expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+            await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
               'clinicID123',
               expect.objectContaining({ sites: ['site-1-id', 'site-2-id'] }),
               expect.any(Function),
-            );
+            ));
 
             expect(defaultProps.trackMetric).toHaveBeenCalledWith(
               'Clinic - Population Health - Clinic sites filter apply',
@@ -2082,6 +2210,9 @@ describe('ClinicPatients', ()  => {
           }, TEST_TIMEOUT_MS);
 
           it('should allow filtering by for patients with zero sites', async () => {
+            store = mockStore(tier0300ClinicState);
+            mockLocalStorage({});
+
             render(
               <MockedProviderWrappers>
                 <ClinicPatients {...defaultProps} />
