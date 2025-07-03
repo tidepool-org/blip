@@ -2206,8 +2206,6 @@ describe('ClinicPatients', ()  => {
           ]);
         }, TEST_TIMEOUT_MS);
 
-        // *** Migration Current Position ***
-
         describe('filtering for patients', () => {
           afterEach(() => {
             // Clear any persisted filter state between tests
@@ -2702,6 +2700,65 @@ describe('ClinicPatients', ()  => {
               expect.any(Function), // callback fn passed to api
             );
           }, TEST_TIMEOUT_MS);
+        });
+
+        describe('Accessing TIDE dashboard', () => {
+          describe('showTideDashboard flag is true', () => {
+            beforeEach(() => {
+              useFlags.mockReturnValue({
+                showTideDashboard: true,
+                showSummaryDashboard: true,
+                showSummaryDashboardLastReviewed: true,
+                showExtremeHigh: false,
+              });
+
+              useLDClient.mockReturnValue({
+                getContext: jest.fn(() => ({
+                  clinic: { tier: 'tier0300' },
+                })),
+              });
+            });
+
+            it('should render the TIDE Dashboard CTA', () => {
+              mockLocalStorage({});
+              store = mockStore(tier0300ClinicState);
+
+              render(
+                <MockedProviderWrappers>
+                  <ClinicPatients {...defaultProps} />
+                </MockedProviderWrappers>
+              );
+
+              const openButton = screen.getByRole('button', { name: /TIDE Dashboard View\b/ });
+              expect(openButton).toBeInTheDocument();
+              expect(openButton).toBeEnabled();
+            });
+
+            it('should disable the TIDE Dashboard CTA if clinic has no patient tags defined', () => {
+              mockLocalStorage({});
+              store = mockStore({
+                blip: {
+                  ...tier0300ClinicState.blip,
+                  clinics: {
+                    clinicID123: {
+                      ...tier0300ClinicState.blip.clinics.clinicID123,
+                      patientTags: [],
+                    },
+                  },
+                },
+              });
+
+              render(
+                <MockedProviderWrappers>
+                  <ClinicPatients {...defaultProps} />
+                </MockedProviderWrappers>
+              );
+
+              const openButton = screen.getByRole('button', { name: /TIDE Dashboard View\b/ });
+              expect(openButton).toBeInTheDocument();
+              expect(openButton).toBeDisabled();
+            });
+          });
         });
       });
     });
