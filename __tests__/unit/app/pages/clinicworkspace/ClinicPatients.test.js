@@ -2161,6 +2161,51 @@ describe('ClinicPatients', ()  => {
           expect(screen.queryByTestId('reset-all-active-filters')).not.toBeInTheDocument();
         }, TEST_TIMEOUT_MS);
 
+        it('should send an upload reminder to a fully claimed patient account', async () => {
+          store = mockStore(tier0300ClinicState);
+          mockLocalStorage({});
+
+          render(
+            <MockedProviderWrappers>
+              <ClinicPatients {...defaultProps} />
+            </MockedProviderWrappers>
+          );
+
+          // No reminder action for a custodial account - should not show Send Upload button
+          const patientOneActionMenuTrigger = screen.getByTestId('action-menu-patient1-icon');
+          await userEvent.click(patientOneActionMenuTrigger);
+          expect(screen.queryByRole('button', { name: /Send Upload Reminder/ })).not.toBeInTheDocument();
+          await userEvent.click(patientOneActionMenuTrigger); // close the dropdown agai)n
+
+          // Fully claimed account - should have Send Upload button
+          const patientTwoActionMenuTrigger = screen.getByTestId('action-menu-patient2-icon');
+          await userEvent.click(patientTwoActionMenuTrigger);
+
+          // Click the button, it should open a dialog that allows sending an upload reminder
+          store.clearActions();
+          await userEvent.click(screen.getByRole('button', { name: /Send Upload Reminder/ }));
+
+          expect(await screen.findByRole('heading', { name: /Send Upload Reminder/ })).toBeInTheDocument();
+          expect(screen.getByText(/Are you sure you want to send an upload reminder email to\b/));
+
+          await userEvent.click(screen.getByRole('button', { name: 'Send' }));
+
+          await waitFor(() => expect(defaultProps.api.clinics.sendPatientUploadReminder).toHaveBeenCalledWith(
+            'clinicID123',
+            'patient2',
+            expect.any(Function),
+          ));
+
+          expect(defaultProps.trackMetric).toHaveBeenCalledWith(
+            'Clinic - Population Health - Send upload reminder',
+            { clinicId: 'clinicID123' }
+          );
+
+          expect(store.getActions()).toStrictEqual([
+            { type: 'SEND_PATIENT_UPLOAD_REMINDER_REQUEST' },
+          ]);
+        }, TEST_TIMEOUT_MS);
+
         // *** Migration Current Position ***
 
         describe('filtering for patients', () => {
