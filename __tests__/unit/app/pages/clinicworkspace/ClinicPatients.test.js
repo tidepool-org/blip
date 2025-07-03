@@ -1993,6 +1993,49 @@ describe('ClinicPatients', ()  => {
           });
         });
 
+        it('should track how many filters are active', async () => {
+          store = mockStore(tier0300ClinicState);
+          render(
+            <MockedProviderWrappers>
+              <ClinicPatients {...defaultProps} />
+            </MockedProviderWrappers>
+          );
+
+          expect(screen.queryByTestId('filter-count')).not.toBeInTheDocument();
+
+          // Set last data filter. Filter count should now appear
+          await userEvent.click(screen.getByTestId('last-data-filter-trigger'));
+          await userEvent.click(screen.getByRole('radio', { name: 'CGM' }));
+          await userEvent.click(screen.getByRole('radio', { name: 'Within 30 days' }));
+          await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+          const filterCountIndicator = screen.getByTestId('filter-count');
+          expect(filterCountIndicator).toHaveTextContent('1');
+
+          // Set time in range filter. Filter count should be 2
+          await userEvent.click(screen.getByTestId('time-in-range-filter-trigger'));
+
+          await userEvent.click(screen.getByRole('checkbox', { name: /^High\b/ }));
+          await userEvent.click(screen.getByRole('checkbox', { name: /^Low\b/ }));
+          await userEvent.click(screen.getByRole('checkbox', { name: /^Very Low\b/ }));
+          await userEvent.click(screen.getByRole('button', { name: 'Apply Filter' }));
+
+          expect(filterCountIndicator).toHaveTextContent('2');
+
+          // Unset last data filter. Filter count should be 1
+          await userEvent.click(screen.getByTestId('last-data-filter-trigger'));
+          await userEvent.click(screen.getByRole('button', { name: 'Clear' }));
+
+          expect(filterCountIndicator).toHaveTextContent('1');
+
+          // Unset time in range filter. Filter count indicator should disappear
+          await userEvent.click(screen.getByTestId('time-in-range-filter-trigger'));
+
+          await userEvent.click(screen.getByRole('button', { name: 'Clear' }));
+
+          expect(filterCountIndicator).not.toBeInTheDocument();
+        });
+
         // *** Migration Current Position ***
 
         describe('filtering for patients', () => {

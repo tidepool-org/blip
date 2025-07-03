@@ -1640,6 +1640,7 @@ export const ClinicPatients = (props) => {
                   {activeFiltersCount > 0 ? (
                     <Pill
                       id="filter-count"
+                      data-testid="filter-count"
                       label="filter count"
                       round
                       sx={{ width: '14px', lineHeight: '15px', fontSize: '9px' }}
