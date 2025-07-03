@@ -337,6 +337,18 @@ describe('ClinicPatients', ()  => {
     },
   };
 
+  const tier0300ClinicStateMmoll = {
+    blip: {
+      ...tier0300ClinicState.blip,
+      clinics: {
+        clinicID123: {
+          ...tier0300ClinicState.blip.clinics.clinicID123,
+          preferredBgUnits: 'mmol/L',
+        },
+      },
+    },
+  };
+
   let defaultProps = {
     trackMetric: jest.fn(),
     t: jest.fn(),
@@ -1928,17 +1940,56 @@ describe('ClinicPatients', ()  => {
             const sortMarker = document.getElementsByClassName('MuiTableSortLabel-active')[0]; // eslint-disable-line
             const headingCell = sortMarker.parentElement; // eslint-disable-line
 
-            // waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
-
             // On mount, the cell will be Data Recency, but it will be moved to Avg Glucose with an effect
-            // await waitFor(() => expect(headingCell).toHaveTextContent('Avg. Glucose (mg/dL)')); // eslint-disable-line
-            // expect(headingCell).toHaveAttribute('aria-sort', 'descending'); // eslint-disable-line
+            await waitFor(() => expect(headingCell).toHaveTextContent('Avg. Glucose (mg/dL)')); // eslint-disable-line
+            expect(headingCell).toHaveAttribute('aria-sort', 'descending'); // eslint-disable-line
 
             await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
               'clinicID123',
               expect.objectContaining({ ...defaultFetchOptions, sort: '-averageGlucoseMmol', sortType: 'bgm' }),
               expect.any(Function),
             ));
+          });
+        });
+
+        describe('mmol/L preferredBgUnits', () => {
+          it('should show the bgm average glucose and the bg range filters in mmol/L units', async () => {
+            store = mockStore(tier0300ClinicStateMmoll);
+            mockLocalStorage({});
+
+            render(
+              <MockedProviderWrappers>
+                <ClinicPatients {...defaultProps} />
+              </MockedProviderWrappers>
+            );
+
+            /* eslint-disable testing-library/no-node-access */
+            const headingCell = document.getElementById('peopleTable-header-bgm-averageGlucoseMmol');
+            expect(headingCell).toBeInTheDocument();
+            expect(headingCell).toHaveTextContent('Avg. Glucose (mmol/L)');
+
+            expect(screen.getByText('10.5')).toBeInTheDocument();
+
+            expect(document.getElementById('peopleTable-row-1-bgm.averageGlucoseMmol')).toHaveTextContent('10.5');
+            expect(document.getElementById('peopleTable-row-2-bgm.averageGlucoseMmol')).toHaveTextContent('11.5');
+            expect(document.getElementById('peopleTable-row-3-bgm.averageGlucoseMmol')).toHaveTextContent('12.5');
+            /* eslint-enable testing-library/no-node-access */
+
+            // Open filters dialog
+            await userEvent.click(screen.getByTestId('time-in-range-filter-trigger'));
+            expect(screen.getByText('Filter by Time in Range')).toBeInTheDocument();
+
+            const optVeryHigh = screen.getByRole('checkbox', { name: /Very High Greater than 5 % Time >13.9 mmol\/L/ });
+            const optHigh = screen.getByRole('checkbox', { name: /High Greater than 25 % Time >10.0 mmol\/L/ });
+            const optNotMeetingTIR = screen.getByRole('checkbox', { name: /Not meeting TIR Less than 70 % Time between 3.9-10.0 mmol\/L/ });
+            const optLow = screen.getByRole('checkbox', { name: /Low Greater than 4 % Time <3.9 mmol\/L/ });
+            const optVeryLow = screen.getByRole('checkbox', { name: /Very Low Greater than 1 % Time <3.0 mmol\/L/ });
+
+            expect(optVeryHigh).not.toBeChecked();
+            expect(optHigh).not.toBeChecked();
+            expect(optNotMeetingTIR).not.toBeChecked();
+            expect(optLow).not.toBeChecked();
+            expect(optVeryLow).not.toBeChecked();
           });
         });
 
