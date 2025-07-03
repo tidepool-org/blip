@@ -212,6 +212,7 @@ export const TagList = withTranslation()(props => {
         <React.Fragment>
           <Text
             className="tag-overflow-trigger"
+            data-testid="tag-overflow-trigger"
             sx={{
               color: 'text.primary',
               fontWeight: 'medium',
@@ -239,6 +240,7 @@ export const TagList = withTranslation()(props => {
           >
             <Flex
               classname="tag-list-overflow"
+              data-testid="tag-list-overflow"
               p={1}
               sx={{ maxWidth: '250px', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}
             >
