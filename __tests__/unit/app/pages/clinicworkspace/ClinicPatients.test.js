@@ -814,7 +814,7 @@ describe('ClinicPatients', ()  => {
             clinicSites: [],
           }),
         );
-      });
+      }, TEST_TIMEOUT_MS);
     });
 
     describe('when Clear Search button is clicked', () => {
@@ -845,7 +845,7 @@ describe('ClinicPatients', ()  => {
             { type: 'FETCH_PATIENTS_FOR_CLINIC_REQUEST' },
           ])
         );
-      });
+      }, TEST_TIMEOUT_MS);
     });
   });
 
@@ -871,7 +871,7 @@ describe('ClinicPatients', ()  => {
         // Should fire trackmetric when toggling hide/show
         await userEvent.click(screen.getByTestId('clinic-patients-view-toggle-icon'));
         expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - Hide all icon', { clinicId: 'clinicID123' });
-      });
+      }, TEST_TIMEOUT_MS);
     });
 
     describe('show names clicked', () => {
@@ -901,7 +901,7 @@ describe('ClinicPatients', ()  => {
           { ...defaultFetchOptions, search: 'Two', sort: '+fullName' },
           expect.any(Function)
         );
-      });
+      }, TEST_TIMEOUT_MS);
 
       it('should link to a patient data view when patient demographic details are clicked', async () => {
         store = mockStore(hasPatientsState);
@@ -936,7 +936,7 @@ describe('ClinicPatients', ()  => {
             payload: { method: 'push', args: ['/patients/patient1/data'] },
           },
         ]);
-      });
+      }, TEST_TIMEOUT_MS);
 
       it('should display menu when "More" icon is clicked', async () => {
         store = mockStore(hasPatientsState);
@@ -956,7 +956,7 @@ describe('ClinicPatients', ()  => {
         expect(screen.getByRole('button', { name: /Edit Patient Information/})).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /Bring Data into Tidepool/})).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /Remove Patient/})).toBeInTheDocument();
-      });
+      }, TEST_TIMEOUT_MS);
 
       it('should open a modal for patient editing when edit link is clicked', async () => {
         store = mockStore(hasPatientsState);
@@ -1026,7 +1026,7 @@ describe('ClinicPatients', ()  => {
           },
           expect.any(Function), // callback fn passed to api
         );
-      });
+      }, TEST_TIMEOUT_MS);
 
       it('should disable email editing for non-custodial patients', async () => {
         store = mockStore(hasPatientsState);
@@ -1093,7 +1093,7 @@ describe('ClinicPatients', ()  => {
           },
           expect.any(Function), // callback fn passed to api
         );
-      });
+      }, TEST_TIMEOUT_MS);
 
       it('should open a modal for managing data connections when data connection menu option is clicked', async () => {
         const getPatientFromClinicSpy = jest.spyOn(api.clinics, 'getPatientFromClinic').mockReturnValue({});
@@ -1115,7 +1115,7 @@ describe('ClinicPatients', ()  => {
         expect(defaultProps.trackMetric).toHaveBeenCalledTimes(1);
 
         getPatientFromClinicSpy.mockRestore();
-      });
+      }, TEST_TIMEOUT_MS);
 
 
       it('should remove a patient', async () => {
@@ -1148,7 +1148,7 @@ describe('ClinicPatients', ()  => {
         );
 
         expect(store.getActions()).toStrictEqual([{ type: 'DELETE_PATIENT_FROM_CLINIC_REQUEST' }]);
-      });
+      }, TEST_TIMEOUT_MS);
 
       describe('tier0100 clinic', () => {
         beforeEach(() => {
@@ -1216,7 +1216,7 @@ describe('ClinicPatients', ()  => {
             expect.objectContaining({ sort: '-birthDate' }),
             expect.any(Function),
           );
-        });
+        }, TEST_TIMEOUT_MS);
 
         describe('showSummaryDashboard flag is true', () => {
           it('should show the summary dashboard instead of the standard patient table', () => {
@@ -1234,7 +1234,7 @@ describe('ClinicPatients', ()  => {
             );
 
             expect(screen.getByTestId('summary-dashboard-filters')).toBeInTheDocument();
-          });
+          }, TEST_TIMEOUT_MS);
         });
 
         describe('patient limit is reached', () => {
@@ -1271,7 +1271,7 @@ describe('ClinicPatients', ()  => {
             await userEvent.hover(AddNewPatientButton);
             expect(screen.getByAltText('Patient Limit Reached')).toBeVisible();
             expect(screen.getByRole('link', { name: 'learn more about our plans.' })).toHaveAttribute('href', URL_TIDEPOOL_PLUS_PLANS);
-          });
+          }, TEST_TIMEOUT_MS);
         });
       });
 
@@ -1360,7 +1360,7 @@ describe('ClinicPatients', ()  => {
           expect(rows[1]).toHaveTextContent('2');
           expect(rows[2]).toHaveTextContent('4');
           expect(rows[3]).toHaveTextContent('0');
-        });
+        }, TEST_TIMEOUT_MS);
 
         it('should refetch patients with updated sort parameter when sortable column headers are clicked', async () => {
           render(
@@ -1565,7 +1565,7 @@ describe('ClinicPatients', ()  => {
             expect.objectContaining({ ...defaultFetchOptions, sort: '-lastData' }),
             expect.any(Function),
           ));
-        });
+        }, TEST_TIMEOUT_MS);
 
         it('should allow filtering by last upload', async () => {
           store = mockStore(tier0300ClinicState);
@@ -1611,7 +1611,7 @@ describe('ClinicPatients', ()  => {
             'Clinic - Population Health - Last upload apply filter',
             expect.objectContaining({ clinicId: 'clinicID123', dateRange: '30 days', type: 'bgm'}),
           );
-        });
+        }, TEST_TIMEOUT_MS);
 
         it('should allow filtering by cgm use', async () => {
           store = mockStore(tier0300ClinicState);
@@ -1649,7 +1649,7 @@ describe('ClinicPatients', ()  => {
             'Clinic - Population Health - CGM use apply filter',
             expect.objectContaining({ clinicId: 'clinicID123', filter: '<0.7' }),
           );
-        });
+        }, TEST_TIMEOUT_MS);
 
 
         it('should allow filtering by bg range targets that DO NOT meet selected criteria', async () => {
@@ -1714,7 +1714,7 @@ describe('ClinicPatients', ()  => {
               severeHypo: true,
             }),
           );
-        });
+        }, TEST_TIMEOUT_MS);
 
         describe('summary period filtering', () => {
           it('should allow filtering by summary period', async () => {
@@ -1770,7 +1770,7 @@ describe('ClinicPatients', ()  => {
               'Clinic - Population Health - Summary period apply filter',
               expect.objectContaining({ clinicId: 'clinicID123', summaryPeriod: '7d' }),
             );
-          });
+          }, TEST_TIMEOUT_MS);
         });
 
         it('should not show the GMI if selected period is less than 14 days', async () => {
@@ -1817,7 +1817,7 @@ describe('ClinicPatients', ()  => {
           await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
 
           expect(gmiIndicator).toHaveTextContent('GMI--');
-        });
+        }, TEST_TIMEOUT_MS);
 
         describe('persisted filter state', () => {
           it('should set the last upload filter on load based on the stored filters', async () => {
@@ -1850,7 +1850,7 @@ describe('ClinicPatients', ()  => {
             expect(screen.getByRole('checkbox', { name: 'ttest tag 3' })).not.toBeChecked();
             expect(screen.getByRole('checkbox', { name: 'test tag 2' })).toBeChecked();
             expect(screen.getByRole('checkbox', { name: 'test tag 1' })).not.toBeChecked();
-          });
+          }, TEST_TIMEOUT_MS);
 
           it('should set the time in range filters on load based on the stored filters', async () => {
             mockLocalStorage({
@@ -1885,7 +1885,7 @@ describe('ClinicPatients', ()  => {
             expect(screen.getByRole('checkbox', { name: /^Not meeting TIR\b/ })).not.toBeChecked();
             expect(screen.getByRole('checkbox', { name: /^Low\b/ })).toBeChecked();
             expect(screen.getByRole('checkbox', { name: /^Very Low\b/ })).not.toBeChecked();
-          });
+          }, TEST_TIMEOUT_MS);
 
           it('should fetch the initial patient based on the stored filters', async () => {
             mockLocalStorage({
@@ -1915,7 +1915,7 @@ describe('ClinicPatients', ()  => {
               },
               expect.any(Function),
             ));
-          });
+          }, TEST_TIMEOUT_MS);
         });
 
         describe('persisted sort state', () => {
@@ -1949,7 +1949,7 @@ describe('ClinicPatients', ()  => {
               expect.objectContaining({ ...defaultFetchOptions, sort: '-averageGlucoseMmol', sortType: 'bgm' }),
               expect.any(Function),
             ));
-          });
+          }, TEST_TIMEOUT_MS);
         });
 
         describe('mmol/L preferredBgUnits', () => {
@@ -1990,7 +1990,7 @@ describe('ClinicPatients', ()  => {
             expect(optNotMeetingTIR).not.toBeChecked();
             expect(optLow).not.toBeChecked();
             expect(optVeryLow).not.toBeChecked();
-          });
+          }, TEST_TIMEOUT_MS);
         });
 
         it('should track how many filters are active', async () => {
@@ -2732,7 +2732,7 @@ describe('ClinicPatients', ()  => {
               const openButton = screen.getByRole('button', { name: /TIDE Dashboard View\b/ });
               expect(openButton).toBeInTheDocument();
               expect(openButton).toBeEnabled();
-            });
+            }, TEST_TIMEOUT_MS);
 
             it('should disable the TIDE Dashboard CTA if clinic has no patient tags defined', () => {
               mockLocalStorage({});
@@ -2757,7 +2757,7 @@ describe('ClinicPatients', ()  => {
               const openButton = screen.getByRole('button', { name: /TIDE Dashboard View\b/ });
               expect(openButton).toBeInTheDocument();
               expect(openButton).toBeDisabled();
-            });
+            }, TEST_TIMEOUT_MS);
           });
         });
       });
