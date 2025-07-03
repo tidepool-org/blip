@@ -1534,6 +1534,7 @@ describe('ClinicPatients', ()  => {
 
         it('should allow refreshing the patient list and maintain', async () => {
           store = mockStore(tier0300ClinicState);
+          mockLocalStorage({ activePatientSort: '-lastData' });
 
           render(
             <MockedProviderWrappers>
@@ -1556,6 +1557,7 @@ describe('ClinicPatients', ()  => {
 
         it('should allow filtering by last upload', async () => {
           store = mockStore(tier0300ClinicState);
+          mockLocalStorage({ activePatientSort: '-lastData' });
           render(
             <MockedProviderWrappers>
               <ClinicPatients {...defaultProps} />
@@ -1640,6 +1642,7 @@ describe('ClinicPatients', ()  => {
 
         it('should allow filtering by bg range targets that DO NOT meet selected criteria', async () => {
           store = mockStore(tier0300ClinicState);
+          mockLocalStorage({ activePatientSort: '-lastData' });
           render(
             <MockedProviderWrappers>
               <ClinicPatients {...defaultProps} />
