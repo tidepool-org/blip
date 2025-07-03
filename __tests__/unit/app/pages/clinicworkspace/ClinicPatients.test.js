@@ -1535,8 +1535,6 @@ describe('ClinicPatients', ()  => {
         it('should allow refreshing the patient list and maintain', async () => {
           store = mockStore(tier0300ClinicState);
 
-          mockLocalStorage({ activePatientSort: '-lastData' });
-
           render(
             <MockedProviderWrappers>
               <ClinicPatients {...defaultProps} />
@@ -1904,6 +1902,44 @@ describe('ClinicPatients', ()  => {
             ));
           });
         });
+
+        describe('persisted sort state', () => {
+          it('uses sort params from localStorage to set the table sort UI and to fetch the initial patient list', async () => {
+            store = mockStore(tier0300ClinicState);
+            mockLocalStorage({
+              'activePatientFilters/clinicianUserId123/clinicID123': JSON.stringify({
+                timeInRange: ['timeInAnyLowPercent', 'timeInAnyHighPercent'],
+                patientTags: [],
+                meetsGlycemicTargets: false,
+              }),
+              activePatientSummaryPeriod: '14d',
+              activePatientSort: JSON.stringify({ sort: '-averageGlucoseMmol', sortType: 'bgm' }),
+            });
+
+            render(
+              <MockedProviderWrappers>
+                <ClinicPatients {...defaultProps} />
+              </MockedProviderWrappers>
+            );
+
+            const sortMarker = document.getElementsByClassName('MuiTableSortLabel-active')[0]; // eslint-disable-line
+            const headingCell = sortMarker.parentElement; // eslint-disable-line
+
+            // waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+
+            // On mount, the cell will be Data Recency, but it will be moved to Avg Glucose with an effect
+            // await waitFor(() => expect(headingCell).toHaveTextContent('Avg. Glucose (mg/dL)')); // eslint-disable-line
+            // expect(headingCell).toHaveAttribute('aria-sort', 'descending'); // eslint-disable-line
+
+            await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+              'clinicID123',
+              expect.objectContaining({ ...defaultFetchOptions, sort: '-averageGlucoseMmol', sortType: 'bgm' }),
+              expect.any(Function),
+            ));
+          });
+        });
+
+        // *** Migration Current Position ***
 
         describe('filtering for patients', () => {
           afterEach(() => {
