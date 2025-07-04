@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.48.0-develop.3":
-  version: 1.48.0-develop.3
-  resolution: "@tidepool/viz@npm:1.48.0-develop.3"
+"@tidepool/viz@npm:1.48.0-rc.1":
+  version: 1.48.0-rc.1
+  resolution: "@tidepool/viz@npm:1.48.0-rc.1"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 70436e918d76dbbeb9392da464cc111dbb45fc5f7b4da3ca789f98e126f85d26ab065fd8386b018004ff248b4b89850010394fb15af9530b92e3e3b667532014
+  checksum: 2a651a2f1232f13350a8090372d94c70ef5a0e91f88bcbc81aa03e4753897e4a04711c14cdd50e0096eb997202038adcdccda5f91a00667089b3ca30df9ca311
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.48.0-develop.3
+    "@tidepool/viz": 1.48.0-rc.1
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -8462,7 +8462,7 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.34.0-develop.1
+    tideline: 1.34.0-rc.1
     tidepool-platform-client: 0.63.1
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
@@ -22218,9 +22218,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.34.0-develop.1":
-  version: 1.34.0-develop.1
-  resolution: "tideline@npm:1.34.0-develop.1"
+"tideline@npm:1.34.0-rc.1":
+  version: 1.34.0-rc.1
+  resolution: "tideline@npm:1.34.0-rc.1"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -22241,7 +22241,7 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: 3a52c0c73b4e5a995e92aa41ffd4a59b5a7736fb872c80bc344ea07c2a232edffe2925c5b29650ec2aa26be3bbee4936c2cb56cfcba05235134a8cfe84c93fb8
+  checksum: 2dff80363f553db11b186ab4fcd87a90f0cc8b93bfac6270e73d1e94b345316af9c16b5ac116516d18aeba268683890017d0445ab55f0fbc823b0d17f73c8994
   languageName: node
   linkType: hard
 
