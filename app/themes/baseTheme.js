@@ -1,4 +1,5 @@
 import colorPalette from './colorPalette';
+import { colors as vizColors } from '@tidepool/viz';
 import avatars from './base/avatars';
 import banners from './base/banners';
 import buttons from './base/buttons';
@@ -20,82 +21,83 @@ import forms from './base/forms';
 export const breakpoints = ['512px', '768px', '1024px', '1280px'];
 
 export const colors = {
+  ...vizColors,
   ...colorPalette.primary,
   ...colorPalette.secondary,
   ...colorPalette.neutrals,
   ...colorPalette.extended,
   bg: {
-    veryLow: '#E9695E',
-    low: '#F19181',
+    veryLow: vizColors.veryLow,
+    low: vizColors.low,
     anyLow: '#F19181',
-    target: '#8DD0A9',
-    high: '#B69CE2',
+    target: vizColors.target,
+    high: vizColors.high,
     anyHigh: '#B69CE2',
-    veryHigh: '#856ACF',
+    veryHigh: vizColors.veryHigh,
     extremeHigh: '#5438A3',
   },
   border: {
     focus: '#4C9AFF',
-    default: colorPalette.extended.grays[1],
-    divider: colorPalette.extended.grays[0],
-    dividerDark: colorPalette.extended.grays[1],
-    modal: colorPalette.extended.grays[0],
-    inputLight: '#DFE2E6',
-    inputDark: '#A6B1BB',
+    default: vizColors.gray10,
+    divider: vizColors.gray00,
+    dividerDark: vizColors.gray10,
+    modal: vizColors.gray00,
+    inputLight: vizColors.gray10,
+    inputDark: vizColors.blueGray30,
   },
   brand: {
     dexcom: '#56A846',
   },
   feedback: {
-    info: colorPalette.primary.purpleMedium,
-    warning: '#A35700',
-    danger: '#EC4C47',
-    success: '#00754E',
+    info: vizColors.indigo30,
+    warning: vizColors.gold50,
+    danger: vizColors.red30,
+    success: vizColors.green30,
   },
   banner: {
     info: {
       action: {
-        bg: colorPalette.primary.purpleMedium,
-        text: colorPalette.neutrals.white,
+        bg: vizColors.indigo30,
+        text: vizColors.white,
       },
       bg: '#2A1948',
-      closeIcon: colorPalette.neutrals.white,
-      icon: colorPalette.primary.purpleMedium,
-      message: colorPalette.neutrals.white,
+      closeIcon: vizColors.white,
+      icon: vizColors.indigo30,
+      message: vizColors.white,
       messageLink: colorPalette.primary.purpleLight,
     },
     warning: {
       action: {
         bg: '#2A1948',
-        text: colorPalette.neutrals.white,
+        text: vizColors.white,
       },
-      bg: '#FFE8CF',
-      closeIcon: '#4F6A92',
-      icon: '#CC6D00',
+      bg: vizColors.gold05,
+      closeIcon: vizColors.blue50,
+      icon: vizColors.gold30,
       message: '#2A1948',
-      messageLink: colorPalette.primary.purpleBright,
+      messageLink: vizColors.indigo30,
     },
     danger: {
       action: {
         bg: '#2A1948',
-        text: colorPalette.neutrals.white,
+        text: vizColors.white,
       },
       bg: '#FFEEEC',
-      closeIcon: '#4F6A92',
-      icon: '#EC4C47',
+      closeIcon: vizColors.blue50,
+      icon: vizColors.red30,
       message: '#2A1948',
-      messageLink: colorPalette.primary.purpleBright,
+      messageLink: vizColors.indigo30,
     },
     success: {
       action: {
         bg: '#2A1948',
-        text: colorPalette.neutrals.white,
+        text: vizColors.white,
       },
       bg: '#EBFBF0',
-      closeIcon: '#4F6A92',
-      icon: '#08A057',
+      closeIcon: vizColors.blue50,
+      icon: vizColors.green30,
       message: '#2A1948',
-      messageLink: colorPalette.primary.purpleBright,
+      messageLink: vizColors.indigo30,
     },
   },
   stat: {
@@ -107,23 +109,23 @@ export const colors = {
     declined: ['#FFECEE', '#DD2C00'],
   },
   tab: {
-    primary: colorPalette.primary.blueGrey,
+    primary: vizColors.blueGray30,
     disabled: '#A5ADBA',
-    selected: colorPalette.primary.purpleMedium,
+    selected: vizColors.indigo30,
   },
   text: {
-    link: colorPalette.primary.purpleBright,
-    primary: colorPalette.primary.blueGreyDark,
-    primaryGrey: colorPalette.primary.blueGrey,
+    link: vizColors.indigo30,
+    primary: vizColors.blue50,
+    primaryGrey: vizColors.blueGray30,
     primaryDisabled: '#A5ADBA',
-    primarySubdued: colorPalette.primary.blueGreyMedium,
+    primarySubdued: vizColors.blue30,
   },
 };
 
 export const borders = {
   default: `1px solid ${colors.border.default}`,
   thick: `2px solid ${colors.border.default}`,
-  input: `1px solid ${colors.border.inputLight}`,
+  input: `1px solid ${colors.border.default}`,
   inputDark: `1px solid ${colors.border.inputDark}`,
   modal: `1px solid ${colors.border.modal}`,
   divider: `2px solid ${colors.border.divider}`,
