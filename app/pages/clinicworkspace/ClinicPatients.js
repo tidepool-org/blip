@@ -3287,29 +3287,6 @@ export const ClinicPatients = (props) => {
     setShowDeleteDialog,
   ]);
 
-  const EmptyContentNode = () => (
-    <Flex sx={{
-      backgroundColor: vizColors.blue00,
-      justifyContent: 'center',
-      alignItems: 'center',
-      minHeight: '90px',
-      flexDirection: 'column',
-      gap: 2,
-      marginBottom: 4,
-      borderBottom: '1px solid #D1D6E1',
-    }}>
-      <Text className="table-empty-text" sx={{ fontWeight: 'medium' }}>
-        {t('There are no results to show')}
-      </Text>
-
-      <ClearFilterButtons
-        activeFilters={activeFilters}
-        onClearSearch={handleClearSearch}
-        onResetFilters={handleResetFilters}
-      />
-    </Flex>
-  );
-
   const columns = useMemo(() => {
     const cols = [
       {
