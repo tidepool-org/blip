@@ -14,7 +14,7 @@ const getOpts = (
     const getLatestDatums = types => _.pick(_.get(data, 'metaData.latestDatumByType'), types);
 
     let latestDatums = getLatestDatums(['cbg']) || [];
-    
+
     return _.max(_.map(latestDatums, d => (d.normalEnd || d.normalTime)));
   };
 
@@ -27,7 +27,7 @@ const getOpts = (
     const queryParams = {};
 
     const localTimePrefs = utils.getTimePrefsForDataProcessing(latestTimeZone, queryParams);
-    
+
     return localTimePrefs;
   })();
 
@@ -51,7 +51,14 @@ const getOpts = (
     });
   };
 
+  // Get the date range for the current AGP, ending the date of the latest datum
   const dates = getLastNDays(agpPeriodInDays, 'agpCGM');
+
+  // Get the date range for the offset AGP, ending the moment before the start of current AGP
+  const offsetDates = {
+    startDate: dates.startDate.clone().subtract(agpPeriodInDays, 'days'),
+    endDate: dates.startDate.clone().subtract(1, 'ms'),
+  };
 
   const formatDateEndpoints = ({ startDate, endDate }) => (startDate && endDate ? [
     startDate.valueOf(),
@@ -59,12 +66,13 @@ const getOpts = (
   ] : []);
 
   const opts = {
-    agpCGM:   { disabled: false, endpoints: formatDateEndpoints(dates) },
-    agpBGM:   { disabled: true },
-    basics:   { disabled: true },
-    bgLog:    { disabled: true },
-    daily:    { disabled: true },
-    settings: { disabled: true },
+    agpCGM:       { disabled: false, endpoints: formatDateEndpoints(dates) },
+    offsetAgpCGM: { disabled: false, endpoints: formatDateEndpoints(offsetDates) },
+    agpBGM:       { disabled: true },
+    basics:       { disabled: true },
+    bgLog:        { disabled: true },
+    daily:        { disabled: true },
+    settings:     { disabled: true },
   };
 
   return opts;
