@@ -489,6 +489,9 @@ const Trends = withTranslation()(class Trends extends PureComponent {
 
               <div id="tidelineContainer" className="patient-data-chart-trends">
                 {dataQueryComplete && this.renderChart()}
+                {dataQueryComplete && this.renderFocusedCbgDateTraceLabel()}
+                {dataQueryComplete && this.renderFocusedSMBGPointLabel()}
+                {dataQueryComplete && this.renderFocusedRangeLabels()}
               </div>
 
               <Flex className="patient-data-footer-outer" mt="20px" mb={5} pl="40px" pr="10px" sx={{alignItems: 'center', justifyContent: 'space-between' }}>
@@ -572,10 +575,6 @@ const Trends = withTranslation()(class Trends extends PureComponent {
                   )}
                 </Flex>
               </Flex>
-
-              {dataQueryComplete && this.renderFocusedCbgDateTraceLabel()}
-              {dataQueryComplete && this.renderFocusedSMBGPointLabel()}
-              {dataQueryComplete && this.renderFocusedRangeLabels()}
             </Box>
 
             <Box className="patient-data-sidebar" variant="containers.patientDataSidebar">
