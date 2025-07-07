@@ -2861,6 +2861,182 @@ describe('ClinicPatients', ()  => {
               );
 
             });
+
+            it('should redirect right away to the dashboard if a valid configuration exists in localStorage', async () => {
+              store = mockStore(tier0300ClinicState);
+              mockLocalStorage({
+                tideDashboardConfig: JSON.stringify({
+                  'clinicianUserId123|clinicID123': {
+                    period: '30d',
+                    lastData: 14,
+                    tags: ['tag1', 'tag3'],
+                  },
+                }),
+              });
+
+              render(
+                <MockedProviderWrappers>
+                  <ClinicPatients {...defaultProps} />
+                </MockedProviderWrappers>
+              );
+
+              defaultProps.trackMetric.mockClear();
+              store.clearActions();
+
+              const openButton = screen.getByRole('button', { name: /TIDE Dashboard View\b/ });
+              await userEvent.click(openButton);
+
+              // Should redirect automatically due to localStorage setup
+              await waitFor(() => expect(store.getActions()).toStrictEqual([
+                {
+                  type: '@@router/CALL_HISTORY_METHOD',
+                  payload: { method: 'push', args: ['/dashboard/tide'] },
+                },
+              ]));
+
+              expect(defaultProps.trackMetric).toHaveBeenCalledWith(
+                'Clinic - Navigate to Tide Dashboard',
+                { clinicId: 'clinicID123', source: 'Patients list' },
+              );
+            });
+
+            it('should open the config modal if an invalid configuration exists in localStorage', async () => {
+              store = mockStore(tier0300ClinicState);
+              mockLocalStorage({
+                tideDashboardConfig: JSON.stringify({
+                  'clinicianUserId123|clinicID123': {
+                    period: '30d',
+                    lastData: 14,
+                    tags: [], // invalid: no tags selected
+                  },
+                }),
+              });
+
+              render(
+                <MockedProviderWrappers>
+                  <ClinicPatients {...defaultProps} />
+                </MockedProviderWrappers>
+              );
+
+              defaultProps.trackMetric.mockClear();
+              store.clearActions();
+
+              expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+              expect(screen.queryByText('Select Patients to Display in the TIDE Dashboard')).not.toBeInTheDocument()
+
+              // Click the dashboard button. Dialog should open.
+              const openButton = screen.getByRole('button', { name: /TIDE Dashboard View\b/ });
+              await userEvent.click(openButton);
+
+              expect(defaultProps.trackMetric).toHaveBeenCalledWith(
+                'Clinic - Show Tide Dashboard config dialog',
+                { clinicId: 'clinicID123', source: 'Patients list' }
+              );
+
+              expect(screen.getByRole('dialog')).toBeInTheDocument();
+              expect(screen.getByText('Select Patients to Display in the TIDE Dashboard')).toBeInTheDocument();
+            });
+          });
+
+          describe('showTideDashboard flag is false', () => {
+            beforeEach(() => {
+              useFlags.mockReturnValue({
+                showTideDashboard: false,
+                showSummaryDashboard: true,
+                showSummaryDashboardLastReviewed: true,
+                showExtremeHigh: false,
+              });
+
+              useLDClient.mockReturnValue({
+                getContext: jest.fn(() => ({
+                  clinic: { tier: 'tier0300' },
+                })),
+              });
+            });
+
+            it('should not show the TIDE Dashboard CTA, even if clinic tier >= tier0300', () => {
+              mockLocalStorage({});
+              store = mockStore(tier0300ClinicState);
+
+              render(
+                <MockedProviderWrappers>
+                  <ClinicPatients {...defaultProps} />
+                </MockedProviderWrappers>
+              );
+
+              const openButton = screen.queryByRole('button', { name: /TIDE Dashboard View\b/ });
+              expect(openButton).not.toBeInTheDocument();
+            });
+          });
+        });
+
+        describe('Managing patient last reviewed dates', () => {
+          describe('showSummaryDashboardLastReviewed flag is true', () => {
+            beforeEach(() => {
+              useFlags.mockReturnValue({
+                showTideDashboard: false,
+                showSummaryDashboard: true,
+                showSummaryDashboardLastReviewed: true,
+                showExtremeHigh: false,
+              });
+
+              useLDClient.mockReturnValue({
+                getContext: jest.fn(() => ({
+                  clinic: { tier: 'tier0300' },
+                })),
+              });
+            });
+
+            it('should render the Last Reviewed column and allow setting last reviewed date', async () => {
+              mockLocalStorage({});
+              store = mockStore(tier0300ClinicState);
+
+              render(
+                <MockedProviderWrappers>
+                  <ClinicPatients {...defaultProps} />
+                </MockedProviderWrappers>
+              );
+
+              /* eslint-disable */
+              const headingCell = document.getElementById('peopleTable-header-lastReviewed');
+              const row0Cell = document.getElementById('peopleTable-row-0-lastReviewed');
+              const row1Cell = document.getElementById('peopleTable-row-1-lastReviewed');
+              const row2Cell = document.getElementById('peopleTable-row-2-lastReviewed');
+              const row3Cell = document.getElementById('peopleTable-row-3-lastReviewed');
+              /* eslint-enable */
+
+              expect(headingCell).toBeInTheDocument();
+              expect(row0Cell).toHaveTextContent('Today');
+              expect(row1Cell).toHaveTextContent('Yesterday');
+              expect(row2Cell).toHaveTextContent('30 days ago');
+              expect(row3Cell).toHaveTextContent('2024-03-05');
+
+              store.clearActions();
+
+              // Text should change on hover
+              expect(row1Cell).toHaveTextContent('Yesterday');
+              await userEvent.hover(row1Cell);
+              expect(row1Cell).toHaveTextContent('Mark Reviewed');
+
+              const row1CellButton = within(row1Cell).getByRole('button');
+              await userEvent.click(row1CellButton);
+
+              await waitFor(() => expect(defaultProps.api.clinics.setClinicPatientLastReviewed).toHaveBeenCalledWith(
+                'clinicID123',
+                'patient2',
+                expect.any(Function),
+              ));
+
+              expect(defaultProps.trackMetric).toHaveBeenCalledWith(
+                'Clinic - Mark patient reviewed',
+                { clinicId: 'clinicID123', source: 'Patients list' },
+              );
+
+              expect(store.getActions()).toStrictEqual([
+                { type: 'SET_CLINIC_PATIENT_LAST_REVIEWED_REQUEST' },
+              ]);
+            });
+
           });
         });
       });
