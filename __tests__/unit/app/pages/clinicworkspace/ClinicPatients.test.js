@@ -3037,6 +3037,37 @@ describe('ClinicPatients', ()  => {
               ]);
             });
 
+            it('should refetch patients with updated sort parameter when Last Reviewed header is clicked', async () => {
+              mockLocalStorage({});
+              store = mockStore(tier0300ClinicState);
+
+              render(
+                <MockedProviderWrappers>
+                  <ClinicPatients {...defaultProps} />
+                </MockedProviderWrappers>
+              );
+
+              defaultProps.api.clinics.getPatientsForClinic.mockClear();
+
+              const headingCell = screen.getByRole('button', { name: 'Last Reviewed' });
+
+              await userEvent.click(headingCell);
+
+              expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+                'clinicID123',
+                expect.objectContaining({ sort: '+lastReviewed' }),
+                expect.any(Function)
+              );
+
+              await userEvent.click(headingCell);
+
+              expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+                'clinicID123',
+                expect.objectContaining({ sort: '-lastReviewed' }),
+                expect.any(Function)
+              );
+            });
+
           });
         });
       });
