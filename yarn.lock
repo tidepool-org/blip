@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.48.0-web-3720-re-enable-one-min-cgm.1":
-  version: 1.48.0-web-3720-re-enable-one-min-cgm.1
-  resolution: "@tidepool/viz@npm:1.48.0-web-3720-re-enable-one-min-cgm.1"
+"@tidepool/viz@npm:1.48.0-rc.1":
+  version: 1.48.0-rc.1
+  resolution: "@tidepool/viz@npm:1.48.0-rc.1"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: eb580c96382f1b92d5d9ad064512f8cb19a62a0bc95cf7dac0165151f8806c113dcbf56e5d2cc0d910d70f95d53e46868f931f16140b6248b86d0dc30fa8d35c
+  checksum: 2a651a2f1232f13350a8090372d94c70ef5a0e91f88bcbc81aa03e4753897e4a04711c14cdd50e0096eb997202038adcdccda5f91a00667089b3ca30df9ca311
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.48.0-web-3720-re-enable-one-min-cgm.1
+    "@tidepool/viz": 1.48.0-rc.1
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -8462,7 +8462,7 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.33.0-web-3687-new-dosing-decision-extended-duration-props.1
+    tideline: 1.33.1
     tidepool-platform-client: 0.64.0-web-3071-smart-on-fhir.2
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
@@ -22208,9 +22208,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.33.0-web-3687-new-dosing-decision-extended-duration-props.1":
-  version: 1.33.0-web-3687-new-dosing-decision-extended-duration-props.1
-  resolution: "tideline@npm:1.33.0-web-3687-new-dosing-decision-extended-duration-props.1"
+"tideline@npm:1.33.1":
+  version: 1.33.1
+  resolution: "tideline@npm:1.33.1"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -22231,7 +22231,7 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: d2122068e949fb3e536a334705bcb43f63b0c4ecfd1b5135ce9064d9a3500ce4f3aae85073ee631ecc78b84afee276b8d2572abda99e4111bf291264e623fc8d
+  checksum: 4536783c0d6b5f848ab4460f6e619369c179221cb320554a9af96bd8e5e7f8220212b4090b00abc3bd2786600a69f612c1d3c23332fadef9016bc15c6beeca2e
   languageName: node
   linkType: hard
 

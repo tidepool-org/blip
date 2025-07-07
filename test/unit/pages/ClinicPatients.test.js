@@ -968,7 +968,7 @@ describe('ClinicPatients', () => {
     describe('when Reset Filters button is clicked', function () {
       it('should show the No Results text', () => {
         expect(wrapper.find('.MuiTableRow-root')).to.have.length(1); // only header
-        expect(wrapper.find('.table-empty-text').hostNodes().text()).includes('There are no results to show');
+        expect(wrapper.find('.table-empty-text').hostNodes().text()).includes('There are no patient accounts with the current filter(s)');
       });
 
       it('should remove the active filters from localStorage', function () {
