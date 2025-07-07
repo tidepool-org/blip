@@ -60,6 +60,7 @@ export function Tag(props) {
   return (
     <Flex
       id={id}
+      data-testid={`tag-${id}`}
       variant={`tags.${variant}`}
       onClick={onClick?.bind(null, id)}
       onDoubleClick={onDoubleClick?.bind(null, id)}

@@ -2758,6 +2758,109 @@ describe('ClinicPatients', ()  => {
               expect(openButton).toBeInTheDocument();
               expect(openButton).toBeDisabled();
             }, TEST_TIMEOUT_MS);
+
+            it('should open a modal to configure the dashboard, and redirect when configured', async () => {
+              mockLocalStorage({});
+              store = mockStore(tier0300ClinicState);
+
+              render(
+                <MockedProviderWrappers>
+                  <ClinicPatients {...defaultProps} />
+                </MockedProviderWrappers>
+              );
+
+              // Open the Dialog
+              await userEvent.click(screen.getByRole('button', { name: /TIDE Dashboard View\b/ }));
+
+              expect(screen.getByText('Select Patients to Display in the TIDE Dashboard')).toBeInTheDocument();
+
+              expect(defaultProps.trackMetric).toHaveBeenCalledWith(
+                'Clinic - Show Tide Dashboard config dialog',
+                { clinicId: 'clinicID123', source: 'Patients list' }
+              );
+
+              // Ensure tag options present
+              const dialog = screen.getByRole('dialog');
+              const dialogConfirmButton = within(dialog).getByRole('button', { name: /Next/ });
+              const tag1 = within(dialog).getByTestId('tag-tag1');
+              const tag2 = within(dialog).getByTestId('tag-tag2');
+              const tag3 = within(dialog).getByTestId('tag-tag3');
+
+              expect(tag1).toBeInTheDocument('>test tag 1');
+              expect(tag2).toBeInTheDocument('test tag 2');
+              expect(tag3).toBeInTheDocument('ttest tag 3');
+
+              // Next button should be disabled because filters are not applied
+              expect(dialogConfirmButton).toBeDisabled();
+
+              // Select 2 tags
+              await userEvent.click(tag3);
+              await userEvent.click(tag1);
+
+              // Ensure period filter options present. Select 14 days
+              const radio24hSummary = screen.getByRole('radio', { name: '24 hours' });
+              const radio7dSummary = screen.getByRole('radio', { name: '7 days' });
+              const radio14dSummary = screen.getByRole('radio', { name: '14 days' });
+              const radio30dSummary = screen.getByRole('radio', { name: '30 days' });
+
+              expect(radio24hSummary).not.toBeChecked();
+              expect(radio7dSummary).not.toBeChecked();
+              expect(radio14dSummary).not.toBeChecked();
+              expect(radio30dSummary).not.toBeChecked();
+
+              await userEvent.click(radio30dSummary);
+
+              // Next button should still be disabled because some filters are not applied
+              expect(dialogConfirmButton).toBeDisabled();
+
+              // Ensure last data filter options present. Select 30 days
+              const radio24hRecency = screen.getByRole('radio', { name: 'Within 24 hours' });
+              const radio2dRecency = screen.getByRole('radio', { name: 'Within 2 days' });
+              const radio7dRecency = screen.getByRole('radio', { name: 'Within 7 days' });
+              const radio14dRecency = screen.getByRole('radio', { name: 'Within 14 days' });
+              const radio30dRecency = screen.getByRole('radio', { name: 'Within 30 days' });
+
+              expect(radio24hRecency).not.toBeChecked();
+              expect(radio2dRecency).not.toBeChecked();
+              expect(radio7dRecency).not.toBeChecked();
+              expect(radio14dRecency).not.toBeChecked();
+              expect(radio30dRecency).not.toBeChecked();
+
+              await userEvent.click(radio14dRecency);
+
+              // Next button should now be enabled because all needed filters are applied
+              expect(dialogConfirmButton).toBeEnabled();
+
+              // Submit the form
+              store.clearActions();
+              await userEvent.click(dialogConfirmButton);
+
+              // Should redirect to the Tide dashboard after saving the dashboard opts to localStorage,
+              await waitFor(() => expect(store.getActions()).toStrictEqual(
+                [
+                  {
+                    type: '@@router/CALL_HISTORY_METHOD',
+                    payload: { method: 'push', args: ['/dashboard/tide']},
+                  },
+                ])
+              );
+
+              expect(defaultProps.trackMetric).toHaveBeenCalledWith(
+                'Clinic - Show Tide Dashboard config dialog confirmed',
+                { clinicId: 'clinicID123', source: 'Patients list' },
+              );
+
+              expect(window.localStorage.getItem('tideDashboardConfig')).toStrictEqual(
+                JSON.stringify({
+                  'clinicianUserId123|clinicID123': {
+                    period: '30d',
+                    lastData: '14',
+                    tags: ['tag3', 'tag1'],
+                  },
+                })
+              );
+
+            });
           });
         });
       });
