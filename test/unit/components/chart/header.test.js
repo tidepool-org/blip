@@ -36,6 +36,8 @@ describe('Header', function () {
         onClickOneDay: sinon.stub(),
         onClickBgLog: sinon.stub(),
         onClickSettings: sinon.stub(),
+        onClickPrint: sinon.stub(),
+        isSmartOnFhirMode: false,
       };
       var dailyElem = React.createElement(Header, props);
       var elem = mount(dailyElem);
@@ -64,7 +66,9 @@ describe('Header', function () {
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
         onClickBgLog: sinon.stub(),
-        onClickSettings: sinon.stub()
+        onClickSettings: sinon.stub(),
+        onClickPrint: sinon.stub(),
+        isSmartOnFhirMode: false,
       };
       var dailyElem = React.createElement(Header, props);
       var elem = mount(dailyElem);
@@ -99,7 +103,9 @@ describe('Header', function () {
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
         onClickBgLog: sinon.stub(),
-        onClickSettings: sinon.stub()
+        onClickSettings: sinon.stub(),
+        onClickPrint: sinon.stub(),
+        isSmartOnFhirMode: false,
       };
       var dailyElem = React.createElement(Header, props);
       var elem = mount(dailyElem);
@@ -134,7 +140,9 @@ describe('Header', function () {
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
         onClickBgLog: sinon.stub(),
-        onClickSettings: sinon.stub()
+        onClickSettings: sinon.stub(),
+        onClickPrint: sinon.stub(),
+        isSmartOnFhirMode: false
       };
       var dailyElem = React.createElement(Header, props);
       var elem = mount(dailyElem);
@@ -169,7 +177,9 @@ describe('Header', function () {
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
         onClickBgLog: sinon.stub(),
-        onClickSettings: sinon.stub()
+        onClickSettings: sinon.stub(),
+        onClickPrint: sinon.stub(),
+        isSmartOnFhirMode: false
       };
       var dailyElem = React.createElement(Header, props);
       var elem = mount(dailyElem);
@@ -204,7 +214,9 @@ describe('Header', function () {
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
         onClickBgLog: sinon.stub(),
-        onClickSettings: sinon.stub()
+        onClickSettings: sinon.stub(),
+        onClickPrint: sinon.stub(),
+        isSmartOnFhirMode: false,
       };
       var dailyElem = React.createElement(Header, props);
       var elem = mount(dailyElem);
@@ -239,7 +251,9 @@ describe('Header', function () {
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
         onClickBgLog: sinon.stub(),
-        onClickSettings: sinon.stub()
+        onClickSettings: sinon.stub(),
+        onClickPrint: sinon.stub(),
+        isSmartOnFhirMode: false,
       };
       var dailyElem = React.createElement(Header, props);
       var elem = mount(dailyElem);
@@ -274,7 +288,9 @@ describe('Header', function () {
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
         onClickBgLog: sinon.stub(),
-        onClickSettings: sinon.stub()
+        onClickSettings: sinon.stub(),
+        onClickPrint: sinon.stub(),
+        isSmartOnFhirMode: false,
       };
       var dailyElem = React.createElement(Header, props);
       var elem = mount(dailyElem);
@@ -309,7 +325,9 @@ describe('Header', function () {
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
         onClickBgLog: sinon.stub(),
-        onClickSettings: sinon.stub()
+        onClickSettings: sinon.stub(),
+        onClickPrint: sinon.stub(),
+        isSmartOnFhirMode: false,
       };
       var dailyElem = React.createElement(Header, props);
       var elem = mount(dailyElem);
@@ -344,7 +362,9 @@ describe('Header', function () {
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
         onClickBgLog: sinon.stub(),
-        onClickSettings: sinon.stub()
+        onClickSettings: sinon.stub(),
+        onClickPrint: sinon.stub(),
+        isSmartOnFhirMode: false,
       };
       var dailyElem = React.createElement(Header, props);
       var elem = mount(dailyElem);
@@ -379,7 +399,9 @@ describe('Header', function () {
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
         onClickBgLog: sinon.stub(),
-        onClickSettings: sinon.stub()
+        onClickSettings: sinon.stub(),
+        onClickPrint: sinon.stub(),
+        isSmartOnFhirMode: false,
       };
       var dailyElem = React.createElement(Header, props);
       var elem = mount(dailyElem);
@@ -414,7 +436,9 @@ describe('Header', function () {
         onClickNext: sinon.stub(),
         onClickOneDay: sinon.stub(),
         onClickBgLog: sinon.stub(),
-        onClickSettings: sinon.stub()
+        onClickSettings: sinon.stub(),
+        onClickPrint: sinon.stub(),
+        isSmartOnFhirMode: false,
       };
       var dailyElem = React.createElement(Header, props);
       var elem = mount(dailyElem);
@@ -425,6 +449,111 @@ describe('Header', function () {
       expect(props.onClickSettings.callCount).to.equal(0);
       settingsButton.simulate('click');
       expect(props.onClickSettings.callCount).to.equal(1);
+    });
+
+    describe('Print button behavior', function() {
+      it('should render print button when not in Smart on FHIR mode', function () {
+        var props = {
+          patient: {
+            profile: {
+              fullName: 'Jane Doe'
+            },
+            permissions: {
+              note: {},
+              view: {}
+            }
+          },
+          chartType: 'daily',
+          inTransition: false,
+          atMostRecent: false,
+          title: 'Most Awesome',
+          onClickBack: sinon.stub(),
+          onClickBasics: sinon.stub(),
+          onClickTrends: sinon.stub(),
+          onClickMostRecent: sinon.stub(),
+          onClickNext: sinon.stub(),
+          onClickOneDay: sinon.stub(),
+          onClickBgLog: sinon.stub(),
+          onClickSettings: sinon.stub(),
+          onClickPrint: sinon.stub(),
+          isSmartOnFhirMode: false,
+        };
+        var dailyElem = React.createElement(Header, props);
+        var elem = mount(dailyElem);
+
+        var printButton = elem.find('.printview-print-icon');
+        expect(printButton).to.have.length(1);
+      });
+
+      it('should not render print button when in Smart on FHIR mode', function () {
+        var props = {
+          patient: {
+            profile: {
+              fullName: 'Jane Doe'
+            },
+            permissions: {
+              note: {},
+              view: {}
+            }
+          },
+          chartType: 'daily',
+          inTransition: false,
+          atMostRecent: false,
+          title: 'Most Awesome',
+          onClickBack: sinon.stub(),
+          onClickBasics: sinon.stub(),
+          onClickTrends: sinon.stub(),
+          onClickMostRecent: sinon.stub(),
+          onClickNext: sinon.stub(),
+          onClickOneDay: sinon.stub(),
+          onClickBgLog: sinon.stub(),
+          onClickSettings: sinon.stub(),
+          onClickPrint: sinon.stub(),
+          isSmartOnFhirMode: true, // In Smart on FHIR mode
+        };
+
+        var dailyElem = React.createElement(Header, props);
+        var elem = mount(dailyElem);
+
+        var printButton = elem.find('.printview-print-icon');
+        expect(printButton).to.have.length(0);
+      });
+
+      it('should trigger onClickPrint when print button is clicked and not in Smart on FHIR mode', function () {
+        var props = {
+          patient: {
+            profile: {
+              fullName: 'Jane Doe'
+            },
+            permissions: {
+              note: {},
+              view: {}
+            }
+          },
+          chartType: 'daily',
+          inTransition: false,
+          atMostRecent: false,
+          title: 'Most Awesome',
+          onClickBack: sinon.stub(),
+          onClickBasics: sinon.stub(),
+          onClickTrends: sinon.stub(),
+          onClickMostRecent: sinon.stub(),
+          onClickNext: sinon.stub(),
+          onClickOneDay: sinon.stub(),
+          onClickBgLog: sinon.stub(),
+          onClickSettings: sinon.stub(),
+          onClickPrint: sinon.stub(),
+          isSmartOnFhirMode: false, // Not in Smart on FHIR mode
+        };
+
+        var dailyElem = React.createElement(Header, props);
+        var elem = mount(dailyElem);
+
+        var printButton = elem.find('.printview-print-icon');
+        expect(props.onClickPrint.callCount).to.equal(0);
+        printButton.simulate('click');
+        expect(props.onClickPrint.callCount).to.equal(1);
+      });
     });
   });
 });

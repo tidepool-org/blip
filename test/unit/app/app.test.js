@@ -158,7 +158,7 @@ describe('App', () => {
 
       var elem = mount(<App {...baseProps} />, { wrappingComponent: providerWrapper(store) });
       expect(elem).to.be.ok;
-      expect(console.error.callCount).to.equal(11);
+      expect(console.error.callCount).to.equal(12);
       var app = elem.find('.app');
       expect(app).to.be.ok;
     });

@@ -1,4 +1,3 @@
-
 /**
  * Copyright (c) 2014, Tidepool Project
  *
@@ -60,6 +59,7 @@ const Patient = withTranslation()(createReactClass({
     authorizedDataSource: PropTypes.object,
     queryParams: PropTypes.object,
     api: PropTypes.object,
+    isSmartOnFhirMode: PropTypes.bool.isRequired,
   },
 
   getInitialState: function() {
@@ -130,7 +130,9 @@ const Patient = withTranslation()(createReactClass({
           updatingDataDonationAccounts={this.props.updatingDataDonationAccounts}
           updatingPatientBgUnits={this.props.updatingPatientBgUnits}
           queryParams={this.props.queryParams}
-          trackMetric={this.props.trackMetric} />
+          trackMetric={this.props.trackMetric}
+          isSmartOnFhirMode={this.props.isSmartOnFhirMode}
+        />
       </div>
     );
   },

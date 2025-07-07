@@ -202,6 +202,7 @@ class BgLog extends Component {
     trackMetric: PropTypes.func.isRequired,
     uploadUrl: PropTypes.string.isRequired,
     removeGeneratedPDFS: PropTypes.func.isRequired,
+    isSmartOnFhirMode: PropTypes.bool,
   };
 
   constructor(props) {
@@ -379,7 +380,8 @@ class BgLog extends Component {
         onClickSettings={this.props.onSwitchToSettings}
         onClickBgLog={this.handleClickBgLog}
         onClickPrint={this.handleClickPrint}
-      ref="header" />
+        isSmartOnFhirMode={this.props.isSmartOnFhirMode}
+        ref="header" />
     );
   };
 
@@ -396,7 +398,8 @@ class BgLog extends Component {
         onClickSettings={this.props.onSwitchToSettings}
         onClickBgLog={this.handleClickBgLog}
         onClickPrint={this.handleClickPrint}
-      ref="header" />
+        isSmartOnFhirMode={this.props.isSmartOnFhirMode}
+        ref="header" />
     );
   };
 

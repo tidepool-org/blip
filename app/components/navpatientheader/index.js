@@ -30,7 +30,7 @@ const HeaderContainer = ({ children }) => (
   </Box>
 );
 
-const NavPatientHeader = ({ api, trackMetric, patient, clinicPatient, user, permsOfLoggedInUser }) => {
+const NavPatientHeader = ({ api, trackMetric, patient, clinicPatient, user, permsOfLoggedInUser, isSmartOnFhirMode }) => {
   const {
     handleBack,
     handleLaunchUploader,
@@ -46,7 +46,7 @@ const NavPatientHeader = ({ api, trackMetric, patient, clinicPatient, user, perm
   const { canUpload, canShare } = getPermissions(patient, permsOfLoggedInUser);
   const { mrn, birthday, name } = getDemographicInfo(patient, clinicPatient);
 
-  const isUploadVisible = canUpload && !utils.isMobile();
+  const isUploadVisible = canUpload && !utils.isMobile() && !isSmartOnFhirMode;
 
   const handleOpenUploader = () => {
     handleLaunchUploader();
@@ -65,7 +65,7 @@ const NavPatientHeader = ({ api, trackMetric, patient, clinicPatient, user, perm
       <HeaderContainer>
         { isClinicianAccount(user)
           ? <>
-              <Back onClick={handleBack} />
+              {!isSmartOnFhirMode && <Back onClick={handleBack} />}
               <Name name={name} />
               <DemographicInfo birthday={birthday} mrn={mrn} />
               <ClinicianMenuOptions

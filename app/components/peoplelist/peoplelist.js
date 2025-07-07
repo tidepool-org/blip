@@ -30,6 +30,7 @@ var PeopleList = withTranslation()(class extends React.Component {
     onClickPerson: PropTypes.func,
     onRemovePatient: PropTypes.func,
     trackMetric: PropTypes.func.isRequired,
+    isSmartOnFhirMode: PropTypes.bool.isRequired,
   };
 
   static defaultProps = {
@@ -131,7 +132,9 @@ var PeopleList = withTranslation()(class extends React.Component {
           isEditing={this.state.editing}
           onRemovePatient={this.props.onRemovePatient}
           patient={person}
-          trackMetric={this.props.trackMetric}></PatientCard>
+          trackMetric={this.props.trackMetric}
+          isSmartOnFhirMode={this.props.isSmartOnFhirMode}
+        ></PatientCard>
       </li>
     );
   };
