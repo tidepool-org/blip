@@ -17,6 +17,7 @@ export default {
     gray05: '#EBEBEB',
     gray10: '#D9D9D9',
     gray50: '#707070',
+    blueGray10: '#D1D6E1',
   },
   secondary: {
     coral: '#F9706B',
