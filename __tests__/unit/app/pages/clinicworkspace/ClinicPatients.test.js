@@ -2987,7 +2987,7 @@ describe('ClinicPatients', ()  => {
               });
             });
 
-            it('should render the Last Reviewed column and allow setting last reviewed date', async () => {
+            it('should render the Last Reviewed column and allow setting/undoing last reviewed date', async () => {
               mockLocalStorage({});
               store = mockStore(tier0300ClinicState);
 
@@ -3013,6 +3013,10 @@ describe('ClinicPatients', ()  => {
 
               store.clearActions();
 
+              /**
+               * Setting a Last Reviewed Date
+               */
+
               // Text should change on hover
               expect(row1Cell).toHaveTextContent('Yesterday');
               await userEvent.hover(row1Cell);
@@ -3034,6 +3038,36 @@ describe('ClinicPatients', ()  => {
 
               expect(store.getActions()).toStrictEqual([
                 { type: 'SET_CLINIC_PATIENT_LAST_REVIEWED_REQUEST' },
+              ]);
+
+              /**
+               * Undoing a Last Reviewed Date
+               */
+
+              defaultProps.trackMetric.mockClear();
+              store.clearActions();
+
+              // Text should change on hover
+              expect(row0Cell).toHaveTextContent('Today');
+              await userEvent.hover(row0Cell);
+              expect(row0Cell).toHaveTextContent('Undo');
+
+              const row0CellButton = within(row0Cell).getByRole('button');
+              await userEvent.click(row0CellButton);
+
+              await waitFor(() => expect(defaultProps.api.clinics.revertClinicPatientLastReviewed).toHaveBeenCalledWith(
+                'clinicID123',
+                'patient1',
+                expect.any(Function),
+              ));
+
+              expect(defaultProps.trackMetric).toHaveBeenCalledWith(
+                'Clinic - Undo mark patient reviewed',
+                { clinicId: 'clinicID123', source: 'Patients list' },
+              );
+
+              expect(store.getActions()).toStrictEqual([
+                { type: 'REVERT_CLINIC_PATIENT_LAST_REVIEWED_REQUEST' },
               ]);
             });
 
@@ -3068,6 +3102,51 @@ describe('ClinicPatients', ()  => {
               );
             });
 
+            it('should not render the Last Reviewed column if showSummaryData flag is false', () => {
+              mockLocalStorage({});
+              useFlags.mockReturnValue({
+                showSummaryData: false,
+              });
+
+              useLDClient.mockReturnValue({
+                getContext: jest.fn(() => ({
+                  clinic: { tier: 'tier0300' },
+                })),
+              });
+
+              store = mockStore(tier0100ClinicState);
+              render(
+                <MockedProviderWrappers>
+                  <ClinicPatients {...defaultProps} />
+                </MockedProviderWrappers>
+              );
+
+              expect(screen.queryByText('Last Reviewed')).not.toBeInTheDocument();
+            });
+          });
+
+          describe('showSummaryDashboardLastReviewed flag is false', () => {
+            it('should not show the Last Reviewed column, even if clinic tier >= tier0300', () => {
+              mockLocalStorage({});
+              useFlags.mockReturnValue({
+                showSummaryDashboardLastReviewed: false,
+              });
+
+              useLDClient.mockReturnValue({
+                getContext: jest.fn(() => ({
+                  clinic: { tier: 'tier0300' },
+                })),
+              });
+
+              store = mockStore(tier0300ClinicState);
+              render(
+                <MockedProviderWrappers>
+                  <ClinicPatients {...defaultProps} />
+                </MockedProviderWrappers>
+              );
+
+              expect(screen.queryByText('Last Reviewed')).not.toBeInTheDocument();
+            });
           });
         });
       });
