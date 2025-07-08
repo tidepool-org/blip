@@ -4176,7 +4176,7 @@ export const ClinicPatients = (props) => {
   const isClinicSitesDialogVisible = (
     showClinicSitesDialog &&
     !showUpdateClinicSiteDialog &&
-    !showDeleteClinicPatientTagDialog
+    !showDeleteClinicSiteDialog
   );
 
   const isClinicPatientTagsDialogVisible = (
