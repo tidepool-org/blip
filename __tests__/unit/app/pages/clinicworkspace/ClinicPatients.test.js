@@ -404,13 +404,13 @@ describe('ClinicPatients', ()  => {
   const mockStore = configureStore([thunk]);
   let store;
 
-  const MockedProviderWrappers = ({ children }) => (
+  const WrappedComponent = () => (
     <Provider store={store}>
       <MemoryRouter initialEntries={['/clinic-workspace']}>
         <Switch>
           <Route path='/clinic-workspace'>
             <ToastProvider>
-              {children}
+              <ClinicPatients {...defaultProps} />
             </ToastProvider>
           </Route>
         </Switch>
@@ -465,11 +465,7 @@ describe('ClinicPatients', ()  => {
         })
       );
 
-      render(
-        <MockedProviderWrappers store={store}>
-          <ClinicPatients {...defaultProps} />
-        </MockedProviderWrappers>
-      );
+      render(<WrappedComponent />);
 
       expect(store.getActions()).toStrictEqual([]);
     }, TEST_TIMEOUT_MS);
@@ -477,11 +473,7 @@ describe('ClinicPatients', ()  => {
     it('should fetch patients for clinic', () => {
       store = mockStore(hasPatientsState);
 
-      render(
-        <MockedProviderWrappers store={store}>
-          <ClinicPatients {...defaultProps} />
-        </MockedProviderWrappers>
-      );
+      render(<WrappedComponent />);
 
       const expectedActions = [
         { type: 'FETCH_PATIENTS_FOR_CLINIC_REQUEST' },
@@ -504,11 +496,7 @@ describe('ClinicPatients', ()  => {
         })
       );
 
-      render(
-        <MockedProviderWrappers store={store}>
-          <ClinicPatients {...defaultProps} />
-        </MockedProviderWrappers>
-      );
+      render(<WrappedComponent />);
 
       const expectedActions = [
         { type: 'FETCH_PATIENTS_FOR_CLINIC_REQUEST' },
@@ -530,11 +518,7 @@ describe('ClinicPatients', ()  => {
     });
 
     it('should render a button that toggles patients to be visible', async () => {
-      render(
-        <MockedProviderWrappers>
-          <ClinicPatients {...defaultProps} />
-        </MockedProviderWrappers>
-      );
+      render(<WrappedComponent />);
 
       store.clearActions();
 
@@ -549,11 +533,7 @@ describe('ClinicPatients', ()  => {
     });
 
     it('should render an empty table', () => {
-      render(
-        <MockedProviderWrappers>
-          <ClinicPatients {...defaultProps} />
-        </MockedProviderWrappers>
-      );
+      render(<WrappedComponent />);
 
       expect(screen.getByText('There are no results to show')).toBeInTheDocument();
       expect(screen.queryByTestId('filter-reset-bar')).not.toBeInTheDocument();
@@ -561,11 +541,7 @@ describe('ClinicPatients', ()  => {
 
     it('should open a modal for adding a new patient', async () => {
       store = mockStore(noPatientsState);
-      render(
-        <MockedProviderWrappers>
-          <ClinicPatients {...defaultProps} />
-        </MockedProviderWrappers>
-      );
+      render(<WrappedComponent />);
 
       // Open the modal. The modal title should exist.
       expect(screen.queryByText('Add New Patient Account')).not.toBeInTheDocument();
@@ -615,11 +591,7 @@ describe('ClinicPatients', ()  => {
 
   it('should prevent adding a new patient with an invalid Date of Birth', async () => {
     store = mockStore(noPatientsState);
-    render(
-      <MockedProviderWrappers>
-        <ClinicPatients {...defaultProps} />
-      </MockedProviderWrappers>
-    );
+    render(<WrappedComponent />);
 
     await userEvent.click(screen.getByRole('button', { name: /Add New Patient/}));
 
@@ -660,11 +632,7 @@ describe('ClinicPatients', ()  => {
 
   it('should prevent adding a new patient without an MRN if MRN required by the clinic', async () => {
     store = mockStore(mrnRequiredState);
-    render(
-      <MockedProviderWrappers>
-        <ClinicPatients {...defaultProps} />
-      </MockedProviderWrappers>
-    );
+    render(<WrappedComponent />);
 
     await userEvent.click(screen.getByRole('button', { name: /Add New Patient/}));
 
@@ -703,11 +671,7 @@ describe('ClinicPatients', ()  => {
 
   it('should prevent adding a new patient with an MRN already in use', async () => {
     store = mockStore(hasPatientsState);
-    render(
-      <MockedProviderWrappers>
-        <ClinicPatients {...defaultProps} />
-      </MockedProviderWrappers>
-    );
+    render(<WrappedComponent />);
 
     await userEvent.click(screen.getByRole('button', { name: /Add New Patient/}));
 
@@ -744,11 +708,7 @@ describe('ClinicPatients', ()  => {
 
   it('should prevent adding a new patient with an invalid MRN', async () => {
     store = mockStore(noPatientsState);
-    render(
-      <MockedProviderWrappers>
-        <ClinicPatients {...defaultProps} />
-      </MockedProviderWrappers>
-    );
+    render(<WrappedComponent />);
 
     await userEvent.click(screen.getByRole('button', { name: /Add New Patient/}));
 
@@ -810,11 +770,7 @@ describe('ClinicPatients', ()  => {
 
         store = mockStore(noPatientsButWithFiltersState);
 
-        render(
-          <MockedProviderWrappers>
-            <ClinicPatients {...defaultProps} />
-          </MockedProviderWrappers>
-        );
+        render(<WrappedComponent />);
 
         // Header should be visible. Should indicate there are no results
         expect(screen.getByTestId('clinic-patients-header')).toBeInTheDocument();
@@ -846,11 +802,7 @@ describe('ClinicPatients', ()  => {
       it('should clear the search input text in Redux', async () => {
         store = mockStore(noPatientsButWithFiltersState);
 
-        render(
-          <MockedProviderWrappers>
-            <ClinicPatients {...defaultProps} />
-          </MockedProviderWrappers>
-        );
+        render(<WrappedComponent />);
 
         // Header should be visible. Should indicate there are no results
         expect(screen.getByTestId('clinic-patients-header')).toBeInTheDocument();
@@ -878,11 +830,7 @@ describe('ClinicPatients', ()  => {
     describe('showNames', () => {
       it('should show data for each person', async () => {
         store = mockStore(hasPatientsState);
-        render(
-          <MockedProviderWrappers>
-            <ClinicPatients {...defaultProps} />
-          </MockedProviderWrappers>
-        );
+        render(<WrappedComponent />);
 
         // Should show data for patients
         expect(screen.getByText('Patient One')).toBeInTheDocument();
@@ -902,11 +850,7 @@ describe('ClinicPatients', ()  => {
     describe('show names clicked', () => {
       it('should allow searching patients', async () => {
         store = mockStore(hasPatientsState);
-        render(
-          <MockedProviderWrappers>
-            <ClinicPatients {...defaultProps} />
-          </MockedProviderWrappers>
-        );
+        render(<WrappedComponent />);
 
         store.clearActions();
 
@@ -930,11 +874,7 @@ describe('ClinicPatients', ()  => {
 
       it('should link to a patient data view when patient demographic details are clicked', async () => {
         store = mockStore(hasPatientsState);
-        render(
-          <MockedProviderWrappers>
-            <ClinicPatients {...defaultProps} />
-          </MockedProviderWrappers>
-        );
+        render(<WrappedComponent />);
 
         store.clearActions();
         expect(store.getActions()).toStrictEqual([]);
@@ -965,11 +905,7 @@ describe('ClinicPatients', ()  => {
 
       it('should display menu when "More" icon is clicked', async () => {
         store = mockStore(hasPatientsState);
-        render(
-          <MockedProviderWrappers>
-            <ClinicPatients {...defaultProps} />
-          </MockedProviderWrappers>
-        );
+        render(<WrappedComponent />);
 
         // Dropdown buttons should not exist
         expect(screen.queryByRole('button', { name: /Edit Patient Information/})).not.toBeInTheDocument();
@@ -985,11 +921,7 @@ describe('ClinicPatients', ()  => {
 
       it('should open a modal for patient editing when edit link is clicked', async () => {
         store = mockStore(hasPatientsState);
-        render(
-          <MockedProviderWrappers>
-            <ClinicPatients {...defaultProps} />
-          </MockedProviderWrappers>
-        );
+        render(<WrappedComponent />);
 
         // Modal title should not be present
         expect(screen.queryByText('Edit Patient Details')).not.toBeInTheDocument();
@@ -1055,11 +987,7 @@ describe('ClinicPatients', ()  => {
 
       it('should disable email editing for non-custodial patients', async () => {
         store = mockStore(hasPatientsState);
-        render(
-          <MockedProviderWrappers>
-            <ClinicPatients {...defaultProps} />
-          </MockedProviderWrappers>
-        );
+        render(<WrappedComponent />);
 
         // Modal title should not be present
         expect(screen.queryByText('Edit Patient Details')).not.toBeInTheDocument();
@@ -1123,11 +1051,7 @@ describe('ClinicPatients', ()  => {
       it('should open a modal for managing data connections when data connection menu option is clicked', async () => {
         const getPatientFromClinicSpy = jest.spyOn(api.clinics, 'getPatientFromClinic').mockReturnValue({});
         store = mockStore(hasPatientsState);
-        render(
-          <MockedProviderWrappers>
-            <ClinicPatients {...defaultProps} />
-          </MockedProviderWrappers>
-        );
+        render(<WrappedComponent />);
 
         // Modal title should be present after clicking "Bring Data into Tidepool"
         await userEvent.click(screen.getByTestId('action-menu-patient1-icon'));
@@ -1145,11 +1069,7 @@ describe('ClinicPatients', ()  => {
 
       it('should remove a patient', async () => {
         store = mockStore(hasPatientsState);
-        render(
-          <MockedProviderWrappers>
-            <ClinicPatients {...defaultProps} />
-          </MockedProviderWrappers>
-        );
+        render(<WrappedComponent />);
 
         // Modal title should be present after clicking "Remove Patient"
         await userEvent.click(screen.getByTestId('action-menu-patient1-icon'));
@@ -1192,11 +1112,7 @@ describe('ClinicPatients', ()  => {
 
         it('should show the standard table columns and refetch patients with sort parameter when headers are clicked', async () => {
           store = mockStore(tier0100ClinicState);
-          render(
-            <MockedProviderWrappers>
-              <ClinicPatients {...defaultProps} />
-            </MockedProviderWrappers>
-          );
+          render(<WrappedComponent />);
 
           const patientHeader = screen.getByRole('button', { name: 'Patient Details' });
           const dobHeader = screen.getByRole('button', { name: 'Birthday' });
@@ -1252,11 +1168,7 @@ describe('ClinicPatients', ()  => {
             });
 
             store = mockStore(tier0100ClinicState);
-            render(
-              <MockedProviderWrappers>
-                <ClinicPatients {...defaultProps} />
-              </MockedProviderWrappers>
-            );
+            render(<WrappedComponent />);
 
             expect(screen.getByTestId('summary-dashboard-filters')).toBeInTheDocument();
           }, TEST_TIMEOUT_MS);
@@ -1281,11 +1193,7 @@ describe('ClinicPatients', ()  => {
               },
             });
 
-            render(
-              <MockedProviderWrappers>
-                <ClinicPatients {...defaultProps} />
-              </MockedProviderWrappers>
-            );
+            render(<WrappedComponent />);
 
             // Add New Patient should be disabled
             const AddNewPatientButton = screen.getByRole('button', { name: /Add New Patient/ });
@@ -1318,11 +1226,7 @@ describe('ClinicPatients', ()  => {
         });
 
         it('should show data appropriately based on availablity', async () => {
-          render(
-            <MockedProviderWrappers>
-              <ClinicPatients {...defaultProps} />
-            </MockedProviderWrappers>
-          );
+          render(<WrappedComponent />);
 
           const table = document.querySelector('table') // eslint-disable-line
           const columns = table.querySelectorAll('.MuiTableCell-head'); // eslint-disable-line
@@ -1388,11 +1292,7 @@ describe('ClinicPatients', ()  => {
         }, TEST_TIMEOUT_MS);
 
         it('should refetch patients with updated sort parameter when sortable column headers are clicked', async () => {
-          render(
-            <MockedProviderWrappers>
-              <ClinicPatients {...defaultProps} />
-            </MockedProviderWrappers>
-          );
+          render(<WrappedComponent />);
 
           defaultProps.api.clinics.getPatientsForClinic.mockClear();
           defaultProps.trackMetric.mockClear();
@@ -1573,11 +1473,7 @@ describe('ClinicPatients', ()  => {
           store = mockStore(tier0300ClinicState);
           mockLocalStorage({ activePatientSort: '-lastData' });
 
-          render(
-            <MockedProviderWrappers>
-              <ClinicPatients {...defaultProps} />
-            </MockedProviderWrappers>
-          );
+          render(<WrappedComponent />);
 
           // should show the last time since patient data fetch
           expect(screen.getByText('Last updated less than an hour ago')).toBeInTheDocument();
@@ -1595,11 +1491,7 @@ describe('ClinicPatients', ()  => {
         it('should allow filtering by last upload', async () => {
           store = mockStore(tier0300ClinicState);
           mockLocalStorage({ activePatientSort: '-lastData' });
-          render(
-            <MockedProviderWrappers>
-              <ClinicPatients {...defaultProps} />
-            </MockedProviderWrappers>
-          );
+          render(<WrappedComponent />);
 
           // Filter options should not be visible yet
           expect(screen.queryByRole('radio', { name: 'CGM' })).not.toBeInTheDocument();
@@ -1640,11 +1532,7 @@ describe('ClinicPatients', ()  => {
 
         it('should allow filtering by cgm use', async () => {
           store = mockStore(tier0300ClinicState);
-          render(
-            <MockedProviderWrappers>
-              <ClinicPatients {...defaultProps} />
-            </MockedProviderWrappers>
-          );
+          render(<WrappedComponent />);
 
           // Filter options should not be visible yet
           expect(screen.queryByRole('radio', { name: 'Less than 70%' })).not.toBeInTheDocument();
@@ -1680,11 +1568,7 @@ describe('ClinicPatients', ()  => {
         it('should allow filtering by bg range targets that DO NOT meet selected criteria', async () => {
           store = mockStore(tier0300ClinicState);
           mockLocalStorage({ activePatientSort: '-lastData' });
-          render(
-            <MockedProviderWrappers>
-              <ClinicPatients {...defaultProps} />
-            </MockedProviderWrappers>
-          );
+          render(<WrappedComponent />);
 
           await userEvent.click(screen.getByTestId('time-in-range-filter-trigger'));
 
@@ -1752,11 +1636,7 @@ describe('ClinicPatients', ()  => {
               activePatientSummaryPeriod: '14d',
             });
 
-            render(
-              <MockedProviderWrappers>
-                <ClinicPatients {...defaultProps} />
-              </MockedProviderWrappers>
-            );
+            render(<WrappedComponent />);
 
             expect(screen.getByTestId('filter-reset-bar')).toBeInTheDocument();
             expect(screen.queryByRole('radio', { name: '24 hours' })).not.toBeInTheDocument();
@@ -1808,11 +1688,7 @@ describe('ClinicPatients', ()  => {
             activePatientSummaryPeriod: '14d',
           });
 
-          render(
-            <MockedProviderWrappers>
-              <ClinicPatients {...defaultProps} />
-            </MockedProviderWrappers>
-          );
+          render(<WrappedComponent />);
 
           expect(screen.getByTestId('filter-reset-bar')).toBeInTheDocument();
           expect(screen.queryByRole('radio', { name: '24 hours' })).not.toBeInTheDocument();
@@ -1856,11 +1732,7 @@ describe('ClinicPatients', ()  => {
               activePatientSummaryPeriod: '14d',
             });
 
-            render(
-              <MockedProviderWrappers>
-                <ClinicPatients {...defaultProps} />
-              </MockedProviderWrappers>
-            );
+            render(<WrappedComponent />);
 
             // Data Recency button should have correct copy reflecting current 14 day filter
             expect(screen.getByTestId('last-data-filter-trigger')).toHaveTextContent('Data within 14 days');
@@ -1888,11 +1760,7 @@ describe('ClinicPatients', ()  => {
               activePatientSummaryPeriod: '14d',
             });
 
-            render(
-              <MockedProviderWrappers>
-                <ClinicPatients {...defaultProps} />
-              </MockedProviderWrappers>
-            );
+            render(<WrappedComponent />);
 
             // Should show 2 active time in range filters
             const timeInRangeFilterTrigger = screen.getByTestId('time-in-range-filter-trigger');
@@ -1923,11 +1791,7 @@ describe('ClinicPatients', ()  => {
               activePatientSummaryPeriod: '14d',
             });
 
-            render(
-              <MockedProviderWrappers>
-                <ClinicPatients {...defaultProps} />
-              </MockedProviderWrappers>
-            );
+            render(<WrappedComponent />);
 
             await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
               'clinicID123',
@@ -1956,11 +1820,7 @@ describe('ClinicPatients', ()  => {
               activePatientSort: JSON.stringify({ sort: '-averageGlucoseMmol', sortType: 'bgm' }),
             });
 
-            render(
-              <MockedProviderWrappers>
-                <ClinicPatients {...defaultProps} />
-              </MockedProviderWrappers>
-            );
+            render(<WrappedComponent />);
 
             const sortMarker = document.getElementsByClassName('MuiTableSortLabel-active')[0]; // eslint-disable-line
             const headingCell = sortMarker.parentElement; // eslint-disable-line
@@ -1982,11 +1842,7 @@ describe('ClinicPatients', ()  => {
             store = mockStore(tier0300ClinicStateMmoll);
             mockLocalStorage({});
 
-            render(
-              <MockedProviderWrappers>
-                <ClinicPatients {...defaultProps} />
-              </MockedProviderWrappers>
-            );
+            render(<WrappedComponent />);
 
             /* eslint-disable testing-library/no-node-access */
             const headingCell = document.getElementById('peopleTable-header-bgm-averageGlucoseMmol');
@@ -2020,11 +1876,7 @@ describe('ClinicPatients', ()  => {
 
         it('should track how many filters are active', async () => {
           store = mockStore(tier0300ClinicState);
-          render(
-            <MockedProviderWrappers>
-              <ClinicPatients {...defaultProps} />
-            </MockedProviderWrappers>
-          );
+          render(<WrappedComponent />);
 
           expect(screen.queryByTestId('filter-count')).not.toBeInTheDocument();
 
@@ -2065,11 +1917,7 @@ describe('ClinicPatients', ()  => {
           store = mockStore(tier0300ClinicState);
           mockLocalStorage({});
 
-          render(
-            <MockedProviderWrappers>
-              <ClinicPatients {...defaultProps} />
-            </MockedProviderWrappers>
-          );
+          render(<WrappedComponent />);
 
           // Reset Filters button only shows when filters are active
           expect(screen.queryByTestId('filter-count')).not.toBeInTheDocument();
@@ -2111,11 +1959,7 @@ describe('ClinicPatients', ()  => {
           store = mockStore(tier0300ClinicState);
           mockLocalStorage({});
 
-          render(
-            <MockedProviderWrappers>
-              <ClinicPatients {...defaultProps} />
-            </MockedProviderWrappers>
-          );
+          render(<WrappedComponent />);
 
           expect(screen.queryByTestId('filter-count')).not.toBeInTheDocument();
           expect(screen.queryByTestId('time-in-range-filter-count')).not.toBeInTheDocument();
@@ -2151,11 +1995,7 @@ describe('ClinicPatients', ()  => {
           store = mockStore(tier0300ClinicState);
           mockLocalStorage({});
 
-          render(
-            <MockedProviderWrappers>
-              <ClinicPatients {...defaultProps} />
-            </MockedProviderWrappers>
-          );
+          render(<WrappedComponent />);
 
           expect(screen.queryByTestId('filter-count')).not.toBeInTheDocument();
           expect(screen.queryByTestId('time-in-range-filter-count')).not.toBeInTheDocument();
@@ -2190,11 +2030,7 @@ describe('ClinicPatients', ()  => {
           store = mockStore(tier0300ClinicState);
           mockLocalStorage({});
 
-          render(
-            <MockedProviderWrappers>
-              <ClinicPatients {...defaultProps} />
-            </MockedProviderWrappers>
-          );
+          render(<WrappedComponent />);
 
           // No reminder action for a custodial account - should not show Send Upload button
           const patientOneActionMenuTrigger = screen.getByTestId('action-menu-patient1-icon');
@@ -2241,11 +2077,7 @@ describe('ClinicPatients', ()  => {
             store = mockStore(tier0300ClinicState);
             mockLocalStorage({});
 
-            render(
-              <MockedProviderWrappers>
-                <ClinicPatients {...defaultProps} />
-              </MockedProviderWrappers>
-            );
+            render(<WrappedComponent />);
 
             // Open the Sites filter  dropdown and filter for 2 sites
             await userEvent.click(screen.getByRole('button', { name: /Sites/ }));
@@ -2281,11 +2113,7 @@ describe('ClinicPatients', ()  => {
             store = mockStore(tier0300ClinicState);
             mockLocalStorage({});
 
-            render(
-              <MockedProviderWrappers>
-                <ClinicPatients {...defaultProps} />
-              </MockedProviderWrappers>
-            );
+            render(<WrappedComponent />);
 
             // Open the Sites filter dropdown and filter for 2 sites
             await userEvent.click(screen.getByRole('button', { name: /Sites/ }));
@@ -2314,11 +2142,7 @@ describe('ClinicPatients', ()  => {
           }, TEST_TIMEOUT_MS);
 
           it('should allow filtering by tags', async () => {
-            render(
-              <MockedProviderWrappers>
-                <ClinicPatients {...defaultProps} />
-              </MockedProviderWrappers>
-            );
+            render(<WrappedComponent />);
 
             // Open the Tags filter dropdown and filter for 2 sites
             await userEvent.click(screen.getByRole('button', { name: /Tags/ }));
@@ -2351,11 +2175,7 @@ describe('ClinicPatients', ()  => {
           }, TEST_TIMEOUT_MS);
 
           it('should allow filtering by for patients with zero tags', async () => {
-            render(
-              <MockedProviderWrappers>
-                <ClinicPatients {...defaultProps} />
-              </MockedProviderWrappers>
-            );
+            render(<WrappedComponent />);
 
             // Open the Tags filter dropdown and filter for 2 tags
             await userEvent.click(screen.getByRole('button', { name: /Tags/ }));
@@ -2386,11 +2206,7 @@ describe('ClinicPatients', ()  => {
 
         describe('managing sites', () => {
           it('should allow creating a new site for a workspace', async () => {
-            render(
-              <MockedProviderWrappers>
-                <ClinicPatients {...defaultProps} />
-              </MockedProviderWrappers>
-            );
+            render(<WrappedComponent />);
 
             // Open the Edit Sites Dialog
             await userEvent.click(screen.getByRole('button', { name: /Sites/ }));
@@ -2417,11 +2233,7 @@ describe('ClinicPatients', ()  => {
           }, TEST_TIMEOUT_MS);
 
           it('should allow updating an existing site for a workspace', async () => {
-            render(
-              <MockedProviderWrappers>
-                <ClinicPatients {...defaultProps} />
-              </MockedProviderWrappers>
-            );
+            render(<WrappedComponent />);
 
             // Open the Edit Sites Dialog
             await userEvent.click(screen.getByRole('button', { name: /Sites/ }));
@@ -2458,11 +2270,7 @@ describe('ClinicPatients', ()  => {
           }, TEST_TIMEOUT_MS);
 
           it('should allow deleting an existing site for a workspace', async () => {
-            render(
-              <MockedProviderWrappers>
-                <ClinicPatients {...defaultProps} />
-              </MockedProviderWrappers>
-            );
+            render(<WrappedComponent />);
 
             // Open the Edit Sites Dialog
             await userEvent.click(screen.getByRole('button', { name: /Sites/ }));
@@ -2492,11 +2300,7 @@ describe('ClinicPatients', ()  => {
 
         describe('managing patient sites', () => {
           it('should allow updating sites for a patient', async () => {
-            render(
-              <MockedProviderWrappers>
-                <ClinicPatients {...defaultProps} />
-              </MockedProviderWrappers>
-            );
+            render(<WrappedComponent />);
 
             // Click the Edit Sites icon for a patient. The Dialog for Edit Patient Details should open.
             expect(screen.queryByText('Edit Patient Details')).not.toBeInTheDocument();
@@ -2558,11 +2362,7 @@ describe('ClinicPatients', ()  => {
 
         describe('managing clinic patient tags', () => {
           it('should allow creating a new tag for a workspace', async () => {
-            render(
-              <MockedProviderWrappers>
-                <ClinicPatients {...defaultProps} />
-              </MockedProviderWrappers>
-            );
+            render(<WrappedComponent />);
 
             // Open the Edit Sites Dialog
             await userEvent.click(screen.getByRole('button', { name: /Tags/ }));
@@ -2590,11 +2390,7 @@ describe('ClinicPatients', ()  => {
         });
 
         it('should allow updating an existing tag for a workspace', async () => {
-          render(
-            <MockedProviderWrappers>
-              <ClinicPatients {...defaultProps} />
-            </MockedProviderWrappers>
-          );
+          render(<WrappedComponent />);
 
           // Open the Edit Tags Dialog
           await userEvent.click(screen.getByRole('button', { name: /Tags/ }));
@@ -2631,11 +2427,7 @@ describe('ClinicPatients', ()  => {
         }, TEST_TIMEOUT_MS);
 
         it('should allow deleting an existing site for a workspace', async () => {
-          render(
-            <MockedProviderWrappers>
-              <ClinicPatients {...defaultProps} />
-            </MockedProviderWrappers>
-          );
+          render(<WrappedComponent />);
 
           // Open the Edit Sites Dialog
           await userEvent.click(screen.getByRole('button', { name: /Tags/ }));
@@ -2664,11 +2456,7 @@ describe('ClinicPatients', ()  => {
 
         describe('managing patient tags', () => {
           it('should allow updating tags for a patient', async () => {
-            render(
-              <MockedProviderWrappers>
-                <ClinicPatients {...defaultProps} />
-              </MockedProviderWrappers>
-            );
+            render(<WrappedComponent />);
 
             // Click the Edit Tags icon for a patient. The Dialog for Edit Patient Details should open.
             expect(screen.queryByText('Edit Patient Details')).not.toBeInTheDocument();
@@ -2748,11 +2536,7 @@ describe('ClinicPatients', ()  => {
               mockLocalStorage({});
               store = mockStore(tier0300ClinicState);
 
-              render(
-                <MockedProviderWrappers>
-                  <ClinicPatients {...defaultProps} />
-                </MockedProviderWrappers>
-              );
+              render(<WrappedComponent />);
 
               const openButton = screen.getByRole('button', { name: /TIDE Dashboard View\b/ });
               expect(openButton).toBeInTheDocument();
@@ -2773,11 +2557,7 @@ describe('ClinicPatients', ()  => {
                 },
               });
 
-              render(
-                <MockedProviderWrappers>
-                  <ClinicPatients {...defaultProps} />
-                </MockedProviderWrappers>
-              );
+              render(<WrappedComponent />);
 
               const openButton = screen.getByRole('button', { name: /TIDE Dashboard View\b/ });
               expect(openButton).toBeInTheDocument();
@@ -2788,11 +2568,7 @@ describe('ClinicPatients', ()  => {
               mockLocalStorage({});
               store = mockStore(tier0300ClinicState);
 
-              render(
-                <MockedProviderWrappers>
-                  <ClinicPatients {...defaultProps} />
-                </MockedProviderWrappers>
-              );
+              render(<WrappedComponent />);
 
               // Open the Dialog
               await userEvent.click(screen.getByRole('button', { name: /TIDE Dashboard View\b/ }));
@@ -2898,11 +2674,7 @@ describe('ClinicPatients', ()  => {
                 }),
               });
 
-              render(
-                <MockedProviderWrappers>
-                  <ClinicPatients {...defaultProps} />
-                </MockedProviderWrappers>
-              );
+              render(<WrappedComponent />);
 
               defaultProps.trackMetric.mockClear();
               store.clearActions();
@@ -2936,11 +2708,7 @@ describe('ClinicPatients', ()  => {
                 }),
               });
 
-              render(
-                <MockedProviderWrappers>
-                  <ClinicPatients {...defaultProps} />
-                </MockedProviderWrappers>
-              );
+              render(<WrappedComponent />);
 
               defaultProps.trackMetric.mockClear();
               store.clearActions();
@@ -2982,11 +2750,7 @@ describe('ClinicPatients', ()  => {
               mockLocalStorage({});
               store = mockStore(tier0300ClinicState);
 
-              render(
-                <MockedProviderWrappers>
-                  <ClinicPatients {...defaultProps} />
-                </MockedProviderWrappers>
-              );
+              render(<WrappedComponent />);
 
               const openButton = screen.queryByRole('button', { name: /TIDE Dashboard View\b/ });
               expect(openButton).not.toBeInTheDocument();
@@ -3015,11 +2779,7 @@ describe('ClinicPatients', ()  => {
               mockLocalStorage({});
               store = mockStore(tier0300ClinicState);
 
-              render(
-                <MockedProviderWrappers>
-                  <ClinicPatients {...defaultProps} />
-                </MockedProviderWrappers>
-              );
+              render(<WrappedComponent />);
 
               /* eslint-disable */
               const headingCell = document.getElementById('peopleTable-header-lastReviewed');
@@ -3099,11 +2859,7 @@ describe('ClinicPatients', ()  => {
               mockLocalStorage({});
               store = mockStore(tier0300ClinicState);
 
-              render(
-                <MockedProviderWrappers>
-                  <ClinicPatients {...defaultProps} />
-                </MockedProviderWrappers>
-              );
+              render(<WrappedComponent />);
 
               defaultProps.api.clinics.getPatientsForClinic.mockClear();
 
@@ -3139,11 +2895,7 @@ describe('ClinicPatients', ()  => {
               });
 
               store = mockStore(tier0100ClinicState);
-              render(
-                <MockedProviderWrappers>
-                  <ClinicPatients {...defaultProps} />
-                </MockedProviderWrappers>
-              );
+              render(<WrappedComponent />);
 
               expect(screen.queryByText('Last Reviewed')).not.toBeInTheDocument();
             }, TEST_TIMEOUT_MS);
@@ -3163,11 +2915,7 @@ describe('ClinicPatients', ()  => {
               });
 
               store = mockStore(tier0300ClinicState);
-              render(
-                <MockedProviderWrappers>
-                  <ClinicPatients {...defaultProps} />
-                </MockedProviderWrappers>
-              );
+              render(<WrappedComponent />);
 
               expect(screen.queryByText('Last Reviewed')).not.toBeInTheDocument();
             }, TEST_TIMEOUT_MS);
@@ -3181,11 +2929,7 @@ describe('ClinicPatients', ()  => {
               useFlags.mockReturnValue({ showRpmReport: true });
               store = mockStore(tier0100ClinicState);
 
-              render(
-                <MockedProviderWrappers>
-                  <ClinicPatients {...defaultProps} />
-                </MockedProviderWrappers>
-              );
+              render(<WrappedComponent />);
 
               expect(screen.queryByRole('button', { name: 'RPM Report' })).not.toBeInTheDocument();
             }, TEST_TIMEOUT_MS);
@@ -3203,11 +2947,7 @@ describe('ClinicPatients', ()  => {
                   },
                 }});
 
-              render(
-                <MockedProviderWrappers>
-                  <ClinicPatients {...defaultProps} />
-                </MockedProviderWrappers>
-              );
+              render(<WrappedComponent />);
 
               await userEvent.click(screen.getByRole('button', { name: 'RPM Report' }));
 
@@ -3237,11 +2977,7 @@ describe('ClinicPatients', ()  => {
                 },
               });
 
-              render(
-                <MockedProviderWrappers>
-                  <ClinicPatients {...defaultProps} />
-                </MockedProviderWrappers>
-              );
+              render(<WrappedComponent />);
 
               // We'll start by filtering the patient list, to make sure the filters are passed correctly to the RPM report api call
 
@@ -3360,11 +3096,7 @@ describe('ClinicPatients', ()  => {
 
               store = mockStore(initialStore);
 
-              const { rerender } = render(
-                <MockedProviderWrappers>
-                  <ClinicPatients {...defaultProps} />
-                </MockedProviderWrappers>
-              );
+              const { rerender } = render(<WrappedComponent />);
 
               store = mockStore({
                 blip: {
@@ -3376,11 +3108,7 @@ describe('ClinicPatients', ()  => {
                 },
               });
 
-              rerender(
-                <MockedProviderWrappers>
-                  <ClinicPatients {...defaultProps} />
-                </MockedProviderWrappers>
-              );
+              rerender(<WrappedComponent />);
 
               await waitFor(() => {
                 return expect(exportRpmReport).toHaveBeenCalledWith(initialStore.blip.rpmReportPatients)
@@ -3402,11 +3130,7 @@ describe('ClinicPatients', ()  => {
             it('should not show the TIDE Dashboard CTA, even if clinic tier >= tier0300', () => {
               mockLocalStorage({});
               store = mockStore(tier0300ClinicState);
-              render(
-                <MockedProviderWrappers>
-                  <ClinicPatients {...defaultProps} />
-                </MockedProviderWrappers>
-              );
+              render(<WrappedComponent />);
 
               expect(screen.queryByRole('button', { name: 'RPM Report' })).not.toBeInTheDocument();
             }, TEST_TIMEOUT_MS);
@@ -3418,11 +3142,7 @@ describe('ClinicPatients', ()  => {
             mockLocalStorage({});
             store = mockStore(nonAdminPatientsState);
 
-            render(
-              <MockedProviderWrappers>
-                <ClinicPatients {...defaultProps} />
-              </MockedProviderWrappers>
-            );
+            render(<WrappedComponent />);
 
             await userEvent.click(screen.getByTestId('action-menu-patient1-icon'));
 
