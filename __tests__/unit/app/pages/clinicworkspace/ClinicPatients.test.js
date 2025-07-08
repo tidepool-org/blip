@@ -9,12 +9,20 @@ import { MemoryRouter, Route, Switch } from 'react-router-dom';
 import thunk from 'redux-thunk';
 import merge from 'lodash/merge';
 import moment from 'moment';
-import api from '../../../../../app/core/api';
-import { URL_TIDEPOOL_PLUS_PLANS } from '../../../../../app/core/constants';
+import api from '@app/core/api';
+import { URL_TIDEPOOL_PLUS_PLANS } from '@app/core/constants';
+import mockRpmReportPatients from '@test/fixtures/mockRpmReportPatients.json';
 
 import { ToastProvider } from '@app/providers/ToastProvider';
 import { clinicUIDetails } from '@app/core/clinicUtils';
 import ClinicPatients from '@app/pages/clinicworkspace/ClinicPatients';
+import { exportRpmReport } from '@app/components/clinic/RpmReportConfigForm';
+
+jest.mock('@app/components/clinic/RpmReportConfigForm', () => ({
+  ...jest.requireActual('@app/components/clinic/RpmReportConfigForm'),
+  __esModule: true,
+  exportRpmReport: jest.fn(),
+}));
 
 import mockLocalStorage from '../../../../utils/mockLocalStorage';
 
@@ -344,6 +352,23 @@ describe('ClinicPatients', ()  => {
         clinicID123: {
           ...tier0300ClinicState.blip.clinics.clinicID123,
           preferredBgUnits: 'mmol/L',
+        },
+      },
+    },
+  };
+
+  const nonAdminPatientsState = {
+    blip: {
+      ...hasPatientsState.blip,
+      clinics: {
+        clinicID123: {
+          ...hasPatientsState.blip.clinics.clinicID123,
+          clinicians: {
+            clinicianUserId123: {
+              ...clinicianUserId123,
+              roles: ['CLINIC_MEMBER'],
+            },
+          },
         },
       },
     },
@@ -3197,7 +3222,9 @@ describe('ClinicPatients', ()  => {
             });
 
             it('should open a modal to configure the report, and generate when configured', async () => {
-              mockLocalStorage({ 'activePatientFilters/clinicianUserId123/clinicID123': JSON.stringify({ timeCGMUsePercent: '<0.7' }) });
+              mockLocalStorage({
+                'activePatientFilters/clinicianUserId123/clinicID123': JSON.stringify({ timeCGMUsePercent: '<0.7' })
+              });
               useFlags.mockReturnValue({ showRpmReport: true });
               store = mockStore({
                 blip: {
@@ -3218,6 +3245,7 @@ describe('ClinicPatients', ()  => {
               );
 
               // We'll start by filtering the patient list, to make sure the filters are passed correctly to the RPM report api call
+
               // Set CGM Use
               await userEvent.click(screen.getByTestId('cgm-use-filter-trigger'));
 
@@ -3304,6 +3332,105 @@ describe('ClinicPatients', ()  => {
                 })
               );
             }, TEST_TIMEOUT_MS);
+
+            it('should call `exportRpmReport` with fetched report data', async () => {
+              const initialStore = {
+                blip: {
+                  ...tier0300ClinicState.blip,
+                  working: {
+                    ...tier0300ClinicState.blip.working,
+                    fetchingRpmReportPatients: {
+                      ...defaultWorkingState,
+                      inProgress: true,
+                    },
+                  },
+                  rpmReportPatients: {
+                    ...mockRpmReportPatients,
+                    config: {
+                      ...mockRpmReportPatients.config,
+                      clinicId: 'clinicID123',
+                      rawConfig: {
+                        startDate: '2024-01-01',
+                        endDate: '2024-01-31',
+                        timezone: 'US/Eastern',
+                      },
+                    },
+                  },
+                },
+              };
+
+              store = mockStore(initialStore);
+
+              const { rerender } = render(
+                <MockedProviderWrappers>
+                  <ClinicPatients {...defaultProps} />
+                </MockedProviderWrappers>
+              );
+
+              store = mockStore({
+                blip: {
+                  ...initialStore.blip,
+                  working: {
+                    ...initialStore.blip.working,
+                    fetchingRpmReportPatients: completedState,
+                  },
+                },
+              });
+
+              rerender(
+                <MockedProviderWrappers>
+                  <ClinicPatients {...defaultProps} />
+                </MockedProviderWrappers>
+              );
+
+              await waitFor(() => {
+                return expect(exportRpmReport).toHaveBeenCalledWith(initialStore.blip.rpmReportPatients)
+              });
+            });
+          });
+
+          describe('showRpmReport flag is false', () => {
+            useFlags.mockReturnValue({
+              showRpmReport: false,
+            });
+
+            useLDClient.mockReturnValue({
+              getContext: jest.fn(() => ({
+                clinic: { tier: 'tier0300' },
+              })),
+            });
+
+            it('should not show the TIDE Dashboard CTA, even if clinic tier >= tier0300', () => {
+              mockLocalStorage({});
+              store = mockStore(tier0300ClinicState);
+              render(
+                <MockedProviderWrappers>
+                  <ClinicPatients {...defaultProps} />
+                </MockedProviderWrappers>
+              );
+
+              expect(screen.queryByRole('button', { name: 'RPM Report' })).not.toBeInTheDocument();
+            });
+          });
+        });
+
+        describe('non-admin clinician', () => {
+          it('should not render the remove button', async () => {
+            mockLocalStorage({});
+            store = mockStore(nonAdminPatientsState);
+
+            render(
+              <MockedProviderWrappers>
+                <ClinicPatients {...defaultProps} />
+              </MockedProviderWrappers>
+            );
+
+            await userEvent.click(screen.getByTestId('action-menu-patient1-icon'));
+
+            expect(screen.getByRole('button', { name: /Edit Patient Information/})).toBeInTheDocument();
+            expect(screen.getByRole('button', { name: /Bring Data into Tidepool/})).toBeInTheDocument();
+
+            expect(screen.queryByRole('button', { name: /Remove Patient/})).not.toBeInTheDocument();
           });
         });
       });
