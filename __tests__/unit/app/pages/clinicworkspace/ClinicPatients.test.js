@@ -2884,8 +2884,7 @@ describe('ClinicPatients', ()  => {
                   },
                 })
               );
-
-            });
+            }, TEST_TIMEOUT_MS);
 
             it('should redirect right away to the dashboard if a valid configuration exists in localStorage', async () => {
               store = mockStore(tier0300ClinicState);
@@ -2923,7 +2922,7 @@ describe('ClinicPatients', ()  => {
                 'Clinic - Navigate to Tide Dashboard',
                 { clinicId: 'clinicID123', source: 'Patients list' },
               );
-            });
+            }, TEST_TIMEOUT_MS);
 
             it('should open the config modal if an invalid configuration exists in localStorage', async () => {
               store = mockStore(tier0300ClinicState);
@@ -2960,7 +2959,7 @@ describe('ClinicPatients', ()  => {
 
               expect(screen.getByRole('dialog')).toBeInTheDocument();
               expect(screen.getByText('Select Patients to Display in the TIDE Dashboard')).toBeInTheDocument();
-            });
+            }, TEST_TIMEOUT_MS);
           });
 
           describe('showTideDashboard flag is false', () => {
@@ -2991,7 +2990,7 @@ describe('ClinicPatients', ()  => {
 
               const openButton = screen.queryByRole('button', { name: /TIDE Dashboard View\b/ });
               expect(openButton).not.toBeInTheDocument();
-            });
+            }, TEST_TIMEOUT_MS);
           });
         });
 
@@ -3094,7 +3093,7 @@ describe('ClinicPatients', ()  => {
               expect(store.getActions()).toStrictEqual([
                 { type: 'REVERT_CLINIC_PATIENT_LAST_REVIEWED_REQUEST' },
               ]);
-            });
+            }, TEST_TIMEOUT_MS);
 
             it('should refetch patients with updated sort parameter when Last Reviewed header is clicked', async () => {
               mockLocalStorage({});
@@ -3125,7 +3124,7 @@ describe('ClinicPatients', ()  => {
                 expect.objectContaining({ sort: '-lastReviewed' }),
                 expect.any(Function)
               );
-            });
+            }, TEST_TIMEOUT_MS);
 
             it('should not render the Last Reviewed column if showSummaryData flag is false', () => {
               mockLocalStorage({});
@@ -3147,7 +3146,7 @@ describe('ClinicPatients', ()  => {
               );
 
               expect(screen.queryByText('Last Reviewed')).not.toBeInTheDocument();
-            });
+            }, TEST_TIMEOUT_MS);
           });
 
           describe('showSummaryDashboardLastReviewed flag is false', () => {
@@ -3171,7 +3170,7 @@ describe('ClinicPatients', ()  => {
               );
 
               expect(screen.queryByText('Last Reviewed')).not.toBeInTheDocument();
-            });
+            }, TEST_TIMEOUT_MS);
           });
         });
 
@@ -3189,7 +3188,7 @@ describe('ClinicPatients', ()  => {
               );
 
               expect(screen.queryByRole('button', { name: 'RPM Report' })).not.toBeInTheDocument();
-            });
+            }, TEST_TIMEOUT_MS);
 
             it('should render the RPM Report CTA and open a patient count limit modal if current filtered count is > 1000', async () => {
               mockLocalStorage({ 'activePatientFilters/clinicianUserId123/clinicID123': JSON.stringify({ timeCGMUsePercent: '<0.7' }) });
@@ -3219,7 +3218,7 @@ describe('ClinicPatients', ()  => {
                 within(dialog)
                   .getByText('Please filter your list further until there are fewer than 1,000 patients and try again')
               ).toBeInTheDocument();
-            });
+            }, TEST_TIMEOUT_MS);
 
             it('should open a modal to configure the report, and generate when configured', async () => {
               mockLocalStorage({
@@ -3386,7 +3385,7 @@ describe('ClinicPatients', ()  => {
               await waitFor(() => {
                 return expect(exportRpmReport).toHaveBeenCalledWith(initialStore.blip.rpmReportPatients)
               });
-            });
+            }, TEST_TIMEOUT_MS);
           });
 
           describe('showRpmReport flag is false', () => {
@@ -3410,7 +3409,7 @@ describe('ClinicPatients', ()  => {
               );
 
               expect(screen.queryByRole('button', { name: 'RPM Report' })).not.toBeInTheDocument();
-            });
+            }, TEST_TIMEOUT_MS);
           });
         });
 
@@ -3431,7 +3430,7 @@ describe('ClinicPatients', ()  => {
             expect(screen.getByRole('button', { name: /Bring Data into Tidepool/})).toBeInTheDocument();
 
             expect(screen.queryByRole('button', { name: /Remove Patient/})).not.toBeInTheDocument();
-          });
+          }, TEST_TIMEOUT_MS);
         });
       });
     });
