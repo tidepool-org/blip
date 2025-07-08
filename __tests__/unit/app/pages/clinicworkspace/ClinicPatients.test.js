@@ -3149,6 +3149,163 @@ describe('ClinicPatients', ()  => {
             });
           });
         });
+
+        describe('Generating RPM report', () => {
+          describe('showRpmReport flag is true', () => {
+            it('should not render the RPM Report CTA if clinic tier < tier0300', () => {
+              mockLocalStorage({ 'activePatientFilters/clinicianUserId123/clinicID123': JSON.stringify({ timeCGMUsePercent: '<0.7' }) });
+              useFlags.mockReturnValue({ showRpmReport: true });
+              store = mockStore(tier0100ClinicState);
+
+              render(
+                <MockedProviderWrappers>
+                  <ClinicPatients {...defaultProps} />
+                </MockedProviderWrappers>
+              );
+
+              expect(screen.queryByRole('button', { name: 'RPM Report' })).not.toBeInTheDocument();
+            });
+
+            it('should render the RPM Report CTA and open a patient count limit modal if current filtered count is > 1000', async () => {
+              mockLocalStorage({ 'activePatientFilters/clinicianUserId123/clinicID123': JSON.stringify({ timeCGMUsePercent: '<0.7' }) });
+              useFlags.mockReturnValue({ showRpmReport: true });
+              store = mockStore({ blip: {
+                  ...tier0300ClinicState.blip,
+                  clinics: {
+                    clinicID123: {
+                      ...tier0300ClinicState.blip.clinics.clinicID123,
+                      fetchedPatientCount: '1001',
+                    },
+                  },
+                }});
+
+              render(
+                <MockedProviderWrappers>
+                  <ClinicPatients {...defaultProps} />
+                </MockedProviderWrappers>
+              );
+
+              await userEvent.click(screen.getByRole('button', { name: 'RPM Report' }));
+
+              // Dialog should open with patient limit message
+              const dialog = screen.getByRole('dialog');
+
+              expect(
+                within(dialog)
+                  .getByText('Please filter your list further until there are fewer than 1,000 patients and try again')
+              ).toBeInTheDocument();
+            });
+
+            it('should open a modal to configure the report, and generate when configured', async () => {
+              mockLocalStorage({ 'activePatientFilters/clinicianUserId123/clinicID123': JSON.stringify({ timeCGMUsePercent: '<0.7' }) });
+              useFlags.mockReturnValue({ showRpmReport: true });
+              store = mockStore({
+                blip: {
+                  ...tier0300ClinicState.blip,
+                  clinics: {
+                    clinicID123: {
+                      ...tier0300ClinicState.blip.clinics.clinicID123,
+                      fetchedPatientCount: '1000',
+                    },
+                  },
+                },
+              });
+
+              render(
+                <MockedProviderWrappers>
+                  <ClinicPatients {...defaultProps} />
+                </MockedProviderWrappers>
+              );
+
+              // We'll start by filtering the patient list, to make sure the filters are passed correctly to the RPM report api call
+              // Set CGM Use
+              await userEvent.click(screen.getByTestId('cgm-use-filter-trigger'));
+
+              await userEvent.click(screen.getByRole('radio', { name: 'Less than 70%' }));
+              await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+              // Set summary period
+              await userEvent.click(screen.getByTestId('summary-period-filter-trigger'));
+              await userEvent.click(screen.getByRole('radio', { name: '7 days' }));
+              await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
+
+              // Clicking RPM report button should open dashboard config popover since fetchedPatientCount <= 1000
+              await userEvent.click(screen.getByRole('button', { name: 'RPM Report' }));
+
+              expect(defaultProps.trackMetric).toHaveBeenCalledWith(
+                'Clinic - Show RPM Report config dialog',
+                { clinicId: 'clinicID123', source: 'Patients list' },
+              );
+
+              const dialog = screen.getByRole('dialog');
+
+              const startDateInput = within(dialog).getByPlaceholderText('Start Date');
+              expect(startDateInput.value).toStrictEqual(expect.any(String));
+              const endDateInput = within(dialog).getByPlaceholderText('End Date');
+              expect(endDateInput.value).toStrictEqual(expect.any(String));
+
+              // Should have the defualt dates set 30 days apart
+              expect(
+                moment(endDateInput.value, 'MMM D, YYYY')
+                .diff(moment(startDateInput.value, 'MMM D, YYYY'), 'days'))
+              .toBe(29); // Because date range is inclusive of the start and end date, 29 here is correct for a 30 day range
+
+              // Should have timezone field defaulted to the clinic timezone
+              const timezoneSelect = within(dialog).getByRole('combobox');
+              expect(timezoneSelect.value).toBe('US/Eastern');
+
+              const applyButton = within(dialog).getByRole('button', { name: 'Generate Report' });
+              expect(applyButton).toBeEnabled();
+
+              // Apply button disabled if timezone is unset
+              await userEvent.selectOptions(
+                timezoneSelect,
+                screen.getByRole('option', { name: 'Please select a timezone' }),
+              );
+
+              await waitFor(() => expect(applyButton).toBeDisabled());
+
+              // Choose a new timezone
+              await userEvent.selectOptions(
+                timezoneSelect,
+                screen.getByRole('option', { name: 'US/Pacific' }),
+              );
+
+              await waitFor(() => expect(applyButton).toBeEnabled());
+
+              // Submit the form
+              store.clearActions();
+              await userEvent.click(applyButton);
+
+              await waitFor(() => expect(defaultProps.api.clinics.getPatientsForRpmReport).toHaveBeenCalledWith(
+                'clinicID123',
+                {
+                  startDate: expect.any(String),
+                  endDate: expect.any(String),
+                  patientFilters: { period: '7d', 'cgm.timeCGMUsePercent': '<0.7' },
+                },
+                expect.any(Function),
+              ));
+
+              expect(store.getActions()).toStrictEqual([
+                { type: 'FETCH_RPM_REPORT_PATIENTS_REQUEST' },
+              ]);
+
+              expect(defaultProps.trackMetric).toHaveBeenCalledWith(
+                'Clinic - Show RPM Report config dialog confirmed',
+                { clinicId: 'clinicID123', source: 'Patients list' },
+              );
+
+              expect(window.localStorage.getItem('rpmReportConfig')).toStrictEqual(
+                JSON.stringify({
+                  'clinicianUserId123|clinicID123': {
+                    timezone: 'US/Pacific',
+                  },
+                })
+              );
+            }, TEST_TIMEOUT_MS);
+          });
+        });
       });
     });
   });

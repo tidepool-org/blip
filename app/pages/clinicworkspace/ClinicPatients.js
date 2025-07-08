@@ -2308,6 +2308,7 @@ export const ClinicPatients = (props) => {
                   <Button
                     variant="filter"
                     id="summary-period-filter-trigger"
+                    data-testid="summary-period-filter-trigger"
                     {...bindTrigger(summaryPeriodPopupFilterState)}
                     icon={KeyboardArrowDownRoundedIcon}
                     iconLabel="Filter by summary period duration"
