@@ -16,6 +16,7 @@ import DataConnections, {
   activeProviders,
   providers,
   getProviderHandlers,
+  getCurrentDataSourceForProvider,
   getConnectStateUI,
   getDataConnectionProps
 } from '../../../../app/components/datasources/DataConnections';
@@ -161,6 +162,61 @@ describe('getProviderHandlers', () => {
     const handlers = getProviderHandlers(patient, selectedClinicId, provider);
     expect(handlers.sendInvite.patientUpdates).to.eql({ dataSources: [ { providerName: 'otherProvider' }, { providerName: 'provider123', state: 'pending' } ]});
     expect(handlers.resendInvite.patientUpdates).to.eql({ dataSources: [ { providerName: 'otherProvider' }, { providerName: 'provider123', state: 'pending' } ]});
+  });
+});
+
+describe('getCurrentDataSourceForProvider', () => {
+  it('should return the connected data source if present', () => {
+    const patient = {
+      dataSources: [
+        { providerName: 'dexcom', state: 'pending' },
+        { providerName: 'dexcom', state: 'connected', createdTime: '2024-01-01T00:00:00Z' },
+      ],
+    };
+    const result = getCurrentDataSourceForProvider(patient, 'dexcom');
+    expect(result.state).to.equal('connected');
+  });
+
+  it('should return the error data source if present and no connected', () => {
+    const patient = {
+      dataSources: [
+        { providerName: 'dexcom', state: 'pending' },
+        { providerName: 'dexcom', state: 'error', createdTime: '2024-01-01T00:00:00Z' },
+      ],
+    };
+    const result = getCurrentDataSourceForProvider(patient, 'dexcom');
+    expect(result.state).to.equal('error');
+  });
+
+  it('should return the disconnected data source with the most recent lastImportTime if no connected or error', () => {
+    const patient = {
+      dataSources: [
+        { providerName: 'dexcom', state: 'disconnected', lastImportTime: '2024-01-01T00:00:00Z' },
+        { providerName: 'dexcom', state: 'disconnected', lastImportTime: '2024-02-01T00:00:00Z' },
+      ],
+    };
+    const result = getCurrentDataSourceForProvider(patient, 'dexcom');
+    expect(result.lastImportTime).to.equal('2024-02-01T00:00:00Z');
+  });
+
+  it('should return undefined if no matching data source', () => {
+    const patient = {
+      dataSources: [
+        { providerName: 'abbott', state: 'connected' },
+      ],
+    };
+    const result = getCurrentDataSourceForProvider(patient, 'dexcom');
+    expect(result).to.be.undefined;
+  });
+
+  it('should return undefined if no disconnected data source with lastImportTime', () => {
+    const patient = {
+      dataSources: [
+        { providerName: 'dexcom', state: 'disconnected' },
+      ],
+    };
+    const result = getCurrentDataSourceForProvider(patient, 'dexcom');
+    expect(result).to.be.undefined;
   });
 });
 

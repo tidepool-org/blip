@@ -5,6 +5,7 @@ import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
 import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
 import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
 import moment from 'moment-timezone';
+import filter from 'lodash/filter';
 import find from 'lodash/find';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
@@ -158,8 +159,25 @@ export function getProviderHandlers(patient, selectedClinicId, provider) {
   }
 };
 
-export const getCurrentDataSourceForProvider = (patient, providerName) =>
-  find(orderBy(patient?.dataSources, 'modifiedTime', 'desc'), { providerName: providerName });
+export const getCurrentDataSourceForProvider = (patient, providerName) => {
+  const dataSources = filter(patient?.dataSources, { providerName }) || [];
+
+  // First, look for connected or error states
+  const connectedOrErrorDataSource = find(dataSources, ds => ds.state === 'connected' || ds.state === 'error');
+
+  if (connectedOrErrorDataSource) {
+    return connectedOrErrorDataSource;
+  }
+
+  // If no connected or error state, find the disconnected data source with the most recent lastImportTime
+  const disconnectedDataSources = filter(dataSources, ds => ds.state === 'disconnected' && !!ds.lastImportTime);
+
+  if (disconnectedDataSources.length === 0) {
+    return undefined;
+  }
+
+  return orderBy(disconnectedDataSources, ['lastImportTime'], ['desc'])[0];
+};
 
 export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
   const dataSource = getCurrentDataSourceForProvider(patient, providerName);
