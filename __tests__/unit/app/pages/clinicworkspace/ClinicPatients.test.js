@@ -506,33 +506,29 @@ describe('ClinicPatients', ()  => {
   });
 
   describe('patients hidden', () => {
-    beforeEach(() => {
-      const initialState = {
+    it('should render a button that toggles patients to be visible', async () => {
+      store = mockStore({
         blip: {
           ...hasPatientsState.blip,
           patientListFilters: { isPatientListVisible: false, patientListSearchTextInput: '' },
         },
-      };
+      });
 
-      store = mockStore(initialState);
-    });
-
-    it('should render a button that toggles patients to be visible', async () => {
       render(<WrappedComponent />);
 
       store.clearActions();
 
       await userEvent.click(screen.getByText(/Show All/));
-      expect(store.getActions()).toStrictEqual([{ type: 'SET_IS_PATIENT_LIST_VISIBLE', payload: { isVisible: true } }])
+
+      expect(store.getActions()).toStrictEqual([
+        { type: 'SET_IS_PATIENT_LIST_VISIBLE', payload: { isVisible: true } },
+      ]);
     }, TEST_TIMEOUT_MS);
   });
 
   describe('no patients', () => {
-    beforeEach(() => {
-      store = mockStore(noPatientsState);
-    });
-
     it('should render an empty table', () => {
+      store = mockStore(noPatientsState);
       render(<WrappedComponent />);
 
       expect(screen.getByText('There are no results to show')).toBeInTheDocument();
@@ -769,7 +765,6 @@ describe('ClinicPatients', ()  => {
         });
 
         store = mockStore(noPatientsButWithFiltersState);
-
         render(<WrappedComponent />);
 
         // Header should be visible. Should indicate there are no results
@@ -801,7 +796,6 @@ describe('ClinicPatients', ()  => {
     describe('when Clear Search button is clicked', () => {
       it('should clear the search input text in Redux', async () => {
         store = mockStore(noPatientsButWithFiltersState);
-
         render(<WrappedComponent />);
 
         // Header should be visible. Should indicate there are no results
@@ -3141,7 +3135,6 @@ describe('ClinicPatients', ()  => {
           it('should not render the remove button', async () => {
             mockLocalStorage({});
             store = mockStore(nonAdminPatientsState);
-
             render(<WrappedComponent />);
 
             await userEvent.click(screen.getByTestId('action-menu-patient1-icon'));
