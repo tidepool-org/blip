@@ -38,7 +38,7 @@ describe('SelectTags', ()  => {
 
   it('Should fire the onChange handler with all of the selected tags', async () => {
     mockLocalStorage({
-      'activePatientFilters/abcd-1234/4b68d': JSON.stringify({
+      'activePatientFilters/abcd-1234/4b68d': {
         timeCGMUsePercent: null,
         lastData: null,
         lastDataType: null,
@@ -46,7 +46,7 @@ describe('SelectTags', ()  => {
         meetsGlycemicTargets: true,
         patientTags: ['id-for-alpha', 'id-for-charlie'],
         sites: [],
-      }),
+      },
     });
 
     const testProps = {
