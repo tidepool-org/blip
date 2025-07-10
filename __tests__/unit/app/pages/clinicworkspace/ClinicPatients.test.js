@@ -120,7 +120,7 @@ describe('ClinicPatients', ()  => {
               email: 'patient1@test.ca',
               fullName: 'Patient One',
               birthDate: '1999-01-01' ,
-              permissions: { view : {} }
+              permissions: { view : {} },
             },
             patient2: {
               id: 'patient2',
@@ -128,7 +128,7 @@ describe('ClinicPatients', ()  => {
               fullName: 'Patient Two',
               birthDate: '1999-02-02',
               mrn: 'MRN123',
-              permissions: { custodian : {} }
+              permissions: { custodian : {} },
             },
           },
         },
@@ -1296,7 +1296,7 @@ describe('ClinicPatients', ()  => {
 
           await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalled());
 
-          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - Patient details sort ascending', { clinicId: 'clinicID123' })
+          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - Patient details sort ascending', { clinicId: 'clinicID123' });
           expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
             'clinicID123',
             expect.objectContaining({ sort: '+fullName' }),
@@ -1310,7 +1310,7 @@ describe('ClinicPatients', ()  => {
 
           await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalled());
 
-          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - Patient details sort descending', { clinicId: 'clinicID123' })
+          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - Patient details sort descending', { clinicId: 'clinicID123' });
           expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
             'clinicID123',
             expect.objectContaining({ sort: '-fullName' }),
@@ -1325,7 +1325,7 @@ describe('ClinicPatients', ()  => {
 
           await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalled());
 
-          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - Data recency sort descending', { clinicId: 'clinicID123' })
+          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - Data recency sort descending', { clinicId: 'clinicID123' });
           expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
             'clinicID123',
             expect.objectContaining({ sort: '-lastData' }),
@@ -1339,7 +1339,7 @@ describe('ClinicPatients', ()  => {
 
           await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalled());
 
-          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - Data recency sort ascending', { clinicId: 'clinicID123' })
+          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - Data recency sort ascending', { clinicId: 'clinicID123' });
           expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
             'clinicID123',
             expect.objectContaining({ sort: '+lastData' }),
@@ -1354,7 +1354,7 @@ describe('ClinicPatients', ()  => {
 
           await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalled());
 
-          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - GMI sort descending', { clinicId: 'clinicID123' })
+          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - GMI sort descending', { clinicId: 'clinicID123' });
           expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
             'clinicID123',
             expect.objectContaining({ sort: '-glucoseManagementIndicator' }),
@@ -1368,7 +1368,7 @@ describe('ClinicPatients', ()  => {
 
           await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalled());
 
-          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - GMI sort ascending', { clinicId: 'clinicID123' })
+          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - GMI sort ascending', { clinicId: 'clinicID123' });
           expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
             'clinicID123',
             expect.objectContaining({ sort: '+glucoseManagementIndicator' }),
@@ -1383,7 +1383,7 @@ describe('ClinicPatients', ()  => {
 
           await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalled());
 
-          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - Average glucose sort descending', { clinicId: 'clinicID123' })
+          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - Average glucose sort descending', { clinicId: 'clinicID123' });
           expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
             'clinicID123',
             expect.objectContaining({ sort: '-averageGlucoseMmol' }),
@@ -1397,7 +1397,7 @@ describe('ClinicPatients', ()  => {
 
           await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalled());
 
-          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - Average glucose sort ascending', { clinicId: 'clinicID123' })
+          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - Average glucose sort ascending', { clinicId: 'clinicID123' });
           expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
             'clinicID123',
             expect.objectContaining({ sort: '+averageGlucoseMmol' }),
@@ -1412,7 +1412,7 @@ describe('ClinicPatients', ()  => {
 
           await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalled());
 
-          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - Time in very low sort descending', { clinicId: 'clinicID123' })
+          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - Time in very low sort descending', { clinicId: 'clinicID123' });
           expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
             'clinicID123',
             expect.objectContaining({ sort: '-timeInVeryLowRecords' }),
@@ -1426,7 +1426,7 @@ describe('ClinicPatients', ()  => {
 
           await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalled());
 
-          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - Time in very low sort ascending', { clinicId: 'clinicID123' })
+          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - Time in very low sort ascending', { clinicId: 'clinicID123' });
           expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
             'clinicID123',
             expect.objectContaining({ sort: '+timeInVeryLowRecords' }),
@@ -1441,7 +1441,7 @@ describe('ClinicPatients', ()  => {
 
           await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalled());
 
-          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - Time in very high sort descending', { clinicId: 'clinicID123' })
+          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - Time in very high sort descending', { clinicId: 'clinicID123' });
           expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
             'clinicID123',
             expect.objectContaining({ sort: '-timeInVeryHighRecords' }),
@@ -1455,7 +1455,7 @@ describe('ClinicPatients', ()  => {
 
           await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalled());
 
-          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - Time in very high sort ascending', { clinicId: 'clinicID123' })
+          expect(defaultProps.trackMetric).toHaveBeenCalledWith('Clinic - Population Health - Time in very high sort ascending', { clinicId: 'clinicID123' });
           expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
             'clinicID123',
             expect.objectContaining({ sort: '+timeInVeryHighRecords' }),
@@ -2708,7 +2708,7 @@ describe('ClinicPatients', ()  => {
               store.clearActions();
 
               expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-              expect(screen.queryByText('Select Patients to Display in the TIDE Dashboard')).not.toBeInTheDocument()
+              expect(screen.queryByText('Select Patients to Display in the TIDE Dashboard')).not.toBeInTheDocument();
 
               // Click the dashboard button. Dialog should open.
               const openButton = screen.getByRole('button', { name: /TIDE Dashboard View\b/ });
@@ -3105,7 +3105,7 @@ describe('ClinicPatients', ()  => {
               rerender(<WrappedComponent />);
 
               await waitFor(() => {
-                return expect(exportRpmReport).toHaveBeenCalledWith(initialStore.blip.rpmReportPatients)
+                return expect(exportRpmReport).toHaveBeenCalledWith(initialStore.blip.rpmReportPatients);
               });
             }, TEST_TIMEOUT_MS);
           });
