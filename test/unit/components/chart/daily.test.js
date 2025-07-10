@@ -72,7 +72,6 @@ describe('Daily', () => {
     onSwitchToSettings: () => {},
     onSwitchToBgLog: () => {},
     onSwitchToTrends: () => {},
-    trackMetric: () => {},
     onUpdateChartDateRange: sinon.stub(),
     patient: {
       profile: {
@@ -307,6 +306,112 @@ describe('Daily', () => {
       sinon.assert.calledWith(baseProps.updateChartPrefs, {
         daily: { cgmSampleIntervalRange: DEFAULT_CGM_SAMPLE_INTERVAL_RANGE },
       });
+    });
+  });
+
+  describe('handleAlarmHover', () => {
+    it('should set hoveredAlarm state with correct positioning', () => {
+      const alarm = {
+        rect: {
+          top: 100,
+          left: 200,
+          width: 20,
+          height: 30,
+        },
+        chartExtents: {
+          left: 50,
+          right: 400,
+        },
+        data: { type: 'alarm' },
+      };
+
+      instance.handleAlarmHover(alarm);
+
+      expect(instance.state.hoveredAlarm).to.deep.equal({
+        ...alarm,
+        top: 130, // rect.top + rect.height
+        left: 210, // rect.left + (rect.width / 2)
+        side: 'bottom',
+      });
+    });
+
+    it('should adjust leftOffset when tooltip would spill over left edge', () => {
+      const alarm = {
+        rect: {
+          top: 100,
+          left: 60, // Close to left edge
+          width: 20,
+          height: 30,
+        },
+        chartExtents: {
+          left: 50,
+          right: 400,
+        },
+        data: { type: 'alarm' },
+      };
+
+      instance.handleAlarmHover(alarm);
+
+      const hoveredAlarm = instance.state.hoveredAlarm;
+      expect(hoveredAlarm.leftOffset).to.equal(35);
+    });
+
+    it('should adjust leftOffset when tooltip would spill over right edge', () => {
+      const alarm = {
+        rect: {
+          top: 100,
+          left: 390, // Close to right edge
+          width: 20,
+          height: 30,
+        },
+        chartExtents: {
+          left: 50,
+          right: 400,
+        },
+        data: { type: 'alarm' },
+      };
+
+      instance.handleAlarmHover(alarm);
+
+      const hoveredAlarm = instance.state.hoveredAlarm;
+      expect(hoveredAlarm.leftOffset).to.equal(-35);
+    });
+
+    it('should track metric when hovering over alarm', () => {
+      const alarm = {
+        rect: {
+          top: 100,
+          left: 200,
+          width: 20,
+          height: 30,
+        },
+        chartExtents: {
+          left: 50,
+          right: 400,
+        },
+        data: { type: 'alarm' },
+      };
+
+      instance.handleAlarmHover(alarm);
+
+      expect(baseProps.trackMetric.calledWith('hovered over daily alarm tooltip')).to.be.true;
+    });
+  });
+
+  describe('handleAlarmOut', () => {
+    it('should set hoveredAlarm state to false', () => {
+      // First set a hoveredAlarm
+      instance.setState({
+        hoveredAlarm: {
+          data: { type: 'alarm' },
+          top: 100,
+          left: 200,
+        },
+      });
+
+      instance.handleAlarmOut();
+
+      expect(instance.state.hoveredAlarm).to.be.false;
     });
   });
 });
