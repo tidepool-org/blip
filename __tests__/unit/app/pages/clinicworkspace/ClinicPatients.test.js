@@ -756,12 +756,12 @@ describe('ClinicPatients', ()  => {
     describe('when Reset Filters button is clicked', () => {
       it('should show the No Results text and reset filters', async () => {
         mockLocalStorage({
-          'activePatientFilters/clinicianUserId123/clinicID123': JSON.stringify({
+          'activePatientFilters/clinicianUserId123/clinicID123': {
             timeInRange: ['timeInLowPercent'],
             patientTags: [],
             clinicSites: [],
             meetsGlycemicTargets: false,
-          }),
+          },
         });
 
         store = mockStore(noPatientsButWithFiltersState);
@@ -780,7 +780,7 @@ describe('ClinicPatients', ()  => {
 
         expect(window.localStorage.setItem).toHaveBeenCalledWith(
           'activePatientFilters/clinicianUserId123/clinicID123',
-           JSON.stringify({
+          JSON.stringify({
             timeCGMUsePercent: null,
             lastData: null,
             lastDataType: null,
@@ -1622,11 +1622,11 @@ describe('ClinicPatients', ()  => {
         describe('summary period filtering', () => {
           it('should allow filtering by summary period', async () => {
             mockLocalStorage({
-              'activePatientFilters/clinicianUserId123/clinicID123': JSON.stringify({
+              'activePatientFilters/clinicianUserId123/clinicID123': {
                 timeInRange: ['timeInAnyLowPercent', 'timeInAnyHighPercent'],
                 patientTags: [],
                 meetsGlycemicTargets: false,
-              }),
+              },
               activePatientSummaryPeriod: '14d',
             });
 
@@ -1674,11 +1674,11 @@ describe('ClinicPatients', ()  => {
 
         it('should not show the GMI if selected period is less than 14 days', async () => {
           mockLocalStorage({
-            'activePatientFilters/clinicianUserId123/clinicID123': JSON.stringify({
+            'activePatientFilters/clinicianUserId123/clinicID123': {
               timeInRange: ['timeInAnyLowPercent', 'timeInAnyHighPercent'],
               patientTags: [],
               meetsGlycemicTargets: false,
-            }),
+            },
             activePatientSummaryPeriod: '14d',
           });
 
@@ -1717,12 +1717,12 @@ describe('ClinicPatients', ()  => {
         describe('persisted filter state', () => {
           it('should set the last upload filter on load based on the stored filters', async () => {
             mockLocalStorage({
-              'activePatientFilters/clinicianUserId123/clinicID123': JSON.stringify({
+              'activePatientFilters/clinicianUserId123/clinicID123': {
                 lastData: 14,
                 timeInRange: ['timeInAnyLowPercent', 'timeInAnyHighPercent'],
                 patientTags: ['tag2'],
                 meetsGlycemicTargets: true,
-              }),
+              },
               activePatientSummaryPeriod: '14d',
             });
 
@@ -1745,12 +1745,12 @@ describe('ClinicPatients', ()  => {
 
           it('should set the time in range filters on load based on the stored filters', async () => {
             mockLocalStorage({
-              'activePatientFilters/clinicianUserId123/clinicID123': JSON.stringify({
+              'activePatientFilters/clinicianUserId123/clinicID123': {
                 lastData: 14,
                 timeInRange: ['timeInAnyLowPercent', 'timeInAnyHighPercent'],
                 patientTags: ['tag2'],
                 meetsGlycemicTargets: true,
-              }),
+              },
               activePatientSummaryPeriod: '14d',
             });
 
@@ -1776,12 +1776,12 @@ describe('ClinicPatients', ()  => {
 
           it('should fetch the initial patient based on the stored filters', async () => {
             mockLocalStorage({
-              'activePatientFilters/clinicianUserId123/clinicID123': JSON.stringify({
+              'activePatientFilters/clinicianUserId123/clinicID123': {
                 lastData: 14,
                 timeInRange: ['timeInAnyLowPercent', 'timeInAnyHighPercent'],
                 patientTags: ['tag2'],
                 meetsGlycemicTargets: true,
-              }),
+              },
               activePatientSummaryPeriod: '14d',
             });
 
@@ -1805,13 +1805,13 @@ describe('ClinicPatients', ()  => {
           it('uses sort params from localStorage to set the table sort UI and to fetch the initial patient list', async () => {
             store = mockStore(tier0300ClinicState);
             mockLocalStorage({
-              'activePatientFilters/clinicianUserId123/clinicID123': JSON.stringify({
+              'activePatientFilters/clinicianUserId123/clinicID123': {
                 timeInRange: ['timeInAnyLowPercent', 'timeInAnyHighPercent'],
                 patientTags: [],
                 meetsGlycemicTargets: false,
-              }),
+              },
               activePatientSummaryPeriod: '14d',
-              activePatientSort: JSON.stringify({ sort: '-averageGlucoseMmol', sortType: 'bgm' }),
+              activePatientSort: { sort: '-averageGlucoseMmol', sortType: 'bgm' },
             });
 
             render(<WrappedComponent />);
@@ -2659,13 +2659,13 @@ describe('ClinicPatients', ()  => {
             it('should redirect right away to the dashboard if a valid configuration exists in localStorage', async () => {
               store = mockStore(tier0300ClinicState);
               mockLocalStorage({
-                tideDashboardConfig: JSON.stringify({
+                tideDashboardConfig: {
                   'clinicianUserId123|clinicID123': {
                     period: '30d',
                     lastData: 14,
                     tags: ['tag1', 'tag3'],
                   },
-                }),
+                },
               });
 
               render(<WrappedComponent />);
@@ -2693,13 +2693,13 @@ describe('ClinicPatients', ()  => {
             it('should open the config modal if an invalid configuration exists in localStorage', async () => {
               store = mockStore(tier0300ClinicState);
               mockLocalStorage({
-                tideDashboardConfig: JSON.stringify({
+                tideDashboardConfig: {
                   'clinicianUserId123|clinicID123': {
                     period: '30d',
                     lastData: 14,
                     tags: [], // invalid: no tags selected
                   },
-                }),
+                },
               });
 
               render(<WrappedComponent />);
@@ -2919,7 +2919,7 @@ describe('ClinicPatients', ()  => {
         describe('Generating RPM report', () => {
           describe('showRpmReport flag is true', () => {
             it('should not render the RPM Report CTA if clinic tier < tier0300', () => {
-              mockLocalStorage({ 'activePatientFilters/clinicianUserId123/clinicID123': JSON.stringify({ timeCGMUsePercent: '<0.7' }) });
+              mockLocalStorage({ 'activePatientFilters/clinicianUserId123/clinicID123': { timeCGMUsePercent: '<0.7' } });
               useFlags.mockReturnValue({ showRpmReport: true });
               store = mockStore(tier0100ClinicState);
 
@@ -2929,7 +2929,7 @@ describe('ClinicPatients', ()  => {
             }, TEST_TIMEOUT_MS);
 
             it('should render the RPM Report CTA and open a patient count limit modal if current filtered count is > 1000', async () => {
-              mockLocalStorage({ 'activePatientFilters/clinicianUserId123/clinicID123': JSON.stringify({ timeCGMUsePercent: '<0.7' }) });
+              mockLocalStorage({ 'activePatientFilters/clinicianUserId123/clinicID123': { timeCGMUsePercent: '<0.7' } });
               useFlags.mockReturnValue({ showRpmReport: true });
               store = mockStore({ blip: {
                   ...tier0300ClinicState.blip,
@@ -2956,7 +2956,7 @@ describe('ClinicPatients', ()  => {
 
             it('should open a modal to configure the report, and generate when configured', async () => {
               mockLocalStorage({
-                'activePatientFilters/clinicianUserId123/clinicID123': JSON.stringify({ timeCGMUsePercent: '<0.7' })
+                'activePatientFilters/clinicianUserId123/clinicID123': { timeCGMUsePercent: '<0.7' },
               });
               useFlags.mockReturnValue({ showRpmReport: true });
               store = mockStore({
