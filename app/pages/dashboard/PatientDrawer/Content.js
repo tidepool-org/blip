@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { Flex, Box, Text } from 'theme-ui';
 import colorPalette from '../../../themes/colorPalette';
+import { colors as vizColors } from '@tidepool/viz';
 import styled from '@emotion/styled';
 
 import { components as vizComponents } from '@tidepool/viz';
@@ -19,7 +20,7 @@ const StyledAGPImage = styled.img`
 
 const InsufficientData = () => {
   const { t } = useTranslation();
-  
+
   return (
     <Flex sx={{ justifyContent: 'center', marginTop: '400px' }}>
       <Text>{t('Insufficient data to generate AGP Report.')}</Text>
@@ -39,9 +40,9 @@ const NoPatientData = ({ patientName }) => {
 
 const CategoryContainer = ({ title, subtitle, children }) => {
   return (
-    <Box sx={{ border: `2px solid ${colorPalette.extended.grays[1]}`, borderRadius: '12px', overflow: 'hidden' }}>
+    <Box sx={{ border: `2px solid ${vizColors.gray10}`, borderRadius: '12px', overflow: 'hidden' }}>
       { title && (
-        <Box sx={{ backgroundColor: colorPalette.extended.grays[1], padding: '6px 12px' }}>
+        <Box sx={{ backgroundColor: vizColors.gray10, padding: '6px 12px' }}>
           <Text sx={{ fontWeight: 'bold', fontSize: 1 }}>{title}</Text>
           {subtitle && <Text ml={4} sx={{ fontSize: 0 }}>{subtitle}</Text>}
         </Box>
@@ -53,7 +54,7 @@ const CategoryContainer = ({ title, subtitle, children }) => {
 
 const Content = ({ api, patientId, agpPeriodInDays }) => {
   const { t } = useTranslation();
-  
+
   const { status, svgDataURLS, agpCGM } = useAgpCGM(api, patientId, agpPeriodInDays);
 
   const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
@@ -100,7 +101,7 @@ const Content = ({ api, patientId, agpPeriodInDays }) => {
         </CategoryContainer>
       </Box>
 
-      <Flex mt={3} sx={{ color: colorPalette.extended.grays[10], fontSize: 0, justifyContent: 'space-between' }}>
+      <Flex mt={3} sx={{ color: 'grays.10', fontSize: 0, justifyContent: 'space-between' }}>
         <Text>{t('Patent pending – HealthPartners Institute dba International Diabetes Center – All Rights Reserved. ©2022')}</Text>
         <Text>{`${t('Tidepool')} | ${t('CapturAGP v5.0')}`}</Text>
       </Flex>

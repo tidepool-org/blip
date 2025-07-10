@@ -313,7 +313,7 @@ describe('AccessManagement', () => {
       const table = wrapper.find(Table)
 
       const accountRow = table.find('tr').at(2);
-      expect(accountRow.text()).contains('Fooey McBear').and.contains('member').and.contains('sharing');
+      expect(accountRow.text()).contains('Fooey McBear').and.contains('member').and.contains('Sharing');
 
       const popoverMenu = accountRow.find('PopoverMenu');
       expect(popoverMenu).to.have.length(1);
@@ -365,7 +365,7 @@ describe('AccessManagement', () => {
       const table = wrapper.find(Table)
 
       const accountRow = table.find('tr').at(5);
-      expect(accountRow.text()).contains('pendingpatient@example.com').and.contains('invite sent').and.contains('member');
+      expect(accountRow.text()).contains('pendingpatient@example.com').and.contains('Invite sent').and.contains('member');
 
       const popoverMenu = accountRow.find('PopoverMenu');
       expect(popoverMenu).to.have.length(1);
@@ -424,7 +424,7 @@ describe('AccessManagement', () => {
       const table = wrapper.find(Table)
 
       const accountRow = table.find('tr').at(6);
-      expect(accountRow.text()).contains('yetanotherpatient@example.com').and.contains('invite declined').and.contains('member');
+      expect(accountRow.text()).contains('yetanotherpatient@example.com').and.contains('Invite declined').and.contains('member');
 
       const popoverMenu = accountRow.find('PopoverMenu');
       expect(popoverMenu).to.have.length(1);
@@ -516,7 +516,7 @@ describe('AccessManagement', () => {
       const table = wrapper.find(Table)
 
       const accountRow = table.find('tr').at(4);
-      expect(accountRow.text()).contains('other_clinic_name').and.contains('invite sent').and.contains('clinic');
+      expect(accountRow.text()).contains('other_clinic_name').and.contains('Invite sent').and.contains('clinic');
 
       const popoverMenu = accountRow.find('PopoverMenu');
       expect(popoverMenu).to.have.length(1);
