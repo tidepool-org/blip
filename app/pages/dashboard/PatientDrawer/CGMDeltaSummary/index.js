@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import _ from 'lodash';
 import { useTranslation } from 'react-i18next';
 import { Flex, Box } from 'theme-ui';
@@ -45,6 +45,8 @@ const Previous = styled(Box)`
 `;
 
 const getRenderedValues = (agpCGM, offsetAgpCGM, t) => {
+  if (!agpCGM || !offsetAgpCGM) return {};
+
   const {
     timePrefs,
     data: {
@@ -148,6 +150,8 @@ const InsufficientData = () => {
 const CGMDeltaSummary = ({ agpCGM, offsetAgpCGM }) => {
   const { t } = useTranslation();
 
+  const values = useMemo(() => getRenderedValues(agpCGM, offsetAgpCGM, t), [agpCGM, offsetAgpCGM, t]);
+
   if (!agpCGM) return null;
 
   if (!offsetAgpCGM) return <InsufficientData />;
@@ -157,8 +161,6 @@ const CGMDeltaSummary = ({ agpCGM, offsetAgpCGM }) => {
   const isDataInsufficient = !hoursOfCGMData || hoursOfCGMData < 24;
 
   if (isDataInsufficient) return <InsufficientData />;
-
-  const values = getRenderedValues(agpCGM, offsetAgpCGM, t);
 
   return (
     <>
@@ -171,33 +173,33 @@ const CGMDeltaSummary = ({ agpCGM, offsetAgpCGM }) => {
       <Flex sx={{ justifyContent:'space-between', background: vizColors.blue00, padding: 3, borderRadius: '8px' }}>
         <Category data-testid="cgm-delta-summary-very-low">
           <Label>{t('Time in Very Low')}</Label>
-          <Delta>{values.timeInVeryLowPercentDeltaCopy}</Delta>
-          <Previous>{t('Was {{ value }}%', { value: values.offsetTimeInVeryLowPercent })}</Previous>
+          <Delta>{values?.timeInVeryLowPercentDeltaCopy}</Delta>
+          <Previous>{t('Was {{ value }}%', { value: values?.offsetTimeInVeryLowPercent })}</Previous>
         </Category>
         <Category data-testid="cgm-delta-summary-low">
           <Label>{t('Time in Low')}</Label>
-          <Delta>{values.timeInLowPercentDeltaCopy}</Delta>
-          <Previous>{t('Was {{ value }}%', { value: values.offsetTimeInLowPercent })}</Previous>
+          <Delta>{values?.timeInLowPercentDeltaCopy}</Delta>
+          <Previous>{t('Was {{ value }}%', { value: values?.offsetTimeInLowPercent })}</Previous>
         </Category>
         <Category data-testid="cgm-delta-summary-target">
           <Label>{t('Time in Target')}</Label>
-          <Delta>{values.timeInTargetPercentDeltaCopy}</Delta>
-          <Previous>{t('Was {{ value }}%', { value: values.offsetTimeInTargetPercent })}</Previous>
+          <Delta>{values?.timeInTargetPercentDeltaCopy}</Delta>
+          <Previous>{t('Was {{ value }}%', { value: values?.offsetTimeInTargetPercent })}</Previous>
         </Category>
         <Category data-testid="cgm-delta-summary-high">
           <Label>{t('Time in High')}</Label>
-          <Delta>{values.timeInHighPercentDeltaCopy}</Delta>
-          <Previous>{t('Was {{ value }}%', { value: values.offsetTimeInHighPercent })}</Previous>
+          <Delta>{values?.timeInHighPercentDeltaCopy}</Delta>
+          <Previous>{t('Was {{ value }}%', { value: values?.offsetTimeInHighPercent })}</Previous>
         </Category>
         <Category data-testid="cgm-delta-summary-very-high">
           <Label>{t('Time in Very High')}</Label>
-          <Delta>{values.timeInVeryHighPercentDeltaCopy}</Delta>
-          <Previous>{t('Was {{ value }}%', { value: values.offsetTimeInVeryHighPercent })}</Previous>
+          <Delta>{values?.timeInVeryHighPercentDeltaCopy}</Delta>
+          <Previous>{t('Was {{ value }}%', { value: values?.offsetTimeInVeryHighPercent })}</Previous>
         </Category>
         <Category data-testid="cgm-delta-summary-cgm-active">
           <Label>{t('Time CGM Active')}</Label>
-          <Delta>{values.sensorUsageAGPDeltaCopy}</Delta>
-          <Previous>{t('Was {{ value }}%', { value: values.offsetSensorUsageAGP })}</Previous>
+          <Delta>{values?.sensorUsageAGPDeltaCopy}</Delta>
+          <Previous>{t('Was {{ value }}%', { value: values?.offsetSensorUsageAGP })}</Previous>
         </Category>
       </Flex>
     </>
