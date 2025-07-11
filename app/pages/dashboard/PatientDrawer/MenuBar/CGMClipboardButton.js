@@ -27,9 +27,7 @@ const CGMClipboardButton = ({ patient, data }) => {
   }, [buttonState]);
 
   const { count, sampleInterval } = data?.data?.current?.stats?.sensorUsage || {};
-
   const hoursOfCGMData = (count * sampleInterval) / MS_IN_HOUR;
-
   const isDataInsufficient = !hoursOfCGMData || hoursOfCGMData < 24;
 
   const handleCopy = () => {
