@@ -622,6 +622,7 @@ describe('DataConnections', () => {
         DataConnections.__Rewire__('useJustInvitedProviders', sinon.stub().returns({
           justInvitedProviders: { dexcom: true, twiist: true },
           handleProviderInviteSent: sinon.stub(),
+          isInvitatationHandler: sinon.stub(),
         }));
       });
 

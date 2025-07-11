@@ -174,7 +174,7 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName, justInv
   let inviteJustSent;
 
   if (mostRecentConnectionUpdateTime) {
-    const { daysAgo, daysText, hoursAgo, hoursText, minutesAgo, minutesText } = formatTimeAgo(mostRecentConnectionUpdateTime);
+    const { daysAgo, daysText, hoursAgo, hoursText, minutesText } = formatTimeAgo(mostRecentConnectionUpdateTime);
     timeAgo = daysText;
     if (daysAgo < 1)  timeAgo = hoursAgo < 1 ? minutesText : hoursText;
     if (justInvitedProviders[providerName]) inviteJustSent = true;
@@ -356,9 +356,12 @@ export const useJustInvitedProviders = () => {
     setJustInvitedProviders(prev => ({...prev, [providerName]: true }));
   };
 
+  const isInvitationHandler = (handler) => ['sendInvite', 'resendInvite'].includes(handler);
+
   return {
     justInvitedProviders,
     handleProviderInviteSent,
+    isInvitationHandler,
   };
 };
 
@@ -382,7 +385,7 @@ export const DataConnections = (props) => {
   const [processingEmailUpdate, setProcessingEmailUpdate] = useState(false);
   const [patientUpdates, setPatientUpdates] = useState({});
   const [activeHandler, setActiveHandler] = useState(null);
-  const { justInvitedProviders, handleProviderInviteSent } = useJustInvitedProviders();
+  const { justInvitedProviders, handleProviderInviteSent, isInvitationHandler } = useJustInvitedProviders();
   const dataConnectionProps = getDataConnectionProps(patient, isLoggedInUser, selectedClinicId, setActiveHandler, justInvitedProviders);
 
   const {
@@ -526,7 +529,7 @@ export const DataConnections = (props) => {
       if (!fetchingDataSources?.inProgress) dispatch(actions.async.fetchDataSources(api));
     }
 
-    if (['sendInvite', 'resendInvite'].includes(activeHandler?.handler)) {
+    if (isInvitationHandler(activeHandler?.handler)) {
       handleProviderInviteSent(activeHandler?.providerName);
     }
   }, [fetchPatientDetails, selectedClinicId, fetchingDataSources?.inProgress, dispatch]);
