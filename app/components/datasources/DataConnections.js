@@ -157,7 +157,7 @@ export function getProviderHandlers(patient, selectedClinicId, provider) {
   }
 };
 
-export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
+export const getConnectStateUI = (patient, isLoggedInUser, providerName, justInvitedProviders) => {
   const dataSource = find(patient?.dataSources, {providerName});
 
   const mostRecentConnectionUpdateTime = isLoggedInUser
@@ -171,11 +171,13 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
     ]);
 
   let timeAgo;
+  let inviteJustSent;
 
   if (mostRecentConnectionUpdateTime) {
     const { daysAgo, daysText, hoursAgo, hoursText, minutesAgo, minutesText } = formatTimeAgo(mostRecentConnectionUpdateTime);
     timeAgo = daysText;
     if (daysAgo < 1)  timeAgo = hoursAgo < 1 ? minutesText : hoursText;
+    if (justInvitedProviders[providerName]) inviteJustSent = true;
   }
 
   let patientConnectedMessage;
@@ -218,6 +220,7 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
       icon: null,
       message: t('Invite sent {{timeAgo}}', { timeAgo }),
       text: t('Connection Pending'),
+      inviteJustSent,
     },
     pendingReconnect: {
       color: colors.grays[5],
@@ -225,6 +228,7 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
       icon: null,
       message: t('Invite sent {{timeAgo}}', { timeAgo }),
       text: t('Invite Sent'),
+      inviteJustSent,
     },
     pendingExpired: {
       color: colors.feedback.warning,
@@ -270,7 +274,7 @@ export const getDataConnectionProps = (patient, isLoggedInUser, selectedClinicId
 
   let connectState;
 
-  const connectStateUI = getConnectStateUI(patient, isLoggedInUser, providerName);
+  const connectStateUI = getConnectStateUI(patient, isLoggedInUser, providerName, justInvitedProviders);
   const dataSource = find(orderBy(patient?.dataSources, 'modifiedTime', 'desc'), { providerName: providerName });
   const inviteExpired = dataSource?.expirationTime < moment.utc().toISOString();
 
@@ -289,9 +293,6 @@ export const getDataConnectionProps = (patient, isLoggedInUser, selectedClinicId
   } else {
     connectState = 'noPendingConnections';
   }
-
-  console.log(justInvitedProviders);
-  console.log(connectState);
 
   const { color, icon, message, text, handler } = connectStateUI[connectState];
 
@@ -329,17 +330,18 @@ export const getDataConnectionProps = (patient, isLoggedInUser, selectedClinicId
 }, {});
 
 export const useJustInvitedProviders = () => {
-  // e.g. initialState === { twiist: false, dexcom: false }
+  // initialState in the form of { twiist: false, dexcom: false, etc: false }
   const initialState = useMemo(() =>{
     return Object.fromEntries(activeProviders.map(s => [s, false]));
   }, [activeProviders]);
 
   const [justInvitedProviders, setJustInvitedProviders] = useState(initialState);
 
+  // Automatically resets the status to false after waiting 3000ms
   useEffect(() => {
-    const hasInvitedProviders = Object.values(justInvitedProviders).some(Boolean);
+    const hasJustInvitedProviders = Object.values(justInvitedProviders).some(Boolean);
 
-    if (!hasInvitedProviders) return;
+    if (!hasJustInvitedProviders) return;
 
     const timeoutId = setTimeout(() => {
       setJustInvitedProviders(initialState);

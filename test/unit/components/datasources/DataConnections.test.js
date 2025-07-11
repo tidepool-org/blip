@@ -207,10 +207,13 @@ describe('getConnectStateUI', () => {
     }],
   }
 
+  const justInvitedProvidersUI = { dexcom: false, provider123: false };
+  const justInvitedProvidersUIJustSent = { dexcom: false, provider123: true };
+
   context('clinician user', () => {
     it('should define the UI props for the various connection states', () => {
-      const UI = getConnectStateUI(clinicPatient, false, 'provider123');
-      const UIJustSent = getConnectStateUI(clinicPatientJustSent, false, 'provider123');
+      const UI = getConnectStateUI(clinicPatient, false, 'provider123', justInvitedProvidersUI);
+      const UIJustSent = getConnectStateUI(clinicPatientJustSent, false, 'provider123', justInvitedProvidersUIJustSent);
 
       expect(UI.noPendingConnections.message).to.equal(null);
       expect(UI.noPendingConnections.text).to.equal(null);
@@ -254,9 +257,9 @@ describe('getConnectStateUI', () => {
 
   context('patient user', () =>  {
     it('should define the UI props for the various connection states', () => {
-      const UI = getConnectStateUI(userPatient, true, 'provider123');
-      const UINoDataFound = getConnectStateUI(userPatientNoDataFound, true, 'provider123');
-      const UIDataFound = getConnectStateUI(userPatientDataFound, true, 'provider123');
+      const UI = getConnectStateUI(userPatient, true, 'provider123', justInvitedProvidersUI);
+      const UINoDataFound = getConnectStateUI(userPatientNoDataFound, true, 'provider123', justInvitedProvidersUI);
+      const UIDataFound = getConnectStateUI(userPatientDataFound, true, 'provider123', justInvitedProvidersUI);
 
       expect(UI.noPendingConnections.message).to.equal(null);
       expect(UI.noPendingConnections.text).to.equal(null);
@@ -615,6 +618,17 @@ describe('DataConnections', () => {
     });
 
     describe('data connection invite just sent', () => {
+      beforeEach(() => {
+        DataConnections.__Rewire__('useJustInvitedProviders', sinon.stub().returns({
+          justInvitedProviders: { dexcom: true, twiist: true },
+          handleProviderInviteSent: sinon.stub(),
+        }));
+      });
+
+      afterEach(() => {
+        DataConnections.__ResetDependency__('useJustInvitedProviders');
+      });
+
       it('should render all appropriate data connection statuses and messages', () => {
         const store = mockStore(clinicianUserLoggedInState);
         mountWrapper(store, clinicPatients.dataConnectionInviteJustSent);
