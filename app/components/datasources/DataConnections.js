@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useMemo, useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
@@ -171,13 +171,11 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
     ]);
 
   let timeAgo;
-  let inviteJustSent;
 
   if (mostRecentConnectionUpdateTime) {
     const { daysAgo, daysText, hoursAgo, hoursText, minutesAgo, minutesText } = formatTimeAgo(mostRecentConnectionUpdateTime);
     timeAgo = daysText;
     if (daysAgo < 1)  timeAgo = hoursAgo < 1 ? minutesText : hoursText;
-    if (!isLoggedInUser && minutesAgo < 1) inviteJustSent = true;
   }
 
   let patientConnectedMessage;
@@ -220,7 +218,6 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
       icon: null,
       message: t('Invite sent {{timeAgo}}', { timeAgo }),
       text: t('Connection Pending'),
-      inviteJustSent,
     },
     pendingReconnect: {
       color: colors.grays[5],
@@ -228,7 +225,6 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
       icon: null,
       message: t('Invite sent {{timeAgo}}', { timeAgo }),
       text: t('Invite Sent'),
-      inviteJustSent,
     },
     pendingExpired: {
       color: colors.feedback.warning,
@@ -269,7 +265,7 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
   }
 };
 
-export const getDataConnectionProps = (patient, isLoggedInUser, selectedClinicId, setActiveHandler) => reduce(activeProviders, (result, providerName) => {
+export const getDataConnectionProps = (patient, isLoggedInUser, selectedClinicId, setActiveHandler, justInvitedProviders) => reduce(activeProviders, (result, providerName) => {
   result[providerName] = {};
 
   let connectState;
@@ -286,13 +282,16 @@ export const getDataConnectionProps = (patient, isLoggedInUser, selectedClinicId
     if (includes(['pending', 'pendingReconnect'], connectState)) {
       if (inviteExpired) {
         connectState = 'pendingExpired';
-      } else if (connectStateUI[connectState].inviteJustSent) {
+      } else if (justInvitedProviders[providerName]) {
         connectState = 'inviteJustSent';
       }
     }
   } else {
     connectState = 'noPendingConnections';
   }
+
+  console.log(justInvitedProviders);
+  console.log(connectState);
 
   const { color, icon, message, text, handler } = connectStateUI[connectState];
 
@@ -329,6 +328,38 @@ export const getDataConnectionProps = (patient, isLoggedInUser, selectedClinicId
   return result;
 }, {});
 
+export const useJustInvitedProviders = () => {
+  // e.g. initialState === { twiist: false, dexcom: false }
+  const initialState = useMemo(() =>{
+    return Object.fromEntries(activeProviders.map(s => [s, false]));
+  }, [activeProviders]);
+
+  const [justInvitedProviders, setJustInvitedProviders] = useState(initialState);
+
+  useEffect(() => {
+    const hasInvitedProviders = Object.values(justInvitedProviders).some(Boolean);
+
+    if (!hasInvitedProviders) return;
+
+    const timeoutId = setTimeout(() => {
+      setJustInvitedProviders(initialState);
+    }, 3000);
+
+    return () => clearTimeout(timeoutId);
+  }, [justInvitedProviders]);
+
+  const handleProviderInviteSent = (providerName) => {
+    if (!providerName) return;
+
+    setJustInvitedProviders(prev => ({...prev, [providerName]: true }));
+  };
+
+  return {
+    justInvitedProviders,
+    handleProviderInviteSent,
+  };
+};
+
 export const DataConnections = (props) => {
   const {
     patient,
@@ -349,7 +380,8 @@ export const DataConnections = (props) => {
   const [processingEmailUpdate, setProcessingEmailUpdate] = useState(false);
   const [patientUpdates, setPatientUpdates] = useState({});
   const [activeHandler, setActiveHandler] = useState(null);
-  const dataConnectionProps = getDataConnectionProps(patient, isLoggedInUser, selectedClinicId, setActiveHandler);
+  const { justInvitedProviders, handleProviderInviteSent } = useJustInvitedProviders();
+  const dataConnectionProps = getDataConnectionProps(patient, isLoggedInUser, selectedClinicId, setActiveHandler, justInvitedProviders);
 
   const {
     sendingPatientDataProviderConnectRequest,
@@ -481,7 +513,7 @@ export const DataConnections = (props) => {
     if (activeHandler?.action) dispatch(activeHandler.action(...activeHandler.args));
   };
 
-  const handleActiveHandlerComplete = useCallback(() => {
+  const handleActiveHandlerComplete = useCallback(activeHandler => {
     setShowPatientEmailModal(false);
     setShowResendDataSourceConnectRequest(false);
     setActiveHandler(null);
@@ -491,6 +523,10 @@ export const DataConnections = (props) => {
     } else {
       if (!fetchingDataSources?.inProgress) dispatch(actions.async.fetchDataSources(api));
     }
+
+    if (['sendInvite', 'resendInvite'].includes(activeHandler?.handler)) {
+      handleProviderInviteSent(activeHandler?.providerName);
+    }
   }, [fetchPatientDetails, selectedClinicId, fetchingDataSources?.inProgress, dispatch]);
 
   const authorizedDataSource = useSelector(state => state.blip.authorizedDataSource);
@@ -498,7 +534,7 @@ export const DataConnections = (props) => {
 
   useEffect(() => {
     if (!!previousAuthorizedDataSource && !authorizedDataSource && activeHandler) {
-      handleActiveHandlerComplete()
+      handleActiveHandlerComplete(activeHandler);
     }
   }, [
     activeHandler,
@@ -549,7 +585,7 @@ export const DataConnections = (props) => {
     handleAsyncResult({ ...sendingPatientDataProviderConnectRequest, prevInProgress: previousSendingPatientDataProviderConnectRequest?.inProgress }, t('{{ providerDisplayName }} connection request to {{email}} has been sent.', {
       email: patient?.email,
       providerDisplayName: providers[activeHandler?.providerName]?.displayName,
-    }), handleActiveHandlerComplete);
+    }), () => handleActiveHandlerComplete(activeHandler));
   }, [
     sendingPatientDataProviderConnectRequest,
     previousSendingPatientDataProviderConnectRequest?.inProgress,
@@ -564,7 +600,7 @@ export const DataConnections = (props) => {
       providerDisplayName: providers[activeHandler?.providerName]?.displayName,
     }), () => {
       setDataSourceDisconnectInstructions(providers?.[activeHandler?.providerName]?.disconnectInstructions);
-      handleActiveHandlerComplete();
+      handleActiveHandlerComplete(activeHandler);
     });
   }, [
     disconnectingDataSource,
