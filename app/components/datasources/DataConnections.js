@@ -346,7 +346,7 @@ export const useJustInvitedProviders = () => {
     }, 3000);
 
     return () => clearTimeout(timeoutId);
-  }, [justInvitedProviders]);
+  }, [justInvitedProviders, initialState]);
 
   const handleProviderInviteSent = (providerName) => {
     if (!providerName) return;
