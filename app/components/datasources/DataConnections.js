@@ -162,21 +162,26 @@ export function getProviderHandlers(patient, selectedClinicId, provider) {
 export const getCurrentDataSourceForProvider = (patient, providerName) => {
   const dataSources = filter(patient?.dataSources, { providerName }) || [];
 
-  // First, look for connected or error states
-  const connectedOrErrorDataSource = find(dataSources, ds => ds.state === 'connected' || ds.state === 'error');
-
-  if (connectedOrErrorDataSource) {
-    return connectedOrErrorDataSource;
-  }
-
-  // If no connected or error state, find the disconnected data source with the most recent lastImportTime
-  const disconnectedDataSources = filter(dataSources, ds => ds.state === 'disconnected' && !!ds.lastImportTime);
-
-  if (disconnectedDataSources.length === 0) {
+  if (dataSources.length === 0) {
     return undefined;
   }
 
-  return orderBy(disconnectedDataSources, ['lastImportTime'], ['desc'])[0];
+  // Define state priority order
+  const statePriority = {
+    pending: 1,
+    connected: 2,
+    error: 3,
+    pendingReconnect: 4,
+    disconnected: 5,
+  };
+
+  // Sort by state priority, then by lastImportTime (descending) for disconnected states
+  const sortedDataSources = orderBy(dataSources, [
+    (ds) => statePriority[ds.state] || 999, // Unknown states go to the end
+    (ds) => ds.state === 'disconnected' ? -(new Date(ds.lastImportTime || 0).getTime()) : 0
+  ], ['asc', 'asc']);
+
+  return sortedDataSources[0];
 };
 
 export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
