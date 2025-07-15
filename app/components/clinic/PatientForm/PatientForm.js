@@ -27,6 +27,8 @@ import { accountInfoFromClinicPatient } from '../../../core/personutils';
 import { Body0 } from '../../../components/elements/FontStyles';
 import { MediumTitle } from '../../../components/elements/FontStyles';
 
+import SelectDiabetesType from './SelectDiabetesType';
+import SelectTargetRangePreset from './SelectTargetRangePreset';
 import SelectTags from './SelectTags';
 import SelectSites from './SelectSites';
 
@@ -39,6 +41,8 @@ export function getFormValues(source, clinicPatientTags, clinicSites) {
     tags: reject(source?.tags || [], tagId => !clinicPatientTags?.[tagId]),
     dataSources: source?.dataSources || [],
     sites: source?.sites?.filter(site => !!clinicSites[site.id]),
+    diagnosisType: source?.diagnosisType || '',
+    targetRangePreset: source?.targetRangePreset || {},
   };
 }
 
@@ -314,6 +318,20 @@ export const PatientForm = (props) => {
           </Body0>
         </>
       )}
+
+      <Box mb={3}>
+        <SelectDiabetesType
+          value={values.diagnosisType || ''}
+          onChange={diagnosisType => setFieldValue('diagnosisType', diagnosisType)}
+        />
+      </Box>
+
+      <Box mb={3}>
+        <SelectTargetRangePreset
+          value={values.targetRangePreset || ''}
+          onChange={targetRangePreset => setFieldValue('targetRangePreset', targetRangePreset)}
+        />
+      </Box>
 
       {showTags && (
         <Box ref={tagSectionRef} mb={3}>
