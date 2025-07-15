@@ -76,11 +76,11 @@ const getRenderedValues = (agpCGM, offsetAgpCGM, t) => {
   const roundedBgDaysWorn = bankersRound(bgDaysWorn, 0);
 
   // Current Period Values
-  const timeInVeryHighFraction = _.toNumber(counts.veryHigh) / counts.total * 1;
-  const timeInHighFraction = _.toNumber(counts.high) / counts.total * 1;
-  const timeInTargetFraction = _.toNumber(counts.target) / counts.total * 1;
-  const timeInLowFraction = _.toNumber(counts.low) / counts.total * 1;
-  const timeInVeryLowFraction = _.toNumber(counts.veryLow) / counts.total * 1;
+  const timeInVeryHighFraction = _.toNumber(counts.veryHigh) / counts.total;
+  const timeInHighFraction = _.toNumber(counts.high) / counts.total;
+  const timeInTargetFraction = _.toNumber(counts.target) / counts.total;
+  const timeInLowFraction = _.toNumber(counts.low) / counts.total;
+  const timeInVeryLowFraction = _.toNumber(counts.veryLow) / counts.total;
 
   const timeInVeryHighPercent = bankersRound(timeInVeryHighFraction * 100, 0);
   const timeInHighPercent = bankersRound(timeInHighFraction * 100, 0);
@@ -89,11 +89,11 @@ const getRenderedValues = (agpCGM, offsetAgpCGM, t) => {
   const timeInVeryLowPercent = bankersRound(timeInVeryLowFraction * 100, 0);
 
   // Past Period Values
-  const offsetTimeInVeryHighFraction = _.toNumber(offsetCounts.veryHigh) / offsetCounts.total * 1;
-  const offsetTimeInHighFraction = _.toNumber(offsetCounts.high) / offsetCounts.total * 1;
-  const offsetTimeInTargetFraction = _.toNumber(offsetCounts.target) / offsetCounts.total * 1;
-  const offsetTimeInLowFraction = _.toNumber(offsetCounts.low) / offsetCounts.total * 1;
-  const offsetTimeInVeryLowFraction = _.toNumber(offsetCounts.veryLow) / offsetCounts.total * 1;
+  const offsetTimeInVeryHighFraction = _.toNumber(offsetCounts.veryHigh) / offsetCounts.total;
+  const offsetTimeInHighFraction = _.toNumber(offsetCounts.high) / offsetCounts.total;
+  const offsetTimeInTargetFraction = _.toNumber(offsetCounts.target) / offsetCounts.total;
+  const offsetTimeInLowFraction = _.toNumber(offsetCounts.low) / offsetCounts.total;
+  const offsetTimeInVeryLowFraction = _.toNumber(offsetCounts.veryLow) / offsetCounts.total;
 
   const offsetTimeInVeryHighPercent = bankersRound(offsetTimeInVeryHighFraction * 100, 0);
   const offsetTimeInHighPercent = bankersRound(offsetTimeInHighFraction * 100, 0);
