@@ -3,7 +3,6 @@
 /* global describe */
 /* global sinon */
 /* global afterEach */
-/* global describe */
 /* global it */
 /* global beforeEach */
 
@@ -30,7 +29,7 @@ describe('PatientDrawer/Content', () => {
   const store = mockStore({
     blip: {
       selectedClinicId: '5678-efgh',
-      clinics: { '5678-efgh': { patients: { '1234-abcd': { fullName: 'Naoya Inoue' } } } }
+      clinics: { '5678-efgh': { patients: { '1234-abcd': { fullName: 'Naoya Inoue' } } } },
     },
   });
 
@@ -56,8 +55,8 @@ describe('PatientDrawer/Content', () => {
     });
   });
 
-  describe('shows no data fields and an appropriate message to the user', () => {
-    it('shows the correct info and actions', () => {
+  describe('When patient has insufficient data to generate AGP report', () => {
+    it('shows a message about data being insufficient', () => {
       useAgpCGM.mockReturnValue({ status: STATUS.INSUFFICIENT_DATA });
 
       render(<Provider store={store}> <Content {...props} /> </Provider>);
@@ -118,15 +117,15 @@ describe('PatientDrawer/Content', () => {
     });
 
     describe('When not enough data to render AGP Graph', () => {
-      it('shows the AGP Report with all images', () => {
+      it('returns a value of undefined for AGP chart image', () => {
       useAgpCGM.mockReturnValue({
         status: STATUS.SVGS_GENERATED,
         svgDataURLS: {
           agpCGM: {
             percentInRanges: 'percentInRanges.img.jpg',
             ambulatoryGlucoseProfile: undefined,
-            dailyGlucoseProfiles: ['daily.top.img.jpg', 'daily.bot.img.jpg']
-          }
+            dailyGlucoseProfiles: ['daily.top.img.jpg', 'daily.bot.img.jpg'],
+          },
         },
         agpCGM: null,
       });

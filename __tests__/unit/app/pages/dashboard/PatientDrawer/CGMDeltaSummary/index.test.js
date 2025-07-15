@@ -149,12 +149,12 @@ describe('PatientDrawer/CGMDeltaSummary', () => {
 
       expect(screen.getByText('Insufficient data to calculate Time in Ranges')).toBeInTheDocument();
 
-      expect(screen.queryByTestId('cgm-delta-summary-time-in-very-low')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('cgm-delta-summary-time-in-low')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('cgm-delta-summary-time-in-target')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('cgm-delta-summary-time-in-high')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('cgm-delta-summary-time-in-very')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('cgm-delta-summary-time-cgm-active')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('cgm-delta-summary-very-low')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('cgm-delta-summary-low')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('cgm-delta-summary-target')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('cgm-delta-summary-high')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('cgm-delta-summary-very')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('cgm-delta-summary-cgm-active')).not.toBeInTheDocument();
     });
   });
 
@@ -162,12 +162,12 @@ describe('PatientDrawer/CGMDeltaSummary', () => {
     it('renders the data in the expected format', () => {
       render(<CGMDeltaSummary agpCGM={agpCGM} offsetAgpCGM={offsetAgpCGM} />);
 
-      const veryLowContainer = screen.queryByTestId('cgm-delta-summary-very-low');
-      const lowContainer = screen.queryByTestId('cgm-delta-summary-low');
-      const targetContainer = screen.queryByTestId('cgm-delta-summary-target');
-      const highContainer = screen.queryByTestId('cgm-delta-summary-high');
-      const veryHighContainer = screen.queryByTestId('cgm-delta-summary-very-high');
-      const cgmActiveContainer = screen.queryByTestId('cgm-delta-summary-cgm-active');
+      const veryLowContainer = screen.getByTestId('cgm-delta-summary-very-low');
+      const lowContainer = screen.getByTestId('cgm-delta-summary-low');
+      const targetContainer = screen.getByTestId('cgm-delta-summary-target');
+      const highContainer = screen.getByTestId('cgm-delta-summary-high');
+      const veryHighContainer = screen.getByTestId('cgm-delta-summary-very-high');
+      const cgmActiveContainer = screen.getByTestId('cgm-delta-summary-cgm-active');
 
       expect(veryLowContainer).toBeInTheDocument();
       expect(within(veryLowContainer).getByText('Time in Very Low')).toBeInTheDocument();

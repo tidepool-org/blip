@@ -147,6 +147,8 @@ const InsufficientData = () => {
     );
 };
 
+const MINIMUM_HOURS_OF_DATA = 24;
+
 const CGMDeltaSummary = ({ agpCGM, offsetAgpCGM }) => {
   const { t } = useTranslation();
 
@@ -158,7 +160,7 @@ const CGMDeltaSummary = ({ agpCGM, offsetAgpCGM }) => {
 
   const { count, sampleInterval } = offsetAgpCGM?.data?.current?.stats?.sensorUsage || {};
   const hoursOfCGMData = (count * sampleInterval) / MS_IN_HOUR;
-  const isDataInsufficient = !hoursOfCGMData || hoursOfCGMData < 24;
+  const isDataInsufficient = !hoursOfCGMData || hoursOfCGMData < MINIMUM_HOURS_OF_DATA;
 
   if (isDataInsufficient) return <InsufficientData />;
 

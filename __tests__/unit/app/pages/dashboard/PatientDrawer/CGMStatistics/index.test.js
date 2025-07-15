@@ -37,7 +37,7 @@ const agpCGM = {
         },
         'sensorUsage': {
           'sensorUsage': 2532600000,
-          'sensorUsageAGP': 99.94264030310206,
+          'sensorUsageAGP': 99.9426403,
           'total': 2592000000,
           'sampleInterval': 300000,
           'count': 8442,

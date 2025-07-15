@@ -3,7 +3,6 @@
 /* global expect */
 /* global describe */
 /* global afterEach */
-/* global describe */
 /* global it */
 /* global beforeEach */
 /* global before */
@@ -11,7 +10,6 @@
 
 import React from 'react';
 import { waitFor } from '@testing-library/react';
-import _ from 'lodash';
 import { utils as vizUtils } from '@tidepool/viz';
 import Plotly from 'plotly.js-basic-dist-min';
 
@@ -35,9 +33,6 @@ jest.mock('@tidepool/viz', () => ({
 describe('buildGenerateAGPImages', () => {
   const dispatch = jest.fn();
 
-  let toImage;
-  let generateAGPFigureDefinitions;
-
   beforeEach(() => {
     dispatch.mockClear();
   });
@@ -60,7 +55,7 @@ describe('buildGenerateAGPImages', () => {
   });
 
   describe('failed image generation', () => {
-    const mockError = new Error('failed image generation')
+    const mockError = new Error('failed image generation');
 
     it('should call generateAGPImagesFailure upon failing image generation', async () => {
       Plotly.toImage.mockReturnValue('stubbed image data');

@@ -2,7 +2,6 @@
 /* global expect */
 /* global describe */
 /* global afterEach */
-/* global describe */
 /* global it */
 /* global beforeEach */
 /* global before */
@@ -72,7 +71,7 @@ describe('useAgpCGM', () => {
         data: { metaData: { patientId: 'patient-2' } },
         pdf: { opts: { patient: { id: 'patient-2' } } },
         selectedClinicId: 'clinic-1',
-        clinics: { 'clinic-1': { patients: { 'patient-1': { fullName: 'Naoya Inoue' } } } }
+        clinics: { 'clinic-1': { patients: { 'patient-1': { fullName: 'Naoya Inoue' } } } },
       },
     };
 
@@ -94,7 +93,7 @@ describe('useAgpCGM', () => {
         data: { metaData: {} },
         pdf: {},
         selectedClinicId: 'clinic-1',
-        clinics: { 'clinic-1': { patients: { 'patient-1': { fullName: 'Naoya Inoue' } } } }
+        clinics: { 'clinic-1': { patients: { 'patient-1': { fullName: 'Naoya Inoue' } } } },
       },
     };
 
@@ -139,11 +138,11 @@ describe('useAgpCGM', () => {
             agpCGM: { current: 'statistics_data_here' },
             offsetAgpCGM: { current: 'offset_statistics_data_here' },
           },
-          opts: { patient: { id: 'patient-1' } }
+          opts: { patient: { id: 'patient-1' } },
         },
         selectedClinicId: 'clinic-1',
-        clinics: { 'clinic-1': { patients: { 'patient-1': { fullName: 'Naoya Inoue' } } } }
-      }
+        clinics: { 'clinic-1': { patients: { 'patient-1': { fullName: 'Naoya Inoue' } } } },
+      },
     };
 
     const store = mockStore(state);
@@ -177,7 +176,7 @@ describe('useAgpCGM', () => {
           },
         },
         selectedClinicId: 'clinic-1',
-        clinics: { 'clinic-1': { patients: { 'patient-1': { fullName: 'Naoya Inoue' } } } }
+        clinics: { 'clinic-1': { patients: { 'patient-1': { fullName: 'Naoya Inoue' } } } },
       },
     };
 

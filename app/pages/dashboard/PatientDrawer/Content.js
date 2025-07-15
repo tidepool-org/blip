@@ -1,9 +1,8 @@
 import React from 'react';
-import _ from 'lodash';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { Flex, Box, Text } from 'theme-ui';
-import { utils as vizUtils, colors as vizColors } from '@tidepool/viz';
+import { colors as vizColors } from '@tidepool/viz';
 import styled from '@emotion/styled';
 
 import { components as vizComponents } from '@tidepool/viz';
