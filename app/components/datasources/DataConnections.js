@@ -5,6 +5,7 @@ import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
 import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
 import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
 import moment from 'moment-timezone';
+import filter from 'lodash/filter';
 import find from 'lodash/find';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
@@ -39,6 +40,7 @@ const t = i18next.t.bind(i18next);
 export const activeProviders = [
   'dexcom',
   'twiist',
+  'abbott',
 ];
 
 export const providers = {
@@ -157,8 +159,33 @@ export function getProviderHandlers(patient, selectedClinicId, provider) {
   }
 };
 
+export const getCurrentDataSourceForProvider = (patient, providerName) => {
+  const dataSources = filter(patient?.dataSources, { providerName }) || [];
+
+  if (dataSources.length === 0) {
+    return undefined;
+  }
+
+  // Define state priority order
+  const statePriority = {
+    pending: 1,
+    connected: 2,
+    error: 3,
+    pendingReconnect: 4,
+    disconnected: 5,
+  };
+
+  // Sort by state priority, then by lastImportTime (descending) for disconnected states
+  const sortedDataSources = orderBy(dataSources, [
+    (ds) => statePriority[ds.state] || 999, // Unknown states go to the end
+    (ds) => ds.state === 'disconnected' ? -(new Date(ds.lastImportTime || 0).getTime()) : 0
+  ], ['asc', 'asc']);
+
+  return sortedDataSources[0];
+};
+
 export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
-  const dataSource = find(patient?.dataSources, {providerName});
+  const dataSource = getCurrentDataSourceForProvider(patient, providerName);
 
   const mostRecentConnectionUpdateTime = isLoggedInUser
     ? max([
@@ -274,8 +301,8 @@ export const getDataConnectionProps = (patient, isLoggedInUser, selectedClinicId
 
   let connectState;
 
+  const dataSource = getCurrentDataSourceForProvider(patient, providerName);
   const connectStateUI = getConnectStateUI(patient, isLoggedInUser, providerName);
-  const dataSource = find(orderBy(patient?.dataSources, 'modifiedTime', 'desc'), { providerName: providerName });
   const inviteExpired = dataSource?.expirationTime < moment.utc().toISOString();
 
   if (dataSource?.state) {

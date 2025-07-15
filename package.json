@@ -4,7 +4,7 @@
     "node": "20.8.0"
   },
   "packageManager": "yarn@3.6.4",
-  "version": "1.87.0-web-3720-re-enable-one-min-cgm.1",
+  "version": "1.87.0-web-3769-show-correct--state-with-multiple-provider-connections.1",
   "private": true,
   "scripts": {
     "test": "concurrently \"TZ=UTC NODE_ENV=test yarn jest --verbose --runInBand\" \"TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' yarn karma start\" --group --success=all",
@@ -196,7 +196,7 @@
     "terser-webpack-plugin": "5.3.9",
     "theme-ui": "0.16.1",
     "tideline": "1.34.0-web-3764-adjust-classification.2",
-    "tidepool-platform-client": "0.63.0",
+    "tidepool-platform-client": "0.63.1",
     "tidepool-standard-action": "0.1.1",
     "ua-parser-js": "1.0.36",
     "url-loader": "4.1.1",
