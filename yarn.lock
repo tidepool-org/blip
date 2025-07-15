@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.48.0-web-3764-adjust-classification.1":
-  version: 1.48.0-web-3764-adjust-classification.1
-  resolution: "@tidepool/viz@npm:1.48.0-web-3764-adjust-classification.1"
+"@tidepool/viz@npm:1.49.0-web-3764-adjust-classification.3":
+  version: 1.49.0-web-3764-adjust-classification.3
+  resolution: "@tidepool/viz@npm:1.49.0-web-3764-adjust-classification.3"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: a169ef090ffb885d4c0d1231862caf23c09b62619534d9e9ada1d09ad26282df2045f474a3ffb616a6d4edf594c3fc31df3f689835b049d684c37c28d3495e6b
+  checksum: 1e48e905149f787cdbb7180873ce97aa71d1d55fc84dcbf5c4c6d297baf37e94b7d89dc64d3739db648596649d28694768f952123a2731d8985d4aba6ab9058d
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.48.0-web-3764-adjust-classification.1
+    "@tidepool/viz": 1.49.0-web-3764-adjust-classification.3
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -8462,7 +8462,7 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.33.0-web-3764-adjust-classification.1
+    tideline: 1.34.0-web-3764-adjust-classification.2
     tidepool-platform-client: 0.63.0
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
@@ -22218,9 +22218,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.33.0-web-3764-adjust-classification.1":
-  version: 1.33.0-web-3764-adjust-classification.1
-  resolution: "tideline@npm:1.33.0-web-3764-adjust-classification.1"
+"tideline@npm:1.34.0-web-3764-adjust-classification.2":
+  version: 1.34.0-web-3764-adjust-classification.2
+  resolution: "tideline@npm:1.34.0-web-3764-adjust-classification.2"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -22241,7 +22241,7 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: 87fd524c86e2a16d425a9d1d8e8fce9ebd610001b6e741c6d6c94b1333e35fd2c14eaf8d77f7cd11f92dc3c0e73c07181c3f56b4609979a925f523c69d9b3b9c
+  checksum: 8ef5dd855443bafb949a21011794b2cb9794a8f265b5e4c03437fb8c7e98b8b1182f5d6e260ecfb6707d492215ab42c2b366af377177c9457d7f267f285b752e
   languageName: node
   linkType: hard
 
