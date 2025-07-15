@@ -106,7 +106,7 @@ const offsetAgpCGM = {
         },
         sensorUsage: {
           sensorUsage: 1192500000,
-          sensorUsageAGP: 98.21119996031549,
+          sensorUsageAGP: 98.2111,
           total: 1209600000,
           sampleInterval: 300000,
           count: 3975,
