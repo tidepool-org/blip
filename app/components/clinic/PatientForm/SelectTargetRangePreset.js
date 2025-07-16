@@ -6,6 +6,8 @@ import { selectElementStyleOverrides } from './SelectTags';
 import { colors as vizColors } from '@tidepool/viz';
 import { Label } from 'theme-ui';
 
+import CustomTargetRangeInput from './CustomTargetRangeInput';
+
 // TODO: translate labels
 // TODO: mmol/L version
 const TARGET_RANGE_PRESET_OPTS = [
@@ -26,6 +28,8 @@ const SelectTargetRangePreset = ({ onChange, value }) => {
   };
 
   const selectValue = TARGET_RANGE_PRESET_OPTS.find(opt => opt.value === value);
+
+  const isCustomRangeSelected = value === 'custom';
 
   const onMenuOpen = noop;
 
@@ -53,6 +57,8 @@ const SelectTargetRangePreset = ({ onChange, value }) => {
         // filterOption={createFilter({ stringify: opt => opt.label })}
         isClearable
       />
+
+      { isCustomRangeSelected && <CustomTargetRangeInput /> }
     </>
   );
 };
