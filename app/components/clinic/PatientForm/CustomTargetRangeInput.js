@@ -43,10 +43,26 @@ export const buildValidationSchema = (preferredBgUnits) => {
   allowedVeryHighs.push(veryHighThreshold.default);
 
   return yup.object().shape({
-    veryLowThreshold: yup.number().oneOf(allowedVeryLows),
-    lowThreshold: yup.number().oneOf(allowedLows),
-    highThreshold: yup.number().oneOf(allowedHighs),
-    veryHighThreshold: yup.number().oneOf(allowedVeryHighs),
+    veryLowThreshold: yup.number()
+      .oneOf(allowedVeryLows),
+
+    lowThreshold: yup.number()
+      .oneOf(allowedLows)
+      .test('>veryLow', 'Low threshold must be greater than very low threshold', function(value) {
+        return value > this.parent.veryLowThreshold;
+      }),
+
+    highThreshold: yup.number()
+      .oneOf(allowedHighs)
+      .test('>low', 'High threshold must be greater than low threshold', function(value) {
+        return value > this.parent.lowThreshold;
+      }),
+
+    veryHighThreshold: yup.number()
+      .oneOf(allowedVeryHighs)
+      .test('>high', 'Very high threshold must be greater than high threshold', function(value) {
+        return value > this.parent.highThreshold;
+      }),
   });
 };
 
@@ -67,6 +83,8 @@ const CustomTargetRangeInput = () => {
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const clinicBgUnits = clinic?.preferredBgUnits || MGDL_UNITS;
 
+  const constraints = INPUT_CONSTRAINTS[clinicBgUnits];
+
   const validationSchema = useMemo(() => buildValidationSchema(clinicBgUnits), [clinicBgUnits]);
 
   const formik = useFormik({
@@ -79,52 +97,55 @@ const CustomTargetRangeInput = () => {
       <Flex sx={customRangeInputFormStyles}>
         <label htmlFor="veryLowThreshold">{t('Very Low')}</label>
         <input
+          {...formik.getFieldProps('veryLowThreshold')}
           type="number"
           name="veryLowThreshold"
-          {...formik.getFieldProps('veryLowThreshold')}
-          step="1"
-          min="50"
-          max="54"
+          step={constraints['veryLowThreshold'].step}
+          min={constraints['veryLowThreshold'].min}
+          max={constraints['veryLowThreshold'].max}
         />
 
         <label htmlFor="lowThreshold">{t('Low')}</label>
         <input
+          {...formik.getFieldProps('lowThreshold')}
           type="number"
           name="lowThreshold"
-          {...formik.getFieldProps('lowThreshold')}
-          step="5"
-          min="60"
-          max="295"
+          step={constraints['lowThreshold'].step}
+          min={constraints['lowThreshold'].min}
+          max={constraints['lowThreshold'].max}
         />
 
         <label htmlFor="highThreshold">{t('High')}</label>
         <input
+          {...formik.getFieldProps('highThreshold')}
           type="number"
           name="highThreshold"
-          {...formik.getFieldProps('highThreshold')}
-          step="5"
-          min="65"
-          max="300"
+          step={constraints['highThreshold'].step}
+          min={constraints['highThreshold'].min}
+          max={constraints['highThreshold'].max}
         />
 
         <label htmlFor="veryHighThreshold">{t('Very High')}</label>
         <input
+          {...formik.getFieldProps('veryHighThreshold')}
           type="number"
           name="veryHighThreshold"
-          {...formik.getFieldProps('veryHighThreshold')}
-          step="5"
-          min="185"
-          max="395" // TODO: remove fixed vals
+          step={constraints['veryHighThreshold'].step}
+          min={constraints['veryHighThreshold'].min}
+          max={constraints['veryHighThreshold'].max}
         />
 
-        <Text ml="auto" mr={3} >{
-          // TODO: units of user
-          t('mg/dL')
-        }</Text>
+        <Text ml="auto" mr={3}>{clinicBgUnits}</Text>
       </Flex>
       <Box sx={{ fontSize: 0 }}>
         {t('Setting a non-standard range will be used when viewing patient data, but will not be available in the dashboard view')}
       </Box>
+
+      { Object.keys(formik.errors).length > 0 &&
+        <Box sx={{ fontSize: 0, color: 'red' }}>
+          {Object.values(formik.errors).map(err => <p>{err}</p>)}
+        </Box>
+      }
     </>
   );
 };
