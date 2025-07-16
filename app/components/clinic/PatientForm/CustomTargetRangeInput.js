@@ -61,7 +61,8 @@ export const buildValidationSchema = (preferredBgUnits) => {
     veryHighThreshold: yup.number()
       .oneOf(allowedVeryHighs)
       .test('>high', 'Very high threshold must be greater than high threshold', function(value) {
-        return value > this.parent.highThreshold;
+        // Empty input allowed for veryHigh
+        return value ? value > this.parent.highThreshold : true;
       }),
   });
 };
