@@ -1,12 +1,12 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { Box, Flex, Text } from 'theme-ui';
-import { Field } from 'formik';
 import { useFormik } from 'formik';
 import { useTranslation } from 'react-i18next';
 import * as yup from 'yup';
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../core/constants';
 
+import noop from 'lodash/noop';
 import mapValues from 'lodash/mapValues';
 import range from 'lodash/range';
 
@@ -78,7 +78,7 @@ const customRangeInputFormStyles = {
   'input': { width: '80px', padding: 2 },
 };
 
-const CustomTargetRangeInput = () => {
+const CustomTargetRangeInput = ({ onChange = noop }) => {
   const { t } = useTranslation();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
@@ -92,6 +92,16 @@ const CustomTargetRangeInput = () => {
     initialValues: getInitialValues(clinicBgUnits),
     validationSchema: validationSchema,
   });
+
+  useEffect(() => {
+    formik.validateForm().then(errors => {
+      const isValid = Object.keys(errors).length > 0;
+      const values = isValid ? formik.values : null;
+
+      onChange({ isValid, values });
+    });
+
+  }, [formik.values, onChange]);
 
   return (
     <>

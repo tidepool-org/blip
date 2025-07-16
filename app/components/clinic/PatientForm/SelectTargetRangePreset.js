@@ -27,6 +27,10 @@ const SelectTargetRangePreset = ({ onChange, value }) => {
     onChange(opt.value);
   };
 
+  const handleCustomRangeChange = (values) => {
+    console.log(values);
+  };
+
   const selectValue = TARGET_RANGE_PRESET_OPTS.find(opt => opt.value === value);
 
   const isCustomRangeSelected = value === 'custom';
@@ -58,7 +62,9 @@ const SelectTargetRangePreset = ({ onChange, value }) => {
         isClearable
       />
 
-      { isCustomRangeSelected && <CustomTargetRangeInput /> }
+      { isCustomRangeSelected &&
+        <CustomTargetRangeInput onChange={handleCustomRangeChange} />
+      }
     </>
   );
 };
