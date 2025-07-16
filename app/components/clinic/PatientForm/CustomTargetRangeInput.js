@@ -12,13 +12,13 @@ import range from 'lodash/range';
 
 const INPUT_CONSTRAINTS = {
   [MGDL_UNITS]: {
-    veryLowThreshold: { default: 54, step: 1, min: 60, max: 54 },
+    veryLowThreshold: { default: 54, step: 1, min: 50, max: 54 },
     lowThreshold: { default: 69, step: 5, min: 60, max: 295 },
     highThreshold: { default: 181, step: 5, min: 65, max: 300 },
     veryHighThreshold: { default: 250, step: 5, min: 185, max: 395 },
   },
   [MMOLL_UNITS]: { // TODO: Fix values
-    veryLowThreshold: { default: 54, step: 1, min: 60, max: 54 },
+    veryLowThreshold: { default: 54, step: 1, min: 50, max: 54 },
     lowThreshold: { default: 69, step: 5, min: 60, max: 295 },
     highThreshold: { default: 181, step: 5, min: 65, max: 300 },
     veryHighThreshold: { default: 250, step: 5, min: 185, max: 395 },
