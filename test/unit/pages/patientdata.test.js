@@ -459,6 +459,28 @@ describe('PatientData', function () {
           expect(props.trackMetric.calledWith('Clicked No Data Upload Card')).to.be.true;
         });
 
+        it('should NOT render the uploader card when in smartonfhir mode', function() {
+          var props = {
+            isUserPatient: true,
+            fetchingPatient: false,
+            fetchingPatientData: false,
+            removingData: { inProgress: false },
+            generatingPDF: { inProgress: false },
+            pdf: {},
+            isSmartOnFhirMode: true,
+          };
+
+          wrapper = mount(<PatientData {...props} />);
+
+          wrapper.setProps(_.assign({}, props, {
+            data: {
+              metaData: { size: 0 },
+            }
+          }));
+
+          expect(uploaderCard().length).to.equal(0);
+        });
+
         it('should track click on Data Connections card', function() {
           const props = {
             currentPatientInViewId: '40',

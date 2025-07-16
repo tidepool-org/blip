@@ -319,15 +319,17 @@ export const PatientDataClass = createReactClass({
                   onClick={handleClickDataConnections}
                 />
               </Box>
-              <DesktopOnly>
-                <Card
-                  id='uploader-card'
-                  title={t('Upload Data Directly with Tidepool Uploader')}
-                  subtitle={t('Tidepool Uploader supports over 85 devices. Download Tidepool Uploader to get started.')}
-                  bannerImage={UploaderBanner}
-                  onClick={handleClickUpload}
-                />
-              </DesktopOnly>
+              {!this.props.isSmartOnFhirMode && (
+                <DesktopOnly>
+                  <Card
+                    id='uploader-card'
+                    title={t('Upload Data Directly with Tidepool Uploader')}
+                    subtitle={t('Tidepool Uploader supports over 85 devices. Download Tidepool Uploader to get started.')}
+                    bannerImage={UploaderBanner}
+                    onClick={handleClickUpload}
+                  />
+                </DesktopOnly>
+              )}
               <MobileOnly>
                 <Card
                   id='share-card'
