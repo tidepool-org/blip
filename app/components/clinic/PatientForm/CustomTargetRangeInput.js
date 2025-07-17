@@ -8,25 +8,23 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../../core/constants';
 import { utils as vizUtils } from '@tidepool/viz';
 
 import noop from 'lodash/noop';
-import mapValues from 'lodash/mapValues';
 import isEmpty from 'lodash/isEmpty';
 import { pick } from 'lodash';
-import { preferredBgUnits } from '../../../core/clinicUtils';
 
 const { DEFAULT_BG_BOUNDS } = vizUtils.constants;
 
 const INPUT_CONSTRAINTS = {
   [MGDL_UNITS]: {
-    veryLowThreshold: { step: 1, min: 50, max: 54 },
-    targetLowerBound: { step: 1, min: 60, max: 295 },
-    targetUpperBound: { step: 1, min: 65, max: 300 },
-    veryHighThreshold: { step: 1, min: 185, max: 395 },
+    veryLowThreshold: { step: 1, min: 30, max: 69 },
+    targetLowerBound: { step: 1, min: 50, max: 180 },
+    targetUpperBound: { step: 1, min: 70, max: 300 },
+    veryHighThreshold: { step: 1, min: 180, max: 400 },
   },
   [MMOLL_UNITS]: { // TODO: Fix values
-    veryLowThreshold: { step: 1, min: 50, max: 54 },
-    targetLowerBound: { step: 1, min: 60, max: 295 },
-    targetUpperBound: { step: 1, min: 65, max: 300 },
-    veryHighThreshold: { step: 1, min: 185, max: 395 },
+    veryLowThreshold: { step: 0.1, min: 1.7, max: 3.8 },
+    targetLowerBound: { step: 0.1, min: 2.8, max: 10.0 },
+    targetUpperBound: { step: 0.1, min: 3.9, max: 16.7 },
+    veryHighThreshold: { step: 0.1, min: 10.0, max: 22.2 },
   },
 };
 
@@ -58,9 +56,10 @@ export const buildValidationSchema = (bgUnits, t) => {
     veryHighThreshold: yup.number()
       .min(veryHighThreshold.min)
       .max(veryHighThreshold.max)
+      .nullable()
       .test('>high', t('Very high threshold must be greater than high threshold'), function(value) {
         // Empty input allowed for veryHigh
-        return value ? value > this.parent.targetUpperBound : true;
+        return !!value ? value > this.parent.targetUpperBound : true;
       }),
   });
 };
@@ -142,6 +141,9 @@ const CustomTargetRangeInput = ({ onChange = noop }) => {
           step={constraints['veryHighThreshold'].step}
           min={constraints['veryHighThreshold'].min}
           max={constraints['veryHighThreshold'].max}
+          onChange={event => { // set to null when falsy
+            formik.setFieldValue('veryHighThreshold', event.target?.value || null);
+          }}
         />
 
         <Text ml="auto" mr={3}>{clinicBgUnits}</Text>

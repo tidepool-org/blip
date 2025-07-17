@@ -457,7 +457,7 @@ export const patientSchema = config => {
         veryLowThreshold: yup.number(),
         targetLowerBound: yup.number(),
         targetUpperBound: yup.number(),
-        veryHighThreshold: yup.number(),
+        veryHighThreshold: yup.number().nullable(),
       }),
       otherwise: (schema) => schema.nullable(),
     }),

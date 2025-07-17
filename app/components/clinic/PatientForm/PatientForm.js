@@ -4,7 +4,6 @@ import { withTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import compact from 'lodash/compact';
 import debounce from 'lodash/debounce';
-import find from 'lodash/find';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
@@ -16,7 +15,6 @@ import reject from 'lodash/reject';
 import { useFormik } from 'formik';
 import InputMask from 'react-input-mask';
 import { Box, BoxProps } from 'theme-ui';
-import moment from 'moment';
 
 import * as actions from '../../../redux/actions';
 import TextInput from '../../../components/elements/TextInput';
