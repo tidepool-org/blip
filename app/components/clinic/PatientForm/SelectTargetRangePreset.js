@@ -24,7 +24,7 @@ const SelectTargetRangePreset = ({ onChange, value }) => {
   const selectOptions = [{ options: TARGET_RANGE_PRESET_OPTS }];
 
   const handleSelectRange = (opt) => {
-    onChange(opt.value);
+    onChange(opt?.value || '');
   };
 
   const handleCustomRangeChange = (values) => {
@@ -32,8 +32,6 @@ const SelectTargetRangePreset = ({ onChange, value }) => {
   };
 
   const selectValue = TARGET_RANGE_PRESET_OPTS.find(opt => opt.value === value);
-
-  const isCustomRangeSelected = value === 'custom';
 
   const onMenuOpen = noop;
 
@@ -61,10 +59,6 @@ const SelectTargetRangePreset = ({ onChange, value }) => {
         // filterOption={createFilter({ stringify: opt => opt.label })}
         isClearable
       />
-
-      { isCustomRangeSelected &&
-        <CustomTargetRangeInput onChange={handleCustomRangeChange} />
-      }
     </>
   );
 };

@@ -29,6 +29,7 @@ import { MediumTitle } from '../../../components/elements/FontStyles';
 
 import SelectDiabetesType from './SelectDiabetesType';
 import SelectTargetRangePreset from './SelectTargetRangePreset';
+import CustomTargetRangeInput from './CustomTargetRangeInput';
 import SelectTags from './SelectTags';
 import SelectSites from './SelectSites';
 
@@ -43,6 +44,7 @@ export function getFormValues(source, clinicPatientTags, clinicSites) {
     sites: source?.sites?.filter(site => !!clinicSites[site.id]),
     diagnosisType: source?.diagnosisType || '',
     targetRangePreset: source?.targetRangePreset || {},
+    customTargetRange: source?.customTargetRange || {},
   };
 }
 
@@ -226,6 +228,10 @@ export const PatientForm = (props) => {
     debounceSearch(event.target.value);
   }
 
+  const isCustomTargetRange = values.targetRangePreset === 'custom';
+
+  console.log(formikContext.errors);
+
   return (
     <Box
       as="form"
@@ -332,6 +338,15 @@ export const PatientForm = (props) => {
           onChange={targetRangePreset => setFieldValue('targetRangePreset', targetRangePreset)}
         />
       </Box>
+
+      { isCustomTargetRange &&
+        <Box mb={3}>
+          <CustomTargetRangeInput
+            currentRange={values.customTargetRange}
+            onChange={range => setFieldValue('customTargetRange', range)}
+          />
+        </Box>
+      }
 
       {showTags && (
         <Box ref={tagSectionRef} mb={3}>

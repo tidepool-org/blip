@@ -449,6 +449,18 @@ export const patientSchema = config => {
         name: yup.string(),
       })
     ),
+    diagnosisType: yup.string(),
+    targetRangePreset: yup.string(),
+    customTargetRange: yup.object().when('targetRangePreset', {
+      is: 'custom',
+      then: (schema) => schema.shape({
+        veryLowThreshold: yup.number(),
+        lowThreshold: yup.number(),
+        highThreshold: yup.number(),
+        veryHighThreshold: yup.number(),
+      }),
+      otherwise: (schema) => schema.nullable(),
+    }),
   });
 };
 

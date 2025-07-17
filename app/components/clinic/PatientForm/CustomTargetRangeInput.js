@@ -8,59 +8,53 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../../core/constants';
 
 import noop from 'lodash/noop';
 import mapValues from 'lodash/mapValues';
-import range from 'lodash/range';
+import isEqual from 'lodash/isEqual';
+import isEmpty from 'lodash/isEmpty';
 
 const INPUT_CONSTRAINTS = {
   [MGDL_UNITS]: {
     veryLowThreshold: { default: 54, step: 1, min: 50, max: 54 },
-    lowThreshold: { default: 69, step: 5, min: 60, max: 295 },
-    highThreshold: { default: 181, step: 5, min: 65, max: 300 },
-    veryHighThreshold: { default: 250, step: 5, min: 185, max: 395 },
+    lowThreshold: { default: 69, step: 1, min: 60, max: 295 },
+    highThreshold: { default: 181, step: 1, min: 65, max: 300 },
+    veryHighThreshold: { default: 250, step: 1, min: 185, max: 395 },
   },
   [MMOLL_UNITS]: { // TODO: Fix values
     veryLowThreshold: { default: 54, step: 1, min: 50, max: 54 },
-    lowThreshold: { default: 69, step: 5, min: 60, max: 295 },
-    highThreshold: { default: 181, step: 5, min: 65, max: 300 },
-    veryHighThreshold: { default: 250, step: 5, min: 185, max: 395 },
+    lowThreshold: { default: 69, step: 1, min: 60, max: 295 },
+    highThreshold: { default: 181, step: 1, min: 65, max: 300 },
+    veryHighThreshold: { default: 250, step: 1, min: 185, max: 395 },
   },
 };
 
-export const buildValidationSchema = (preferredBgUnits) => {
-  // The constraints for each field, e.g. { default: 69, step: 5, min: 60, max: 295 }
-  const { veryLowThreshold, lowThreshold, highThreshold, veryHighThreshold } = INPUT_CONSTRAINTS[preferredBgUnits];
+export const buildValidationSchema = (bgUnits, t) => {
+  // The constraints for each field, e.g. { default: 69, step: 1, min: 60, max: 295 }
+  const { veryLowThreshold, lowThreshold, highThreshold, veryHighThreshold } = INPUT_CONSTRAINTS[bgUnits];
 
-  // For each field, generate an array of allowed values based on min, max, and step
-  // e.g. If min = 60, max = 295, and step = 5, we generate [60, 65, 70, 75 ... 295]
-  const allowedVeryLows = (({ min, max, step }) => range(min, max + step, step))(veryLowThreshold);
-  const allowedLows = (({ min, max, step }) => range(min, max + step, step))(lowThreshold);
-  const allowedHighs = (({ min, max, step }) => range(min, max + step, step))(highThreshold);
-  const allowedVeryHighs = (({ min, max, step }) => range(min, max + step, step))(veryHighThreshold);
-
-  // Default values are often not part of the array, so we should add them to the allowed list
-  allowedVeryLows.push(veryLowThreshold.default);
-  allowedLows.push(lowThreshold.default);
-  allowedHighs.push(highThreshold.default);
-  allowedVeryHighs.push(veryHighThreshold.default);
+  // TODO: Implement Correct Error Messages
 
   return yup.object().shape({
     veryLowThreshold: yup.number()
-      .oneOf(allowedVeryLows),
+      .min(veryLowThreshold.min)
+      .max(veryLowThreshold.max),
 
     lowThreshold: yup.number()
-      .oneOf(allowedLows)
-      .test('>veryLow', 'Low threshold must be greater than very low threshold', function(value) {
+      .min(lowThreshold.min)
+      .max(lowThreshold.max)
+      .test('>veryLow', t('Low threshold must be greater than very low threshold'), function(value) {
         return value > this.parent.veryLowThreshold;
       }),
 
     highThreshold: yup.number()
-      .oneOf(allowedHighs)
-      .test('>low', 'High threshold must be greater than low threshold', function(value) {
+      .min(highThreshold.min)
+      .max(highThreshold.max)
+      .test('>low', t('High threshold must be greater than low threshold'), function(value) {
         return value > this.parent.lowThreshold;
       }),
 
     veryHighThreshold: yup.number()
-      .oneOf(allowedVeryHighs)
-      .test('>high', 'Very high threshold must be greater than high threshold', function(value) {
+      .min(veryHighThreshold.min)
+      .max(veryHighThreshold.max)
+      .test('>high', t('Very high threshold must be greater than high threshold'), function(value) {
         // Empty input allowed for veryHigh
         return value ? value > this.parent.highThreshold : true;
       }),
@@ -78,7 +72,7 @@ const customRangeInputFormStyles = {
   'input': { width: '80px', padding: 2 },
 };
 
-const CustomTargetRangeInput = ({ onChange = noop }) => {
+const CustomTargetRangeInput = ({ currentRange, onChange = noop }) => {
   const { t } = useTranslation();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
@@ -86,22 +80,22 @@ const CustomTargetRangeInput = ({ onChange = noop }) => {
 
   const constraints = INPUT_CONSTRAINTS[clinicBgUnits];
 
-  const validationSchema = useMemo(() => buildValidationSchema(clinicBgUnits), [clinicBgUnits]);
+  const validationSchema = useMemo(() => buildValidationSchema(clinicBgUnits, t), [clinicBgUnits, t]);
 
   const formik = useFormik({
     initialValues: getInitialValues(clinicBgUnits),
     validationSchema: validationSchema,
   });
 
+  // If inputted values are valid, pass them to parent, otherwise pass null
   useEffect(() => {
-    formik.validateForm().then(errors => {
-      const isValid = Object.keys(errors).length > 0;
-      const values = isValid ? formik.values : null;
+    if (isEqual(formik.values, currentRange)) return;
 
-      onChange({ isValid, values });
+    formik.validateForm().then(errors => {
+      onChange(isEmpty(errors) ? formik.values : null);
     });
 
-  }, [formik.values, onChange]);
+  }, [formik.values, currentRange, onChange]);
 
   return (
     <>
