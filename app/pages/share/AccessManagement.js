@@ -349,14 +349,14 @@ export const AccessManagement = (props) => {
     <Box sx={{ whiteSpace: 'nowrap' }}>
       {status ? (
         <Pill
-          text={status === 'pending' ? t('invite sent') : t('invite declined')}
-          label={status === 'pending' ? t('invite sent') : t('invite declined')}
+          text={status === 'pending' ? t('Invite sent') : t('Invite declined')}
+          label={status === 'pending' ? t('Invite sent') : t('Invite declined')}
           colorPalette={status === 'pending' ? colors.status.pending : colors.status.declined}
         />
       ) : (
         <Pill
-          text={t('sharing')}
-          label={t('sharing')}
+          text={t('Sharing')}
+          label={t('Sharing')}
           colorPalette="indigos" />
       )}
     </Box>

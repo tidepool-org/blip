@@ -42,7 +42,7 @@ import Stats from '../../components/chart/stats';
 import { bgLog as BgLog } from '../../components/chart';
 import { settings as Settings } from '../../components/chart';
 import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
-import baseTheme, { breakpoints, radii } from '../../themes/baseTheme';
+import baseTheme from '../../themes/baseTheme';
 import { DesktopOnly, MobileOnly } from '../../components/mediaqueries';
 
 import Messages from '../../components/messages';
@@ -1454,7 +1454,7 @@ export const PatientDataClass = createReactClass({
     this.setState({
       chartPrefs: newPrefs,
     }, () => {
-      const queryOpts = { showLoading: false };
+      const queryOpts = { showLoading: cgmSampleIntervalRangeUpdated };
 
       if (cgmSampleIntervalRangeUpdated) this.handleCgmSampleIntervalRangeUpdate(newPrefs.daily.cgmSampleIntervalRange);
 
@@ -1904,9 +1904,18 @@ export const PatientDataClass = createReactClass({
         }
 
         stateUpdateCallback = () => {
-          if (!nextProps.addingData.inProgress && !this.props.addingData.inProgress && !nextProps.fetchingPatientData && !this.props.fetchingPatientData) {
-            this.hideLoading(hideLoadingTimeout);
-          }
+          if (this.state.fetchingAdditionalData) {
+            // If data fetching is fully completed, we can set the fetchingAdditionalData state to false
+            if (!this.props.fetchingPatientData && !nextProps.fetchingPatientData) {
+              this.setState({ fetchingAdditionalData: false });
+            }
+          } else if (
+              // We are no longer fetching data. If the new data has been added, we can hide the loading indicator
+              !nextProps.addingData.inProgress &&
+              !this.props.addingData.inProgress
+            ) {
+              this.hideLoading(hideLoadingTimeout);
+            }
         };
       }
 
@@ -2302,6 +2311,7 @@ export const PatientDataClass = createReactClass({
     this.setState({
       loading: options.showLoading,
       fetchAdditionalDataCount: count,
+      fetchingAdditionalData: true,
     });
 
     this.log('fetching');
