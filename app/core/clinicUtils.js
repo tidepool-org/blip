@@ -450,8 +450,8 @@ export const patientSchema = config => {
         name: yup.string(),
       })
     ),
-    diagnosisType: yup.string(),
-    targetRangePreset: yup.string(),
+    diagnosisType: yup.string().nullable(),
+    targetRangePreset: yup.string().nullable(),
     customTargetRange: yup.object().when('targetRangePreset', {
       is: TARGET_RANGE_PRESET.CUSTOM,
       then: (schema) => schema.shape({

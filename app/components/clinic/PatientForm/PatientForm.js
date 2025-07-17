@@ -228,8 +228,6 @@ export const PatientForm = (props) => {
 
   const isCustomTargetRange = values.targetRangePreset === TARGET_RANGE_PRESET.CUSTOM;
 
-  console.log(formikContext.values?.customTargetRange)
-
   return (
     <Box
       as="form"

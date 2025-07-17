@@ -45,9 +45,7 @@ const SelectTargetRangePreset = ({ onChange, value }) => {
 
   const selectOptions = [{ options: TARGET_RANGE_PRESET_OPTS[clinicBgUnits] }];
 
-  const handleSelectRange = (opt) => {
-    onChange(opt?.value || '');
-  };
+  const handleSelectRange = (opt) => onChange(opt?.value || null);
 
   const selectValue = TARGET_RANGE_PRESET_OPTS[clinicBgUnits].find(opt => opt.value === value);
 
