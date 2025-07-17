@@ -35,6 +35,10 @@ export const buildValidationSchema = (bgUnits, t) => {
   // TODO: Implement Correct Error Messages
 
   return yup.object().shape({
+    bgUnits: yup.string()
+      .oneOf([MGDL_UNITS, MMOLL_UNITS])
+      .required(),
+
     veryLowThreshold: yup.number()
       .min(veryLowThreshold.min)
       .max(veryLowThreshold.max),
@@ -65,10 +69,12 @@ export const buildValidationSchema = (bgUnits, t) => {
 };
 
 const getInitialValues = (bgUnits) => {
-  return pick(
+  const bgBounds = pick(
     DEFAULT_BG_BOUNDS[bgUnits],
     ['veryLowThreshold', 'targetLowerBound', 'targetUpperBound', 'veryHighThreshold']
   );
+
+  return { bgUnits, ...bgBounds };
 };
 
 const customRangeInputFormStyles = {
@@ -91,11 +97,14 @@ const CustomTargetRangeInput = ({ onChange = noop }) => {
 
   const formik = useFormik({ initialValues, validationSchema });
 
-  // If inputted values are valid, pass them to parent, otherwise pass null
   useEffect(() => {
+    // If inputted values are valid, pass them to parent, otherwise pass null
     formik.validateForm().then(errors => {
       onChange(isEmpty(errors) ? formik.values : null);
     });
+
+    // On component dismount, set to null
+    return () => onChange(null);
   }, [formik.values]);
 
   const constraints = INPUT_CONSTRAINTS[clinicBgUnits];

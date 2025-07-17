@@ -42,7 +42,7 @@ export function getFormValues(source, clinicPatientTags, clinicSites) {
     sites: source?.sites?.filter(site => !!clinicSites[site.id]),
     diagnosisType: source?.diagnosisType || '',
     targetRangePreset: source?.targetRangePreset || {},
-    customTargetRange: source?.customTargetRange || {},
+    customTargetRange: source?.customTargetRange || null,
   };
 }
 
@@ -227,6 +227,8 @@ export const PatientForm = (props) => {
   }
 
   const isCustomTargetRange = values.targetRangePreset === TARGET_RANGE_PRESET.CUSTOM;
+
+  console.log(formikContext.values?.customTargetRange)
 
   return (
     <Box

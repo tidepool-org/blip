@@ -22,6 +22,7 @@ import {
   MGDL_UNITS,
   MMOLL_UNITS,
 } from '../core/constants';
+import { TARGET_RANGE_PRESET } from '../components/clinic/PatientForm/SelectTargetRangePreset';
 
 const t = i18next.t.bind(i18next);
 
@@ -452,12 +453,13 @@ export const patientSchema = config => {
     diagnosisType: yup.string(),
     targetRangePreset: yup.string(),
     customTargetRange: yup.object().when('targetRangePreset', {
-      is: 'custom',
+      is: TARGET_RANGE_PRESET.CUSTOM,
       then: (schema) => schema.shape({
-        veryLowThreshold: yup.number(),
-        targetLowerBound: yup.number(),
-        targetUpperBound: yup.number(),
+        veryLowThreshold: yup.number().required(),
+        targetLowerBound: yup.number().required(),
+        targetUpperBound: yup.number().required(),
         veryHighThreshold: yup.number().nullable(),
+        bgUnits: yup.string().oneOf([MGDL_UNITS, MMOLL_UNITS]).required(),
       }),
       otherwise: (schema) => schema.nullable(),
     }),
