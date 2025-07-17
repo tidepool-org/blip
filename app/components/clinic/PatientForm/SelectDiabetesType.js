@@ -15,7 +15,7 @@ const SelectDiabetesType = ({ onChange, value }) => {
 
   const selectOptions = [{ options: DIABETES_TYPE_OPTS }];
 
-  const handleSelectDiabetesType = (opt) => onChange(opt.value);
+  const handleSelectDiabetesType = (opt) => onChange(opt?.value);
 
   const selectValue = DIABETES_TYPE_OPTS.find(type => type.value === value);
 

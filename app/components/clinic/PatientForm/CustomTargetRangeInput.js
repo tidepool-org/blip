@@ -92,6 +92,8 @@ const CustomTargetRangeInput = ({ currentRange, onChange = noop }) => {
     if (isEqual(formik.values, currentRange)) return;
 
     formik.validateForm().then(errors => {
+      if (currentRange === null && !isEmpty(errors)) return;
+
       onChange(isEmpty(errors) ? formik.values : null);
     });
 
