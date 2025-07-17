@@ -38,7 +38,7 @@ export function getFormValues(source, clinicPatientTags, clinicSites) {
     mrn: source?.mrn || '',
     tags: reject(source?.tags || [], tagId => !clinicPatientTags?.[tagId]),
     dataSources: source?.dataSources || [],
-    sites: source?.sites?.filter(site => !!clinicSites[site.id]),
+    sites: source?.sites?.filter(site => !!clinicSites[site.id]) || [],
   };
 }
 
@@ -221,6 +221,8 @@ export const PatientForm = (props) => {
   function handleSearchChange(event) {
     debounceSearch(event.target.value);
   }
+
+  console.log(formikContext.values)
 
   return (
     <Box
