@@ -26,7 +26,7 @@ import { Body0 } from '../../../components/elements/FontStyles';
 import { MediumTitle } from '../../../components/elements/FontStyles';
 
 import SelectDiabetesType from './SelectDiabetesType';
-import SelectTargetRangePreset from './SelectTargetRangePreset';
+import SelectTargetRangePreset, { TARGET_RANGE_PRESET } from './SelectTargetRangePreset';
 import CustomTargetRangeInput from './CustomTargetRangeInput';
 import SelectTags from './SelectTags';
 import SelectSites from './SelectSites';
@@ -226,7 +226,7 @@ export const PatientForm = (props) => {
     debounceSearch(event.target.value);
   }
 
-  const isCustomTargetRange = values.targetRangePreset === 'custom';
+  const isCustomTargetRange = values.targetRangePreset === TARGET_RANGE_PRESET.CUSTOM;
 
   return (
     <Box

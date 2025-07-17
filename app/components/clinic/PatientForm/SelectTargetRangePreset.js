@@ -1,37 +1,55 @@
-import { noop } from 'lodash';
 import React from 'react';
+import { noop } from 'lodash';
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import Select from 'react-select';
 import { selectElementStyleOverrides } from './SelectTags';
 import { colors as vizColors } from '@tidepool/viz';
 import { Label } from 'theme-ui';
 
-import CustomTargetRangeInput from './CustomTargetRangeInput';
+import { MGDL_UNITS, MMOLL_UNITS } from '../../../core/constants';
+
+// Todo: Align values with backend
+export const TARGET_RANGE_PRESET = {
+  STANDARD: 'STANDARD',
+  HIGH_RISK: 'HIGH_RISK',
+  PREGNANCY: 'PREGNANCY',
+  GESTATIONAL: 'GESTATIONAL',
+  CUSTOM: 'CUSTOM',
+};
 
 // TODO: translate labels
 // TODO: mmol/L version
-const TARGET_RANGE_PRESET_OPTS = [
-  { label: 'Standard (Type 1 and 2): 70-180 mg/dL', value: 'standard' },
-  { label: 'Older/High Risk (Type 1 and 2): 70-180 mg/dL', value: 'high_risk' },
-  { label: 'Pregnancy (Type 1): 63-140 mg/dL', value: 'pregnancy' },
-  { label: 'Pregnancy (Gestational and Type 2): 63-140 mg/dL', value: 'gestational' },
-  { label: 'Custom', value: 'custom' },
-];
+const TARGET_RANGE_PRESET_OPTS = {
+  [MGDL_UNITS]: [
+    { label: 'Standard (Type 1 and 2): 70-180 mg/dL', value: TARGET_RANGE_PRESET.STANDARD },
+    { label: 'Older/High Risk (Type 1 and 2): 70-180 mg/dL', value: TARGET_RANGE_PRESET.HIGH_RISK },
+    { label: 'Pregnancy (Type 1): 63-140 mg/dL', value: TARGET_RANGE_PRESET.PREGNANCY },
+    { label: 'Pregnancy (Gestational and Type 2): 63-140 mg/dL', value: TARGET_RANGE_PRESET.GESTATIONAL },
+    { label: 'Custom', value: TARGET_RANGE_PRESET.CUSTOM },
+  ],
+  [MMOLL_UNITS]: [
+    { label: 'Standard (Type 1 and 2): 3.9-10.0 mmol/L', value: TARGET_RANGE_PRESET.STANDARD },
+    { label: 'Older/High Risk (Type 1 and 2): 3.9-10.0 mmol/L', value: TARGET_RANGE_PRESET.HIGH_RISK },
+    { label: 'Pregnancy (Type 1): 3.5-7.8 mmol/L', value: TARGET_RANGE_PRESET.PREGNANCY },
+    { label: 'Pregnancy (Gestational and Type 2): 3.5-7.8 mmol/L', value: TARGET_RANGE_PRESET.GESTATIONAL },
+    { label: 'Custom', value: TARGET_RANGE_PRESET.CUSTOM },
+  ],
+};
 
 const SelectTargetRangePreset = ({ onChange, value }) => {
   const { t } = useTranslation();
+  const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+  const clinicBgUnits = clinic?.preferredBgUnits || MGDL_UNITS;
 
-  const selectOptions = [{ options: TARGET_RANGE_PRESET_OPTS }];
+  const selectOptions = [{ options: TARGET_RANGE_PRESET_OPTS[clinicBgUnits] }];
 
   const handleSelectRange = (opt) => {
     onChange(opt?.value || '');
   };
 
-  const handleCustomRangeChange = (values) => {
-    console.log(values);
-  };
-
-  const selectValue = TARGET_RANGE_PRESET_OPTS.find(opt => opt.value === value);
+  const selectValue = TARGET_RANGE_PRESET_OPTS[clinicBgUnits].find(opt => opt.value === value);
 
   const onMenuOpen = noop;
 

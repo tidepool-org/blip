@@ -20,7 +20,7 @@ const INPUT_CONSTRAINTS = {
     targetUpperBound: { step: 1, min: 70, max: 300 },
     veryHighThreshold: { step: 1, min: 180, max: 400 },
   },
-  [MMOLL_UNITS]: { // TODO: Fix values
+  [MMOLL_UNITS]: {
     veryLowThreshold: { step: 0.1, min: 1.7, max: 3.8 },
     targetLowerBound: { step: 0.1, min: 2.8, max: 10.0 },
     targetUpperBound: { step: 0.1, min: 3.9, max: 16.7 },
@@ -141,8 +141,9 @@ const CustomTargetRangeInput = ({ onChange = noop }) => {
           step={constraints['veryHighThreshold'].step}
           min={constraints['veryHighThreshold'].min}
           max={constraints['veryHighThreshold'].max}
-          onChange={event => { // set to null when falsy
-            formik.setFieldValue('veryHighThreshold', event.target?.value || null);
+          onChange={({ target }) => {
+            const value = target.value === '' ? null : target.value; // allow empty
+            formik.setFieldValue('veryHighThreshold', value);
           }}
         />
 
