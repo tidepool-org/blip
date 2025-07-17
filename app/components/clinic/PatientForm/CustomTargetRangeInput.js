@@ -5,30 +5,34 @@ import { useFormik } from 'formik';
 import { useTranslation } from 'react-i18next';
 import * as yup from 'yup';
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../core/constants';
+import { utils as vizUtils } from '@tidepool/viz';
 
 import noop from 'lodash/noop';
 import mapValues from 'lodash/mapValues';
-import isEqual from 'lodash/isEqual';
 import isEmpty from 'lodash/isEmpty';
+import { pick } from 'lodash';
+import { preferredBgUnits } from '../../../core/clinicUtils';
+
+const { DEFAULT_BG_BOUNDS } = vizUtils.constants;
 
 const INPUT_CONSTRAINTS = {
   [MGDL_UNITS]: {
-    veryLowThreshold: { default: 54, step: 1, min: 50, max: 54 },
-    lowThreshold: { default: 69, step: 1, min: 60, max: 295 },
-    highThreshold: { default: 181, step: 1, min: 65, max: 300 },
-    veryHighThreshold: { default: 250, step: 1, min: 185, max: 395 },
+    veryLowThreshold: { step: 1, min: 50, max: 54 },
+    targetLowerBound: { step: 1, min: 60, max: 295 },
+    targetUpperBound: { step: 1, min: 65, max: 300 },
+    veryHighThreshold: { step: 1, min: 185, max: 395 },
   },
   [MMOLL_UNITS]: { // TODO: Fix values
-    veryLowThreshold: { default: 54, step: 1, min: 50, max: 54 },
-    lowThreshold: { default: 69, step: 1, min: 60, max: 295 },
-    highThreshold: { default: 181, step: 1, min: 65, max: 300 },
-    veryHighThreshold: { default: 250, step: 1, min: 185, max: 395 },
+    veryLowThreshold: { step: 1, min: 50, max: 54 },
+    targetLowerBound: { step: 1, min: 60, max: 295 },
+    targetUpperBound: { step: 1, min: 65, max: 300 },
+    veryHighThreshold: { step: 1, min: 185, max: 395 },
   },
 };
 
 export const buildValidationSchema = (bgUnits, t) => {
   // The constraints for each field, e.g. { default: 69, step: 1, min: 60, max: 295 }
-  const { veryLowThreshold, lowThreshold, highThreshold, veryHighThreshold } = INPUT_CONSTRAINTS[bgUnits];
+  const { veryLowThreshold, targetLowerBound, targetUpperBound, veryHighThreshold } = INPUT_CONSTRAINTS[bgUnits];
 
   // TODO: Implement Correct Error Messages
 
@@ -37,18 +41,18 @@ export const buildValidationSchema = (bgUnits, t) => {
       .min(veryLowThreshold.min)
       .max(veryLowThreshold.max),
 
-    lowThreshold: yup.number()
-      .min(lowThreshold.min)
-      .max(lowThreshold.max)
+    targetLowerBound: yup.number()
+      .min(targetLowerBound.min)
+      .max(targetLowerBound.max)
       .test('>veryLow', t('Low threshold must be greater than very low threshold'), function(value) {
         return value > this.parent.veryLowThreshold;
       }),
 
-    highThreshold: yup.number()
-      .min(highThreshold.min)
-      .max(highThreshold.max)
+    targetUpperBound: yup.number()
+      .min(targetUpperBound.min)
+      .max(targetUpperBound.max)
       .test('>low', t('High threshold must be greater than low threshold'), function(value) {
-        return value > this.parent.lowThreshold;
+        return value > this.parent.targetLowerBound;
       }),
 
     veryHighThreshold: yup.number()
@@ -56,12 +60,17 @@ export const buildValidationSchema = (bgUnits, t) => {
       .max(veryHighThreshold.max)
       .test('>high', t('Very high threshold must be greater than high threshold'), function(value) {
         // Empty input allowed for veryHigh
-        return value ? value > this.parent.highThreshold : true;
+        return value ? value > this.parent.targetUpperBound : true;
       }),
   });
 };
 
-const getInitialValues = (preferredBgUnits) => mapValues(INPUT_CONSTRAINTS[preferredBgUnits], 'default');
+const getInitialValues = (bgUnits) => {
+  return pick(
+    DEFAULT_BG_BOUNDS[bgUnits],
+    ['veryLowThreshold', 'targetLowerBound', 'targetUpperBound', 'veryHighThreshold']
+  );
+};
 
 const customRangeInputFormStyles = {
   marginTop: 3,
@@ -72,20 +81,16 @@ const customRangeInputFormStyles = {
   'input': { width: '80px', padding: 2 },
 };
 
-const CustomTargetRangeInput = ({ currentRange, onChange = noop }) => {
+const CustomTargetRangeInput = ({ onChange = noop }) => {
   const { t } = useTranslation();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const clinicBgUnits = clinic?.preferredBgUnits || MGDL_UNITS;
 
-  const constraints = INPUT_CONSTRAINTS[clinicBgUnits];
-
+  const initialValues = getInitialValues(clinicBgUnits);
   const validationSchema = useMemo(() => buildValidationSchema(clinicBgUnits, t), [clinicBgUnits, t]);
 
-  const formik = useFormik({
-    initialValues: getInitialValues(clinicBgUnits),
-    validationSchema: validationSchema,
-  });
+  const formik = useFormik({ initialValues, validationSchema });
 
   // If inputted values are valid, pass them to parent, otherwise pass null
   useEffect(() => {
@@ -93,6 +98,8 @@ const CustomTargetRangeInput = ({ currentRange, onChange = noop }) => {
       onChange(isEmpty(errors) ? formik.values : null);
     });
   }, [formik.values]);
+
+  const constraints = INPUT_CONSTRAINTS[clinicBgUnits];
 
   return (
     <>
@@ -107,24 +114,24 @@ const CustomTargetRangeInput = ({ currentRange, onChange = noop }) => {
           max={constraints['veryLowThreshold'].max}
         />
 
-        <label htmlFor="lowThreshold">{t('Low')}</label>
+        <label htmlFor="targetLowerBound">{t('Low')}</label>
         <input
-          {...formik.getFieldProps('lowThreshold')}
+          {...formik.getFieldProps('targetLowerBound')}
           type="number"
-          name="lowThreshold"
-          step={constraints['lowThreshold'].step}
-          min={constraints['lowThreshold'].min}
-          max={constraints['lowThreshold'].max}
+          name="targetLowerBound"
+          step={constraints['targetLowerBound'].step}
+          min={constraints['targetLowerBound'].min}
+          max={constraints['targetLowerBound'].max}
         />
 
-        <label htmlFor="highThreshold">{t('High')}</label>
+        <label htmlFor="targetUpperBound">{t('High')}</label>
         <input
-          {...formik.getFieldProps('highThreshold')}
+          {...formik.getFieldProps('targetUpperBound')}
           type="number"
-          name="highThreshold"
-          step={constraints['highThreshold'].step}
-          min={constraints['highThreshold'].min}
-          max={constraints['highThreshold'].max}
+          name="targetUpperBound"
+          step={constraints['targetUpperBound'].step}
+          min={constraints['targetUpperBound'].min}
+          max={constraints['targetUpperBound'].max}
         />
 
         <label htmlFor="veryHighThreshold">{t('Very High')}</label>

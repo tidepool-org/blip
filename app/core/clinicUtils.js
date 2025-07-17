@@ -455,8 +455,8 @@ export const patientSchema = config => {
       is: 'custom',
       then: (schema) => schema.shape({
         veryLowThreshold: yup.number(),
-        lowThreshold: yup.number(),
-        highThreshold: yup.number(),
+        targetLowerBound: yup.number(),
+        targetUpperBound: yup.number(),
         veryHighThreshold: yup.number(),
       }),
       otherwise: (schema) => schema.nullable(),
