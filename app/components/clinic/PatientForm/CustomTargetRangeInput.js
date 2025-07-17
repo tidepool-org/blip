@@ -89,15 +89,10 @@ const CustomTargetRangeInput = ({ currentRange, onChange = noop }) => {
 
   // If inputted values are valid, pass them to parent, otherwise pass null
   useEffect(() => {
-    if (isEqual(formik.values, currentRange)) return;
-
     formik.validateForm().then(errors => {
-      if (currentRange === null && !isEmpty(errors)) return;
-
       onChange(isEmpty(errors) ? formik.values : null);
     });
-
-  }, [formik.values, currentRange, onChange]);
+  }, [formik.values]);
 
   return (
     <>
