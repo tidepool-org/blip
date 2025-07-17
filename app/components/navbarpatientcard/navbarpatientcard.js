@@ -37,6 +37,7 @@ var NavbarPatientCard = withTranslation()(class extends React.Component {
     patient: PropTypes.object,
     trackMetric: PropTypes.func.isRequired,
     permsOfLoggedInUser: PropTypes.object,
+    isSmartOnFhirMode: PropTypes.bool.isRequired,
   };
 
   state = {
@@ -58,7 +59,7 @@ var NavbarPatientCard = withTranslation()(class extends React.Component {
     });
 
     var view = this.renderView(patient);
-    var upload = this.renderUpload(patient);
+    var upload = !this.props.isSmartOnFhirMode && this.renderUpload(patient);
     var share = this.renderShare(patient);
     var profile = this.renderProfile(patient);
     var overlay = this.state.showUploadOverlay ? this.renderOverlay() : null;

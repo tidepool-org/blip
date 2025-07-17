@@ -8,6 +8,7 @@ import _ from 'lodash';
 
 import Patient from '../patient/';
 import { clinicPatientFromAccountInfo } from '../../core/personutils';
+import { selectIsSmartOnFhirMode } from '../../core/selectors';
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux
@@ -119,6 +120,7 @@ export function mapStateToProps(state) {
     dataSources: state.blip.dataSources || [],
     authorizedDataSource: state.blip.authorizedDataSource,
     selectedClinicId,
+    isSmartOnFhirMode: selectIsSmartOnFhirMode(state),
   };
 }
 
