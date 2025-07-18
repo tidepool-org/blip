@@ -152,6 +152,7 @@ describe('ClinicPatients', () => {
         creatingClinicCustodialAccount: defaultWorkingState,
         sendingPatientUploadReminder: defaultWorkingState,
         sendingPatientDataProviderConnectRequest: defaultWorkingState,
+        creatingClinicSite: defaultWorkingState,
         creatingClinicPatientTag: defaultWorkingState,
         updatingClinicPatientTag: defaultWorkingState,
         deletingClinicPatientTag: defaultWorkingState,
@@ -1834,24 +1835,6 @@ describe('ClinicPatients', () => {
 
 
             sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Edit clinic tags open', sinon.match({ clinicId: 'clinicID123', source: 'Filter menu' }));
-          });
-
-          it('should allow adding a clinic patient tag', done => {
-            const addInput = editTagsDialog().find('#patient-tag-add').find('input#name');
-            const addButton = () => editTagsDialog().find('#patient-tag-add').find('button[type="submit"]').hostNodes();
-            expect(addButton()).to.have.length(1);
-            expect(addButton().props().disabled).to.be.true;
-
-            addInput.simulate('change', { persist: noop, target: { name: 'name', value: 'new tag' } })
-
-            defaultProps.api.clinics.createClinicPatientTag.resetHistory();
-            addButton().simulate('submit');
-
-            setTimeout(() => {
-              sinon.assert.calledWith(defaultProps.api.clinics.createClinicPatientTag, 'clinicID123', { name: 'new tag' });
-              sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Edit clinic tags add', sinon.match({ clinicId: 'clinicID123' }));
-              done();
-            }, 0);
           });
 
           it('should allow updating a clinic patient tag', done => {

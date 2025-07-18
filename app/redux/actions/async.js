@@ -2668,6 +2668,38 @@ export function sendPatientDataProviderConnectRequest(api, clinicId, patientId, 
 }
 
 /**
+ * Create a site for a clinic
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {Object} site - the site to create
+ * @param {String} site.name - the site name
+ */
+export function createClinicSite(api, clinicId, site) {
+  return (dispatch) => {
+    dispatch(sync.createClinicSiteRequest());
+
+    api.clinics.createClinicSite(clinicId, site, (err, updatedSites) => {
+      if (err) {
+        let message = ErrorMessages.ERR_CREATING_CLINIC_SITE;
+
+        if (err.status === 422) {
+          message = ErrorMessages.ERR_CREATING_CLINIC_SITE_MAX_EXCEEDED;
+        } else if (err.status === 409) {
+          message = ErrorMessages.ERR_CREATING_CLINIC_SITE_DUPLICATE;
+        }
+
+        dispatch(sync.createClinicSiteFailure(
+          createActionError(message, err), err
+        ));
+      } else {
+        dispatch(sync.createClinicSiteSuccess(clinicId, updatedSites));
+      }
+    });
+  };
+}
+
+/**
  * Create a patient tag for a clinic
  *
  * @param {Object} api - an instance of the API wrapper

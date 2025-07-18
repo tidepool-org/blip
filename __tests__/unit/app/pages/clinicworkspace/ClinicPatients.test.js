@@ -73,6 +73,7 @@ describe('ClinicPatients', ()  => {
         creatingClinicCustodialAccount: defaultWorkingState,
         sendingPatientUploadReminder: defaultWorkingState,
         sendingPatientDataProviderConnectRequest: defaultWorkingState,
+        creatingClinicSite: defaultWorkingState,
         creatingClinicPatientTag: defaultWorkingState,
         updatingClinicPatientTag: defaultWorkingState,
         deletingClinicPatientTag: defaultWorkingState,
@@ -136,6 +137,10 @@ describe('ClinicPatients', ()  => {
             { id: 'tag3', name: 'ttest tag 3'},
             { id: 'tag2', name: 'test tag 2'},
             { id: 'tag1', name: 'test tag 1'},
+          ],
+          sites: [
+            { id: 'site-1-id', name: 'Site Alpha' },
+            { id: 'site-2-id', name: 'Site Bravo' },
           ],
           patients: {
             patient1: {
@@ -310,12 +315,31 @@ describe('ClinicPatients', ()  => {
         getPatientsForRpmReport: jest.fn(),
         setClinicPatientLastReviewed: jest.fn(),
         revertClinicPatientLastReviewed: jest.fn(),
+        createClinicSite: jest.fn(),
       },
     },
   };
 
   const mockStore = configureStore([thunk]);
   let store;
+
+  const MockedProviderWrappers = ({ children }) => (
+    <Provider store={store}>
+      <MemoryRouter initialEntries={['/clinic-workspace']}>
+        <Switch>
+          <Route path='/clinic-workspace'>
+            <ToastProvider>
+              {children}
+            </ToastProvider>
+          </Route>
+        </Switch>
+      </MemoryRouter>
+    </Provider>
+  );
+
+  beforeEach(() => {
+    defaultProps.trackMetric.mockClear();
+  });
 
   describe('has patients', () => {
     describe('show names clicked', () => {
@@ -335,27 +359,88 @@ describe('ClinicPatients', ()  => {
               clinic: { tier: 'tier0300' },
             })),
           });
+
+          defaultProps.api.clinics.updateClinicPatient.mockClear();
+          defaultProps.api.clinics.createClinicPatientTag.mockClear();
+          defaultProps.api.clinics.createClinicSite.mockClear();
+        });
+
+        describe('managing sites', () => {
+          it('should allow creating a new site for a workspace', async () => {
+            render(
+              <MockedProviderWrappers>
+                <ClinicPatients {...defaultProps} />
+              </MockedProviderWrappers>
+            );
+
+            // Open the Edit Sites Dialog
+            await userEvent.click(screen.getByRole('button', { name: /Sites/ }));
+            await userEvent.click(screen.getByRole('button', { name: /Edit Sites/ }));
+
+            // Type in a new site "Charlie" into the textbox and click add
+            const newSiteInputField = screen.getByRole('textbox');
+            await userEvent.click(newSiteInputField);
+            await userEvent.paste('Site Charlie');
+            await userEvent.click(screen.getByRole('button', { name: /Add/ }));
+
+            await waitFor(() => expect(defaultProps.api.clinics.createClinicSite).toHaveBeenCalled());
+
+            expect(defaultProps.api.clinics.createClinicSite).toHaveBeenCalledWith(
+              'clinicID123', // clinicId,
+              { name: 'Site Charlie' }, // new site to be created
+              expect.any(Function), // callback fn passed to api
+            );
+
+            expect(defaultProps.trackMetric).toHaveBeenCalledWith(
+              'Clinic - Population Health - Edit clinic sites add',
+              { clinicId: 'clinicID123' },
+            );
+          }, TEST_TIMEOUT_MS);
+        });
+
+        describe('managing clinic patient tags', () => {
+          it('should allow creating a new tag for a workspace', async () => {
+            render(
+              <MockedProviderWrappers>
+                <ClinicPatients {...defaultProps} />
+              </MockedProviderWrappers>
+            );
+
+            // Open the Edit Sites Dialog
+            await userEvent.click(screen.getByRole('button', { name: /Tags/ }));
+            await userEvent.click(screen.getByRole('button', { name: /Edit Tags/ }));
+
+            // Type in a new tag "Delta" into the textbox and click add
+            const newTag = screen.getByRole('textbox');
+            await userEvent.click(newTag);
+            await userEvent.paste('Tag Delta');
+            await userEvent.click(screen.getByRole('button', { name: /Add/ }));
+
+            await waitFor(() => expect(defaultProps.api.clinics.createClinicPatientTag).toHaveBeenCalled());
+
+            expect(defaultProps.api.clinics.createClinicPatientTag).toHaveBeenCalledWith(
+              'clinicID123', // clinicId,
+              { name: 'Tag Delta' }, // new site to be created
+              expect.any(Function), // callback fn passed to api
+            );
+
+            expect(defaultProps.trackMetric).toHaveBeenCalledWith(
+              'Clinic - Population Health - Edit clinic tags add',
+              { clinicId: 'clinicID123' },
+            );
+          }, TEST_TIMEOUT_MS);
         });
 
         describe('managing patient tags', () => {
           it('should allow updating tags for a patient', async () => {
             render(
-              <Provider store={store}>
-                <MemoryRouter initialEntries={['/clinic-workspace']}>
-                  <Switch>
-                    <Route path='/clinic-workspace'>
-                      <ToastProvider>
-                        <ClinicPatients {...defaultProps} />
-                      </ToastProvider>
-                    </Route>
-                  </Switch>
-                </MemoryRouter>
-              </Provider>
+              <MockedProviderWrappers>
+                <ClinicPatients {...defaultProps} />
+              </MockedProviderWrappers>
             );
 
             // Click the Edit Tags icon for a patient. The Dialog for Edit Patient Details should open.
             expect(screen.queryByText('Edit Patient Details')).not.toBeInTheDocument();
-            await userEvent.click(screen.getAllByTestId('edit-tags-icon')[0]); // Open patient2
             await userEvent.click(screen.getAllByTestId('edit-tags-icon')[0]); // Open patient2
             expect(screen.getByText('Edit Patient Details')).toBeInTheDocument();
 
