@@ -39,9 +39,8 @@ export function getFormValues(source, clinicPatientTags, clinicSites) {
     tags: reject(source?.tags || [], tagId => !clinicPatientTags?.[tagId]),
     dataSources: source?.dataSources || [],
     sites: source?.sites?.filter(site => !!clinicSites[site.id]),
-    diagnosisType: source?.diagnosisType || '',
+    diagnosisType: source?.diagnosisType || null,
     targetRangePreset: source?.targetRangePreset || TARGET_RANGE_PRESET.STANDARD,
-    customTargetRange: source?.customTargetRange || null,
   };
 }
 
@@ -231,6 +230,9 @@ export const PatientForm = (props) => {
     // Wait for height modal to expand via CSS, then scroll down to enhance dropdown visibility
     setTimeout(() => ref?.current?.scrollIntoView(), 50);
   }
+
+    console.log(formikContext.values)
+  console.log(formikContext.errors)
 
   return (
     <Box

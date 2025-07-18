@@ -451,18 +451,7 @@ export const patientSchema = config => {
       })
     ),
     diagnosisType: yup.string().nullable(),
-    targetRangePreset: yup.string().nullable(),
-    customTargetRange: yup.object().when('targetRangePreset', {
-      is: TARGET_RANGE_PRESET.CUSTOM,
-      then: (schema) => schema.shape({
-        veryLowThreshold: yup.number().required(),
-        targetLowerBound: yup.number().required(),
-        targetUpperBound: yup.number().required(),
-        veryHighThreshold: yup.number().nullable(),
-        bgUnits: yup.string().oneOf([MGDL_UNITS, MMOLL_UNITS]).required(),
-      }),
-      otherwise: (schema) => schema.nullable(),
-    }),
+    targetRangePreset: yup.string(),
   });
 };
 

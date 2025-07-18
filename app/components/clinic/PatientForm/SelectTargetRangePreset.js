@@ -24,14 +24,12 @@ const TARGET_RANGE_PRESET_OPTS = {
     { label: 'Older/High Risk (Type 1 and 2): 70-180 mg/dL', value: TARGET_RANGE_PRESET.HIGH_RISK },
     { label: 'Pregnancy (Type 1): 63-140 mg/dL', value: TARGET_RANGE_PRESET.PREGNANCY },
     { label: 'Pregnancy (Gestational and Type 2): 63-140 mg/dL', value: TARGET_RANGE_PRESET.GESTATIONAL },
-    { label: 'Custom', value: TARGET_RANGE_PRESET.CUSTOM },
   ],
   [MMOLL_UNITS]: [
     { label: 'Standard (Type 1 and 2): 3.9-10.0 mmol/L', value: TARGET_RANGE_PRESET.STANDARD },
     { label: 'Older/High Risk (Type 1 and 2): 3.9-10.0 mmol/L', value: TARGET_RANGE_PRESET.HIGH_RISK },
     { label: 'Pregnancy (Type 1): 3.5-7.8 mmol/L', value: TARGET_RANGE_PRESET.PREGNANCY },
     { label: 'Pregnancy (Gestational and Type 2): 3.5-7.8 mmol/L', value: TARGET_RANGE_PRESET.GESTATIONAL },
-    { label: 'Custom', value: TARGET_RANGE_PRESET.CUSTOM },
   ],
 };
 
