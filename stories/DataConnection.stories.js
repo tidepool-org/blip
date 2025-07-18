@@ -6,7 +6,7 @@ import map from 'lodash/map';
 import noop from 'lodash/noop';
 
 import baseTheme from '../app/themes/baseTheme';
-import { activeProviders, getDataConnectionProps } from '../app/components/datasources/DataConnections';
+import { availableProviders, getDataConnectionProps } from '../app/components/datasources/DataConnections';
 import DataConnection from '../app/components/datasources/DataConnection';
 import PatientDetails from '../app/components/datasources/PatientDetails';
 import { Divider } from 'theme-ui';
@@ -29,7 +29,7 @@ export default {
 
 const patientWithState = (isClinicContext, state, opts = {}) => ({
   id: 'patient123',
-  dataSources: state ? map(activeProviders, providerName => ({
+  dataSources: state ? map(availableProviders, providerName => ({
     providerName,
     state,
     createdTime: opts.createdTime,
@@ -38,7 +38,7 @@ const patientWithState = (isClinicContext, state, opts = {}) => ({
     lastImportTime: opts.lastImportTime,
     latestDataTime: opts.latestDataTime,
   })) : undefined,
-  connectionRequests: isClinicContext && opts.createdTime ? reduce(activeProviders, (res, providerName) => {
+  connectionRequests: isClinicContext && opts.createdTime ? reduce(availableProviders, (res, providerName) => {
     res[providerName] = [{ providerName, createdTime: opts.createdTime }];
     return res;
   }, {}) : undefined,
@@ -62,7 +62,7 @@ export const ClinicUser = {
       <React.Fragment>
         <Subheading>No Pending Connections</Subheading>
 
-        {map(activeProviders, (provider, index) => (
+        {map(availableProviders, (provider, index) => (
           <DataConnection
             my={1}
             key={`provider-${index}`}
@@ -74,7 +74,7 @@ export const ClinicUser = {
         <Divider pt={3} variant="styles.dividerDark" />
         <Subheading>Invite Just Sent</Subheading>
 
-        {map(activeProviders, (provider, index) => (
+        {map(availableProviders, (provider, index) => (
           <DataConnection
             my={1}
             key={`provider-${index}`}
@@ -86,7 +86,7 @@ export const ClinicUser = {
         <Divider pt={3} variant="styles.dividerDark" />
         <Subheading>Pending</Subheading>
 
-        {map(activeProviders, (provider, index) => (
+        {map(availableProviders, (provider, index) => (
           <DataConnection
             my={1}
             key={`provider-${index}`}
@@ -98,7 +98,7 @@ export const ClinicUser = {
         <Divider pt={3} variant="styles.dividerDark" />
         <Subheading>Pending Reconnection</Subheading>
 
-        {map(activeProviders, (provider, index) => (
+        {map(availableProviders, (provider, index) => (
           <DataConnection
             my={1}
             key={`provider-${index}`}
@@ -110,7 +110,7 @@ export const ClinicUser = {
         <Divider pt={3} variant="styles.dividerDark" />
         <Subheading>Pending Expired</Subheading>
 
-        {map(activeProviders, (provider, index) => (
+        {map(availableProviders, (provider, index) => (
           <DataConnection
             my={1}
             key={`provider-${index}`}
@@ -122,7 +122,7 @@ export const ClinicUser = {
         <Divider pt={3} variant="styles.dividerDark" />
         <Subheading>Connected</Subheading>
 
-        {map(activeProviders, (provider, index) => (
+        {map(availableProviders, (provider, index) => (
           <DataConnection
             my={1}
             key={`provider-${index}`}
@@ -134,7 +134,7 @@ export const ClinicUser = {
         <Divider pt={3} variant="styles.dividerDark" />
         <Subheading>Disconnected</Subheading>
 
-        {map(activeProviders, (provider, index) => (
+        {map(availableProviders, (provider, index) => (
           <DataConnection
             my={1}
             key={`provider-${index}`}
@@ -146,7 +146,7 @@ export const ClinicUser = {
         <Divider pt={3} variant="styles.dividerDark" />
         <Subheading>Error</Subheading>
 
-        {map(activeProviders, (provider, index) => (
+        {map(availableProviders, (provider, index) => (
           <DataConnection
             my={1}
             key={`provider-${index}`}
@@ -158,7 +158,7 @@ export const ClinicUser = {
         <Divider pt={3} variant="styles.dividerDark" />
         <Subheading>Unknown</Subheading>
 
-        {map(activeProviders, (provider, index) => (
+        {map(availableProviders, (provider, index) => (
           <DataConnection
             my={1}
             key={`provider-${index}`}
@@ -194,7 +194,7 @@ export const PatientUser = {
       <React.Fragment>
         <Subheading>No Pending Connections</Subheading>
 
-        {map(activeProviders, (provider, index) => (
+        {map(availableProviders, (provider, index) => (
           <DataConnection
             my={1}
             key={`provider-${index}`}
@@ -206,7 +206,7 @@ export const PatientUser = {
         <Divider pt={3} variant="styles.dividerDark" />
         <Subheading>Connected</Subheading>
 
-        {map(activeProviders, (provider, index) => (
+        {map(availableProviders, (provider, index) => (
           <DataConnection
             my={1}
             key={`provider-${index}`}
@@ -218,7 +218,7 @@ export const PatientUser = {
         <Divider pt={3} variant="styles.dividerDark" />
         <Subheading>Connected With No Data</Subheading>
 
-        {map(activeProviders, (provider, index) => (
+        {map(availableProviders, (provider, index) => (
           <DataConnection
             my={1}
             key={`provider-${index}`}
@@ -230,7 +230,7 @@ export const PatientUser = {
         <Divider pt={3} variant="styles.dividerDark" />
         <Subheading>Connected With Data</Subheading>
 
-        {map(activeProviders, (provider, index) => (
+        {map(availableProviders, (provider, index) => (
           <DataConnection
             my={1}
             key={`provider-${index}`}
@@ -242,7 +242,7 @@ export const PatientUser = {
         <Divider pt={3} variant="styles.dividerDark" />
         <Subheading>Disconnected</Subheading>
 
-        {map(activeProviders, (provider, index) => (
+        {map(availableProviders, (provider, index) => (
           <DataConnection
             my={1}
             key={`provider-${index}`}
@@ -254,7 +254,7 @@ export const PatientUser = {
         <Divider pt={3} variant="styles.dividerDark" />
         <Subheading>Error</Subheading>
 
-        {map(activeProviders, (provider, index) => (
+        {map(availableProviders, (provider, index) => (
           <DataConnection
             my={1}
             key={`provider-${index}`}
@@ -266,7 +266,7 @@ export const PatientUser = {
         <Divider pt={3} variant="styles.dividerDark" />
         <Subheading>Unknown</Subheading>
 
-        {map(activeProviders, (provider, index) => (
+        {map(availableProviders, (provider, index) => (
           <DataConnection
             my={1}
             key={`provider-${index}`}

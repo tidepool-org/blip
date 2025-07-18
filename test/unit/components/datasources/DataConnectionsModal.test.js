@@ -4,7 +4,7 @@ import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
 import DataConnectionsModal from '../../../../app/components/datasources/DataConnectionsModal';
-import DataConnections from '../../../../app/components/datasources/DataConnections';
+import DataConnections, { availableProviders } from '../../../../app/components/datasources/DataConnections';
 import { Dialog } from '../../../../app/components/elements/Dialog';
 import { ToastProvider } from '../../../../app/providers/ToastProvider';
 
@@ -110,6 +110,7 @@ describe('DataConnectionsModal', () => {
   beforeEach(() => {
     DataConnectionsModal.__Rewire__('api', api);
     DataConnections.__Rewire__('api', api);
+    DataConnections.__Rewire__('getActiveProviders', () => availableProviders);
 
     DataConnectionsModal.__Rewire__('useHistory', sinon.stub().returns({
       location: { query: {}, pathname: '/settings' },
@@ -131,6 +132,7 @@ describe('DataConnectionsModal', () => {
     defaultProps.onBack.resetHistory();
     DataConnections.__ResetDependency__('api');
     DataConnectionsModal.__ResetDependency__('api');
+    DataConnectionsModal.__ResetDependency__('getActiveProviders');
     DataConnectionsModal.__ResetDependency__('useHistory');
   });
 
@@ -159,10 +161,11 @@ describe('DataConnectionsModal', () => {
     expect(dialog().props().open).to.be.true;
 
     const connections = dialog().find('.data-connection').hostNodes();
-    expect(connections).to.have.lengthOf(2);
+    expect(connections).to.have.lengthOf(3);
 
     expect(connections.at(0).is('#data-connection-dexcom')).to.be.true;
     expect(connections.at(1).is('#data-connection-twiist')).to.be.true;
+    expect(connections.at(2).is('#data-connection-abbott')).to.be.true;
   });
 
   it('should allow opening a dialog for updating an existing email address for a custodial patient', () => {
