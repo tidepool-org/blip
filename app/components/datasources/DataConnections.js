@@ -43,6 +43,7 @@ export const providers = {
   dexcom: {
     id: 'oauth/dexcom',
     displayName: 'Dexcom',
+    displayOrderIndex: 0,
     restrictedTokenCreate: {
         paths: [
           '/v1/oauth/dexcom',
@@ -54,24 +55,10 @@ export const providers = {
     },
     logoImage: dexcomLogo,
   },
-  twiist: {
-    id: 'oauth/twiist',
-    displayName: 'twiist',
-    restrictedTokenCreate: {
-        paths: [
-          '/v1/oauth/twiist',
-        ],
-    },
-    dataSourceFilter: {
-      providerType: 'oauth',
-      providerName: 'twiist',
-    },
-    logoImage: twiistLogo,
-    indeterminateDataImportTime: true,
-  },
   abbott: {
     id: 'oauth/abbott',
     displayName: 'FreeStyle Libre',
+    displayOrderIndex: 2,
     restrictedTokenCreate: {
         paths: [
           '/v1/oauth/abbott',
@@ -87,9 +74,25 @@ export const providers = {
       message: t('Disconnecting here has stopped new data collection from your FreeStyle Libre device. To fully revoke consent for sharing data with Tidepool, log into your FreeStyle Libre or LibreView app, access the "Connected Apps" page, and click "Manage" and then "Disconnect" next to Tidepool.'),
     },
   },
+  twiist: {
+    id: 'oauth/twiist',
+    displayName: 'twiist',
+    displayOrderIndex: 1,
+    restrictedTokenCreate: {
+        paths: [
+          '/v1/oauth/twiist',
+        ],
+    },
+    dataSourceFilter: {
+      providerType: 'oauth',
+      providerName: 'twiist',
+    },
+    logoImage: twiistLogo,
+    indeterminateDataImportTime: true,
+  },
 };
 
-export const availableProviders = keys(providers);
+export const availableProviders = orderBy(keys(providers), provider => providers[provider].displayOrderIndex);
 
 export const getActiveProviders = (overrides = {}) => {
   const activeProviders = defaults(overrides, {
@@ -683,7 +686,7 @@ DataConnections.propTypes = {
 };
 
 DataConnections.defaultProps = {
-  shownProviders: getActiveProviders(),
+  shownProviders: availableProviders,
   trackMetric: noop,
 };
 
