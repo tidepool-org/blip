@@ -231,9 +231,6 @@ export const PatientForm = (props) => {
     setTimeout(() => ref?.current?.scrollIntoView(), 50);
   }
 
-    console.log(formikContext.values)
-  console.log(formikContext.errors)
-
   return (
     <Box
       as="form"
