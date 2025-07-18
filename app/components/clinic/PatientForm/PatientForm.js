@@ -41,7 +41,7 @@ export function getFormValues(source, clinicPatientTags, clinicSites) {
     dataSources: source?.dataSources || [],
     sites: source?.sites?.filter(site => !!clinicSites[site.id]),
     diagnosisType: source?.diagnosisType || '',
-    targetRangePreset: source?.targetRangePreset || {},
+    targetRangePreset: source?.targetRangePreset || TARGET_RANGE_PRESET.STANDARD,
     customTargetRange: source?.customTargetRange || null,
   };
 }
@@ -89,6 +89,8 @@ export const PatientForm = (props) => {
   const initialFocusedInputRef = useInitialFocusedInput();
   const tagSectionRef = useRef(null);
   const siteSectionRef = useRef(null);
+  const diagnosisTypeSectionRef = useRef(null);
+  const targetRangePresetSectionRef = useRef(null);
 
   const formikContext = useFormik({
     initialValues: getFormValues(patient, clinicPatientTags, clinicSites),
@@ -226,6 +228,11 @@ export const PatientForm = (props) => {
     debounceSearch(event.target.value);
   }
 
+  function handleScrollToRef(ref) {
+    // Wait for height modal to expand via CSS, then scroll down to enhance dropdown visibility
+    setTimeout(() => ref?.current?.scrollIntoView(), 50);
+  }
+
   const isCustomTargetRange = values.targetRangePreset === TARGET_RANGE_PRESET.CUSTOM;
 
   return (
@@ -236,6 +243,8 @@ export const PatientForm = (props) => {
         minWidth: [null, '320px'],
 
         // When the select Tags or Sites dropdowns are open, expand the modal to give extra room
+        '&:has(.PatientFormSelectDiabetesType__control--menu-is-open)': { paddingBottom: '24px' },
+        '&:has(.PatientFormSelectTargetRangePreset__control--menu-is-open)': { paddingBottom: '24px' },
         '&:has(.PatientFormSelectTags__control--menu-is-open)': { paddingBottom: '162px' },
         '&:has(.PatientFormSelectSites__control--menu-is-open)': { paddingBottom: '242px' },
       }}
@@ -321,17 +330,19 @@ export const PatientForm = (props) => {
         </>
       )}
 
-      <Box mb={3}>
+      <Box ref={diagnosisTypeSectionRef} mb={3}>
         <SelectDiabetesType
           value={values.diagnosisType || ''}
           onChange={diagnosisType => setFieldValue('diagnosisType', diagnosisType)}
+          onMenuOpen={() => handleScrollToRef(diagnosisTypeSectionRef)}
         />
       </Box>
 
-      <Box mb={3}>
+      <Box ref={targetRangePresetSectionRef} mb={3}>
         <SelectTargetRangePreset
           value={values.targetRangePreset || ''}
           onChange={targetRangePreset => setFieldValue('targetRangePreset', targetRangePreset)}
+          onMenuOpen={() => handleScrollToRef(targetRangePresetSectionRef)}
         />
       </Box>
 
@@ -351,10 +362,7 @@ export const PatientForm = (props) => {
           <SelectTags
             currentTagIds={values.tags || []}
             onChange={tagIds => setFieldValue('tags', tagIds)}
-            onMenuOpen={() => {
-              // Wait for height modal to expand via CSS, then scroll down to enhance dropdown visibility
-              setTimeout(() => tagSectionRef?.current?.scrollIntoView(), 50);
-            }}
+            onMenuOpen={() => handleScrollToRef(tagSectionRef)}
           />
         </Box>
       )}
@@ -366,10 +374,7 @@ export const PatientForm = (props) => {
           <SelectSites
             currentSites={values.sites || []}
             onChange={sites => setFieldValue('sites', sites)}
-            onMenuOpen={() => {
-              // Wait for height modal to expand via CSS, then scroll down to enhance dropdown visibility
-              setTimeout(() => siteSectionRef?.current?.scrollIntoView(), 50);
-            }}
+            onMenuOpen={() => handleScrollToRef(siteSectionRef)}
           />
         </Box>
       )}

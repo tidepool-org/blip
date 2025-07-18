@@ -10,7 +10,12 @@ import { DIABETES_TYPES } from '../../../core/constants';
 
 const DIABETES_TYPE_OPTS = DIABETES_TYPES(); // eslint-disable-line new-cap
 
-const SelectDiabetesType = ({ onChange, value }) => {
+const SelectDiabetesType = ({
+  onChange,
+  value,
+  selectMenuHeight = 240,
+  onMenuOpen = noop,
+}) => {
   const { t } = useTranslation();
 
   const selectOptions = [{ options: DIABETES_TYPE_OPTS }];
@@ -18,8 +23,6 @@ const SelectDiabetesType = ({ onChange, value }) => {
   const handleSelectDiabetesType = (opt) => onChange(opt?.value || null);
 
   const selectValue = DIABETES_TYPE_OPTS.find(type => type.value === value);
-
-  const onMenuOpen = noop;
 
   return (
     <>
@@ -40,9 +43,8 @@ const SelectDiabetesType = ({ onChange, value }) => {
         onMenuOpen={onMenuOpen}
         options={selectOptions}
         closeMenuOnSelect
-        // minMenuHeight={selectMenuHeight}
-        // maxMenuHeight={selectMenuHeight}
-        // filterOption={createFilter({ stringify: opt => opt.label })}
+        minMenuHeight={selectMenuHeight}
+        maxMenuHeight={selectMenuHeight}
         isClearable
       />
     </>

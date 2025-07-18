@@ -37,7 +37,12 @@ const TARGET_RANGE_PRESET_OPTS = {
   ],
 };
 
-const SelectTargetRangePreset = ({ onChange, value }) => {
+const SelectTargetRangePreset = ({
+  onChange,
+  value,
+  selectMenuHeight = 240,
+  onMenuOpen = noop,
+}) => {
   const { t } = useTranslation();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
@@ -48,8 +53,6 @@ const SelectTargetRangePreset = ({ onChange, value }) => {
   const handleSelectRange = (opt) => onChange(opt?.value || null);
 
   const selectValue = TARGET_RANGE_PRESET_OPTS[clinicBgUnits].find(opt => opt.value === value);
-
-  const onMenuOpen = noop;
 
   return (
     <>
@@ -64,16 +67,13 @@ const SelectTargetRangePreset = ({ onChange, value }) => {
         name="patient-form-select-target-range-preset"
         id="patient-form-select-target-range-preset"
         classNamePrefix="PatientFormSelectTargetRangePreset"
-        // placeholder={''}
         value={selectValue}
         onChange={handleSelectRange}
         onMenuOpen={onMenuOpen}
         options={selectOptions}
         closeMenuOnSelect
-        // minMenuHeight={selectMenuHeight}
-        // maxMenuHeight={selectMenuHeight}
-        // filterOption={createFilter({ stringify: opt => opt.label })}
-        isClearable
+        minMenuHeight={selectMenuHeight}
+        maxMenuHeight={selectMenuHeight}
       />
     </>
   );
