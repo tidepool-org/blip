@@ -1,17 +1,14 @@
-/* global chai */
+/* global expect */
 /* global describe */
-/* global sinon */
 /* global afterEach */
 /* global context */
 /* global it */
 /* global beforeEach */
 
 import React from 'react';
-import { mount } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 
-import CGMStatistics from '../../../../../../app/pages/dashboard/PatientDrawer/CGMStatistics';
-
-const expect = chai.expect;
+import CGMStatistics from '@app/pages/dashboard/PatientDrawer/CGMStatistics';
 
 const agpCGM = {
   'data': {
@@ -40,7 +37,7 @@ const agpCGM = {
         },
         'sensorUsage': {
           'sensorUsage': 2532600000,
-          'sensorUsageAGP': 99.95264030310206,
+          'sensorUsageAGP': 99.9426403,
           'total': 2592000000,
           'sampleInterval': 300000,
           'count': 8442,
@@ -135,34 +132,22 @@ const agpCGM = {
 
 describe('PatientDrawer/CGMStatistics', () => {
   describe('When data is not present', () => {
-    const wrapper = mount(<CGMStatistics agpCGM={undefined} />);
+    it('renders nothing', () => {
+      const { container } = render(<CGMStatistics agpCGM={undefined} />);
 
-    it('renders no data', () => {
-      expect(wrapper.isEmptyRender()).to.be.true;
+      expect(container).toBeEmptyDOMElement();
     });
   });
 
   describe('When data is in mg/dL', () => {
-    const wrapper = mount(<CGMStatistics agpCGM={agpCGM} />);
+    it('renders the data in the expected format', () => {
+      render(<CGMStatistics agpCGM={agpCGM} />);
 
-    it('renders the time range in the expected format', () => {
-      expect(wrapper.find('#agp-table-time-range').hostNodes().text()).to.include('December 15, 2024 - January 13, 2025 (30 days)');
-    });
-
-    it('renders the CGM Active % in the expected format', () => {
-      expect(wrapper.find('#agp-table-cgm-active').hostNodes().text()).to.include('100%');
-    });
-
-    it('renders the Average Glucose in the expected format', () => {
-      expect(wrapper.find('#agp-table-avg-glucose').hostNodes().text()).to.include('121 mg/dL');
-    });
-
-    it('renders the GMI in the expected format', () => {
-      expect(wrapper.find('#agp-table-gmi').hostNodes().text()).to.include('6.2%');
-    });
-
-    it('renders the Glucose Variability in the expected format', () => {
-      expect(wrapper.find('#agp-table-cov').hostNodes().text()).to.include('49.8%');
+      expect(screen.getByTestId('agp-table-time-range')).toHaveTextContent('Time RangeDecember 15, 2024 - January 13, 2025 (30 days)');
+      expect(screen.getByTestId('agp-table-cgm-active')).toHaveTextContent('Time CGM Active99.9%');
+      expect(screen.getByTestId('agp-table-avg-glucose')).toHaveTextContent('Average Glucose(Goal <154 mg/dL)121 mg/dL');
+      expect(screen.getByTestId('agp-table-gmi')).toHaveTextContent('Glucose Management Indicator(Goal <7%)6.2%');
+      expect(screen.getByTestId('agp-table-cov')).toHaveTextContent('Glucose Variability(Defined as a percent coefficient of variation. Goal <= 36%)49.8%');
     });
   });
 });
