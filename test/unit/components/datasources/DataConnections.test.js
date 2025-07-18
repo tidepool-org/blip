@@ -13,9 +13,11 @@ import reduce from 'lodash/reduce';
 import PatientEmailModal from '../../../../app/components/datasources/PatientEmailModal';
 
 import DataConnections, {
-  activeProviders,
+  availableProviders,
+  getActiveProviders,
   providers,
   getProviderHandlers,
+  getCurrentDataSourceForProvider,
   getConnectStateUI,
   getDataConnectionProps
 } from '../../../../app/components/datasources/DataConnections';
@@ -32,12 +34,6 @@ import DataConnections, {
 
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
-
-describe('activeProviders', () => {
-  it('should define a list of active providers', () => {
-    expect(activeProviders).to.eql(['dexcom', 'twiist']);
-  });
-});
 
 describe('providers', () => {
   it('should define the provider details', () => {
@@ -68,6 +64,22 @@ describe('providers', () => {
     expect(twiist.logoImage).to.be.a('string');
     expect(twiist.disconnectInstructions).to.be.undefined;
     expect(twiist.indeterminateDataImportTime).to.be.true;
+  });
+});
+
+describe('availableProviders', () => {
+  it('should define a list of all available providers', () => {
+    expect(availableProviders).to.eql(['dexcom', 'twiist', 'abbott']);
+  });
+});
+
+describe('getActiveProviders', () => {
+  it('should define a default list of all available providers when called without overrides', () => {
+    expect(getActiveProviders()).to.eql(['dexcom', 'twiist']);
+  });
+
+  it('should define an overridden list of all available providers when called with overrides', () => {
+    expect(getActiveProviders({ dexcom: false, abbott: true })).to.eql(['twiist', 'abbott']);
   });
 });
 
@@ -161,6 +173,119 @@ describe('getProviderHandlers', () => {
     const handlers = getProviderHandlers(patient, selectedClinicId, provider);
     expect(handlers.sendInvite.patientUpdates).to.eql({ dataSources: [ { providerName: 'otherProvider' }, { providerName: 'provider123', state: 'pending' } ]});
     expect(handlers.resendInvite.patientUpdates).to.eql({ dataSources: [ { providerName: 'otherProvider' }, { providerName: 'provider123', state: 'pending' } ]});
+  });
+});
+
+describe('getCurrentDataSourceForProvider', () => {
+  it('should return undefined if no matching data sources', () => {
+    const patient = {
+      dataSources: [
+        { providerName: 'abbott', state: 'connected' },
+      ],
+    };
+    const result = getCurrentDataSourceForProvider(patient, 'dexcom');
+    expect(result).to.be.undefined;
+  });
+
+  it('should return undefined if patient has no dataSources', () => {
+    const patient = {};
+    const result = getCurrentDataSourceForProvider(patient, 'dexcom');
+    expect(result).to.be.undefined;
+  });
+
+  it('should return pending data source as highest priority', () => {
+    const patient = {
+      dataSources: [
+        { providerName: 'dexcom', state: 'disconnected', lastImportTime: '2024-02-01T00:00:00Z' },
+        { providerName: 'dexcom', state: 'pendingReconnect' },
+        { providerName: 'dexcom', state: 'error' },
+        { providerName: 'dexcom', state: 'connected' },
+        { providerName: 'dexcom', state: 'pending' },
+      ],
+    };
+    const result = getCurrentDataSourceForProvider(patient, 'dexcom');
+    expect(result.state).to.equal('pending');
+  });
+
+  it('should return connected data source when no pending exists', () => {
+    const patient = {
+      dataSources: [
+        { providerName: 'dexcom', state: 'disconnected', lastImportTime: '2024-02-01T00:00:00Z' },
+        { providerName: 'dexcom', state: 'pendingReconnect' },
+        { providerName: 'dexcom', state: 'error' },
+        { providerName: 'dexcom', state: 'connected' },
+      ],
+    };
+    const result = getCurrentDataSourceForProvider(patient, 'dexcom');
+    expect(result.state).to.equal('connected');
+  });
+
+  it('should return error data source when no pending or connected exists', () => {
+    const patient = {
+      dataSources: [
+        { providerName: 'dexcom', state: 'disconnected', lastImportTime: '2024-02-01T00:00:00Z' },
+        { providerName: 'dexcom', state: 'pendingReconnect' },
+        { providerName: 'dexcom', state: 'error' },
+      ],
+    };
+    const result = getCurrentDataSourceForProvider(patient, 'dexcom');
+    expect(result.state).to.equal('error');
+  });
+
+  it('should return pendingReconnect data source when no pending, connected, or error exists', () => {
+    const patient = {
+      dataSources: [
+        { providerName: 'dexcom', state: 'disconnected', lastImportTime: '2024-02-01T00:00:00Z' },
+        { providerName: 'dexcom', state: 'pendingReconnect' },
+      ],
+    };
+    const result = getCurrentDataSourceForProvider(patient, 'dexcom');
+    expect(result.state).to.equal('pendingReconnect');
+  });
+
+  it('should return the disconnected data source with the most recent lastImportTime when only disconnected states exist', () => {
+    const patient = {
+      dataSources: [
+        { providerName: 'dexcom', state: 'disconnected', lastImportTime: '2024-01-01T00:00:00Z' },
+        { providerName: 'dexcom', state: 'disconnected', lastImportTime: '2024-02-01T00:00:00Z' },
+        { providerName: 'dexcom', state: 'disconnected', lastImportTime: '2024-01-15T00:00:00Z' },
+      ],
+    };
+    const result = getCurrentDataSourceForProvider(patient, 'dexcom');
+    expect(result.lastImportTime).to.equal('2024-02-01T00:00:00Z');
+  });
+
+  it('should return disconnected data source with lastImportTime over one without lastImportTime', () => {
+    const patient = {
+      dataSources: [
+        { providerName: 'dexcom', state: 'disconnected' }, // No lastImportTime
+        { providerName: 'dexcom', state: 'disconnected', lastImportTime: '2024-01-01T00:00:00Z' },
+      ],
+    };
+    const result = getCurrentDataSourceForProvider(patient, 'dexcom');
+    expect(result.lastImportTime).to.equal('2024-01-01T00:00:00Z');
+  });
+
+  it('should handle unknown states by placing them at the end of priority', () => {
+    const patient = {
+      dataSources: [
+        { providerName: 'dexcom', state: 'unknownState' },
+        { providerName: 'dexcom', state: 'disconnected', lastImportTime: '2024-02-01T00:00:00Z' },
+      ],
+    };
+    const result = getCurrentDataSourceForProvider(patient, 'dexcom');
+    expect(result.state).to.equal('disconnected');
+  });
+
+  it('should return the first unknown state if only unknown states exist', () => {
+    const patient = {
+      dataSources: [
+        { providerName: 'dexcom', state: 'unknownState1' },
+        { providerName: 'dexcom', state: 'unknownState2' },
+      ],
+    };
+    const result = getCurrentDataSourceForProvider(patient, 'dexcom');
+    expect(result.state).to.equal('unknownState1');
   });
 });
 
@@ -347,7 +472,8 @@ describe('getDataConnectionProps', () => {
       };
     }, {}));
 
-    DataConnections.__Rewire__('activeProviders', ['provider123']);
+    DataConnections.__Rewire__('availableProviders', ['provider123']);
+    DataConnections.__Rewire__('getActiveProviders', () => ['provider123']);
 
     DataConnections.__Rewire__('providers', {
       provider123: {
@@ -360,7 +486,8 @@ describe('getDataConnectionProps', () => {
     setActiveHandlerStub.resetHistory();
     DataConnections.__ResetDependency__('getConnectStateUI');
     DataConnections.__ResetDependency__('getProviderHandlers');
-    DataConnections.__ResetDependency__('activeProviders');
+    DataConnections.__ResetDependency__('availableProviders');
+    DataConnections.__ResetDependency__('getActiveProviders');
     DataConnections.__ResetDependency__('providers');
   });
 
@@ -419,21 +546,6 @@ describe('getDataConnectionProps', () => {
       handler: 'connectState1 handler stub',
     });
   });
-
-  it('should choose the most recently modified data source for a given providerName', () => {
-    const patient = {
-      id: 'patient123',
-      dataSources: [
-        { providerName: 'provider123', state: 'connectState1', modifiedTime: moment.utc().subtract(2, 'days').toISOString() },
-        { providerName: 'provider123', state: 'connectState2', modifiedTime: moment.utc().subtract(1, 'days').toISOString() },
-      ],
-    };
-
-    const props = getDataConnectionProps(patient, false, 'clinic123', sinon.stub()).provider123;
-
-    expect(props.stateText).to.equal('connectState2 text stub');
-    expect(props.messageText).to.equal('connectState2 message stub');
-  });
 });
 
 describe('DataConnections', () => {
@@ -456,7 +568,7 @@ describe('DataConnections', () => {
 
   const patientWithState = (isClinicContext, state, opts = {}) => ({
     id: 'patient123',
-    dataSources: state ? map(activeProviders, providerName => ({
+    dataSources: state ? map(availableProviders, providerName => ({
       providerName,
       state,
       createdTime: opts.createdTime,
@@ -465,7 +577,7 @@ describe('DataConnections', () => {
       lastImportTime: opts.lastImportTime,
       latestDataTime: opts.latestDataTime,
     })) : undefined,
-    connectionRequests: isClinicContext && opts.createdTime ? reduce(activeProviders, (res, providerName) => {
+    connectionRequests: isClinicContext && opts.createdTime ? reduce(availableProviders, (res, providerName) => {
       res[providerName] = [{ providerName, createdTime: opts.createdTime }];
       return res;
     }, {}) : undefined,
@@ -495,6 +607,7 @@ describe('DataConnections', () => {
 
   let defaultProps = {
     trackMetric: sinon.stub(),
+    shownProviders: availableProviders,
   };
 
   before(() => {
@@ -547,6 +660,7 @@ describe('DataConnections', () => {
   };
 
   beforeEach(() => {
+    DataConnections.__Rewire__('getActiveProviders', () => availableProviders);
     DataConnections.__Rewire__('api', api);
     PatientEmailModal.__Rewire__('api', api);
   });
@@ -559,6 +673,7 @@ describe('DataConnections', () => {
     api.user.createRestrictedToken.resetHistory();
     api.user.createOAuthProviderAuthorization.resetHistory();
     api.user.deleteOAuthProviderAuthorization.resetHistory();
+    DataConnections.__ResetDependency__('getActiveProviders');
     DataConnections.__ResetDependency__('api');
     PatientEmailModal.__ResetDependency__('api');
   });
@@ -570,7 +685,7 @@ describe('DataConnections', () => {
         mountWrapper(store, clinicPatients.dataConnectionUnset);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(2);
+        expect(connections).to.have.lengthOf(3);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -588,7 +703,7 @@ describe('DataConnections', () => {
         mountWrapper(store, clinicPatients.dataConnectionUnset);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(2);
+        expect(connections).to.have.lengthOf(3);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -620,7 +735,7 @@ describe('DataConnections', () => {
         mountWrapper(store, clinicPatients.dataConnectionInviteJustSent);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(2);
+        expect(connections).to.have.lengthOf(3);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -638,7 +753,7 @@ describe('DataConnections', () => {
         mountWrapper(store, clinicPatients.dataConnectionInviteJustSent);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(2);
+        expect(connections).to.have.lengthOf(3);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -662,7 +777,7 @@ describe('DataConnections', () => {
         mountWrapper(store, clinicPatients.dataConnectionPending);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(2);
+        expect(connections).to.have.lengthOf(3);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -680,7 +795,7 @@ describe('DataConnections', () => {
         mountWrapper(store, clinicPatients.dataConnectionPending);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(2);
+        expect(connections).to.have.lengthOf(3);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -727,7 +842,7 @@ describe('DataConnections', () => {
         mountWrapper(store, clinicPatients.dataConnectionPendingReconnect);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(2);
+        expect(connections).to.have.lengthOf(3);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -745,7 +860,7 @@ describe('DataConnections', () => {
         mountWrapper(store, clinicPatients.dataConnectionPendingReconnect);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(2);
+        expect(connections).to.have.lengthOf(3);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -792,7 +907,7 @@ describe('DataConnections', () => {
         mountWrapper(store, clinicPatients.dataConnectionPendingExpired);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(2);
+        expect(connections).to.have.lengthOf(3);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -810,7 +925,7 @@ describe('DataConnections', () => {
         mountWrapper(store, clinicPatients.dataConnectionPendingExpired);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(2);
+        expect(connections).to.have.lengthOf(3);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -857,7 +972,7 @@ describe('DataConnections', () => {
         mountWrapper(store, clinicPatients.dataConnectionConnected);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(2);
+        expect(connections).to.have.lengthOf(3);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -875,7 +990,7 @@ describe('DataConnections', () => {
         mountWrapper(store, clinicPatients.dataConnectionConnected);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(2);
+        expect(connections).to.have.lengthOf(3);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -895,7 +1010,7 @@ describe('DataConnections', () => {
         mountWrapper(store, clinicPatients.dataConnectionDisconnected);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(2);
+        expect(connections).to.have.lengthOf(3);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -913,7 +1028,7 @@ describe('DataConnections', () => {
         mountWrapper(store, clinicPatients.dataConnectionDisconnected);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(2);
+        expect(connections).to.have.lengthOf(3);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -960,7 +1075,7 @@ describe('DataConnections', () => {
         mountWrapper(store, clinicPatients.dataConnectionError);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(2);
+        expect(connections).to.have.lengthOf(3);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -978,7 +1093,7 @@ describe('DataConnections', () => {
         mountWrapper(store, clinicPatients.dataConnectionError);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(2);
+        expect(connections).to.have.lengthOf(3);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -1027,7 +1142,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionUnset);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(2);
+        expect(connections).to.have.lengthOf(3);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -1045,7 +1160,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionUnset);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(2);
+        expect(connections).to.have.lengthOf(3);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -1080,7 +1195,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionJustConnected);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(2);
+        expect(connections).to.have.lengthOf(3);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -1098,7 +1213,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionJustConnected);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(2);
+        expect(connections).to.have.lengthOf(3);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -1130,7 +1245,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionConnectedWithNoData);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(2);
+        expect(connections).to.have.lengthOf(3);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -1148,7 +1263,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionConnectedWithNoData);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(2);
+        expect(connections).to.have.lengthOf(3);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -1180,7 +1295,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionConnectedWithData);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(2);
+        expect(connections).to.have.lengthOf(3);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -1198,7 +1313,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionConnectedWithData);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(2);
+        expect(connections).to.have.lengthOf(3);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -1230,7 +1345,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionDisconnected);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(2);
+        expect(connections).to.have.lengthOf(3);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -1248,7 +1363,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionDisconnected);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(2);
+        expect(connections).to.have.lengthOf(3);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -1283,7 +1398,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionError);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(2);
+        expect(connections).to.have.lengthOf(3);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -1301,7 +1416,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionError);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(2);
+        expect(connections).to.have.lengthOf(3);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);

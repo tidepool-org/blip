@@ -6,6 +6,7 @@ import { default as baseTheme, colors, radii } from '../../themes/baseTheme';
 import Icon from '../elements/Icon';
 import Button from '../elements/Button';
 import { Body0, Body1 } from '../elements/FontStyles';
+import { colors as vizColors } from '@tidepool/viz';
 
 export function DataConnection(props) {
   const {
@@ -59,7 +60,7 @@ export function DataConnection(props) {
         justifyContent: 'space-between',
         gap: 2,
         width: '100%',
-        bg: '#F0F5FF',
+        bg: vizColors.blue00,
         flexWrap: ['wrap', null, 'nowrap']
       }}
       {...themeProps}

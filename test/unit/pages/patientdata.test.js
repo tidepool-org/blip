@@ -2801,51 +2801,40 @@ describe('PatientData', function () {
               fetchingPatientData: true,
             });
 
-            beforeEach(() => {
-              // set props twice to ensure both this.props and nextProps set
-              wrapper.setProps({
-                ...notAddingDataProps,
-                ...notFetchingDataProps,
-              });
-            });
-
             it('should hide the loader if data is not being fetched or added to worker', () => {
               const hideLoadingSpy = sinon.spy(instance, 'hideLoading');
 
-              wrapper.setProps({
-                ...notAddingDataProps,
-                ...notFetchingDataProps,
-              });
+              instance.state.fetchingAdditionalData = true;
+              instance.state.loading = true;
 
-              // this.props.addingData.inProgress: false, nextProps.addingData.inProgress: false
-              // this.props.fetchingPatientData: false, nextProps.fetchingPatientData: false
-              sinon.assert.callCount(hideLoadingSpy, 1);
-              hideLoadingSpy.resetHistory();
-
+              // Fetching data is ongoing. Not adding data yet.
               wrapper.setProps({
                 ...notAddingDataProps,
                 ...fetchingDataProps,
               });
 
-              // this.props.addingData.inProgress: false, nextProps.addingData.inProgress: false
-              // this.props.fetchingPatientData: false, nextProps.fetchingPatientData: true
-              sinon.assert.callCount(hideLoadingSpy, 0);
+              // Should not hide the loading spinner or set state.fetchingAdditionalData to false
+              sinon.assert.notCalled(hideLoadingSpy);
+              sinon.assert.neverCalledWith(setStateSpy, sinon.match({ fetchingAdditionalData: false }));
 
-              wrapper.setProps({
-                ...notAddingDataProps,
-                ...notFetchingDataProps,
-              });
+              // Fetching data complete, but not adding data yet.
+              wrapper.setProps(notFetchingDataProps);
 
-              hideLoadingSpy.resetHistory();
+              // Should not hide the loading spinner, but should set state.fetchingAdditionalData to false
+              sinon.assert.notCalled(hideLoadingSpy);
+              sinon.assert.calledWith(setStateSpy, sinon.match({ fetchingAdditionalData: false }));
 
-              wrapper.setProps({
-                ...addingDataProps,
-                ...notFetchingDataProps,
-              });
+              // Fetching data complete, state.fetchingAdditionalData is false, adding data has commenced.
+              wrapper.setProps(addingDataProps);
 
-              // this.props.addingData.inProgress: false, nextProps.addingData.inProgress: true
-              // this.props.fetchingPatientData: false, nextProps.fetchingPatientData: false
-              sinon.assert.callCount(hideLoadingSpy, 0);
+              // Should not hide the loading spinner while adding data
+              sinon.assert.notCalled(hideLoadingSpy);
+
+              // Adding data complete.
+              wrapper.setProps(notAddingDataProps);
+
+              // Should hide the loading spinner now
+              sinon.assert.called(hideLoadingSpy);
             });
           });
         });
@@ -4614,7 +4603,7 @@ describe('PatientData', function () {
         }, '40');
       });
 
-      it('should set the `loading`, `fetchAdditionalDataCount` and `requestedPatientDataRange` state', () => {
+      it('should set the `loading`, `fetchAdditionalDataCount` and `fetchingAdditionalData` state', () => {
         const fetchedUntil = '2018-01-01T00:00:00.000Z';
 
         wrapper.setProps({
@@ -4634,6 +4623,7 @@ describe('PatientData', function () {
         sinon.assert.calledWith(setStateSpy, {
           loading: true,
           fetchAdditionalDataCount: 1,
+          fetchingAdditionalData: true,
         });
       });
 
