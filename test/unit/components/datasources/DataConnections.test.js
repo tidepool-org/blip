@@ -13,7 +13,8 @@ import reduce from 'lodash/reduce';
 import PatientEmailModal from '../../../../app/components/datasources/PatientEmailModal';
 
 import DataConnections, {
-  activeProviders,
+  availableProviders,
+  getActiveProviders,
   providers,
   getProviderHandlers,
   getCurrentDataSourceForProvider,
@@ -33,12 +34,6 @@ import DataConnections, {
 
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
-
-describe('activeProviders', () => {
-  it('should define a list of active providers', () => {
-    expect(activeProviders).to.eql(['dexcom', 'twiist', 'abbott']);
-  });
-});
 
 describe('providers', () => {
   it('should define the provider details', () => {
@@ -69,6 +64,22 @@ describe('providers', () => {
     expect(twiist.logoImage).to.be.a('string');
     expect(twiist.disconnectInstructions).to.be.undefined;
     expect(twiist.indeterminateDataImportTime).to.be.true;
+  });
+});
+
+describe('availableProviders', () => {
+  it('should define a list of all available providers', () => {
+    expect(availableProviders).to.eql(['dexcom', 'twiist', 'abbott']);
+  });
+});
+
+describe('getActiveProviders', () => {
+  it('should define a default list of all available providers when called without overrides', () => {
+    expect(getActiveProviders()).to.eql(['dexcom', 'twiist']);
+  });
+
+  it('should define an overridden list of all available providers when called with overrides', () => {
+    expect(getActiveProviders({ dexcom: false, abbott: true })).to.eql(['twiist', 'abbott']);
   });
 });
 
@@ -461,7 +472,8 @@ describe('getDataConnectionProps', () => {
       };
     }, {}));
 
-    DataConnections.__Rewire__('activeProviders', ['provider123']);
+    DataConnections.__Rewire__('availableProviders', ['provider123']);
+    DataConnections.__Rewire__('getActiveProviders', () => ['provider123']);
 
     DataConnections.__Rewire__('providers', {
       provider123: {
@@ -474,7 +486,8 @@ describe('getDataConnectionProps', () => {
     setActiveHandlerStub.resetHistory();
     DataConnections.__ResetDependency__('getConnectStateUI');
     DataConnections.__ResetDependency__('getProviderHandlers');
-    DataConnections.__ResetDependency__('activeProviders');
+    DataConnections.__ResetDependency__('availableProviders');
+    DataConnections.__ResetDependency__('getActiveProviders');
     DataConnections.__ResetDependency__('providers');
   });
 
@@ -555,7 +568,7 @@ describe('DataConnections', () => {
 
   const patientWithState = (isClinicContext, state, opts = {}) => ({
     id: 'patient123',
-    dataSources: state ? map(activeProviders, providerName => ({
+    dataSources: state ? map(availableProviders, providerName => ({
       providerName,
       state,
       createdTime: opts.createdTime,
@@ -564,7 +577,7 @@ describe('DataConnections', () => {
       lastImportTime: opts.lastImportTime,
       latestDataTime: opts.latestDataTime,
     })) : undefined,
-    connectionRequests: isClinicContext && opts.createdTime ? reduce(activeProviders, (res, providerName) => {
+    connectionRequests: isClinicContext && opts.createdTime ? reduce(availableProviders, (res, providerName) => {
       res[providerName] = [{ providerName, createdTime: opts.createdTime }];
       return res;
     }, {}) : undefined,
@@ -594,6 +607,7 @@ describe('DataConnections', () => {
 
   let defaultProps = {
     trackMetric: sinon.stub(),
+    shownProviders: availableProviders,
   };
 
   before(() => {
@@ -646,6 +660,7 @@ describe('DataConnections', () => {
   };
 
   beforeEach(() => {
+    DataConnections.__Rewire__('getActiveProviders', () => availableProviders);
     DataConnections.__Rewire__('api', api);
     PatientEmailModal.__Rewire__('api', api);
   });
@@ -658,6 +673,7 @@ describe('DataConnections', () => {
     api.user.createRestrictedToken.resetHistory();
     api.user.createOAuthProviderAuthorization.resetHistory();
     api.user.deleteOAuthProviderAuthorization.resetHistory();
+    DataConnections.__ResetDependency__('getActiveProviders');
     DataConnections.__ResetDependency__('api');
     PatientEmailModal.__ResetDependency__('api');
   });
