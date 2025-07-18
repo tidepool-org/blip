@@ -27,7 +27,6 @@ import { MediumTitle } from '../../../components/elements/FontStyles';
 
 import SelectDiabetesType from './SelectDiabetesType';
 import SelectTargetRangePreset, { TARGET_RANGE_PRESET } from './SelectTargetRangePreset';
-import CustomTargetRangeInput from './CustomTargetRangeInput';
 import SelectTags from './SelectTags';
 import SelectSites from './SelectSites';
 
@@ -233,8 +232,6 @@ export const PatientForm = (props) => {
     setTimeout(() => ref?.current?.scrollIntoView(), 50);
   }
 
-  const isCustomTargetRange = values.targetRangePreset === TARGET_RANGE_PRESET.CUSTOM;
-
   return (
     <Box
       as="form"
@@ -345,15 +342,6 @@ export const PatientForm = (props) => {
           onMenuOpen={() => handleScrollToRef(targetRangePresetSectionRef)}
         />
       </Box>
-
-      { isCustomTargetRange &&
-        <Box mb={3}>
-          <CustomTargetRangeInput
-            currentRange={values.customTargetRange}
-            onChange={range => setFieldValue('customTargetRange', range)}
-          />
-        </Box>
-      }
 
       {showTags && (
         <Box ref={tagSectionRef} mb={3}>

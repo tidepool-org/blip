@@ -15,11 +15,9 @@ export const TARGET_RANGE_PRESET = {
   HIGH_RISK: 'HIGH_RISK',
   PREGNANCY: 'PREGNANCY',
   GESTATIONAL: 'GESTATIONAL',
-  CUSTOM: 'CUSTOM',
+  // CUSTOM: 'CUSTOM',
 };
 
-// TODO: translate labels
-// TODO: mmol/L version
 const TARGET_RANGE_PRESET_OPTS = {
   [MGDL_UNITS]: [
     { label: 'Standard (Type 1 and 2): 70-180 mg/dL', value: TARGET_RANGE_PRESET.STANDARD },
