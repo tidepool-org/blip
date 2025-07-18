@@ -4,7 +4,7 @@ import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
 import DataConnectionsModal from '../../../../app/components/datasources/DataConnectionsModal';
-import DataConnections from '../../../../app/components/datasources/DataConnections';
+import DataConnections, { availableProviders } from '../../../../app/components/datasources/DataConnections';
 import { Dialog } from '../../../../app/components/elements/Dialog';
 import { ToastProvider } from '../../../../app/providers/ToastProvider';
 
@@ -110,6 +110,7 @@ describe('DataConnectionsModal', () => {
   beforeEach(() => {
     DataConnectionsModal.__Rewire__('api', api);
     DataConnections.__Rewire__('api', api);
+    DataConnections.__Rewire__('getActiveProviders', () => availableProviders);
 
     DataConnectionsModal.__Rewire__('useHistory', sinon.stub().returns({
       location: { query: {}, pathname: '/settings' },
@@ -131,6 +132,7 @@ describe('DataConnectionsModal', () => {
     defaultProps.onBack.resetHistory();
     DataConnections.__ResetDependency__('api');
     DataConnectionsModal.__ResetDependency__('api');
+    DataConnectionsModal.__ResetDependency__('getActiveProviders');
     DataConnectionsModal.__ResetDependency__('useHistory');
   });
 
