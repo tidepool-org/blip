@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
-import { withTranslation, Trans } from 'react-i18next';
+import { withTranslation, Trans, useTranslation } from 'react-i18next';
 import moment from 'moment';
 import compact from 'lodash/compact';
 import debounce from 'lodash/debounce';
@@ -162,48 +162,125 @@ const ClearButton = styled.button`
   text-decoration: underline;
 `;
 
-const hasAppliedFilters = (activeFilters = {}) => {
+export const PATIENT_LIST_QUERY_STATE = {
+  FILTER_AND_SEARCH: 'FILTER_AND_SEARCH',
+  FILTER_ONLY: 'FILTER_ONLY',
+  SEARCH_ONLY: 'SEARCH_ONLY',
+  NONE: 'NONE',
+};
+
+export const getPatientListQueryState = (
+  activeFilters = {},
+  patientListSearchTextInput = '',
+) => {
   const { lastData, lastDataType, timeCGMUsePercent, timeInRange, patientTags } = activeFilters;
 
-  return (
+  const hasFiltersActive = (
     lastData ||
     lastDataType ||
     timeCGMUsePercent ||
     timeInRange?.length > 0 ||
     patientTags?.length > 0
   );
-};
 
-const ClearFilterButtons = withTranslation()(({ t, activeFilters = {}, onClearSearch, onResetFilters }) => {
-  const { patientListSearchTextInput } = useSelector(state => state.blip.patientListFilters);
-
-  const hasFiltersActive = hasAppliedFilters(activeFilters);
   const hasSearchActive = !!patientListSearchTextInput;
 
-  if (!hasSearchActive && !hasFiltersActive) return null;
+  if (hasFiltersActive && hasSearchActive) {
+    return PATIENT_LIST_QUERY_STATE.FILTER_AND_SEARCH;
+  } else if (hasFiltersActive) {
+    return PATIENT_LIST_QUERY_STATE.FILTER_ONLY;
+  } else if (hasSearchActive) {
+    return PATIENT_LIST_QUERY_STATE.SEARCH_ONLY;
+  }
+
+  return PATIENT_LIST_QUERY_STATE.NONE;
+};
+
+const EmptyContentNode = ({ patientListQueryState, children }) => {
+  const { t } = useTranslation();
+  const { FILTER_AND_SEARCH, FILTER_ONLY, SEARCH_ONLY, NONE } = PATIENT_LIST_QUERY_STATE;
+
+  const emptyContentCopyDefs = {
+    [FILTER_AND_SEARCH]: t('There are no patient accounts with the current filter(s) that match your search'),
+    [FILTER_ONLY]: t('There are no patient accounts with the current filter(s)'),
+    [SEARCH_ONLY]: t('There are no patient accounts that match your search'),
+    [NONE]: t('There are no results to show'),
+  };
+
+  const emptyContentCopy = emptyContentCopyDefs[patientListQueryState] || emptyContentCopyDefs[NONE];
 
   return (
-    <Box>
-      { hasFiltersActive &&
-        <ClearButton
-          className='reset-filters-button'
-          onClick={onResetFilters}>{t('Reset Filters')}
-        </ClearButton> }
-      { hasSearchActive && hasFiltersActive &&
-        <>{' '}{t('or')}{' '}</> }
-      { hasSearchActive &&
-        <ClearButton
-          className='clear-search-button'
-          onClick={onClearSearch}>{t('Clear Search')}
-        </ClearButton> }
-    </Box>
+    <Flex sx={{
+      backgroundColor: colorPalette.primary.bluePrimary00,
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '90px',
+      flexDirection: 'column',
+      gap: 2,
+      marginBottom: 4,
+      borderBottom: '1px solid #D1D6E1',
+    }}>
+      <Text className="table-empty-text" sx={{ fontWeight: 'medium' }}>
+        {emptyContentCopy}
+      </Text>
+
+      {children}
+    </Flex>
   );
+};
+
+const ClearFilterButtons = withTranslation()(({ t, patientListQueryState, onClearSearch, onResetFilters }) => {
+  const { FILTER_AND_SEARCH, FILTER_ONLY, SEARCH_ONLY, NONE } = PATIENT_LIST_QUERY_STATE;
+
+  switch(patientListQueryState) {
+    case SEARCH_ONLY:
+      return <Box>
+        <ClearButton className='clear-search-button' onClick={onClearSearch}>
+          {t('Clear Search')}
+        </ClearButton>
+      </Box>;
+
+    case FILTER_ONLY:
+      return <Box>
+        <ClearButton className='reset-filters-button' onClick={onResetFilters}>
+          {t('Reset Filters')}
+        </ClearButton>
+      </Box>;
+
+    case FILTER_AND_SEARCH:
+      return <Box>
+        <ClearButton className='reset-filters-button' onClick={onResetFilters}>
+          {t('Reset Filters')}
+        </ClearButton>
+        <>{' '}{t('or')}{' '}</>
+        <ClearButton className='clear-search-button' onClick={onClearSearch}>
+          {t('Clear Search')}
+        </ClearButton>
+      </Box>;
+
+    case NONE:
+    default:
+      return null;
+  }
 });
 
-const FilterResetBar = withTranslation()(({ t, rightSideContent }) => {
+const FilterResetBar = withTranslation()(({ t, rightSideContent, patientListQueryState }) => {
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
-  const fetchedPatientTotalCount = clinic?.fetchedPatientTotalCount || 0;
+  const count = clinic?.fetchedPatientCount || 0;
+
+  const { FILTER_AND_SEARCH, FILTER_ONLY, SEARCH_ONLY, NONE } = PATIENT_LIST_QUERY_STATE;
+
+  if (patientListQueryState === PATIENT_LIST_QUERY_STATE.NONE) return null; // hide when no search or filters applied
+
+  const fetchedPatientCountCopyDefs = {
+    [FILTER_AND_SEARCH]: t('Showing {{ count }} patient accounts with the current filter(s) that match your search', { count }),
+    [FILTER_ONLY]: t('Showing {{ count }} patient accounts with the current filter(s)', { count }),
+    [SEARCH_ONLY]: t('Showing {{ count }} patient accounts that match your search', { count }),
+    [NONE]: t('There are no results to show'),
+  };
+
+  const fetchedPatientCountCopy = fetchedPatientCountCopyDefs[patientListQueryState];
 
   return (
     <Flex
@@ -216,13 +293,7 @@ const FilterResetBar = withTranslation()(({ t, rightSideContent }) => {
         justifyContent: 'space-between',
       }}
     >
-      <Text sx={{ fontWeight: 'medium' }}>
-        {t('Showing {{ shown }} of {{ total }} patient accounts', {
-          shown: clinic?.fetchedPatientCount,
-          total: fetchedPatientTotalCount,
-        })}
-      </Text>
-
+      <Text sx={{ fontWeight: 'medium' }}>{fetchedPatientCountCopy}</Text>
       <Box>{rightSideContent}</Box>
     </Flex>
   );
@@ -3623,29 +3694,6 @@ export const ClinicPatients = (props) => {
     setShowDeleteDialog,
   ]);
 
-  const EmptyContentNode = () => (
-    <Flex sx={{
-      backgroundColor: vizColors.blue00,
-      justifyContent: 'center',
-      alignItems: 'center',
-      minHeight: '90px',
-      flexDirection: 'column',
-      gap: 2,
-      marginBottom: 4,
-      borderBottom: '1px solid #D1D6E1',
-    }}>
-      <Text className="table-empty-text" sx={{ fontWeight: 'medium' }}>
-        {t('There are no results to show')}
-      </Text>
-
-      <ClearFilterButtons
-        activeFilters={activeFilters}
-        onClearSearch={handleClearSearch}
-        onResetFilters={handleResetFilters}
-      />
-    </Flex>
-  );
-
   const columns = useMemo(() => {
     const cols = [
       {
@@ -3844,24 +3892,26 @@ export const ClinicPatients = (props) => {
     const page = Math.ceil(patientFetchOptions.offset / patientFetchOptions.limit) + 1;
     const sort = patientFetchOptions.sort || defaultPatientFetchOptions.sort;
 
-    const hasActiveFilters = hasAppliedFilters(activeFilters);
-    const hasSearchActive = !!patientListSearchTextInput;
+    const patientListQueryState = getPatientListQueryState(activeFilters, patientListSearchTextInput);
 
-    // Show the Filter Reset Bar only if data exists and any filters are applied
-    const showFilterResetBar = (data?.length > 0) && (hasActiveFilters || hasSearchActive);
+    // Show the Filter Reset Bar only if data exists and any filters/search are applied
+    const showFilterResetBar = (data?.length > 0) && patientListQueryState !== PATIENT_LIST_QUERY_STATE.NONE;
 
     return (
       <Box>
         <Loader show={loading} overlay={true} />
 
         { showFilterResetBar &&
-          <FilterResetBar rightSideContent={
-            <ClearFilterButtons
-              activeFilters={activeFilters}
-              onClearSearch={handleClearSearch}
-              onResetFilters={handleResetFilters}
-            />
-          }/>
+          <FilterResetBar
+            patientListQueryState={patientListQueryState}
+            rightSideContent={
+              <ClearFilterButtons
+                patientListQueryState={patientListQueryState}
+                onClearSearch={handleClearSearch}
+                onResetFilters={handleResetFilters}
+              />
+            }
+          />
         }
 
         <Table
@@ -3874,7 +3924,15 @@ export const ClinicPatients = (props) => {
           onSort={handleSortChange}
           order={sort?.substring(0, 1) === '+' ? 'asc' : 'desc'}
           orderBy={sort?.substring(1)}
-          emptyContentNode={<EmptyContentNode />}
+          emptyContentNode={
+            <EmptyContentNode patientListQueryState={patientListQueryState}>
+              <ClearFilterButtons
+                patientListQueryState={patientListQueryState}
+                onClearSearch={handleClearSearch}
+                onResetFilters={handleResetFilters}
+              />
+            </EmptyContentNode>
+          }
         />
 
         {pageCount > 1 && (
