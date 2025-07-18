@@ -1,3 +1,5 @@
+import compact from 'lodash/compact';
+import each from 'lodash/each';
 import get from 'lodash/get';
 import filter from 'lodash/filter';
 import includes from 'lodash/includes';
@@ -6,6 +8,7 @@ import isEqual from 'lodash/isEqual';
 import isNull from 'lodash/isNull';
 import keys from 'lodash/keys';
 import reduce from 'lodash/reduce';
+import uniq from 'lodash/uniq';
 import values from 'lodash/values';
 import bows from 'bows';
 import config from '../../config';
@@ -286,10 +289,12 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
       if (currentPatientInViewId) {
         const matchedDevices = get(action.payload, 'result.metaData.matchedDevices');
 
-        currentlyViewedDevices = reduce(values(matchedDevices), (acc, device) => {
-          acc.push(...keys(device));
+        currentlyViewedDevices = uniq(reduce(values(matchedDevices), (acc, device) => {
+          each(keys(device), (key) => {
+            acc.push(...parseDeviceKeyVersions(key));
+          });
           return acc;
-        }, []);
+        }, []));
       }
 
       pendoAction({
@@ -320,5 +325,39 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
   }
   return next(action);
 };
+
+export function parseDeviceKeyVersions(key) {
+  // Split on the last underscore to separate device origin from version
+  const lastUnderscoreIndex = key.lastIndexOf('_');
+  const deviceOrigin = key.substring(0, lastUnderscoreIndex);
+  const fullVersion = key.substring(lastUnderscoreIndex + 1);
+
+  // Extract just the semver part (everything before the '+' or '-' if they exist)
+  const semver = fullVersion.split('+')[0].split('-')[0];
+  const versionParts = filter(semver.split('.'), part => part && !isNaN(part));
+  const result = [];
+
+  // If no version parts, just return the key
+  if (isEmpty(versionParts)) {
+    return compact([key]);
+  }
+
+  // Add major version
+  if (versionParts.length >= 1) {
+    result.push(`${deviceOrigin}_${versionParts[0]}`);
+  }
+
+  // Add major.minor version
+  if (versionParts.length >= 2) {
+    result.push(`${deviceOrigin}_${versionParts[0]}.${versionParts[1]}`);
+  }
+
+  // Add major.minor.patch version
+  if (versionParts.length >= 3) {
+    result.push(`${deviceOrigin}_${versionParts[0]}.${versionParts[1]}.${versionParts[2]}`);
+  }
+
+  return result;
+}
 
 export default pendoMiddleware;

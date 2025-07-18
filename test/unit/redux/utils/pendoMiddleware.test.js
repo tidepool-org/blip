@@ -5,7 +5,7 @@
 /* global beforeEach */
 
 import * as ActionTypes from '../../../../app/redux/constants/actionTypes';
-import pendoMiddleware from '../../../../app/redux/utils/pendoMiddleware';
+import pendoMiddleware, { parseDeviceKeyVersions } from '../../../../app/redux/utils/pendoMiddleware';
 import _ from 'lodash';
 
 describe('pendoMiddleware', () => {
@@ -897,8 +897,9 @@ describe('pendoMiddleware', () => {
         result: {
           metaData: {
             matchedDevices: {
-              deviceType1: { device1: {}, device2: {} },
-              deviceType2: { device3: {} },
+              deviceType1: { device1: true, device2: true },
+              deviceType2: { device3: true },
+              deviceType3: { 'device3_1.0.1-rc.1+10034': true },
             },
           },
         },
@@ -933,7 +934,7 @@ describe('pendoMiddleware', () => {
       },
       visitor: {
         id: 'clinicAdminID',
-        currentlyViewedDevices: ['device1', 'device2', 'device3'],
+        currentlyViewedDevices: ['device1', 'device2', 'device3', 'device3_1', 'device3_1.0', 'device3_1.0.1'],
       },
     };
 
@@ -1030,5 +1031,70 @@ describe('pendoMiddleware', () => {
     expect(winMock.pendo.updateOptions.callCount).to.equal(1);
     expect(winMock.pendo.updateOptions.getCall(0).args[0]).to.eql(expectedConfig);
     expect(winMock.pendo.updateOptions.calledWith(expectedConfig)).to.be.true;
+  });
+});
+
+describe('parseDeviceKeyVersions', () => {
+  it('should parse device key with full semver and build metadata', () => {
+    const key = 'com.dekaresearch.twiist_1.0.0+1.11-14.16';
+    const result = parseDeviceKeyVersions(key);
+
+    expect(result).to.have.lengthOf(3);
+    expect(result).to.include('com.dekaresearch.twiist_1.0.0');
+    expect(result).to.include('com.dekaresearch.twiist_1.0');
+    expect(result).to.include('com.dekaresearch.twiist_1');
+  });
+
+  it('should parse device key with only major.minor.patch', () => {
+    const key = 'com.dexcom.g6_2.1.3';
+    const result = parseDeviceKeyVersions(key);
+
+    expect(result).to.have.lengthOf(3);
+    expect(result).to.include('com.dexcom.g6_2.1.3');
+    expect(result).to.include('com.dexcom.g6_2.1');
+    expect(result).to.include('com.dexcom.g6_2');
+  });
+
+  it('should parse device key with only major.minor', () => {
+    const key = 'com.example.device_1.5';
+    const result = parseDeviceKeyVersions(key);
+
+    expect(result).to.have.lengthOf(2);
+    expect(result).to.include('com.example.device_1.5');
+    expect(result).to.include('com.example.device_1');
+  });
+
+  it('should parse device key with only major version', () => {
+    const key = 'com.example.device_2';
+    const result = parseDeviceKeyVersions(key);
+
+    expect(result).to.have.lengthOf(1);
+    expect(result).to.include('com.example.device_2');
+  });
+
+  it('should handle device origin with multiple underscores', () => {
+    const key = 'com.company.device_name_with_underscores_1.2.3';
+    const result = parseDeviceKeyVersions(key);
+
+    expect(result).to.have.lengthOf(3);
+    expect(result).to.include('com.company.device_name_with_underscores_1.2.3');
+    expect(result).to.include('com.company.device_name_with_underscores_1.2');
+    expect(result).to.include('com.company.device_name_with_underscores_1');
+  });
+
+  it('should handle version with pre-release identifier', () => {
+    const key = 'com.example.device_1.0.0-beta.1';
+    const result = parseDeviceKeyVersions(key);
+
+    expect(result).to.have.lengthOf(3);
+    expect(result).to.include('com.example.device_1.0.0');
+    expect(result).to.include('com.example.device_1.0');
+    expect(result).to.include('com.example.device_1');
+  });
+
+  it('should handle empty keys or keys without semver gracefully', () => {
+    expect(parseDeviceKeyVersions('')).to.deep.equal([]);
+    expect(parseDeviceKeyVersions('no_underscore')).to.deep.equal(['no_underscore']);
+    expect(parseDeviceKeyVersions('device_')).to.deep.equal(['device_']);
   });
 });
