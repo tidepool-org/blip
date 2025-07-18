@@ -67,7 +67,6 @@ describe('DataConnectionsModal', () => {
     onClose: sinon.stub(),
     onBack: sinon.stub(),
     patient: patientWithEmail,
-    shownProviders: availableProviders,
     trackMetric: sinon.stub(),
   };
 
