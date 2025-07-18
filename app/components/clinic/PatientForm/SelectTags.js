@@ -35,13 +35,28 @@ export const buildSelectOptions = (
 };
 
 export const selectElementStyleOverrides = {
-  option: base => ({ ...base, paddingLeft: '4px', paddingRight: '4px', fontSize: 14, color: colors.blueGreyDark }),
   placeholder: base => ({ ...base, fontSize: 14, color: colors.blueGreyMedium }),
   groupHeading: base => ({ ...base, textTransform: 'none', fontWeight: 'normal', paddingLeft: '4px', paddingRight: '0' }),
   menu: base => ({ ...base, top: 'unset' }),
   multiValue: base => ({ ...base, borderRadius: '3px', background: colors.blueGreyDark, border: 'none' }),
   multiValueLabel: base => ({ ...base, borderRadius: '0', color: colors.white }),
   input: base => ({ ...base, color: colors.blueGreyDark, fontSize: 14 }),
+  singleValue: base => ({ ...base, color: colors.blueGreyDark, fontSize: 14 }),
+  option: (base, state) => {
+    const styles = {
+      ...base,
+      paddingLeft: '4px',
+      paddingRight: '4px',
+      fontSize: 14,
+      color: colors.blueGreyDark,
+    };
+
+    if (state.isSelected) {
+      styles.backgroundColor = colors.white;
+    }
+
+    return styles;
+  },
   control: base => ({
     ...base,
     borderRadius: '3px',
