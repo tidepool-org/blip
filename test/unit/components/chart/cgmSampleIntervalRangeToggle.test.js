@@ -39,10 +39,10 @@ describe('CgmSampleIntervalRangeToggle', () => {
   it('should activate the appropriate sampleInterval when chartPrefs sampleInterval prop changes', () => {
     let toggle = () => wrapper.find('.toggle-container').children('TwoOptionToggle');
 
-    expect(toggle().props().left.label).to.equal('1min Data');
+    expect(toggle().props().left.label).to.equal('1 min Data');
     expect(toggle().props().left.state).to.be.false;
 
-    expect(toggle().props().right.label).to.equal('5min Data');
+    expect(toggle().props().right.label).to.equal('5 min Data');
     expect(toggle().props().right.state).to.be.true;
 
     wrapper.setProps(_.assign({}, props, {
@@ -53,23 +53,23 @@ describe('CgmSampleIntervalRangeToggle', () => {
       },
     }));
 
-    expect(toggle().props().left.label).to.equal('1min Data');
+    expect(toggle().props().left.label).to.equal('1 min Data');
     expect(toggle().props().left.state).to.be.true;
 
-    expect(toggle().props().right.label).to.equal('5min Data');
+    expect(toggle().props().right.label).to.equal('5 min Data');
     expect(toggle().props().right.state).to.be.false;
   });
 
   it('should fall back to the default cgm sample range when cgmSampleIntervalRange is not available in chartPrefs', () => {
     let toggle = () => wrapper.find('.toggle-container').children('TwoOptionToggle');
 
-    expect(toggle().props().left.label).to.equal('1min Data');
+    expect(toggle().props().left.label).to.equal('1 min Data');
     expect(toggle().props().left.state).to.be.false;
 
-    expect(toggle().props().right.label).to.equal('5min Data');
+    expect(toggle().props().right.label).to.equal('5 min Data');
     expect(toggle().props().right.state).to.be.true;
 
-    // Unset cgmSampleIntervalRange, and it should fall back to 5min data
+    // Unset cgmSampleIntervalRange, and it should fall back to 5 min Data
     wrapper.setProps(_.assign({}, props, {
       chartPrefs: {
         daily: {
@@ -78,10 +78,10 @@ describe('CgmSampleIntervalRangeToggle', () => {
       },
     }));
 
-    expect(toggle().props().left.label).to.equal('1min Data');
+    expect(toggle().props().left.label).to.equal('1 min Data');
     expect(toggle().props().left.state).to.be.false;
 
-    expect(toggle().props().right.label).to.equal('5min Data');
+    expect(toggle().props().right.label).to.equal('5 min Data');
     expect(toggle().props().right.state).to.be.true;
   });
 
