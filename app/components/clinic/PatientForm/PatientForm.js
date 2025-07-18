@@ -222,8 +222,6 @@ export const PatientForm = (props) => {
     debounceSearch(event.target.value);
   }
 
-  console.log(formikContext.values)
-
   return (
     <Box
       as="form"
