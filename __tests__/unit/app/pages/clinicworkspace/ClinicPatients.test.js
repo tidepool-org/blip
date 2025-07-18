@@ -324,6 +324,7 @@ describe('ClinicPatients', ()  => {
         setClinicPatientLastReviewed: jest.fn(),
         revertClinicPatientLastReviewed: jest.fn(),
         createClinicSite: jest.fn(),
+        updateClinicSite: jest.fn(),
       },
     },
   };
@@ -534,7 +535,7 @@ describe('ClinicPatients', ()  => {
             await userEvent.click(screen.getByRole('button', { name: /Edit Sites/ }));
 
             // Type in a new site "Charlie" into the textbox and click add
-            const newSiteInputField = screen.getByRole('textbox');
+            const newSiteInputField = await screen.findByRole('textbox');
             await userEvent.click(newSiteInputField);
             await userEvent.paste('Site Charlie');
             await userEvent.click(screen.getByRole('button', { name: /Add/ }));
@@ -549,6 +550,47 @@ describe('ClinicPatients', ()  => {
 
             expect(defaultProps.trackMetric).toHaveBeenCalledWith(
               'Clinic - Population Health - Edit clinic sites add',
+              { clinicId: 'clinicID123' },
+            );
+          }, TEST_TIMEOUT_MS);
+
+          it('should allow updating an existing site for a workspace', async () => {
+            render(
+              <MockedProviderWrappers>
+                <ClinicPatients {...defaultProps} />
+              </MockedProviderWrappers>
+            );
+
+            // Open the Edit Sites Dialog
+            await userEvent.click(screen.getByRole('button', { name: /Sites/ }));
+            await userEvent.click(screen.getByRole('button', { name: /Edit Sites/ }));
+
+            // Click on Icon to edit site 2. Dialog titled ` Update "Site Bravo" ` should be open
+            await userEvent.click(screen.getByTestId('edit-site-button-site-2-id'));
+            expect(screen.getByText('Update "Site Bravo"')).toBeInTheDocument();
+
+            // Change the name of the site, then click "Update" button
+            const editSiteNameInputField = screen.getByRole('textbox');
+            expect(editSiteNameInputField).toHaveValue('Site Bravo');
+
+            await userEvent.clear(editSiteNameInputField);
+            await userEvent.click(editSiteNameInputField);
+            await userEvent.paste('Site Zulu');
+            expect(editSiteNameInputField).toHaveValue('Site Zulu');
+
+            await userEvent.click(screen.getByRole('button', { name: /Update/ }));
+
+            await waitFor(() => expect(defaultProps.api.clinics.updateClinicSite).toHaveBeenCalled());
+
+            expect(defaultProps.api.clinics.updateClinicSite).toHaveBeenCalledWith(
+              'clinicID123', // clinicId,
+              'site-2-id', // site id
+              { name: 'Site Zulu' }, // updated site
+              expect.any(Function), // callback fn passed to api
+            );
+
+            expect(defaultProps.trackMetric).toHaveBeenCalledWith(
+              'Clinic - Population Health - Edit clinic sites update',
               { clinicId: 'clinicID123' },
             );
           }, TEST_TIMEOUT_MS);
@@ -633,7 +675,7 @@ describe('ClinicPatients', ()  => {
             await userEvent.click(screen.getByRole('button', { name: /Edit Tags/ }));
 
             // Type in a new tag "Delta" into the textbox and click add
-            const newTag = screen.getByRole('textbox');
+            const newTag = await screen.findByRole('textbox');
             await userEvent.click(newTag);
             await userEvent.paste('Tag Delta');
             await userEvent.click(screen.getByRole('button', { name: /Add/ }));
@@ -652,6 +694,47 @@ describe('ClinicPatients', ()  => {
             );
           }, TEST_TIMEOUT_MS);
         });
+
+        it('should allow updating an existing tag for a workspace', async () => {
+          render(
+            <MockedProviderWrappers>
+              <ClinicPatients {...defaultProps} />
+            </MockedProviderWrappers>
+          );
+
+          // Open the Edit Tags Dialog
+          await userEvent.click(screen.getByRole('button', { name: /Tags/ }));
+          await userEvent.click(screen.getByRole('button', { name: /Edit Tags/ }));
+
+          // Click on Icon to edit tag 2. Dialog titled ` Update "test tag 2" ` should be open
+          await userEvent.click(screen.getByTestId('edit-tag-button-tag2'));
+          expect(screen.getByText('Update "test tag 2"')).toBeInTheDocument();
+
+          // Change the name of the tag, then click "Update" button
+          const editTagNameInputField = screen.getByRole('textbox');
+          expect(editTagNameInputField).toHaveValue('test tag 2');
+
+          await userEvent.clear(editTagNameInputField);
+          await userEvent.click(editTagNameInputField);
+          await userEvent.paste('updated tag 2');
+          expect(editTagNameInputField).toHaveValue('updated tag 2');
+
+          await userEvent.click(screen.getByRole('button', { name: /Update/ }));
+
+          await waitFor(() => expect(defaultProps.api.clinics.updateClinicPatientTag).toHaveBeenCalled());
+
+          expect(defaultProps.api.clinics.updateClinicPatientTag).toHaveBeenCalledWith(
+            'clinicID123', // clinicId,
+            'tag2', // tag id
+            { name: 'updated tag 2' }, // updated tag
+            expect.any(Function), // callback fn passed to api
+          );
+
+          expect(defaultProps.trackMetric).toHaveBeenCalledWith(
+            'Clinic - Population Health - Edit clinic tags update',
+            { clinicId: 'clinicID123' },
+          );
+        }, TEST_TIMEOUT_MS);
 
         describe('managing patient tags', () => {
           it('should allow updating tags for a patient', async () => {

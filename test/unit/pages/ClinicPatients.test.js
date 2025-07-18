@@ -1804,41 +1804,6 @@ describe('ClinicPatients', () => {
             sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Edit clinic tags open', sinon.match({ clinicId: 'clinicID123', source: 'Filter menu' }));
           });
 
-          it('should allow updating a clinic patient tag', done => {
-            // Ensure tags present
-            const tags = editTagsDialog().find('#clinic-patients-edit-tag-list').find('.tag-text').hostNodes();
-            expect(tags).to.have.lengthOf(3);
-
-            const confirmDialog = () => wrapper.find('Dialog#updatePatientTag');
-            expect(confirmDialog()).to.have.length(0);
-
-            // Open confirm dialog
-            editTagsDialog().find('#edit-tag-button-tag1').hostNodes().simulate('click');
-            wrapper.update();
-            expect(confirmDialog()).to.have.length(1);
-            expect(confirmDialog().props().open).to.be.true;
-
-            const confirmButton = () => confirmDialog().find('button#patient-tag-update-confirm').hostNodes();
-            expect(confirmButton()).to.have.length(1);
-            expect(confirmButton().props().disabled).to.be.false;
-
-            const editInput = confirmDialog().find('#patient-tag-update').find('input#name');
-            editInput.simulate('change', { persist: noop, target: { name: 'name', value: '' } })
-            expect(confirmButton().props().disabled).to.be.true;
-
-            editInput.simulate('change', { persist: noop, target: { name: 'name', value: 'new tag name' } })
-            expect(confirmButton().props().disabled).to.be.false;
-
-            defaultProps.api.clinics.updateClinicPatientTag.resetHistory();
-            confirmButton().simulate('submit');
-
-            setTimeout(() => {
-              sinon.assert.calledWith(defaultProps.api.clinics.updateClinicPatientTag, 'clinicID123', 'tag1', { name: 'new tag name' });
-              sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Edit clinic tags update', sinon.match({ clinicId: 'clinicID123' }));
-              done();
-            }, 0);
-          });
-
           it('should allow deleting a clinic patient tag', () => {
             // Ensure tags present
             const tags = editTagsDialog().find('#clinic-patients-edit-tag-list').find('.tag-text').hostNodes();
