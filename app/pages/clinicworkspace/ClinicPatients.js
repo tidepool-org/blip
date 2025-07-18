@@ -173,13 +173,14 @@ export const getPatientListQueryState = (
   activeFilters = {},
   patientListSearchTextInput = '',
 ) => {
-  const { lastData, lastDataType, timeCGMUsePercent, timeInRange, patientTags } = activeFilters;
+  const { lastData, lastDataType, timeCGMUsePercent, timeInRange, clinicSites, patientTags } = activeFilters;
 
   const hasFiltersActive = (
     lastData ||
     lastDataType ||
     timeCGMUsePercent ||
     timeInRange?.length > 0 ||
+    clinicSites?.length > 0 ||
     patientTags?.length > 0
   );
 
@@ -413,7 +414,7 @@ const MoreMenu = ({
     t,
   ]);
 
-  return <PopoverMenu id={`action-menu-${patient.id}`} items={items} />;
+  return <PopoverMenu id={`action-menu-${patient.id}`} data-testid={`action-menu-${patient.id}-icon`} items={items} />;
 };
 
 const PatientTags = ({
@@ -617,6 +618,15 @@ const PatientTags = ({
   );
 };
 
+// If we HTTP GET `/patients` without a sites/tags query arg, we receive a list of PwDs with zero
+// or many sites/tags. We need to pass an explicit argument to request PwDs with exactly zero
+// sites/tags. By setting the filter to `['_']`, the query path is set to `/patients?sites=_` or
+// `/patients?tags=_`, which the backend understands as a request for PwDs with zero sites/tags
+export const SPECIAL_FILTER_STATES = {
+  ZERO_SITES: ['_'],
+  ZERO_TAGS: ['_'],
+};
+
 export const ClinicPatients = (props) => {
   const { t, api, trackMetric, searchDebounceMs } = props;
   const isFirstRender = useIsFirstRender();
@@ -740,7 +750,6 @@ export const ClinicPatients = (props) => {
     { value: '30d', label: t('30 days') },
   ];
 
-  const clinicSites = useMemo(() => keyBy(clinic?.sites, 'id'), [clinic?.sites]);
   const patientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
 
   const clinicSitesFilterOptions = useMemo(() => {
@@ -1126,6 +1135,10 @@ export const ClinicPatients = (props) => {
           filterOptions[`${activeFilters.lastDataType}.lastDataFrom`] = moment(filterOptions[`${activeFilters.lastDataType}.lastDataTo`]).subtract(activeFilters.lastData, 'days').toISOString();
         }
 
+        if (activeFilters.clinicSites?.length) {
+          filterOptions['sites'] = activeFilters.clinicSites;
+        }
+
         if (activeFilters.patientTags?.length) {
           filterOptions['tags'] = activeFilters.patientTags;
         }
@@ -1152,6 +1165,7 @@ export const ClinicPatients = (props) => {
           'bgm.lastDataTo',
           'cgm.lastDataFrom',
           'cgm.lastDataTo',
+          'sites',
           'tags',
           'cgm.timeCGMUsePercent',
           'cgm.timeInVeryLowPercent',
@@ -1472,6 +1486,12 @@ export const ClinicPatients = (props) => {
     let timeAgo = hoursAgo === 0 ? t('less than an') : t('over {{hoursAgo}}', { hoursAgo });
     if (hoursAgo >= 24) timeAgo = t('over 24');
     const timeAgoMessage = t('Last updated {{timeAgo}} {{timeAgoUnits}} ago', { timeAgo, timeAgoUnits });
+
+    // Filtering for patients "zero sites/tags" is different than not filtering. If we don't pass any filters
+    // to backend, we receive a list of PwDs with zero or many sites/tags. We need to explicitly filter for
+    // PwDs with exactly zero sites/tags.
+    const isFilteringForZeroSites = isEqual(pendingFilters?.clinicSites, SPECIAL_FILTER_STATES.ZERO_SITES);
+    const isFilteringForZeroTags = isEqual(pendingFilters?.patientTags, SPECIAL_FILTER_STATES.ZERO_TAGS);
 
     return (
       <>
@@ -1829,27 +1849,54 @@ export const ClinicPatients = (props) => {
 
                         { // Render a list of checkboxes
                           sortedSiteFilterOptions.map(({ id, label }) => {
-                            const isChecked = false; // Temporary; functionality to be implemented in future ticket
-                            const isDisabled = true; // Temporary; functionality to be implemented in future ticket
+                            const { clinicSites } = pendingFilters;
+                            const isChecked = clinicSites?.includes(id);
 
                             return (
                               <Box mt={1} className="clinic-site-filter-option" key={`clinic-site-filter-option-${id}`}>
                                 <Checkbox
                                   id={`clinic-site-filter-option-checkbox-${id}`}
+                                  data-testid={`clinic-site-filter-option-checkbox-${id}`}
                                   label={
                                     <Text sx={{ fontSize: 0, fontWeight: 'normal', display: 'inline-block', maxWidth: '160px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                                       {label}
                                     </Text>
                                   }
                                   checked={isChecked}
-                                  disabled={isDisabled}
                                   onChange={() => {
-                                    // TODO: Temporary; functionality to be implemented in future ticket
+                                    if (isFilteringForZeroSites) {
+                                      setPendingFilters({ ...pendingFilters, clinicSites: [id] });
+                                    } else if (isChecked) {
+                                      setPendingFilters({ ...pendingFilters, clinicSites: without(clinicSites, id) });
+                                    } else {
+                                      setPendingFilters({ ...pendingFilters, clinicSites: [...clinicSites, id] });
+                                    }
                                   }}
                                 />
                               </Box>
                             );
                           })
+                        }
+
+                        { // Display an option to filter for patients with zero sites
+                          sortedSiteFilterOptions.length > 0 &&
+                          <Box mt={2} mx={-2} pt={3} px={2} sx={{ borderTop: borders.divider }} className="clinic-site-filter-option" key="clinic-site-filter-option-PWDS_WITH_ZERO_SITES">
+                            <Checkbox
+                              id="clinic-site-filter-option-checkbox-PWDS_WITH_ZERO_SITES"
+                              data-testid="clinic-site-filter-option-checkbox-PWDS_WITH_ZERO_SITES"
+                              label={<Text sx={{ fontSize: 0, fontWeight: 'normal' }}>
+                                {t('Patients without any sites')}
+                              </Text>}
+                              checked={isFilteringForZeroSites}
+                              onChange={() => {
+                                if (isFilteringForZeroSites) {
+                                  setPendingFilters({ ...pendingFilters, clinicSites: [] });
+                                } else {
+                                  setPendingFilters({ ...pendingFilters, clinicSites: SPECIAL_FILTER_STATES.ZERO_SITES });
+                                }
+                              }}
+                            />
+                          </Box>
                         }
 
                         { // If no sites exist, display a message
@@ -1878,7 +1925,10 @@ export const ClinicPatients = (props) => {
                           sx={{ fontSize: 1 }}
                           variant="textSecondary"
                           onClick={() => {
-                            // TODO: Implement in future ticket
+                            trackMetric(prefixPopHealthMetric('Clinic site filter clear'), { clinicId: selectedClinicId });
+                            setPendingFilters({ ...activeFilters, clinicSites: defaultFilterState.clinicSites });
+                            setActiveFilters({ ...activeFilters, clinicSites: defaultFilterState.clinicSites });
+                            clinicSitesPopupFilterState.close();
                           }}
                         >
                           {t('Clear')}
@@ -1994,10 +2044,13 @@ export const ClinicPatients = (props) => {
                               <Box mt={1} className="tag-filter-option" key={`tag-filter-option-${id}`}>
                                 <Checkbox
                                   id={`tag-filter-option-checkbox-${id}`}
+                                  data-testid={`tag-filter-option-checkbox-${id}`}
                                   label={<Text sx={{ fontSize: 0, fontWeight: 'normal' }}>{label}</Text>}
                                   checked={isChecked}
                                   onChange={() => {
-                                    if (isChecked) {
+                                    if (isFilteringForZeroTags) {
+                                      setPendingFilters({ ...pendingFilters, patientTags: [id] });
+                                    } else if (isChecked) {
                                       setPendingFilters({ ...pendingFilters, patientTags: without(patientTags, id) });
                                     } else {
                                       setPendingFilters({ ...pendingFilters, patientTags: [...patientTags, id] });
@@ -2007,6 +2060,27 @@ export const ClinicPatients = (props) => {
                               </Box>
                             );
                           })
+                        }
+
+                        { // Display an option to filter for patients with zero tags
+                          sortedSiteFilterOptions.length > 0 &&
+                          <Box mt={2} mx={-2} pt={3} px={2} sx={{ borderTop: borders.divider }} className="clinic-site-filter-option" key="clinic-site-filter-option-PWDS_WITH_ZERO_TAGS">
+                            <Checkbox
+                              id="tag-filter-option-checkbox-PWDS_WITH_ZERO_TAGS"
+                              data-testid="tag-filter-option-checkbox-PWDS_WITH_ZERO_TAGS"
+                              label={<Text sx={{ fontSize: 0, fontWeight: 'normal' }}>
+                                {t('Patients without any tags')}
+                              </Text>}
+                              checked={isFilteringForZeroTags}
+                              onChange={() => {
+                                if (isFilteringForZeroTags) {
+                                  setPendingFilters({ ...pendingFilters, patientTags: [] });
+                                } else {
+                                  setPendingFilters({ ...pendingFilters, patientTags: SPECIAL_FILTER_STATES.ZERO_TAGS });
+                                }
+                              }}
+                            />
+                          </Box>
                         }
 
                         { // If no tags exist, display a message
