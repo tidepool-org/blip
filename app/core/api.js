@@ -1045,8 +1045,16 @@ api.clinics.sendPatientDataProviderConnectRequest = function(clinicId, patientId
   return tidepool.sendPatientDataProviderConnectRequest(clinicId, patientId, providerName, cb);
 };
 
+api.clinics.createClinicSite = function(clinicId, clinicSite, cb) {
+  return tidepool.createClinicSite(clinicId, clinicSite, cb);
+};
+
 api.clinics.createClinicPatientTag = function(clinicId, patientTag, cb) {
   return tidepool.createClinicPatientTag(clinicId, patientTag, cb);
+};
+
+api.clinics.updateClinicSite = function(clinicId, siteId, site, cb) {
+  return tidepool.updateClinicSite(clinicId, siteId, site, cb);
 };
 
 api.clinics.updateClinicPatientTag = function(clinicId, patientTagId, patientTag, cb) {

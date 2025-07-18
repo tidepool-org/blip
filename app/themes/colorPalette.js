@@ -4,7 +4,6 @@ import { colors as vizColors } from '@tidepool/viz';
 export default {
   primary: {
     background: vizColors.white,
-    purpleLight: '#DCE0F9',
     purpleMedium: vizColors.indigo30,
     purpleDark: vizColors.purple90,
     purpleBright: vizColors.indigo30,
@@ -12,6 +11,13 @@ export default {
     blueGreyMedium: vizColors.blue30,
     blueGreyLight: vizColors.blueGray50,
     blueGrey: vizColors.blueGray30,
+    purpleLight: '#DCE0F9',
+    bluePrimary00: '#F0F5FF',
+    bluePrimary30: '#708FC2',
+    gray05: '#EBEBEB',
+    gray10: '#D9D9D9',
+    gray50: '#707070',
+    blueGray10: '#D1D6E1',
   },
   secondary: {
     coral: '#F9706B',

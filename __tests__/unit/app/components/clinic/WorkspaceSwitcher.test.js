@@ -10,7 +10,6 @@ import thunk from 'redux-thunk';
 import api from '../../../../../app/core/api';
 import * as actions from '../../../../../app/redux/actions';
 
-// Mock the actions
 jest.mock('../../../../../app/redux/actions', () => ({
   sync: {
     setPatientListSearchTextInput: jest.fn(),
