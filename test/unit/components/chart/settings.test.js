@@ -23,9 +23,10 @@ import moment from 'moment-timezone';
 
 import { ToastProvider } from '../../../../app/providers/ToastProvider.js';
 import DataConnectionsModal from '../../../../app/components/datasources/DataConnectionsModal.js';
-import DataConnections, { activeProviders } from '../../../../app/components/datasources/DataConnections.js';
+import DataConnections, { availableProviders, getActiveProviders } from '../../../../app/components/datasources/DataConnections.js';
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
+const activeProviders = getActiveProviders();
 
 describe('Settings', () => {
   let wrapper;
@@ -1152,7 +1153,7 @@ describe('Settings', () => {
             clinicPatient: {
               userid: '40',
               dataSources: [
-                { providerName: activeProviders[0], state: 'connected' }
+                { providerName: availableProviders[0], state: 'connected' }
               ],
             },
           };
@@ -1171,7 +1172,7 @@ describe('Settings', () => {
           expect(dataConnectionsModal().length).to.equal(0);
           expect(dataConnectionsCard().length).to.equal(0);
           expect(dataConnectionsWrapper().length).to.equal(1);
-          expect(dataConnectionsWrapper().find(`#data-connection-${activeProviders[0]}`).hostNodes().length).to.equal(1);
+          expect(dataConnectionsWrapper().find(`#data-connection-${availableProviders[0]}`).hostNodes().length).to.equal(1);
           const callCount = props.trackMetric.callCount;
 
           expect(dataConnectionsAddButton().length).to.equal(1);
@@ -1191,8 +1192,8 @@ describe('Settings', () => {
             clinicPatient: {
               userid: '40',
               dataSources: [
-                { providerName: activeProviders[0], state: 'connected' },
-                { providerName: activeProviders[1], state: 'disconnected' }
+                { providerName: availableProviders[0], state: 'connected' },
+                { providerName: availableProviders[1], state: 'disconnected' }
               ],
             },
           };
@@ -1211,8 +1212,8 @@ describe('Settings', () => {
           expect(dataConnectionsModal().length).to.equal(0);
           expect(dataConnectionsCard().length).to.equal(0);
           expect(dataConnectionsWrapper().length).to.equal(1);
-          expect(dataConnectionsWrapper().find(`#data-connection-${activeProviders[0]}`).hostNodes().length).to.equal(1);
-          expect(dataConnectionsWrapper().find(`#data-connection-${activeProviders[1]}`).hostNodes().length).to.equal(0); // disconnected providers should not be shown
+          expect(dataConnectionsWrapper().find(`#data-connection-${availableProviders[0]}`).hostNodes().length).to.equal(1);
+          expect(dataConnectionsWrapper().find(`#data-connection-${availableProviders[1]}`).hostNodes().length).to.equal(0); // disconnected providers should not be shown
         });
       });
 
@@ -1223,7 +1224,7 @@ describe('Settings', () => {
             isUserPatient: false,
             clinicPatient: {
               ...clinicPatient,
-              dataSources: _.map(activeProviders, providerName => ({ providerName, state: 'pending' })),
+              dataSources: _.map(availableProviders, providerName => ({ providerName, state: 'pending' })),
             },
           };
 
@@ -1239,7 +1240,7 @@ describe('Settings', () => {
           wrapper = mount(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
 
 
-          // No modal, card, or add button
+          // No modal or card
           expect(dataConnectionsModal().length).to.equal(0);
           expect(dataConnectionsCard().length).to.equal(0);
           expect(dataConnectionsAddButton().length).to.equal(1);
@@ -1291,7 +1292,7 @@ describe('Settings', () => {
             blip: {
               ...defaultState.blip,
               dataSources: [
-                { providerName: activeProviders[0], state: 'connected' }
+                { providerName: availableProviders[0], state: 'connected' }
               ],
             }
           };
@@ -1302,7 +1303,7 @@ describe('Settings', () => {
           expect(dataConnectionsModal().length).to.equal(0);
           expect(dataConnectionsCard().length).to.equal(0);
           expect(dataConnectionsWrapper().length).to.equal(1);
-          expect(dataConnectionsWrapper().find(`#data-connection-${activeProviders[0]}`).hostNodes().length).to.equal(1);
+          expect(dataConnectionsWrapper().find(`#data-connection-${availableProviders[0]}`).hostNodes().length).to.equal(1);
           const callCount = props.trackMetric.callCount;
 
           expect(dataConnectionsAddButton().length).to.equal(1);
@@ -1325,14 +1326,14 @@ describe('Settings', () => {
           const state = {
             blip: {
               ...defaultState.blip,
-              dataSources: _.map(activeProviders, providerName => ({ providerName, state: 'pending' })),
+              dataSources: _.map(availableProviders, providerName => ({ providerName, state: 'pending' })),
             }
           };
 
           const store = mockStore(state);
           wrapper = mount(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
 
-          // No modal, card, or add button
+          // No modal or card
           expect(dataConnectionsModal().length).to.equal(0);
           expect(dataConnectionsCard().length).to.equal(0);
           expect(dataConnectionsAddButton().length).to.equal(1);

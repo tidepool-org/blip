@@ -5,11 +5,13 @@ import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
 import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
 import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
 import moment from 'moment-timezone';
+import defaults from 'lodash/defaults';
 import filter from 'lodash/filter';
 import find from 'lodash/find';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 import intersection from 'lodash/intersection';
+import isFunction from 'lodash/isFunction';
 import keys from 'lodash/keys';
 import map from 'lodash/map';
 import max from 'lodash/max';
@@ -17,6 +19,7 @@ import noop from 'lodash/noop';
 import orderBy from 'lodash/orderBy';
 import reduce from 'lodash/reduce';
 import { utils as vizUtils } from '@tidepool/viz';
+import { useFlags } from 'launchdarkly-react-client-sdk';
 
 import * as actions from '../../redux/actions';
 import { useToasts } from '../../providers/ToastProvider';
@@ -32,16 +35,9 @@ import dexcomLogo from '../../core/icons/dexcom_logo.png';
 import libreLogo from '../../core/icons/libre_logo.svg';
 import twiistLogo from '../../core/icons/twiist_logo.svg';
 import { colors } from '../../themes/baseTheme';
-import { isFunction } from 'lodash';
 
 const { formatTimeAgo } = vizUtils.datetime;
 const t = i18next.t.bind(i18next);
-
-export const activeProviders = [
-  'dexcom',
-  'twiist',
-  'abbott',
-];
 
 export const providers = {
   dexcom: {
@@ -57,6 +53,21 @@ export const providers = {
       providerName: 'dexcom',
     },
     logoImage: dexcomLogo,
+  },
+  twiist: {
+    id: 'oauth/twiist',
+    displayName: 'twiist',
+    restrictedTokenCreate: {
+        paths: [
+          '/v1/oauth/twiist',
+        ],
+    },
+    dataSourceFilter: {
+      providerType: 'oauth',
+      providerName: 'twiist',
+    },
+    logoImage: twiistLogo,
+    indeterminateDataImportTime: true,
   },
   abbott: {
     id: 'oauth/abbott',
@@ -76,21 +87,18 @@ export const providers = {
       message: t('Disconnecting here has stopped new data collection from your FreeStyle Libre device. To fully revoke consent for sharing data with Tidepool, log into your FreeStyle Libre or LibreView app, access the "Connected Apps" page, and click "Manage" and then "Disconnect" next to Tidepool.'),
     },
   },
-  twiist: {
-    id: 'oauth/twiist',
-    displayName: 'twiist',
-    restrictedTokenCreate: {
-        paths: [
-          '/v1/oauth/twiist',
-        ],
-    },
-    dataSourceFilter: {
-      providerType: 'oauth',
-      providerName: 'twiist',
-    },
-    logoImage: twiistLogo,
-    indeterminateDataImportTime: true,
-  },
+};
+
+export const availableProviders = keys(providers);
+
+export const getActiveProviders = (overrides = {}) => {
+  const activeProviders = defaults(overrides, {
+    dexcom: true,
+    twiist: true,
+    abbott: false,
+  });
+
+  return filter(availableProviders, provider => activeProviders[provider]);
 };
 
 export function getProviderHandlers(patient, selectedClinicId, provider) {
@@ -296,7 +304,7 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
   }
 };
 
-export const getDataConnectionProps = (patient, isLoggedInUser, selectedClinicId, setActiveHandler) => reduce(activeProviders, (result, providerName) => {
+export const getDataConnectionProps = (patient, isLoggedInUser, selectedClinicId, setActiveHandler) => reduce(availableProviders, (result, providerName) => {
   result[providerName] = {};
 
   let connectState;
@@ -377,6 +385,8 @@ export const DataConnections = (props) => {
   const [patientUpdates, setPatientUpdates] = useState({});
   const [activeHandler, setActiveHandler] = useState(null);
   const dataConnectionProps = getDataConnectionProps(patient, isLoggedInUser, selectedClinicId, setActiveHandler);
+  const { showAbbottProvider } = useFlags();
+  const activeProviders = getActiveProviders({ abbott: showAbbottProvider });
 
   const {
     sendingPatientDataProviderConnectRequest,
@@ -668,12 +678,12 @@ DataConnections.propTypes = {
   patient: PropTypes.shape({
     dataSources: PropTypes.oneOf([PropTypes.shape(clinicPatientDataSourceShape), PropTypes.shape(userDataSourceShape)])
   }),
-  shownProviders: PropTypes.arrayOf(PropTypes.oneOf(activeProviders)),
+  shownProviders: PropTypes.arrayOf(PropTypes.oneOf(availableProviders)),
   trackMetric: PropTypes.func.isRequired,
 };
 
 DataConnections.defaultProps = {
-  shownProviders: activeProviders,
+  shownProviders: getActiveProviders(),
   trackMetric: noop,
 };
 

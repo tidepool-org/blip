@@ -13,7 +13,7 @@ import utils from '../../core/utils';
 import Banner from '../../components/elements/Banner';
 import Button from '../../components/elements/Button';
 import { Title, Subheading, Body1 } from '../../components/elements/FontStyles';
-import { activeProviders, providers } from '../../components/datasources/DataConnections';
+import { availableProviders, providers } from '../../components/datasources/DataConnections';
 
 const { Loader } = vizComponents;
 
@@ -26,7 +26,6 @@ export const OAuthConnection = (props) => {
   const dispatch = useDispatch();
   const [isCustodial, setIsCustodial] = useState();
   const [authStatus, setAuthStatus] = useState();
-
 
   const statusContent = {
     authorized: {
@@ -61,7 +60,7 @@ export const OAuthConnection = (props) => {
     const custodialSignup = queryParams.has('signupEmail') && queryParams.has('signupKey');
     setIsCustodial(custodialSignup);
 
-    if (includes(activeProviders, providerName) && statusContent[status]) {
+    if (includes(availableProviders, providerName) && statusContent[status]) {
       setAuthStatus(statusContent[status]);
     } else {
       setAuthStatus(statusContent.error)
