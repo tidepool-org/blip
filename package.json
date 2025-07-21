@@ -4,7 +4,7 @@
     "node": "20.8.0"
   },
   "packageManager": "yarn@3.6.4",
-  "version": "1.86.2-rc.1",
+  "version": "1.86.2-rc.2",
   "private": true,
   "scripts": {
     "test": "concurrently \"TZ=UTC NODE_ENV=test yarn jest --verbose --runInBand\" \"TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' yarn karma start\" --group --success=all",
@@ -75,7 +75,7 @@
     "@testing-library/react": "12.1.5",
     "@testing-library/react-hooks": "8.0.1",
     "@testing-library/user-event": "14.6.1",
-    "@tidepool/viz": "1.47.2-rc.1",
+    "@tidepool/viz": "1.47.2-rc.2",
     "async": "2.6.4",
     "autoprefixer": "10.4.16",
     "babel-core": "7.0.0-bridge.0",
