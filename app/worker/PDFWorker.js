@@ -60,6 +60,11 @@ export default class PDFWorker {
                 opts.agpCGM.disabled = !_.flatten(_.valuesIn(_.get(data, 'agpCGM.data.current.data', {}))).length > 0;
               }
 
+              if (queries.offsetAgpCGM) {
+                data.offsetAgpCGM = this.dataUtil.query(queries.offsetAgpCGM);
+                opts.offsetAgpCGM.disabled = !_.flatten(_.valuesIn(_.get(data, 'offsetAgpCGM.data.current.data', {}))).length > 0;
+              }
+
               if (!opts.agpBGM.disabled || !opts.agpCGM.disabled) {
                 // Return early if the intent is still to generate the AGP report
                 return this.requestAGPImages(data, opts, queries, postMessage);
@@ -89,6 +94,10 @@ export default class PDFWorker {
 
                 case 'agpCGM':
                   opts[key].disabled = !_.flatten(_.valuesIn(_.get(data, 'agpCGM.data.current.data', {}))).length > 0;
+                  break;
+
+                case 'offsetAgpCGM':
+                  opts[key].disabled = !_.flatten(_.valuesIn(_.get(data, 'offsetAgpCGM.data.current.data', {}))).length > 0;
                   break;
 
                 case 'settings':
