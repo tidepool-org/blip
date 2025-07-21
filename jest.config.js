@@ -5,6 +5,7 @@ module.exports = {
     '^@app/(.*)$': '<rootDir>/app/$1',
     '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$':
       '<rootDir>/__mocks__/fileMock.js',
+    '\\.(css|less)$': '<rootDir>/__mocks__/styleMock.js',
 
     // use minified versions of d3 modules (prevents errors due Jest / ESM conflict)
     'd3-array': '<rootDir>/node_modules/d3-array/dist/d3-array.min.js',
@@ -19,10 +20,13 @@ module.exports = {
     'd3-timer': '<rootDir>/node_modules/d3-timer/dist/d3-timer.min.js',
     'd3-voronoi': '<rootDir>/node_modules/d3-voronoi/dist/d3-voronoi.min.js',
     'd3-time-format': '<rootDir>/node_modules/d3-time-format/dist/d3-time-format.min.js',
+
+    // Path aliases
+    '^@app/(.*)': '<rootDir>/app/$1',
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testMatch: [
-    '**/__tests__/**/*.[jt]s?(x)',
+    '**/__tests__/**/*.test.[jt]s?(x)',
   ],
   transform: {
     '^.+\\.(js|jsx|ts|tsx)$': [
