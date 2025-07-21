@@ -1189,45 +1189,57 @@ export const PatientDataClass = createReactClass({
     const chartTypeFromPath = nextProps.match?.params?.chartType;
     const targetDate = utils.parseDatetimeParamToInteger(nextProps.queryParams?.datetime);
 
-    switch(true) {
-      // If the chart is explicitly specified in the URL, we switch to that chart type.
-      case chartTypeFromPath === 'settings':
-        this.handleSwitchToSettings();
-        break;
-      case chartTypeFromPath === 'basics':
-        this.handleSwitchToBasics();
-        break;
-      case chartTypeFromPath === 'daily':
-        this.handleSwitchToDaily(targetDate);
-        break;
-      case chartTypeFromPath === 'trends':
-        this.handleSwitchToTrends(targetDate);
-        break;
-      case chartTypeFromPath === 'bgLog':
-        this.handleSwitchToBgLog(targetDate);
-        break;
+    // If the chart was previously refreshed on settings, we need to refetch the data, since the refresh
+    // would have only fetched the pump settings history, and not all the data we need to render other charts.
+    const needsDataRefetch = this.state.refreshChartType === 'settings' && chartTypeFromPath !== 'settings';
 
-      // If the chart is not specified in the URL, we should switch to the patient's default chart type,
-      // which is derived from the patient's data values. If state.defaultChartTypeForPatient
-      // exists, we should use its value rather than deriving it again using setInitialChartView().
-      case this.state.defaultChartTypeForPatient === 'basics':
-        this.handleSwitchToBasics();
-        break;
-      case this.state.defaultChartTypeForPatient === 'daily':
-        this.handleSwitchToDaily(targetDate);
-        break;
-      case this.state.defaultChartTypeForPatient === 'trends':
-        this.handleSwitchToTrends(targetDate);
-        break;
-      case this.state.defaultChartTypeForPatient === 'bgLog':
-        this.handleSwitchToBgLog(targetDate);
-        break;
+    if (needsDataRefetch) {
+      this.setState({
+        chartType: chartTypeFromPath,
+      }, () => {
+        this.handleRefresh();
+      });
+    } else {
+      switch(true) {
+        // If the chart is explicitly specified in the URL, we switch to that chart type.
+        case chartTypeFromPath === 'settings':
+          this.handleSwitchToSettings();
+          break;
+        case chartTypeFromPath === 'basics':
+          this.handleSwitchToBasics();
+          break;
+        case chartTypeFromPath === 'daily':
+          this.handleSwitchToDaily(targetDate);
+          break;
+        case chartTypeFromPath === 'trends':
+          this.handleSwitchToTrends(targetDate);
+          break;
+        case chartTypeFromPath === 'bgLog':
+          this.handleSwitchToBgLog(targetDate);
+          break;
 
-      // At this point, there is insufficient information; we need to call setInitialChartView() to derive
-      // the default chart type for this patient
-      default:
-        this.setInitialChartView(nextProps);
-        break;
+        // If the chart is not specified in the URL, we should switch to the patient's default chart type,
+        // which is derived from the patient's data values. If state.defaultChartTypeForPatient
+        // exists, we should use its value rather than deriving it again using setInitialChartView().
+        case this.state.defaultChartTypeForPatient === 'basics':
+          this.handleSwitchToBasics();
+          break;
+        case this.state.defaultChartTypeForPatient === 'daily':
+          this.handleSwitchToDaily(targetDate);
+          break;
+        case this.state.defaultChartTypeForPatient === 'trends':
+          this.handleSwitchToTrends(targetDate);
+          break;
+        case this.state.defaultChartTypeForPatient === 'bgLog':
+          this.handleSwitchToBgLog(targetDate);
+          break;
+
+        // At this point, there is insufficient information; we need to call setInitialChartView() to derive
+        // the default chart type for this patient
+        default:
+          this.setInitialChartView(nextProps);
+          break;
+      }
     }
   },
 
@@ -1813,6 +1825,13 @@ export const PatientDataClass = createReactClass({
         }, () => {
           this.props.onRefresh(this.props.currentPatientInViewId, this.state.refreshChartType);
           this.props.removeGeneratedPDFS();
+
+          // Reset the path without the datetime query param if present. This will ensure that the
+          // chart gets set to to the date of the most recent datum when the new data loads
+          if (nextProps.queryParams?.datetime) {
+            const path = `/patients/${this.props.currentPatientInViewId}/data/${this.state.refreshChartType}`;
+            this.props.history.push(path);
+          }
         });
       });
     }
