@@ -2376,6 +2376,7 @@ describe('PatientData', function () {
         instance = wrapper.instance();
 
         setStateSpy = sinon.spy(instance, 'setState');
+        props.history.push.resetHistory();
       });
 
       context('data is removed prior to refresh', () => {
@@ -2439,6 +2440,63 @@ describe('PatientData', function () {
               refreshChartType: 'currentChartType',
             });
 
+            done();
+          });
+        });
+
+        it('should remove the datetime query param if set', done => {
+          wrapper.setState({ chartType: 'currentChartType' });
+
+          wrapper.setProps({
+            ...props,
+            removeGeneratedPDFS: sinon.stub(),
+            removingData: { inProgress: true },
+            queryParams: { datetime: '2019-11-14T00:00:00.000Z' },
+          });
+          wrapper.update();
+
+          setStateSpy.resetHistory();
+
+          wrapper.setProps({
+            ...props,
+            removeGeneratedPDFS: sinon.stub(),
+            removingData: { inProgress: false, completed: true },
+            queryParams: { datetime: '2019-11-14T00:00:00.000Z' },
+          });
+          wrapper.update();
+
+          setTimeout(() => {
+            // Path is pushed to history without the datetime query param
+            sinon.assert.callCount(props.history.push, 1);
+            sinon.assert.calledWithMatch(props.history.push, '/patients/40/data/currentChartType');
+            done();
+          });
+        });
+
+        it('should not update the path if datetime query param is not set', done => {
+          wrapper.setState({ chartType: 'currentChartType' });
+
+          wrapper.setProps({
+            ...props,
+            removeGeneratedPDFS: sinon.stub(),
+            removingData: { inProgress: true },
+            queryParams: {},
+          });
+          wrapper.update();
+
+          setStateSpy.resetHistory();
+
+          wrapper.setProps({
+            ...props,
+            removeGeneratedPDFS: sinon.stub(),
+            removingData: { inProgress: false, completed: true },
+            queryParams: {},
+          });
+          wrapper.update();
+
+          setTimeout(() => {
+            // Path history is not updated since there is no datetime query param
+            sinon.assert.notCalled(props.history.push);
             done();
           });
         });
@@ -5185,6 +5243,36 @@ describe('PatientData', function () {
         instance.handleSwitchToSettings = sinon.stub();
         instance.handleRouteChangeEvent(nextProps);
         sinon.assert.calledOnce(instance.handleSwitchToSettings);
+      });
+
+      context('needs data refetch due to refresh on settings view', () => {
+        it('should set the chartType state from the path parameter, and call handle refresh', (done) => {
+          const nextProps = { match: { params: { chartType: 'bgLog' } } };
+
+          instance.handleSwitchToBgLog = sinon.stub();
+          sinon.spy(instance, 'setState');
+          instance.handleRefresh = sinon.stub();
+          instance.state.refreshChartType = 'settings';
+
+          instance.handleRouteChangeEvent(nextProps);
+
+          sinon.assert.calledWith(instance.setState, { chartType: 'bgLog' });
+
+          setTimeout(() => {
+            sinon.assert.calledOnce(instance.handleRefresh);
+            done();
+          }, 0);
+        });
+
+        it('should not call `handleSwitchToBgLog` when the route changes to `/data/bgLog`', () => {
+          const nextProps = { match: { params: { chartType: 'bgLog' } } };
+
+          instance.handleSwitchToBgLog = sinon.stub();
+          instance.state.refreshChartType = 'settings';
+
+          instance.handleRouteChangeEvent(nextProps);
+          sinon.assert.notCalled(instance.handleSwitchToBgLog);
+        });
       });
     });
 
