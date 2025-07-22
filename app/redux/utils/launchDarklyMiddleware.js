@@ -41,7 +41,7 @@ const launchDarklyMiddleware = () => (storeAPI) => (next) => (action) => {
       const role = personUtils.isClinicianAccount(user) ? 'clinician' : 'personal';
 
       ldContext.user = {
-        key: user?.userid,
+        key: role === 'clinician' ? user?.userid : defaultUserContext.key,
         role,
         application: 'Web',
       };
