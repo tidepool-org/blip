@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { withTranslation, Trans } from 'react-i18next';
@@ -61,6 +61,7 @@ import {
 
 import config from '../../config';
 import Icon from '../../components/elements/Icon';
+import utils from '../../core/utils';
 
 const clinicTypesLabels = mapValues(keyBy(clinicTypes, 'value'), 'label');
 
@@ -90,6 +91,31 @@ export const ClinicAdmin = (props) => {
   const timePrefs = useSelector((state) => state.blip.timePrefs);
   const [clinicianArray, setClinicianArray] = useState([]);
   const [userRolesInClinic, setUserRolesInClinic] = useState([]);
+
+  const [sortConfig, setSortConfig] = useState({
+    orderBy: 'fullName',
+    order: 'asc',
+  });
+
+  const sortedClinicianArray = useMemo(() => {
+    const { orderBy, order } = sortConfig;
+
+    // Group clinicians by the `orderBy`. Within each group, order them by their `fullName`.
+    // If they have the same name (or no name in the case of invitation pending), sort by email.
+    const sortedArray = clinicianArray.toSorted((a, b) => {
+      return (
+        utils.compareLabels(a[orderBy], b[orderBy]) ||
+        utils.compareLabels(a.fullName, b.fullName) ||
+        utils.compareLabels(a.email, b.email)
+      );
+    });
+
+    // Reverse the array if the sort order is to be descending
+    if (order === 'desc') sortedArray.reverse();
+
+    return sortedArray;
+  }, [clinicianArray, sortConfig.orderBy, sortConfig.order]);
+
   const rowsPerPage = 8;
 
   const clinicProfileFormContext = useFormik({
@@ -265,7 +291,6 @@ export const ClinicAdmin = (props) => {
 
       return {
         fullName: name,
-        fullNameOrderable: name.toLowerCase(),
         role,
         prescriberPermission: includes(roles, 'PRESCRIBER'),
         isAdmin: includes(roles, 'CLINIC_ADMIN'),
@@ -462,6 +487,13 @@ export const ClinicAdmin = (props) => {
     setPageCount(Math.ceil(clinicianArray.length / rowsPerPage));
   }
 
+  function handleSortChange(newOrderBy, _field) {
+    setSortConfig(prev => ({
+      order: prev.order === 'asc' ? 'desc' : 'asc',
+      orderBy: newOrderBy,
+    }));
+  }
+
   const handlePageChange = (event, newValue) => {
     setPage(newValue);
   };
@@ -566,7 +598,7 @@ export const ClinicAdmin = (props) => {
       field: 'fullName',
       align: 'left',
       sortable: true,
-      sortBy: 'fullNameOrderable',
+      sortBy: 'fullName',
       render: renderClinician,
       searchable: true,
       searchBy: ['fullName', 'email'],
@@ -826,9 +858,10 @@ export const ClinicAdmin = (props) => {
               id="clinicianTable"
               label={t('Clinician Table')}
               columns={columns}
-              data={clinicianArray}
-              orderBy="fullNameOrderable"
-              order="asc"
+              data={sortedClinicianArray}
+              onSort={handleSortChange}
+              orderBy={sortConfig.orderBy}
+              order={sortConfig.order}
               rowHover={false}
               rowsPerPage={rowsPerPage}
               searchText={searchText}
