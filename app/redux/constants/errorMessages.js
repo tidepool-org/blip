@@ -131,6 +131,7 @@ export const ERR_CREATING_CLINIC_SITE_MAX_EXCEEDED = t('Sorry, you already have 
 export const ERR_CREATING_CLINIC_SITE_DUPLICATE = t('Sorry, you already have a site with that name.');
 export const ERR_UPDATING_CLINIC_SITE = t('Something went wrong while updating the site.');
 export const ERR_UPDATING_CLINIC_SITE_DUPLICATE = t('Sorry, you already have a site with that name.');
+export const ERR_DELETING_CLINIC_SITE = t('Something went wrong while deleting the site.');
 export const ERR_CREATING_CLINIC_PATIENT_TAG = t('Something went wrong while creating the patient tag.');
 export const ERR_CREATING_CLINIC_PATIENT_TAG_MAX_EXCEEDED = t('Sorry, you already have the maximum number of patient tags.');
 export const ERR_CREATING_CLINIC_PATIENT_TAG_DUPLICATE = t('Sorry, you already have a tag with that name.');

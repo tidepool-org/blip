@@ -2173,6 +2173,32 @@ export function updateClinicSiteFailure(error, apiError) {
   };
 }
 
+export function deleteClinicSiteRequest() {
+  return {
+    type: ActionTypes.DELETE_CLINIC_SITE_REQUEST,
+  };
+}
+
+export function deleteClinicSiteSuccess(clinicId, sites) {
+  return {
+    type: ActionTypes.DELETE_CLINIC_SITE_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+      sites: sites,
+    },
+  };
+}
+
+export function deleteClinicSiteFailure(error, apiError) {
+  return {
+    type: ActionTypes.DELETE_CLINIC_SITE_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
 export function createClinicPatientTagRequest() {
   return {
     type: ActionTypes.CREATE_CLINIC_PATIENT_TAG_REQUEST,

@@ -641,6 +641,7 @@ export const ClinicPatients = (props) => {
   const rpmReportPatients = useSelector(state => state.blip.rpmReportPatients);
   const isClinicAdmin = includes(get(clinic, ['clinicians', loggedInUserId, 'roles'], []), 'CLINIC_ADMIN');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showDeleteClinicSiteDialog, setShowDeleteClinicSiteDialog] = useState(false);
   const [showUpdateClinicSiteDialog, setShowUpdateClinicSiteDialog] = useState(false);
   const [showDeleteClinicPatientTagDialog, setShowDeleteClinicPatientTagDialog] = useState(false);
   const [showUpdateClinicPatientTagDialog, setShowUpdateClinicPatientTagDialog] = useState(false);
@@ -753,6 +754,7 @@ export const ClinicPatients = (props) => {
     { value: '30d', label: t('30 days') },
   ];
 
+  const clinicSites = useMemo(() => keyBy(clinic?.sites, 'id'), [clinic?.sites]);
   const patientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
 
   const clinicSitesFilterOptions = useMemo(() => {
@@ -821,6 +823,7 @@ export const ClinicPatients = (props) => {
     updatingClinicSite,
     creatingClinicPatientTag,
     updatingClinicPatientTag,
+    deletingClinicSite,
     deletingClinicPatientTag,
     fetchingTideDashboardPatients,
     fetchingRpmReportPatients,
@@ -842,6 +845,7 @@ export const ClinicPatients = (props) => {
   const previousCreatingClinicCustodialAccount = usePrevious(creatingClinicCustodialAccount);
   const previousCreatingClinicSite = usePrevious(creatingClinicSite);
   const previousUpdatingClinicSite = usePrevious(updatingClinicSite);
+  const previousDeletingClinicSite = usePrevious(deletingClinicSite);
   const previousCreatingClinicPatientTag = usePrevious(creatingClinicPatientTag);
   const previousUpdatingClinicPatientTag = usePrevious(updatingClinicPatientTag);
   const previousDeletingClinicPatientTag = usePrevious(deletingClinicPatientTag);
@@ -879,12 +883,12 @@ export const ClinicPatients = (props) => {
 
   const handleCloseClinicSiteUpdateDialog = useCallback(metric => {
     if (metric) trackMetric(prefixPopHealthMetric(metric, { clinicId: selectedClinicId }));
-    // setShowDeleteClinicSiteDialog(false);
+    setShowDeleteClinicSiteDialog(false);
     setShowUpdateClinicSiteDialog(false);
 
     setTimeout(() => {
       clinicSiteFormContext?.resetForm();
-      setSelectedPatientTag(null);
+      setSelectedClinicSite(null);
     });
   }, [clinicSiteFormContext, prefixPopHealthMetric, selectedClinicId, trackMetric]);
 
@@ -989,6 +993,10 @@ export const ClinicPatients = (props) => {
   }, [clinicSiteFormContext, updatingClinicSite, handleAsyncResult, previousUpdatingClinicSite?.inProgress, t]);
 
   useEffect(() => {
+    handleAsyncResult({ ...deletingClinicSite, prevInProgress: previousDeletingClinicSite?.inProgress }, t('Site removed.'), handleCloseClinicSiteUpdateDialog);
+  }, [deletingClinicSite, handleAsyncResult, handleCloseClinicSiteUpdateDialog, previousDeletingClinicSite?.inProgress, t]);
+
+  useEffect(() => {
     handleAsyncResult({ ...creatingClinicPatientTag, prevInProgress: previousCreatingClinicPatientTag?.inProgress }, t('Tag created.'), () => clinicPatientTagFormContext?.resetForm());
   }, [clinicPatientTagFormContext, creatingClinicPatientTag, handleAsyncResult, previousCreatingClinicPatientTag?.inProgress, t]);
 
@@ -1001,16 +1009,27 @@ export const ClinicPatients = (props) => {
   }, [deletingClinicPatientTag, handleAsyncResult, handleCloseClinicPatientTagUpdateDialog, previousDeletingClinicPatientTag?.inProgress, t]);
 
   useEffect(() => {
-    // Prevent this effect from firing on logout, which would clear all patient tags from localStorage
+    // Prevent this effect from firing on logout, which would clear all patient tags and clinic sites from localStorage
     if (!clinic) return;
 
-    // If a tag is deleted or otherwise missing, and is still present in an active filter, remove it from the filters
+    // If a tag or site is deleted or otherwise missing, and is still present in an active filter, remove it from the filters
     const missingTagsInFilter = difference(activeFilters.patientTags, map(patientTags, 'id'));
-    if (missingTagsInFilter.length) {
-      setActiveFilters({ ...activeFilters, patientTags: without(activeFilters.patientTags, ...missingTagsInFilter) });
-      setPendingFilters({ ...pendingFilters, patientTags: without(activeFilters.patientTags, ...missingTagsInFilter) });
+    const missingSitesInFilter = difference(activeFilters.clinicSites, map(clinicSites, 'id'));
+
+    if (missingTagsInFilter.length || missingSitesInFilter.length) {
+      setActiveFilters({
+        ...activeFilters,
+        patientTags: without(activeFilters.patientTags, ...missingTagsInFilter),
+        clinicSites: without(activeFilters.clinicSites, ...missingSitesInFilter),
+      });
+
+      setPendingFilters({
+        ...pendingFilters,
+        patientTags: without(activeFilters.patientTags, ...missingTagsInFilter),
+        clinicSites: without(activeFilters.clinicSites, ...missingSitesInFilter),
+      });
     }
-  }, [patientTags]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [patientTags, clinicSites]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const successMessage = t('{{name}} has been removed from the clinic.', {
@@ -1362,11 +1381,22 @@ export const ClinicPatients = (props) => {
     dispatch(actions.async.updateClinicPatientTag(api, selectedClinicId, selectedPatientTag?.id, tag));
   }, [api, dispatch, selectedClinicId, selectedPatientTag?.id, trackMetric, prefixPopHealthMetric]);
 
+  const handleDeleteClinicSite = useCallback(siteId => {
+    trackMetric(prefixPopHealthMetric('Edit clinic sites delete'), { clinicId: selectedClinicId });
+    setSelectedClinicSite(clinicSites[siteId]);
+    setShowDeleteClinicSiteDialog(true);
+  }, [selectedClinicId, clinicSites, trackMetric, prefixPopHealthMetric]);
+
   const handleDeleteClinicPatientTag = useCallback(tagId => {
     trackMetric(prefixPopHealthMetric('Edit clinic tags delete'), { clinicId: selectedClinicId });
     setSelectedPatientTag(patientTags[tagId]);
     setShowDeleteClinicPatientTagDialog(true);
-  }, [selectedClinicId, patientTags, trackMetric, prefixPopHealthMetric])
+  }, [selectedClinicId, patientTags, trackMetric, prefixPopHealthMetric]);
+
+  const handleDeleteClinicSiteConfirm = useCallback(() => {
+    trackMetric(prefixPopHealthMetric('Edit clinic sites confirm delete site'), { clinicId: selectedClinicId });
+    dispatch(actions.async.deleteClinicSite(api, selectedClinicId, selectedClinicSite?.id));
+  }, [api, dispatch, selectedClinicId, selectedClinicSite?.id, trackMetric, prefixPopHealthMetric]);
 
   const handleDeleteClinicPatientTagConfirm = useCallback(() => {
     trackMetric(prefixPopHealthMetric('Edit clinic tags confirm delete tag'), { clinicId: selectedClinicId });
@@ -2669,6 +2699,48 @@ export const ClinicPatients = (props) => {
     );
   }, [handleUpdateClinicPatientTagConfirm, handleCloseClinicPatientTagUpdateDialog, selectedPatientTag?.name, showUpdateClinicPatientTagDialog, t]);
 
+  const renderDeleteClinicSiteDialog = useCallback(() => {
+    const name = selectedClinicSite?.name;
+
+    return (
+      <Dialog
+        id="deleteSite"
+        aria-labelledby="dialog-title"
+        open={showDeleteClinicSiteDialog}
+        onClose={handleCloseClinicSiteUpdateDialog}
+      >
+        <DialogTitle onClose={handleCloseClinicSiteUpdateDialog}>
+          <MediumTitle id="dialog-title">{t('Remove "{{name}}"', { name })}</MediumTitle>
+        </DialogTitle>
+
+        <DialogContent>
+          <Flex variant="banners.danger" py={3} sx={{ justifyContent: 'flex-start', gap: 2, borderRadius: '4px' }}>
+            <Icon className="icon" theme={baseTheme} variant="static" icon={ErrorRoundedIcon} label='danger' />
+            <Body1>
+              <Text sx={{ fontWeight: 'medium' }}>
+                {t('Are you sure you want to remove the site: "{{name}}" from the workspace?', { name })}
+              </Text>
+            </Body1>
+          </Flex>
+        </DialogContent>
+
+        <DialogActions>
+          <Button id="clinicSiteRemoveCancel" variant="secondary" onClick={handleCloseClinicSiteUpdateDialog.bind(null, 'Edit clinic sites cancel delete site')}>
+            {t('Cancel')}
+          </Button>
+
+          <Button
+            id="clinicSiteRemoveConfirm"
+            variant="danger"
+            onClick={handleDeleteClinicSiteConfirm}
+          >
+            {t('Remove')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  }, [handleDeleteClinicSiteConfirm, handleCloseClinicSiteUpdateDialog, selectedClinicSite?.name, showDeleteClinicSiteDialog, t]);
+
   const renderDeleteClinicPatientTagDialog = useCallback(() => {
     const name = selectedPatientTag?.name;
 
@@ -2998,13 +3070,13 @@ export const ClinicPatients = (props) => {
 
                     </Box>
                     <Flex sx={{ justifyContent: 'flex-end' }}>
-                      {/* TODO: Add delete functionality in future ticket */}
-                      {/* <Icon
-                        id={`delete-tag-button-${id}`}
+                      <Icon
+                        id={`delete-site-button-${id}`}
+                        data-testid={`delete-site-button-${id}`}
                         icon={DeleteIcon}
                         sx={{ fontSize: 1 }}
-                        onClick={isClinicAdmin ? () => handleDeleteClinicPatientTag(id) : undefined}
-                      /> */}
+                        onClick={isClinicAdmin ? () => handleDeleteClinicSite(id) : noop}
+                      />
                     </Flex>
                   </Grid>
                 ))
@@ -3029,7 +3101,7 @@ export const ClinicPatients = (props) => {
     clinic?.sites,
     handleCreateClinicSite,
     handleUpdateClinicSite,
-    // handleDeleteClinicSite, // TODO: add handleDeleteClinicSite dep in future ticket
+    handleDeleteClinicSite,
     isClinicAdmin,
     prefixPopHealthMetric,
     selectedClinicId,
@@ -3159,6 +3231,7 @@ export const ClinicPatients = (props) => {
                     <Flex sx={{ justifyContent: 'flex-end' }}>
                       <Icon
                         id={`delete-tag-button-${id}`}
+                        data-testid={`delete-tag-button-${id}`}
                         icon={DeleteIcon}
                         sx={{ fontSize: 1 }}
                         onClick={isClinicAdmin ? () => handleDeleteClinicPatientTag(id) : noop}
@@ -4146,8 +4219,8 @@ export const ClinicPatients = (props) => {
   // Prevent visual glitch from multiple overlapping dialogs
   const isClinicSitesDialogVisible = (
     showClinicSitesDialog &&
-    !showUpdateClinicSiteDialog // &&
-    // !showDeleteClinicPatientTagDialog
+    !showUpdateClinicSiteDialog &&
+    !showDeleteClinicSiteDialog
   );
 
   const isClinicPatientTagsDialogVisible = (
@@ -4161,6 +4234,7 @@ export const ClinicPatients = (props) => {
       {renderHeader()}
       {clinic && renderPeopleArea()}
       {renderRemoveDialog()}
+      {showDeleteClinicSiteDialog && renderDeleteClinicSiteDialog()}
       {showUpdateClinicSiteDialog && renderUpdateClinicSiteDialog()}
       {showDeleteClinicPatientTagDialog && renderDeleteClinicPatientTagDialog()}
       {showUpdateClinicPatientTagDialog && renderUpdateClinicPatientTagDialog()}

@@ -2794,6 +2794,29 @@ export function updateClinicPatientTag(api, clinicId, patientTagId, patientTag) 
 }
 
 /**
+ * Delete a site for a clinic
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {String} siteId - Id of the site to delete
+ */
+export function deleteClinicSite(api, clinicId, siteId) {
+  return (dispatch) => {
+    dispatch(sync.deleteClinicSiteRequest());
+
+    api.clinics.deleteClinicSite(clinicId, siteId, (err, sites) => {
+      if (err) {
+        dispatch(sync.deleteClinicSiteFailure(
+          createActionError(ErrorMessages.ERR_DELETING_CLINIC_SITE, err), err
+        ));
+      } else {
+        dispatch(sync.deleteClinicSiteSuccess(clinicId, sites));
+      }
+    });
+  };
+}
+
+/**
  * Delete a patient tag for a clinic
  *
  * @param {Object} api - an instance of the API wrapper
