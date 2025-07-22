@@ -1191,7 +1191,12 @@ export const PatientDataClass = createReactClass({
 
     // If the chart was previously refreshed on settings, we need to refetch the data, since the refresh
     // would have only fetched the pump settings history, and not all the data we need to render other charts.
-    const needsDataRefetch = this.state.refreshChartType === 'settings' && chartTypeFromPath !== 'settings';
+    const needsDataRefetch = this.state.refreshChartType === 'settings' && _.includes([
+      'basics',
+      'daily',
+      'trends',
+      'bgLog',
+    ], chartTypeFromPath);
 
     if (needsDataRefetch) {
       this.setState({
