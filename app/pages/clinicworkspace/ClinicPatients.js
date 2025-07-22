@@ -1360,6 +1360,8 @@ export const ClinicPatients = (props) => {
   }, [api, dispatch, selectedClinicId, trackMetric]);
 
   const handleUpdateClinicSite = useCallback(siteId => {
+    console.log(clinicSites[siteId]);
+
     trackMetric(prefixPopHealthMetric('Edit clinic sites update'), { clinicId: selectedClinicId });
     setSelectedClinicSite(clinicSites[siteId]);
     setShowUpdateClinicSiteDialog(true);
@@ -2567,6 +2569,7 @@ export const ClinicPatients = (props) => {
 
   const renderUpdateClinicSiteDialog = useCallback(() => {
     const name = selectedClinicSite?.name || '';
+    const id = selectedClinicSite?.id;
 
     return (
       <Dialog
@@ -2583,7 +2586,7 @@ export const ClinicPatients = (props) => {
           initialValues={{ name }}
           onSubmit={(site, context) => {
             setClinicSiteFormContext(context);
-            handleUpdateClinicSiteConfirm(site);
+            handleUpdateClinicSiteConfirm({ ...site, id });
           }}
           validationSchema={clinicSiteSchema}
         >
