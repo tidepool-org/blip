@@ -1360,8 +1360,6 @@ export const ClinicPatients = (props) => {
   }, [api, dispatch, selectedClinicId, trackMetric]);
 
   const handleUpdateClinicSite = useCallback(siteId => {
-    console.log(clinicSites[siteId]);
-
     trackMetric(prefixPopHealthMetric('Edit clinic sites update'), { clinicId: selectedClinicId });
     setSelectedClinicSite(clinicSites[siteId]);
     setShowUpdateClinicSiteDialog(true);
