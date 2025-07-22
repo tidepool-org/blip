@@ -522,8 +522,8 @@ utils.parseDatetimeParamToInteger = (queryParam) => {
 
 utils.compareLabels = (string1, string2) => {
   if (!string1 && !string2) return 0;
-  if (!string1 && string2) return 1;
-  if (string1 && !string2) return -1;
+  if (!string1 && string2) return -1;
+  if (string1 && !string2) return 1;
 
   return string1.localeCompare(string2, undefined, { caseFirst: 'upper', numeric: true });
 };

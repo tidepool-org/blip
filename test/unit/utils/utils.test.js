@@ -755,17 +755,17 @@ describe('utils', () => {
       expect(utils.compareLabels(undefined, undefined)).to.equal(0);
       expect(utils.compareLabels('', undefined)).to.equal(0);
       expect(utils.compareLabels(undefined, '')).to.equal(0);
-      expect(utils.compareLabels(undefined, 'test')).to.equal(1);
-      expect(utils.compareLabels('', 'test')).to.equal(1);
-      expect(utils.compareLabels('test', undefined)).to.equal(-1);
-      expect(utils.compareLabels('test', '')).to.equal(-1);
+      expect(utils.compareLabels(undefined, 'test')).to.equal(-1);
+      expect(utils.compareLabels('', 'test')).to.equal(-1);
+      expect(utils.compareLabels('test', undefined)).to.equal(1);
+      expect(utils.compareLabels('test', '')).to.equal(1);
     });
 
     it('Sorts numerically rather than lexicographically', () => {
       let arr = ['Tag 12', 'Tag 8', 'Tag 9a', 'Tag 9', ''];
       arr.sort((a, b) => utils.compareLabels(a, b));
 
-      expect(arr).to.eql(['Tag 8', 'Tag 9', 'Tag 9a', 'Tag 12', '']);
+      expect(arr).to.eql(['', 'Tag 8', 'Tag 9', 'Tag 9a', 'Tag 12']);
     });
 
     it('Sorts base characters ahead of variant characters', () => {
