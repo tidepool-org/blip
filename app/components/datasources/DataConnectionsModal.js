@@ -9,7 +9,7 @@ import EditIcon from '@material-ui/icons/EditRounded';
 
 import * as actions from '../../redux/actions';
 import Button from './../../components/elements/Button';
-import DataConnections, { activeProviders } from './DataConnections';
+import DataConnections, { availableProviders } from './DataConnections';
 import PatientDetails from './PatientDetails';
 import { clinicPatientFromAccountInfo } from '../../core/personutils';
 import { useToasts } from './../../providers/ToastProvider';
@@ -260,7 +260,7 @@ DataConnectionsModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool,
   patient: PropTypes.object.isRequired,
-  shownProviders: PropTypes.arrayOf(PropTypes.oneOf(activeProviders)),
+  shownProviders: PropTypes.arrayOf(PropTypes.oneOf(availableProviders)),
   trackMetric: PropTypes.func.isRequired,
 };
 

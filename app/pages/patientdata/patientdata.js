@@ -310,8 +310,8 @@ export const PatientDataClass = createReactClass({
                   id='data-connections-card'
                   title={t('Connect a Device Account')}
                   subtitle={isUserPatient
-                    ? t('Do you have a Dexcom or twiist device? When you connect a device account, data can flow into Tidepool without any extra effort.')
-                    : t('Does your patient use a Dexcom or twiist device? Automatically sync data from those devices with the patient\'s permission.')
+                    ? t('Do you have a Dexcom, FreeStyle Libre, or twiist account? When you connect an account, data can flow into Tidepool without any extra effort.')
+                    : t('Does your patient have a Dexcom, FreeStyle Libre, or twiist account? Automatically sync data from these accounts with the patient\'s permission.')
                   }
                   bannerImage={DataConnectionsBanner}
                   onClick={handleClickDataConnections}
@@ -1189,6 +1189,25 @@ export const PatientDataClass = createReactClass({
     const chartTypeFromPath = nextProps.match?.params?.chartType;
     const targetDate = utils.parseDatetimeParamToInteger(nextProps.queryParams?.datetime);
 
+    // If the chart was previously refreshed on settings, we need to refetch the data, since the refresh
+    // would have only fetched the pump settings history, and not all the data we need to render other charts.
+    const needsDataRefetch = this.state.refreshChartType === 'settings' && _.includes([
+      'basics',
+      'daily',
+      'trends',
+      'bgLog',
+    ], chartTypeFromPath);
+
+    if (needsDataRefetch) {
+      this.setState({
+        chartType: chartTypeFromPath,
+      }, () => {
+        this.handleRefresh();
+      });
+
+      return;
+    }
+
     switch(true) {
       // If the chart is explicitly specified in the URL, we switch to that chart type.
       case chartTypeFromPath === 'settings':
@@ -1813,6 +1832,13 @@ export const PatientDataClass = createReactClass({
         }, () => {
           this.props.onRefresh(this.props.currentPatientInViewId, this.state.refreshChartType);
           this.props.removeGeneratedPDFS();
+
+          // Reset the path without the datetime query param if present. This will ensure that the
+          // chart gets set to to the date of the most recent datum when the new data loads
+          if (nextProps.queryParams?.datetime) {
+            const path = `/patients/${this.props.currentPatientInViewId}/data/${this.state.refreshChartType}`;
+            this.props.history.push(path);
+          }
         });
       });
     }
