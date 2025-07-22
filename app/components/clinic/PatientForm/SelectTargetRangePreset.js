@@ -56,7 +56,7 @@ const SelectTargetRangePreset = ({
         htmlFor='patient-form-select-target-range-preset'
         sx={{ fontSize: 1, fontWeight: 'medium', color: vizColors.blue50, lineHeight: 1.75 }}
       >
-        {t('Target Range (optional)')}
+        {t('Target Range')}
       </Label>
       <Select
         styles={selectElementStyleOverrides}
