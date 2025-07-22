@@ -755,6 +755,7 @@ describe('ClinicPatients', ()  => {
 
     describe('when Reset Filters button is clicked', () => {
       it('should show the No Results text and reset filters', async () => {
+        store = mockStore(noPatientsButWithFiltersState);
         mockLocalStorage({
           'activePatientFilters/clinicianUserId123/clinicID123': {
             timeInRange: ['timeInLowPercent'],
@@ -764,12 +765,11 @@ describe('ClinicPatients', ()  => {
           },
         });
 
-        store = mockStore(noPatientsButWithFiltersState);
         render(<WrappedComponent />);
 
         // Header should be visible. Should indicate there are no results
         expect(screen.getByTestId('clinic-patients-header')).toBeInTheDocument();
-        expect(screen.getByText('There are no results to show')).toBeInTheDocument();
+        expect(screen.getByText('There are no patient accounts with the current filter(s) that match your search')).toBeInTheDocument();
 
 
         // Clicking "Reset Filters" should reset the filters in localStorage
@@ -784,8 +784,8 @@ describe('ClinicPatients', ()  => {
             timeCGMUsePercent: null,
             lastData: null,
             lastDataType: null,
-            timeInRange :[],
-            meetsGlycemicTargets:true,
+            timeInRange: [],
+            meetsGlycemicTargets: true,
             patientTags: [],
             clinicSites: [],
           }),
@@ -800,7 +800,7 @@ describe('ClinicPatients', ()  => {
 
         // Header should be visible. Should indicate there are no results
         expect(screen.getByTestId('clinic-patients-header')).toBeInTheDocument();
-        expect(screen.getByText('There are no results to show')).toBeInTheDocument();
+        expect(screen.getByText('There are no patient accounts that match your search')).toBeInTheDocument();
 
         store.clearActions();
 
