@@ -5,6 +5,7 @@
 /* global context */
 /* global beforeEach */
 
+import cryptoJS from 'crypto-js';
 import * as ActionTypes from '../../../../app/redux/constants/actionTypes';
 import launchDarklyMiddleware, { ldContext } from '../../../../app/redux/utils/launchDarklyMiddleware';
 
@@ -147,7 +148,7 @@ describe('launchDarklyMiddleware', () => {
       });
     });
 
-    it('should set partial user context to default for LOGIN_SUCCESS for a non-clinician user', () => {
+    it('should set a SHA-256-encrypted user context key to default for LOGIN_SUCCESS for a non-clinician user', () => {
       const action = {
         type: ActionTypes.LOGIN_SUCCESS,
       };
@@ -157,9 +158,12 @@ describe('launchDarklyMiddleware', () => {
       expect(ldContext).to.eql(defaultContext);
       launchDarklyMiddleware()(getStateObj)(next)(action);
 
+      // eslint-disable-next-line new-cap
+      const encryptedUserId = cryptoJS.SHA256('userID345').toString();
+
       expect(ldContext.user).to.eql({
        application: 'Web',
-       key: 'userID345',
+       key: encryptedUserId,
        role: 'personal',
       });
     });

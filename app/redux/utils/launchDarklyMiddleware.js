@@ -2,6 +2,7 @@ import filter from 'lodash/filter';
 import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
 import isNull from 'lodash/isNull';
+import cryptoJS from 'crypto-js';
 
 import * as ActionTypes from '../constants/actionTypes';
 import personUtils from '../../core/personutils';
@@ -41,7 +42,8 @@ const launchDarklyMiddleware = () => (storeAPI) => (next) => (action) => {
       const role = personUtils.isClinicianAccount(user) ? 'clinician' : 'personal';
 
       ldContext.user = {
-        key: user?.userid,
+        // eslint-disable-next-line new-cap
+        key: role === 'clinician' ? user?.userid : cryptoJS.SHA256(user?.userid || '').toString(),
         role,
         application: 'Web',
       };
