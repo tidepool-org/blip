@@ -91,22 +91,16 @@ export const ClinicAdmin = (props) => {
   const timePrefs = useSelector((state) => state.blip.timePrefs);
   const [clinicianArray, setClinicianArray] = useState([]);
   const [userRolesInClinic, setUserRolesInClinic] = useState([]);
-
-  const [sortConfig, setSortConfig] = useState({
-    orderBy: 'fullName',
-    order: 'asc',
-  });
+  const [sortOptions, setSortOptions] = useState({ orderBy: 'fullName', order: 'asc' });
 
   const sortedClinicianArray = useMemo(() => {
-    const { orderBy, order } = sortConfig;
+    const { orderBy, order } = sortOptions;
 
-    // Group clinicians by the `orderBy`. Within each group, order them by their `fullName`.
-    // If they have the same name (or no name in the case of invitation pending), sort by email.
     const sortedArray = clinicianArray.toSorted((a, b) => {
       return (
-        utils.compareLabels(a[orderBy], b[orderBy]) ||
-        utils.compareLabels(a.fullName, b.fullName) ||
-        utils.compareLabels(a.email, b.email)
+        utils.compareLabels(a[orderBy], b[orderBy]) || // group by designated column
+        utils.compareLabels(a.fullName, b.fullName) || // within each group, sort by name
+        utils.compareLabels(a.email, b.email)          // if no name, sort by email
       );
     });
 
@@ -114,7 +108,7 @@ export const ClinicAdmin = (props) => {
     if (order === 'desc') sortedArray.reverse();
 
     return sortedArray;
-  }, [clinicianArray, sortConfig.orderBy, sortConfig.order]);
+  }, [clinicianArray, sortOptions.orderBy, sortOptions.order]);
 
   const rowsPerPage = 8;
 
@@ -488,7 +482,7 @@ export const ClinicAdmin = (props) => {
   }
 
   function handleSortChange(newOrderBy, _field) {
-    setSortConfig(prev => ({
+    setSortOptions(prev => ({
       order: prev.order === 'asc' ? 'desc' : 'asc',
       orderBy: newOrderBy,
     }));
@@ -860,8 +854,8 @@ export const ClinicAdmin = (props) => {
               columns={columns}
               data={sortedClinicianArray}
               onSort={handleSortChange}
-              orderBy={sortConfig.orderBy}
-              order={sortConfig.order}
+              orderBy={sortOptions.orderBy}
+              order={sortOptions.order}
               rowHover={false}
               rowsPerPage={rowsPerPage}
               searchText={searchText}
