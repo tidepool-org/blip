@@ -586,7 +586,7 @@ describe('ClinicPatients', ()  => {
             expect(defaultProps.api.clinics.updateClinicSite).toHaveBeenCalledWith(
               'clinicID123', // clinicId,
               'site-2-id', // site id
-              { name: 'Site Zulu' }, // updated site
+              { id: 'site-2-id', name: 'Site Zulu' }, // updated site
               expect.any(Function), // callback fn passed to api
             );
 
