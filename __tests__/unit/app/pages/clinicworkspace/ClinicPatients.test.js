@@ -586,7 +586,7 @@ describe('ClinicPatients', ()  => {
             expect(defaultProps.api.clinics.updateClinicSite).toHaveBeenCalledWith(
               'clinicID123', // clinicId,
               'site-2-id', // site id
-              { name: 'Site Zulu' }, // updated site
+              { id: 'site-2-id', name: 'Site Zulu' }, // updated site
               expect.any(Function), // callback fn passed to api
             );
 
@@ -769,14 +769,14 @@ describe('ClinicPatients', ()  => {
           );
         }, TEST_TIMEOUT_MS);
 
-        it('should allow deleting an existing site for a workspace', async () => {
+        it('should allow deleting an existing patient tag for a workspace', async () => {
           render(
             <MockedProviderWrappers>
               <ClinicPatients {...defaultProps} />
             </MockedProviderWrappers>
           );
 
-          // Open the Edit Sites Dialog
+          // Open the Edit Tags Dialog
           await userEvent.click(screen.getByRole('button', { name: /Tags/ }));
           await userEvent.click(screen.getByRole('button', { name: /Edit Tags/ }));
 
