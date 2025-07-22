@@ -1204,47 +1204,49 @@ export const PatientDataClass = createReactClass({
       }, () => {
         this.handleRefresh();
       });
-    } else {
-      switch(true) {
-        // If the chart is explicitly specified in the URL, we switch to that chart type.
-        case chartTypeFromPath === 'settings':
-          this.handleSwitchToSettings();
-          break;
-        case chartTypeFromPath === 'basics':
-          this.handleSwitchToBasics();
-          break;
-        case chartTypeFromPath === 'daily':
-          this.handleSwitchToDaily(targetDate);
-          break;
-        case chartTypeFromPath === 'trends':
-          this.handleSwitchToTrends(targetDate);
-          break;
-        case chartTypeFromPath === 'bgLog':
-          this.handleSwitchToBgLog(targetDate);
-          break;
 
-        // If the chart is not specified in the URL, we should switch to the patient's default chart type,
-        // which is derived from the patient's data values. If state.defaultChartTypeForPatient
-        // exists, we should use its value rather than deriving it again using setInitialChartView().
-        case this.state.defaultChartTypeForPatient === 'basics':
-          this.handleSwitchToBasics();
-          break;
-        case this.state.defaultChartTypeForPatient === 'daily':
-          this.handleSwitchToDaily(targetDate);
-          break;
-        case this.state.defaultChartTypeForPatient === 'trends':
-          this.handleSwitchToTrends(targetDate);
-          break;
-        case this.state.defaultChartTypeForPatient === 'bgLog':
-          this.handleSwitchToBgLog(targetDate);
-          break;
+      return;
+    }
 
-        // At this point, there is insufficient information; we need to call setInitialChartView() to derive
-        // the default chart type for this patient
-        default:
-          this.setInitialChartView(nextProps);
-          break;
-      }
+    switch(true) {
+      // If the chart is explicitly specified in the URL, we switch to that chart type.
+      case chartTypeFromPath === 'settings':
+        this.handleSwitchToSettings();
+        break;
+      case chartTypeFromPath === 'basics':
+        this.handleSwitchToBasics();
+        break;
+      case chartTypeFromPath === 'daily':
+        this.handleSwitchToDaily(targetDate);
+        break;
+      case chartTypeFromPath === 'trends':
+        this.handleSwitchToTrends(targetDate);
+        break;
+      case chartTypeFromPath === 'bgLog':
+        this.handleSwitchToBgLog(targetDate);
+        break;
+
+      // If the chart is not specified in the URL, we should switch to the patient's default chart type,
+      // which is derived from the patient's data values. If state.defaultChartTypeForPatient
+      // exists, we should use its value rather than deriving it again using setInitialChartView().
+      case this.state.defaultChartTypeForPatient === 'basics':
+        this.handleSwitchToBasics();
+        break;
+      case this.state.defaultChartTypeForPatient === 'daily':
+        this.handleSwitchToDaily(targetDate);
+        break;
+      case this.state.defaultChartTypeForPatient === 'trends':
+        this.handleSwitchToTrends(targetDate);
+        break;
+      case this.state.defaultChartTypeForPatient === 'bgLog':
+        this.handleSwitchToBgLog(targetDate);
+        break;
+
+      // At this point, there is insufficient information; we need to call setInitialChartView() to derive
+      // the default chart type for this patient
+      default:
+        this.setInitialChartView(nextProps);
+        break;
     }
   },
 
