@@ -220,6 +220,7 @@ export const useDisableScrollOnNumberInput = () => {
  * @returns {Object} - Merged flags from LaunchDarkly and local storage overrides
  */
 export const useLaunchDarklyFlagOverrides = () => {
+  const launchDarklyFlags = useFlags();
   const [launchDarklyOverrides] = useLocalStorage('launchDarklyOverrides', {});
-  return { ...useFlags(), ...launchDarklyOverrides };
+  return { ...launchDarklyFlags, ...launchDarklyOverrides };
 }
