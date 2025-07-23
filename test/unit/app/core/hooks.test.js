@@ -1,5 +1,13 @@
 import React, { useState } from 'react'
-import { usePrevious, useFieldArray, useInitialFocusedInput } from '../../../../app/core/hooks';
+
+import {
+  default as hooksModule,
+  usePrevious,
+  useFieldArray,
+  useInitialFocusedInput,
+  useLaunchDarklyFlagOverrides,
+} from '../../../../app/core/hooks';
+
 import { renderHook } from '@testing-library/react-hooks/dom';
 import { Formik } from 'formik';
 import _ from 'lodash';
@@ -230,6 +238,88 @@ describe('hooks', function() {
       rerender();
 
       expect(focusedElement()).to.equal(button);
+    });
+  });
+
+  describe('useLaunchDarklyFlagOverrides', () => {
+    let useLocalStorageStub;
+    let useFlagsStub;
+
+    beforeEach(() => {
+      useLocalStorageStub = sinon.stub().returns([{}]);
+      hooksModule.__Rewire__('useLocalStorage', useLocalStorageStub);
+
+      // Mock the LaunchDarkly useFlags hook
+      useFlagsStub = sinon.stub();
+      hooksModule.__Rewire__('useFlags', useFlagsStub);
+    });
+
+    afterEach(() => {
+      hooksModule.__ResetDependency__('useLocalStorage');
+      hooksModule.__ResetDependency__('useFlags');
+    });
+
+    it('should return LaunchDarkly flags when no local storage overrides exist', () => {
+      const launchDarklyFlags = {
+        featureA: true,
+        featureB: false,
+        featureC: 'enabled',
+      };
+
+      useFlagsStub.returns(launchDarklyFlags);
+      useLocalStorageStub.returns([{}]);
+
+      const { result } = renderHook(() => useLaunchDarklyFlagOverrides());
+
+      expect(result.current).to.deep.equal(launchDarklyFlags);
+      expect(useLocalStorageStub.calledWith('launchDarklyOverrides', {})).to.be.true;
+    });
+
+    it('should merge LaunchDarkly flags with local storage overrides', () => {
+      const launchDarklyFlags = {
+        featureA: true,
+        featureB: false,
+        featureC: 'enabled',
+      };
+
+      const localOverrides = {
+        featureB: true,
+        featureD: 'override',
+      };
+
+      useFlagsStub.returns(launchDarklyFlags);
+      useLocalStorageStub.returns([localOverrides]);
+
+      const { result } = renderHook(() => useLaunchDarklyFlagOverrides());
+
+      expect(result.current).to.deep.equal({
+        featureA: true,
+        featureB: true, // Overridden from false to true
+        featureC: 'enabled',
+        featureD: 'override', // New flag from local storage
+      });
+    });
+
+    it('should prioritize local storage overrides over LaunchDarkly flags', () => {
+      const launchDarklyFlags = {
+        featureA: true,
+        featureB: false,
+      };
+
+      const localOverrides = {
+        featureA: false, // Override LaunchDarkly value
+        featureB: true,  // Override LaunchDarkly value
+      };
+
+      useFlagsStub.returns(launchDarklyFlags);
+      useLocalStorageStub.returns([localOverrides]);
+
+      const { result } = renderHook(() => useLaunchDarklyFlagOverrides());
+
+      expect(result.current).to.deep.equal({
+        featureA: false,
+        featureB: true,
+      });
     });
   });
 });

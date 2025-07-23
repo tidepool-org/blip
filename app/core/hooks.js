@@ -3,6 +3,7 @@ import update from 'immutability-helper'
 
 import { useField, useFormikContext } from 'formik';
 import { isPlainObject } from 'lodash';
+import { useFlags } from 'launchdarkly-react-client-sdk';
 
 // c.f. https://gist.github.com/joshsalverda/d808d92f46a7085be062b2cbde978ae6
 // Avoids some performance issues in Formik's native <FieldArray />
@@ -213,3 +214,12 @@ export const useDisableScrollOnNumberInput = () => {
     document.addEventListener('wheel', function(e){ handleScroll(e); });
   }, []);
 };
+
+/**
+ * Custom hook to use LaunchDarkly flags with local storage overrides
+ * @returns {Object} - Merged flags from LaunchDarkly and local storage overrides
+ */
+export const useLaunchDarklyFlagOverrides = () => {
+  const [launchDarklyOverrides] = useLocalStorage('launchDarklyOverrides', {});
+  return { ...useFlags(), ...launchDarklyOverrides };
+}
