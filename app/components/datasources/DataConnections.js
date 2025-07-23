@@ -5,10 +5,13 @@ import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
 import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
 import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
 import moment from 'moment-timezone';
+import defaults from 'lodash/defaults';
+import filter from 'lodash/filter';
 import find from 'lodash/find';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 import intersection from 'lodash/intersection';
+import isFunction from 'lodash/isFunction';
 import keys from 'lodash/keys';
 import map from 'lodash/map';
 import max from 'lodash/max';
@@ -20,7 +23,7 @@ import { utils as vizUtils } from '@tidepool/viz';
 import * as actions from '../../redux/actions';
 import { useToasts } from '../../providers/ToastProvider';
 import api from '../../core/api';
-import { useIsFirstRender, usePrevious } from '../../core/hooks';
+import { useIsFirstRender, useLaunchDarklyFlagOverrides, usePrevious } from '../../core/hooks';
 import i18next from '../../core/language';
 import DataConnection from './DataConnection';
 import PatientEmailModal from './PatientEmailModal';
@@ -31,20 +34,15 @@ import dexcomLogo from '../../core/icons/dexcom_logo.png';
 import libreLogo from '../../core/icons/libre_logo.svg';
 import twiistLogo from '../../core/icons/twiist_logo.svg';
 import { colors } from '../../themes/baseTheme';
-import { isFunction } from 'lodash';
 
 const { formatTimeAgo } = vizUtils.datetime;
 const t = i18next.t.bind(i18next);
-
-export const activeProviders = [
-  'dexcom',
-  'twiist',
-];
 
 export const providers = {
   dexcom: {
     id: 'oauth/dexcom',
     displayName: 'Dexcom',
+    displayOrderIndex: 0,
     restrictedTokenCreate: {
         paths: [
           '/v1/oauth/dexcom',
@@ -59,6 +57,7 @@ export const providers = {
   abbott: {
     id: 'oauth/abbott',
     displayName: 'FreeStyle Libre',
+    displayOrderIndex: 2,
     restrictedTokenCreate: {
         paths: [
           '/v1/oauth/abbott',
@@ -77,6 +76,7 @@ export const providers = {
   twiist: {
     id: 'oauth/twiist',
     displayName: 'twiist',
+    displayOrderIndex: 1,
     restrictedTokenCreate: {
         paths: [
           '/v1/oauth/twiist',
@@ -89,6 +89,18 @@ export const providers = {
     logoImage: twiistLogo,
     indeterminateDataImportTime: true,
   },
+};
+
+export const availableProviders = orderBy(keys(providers), provider => providers[provider].displayOrderIndex);
+
+export const getActiveProviders = (overrides = {}) => {
+  const activeProviders = defaults(overrides, {
+    dexcom: true,
+    twiist: true,
+    abbott: false,
+  });
+
+  return filter(availableProviders, provider => activeProviders[provider]);
 };
 
 export function getProviderHandlers(patient, selectedClinicId, provider) {
@@ -157,8 +169,33 @@ export function getProviderHandlers(patient, selectedClinicId, provider) {
   }
 };
 
+export const getCurrentDataSourceForProvider = (patient, providerName) => {
+  const dataSources = filter(patient?.dataSources, { providerName }) || [];
+
+  if (dataSources.length === 0) {
+    return undefined;
+  }
+
+  // Define state priority order
+  const statePriority = {
+    pending: 1,
+    connected: 2,
+    error: 3,
+    pendingReconnect: 4,
+    disconnected: 5,
+  };
+
+  // Sort by state priority, then by lastImportTime (descending) for disconnected states
+  const sortedDataSources = orderBy(dataSources, [
+    (ds) => statePriority[ds.state] || 999, // Unknown states go to the end
+    (ds) => ds.state === 'disconnected' ? -(new Date(ds.lastImportTime || 0).getTime()) : 0
+  ], ['asc', 'asc']);
+
+  return sortedDataSources[0];
+};
+
 export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
-  const dataSource = find(patient?.dataSources, {providerName});
+  const dataSource = getCurrentDataSourceForProvider(patient, providerName);
 
   const mostRecentConnectionUpdateTime = isLoggedInUser
     ? max([
@@ -269,13 +306,13 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
   }
 };
 
-export const getDataConnectionProps = (patient, isLoggedInUser, selectedClinicId, setActiveHandler) => reduce(activeProviders, (result, providerName) => {
+export const getDataConnectionProps = (patient, isLoggedInUser, selectedClinicId, setActiveHandler) => reduce(availableProviders, (result, providerName) => {
   result[providerName] = {};
 
   let connectState;
 
+  const dataSource = getCurrentDataSourceForProvider(patient, providerName);
   const connectStateUI = getConnectStateUI(patient, isLoggedInUser, providerName);
-  const dataSource = find(orderBy(patient?.dataSources, 'modifiedTime', 'desc'), { providerName: providerName });
   const inviteExpired = dataSource?.expirationTime < moment.utc().toISOString();
 
   if (dataSource?.state) {
@@ -350,6 +387,8 @@ export const DataConnections = (props) => {
   const [patientUpdates, setPatientUpdates] = useState({});
   const [activeHandler, setActiveHandler] = useState(null);
   const dataConnectionProps = getDataConnectionProps(patient, isLoggedInUser, selectedClinicId, setActiveHandler);
+  const { showAbbottProvider } = useLaunchDarklyFlagOverrides();
+  const activeProviders = getActiveProviders({ abbott: showAbbottProvider });
 
   const {
     sendingPatientDataProviderConnectRequest,
@@ -641,12 +680,12 @@ DataConnections.propTypes = {
   patient: PropTypes.shape({
     dataSources: PropTypes.oneOf([PropTypes.shape(clinicPatientDataSourceShape), PropTypes.shape(userDataSourceShape)])
   }),
-  shownProviders: PropTypes.arrayOf(PropTypes.oneOf(activeProviders)),
+  shownProviders: PropTypes.arrayOf(PropTypes.oneOf(availableProviders)),
   trackMetric: PropTypes.func.isRequired,
 };
 
 DataConnections.defaultProps = {
-  shownProviders: activeProviders,
+  shownProviders: availableProviders,
   trackMetric: noop,
 };
 
