@@ -159,7 +159,7 @@ describe('launchDarklyMiddleware', () => {
 
       expect(ldContext.user).to.eql({
        application: 'Web',
-       key: 'userID345',
+       key: 'anon',
        role: 'personal',
       });
     });
