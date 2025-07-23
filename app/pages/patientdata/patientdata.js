@@ -799,11 +799,13 @@ export const PatientDataClass = createReactClass({
     };
 
     if (!bgPrefs.useDefaultRange) {
-      bgPrefs = utils.getBGPrefsForDataProcessing({ ...patientSettings, bgTarget: undefined }, bgUnitsOverride);
+      // bgPrefs = utils.getBGPrefsForDataProcessing({ ...patientSettings, bgTarget: undefined }, bgUnitsOverride);
+      bgPrefs = utils.getBgPrefs({ ...patientSettings, bgTarget: undefined }, this.props.clinicPatient, bgUnitsOverride);
       bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
       bgPrefs.useDefaultRange = true;
     } else {
-      bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, bgUnitsOverride);
+      // bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, bgUnitsOverride);
+      bgPrefs = utils.getBgPrefs(patientSettings, { ...this.props.clinicPatient, glycemicRanges: 'ADA_STANDARD' }, bgUnitsOverride);
       bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
       bgPrefs.useDefaultRange = false;
     }
@@ -1816,6 +1818,7 @@ export const PatientDataClass = createReactClass({
     const userId = this.props.currentPatientInViewId;
     const patientData = _.get(nextProps, 'data.metaData.patientId') === userId;
     const patientSettings = _.get(nextProps, ['patient', 'settings'], null);
+    const clinicPatient = _.get(nextProps.clinics, [nextProps.clinic?.id, 'patients', userId], {});
 
     // Handle data refresh
     if (this.props.removingData.inProgress && nextProps.removingData.completed) {
@@ -1857,8 +1860,10 @@ export const PatientDataClass = createReactClass({
           source: nextProps.queryParams?.units ? 'query params' : 'preferred clinic units',
         };
 
-        bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, bgUnitsOverride);
+        // bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, bgUnitsOverride);
+        bgPrefs = utils.getBgPrefs(patientSettings, clinicPatient, bgUnitsOverride);
         bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
+
         if (isCustomBgRange(bgPrefs)) stateUpdates.isCustomBgRange = true;
         stateUpdates.bgPrefs = bgPrefs;
       }
