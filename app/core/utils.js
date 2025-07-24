@@ -25,6 +25,9 @@ import { utils as vizUtils } from '@tidepool/viz';
 const { bankersRound } = vizUtils.stat;
 import personUtils from '../core/personutils';
 
+// TODO: Move
+import { TARGET_RANGE_PRESET } from '../components/clinic/PatientForm/SelectTargetRangePreset';
+
 const {
   DEFAULT_BG_BOUNDS,
   ADA_STANDARD_BG_BOUNDS,
@@ -416,53 +419,44 @@ utils.getBgPrefs = (
     bgUnits = patientSettings?.units?.bg || MGDL_UNITS;
   }
 
-  // If user is a clinician and there are clinic-specified targets for this patient, use them
-  // If user is a PwD and they have self-specified targets, use them. Otherwise, use default.
-  if (!!clinicPatient?.glycemicRanges) {
-    targetRange = clinicPatient?.glycemicRanges;
-  } else if (!!patientSettings?.bgTarget) {
-    targetRange = 'PWD_SELF_DEFINED_RANGE';
-  }
+  const bounds = (() => {
+    // If user is a PwD and they have self-specified targets, use them.
+    if (!!patientSettings?.bgTarget) {
+      let low = patientSettings?.bgTarget?.low;
+      let high = patientSettings?.bgTarget?.high;
+      let isUnitDifferent = patientSettings?.units?.bg !== bgUnits;
 
-  console.log(clinicPatient);
-  console.log(targetRange);
+      // If differing units btwn clinic & patient, translate the bg first
+      if (!!low && isUnitDifferent) low = utils.translateBg(low, bgUnits);
+      if (!!high && isUnitDifferent) high = utils.translateBg(high, bgUnits);
 
-  let bounds = {};
+      // If a value is missing, fall back to defaults
+      low ||= DEFAULT_BG_BOUNDS[bgUnits].targetLowerBound;
+      high ||= DEFAULT_BG_BOUNDS[bgUnits].targetUpperBound;
 
-  switch(targetRange) {
-    case 'PWD_SELF_DEFINED_RANGE':
-      let low = !!patientSettings?.bgTarget?.low;
-      let high = !!patientSettings?.bgTarget?.high;
-      let isUnitDiff = patientSettings?.units?.bg !== bgUnits;
-
-      if (low && isUnitDiff) low = utils.translateBg(patientSettings.bgTarget.low, bgUnits);
-      if (high && isUnitDiff) high = utils.translateBg(patientSettings.bgTarget.high, bgUnits);
-
+      // Round in case translation produces units that have too many decimals
       low = utils.roundBgTarget(low, bgUnits);
       high = utils.roundBgTarget(high, bgUnits);
 
-      bounds = {
+      return ({
         veryLowThreshold: DEFAULT_BG_BOUNDS[bgUnits].veryLowThreshold,
         targetLowerBound: low,
         targetUpperBound: high,
         veryHighThreshold: DEFAULT_BG_BOUNDS[bgUnits].veryHighThreshold,
-      };
+      });
+    }
 
-      break;
-    case 'HIGH_RISK':
-      bounds = HIGH_RISK_BG_BOUNDS[bgUnits];
-      break;
-    case 'PREGNANCY_T1':
-      bounds = PREGNANCY_T1_BG_BOUNDS[bgUnits];
-      break;
-    case 'PREGNANCY_T2':
-      bounds = GESTATIONAL_T2_BG_BOUNDS[bgUnits];
-      break;
-    case 'ADA_STANDARD':
-    default:
-      bounds = DEFAULT_BG_BOUNDS[bgUnits];
-      break;
-  }
+    // Use clinic-designated range for patient or fall back to default.
+    const targetRange = clinicPatient?.glycemicRanges || TARGET_RANGE_PRESET.STANDARD;
+
+    switch(targetRange) {
+      case TARGET_RANGE_PRESET.HIGH_RISK:   return HIGH_RISK_BG_BOUNDS[bgUnits];
+      case TARGET_RANGE_PRESET.PREGNANCY:   return PREGNANCY_T1_BG_BOUNDS[bgUnits];
+      case TARGET_RANGE_PRESET.GESTATIONAL: return GESTATIONAL_T2_BG_BOUNDS[bgUnits];
+      case TARGET_RANGE_PRESET.STANDARD:    return DEFAULT_BG_BOUNDS[bgUnits];
+      default:                              return DEFAULT_BG_BOUNDS[bgUnits];
+    }
+  })();
 
   bgClasses['very-low'].boundary = bounds.veryLowThreshold;
   bgClasses['low'].boundary      = bounds.targetLowerBound;
