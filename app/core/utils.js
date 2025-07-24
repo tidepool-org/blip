@@ -420,23 +420,19 @@ utils.getBgPrefs = (
   }
 
   const bounds = (() => {
-    // If user is a PwD and they have self-specified targets, use them.
-    if (!!patientSettings?.bgTarget) {
+    // If user is a PwD with self-specified custom targets, use them.
+    if (!clinicPatient && !!patientSettings?.bgTarget) {
       let low = patientSettings?.bgTarget?.low;
       let high = patientSettings?.bgTarget?.high;
       let isUnitDifferent = patientSettings?.units?.bg !== bgUnits;
 
-      // If differing units btwn clinic & patient, translate the bg first
-      if (!!low && isUnitDifferent) low = utils.translateBg(low, bgUnits);
-      if (!!high && isUnitDifferent) high = utils.translateBg(high, bgUnits);
+      // If differing units between clinic & patient, translate the threshold and round
+      if (!!low && isUnitDifferent) low = utils.roundBgTarget(utils.translateBg(low, bgUnits), bgUnits);
+      if (!!high && isUnitDifferent) high = utils.roundBgTarget(utils.translateBg(high, bgUnits), bgUnits);
 
       // If a value is missing, fall back to defaults
       low ||= DEFAULT_BG_BOUNDS[bgUnits].targetLowerBound;
       high ||= DEFAULT_BG_BOUNDS[bgUnits].targetUpperBound;
-
-      // Round in case translation produces units that have too many decimals
-      low = utils.roundBgTarget(low, bgUnits);
-      high = utils.roundBgTarget(high, bgUnits);
 
       return ({
         veryLowThreshold: DEFAULT_BG_BOUNDS[bgUnits].veryLowThreshold,
@@ -446,7 +442,7 @@ utils.getBgPrefs = (
       });
     }
 
-    // Use clinic-designated range for patient or fall back to default.
+    // Use clinic-designated range, or fall back to default
     const targetRange = clinicPatient?.glycemicRanges || TARGET_RANGE_PRESET.STANDARD;
 
     switch(targetRange) {
@@ -458,10 +454,10 @@ utils.getBgPrefs = (
     }
   })();
 
-  bgClasses['very-low'].boundary = bounds.veryLowThreshold;
-  bgClasses['low'].boundary      = bounds.targetLowerBound;
-  bgClasses['target'].boundary   = bounds.targetUpperBound;
-  bgClasses['high'].boundary     = bounds.veryHighThreshold;
+  bgClasses['very-low'].boundary = bounds.veryLowThreshold || null;
+  bgClasses['low'].boundary      = bounds.targetLowerBound || null;
+  bgClasses['target'].boundary   = bounds.targetUpperBound || null;
+  bgClasses['high'].boundary     = bounds.veryHighThreshold || null;
 
   return {
     bgClasses,
