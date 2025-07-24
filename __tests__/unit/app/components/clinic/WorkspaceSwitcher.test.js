@@ -10,7 +10,6 @@ import thunk from 'redux-thunk';
 import api from '../../../../../app/core/api';
 import * as actions from '../../../../../app/redux/actions';
 
-// Mock the actions
 jest.mock('../../../../../app/redux/actions', () => ({
   sync: {
     setPatientListSearchTextInput: jest.fn(),
@@ -74,7 +73,7 @@ describe('WorkspaceSwitcher', ()  => {
 
     // Workspace switcher should be labelled with currently selected clinic name
     const dropdownButton = screen.getByRole('button');
-    expect(dropdownButton).toHaveTextContent('Second Clinic Workspace')
+    expect(dropdownButton).toHaveTextContent('Second Clinic Workspace');
 
     // Workspaces in dropdown should not be visible because it's closed
     expect(screen.queryByRole('button', { name: 'First Clinic Workspace' })).not.toBeInTheDocument();
