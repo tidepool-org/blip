@@ -4,7 +4,7 @@
     "node": "20.8.0"
   },
   "packageManager": "yarn@3.6.4",
-  "version": "1.89.0-develop.1",
+  "version": "1.89.0-develop.2",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test yarn jest --verbose --runInBand; JEST_EXIT_CODE=$?; TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' yarn karma start; KARMA_EXIT_CODE=$?; [ $JEST_EXIT_CODE -eq 0 ] && [ $KARMA_EXIT_CODE -eq 0 ]",
@@ -195,7 +195,7 @@
     "terser": "5.22.0",
     "terser-webpack-plugin": "5.3.9",
     "theme-ui": "0.16.1",
-    "tideline": "1.36.0-develop.1",
+    "tideline": "1.36.0-develop.2",
     "tidepool-platform-client": "0.63.1",
     "tidepool-standard-action": "0.1.1",
     "ua-parser-js": "1.0.36",
