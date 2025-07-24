@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.49.0-web-3692-pump-alarms-daily-view.1":
-  version: 1.49.0-web-3692-pump-alarms-daily-view.1
-  resolution: "@tidepool/viz@npm:1.49.0-web-3692-pump-alarms-daily-view.1"
+"@tidepool/viz@npm:1.49.0":
+  version: 1.49.0
+  resolution: "@tidepool/viz@npm:1.49.0"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 288d7009cc153c17b9e564f9e8d662bfcfb84220beedce9527639a017851a33abab81f187a5d8ca6e51ad59e5fce67d7ba6c8a1040d4afd817f38811acb091d2
+  checksum: bc5fd17dcf97a4484cff2df7dbbbf8fe095adba761fa39fb07ee83f9316be75f0a05c95382907bd5db518e3be3b7ee63661a6167f4117fe6c21ba7c525e7f4be
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.49.0-web-3692-pump-alarms-daily-view.1
+    "@tidepool/viz": 1.49.0
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -8462,8 +8462,8 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.35.0-web-3692-pump-alarms-daily-view.1
-    tidepool-platform-client: 0.64.0-web-3571-delete-sites.3
+    tideline: 1.35.0
+    tidepool-platform-client: 0.63.1
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
     url-loader: 4.1.1
@@ -22218,9 +22218,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.35.0-web-3692-pump-alarms-daily-view.1":
-  version: 1.35.0-web-3692-pump-alarms-daily-view.1
-  resolution: "tideline@npm:1.35.0-web-3692-pump-alarms-daily-view.1"
+"tideline@npm:1.35.0":
+  version: 1.35.0
+  resolution: "tideline@npm:1.35.0"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -22241,7 +22241,7 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: 8a556a49db68a03ccccbeb82921c5c3762b6d48386d412109edddb127229c78de9787918e5566f0e378fa65b79252325c14cdcaa90448fb8c92d824a64c0ab9a
+  checksum: 446901737cdcf40a77a60ffe32346135357798079f44a69bb7484d62d2dd9cc1bc14f87d93a0cba5245671b30d969dc93b981eaf4ce81c8511d7ea0da6c712c0
   languageName: node
   linkType: hard
 
