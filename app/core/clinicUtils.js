@@ -451,7 +451,7 @@ export const patientSchema = config => {
       })
     ),
     diagnosisType: yup.string().nullable(),
-    targetRangePreset: yup.string(),
+    glycemicRanges: yup.string(),
   });
 };
 

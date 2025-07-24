@@ -9,13 +9,11 @@ import { Label } from 'theme-ui';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../core/constants';
 
-// Todo: Align values with backend
 export const TARGET_RANGE_PRESET = {
-  STANDARD: 'STANDARD',
-  HIGH_RISK: 'HIGH_RISK',
-  PREGNANCY: 'PREGNANCY',
-  GESTATIONAL: 'GESTATIONAL',
-  // CUSTOM: 'CUSTOM',
+  STANDARD: 'ADA standard',
+  HIGH_RISK: 'ADA older or high-risk',
+  PREGNANCY: 'ADA pregnancy type 1',
+  GESTATIONAL: 'ADA pregnancy GDM or type 2',
 };
 
 const TARGET_RANGE_PRESET_OPTS = {

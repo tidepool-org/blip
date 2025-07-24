@@ -40,7 +40,7 @@ export function getFormValues(source, clinicPatientTags, clinicSites) {
     dataSources: source?.dataSources || [],
     sites: source?.sites?.filter(site => !!clinicSites[site.id]) || [],
     diagnosisType: source?.diagnosisType || null,
-    targetRangePreset: source?.targetRangePreset || TARGET_RANGE_PRESET.STANDARD,
+    glycemicRanges: source?.glycemicRanges || TARGET_RANGE_PRESET.STANDARD,
   };
 }
 
@@ -337,7 +337,7 @@ export const PatientForm = (props) => {
       <Box ref={targetRangePresetSectionRef} mb={3}>
         <SelectTargetRangePreset
           value={values.targetRangePreset || ''}
-          onChange={targetRangePreset => setFieldValue('targetRangePreset', targetRangePreset)}
+          onChange={glycemicRanges => setFieldValue('glycemicRanges', glycemicRanges)}
           onMenuOpen={() => handleScrollToRef(targetRangePresetSectionRef)}
         />
       </Box>
