@@ -336,7 +336,7 @@ export const PatientForm = (props) => {
 
       <Box ref={targetRangePresetSectionRef} mb={3}>
         <SelectTargetRangePreset
-          value={values.targetRangePreset || ''}
+          value={values.glycemicRanges || ''}
           onChange={glycemicRanges => setFieldValue('glycemicRanges', glycemicRanges)}
           onMenuOpen={() => handleScrollToRef(targetRangePresetSectionRef)}
         />
