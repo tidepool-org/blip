@@ -18,6 +18,7 @@ export default ({ colors, fonts, radii, fontWeights }) => {
     px: 2,
 
     '.tag-text': text,
+    '.clinic-site-text': text,
   };
 
   return {

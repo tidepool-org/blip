@@ -2121,6 +2121,84 @@ export function sendPatientDataProviderConnectRequestFailure(error, apiError) {
   };
 }
 
+export function createClinicSiteRequest() {
+  return {
+    type: ActionTypes.CREATE_CLINIC_SITE_REQUEST,
+  };
+}
+
+export function createClinicSiteSuccess(clinicId, sites) {
+  return {
+    type: ActionTypes.CREATE_CLINIC_SITE_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+      sites: sites,
+    },
+  };
+}
+
+export function createClinicSiteFailure(error, apiError) {
+  return {
+    type: ActionTypes.CREATE_CLINIC_SITE_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function updateClinicSiteRequest() {
+  return {
+    type: ActionTypes.UPDATE_CLINIC_SITE_REQUEST,
+  };
+}
+
+export function updateClinicSiteSuccess(clinicId, sites) {
+  return {
+    type: ActionTypes.UPDATE_CLINIC_SITE_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+      sites: sites,
+    },
+  };
+}
+
+export function updateClinicSiteFailure(error, apiError) {
+  return {
+    type: ActionTypes.UPDATE_CLINIC_SITE_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function deleteClinicSiteRequest() {
+  return {
+    type: ActionTypes.DELETE_CLINIC_SITE_REQUEST,
+  };
+}
+
+export function deleteClinicSiteSuccess(clinicId, sites) {
+  return {
+    type: ActionTypes.DELETE_CLINIC_SITE_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+      sites: sites,
+    },
+  };
+}
+
+export function deleteClinicSiteFailure(error, apiError) {
+  return {
+    type: ActionTypes.DELETE_CLINIC_SITE_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
 export function createClinicPatientTagRequest() {
   return {
     type: ActionTypes.CREATE_CLINIC_PATIENT_TAG_REQUEST,

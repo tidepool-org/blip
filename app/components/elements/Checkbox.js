@@ -92,7 +92,7 @@ export function Checkbox(props) {
 Checkbox.propTypes = {
   ...CheckboxProps,
   themeProps: PropTypes.shape(LabelProps),
-  label: PropTypes.string,
+  label: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
   variant: PropTypes.oneOf(['default', 'enlarged']),
 };
 
