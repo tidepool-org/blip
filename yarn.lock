@@ -8421,6 +8421,7 @@ __metadata:
     qhistory: 1.1.0
     qs: 6.11.2
     react: 16.14.0
+    react-aria-carousel: ^0.2.0
     react-dates: 21.8.0
     react-dom: 16.14.0
     react-i18next: 13.3.1
@@ -19065,6 +19066,13 @@ __metadata:
   version: 0.5.1
   resolution: "raw-loader@npm:0.5.1"
   checksum: 8051ec0b804ee72fbeee9a0f6183df8c0f764ba23a78ed5229c981cfb3a560dabc7926670fb0125b1c3831998d053ae39d578f3fb46187538226ceedad8cf1ab
+  languageName: node
+  linkType: hard
+
+"react-aria-carousel@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "react-aria-carousel@npm:0.2.0"
+  checksum: ee2dbf475742f465806d73e287386221b1413107202135e59e5f082d397aa941ef4df0e31f22a979f07c0b762eb98e80433274c5c8d2c90aa0db323b2eb2e188
   languageName: node
   linkType: hard
 
