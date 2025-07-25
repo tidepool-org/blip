@@ -155,6 +155,7 @@
     "qhistory": "1.1.0",
     "qs": "6.11.2",
     "react": "16.14.0",
+    "react-aria-carousel": "0.2.0",
     "react-dates": "21.8.0",
     "react-dom": "16.14.0",
     "react-i18next": "13.3.1",
