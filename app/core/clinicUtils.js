@@ -22,6 +22,7 @@ import {
   MGDL_UNITS,
   MMOLL_UNITS,
 } from '../core/constants';
+import { TARGET_RANGE_PRESET } from '../components/clinic/PatientForm/SelectTargetRangePreset';
 
 const t = i18next.t.bind(i18next);
 
@@ -449,6 +450,8 @@ export const patientSchema = config => {
         name: yup.string(),
       })
     ),
+    diagnosisType: yup.string().nullable(),
+    glycemicRanges: yup.string(),
   });
 };
 
