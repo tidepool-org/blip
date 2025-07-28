@@ -2124,7 +2124,7 @@ export const ClinicPatients = (props) => {
                         }
 
                         { // Display an option to filter for patients with zero tags
-                          sortedSiteFilterOptions.length > 0 &&
+                          sortedTagFilterOptions.length > 0 &&
                           <Box mt={2} mx={-2} pt={3} px={2} sx={{ borderTop: borders.divider }} className="clinic-site-filter-option" key="clinic-site-filter-option-PWDS_WITH_ZERO_TAGS">
                             <Checkbox
                               id="tag-filter-option-checkbox-PWDS_WITH_ZERO_TAGS"
