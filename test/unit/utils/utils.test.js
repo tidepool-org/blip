@@ -751,7 +751,7 @@ describe('utils', () => {
   });
 
   describe('compareLabels', function() {
-    it('Sorts a blank arg after a truthy arg', function() {
+    it('Sorts a blank arg before a truthy arg', function() {
       expect(utils.compareLabels(undefined, undefined)).to.equal(0);
       expect(utils.compareLabels('', undefined)).to.equal(0);
       expect(utils.compareLabels(undefined, '')).to.equal(0);
