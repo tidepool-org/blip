@@ -38,6 +38,7 @@ import {
   TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL,
   URL_BIG_DATA_DONATION_INFO,
 } from '../../core/constants';
+import { title } from 'process';
 
 const t = i18next.t.bind(i18next);
 
@@ -81,6 +82,9 @@ const patientDetailsSchema = yup.object().shape({
     .max(moment().startOf('day').format(dateFormat), t('Please enter a date prior to today'))
     .required(t('Patient\'s diagnosis date is required')),
   diagnosisType: yup.string().oneOf([...map(diagnosisTypeOptions, 'value'), '']),
+});
+
+const dataDonationSchema = yup.object().shape({
   dataDonate: yup.boolean(),
   dataDonateDestination: yup.string(),
 });
@@ -88,11 +92,13 @@ const patientDetailsSchema = yup.object().shape({
 const formSteps = {
   accountDetails: 'accountDetails',
   patientDetails: 'patientDetails',
+  dataDonation: 'dataDonation',
 }
 
 const schemas = {
   accountDetails: accountDetailsSchema,
   patientDetails: patientDetailsSchema,
+  dataDonation: dataDonationSchema,
 };
 
 export const PatientNew = (props) => {
@@ -112,10 +118,11 @@ export const PatientNew = (props) => {
   const working = useSelector((state) => state.blip.working);
   const previousWorking = usePrevious(working);
   const [submitting, setSubmitting] = useState(false);
-  const [currentForm, setCurrentForm] = useState(formSteps.accountDetails);
+  // const [currentForm, setCurrentForm] = useState(formSteps.accountDetails);
+  const [currentForm, setCurrentForm] = useState(formSteps.dataDonation);
 
   function redirectBack() {
-    setCurrentForm(formSteps.accountDetails);
+    setCurrentForm(currentForm === formSteps.patientDetails ? formSteps.accountDetails : formSteps.patientDetails);
   }
 
   useEffect(() => {
@@ -186,26 +193,45 @@ export const PatientNew = (props) => {
 
   const formikContext = useFormik({
     initialValues: {
-      firstName,
-      lastName,
-      accountType: null,
-      patientFirstName: '',
-      patientLastName: '',
-      birthday: null,
-      diagnosisDate: null,
-      diagnosisType: '',
-      dataDonate: false,
-      dataDonateDestination: '',
+      firstName: 'Joe',
+      lastName: 'Parent',
+      accountType: 'caregiver',
+      patientFirstName: 'Jim',
+      patientLastName: 'Child',
+      birthday: moment('2025-07-01'),
+      diagnosisDate: moment('2025-07-02'),
+      diagnosisType: 'prediabetes',
+      dataDonate: true,
+      dataDonateDestination: 'DIATRIBE,JDRF',
     },
+    // initialValues: {
+    //   firstName,
+    //   lastName,
+    //   accountType: null,
+    //   patientFirstName: '',
+    //   patientLastName: '',
+    //   birthday: null,
+    //   diagnosisDate: null,
+    //   diagnosisType: '',
+    //   dataDonate: false,
+    //   dataDonateDestination: '',
+    // },
     validationSchema: schemas[currentForm],
     onSubmit: values => {
       if (includes(['personal', 'caregiver'], values.accountType)) {
         if (currentForm === formSteps.accountDetails) {
           setCurrentForm(formSteps.patientDetails);
-        }  else {
+        } else if (currentForm === formSteps.patientDetails) {
+          setCurrentForm(formSteps.dataDonation);
+        } else {
           setSubmitting(true);
+          setTimeout(() => {
+            setSubmitting(false);
+          }, 1000);
+
           const profile = prepareFormValuesForSubmit(values);
-          dispatch(actions.async.setupDataStorage(api, profile));
+          // dispatch(actions.async.setupDataStorage(api, profile));
+          console.log('Setting up data storage with profile:', profile);
 
           if(values.dataDonate) {
             const addAccounts = [ TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL ];
@@ -215,24 +241,30 @@ export const PatientNew = (props) => {
               accountId && addAccounts.push(`bigdata+${accountId}@tidepool.org`);
             });
 
-            dispatch(actions.async.updateDataDonationAccounts(api, addAccounts));
+            // dispatch(actions.async.updateDataDonationAccounts(api, addAccounts));
+            console.log('Updating data donation accounts:', addAccounts);
 
-            if (this.props.trackMetric) {
+            if (trackMetric) {
               forEach(addAccounts, email => {
                 const source = utils.getDonationAccountCodeFromEmail(email) || 'none';
                 const location = 'sign-up';
-                this.props.trackMetric('web - big data sign up', { source, location });
+                trackMetric('web - big data sign up', { source, location });
               });
             }
           }
         }
       } else if (values.accountType === 'viewOnly') {
         setSubmitting(true);
+        setTimeout(() => {
+          setSubmitting(false);
+        }, 1000);
+
         const profile = prepareFormValuesForSubmit(values);
         // We skip the welcome message on the patients home page, which just prompts them to set up
         // data storage, which they've just indicated they don't want to do at this time.
         dispatch(actions.sync.hideWelcomeMessage());
-        dispatch(actions.async.updateUser(api, profile));
+        // dispatch(actions.async.updateUser(api, profile));
+        console.log('Updating user with profile:', profile);
       }
     },
   });
@@ -268,14 +300,14 @@ export const PatientNew = (props) => {
       setFieldValue('patientFirstName', '')
       setFieldValue('patientLastName', '')
     }
-  }, [values.accountType, setFieldValue])
+  }, [values.accountType, setFieldValue]);
 
-  const patientDetailsText = {
+  const accountTypeText = {
     personal: {
       subtitle: null,
       birthday: t('What is your birthday?'),
-      diagnosisDate: t('When did you receive a diagnosis?'),
-      diagnosisType: t('How do you describe your diabetes?'),
+      diagnosisDate: t('When were you diagnosed?'),
+      diagnosisType: t('What type of diabetes do you live with?'),
       dataDonateTitle: t('Would you like to donate your anonymized data?'),
       dataDonateOwnership: t('You own your data.'),
       dataDonateLabel: t('Yes - donate my anonymized data'),
@@ -284,14 +316,29 @@ export const PatientNew = (props) => {
     caregiver: {
       subtitle: t('Tell us more about {{firstName}}', { firstName: values.patientFirstName }),
       birthday: t('What is their birthday?'),
-      diagnosisDate: t('When did they receive a diagnosis?'),
-      diagnosisType: t('How do you describe their diabetes? (optional)'),
+      diagnosisDate: t('When were they diagnosed?'),
+      diagnosisType: t('What type of diabetes do they live with? (optional)'),
       dataDonateTitle: t('Would they like to donate their anonymized data?'),
       dataDonateOwnership: t('People with diabetes own their data.'),
       dataDonateLabel: t('Yes - donate their anonymized data'),
       dataDonateOrganizationsLabel: t('Tidepool will share 10% of the proceeds with the diabetes organization(s) chosen below'),
     },
   };
+
+  const formStepsText = {
+    accountDetails: {
+      title: t('Welcome'),
+      subtitle: t('Tell us more about yourself'),
+    },
+    patientDetails: {
+      title: t('About You'),
+      subtitle: accountTypeText[values.accountType]?.subtitle,
+    },
+    dataDonation: {
+      title: t('Consider Donating Your Anonymized Data!'),
+      subtitle: null,
+    }
+  }
 
   const formActions = [{
     id: 'submit',
@@ -303,15 +350,15 @@ export const PatientNew = (props) => {
       values
     ),
     onClick: () => {
-      if ((currentForm === formSteps.accountDetails && values.accountType === 'viewOnly') || currentForm === formSteps.patientDetails) {
+      if ((currentForm === formSteps.accountDetails && values.accountType === 'viewOnly') || currentForm === formSteps.dataDonation) {
         submitForm();
       } else {
-        setCurrentForm(formSteps.patientDetails);
+        setCurrentForm(currentForm === formSteps.accountDetails ? formSteps.patientDetails : formSteps.dataDonation);
       }
     },
   }];
 
-  if (currentForm === formSteps.patientDetails) formActions.unshift({
+  if (includes([formSteps.patientDetails, formSteps.dataDonation], currentForm)) formActions.unshift({
     id: 'back',
     variant: 'secondary',
     children: t('Back'),
@@ -320,8 +367,8 @@ export const PatientNew = (props) => {
 
   return (
     <Container
-      title={currentForm === formSteps.accountDetails ? t('Welcome') : t('Last Step!')}
-      subtitle={currentForm === formSteps.accountDetails ? t('Tell us more about yourself') : patientDetailsText[values.accountType]?.subtitle}
+      title={formStepsText[currentForm]?.title}
+      subtitle={formStepsText[currentForm]?.subtitle}
       variant="mediumBordered"
       actions={formActions}
       p={4}
@@ -394,7 +441,7 @@ export const PatientNew = (props) => {
             <Box mb={3} sx={{ flexBasis: '100%' }}>
               <DatePicker
                 {...getCommonFormikFieldProps('birthday', formikContext, 'date', false)}
-                label={patientDetailsText[values.accountType]?.birthday}
+                label={accountTypeText[values.accountType]?.birthday}
                 onDateChange={newDate => setFieldValue('birthday', newDate)}
                 showYearPicker
                 isOutsideRange={day => (moment().diff(day) <= 0)}
@@ -412,7 +459,7 @@ export const PatientNew = (props) => {
             <Box mb={3} sx={{ flexBasis: '100%' }}>
               <DatePicker
                 {...getCommonFormikFieldProps('diagnosisDate', formikContext, 'date', false)}
-                label={patientDetailsText[values.accountType]?.diagnosisDate}
+                label={accountTypeText[values.accountType]?.diagnosisDate}
                 onDateChange={newDate => setFieldValue('diagnosisDate', newDate)}
                 showYearPicker
                 isOutsideRange={day => (moment().diff(day) <= 0)}
@@ -430,22 +477,27 @@ export const PatientNew = (props) => {
               <Select
                 {...getCommonFormikFieldProps('diagnosisType', formikContext)}
                 options={addEmptyOption(diagnosisTypeOptions, t('Select one'))}
-                label={patientDetailsText[values.accountType]?.diagnosisType}
+                label={accountTypeText[values.accountType]?.diagnosisType}
                 variant="condensed"
                 themeProps={{
                   width: '100%',
                 }}
               />
             </Box>
+          </Box>
+        )}
+
+        {currentForm === formSteps.dataDonation && (
+          <Box id="data-donation-form">
 
             <Box variant="containers.wellBordered">
               <Text sx={{ fontSize: 1, fontWeight: 'medium', color: 'purpleDark' }} mb={1}>
-                {patientDetailsText[values.accountType]?.dataDonateTitle}
+                {accountTypeText[values.accountType]?.dataDonateTitle}
               </Text>
 
               <Paragraph1 sx={{ fontWeight: 'medium' }}>
                 <Trans i18nKey="html.data-donation-details">
-                  {patientDetailsText[values.accountType]?.dataDonateOwnership}&nbsp;
+                  {accountTypeText[values.accountType]?.dataDonateOwnership}&nbsp;
                   Read all the details about <Link className="data-donation-details-link" href={URL_BIG_DATA_DONATION_INFO} target="_blank">Tidepool's Big Data Donation project here</Link>.
                 </Trans>
               </Paragraph1>
@@ -455,7 +507,7 @@ export const PatientNew = (props) => {
                   {...getCommonFormikFieldProps('dataDonate', formikContext, 'checked')}
                   bg="white"
                   themeProps={{ sx: { bg: 'transparent' } }}
-                  label={patientDetailsText[values.accountType]?.dataDonateLabel}
+                  label={accountTypeText[values.accountType]?.dataDonateLabel}
                   disabled={!isEmpty(values.dataDonateDestination)}
                   sx={{
                     boxShadow: `0 0 0 2px ${colors.lightestGrey} inset`,
@@ -465,7 +517,7 @@ export const PatientNew = (props) => {
 
               <MultiSelect
                 {...getCommonFormikFieldProps('dataDonateDestination', formikContext, 'value', false)}
-                label={patientDetailsText[values.accountType]?.dataDonateOrganizationsLabel}
+                label={accountTypeText[values.accountType]?.dataDonateOrganizationsLabel}
                 onChange={value => {
                   // Ensure that the donate checkbox is checked if there are nonprofits selected
                   if (!isEmpty(value) && !values.dataDonate) {
