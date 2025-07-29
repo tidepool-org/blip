@@ -8421,7 +8421,6 @@ __metadata:
     qhistory: 1.1.0
     qs: 6.11.2
     react: 16.14.0
-    react-aria-carousel: ^0.2.0
     react-dates: 21.8.0
     react-dom: 16.14.0
     react-i18next: 13.3.1
@@ -8434,6 +8433,7 @@ __metadata:
     react-scroll: 1.9.0
     react-scroll-to-top: 3.0.0
     react-select: 5.7.7
+    react-snap-carousel: 0.5.1
     react-window-size-listener: 1.5.4
     readable-stream: 4.4.2
     redux: 4.2.1
@@ -19069,13 +19069,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-aria-carousel@npm:^0.2.0":
-  version: 0.2.0
-  resolution: "react-aria-carousel@npm:0.2.0"
-  checksum: ee2dbf475742f465806d73e287386221b1413107202135e59e5f082d397aa941ef4df0e31f22a979f07c0b762eb98e80433274c5c8d2c90aa0db323b2eb2e188
-  languageName: node
-  linkType: hard
-
 "react-base16-styling@npm:^0.8.0":
   version: 0.8.2
   resolution: "react-base16-styling@npm:0.8.2"
@@ -19642,6 +19635,15 @@ __metadata:
     react: ^0.14.0 || ^15.0.0-0 || ^16.0.0
     react-dom: ^0.14.0 || ^15.0.0-0 || ^16.0.0
   checksum: fef1abf2098adf253e868acce128ba21c90665213ff444ab289e23c1af941664a13978cb049399b573a886d94dbf9982949efc8cb096eb6cca7d3c9eed2367c3
+  languageName: node
+  linkType: hard
+
+"react-snap-carousel@npm:0.5.1":
+  version: 0.5.1
+  resolution: "react-snap-carousel@npm:0.5.1"
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: ed10b65c05373bebcab10bdeafb4fc33bf959521a069944492c454a2401e4aec976602c2ca32c5fcfd8e25527b26e92ed37a35fe3c4fabc5b708720ea9030eb4
   languageName: node
   linkType: hard
 
