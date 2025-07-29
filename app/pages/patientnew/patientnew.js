@@ -31,6 +31,9 @@ import { push } from 'connected-react-router';
 import personUtils from '../../core/personutils';
 import { addEmptyOption } from '../../core/forms';
 import { colors } from '../../themes/baseTheme';
+import ChangeMindImage from '../../components/elements/SlideShow/Images/changeMindImage.svg';
+import FuelingNextGenImage from '../../components/elements/SlideShow/Images/fuelingNextGenImage.svg';
+import { SlideShow, SlideShowItem } from '../../components/elements/SlideShow';
 
 import {
   DATA_DONATION_NONPROFITS,
@@ -38,7 +41,6 @@ import {
   TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL,
   URL_BIG_DATA_DONATION_INFO,
 } from '../../core/constants';
-import { title } from 'process';
 
 const t = i18next.t.bind(i18next);
 
@@ -490,15 +492,35 @@ export const PatientNew = (props) => {
         {currentForm === formSteps.dataDonation && (
           <Box id="data-donation-form">
 
-            <Box variant="containers.wellBordered">
-              <Text sx={{ fontSize: 1, fontWeight: 'medium', color: 'purpleDark' }} mb={1}>
-                {accountTypeText[values.accountType]?.dataDonateTitle}
-              </Text>
+          <SlideShow
+            items={[
+              {
+                title: 'Fueling the Next Generation of Diabetes Innovation',
+                content: 'The Tidepool Big Data Donation Project enables students, academics, and industry to innovate faster. By donating your anonymized data, you can help transform the landscape of diabetes management.',
+                image: FuelingNextGenImage,
+              },
+              {
+                title: 'Can I change my mind later?',
+                content: 'You can stop sharing new data at any time. Go to your account settings and click "Stop sharing data." Please note that we cannot remove data that has already been shared.',
+                image: ChangeMindImage,
+              },
+            ]}
+            renderItem={({ item, index, isSnapPoint }) => (
+              <SlideShowItem
+                key={index}
+                isSnapPoint={isSnapPoint}
+                image={item.image}
+                title={item.title}
+                content={item.content}
+              />
+            )}
+          />
 
+            <Box>
               <Paragraph1 sx={{ fontWeight: 'medium' }}>
                 <Trans i18nKey="html.data-donation-details">
-                  {accountTypeText[values.accountType]?.dataDonateOwnership}&nbsp;
-                  Read all the details about <Link className="data-donation-details-link" href={URL_BIG_DATA_DONATION_INFO} target="_blank">Tidepool's Big Data Donation project here</Link>.
+                  {accountTypeText[values.accountType]?.dataDonateTitle}&nbsp;
+                  <Link className="data-donation-details-link" href={URL_BIG_DATA_DONATION_INFO} target="_blank">Learn more</Link>.
                 </Trans>
               </Paragraph1>
 
