@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { withTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import moment from 'moment';
 import * as yup from 'yup';
 import get from 'lodash/get';
@@ -81,7 +81,8 @@ const schemas = {
 };
 
 export const PatientNew = (props) => {
-  const { t, api, trackMetric } = props;
+  const { api, trackMetric } = props;
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const { set: setToast } = useToasts();
 
@@ -129,8 +130,8 @@ export const PatientNew = (props) => {
           variant: 'success',
         });
 
-        // Redirect to patient data view
-        dispatch(push(`/patients/${loggedInUserId}/data`));
+        // Redirect to data donation page
+        dispatch(push('/patients/new/dataDonation'));
       }
     }
   }, [working.settingUpDataStorage]);
@@ -415,4 +416,4 @@ PatientNew.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default withTranslation()(PatientNew);
+export default PatientNew;
