@@ -103,21 +103,11 @@ export function SlideShow({ axis, items, renderItem, sx = {}, ...themeProps }) {
         }}
       >
         <Icon
-          variant="button"
+          variant="navigation"
           disabled={!hasPrevPage}
           onClick={() => prev()}
           className="slideShowPrevButton"
-          p={0}
-          sx={{
-            color: 'purpleMedium',
-            fontSize: '36px',
-            pointerEvents: 'auto',
-            display: ['none !important', null, 'inline-flex !important'],
-            '&:hover,&:active,&.active': {
-              color: 'purpleMedium',
-              backgroundColor: 'transparent',
-            },
-          }}
+          sx={{ display: ['none !important', null, 'inline-flex !important'] }}
           icon={ChevronLeftRoundedIcon}
           label={t('Previous')}
         />
@@ -156,21 +146,11 @@ export function SlideShow({ axis, items, renderItem, sx = {}, ...themeProps }) {
         </Flex>
 
         <Icon
-          variant="button"
+          variant="navigation"
           disabled={!hasNextPage}
           onClick={() => next()}
           className="slideShowNextButton"
-          p={0}
-          sx={{
-            color: 'purpleMedium',
-            fontSize: '36px',
-            pointerEvents: 'auto',
-            display: ['none !important', null, 'inline-flex !important'],
-            '&:hover,&:active,&.active': {
-              color: 'purpleMedium',
-              backgroundColor: 'transparent',
-            },
-          }}
+          sx={{ display: ['none !important', null, 'inline-flex !important'] }}
           icon={ChevronRightRoundedIcon}
           label={t('Next')}
         />
