@@ -151,7 +151,7 @@ export const PatientNewDataDonation = (props) => {
   });
 
   const { values, submitForm, setFieldValue, setFieldTouched } = formikContext;
-  const accountType = personUtils.patientIsOtherPerson(user) ? 'personal' : 'caregiver';
+  const accountType = personUtils.patientIsOtherPerson(user) ? 'caregiver' : 'personal';
 
   const accountTypeText = {
     personal: {
@@ -176,6 +176,8 @@ export const PatientNewDataDonation = (props) => {
       title: t('Thank You for Donating Your Data!'),
     }
   }
+
+  console.log('accountType', accountType);
 
   const formActions = [{
     id: 'submit',
@@ -219,12 +221,12 @@ export const PatientNewDataDonation = (props) => {
           <Box id="data-donation-consent-form">
 
             <Box>
-              <Paragraph1 sx={{ fontWeight: 'medium', textAlign: 'center' }}>
-                <Trans i18nKey="html.data-donation-details">
-                  {accountTypeText[accountType]?.dataDonateTitle}&nbsp;
+              <Trans i18nKey="html.data-donation-details">
+                <Paragraph1 sx={{ fontWeight: 'medium', textAlign: 'center' }}>
+                  {accountTypeText[accountType]?.dataDonatePrompt}&nbsp;
                   <Link className="data-donation-details-link" href={URL_BIG_DATA_DONATION_INFO} target="_blank">Learn more</Link>.
-                </Trans>
-              </Paragraph1>
+                </Paragraph1>
+              </Trans>
             </Box>
 
             <Flex mb={3} sx={{ textAlign: 'center'}}>
