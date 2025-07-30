@@ -2668,12 +2668,10 @@ export function sendPatientDataProviderConnectRequest(api, clinicId, patientId, 
 }
 
 /**
- * Create a site for a clinic
+ * Fetch sites for a clinic
  *
  * @param {Object} api - an instance of the API wrapper
  * @param {String} clinicId - Id of the clinic
- * @param {Object} site - the site to create
- * @param {String} site.name - the site name
  */
 export function fetchClinicSites(api, clinicId) {
   return (dispatch) => {
@@ -2688,6 +2686,30 @@ export function fetchClinicSites(api, clinicId) {
         ));
       } else {
         dispatch(sync.fetchClinicSitesSuccess(clinicId, results));
+      }
+    });
+  };
+}
+
+/**
+ * Fetch patient tags for a clinic
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ */
+export function fetchClinicPatientTags(api, clinicId) {
+  return (dispatch) => {
+    dispatch(sync.fetchClinicPatientTagsRequest());
+
+    api.clinics.fetchClinicPatientTags(clinicId, (err, results) => {
+      if (err) {
+        let message = ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_TAGS;
+
+        dispatch(sync.fetchClinicPatientTagsFailure(
+          createActionError(message, err), err
+        ));
+      } else {
+        dispatch(sync.fetchClinicPatientTagsSuccess(clinicId, results));
       }
     });
   };

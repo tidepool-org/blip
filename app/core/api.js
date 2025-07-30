@@ -1049,6 +1049,10 @@ api.clinics.fetchClinicSites = function(clinicId, cb) {
   return tidepool.getClinicSites(clinicId, cb);
 };
 
+api.clinics.fetchClinicPatientTags = function(clinicId, cb) {
+  return tidepool.getClinicPatientTags(clinicId, cb);
+};
+
 api.clinics.createClinicSite = function(clinicId, clinicSite, cb) {
   return tidepool.createClinicSite(clinicId, clinicSite, cb);
 };

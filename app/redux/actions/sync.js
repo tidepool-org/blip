@@ -2147,6 +2147,32 @@ export function fetchClinicSitesFailure(error, apiError) {
   };
 }
 
+export function fetchClinicPatientTagsRequest() {
+  return {
+    type: ActionTypes.FETCH_CLINIC_PATIENT_TAGS_REQUEST,
+  };
+}
+
+export function fetchClinicPatientTagsSuccess(clinicId, sites) {
+  return {
+    type: ActionTypes.FETCH_CLINIC_PATIENT_TAGS_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+      sites: sites,
+    },
+  };
+}
+
+export function fetchClinicPatientTagsFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_CLINIC_PATIENT_TAGS_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
 export function createClinicSiteRequest() {
   return {
     type: ActionTypes.CREATE_CLINIC_SITE_REQUEST,

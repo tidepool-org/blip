@@ -935,6 +935,9 @@ export const clinics = (state = initialState.clinics, action) => {
     case types.CREATE_CLINIC_PATIENT_TAG_SUCCESS:
     case types.UPDATE_CLINIC_PATIENT_TAG_SUCCESS:
     case types.DELETE_CLINIC_PATIENT_TAG_SUCCESS: {
+      return state;
+    }
+    case types.FETCH_CLINIC_PATIENT_TAGS_SUCCESS: {
       const {
         clinicId,
         patientTags,

@@ -419,6 +419,11 @@ export default (type) => {
     case types.DELETE_CLINIC_SITE_FAILURE:
       return 'deletingClinicSite';
 
+    case types.FETCH_CLINIC_PATIENT_TAGS_REQUEST:
+    case types.FETCH_CLINIC_PATIENT_TAGS_SUCCESS:
+    case types.FETCH_CLINIC_PATIENT_TAGS_FAILURE:
+      return 'fetchClinicPatientTags';
+
     case types.CREATE_CLINIC_PATIENT_TAG_REQUEST:
     case types.CREATE_CLINIC_PATIENT_TAG_SUCCESS:
     case types.CREATE_CLINIC_PATIENT_TAG_FAILURE:

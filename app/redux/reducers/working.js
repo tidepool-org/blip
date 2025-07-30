@@ -128,6 +128,7 @@ export default (state = initialWorkingState, action) => {
     case types.CREATE_CLINIC_SITE_REQUEST:
     case types.UPDATE_CLINIC_SITE_REQUEST:
     case types.DELETE_CLINIC_SITE_REQUEST:
+    case types.FETCH_CLINIC_PATIENT_TAGS_REQUEST:
     case types.CREATE_CLINIC_PATIENT_TAG_REQUEST:
     case types.UPDATE_CLINIC_PATIENT_TAG_REQUEST:
     case types.DELETE_CLINIC_PATIENT_TAG_REQUEST:
@@ -190,6 +191,7 @@ export default (state = initialWorkingState, action) => {
           types.CREATE_CLINIC_SITE_REQUEST,
           types.UPDATE_CLINIC_SITE_REQUEST,
           types.DELETE_CLINIC_SITE_REQUEST,
+          types.FETCH_CLINIC_PATIENT_TAGS_REQUEST,
           types.CREATE_CLINIC_PATIENT_TAG_REQUEST,
           types.UPDATE_CLINIC_PATIENT_TAG_REQUEST,
           types.DELETE_CLINIC_PATIENT_TAG_REQUEST,
@@ -317,6 +319,7 @@ export default (state = initialWorkingState, action) => {
     case types.CREATE_CLINIC_SITE_SUCCESS:
     case types.UPDATE_CLINIC_SITE_SUCCESS:
     case types.DELETE_CLINIC_SITE_SUCCESS:
+    case types.FETCH_CLINIC_PATIENT_TAGS_SUCCESS:
     case types.CREATE_CLINIC_PATIENT_TAG_SUCCESS:
     case types.UPDATE_CLINIC_PATIENT_TAG_SUCCESS:
     case types.DELETE_CLINIC_PATIENT_TAG_SUCCESS:
@@ -504,6 +507,7 @@ export default (state = initialWorkingState, action) => {
     case types.CREATE_CLINIC_SITE_FAILURE:
     case types.UPDATE_CLINIC_SITE_FAILURE:
     case types.DELETE_CLINIC_SITE_FAILURE:
+    case types.FETCH_CLINIC_PATIENT_TAGS_FAILURE:
     case types.CREATE_CLINIC_PATIENT_TAG_FAILURE:
     case types.UPDATE_CLINIC_PATIENT_TAG_FAILURE:
     case types.DELETE_CLINIC_PATIENT_TAG_FAILURE:
