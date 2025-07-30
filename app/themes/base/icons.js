@@ -1,5 +1,6 @@
 export default ({ colors, fontSizes, radii, space, shadows }) => {
   const disabled = {
+    pointerEvents: 'none',
     backgroundColor: 'transparent',
     borderColor: colors.lightestGrey,
     color: colors.text.primaryDisabled,
@@ -20,6 +21,20 @@ export default ({ colors, fontSizes, radii, space, shadows }) => {
     },
   };
 
+  const button = {
+    ...common,
+    pointerEvents: 'auto',
+    fontSize: fontSizes[3],
+    padding: `${space[1]}px`,
+    border: 'none',
+    borderRadius: radii.default,
+    '&:hover,&:active,&.active': {
+      color: colors.text.link,
+      backgroundColor: colors.blues[0],
+    },
+    '&.disabled,&:disabled': disabled,
+  };
+
   return {
     default: {
       ...common,
@@ -33,20 +48,22 @@ export default ({ colors, fontSizes, radii, space, shadows }) => {
       color: 'inherit',
       fontSize: 'inherit',
       padding: 0,
-      pointerEvents: 'none',
       '&.disabled': disabled,
     },
-    button: {
-      ...common,
-      fontSize: fontSizes[3],
-      padding: `${space[1]}px`,
-      border: 'none',
-      borderRadius: radii.default,
+    button,
+    navigation: {
+      ...button,
+      color: colors.purpleMedium,
+      fontSize: fontSizes[5],
+      padding: 0,
       '&:hover,&:active,&.active': {
-        color: colors.text.link,
-        backgroundColor: colors.blues[0],
+        color: colors.purpleMedium,
+        backgroundColor: 'transparent',
       },
-      '&.disabled': disabled,
-    },
+      '&.disabled,&:disabled': {
+        ...disabled,
+        color: colors.lightGrey
+      },
+    }
   };
 };
