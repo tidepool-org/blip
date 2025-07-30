@@ -2153,12 +2153,12 @@ export function fetchClinicPatientTagsRequest() {
   };
 }
 
-export function fetchClinicPatientTagsSuccess(clinicId, sites) {
+export function fetchClinicPatientTagsSuccess(clinicId, patientTags) {
   return {
     type: ActionTypes.FETCH_CLINIC_PATIENT_TAGS_SUCCESS,
     payload: {
       clinicId: clinicId,
-      sites: sites,
+      patientTags: patientTags,
     },
   };
 }

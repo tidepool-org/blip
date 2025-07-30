@@ -2677,7 +2677,7 @@ export function fetchClinicSites(api, clinicId) {
   return (dispatch) => {
     dispatch(sync.fetchClinicSitesRequest());
 
-    api.clinics.fetchClinicSites(clinicId, (err, results) => {
+    api.clinics.get(clinicId, (err, { sites }) => {
       if (err) {
         let message = ErrorMessages.ERR_FETCHING_CLINIC_SITES;
 
@@ -2685,14 +2685,14 @@ export function fetchClinicSites(api, clinicId) {
           createActionError(message, err), err
         ));
       } else {
-        dispatch(sync.fetchClinicSitesSuccess(clinicId, results));
+        dispatch(sync.fetchClinicSitesSuccess(clinicId, sites || []));
       }
     });
   };
 }
 
 /**
- * Fetch patient tags for a clinic
+ * Fetch sites for a clinic
  *
  * @param {Object} api - an instance of the API wrapper
  * @param {String} clinicId - Id of the clinic
@@ -2701,15 +2701,15 @@ export function fetchClinicPatientTags(api, clinicId) {
   return (dispatch) => {
     dispatch(sync.fetchClinicPatientTagsRequest());
 
-    api.clinics.fetchClinicPatientTags(clinicId, (err, results) => {
+    api.clinics.get(clinicId, (err, { patientTags }) => {
       if (err) {
-        let message = ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_TAGS;
+        let message = ErrorMessages.ERR_FETCHING_CLINIC_SITES;
 
         dispatch(sync.fetchClinicPatientTagsFailure(
           createActionError(message, err), err
         ));
       } else {
-        dispatch(sync.fetchClinicPatientTagsSuccess(clinicId, results));
+        dispatch(sync.fetchClinicPatientTagsSuccess(clinicId, patientTags || []));
       }
     });
   };
