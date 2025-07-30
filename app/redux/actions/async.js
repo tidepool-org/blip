@@ -2675,19 +2675,19 @@ export function sendPatientDataProviderConnectRequest(api, clinicId, patientId, 
  * @param {Object} site - the site to create
  * @param {String} site.name - the site name
  */
-export function getClinicSites(api, clinicId) {
+export function fetchClinicSites(api, clinicId) {
   return (dispatch) => {
-    dispatch(sync.getClinicSitesRequest());
+    dispatch(sync.fetchClinicSitesRequest());
 
-    api.clinics.getClinicSites(clinicId, (err, results) => {
+    api.clinics.fetchClinicSites(clinicId, (err, results) => {
       if (err) {
         let message = ErrorMessages.ERR_FETCHING_CLINIC_SITES;
 
-        dispatch(sync.getClinicSitesFailure(
+        dispatch(sync.fetchClinicSitesFailure(
           createActionError(message, err), err
         ));
       } else {
-        dispatch(sync.getClinicSitesSuccess(clinicId, results));
+        dispatch(sync.fetchClinicSitesSuccess(clinicId, results));
       }
     });
   };

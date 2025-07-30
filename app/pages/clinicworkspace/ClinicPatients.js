@@ -906,7 +906,7 @@ export const ClinicPatients = (props) => {
   const handleClinicSiteCreatedOrUpdated = useCallback(() => {
     clinicSiteFormContext?.resetForm();
     handleCloseClinicSiteUpdateDialog();
-    dispatch(actions.async.getClinicSites(api, selectedClinicId)); // TODO: disable edit/delete while refetching
+    dispatch(actions.async.fetchClinicSites(api, selectedClinicId)); // TODO: disable edit/delete while refetching
   }, [
     clinicSiteFormContext,
     handleCloseClinicSiteUpdateDialog,

@@ -2121,15 +2121,15 @@ export function sendPatientDataProviderConnectRequestFailure(error, apiError) {
   };
 }
 
-export function getClinicSitesRequest() {
+export function fetchClinicSitesRequest() {
   return {
-    type: ActionTypes.GET_CLINIC_SITES_REQUEST,
+    type: ActionTypes.FETCH_CLINIC_SITES_REQUEST,
   };
 }
 
-export function getClinicSitesSuccess(clinicId, sites) {
+export function fetchClinicSitesSuccess(clinicId, sites) {
   return {
-    type: ActionTypes.GET_CLINIC_SITES_SUCCESS,
+    type: ActionTypes.FETCH_CLINIC_SITES_SUCCESS,
     payload: {
       clinicId: clinicId,
       sites: sites,
@@ -2137,9 +2137,9 @@ export function getClinicSitesSuccess(clinicId, sites) {
   };
 }
 
-export function getClinicSitesFailure(error, apiError) {
+export function fetchClinicSitesFailure(error, apiError) {
   return {
-    type: ActionTypes.GET_CLINIC_SITES_FAILURE,
+    type: ActionTypes.FETCH_CLINIC_SITES_FAILURE,
     error: error,
     meta: {
       apiError: apiError || null,

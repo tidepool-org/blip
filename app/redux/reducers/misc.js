@@ -949,7 +949,7 @@ export const clinics = (state = initialState.clinics, action) => {
     case types.DELETE_CLINIC_SITE_SUCCESS: {
       return state;
     }
-    case types.GET_CLINIC_SITES_SUCCESS: {
+    case types.FETCH_CLINIC_SITES_SUCCESS: {
       const {
         clinicId,
         sites,

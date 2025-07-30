@@ -399,10 +399,10 @@ export default (type) => {
     case types.SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_FAILURE:
       return 'sendingPatientDataProviderConnectRequest';
 
-    case types.GET_CLINIC_SITES_REQUEST:
-    case types.GET_CLINIC_SITES_SUCCESS:
-    case types.GET_CLINIC_SITES_FAILURE:
-      return 'getClinicSites';
+    case types.FETCH_CLINIC_SITES_REQUEST:
+    case types.FETCH_CLINIC_SITES_SUCCESS:
+    case types.FETCH_CLINIC_SITES_FAILURE:
+      return 'fetchClinicSites';
 
     case types.CREATE_CLINIC_SITE_REQUEST:
     case types.CREATE_CLINIC_SITE_SUCCESS:
