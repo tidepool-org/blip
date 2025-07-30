@@ -191,6 +191,7 @@ export const PatientNew = (props) => {
           dispatch(actions.async.setupDataStorage(api, profile));
         }
       } else if (values.accountType === 'viewOnly') {
+        setSubmitting(true);
         const profile = prepareFormValuesForSubmit(values);
         // We skip the welcome message on the patients home page, which just prompts them to set up
         // data storage, which they've just indicated they don't want to do at this time.
