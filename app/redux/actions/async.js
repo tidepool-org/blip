@@ -1119,7 +1119,7 @@ export function fetchPatientData(api, options, id) {
             const fetchFromTime = latestDiabetesDatumTime || serverTime;
             const fetchToTime = latestDatumTime || serverTime;
 
-            options.startDate = moment.utc(fetchFromTime).subtract(30, 'days').startOf('day').toISOString();
+            options.startDate ||= moment.utc(fetchFromTime).subtract(30, 'days').startOf('day').toISOString();
 
             // We add a 1 day buffer to the end date since we can get `time` fields that are slightly
             // in the future due to timezones or incorrect device and/or computer time upon upload.
