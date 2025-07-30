@@ -124,6 +124,7 @@ export default (state = initialWorkingState, action) => {
     case types.SET_CLINIC_PATIENT_LAST_REVIEWED_REQUEST:
     case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_REQUEST:
     case types.SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_REQUEST:
+    case types.GET_CLINIC_SITES_REQUEST:
     case types.CREATE_CLINIC_SITE_REQUEST:
     case types.UPDATE_CLINIC_SITE_REQUEST:
     case types.DELETE_CLINIC_SITE_REQUEST:
@@ -185,6 +186,7 @@ export default (state = initialWorkingState, action) => {
           types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_REQUEST,
           types.SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_REQUEST,
           types.DATA_WORKER_REMOVE_DATA_REQUEST,
+          types.GET_CLINIC_SITES_REQUEST,
           types.CREATE_CLINIC_SITE_REQUEST,
           types.UPDATE_CLINIC_SITE_REQUEST,
           types.DELETE_CLINIC_SITE_REQUEST,
@@ -311,6 +313,7 @@ export default (state = initialWorkingState, action) => {
     case types.SET_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS:
     case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS:
     case types.SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_SUCCESS:
+    case types.GET_CLINIC_SITES_SUCCESS:
     case types.CREATE_CLINIC_SITE_SUCCESS:
     case types.UPDATE_CLINIC_SITE_SUCCESS:
     case types.DELETE_CLINIC_SITE_SUCCESS:
@@ -497,6 +500,7 @@ export default (state = initialWorkingState, action) => {
     case types.SET_CLINIC_PATIENT_LAST_REVIEWED_FAILURE:
     case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_FAILURE:
     case types.SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_FAILURE:
+    case types.GET_CLINIC_SITES_FAILURE:
     case types.CREATE_CLINIC_SITE_FAILURE:
     case types.UPDATE_CLINIC_SITE_FAILURE:
     case types.DELETE_CLINIC_SITE_FAILURE:

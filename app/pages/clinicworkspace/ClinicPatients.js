@@ -903,6 +903,18 @@ export const ClinicPatients = (props) => {
     });
   }, [clinicPatientTagFormContext, prefixPopHealthMetric, selectedClinicId, trackMetric]);
 
+  const handleClinicSiteCreatedOrUpdated = useCallback(() => {
+    clinicSiteFormContext?.resetForm();
+    handleCloseClinicSiteUpdateDialog();
+    dispatch(actions.async.getClinicSites(api, selectedClinicId)); // TODO: disable edit/delete while refetching
+  }, [
+    clinicSiteFormContext,
+    handleCloseClinicSiteUpdateDialog,
+    dispatch,
+    api,
+    selectedClinicId,
+  ]);
+
   const handleAsyncResult = useCallback((workingState, successMessage, onComplete = handleCloseOverlays) => {
     const { inProgress, completed, notification, prevInProgress } = workingState;
 
@@ -985,16 +997,16 @@ export const ClinicPatients = (props) => {
   }, [fetchingRpmReportPatients, rpmReportPatients, handleAsyncResult, handleCloseOverlays, previousFetchingRpmReportPatients?.inProgress, t]);
 
   useEffect(() => {
-    handleAsyncResult({ ...creatingClinicSite, prevInProgress: previousCreatingClinicSite?.inProgress }, t('Site created.'), () => clinicSiteFormContext?.resetForm());
-  }, [clinicSiteFormContext, creatingClinicSite, handleAsyncResult, previousCreatingClinicSite?.inProgress, t]);
+    handleAsyncResult({ ...creatingClinicSite, prevInProgress: previousCreatingClinicSite?.inProgress }, t('Site created.'), handleClinicSiteCreatedOrUpdated);
+  }, [creatingClinicSite, handleClinicSiteCreatedOrUpdated, handleAsyncResult, previousCreatingClinicSite?.inProgress, t]);
 
   useEffect(() => {
-    handleAsyncResult({ ...updatingClinicSite, prevInProgress: previousUpdatingClinicSite?.inProgress }, t('Site updated.'), handleCloseClinicSiteUpdateDialog);
-  }, [clinicSiteFormContext, updatingClinicSite, handleAsyncResult, previousUpdatingClinicSite?.inProgress, t]);
+    handleAsyncResult({ ...updatingClinicSite, prevInProgress: previousUpdatingClinicSite?.inProgress }, t('Site updated.'), handleClinicSiteCreatedOrUpdated);
+  }, [updatingClinicSite, handleClinicSiteCreatedOrUpdated, handleAsyncResult, previousUpdatingClinicSite?.inProgress, t]);
 
   useEffect(() => {
-    handleAsyncResult({ ...deletingClinicSite, prevInProgress: previousDeletingClinicSite?.inProgress }, t('Site removed.'), handleCloseClinicSiteUpdateDialog);
-  }, [deletingClinicSite, handleAsyncResult, handleCloseClinicSiteUpdateDialog, previousDeletingClinicSite?.inProgress, t]);
+    handleAsyncResult({ ...deletingClinicSite, prevInProgress: previousDeletingClinicSite?.inProgress }, t('Site removed.'), handleClinicSiteCreatedOrUpdated);
+  }, [deletingClinicSite, handleClinicSiteCreatedOrUpdated, handleAsyncResult, previousDeletingClinicSite?.inProgress, t]);
 
   useEffect(() => {
     handleAsyncResult({ ...creatingClinicPatientTag, prevInProgress: previousCreatingClinicPatientTag?.inProgress }, t('Tag created.'), () => clinicPatientTagFormContext?.resetForm());

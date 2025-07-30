@@ -1045,6 +1045,10 @@ api.clinics.sendPatientDataProviderConnectRequest = function(clinicId, patientId
   return tidepool.sendPatientDataProviderConnectRequest(clinicId, patientId, providerName, cb);
 };
 
+api.clinics.getClinicSites = function(clinicId, cb) {
+  return tidepool.getClinicSites(clinicId, cb);
+};
+
 api.clinics.createClinicSite = function(clinicId, clinicSite, cb) {
   return tidepool.createClinicSite(clinicId, clinicSite, cb);
 };

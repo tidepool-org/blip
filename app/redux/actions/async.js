@@ -2675,6 +2675,32 @@ export function sendPatientDataProviderConnectRequest(api, clinicId, patientId, 
  * @param {Object} site - the site to create
  * @param {String} site.name - the site name
  */
+export function getClinicSites(api, clinicId) {
+  return (dispatch) => {
+    dispatch(sync.getClinicSitesRequest());
+
+    api.clinics.getClinicSites(clinicId, (err, results) => {
+      if (err) {
+        let message = ErrorMessages.ERR_FETCHING_CLINIC_SITES;
+
+        dispatch(sync.getClinicSitesFailure(
+          createActionError(message, err), err
+        ));
+      } else {
+        dispatch(sync.getClinicSitesSuccess(clinicId, results));
+      }
+    });
+  };
+}
+
+/**
+ * Create a site for a clinic
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {Object} site - the site to create
+ * @param {String} site.name - the site name
+ */
 export function createClinicSite(api, clinicId, site) {
   return (dispatch) => {
     dispatch(sync.createClinicSiteRequest());
