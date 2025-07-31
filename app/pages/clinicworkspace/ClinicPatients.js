@@ -906,7 +906,8 @@ export const ClinicPatients = (props) => {
   const handleClinicSitesModified = useCallback(() => {
     clinicSiteFormContext?.resetForm();
     handleCloseClinicSiteUpdateDialog();
-    dispatch(actions.async.fetchClinicSites(api, selectedClinicId));
+
+    dispatch(actions.async.fetchClinicSites(api, selectedClinicId)); // refetch to get latest sites
   }, [
     clinicSiteFormContext,
     handleCloseClinicSiteUpdateDialog,
@@ -919,7 +920,7 @@ export const ClinicPatients = (props) => {
     clinicPatientTagFormContext?.resetForm();
     handleCloseClinicPatientTagUpdateDialog();
 
-    dispatch(actions.async.fetchClinicPatientTags(api, selectedClinicId));
+    dispatch(actions.async.fetchClinicPatientTags(api, selectedClinicId)); // refetch to get latest tags
   }, [
     clinicPatientTagFormContext,
     handleCloseClinicPatientTagUpdateDialog,

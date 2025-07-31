@@ -2179,12 +2179,12 @@ export function createClinicSiteRequest() {
   };
 }
 
-export function createClinicSiteSuccess(clinicId, sites) {
+export function createClinicSiteSuccess(clinicId, site) {
   return {
     type: ActionTypes.CREATE_CLINIC_SITE_SUCCESS,
     payload: {
       clinicId: clinicId,
-      sites: sites,
+      site: site,
     },
   };
 }
@@ -2205,12 +2205,12 @@ export function updateClinicSiteRequest() {
   };
 }
 
-export function updateClinicSiteSuccess(clinicId, sites) {
+export function updateClinicSiteSuccess(clinicId, site) {
   return {
     type: ActionTypes.UPDATE_CLINIC_SITE_SUCCESS,
     payload: {
       clinicId: clinicId,
-      sites: sites,
+      site: site,
     },
   };
 }
@@ -2231,12 +2231,12 @@ export function deleteClinicSiteRequest() {
   };
 }
 
-export function deleteClinicSiteSuccess(clinicId, sites) {
+export function deleteClinicSiteSuccess(clinicId, siteId) {
   return {
     type: ActionTypes.DELETE_CLINIC_SITE_SUCCESS,
     payload: {
       clinicId: clinicId,
-      sites: sites,
+      siteId: siteId,
     },
   };
 }
@@ -2257,12 +2257,12 @@ export function createClinicPatientTagRequest() {
   };
 }
 
-export function createClinicPatientTagSuccess(clinicId, patientTags) {
+export function createClinicPatientTagSuccess(clinicId, patientTag) {
   return {
     type: ActionTypes.CREATE_CLINIC_PATIENT_TAG_SUCCESS,
     payload: {
       clinicId: clinicId,
-      patientTags: patientTags,
+      patientTag: patientTag,
     },
   };
 }
@@ -2283,12 +2283,12 @@ export function updateClinicPatientTagRequest() {
   };
 }
 
-export function updateClinicPatientTagSuccess(clinicId, patientTags) {
+export function updateClinicPatientTagSuccess(clinicId, patientTag) {
   return {
     type: ActionTypes.UPDATE_CLINIC_PATIENT_TAG_SUCCESS,
     payload: {
       clinicId: clinicId,
-      patientTags: patientTags,
+      patientTag: patientTag,
     },
   };
 }
@@ -2309,12 +2309,12 @@ export function deleteClinicPatientTagRequest() {
   };
 }
 
-export function deleteClinicPatientTagSuccess(clinicId, patientTags) {
+export function deleteClinicPatientTagSuccess(clinicId, patientTagId) {
   return {
     type: ActionTypes.DELETE_CLINIC_PATIENT_TAG_SUCCESS,
     payload: {
       clinicId: clinicId,
-      patientTags: patientTags,
+      patientTagId: patientTagId,
     },
   };
 }

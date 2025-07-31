@@ -932,10 +932,24 @@ export const clinics = (state = initialState.clinics, action) => {
         },
       });
     }
-    case types.CREATE_CLINIC_PATIENT_TAG_SUCCESS:
-    case types.UPDATE_CLINIC_PATIENT_TAG_SUCCESS:
+    case types.CREATE_CLINIC_PATIENT_TAG_SUCCESS: {
+      const { clinicId, patientTag } = action.payload;
+
+      return update(state, { [clinicId]: { patientTags: { $push: [patientTag] } } });
+    }
+    case types.UPDATE_CLINIC_PATIENT_TAG_SUCCESS: {
+      const { clinicId, patientTag: newTag } = action.payload;
+
+      return update(state, {
+        [clinicId]: { patientTags: { $apply: tags => tags.map(t => t.id === newTag.id ? newTag : t) } },
+      });
+    }
     case types.DELETE_CLINIC_PATIENT_TAG_SUCCESS: {
-      return state;
+      const { clinicId, patientTagId } = action.payload;
+
+      return update(state, {
+        [clinicId]: { patientTags: { $apply: tags => tags.filter(t => t.id !== patientTagId) } },
+      });
     }
     case types.FETCH_CLINIC_PATIENT_TAGS_SUCCESS: {
       const {
@@ -947,10 +961,24 @@ export const clinics = (state = initialState.clinics, action) => {
         [clinicId]: { patientTags: { $set: patientTags } },
       });
     }
-    case types.CREATE_CLINIC_SITE_SUCCESS:
-    case types.UPDATE_CLINIC_SITE_SUCCESS:
+    case types.CREATE_CLINIC_SITE_SUCCESS: {
+      const { clinicId, site } = action.payload;
+
+      return update(state, { [clinicId]: { sites: { $push: [site] } } });
+    }
+    case types.UPDATE_CLINIC_SITE_SUCCESS: {
+      const { clinicId, site: newSite } = action.payload;
+
+      return update(state, {
+        [clinicId]: { sites: { $apply: sites => sites.map(s => s.id === newSite.id ? newSite : s) } },
+      });
+    }
     case types.DELETE_CLINIC_SITE_SUCCESS: {
-      return state;
+      const { clinicId, siteId } = action.payload;
+
+      return update(state, {
+        [clinicId]: { sites: { $apply: sites => sites.filter(s => s.id !== siteId) } },
+      });
     }
     case types.FETCH_CLINIC_SITES_SUCCESS: {
       const {
