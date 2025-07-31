@@ -906,7 +906,7 @@ export const ClinicPatients = (props) => {
   const handleClinicSitesModified = useCallback(() => {
     clinicSiteFormContext?.resetForm();
     handleCloseClinicSiteUpdateDialog();
-    dispatch(actions.async.fetchClinicSites(api, selectedClinicId)); // TODO: disable edit/delete while refetching
+    dispatch(actions.async.fetchClinicSites(api, selectedClinicId));
   }, [
     clinicSiteFormContext,
     handleCloseClinicSiteUpdateDialog,
@@ -919,8 +919,7 @@ export const ClinicPatients = (props) => {
     clinicPatientTagFormContext?.resetForm();
     handleCloseClinicPatientTagUpdateDialog();
 
-    // TODO: Endpoint doesn't exist yet
-    dispatch(actions.async.fetchClinicPatientTags(api, selectedClinicId)); // TODO: disable edit/delete while refetching
+    dispatch(actions.async.fetchClinicPatientTags(api, selectedClinicId));
   }, [
     clinicPatientTagFormContext,
     handleCloseClinicPatientTagUpdateDialog,
