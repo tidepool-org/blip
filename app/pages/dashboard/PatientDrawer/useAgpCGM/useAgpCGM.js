@@ -54,10 +54,10 @@ const inferLastCompletedStep = (patientId, data, pdf) => {
 
 const getFetchPatientOpts = (
   agpPeriodInDays,
-  safetyFactorDays = 2,
+  safetyFactorDays = 3,
 ) => {
-  let daysToFetch = agpPeriodInDays * 2; // Fetch data for current AND past-period AGP.
-  daysToFetch += safetyFactorDays;       // Add a safety factor in case of timezone mismatch.
+  let daysToFetch = agpPeriodInDays * 2; // Fetch enough data for current AND past-period AGP (ie. double)
+  daysToFetch += safetyFactorDays;       // Request a few extra days in case of timezone mismatch.
 
   return {
     initial: true,
