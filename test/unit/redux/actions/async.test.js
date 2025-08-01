@@ -4210,14 +4210,6 @@ describe('Actions', () => {
             ...initialState,
           }, router: { location: { pathname: `data/${patientId}` } } });
 
-          const options = {
-            // startDate: undefined,
-            // endDate: undefined,
-            returnData: false,
-            useCache: true,
-            initial: true,
-          };
-
           // Set all times in response to 1 year past server time
           api.patientData.get = sinon.stub().callsArgWith(2, null, []);
 
@@ -4261,14 +4253,6 @@ describe('Actions', () => {
           }, router: { location: { pathname: `data/${patientId}` } } });
 
           api.patientData.get = sinon.stub().callsArgWith(2, null, patientData);
-
-          options = {
-            // startDate: undefined,
-            // endDate: undefined,
-            returnData: false,
-            useCache: true,
-            initial: true,
-          };
 
           store.dispatch(async.fetchPatientData(api, options, patientId));
 

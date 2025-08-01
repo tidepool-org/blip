@@ -60,8 +60,9 @@ const getFetchPatientOpts = (
   daysToFetch += safetyFactorDays;       // Request a few extra days in case of timezone mismatch.
 
   return {
-    initial: true,
+    initial: false,
     startDate: moment.utc().subtract(daysToFetch, 'days').toISOString(),
+    endDate: moment.utc().add(1, 'days').toISOString(),
     forceDataWorkerAddDataRequest: true,
     useCache: false,
   };
