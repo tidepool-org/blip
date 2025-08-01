@@ -903,6 +903,32 @@ export const ClinicPatients = (props) => {
     });
   }, [clinicPatientTagFormContext, prefixPopHealthMetric, selectedClinicId, trackMetric]);
 
+  const handleClinicSitesModified = useCallback(() => {
+    clinicSiteFormContext?.resetForm();
+    handleCloseClinicSiteUpdateDialog();
+
+    dispatch(actions.async.fetchClinicSites(api, selectedClinicId)); // refetch to get latest sites
+  }, [
+    clinicSiteFormContext,
+    handleCloseClinicSiteUpdateDialog,
+    dispatch,
+    api,
+    selectedClinicId,
+  ]);
+
+  const handleClinicPatientTagsModified = useCallback(() => {
+    clinicPatientTagFormContext?.resetForm();
+    handleCloseClinicPatientTagUpdateDialog();
+
+    dispatch(actions.async.fetchClinicPatientTags(api, selectedClinicId)); // refetch to get latest tags
+  }, [
+    clinicPatientTagFormContext,
+    handleCloseClinicPatientTagUpdateDialog,
+    dispatch,
+    api,
+    selectedClinicId,
+  ]);
+
   const handleAsyncResult = useCallback((workingState, successMessage, onComplete = handleCloseOverlays) => {
     const { inProgress, completed, notification, prevInProgress } = workingState;
 
@@ -985,28 +1011,28 @@ export const ClinicPatients = (props) => {
   }, [fetchingRpmReportPatients, rpmReportPatients, handleAsyncResult, handleCloseOverlays, previousFetchingRpmReportPatients?.inProgress, t]);
 
   useEffect(() => {
-    handleAsyncResult({ ...creatingClinicSite, prevInProgress: previousCreatingClinicSite?.inProgress }, t('Site created.'), () => clinicSiteFormContext?.resetForm());
-  }, [clinicSiteFormContext, creatingClinicSite, handleAsyncResult, previousCreatingClinicSite?.inProgress, t]);
+    handleAsyncResult({ ...creatingClinicSite, prevInProgress: previousCreatingClinicSite?.inProgress }, t('Site created.'), handleClinicSitesModified);
+  }, [creatingClinicSite, handleClinicSitesModified, handleAsyncResult, previousCreatingClinicSite?.inProgress, t]);
 
   useEffect(() => {
-    handleAsyncResult({ ...updatingClinicSite, prevInProgress: previousUpdatingClinicSite?.inProgress }, t('Site updated.'), handleCloseClinicSiteUpdateDialog);
-  }, [clinicSiteFormContext, updatingClinicSite, handleAsyncResult, previousUpdatingClinicSite?.inProgress, t]);
+    handleAsyncResult({ ...updatingClinicSite, prevInProgress: previousUpdatingClinicSite?.inProgress }, t('Site updated.'), handleClinicSitesModified);
+  }, [updatingClinicSite, handleClinicSitesModified, handleAsyncResult, previousUpdatingClinicSite?.inProgress, t]);
 
   useEffect(() => {
-    handleAsyncResult({ ...deletingClinicSite, prevInProgress: previousDeletingClinicSite?.inProgress }, t('Site removed.'), handleCloseClinicSiteUpdateDialog);
-  }, [deletingClinicSite, handleAsyncResult, handleCloseClinicSiteUpdateDialog, previousDeletingClinicSite?.inProgress, t]);
+    handleAsyncResult({ ...deletingClinicSite, prevInProgress: previousDeletingClinicSite?.inProgress }, t('Site removed.'), handleClinicSitesModified);
+  }, [deletingClinicSite, handleClinicSitesModified, handleAsyncResult, previousDeletingClinicSite?.inProgress, t]);
 
   useEffect(() => {
-    handleAsyncResult({ ...creatingClinicPatientTag, prevInProgress: previousCreatingClinicPatientTag?.inProgress }, t('Tag created.'), () => clinicPatientTagFormContext?.resetForm());
-  }, [clinicPatientTagFormContext, creatingClinicPatientTag, handleAsyncResult, previousCreatingClinicPatientTag?.inProgress, t]);
+    handleAsyncResult({ ...creatingClinicPatientTag, prevInProgress: previousCreatingClinicPatientTag?.inProgress }, t('Tag created.'), handleClinicPatientTagsModified);
+  }, [creatingClinicPatientTag, handleClinicPatientTagsModified, handleAsyncResult, previousCreatingClinicPatientTag?.inProgress, t]);
 
   useEffect(() => {
-    handleAsyncResult({ ...updatingClinicPatientTag, prevInProgress: previousUpdatingClinicPatientTag?.inProgress }, t('Tag updated.'), handleCloseClinicPatientTagUpdateDialog);
-  }, [updatingClinicPatientTag, handleAsyncResult, handleCloseClinicPatientTagUpdateDialog, previousUpdatingClinicPatientTag?.inProgress, t]);
+    handleAsyncResult({ ...updatingClinicPatientTag, prevInProgress: previousUpdatingClinicPatientTag?.inProgress }, t('Tag updated.'), handleClinicPatientTagsModified);
+  }, [updatingClinicPatientTag, handleClinicPatientTagsModified, handleAsyncResult, previousUpdatingClinicPatientTag?.inProgress, t]);
 
   useEffect(() => {
-    handleAsyncResult({ ...deletingClinicPatientTag, prevInProgress: previousDeletingClinicPatientTag?.inProgress }, t('Tag removed.'), handleCloseClinicPatientTagUpdateDialog);
-  }, [deletingClinicPatientTag, handleAsyncResult, handleCloseClinicPatientTagUpdateDialog, previousDeletingClinicPatientTag?.inProgress, t]);
+    handleAsyncResult({ ...deletingClinicPatientTag, prevInProgress: previousDeletingClinicPatientTag?.inProgress }, t('Tag removed.'), handleClinicPatientTagsModified);
+  }, [deletingClinicPatientTag, handleClinicPatientTagsModified, handleAsyncResult, previousDeletingClinicPatientTag?.inProgress, t]);
 
   useEffect(() => {
     // Prevent this effect from firing on logout, which would clear all patient tags and clinic sites from localStorage
