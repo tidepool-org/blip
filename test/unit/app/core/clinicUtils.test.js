@@ -109,6 +109,7 @@ describe('clinicUtils', function() {
 
       expect(details.entitlements).to.eql({
         patientTags: false,
+        clinicSites: false,
         prescriptions: false,
         rpmReport: false,
         summaryDashboard: false,
@@ -137,6 +138,7 @@ describe('clinicUtils', function() {
 
       expect(details.entitlements).to.eql({
         patientTags: false,
+        clinicSites: false,
         prescriptions: false,
         rpmReport: false,
         summaryDashboard: false,
@@ -165,6 +167,7 @@ describe('clinicUtils', function() {
 
       expect(details.entitlements).to.eql({
         patientTags: false,
+        clinicSites: false,
         prescriptions: false,
         rpmReport: false,
         summaryDashboard: false,
@@ -193,6 +196,7 @@ describe('clinicUtils', function() {
 
       expect(details.entitlements).to.eql({
         patientTags: false,
+        clinicSites: false,
         prescriptions: false,
         rpmReport: false,
         summaryDashboard: false,
@@ -221,6 +225,7 @@ describe('clinicUtils', function() {
 
       expect(details.entitlements).to.eql({
         patientTags: false,
+        clinicSites: false,
         prescriptions: false,
         rpmReport: false,
         summaryDashboard: false,
@@ -245,6 +250,7 @@ describe('clinicUtils', function() {
 
       expect(details.entitlements).to.eql({
         patientTags: false,
+        clinicSites: false,
         prescriptions: false,
         rpmReport: false,
         summaryDashboard: false,
@@ -269,6 +275,7 @@ describe('clinicUtils', function() {
 
       expect(details.entitlements).to.eql({
         patientTags: true,
+        clinicSites: true,
         prescriptions: false,
         rpmReport: false,
         summaryDashboard: true,
@@ -293,6 +300,7 @@ describe('clinicUtils', function() {
 
       expect(details.entitlements).to.eql({
         patientTags: true,
+        clinicSites: true,
         prescriptions: false,
         rpmReport: false,
         summaryDashboard: true,
@@ -317,6 +325,7 @@ describe('clinicUtils', function() {
 
       expect(details.entitlements).to.eql({
         patientTags: true,
+        clinicSites: true,
         prescriptions: false,
         rpmReport: false,
         summaryDashboard: true,
@@ -341,6 +350,7 @@ describe('clinicUtils', function() {
 
       expect(details.entitlements).to.eql({
         patientTags: true,
+        clinicSites: true,
         prescriptions: false,
         rpmReport: true,
         summaryDashboard: true,
@@ -365,6 +375,7 @@ describe('clinicUtils', function() {
 
       expect(details.entitlements).to.eql({
         patientTags: true,
+        clinicSites: true,
         prescriptions: false,
         rpmReport: true,
         summaryDashboard: true,
@@ -389,6 +400,7 @@ describe('clinicUtils', function() {
 
       expect(details.entitlements).to.eql({
         patientTags: true,
+        clinicSites: true,
         prescriptions: false,
         rpmReport: true,
         summaryDashboard: true,
@@ -413,6 +425,7 @@ describe('clinicUtils', function() {
 
       expect(details.entitlements).to.eql({
         patientTags: true,
+        clinicSites: true,
         prescriptions: false,
         rpmReport: true,
         summaryDashboard: true,
@@ -674,6 +687,7 @@ describe('clinicUtils', function() {
         'birthDate',
         'email',
         'mrn',
+        'sites',
         'tags',
         'connectDexcom',
         'dataSources',

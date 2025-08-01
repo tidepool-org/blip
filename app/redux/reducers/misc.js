@@ -932,9 +932,26 @@ export const clinics = (state = initialState.clinics, action) => {
         },
       });
     }
-    case types.CREATE_CLINIC_PATIENT_TAG_SUCCESS:
-    case types.UPDATE_CLINIC_PATIENT_TAG_SUCCESS:
+    case types.CREATE_CLINIC_PATIENT_TAG_SUCCESS: {
+      const { clinicId, patientTag } = action.payload;
+
+      return update(state, { [clinicId]: { patientTags: { $push: [patientTag] } } });
+    }
+    case types.UPDATE_CLINIC_PATIENT_TAG_SUCCESS: {
+      const { clinicId, patientTag: newTag } = action.payload;
+
+      return update(state, {
+        [clinicId]: { patientTags: { $apply: tags => _.map(tags, t => t.id === newTag.id ? newTag : t) } },
+      });
+    }
     case types.DELETE_CLINIC_PATIENT_TAG_SUCCESS: {
+      const { clinicId, patientTagId } = action.payload;
+
+      return update(state, {
+        [clinicId]: { patientTags: { $apply: tags => _.filter(tags, t => t.id !== patientTagId) } },
+      });
+    }
+    case types.FETCH_CLINIC_PATIENT_TAGS_SUCCESS: {
       const {
         clinicId,
         patientTags,
@@ -942,6 +959,35 @@ export const clinics = (state = initialState.clinics, action) => {
 
       return update(state, {
         [clinicId]: { patientTags: { $set: patientTags } },
+      });
+    }
+    case types.CREATE_CLINIC_SITE_SUCCESS: {
+      const { clinicId, site } = action.payload;
+
+      return update(state, { [clinicId]: { sites: { $push: [site] } } });
+    }
+    case types.UPDATE_CLINIC_SITE_SUCCESS: {
+      const { clinicId, site: newSite } = action.payload;
+
+      return update(state, {
+        [clinicId]: { sites: { $apply: sites => _.map(sites, s => s.id === newSite.id ? newSite : s) } },
+      });
+    }
+    case types.DELETE_CLINIC_SITE_SUCCESS: {
+      const { clinicId, siteId } = action.payload;
+
+      return update(state, {
+        [clinicId]: { sites: { $apply: sites => _.filter(sites, s => s.id !== siteId) } },
+      });
+    }
+    case types.FETCH_CLINIC_SITES_SUCCESS: {
+      const {
+        clinicId,
+        sites,
+      } = action.payload;
+
+      return update(state, {
+        [clinicId]: { sites: { $set: sites } },
       });
     }
     case types.FETCH_CLINIC_EHR_SETTINGS_SUCCESS: {

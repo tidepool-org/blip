@@ -9,6 +9,7 @@ import omit from 'lodash/omit';
 import pick from 'lodash/pick';
 import reduce from 'lodash/reduce';
 import EditIcon from '@material-ui/icons/EditRounded';
+import utils from '../../core/utils';
 
 import {
   usePopupState,
@@ -125,12 +126,17 @@ export const TagList = withTranslation()(props => {
     ...themeProps
   } = props;
 
+  const sortedTags = useMemo(() => {
+    const sortedArray = tags.toSorted((a, b) => utils.compareLabels(a.name, b.name));
+    return sortedArray;
+  }, [tags]);
+
   const anchorRef = React.useRef();
   const visibleTags = [];
   const hiddenTags = [];
 
   if (maxCharactersVisible || maxTagsVisible) {
-    reduce(tags, (remainingChars, { name = '' }, i) => {
+    reduce(sortedTags, (remainingChars, { name = '' }, i) => {
       let tagArray;
 
       if (isFinite(maxTagsVisible) && visibleTags.length >= maxTagsVisible) {
@@ -139,11 +145,11 @@ export const TagList = withTranslation()(props => {
         tagArray = (name.length <= remainingChars || i === 0) ? visibleTags : hiddenTags;
       }
 
-      if (tags[i]) tagArray.push(tags[i]);
+      if (sortedTags[i]) tagArray.push(sortedTags[i]);
       return remainingChars - name.length;
     }, maxCharactersVisible);
   } else {
-    visibleTags.push(...compact(tags));
+    visibleTags.push(...compact(sortedTags));
   }
 
   const popupState = usePopupState({
@@ -176,6 +182,7 @@ export const TagList = withTranslation()(props => {
         fontSize: editIconFontSize,
       }}
       label={t('Edit tags')}
+      data-testid="edit-tags-icon"
       onClick={() => {
         popupState.close();
         onClickEdit();

@@ -2121,18 +2121,148 @@ export function sendPatientDataProviderConnectRequestFailure(error, apiError) {
   };
 }
 
+export function fetchClinicSitesRequest() {
+  return {
+    type: ActionTypes.FETCH_CLINIC_SITES_REQUEST,
+  };
+}
+
+export function fetchClinicSitesSuccess(clinicId, sites) {
+  return {
+    type: ActionTypes.FETCH_CLINIC_SITES_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+      sites: sites,
+    },
+  };
+}
+
+export function fetchClinicSitesFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_CLINIC_SITES_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function fetchClinicPatientTagsRequest() {
+  return {
+    type: ActionTypes.FETCH_CLINIC_PATIENT_TAGS_REQUEST,
+  };
+}
+
+export function fetchClinicPatientTagsSuccess(clinicId, patientTags) {
+  return {
+    type: ActionTypes.FETCH_CLINIC_PATIENT_TAGS_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+      patientTags: patientTags,
+    },
+  };
+}
+
+export function fetchClinicPatientTagsFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_CLINIC_PATIENT_TAGS_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function createClinicSiteRequest() {
+  return {
+    type: ActionTypes.CREATE_CLINIC_SITE_REQUEST,
+  };
+}
+
+export function createClinicSiteSuccess(clinicId, site) {
+  return {
+    type: ActionTypes.CREATE_CLINIC_SITE_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+      site: site,
+    },
+  };
+}
+
+export function createClinicSiteFailure(error, apiError) {
+  return {
+    type: ActionTypes.CREATE_CLINIC_SITE_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function updateClinicSiteRequest() {
+  return {
+    type: ActionTypes.UPDATE_CLINIC_SITE_REQUEST,
+  };
+}
+
+export function updateClinicSiteSuccess(clinicId, site) {
+  return {
+    type: ActionTypes.UPDATE_CLINIC_SITE_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+      site: site,
+    },
+  };
+}
+
+export function updateClinicSiteFailure(error, apiError) {
+  return {
+    type: ActionTypes.UPDATE_CLINIC_SITE_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function deleteClinicSiteRequest() {
+  return {
+    type: ActionTypes.DELETE_CLINIC_SITE_REQUEST,
+  };
+}
+
+export function deleteClinicSiteSuccess(clinicId, siteId) {
+  return {
+    type: ActionTypes.DELETE_CLINIC_SITE_SUCCESS,
+    payload: {
+      clinicId: clinicId,
+      siteId: siteId,
+    },
+  };
+}
+
+export function deleteClinicSiteFailure(error, apiError) {
+  return {
+    type: ActionTypes.DELETE_CLINIC_SITE_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
 export function createClinicPatientTagRequest() {
   return {
     type: ActionTypes.CREATE_CLINIC_PATIENT_TAG_REQUEST,
   };
 }
 
-export function createClinicPatientTagSuccess(clinicId, patientTags) {
+export function createClinicPatientTagSuccess(clinicId, patientTag) {
   return {
     type: ActionTypes.CREATE_CLINIC_PATIENT_TAG_SUCCESS,
     payload: {
       clinicId: clinicId,
-      patientTags: patientTags,
+      patientTag: patientTag,
     },
   };
 }
@@ -2153,12 +2283,12 @@ export function updateClinicPatientTagRequest() {
   };
 }
 
-export function updateClinicPatientTagSuccess(clinicId, patientTags) {
+export function updateClinicPatientTagSuccess(clinicId, patientTag) {
   return {
     type: ActionTypes.UPDATE_CLINIC_PATIENT_TAG_SUCCESS,
     payload: {
       clinicId: clinicId,
-      patientTags: patientTags,
+      patientTag: patientTag,
     },
   };
 }
@@ -2179,12 +2309,12 @@ export function deleteClinicPatientTagRequest() {
   };
 }
 
-export function deleteClinicPatientTagSuccess(clinicId, patientTags) {
+export function deleteClinicPatientTagSuccess(clinicId, patientTagId) {
   return {
     type: ActionTypes.DELETE_CLINIC_PATIENT_TAG_SUCCESS,
     payload: {
       clinicId: clinicId,
-      patientTags: patientTags,
+      patientTagId: patientTagId,
     },
   };
 }
