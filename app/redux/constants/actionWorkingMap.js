@@ -402,7 +402,7 @@ export default (type) => {
     case types.FETCH_CLINIC_SITES_REQUEST:
     case types.FETCH_CLINIC_SITES_SUCCESS:
     case types.FETCH_CLINIC_SITES_FAILURE:
-      return 'fetchClinicSites';
+      return 'fetchingClinicSites';
 
     case types.CREATE_CLINIC_SITE_REQUEST:
     case types.CREATE_CLINIC_SITE_SUCCESS:
@@ -422,7 +422,7 @@ export default (type) => {
     case types.FETCH_CLINIC_PATIENT_TAGS_REQUEST:
     case types.FETCH_CLINIC_PATIENT_TAGS_SUCCESS:
     case types.FETCH_CLINIC_PATIENT_TAGS_FAILURE:
-      return 'fetchClinicPatientTags';
+      return 'fetchingClinicPatientTags';
 
     case types.CREATE_CLINIC_PATIENT_TAG_REQUEST:
     case types.CREATE_CLINIC_PATIENT_TAG_SUCCESS:

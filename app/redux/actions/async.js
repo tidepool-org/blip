@@ -2703,7 +2703,7 @@ export function fetchClinicPatientTags(api, clinicId) {
 
     api.clinics.get(clinicId, (err, { patientTags }) => {
       if (err) {
-        let message = ErrorMessages.ERR_FETCHING_CLINIC_SITES;
+        let message = ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_TAGS;
 
         dispatch(sync.fetchClinicPatientTagsFailure(
           createActionError(message, err), err
