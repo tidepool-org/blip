@@ -2,6 +2,7 @@ import React, { useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../../../../redux/actions';
 import buildGenerateAGPImages from './buildGenerateAGPImages';
+import moment from 'moment';
 
 import getOpts from './getOpts';
 import getQueries from './getQueries';
@@ -51,7 +52,21 @@ const inferLastCompletedStep = (patientId, data, pdf) => {
   return STATUS.STATE_CLEARED;
 };
 
-const FETCH_PATIENT_OPTS = { forceDataWorkerAddDataRequest: true, useCache: false };
+const getFetchPatientOpts = (
+  agpPeriodInDays,
+  safetyFactorDays = 3,
+) => {
+  let daysToFetch = agpPeriodInDays * 2; // Fetch enough data for current AND past-period AGP (ie. double)
+  daysToFetch += safetyFactorDays;       // Request a few extra days in case of timezone mismatch.
+
+  return {
+    initial: false,
+    startDate: moment.utc().subtract(daysToFetch, 'days').toISOString(),
+    endDate: moment.utc().add(1, 'days').toISOString(),
+    forceDataWorkerAddDataRequest: true,
+    useCache: false,
+  };
+};
 
 const DEFAULT_AGP_PERIOD_IN_DAYS = 14;
 
@@ -81,7 +96,8 @@ const useAgpCGM = (
         break;
 
       case STATUS.STATE_CLEARED:
-        dispatch(actions.async.fetchPatientData(api, FETCH_PATIENT_OPTS, patientId));
+        const fetchPatientOpts = getFetchPatientOpts(agpPeriodInDays);
+        dispatch(actions.async.fetchPatientData(api, fetchPatientOpts, patientId));
         break;
 
       case STATUS.PATIENT_LOADED:

@@ -82,7 +82,7 @@ const SelectTags = ({
   };
 
   // Suggest tags only if user is viewing ClinicPatients list (where Filters are used)
-  const shouldSuggestTags = pathname === '/clinic-workspace';
+  const shouldSuggestTags = pathname?.includes('/clinic-workspace');
 
   const selectOptions = buildSelectOptions(t, clinic?.patientTags, activeFilters, shouldSuggestTags);
 

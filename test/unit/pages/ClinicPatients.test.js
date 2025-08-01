@@ -684,6 +684,7 @@ describe('ClinicPatients', () => {
             mrn: '123456',
             email: 'patient@test.ca',
             tags: [],
+            sites: [],
           }
         );
 
@@ -1182,6 +1183,7 @@ describe('ClinicPatients', () => {
               email: 'patient-two@test.ca',
               permissions: { custodian: {} },
               tags: [],
+              sites: [],
             }
           );
 
@@ -1255,6 +1257,7 @@ describe('ClinicPatients', () => {
               email: 'patient1@test.ca',
               permissions: { view: {} },
               tags: [],
+              sites: [],
             }
           );
 
