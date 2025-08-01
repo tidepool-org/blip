@@ -117,7 +117,7 @@ export const PatientForm = (props) => {
           clinic: {
             handler: 'acceptPatientInvitation',
             args: () => [selectedClinicId, invite.key, invite.creatorId, omitBy(
-              pick(getFormValues(values, clinicPatientTags, clinicSites), ['mrn', 'birthDate', 'fullName', 'tags']),
+              pick(getFormValues(values, clinicPatientTags, clinicSites), ['mrn', 'birthDate', 'fullName', 'tags', 'sites']),
               emptyValuesFilter
             )],
           },
