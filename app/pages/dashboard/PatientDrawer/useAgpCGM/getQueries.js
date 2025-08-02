@@ -3,6 +3,7 @@ import { utils as vizUtils } from '@tidepool/viz';
 const { commonStats } = vizUtils.stat;
 
 import utils from '../../../../core/utils';
+import { TARGET_RANGE_PRESET } from '../../../../components/clinic/PatientForm/SelectTargetRangePreset';
 
 const getQueries = (
   data,
@@ -42,6 +43,8 @@ const getQueries = (
     commonStats.timeInRange,
   ];
 
+  const glycemicRanges = patient?.glycemicRanges || TARGET_RANGE_PRESET.STANDARD;
+
   const queries = {
     agpCGM: {
       endpoints: opts.agpCGM?.endpoints,
@@ -53,6 +56,7 @@ const getQueries = (
       metaData: 'latestPumpUpload, bgSources',
       timePrefs,
       excludedDevices: [],
+      glycemicRanges,
     },
     offsetAgpCGM: {
       endpoints: opts.offsetAgpCGM?.endpoints,
@@ -64,6 +68,7 @@ const getQueries = (
       metaData: 'latestPumpUpload, bgSources',
       timePrefs,
       excludedDevices: [],
+      glycemicRanges,
     },
   };
 

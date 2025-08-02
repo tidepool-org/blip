@@ -63,6 +63,7 @@ import ShareBanner from '../../components/elements/Card/Banners/Share.png';
 import DataConnectionsBanner from '../../components/elements/Card/Banners/DataConnections.png';
 import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
 import { DEFAULT_CGM_SAMPLE_INTERVAL, DEFAULT_CGM_SAMPLE_INTERVAL_RANGE, MS_IN_MIN } from '../../core/constants';
+import { TARGET_RANGE_PRESET } from '../../components/clinic/PatientForm/SelectTargetRangePreset';
 
 const { Loader } = vizComponents;
 const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
@@ -799,11 +800,13 @@ export const PatientDataClass = createReactClass({
     };
 
     if (!bgPrefs.useDefaultRange) {
-      bgPrefs = utils.getBGPrefsForDataProcessing({ ...patientSettings, bgTarget: undefined }, bgUnitsOverride);
+      // bgPrefs = utils.getBGPrefsForDataProcessing({ ...patientSettings, bgTarget: undefined }, bgUnitsOverride);
+      bgPrefs = utils.getBgPrefs({ ...patientSettings, bgTarget: undefined }, this.props.clinicPatient, bgUnitsOverride);
       bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
       bgPrefs.useDefaultRange = true;
     } else {
-      bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, bgUnitsOverride);
+      // bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, bgUnitsOverride);
+      bgPrefs = utils.getBgPrefs(patientSettings, { ...this.props.clinicPatient, glycemicRanges: 'ADA_STANDARD' }, bgUnitsOverride);
       bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
       bgPrefs.useDefaultRange = false;
     }
@@ -983,6 +986,8 @@ export const PatientDataClass = createReactClass({
     const combinedPatient = props.clinicPatient ? personUtils.combinedAccountAndClinicPatient(props.patient, props.clinicPatient) : null;
     const sourcePatient = personUtils.isClinicianAccount(props.user) && !!combinedPatient ? combinedPatient : props.patient;
 
+    const glycemicRanges = props.clinicPatient?.glycemicRanges || TARGET_RANGE_PRESET.STANDARD;
+
     const pdfPatient = _.assign({}, sourcePatient, {
       settings: _.assign({}, patientSettings, { siteChangeSource }),
     });
@@ -1046,6 +1051,7 @@ export const PatientDataClass = createReactClass({
         bgSource: _.get(state.chartPrefs, 'agpBGM.bgSource'),
         stats: this.getStatsByChartType('agpBGM'),
         types: { smbg: {} },
+        glycemicRanges,
         ...commonQueries,
       };
     }
@@ -1057,6 +1063,7 @@ export const PatientDataClass = createReactClass({
         bgSource: _.get(state.chartPrefs, 'agpCGM.bgSource'),
         stats: this.getStatsByChartType('agpCGM'),
         types: { cbg: {} },
+        glycemicRanges,
         ...commonQueries,
       };
     }
@@ -1816,6 +1823,7 @@ export const PatientDataClass = createReactClass({
     const userId = this.props.currentPatientInViewId;
     const patientData = _.get(nextProps, 'data.metaData.patientId') === userId;
     const patientSettings = _.get(nextProps, ['patient', 'settings'], null);
+    const clinicPatient = _.get(nextProps.clinics, [nextProps.clinic?.id, 'patients', userId], {});
 
     // Handle data refresh
     if (this.props.removingData.inProgress && nextProps.removingData.completed) {
@@ -1857,8 +1865,10 @@ export const PatientDataClass = createReactClass({
           source: nextProps.queryParams?.units ? 'query params' : 'preferred clinic units',
         };
 
-        bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, bgUnitsOverride);
+        // bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, bgUnitsOverride);
+        bgPrefs = utils.getBgPrefs(patientSettings, clinicPatient, bgUnitsOverride);
         bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
+
         if (isCustomBgRange(bgPrefs)) stateUpdates.isCustomBgRange = true;
         stateUpdates.bgPrefs = bgPrefs;
       }
