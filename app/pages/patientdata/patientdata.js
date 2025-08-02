@@ -63,6 +63,7 @@ import ShareBanner from '../../components/elements/Card/Banners/Share.png';
 import DataConnectionsBanner from '../../components/elements/Card/Banners/DataConnections.png';
 import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
 import { DEFAULT_CGM_SAMPLE_INTERVAL, DEFAULT_CGM_SAMPLE_INTERVAL_RANGE, MS_IN_MIN } from '../../core/constants';
+import { TARGET_RANGE_PRESET } from '../../components/clinic/PatientForm/SelectTargetRangePreset';
 
 const { Loader } = vizComponents;
 const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
@@ -985,6 +986,8 @@ export const PatientDataClass = createReactClass({
     const combinedPatient = props.clinicPatient ? personUtils.combinedAccountAndClinicPatient(props.patient, props.clinicPatient) : null;
     const sourcePatient = personUtils.isClinicianAccount(props.user) && !!combinedPatient ? combinedPatient : props.patient;
 
+    const glycemicRanges = props.clinicPatient?.glycemicRanges || TARGET_RANGE_PRESET.STANDARD;
+
     const pdfPatient = _.assign({}, sourcePatient, {
       settings: _.assign({}, patientSettings, { siteChangeSource }),
     });
@@ -1048,6 +1051,7 @@ export const PatientDataClass = createReactClass({
         bgSource: _.get(state.chartPrefs, 'agpBGM.bgSource'),
         stats: this.getStatsByChartType('agpBGM'),
         types: { smbg: {} },
+        glycemicRanges,
         ...commonQueries,
       };
     }
@@ -1059,6 +1063,7 @@ export const PatientDataClass = createReactClass({
         bgSource: _.get(state.chartPrefs, 'agpCGM.bgSource'),
         stats: this.getStatsByChartType('agpCGM'),
         types: { cbg: {} },
+        glycemicRanges,
         ...commonQueries,
       };
     }
