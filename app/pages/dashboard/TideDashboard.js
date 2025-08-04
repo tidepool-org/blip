@@ -899,7 +899,7 @@ export const TideDashboard = (props) => {
       setLoading(true);
       dispatch(actions.async.fetchTideDashboardPatients(api, selectedClinicId, queryOptions));
     }
-  }, [api, dispatch, localConfig, localConfigKey, selectedClinicId, setLoading]);
+  }, [api, dispatch, localConfig, localConfigKey, selectedClinicId]);
 
   useEffect(() => {
     dispatch(actions.worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
