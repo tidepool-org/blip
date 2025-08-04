@@ -2921,7 +2921,7 @@ export function deleteClinicPatientTag(api, clinicId, patientTagId) {
  * @param {Array} [options.tags] - Array of patient tag IDs
  * @param {Number} [options.lastDataCutoff] - ISO date for data recency cutoff date
  */
- export function fetchTideDashboardPatients(api, clinicId, options, onSuccess) {
+ export function fetchTideDashboardPatients(api, clinicId, options) {
   return (dispatch) => {
     dispatch(sync.fetchTideDashboardPatientsRequest());
 
@@ -2933,7 +2933,6 @@ export function deleteClinicPatientTag(api, clinicId, patientTagId) {
       } else {
         if (results.config) results.config.lastData = options.lastData;
         dispatch(sync.fetchTideDashboardPatientsSuccess(results));
-        onSuccess();
       }
     });
   };

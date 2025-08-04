@@ -897,7 +897,7 @@ export const TideDashboard = (props) => {
       queryOptions['tags'] = reject(options.tags || [], tagId => !patientTags?.[tagId]);
       queryOptions['lastDataCutoff'] = moment(getLocalizedCeiling(new Date().toISOString(), timePrefs)).subtract(lastData, 'days').toISOString();
       setLoading(true);
-      dispatch(actions.async.fetchTideDashboardPatients(api, selectedClinicId, queryOptions, () => setLoading(false)));
+      dispatch(actions.async.fetchTideDashboardPatients(api, selectedClinicId, queryOptions));
     }
   }, [api, dispatch, localConfig, localConfigKey, selectedClinicId, setLoading]);
 
