@@ -8945,6 +8945,7 @@ describe('Actions', () => {
         const clinicId = 'clinic123';
         const options = { bar: 'baz' };
         const results = [ {foo: 'bar'} ];
+        const handleSuccess = sinon.stub();
 
         let api = {
           clinics: {
@@ -8967,17 +8968,19 @@ describe('Actions', () => {
 
         let store = mockStore({ blip: initialState });
         store.dispatch(
-          async.fetchTideDashboardPatients(api, clinicId, options)
+          async.fetchTideDashboardPatients(api, clinicId, options, handleSuccess)
         );
 
         const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
         expect(api.clinics.getPatientsForTideDashboard.callCount).to.equal(1);
+        expect(handleSuccess.callCount).to.equal(1);
       });
 
       it('should trigger FETCH_TIDE_DASHBOARD_PATIENTS_FAILURE and it should call error once for a failed request', () => {
         const clinicId = 'clinic123';
         const options = { bar: 'baz' };
+        const handleSuccess = sinon.stub();
 
         let api = {
           clinics: {
@@ -9003,7 +9006,7 @@ describe('Actions', () => {
         });
         let store = mockStore({ blip: initialState });
         store.dispatch(
-          async.fetchTideDashboardPatients(api, clinicId, options)
+          async.fetchTideDashboardPatients(api, clinicId, options, handleSuccess)
         );
 
         const actions = store.getActions();
@@ -9013,6 +9016,7 @@ describe('Actions', () => {
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.clinics.getPatientsForTideDashboard.callCount).to.equal(1);
+        expect(handleSuccess.callCount).to.equal(0);
       });
     });
 
