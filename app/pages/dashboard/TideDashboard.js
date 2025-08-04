@@ -937,6 +937,8 @@ export const TideDashboard = (props) => {
   }
 
   useEffect(() => {
+    if (!showTideDashboard) return;
+
     if (validateTideConfig(localConfig?.[localConfigKey], patientTags)) {
       fetchDashboardPatients();
     } else {
