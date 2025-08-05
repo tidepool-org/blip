@@ -796,7 +796,7 @@ export const TideDashboard = (props) => {
   const ldClient = useLDClient();
   const ldContext = ldClient.getContext();
 
-  const isTideDashboardEnabled = ldContext?.clinic?.tier && (clinic?.entitlements?.tideDashboard || showTideDashboard);
+  const isTideDashboardEnabled = (ldContext?.clinic?.tier && showTideDashboard) || clinic?.entitlements?.tideDashboard;
 
   const existingMRNs = useMemo(
     () => compact(map(reject(clinic?.patients, { id: selectedPatient?.id }), 'mrn')),
