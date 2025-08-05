@@ -19,12 +19,11 @@ import noop from 'lodash/noop';
 import orderBy from 'lodash/orderBy';
 import reduce from 'lodash/reduce';
 import { utils as vizUtils } from '@tidepool/viz';
-import { useFlags } from 'launchdarkly-react-client-sdk';
 
 import * as actions from '../../redux/actions';
 import { useToasts } from '../../providers/ToastProvider';
 import api from '../../core/api';
-import { useIsFirstRender, usePrevious } from '../../core/hooks';
+import { useIsFirstRender, useLaunchDarklyFlagOverrides, usePrevious } from '../../core/hooks';
 import i18next from '../../core/language';
 import DataConnection from './DataConnection';
 import PatientEmailModal from './PatientEmailModal';
@@ -388,7 +387,7 @@ export const DataConnections = (props) => {
   const [patientUpdates, setPatientUpdates] = useState({});
   const [activeHandler, setActiveHandler] = useState(null);
   const dataConnectionProps = getDataConnectionProps(patient, isLoggedInUser, selectedClinicId, setActiveHandler);
-  const { showAbbottProvider } = useFlags();
+  const { showAbbottProvider } = useLaunchDarklyFlagOverrides();
   const activeProviders = getActiveProviders({ abbott: showAbbottProvider });
 
   const {
