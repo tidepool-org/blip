@@ -796,6 +796,8 @@ export const TideDashboard = (props) => {
   const ldClient = useLDClient();
   const ldContext = ldClient.getContext();
 
+  const isTideDashboardEnabled = ldContext?.clinic?.tier && (clinic?.entitlements?.tideDashboard || showTideDashboard);
+
   const existingMRNs = useMemo(
     () => compact(map(reject(clinic?.patients, { id: selectedPatient?.id }), 'mrn')),
     [clinic?.patients, selectedPatient?.id]
@@ -937,7 +939,7 @@ export const TideDashboard = (props) => {
   }
 
   useEffect(() => {
-    if (!showTideDashboard) return;
+    if (!isTideDashboardEnabled) return;
 
     if (validateTideConfig(localConfig?.[localConfigKey], patientTags)) {
       fetchDashboardPatients();
@@ -948,8 +950,8 @@ export const TideDashboard = (props) => {
     // Always clear stored dashboard results upon unmount to avoid flashing stale results upon remount
     return () => {
       dispatch(actions.sync.clearTideDashboardPatients());
-    }
-  }, [showTideDashboard]);
+    };
+  }, [isTideDashboardEnabled]);
 
   const drawerPatientId = new URLSearchParams(location.search).get('drawerPatientId') || null;
 
