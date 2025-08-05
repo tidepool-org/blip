@@ -31,7 +31,7 @@ const EventsInfoLabel = props => {
       </Box>
 
       {hasAlarmEventsInView && (
-        <Flex sx={{ position: 'relative', alignItems: 'center' }}>
+        <Flex className='events-label-tooltip' sx={{ position: 'relative', alignItems: 'center' }}>
           <Icon
             icon={InfoOutlinedIcon}
             color="stat.text"
