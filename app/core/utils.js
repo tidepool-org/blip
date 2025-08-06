@@ -25,16 +25,14 @@ import { utils as vizUtils } from '@tidepool/viz';
 const { bankersRound } = vizUtils.stat;
 import personUtils from '../core/personutils';
 
-// TODO: Move
-import { TARGET_RANGE_PRESET } from '../components/clinic/PatientForm/SelectTargetRangePreset';
-
 const {
+  GLYCEMIC_RANGE,
   DEFAULT_BG_BOUNDS,
   ADA_STANDARD_BG_BOUNDS,
-  HIGH_RISK_BG_BOUNDS,
-  PREGNANCY_T1_BG_BOUNDS,
-  GESTATIONAL_T2_BG_BOUNDS,
- } = vizUtils.constants;
+  ADA_OLDER_HIGH_RISK_BG_BOUNDS,
+  ADA_PREGNANCY_T1_BG_BOUNDS,
+  ADA_GESTATIONAL_T2_BG_BOUNDS,
+} = vizUtils.constants;
 
 const utils = {};
 
@@ -442,13 +440,13 @@ utils.getBgPrefs = (
     }
 
     // Use clinic-designated range, or fall back to default
-    const targetRange = clinicPatient?.glycemicRanges || TARGET_RANGE_PRESET.STANDARD;
+    const targetRange = clinicPatient?.glycemicRanges || GLYCEMIC_RANGE.ADA_STANDARD;
 
     switch(targetRange) {
-      case TARGET_RANGE_PRESET.HIGH_RISK:   return HIGH_RISK_BG_BOUNDS[bgUnits];
-      case TARGET_RANGE_PRESET.PREGNANCY:   return PREGNANCY_T1_BG_BOUNDS[bgUnits];
-      case TARGET_RANGE_PRESET.GESTATIONAL: return GESTATIONAL_T2_BG_BOUNDS[bgUnits];
-      case TARGET_RANGE_PRESET.STANDARD:    return DEFAULT_BG_BOUNDS[bgUnits];
+      case GLYCEMIC_RANGE.ADA_OLDER_HIGH_RISK:   return ADA_OLDER_HIGH_RISK_BG_BOUNDS[bgUnits];
+      case GLYCEMIC_RANGE.ADA_PREGNANCY_T1:   return ADA_PREGNANCY_T1_BG_BOUNDS[bgUnits];
+      case GLYCEMIC_RANGE.ADA_GESTATIONAL_T2: return ADA_GESTATIONAL_T2_BG_BOUNDS[bgUnits];
+      case GLYCEMIC_RANGE.ADA_STANDARD:    return DEFAULT_BG_BOUNDS[bgUnits];
       default:                              return DEFAULT_BG_BOUNDS[bgUnits];
     }
   })();

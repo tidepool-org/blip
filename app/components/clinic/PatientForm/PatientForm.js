@@ -25,8 +25,11 @@ import { accountInfoFromClinicPatient } from '../../../core/personutils';
 import { Body0 } from '../../../components/elements/FontStyles';
 import { MediumTitle } from '../../../components/elements/FontStyles';
 
+import { utils as vizUtils } from '@tidepool/viz';
+const { GLYCEMIC_RANGE } = vizUtils.constants;
+
 import SelectDiabetesType from './SelectDiabetesType';
-import SelectTargetRangePreset, { TARGET_RANGE_PRESET } from './SelectTargetRangePreset';
+import SelectTargetRangePreset from './SelectTargetRangePreset';
 import SelectTags from './SelectTags';
 import SelectSites from './SelectSites';
 
@@ -40,7 +43,7 @@ export function getFormValues(source, clinicPatientTags, clinicSites) {
     dataSources: source?.dataSources || [],
     sites: source?.sites?.filter(site => !!clinicSites[site.id]) || [],
     diagnosisType: source?.diagnosisType || null,
-    glycemicRanges: source?.glycemicRanges || TARGET_RANGE_PRESET.STANDARD,
+    glycemicRanges: source?.glycemicRanges || GLYCEMIC_RANGE.ADA_STANDARD,
   };
 }
 

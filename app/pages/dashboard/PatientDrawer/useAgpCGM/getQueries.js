@@ -3,7 +3,7 @@ import { utils as vizUtils } from '@tidepool/viz';
 const { commonStats } = vizUtils.stat;
 
 import utils from '../../../../core/utils';
-import { TARGET_RANGE_PRESET } from '../../../../components/clinic/PatientForm/SelectTargetRangePreset';
+const { GLYCEMIC_RANGE } = vizUtils.constants;
 
 const getQueries = (
   data,
@@ -43,7 +43,7 @@ const getQueries = (
     commonStats.timeInRange,
   ];
 
-  const glycemicRanges = patient?.glycemicRanges || TARGET_RANGE_PRESET.STANDARD;
+  const glycemicRanges = patient?.glycemicRanges || GLYCEMIC_RANGE.ADA_STANDARD;
 
   const queries = {
     agpCGM: {
