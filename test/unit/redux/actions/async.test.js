@@ -6034,6 +6034,7 @@ describe('Actions', () => {
               uiDetails: {
                 entitlements: {
                   patientTags: false,
+                  clinicSites: false,
                   prescriptions: false,
                   rpmReport: false,
                   summaryDashboard: false,
@@ -6515,6 +6516,7 @@ describe('Actions', () => {
               uiDetails: {
                 entitlements: {
                   patientTags: false,
+                  clinicSites: false,
                   prescriptions: false,
                   rpmReport: false,
                   summaryDashboard: false,
@@ -6730,6 +6732,7 @@ describe('Actions', () => {
               uiDetails: {
                 entitlements: {
                   patientTags: false,
+                  clinicSites: false,
                   prescriptions: false,
                   rpmReport: false,
                   summaryDashboard: false,
@@ -7659,6 +7662,7 @@ describe('Actions', () => {
               uiDetails: {
                 entitlements: {
                   patientTags: false,
+                  clinicSites: false,
                   prescriptions: false,
                   rpmReport: false,
                   summaryDashboard: false,
@@ -8610,7 +8614,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'CREATE_CLINIC_PATIENT_TAG_REQUEST' },
-          { type: 'CREATE_CLINIC_PATIENT_TAG_SUCCESS', payload: { clinicId, patientTags: [patientTag] } }
+          { type: 'CREATE_CLINIC_PATIENT_TAG_SUCCESS', payload: { clinicId, patientTag: [patientTag] } },
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -8726,7 +8730,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'UPDATE_CLINIC_PATIENT_TAG_REQUEST' },
-          { type: 'UPDATE_CLINIC_PATIENT_TAG_SUCCESS', payload: { clinicId, patientTags: [patientTag] } }
+          { type: 'UPDATE_CLINIC_PATIENT_TAG_SUCCESS', payload: { clinicId, patientTag: [patientTag] } },
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -8814,7 +8818,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'DELETE_CLINIC_PATIENT_TAG_REQUEST' },
-          { type: 'DELETE_CLINIC_PATIENT_TAG_SUCCESS', payload: { clinicId, patientTags: [] } }
+          { type: 'DELETE_CLINIC_PATIENT_TAG_SUCCESS', payload: { clinicId, patientTagId: 'patientTagId1' } },
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -9126,6 +9130,7 @@ describe('Actions', () => {
               uiDetails: {
                 entitlements: {
                   patientTags: false,
+                  clinicSites: false,
                   prescriptions: false,
                   rpmReport: false,
                   summaryDashboard: false,
@@ -9201,6 +9206,7 @@ describe('Actions', () => {
               uiDetails: {
                 entitlements: {
                   patientTags: false,
+                  clinicSites: false,
                   prescriptions: false,
                   rpmReport: false,
                   summaryDashboard: false,

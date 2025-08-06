@@ -11,6 +11,8 @@ const STATE = {
   CLICKED: 'CLICKED',
 };
 
+const MINIMUM_HOURS_OF_DATA = 24;
+
 const CGMClipboardButton = ({ patient, data }) => {
   const { t } = useTranslation();
   const [buttonState, setButtonState] = useState(STATE.DEFAULT);
@@ -27,10 +29,8 @@ const CGMClipboardButton = ({ patient, data }) => {
   }, [buttonState]);
 
   const { count, sampleInterval } = data?.data?.current?.stats?.sensorUsage || {};
-
   const hoursOfCGMData = (count * sampleInterval) / MS_IN_HOUR;
-
-  const isDataInsufficient = !hoursOfCGMData || hoursOfCGMData < 24;
+  const isDataInsufficient = !hoursOfCGMData || hoursOfCGMData < MINIMUM_HOURS_OF_DATA;
 
   const handleCopy = () => {
     navigator?.clipboard?.writeText(clipboardText);
