@@ -38,8 +38,8 @@ const CgmSampleIntervalRangeToggle = props => {
   return (
     <Flex className="toggle-container" sx={{ alignItems: 'center' }}>
       <TwoOptionToggle
-        left={{ label: t('1min Data'), state: _.isEqual(currentCgmSampleIntervalRange, ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE) }}
-        right={{ label: t('5min Data'), state: _.isEqual(currentCgmSampleIntervalRange, DEFAULT_CGM_SAMPLE_INTERVAL_RANGE) }}
+        left={{ label: t('1 min Data'), state: _.isEqual(currentCgmSampleIntervalRange, ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE) }}
+        right={{ label: t('5 min Data'), state: _.isEqual(currentCgmSampleIntervalRange, DEFAULT_CGM_SAMPLE_INTERVAL_RANGE) }}
         toggleFn={handleCgmSampleIntervalToggle}
       />
 
