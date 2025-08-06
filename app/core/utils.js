@@ -443,11 +443,11 @@ utils.getBgPrefs = (
     const targetRange = clinicPatient?.glycemicRanges || GLYCEMIC_RANGE.ADA_STANDARD;
 
     switch(targetRange) {
-      case GLYCEMIC_RANGE.ADA_OLDER_HIGH_RISK:   return ADA_OLDER_HIGH_RISK_BG_BOUNDS[bgUnits];
-      case GLYCEMIC_RANGE.ADA_PREGNANCY_T1:   return ADA_PREGNANCY_T1_BG_BOUNDS[bgUnits];
-      case GLYCEMIC_RANGE.ADA_GESTATIONAL_T2: return ADA_GESTATIONAL_T2_BG_BOUNDS[bgUnits];
-      case GLYCEMIC_RANGE.ADA_STANDARD:    return DEFAULT_BG_BOUNDS[bgUnits];
-      default:                              return DEFAULT_BG_BOUNDS[bgUnits];
+      case GLYCEMIC_RANGE.ADA_OLDER_HIGH_RISK: return ADA_OLDER_HIGH_RISK_BG_BOUNDS[bgUnits];
+      case GLYCEMIC_RANGE.ADA_PREGNANCY_T1:    return ADA_PREGNANCY_T1_BG_BOUNDS[bgUnits];
+      case GLYCEMIC_RANGE.ADA_GESTATIONAL_T2:  return ADA_GESTATIONAL_T2_BG_BOUNDS[bgUnits];
+      case GLYCEMIC_RANGE.ADA_STANDARD:        return DEFAULT_BG_BOUNDS[bgUnits];
+      default:                                 return DEFAULT_BG_BOUNDS[bgUnits];
     }
   })();
 

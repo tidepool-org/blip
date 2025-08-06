@@ -7,19 +7,21 @@ const { GLYCEMIC_RANGE } = vizUtils.constants;
 
 const getQueries = (
   data,
-  patient,
+  clinicPatient,
   clinic,
   opts,
 ) => {
   const bgPrefs = (() => {
-    const patientSettings = patient?.settings || {};
+    // TODO: Should set to Redux -> patient.settings. However, the only use case for useAgpCGM at present is
+    // for clinician views. Correct patientSettings will be necessary if useAgpCGM is implement on PwD views.
+    const stubPatientSettings = {};
 
     const bgUnitsOverride = {
       units: clinic?.preferredBgUnits,
       source: 'preferred clinic units',
     };
 
-    const localBgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, bgUnitsOverride);
+    const localBgPrefs = utils.getBgPrefs(stubPatientSettings, clinicPatient, bgUnitsOverride);
     localBgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(localBgPrefs);
 
     return localBgPrefs;
@@ -43,7 +45,7 @@ const getQueries = (
     commonStats.timeInRange,
   ];
 
-  const glycemicRanges = patient?.glycemicRanges || GLYCEMIC_RANGE.ADA_STANDARD;
+  const glycemicRanges = clinicPatient?.glycemicRanges || GLYCEMIC_RANGE.ADA_STANDARD;
 
   const queries = {
     agpCGM: {
