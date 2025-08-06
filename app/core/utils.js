@@ -402,8 +402,6 @@ utils.getBgPrefs = (
   clinicPatient,
   bgUnitsOverride = {}, // { units: 'mmoll' | 'mgdl', source: String }
 ) => {
-  let bgUnits = null;
-  let targetRange = 'ADA_STANDARD';
   let bgClasses = {
     'very-low': { boundary: null },
     'low': { boundary: null },
@@ -413,6 +411,7 @@ utils.getBgPrefs = (
   };
 
   // If bgUnits overriden, use those. Otherwise, check if patient has preferred bgUnits.
+  let bgUnits = null;
   if (!!bgUnitsOverride.units) {
     bgUnits = bgUnitsOverride.units?.replace('/', '').toLowerCase() === 'mmoll' ? MMOLL_UNITS : MGDL_UNITS;
   } else {
@@ -421,10 +420,10 @@ utils.getBgPrefs = (
 
   const bounds = (() => {
     // If user is a PwD with self-specified custom targets, use them.
-    if (!clinicPatient && !!patientSettings?.bgTarget) {
+    if (!clinicPatient?.id && !!patientSettings?.bgTarget) {
       let low = patientSettings?.bgTarget?.low;
       let high = patientSettings?.bgTarget?.high;
-      let isUnitDifferent = patientSettings?.units?.bg !== bgUnits;
+      let isUnitDifferent = (patientSettings?.units?.bg || MGDL_UNITS) !== bgUnits;
 
       // If differing units between clinic & patient, translate the threshold and round
       if (!!low && isUnitDifferent) low = utils.roundBgTarget(utils.translateBg(low, bgUnits), bgUnits);
