@@ -2,7 +2,6 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { Flex, Box, Text } from 'theme-ui';
-import colorPalette from '../../../themes/colorPalette';
 import { colors as vizColors } from '@tidepool/viz';
 import styled from '@emotion/styled';
 
@@ -11,12 +10,13 @@ const { Loader } = vizComponents;
 
 import useAgpCGM, { STATUS } from './useAgpCGM';
 import CGMStatistics from './CGMStatistics';
+import CGMDeltaSummary from './CGMDeltaSummary';
 
 const StyledAGPImage = styled.img`
   width: calc(100% - 24px);
   margin: 6px 8px 16px;
   display: ${props => props.src ? 'block' : 'none' };
-`
+`;
 
 const InsufficientData = () => {
   const { t } = useTranslation();
@@ -55,7 +55,7 @@ const CategoryContainer = ({ title, subtitle, children }) => {
 const Content = ({ api, patientId, agpPeriodInDays }) => {
   const { t } = useTranslation();
 
-  const { status, svgDataURLS, agpCGM } = useAgpCGM(api, patientId, agpPeriodInDays);
+  const { status, svgDataURLS, agpCGM, offsetAgpCGM } = useAgpCGM(api, patientId, agpPeriodInDays);
 
   const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
   const patient = clinic?.patients?.[patientId];
@@ -76,9 +76,16 @@ const Content = ({ api, patientId, agpPeriodInDays }) => {
 
   return (
     <>
+      <Box mb={3}>
+        <CGMDeltaSummary agpCGM={agpCGM} offsetAgpCGM={offsetAgpCGM} />
+      </Box>
+
+      <Flex mb={2} sx={{ fontSize: 1, fontWeight: 'medium', color: vizColors.gray50, gridColumn: '1 / 3' }}>
+        <Box>{t('AGP Report: Continuous Glucose Monitoring')}</Box>
+      </Flex>
       <Box mb={3} sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3 }}>
         <CategoryContainer title={t('Time in Ranges')} subtitle={t('Goals for Type 1 and Type 2 Diabetes')}>
-          <StyledAGPImage src={percentInRanges} alt={t('Time in Ranges')} />
+          <StyledAGPImage src={percentInRanges} alt={t('Time in Ranges Chart')} />
         </CategoryContainer>
         <CategoryContainer>
           <CGMStatistics agpCGM={agpCGM} />
@@ -90,14 +97,14 @@ const Content = ({ api, patientId, agpPeriodInDays }) => {
           <Box px={3} py={1} sx={{ fontSize: 0 }}>
             { !!ambulatoryGlucoseProfile ? agpGraphHelpText : agpGraphInsufficientText }
           </Box>
-          <StyledAGPImage src={ambulatoryGlucoseProfile} alt={t('Ambulatory Glucose Profile (AGP)')} />
+          <StyledAGPImage src={ambulatoryGlucoseProfile} alt={t('Ambulatory Glucose Profile (AGP) Chart')} />
         </CategoryContainer>
         <CategoryContainer title={t('Daily Glucose Profiles')}>
           <Box px={3} py={1} sx={{ fontSize: 0 }}>
             {dailyGlucoseProfilesHelpText}
           </Box>
-          <StyledAGPImage src={dailyGlucoseProfilesTop} alt={t('Daily Glucose Profiles')} />
-          <StyledAGPImage src={dailyGlucoseProfilesBot} alt={t('Daily Glucose Profiles')}/>
+          <StyledAGPImage src={dailyGlucoseProfilesTop} alt={t('Daily Glucose Profiles First Chart')} />
+          <StyledAGPImage src={dailyGlucoseProfilesBot} alt={t('Daily Glucose Profiles Second Chart')}/>
         </CategoryContainer>
       </Box>
 
@@ -107,6 +114,6 @@ const Content = ({ api, patientId, agpPeriodInDays }) => {
       </Flex>
     </>
   );
-}
+};
 
 export default Content;

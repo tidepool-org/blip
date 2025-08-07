@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { MS_IN_MIN } from '../../../../core/constants';
+import { MS_IN_MIN } from '../../../core/constants';
 import isNumber from 'lodash/isNumber';
 import { utils as vizUtils } from '@tidepool/viz';
 const { getOffset, formatDateRange } = vizUtils.datetime;

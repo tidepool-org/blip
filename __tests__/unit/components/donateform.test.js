@@ -37,7 +37,7 @@ describe('DonateForm', ()  => {
     expect(saveButton).toHaveTextContent('Save');
 
     // Select dropdown should be disabled
-    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+    expect(screen.queryByRole('combobox')).toBeDisabled();
   });
 
   it('Allows addition of nonprofits when there are no existing selections', async () => {
