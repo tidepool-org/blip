@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.50.0-develop.1":
-  version: 1.50.0-develop.1
-  resolution: "@tidepool/viz@npm:1.50.0-develop.1"
+"@tidepool/viz@npm:1.50.0-WEB-3841-pdf-bolus-limit.1":
+  version: 1.50.0-WEB-3841-pdf-bolus-limit.1
+  resolution: "@tidepool/viz@npm:1.50.0-WEB-3841-pdf-bolus-limit.1"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6111,7 +6111,7 @@ __metadata:
     moment: 2.29.4
     moment-timezone: 0.5.43
     parse-svg-path: 0.1.2
-    pdfkit: 0.13.0
+    pdfkit: 0.15.0
     process: 0.11.10
     prop-types: 15.8.1
     react: 16.14.0
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 3d3152c24f95c4eb35fe3387bae2eb532bc16cdc99ce83055076b17fb2ccfa3db50b931df6214659e64dbeade0d1880111a7ee598a6d16ee39cf578f01f44467
+  checksum: cc834ad9de40faeb1f69646f64a433e0c76402bdcfe54b3dd3aad38c700f99e5d4972c85ea988b3bc99e6b90171d37876d89aa5e08f43bdbe2abe7700e93d6b5
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.50.0-develop.1
+    "@tidepool/viz": 1.50.0-WEB-3841-pdf-bolus-limit.1
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -15230,6 +15230,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jpeg-exif@npm:^1.1.4":
+  version: 1.1.4
+  resolution: "jpeg-exif@npm:1.1.4"
+  checksum: a8693a7eeb6c6572ca39acc8bbaf4bac1eea1331a26ec7d460410c0c7aefcb944bbc6c31d3c4649a308eea9da89ee4d38e35fe2f2604e4bf2ed09abd600cff0b
+  languageName: node
+  linkType: hard
+
 "js-cookie@npm:^2.2.1":
   version: 2.2.1
   resolution: "js-cookie@npm:2.2.1"
@@ -18095,15 +18102,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pdfkit@npm:0.13.0":
-  version: 0.13.0
-  resolution: "pdfkit@npm:0.13.0"
+"pdfkit@npm:0.15.0":
+  version: 0.15.0
+  resolution: "pdfkit@npm:0.15.0"
   dependencies:
-    crypto-js: ^4.0.0
+    crypto-js: ^4.2.0
     fontkit: ^1.8.1
+    jpeg-exif: ^1.1.4
     linebreak: ^1.0.2
     png-js: ^1.0.0
-  checksum: 1c0875b5cc0cb8dbf06943089244358bd147493b5b453fefc6cabf55e4a4098dead253d14ec859caefaeb35604130faf454ac04f908d99f9c55f9394e9b21d69
+  checksum: 044d24f0efd563834bc4c45f12be6e91f98e31d0d664b042d89f35588d3fb985134566280bba6fa29360f61ae1ba62310dccba4b0f102aa448f307c6bbe65bd1
   languageName: node
   linkType: hard
 
