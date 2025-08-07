@@ -751,7 +751,7 @@ describe('utils', () => {
   });
 
   describe('compareLabels', function() {
-    it('Sorts a blank arg first', function() {
+    it('Sorts a blank arg before a truthy arg', function() {
       expect(utils.compareLabels(undefined, undefined)).to.equal(0);
       expect(utils.compareLabels('', undefined)).to.equal(0);
       expect(utils.compareLabels(undefined, '')).to.equal(0);
@@ -762,10 +762,10 @@ describe('utils', () => {
     });
 
     it('Sorts numerically rather than lexicographically', () => {
-      let arr = ['Tag 12', 'Tag 8', 'Tag 9a', 'Tag 9'];
+      let arr = ['Tag 12', 'Tag 8', 'Tag 9a', 'Tag 9', ''];
       arr.sort((a, b) => utils.compareLabels(a, b));
 
-      expect(arr).to.eql(['Tag 8', 'Tag 9', 'Tag 9a', 'Tag 12']);
+      expect(arr).to.eql(['', 'Tag 8', 'Tag 9', 'Tag 9a', 'Tag 12']);
     });
 
     it('Sorts base characters ahead of variant characters', () => {
