@@ -109,7 +109,7 @@ import {
   maxWorkspaceClinicSites,
 } from '../../core/clinicUtils';
 
-import { MGDL_UNITS, MMOLL_UNITS, URL_TIDEPOOL_PLUS_PLANS } from '../../core/constants';
+import { DIABETES_TYPES, MGDL_UNITS, MMOLL_UNITS, URL_TIDEPOOL_PLUS_PLANS } from '../../core/constants';
 import baseTheme, { borders, radii, colors, space, fontWeights } from '../../themes/baseTheme';
 import PopoverElement from '../../components/elements/PopoverElement';
 import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
@@ -3683,6 +3683,11 @@ export const ClinicPatients = (props) => {
       <Text sx={{ display: 'block', fontSize: [1, null, 0], fontWeight: 'medium' }}>{patient.fullName}</Text>
       {showSummaryData && <Text sx={{ fontSize: [0, null, '10px'], whiteSpace: 'nowrap' }}>{t('DOB:')} {patient.birthDate}</Text>}
       {showSummaryData && patient.mrn && <Text sx={{ fontSize: [0, null, '10px'], whiteSpace: 'nowrap' }}>, {t('MRN: {{mrn}}', { mrn: patient.mrn })}</Text>}
+      {showSummaryData && patient.diagnosisType &&
+        <Text sx={{ fontSize: [0, null, '10px'], whiteSpace: 'nowrap' }}>{
+          `, ${t(DIABETES_TYPES().find(type => type.value === patient.diagnosisType)?.label || '')}` // eslint-disable-line new-cap
+        }</Text>
+      }
       {!showSummaryData && patient.email && <Text sx={{ fontSize: [0, null, '10px'] }}>{patient.email}</Text>}
     </Box>
   ), [handleClickPatient, showSummaryData, t]);
