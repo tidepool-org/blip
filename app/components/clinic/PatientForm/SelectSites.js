@@ -53,7 +53,7 @@ const SelectSites = ({
   };
 
   // Suggest sites only if user is viewing ClinicPatients list (where Filters are used)
-  const shouldSuggestSites = pathname === '/clinic-workspace';
+  const shouldSuggestSites = pathname?.includes('/clinic-workspace');
 
   const selectOptions = buildSelectOptions(t, clinic?.sites, activeFilters, shouldSuggestSites);
 

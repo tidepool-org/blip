@@ -75,7 +75,7 @@ describe('availableProviders', () => {
 
 describe('getActiveProviders', () => {
   it('should define a default list of all available providers when called without overrides', () => {
-    expect(getActiveProviders()).to.eql(['dexcom', 'twiist']);
+    expect(getActiveProviders()).to.eql(['dexcom', 'twiist', 'abbott']);
   });
 
   it('should define an overridden list of all available providers when called with overrides', () => {

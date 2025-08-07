@@ -3936,7 +3936,7 @@ describe('Actions', () => {
 
   describe('createClinicSiteSuccess', () => {
     const clinicId = 'clinicId';
-    const sites = 'sites';
+    const site = 'site';
 
     it('should be a TSA', () => {
       let action = sync.createClinicSiteSuccess(clinicId);
@@ -3944,10 +3944,10 @@ describe('Actions', () => {
     });
 
     it('type should equal CREATE_CLINIC_SITE_SUCCESS', () => {
-      let action = sync.createClinicSiteSuccess(clinicId, sites);
+      let action = sync.createClinicSiteSuccess(clinicId, site);
       expect(action.type).to.equal('CREATE_CLINIC_SITE_SUCCESS');
       expect(action.payload.clinicId).to.equal('clinicId');
-      expect(action.payload.sites).to.equal('sites');
+      expect(action.payload.site).to.equal('site');
     });
   });
 
@@ -3980,7 +3980,7 @@ describe('Actions', () => {
 
   describe('createClinicPatientTagSuccess', () => {
     const clinicId = 'clinicId';
-    const patientTags = 'patientTags';
+    const patientTag = 'patientTag';
 
     it('should be a TSA', () => {
       let action = sync.createClinicPatientTagSuccess(clinicId);
@@ -3988,10 +3988,10 @@ describe('Actions', () => {
     });
 
     it('type should equal CREATE_CLINIC_PATIENT_TAG_SUCCESS', () => {
-      let action = sync.createClinicPatientTagSuccess(clinicId, patientTags);
+      let action = sync.createClinicPatientTagSuccess(clinicId, patientTag);
       expect(action.type).to.equal('CREATE_CLINIC_PATIENT_TAG_SUCCESS');
       expect(action.payload.clinicId).to.equal('clinicId');
-      expect(action.payload.patientTags).to.equal('patientTags');
+      expect(action.payload.patientTag).to.equal('patientTag');
     });
   });
 
@@ -4024,7 +4024,7 @@ describe('Actions', () => {
 
   describe('updateClinicPatientTagSuccess', () => {
     const clinicId = 'clinicId';
-    const patientTags = 'patientTags';
+    const patientTag = 'patientTag';
 
     it('should be a TSA', () => {
       let action = sync.updateClinicPatientTagSuccess(clinicId);
@@ -4032,10 +4032,10 @@ describe('Actions', () => {
     });
 
     it('type should equal UPDATE_CLINIC_PATIENT_TAG_SUCCESS', () => {
-      let action = sync.updateClinicPatientTagSuccess(clinicId, patientTags);
+      let action = sync.updateClinicPatientTagSuccess(clinicId, patientTag);
       expect(action.type).to.equal('UPDATE_CLINIC_PATIENT_TAG_SUCCESS');
       expect(action.payload.clinicId).to.equal('clinicId');
-      expect(action.payload.patientTags).to.equal('patientTags');
+      expect(action.payload.patientTag).to.equal('patientTag');
     });
   });
 
@@ -4068,7 +4068,7 @@ describe('Actions', () => {
 
   describe('deleteClinicPatientTagSuccess', () => {
     const clinicId = 'clinicId';
-    const patientTags = 'patientTags';
+    const patientTagId = 'patientTagId';
 
     it('should be a TSA', () => {
       let action = sync.deleteClinicPatientTagSuccess(clinicId);
@@ -4076,10 +4076,10 @@ describe('Actions', () => {
     });
 
     it('type should equal DELETE_CLINIC_PATIENT_TAG_SUCCESS', () => {
-      let action = sync.deleteClinicPatientTagSuccess(clinicId, patientTags);
+      let action = sync.deleteClinicPatientTagSuccess(clinicId, patientTagId);
       expect(action.type).to.equal('DELETE_CLINIC_PATIENT_TAG_SUCCESS');
       expect(action.payload.clinicId).to.equal('clinicId');
-      expect(action.payload.patientTags).to.equal('patientTags');
+      expect(action.payload.patientTagId).to.equal('patientTagId');
     });
   });
 

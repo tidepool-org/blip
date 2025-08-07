@@ -103,7 +103,6 @@ appContext.render = async Component => {
     context: ldContext,
     options: { streaming: true },
     flags: {
-      'showAbbottProvider': false,
       'showExtremeHigh': false,
       'showPrescriptions': false,
       'showRpmReport': false,
