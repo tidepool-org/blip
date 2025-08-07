@@ -34,6 +34,7 @@ const EventsInfoLabel = props => {
         <Flex className='events-label-tooltip' sx={{ position: 'relative', alignItems: 'center' }}>
           <Icon
             icon={InfoOutlinedIcon}
+            label={t('Show events information')}
             color="stat.text"
             sx={{ fontSize: 1 }}
             onMouseEnter={() => setShowTooltip(true)}
