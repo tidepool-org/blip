@@ -1,6 +1,10 @@
+import mapValues from 'lodash/mapValues';
+
 /* global jest */
 
-const mockLocalStorage = (mockStore = {}) => {
+const mockLocalStorage = (initialStore = {}) => {
+  let mockStore = mapValues(initialStore, val => JSON.stringify(val));
+
   Object.defineProperty(window, 'localStorage', {
     value: {
       getItem: jest.fn((key) => mockStore[key] || null),
