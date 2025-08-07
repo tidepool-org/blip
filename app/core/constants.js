@@ -48,6 +48,7 @@ export const DATA_DONATION_NONPROFITS = () => [
 export const DIABETES_TYPES = () => [
   { value: 'type1', label: t('Type 1') },
   { value: 'type2', label: t('Type 2') },
+  { value: 'type3c', label: t('Type 3c') },
   { value: 'gestational', label: t('Gestational') },
   { value: 'prediabetes', label: t('Pre-diabetes') },
   { value: 'lada', label: t('LADA (Type 1.5)') },
