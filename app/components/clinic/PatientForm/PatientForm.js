@@ -49,7 +49,7 @@ export function getFormValues(source, clinicPatientTags, clinicSites) {
 
 export function emptyValuesFilter(value, key) {
   // We want to allow sending an empty `tags` array. Otherwise, strip empty fields from payload.
-  return !includes(['tags'], key) && isEmpty(value);
+  return !includes(['tags', 'sites'], key) && isEmpty(value);
 }
 
 export const PatientForm = (props) => {
@@ -124,7 +124,7 @@ export const PatientForm = (props) => {
           clinic: {
             handler: 'acceptPatientInvitation',
             args: () => [selectedClinicId, invite.key, invite.creatorId, omitBy(
-              pick(getFormValues(values, clinicPatientTags, clinicSites), ['mrn', 'birthDate', 'fullName', 'tags']),
+              pick(getFormValues(values, clinicPatientTags, clinicSites), ['mrn', 'birthDate', 'fullName', 'tags', 'sites', 'diagnosisType', 'glycemicRanges']),
               emptyValuesFilter
             )],
           },
