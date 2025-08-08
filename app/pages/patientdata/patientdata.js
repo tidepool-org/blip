@@ -678,42 +678,6 @@ export const PatientDataClass = createReactClass({
     }
   },
 
-  renderDefaultBgRangeCheckbox: function(props, state) {
-    const { t } = props;
-
-    return (
-      <Box p={2} sx={{
-        borderTop: '1px solid',
-        borderColor: 'grays.1',
-      }}>
-        <PopoverLabel
-          id="use-default-bg-range"
-          label={(
-            <Checkbox
-              checked={!!this.state.bgPrefs?.useDefaultRange}
-              label={t('Use default BG ranges')}
-              onChange={this.toggleDefaultBgRange}
-              themeProps={{
-                mb: 0,
-                sx: { color: 'stat.text' },
-              }}
-            />
-          )}
-          popoverContent={(
-            <Box p={3}>
-              <Paragraph2>
-                <strong>{t('This patient has set a custom BG target range.')}</strong>
-              </Paragraph2>
-              <Paragraph2>
-                {t('If this option is checked, the target ranges for this view will be updated to the default ranges.')}
-              </Paragraph2>
-            </Box>
-          )}
-        />
-      </Box>
-    );
-  },
-
   renderExcludeEmptyBolusDaysCheckbox: function(props, state) {
     const { t } = props;
 
@@ -787,38 +751,6 @@ export const PatientDataClass = createReactClass({
     this.updateChartPrefs(prefs, false, true, true);
   },
 
-  toggleDefaultBgRange: function(e, value) {
-    if (e) {
-      e.preventDefault();
-    }
-
-    const patientSettings = _.get(this.props, 'patient.settings', {});
-    let bgPrefs = this.state.bgPrefs || {};
-
-    const bgUnitsOverride = {
-      units: this.props.queryParams?.units || this.props.clinic?.preferredBgUnits,
-      source: this.props.queryParams?.units ? 'query params' : 'preferred clinic units',
-    };
-
-    if (!bgPrefs.useDefaultRange) {
-      // bgPrefs = utils.getBGPrefsForDataProcessing({ ...patientSettings, bgTarget: undefined }, bgUnitsOverride);
-      bgPrefs = utils.getBgPrefs({ ...patientSettings, bgTarget: undefined }, this.props.clinicPatient, bgUnitsOverride);
-      bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
-      bgPrefs.useDefaultRange = true;
-    } else {
-      // bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, bgUnitsOverride);
-      bgPrefs = utils.getBgPrefs(patientSettings, { ...this.props.clinicPatient, glycemicRanges: 'ADA_STANDARD' }, bgUnitsOverride);
-      bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
-      bgPrefs.useDefaultRange = false;
-    }
-
-    if (bgPrefs.useDefaultRange) this.props.trackMetric(`${_.capitalize(this.state.chartType)} - use default BG range`);
-
-    this.setState({ bgPrefs }, () => {
-      this.updateChartPrefs({}, false, true, true);
-    });
-  },
-
   closeDatesDialog: function() {
     this.setState({
       datesDialogOpen: false,
@@ -864,10 +796,6 @@ export const PatientDataClass = createReactClass({
         bgPrefs,
         manufacturer,
       });
-
-      if (this.state.isCustomBgRange && !props.isUserPatient && _.includes(['timeInRange', 'readingsInRange'], statType)) {
-        stat.children = this.renderDefaultBgRangeCheckbox(props, state);
-      }
 
       if (statType === 'totalInsulin' && _.includes(['basics', 'trends'], chartType)) {
         // We nest the averageDailyDose stat within the totalInsulin stat
@@ -1866,7 +1794,6 @@ export const PatientDataClass = createReactClass({
           source: nextProps.queryParams?.units ? 'query params' : 'preferred clinic units',
         };
 
-        // bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, bgUnitsOverride);
         bgPrefs = utils.getBgPrefs(patientSettings, clinicPatient, bgUnitsOverride);
         bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
 
