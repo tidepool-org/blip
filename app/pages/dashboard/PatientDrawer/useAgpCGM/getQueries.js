@@ -16,16 +16,22 @@ const getQueries = (
     // for clinician views. Correct patientSettings will be necessary if useAgpCGM is implement on PwD views.
     const stubPatientSettings = {};
 
+    // For TIDE Patient Drawer, we currently only show ADA standard ranges
+    const clinicPatientArg = {...clinicPatient, glycemicRanges: GLYCEMIC_RANGE.ADA_STANDARD };
+
     const bgUnitsOverride = {
       units: clinic?.preferredBgUnits,
       source: 'preferred clinic units',
     };
 
-    const localBgPrefs = utils.getBgPrefs(stubPatientSettings, clinicPatient, bgUnitsOverride);
+    const localBgPrefs = utils.getBgPrefs(stubPatientSettings, clinicPatientArg, bgUnitsOverride);
     localBgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(localBgPrefs);
 
     return localBgPrefs;
   })();
+
+  // For TIDE Patient Drawer, we currently only show ADA standard ranges
+  const glycemicRanges = GLYCEMIC_RANGE.ADA_STANDARD;
 
   const timePrefs = (() => {
     const latestTimeZone = data?.metaData?.latestTimeZone;
@@ -44,8 +50,6 @@ const getQueries = (
     commonStats.sensorUsage,
     commonStats.timeInRange,
   ];
-
-  const glycemicRanges = clinicPatient?.glycemicRanges || GLYCEMIC_RANGE.ADA_STANDARD;
 
   const queries = {
     agpCGM: {
