@@ -155,6 +155,8 @@ const initialState = {
     fetchingClinicPatientCountSettings: Object.assign({}, working),
     settingClinicPatientLastReviewed: Object.assign({}, working),
     revertingClinicPatientLastReviewed: Object.assign({}, working),
+    providingDataDonationConsent: Object.assign({}, working),
+    revokingDataDonationConsent: Object.assign({}, working),
   },
   notification: null,
   timePrefs: {

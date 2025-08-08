@@ -464,6 +464,16 @@ export default (type) => {
     case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_FAILURE:
       return 'revertingClinicPatientLastReviewed';
 
+    case types.PROVIDE_DATA_DONATION_CONSENT_REQUEST:
+    case types.PROVIDE_DATA_DONATION_CONSENT_SUCCESS:
+    case types.PROVIDE_DATA_DONATION_CONSENT_FAILURE:
+      return 'providingDataDonationConsent';
+
+    case types.REVOKE_DATA_DONATION_CONSENT_REQUEST:
+    case types.REVOKE_DATA_DONATION_CONSENT_SUCCESS:
+    case types.REVOKE_DATA_DONATION_CONSENT_FAILURE:
+      return 'revokingDataDonationConsent';
+
     default:
       return null;
   }
