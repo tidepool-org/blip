@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import moment from 'moment';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { Trans, useTranslation } from 'react-i18next';
@@ -9,25 +10,31 @@ import isEmpty from 'lodash/isEmpty';
 import keys from 'lodash/keys';
 import { useFormik } from 'formik';
 import { Box, Flex, Link } from 'theme-ui';
+import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
+import EditRoundedIcon from '@material-ui/icons/EditRounded';
 
 import { Paragraph1 } from '../../components/elements/FontStyles';
 import MultiSelect from '../../components/elements/MultiSelect';
-import Checkbox from '../../components/elements/Checkbox';
 import Container from '../../components/elements/Container';
 import * as actions from '../../redux/actions';
-import { usePrevious } from '../../core/hooks';
+import { useIsFirstRender, usePrevious } from '../../core/hooks';
 import { getCommonFormikFieldProps, fieldsAreValid } from '../../core/forms';
 import { useToasts } from '../../providers/ToastProvider';
 import { push } from 'connected-react-router';
-import { colors } from '../../themes/baseTheme';
 import { DataDonationSlideShow } from '../../components/elements/SlideShow';
 import personUtils from '../../core/personutils';
+import Pill from '../../components/elements/Pill';
 
 import {
   DATA_DONATION_NONPROFITS,
   TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL,
   URL_BIG_DATA_DONATION_INFO,
 } from '../../core/constants';
+
+import Button from '../../components/elements/Button';
+import DataDonationRevokeConsentDialog from '../patient/DataDonationRevokeConsentDialog';
+import DataDonationConsentDialog from '../patient/DataDonationConsentDialog';
+import { getConsentText } from '../patient/DataDonationConsentDialog';
 
 const dataDonateDestinationOptions = DATA_DONATION_NONPROFITS(); // eslint-disable-line new-cap
 
@@ -66,47 +73,98 @@ export const PatientNewDataDonation = (props) => {
   const user = get(allUsersMap, loggedInUserId);
   const working = useSelector((state) => state.blip.working);
   const previousWorking = usePrevious(working);
+  const isFirstRender = useIsFirstRender();
   const [submitting, setSubmitting] = useState(false);
   const [currentForm, setCurrentForm] = useState(formSteps.dataDonationConsent);
   // const [currentForm, setCurrentForm] = useState(formSteps.dataDonationDestination);
+  const [showConsentDialog, setShowConsentDialog] = useState(false);
+  const [showRevokeConsentDialog, setShowRevokeConsentDialog] = useState(false);
+  const patientAge = moment().diff(moment(user?.profile?.patient?.birthday, 'YYYY-MM-DD'), 'years', true);
+  const isYouth = patientAge < 18;
+  const isChild = patientAge < 13;
+  const accountType = personUtils.patientIsOtherPerson(user) ? 'caregiver' : 'personal';
+  const patientAgeGroup = isChild ? 'child' : (isYouth ? 'youth' : 'adult');
+  const patientName = personUtils.patientFullName(user);
+  const consentSuccessMessage = getConsentText(accountType, patientAgeGroup, patientName).consentSuccessMessage;
 
-  console.log('user', user);
+  const accountTypeText = {
+    personal: {
+      dataDonatePrompt: t('Would you like to donate your anonymized data?'),
+      dataDonateOwnership: t('You own your data.'),
+      dataDonateConsentLabel: t('Yes - I have read this form and give my consent by checking this box and clicking submit.'),
+      dataDonateOrganizationsLabel: t('Tidepool will share 10% of the proceeds with the diabetes organization(s) of your choice.'),
+    },
+    caregiver: {
+      dataDonatePrompt: t('Would they like to donate their anonymized data?'),
+      dataDonateOwnership: t('People with diabetes own their data.'),
+      dataDonateConsentLabel: t('Yes - I have read this form and give my consent by checking this box and clicking submit.'),
+      dataDonateOrganizationsLabel: t('Tidepool will share 10% of the proceeds with the diabetes organization(s) of their choice.'),
+    },
+  };
+
+  const formStepsText = {
+    dataDonationConsent: {
+      title: t('Consider Donating Your Anonymized Data!'),
+      submitText: t('Yes, I\'m Interested'),
+    },
+    dataDonationDestination: {
+      title: t('Thank You for Donating Your Data!'),
+      submitText: t('Done'),
+    }
+  };
 
   function redirectToPatientData() {
     dispatch(push(`/patients/${loggedInUserId}/data`));
   }
 
-  useEffect(() => {
-    const {
-      inProgress,
-      completed,
-      notification,
-    } = working.updatingUser;
+  const {
+    providingDataDonationConsent,
+    revokingDataDonationConsent,
+    updatingUser,
+  } = useSelector((state) => state.blip.working);
 
-    const prevInProgress = get(
-      previousWorking,
-      'updatingUser.inProgress'
-    );
+  function handleCloseOverlays() {
+      setShowRevokeConsentDialog(false);
+      setShowConsentDialog(false);
+  };
 
-    if (!inProgress && completed !== null && prevInProgress) {
-      setSubmitting(false);
+  const handleAsyncResult = useCallback((workingState, successMessage, onComplete = handleCloseOverlays) => {
+      const { inProgress, completed, notification, prevInProgress } = workingState;
 
-      if (notification) {
-        setToast({
-          message: notification.message,
-          variant: 'danger',
-        });
-      } else {
-        setToast({
-          message: t('Profile updated'),
-          variant: 'success',
-        });
+      if (!isFirstRender && !inProgress && prevInProgress !== false) {
+        if (completed) {
+          onComplete();
+          setToast({
+            message: successMessage,
+            variant: 'success',
+          });
+        }
 
-        // Redirect to patients page
-        dispatch(push('/patients?justLoggedIn=true'));
+        if (completed === false) {
+          setToast({
+            message: get(notification, 'message'),
+            variant: 'danger',
+          });
+        }
+
+        if (submitting) setSubmitting(false);
       }
-    }
-  }, [working.updatingUser]);
+    }, [isFirstRender, setToast, submitting]);
+
+  useEffect(() => {
+    handleAsyncResult({ ...updatingUser, prevInProgress: previousWorking?.updatingUser }, t('Profile updated'), () => {
+      // Redirect to patients page
+      dispatch(push('/patients?justLoggedIn=true'));
+    });
+  }, [updatingUser]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    handleAsyncResult({ ...providingDataDonationConsent, prevInProgress: previousWorking?.providingDataDonationConsent }, t('You have consented to sharing your data'));
+  }, [providingDataDonationConsent]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    handleAsyncResult({ ...revokingDataDonationConsent, prevInProgress: previousWorking?.revokingDataDonationConsent }, t('You have stopped sharing your data'));
+  }, [revokingDataDonationConsent]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const formikContext = useFormik({
     initialValues: {
@@ -150,38 +208,11 @@ export const PatientNewDataDonation = (props) => {
     },
   });
 
-  const { values, submitForm, setFieldValue, setFieldTouched } = formikContext;
-  const accountType = personUtils.patientIsOtherPerson(user) ? 'caregiver' : 'personal';
-
-  const accountTypeText = {
-    personal: {
-      dataDonatePrompt: t('Would you like to donate your anonymized data?'),
-      dataDonateOwnership: t('You own your data.'),
-      dataDonateConsentLabel: t('Yes - I have read this form and give my consent by checking this box and clicking submit.'),
-      dataDonateOrganizationsLabel: t('Tidepool will share 10% of the proceeds with the diabetes organization(s) of your choice.'),
-    },
-    caregiver: {
-      dataDonatePrompt: t('Would they like to donate their anonymized data?'),
-      dataDonateOwnership: t('People with diabetes own their data.'),
-      dataDonateConsentLabel: t('Yes - I have read this form and give my consent by checking this box and clicking submit.'),
-      dataDonateOrganizationsLabel: t('Tidepool will share 10% of the proceeds with the diabetes organization(s) of their choice.'),
-    },
-  };
-
-  const formStepsText = {
-    dataDonationConsent: {
-      title: t('Consider Donating Your Anonymized Data!'),
-    },
-    dataDonationDestination: {
-      title: t('Thank You for Donating Your Data!'),
-    }
-  }
-
-  console.log('accountType', accountType);
+  const { values, submitForm, setFieldValue } = formikContext;
 
   const formActions = [{
     id: 'submit',
-    children: t('Next'),
+    children: formStepsText[currentForm]?.submitText,
     processing: submitting,
     disabled: !fieldsAreValid(
       keys(schemas[currentForm].fields),
@@ -189,10 +220,14 @@ export const PatientNewDataDonation = (props) => {
       values
     ),
     onClick: () => {
-      if ((currentForm === formSteps.accountDetails && accountType === 'viewOnly') || currentForm === formSteps.dataDonation) {
-        submitForm();
+      if ((currentForm === formSteps.dataDonationConsent)) {
+        setShowConsentDialog(true);
       } else {
-        setCurrentForm(currentForm === formSteps.accountDetails ? formSteps.patientDetails : formSteps.dataDonation);
+        if (!isEmpty(values.dataDonateDestination)) {
+          submitForm();
+        } else {
+          redirectToPatientData();
+        }
       }
     },
   }];
@@ -203,6 +238,14 @@ export const PatientNewDataDonation = (props) => {
     children: t('No, Thanks'),
     onClick: () => redirectToPatientData(),
   });
+
+  function handleConsentDialogConfirm() {
+    trackMetric('Data Donation - Provide Consent', { location: 'new patient data donation page' });
+  }
+
+  function handleRevokeConsentDialogConfirm() {
+    trackMetric('Data Donation - Revoke Consent', { location: 'new patient data donation page' });
+  }
 
   return (
     <Container
@@ -229,40 +272,63 @@ export const PatientNewDataDonation = (props) => {
               </Trans>
             </Box>
 
-            <Flex mb={3} sx={{ textAlign: 'center'}}>
-              <Checkbox
-                {...getCommonFormikFieldProps('dataDonate', formikContext, 'checked')}
-                bg="white"
-                themeProps={{ sx: { bg: 'transparent' } }}
-                label={accountTypeText[accountType]?.dataDonateConsentLabel}
-                // disabled={!isEmpty(values.dataDonateDestination)}
-                sx={{
-                  boxShadow: `0 0 0 2px ${colors.lightestGrey} inset`,
-                }}
+            {showConsentDialog && (
+              <DataDonationConsentDialog
+                open={true}
+                onClose={() => setShowConsentDialog(false)}
+                onConfirm={handleConsentDialogConfirm}
+                accountType={accountType}
+                patientAgeGroup={patientAgeGroup}
+                patientName={patientName}
+                caregiverName={personUtils.fullName(user)}
               />
-            </Flex>
+            )}
           </Box>
         )}
 
         {currentForm === formSteps.dataDonationDestination && (
-          <Box id="data-donation-destination-form">
-            <MultiSelect
-              {...getCommonFormikFieldProps('dataDonateDestination', formikContext, 'value', false)}
-              label={accountTypeText[accountType]?.dataDonateOrganizationsLabel}
-              onChange={value => {
-                // Ensure that the donate checkbox is checked if there are nonprofits selected
-                if (!isEmpty(value) && !values.dataDonate) {
-                  setFieldValue('dataDonate', true);
-                }
-              }}
-              setFieldValue={setFieldValue}
-              isDisabled={!values.dataDonate}
-              options={dataDonateDestinationOptions}
-              themeProps={{
-                width: '100%',
-              }}
-            />
-          </Box>
+          <>
+            <Flex
+              id="dataDonationConsentDetails"
+              mb={3}
+              sx={{ justifyContent: 'space-between', alignItems: 'center' }}
+            >
+              <Pill
+                id="clinicPatientLimits"
+                sx={{ fontSize: 1 }}
+                text={consentSuccessMessage}
+                icon={CheckCircleRoundedIcon}
+                label={t('Consent date')}
+                colorPalette="success"
+              />
+
+              <Button
+                variant="textSecondary"
+                icon={EditRoundedIcon}
+                iconPosition="left"
+                onClick={() => setShowRevokeConsentDialog(true)}
+              >
+                {t('Stop Sharing Data')}
+              </Button>
+            </Flex>
+
+            <Box id="data-donation-destination-form">
+              <MultiSelect
+                {...getCommonFormikFieldProps('dataDonateDestination', formikContext, 'value', false)}
+                label={accountTypeText[accountType]?.dataDonateOrganizationsLabel}
+                setFieldValue={setFieldValue}
+                options={dataDonateDestinationOptions}
+              />
+            </Box>
+
+            {showRevokeConsentDialog && (
+              <DataDonationRevokeConsentDialog
+                open={true}
+                onClose={() => setShowRevokeConsentDialog(false)}
+                onConfirm={handleRevokeConsentDialogConfirm}
+              />
+            )}
+          </>
         )}
       </Box>
     </Container>

@@ -15,8 +15,8 @@ import {
 
 export const DataDonationRevokeConsentDialog = (props) => {
   const { t, onClose, onConfirm, open } = props;
-  const title = t('Are you sure you want to opt out of sharing your anonymized diabetes device data?');
-  const message = t('By clicking “Yes” below, you will stop sharing new data with the Tidepool Big Data Donation Project. Please note that previously donated anonymized data cannot be removed from the project.');
+  const question = t('Are you sure you want to opt out of sharing your anonymized diabetes device data?');
+  const description = t('By clicking “Yes” below, you will stop sharing new data with the Tidepool Big Data Donation Project. Please note that previously donated anonymized data cannot be removed from the project.');
 
   return (
     <Dialog
@@ -31,17 +31,17 @@ export const DataDonationRevokeConsentDialog = (props) => {
       <DialogContent>
         <Box>
           <Paragraph1 sx={{ fontWeight: 'medium'}}>
-            <Text className='title' variant="bold">{title}</Text>
+            <Text className='question'>{question}</Text>
           </Paragraph1>
 
           <Paragraph0 sx={{ fontWeight: 'medium'}}>
-            <Text className='message'>{message}</Text>
+            <Text className='description'>{description}</Text>
           </Paragraph0>
         </Box>
       </DialogContent>
       <DialogActions>
         <Button
-          className="revoke-data-donation-cancel"
+          className="revokeConsentCancel"
           variant="secondary"
           onClick={onClose}
         >
@@ -49,7 +49,7 @@ export const DataDonationRevokeConsentDialog = (props) => {
         </Button>
 
         <Button
-          className="revoke-data-donation-confirm"
+          className="revokeConsentConfirm"
           variant="primary"
           onClick={onConfirm}
         >
