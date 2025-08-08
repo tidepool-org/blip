@@ -3819,12 +3819,14 @@ export const ClinicPatients = (props) => {
     trackMetric,
   ]);
 
-  const renderBgRangeSummary = useCallback(({summary}) => {
+  const renderBgRangeSummary = useCallback(({ id, summary, glycemicRanges }) => {
     return <BgSummaryCell
+      id={id}
       summary={summary?.cgmStats?.periods?.[activeSummaryPeriod]}
       config={summary?.cgmStats?.config}
       clinicBgUnits={clinicBgUnits}
       activeSummaryPeriod={activeSummaryPeriod}
+      glycemicRanges={glycemicRanges}
       showExtremeHigh={showExtremeHigh}
     />
   }, [clinicBgUnits, activeSummaryPeriod, showExtremeHigh]);
