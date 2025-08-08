@@ -44,7 +44,7 @@ const NavPatientHeader = ({ api, trackMetric, patient, clinicPatient, user, perm
   if (!patient?.profile?.patient) return null;
 
   const { canUpload, canShare } = getPermissions(patient, permsOfLoggedInUser);
-  const { mrn, birthday, name } = getDemographicInfo(patient, clinicPatient);
+  const { mrn, birthday, name, diagnosisType } = getDemographicInfo(patient, clinicPatient);
 
   const isUploadVisible = canUpload && !utils.isMobile();
 
@@ -67,7 +67,11 @@ const NavPatientHeader = ({ api, trackMetric, patient, clinicPatient, user, perm
           ? <>
               <Back onClick={handleBack} />
               <Name name={name} />
-              <DemographicInfo birthday={birthday} mrn={mrn} />
+              <DemographicInfo
+                birthday={birthday}
+                mrn={mrn}
+                diagnosisType={diagnosisType}
+              />
               <ClinicianMenuOptions
                 onViewData={handleViewData}
                 onViewProfile={handleViewProfile}

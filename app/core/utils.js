@@ -23,8 +23,16 @@ import { format } from 'd3-format';
 import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL } from './constants';
 import { utils as vizUtils } from '@tidepool/viz';
 const { bankersRound } = vizUtils.stat;
+import personUtils from '../core/personutils';
 
-const { DEFAULT_BG_BOUNDS } = vizUtils.constants;
+const {
+  GLYCEMIC_RANGE,
+  DEFAULT_BG_BOUNDS,
+  ADA_STANDARD_BG_BOUNDS,
+  ADA_OLDER_HIGH_RISK_BG_BOUNDS,
+  ADA_PREGNANCY_T1_BG_BOUNDS,
+  ADA_GESTATIONAL_T2_BG_BOUNDS,
+} = vizUtils.constants;
 
 const utils = {};
 
@@ -385,6 +393,74 @@ utils.getTimePrefsForDataProcessing = (latestTimeZone, queryParams) => {
     console.log('Falling back to timezone-naive display.');
   }
   return timePrefsForTideline;
+};
+
+utils.getBgPrefs = (
+  patientSettings,
+  clinicPatient,
+  bgUnitsOverride = {}, // { units: 'mmoll' | 'mgdl', source: String }
+) => {
+  let bgClasses = {
+    'very-low': { boundary: null },
+    'low': { boundary: null },
+    'target': { boundary: null },
+    'high': { boundary: null },
+    'very-high': { boundary: null },
+  };
+
+  // If bgUnits overriden, use those. Otherwise, check if patient has preferred bgUnits.
+  let bgUnits = null;
+  if (!!bgUnitsOverride.units) {
+    bgUnits = bgUnitsOverride.units?.replace('/', '').toLowerCase() === 'mmoll' ? MMOLL_UNITS : MGDL_UNITS;
+  } else {
+    bgUnits = patientSettings?.units?.bg || MGDL_UNITS;
+  }
+
+  const bounds = (() => {
+    // If user is a PwD with self-specified custom targets, use them.
+    if (!clinicPatient?.id && !!patientSettings?.bgTarget) {
+      let low = _.get(patientSettings, 'bgTarget.low', DEFAULT_BG_BOUNDS[bgUnits].targetLowerBound);
+      let high = _.get(patientSettings, 'bgTarget.high', DEFAULT_BG_BOUNDS[bgUnits].targetUpperBound);
+
+      let isUnitDifferent = (patientSettings?.units?.bg || MGDL_UNITS) !== bgUnits;
+      if (isUnitDifferent) console.log(`Displaying BG in ${bgUnits} from ${bgUnitsOverride.source}`);
+
+      // If differing units between clinic & patient, translate the threshold and round
+      if (!!low && isUnitDifferent) low = utils.roundBgTarget(utils.translateBg(low, bgUnits), bgUnits);
+      if (!!high && isUnitDifferent) high = utils.roundBgTarget(utils.translateBg(high, bgUnits), bgUnits);
+
+      return ({
+        veryLowThreshold: DEFAULT_BG_BOUNDS[bgUnits].veryLowThreshold,
+        targetLowerBound: low,
+        targetUpperBound: high,
+        veryHighThreshold: DEFAULT_BG_BOUNDS[bgUnits].veryHighThreshold,
+        extremeHighThreshold: DEFAULT_BG_BOUNDS[bgUnits].extremeHighThreshold,
+        clampThreshold: DEFAULT_BG_BOUNDS[bgUnits].clampThreshold,
+      });
+    }
+
+    // Use clinic-designated range, or fall back to default
+    const glycemicRanges = clinicPatient?.glycemicRanges || GLYCEMIC_RANGE.ADA_STANDARD;
+
+    switch(glycemicRanges) {
+      case GLYCEMIC_RANGE.ADA_OLDER_HIGH_RISK: return ADA_OLDER_HIGH_RISK_BG_BOUNDS[bgUnits];
+      case GLYCEMIC_RANGE.ADA_PREGNANCY_T1:    return ADA_PREGNANCY_T1_BG_BOUNDS[bgUnits];
+      case GLYCEMIC_RANGE.ADA_GESTATIONAL_T2:  return ADA_GESTATIONAL_T2_BG_BOUNDS[bgUnits];
+      case GLYCEMIC_RANGE.ADA_STANDARD:        return DEFAULT_BG_BOUNDS[bgUnits];
+      default:                                 return DEFAULT_BG_BOUNDS[bgUnits];
+    }
+  })();
+
+  bgClasses['very-low'].boundary  = bounds.veryLowThreshold || null;
+  bgClasses['low'].boundary       = bounds.targetLowerBound || null;
+  bgClasses['target'].boundary    = bounds.targetUpperBound || null;
+  bgClasses['high'].boundary      = bounds.veryHighThreshold || null;
+  bgClasses['very-high'].boundary = bounds.extremeHighThreshold || null;
+
+  return {
+    bgClasses,
+    bgUnits,
+  };
 };
 
 utils.getBGPrefsForDataProcessing = (patientSettings, { units: overrideUnits, source: overrideSource }) => {

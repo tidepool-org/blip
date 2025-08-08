@@ -4,7 +4,6 @@ import { withTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import compact from 'lodash/compact';
 import debounce from 'lodash/debounce';
-import find from 'lodash/find';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
@@ -16,7 +15,6 @@ import reject from 'lodash/reject';
 import { useFormik } from 'formik';
 import InputMask from 'react-input-mask';
 import { Box, BoxProps } from 'theme-ui';
-import moment from 'moment';
 
 import * as actions from '../../../redux/actions';
 import TextInput from '../../../components/elements/TextInput';
@@ -27,6 +25,11 @@ import { accountInfoFromClinicPatient } from '../../../core/personutils';
 import { Body0 } from '../../../components/elements/FontStyles';
 import { MediumTitle } from '../../../components/elements/FontStyles';
 
+import { utils as vizUtils } from '@tidepool/viz';
+const { GLYCEMIC_RANGE } = vizUtils.constants;
+
+import SelectDiabetesType from './SelectDiabetesType';
+import SelectTargetRangePreset from './SelectTargetRangePreset';
 import SelectTags from './SelectTags';
 import SelectSites from './SelectSites';
 
@@ -39,12 +42,14 @@ export function getFormValues(source, clinicPatientTags, clinicSites) {
     tags: reject(source?.tags || [], tagId => !clinicPatientTags?.[tagId]),
     dataSources: source?.dataSources || [],
     sites: source?.sites?.filter(site => !!clinicSites[site.id]) || [],
+    diagnosisType: source?.diagnosisType || null,
+    glycemicRanges: source?.glycemicRanges || GLYCEMIC_RANGE.ADA_STANDARD,
   };
 }
 
 export function emptyValuesFilter(value, key) {
   // We want to allow sending an empty `tags` array. Otherwise, strip empty fields from payload.
-  return !includes(['tags'], key) && isEmpty(value);
+  return !includes(['tags', 'sites'], key) && isEmpty(value);
 }
 
 export const PatientForm = (props) => {
@@ -85,6 +90,8 @@ export const PatientForm = (props) => {
   const initialFocusedInputRef = useInitialFocusedInput();
   const tagSectionRef = useRef(null);
   const siteSectionRef = useRef(null);
+  const diagnosisTypeSectionRef = useRef(null);
+  const targetRangePresetSectionRef = useRef(null);
 
   const formikContext = useFormik({
     initialValues: getFormValues(patient, clinicPatientTags, clinicSites),
@@ -117,7 +124,7 @@ export const PatientForm = (props) => {
           clinic: {
             handler: 'acceptPatientInvitation',
             args: () => [selectedClinicId, invite.key, invite.creatorId, omitBy(
-              pick(getFormValues(values, clinicPatientTags, clinicSites), ['mrn', 'birthDate', 'fullName', 'tags']),
+              pick(getFormValues(values, clinicPatientTags, clinicSites), ['mrn', 'birthDate', 'fullName', 'tags', 'sites', 'diagnosisType', 'glycemicRanges']),
               emptyValuesFilter
             )],
           },
@@ -222,6 +229,11 @@ export const PatientForm = (props) => {
     debounceSearch(event.target.value);
   }
 
+  function handleScrollToRef(ref) {
+    // Wait for height modal to expand via CSS, then scroll down to enhance dropdown visibility
+    setTimeout(() => ref?.current?.scrollIntoView(), 50);
+  }
+
   return (
     <Box
       as="form"
@@ -230,6 +242,8 @@ export const PatientForm = (props) => {
         minWidth: [null, '320px'],
 
         // When the select Tags or Sites dropdowns are open, expand the modal to give extra room
+        '&:has(.PatientFormSelectDiabetesType__control--menu-is-open)': { paddingBottom: '24px' },
+        '&:has(.PatientFormSelectTargetRangePreset__control--menu-is-open)': { paddingBottom: '24px' },
         '&:has(.PatientFormSelectTags__control--menu-is-open)': { paddingBottom: '162px' },
         '&:has(.PatientFormSelectSites__control--menu-is-open)': { paddingBottom: '242px' },
       }}
@@ -315,6 +329,22 @@ export const PatientForm = (props) => {
         </>
       )}
 
+      <Box ref={diagnosisTypeSectionRef} mb={3}>
+        <SelectDiabetesType
+          value={values.diagnosisType || ''}
+          onChange={diagnosisType => setFieldValue('diagnosisType', diagnosisType)}
+          onMenuOpen={() => handleScrollToRef(diagnosisTypeSectionRef)}
+        />
+      </Box>
+
+      <Box ref={targetRangePresetSectionRef} mb={3}>
+        <SelectTargetRangePreset
+          value={values.glycemicRanges || ''}
+          onChange={glycemicRanges => setFieldValue('glycemicRanges', glycemicRanges)}
+          onMenuOpen={() => handleScrollToRef(targetRangePresetSectionRef)}
+        />
+      </Box>
+
       {showTags && (
         <Box ref={tagSectionRef} mb={3}>
           <MediumTitle mb={2} sx={{ fontWeight: 'bold', fontSize: 2 }}>{t('Tags')}</MediumTitle>
@@ -322,10 +352,7 @@ export const PatientForm = (props) => {
           <SelectTags
             currentTagIds={values.tags || []}
             onChange={tagIds => setFieldValue('tags', tagIds)}
-            onMenuOpen={() => {
-              // Wait for height modal to expand via CSS, then scroll down to enhance dropdown visibility
-              setTimeout(() => tagSectionRef?.current?.scrollIntoView(), 50);
-            }}
+            onMenuOpen={() => handleScrollToRef(tagSectionRef)}
           />
         </Box>
       )}
@@ -337,10 +364,7 @@ export const PatientForm = (props) => {
           <SelectSites
             currentSites={values.sites || []}
             onChange={sites => setFieldValue('sites', sites)}
-            onMenuOpen={() => {
-              // Wait for height modal to expand via CSS, then scroll down to enhance dropdown visibility
-              setTimeout(() => siteSectionRef?.current?.scrollIntoView(), 50);
-            }}
+            onMenuOpen={() => handleScrollToRef(siteSectionRef)}
           />
         </Box>
       )}
