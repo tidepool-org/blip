@@ -102,7 +102,7 @@ export function Container(props) {
             justifyContent: ['center', 'flex-end'],
           }}
         >
-          {map(actions, buttonProps => <Button {...buttonProps} />)}
+          {map(actions, (buttonProps, i) => <Button key={`container-action-${i}`} {...buttonProps} />)}
         </Flex>
       )}
     </Box>

@@ -1,19 +1,53 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Box, Label, BoxProps } from 'theme-ui';
-import ReactSelect from 'react-select';
+import ReactSelect, { createFilter } from 'react-select';
 import cx from 'classnames';
 import intersectionBy from 'lodash/intersectionBy';
-import isEmpty from 'lodash/isEmpty';
 import map from 'lodash/map';
 import noop from 'lodash/noop';
-import { colors as vizColors } from '@tidepool/viz';
 
-import { fontWeights, fontSizes, colors, radii } from '../../themes/baseTheme';
+import { fontWeights, colors } from '../../themes/baseTheme';
 import { Caption } from './FontStyles';
 import i18next from '../../core/language';
 
 const t = i18next.t.bind(i18next);
+
+const selectElementStyleOverrides = {
+  option: base => ({ ...base, paddingLeft: '4px', paddingRight: '4px', fontSize: 14, color: colors.blueGreyDark }),
+  placeholder: base => ({ ...base, fontSize: 14, color: colors.blueGreyMedium }),
+  groupHeading: base => ({ ...base, textTransform: 'none', fontWeight: 'normal', paddingLeft: '4px', paddingRight: '0' }),
+  menu: base => ({ ...base, top: 'unset' }),
+  menuList: base => ({ ...base, padding: '10px' }),
+  multiValue: base => ({ ...base, borderRadius: '3px', background: colors.blueGreyDark, border: 'none' }),
+  multiValueLabel: base => ({ ...base, borderRadius: '0', color: colors.white }),
+  input: base => ({ ...base, color: colors.blueGreyDark, fontSize: 14 }),
+  control: (base, { isFocused, isDisabled }) => ({
+    ...base,
+    borderRadius: '3px',
+    '&:hover': { borderColor: undefined },
+    backgroundColor: isDisabled ? colors.lightestGrey : colors.white,
+    color: isDisabled ? colors.primarySubdued : colors.text.primary,
+    borderColor: isFocused // eslint-disable-line no-nested-ternary
+      ? colors.border.focus
+      : isDisabled
+        ? colors.lightestGrey
+        : '#DFE2E6',
+    boxShadow: isFocused ? `0 0 0 1px ${colors.border.focus}` : base.boxShadow,
+  }),
+  group: base => ({
+    ...base,
+    marginLeft: '12px',
+    marginRight: '12px',
+    '&:nth-of-type(2)': { borderTop: `1px solid ${colors.blueGray10}` },
+  }),
+  multiValueRemove: base => ({
+    ...base,
+    borderRadius: '3px',
+    color: colors.white,
+    '&:hover': { background: 'none', cursor: 'pointer', color: colors.white },
+  }),
+};
 
 export function MultiSelect(props) {
   const {
@@ -23,11 +57,13 @@ export function MultiSelect(props) {
     label,
     value: valueProp,
     variant,
+    onMenuOpen,
     onChange: onChangeProp,
     options,
     themeProps,
     width,
     required,
+    selectMenuHeight,
     setFieldValue,
     error,
     ...selectProps
@@ -55,14 +91,10 @@ export function MultiSelect(props) {
         </Label>
       )}
 
-      <Box alignItems="center" className={classNames} variant="inputs.select.multi" {...selectProps}>
+      <Box alignItems="center" className={classNames} variant="inputs.select.multi" sx={{ border: 0 }}>
         <ReactSelect
           {...selectProps}
-          ref={innerRef}
-          isMulti
-          isClearable
-          closeMenuOnSelect={false}
-          options={options}
+          styles={selectElementStyleOverrides}
           value={intersectionBy(
             options,
             map(valueProp.split(','), value => ({ value })),
@@ -76,69 +108,15 @@ export function MultiSelect(props) {
             setFieldValue(name, sortedValue);
             onChangeProp(value);
           }}
-          styles={{
-            control: (styles, { isFocused, isDisabled }) => ({
-              ...styles,
-              backgroundColor: isDisabled ? colors.lightestGrey : colors.white,
-              color: isDisabled ? colors.primarySubdued : colors.text.primary,
-              borderColor: isFocused // eslint-disable-line no-nested-ternary
-                ? colors.border.focus
-                : isDisabled
-                  ? colors.lightestGrey
-                  : vizColors.gray10,
-              boxShadow: isFocused ? `0 0 0 1px ${colors.border.focus}` : styles.boxShadow,
-            }),
-            clearIndicator: styles => ({
-              ...styles,
-              color: colors.blueGreyMedium,
-              ':hover': {
-                color: colors.blueGreyMedium,
-              },
-            }),
-            dropdownIndicator: styles => ({
-              ...styles,
-              color: colors.blueGreyMedium,
-              ':hover': {
-                color: colors.blueGreyMedium,
-              },
-            }),
-            indicatorSeparator: styles => ({
-              ...styles,
-              color: colors.blueGreyMedium,
-              visibility: isEmpty(valueProp) ? 'hidden' : 'visible',
-            }),
-            placeholder: styles => ({
-              ...styles,
-              color: colors.text.primarySubdued,
-              fontSize: `${fontSizes[1]}px`,
-            }),
-            option: (styles, { isFocused }) => ({
-              ...styles,
-              fontWeight: fontWeights.medium,
-              fontSize: fontSizes[1],
-              backgroundColor: isFocused ? colors.lightGrey : undefined,
-              color: colors.text.primary,
-            }),
-            multiValue: (styles) => ({
-              ...styles,
-              fontWeight: fontWeights.medium,
-              fontSize: fontSizes[1],
-              backgroundColor: colors.purpleMedium,
-              borderRadius: radii.input,
-            }),
-            multiValueLabel: styles => ({
-              ...styles,
-              color: colors.white,
-            }),
-            multiValueRemove: styles => ({
-              ...styles,
-              color: colors.white,
-              ':hover': {
-                backgroundColor: colors.purpleMedium,
-                color: colors.white,
-              },
-            }),
-          }}
+          onMenuOpen={onMenuOpen}
+          options={options}
+          closeMenuOnSelect={false}
+          minMenuHeight={selectMenuHeight}
+          maxMenuHeight={selectMenuHeight}
+          filterOption={createFilter({ stringify: opt => opt.label })}
+          isMulti
+          isClearable
+          ref={innerRef}
         />
       </Box>
 
@@ -163,12 +141,14 @@ MultiSelect.propTypes = {
   value: PropTypes.string,
   themeProps: PropTypes.shape(BoxProps),
   onChange: PropTypes.func.isRequired,
+  onMenuOpen: PropTypes.func.isRequired,
   options: PropTypes.arrayOf(PropTypes.shape({
     value: PropTypes.string.isRequired,
     label: PropTypes.string.isRequired,
   })).isRequired,
   placeholder: PropTypes.string.isRequired,
   required: PropTypes.bool,
+  selectMenuHeight: PropTypes.number,
   setFieldValue: PropTypes.func.isRequired,
   error: PropTypes.string,
 };
@@ -179,6 +159,8 @@ MultiSelect.defaultProps = {
   themeProps: {},
   placeholder: t('Select one or more'),
   onChange: noop,
+  onMenuOpen: noop,
+  selectMenuHeight: 240,
 };
 
 export default MultiSelect;

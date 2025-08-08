@@ -79,6 +79,10 @@ export const getCommonFormikFieldProps = (fieldpath, formikContext, valueProp = 
   id: fieldpath,
   name: fieldpath,
   onChange: e => {
+    if (!e?.target) {
+      return;
+    }
+
     formikContext.handleChange(e);
 
     if (valueProp === 'checked') {
@@ -86,6 +90,10 @@ export const getCommonFormikFieldProps = (fieldpath, formikContext, valueProp = 
     }
   },
   onBlur: e => {
+    if (!e?.target) {
+      return;
+    }
+
     formikContext.handleBlur(e);
 
     if (trimStrings && isString(e?.target?.[valueProp])) {

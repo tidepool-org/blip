@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import styled from '@emotion/styled';
 import { Box, BoxProps } from 'theme-ui';
 import cx from 'classnames';
+import includes from 'lodash/includes';
 
 import { transitions } from '../../themes/baseTheme';
 
@@ -39,7 +40,7 @@ export function Icon(props) {
     ...buttonProps
   } = props;
 
-  const as = props.variant === 'button' ? 'button' : 'span';
+  const as = includes(['button', 'navigation'], props.variant) ? 'button' : 'span';
 
   const classNames = cx({
     disabled: props.disabled,
@@ -75,7 +76,7 @@ Icon.propTypes = {
   ]),
   label: PropTypes.string.isRequired,
   tabIndex: PropTypes.number.isRequired,
-  variant: PropTypes.oneOf(['default', 'static', 'button']),
+  variant: PropTypes.oneOf(['default', 'static', 'button', 'navigation']),
 };
 
 Icon.defaultProps = {
