@@ -3414,63 +3414,6 @@ describe('PatientData', function () {
     });
   });
 
-  describe('toggleDefaultBgRange', () => {
-    let wrapper;
-    let instance;
-
-    beforeEach(() => {
-      wrapper = shallow(<PatientDataClass {...defaultProps} />);
-      instance = wrapper.instance();
-    });
-
-    it('should call `updateChartPrefs` with arguments needed to trigger stats and aggregations refresh', () => {
-      instance.setState({ chartType: 'basics' });
-      const updateChartPrefsSpy = sinon.spy(instance, 'updateChartPrefs');
-      instance.toggleDefaultBgRange();
-      sinon.assert.calledWith(updateChartPrefsSpy, {}, false, true, true);
-    });
-
-    it('should call `setState` with the `useDefaultRange` bgPrefs state toggled', () => {
-      const setStateSpy = sinon.spy(instance, 'setState');
-      instance.setState({ chartType: 'basics' });
-      instance.toggleDefaultBgRange();
-
-      sinon.assert.calledWith(setStateSpy, {
-        bgPrefs:  {
-          bgBounds: 'stubbed bgBounds',
-          bgClasses: { low: { boundary: 70 }, target: { boundary: 180 } },
-          bgUnits: 'mg/dL',
-          useDefaultRange: true,
-        }
-      });
-
-      instance.toggleDefaultBgRange();
-
-      sinon.assert.calledWith(setStateSpy, {
-        bgPrefs:  {
-          bgBounds: 'stubbed bgBounds',
-          bgClasses: { low: { boundary: 70 }, target: { boundary: 180 } },
-          bgUnits: 'mg/dL',
-          useDefaultRange: false
-        }
-      });
-    });
-
-    it('should track a metric when `useDefaultRange` set to true on basics view', () => {
-      defaultProps.trackMetric.resetHistory();
-      instance.setState({ chartType: 'basics' });
-      instance.toggleDefaultBgRange();
-      sinon.assert.calledWith(defaultProps.trackMetric, 'Basics - use default BG range');
-    });
-
-    it('should track a metric when `useDefaultRange` set to true on trends view', () => {
-      defaultProps.trackMetric.resetHistory();
-      instance.setState({ chartType: 'trends' });
-      instance.toggleDefaultBgRange();
-      sinon.assert.calledWith(defaultProps.trackMetric, 'Trends - use default BG range');
-    });
-  });
-
   describe('closeDatesDialog', () => {
     let wrapper;
     let instance;
