@@ -684,6 +684,8 @@ describe('ClinicPatients', () => {
             mrn: '123456',
             email: 'patient@test.ca',
             tags: [],
+            sites: [],
+            glycemicRanges: 'ADA standard',
           }
         );
 
@@ -1182,6 +1184,8 @@ describe('ClinicPatients', () => {
               email: 'patient-two@test.ca',
               permissions: { custodian: {} },
               tags: [],
+              sites: [],
+              glycemicRanges: 'ADA standard',
             }
           );
 
@@ -1255,6 +1259,8 @@ describe('ClinicPatients', () => {
               email: 'patient1@test.ca',
               permissions: { view: {} },
               tags: [],
+              sites: [],
+              glycemicRanges: 'ADA standard',
             }
           );
 
