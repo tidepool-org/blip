@@ -29,7 +29,7 @@ import { utils as vizUtils } from '@tidepool/viz';
 const { GLYCEMIC_RANGE } = vizUtils.constants;
 
 import SelectDiabetesType from './SelectDiabetesType';
-import SelectTargetRangePreset from './SelectTargetRangePreset';
+import SelectGlycemicRanges from './SelectGlycemicRanges';
 import SelectTags from './SelectTags';
 import SelectSites from './SelectSites';
 
@@ -243,7 +243,7 @@ export const PatientForm = (props) => {
 
         // When the select Tags or Sites dropdowns are open, expand the modal to give extra room
         '&:has(.PatientFormSelectDiabetesType__control--menu-is-open)': { paddingBottom: '24px' },
-        '&:has(.PatientFormSelectTargetRangePreset__control--menu-is-open)': { paddingBottom: '24px' },
+        '&:has(.PatientFormSelectGlycemicRanges__control--menu-is-open)': { paddingBottom: '24px' },
         '&:has(.PatientFormSelectTags__control--menu-is-open)': { paddingBottom: '162px' },
         '&:has(.PatientFormSelectSites__control--menu-is-open)': { paddingBottom: '242px' },
       }}
@@ -338,7 +338,7 @@ export const PatientForm = (props) => {
       </Box>
 
       <Box ref={targetRangePresetSectionRef} mb={3}>
-        <SelectTargetRangePreset
+        <SelectGlycemicRanges
           value={values.glycemicRanges || ''}
           onChange={glycemicRanges => setFieldValue('glycemicRanges', glycemicRanges)}
           onMenuOpen={() => handleScrollToRef(targetRangePresetSectionRef)}

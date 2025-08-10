@@ -25,7 +25,7 @@ const GLYCEMIC_RANGE_OPTS = {
   ],
 };
 
-const SelectTargetRangePreset = ({
+const SelectGlycemicRanges = ({
   onChange,
   value,
   selectMenuHeight = 240,
@@ -54,7 +54,7 @@ const SelectTargetRangePreset = ({
         styles={selectElementStyleOverrides}
         name="patient-form-select-target-range-preset"
         id="patient-form-select-target-range-preset"
-        classNamePrefix="PatientFormSelectTargetRangePreset"
+        classNamePrefix="PatientFormSelectGlycemicRanges"
         value={selectValue}
         onChange={handleSelectRange}
         onMenuOpen={onMenuOpen}
@@ -67,4 +67,4 @@ const SelectTargetRangePreset = ({
   );
 };
 
-export default SelectTargetRangePreset;
+export default SelectGlycemicRanges;
