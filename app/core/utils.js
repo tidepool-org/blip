@@ -28,7 +28,6 @@ import personUtils from '../core/personutils';
 const {
   GLYCEMIC_RANGE,
   DEFAULT_BG_BOUNDS,
-  ADA_STANDARD_BG_BOUNDS,
   ADA_OLDER_HIGH_RISK_BG_BOUNDS,
   ADA_PREGNANCY_T1_BG_BOUNDS,
   ADA_GESTATIONAL_T2_BG_BOUNDS,
@@ -395,7 +394,7 @@ utils.getTimePrefsForDataProcessing = (latestTimeZone, queryParams) => {
   return timePrefsForTideline;
 };
 
-utils.getBgPrefs = (
+utils.getBGPrefsForDataProcessing = (
   patientSettings,
   clinicPatient,
   bgUnitsOverride = {}, // { units: 'mmoll' | 'mgdl', source: String }
@@ -462,42 +461,6 @@ utils.getBgPrefs = (
     bgUnits,
   };
 };
-
-utils.getBGPrefsForDataProcessing = (patientSettings, { units: overrideUnits, source: overrideSource }) => {
-  // Allow overriding stored BG Unit preferences via query param or preferred clinic BG units
-  // If no override is specified, use patient settings units if availiable, otherwise 'mg/dL'
-  const patientSettingsBgUnits = patientSettings?.units?.bg || MGDL_UNITS;
-
-  const bgUnits = overrideUnits
-    ? (overrideUnits?.replace('/', '').toLowerCase() === 'mmoll' ? MMOLL_UNITS : MGDL_UNITS)
-    : patientSettingsBgUnits;
-
-  const settingsOverrideActive = patientSettingsBgUnits !== bgUnits;
-  const low = _.get(patientSettings, 'bgTarget.low', DEFAULT_BG_BOUNDS[bgUnits].targetLowerBound);
-  const high = _.get(patientSettings, 'bgTarget.high', DEFAULT_BG_BOUNDS[bgUnits].targetUpperBound);
-
-  var bgClasses = {
-    low: {
-      boundary: utils.roundBgTarget(
-        settingsOverrideActive && patientSettings?.bgTarget?.low ? utils.translateBg(patientSettings.bgTarget.low, bgUnits) : low,
-        bgUnits
-      )
-    },
-    target: {
-      boundary: utils.roundBgTarget(
-        settingsOverrideActive && patientSettings?.bgTarget?.high ? utils.translateBg(patientSettings.bgTarget.high, bgUnits) : high,
-        bgUnits
-      )
-    },
-  };
-
-  if (settingsOverrideActive) console.log(`Displaying BG in ${bgUnits} from ${overrideSource}`);
-
-  return {
-    bgUnits,
-    bgClasses,
-  };
-}
 
 // from http://bgrins.github.io/devtools-snippets/#console-save
 // MIT license

@@ -24,7 +24,7 @@ const getQueries = (
       source: 'preferred clinic units',
     };
 
-    const localBgPrefs = utils.getBgPrefs(stubPatientSettings, clinicPatientArg, bgUnitsOverride);
+    const localBgPrefs = utils.getBGPrefsForDataProcessing(stubPatientSettings, clinicPatientArg, bgUnitsOverride);
     localBgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(localBgPrefs);
 
     return localBgPrefs;
