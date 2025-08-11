@@ -26,6 +26,7 @@ import personUtils from '../../core/personutils';
 import Pill from '../../components/elements/Pill';
 
 import {
+  DATA_DONATION_CONSENT_TYPE,
   DATA_DONATION_NONPROFITS,
   TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL,
   URL_BIG_DATA_DONATION_INFO,
@@ -86,6 +87,15 @@ export const PatientNewDataDonation = (props) => {
   const patientAgeGroup = isChild ? 'child' : (isYouth ? 'youth' : 'adult');
   const patientName = personUtils.patientFullName(user);
   const consentSuccessMessage = getConsentText(accountType, patientAgeGroup, patientName).consentSuccessMessage;
+
+  // Fetchers
+  useEffect(() => {
+    if (loggedInUserId) {
+      dispatch(
+        actions.async.fetchLatestConsentByType(api, DATA_DONATION_CONSENT_TYPE)
+      );
+    }
+  }, [loggedInUserId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const accountTypeText = {
     personal: {
