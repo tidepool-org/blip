@@ -5,6 +5,7 @@ import { Box, Flex, Text } from 'theme-ui';
 import * as yup from 'yup';
 import { getCommonFormikFieldProps, fieldsAreValid } from '../../core/forms';
 import { useFormik } from 'formik';
+import { keys, map } from 'lodash';
 
 import Button from '../../components/elements/Button';
 import Checkbox from '../../components/elements/Checkbox';
@@ -20,10 +21,45 @@ import {
 import i18next from '../../core/language';
 import moment from 'moment';
 import { colors } from '../../themes/baseTheme';
-import { Visibility } from '@material-ui/icons';
 
 const t = i18next.t.bind(i18next);
 const today = moment().format('MMMM D, YYYY');
+
+
+const consentDocument = `
+The Tidepool Big Data Donation Project Informed Consent Form
+
+Introduction
+Thank you for considering participation in the Tidepool Big Data Donation Project. This initiative is designed to advance diabetes research and care by collecting, analyzing, and sharing anonymized data from diabetes devices. Your contribution will help researchers, clinicians, and technology developers better understand diabetes management and improve future treatments.
+
+Purpose of the Project
+The primary goal of this project is to gather large-scale, anonymized data from individuals living with diabetes. By donating your data, you are supporting efforts to identify trends, improve device functionality, and develop new approaches to diabetes care. The data collected may be used in academic research, product development, and public health initiatives.
+
+What Data Will Be Collected
+If you choose to participate, Tidepool will collect information from your connected diabetes devices, such as blood glucose readings, insulin dosing records, device settings, and usage patterns. No personally identifiable information (such as your name, address, or contact details) will be shared with researchers or third parties. All data will be anonymized before use.
+
+How Your Data Will Be Used
+Your anonymized data may be shared with researchers, healthcare organizations, and companies working to improve diabetes care. The data may be used in scientific studies, presentations, publications, and the development of new products or services. Tidepool will ensure that your privacy is protected and that your data is only used for legitimate research and development purposes.
+
+Voluntary Participation
+Participation in the Tidepool Big Data Donation Project is entirely voluntary. You may choose to opt out at any time without penalty or loss of benefits. If you decide to withdraw, your data will no longer be included in future research, although data already shared may not be retrievable.
+
+Risks and Benefits
+There are minimal risks associated with participation. While every effort will be made to protect your privacy, there is a small risk that anonymized data could be re-identified. The benefits of participation include contributing to advancements in diabetes care and helping others living with diabetes.
+
+Confidentiality
+Tidepool is committed to maintaining the confidentiality of your data. All information will be stored securely and only accessible to authorized personnel. Data will be anonymized before sharing, and no personal identifiers will be included in any research outputs.
+
+Contact Information
+If you have questions about the project, your rights as a participant, or wish to withdraw your consent, please contact Tidepool support at support@tidepool.org.
+
+Consent Statement
+By checking the box and clicking "Submit," you acknowledge that you have read and understood this consent form, and you agree to donate your anonymized diabetes device data to the Tidepool Big Data Donation Project. You understand that your participation is voluntary and that you may opt out at any time.
+
+Thank you for your support in helping to improve diabetes care for everyone.
+`;
+
+const consentDocumentParts = consentDocument.split('\n').filter(part => part.trim() !== '');
 
 export const getConsentText = (accountType, patientAgeGroup, patientName, consentDate = today) => {
   const text = {
@@ -88,13 +124,13 @@ export const DataDonationConsentDialog = (props) => {
   });
 
   const primaryConsentSchema = yup.object().shape({
-    primaryConsentRead: yup.boolean(),
-    primaryConsent: yup.boolean().required(t('You must agree to consent before proceeding')),
+    primaryConsentRead: yup.boolean().oneOf([true], t('You must read the consent statement before proceeding')),
+    primaryConsent: yup.boolean().oneOf([true], t('You must agree to consent before proceeding')),
   });
 
   const secondaryConsentSchema = yup.object().shape({
-    secondaryConsentRead: yup.boolean(),
-    secondaryConsent: yup.boolean().required(t('You must agree to consent before proceeding')),
+    secondaryConsentRead: yup.boolean().oneOf([true], t('You must read the consent statement before proceeding')),
+    secondaryConsent: yup.boolean().oneOf([true], t('You must agree to consent before proceeding')),
   });
 
   const schemas = {
@@ -105,12 +141,18 @@ export const DataDonationConsentDialog = (props) => {
   const formikContext = useFormik({
     initialValues: {
       name: caregiverName,
+      primaryConsentRead: false,
+      primaryConsent: false,
+      secondaryConsentRead: false,
+      secondaryConsent: false,
     },
     validationSchema: schemas[formSteps[currentConsentStep]],
-    onSubmit: values => {
+    onSubmit: (values, formikHelpers) => {
       const nextStep = currentConsentStep + 1;
       if (formSteps[nextStep]) {
+        console.log('formikHelpers', formikHelpers);
         setCurrentConsentStep(nextStep);
+        formikHelpers.resetForm();
       } else {
         onConfirm(values);
       }
@@ -118,6 +160,16 @@ export const DataDonationConsentDialog = (props) => {
   });
 
   console.log('formikContext', formikContext);
+
+  const [scrolledToBottom, setScrolledToBottom] = React.useState(false);
+
+  const handleConsentDocumentScroll = (e) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.target;
+    if (scrollTop + clientHeight >= scrollHeight - 1) {
+      setScrolledToBottom(true);
+      formikContext.setFieldValue(`${formSteps[currentConsentStep]}ConsentRead`, true);
+    }
+  };
 
   return (
     <Dialog
@@ -131,13 +183,39 @@ export const DataDonationConsentDialog = (props) => {
       </DialogTitle>
       <DialogContent>
         <Box id="consentDocument" variant="containers.infoWell">
-          <Box id="consentDocumentText" onClick={() => formikContext.setFieldValue(`${formSteps[currentConsentStep]}ConsentRead`, true)}>
-            Some legalese here about data donation and privacy. Maybe from the backend?
+          <Box
+            id="consentDocumentText"
+            onScroll={handleConsentDocumentScroll}
+            sx={{
+              height: '30vh',
+              overflowY: 'auto',
+              mb: 3,
+            }}
+          >
+            {map(consentDocumentParts, (line, index) => (
+              <Text key={index} sx={{ whiteSpace: 'pre-wrap', mb: 2 }}>
+                {line}
+                {index < consentDocumentParts.length - 1 && <><br /><br /></>}
+              </Text>
+            ))}
           </Box>
 
-          <Flex id="consentDocumentFooter" sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
+          <Flex
+            id="consentDocumentFooter"
+            sx={{
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              position: 'sticky',
+              bottom: 0,
+              bg: 'background',
+              py: 2,
+              px: 3,
+              boxShadow: `0 -2px 8px ${colors.lightestGrey}`,
+              zIndex: 1,
+            }}
+          >
             <Body0 className="patientSignature">
-              {t('Electronic signature: {{patientName}}', { patientName })}
+              {t('Electronic signature: {{caregiverName}}', { caregiverName: caregiverName })}
             </Body0>
             <Body0 className="consentDate">
               {t('Date: {{consentDate}}', { consentDate })}
@@ -192,7 +270,11 @@ export const DataDonationConsentDialog = (props) => {
         <Button
           className="dataDonationConsentSubmit"
           variant="primary"
-          disabled={!fieldsAreValid(formikContext)}
+          disabled={!fieldsAreValid(
+            keys(schemas[formSteps[currentConsentStep]].fields),
+            schemas[formSteps[currentConsentStep]],
+            formikContext.values
+          )}
           onClick={() => formikContext.submitForm()}
         >
           {patientAssentRequired ? t('Next') : t('Submit')}
@@ -211,7 +293,7 @@ DataDonationConsentDialog.propTypes = {
     message: PropTypes.string,
   }),
   t: PropTypes.func.isRequired,
-  accountType: PropTypes.oneOf(['personal', 'caregiver']).isRequired,
+  accountType: PropTypes.oneOf(['person</Button>al', 'caregiver']).isRequired,
   patientAgeGroup: PropTypes.oneOf(['child', 'youth', 'adult']).isRequired,
   patientName: PropTypes.string.isRequired,
   caregiverName: PropTypes.string.isRequired,
