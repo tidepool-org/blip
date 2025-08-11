@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.50.0-web-3874-alarms-daily-print-view.1":
-  version: 1.50.0-web-3874-alarms-daily-print-view.1
-  resolution: "@tidepool/viz@npm:1.50.0-web-3874-alarms-daily-print-view.1"
+"@tidepool/viz@npm:1.50.0-rc.3":
+  version: 1.50.0-rc.3
+  resolution: "@tidepool/viz@npm:1.50.0-rc.3"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 9c4bc82d8190f3b946c6611d158b7b94f024d79bec2abd14abfe062dcb3f0c523754ff9aae054c68f7dd88eb91e5bebc98eb1e657646c86784e562681e26b3cd
+  checksum: b07109a4781af28d0a91920c5d0ec47ad14242fd5862f179e379e6b9f07ea019f33099cbe6c58a6501a812bf4d27180a40f9a1dd0e04fe93ae95f6924c2e9dcd
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.50.0-web-3874-alarms-daily-print-view.1
+    "@tidepool/viz": 1.50.0-rc.3
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -8462,7 +8462,7 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.36.0-web-3873-events-info-tooltip-daily-view.1
+    tideline: 1.36.0-rc.2
     tidepool-platform-client: 0.64.0-rc.3
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
@@ -22218,9 +22218,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.36.0-web-3873-events-info-tooltip-daily-view.1":
-  version: 1.36.0-web-3873-events-info-tooltip-daily-view.1
-  resolution: "tideline@npm:1.36.0-web-3873-events-info-tooltip-daily-view.1"
+"tideline@npm:1.36.0-rc.2":
+  version: 1.36.0-rc.2
+  resolution: "tideline@npm:1.36.0-rc.2"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -22241,7 +22241,7 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: 1cf788cf4dd9489228d595061426a7f954e05ae32dcd7dd23ab15d1feb4ef5fe612052a071de6c520f410bcd8b60fa2cbf244721a2bab4f74f514b92abd168e6
+  checksum: 64ac025ea16d46de584dde65129f324f1119dd0122629dc6c408a67cde99957b336e63a2c9ddc3e8b318f4c652413ace16d3a10403cf98999a9c003af8d75220
   languageName: node
   linkType: hard
 
