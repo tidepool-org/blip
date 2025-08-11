@@ -5,11 +5,12 @@ import { Box, Flex, Text } from 'theme-ui';
 import * as yup from 'yup';
 import { getCommonFormikFieldProps, fieldsAreValid } from '../../core/forms';
 import { useFormik } from 'formik';
-import { keys, map } from 'lodash';
+import { keys } from 'lodash';
+import Markdown from 'react-markdown';
 
 import Button from '../../components/elements/Button';
 import Checkbox from '../../components/elements/Checkbox';
-import { Body0, MediumTitle, Paragraph1, Paragraph2 } from '../../components/elements/FontStyles';
+import { Body0, MediumTitle, Paragraph0, Paragraph1, Paragraph2, Subheading } from '../../components/elements/FontStyles';
 
 import {
   Dialog,
@@ -22,44 +23,10 @@ import i18next from '../../core/language';
 import moment from 'moment';
 import { colors } from '../../themes/baseTheme';
 
+import consentDocument from './sampleConsentDocumentStringified';
+
 const t = i18next.t.bind(i18next);
 const today = moment().format('MMMM D, YYYY');
-
-
-const consentDocument = `
-The Tidepool Big Data Donation Project Informed Consent Form
-
-Introduction
-Thank you for considering participation in the Tidepool Big Data Donation Project. This initiative is designed to advance diabetes research and care by collecting, analyzing, and sharing anonymized data from diabetes devices. Your contribution will help researchers, clinicians, and technology developers better understand diabetes management and improve future treatments.
-
-Purpose of the Project
-The primary goal of this project is to gather large-scale, anonymized data from individuals living with diabetes. By donating your data, you are supporting efforts to identify trends, improve device functionality, and develop new approaches to diabetes care. The data collected may be used in academic research, product development, and public health initiatives.
-
-What Data Will Be Collected
-If you choose to participate, Tidepool will collect information from your connected diabetes devices, such as blood glucose readings, insulin dosing records, device settings, and usage patterns. No personally identifiable information (such as your name, address, or contact details) will be shared with researchers or third parties. All data will be anonymized before use.
-
-How Your Data Will Be Used
-Your anonymized data may be shared with researchers, healthcare organizations, and companies working to improve diabetes care. The data may be used in scientific studies, presentations, publications, and the development of new products or services. Tidepool will ensure that your privacy is protected and that your data is only used for legitimate research and development purposes.
-
-Voluntary Participation
-Participation in the Tidepool Big Data Donation Project is entirely voluntary. You may choose to opt out at any time without penalty or loss of benefits. If you decide to withdraw, your data will no longer be included in future research, although data already shared may not be retrievable.
-
-Risks and Benefits
-There are minimal risks associated with participation. While every effort will be made to protect your privacy, there is a small risk that anonymized data could be re-identified. The benefits of participation include contributing to advancements in diabetes care and helping others living with diabetes.
-
-Confidentiality
-Tidepool is committed to maintaining the confidentiality of your data. All information will be stored securely and only accessible to authorized personnel. Data will be anonymized before sharing, and no personal identifiers will be included in any research outputs.
-
-Contact Information
-If you have questions about the project, your rights as a participant, or wish to withdraw your consent, please contact Tidepool support at support@tidepool.org.
-
-Consent Statement
-By checking the box and clicking "Submit," you acknowledge that you have read and understood this consent form, and you agree to donate your anonymized diabetes device data to the Tidepool Big Data Donation Project. You understand that your participation is voluntary and that you may opt out at any time.
-
-Thank you for your support in helping to improve diabetes care for everyone.
-`;
-
-const consentDocumentParts = consentDocument.split('\n').filter(part => part.trim() !== '');
 
 export const getConsentText = (accountType, patientAgeGroup, patientName, consentDate = today) => {
   const text = {
@@ -113,6 +80,7 @@ export const DataDonationConsentDialog = (props) => {
   const patientAssentRequired = patientAgeGroup === 'youth';
   const formSteps = patientAssentRequired ? ['primary', 'secondary'] : ['primary'];
   const [currentConsentStep, setCurrentConsentStep] = React.useState(0);
+  const [scrolledToBottom, setScrolledToBottom] = React.useState(false);
 
   const consentText = getConsentText(accountType, patientAgeGroup, patientName, consentDate);
   const consentQuestion = consentText[`${formSteps[currentConsentStep]}ConsentQuestion`];
@@ -150,18 +118,15 @@ export const DataDonationConsentDialog = (props) => {
     onSubmit: (values, formikHelpers) => {
       const nextStep = currentConsentStep + 1;
       if (formSteps[nextStep]) {
-        console.log('formikHelpers', formikHelpers);
         setCurrentConsentStep(nextStep);
         formikHelpers.resetForm();
+        document.getElementById('consentDocumentText')?.scrollTo({ top: 0 });
+        setScrolledToBottom(false);
       } else {
         onConfirm(values);
       }
     },
   });
-
-  console.log('formikContext', formikContext);
-
-  const [scrolledToBottom, setScrolledToBottom] = React.useState(false);
 
   const handleConsentDocumentScroll = (e) => {
     const { scrollTop, scrollHeight, clientHeight } = e.target;
@@ -192,12 +157,38 @@ export const DataDonationConsentDialog = (props) => {
               mb: 3,
             }}
           >
-            {map(consentDocumentParts, (line, index) => (
-              <Text key={index} sx={{ whiteSpace: 'pre-wrap', mb: 2 }}>
-                {line}
-                {index < consentDocumentParts.length - 1 && <><br /><br /></>}
-              </Text>
-            ))}
+            <Markdown
+              components={{
+                h1: MediumTitle,
+                h2: Subheading,
+                h3(props) {
+                  const {node, ...rest} = props
+                  return <Body0 sx={{fontWeight: 'black'}} {...rest} />
+                },
+                p(props) {
+                  const {node, ...rest} = props
+                  return <Paragraph0 sx={{fontWeight: 'medium'}} {...rest} />
+                },
+                li(props) {
+                  const {node, ...rest} = props
+                  return (
+                    <li>
+                      <Paragraph0 sx={{fontWeight: 'medium'}} {...rest} />
+                    </li>
+                  );
+                },
+                ul(props) {
+                  const {node, ...rest} = props
+                  return (
+                    <Box sx={{ color: 'text.primary' }}>
+                      <ul {...rest} />
+                    </Box>
+                  );
+                },
+              }}
+            >
+              {consentDocument}
+            </Markdown>
           </Box>
 
           <Flex
