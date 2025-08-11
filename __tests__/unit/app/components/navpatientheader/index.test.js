@@ -44,6 +44,7 @@ describe('NavPatientHeader', () => {
     birthDate: '1965-01-01',
     fullName: 'Naoya Inoue',
     mrn: '999999',
+    diagnosisType: 'prediabetes',
   };
 
   afterEach(() => {
@@ -87,6 +88,7 @@ describe('NavPatientHeader', () => {
         expect(screen.getByText(/Vasyl Lomachenko/)).toBeInTheDocument();
         expect(screen.queryByText(/567890/)).not.toBeInTheDocument();
         expect(screen.queryByText(/2010-10-20/)).not.toBeInTheDocument();
+        expect(screen.queryByText(/Pre-diabetes/)).not.toBeInTheDocument();
 
         // should NOT show demographic info from the 'clinicPatient' object
         expect(screen.queryByText(/Naoya Inoue/)).not.toBeInTheDocument();
@@ -122,6 +124,7 @@ describe('NavPatientHeader', () => {
         expect(screen.getByText(/Vasyl Lomachenko/)).toBeInTheDocument();
         expect(screen.queryByText(/Naoya Inoue/)).not.toBeInTheDocument();
         expect(screen.queryByText(/567890/)).not.toBeInTheDocument();
+        expect(screen.queryByText(/Pre-diabetes/)).not.toBeInTheDocument();
 
         // should NOT show demographic info from the 'clinicPatient' object
         expect(screen.queryByText(/2010-10-20/)).not.toBeInTheDocument();
@@ -158,6 +161,7 @@ describe('NavPatientHeader', () => {
         expect(screen.getByText(/Naoya Inoue/)).toBeInTheDocument();
         expect(screen.getByText(/999999/)).toBeInTheDocument();
         expect(screen.getByText(/1965-01-01/)).toBeInTheDocument();
+        expect(screen.getByText(/Pre-diabetes/)).toBeInTheDocument();
 
         // should NOT show demographic info from the 'patient' object
         expect(screen.queryByText(/Vasyl Lomachenko/)).not.toBeInTheDocument();
@@ -194,6 +198,7 @@ describe('NavPatientHeader', () => {
         expect(screen.getByText(/Naoya Inoue/)).toBeInTheDocument();
         expect(screen.getByText(/999999/)).toBeInTheDocument();
         expect(screen.getByText(/1965-01-01/)).toBeInTheDocument();
+        expect(screen.getByText(/Pre-diabetes/)).toBeInTheDocument();
 
         // should NOT show demographic info from the 'patient' object
         expect(screen.queryByText(/Vasyl Lomachenko/)).not.toBeInTheDocument();
