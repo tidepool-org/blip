@@ -977,6 +977,32 @@ export function fetchDevicesFailure(error, apiError) {
   };
 }
 
+export function fetchLatestConsentByTypeRequest() {
+  return {
+    type: ActionTypes.FETCH_LATEST_CONSENT_BY_TYPE_REQUEST,
+  };
+}
+
+export function fetchLatestConsentByTypeSuccess(consentType, consentDocument) {
+  return {
+    type: ActionTypes.FETCH_LATEST_CONSENT_BY_TYPE_SUCCESS,
+    payload: {
+      consentType: consentType,
+      consentDocument: consentDocument,
+    },
+  };
+}
+
+export function fetchLatestConsentByTypeFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_LATEST_CONSENT_BY_TYPE_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
 export function fetchMessageThreadRequest() {
   return {
     type: ActionTypes.FETCH_MESSAGE_THREAD_REQUEST,

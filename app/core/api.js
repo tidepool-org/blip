@@ -909,6 +909,14 @@ api.devices.getAll = function(cb) {
   });
 };
 
+// ----- Consent -----
+
+api.consent = {};
+
+api.consent.getLatestByType = function(consentType, cb) {
+  return tidepool.getLatestConsentByType(consentType, cb);
+};
+
 // ----- Clinics -----
 
 api.clinics = {};

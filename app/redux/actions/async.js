@@ -1353,6 +1353,28 @@ export function fetchDevices(api) {
 }
 
 /**
+ * Fetch Latest Consent By Type Action Creator
+ *
+ * @param  {Object} api - an instance of the API wrapper
+ * @param {String} consentType - type of the consent (e.g., 'big_data_donation_project')
+ */
+export function fetchLatestConsentByType(api, consentType) {
+  return (dispatch) => {
+    dispatch(sync.fetchLatestConsentByTypeRequest());
+
+    api.consent.getLatestByType(consentType, (err, consentDocument) => {
+      if (err) {
+        dispatch(sync.fetchLatestConsentByTypeFailure (
+          createActionError(ErrorMessages.ERR_FETCHING_LATEST_CONSENT_BY_TYPE, err), err
+        ));
+      } else {
+        dispatch(sync.fetchLatestConsentByTypeSuccess(consentType, consentDocument));
+      }
+    });
+  };
+}
+
+/**
  * Fetch Message Thread Action Creator
  *
  * @param  {Object} api an instance of the API wrapper

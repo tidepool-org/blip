@@ -589,6 +589,18 @@ export const devices = (state = initialState.devices, action) => {
   }
 };
 
+export const consents = (state = initialState.consents, action) => {
+  switch (action.type) {
+    case types.FETCH_LATEST_CONSENT_BY_TYPE_SUCCESS:
+      const consentType = _.get(action.payload, 'consentType');
+      const consentDocument = _.get(action.payload, 'consentDocument');
+      return update(state, { $set: { [consentType]: consentDocument } });
+
+    default:
+      return state;
+  }
+};
+
 export const clinics = (state = initialState.clinics, action) => {
   switch (action.type) {
     case types.GET_CLINICS_SUCCESS: {
