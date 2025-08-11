@@ -31,6 +31,7 @@ export const URL_TIDEPOOL_PLUS_CONTACT_SALES = 'https://app.cronofy.com/add_to_c
 export const URL_TIDEPOOL_EXTERNAL_DATA_CONNECTIONS = 'https://support.tidepool.org/hc/en-us/articles/34686287140884';
 
 export const TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL = 'bigdata@tidepool.org';
+export const DATA_DONATION_CONSENT_TYPE = 'big_data_donation_project';
 
 export const DATA_DONATION_NONPROFITS = () => [
   { value: 'ADCES', label: t('ADCES Foundation') },
