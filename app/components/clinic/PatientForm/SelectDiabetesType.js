@@ -2,7 +2,7 @@ import { noop } from 'lodash';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import Select from 'react-select';
-import { selectElementStyleOverrides } from './SelectTags';
+import { selectElementStyleOverrides } from './styles';
 import { colors as vizColors } from '@tidepool/viz';
 import { Label } from 'theme-ui';
 
