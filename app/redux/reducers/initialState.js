@@ -62,6 +62,7 @@ const initialState = {
   pendingSentClinicianInvites: {},
   prescriptions: [],
   devices: {},
+  consents: {},
   messageThread: null,
   working: {
     acceptingReceivedInvite: Object.assign({}, working),
