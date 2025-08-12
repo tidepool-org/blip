@@ -290,7 +290,7 @@ export const PatientNewDataDonation = (props) => {
                 accountType={accountType}
                 patientAgeGroup={patientAgeGroup}
                 patientName={patientName}
-                caregiverName={personUtils.fullName(user)}
+                caregiverName={personUtils.patientIsOtherPerson(user) ? personUtils.fullName(user) : undefined}
               />
             )}
           </Box>
@@ -304,7 +304,7 @@ export const PatientNewDataDonation = (props) => {
               sx={{ justifyContent: 'space-between', alignItems: 'center' }}
             >
               <Pill
-                id="clinicPatientLimits"
+                id="consentSuccessMessage"
                 sx={{ fontSize: 1 }}
                 text={consentSuccessMessage}
                 icon={CheckCircleRoundedIcon}
