@@ -399,14 +399,6 @@ utils.getBGPrefsForDataProcessing = (
   clinicPatient,
   bgUnitsOverride = {}, // { units: 'mmoll' | 'mgdl', source: String }
 ) => {
-  let bgClasses = {
-    'very-low': { boundary: null },
-    'low': { boundary: null },
-    'target': { boundary: null },
-    'high': { boundary: null },
-    'very-high': { boundary: null },
-  };
-
   // If bgUnits overriden, use those. Otherwise, check if patient has preferred bgUnits.
   let bgUnits = null;
   if (!!bgUnitsOverride.units) {
@@ -442,11 +434,13 @@ utils.getBGPrefsForDataProcessing = (
     }
   })();
 
-  bgClasses['very-low'].boundary  = bounds.veryLowThreshold || null;
-  bgClasses['low'].boundary       = bounds.targetLowerBound || null;
-  bgClasses['target'].boundary    = bounds.targetUpperBound || null;
-  bgClasses['high'].boundary      = bounds.veryHighThreshold || null;
-  bgClasses['very-high'].boundary = bounds.extremeHighThreshold || null;
+  const bgClasses = {
+    'very-low': { boundary: bounds.veryLowThreshold || null },
+    'low': { boundary: bounds.targetLowerBound || null },
+    'target': { boundary: bounds.targetUpperBound || null },
+    'high': { boundary: bounds.veryHighThreshold || null },
+    'very-high': { boundary: bounds.extremeHighThreshold || null },
+  };
 
   return {
     bgClasses,
