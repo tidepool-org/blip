@@ -1,15 +1,18 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { withTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
 import { Box, Flex, Text } from 'theme-ui';
 import * as yup from 'yup';
 import { getCommonFormikFieldProps, fieldsAreValid } from '../../core/forms';
 import { useFormik } from 'formik';
-import { keys } from 'lodash';
+import { isString, keys } from 'lodash';
 import Markdown from 'react-markdown';
+import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
 
 import Button from '../../components/elements/Button';
 import Checkbox from '../../components/elements/Checkbox';
+import TextInput from '../../components/elements/TextInput';
 import { Body0, MediumTitle, Paragraph0, Paragraph1, Paragraph2, Subheading } from '../../components/elements/FontStyles';
 
 import {
@@ -21,33 +24,51 @@ import {
 
 import i18next from '../../core/language';
 import moment from 'moment';
-import { colors } from '../../themes/baseTheme';
+import { colors, shadows } from '../../themes/baseTheme';
+import personUtils from '../../core/personutils';
+import Pill from '../../components/elements/Pill';
 
-import consentDocument from './sampleConsentDocumentStringified';
+import { DATA_DONATION_CONSENT_TYPE } from '../../core/constants';
+import consentDocument from './sampleConsentDocument';
+// import consentDocument from './sampleConsentDocumentStringified';
 
 const t = i18next.t.bind(i18next);
 const today = moment().format('MMMM D, YYYY');
 
-export const getConsentText = (accountType, patientAgeGroup, patientName, consentDate = today) => {
+export const getConsentText = (accountType, patientAgeGroup, patientName, caregiverName, consentDate = today) => {
+  const { firstName } = personUtils.splitNamesFromFullname(patientName);
+
   const text = {
     personal: {
       adult: {
         consentSuccessMessage: t('You consented on {{consentDate}}.', { consentDate }),
         primaryConsentQuestion: t('{{patientName}}, do you want to donate your anonymized data?', { patientName }),
         primaryConsentInputLabel: t('Yes - I have read this form and give my consent by checking this box and clicking submit.'),
+        primaryConsentSignature: t('Electronic signature: {{names}}', { names: patientName }),
       },
       youth: {
         consentSuccessMessage: t('You assented and {{patientName}} consented on {{consentDate}}.', { consentDate, patientName }),
         primaryConsentQuestion: t('Do you give your consent for {{patientName}} to donate their anonymized data?', { patientName }),
+        primaryConsentReviewMessage: t('Please ask your parent or guardian to review and consent on your behalf below.'),
         primaryConsentInputLabel: t('As their parent or guardian, I have read this form and I give my consent by checking this box and clicking "Next."'),
+        primaryConsentSignature: t('Electronic signature: {{names}}', { names: caregiverName }),
+        primaryConsentNameInputLabel: t('Parent Or Legal Guardian Name'),
         secondaryConsentQuestion: t('{{patientName}}, do you want to donate your anonymized data?', { patientName }),
         secondaryConsentDescription: t('My parent or guardian read The Tidepool Big Data Donation Project Informed Consent Form, explained this project to me, answered my questions about the project, and said that it was all right for me to donate my anonymized data if I wanted to. I understand that the project will get information from my Tidepool account and share it with researchers and others involved in helping to make care for diabetes better. I understand that my participation is voluntary, I don\'t have to do this, and I can opt out at any time. '),
         secondaryConsentInputLabel: t('Yes - By checking the box and clicking "Submit," I am saying that I want to donate my anonymized data.'),
+        secondaryConsentSignature: t('Electronic signature: {{names}}', { names: [patientName, caregiverName].join(', ') }),
       },
       child: {
         consentSuccessMessage: t('You assented and {{patientName}} consented on {{consentDate}}.', { consentDate, patientName }),
         primaryConsentQuestion: t('Do you give your consent for {{patientName}} to donate their anonymized data?', { patientName }),
+        primaryConsentReviewMessage: t('Please ask your parent or guardian to review and consent on your behalf below.'),
         primaryConsentInputLabel: t('As their parent or guardian, I have read this form and I give my consent by checking this box and clicking "Next."'),
+        primaryConsentSignature: t('Electronic signature: {{names}}', { names: caregiverName }),
+        primaryConsentNameInputLabel: t('Parent Or Legal Guardian Name'),
+        secondaryConsentQuestion: t('{{patientName}}, do you want to donate your anonymized data?', { patientName }),
+        secondaryConsentDescription: t('My parent or guardian read The Tidepool Big Data Donation Project Informed Consent Form, explained this project to me, answered my questions about the project, and said that it was all right for me to donate my anonymized data if I wanted to. I understand that the project will get information from my Tidepool account and share it with researchers and others involved in helping to make care for diabetes better. I understand that my participation is voluntary, I don\'t have to do this, and I can opt out at any time. '),
+        secondaryConsentInputLabel: t('Yes - By checking the box and clicking "Submit," I am saying that I want to donate my anonymized data.'),
+        secondaryConsentSignature: t('Electronic signature: {{names}}', { names: [patientName, caregiverName].join(', ') }),
       },
     },
     caregiver: {
@@ -55,19 +76,25 @@ export const getConsentText = (accountType, patientAgeGroup, patientName, consen
         consentSuccessMessage: t('{{patientName}} consented on {{consentDate}}.', { consentDate, patientName }),
         primaryConsentQuestion: t('{{patientName}}, do you want to donate your anonymized data?', { patientName }),
         primaryConsentInputLabel: t('Yes - I have read this form and give my consent by checking this box and clicking submit.'),
+        primaryConsentReviewMessage: t('Please ask {{firstName}} to review and take the next step', { firstName }),
+        primaryConsentSignature: t('Electronic signature: {{names}}', { names: patientName }),
       },
       youth: {
         consentSuccessMessage: t('You consented and {{patientName}} assented on {{consentDate}}.', { consentDate, patientName }),
         primaryConsentQuestion: t('Do you give your consent for {{patientName}} to donate their anonymized data?', { patientName }),
         primaryConsentInputLabel: t('As their parent or guardian, I have read this form and I give my consent by checking this box and clicking "Next."'),
+        primaryConsentSignature: t('Electronic signature: {{names}}', { names: caregiverName }),
         secondaryConsentQuestion: t('{{patientName}}, do you want to donate your anonymized data?', { patientName }),
         secondaryConsentDescription: t('My parent or guardian read The Tidepool Big Data Donation Project Informed Consent Form, explained this project to me, answered my questions about the project, and said that it was all right for me to donate my anonymized data if I wanted to. I understand that the project will get information from my Tidepool account and share it with researchers and others involved in helping to make care for diabetes better. I understand that my participation is voluntary, I don\'t have to do this, and I can opt out at any time.'),
         secondaryConsentInputLabel: t('Yes - By checking the box and clicking "Submit," I am saying that I want to donate my anonymized data.'),
+        secondaryConsentReviewMessage: t('Please ask {{firstName}} to review and take the next step', { firstName }),
+        secondaryConsentSignature: t('Electronic signature: {{names}}', { names: [patientName, caregiverName].join(', ') }),
       },
       child: {
         consentSuccessMessage: t('You consented on behalf of {{patientName}} on {{consentDate}}.', { consentDate, patientName }),
         primaryConsentQuestion: t('Do you give your consent for {{patientName}} to donate their anonymized data?', { patientName }),
         primaryConsentInputLabel: t('Yes - As their parent or guardian, I have read this form and give my consent by checking this box and clicking submit.'),
+        primaryConsentSignature: t('Electronic signature: {{names}}', { names: caregiverName }),
       },
     },
   };
@@ -76,16 +103,15 @@ export const getConsentText = (accountType, patientAgeGroup, patientName, consen
 };
 
 export const DataDonationConsentDialog = (props) => {
-  const { t, onClose, onConfirm, open, accountType, patientAgeGroup, patientName, caregiverName, consentDate = today } = props;
+  const { t, onClose, onConfirm, open, accountType, patientAgeGroup, patientName, caregiverName: caregiverNameProp, consentDate = today } = props;
   const patientAssentRequired = patientAgeGroup === 'youth';
   const formSteps = patientAssentRequired ? ['primary', 'secondary'] : ['primary'];
   const [currentConsentStep, setCurrentConsentStep] = React.useState(0);
   const [scrolledToBottom, setScrolledToBottom] = React.useState(false);
+  const [caregiverName, setCaregiverName] = React.useState(caregiverNameProp);
+  // const { [DATA_DONATION_CONSENT_TYPE]: consentDocument } = useSelector((state) => state.blip.consents);
 
-  const consentText = getConsentText(accountType, patientAgeGroup, patientName, consentDate);
-  const consentQuestion = consentText[`${formSteps[currentConsentStep]}ConsentQuestion`];
-  const consentDescription = consentText[`${formSteps[currentConsentStep]}ConsentDescription`];
-  const consentInputLabel = consentText[`${formSteps[currentConsentStep]}ConsentInputLabel`];
+  console.log('consentDocument', consentDocument);
 
   const nameSchema = yup.object().shape({
     name: yup.string().required(t('Parent or Legal Guardian Name is required')),
@@ -102,7 +128,7 @@ export const DataDonationConsentDialog = (props) => {
   });
 
   const schemas = {
-    primary: patientAssentRequired && accountType === 'caregiver' ? nameSchema.concat(primaryConsentSchema) : primaryConsentSchema,
+    primary: patientAssentRequired && accountType === 'personal' ? nameSchema.concat(primaryConsentSchema) : primaryConsentSchema,
     secondary: secondaryConsentSchema,
   };
 
@@ -119,6 +145,7 @@ export const DataDonationConsentDialog = (props) => {
       const nextStep = currentConsentStep + 1;
       if (formSteps[nextStep]) {
         setCurrentConsentStep(nextStep);
+        setCaregiverName(values.name);
         formikHelpers.resetForm();
         document.getElementById('consentDocumentText')?.scrollTo({ top: 0 });
         setScrolledToBottom(false);
@@ -127,6 +154,18 @@ export const DataDonationConsentDialog = (props) => {
       }
     },
   });
+
+  useEffect(() => {
+    if (isString(formikContext.values.name)) setCaregiverName(formikContext.values.name);
+  }, [formikContext.values.name]);
+
+  const consentText = getConsentText(accountType, patientAgeGroup, patientName, caregiverName, consentDate);
+  const consentQuestion = consentText[`${formSteps[currentConsentStep]}ConsentQuestion`];
+  const consentDescription = consentText[`${formSteps[currentConsentStep]}ConsentDescription`];
+  const consentInputLabel = consentText[`${formSteps[currentConsentStep]}ConsentInputLabel`];
+  const consentReviewMessage = consentText[`${formSteps[currentConsentStep]}ConsentReviewMessage`];
+  const consentSignature = consentText[`${formSteps[currentConsentStep]}ConsentSignature`];
+  const consentNameInputLabel = consentText[`${formSteps[currentConsentStep]}ConsentNameInputLabel`];
 
   const handleConsentDocumentScroll = (e) => {
     const { scrollTop, scrollHeight, clientHeight } = e.target;
@@ -142,24 +181,30 @@ export const DataDonationConsentDialog = (props) => {
       aria-labelledby="dialog-title"
       open={open}
       onClose={onClose}
+      maxWidth="md"
     >
       <DialogTitle onClose={onClose}>
         <MediumTitle id="dialog-title">{t('Fuel the next generation of diabetes innovation')}</MediumTitle>
       </DialogTitle>
       <DialogContent>
-        <Box id="consentDocument" variant="containers.infoWell">
+        <Box id="consentDocument" variant="containers.wellBordered" p={0} mb={4}>
           <Box
             id="consentDocumentText"
             onScroll={handleConsentDocumentScroll}
+            p={3}
             sx={{
               height: '30vh',
               overflowY: 'auto',
-              mb: 3,
+              overflowX: 'hidden',
+              boxShadow: `${shadows.well} inset`,
             }}
           >
             <Markdown
               components={{
-                h1: MediumTitle,
+                h1(props) {
+                  const {node, ...rest} = props
+                  return <MediumTitle mb={3} {...rest} />
+                },
                 h2: Subheading,
                 h3(props) {
                   const {node, ...rest} = props
@@ -193,31 +238,58 @@ export const DataDonationConsentDialog = (props) => {
 
           <Flex
             id="consentDocumentFooter"
+            p={3}
             sx={{
               justifyContent: 'space-between',
               alignItems: 'center',
               position: 'sticky',
               bottom: 0,
-              bg: 'background',
-              py: 2,
-              px: 3,
-              boxShadow: `0 -2px 8px ${colors.lightestGrey}`,
+              bg: 'lightestGrey',
+              borderTop: `1px solid ${colors.border.default}`,
               zIndex: 1,
             }}
           >
-            <Body0 className="patientSignature">
-              {t('Electronic signature: {{caregiverName}}', { caregiverName: caregiverName })}
+            <Body0 className="consentSignature" sx={{ fontWeight: 'medium' }}>
+              {consentSignature}
             </Body0>
-            <Body0 className="consentDate">
+            <Body0 className="consentDate" sx={{ fontWeight: 'medium' }}>
               {t('Date: {{consentDate}}', { consentDate })}
             </Body0>
           </Flex>
         </Box>
 
         <Box>
-          <Paragraph2 sx={{ fontWeight: 'medium'}}>
-            <Text className='consentQuestion'>{consentQuestion}</Text>
-          </Paragraph2>
+          {consentReviewMessage && (
+            <Box mb={3}>
+              <Pill
+                id="consentReviewMessage"
+                mb={3}
+                sx={{ fontSize: 1 }}
+                text={consentReviewMessage}
+                icon={InfoRoundedIcon}
+                label={t('Consent review message')}
+                colorPalette="info"
+              />
+            </Box>
+          )}
+
+          {consentNameInputLabel && (
+            <Box mb={3}>
+              <TextInput
+                {...getCommonFormikFieldProps('name', formikContext)}
+                label={consentNameInputLabel}
+                placeholder={t('Name')}
+                variant="condensed"
+                width="100%"
+              />
+            </Box>
+          )}
+
+          {consentQuestion && (
+            <Paragraph2 mb={2} sx={{ fontWeight: 'medium'}}>
+              <Text className='consentQuestion'>{consentQuestion}</Text>
+            </Paragraph2>
+          )}
 
           {consentDescription && (
             <Paragraph1 sx={{ fontWeight: 'medium'}}>
@@ -239,7 +311,7 @@ export const DataDonationConsentDialog = (props) => {
             <Checkbox
               {...getCommonFormikFieldProps(`${formSteps[currentConsentStep]}Consent`, formikContext, 'checked')}
               bg="white"
-              themeProps={{ sx: { bg: 'transparent' } }}
+              themeProps={{ sx: { bg: 'transparent', textAlign: 'left' } }}
               label={consentInputLabel}
               disabled={!formikContext.values[`${formSteps[currentConsentStep]}ConsentRead`]}
               sx={{
