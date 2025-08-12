@@ -416,17 +416,10 @@ utils.getBGPrefsForDataProcessing = (
   }
 
   const bounds = (() => {
-    // If user is a PwD with self-specified custom targets, use them.
-    if (!clinicPatient?.id && !!patientSettings?.bgTarget) {
+    // If user is a PwD, use any self-defined custom bg targets
+    if (_.isEmpty(clinicPatient)) {
       let low = _.get(patientSettings, 'bgTarget.low', DEFAULT_BG_BOUNDS[bgUnits].targetLowerBound);
       let high = _.get(patientSettings, 'bgTarget.high', DEFAULT_BG_BOUNDS[bgUnits].targetUpperBound);
-
-      let isUnitDifferent = (patientSettings?.units?.bg || MGDL_UNITS) !== bgUnits;
-      if (isUnitDifferent) console.log(`Displaying BG in ${bgUnits} from ${bgUnitsOverride.source}`);
-
-      // If differing units between clinic & patient, translate the threshold and round
-      if (!!low && isUnitDifferent) low = utils.roundBgTarget(utils.translateBg(low, bgUnits), bgUnits);
-      if (!!high && isUnitDifferent) high = utils.roundBgTarget(utils.translateBg(high, bgUnits), bgUnits);
 
       return ({
         veryLowThreshold: DEFAULT_BG_BOUNDS[bgUnits].veryLowThreshold,
@@ -434,11 +427,10 @@ utils.getBGPrefsForDataProcessing = (
         targetUpperBound: high,
         veryHighThreshold: DEFAULT_BG_BOUNDS[bgUnits].veryHighThreshold,
         extremeHighThreshold: DEFAULT_BG_BOUNDS[bgUnits].extremeHighThreshold,
-        clampThreshold: DEFAULT_BG_BOUNDS[bgUnits].clampThreshold,
       });
     }
 
-    // Use clinic-designated range, or fall back to default
+    // If clinician, use clinic-designated targets, or fall back to default
     const glycemicRanges = clinicPatient?.glycemicRanges || GLYCEMIC_RANGE.ADA_STANDARD;
 
     switch(glycemicRanges) {
