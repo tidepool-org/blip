@@ -593,7 +593,7 @@ export const consents = (state = initialState.consents, action) => {
   switch (action.type) {
     case types.FETCH_LATEST_CONSENT_BY_TYPE_SUCCESS:
       const consentType = _.get(action.payload, 'consentType');
-      const consentDocument = _.get(action.payload, 'consentDocument');
+      const consentDocument = _.get(action.payload, 'consentDocument.data.0.content');
       return update(state, { $set: { [consentType]: consentDocument } });
 
     default:
