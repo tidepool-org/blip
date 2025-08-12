@@ -130,6 +130,7 @@ export const borders = {
   modal: `1px solid ${colors.border.modal}`,
   divider: `2px solid ${colors.border.divider}`,
   dividerDark: `2px solid ${colors.border.dividerDark}`,
+  dividerDarkThin: `1px solid ${colors.border.dividerDark}`,
   card: '1px solid rgba(225, 234, 249, 1)',
 };
 
@@ -163,6 +164,7 @@ export const shadows = {
   medium: '0px 0px 4px rgba(67, 90, 111, 0.4)',
   large: '0px 3px 6px rgba(67, 90, 111, 0.301);',
   focus: `0px 0px 0px 2px ${colors.border.focus}`,
+  well: '0px 0px 8px rgba(67, 90, 111, 0.15)',
 };
 
 export const space = [0, 4, 8, 16, 24, 32, 48, 64, 96, 128];
