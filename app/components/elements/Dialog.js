@@ -35,7 +35,7 @@ export function DialogTitle(props) {
   return (
     <Flex
       p={3}
-      sx={{ alignItems: 'center', justifyContent: 'space-between', flexWrap: 'nowrap', borderBottom: props.divider ? borders.divider : 'unset', ...sx }}
+      sx={{ alignItems: 'center', justifyContent: 'space-between', flexWrap: 'nowrap', borderBottom: props.divider ? borders.dividerDarkThin : 'unset', ...sx }}
       {...dialogTitleProps}
     >
       <Box sx={{ flexGrow: 1, flexBasis: 0, textAlign: 'left' }}>
@@ -115,7 +115,7 @@ export function DialogContent({ sx = {}, ...props }) {
   return <StyledDialogContent
     p={4}
     sx={{
-      borderBottom: props.divider ? borders.divider : 'unset',
+      borderBottom: props.divider ? borders.dividerDarkThin : 'unset',
       [`@media screen and (max-width: ${breakpoints[1]})`]: { minWidth: '100vw' },
       ...sx,
     }}
@@ -175,6 +175,7 @@ const StyledDialog = styled(MuiDialog)`
   .MuiBackdrop-root {
     background-color: rgba(66, 90, 112, 0.81);
   }
+
   .MuiDialog-paper {
     border: ${borders.modal};
     box-shadow: ${shadows.large};
@@ -185,6 +186,22 @@ const StyledDialog = styled(MuiDialog)`
       height: 100%;
       max-height: 100%;
     }
+  }
+
+  .MuiDialog-paperWidthSm {
+    max-width: ${breakpoints[0]};
+  }
+
+  .MuiDialog-paperWidthMd {
+    max-width: ${breakpoints[1]};
+  }
+
+  .MuiDialog-paperWidthLg {
+    max-width: ${breakpoints[2]};
+  }
+
+  .MuiDialog-paperWidthXl {
+    max-width: ${breakpoints[3]};
   }
 `;
 
