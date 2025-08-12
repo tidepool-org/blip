@@ -287,12 +287,12 @@ const TideDashboardSection = React.memo(props => {
       text: t('No Pending Connections'),
     },
     pending: {
-      colorPalette: 'primaryText',
+      colorPalette: 'info',
       icon: null,
       text: t('Invite Sent'),
     },
     pendingReconnect: {
-      colorPalette: 'primaryText',
+      colorPalette: 'info',
       icon: null,
       text: t('Invite Sent'),
     },
@@ -302,7 +302,7 @@ const TideDashboardSection = React.memo(props => {
       text: t('Invite Expired'),
     },
     connected: {
-      colorPalette: 'primaryText',
+      colorPalette: 'info',
       icon: null,
       text: t('Connected'),
     },
