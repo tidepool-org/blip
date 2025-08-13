@@ -35,10 +35,10 @@ export function DialogTitle(props) {
   return (
     <Flex
       p={3}
-      sx={{ alignItems: 'center', justifyContent: 'space-between', flexWrap: 'nowrap', borderBottom: props.divider ? borders.dividerDarkThin : 'unset', ...sx }}
+      sx={{ overflowX: 'hidden', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'nowrap', borderBottom: props.divider ? borders.dividerDarkThin : 'unset', ...sx }}
       {...dialogTitleProps}
     >
-      <Box sx={{ flexGrow: 1, flexBasis: 0, textAlign: 'left' }}>
+      <Box sx={{ flexGrow: 1, flexBasis: onBack ? 'auto' : 0, textAlign: 'left' }}>
         {onBack && (
           <Icon
             as={Flex}
@@ -63,7 +63,7 @@ export function DialogTitle(props) {
         {children}
       </Box>
 
-      <Box sx={{ flexGrow: 1, flexBasis: 0, textAlign: 'right' }}>
+      <Box sx={{ flexGrow: 1, flexBasis: closeIcon ? 'auto' : 0, textAlign: 'right' }}>
         {closeIcon && (
           <Icon
             label="close dialog"
@@ -106,8 +106,8 @@ const StyledDialogContent = styled(Box)`
   overflow-y: auto;
 
   @media screen and (max-width: ${MOBILE_BREAKPOINT}) {
-    // The (A) title bar and (B) actions footer are each 64px in height
-    min-height: calc(100% - 64px - 64px);
+    // Set main content area to fill the remaining vertical space on the screen
+    flex: 1;
   }
 `;
 
@@ -152,7 +152,7 @@ const StyledDialogActions = styled(Flex)`
 
 export function DialogActions(props) {
   return <StyledDialogActions
-    sx={{ justifyContent: 'flex-end' }}
+    sx={{ overflowX: 'hidden', justifyContent: 'flex-end' }}
     px={4}
     py={3}
     {...props}
@@ -182,6 +182,7 @@ const StyledDialog = styled(MuiDialog)`
     border-radius: ${radii.default}px;
 
     @media screen and (max-width: ${MOBILE_BREAKPOINT}) {
+      border: none;
       margin: 0;
       height: 100%;
       max-height: 100%;
