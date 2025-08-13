@@ -48,7 +48,9 @@ export function Pill(props) {
   let borderRadius = condensed ? 3 : 4;
   if (round) borderRadius = '100%';
   const height = round ? width : 'auto';
-  const lineHeight = round ? width : '1em';
+
+  let lineHeight = condensed ? '1em' : '1.5em';
+  if (round) lineHeight = width;
 
   return (
     <Text
@@ -68,6 +70,10 @@ export function Pill(props) {
         width,
         height,
         lineHeight,
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 2,
         ...sx
       }}
       {...themeProps}
@@ -77,8 +83,6 @@ export function Pill(props) {
           tabIndex={-1}
           className="icon"
           fontSize="1.1em"
-          mr="0.35em"
-          sx={{ top: pt }}
           theme={baseTheme}
           variant="static"
           icon={icon}
