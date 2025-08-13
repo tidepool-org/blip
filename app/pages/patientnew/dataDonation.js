@@ -301,7 +301,12 @@ export const PatientNewDataDonation = (props) => {
             <Flex
               id="dataDonationConsentDetails"
               mb={3}
-              sx={{ justifyContent: 'space-between', alignItems: 'center' }}
+              sx={{
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexDirection: ['column', 'row'],
+                gap: 2,
+             }}
             >
               <Pill
                 id="consentSuccessMessage"
