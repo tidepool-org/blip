@@ -13,7 +13,7 @@ import uploadIcon from '../../../core/icons/uploadIcon.svg'
 
 const ClinicianMenuOptions = ({
   t,
-  onViewProfile,
+  onEditPatient,
   onViewData,
   onUpload = null,
 }) => {
@@ -36,12 +36,12 @@ const ClinicianMenuOptions = ({
       <Box>
         <Button
           id="navPatientHeader_profileButton"
-          onClick={onViewProfile}
+          onClick={onEditPatient}
           iconSrc={profileIcon}
           iconLabel="Profile"
           {...getButtonStyleProps(finalSlug === '/profile')}
         >
-          {t('Patient Profile')}
+          {t('Edit Patient Details')}
         </Button>
       </Box>
 

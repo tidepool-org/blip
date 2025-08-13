@@ -8,8 +8,10 @@ import Name from './Name';
 import DemographicInfo from './DemographicInfo';
 import PatientMenuOptions from './MenuOptions/Patient';
 import ClinicianMenuOptions from './MenuOptions/Clinician';
-import { isClinicianAccount } from '../../core/personutils';
 import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
+import EditPatientDialog from './EditPatientDialog';
+
+import { isClinicianAccount } from '../../core/personutils';
 import { breakpoints } from '../../themes/baseTheme';
 import { DesktopOnly } from '../mediaqueries';
 import utils from '../../core/utils';
@@ -40,6 +42,7 @@ const NavPatientHeader = ({ api, trackMetric, patient, clinicPatient, user, perm
   } = useNavigation(api, trackMetric);
 
   const [isUploadOverlayOpen, setIsUploadOverlayOpen] = useState(false);
+  const [isEditPatientModalOpen, setIsEditPatientModalOpen] = useState(false);
 
   if (!patient?.profile?.patient) return null;
 
@@ -74,7 +77,7 @@ const NavPatientHeader = ({ api, trackMetric, patient, clinicPatient, user, perm
               />
               <ClinicianMenuOptions
                 onViewData={handleViewData}
-                onViewProfile={handleViewProfile}
+                onEditPatient={() => setIsEditPatientModalOpen(true)}
                 onUpload={isUploadVisible ? handleOpenUploader : null}
               />
             </>
@@ -89,8 +92,18 @@ const NavPatientHeader = ({ api, trackMetric, patient, clinicPatient, user, perm
             </>
         }
       </HeaderContainer>
+
       { isUploadOverlayOpen &&
         <UploadLaunchOverlay modalDismissHandler={() => setIsUploadOverlayOpen(false)} />
+      }
+
+      { isEditPatientModalOpen &&
+        <EditPatientDialog
+          api={api}
+          trackMetric={trackMetric}
+          isOpen={isEditPatientModalOpen}
+          handleCloseOverlays={() => setIsEditPatientModalOpen(false)}
+        />
       }
     </Box>
   );
