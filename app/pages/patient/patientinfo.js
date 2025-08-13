@@ -466,7 +466,7 @@ var PatientInfo = withTranslation()(class extends React.Component {
     if (this.isSamePersonUserAndPatient()) {
       return (
         <div className="PatientPage-donateForm">
-          <div className="PatientPage-sectionTitle">{t('Donate my data?')}</div>
+          <div className="PatientPage-sectionTitle">{t('The Tidepool Big Data Donation Project')}</div>
           <div className="PatientInfo-content">
             <DonateForm
               dataDonationAccounts={this.props.dataDonationAccounts || []}
