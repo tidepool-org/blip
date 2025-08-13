@@ -192,7 +192,7 @@ export const DataDonationConsentDialog = (props) => {
             onScroll={handleConsentDocumentScroll}
             p={3}
             sx={{
-              height: '30vh',
+              height: ['40vh', null, '30vh'],
               overflowY: 'auto',
               overflowX: 'hidden',
               boxShadow: `${shadows.well} inset`,
