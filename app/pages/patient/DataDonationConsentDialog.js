@@ -30,7 +30,6 @@ import Pill from '../../components/elements/Pill';
 
 import { DATA_DONATION_CONSENT_TYPE } from '../../core/constants';
 import consentDocument from './sampleConsentDocument';
-// import consentDocument from './sampleConsentDocumentStringified';
 
 const t = i18next.t.bind(i18next);
 const today = moment().format('MMMM D, YYYY');
