@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { useIsFirstRender, usePrevious } from '../../core/hooks';
 import { useTranslation } from 'react-i18next';
 import { selectClinicPatient } from '../../core/selectors';
 import { Dialog, DialogActions, DialogContent, DialogTitle } from '../elements/Dialog';
@@ -7,7 +8,22 @@ import { MediumTitle } from '../elements/FontStyles';
 import Button from '../elements/Button';
 import PatientForm from '../clinic/PatientForm';
 import noop from 'lodash/noop';
-import * as actions from '../../redux/actions'
+import * as actions from '../../redux/actions';
+
+const useUpdateClinicPatient = ({ onUpdateSuccess = noop }) => {
+  const updatingClinicPatient = useSelector((state) => state.blip.working.updatingClinicPatient);
+  const { inProgress, completed } = updatingClinicPatient;
+  const prevInProgress = usePrevious(inProgress);
+  const isFirstRender = useIsFirstRender();
+
+  useEffect(() => {
+    if (!isFirstRender && !inProgress && prevInProgress !== false && completed) {
+      onUpdateSuccess();
+    }
+  }, [onUpdateSuccess, isFirstRender, inProgress, prevInProgress, completed]);
+
+  return updatingClinicPatient;
+};
 
 const EditPatientDialog = ({
   api,
@@ -23,16 +39,22 @@ const EditPatientDialog = ({
   const currentPatientInViewId = useSelector(state => state.blip.currentPatientInViewId);
   const clinicPatient = useSelector(state => selectClinicPatient(state));
 
-  const handleEditPatientConfirm = () => {
-    handleCloseOverlays();
+  const onUpdateSuccess = () => {
+    if (isOpen) handleCloseOverlays();
     dispatch(actions.worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
   };
 
-  const handlePatientFormChange = () => {
-    //
+  const updatingClinicPatient = useUpdateClinicPatient({ onUpdateSuccess });
+
+  const [patientFormContext, setPatientFormContext] = useState();
+
+  const handleEditPatientConfirm = () => {
+    patientFormContext?.handleSubmit();
   };
 
-  const isProcessing = false; // updatingClinicPatient.inProgress
+  const handlePatientFormChange = (formikContext) => {
+    setPatientFormContext({ ...formikContext });
+  };
 
   const isSubmitDisabled = false; // !fieldsAreValid(keys(patientFormContext?.values), validationSchema({mrnSettings, existingMRNs}), patientFormContext?.values)
 
@@ -73,7 +95,7 @@ const EditPatientDialog = ({
           id="editPatientConfirm"
           variant="primary"
           onClick={handleEditPatientConfirm}
-          processing={isProcessing}
+          processing={updatingClinicPatient.inProgress}
           disabled={isSubmitDisabled}
         >
           {t('Save Changes')}
