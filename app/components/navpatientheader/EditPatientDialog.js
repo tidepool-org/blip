@@ -29,8 +29,6 @@ const useUpdatingClinicPatientWorkingState = ({ onUpdateSuccess = noop }) => {
   useEffect(() => {
     if (!isFirstRender && !inProgress && prevInProgress !== false) {
       if (completed) {
-        console.log('EFFECT')
-
         onUpdateSuccess();
         setToast({
           message: t('You have successfully updated a patient.'),
@@ -65,6 +63,9 @@ const EditPatientDialog = ({
   const currentPatientInViewId = useSelector(state => state.blip.currentPatientInViewId);
   const clinicPatient = useSelector(state => selectClinicPatient(state));
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+
+  const [selectedPatient] = useState(clinicPatient);
+
   const mrnSettings = useMemo(() => clinic?.mrnSettings ?? {}, [clinic?.mrnSettings]);
   const existingMRNs = useMemo(
     () => compact(map(reject(clinic?.patients, { id: currentPatientInViewId }), 'mrn')),
@@ -72,8 +73,6 @@ const EditPatientDialog = ({
   );
 
   const onUpdateSuccess = () => {
-    console.log('isOpen', isOpen)
-
     if (isOpen) onClose();
 
     dispatch(actions.worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
@@ -110,7 +109,7 @@ const EditPatientDialog = ({
           api={api}
           trackMetric={trackMetric}
           onFormChange={handlePatientFormChange}
-          patient={clinicPatient}
+          patient={selectedPatient}
           searchDebounceMs={PATIENT_FORM_SEARCH_DEBOUNCE_MS}
           action="edit"
         />
