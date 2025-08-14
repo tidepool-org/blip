@@ -40,6 +40,7 @@ import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
 import { components as vizComponents, utils as vizUtils, colors as vizColors } from '@tidepool/viz';
+const { GLYCEMIC_RANGE } = vizUtils.constants;
 import sundial from 'sundial';
 import ScrollToTop from 'react-scroll-to-top';
 import styled from '@emotion/styled';
@@ -3851,9 +3852,11 @@ export const ClinicPatients = (props) => {
     ) : null;
   }, [clinicBgUnits, activeSummaryPeriod, t]);
 
-  const renderBGEvent = useCallback((type, { summary }) => {
+  const renderBGEvent = useCallback((type, { summary, glycemicRanges }) => {
+    const isNonStandardRange = !!glycemicRanges && glycemicRanges !== GLYCEMIC_RANGE.ADA_STANDARD; // undefined glycemicRanges is standard
+
     const rotation = type === 'low' ? 90 : -90;
-    const color = type === 'low' ? 'bg.veryLow' : 'bg.veryHigh';
+    const color = isNonStandardRange ? vizColors.gray30 : (type === 'low' ? 'bg.veryLow' : 'bg.veryHigh');
     const field = type === 'low' ? 'timeInVeryLowRecords' : 'timeInVeryHighRecords';
     const value = summary?.bgmStats?.periods?.[activeSummaryPeriod]?.[field];
     const visibility = value > 0 ? 'visible' : 'hidden';
