@@ -323,7 +323,7 @@ export const PatientForm = (props) => {
               />
           </Box>
 
-          <Body0 sx={{ fontWeight: 'medium' }} mb={3}>
+          <Body0 mb={3}>
             {t('If you want your patients to upload their data from home, you must include their email address.')}
           </Body0>
         </>
@@ -343,6 +343,10 @@ export const PatientForm = (props) => {
           onChange={glycemicRanges => setFieldValue('glycemicRanges', glycemicRanges)}
           onMenuOpen={() => handleScrollToRef(targetRangePresetSectionRef)}
         />
+
+        <Body0 mb={3} mt={1}>
+          {t('Target ranges follow ADA guidelines. Setting a non-standard range will be used when viewing patient data, but will not be available in the dashboard view.')}
+        </Body0>
       </Box>
 
       {showTags && (
