@@ -9,7 +9,7 @@ import Container from '../../components/elements/Container';
 import { fieldsAreValid } from '../../core/forms';
 import { push } from 'connected-react-router';
 import { noop } from 'lodash';
-import DataDonationForm, { formSteps, schemas } from '../patient/DataDonationForm';
+import DataDonationForm, { formContexts, formSteps, schemas } from '../patient/DataDonationForm';
 
 export const PatientNewDataDonation = (props) => {
   const { api, trackMetric } = props;
@@ -88,7 +88,12 @@ export const PatientNewDataDonation = (props) => {
       p={4}
       pt={3}
     >
-      <DataDonationForm api={api} trackMetric={trackMetric} onFormChange={handleFormChange} />
+      <DataDonationForm
+        api={api}
+        trackMetric={trackMetric}
+        context={formContexts.newPatient}
+        onFormChange={handleFormChange}
+      />
     </Container>
   );
 };

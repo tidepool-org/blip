@@ -4,9 +4,7 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { Trans, useTranslation } from 'react-i18next';
 import * as yup from 'yup';
-import forEach from 'lodash/forEach';
-import get from 'lodash/get';
-import isEmpty from 'lodash/isEmpty';
+import { forEach, get, isEmpty, noop, values } from 'lodash';
 import { useFormik } from 'formik';
 import { Box, Flex, Link } from 'theme-ui';
 import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
@@ -55,8 +53,14 @@ export const schemas = {
   dataDonationDestination: dataDonationDestinationSchema,
 };
 
+export const formContexts = {
+  newPatient: 'newPatient',
+  profileNonDonor: 'profileNonDonor',
+  profileDonor: 'profileDonor',
+};
+
 export const DataDonationForm = (props) => {
-  const { api, trackMetric, onFormChange } = props;
+  const { api, trackMetric, onFormChange, context } = props;
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const { set: setToast } = useToasts();
@@ -74,8 +78,7 @@ export const DataDonationForm = (props) => {
   const previousWorking = usePrevious(working);
   const isFirstRender = useIsFirstRender();
   const [submitting, setSubmitting] = useState(false);
-  const [currentForm, setCurrentForm] = useState(formSteps.dataDonationConsent);
-  // const [currentForm, setCurrentForm] = useState(formSteps.dataDonationDestination);
+  const [currentForm, setCurrentForm] = useState(context === formContexts.profileDonor ? formSteps.dataDonationDestination : formSteps.dataDonationConsent);
   const [showConsentDialog, setShowConsentDialog] = useState(false);
   const [showRevokeConsentDialog, setShowRevokeConsentDialog] = useState(false);
   const patientAge = moment().diff(moment(user?.profile?.patient?.birthday, 'YYYY-MM-DD'), 'years', true);
@@ -85,6 +88,7 @@ export const DataDonationForm = (props) => {
   const patientAgeGroup = isChild ? 'child' : (isYouth ? 'youth' : 'adult');
   const patientName = personUtils.patientFullName(user);
   const consentSuccessMessage = getConsentText(accountType, patientAgeGroup, patientName).consentSuccessMessage;
+  const showConsentDialogTrigger = context === formContexts.profileNonDonor;
 
   // Fetchers
   useEffect(() => {
@@ -224,8 +228,16 @@ export const DataDonationForm = (props) => {
       <DataDonationSlideShow />
 
       {currentForm === formSteps.dataDonationConsent && (
-        <Box id="data-donation-consent-form">
-
+        <Flex
+          id="dataDonationConsentDetails"
+          mb={3}
+          sx={{
+            justifyContent: showConsentDialogTrigger ? 'space-between' : 'center',
+            alignItems: 'center',
+            flexDirection: ['column', 'row'],
+            gap: 2,
+          }}
+        >
           <Box>
             <Trans i18nKey="html.data-donation-details">
               <Paragraph1 sx={{ fontWeight: 'medium', textAlign: 'center' }}>
@@ -234,6 +246,15 @@ export const DataDonationForm = (props) => {
               </Paragraph1>
             </Trans>
           </Box>
+
+          {showConsentDialogTrigger && (
+            <Button
+              variant="primary"
+              onClick={initializeConsent}
+            >
+              {t('Yes, I\'m Interested')}
+            </Button>
+          )}
 
           {showConsentDialog && (
             <DataDonationConsentDialog
@@ -246,13 +267,13 @@ export const DataDonationForm = (props) => {
               caregiverName={personUtils.patientIsOtherPerson(user) ? personUtils.fullName(user) : undefined}
             />
           )}
-        </Box>
+        </Flex>
       )}
 
       {currentForm === formSteps.dataDonationDestination && (
         <>
           <Flex
-            id="dataDonationConsentDetails"
+            id="dataDonationDestinationDetails"
             mb={3}
             sx={{
               justifyContent: 'space-between',
@@ -306,6 +327,11 @@ DataDonationForm.propTypes = {
   api: PropTypes.object.isRequired,
   trackMetric: PropTypes.func.isRequired,
   onFormChange: PropTypes.func.isRequired,
+  context: PropTypes.oneOf(values(formContexts)).isRequired,
+};
+
+DataDonationForm.defaultProps = {
+  onFormChange: noop,
 };
 
 export default DataDonationForm;
