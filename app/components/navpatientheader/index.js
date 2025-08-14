@@ -77,7 +77,8 @@ const NavPatientHeader = ({ api, trackMetric, patient, clinicPatient, user, perm
               />
               <ClinicianMenuOptions
                 onViewData={handleViewData}
-                onEditPatient={() => setIsEditPatientModalOpen(true)}
+                onOpenPatientForm={() => setIsEditPatientModalOpen(true)}
+                onViewProfile={handleViewProfile}
                 onUpload={isUploadVisible ? handleOpenUploader : null}
               />
             </>
