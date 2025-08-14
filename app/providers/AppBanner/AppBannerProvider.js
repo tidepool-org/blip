@@ -114,7 +114,7 @@ const AppBannerProvider = ({ children }) => {
 
     donateYourData: { // Temporary: hide on mobile until we have a mobile-friendly profile page
       show: !isMobile && userIsCurrentPatient && userHasData && !userIsDonor,
-      bannerArgs: [dispatch],
+      bannerArgs: [dispatch, loggedInUserId],
     },
 
     shareProceeds: {

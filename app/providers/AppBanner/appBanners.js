@@ -132,7 +132,7 @@ export const appBanners = [
     priority: 4,
     context: ['patient'],
     paths: [pathRegexes.patientData],
-    getProps: dispatch => ({
+    getProps: (dispatch, loggedInUserId) => ({
       interactionId: 'DonateYourData',
       label: t('Donate your data banner'),
       message: t('Donate your data. Contribute to research.'),
@@ -141,15 +141,9 @@ export const appBanners = [
       },
       action: {
         text: t('Donate my anonymized data'),
-        processingText: t('Donating anonymized data...'),
         metric: 'web - big data sign up',
         metricProps: { source: 'none', location: 'banner' },
-        handler: () => dispatch(async.updateDataDonationAccounts(api, [ TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL ])),
-        working: {
-          key: 'updatingDataDonationAccounts',
-          successMessage: t('Thank you! Your anonymized data is now being shared'),
-          errorMessage: t('Error sharing anonymized data'),
-        },
+        handler: () => dispatch(push(`/patients/${loggedInUserId}/profile#donateForm`)),
       },
       messageLink: {
         text: t('Learn More'),
@@ -179,7 +173,7 @@ export const appBanners = [
         text: t('Choose a diabetes nonprofit'),
         metric: 'web - big data share proceeds',
         metricProps: { source: 'none', location: 'banner' },
-        handler: () => dispatch(push(`/patients/${loggedInUserId}/profile`)),
+        handler: () => dispatch(push(`/patients/${loggedInUserId}/profile#donateForm`)),
       },
       messageLink: {
         text: t('Learn More'),

@@ -66,6 +66,16 @@ var PatientInfo = withTranslation()(class extends React.Component {
     };
   }
 
+  componentDidMount() {
+    // Scroll to the element with the ID from the fragment identifier
+    if (window.location.hash) {
+      const element = document.querySelector(window.location.hash);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }
+
   render() {
     const { t } = this.props;
     if (this.props.fetchingPatient) {
@@ -465,7 +475,7 @@ var PatientInfo = withTranslation()(class extends React.Component {
 
     if (this.isSamePersonUserAndPatient()) {
       return (
-        <div className="PatientPage-donateForm">
+        <div className="PatientPage-donateForm" id="donateForm">
           <div className="PatientPage-sectionTitle">{t('The Tidepool Big Data Donation Project')}</div>
           <div className="PatientInfo-content">
             <DataDonationForm
