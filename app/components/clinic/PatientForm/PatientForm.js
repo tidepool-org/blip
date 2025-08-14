@@ -79,6 +79,7 @@ export const PatientForm = (props) => {
   const [initialValues, setInitialValues] = useState({});
   const showTags = clinic?.entitlements?.patientTags && !!clinic?.patientTags?.length;
   const showSites = clinic?.entitlements?.clinicSites && !!clinic?.sites?.length;
+  const hasSummaryDashboard = clinic?.entitlements?.summaryDashboard;
   const clinicPatientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
   const clinicSites = useMemo(() => keyBy(clinic?.sites, 'id'), [clinic?.sites]);
   const showEmail = action !== 'acceptInvite';
@@ -345,7 +346,10 @@ export const PatientForm = (props) => {
         />
 
         <Body0 mb={3} mt={1}>
-          {t('Target ranges follow ADA guidelines. Setting a non-standard range will be used when viewing patient data, but will not be available in the dashboard view.')}
+          { hasSummaryDashboard
+            ? t('Target ranges follow ADA guidelines. Setting a non-standard range will be used when viewing patient data, but will not be available in the dashboard view.')
+            : t('Target ranges follow ADA guidelines and will be used when viewing patient data.')
+          }
         </Body0>
       </Box>
 
