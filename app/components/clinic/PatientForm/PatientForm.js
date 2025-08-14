@@ -77,8 +77,12 @@ export const PatientForm = (props) => {
   const dateInputFormat = 'MM/DD/YYYY';
   const dateMaskFormat = dateInputFormat.replace(/[A-Z]/g, '9');
   const [initialValues, setInitialValues] = useState({});
+
   const showTags = clinic?.entitlements?.patientTags && !!clinic?.patientTags?.length;
   const showSites = clinic?.entitlements?.clinicSites && !!clinic?.sites?.length;
+  const showDiabetesType = !!selectedClinicId; // hide in private workspace
+  const showGlycemicRanges = !!selectedClinicId; // hide in private workspace
+
   const clinicPatientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
   const clinicSites = useMemo(() => keyBy(clinic?.sites, 'id'), [clinic?.sites]);
   const showEmail = action !== 'acceptInvite';
@@ -329,21 +333,25 @@ export const PatientForm = (props) => {
         </>
       )}
 
-      <Box ref={diagnosisTypeSectionRef} mb={3}>
-        <SelectDiabetesType
-          value={values.diagnosisType || ''}
-          onChange={diagnosisType => setFieldValue('diagnosisType', diagnosisType)}
-          onMenuOpen={() => handleScrollToRef(diagnosisTypeSectionRef)}
-        />
-      </Box>
+      {showDiabetesType && (
+        <Box ref={diagnosisTypeSectionRef} mb={3}>
+          <SelectDiabetesType
+            value={values.diagnosisType || ''}
+            onChange={diagnosisType => setFieldValue('diagnosisType', diagnosisType)}
+            onMenuOpen={() => handleScrollToRef(diagnosisTypeSectionRef)}
+          />
+        </Box>
+      )}
 
-      <Box ref={targetRangePresetSectionRef} mb={3}>
-        <SelectGlycemicRanges
-          value={values.glycemicRanges || ''}
-          onChange={glycemicRanges => setFieldValue('glycemicRanges', glycemicRanges)}
-          onMenuOpen={() => handleScrollToRef(targetRangePresetSectionRef)}
-        />
-      </Box>
+      {showGlycemicRanges && (
+        <Box ref={targetRangePresetSectionRef} mb={3}>
+          <SelectGlycemicRanges
+            value={values.glycemicRanges || ''}
+            onChange={glycemicRanges => setFieldValue('glycemicRanges', glycemicRanges)}
+            onMenuOpen={() => handleScrollToRef(targetRangePresetSectionRef)}
+          />
+        </Box>
+      )}
 
       {showTags && (
         <Box ref={tagSectionRef} mb={3}>
