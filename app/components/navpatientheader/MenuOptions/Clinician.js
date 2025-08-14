@@ -7,9 +7,10 @@ import { getFinalSlug } from '../../../core/navutils';
 import { getButtonStyleProps, isDataView } from './menuOptionHelpers';
 
 import Button from '../../elements/Button';
-import viewIcon from '../../../core/icons/viewIcon.svg'
-import profileIcon from '../../../core/icons/profileIcon.svg'
-import uploadIcon from '../../../core/icons/uploadIcon.svg'
+import viewIcon from '../../../core/icons/viewIcon.svg';
+import profileIcon from '../../../core/icons/profileIcon.svg';
+import uploadIcon from '../../../core/icons/uploadIcon.svg';
+import { useSelector } from 'react-redux';
 
 const ClinicianMenuOptions = ({
   t,
@@ -18,6 +19,7 @@ const ClinicianMenuOptions = ({
   onUpload = null,
 }) => {
   const { pathname } = useLocation();
+  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const finalSlug = getFinalSlug(pathname);
 
   return (
@@ -34,15 +36,17 @@ const ClinicianMenuOptions = ({
         </Button>
       </Box>
       <Box>
-        <Button
-          id="navPatientHeader_profileButton"
-          onClick={onEditPatient}
-          iconSrc={profileIcon}
-          iconLabel="Profile"
-          {...getButtonStyleProps(finalSlug === '/profile')}
-        >
-          {t('Edit Patient Details')}
-        </Button>
+        {!!selectedClinicId && // Hide in Private Workspace
+          <Button
+            id="navPatientHeader_profileButton"
+            onClick={onEditPatient}
+            iconSrc={profileIcon}
+            iconLabel="Profile"
+            {...getButtonStyleProps(finalSlug === '/profile')}
+          >
+            {t('Edit Patient Details')}
+          </Button>
+        }
       </Box>
 
       {onUpload &&
