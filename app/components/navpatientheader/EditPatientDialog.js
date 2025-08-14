@@ -16,7 +16,7 @@ import { fieldsAreValid } from '../../core/forms';
 import { patientSchema as validationSchema } from '../../core/clinicUtils';
 import * as actions from '../../redux/actions';
 
-const useUpdateClinicPatientWorkingState = ({ onUpdateSuccess = noop }) => {
+const useUpdatingClinicPatientWorkingState = ({ onUpdateSuccess = noop }) => {
   const updatingClinicPatient = useSelector((state) => state.blip.working.updatingClinicPatient);
   const { inProgress, completed } = updatingClinicPatient;
   const prevInProgress = usePrevious(inProgress);
@@ -31,12 +31,13 @@ const useUpdateClinicPatientWorkingState = ({ onUpdateSuccess = noop }) => {
   return updatingClinicPatient;
 };
 
+const PATIENT_FORM_SEARCH_DEBOUNCE_MS = 1000;
+
 const EditPatientDialog = ({
   api,
   trackMetric,
   isOpen,
-  handleCloseOverlays = noop,
-  searchDebounceMs = 1000,
+  onClose = noop,
 }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
@@ -52,11 +53,12 @@ const EditPatientDialog = ({
   );
 
   const onUpdateSuccess = () => {
-    if (isOpen) handleCloseOverlays();
+    if (isOpen) onClose();
+
     dispatch(actions.worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
   };
 
-  const updatingClinicPatient = useUpdateClinicPatientWorkingState({ onUpdateSuccess });
+  const updatingClinicPatient = useUpdatingClinicPatientWorkingState({ onUpdateSuccess });
 
   const [patientFormContext, setPatientFormContext] = useState();
 
@@ -73,11 +75,11 @@ const EditPatientDialog = ({
       id="editPatient"
       aria-labelledby="dialog-title"
       open={isOpen}
-      onClose={handleCloseOverlays}
+      onClose={onClose}
     >
       <DialogTitle onClose={() => {
         trackMetric('Clinic - Edit patient close', { clinicId: selectedClinicId });
-        handleCloseOverlays();
+        onClose();
       }}>
         <MediumTitle id="dialog-title">{t('Edit Patient Details')}</MediumTitle>
       </DialogTitle>
@@ -88,7 +90,7 @@ const EditPatientDialog = ({
           trackMetric={trackMetric}
           onFormChange={handlePatientFormChange}
           patient={clinicPatient}
-          searchDebounceMs={searchDebounceMs}
+          searchDebounceMs={PATIENT_FORM_SEARCH_DEBOUNCE_MS}
           action="edit"
         />
       </DialogContent>
@@ -96,7 +98,7 @@ const EditPatientDialog = ({
       <DialogActions>
         <Button id="editPatientCancel" variant="secondary" onClick={() => {
           trackMetric('Clinic - Edit patient cancel', { clinicId: selectedClinicId, source: 'Patients list' });
-          handleCloseOverlays();
+          onClose();
         }}>
           {t('Cancel')}
         </Button>

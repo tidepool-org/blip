@@ -97,14 +97,12 @@ const NavPatientHeader = ({ api, trackMetric, patient, clinicPatient, user, perm
         <UploadLaunchOverlay modalDismissHandler={() => setIsUploadOverlayOpen(false)} />
       }
 
-      { isEditPatientModalOpen &&
-        <EditPatientDialog
-          api={api}
-          trackMetric={trackMetric}
-          isOpen={isEditPatientModalOpen}
-          handleCloseOverlays={() => setIsEditPatientModalOpen(false)}
-        />
-      }
+      <EditPatientDialog
+        api={api}
+        trackMetric={trackMetric}
+        isOpen={isEditPatientModalOpen}
+        onClose={() => setIsEditPatientModalOpen(false)}
+      />
     </Box>
   );
 };
