@@ -22,12 +22,10 @@ import sundial from 'sundial';
 import { withTranslation, Trans } from 'react-i18next';
 import i18next from '../../core/language';
 
-import { Element } from 'react-scroll';
-
 var personUtils = require('../../core/personutils');
 import PatientSettings from './patientsettings';
 import PatientBgUnits from '../../components/patientBgUnits';
-import DonateForm from '../../components/donateform';
+import DataDonationForm, { formContexts } from './DataDonationForm';
 import Export from '../../components/export';
 import { DIABETES_TYPES } from '../../core/constants';
 
@@ -462,18 +460,18 @@ var PatientInfo = withTranslation()(class extends React.Component {
   };
 
   renderDonateForm = () => {
-    const { t } = this.props;
+    const { t, api, trackMetric, dataDonationAccounts } = this.props;
+    const userIsDonor = !dataDonationAccounts?.length > 0;
+
     if (this.isSamePersonUserAndPatient()) {
       return (
         <div className="PatientPage-donateForm">
           <div className="PatientPage-sectionTitle">{t('The Tidepool Big Data Donation Project')}</div>
           <div className="PatientInfo-content">
-            <DonateForm
-              dataDonationAccounts={this.props.dataDonationAccounts || []}
-              dataDonationAccountsFetched={this.props.dataDonationAccountsFetched || false}
-              onUpdateDataDonationAccounts={this.props.onUpdateDataDonationAccounts}
-              working={this.props.updatingDataDonationAccounts || false}
-              trackMetric={this.props.trackMetric}
+            <DataDonationForm
+              api={api}
+              trackMetric={trackMetric}
+              context={userIsDonor ? formContexts.profileDonor : formContexts.profileNonDonor}
             />
           </div>
         </div>
