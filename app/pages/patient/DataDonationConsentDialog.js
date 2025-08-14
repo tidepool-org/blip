@@ -29,7 +29,6 @@ import personUtils from '../../core/personutils';
 import Pill from '../../components/elements/Pill';
 
 import { DATA_DONATION_CONSENT_TYPE } from '../../core/constants';
-import consentDocument from './sampleConsentDocument';
 
 const t = i18next.t.bind(i18next);
 const today = moment().format('MMMM D, YYYY');
@@ -108,9 +107,7 @@ export const DataDonationConsentDialog = (props) => {
   const [currentConsentStep, setCurrentConsentStep] = React.useState(0);
   const [scrolledToBottom, setScrolledToBottom] = React.useState(false);
   const [caregiverName, setCaregiverName] = React.useState(caregiverNameProp);
-  // const { [DATA_DONATION_CONSENT_TYPE]: consentDocument } = useSelector((state) => state.blip.consents);
-
-  console.log('consentDocument', consentDocument);
+  const { [DATA_DONATION_CONSENT_TYPE]: consentDocument } = useSelector((state) => state.blip.consents);
 
   const nameSchema = yup.object().shape({
     name: yup.string().required(t('Parent or Legal Guardian Name is required')),
