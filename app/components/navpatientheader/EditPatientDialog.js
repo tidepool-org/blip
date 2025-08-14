@@ -11,22 +11,41 @@ import noop from 'lodash/noop';
 import keys from 'lodash/keys';
 import compact from 'lodash/compact';
 import map from 'lodash/map';
+import get from 'lodash/get';
 import reject from 'lodash/reject';
 import { fieldsAreValid } from '../../core/forms';
 import { patientSchema as validationSchema } from '../../core/clinicUtils';
+import { useToasts } from '../../providers/ToastProvider';
 import * as actions from '../../redux/actions';
 
 const useUpdatingClinicPatientWorkingState = ({ onUpdateSuccess = noop }) => {
+  const { t } = useTranslation();
   const updatingClinicPatient = useSelector((state) => state.blip.working.updatingClinicPatient);
-  const { inProgress, completed } = updatingClinicPatient;
+  const { set: setToast } = useToasts();
+  const { inProgress, completed, notification } = updatingClinicPatient;
   const prevInProgress = usePrevious(inProgress);
   const isFirstRender = useIsFirstRender();
 
   useEffect(() => {
-    if (!isFirstRender && !inProgress && prevInProgress !== false && completed) {
-      onUpdateSuccess();
+    if (!isFirstRender && !inProgress && prevInProgress !== false) {
+      if (completed) {
+        console.log('EFFECT')
+
+        onUpdateSuccess();
+        setToast({
+          message: t('You have successfully updated a patient.'),
+          variant: 'success',
+        });
+      }
+
+      if (completed === false) {
+        setToast({
+          message: get(notification, 'message'),
+          variant: 'danger',
+        });
+      }
     }
-  }, [onUpdateSuccess, isFirstRender, inProgress, prevInProgress, completed]);
+  }, [isFirstRender, inProgress, prevInProgress, completed]);
 
   return updatingClinicPatient;
 };
@@ -53,6 +72,8 @@ const EditPatientDialog = ({
   );
 
   const onUpdateSuccess = () => {
+    console.log('isOpen', isOpen)
+
     if (isOpen) onClose();
 
     dispatch(actions.worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
