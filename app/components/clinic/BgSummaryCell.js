@@ -50,11 +50,15 @@ const NonStandardRangeFallback = withTranslation()(({ t, id, showTooltip }) => (
         <PopoverLabel
           id={id}
           icon={InfoOutlinedIcon}
-          iconProps={{ sx: { fontSize: '12px', color: 'grays.4' } }}
+          iconProps={{ sx: { fontSize: 1, color: 'grays.4' } }}
           popoverContent={
-            <Box p={1} sx={{ maxWidth: '242px' }}>
+            <Box p={1} sx={{ maxWidth: '280px', textAlign: 'center', lineHeight: 0 }}>
+              <Text sx={{ color: vizColors.gray50, fontSize: 0, fontWeight: 'bold' }}>
+                {t('TIR Unavailable:')}
+              </Text>
+              {' '}
               <Text sx={{ color: vizColors.gray50, fontSize: 0 }}>
-                {t('TIR Unavailable: An Older/High Risk or Pregnancy target range is being used for this patient and the % TIR calculation is not available in this dashboard.')}
+                {t('An Older/High Risk or Pregnancy target range is being used for this patient and the % TIR calculation is not available in this dashboard.')}
               </Text>
             </Box>
           }
