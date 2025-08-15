@@ -14,7 +14,7 @@ import map from 'lodash/map';
 import get from 'lodash/get';
 import reject from 'lodash/reject';
 import { fieldsAreValid } from '../../core/forms';
-import { useExistingMRNs, patientSchema as validationSchema } from '../../core/clinicUtils';
+import { patientSchema as validationSchema } from '../../core/clinicUtils';
 import { useToasts } from '../../providers/ToastProvider';
 import * as actions from '../../redux/actions';
 

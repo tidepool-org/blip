@@ -15,7 +15,7 @@ import Banner from './../../components/elements/Banner';
 import Button from './../../components/elements/Button';
 import { getCommonFormikFieldProps } from '../../core/forms';
 import { useInitialFocusedInput } from '../../core/hooks';
-import { useExistingMRNs, patientSchema as validationSchema } from '../../core/clinicUtils';
+import { patientSchema as validationSchema } from '../../core/clinicUtils';
 
 import {
   Dialog,

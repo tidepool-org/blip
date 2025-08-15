@@ -76,7 +76,6 @@ import {
   tideDashboardConfigSchema,
   lastDataFilterOptions,
   summaryPeriodOptions,
-  useExistingMRNs,
 } from '../../core/clinicUtils';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';

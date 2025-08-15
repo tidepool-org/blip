@@ -38,7 +38,7 @@ import * as actions from '../../redux/actions';
 import { useIsFirstRender } from '../../core/hooks';
 import { fieldsAreValid } from '../../core/forms';
 import { borders, colors } from '../../themes/baseTheme';
-import { useExistingMRNs, patientSchema as validationSchema } from '../../core/clinicUtils';
+import { patientSchema as validationSchema } from '../../core/clinicUtils';
 import { clinicPatientFromPatientInvite } from '../../core/personutils';
 
 export const PatientInvites = (props) => {

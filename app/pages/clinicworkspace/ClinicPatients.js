@@ -108,7 +108,6 @@ import {
   rpmReportConfigSchema,
   maxClinicPatientTags,
   maxWorkspaceClinicSites,
-  useExistingMRNs,
 } from '../../core/clinicUtils';
 
 import { DIABETES_TYPES, MGDL_UNITS, MMOLL_UNITS, URL_TIDEPOOL_PLUS_PLANS } from '../../core/constants';

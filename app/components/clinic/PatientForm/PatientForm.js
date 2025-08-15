@@ -20,7 +20,7 @@ import * as actions from '../../../redux/actions';
 import TextInput from '../../../components/elements/TextInput';
 import { getCommonFormikFieldProps } from '../../../core/forms';
 import { useInitialFocusedInput, usePrevious } from '../../../core/hooks';
-import { dateRegex, useExistingMRNs, patientSchema as validationSchema } from '../../../core/clinicUtils';
+import { dateRegex, patientSchema as validationSchema } from '../../../core/clinicUtils';
 import { accountInfoFromClinicPatient } from '../../../core/personutils';
 import { Body0 } from '../../../components/elements/FontStyles';
 import { MediumTitle } from '../../../components/elements/FontStyles';
