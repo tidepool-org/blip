@@ -1956,6 +1956,40 @@ export function fetchPatientsForClinic(api, clinicId, options = {}) {
 }
 
 /**
+ * Fetch MRNs for form validation
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {Object} [options] - search options
+ * @param {String} [options.search] - search query string
+ * @param {Number} [options.offset] - search page offset
+ * @param {Number} [options.limit] - results per page
+ * @param {Number} [options.sort] - directionally prefixed field to sort by (e.g. +name or -name)
+ * @param {Number} [options.sortType] - type of bg data to sort by (cgm|bgm)
+ * @param {Number} [options.period] - summary period to sort by (1d|7d|14d|30d)
+ */
+export function fetchClinicMRNsForPatientFormValidation(api, clinicId, options = {}) {
+  return (dispatch) => {
+    dispatch(sync.fetchClinicMRNsForPatientFormValidationRequest());
+
+    api.clinics.getPatientsForClinic(clinicId, options, (err, results) => {
+      if (err) {
+        let errMsg = ErrorMessages.ERR_FETCHING_MRNS_FOR_CLINIC;
+        if (err?.status === 403) {
+          errMsg = ErrorMessages.ERR_FETCHING_MRNS_FOR_CLINIC_UNAUTHORIZED;
+        }
+        dispatch(sync.fetchClinicMRNsForPatientFormValidationFailure(
+          createActionError(errMsg, err), err, clinicId
+        ));
+      } else {
+        const { data, meta: { count, totalCount } } = results;
+        dispatch(sync.fetchClinicMRNsForPatientFormValidationSuccess(clinicId, data, count, totalCount));
+      }
+    });
+  };
+}
+
+/**
  * Fetch Patient from Clinic Action Creator
  *
  * @param {Object} api - an instance of the API wrapper

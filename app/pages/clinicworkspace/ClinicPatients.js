@@ -657,10 +657,6 @@ export const ClinicPatients = (props) => {
   const [showTimeInRangeDialog, setShowTimeInRangeDialog] = useState(false);
   const [showSendUploadReminderDialog, setShowSendUploadReminderDialog] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
-  const existingMRNs = useMemo(
-    () => compact(map(reject(clinic?.patients, { id: selectedPatient?.id }), 'mrn')),
-    [clinic?.patients, selectedPatient?.id]
-  );
   const [selectedClinicSite, setSelectedClinicSite] = useState(null);
   const [selectedPatientTag, setSelectedPatientTag] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -686,6 +682,8 @@ export const ClinicPatients = (props) => {
   const showTideDashboardUI = showSummaryData && (showTideDashboard || clinic?.entitlements?.tideDashboard);
   const ldClient = useLDClient();
   const ldContext = ldClient.getContext();
+
+  const existingMRNs = useSelector(state => state.blip.clinicMRNsForPatientFormValidation)?.filter(mrn => mrn !== selectedPatient?.mrn) || [];
 
   const defaultPatientFetchOptions = useMemo(
     () => {
