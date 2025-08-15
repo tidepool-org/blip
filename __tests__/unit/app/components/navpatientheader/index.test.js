@@ -67,10 +67,10 @@ describe('NavPatientHeader', () => {
         selectedClinicId: 'clinic-123',
         currentPatientInViewId: 'patient-123',
         clinics: { 'clinic-123': { patients: { 'patient-123': {} } } },
-        clinicMrnsForPatientFormValidation: [],
+        clinicMRNsForPatientFormValidation: [],
         working: {
           updatingClinicPatient: { inProgress: false, notification: null, completed: null },
-          fetchingClinicMrnsForPatientFormValidation: { inProgress: false, notification: null, completed: null },
+          fetchingClinicMRNsForPatientFormValidation: { inProgress: false, notification: null, completed: null },
         },
       },
     });

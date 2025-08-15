@@ -103,7 +103,7 @@ describe('PatientInvites', () => {
         deletingPatientInvitation: defaultWorkingState,
         sendingPatientDataProviderConnectRequest: defaultWorkingState,
         fetchingPatientsForClinic: defaultWorkingState,
-        fetchingClinicMrnsForPatientFormValidation: defaultWorkingState,
+        fetchingClinicMRNsForPatientFormValidation: defaultWorkingState,
       },
     },
   };

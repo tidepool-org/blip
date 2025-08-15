@@ -149,7 +149,7 @@ describe('TideDashboard', () => {
         fetchingPatientsForClinic: defaultWorkingState,
         settingClinicPatientLastReviewed: defaultWorkingState,
         revertingClinicPatientLastReviewed: defaultWorkingState,
-        fetchingClinicMrnsForPatientFormValidation: defaultWorkingState,
+        fetchingClinicMRNsForPatientFormValidation: defaultWorkingState,
       },
     },
   };

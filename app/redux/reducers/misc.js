@@ -1004,7 +1004,7 @@ export const clinics = (state = initialState.clinics, action) => {
   }
 };
 
-export const clinicMrnsForPatientFormValidation = (state = initialState.clinicMrnsForPatientFormValidation, action) => {
+export const clinicMRNsForPatientFormValidation = (state = initialState.clinicMRNsForPatientFormValidation, action) => {
   switch(action.type) {
     case types.FETCH_CLINIC_MRNS_FOR_PATIENT_FORM_VALIDATION_SUCCESS: {
       let { patients } = action.payload;

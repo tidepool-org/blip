@@ -160,7 +160,7 @@ describe('ClinicPatients', () => {
         fetchingRpmReportPatients: defaultWorkingState,
         settingClinicPatientLastReviewed: defaultWorkingState,
         revertingClinicPatientLastReviewed: defaultWorkingState,
-        fetchingClinicMrnsForPatientFormValidation: defaultWorkingState,
+        fetchingClinicMRNsForPatientFormValidation: defaultWorkingState,
       },
       patientListFilters: {
         patientListSearchTextInput: '',
@@ -213,7 +213,7 @@ describe('ClinicPatients', () => {
           },
         },
       },
-      clinicMrnsForPatientFormValidation: ['MRN123'],
+      clinicMRNsForPatientFormValidation: ['MRN123'],
     },
   });
 
