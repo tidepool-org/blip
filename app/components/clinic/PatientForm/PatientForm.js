@@ -86,10 +86,10 @@ export const PatientForm = (props) => {
   const clinicPatientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
   const clinicSites = useMemo(() => keyBy(clinic?.sites, 'id'), [clinic?.sites]);
   const showEmail = action !== 'acceptInvite';
-  const { fetchingMRNsForClinic } = useSelector((state) => state.blip.working);
+  const { fetchingClinicMRNsForPatientFormValidation } = useSelector((state) => state.blip.working);
   const [patientFetchOptions, setPatientFetchOptions] = useState({});
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
-  const previousFetchingMRNsForClinic = usePrevious(fetchingMRNsForClinic);
+  const previousFetchingClinicMRNsForPatientFormValidation = usePrevious(fetchingClinicMRNsForPatientFormValidation);
   const previousFetchOptions = usePrevious(patientFetchOptions);
   const initialFocusedInputRef = useInitialFocusedInput();
   const tagSectionRef = useRef(null);
@@ -162,7 +162,7 @@ export const PatientForm = (props) => {
     if (
       loggedInUserId &&
       clinic?.id &&
-      !fetchingMRNsForClinic.inProgress &&
+      !fetchingClinicMRNsForPatientFormValidation.inProgress &&
       !isEmpty(patientFetchOptions) &&
       !(patientFetchOptions === previousFetchOptions)
     ) {
@@ -178,7 +178,7 @@ export const PatientForm = (props) => {
     api,
     clinic,
     dispatch,
-    fetchingMRNsForClinic,
+    fetchingClinicMRNsForPatientFormValidation,
     loggedInUserId,
     patientFetchOptions,
     previousFetchOptions
@@ -187,15 +187,15 @@ export const PatientForm = (props) => {
   // revalidate form on patient fetch complete
   useEffect(() => {
     if (
-      previousFetchingMRNsForClinic?.inProgress &&
-      !fetchingMRNsForClinic.inProgress
+      previousFetchingClinicMRNsForPatientFormValidation?.inProgress &&
+      !fetchingClinicMRNsForPatientFormValidation.inProgress
     ) {
       formikContext.validateForm();
     }
   }, [
-    fetchingMRNsForClinic.inProgress,
+    fetchingClinicMRNsForPatientFormValidation.inProgress,
     formikContext,
-    previousFetchingMRNsForClinic?.inProgress,
+    previousFetchingClinicMRNsForPatientFormValidation?.inProgress,
   ]);
 
   useEffect(() => {
