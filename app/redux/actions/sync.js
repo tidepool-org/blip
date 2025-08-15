@@ -1484,6 +1484,37 @@ export function fetchPatientsForClinicFailure(error, apiError, clinicId) {
   };
 }
 
+export function fetchMRNsForClinicRequest() {
+  return {
+    type: ActionTypes.FETCH_MRNS_FOR_CLINIC_REQUEST,
+  };
+}
+
+export function fetchMRNsForClinicSuccess(clinicId, patients, count, totalCount) {
+  return {
+    type: ActionTypes.FETCH_MRNS_FOR_CLINIC_SUCCESS,
+    payload: {
+      count: count,
+      totalCount: totalCount,
+      patients: patients,
+      clinicId: clinicId,
+    },
+  };
+}
+
+export function fetchMRNsForClinicFailure(error, apiError, clinicId) {
+  return {
+    type: ActionTypes.FETCH_MRNS_FOR_CLINIC_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+    payload: {
+      clinicId
+    }
+  };
+}
+
 export function fetchPatientFromClinicRequest() {
   return {
     type: ActionTypes.FETCH_PATIENT_FROM_CLINIC_REQUEST,

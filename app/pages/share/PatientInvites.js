@@ -38,7 +38,7 @@ import * as actions from '../../redux/actions';
 import { useIsFirstRender } from '../../core/hooks';
 import { fieldsAreValid } from '../../core/forms';
 import { borders, colors } from '../../themes/baseTheme';
-import { patientSchema as validationSchema } from '../../core/clinicUtils';
+import { useExistingMRNs, patientSchema as validationSchema } from '../../core/clinicUtils';
 import { clinicPatientFromPatientInvite } from '../../core/personutils';
 
 export const PatientInvites = (props) => {
@@ -63,10 +63,7 @@ export const PatientInvites = (props) => {
   const openPatientModalOnAccept = clinic?.mrnSettings?.required || clinic?.entitlements?.summaryDashboard;
   const rowsPerPage = 8;
 
-  const existingMRNs = useMemo(
-    () => compact(map(reject(clinic?.patients, { id: selectedPatient?.id }), 'mrn')),
-    [clinic?.patients, selectedPatient?.id]
-  );
+  const existingMRNs = useExistingMRNs({ ignore: selectedPatient?.mrn });
 
   const {
     fetchingPatientInvites,

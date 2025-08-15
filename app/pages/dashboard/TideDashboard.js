@@ -76,6 +76,7 @@ import {
   tideDashboardConfigSchema,
   lastDataFilterOptions,
   summaryPeriodOptions,
+  useExistingMRNs,
 } from '../../core/clinicUtils';
 
 import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
@@ -802,10 +803,7 @@ export const TideDashboard = (props) => {
   const ldClient = useLDClient();
   const ldContext = ldClient.getContext();
 
-  const existingMRNs = useMemo(
-    () => compact(map(reject(clinic?.patients, { id: selectedPatient?.id }), 'mrn')),
-    [clinic?.patients, selectedPatient?.id]
-  );
+  const existingMRNs = useExistingMRNs({ ignore: selectedPatient?.mrn });
 
   const {
     fetchingPatientFromClinic,

@@ -1004,6 +1004,26 @@ export const clinics = (state = initialState.clinics, action) => {
   }
 };
 
+export const existingMRNsForValidation = (state = initialState.existingMRNsForValidation, action) => {
+  switch(action.type) {
+    case types.FETCH_MRNS_FOR_CLINIC_SUCCESS: {
+      let { patients } = action.payload;
+      const newPatientSet = _.reduce(patients, (newSet, patient, i) => {
+        newSet[patient.id] = { ...patient, sortIndex: i };
+        return newSet;
+      }, {});
+
+      const existingMRNs = _.compact(_.map(newPatientSet, 'mrn'));
+
+      return existingMRNs;
+    }
+    case types.FETCH_MRNS_FOR_CLINIC_FAILURE:
+      return state;
+    default:
+      return state;
+  }
+};
+
 export const selectedClinicId = (state = initialState.selectedClinicId, action) => {
   switch(action.type) {
     case types.SELECT_CLINIC_SUCCESS:

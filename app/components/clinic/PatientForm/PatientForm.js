@@ -20,7 +20,7 @@ import * as actions from '../../../redux/actions';
 import TextInput from '../../../components/elements/TextInput';
 import { getCommonFormikFieldProps } from '../../../core/forms';
 import { useInitialFocusedInput, usePrevious } from '../../../core/hooks';
-import { dateRegex, patientSchema as validationSchema } from '../../../core/clinicUtils';
+import { dateRegex, useExistingMRNs, patientSchema as validationSchema } from '../../../core/clinicUtils';
 import { accountInfoFromClinicPatient } from '../../../core/personutils';
 import { Body0 } from '../../../components/elements/FontStyles';
 import { MediumTitle } from '../../../components/elements/FontStyles';
@@ -70,10 +70,9 @@ export const PatientForm = (props) => {
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const mrnSettings = clinic?.mrnSettings ?? {};
-  const existingMRNs = useMemo(
-    () => compact(map(reject(clinic?.patients, { id: patient?.id }), 'mrn')),
-    [clinic?.patients, patient?.id]
-  );
+
+  const existingMRNs = useExistingMRNs({ ignore: patient?.mrn });
+
   const dateInputFormat = 'MM/DD/YYYY';
   const dateMaskFormat = dateInputFormat.replace(/[A-Z]/g, '9');
   const [initialValues, setInitialValues] = useState({});
@@ -87,10 +86,10 @@ export const PatientForm = (props) => {
   const clinicPatientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
   const clinicSites = useMemo(() => keyBy(clinic?.sites, 'id'), [clinic?.sites]);
   const showEmail = action !== 'acceptInvite';
-  const { fetchingPatientsForClinic } = useSelector((state) => state.blip.working);
+  const { fetchingMRNsForClinic } = useSelector((state) => state.blip.working);
   const [patientFetchOptions, setPatientFetchOptions] = useState({});
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
-  const previousFetchingPatientsForClinic = usePrevious(fetchingPatientsForClinic);
+  const previousFetchingMRNsForClinic = usePrevious(fetchingMRNsForClinic);
   const previousFetchOptions = usePrevious(patientFetchOptions);
   const initialFocusedInputRef = useInitialFocusedInput();
   const tagSectionRef = useRef(null);
@@ -163,7 +162,7 @@ export const PatientForm = (props) => {
     if (
       loggedInUserId &&
       clinic?.id &&
-      !fetchingPatientsForClinic.inProgress &&
+      !fetchingMRNsForClinic.inProgress &&
       !isEmpty(patientFetchOptions) &&
       !(patientFetchOptions === previousFetchOptions)
     ) {
@@ -172,14 +171,14 @@ export const PatientForm = (props) => {
         delete fetchOptions.search;
       }
       dispatch(
-        actions.async.fetchPatientsForClinic(api, clinic.id, fetchOptions)
+        actions.async.fetchMRNsForClinic(api, clinic.id, fetchOptions)
       );
     }
   }, [
     api,
     clinic,
     dispatch,
-    fetchingPatientsForClinic,
+    fetchingMRNsForClinic,
     loggedInUserId,
     patientFetchOptions,
     previousFetchOptions
@@ -188,15 +187,15 @@ export const PatientForm = (props) => {
   // revalidate form on patient fetch complete
   useEffect(() => {
     if (
-      previousFetchingPatientsForClinic?.inProgress &&
-      !fetchingPatientsForClinic.inProgress
+      previousFetchingMRNsForClinic?.inProgress &&
+      !fetchingMRNsForClinic.inProgress
     ) {
       formikContext.validateForm();
     }
   }, [
-    fetchingPatientsForClinic.inProgress,
+    fetchingMRNsForClinic.inProgress,
     formikContext,
-    previousFetchingPatientsForClinic?.inProgress,
+    previousFetchingMRNsForClinic?.inProgress,
   ]);
 
   useEffect(() => {

@@ -15,7 +15,7 @@ import Banner from './../../components/elements/Banner';
 import Button from './../../components/elements/Button';
 import { getCommonFormikFieldProps } from '../../core/forms';
 import { useInitialFocusedInput } from '../../core/hooks';
-import { patientSchema as validationSchema } from '../../core/clinicUtils';
+import { useExistingMRNs, patientSchema as validationSchema } from '../../core/clinicUtils';
 
 import {
   Dialog,
@@ -48,10 +48,7 @@ export const PatientEmailModal = (props) => {
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const mrnSettings = clinic?.mrnSettings ?? {};
 
-  const existingMRNs = useMemo(
-    () => compact(map(reject(clinic?.patients, { id: patient?.id }), 'mrn')),
-    [clinic?.patients, patient?.id]
-  );
+  const existingMRNs = useExistingMRNs({ ignore: patient?.mrn });
 
   const clinicPatientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
   const clinicSites = useMemo(() => keyBy(clinic?.sites, 'id'), [clinic?.sites]);

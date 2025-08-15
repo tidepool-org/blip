@@ -58,6 +58,7 @@ import {
   rpmReportPatients,
   ssoEnabledDisplay,
   pendoData,
+  existingMRNsForValidation,
 } from './misc';
 
 export default combineReducers({
@@ -100,5 +101,6 @@ export default combineReducers({
   data,
   working,
   pendoData,
+  existingMRNsForValidation,
   patientListFilters,
 });

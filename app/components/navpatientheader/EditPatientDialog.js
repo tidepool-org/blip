@@ -14,7 +14,7 @@ import map from 'lodash/map';
 import get from 'lodash/get';
 import reject from 'lodash/reject';
 import { fieldsAreValid } from '../../core/forms';
-import { patientSchema as validationSchema } from '../../core/clinicUtils';
+import { useExistingMRNs, patientSchema as validationSchema } from '../../core/clinicUtils';
 import { useToasts } from '../../providers/ToastProvider';
 import * as actions from '../../redux/actions';
 
@@ -64,13 +64,8 @@ const EditPatientDialog = ({
   const clinicPatient = useSelector(state => selectClinicPatient(state));
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
 
-  const [selectedPatient] = useState(clinicPatient);
-
   const mrnSettings = useMemo(() => clinic?.mrnSettings ?? {}, [clinic?.mrnSettings]);
-  const existingMRNs = useMemo(
-    () => compact(map(reject(clinic?.patients, { id: currentPatientInViewId }), 'mrn')),
-    [clinic?.patients, currentPatientInViewId]
-  );
+  const existingMRNs = useExistingMRNs({ ignore: clinicPatient?.mrn });
 
   const onUpdateSuccess = () => {
     if (isOpen) onClose();
@@ -109,7 +104,7 @@ const EditPatientDialog = ({
           api={api}
           trackMetric={trackMetric}
           onFormChange={handlePatientFormChange}
-          patient={selectedPatient}
+          patient={clinicPatient}
           searchDebounceMs={PATIENT_FORM_SEARCH_DEBOUNCE_MS}
           action="edit"
         />
