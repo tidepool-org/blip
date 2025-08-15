@@ -70,7 +70,7 @@ describe('NavPatientHeader', () => {
         clinicMrnsForPatientFormValidation: [],
         working: {
           updatingClinicPatient: { inProgress: false, notification: null, completed: null },
-          fetchingClinicMRNsForPatientFormValidation: { inProgress: false, notification: null, completed: null },
+          fetchingClinicMrnsForPatientFormValidation: { inProgress: false, notification: null, completed: null },
         },
       },
     });
