@@ -71,7 +71,7 @@ export const PatientForm = (props) => {
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const mrnSettings = clinic?.mrnSettings ?? {};
 
-  const existingMRNs = useExistingMRNs({ ignore: patient?.mrn });
+  const existingMRNs = useSelector(state => reject(state.blip.clinicMrnsForPatientFormValidation, mrn => mrn === patient?.mrn));
 
   const dateInputFormat = 'MM/DD/YYYY';
   const dateMaskFormat = dateInputFormat.replace(/[A-Z]/g, '9');

@@ -48,7 +48,7 @@ export const PatientEmailModal = (props) => {
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const mrnSettings = clinic?.mrnSettings ?? {};
 
-  const existingMRNs = useExistingMRNs({ ignore: patient?.mrn });
+  const existingMRNs = useSelector(state => reject(state.blip.clinicMrnsForPatientFormValidation, mrn => mrn === patient?.mrn));
 
   const clinicPatientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
   const clinicSites = useMemo(() => keyBy(clinic?.sites, 'id'), [clinic?.sites]);

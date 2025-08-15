@@ -181,7 +181,7 @@ const initialState = {
     account: {},
     visitor: {},
   },
-  mrnsForClinic: [],
+  clinicMrnsForPatientFormValidation: [],
 };
 
 export default initialState;

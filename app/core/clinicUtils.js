@@ -491,14 +491,3 @@ export const rpmReportConfigSchema = (utcDayShift = 0) => yup.object().shape({
     .required(t('Please select an end date')),
   timezone: yup.string().oneOf(map(timezoneOptions, 'value')).required(t('Please select a timezone')),
 });
-
-export const useExistingMRNs = ({ ignore = null }) => {
-  const existingMRNs = useSelector(state => state.blip.mrnsForClinic || []);
-
-  const filteredExistingMrns = useMemo(
-    () => ignore ? reject(existingMRNs, MRN => MRN === ignore) : existingMRNs,
-    [existingMRNs, ignore]
-  );
-
-  return filteredExistingMrns;
-};

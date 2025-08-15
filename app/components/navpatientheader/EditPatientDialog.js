@@ -65,7 +65,7 @@ const EditPatientDialog = ({
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
 
   const mrnSettings = useMemo(() => clinic?.mrnSettings ?? {}, [clinic?.mrnSettings]);
-  const existingMRNs = useExistingMRNs({ ignore: clinicPatient?.mrn });
+  const existingMRNs = useSelector(state => reject(state.blip.clinicMrnsForPatientFormValidation, mrn => mrn === clinicPatient?.mrn));
 
   const onUpdateSuccess = () => {
     if (isOpen) onClose();

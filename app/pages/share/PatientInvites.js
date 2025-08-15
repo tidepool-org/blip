@@ -63,7 +63,7 @@ export const PatientInvites = (props) => {
   const openPatientModalOnAccept = clinic?.mrnSettings?.required || clinic?.entitlements?.summaryDashboard;
   const rowsPerPage = 8;
 
-  const existingMRNs = useExistingMRNs({ ignore: selectedPatient?.mrn });
+  const existingMRNs = useSelector(state => reject(state.blip.clinicMrnsForPatientFormValidation, mrn => mrn === selectedPatient?.mrn));
 
   const {
     fetchingPatientInvites,
