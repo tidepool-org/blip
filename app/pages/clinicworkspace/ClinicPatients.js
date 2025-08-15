@@ -683,7 +683,7 @@ export const ClinicPatients = (props) => {
   const ldClient = useLDClient();
   const ldContext = ldClient.getContext();
 
-  const existingMRNs = useSelector(state => state.blip.clinicMrnsForPatientFormValidation?.filter(mrn => mrn === selectedPatient?.mrn));
+  const existingMRNs = useSelector(state => reject(state.blip.clinicMrnsForPatientFormValidation, mrn => mrn === selectedPatient?.mrn));
 
   const defaultPatientFetchOptions = useMemo(
     () => {
