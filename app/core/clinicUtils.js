@@ -493,7 +493,7 @@ export const rpmReportConfigSchema = (utcDayShift = 0) => yup.object().shape({
 });
 
 export const useExistingMRNs = ({ ignore = null }) => {
-  const existingMRNs = useSelector(state => state.blip.existingMRNsForValidation || []);
+  const existingMRNs = useSelector(state => state.blip.mrnsForClinic || []);
 
   const filteredExistingMrns = useMemo(
     () => ignore ? reject(existingMRNs, MRN => MRN === ignore) : existingMRNs,

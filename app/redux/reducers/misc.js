@@ -1004,7 +1004,7 @@ export const clinics = (state = initialState.clinics, action) => {
   }
 };
 
-export const existingMRNsForValidation = (state = initialState.existingMRNsForValidation, action) => {
+export const mrnsForClinic = (state = initialState.mrnsForClinic, action) => {
   switch(action.type) {
     case types.FETCH_MRNS_FOR_CLINIC_SUCCESS: {
       let { patients } = action.payload;
