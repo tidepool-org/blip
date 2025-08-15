@@ -48,7 +48,7 @@ const useUpdatingClinicPatientWorkingState = ({ onUpdateSuccess = noop }) => {
   return updatingClinicPatient;
 };
 
-const PATIENT_FORM_SEARCH_DEBOUNCE_MS = 1000;
+const PATIENT_FORM_SEARCH_DEBOUNCE_MS = 600;
 
 const EditPatientDialog = ({
   api,
