@@ -23,6 +23,8 @@ import { appBanners } from './appBanners';
 import { providers } from '../../components/datasources/DataConnections';
 import { selectPatientSharedAccounts } from '../../core/selectors';
 import { DATA_DONATION_NONPROFITS } from '../../core/constants';
+import { utils as vizUtils } from '@tidepool/viz';
+const { GLYCEMIC_RANGE } = vizUtils.constants;
 
 export const CLICKED_BANNER_ACTION = 'clicked';
 export const DISMISSED_BANNER_ACTION = 'dismissed';
@@ -51,6 +53,13 @@ const AppBannerProvider = ({ children }) => {
   const userIsCurrentPatient = loggedInUserId === currentPatientInViewId;
   const isCustodialPatient = has(clinicPatient?.permissions, 'custodian');
   const userHasDiabetesType = !!loggedInUser?.profile?.patient?.diagnosisType;
+  const isClinicUsingAltRange = (() => {
+    if (!clinic?.patients?.[currentPatientInViewId]) return false;
+
+    const { glycemicRanges } = clinic.patients[currentPatientInViewId];
+
+    return !!glycemicRanges && glycemicRanges !== GLYCEMIC_RANGE.ADA_STANDARD;
+  });
 
   const patientMetaData = useSelector(state => state.blip.data.metaData);
   const patientDevices = patientMetaData?.devices;
@@ -145,6 +154,11 @@ const AppBannerProvider = ({ children }) => {
     sendVerification: {
       show: !bannerInteractedForPatient?.addEmail?.[currentPatientInViewId] && isCustodialPatient && !!clinicPatient?.email,
       bannerArgs: [dispatch, clinicPatient],
+    },
+
+    clinicUsingAltRange: {
+      show: userIsCurrentPatient && isClinicUsingAltRange,
+      bannerArgs: [dispatch, loggedInUserId],
     },
   }), [
     bannerInteractedForPatient?.addEmail,

@@ -321,7 +321,7 @@ export const appBanners = [
   {
     id: 'sendVerification',
     variant: 'info',
-    priority: 10,
+    priority: 11,
     context: ['clinic'],
     paths: [pathRegexes.patientData],
     showIcon: false,
@@ -346,6 +346,30 @@ export const appBanners = [
       },
       dismiss: {
         metric: 'Send Verification banner banner dismissed',
+      },
+    }),
+  },
+
+  {
+    id: 'clinicUsingAltRange',
+    variant: 'info',
+    priority: 12,
+    context: ['patient'],
+    paths: [pathRegexes.patientData],
+    getProps: (dispatch, loggedInUserId) => ({
+      interactionId: 'ClinicUsingAltRange',
+      label: t('Clinic is using alternate glycemic range'),
+      message: t('Clinic is using alternate glycemic range'),
+      show: {
+        metric: 'Banner displayed Send Verification',
+      },
+      action: {
+        text: t('See Range'),
+        metric: 'Clicked See Alternate Glycemic Range',
+        handler: () => dispatch(push(`/patients/${loggedInUserId}/profile`)),
+      },
+      dismiss: {
+        metric: 'See Alternate Glycemic Range dismissed',
       },
     }),
   },
