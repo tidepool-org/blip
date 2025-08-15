@@ -63,15 +63,17 @@ const ClinicianMenuOptions = ({
       }
 
       {editOptionState === 'PROFILE_PAGE' &&
-        <Button
-          id="navPatientHeader_profileButton"
-          onClick={onViewProfile}
-          iconSrc={profileIcon}
-          iconLabel="Profile"
-          {...getButtonStyleProps(finalSlug === '/profile')}
-        >
-          {t('Patient Profile')}
-        </Button>
+        <Box>
+          <Button
+            id="navPatientHeader_profileButton"
+            onClick={onViewProfile}
+            iconSrc={profileIcon}
+            iconLabel="Profile"
+            {...getButtonStyleProps(finalSlug === '/profile')}
+          >
+            {t('Patient Profile')}
+          </Button>
+        </Box>
       }
 
       {onUpload &&
