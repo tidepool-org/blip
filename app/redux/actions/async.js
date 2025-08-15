@@ -1968,9 +1968,9 @@ export function fetchPatientsForClinic(api, clinicId, options = {}) {
  * @param {Number} [options.sortType] - type of bg data to sort by (cgm|bgm)
  * @param {Number} [options.period] - summary period to sort by (1d|7d|14d|30d)
  */
-export function fetchMRNsForClinic(api, clinicId, options = {}) {
+export function fetchClinicMRNsForPatientFormValidation(api, clinicId, options = {}) {
   return (dispatch) => {
-    dispatch(sync.fetchMRNsForClinicRequest());
+    dispatch(sync.fetchClinicMRNsForPatientFormValidationRequest());
 
     api.clinics.getPatientsForClinic(clinicId, options, (err, results) => {
       if (err) {
@@ -1978,12 +1978,12 @@ export function fetchMRNsForClinic(api, clinicId, options = {}) {
         if (err?.status === 403) {
           errMsg = ErrorMessages.ERR_FETCHING_MRNS_FOR_CLINIC_UNAUTHORIZED;
         }
-        dispatch(sync.fetchMRNsForClinicFailure(
+        dispatch(sync.fetchClinicMRNsForPatientFormValidationFailure(
           createActionError(errMsg, err), err, clinicId
         ));
       } else {
         const { data, meta: { count, totalCount } } = results;
-        dispatch(sync.fetchMRNsForClinicSuccess(clinicId, data, count, totalCount));
+        dispatch(sync.fetchClinicMRNsForPatientFormValidationSuccess(clinicId, data, count, totalCount));
       }
     });
   };

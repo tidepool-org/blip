@@ -1006,7 +1006,7 @@ export const clinics = (state = initialState.clinics, action) => {
 
 export const clinicMrnsForPatientFormValidation = (state = initialState.clinicMrnsForPatientFormValidation, action) => {
   switch(action.type) {
-    case types.FETCH_MRNS_FOR_CLINIC_SUCCESS: {
+    case types.FETCH_CLINIC_MRNS_FOR_PATIENT_FORM_VALIDATION_SUCCESS: {
       let { patients } = action.payload;
       const newPatientSet = _.reduce(patients, (newSet, patient, i) => {
         newSet[patient.id] = { ...patient, sortIndex: i };
@@ -1017,7 +1017,7 @@ export const clinicMrnsForPatientFormValidation = (state = initialState.clinicMr
 
       return existingMRNs;
     }
-    case types.FETCH_MRNS_FOR_CLINIC_FAILURE:
+    case types.FETCH_CLINIC_MRNS_FOR_PATIENT_FORM_VALIDATION_FAILURE:
       return state;
     default:
       return state;

@@ -171,7 +171,7 @@ export const PatientForm = (props) => {
         delete fetchOptions.search;
       }
       dispatch(
-        actions.async.fetchMRNsForClinic(api, clinic.id, fetchOptions)
+        actions.async.fetchClinicMRNsForPatientFormValidation(api, clinic.id, fetchOptions)
       );
     }
   }, [

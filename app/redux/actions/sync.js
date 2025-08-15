@@ -1484,15 +1484,15 @@ export function fetchPatientsForClinicFailure(error, apiError, clinicId) {
   };
 }
 
-export function fetchMRNsForClinicRequest() {
+export function fetchClinicMRNsForPatientFormValidationRequest() {
   return {
-    type: ActionTypes.FETCH_MRNS_FOR_CLINIC_REQUEST,
+    type: ActionTypes.FETCH_CLINIC_MRNS_FOR_PATIENT_FORM_VALIDATION_REQUEST,
   };
 }
 
-export function fetchMRNsForClinicSuccess(clinicId, patients, count, totalCount) {
+export function fetchClinicMRNsForPatientFormValidationSuccess(clinicId, patients, count, totalCount) {
   return {
-    type: ActionTypes.FETCH_MRNS_FOR_CLINIC_SUCCESS,
+    type: ActionTypes.FETCH_CLINIC_MRNS_FOR_PATIENT_FORM_VALIDATION_SUCCESS,
     payload: {
       count: count,
       totalCount: totalCount,
@@ -1502,9 +1502,9 @@ export function fetchMRNsForClinicSuccess(clinicId, patients, count, totalCount)
   };
 }
 
-export function fetchMRNsForClinicFailure(error, apiError, clinicId) {
+export function fetchClinicMRNsForPatientFormValidationFailure(error, apiError, clinicId) {
   return {
-    type: ActionTypes.FETCH_MRNS_FOR_CLINIC_FAILURE,
+    type: ActionTypes.FETCH_CLINIC_MRNS_FOR_PATIENT_FORM_VALIDATION_FAILURE,
     error: error,
     meta: {
       apiError: apiError || null,
