@@ -85,6 +85,8 @@ const EditPatientDialog = ({
     setPatientFormContext({ ...formikContext });
   };
 
+  if (!currentPatientInViewId || !selectedClinicId) return null;
+
   return (
     <Dialog
       id="editPatient"
