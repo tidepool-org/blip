@@ -8,6 +8,7 @@ import _ from 'lodash';
 
 import Patient from '../patient/';
 import { clinicPatientFromAccountInfo } from '../../core/personutils';
+import { DATA_DONATION_CONSENT_TYPE } from '../../core/constants';
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux
@@ -16,6 +17,11 @@ export function getFetchers(dispatchProps, ownProps, stateProps, api) {
   const fetchers = [
     dispatchProps.fetchPatient.bind(null, api, ownProps.match.params.id),
   ];
+
+  if (stateProps.loggedInUserId === ownProps.match.params.id) {
+    // If the logged-in user is viewing their own profile, fetch their data donation consent records
+    fetchers.push(dispatchProps.fetchUserConsentRecords.bind(null, api, DATA_DONATION_CONSENT_TYPE));
+  }
 
   if (!stateProps.fetchingPendingSentInvites.inProgress && !stateProps.fetchingPendingSentInvites.completed) {
     fetchers.push(dispatchProps.fetchPendingSentInvites.bind(null, api));
@@ -119,6 +125,7 @@ export function mapStateToProps(state) {
     dataSources: state.blip.dataSources || [],
     authorizedDataSource: state.blip.authorizedDataSource,
     selectedClinicId,
+    loggedInUserId,
   };
 }
 
@@ -134,6 +141,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   connectDataSource: actions.async.connectDataSource,
   fetchPatientFromClinic: actions.async.fetchPatientFromClinic,
   updateClinicPatient: actions.async.updateClinicPatient,
+  fetchUserConsentRecords: actions.async.fetchUserConsentRecords,
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {

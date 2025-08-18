@@ -601,6 +601,18 @@ export const consents = (state = initialState.consents, action) => {
   }
 };
 
+export const consentRecords = (state = initialState.consentRecords, action) => {
+  switch (action.type) {
+    case types.FETCH_USER_CONSENT_RECORDS_SUCCESS:
+      const consentType = _.get(action.payload, 'consentType');
+      const records = _.get(action.payload, 'records.data', []);
+      return update(state, { $set: { [consentType]: records } });
+
+    default:
+      return state;
+  }
+};
+
 export const clinics = (state = initialState.clinics, action) => {
   switch (action.type) {
     case types.GET_CLINICS_SUCCESS: {

@@ -1362,13 +1362,38 @@ export function fetchLatestConsentByType(api, consentType) {
   return (dispatch) => {
     dispatch(sync.fetchLatestConsentByTypeRequest());
 
-    api.consent.getLatestByType(consentType, (err, consentDocument) => {
+    api.consent.getLatestConsentByType(consentType, (err, consentDocument) => {
       if (err) {
         dispatch(sync.fetchLatestConsentByTypeFailure (
           createActionError(ErrorMessages.ERR_FETCHING_LATEST_CONSENT_BY_TYPE, err), err
         ));
       } else {
         dispatch(sync.fetchLatestConsentByTypeSuccess(consentType, consentDocument));
+      }
+    });
+  };
+}
+
+/**
+ * Fetch User Consent Records By Type Action Creator
+ *
+ * @param  {Object} api - an instance of the API wrapper
+ * @param {String} userId - id of the user to fetch consents for
+ * @param {String} consentType - type of the consent (e.g., 'big_data_donation_project')
+ */
+export function fetchUserConsentRecords(api, consentType) {
+  return (dispatch, getState) => {
+    const { blip: { loggedInUserId } } = getState();
+
+    dispatch(sync.fetchUserConsentRecordsRequest());
+
+    api.consent.getUserRecords(loggedInUserId, consentType, (err, records) => {
+      if (err) {
+        dispatch(sync.fetchUserConsentRecordsFailure (
+          createActionError(ErrorMessages.ERR_FETCHING_USER_CONSENT_RECORDS, err), err
+        ));
+      } else {
+        dispatch(sync.fetchUserConsentRecordsSuccess(consentType, records));
       }
     });
   };

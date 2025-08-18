@@ -1003,6 +1003,32 @@ export function fetchLatestConsentByTypeFailure(error, apiError) {
   };
 }
 
+export function fetchUserConsentRecordsRequest() {
+  return {
+    type: ActionTypes.FETCH_USER_CONSENT_RECORDS_REQUEST,
+  };
+}
+
+export function fetchUserConsentRecordsSuccess(consentType, records) {
+  return {
+    type: ActionTypes.FETCH_USER_CONSENT_RECORDS_SUCCESS,
+    payload: {
+      consentType: consentType,
+      records: records,
+    },
+  };
+}
+
+export function fetchUserConsentRecordsFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_USER_CONSENT_RECORDS_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
 export function fetchMessageThreadRequest() {
   return {
     type: ActionTypes.FETCH_MESSAGE_THREAD_REQUEST,

@@ -913,8 +913,24 @@ api.devices.getAll = function(cb) {
 
 api.consent = {};
 
-api.consent.getLatestByType = function(consentType, cb) {
+api.consent.getLatestConsentByType = function(consentType, cb) {
   return tidepool.getLatestConsentByType(consentType, cb);
+};
+
+api.consent.getUserRecords = function(userId, consentType, cb) {
+  return tidepool.getUserConsentRecords(userId, consentType, cb);
+};
+
+api.consent.createUserConsentRecord = function(userId, consent, cb) {
+  return tidepool.createUserConsentRecord(userId, consent, cb);
+};
+
+api.consent.updateUserConsentRecord = function(userId, recordId, metadata, cb) {
+  return tidepool.updateUserConsentRecord(userId, recordId, metadata, cb);
+};
+
+api.consent.revokeUserConsentRecord = function(userId, recordId, cb) {
+  return tidepool.revokeUserConsentRecord(userId, recordId, cb);
 };
 
 // ----- Clinics -----
