@@ -57,6 +57,16 @@ export default (type) => {
     case types.FETCH_DEVICES_FAILURE:
       return 'fetchingDevices';
 
+    case types.FETCH_LATEST_CONSENT_BY_TYPE_REQUEST:
+    case types.FETCH_LATEST_CONSENT_BY_TYPE_SUCCESS:
+    case types.FETCH_LATEST_CONSENT_BY_TYPE_FAILURE:
+      return 'fetchingLatestConsentByType';
+
+    case types.FETCH_USER_CONSENT_RECORDS_REQUEST:
+    case types.FETCH_USER_CONSENT_RECORDS_SUCCESS:
+    case types.FETCH_USER_CONSENT_RECORDS_FAILURE:
+      return 'fetchingUserConsentRecords';
+
     case types.FETCH_MESSAGE_THREAD_REQUEST:
     case types.FETCH_MESSAGE_THREAD_SUCCESS:
     case types.FETCH_MESSAGE_THREAD_FAILURE:
@@ -463,16 +473,6 @@ export default (type) => {
     case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS:
     case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_FAILURE:
       return 'revertingClinicPatientLastReviewed';
-
-    case types.PROVIDE_DATA_DONATION_CONSENT_REQUEST:
-    case types.PROVIDE_DATA_DONATION_CONSENT_SUCCESS:
-    case types.PROVIDE_DATA_DONATION_CONSENT_FAILURE:
-      return 'providingDataDonationConsent';
-
-    case types.REVOKE_DATA_DONATION_CONSENT_REQUEST:
-    case types.REVOKE_DATA_DONATION_CONSENT_SUCCESS:
-    case types.REVOKE_DATA_DONATION_CONSENT_FAILURE:
-      return 'revokingDataDonationConsent';
 
     default:
       return null;

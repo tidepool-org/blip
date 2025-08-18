@@ -31,9 +31,8 @@ import Pill from '../../components/elements/Pill';
 import { DATA_DONATION_CONSENT_TYPE } from '../../core/constants';
 
 const t = i18next.t.bind(i18next);
-const today = moment().format('MMMM D, YYYY');
 
-export const getConsentText = (accountType, patientAgeGroup, patientName, caregiverName, consentDate = today) => {
+export const getConsentText = (accountType, patientAgeGroup, patientName, caregiverName, consentDate) => {
   const { firstName } = personUtils.splitNamesFromFullname(patientName);
 
   const text = {
@@ -101,7 +100,7 @@ export const getConsentText = (accountType, patientAgeGroup, patientName, caregi
 };
 
 export const DataDonationConsentDialog = (props) => {
-  const { t, onClose, onConfirm, open, accountType, patientAgeGroup, patientName, caregiverName: caregiverNameProp, consentDate = today } = props;
+  const { t, onClose, onConfirm, open, accountType, patientAgeGroup, patientName, caregiverName: caregiverNameProp, consentDate } = props;
   const patientAssentRequired = patientAgeGroup === 'youth';
   const formSteps = patientAssentRequired ? ['primary', 'secondary'] : ['primary'];
   const [currentConsentStep, setCurrentConsentStep] = React.useState(0);
@@ -356,7 +355,7 @@ DataDonationConsentDialog.propTypes = {
   patientAgeGroup: PropTypes.oneOf(['child', 'youth', 'adult']).isRequired,
   patientName: PropTypes.string.isRequired,
   caregiverName: PropTypes.string.isRequired,
-  consentDate: PropTypes.string,
+  consentDate: PropTypes.string.isRequired,
 };
 
 export default withTranslation()(DataDonationConsentDialog);

@@ -63,6 +63,7 @@ const initialState = {
   prescriptions: [],
   devices: {},
   consents: {},
+  consentRecords: {},
   messageThread: null,
   working: {
     acceptingReceivedInvite: Object.assign({}, working),
@@ -156,8 +157,8 @@ const initialState = {
     fetchingClinicPatientCountSettings: Object.assign({}, working),
     settingClinicPatientLastReviewed: Object.assign({}, working),
     revertingClinicPatientLastReviewed: Object.assign({}, working),
-    providingDataDonationConsent: Object.assign({}, working),
-    revokingDataDonationConsent: Object.assign({}, working),
+    fetchingLatestConsentByType: Object.assign({}, working),
+    fetchingUserConsentRecords: Object.assign({}, working),
   },
   notification: null,
   timePrefs: {

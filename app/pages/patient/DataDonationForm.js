@@ -87,7 +87,11 @@ export const DataDonationForm = (props) => {
   const accountType = personUtils.patientIsOtherPerson(user) ? 'caregiver' : 'personal';
   const patientAgeGroup = isChild ? 'child' : (isYouth ? 'youth' : 'adult');
   const patientName = personUtils.patientFullName(user);
-  const consentSuccessMessage = getConsentText(accountType, patientAgeGroup, patientName).consentSuccessMessage;
+  const caregiverName = personUtils.patientIsOtherPerson(user) ? personUtils.fullName(user) : undefined;
+  const userConsents = useSelector((state => state.blip.consentRecords[DATA_DONATION_CONSENT_TYPE] || []));
+  const today = moment().format('MMMM D, YYYY');
+  const consentDate = userConsents[0]?.grantTime ? moment(userConsents[0].grantTime).format('MMMM D, YYYY') : today;
+  const consentSuccessMessage = getConsentText(accountType, patientAgeGroup, patientName, caregiverName, consentDate).consentSuccessMessage;
   const showConsentDialogTrigger = context === formContexts.profileNonDonor;
 
   // Fetchers
@@ -115,8 +119,6 @@ export const DataDonationForm = (props) => {
   };
 
   const {
-    providingDataDonationConsent,
-    revokingDataDonationConsent,
     updatingUser,
   } = useSelector((state) => state.blip.working);
 
@@ -155,13 +157,13 @@ export const DataDonationForm = (props) => {
     });
   }, [updatingUser]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    handleAsyncResult({ ...providingDataDonationConsent, prevInProgress: previousWorking?.providingDataDonationConsent }, t('You have consented to sharing your data'));
-  }, [providingDataDonationConsent]); // eslint-disable-line react-hooks/exhaustive-deps
+  // useEffect(() => {
+  //   handleAsyncResult({ ...providingDataDonationConsent, prevInProgress: previousWorking?.providingDataDonationConsent }, t('You have consented to sharing your data'));
+  // }, [providingDataDonationConsent]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    handleAsyncResult({ ...revokingDataDonationConsent, prevInProgress: previousWorking?.revokingDataDonationConsent }, t('You have stopped sharing your data'));
-  }, [revokingDataDonationConsent]); // eslint-disable-line react-hooks/exhaustive-deps
+  // useEffect(() => {
+  //   handleAsyncResult({ ...revokingDataDonationConsent, prevInProgress: previousWorking?.revokingDataDonationConsent }, t('You have stopped sharing your data'));
+  // }, [revokingDataDonationConsent]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const formikContext = useFormik({
     initialValues: {
@@ -264,7 +266,8 @@ export const DataDonationForm = (props) => {
               accountType={accountType}
               patientAgeGroup={patientAgeGroup}
               patientName={patientName}
-              caregiverName={personUtils.patientIsOtherPerson(user) ? personUtils.fullName(user) : undefined}
+              caregiverName={caregiverName}
+              consentDate={consentDate}
             />
           )}
         </Flex>

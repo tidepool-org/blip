@@ -471,7 +471,7 @@ var PatientInfo = withTranslation()(class extends React.Component {
 
   renderDonateForm = () => {
     const { t, api, trackMetric, dataDonationAccounts } = this.props;
-    const userIsDonor = !dataDonationAccounts?.length > 0;
+    const userIsDonor = dataDonationAccounts?.length > 0; // TODO also check if user has an active consentRecord? May not be needed since the bigdata sharing will be managed by the backend
 
     if (this.isSamePersonUserAndPatient()) {
       return (
