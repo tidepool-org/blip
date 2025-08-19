@@ -1029,6 +1029,56 @@ export function fetchUserConsentRecordsFailure(error, apiError) {
   };
 }
 
+export function createUserConsentRecordRequest() {
+  return {
+    type: ActionTypes.CREATE_USER_CONSENT_RECORD_REQUEST,
+  };
+}
+
+export function createUserConsentRecordSuccess(createdRecord) {
+  return {
+    type: ActionTypes.CREATE_USER_CONSENT_RECORD_SUCCESS,
+    payload: {
+      createdRecord: createdRecord,
+    },
+  };
+}
+
+export function createUserConsentRecordFailure(error, apiError) {
+  return {
+    type: ActionTypes.CREATE_USER_CONSENT_RECORD_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
+export function revokeUserConsentRecordRequest() {
+  return {
+    type: ActionTypes.REVOKE_USER_CONSENT_RECORD_REQUEST,
+  };
+}
+
+export function revokeUserConsentRecordSuccess(consentType) {
+  return {
+    type: ActionTypes.REVOKE_USER_CONSENT_RECORD_SUCCESS,
+    payload: {
+      consentType: consentType,
+    },
+  };
+}
+
+export function revokeUserConsentRecordFailure(error, apiError) {
+  return {
+    type: ActionTypes.REVOKE_USER_CONSENT_RECORD_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
 export function fetchMessageThreadRequest() {
   return {
     type: ActionTypes.FETCH_MESSAGE_THREAD_REQUEST,

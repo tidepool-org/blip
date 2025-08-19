@@ -1378,7 +1378,6 @@ export function fetchLatestConsentByType(api, consentType) {
  * Fetch User Consent Records By Type Action Creator
  *
  * @param  {Object} api - an instance of the API wrapper
- * @param {String} userId - id of the user to fetch consents for
  * @param {String} consentType - type of the consent (e.g., 'big_data_donation_project')
  */
 export function fetchUserConsentRecords(api, consentType) {
@@ -1394,6 +1393,63 @@ export function fetchUserConsentRecords(api, consentType) {
         ));
       } else {
         dispatch(sync.fetchUserConsentRecordsSuccess(consentType, records));
+      }
+    });
+  };
+}
+
+/**
+ * Create User Consent Record Action Creator
+ *
+ * @param  {Object} api - an instance of the API wrapper
+ * @param {Object} consentRecord - the consent record to create
+ * @param {String} consentRecord.ageGroup - Allowed values: ['<13', '13-17', '>=18']
+ * @param {String} consentRecord.ownerName - The name of the account owner
+ * @param {String} [consentRecord.parentGuardianName] - The name of the parent or legal guardian granting the consent record. Required if ageGroup is '<13' or '13-17'.
+ * @param {String} consent.grantorType - Allowed values: ['owner', 'parent/guardian']
+ * @param {String} type - type of the consentRecord (e.g., 'big_data_donation_project')
+ * @param {Object} [consentRecord.metadata]
+ * @param {Array[String]} [consentRecord.metadata.supportedOrganizations] - Allowed values: ['ADCES Foundation', 'Beyond Type 1', 'Children With Diabetes', 'The Diabetes Link', 'Diabetes Youth Families (DYF)', 'DiabetesSisters', 'The diaTribe Foundation', 'Breakthrough T1D']
+ * @param {Number} version - >=1
+ */
+export function createUserConsentRecord(api, consentRecord) {
+  return (dispatch, getState) => {
+    const { blip: { loggedInUserId } } = getState();
+
+    dispatch(sync.createUserConsentRecordRequest());
+
+    api.consent.createUserConsentRecord(loggedInUserId, consentRecord, (err, createdRecord) => {
+      if (err) {
+        dispatch(sync.createUserConsentRecordFailure (
+          createActionError(ErrorMessages.ERR_CREATING_USER_CONSENT_RECORD, err), err
+        ));
+      } else {
+        dispatch(sync.createUserConsentRecordSuccess(createdRecord));
+      }
+    });
+  };
+}
+
+/**
+ * Revoke User Consent Record Action Creator
+ *
+ * @param  {Object} api - an instance of the API wrapper
+ * @param {String} consentType - type of the consent (e.g., 'big_data_donation_project')
+ * @param {String} recordId - id of the consent record to revoke
+ */
+export function revokeUserConsentRecord(api, consentType, recordId) {
+  return (dispatch, getState) => {
+    const { blip: { loggedInUserId } } = getState();
+
+    dispatch(sync.revokeUserConsentRecordRequest());
+
+    api.consent.revokeUserConsentRecord(loggedInUserId, recordId, err => {
+      if (err) {
+        dispatch(sync.revokeUserConsentRecordFailure (
+          createActionError(ErrorMessages.ERR_REVOKING_USER_CONSENT_RECORD, err), err
+        ));
+      } else {
+        dispatch(sync.revokeUserConsentRecordSuccess(consentType));
       }
     });
   };

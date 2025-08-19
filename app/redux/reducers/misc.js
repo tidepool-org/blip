@@ -593,7 +593,7 @@ export const consents = (state = initialState.consents, action) => {
   switch (action.type) {
     case types.FETCH_LATEST_CONSENT_BY_TYPE_SUCCESS:
       const consentType = _.get(action.payload, 'consentType');
-      const consentDocument = _.get(action.payload, 'consentDocument.data.0.content');
+      const consentDocument = _.get(action.payload, 'consentDocument.data.0');
       return update(state, { $set: { [consentType]: consentDocument } });
 
     default:
@@ -603,10 +603,21 @@ export const consents = (state = initialState.consents, action) => {
 
 export const consentRecords = (state = initialState.consentRecords, action) => {
   switch (action.type) {
-    case types.FETCH_USER_CONSENT_RECORDS_SUCCESS:
+    case types.FETCH_USER_CONSENT_RECORDS_SUCCESS: {
       const consentType = _.get(action.payload, 'consentType');
-      const records = _.get(action.payload, 'records.data', []);
-      return update(state, { $set: { [consentType]: records } });
+      const latestRecord = _.get(action.payload, 'records.data.0');
+      return update(state, { $set: { [consentType]: latestRecord } });
+    }
+
+    case types.CREATE_USER_CONSENT_RECORD_SUCCESS: {
+      const createdRecord = _.get(action.payload, 'createdRecord');
+      return update(state, { $set: { [createdRecord.type]: createdRecord } });
+    }
+
+    case types.REVOKE_USER_CONSENT_RECORD_SUCCESS: {
+      const consentType = _.get(action.payload, 'consentType');
+      return update(state, { $unset: [consentType] });
+    }
 
     default:
       return state;

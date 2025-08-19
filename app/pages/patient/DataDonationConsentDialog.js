@@ -23,7 +23,6 @@ import {
 } from '../../components/elements/Dialog';
 
 import i18next from '../../core/language';
-import moment from 'moment';
 import { colors, shadows } from '../../themes/baseTheme';
 import personUtils from '../../core/personutils';
 import Pill from '../../components/elements/Pill';
@@ -227,7 +226,7 @@ export const DataDonationConsentDialog = (props) => {
                 },
               }}
             >
-              {consentDocument}
+              {consentDocument?.content}
             </Markdown>
           </Box>
 
@@ -292,7 +291,7 @@ export const DataDonationConsentDialog = (props) => {
             </Paragraph1>
           )}
 
-          <Flex mb={3} sx={{ textAlign: 'center'}}>
+          <Box mb={3} sx={{ textAlign: 'center', '.caption.error': { textAlign: 'left', pl: 4 } }}>
             <Checkbox
               {...getCommonFormikFieldProps(`${formSteps[currentConsentStep]}ConsentRead`, formikContext, 'checked')}
               bg="white"
@@ -313,7 +312,7 @@ export const DataDonationConsentDialog = (props) => {
                 boxShadow: `0 0 0 2px ${colors.lightestGrey} inset`,
               }}
             />
-          </Flex>
+          </Box>
         </Box>
       </DialogContent>
       <DialogActions>
@@ -328,6 +327,7 @@ export const DataDonationConsentDialog = (props) => {
         <Button
           className="dataDonationConsentSubmit"
           variant="primary"
+          processing={formikContext.isSubmitting}
           disabled={!fieldsAreValid(
             keys(schemas[formSteps[currentConsentStep]].fields),
             schemas[formSteps[currentConsentStep]],
