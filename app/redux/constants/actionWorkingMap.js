@@ -67,6 +67,16 @@ export default (type) => {
     case types.FETCH_USER_CONSENT_RECORDS_FAILURE:
       return 'fetchingUserConsentRecords';
 
+    case types.CREATE_USER_CONSENT_RECORD_REQUEST:
+    case types.CREATE_USER_CONSENT_RECORD_SUCCESS:
+    case types.CREATE_USER_CONSENT_RECORD_FAILURE:
+      return 'creatingUserConsentRecord';
+
+    case types.REVOKE_USER_CONSENT_RECORD_REQUEST:
+    case types.REVOKE_USER_CONSENT_RECORD_SUCCESS:
+    case types.REVOKE_USER_CONSENT_RECORD_FAILURE:
+      return 'revokingUserConsentRecord';
+
     case types.FETCH_MESSAGE_THREAD_REQUEST:
     case types.FETCH_MESSAGE_THREAD_SUCCESS:
     case types.FETCH_MESSAGE_THREAD_FAILURE:

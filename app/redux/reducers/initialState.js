@@ -158,6 +158,8 @@ const initialState = {
     revertingClinicPatientLastReviewed: Object.assign({}, working),
     fetchingLatestConsentByType: Object.assign({}, working),
     fetchingUserConsentRecords: Object.assign({}, working),
+    creatingUserConsentRecord: Object.assign({}, working),
+    revokingUserConsentRecord: Object.assign({}, working),
   },
   notification: null,
   timePrefs: {

@@ -10,6 +10,7 @@ import { fieldsAreValid } from '../../core/forms';
 import { push } from 'connected-react-router';
 import { noop } from 'lodash';
 import DataDonationForm, { formContexts, formSteps, schemas } from '../patient/DataDonationForm';
+import { DATA_DONATION_CONSENT_TYPE } from '../../core/constants';
 
 export const PatientNewDataDonation = (props) => {
   const { api, trackMetric } = props;
@@ -27,6 +28,10 @@ export const PatientNewDataDonation = (props) => {
   const [currentForm, setCurrentForm] = useState(formSteps.dataDonationConsent);
   const [formikContext, setFormikContext] = useState({});
   const [initializeConsent, setInitializeConsent] = useState(noop);
+  const currentConsent = useSelector((state => state.blip.consentRecords[DATA_DONATION_CONSENT_TYPE]));
+
+  console.log('currentForm', currentForm, 'submitting', submitting, 'values', formikContext.values);
+  console.log('currentConsent', currentConsent);
 
   const formStepsText = {
     dataDonationConsent: {
@@ -47,11 +52,11 @@ export const PatientNewDataDonation = (props) => {
     id: 'submit',
     children: formStepsText[currentForm]?.submitText,
     processing: submitting,
-    disabled: !fieldsAreValid(
-      keys(schemas[currentForm].fields),
-      schemas[currentForm],
-      formikContext.values
-    ),
+    // disabled: !fieldsAreValid(
+    //   keys(schemas[currentForm].fields),
+    //   schemas[currentForm],
+    //   formikContext.values
+    // ),
     onClick: () => {
       if ((currentForm === formSteps.dataDonationConsent)) {
         initializeConsent();
@@ -66,7 +71,7 @@ export const PatientNewDataDonation = (props) => {
   }];
 
   if (currentForm === formSteps.dataDonationConsent) formActions.unshift({
-    id: 'back',
+    id: 'declineDataDonation',
     variant: 'secondary',
     children: t('No, Thanks'),
     onClick: () => redirectToPatientData(),
@@ -93,6 +98,7 @@ export const PatientNewDataDonation = (props) => {
         trackMetric={trackMetric}
         context={formContexts.newPatient}
         onFormChange={handleFormChange}
+        onRevokeConsent={redirectToPatientData}
       />
     </Container>
   );

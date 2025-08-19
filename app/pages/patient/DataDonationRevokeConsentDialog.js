@@ -14,7 +14,7 @@ import {
 } from '../../components/elements/Dialog';
 
 export const DataDonationRevokeConsentDialog = (props) => {
-  const { t, onClose, onConfirm, open } = props;
+  const { t, onClose, onConfirm, open, processing } = props;
   const question = t('Are you sure you want to opt out of sharing your anonymized diabetes device data?');
   const description = t('By clicking “Yes” below, you will stop sharing new data with the Tidepool Big Data Donation Project. Please note that previously donated anonymized data cannot be removed from the project.');
 
@@ -51,6 +51,7 @@ export const DataDonationRevokeConsentDialog = (props) => {
         <Button
           className="revokeConsentConfirm"
           variant="primary"
+          processing={processing}
           onClick={onConfirm}
         >
           {t('Yes, stop sharing')}
@@ -64,6 +65,7 @@ DataDonationRevokeConsentDialog.propTypes = {
   onClose: PropTypes.func.isRequired,
   onConfirm: PropTypes.func.isRequired,
   open: PropTypes.bool,
+  processing: PropTypes.bool,
   t: PropTypes.func.isRequired,
 };
 

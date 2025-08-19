@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { Trans, useTranslation } from 'react-i18next';
 import * as yup from 'yup';
-import { forEach, get, isEmpty, noop, values } from 'lodash';
+import { forEach, get, isEmpty, isNil, noop, omitBy, values } from 'lodash';
 import { useFormik } from 'formik';
 import { Box, Flex, Link } from 'theme-ui';
 import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
@@ -55,12 +55,11 @@ export const schemas = {
 
 export const formContexts = {
   newPatient: 'newPatient',
-  profileNonDonor: 'profileNonDonor',
-  profileDonor: 'profileDonor',
+  profile: 'profile',
 };
 
 export const DataDonationForm = (props) => {
-  const { api, trackMetric, onFormChange, context } = props;
+  const { api, trackMetric, onFormChange, onRevokeConsent, context } = props;
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const { set: setToast } = useToasts();
@@ -78,7 +77,6 @@ export const DataDonationForm = (props) => {
   const previousWorking = usePrevious(working);
   const isFirstRender = useIsFirstRender();
   const [submitting, setSubmitting] = useState(false);
-  const [currentForm, setCurrentForm] = useState(context === formContexts.profileDonor ? formSteps.dataDonationDestination : formSteps.dataDonationConsent);
   const [showConsentDialog, setShowConsentDialog] = useState(false);
   const [showRevokeConsentDialog, setShowRevokeConsentDialog] = useState(false);
   const patientAge = moment().diff(moment(user?.profile?.patient?.birthday, 'YYYY-MM-DD'), 'years', true);
@@ -87,21 +85,38 @@ export const DataDonationForm = (props) => {
   const accountType = personUtils.patientIsOtherPerson(user) ? 'caregiver' : 'personal';
   const patientAgeGroup = isChild ? 'child' : (isYouth ? 'youth' : 'adult');
   const patientName = personUtils.patientFullName(user);
-  const caregiverName = personUtils.patientIsOtherPerson(user) ? personUtils.fullName(user) : undefined;
-  const userConsents = useSelector((state => state.blip.consentRecords[DATA_DONATION_CONSENT_TYPE] || []));
+  const caregiverName = accountType === 'caregiver' ? personUtils.fullName(user) : undefined;
+  const { [DATA_DONATION_CONSENT_TYPE]: consentDocument } = useSelector((state) => state.blip.consents);
   const today = moment().format('MMMM D, YYYY');
-  const consentDate = userConsents[0]?.grantTime ? moment(userConsents[0].grantTime).format('MMMM D, YYYY') : today;
+  const currentConsent = useSelector((state => state.blip.consentRecords[DATA_DONATION_CONSENT_TYPE]));
+  const consentDate = currentConsent?.grantTime ? moment(currentConsent.grantTime).format('MMMM D, YYYY') : today;
+  const [currentForm, setCurrentForm] = useState(currentConsent?.status === 'active' ? formSteps.dataDonationDestination : formSteps.dataDonationConsent);
   const consentSuccessMessage = getConsentText(accountType, patientAgeGroup, patientName, caregiverName, consentDate).consentSuccessMessage;
-  const showConsentDialogTrigger = context === formContexts.profileNonDonor;
+  const showConsentDialogTrigger = context === formContexts.profile;
+
+  const consentRecordAgeGroupMap = {
+    child: '<13',
+    youth: '13-17',
+    adult: '>=18',
+  };
 
   // Fetchers
   useEffect(() => {
     if (loggedInUserId) {
       dispatch(
-        actions.async.fetchLatestConsentByType(api, DATA_DONATION_CONSENT_TYPE)
+        actions.async.fetchLatestConsentByType(api, DATA_DONATION_CONSENT_TYPE) // TODO: Fetch at the patientInfo level?
       );
     }
   }, [loggedInUserId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (currentConsent?.status === 'active' && currentForm === formSteps.dataDonationConsent) {
+      setCurrentForm(formSteps.dataDonationDestination);
+    }
+    if (currentConsent?.status !== 'active' && currentForm === formSteps.dataDonationDestination) {
+      setCurrentForm(formSteps.dataDonationConsent);
+    }
+  }, [currentConsent]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const accountTypeText = {
     personal: {
@@ -119,6 +134,8 @@ export const DataDonationForm = (props) => {
   };
 
   const {
+    creatingUserConsentRecord,
+    revokingUserConsentRecord,
     updatingUser,
   } = useSelector((state) => state.blip.working);
 
@@ -157,13 +174,13 @@ export const DataDonationForm = (props) => {
     });
   }, [updatingUser]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // useEffect(() => {
-  //   handleAsyncResult({ ...providingDataDonationConsent, prevInProgress: previousWorking?.providingDataDonationConsent }, t('You have consented to sharing your data'));
-  // }, [providingDataDonationConsent]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    handleAsyncResult({ ...creatingUserConsentRecord, prevInProgress: previousWorking?.creatingUserConsentRecord }, consentSuccessMessage);
+  }, [creatingUserConsentRecord]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // useEffect(() => {
-  //   handleAsyncResult({ ...revokingDataDonationConsent, prevInProgress: previousWorking?.revokingDataDonationConsent }, t('You have stopped sharing your data'));
-  // }, [revokingDataDonationConsent]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    handleAsyncResult({ ...revokingUserConsentRecord, prevInProgress: previousWorking?.revokingUserConsentRecord }, t('You have stopped sharing your data'), onRevokeConsent);
+  }, [revokingUserConsentRecord]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const formikContext = useFormik({
     initialValues: {
@@ -211,18 +228,46 @@ export const DataDonationForm = (props) => {
 
   useEffect(() => {
     onFormChange(formikContext, currentForm, submitting, initializeConsent);
-  }, [values, submitting]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [values, currentForm, submitting]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function initializeConsent() {
     setShowConsentDialog(true);
   }
 
-  function handleConsentDialogConfirm() {
-    trackMetric('Data Donation - Provide Consent', { location: 'new patient data donation page' });
+  function handleConsentDialogConfirm(values) {
+    const createdRecord = {
+      type: consentDocument?.type,
+      version: consentDocument?.version,
+      ageGroup: consentRecordAgeGroupMap[patientAgeGroup],
+      ownerName: patientName,
+      grantorType: isChild || isYouth ? 'parent/guardian' : 'owner',
+      parentGuardianName: isChild || isYouth ? values.name : undefined,
+      metadata: { supportedOrganizations: [] },
+    };
+
+    setSubmitting(true);
+    dispatch(actions.async.createUserConsentRecord(api, omitBy(createdRecord, isNil)));
+
+    trackMetric('Create Consent Record', {
+      context: formContexts[context],
+      type: createdRecord.type,
+      version: createdRecord.version,
+      grantorType: createdRecord.grantorType,
+      ageGroup: createdRecord.ageGroup
+    });
   }
 
   function handleRevokeConsentDialogConfirm() {
-    trackMetric('Data Donation - Revoke Consent', { location: 'new patient data donation page' });
+    setSubmitting(true);
+    dispatch(actions.async.revokeUserConsentRecord(api, currentConsent.type, currentConsent.id));
+
+    trackMetric('Revoke Consent Record', {
+      context: formContexts[context],
+      type: currentConsent.type,
+      version: currentConsent.version,
+      grantorType: currentConsent.grantorType,
+      ageGroup: currentConsent.ageGroup,
+    });
   }
 
   return (
@@ -318,6 +363,7 @@ export const DataDonationForm = (props) => {
               open={true}
               onClose={() => setShowRevokeConsentDialog(false)}
               onConfirm={handleRevokeConsentDialogConfirm}
+              processing={submitting}
             />
           )}
         </>
@@ -330,11 +376,13 @@ DataDonationForm.propTypes = {
   api: PropTypes.object.isRequired,
   trackMetric: PropTypes.func.isRequired,
   onFormChange: PropTypes.func.isRequired,
+  onRevokeConsent: PropTypes.func.isRequired,
   context: PropTypes.oneOf(values(formContexts)).isRequired,
 };
 
 DataDonationForm.defaultProps = {
   onFormChange: noop,
+  onRevokeConsent: noop,
 };
 
 export default DataDonationForm;
