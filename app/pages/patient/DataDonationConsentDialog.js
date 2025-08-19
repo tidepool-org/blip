@@ -144,7 +144,7 @@ export const DataDonationConsentDialog = (props) => {
         document.getElementById('consentDocumentText')?.scrollTo({ top: 0 });
         setScrolledToBottom(false);
       } else {
-        onConfirm(values);
+        onConfirm({ ...values, name: caregiverName });
       }
     },
   });
