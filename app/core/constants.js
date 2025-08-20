@@ -43,8 +43,6 @@ export const NONPROFIT_CODES_TO_SUPPORTED_ORGANIZATIONS_NAMES = {
   DIABETESSISTERS: 'DiabetesSisters',
   DIATRIBE: 'The diaTribe Foundation',
   JDRF: 'Breakthrough T1D',
-  NSF: 'Nightscout Foundation',
-  T1DX: 'T1D Exchange',
 };
 
 export const SUPPORTED_ORGANIZATIONS_OPTIONS = sortBy(map(values(NONPROFIT_CODES_TO_SUPPORTED_ORGANIZATIONS_NAMES), (name) => ({ value: name, label: t(name) })), 'value');
