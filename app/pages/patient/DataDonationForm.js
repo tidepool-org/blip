@@ -9,6 +9,7 @@ import { useFormik } from 'formik';
 import { Box, Flex, Link } from 'theme-ui';
 import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
 import EditRoundedIcon from '@material-ui/icons/EditRounded';
+import { push } from 'connected-react-router';
 
 import { Paragraph1 } from '../../components/elements/FontStyles';
 import MultiSelect from '../../components/elements/MultiSelect';
@@ -150,6 +151,10 @@ export const DataDonationForm = (props) => {
       setShowConsentDialog(false);
   };
 
+  function redirectToPatientData() {
+    dispatch(push(`/patients/${loggedInUserId}/data`));
+  }
+
   const handleAsyncResult = useCallback((workingState, successMessage, onComplete = handleCloseOverlays) => {
     const { inProgress, completed, notification, prevInProgress } = workingState;
 
@@ -178,7 +183,9 @@ export const DataDonationForm = (props) => {
   }, [creatingUserConsentRecord]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    handleAsyncResult({ ...updatingUserConsentRecord, prevInProgress: previousWorking?.updatingUserConsentRecord }, t('You have updated your data donation preferences'));
+    handleAsyncResult({ ...updatingUserConsentRecord, prevInProgress: previousWorking?.updatingUserConsentRecord }, t('You have updated your data donation preferences'), () => {
+      if (formContext === formContexts.newPatient) redirectToPatientData();
+    });
   }, [updatingUserConsentRecord]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -195,9 +202,7 @@ export const DataDonationForm = (props) => {
       supportedOrganizations: '',
     },
     validationSchema: schemas[currentForm],
-    onSubmit: () => {
-      handleUpdateSupportedOrganizations();
-    },
+    onSubmit: () => handleUpdateSupportedOrganizations(),
   });
 
   useEffect(() => {
@@ -296,7 +301,6 @@ export const DataDonationForm = (props) => {
       version: currentConsent.version,
       grantorType: currentConsent.grantorType,
       ageGroup: currentConsent.ageGroup,
-      // supportedOrganizations: formikContext.values.supportedOrganizations,
     });
   }
 
@@ -385,7 +389,7 @@ export const DataDonationForm = (props) => {
               label={accountTypeText[accountType]?.dataDonateOrganizationsLabel}
               setFieldValue={formikContext.setFieldValue}
               options={supportedOrganizationsOptions}
-              onMenuClose={handleUpdateSupportedOrganizations}
+              onMenuClose={formContext === formContexts.profile ? handleUpdateSupportedOrganizations : undefined}
             />
           </Box>
 
