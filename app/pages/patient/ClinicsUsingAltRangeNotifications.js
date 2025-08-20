@@ -72,8 +72,15 @@ const ClinicsUsingAltRangeNotifications = ({ api }) => {
   const loggedInUser = useSelector(state => state.blip.allUsersMap[loggedInUserId]);
   const preferences = loggedInUser?.preferences || {};
 
-  const handleDismiss = (clinicId, glycemicRanges) => {
+  const isUserPatient = personUtils.isSame(user, patient);
+
+  // TODO: fetch in case clinics object is empty
+
+  if (!isUserPatient) return null;
+
+  const handleDismiss = (clinicId) => {
     const updatedPrefs = cloneDeep(preferences);
+    const glycemicRanges = clinics[clinicId]?.patients?.[patient.userid]?.glycemicRanges;
     const dismissedAt = moment.utc().toISOString();
 
     updatedPrefs.alternateGlycemicRangeNotification ||= {};
@@ -81,12 +88,6 @@ const ClinicsUsingAltRangeNotifications = ({ api }) => {
 
     dispatch(actions.async.updatePreferences(api, loggedInUserId, updatedPrefs));
   };
-
-  const isUserPatient = personUtils.isSame(user, patient);
-
-  // TODO: fetch in case clinics object is empty
-
-  if (!isUserPatient) return null;
 
   const clinicsWithNotifications = pickBy(clinics, clinic => {
     const glycemicRanges = clinic?.patients?.[patient.userid]?.glycemicRanges;

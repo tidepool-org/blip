@@ -18,6 +18,7 @@ import {
   max,
   some,
   compact,
+  mapValues,
 } from 'lodash';
 
 import { appBanners } from './appBanners';
@@ -55,10 +56,25 @@ const AppBannerProvider = ({ children }) => {
   const isCustodialPatient = has(clinicPatient?.permissions, 'custodian');
   const userHasDiabetesType = !!loggedInUser?.profile?.patient?.diagnosisType;
 
-  const hasClinicsUsingAltRanges = Object.values(clinics || {})
-                                         .map(clinic => clinic.patients?.[currentPatientInViewId]?.glycemicRanges)
-                                         .filter(range => !!range && range !== GLYCEMIC_RANGE.ADA_STANDARD)
-                                         .length > 0;
+  const hasAltGlycemicRangeUpdate = (() => {
+    const clinicRanges = mapValues(clinics, clinic => clinic.patients?.[currentPatientInViewId]?.glycemicRanges);
+
+    let hasRangeUpdate = false;
+    Object.keys(clinicRanges).forEach(clinicId => {
+      const currentValue = clinicRanges[clinicId];
+
+      const lastDismissedValue = loggedInUser?.preferences
+                                             ?.alternateGlycemicRangeNotification
+                                             ?.[clinicId]
+                                             ?.glycemicRanges;
+
+      if (!lastDismissedValue || lastDismissedValue !== currentValue) {
+        hasRangeUpdate = true;
+      }
+    });
+
+    return hasRangeUpdate;
+  })();
 
   const patientMetaData = useSelector(state => state.blip.data.metaData);
   const patientDevices = patientMetaData?.devices;
@@ -156,7 +172,7 @@ const AppBannerProvider = ({ children }) => {
     },
 
     clinicUsingAltRange: {
-      show: userIsCurrentPatient && hasClinicsUsingAltRanges,
+      show: userIsCurrentPatient && hasAltGlycemicRangeUpdate,
       bannerArgs: [dispatch, loggedInUserId],
     },
   }), [
