@@ -23,6 +23,7 @@ import { withTranslation, Trans } from 'react-i18next';
 
 import IncrementalInput from '../../components/incrementalinput';
 import CustomizedTrendsChart from './customizedtrendschart';
+import ClinicsUsingAltRangeNotifications from './ClinicsUsingAltRangeNotifications';
 
 import utils from '../../core/utils';
 
@@ -148,6 +149,11 @@ export default withTranslation()(class PatientSettings extends Component {
               </div>
             </div>
             {errorNode}
+
+            <div className="PatientSettings-blocks">
+              <ClinicsUsingAltRangeNotifications />
+            </div>
+
             <div className="PatientSettings-blocks">
               <CustomizedTrendsChart
                 max={chartTargets.high}
