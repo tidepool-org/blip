@@ -16,7 +16,8 @@ import {
   keys,
   map,
   max,
-  some
+  some,
+  compact,
 } from 'lodash';
 
 import { appBanners } from './appBanners';
@@ -53,13 +54,14 @@ const AppBannerProvider = ({ children }) => {
   const userIsCurrentPatient = loggedInUserId === currentPatientInViewId;
   const isCustodialPatient = has(clinicPatient?.permissions, 'custodian');
   const userHasDiabetesType = !!loggedInUser?.profile?.patient?.diagnosisType;
-  const isClinicUsingAltRange = (() => {
-    if (!clinic?.patients?.[currentPatientInViewId]) return false;
 
-    const { glycemicRanges } = clinic.patients[currentPatientInViewId];
+  const hasClinicsUsingAltRanges = (() => {
+    const clinicRanges = map(clinics || {}, clinic => clinic.patients?.[currentPatientInViewId]?.glycemicRanges);
 
-    return !!glycemicRanges && glycemicRanges !== GLYCEMIC_RANGE.ADA_STANDARD;
-  });
+    const nonStandardClinicRanges = filter(clinicRanges, range => !!range && range !== GLYCEMIC_RANGE.ADA_STANDARD);
+
+    return nonStandardClinicRanges.length > 0;
+  })();
 
   const patientMetaData = useSelector(state => state.blip.data.metaData);
   const patientDevices = patientMetaData?.devices;
@@ -157,7 +159,7 @@ const AppBannerProvider = ({ children }) => {
     },
 
     clinicUsingAltRange: {
-      show: userIsCurrentPatient && isClinicUsingAltRange,
+      show: userIsCurrentPatient && hasClinicsUsingAltRanges,
       bannerArgs: [dispatch, loggedInUserId],
     },
   }), [
