@@ -72,6 +72,11 @@ export default (type) => {
     case types.CREATE_USER_CONSENT_RECORD_FAILURE:
       return 'creatingUserConsentRecord';
 
+    case types.UPDATE_USER_CONSENT_RECORD_REQUEST:
+    case types.UPDATE_USER_CONSENT_RECORD_SUCCESS:
+    case types.UPDATE_USER_CONSENT_RECORD_FAILURE:
+      return 'updatingUserConsentRecord';
+
     case types.REVOKE_USER_CONSENT_RECORD_REQUEST:
     case types.REVOKE_USER_CONSENT_RECORD_SUCCESS:
     case types.REVOKE_USER_CONSENT_RECORD_FAILURE:

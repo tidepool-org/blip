@@ -335,7 +335,7 @@ export const DataDonationConsentDialog = (props) => {
           )}
           onClick={() => formikContext.submitForm()}
         >
-          {patientAssentRequired ? t('Next') : t('Submit')}
+          {patientAssentRequired && currentConsentStep === 0 ? t('Next') : t('Submit')}
         </Button>
       </DialogActions>
     </Dialog>

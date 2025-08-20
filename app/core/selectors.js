@@ -1,7 +1,9 @@
 
-import { filter, get, has, isEmpty, map, reject, values } from 'lodash';
+import { filter, forEach, get, has, isEmpty, map, reject, values } from 'lodash';
 import personUtils from './personutils';
 import { createSelector } from 'reselect';
+import { DATA_DONATION_CONSENT_TYPE, NONPROFIT_CODES_TO_SUPPORTED_ORGANIZATIONS_NAMES, TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL } from './constants';
+import utils from './utils';
 
 export const selectPatientSharedAccounts = createSelector([state => state.blip], state => {
   const {
@@ -64,6 +66,36 @@ export const selectPatientSharedAccounts = createSelector([state => state.blip],
 
   return accounts;
 });
+
+export const selectDataDonationConsent = (state) => {
+  const currentConsent = state.blip.consentRecords[DATA_DONATION_CONSENT_TYPE];
+  if (currentConsent) return currentConsent;
+
+  const legacyDataDonationAccounts = state.blip.dataDonationAccounts;
+  if (isEmpty(legacyDataDonationAccounts)) return null;
+
+  const nonprofitAccounts = reject(legacyDataDonationAccounts, { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL });
+  const supportedOrganizations = [];
+
+  // Extract nonprofit account identifiers from email addresses,
+  // and format as comma-separated string for the multi-select input
+  if (nonprofitAccounts.length) {
+    forEach(nonprofitAccounts, account => {
+      const code = utils.getDonationAccountCodeFromEmail(account.email);
+      const organizationName = NONPROFIT_CODES_TO_SUPPORTED_ORGANIZATIONS_NAMES[code];
+      organizationName && supportedOrganizations.push(organizationName);
+    });
+  }
+
+  const legacyConsent = {
+    type: DATA_DONATION_CONSENT_TYPE,
+    status: 'active',
+    version: 0,
+    metadata: { supportedOrganizations },
+  }
+
+  return legacyConsent;
+};
 
 export const selectPatient = (state) => {
   let patient = null;

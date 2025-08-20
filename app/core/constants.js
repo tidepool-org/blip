@@ -15,6 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
+import { map, values, sortBy } from 'lodash';
 import i18next from './language';
 
 const t = i18next.t.bind(i18next);
@@ -33,18 +34,20 @@ export const URL_TIDEPOOL_EXTERNAL_DATA_CONNECTIONS = 'https://support.tidepool.
 export const TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL = 'bigdata@tidepool.org';
 export const DATA_DONATION_CONSENT_TYPE = 'big_data_donation_project';
 
-export const DATA_DONATION_NONPROFITS = () => [
-  { value: 'ADCES', label: t('ADCES Foundation') },
-  { value: 'BT1', label: t('Beyond Type 1') },
-  { value: 'CWD', label: t('Children with Diabetes') },
-  { value: 'CDN', label: t('The Diabetes Link') },
-  { value: 'DYF', label: t('Diabetes Youth Families (DYF)') },
-  { value: 'DIABETESSISTERS', label: t('DiabetesSisters') },
-  { value: 'DIATRIBE', label: t('The diaTribe Foundation') },
-  { value: 'JDRF', label: t('Breakthrough T1D') },
-  { value: 'NSF', label: t('Nightscout Foundation') },
-  { value: 'T1DX', label: t('T1D Exchange') },
-];
+export const NONPROFIT_CODES_TO_SUPPORTED_ORGANIZATIONS_NAMES = {
+  ADCES: 'ADCES Foundation',
+  BT1: 'Beyond Type 1',
+  CWD: 'Children With Diabetes',
+  CDN: 'The Diabetes Link',
+  DYF: 'Diabetes Youth Families (DYF)',
+  DIABETESSISTERS: 'DiabetesSisters',
+  DIATRIBE: 'The diaTribe Foundation',
+  JDRF: 'Breakthrough T1D',
+  NSF: 'Nightscout Foundation',
+  T1DX: 'T1D Exchange',
+};
+
+export const SUPPORTED_ORGANIZATIONS_OPTIONS = sortBy(map(values(NONPROFIT_CODES_TO_SUPPORTED_ORGANIZATIONS_NAMES), (name) => ({ value: name, label: t(name) })), 'value');
 
 export const DIABETES_TYPES = () => [
   { value: 'type1', label: t('Type 1') },

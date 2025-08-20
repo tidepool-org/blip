@@ -22,7 +22,7 @@ import {
 import { appBanners } from './appBanners';
 import { providers } from '../../components/datasources/DataConnections';
 import { selectPatientSharedAccounts } from '../../core/selectors';
-import { DATA_DONATION_NONPROFITS } from '../../core/constants';
+import { SUPPORTED_ORGANIZATIONS_OPTIONS } from '../../core/constants';
 
 export const CLICKED_BANNER_ACTION = 'clicked';
 export const DISMISSED_BANNER_ACTION = 'dismissed';
@@ -80,7 +80,7 @@ const AppBannerProvider = ({ children }) => {
 
   // Check to see if a data-donating patient has selected a nonprofit to support
   const userIsSupportingNonprofit = useSelector(state => {
-    const allDonationAccountEmails = map(DATA_DONATION_NONPROFITS(), nonprofit => `bigdata+${nonprofit.value}@tidepool.org`); // eslint-disable-line new-cap
+    const allDonationAccountEmails = map(SUPPORTED_ORGANIZATIONS_OPTIONS, nonprofit => `bigdata+${nonprofit.value}@tidepool.org`); // eslint-disable-line new-cap
     const userDonationAccountEmails = map(state.blip.dataDonationAccounts, 'email');
     return intersection(allDonationAccountEmails, userDonationAccountEmails).length > 0;
   });

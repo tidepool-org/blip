@@ -57,6 +57,7 @@ export function MultiSelect(props) {
     label,
     value: valueProp,
     variant,
+    onMenuClose,
     onMenuOpen,
     onChange: onChangeProp,
     options,
@@ -108,6 +109,7 @@ export function MultiSelect(props) {
             setFieldValue(name, sortedValue);
             onChangeProp(value);
           }}
+          onMenuClose={onMenuClose}
           onMenuOpen={onMenuOpen}
           options={options}
           closeMenuOnSelect={false}
@@ -141,6 +143,7 @@ MultiSelect.propTypes = {
   value: PropTypes.string,
   themeProps: PropTypes.shape(BoxProps),
   onChange: PropTypes.func.isRequired,
+  onMenuClose: PropTypes.func.isRequired,
   onMenuOpen: PropTypes.func.isRequired,
   options: PropTypes.arrayOf(PropTypes.shape({
     value: PropTypes.string.isRequired,
@@ -159,6 +162,7 @@ MultiSelect.defaultProps = {
   themeProps: {},
   placeholder: t('Select one or more'),
   onChange: noop,
+  onMenuClose: noop,
   onMenuOpen: noop,
   selectMenuHeight: 240,
 };

@@ -28,10 +28,6 @@ export const PatientNewDataDonation = (props) => {
   const [currentForm, setCurrentForm] = useState(formSteps.dataDonationConsent);
   const [formikContext, setFormikContext] = useState({});
   const [initializeConsent, setInitializeConsent] = useState(noop);
-  const currentConsent = useSelector((state => state.blip.consentRecords[DATA_DONATION_CONSENT_TYPE]));
-
-  console.log('currentForm', currentForm, 'submitting', submitting, 'values', formikContext.values);
-  console.log('currentConsent', currentConsent);
 
   const formStepsText = {
     dataDonationConsent: {
@@ -96,7 +92,7 @@ export const PatientNewDataDonation = (props) => {
       <DataDonationForm
         api={api}
         trackMetric={trackMetric}
-        context={formContexts.newPatient}
+        formContext={formContexts.newPatient}
         onFormChange={handleFormChange}
         onRevokeConsent={redirectToPatientData}
       />

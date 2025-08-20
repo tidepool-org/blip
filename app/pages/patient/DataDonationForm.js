@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { Trans, useTranslation } from 'react-i18next';
 import * as yup from 'yup';
-import { forEach, get, isEmpty, isNil, noop, omitBy, values } from 'lodash';
+import { add, compact, forEach, get, includes, invert, isEmpty, isEqual, isNil, keyBy, map, noop, omitBy, reject, sortBy, values } from 'lodash';
 import { useFormik } from 'formik';
 import { Box, Flex, Link } from 'theme-ui';
 import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
@@ -16,14 +16,14 @@ import * as actions from '../../redux/actions';
 import { useIsFirstRender, usePrevious } from '../../core/hooks';
 import { getCommonFormikFieldProps } from '../../core/forms';
 import { useToasts } from '../../providers/ToastProvider';
-import { push } from 'connected-react-router';
 import { DataDonationSlideShow } from '../../components/elements/SlideShow';
 import personUtils from '../../core/personutils';
 import Pill from '../../components/elements/Pill';
 
 import {
   DATA_DONATION_CONSENT_TYPE,
-  DATA_DONATION_NONPROFITS,
+  NONPROFIT_CODES_TO_SUPPORTED_ORGANIZATIONS_NAMES,
+  SUPPORTED_ORGANIZATIONS_OPTIONS,
   TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL,
   URL_BIG_DATA_DONATION_INFO,
 } from '../../core/constants';
@@ -32,25 +32,26 @@ import Button from '../../components/elements/Button';
 import DataDonationRevokeConsentDialog from '../patient/DataDonationRevokeConsentDialog';
 import DataDonationConsentDialog from '../patient/DataDonationConsentDialog';
 import { getConsentText } from '../patient/DataDonationConsentDialog';
+import { selectDataDonationConsent } from '../../core/selectors';
 
-const dataDonateDestinationOptions = DATA_DONATION_NONPROFITS(); // eslint-disable-line new-cap
+const supportedOrganizationsOptions = SUPPORTED_ORGANIZATIONS_OPTIONS; // eslint-disable-line new-cap
 
 const dataDonationConsentSchema = yup.object().shape({
   dataDonate: yup.boolean(),
 });
 
-const dataDonationDestinationSchema = yup.object().shape({
-  dataDonateDestination: yup.string(),
+const supportedOrganizationsSchema = yup.object().shape({
+  supportedOrganizations: yup.string(),
 });
 
 export const formSteps = {
   dataDonationConsent: 'dataDonationConsent',
-  dataDonationDestination: 'dataDonationDestination',
+  supportedOrganizations: 'supportedOrganizations',
 }
 
 export const schemas = {
   dataDonationConsent: dataDonationConsentSchema,
-  dataDonationDestination: dataDonationDestinationSchema,
+  supportedOrganizations: supportedOrganizationsSchema,
 };
 
 export const formContexts = {
@@ -59,7 +60,7 @@ export const formContexts = {
 };
 
 export const DataDonationForm = (props) => {
-  const { api, trackMetric, onFormChange, onRevokeConsent, context } = props;
+  const { api, trackMetric, onFormChange, onRevokeConsent, formContext } = props;
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const { set: setToast } = useToasts();
@@ -87,12 +88,16 @@ export const DataDonationForm = (props) => {
   const patientName = personUtils.patientFullName(user);
   const caregiverName = accountType === 'caregiver' ? personUtils.fullName(user) : undefined;
   const { [DATA_DONATION_CONSENT_TYPE]: consentDocument } = useSelector((state) => state.blip.consents);
-  const today = moment().format('MMMM D, YYYY');
-  const currentConsent = useSelector((state => state.blip.consentRecords[DATA_DONATION_CONSENT_TYPE]));
-  const consentDate = currentConsent?.grantTime ? moment(currentConsent.grantTime).format('MMMM D, YYYY') : today;
-  const [currentForm, setCurrentForm] = useState(currentConsent?.status === 'active' ? formSteps.dataDonationDestination : formSteps.dataDonationConsent);
-  const consentSuccessMessage = getConsentText(accountType, patientAgeGroup, patientName, caregiverName, consentDate).consentSuccessMessage;
-  const showConsentDialogTrigger = context === formContexts.profile;
+  const currentConsent = useSelector(state => selectDataDonationConsent(state));
+  const isLegacyConsent = currentConsent?.version === 0;
+  const legacyDataDonationAccounts = useSelector(state => state.blip.dataDonationAccounts);
+  const fallbackConsentDate = formContext === formContexts.newPatient ? moment().format('MMMM D, YYYY') : null;
+  const consentDate = currentConsent?.grantTime ? moment(currentConsent.grantTime).format('MMMM D, YYYY') : fallbackConsentDate;
+  const [currentForm, setCurrentForm] = useState(currentConsent?.status === 'active' ? formSteps.supportedOrganizations : formSteps.dataDonationConsent);
+  const showConsentDialogTrigger = formContext === formContexts.profile;
+
+  let consentSuccessMessage = getConsentText(accountType, patientAgeGroup, patientName, caregiverName, consentDate).consentSuccessMessage;
+  if (!consentDate) consentSuccessMessage = t('You are currently sharing your data.');
 
   const consentRecordAgeGroupMap = {
     child: '<13',
@@ -111,9 +116,9 @@ export const DataDonationForm = (props) => {
 
   useEffect(() => {
     if (currentConsent?.status === 'active' && currentForm === formSteps.dataDonationConsent) {
-      setCurrentForm(formSteps.dataDonationDestination);
+      setCurrentForm(formSteps.supportedOrganizations);
     }
-    if (currentConsent?.status !== 'active' && currentForm === formSteps.dataDonationDestination) {
+    if (currentConsent?.status !== 'active' && currentForm === formSteps.supportedOrganizations) {
       setCurrentForm(formSteps.dataDonationConsent);
     }
   }, [currentConsent]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -135,8 +140,9 @@ export const DataDonationForm = (props) => {
 
   const {
     creatingUserConsentRecord,
+    updatingDataDonationAccounts,
+    updatingUserConsentRecord,
     revokingUserConsentRecord,
-    updatingUser,
   } = useSelector((state) => state.blip.working);
 
   function handleCloseOverlays() {
@@ -145,38 +151,39 @@ export const DataDonationForm = (props) => {
   };
 
   const handleAsyncResult = useCallback((workingState, successMessage, onComplete = handleCloseOverlays) => {
-      const { inProgress, completed, notification, prevInProgress } = workingState;
+    const { inProgress, completed, notification, prevInProgress } = workingState;
 
-      if (!isFirstRender && !inProgress && prevInProgress !== false) {
-        if (completed) {
-          onComplete();
-          setToast({
-            message: successMessage,
-            variant: 'success',
-          });
-        }
-
-        if (completed === false) {
-          setToast({
-            message: get(notification, 'message'),
-            variant: 'danger',
-          });
-        }
-
-        if (submitting) setSubmitting(false);
+    if (!isFirstRender && !inProgress && prevInProgress !== false) {
+      if (completed) {
+        onComplete();
+        setToast({
+          message: successMessage,
+          variant: 'success',
+        });
       }
-    }, [isFirstRender, setToast, submitting]);
 
-  useEffect(() => {
-    handleAsyncResult({ ...updatingUser, prevInProgress: previousWorking?.updatingUser }, t('Profile updated'), () => {
-      // Redirect to patients page
-      dispatch(push('/patients?justLoggedIn=true'));
-    });
-  }, [updatingUser]); // eslint-disable-line react-hooks/exhaustive-deps
+      if (completed === false) {
+        setToast({
+          message: get(notification, 'message'),
+          variant: 'danger',
+        });
+      }
+
+      if (submitting) setSubmitting(false);
+    }
+  }, [isFirstRender, setToast, submitting]);
 
   useEffect(() => {
     handleAsyncResult({ ...creatingUserConsentRecord, prevInProgress: previousWorking?.creatingUserConsentRecord }, consentSuccessMessage);
   }, [creatingUserConsentRecord]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    handleAsyncResult({ ...updatingUserConsentRecord, prevInProgress: previousWorking?.updatingUserConsentRecord }, t('You have updated your data donation preferences'));
+  }, [updatingUserConsentRecord]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    handleAsyncResult({ ...updatingDataDonationAccounts, prevInProgress: previousWorking?.updatingDataDonationAccounts }, t('You have updated your data donation preferences'));
+  }, [updatingDataDonationAccounts]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     handleAsyncResult({ ...revokingUserConsentRecord, prevInProgress: previousWorking?.revokingUserConsentRecord }, t('You have stopped sharing your data'), onRevokeConsent);
@@ -185,50 +192,29 @@ export const DataDonationForm = (props) => {
   const formikContext = useFormik({
     initialValues: {
       dataDonate: false,
-      dataDonateDestination: '',
+      supportedOrganizations: '',
     },
     validationSchema: schemas[currentForm],
-    onSubmit: values => {
-      // TODO: Handle form submission based on the current form step
-      if (values.dataDonate) {
-        setSubmitting(true);
-        setTimeout(() => {
-          setSubmitting(false);
-        }, 1000);
-
-        // dispatch(actions.async.updateDataDonationAccounts(api, [ TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL ]));
-        console.log('Updating data donation accounts:', [ TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL ]);
-
-        if (trackMetric) {
-          trackMetric('web - big data sign up', { source: 'none', location: 'sign-up' });
-        }
-      } else if (!isEmpty(values.dataDonateDestination)) {
-        setSubmitting(true);
-        setTimeout(() => {
-          setSubmitting(false);
-        }, 1000);
-
-        const addAccounts = [];
-        const selectedAccounts = values.dataDonateDestination.split(',');
-
-        forEach(selectedAccounts, accountId => {
-          if (accountId) {
-            addAccounts.push(`bigdata+${accountId}@tidepool.org`);
-            if (trackMetric) trackMetric('web - big data sign up', { source: accountId, location: 'sign-up' });
-          }
-        });
-
-        // dispatch(actions.async.updateDataDonationAccounts(api, addAccounts));
-        console.log('Updating data donation accounts:', addAccounts);
-      }
+    onSubmit: () => {
+      handleUpdateSupportedOrganizations();
     },
   });
 
-  const { setFieldValue, values } = formikContext;
+  useEffect(() => {
+    if (!formikContext.touched.supportedOrganizations && currentConsent?.metadata?.supportedOrganizations) {
+      console.log('formikContext', formikContext);
+      const supportedOrganizations = currentConsent?.metadata?.supportedOrganizations.join(',');
+
+      if (isEmpty(formikContext.values.supportedOrganizations) && !isEmpty(supportedOrganizations)) {
+        formikContext.setFieldValue('supportedOrganizations', supportedOrganizations);
+        formikContext.setFieldTouched('supportedOrganizations', true);
+      }
+    }
+  }, [currentConsent?.metadata?.supportedOrganizations]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     onFormChange(formikContext, currentForm, submitting, initializeConsent);
-  }, [values, currentForm, submitting]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [formikContext.values, currentForm, submitting]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function initializeConsent() {
     setShowConsentDialog(true);
@@ -249,7 +235,7 @@ export const DataDonationForm = (props) => {
     dispatch(actions.async.createUserConsentRecord(api, omitBy(createdRecord, isNil)));
 
     trackMetric('Create Consent Record', {
-      context: formContexts[context],
+      formContext: formContexts[formContext],
       type: createdRecord.type,
       version: createdRecord.version,
       grantorType: createdRecord.grantorType,
@@ -259,14 +245,58 @@ export const DataDonationForm = (props) => {
 
   function handleRevokeConsentDialogConfirm() {
     setSubmitting(true);
-    dispatch(actions.async.revokeUserConsentRecord(api, currentConsent.type, currentConsent.id));
+
+    if (isLegacyConsent) {
+      dispatch(actions.async.updateDataDonationAccounts(api, [], legacyDataDonationAccounts));
+    } else {
+      dispatch(actions.async.revokeUserConsentRecord(api, currentConsent.type, currentConsent.id));
+    }
 
     trackMetric('Revoke Consent Record', {
-      context: formContexts[context],
+      formContext: formContexts[formContext],
       type: currentConsent.type,
       version: currentConsent.version,
       grantorType: currentConsent.grantorType,
       ageGroup: currentConsent.ageGroup,
+    });
+  }
+
+  function handleUpdateSupportedOrganizations() {
+    const updatedSupportedOrganizations = compact(formikContext.values.supportedOrganizations.split(','));
+
+    // Return early if there are no changes to the currently-supported organizations
+    if (isEqual(sortBy(updatedSupportedOrganizations), sortBy(currentConsent.metadata.supportedOrganizations))) return;
+
+    if (isLegacyConsent) {
+      const nameToCodeMap = invert(NONPROFIT_CODES_TO_SUPPORTED_ORGANIZATIONS_NAMES);
+      const addAccounts = map(updatedSupportedOrganizations, name => `bigdata+${nameToCodeMap[name]}@tidepool.org`);
+      const existingAccounts = keyBy(legacyDataDonationAccounts, 'email');
+
+      // Filter out any accounts that are already shared with
+      const filteredAddAccounts = reject(addAccounts, account => { return get(existingAccounts, account) });
+
+      const removeAccounts = [];
+      // Remove any existing shared accounts that have been removed
+      forEach(existingAccounts, account => {
+        if (account.email === TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL) return;
+
+        if (!includes(addAccounts, account.email)) {
+          removeAccounts.push(account);
+        }
+      });
+
+      dispatch(actions.async.updateDataDonationAccounts(api, filteredAddAccounts, removeAccounts));
+    } else {
+      dispatch(actions.async.updateUserConsentRecord(api, currentConsent.id, { metadata: { supportedOrganizations: updatedSupportedOrganizations } }));
+    }
+
+    trackMetric('Update Consent Record', {
+      formContext: formContexts[formContext],
+      type: currentConsent.type,
+      version: currentConsent.version,
+      grantorType: currentConsent.grantorType,
+      ageGroup: currentConsent.ageGroup,
+      // supportedOrganizations: formikContext.values.supportedOrganizations,
     });
   }
 
@@ -276,7 +306,7 @@ export const DataDonationForm = (props) => {
 
       {currentForm === formSteps.dataDonationConsent && (
         <Flex
-          id="dataDonationConsentDetails"
+          id="dataDonationConsent"
           mb={3}
           sx={{
             justifyContent: showConsentDialogTrigger ? 'space-between' : 'center',
@@ -318,10 +348,10 @@ export const DataDonationForm = (props) => {
         </Flex>
       )}
 
-      {currentForm === formSteps.dataDonationDestination && (
+      {currentForm === formSteps.supportedOrganizations && (
         <>
           <Flex
-            id="dataDonationDestinationDetails"
+            id="dataDonationDetails"
             mb={3}
             sx={{
               justifyContent: 'space-between',
@@ -351,10 +381,11 @@ export const DataDonationForm = (props) => {
 
           <Box id="data-donation-destination-form">
             <MultiSelect
-              {...getCommonFormikFieldProps('dataDonateDestination', formikContext, 'value', false)}
+              {...getCommonFormikFieldProps('supportedOrganizations', formikContext, 'value', false)}
               label={accountTypeText[accountType]?.dataDonateOrganizationsLabel}
-              setFieldValue={setFieldValue}
-              options={dataDonateDestinationOptions}
+              setFieldValue={formikContext.setFieldValue}
+              options={supportedOrganizationsOptions}
+              onMenuClose={handleUpdateSupportedOrganizations}
             />
           </Box>
 
@@ -377,7 +408,7 @@ DataDonationForm.propTypes = {
   trackMetric: PropTypes.func.isRequired,
   onFormChange: PropTypes.func.isRequired,
   onRevokeConsent: PropTypes.func.isRequired,
-  context: PropTypes.oneOf(values(formContexts)).isRequired,
+  formContext: PropTypes.oneOf(values(formContexts)).isRequired,
 };
 
 DataDonationForm.defaultProps = {

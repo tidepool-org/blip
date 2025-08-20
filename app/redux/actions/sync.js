@@ -1054,6 +1054,31 @@ export function createUserConsentRecordFailure(error, apiError) {
   };
 }
 
+export function updateUserConsentRecordRequest() {
+  return {
+    type: ActionTypes.UPDATE_USER_CONSENT_RECORD_REQUEST,
+  };
+}
+
+export function updateUserConsentRecordSuccess(updatedRecord) {
+  return {
+    type: ActionTypes.UPDATE_USER_CONSENT_RECORD_SUCCESS,
+    payload: {
+      updatedRecord: updatedRecord,
+    },
+  };
+}
+
+export function updateUserConsentRecordFailure(error, apiError) {
+  return {
+    type: ActionTypes.UPDATE_USER_CONSENT_RECORD_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
 export function revokeUserConsentRecordRequest() {
   return {
     type: ActionTypes.REVOKE_USER_CONSENT_RECORD_REQUEST,
