@@ -3,14 +3,11 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import isEmpty from 'lodash/isEmpty';
-import keys from 'lodash/keys';
 
 import Container from '../../components/elements/Container';
-import { fieldsAreValid } from '../../core/forms';
 import { push } from 'connected-react-router';
 import { noop } from 'lodash';
-import DataDonationForm, { formContexts, formSteps, schemas } from '../patient/DataDonationForm';
-import { DATA_DONATION_CONSENT_TYPE } from '../../core/constants';
+import DataDonationForm, { formContexts, formSteps } from '../patient/DataDonationForm';
 
 export const PatientNewDataDonation = (props) => {
   const { api, trackMetric } = props;
@@ -34,7 +31,7 @@ export const PatientNewDataDonation = (props) => {
       title: t('Consider Donating Your Anonymized Data!'),
       submitText: t('Yes, I\'m Interested'),
     },
-    dataDonationDestination: {
+    supportedOrganizations: {
       title: t('Thank You for Donating Your Data!'),
       submitText: t('Done'),
     }
@@ -48,16 +45,11 @@ export const PatientNewDataDonation = (props) => {
     id: 'submit',
     children: formStepsText[currentForm]?.submitText,
     processing: submitting,
-    // disabled: !fieldsAreValid(
-    //   keys(schemas[currentForm].fields),
-    //   schemas[currentForm],
-    //   formikContext.values
-    // ),
     onClick: () => {
       if ((currentForm === formSteps.dataDonationConsent)) {
         initializeConsent();
       } else {
-        if (!isEmpty(formikContext.values?.dataDonateDestination)) {
+        if (!isEmpty(formikContext.values?.supportedOrganizations)) {
           formikContext.submitForm();
         } else {
           redirectToPatientData();
