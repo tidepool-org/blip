@@ -55,13 +55,10 @@ const AppBannerProvider = ({ children }) => {
   const isCustodialPatient = has(clinicPatient?.permissions, 'custodian');
   const userHasDiabetesType = !!loggedInUser?.profile?.patient?.diagnosisType;
 
-  const hasClinicsUsingAltRanges = (() => {
-    const clinicRanges = map(clinics || {}, clinic => clinic.patients?.[currentPatientInViewId]?.glycemicRanges);
-
-    const nonStandardClinicRanges = filter(clinicRanges, range => !!range && range !== GLYCEMIC_RANGE.ADA_STANDARD);
-
-    return nonStandardClinicRanges.length > 0;
-  })();
+  const hasClinicsUsingAltRanges = Object.values(clinics || {})
+                                         .map(clinic => clinic.patients?.[currentPatientInViewId]?.glycemicRanges)
+                                         .filter(range => !!range && range !== GLYCEMIC_RANGE.ADA_STANDARD)
+                                         .length > 0;
 
   const patientMetaData = useSelector(state => state.blip.data.metaData);
   const patientDevices = patientMetaData?.devices;
