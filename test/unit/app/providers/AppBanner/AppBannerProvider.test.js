@@ -13,7 +13,7 @@ import sinon from 'sinon';
 
 import ABP, { AppBannerProvider, AppBannerContext } from '../../../../../app/providers/AppBanner/AppBannerProvider';
 import { ToastProvider } from '../../../../../app/providers/ToastProvider';
-import { DATA_DONATION_NONPROFITS } from '../../../../../app/core/constants';
+import { SUPPORTED_ORGANIZATIONS_OPTIONS } from '../../../../../app/core/constants';
 import { find, keys, pickBy } from 'lodash';
 import { appBanners } from '../../../../../app/providers/AppBanner/appBanners';
 
@@ -387,7 +387,7 @@ describe('AppBannerProvider', () => {
           metaData: { size: 1, devices: [] },
         },
         // addind a data donation account so that the higher-priority donate banner is not shown
-        dataDonationAccounts: [{ email: `bigdata+${DATA_DONATION_NONPROFITS()[0].value}@tidepool.org` }], // eslint-disable-line new-cap
+        dataDonationAccounts: [{ email: `bigdata+${SUPPORTED_ORGANIZATIONS_OPTIONS[0].value}@tidepool.org` }], // eslint-disable-line new-cap
       },
     };
 

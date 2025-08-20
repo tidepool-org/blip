@@ -1431,6 +1431,33 @@ export function createUserConsentRecord(api, consentRecord) {
 }
 
 /**
+ * Update User Consent Record  Action Creator
+ *
+ * @param  {Object} api - an instance of the API wrapper
+ * @param {String} recordId - id of the consent record to update
+ * @param {Object} updates
+ * @param {Object} updates.metadata
+ * @param {Array[String]} updates.metadata.supportedOrganizations - Allowed values: ['ADCES Foundation', 'Beyond Type 1', 'Children With Diabetes', 'The Diabetes Link', 'Diabetes Youth Families (DYF)', 'DiabetesSisters', 'The diaTribe Foundation', 'Breakthrough T1D']
+ */
+export function updateUserConsentRecord(api, recordId, updates) {
+  return (dispatch, getState) => {
+    const { blip: { loggedInUserId } } = getState();
+
+    dispatch(sync.updateUserConsentRecordRequest());
+
+    api.consent.updateUserConsentRecord(loggedInUserId, recordId, updates, (err, updatedRecord) => {
+      if (err) {
+        dispatch(sync.updateUserConsentRecordFailure (
+          createActionError(ErrorMessages.ERR_UPDATING_USER_CONSENT_RECORD, err), err
+        ));
+      } else {
+        dispatch(sync.updateUserConsentRecordSuccess(updatedRecord));
+      }
+    });
+  };
+}
+
+/**
  * Revoke User Consent Record Action Creator
  *
  * @param  {Object} api - an instance of the API wrapper

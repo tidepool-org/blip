@@ -40,6 +40,7 @@ export const ERR_FETCHING_DEVICES = t('Something went wrong while fetching the d
 export const ERR_FETCHING_LATEST_CONSENT_BY_TYPE = t('Something went wrong while fetching consents.');
 export const ERR_FETCHING_USER_CONSENT_RECORDS = t('Something went wrong while fetching user consent records.');
 export const ERR_CREATING_USER_CONSENT_RECORD = t('Something went wrong while creating a user consent record.');
+export const ERR_UPDATING_USER_CONSENT_RECORD = t('Something went wrong while updating a user consent record.');
 export const ERR_REVOKING_USER_CONSENT_RECORD = t('Something went wrong while revoking a user consent record.');
 export const ERR_FETCHING_MESSAGE_THREAD = t('Something went wrong while fetching a message thread.');
 export const ERR_CREATING_MESSAGE_THREAD = t('Something went wrong while creating a message thread.');

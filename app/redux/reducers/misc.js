@@ -614,6 +614,11 @@ export const consentRecords = (state = initialState.consentRecords, action) => {
       return update(state, { $set: { [createdRecord.type]: createdRecord } });
     }
 
+    case types.UPDATE_USER_CONSENT_RECORD_SUCCESS: {
+      const updatedRecord = _.get(action.payload, 'updatedRecord');
+      return update(state, { $set: { [updatedRecord.type]: updatedRecord } });
+    }
+
     case types.REVOKE_USER_CONSENT_RECORD_SUCCESS: {
       const consentType = _.get(action.payload, 'consentType');
       return update(state, { $unset: [consentType] });

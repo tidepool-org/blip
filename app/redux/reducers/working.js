@@ -57,6 +57,7 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_LATEST_CONSENT_BY_TYPE_REQUEST:
     case types.FETCH_USER_CONSENT_RECORDS_REQUEST:
     case types.CREATE_USER_CONSENT_RECORD_REQUEST:
+    case types.UPDATE_USER_CONSENT_RECORD_REQUEST:
     case types.REVOKE_USER_CONSENT_RECORD_REQUEST:
     case types.FETCH_MESSAGE_THREAD_REQUEST:
     case types.CREATE_MESSAGE_THREAD_REQUEST:
@@ -197,6 +198,7 @@ export default (state = initialWorkingState, action) => {
           types.FETCH_LATEST_CONSENT_BY_TYPE_REQUEST,
           types.FETCH_USER_CONSENT_RECORDS_REQUEST,
           types.CREATE_USER_CONSENT_RECORD_REQUEST,
+          types.UPDATE_USER_CONSENT_RECORD_REQUEST,
           types.REVOKE_USER_CONSENT_RECORD_REQUEST,
           types.CREATE_CLINIC_REQUEST
         ], action.type)) {
@@ -245,6 +247,7 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_LATEST_CONSENT_BY_TYPE_SUCCESS:
     case types.FETCH_USER_CONSENT_RECORDS_SUCCESS:
     case types.CREATE_USER_CONSENT_RECORD_SUCCESS:
+    case types.UPDATE_USER_CONSENT_RECORD_SUCCESS:
     case types.REVOKE_USER_CONSENT_RECORD_SUCCESS:
     case types.FETCH_MESSAGE_THREAD_SUCCESS:
     case types.CREATE_MESSAGE_THREAD_SUCCESS:
@@ -434,6 +437,7 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_LATEST_CONSENT_BY_TYPE_FAILURE:
     case types.FETCH_USER_CONSENT_RECORDS_FAILURE:
     case types.CREATE_USER_CONSENT_RECORD_FAILURE:
+    case types.UPDATE_USER_CONSENT_RECORD_FAILURE:
     case types.REVOKE_USER_CONSENT_RECORD_FAILURE:
     case types.FETCH_MESSAGE_THREAD_FAILURE:
     case types.CREATE_MESSAGE_THREAD_FAILURE:

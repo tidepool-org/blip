@@ -925,8 +925,8 @@ api.consent.createUserConsentRecord = function(userId, consentRecord, cb) {
   return tidepool.createUserConsentRecord(userId, consentRecord, cb);
 };
 
-api.consent.updateUserConsentRecord = function(userId, recordId, metadata, cb) {
-  return tidepool.updateUserConsentRecord(userId, recordId, metadata, cb);
+api.consent.updateUserConsentRecord = function(userId, recordId, updates, cb) {
+  return tidepool.updateUserConsentRecord(userId, recordId, updates, cb);
 };
 
 api.consent.revokeUserConsentRecord = function(userId, recordId, cb) {
