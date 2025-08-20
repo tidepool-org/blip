@@ -81,6 +81,7 @@ export default withTranslation()(class PatientSettings extends Component {
     patient: PropTypes.object,
     onUpdatePatientSettings: PropTypes.func.isRequired,
     trackMetric: PropTypes.func.isRequired,
+    api: PropTypes.object.isRequired,
   };
 
   constructor(props) {
@@ -151,7 +152,7 @@ export default withTranslation()(class PatientSettings extends Component {
             {errorNode}
 
             <div className="PatientSettings-blocks">
-              <ClinicsUsingAltRangeNotifications />
+              <ClinicsUsingAltRangeNotifications api={this.props.api} />
             </div>
 
             <div className="PatientSettings-blocks">

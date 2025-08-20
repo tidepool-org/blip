@@ -1,5 +1,5 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { selectPatient, selectUser } from '../../core/selectors';
 import mapValues from 'lodash/mapValues';
 import { utils as vizUtils, colors as vizColors } from '@tidepool/viz';
@@ -8,8 +8,13 @@ import personUtils from '../../core/personutils';
 import { Box, Flex } from 'theme-ui';
 import { useTranslation } from 'react-i18next';
 import Button from '../../components/elements/Button';
+import * as actions from '../../redux/actions';
+import moment from 'moment';
 
-const Notification = ({ clinicId, glycemicRanges }) => {
+import cloneDeep from 'lodash/cloneDeep';
+import pickBy from 'lodash/pickBy';
+
+const Notification = ({ clinicId, glycemicRanges, onDismiss }) => {
   const { t } = useTranslation();
   const name = useSelector(state => state.blip.clinics?.[clinicId]?.name) || '';
 
@@ -24,16 +29,32 @@ const Notification = ({ clinicId, glycemicRanges }) => {
             {t('{{ name }} is using a non-standard target range of {{glycemicRanges}} [UNITS] to view your data.', { name, glycemicRanges })}
           </Box>
         </Box>
-        <Button variant='secondaryCondensed' sx={{ border: 'none' }}>{t('Dismiss')}</Button>
+        <Button onClick={onDismiss} variant='secondaryCondensed' sx={{ border: 'none' }}>
+          {t('Dismiss')}
+        </Button>
       </Flex>
     </Box>
   );
 };
 
-const ClinicsUsingAltRangeNotifications = () => {
-  const clinics = useSelector(state => state.blip.clinics);
+const ClinicsUsingAltRangeNotifications = ({ api }) => {
+  const dispatch = useDispatch();
+  const clinics = useSelector(state => state.blip.clinics) || {};
   const patient = useSelector(state => selectPatient(state));
   const user = useSelector(state => selectUser(state));
+  const loggedInUserId = useSelector(state => state.blip.loggedInUserId);
+  const loggedInUser = useSelector(state => state.blip.allUsersMap[loggedInUserId]);
+  const preferences = loggedInUser?.preferences || {};
+
+  const handleDismiss = (clinicId, glycemicRanges) => {
+    const updatedPrefs = cloneDeep(preferences);
+    const dismissedAt = moment.utc().toISOString();
+
+    updatedPrefs.alternateGlycemicRangeNotification ||= {};
+    updatedPrefs.alternateGlycemicRangeNotification[clinicId] = { glycemicRanges, dismissedAt };
+
+    dispatch(actions.async.updatePreferences(api, loggedInUserId, updatedPrefs));
+  };
 
   const isUserPatient = personUtils.isSame(user, patient);
 
@@ -41,14 +62,28 @@ const ClinicsUsingAltRangeNotifications = () => {
 
   if (!isUserPatient) return null;
 
-  // TODO: filter out those that are standard
-  const altRanges = mapValues(clinics || {}, clinic => clinic?.patients?.[patient.userid]?.glycemicRanges);
+  const clinicsWithNotificatons = pickBy(clinics, clinic => {
+    const glycemicRanges = clinic?.patients?.[patient.userid]?.glycemicRanges;
+
+    const isNonStandardRange = !!glycemicRanges && glycemicRanges !== GLYCEMIC_RANGE.ADA_STANDARD;
+    const lastDismissedValue = preferences.alternateGlycemicRangeNotification?.[clinic.id]?.glycemicRanges;
+    const hasUpdatedValue = !lastDismissedValue || lastDismissedValue !== glycemicRanges;
+
+    return isNonStandardRange && hasUpdatedValue;
+  });
+
+  const notifications = mapValues(clinicsWithNotificatons, clinic => clinic.patients[patient.userid].glycemicRanges);
 
   return (
     <Box>
-      { Object.entries(altRanges)
+      { Object.entries(notifications)
               .map(([clinicId, glycemicRanges]) => (
-                <Notification clinicId={clinicId} glycemicRanges={glycemicRanges} />
+                <Notification
+                  key={clinicId}
+                  clinicId={clinicId}
+                  glycemicRanges={glycemicRanges}
+                  onDismiss={() => handleDismiss(clinicId, glycemicRanges)}
+                />
               ))
       }
     </Box>

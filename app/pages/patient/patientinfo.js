@@ -440,6 +440,7 @@ var PatientInfo = withTranslation()(class extends React.Component {
         onUpdatePatientSettings={this.props.onUpdatePatientSettings}
         patient={this.props.patient}
         trackMetric={this.props.trackMetric}
+        api={this.props.api}
       />
     );
   };
