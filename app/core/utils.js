@@ -397,7 +397,7 @@ utils.getTimePrefsForDataProcessing = (latestTimeZone, queryParams) => {
 utils.getBGPrefsForDataProcessing = (
   patientSettings,
   clinicPatient,
-  bgUnitsOverride = {}, // { units: 'mmoll' | 'mgdl', source: String }
+  bgUnitsOverride = {}, // { units: 'mmol/L' | 'mg/dL' | 'mmoll' | 'mgdl', source: String }
 ) => {
   // If bgUnits overriden, use those. Otherwise, check if patient has preferred bgUnits.
   let bgUnits = null;
