@@ -15,11 +15,11 @@ describe('PatientProfile', () => {
   describe('getFetchers', () => {
     const stateProps = {
       user: { userid: '12345' },
-      fetchingPendingSentInvites: {
+      fetchingAssociatedAccounts: {
         inProgress: false,
         completed: null,
       },
-      fetchingAssociatedAccounts: {
+      fetchingUserConsentRecords: {
         inProgress: false,
         completed: null,
       },
@@ -33,10 +33,10 @@ describe('PatientProfile', () => {
 
     const dispatchProps = {
       fetchPatient: sinon.stub().returns('fetchPatient'),
-      fetchPendingSentInvites: sinon.stub().returns('fetchPendingSentInvites'),
       fetchAssociatedAccounts: sinon.stub().returns('fetchAssociatedAccounts'),
       fetchPatientFromClinic: sinon.stub().returns('fetchPatientFromClinic'),
       fetchPatientFromClinic: sinon.stub().returns('fetchPatientFromClinic'),
+      fetchUserConsentRecords: sinon.stub().returns('fetchUserConsentRecords'),
     };
 
     const api = {};
@@ -46,22 +46,22 @@ describe('PatientProfile', () => {
       expect(result[0]).to.be.a('function');
       expect(result[0]()).to.equal('fetchPatient');
       expect(result[1]).to.be.a('function');
-      expect(result[1]()).to.equal('fetchPendingSentInvites');
+      expect(result[1]()).to.equal('fetchAssociatedAccounts');
       expect(result[2]).to.be.a('function');
-      expect(result[2]()).to.equal('fetchAssociatedAccounts');
+      expect(result[2]()).to.equal('fetchUserConsentRecords');
     });
 
-    it('should only add the associated accounts and pending invites fetchers if fetches are not already in progress or completed', () => {
+    it('should only add the associated accounts, consents, and pending invites fetchers if fetches are not already in progress or completed', () => {
       const standardResult = getFetchers(dispatchProps, ownProps, stateProps, api);
       expect(standardResult.length).to.equal(3);
 
       const inProgressResult = getFetchers(dispatchProps, ownProps, {
         user: { userid: '12345' },
-        fetchingPendingSentInvites: {
+        fetchingAssociatedAccounts: {
           inProgress: true,
           completed: null,
         },
-        fetchingAssociatedAccounts: {
+        fetchingUserConsentRecords: {
           inProgress: true,
           completed: null,
         },
@@ -72,11 +72,11 @@ describe('PatientProfile', () => {
 
       const completedResult = getFetchers(dispatchProps, ownProps, {
         user: { userid: '12345' },
-        fetchingPendingSentInvites: {
+        fetchingAssociatedAccounts: {
           inProgress: false,
           completed: true,
         },
-        fetchingAssociatedAccounts: {
+        fetchingUserConsentRecords: {
           inProgress: false,
           completed: true,
         },
@@ -96,11 +96,11 @@ describe('PatientProfile', () => {
         }
       }, {
         user: { userid: '12345' },
-        fetchingPendingSentInvites: {
+        fetchingAssociatedAccounts: {
           inProgress: false,
           completed: null,
         },
-        fetchingAssociatedAccounts: {
+        fetchingUserConsentRecords: {
           inProgress: false,
           completed: null,
         },

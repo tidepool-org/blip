@@ -13,9 +13,9 @@ import sinon from 'sinon';
 
 import ABP, { AppBannerProvider, AppBannerContext } from '../../../../../app/providers/AppBanner/AppBannerProvider';
 import { ToastProvider } from '../../../../../app/providers/ToastProvider';
-import { SUPPORTED_ORGANIZATIONS_OPTIONS } from '../../../../../app/core/constants';
 import { find, keys, pickBy } from 'lodash';
 import { appBanners } from '../../../../../app/providers/AppBanner/appBanners';
+import { DATA_DONATION_CONSENT_TYPE } from '../../../../../app/core/constants';
 
 // Create a dummy child component that consumes the AppBannerContext
 const DummyConsumer = () => {
@@ -64,6 +64,7 @@ describe('AppBannerProvider', () => {
       },
       dataSources: [],
       justConnectedDataSourceProviderName: null,
+      consentRecords: {},
     },
   };
 
@@ -165,6 +166,7 @@ describe('AppBannerProvider', () => {
           metaData: { size: 1, devices: [] },
         },
         dataSources: [{ state: 'active' }],
+        consentRecords: {},
       },
     };
 
@@ -321,6 +323,12 @@ describe('AppBannerProvider', () => {
         data: {
           metaData: { size: 1, devices: [] },
         },
+        consentRecords: {
+          [DATA_DONATION_CONSENT_TYPE]: {
+            status: 'revoked',
+            metadata: { supportedOrganizations: [] },
+          },
+        },
       },
     };
 
@@ -342,7 +350,7 @@ describe('AppBannerProvider', () => {
 
     expect(contextData.hasBanner).to.be.true;
     expect(contextData.banner.id).to.equal('donateYourData');
-    expect(contextData.processedBanner.bannerArgs).to.eql([dispatchStub]);
+    expect(contextData.processedBanner.bannerArgs).to.eql([dispatchStub, 'user1']);
   });
 
   it('should show shareProceeds banner when user is current patient, has data, is a donor, but not supporting a nonprofit', () => {
@@ -351,6 +359,12 @@ describe('AppBannerProvider', () => {
         ...initialState.blip,
         data: {
           metaData: { size: 1, devices: [] },
+        },
+        consentRecords: {
+          [DATA_DONATION_CONSENT_TYPE]: {
+            status: 'active',
+            metadata: { supportedOrganizations: [] },
+          },
         },
       },
     };
@@ -384,6 +398,12 @@ describe('AppBannerProvider', () => {
           metaData: { size: 1, devices: [] },
         },
         // adding a data donation account so that the higher-priority donate banner is not shown
+        consentRecords: {
+          [DATA_DONATION_CONSENT_TYPE]: {
+            status: 'active',
+            metadata: { supportedOrganizations: ['foo'] },
+          },
+        },
       },
     };
 

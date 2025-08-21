@@ -52,18 +52,16 @@ describe('constants', function() {
   });
 
   it('should define the list of tidepool big data donation nonprofit partners', function() {
-    expect(Constants.SUPPORTED_ORGANIZATIONS_OPTIONS).to.be.an('array'); // eslint-disable-line new-cap
-    expect(_.map(Constants.SUPPORTED_ORGANIZATIONS_OPTIONS, 'value')).to.eql([ // eslint-disable-line new-cap
-      'ADCES',
-      'BT1',
-      'CWD',
-      'CDN',
-      'DYF',
-      'DIABETESSISTERS',
-      'DIATRIBE',
-      'JDRF',
-      'NSF',
-      'T1DX',
+    expect(Constants.SUPPORTED_ORGANIZATIONS_OPTIONS).to.be.an('array');
+    expect(_.map(Constants.SUPPORTED_ORGANIZATIONS_OPTIONS, 'value')).to.eql([
+      'ADCES Foundation',
+      'Beyond Type 1',
+      'Breakthrough T1D',
+      'Children With Diabetes',
+      'DiabetesSisters',
+      'Diabetes Youth Families (DYF)',
+      'The Diabetes Link',
+      'The diaTribe Foundation',
     ]);
   });
 
