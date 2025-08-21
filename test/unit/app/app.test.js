@@ -76,6 +76,7 @@ describe('App', () => {
       membersOfTargetCareTeam: {},
       pendingSentInvites: {},
       permissionsOfMembersInTargetCareTeam: {},
+      consentRecords: {},
       data: {}
     },
   };
@@ -276,12 +277,12 @@ describe('App', () => {
     });
   });
 
-  describe('isPatientVisibleInNavbar', () => {
+  describe('showNavPatientHeader', () => {
     it('should return true when page is /patients/a1b2c3/data', () => {
       var props = _.assign({}, baseProps, { location: '/patients/a1b2c3' });
       var elem = mount(<App {...props} />, { wrappingComponent: providerWrapper(store) });
       expect(elem).to.be.ok;
-      expect(elem.instance().isPatientVisibleInNavbar()).to.be.true;
+      expect(elem.instance().showNavPatientHeader()).to.be.true;
     });
 
     it('should return false when page is /patients', () => {
@@ -289,7 +290,7 @@ describe('App', () => {
       expect(elem).to.be.ok;
 
       elem.setState({page: '/patients'});
-      expect(elem.instance().isPatientVisibleInNavbar()).to.be.false;
+      expect(elem.instance().showNavPatientHeader()).to.be.false;
     });
 
     it('should return false when page is /profile', () => {
@@ -297,7 +298,7 @@ describe('App', () => {
       expect(elem).to.be.ok;
 
       elem.setState({page: '/profile'});
-      expect(elem.instance().isPatientVisibleInNavbar()).to.be.false;
+      expect(elem.instance().showNavPatientHeader()).to.be.false;
     });
 
     it('should return false when page is /foo', () => {
@@ -305,7 +306,7 @@ describe('App', () => {
       expect(elem).to.be.ok;
 
       elem.setState({page: '/foo'});
-      expect(elem.instance().isPatientVisibleInNavbar()).to.be.false;
+      expect(elem.instance().showNavPatientHeader()).to.be.false;
     });
   });
 
