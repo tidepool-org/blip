@@ -75,7 +75,6 @@ const initialState = {
     disconnectingDataSource: Object.assign({}, working),
     settingUpDataStorage: Object.assign({}, working),
     rejectingReceivedInvite: Object.assign({}, working),
-    fetchingDataDonationAccounts: Object.assign({}, working),
     fetchingDataSources: Object.assign({}, working),
     fetchingServerTime: Object.assign({}, working),
     fetchingClinicPrescriptions: Object.assign({}, working),
@@ -107,7 +106,6 @@ const initialState = {
     sendingClinicInvite: Object.assign({}, working),
     resendingInvite: Object.assign({}, working),
     settingMemberPermissions: Object.assign({}, working),
-    updatingDataDonationAccounts: Object.assign({}, working),
     updatingPatient: Object.assign({}, working),
     updatingPatientBgUnits: Object.assign({}, working),
     updatingUser: Object.assign({}, working),
@@ -171,7 +169,6 @@ const initialState = {
   bgPrefs: {
     bgUnits: MGDL_UNITS
   },
-  dataDonationAccounts: [],
   dataSources: [],
   authorizedDataSource: null,
   justConnectedDataSourceProviderName: null,

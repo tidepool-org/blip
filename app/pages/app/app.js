@@ -433,7 +433,6 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   fetchUser: actions.async.fetchUser,
   logout: actions.async.logout,
   onCloseNotification: actions.sync.acknowledgeNotification,
-  updateDataDonationAccounts: actions.async.updateDataDonationAccounts,
   resendEmailVerification: actions.async.resendEmailVerification,
   fetchInfo: actions.async.fetchInfo,
 }, dispatch);

@@ -3,7 +3,7 @@ import { push } from 'connected-react-router';
 import i18next from '../../core/language';
 import { async } from '../../redux/actions';
 import api from '../../core/api';
-import { TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL, URL_BIG_DATA_DONATION_INFO, URL_SHARE_DATA_INFO, URL_TIDEPOOL_PLUS_CONTACT_SALES } from '../../core/constants';
+import { URL_BIG_DATA_DONATION_INFO, URL_SHARE_DATA_INFO, URL_TIDEPOOL_PLUS_CONTACT_SALES } from '../../core/constants';
 import { ResendDataSourceConnectRequestDialog } from '../../components/clinic/ResendDataSourceConnectRequestDialog';
 import PatientEmailModal from '../../components/datasources/PatientEmailModal';
 import { upperFirst } from 'lodash';

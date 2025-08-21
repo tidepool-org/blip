@@ -428,39 +428,31 @@ api.user.getAssociatedAccounts = function(cb) {
       return cb(err);
     }
 
-    // Filter out viewable users, data donation, and care team accounts separately
-    var viewableUsers = [];
-    var dataDonationAccounts = [];
+    // Filter out data donation accounts, and separate out viewable patient users and care team accounts
+    var patients = [];
     var careTeam = [];
 
     _.each(users, function(user) {
-      if (personUtils.isDataDonationAccount(user)) {
-        dataDonationAccounts.push({
-          userid: user.userid,
-          email: user.username,
-          status: 'confirmed',
-        });
-      } else {
-        // An associated user can be both a trustor and trustee, so we want to include them in all
-        // applicable groups.
-        if (!_.isEmpty(user.trustorPermissions)) {
-          // These are the accounts that have shared their data
-          // with a given set of permissions.
-          user.permissions = user.trustorPermissions
-          viewableUsers.push(_.omit(user, 'trustorPermissions', 'trusteePermissions'));
-        }
-        if (!_.isEmpty(user.trusteePermissions)) {
-          // These are accounts with which the user has shared access to their data, exluding the
-          // data donation accounts
-          user.permissions = user.trusteePermissions
-          careTeam.push(_.omit(user, 'trustorPermissions', 'trusteePermissions'));
-        }
+      if (personUtils.isDataDonationAccount(user)) return;
+
+      // An associated user can be both a trustor and trustee, so we want to include them in all
+      // applicable groups.
+      if (!_.isEmpty(user.trustorPermissions)) {
+        // These are the accounts that have shared their data
+        // with a given set of permissions.
+        user.permissions = user.trustorPermissions
+        patients.push(_.omit(user, 'trustorPermissions', 'trusteePermissions'));
+      }
+      if (!_.isEmpty(user.trusteePermissions)) {
+        // These are accounts with which the user has shared access to their data, exluding the
+        // data donation accounts
+        user.permissions = user.trusteePermissions
+        careTeam.push(_.omit(user, 'trustorPermissions', 'trusteePermissions'));
       }
     });
 
     return cb(null, {
-      patients: viewableUsers,
-      dataDonationAccounts,
+      patients,
       careTeam
     });
   });

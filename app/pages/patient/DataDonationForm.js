@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { Trans, useTranslation } from 'react-i18next';
 import * as yup from 'yup';
-import { add, compact, forEach, get, includes, invert, isEmpty, isEqual, isNil, keyBy, map, noop, omitBy, reject, sortBy, values } from 'lodash';
+import { compact, get, isEmpty, isEqual, isNil, noop, omitBy, sortBy, values } from 'lodash';
 import { useFormik } from 'formik';
 import { Box, Flex, Link } from 'theme-ui';
 import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
@@ -23,9 +23,7 @@ import Pill from '../../components/elements/Pill';
 
 import {
   DATA_DONATION_CONSENT_TYPE,
-  NONPROFIT_CODES_TO_SUPPORTED_ORGANIZATIONS_NAMES,
   SUPPORTED_ORGANIZATIONS_OPTIONS,
-  TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL,
   URL_BIG_DATA_DONATION_INFO,
 } from '../../core/constants';
 
@@ -33,9 +31,6 @@ import Button from '../../components/elements/Button';
 import DataDonationRevokeConsentDialog from '../patient/DataDonationRevokeConsentDialog';
 import DataDonationConsentDialog from '../patient/DataDonationConsentDialog';
 import { getConsentText } from '../patient/DataDonationConsentDialog';
-import { selectDataDonationConsent } from '../../core/selectors';
-
-const supportedOrganizationsOptions = SUPPORTED_ORGANIZATIONS_OPTIONS; // eslint-disable-line new-cap
 
 const dataDonationConsentSchema = yup.object().shape({
   dataDonate: yup.boolean(),
@@ -89,9 +84,7 @@ export const DataDonationForm = (props) => {
   const patientName = personUtils.patientFullName(user);
   const caregiverName = accountType === 'caregiver' ? personUtils.fullName(user) : undefined;
   const { [DATA_DONATION_CONSENT_TYPE]: consentDocument } = useSelector((state) => state.blip.consents);
-  const currentConsent = useSelector(state => selectDataDonationConsent(state));
-  const isLegacyConsent = currentConsent?.version === 0;
-  const legacyDataDonationAccounts = useSelector(state => state.blip.dataDonationAccounts);
+  const currentConsent = useSelector(state => state.blip.consentRecords[DATA_DONATION_CONSENT_TYPE]);
   const fallbackConsentDate = formContext === formContexts.newPatient ? moment().format('MMMM D, YYYY') : null;
   const consentDate = currentConsent?.grantTime ? moment(currentConsent.grantTime).format('MMMM D, YYYY') : fallbackConsentDate;
   const [currentForm, setCurrentForm] = useState(currentConsent?.status === 'active' ? formSteps.supportedOrganizations : formSteps.dataDonationConsent);
@@ -141,7 +134,6 @@ export const DataDonationForm = (props) => {
 
   const {
     creatingUserConsentRecord,
-    updatingDataDonationAccounts,
     updatingUserConsentRecord,
     revokingUserConsentRecord,
   } = useSelector((state) => state.blip.working);
@@ -187,10 +179,6 @@ export const DataDonationForm = (props) => {
       if (formContext === formContexts.newPatient) redirectToPatientData();
     });
   }, [updatingUserConsentRecord]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    handleAsyncResult({ ...updatingDataDonationAccounts, prevInProgress: previousWorking?.updatingDataDonationAccounts }, t('You have updated your data donation preferences'));
-  }, [updatingDataDonationAccounts]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     handleAsyncResult({ ...revokingUserConsentRecord, prevInProgress: previousWorking?.revokingUserConsentRecord }, t('You have stopped sharing your data'), onRevokeConsent);
@@ -250,12 +238,7 @@ export const DataDonationForm = (props) => {
 
   function handleRevokeConsentDialogConfirm() {
     setSubmitting(true);
-
-    if (isLegacyConsent) {
-      dispatch(actions.async.updateDataDonationAccounts(api, [], legacyDataDonationAccounts));
-    } else {
-      dispatch(actions.async.revokeUserConsentRecord(api, currentConsent.type, currentConsent.id));
-    }
+    dispatch(actions.async.revokeUserConsentRecord(api, currentConsent.type, currentConsent.id));
 
     trackMetric('Revoke Consent Record', {
       formContext: formContexts[formContext],
@@ -269,39 +252,17 @@ export const DataDonationForm = (props) => {
   function handleUpdateSupportedOrganizations() {
     const updatedSupportedOrganizations = compact(formikContext.values.supportedOrganizations.split(','));
 
-    // Return early if there are no changes to the currently-supported organizations
-    if (isEqual(sortBy(updatedSupportedOrganizations), sortBy(currentConsent.metadata.supportedOrganizations))) return;
-
-    if (isLegacyConsent) {
-      const nameToCodeMap = invert(NONPROFIT_CODES_TO_SUPPORTED_ORGANIZATIONS_NAMES);
-      const addAccounts = map(updatedSupportedOrganizations, name => `bigdata+${nameToCodeMap[name]}@tidepool.org`);
-      const existingAccounts = keyBy(legacyDataDonationAccounts, 'email');
-
-      // Filter out any accounts that are already shared with
-      const filteredAddAccounts = reject(addAccounts, account => { return get(existingAccounts, account) });
-
-      const removeAccounts = [];
-      // Remove any existing shared accounts that have been removed
-      forEach(existingAccounts, account => {
-        if (account.email === TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL) return;
-
-        if (!includes(addAccounts, account.email)) {
-          removeAccounts.push(account);
-        }
-      });
-
-      dispatch(actions.async.updateDataDonationAccounts(api, filteredAddAccounts, removeAccounts));
-    } else {
+    if (!isEqual(sortBy(updatedSupportedOrganizations), sortBy(currentConsent.metadata.supportedOrganizations))) {
       dispatch(actions.async.updateUserConsentRecord(api, currentConsent.id, { metadata: { supportedOrganizations: updatedSupportedOrganizations } }));
-    }
 
-    trackMetric('Update Consent Record', {
-      formContext: formContexts[formContext],
-      type: currentConsent.type,
-      version: currentConsent.version,
-      grantorType: currentConsent.grantorType,
-      ageGroup: currentConsent.ageGroup,
-    });
+      trackMetric('Update Consent Record', {
+        formContext: formContexts[formContext],
+        type: currentConsent.type,
+        version: currentConsent.version,
+        grantorType: currentConsent.grantorType,
+        ageGroup: currentConsent.ageGroup,
+      });
+    }
   }
 
   return (
@@ -388,7 +349,7 @@ export const DataDonationForm = (props) => {
               {...getCommonFormikFieldProps('supportedOrganizations', formikContext, 'value', false)}
               label={accountTypeText[accountType]?.dataDonateOrganizationsLabel}
               setFieldValue={formikContext.setFieldValue}
-              options={supportedOrganizationsOptions}
+              options={SUPPORTED_ORGANIZATIONS_OPTIONS}
               onMenuClose={formContext === formContexts.profile ? handleUpdateSupportedOrganizations : undefined}
             />
           </Box>

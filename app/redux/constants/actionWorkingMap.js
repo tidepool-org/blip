@@ -234,11 +234,6 @@ export default (type) => {
     case types.DATA_WORKER_QUERY_DATA_FAILURE:
       return 'queryingData';
 
-    case types.UPDATE_DATA_DONATION_ACCOUNTS_REQUEST:
-    case types.UPDATE_DATA_DONATION_ACCOUNTS_SUCCESS:
-    case types.UPDATE_DATA_DONATION_ACCOUNTS_FAILURE:
-      return 'updatingDataDonationAccounts';
-
     case types.FETCH_DATA_SOURCES_REQUEST:
     case types.FETCH_DATA_SOURCES_SUCCESS:
     case types.FETCH_DATA_SOURCES_FAILURE:

@@ -385,12 +385,10 @@ describe('App', () => {
             view: {},
           },
         },
-        dataDonationAccounts: [],
         datasources: [],
         working: {
           fetchingUser: {inProgress: false},
           fetchingPendingSentInvites: {inProgress: false},
-          updatingDataDonationAccounts: {inProgress: false},
           fetchingPatient: {inProgress: false, notification: {type: 'error'}},
           loggingOut: {inProgress: false},
           resendingEmailVerification: {inProgress: false},
@@ -496,12 +494,10 @@ describe('App', () => {
               upload: {},
             }
           },
-          dataDonationAccounts: [],
           datasources: [],
           working: {
             fetchingUser: {inProgress: false},
             fetchingPendingSentInvites: {inProgress: false},
-            updatingDataDonationAccounts: {inProgress: false},
             fetchingPatient: {inProgress: false, notification: {type: 'error'}},
             loggingOut: {inProgress: false},
             resendingEmailVerification: {inProgress: false},
@@ -539,12 +535,10 @@ describe('App', () => {
               view: {},
             }
           },
-          dataDonationAccounts: [],
           datasources: [],
           working: {
             fetchingUser: {inProgress: false},
             fetchingPendingSentInvites: {inProgress: false},
-            updatingDataDonationAccounts: {inProgress: false},
             fetchingPatient: {inProgress: false, notification: {type: 'error'}},
             loggingOut: {inProgress: false},
             resendingEmailVerification: {inProgress: false},
@@ -600,12 +594,10 @@ describe('App', () => {
               note: {},
             }
           },
-          dataDonationAccounts: [],
           datasources: [],
           working: {
             fetchingUser: {inProgress: false},
             fetchingPendingSentInvites: {inProgress: false},
-            updatingDataDonationAccounts: {inProgress: false},
             fetchingPatient: {inProgress: false, notification: {type: 'error'}},
             loggingOut: {inProgress: false},
             resendingEmailVerification: {inProgress: false},
