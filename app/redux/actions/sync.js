@@ -1179,31 +1179,6 @@ export function editMessageThreadFailure(error, apiError) {
   };
 }
 
-export function updateDataDonationAccountsRequest() {
-  return {
-    type: ActionTypes.UPDATE_DATA_DONATION_ACCOUNTS_REQUEST,
-  };
-}
-
-export function updateDataDonationAccountsSuccess(dataDonationAccounts) {
-  return {
-    type: ActionTypes.UPDATE_DATA_DONATION_ACCOUNTS_SUCCESS,
-    payload: {
-      dataDonationAccounts,
-    },
-  };
-}
-
-export function updateDataDonationAccountsFailure(error, apiError) {
-  return {
-    type: ActionTypes.UPDATE_DATA_DONATION_ACCOUNTS_FAILURE,
-    error: error,
-    meta: {
-      apiError: apiError || null,
-    },
-  };
-}
-
 export function fetchDataSourcesRequest() {
   return {
     type: ActionTypes.FETCH_DATA_SOURCES_REQUEST,

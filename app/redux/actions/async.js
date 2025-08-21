@@ -518,9 +518,6 @@ export function sendInvite(api, email, permissions, cb = _.noop) {
           ));
         }
       } else {
-        if (personUtils.isDataDonationAccount(invite)) {
-          dispatch(fetchPendingSentInvites(api));
-        }
         dispatch(sync.sendInviteSuccess(invite));
       }
     });
@@ -1552,52 +1549,6 @@ export function editMessageThread(api, message, cb = _.noop) {
         const { blip: { currentPatientInViewId } } = getState();
         dispatch(sync.editMessageThreadSuccess(message));
         dispatch(worker.dataWorkerUpdateDatumRequest(message, currentPatientInViewId));
-      }
-    });
-  };
-}
-
-/**
- * Update Data Donation Accounts Action Creator
- *
- * @param  {Object} api an instance of the API wrapper
- */
-export function updateDataDonationAccounts(api, addAccounts = [], removeAccounts = []) {
-  return (dispatch, getState) => {
-    dispatch(sync.updateDataDonationAccountsRequest());
-
-    const { blip: { loggedInUserId } } = getState();
-
-    const addAccount = (email, cb) => {
-      const permissions = {
-        view: {},
-        note: {},
-      };
-
-      dispatch(sendInvite(api, email, permissions, cb));
-    }
-
-    const removeAccount = (account, cb) => {
-      if (account.userid) {
-        dispatch(removeMemberFromTargetCareTeam(api, loggedInUserId, account.userid, cb));
-      } else {
-        dispatch(cancelSentInvite(api, account.email, cb));
-      }
-    }
-
-    async.parallel(async.reflectAll({
-      addAccounts:  cb => { async.map(addAccounts, addAccount, (err, results) => cb(err, results)) },
-      removeAccounts: cb => { async.map(removeAccounts, removeAccount, (err, results) => cb(err, results)) },
-    }), (err, results) => {
-      const resultsErr = _.mapValues(results, ({error}) => error);
-      const resultsVal = _.mapValues(results, ({value}) => value);
-      const error = resultsErr.addAccounts || resultsErr.removeAccounts;
-      if (error) {
-        dispatch(sync.updateDataDonationAccountsFailure(
-          createActionError(ErrorMessages.ERR_UPDATING_DATA_DONATION_ACCOUNTS, error), error
-        ));
-      } else {
-        dispatch(sync.updateDataDonationAccountsSuccess(resultsVal));
       }
     });
   };

@@ -1570,7 +1570,6 @@ describe('Actions', () => {
             name: 'Bruce Lee',
             age: 24
           }],
-          dataDonationAccounts: [],
           careTeam: [],
         };
         let action = sync.fetchAssociatedAccountsSuccess(accounts);
@@ -1585,7 +1584,6 @@ describe('Actions', () => {
             name: 'Bruce Lee',
             age: 24
           }],
-          dataDonationAccounts: [],
           careTeam: [],
         };
         let action = sync.fetchAssociatedAccountsSuccess(accounts);
@@ -2123,69 +2121,6 @@ describe('Actions', () => {
         let action = sync.editMessageThreadFailure(error);
 
         expect(action.type).to.equal('EDIT_MESSAGE_THREAD_FAILURE');
-        expect(action.error).to.equal(error);
-      });
-    });
-
-    describe('updateDataDonationAccountsRequest', () => {
-      it('should be a TSA', () => {
-        let action = sync.updateDataDonationAccountsRequest();
-
-        expect(isTSA(action)).to.be.true;
-      });
-
-      it('type should equal UPDATE_DATA_DONATION_ACCOUNTS_REQUEST', () => {
-        let action = sync.updateDataDonationAccountsRequest();
-        expect(action.type).to.equal('UPDATE_DATA_DONATION_ACCOUNTS_REQUEST');
-      });
-    });
-
-    describe('updateDataDonationAccountsSuccess', () => {
-      it('should be a TSA', () => {
-        let dataDonationAccounts = {
-          addAccounts: [
-            { email: 'bigdata+YYY@tidepool.org' },
-          ],
-          removeAccounts: [
-            { removedEmail: 'bigdata+NSF@tidepool.org' },
-          ],
-        };
-
-        let action = sync.updateDataDonationAccountsSuccess(dataDonationAccounts);
-
-        expect(isTSA(action)).to.be.true;
-      });
-
-      it('type should equal UPDATE_DATA_DONATION_ACCOUNTS_SUCCESS', () => {
-        let dataDonationAccounts = {
-          addAccounts: [
-            { email: 'bigdata+YYY@tidepool.org' },
-          ],
-          removeAccounts: [
-            { removedEmail: 'bigdata+NSF@tidepool.org' },
-          ],
-        };
-
-        let action = sync.updateDataDonationAccountsSuccess(dataDonationAccounts);
-
-        expect(action.type).to.equal('UPDATE_DATA_DONATION_ACCOUNTS_SUCCESS');
-        expect(action.payload.dataDonationAccounts).to.equal(dataDonationAccounts);
-      });
-    });
-
-    describe('updateDataDonationAccountsFailure', () => {
-      it('should be a TSA', () => {
-        let error = new Error(':(');
-        let action = sync.updateDataDonationAccountsFailure(error);
-
-        expect(isTSA(action)).to.be.true;
-      });
-
-      it('type should equal UPDATE_DATA_DONATION_ACCOUNTS_FAILURE and error should equal passed error', () => {
-        let error = new Error(':(');
-        let action = sync.updateDataDonationAccountsFailure(error);
-
-        expect(action.type).to.equal('UPDATE_DATA_DONATION_ACCOUNTS_FAILURE');
         expect(action.error).to.equal(error);
       });
     });

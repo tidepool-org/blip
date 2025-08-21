@@ -478,10 +478,6 @@ describe('api', () => {
             { userid: '3', username: 'patient1@tidepool.org', permissions: { view: {} } },
             { userid: '4', username: 'patient2@tidepool.org', permissions: { view: {} } },
           ],
-          dataDonationAccounts: [
-            { userid: '1', email: 'bigdata@tidepool.org', status: 'confirmed' },
-            { userid: '2', email: 'bigdata+foo@tidepool.org', status: 'confirmed' },
-          ],
           careTeam: [
             { userid: '4', username: 'patient2@tidepool.org', permissions: { view: {}, upload: {} } },
             { userid: '5', username: 'careteam1@tidepool.org', permissions: { view: {}, upload: {} } },

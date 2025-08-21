@@ -64,7 +64,6 @@ describe('AppBannerProvider', () => {
       },
       dataSources: [],
       justConnectedDataSourceProviderName: null,
-      dataDonationAccounts: [],
     },
   };
 
@@ -166,7 +165,6 @@ describe('AppBannerProvider', () => {
           metaData: { size: 1, devices: [] },
         },
         dataSources: [{ state: 'active' }],
-        dataDonationAccounts: [],
       },
     };
 
@@ -354,7 +352,6 @@ describe('AppBannerProvider', () => {
         data: {
           metaData: { size: 1, devices: [] },
         },
-        dataDonationAccounts: [{ email: 'donor@example.com' }],
       },
     };
 
@@ -386,8 +383,7 @@ describe('AppBannerProvider', () => {
         data: {
           metaData: { size: 1, devices: [] },
         },
-        // addind a data donation account so that the higher-priority donate banner is not shown
-        dataDonationAccounts: [{ email: `bigdata+${SUPPORTED_ORGANIZATIONS_OPTIONS[0].value}@tidepool.org` }], // eslint-disable-line new-cap
+        // adding a data donation account so that the higher-priority donate banner is not shown
       },
     };
 

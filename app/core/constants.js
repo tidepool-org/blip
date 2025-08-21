@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-import { map, values, sortBy } from 'lodash';
+import { map, sortBy } from 'lodash';
 import i18next from './language';
 
 const t = i18next.t.bind(i18next);
@@ -34,18 +34,16 @@ export const URL_TIDEPOOL_EXTERNAL_DATA_CONNECTIONS = 'https://support.tidepool.
 export const TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL = 'bigdata@tidepool.org';
 export const DATA_DONATION_CONSENT_TYPE = 'big_data_donation_project';
 
-export const NONPROFIT_CODES_TO_SUPPORTED_ORGANIZATIONS_NAMES = {
-  ADCES: 'ADCES Foundation',
-  BT1: 'Beyond Type 1',
-  CWD: 'Children With Diabetes',
-  CDN: 'The Diabetes Link',
-  DYF: 'Diabetes Youth Families (DYF)',
-  DIABETESSISTERS: 'DiabetesSisters',
-  DIATRIBE: 'The diaTribe Foundation',
-  JDRF: 'Breakthrough T1D',
-};
-
-export const SUPPORTED_ORGANIZATIONS_OPTIONS = sortBy(map(values(NONPROFIT_CODES_TO_SUPPORTED_ORGANIZATIONS_NAMES), (name) => ({ value: name, label: t(name) })), 'value');
+export const SUPPORTED_ORGANIZATIONS_OPTIONS = map([
+  'ADCES Foundation',
+  'Beyond Type 1',
+  'Breakthrough T1D',
+  'Children With Diabetes',
+  'DiabetesSisters',
+  'Diabetes Youth Families (DYF)',
+  'The Diabetes Link',
+  'The diaTribe Foundation',
+], (name) => ({ value: name, label: t(name) }));
 
 export const DIABETES_TYPES = () => [
   { value: 'type1', label: t('Type 1') },

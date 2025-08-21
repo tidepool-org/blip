@@ -18,21 +18,21 @@ export function getFetchers(dispatchProps, ownProps, stateProps, api) {
     dispatchProps.fetchPatient.bind(null, api, ownProps.match.params.id),
   ];
 
-  if (stateProps.loggedInUserId === ownProps.match.params.id) {
-    // If the logged-in user is viewing their own profile, fetch their data donation consent records
-    fetchers.push(dispatchProps.fetchUserConsentRecords.bind(null, api, DATA_DONATION_CONSENT_TYPE));
-  }
-
-  if (!stateProps.fetchingPendingSentInvites.inProgress && !stateProps.fetchingPendingSentInvites.completed) {
-    fetchers.push(dispatchProps.fetchPendingSentInvites.bind(null, api));
-  }
-
+  // Need fetchAssociatedAccounts here because the result includes permissions for the patients in a care team
   if (!stateProps.fetchingAssociatedAccounts.inProgress && !stateProps.fetchingAssociatedAccounts.completed) {
-    // Need fetchAssociatedAccounts here because the result includes of data donation accounts sharing info
-    // and permissions for the patients in a care team
     fetchers.push(dispatchProps.fetchAssociatedAccounts.bind(null, api));
   }
 
+  // If the logged-in user is viewing their own profile, fetch their data donation consent records
+  if (stateProps.loggedInUserId === ownProps.match.params.id) {
+    if (!stateProps.fetchingUserConsentRecords.inProgress && !stateProps.fetchingUserConsentRecords.completed) {
+      fetchers.push(dispatchProps.fetchUserConsentRecords.bind(null, api, DATA_DONATION_CONSENT_TYPE));
+    }
+  }
+
+  // Need to fetch the patient for the clinic in order to have the permissions provided. Normally
+  // these would be here after navigating from the patients list, but they will not upon reload.
+  // We need to search for the patient via the current patient id.
   if (stateProps.selectedClinicId && !_.get(stateProps, [
     'clinics',
     stateProps.selectedClinicId,
@@ -40,9 +40,6 @@ export function getFetchers(dispatchProps, ownProps, stateProps, api) {
     ownProps.match.params.id,
     'permissions',
   ])) {
-    // Need to fetch the patient for the clinic in order to have the permissions provided. Normally
-    // these would be here after navigating from the patients list, but they will not upon reload.
-    // We need to search for the patient via the current patient id.
     fetchers.push(dispatchProps.fetchPatientFromClinic.bind(null, api, stateProps.selectedClinicId, ownProps.match.params.id));
   }
 
@@ -72,7 +69,6 @@ export function mapStateToProps(state) {
     fetchingPatient,
     fetchingPendingSentInvites,
     fetchingAssociatedAccounts,
-    updatingDataDonationAccounts,
     updatingPatientBgUnits,
     updatingPatient,
     updatingClinicPatient,
@@ -117,9 +113,6 @@ export function mapStateToProps(state) {
     fetchingPatient: fetchingPatient.inProgress,
     fetchingPendingSentInvites: fetchingPendingSentInvites,
     fetchingAssociatedAccounts: fetchingAssociatedAccounts,
-    dataDonationAccounts: state.blip.dataDonationAccounts,
-    dataDonationAccountsFetched: fetchingPendingSentInvites.completed && fetchingAssociatedAccounts.completed,
-    updatingDataDonationAccounts: updatingDataDonationAccounts.inProgress,
     updatingPatientBgUnits: updatingPatientBgUnits.inProgress,
     updatingPatient: updatingPatient.inProgress || updatingClinicPatient.inProgress,
     dataSources: state.blip.dataSources || [],
@@ -135,7 +128,6 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   fetchPatient: actions.async.fetchPatient,
   fetchPendingSentInvites: actions.async.fetchPendingSentInvites,
   fetchDataSources: actions.async.fetchDataSources,
-  updateDataDonationAccounts: actions.async.updateDataDonationAccounts,
   updatePatient: actions.async.updatePatient,
   updatePatientSettings: actions.async.updateSettings,
   connectDataSource: actions.async.connectDataSource,
@@ -156,7 +148,6 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
 
   return Object.assign({}, stateProps, _.pick(dispatchProps, 'acknowledgeNotification'), {
     fetchers: getFetchers(dispatchProps, ownProps, stateProps, api),
-    onUpdateDataDonationAccounts: dispatchProps.updateDataDonationAccounts.bind(null, api),
     onUpdatePatient: patientUpdateAction,
     onUpdatePatientSettings: dispatchProps.updatePatientSettings.bind(null, api),
     fetchDataSources: dispatchProps.fetchDataSources.bind(null, api),

@@ -39,17 +39,13 @@ var PatientInfo = withTranslation()(class extends React.Component {
   // many things *not* required here because they aren't needed for
   // /patients/:id/profile although they are for /patients/:id/share (or vice-versa)
   static propTypes = {
-    dataDonationAccounts: PropTypes.array,
-    dataDonationAccountsFetched: PropTypes.bool,
     fetchingPatient: PropTypes.bool.isRequired,
     fetchingUser: PropTypes.bool.isRequired,
-    onUpdateDataDonationAccounts: PropTypes.func,
     onUpdatePatient: PropTypes.func.isRequired,
     onUpdatePatientSettings: PropTypes.func,
     permsOfLoggedInUser: PropTypes.object,
     patient: PropTypes.object,
     trackMetric: PropTypes.func.isRequired,
-    updatingDataDonationAccounts: PropTypes.bool,
     updatingPatientBgUnits: PropTypes.bool,
     user: PropTypes.object,
     api: PropTypes.object.isRequired,

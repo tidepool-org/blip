@@ -2394,9 +2394,16 @@ export function getFetchers(dispatchProps, ownProps, stateProps, api, options) {
     fetchers.push(dispatchProps.fetchClinicsForPatient.bind(null, api, ownProps.match.params.id));
   }
 
-  // Need fetchAssociatedAccounts here because the result includes of data donation accounts sharing info
+  // Need fetchAssociatedAccounts here because the result includes permissions for the patients in a care team
   if (!stateProps.fetchingAssociatedAccounts.inProgress && !stateProps.fetchingAssociatedAccounts.completed) {
     fetchers.push(dispatchProps.fetchAssociatedAccounts.bind(null, api));
+  }
+
+  // If the logged-in user is viewing their own profile, fetch their data donation consent records
+  if (stateProps.loggedInUserId === ownProps.match.params.id) {
+    if (!stateProps.fetchingUserConsentRecords.inProgress && !stateProps.fetchingUserConsentRecords.completed) {
+      fetchers.push(dispatchProps.fetchUserConsentRecords.bind(null, api, DATA_DONATION_CONSENT_TYPE));
+    }
   }
 
   if (stateProps.selectedClinicId && !stateProps.fetchingPatientFromClinic.inProgress && !stateProps.fetchingPatientFromClinic.completed) {

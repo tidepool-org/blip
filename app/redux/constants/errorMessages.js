@@ -82,7 +82,6 @@ export const ERR_ADDING_DATA = t('Something went wrong while processing your dat
 export const ERR_REMOVING_DATA = t('Something went wrong while closing the connection to your data.');
 export const ERR_UPDATING_DATUM = t('Something went wrong while updating your data.');
 export const ERR_QUERYING_DATA = t('Something went wrong while querying your data.');
-export const ERR_UPDATING_DATA_DONATION_ACCOUNTS = t('Something went wrong while updating your data donation preferences.');
 export const ERR_FETCHING_DATA_SOURCES = t('Something went wrong while fetching your data sources.');
 export const ERR_CONNECTING_DATA_SOURCE = t('Something went wrong while connecting the data source.');
 export const ERR_DISCONNECTING_DATA_SOURCE = t('Something went wrong while disconnecting the data source.');
