@@ -53,7 +53,7 @@ const SelectGlycemicRanges = ({
       <Select
         styles={selectElementStyleOverrides}
         name="patient-form-select-target-range-preset"
-        id="patient-form-select-target-range-preset"
+        inputId="patient-form-select-target-range-preset"
         classNamePrefix="PatientFormSelectGlycemicRanges"
         value={selectValue}
         onChange={handleSelectRange}
