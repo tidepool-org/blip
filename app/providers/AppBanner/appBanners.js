@@ -356,7 +356,8 @@ export const appBanners = [
     priority: 12,
     context: ['patient'],
     paths: [pathRegexes.patientData],
-    getProps: (dispatch, loggedInUserId) => ({
+    getProps: (dispatch, loggedInUserId, latestAltGlycemicRangeUpdateTime) => ({
+      ignoreBannerInteractionsBeforeTime: latestAltGlycemicRangeUpdateTime,
       interactionId: 'ClinicUsingAltRange',
       label: t('Clinic is using alternate glycemic range'),
       message: t('Clinic is using alternate glycemic range'),

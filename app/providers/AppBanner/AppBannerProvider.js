@@ -19,6 +19,7 @@ import {
   some,
   compact,
   mapValues,
+  values,
 } from 'lodash';
 
 import { appBanners } from './appBanners';
@@ -75,6 +76,12 @@ const AppBannerProvider = ({ children }) => {
 
     return hasRangeUpdate;
   })();
+
+  // TODO: attempt to replace this using a latestValueOnDismissal var in the top level of preferences object
+
+  const latestAltGlycemicRangeUpdateTime = hasAltGlycemicRangeUpdate
+    ? max(values(mapValues(loggedInUser?.preferences?.alternateGlycemicRangeNotification, 'dismissedAt')))
+    : null;
 
   const patientMetaData = useSelector(state => state.blip.data.metaData);
   const patientDevices = patientMetaData?.devices;
@@ -173,7 +180,7 @@ const AppBannerProvider = ({ children }) => {
 
     clinicUsingAltRange: {
       show: userIsCurrentPatient && hasAltGlycemicRangeUpdate,
-      bannerArgs: [dispatch, loggedInUserId],
+      bannerArgs: [dispatch, loggedInUserId, latestAltGlycemicRangeUpdateTime],
     },
   }), [
     bannerInteractedForPatient?.addEmail,

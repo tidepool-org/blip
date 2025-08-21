@@ -1490,9 +1490,7 @@ export function handleBannerInteraction(api, userId, interactionId, interactionT
     const interactionTime = sundial.utcDateString();
     let preferences;
 
-    if (interactionId === 'ClinicUsingAltRange') {
-      // continue
-    } else if (interactionType === 'seen') {
+    if (interactionType === 'seen') {
       const { blip: { loggedInUserId, allUsersMap } } = getState();
       const loggedInUser = allUsersMap[loggedInUserId];
       const preferenceDateKey = `seen${interactionId}BannerDate`;
