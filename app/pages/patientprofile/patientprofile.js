@@ -14,6 +14,8 @@ import { DATA_DONATION_CONSENT_TYPE } from '../../core/constants';
  * Expose "Smart" Component that is connect-ed to Redux
  */
 export function getFetchers(dispatchProps, ownProps, stateProps, api) {
+  const isUserPatient = ownProps.match.params.id === stateProps.user?.userid;
+
   const fetchers = [
     dispatchProps.fetchPatient.bind(null, api, ownProps.match.params.id),
   ];
@@ -24,10 +26,8 @@ export function getFetchers(dispatchProps, ownProps, stateProps, api) {
   }
 
   // If the logged-in user is viewing their own profile, fetch their data donation consent records
-  if (stateProps.loggedInUserId === ownProps.match.params.id) {
-    if (!stateProps.fetchingUserConsentRecords.inProgress && !stateProps.fetchingUserConsentRecords.completed) {
-      fetchers.push(dispatchProps.fetchUserConsentRecords.bind(null, api, DATA_DONATION_CONSENT_TYPE));
-    }
+  if (isUserPatient && !stateProps.fetchingUserConsentRecords.inProgress && !stateProps.fetchingUserConsentRecords.completed) {
+    fetchers.push(dispatchProps.fetchUserConsentRecords.bind(null, api, DATA_DONATION_CONSENT_TYPE));
   }
 
   // Need to fetch the patient for the clinic in order to have the permissions provided. Normally
@@ -69,6 +69,7 @@ export function mapStateToProps(state) {
     fetchingPatient,
     fetchingPendingSentInvites,
     fetchingAssociatedAccounts,
+    fetchingUserConsentRecords,
     updatingPatientBgUnits,
     updatingPatient,
     updatingClinicPatient,
@@ -113,6 +114,7 @@ export function mapStateToProps(state) {
     fetchingPatient: fetchingPatient.inProgress,
     fetchingPendingSentInvites: fetchingPendingSentInvites,
     fetchingAssociatedAccounts: fetchingAssociatedAccounts,
+    fetchingUserConsentRecords: fetchingUserConsentRecords,
     updatingPatientBgUnits: updatingPatientBgUnits.inProgress,
     updatingPatient: updatingPatient.inProgress || updatingClinicPatient.inProgress,
     dataSources: state.blip.dataSources || [],
