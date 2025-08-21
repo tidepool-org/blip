@@ -49,11 +49,7 @@ export const PatientNewDataDonation = (props) => {
       if ((currentForm === formSteps.dataDonationConsent)) {
         initializeConsent();
       } else {
-        if (!isEmpty(formikContext.values?.supportedOrganizations)) {
-          formikContext.submitForm();
-        } else {
-          redirectToPatientData();
-        }
+        redirectToPatientData();
       }
     },
   }];
