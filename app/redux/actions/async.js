@@ -1515,6 +1515,9 @@ export function handleBannerInteraction(api, userId, interactionId, interactionT
 
       preferences = {};
 
+      // If there are multiple clinics that currently use a non-standard range for the PwD, this
+      // one click should dismiss the banner for all clinics at once. Thus, we create a field in
+      // the preferences object for every clinic.
       Object.entries(clinicRanges).forEach(([clinicId, glycemicRanges]) => {
         if (isRangeWithNonStandardTarget(glycemicRanges)) {
           preferences[getDismissedAltRangeBannerKey(clinicId)] = interactionTime;

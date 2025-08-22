@@ -98,8 +98,10 @@ const ClinicsUsingAltRangeNotifications = ({ api }) => {
 
   const clinicsWithNotifications = pickBy(clinics, clinic => {
     const glycemicRanges = clinic?.patients?.[patient.userid]?.glycemicRanges;
-
     const isNonStandardTarget = isRangeWithNonStandardTarget(glycemicRanges);
+
+    // Each notification is clinic-specific and individually dismissable, so we need to check
+    // if the notification for each particular clinic has been dismissed
     const isDismissed = !!preferences?.[getDismissedAltRangeNotificationKey(clinic.id)];
 
     return isNonStandardTarget && !isDismissed;
