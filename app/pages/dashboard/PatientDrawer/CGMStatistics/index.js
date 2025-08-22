@@ -40,7 +40,7 @@ const TableRow = ({ label, sublabel, value, units, id }) => {
 const CGMStatistics = ({ agpCGM }) => {
   const { t } = useTranslation();
 
-  if (!agpCGM) return null;
+  if (!agpCGM?.data?.current) return null;
 
   const {
     timePrefs,
