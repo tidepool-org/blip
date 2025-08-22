@@ -34,6 +34,7 @@ const Notification = ({ clinicId, onDismiss }) => {
   const { t } = useTranslation();
   const clinic = useSelector(state => state.blip.clinics?.[clinicId]) || {};
   const currentPatientInViewId = useSelector(state => state.blip.currentPatientInViewId);
+  const updatingPreferences = useSelector(state => state.blip.working?.updatingPreferences);
 
   const { name, preferredBgUnits: clinicBgUnits = MGDL_UNITS } = clinic;
   const { glycemicRanges } = clinic.patients?.[currentPatientInViewId];
@@ -56,7 +57,12 @@ const Notification = ({ clinicId, onDismiss }) => {
             }
           </Box>
         </Box>
-        <Button onClick={onDismiss} variant='secondaryCondensed' sx={{ border: 'none' }}>
+        <Button
+          variant='secondaryCondensed'
+          sx={{ border: 'none' }}
+          onClick={onDismiss}
+          disabled={updatingPreferences?.inProgress}
+        >
           {t('Dismiss')}
         </Button>
       </Flex>

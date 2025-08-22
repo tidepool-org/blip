@@ -469,6 +469,11 @@ export default (type) => {
     case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_FAILURE:
       return 'revertingClinicPatientLastReviewed';
 
+    case types.UPDATE_PREFERENCES_REQUEST:
+    case types.UPDATE_PREFERENCES_SUCCESS:
+    case types.UPDATE_PREFERENCES_FAILURE:
+      return 'updatingPreferences';
+
     default:
       return null;
   }
