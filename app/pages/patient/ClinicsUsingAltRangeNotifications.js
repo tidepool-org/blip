@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectPatient, selectUser } from '../../core/selectors';
 import mapValues from 'lodash/mapValues';
@@ -75,13 +75,18 @@ const ClinicsUsingAltRangeNotifications = ({ api }) => {
   const clinics = useSelector(state => state.blip.clinics) || {};
   const patient = useSelector(state => selectPatient(state));
   const user = useSelector(state => selectUser(state));
+  const fetchingClinicsForPatient = useSelector(state => state.blip.working.fetchingClinicsForPatient);
   const loggedInUserId = useSelector(state => state.blip.loggedInUserId);
   const loggedInUser = useSelector(state => state.blip.allUsersMap[loggedInUserId]);
   const preferences = loggedInUser?.preferences || {};
 
   const isUserPatient = personUtils.isSame(user, patient);
 
-  // TODO: fetch in case clinics object is empty
+  useEffect(() => {
+    if (!fetchingClinicsForPatient?.completed) {
+      dispatch(actions.async.fetchClinicsForPatient(api, loggedInUserId));
+    }
+  }, []);
 
   if (!isUserPatient) return null;
 
