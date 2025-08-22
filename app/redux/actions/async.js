@@ -13,9 +13,12 @@ import personUtils from '../../core/personutils';
 import { keycloak } from '../../keycloak';
 import { push } from 'connected-react-router';
 import { worker } from '.';
+import { utils as vizUtils } from '@tidepool/viz';
+const { GLYCEMIC_RANGE } = vizUtils.constants;
 
 import utils from '../../core/utils';
 import { clinicUIDetails } from '../../core/clinicUtils.js';
+import { getDismissedAltRangeBannerKey } from '../../providers/AppBanner/AppBannerProvider.js';
 
 let win = window;
 
@@ -1505,6 +1508,22 @@ export function handleBannerInteraction(api, userId, interactionId, interactionT
           [preferenceDateKey]: interactionTime,
         };
       }
+    } else if (interactionId === 'ClinicUsingAltRange') {
+      const { blip: { currentPatientInViewId, clinics } } = getState();
+      const clinicRanges = _.mapValues(clinics, clinic => clinic.patients?.[currentPatientInViewId]?.glycemicRanges);
+
+      preferences = {};
+
+      Object.entries(clinicRanges).forEach(([clinicId, glycemicRanges]) => {
+        const isAltRange = (
+          glycemicRanges === GLYCEMIC_RANGE.ADA_PREGNANCY_T1 ||
+          glycemicRanges === GLYCEMIC_RANGE.ADA_GESTATIONAL_T2
+        );
+
+        if (isAltRange) {
+          preferences[getDismissedAltRangeBannerKey(clinicId)] = interactionTime;
+        }
+      });
     } else {
       const preferenceKey = `${interactionType}${interactionId}BannerTime`;
 

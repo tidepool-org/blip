@@ -16,9 +16,10 @@ import Button from '../../components/elements/Button';
 import * as actions from '../../redux/actions';
 import moment from 'moment';
 
-import cloneDeep from 'lodash/cloneDeep';
 import pickBy from 'lodash/pickBy';
 import { MGDL_UNITS } from '../../core/constants';
+
+const getDismissedAltRangeNotificationKey = (clinicId) => `dismissedClinicAltRangeNotificationTime-${clinicId}`;
 
 const getRenderedTargetRange = (glycemicRanges, bgUnits) => {
   switch(glycemicRanges) {
@@ -79,24 +80,23 @@ const ClinicsUsingAltRangeNotifications = ({ api }) => {
   if (!isUserPatient) return null;
 
   const handleDismiss = (clinicId) => {
-    const updatedPrefs = cloneDeep(preferences);
-    const glycemicRanges = clinics[clinicId]?.patients?.[patient.userid]?.glycemicRanges;
     const dismissedAt = moment.utc().toISOString();
+    const prefUpdate = { [getDismissedAltRangeNotificationKey(clinicId)]: dismissedAt };
 
-    updatedPrefs.alternateGlycemicRangeNotification ||= {};
-    updatedPrefs.alternateGlycemicRangeNotification[clinicId] = { glycemicRanges, dismissedAt };
-
-    dispatch(actions.async.updatePreferences(api, loggedInUserId, updatedPrefs));
+    dispatch(actions.async.updatePreferences(api, loggedInUserId, prefUpdate));
   };
 
   const clinicsWithNotifications = pickBy(clinics, clinic => {
     const glycemicRanges = clinic?.patients?.[patient.userid]?.glycemicRanges;
 
-    const isNonStandardRange = !!glycemicRanges && glycemicRanges !== GLYCEMIC_RANGE.ADA_STANDARD;
-    const lastDismissedValue = preferences.alternateGlycemicRangeNotification?.[clinic.id]?.glycemicRanges;
-    const hasUpdatedValue = !lastDismissedValue || lastDismissedValue !== glycemicRanges;
+    const isNonStandardRange = (
+      glycemicRanges === GLYCEMIC_RANGE.ADA_PREGNANCY_T1 ||
+      glycemicRanges === GLYCEMIC_RANGE.ADA_GESTATIONAL_T2
+    );
 
-    return isNonStandardRange && hasUpdatedValue;
+    const isDismissed = !!preferences?.[getDismissedAltRangeNotificationKey(clinic.id)];
+
+    return isNonStandardRange && !isDismissed;
   });
 
   return (

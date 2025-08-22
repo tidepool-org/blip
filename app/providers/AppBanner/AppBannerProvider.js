@@ -17,9 +17,6 @@ import {
   map,
   max,
   some,
-  compact,
-  mapValues,
-  values,
 } from 'lodash';
 
 import { appBanners } from './appBanners';
@@ -32,6 +29,8 @@ const { GLYCEMIC_RANGE } = vizUtils.constants;
 export const CLICKED_BANNER_ACTION = 'clicked';
 export const DISMISSED_BANNER_ACTION = 'dismissed';
 export const SEEN_BANNER_ACTION = 'seen';
+
+export const getDismissedAltRangeBannerKey = (clinicId) => `dismissedClinicAltRangeBannerTime-${clinicId}`;
 
 // Create a context
 const AppBannerContext = createContext();
@@ -57,31 +56,13 @@ const AppBannerProvider = ({ children }) => {
   const isCustodialPatient = has(clinicPatient?.permissions, 'custodian');
   const userHasDiabetesType = !!loggedInUser?.profile?.patient?.diagnosisType;
 
-  const hasAltGlycemicRangeUpdate = (() => {
-    const clinicRanges = mapValues(clinics, clinic => clinic.patients?.[currentPatientInViewId]?.glycemicRanges);
-
-    let hasRangeUpdate = false;
-    Object.keys(clinicRanges).forEach(clinicId => {
-      const currentValue = clinicRanges[clinicId];
-
-      const lastDismissedValue = loggedInUser?.preferences
-                                             ?.alternateGlycemicRangeNotification
-                                             ?.[clinicId]
-                                             ?.glycemicRanges;
-
-      if (!lastDismissedValue || lastDismissedValue !== currentValue) {
-        hasRangeUpdate = true;
-      }
-    });
-
-    return hasRangeUpdate;
-  })();
-
-  // TODO: attempt to replace this using a latestValueOnDismissal var in the top level of preferences object
-
-  const latestAltGlycemicRangeUpdateTime = hasAltGlycemicRangeUpdate
-    ? max(values(mapValues(loggedInUser?.preferences?.alternateGlycemicRangeNotification, 'dismissedAt')))
-    : null;
+  const showClinicUsingAltRangeBanner = Object.values(clinics)
+    .filter(clinic => !loggedInUser?.preferences?.[getDismissedAltRangeBannerKey(clinic.id)])
+    .map(clinic => clinic.patients?.[currentPatientInViewId]?.glycemicRanges)
+    .some(glycemicRanges => (
+      glycemicRanges === GLYCEMIC_RANGE.ADA_PREGNANCY_T1 ||
+      glycemicRanges === GLYCEMIC_RANGE.ADA_GESTATIONAL_T2
+    ));
 
   const patientMetaData = useSelector(state => state.blip.data.metaData);
   const patientDevices = patientMetaData?.devices;
@@ -179,8 +160,8 @@ const AppBannerProvider = ({ children }) => {
     },
 
     clinicUsingAltRange: {
-      show: userIsCurrentPatient && hasAltGlycemicRangeUpdate,
-      bannerArgs: [dispatch, loggedInUserId, latestAltGlycemicRangeUpdateTime],
+      show: userIsCurrentPatient && showClinicUsingAltRangeBanner,
+      bannerArgs: [dispatch, loggedInUserId],
     },
   }), [
     bannerInteractedForPatient?.addEmail,
