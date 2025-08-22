@@ -321,7 +321,7 @@ export const appBanners = [
   {
     id: 'sendVerification',
     variant: 'info',
-    priority: 11,
+    priority: 10,
     context: ['clinic'],
     paths: [pathRegexes.patientData],
     showIcon: false,

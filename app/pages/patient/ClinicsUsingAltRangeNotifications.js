@@ -19,7 +19,7 @@ import moment from 'moment';
 import pickBy from 'lodash/pickBy';
 import { MGDL_UNITS } from '../../core/constants';
 
-const getDismissedAltRangeNotificationKey = (clinicId) => `dismissedClinicAltRangeNotificationTime-${clinicId}`;
+import { getDismissedAltRangeNotificationKey, isRangeWithNonStandardTarget } from '../../providers/AppBanner/appBannerHelpers';
 
 const getRenderedTargetRange = (glycemicRanges, bgUnits) => {
   switch(glycemicRanges) {
@@ -99,14 +99,10 @@ const ClinicsUsingAltRangeNotifications = ({ api }) => {
   const clinicsWithNotifications = pickBy(clinics, clinic => {
     const glycemicRanges = clinic?.patients?.[patient.userid]?.glycemicRanges;
 
-    const isNonStandardRange = (
-      glycemicRanges === GLYCEMIC_RANGE.ADA_PREGNANCY_T1 ||
-      glycemicRanges === GLYCEMIC_RANGE.ADA_GESTATIONAL_T2
-    );
-
+    const isNonStandardTarget = isRangeWithNonStandardTarget(glycemicRanges);
     const isDismissed = !!preferences?.[getDismissedAltRangeNotificationKey(clinic.id)];
 
-    return isNonStandardRange && !isDismissed;
+    return isNonStandardTarget && !isDismissed;
   });
 
   return (

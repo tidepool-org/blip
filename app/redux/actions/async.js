@@ -19,6 +19,7 @@ const { GLYCEMIC_RANGE } = vizUtils.constants;
 import utils from '../../core/utils';
 import { clinicUIDetails } from '../../core/clinicUtils.js';
 import { getDismissedAltRangeBannerKey } from '../../providers/AppBanner/AppBannerProvider.js';
+import { isRangeWithNonStandardTarget } from '../../providers/AppBanner/appBannerHelpers.js';
 
 let win = window;
 
@@ -1515,12 +1516,7 @@ export function handleBannerInteraction(api, userId, interactionId, interactionT
       preferences = {};
 
       Object.entries(clinicRanges).forEach(([clinicId, glycemicRanges]) => {
-        const isAltRange = (
-          glycemicRanges === GLYCEMIC_RANGE.ADA_PREGNANCY_T1 ||
-          glycemicRanges === GLYCEMIC_RANGE.ADA_GESTATIONAL_T2
-        );
-
-        if (isAltRange) {
+        if (isRangeWithNonStandardTarget(glycemicRanges)) {
           preferences[getDismissedAltRangeBannerKey(clinicId)] = interactionTime;
         }
       });

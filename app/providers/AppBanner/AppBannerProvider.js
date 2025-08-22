@@ -23,14 +23,12 @@ import { appBanners } from './appBanners';
 import { providers } from '../../components/datasources/DataConnections';
 import { selectPatientSharedAccounts } from '../../core/selectors';
 import { DATA_DONATION_NONPROFITS } from '../../core/constants';
-import { utils as vizUtils } from '@tidepool/viz';
-const { GLYCEMIC_RANGE } = vizUtils.constants;
+
+import { getDismissedAltRangeBannerKey, isRangeWithNonStandardTarget } from './appBannerHelpers';
 
 export const CLICKED_BANNER_ACTION = 'clicked';
 export const DISMISSED_BANNER_ACTION = 'dismissed';
 export const SEEN_BANNER_ACTION = 'seen';
-
-export const getDismissedAltRangeBannerKey = (clinicId) => `dismissedClinicAltRangeBannerTime-${clinicId}`;
 
 // Create a context
 const AppBannerContext = createContext();
@@ -59,10 +57,7 @@ const AppBannerProvider = ({ children }) => {
   const showClinicUsingAltRangeBanner = Object.values(clinics)
     .filter(clinic => !loggedInUser?.preferences?.[getDismissedAltRangeBannerKey(clinic.id)])
     .map(clinic => clinic.patients?.[currentPatientInViewId]?.glycemicRanges)
-    .some(glycemicRanges => (
-      glycemicRanges === GLYCEMIC_RANGE.ADA_PREGNANCY_T1 ||
-      glycemicRanges === GLYCEMIC_RANGE.ADA_GESTATIONAL_T2
-    ));
+    .some(glycemicRanges => isRangeWithNonStandardTarget(glycemicRanges));
 
   const patientMetaData = useSelector(state => state.blip.data.metaData);
   const patientDevices = patientMetaData?.devices;
