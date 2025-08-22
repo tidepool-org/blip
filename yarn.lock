@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.51.0-web-3830-pregnancy-ranges.2":
-  version: 1.51.0-web-3830-pregnancy-ranges.2
-  resolution: "@tidepool/viz@npm:1.51.0-web-3830-pregnancy-ranges.2"
+"@tidepool/viz@npm:1.51.0-web-3830-pregnancy-ranges.3":
+  version: 1.51.0-web-3830-pregnancy-ranges.3
+  resolution: "@tidepool/viz@npm:1.51.0-web-3830-pregnancy-ranges.3"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: fd1e345f45b1d84de8d61ac31922027ff3668b74492fd91669636f7c670acff1b62a84a7b4203e83f4e98f34f41dc0d68e979de5692510b968408cf5da97b80a
+  checksum: e4c2f626facdb2c17161a678986c7b76f0191a64d81a5c169978ac9dffebaababca5e08d8aac7b4c2103ea6a9739130fc14c4d6cf0518557b613056228c95d7b
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.51.0-web-3830-pregnancy-ranges.2
+    "@tidepool/viz": 1.51.0-web-3830-pregnancy-ranges.3
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
