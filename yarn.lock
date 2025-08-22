@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.50.0-develop.1":
-  version: 1.50.0-develop.1
-  resolution: "@tidepool/viz@npm:1.50.0-develop.1"
+"@tidepool/viz@npm:1.51.0-web-3359.1":
+  version: 1.51.0-web-3359.1
+  resolution: "@tidepool/viz@npm:1.51.0-web-3359.1"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6130,7 +6130,7 @@ __metadata:
     reductio: 1.0.0
     redux: 4.2.1
     serialize-svg-path: 0.1.0
-    sundial: 1.7.1
+    sundial: 1.7.6-rc.1
     svg-to-pdfkit: 0.1.8
     text-table: 0.2.0
     translate-svg-path: 0.0.1
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 3d3152c24f95c4eb35fe3387bae2eb532bc16cdc99ce83055076b17fb2ccfa3db50b931df6214659e64dbeade0d1880111a7ee598a6d16ee39cf578f01f44467
+  checksum: 98917f2352ef48bdab01ace7ea75c9201701721cdc1eb5fead6a5bde98324d02ecb700b5769b39c6b736b6e1e5e147430bddb3ceb31be1ffe5e28015eb9412ea
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.50.0-develop.1
+    "@tidepool/viz": 1.51.0-web-3359.1
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -8458,11 +8458,11 @@ __metadata:
     stylelint: 15.11.0
     stylelint-config-recommended: 13.0.0
     stylelint-config-styled-components: 0.1.1
-    sundial: 1.7.1
+    sundial: 1.7.6-rc.1
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.36.0-develop.2
+    tideline: 1.37.0-web-3359.1
     tidepool-platform-client: 0.64.0-web-3571-delete-sites.3
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
@@ -21814,12 +21814,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sundial@npm:1.7.1":
-  version: 1.7.1
-  resolution: "sundial@npm:1.7.1"
+"sundial@npm:1.7.6-rc.1":
+  version: 1.7.6-rc.1
+  resolution: "sundial@npm:1.7.6-rc.1"
   dependencies:
     moment-timezone: 0.5.43
-  checksum: daca08a80092c47045725319352f8fda3bded465a265c9172263dffec06944584dbab4dfd5ae4c663e3b6f3769ecbffe349170c6ec3993daa4b96bc45bb4afb9
+  checksum: d8c87511a0c17a014b23e5fd12700e64f7fffe8f095682092131817ad27450df915ff2a3d0eff2fa6ae8f89d9f4074747bdb372b3c54534a7db5f73867aa8039
   languageName: node
   linkType: hard
 
@@ -22218,9 +22218,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.36.0-develop.2":
-  version: 1.36.0-develop.2
-  resolution: "tideline@npm:1.36.0-develop.2"
+"tideline@npm:1.37.0-web-3359.1":
+  version: 1.37.0-web-3359.1
+  resolution: "tideline@npm:1.37.0-web-3359.1"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -22237,11 +22237,11 @@ __metadata:
     react: 16.14.0
     react-dom: 16.14.0
     react-sizeme: 3.0.2
-    sundial: 1.7.1
+    sundial: 1.7.6-rc.1
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: 16ed1c86e130dba8229726f6034fe34909d0c5be64daf87f8183f66ec221653c517669062eba3615303f4d9bb5bcc0886fe598c51135af8b2d475c418dc69db4
+  checksum: 81dc882f3c39da8645f46e1586ed20bc9fbbea0c8148d38a1e904049b1b71d0bae8d00763984f134d23664cbbf1d48e9f44ce08d670f6930e9ecb9fb65df17e8
   languageName: node
   linkType: hard
 
