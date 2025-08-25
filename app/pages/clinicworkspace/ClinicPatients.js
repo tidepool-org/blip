@@ -1231,6 +1231,10 @@ export const ClinicPatients = (props) => {
           filterOptions['tags'] = activeFilters.patientTags;
         }
 
+        if (activeFilters.timeInRange?.length > 0) {
+          filterOptions['omitNonStandardRanges'] = true;
+        }
+
         forEach(activeFilters.timeInRange, filter => {
           let { comparator, value } = glycemicTargetThresholds[filter];
           value = value / 100;
@@ -1262,6 +1266,7 @@ export const ClinicPatients = (props) => {
           'cgm.timeInAnyHighPercent',
           'cgm.timeInVeryHighPercent',
           'cgm.timeInExtremeHighPercent',
+          'omitNonStandardRanges',
         ]),
         ...filterOptions,
       };
