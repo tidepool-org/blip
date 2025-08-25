@@ -18,8 +18,7 @@ const { GLYCEMIC_RANGE } = vizUtils.constants;
 
 import utils from '../../core/utils';
 import { clinicUIDetails } from '../../core/clinicUtils.js';
-import { getDismissedAltRangeBannerKey } from '../../providers/AppBanner/AppBannerProvider.js';
-import { isRangeWithNonStandardTarget } from '../../providers/AppBanner/appBannerHelpers.js';
+import { getDismissedAltRangeBannerKey, isRangeWithNonStandardTarget } from '../../providers/AppBanner/appBannerHelpers.js';
 
 let win = window;
 
