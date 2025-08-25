@@ -160,7 +160,7 @@ const AppBannerProvider = ({ children }) => {
 
     clinicUsingAltRange: {
       show: userIsCurrentPatient && hasNewClinicsUsingNonStandardRange,
-      bannerArgs: [dispatch, loggedInUserId, newClinicsUsingNonStandardRange],
+      bannerArgs: [dispatch, loggedInUserId, newClinicsUsingNonStandardRange?.[0]?.name],
     },
   }), [
     bannerInteractedForPatient?.addEmail,
