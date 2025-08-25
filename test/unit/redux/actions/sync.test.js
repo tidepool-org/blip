@@ -4166,349 +4166,563 @@ describe('Actions', () => {
         url: 'someUrl',
         realm: 'anAwesomeRealm'
       }
-    }
 
-    it('should be a TSA', () => {
-      let action = sync.fetchInfoSuccess(info);
-      expect(isTSA(action)).to.be.true;
+      it('should be a TSA', () => {
+        let action = sync.fetchInfoSuccess(info);
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_INFO_SUCCESS', () => {
+        let action = sync.fetchInfoSuccess(info);
+        expect(action.type).to.equal('FETCH_INFO_SUCCESS');
+        expect(action.payload.info).to.equal(info);
+      });
     });
 
-    it('type should equal FETCH_INFO_SUCCESS', () => {
-      let action = sync.fetchInfoSuccess(info);
-      expect(action.type).to.equal('FETCH_INFO_SUCCESS');
-      expect(action.payload.info).to.equal(info);
-    });
-  });
+    describe('fetchInfoFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error('fetching info failed :(');
+        let action = sync.fetchInfoFailure(error);
+        expect(isTSA(action)).to.be.true;
+      });
 
-  describe('fetchInfoFailure', () => {
-    it('should be a TSA', () => {
-      let error = new Error('fetching info failed :(');
-      let action = sync.fetchInfoFailure(error);
-      expect(isTSA(action)).to.be.true;
-    });
-
-    it('type should equal FETCH_INFO_FAILURE and error should equal passed error', () => {
-      let error = new Error('stink :(');
-      let action = sync.fetchInfoFailure(error);
-      expect(action.type).to.equal('FETCH_INFO_FAILURE');
-      expect(action.error).to.equal(error);
-    });
-  });
-
-  describe('fetchTideDashboardPatientsRequest', () => {
-    it('should be a TSA', () => {
-      let action = sync.fetchTideDashboardPatientsRequest();
-      expect(isTSA(action)).to.be.true;
+      it('type should equal FETCH_INFO_FAILURE and error should equal passed error', () => {
+        let error = new Error('stink :(');
+        let action = sync.fetchInfoFailure(error);
+        expect(action.type).to.equal('FETCH_INFO_FAILURE');
+        expect(action.error).to.equal(error);
+      });
     });
 
-    it('type should equal FETCH_TIDE_DASHBOARD_PATIENTS_REQUEST', () => {
-      let action = sync.fetchTideDashboardPatientsRequest();
-      expect(action.type).to.equal('FETCH_TIDE_DASHBOARD_PATIENTS_REQUEST');
-    });
-  });
+    describe('fetchTideDashboardPatientsRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.fetchTideDashboardPatientsRequest();
+        expect(isTSA(action)).to.be.true;
+      });
 
-  describe('fetchTideDashboardPatientsSuccess', () => {
-    const results = 'results';
-
-    it('should be a TSA', () => {
-      let action = sync.fetchTideDashboardPatientsSuccess(results);
-      expect(isTSA(action)).to.be.true;
+      it('type should equal FETCH_TIDE_DASHBOARD_PATIENTS_REQUEST', () => {
+        let action = sync.fetchTideDashboardPatientsRequest();
+        expect(action.type).to.equal('FETCH_TIDE_DASHBOARD_PATIENTS_REQUEST');
+      });
     });
 
-    it('type should equal FETCH_TIDE_DASHBOARD_PATIENTS_SUCCESS', () => {
-      let action = sync.fetchTideDashboardPatientsSuccess(results);
-      expect(action.type).to.equal('FETCH_TIDE_DASHBOARD_PATIENTS_SUCCESS');
-      expect(action.payload.results).to.equal(results);
-    });
-  });
+    describe('fetchTideDashboardPatientsSuccess', () => {
+      const results = 'results';
 
-  describe('fetchTideDashboardPatientsFailure', () => {
-    it('should be a TSA', () => {
-      let error = new Error('fetching patients failed :(');
-      let action = sync.fetchTideDashboardPatientsFailure(error);
-      expect(isTSA(action)).to.be.true;
-    });
+      it('should be a TSA', () => {
+        let action = sync.fetchTideDashboardPatientsSuccess(results);
+        expect(isTSA(action)).to.be.true;
+      });
 
-    it('type should equal FETCH_TIDE_DASHBOARD_PATIENTS_FAILURE and error should equal passed error', () => {
-      let error = new Error('stink :(');
-      let action = sync.fetchTideDashboardPatientsFailure(error);
-      expect(action.type).to.equal('FETCH_TIDE_DASHBOARD_PATIENTS_FAILURE');
-      expect(action.error).to.equal(error);
-    });
-  });
-
-  describe('clearTideDashboardPatients', () => {
-    it('should be a TSA', () => {
-      let error = new Error('fetching patients failed :(');
-      let action = sync.clearTideDashboardPatients(error);
-      expect(isTSA(action)).to.be.true;
+      it('type should equal FETCH_TIDE_DASHBOARD_PATIENTS_SUCCESS', () => {
+        let action = sync.fetchTideDashboardPatientsSuccess(results);
+        expect(action.type).to.equal('FETCH_TIDE_DASHBOARD_PATIENTS_SUCCESS');
+        expect(action.payload.results).to.equal(results);
+      });
     });
 
-    it('type should equal CLEAR_TIDE_DASHBOARD_PATIENTS', () => {
-      let action = sync.clearTideDashboardPatients();
-      expect(action.type).to.equal('CLEAR_TIDE_DASHBOARD_PATIENTS');
-    });
-  });
+    describe('fetchTideDashboardPatientsFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error('fetching patients failed :(');
+        let action = sync.fetchTideDashboardPatientsFailure(error);
+        expect(isTSA(action)).to.be.true;
+      });
 
-  describe('fetchRpmReportPatientsRequest', () => {
-    it('should be a TSA', () => {
-      let action = sync.fetchRpmReportPatientsRequest();
-      expect(isTSA(action)).to.be.true;
-    });
-
-    it('type should equal FETCH_RPM_REPORT_PATIENTS_REQUEST', () => {
-      let action = sync.fetchRpmReportPatientsRequest();
-      expect(action.type).to.equal('FETCH_RPM_REPORT_PATIENTS_REQUEST');
-    });
-  });
-
-  describe('fetchRpmReportPatientsSuccess', () => {
-    const results = 'results';
-
-    it('should be a TSA', () => {
-      let action = sync.fetchRpmReportPatientsSuccess(results);
-      expect(isTSA(action)).to.be.true;
+      it('type should equal FETCH_TIDE_DASHBOARD_PATIENTS_FAILURE and error should equal passed error', () => {
+        let error = new Error('stink :(');
+        let action = sync.fetchTideDashboardPatientsFailure(error);
+        expect(action.type).to.equal('FETCH_TIDE_DASHBOARD_PATIENTS_FAILURE');
+        expect(action.error).to.equal(error);
+      });
     });
 
-    it('type should equal FETCH_RPM_REPORT_PATIENTS_SUCCESS', () => {
-      let action = sync.fetchRpmReportPatientsSuccess(results);
-      expect(action.type).to.equal('FETCH_RPM_REPORT_PATIENTS_SUCCESS');
-      expect(action.payload.results).to.equal(results);
-    });
-  });
+    describe('clearTideDashboardPatients', () => {
+      it('should be a TSA', () => {
+        let error = new Error('fetching patients failed :(');
+        let action = sync.clearTideDashboardPatients(error);
+        expect(isTSA(action)).to.be.true;
+      });
 
-  describe('fetchRpmReportPatientsFailure', () => {
-    it('should be a TSA', () => {
-      let error = new Error('fetching patients failed :(');
-      let action = sync.fetchRpmReportPatientsFailure(error);
-      expect(isTSA(action)).to.be.true;
-    });
-
-    it('type should equal FETCH_RPM_REPORT_PATIENTS_FAILURE and error should equal passed error', () => {
-      let error = new Error('stink :(');
-      let action = sync.fetchRpmReportPatientsFailure(error);
-      expect(action.type).to.equal('FETCH_RPM_REPORT_PATIENTS_FAILURE');
-      expect(action.error).to.equal(error);
-    });
-  });
-
-  describe('clearRpmReportPatients', () => {
-    it('should be a TSA', () => {
-      let action = sync.clearRpmReportPatients();
-      expect(isTSA(action)).to.be.true;
+      it('type should equal CLEAR_TIDE_DASHBOARD_PATIENTS', () => {
+        let action = sync.clearTideDashboardPatients();
+        expect(action.type).to.equal('CLEAR_TIDE_DASHBOARD_PATIENTS');
+      });
     });
 
-    it('type should equal CLEAR_RPM_REPORT_PATIENTS', () => {
-      let action = sync.clearRpmReportPatients();
-      expect(action.type).to.equal('CLEAR_RPM_REPORT_PATIENTS');
-    });
-  });
+    describe('fetchRpmReportPatientsRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.fetchRpmReportPatientsRequest();
+        expect(isTSA(action)).to.be.true;
+      });
 
-  describe('generateAGPImagesRequest', () => {
-    const data = 'data';
-    const opts = 'opts';
-    const queries = 'queries';
-
-    it('should be a TSA', () => {
-      let action = sync.generateAGPImagesRequest(data, opts, queries);
-      expect(isTSA(action)).to.be.true;
+      it('type should equal FETCH_RPM_REPORT_PATIENTS_REQUEST', () => {
+        let action = sync.fetchRpmReportPatientsRequest();
+        expect(action.type).to.equal('FETCH_RPM_REPORT_PATIENTS_REQUEST');
+      });
     });
 
-    it('type should equal GENERATE_AGP_IMAGES_REQUEST', () => {
-      let action = sync.generateAGPImagesRequest(data, opts, queries);
-      expect(action.type).to.equal('GENERATE_AGP_IMAGES_REQUEST');
-      expect(action.payload.data).to.equal(data);
-      expect(action.payload.opts).to.equal(opts);
-      expect(action.payload.queries).to.equal(queries);
-    });
-  });
+    describe('fetchRpmReportPatientsSuccess', () => {
+      const results = 'results';
 
-  describe('generateAGPImagesSuccess', () => {
-    const images = 'images';
+      it('should be a TSA', () => {
+        let action = sync.fetchRpmReportPatientsSuccess(results);
+        expect(isTSA(action)).to.be.true;
+      });
 
-    it('should be a TSA', () => {
-      let action = sync.generateAGPImagesSuccess(images);
-      expect(isTSA(action)).to.be.true;
+      it('type should equal FETCH_RPM_REPORT_PATIENTS_SUCCESS', () => {
+        let action = sync.fetchRpmReportPatientsSuccess(results);
+        expect(action.type).to.equal('FETCH_RPM_REPORT_PATIENTS_SUCCESS');
+        expect(action.payload.results).to.equal(results);
+      });
     });
 
-    it('type should equal GENERATE_AGP_IMAGES_SUCCESS', () => {
-      let action = sync.generateAGPImagesSuccess(images);
-      expect(action.type).to.equal('GENERATE_AGP_IMAGES_SUCCESS');
-      expect(action.payload.images).to.equal(images);
-    });
-  });
+    describe('fetchRpmReportPatientsFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error('fetching patients failed :(');
+        let action = sync.fetchRpmReportPatientsFailure(error);
+        expect(isTSA(action)).to.be.true;
+      });
 
-  describe('generateAGPImagesFailure', () => {
-    it('should be a TSA', () => {
-      let error = new Error('fetching info failed :(');
-      let action = sync.generateAGPImagesFailure(error);
-      expect(isTSA(action)).to.be.true;
-    });
-
-    it('type should equal GENERATE_AGP_IMAGES_FAILURE and error should equal passed error', () => {
-      let error = new Error('stink :(');
-      let action = sync.generateAGPImagesFailure(error);
-      expect(action.type).to.equal('GENERATE_AGP_IMAGES_FAILURE');
-      expect(action.error).to.equal(error);
-    });
-  });
-
-  describe('setSSOEnabledDisplay', () => {
-    it('should be a TSA', () => {
-      let action = sync.setSSOEnabledDisplay(true);
-      expect(isTSA(action)).to.be.true;
+      it('type should equal FETCH_RPM_REPORT_PATIENTS_FAILURE and error should equal passed error', () => {
+        let error = new Error('stink :(');
+        let action = sync.fetchRpmReportPatientsFailure(error);
+        expect(action.type).to.equal('FETCH_RPM_REPORT_PATIENTS_FAILURE');
+        expect(action.error).to.equal(error);
+      });
     });
 
-    it('type should equal SET_SSO_ENABLED_DISPLAY', () => {
-      let action = sync.setSSOEnabledDisplay('set_value');
-      expect(action.type).to.equal('SET_SSO_ENABLED_DISPLAY');
-      expect(action.payload.value).to.equal('set_value');
-    });
-  });
+    describe('clearRpmReportPatients', () => {
+      it('should be a TSA', () => {
+        let action = sync.clearRpmReportPatients();
+        expect(isTSA(action)).to.be.true;
+      });
 
-  describe('fetchClinicPatientCountRequest', () => {
-    it('should be a TSA', () => {
-      let action = sync.fetchClinicPatientCountRequest();
-      expect(isTSA(action)).to.be.true;
-    });
-
-    it('type should equal FETCH_CLINIC_PATIENT_COUNT_REQUEST', () => {
-      let action = sync.fetchClinicPatientCountRequest();
-      expect(action.type).to.equal('FETCH_CLINIC_PATIENT_COUNT_REQUEST');
-    });
-  });
-
-  describe('fetchClinicPatientCountSuccess', () => {
-    const clinicId = 'clinic123';
-    const results = { patientCount: 33 };
-
-    it('should be a TSA', () => {
-      let action = sync.fetchClinicPatientCountSuccess(clinicId, results);
-      expect(isTSA(action)).to.be.true;
+      it('type should equal CLEAR_RPM_REPORT_PATIENTS', () => {
+        let action = sync.clearRpmReportPatients();
+        expect(action.type).to.equal('CLEAR_RPM_REPORT_PATIENTS');
+      });
     });
 
-    it('type should equal FETCH_CLINIC_PATIENT_COUNT_SUCCESS', () => {
-      let action = sync.fetchClinicPatientCountSuccess(clinicId, results);
-      expect(action.type).to.equal('FETCH_CLINIC_PATIENT_COUNT_SUCCESS');
-      expect(action.payload.clinicId).to.equal('clinic123');
-      expect(action.payload.patientCount).to.equal(33);
-    });
-  });
+    describe('generateAGPImagesRequest', () => {
+      const data = 'data';
+      const opts = 'opts';
+      const queries = 'queries';
 
-  describe('fetchClinicPatientCountFailure', () => {
-    it('should be a TSA', () => {
-      let error = new Error('fetching patients failed :(');
-      let action = sync.fetchClinicPatientCountFailure(error);
-      expect(isTSA(action)).to.be.true;
-    });
+      it('should be a TSA', () => {
+        let action = sync.generateAGPImagesRequest(data, opts, queries);
+        expect(isTSA(action)).to.be.true;
+      });
 
-    it('type should equal FETCH_CLINIC_PATIENT_COUNT_FAILURE and error should equal passed error', () => {
-      let error = new Error('stink :(');
-      let action = sync.fetchClinicPatientCountFailure(error);
-      expect(action.type).to.equal('FETCH_CLINIC_PATIENT_COUNT_FAILURE');
-      expect(action.error).to.equal(error);
-    });
-  });
-
-  describe('fetchClinicPatientCountSettingsRequest', () => {
-    it('should be a TSA', () => {
-      let action = sync.fetchClinicPatientCountSettingsRequest();
-      expect(isTSA(action)).to.be.true;
+      it('type should equal GENERATE_AGP_IMAGES_REQUEST', () => {
+        let action = sync.generateAGPImagesRequest(data, opts, queries);
+        expect(action.type).to.equal('GENERATE_AGP_IMAGES_REQUEST');
+        expect(action.payload.data).to.equal(data);
+        expect(action.payload.opts).to.equal(opts);
+        expect(action.payload.queries).to.equal(queries);
+      });
     });
 
-    it('type should equal FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST', () => {
-      let action = sync.fetchClinicPatientCountSettingsRequest();
-      expect(action.type).to.equal('FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST');
-    });
-  });
+    describe('generateAGPImagesSuccess', () => {
+      const images = 'images';
 
-  describe('fetchClinicPatientCountSettingsSuccess', () => {
-    const clinicId = 'clinic123';
-    const results = { foo: 'bar' };
+      it('should be a TSA', () => {
+        let action = sync.generateAGPImagesSuccess(images);
+        expect(isTSA(action)).to.be.true;
+      });
 
-    it('should be a TSA', () => {
-      let action = sync.fetchClinicPatientCountSettingsSuccess(clinicId, results);
-      expect(isTSA(action)).to.be.true;
-    });
-
-    it('type should equal FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS', () => {
-      let action = sync.fetchClinicPatientCountSettingsSuccess(clinicId, results);
-      expect(action.type).to.equal('FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS');
-      expect(action.payload.clinicId).to.equal('clinic123');
-      expect(action.payload.patientCountSettings).to.eql({ foo: 'bar' });
-    });
-  });
-
-  describe('fetchClinicPatientCountSettingsFailure', () => {
-    it('should be a TSA', () => {
-      let error = new Error('fetching patients failed :(');
-      let action = sync.fetchClinicPatientCountSettingsFailure(error);
-      expect(isTSA(action)).to.be.true;
+      it('type should equal GENERATE_AGP_IMAGES_SUCCESS', () => {
+        let action = sync.generateAGPImagesSuccess(images);
+        expect(action.type).to.equal('GENERATE_AGP_IMAGES_SUCCESS');
+        expect(action.payload.images).to.equal(images);
+      });
     });
 
-    it('type should equal FETCH_CLINIC_PATIENT_COUNT_SETTINGS_FAILURE and error should equal passed error', () => {
-      let error = new Error('stink :(');
-      let action = sync.fetchClinicPatientCountSettingsFailure(error);
-      expect(action.type).to.equal('FETCH_CLINIC_PATIENT_COUNT_SETTINGS_FAILURE');
-      expect(action.error).to.equal(error);
-    });
-  });
+    describe('generateAGPImagesFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error('fetching info failed :(');
+        let action = sync.generateAGPImagesFailure(error);
+        expect(isTSA(action)).to.be.true;
+      });
 
-  describe('setClinicUIDetails', () => {
-    it('should be a TSA', () => {
-      let action = sync.setClinicUIDetails();
-      expect(isTSA(action)).to.be.true;
-    });
-
-    it('type should equal SET_CLINIC_UI_DETAILS', () => {
-      let clinicId = 'clinicId';
-      let uiDetails = { foo: 'bar' };
-      let action = sync.setClinicUIDetails(clinicId, uiDetails);
-      expect(action.type).to.equal('SET_CLINIC_UI_DETAILS');
-      expect(action.payload.clinicId).to.equal(clinicId);
-      expect(action.payload.uiDetails).to.eql(uiDetails);
-    });
-  });
-
-  describe('setPendoData', () => {
-    it('should be a TSA', () => {
-      let action = sync.setPendoData();
-      expect(isTSA(action)).to.be.true;
+      it('type should equal GENERATE_AGP_IMAGES_FAILURE and error should equal passed error', () => {
+        let error = new Error('stink :(');
+        let action = sync.generateAGPImagesFailure(error);
+        expect(action.type).to.equal('GENERATE_AGP_IMAGES_FAILURE');
+        expect(action.error).to.equal(error);
+      });
     });
 
-    it('type should equal SET_PENDO_DATA', () => {
-      let data = { foo: 'bar' };
-      let action = sync.setPendoData(data);
-      expect(action.type).to.equal('SET_PENDO_DATA');
-      expect(action.payload.data).to.equal(data);
-    });
-  });
+    describe('setSSOEnabledDisplay', () => {
+      it('should be a TSA', () => {
+        let action = sync.setSSOEnabledDisplay(true);
+        expect(isTSA(action)).to.be.true;
+      });
 
-  describe('setIsPatientListVisible', () => {
-    it('should be a TSA', () => {
-      let action = sync.setIsPatientListVisible();
-      expect(isTSA(action)).to.be.true;
-    });
-
-    it('type should equal SET_IS_PATIENT_LIST_VISIBLE', () => {
-      let value = true;
-      let action = sync.setIsPatientListVisible(value);
-      expect(action.type).to.equal('SET_IS_PATIENT_LIST_VISIBLE');
-      expect(action.payload.isVisible).to.equal(value);
-    });
-  });
-
-  describe('setPatientListSearchTextInput', () => {
-    it('should be a TSA', () => {
-      let action = sync.setPatientListSearchTextInput();
-      expect(isTSA(action)).to.be.true;
+      it('type should equal SET_SSO_ENABLED_DISPLAY', () => {
+        let action = sync.setSSOEnabledDisplay('set_value');
+        expect(action.type).to.equal('SET_SSO_ENABLED_DISPLAY');
+        expect(action.payload.value).to.equal('set_value');
+      });
     });
 
-    it('type should equal SET_PATIENT_LIST_SEARCH_TEXT_INPUT', () => {
-      let searchInput = 'bob';
-      let action = sync.setPatientListSearchTextInput(searchInput);
-      expect(action.type).to.equal('SET_PATIENT_LIST_SEARCH_TEXT_INPUT');
-      expect(action.payload.textInput).to.equal(searchInput);
+    describe('fetchClinicPatientCountRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.fetchClinicPatientCountRequest();
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_CLINIC_PATIENT_COUNT_REQUEST', () => {
+        let action = sync.fetchClinicPatientCountRequest();
+        expect(action.type).to.equal('FETCH_CLINIC_PATIENT_COUNT_REQUEST');
+      });
+    });
+
+    describe('fetchClinicPatientCountSuccess', () => {
+      const clinicId = 'clinic123';
+      const results = { patientCount: 33 };
+
+      it('should be a TSA', () => {
+        let action = sync.fetchClinicPatientCountSuccess(clinicId, results);
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_CLINIC_PATIENT_COUNT_SUCCESS', () => {
+        let action = sync.fetchClinicPatientCountSuccess(clinicId, results);
+        expect(action.type).to.equal('FETCH_CLINIC_PATIENT_COUNT_SUCCESS');
+        expect(action.payload.clinicId).to.equal('clinic123');
+        expect(action.payload.patientCount).to.equal(33);
+      });
+    });
+
+    describe('fetchClinicPatientCountFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error('fetching patients failed :(');
+        let action = sync.fetchClinicPatientCountFailure(error);
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_CLINIC_PATIENT_COUNT_FAILURE and error should equal passed error', () => {
+        let error = new Error('stink :(');
+        let action = sync.fetchClinicPatientCountFailure(error);
+        expect(action.type).to.equal('FETCH_CLINIC_PATIENT_COUNT_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
+    describe('fetchClinicPatientCountSettingsRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.fetchClinicPatientCountSettingsRequest();
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST', () => {
+        let action = sync.fetchClinicPatientCountSettingsRequest();
+        expect(action.type).to.equal('FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST');
+      });
+    });
+
+    describe('fetchClinicPatientCountSettingsSuccess', () => {
+      const clinicId = 'clinic123';
+      const results = { foo: 'bar' };
+
+      it('should be a TSA', () => {
+        let action = sync.fetchClinicPatientCountSettingsSuccess(clinicId, results);
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS', () => {
+        let action = sync.fetchClinicPatientCountSettingsSuccess(clinicId, results);
+        expect(action.type).to.equal('FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS');
+        expect(action.payload.clinicId).to.equal('clinic123');
+        expect(action.payload.patientCountSettings).to.eql({ foo: 'bar' });
+      });
+    });
+
+    describe('fetchClinicPatientCountSettingsFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error('fetching patients failed :(');
+        let action = sync.fetchClinicPatientCountSettingsFailure(error);
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_CLINIC_PATIENT_COUNT_SETTINGS_FAILURE and error should equal passed error', () => {
+        let error = new Error('stink :(');
+        let action = sync.fetchClinicPatientCountSettingsFailure(error);
+        expect(action.type).to.equal('FETCH_CLINIC_PATIENT_COUNT_SETTINGS_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
+    describe('setClinicUIDetails', () => {
+      it('should be a TSA', () => {
+        let action = sync.setClinicUIDetails();
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal SET_CLINIC_UI_DETAILS', () => {
+        let clinicId = 'clinicId';
+        let uiDetails = { foo: 'bar' };
+        let action = sync.setClinicUIDetails(clinicId, uiDetails);
+        expect(action.type).to.equal('SET_CLINIC_UI_DETAILS');
+        expect(action.payload.clinicId).to.equal(clinicId);
+        expect(action.payload.uiDetails).to.eql(uiDetails);
+      });
+    });
+
+    describe('setPendoData', () => {
+      it('should be a TSA', () => {
+        let action = sync.setPendoData();
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal SET_PENDO_DATA', () => {
+        let data = { foo: 'bar' };
+        let action = sync.setPendoData(data);
+        expect(action.type).to.equal('SET_PENDO_DATA');
+        expect(action.payload.data).to.equal(data);
+      });
+    });
+
+    describe('setIsPatientListVisible', () => {
+      it('should be a TSA', () => {
+        let action = sync.setIsPatientListVisible();
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal SET_IS_PATIENT_LIST_VISIBLE', () => {
+        let value = true;
+        let action = sync.setIsPatientListVisible(value);
+        expect(action.type).to.equal('SET_IS_PATIENT_LIST_VISIBLE');
+        expect(action.payload.isVisible).to.equal(value);
+      });
+    });
+
+    describe('setPatientListSearchTextInput', () => {
+      it('should be a TSA', () => {
+        let action = sync.setPatientListSearchTextInput();
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal SET_PATIENT_LIST_SEARCH_TEXT_INPUT', () => {
+        let searchInput = 'bob';
+        let action = sync.setPatientListSearchTextInput(searchInput);
+        expect(action.type).to.equal('SET_PATIENT_LIST_SEARCH_TEXT_INPUT');
+        expect(action.payload.textInput).to.equal(searchInput);
+      });
+    });
+
+    describe('fetchLatestConsentByTypeRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.fetchLatestConsentByTypeRequest();
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_LATEST_CONSENT_BY_TYPE_REQUEST', () => {
+        let action = sync.fetchLatestConsentByTypeRequest();
+        expect(action.type).to.equal('FETCH_LATEST_CONSENT_BY_TYPE_REQUEST');
+      });
+    });
+
+    describe('fetchLatestConsentByTypeSuccess', () => {
+      const consentType = 'someConsentType';
+      const consentDocument = { foo: 'bar' };
+
+      it('should be a TSA', () => {
+        let action = sync.fetchLatestConsentByTypeSuccess(consentType, consentDocument);
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_LATEST_CONSENT_BY_TYPE_SUCCESS', () => {
+        let action = sync.fetchLatestConsentByTypeSuccess(consentType, consentDocument);
+        expect(action.type).to.equal('FETCH_LATEST_CONSENT_BY_TYPE_SUCCESS');
+        expect(action.payload.consentType).to.equal(consentType);
+        expect(action.payload.consentDocument).to.eql(consentDocument);
+      });
+    });
+
+    describe('fetchLatestConsentByTypeFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error('fetching patients failed :(');
+        let action = sync.fetchLatestConsentByTypeFailure(error);
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_LATEST_CONSENT_BY_TYPE_FAILURE and error should equal passed error', () => {
+        let error = new Error('stink :(');
+        let action = sync.fetchLatestConsentByTypeFailure(error);
+        expect(action.type).to.equal('FETCH_LATEST_CONSENT_BY_TYPE_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
+    describe('fetchUserConsentRecordsRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.fetchUserConsentRecordsRequest();
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_USER_CONSENT_RECORDS_REQUEST', () => {
+        let action = sync.fetchUserConsentRecordsRequest();
+        expect(action.type).to.equal('FETCH_USER_CONSENT_RECORDS_REQUEST');
+      });
+    });
+
+    describe('fetchUserConsentRecordsSuccess', () => {
+      const consentType = 'someConsentType';
+      const records = { data: [{ foo: 'bar' }] };
+
+      it('should be a TSA', () => {
+        let action = sync.fetchUserConsentRecordsSuccess(consentType, records);
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_USER_CONSENT_RECORDS_SUCCESS', () => {
+        let action = sync.fetchUserConsentRecordsSuccess(consentType, records);
+        expect(action.type).to.equal('FETCH_USER_CONSENT_RECORDS_SUCCESS');
+        expect(action.payload.consentType).to.equal(consentType);
+        expect(action.payload.records).to.eql(records);
+      });
+    });
+
+    describe('fetchUserConsentRecordsFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error('fetching patients failed :(');
+        let action = sync.fetchUserConsentRecordsFailure(error);
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_USER_CONSENT_RECORDS_FAILURE and error should equal passed error', () => {
+        let error = new Error('stink :(');
+        let action = sync.fetchUserConsentRecordsFailure(error);
+        expect(action.type).to.equal('FETCH_USER_CONSENT_RECORDS_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
+    describe('createUserConsentRecordRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.createUserConsentRecordRequest();
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal CREATE_USER_CONSENT_RECORD_REQUEST', () => {
+        let action = sync.createUserConsentRecordRequest();
+        expect(action.type).to.equal('CREATE_USER_CONSENT_RECORD_REQUEST');
+      });
+    });
+
+    describe('createUserConsentRecordSuccess', () => {
+      const createdRecord = { foo: 'bar' };
+
+      it('should be a TSA', () => {
+        let action = sync.createUserConsentRecordSuccess(createdRecord);
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal CREATE_USER_CONSENT_RECORD_SUCCESS', () => {
+        let action = sync.createUserConsentRecordSuccess(createdRecord);
+        expect(action.type).to.equal('CREATE_USER_CONSENT_RECORD_SUCCESS');
+        expect(action.payload.createdRecord).to.equal(createdRecord);
+      });
+    });
+
+    describe('createUserConsentRecordFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error('fetching patients failed :(');
+        let action = sync.createUserConsentRecordFailure(error);
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal CREATE_USER_CONSENT_RECORD_FAILURE and error should equal passed error', () => {
+        let error = new Error('stink :(');
+        let action = sync.createUserConsentRecordFailure(error);
+        expect(action.type).to.equal('CREATE_USER_CONSENT_RECORD_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
+    describe('updateUserConsentRecordRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.updateUserConsentRecordRequest();
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal UPDATE_USER_CONSENT_RECORD_REQUEST', () => {
+        let action = sync.updateUserConsentRecordRequest();
+        expect(action.type).to.equal('UPDATE_USER_CONSENT_RECORD_REQUEST');
+      });
+    });
+
+    describe('updateUserConsentRecordSuccess', () => {
+      const updatedRecord = { foo: 'bar' };
+
+      it('should be a TSA', () => {
+        let action = sync.updateUserConsentRecordSuccess(updatedRecord);
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal UPDATE_USER_CONSENT_RECORD_SUCCESS', () => {
+        let action = sync.updateUserConsentRecordSuccess(updatedRecord);
+        expect(action.type).to.equal('UPDATE_USER_CONSENT_RECORD_SUCCESS');
+        expect(action.payload.updatedRecord).to.equal(updatedRecord);
+      });
+    });
+
+    describe('updateUserConsentRecordFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error('fetching patients failed :(');
+        let action = sync.updateUserConsentRecordFailure(error);
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal UPDATE_USER_CONSENT_RECORD_FAILURE and error should equal passed error', () => {
+        let error = new Error('stink :(');
+        let action = sync.updateUserConsentRecordFailure(error);
+        expect(action.type).to.equal('UPDATE_USER_CONSENT_RECORD_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
+    describe('revokeUserConsentRecordRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.revokeUserConsentRecordRequest();
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal REVOKE_USER_CONSENT_RECORD_REQUEST', () => {
+        let action = sync.revokeUserConsentRecordRequest();
+        expect(action.type).to.equal('REVOKE_USER_CONSENT_RECORD_REQUEST');
+      });
+    });
+
+    describe('revokeUserConsentRecordSuccess', () => {
+      const consentType = 'consentType123';
+
+      it('should be a TSA', () => {
+        let action = sync.revokeUserConsentRecordSuccess(consentType);
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal REVOKE_USER_CONSENT_RECORD_SUCCESS', () => {
+        let action = sync.revokeUserConsentRecordSuccess(consentType);
+        expect(action.type).to.equal('REVOKE_USER_CONSENT_RECORD_SUCCESS');
+        expect(action.payload.consentType).to.equal(consentType);
+      });
+    });
+
+    describe('revokeUserConsentRecordFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error('fetching patients failed :(');
+        let action = sync.revokeUserConsentRecordFailure(error);
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal REVOKE_USER_CONSENT_RECORD_FAILURE and error should equal passed error', () => {
+        let error = new Error('stink :(');
+        let action = sync.revokeUserConsentRecordFailure(error);
+        expect(action.type).to.equal('REVOKE_USER_CONSENT_RECORD_FAILURE');
+        expect(action.error).to.equal(error);
+      });
     });
   });
 });
