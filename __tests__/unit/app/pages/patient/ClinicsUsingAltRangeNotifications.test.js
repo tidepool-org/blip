@@ -89,6 +89,7 @@ describe('ClinicsUsingAltRangeNotifications', () => {
           '4444': {
             id: '4444',
             name: 'Fourth Clinic',
+            preferredBgUnits: 'mmol/L',
             patients: { '1234': { glycemicRanges: 'ADA pregnancy GDM or type 2' } },
           },
         },
@@ -114,7 +115,7 @@ describe('ClinicsUsingAltRangeNotifications', () => {
       expect(container).not.toBeEmptyDOMElement();
       expect(screen.getAllByText(/Non-Standard Target Range/).length).toBe(2);
       expect(screen.getByText('First Clinic is using a non-standard target range of 63-140 mg/dL to view your data')).toBeInTheDocument();
-      expect(screen.getByText('Fourth Clinic is using a non-standard target range of 63-140 mg/dL to view your data')).toBeInTheDocument();
+      expect(screen.getByText('Fourth Clinic is using a non-standard target range of 3.5-7.8 mmol/L to view your data')).toBeInTheDocument();
 
       // Click a dismiss button. It updates the target ranges.
       const firstClinicDismissButton = screen.getAllByRole('button', { name: /Dismiss/ })[0];
@@ -153,7 +154,7 @@ describe('ClinicsUsingAltRangeNotifications', () => {
       // First Clinic was dismissed previously, so it doesn't appear
       expect(screen.queryByText('First Clinic is using a non-standard target range of 63-140 mg/dL to view your data')).not.toBeInTheDocument();
 
-      expect(screen.getByText('Fourth Clinic is using a non-standard target range of 63-140 mg/dL to view your data')).toBeInTheDocument();
+      expect(screen.getByText('Fourth Clinic is using a non-standard target range of 3.5-7.8 mmol/L to view your data')).toBeInTheDocument();
     });
   });
 });
