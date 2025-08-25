@@ -102,7 +102,7 @@ export const DataDonationForm = (props) => {
   useEffect(() => {
     if (loggedInUserId) {
       dispatch(
-        actions.async.fetchLatestConsentByType(api, DATA_DONATION_CONSENT_TYPE) // TODO: Fetch at the patientInfo level?
+        actions.async.fetchLatestConsentByType(api, DATA_DONATION_CONSENT_TYPE)
       );
     }
   }, [loggedInUserId]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -140,7 +140,7 @@ export const DataDonationForm = (props) => {
   function handleCloseOverlays() {
       setShowRevokeConsentDialog(false);
       setShowConsentDialog(false);
-  };
+  }
 
   const handleAsyncResult = useCallback((workingState, successMessage, onComplete = handleCloseOverlays) => {
     const { inProgress, completed, notification, prevInProgress } = workingState;
@@ -187,7 +187,6 @@ export const DataDonationForm = (props) => {
 
   useEffect(() => {
     if (!formikContext.touched.supportedOrganizations && currentConsent?.metadata?.supportedOrganizations) {
-      console.log('formikContext', formikContext);
       const supportedOrganizations = currentConsent?.metadata?.supportedOrganizations.join(',');
 
       if (isEmpty(formikContext.values.supportedOrganizations) && !isEmpty(supportedOrganizations)) {

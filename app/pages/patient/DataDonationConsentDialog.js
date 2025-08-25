@@ -6,7 +6,7 @@ import { Box, Flex, Text } from 'theme-ui';
 import * as yup from 'yup';
 import { getCommonFormikFieldProps, fieldsAreValid } from '../../core/forms';
 import { useFormik } from 'formik';
-import { isString, keys } from 'lodash';
+import { isString, keys, memoize } from 'lodash';
 import Markdown from 'react-markdown';
 import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
 
@@ -31,7 +31,7 @@ import { DATA_DONATION_CONSENT_TYPE } from '../../core/constants';
 
 const t = i18next.t.bind(i18next);
 
-export const getConsentText = (accountType, patientAgeGroup, patientName, caregiverName, consentDate) => {
+export const getConsentText = memoize((accountType, patientAgeGroup, patientName, caregiverName, consentDate) => {
   const { firstName } = personUtils.splitNamesFromFullname(patientName);
 
   const text = {
@@ -96,7 +96,9 @@ export const getConsentText = (accountType, patientAgeGroup, patientName, caregi
   };
 
   return text[accountType]?.[patientAgeGroup] || {};
-};
+}, (accountType, patientAgeGroup, patientName, caregiverName, consentDate) =>
+  `${accountType}-${patientAgeGroup}-${patientName}-${caregiverName}-${consentDate}`
+);
 
 export const DataDonationConsentDialog = (props) => {
   const { t, onClose, onConfirm, open, accountType, patientAgeGroup, patientName, caregiverName: caregiverNameProp, consentDate } = props;
@@ -111,15 +113,13 @@ export const DataDonationConsentDialog = (props) => {
     name: yup.string().required(t('Parent or Legal Guardian Name is required')),
   });
 
-  const primaryConsentSchema = yup.object().shape({
-    primaryConsentRead: yup.boolean().oneOf([true], t('You must read the consent statement before proceeding')),
-    primaryConsent: yup.boolean().oneOf([true], t('You must agree to consent before proceeding')),
+  const createConsentSchema = prefix => yup.object().shape({
+    [`${prefix}ConsentRead`]: yup.boolean().oneOf([true], t('You must read the consent statement before proceeding')),
+    [`${prefix}Consent`]: yup.boolean().oneOf([true], t('You must agree to consent before proceeding')),
   });
 
-  const secondaryConsentSchema = yup.object().shape({
-    secondaryConsentRead: yup.boolean().oneOf([true], t('You must read the consent statement before proceeding')),
-    secondaryConsent: yup.boolean().oneOf([true], t('You must agree to consent before proceeding')),
-  });
+  const primaryConsentSchema = createConsentSchema('primary');
+  const secondaryConsentSchema = createConsentSchema('secondary');
 
   const schemas = {
     primary: patientAssentRequired && accountType === 'personal' ? nameSchema.concat(primaryConsentSchema) : primaryConsentSchema,
@@ -163,7 +163,8 @@ export const DataDonationConsentDialog = (props) => {
 
   const handleConsentDocumentScroll = (e) => {
     const { scrollTop, scrollHeight, clientHeight } = e.target;
-    if (scrollTop + clientHeight >= scrollHeight - 1) {
+    // Use a small threshold (5px) to account for rendering differences
+    if (scrollTop + clientHeight >= scrollHeight - 5) {
       setScrolledToBottom(true);
       formikContext.setFieldValue(`${formSteps[currentConsentStep]}ConsentRead`, true);
     }
@@ -351,7 +352,7 @@ DataDonationConsentDialog.propTypes = {
     message: PropTypes.string,
   }),
   t: PropTypes.func.isRequired,
-  accountType: PropTypes.oneOf(['person</Button>al', 'caregiver']).isRequired,
+  accountType: PropTypes.oneOf(['personal', 'caregiver']).isRequired,
   patientAgeGroup: PropTypes.oneOf(['child', 'youth', 'adult']).isRequired,
   patientName: PropTypes.string.isRequired,
   caregiverName: PropTypes.string.isRequired,

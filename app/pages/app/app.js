@@ -78,7 +78,8 @@ export class AppComponent extends React.Component {
    * @return {Boolean}
    */
   showNavPatientHeader() {
-    return /^\/patients\/\S+/.test(this.props.location) && !/^\/patients\/new\S+/.test(this.props.location);
+    // Show on all patient pages except for new patient signup flow pages (patients/new, patients/new/dataDonation)
+    return /^\/patients\/(?!new(?:\/|$))\S+/.test(this.props.location);
   }
 
   doFetching(nextProps) {

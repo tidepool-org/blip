@@ -1,5 +1,5 @@
 
-import { filter, forEach, get, has, isEmpty, map, reject, values } from 'lodash';
+import { filter, get, has, isEmpty, map, reject, values } from 'lodash';
 import personUtils from './personutils';
 import { createSelector } from 'reselect';
 

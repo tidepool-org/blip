@@ -25,24 +25,24 @@ export function SlideShow({ axis, items, renderItem, sx = {}, ...themeProps }) {
     pages,
     snapPointIndexes,
     activePageIndex,
-  } = useSnapCarousel();
+  } = useSnapCarousel({ axis });
 
   useEffect(() => {
     const handle = (e) => {
       switch (e.key) {
         case 'ArrowLeft':
-          next();
+          prev();
           break;
         case 'ArrowRight':
-          prev();
+          next();
           break;
         default:
           break;
       }
     };
-    window.addEventListener('keypress', handle);
+    window.addEventListener('keydown', handle);
     return () => {
-      window.removeEventListener('keypress', handle);
+      window.removeEventListener('keydown', handle);
     };
   }, [next, prev]);
 
@@ -65,9 +65,10 @@ export function SlideShow({ axis, items, renderItem, sx = {}, ...themeProps }) {
         p={0}
         m={0}
         sx={{
+          flexDirection: axis === 'y' ? 'column' : 'row',
           position: 'relative',
           overflow: 'auto',
-          scrollSnapType: 'x mandatory',
+          scrollSnapType: `${axis} mandatory`,
           msOverflowStyle: 'none',
           scrollbarWidth: 'none',
           boxSizing: 'border-box',
@@ -138,6 +139,7 @@ export function SlideShow({ axis, items, renderItem, sx = {}, ...themeProps }) {
                 onClick={() => goTo(i)}
                 selected={activePageIndex === i}
                 variant="paginationDot"
+                aria-label={t('Go to slide {{number}}', { number: i + 1 })}
               >
                 {i + 1}
               </Button>
@@ -162,7 +164,7 @@ export function SlideShow({ axis, items, renderItem, sx = {}, ...themeProps }) {
 const ItemShape = {
   title: PropTypes.string,
   content: PropTypes.string,
-  image: PropTypes.elementType,
+  image: PropTypes.string,
 };
 
 SlideShow.propTypes = {
@@ -176,9 +178,10 @@ SlideShow.defaultProps = {
   axis: 'x',
 };
 
-export function SlideShowItem({ isSnapPoint, title, content, image }) {
+export function SlideShowItem({ isSnapPoint, title, content, image, imageAlt, id }) {
   return (
     <Box
+      id={id}
       as="li"
       className="slideShowItem"
       px={3}
@@ -200,6 +203,7 @@ export function SlideShowItem({ isSnapPoint, title, content, image }) {
         {image && (
           <Box className="carouselImage" sx={{ flexBasis: 1, flexGrow: 1, maxWidth: ['140px', null, '180px'], height: '100%' }}>
             <Image
+              alt={imageAlt}
               src={image}
               sx={{
                 flexBasis: 1,
