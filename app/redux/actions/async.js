@@ -1383,7 +1383,7 @@ export function fetchUserConsentRecords(api, consentType) {
 
     dispatch(sync.fetchUserConsentRecordsRequest());
 
-    api.consent.getUserRecords(loggedInUserId, consentType, (err, records) => {
+    api.consent.getUserConsentRecords(loggedInUserId, consentType, (err, records) => {
       if (err) {
         dispatch(sync.fetchUserConsentRecordsFailure (
           createActionError(ErrorMessages.ERR_FETCHING_USER_CONSENT_RECORDS, err), err
