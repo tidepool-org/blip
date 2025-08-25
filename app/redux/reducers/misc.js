@@ -935,7 +935,13 @@ export const clinics = (state = initialState.clinics, action) => {
     case types.CREATE_CLINIC_PATIENT_TAG_SUCCESS: {
       const { clinicId, patientTag } = action.payload;
 
-      return update(state, { [clinicId]: { patientTags: { $push: [patientTag] } } });
+      return update(state, {
+        [clinicId]: {
+          patientTags: !!state[clinicId]?.patientTags
+            ? { $push: [patientTag] }
+            : { $set: [patientTag] },
+        },
+      });
     }
     case types.UPDATE_CLINIC_PATIENT_TAG_SUCCESS: {
       const { clinicId, patientTag: newTag } = action.payload;
@@ -964,7 +970,13 @@ export const clinics = (state = initialState.clinics, action) => {
     case types.CREATE_CLINIC_SITE_SUCCESS: {
       const { clinicId, site } = action.payload;
 
-      return update(state, { [clinicId]: { sites: { $push: [site] } } });
+      return update(state, {
+        [clinicId]: {
+          sites: !!state[clinicId]?.sites
+            ? { $push: [site] }
+            : { $set: [site] },
+        },
+      });
     }
     case types.UPDATE_CLINIC_SITE_SUCCESS: {
       const { clinicId, site: newSite } = action.payload;
