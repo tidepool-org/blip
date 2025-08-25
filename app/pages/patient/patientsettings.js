@@ -151,7 +151,7 @@ export default withTranslation()(class PatientSettings extends Component {
             </div>
             {errorNode}
 
-            <div className="PatientSettings-blocks">
+            <div className="PatientSettings-blocks PatientSettings-blocks--full-width">
               <ClinicsUsingAltRangeNotifications api={this.props.api} />
             </div>
 

@@ -1,21 +1,21 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectPatient, selectUser } from '../../core/selectors';
-import { utils as vizUtils, colors as vizColors, constants as vizConstants } from '@tidepool/viz';
-const {
-  GLYCEMIC_RANGE,
-  ADA_PREGNANCY_T1_BG_BOUNDS,
-  ADA_GESTATIONAL_T2_BG_BOUNDS,
-} = vizUtils.constants;
-import personUtils from '../../core/personutils';
-import { Box, Flex } from 'theme-ui';
 import { useTranslation } from 'react-i18next';
-import Button from '../../components/elements/Button';
 import * as actions from '../../redux/actions';
 import moment from 'moment';
+import { selectPatient, selectUser } from '../../core/selectors';
+import { MGDL_UNITS } from '../../core/constants';
+import { utils as vizUtils, colors as vizColors } from '@tidepool/viz';
+const { GLYCEMIC_RANGE, ADA_PREGNANCY_T1_BG_BOUNDS, ADA_GESTATIONAL_T2_BG_BOUNDS } = vizUtils.constants;
+import { Box, Flex } from 'theme-ui';
+import personUtils from '../../core/personutils';
+import baseTheme from '../../themes/baseTheme';
+
+import Button from '../../components/elements/Button';
+import Icon from '../../components/elements/Icon';
+import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
 
 import pickBy from 'lodash/pickBy';
-import { MGDL_UNITS } from '../../core/constants';
 
 import { getDismissedAltRangeNotificationKey, isRangeWithNonStandardTarget } from '../../providers/AppBanner/appBannerHelpers';
 
@@ -41,22 +41,30 @@ const Notification = ({ clinicId, onDismiss }) => {
   const { targetLowerBound, targetUpperBound } = getRenderedTargetRange(glycemicRanges, clinicBgUnits) || {};
 
   return (
-    <Box sx={{ background: vizColors.white, borderRadius: 8 }} py={2} px={4} mb={3}>
-      <Flex sx={{ justifyContent: 'space-between', gap: 4 }}>
+    <Box sx={{ background: vizColors.blue00, borderRadius: 8, width: '100%' }} py={2} px={3} mb={3}>
+      <Flex sx={{ justifyContent: 'space-between', alignItems: 'center', gap: 2 }}>
+        <Icon
+          className="icon"
+          theme={baseTheme}
+          variant="static"
+          label="info"
+          icon={InfoRoundedIcon}
+          sx={{ color: vizColors.blue30, fontSize: 4 }}
+        />
         <Box>
           <Box sx={{ color: vizColors.blue50, fontWeight: 'medium' }}>
-            {t('Adjusted Target Range')}
+            {t('Non-Standard Target Range')}
           </Box>
-          <Box sx={{ color: vizColors.blue50 }}>
+          <Box sx={{ color: vizColors.blue50, marginRight: 3 }}>
             {
-              t('{{ name }} is using a non-standard target range of {{targetLowerBound}}-{{targetUpperBound}} {{clinicBgUnits}} to view your data.',
+              t('{{ name }} is using a non-standard target range of {{targetLowerBound}}-{{targetUpperBound}} {{clinicBgUnits}} to view your data',
               { name, targetLowerBound, targetUpperBound, clinicBgUnits })
             }
           </Box>
         </Box>
         <Button
           variant='secondaryCondensed'
-          sx={{ border: 'none' }}
+          sx={{ border: 'none', marginLeft: 'auto', height: '32px' }}
           onClick={onDismiss}
           disabled={updatingPreferences?.inProgress}
         >
@@ -106,7 +114,7 @@ const ClinicsUsingAltRangeNotifications = ({ api }) => {
   });
 
   return (
-    <Box>
+    <>
       { Object.keys(clinicsWithNotifications).map(clinicId => (
           <Notification
             key={clinicId}
@@ -115,7 +123,7 @@ const ClinicsUsingAltRangeNotifications = ({ api }) => {
           />
         ))
       }
-    </Box>
+    </>
   );
 };
 
