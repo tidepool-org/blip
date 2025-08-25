@@ -41,7 +41,7 @@ const AppBannerProvider = ({ children }) => {
   const isMobile = useMemo(() => utils.isMobile(), []);
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
-  const clinics = useSelector(state => state.blip.clinics);
+  const clinics = useSelector(state => state.blip.clinics) || {};
   const clinic = clinics?.[selectedClinicId];
 
   const loggedInUserId = useSelector(state => state.blip.loggedInUserId);

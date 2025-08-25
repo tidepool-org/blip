@@ -1,11 +1,9 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectPatient, selectUser } from '../../core/selectors';
-import mapValues from 'lodash/mapValues';
 import { utils as vizUtils, colors as vizColors, constants as vizConstants } from '@tidepool/viz';
 const {
   GLYCEMIC_RANGE,
-  ADA_OLDER_HIGH_RISK_BG_BOUNDS,
   ADA_PREGNANCY_T1_BG_BOUNDS,
   ADA_GESTATIONAL_T2_BG_BOUNDS,
 } = vizUtils.constants;
@@ -36,7 +34,7 @@ const Notification = ({ clinicId, onDismiss }) => {
   const updatingPreferences = useSelector(state => state.blip.working?.updatingPreferences);
 
   const { name, preferredBgUnits: clinicBgUnits = MGDL_UNITS } = clinic;
-  const { glycemicRanges } = clinic.patients?.[currentPatientInViewId];
+  const { glycemicRanges } = clinic.patients?.[currentPatientInViewId] || {};
 
   if (!glycemicRanges) return null;
 
@@ -76,7 +74,7 @@ const ClinicsUsingAltRangeNotifications = ({ api }) => {
   const user = useSelector(state => selectUser(state));
   const fetchingClinicsForPatient = useSelector(state => state.blip.working.fetchingClinicsForPatient);
   const loggedInUserId = useSelector(state => state.blip.loggedInUserId);
-  const loggedInUser = useSelector(state => state.blip.allUsersMap[loggedInUserId]);
+  const loggedInUser = useSelector(state => state.blip.allUsersMap?.[loggedInUserId]);
   const preferences = loggedInUser?.preferences || {};
 
   const isUserPatient = personUtils.isSame(user, patient);
