@@ -4,7 +4,7 @@
     "node": "20.8.0"
   },
   "packageManager": "yarn@3.6.4",
-  "version": "1.89.0-develop.2",
+  "version": "1.89.0-web-3771-informed-consent-flow-updated.1",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test yarn jest --verbose --runInBand; JEST_EXIT_CODE=$?; TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' yarn karma start; KARMA_EXIT_CODE=$?; [ $JEST_EXIT_CODE -eq 0 ] && [ $KARMA_EXIT_CODE -eq 0 ]",
