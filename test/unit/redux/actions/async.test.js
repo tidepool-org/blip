@@ -4702,6 +4702,296 @@ describe('Actions', () => {
       });
     });
 
+    describe('fetchLatestConsentByType', () => {
+      it('should trigger FETCH_LATEST_CONSENT_BY_TYPE_SUCCESS and it should call consent.getLatestConsentByType once for a successful request', () => {
+        const consentType = 'consentType123';
+        const consentDocument = { id: 'consentDocument123' };
+
+        const api = {
+          consent: {
+            getLatestConsentByType: sinon.stub().callsArgWith(1, null, consentDocument),
+          },
+        };
+
+        const expectedActions = [
+          { type: 'FETCH_LATEST_CONSENT_BY_TYPE_REQUEST' },
+          { type: 'FETCH_LATEST_CONSENT_BY_TYPE_SUCCESS', payload: { consentType, consentDocument } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        const store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchLatestConsentByType(api, consentType));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.consent.getLatestConsentByType.callCount).to.equal(1);
+      });
+
+      it('should trigger FETCH_LATEST_CONSENT_BY_TYPE_FAILURE and it should call error once for a failed request', () => {
+        const consentType = 'consentType123';
+
+        const api = {
+          consent: {
+            getLatestConsentByType: sinon.stub().callsArgWith(1, {status: 500, body: 'Error!'}, null),
+          },
+        };
+
+        const err = new Error(ErrorMessages.ERR_FETCHING_LATEST_CONSENT_BY_TYPE);
+        err.status = 500;
+
+        const expectedActions = [
+          { type: 'FETCH_LATEST_CONSENT_BY_TYPE_REQUEST' },
+          { type: 'FETCH_LATEST_CONSENT_BY_TYPE_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        const store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchLatestConsentByType(api, consentType));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_LATEST_CONSENT_BY_TYPE });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.consent.getLatestConsentByType.callCount).to.equal(1);
+      });
+    });
+
+    describe('fetchUserConsentRecords', () => {
+      it('should trigger FETCH_USER_CONSENT_RECORDS_SUCCESS and it should call consent.getLatestConsentByType once for a successful request', () => {
+        const consentType = 'consentType123';
+        const records = [{ id: 'consentDocument123' }];
+
+        const api = {
+          consent: {
+            getUserConsentRecords: sinon.stub().callsArgWith(2, null, records),
+          },
+        };
+
+        const expectedActions = [
+          { type: 'FETCH_USER_CONSENT_RECORDS_REQUEST' },
+          { type: 'FETCH_USER_CONSENT_RECORDS_SUCCESS', payload: { consentType, records } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        const store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchUserConsentRecords(api, consentType));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.consent.getUserConsentRecords.callCount).to.equal(1);
+      });
+
+      it('should trigger FETCH_USER_CONSENT_RECORDS_FAILURE and it should call error once for a failed request', () => {
+        const consentType = 'consentType123';
+
+        const api = {
+          consent: {
+            getUserConsentRecords: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null),
+          },
+        };
+
+        const err = new Error(ErrorMessages.ERR_FETCHING_USER_CONSENT_RECORDS);
+        err.status = 500;
+
+        const expectedActions = [
+          { type: 'FETCH_USER_CONSENT_RECORDS_REQUEST' },
+          { type: 'FETCH_USER_CONSENT_RECORDS_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        const store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchUserConsentRecords(api, consentType));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_USER_CONSENT_RECORDS });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.consent.getUserConsentRecords.callCount).to.equal(1);
+      });
+    });
+
+    describe('createUserConsentRecord', () => {
+      it('should trigger CREATE_USER_CONSENT_RECORD_SUCCESS and it should call consent.getLatestConsentByType once for a successful request', () => {
+        const consentType = 'consentType123';
+        const createdRecord = { id: 'consentDocument123', type: consentType };
+
+        const api = {
+          consent: {
+            createUserConsentRecord: sinon.stub().callsArgWith(2, null, createdRecord),
+          },
+        };
+
+        const expectedActions = [
+          { type: 'CREATE_USER_CONSENT_RECORD_REQUEST' },
+          { type: 'CREATE_USER_CONSENT_RECORD_SUCCESS', payload: { createdRecord } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        const store = mockStore({ blip: initialState });
+        store.dispatch(async.createUserConsentRecord(api, createdRecord));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.consent.createUserConsentRecord.callCount).to.equal(1);
+      });
+
+      it('should trigger CREATE_USER_CONSENT_RECORD_FAILURE and it should call error once for a failed request', () => {
+        const consentType = 'consentType123';
+        const createdRecord = { id: 'consentDocument123', type: consentType };
+
+        const api = {
+          consent: {
+            createUserConsentRecord: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null),
+          },
+        };
+
+        const err = new Error(ErrorMessages.ERR_FETCHING_USER_CONSENT_RECORDS);
+        err.status = 500;
+
+        const expectedActions = [
+          { type: 'CREATE_USER_CONSENT_RECORD_REQUEST' },
+          { type: 'CREATE_USER_CONSENT_RECORD_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        const store = mockStore({ blip: initialState });
+        store.dispatch(async.createUserConsentRecord(api, createdRecord));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_CREATING_USER_CONSENT_RECORD });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.consent.createUserConsentRecord.callCount).to.equal(1);
+      });
+    });
+
+    describe('updateUserConsentRecord', () => {
+      it('should trigger UPDATE_USER_CONSENT_RECORD_SUCCESS and it should call consent.getLatestConsentByType once for a successful request', () => {
+        const consentType = 'consentType123';
+        const recordId = 'consentDocument123';
+        const updatedRecord = { id: recordId, type: consentType };
+
+        const api = {
+          consent: {
+            updateUserConsentRecord: sinon.stub().callsArgWith(3, null, updatedRecord),
+          },
+        };
+
+        const expectedActions = [
+          { type: 'UPDATE_USER_CONSENT_RECORD_REQUEST' },
+          { type: 'UPDATE_USER_CONSENT_RECORD_SUCCESS', payload: { updatedRecord } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        const store = mockStore({ blip: initialState });
+        store.dispatch(async.updateUserConsentRecord(api, recordId, updatedRecord));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.consent.updateUserConsentRecord.callCount).to.equal(1);
+      });
+
+      it('should trigger UPDATE_USER_CONSENT_RECORD_FAILURE and it should call error once for a failed request', () => {
+        const consentType = 'consentType123';
+        const recordId = 'consentDocument123';
+        const updatedRecord = { id: recordId, type: consentType };
+
+        const api = {
+          consent: {
+            updateUserConsentRecord: sinon.stub().callsArgWith(3, {status: 500, body: 'Error!'}, null),
+          },
+        };
+
+        const err = new Error(ErrorMessages.ERR_FETCHING_USER_CONSENT_RECORDS);
+        err.status = 500;
+
+        const expectedActions = [
+          { type: 'UPDATE_USER_CONSENT_RECORD_REQUEST' },
+          { type: 'UPDATE_USER_CONSENT_RECORD_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        const store = mockStore({ blip: initialState });
+        store.dispatch(async.updateUserConsentRecord(api, recordId, updatedRecord));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_UPDATING_USER_CONSENT_RECORD });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.consent.updateUserConsentRecord.callCount).to.equal(1);
+      });
+    });
+
+    describe('revokeUserConsentRecord', () => {
+      it('should trigger REVOKE_USER_CONSENT_RECORD_SUCCESS and it should call consent.getLatestConsentByType once for a successful request', () => {
+        const consentType = 'consentType123';
+        const recordId = 'consentDocument123';
+
+        const api = {
+          consent: {
+            revokeUserConsentRecord: sinon.stub().callsArgWith(2, null, null),
+          },
+        };
+
+        const expectedActions = [
+          { type: 'REVOKE_USER_CONSENT_RECORD_REQUEST' },
+          { type: 'REVOKE_USER_CONSENT_RECORD_SUCCESS', payload: { consentType } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        const store = mockStore({ blip: initialState });
+        store.dispatch(async.revokeUserConsentRecord(api, consentType, recordId));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.consent.revokeUserConsentRecord.callCount).to.equal(1);
+      });
+
+      it('should trigger REVOKE_USER_CONSENT_RECORD_FAILURE and it should call error once for a failed request', () => {
+        const consentType = 'consentType123';
+        const recordId = 'consentDocument123';
+
+        const api = {
+          consent: {
+            revokeUserConsentRecord: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null),
+          },
+        };
+
+        const err = new Error(ErrorMessages.ERR_FETCHING_USER_CONSENT_RECORDS);
+        err.status = 500;
+
+        const expectedActions = [
+          { type: 'REVOKE_USER_CONSENT_RECORD_REQUEST' },
+          { type: 'REVOKE_USER_CONSENT_RECORD_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        const store = mockStore({ blip: initialState });
+        store.dispatch(async.revokeUserConsentRecord(api, consentType, recordId));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_REVOKING_USER_CONSENT_RECORD });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.consent.revokeUserConsentRecord.callCount).to.equal(1);
+      });
+    });
+
     describe('fetchMessageThread', () => {
       it('should trigger FETCH_MESSAGE_THREAD_SUCCESS and it should call error once for a successful request', () => {
         let messageThread = [
