@@ -2270,7 +2270,7 @@ export const ClinicPatients = (props) => {
                       selected={!!activeFilters.timeInRange?.length}
                       {...bindTrigger(timeInRangePopupFilterState)}
                       icon={KeyboardArrowDownRoundedIcon}
-                      iconLabel="Filter by Time In Range"
+                      iconLabel="Filter by Time in Range"
                       sx={{ fontSize: 0, lineHeight: 1.3, flexShrink: 0 }}
                     >
                       <Flex sx={{ gap: 1 }}>
@@ -2308,11 +2308,16 @@ export const ClinicPatients = (props) => {
                     }}
                   >
                     <DialogContent color="text.primary" pl={4} pr={6} pb={3}>
-                      <Flex mb={3} sx={{ alignItems: 'center', fontSize: 1, fontWeight: 'medium' }}>
-                        <Text mr={2} sx={{ whiteSpace: 'nowrap' }}>
-                          {t('Filter by Time in Range')}
-                        </Text>
-                      </Flex>
+                      <Box mb={4} sx={{ maxWidth: '560px', fontSize: 1, fontWeight: 'medium' }}>
+                        <Box mr={2} sx={{ color: vizColors.gray50, fontWeight: 'medium', fontSize: 1, whiteSpace: 'nowrap' }}>
+                          {t('% Time in Range')}
+                        </Box>
+                        <Box sx={{ color: vizColors.gray50, fontWeight: 'normal', fontStyle: 'italic', fontSize: 0, lineHeight: 1 }}>
+                          <Text>{t('Any patient with one or more ranges selected below will be shown.')}</Text>
+                          {' '}
+                          <Text sx={{ fontWeight: 'medium'}}>{t('Only patients using the standard target range will be included.')}</Text>
+                        </Box>
+                      </Box>
 
                       {map(getTimeInRangeFilterOptions(showExtremeHigh, t), ({ value, title, rangeName, threshold, prefix }) => {
                         const {prefix: bgPrefix, suffix, value:glucoseTargetValue} = bgLabels[rangeName];
