@@ -356,10 +356,10 @@ export const appBanners = [
     priority: 12,
     context: ['patient'],
     paths: [pathRegexes.patientData],
-    getProps: (dispatch, loggedInUserId) => ({
+    getProps: (dispatch, loggedInUserId, clinics) => ({
       interactionId: 'ClinicUsingAltRange',
-      label: t('Clinic is using alternate glycemic range'),
-      message: t('Clinic is using alternate glycemic range'),
+      label: t(`${clinics[0]?.name} is using a non-standard target range to view your data`),
+      message: t(`${clinics[0]?.name} is using a non-standard target range to view your data`),
       show: {
         metric: 'Banner displayed Send Verification',
       },
