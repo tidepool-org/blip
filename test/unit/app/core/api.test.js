@@ -80,6 +80,11 @@ describe('api', () => {
       getClinicPatientCountSettings: sinon.stub(),
       setClinicPatientLastReviewed: sinon.stub(),
       revertClinicPatientLastReviewed: sinon.stub(),
+      getLatestConsentByType: sinon.stub(),
+      getUserConsentRecords: sinon.stub(),
+      createUserConsentRecord: sinon.stub(),
+      updateUserConsentRecord: sinon.stub(),
+      revokeUserConsentRecord: sinon.stub(),
     };
 
     rollbar = {
@@ -153,6 +158,11 @@ describe('api', () => {
     tidepool.getClinicPatientCountSettings.resetHistory();
     tidepool.setClinicPatientLastReviewed.resetHistory();
     tidepool.revertClinicPatientLastReviewed.resetHistory();
+    tidepool.getLatestConsentByType.resetHistory();
+    tidepool.getUserConsentRecords.resetHistory();
+    tidepool.createUserConsentRecord.resetHistory();
+    tidepool.updateUserConsentRecord.resetHistory();
+    tidepool.revokeUserConsentRecord.resetHistory();
 
     rollbar.configure.resetHistory();
     rollbar.error.resetHistory();
@@ -1137,6 +1147,58 @@ describe('api', () => {
         const clinicId = 'clinicId123';
         api.clinics.revertClinicPatientLastReviewed(clinicId, cb);
         sinon.assert.calledWith(tidepool.revertClinicPatientLastReviewed, clinicId, cb);
+      });
+    });
+  });
+
+  describe('consent', () => {
+    describe('consent.getLatestConsentByType', () => {
+      it('should call tidepool.getLatestConsentByType with the appropriate args', () => {
+        const cb = sinon.stub();
+        const consentType = 'consentType123';
+        api.consent.getLatestConsentByType(consentType, cb);
+        sinon.assert.calledWith(tidepool.getLatestConsentByType, consentType, cb);
+      });
+    });
+
+    describe('consent.getUserConsentRecords', () => {
+      it('should call tidepool.getUserConsentRecords with the appropriate args', () => {
+        const cb = sinon.stub();
+        const userId = 'userId123';
+        const consentType = 'consentType123';
+        api.consent.getUserConsentRecords(userId, consentType, cb);
+        sinon.assert.calledWith(tidepool.getUserConsentRecords, userId, consentType, cb);
+      });
+    });
+
+    describe('consent.createUserConsentRecord', () => {
+      it('should call tidepool.createUserConsentRecord with the appropriate args', () => {
+        const cb = sinon.stub();
+        const userId = 'userId123';
+        const consentRecord = { type: 'consentRecord123' };
+        api.consent.createUserConsentRecord(userId, consentRecord, cb);
+        sinon.assert.calledWith(tidepool.createUserConsentRecord, userId, consentRecord, cb);
+      });
+    });
+
+    describe('consent.updateUserConsentRecord', () => {
+      it('should call tidepool.updateUserConsentRecord with the appropriate args', () => {
+        const cb = sinon.stub();
+        const userId = 'userId123';
+        const recordId = 'recordId123';
+        const updates = { type: 'consentRecord123' };
+        api.consent.updateUserConsentRecord(userId, recordId, updates, cb);
+        sinon.assert.calledWith(tidepool.updateUserConsentRecord, userId, recordId, updates, cb);
+      });
+    });
+
+    describe('consent.revokeUserConsentRecord', () => {
+      it('should call tidepool.revokeUserConsentRecord with the appropriate args', () => {
+        const cb = sinon.stub();
+        const userId = 'userId123';
+        const recordId = 'recordId123';
+        api.consent.revokeUserConsentRecord(userId, recordId, cb);
+        sinon.assert.calledWith(tidepool.revokeUserConsentRecord, userId, recordId, cb);
       });
     });
   });

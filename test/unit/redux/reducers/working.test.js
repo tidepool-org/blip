@@ -8471,4 +8471,489 @@ describe('dataWorkerQueryData', () => {
       });
     });
   });
+
+  describe('fetchLatestConsentByType', () => {
+    describe('request', () => {
+      it('should set fetchingLatestConsentByType.completed to null', () => {
+        expect(initialState.fetchingLatestConsentByType.completed).to.be.null;
+
+        let requestAction = actions.sync.fetchLatestConsentByTypeRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.fetchingLatestConsentByType.completed).to.be.null;
+
+        let successAction = actions.sync.fetchLatestConsentByTypeSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.fetchingLatestConsentByType.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.fetchingLatestConsentByType.completed).to.be.null;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingLatestConsentByType.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.fetchLatestConsentByTypeRequest();
+
+        expect(initialStateForTest.fetchingLatestConsentByType.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.fetchingLatestConsentByType.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set fetchingLatestConsentByType.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.fetchingLatestConsentByType.completed).to.be.null;
+
+        let failureAction = actions.sync.fetchLatestConsentByTypeFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.fetchingLatestConsentByType.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingLatestConsentByType.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          fetchingLatestConsentByType: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.fetchLatestConsentByTypeFailure(error);
+
+        expect(initialStateForTest.fetchingLatestConsentByType.inProgress).to.be.true;
+        expect(initialStateForTest.fetchingLatestConsentByType.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.fetchingLatestConsentByType.inProgress).to.be.false;
+        expect(state.fetchingLatestConsentByType.notification.type).to.equal('error');
+        expect(state.fetchingLatestConsentByType.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set fetchingLatestConsentByType.completed to be true', () => {
+        expect(initialState.fetchingLatestConsentByType.completed).to.be.null;
+
+        let successAction = actions.sync.fetchLatestConsentByTypeSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.fetchingLatestConsentByType.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingLatestConsentByType.inProgress to be false', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          fetchingLatestConsentByType: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.fetchLatestConsentByTypeSuccess('foo');
+
+        expect(initialStateForTest.fetchingLatestConsentByType.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.fetchingLatestConsentByType.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('fetchUserConsentRecords', () => {
+    describe('request', () => {
+      it('should set fetchingUserConsentRecords.completed to null', () => {
+        expect(initialState.fetchingUserConsentRecords.completed).to.be.null;
+
+        let requestAction = actions.sync.fetchUserConsentRecordsRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.fetchingUserConsentRecords.completed).to.be.null;
+
+        let successAction = actions.sync.fetchUserConsentRecordsSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.fetchingUserConsentRecords.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.fetchingUserConsentRecords.completed).to.be.null;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingUserConsentRecords.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.fetchUserConsentRecordsRequest();
+
+        expect(initialStateForTest.fetchingUserConsentRecords.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.fetchingUserConsentRecords.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set fetchingUserConsentRecords.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.fetchingUserConsentRecords.completed).to.be.null;
+
+        let failureAction = actions.sync.fetchUserConsentRecordsFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.fetchingUserConsentRecords.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingUserConsentRecords.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          fetchingUserConsentRecords: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.fetchUserConsentRecordsFailure(error);
+
+        expect(initialStateForTest.fetchingUserConsentRecords.inProgress).to.be.true;
+        expect(initialStateForTest.fetchingUserConsentRecords.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.fetchingUserConsentRecords.inProgress).to.be.false;
+        expect(state.fetchingUserConsentRecords.notification.type).to.equal('error');
+        expect(state.fetchingUserConsentRecords.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set fetchingUserConsentRecords.completed to be true', () => {
+        expect(initialState.fetchingUserConsentRecords.completed).to.be.null;
+
+        let successAction = actions.sync.fetchUserConsentRecordsSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.fetchingUserConsentRecords.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set fetchingUserConsentRecords.inProgress to be false', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          fetchingUserConsentRecords: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.fetchUserConsentRecordsSuccess('foo');
+
+        expect(initialStateForTest.fetchingUserConsentRecords.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.fetchingUserConsentRecords.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('createUserConsentRecord', () => {
+    describe('request', () => {
+      it('should set creatingUserConsentRecord.completed to null', () => {
+        expect(initialState.creatingUserConsentRecord.completed).to.be.null;
+
+        let requestAction = actions.sync.createUserConsentRecordRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.creatingUserConsentRecord.completed).to.be.null;
+
+        let successAction = actions.sync.createUserConsentRecordSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.creatingUserConsentRecord.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.creatingUserConsentRecord.completed).to.be.null;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set creatingUserConsentRecord.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.createUserConsentRecordRequest();
+
+        expect(initialStateForTest.creatingUserConsentRecord.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.creatingUserConsentRecord.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set creatingUserConsentRecord.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.creatingUserConsentRecord.completed).to.be.null;
+
+        let failureAction = actions.sync.createUserConsentRecordFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.creatingUserConsentRecord.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set creatingUserConsentRecord.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          creatingUserConsentRecord: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.createUserConsentRecordFailure(error);
+
+        expect(initialStateForTest.creatingUserConsentRecord.inProgress).to.be.true;
+        expect(initialStateForTest.creatingUserConsentRecord.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.creatingUserConsentRecord.inProgress).to.be.false;
+        expect(state.creatingUserConsentRecord.notification.type).to.equal('error');
+        expect(state.creatingUserConsentRecord.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set creatingUserConsentRecord.completed to be true', () => {
+        expect(initialState.creatingUserConsentRecord.completed).to.be.null;
+
+        let successAction = actions.sync.createUserConsentRecordSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.creatingUserConsentRecord.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set creatingUserConsentRecord.inProgress to be false', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          creatingUserConsentRecord: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.createUserConsentRecordSuccess('foo');
+
+        expect(initialStateForTest.creatingUserConsentRecord.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.creatingUserConsentRecord.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('updateUserConsentRecord', () => {
+    describe('request', () => {
+      it('should set updatingUserConsentRecord.completed to null', () => {
+        expect(initialState.updatingUserConsentRecord.completed).to.be.null;
+
+        let requestAction = actions.sync.updateUserConsentRecordRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.updatingUserConsentRecord.completed).to.be.null;
+
+        let successAction = actions.sync.updateUserConsentRecordSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.updatingUserConsentRecord.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.updatingUserConsentRecord.completed).to.be.null;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set updatingUserConsentRecord.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.updateUserConsentRecordRequest();
+
+        expect(initialStateForTest.updatingUserConsentRecord.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.updatingUserConsentRecord.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set updatingUserConsentRecord.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.updatingUserConsentRecord.completed).to.be.null;
+
+        let failureAction = actions.sync.updateUserConsentRecordFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.updatingUserConsentRecord.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set updatingUserConsentRecord.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          updatingUserConsentRecord: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.updateUserConsentRecordFailure(error);
+
+        expect(initialStateForTest.updatingUserConsentRecord.inProgress).to.be.true;
+        expect(initialStateForTest.updatingUserConsentRecord.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.updatingUserConsentRecord.inProgress).to.be.false;
+        expect(state.updatingUserConsentRecord.notification.type).to.equal('error');
+        expect(state.updatingUserConsentRecord.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set updatingUserConsentRecord.completed to be true', () => {
+        expect(initialState.updatingUserConsentRecord.completed).to.be.null;
+
+        let successAction = actions.sync.updateUserConsentRecordSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.updatingUserConsentRecord.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set updatingUserConsentRecord.inProgress to be false', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          updatingUserConsentRecord: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.updateUserConsentRecordSuccess('foo');
+
+        expect(initialStateForTest.updatingUserConsentRecord.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.updatingUserConsentRecord.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
+  describe('revokeUserConsentRecord', () => {
+    describe('request', () => {
+      it('should set revokingUserConsentRecord.completed to null', () => {
+        expect(initialState.revokingUserConsentRecord.completed).to.be.null;
+
+        let requestAction = actions.sync.revokeUserConsentRecordRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.revokingUserConsentRecord.completed).to.be.null;
+
+        let successAction = actions.sync.revokeUserConsentRecordSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.revokingUserConsentRecord.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.revokingUserConsentRecord.completed).to.be.null;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set revokingUserConsentRecord.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.revokeUserConsentRecordRequest();
+
+        expect(initialStateForTest.revokingUserConsentRecord.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.revokingUserConsentRecord.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set revokingUserConsentRecord.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.revokingUserConsentRecord.completed).to.be.null;
+
+        let failureAction = actions.sync.revokeUserConsentRecordFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.revokingUserConsentRecord.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set revokingUserConsentRecord.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          revokingUserConsentRecord: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.revokeUserConsentRecordFailure(error);
+
+        expect(initialStateForTest.revokingUserConsentRecord.inProgress).to.be.true;
+        expect(initialStateForTest.revokingUserConsentRecord.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.revokingUserConsentRecord.inProgress).to.be.false;
+        expect(state.revokingUserConsentRecord.notification.type).to.equal('error');
+        expect(state.revokingUserConsentRecord.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set revokingUserConsentRecord.completed to be true', () => {
+        expect(initialState.revokingUserConsentRecord.completed).to.be.null;
+
+        let successAction = actions.sync.revokeUserConsentRecordSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.revokingUserConsentRecord.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set revokingUserConsentRecord.inProgress to be false', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          revokingUserConsentRecord: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.revokeUserConsentRecordSuccess('foo');
+
+        expect(initialStateForTest.revokingUserConsentRecord.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.revokingUserConsentRecord.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
 });

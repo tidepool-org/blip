@@ -909,7 +909,7 @@ api.consent.getLatestConsentByType = function(consentType, cb) {
   return tidepool.getLatestConsentByType(consentType, cb);
 };
 
-api.consent.getUserRecords = function(userId, consentType, cb) {
+api.consent.getUserConsentRecords = function(userId, consentType, cb) {
   return tidepool.getUserConsentRecords(userId, consentType, cb);
 };
 

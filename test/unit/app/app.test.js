@@ -293,6 +293,22 @@ describe('App', () => {
       expect(elem.instance().showNavPatientHeader()).to.be.false;
     });
 
+    it('should return false when page is /patients/new', () => {
+      var elem = mount(<App {...baseProps} />, { wrappingComponent: providerWrapper(store) });
+      expect(elem).to.be.ok;
+
+      elem.setState({page: '/patients/new'});
+      expect(elem.instance().showNavPatientHeader()).to.be.false;
+    });
+
+    it('should return false when page is /patients/new/dataDonation', () => {
+      var elem = mount(<App {...baseProps} />, { wrappingComponent: providerWrapper(store) });
+      expect(elem).to.be.ok;
+
+      elem.setState({page: '/patients/new/dataDonation'});
+      expect(elem.instance().showNavPatientHeader()).to.be.false;
+    });
+
     it('should return false when page is /profile', () => {
       var elem = mount(<App {...baseProps} />, { wrappingComponent: providerWrapper(store) });
       expect(elem).to.be.ok;
