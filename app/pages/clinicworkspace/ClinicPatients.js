@@ -141,6 +141,51 @@ const glycemicTargetThresholds = {
   timeInExtremeHighPercent: { value: 1, comparator: '>' },
 };
 
+const getTimeInRangeFilterOptions = (showExtremeHigh = false, t) => [
+  (showExtremeHigh && {
+    title: t('Highest'),
+    value: 'timeInExtremeHighPercent',
+    threshold: glycemicTargetThresholds.timeInExtremeHighPercent.value,
+    prefix: t('Greater than'),
+    rangeName: 'extremeHigh',
+  }),
+  {
+    title: t('Very High'),
+    value: 'timeInVeryHighPercent',
+    threshold: glycemicTargetThresholds.timeInVeryHighPercent.value,
+    prefix: t('Greater than'),
+    rangeName: 'veryHigh',
+  },
+  {
+    title: t('High'),
+    value: 'timeInAnyHighPercent',
+    threshold: glycemicTargetThresholds.timeInAnyHighPercent.value,
+    prefix: t('Greater than'),
+    rangeName: 'anyHigh',
+  },
+  {
+    title: t('Not meeting TIR'),
+    value: 'timeInTargetPercent',
+    threshold: glycemicTargetThresholds.timeInTargetPercent.value,
+    prefix: t('Less than'),
+    rangeName: 'target',
+  },
+  {
+    title: t('Low'),
+    value: 'timeInAnyLowPercent',
+    threshold: glycemicTargetThresholds.timeInAnyLowPercent.value,
+    prefix: t('Greater than'),
+    rangeName: 'anyLow',
+  },
+  {
+    title: t('Very Low'),
+    value: 'timeInVeryLowPercent',
+    threshold: glycemicTargetThresholds.timeInVeryLowPercent.value,
+    prefix: t('Greater than'),
+    rangeName: 'veryLow',
+  },
+].filter(Boolean);
+
 const editPatient = (patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog, source) => {
   trackMetric('Clinic - Edit patient', { clinicId: selectedClinicId, source });
   setSelectedPatient(patient);
@@ -654,7 +699,6 @@ export const ClinicPatients = (props) => {
   const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
   const [showClinicSitesDialog, setShowClinicSitesDialog] = useState(false);
   const [showClinicPatientTagsDialog, setShowClinicPatientTagsDialog] = useState(false);
-  const [showTimeInRangeDialog, setShowTimeInRangeDialog] = useState(false);
   const [showSendUploadReminderDialog, setShowSendUploadReminderDialog] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const existingMRNs = useMemo(
@@ -795,6 +839,11 @@ export const ClinicPatients = (props) => {
     popupId: 'patientTagFilters',
   });
 
+  const timeInRangePopupFilterState = usePopupState({
+    variant: 'popover',
+    popupId: 'timeInRangeFilters',
+  });
+
   const cgmUsePopupFilterState = usePopupState({
     variant: 'popover',
     popupId: 'cgmUseFilters',
@@ -862,7 +911,6 @@ export const ClinicPatients = (props) => {
     setShowEditPatientDialog(false);
     setShowClinicPatientTagsDialog(false);
     setShowClinicSitesDialog(false);
-    setShowTimeInRangeDialog(false);
     setShowSendUploadReminderDialog(false);
     setShowTideDashboardConfigDialog(false);
     setShowRpmReportConfigDialog(false);
@@ -1492,11 +1540,6 @@ export const ClinicPatients = (props) => {
     setPendingFilters(defaultFilterState);
   }
 
-  function handleOpenTimeInRangeFilter() {
-    trackMetric(prefixPopHealthMetric('Time in range filter open'), { clinicId: selectedClinicId });
-    setShowTimeInRangeDialog(true);
-  }
-
   const handleFilterTimeInRange = useCallback(() => {
     trackMetric(prefixPopHealthMetric('Time in range apply filter'), {
       clinicId: selectedClinicId,
@@ -1515,7 +1558,7 @@ export const ClinicPatients = (props) => {
       timeInRange: pendingFilters.timeInRange,
     });
 
-    setShowTimeInRangeDialog(false);
+    timeInRangePopupFilterState.close();
   }, [
     activeFilters,
     pendingFilters.meetsGlycemicTargets,
@@ -2211,35 +2254,184 @@ export const ClinicPatients = (props) => {
                     }
                   </Popover>
 
-                  <Button
-                    id="time-in-range-filter-trigger"
-                    variant="filter"
-                    selected={!!activeFilters.timeInRange?.length}
-                    onClick={handleOpenTimeInRangeFilter}
-                    icon={KeyboardArrowDownRoundedIcon}
-                    iconLabel="Filter by Time In Range"
-                    sx={{ fontSize: 0, lineHeight: 1.3, flexShrink: 0 }}
+                  <Box
+                    onClick={() => {
+                      if (!timeInRangePopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('Time in range filter open'), { clinicId: selectedClinicId });
+                    }}
                   >
-                    <Flex sx={{ gap: 1 }}>
-                      {t('% Time in Range')}
-                      {!!activeFilters.timeInRange?.length && (
-                        <Pill
-                          id="time-in-range-filter-count"
-                          label="filter count"
-                          round
-                          sx={{
-                            width: '14px',
-                            fontSize: '9px',
-                            lineHeight: '15px',
-                            textAlign: 'center',
-                            display: 'inline-block',
-                          }}
-                          colorPalette={['purpleMedium', 'white']}
-                          text={`${activeFilters.timeInRange?.length}`}
-                        />
-                      )}
+                    <Button
+                      id="time-in-range-filter-trigger"
+                      variant="filter"
+                      selected={!!activeFilters.timeInRange?.length}
+                      {...bindTrigger(timeInRangePopupFilterState)}
+                      icon={KeyboardArrowDownRoundedIcon}
+                      iconLabel="Filter by Time In Range"
+                      sx={{ fontSize: 0, lineHeight: 1.3, flexShrink: 0 }}
+                    >
+                      <Flex sx={{ gap: 1 }}>
+                        {t('% Time in Range')}
+                        {!!activeFilters.timeInRange?.length && (
+                          <Pill
+                            id="time-in-range-filter-count"
+                            label="filter count"
+                            round
+                            sx={{
+                              width: '14px',
+                              fontSize: '9px',
+                              lineHeight: '15px',
+                              textAlign: 'center',
+                              display: 'inline-block',
+                            }}
+                            colorPalette={['purpleMedium', 'white']}
+                            text={`${activeFilters.timeInRange?.length}`}
+                          />
+                        )}
+                        </Flex>
+                    </Button>
+                  </Box>
+
+                  <Popover
+                    minWidth="11em"
+                    closeIcon
+                    {...bindPopover(timeInRangePopupFilterState)}
+                    onClickCloseIcon={() => {
+                      trackMetric(prefixPopHealthMetric('Time in range filter close'), { clinicId: selectedClinicId });
+                    }}
+                    onClose={() => {
+                      timeInRangePopupFilterState.close();
+                      setPendingFilters(activeFilters);
+                    }}
+                  >
+                    <DialogContent color="text.primary" pl={4} pr={6} pb={3}>
+                      <Flex mb={3} sx={{ alignItems: 'center', fontSize: 1, fontWeight: 'medium' }}>
+                        <Text mr={2} sx={{ whiteSpace: 'nowrap' }}>
+                          {t('Filter by Time in Range')}
+                        </Text>
                       </Flex>
-                  </Button>
+
+                      {map(getTimeInRangeFilterOptions(showExtremeHigh, t), ({ value, title, rangeName, threshold, prefix }) => {
+                        const {prefix: bgPrefix, suffix, value:glucoseTargetValue} = bgLabels[rangeName];
+
+                        return (
+                          <Flex
+                            id={`time-in-range-filter-${rangeName}`}
+                            key={rangeName}
+                            mb={3}
+                            ml={2}
+                            sx={{ alignItems: 'center', gap: 2 }}
+                          >
+                            <Checkbox
+                              id={`range-${value}-filter`}
+                              name={`range-${value}-filter`}
+                              key={value}
+                              checked={includes([...pendingFilters.timeInRange], value)}
+                              onChange={event => {
+                                setPendingFilters(event.target.checked
+                                  ? { ...pendingFilters, timeInRange: [...pendingFilters.timeInRange, value] }
+                                  : { ...pendingFilters, timeInRange: without(pendingFilters.timeInRange, value) }
+                                );
+                              }}
+                            />
+
+                          <Box
+                            px={1}
+                            py={1}
+                            ml={-2}
+                            sx={{
+                              backgroundColor: `${colors.bg[rangeName]}1A`, // Adding '1A' reduces opacity to 0.1
+                              borderRadius: 4,
+                            }}
+                          >
+                            <Flex as="label" htmlFor={`range-${value}-filter`} sx={{ alignItems: 'center' }}>
+                              <Box
+                                id={`range-${value}-filter-option-color-indicator`}
+                                sx={{
+                                  position: 'relative',
+                                  borderRadius: 4,
+                                  backgroundColor: colors.bg[rangeName],
+                                  width: '12px',
+                                  height: '12px',
+
+                                  // The styles within the :after pseudo-class below create a diagonal line
+
+                                  border: value === 'timeInTargetPercent' && `1.5px solid ${colors.blueGreyDark}`,
+                                  '&::after': value === 'timeInTargetPercent' && {
+                                    content: '""',
+                                    height: '1.5px',
+                                    width: '141.421%',
+                                    backgroundColor: colors.blueGreyDark,
+                                    position: 'absolute',
+                                    bottom: '0px',
+                                    transform: 'rotate(-45deg)',
+                                    transformOrigin: '1px 1px',
+                                  },
+                                }}
+                                mr={2}
+                              >
+                              </Box>
+
+                              <Text
+                                id={`range-${value}-filter-option-title`}
+                                sx={{ fontSize: 1, fontWeight: 'bold', color: 'black' }}
+                                mr={2}
+                              >
+                                {title}
+                              </Text>
+
+                              <Text id={`range-${value}-filter-option-definition`} sx={{ fontSize: 1 }} mr={2}>
+                                {prefix}{' '}
+                                <Text sx={{ fontSize: 2, fontWeight: 'bold' }}>
+                                  {threshold}
+                                </Text>
+                                % {t('Time')}{' '}
+                                {bgPrefix && `${t(bgPrefix)} `}
+                                <Text sx={{ fontSize: 2, fontWeight: 'bold' }}>
+                                  {glucoseTargetValue}
+                                </Text>{' '}
+                                {suffix}
+                              </Text>
+                            </Flex>
+                          </Box>
+                        </Flex>
+                        );
+                      })}
+
+                      <Button
+                        variant="textSecondary"
+                        px={0}
+                        sx={{ fontSize: 0 }}
+                        onClick={() => {
+                          trackMetric(prefixPopHealthMetric('Time in range unselect all'), { clinicId: selectedClinicId });
+                          setPendingFilters({ ...pendingFilters, timeInRange: defaultFilterState.timeInRange });
+                        }}
+                      >
+                        {t('Unselect all')}
+                      </Button>
+                    </DialogContent>
+
+                    <DialogActions sx={{ justifyContent: 'space-between' }} p={2}>
+                      <Button
+                        id="timeInRangeFilterClear"
+                        variant="textSecondary"
+                        onClick={() => {
+                          trackMetric(prefixPopHealthMetric('Time in range clear filter'), { clinicId: selectedClinicId });
+                          setPendingFilters({ ...activeFilters, timeInRange: defaultFilterState.timeInRange });
+                          setActiveFilters({ ...activeFilters, timeInRange: defaultFilterState.timeInRange });
+                          timeInRangePopupFilterState.close();
+                        }}
+                      >
+                        {t('Clear')}
+                      </Button>
+
+                      <Button
+                        id="timeInRangeFilterConfirm"
+                        variant="textPrimary"
+                        onClick={handleFilterTimeInRange}
+                      >
+                        {t('Apply Filter')}
+                      </Button>
+                    </DialogActions>
+                  </Popover>
 
                   <Box
                     onClick={() => {
@@ -3344,212 +3536,6 @@ export const ClinicPatients = (props) => {
     trackMetric,
   ]);
 
-  const renderTimeInRangeDialog = useCallback(() => {
-    const timeInRangeFilterOptions = [
-      {
-        title: t('Very High'),
-        value: 'timeInVeryHighPercent',
-        threshold: glycemicTargetThresholds.timeInVeryHighPercent.value,
-        prefix: t('Greater than'),
-        rangeName: 'veryHigh',
-      },
-      {
-        title: t('High'),
-        value: 'timeInAnyHighPercent',
-        threshold: glycemicTargetThresholds.timeInAnyHighPercent.value,
-        prefix: t('Greater than'),
-        rangeName: 'anyHigh',
-      },
-      {
-        title: t('Not meeting TIR'),
-        value: 'timeInTargetPercent',
-        threshold: glycemicTargetThresholds.timeInTargetPercent.value,
-        prefix: t('Less than'),
-        rangeName: 'target',
-      },
-      {
-        title: t('Low'),
-        value: 'timeInAnyLowPercent',
-        threshold: glycemicTargetThresholds.timeInAnyLowPercent.value,
-        prefix: t('Greater than'),
-        rangeName: 'anyLow',
-      },
-      {
-        title: t('Very Low'),
-        value: 'timeInVeryLowPercent',
-        threshold: glycemicTargetThresholds.timeInVeryLowPercent.value,
-        prefix: t('Greater than'),
-        rangeName: 'veryLow',
-      },
-    ];
-
-    if (showExtremeHigh) timeInRangeFilterOptions.unshift({
-      title: t('Highest'),
-      value: 'timeInExtremeHighPercent',
-      threshold: glycemicTargetThresholds.timeInExtremeHighPercent.value,
-      prefix: t('Greater than'),
-      rangeName: 'extremeHigh',
-    });
-
-    return (
-      <Dialog
-        id="timeInRangeDialog"
-        aria-label="Time in range filters"
-        open={showTimeInRangeDialog}
-        onClose={() => {
-          setPendingFilters(activeFilters);
-          handleCloseOverlays();
-        }}
-        maxWidth='lg'
-      >
-        <DialogTitle
-          p={0}
-          sx={{
-            border: 'none',
-            button: { position: 'absolute !important', top: 1, right: 1 },
-          }}
-          onClose={() => {
-            trackMetric(prefixPopHealthMetric('Time in range filter close'), { clinicId: selectedClinicId });
-            setPendingFilters(activeFilters);
-            handleCloseOverlays();
-          }}
-        />
-
-        <DialogContent color="text.primary" pl={4} pr={6} pb={3}>
-          <Flex mb={3} sx={{ alignItems: 'center', fontSize: 1, fontWeight: 'medium' }}>
-            <Text mr={2} sx={{ whiteSpace: 'nowrap' }}>
-              {t('Filter by Time in Range')}
-            </Text>
-          </Flex>
-
-          {map(timeInRangeFilterOptions, ({ value, title, rangeName, threshold, prefix }) => {
-            const {prefix: bgPrefix, suffix, value:glucoseTargetValue} = bgLabels[rangeName];
-
-            return (
-              <Flex
-                id={`time-in-range-filter-${rangeName}`}
-                key={rangeName}
-                mb={3}
-                ml={2}
-                sx={{ alignItems: 'center', gap: 2 }}
-              >
-                <Checkbox
-                  id={`range-${value}-filter`}
-                  name={`range-${value}-filter`}
-                  key={value}
-                  checked={includes([...pendingFilters.timeInRange], value)}
-                  onChange={event => {
-                    setPendingFilters(event.target.checked
-                      ? { ...pendingFilters, timeInRange: [...pendingFilters.timeInRange, value] }
-                      : { ...pendingFilters, timeInRange: without(pendingFilters.timeInRange, value) }
-                    );
-                  }}
-                />
-
-              <Box
-                px={1}
-                py={1}
-                ml={-2}
-                sx={{
-                  backgroundColor: `${colors.bg[rangeName]}1A`, // Adding '1A' reduces opacity to 0.1
-                  borderRadius: 4,
-                }}
-              >
-                <Flex as="label" htmlFor={`range-${value}-filter`} sx={{ alignItems: 'center' }}>
-                  <Box
-                    id={`range-${value}-filter-option-color-indicator`}
-                    sx={{
-                      position: 'relative',
-                      borderRadius: 4,
-                      backgroundColor: colors.bg[rangeName],
-                      width: '12px',
-                      height: '12px',
-
-                      // The styles within the :after pseudo-class below create a diagonal line
-
-                      border: value === 'timeInTargetPercent' && `1.5px solid ${colors.blueGreyDark}`,
-                      '&::after': value === 'timeInTargetPercent' && {
-                        content: '""',
-                        height: '1.5px',
-                        width: '141.421%',
-                        backgroundColor: colors.blueGreyDark,
-                        position: 'absolute',
-                        bottom: '0px',
-                        transform: 'rotate(-45deg)',
-                        transformOrigin: '1px 1px',
-                      },
-                    }}
-                    mr={2}
-                  >
-                  </Box>
-
-                  <Text
-                    id={`range-${value}-filter-option-title`}
-                    sx={{ fontSize: 1, fontWeight: 'bold', color: 'black' }}
-                    mr={2}
-                  >
-                    {title}
-                  </Text>
-
-                  <Text
-                    id={`range-${value}-filter-option-definition`}
-                    sx={{ fontSize: 1 }} mr={2}
-                  >
-                    {prefix}{' '}
-                    <Text sx={{ fontSize: 2, fontWeight: 'bold' }}>
-                      {threshold}
-                    </Text>
-                    % {t('Time')}{' '}
-                    {bgPrefix && `${t(bgPrefix)} `}
-                    <Text sx={{ fontSize: 2, fontWeight: 'bold' }}>
-                      {glucoseTargetValue}
-                    </Text>{' '}
-                    {suffix}
-                  </Text>
-                </Flex>
-              </Box>
-            </Flex>
-          )})}
-
-          <Button
-            variant="textSecondary"
-            px={0}
-            sx={{ fontSize: 0 }}
-            onClick={() => {
-              trackMetric(prefixPopHealthMetric('Time in range unselect all'), { clinicId: selectedClinicId });
-              setPendingFilters({ ...pendingFilters, timeInRange: defaultFilterState.timeInRange });
-            }}
-          >
-            {t('Unselect all')}
-          </Button>
-        </DialogContent>
-
-        <DialogActions sx={{ justifyContent: 'space-between' }} p={2}>
-          <Button
-            id="timeInRangeFilterClear"
-            variant="textSecondary"
-            onClick={() => {
-              trackMetric(prefixPopHealthMetric('Time in range clear filter'), { clinicId: selectedClinicId });
-              setPendingFilters({ ...activeFilters, timeInRange: defaultFilterState.timeInRange });
-              setActiveFilters({ ...activeFilters, timeInRange: defaultFilterState.timeInRange });
-              handleCloseOverlays();
-            }}
-          >
-            {t('Clear')}
-          </Button>
-
-          <Button
-            id="timeInRangeFilterConfirm"
-            variant="textPrimary"
-            onClick={handleFilterTimeInRange}
-          >
-            {t('Apply Filter')}
-          </Button>
-        </DialogActions>
-      </Dialog>
-    );
-  }, [activeFilters, bgLabels, handleFilterTimeInRange, pendingFilters, prefixPopHealthMetric, selectedClinicId, setActiveFilters, showTimeInRangeDialog, t, trackMetric]);
-
   const renderRpmReportConfigDialog = useCallback(() => {
     return (
       <Dialog
@@ -4254,7 +4240,6 @@ export const ClinicPatients = (props) => {
       {showTideDashboardUI && showTideDashboardConfigDialog && renderTideDashboardConfigDialog()}
       {showRpmReportUI && renderRpmReportConfigDialog()}
       {showRpmReportUI && renderRpmReportLimitDialog()}
-      {showTimeInRangeDialog && renderTimeInRangeDialog()}
       {showSendUploadReminderDialog && renderSendUploadReminderDialog()}
       {isClinicSitesDialogVisible && renderClinicSitesDialog()}
       {isClinicPatientTagsDialogVisible && renderClinicPatientTagsDialog()}
