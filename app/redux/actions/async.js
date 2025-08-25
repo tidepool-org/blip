@@ -1403,11 +1403,11 @@ export function fetchUserConsentRecords(api, consentType) {
  * @param {String} consentRecord.ageGroup - Allowed values: ['<13', '13-17', '>=18']
  * @param {String} consentRecord.ownerName - The name of the account owner
  * @param {String} [consentRecord.parentGuardianName] - The name of the parent or legal guardian granting the consent record. Required if ageGroup is '<13' or '13-17'.
- * @param {String} consent.grantorType - Allowed values: ['owner', 'parent/guardian']
- * @param {String} type - type of the consentRecord (e.g., 'big_data_donation_project')
+ * @param {String} consentRecord.grantorType - Allowed values: ['owner', 'parent/guardian']
+ * @param {String} consentRecord.type - Type of the consent record (e.g., 'big_data_donation_project')
  * @param {Object} [consentRecord.metadata]
- * @param {Array[String]} [consentRecord.metadata.supportedOrganizations] - Allowed values: ['ADCES Foundation', 'Beyond Type 1', 'Children With Diabetes', 'The Diabetes Link', 'Diabetes Youth Families (DYF)', 'DiabetesSisters', 'The diaTribe Foundation', 'Breakthrough T1D']
- * @param {Number} version - >=1
+ * @param {String[]} [consentRecord.metadata.supportedOrganizations] - Allowed values: ['ADCES Foundation', 'Beyond Type 1', 'Children With Diabetes', 'The Diabetes Link', 'Diabetes Youth Families (DYF)', 'DiabetesSisters', 'The diaTribe Foundation', 'Breakthrough T1D']
+ * @param {Number} consentRecord.version - >=1
  */
 export function createUserConsentRecord(api, consentRecord) {
   return (dispatch, getState) => {

@@ -162,7 +162,7 @@ export const radii = {
 export const shadows = {
   small: '0px 0px 1px rgba(67, 90, 111, 0.47)',
   medium: '0px 0px 4px rgba(67, 90, 111, 0.4)',
-  large: '0px 3px 6px rgba(67, 90, 111, 0.301);',
+  large: '0px 3px 6px rgba(67, 90, 111, 0.301)',
   focus: `0px 0px 0px 2px ${colors.border.focus}`,
   well: '0px 0px 8px rgba(67, 90, 111, 0.15)',
 };

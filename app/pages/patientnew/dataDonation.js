@@ -65,7 +65,7 @@ export const PatientNewDataDonation = (props) => {
     setSubmitting(isSubmitting);
     setCurrentForm(currentForm);
     setFormikContext({ ...updatedFormikContext });
-    setInitializeConsent(() => initializeConsentHandler) ;
+    setInitializeConsent(() => initializeConsentHandler);
   }
 
   return (

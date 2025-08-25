@@ -1,6 +1,5 @@
 import React from 'react';
-import { ThemeProvider } from '@emotion/react';
-import { Box } from 'theme-ui';
+import { Box, ThemeUIProvider } from 'theme-ui';
 
 import baseTheme from '../app/themes/baseTheme';
 import ChangeMindImage from '../app/components/elements/SlideShow/Images/changeMindImage.svg';
@@ -10,11 +9,11 @@ import { SlideShow, SlideShowItem } from '../app/components/elements/SlideShow';
 /* eslint-disable max-len */
 
 const withTheme = (Story) => (
-  <ThemeProvider theme={baseTheme}>
+  <ThemeUIProvider theme={baseTheme}>
     <Box variant="containers.largeBordered" p={3}>
       <Story />
     </Box>
-  </ThemeProvider>
+  </ThemeUIProvider>
 );
 
 export default {
@@ -24,14 +23,18 @@ export default {
 
 const items = [
   {
+    id: 'fuelingInnovation',
     title: 'Fueling the Next Generation of Diabetes Innovation',
     content: 'The Tidepool Big Data Donation Project enables students, academics, and industry to innovate faster. By donating your anonymized data, you can help transform the landscape of diabetes management.',
     image: FuelingNextGenImage,
+    imageAlt: 'Illustration: fueling diabetes innovation',
   },
   {
+    id: 'changeMind',
     title: 'Can I change my mind later?',
     content: 'You can stop sharing new data at any time. Go to your account settings and click "Stop sharing data." Please note that we cannot remove data that has already been shared.',
     image: ChangeMindImage,
+    imageAlt: 'Illustration: changing your mind about data sharing',
   },
 ];
 
@@ -42,8 +45,10 @@ export const SlideShows = {
       renderItem={({ item, index, isSnapPoint }) => (
         <SlideShowItem
           key={index}
+          id={item.id}
           isSnapPoint={isSnapPoint}
           image={item.image}
+          imageAlt={item.imageAlt}
           title={item.title}
           content={item.content}
         />

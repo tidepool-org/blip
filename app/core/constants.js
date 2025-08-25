@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-import { map, sortBy } from 'lodash';
+import { map } from 'lodash';
 import i18next from './language';
 
 const t = i18next.t.bind(i18next);
