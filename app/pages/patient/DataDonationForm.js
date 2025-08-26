@@ -31,10 +31,6 @@ import DataDonationRevokeConsentDialog from '../patient/DataDonationRevokeConsen
 import DataDonationConsentDialog from '../patient/DataDonationConsentDialog';
 import { getConsentText } from '../patient/DataDonationConsentDialog';
 
-const dataDonationConsentSchema = yup.object().shape({
-  dataDonate: yup.boolean(),
-});
-
 const supportedOrganizationsSchema = yup.object().shape({
   supportedOrganizations: yup.string(),
 });
@@ -43,11 +39,6 @@ export const formSteps = {
   dataDonationConsent: 'dataDonationConsent',
   supportedOrganizations: 'supportedOrganizations',
 }
-
-export const schemas = {
-  dataDonationConsent: dataDonationConsentSchema,
-  supportedOrganizations: supportedOrganizationsSchema,
-};
 
 export const formContexts = {
   newPatient: 'newPatient',
@@ -179,10 +170,9 @@ export const DataDonationForm = (props) => {
 
   const formikContext = useFormik({
     initialValues: {
-      dataDonate: false,
       supportedOrganizations: '',
     },
-    validationSchema: schemas[currentForm],
+    validationSchema: currentForm === formSteps.supportedOrganizations ? supportedOrganizationsSchema : undefined,
   });
 
   useEffect(() => {
