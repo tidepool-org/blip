@@ -12,7 +12,7 @@ import Button from '../Button';
 import Icon from '../Icon';
 import { Body1, MediumTitle } from '../FontStyles';
 
-export function SlideShow({ axis, items, renderItem, sx = {}, ...themeProps }) {
+export function SlideShow({ axis, label, items, renderItem, sx = {}, ...themeProps }) {
   const { t } = useTranslation();
 
   const {
@@ -30,10 +30,10 @@ export function SlideShow({ axis, items, renderItem, sx = {}, ...themeProps }) {
   useEffect(() => {
     const handle = (e) => {
       switch (e.key) {
-        case 'ArrowLeft':
+        case axis === 'x' ? 'ArrowLeft' : 'ArrowUp':
           prev();
           break;
-        case 'ArrowRight':
+        case axis === 'x' ? 'ArrowRight' : 'ArrowDown':
           next();
           break;
         default:
@@ -51,6 +51,7 @@ export function SlideShow({ axis, items, renderItem, sx = {}, ...themeProps }) {
       px={[2, 3, 4]}
       pt={[2, 3, 4]}
       pb={[6, 6, 6]}
+      aria-label={label}
       sx={{
         position: 'relative',
         backgroundColor: 'bluePrimary00',
@@ -172,6 +173,7 @@ SlideShow.propTypes = {
   axis: PropTypes.oneOf(['x', 'y']),
   renderItem: PropTypes.func.isRequired,
   items: PropTypes.arrayOf(PropTypes.shape(ItemShape)).isRequired,
+  label: PropTypes.string.isRequired,
 };
 
 SlideShow.defaultProps = {
@@ -236,6 +238,7 @@ export function SlideShowItem({ isSnapPoint, title, content, image, imageAlt, id
           {!!content && (
             <Body1
               className="item-content"
+              role="article"
               pb={2}
               sx={{
                 color: 'text.primary',

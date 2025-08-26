@@ -29,6 +29,7 @@ export function Pill(props) {
     condensed,
     icon,
     label,
+    iconLabel,
     text,
     round,
     width,
@@ -86,7 +87,7 @@ export function Pill(props) {
           theme={baseTheme}
           variant="static"
           icon={icon}
-          label={label}
+          label={iconLabel ?? `${label} icon`}
         />
       )}
       {text}
@@ -117,6 +118,7 @@ Pill.propTypes = {
   ]),
   condensed: PropTypes.bool,
   icon: PropTypes.elementType,
+  iconLabel: PropTypes.string,
   label: PropTypes.string.isRequired,
   text: PropTypes.string.isRequired,
   variant: PropTypes.oneOf(['default', 'inverse']),
