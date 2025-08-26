@@ -11,6 +11,7 @@ function DataDonationSlideShow() {
   return (
     <SlideShow
       mb={4}
+      label={t('Data donation slideshow')}
       items={[
         {
           id: 'fuelingInnovation',

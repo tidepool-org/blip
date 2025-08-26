@@ -51,6 +51,7 @@ export function Container(props) {
       {!!title && (
         <Text
           className="container-title"
+          role="heading"
           sx={{
             mt: 4,
             mb: !!subtitle ? 0 : 2,

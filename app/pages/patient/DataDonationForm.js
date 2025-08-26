@@ -275,7 +275,12 @@ export const DataDonationForm = (props) => {
             <Trans i18nKey="html.data-donation-details">
               <Paragraph1 sx={{ fontWeight: 'medium', textAlign: 'center' }}>
                 {accountTypeText[accountType]?.dataDonatePrompt}&nbsp;
-                <Link className="data-donation-details-link" href={URL_BIG_DATA_DONATION_INFO} target="_blank">Learn more</Link>.
+                <Link
+                  aria-label="Data donation details link"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  href={URL_BIG_DATA_DONATION_INFO}
+                >Learn more</Link>.
               </Paragraph1>
             </Trans>
           </Box>
@@ -317,16 +322,16 @@ export const DataDonationForm = (props) => {
             }}
           >
             <Pill
-              id="consentSuccessMessage"
               sx={{ fontSize: 1 }}
               text={consentSuccessMessage}
               icon={CheckCircleRoundedIcon}
-              label={t('Consent date')}
+              label={t('Consent success message')}
               colorPalette="success"
             />
 
             <Button
               variant="textSecondary"
+              label={t('Stop Sharing Data')}
               icon={EditRoundedIcon}
               iconPosition="left"
               onClick={() => setShowRevokeConsentDialog(true)}
@@ -335,8 +340,9 @@ export const DataDonationForm = (props) => {
             </Button>
           </Flex>
 
-          <Box id="data-donation-destination-form">
+          <Box id="data-donation-supported-non-profits">
             <MultiSelect
+              aria-label={t('Data donation supported non-profits')}
               {...getCommonFormikFieldProps('supportedOrganizations', formikContext, 'value', false)}
               label={accountTypeText[accountType]?.dataDonateOrganizationsLabel}
               setFieldValue={formikContext.setFieldValue}
