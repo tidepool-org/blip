@@ -576,7 +576,7 @@ export const consentRecords = (state = initialState.consentRecords, action) => {
       const latestRecord = _.get(action.payload, 'records.data.0');
 
       // Only store active records so we don't have to litter our application with checks to see if the current consent record is active
-      if (latestRecord.status === 'active') {
+      if (latestRecord?.status === 'active') {
         return update(state, { $set: { [consentType]: latestRecord } });
       } else {
         return update(state, { $unset: [consentType] });
