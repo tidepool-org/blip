@@ -77,8 +77,11 @@ export const DataDonationForm = (props) => {
   const currentConsent = useSelector(state => state.blip.consentRecords[DATA_DONATION_CONSENT_TYPE]);
   const fallbackConsentDate = formContext === formContexts.newPatient ? moment().format('MMMM D, YYYY') : null;
   const consentDate = currentConsent?.grantTime ? moment(currentConsent.grantTime).format('MMMM D, YYYY') : fallbackConsentDate;
-  const [currentForm, setCurrentForm] = useState(currentConsent?.status === 'active' ? formSteps.supportedOrganizations : formSteps.dataDonationConsent);
   const showConsentDialogTrigger = formContext === formContexts.profile;
+
+  const currentForm = currentConsent?.status === 'active'
+    ? formSteps.supportedOrganizations
+    : formSteps.dataDonationConsent;
 
   let consentSuccessMessage = getConsentText(accountType, patientAgeGroup, patientName, caregiverName, consentDate).consentSuccessMessage;
   if (!consentDate) consentSuccessMessage = t('You are currently sharing your data.');
@@ -98,14 +101,6 @@ export const DataDonationForm = (props) => {
     }
   }, [loggedInUserId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    if (currentConsent?.status === 'active' && currentForm === formSteps.dataDonationConsent) {
-      setCurrentForm(formSteps.supportedOrganizations);
-    }
-    if (currentConsent?.status !== 'active' && currentForm === formSteps.supportedOrganizations) {
-      setCurrentForm(formSteps.dataDonationConsent);
-    }
-  }, [currentConsent]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const accountTypeText = {
     personal: {
