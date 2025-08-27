@@ -2308,14 +2308,12 @@ export const ClinicPatients = (props) => {
                     }}
                   >
                     <DialogContent color="text.primary" pl={4} pr={6} pb={3}>
-                      <Box mb={4} sx={{ maxWidth: '560px', fontSize: 1, fontWeight: 'medium' }}>
+                      <Box mb={3} sx={{ fontSize: 1, fontWeight: 'medium' }}>
                         <Box mr={2} sx={{ color: vizColors.gray50, fontWeight: 'medium', fontSize: 1, whiteSpace: 'nowrap' }}>
                           {t('% Time in Range')}
                         </Box>
-                        <Box sx={{ color: vizColors.gray50, fontWeight: 'normal', fontStyle: 'italic', fontSize: 0, lineHeight: 1 }}>
-                          <Text>{t('Any patient with one or more ranges selected below will be shown.')}</Text>
-                          {' '}
-                          <Text sx={{ fontWeight: 'medium'}}>{t('Only patients using the standard target range will be included.')}</Text>
+                        <Box mt={2} sx={{ color: vizColors.blue50, fontWeight: 'normal', fontStyle: 'italic', fontSize: 0, lineHeight: 1 }}>
+                          <Text>{t('Only patients using the standard target range will be included.')}</Text>
                         </Box>
                       </Box>
 
