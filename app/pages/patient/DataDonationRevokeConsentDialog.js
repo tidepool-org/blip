@@ -30,11 +30,11 @@ export const DataDonationRevokeConsentDialog = (props) => {
       </DialogTitle>
       <DialogContent>
         <Box>
-          <Paragraph1 sx={{ fontWeight: 'medium'}}>
+          <Paragraph1 sx={{ fontWeight: 'medium'}} data-testid="revoke-consent-question">
             <Text className='question'>{question}</Text>
           </Paragraph1>
 
-          <Paragraph0 sx={{ fontWeight: 'medium'}}>
+          <Paragraph0 sx={{ fontWeight: 'medium'}} data-testid="revoke-consent-description">
             <Text className='description'>{description}</Text>
           </Paragraph0>
         </Box>
