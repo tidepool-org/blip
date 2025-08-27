@@ -140,7 +140,7 @@ export const DataDonationConsentDialog = (props) => {
         setCurrentConsentStep(nextStep);
         setCaregiverName(values.name);
         formikHelpers.resetForm();
-        document.getElementById('consentDocumentText')?.scrollTo({ top: 0 });
+        document.getElementById('consentDocumentText')?.scrollTo?.({ top: 0 });
       } else {
         onConfirm({ ...values, name: caregiverName });
       }
@@ -353,7 +353,6 @@ DataDonationConsentDialog.propTypes = {
     title: PropTypes.string,
     message: PropTypes.string,
   }),
-  t: PropTypes.func.isRequired,
   accountType: PropTypes.oneOf(['personal', 'caregiver']).isRequired,
   patientAgeGroup: PropTypes.oneOf(['child', 'youth', 'adult']).isRequired,
   patientName: PropTypes.string.isRequired,
