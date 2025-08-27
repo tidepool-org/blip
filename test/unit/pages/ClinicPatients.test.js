@@ -2264,41 +2264,37 @@ describe('ClinicPatients', () => {
           it('should show the bg range filters in mmol/L units', () => {
             const timeInRangeFilterTrigger = wrapper.find('#time-in-range-filter-trigger').hostNodes();
 
-            const dialog = () => wrapper.find('Dialog#timeInRangeDialog');
-            expect(dialog()).to.have.length(0);
+            const popover = () => wrapper.find('#timeInRangeFilters').hostNodes();
 
-            // Open filters dialog
+            // Open filters popover
             timeInRangeFilterTrigger.simulate('click');
-            wrapper.update();
-            expect(dialog()).to.have.length(1);
-            expect(dialog().props().open).to.be.true;
 
             // Ensure filter options present and in default unchecked state
-            const veryLowFilter = () => dialog().find('#time-in-range-filter-veryLow').hostNodes();
+            const veryLowFilter = () => popover().find('#time-in-range-filter-veryLow').hostNodes();
             expect(veryLowFilter()).to.have.lengthOf(1);
             expect(veryLowFilter().text()).contains('Greater than 1% Time');
             expect(veryLowFilter().text()).contains('<3.0 mmol/L');
             expect(veryLowFilter().find('input').props().checked).to.be.false;
 
-            const lowFilter = () => dialog().find('#time-in-range-filter-anyLow').hostNodes();
+            const lowFilter = () => popover().find('#time-in-range-filter-anyLow').hostNodes();
             expect(lowFilter()).to.have.lengthOf(1);
             expect(lowFilter().text()).contains('Greater than 4% Time');
             expect(lowFilter().text()).contains('<3.9 mmol/L');
             expect(lowFilter().find('input').props().checked).to.be.false;
 
-            const targetFilter = () => dialog().find('#time-in-range-filter-target').hostNodes();
+            const targetFilter = () => popover().find('#time-in-range-filter-target').hostNodes();
             expect(targetFilter()).to.have.lengthOf(1);
             expect(targetFilter().text()).contains('Less than 70% Time');
             expect(targetFilter().text()).contains('between 3.9-10.0 mmol/L');
             expect(targetFilter().find('input').props().checked).to.be.false;
 
-            const highFilter = () => dialog().find('#time-in-range-filter-anyHigh').hostNodes();
+            const highFilter = () => popover().find('#time-in-range-filter-anyHigh').hostNodes();
             expect(highFilter()).to.have.lengthOf(1);
             expect(highFilter().text()).contains('Greater than 25% Time');
             expect(highFilter().text()).contains('>10.0 mmol/L');
             expect(highFilter().find('input').props().checked).to.be.false;
 
-            const veryHighFilter = () => dialog().find('#time-in-range-filter-veryHigh').hostNodes();
+            const veryHighFilter = () => popover().find('#time-in-range-filter-veryHigh').hostNodes();
             expect(veryHighFilter()).to.have.lengthOf(1);
             expect(veryHighFilter().text()).contains('Greater than 5% Time');
             expect(veryHighFilter().text()).contains('>13.9 mmol/L');
