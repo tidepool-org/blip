@@ -22,12 +22,9 @@ export const PatientNewDataDonation = (props) => {
 
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const currentConsent = useSelector((state) => state.blip.consentRecords[DATA_DONATION_CONSENT_TYPE]);
+  const currentForm = currentConsent ? formSteps.supportedOrganizations : formSteps.dataDonationConsent;
   const [submitting, setSubmitting] = useState(false);
   const [initializeConsent, setInitializeConsent] = useState(noop);
-
-  const currentForm = currentConsent?.status === 'active'
-    ? formSteps.supportedOrganizations
-    : formSteps.dataDonationConsent;
 
   const formStepsText = {
     dataDonationConsent: {

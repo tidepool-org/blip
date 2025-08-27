@@ -574,7 +574,13 @@ export const consentRecords = (state = initialState.consentRecords, action) => {
     case types.FETCH_USER_CONSENT_RECORDS_SUCCESS: {
       const consentType = _.get(action.payload, 'consentType');
       const latestRecord = _.get(action.payload, 'records.data.0');
-      return update(state, { $set: { [consentType]: latestRecord } });
+
+      // Only store active records so we don't have to litter our application with checks to see if the current consent record is active
+      if (latestRecord.status === 'active') {
+        return update(state, { $set: { [consentType]: latestRecord } });
+      } else {
+        return update(state, { $unset: [consentType] });
+      }
     }
 
     case types.CREATE_USER_CONSENT_RECORD_SUCCESS: {

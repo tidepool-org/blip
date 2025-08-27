@@ -78,8 +78,8 @@ const AppBannerProvider = ({ children }) => {
 
   // Check to see if a patient is a data donor and has selected a nonprofit to support
   const currentDataDonationConsent = useSelector(state => state.blip.consentRecords[DATA_DONATION_CONSENT_TYPE]);
-  const userIsDonor = currentDataDonationConsent?.status === 'active';
-  const userIsSupportingNonprofit = userIsDonor && currentDataDonationConsent?.metadata?.supportedOrganizations?.length > 0;
+  const userIsDonor = !!currentDataDonationConsent;
+  const userIsSupportingNonprofit = currentDataDonationConsent?.metadata?.supportedOrganizations?.length > 0;
 
   // Because the original donate banner has been split into two separate banners, we need to check if the user has interacted with the original donate banner
   // and not show the new support proceeds banner unless they just interacted with the donate banner during this session
