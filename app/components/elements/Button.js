@@ -25,6 +25,7 @@ export function BaseButton(props) {
 export function Button(props) {
   const {
     children,
+    disabled,
     selected,
     processing,
     icon,
@@ -71,6 +72,7 @@ export function Button(props) {
       }}
       as={BaseButton}
       variant={`buttons.${variant}`}
+      disabled={disabled || processing}
       {...buttonProps}
       className={`${classNames} ${className}`}
     >
@@ -116,6 +118,7 @@ export function Button(props) {
 
 Button.propTypes = {
   ...ButtonProps,
+  disabled: PropTypes.bool,
   processing: PropTypes.bool,
   selected: PropTypes.bool,
   icon: PropTypes.elementType,
