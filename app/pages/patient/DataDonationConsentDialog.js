@@ -147,10 +147,6 @@ export const DataDonationConsentDialog = (props) => {
     },
   });
 
-  useEffect(() => {
-    if (isString(formikContext.values.name)) setCaregiverName(formikContext.values.name);
-  }, [formikContext.values.name]);
-
   const consentText = getConsentText(accountType, patientAgeGroup, patientName, caregiverName, consentDate);
   const consentQuestion = consentText[`${formSteps[currentConsentStep]}ConsentQuestion`];
   const consentDescription = consentText[`${formSteps[currentConsentStep]}ConsentDescription`];
@@ -165,6 +161,12 @@ export const DataDonationConsentDialog = (props) => {
     if (scrollTop + clientHeight >= scrollHeight - 5) {
       formikContext.setFieldValue(`${formSteps[currentConsentStep]}ConsentRead`, true);
     }
+  };
+
+  const handleCaregiverNameChange = (e) => {
+    if (!e?.target) return;
+    formikContext.handleChange(e);
+    setCaregiverName(e.target.value);
   };
 
   return (
@@ -270,6 +272,7 @@ export const DataDonationConsentDialog = (props) => {
             <Box mb={3}>
               <TextInput
                 {...getCommonFormikFieldProps('name', formikContext)}
+                onChange={handleCaregiverNameChange}
                 label={consentNameInputLabel}
                 placeholder={t('Name')}
                 variant="condensed"
