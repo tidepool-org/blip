@@ -11,6 +11,7 @@
     "test:concurrent": "concurrently \"TZ=UTC NODE_ENV=test yarn jest --verbose --runInBand\" \"TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' yarn karma start\" --group --success=all",
     "test:karma": "TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' yarn karma start",
     "test:jest": "TZ=UTC NODE_ENV=test yarn jest --verbose --runInBand",
+    "test:jest:watch": "TZ=UTC NODE_ENV=test yarn jest --watch",
     "pretest": "NODE_ENV=test npm run lint",
     "browser-tests": "TZ=UTC NODE_ENV=test yarn karma start --browsers Chrome",
     "test-watch": "WATCH_MODE=1 TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' yarn karma start --no-single-run --reporters=mocha",
