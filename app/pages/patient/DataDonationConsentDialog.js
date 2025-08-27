@@ -101,11 +101,10 @@ export const getConsentText = memoize((accountType, patientAgeGroup, patientName
 );
 
 export const DataDonationConsentDialog = (props) => {
-  const { t, onClose, onConfirm, open, accountType, patientAgeGroup, patientName, caregiverName: caregiverNameProp, consentDate } = props;
+  const { onClose, onConfirm, open, accountType, patientAgeGroup, patientName, caregiverName: caregiverNameProp, consentDate } = props;
   const patientAssentRequired = patientAgeGroup === 'youth';
   const formSteps = patientAssentRequired ? ['primary', 'secondary'] : ['primary'];
   const [currentConsentStep, setCurrentConsentStep] = React.useState(0);
-  const [scrolledToBottom, setScrolledToBottom] = React.useState(false);
   const [caregiverName, setCaregiverName] = React.useState(caregiverNameProp);
   const { [DATA_DONATION_CONSENT_TYPE]: consentDocument } = useSelector((state) => state.blip.consents);
 
@@ -142,7 +141,6 @@ export const DataDonationConsentDialog = (props) => {
         setCaregiverName(values.name);
         formikHelpers.resetForm();
         document.getElementById('consentDocumentText')?.scrollTo({ top: 0 });
-        setScrolledToBottom(false);
       } else {
         onConfirm({ ...values, name: caregiverName });
       }
@@ -165,7 +163,6 @@ export const DataDonationConsentDialog = (props) => {
     const { scrollTop, scrollHeight, clientHeight } = e.target;
     // Use a small threshold (5px) to account for rendering differences
     if (scrollTop + clientHeight >= scrollHeight - 5) {
-      setScrolledToBottom(true);
       formikContext.setFieldValue(`${formSteps[currentConsentStep]}ConsentRead`, true);
     }
   };
@@ -185,6 +182,7 @@ export const DataDonationConsentDialog = (props) => {
         <Box id="consentDocument" variant="containers.wellBordered" p={0} mb={4}>
           <Box
             id="consentDocumentText"
+            data-testid="consentDocumentText"
             onScroll={handleConsentDocumentScroll}
             p={3}
             sx={{
@@ -307,6 +305,7 @@ export const DataDonationConsentDialog = (props) => {
               {...getCommonFormikFieldProps(`${formSteps[currentConsentStep]}Consent`, formikContext, 'checked')}
               bg="white"
               themeProps={{ sx: { bg: 'transparent', textAlign: 'left' } }}
+              data-testid="consent-checkbox"
               label={consentInputLabel}
               disabled={!formikContext.values[`${formSteps[currentConsentStep]}ConsentRead`]}
               sx={{
@@ -359,4 +358,4 @@ DataDonationConsentDialog.propTypes = {
   consentDate: PropTypes.string.isRequired,
 };
 
-export default withTranslation()(DataDonationConsentDialog);
+export default DataDonationConsentDialog;
