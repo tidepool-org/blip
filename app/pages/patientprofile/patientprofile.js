@@ -25,11 +25,6 @@ export function getFetchers(dispatchProps, ownProps, stateProps, api) {
     fetchers.push(dispatchProps.fetchAssociatedAccounts.bind(null, api));
   }
 
-  // If the logged-in user is viewing their own profile, fetch their data donation consent records
-  if (isUserPatient && !stateProps.fetchingUserConsentRecords.inProgress && !stateProps.fetchingUserConsentRecords.completed) {
-    fetchers.push(dispatchProps.fetchUserConsentRecords.bind(null, api, DATA_DONATION_CONSENT_TYPE));
-  }
-
   // Need to fetch the patient for the clinic in order to have the permissions provided. Normally
   // these would be here after navigating from the patients list, but they will not upon reload.
   // We need to search for the patient via the current patient id.
@@ -69,7 +64,6 @@ export function mapStateToProps(state) {
     fetchingPatient,
     fetchingPendingSentInvites,
     fetchingAssociatedAccounts,
-    fetchingUserConsentRecords,
     updatingPatientBgUnits,
     updatingPatient,
     updatingClinicPatient,
@@ -114,7 +108,6 @@ export function mapStateToProps(state) {
     fetchingPatient: fetchingPatient.inProgress,
     fetchingPendingSentInvites: fetchingPendingSentInvites,
     fetchingAssociatedAccounts: fetchingAssociatedAccounts,
-    fetchingUserConsentRecords: fetchingUserConsentRecords,
     updatingPatientBgUnits: updatingPatientBgUnits.inProgress,
     updatingPatient: updatingPatient.inProgress || updatingClinicPatient.inProgress,
     dataSources: state.blip.dataSources || [],
@@ -135,7 +128,6 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   connectDataSource: actions.async.connectDataSource,
   fetchPatientFromClinic: actions.async.fetchPatientFromClinic,
   updateClinicPatient: actions.async.updateClinicPatient,
-  fetchUserConsentRecords: actions.async.fetchUserConsentRecords,
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {

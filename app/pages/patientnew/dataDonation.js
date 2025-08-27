@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import isEmpty from 'lodash/isEmpty';
 
 import Container from '../../components/elements/Container';
 import { push } from 'connected-react-router';
 import { noop } from 'lodash';
 import DataDonationForm, { formContexts, formSteps } from '../patient/DataDonationForm';
+import { DATA_DONATION_CONSENT_TYPE } from '../../core/constants';
 
 export const PatientNewDataDonation = (props) => {
   const { api, trackMetric } = props;
@@ -21,10 +21,13 @@ export const PatientNewDataDonation = (props) => {
   }, []);
 
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
+  const currentConsent = useSelector((state) => state.blip.consentRecords[DATA_DONATION_CONSENT_TYPE]);
   const [submitting, setSubmitting] = useState(false);
-  const [currentForm, setCurrentForm] = useState(formSteps.dataDonationConsent);
-  const [formikContext, setFormikContext] = useState({});
   const [initializeConsent, setInitializeConsent] = useState(noop);
+
+  const currentForm = currentConsent?.status === 'active'
+    ? formSteps.supportedOrganizations
+    : formSteps.dataDonationConsent;
 
   const formStepsText = {
     dataDonationConsent: {
@@ -61,10 +64,8 @@ export const PatientNewDataDonation = (props) => {
     onClick: () => redirectToPatientData(),
   });
 
-  function handleFormChange(updatedFormikContext, currentForm, isSubmitting, initializeConsentHandler ) {
+  function handleFormChange(isSubmitting, initializeConsentHandler ) {
     setSubmitting(isSubmitting);
-    setCurrentForm(currentForm);
-    setFormikContext({ ...updatedFormikContext });
     setInitializeConsent(() => initializeConsentHandler);
   }
 

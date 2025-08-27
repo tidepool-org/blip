@@ -98,9 +98,11 @@ export const DataDonationForm = (props) => {
       dispatch(
         actions.async.fetchLatestConsentByType(api, DATA_DONATION_CONSENT_TYPE)
       );
+      dispatch(
+        actions.async.fetchUserConsentRecords(api, DATA_DONATION_CONSENT_TYPE)
+      );
     }
   }, [loggedInUserId]); // eslint-disable-line react-hooks/exhaustive-deps
-
 
   const accountTypeText = {
     personal: {
@@ -122,6 +124,13 @@ export const DataDonationForm = (props) => {
     updatingUserConsentRecord,
     revokingUserConsentRecord,
   } = useSelector((state) => state.blip.working);
+
+  const formikContext = useFormik({
+    initialValues: {
+      supportedOrganizations: '',
+    },
+    validationSchema: currentForm === formSteps.supportedOrganizations ? supportedOrganizationsSchema : undefined,
+  });
 
   function handleCloseOverlays() {
       setShowRevokeConsentDialog(false);
@@ -160,15 +169,12 @@ export const DataDonationForm = (props) => {
   }, [updatingUserConsentRecord]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    handleAsyncResult({ ...revokingUserConsentRecord, prevInProgress: previousWorking?.revokingUserConsentRecord }, t('You have stopped sharing your data'), onRevokeConsent);
+    handleAsyncResult({ ...revokingUserConsentRecord, prevInProgress: previousWorking?.revokingUserConsentRecord }, t('You have stopped sharing your data'), () => {
+      handleCloseOverlays();
+      formikContext.resetForm();
+      onRevokeConsent();
+    });
   }, [revokingUserConsentRecord]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const formikContext = useFormik({
-    initialValues: {
-      supportedOrganizations: '',
-    },
-    validationSchema: currentForm === formSteps.supportedOrganizations ? supportedOrganizationsSchema : undefined,
-  });
 
   useEffect(() => {
     if (!formikContext.touched.supportedOrganizations && currentConsent?.metadata?.supportedOrganizations) {
@@ -182,8 +188,8 @@ export const DataDonationForm = (props) => {
   }, [currentConsent?.metadata?.supportedOrganizations]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    onFormChange(formikContext, currentForm, submitting, initializeConsent);
-  }, [formikContext.values, currentForm, submitting]); // eslint-disable-line react-hooks/exhaustive-deps
+    onFormChange(submitting, initializeConsent);
+  }, [submitting]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function initializeConsent() {
     setShowConsentDialog(true);
