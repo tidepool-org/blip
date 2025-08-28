@@ -12,15 +12,24 @@ var expect = chai.expect;
 
 describe('consentRecords', () => {
   describe('fetchUserConsentRecordsSuccess', () => {
-    it('should set latest consentRecord by type to state', () => {
+    it('should set latest consentRecord by type to state if status is active', () => {
       const initialStateForTest = {};
       const consentType = 'consentType123';
-      const records = { data: [{ id: 'record123' }] };
+      const records = { data: [{ id: 'record123', status: 'active' }] };
       const action = actions.sync.fetchUserConsentRecordsSuccess(consentType, records);
       const state = reducer(initialStateForTest, action);
       expect(state).to.eql({
-        consentType123: { id: 'record123' },
+        consentType123: { id: 'record123', status: 'active' },
       });
+    });
+
+    it('should not set latest consentRecord by type to state if status is revoked', () => {
+      const initialStateForTest = {};
+      const consentType = 'consentType123';
+      const records = { data: [{ id: 'record123', status: 'revoked' }] };
+      const action = actions.sync.fetchUserConsentRecordsSuccess(consentType, records);
+      const state = reducer(initialStateForTest, action);
+      expect(state).to.eql({});
     });
   });
 
