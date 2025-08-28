@@ -72,7 +72,7 @@ export function Button(props) {
       }}
       as={BaseButton}
       variant={`buttons.${variant}`}
-      disabled={disabled || processing}
+      disabled={!!(disabled || processing)}
       {...buttonProps}
       className={`${classNames} ${className}`}
     >
