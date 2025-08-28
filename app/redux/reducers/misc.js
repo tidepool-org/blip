@@ -1017,8 +1017,6 @@ export const clinicMRNsForPatientFormValidation = (state = initialState.clinicMR
 
       return existingMRNs;
     }
-    case types.FETCH_CLINIC_MRNS_FOR_PATIENT_FORM_VALIDATION_FAILURE:
-      return state;
     default:
       return state;
   }
