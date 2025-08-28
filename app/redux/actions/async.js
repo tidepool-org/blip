@@ -13,8 +13,6 @@ import personUtils from '../../core/personutils';
 import { keycloak } from '../../keycloak';
 import { push } from 'connected-react-router';
 import { worker } from '.';
-import { utils as vizUtils } from '@tidepool/viz';
-const { GLYCEMIC_RANGE } = vizUtils.constants;
 
 import utils from '../../core/utils';
 import { clinicUIDetails } from '../../core/clinicUtils.js';

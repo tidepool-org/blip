@@ -361,7 +361,7 @@ export const appBanners = [
       label: t(`${clinicName} is using a non-standard target range to view your data`),
       message: t(`${clinicName} is using a non-standard target range to view your data`),
       show: {
-        metric: 'Banner displayed Send Verification',
+        metric: 'Banner displayed See Alternate Glycemic Range',
       },
       action: {
         text: t('See Range'),

@@ -54,7 +54,7 @@ describe('ClinicsUsingAltRangeNotifications', () => {
     it('renders nothing', () => {
       store = mockStore(state);
 
-      const { container} = render(
+      const { container } = render(
         <Provider store={store}>
           <ClinicsUsingAltRangeNotifications api={api} />
         </Provider>
@@ -101,7 +101,7 @@ describe('ClinicsUsingAltRangeNotifications', () => {
 
     let store;
 
-    it('renders a dismissable notification for each clinic with non-standard ranges', async () => {
+    it('renders a dismissible notification for each clinic with non-standard ranges', async () => {
       store = mockStore(state);
 
       const { container } = render(
