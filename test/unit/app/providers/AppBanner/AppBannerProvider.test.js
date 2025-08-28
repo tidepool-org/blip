@@ -323,12 +323,7 @@ describe('AppBannerProvider', () => {
         data: {
           metaData: { size: 1, devices: [] },
         },
-        consentRecords: {
-          [DATA_DONATION_CONSENT_TYPE]: {
-            status: 'revoked',
-            metadata: { supportedOrganizations: [] },
-          },
-        },
+        consentRecords: {},
       },
     };
 

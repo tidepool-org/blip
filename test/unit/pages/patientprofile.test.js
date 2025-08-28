@@ -47,13 +47,11 @@ describe('PatientProfile', () => {
       expect(result[0]()).to.equal('fetchPatient');
       expect(result[1]).to.be.a('function');
       expect(result[1]()).to.equal('fetchAssociatedAccounts');
-      expect(result[2]).to.be.a('function');
-      expect(result[2]()).to.equal('fetchUserConsentRecords');
     });
 
     it('should only add the associated accounts, consents, and pending invites fetchers if fetches are not already in progress or completed', () => {
       const standardResult = getFetchers(dispatchProps, ownProps, stateProps, api);
-      expect(standardResult.length).to.equal(3);
+      expect(standardResult.length).to.equal(2);
 
       const inProgressResult = getFetchers(dispatchProps, ownProps, {
         user: { userid: '12345' },
@@ -88,7 +86,7 @@ describe('PatientProfile', () => {
 
     it('should only add the associated accounts fetcher when viewing the profile of the logged-in user', () => {
       const standardResult = getFetchers(dispatchProps, ownProps, stateProps, api);
-      expect(standardResult.length).to.equal(3);
+      expect(standardResult.length).to.equal(2);
 
       const loggedInUserResult = getFetchers(dispatchProps, {
         match: {
@@ -106,12 +104,12 @@ describe('PatientProfile', () => {
         },
       }, dispatchProps, api);
 
-      expect(loggedInUserResult.length).to.equal(3);
+      expect(loggedInUserResult.length).to.equal(2);
     });
 
     it('should only fetch the clinic patient if selectedClinicId is set, and the patient permissions are unavailable', () => {
       const standardResult = getFetchers(dispatchProps, ownProps, stateProps, api);
-      expect(standardResult.length).to.equal(3);
+      expect(standardResult.length).to.equal(2);
 
       const clinicUserResult = getFetchers(dispatchProps, {
         match: {
@@ -123,7 +121,7 @@ describe('PatientProfile', () => {
         clinics: { clinic123: { patients: { '12345': { name: 'Jackie', permissions: { foo: 'bar' } } } } }
       }, dispatchProps, api);
 
-      expect(clinicUserResult.length).to.equal(3);
+      expect(clinicUserResult.length).to.equal(2);
 
       const clinicUserMissingPermissionsResult = getFetchers(dispatchProps, {
         match: {
@@ -135,9 +133,9 @@ describe('PatientProfile', () => {
         clinics: { clinic123: { patients: { '12345': { name: 'Jackie' } } } }
       }, dispatchProps, api);
 
-      expect(clinicUserMissingPermissionsResult.length).to.equal(4);
-      expect(clinicUserMissingPermissionsResult[3]).to.be.a('function');
-      expect(clinicUserMissingPermissionsResult[3]()).to.equal('fetchPatientFromClinic');
+      expect(clinicUserMissingPermissionsResult.length).to.equal(3);
+      expect(clinicUserMissingPermissionsResult[2]).to.be.a('function');
+      expect(clinicUserMissingPermissionsResult[2]()).to.equal('fetchPatientFromClinic');
     });
   });
 
