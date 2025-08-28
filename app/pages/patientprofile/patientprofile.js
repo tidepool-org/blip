@@ -8,14 +8,11 @@ import _ from 'lodash';
 
 import Patient from '../patient/';
 import { clinicPatientFromAccountInfo } from '../../core/personutils';
-import { DATA_DONATION_CONSENT_TYPE } from '../../core/constants';
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux
  */
 export function getFetchers(dispatchProps, ownProps, stateProps, api) {
-  const isUserPatient = ownProps.match.params.id === stateProps.user?.userid;
-
   const fetchers = [
     dispatchProps.fetchPatient.bind(null, api, ownProps.match.params.id),
   ];
