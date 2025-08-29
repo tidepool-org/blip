@@ -60,7 +60,6 @@ export const getConsentText = memoize((accountType, patientAgeGroup, patientName
         primaryConsentInputLabel: t('As their parent or guardian, I have read this form and I give my consent by checking this box and clicking "Submit."'),
         primaryConsentNameInputLabel: t('Parent Or Legal Guardian Name'),
         primaryConsentSignature: t('Electronic signature: {{names}}', { names: caregiverName }),
-        // need the form field, and to pass caregiverName along to backend
       },
     },
     caregiver: {
