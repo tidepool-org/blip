@@ -72,9 +72,9 @@ export const DataDonationForm = (props) => {
   const accountType = personUtils.patientIsOtherPerson(user) ? 'caregiver' : 'personal';
   const patientAgeGroup = isChild ? 'child' : (isYouth ? 'youth' : 'adult');
   const patientName = personUtils.patientFullName(user);
-  const caregiverName = accountType === 'caregiver' ? personUtils.fullName(user) : undefined;
   const { [DATA_DONATION_CONSENT_TYPE]: consentDocument } = useSelector((state) => state.blip.consents);
   const currentConsent = useSelector(state => state.blip.consentRecords[DATA_DONATION_CONSENT_TYPE]);
+  const caregiverName = accountType === 'caregiver' ? personUtils.fullName(user) : currentConsent?.parentGuardianName;
   const currentForm = currentConsent ? formSteps.supportedOrganizations : formSteps.dataDonationConsent;
   const fallbackConsentDate = moment().format('MMMM D, YYYY');
   const consentDate = currentConsent?.grantTime ? moment(currentConsent.grantTime).format('MMMM D, YYYY') : fallbackConsentDate;
