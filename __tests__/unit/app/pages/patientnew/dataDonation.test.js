@@ -10,7 +10,7 @@ import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
 
 import { default as DataDonation} from '../../../../../app/pages/patientnew/dataDonation';
-import { ToastProvider } from '@app/providers/ToastProvider';
+import { ToastProvider } from '../../../../../app/providers/ToastProvider';
 import { DATA_DONATION_CONSENT_TYPE, URL_BIG_DATA_DONATION_INFO } from '../../../../../app/core/constants';
 
 describe('DataDonation page', ()  => {
