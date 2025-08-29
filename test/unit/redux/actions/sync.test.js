@@ -3855,50 +3855,6 @@ describe('Actions', () => {
       });
     });
 
-    describe('createClinicSiteRequest', () => {
-      it('should be a TSA', () => {
-        let action = sync.createClinicSiteRequest();
-        expect(isTSA(action)).to.be.true;
-      });
-
-      it('type should equal CREATE_CLINIC_SITE_REQUEST', () => {
-        let action = sync.createClinicSiteRequest();
-        expect(action.type).to.equal('CREATE_CLINIC_SITE_REQUEST');
-      });
-    });
-
-    describe('createClinicSiteSuccess', () => {
-      const clinicId = 'clinicId';
-      const sites = 'sites';
-
-      it('should be a TSA', () => {
-        let action = sync.createClinicSiteSuccess(clinicId);
-        expect(isTSA(action)).to.be.true;
-      });
-
-      it('type should equal CREATE_CLINIC_SITE_SUCCESS', () => {
-        let action = sync.createClinicSiteSuccess(clinicId, sites);
-        expect(action.type).to.equal('CREATE_CLINIC_SITE_SUCCESS');
-        expect(action.payload.clinicId).to.equal('clinicId');
-        expect(action.payload.sites).to.equal('sites');
-      });
-    });
-
-    describe('createClinicSiteFailure', () => {
-      it('should be a TSA', () => {
-        let error = new Error('clinic tag operation failed :(');
-        let action = sync.createClinicSiteFailure(error);
-        expect(isTSA(action)).to.be.true;
-      });
-
-      it('type should equal CREATE_CLINIC_SITE_FAILURE and error should equal passed error', () => {
-        let error = new Error('stink :(');
-        let action = sync.createClinicSiteFailure(error);
-        expect(action.type).to.equal('CREATE_CLINIC_SITE_FAILURE');
-        expect(action.error).to.equal(error);
-      });
-    });
-
     describe('createClinicPatientTagRequest', () => {
       it('should be a TSA', () => {
         let action = sync.createClinicPatientTagRequest();
