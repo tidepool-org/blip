@@ -8464,8 +8464,8 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tidepool-platform-client: 0.64.0-web-3771-informed-consent-flow-updated.1
     tideline: 1.35.0
+    tidepool-platform-client: 0.63.2-web-3771-informed-consent-cherry-pick-to-master.1
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
     url-loader: 4.1.1
@@ -22256,15 +22256,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tidepool-platform-client@npm:0.64.0-web-3771-informed-consent-flow-updated.1":
-  version: 0.64.0-web-3771-informed-consent-flow-updated.1
-  resolution: "tidepool-platform-client@npm:0.64.0-web-3771-informed-consent-flow-updated.1"
+"tidepool-platform-client@npm:0.63.2-web-3771-informed-consent-cherry-pick-to-master.1":
+  version: 0.63.2-web-3771-informed-consent-cherry-pick-to-master.1
+  resolution: "tidepool-platform-client@npm:0.63.2-web-3771-informed-consent-cherry-pick-to-master.1"
   dependencies:
     async: 0.9.0
     lodash: 4.17.21
     superagent: 5.2.2
     uuid: 3.1.0
-  checksum: 0cef7669e965dc5a0f1e6bedd9baabe189fbf83d880250a85024b50a544c272bd8fa3695845d5b2c851034959285ae19c73be22c3dcafbc32b672790be3fc56b
+  checksum: 8f114b82c1f8892c651da65a3dffa719eaa174d4b0abd98ee806f7e17295c3d280eea0475130913a61f08211ab21b7c2ce7ec33cfa4112b4be8dcbc5912a598e
   languageName: node
   linkType: hard
 
