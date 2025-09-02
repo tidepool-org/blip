@@ -23,7 +23,7 @@ function DataDonationSlideShow() {
         {
           id: 'changeMind',
           title: t('Can I change my mind later?'),
-          content: t('You can stop sharing new data at any time. Go to your account settings and click "Stop sharing data." Please note that we cannot remove data that has already been shared.'),
+          content: t('You can stop sharing new data at any time. Go to your account settings and click "Stop Sharing Data." Please note that we cannot remove data that has already been shared.'),
           image: ChangeMindImage,
           imageAlt: t('Illustration: changing your mind about data sharing'),
         },
