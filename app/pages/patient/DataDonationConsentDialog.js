@@ -75,7 +75,7 @@ export const getConsentText = memoize((accountType, patientAgeGroup, patientName
         primaryConsentQuestion: t('Do you give your consent for {{patientName}} to donate their anonymized data?', { patientName }),
         primaryConsentInputLabel: t('As their parent or guardian, I have read this form and I give my consent by checking this box and clicking "Next."'),
         primaryConsentSignature: t('Electronic signature: {{names}}', { names: caregiverName }),
-        secondaryConsentQuestion: t('{{patientName}}, do you want to donate your anonymized data?', { patientName }),
+        secondaryConsentQuestion: t('{{patientName}}, do you give your assent to join The Tidepool Big Data Donation Project?', { patientName }),
         secondaryConsentDescription: t('My parent or guardian read The Tidepool Big Data Donation Project Informed Consent Form, explained this project to me, answered my questions about the project, and said that it was all right for me to donate my anonymized data if I wanted to. I understand that the project will get information from my Tidepool account and share it with researchers and others involved in helping to make care for diabetes better. I understand that my participation is voluntary, I don\'t have to do this, and I can opt out at any time.'),
         secondaryConsentInputLabel: t('Yes - By checking the box and clicking "Submit," I am saying that I want to donate my anonymized data.'),
         secondaryConsentReviewMessage: t('Please ask {{firstName}} to review and take the next step', { firstName }),
@@ -173,7 +173,7 @@ export const DataDonationConsentDialog = (props) => {
       maxWidth="md"
     >
       <DialogTitle onClose={onClose}>
-        <MediumTitle id="dialog-title">{t('Fuel the next generation of diabetes innovation')}</MediumTitle>
+        <MediumTitle id="dialog-title">{t('Fuel the Next Generation of Diabetes Innovation')}</MediumTitle>
       </DialogTitle>
       <DialogContent>
         <Box id="consentDocument" variant="containers.wellBordered" p={0} mb={4}>

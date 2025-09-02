@@ -54,7 +54,7 @@ describe('DataDonationConsentDialog', () => {
       renderWithStore(props);
 
       expect(screen.getByRole('dialog')).toBeInTheDocument();
-      expect(screen.getByText('Fuel the next generation of diabetes innovation')).toBeInTheDocument();
+      expect(screen.getByText('Fuel the Next Generation of Diabetes Innovation')).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Submit' })).toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'Next' })).not.toBeInTheDocument();
 
@@ -142,7 +142,7 @@ describe('DataDonationConsentDialog', () => {
       renderWithStore(props);
 
       expect(screen.getByRole('dialog')).toBeInTheDocument();
-      expect(screen.getByText('Fuel the next generation of diabetes innovation')).toBeInTheDocument();
+      expect(screen.getByText('Fuel the Next Generation of Diabetes Innovation')).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Submit' })).toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'Next' })).not.toBeInTheDocument();
 
@@ -326,7 +326,7 @@ describe('DataDonationConsentDialog', () => {
       const dialogWrapper = screen.getByRole('presentation');
       expect(dialogWrapper).toHaveAttribute('id', 'dataDonationConsentDialog');
 
-      const title = screen.getByText('Fuel the next generation of diabetes innovation');
+      const title = screen.getByText('Fuel the Next Generation of Diabetes Innovation');
       expect(title).toHaveAttribute('id', 'dialog-title');
     });
   });
