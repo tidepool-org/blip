@@ -38,7 +38,7 @@ import { usePrevious } from '../../core/hooks';
 import { clinicPatientFromAccountInfo } from '../../core/personutils';
 import Icon from '../elements/Icon';
 import { useSelector } from 'react-redux';
-import DataConnections, { activeProviders } from '../../components/datasources/DataConnections';
+import DataConnections from '../../components/datasources/DataConnections';
 import DataConnectionsBanner from '../../components/elements/Card/Banners/DataConnections.png';
 import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
 import Card from '../elements/Card';

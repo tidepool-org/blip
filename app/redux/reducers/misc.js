@@ -959,6 +959,18 @@ export const clinics = (state = initialState.clinics, action) => {
         [clinicId]: { patientTags: { $set: patientTags } },
       });
     }
+    case types.CREATE_CLINIC_SITE_SUCCESS:
+    case types.UPDATE_CLINIC_SITE_SUCCESS:
+    case types.DELETE_CLINIC_SITE_SUCCESS: {
+      const {
+        clinicId,
+        sites,
+      } = action.payload;
+
+      return update(state, {
+        [clinicId]: { sites: { $set: sites } },
+      });
+    }
     case types.FETCH_CLINIC_EHR_SETTINGS_SUCCESS: {
       const {
         clinicId,

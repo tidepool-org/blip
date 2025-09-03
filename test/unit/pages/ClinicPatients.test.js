@@ -152,6 +152,7 @@ describe('ClinicPatients', () => {
         creatingClinicCustodialAccount: defaultWorkingState,
         sendingPatientUploadReminder: defaultWorkingState,
         sendingPatientDataProviderConnectRequest: defaultWorkingState,
+        creatingClinicSite: defaultWorkingState,
         creatingClinicPatientTag: defaultWorkingState,
         updatingClinicPatientTag: defaultWorkingState,
         deletingClinicPatientTag: defaultWorkingState,
@@ -323,9 +324,9 @@ describe('ClinicPatients', () => {
           }),
           tier: 'tier0300',
           patientTags: [
-            { id: 'tag1', name: 'test tag 1'},
+            { id: 'tag3', name: 'ttest tag 3'},
             { id: 'tag2', name: 'test tag 2'},
-            { id: 'tag3', name: 'test tag 3'},
+            { id: 'tag1', name: '>test tag 1'},
           ],
           patients: {
             patient1: {
@@ -683,6 +684,8 @@ describe('ClinicPatients', () => {
             mrn: '123456',
             email: 'patient@test.ca',
             tags: [],
+            sites: [],
+            glycemicRanges: 'ADA standard',
           }
         );
 
@@ -918,15 +921,14 @@ describe('ClinicPatients', () => {
 
   context('has patients but none matching filter criteria', () => {
     let mockedLocalStorage = {
-      'activePatientFilters/clinicianUserId123/clinicID123': {
-        timeInRange: ['timeInLowPercent'],
-        patientTags: [],
-        meetsGlycemicTargets: false,
-      },
       activePatientSummaryPeriod: '14d',
     };
 
+    let mockSetActiveFilters;
+
     beforeEach(() => {
+      mockSetActiveFilters = sinon.stub();
+
       ClinicPatients.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
         defaults(mockedLocalStorage, { [key]: {} });
         return [
@@ -934,6 +936,17 @@ describe('ClinicPatients', () => {
           sinon.stub().callsFake(val => mockedLocalStorage[key] = val),
         ];
       }));
+
+      ClinicPatients.__Rewire__('useClinicPatientsFilters', sinon.stub().callsFake(() => (
+        [
+          {
+            timeInRange: ['timeInLowPercent'],
+            patientTags: [],
+            meetsGlycemicTargets: false,
+          },
+          mockSetActiveFilters,
+        ]
+      )));
 
       const noPatientsButWithFiltersState = merge({}, noPatientsState, {
         blip: {
@@ -956,6 +969,7 @@ describe('ClinicPatients', () => {
 
     afterEach(() => {
       ClinicPatients.__ResetDependency__('useLocalStorage');
+      ClinicPatients.__ResetDependency__('useClinicPatientsFilters');
     });
 
     describe('Filter Reset Bar', () => {
@@ -972,13 +986,9 @@ describe('ClinicPatients', () => {
       });
 
       it('should remove the active filters from localStorage', function () {
-        expect(mockedLocalStorage['activePatientFilters/clinicianUserId123/clinicID123']
-                                 ['timeInRange'].length).to.eql(1);
-
         wrapper.find('.reset-filters-button').hostNodes().simulate('click');
 
-        expect(mockedLocalStorage['activePatientFilters/clinicianUserId123/clinicID123']
-                                 ['timeInRange'].length).to.eql(0);
+        expect(mockSetActiveFilters.getCall(0).args[0].timeInRange.length).to.eql(0);
       });
     });
 
@@ -1174,6 +1184,8 @@ describe('ClinicPatients', () => {
               email: 'patient-two@test.ca',
               permissions: { custodian: {} },
               tags: [],
+              sites: [],
+              glycemicRanges: 'ADA standard',
             }
           );
 
@@ -1247,6 +1259,8 @@ describe('ClinicPatients', () => {
               email: 'patient1@test.ca',
               permissions: { view: {} },
               tags: [],
+              sites: [],
+              glycemicRanges: 'ADA standard',
             }
           );
 
@@ -1526,8 +1540,8 @@ describe('ClinicPatients', () => {
 
           // Patient tags in third column
           expect(rowData(0).at(2).text()).contains('Add'); // Add tag link when no tags avail
-          expect(rowData(1).at(2).text()).contains('test tag 1');
-          expect(rowData(2).at(2).text()).contains(['test tag 1', '+2'].join('')); // +1 for tag overflow
+          expect(rowData(1).at(2).text()).contains('>test tag 1');
+          expect(rowData(2).at(2).text()).contains(['>test tag 1', '+2'].join('')); // +1 for tag overflow
 
           // GMI in fifth column
           expect(rowData(0).at(4).text()).contains(emptyStatText);// GMI undefined
@@ -1550,7 +1564,7 @@ describe('ClinicPatients', () => {
           const overflowTags = popover().find('.tag-text').hostNodes();
           expect(overflowTags).to.have.length(2);
           expect(overflowTags.at(0).text()).to.equal('test tag 2');
-          expect(overflowTags.at(1).text()).to.equal('test tag 3');
+          expect(overflowTags.at(1).text()).to.equal('ttest tag 3');
 
           // BG summary in sixth column
           expect(rowData(0).at(5).text()).to.not.contain('CGM Use <24 hours'); // no cgm stats
@@ -1735,38 +1749,6 @@ describe('ClinicPatients', () => {
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Last upload apply filter', sinon.match({ clinicId: 'clinicID123', dateRange: '30 days', type: 'bgm'}));
         });
 
-        it('should allow filtering by tags', () => {
-          const patientTagsFilterTrigger = wrapper.find('#patient-tags-filter-trigger').hostNodes();
-          expect(patientTagsFilterTrigger).to.have.lengthOf(1);
-
-          const popover = () => wrapper.find('#patientTagFilters').hostNodes();
-          expect(popover().props().style.visibility).to.equal('hidden');
-
-          // Open filters popover
-          patientTagsFilterTrigger.simulate('click');
-          expect(popover().props().style.visibility).to.be.undefined;
-
-          // Ensure filter options present
-          const filterOptions = popover().find('.tag-list').find('.tag-text').hostNodes();
-          expect(filterOptions).to.have.lengthOf(3);
-          expect(filterOptions.at(0).text()).to.equal('test tag 1');
-          expect(filterOptions.at(1).text()).to.equal('test tag 2');
-          expect(filterOptions.at(2).text()).to.equal('test tag 3');
-
-          // Apply button disabled until selection made
-          const applyButton = () => popover().find('#apply-patient-tags-filter').hostNodes();
-          expect(applyButton().props().disabled).to.be.true;
-
-          popover().find('#tag1').hostNodes().simulate('click');
-          popover().find('#tag2').hostNodes().simulate('click');
-          expect(applyButton().props().disabled).to.be.false;
-
-          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-          applyButton().simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ ...defaultFetchOptions, sort: '-lastData', tags: ['tag1', 'tag2'] }));
-          sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Patient tag filter apply', sinon.match({ clinicId: 'clinicID123' }));
-        });
-
         it('should allow filtering by cgm use', () => {
           const cgmUseFilterTrigger = wrapper.find('#cgm-use-filter-trigger').hostNodes();
           expect(cgmUseFilterTrigger).to.have.lengthOf(1);
@@ -1798,118 +1780,6 @@ describe('ClinicPatients', () => {
           applyButton().simulate('click');
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ ...defaultFetchOptions, sortType: 'cgm', 'cgm.timeCGMUsePercent': '<0.7' }));
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - CGM use apply filter', sinon.match({ clinicId: 'clinicID123', filter: '<0.7' }));
-        });
-
-        describe('managing clinic patient tags', () => {
-          let filterPopover, editTagsDialog, patientTagsFilterTrigger, patientTagsEditTrigger;
-
-          beforeEach(() => {
-            patientTagsFilterTrigger = wrapper.find('#patient-tags-filter-trigger').hostNodes();
-            filterPopover = () => wrapper.find('#patientTagFilters').hostNodes();
-
-            patientTagsEditTrigger = filterPopover().find('#show-edit-clinic-patient-tags-dialog').hostNodes();
-            editTagsDialog = () => wrapper.find('#editClinicPatientTags').hostNodes();
-
-            expect(patientTagsFilterTrigger).to.have.lengthOf(1);
-            expect(filterPopover().props().style.visibility).to.equal('hidden');
-            expect(editTagsDialog()).to.have.length(0);
-
-            // Open filters popover
-            patientTagsFilterTrigger.simulate('click');
-            expect(filterPopover().props().style.visibility).to.be.undefined;
-
-            // Open clinic tags edit popover
-            patientTagsEditTrigger.simulate('click');
-            wrapper.update();
-            expect(editTagsDialog()).to.have.length(1);
-            expect(editTagsDialog().childAt(0).props().open).to.be.true;
-
-
-            sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Edit clinic tags open', sinon.match({ clinicId: 'clinicID123', source: 'Filter menu' }));
-          });
-
-          it('should allow adding a clinic patient tag', done => {
-            const addInput = editTagsDialog().find('#patient-tag-add').find('input#name');
-            const addButton = () => editTagsDialog().find('#patient-tag-add').find('button[type="submit"]').hostNodes();
-            expect(addButton()).to.have.length(1);
-            expect(addButton().props().disabled).to.be.true;
-
-            addInput.simulate('change', { persist: noop, target: { name: 'name', value: 'new tag' } })
-
-            defaultProps.api.clinics.createClinicPatientTag.resetHistory();
-            addButton().simulate('submit');
-
-            setTimeout(() => {
-              sinon.assert.calledWith(defaultProps.api.clinics.createClinicPatientTag, 'clinicID123', { name: 'new tag' });
-              sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Edit clinic tags add', sinon.match({ clinicId: 'clinicID123' }));
-              done();
-            }, 0);
-          });
-
-          it('should allow updating a clinic patient tag', done => {
-            // Ensure tags present
-            const tags = editTagsDialog().find('.tag-list').find('.tag-text').hostNodes();
-            expect(tags).to.have.lengthOf(3);
-            expect(tags.at(0).text()).to.equal('test tag 1');
-            expect(tags.at(1).text()).to.equal('test tag 2');
-            expect(tags.at(2).text()).to.equal('test tag 3');
-
-            const confirmDialog = () => wrapper.find('Dialog#updatePatientTag');
-            expect(confirmDialog()).to.have.length(0);
-
-            // Open confirm dialog
-            editTagsDialog().find('#tag1').hostNodes().simulate('click');
-            wrapper.update();
-            expect(confirmDialog()).to.have.length(1);
-            expect(confirmDialog().props().open).to.be.true;
-
-            const confirmButton = () => confirmDialog().find('button#patient-tag-update-confirm').hostNodes();
-            expect(confirmButton()).to.have.length(1);
-            expect(confirmButton().props().disabled).to.be.false;
-
-            const editInput = confirmDialog().find('#patient-tag-update').find('input#name');
-            editInput.simulate('change', { persist: noop, target: { name: 'name', value: '' } })
-            expect(confirmButton().props().disabled).to.be.true;
-
-            editInput.simulate('change', { persist: noop, target: { name: 'name', value: 'new tag name' } })
-            expect(confirmButton().props().disabled).to.be.false;
-
-            defaultProps.api.clinics.updateClinicPatientTag.resetHistory();
-            confirmButton().simulate('submit');
-
-            setTimeout(() => {
-              sinon.assert.calledWith(defaultProps.api.clinics.updateClinicPatientTag, 'clinicID123', 'tag1', { name: 'new tag name' });
-              sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Edit clinic tags update', sinon.match({ clinicId: 'clinicID123' }));
-              done();
-            }, 0);
-          });
-
-          it('should allow deleting a clinic patient tag', () => {
-            // Ensure tags present
-            const tags = editTagsDialog().find('.tag-list').find('.tag-text').hostNodes();
-            expect(tags).to.have.lengthOf(3);
-            expect(tags.at(0).text()).to.equal('test tag 1');
-            expect(tags.at(1).text()).to.equal('test tag 2');
-            expect(tags.at(2).text()).to.equal('test tag 3');
-
-            const confirmDialog = () => wrapper.find('Dialog#deletePatientTag');
-            expect(confirmDialog()).to.have.length(0);
-
-            // Open confirm dialog
-            editTagsDialog().find('#tag1').find('.icon').hostNodes().simulate('click');
-            wrapper.update();
-            expect(confirmDialog()).to.have.length(1);
-            expect(confirmDialog().props().open).to.be.true;
-
-            const confirmButton = () => confirmDialog().find('button#patientTagRemoveConfirm').hostNodes();
-            expect(confirmButton()).to.have.length(1);
-
-            defaultProps.api.clinics.deleteClinicPatientTag.resetHistory();
-            confirmButton().simulate('click');
-
-            sinon.assert.calledWith(defaultProps.api.clinics.deleteClinicPatientTag, 'clinicID123', 'tag1');
-            sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Edit clinic tags delete', sinon.match({ clinicId: 'clinicID123' }));
-          });
         });
 
         it('should allow filtering by bg range targets that DO NOT meet selected criteria', () => {
@@ -2029,6 +1899,17 @@ describe('ClinicPatients', () => {
               ];
             }));
 
+            ClinicPatients.__Rewire__('useClinicPatientsFilters', sinon.stub().callsFake(() => (
+              [
+                {
+                  timeInRange: ['timeInAnyLowPercent', 'timeInAnyHighPercent'],
+                  patientTags: [],
+                  meetsGlycemicTargets: false,
+                },
+                sinon.stub(),
+              ]
+            )));
+
             wrapper = mount(
               <Provider store={store}>
                 <ToastProvider>
@@ -2040,6 +1921,7 @@ describe('ClinicPatients', () => {
 
           afterEach(() => {
             ClinicPatients.__ResetDependency__('useLocalStorage');
+            ClinicPatients.__ResetDependency__('useClinicPatientsFilters');
           });
 
           it('should show the Filter Reset Bar', () => {
@@ -2175,6 +2057,18 @@ describe('ClinicPatients', () => {
               ];
             }));
 
+            ClinicPatients.__Rewire__('useClinicPatientsFilters', sinon.stub().callsFake(() => (
+              [
+                {
+                  lastData: 14,
+                  timeInRange: ['timeInAnyLowPercent', 'timeInAnyHighPercent'],
+                  patientTags: ['tag2'],
+                  meetsGlycemicTargets: true,
+                },
+                sinon.stub(),
+              ]
+            )));
+
             wrapper = mount(
               <Provider store={store}>
                 <ToastProvider>
@@ -2187,6 +2081,7 @@ describe('ClinicPatients', () => {
 
           afterEach(() => {
             ClinicPatients.__ResetDependency__('useLocalStorage');
+            ClinicPatients.__ResetDependency__('useClinicPatientsFilters');
           });
 
           it('should set the last upload filter on load based on the stored filters', () => {
@@ -2209,8 +2104,12 @@ describe('ClinicPatients', () => {
             expect(popover().props().style.visibility).to.be.undefined;
 
             // Ensure selected filter is set
-            const selectedFilters = popover().find('#selected-tag-filters').hostNodes();
-            expect(selectedFilters.find('.tag-text').hostNodes().text()).to.equal('test tag 2');
+            const tag1Filter = popover().find('#tag-filter-option-checkbox-tag1').hostNodes().find('input').hostNodes();
+            const tag2Filter = popover().find('#tag-filter-option-checkbox-tag2').hostNodes().find('input').hostNodes();
+            const tag3Filter = popover().find('#tag-filter-option-checkbox-tag3').hostNodes().find('input').hostNodes();
+            expect(tag1Filter.props().checked).to.be.false;
+            expect(tag2Filter.props().checked).to.be.true;
+            expect(tag3Filter.props().checked).to.be.false;
           });
 
           it('should set the time in range filters on load based on the stored filters', () => {
@@ -2286,6 +2185,17 @@ describe('ClinicPatients', () => {
               ];
             }));
 
+            ClinicPatients.__Rewire__('useClinicPatientsFilters', sinon.stub().callsFake(() => (
+              [
+                {
+                  timeInRange: ['timeInAnyLowPercent', 'timeInAnyHighPercent'],
+                  patientTags: [],
+                  meetsGlycemicTargets: false,
+                },
+                sinon.stub(),
+              ]
+            )));
+
             wrapper = mount(
               <Provider store={store}>
                 <ToastProvider>
@@ -2298,6 +2208,7 @@ describe('ClinicPatients', () => {
 
           afterEach(() => {
             ClinicPatients.__ResetDependency__('useLocalStorage');
+            ClinicPatients.__ResetDependency__('useClinicPatientsFilters');
           });
 
           it('should set the table sort UI based on the the sort params from localStorage', () => {
@@ -2724,9 +2635,9 @@ describe('ClinicPatients', () => {
             // Ensure tag options present
             const availableTags = () => addTagsPopover().find('.available-tags').find('.tag-text').hostNodes();
             expect(availableTags()).to.have.lengthOf(3);
-            expect(availableTags().at(0).text()).to.equal('test tag 1');
+            expect(availableTags().at(0).text()).to.equal('>test tag 1');
             expect(availableTags().at(1).text()).to.equal('test tag 2');
-            expect(availableTags().at(2).text()).to.equal('test tag 3');
+            expect(availableTags().at(2).text()).to.equal('ttest tag 3');
 
             // Apply button disabled until selection made
             const applyButton = () => addTagsPopover().find('#apply-patient-tags-dialog').hostNodes();
@@ -2738,11 +2649,11 @@ describe('ClinicPatients', () => {
 
             // Tags should now be moved to selected group
             expect(selectedTags()).to.have.lengthOf(2);
-            expect(selectedTags().at(0).text()).to.equal('test tag 1');
+            expect(selectedTags().at(0).text()).to.equal('>test tag 1');
             expect(selectedTags().at(1).text()).to.equal('test tag 2');
 
             expect(availableTags()).to.have.lengthOf(1);
-            expect(availableTags().at(0).text()).to.equal('test tag 3');
+            expect(availableTags().at(0).text()).to.equal('ttest tag 3');
 
             defaultProps.api.clinics.getPatientsForClinic.resetHistory();
             applyButton().simulate('click');
@@ -2815,116 +2726,6 @@ describe('ClinicPatients', () => {
             expect(wrapper.find('Dialog#editPatient').exists()).to.be.true;
           });
         });
-
-        it('should allow updating tags for a patient', done => {
-          const table = wrapper.find(Table);
-          const rows = table.find('tbody tr');
-          const rowData = row => rows.at(row).find('.MuiTableCell-root');
-
-          expect(rowData(1).at(2).text()).contains('test tag 1');
-          const editTagsTrigger = rowData(1).find('.edit-tags-trigger').hostNodes();
-          expect(editTagsTrigger).to.have.length(1);
-
-          const dialog = () => wrapper.find('Dialog#editPatient');
-
-          expect(dialog()).to.have.length(0);
-          editTagsTrigger.simulate('click');
-          wrapper.update();
-          expect(dialog()).to.have.length(1);
-          expect(dialog().props().open).to.be.true;
-
-          expect(defaultProps.trackMetric.calledWith('Clinic - Edit patient')).to.be.true;
-          expect(defaultProps.trackMetric.callCount).to.equal(1);
-
-          const patientForm = () => dialog().find('form#clinic-patient-form');
-          expect(patientForm()).to.have.lengthOf(1);
-
-          // Check existing selected tags
-          const selectedTags = () => patientForm().find('.selected-tags').find('.tag-text').hostNodes();
-          expect(selectedTags()).to.have.lengthOf(1);
-          expect(selectedTags().at(0).text()).to.equal('test tag 1');
-
-          // Ensure available tag options present
-          const availableTags = () => patientForm().find('.available-tags').find('.tag-text').hostNodes();
-          expect(availableTags()).to.have.lengthOf(2);
-          expect(availableTags().at(0).text()).to.equal('test tag 2');
-          expect(availableTags().at(1).text()).to.equal('test tag 3');
-
-          // Add tag 3
-          patientForm().find('#tag3').hostNodes().simulate('click');
-
-          // Remove tag 1
-          patientForm().find('#tag1').find('.icon').hostNodes().simulate('click');
-
-          expect(selectedTags()).to.have.lengthOf(1);
-          expect(selectedTags().at(0).text()).to.equal('test tag 3');
-
-          expect(availableTags()).to.have.lengthOf(2);
-          expect(availableTags().at(0).text()).to.equal('test tag 1');
-          expect(availableTags().at(1).text()).to.equal('test tag 2');
-
-          store.clearActions();
-          dialog().find('Button#editPatientConfirm').simulate('click');
-
-          setTimeout(() => {
-            expect(defaultProps.api.clinics.updateClinicPatient.callCount).to.equal(1);
-
-            sinon.assert.calledWith(
-              defaultProps.api.clinics.updateClinicPatient,
-              'clinicID123',
-              'patient2',
-              {
-                id: 'patient2',
-                email: 'patient2@test.ca',
-                fullName: 'Patient Two',
-                birthDate: '1999-02-02',
-                mrn: 'MRN123',
-                permissions: { custodian : undefined },
-                summary: {
-                  bgmStats: {
-                    dates: {
-                      lastData: sinon.match.string,
-                    },
-                    periods: { '14d': {
-                      averageGlucoseMmol: 10.5,
-                      averageDailyRecords: 0.25,
-                      timeInVeryLowRecords: 1,
-                      timeInVeryHighRecords: 2,
-                    } },
-                  },
-                  cgmStats: {
-                    dates: {
-                      lastData: sinon.match.string,
-                    },
-                    periods: {
-                      '14d': {
-                        glucoseManagementIndicator: 7.75,
-                        timeCGMUseMinutes: 1380,
-                        timeCGMUsePercent: 0.85,
-                      },
-                    },
-                  },
-                },
-                tags: ['tag3'],
-                reviews: [{ clinicianId: 'clinicianUserId123', time: yesterday }],
-              }
-            );
-
-            expect(store.getActions()).to.eql([
-              { type: 'UPDATE_CLINIC_PATIENT_REQUEST' },
-              {
-                type: 'UPDATE_CLINIC_PATIENT_SUCCESS',
-                payload: {
-                  clinicId: 'clinicID123',
-                  patientId: 'stubbedId',
-                  patient: { id: 'stubbedId', stubbedUpdates: 'foo' },
-                },
-              },
-            ]);
-
-            done();
-          }, 0);
-        });
       });
 
       describe('Accessing TIDE dashboard', () => {
@@ -2946,6 +2747,13 @@ describe('ClinicPatients', () => {
                 sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
               ];
             }));
+
+            ClinicPatients.__Rewire__('useClinicPatientsFilters', sinon.stub().callsFake(() => (
+              [
+                {},
+                sinon.stub(),
+              ]
+            )));
 
             TideDashboardConfigForm.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
               defaults(mockedLocalStorage, { [key]: {} })
@@ -2970,6 +2778,7 @@ describe('ClinicPatients', () => {
 
           afterEach(() => {
             ClinicPatients.__ResetDependency__('useLocalStorage');
+            ClinicPatients.__ResetDependency__('useClinicPatientsFilters');
             ClinicPatients.__ResetDependency__('useFlags');
             TideDashboardConfigForm.__ResetDependency__('useLocalStorage');
             TideDashboardConfigForm.__ResetDependency__('useLocation');
@@ -3035,9 +2844,9 @@ describe('ClinicPatients', () => {
             // Ensure tag options present
             const tags = dialog().find('.tag-text').hostNodes();
             expect(tags).to.have.lengthOf(3);
-            expect(tags.at(0).text()).to.equal('test tag 1');
+            expect(tags.at(0).text()).to.equal('>test tag 1');
             expect(tags.at(1).text()).to.equal('test tag 2');
-            expect(tags.at(2).text()).to.equal('test tag 3');
+            expect(tags.at(2).text()).to.equal('ttest tag 3');
 
             // No initial selected tags
             const selectedTags = () => dialog().find('.tag-text.selected').hostNodes();
@@ -3052,8 +2861,8 @@ describe('ClinicPatients', () => {
 
             // Tags should now be selected
             expect(selectedTags()).to.have.lengthOf(2);
-            expect(selectedTags().at(0).text()).to.equal('test tag 1');
-            expect(selectedTags().at(1).text()).to.equal('test tag 3');
+            expect(selectedTags().at(0).text()).to.equal('>test tag 1');
+            expect(selectedTags().at(1).text()).to.equal('ttest tag 3');
 
             // Ensure period filter options present
             const summaryPeriodOptions = dialog().find('#period').find('label').hostNodes();
@@ -3431,6 +3240,12 @@ describe('ClinicPatients', () => {
             }));
 
             ClinicPatients.__Rewire__('useLocalStorage', sinon.stub().callsFake(localStorageMock));
+            ClinicPatients.__Rewire__('useClinicPatientsFilters', sinon.stub().callsFake(() => (
+              [
+                { timeCGMUsePercent: '<0.7' },
+                sinon.stub(),
+              ]
+            )));
             RpmReportConfigForm.__Rewire__('useLocalStorage', sinon.stub().callsFake(localStorageMock));
 
             exportRpmReportStub = sinon.stub();
@@ -3449,6 +3264,7 @@ describe('ClinicPatients', () => {
 
           afterEach(() => {
             ClinicPatients.__ResetDependency__('useLocalStorage');
+            ClinicPatients.__ResetDependency__('useClinicPatientsFilters');
             ClinicPatients.__ResetDependency__('useFlags');
             ClinicPatients.__ResetDependency__('exportRpmReport');
             RpmReportConfigForm.__ResetDependency__('useLocalStorage');

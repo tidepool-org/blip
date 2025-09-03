@@ -12,6 +12,8 @@ import _ from 'lodash';
 import utils from '../../../app/core/utils';
 import { MMOLL_UNITS, MGDL_UNITS } from '../../../app/core/constants';
 import releases from '../../fixtures/githubreleasefixture';
+import { utils as vizUtils } from '@tidepool/viz';
+const { GLYCEMIC_RANGE } = vizUtils.constants;
 const expect = chai.expect;
 
 describe('utils', () => {
@@ -644,6 +646,126 @@ describe('utils', () => {
     });
   });
 
+  describe('getBGPrefsForDataProcessing', () => {
+    describe('patient viewing own data', () => {
+      it('should return correct result when no custom preferences', () => {
+        const result = utils.getBGPrefsForDataProcessing(
+          {}, // patientSettings is empty if settings have never once been modified by PwD
+          {},
+          { source: 'preferred clinic units', units: undefined },
+        );
+
+        expect(result).to.eql({
+          bgUnits: 'mg/dL',
+          bgClasses: {
+            'very-low': { boundary: 54 },
+            low: { boundary: 70 },
+            target: { boundary: 180 },
+            high: { boundary: 250 },
+            'very-high': { boundary: 350 },
+          },
+        });
+      });
+
+      it('should return correct result when PwD has custom bg range', () => {
+        const result = utils.getBGPrefsForDataProcessing(
+          { bgTarget: { high: 210, low: 110 }, units: { bg: 'mg/dL' } },
+          {},
+          { source: 'preferred clinic units', units: undefined }
+        );
+
+        expect(result).to.eql({
+          bgUnits: 'mg/dL',
+          bgClasses: {
+            'very-low': { boundary: 54 },
+            low: { boundary: 110 },
+            target: { boundary: 210 },
+            high: { boundary: 250 },
+            'very-high': { boundary: 350 },
+          },
+        });
+      });
+
+      it('should return correct result when PwD has custom bg range in mmol/L', () => {
+        const result = utils.getBGPrefsForDataProcessing(
+          { bgTarget: { high: 10.1, low: 5.1 }, units: { bg: 'mmol/L' } },
+          {},
+          { source: 'preferred clinic units', units: undefined }
+        );
+
+        expect(result).to.eql({
+          bgUnits: 'mmol/L',
+          bgClasses: {
+            'very-low': { boundary: 3 },
+            low: { boundary: 5.1 },
+            target: { boundary: 10.1 },
+            high: { boundary: 13.9 },
+            'very-high': { boundary: 19.4 },
+          },
+        });
+      });
+    });
+
+    describe('clinician viewing data of pwd', () => {
+      it('should return correct classes when PwD has no custom bg range', () => {
+        const result = utils.getBGPrefsForDataProcessing(
+          {}, // patientSettings object is empty if settings have never once been modified by PwD
+          { id: 'abcd-1234', glycemicRanges: GLYCEMIC_RANGE.ADA_PREGNANCY_T1 },
+          { source: 'preferred clinic units', units: 'mg/dL' }
+        );
+
+        expect(result).to.eql({
+          bgUnits: 'mg/dL',
+          bgClasses: {
+            'very-low': { boundary: 54 },
+            low: { boundary: 63 },
+            target: { boundary: 140 },
+            high: { boundary: null },
+            'very-high': { boundary: null },
+          },
+        });
+      });
+
+      it('should override classes when PwD has custom bg range setting', () => {
+        const result = utils.getBGPrefsForDataProcessing(
+          { bgTarget: { high: 165, low: 115 }, units: { bg: 'mg/dL' } },
+          { id: 'abcd-1234', glycemicRanges: GLYCEMIC_RANGE.ADA_OLDER_HIGH_RISK },
+          { source: 'preferred clinic units', units: 'mg/dL' }
+        );
+
+        expect(result).to.eql({
+          bgUnits: 'mg/dL',
+          bgClasses: {
+            'very-low': { boundary: null },
+            low: { boundary: 70 },
+            target: { boundary: 180 },
+            high: { boundary: 250 },
+            'very-high': { boundary: null },
+          },
+        });
+      });
+
+      it('should override classes when PwD has custom bg range setting in different units', () => {
+        const result = utils.getBGPrefsForDataProcessing(
+          { bgTarget: { high: 8, low: 5 }, units: { bg: 'mmol/L' } },
+          { id: 'abcd-1234', glycemicRanges: GLYCEMIC_RANGE.ADA_PREGNANCY_T1 },
+          { source: 'preferred clinic units', units: 'mg/dL' }
+        );
+
+        expect(result).to.eql({
+          bgUnits: 'mg/dL',
+          bgClasses: {
+            'very-low': { boundary: 54 },
+            low: { boundary: 63 },
+            target: { boundary: 140 },
+            high: { boundary: null },
+            'very-high': { boundary: null },
+          },
+        });
+      });
+    });
+  });
+
   describe('stripTrailingSlash', function() {
     it('should strip a trailing forward slash from a string', function() {
       const url = '/my-path/sub-path/';
@@ -747,6 +869,39 @@ describe('utils', () => {
 
     it('returns null if the arg is not a valid date string', () => {
       expect(utils.parseDatetimeParamToInteger('not-a-date')).to.be.null;
+    });
+  });
+
+  describe('compareLabels', function() {
+    it('Sorts a blank arg before a truthy arg', function() {
+      expect(utils.compareLabels(undefined, undefined)).to.equal(0);
+      expect(utils.compareLabels('', undefined)).to.equal(0);
+      expect(utils.compareLabels(undefined, '')).to.equal(0);
+      expect(utils.compareLabels(undefined, 'test')).to.equal(-1);
+      expect(utils.compareLabels('', 'test')).to.equal(-1);
+      expect(utils.compareLabels('test', undefined)).to.equal(1);
+      expect(utils.compareLabels('test', '')).to.equal(1);
+    });
+
+    it('Sorts numerically rather than lexicographically', () => {
+      let arr = ['Tag 12', 'Tag 8', 'Tag 9a', 'Tag 9', ''];
+      arr.sort((a, b) => utils.compareLabels(a, b));
+
+      expect(arr).to.eql(['', 'Tag 8', 'Tag 9', 'Tag 9a', 'Tag 12']);
+    });
+
+    it('Sorts base characters ahead of variant characters', () => {
+      let arr = ['café', 'cafe'];
+      arr.sort((a, b) => utils.compareLabels(a, b));
+
+      expect(arr).to.eql(['cafe', 'café']);
+    });
+
+    it('Sorts uppercase characters ahead of lowercase characters', () => {
+      let arr = ['john', 'jOhn', 'John'];
+      arr.sort((a, b) => utils.compareLabels(a, b));
+
+      expect(arr).to.eql(['John', 'jOhn', 'john']);
     });
   });
 });

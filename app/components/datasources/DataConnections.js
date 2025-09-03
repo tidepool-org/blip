@@ -5,11 +5,13 @@ import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
 import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
 import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
 import moment from 'moment-timezone';
+import defaults from 'lodash/defaults';
 import filter from 'lodash/filter';
 import find from 'lodash/find';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 import intersection from 'lodash/intersection';
+import isFunction from 'lodash/isFunction';
 import keys from 'lodash/keys';
 import map from 'lodash/map';
 import max from 'lodash/max';
@@ -21,7 +23,7 @@ import { utils as vizUtils } from '@tidepool/viz';
 import * as actions from '../../redux/actions';
 import { useToasts } from '../../providers/ToastProvider';
 import api from '../../core/api';
-import { useIsFirstRender, usePrevious } from '../../core/hooks';
+import { useIsFirstRender, useLaunchDarklyFlagOverrides, usePrevious } from '../../core/hooks';
 import i18next from '../../core/language';
 import DataConnection from './DataConnection';
 import PatientEmailModal from './PatientEmailModal';
@@ -32,21 +34,15 @@ import dexcomLogo from '../../core/icons/dexcom_logo.png';
 import libreLogo from '../../core/icons/libre_logo.svg';
 import twiistLogo from '../../core/icons/twiist_logo.svg';
 import { colors } from '../../themes/baseTheme';
-import { isFunction } from 'lodash';
 
 const { formatTimeAgo } = vizUtils.datetime;
 const t = i18next.t.bind(i18next);
-
-export const activeProviders = [
-  'dexcom',
-  'twiist',
-  'abbott',
-];
 
 export const providers = {
   dexcom: {
     id: 'oauth/dexcom',
     displayName: 'Dexcom',
+    displayOrderIndex: 0,
     restrictedTokenCreate: {
         paths: [
           '/v1/oauth/dexcom',
@@ -61,6 +57,7 @@ export const providers = {
   abbott: {
     id: 'oauth/abbott',
     displayName: 'FreeStyle Libre',
+    displayOrderIndex: 2,
     restrictedTokenCreate: {
         paths: [
           '/v1/oauth/abbott',
@@ -79,6 +76,7 @@ export const providers = {
   twiist: {
     id: 'oauth/twiist',
     displayName: 'twiist',
+    displayOrderIndex: 1,
     restrictedTokenCreate: {
         paths: [
           '/v1/oauth/twiist',
@@ -91,6 +89,18 @@ export const providers = {
     logoImage: twiistLogo,
     indeterminateDataImportTime: true,
   },
+};
+
+export const availableProviders = orderBy(keys(providers), provider => providers[provider].displayOrderIndex);
+
+export const getActiveProviders = (overrides = {}) => {
+  const activeProviders = defaults(overrides, {
+    dexcom: true,
+    twiist: true,
+    abbott: false,
+  });
+
+  return filter(availableProviders, provider => activeProviders[provider]);
 };
 
 export function getProviderHandlers(patient, selectedClinicId, provider) {
@@ -296,7 +306,7 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
   }
 };
 
-export const getDataConnectionProps = (patient, isLoggedInUser, selectedClinicId, setActiveHandler) => reduce(activeProviders, (result, providerName) => {
+export const getDataConnectionProps = (patient, isLoggedInUser, selectedClinicId, setActiveHandler) => reduce(availableProviders, (result, providerName) => {
   result[providerName] = {};
 
   let connectState;
@@ -377,6 +387,8 @@ export const DataConnections = (props) => {
   const [patientUpdates, setPatientUpdates] = useState({});
   const [activeHandler, setActiveHandler] = useState(null);
   const dataConnectionProps = getDataConnectionProps(patient, isLoggedInUser, selectedClinicId, setActiveHandler);
+  const { showAbbottProvider } = useLaunchDarklyFlagOverrides();
+  const activeProviders = getActiveProviders({ abbott: showAbbottProvider });
 
   const {
     sendingPatientDataProviderConnectRequest,
@@ -668,12 +680,12 @@ DataConnections.propTypes = {
   patient: PropTypes.shape({
     dataSources: PropTypes.oneOf([PropTypes.shape(clinicPatientDataSourceShape), PropTypes.shape(userDataSourceShape)])
   }),
-  shownProviders: PropTypes.arrayOf(PropTypes.oneOf(activeProviders)),
+  shownProviders: PropTypes.arrayOf(PropTypes.oneOf(availableProviders)),
   trackMetric: PropTypes.func.isRequired,
 };
 
 DataConnections.defaultProps = {
-  shownProviders: activeProviders,
+  shownProviders: availableProviders,
   trackMetric: noop,
 };
 

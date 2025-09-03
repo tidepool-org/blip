@@ -225,14 +225,9 @@ class BgLog extends Component {
   UNSAFE_componentWillReceiveProps = nextProps => {
     const loadingJustCompleted = this.props.loading && !nextProps.loading;
     const newDataRecieved = this.props.queryDataCount !== nextProps.queryDataCount;
-    const bgRangeUpdated = this.props.data?.bgPrefs?.useDefaultRange !== nextProps.data?.bgPrefs?.useDefaultRange;
 
     if (this.refs.chart) {
       if (loadingJustCompleted || newDataRecieved) this.refs.chart.rerenderChart({ data: nextProps.data });
-
-      if (nextProps.data?.bgPrefs?.bgClasses && bgRangeUpdated) {
-        this.refs.chart.remountChart({ bgClasses: nextProps.data.bgPrefs.bgClasses });
-      }
     }
   };
 

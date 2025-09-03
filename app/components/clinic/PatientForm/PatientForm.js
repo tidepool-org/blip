@@ -1,40 +1,39 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { withTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import compact from 'lodash/compact';
 import debounce from 'lodash/debounce';
-import find from 'lodash/find';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
 import keyBy from 'lodash/keyBy';
-import keys from 'lodash/keys';
 import map from 'lodash/map';
 import omitBy from 'lodash/omitBy';
 import pick from 'lodash/pick';
 import reject from 'lodash/reject';
-import without from 'lodash/without';
 import { useFormik } from 'formik';
 import InputMask from 'react-input-mask';
-import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
-import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
-import ErrorOutlineRoundedIcon from '@material-ui/icons/ErrorOutlineRounded';
-import { Box, Text, BoxProps } from 'theme-ui';
-import moment from 'moment';
+import { Box, BoxProps } from 'theme-ui';
 
-import * as actions from '../../redux/actions';
-import TextInput from '../../components/elements/TextInput';
-import { TagList } from '../../components/elements/Tag';
-import { useToasts } from '../../providers/ToastProvider';
-import { getCommonFormikFieldProps } from '../../core/forms';
-import { useInitialFocusedInput, useIsFirstRender, usePrevious } from '../../core/hooks';
-import { dateRegex, patientSchema as validationSchema } from '../../core/clinicUtils';
-import { accountInfoFromClinicPatient } from '../../core/personutils';
-import { Body0 } from '../../components/elements/FontStyles';
-import { borders, colors } from '../../themes/baseTheme';
+import * as actions from '../../../redux/actions';
+import TextInput from '../../../components/elements/TextInput';
+import { getCommonFormikFieldProps } from '../../../core/forms';
+import { useInitialFocusedInput, usePrevious } from '../../../core/hooks';
+import { dateRegex, patientSchema as validationSchema } from '../../../core/clinicUtils';
+import { accountInfoFromClinicPatient } from '../../../core/personutils';
+import { Body0 } from '../../../components/elements/FontStyles';
+import { MediumTitle } from '../../../components/elements/FontStyles';
 
-export function getFormValues(source, clinicPatientTags) {
+import { utils as vizUtils } from '@tidepool/viz';
+const { GLYCEMIC_RANGE } = vizUtils.constants;
+
+import SelectDiabetesType from './SelectDiabetesType';
+import SelectGlycemicRanges from './SelectGlycemicRanges';
+import SelectTags from './SelectTags';
+import SelectSites from './SelectSites';
+
+export function getFormValues(source, clinicPatientTags, clinicSites) {
   return {
     birthDate: source?.birthDate || '',
     email: source?.email || '',
@@ -42,12 +41,15 @@ export function getFormValues(source, clinicPatientTags) {
     mrn: source?.mrn || '',
     tags: reject(source?.tags || [], tagId => !clinicPatientTags?.[tagId]),
     dataSources: source?.dataSources || [],
+    sites: source?.sites?.filter(site => !!clinicSites[site.id]) || [],
+    diagnosisType: source?.diagnosisType || null,
+    glycemicRanges: source?.glycemicRanges || GLYCEMIC_RANGE.ADA_STANDARD,
   };
 }
 
 export function emptyValuesFilter(value, key) {
   // We want to allow sending an empty `tags` array. Otherwise, strip empty fields from payload.
-  return !includes(['tags'], key) && isEmpty(value);
+  return !includes(['tags', 'sites'], key) && isEmpty(value);
 }
 
 export const PatientForm = (props) => {
@@ -65,8 +67,6 @@ export const PatientForm = (props) => {
   } = props;
 
   const dispatch = useDispatch();
-  const isFirstRender = useIsFirstRender();
-  const { set: setToast } = useToasts();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const mrnSettings = clinic?.mrnSettings ?? {};
@@ -77,10 +77,14 @@ export const PatientForm = (props) => {
   const dateInputFormat = 'MM/DD/YYYY';
   const dateMaskFormat = dateInputFormat.replace(/[A-Z]/g, '9');
   const [initialValues, setInitialValues] = useState({});
+
   const showTags = clinic?.entitlements?.patientTags && !!clinic?.patientTags?.length;
+  const showSites = clinic?.entitlements?.clinicSites && !!clinic?.sites?.length;
+  const showDiabetesType = !!selectedClinicId; // hide in private workspace
+  const showGlycemicRanges = !!selectedClinicId; // hide in private workspace
+
   const clinicPatientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
-  const dexcomDataSource = find(patient?.dataSources, { providerName: 'dexcom' });
-  const dexcomAuthInviteExpired = dexcomDataSource?.expirationTime < moment.utc().toISOString();
+  const clinicSites = useMemo(() => keyBy(clinic?.sites, 'id'), [clinic?.sites]);
   const showEmail = action !== 'acceptInvite';
   const { fetchingPatientsForClinic } = useSelector((state) => state.blip.working);
   const [patientFetchOptions, setPatientFetchOptions] = useState({});
@@ -88,57 +92,13 @@ export const PatientForm = (props) => {
   const previousFetchingPatientsForClinic = usePrevious(fetchingPatientsForClinic);
   const previousFetchOptions = usePrevious(patientFetchOptions);
   const initialFocusedInputRef = useInitialFocusedInput();
-
-  const dexcomConnectStateUI = {
-    pending: {
-      color: 'mediumGrey',
-      icon: ErrorOutlineRoundedIcon,
-      label: t('Pending connection with'),
-      showRegionalNote: true,
-    },
-    pendingReconnect: {
-      color: 'mediumGrey',
-      icon: ErrorOutlineRoundedIcon,
-      label: t('Pending reconnection with'),
-    },
-    pendingExpired: {
-      color: 'mediumGrey',
-      icon: ErrorOutlineRoundedIcon,
-      label: t('Pending connection expired with'),
-      showRegionalNote: true,
-    },
-    connected: {
-      color: 'brand.dexcom',
-      icon: CheckCircleRoundedIcon,
-      label: t('Connected with'),
-    },
-    disconnected: {
-      color: 'mediumGrey',
-      icon: ErrorOutlineRoundedIcon,
-      label: t('Disconnected from'),
-    },
-    error: {
-      color: 'feedback.danger',
-      icon: ErrorOutlineRoundedIcon,
-      label: t('Error connecting to'),
-      showRegionalNote: true,
-    },
-    unknown: {
-      color: 'mediumGrey',
-      icon: ErrorOutlineRoundedIcon,
-      label: t('Unknown connection to'),
-      showRegionalNote: true,
-    },
-  };
-
-  let dexcomConnectState = includes(keys(dexcomConnectStateUI), dexcomDataSource?.state)
-    ? dexcomDataSource.state
-    : 'unknown';
-
-  if (includes(['pending', 'pendingReconnect'], dexcomConnectState) && dexcomAuthInviteExpired) dexcomConnectState = 'pendingExpired';
+  const tagSectionRef = useRef(null);
+  const siteSectionRef = useRef(null);
+  const diagnosisTypeSectionRef = useRef(null);
+  const targetRangePresetSectionRef = useRef(null);
 
   const formikContext = useFormik({
-    initialValues: getFormValues(patient, clinicPatientTags),
+    initialValues: getFormValues(patient, clinicPatientTags, clinicSites),
     initialStatus: { showDataConnectionsModalNext: false },
     onSubmit: (values, formikHelpers) => {
       const context = selectedClinicId ? 'clinic' : 'vca';
@@ -147,17 +107,17 @@ export const PatientForm = (props) => {
         edit: {
           clinic: {
             handler: 'updateClinicPatient',
-            args: () => [selectedClinicId, patient.id, omitBy({ ...patient, ...getFormValues(values, clinicPatientTags) }, emptyValuesFilter)],
+            args: () => [selectedClinicId, patient.id, omitBy({ ...patient, ...getFormValues(values, clinicPatientTags, clinicSites) }, emptyValuesFilter)],
           },
           vca: {
             handler: 'updatePatient',
-            args: () => [accountInfoFromClinicPatient(omitBy({ ...patient, ...getFormValues(values, clinicPatientTags) }, emptyValuesFilter))],
+            args: () => [accountInfoFromClinicPatient(omitBy({ ...patient, ...getFormValues(values, clinicPatientTags, clinicSites) }, emptyValuesFilter))],
           },
         },
         create: {
           clinic: {
             handler: 'createClinicCustodialAccount',
-            args: () => [selectedClinicId, omitBy(getFormValues(values, clinicPatientTags), emptyValuesFilter)],
+            args: () => [selectedClinicId, omitBy(getFormValues(values, clinicPatientTags, clinicSites), emptyValuesFilter)],
           },
           vca: {
             handler: 'createVCACustodialAccount',
@@ -168,7 +128,7 @@ export const PatientForm = (props) => {
           clinic: {
             handler: 'acceptPatientInvitation',
             args: () => [selectedClinicId, invite.key, invite.creatorId, omitBy(
-              pick(getFormValues(values, clinicPatientTags), ['mrn', 'birthDate', 'fullName', 'tags']),
+              pick(getFormValues(values, clinicPatientTags, clinicSites), ['mrn', 'birthDate', 'fullName', 'tags', 'sites', 'diagnosisType', 'glycemicRanges']),
               emptyValuesFilter
             )],
           },
@@ -240,7 +200,7 @@ export const PatientForm = (props) => {
 
   useEffect(() => {
     // set form field values and store initial patient values on patient load
-    const patientValues = getFormValues(patient, clinicPatientTags);
+    const patientValues = getFormValues(patient, clinicPatientTags, clinicSites);
     setValues(patientValues);
     setInitialValues(patientValues);
   }, [patient, clinicPatientTags]);
@@ -273,14 +233,31 @@ export const PatientForm = (props) => {
     debounceSearch(event.target.value);
   }
 
+  function handleScrollToRef(ref) {
+    // Wait for height modal to expand via CSS, then scroll down to enhance dropdown visibility
+    setTimeout(() => ref?.current?.scrollIntoView(), 50);
+  }
+
   return (
     <Box
       as="form"
       id="clinic-patient-form"
-      sx={{ minWidth: [null, '320px'] }}
+      sx={{
+        minWidth: [null, '320px'],
+
+        // When the select Tags or Sites dropdowns are open, expand the modal to give extra room
+        '&:has(.PatientFormSelectDiabetesType__control--menu-is-open)': { paddingBottom: '24px' },
+        '&:has(.PatientFormSelectGlycemicRanges__control--menu-is-open)': { paddingBottom: '24px' },
+        '&:has(.PatientFormSelectTags__control--menu-is-open)': { paddingBottom: '162px' },
+        '&:has(.PatientFormSelectSites__control--menu-is-open)': { paddingBottom: '242px' },
+      }}
       {...boxProps}
     >
-      <Box mb={4}>
+      <Box mb={2}>
+        <MediumTitle sx={{ fontWeight: 'bold', fontSize: 2 }}>{t('Patient Details')}</MediumTitle>
+      </Box>
+
+      <Box mb={3}>
         <TextInput
           {...getCommonFormikFieldProps('fullName', formikContext)}
           innerRef={initialFocusedInput === 'fullName' ? initialFocusedInputRef : undefined}
@@ -291,7 +268,7 @@ export const PatientForm = (props) => {
         />
       </Box>
 
-      <Box mb={4}>
+      <Box mb={3}>
         <InputMask
           mask={dateMaskFormat}
           maskPlaceholder={dateInputFormat.toLowerCase()}
@@ -316,7 +293,7 @@ export const PatientForm = (props) => {
         </InputMask>
       </Box>
 
-      <Box mb={4}>
+      <Box mb={3}>
         <TextInput
           {...getCommonFormikFieldProps('mrn', formikContext)}
           innerRef={initialFocusedInput === 'mrn' ? initialFocusedInputRef : undefined}
@@ -338,7 +315,7 @@ export const PatientForm = (props) => {
 
       {showEmail && (
         <>
-          <Box mb={2}>
+          <Box mb={1}>
             <TextInput
               {...getCommonFormikFieldProps('email', formikContext)}
               innerRef={initialFocusedInput === 'email' ? initialFocusedInputRef : undefined}
@@ -350,55 +327,53 @@ export const PatientForm = (props) => {
               />
           </Box>
 
-          <Body0 sx={{ fontWeight: 'medium' }}>
+          <Body0 sx={{ fontWeight: 'medium' }} mb={3}>
             {t('If you want your patients to upload their data from home, you must include their email address.')}
           </Body0>
         </>
       )}
 
+      {showDiabetesType && (
+        <Box ref={diagnosisTypeSectionRef} mb={3}>
+          <SelectDiabetesType
+            value={values.diagnosisType || ''}
+            onChange={diagnosisType => setFieldValue('diagnosisType', diagnosisType)}
+            onMenuOpen={() => handleScrollToRef(diagnosisTypeSectionRef)}
+          />
+        </Box>
+      )}
+
+      {showGlycemicRanges && (
+        <Box ref={targetRangePresetSectionRef} mb={3}>
+          <SelectGlycemicRanges
+            value={values.glycemicRanges || ''}
+            onChange={glycemicRanges => setFieldValue('glycemicRanges', glycemicRanges)}
+            onMenuOpen={() => handleScrollToRef(targetRangePresetSectionRef)}
+          />
+        </Box>
+      )}
+
       {showTags && (
-        <Box
-          mt={3}
-          sx={{
-            borderTop: borders.default,
-          }}
-        >
-          {!!values.tags.length && (
-            <Box className='selected-tags' mt={3} mb={1} sx={{ fontSize: 0 }}>
-              <Text mb={1} sx={{ display: 'block', fontWeight: 'medium', color: 'text.primary' }}>{t('Assigned Patient Tags')}</Text>
+        <Box ref={tagSectionRef} mb={3}>
+          <MediumTitle mb={2} sx={{ fontWeight: 'bold', fontSize: 2 }}>{t('Tags')}</MediumTitle>
 
-              <TagList
-                tags={compact(map(values.tags, tagId => clinicPatientTags[tagId]))}
-                tagProps={{
-                  onClickIcon: tagId => {
-                    setFieldValue('tags', without(values.tags, tagId));
-                  },
-                  icon: CloseRoundedIcon,
-                  iconColor: 'white',
-                  iconFontSize: 1,
-                  sx: {
-                    color: 'white',
-                    backgroundColor: 'purpleMedium',
-                  },
-                }}
-              />
-            </Box>
-          )}
+          <SelectTags
+            currentTagIds={values.tags || []}
+            onChange={tagIds => setFieldValue('tags', tagIds)}
+            onMenuOpen={() => handleScrollToRef(tagSectionRef)}
+          />
+        </Box>
+      )}
 
-          {values.tags.length < (clinic?.patientTags || []).length && (
-            <Box className='available-tags' mb={1} mt={3} sx={{ alignItems: 'center', fontSize: 0 }}>
-              <Text mb={1} sx={{ display: 'block', fontWeight: 'medium', color: 'text.primary' }}>{t('Available Patient Tags')}</Text>
+      {showSites && (
+        <Box ref={siteSectionRef} mb={3}>
+          <MediumTitle mb={2} sx={{ fontWeight: 'bold', fontSize: 2 }}>{t('Sites')}</MediumTitle>
 
-              <TagList
-                tags={map(reject(clinic?.patientTags, ({ id }) => includes(values.tags, id)), ({ id }) => clinicPatientTags?.[id])}
-                tagProps={{
-                  onClick: tagId => {
-                    setFieldValue('tags', [...values.tags, tagId]);
-                  },
-                }}
-              />
-            </Box>
-          )}
+          <SelectSites
+            currentSites={values.sites || []}
+            onChange={sites => setFieldValue('sites', sites)}
+            onMenuOpen={() => handleScrollToRef(siteSectionRef)}
+          />
         </Box>
       )}
     </Box>

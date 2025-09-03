@@ -41,6 +41,7 @@ const SMBGTooltip = vizComponents.SMBGTooltip;
 const CBGTooltip = vizComponents.CBGTooltip;
 const FoodTooltip = vizComponents.FoodTooltip;
 const PumpSettingsOverrideTooltip = vizComponents.PumpSettingsOverrideTooltip;
+const AlarmTooltip = vizComponents.AlarmTooltip;
 
 import Header from './header';
 import CgmSampleIntervalRangeToggle from './cgmSampleIntervalRangeToggle';
@@ -97,6 +98,8 @@ const DailyChart = withTranslation(null, { withRef: true })(class DailyChart ext
       'onCarbOut',
       'onPumpSettingsOverrideHover',
       'onPumpSettingsOverrideOut',
+      'onAlarmHover',
+      'onAlarmOut',
     ];
 
     this.log = bows('Daily Chart');
@@ -275,12 +278,10 @@ class Daily extends Component {
     const newDataAdded = this.props.addingData.inProgress && nextProps.addingData.completed;
     const dataUpdated = this.props.updatingDatum.inProgress && nextProps.updatingDatum.completed;
     const newDataRecieved = this.props.queryDataCount !== nextProps.queryDataCount;
-    const bgRangeUpdated = this.props.data?.bgPrefs?.useDefaultRange !== nextProps.data?.bgPrefs?.useDefaultRange;
 
     if (this.chartRef.current) {
       const updates = {};
       if (loadingJustCompleted || newDataAdded || dataUpdated || newDataRecieved) updates.data = nextProps.data;
-      if (nextProps.data?.bgPrefs?.bgClasses && bgRangeUpdated) updates.bgClasses = nextProps.data.bgPrefs.bgClasses;
       if (!_.isEmpty(updates)) this.chartRef.current?.rerenderChart(updates);
     }
   };
@@ -414,6 +415,19 @@ class Daily extends Component {
             bgPrefs={bgPrefs}
             timePrefs={timePrefs}
           />}
+          {this.state.hoveredAlarm && <AlarmTooltip
+            position={{
+              top: this.state.hoveredAlarm.top,
+              left: this.state.hoveredAlarm.left
+            }}
+            offset={{
+              top: 0,
+              left: this.state.hoveredAlarm.leftOffset || 0
+            }}
+            side={this.state.hoveredAlarm.side}
+            alarm={this.state.hoveredAlarm.data}
+            timePrefs={timePrefs}
+          />}
           <WindowSizeListener onResize={this.handleWindowResize} />
         </Box>
       </div>
@@ -485,6 +499,8 @@ class Daily extends Component {
           onCarbOut={this.handleCarbOut}
           onPumpSettingsOverrideHover={this.handlePumpSettingsOverrideHover}
           onPumpSettingsOverrideOut={this.handlePumpSettingsOverrideOut}
+          onAlarmHover={this.handleAlarmHover}
+          onAlarmOut={this.handleAlarmOut}
           ref={this.chartRef} />
       </>
     );
@@ -703,6 +719,36 @@ class Daily extends Component {
   handlePumpSettingsOverrideOut = () => {
     this.setState({
       hoveredPumpSettingsOverride: false
+    });
+  };
+
+  handleAlarmHover = alarm => {
+    this.throttledMetric('hovered over daily alarm tooltip');
+    const rect = alarm.rect;
+    alarm.top = rect.top + rect.height;
+    alarm.left = rect.left + (rect.width / 2);
+    alarm.side = 'bottom';
+
+    // Prevent the tooltip from spilling over chart edges
+    const leftOffset = alarm.left - alarm.chartExtents.left;
+    const rightOffset = alarm.left - alarm.chartExtents.right;
+
+    if (leftOffset < 35) {
+      alarm.leftOffset = 35;
+    }
+
+    if (rightOffset > -35) {
+      alarm.leftOffset = -35;
+    }
+
+    this.setState({
+      hoveredAlarm: alarm
+    });
+  };
+
+  handleAlarmOut = () => {
+    this.setState({
+      hoveredAlarm: false
     });
   };
 

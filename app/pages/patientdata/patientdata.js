@@ -63,7 +63,9 @@ import ShareBanner from '../../components/elements/Card/Banners/Share.png';
 import DataConnectionsBanner from '../../components/elements/Card/Banners/DataConnections.png';
 import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
 import { DEFAULT_CGM_SAMPLE_INTERVAL, DEFAULT_CGM_SAMPLE_INTERVAL_RANGE, MS_IN_MIN } from '../../core/constants';
+const { GLYCEMIC_RANGE } = vizUtils.constants;
 import { selectIsSmartOnFhirMode } from '../../core/selectors';
+
 
 const { Loader } = vizComponents;
 const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
@@ -685,42 +687,6 @@ export const PatientDataClass = createReactClass({
     }
   },
 
-  renderDefaultBgRangeCheckbox: function(props, state) {
-    const { t } = props;
-
-    return (
-      <Box p={2} sx={{
-        borderTop: '1px solid',
-        borderColor: 'grays.1',
-      }}>
-        <PopoverLabel
-          id="use-default-bg-range"
-          label={(
-            <Checkbox
-              checked={!!this.state.bgPrefs?.useDefaultRange}
-              label={t('Use default BG ranges')}
-              onChange={this.toggleDefaultBgRange}
-              themeProps={{
-                mb: 0,
-                sx: { color: 'stat.text' },
-              }}
-            />
-          )}
-          popoverContent={(
-            <Box p={3}>
-              <Paragraph2>
-                <strong>{t('This patient has set a custom BG target range.')}</strong>
-              </Paragraph2>
-              <Paragraph2>
-                {t('If this option is checked, the target ranges for this view will be updated to the default ranges.')}
-              </Paragraph2>
-            </Box>
-          )}
-        />
-      </Box>
-    );
-  },
-
   renderExcludeEmptyBolusDaysCheckbox: function(props, state) {
     const { t } = props;
 
@@ -794,36 +760,6 @@ export const PatientDataClass = createReactClass({
     this.updateChartPrefs(prefs, false, true, true);
   },
 
-  toggleDefaultBgRange: function(e, value) {
-    if (e) {
-      e.preventDefault();
-    }
-
-    const patientSettings = _.get(this.props, 'patient.settings', {});
-    let bgPrefs = this.state.bgPrefs || {};
-
-    const bgUnitsOverride = {
-      units: this.props.queryParams?.units || this.props.clinic?.preferredBgUnits,
-      source: this.props.queryParams?.units ? 'query params' : 'preferred clinic units',
-    };
-
-    if (!bgPrefs.useDefaultRange) {
-      bgPrefs = utils.getBGPrefsForDataProcessing({ ...patientSettings, bgTarget: undefined }, bgUnitsOverride);
-      bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
-      bgPrefs.useDefaultRange = true;
-    } else {
-      bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, bgUnitsOverride);
-      bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
-      bgPrefs.useDefaultRange = false;
-    }
-
-    if (bgPrefs.useDefaultRange) this.props.trackMetric(`${_.capitalize(this.state.chartType)} - use default BG range`);
-
-    this.setState({ bgPrefs }, () => {
-      this.updateChartPrefs({}, false, true, true);
-    });
-  },
-
   closeDatesDialog: function() {
     this.setState({
       datesDialogOpen: false,
@@ -869,10 +805,6 @@ export const PatientDataClass = createReactClass({
         bgPrefs,
         manufacturer,
       });
-
-      if (this.state.isCustomBgRange && !props.isUserPatient && _.includes(['timeInRange', 'readingsInRange'], statType)) {
-        stat.children = this.renderDefaultBgRangeCheckbox(props, state);
-      }
 
       if (statType === 'totalInsulin' && _.includes(['basics', 'trends'], chartType)) {
         // We nest the averageDailyDose stat within the totalInsulin stat
@@ -992,6 +924,8 @@ export const PatientDataClass = createReactClass({
     const combinedPatient = props.clinicPatient ? personUtils.combinedAccountAndClinicPatient(props.patient, props.clinicPatient) : null;
     const sourcePatient = personUtils.isClinicianAccount(props.user) && !!combinedPatient ? combinedPatient : props.patient;
 
+    const glycemicRanges = props.clinicPatient?.glycemicRanges || GLYCEMIC_RANGE.ADA_STANDARD;
+
     const pdfPatient = _.assign({}, sourcePatient, {
       settings: _.assign({}, patientSettings, { siteChangeSource }),
     });
@@ -1055,6 +989,7 @@ export const PatientDataClass = createReactClass({
         bgSource: _.get(state.chartPrefs, 'agpBGM.bgSource'),
         stats: this.getStatsByChartType('agpBGM'),
         types: { smbg: {} },
+        glycemicRanges,
         ...commonQueries,
       };
     }
@@ -1066,6 +1001,7 @@ export const PatientDataClass = createReactClass({
         bgSource: _.get(state.chartPrefs, 'agpCGM.bgSource'),
         stats: this.getStatsByChartType('agpCGM'),
         types: { cbg: {} },
+        glycemicRanges,
         ...commonQueries,
       };
     }
@@ -1197,6 +1133,25 @@ export const PatientDataClass = createReactClass({
   handleRouteChangeEvent: function(nextProps) {
     const chartTypeFromPath = nextProps.match?.params?.chartType;
     const targetDate = utils.parseDatetimeParamToInteger(nextProps.queryParams?.datetime);
+
+    // If the chart was previously refreshed on settings, we need to refetch the data, since the refresh
+    // would have only fetched the pump settings history, and not all the data we need to render other charts.
+    const needsDataRefetch = this.state.refreshChartType === 'settings' && _.includes([
+      'basics',
+      'daily',
+      'trends',
+      'bgLog',
+    ], chartTypeFromPath);
+
+    if (needsDataRefetch) {
+      this.setState({
+        chartType: chartTypeFromPath,
+      }, () => {
+        this.handleRefresh();
+      });
+
+      return;
+    }
 
     switch(true) {
       // If the chart is explicitly specified in the URL, we switch to that chart type.
@@ -1806,6 +1761,7 @@ export const PatientDataClass = createReactClass({
     const userId = this.props.currentPatientInViewId;
     const patientData = _.get(nextProps, 'data.metaData.patientId') === userId;
     const patientSettings = _.get(nextProps, ['patient', 'settings'], null);
+    const clinicPatient = _.get(nextProps.clinics, [nextProps.clinic?.id, 'patients', userId], {});
 
     // Handle data refresh
     if (this.props.removingData.inProgress && nextProps.removingData.completed) {
@@ -1822,6 +1778,13 @@ export const PatientDataClass = createReactClass({
         }, () => {
           this.props.onRefresh(this.props.currentPatientInViewId, this.state.refreshChartType);
           this.props.removeGeneratedPDFS();
+
+          // Reset the path without the datetime query param if present. This will ensure that the
+          // chart gets set to to the date of the most recent datum when the new data loads
+          if (nextProps.queryParams?.datetime) {
+            const path = `/patients/${this.props.currentPatientInViewId}/data/${this.state.refreshChartType}`;
+            this.props.history.push(path);
+          }
         });
       });
     }
@@ -1840,8 +1803,9 @@ export const PatientDataClass = createReactClass({
           source: nextProps.queryParams?.units ? 'query params' : 'preferred clinic units',
         };
 
-        bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, bgUnitsOverride);
+        bgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, clinicPatient, bgUnitsOverride);
         bgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(bgPrefs);
+
         if (isCustomBgRange(bgPrefs)) stateUpdates.isCustomBgRange = true;
         stateUpdates.bgPrefs = bgPrefs;
       }
@@ -1913,9 +1877,18 @@ export const PatientDataClass = createReactClass({
         }
 
         stateUpdateCallback = () => {
-          if (!nextProps.addingData.inProgress && !this.props.addingData.inProgress && !nextProps.fetchingPatientData && !this.props.fetchingPatientData) {
-            this.hideLoading(hideLoadingTimeout);
-          }
+          if (this.state.fetchingAdditionalData) {
+            // If data fetching is fully completed, we can set the fetchingAdditionalData state to false
+            if (!this.props.fetchingPatientData && !nextProps.fetchingPatientData) {
+              this.setState({ fetchingAdditionalData: false });
+            }
+          } else if (
+              // We are no longer fetching data. If the new data has been added, we can hide the loading indicator
+              !nextProps.addingData.inProgress &&
+              !this.props.addingData.inProgress
+            ) {
+              this.hideLoading(hideLoadingTimeout);
+            }
         };
       }
 
@@ -2311,6 +2284,7 @@ export const PatientDataClass = createReactClass({
     this.setState({
       loading: options.showLoading,
       fetchAdditionalDataCount: count,
+      fetchingAdditionalData: true,
     });
 
     this.log('fetching');

@@ -6,7 +6,7 @@ import buildGenerateAGPImages from './buildGenerateAGPImages';
 import getOpts from './getOpts';
 import getQueries from './getQueries';
 
-export const STATUS = {  
+export const STATUS = {
   // States in order of happy path AGP generation sequence
   INITIALIZED:    'INITIALIZED',
   STATE_CLEARED:  'STATE_CLEARED',
@@ -56,7 +56,7 @@ const FETCH_PATIENT_OPTS = { forceDataWorkerAddDataRequest: true, useCache: fals
 const DEFAULT_AGP_PERIOD_IN_DAYS = 14;
 
 const useAgpCGM = (
-  api, 
+  api,
   patientId,
   agpPeriodInDays = DEFAULT_AGP_PERIOD_IN_DAYS,
 ) => {
@@ -66,8 +66,8 @@ const useAgpCGM = (
   const data   = useSelector(state => state.blip.data);
   const pdf    = useSelector(state => state.blip.pdf);
   const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
-  
-  const patient = clinic?.patients?.[patientId];
+
+  const clinicPatient = clinic?.patients?.[patientId];
 
   const lastCompletedStep = inferLastCompletedStep(patientId, data, pdf);
 
@@ -86,8 +86,9 @@ const useAgpCGM = (
 
       case STATUS.PATIENT_LOADED:
         const opts    = getOpts(data, agpPeriodInDays);
-        const queries = getQueries(data, patient, clinic, opts);
-        dispatch(actions.worker.generatePDFRequest('combined', queries, { ...opts, patient }, patientId));
+        const queries = getQueries(data, clinicPatient, clinic, opts);
+        const pdfOpts = { ...opts, patient: clinicPatient };
+        dispatch(actions.worker.generatePDFRequest('combined', queries, pdfOpts, patientId));
         break;
 
       case STATUS.DATA_PROCESSED:
@@ -96,7 +97,7 @@ const useAgpCGM = (
 
       case STATUS.SVGS_GENERATED: // image generation complete, no further steps necessary
       default:
-        break; 
+        break;
     }
   }, [lastCompletedStep]);
 
@@ -112,10 +113,11 @@ const useAgpCGM = (
   // Note: probably unnecessary; failsafe to ensure that data is being returned for correct patient
   const isCorrectPatientInState = pdf.opts?.patient?.id === patientId;
 
-  return { 
-    status:      lastCompletedStep, 
-    svgDataURLS: isCorrectPatientInState ? pdf.opts?.svgDataURLS : null,
-    agpCGM:      isCorrectPatientInState ? pdf.data?.agpCGM : null,
+  return {
+    status:       lastCompletedStep,
+    svgDataURLS:  isCorrectPatientInState ? pdf.opts?.svgDataURLS : null,
+    agpCGM:       isCorrectPatientInState ? pdf.data?.agpCGM : null,
+    offsetAgpCGM: isCorrectPatientInState ? pdf.data?.offsetAgpCGM : null,
   };
 };
 

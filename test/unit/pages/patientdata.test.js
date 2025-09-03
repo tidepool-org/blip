@@ -2410,6 +2410,7 @@ describe('PatientData', function () {
         instance = wrapper.instance();
 
         setStateSpy = sinon.spy(instance, 'setState');
+        props.history.push.resetHistory();
       });
 
       context('data is removed prior to refresh', () => {
@@ -2473,6 +2474,63 @@ describe('PatientData', function () {
               refreshChartType: 'currentChartType',
             });
 
+            done();
+          });
+        });
+
+        it('should remove the datetime query param if set', done => {
+          wrapper.setState({ chartType: 'currentChartType' });
+
+          wrapper.setProps({
+            ...props,
+            removeGeneratedPDFS: sinon.stub(),
+            removingData: { inProgress: true },
+            queryParams: { datetime: '2019-11-14T00:00:00.000Z' },
+          });
+          wrapper.update();
+
+          setStateSpy.resetHistory();
+
+          wrapper.setProps({
+            ...props,
+            removeGeneratedPDFS: sinon.stub(),
+            removingData: { inProgress: false, completed: true },
+            queryParams: { datetime: '2019-11-14T00:00:00.000Z' },
+          });
+          wrapper.update();
+
+          setTimeout(() => {
+            // Path is pushed to history without the datetime query param
+            sinon.assert.callCount(props.history.push, 1);
+            sinon.assert.calledWithMatch(props.history.push, '/patients/40/data/currentChartType');
+            done();
+          });
+        });
+
+        it('should not update the path if datetime query param is not set', done => {
+          wrapper.setState({ chartType: 'currentChartType' });
+
+          wrapper.setProps({
+            ...props,
+            removeGeneratedPDFS: sinon.stub(),
+            removingData: { inProgress: true },
+            queryParams: {},
+          });
+          wrapper.update();
+
+          setStateSpy.resetHistory();
+
+          wrapper.setProps({
+            ...props,
+            removeGeneratedPDFS: sinon.stub(),
+            removingData: { inProgress: false, completed: true },
+            queryParams: {},
+          });
+          wrapper.update();
+
+          setTimeout(() => {
+            // Path history is not updated since there is no datetime query param
+            sinon.assert.notCalled(props.history.push);
             done();
           });
         });
@@ -2835,51 +2893,40 @@ describe('PatientData', function () {
               fetchingPatientData: true,
             });
 
-            beforeEach(() => {
-              // set props twice to ensure both this.props and nextProps set
-              wrapper.setProps({
-                ...notAddingDataProps,
-                ...notFetchingDataProps,
-              });
-            });
-
             it('should hide the loader if data is not being fetched or added to worker', () => {
               const hideLoadingSpy = sinon.spy(instance, 'hideLoading');
 
-              wrapper.setProps({
-                ...notAddingDataProps,
-                ...notFetchingDataProps,
-              });
+              instance.state.fetchingAdditionalData = true;
+              instance.state.loading = true;
 
-              // this.props.addingData.inProgress: false, nextProps.addingData.inProgress: false
-              // this.props.fetchingPatientData: false, nextProps.fetchingPatientData: false
-              sinon.assert.callCount(hideLoadingSpy, 1);
-              hideLoadingSpy.resetHistory();
-
+              // Fetching data is ongoing. Not adding data yet.
               wrapper.setProps({
                 ...notAddingDataProps,
                 ...fetchingDataProps,
               });
 
-              // this.props.addingData.inProgress: false, nextProps.addingData.inProgress: false
-              // this.props.fetchingPatientData: false, nextProps.fetchingPatientData: true
-              sinon.assert.callCount(hideLoadingSpy, 0);
+              // Should not hide the loading spinner or set state.fetchingAdditionalData to false
+              sinon.assert.notCalled(hideLoadingSpy);
+              sinon.assert.neverCalledWith(setStateSpy, sinon.match({ fetchingAdditionalData: false }));
 
-              wrapper.setProps({
-                ...notAddingDataProps,
-                ...notFetchingDataProps,
-              });
+              // Fetching data complete, but not adding data yet.
+              wrapper.setProps(notFetchingDataProps);
 
-              hideLoadingSpy.resetHistory();
+              // Should not hide the loading spinner, but should set state.fetchingAdditionalData to false
+              sinon.assert.notCalled(hideLoadingSpy);
+              sinon.assert.calledWith(setStateSpy, sinon.match({ fetchingAdditionalData: false }));
 
-              wrapper.setProps({
-                ...addingDataProps,
-                ...notFetchingDataProps,
-              });
+              // Fetching data complete, state.fetchingAdditionalData is false, adding data has commenced.
+              wrapper.setProps(addingDataProps);
 
-              // this.props.addingData.inProgress: false, nextProps.addingData.inProgress: true
-              // this.props.fetchingPatientData: false, nextProps.fetchingPatientData: false
-              sinon.assert.callCount(hideLoadingSpy, 0);
+              // Should not hide the loading spinner while adding data
+              sinon.assert.notCalled(hideLoadingSpy);
+
+              // Adding data complete.
+              wrapper.setProps(notAddingDataProps);
+
+              // Should hide the loading spinner now
+              sinon.assert.called(hideLoadingSpy);
             });
           });
         });
@@ -3398,63 +3445,6 @@ describe('PatientData', function () {
       instance.setState({ chartType: 'trends' });
       instance.toggleDaysWithoutBoluses();
       sinon.assert.calledWith(defaultProps.trackMetric, 'Trends exclude days without boluses');
-    });
-  });
-
-  describe('toggleDefaultBgRange', () => {
-    let wrapper;
-    let instance;
-
-    beforeEach(() => {
-      wrapper = shallow(<PatientDataClass {...defaultProps} />);
-      instance = wrapper.instance();
-    });
-
-    it('should call `updateChartPrefs` with arguments needed to trigger stats and aggregations refresh', () => {
-      instance.setState({ chartType: 'basics' });
-      const updateChartPrefsSpy = sinon.spy(instance, 'updateChartPrefs');
-      instance.toggleDefaultBgRange();
-      sinon.assert.calledWith(updateChartPrefsSpy, {}, false, true, true);
-    });
-
-    it('should call `setState` with the `useDefaultRange` bgPrefs state toggled', () => {
-      const setStateSpy = sinon.spy(instance, 'setState');
-      instance.setState({ chartType: 'basics' });
-      instance.toggleDefaultBgRange();
-
-      sinon.assert.calledWith(setStateSpy, {
-        bgPrefs:  {
-          bgBounds: 'stubbed bgBounds',
-          bgClasses: { low: { boundary: 70 }, target: { boundary: 180 } },
-          bgUnits: 'mg/dL',
-          useDefaultRange: true,
-        }
-      });
-
-      instance.toggleDefaultBgRange();
-
-      sinon.assert.calledWith(setStateSpy, {
-        bgPrefs:  {
-          bgBounds: 'stubbed bgBounds',
-          bgClasses: { low: { boundary: 70 }, target: { boundary: 180 } },
-          bgUnits: 'mg/dL',
-          useDefaultRange: false
-        }
-      });
-    });
-
-    it('should track a metric when `useDefaultRange` set to true on basics view', () => {
-      defaultProps.trackMetric.resetHistory();
-      instance.setState({ chartType: 'basics' });
-      instance.toggleDefaultBgRange();
-      sinon.assert.calledWith(defaultProps.trackMetric, 'Basics - use default BG range');
-    });
-
-    it('should track a metric when `useDefaultRange` set to true on trends view', () => {
-      defaultProps.trackMetric.resetHistory();
-      instance.setState({ chartType: 'trends' });
-      instance.toggleDefaultBgRange();
-      sinon.assert.calledWith(defaultProps.trackMetric, 'Trends - use default BG range');
     });
   });
 
@@ -4648,7 +4638,7 @@ describe('PatientData', function () {
         }, '40');
       });
 
-      it('should set the `loading`, `fetchAdditionalDataCount` and `requestedPatientDataRange` state', () => {
+      it('should set the `loading`, `fetchAdditionalDataCount` and `fetchingAdditionalData` state', () => {
         const fetchedUntil = '2018-01-01T00:00:00.000Z';
 
         wrapper.setProps({
@@ -4668,6 +4658,7 @@ describe('PatientData', function () {
         sinon.assert.calledWith(setStateSpy, {
           loading: true,
           fetchAdditionalDataCount: 1,
+          fetchingAdditionalData: true,
         });
       });
 
@@ -5231,6 +5222,36 @@ describe('PatientData', function () {
         instance.handleSwitchToSettings = sinon.stub();
         instance.handleRouteChangeEvent(nextProps);
         sinon.assert.calledOnce(instance.handleSwitchToSettings);
+      });
+
+      context('needs data refetch due to refresh on settings view', () => {
+        it('should set the chartType state from the path parameter, and call handle refresh', (done) => {
+          const nextProps = { match: { params: { chartType: 'bgLog' } } };
+
+          instance.handleSwitchToBgLog = sinon.stub();
+          sinon.spy(instance, 'setState');
+          instance.handleRefresh = sinon.stub();
+          instance.state.refreshChartType = 'settings';
+
+          instance.handleRouteChangeEvent(nextProps);
+
+          sinon.assert.calledWith(instance.setState, { chartType: 'bgLog' });
+
+          setTimeout(() => {
+            sinon.assert.calledOnce(instance.handleRefresh);
+            done();
+          }, 0);
+        });
+
+        it('should not call `handleSwitchToBgLog` when the route changes to `/data/bgLog`', () => {
+          const nextProps = { match: { params: { chartType: 'bgLog' } } };
+
+          instance.handleSwitchToBgLog = sinon.stub();
+          instance.state.refreshChartType = 'settings';
+
+          instance.handleRouteChangeEvent(nextProps);
+          sinon.assert.notCalled(instance.handleSwitchToBgLog);
+        });
       });
     });
 
