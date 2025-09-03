@@ -62,6 +62,31 @@ export default (type) => {
     case types.FETCH_DEVICES_FAILURE:
       return 'fetchingDevices';
 
+    case types.FETCH_LATEST_CONSENT_BY_TYPE_REQUEST:
+    case types.FETCH_LATEST_CONSENT_BY_TYPE_SUCCESS:
+    case types.FETCH_LATEST_CONSENT_BY_TYPE_FAILURE:
+      return 'fetchingLatestConsentByType';
+
+    case types.FETCH_USER_CONSENT_RECORDS_REQUEST:
+    case types.FETCH_USER_CONSENT_RECORDS_SUCCESS:
+    case types.FETCH_USER_CONSENT_RECORDS_FAILURE:
+      return 'fetchingUserConsentRecords';
+
+    case types.CREATE_USER_CONSENT_RECORD_REQUEST:
+    case types.CREATE_USER_CONSENT_RECORD_SUCCESS:
+    case types.CREATE_USER_CONSENT_RECORD_FAILURE:
+      return 'creatingUserConsentRecord';
+
+    case types.UPDATE_USER_CONSENT_RECORD_REQUEST:
+    case types.UPDATE_USER_CONSENT_RECORD_SUCCESS:
+    case types.UPDATE_USER_CONSENT_RECORD_FAILURE:
+      return 'updatingUserConsentRecord';
+
+    case types.REVOKE_USER_CONSENT_RECORD_REQUEST:
+    case types.REVOKE_USER_CONSENT_RECORD_SUCCESS:
+    case types.REVOKE_USER_CONSENT_RECORD_FAILURE:
+      return 'revokingUserConsentRecord';
+
     case types.FETCH_MESSAGE_THREAD_REQUEST:
     case types.FETCH_MESSAGE_THREAD_SUCCESS:
     case types.FETCH_MESSAGE_THREAD_FAILURE:
@@ -213,11 +238,6 @@ export default (type) => {
     case types.DATA_WORKER_QUERY_DATA_SUCCESS:
     case types.DATA_WORKER_QUERY_DATA_FAILURE:
       return 'queryingData';
-
-    case types.UPDATE_DATA_DONATION_ACCOUNTS_REQUEST:
-    case types.UPDATE_DATA_DONATION_ACCOUNTS_SUCCESS:
-    case types.UPDATE_DATA_DONATION_ACCOUNTS_FAILURE:
-      return 'updatingDataDonationAccounts';
 
     case types.FETCH_DATA_SOURCES_REQUEST:
     case types.FETCH_DATA_SOURCES_SUCCESS:

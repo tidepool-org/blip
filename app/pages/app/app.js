@@ -73,11 +73,15 @@ export class AppComponent extends React.Component {
    *  - patients/:id/data
    *  - patients/:id/share
    *  - patients/:id/profile
+   * But not on new patient pages
+   *  - patients/new
+   *  - patients/new/dataDonation
    *
    * @return {Boolean}
    */
-  isPatientVisibleInNavbar() {
-    return /^\/patients\/\S+/.test(this.props.location);
+  showNavPatientHeader() {
+    // Show on all patient pages except for new patient signup flow pages (patients/new, patients/new/dataDonation)
+    return /^\/patients\/(?!new(?:\/|$))\S+/.test(this.props.location);
   }
 
   doFetching(nextProps) {
@@ -195,7 +199,7 @@ export class AppComponent extends React.Component {
       context: { trackMetric, api },
     } = this.props;
 
-    if (!this.isPatientVisibleInNavbar()) return null; // only show on pages with a patient of focus
+    if (!this.showNavPatientHeader()) return null; // only show on pages with a patient of focus
 
     return (
       <NavPatientHeader
@@ -435,7 +439,6 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   fetchUser: actions.async.fetchUser,
   logout: actions.async.logout,
   onCloseNotification: actions.sync.acknowledgeNotification,
-  updateDataDonationAccounts: actions.async.updateDataDonationAccounts,
   resendEmailVerification: actions.async.resendEmailVerification,
   fetchInfo: actions.async.fetchInfo,
 }, dispatch);

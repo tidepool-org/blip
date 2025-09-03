@@ -20,6 +20,7 @@ import { PrescriptionForm } from './pages/prescription';
 import OAuthConnection from './pages/oauth/OAuthConnection';
 import PatientData from './pages/patientdata';
 import PatientNew from './pages/patientnew';
+import PatientNewDataDonation from './pages/patientnew/dataDonation';
 import PatientProfile from './pages/patientprofile/patientprofile';
 import Patients from './pages/patients';
 import RequestPasswordReset from './pages/passwordreset/request';
@@ -473,6 +474,7 @@ export const getRoutes = (appContext) => {
           <Route path='/profile' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><UserProfile {...routeProps} {...props} /></Gate>)} />
           <Route exact path='/patients' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><Patients {...routeProps} {...props} /></Gate>)} />
           <Route exact path='/patients/new' render={routeProps => (<Gate onEnter={boundRequireAuthAndNoPatient} key={routeProps.match.path}><PatientNew {...routeProps} {...props} /></Gate>)} />
+          <Route exact path='/patients/new/dataDonation' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><PatientNewDataDonation {...routeProps} {...props} /></Gate>)} />
           <Route exact path='/prescriptions/new' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><PrescriptionForm {...routeProps} {...props} /></Gate>)} />
           <Route exact path='/prescriptions/:id' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><PrescriptionForm {...routeProps} {...props} /></Gate>)} />
           <Route exact path='/patients/:id/profile' render={routeProps => (<Gate onEnter={boundRequireSupportedBrowserForUserType} key={routeProps.match.path}><PatientProfile {...routeProps} {...props} /></Gate>)} />

@@ -153,11 +153,11 @@ describe('ClinicianPatients', () => {
 
   context('patients hidden', () => {
     beforeEach(() => {
-      const initialState = { 
-        blip: { 
+      const initialState = {
+        blip: {
           ...hasPatientsState.blip,
           patientListFilters: { isPatientListVisible: false, patientListSearchTextInput: '' }
-        } 
+        }
       }
 
       store = mockStore(initialState);
@@ -173,7 +173,7 @@ describe('ClinicianPatients', () => {
       defaultProps.trackMetric.resetHistory();
     });
 
-    it('should render a button that toggles patients to be visible', () => { 
+    it('should render a button that toggles patients to be visible', () => {
       wrapper.find('.peopletable-names-showall').hostNodes().simulate('click');
       expect(store.getActions()).to.eql([{ type: 'SET_IS_PATIENT_LIST_VISIBLE', payload: { isVisible: true } }])
     })
