@@ -52,7 +52,7 @@ export const colors = {
     info: vizColors.indigo30,
     warning: vizColors.gold50,
     danger: vizColors.red30,
-    success: vizColors.green30,
+    success: vizColors.green50,
   },
   banner: {
     info: {
