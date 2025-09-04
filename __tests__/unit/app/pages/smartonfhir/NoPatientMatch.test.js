@@ -8,7 +8,7 @@
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { NoPatientMatch } from '../../../../app/pages/smartonfhir/NoPatientMatch';
+import { NoPatientMatch } from '@app/pages/smartonfhir/NoPatientMatch';
 
 // Mock the i18next translation
 jest.mock('react-i18next', () => ({
@@ -25,14 +25,14 @@ jest.mock('@material-ui/icons/WarningRounded', () => {
 });
 
 // Mock the Icon component
-jest.mock('../../../../app/components/elements/Icon', () => {
+jest.mock('@app/components/elements/Icon', () => {
   return function MockIcon({ children }) {
     return <div data-testid="icon">{children}</div>;
   };
 });
 
 // Mock the theme
-jest.mock('../../../../app/themes/baseTheme', () => ({
+jest.mock('@app/themes/baseTheme', () => ({
   fontWeights: { medium: 500 },
   fonts: { default: 'Arial' }
 }));

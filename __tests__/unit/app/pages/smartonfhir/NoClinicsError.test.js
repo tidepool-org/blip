@@ -8,7 +8,7 @@
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { NoClinicsError } from '../../../../app/pages/smartonfhir/NoClinicsError';
+import { NoClinicsError } from '@app/pages/smartonfhir/NoClinicsError';
 
 // Mock the i18next translation
 jest.mock('react-i18next', () => ({
@@ -25,7 +25,7 @@ jest.mock('@material-ui/icons/WarningRounded', () => {
 });
 
 // Mock the Icon component
-jest.mock('../../../../app/components/elements/Icon', () => {
+jest.mock('@app/components/elements/Icon', () => {
   return function MockIcon({ children }) {
     return <div data-testid="icon">{children}</div>;
   };

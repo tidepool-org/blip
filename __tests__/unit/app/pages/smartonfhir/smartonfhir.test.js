@@ -13,7 +13,7 @@ import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import { MemoryRouter } from 'react-router-dom';
 
-import SmartOnFhir from '../../../../app/pages/smartonfhir/smartonfhir';
+import SmartOnFhir from '@app/pages/smartonfhir/smartonfhir';
 
 const mockStore = configureStore([thunk]);
 
