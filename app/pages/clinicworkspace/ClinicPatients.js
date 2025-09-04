@@ -3689,7 +3689,7 @@ export const ClinicPatients = (props) => {
       }
       {!showSummaryData && patient.email && <Text sx={{ fontSize: [0, null, '10px'] }}>{patient.email}</Text>}
     </Box>
-  ), [handleClickPatient, showSummaryData, t]);
+  ), [showSummaryData, t]);
 
   const renderLastDataDate = useCallback(({ summary }) => {
     let formattedLastDataDateCGM, formattedLastDataDateBGM;
@@ -3906,18 +3906,18 @@ export const ClinicPatients = (props) => {
     </Box>
   );
 
-  const renderLinkedField = useCallback((field, patient) => (
-    <Box
-      classname={`patient-${field}`}
-      onClick={() => handleClickPatient(patient)}
-      sx={{ cursor: 'pointer' }}
-    >
+  const renderDemographicField = useCallback((field, patient) => (
+    <Box classname={`patient-${field}`} sx={{ cursor: 'pointer' }}>
       <Text sx={{ fontWeight: 'medium' }}>{patient[field]}</Text>
     </Box>
-  ), [handleClickPatient]);
+  ), []);
 
   const renderLastReviewed = useCallback((patient) => {
-    return <PatientLastReviewed api={api} trackMetric={trackMetric} metricSource="Patients list" patientId={patient.id} recentlyReviewedThresholdDate={moment().startOf('day').toISOString()} />
+    return (
+      <Box onClick={event => event.stopPropagation()}>
+        <PatientLastReviewed api={api} trackMetric={trackMetric} metricSource="Patients list" patientId={patient.id} recentlyReviewedThresholdDate={moment().startOf('day').toISOString()} />
+      </Box>
+    );
   }, [api, trackMetric]);
 
   const renderMore = useCallback((patient) => {
@@ -3965,13 +3965,13 @@ export const ClinicPatients = (props) => {
         align: 'left',
         sortable: true,
         defaultOrder: defaultSortOrders.birthDate,
-        render: renderLinkedField.bind(null, 'birthDate'),
+        render: renderDemographicField.bind(null, 'birthDate'),
       },
       {
         title: t('MRN'),
         field: 'mrn',
         align: 'left',
-        render: renderLinkedField.bind(null, 'mrn'),
+        render: renderDemographicField.bind(null, 'mrn'),
         hideEmpty: true,
       },
       {
@@ -4113,7 +4113,7 @@ export const ClinicPatients = (props) => {
     renderGMI,
     renderLastReviewed,
     renderLastDataDate,
-    renderLinkedField,
+    renderDemographicField,
     renderMore,
     renderPatient,
     renderPatientTags,
