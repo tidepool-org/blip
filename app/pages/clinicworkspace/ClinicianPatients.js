@@ -335,10 +335,8 @@ export const ClinicianPatients = (props) => {
   }
 
   function handleClickPatient(patient) {
-    return () => {
-      trackMetric('Selected PwD');
-      dispatch(push(`/patients/${patient.id}/data`));
-    }
+    trackMetric('Selected PwD');
+    dispatch(push(`/patients/${patient.id}/data`));
   }
 
   function handleAddPatient() {
@@ -392,14 +390,14 @@ export const ClinicianPatients = (props) => {
   };
 
   const renderPatient = patient => (
-    <Box onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
+    <Box onClick={() => handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
       <Text fontWeight="medium">{patient.fullName}</Text>
       {patient.email && <Text>{patient.email}</Text>}
     </Box>
   );
 
   const renderLinkedField = (field, patient) => (
-    patient[field] ? <Box classname={`patient-${field}`} onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
+    patient[field] ? <Box classname={`patient-${field}`} onClick={() => handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
       <Text fontWeight="medium">{patient[field]}</Text>
     </Box> : null
   );
@@ -485,6 +483,7 @@ export const ClinicianPatients = (props) => {
           sx={{ fontSize: 1 }}
           orderBy="fullNameOrderable"
           order="asc"
+          onClickRow={handleClickPatient}
           rowsPerPage={rowsPerPage}
           searchText={patientListSearchTextInput}
           page={page}
