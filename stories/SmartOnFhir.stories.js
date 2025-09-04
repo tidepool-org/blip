@@ -9,6 +9,7 @@ import baseTheme from '../app/themes/baseTheme';
 import { SmartOnFhir } from '../app/pages/smartonfhir/smartonfhir';
 import MultiplePatientError from '../app/pages/smartonfhir/MultiplePatientError';
 import NoPatientMatch from '../app/pages/smartonfhir/NoPatientMatch';
+import NoClinicsError from '../app/pages/smartonfhir/NoClinicsError';
 
 const mockStore = configureStore([thunk]);
 
@@ -499,4 +500,11 @@ export const NoPatientMatchComponent = {
     <NoPatientMatch onClose={() => {}} />
   ),
   name: 'No Patient Match Component',
+};
+
+export const NoClinicsErrorComponent = {
+  render: () => (
+    <NoClinicsError onClose={() => {}} />
+  ),
+  name: 'No Clinics Error Component',
 };

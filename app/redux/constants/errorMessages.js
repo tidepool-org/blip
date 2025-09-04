@@ -177,3 +177,4 @@ export const ERR_SMARTONFHIR_MULTIPLE_PATIENTS_FOUND = t('Multiple patients foun
 export const ERR_SMARTONFHIR_FETCHING_PATIENT = t('Error fetching patient.');
 export const ERR_SMARTONFHIR_INITIALIZING = t('Initializing Smart on FHIR...');
 export const ERR_SMARTONFHIR_LOADING_PATIENT_DATA = t('Loading patient data...');
+export const ERR_SMARTONFHIR_CLINICIAN_NO_CLINICS = t('You are not a member of any clinics. Please contact your administrator to be added to a clinic.');
