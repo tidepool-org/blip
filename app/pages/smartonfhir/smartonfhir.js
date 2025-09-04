@@ -25,7 +25,7 @@ SmartOnFhirLayout.propTypes = {
 };
 
 export const SmartOnFhir = (props) => {
-  const { api, window: windowObj = window } = props;
+  const { api, window: windowObj = window, trackMetric } = props;
 
   const smartOnFhirData = useSelector(state => state.blip.smartOnFhirData);
   const smartCorrelationId = useSelector(state => state.blip.smartCorrelationId);
@@ -112,16 +112,19 @@ export const SmartOnFhir = (props) => {
 
       fetchPatients(api, { mrn, birthDate: dob }, (err, results) => {
         if (err) {
+          trackMetric('Direct Connect Patient Lookup Failure');
           setError(ErrorMessages.ERR_SMARTONFHIR_FETCHING_PATIENT);
           setIsProcessing(false);
           return;
         }
         if (!results || results.length === 0) {
+          trackMetric('Direct Connect Patient Not Found');
           setError(ErrorMessages.ERR_SMARTONFHIR_NO_PATIENTS_FOUND);
           setIsProcessing(false);
           return;
         }
         if (results.length > 1) {
+          trackMetric('Direct Connect Multiple Patients Found');
           setError(ErrorMessages.ERR_SMARTONFHIR_MULTIPLE_PATIENTS_FOUND);
           setIsProcessing(false);
           return;
@@ -129,14 +132,17 @@ export const SmartOnFhir = (props) => {
 
         const patient = results[0]?.patient;
         if (!patient || !patient.id) {
+          trackMetric('Direct Connect Patient Lookup Failure');
           setError('Invalid patient data received');
           setIsProcessing(false);
           return;
         }
+
+        trackMetric('Direct Connect Patient Lookup Success');
         navigateTo(`/patients/${patient.id}/data`);
       });
     }
-  }, [smartOnFhirData, isProcessing, working.fetchingPatients.inProgress, api, fetchPatients, navigateTo, error, smartCorrelationId, setSmartCorrelationId, windowObj]);
+  }, [smartOnFhirData, isProcessing, working.fetchingPatients.inProgress, api, fetchPatients, navigateTo, error, smartCorrelationId, setSmartCorrelationId, windowObj, trackMetric]);
 
   if (isProcessing || working.fetchingPatients.inProgress) {
     return (
@@ -180,6 +186,7 @@ export const SmartOnFhir = (props) => {
 SmartOnFhir.propTypes = {
   api: PropTypes.object.isRequired,
   window: PropTypes.object,
+  trackMetric: PropTypes.func.isRequired,
 };
 
 export default SmartOnFhir;

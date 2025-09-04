@@ -22,6 +22,7 @@ describe('SmartOnFhir', () => {
   let store;
   let mockSessionStorage;
   let mockApi;
+  let mockTrackMetric;
 
   beforeEach(() => {
     mockSessionStorage = {
@@ -34,6 +35,8 @@ describe('SmartOnFhir', () => {
         getAll: sinon.stub().callsArgWith(1, null, [{ patient: { id: 'user1' }, clinic: { id: 'clinic1' } }]),
       },
     };
+
+    mockTrackMetric = sinon.spy();
 
     store = mockStore({
       blip: {
@@ -63,6 +66,7 @@ describe('SmartOnFhir', () => {
           <SmartOnFhir
             api={mockApi}
             window={{ sessionStorage: mockSessionStorage }}
+            trackMetric={mockTrackMetric}
           />
         </MemoryRouter>
       </Provider>
@@ -72,6 +76,71 @@ describe('SmartOnFhir', () => {
   afterEach(() => {
     mockSessionStorage.getItem.reset();
     mockSessionStorage.setItem.reset();
+    mockTrackMetric.resetHistory();
+    store.clearActions();
+  });
+
+  it('should render loading message initially', () => {
+    expect(wrapper.text()).to.include('Loading patient data...');
+  });
+
+  it('should track "Direct Connect Patient Lookup Success" when patient is found successfully', () => {
+    expect(mockTrackMetric.calledWith('Direct Connect Patient Lookup Success')).to.be.true;
+  });
+
+  beforeEach(() => {
+    mockSessionStorage = {
+      getItem: sinon.stub().returns('correlation-123'),
+      setItem: sinon.stub(),
+    };
+
+    mockApi = {
+      patient: {
+        getAll: sinon.stub().callsArgWith(1, null, [{ patient: { id: 'user1' }, clinic: { id: 'clinic1' } }]),
+      },
+    };
+
+    mockTrackMetric = sinon.spy();
+
+    store = mockStore({
+      blip: {
+        smartOnFhirData: {
+          patients: {
+            'correlation-123': {
+              mrn: '12345',
+              dob: '1990-01-01',
+            },
+          },
+        },
+        smartCorrelationId: null,
+        working: {
+          fetchingPatients: {
+            inProgress: false,
+            notification: null
+          },
+        },
+      }
+    });
+
+    store.dispatch = sinon.spy(store.dispatch);
+
+    wrapper = mount(
+      <Provider store={store}>
+        <MemoryRouter>
+          <SmartOnFhir
+            api={mockApi}
+            window={{ sessionStorage: mockSessionStorage }}
+            trackMetric={mockTrackMetric}
+          />
+        </MemoryRouter>
+      </Provider>
+    );
+  });
+
+  afterEach(() => {
+    mockSessionStorage.getItem.reset();
+    mockSessionStorage.setItem.reset();
+    mockTrackMetric.resetHistory();
     store.clearActions();
   });
 
@@ -134,6 +203,7 @@ describe('SmartOnFhir', () => {
           <SmartOnFhir
             api={mockApi}
             window={{ sessionStorage: mockSessionStorage }}
+            trackMetric={mockTrackMetric}
           />
         </MemoryRouter>
       </Provider>
@@ -163,6 +233,7 @@ describe('SmartOnFhir', () => {
           <SmartOnFhir
             api={mockApi}
             window={{ sessionStorage: mockSessionStorage }}
+            trackMetric={mockTrackMetric}
           />
         </MemoryRouter>
       </Provider>
@@ -196,6 +267,7 @@ describe('SmartOnFhir', () => {
           <SmartOnFhir
             api={mockApi}
             window={{ sessionStorage: mockSessionStorage }}
+            trackMetric={mockTrackMetric}
           />
         </MemoryRouter>
       </Provider>
@@ -229,6 +301,7 @@ describe('SmartOnFhir', () => {
           <SmartOnFhir
             api={mockApi}
             window={{ sessionStorage: mockSessionStorage }}
+            trackMetric={mockTrackMetric}
           />
         </MemoryRouter>
       </Provider>
@@ -265,6 +338,7 @@ describe('SmartOnFhir', () => {
           <SmartOnFhir
             api={mockApi}
             window={{ sessionStorage: mockSessionStorage }}
+            trackMetric={mockTrackMetric}
           />
         </MemoryRouter>
       </Provider>
@@ -292,6 +366,7 @@ describe('SmartOnFhir', () => {
           <SmartOnFhir
             api={mockApi}
             window={{ sessionStorage: mockSessionStorage }}
+            trackMetric={mockTrackMetric}
           />
         </MemoryRouter>
       </Provider>
@@ -301,5 +376,164 @@ describe('SmartOnFhir', () => {
 
     // Cleanup
     delete global.zE;
+  });
+
+  it('should track "Direct Connect Patient Lookup Success" when patient is found successfully', () => {
+    expect(mockTrackMetric.calledWith('Direct Connect Patient Lookup Success')).to.be.true;
+  });
+
+  it('should track "Direct Connect Patient Lookup Failure" when fetchPatients returns an error', () => {
+    mockApi.patient.getAll.reset();
+    mockApi.patient.getAll.callsArgWith(1, new Error('API Error'), null);
+
+    const errorStore = mockStore({
+      blip: {
+        smartOnFhirData: {
+          patients: {
+            'correlation-123': {
+              mrn: '12345',
+              dob: '1990-01-01',
+            },
+          },
+        },
+        smartCorrelationId: 'correlation-123',
+        working: {
+          fetchingPatients: {
+            inProgress: false,
+          },
+        },
+      }
+    });
+
+    const errorWrapper = mount(
+      <Provider store={errorStore}>
+        <MemoryRouter>
+          <SmartOnFhir
+            api={mockApi}
+            window={{ sessionStorage: mockSessionStorage }}
+            trackMetric={mockTrackMetric}
+          />
+        </MemoryRouter>
+      </Provider>
+    );
+
+    expect(mockTrackMetric.calledWith('Direct Connect Patient Lookup Failure')).to.be.true;
+  });
+
+  it('should track "Direct Connect Patient Not Found" when no patients are returned', () => {
+    mockApi.patient.getAll.reset();
+    mockApi.patient.getAll.callsArgWith(1, null, []);
+
+    const noPatientsStore = mockStore({
+      blip: {
+        smartOnFhirData: {
+          patients: {
+            'correlation-123': {
+              mrn: '12345',
+              dob: '1990-01-01',
+            },
+          },
+        },
+        smartCorrelationId: 'correlation-123',
+        working: {
+          fetchingPatients: {
+            inProgress: false,
+          },
+        },
+      }
+    });
+
+    const noPatientsWrapper = mount(
+      <Provider store={noPatientsStore}>
+        <MemoryRouter>
+          <SmartOnFhir
+            api={mockApi}
+            window={{ sessionStorage: mockSessionStorage }}
+            trackMetric={mockTrackMetric}
+          />
+        </MemoryRouter>
+      </Provider>
+    );
+
+    expect(mockTrackMetric.calledWith('Direct Connect Patient Not Found')).to.be.true;
+  });
+
+  it('should track "Direct Connect Multiple Patients Found" when multiple patients are returned', () => {
+    mockApi.patient.getAll.reset();
+    mockApi.patient.getAll.callsArgWith(1, null, [
+      { patient: { id: 'user1' }, clinic: { id: 'clinic1' } },
+      { patient: { id: 'user2' }, clinic: { id: 'clinic2' } }
+    ]);
+
+    const multiplePatientsStore = mockStore({
+      blip: {
+        smartOnFhirData: {
+          patients: {
+            'correlation-123': {
+              mrn: '12345',
+              dob: '1990-01-01',
+            },
+          },
+        },
+        smartCorrelationId: 'correlation-123',
+        working: {
+          fetchingPatients: {
+            inProgress: false,
+          },
+        },
+      }
+    });
+
+    const multiplePatientsWrapper = mount(
+      <Provider store={multiplePatientsStore}>
+        <MemoryRouter>
+          <SmartOnFhir
+            api={mockApi}
+            window={{ sessionStorage: mockSessionStorage }}
+            trackMetric={mockTrackMetric}
+          />
+        </MemoryRouter>
+      </Provider>
+    );
+
+    expect(mockTrackMetric.calledWith('Direct Connect Multiple Patients Found')).to.be.true;
+  });
+
+  it('should track "Direct Connect Patient Lookup Failure" when patient data is invalid', () => {
+    mockApi.patient.getAll.reset();
+    mockApi.patient.getAll.callsArgWith(1, null, [{ patient: { id: null }, clinic: { id: 'clinic1' } }]);
+
+    const invalidPatientStore = mockStore({
+      blip: {
+        smartOnFhirData: {
+          patients: {
+            'correlation-123': {
+              mrn: '12345',
+              dob: '1990-01-01',
+            },
+          },
+        },
+        smartCorrelationId: 'correlation-123',
+        working: {
+          fetchingPatients: {
+            inProgress: false,
+          },
+        },
+      }
+    });
+
+    const invalidPatientWrapper = mount(
+      <Provider store={invalidPatientStore}>
+        <MemoryRouter>
+          <SmartOnFhir
+            api={mockApi}
+            window={{ sessionStorage: mockSessionStorage }}
+            trackMetric={mockTrackMetric}
+          />
+        </MemoryRouter>
+      </Provider>
+    );
+
+    expect(mockTrackMetric.calledWith('Direct Connect Patient Lookup Failure')).to.be.true;
   });
 });
