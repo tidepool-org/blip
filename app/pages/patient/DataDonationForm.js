@@ -79,7 +79,10 @@ export const DataDonationForm = (props) => {
   const fallbackConsentDate = moment().format('MMMM D, YYYY');
   const consentDate = currentConsent?.grantTime ? moment(currentConsent.grantTime).format('MMMM D, YYYY') : fallbackConsentDate;
   const showConsentDialogTrigger = formContext === formContexts.profile;
-  const consentSuccessMessage = getConsentText(accountType, patientAgeGroup, patientName, caregiverName, consentDate).consentSuccessMessage;
+
+  const consentSuccessMessage = currentConsent?.version === 0
+    ? t('You consented on {{consentDate}}.', { consentDate })
+    : getConsentText(accountType, patientAgeGroup, patientName, caregiverName, consentDate).consentSuccessMessage;
 
   const consentRecordAgeGroupMap = {
     child: '<13',
