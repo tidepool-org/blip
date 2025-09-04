@@ -1727,6 +1727,7 @@ export const PatientDataClass = createReactClass({
         'size',
         'devices',
         'matchedDevices',
+        'dataAnnotations',
       ],
       types: '*',
       raw,
@@ -2029,7 +2030,7 @@ export const PatientDataClass = createReactClass({
       showLoading: true,
       updateChartEndpoints: options.updateChartEndpoints || !this.state.chartEndpoints,
       transitioningChartType: false,
-      metaData: 'bgSources,devices,matchedDevices,excludedDevices,queryDataCount',
+      metaData: 'bgSources,devices,matchedDevices,excludedDevices,queryDataCount,dataAnnotations',
       bgSource: _.get(this.state, ['chartPrefs', this.state.chartType, 'bgSource']),
     });
 

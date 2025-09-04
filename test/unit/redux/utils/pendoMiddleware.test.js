@@ -901,6 +901,11 @@ describe('pendoMiddleware', () => {
               deviceType2: { device3: true },
               deviceType3: { 'device3_1.0.1-rc.1+10034': true },
             },
+            dataAnnotations: [
+              { code: 'annotation1' },
+              { code: 'annotation2' },
+              { code: 'annotation3' },
+            ],
           },
         },
       },
@@ -935,6 +940,7 @@ describe('pendoMiddleware', () => {
       visitor: {
         id: 'clinicAdminID',
         currentlyViewedDevices: ['device1', 'device2', 'device3', 'device3_1', 'device3_1.0', 'device3_1.0.1'],
+        currentlyViewedDataAnnotations: ['annotation1', 'annotation2', 'annotation3'],
       },
     };
 

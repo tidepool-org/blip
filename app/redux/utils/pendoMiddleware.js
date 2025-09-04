@@ -100,7 +100,7 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
         return clinic?.clinicians?.[user?.userid];
       });
 
-      const optionalVisitorProperties = { currentlyViewedDevices: [] };
+      const optionalVisitorProperties = { currentlyViewedDevices: [], currentlyViewedDataAnnotations: [] };
       const optionalAccountProperties = {};
       let clinic = null;
 
@@ -151,6 +151,7 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
           visitor: {
             id: user.userid,
             currentlyViewedDevices: [],
+            currentlyViewedDataAnnotations: [],
             permission: null,
           },
           account: {
@@ -170,6 +171,7 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
           visitor: {
             id: user.userid,
             currentlyViewedDevices: [],
+            currentlyViewedDataAnnotations: [],
             permission: includes(
               selectedClinic?.clinicians?.[user.userid]?.roles,
               'CLINIC_ADMIN'
@@ -285,14 +287,21 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
       } = getState();
 
       let currentlyViewedDevices = [];
+      let currentlyViewedDataAnnotations = [];
 
       if (currentPatientInViewId) {
         const matchedDevices = get(action.payload, 'result.metaData.matchedDevices');
+        const dataAnnotations = get(action.payload, 'result.metaData.dataAnnotations');
 
         currentlyViewedDevices = uniq(reduce(values(matchedDevices), (acc, device) => {
           each(keys(device), (key) => {
             acc.push(...parseDeviceKeyVersions(key));
           });
+          return acc;
+        }, []));
+
+        currentlyViewedDataAnnotations = uniq(reduce(values(dataAnnotations), (acc, annotation) => {
+          acc.push(annotation.code);
           return acc;
         }, []));
       }
@@ -301,6 +310,7 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
         visitor: {
           id: loggedInUserId,
           currentlyViewedDevices,
+          currentlyViewedDataAnnotations,
         },
       });
 
@@ -316,6 +326,7 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
         visitor: {
           id: loggedInUserId,
           currentlyViewedDevices: [],
+          currentlyViewedDataAnnotations: [],
         },
       });
       break;
