@@ -478,7 +478,7 @@ const PatientTags = ({
       tags={map(filteredPatientTags, tagId => patientTags?.[tagId])}
     />
   ) : (
-    <React.Fragment>
+    <Box onClick={event => event.stopPropagation()}>
       <Box {...addTagsBindTrigger}>
         <Button
           id="add-tags-to-patient-trigger"
@@ -616,7 +616,7 @@ const PatientTags = ({
           </Button>
         </DialogActions>
       </Popover>
-    </React.Fragment>
+    </Box>
   );
 };
 
@@ -1287,10 +1287,8 @@ export const ClinicPatients = (props) => {
   }, [prefixPopHealthMetric, selectedClinicId, isPatientListVisible, showSummaryData, trackMetric]);
 
   const handleClickPatient = useCallback(patient => {
-    return () => {
-      trackMetric('Selected PwD');
-      dispatch(push(`/patients/${patient.id}/data`));
-    }
+    trackMetric('Selected PwD');
+    dispatch(push(`/patients/${patient.id}/data`));
   }, [dispatch, trackMetric]);
 
   function handleAddPatient() {
@@ -3680,7 +3678,7 @@ export const ClinicPatients = (props) => {
   ]);
 
   const renderPatient = useCallback(patient => (
-    <Box onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
+    <Box>
       <Text sx={{ display: 'block', fontSize: [1, null, 0], fontWeight: 'medium' }}>{patient.fullName}</Text>
       {showSummaryData && <Text sx={{ fontSize: [0, null, '10px'], whiteSpace: 'nowrap' }}>{t('DOB:')} {patient.birthDate}</Text>}
       {showSummaryData && patient.mrn && <Text sx={{ fontSize: [0, null, '10px'], whiteSpace: 'nowrap' }}>, {t('MRN: {{mrn}}', { mrn: patient.mrn })}</Text>}
@@ -3911,7 +3909,7 @@ export const ClinicPatients = (props) => {
   const renderLinkedField = useCallback((field, patient) => (
     <Box
       classname={`patient-${field}`}
-      onClick={handleClickPatient(patient)}
+      onClick={() => handleClickPatient(patient)}
       sx={{ cursor: 'pointer' }}
     >
       <Text sx={{ fontWeight: 'medium' }}>{patient[field]}</Text>
@@ -4180,6 +4178,7 @@ export const ClinicPatients = (props) => {
           onSort={handleSortChange}
           order={sort?.substring(0, 1) === '+' ? 'asc' : 'desc'}
           orderBy={sort?.substring(1)}
+          onClickRow={handleClickPatient}
           emptyContentNode={
             <EmptyContentNode patientListQueryState={patientListQueryState}>
               <ClearFilterButtons
