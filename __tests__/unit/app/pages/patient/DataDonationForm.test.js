@@ -175,6 +175,28 @@ describe('DataDonationForm', () => {
       expect(screen.getByText('Stop Sharing Data')).toBeInTheDocument();
     });
 
+    it('should show generic consent success message for migrated v0 consents', () => {
+      const stateWithLegacyConsent = {
+        ...baseState,
+        blip: {
+          ...baseState.blip,
+          consentRecords: {
+            [DATA_DONATION_CONSENT_TYPE]: {
+              id: 'consent123',
+              version: 0,
+              type: DATA_DONATION_CONSENT_TYPE,
+              grantTime: '2023-01-01T00:00:00Z',
+              metadata: { supportedOrganizations: ['org1'] }
+            }
+          }
+        }
+      };
+
+      renderWithProviders(stateWithLegacyConsent);
+      expect(screen.getByTestId('success-pill')).toBeInTheDocument();
+      expect(screen.getByText('You consented on January 1, 2023.')).toBeInTheDocument();
+    });
+
     it('should calculate accountType correctly for personal account', () => {
       mockPersonUtils.patientIsOtherPerson.mockReturnValue(false);
       renderWithProviders();
