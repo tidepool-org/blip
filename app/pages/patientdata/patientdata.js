@@ -2213,6 +2213,15 @@ export const PatientDataClass = createReactClass({
         excludedDevices,
       }, false);
 
+      if (chartType === 'settings') {
+        this.fetchAdditionalData({
+          returnData: false,
+          showLoading: true,
+          noDates: true,
+          type: 'pumpSettings,upload',
+        });
+      }
+
       this.updateChart(chartType, datetimeLocation, endpoints);
       props.trackMetric(`web - default to ${chartType === 'bgLog' ? 'weekly' : chartType}`);
     }
