@@ -2071,7 +2071,7 @@ export const PatientDataClass = createReactClass({
             pumpSettings: {},
             upload: {},
           };
-          chartQuery.endpoints[0] = 0;
+          chartQuery.endpoints = [0, moment().valueOf()]; // fetch all data
           break;
       }
 
