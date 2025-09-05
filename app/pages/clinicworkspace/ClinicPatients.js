@@ -3907,7 +3907,7 @@ export const ClinicPatients = (props) => {
   );
 
   const renderDemographicField = useCallback((field, patient) => (
-    <Box classname={`patient-${field}`} sx={{ cursor: 'pointer' }}>
+    <Box className={`patient-${field}`} sx={{ cursor: 'pointer' }}>
       <Text sx={{ fontWeight: 'medium' }}>{patient[field]}</Text>
     </Box>
   ), []);
