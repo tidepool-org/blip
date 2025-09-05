@@ -8465,7 +8465,7 @@ __metadata:
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
     tideline: 1.35.0
-    tidepool-platform-client: 0.63.2-rc.1
+    tidepool-platform-client: 0.63.2
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
     url-loader: 4.1.1
@@ -22256,15 +22256,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tidepool-platform-client@npm:0.63.2-rc.1":
-  version: 0.63.2-rc.1
-  resolution: "tidepool-platform-client@npm:0.63.2-rc.1"
+"tidepool-platform-client@npm:0.63.2":
+  version: 0.63.2
+  resolution: "tidepool-platform-client@npm:0.63.2"
   dependencies:
     async: 0.9.0
     lodash: 4.17.21
     superagent: 5.2.2
     uuid: 3.1.0
-  checksum: 959e6285b18cf11ef7102d80b9e841c4aa86249fc2c3a575ff825bee34ae8dda9219d3bec415a8ce79c2dd0eb1902abf69f3afa8e96dedbc521b146a81e9dcb2
+  checksum: f8a3196e03060f6da022958d5d6b680eec4cbfa0b03a53402db1023fbd0bb8db3fd98f6140321b649201e7913ccad46538e03f06bd825e01dc0e4d9e30ad5618
   languageName: node
   linkType: hard
 
