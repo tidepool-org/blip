@@ -1,7 +1,7 @@
 import compact from 'lodash/compact';
 import each from 'lodash/each';
-import get from 'lodash/get';
 import filter from 'lodash/filter';
+import get from 'lodash/get';
 import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
@@ -300,10 +300,7 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
           return acc;
         }, []));
 
-        currentlyViewedDataAnnotations = uniq(reduce(values(dataAnnotations), (acc, annotation) => {
-          acc.push(annotation.code);
-          return acc;
-        }, []));
+        currentlyViewedDataAnnotations = keys(dataAnnotations);
       }
 
       pendoAction({
