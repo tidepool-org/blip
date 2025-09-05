@@ -2,8 +2,10 @@
 /* global describe */
 /* global sinon */
 /* global it */
+/* global before */
 /* global beforeEach */
 /* global afterEach */
+/* global after */
 
 import React, { createElement } from 'react';
 var expect = chai.expect;
@@ -28,6 +30,11 @@ describe('PatientInfo', function () {
   };
 
   let wrapper;
+
+  before(() => {
+    PatientInfo.__Rewire__('DataDonationForm', 'DataDonationFormStub');
+  });
+
   beforeEach(() => {
     wrapper = mount(
       createElement(
@@ -45,6 +52,10 @@ describe('PatientInfo', function () {
     props.fetchDataSources.reset();
     props.connectDataSource.reset();
     props.disconnectDataSource.reset();
+  });
+
+  after(() => {
+    PatientInfo.__ResetDependency__('DataDonationForm');
   });
 
   describe('render', function() {
