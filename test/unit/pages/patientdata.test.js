@@ -5074,7 +5074,7 @@ describe('PatientData', function () {
   });
 
   describe('handleSwitchToSettings', function() {
-    it('should track a metric', function() {
+    it.only('should track a metric', function() {
       var props = {
         currentPatientInViewId: '40',
         dataWorkerQueryDataRequest: sinon.stub(),
@@ -5103,6 +5103,7 @@ describe('PatientData', function () {
         endpoints: [100,200],
       });
       elem.instance().handleSwitchToSettings();
+      expect(props.onFetchAdditionalData.callCount).to.equal(1);
       expect(props.trackMetric.callCount).to.equal(callCount + 2);
       expect(props.trackMetric.calledWith('Clicked Switch To Settings')).to.be.true;
     });
