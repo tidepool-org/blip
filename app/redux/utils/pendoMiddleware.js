@@ -300,7 +300,7 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
           return acc;
         }, []));
 
-        currentlyViewedDataAnnotations = keys(dataAnnotations);
+        currentlyViewedDataAnnotations = keys(dataAnnotations) || [];
       }
 
       pendoAction({
