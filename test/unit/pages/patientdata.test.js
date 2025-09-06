@@ -5074,7 +5074,7 @@ describe('PatientData', function () {
   });
 
   describe('handleSwitchToSettings', function() {
-    it.only('should track a metric', function() {
+    it('should track a metric', function() {
       var props = {
         currentPatientInViewId: '40',
         dataWorkerQueryDataRequest: sinon.stub(),
