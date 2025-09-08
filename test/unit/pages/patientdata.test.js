@@ -3099,7 +3099,7 @@ describe('PatientData', function () {
       sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, { metaData: 'latestDatumByType, size' });
     });
 
-    it('should set the `metaData` query to `bgSources,devices` if arg not provided', () => {
+    it('should set the default `metaData` query if arg not provided', () => {
       instance.queryData(emptyQuery);
       sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, { metaData: 'bgSources,devices,matchedDevices,excludedDevices,queryDataCount,dataAnnotations' });
     });
