@@ -54,6 +54,11 @@ export default (state = initialWorkingState, action) => {
     case types.CREATE_PRESCRIPTION_REVISION_REQUEST:
     case types.DELETE_PRESCRIPTION_REQUEST:
     case types.FETCH_DEVICES_REQUEST:
+    case types.FETCH_LATEST_CONSENT_BY_TYPE_REQUEST:
+    case types.FETCH_USER_CONSENT_RECORDS_REQUEST:
+    case types.CREATE_USER_CONSENT_RECORD_REQUEST:
+    case types.UPDATE_USER_CONSENT_RECORD_REQUEST:
+    case types.REVOKE_USER_CONSENT_RECORD_REQUEST:
     case types.FETCH_MESSAGE_THREAD_REQUEST:
     case types.CREATE_MESSAGE_THREAD_REQUEST:
     case types.EDIT_MESSAGE_THREAD_REQUEST:
@@ -84,7 +89,6 @@ export default (state = initialWorkingState, action) => {
     case types.DATA_WORKER_REMOVE_DATA_REQUEST:
     case types.DATA_WORKER_UPDATE_DATUM_REQUEST:
     case types.DATA_WORKER_QUERY_DATA_REQUEST:
-    case types.UPDATE_DATA_DONATION_ACCOUNTS_REQUEST:
     case types.FETCH_DATA_SOURCES_REQUEST:
     case types.FETCH_SERVER_TIME_REQUEST:
     case types.CONNECT_DATA_SOURCE_REQUEST:
@@ -200,6 +204,11 @@ export default (state = initialWorkingState, action) => {
           types.FETCH_CLINIC_PATIENT_COUNT_REQUEST,
           types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST,
           types.FETCH_DATA_SOURCES_REQUEST,
+          types.FETCH_LATEST_CONSENT_BY_TYPE_REQUEST,
+          types.FETCH_USER_CONSENT_RECORDS_REQUEST,
+          types.CREATE_USER_CONSENT_RECORD_REQUEST,
+          types.UPDATE_USER_CONSENT_RECORD_REQUEST,
+          types.REVOKE_USER_CONSENT_RECORD_REQUEST,
           types.CREATE_CLINIC_REQUEST
         ], action.type)) {
           return update(state, {
@@ -244,6 +253,11 @@ export default (state = initialWorkingState, action) => {
     case types.CREATE_PRESCRIPTION_REVISION_SUCCESS:
     case types.DELETE_PRESCRIPTION_SUCCESS:
     case types.FETCH_DEVICES_SUCCESS:
+    case types.FETCH_LATEST_CONSENT_BY_TYPE_SUCCESS:
+    case types.FETCH_USER_CONSENT_RECORDS_SUCCESS:
+    case types.CREATE_USER_CONSENT_RECORD_SUCCESS:
+    case types.UPDATE_USER_CONSENT_RECORD_SUCCESS:
+    case types.REVOKE_USER_CONSENT_RECORD_SUCCESS:
     case types.FETCH_MESSAGE_THREAD_SUCCESS:
     case types.CREATE_MESSAGE_THREAD_SUCCESS:
     case types.EDIT_MESSAGE_THREAD_SUCCESS:
@@ -275,7 +289,6 @@ export default (state = initialWorkingState, action) => {
     case types.DATA_WORKER_REMOVE_DATA_SUCCESS:
     case types.DATA_WORKER_UPDATE_DATUM_SUCCESS:
     case types.DATA_WORKER_QUERY_DATA_SUCCESS:
-    case types.UPDATE_DATA_DONATION_ACCOUNTS_SUCCESS:
     case types.FETCH_DATA_SOURCES_SUCCESS:
     case types.FETCH_SERVER_TIME_SUCCESS:
     case types.CONNECT_DATA_SOURCE_SUCCESS:
@@ -434,6 +447,11 @@ export default (state = initialWorkingState, action) => {
     case types.CREATE_PRESCRIPTION_REVISION_FAILURE:
     case types.DELETE_PRESCRIPTION_FAILURE:
     case types.FETCH_DEVICES_FAILURE:
+    case types.FETCH_LATEST_CONSENT_BY_TYPE_FAILURE:
+    case types.FETCH_USER_CONSENT_RECORDS_FAILURE:
+    case types.CREATE_USER_CONSENT_RECORD_FAILURE:
+    case types.UPDATE_USER_CONSENT_RECORD_FAILURE:
+    case types.REVOKE_USER_CONSENT_RECORD_FAILURE:
     case types.FETCH_MESSAGE_THREAD_FAILURE:
     case types.CREATE_MESSAGE_THREAD_FAILURE:
     case types.EDIT_MESSAGE_THREAD_FAILURE:
@@ -463,7 +481,6 @@ export default (state = initialWorkingState, action) => {
     case types.DATA_WORKER_REMOVE_DATA_FAILURE:
     case types.DATA_WORKER_UPDATE_DATUM_FAILURE:
     case types.DATA_WORKER_QUERY_DATA_FAILURE:
-    case types.UPDATE_DATA_DONATION_ACCOUNTS_FAILURE:
     case types.FETCH_DATA_SOURCES_FAILURE:
     case types.FETCH_SERVER_TIME_FAILURE:
     case types.CONNECT_DATA_SOURCE_FAILURE:

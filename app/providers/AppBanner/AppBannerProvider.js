@@ -22,7 +22,7 @@ import {
 import { appBanners } from './appBanners';
 import { providers } from '../../components/datasources/DataConnections';
 import { selectPatientSharedAccounts } from '../../core/selectors';
-import { DATA_DONATION_NONPROFITS } from '../../core/constants';
+import { DATA_DONATION_CONSENT_TYPE, SUPPORTED_ORGANIZATIONS_OPTIONS } from '../../core/constants';
 
 export const CLICKED_BANNER_ACTION = 'clicked';
 export const DISMISSED_BANNER_ACTION = 'dismissed';
@@ -76,14 +76,10 @@ const AppBannerProvider = ({ children }) => {
   const [bannerShownForPatient, setBannerShownForPatient] = useState({});
   const [bannerInteractedForPatient, setBannerInteractedForPatient] = useState({});
 
-  const userIsDonor = useSelector(state => state.blip.dataDonationAccounts?.length > 0);
-
-  // Check to see if a data-donating patient has selected a nonprofit to support
-  const userIsSupportingNonprofit = useSelector(state => {
-    const allDonationAccountEmails = map(DATA_DONATION_NONPROFITS(), nonprofit => `bigdata+${nonprofit.value}@tidepool.org`); // eslint-disable-line new-cap
-    const userDonationAccountEmails = map(state.blip.dataDonationAccounts, 'email');
-    return intersection(allDonationAccountEmails, userDonationAccountEmails).length > 0;
-  });
+  // Check to see if a patient is a data donor and has selected a nonprofit to support
+  const currentDataDonationConsent = useSelector(state => state.blip.consentRecords[DATA_DONATION_CONSENT_TYPE]);
+  const userIsDonor = !!currentDataDonationConsent;
+  const userIsSupportingNonprofit = currentDataDonationConsent?.metadata?.supportedOrganizations?.length > 0;
 
   // Because the original donate banner has been split into two separate banners, we need to check if the user has interacted with the original donate banner
   // and not show the new support proceeds banner unless they just interacted with the donate banner during this session
@@ -114,7 +110,7 @@ const AppBannerProvider = ({ children }) => {
 
     donateYourData: { // Temporary: hide on mobile until we have a mobile-friendly profile page
       show: !isMobile && userIsCurrentPatient && userHasData && !userIsDonor,
-      bannerArgs: [dispatch],
+      bannerArgs: [dispatch, loggedInUserId],
     },
 
     shareProceeds: {

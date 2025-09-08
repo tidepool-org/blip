@@ -9,6 +9,7 @@
     "require": false,
     "define": false,
     "console": false,
+    "Set": "readonly",
     "__UPLOAD_API__": false,
     "__API_HOST__": false,
     "__INVITE_KEY__": false,

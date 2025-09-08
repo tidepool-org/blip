@@ -312,6 +312,32 @@ export default ({
         },
       },
     },
+    paginationDot: {
+      ...defaultStyles,
+      margin: 0,
+      padding: 0,
+      fontSize: 0,
+      backgroundColor: 'transparent',
+      color: 'transparent',
+      border: `1px solid ${colors.purpleMedium}`,
+      width: '10px',
+      height: '10px',
+      borderRadius: 5,
+      '&:hover': {
+        backgroundColor: colors.lightGrey,
+      },
+      '&:active': {
+        backgroundColor: colors.purpleMedium,
+        border: `1px solid ${colors.purpleMedium}`,
+      },
+      '&:disabled': {
+        color: colors.text.primaryDisabled,
+      },
+      '&.selected': {
+        backgroundColor: colors.purpleMedium,
+        border: `1px solid ${colors.purpleMedium}`,
+      },
+    },
     filter: {
       ...defaultStyles,
       ...tertiaryStyles,

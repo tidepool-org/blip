@@ -1,5 +1,4 @@
 import * as formUtils from '../../../../app/core/forms';
-import get from 'lodash/get';
 
 /* global chai */
 /* global sinon */
@@ -155,10 +154,10 @@ describe('forms', function() {
       };
 
       const props = formUtils.getCommonFormikFieldProps(fieldpath, formikContext);
-      props.onBlur();
+      props.onBlur({ target: 'foo' });
       sinon.assert.calledOnce(formikContext.handleBlur);
 
-      props.onChange();
+      props.onChange({ target: 'foo' });
       sinon.assert.calledOnce(formikContext.handleChange);
 
       expect(props).to.deep.include({
@@ -167,6 +166,24 @@ describe('forms', function() {
         error: 'name is silly',
         value: 'Fooey McBear',
       })
+    });
+
+    it('should not call formikContext blur and change handlers if event target is missing', () => {
+      const fieldpath = 'user.name';
+      formikContext = {
+        handleChange: sinon.stub(),
+        handleBlur: sinon.stub(),
+        errors: { [fieldpath]: 'name is silly'},
+        touched: { [fieldpath]: true },
+        values: { [fieldpath]: 'Fooey McBear' },
+      };
+
+      const props = formUtils.getCommonFormikFieldProps(fieldpath, formikContext);
+      props.onBlur(); // no event
+      sinon.assert.notCalled(formikContext.handleBlur);
+
+      props.onChange({ notTarget: 'foo' }); // event with no target
+      sinon.assert.notCalled(formikContext.handleChange);
     });
 
     it('should allow setting a custom value prop', () => {
@@ -180,10 +197,10 @@ describe('forms', function() {
       };
 
       const props = formUtils.getCommonFormikFieldProps(fieldpath, formikContext, 'myValue');
-      props.onBlur();
+      props.onBlur({ target: 'foo' });
       sinon.assert.calledOnce(formikContext.handleBlur);
 
-      props.onChange();
+      props.onChange({ target: 'foo' });
       sinon.assert.calledOnce(formikContext.handleChange);
 
       expect(props).to.deep.include({

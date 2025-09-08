@@ -32,8 +32,6 @@ const Patient = withTranslation()(createReactClass({
   propTypes: {
     acknowledgeNotification: PropTypes.func.isRequired,
     cancellingInvite: PropTypes.bool,
-    dataDonationAccounts: PropTypes.array,
-    dataDonationAccountsFetched: PropTypes.bool,
     changingMemberPermissions: PropTypes.bool,
     fetchers: PropTypes.array.isRequired,
     fetchingPatient: PropTypes.bool.isRequired,
@@ -43,7 +41,6 @@ const Patient = withTranslation()(createReactClass({
     onChangeMemberPermissions: PropTypes.func,
     onInviteMember: PropTypes.func,
     onRemoveMember: PropTypes.func,
-    onUpdateDataDonationAccounts: PropTypes.func,
     onUpdatePatient: PropTypes.func,
     onUpdatePatientSettings: PropTypes.func,
     patient: PropTypes.object,
@@ -51,7 +48,6 @@ const Patient = withTranslation()(createReactClass({
     removingMember: PropTypes.bool,
     shareOnly: PropTypes.bool,
     trackMetric: PropTypes.func.isRequired,
-    updatingDataDonationAccounts: PropTypes.bool,
     updatingPatientBgUnits: PropTypes.bool,
     user: PropTypes.object,
     dataSources: PropTypes.array,
@@ -123,11 +119,7 @@ const Patient = withTranslation()(createReactClass({
           fetchingPatient={this.props.fetchingPatient}
           onUpdatePatient={this.props.onUpdatePatient}
           onUpdatePatientSettings={this.props.onUpdatePatientSettings}
-          onUpdateDataDonationAccounts={this.props.onUpdateDataDonationAccounts}
           permsOfLoggedInUser={this.props.permsOfLoggedInUser}
-          dataDonationAccounts={this.props.dataDonationAccounts || []}
-          dataDonationAccountsFetched={this.props.dataDonationAccountsFetched}
-          updatingDataDonationAccounts={this.props.updatingDataDonationAccounts}
           updatingPatientBgUnits={this.props.updatingPatientBgUnits}
           queryParams={this.props.queryParams}
           trackMetric={this.props.trackMetric} />
