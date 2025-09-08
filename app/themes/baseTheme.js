@@ -52,7 +52,7 @@ export const colors = {
     info: vizColors.indigo30,
     warning: vizColors.gold50,
     danger: vizColors.red30,
-    success: vizColors.green30,
+    success: vizColors.green50,
   },
   banner: {
     info: {
@@ -130,6 +130,7 @@ export const borders = {
   modal: `1px solid ${colors.border.modal}`,
   divider: `2px solid ${colors.border.divider}`,
   dividerDark: `2px solid ${colors.border.dividerDark}`,
+  dividerDarkThin: `1px solid ${colors.border.dividerDark}`,
   card: '1px solid rgba(225, 234, 249, 1)',
 };
 
@@ -161,8 +162,9 @@ export const radii = {
 export const shadows = {
   small: '0px 0px 1px rgba(67, 90, 111, 0.47)',
   medium: '0px 0px 4px rgba(67, 90, 111, 0.4)',
-  large: '0px 3px 6px rgba(67, 90, 111, 0.301);',
+  large: '0px 3px 6px rgba(67, 90, 111, 0.301)',
   focus: `0px 0px 0px 2px ${colors.border.focus}`,
+  well: '0px 0px 8px rgba(67, 90, 111, 0.15)',
 };
 
 export const space = [0, 4, 8, 16, 24, 32, 48, 64, 96, 128];

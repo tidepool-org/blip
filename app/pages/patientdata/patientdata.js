@@ -62,7 +62,7 @@ import UploaderBanner from '../../components/elements/Card/Banners/Uploader.png'
 import ShareBanner from '../../components/elements/Card/Banners/Share.png';
 import DataConnectionsBanner from '../../components/elements/Card/Banners/DataConnections.png';
 import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
-import { DEFAULT_CGM_SAMPLE_INTERVAL, DEFAULT_CGM_SAMPLE_INTERVAL_RANGE, MS_IN_MIN } from '../../core/constants';
+import { DATA_DONATION_CONSENT_TYPE, DEFAULT_CGM_SAMPLE_INTERVAL, DEFAULT_CGM_SAMPLE_INTERVAL_RANGE, MS_IN_MIN } from '../../core/constants';
 
 const { Loader } = vizComponents;
 const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
@@ -2382,6 +2382,8 @@ export const PatientData = withTranslation()(props => <PatientDataClass {...prop
  * Expose "Smart" Component that is connect-ed to Redux
  */
 export function getFetchers(dispatchProps, ownProps, stateProps, api, options) {
+  const isUserPatient = ownProps.match.params.id === stateProps.user?.userid;
+
   const fetchers = [
     dispatchProps.fetchPatient.bind(null, api, ownProps.match.params.id),
     dispatchProps.fetchPatientData.bind(null, api, options, ownProps.match.params.id),
@@ -2391,13 +2393,18 @@ export function getFetchers(dispatchProps, ownProps, stateProps, api, options) {
     fetchers.push(dispatchProps.fetchPendingSentInvites.bind(null, api));
   }
 
-  if (stateProps.isUserPatient && !stateProps.fetchingClinicsForPatient.inProgress && !stateProps.fetchingClinicsForPatient.completed) {
+  if (isUserPatient && !stateProps.fetchingClinicsForPatient.inProgress && !stateProps.fetchingClinicsForPatient.completed) {
     fetchers.push(dispatchProps.fetchClinicsForPatient.bind(null, api, ownProps.match.params.id));
   }
 
-  // Need fetchAssociatedAccounts here because the result includes of data donation accounts sharing info
+  // Need fetchAssociatedAccounts here because the result includes permissions for the patients in a care team
   if (!stateProps.fetchingAssociatedAccounts.inProgress && !stateProps.fetchingAssociatedAccounts.completed) {
     fetchers.push(dispatchProps.fetchAssociatedAccounts.bind(null, api));
+  }
+
+  // If the logged-in user is viewing their own profile, fetch their data donation consent records
+  if (isUserPatient && !stateProps.fetchingUserConsentRecords.inProgress && !stateProps.fetchingUserConsentRecords.completed) {
+    fetchers.push(dispatchProps.fetchUserConsentRecords.bind(null, api, DATA_DONATION_CONSENT_TYPE));
   }
 
   if (stateProps.selectedClinicId && !stateProps.fetchingPatientFromClinic.inProgress && !stateProps.fetchingPatientFromClinic.completed) {
@@ -2525,6 +2532,7 @@ export function mapStateToProps(state, props) {
     fetchingUser: state.blip.working.fetchingUser.inProgress,
     fetchingPendingSentInvites: state.blip.working.fetchingPendingSentInvites,
     fetchingAssociatedAccounts: state.blip.working.fetchingAssociatedAccounts,
+    fetchingUserConsentRecords: state.blip.working.fetchingUserConsentRecords,
     addingData: state.blip.working.addingData,
     removingData: state.blip.working.removingData,
     updatingDatum: state.blip.working.updatingDatum,
@@ -2546,6 +2554,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   createMessageThread: actions.async.createMessageThread,
   editMessageThread: actions.async.editMessageThread,
   fetchAssociatedAccounts: actions.async.fetchAssociatedAccounts,
+  fetchUserConsentRecords: actions.async.fetchUserConsentRecords,
   fetchPatient: actions.async.fetchPatient,
   fetchPatientData: actions.async.fetchPatientData,
   fetchPatientFromClinic: actions.async.fetchPatientFromClinic,
