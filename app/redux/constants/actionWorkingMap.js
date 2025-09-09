@@ -309,6 +309,11 @@ export default (type) => {
     case types.FETCH_PATIENTS_FOR_CLINIC_FAILURE:
       return 'fetchingPatientsForClinic';
 
+    case types.FETCH_CLINIC_MRNS_FOR_PATIENT_FORM_VALIDATION_REQUEST:
+    case types.FETCH_CLINIC_MRNS_FOR_PATIENT_FORM_VALIDATION_SUCCESS:
+    case types.FETCH_CLINIC_MRNS_FOR_PATIENT_FORM_VALIDATION_FAILURE:
+      return 'fetchingClinicMRNsForPatientFormValidation';
+
     case types.FETCH_PATIENT_FROM_CLINIC_REQUEST:
     case types.FETCH_PATIENT_FROM_CLINIC_SUCCESS:
     case types.FETCH_PATIENT_FROM_CLINIC_FAILURE:

@@ -802,10 +802,7 @@ export const TideDashboard = (props) => {
   const ldClient = useLDClient();
   const ldContext = ldClient.getContext();
 
-  const existingMRNs = useMemo(
-    () => compact(map(reject(clinic?.patients, { id: selectedPatient?.id }), 'mrn')),
-    [clinic?.patients, selectedPatient?.id]
-  );
+  const existingMRNs = useSelector(state => state.blip.clinicMRNsForPatientFormValidation)?.filter(mrn => mrn !== selectedPatient?.mrn) || [];
 
   const {
     fetchingPatientFromClinic,
