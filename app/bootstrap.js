@@ -61,12 +61,8 @@ appContext.trackMetric = (...args) => {
     selectedClinicId,
     clinician,
     mobile,
+    ...(isSmartOnFhir && { isSmartOnFhir: true }),
   };
-
-  // Only include isSmartOnFhir when it's true to avoid cluttering analytics with false values
-  if (isSmartOnFhir) {
-    eventMetadata.isSmartOnFhir = true;
-  }
 
   // Empty values should be omitted from the metadata object to prevent sending blank query params
   const filteredEventMetadata = _.omitBy(eventMetadata, _.isNil);

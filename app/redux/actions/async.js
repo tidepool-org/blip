@@ -1016,7 +1016,7 @@ export function fetchPatient(api, id, cb = _.noop) {
 export function fetchPatients(api, options = {}, cb = _.noop) {
   return (dispatch) => {
     dispatch(sync.fetchPatientsRequest());
-    //[{clinic, patient}]
+    // results: Array<{clinic: Clinic, patient: Patient}> - patient search results with clinic context
     api.patient.getAll(options, (err, results) => {
       if (err) {
         dispatch(sync.fetchPatientsFailure(

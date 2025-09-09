@@ -182,6 +182,7 @@ const initialState = {
   tideDashboardPatients: {},
   rpmReportPatients: {},
   ssoEnabledDisplay: false,
+  smartCorrelationId: null,
   pendoData: {
     account: {},
     visitor: {},

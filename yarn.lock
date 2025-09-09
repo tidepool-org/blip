@@ -562,7 +562,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/parser@npm:^7.0.0, @babel/parser@npm:^7.1.0, @babel/parser@npm:^7.13.16, @babel/parser@npm:^7.14.7, @babel/parser@npm:^7.20.7, @babel/parser@npm:^7.22.15, @babel/parser@npm:^7.22.7, @babel/parser@npm:^7.23.0, @babel/parser@npm:^7.23.3, @babel/parser@npm:^7.23.4":
+"@babel/parser@npm:^7.1.0, @babel/parser@npm:^7.13.16, @babel/parser@npm:^7.14.7, @babel/parser@npm:^7.20.7, @babel/parser@npm:^7.22.15, @babel/parser@npm:^7.22.7, @babel/parser@npm:^7.23.0, @babel/parser@npm:^7.23.3, @babel/parser@npm:^7.23.4":
   version: 7.23.4
   resolution: "@babel/parser@npm:7.23.4"
   bin:
@@ -2013,7 +2013,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/traverse@npm:^7.0.0, @babel/traverse@npm:^7.1.6, @babel/traverse@npm:^7.22.8, @babel/traverse@npm:^7.23.0, @babel/traverse@npm:^7.23.3, @babel/traverse@npm:^7.23.4":
+"@babel/traverse@npm:^7.1.6, @babel/traverse@npm:^7.22.8, @babel/traverse@npm:^7.23.0, @babel/traverse@npm:^7.23.3, @babel/traverse@npm:^7.23.4":
   version: 7.23.4
   resolution: "@babel/traverse@npm:7.23.4"
   dependencies:
@@ -7924,20 +7924,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-eslint@npm:9.0.0":
-  version: 9.0.0
-  resolution: "babel-eslint@npm:9.0.0"
-  dependencies:
-    "@babel/code-frame": ^7.0.0
-    "@babel/parser": ^7.0.0
-    "@babel/traverse": ^7.0.0
-    "@babel/types": ^7.0.0
-    eslint-scope: 3.7.1
-    eslint-visitor-keys: ^1.0.0
-  checksum: a32b12187f733c1a50a72e9eac8d9609fd101bd3ade5c3df3640fea69058c38a12bffd95ce9acd047707b4fa2c5b415234086dbcea1441bfd98600c9effcd574
-  languageName: node
-  linkType: hard
-
 "babel-jest@npm:^29.7.0":
   version: 29.7.0
   resolution: "babel-jest@npm:29.7.0"
@@ -8339,7 +8325,6 @@ __metadata:
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
-    babel-eslint: 9.0.0
     babel-loader: 9.1.3
     babel-plugin-istanbul: 6.1.1
     babel-plugin-rewire: 1.2.0
@@ -8465,7 +8450,7 @@ __metadata:
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
     tideline: 1.37.0-web-3830-pregnancy-ranges.1
-    tidepool-platform-client: 0.64.0-web-3071-smart-on-fhir.3
+    tidepool-platform-client: 0.64.0-web-3071-smart-on-fhir.4
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
     url-loader: 4.1.1
@@ -11890,16 +11875,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-scope@npm:3.7.1":
-  version: 3.7.1
-  resolution: "eslint-scope@npm:3.7.1"
-  dependencies:
-    esrecurse: ^4.1.0
-    estraverse: ^4.1.1
-  checksum: dc10d4d0cba3652a9df2505fb4398c3a8ecc09e4911b2136a9360e7a06352514776aae975c98e940ec1d24c4c8402375addc04ba4f83add06e937afb43c7cd20
-  languageName: node
-  linkType: hard
-
 "eslint-scope@npm:5.1.1":
   version: 5.1.1
   resolution: "eslint-scope@npm:5.1.1"
@@ -11917,13 +11892,6 @@ __metadata:
     esrecurse: ^4.3.0
     estraverse: ^5.2.0
   checksum: ec97dbf5fb04b94e8f4c5a91a7f0a6dd3c55e46bfc7bbcd0e3138c3a76977570e02ed89a1810c778dcd72072ff0e9621ba1379b4babe53921d71e2e4486fda3e
-  languageName: node
-  linkType: hard
-
-"eslint-visitor-keys@npm:^1.0.0":
-  version: 1.3.0
-  resolution: "eslint-visitor-keys@npm:1.3.0"
-  checksum: 37a19b712f42f4c9027e8ba98c2b06031c17e0c0a4c696cd429bd9ee04eb43889c446f2cd545e1ff51bef9593fcec94ecd2c2ef89129fcbbf3adadbef520376a
   languageName: node
   linkType: hard
 
@@ -12025,7 +11993,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"esrecurse@npm:^4.1.0, esrecurse@npm:^4.3.0":
+"esrecurse@npm:^4.3.0":
   version: 4.3.0
   resolution: "esrecurse@npm:4.3.0"
   dependencies:
@@ -22246,15 +22214,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tidepool-platform-client@npm:0.64.0-web-3071-smart-on-fhir.3":
-  version: 0.64.0-web-3071-smart-on-fhir.3
-  resolution: "tidepool-platform-client@npm:0.64.0-web-3071-smart-on-fhir.3"
+"tidepool-platform-client@npm:0.64.0-web-3071-smart-on-fhir.4":
+  version: 0.64.0-web-3071-smart-on-fhir.4
+  resolution: "tidepool-platform-client@npm:0.64.0-web-3071-smart-on-fhir.4"
   dependencies:
     async: 0.9.0
     lodash: 4.17.21
     superagent: 5.2.2
     uuid: 3.1.0
-  checksum: 4e1c474a3e9d6aa7222128386237ecc7cc2fde6d375ac3a6364cfd571ba5b8f8f3f8aaea6e0139b5f3d9dd752a3aecd5a26acbc5dcf73f96dce04a579e036f05
+  checksum: 223b552430fc8c902e0edd5c245e2cb4e5579581e2997f6642d57415a1f656119b468503b4348dd6e137dcdecd34cb319ca3bb1e4e17c59e7d0c94d2ce8e81dc
   languageName: node
   linkType: hard
 

@@ -4,7 +4,7 @@ import { Box, Text } from 'theme-ui';
 import { Body1, Paragraph1, Title } from '../../components/elements/FontStyles';
 import WarningRoundedIcon from '@material-ui/icons/WarningRounded';
 import Icon from '../../components/elements/Icon';
-import baseTheme, { fontWeights, fonts } from '../../themes/baseTheme';
+import baseTheme, { fontWeights } from '../../themes/baseTheme';
 
 export const NoClinicsError = () => {
   const { t } = useTranslation();
@@ -14,6 +14,7 @@ export const NoClinicsError = () => {
         {t('Account Set Up Required')}
       </Title>
       <Box
+        role="alert"
         sx={{
           mb: 4,
           p: 3,

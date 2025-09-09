@@ -1479,9 +1479,9 @@ describe('routes', () => {
     });
 
     afterEach(() => {
-      dispatch.reset();
-      getState.reset();
-      cb.reset();
+      dispatch.resetHistory();
+      getState.resetHistory();
+      cb.resetHistory();
     });
 
     it('should redirect to login if no Smart on FHIR data is available', () => {

@@ -1124,13 +1124,13 @@ export const smartOnFhirData = (state = initialState.smartOnFhirData, action) =>
     case types.SMART_ON_FHIR_AUTH_SUCCESS:
       return action.payload.smartOnFhirData;
     case types.LOGOUT_REQUEST:
-      return null;
+      return initialState.smartOnFhirData;
     default:
       return state;
   }
 };
 
-export const smartCorrelationId = (state = null, action) => {
+export const smartCorrelationId = (state = initialState.smartCorrelationId, action) => {
   switch (action.type) {
     case types.SET_SMART_CORRELATION_ID:
       if (state === null) {
@@ -1138,7 +1138,7 @@ export const smartCorrelationId = (state = null, action) => {
       }
       return state;
     case types.LOGOUT_REQUEST:
-      return null;
+      return initialState.smartCorrelationId;
     default:
       return state;
   }

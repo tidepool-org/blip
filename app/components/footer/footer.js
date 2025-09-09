@@ -66,13 +66,13 @@ const Footer = ({ version, location, trackMetric }) => {
         <div className='footer-section'>
           <div className='footer-link secondary large-format-only'>
             <a
-              href="http://support.tidepool.org/"
+              href="https://support.tidepool.org/"
               id='support'
               onClick={metricFnMkr('Support')}
               target="_blank"
               rel="noreferrer noopener">{t('Get Support')}</a>
             <a
-              href='http://tidepool.org/legal/'
+              href='https://tidepool.org/legal/'
               id='legal'
               onClick={metricFnMkr('PP and TOU')}
               target='_blank'

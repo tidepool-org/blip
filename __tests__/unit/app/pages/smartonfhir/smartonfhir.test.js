@@ -1,11 +1,3 @@
-/* global sinon */
-/* global describe */
-/* global it */
-/* global expect */
-/* global beforeEach */
-/* global afterEach */
-/* global jest */
-
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
@@ -163,6 +155,8 @@ describe('SmartOnFhir', () => {
   });
 
   it('should dispatch setSmartCorrelationId action with ID from sessionStorage', async () => {
+    let setCorrelationIdAction;
+
     render(
       <Provider store={store}>
         <MemoryRouter>
@@ -177,16 +171,12 @@ describe('SmartOnFhir', () => {
 
     await waitFor(() => {
       const actions = store.getActions();
-      const setCorrelationIdAction = actions.find(action =>
+      setCorrelationIdAction = actions.find(action =>
         action.type === 'SET_SMART_CORRELATION_ID'
       );
       expect(setCorrelationIdAction).toBeDefined();
     });
 
-    const actions = store.getActions();
-    const setCorrelationIdAction = actions.find(action =>
-      action.type === 'SET_SMART_CORRELATION_ID'
-    );
     expect(setCorrelationIdAction.payload.correlationId).toBe('correlation-123');
   });
 
@@ -373,26 +363,27 @@ describe('SmartOnFhir', () => {
     expect(fetchPatientsAction).toBeDefined();
   });
 
-  it('should hide Zendesk widget in Smart-on-FHIR mode', () => {
-    // Setup mock Zendesk widget
-    global.zE = jest.fn();
+  it('should hide Zendesk widget in Smart-on-FHIR mode', async () => {
+    const mockWindow = {
+      sessionStorage: mockSessionStorage,
+      zE: jest.fn()
+    };
 
     render(
       <Provider store={store}>
         <MemoryRouter>
           <SmartOnFhir
             api={mockApi}
-            window={{ sessionStorage: mockSessionStorage }}
+            window={mockWindow}
             trackMetric={mockTrackMetric}
           />
         </MemoryRouter>
       </Provider>
     );
 
-    expect(global.zE).toHaveBeenCalledWith('webWidget', 'hide');
-
-    // Cleanup
-    delete global.zE;
+    await waitFor(() => {
+      expect(mockWindow.zE).toHaveBeenCalledWith('webWidget', 'hide');
+    });
   });
 
   it('should track "Direct Connect Patient Lookup Failure" when fetchPatients returns an error', async () => {
@@ -563,7 +554,6 @@ describe('SmartOnFhir', () => {
   });
 
   it('should show NoClinicsError when clinician has no clinics', async () => {
-    // Mock the getClinicsForClinician API to return empty array
     mockApi = {
       clinics: {
         getClinicsForClinician: jest.fn().mockImplementation((clinicianId, options, callback) => {
@@ -596,7 +586,6 @@ describe('SmartOnFhir', () => {
   });
 
   it('should show NoClinicsError when getClinicsForClinician fails', async () => {
-    // Mock the getClinicsForClinician API to return an error
     mockApi = {
       clinics: {
         getClinicsForClinician: jest.fn().mockImplementation((clinicianId, options, callback) => {
@@ -629,7 +618,6 @@ describe('SmartOnFhir', () => {
   });
 
   it('should proceed with patient lookup when clinician has clinics', async () => {
-    // Mock the getClinicsForClinician API to return clinics
     mockApi = {
       clinics: {
         getClinicsForClinician: jest.fn().mockImplementation((clinicianId, options, callback) => {

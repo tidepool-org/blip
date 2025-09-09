@@ -14,6 +14,8 @@ export const MultiplePatientError = () => {
         {t('Multiple Patient Matches')}
       </Title>
       <Box
+        role="alert"
+        aria-live="assertive"
         sx={{
           mb: 4,
           p: 3,

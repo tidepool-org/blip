@@ -59,7 +59,7 @@ var NavbarPatientCard = withTranslation()(class extends React.Component {
     });
 
     var view = this.renderView(patient);
-    var upload = !this.props.isSmartOnFhirMode && this.renderUpload(patient);
+    var upload = this.props.isSmartOnFhirMode ? null : this.renderUpload(patient);
     var share = this.renderShare(patient);
     var profile = this.renderProfile(patient);
     var overlay = this.state.showUploadOverlay ? this.renderOverlay() : null;
@@ -148,7 +148,7 @@ var NavbarPatientCard = withTranslation()(class extends React.Component {
       self.props.trackMetric('Clicked Navbar Upload Data');
     };
 
-    if(_.isEmpty(patient.permissions) === false && patient.permissions.root || _.has(this.props.permsOfLoggedInUser, 'upload') ) {
+    if( (_.isEmpty(patient.permissions) === false && patient.permissions.root) || _.has(this.props.permsOfLoggedInUser, 'upload') ) {
       return (
         <a href="" onClick={handleClick} className={classes} title={t('Upload data')}>{t('Upload')}</a>
       );

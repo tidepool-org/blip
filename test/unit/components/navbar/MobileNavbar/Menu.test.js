@@ -40,13 +40,6 @@ describe('MobileNavbar/Menu', () => {
     },
   });
 
-  const smartOnFhirStore = mockStore({
-    blip: {
-      ...store.getState().blip,
-      smartCorrelationId: 'test-correlation-id',
-    },
-  });
-
   const defaultProps = {
     user: { roles: [] },
     trackMetric: sinon.stub(),
@@ -81,6 +74,10 @@ describe('MobileNavbar/Menu', () => {
     handleViewAccountSettings.resetHistory();
     handleLogout.resetHistory();
 
+    if (wrapper && wrapper.unmount && wrapper.length > 0) {
+      wrapper.unmount();
+    }
+
     wrapper = mount(
       <Provider store={store}>
         <Menu {...defaultProps} />
@@ -94,19 +91,39 @@ describe('MobileNavbar/Menu', () => {
 
   afterEach(() => {
     defaultProps.trackMetric.resetHistory();
+    if (wrapper && wrapper.unmount && wrapper.length > 0) {
+      wrapper.unmount();
+    }
   });
 
   describe('Smart-on-FHIR Mode', () => {
     beforeEach(() => {
+      if (wrapper && wrapper.unmount && wrapper.length > 0) {
+        wrapper.unmount();
+      }
+
+      const localStore = mockStore({
+        blip: {
+          ...store.getState().blip,
+          smartCorrelationId: 'test-correlation-id',
+        },
+      });
+
       wrapper = mount(
-        <Provider store={smartOnFhirStore}>
+        <Provider store={localStore}>
           <Menu {...defaultProps} />
         </Provider>
       );
     });
 
+    afterEach(() => {
+      if (wrapper && wrapper.unmount && wrapper.length > 0) {
+        wrapper.unmount();
+      }
+    });
+
     it('should not render the component in Smart-on-FHIR mode', () => {
-      expect(wrapper.isEmptyRender()).to.be.true;
+      expect(wrapper.find(Menu).isEmptyRender()).to.be.true;
     });
   });
 

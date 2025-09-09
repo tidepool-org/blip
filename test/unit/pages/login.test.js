@@ -8,7 +8,6 @@
 /* global afterEach */
 
 import React from 'react';
-import PropTypes from 'prop-types';
 import mutationTracker from 'object-invariant-test-helper';
 import { BrowserRouter } from 'react-router-dom';
 import { mount } from 'enzyme';
@@ -58,11 +57,13 @@ describe('Login', () => {
     };
 
     it('should render without problems when required props are present', () => {
-      console.error = sinon.stub();
-
-      mount(<BrowserRouter><LoginFunction {...props} /></BrowserRouter>)
-      console.log('console.error', console.error.getCall(0));
-      expect(console.error.callCount).to.equal(0);
+      const errorStub = sinon.stub(console, 'error');
+      try {
+        mount(<BrowserRouter><LoginFunction {...props} /></BrowserRouter>);
+        expect(errorStub.callCount).to.equal(0);
+      } finally {
+        errorStub.restore();
+      }
     });
 
     describe('keycloak enabled', () => {
@@ -343,23 +344,3 @@ describe('Login', () => {
     });
   });
 });
-
-LoginFunction.propTypes = {
-  acknowledgeNotification: PropTypes.func.isRequired,
-  confirmSignup: PropTypes.func.isRequired,
-  fetchers: PropTypes.array.isRequired,
-  isInvite: PropTypes.bool.isRequired,
-  notification: PropTypes.object,
-  onSubmit: PropTypes.func.isRequired,
-  seedEmail: PropTypes.string,
-  trackMetric: PropTypes.func.isRequired,
-  working: PropTypes.bool.isRequired,
-  keycloakConfig: PropTypes.object,
-  fetchingInfo: PropTypes.object.isRequired,
-  location: PropTypes.object.isRequired,
-  signupEmail: PropTypes.string,
-  signupKey: PropTypes.string,
-  routerState: PropTypes.object.isRequired,
-  smartCorrelationId: PropTypes.string,
-  setSmartCorrelationId: PropTypes.func.isRequired,
-};

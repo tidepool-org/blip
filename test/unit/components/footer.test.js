@@ -7,7 +7,6 @@ import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 
 import Footer from '../../../app/components/footer/';
-import utils from '../../../app/core/utils';
 
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);

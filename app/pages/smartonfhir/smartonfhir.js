@@ -55,6 +55,14 @@ export const SmartOnFhir = (props) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState(null);
 
+  const handleError = useCallback((errorMessage, metricName = null) => {
+    if (metricName) {
+      trackMetric(metricName);
+    }
+    setError(errorMessage);
+    setIsProcessing(false);
+  }, [trackMetric]);
+
   // Hide Zendesk widget in Smart-on-FHIR mode
   useEffect(() => {
     let attempts = 0;
@@ -62,8 +70,8 @@ export const SmartOnFhir = (props) => {
     let timeoutId;
 
     const checkZendesk = () => {
-      if (window.zE) {
-        window.zE('webWidget', 'hide');
+      if (windowObj.zE) {
+        windowObj.zE('webWidget', 'hide');
         return;
       }
 
@@ -78,8 +86,7 @@ export const SmartOnFhir = (props) => {
     return () => {
       if (timeoutId) clearTimeout(timeoutId);
     };
-  }, []);
-
+  }, [windowObj]);
   useEffect(() => {
     if (smartOnFhirData && !isProcessing && !working.fetchingPatients.inProgress && !error) {
       setIsProcessing(true);
@@ -92,71 +99,54 @@ export const SmartOnFhir = (props) => {
         if (correlationId) {
           setSmartCorrelationId(correlationId);
         } else {
-          setError(ErrorMessages.ERR_SMARTONFHIR_MISSING_CORRELATION_ID);
-          setIsProcessing(false);
+          handleError(ErrorMessages.ERR_SMARTONFHIR_MISSING_CORRELATION_ID);
           return;
         }
       }
 
-       // Check if clinician is member of any clinics
        getClinics(api, loggedInUserId, (err, clinics) => {
          if (err) {
-           trackMetric('Direct Connect Clinics Fetch Failure');
-           setError(ErrorMessages.ERR_SMARTONFHIR_CLINICIAN_NO_CLINICS);
-           setIsProcessing(false);
+           handleError(ErrorMessages.ERR_SMARTONFHIR_CLINICIAN_NO_CLINICS, 'Direct Connect Clinics Fetch Failure');
            return;
          }
          if (!clinics || clinics.length === 0) {
-           trackMetric('Direct Connect Clinician No Clinics');
-           setError(ErrorMessages.ERR_SMARTONFHIR_CLINICIAN_NO_CLINICS);
-           setIsProcessing(false);
+           handleError(ErrorMessages.ERR_SMARTONFHIR_CLINICIAN_NO_CLINICS, 'Direct Connect Clinician No Clinics');
            return;
          }
 
          const patientInfo = smartOnFhirData.patients?.[correlationId];
          if (!patientInfo) {
-           setError(ErrorMessages.ERR_SMARTONFHIR_PATIENT_INFO_NOT_FOUND);
-           setIsProcessing(false);
+           handleError(ErrorMessages.ERR_SMARTONFHIR_PATIENT_INFO_NOT_FOUND);
            return;
          }
 
          const { mrn, dob } = patientInfo;
          if (!mrn) {
-           setError(ErrorMessages.ERR_SMARTONFHIR_MRN_NOT_FOUND);
-           setIsProcessing(false);
+           handleError(ErrorMessages.ERR_SMARTONFHIR_MRN_NOT_FOUND);
            return;
          }
          if (!dob) {
-           setError(ErrorMessages.ERR_SMARTONFHIR_DOB_NOT_FOUND);
-           setIsProcessing(false);
+           handleError(ErrorMessages.ERR_SMARTONFHIR_DOB_NOT_FOUND);
            return;
          }
 
           fetchPatients(api, { mrn, birthDate: dob }, (err, results) => {
             if (err) {
-              trackMetric('Direct Connect Patient Lookup Failure');
-              setError(ErrorMessages.ERR_SMARTONFHIR_FETCHING_PATIENT);
-              setIsProcessing(false);
+              handleError(ErrorMessages.ERR_SMARTONFHIR_FETCHING_PATIENT, 'Direct Connect Patient Lookup Failure');
               return;
             }
             if (!results || results.length === 0) {
-              trackMetric('Direct Connect Patient Not Found');
-              setError(ErrorMessages.ERR_SMARTONFHIR_NO_PATIENTS_FOUND);
-              setIsProcessing(false);
+              handleError(ErrorMessages.ERR_SMARTONFHIR_NO_PATIENTS_FOUND, 'Direct Connect Patient Not Found');
               return;
             }
             if (results.length > 1) {
-              trackMetric('Direct Connect Multiple Patients Found');
-              setError(ErrorMessages.ERR_SMARTONFHIR_MULTIPLE_PATIENTS_FOUND);
-              setIsProcessing(false);
+              handleError(ErrorMessages.ERR_SMARTONFHIR_MULTIPLE_PATIENTS_FOUND, 'Direct Connect Multiple Patients Found');
               return;
             }
 
             const patient = results[0]?.patient;
             if (!patient || !patient.id) {
-              trackMetric('Direct Connect Patient Lookup Failure');
-              setError('Invalid patient data received');
-              setIsProcessing(false);
+              handleError('Invalid patient data received', 'Direct Connect Patient Lookup Failure');
               return;
             }
 
@@ -165,7 +155,7 @@ export const SmartOnFhir = (props) => {
           });
        });
      }
-   }, [smartOnFhirData, isProcessing, working.fetchingPatients.inProgress, api, fetchPatients, navigateTo, error, smartCorrelationId, setSmartCorrelationId, windowObj, trackMetric, loggedInUserId, getClinics]);
+   }, [smartOnFhirData, isProcessing, working.fetchingPatients.inProgress, api, fetchPatients, navigateTo, error, smartCorrelationId, setSmartCorrelationId, windowObj, trackMetric, loggedInUserId, getClinics, handleError]);
 
   if (isProcessing || working.fetchingPatients.inProgress) {
     return (

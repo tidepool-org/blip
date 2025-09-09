@@ -4780,7 +4780,7 @@ describe('Actions', () => {
     it('type should equal SMART_ON_FHIR_AUTH_SUCCESS', () => {
       let smartOnFhirData = { patients: { 'patient123': { mrn: '123456' } } };
       let action = sync.smartOnFhirAuthSuccess(smartOnFhirData);
-      expect(action.type).to.equal('SMART_ON_FHIR_AUTH_SUCCESS');
+      expect(action.type).to.equal(ActionTypes.SMART_ON_FHIR_AUTH_SUCCESS);
     });
 
     it('payload should contain smartOnFhirData', () => {
@@ -4800,7 +4800,7 @@ describe('Actions', () => {
     it('type should equal SET_SMART_CORRELATION_ID', () => {
       let correlationId = 'correlation123';
       let action = sync.setSmartCorrelationId(correlationId);
-      expect(action.type).to.equal('SET_SMART_CORRELATION_ID');
+      expect(action.type).to.equal(ActionTypes.SET_SMART_CORRELATION_ID);
     });
 
     it('payload should contain correlationId', () => {

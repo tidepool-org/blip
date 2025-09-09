@@ -14,6 +14,7 @@ export const NoPatientMatch = () => {
         {t('No Patient Match')}
       </Title>
       <Box
+        role="alert"
         sx={{
           mb: 4,
           p: 3,

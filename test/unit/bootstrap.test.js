@@ -26,14 +26,11 @@ describe('appContext', () => {
   });
 
   afterEach(() => {
-    appContext.api.metrics.track.resetHistory();
-    appContext.store.getState.resetHistory();
+    appContext.api.metrics.track.reset();
+    appContext.store.getState.reset();
   });
 
   it('should call appContext.api.metrics.track with arguments when selectedClinicId is not present', () => {
-    // Ensure clean state for this test
-    appContext.store.getState.returns({ blip: {} });
-
     appContext.trackMetric('someMetric');
 
     expect(appContext.api.metrics.track.calledOnce).to.be.true;
@@ -90,13 +87,12 @@ describe('appContext', () => {
       [loggedInUserId]: { username: 'canelo.alvarez@tidepool.test', roles: ['clinician'] },
     };
 
-    // Ensure clean state with SMART on FHIR data for this test
     appContext.store.getState.returns({
       blip: {
         selectedClinicId,
         loggedInUserId,
         allUsersMap,
-        smartOnFhirData: { patients: [] }, // Simulate SMART on FHIR data
+        smartOnFhirData: { patients: [] },
       },
     });
 

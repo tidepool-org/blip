@@ -946,7 +946,8 @@ describe('Actions', () => {
                 setItem: sinon.stub(),
                 removeItem: sinon.stub(),
               },
-              writable: true
+              writable: true,
+              configurable: true
             });
 
             setAPIData({
@@ -993,7 +994,8 @@ describe('Actions', () => {
                 setItem: sinon.stub(),
                 removeItem: sinon.stub(),
               },
-              writable: true
+              writable: true,
+              configurable: true
             });
 
             setAPIData({
@@ -9649,7 +9651,9 @@ describe('Actions', () => {
         expect(actions[1].type).to.equal(expectedActions[1].type);
         expect(actions[1].payload).to.deep.equal(expectedActions[1].payload);
 
+        expect(api.patient.getAll.calledOnce).to.be.true;
         expect(api.patient.getAll.calledWith(options)).to.be.true;
+        expect(callback.calledOnce).to.be.true;
         expect(callback.calledWith(null, mockResults)).to.be.true;
       });
 
@@ -9674,7 +9678,9 @@ describe('Actions', () => {
         expect(actions[1].type).to.equal(expectedActions[1].type);
         expect(actions[1].payload).to.deep.equal(expectedActions[1].payload);
 
+        expect(api.patient.getAll.calledOnce).to.be.true;
         expect(api.patient.getAll.calledWith(options)).to.be.true;
+        expect(callback.calledOnce).to.be.true;
         expect(callback.calledWith(null, mockResults)).to.be.true;
       });
 
@@ -9699,7 +9705,9 @@ describe('Actions', () => {
         expect(actions[1].type).to.equal(expectedActions[1].type);
         expect(actions[1].payload).to.deep.equal(expectedActions[1].payload);
 
+        expect(api.patient.getAll.calledOnce).to.be.true;
         expect(api.patient.getAll.calledWith(options)).to.be.true;
+        expect(callback.calledOnce).to.be.true;
         expect(callback.calledWith(null, mockResults)).to.be.true;
       });
 
@@ -9728,7 +9736,9 @@ describe('Actions', () => {
         expect(actions[1].error.message).to.equal(ErrorMessages.ERR_FETCHING_PATIENTS);
         expect(actions[1].meta.apiError).to.equal(err);
 
+        expect(api.patient.getAll.calledOnce).to.be.true;
         expect(api.patient.getAll.calledWith(options)).to.be.true;
+        expect(callback.calledOnce).to.be.true;
         expect(callback.calledWith(err)).to.be.true;
       });
 
@@ -9743,6 +9753,7 @@ describe('Actions', () => {
         expect(actions[0].type).to.equal('FETCH_PATIENTS_REQUEST');
         expect(actions[1].type).to.equal('FETCH_PATIENTS_SUCCESS');
 
+        expect(api.patient.getAll.calledOnce).to.be.true;
         expect(api.patient.getAll.calledWith(options)).to.be.true;
       });
     });

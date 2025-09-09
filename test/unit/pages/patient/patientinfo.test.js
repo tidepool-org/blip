@@ -54,14 +54,14 @@ describe('PatientInfo', function () {
   });
 
   afterEach(() => {
-props.onUpdatePatient.reset();
-  props.trackMetric.reset();
-  props.fetchDataSources.reset();
-  props.connectDataSource.reset();
-  props.disconnectDataSource.reset();
-  props.onUpdatePatientSettings.reset();
-  props.onUpdateDataDonationAccounts.reset();
-  props.api.export.get.reset();
+    props.onUpdatePatient.reset();
+    props.trackMetric.reset();
+    props.fetchDataSources.reset();
+    props.connectDataSource.reset();
+    props.disconnectDataSource.reset();
+    props.onUpdatePatientSettings.reset();
+    props.onUpdateDataDonationAccounts.reset();
+    props.api.export.get.reset();
   });
 
   after(() => {
@@ -1137,10 +1137,19 @@ props.onUpdatePatient.reset();
     describe('renderEditLink', function() {
       it('should not render the edit link in Smart on FHIR mode', function() {
         wrapper.setProps({
+          isSmartOnFhirMode: false,
+          permsOfLoggedInUser: { root: true }
+        });
+        wrapper.update();
+        expect(wrapper.find('.PatientInfo-button--primary')).to.have.length(1);
+
+        wrapper.setProps({
           isSmartOnFhirMode: true,
           user: { userid: 1234 },
-          patient: { userid: 1234 }
+          patient: { userid: 1234 },
+          permsOfLoggedInUser: { root: true }
         });
+        wrapper.update();
         expect(wrapper.find('.PatientInfo-button--primary')).to.have.length(0);
       });
     });

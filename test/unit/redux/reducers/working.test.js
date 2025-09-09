@@ -9060,6 +9060,7 @@ describe('dataWorkerQueryData', () => {
       it('should leave fetchingPatients.completed unchanged', () => {
         expect(initialState.fetchingPatients.completed).to.be.null;
 
+        let tracked = mutationTracker.trackObj(initialState);
         let requestAction = actions.sync.fetchPatientsRequest();
         let requestState = reducer(initialState, requestAction);
 
@@ -9072,22 +9073,24 @@ describe('dataWorkerQueryData', () => {
 
         let state = reducer(successState, requestAction);
         expect(state.fetchingPatients.completed).to.be.true;
-        expect(mutationTracker.hasMutated(mutationTracker.trackObj(initialState))).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
       });
 
       it('should set fetchingPatients.inProgress to be true', () => {
+        let tracked = mutationTracker.trackObj(initialState);
         let action = actions.sync.fetchPatientsRequest();
 
         expect(initialState.fetchingPatients.inProgress).to.be.false;
 
         let state = reducer(initialState, action);
         expect(state.fetchingPatients.inProgress).to.be.true;
-        expect(mutationTracker.hasMutated(mutationTracker.trackObj(initialState))).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
       });
     });
 
     describe('failure', () => {
       it('should set fetchingPatients.completed to be false', () => {
+        let tracked = mutationTracker.trackObj(initialState);
         let error = new Error('Something bad happened :(');
 
         expect(initialState.fetchingPatients.completed).to.be.null;
@@ -9096,7 +9099,7 @@ describe('dataWorkerQueryData', () => {
         let state = reducer(initialState, failureAction);
 
         expect(state.fetchingPatients.completed).to.be.false;
-        expect(mutationTracker.hasMutated(mutationTracker.trackObj(initialState))).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
       });
 
       it('should set fetchingPatients.inProgress to be false and set error', () => {
@@ -9119,13 +9122,14 @@ describe('dataWorkerQueryData', () => {
 
     describe('success', () => {
       it('should set fetchingPatients.completed to be true', () => {
+        let tracked = mutationTracker.trackObj(initialState);
         expect(initialState.fetchingPatients.completed).to.be.null;
 
         let successAction = actions.sync.fetchPatientsSuccess([]);
         let state = reducer(initialState, successAction);
 
         expect(state.fetchingPatients.completed).to.be.true;
-        expect(mutationTracker.hasMutated(mutationTracker.trackObj(initialState))).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
       });
 
       it('should set fetchingPatients.inProgress to be false', () => {

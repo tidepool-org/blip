@@ -80,7 +80,7 @@ export const selectPatient = createSelector(
       permissions = get(permissionsOfMembersInTargetCareTeam, currentPatientInViewId, {});
     }
 
-    return patient ? { permissions, ...patient } : null;
+    return patient ? { ...patient, permissions } : null;
   }
 );
 

@@ -1,5 +1,5 @@
 {
-  "parser": "babel-eslint",
+  "parser": "@babel/eslint-parser",
   "env": {
     "browser": true,
     "node": true
@@ -45,6 +45,9 @@
   "overrides": [
 		{
 			"files": ["**/__tests__/**/*.test.[jt]s?(x)"],
+			"env": {
+				"jest": true
+			},
 			"extends": [
         "plugin:testing-library/react",
         "plugin:jest-dom/recommended"

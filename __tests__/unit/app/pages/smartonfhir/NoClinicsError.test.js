@@ -1,30 +1,19 @@
-/* global sinon */
-/* global describe */
-/* global it */
-/* global expect */
-/* global beforeEach */
-/* global afterEach */
-/* global jest */
-
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { NoClinicsError } from '@app/pages/smartonfhir/NoClinicsError';
 
-// Mock the i18next translation
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key) => key
   })
 }));
 
-// Mock the Material-UI icons
 jest.mock('@material-ui/icons/WarningRounded', () => {
   return function MockWarningRoundedIcon() {
     return <div data-testid="warning-icon" />;
   };
 });
 
-// Mock the Icon component
 jest.mock('@app/components/elements/Icon', () => {
   return function MockIcon({ children }) {
     return <div data-testid="icon">{children}</div>;

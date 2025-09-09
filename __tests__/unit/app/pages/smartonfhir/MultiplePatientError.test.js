@@ -1,30 +1,19 @@
-/* global sinon */
-/* global describe */
-/* global it */
-/* global expect */
-/* global beforeEach */
-/* global afterEach */
-/* global jest */
-
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { MultiplePatientError } from '@app/pages/smartonfhir/MultiplePatientError';
 
-// Mock the i18next translation
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key) => key
   })
 }));
 
-// Mock the Material-UI icons
 jest.mock('@material-ui/icons/WarningRounded', () => {
   return function MockWarningRoundedIcon() {
     return <div data-testid="warning-icon" />;
   };
 });
 
-// Mock the Icon component
 jest.mock('@app/components/elements/Icon', () => {
   return function MockIcon({ children }) {
     return <div data-testid="icon">{children}</div>;
@@ -54,10 +43,10 @@ describe('MultiplePatientError', () => {
   it('should render an ordered list with the resolution steps', () => {
     render(<MultiplePatientError />);
 
-    const orderedList = screen.getByRole('list', { ordered: true });
+    const orderedList = screen.getByRole('list');
     expect(orderedList).toBeInTheDocument();
 
-    const listItems = screen.getAllByRole('listitem');
+    const listItems = within(orderedList).getAllByRole('listitem');
     expect(listItems).toHaveLength(4);
 
     expect(listItems[0]).toHaveTextContent('Log into Tidepool (app.tidepool.org) in a new browser');
