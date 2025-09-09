@@ -392,10 +392,10 @@ export const ClinicianPatients = (props) => {
   };
 
   const renderPatient = patient => (
-    <Box onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
+    <Flex onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer', gap: 3 }}>
       <Text fontWeight="medium">{patient.fullName}</Text>
       {patient.email && <Text>{patient.email}</Text>}
-    </Box>
+    </Flex>
   );
 
   const renderLinkedField = (field, patient) => (
