@@ -97,21 +97,27 @@ appContext.init = callback => {
   beginInit();
 };
 
+const LAUNCHDARKLY_FLAG_DEFAULTS = {
+  'showExtremeHigh': false,
+  'showPrescriptions': false,
+  'showRpmReport': false,
+  'showSummaryDashboard': false,
+  'showSummaryDashboardLastReviewed': false,
+  'showTideDashboard': false,
+  'showTideDashboardLastReviewed': false,
+  'showTideDashboardPatientDrawer': false,
+  'tideDashboardCategories': 'UNINITIIALIZED',
+};
+
 appContext.render = async Component => {
   const LDProvider = await asyncWithLDProvider({
     clientSideID: __LAUNCHDARKLY_CLIENT_TOKEN__,
     context: ldContext,
-    options: { streaming: true },
-    flags: {
-      'showExtremeHigh': false,
-      'showPrescriptions': false,
-      'showRpmReport': false,
-      'showSummaryDashboard': false,
-      'showSummaryDashboardLastReviewed': false,
-      'showTideDashboard': false,
-      'showTideDashboardLastReviewed': false,
-      'showTideDashboardPatientDrawer': false,
+    options: {
+      streaming: false,
+      bootstrap: LAUNCHDARKLY_FLAG_DEFAULTS,
     },
+    flags: LAUNCHDARKLY_FLAG_DEFAULTS,
   });
 
   render(
