@@ -24,6 +24,7 @@ import { Box } from 'theme-ui';
 
 import * as actions from '../../redux/actions';
 import utils from '../../core/utils';
+import { selectIsSmartOnFhirMode } from '../../core/selectors';
 
 import _ from 'lodash';
 import cx from 'classnames';
@@ -449,7 +450,7 @@ export function mapStateToProps(state) {
     selectedClinicId: state.blip.selectedClinicId,
     showingWelcomeMessage: state.blip.showingWelcomeMessage,
     user,
-    isSmartOnFhirMode: state.blip.smartCorrelationId !== null,
+    isSmartOnFhirMode: selectIsSmartOnFhirMode(state),
   }
 }
 
