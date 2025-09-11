@@ -74,10 +74,6 @@ describe('MobileNavbar/Menu', () => {
     handleViewAccountSettings.resetHistory();
     handleLogout.resetHistory();
 
-    if (wrapper && wrapper.unmount && wrapper.length > 0) {
-      wrapper.unmount();
-    }
-
     wrapper = mount(
       <Provider store={store}>
         <Menu {...defaultProps} />
@@ -91,17 +87,10 @@ describe('MobileNavbar/Menu', () => {
 
   afterEach(() => {
     defaultProps.trackMetric.resetHistory();
-    if (wrapper && wrapper.unmount && wrapper.length > 0) {
-      wrapper.unmount();
-    }
   });
 
   describe('Smart-on-FHIR Mode', () => {
     beforeEach(() => {
-      if (wrapper && wrapper.unmount && wrapper.length > 0) {
-        wrapper.unmount();
-      }
-
       const localStore = mockStore({
         blip: {
           ...store.getState().blip,
@@ -114,12 +103,6 @@ describe('MobileNavbar/Menu', () => {
           <Menu {...defaultProps} />
         </Provider>
       );
-    });
-
-    afterEach(() => {
-      if (wrapper && wrapper.unmount && wrapper.length > 0) {
-        wrapper.unmount();
-      }
     });
 
     it('should not render the component in Smart-on-FHIR mode', () => {
