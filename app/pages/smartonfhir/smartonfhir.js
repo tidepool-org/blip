@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector, useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import PropTypes from 'prop-types';
@@ -27,6 +28,7 @@ SmartOnFhirLayout.propTypes = {
 };
 
 export const SmartOnFhir = (props) => {
+  const { t } = useTranslation();
   const { api, window: windowObj = window, trackMetric } = props;
 
   const smartOnFhirData = useSelector(state => state.blip.smartOnFhirData);
@@ -146,7 +148,7 @@ export const SmartOnFhir = (props) => {
 
             const patient = results[0]?.patient;
             if (!patient || !patient.id) {
-              handleError('Invalid patient data received', 'Direct Connect Patient Lookup Failure');
+                handleError(ErrorMessages.ERR_SMARTONFHIR_INVALID_PATIENT_DATA, 'Direct Connect Patient Lookup Failure');
               return;
             }
 
@@ -161,7 +163,7 @@ export const SmartOnFhir = (props) => {
     return (
       <SmartOnFhirLayout>
         <Box sx={{ textAlign: 'center' }}>
-          <Body1>{ErrorMessages.ERR_SMARTONFHIR_LOADING_PATIENT_DATA}</Body1>
+          <Body1>{t('Loading patient data...')}</Body1>
         </Box>
       </SmartOnFhirLayout>
     );
@@ -193,7 +195,7 @@ export const SmartOnFhir = (props) => {
   return (
     <SmartOnFhirLayout>
       <Box sx={{ textAlign: 'center' }}>
-        <Body1>{ErrorMessages.ERR_SMARTONFHIR_INITIALIZING}</Body1>
+        <Body1>{t('Initializing SMART on FHIR...')}</Body1>
       </Box>
     </SmartOnFhirLayout>
   );

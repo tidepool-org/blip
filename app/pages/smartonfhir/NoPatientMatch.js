@@ -62,7 +62,7 @@ export const NoPatientMatch = () => {
       </Box>
       <Box sx={{ mb: 2 }}>
           <Body1>
-            {t('After this, you’ll be able to open their Tidepool account from your EHR system.')}
+            {t('After this, you\'ll be able to open their Tidepool account from your EHR system.')}
           </Body1>
         </Box>
 
