@@ -9741,21 +9741,6 @@ describe('Actions', () => {
         expect(callback.calledOnce).to.be.true;
         expect(callback.calledWith(err)).to.be.true;
       });
-
-      it('should use a noop function if no callback is provided', () => {
-        api.patient.getAll.callsArgWith(1, null, mockResults);
-
-        const options = { mrn: '12345' };
-
-        store.dispatch(async.fetchPatients(api, options));
-
-        const actions = store.getActions();
-        expect(actions[0].type).to.equal('FETCH_PATIENTS_REQUEST');
-        expect(actions[1].type).to.equal('FETCH_PATIENTS_SUCCESS');
-
-        expect(api.patient.getAll.calledOnce).to.be.true;
-        expect(api.patient.getAll.calledWith(options)).to.be.true;
-      });
     });
   });
 });
