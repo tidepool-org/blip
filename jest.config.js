@@ -23,6 +23,7 @@ module.exports = {
 
     // Path aliases
     '^@app/(.*)': '<rootDir>/app/$1',
+    '^@test/(.*)': '<rootDir>/test/$1',
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testMatch: [

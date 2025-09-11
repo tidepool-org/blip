@@ -287,6 +287,7 @@ const FilterResetBar = withTranslation()(({ t, rightSideContent, patientListQuer
   return (
     <Flex
       className='filter-reset-bar'
+      data-testid='filter-reset-bar'
       px={2}
       py={2}
       sx={{
@@ -1582,7 +1583,11 @@ export const ClinicPatients = (props) => {
 
     return (
       <>
-        <Flex mb={4} sx={{ alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 3 }}>
+        <Flex
+          data-testid="clinic-patients-header"
+          mb={4}
+          sx={{ alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 3 }}
+        >
           {/* Flex Group 1: Search Box and Add Patient button */}
           <Flex
             sx={{
@@ -1716,6 +1721,7 @@ export const ClinicPatients = (props) => {
               <Flex
                 sx={{ alignItems: 'center', gap: 2, justifyContent: 'flex-start', flexWrap: 'wrap' }}
                 id='summary-dashboard-filters'
+                data-testid='summary-dashboard-filters'
               >
                 <Flex
                   pl={[0, 0, 2]}
@@ -1731,6 +1737,7 @@ export const ClinicPatients = (props) => {
                   {activeFiltersCount > 0 ? (
                     <Pill
                       id="filter-count"
+                      data-testid="filter-count"
                       label="filter count"
                       round
                       sx={{ width: '14px', lineHeight: '15px', fontSize: '9px' }}
@@ -1759,6 +1766,7 @@ export const ClinicPatients = (props) => {
                     <Button
                       variant="filter"
                       id="last-data-filter-trigger"
+                      data-testid="last-data-filter-trigger"
                       selected={!!activeFilters.lastData}
                       {...bindTrigger(lastDataPopupFilterState)}
                       icon={KeyboardArrowDownRoundedIcon}
@@ -2062,6 +2070,7 @@ export const ClinicPatients = (props) => {
                     <Button
                       variant="filter"
                       id="patient-tags-filter-trigger"
+                      data-testid="patient-tags-filter-trigger"
                       selected={activeFilters.patientTags?.length > 0}
                       {...bindTrigger(patientTagsPopupFilterState)}
                       icon={KeyboardArrowDownRoundedIcon}
@@ -2238,6 +2247,7 @@ export const ClinicPatients = (props) => {
 
                   <Button
                     id="time-in-range-filter-trigger"
+                    data-testid="time-in-range-filter-trigger"
                     variant="filter"
                     selected={!!activeFilters.timeInRange?.length}
                     onClick={handleOpenTimeInRangeFilter}
@@ -2275,6 +2285,7 @@ export const ClinicPatients = (props) => {
                     <Button
                       variant="filter"
                       id="cgm-use-filter-trigger"
+                      data-testid="cgm-use-filter-trigger"
                       selected={!!activeFilters.timeCGMUsePercent}
                       {...bindTrigger(cgmUsePopupFilterState)}
                       icon={KeyboardArrowDownRoundedIcon}
@@ -2356,6 +2367,7 @@ export const ClinicPatients = (props) => {
                 {activeFiltersCount > 0 && (
                   <Button
                     id="reset-all-active-filters"
+                    data-testid="reset-all-active-filters"
                     variant="textSecondary"
                     onClick={handleResetFilters}
                     sx={{ fontSize: 0, color: 'grays.4', flexShrink: 0 }}
@@ -2393,6 +2405,7 @@ export const ClinicPatients = (props) => {
                   <Button
                     variant="filter"
                     id="summary-period-filter-trigger"
+                    data-testid="summary-period-filter-trigger"
                     {...bindTrigger(summaryPeriodPopupFilterState)}
                     icon={KeyboardArrowDownRoundedIcon}
                     iconLabel="Filter by summary period duration"
@@ -2529,6 +2542,7 @@ export const ClinicPatients = (props) => {
                 icon={VisibilityIcon}
                 label={t('Toggle visibility')}
                 onClick={handleToggleShowNames}
+                data-testid="clinic-patients-view-toggle-icon"
               />
             </Flex>
           </Flex>
@@ -2540,7 +2554,7 @@ export const ClinicPatients = (props) => {
 
   const renderPeopleInstructions = useCallback(() => {
     return (
-      <Text py={4} mb={4} sx={{ display: 'block', fontSize: 1, textAlign: 'center', a: { color: 'text.link', cursor: 'pointer' } }}>
+      <Text py={4} mb={4} sx={{ display: 'block', fontSize: 1, textAlign: 'center', a: { color: 'text.link', cursor: 'pointer' } }} data-testid="clinic-patients-people-table-instructions">
         <Trans className="peopletable-instructions" i18nKey="html.peopletable-instructions">
           Type a patient name in the search box or click <a className="peopletable-names-showall" onClick={handleToggleShowNames}>Show All</a> to display all patients.
         </Trans>
@@ -4170,7 +4184,7 @@ export const ClinicPatients = (props) => {
     const showFilterResetBar = (data?.length > 0) && patientListQueryState !== PATIENT_LIST_QUERY_STATE.NONE;
 
     return (
-      <Box>
+      <Box data-testid="clinic-patients-people-table">
         <Loader show={loading} overlay={true} />
 
         { showFilterResetBar &&
