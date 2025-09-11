@@ -22,18 +22,20 @@ import {
 } from 'material-ui-popup-state/hooks';
 
 import * as actions from '../../redux/actions';
+import { selectIsSmartOnFhirMode } from '../../core/selectors';
 import Button from '../elements/Button';
 import Popover from '../elements/Popover';
 import { colors } from '../../themes/baseTheme';
 
 export const WorkspaceSwitcher = props => {
-  const { t, api, trackMetric, isSmartOnFhirMode } = props;
+  const { t, api, trackMetric } = props;
   const dispatch = useDispatch();
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const allUsersMap = useSelector((state) => state.blip.allUsersMap);
   const clinics = useSelector((state) => state.blip.clinics);
   const membershipInOtherCareTeams = useSelector((state) => state.blip.membershipInOtherCareTeams);
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
+  const isSmartOnFhirMode = useSelector(selectIsSmartOnFhirMode);
   const hasPatientProfile = !!get(allUsersMap, [loggedInUserId, 'profile', 'patient'], false);
   const { pathname } = useLocation();
 
@@ -169,7 +171,6 @@ export const WorkspaceSwitcher = props => {
 WorkspaceSwitcher.propTypes = {
   api: PropTypes.object.isRequired,
   trackMetric: PropTypes.func.isRequired,
-  isSmartOnFhirMode: PropTypes.bool,
 };
 
 export default withTranslation()(WorkspaceSwitcher);

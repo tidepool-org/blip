@@ -25,7 +25,6 @@ export default withTranslation()(class extends React.Component {
     trackMetric: PropTypes.func.isRequired,
     permsOfLoggedInUser: PropTypes.object,
     selectedClinicId: PropTypes.string,
-    isSmartOnFhirMode: PropTypes.bool.isRequired,
   };
 
   state = {
@@ -131,7 +130,6 @@ export default withTranslation()(class extends React.Component {
         <WorkspaceSwitcher
           api={this.props.api}
           trackMetric={this.props.trackMetric}
-          isSmartOnFhirMode={this.props.isSmartOnFhirMode}
         />
       );
     }
