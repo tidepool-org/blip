@@ -139,7 +139,7 @@ export const ClinicWorkspaceHeader = (props) => {
                   id="clinicProfilePlan"
                   text={clinic?.ui.text.planDisplayName}
                   label={t('plan name')}
-                  colorPalette="primaryText"
+                  colorPalette="info"
                   condensed
                 />
               </Box>

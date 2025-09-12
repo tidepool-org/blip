@@ -169,30 +169,6 @@ describe('PatientNew', function () {
     // Required fields all filled. Next button should now be enabled
     expect(nextButton().prop('disabled')).to.be.false;
 
-    // Share anonymized data fields should also be present for caregiver profiles
-    const dataDonateCheckbox = () => wrapper.find('input#dataDonate');
-    expect(dataDonateCheckbox()).to.have.lengthOf(1);
-    expect(dataDonateCheckbox().prop('checked')).to.equal(false);
-    expect(dataDonateCheckbox().prop('disabled')).to.equal(false);
-
-    const dataDonateDestination = () => wrapper.find('MultiSelect input');
-    expect(dataDonateDestination()).to.have.lengthOf(1);
-    expect(dataDonateDestination().prop('value')).to.equal('');
-    expect(dataDonateDestination().prop('disabled')).to.equal(true);
-
-    // Check the donate checkbox to enable the donation destination multi-select
-    dataDonateCheckbox().simulate('change', { persist: noop, target: { name: 'dataDonate', checked: true, value: true } });
-    expect(dataDonateCheckbox().prop('checked')).to.equal(true);
-    expect(dataDonateDestination().prop('disabled')).to.equal(false);
-
-    // Set donate destinations
-    dataDonateDestination().simulate('change', { persist: noop, target: { name: 'dataDonateDestination', value: 'ADCES' } });
-    dataDonateDestination().simulate('keyDown', { keyCode: 40, key: 'Tab' }); // Tab away
-    dataDonateDestination().simulate('keyUp', { keyCode: 40, key: 'Tab' }); // Tab away
-
-    // Once options are chosen, data donate checkbox is disabled
-    expect(dataDonateCheckbox().prop('disabled')).to.equal(true);
-
     // Submit the form
     nextButton().simulate('click');
 
@@ -209,16 +185,6 @@ describe('PatientNew', function () {
             diagnosisDate: '1995-02-02',
           },
         } },
-      );
-
-      sinon.assert.calledWith(
-        defaultProps.api.invitation.send,
-        'bigdata@tidepool.org',
-      );
-
-      sinon.assert.calledWith(
-        defaultProps.api.invitation.send,
-        'bigdata+ADCES@tidepool.org',
       );
 
       done();
@@ -318,30 +284,6 @@ describe('PatientNew', function () {
     // Required fields all filled. Next button should now be enabled
     expect(nextButton().prop('disabled')).to.be.false;
 
-    // // Share anonymized data
-    const dataDonateCheckbox = () => wrapper.find('input#dataDonate');
-    expect(dataDonateCheckbox()).to.have.lengthOf(1);
-    expect(dataDonateCheckbox().prop('checked')).to.equal(false);
-    expect(dataDonateCheckbox().prop('disabled')).to.equal(false);
-
-    const dataDonateDestination = () => wrapper.find('MultiSelect input').hostNodes();
-    expect(dataDonateDestination()).to.have.lengthOf(1);
-    expect(dataDonateDestination().prop('value')).to.equal('');
-    expect(dataDonateDestination().prop('disabled')).to.equal(true);
-
-    // Check the donate checkbox to enable the donation destination multi-select
-    dataDonateCheckbox().simulate('change', { persist: noop, target: { name: 'dataDonate', checked: true, value: true } });
-    expect(dataDonateCheckbox().prop('checked')).to.equal(true);
-    expect(dataDonateDestination().prop('disabled')).to.equal(false);
-
-    // Set donate destinations
-    dataDonateDestination().simulate('change', { persist: noop, target: { name: 'dataDonateDestination', value: 'ADCES' } });
-    dataDonateDestination().simulate('keyDown', { keyCode: 40, key: 'Tab' }); // Tab away
-    dataDonateDestination().simulate('keyUp', { keyCode: 40, key: 'Tab' }); // Tab away
-
-    // Once options are chosen, data donate checkbox is disabled
-    expect(dataDonateCheckbox().prop('disabled')).to.equal(true);
-
     // Submit the form
     nextButton().simulate('click');
 
@@ -358,16 +300,6 @@ describe('PatientNew', function () {
             diagnosisDate: '1995-02-02',
           },
         } },
-      );
-
-      sinon.assert.calledWith(
-        defaultProps.api.invitation.send,
-        'bigdata@tidepool.org',
-      );
-
-      sinon.assert.calledWith(
-        defaultProps.api.invitation.send,
-        'bigdata+ADCES@tidepool.org',
       );
 
       done();

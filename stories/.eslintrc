@@ -1,6 +1,9 @@
 {
   "extends": "airbnb",
   "parser": "babel-eslint",
+  "globals": {
+    "Set": "readonly"
+  },
   "plugins": ["lodash"],
   "rules": {
     "arrow-parens": 0,

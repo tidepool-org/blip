@@ -15,6 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
+import { map } from 'lodash';
 import i18next from './language';
 
 const t = i18next.t.bind(i18next);
@@ -31,23 +32,23 @@ export const URL_TIDEPOOL_PLUS_CONTACT_SALES = 'https://app.cronofy.com/add_to_c
 export const URL_TIDEPOOL_EXTERNAL_DATA_CONNECTIONS = 'https://support.tidepool.org/hc/en-us/articles/34686287140884';
 
 export const TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL = 'bigdata@tidepool.org';
+export const DATA_DONATION_CONSENT_TYPE = 'big_data_donation_project';
 
-export const DATA_DONATION_NONPROFITS = () => [
-  { value: 'ADCES', label: t('ADCES Foundation') },
-  { value: 'BT1', label: t('Beyond Type 1') },
-  { value: 'CWD', label: t('Children with Diabetes') },
-  { value: 'CDN', label: t('The Diabetes Link') },
-  { value: 'DYF', label: t('Diabetes Youth Families (DYF)') },
-  { value: 'DIABETESSISTERS', label: t('DiabetesSisters') },
-  { value: 'DIATRIBE', label: t('The diaTribe Foundation') },
-  { value: 'JDRF', label: t('Breakthrough T1D') },
-  { value: 'NSF', label: t('Nightscout Foundation') },
-  { value: 'T1DX', label: t('T1D Exchange') },
-];
+export const SUPPORTED_ORGANIZATIONS_OPTIONS = map([
+  'ADCES Foundation',
+  'Beyond Type 1',
+  'Breakthrough T1D',
+  'Children With Diabetes',
+  'DiabetesSisters',
+  'Diabetes Youth Families (DYF)',
+  'The Diabetes Link',
+  'The diaTribe Foundation',
+], (name) => ({ value: name, label: t(name) }));
 
 export const DIABETES_TYPES = () => [
   { value: 'type1', label: t('Type 1') },
   { value: 'type2', label: t('Type 2') },
+  { value: 'type3c', label: t('Type 3c') },
   { value: 'gestational', label: t('Gestational') },
   { value: 'prediabetes', label: t('Pre-diabetes') },
   { value: 'lada', label: t('LADA (Type 1.5)') },

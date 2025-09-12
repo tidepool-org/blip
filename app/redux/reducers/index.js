@@ -29,6 +29,8 @@ import {
   targetUserId,
   prescriptions,
   devices,
+  consents,
+  consentRecords,
   messageThread,
   notification,
   passwordResetConfirmed,
@@ -44,7 +46,6 @@ import {
   showingWelcomeMessage,
   timePrefs,
   signupKey,
-  dataDonationAccounts,
   dataSources,
   authorizedDataSource,
   justConnectedDataSourceProviderName,
@@ -58,6 +59,7 @@ import {
   rpmReportPatients,
   ssoEnabledDisplay,
   pendoData,
+  clinicMRNsForPatientFormValidation,
 } from './misc';
 
 export default combineReducers({
@@ -68,6 +70,8 @@ export default combineReducers({
   targetUserId,
   prescriptions,
   devices,
+  consents,
+  consentRecords,
   messageThread,
   notification,
   passwordResetConfirmed,
@@ -83,7 +87,6 @@ export default combineReducers({
   showingWelcomeMessage,
   timePrefs,
   signupKey,
-  dataDonationAccounts,
   dataSources,
   authorizedDataSource,
   justConnectedDataSourceProviderName,
@@ -100,5 +103,6 @@ export default combineReducers({
   data,
   working,
   pendoData,
+  clinicMRNsForPatientFormValidation,
   patientListFilters,
 });

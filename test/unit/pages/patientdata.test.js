@@ -3414,63 +3414,6 @@ describe('PatientData', function () {
     });
   });
 
-  describe('toggleDefaultBgRange', () => {
-    let wrapper;
-    let instance;
-
-    beforeEach(() => {
-      wrapper = shallow(<PatientDataClass {...defaultProps} />);
-      instance = wrapper.instance();
-    });
-
-    it('should call `updateChartPrefs` with arguments needed to trigger stats and aggregations refresh', () => {
-      instance.setState({ chartType: 'basics' });
-      const updateChartPrefsSpy = sinon.spy(instance, 'updateChartPrefs');
-      instance.toggleDefaultBgRange();
-      sinon.assert.calledWith(updateChartPrefsSpy, {}, false, true, true);
-    });
-
-    it('should call `setState` with the `useDefaultRange` bgPrefs state toggled', () => {
-      const setStateSpy = sinon.spy(instance, 'setState');
-      instance.setState({ chartType: 'basics' });
-      instance.toggleDefaultBgRange();
-
-      sinon.assert.calledWith(setStateSpy, {
-        bgPrefs:  {
-          bgBounds: 'stubbed bgBounds',
-          bgClasses: { low: { boundary: 70 }, target: { boundary: 180 } },
-          bgUnits: 'mg/dL',
-          useDefaultRange: true,
-        }
-      });
-
-      instance.toggleDefaultBgRange();
-
-      sinon.assert.calledWith(setStateSpy, {
-        bgPrefs:  {
-          bgBounds: 'stubbed bgBounds',
-          bgClasses: { low: { boundary: 70 }, target: { boundary: 180 } },
-          bgUnits: 'mg/dL',
-          useDefaultRange: false
-        }
-      });
-    });
-
-    it('should track a metric when `useDefaultRange` set to true on basics view', () => {
-      defaultProps.trackMetric.resetHistory();
-      instance.setState({ chartType: 'basics' });
-      instance.toggleDefaultBgRange();
-      sinon.assert.calledWith(defaultProps.trackMetric, 'Basics - use default BG range');
-    });
-
-    it('should track a metric when `useDefaultRange` set to true on trends view', () => {
-      defaultProps.trackMetric.resetHistory();
-      instance.setState({ chartType: 'trends' });
-      instance.toggleDefaultBgRange();
-      sinon.assert.calledWith(defaultProps.trackMetric, 'Trends - use default BG range');
-    });
-  });
-
   describe('closeDatesDialog', () => {
     let wrapper;
     let instance;
@@ -5160,6 +5103,7 @@ describe('PatientData', function () {
         endpoints: [100,200],
       });
       elem.instance().handleSwitchToSettings();
+      expect(props.onFetchAdditionalData.callCount).to.equal(1);
       expect(props.trackMetric.callCount).to.equal(callCount + 2);
       expect(props.trackMetric.calledWith('Clicked Switch To Settings')).to.be.true;
     });
@@ -5325,6 +5269,10 @@ describe('PatientData', function () {
         inProgress: false,
         completed: null,
       },
+      fetchingUserConsentRecords: {
+        inProgress: false,
+        completed: null,
+      },
       fetchingClinicsForPatient: {
         inProgress: false,
         completed: null,
@@ -5344,6 +5292,7 @@ describe('PatientData', function () {
       fetchPendingSentInvites: sinon.stub().returns('fetchPendingSentInvites'),
       fetchAssociatedAccounts: sinon.stub().returns('fetchAssociatedAccounts'),
       fetchPatientFromClinic: sinon.stub().returns('fetchPatientFromClinic'),
+      fetchUserConsentRecords: sinon.stub().returns('fetchUserConsentRecords'),
       fetchClinicsForPatient: sinon.stub().returns('fetchClinicsForPatient'),
       selectClinic: sinon.stub().returns('selectClinic'),
     };
@@ -5357,8 +5306,8 @@ describe('PatientData', function () {
     });
 
     it('should return an array containing the patient and patient data fetchers from dispatchProps when viewing own patient data', () => {
-      const result = getFetchers(dispatchProps, ownProps, { ...stateProps, isUserPatient: true }, api);
-      expect(result).to.have.lengthOf(5);
+      const result = getFetchers(dispatchProps, ownProps, { ...stateProps, user: { userid: '12345' }, api });
+      expect(result).to.have.lengthOf(6);
       expect(result[0]).to.be.a('function');
       expect(result[0]()).to.equal('fetchPatient');
       expect(result[1]).to.be.a('function');
@@ -5369,10 +5318,12 @@ describe('PatientData', function () {
       expect(result[3]()).to.equal('fetchClinicsForPatient');
       expect(result[4]).to.be.a('function');
       expect(result[4]()).to.equal('fetchAssociatedAccounts');
+      expect(result[5]).to.be.a('function');
+      expect(result[5]()).to.equal('fetchUserConsentRecords');
     });
 
     it('should return an array containing the patient and patient data fetchers from dispatchProps when viewing another patient', () => {
-      const result = getFetchers(dispatchProps, ownProps, { ...stateProps, isUserPatient: false }, api);
+      const result = getFetchers(dispatchProps, ownProps, { ...stateProps, user: { userid: '67890' } }, api);
       expect(result).to.have.lengthOf(4);
       expect(result[0]).to.be.a('function');
       expect(result[0]()).to.equal('fetchPatient');
@@ -5384,9 +5335,9 @@ describe('PatientData', function () {
       expect(result[3]()).to.equal('fetchAssociatedAccounts');
     });
 
-    it('should only add the associated accounts, patient clinics, and pending invites fetchers if fetches are not already in progress or completed', () => {
-      const standardResult = getFetchers(dispatchProps, ownProps, { ...stateProps, isUserPatient: true }, api);
-      expect(standardResult.length).to.equal(5);
+    it('should only add the associated accounts, patient clinics, patient consents, and pending invites fetchers if fetches are not already in progress or completed', () => {
+      const standardResult = getFetchers(dispatchProps, ownProps, { ...stateProps, user: { userid: '12345' } }, api);
+      expect(standardResult.length).to.equal(6);
 
       const inProgressResult = getFetchers(dispatchProps, ownProps, {
         fetchingPendingSentInvites: {
@@ -5398,6 +5349,10 @@ describe('PatientData', function () {
           completed: null,
         },
         fetchingAssociatedAccounts: {
+          inProgress: true,
+          completed: null,
+        },
+        fetchingUserConsentRecords: {
           inProgress: true,
           completed: null,
         },
@@ -5417,6 +5372,10 @@ describe('PatientData', function () {
           completed: true,
         },
         fetchingAssociatedAccounts: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingUserConsentRecords: {
           inProgress: false,
           completed: true,
         },
@@ -5457,6 +5416,10 @@ describe('PatientData', function () {
           inProgress: false,
           completed: true,
         },
+        fetchingUserConsentRecords: {
+          inProgress: false,
+          completed: true,
+        },
       });
 
       expect(fetchPatientsResult.length).to.equal(4);
@@ -5494,6 +5457,10 @@ describe('PatientData', function () {
           completed: true,
         },
         fetchingAssociatedAccounts: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingUserConsentRecords: {
           inProgress: false,
           completed: true,
         },
@@ -5538,6 +5505,10 @@ describe('PatientData', function () {
           inProgress: false,
           completed: true,
         },
+        fetchingUserConsentRecords: {
+          inProgress: false,
+          completed: true,
+        },
       });
 
       expect(fetchPatientsResult.length).to.equal(3);
@@ -5575,6 +5546,10 @@ describe('PatientData', function () {
           completed: true,
         },
         fetchingAssociatedAccounts: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingUserConsentRecords: {
           inProgress: false,
           completed: true,
         },
@@ -5621,6 +5596,10 @@ describe('PatientData', function () {
           completed: true,
         },
         fetchingAssociatedAccounts: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingUserConsentRecords: {
           inProgress: false,
           completed: true,
         },

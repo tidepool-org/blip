@@ -26,6 +26,7 @@ import MoreVertRoundedIcon from '@material-ui/icons/MoreVertRounded';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 import EditIcon from '@material-ui/icons/EditRounded';
 import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
+const { GLYCEMIC_RANGE } = vizUtils.constants;
 import ScrollToTop from 'react-scroll-to-top';
 import styled from '@emotion/styled';
 import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
@@ -287,12 +288,12 @@ const TideDashboardSection = React.memo(props => {
       text: t('No Pending Connections'),
     },
     pending: {
-      colorPalette: 'primaryText',
+      colorPalette: 'info',
       icon: null,
       text: t('Invite Sent'),
     },
     pendingReconnect: {
-      colorPalette: 'primaryText',
+      colorPalette: 'info',
       icon: null,
       text: t('Invite Sent'),
     },
@@ -302,7 +303,7 @@ const TideDashboardSection = React.memo(props => {
       text: t('Invite Expired'),
     },
     connected: {
-      colorPalette: 'primaryText',
+      colorPalette: 'info',
       icon: null,
       text: t('Connected'),
     },
@@ -434,10 +435,15 @@ const TideDashboardSection = React.memo(props => {
   }, [api, trackMetric]);
 
   const renderBgRangeSummary = useCallback(summary => {
+    // Alternate glycemic ranges not applied in TIDE Dashboard for now
+    const glycemicRanges = GLYCEMIC_RANGE.ADA_STANDARD;
+
     return <BgSummaryCell
+    id={summary.patient.id}
     summary={summary}
     config={config}
     clinicBgUnits={clinicBgUnits}
+    glycemicRanges={glycemicRanges}
     activeSummaryPeriod={config?.period}
   />
   }, [clinicBgUnits, config]);
@@ -796,10 +802,7 @@ export const TideDashboard = (props) => {
   const ldClient = useLDClient();
   const ldContext = ldClient.getContext();
 
-  const existingMRNs = useMemo(
-    () => compact(map(reject(clinic?.patients, { id: selectedPatient?.id }), 'mrn')),
-    [clinic?.patients, selectedPatient?.id]
-  );
+  const existingMRNs = useSelector(state => state.blip.clinicMRNsForPatientFormValidation)?.filter(mrn => mrn !== selectedPatient?.mrn) || [];
 
   const {
     fetchingPatientFromClinic,

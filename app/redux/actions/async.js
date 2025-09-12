@@ -518,9 +518,6 @@ export function sendInvite(api, email, permissions, cb = _.noop) {
           ));
         }
       } else {
-        if (personUtils.isDataDonationAccount(invite)) {
-          dispatch(fetchPendingSentInvites(api));
-        }
         dispatch(sync.sendInviteSuccess(invite));
       }
     });
@@ -1353,6 +1350,136 @@ export function fetchDevices(api) {
 }
 
 /**
+ * Fetch Latest Consent By Type Action Creator
+ *
+ * @param  {Object} api - an instance of the API wrapper
+ * @param {String} consentType - type of the consent (e.g., 'big_data_donation_project')
+ */
+export function fetchLatestConsentByType(api, consentType) {
+  return (dispatch) => {
+    dispatch(sync.fetchLatestConsentByTypeRequest());
+
+    api.consent.getLatestConsentByType(consentType, (err, consentDocument) => {
+      if (err) {
+        dispatch(sync.fetchLatestConsentByTypeFailure (
+          createActionError(ErrorMessages.ERR_FETCHING_LATEST_CONSENT_BY_TYPE, err), err
+        ));
+      } else {
+        dispatch(sync.fetchLatestConsentByTypeSuccess(consentType, consentDocument));
+      }
+    });
+  };
+}
+
+/**
+ * Fetch User Consent Records By Type Action Creator
+ *
+ * @param  {Object} api - an instance of the API wrapper
+ * @param {String} consentType - type of the consent (e.g., 'big_data_donation_project')
+ */
+export function fetchUserConsentRecords(api, consentType) {
+  return (dispatch, getState) => {
+    const { blip: { loggedInUserId } } = getState();
+
+    dispatch(sync.fetchUserConsentRecordsRequest());
+
+    api.consent.getUserConsentRecords(loggedInUserId, consentType, (err, records) => {
+      if (err) {
+        dispatch(sync.fetchUserConsentRecordsFailure (
+          createActionError(ErrorMessages.ERR_FETCHING_USER_CONSENT_RECORDS, err), err
+        ));
+      } else {
+        dispatch(sync.fetchUserConsentRecordsSuccess(consentType, records));
+      }
+    });
+  };
+}
+
+/**
+ * Create User Consent Record Action Creator
+ *
+ * @param  {Object} api - an instance of the API wrapper
+ * @param {Object} consentRecord - the consent record to create
+ * @param {String} consentRecord.ageGroup - Allowed values: ['<13', '13-17', '>=18']
+ * @param {String} consentRecord.ownerName - The name of the account owner
+ * @param {String} [consentRecord.parentGuardianName] - The name of the parent or legal guardian granting the consent record. Required if ageGroup is '<13' or '13-17'.
+ * @param {String} consentRecord.grantorType - Allowed values: ['owner', 'parent/guardian']
+ * @param {String} consentRecord.type - Type of the consent record (e.g., 'big_data_donation_project')
+ * @param {Object} [consentRecord.metadata]
+ * @param {String[]} [consentRecord.metadata.supportedOrganizations] - Allowed values: ['ADCES Foundation', 'Beyond Type 1', 'Children With Diabetes', 'The Diabetes Link', 'Diabetes Youth Families (DYF)', 'DiabetesSisters', 'The diaTribe Foundation', 'Breakthrough T1D']
+ * @param {Number} consentRecord.version - >=1
+ */
+export function createUserConsentRecord(api, consentRecord) {
+  return (dispatch, getState) => {
+    const { blip: { loggedInUserId } } = getState();
+
+    dispatch(sync.createUserConsentRecordRequest());
+
+    api.consent.createUserConsentRecord(loggedInUserId, consentRecord, (err, createdRecord) => {
+      if (err) {
+        dispatch(sync.createUserConsentRecordFailure (
+          createActionError(ErrorMessages.ERR_CREATING_USER_CONSENT_RECORD, err), err
+        ));
+      } else {
+        dispatch(sync.createUserConsentRecordSuccess(createdRecord));
+      }
+    });
+  };
+}
+
+/**
+ * Update User Consent Record  Action Creator
+ *
+ * @param  {Object} api - an instance of the API wrapper
+ * @param {String} recordId - id of the consent record to update
+ * @param {Object} updates
+ * @param {Object} updates.metadata
+ * @param {Array[String]} updates.metadata.supportedOrganizations - Allowed values: ['ADCES Foundation', 'Beyond Type 1', 'Children With Diabetes', 'The Diabetes Link', 'Diabetes Youth Families (DYF)', 'DiabetesSisters', 'The diaTribe Foundation', 'Breakthrough T1D']
+ */
+export function updateUserConsentRecord(api, recordId, updates) {
+  return (dispatch, getState) => {
+    const { blip: { loggedInUserId } } = getState();
+
+    dispatch(sync.updateUserConsentRecordRequest());
+
+    api.consent.updateUserConsentRecord(loggedInUserId, recordId, updates, (err, updatedRecord) => {
+      if (err) {
+        dispatch(sync.updateUserConsentRecordFailure (
+          createActionError(ErrorMessages.ERR_UPDATING_USER_CONSENT_RECORD, err), err
+        ));
+      } else {
+        dispatch(sync.updateUserConsentRecordSuccess(updatedRecord));
+      }
+    });
+  };
+}
+
+/**
+ * Revoke User Consent Record Action Creator
+ *
+ * @param  {Object} api - an instance of the API wrapper
+ * @param {String} consentType - type of the consent (e.g., 'big_data_donation_project')
+ * @param {String} recordId - id of the consent record to revoke
+ */
+export function revokeUserConsentRecord(api, consentType, recordId) {
+  return (dispatch, getState) => {
+    const { blip: { loggedInUserId } } = getState();
+
+    dispatch(sync.revokeUserConsentRecordRequest());
+
+    api.consent.revokeUserConsentRecord(loggedInUserId, recordId, err => {
+      if (err) {
+        dispatch(sync.revokeUserConsentRecordFailure (
+          createActionError(ErrorMessages.ERR_REVOKING_USER_CONSENT_RECORD, err), err
+        ));
+      } else {
+        dispatch(sync.revokeUserConsentRecordSuccess(consentType));
+      }
+    });
+  };
+}
+
+/**
  * Fetch Message Thread Action Creator
  *
  * @param  {Object} api an instance of the API wrapper
@@ -1422,52 +1549,6 @@ export function editMessageThread(api, message, cb = _.noop) {
         const { blip: { currentPatientInViewId } } = getState();
         dispatch(sync.editMessageThreadSuccess(message));
         dispatch(worker.dataWorkerUpdateDatumRequest(message, currentPatientInViewId));
-      }
-    });
-  };
-}
-
-/**
- * Update Data Donation Accounts Action Creator
- *
- * @param  {Object} api an instance of the API wrapper
- */
-export function updateDataDonationAccounts(api, addAccounts = [], removeAccounts = []) {
-  return (dispatch, getState) => {
-    dispatch(sync.updateDataDonationAccountsRequest());
-
-    const { blip: { loggedInUserId } } = getState();
-
-    const addAccount = (email, cb) => {
-      const permissions = {
-        view: {},
-        note: {},
-      };
-
-      dispatch(sendInvite(api, email, permissions, cb));
-    }
-
-    const removeAccount = (account, cb) => {
-      if (account.userid) {
-        dispatch(removeMemberFromTargetCareTeam(api, loggedInUserId, account.userid, cb));
-      } else {
-        dispatch(cancelSentInvite(api, account.email, cb));
-      }
-    }
-
-    async.parallel(async.reflectAll({
-      addAccounts:  cb => { async.map(addAccounts, addAccount, (err, results) => cb(err, results)) },
-      removeAccounts: cb => { async.map(removeAccounts, removeAccount, (err, results) => cb(err, results)) },
-    }), (err, results) => {
-      const resultsErr = _.mapValues(results, ({error}) => error);
-      const resultsVal = _.mapValues(results, ({value}) => value);
-      const error = resultsErr.addAccounts || resultsErr.removeAccounts;
-      if (error) {
-        dispatch(sync.updateDataDonationAccountsFailure(
-          createActionError(ErrorMessages.ERR_UPDATING_DATA_DONATION_ACCOUNTS, error), error
-        ));
-      } else {
-        dispatch(sync.updateDataDonationAccountsSuccess(resultsVal));
       }
     });
   };
@@ -1950,6 +2031,40 @@ export function fetchPatientsForClinic(api, clinicId, options = {}) {
       } else {
         const { data, meta: { count, totalCount } } = results;
         dispatch(sync.fetchPatientsForClinicSuccess(clinicId, data, count, totalCount));
+      }
+    });
+  };
+}
+
+/**
+ * Fetch MRNs for form validation
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {Object} [options] - search options
+ * @param {String} [options.search] - search query string
+ * @param {Number} [options.offset] - search page offset
+ * @param {Number} [options.limit] - results per page
+ * @param {Number} [options.sort] - directionally prefixed field to sort by (e.g. +name or -name)
+ * @param {Number} [options.sortType] - type of bg data to sort by (cgm|bgm)
+ * @param {Number} [options.period] - summary period to sort by (1d|7d|14d|30d)
+ */
+export function fetchClinicMRNsForPatientFormValidation(api, clinicId, options = {}) {
+  return (dispatch) => {
+    dispatch(sync.fetchClinicMRNsForPatientFormValidationRequest());
+
+    api.clinics.getPatientsForClinic(clinicId, options, (err, results) => {
+      if (err) {
+        let errMsg = ErrorMessages.ERR_FETCHING_MRNS_FOR_CLINIC;
+        if (err?.status === 403) {
+          errMsg = ErrorMessages.ERR_FETCHING_MRNS_FOR_CLINIC_UNAUTHORIZED;
+        }
+        dispatch(sync.fetchClinicMRNsForPatientFormValidationFailure(
+          createActionError(errMsg, err), err, clinicId
+        ));
+      } else {
+        const { data, meta: { count, totalCount } } = results;
+        dispatch(sync.fetchClinicMRNsForPatientFormValidationSuccess(clinicId, data, count, totalCount));
       }
     });
   };
