@@ -156,6 +156,7 @@ const initialState = {
     fetchingClinicPatientCountSettings: Object.assign({}, working),
     settingClinicPatientLastReviewed: Object.assign({}, working),
     revertingClinicPatientLastReviewed: Object.assign({}, working),
+    updatingPreferences: Object.assign({}, working),
     fetchingLatestConsentByType: Object.assign({}, working),
     fetchingUserConsentRecords: Object.assign({}, working),
     creatingUserConsentRecord: Object.assign({}, working),
