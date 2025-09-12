@@ -16,6 +16,7 @@ import { worker } from '.';
 
 import utils from '../../core/utils';
 import { clinicUIDetails } from '../../core/clinicUtils.js';
+import { getDismissedAltRangeBannerKey, isRangeWithNonStandardTarget } from '../../providers/AppBanner/appBannerHelpers.js';
 
 let win = window;
 
@@ -1586,6 +1587,20 @@ export function handleBannerInteraction(api, userId, interactionId, interactionT
           [preferenceDateKey]: interactionTime,
         };
       }
+    } else if (interactionId === 'ClinicUsingAltRange') {
+      const { blip: { currentPatientInViewId, clinics } } = getState();
+      const clinicRanges = _.mapValues(clinics, clinic => clinic.patients?.[currentPatientInViewId]?.glycemicRanges);
+
+      preferences = {};
+
+      // If there are multiple clinics that currently use a non-standard range for the PwD, this
+      // one click should dismiss the banner for all clinics at once. Thus, we create a field in
+      // the preferences object for every clinic.
+      Object.entries(clinicRanges).forEach(([clinicId, glycemicRanges]) => {
+        if (isRangeWithNonStandardTarget(glycemicRanges)) {
+          preferences[getDismissedAltRangeBannerKey(clinicId)] = interactionTime;
+        }
+      });
     } else {
       const preferenceKey = `${interactionType}${interactionId}BannerTime`;
 
