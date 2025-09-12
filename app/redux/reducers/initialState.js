@@ -123,6 +123,7 @@ const initialState = {
     deletingClinicianFromClinic: Object.assign({}, working),
     deletingPatientFromClinic: Object.assign({}, working),
     fetchingPatientsForClinic: Object.assign({}, working),
+    fetchingClinicMRNsForPatientFormValidation: Object.assign({}, working),
     fetchingPatientFromClinic: Object.assign({}, working),
     creatingClinicCustodialAccount: Object.assign({}, working),
     creatingVCACustodialAccount: Object.assign({}, working),
@@ -156,6 +157,7 @@ const initialState = {
     fetchingClinicPatientCountSettings: Object.assign({}, working),
     settingClinicPatientLastReviewed: Object.assign({}, working),
     revertingClinicPatientLastReviewed: Object.assign({}, working),
+    updatingPreferences: Object.assign({}, working),
     fetchingLatestConsentByType: Object.assign({}, working),
     fetchingUserConsentRecords: Object.assign({}, working),
     creatingUserConsentRecord: Object.assign({}, working),
@@ -187,6 +189,7 @@ const initialState = {
     account: {},
     visitor: {},
   },
+  clinicMRNsForPatientFormValidation: [],
 };
 
 export default initialState;

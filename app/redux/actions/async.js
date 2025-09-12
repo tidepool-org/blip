@@ -16,6 +16,7 @@ import { worker } from '.';
 
 import utils from '../../core/utils';
 import { clinicUIDetails } from '../../core/clinicUtils.js';
+import { getDismissedAltRangeBannerKey, isRangeWithNonStandardTarget } from '../../providers/AppBanner/appBannerHelpers.js';
 
 let win = window;
 
@@ -1619,6 +1620,20 @@ export function handleBannerInteraction(api, userId, interactionId, interactionT
           [preferenceDateKey]: interactionTime,
         };
       }
+    } else if (interactionId === 'ClinicUsingAltRange') {
+      const { blip: { currentPatientInViewId, clinics } } = getState();
+      const clinicRanges = _.mapValues(clinics, clinic => clinic.patients?.[currentPatientInViewId]?.glycemicRanges);
+
+      preferences = {};
+
+      // If there are multiple clinics that currently use a non-standard range for the PwD, this
+      // one click should dismiss the banner for all clinics at once. Thus, we create a field in
+      // the preferences object for every clinic.
+      Object.entries(clinicRanges).forEach(([clinicId, glycemicRanges]) => {
+        if (isRangeWithNonStandardTarget(glycemicRanges)) {
+          preferences[getDismissedAltRangeBannerKey(clinicId)] = interactionTime;
+        }
+      });
     } else {
       const preferenceKey = `${interactionType}${interactionId}BannerTime`;
 
@@ -2064,6 +2079,40 @@ export function fetchPatientsForClinic(api, clinicId, options = {}) {
       } else {
         const { data, meta: { count, totalCount } } = results;
         dispatch(sync.fetchPatientsForClinicSuccess(clinicId, data, count, totalCount));
+      }
+    });
+  };
+}
+
+/**
+ * Fetch MRNs for form validation
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {Object} [options] - search options
+ * @param {String} [options.search] - search query string
+ * @param {Number} [options.offset] - search page offset
+ * @param {Number} [options.limit] - results per page
+ * @param {Number} [options.sort] - directionally prefixed field to sort by (e.g. +name or -name)
+ * @param {Number} [options.sortType] - type of bg data to sort by (cgm|bgm)
+ * @param {Number} [options.period] - summary period to sort by (1d|7d|14d|30d)
+ */
+export function fetchClinicMRNsForPatientFormValidation(api, clinicId, options = {}) {
+  return (dispatch) => {
+    dispatch(sync.fetchClinicMRNsForPatientFormValidationRequest());
+
+    api.clinics.getPatientsForClinic(clinicId, options, (err, results) => {
+      if (err) {
+        let errMsg = ErrorMessages.ERR_FETCHING_MRNS_FOR_CLINIC;
+        if (err?.status === 403) {
+          errMsg = ErrorMessages.ERR_FETCHING_MRNS_FOR_CLINIC_UNAUTHORIZED;
+        }
+        dispatch(sync.fetchClinicMRNsForPatientFormValidationFailure(
+          createActionError(errMsg, err), err, clinicId
+        ));
+      } else {
+        const { data, meta: { count, totalCount } } = results;
+        dispatch(sync.fetchClinicMRNsForPatientFormValidationSuccess(clinicId, data, count, totalCount));
       }
     });
   };

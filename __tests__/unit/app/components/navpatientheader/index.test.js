@@ -1,17 +1,21 @@
 /* global jest */
 /* global expect */
 /* global describe */
+/* global beforeEach */
 /* global afterEach */
 /* global it */
 
 import React from 'react';
+import { Provider } from 'react-redux';
 import { render, screen } from '@testing-library/react';
 import _ from 'lodash';
+import configureStore from 'redux-mock-store';
+import thunk from 'redux-thunk';
 import { MemoryRouter, Route, Switch } from 'react-router-dom';
 
-import { useNavigation} from '@app/core/navutils';
+import { useNavigation } from '@app/core/navutils';
 
-import NavPatientHeader from '@app/components/navpatientheader'
+import NavPatientHeader from '@app/components/navpatientheader';
 import userEvent from '@testing-library/user-event';
 
 jest.mock('@app/core/navutils.js', () => ({
@@ -24,6 +28,12 @@ jest.mock('@app/core/navutils.js', () => ({
     handleViewData: jest.fn(),
     handleViewProfile: jest.fn(),
     handleShare: jest.fn(),
+  }),
+}));
+
+jest.mock('@app/providers/ToastProvider', () => ({
+  useToasts: jest.fn().mockReturnValue({
+    set: jest.fn(),
   }),
 }));
 
@@ -47,6 +57,24 @@ describe('NavPatientHeader', () => {
     diagnosisType: 'prediabetes',
   };
 
+  const mockStore = configureStore([thunk]);
+  let store;
+
+  beforeEach(() => {
+    store = mockStore({
+      blip: {
+        selectedClinicId: 'clinic-123',
+        currentPatientInViewId: 'patient-123',
+        clinics: { 'clinic-123': { patients: { 'patient-123': {} } } },
+        clinicMRNsForPatientFormValidation: [],
+        working: {
+          updatingClinicPatient: { inProgress: false, notification: null, completed: null },
+          fetchingClinicMRNsForPatientFormValidation: { inProgress: false, notification: null, completed: null },
+        },
+      },
+    });
+  });
+
   afterEach(() => {
     trackMetric.mockClear();
 
@@ -57,14 +85,16 @@ describe('NavPatientHeader', () => {
     useNavigation().handleShare.mockClear();
   });
 
-  const MockedProviderWrappers = ({ children }) => (
-    <MemoryRouter initialEntries={['/']}>
-      <Switch>
-        <Route path='/'>
-          {children}
-        </Route>
-      </Switch>
-    </MemoryRouter>
+  const MockedProviderWrappers = ({ children, path = '/' }) => (
+    <Provider store={store}>
+      <MemoryRouter initialEntries={[path]}>
+        <Switch>
+          <Route path={path}>
+            {children}
+          </Route>
+        </Switch>
+      </MemoryRouter>
+    </Provider>
   );
 
   describe('visibility of patient info and actions', () => {
@@ -265,11 +295,12 @@ describe('NavPatientHeader', () => {
       await userEvent.click(screen.getByRole('button', { name: /View Data/ }));
       expect(useNavigation().handleViewData).toHaveBeenCalledTimes(1);
 
-      await userEvent.click(screen.getByRole('button', { name: /Patient Profile/ }));
-      expect(useNavigation().handleViewProfile).toHaveBeenCalledTimes(1);
-
       await userEvent.click(screen.getByRole('button', { name: /Upload Data/ }));
       expect(useNavigation().handleLaunchUploader).toHaveBeenCalledTimes(1);
+
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      await userEvent.click(screen.getByRole('button', { name: /Edit Patient Details/ }));
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
   });
 
@@ -285,13 +316,9 @@ describe('NavPatientHeader', () => {
 
       it('should render on data page', async () => {
         render(
-          <MemoryRouter initialEntries={['/patients/abc123/data']}>
-            <Switch>
-              <Route path='/patients/abc123/data'>
-                <NavPatientHeader {...clinicianUserProps} />
-              </Route>
-            </Switch>
-          </MemoryRouter>
+          <MockedProviderWrappers path='/patients/abc123/data'>
+            <NavPatientHeader {...clinicianUserProps} />
+          </MockedProviderWrappers>
         );
 
         await userEvent.click(screen.getByRole('button', { name: /Back/ }));
@@ -300,13 +327,9 @@ describe('NavPatientHeader', () => {
 
       it('should render on profile page', async () => {
         render(
-          <MemoryRouter initialEntries={['/patients/abc123/profile']}>
-            <Switch>
-              <Route path='/patients/abc123/profile'>
-                <NavPatientHeader {...clinicianUserProps} />
-              </Route>
-            </Switch>
-          </MemoryRouter>
+          <MockedProviderWrappers path='/patients/abc123/profile'>
+            <NavPatientHeader {...clinicianUserProps} />
+          </MockedProviderWrappers>
         );
 
         await userEvent.click(screen.getByRole('button', { name: /Back/ }));
@@ -327,13 +350,9 @@ describe('NavPatientHeader', () => {
 
       it('should render on view page', async () => {
         render(
-          <MemoryRouter initialEntries={['/patients/abc123/data']}>
-            <Switch>
-              <Route path='/patients/abc123/data'>
-                <NavPatientHeader {...clinicClinicianProps} />
-              </Route>
-            </Switch>
-          </MemoryRouter>
+          <MockedProviderWrappers path='/patients/abc123/data'>
+            <NavPatientHeader {...clinicClinicianProps} />
+          </MockedProviderWrappers>
         );
 
         await userEvent.click(screen.getByRole('button', { name: /Back/ }));
@@ -342,13 +361,9 @@ describe('NavPatientHeader', () => {
 
       it('should render on profile page', async () => {
         render(
-          <MemoryRouter initialEntries={['/patients/abc123/data']}>
-            <Switch>
-              <Route path='/patients/abc123/data'>
-                <NavPatientHeader {...clinicClinicianProps} />
-              </Route>
-            </Switch>
-          </MemoryRouter>
+          <MockedProviderWrappers path='/patients/abc123/data'>
+            <NavPatientHeader {...clinicClinicianProps} />
+          </MockedProviderWrappers>
         );
 
         await userEvent.click(screen.getByRole('button', { name: /Back/ }));
@@ -369,13 +384,9 @@ describe('NavPatientHeader', () => {
         };
 
         render(
-          <MemoryRouter initialEntries={['/dashboard/tide']}>
-            <Switch>
-              <Route path='/dashboard/tide'>
-                <NavPatientHeader {...clinicClinicianProps} />
-              </Route>
-            </Switch>
-          </MemoryRouter>
+          <MockedProviderWrappers path='/dashboard/tide'>
+            <NavPatientHeader {...clinicClinicianProps} />
+          </MockedProviderWrappers>
         );
 
         await userEvent.click(screen.getByRole('button', { name: /Back/ }));
