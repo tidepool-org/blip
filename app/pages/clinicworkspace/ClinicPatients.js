@@ -1560,6 +1560,7 @@ export const ClinicPatients = (props) => {
     const activeFiltersCount = without([
       activeFilters.timeCGMUsePercent,
       activeFilters.lastData,
+      activeFilters.clinicSites?.length,
       activeFilters.timeInRange?.length,
       activeFilters.patientTags?.length,
     ], null, 0, undefined).length;
@@ -1733,7 +1734,7 @@ export const ClinicPatients = (props) => {
                       id="filter-count"
                       label="filter count"
                       round
-                      sx={{ width: '14px', lineHeight: '15px', fontSize: '9px' }}
+                      sx={{ width: '14px', lineHeight: '15px', fontSize: '9px', display: 'flex', justifyContent: 'center' }}
                       colorPalette={['purpleMedium', 'white']}
                       text={`${activeFiltersCount}`}
                     />
