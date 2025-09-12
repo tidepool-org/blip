@@ -35,7 +35,7 @@ const SelectDiabetesType = ({
       <Select
         styles={selectElementStyleOverrides}
         name="patient-form-select-diabetes-type"
-        id="patient-form-select-diabetes-type"
+        inputId="patient-form-select-diabetes-type"
         classNamePrefix="PatientFormSelectDiabetesType"
         placeholder={t('Select Type')}
         value={selectValue}

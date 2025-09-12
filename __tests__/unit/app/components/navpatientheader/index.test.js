@@ -14,7 +14,6 @@ import thunk from 'redux-thunk';
 import { MemoryRouter, Route, Switch } from 'react-router-dom';
 
 import { useNavigation } from '@app/core/navutils';
-import { useToasts } from '@app/providers/ToastProvider';
 
 import NavPatientHeader from '@app/components/navpatientheader';
 import userEvent from '@testing-library/user-event';

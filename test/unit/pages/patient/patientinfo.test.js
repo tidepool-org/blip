@@ -2,8 +2,10 @@
 /* global describe */
 /* global sinon */
 /* global it */
+/* global before */
 /* global beforeEach */
 /* global afterEach */
+/* global after */
 
 import React, { createElement } from 'react';
 import { Provider } from 'react-redux';
@@ -36,6 +38,10 @@ describe('PatientInfo', function () {
   let store;
   let wrapper;
 
+  before(() => {
+    PatientInfo.__Rewire__('DataDonationForm', 'DataDonationFormStub');
+  });
+
   beforeEach(() => {
     store = mockStore({
       blip: {
@@ -64,6 +70,10 @@ describe('PatientInfo', function () {
     props.fetchDataSources.reset();
     props.connectDataSource.reset();
     props.disconnectDataSource.reset();
+  });
+
+  after(() => {
+    PatientInfo.__ResetDependency__('DataDonationForm');
   });
 
   describe('render', function() {

@@ -13,6 +13,12 @@ import viewIcon from '../../../core/icons/viewIcon.svg';
 import profileIcon from '../../../core/icons/profileIcon.svg';
 import uploadIcon from '../../../core/icons/uploadIcon.svg';
 
+const EDIT_ACTION = {
+  OPEN_PATIENT_FORM: 'OPEN_PATIENT_FORM',
+  VIEW_PROFILE_PAGE: 'VIEW_PROFILE_PAGE',
+  NONE: 'NONE',
+};
+
 const ClinicianMenuOptions = ({
   t,
   onOpenPatientForm,
@@ -25,13 +31,11 @@ const ClinicianMenuOptions = ({
   const permsOfLoggedInUser = useSelector(state => selectPermsOfLoggedInUser(state));
   const finalSlug = getFinalSlug(pathname);
 
-  let editOptionState;
+  let editActionState = EDIT_ACTION.NONE;
   if (!!selectedClinicId) {
-    editOptionState = 'PATIENT_FORM'; // If viewing from a clinic, open the PatientForm modal
+    editActionState = EDIT_ACTION.OPEN_PATIENT_FORM; // viewing from a clinic
   } else if (permsOfLoggedInUser?.custodian) {
-    editOptionState = 'PROFILE_PAGE'; // If viewing private workspace and user is custodian, open the profile page
-  } else {
-    editOptionState = 'HIDDEN'; // If viewing claimed account, hide button
+    editActionState = EDIT_ACTION.VIEW_PROFILE_PAGE; // viewing private workspace and user is custodian
   }
 
   return (
@@ -48,7 +52,7 @@ const ClinicianMenuOptions = ({
         </Button>
       </Box>
 
-      {editOptionState === 'PATIENT_FORM' &&
+      {editActionState === EDIT_ACTION.OPEN_PATIENT_FORM &&
         <Box>
           <Button
             id="navPatientHeader_profileButton"
@@ -62,7 +66,7 @@ const ClinicianMenuOptions = ({
         </Box>
       }
 
-      {editOptionState === 'PROFILE_PAGE' &&
+      {editActionState === EDIT_ACTION.VIEW_PROFILE_PAGE &&
         <Box>
           <Button
             id="navPatientHeader_profileButton"
