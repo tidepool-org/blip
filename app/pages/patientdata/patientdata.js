@@ -2071,7 +2071,7 @@ export const PatientDataClass = createReactClass({
             pumpSettings: {},
             upload: {},
           };
-          chartQuery.endpoints[0] = 0;
+          chartQuery.endpoints = [0, moment().valueOf()]; // fetch all data
           break;
       }
 
@@ -2212,6 +2212,15 @@ export const PatientDataClass = createReactClass({
         trends: { ...this.state.chartPrefs.trends, bgSource },
         excludedDevices,
       }, false);
+
+      if (chartType === 'settings') {
+        this.fetchAdditionalData({
+          returnData: false,
+          showLoading: true,
+          noDates: true,
+          type: 'pumpSettings,upload',
+        });
+      }
 
       this.updateChart(chartType, datetimeLocation, endpoints);
       props.trackMetric(`web - default to ${chartType === 'bgLog' ? 'weekly' : chartType}`);

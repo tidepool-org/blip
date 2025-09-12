@@ -478,7 +478,7 @@ const PatientTags = ({
       tags={map(filteredPatientTags, tagId => patientTags?.[tagId])}
     />
   ) : (
-    <React.Fragment>
+    <Box onClick={event => event.stopPropagation()}>
       <Box {...addTagsBindTrigger}>
         <Button
           id="add-tags-to-patient-trigger"
@@ -616,7 +616,7 @@ const PatientTags = ({
           </Button>
         </DialogActions>
       </Popover>
-    </React.Fragment>
+    </Box>
   );
 };
 
@@ -657,10 +657,6 @@ export const ClinicPatients = (props) => {
   const [showTimeInRangeDialog, setShowTimeInRangeDialog] = useState(false);
   const [showSendUploadReminderDialog, setShowSendUploadReminderDialog] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
-  const existingMRNs = useMemo(
-    () => compact(map(reject(clinic?.patients, { id: selectedPatient?.id }), 'mrn')),
-    [clinic?.patients, selectedPatient?.id]
-  );
   const [selectedClinicSite, setSelectedClinicSite] = useState(null);
   const [selectedPatientTag, setSelectedPatientTag] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -686,6 +682,8 @@ export const ClinicPatients = (props) => {
   const showTideDashboardUI = showSummaryData && (showTideDashboard || clinic?.entitlements?.tideDashboard);
   const ldClient = useLDClient();
   const ldContext = ldClient.getContext();
+
+  const existingMRNs = useSelector(state => state.blip.clinicMRNsForPatientFormValidation)?.filter(mrn => mrn !== selectedPatient?.mrn) || [];
 
   const defaultPatientFetchOptions = useMemo(
     () => {
@@ -1287,10 +1285,8 @@ export const ClinicPatients = (props) => {
   }, [prefixPopHealthMetric, selectedClinicId, isPatientListVisible, showSummaryData, trackMetric]);
 
   const handleClickPatient = useCallback(patient => {
-    return () => {
-      trackMetric('Selected PwD');
-      dispatch(push(`/patients/${patient.id}/data`));
-    }
+    trackMetric('Selected PwD');
+    dispatch(push(`/patients/${patient.id}/data`));
   }, [dispatch, trackMetric]);
 
   function handleAddPatient() {
@@ -3680,7 +3676,7 @@ export const ClinicPatients = (props) => {
   ]);
 
   const renderPatient = useCallback(patient => (
-    <Box onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
+    <Box>
       <Text sx={{ display: 'block', fontSize: [1, null, 0], fontWeight: 'medium' }}>{patient.fullName}</Text>
       {showSummaryData && <Text sx={{ fontSize: [0, null, '10px'], whiteSpace: 'nowrap' }}>{t('DOB:')} {patient.birthDate}</Text>}
       {showSummaryData && patient.mrn && <Text sx={{ fontSize: [0, null, '10px'], whiteSpace: 'nowrap' }}>, {t('MRN: {{mrn}}', { mrn: patient.mrn })}</Text>}
@@ -3691,7 +3687,7 @@ export const ClinicPatients = (props) => {
       }
       {!showSummaryData && patient.email && <Text sx={{ fontSize: [0, null, '10px'] }}>{patient.email}</Text>}
     </Box>
-  ), [handleClickPatient, showSummaryData, t]);
+  ), [showSummaryData, t]);
 
   const renderLastDataDate = useCallback(({ summary }) => {
     let formattedLastDataDateCGM, formattedLastDataDateBGM;
@@ -3908,18 +3904,18 @@ export const ClinicPatients = (props) => {
     </Box>
   );
 
-  const renderLinkedField = useCallback((field, patient) => (
-    <Box
-      classname={`patient-${field}`}
-      onClick={handleClickPatient(patient)}
-      sx={{ cursor: 'pointer' }}
-    >
+  const renderDemographicField = useCallback((field, patient) => (
+    <Box className={`patient-${field}`} sx={{ cursor: 'pointer' }}>
       <Text sx={{ fontWeight: 'medium' }}>{patient[field]}</Text>
     </Box>
-  ), [handleClickPatient]);
+  ), []);
 
   const renderLastReviewed = useCallback((patient) => {
-    return <PatientLastReviewed api={api} trackMetric={trackMetric} metricSource="Patients list" patientId={patient.id} recentlyReviewedThresholdDate={moment().startOf('day').toISOString()} />
+    return (
+      <Box onClick={event => event.stopPropagation()}>
+        <PatientLastReviewed api={api} trackMetric={trackMetric} metricSource="Patients list" patientId={patient.id} recentlyReviewedThresholdDate={moment().startOf('day').toISOString()} />
+      </Box>
+    );
   }, [api, trackMetric]);
 
   const renderMore = useCallback((patient) => {
@@ -3967,13 +3963,13 @@ export const ClinicPatients = (props) => {
         align: 'left',
         sortable: true,
         defaultOrder: defaultSortOrders.birthDate,
-        render: renderLinkedField.bind(null, 'birthDate'),
+        render: renderDemographicField.bind(null, 'birthDate'),
       },
       {
         title: t('MRN'),
         field: 'mrn',
         align: 'left',
-        render: renderLinkedField.bind(null, 'mrn'),
+        render: renderDemographicField.bind(null, 'mrn'),
         hideEmpty: true,
       },
       {
@@ -4115,7 +4111,7 @@ export const ClinicPatients = (props) => {
     renderGMI,
     renderLastReviewed,
     renderLastDataDate,
-    renderLinkedField,
+    renderDemographicField,
     renderMore,
     renderPatient,
     renderPatientTags,
@@ -4180,6 +4176,7 @@ export const ClinicPatients = (props) => {
           onSort={handleSortChange}
           order={sort?.substring(0, 1) === '+' ? 'asc' : 'desc'}
           orderBy={sort?.substring(1)}
+          onClickRow={handleClickPatient}
           emptyContentNode={
             <EmptyContentNode patientListQueryState={patientListQueryState}>
               <ClearFilterButtons

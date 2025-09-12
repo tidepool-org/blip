@@ -81,6 +81,7 @@ describe('ClinicPatients', ()  => {
         fetchingRpmReportPatients: defaultWorkingState,
         settingClinicPatientLastReviewed: defaultWorkingState,
         revertingClinicPatientLastReviewed: defaultWorkingState,
+        fetchingClinicMRNsForPatientFormValidation: defaultWorkingState,
       },
       patientListFilters: {
         patientListSearchTextInput: '',
