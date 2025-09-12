@@ -16,6 +16,13 @@ import * as ActionTypes from '../constants/actionTypes';
 import { isClinicianAccount } from '../../core/personutils';
 import { setPendoData } from '../actions/sync';
 
+const getSmartOnFhirProperties = (getState) => {
+  const state = getState();
+  const isSmartOnFhir = !!state?.blip?.smartOnFhirData;
+  // Only include isSmartOnFhir when it's true to avoid cluttering analytics
+  return isSmartOnFhir ? { isSmartOnFhir: true } : undefined;
+};
+
 const trackingActions = [
   ActionTypes.LOGIN_SUCCESS,
   ActionTypes.LOGOUT_REQUEST,
@@ -121,16 +128,22 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
       }
 
       const role = isClinicianAccount(user) ? 'clinician' : 'personal';
+      const smartProperties = getSmartOnFhirProperties(getState);
+
+      let visitorProperties = {
+        id: user.userid,
+        role,
+        application: 'Web',
+        environment: env,
+        termsAccepted: user.termsAccepted,
+        ...optionalVisitorProperties,
+      };
+      if (smartProperties) {
+        visitorProperties = { ...visitorProperties, ...smartProperties };
+      }
 
       pendoAction({
-        visitor: {
-          id: user.userid,
-          role,
-          application: 'Web',
-          environment: env,
-          termsAccepted: user.termsAccepted,
-          ...optionalVisitorProperties,
-        },
+        visitor: visitorProperties,
         account: {
           id: clinic ? clinic.id : user.userid,
           ...optionalAccountProperties,
@@ -146,13 +159,20 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
       const user = allUsersMap[loggedInUserId];
       const clinicId = action.payload.clinicId;
 
+      const smartProperties = getSmartOnFhirProperties(getState);
+
       if(isNull(clinicId)){
+        let visitorProperties = {
+          id: user.userid,
+          currentlyViewedDevices: [],
+          permission: null,
+        };
+        if (smartProperties) {
+          visitorProperties = { ...visitorProperties, ...smartProperties };
+        }
+
         pendoAction({
-          visitor: {
-            id: user.userid,
-            currentlyViewedDevices: [],
-            permission: null,
-          },
+          visitor: visitorProperties,
           account: {
             id: user.userid,
             clinic: null,
@@ -166,17 +186,22 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
       } else {
         const selectedClinic = clinics[clinicId];
 
+        let visitorProperties = {
+          id: user.userid,
+          currentlyViewedDevices: [],
+          permission: includes(
+            selectedClinic?.clinicians?.[user.userid]?.roles,
+            'CLINIC_ADMIN'
+          )
+            ? 'administrator'
+            : 'member',
+        };
+        if (smartProperties) {
+          visitorProperties = { ...visitorProperties, ...smartProperties };
+        }
+
         pendoAction({
-          visitor: {
-            id: user.userid,
-            currentlyViewedDevices: [],
-            permission: includes(
-              selectedClinic?.clinicians?.[user.userid]?.roles,
-              'CLINIC_ADMIN'
-            )
-              ? 'administrator'
-              : 'member',
-          },
+          visitor: visitorProperties,
           account: {
             id: clinicId,
             clinic: selectedClinic?.name,
@@ -269,12 +294,18 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
 
       if (patientId === loggedInUserId) {
         const lastUpload = get(action.payload, 'result.metaData.latestDatumByType.upload._deviceTime');
+        const smartProperties = getSmartOnFhirProperties(getState);
+
+        let visitorProperties = {
+          id: patientId,
+          lastUpload,
+        };
+        if (smartProperties) {
+          visitorProperties = { ...visitorProperties, ...smartProperties };
+        }
 
         pendoAction({
-          visitor: {
-            id: patientId,
-            lastUpload,
-          },
+          visitor: visitorProperties,
         });
       }
       break;
@@ -297,11 +328,18 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
         }, []));
       }
 
+      const smartProperties = getSmartOnFhirProperties(getState);
+
+      let visitorProperties = {
+        id: loggedInUserId,
+        currentlyViewedDevices,
+      };
+      if (smartProperties) {
+        visitorProperties = { ...visitorProperties, ...smartProperties };
+      }
+
       pendoAction({
-        visitor: {
-          id: loggedInUserId,
-          currentlyViewedDevices,
-        },
+        visitor: visitorProperties,
       });
 
       break;
@@ -312,11 +350,18 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
         blip: { loggedInUserId },
       } = getState();
 
+      const smartProperties = getSmartOnFhirProperties(getState);
+
+      let visitorProperties = {
+        id: loggedInUserId,
+        currentlyViewedDevices: [],
+      };
+      if (smartProperties) {
+        visitorProperties = { ...visitorProperties, ...smartProperties };
+      }
+
       pendoAction({
-        visitor: {
-          id: loggedInUserId,
-          currentlyViewedDevices: [],
-        },
+        visitor: visitorProperties,
       });
       break;
     }
