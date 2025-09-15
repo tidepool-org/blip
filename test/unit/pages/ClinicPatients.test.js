@@ -1792,41 +1792,39 @@ describe('ClinicPatients', () => {
           const timeInRangeFilterCount = () => wrapper.find('#time-in-range-filter-count').hostNodes();
           expect(timeInRangeFilterCount()).to.have.lengthOf(0);
 
-          const dialog = () => wrapper.find('Dialog#timeInRangeDialog');
-          expect(dialog()).to.have.length(0);
+          const popover = () => wrapper.find('#timeInRangeFilters').hostNodes();
+          expect(popover().props().style.visibility).to.equal('hidden');
 
-          // Open filters dialog
+          // Open filters popover
           timeInRangeFilterTrigger.simulate('click');
-          wrapper.update();
-          expect(dialog()).to.have.length(1);
-          expect(dialog().props().open).to.be.true;
+          expect(popover().props().style.visibility).to.be.undefined;
 
           // Ensure filter options present and in default unchecked state
-          const veryLowFilter = () => dialog().find('#time-in-range-filter-veryLow').hostNodes();
+          const veryLowFilter = () => popover().find('#time-in-range-filter-veryLow').hostNodes();
           expect(veryLowFilter()).to.have.lengthOf(1);
           expect(veryLowFilter().text()).contains('Greater than 1% Time');
           expect(veryLowFilter().text()).contains('<54 mg/dL');
           expect(veryLowFilter().find('input').props().checked).to.be.false;
 
-          const lowFilter = () => dialog().find('#time-in-range-filter-anyLow').hostNodes();
+          const lowFilter = () => popover().find('#time-in-range-filter-anyLow').hostNodes();
           expect(lowFilter()).to.have.lengthOf(1);
           expect(lowFilter().text()).contains('Greater than 4% Time');
           expect(lowFilter().text()).contains('<70 mg/dL');
           expect(lowFilter().find('input').props().checked).to.be.false;
 
-          const targetFilter = () => dialog().find('#time-in-range-filter-target').hostNodes();
+          const targetFilter = () => popover().find('#time-in-range-filter-target').hostNodes();
           expect(targetFilter()).to.have.lengthOf(1);
           expect(targetFilter().text()).contains('Less than 70% Time');
           expect(targetFilter().text()).contains('between 70-180 mg/dL');
           expect(targetFilter().find('input').props().checked).to.be.false;
 
-          const highFilter = () => dialog().find('#time-in-range-filter-anyHigh').hostNodes();
+          const highFilter = () => popover().find('#time-in-range-filter-anyHigh').hostNodes();
           expect(highFilter()).to.have.lengthOf(1);
           expect(highFilter().text()).contains('Greater than 25% Time');
           expect(highFilter().text()).contains('>180 mg/dL');
           expect(highFilter().find('input').props().checked).to.be.false;
 
-          const veryHighFilter = () => dialog().find('#time-in-range-filter-veryHigh').hostNodes();
+          const veryHighFilter = () => popover().find('#time-in-range-filter-veryHigh').hostNodes();
           expect(veryHighFilter()).to.have.lengthOf(1);
           expect(veryHighFilter().text()).contains('Greater than 5% Time');
           expect(veryHighFilter().text()).contains('>250 mg/dL');
@@ -1850,7 +1848,7 @@ describe('ClinicPatients', () => {
 
           // Submit the form
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-          const applyButton = dialog().find('#timeInRangeFilterConfirm').hostNodes();
+          const applyButton = popover().find('#timeInRangeFilterConfirm').hostNodes();
           applyButton.simulate('click');
 
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({
@@ -1861,6 +1859,7 @@ describe('ClinicPatients', () => {
             'cgm.timeInTargetPercent': '<=0.7',
             'cgm.timeInVeryHighPercent': '>=0.05',
             'cgm.timeInVeryLowPercent': '>=0.01',
+            omitNonStandardRanges: true,
           }));
 
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Time in range apply filter', sinon.match({
@@ -2122,28 +2121,28 @@ describe('ClinicPatients', () => {
             expect(timeInRangeFilterCount()).to.have.lengthOf(1);
             expect(timeInRangeFilterCount().text()).to.equal('2');
 
-            const dialog = () => wrapper.find('Dialog#timeInRangeDialog');
-
             // Open time in rangefilters dialog
             timeInRangeFilterTrigger.simulate('click');
+
+            const popover = () => wrapper.find('#timeInRangeFilters').hostNodes();
+
             wrapper.update();
-            expect(dialog()).to.have.length(1);
-            expect(dialog().props().open).to.be.true;
+            expect(popover()).to.have.length(1);
 
             // Ensure filter options in pre-set state
-            const veryLowFilter = () => dialog().find('#time-in-range-filter-veryLow').hostNodes();
+            const veryLowFilter = () => popover().find('#time-in-range-filter-veryLow').hostNodes();
             expect(veryLowFilter().find('input').props().checked).to.be.false;
 
-            const lowFilter = () => dialog().find('#time-in-range-filter-anyLow').hostNodes();
+            const lowFilter = () => popover().find('#time-in-range-filter-anyLow').hostNodes();
             expect(lowFilter().find('input').props().checked).to.be.true;
 
-            const targetFilter = () => dialog().find('#time-in-range-filter-target').hostNodes();
+            const targetFilter = () => popover().find('#time-in-range-filter-target').hostNodes();
             expect(targetFilter().find('input').props().checked).to.be.false;
 
-            const highFilter = () => dialog().find('#time-in-range-filter-anyHigh').hostNodes();
+            const highFilter = () => popover().find('#time-in-range-filter-anyHigh').hostNodes();
             expect(highFilter().find('input').props().checked).to.be.true;
 
-            const veryHighFilter = () => dialog().find('#time-in-range-filter-veryHigh').hostNodes();
+            const veryHighFilter = () => popover().find('#time-in-range-filter-veryHigh').hostNodes();
             expect(veryHighFilter().find('input').props().checked).to.be.false;
           });
 
@@ -2267,41 +2266,37 @@ describe('ClinicPatients', () => {
           it('should show the bg range filters in mmol/L units', () => {
             const timeInRangeFilterTrigger = wrapper.find('#time-in-range-filter-trigger').hostNodes();
 
-            const dialog = () => wrapper.find('Dialog#timeInRangeDialog');
-            expect(dialog()).to.have.length(0);
+            const popover = () => wrapper.find('#timeInRangeFilters').hostNodes();
 
-            // Open filters dialog
+            // Open filters popover
             timeInRangeFilterTrigger.simulate('click');
-            wrapper.update();
-            expect(dialog()).to.have.length(1);
-            expect(dialog().props().open).to.be.true;
 
             // Ensure filter options present and in default unchecked state
-            const veryLowFilter = () => dialog().find('#time-in-range-filter-veryLow').hostNodes();
+            const veryLowFilter = () => popover().find('#time-in-range-filter-veryLow').hostNodes();
             expect(veryLowFilter()).to.have.lengthOf(1);
             expect(veryLowFilter().text()).contains('Greater than 1% Time');
             expect(veryLowFilter().text()).contains('<3.0 mmol/L');
             expect(veryLowFilter().find('input').props().checked).to.be.false;
 
-            const lowFilter = () => dialog().find('#time-in-range-filter-anyLow').hostNodes();
+            const lowFilter = () => popover().find('#time-in-range-filter-anyLow').hostNodes();
             expect(lowFilter()).to.have.lengthOf(1);
             expect(lowFilter().text()).contains('Greater than 4% Time');
             expect(lowFilter().text()).contains('<3.9 mmol/L');
             expect(lowFilter().find('input').props().checked).to.be.false;
 
-            const targetFilter = () => dialog().find('#time-in-range-filter-target').hostNodes();
+            const targetFilter = () => popover().find('#time-in-range-filter-target').hostNodes();
             expect(targetFilter()).to.have.lengthOf(1);
             expect(targetFilter().text()).contains('Less than 70% Time');
             expect(targetFilter().text()).contains('between 3.9-10.0 mmol/L');
             expect(targetFilter().find('input').props().checked).to.be.false;
 
-            const highFilter = () => dialog().find('#time-in-range-filter-anyHigh').hostNodes();
+            const highFilter = () => popover().find('#time-in-range-filter-anyHigh').hostNodes();
             expect(highFilter()).to.have.lengthOf(1);
             expect(highFilter().text()).contains('Greater than 25% Time');
             expect(highFilter().text()).contains('>10.0 mmol/L');
             expect(highFilter().find('input').props().checked).to.be.false;
 
-            const veryHighFilter = () => dialog().find('#time-in-range-filter-veryHigh').hostNodes();
+            const veryHighFilter = () => popover().find('#time-in-range-filter-veryHigh').hostNodes();
             expect(veryHighFilter()).to.have.lengthOf(1);
             expect(veryHighFilter().text()).contains('Greater than 5% Time');
             expect(veryHighFilter().text()).contains('>13.9 mmol/L');
@@ -2341,25 +2336,25 @@ describe('ClinicPatients', () => {
           const timeInRangeFilterTrigger = wrapper.find('#time-in-range-filter-trigger').hostNodes();
           expect(timeInRangeFilterTrigger).to.have.lengthOf(1);
 
-          const dialog = () => wrapper.find('Dialog#timeInRangeDialog');
+          const tirPopover = () => wrapper.find('#timeInRangeFilters').hostNodes();
           timeInRangeFilterTrigger.simulate('click');
 
           // Select 3 filter ranges
-          const veryLowFilter = () => dialog().find('#time-in-range-filter-veryLow').hostNodes();
+          const veryLowFilter = () => tirPopover().find('#time-in-range-filter-veryLow').hostNodes();
           veryLowFilter().find('input').simulate('change', { target: { name: 'range-timeInVeryLowPercent-filter', checked: true } });
           expect(veryLowFilter().find('input').props().checked).to.be.true;
 
-          const lowFilter = () => dialog().find('#time-in-range-filter-anyLow').hostNodes();
+          const lowFilter = () => tirPopover().find('#time-in-range-filter-anyLow').hostNodes();
           lowFilter().find('input').simulate('change', { target: { name: 'range-timeInAnyLowPercent-filter', checked: true } });
           expect(lowFilter().find('input').props().checked).to.be.true;
 
-          const highFilter = () => dialog().find('#time-in-range-filter-anyHigh').hostNodes();
+          const highFilter = () => tirPopover().find('#time-in-range-filter-anyHigh').hostNodes();
           highFilter().find('input').simulate('change', { target: { name: 'range-timeInAnyHighPercent-filter', checked: true } });
           expect(highFilter().find('input').props().checked).to.be.true;
 
           // Submit the form
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-          const applyButton = dialog().find('#timeInRangeFilterConfirm').hostNodes();
+          const applyButton = tirPopover().find('#timeInRangeFilterConfirm').hostNodes();
           applyButton.simulate('click');
 
           // Filter count should be 2
@@ -2377,7 +2372,7 @@ describe('ClinicPatients', () => {
 
           // Unset time in range filter
           timeInRangeFilterTrigger.simulate('click');
-          dialog().find('#timeInRangeFilterClear').hostNodes().simulate('click');
+          tirPopover().find('#timeInRangeFilterClear').hostNodes().simulate('click');
 
           // Total filter count and time in range filter count should be unset
           expect(filterCount()).to.have.lengthOf(0);
@@ -2422,25 +2417,25 @@ describe('ClinicPatients', () => {
           const timeInRangeFilterTrigger = wrapper.find('#time-in-range-filter-trigger').hostNodes();
           expect(timeInRangeFilterTrigger).to.have.lengthOf(1);
 
-          const dialog = () => wrapper.find('Dialog#timeInRangeDialog');
+          const tirPopover = () => wrapper.find('#timeInRangeFilters').hostNodes();
           timeInRangeFilterTrigger.simulate('click');
 
           // Select 3 filter ranges
-          const veryLowFilter = () => dialog().find('#time-in-range-filter-veryLow').hostNodes();
+          const veryLowFilter = () => tirPopover().find('#time-in-range-filter-veryLow').hostNodes();
           veryLowFilter().find('input').simulate('change', { target: { name: 'range-timeInVeryLowPercent-filter', checked: true } });
           expect(veryLowFilter().find('input').props().checked).to.be.true;
 
-          const lowFilter = () => dialog().find('#time-in-range-filter-anyLow').hostNodes();
+          const lowFilter = () => tirPopover().find('#time-in-range-filter-anyLow').hostNodes();
           lowFilter().find('input').simulate('change', { target: { name: 'range-timeInAnyLowPercent-filter', checked: true } });
           expect(lowFilter().find('input').props().checked).to.be.true;
 
-          const highFilter = () => dialog().find('#time-in-range-filter-anyHigh').hostNodes();
+          const highFilter = () => tirPopover().find('#time-in-range-filter-anyHigh').hostNodes();
           highFilter().find('input').simulate('change', { target: { name: 'range-timeInAnyHighPercent-filter', checked: true } });
           expect(highFilter().find('input').props().checked).to.be.true;
 
           // Submit the form
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-          const applyButton = dialog().find('#timeInRangeFilterConfirm').hostNodes();
+          const applyButton = tirPopover().find('#timeInRangeFilterConfirm').hostNodes();
           applyButton.simulate('click');
 
           // Filter count should be 2
@@ -2468,89 +2463,34 @@ describe('ClinicPatients', () => {
           const resetAllFiltersButton = () => wrapper.find('#reset-all-active-filters').hostNodes();
           expect(resetAllFiltersButton()).to.have.lengthOf(0);
 
-          // Open time in range dialog
+          // Open time in range popover
           const timeInRangeFilterTrigger = wrapper.find('#time-in-range-filter-trigger').hostNodes();
           expect(timeInRangeFilterTrigger).to.have.lengthOf(1);
 
-          const dialog = () => wrapper.find('Dialog#timeInRangeDialog');
+          const popover = () => wrapper.find('#timeInRangeFilters').hostNodes();
           timeInRangeFilterTrigger.simulate('click');
 
           // Select 3 filter ranges
-          const veryLowFilter = () => dialog().find('#time-in-range-filter-veryLow').hostNodes();
+          const veryLowFilter = () => popover().find('#time-in-range-filter-veryLow').hostNodes();
           veryLowFilter().find('input').simulate('change', { target: { name: 'range-timeInVeryLowPercent-filter', checked: true } });
           expect(veryLowFilter().find('input').props().checked).to.be.true;
 
-          const lowFilter = () => dialog().find('#time-in-range-filter-anyLow').hostNodes();
+          const lowFilter = () => popover().find('#time-in-range-filter-anyLow').hostNodes();
           lowFilter().find('input').simulate('change', { target: { name: 'range-timeInAnyLowPercent-filter', checked: true } });
           expect(lowFilter().find('input').props().checked).to.be.true;
 
-          const highFilter = () => dialog().find('#time-in-range-filter-anyHigh').hostNodes();
+          const highFilter = () => popover().find('#time-in-range-filter-anyHigh').hostNodes();
           highFilter().find('input').simulate('change', { target: { name: 'range-timeInAnyHighPercent-filter', checked: true } });
           expect(highFilter().find('input').props().checked).to.be.true;
 
-          // Close dialog without applying filter
+          // Close popover without applying filter
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-          expect(dialog()).to.have.length(1);
-          const closeButton = dialog().find('DialogTitle button').hostNodes();
+          expect(popover()).to.have.length(1);
+          const closeButton = popover().find('button[aria-label="close dialog"]').hostNodes();
           closeButton.simulate('click');
-          expect(dialog()).to.have.length(0);
 
-          // Re-open dialog
+          // Re-open popover
           timeInRangeFilterTrigger.simulate('click');
-          expect(dialog()).to.have.length(1);
-
-          // Verify that options are not still checked
-          expect(veryLowFilter().find('input').props().checked).to.be.false;
-          expect(lowFilter().find('input').props().checked).to.be.false;
-          expect(highFilter().find('input').props().checked).to.be.false;
-
-          // Total filter count and time in range filter count should be unset
-          expect(filterCount()).to.have.lengthOf(0);
-          expect(timeInRangeFilterCount()).to.have.lengthOf(0);
-          expect(resetAllFiltersButton()).to.have.lengthOf(0);
-        });
-
-        it('should clear pending filter edits when time in range filter dialog closed by clicking outside dialog', () => {
-          const filterCount = () => wrapper.find('#filter-count').hostNodes();
-          expect(filterCount()).to.have.lengthOf(0);
-
-          const timeInRangeFilterCount = () => wrapper.find('#time-in-range-filter-count').hostNodes();
-          expect(timeInRangeFilterCount()).to.have.lengthOf(0);
-
-          // Reset Filters button only shows when filters are active
-          const resetAllFiltersButton = () => wrapper.find('#reset-all-active-filters').hostNodes();
-          expect(resetAllFiltersButton()).to.have.lengthOf(0);
-
-          // Open time in range dialog
-          const timeInRangeFilterTrigger = wrapper.find('#time-in-range-filter-trigger').hostNodes();
-          expect(timeInRangeFilterTrigger).to.have.lengthOf(1);
-
-          const dialog = () => wrapper.find('Dialog#timeInRangeDialog');
-          timeInRangeFilterTrigger.simulate('click');
-
-          // Select 3 filter ranges
-          const veryLowFilter = () => dialog().find('#time-in-range-filter-veryLow').hostNodes();
-          veryLowFilter().find('input').simulate('change', { target: { name: 'range-timeInVeryLowPercent-filter', checked: true } });
-          expect(veryLowFilter().find('input').props().checked).to.be.true;
-
-          const lowFilter = () => dialog().find('#time-in-range-filter-anyLow').hostNodes();
-          lowFilter().find('input').simulate('change', { target: { name: 'range-timeInAnyLowPercent-filter', checked: true } });
-          expect(lowFilter().find('input').props().checked).to.be.true;
-
-          const highFilter = () => dialog().find('#time-in-range-filter-anyHigh').hostNodes();
-          highFilter().find('input').simulate('change', { target: { name: 'range-timeInAnyHighPercent-filter', checked: true } });
-          expect(highFilter().find('input').props().checked).to.be.true;
-
-          // Close dialog without applying filter
-          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-          expect(dialog()).to.have.length(1);
-          const dialogBackdrop = dialog().find('.MuiBackdrop-root').hostNodes();
-          dialogBackdrop.simulate('click');
-          expect(dialog()).to.have.length(0);
-
-          // Re-open dialog
-          timeInRangeFilterTrigger.simulate('click');
-          expect(dialog()).to.have.length(1);
 
           // Verify that options are not still checked
           expect(veryLowFilter().find('input').props().checked).to.be.false;
