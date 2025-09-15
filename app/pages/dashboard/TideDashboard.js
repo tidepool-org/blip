@@ -792,6 +792,7 @@ export const TideDashboard = (props) => {
     showTideDashboard,
     showTideDashboardLastReviewed,
     showTideDashboardPatientDrawer,
+    tideDashboardCategories
   } = useFlags();
   const ldClient = useLDClient();
   const ldContext = ldClient.getContext();
@@ -891,13 +892,14 @@ export const TideDashboard = (props) => {
     }
   }, [fetchingPatientFromClinic, selectedPatient?.id, clinic?.patients]);
 
-  const fetchDashboardPatients = useCallback((config) => {
+  const fetchDashboardPatients = useCallback((categories, config) => {
     const options = { ...(config || localConfig?.[localConfigKey]) };
     if (options) {
       const lastData = Number(options.lastData);
       const queryOptions = { period: options.period, lastData };
       queryOptions['tags'] = reject(options.tags || [], tagId => !patientTags?.[tagId]);
       queryOptions['lastDataCutoff'] = moment(getLocalizedCeiling(new Date().toISOString(), timePrefs)).subtract(lastData, 'days').toISOString();
+      queryOptions['categories'] = categories;
       setLoading(true);
       dispatch(actions.async.fetchTideDashboardPatients(api, selectedClinicId, queryOptions));
     }
@@ -942,7 +944,7 @@ export const TideDashboard = (props) => {
     if (!isTideDashboardEnabled) return;
 
     if (validateTideConfig(localConfig?.[localConfigKey], patientTags)) {
-      fetchDashboardPatients();
+      fetchDashboardPatients(categories);
     } else {
       setShowTideDashboardConfigDialog(true);
     }
@@ -1008,8 +1010,8 @@ export const TideDashboard = (props) => {
   const handleConfigureTideDashboardConfirm = useCallback(() => {
     trackMetric('Clinic - Show Tide Dashboard config dialog confirmed', { clinicId: selectedClinicId, source: 'Tide dashboard' });
     tideDashboardFormContext?.handleSubmit();
-    fetchDashboardPatients(tideDashboardFormContext?.values);
-  }, [fetchDashboardPatients, tideDashboardFormContext, selectedClinicId, trackMetric]);
+    fetchDashboardPatients(tideDashboardCategories, tideDashboardFormContext?.values);
+  }, [fetchDashboardPatients, tideDashboardCategories, tideDashboardFormContext, selectedClinicId, trackMetric]);
 
   function handleTideDashboardConfigFormChange(formikContext) {
     setTideDashboardFormContext({...formikContext});
