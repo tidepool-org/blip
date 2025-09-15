@@ -813,7 +813,7 @@ export const TideDashboard = (props) => {
   const previousUpdatingClinicPatient = usePrevious(updatingClinicPatient);
   const previousFetchingTideDashboardPatients = usePrevious(fetchingTideDashboardPatients);
 
-  const defaultSections = [
+  const sections = [
     { groupKey: 'timeInVeryLowPercent', sortDirection: 'desc', sortKey: 'timeInVeryLowPercent' },
     { groupKey: 'timeInAnyLowPercent', sortDirection: 'desc', sortKey: 'timeInAnyLowPercent' },
     { groupKey: 'dropInTimeInTargetPercent', sortDirection: 'asc', sortKey: 'timeInTargetPercentDelta' },
@@ -821,9 +821,7 @@ export const TideDashboard = (props) => {
     { groupKey: 'timeCGMUsePercent', sortDirection: 'asc', sortKey: 'timeCGMUsePercent' },
     { groupKey: 'meetingTargets', sortDirection: 'desc', sortKey: 'timeInVeryLowPercent' },
     { groupKey: 'noData', sortDirection: 'desc', sortKey: 'daysSinceLastData' },
-  ];
-
-  const [sections, setSections] = useState(defaultSections);
+  ].filter(section => !!patientGroups?.[section.groupKey]);
 
   function handleCloseOverlays() {
     setShowTideDashboardConfigDialog(false);
@@ -897,9 +895,12 @@ export const TideDashboard = (props) => {
     if (options) {
       const lastData = Number(options.lastData);
       const queryOptions = { period: options.period, lastData };
+
       queryOptions['tags'] = reject(options.tags || [], tagId => !patientTags?.[tagId]);
       queryOptions['lastDataCutoff'] = moment(getLocalizedCeiling(new Date().toISOString(), timePrefs)).subtract(lastData, 'days').toISOString();
-      queryOptions['categories'] = categories;
+
+      if (!!categories) queryOptions['categories'] = categories;
+
       setLoading(true);
       dispatch(actions.async.fetchTideDashboardPatients(api, selectedClinicId, queryOptions));
     }
@@ -1243,7 +1244,6 @@ export const TideDashboard = (props) => {
       patientTags,
       sections,
       selectedClinicId,
-      setSections,
       setSelectedPatient,
       setShowDataConnectionsModal,
       setShowEditPatientDialog,
@@ -1264,7 +1264,7 @@ export const TideDashboard = (props) => {
       dispatch(push('/clinic-workspace/patients'));
     };
 
-    each(patientGroups.noData, record => {
+    each((patientGroups?.noData || []), record => {
       record.daysSinceLastData = moment.utc().diff(record.lastData, 'days');
     })
 
