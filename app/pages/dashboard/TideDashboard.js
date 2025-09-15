@@ -1265,7 +1265,7 @@ export const TideDashboard = (props) => {
       dispatch(push('/clinic-workspace/patients'));
     };
 
-    each((patientGroups?.noData || []), record => {
+    each(patientGroups.noData, record => {
       record.daysSinceLastData = moment.utc().diff(record.lastData, 'days');
     })
 
