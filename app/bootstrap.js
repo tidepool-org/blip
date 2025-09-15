@@ -107,18 +107,19 @@ const LAUNCHDARKLY_FLAG_DEFAULTS = {
   'showTideDashboard': false,
   'showTideDashboardLastReviewed': false,
   'showTideDashboardPatientDrawer': false,
-  'tideDashboardCategories': 'UNINITIIALIZED',
+  'tideDashboardCategories': null,
 };
 
+// Configuration Docs: https://launchdarkly.github.io/react-client-sdk/interfaces/ProviderConfig.html
 appContext.render = async Component => {
   const LDProvider = await asyncWithLDProvider({
     clientSideID: __LAUNCHDARKLY_CLIENT_TOKEN__,
     context: ldContext,
     options: {
       streaming: false,
-      bootstrap: LAUNCHDARKLY_FLAG_DEFAULTS,
+      bootstrap: LAUNCHDARKLY_FLAG_DEFAULTS, // default flag values
     },
-    flags: LAUNCHDARKLY_FLAG_DEFAULTS,
+    flags: LAUNCHDARKLY_FLAG_DEFAULTS, // flags keys to listen for changes on
   });
 
   render(
