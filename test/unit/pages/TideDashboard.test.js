@@ -38,6 +38,16 @@ describe('TideDashboard', () => {
   const today = moment().toISOString();
   const yesterday = moment(today).subtract(1, 'day').toISOString();
 
+  const tideDashboardCategoriesMock = (
+    'timeInVeryLowPercent,'
+    + 'timeInAnyLowPercent,'
+    + 'dropInTimeInTargetPercent,'
+    + 'timeInTargetPercent,'
+    + 'timeCGMUsePercent,'
+    + 'meetingTargets,'
+    + 'noData'
+  );
+
   let wrapper;
   let defaultProps = {
     trackMetric: sinon.stub(),
@@ -63,6 +73,7 @@ describe('TideDashboard', () => {
     TideDashboard.__Rewire__('useFlags', sinon.stub().returns({
       showTideDashboard: true,
       showSummaryDashboard: true,
+      tideDashboardCategories: tideDashboardCategoriesMock,
     }));
 
     DataConnections.__Rewire__('api', defaultProps.api);
@@ -826,6 +837,7 @@ describe('TideDashboard', () => {
 
           TideDashboard.__Rewire__('useFlags', sinon.stub().returns({
             showTideDashboardLastReviewed: true,
+            tideDashboardCategories: tideDashboardCategoriesMock,
           }));
 
           wrapper = mount(
