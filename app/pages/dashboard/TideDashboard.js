@@ -19,6 +19,7 @@ import keyBy from 'lodash/keyBy';
 import map from 'lodash/map';
 import reject from 'lodash/reject';
 import values from 'lodash/values';
+import isNil from 'lodash/isNil';
 import { Box, Flex, Text } from 'theme-ui';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
@@ -101,6 +102,21 @@ const StyledScrollToTop = styled(ScrollToTop)`
   border-radius: 20px;
   padding-top: 4px;
 `;
+
+const CATEGORY = {
+  timeInVeryLowPercent: 'timeInVeryLowPercent',
+  timeInAnyLowPercent: 'timeInAnyLowPercent',
+  dropInTimeInTargetPercent: 'dropInTimeInTargetPercent',
+  timeInTargetPercent: 'timeInTargetPercent',
+  timeCGMUsePercent: 'timeCGMUsePercent',
+  meetingTargets: 'meetingTargets',
+  noData: 'noData',
+};
+
+const getValidTideDashboardCategories = (categoriesString) => {
+  // categoriesString should be a comma-delimited list of category names from launchDarkly
+  return categoriesString.split(',').map(category => category.trim()).filter(category => !!CATEGORY[category]);
+};
 
 const prefixTideDashboardMetric = metric => `Clinic - Tide Dashboard - ${metric}`;
 
@@ -798,7 +814,7 @@ export const TideDashboard = (props) => {
     showTideDashboard,
     showTideDashboardLastReviewed,
     showTideDashboardPatientDrawer,
-    tideDashboardCategories
+    tideDashboardCategories,
   } = useFlags();
   const ldClient = useLDClient();
   const ldContext = ldClient.getContext();
@@ -814,15 +830,19 @@ export const TideDashboard = (props) => {
   const previousUpdatingClinicPatient = usePrevious(updatingClinicPatient);
   const previousFetchingTideDashboardPatients = usePrevious(fetchingTideDashboardPatients);
 
-  const sections = [
-    { groupKey: 'timeInVeryLowPercent', sortDirection: 'desc', sortKey: 'timeInVeryLowPercent' },
-    { groupKey: 'timeInAnyLowPercent', sortDirection: 'desc', sortKey: 'timeInAnyLowPercent' },
-    { groupKey: 'dropInTimeInTargetPercent', sortDirection: 'asc', sortKey: 'timeInTargetPercentDelta' },
-    { groupKey: 'timeInTargetPercent', sortDirection: 'asc', sortKey: 'timeInTargetPercent' },
-    { groupKey: 'timeCGMUsePercent', sortDirection: 'asc', sortKey: 'timeCGMUsePercent' },
-    { groupKey: 'meetingTargets', sortDirection: 'desc', sortKey: 'timeInVeryLowPercent' },
-    { groupKey: 'noData', sortDirection: 'desc', sortKey: 'daysSinceLastData' },
-  ].filter(section => !!patientGroups?.[section.groupKey]);
+  const sectionOptions = [
+    { groupKey: CATEGORY.timeInVeryLowPercent, sortDirection: 'desc', sortKey: 'timeInVeryLowPercent' },
+    { groupKey: CATEGORY.timeInAnyLowPercent, sortDirection: 'desc', sortKey: 'timeInAnyLowPercent' },
+    { groupKey: CATEGORY.dropInTimeInTargetPercent, sortDirection: 'asc', sortKey: 'timeInTargetPercentDelta' },
+    { groupKey: CATEGORY.timeInTargetPercent, sortDirection: 'asc', sortKey: 'timeInTargetPercent' },
+    { groupKey: CATEGORY.timeCGMUsePercent, sortDirection: 'asc', sortKey: 'timeCGMUsePercent' },
+    { groupKey: CATEGORY.meetingTargets, sortDirection: 'desc', sortKey: 'timeInVeryLowPercent' },
+    { groupKey: CATEGORY.noData, sortDirection: 'desc', sortKey: 'daysSinceLastData' },
+  ];
+
+  // Display only sections that are
+  const displayedCategories = getValidTideDashboardCategories(tideDashboardCategories || '');
+  const sections = displayedCategories.map(category => (sectionOptions.find(({ groupKey }) => groupKey === category)));
 
   function handleCloseOverlays() {
     setShowTideDashboardConfigDialog(false);
@@ -943,9 +963,9 @@ export const TideDashboard = (props) => {
   }
 
   useEffect(() => {
-    if (_.isNil(tideDashboardCategories)) return;
+    if (isNil(tideDashboardCategories)) return;
 
-    const categories = tideDashboardCategories.trim().split(',');
+    const categories = getValidTideDashboardCategories(tideDashboardCategories || '');
 
     if (validateTideConfig(localConfig?.[localConfigKey], patientTags)) {
       fetchDashboardPatients(categories);
