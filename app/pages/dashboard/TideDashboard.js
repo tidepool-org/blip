@@ -845,7 +845,6 @@ export const TideDashboard = (props) => {
     showTideDashboard,
     showTideDashboardLastReviewed,
     showTideDashboardPatientDrawer,
-    tideDashboardCategories,
   } = useFlags();
   const ldClient = useLDClient();
   const ldContext = ldClient.getContext();
@@ -1003,7 +1002,7 @@ export const TideDashboard = (props) => {
     return () => {
       dispatch(actions.sync.clearTideDashboardPatients());
     };
-  }, []);
+  }, [showTideDashboard, categories, isSectionsLoading]);
 
   const drawerPatientId = new URLSearchParams(location.search).get('drawerPatientId') || null;
 
