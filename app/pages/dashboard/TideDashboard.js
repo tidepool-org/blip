@@ -114,6 +114,16 @@ const CATEGORY = {
   noData: 'noData',
 };
 
+const SECTION = [
+  { groupKey: CATEGORY.timeInVeryLowPercent, sortDirection: 'desc', sortKey: 'timeInVeryLowPercent' },
+  { groupKey: CATEGORY.timeInAnyLowPercent, sortDirection: 'desc', sortKey: 'timeInAnyLowPercent' },
+  { groupKey: CATEGORY.dropInTimeInTargetPercent, sortDirection: 'asc', sortKey: 'timeInTargetPercentDelta' },
+  { groupKey: CATEGORY.timeInTargetPercent, sortDirection: 'asc', sortKey: 'timeInTargetPercent' },
+  { groupKey: CATEGORY.timeCGMUsePercent, sortDirection: 'asc', sortKey: 'timeCGMUsePercent' },
+  { groupKey: CATEGORY.meetingTargets, sortDirection: 'desc', sortKey: 'timeInVeryLowPercent' },
+  { groupKey: CATEGORY.noData, sortDirection: 'desc', sortKey: 'daysSinceLastData' },
+];
+
 const prefixTideDashboardMetric = metric => `Clinic - Tide Dashboard - ${metric}`;
 
 const editPatient = (patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog, source) => {
@@ -824,37 +834,28 @@ export const TideDashboard = (props) => {
   const previousUpdatingClinicPatient = usePrevious(updatingClinicPatient);
   const previousFetchingTideDashboardPatients = usePrevious(fetchingTideDashboardPatients);
 
-  const sectionOptions = [
-    { groupKey: CATEGORY.timeInVeryLowPercent, sortDirection: 'desc', sortKey: 'timeInVeryLowPercent' },
-    { groupKey: CATEGORY.timeInAnyLowPercent, sortDirection: 'desc', sortKey: 'timeInAnyLowPercent' },
-    { groupKey: CATEGORY.dropInTimeInTargetPercent, sortDirection: 'asc', sortKey: 'timeInTargetPercentDelta' },
-    { groupKey: CATEGORY.timeInTargetPercent, sortDirection: 'asc', sortKey: 'timeInTargetPercent' },
-    { groupKey: CATEGORY.timeCGMUsePercent, sortDirection: 'asc', sortKey: 'timeCGMUsePercent' },
-    { groupKey: CATEGORY.meetingTargets, sortDirection: 'desc', sortKey: 'timeInVeryLowPercent' },
-    { groupKey: CATEGORY.noData, sortDirection: 'desc', sortKey: 'daysSinceLastData' },
-  ];
-
   const isTideDashboardCategoriesLoading = isNil(tideDashboardCategories);
 
   const categories = useMemo(() => {
-    // Return nothing if LaunchDarkly API call has not succeeded
+    // Return nothing if LaunchDarkly has not returned the true flags yet
     if (isTideDashboardCategoriesLoading) return [];
 
-    // Flag should contain a comma-delimited list of categories e.g: 'meetingTargets,noData'
+    // Flag should contain a comma-delimited list of categories, e.g. 'meetingTargets,noData'
     // Here, we parse the string and filter out any invalid categories
     const categories = tideDashboardCategories.split(',')
                                               .map(category => category.trim())
                                               .filter(category => !!CATEGORY[category]);
 
     // If the flag is empty or doesn't contain any usable categories, we return the default
-    if (!categories.length) return sectionOptions.map(section => section.groupKey);
+    if (!categories.length) return SECTION.map(section => section.groupKey);
 
     return categories;
-  }, [tideDashboardCategories, isTideDashboardCategoriesLoading, sectionOptions]);
+  }, [tideDashboardCategories, isTideDashboardCategoriesLoading]);
 
   const sections = useMemo(() => {
-    return categories.map(category => (sectionOptions.find(({ groupKey }) => groupKey === category)));
-  }, [categories, sectionOptions]);
+    // Get each section from the definition, but retain the ordering specified in the config
+    return categories.map(category => (SECTION.find(({ groupKey }) => groupKey === category)));
+  }, [categories]);
 
   function handleCloseOverlays() {
     setShowTideDashboardConfigDialog(false);
