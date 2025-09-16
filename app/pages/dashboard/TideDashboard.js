@@ -20,6 +20,7 @@ import map from 'lodash/map';
 import reject from 'lodash/reject';
 import values from 'lodash/values';
 import isNil from 'lodash/isNil';
+import noop from 'lodash/noop';
 import { Box, Flex, Text } from 'theme-ui';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
@@ -83,7 +84,6 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
 import DataInIcon from '../../core/icons/DataInIcon.svg';
 import { colors, fontWeights, radii } from '../../themes/baseTheme';
 import PatientLastReviewed from '../../components/clinic/PatientLastReviewed';
-import { noop } from 'lodash';
 
 const { Loader } = vizComponents;
 const { formatBgValue } = vizUtils.bg;
@@ -123,6 +123,39 @@ const SECTION = [
   { groupKey: CATEGORY.meetingTargets, sortDirection: 'desc', sortKey: 'timeInVeryLowPercent' },
   { groupKey: CATEGORY.noData, sortDirection: 'desc', sortKey: 'daysSinceLastData' },
 ];
+
+const useTideDashboardSections = () => {
+  const { tideDashboardCategories } = useFlags();
+
+  const isInitializing = isNil(tideDashboardCategories);
+
+  const categories = useMemo(() => {
+    // Return nothing if LaunchDarkly has not returned the true flags yet
+    if (isInitializing) return [];
+
+    // Flag should contain a comma-delimited list of categories, e.g. 'meetingTargets,noData'
+    // Here, we parse the string and filter out any invalid categories
+    const categories = tideDashboardCategories.split(',')
+                                              .map(category => category.trim())
+                                              .filter(category => !!CATEGORY[category]);
+
+    // If the flag is empty or doesn't contain any usable categories, we return the default
+    if (!categories.length) return SECTION.map(section => section.groupKey);
+
+    return categories;
+  }, [tideDashboardCategories, isInitializing]);
+
+  const sections = useMemo(() => {
+    // Get each section from the definition, but retain the ordering specified in the config
+    return categories.map(category => (SECTION.find(({ groupKey }) => groupKey === category)));
+  }, [categories]);
+
+  return {
+    isSectionsLoading: isInitializing,
+    categories,
+    sections,
+  };
+};
 
 const prefixTideDashboardMetric = metric => `Clinic - Tide Dashboard - ${metric}`;
 
@@ -834,28 +867,7 @@ export const TideDashboard = (props) => {
   const previousUpdatingClinicPatient = usePrevious(updatingClinicPatient);
   const previousFetchingTideDashboardPatients = usePrevious(fetchingTideDashboardPatients);
 
-  const isTideDashboardCategoriesLoading = isNil(tideDashboardCategories);
-
-  const categories = useMemo(() => {
-    // Return nothing if LaunchDarkly has not returned the true flags yet
-    if (isTideDashboardCategoriesLoading) return [];
-
-    // Flag should contain a comma-delimited list of categories, e.g. 'meetingTargets,noData'
-    // Here, we parse the string and filter out any invalid categories
-    const categories = tideDashboardCategories.split(',')
-                                              .map(category => category.trim())
-                                              .filter(category => !!CATEGORY[category]);
-
-    // If the flag is empty or doesn't contain any usable categories, we return the default
-    if (!categories.length) return SECTION.map(section => section.groupKey);
-
-    return categories;
-  }, [tideDashboardCategories, isTideDashboardCategoriesLoading]);
-
-  const sections = useMemo(() => {
-    // Get each section from the definition, but retain the ordering specified in the config
-    return categories.map(category => (SECTION.find(({ groupKey }) => groupKey === category)));
-  }, [categories]);
+  const { isSectionsLoading, sections, categories } = useTideDashboardSections();
 
   function handleCloseOverlays() {
     setShowTideDashboardConfigDialog(false);
@@ -933,7 +945,9 @@ export const TideDashboard = (props) => {
       queryOptions['tags'] = reject(options.tags || [], tagId => !patientTags?.[tagId]);
       queryOptions['lastDataCutoff'] = moment(getLocalizedCeiling(new Date().toISOString(), timePrefs)).subtract(lastData, 'days').toISOString();
 
-      if (!!categories) queryOptions['categories'] = categories;
+      if (categories.length > 0) {
+        queryOptions['categories'] = categories;
+      }
 
       setLoading(true);
       dispatch(actions.async.fetchTideDashboardPatients(api, selectedClinicId, queryOptions));
@@ -976,7 +990,7 @@ export const TideDashboard = (props) => {
   }
 
   useEffect(() => {
-    if (isTideDashboardCategoriesLoading) return;
+    if (isSectionsLoading) return;
 
     if (validateTideConfig(localConfig?.[localConfigKey], patientTags)) {
       fetchDashboardPatients(categories);
@@ -1043,8 +1057,8 @@ export const TideDashboard = (props) => {
   const handleConfigureTideDashboardConfirm = useCallback(() => {
     trackMetric('Clinic - Show Tide Dashboard config dialog confirmed', { clinicId: selectedClinicId, source: 'Tide dashboard' });
     tideDashboardFormContext?.handleSubmit();
-    fetchDashboardPatients(tideDashboardCategories, tideDashboardFormContext?.values);
-  }, [fetchDashboardPatients, tideDashboardCategories, tideDashboardFormContext, selectedClinicId, trackMetric]);
+    fetchDashboardPatients(categories, tideDashboardFormContext?.values);
+  }, [fetchDashboardPatients, categories, tideDashboardFormContext, selectedClinicId, trackMetric]);
 
   function handleTideDashboardConfigFormChange(formikContext) {
     setTideDashboardFormContext({...formikContext});
