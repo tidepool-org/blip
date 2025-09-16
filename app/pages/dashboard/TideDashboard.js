@@ -851,7 +851,6 @@ export const TideDashboard = (props) => {
     showTideDashboard,
     showTideDashboardLastReviewed,
     showTideDashboardPatientDrawer,
-    tideDashboardCategories,
   } = useFlags();
   const ldClient = useLDClient();
   const ldContext = ldClient.getContext();
@@ -1001,8 +1000,8 @@ export const TideDashboard = (props) => {
     // Always clear stored dashboard results upon unmount to avoid flashing stale results upon remount
     return () => {
       dispatch(actions.sync.clearTideDashboardPatients());
-    }
-  }, [showTideDashboard, tideDashboardCategories]);
+    };
+  }, [showTideDashboard, categories, isSectionsLoading]);
 
   const drawerPatientId = new URLSearchParams(location.search).get('drawerPatientId') || null;
 
