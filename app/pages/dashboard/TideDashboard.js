@@ -83,6 +83,7 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
 import DataInIcon from '../../core/icons/DataInIcon.svg';
 import { colors, fontWeights, radii } from '../../themes/baseTheme';
 import PatientLastReviewed from '../../components/clinic/PatientLastReviewed';
+import { noop } from 'lodash';
 
 const { Loader } = vizComponents;
 const { formatBgValue } = vizUtils.bg;
@@ -111,11 +112,6 @@ const CATEGORY = {
   timeCGMUsePercent: 'timeCGMUsePercent',
   meetingTargets: 'meetingTargets',
   noData: 'noData',
-};
-
-const getValidTideDashboardCategories = (categoriesString) => {
-  // categoriesString should be a comma-delimited list of category names from launchDarkly
-  return categoriesString.split(',').map(category => category.trim()).filter(category => !!CATEGORY[category]);
 };
 
 const prefixTideDashboardMetric = metric => `Clinic - Tide Dashboard - ${metric}`;
@@ -185,7 +181,7 @@ const SortPopover = React.memo(props => {
     section,
     sections,
     selectedClinicId,
-    setSections,
+    setSections = noop,
     trackMetric,
     t,
   } = props;
@@ -285,7 +281,6 @@ const TideDashboardSection = React.memo(props => {
     section,
     sections,
     selectedClinicId,
-    setSections,
     setSelectedPatient,
     setShowDataConnectionsModal,
     setShowEditPatientDialog,
@@ -746,7 +741,6 @@ const TideDashboardSection = React.memo(props => {
           section={section}
           sections={sections}
           selectedClinicId={selectedClinicId}
-          setSections={setSections}
           trackMetric={trackMetric}
           t={t}
         /> */}
@@ -840,9 +834,27 @@ export const TideDashboard = (props) => {
     { groupKey: CATEGORY.noData, sortDirection: 'desc', sortKey: 'daysSinceLastData' },
   ];
 
-  // Display only sections that are
-  const displayedCategories = getValidTideDashboardCategories(tideDashboardCategories || '');
-  const sections = displayedCategories.map(category => (sectionOptions.find(({ groupKey }) => groupKey === category)));
+  const isTideDashboardCategoriesLoading = isNil(tideDashboardCategories);
+
+  const categories = useMemo(() => {
+    // Return nothing if LaunchDarkly API call has not succeeded
+    if (isTideDashboardCategoriesLoading) return [];
+
+    // Flag should contain a comma-delimited list of categories e.g: 'meetingTargets,noData'
+    // Here, we parse the string and filter out any invalid categories
+    const categories = tideDashboardCategories.split(',')
+                                              .map(category => category.trim())
+                                              .filter(category => !!CATEGORY[category]);
+
+    // If the flag is empty or doesn't contain any usable categories, we return the default
+    if (!categories.length) return sectionOptions.map(section => section.groupKey);
+
+    return categories;
+  }, [tideDashboardCategories, isTideDashboardCategoriesLoading, sectionOptions]);
+
+  const sections = useMemo(() => {
+    return categories.map(category => (sectionOptions.find(({ groupKey }) => groupKey === category)));
+  }, [categories, sectionOptions]);
 
   function handleCloseOverlays() {
     setShowTideDashboardConfigDialog(false);
@@ -963,9 +975,7 @@ export const TideDashboard = (props) => {
   }
 
   useEffect(() => {
-    if (isNil(tideDashboardCategories)) return;
-
-    const categories = getValidTideDashboardCategories(tideDashboardCategories || '');
+    if (isTideDashboardCategoriesLoading) return;
 
     if (validateTideConfig(localConfig?.[localConfigKey], patientTags)) {
       fetchDashboardPatients(categories);
