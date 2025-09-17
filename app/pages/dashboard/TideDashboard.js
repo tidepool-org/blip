@@ -107,6 +107,9 @@ const StyledScrollToTop = styled(ScrollToTop)`
 const CATEGORY = {
   timeInVeryLowPercent: 'timeInVeryLowPercent',
   timeInAnyLowPercent: 'timeInAnyLowPercent',
+  timeInExtremeHighPercent: 'timeInExtremeHighPercent',
+  timeInVeryHighPercent: 'timeInVeryHighPercent',
+  timeInHighPercent: 'timeInHighPercent',
   dropInTimeInTargetPercent: 'dropInTimeInTargetPercent',
   timeInTargetPercent: 'timeInTargetPercent',
   timeCGMUsePercent: 'timeCGMUsePercent',
@@ -117,6 +120,9 @@ const CATEGORY = {
 const SECTION = [
   { groupKey: CATEGORY.timeInVeryLowPercent, sortDirection: 'desc', sortKey: 'timeInVeryLowPercent' },
   { groupKey: CATEGORY.timeInAnyLowPercent, sortDirection: 'desc', sortKey: 'timeInAnyLowPercent' },
+  { groupKey: CATEGORY.timeInExtremeHighPercent, sortDirection: 'asc', sortKey: 'timeInExtremeHighPercent' },
+  { groupKey: CATEGORY.timeInVeryHighPercent, sortDirection: 'asc', sortKey: 'timeInVeryHighPercent' },
+  { groupKey: CATEGORY.timeInHighPercent, sortDirection: 'asc', sortKey: 'timeInHighPercent' },
   { groupKey: CATEGORY.dropInTimeInTargetPercent, sortDirection: 'asc', sortKey: 'timeInTargetPercentDelta' },
   { groupKey: CATEGORY.timeInTargetPercent, sortDirection: 'asc', sortKey: 'timeInTargetPercent' },
   { groupKey: CATEGORY.timeCGMUsePercent, sortDirection: 'asc', sortKey: 'timeCGMUsePercent' },
