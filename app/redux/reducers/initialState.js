@@ -144,6 +144,7 @@ const initialState = {
     triggeringInitialClinicMigration: Object.assign({}, working),
     sendingPatientUploadReminder: Object.assign({}, working),
     sendingPatientDataProviderConnectRequest: Object.assign({}, working),
+    creatingClinicSite: Object.assign({}, working),
     creatingClinicPatientTag: Object.assign({}, working),
     updatingClinicPatientTag: Object.assign({}, working),
     deletingClinicPatientTag: Object.assign({}, working),
