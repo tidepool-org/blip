@@ -72,7 +72,6 @@ describe('Daily', () => {
     onSwitchToSettings: () => {},
     onSwitchToBgLog: () => {},
     onSwitchToTrends: () => {},
-    trackMetric: () => {},
     onUpdateChartDateRange: sinon.stub(),
     patient: {
       profile: {
@@ -188,6 +187,78 @@ describe('Daily', () => {
 
       wrapper.setProps(dayDataReadyProps);
       expect(chart().length).to.equal(1);
+    });
+
+    it('should render the Events pool label', () => {
+      const label = () => wrapper.find('EventsInfoLabel');
+      expect(label().length).to.equal(0);
+
+      var dayDataReadyProps = _.assign({}, baseProps, {
+        loading: false,
+        data: {
+          query: { chartType: 'daily'},
+          bgPrefs,
+          timePrefs: {
+            timezoneAware: false,
+            timezoneName: 'US/Pacific',
+          },
+        },
+      });
+
+      wrapper.setProps(dayDataReadyProps);
+      expect(label().length).to.equal(1);
+      expect(label().text()).to.equal('Events');
+    });
+
+    it('should render the Events pool label info tooltip, but only if there are alarm events in view', () => {
+      const label = () => wrapper.find('EventsInfoLabel');
+      const tooltip = () => label().find('.events-label-tooltip').hostNodes();
+
+      var dayDataReadyProps = _.assign({}, baseProps, {
+        loading: false,
+        data: {
+          query: { chartType: 'daily'},
+          bgPrefs,
+          timePrefs: {
+            timezoneAware: false,
+            timezoneName: 'US/Pacific',
+          },
+        },
+      });
+
+      wrapper.setProps(dayDataReadyProps);
+      expect(label().length).to.equal(1);
+      expect(tooltip().length).to.equal(0);
+
+      // Set data with an alarm event in view
+      wrapper.setProps({ data: {
+        query: { chartType: 'daily'},
+        bgPrefs,
+        timePrefs: {
+          timezoneAware: false,
+          timezoneName: 'US/Pacific',
+        },
+        data: {
+          combined: [{ tags: { alarm: true }, normalTime: new Date('2018-01-15T12:00:00.000Z').valueOf() }],
+          current: { endpoints: { range: [new Date('2018-01-15T00:00:00.000Z').valueOf(), new Date('2018-01-16T00:00:00.000Z').valueOf()] } },
+        },
+      } });
+      expect(tooltip().length).to.equal(1);
+
+      // Move endpoints so that alarm event is out of view
+      wrapper.setProps({ data: {
+        query: { chartType: 'daily'},
+        bgPrefs,
+        timePrefs: {
+          timezoneAware: false,
+          timezoneName: 'US/Pacific',
+        },
+        data: {
+          combined: [{ tags: { alarm: true }, normalTime: new Date('2018-01-15T12:00:00.000Z').valueOf() }],
+          current: { endpoints: { range: [new Date('2018-01-16T00:00:00.000Z').valueOf(), new Date('2018-01-17T00:00:00.000Z').valueOf()] } },
+        },
+      } });
+      expect(tooltip().length).to.equal(0);
     });
 
     it('should render the cgm interval toggle, but only if there is a current supporting device', () => {
@@ -307,6 +378,112 @@ describe('Daily', () => {
       sinon.assert.calledWith(baseProps.updateChartPrefs, {
         daily: { cgmSampleIntervalRange: DEFAULT_CGM_SAMPLE_INTERVAL_RANGE },
       });
+    });
+  });
+
+  describe('handleAlarmHover', () => {
+    it('should set hoveredAlarm state with correct positioning', () => {
+      const alarm = {
+        rect: {
+          top: 100,
+          left: 200,
+          width: 20,
+          height: 30,
+        },
+        chartExtents: {
+          left: 50,
+          right: 400,
+        },
+        data: { type: 'alarm' },
+      };
+
+      instance.handleAlarmHover(alarm);
+
+      expect(instance.state.hoveredAlarm).to.deep.equal({
+        ...alarm,
+        top: 130, // rect.top + rect.height
+        left: 210, // rect.left + (rect.width / 2)
+        side: 'bottom',
+      });
+    });
+
+    it('should adjust leftOffset when tooltip would spill over left edge', () => {
+      const alarm = {
+        rect: {
+          top: 100,
+          left: 60, // Close to left edge
+          width: 20,
+          height: 30,
+        },
+        chartExtents: {
+          left: 50,
+          right: 400,
+        },
+        data: { type: 'alarm' },
+      };
+
+      instance.handleAlarmHover(alarm);
+
+      const hoveredAlarm = instance.state.hoveredAlarm;
+      expect(hoveredAlarm.leftOffset).to.equal(35);
+    });
+
+    it('should adjust leftOffset when tooltip would spill over right edge', () => {
+      const alarm = {
+        rect: {
+          top: 100,
+          left: 390, // Close to right edge
+          width: 20,
+          height: 30,
+        },
+        chartExtents: {
+          left: 50,
+          right: 400,
+        },
+        data: { type: 'alarm' },
+      };
+
+      instance.handleAlarmHover(alarm);
+
+      const hoveredAlarm = instance.state.hoveredAlarm;
+      expect(hoveredAlarm.leftOffset).to.equal(-35);
+    });
+
+    it('should track metric when hovering over alarm', () => {
+      const alarm = {
+        rect: {
+          top: 100,
+          left: 200,
+          width: 20,
+          height: 30,
+        },
+        chartExtents: {
+          left: 50,
+          right: 400,
+        },
+        data: { type: 'alarm' },
+      };
+
+      instance.handleAlarmHover(alarm);
+
+      expect(baseProps.trackMetric.calledWith('hovered over daily alarm tooltip')).to.be.true;
+    });
+  });
+
+  describe('handleAlarmOut', () => {
+    it('should set hoveredAlarm state to false', () => {
+      // First set a hoveredAlarm
+      instance.setState({
+        hoveredAlarm: {
+          data: { type: 'alarm' },
+          top: 100,
+          left: 200,
+        },
+      });
+
+      instance.handleAlarmOut();
+
+      expect(instance.state.hoveredAlarm).to.be.false;
     });
   });
 });

@@ -314,6 +314,7 @@ describe('PatientInvites', () => {
             fullName: 'Patient 2',
             mrn: 'MRN456',
             tags: [],
+            sites: [],
           }
         );
 
@@ -395,6 +396,7 @@ describe('PatientInvites', () => {
             fullName: 'Patient 2',
             mrn: 'MRN456',
             tags: [],
+            sites: [],
           }
         );
 

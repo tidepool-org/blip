@@ -2,11 +2,12 @@ import React, { useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../../../../redux/actions';
 import buildGenerateAGPImages from './buildGenerateAGPImages';
+import moment from 'moment';
 
 import getOpts from './getOpts';
 import getQueries from './getQueries';
 
-export const STATUS = {  
+export const STATUS = {
   // States in order of happy path AGP generation sequence
   INITIALIZED:    'INITIALIZED',
   STATE_CLEARED:  'STATE_CLEARED',
@@ -51,12 +52,26 @@ const inferLastCompletedStep = (patientId, data, pdf) => {
   return STATUS.STATE_CLEARED;
 };
 
-const FETCH_PATIENT_OPTS = { forceDataWorkerAddDataRequest: true, useCache: false };
+const getFetchPatientOpts = (
+  agpPeriodInDays,
+  safetyFactorDays = 3,
+) => {
+  let daysToFetch = agpPeriodInDays * 2; // Fetch enough data for current AND past-period AGP (ie. double)
+  daysToFetch += safetyFactorDays;       // Request a few extra days in case of timezone mismatch.
+
+  return {
+    initial: false,
+    startDate: moment.utc().subtract(daysToFetch, 'days').toISOString(),
+    endDate: moment.utc().add(1, 'days').toISOString(),
+    forceDataWorkerAddDataRequest: true,
+    useCache: false,
+  };
+};
 
 const DEFAULT_AGP_PERIOD_IN_DAYS = 14;
 
 const useAgpCGM = (
-  api, 
+  api,
   patientId,
   agpPeriodInDays = DEFAULT_AGP_PERIOD_IN_DAYS,
 ) => {
@@ -66,7 +81,7 @@ const useAgpCGM = (
   const data   = useSelector(state => state.blip.data);
   const pdf    = useSelector(state => state.blip.pdf);
   const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
-  
+
   const patient = clinic?.patients?.[patientId];
 
   const lastCompletedStep = inferLastCompletedStep(patientId, data, pdf);
@@ -81,7 +96,8 @@ const useAgpCGM = (
         break;
 
       case STATUS.STATE_CLEARED:
-        dispatch(actions.async.fetchPatientData(api, FETCH_PATIENT_OPTS, patientId));
+        const fetchPatientOpts = getFetchPatientOpts(agpPeriodInDays);
+        dispatch(actions.async.fetchPatientData(api, fetchPatientOpts, patientId));
         break;
 
       case STATUS.PATIENT_LOADED:
@@ -96,7 +112,7 @@ const useAgpCGM = (
 
       case STATUS.SVGS_GENERATED: // image generation complete, no further steps necessary
       default:
-        break; 
+        break;
     }
   }, [lastCompletedStep]);
 
@@ -112,10 +128,11 @@ const useAgpCGM = (
   // Note: probably unnecessary; failsafe to ensure that data is being returned for correct patient
   const isCorrectPatientInState = pdf.opts?.patient?.id === patientId;
 
-  return { 
-    status:      lastCompletedStep, 
-    svgDataURLS: isCorrectPatientInState ? pdf.opts?.svgDataURLS : null,
-    agpCGM:      isCorrectPatientInState ? pdf.data?.agpCGM : null,
+  return {
+    status:       lastCompletedStep,
+    svgDataURLS:  isCorrectPatientInState ? pdf.opts?.svgDataURLS : null,
+    agpCGM:       isCorrectPatientInState ? pdf.data?.agpCGM : null,
+    offsetAgpCGM: isCorrectPatientInState ? pdf.data?.offsetAgpCGM : null,
   };
 };
 

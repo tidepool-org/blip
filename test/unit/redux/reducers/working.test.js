@@ -7692,6 +7692,104 @@ describe('dataWorkerQueryData', () => {
     });
   });
 
+  describe('createClinicSite', () => {
+    describe('request', () => {
+      it('should set creatingClinicSite.completed to null', () => {
+        expect(initialState.creatingClinicSite.completed).to.be.null;
+
+        let requestAction = actions.sync.createClinicSiteRequest();
+        let requestState = reducer(initialState, requestAction);
+
+        expect(requestState.creatingClinicSite.completed).to.be.null;
+
+        let successAction = actions.sync.createClinicSiteSuccess('foo');
+        let successState = reducer(requestState, successAction);
+
+        expect(successState.creatingClinicSite.completed).to.be.true;
+
+        let state = reducer(successState, requestAction);
+        expect(state.creatingClinicSite.completed).to.be.null;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set creatingClinicSite.inProgress to be true', () => {
+        let initialStateForTest = _.merge({}, initialState);
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let action = actions.sync.createClinicSiteRequest();
+
+        expect(initialStateForTest.creatingClinicSite.inProgress).to.be.false;
+
+        let state = reducer(initialStateForTest, action);
+        expect(state.creatingClinicSite.inProgress).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set creatingClinicSite.completed to be false', () => {
+        let error = new Error('Something bad happened :(');
+
+        expect(initialState.creatingClinicSite.completed).to.be.null;
+
+        let failureAction = actions.sync.createClinicSiteFailure(error);
+        let state = reducer(initialState, failureAction);
+
+        expect(state.creatingClinicSite.completed).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set creatingClinicSite.inProgress to be false and set error', () => {
+        let initialStateForTest = _.merge({}, initialState, {
+          creatingClinicSite: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+        let error = new Error('Something bad happened :(');
+        let action = actions.sync.createClinicSiteFailure(error);
+
+        expect(initialStateForTest.creatingClinicSite.inProgress).to.be.true;
+        expect(initialStateForTest.creatingClinicSite.notification).to.be.null;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.creatingClinicSite.inProgress).to.be.false;
+        expect(state.creatingClinicSite.notification.type).to.equal('error');
+        expect(state.creatingClinicSite.notification.message).to.equal(error.message);
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+
+    describe('success', () => {
+      it('should set creatingClinicSite.completed to be true', () => {
+        expect(initialState.creatingClinicSite.completed).to.be.null;
+
+        let successAction = actions.sync.createClinicSiteSuccess('foo');
+        let state = reducer(initialState, successAction);
+
+        expect(state.creatingClinicSite.completed).to.be.true;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+
+      it('should set creatingClinicSite.inProgress to be false', () => {
+
+        let initialStateForTest = _.merge({}, initialState, {
+          creatingClinicSite: { inProgress: true, notification: null },
+        });
+
+        let tracked = mutationTracker.trackObj(initialStateForTest);
+
+        let action = actions.sync.createClinicSiteSuccess('strava', 'blah');
+
+        expect(initialStateForTest.creatingClinicSite.inProgress).to.be.true;
+
+        let state = reducer(initialStateForTest, action);
+
+        expect(state.creatingClinicSite.inProgress).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      });
+    });
+  });
+
   describe('createClinicPatientTag', () => {
     describe('request', () => {
       it('should set creatingClinicPatientTag.completed to null', () => {
