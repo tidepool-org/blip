@@ -797,48 +797,51 @@ describe('clinics', () => {
   describe('createClinicPatientTagSuccess', () => {
     it('should update `patientTags` in state', () => {
       let clinicId = 'clinicId123';
-      let patientTags = ['patientTag123'];
+      let patientTag = { name: 'patientTag123', id: '123' };
       let initialStateForTest = {
         [clinicId]: {
           id: clinicId,
           patientTags: [],
         },
       };
-      let action = actions.sync.createClinicPatientTagSuccess(clinicId, patientTags);
+      let action = actions.sync.createClinicPatientTagSuccess(clinicId, patientTag);
       let state = reducer(initialStateForTest, action);
-      expect(state.clinicId123.patientTags).to.eql(patientTags);
+      expect(state.clinicId123.patientTags).to.eql([patientTag]);
     });
   });
 
   describe('updateClinicPatientTagSuccess', () => {
     it('should update `patientTags` in state', () => {
       let clinicId = 'clinicId123';
-      let patientTags = ['patientTag456'];
+      let patientTag = { name: 'UPDATED', id: '123' };
       let initialStateForTest = {
         [clinicId]: {
           id: clinicId,
-          patientTags: ['patientTag123'],
+          patientTags: [{ name: 'patientTag123', id: '123' }],
         },
       };
-      let action = actions.sync.updateClinicPatientTagSuccess(clinicId, patientTags);
+      let action = actions.sync.updateClinicPatientTagSuccess(clinicId, patientTag);
       let state = reducer(initialStateForTest, action);
-      expect(state.clinicId123.patientTags).to.eql(patientTags);
+      expect(state.clinicId123.patientTags).to.eql([{ name: 'UPDATED', id: '123' }]);
     });
   });
 
   describe('deleteClinicPatientTagSuccess', () => {
     it('should update `patientTags` in state', () => {
       let clinicId = 'clinicId123';
-      let patientTags = ['patientTag123'];
+      let patientTagId = '123';
       let initialStateForTest = {
         [clinicId]: {
           id: clinicId,
-          patientTags: ['patientTag123', 'patientTag456'],
+          patientTags: [
+            { name: 'patientTag123', id: '123' },
+            { name: 'patientTag456', id: '456' },
+          ],
         },
       };
-      let action = actions.sync.deleteClinicPatientTagSuccess(clinicId, patientTags);
+      let action = actions.sync.deleteClinicPatientTagSuccess(clinicId, patientTagId);
       let state = reducer(initialStateForTest, action);
-      expect(state.clinicId123.patientTags).to.eql(patientTags);
+      expect(state.clinicId123.patientTags).to.eql([{ name: 'patientTag456', id: '456' }]);
     });
   });
 

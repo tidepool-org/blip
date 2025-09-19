@@ -2798,6 +2798,54 @@ export function sendPatientDataProviderConnectRequest(api, clinicId, patientId, 
 }
 
 /**
+ * Fetch sites for a clinic
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ */
+export function fetchClinicSites(api, clinicId) {
+  return (dispatch) => {
+    dispatch(sync.fetchClinicSitesRequest());
+
+    api.clinics.get(clinicId, (err, { sites }) => {
+      if (err) {
+        let message = ErrorMessages.ERR_FETCHING_CLINIC_SITES;
+
+        dispatch(sync.fetchClinicSitesFailure(
+          createActionError(message, err), err
+        ));
+      } else {
+        dispatch(sync.fetchClinicSitesSuccess(clinicId, sites || []));
+      }
+    });
+  };
+}
+
+/**
+ * Fetch sites for a clinic
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ */
+export function fetchClinicPatientTags(api, clinicId) {
+  return (dispatch) => {
+    dispatch(sync.fetchClinicPatientTagsRequest());
+
+    api.clinics.get(clinicId, (err, { patientTags }) => {
+      if (err) {
+        let message = ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_TAGS;
+
+        dispatch(sync.fetchClinicPatientTagsFailure(
+          createActionError(message, err), err
+        ));
+      } else {
+        dispatch(sync.fetchClinicPatientTagsSuccess(clinicId, patientTags || []));
+      }
+    });
+  };
+}
+
+/**
  * Create a site for a clinic
  *
  * @param {Object} api - an instance of the API wrapper
@@ -2809,7 +2857,7 @@ export function createClinicSite(api, clinicId, site) {
   return (dispatch) => {
     dispatch(sync.createClinicSiteRequest());
 
-    api.clinics.createClinicSite(clinicId, site, (err, updatedSites) => {
+    api.clinics.createClinicSite(clinicId, site, (err, newSite) => {
       if (err) {
         let message = ErrorMessages.ERR_CREATING_CLINIC_SITE;
 
@@ -2823,7 +2871,7 @@ export function createClinicSite(api, clinicId, site) {
           createActionError(message, err), err
         ));
       } else {
-        dispatch(sync.createClinicSiteSuccess(clinicId, updatedSites));
+        dispatch(sync.createClinicSiteSuccess(clinicId, newSite));
       }
     });
   };
@@ -2841,7 +2889,7 @@ export function createClinicPatientTag(api, clinicId, patientTag) {
   return (dispatch) => {
     dispatch(sync.createClinicPatientTagRequest());
 
-    api.clinics.createClinicPatientTag(clinicId, patientTag, (err, patientTags) => {
+    api.clinics.createClinicPatientTag(clinicId, patientTag, (err, patientTag) => {
       if (err) {
         let message = ErrorMessages.ERR_CREATING_CLINIC_PATIENT_TAG;
 
@@ -2855,7 +2903,7 @@ export function createClinicPatientTag(api, clinicId, patientTag) {
           createActionError(message, err), err
         ));
       } else {
-        dispatch(sync.createClinicPatientTagSuccess(clinicId, patientTags));
+        dispatch(sync.createClinicPatientTagSuccess(clinicId, patientTag));
       }
     });
   };
@@ -2874,7 +2922,7 @@ export function updateClinicSite(api, clinicId, siteId, site) {
   return (dispatch) => {
     dispatch(sync.updateClinicSiteRequest());
 
-    api.clinics.updateClinicSite(clinicId, siteId, site, (err, sites) => {
+    api.clinics.updateClinicSite(clinicId, siteId, site, (err, site) => {
       if (err) {
         let message = ErrorMessages.ERR_UPDATING_CLINIC_SITE;
 
@@ -2886,7 +2934,7 @@ export function updateClinicSite(api, clinicId, siteId, site) {
           createActionError(message, err), err
         ));
       } else {
-        dispatch(sync.updateClinicSiteSuccess(clinicId, sites));
+        dispatch(sync.updateClinicSiteSuccess(clinicId, site));
       }
     });
   };
@@ -2905,7 +2953,7 @@ export function updateClinicPatientTag(api, clinicId, patientTagId, patientTag) 
   return (dispatch) => {
     dispatch(sync.updateClinicPatientTagRequest());
 
-    api.clinics.updateClinicPatientTag(clinicId, patientTagId, patientTag, (err, patientTags) => {
+    api.clinics.updateClinicPatientTag(clinicId, patientTagId, patientTag, (err, patientTag) => {
       if (err) {
         let message = ErrorMessages.ERR_UPDATING_CLINIC_PATIENT_TAG;
 
@@ -2917,7 +2965,7 @@ export function updateClinicPatientTag(api, clinicId, patientTagId, patientTag) 
           createActionError(message, err), err
         ));
       } else {
-        dispatch(sync.updateClinicPatientTagSuccess(clinicId, patientTags));
+        dispatch(sync.updateClinicPatientTagSuccess(clinicId, patientTag));
       }
     });
   };
@@ -2934,13 +2982,13 @@ export function deleteClinicSite(api, clinicId, siteId) {
   return (dispatch) => {
     dispatch(sync.deleteClinicSiteRequest());
 
-    api.clinics.deleteClinicSite(clinicId, siteId, (err, sites) => {
+    api.clinics.deleteClinicSite(clinicId, siteId, (err) => {
       if (err) {
         dispatch(sync.deleteClinicSiteFailure(
           createActionError(ErrorMessages.ERR_DELETING_CLINIC_SITE, err), err
         ));
       } else {
-        dispatch(sync.deleteClinicSiteSuccess(clinicId, sites));
+        dispatch(sync.deleteClinicSiteSuccess(clinicId, siteId));
       }
     });
   };
@@ -2957,13 +3005,13 @@ export function deleteClinicPatientTag(api, clinicId, patientTagId) {
   return (dispatch) => {
     dispatch(sync.deleteClinicPatientTagRequest());
 
-    api.clinics.deleteClinicPatientTag(clinicId, patientTagId, (err, patientTags) => {
+    api.clinics.deleteClinicPatientTag(clinicId, patientTagId, (err) => {
       if (err) {
         dispatch(sync.deleteClinicPatientTagFailure(
           createActionError(ErrorMessages.ERR_DELETING_CLINIC_PATIENT_TAG, err), err
         ));
       } else {
-        dispatch(sync.deleteClinicPatientTagSuccess(clinicId, patientTags));
+        dispatch(sync.deleteClinicPatientTagSuccess(clinicId, patientTagId));
       }
     });
   };

@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.51.0-web-3880-undefined-days.1":
-  version: 1.51.0-web-3880-undefined-days.1
-  resolution: "@tidepool/viz@npm:1.51.0-web-3880-undefined-days.1"
+"@tidepool/viz@npm:1.51.0-develop.1":
+  version: 1.51.0-develop.1
+  resolution: "@tidepool/viz@npm:1.51.0-develop.1"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 8fd47a7a4d0601b8c8855dc8a3d71a159fe715d9979f037090ed3787e2bb189bec5d810ceb5cefc4b031d03f6b575c0838341c529a6d9ea00c5e18af453c49e2
+  checksum: 5108ba105782f75cc3fe13f00c7e0d6da9d762388062c6a75d104cf030bce61f0b06c81be350823a18a746297d19e386ca9bdede0634b9694add912e10d83868
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.51.0-web-3880-undefined-days.1
+    "@tidepool/viz": 1.51.0-develop.1
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -8464,8 +8464,8 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.37.0-web-3830-pregnancy-ranges.1
-    tidepool-platform-client: 0.64.0-web-3771-informed-consent-flow-updated.1
+    tideline: 1.37.0-develop.1
+    tidepool-platform-client: 0.65.0-develop.1
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
     url-loader: 4.1.1
@@ -22229,9 +22229,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.37.0-web-3830-pregnancy-ranges.1":
-  version: 1.37.0-web-3830-pregnancy-ranges.1
-  resolution: "tideline@npm:1.37.0-web-3830-pregnancy-ranges.1"
+"tideline@npm:1.37.0-develop.1":
+  version: 1.37.0-develop.1
+  resolution: "tideline@npm:1.37.0-develop.1"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -22252,19 +22252,19 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: f8e4177940cc7f320c3df9b1d3c51e9d7a26e5e00af5b1301c4249dbcdb0cf466fd1281ad362b1bcc1d0a61a675f7e60d085e4608361bb40f9b7aea5613d250f
+  checksum: 877d1b2ba5347af5f4cf5ef63b032aab3a105f8cd06fe64e7d90dc2a24ad71b3b01da2605a1cdf27447ce98d8e149b3ebf22988af6a69644e61ea89af6af0be2
   languageName: node
   linkType: hard
 
-"tidepool-platform-client@npm:0.64.0-web-3771-informed-consent-flow-updated.1":
-  version: 0.64.0-web-3771-informed-consent-flow-updated.1
-  resolution: "tidepool-platform-client@npm:0.64.0-web-3771-informed-consent-flow-updated.1"
+"tidepool-platform-client@npm:0.65.0-develop.1":
+  version: 0.65.0-develop.1
+  resolution: "tidepool-platform-client@npm:0.65.0-develop.1"
   dependencies:
     async: 0.9.0
     lodash: 4.17.21
     superagent: 5.2.2
     uuid: 3.1.0
-  checksum: 0cef7669e965dc5a0f1e6bedd9baabe189fbf83d880250a85024b50a544c272bd8fa3695845d5b2c851034959285ae19c73be22c3dcafbc32b672790be3fc56b
+  checksum: 66717342bc0d823e1b38370b294cd5524352ca9d4c504f45ef7e4791b30fe4fcb49254a91289e7de0adc1f6dc054f3d1a1d9a89eeb6148b0f898b92a12ad239c
   languageName: node
   linkType: hard
 

@@ -45,6 +45,7 @@ const AlarmTooltip = vizComponents.AlarmTooltip;
 
 import Header from './header';
 import CgmSampleIntervalRangeToggle from './cgmSampleIntervalRangeToggle';
+import EventsInfoLabel from './eventsInfoLabel';
 import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE } from '../../core/constants';
 
 const DailyChart = withTranslation(null, { withRef: true })(class DailyChart extends Component {
@@ -266,6 +267,7 @@ class Daily extends Component {
     return {
       atMostRecent: false,
       endpoints: [],
+      hasAlarmEventsInView: null,
       initialDatetimeLocation: this.props.initialDatetimeLocation,
       inTransition: false,
       title: '',
@@ -277,11 +279,23 @@ class Daily extends Component {
     const newDataAdded = this.props.addingData.inProgress && nextProps.addingData.completed;
     const dataUpdated = this.props.updatingDatum.inProgress && nextProps.updatingDatum.completed;
     const newDataRecieved = this.props.queryDataCount !== nextProps.queryDataCount;
+    const newEndpointsReceived = this.props.data?.data?.current?.endpoints !== nextProps.data?.data?.current?.endpoints;
 
     if (this.chartRef.current) {
       const updates = {};
       if (loadingJustCompleted || newDataAdded || dataUpdated || newDataRecieved) updates.data = nextProps.data;
       if (!_.isEmpty(updates)) this.chartRef.current?.rerenderChart(updates);
+    }
+
+    if (nextProps.data?.data?.combined && (this.state.hasAlarmEventsInView === null || newEndpointsReceived)) {
+      const hasAlarmEventsInView = _.some(
+        _.filter(nextProps.data.data.combined, d => !!d.tags?.alarm),
+        d => d.normalTime >= nextProps.data.data.current.endpoints.range[0] && d.normalTime <= nextProps.data.data.current.endpoints.range[1]
+      );
+
+      if (hasAlarmEventsInView !== this.state.hasAlarmEventsInView) {
+        this.setState({ hasAlarmEventsInView });
+      }
     }
   };
 
@@ -457,49 +471,61 @@ class Daily extends Component {
 
     return (
       <>
-        {showingCgmData && hasOneMinCgmSampleIntervalDevice && (
-          <Flex sx={{ justifyContent: 'flex-end', alignItems: 'center' }}>
+        <Flex
+          sx={{
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            position: 'relative',
+            zIndex: 1,
+          }}
+        >
+          <EventsInfoLabel hasAlarmEventsInView={this.state.hasAlarmEventsInView} />
+
+          {showingCgmData && hasOneMinCgmSampleIntervalDevice && (
             <CgmSampleIntervalRangeToggle
               chartPrefs={this.props.chartPrefs}
               chartType={this.chartType}
               onClickCgmSampleIntervalRangeToggle={this.toggleCgmSampleIntervalRange}
             />
-          </Flex>
-        )}
+          )}
+        </Flex>
 
-        <DailyChart
-          automatedBasal={isAutomatedBasalDevice}
-          automatedBolus={isAutomatedBolusDevice}
-          bgClasses={bgPrefs.bgClasses}
-          bgUnits={bgPrefs.bgUnits}
-          bolusRatio={this.props.chartPrefs.bolusRatio}
-          carbUnits={carbUnits}
-          data={this.props.data}
-          dynamicCarbs={this.props.chartPrefs.dynamicCarbs}
-          initialDatetimeLocation={this.props.initialDatetimeLocation}
-          timePrefs={timePrefs}
-          // message handlers
-          onCreateMessage={this.props.onCreateMessage}
-          onShowMessageThread={this.props.onShowMessageThread}
-          // other handlers
-          onDatetimeLocationChange={this.handleDatetimeLocationChange}
-          onHideBasalSettings={this.handleHideBasalSettings}
-          onMostRecent={this.handleMostRecent}
-          onShowBasalSettings={this.handleShowBasalSettings}
-          onTransition={this.handleInTransition}
-          onBolusHover={this.handleBolusHover}
-          onBolusOut={this.handleBolusOut}
-          onSMBGHover={this.handleSMBGHover}
-          onSMBGOut={this.handleSMBGOut}
-          onCBGHover={this.handleCBGHover}
-          onCBGOut={this.handleCBGOut}
-          onCarbHover={this.handleCarbHover}
-          onCarbOut={this.handleCarbOut}
-          onPumpSettingsOverrideHover={this.handlePumpSettingsOverrideHover}
-          onPumpSettingsOverrideOut={this.handlePumpSettingsOverrideOut}
-          onAlarmHover={this.handleAlarmHover}
-          onAlarmOut={this.handleAlarmOut}
-          ref={this.chartRef} />
+        <Box sx={{ position: 'relative', top: '-24px' }}>
+          <DailyChart
+            automatedBasal={isAutomatedBasalDevice}
+            automatedBolus={isAutomatedBolusDevice}
+            bgClasses={bgPrefs.bgClasses}
+            bgUnits={bgPrefs.bgUnits}
+            bolusRatio={this.props.chartPrefs.bolusRatio}
+            carbUnits={carbUnits}
+            data={this.props.data}
+            dynamicCarbs={this.props.chartPrefs.dynamicCarbs}
+            initialDatetimeLocation={this.props.initialDatetimeLocation}
+            timePrefs={timePrefs}
+            // message handlers
+            onCreateMessage={this.props.onCreateMessage}
+            onShowMessageThread={this.props.onShowMessageThread}
+            // other handlers
+            onDatetimeLocationChange={this.handleDatetimeLocationChange}
+            onHideBasalSettings={this.handleHideBasalSettings}
+            onMostRecent={this.handleMostRecent}
+            onShowBasalSettings={this.handleShowBasalSettings}
+            onTransition={this.handleInTransition}
+            onBolusHover={this.handleBolusHover}
+            onBolusOut={this.handleBolusOut}
+            onSMBGHover={this.handleSMBGHover}
+            onSMBGOut={this.handleSMBGOut}
+            onCBGHover={this.handleCBGHover}
+            onCBGOut={this.handleCBGOut}
+            onCarbHover={this.handleCarbHover}
+            onCarbOut={this.handleCarbOut}
+            onPumpSettingsOverrideHover={this.handlePumpSettingsOverrideHover}
+            onPumpSettingsOverrideOut={this.handlePumpSettingsOverrideOut}
+            onAlarmHover={this.handleAlarmHover}
+            onAlarmOut={this.handleAlarmOut}
+            ref={this.chartRef}
+          />
+        </Box>
       </>
     );
   }
