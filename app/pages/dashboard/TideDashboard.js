@@ -622,6 +622,14 @@ const TideDashboardSection = React.memo(props => {
     ? utils.translateBg(config?.highGlucoseThreshold, MGDL_UNITS)
     : utils.formatDecimal(config?.highGlucoseThreshold, 1);
 
+  const extremeHighGlucoseThreshold = clinicBgUnits === MGDL_UNITS
+    ? utils.translateBg(config?.extremeHighGlucoseThreshold, MGDL_UNITS)
+    : utils.formatDecimal(config?.extremeHighGlucoseThreshold, 1);
+
+  const veryHighGlucoseThreshold = clinicBgUnits === MGDL_UNITS
+    ? utils.translateBg(config?.veryHighGlucoseThreshold, MGDL_UNITS)
+    : utils.formatDecimal(config?.veryHighGlucoseThreshold, 1);
+
   const columns = useMemo(() => {
     const cols = [
       {
@@ -748,36 +756,65 @@ const TideDashboardSection = React.memo(props => {
     veryLowGlucoseThreshold,
   ]);
 
+  const sectionTitlesMap = {
+    timeInVeryLowPercent: t('Very Low'),
+    timeInAnyLowPercent: t('Low'),
+    timeInExtremeHighPercent: t('Highest'),
+    timeInVeryHighPercent: t('Very High'),
+    timeInHighPercent: t('High'),
+    dropInTimeInTargetPercent: t('Large Drop in Time in Range'),
+    timeInTargetPercent: t('Low Time in Range'),
+    timeCGMUsePercent: t('Low CGM Wear Time'),
+    meetingTargets: t('Meeting Targets'),
+    noData: t('Data Issues'),
+  };
+
   const sectionLabelsMap = {
-    timeInVeryLowPercent: t('Time below {{veryLowGlucoseThreshold}} {{clinicBgUnits}} > 1%', {
+    timeInVeryLowPercent: t('> 1% Time below {{veryLowGlucoseThreshold}} {{clinicBgUnits}}', {
       veryLowGlucoseThreshold,
       clinicBgUnits,
     }),
-    timeInAnyLowPercent: t('Time below {{lowGlucoseThreshold}} {{clinicBgUnits}} > 4%', {
+    timeInAnyLowPercent: t('> 4% Time below {{lowGlucoseThreshold}} {{clinicBgUnits}}', {
       lowGlucoseThreshold,
       clinicBgUnits,
     }),
-    dropInTimeInTargetPercent: t('Drop in Time in Range > 15%'),
-    timeInTargetPercent: t('Time in Range < 70%'),
-    timeCGMUsePercent: t('CGM Wear Time < 70%'),
-    meetingTargets: t('Meeting Targets'),
-    noData: t('Data Issues'),
+
+    timeInExtremeHighPercent: extremeHighGlucoseThreshold ?
+      t('> 1% Time above {{extremeHighGlucoseThreshold}} {{clinicBgUnits}}', {
+        extremeHighGlucoseThreshold,
+        clinicBgUnits,
+      }) : null,
+
+    timeInVeryHighPercent: t('> 5% Time above {{veryHighGlucoseThreshold}} {{clinicBgUnits}}', {
+      veryHighGlucoseThreshold,
+      clinicBgUnits,
+    }),
+
+    timeInHighPercent: t('> 25% Time above {{highGlucoseThreshold}} {{clinicBgUnits}}', {
+      highGlucoseThreshold,
+      clinicBgUnits,
+    }),
+
+    dropInTimeInTargetPercent: t('> 15%'),
+    timeInTargetPercent: t('< 70%'),
+    timeCGMUsePercent: t('< 70%'),
   };
 
   return (
     <Box className='dashboard-section' id={`dashboard-section-${section.groupKey}`} mb={4}>
       <Flex sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
-        <Text
+        <Flex
           className='dashboard-section-label'
-          sx={{
-            color: 'purples.9',
-            fontSize: 1,
-            fontWeight: 'medium',
-          }}
+          sx={{ color: 'purples.9', gap: 1 }}
           mb={2}
         >
-          {sectionLabelsMap[section.groupKey]}
-        </Text>
+          <Text sx={{ fontSize: 1, fontWeight: 'medium' }}>
+            {sectionTitlesMap[section.groupKey]}
+          </Text>
+          <Text sx={{ fontSize: 1 }}>
+            {sectionLabelsMap[section.groupKey] || null}
+          </Text>
+        </Flex>
 
         {/* Commenting out sort functionality for now */}
         {/* <SortPopover
@@ -1148,7 +1185,7 @@ export const TideDashboard = (props) => {
         <Button
           id="update-dashboard-config"
           variant="filter"
-          icon={KeyboardArrowDownRoundedIcon}
+          icon={EditIcon}
           iconLabel="Open dashboard config"
           onClick={handleConfigureTideDashboard}
           px={3}
