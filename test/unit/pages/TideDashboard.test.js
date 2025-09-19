@@ -63,6 +63,7 @@ describe('TideDashboard', () => {
     TideDashboard.__Rewire__('useFlags', sinon.stub().returns({
       showTideDashboard: true,
       showSummaryDashboard: true,
+      tideDashboardCategories: '',
     }));
 
     DataConnections.__Rewire__('api', defaultProps.api);
@@ -827,6 +828,7 @@ describe('TideDashboard', () => {
 
           TideDashboard.__Rewire__('useFlags', sinon.stub().returns({
             showTideDashboardLastReviewed: true,
+            tideDashboardCategories: '',
           }));
 
           wrapper = mount(
@@ -964,6 +966,42 @@ describe('TideDashboard', () => {
           expect(lastReviewedHeader).to.have.length(0);
         });
       });
+    });
+  });
+
+  context('has custom tideDashboardCategories setting configured in LaunchDarkly', () => {
+    beforeEach(() => {
+      TideDashboard.__Rewire__('useFlags', sinon.stub().returns({
+        showTideDashboard: true,
+        showSummaryDashboard: true,
+        tideDashboardCategories: 'noData,fooBar,meetingTargets , timeCGMUsePercent,timeInAnyLowPercent',
+      }));
+
+      store = mockStore(hasResultsState);
+      defaultProps.trackMetric.resetHistory();
+      wrapper = mount(
+        <Provider store={store}>
+          <ToastProvider>
+            <TideDashboard {...defaultProps} />
+          </ToastProvider>
+        </Provider>
+      );
+    });
+
+    afterEach(() => {
+      TideDashboard.__ResetDependency__('useFlags');
+    });
+
+    it('returns custom sections in expected order and filters out invalid sections', () => {
+      const dashboardSections = wrapper.find('.dashboard-section');
+      expect(dashboardSections.hostNodes()).to.have.length(4);
+
+      const dashboardSectionLabels = dashboardSections.find('.dashboard-section-label').hostNodes();
+      expect(dashboardSectionLabels).to.have.length(4);
+      expect(dashboardSectionLabels.at(0).text()).to.equal('Data Issues');
+      expect(dashboardSectionLabels.at(1).text()).to.equal('Meeting Targets');
+      expect(dashboardSectionLabels.at(2).text()).to.equal('CGM Wear Time < 70%');
+      expect(dashboardSectionLabels.at(3).text()).to.equal('Time below 70 mg/dL > 4%');
     });
   });
 

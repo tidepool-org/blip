@@ -19,6 +19,7 @@ import { tideDashboardConfigSchema as validationSchema, summaryPeriodOptions, la
 import { Body0, Caption } from '../../components/elements/FontStyles';
 import { borders } from '../../themes/baseTheme';
 import { push } from 'connected-react-router';
+import SelectTags from './PatientForm/SelectTags';
 
 function getFormValues(config, clinicPatientTags) {
   return {
@@ -82,27 +83,9 @@ export const TideDashboardConfigForm = props => {
       <Box id='patient-tags-select' mb={3}>
         <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Select Patient Tag(s)')}</Body0>
 
-        <TagList
-          tags={map(clinic?.patientTags, tag => ({
-            ...tag,
-            selected: includes(values.tags, tag.id),
-          }))}
-          tagProps={{
-            onClick: tagId => {
-              setFieldTouched('tags', true, true);
-              setFieldValue('tags', [...(values.tags || []), tagId]);
-            },
-            sx: { userSelect: 'none' },
-          }}
-          selectedTagProps={{
-            onClick: tagId => {
-              setFieldValue('tags', without(values.tags, tagId));
-            },
-            sx: {
-              color: 'white',
-              backgroundColor: 'purpleMedium',
-            },
-          }}
+        <SelectTags
+          currentTagIds={values.tags || []}
+          onChange={tagIds => setFieldValue('tags', tagIds)}
         />
 
         {getFieldError('tags', formikContext, false) && (
