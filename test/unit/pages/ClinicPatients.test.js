@@ -160,6 +160,7 @@ describe('ClinicPatients', () => {
         fetchingRpmReportPatients: defaultWorkingState,
         settingClinicPatientLastReviewed: defaultWorkingState,
         revertingClinicPatientLastReviewed: defaultWorkingState,
+        fetchingClinicMRNsForPatientFormValidation: defaultWorkingState,
       },
       patientListFilters: {
         patientListSearchTextInput: '',
@@ -212,6 +213,7 @@ describe('ClinicPatients', () => {
           },
         },
       },
+      clinicMRNsForPatientFormValidation: ['MRN123'],
     },
   });
 
@@ -685,6 +687,7 @@ describe('ClinicPatients', () => {
             email: 'patient@test.ca',
             tags: [],
             sites: [],
+            glycemicRanges: 'ADA standard',
           }
         );
 
@@ -1184,6 +1187,7 @@ describe('ClinicPatients', () => {
               permissions: { custodian: {} },
               tags: [],
               sites: [],
+              glycemicRanges: 'ADA standard',
             }
           );
 
@@ -1197,7 +1201,7 @@ describe('ClinicPatients', () => {
                 patient: { id: 'stubbedId', stubbedUpdates: 'foo' },
               },
             },
-            { type: 'FETCH_PATIENTS_FOR_CLINIC_REQUEST' },
+            { type: 'FETCH_CLINIC_MRNS_FOR_PATIENT_FORM_VALIDATION_REQUEST' },
           ]);
 
           done();
@@ -1258,6 +1262,7 @@ describe('ClinicPatients', () => {
               permissions: { view: {} },
               tags: [],
               sites: [],
+              glycemicRanges: 'ADA standard',
             }
           );
 
@@ -1271,7 +1276,7 @@ describe('ClinicPatients', () => {
                 patient: { id: 'stubbedId', stubbedUpdates: 'foo' },
               },
             },
-            { type: 'FETCH_PATIENTS_FOR_CLINIC_REQUEST' },
+            { type: 'FETCH_CLINIC_MRNS_FOR_PATIENT_FORM_VALIDATION_REQUEST' },
           ]);
 
           done();

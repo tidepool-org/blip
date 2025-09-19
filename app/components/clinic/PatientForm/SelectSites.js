@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { noop } from 'lodash';
 import utils from '../../../core/utils';
 
-import { selectElementStyleOverrides } from './SelectTags';
+import { selectElementStyleOverrides } from './styles';
 
 export const buildSelectOptions = (
   t,
