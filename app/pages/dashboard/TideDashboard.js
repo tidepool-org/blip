@@ -130,6 +130,16 @@ const SECTION = [
   { groupKey: CATEGORY.noData, sortDirection: 'desc', sortKey: 'daysSinceLastData' },
 ];
 
+const DEFAULT_SECTIONS = [
+  CATEGORY.timeInVeryLowPercent,
+  CATEGORY.timeInAnyLowPercent,
+  CATEGORY.dropInTimeInTargetPercent,
+  CATEGORY.timeInTargetPercent,
+  CATEGORY.timeCGMUsePercent,
+  CATEGORY.meetingTargets,
+  CATEGORY.noData,
+];
+
 const useTideDashboardSections = () => {
   const { tideDashboardCategories } = useFlags();
 
@@ -146,7 +156,7 @@ const useTideDashboardSections = () => {
                                               .filter(category => !!CATEGORY[category]);
 
     // If the flag is empty or doesn't contain any usable categories, we return the default
-    if (!categories.length) return SECTION.map(section => section.groupKey);
+    if (!categories.length) return DEFAULT_SECTIONS;
 
     return categories;
   }, [tideDashboardCategories, isInitializing]);
