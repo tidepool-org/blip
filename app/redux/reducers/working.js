@@ -129,9 +129,11 @@ export default (state = initialWorkingState, action) => {
     case types.SET_CLINIC_PATIENT_LAST_REVIEWED_REQUEST:
     case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_REQUEST:
     case types.SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_REQUEST:
+    case types.FETCH_CLINIC_SITES_REQUEST:
     case types.CREATE_CLINIC_SITE_REQUEST:
     case types.UPDATE_CLINIC_SITE_REQUEST:
     case types.DELETE_CLINIC_SITE_REQUEST:
+    case types.FETCH_CLINIC_PATIENT_TAGS_REQUEST:
     case types.CREATE_CLINIC_PATIENT_TAG_REQUEST:
     case types.UPDATE_CLINIC_PATIENT_TAG_REQUEST:
     case types.DELETE_CLINIC_PATIENT_TAG_REQUEST:
@@ -140,6 +142,7 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_RPM_REPORT_PATIENTS_REQUEST:
     case types.FETCH_CLINIC_PATIENT_COUNT_REQUEST:
     case types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST:
+    case types.UPDATE_PREFERENCES_REQUEST:
       key = actionWorkingMap(action.type);
       if (key) {
         if (action.type === types.FETCH_PATIENT_DATA_REQUEST) {
@@ -191,9 +194,11 @@ export default (state = initialWorkingState, action) => {
           types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_REQUEST,
           types.SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_REQUEST,
           types.DATA_WORKER_REMOVE_DATA_REQUEST,
+          types.FETCH_CLINIC_SITES_REQUEST,
           types.CREATE_CLINIC_SITE_REQUEST,
           types.UPDATE_CLINIC_SITE_REQUEST,
           types.DELETE_CLINIC_SITE_REQUEST,
+          types.FETCH_CLINIC_PATIENT_TAGS_REQUEST,
           types.CREATE_CLINIC_PATIENT_TAG_REQUEST,
           types.UPDATE_CLINIC_PATIENT_TAG_REQUEST,
           types.DELETE_CLINIC_PATIENT_TAG_REQUEST,
@@ -327,9 +332,11 @@ export default (state = initialWorkingState, action) => {
     case types.SET_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS:
     case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS:
     case types.SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_SUCCESS:
+    case types.FETCH_CLINIC_SITES_SUCCESS:
     case types.CREATE_CLINIC_SITE_SUCCESS:
     case types.UPDATE_CLINIC_SITE_SUCCESS:
     case types.DELETE_CLINIC_SITE_SUCCESS:
+    case types.FETCH_CLINIC_PATIENT_TAGS_SUCCESS:
     case types.CREATE_CLINIC_PATIENT_TAG_SUCCESS:
     case types.UPDATE_CLINIC_PATIENT_TAG_SUCCESS:
     case types.DELETE_CLINIC_PATIENT_TAG_SUCCESS:
@@ -338,6 +345,7 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_RPM_REPORT_PATIENTS_SUCCESS:
     case types.FETCH_CLINIC_PATIENT_COUNT_SUCCESS:
     case types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS:
+    case types.UPDATE_PREFERENCES_SUCCESS:
       key = actionWorkingMap(action.type);
       if (key) {
         if (action.type === types.LOGOUT_SUCCESS) {
@@ -518,9 +526,11 @@ export default (state = initialWorkingState, action) => {
     case types.SET_CLINIC_PATIENT_LAST_REVIEWED_FAILURE:
     case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_FAILURE:
     case types.SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_FAILURE:
+    case types.FETCH_CLINIC_SITES_FAILURE:
     case types.CREATE_CLINIC_SITE_FAILURE:
     case types.UPDATE_CLINIC_SITE_FAILURE:
     case types.DELETE_CLINIC_SITE_FAILURE:
+    case types.FETCH_CLINIC_PATIENT_TAGS_FAILURE:
     case types.CREATE_CLINIC_PATIENT_TAG_FAILURE:
     case types.UPDATE_CLINIC_PATIENT_TAG_FAILURE:
     case types.DELETE_CLINIC_PATIENT_TAG_FAILURE:
@@ -529,6 +539,7 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_RPM_REPORT_PATIENTS_FAILURE:
     case types.FETCH_CLINIC_PATIENT_COUNT_FAILURE:
     case types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_FAILURE:
+    case types.UPDATE_PREFERENCES_FAILURE:
       key = actionWorkingMap(action.type);
       if (key) {
         return update(state, {

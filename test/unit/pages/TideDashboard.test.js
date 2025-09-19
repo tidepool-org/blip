@@ -402,6 +402,10 @@ describe('TideDashboard', () => {
       TideDashboard.__Rewire__('useLocalStorage', useLocalStorageRewire(mockedLocalStorage));
       TideDashboardConfigForm.__Rewire__('useLocalStorage', useLocalStorageRewire(mockedLocalStorage));
 
+      TideDashboard.__Rewire__('useLDClient', sinon.stub().returns(new LDClientMock({ clinic : {
+        tier: 'tier0300',
+      }})));
+
       wrapper = mount(
         <Provider store={store}>
           <ToastProvider>
@@ -428,6 +432,10 @@ describe('TideDashboard', () => {
       };
       TideDashboard.__Rewire__('useLocalStorage', useLocalStorageRewire(mockedLocalStorage));
       TideDashboardConfigForm.__Rewire__('useLocalStorage', useLocalStorageRewire(mockedLocalStorage));
+
+      TideDashboard.__Rewire__('useLDClient', sinon.stub().returns(new LDClientMock({ clinic : {
+        tier: 'tier0300',
+      }})));
 
       wrapper = mount(
         <Provider store={store}>
@@ -457,6 +465,10 @@ describe('TideDashboard', () => {
 
       TideDashboard.__Rewire__('useLocalStorage', useLocalStorageRewire(mockedLocalStorage));
       TideDashboardConfigForm.__Rewire__('useLocalStorage', useLocalStorageRewire(mockedLocalStorage));
+
+      TideDashboard.__Rewire__('useLDClient', sinon.stub().returns(new LDClientMock({ clinic : {
+        tier: 'tier0300',
+      }})));
 
       wrapper = mount(
         <Provider store={store}>

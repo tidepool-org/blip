@@ -424,6 +424,11 @@ export default (type) => {
     case types.SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_FAILURE:
       return 'sendingPatientDataProviderConnectRequest';
 
+    case types.FETCH_CLINIC_SITES_REQUEST:
+    case types.FETCH_CLINIC_SITES_SUCCESS:
+    case types.FETCH_CLINIC_SITES_FAILURE:
+      return 'fetchingClinicSites';
+
     case types.CREATE_CLINIC_SITE_REQUEST:
     case types.CREATE_CLINIC_SITE_SUCCESS:
     case types.CREATE_CLINIC_SITE_FAILURE:
@@ -438,6 +443,11 @@ export default (type) => {
     case types.DELETE_CLINIC_SITE_SUCCESS:
     case types.DELETE_CLINIC_SITE_FAILURE:
       return 'deletingClinicSite';
+
+    case types.FETCH_CLINIC_PATIENT_TAGS_REQUEST:
+    case types.FETCH_CLINIC_PATIENT_TAGS_SUCCESS:
+    case types.FETCH_CLINIC_PATIENT_TAGS_FAILURE:
+      return 'fetchingClinicPatientTags';
 
     case types.CREATE_CLINIC_PATIENT_TAG_REQUEST:
     case types.CREATE_CLINIC_PATIENT_TAG_SUCCESS:
@@ -488,6 +498,11 @@ export default (type) => {
     case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS:
     case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_FAILURE:
       return 'revertingClinicPatientLastReviewed';
+
+    case types.UPDATE_PREFERENCES_REQUEST:
+    case types.UPDATE_PREFERENCES_SUCCESS:
+    case types.UPDATE_PREFERENCES_FAILURE:
+      return 'updatingPreferences';
 
     default:
       return null;

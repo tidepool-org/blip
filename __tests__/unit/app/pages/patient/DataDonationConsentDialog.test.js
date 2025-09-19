@@ -54,7 +54,7 @@ describe('DataDonationConsentDialog', () => {
       renderWithStore(props);
 
       expect(screen.getByRole('dialog')).toBeInTheDocument();
-      expect(screen.getByText('Fuel the next generation of diabetes innovation')).toBeInTheDocument();
+      expect(screen.getByText('Fuel the Next Generation of Diabetes Innovation')).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Submit' })).toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'Next' })).not.toBeInTheDocument();
 
@@ -132,6 +132,40 @@ describe('DataDonationConsentDialog', () => {
       // Should now show Submit button instead of Next
       expect(screen.getByRole('button', { name: 'Submit' })).toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'Next' })).not.toBeInTheDocument();
+    });
+  });
+
+  describe('personal account + child patient', () => {
+    const props = { accountType: 'personal', patientAgeGroup: 'child' };
+
+    it('shows single step consent flow', () => {
+      renderWithStore(props);
+
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+      expect(screen.getByText('Fuel the Next Generation of Diabetes Innovation')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Submit' })).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Next' })).not.toBeInTheDocument();
+
+      // Should show caregiver name input
+      expect(screen.getByLabelText(/Parent Or Legal Guardian Name/)).toBeInTheDocument();
+    });
+
+    it('uses caregiver name in signature', async () => {
+      const user = userEvent.setup();
+      renderWithStore(props);
+
+      // Fill in required fields for first step
+      const nameInput = screen.getByLabelText(/Parent Or Legal Guardian Name/);
+      await user.type(nameInput, 'Jane Doe');
+
+      expect(screen.getByText(/Electronic signature: Jane Doe/)).toBeInTheDocument();
+    });
+
+    it('disables submit button until form is valid', () => {
+      renderWithStore(props);
+
+      const submitButton = screen.getByRole('button', { name: 'Submit' });
+      expect(submitButton).toBeDisabled();
     });
   });
 
@@ -292,7 +326,7 @@ describe('DataDonationConsentDialog', () => {
       const dialogWrapper = screen.getByRole('presentation');
       expect(dialogWrapper).toHaveAttribute('id', 'dataDonationConsentDialog');
 
-      const title = screen.getByText('Fuel the next generation of diabetes innovation');
+      const title = screen.getByText('Fuel the Next Generation of Diabetes Innovation');
       expect(title).toHaveAttribute('id', 'dialog-title');
     });
   });

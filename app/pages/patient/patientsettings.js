@@ -23,6 +23,7 @@ import { withTranslation, Trans } from 'react-i18next';
 
 import IncrementalInput from '../../components/incrementalinput';
 import CustomizedTrendsChart from './customizedtrendschart';
+import ClinicsUsingAltRangeNotifications from './ClinicsUsingAltRangeNotifications';
 
 import utils from '../../core/utils';
 
@@ -80,6 +81,7 @@ export default withTranslation()(class PatientSettings extends Component {
     patient: PropTypes.object,
     onUpdatePatientSettings: PropTypes.func.isRequired,
     trackMetric: PropTypes.func.isRequired,
+    api: PropTypes.object.isRequired,
   };
 
   constructor(props) {
@@ -148,6 +150,11 @@ export default withTranslation()(class PatientSettings extends Component {
               </div>
             </div>
             {errorNode}
+
+            <div className="PatientSettings-blocks PatientSettings-blocks--full-width">
+              <ClinicsUsingAltRangeNotifications api={this.props.api} />
+            </div>
+
             <div className="PatientSettings-blocks">
               <CustomizedTrendsChart
                 max={chartTargets.high}

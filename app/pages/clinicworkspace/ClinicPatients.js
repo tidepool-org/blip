@@ -902,6 +902,32 @@ export const ClinicPatients = (props) => {
     });
   }, [clinicPatientTagFormContext, prefixPopHealthMetric, selectedClinicId, trackMetric]);
 
+  const handleClinicSitesModified = useCallback(() => {
+    clinicSiteFormContext?.resetForm();
+    handleCloseClinicSiteUpdateDialog();
+
+    dispatch(actions.async.fetchClinicSites(api, selectedClinicId)); // refetch to get latest sites
+  }, [
+    clinicSiteFormContext,
+    handleCloseClinicSiteUpdateDialog,
+    dispatch,
+    api,
+    selectedClinicId,
+  ]);
+
+  const handleClinicPatientTagsModified = useCallback(() => {
+    clinicPatientTagFormContext?.resetForm();
+    handleCloseClinicPatientTagUpdateDialog();
+
+    dispatch(actions.async.fetchClinicPatientTags(api, selectedClinicId)); // refetch to get latest tags
+  }, [
+    clinicPatientTagFormContext,
+    handleCloseClinicPatientTagUpdateDialog,
+    dispatch,
+    api,
+    selectedClinicId,
+  ]);
+
   const handleAsyncResult = useCallback((workingState, successMessage, onComplete = handleCloseOverlays) => {
     const { inProgress, completed, notification, prevInProgress } = workingState;
 
@@ -984,28 +1010,28 @@ export const ClinicPatients = (props) => {
   }, [fetchingRpmReportPatients, rpmReportPatients, handleAsyncResult, handleCloseOverlays, previousFetchingRpmReportPatients?.inProgress, t]);
 
   useEffect(() => {
-    handleAsyncResult({ ...creatingClinicSite, prevInProgress: previousCreatingClinicSite?.inProgress }, t('Site created.'), () => clinicSiteFormContext?.resetForm());
-  }, [clinicSiteFormContext, creatingClinicSite, handleAsyncResult, previousCreatingClinicSite?.inProgress, t]);
+    handleAsyncResult({ ...creatingClinicSite, prevInProgress: previousCreatingClinicSite?.inProgress }, t('Site created.'), handleClinicSitesModified);
+  }, [creatingClinicSite, handleClinicSitesModified, handleAsyncResult, previousCreatingClinicSite?.inProgress, t]);
 
   useEffect(() => {
-    handleAsyncResult({ ...updatingClinicSite, prevInProgress: previousUpdatingClinicSite?.inProgress }, t('Site updated.'), handleCloseClinicSiteUpdateDialog);
-  }, [clinicSiteFormContext, updatingClinicSite, handleAsyncResult, previousUpdatingClinicSite?.inProgress, t]);
+    handleAsyncResult({ ...updatingClinicSite, prevInProgress: previousUpdatingClinicSite?.inProgress }, t('Site updated.'), handleClinicSitesModified);
+  }, [updatingClinicSite, handleClinicSitesModified, handleAsyncResult, previousUpdatingClinicSite?.inProgress, t]);
 
   useEffect(() => {
-    handleAsyncResult({ ...deletingClinicSite, prevInProgress: previousDeletingClinicSite?.inProgress }, t('Site removed.'), handleCloseClinicSiteUpdateDialog);
-  }, [deletingClinicSite, handleAsyncResult, handleCloseClinicSiteUpdateDialog, previousDeletingClinicSite?.inProgress, t]);
+    handleAsyncResult({ ...deletingClinicSite, prevInProgress: previousDeletingClinicSite?.inProgress }, t('Site removed.'), handleClinicSitesModified);
+  }, [deletingClinicSite, handleClinicSitesModified, handleAsyncResult, previousDeletingClinicSite?.inProgress, t]);
 
   useEffect(() => {
-    handleAsyncResult({ ...creatingClinicPatientTag, prevInProgress: previousCreatingClinicPatientTag?.inProgress }, t('Tag created.'), () => clinicPatientTagFormContext?.resetForm());
-  }, [clinicPatientTagFormContext, creatingClinicPatientTag, handleAsyncResult, previousCreatingClinicPatientTag?.inProgress, t]);
+    handleAsyncResult({ ...creatingClinicPatientTag, prevInProgress: previousCreatingClinicPatientTag?.inProgress }, t('Tag created.'), handleClinicPatientTagsModified);
+  }, [creatingClinicPatientTag, handleClinicPatientTagsModified, handleAsyncResult, previousCreatingClinicPatientTag?.inProgress, t]);
 
   useEffect(() => {
-    handleAsyncResult({ ...updatingClinicPatientTag, prevInProgress: previousUpdatingClinicPatientTag?.inProgress }, t('Tag updated.'), handleCloseClinicPatientTagUpdateDialog);
-  }, [updatingClinicPatientTag, handleAsyncResult, handleCloseClinicPatientTagUpdateDialog, previousUpdatingClinicPatientTag?.inProgress, t]);
+    handleAsyncResult({ ...updatingClinicPatientTag, prevInProgress: previousUpdatingClinicPatientTag?.inProgress }, t('Tag updated.'), handleClinicPatientTagsModified);
+  }, [updatingClinicPatientTag, handleClinicPatientTagsModified, handleAsyncResult, previousUpdatingClinicPatientTag?.inProgress, t]);
 
   useEffect(() => {
-    handleAsyncResult({ ...deletingClinicPatientTag, prevInProgress: previousDeletingClinicPatientTag?.inProgress }, t('Tag removed.'), handleCloseClinicPatientTagUpdateDialog);
-  }, [deletingClinicPatientTag, handleAsyncResult, handleCloseClinicPatientTagUpdateDialog, previousDeletingClinicPatientTag?.inProgress, t]);
+    handleAsyncResult({ ...deletingClinicPatientTag, prevInProgress: previousDeletingClinicPatientTag?.inProgress }, t('Tag removed.'), handleClinicPatientTagsModified);
+  }, [deletingClinicPatientTag, handleClinicPatientTagsModified, handleAsyncResult, previousDeletingClinicPatientTag?.inProgress, t]);
 
   useEffect(() => {
     // Prevent this effect from firing on logout, which would clear all patient tags and clinic sites from localStorage
@@ -1531,6 +1557,7 @@ export const ClinicPatients = (props) => {
     const activeFiltersCount = without([
       activeFilters.timeCGMUsePercent,
       activeFilters.lastData,
+      activeFilters.clinicSites?.length,
       activeFilters.timeInRange?.length,
       activeFilters.patientTags?.length,
     ], null, 0, undefined).length;
@@ -1704,7 +1731,7 @@ export const ClinicPatients = (props) => {
                       id="filter-count"
                       label="filter count"
                       round
-                      sx={{ width: '14px', lineHeight: '15px', fontSize: '9px' }}
+                      sx={{ width: '14px', lineHeight: '15px', fontSize: '9px', display: 'flex', justifyContent: 'center' }}
                       colorPalette={['purpleMedium', 'white']}
                       text={`${activeFiltersCount}`}
                     />
@@ -2121,7 +2148,7 @@ export const ClinicPatients = (props) => {
                         }
 
                         { // Display an option to filter for patients with zero tags
-                          sortedSiteFilterOptions.length > 0 &&
+                          sortedTagFilterOptions.length > 0 &&
                           <Box mt={2} mx={-2} pt={3} px={2} sx={{ borderTop: borders.divider }} className="clinic-site-filter-option" key="clinic-site-filter-option-PWDS_WITH_ZERO_TAGS">
                             <Checkbox
                               id="tag-filter-option-checkbox-PWDS_WITH_ZERO_TAGS"
