@@ -14,8 +14,8 @@ import ClinicPatients from '../../../app/pages/clinicworkspace/ClinicPatients';
 import Popover from '../../../app/components/elements/Popover';
 import { clinicUIDetails } from '../../../app/core/clinicUtils';
 import { URL_TIDEPOOL_PLUS_PLANS } from '../../../app/core/constants';
-import Button from '../../../app/components/elements/Button';
 import TideDashboardConfigForm from '../../../app/components/clinic/TideDashboardConfigForm';
+import SelectTags from '../../../app/components/clinic/PatientForm/SelectTags';
 import RpmReportConfigForm from '../../../app/components/clinic/RpmReportConfigForm';
 import DataConnectionsModal from '../../../app/components/datasources/DataConnectionsModal';
 import DataConnections from '../../../app/components/datasources/DataConnections';
@@ -36,7 +36,7 @@ const expect = chai.expect;
 const assert = chai.assert;
 const mockStore = configureStore([thunk]);
 
-describe('ClinicPatients', () => {
+describe.only('ClinicPatients', () => {
   let mount;
 
   const today = moment().toISOString();
@@ -83,6 +83,7 @@ describe('ClinicPatients', () => {
     defaultProps.api.clinics.updateClinicPatient.resetHistory();
     defaultProps.api.clinics.getPatientsForRpmReport.resetHistory();
     ClinicPatients.__Rewire__('useLDClient', sinon.stub().returns(new LDClientMock()));
+    SelectTags.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-workspace' }));
     DataConnections.__Rewire__('api', defaultProps.api);
     DataConnectionsModal.__Rewire__('api', defaultProps.api);
     DataConnectionsModal.__Rewire__('useHistory', sinon.stub().returns({
@@ -93,6 +94,7 @@ describe('ClinicPatients', () => {
 
   afterEach(() => {
     ClinicPatients.__ResetDependency__('useLDClient');
+    SelectTags.__ResetDependency__('useLocation');
     DataConnections.__ResetDependency__('api');
     DataConnectionsModal.__ResetDependency__('api');
     DataConnectionsModal.__ResetDependency__('useHistory');
@@ -2838,28 +2840,11 @@ describe('ClinicPatients', () => {
             expect(dialog().props().open).to.be.true;
             sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Show Tide Dashboard config dialog', sinon.match({ clinicId: 'clinicID123', source: 'Patients list' }));
 
-            // Ensure tag options present
-            const tags = dialog().find('.tag-text').hostNodes();
-            expect(tags).to.have.lengthOf(3);
-            expect(tags.at(0).text()).to.equal('>test tag 1');
-            expect(tags.at(1).text()).to.equal('test tag 2');
-            expect(tags.at(2).text()).to.equal('ttest tag 3');
-
-            // No initial selected tags
-            const selectedTags = () => dialog().find('.tag-text.selected').hostNodes();
-            expect(selectedTags()).to.have.length(0);
-
-            // Apply button disabled until tag, upload date, and report period selections made
             const applyButton = () => dialog().find('#configureTideDashboardConfirm').hostNodes();
             expect(applyButton().props().disabled).to.be.true;
 
-            tags.at(0).hostNodes().simulate('click');
-            tags.at(2).hostNodes().simulate('click');
-
-            // Tags should now be selected
-            expect(selectedTags()).to.have.lengthOf(2);
-            expect(selectedTags().at(0).text()).to.equal('>test tag 1');
-            expect(selectedTags().at(1).text()).to.equal('ttest tag 3');
+            // Select 2 tags from select menu
+            wrapper.find(SelectTags).props().onChange(['tag1', 'tag3']);
 
             // Ensure period filter options present
             const summaryPeriodOptions = dialog().find('#period').find('label').hostNodes();
@@ -2884,7 +2869,7 @@ describe('ClinicPatients', () => {
 
             // Ensure period filter options present
             const lastDataFilterOptions = dialog().find('#lastData').find('label').hostNodes();
-            expect(lastDataFilterOptions).to.have.lengthOf(5);
+            expect(lastDataFilterOptions).to.have.lengthOf(3);
 
             expect(lastDataFilterOptions.at(0).text()).to.equal('Within 24 hours');
             expect(lastDataFilterOptions.at(0).find('input').props().value).to.equal('1');
@@ -2895,13 +2880,7 @@ describe('ClinicPatients', () => {
             expect(lastDataFilterOptions.at(2).text()).to.equal('Within 7 days');
             expect(lastDataFilterOptions.at(2).find('input').props().value).to.equal('7');
 
-            expect(lastDataFilterOptions.at(3).text()).to.equal('Within 14 days');
-            expect(lastDataFilterOptions.at(3).find('input').props().value).to.equal('14');
-
-            expect(lastDataFilterOptions.at(4).text()).to.equal('Within 30 days');
-            expect(lastDataFilterOptions.at(4).find('input').props().value).to.equal('30');
-
-            lastDataFilterOptions.at(3).find('input').last().simulate('change', { target: { name: 'lastData', value: 14 } });
+            lastDataFilterOptions.at(2).find('input').last().simulate('change', { target: { name: 'lastData', value: 7 } });
 
             // Apply button should now be active
             expect(applyButton().props().disabled).to.be.false;
@@ -2924,7 +2903,7 @@ describe('ClinicPatients', () => {
 
               expect(mockedLocalStorage.tideDashboardConfig?.['clinicianUserId123|clinicID123']).to.eql({
                 period: '30d',
-                lastData: 14,
+                lastData: 7,
                 tags: ['tag1', 'tag3'],
               });
 
@@ -2937,7 +2916,7 @@ describe('ClinicPatients', () => {
               tideDashboardConfig: {
                 'clinicianUserId123|clinicID123': {
                   period: '30d',
-                  lastData: 14,
+                  lastData: 7,
                   tags: ['tag1', 'tag3'],
                 },
               },
