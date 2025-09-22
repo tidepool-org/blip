@@ -36,7 +36,7 @@ const expect = chai.expect;
 const assert = chai.assert;
 const mockStore = configureStore([thunk]);
 
-describe.only('ClinicPatients', () => {
+describe('ClinicPatients', () => {
   let mount;
 
   const today = moment().toISOString();
