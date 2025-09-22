@@ -42,6 +42,7 @@ const CBGTooltip = vizComponents.CBGTooltip;
 const FoodTooltip = vizComponents.FoodTooltip;
 const PumpSettingsOverrideTooltip = vizComponents.PumpSettingsOverrideTooltip;
 const AlarmTooltip = vizComponents.AlarmTooltip;
+const EventTooltip = vizComponents.EventTooltip;
 
 import Header from './header';
 import CgmSampleIntervalRangeToggle from './cgmSampleIntervalRangeToggle';
@@ -75,6 +76,10 @@ const DailyChart = withTranslation(null, { withRef: true })(class DailyChart ext
     onCarbOut: PropTypes.func.isRequired,
     onPumpSettingsOverrideHover: PropTypes.func.isRequired,
     onPumpSettingsOverrideOut: PropTypes.func.isRequired,
+    onAlarmHover: PropTypes.func.isRequired,
+    onAlarmOut: PropTypes.func.isRequired,
+    onEventHover: PropTypes.func.isRequired,
+    onEventOut: PropTypes.func.isRequired
   };
 
   constructor(props) {
@@ -101,6 +106,8 @@ const DailyChart = withTranslation(null, { withRef: true })(class DailyChart ext
       'onPumpSettingsOverrideOut',
       'onAlarmHover',
       'onAlarmOut',
+      'onEventHover',
+      'onEventOut',
     ];
 
     this.log = bows('Daily Chart');
@@ -440,6 +447,19 @@ class Daily extends Component {
             alarm={this.state.hoveredAlarm.data}
             timePrefs={timePrefs}
           />}
+          {this.state.hoveredEvent && <EventTooltip
+            position={{
+              top: this.state.hoveredEvent.top,
+              left: this.state.hoveredEvent.left
+            }}
+            offset={{
+              top: 0,
+              left: this.state.hoveredEvent.leftOffset || 0
+            }}
+            side={this.state.hoveredEvent.side}
+            event={this.state.hoveredEvent.data}
+            timePrefs={timePrefs}
+          />}
           <WindowSizeListener onResize={this.handleWindowResize} />
         </Box>
       </div>
@@ -523,6 +543,8 @@ class Daily extends Component {
             onPumpSettingsOverrideOut={this.handlePumpSettingsOverrideOut}
             onAlarmHover={this.handleAlarmHover}
             onAlarmOut={this.handleAlarmOut}
+            onEventHover={this.handleEventHover}
+            onEventOut={this.handleEventOut}
             ref={this.chartRef}
           />
         </Box>
@@ -773,6 +795,36 @@ class Daily extends Component {
   handleAlarmOut = () => {
     this.setState({
       hoveredAlarm: false
+    });
+  };
+
+  handleEventHover = event => {
+    this.throttledMetric(`hovered over daily ${event.tags?.event} tooltip`);
+    const rect = event.rect;
+    event.top = rect.top + rect.height + 20;
+    event.left = rect.left + (rect.width / 2);
+    event.side = 'bottom';
+
+    // Prevent the tooltip from spilling over chart edges
+    const leftOffset = event.left - event.chartExtents.left;
+    const rightOffset = event.left - event.chartExtents.right;
+
+    if (leftOffset < 70) {
+      event.leftOffset = 70;
+    }
+
+    if (rightOffset > -70) {
+      event.leftOffset = -70;
+    }
+
+    this.setState({
+      hoveredEvent: event
+    });
+  };
+
+  handleEventOut = () => {
+    this.setState({
+      hoveredEvent: false
     });
   };
 
