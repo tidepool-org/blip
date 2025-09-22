@@ -799,7 +799,7 @@ class Daily extends Component {
   };
 
   handleEventHover = event => {
-    this.throttledMetric(`hovered over daily ${event.tags?.event} tooltip`);
+    this.throttledMetric('hovered over daily event tooltip');
     const rect = event.rect;
     event.top = rect.top + rect.height + 20;
     event.left = rect.left + (rect.width / 2);
