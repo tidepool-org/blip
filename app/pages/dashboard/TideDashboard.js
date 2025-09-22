@@ -845,7 +845,11 @@ const TideDashboardSection = React.memo(props => {
         data={patients}
         sx={{
           fontSize: 1,
+          'tr': { height: '48px' },
           'thead': { fontSize: 0 },
+          'th': { padding: '16px' },
+          'th div': { display: 'flex', alignItems: 'center' },
+          'th span': { fontSize: 1 },
         }}
         order={section.sortDirection}
         orderBy={section.sortKey}
