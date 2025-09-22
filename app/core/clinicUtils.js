@@ -75,6 +75,8 @@ export const lastDataFilterOptions = [
   { value: 1, label: t('Within 24 hours') },
   { value: 2, label: t('Within 2 days') },
   { value: 7, label: t('Within 7 days') },
+  { value: 14, label: t('Within 14 days') },
+  { value: 30, label: t('Within 30 days') },
 ];
 
 export const summaryPeriodOptions = [
@@ -450,6 +452,8 @@ export const patientSchema = config => {
   });
 };
 
+export const tideDashboardLastDataFilterOptions = lastDataFilterOptions.filter(opt => [1, 2, 7].includes(opt.value));
+
 export const tideDashboardConfigSchema = yup.object().shape({
   period: yup
     .string()
@@ -457,7 +461,7 @@ export const tideDashboardConfigSchema = yup.object().shape({
     .required(t('Please select a duration period')),
   lastData: yup
     .number()
-    .oneOf(map(lastDataFilterOptions, 'value'), t('Please select a data recency option'))
+    .oneOf(map(tideDashboardLastDataFilterOptions, 'value'))
     .required(t('Please select a data recency option')),
   tags: yup.array().of(yup.string())
     .min(1, t('Please select at least one tag')),

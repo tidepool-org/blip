@@ -15,7 +15,7 @@ import { TagList } from '../../components/elements/Tag';
 import RadioGroup from '../../components/elements/RadioGroup';
 import { useLocalStorage } from '../../core/hooks';
 import { getCommonFormikFieldProps, getFieldError } from '../../core/forms';
-import { tideDashboardConfigSchema as validationSchema, summaryPeriodOptions, lastDataFilterOptions } from '../../core/clinicUtils';
+import { tideDashboardConfigSchema as validationSchema, summaryPeriodOptions, tideDashboardLastDataFilterOptions } from '../../core/clinicUtils';
 import { Body0, Caption } from '../../components/elements/FontStyles';
 import { borders } from '../../themes/baseTheme';
 import { push } from 'connected-react-router';
@@ -100,7 +100,7 @@ export const TideDashboardConfigForm = props => {
         <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Tidepool will only show patients who have data within the selected number of days.')}</Body0>
 
         <RadioGroup
-          options={lastDataFilterOptions}
+          options={tideDashboardLastDataFilterOptions}
           {...getCommonFormikFieldProps('lastData', formikContext)}
           variant="vertical"
         />
