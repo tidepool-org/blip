@@ -67,6 +67,7 @@ const SelectTags = ({
   onChange,
   selectMenuHeight = 240,
   onMenuOpen = noop,
+  closeMenuOnSelect = false,
 }) => {
   const { pathname } = useLocation();
   const { t } = useTranslation();
@@ -102,7 +103,7 @@ const SelectTags = ({
       onChange={handleTagSelectionChange}
       onMenuOpen={onMenuOpen}
       options={selectOptions}
-      closeMenuOnSelect={false}
+      closeMenuOnSelect={closeMenuOnSelect}
       minMenuHeight={selectMenuHeight}
       maxMenuHeight={selectMenuHeight}
       filterOption={createFilter({ stringify: opt => opt.label })}
