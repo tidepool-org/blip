@@ -1048,21 +1048,21 @@ export const TideDashboard = (props) => {
   }
 
   useEffect(() => {
-    if (isSectionsLoading) return;
+    if (!isTideDashboardEnabled || isSectionsLoading) return;
 
     if (validateTideConfig(localConfig?.[localConfigKey], patientTags)) {
       fetchDashboardPatients(categories);
     } else {
       setShowTideDashboardConfigDialog(true);
     }
-  }, [isTideDashboardEnabled]);
+  }, [isTideDashboardEnabled, categories, isSectionsLoading]);
 
   useEffect(() => {
     // Always clear stored dashboard results upon unmount to avoid flashing stale results upon remount
     return () => {
       dispatch(actions.sync.clearTideDashboardPatients());
     };
-  }, [showTideDashboard, categories, isSectionsLoading]);
+  }, []);
 
   const drawerPatientId = new URLSearchParams(location.search).get('drawerPatientId') || null;
 
