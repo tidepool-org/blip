@@ -390,10 +390,10 @@ export const ClinicianPatients = (props) => {
   };
 
   const renderPatient = patient => (
-    <Box sx={{ cursor: 'pointer' }}>
+    <Flex sx={{ cursor: 'pointer', gap: 3 }}>
       <Text fontWeight="medium">{patient.fullName}</Text>
       {patient.email && <Text>{patient.email}</Text>}
-    </Box>
+    </Flex>
   );
 
   const renderDemographicField = (field, patient) => (

@@ -48,7 +48,7 @@ export function getFormValues(source, clinicPatientTags, clinicSites) {
 }
 
 export function emptyValuesFilter(value, key) {
-  // We want to allow sending an empty `tags` array. Otherwise, strip empty fields from payload.
+  // We want to allow sending an empty `tags` and `sites` arrays. Otherwise, strip empty fields from payload.
   return !includes(['tags', 'sites'], key) && isEmpty(value);
 }
 

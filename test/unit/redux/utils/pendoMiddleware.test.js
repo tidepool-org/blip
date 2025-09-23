@@ -181,6 +181,7 @@ describe('pendoMiddleware', () => {
         environment: 'local',
         id: 'clinicAdminID',
         currentlyViewedDevices: [],
+        currentlyViewedDataAnnotations: [],
         permission: 'administrator',
         role: 'clinician',
         domain: 'example.com',
@@ -330,6 +331,7 @@ describe('pendoMiddleware', () => {
         environment: 'local',
         id: 'clinicAdminID',
         currentlyViewedDevices: [],
+        currentlyViewedDataAnnotations: [],
         permission: 'administrator',
         role: 'clinician',
         domain: 'example.com',
@@ -374,6 +376,7 @@ describe('pendoMiddleware', () => {
         environment: 'local',
         id: 'clinicAdminID',
         currentlyViewedDevices: [],
+        currentlyViewedDataAnnotations: [],
         role: 'clinician',
         termsAccepted: '2020-02-02T00:00:00.000Z',
       },
@@ -417,6 +420,7 @@ describe('pendoMiddleware', () => {
         environment: 'local',
         id: 'clinicAdminID',
         currentlyViewedDevices: [],
+        currentlyViewedDataAnnotations: [],
         permission: 'administrator',
         role: 'clinician',
         domain: 'example.com',
@@ -462,6 +466,7 @@ describe('pendoMiddleware', () => {
         environment: 'prd',
         id: 'clinicAdminID',
         currentlyViewedDevices: [],
+        currentlyViewedDataAnnotations: [],
         permission: 'administrator',
         role: 'clinician',
         termsAccepted: '2020-02-02T00:00:00.000Z',
@@ -478,6 +483,7 @@ describe('pendoMiddleware', () => {
         environment: 'qa1',
         id: 'clinicAdminID',
         currentlyViewedDevices: [],
+        currentlyViewedDataAnnotations: [],
         permission: 'administrator',
         role: 'clinician',
         termsAccepted: '2020-02-02T00:00:00.000Z',
@@ -542,6 +548,7 @@ describe('pendoMiddleware', () => {
       visitor: {
         id: 'clinicMemberID',
         currentlyViewedDevices: [],
+        currentlyViewedDataAnnotations: [],
         permission: 'member',
       },
     };
@@ -589,6 +596,7 @@ describe('pendoMiddleware', () => {
         existingVisitorData: 'existingVisitorData',
         id: 'clinicMemberID',
         currentlyViewedDevices: [],
+        currentlyViewedDataAnnotations: [],
         permission: 'member',
       },
     };
@@ -646,6 +654,7 @@ describe('pendoMiddleware', () => {
       visitor: {
         id: 'clinicAdminID',
         currentlyViewedDevices: [],
+        currentlyViewedDataAnnotations: [],
         permission: null,
       },
     };
@@ -901,6 +910,11 @@ describe('pendoMiddleware', () => {
               deviceType2: { device3: true },
               deviceType3: { 'device3_1.0.1-rc.1+10034': true },
             },
+            dataAnnotations: {
+              annotation1: { code: 'annotation1' },
+              annotation2: { code: 'annotation2' },
+              annotation3: { code: 'annotation3' },
+            }
           },
         },
       },
@@ -921,6 +935,7 @@ describe('pendoMiddleware', () => {
             visitor: {
               id: 'clinicAdminID',
               currentlyViewedDevices: [],
+              currentlyViewedDataAnnotations: [],
             },
           },
         },
@@ -935,6 +950,7 @@ describe('pendoMiddleware', () => {
       visitor: {
         id: 'clinicAdminID',
         currentlyViewedDevices: ['device1', 'device2', 'device3', 'device3_1', 'device3_1.0', 'device3_1.0.1'],
+        currentlyViewedDataAnnotations: ['annotation1', 'annotation2', 'annotation3'],
       },
     };
 
@@ -965,6 +981,7 @@ describe('pendoMiddleware', () => {
             visitor: {
               id: 'clinicAdminID',
               currentlyViewedDevices: ['Device1', 'Device2'],
+              currentlyViewedDataAnnotations: [],
             },
           },
         },
@@ -979,6 +996,7 @@ describe('pendoMiddleware', () => {
       visitor: {
         id: 'clinicAdminID',
         currentlyViewedDevices: [],
+        currentlyViewedDataAnnotations: [],
       },
     };
 
@@ -1009,6 +1027,7 @@ describe('pendoMiddleware', () => {
             visitor: {
               id: 'clinicAdminID',
               currentlyViewedDevices: ['Device1', 'Device2'],
+              currentlyViewedDataAnnotations: [],
             },
           },
         },
@@ -1023,6 +1042,7 @@ describe('pendoMiddleware', () => {
       visitor: {
         id: 'clinicAdminID',
         currentlyViewedDevices: [],
+        currentlyViewedDataAnnotations: [],
       },
     };
 
