@@ -23,7 +23,7 @@ import { utils as vizUtils } from '@tidepool/viz';
 import * as actions from '../../redux/actions';
 import { useToasts } from '../../providers/ToastProvider';
 import api from '../../core/api';
-import { useIsFirstRender, useLaunchDarklyFlagOverrides, usePrevious } from '../../core/hooks';
+import { useIsFirstRender, usePrevious } from '../../core/hooks';
 import i18next from '../../core/language';
 import DataConnection from './DataConnection';
 import PatientEmailModal from './PatientEmailModal';
@@ -97,7 +97,7 @@ export const getActiveProviders = (overrides = {}) => {
   const activeProviders = defaults(overrides, {
     dexcom: true,
     twiist: true,
-    abbott: false,
+    abbott: true,
   });
 
   return filter(availableProviders, provider => activeProviders[provider]);
@@ -387,8 +387,7 @@ export const DataConnections = (props) => {
   const [patientUpdates, setPatientUpdates] = useState({});
   const [activeHandler, setActiveHandler] = useState(null);
   const dataConnectionProps = getDataConnectionProps(patient, isLoggedInUser, selectedClinicId, setActiveHandler);
-  const { showAbbottProvider } = useLaunchDarklyFlagOverrides();
-  const activeProviders = getActiveProviders({ abbott: showAbbottProvider });
+  const activeProviders = getActiveProviders();
 
   const {
     sendingPatientDataProviderConnectRequest,

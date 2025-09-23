@@ -288,12 +288,12 @@ const TideDashboardSection = React.memo(props => {
       text: t('No Pending Connections'),
     },
     pending: {
-      colorPalette: 'primaryText',
+      colorPalette: 'info',
       icon: null,
       text: t('Invite Sent'),
     },
     pendingReconnect: {
-      colorPalette: 'primaryText',
+      colorPalette: 'info',
       icon: null,
       text: t('Invite Sent'),
     },
@@ -303,7 +303,7 @@ const TideDashboardSection = React.memo(props => {
       text: t('Invite Expired'),
     },
     connected: {
-      colorPalette: 'primaryText',
+      colorPalette: 'info',
       icon: null,
       text: t('Connected'),
     },
@@ -802,10 +802,8 @@ export const TideDashboard = (props) => {
   const ldClient = useLDClient();
   const ldContext = ldClient.getContext();
 
-  const existingMRNs = useMemo(
-    () => compact(map(reject(clinic?.patients, { id: selectedPatient?.id }), 'mrn')),
-    [clinic?.patients, selectedPatient?.id]
-  );
+  const isTideDashboardEnabled = (ldContext?.clinic?.tier && showTideDashboard) || clinic?.entitlements?.tideDashboard;
+  const existingMRNs = useSelector(state => state.blip.clinicMRNsForPatientFormValidation)?.filter(mrn => mrn !== selectedPatient?.mrn) || [];
 
   const {
     fetchingPatientFromClinic,
@@ -943,17 +941,21 @@ export const TideDashboard = (props) => {
   }
 
   useEffect(() => {
+    if (!isTideDashboardEnabled) return;
+
     if (validateTideConfig(localConfig?.[localConfigKey], patientTags)) {
       fetchDashboardPatients();
     } else {
       setShowTideDashboardConfigDialog(true);
     }
+  }, [isTideDashboardEnabled]);
 
+  useEffect(() => {
     // Always clear stored dashboard results upon unmount to avoid flashing stale results upon remount
     return () => {
       dispatch(actions.sync.clearTideDashboardPatients());
-    }
-  }, [showTideDashboard]);
+    };
+  }, []);
 
   const drawerPatientId = new URLSearchParams(location.search).get('drawerPatientId') || null;
 

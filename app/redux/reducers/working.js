@@ -54,6 +54,11 @@ export default (state = initialWorkingState, action) => {
     case types.CREATE_PRESCRIPTION_REVISION_REQUEST:
     case types.DELETE_PRESCRIPTION_REQUEST:
     case types.FETCH_DEVICES_REQUEST:
+    case types.FETCH_LATEST_CONSENT_BY_TYPE_REQUEST:
+    case types.FETCH_USER_CONSENT_RECORDS_REQUEST:
+    case types.CREATE_USER_CONSENT_RECORD_REQUEST:
+    case types.UPDATE_USER_CONSENT_RECORD_REQUEST:
+    case types.REVOKE_USER_CONSENT_RECORD_REQUEST:
     case types.FETCH_MESSAGE_THREAD_REQUEST:
     case types.CREATE_MESSAGE_THREAD_REQUEST:
     case types.EDIT_MESSAGE_THREAD_REQUEST:
@@ -84,7 +89,6 @@ export default (state = initialWorkingState, action) => {
     case types.DATA_WORKER_REMOVE_DATA_REQUEST:
     case types.DATA_WORKER_UPDATE_DATUM_REQUEST:
     case types.DATA_WORKER_QUERY_DATA_REQUEST:
-    case types.UPDATE_DATA_DONATION_ACCOUNTS_REQUEST:
     case types.FETCH_DATA_SOURCES_REQUEST:
     case types.FETCH_SERVER_TIME_REQUEST:
     case types.CONNECT_DATA_SOURCE_REQUEST:
@@ -100,6 +104,7 @@ export default (state = initialWorkingState, action) => {
     case types.DELETE_CLINICIAN_FROM_CLINIC_REQUEST:
     case types.DELETE_PATIENT_FROM_CLINIC_REQUEST:
     case types.FETCH_PATIENTS_FOR_CLINIC_REQUEST:
+    case types.FETCH_CLINIC_MRNS_FOR_PATIENT_FORM_VALIDATION_REQUEST:
     case types.FETCH_PATIENT_FROM_CLINIC_REQUEST:
     case types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST:
     case types.CREATE_VCA_CUSTODIAL_ACCOUNT_REQUEST:
@@ -124,9 +129,11 @@ export default (state = initialWorkingState, action) => {
     case types.SET_CLINIC_PATIENT_LAST_REVIEWED_REQUEST:
     case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_REQUEST:
     case types.SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_REQUEST:
+    case types.FETCH_CLINIC_SITES_REQUEST:
     case types.CREATE_CLINIC_SITE_REQUEST:
     case types.UPDATE_CLINIC_SITE_REQUEST:
     case types.DELETE_CLINIC_SITE_REQUEST:
+    case types.FETCH_CLINIC_PATIENT_TAGS_REQUEST:
     case types.CREATE_CLINIC_PATIENT_TAG_REQUEST:
     case types.UPDATE_CLINIC_PATIENT_TAG_REQUEST:
     case types.DELETE_CLINIC_PATIENT_TAG_REQUEST:
@@ -135,6 +142,7 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_RPM_REPORT_PATIENTS_REQUEST:
     case types.FETCH_CLINIC_PATIENT_COUNT_REQUEST:
     case types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST:
+    case types.UPDATE_PREFERENCES_REQUEST:
       key = actionWorkingMap(action.type);
       if (key) {
         if (action.type === types.FETCH_PATIENT_DATA_REQUEST) {
@@ -166,6 +174,7 @@ export default (state = initialWorkingState, action) => {
           types.DELETE_CLINICIAN_FROM_CLINIC_REQUEST,
           types.DELETE_PATIENT_FROM_CLINIC_REQUEST,
           types.FETCH_PATIENTS_FOR_CLINIC_REQUEST,
+          types.FETCH_CLINIC_MRNS_FOR_PATIENT_FORM_VALIDATION_REQUEST,
           types.SEND_CLINICIAN_INVITE_REQUEST,
           types.FETCH_CLINICIAN_INVITE_REQUEST,
           types.SEND_INVITE_REQUEST,
@@ -185,9 +194,11 @@ export default (state = initialWorkingState, action) => {
           types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_REQUEST,
           types.SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_REQUEST,
           types.DATA_WORKER_REMOVE_DATA_REQUEST,
+          types.FETCH_CLINIC_SITES_REQUEST,
           types.CREATE_CLINIC_SITE_REQUEST,
           types.UPDATE_CLINIC_SITE_REQUEST,
           types.DELETE_CLINIC_SITE_REQUEST,
+          types.FETCH_CLINIC_PATIENT_TAGS_REQUEST,
           types.CREATE_CLINIC_PATIENT_TAG_REQUEST,
           types.UPDATE_CLINIC_PATIENT_TAG_REQUEST,
           types.DELETE_CLINIC_PATIENT_TAG_REQUEST,
@@ -196,6 +207,11 @@ export default (state = initialWorkingState, action) => {
           types.FETCH_CLINIC_PATIENT_COUNT_REQUEST,
           types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST,
           types.FETCH_DATA_SOURCES_REQUEST,
+          types.FETCH_LATEST_CONSENT_BY_TYPE_REQUEST,
+          types.FETCH_USER_CONSENT_RECORDS_REQUEST,
+          types.CREATE_USER_CONSENT_RECORD_REQUEST,
+          types.UPDATE_USER_CONSENT_RECORD_REQUEST,
+          types.REVOKE_USER_CONSENT_RECORD_REQUEST,
           types.CREATE_CLINIC_REQUEST
         ], action.type)) {
           return update(state, {
@@ -240,6 +256,11 @@ export default (state = initialWorkingState, action) => {
     case types.CREATE_PRESCRIPTION_REVISION_SUCCESS:
     case types.DELETE_PRESCRIPTION_SUCCESS:
     case types.FETCH_DEVICES_SUCCESS:
+    case types.FETCH_LATEST_CONSENT_BY_TYPE_SUCCESS:
+    case types.FETCH_USER_CONSENT_RECORDS_SUCCESS:
+    case types.CREATE_USER_CONSENT_RECORD_SUCCESS:
+    case types.UPDATE_USER_CONSENT_RECORD_SUCCESS:
+    case types.REVOKE_USER_CONSENT_RECORD_SUCCESS:
     case types.FETCH_MESSAGE_THREAD_SUCCESS:
     case types.CREATE_MESSAGE_THREAD_SUCCESS:
     case types.EDIT_MESSAGE_THREAD_SUCCESS:
@@ -271,7 +292,6 @@ export default (state = initialWorkingState, action) => {
     case types.DATA_WORKER_REMOVE_DATA_SUCCESS:
     case types.DATA_WORKER_UPDATE_DATUM_SUCCESS:
     case types.DATA_WORKER_QUERY_DATA_SUCCESS:
-    case types.UPDATE_DATA_DONATION_ACCOUNTS_SUCCESS:
     case types.FETCH_DATA_SOURCES_SUCCESS:
     case types.FETCH_SERVER_TIME_SUCCESS:
     case types.CONNECT_DATA_SOURCE_SUCCESS:
@@ -287,6 +307,7 @@ export default (state = initialWorkingState, action) => {
     case types.DELETE_CLINICIAN_FROM_CLINIC_SUCCESS:
     case types.DELETE_PATIENT_FROM_CLINIC_SUCCESS:
     case types.FETCH_PATIENTS_FOR_CLINIC_SUCCESS:
+    case types.FETCH_CLINIC_MRNS_FOR_PATIENT_FORM_VALIDATION_SUCCESS:
     case types.FETCH_PATIENT_FROM_CLINIC_SUCCESS:
     case types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS:
     case types.CREATE_VCA_CUSTODIAL_ACCOUNT_SUCCESS:
@@ -311,9 +332,11 @@ export default (state = initialWorkingState, action) => {
     case types.SET_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS:
     case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS:
     case types.SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_SUCCESS:
+    case types.FETCH_CLINIC_SITES_SUCCESS:
     case types.CREATE_CLINIC_SITE_SUCCESS:
     case types.UPDATE_CLINIC_SITE_SUCCESS:
     case types.DELETE_CLINIC_SITE_SUCCESS:
+    case types.FETCH_CLINIC_PATIENT_TAGS_SUCCESS:
     case types.CREATE_CLINIC_PATIENT_TAG_SUCCESS:
     case types.UPDATE_CLINIC_PATIENT_TAG_SUCCESS:
     case types.DELETE_CLINIC_PATIENT_TAG_SUCCESS:
@@ -322,6 +345,7 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_RPM_REPORT_PATIENTS_SUCCESS:
     case types.FETCH_CLINIC_PATIENT_COUNT_SUCCESS:
     case types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS:
+    case types.UPDATE_PREFERENCES_SUCCESS:
       key = actionWorkingMap(action.type);
       if (key) {
         if (action.type === types.LOGOUT_SUCCESS) {
@@ -428,6 +452,11 @@ export default (state = initialWorkingState, action) => {
     case types.CREATE_PRESCRIPTION_REVISION_FAILURE:
     case types.DELETE_PRESCRIPTION_FAILURE:
     case types.FETCH_DEVICES_FAILURE:
+    case types.FETCH_LATEST_CONSENT_BY_TYPE_FAILURE:
+    case types.FETCH_USER_CONSENT_RECORDS_FAILURE:
+    case types.CREATE_USER_CONSENT_RECORD_FAILURE:
+    case types.UPDATE_USER_CONSENT_RECORD_FAILURE:
+    case types.REVOKE_USER_CONSENT_RECORD_FAILURE:
     case types.FETCH_MESSAGE_THREAD_FAILURE:
     case types.CREATE_MESSAGE_THREAD_FAILURE:
     case types.EDIT_MESSAGE_THREAD_FAILURE:
@@ -457,7 +486,6 @@ export default (state = initialWorkingState, action) => {
     case types.DATA_WORKER_REMOVE_DATA_FAILURE:
     case types.DATA_WORKER_UPDATE_DATUM_FAILURE:
     case types.DATA_WORKER_QUERY_DATA_FAILURE:
-    case types.UPDATE_DATA_DONATION_ACCOUNTS_FAILURE:
     case types.FETCH_DATA_SOURCES_FAILURE:
     case types.FETCH_SERVER_TIME_FAILURE:
     case types.CONNECT_DATA_SOURCE_FAILURE:
@@ -473,6 +501,7 @@ export default (state = initialWorkingState, action) => {
     case types.DELETE_CLINICIAN_FROM_CLINIC_FAILURE:
     case types.DELETE_PATIENT_FROM_CLINIC_FAILURE:
     case types.FETCH_PATIENTS_FOR_CLINIC_FAILURE:
+    case types.FETCH_CLINIC_MRNS_FOR_PATIENT_FORM_VALIDATION_FAILURE:
     case types.FETCH_PATIENT_FROM_CLINIC_FAILURE:
     case types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_FAILURE:
     case types.CREATE_VCA_CUSTODIAL_ACCOUNT_FAILURE:
@@ -497,9 +526,11 @@ export default (state = initialWorkingState, action) => {
     case types.SET_CLINIC_PATIENT_LAST_REVIEWED_FAILURE:
     case types.REVERT_CLINIC_PATIENT_LAST_REVIEWED_FAILURE:
     case types.SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_FAILURE:
+    case types.FETCH_CLINIC_SITES_FAILURE:
     case types.CREATE_CLINIC_SITE_FAILURE:
     case types.UPDATE_CLINIC_SITE_FAILURE:
     case types.DELETE_CLINIC_SITE_FAILURE:
+    case types.FETCH_CLINIC_PATIENT_TAGS_FAILURE:
     case types.CREATE_CLINIC_PATIENT_TAG_FAILURE:
     case types.UPDATE_CLINIC_PATIENT_TAG_FAILURE:
     case types.DELETE_CLINIC_PATIENT_TAG_FAILURE:
@@ -508,6 +539,7 @@ export default (state = initialWorkingState, action) => {
     case types.FETCH_RPM_REPORT_PATIENTS_FAILURE:
     case types.FETCH_CLINIC_PATIENT_COUNT_FAILURE:
     case types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_FAILURE:
+    case types.UPDATE_PREFERENCES_FAILURE:
       key = actionWorkingMap(action.type);
       if (key) {
         return update(state, {

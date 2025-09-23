@@ -81,7 +81,7 @@ export function Checkbox(props) {
         </StyledCheckboxLabel>
       </Box>
       {error && (
-        <Caption ml={2} mt={2} className={classNames}>
+        <Caption ml={2} mt={2} className={`${classNames} caption`}>
           {error}
         </Caption>
       )}

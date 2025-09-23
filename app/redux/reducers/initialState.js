@@ -62,6 +62,8 @@ const initialState = {
   pendingSentClinicianInvites: {},
   prescriptions: [],
   devices: {},
+  consents: {},
+  consentRecords: {},
   messageThread: null,
   working: {
     acceptingReceivedInvite: Object.assign({}, working),
@@ -73,7 +75,6 @@ const initialState = {
     disconnectingDataSource: Object.assign({}, working),
     settingUpDataStorage: Object.assign({}, working),
     rejectingReceivedInvite: Object.assign({}, working),
-    fetchingDataDonationAccounts: Object.assign({}, working),
     fetchingDataSources: Object.assign({}, working),
     fetchingServerTime: Object.assign({}, working),
     fetchingClinicPrescriptions: Object.assign({}, working),
@@ -105,7 +106,6 @@ const initialState = {
     sendingClinicInvite: Object.assign({}, working),
     resendingInvite: Object.assign({}, working),
     settingMemberPermissions: Object.assign({}, working),
-    updatingDataDonationAccounts: Object.assign({}, working),
     updatingPatient: Object.assign({}, working),
     updatingPatientBgUnits: Object.assign({}, working),
     updatingUser: Object.assign({}, working),
@@ -122,6 +122,7 @@ const initialState = {
     deletingClinicianFromClinic: Object.assign({}, working),
     deletingPatientFromClinic: Object.assign({}, working),
     fetchingPatientsForClinic: Object.assign({}, working),
+    fetchingClinicMRNsForPatientFormValidation: Object.assign({}, working),
     fetchingPatientFromClinic: Object.assign({}, working),
     creatingClinicCustodialAccount: Object.assign({}, working),
     creatingVCACustodialAccount: Object.assign({}, working),
@@ -155,6 +156,12 @@ const initialState = {
     fetchingClinicPatientCountSettings: Object.assign({}, working),
     settingClinicPatientLastReviewed: Object.assign({}, working),
     revertingClinicPatientLastReviewed: Object.assign({}, working),
+    updatingPreferences: Object.assign({}, working),
+    fetchingLatestConsentByType: Object.assign({}, working),
+    fetchingUserConsentRecords: Object.assign({}, working),
+    creatingUserConsentRecord: Object.assign({}, working),
+    updatingUserConsentRecord: Object.assign({}, working),
+    revokingUserConsentRecord: Object.assign({}, working),
   },
   notification: null,
   timePrefs: {
@@ -164,7 +171,6 @@ const initialState = {
   bgPrefs: {
     bgUnits: MGDL_UNITS
   },
-  dataDonationAccounts: [],
   dataSources: [],
   authorizedDataSource: null,
   justConnectedDataSourceProviderName: null,
@@ -180,6 +186,7 @@ const initialState = {
     account: {},
     visitor: {},
   },
+  clinicMRNsForPatientFormValidation: [],
 };
 
 export default initialState;

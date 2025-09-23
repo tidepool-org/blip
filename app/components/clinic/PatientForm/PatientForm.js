@@ -48,7 +48,7 @@ export function getFormValues(source, clinicPatientTags, clinicSites) {
 }
 
 export function emptyValuesFilter(value, key) {
-  // We want to allow sending an empty `tags` array. Otherwise, strip empty fields from payload.
+  // We want to allow sending an empty `tags` and `sites` arrays. Otherwise, strip empty fields from payload.
   return !includes(['tags', 'sites'], key) && isEmpty(value);
 }
 
@@ -70,14 +70,14 @@ export const PatientForm = (props) => {
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const mrnSettings = clinic?.mrnSettings ?? {};
-  const existingMRNs = useMemo(
-    () => compact(map(reject(clinic?.patients, { id: patient?.id }), 'mrn')),
-    [clinic?.patients, patient?.id]
-  );
+
+  const existingMRNs = useSelector(state => state.blip.clinicMRNsForPatientFormValidation)?.filter(mrn => mrn !== patient?.mrn) || [];
+
   const dateInputFormat = 'MM/DD/YYYY';
   const dateMaskFormat = dateInputFormat.replace(/[A-Z]/g, '9');
   const [initialValues, setInitialValues] = useState({});
 
+  const hasSummaryDashboard = clinic?.entitlements?.summaryDashboard;
   const showTags = clinic?.entitlements?.patientTags && !!clinic?.patientTags?.length;
   const showSites = clinic?.entitlements?.clinicSites && !!clinic?.sites?.length;
   const showDiabetesType = !!selectedClinicId; // hide in private workspace
@@ -86,10 +86,10 @@ export const PatientForm = (props) => {
   const clinicPatientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
   const clinicSites = useMemo(() => keyBy(clinic?.sites, 'id'), [clinic?.sites]);
   const showEmail = action !== 'acceptInvite';
-  const { fetchingPatientsForClinic } = useSelector((state) => state.blip.working);
+  const { fetchingClinicMRNsForPatientFormValidation } = useSelector((state) => state.blip.working);
   const [patientFetchOptions, setPatientFetchOptions] = useState({});
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
-  const previousFetchingPatientsForClinic = usePrevious(fetchingPatientsForClinic);
+  const previousFetchingClinicMRNsForPatientFormValidation = usePrevious(fetchingClinicMRNsForPatientFormValidation);
   const previousFetchOptions = usePrevious(patientFetchOptions);
   const initialFocusedInputRef = useInitialFocusedInput();
   const tagSectionRef = useRef(null);
@@ -162,7 +162,7 @@ export const PatientForm = (props) => {
     if (
       loggedInUserId &&
       clinic?.id &&
-      !fetchingPatientsForClinic.inProgress &&
+      !fetchingClinicMRNsForPatientFormValidation.inProgress &&
       !isEmpty(patientFetchOptions) &&
       !(patientFetchOptions === previousFetchOptions)
     ) {
@@ -171,14 +171,14 @@ export const PatientForm = (props) => {
         delete fetchOptions.search;
       }
       dispatch(
-        actions.async.fetchPatientsForClinic(api, clinic.id, fetchOptions)
+        actions.async.fetchClinicMRNsForPatientFormValidation(api, clinic.id, fetchOptions)
       );
     }
   }, [
     api,
     clinic,
     dispatch,
-    fetchingPatientsForClinic,
+    fetchingClinicMRNsForPatientFormValidation,
     loggedInUserId,
     patientFetchOptions,
     previousFetchOptions
@@ -187,15 +187,15 @@ export const PatientForm = (props) => {
   // revalidate form on patient fetch complete
   useEffect(() => {
     if (
-      previousFetchingPatientsForClinic?.inProgress &&
-      !fetchingPatientsForClinic.inProgress
+      previousFetchingClinicMRNsForPatientFormValidation?.inProgress &&
+      !fetchingClinicMRNsForPatientFormValidation.inProgress
     ) {
       formikContext.validateForm();
     }
   }, [
-    fetchingPatientsForClinic.inProgress,
+    fetchingClinicMRNsForPatientFormValidation.inProgress,
     formikContext,
-    previousFetchingPatientsForClinic?.inProgress,
+    previousFetchingClinicMRNsForPatientFormValidation?.inProgress,
   ]);
 
   useEffect(() => {
@@ -327,7 +327,7 @@ export const PatientForm = (props) => {
               />
           </Box>
 
-          <Body0 sx={{ fontWeight: 'medium' }} mb={3}>
+          <Body0 mb={3}>
             {t('If you want your patients to upload their data from home, you must include their email address.')}
           </Body0>
         </>
@@ -350,6 +350,13 @@ export const PatientForm = (props) => {
             onChange={glycemicRanges => setFieldValue('glycemicRanges', glycemicRanges)}
             onMenuOpen={() => handleScrollToRef(targetRangePresetSectionRef)}
           />
+
+          <Body0 mb={3} mt={1}>
+            { hasSummaryDashboard
+              ? t('Target ranges follow ADA guidelines. Setting a non-standard range will be used when viewing patient data, but will not be available in the dashboard view.')
+              : t('Target ranges follow ADA guidelines and will be used when viewing patient data.')
+            }
+          </Body0>
         </Box>
       )}
 

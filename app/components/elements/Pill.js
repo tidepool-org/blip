@@ -15,7 +15,7 @@ const namedPalletMap = {
   oranges: ['oranges.0', 'oranges.8'],
   pinks: ['pinks.0', 'pinks.9'],
   purples: ['purples.0', 'purples.9'],
-  primaryText: ['#F3F7FC', 'text.primary'],
+  info: ['#F0F5FF', 'text.primary'],
   warning: ['#FFE8CF', 'feedback.warning'],
   success: ['#EBFBF0', 'feedback.success'],
   neutral: ['lightestGrey', '#707070'],
@@ -29,6 +29,7 @@ export function Pill(props) {
     condensed,
     icon,
     label,
+    iconLabel,
     text,
     round,
     width,
@@ -48,7 +49,9 @@ export function Pill(props) {
   let borderRadius = condensed ? 3 : 4;
   if (round) borderRadius = '100%';
   const height = round ? width : 'auto';
-  const lineHeight = round ? width : '1em';
+
+  let lineHeight = condensed ? '1em' : '1.5em';
+  if (round) lineHeight = width;
 
   return (
     <Text
@@ -68,6 +71,10 @@ export function Pill(props) {
         width,
         height,
         lineHeight,
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 2,
         ...sx
       }}
       {...themeProps}
@@ -77,12 +84,10 @@ export function Pill(props) {
           tabIndex={-1}
           className="icon"
           fontSize="1.1em"
-          mr="0.35em"
-          sx={{ top: pt }}
           theme={baseTheme}
           variant="static"
           icon={icon}
-          label={label}
+          label={iconLabel ?? `${label} icon`}
         />
       )}
       {text}
@@ -103,7 +108,7 @@ Pill.propTypes = {
       'oranges',
       'pinks',
       'purples',
-      'primaryText',
+      'info',
       'warning',
       'success',
       'neutral',
@@ -113,6 +118,7 @@ Pill.propTypes = {
   ]),
   condensed: PropTypes.bool,
   icon: PropTypes.elementType,
+  iconLabel: PropTypes.string,
   label: PropTypes.string.isRequired,
   text: PropTypes.string.isRequired,
   variant: PropTypes.oneOf(['default', 'inverse']),

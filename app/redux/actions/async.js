@@ -16,6 +16,7 @@ import { worker } from '.';
 
 import utils from '../../core/utils';
 import { clinicUIDetails } from '../../core/clinicUtils.js';
+import { getDismissedAltRangeBannerKey, isRangeWithNonStandardTarget } from '../../providers/AppBanner/appBannerHelpers.js';
 
 let win = window;
 
@@ -518,9 +519,6 @@ export function sendInvite(api, email, permissions, cb = _.noop) {
           ));
         }
       } else {
-        if (personUtils.isDataDonationAccount(invite)) {
-          dispatch(fetchPendingSentInvites(api));
-        }
         dispatch(sync.sendInviteSuccess(invite));
       }
     });
@@ -1353,6 +1351,136 @@ export function fetchDevices(api) {
 }
 
 /**
+ * Fetch Latest Consent By Type Action Creator
+ *
+ * @param  {Object} api - an instance of the API wrapper
+ * @param {String} consentType - type of the consent (e.g., 'big_data_donation_project')
+ */
+export function fetchLatestConsentByType(api, consentType) {
+  return (dispatch) => {
+    dispatch(sync.fetchLatestConsentByTypeRequest());
+
+    api.consent.getLatestConsentByType(consentType, (err, consentDocument) => {
+      if (err) {
+        dispatch(sync.fetchLatestConsentByTypeFailure (
+          createActionError(ErrorMessages.ERR_FETCHING_LATEST_CONSENT_BY_TYPE, err), err
+        ));
+      } else {
+        dispatch(sync.fetchLatestConsentByTypeSuccess(consentType, consentDocument));
+      }
+    });
+  };
+}
+
+/**
+ * Fetch User Consent Records By Type Action Creator
+ *
+ * @param  {Object} api - an instance of the API wrapper
+ * @param {String} consentType - type of the consent (e.g., 'big_data_donation_project')
+ */
+export function fetchUserConsentRecords(api, consentType) {
+  return (dispatch, getState) => {
+    const { blip: { loggedInUserId } } = getState();
+
+    dispatch(sync.fetchUserConsentRecordsRequest());
+
+    api.consent.getUserConsentRecords(loggedInUserId, consentType, (err, records) => {
+      if (err) {
+        dispatch(sync.fetchUserConsentRecordsFailure (
+          createActionError(ErrorMessages.ERR_FETCHING_USER_CONSENT_RECORDS, err), err
+        ));
+      } else {
+        dispatch(sync.fetchUserConsentRecordsSuccess(consentType, records));
+      }
+    });
+  };
+}
+
+/**
+ * Create User Consent Record Action Creator
+ *
+ * @param  {Object} api - an instance of the API wrapper
+ * @param {Object} consentRecord - the consent record to create
+ * @param {String} consentRecord.ageGroup - Allowed values: ['<13', '13-17', '>=18']
+ * @param {String} consentRecord.ownerName - The name of the account owner
+ * @param {String} [consentRecord.parentGuardianName] - The name of the parent or legal guardian granting the consent record. Required if ageGroup is '<13' or '13-17'.
+ * @param {String} consentRecord.grantorType - Allowed values: ['owner', 'parent/guardian']
+ * @param {String} consentRecord.type - Type of the consent record (e.g., 'big_data_donation_project')
+ * @param {Object} [consentRecord.metadata]
+ * @param {String[]} [consentRecord.metadata.supportedOrganizations] - Allowed values: ['ADCES Foundation', 'Beyond Type 1', 'Children With Diabetes', 'The Diabetes Link', 'Diabetes Youth Families (DYF)', 'DiabetesSisters', 'The diaTribe Foundation', 'Breakthrough T1D']
+ * @param {Number} consentRecord.version - >=1
+ */
+export function createUserConsentRecord(api, consentRecord) {
+  return (dispatch, getState) => {
+    const { blip: { loggedInUserId } } = getState();
+
+    dispatch(sync.createUserConsentRecordRequest());
+
+    api.consent.createUserConsentRecord(loggedInUserId, consentRecord, (err, createdRecord) => {
+      if (err) {
+        dispatch(sync.createUserConsentRecordFailure (
+          createActionError(ErrorMessages.ERR_CREATING_USER_CONSENT_RECORD, err), err
+        ));
+      } else {
+        dispatch(sync.createUserConsentRecordSuccess(createdRecord));
+      }
+    });
+  };
+}
+
+/**
+ * Update User Consent Record  Action Creator
+ *
+ * @param  {Object} api - an instance of the API wrapper
+ * @param {String} recordId - id of the consent record to update
+ * @param {Object} updates
+ * @param {Object} updates.metadata
+ * @param {Array[String]} updates.metadata.supportedOrganizations - Allowed values: ['ADCES Foundation', 'Beyond Type 1', 'Children With Diabetes', 'The Diabetes Link', 'Diabetes Youth Families (DYF)', 'DiabetesSisters', 'The diaTribe Foundation', 'Breakthrough T1D']
+ */
+export function updateUserConsentRecord(api, recordId, updates) {
+  return (dispatch, getState) => {
+    const { blip: { loggedInUserId } } = getState();
+
+    dispatch(sync.updateUserConsentRecordRequest());
+
+    api.consent.updateUserConsentRecord(loggedInUserId, recordId, updates, (err, updatedRecord) => {
+      if (err) {
+        dispatch(sync.updateUserConsentRecordFailure (
+          createActionError(ErrorMessages.ERR_UPDATING_USER_CONSENT_RECORD, err), err
+        ));
+      } else {
+        dispatch(sync.updateUserConsentRecordSuccess(updatedRecord));
+      }
+    });
+  };
+}
+
+/**
+ * Revoke User Consent Record Action Creator
+ *
+ * @param  {Object} api - an instance of the API wrapper
+ * @param {String} consentType - type of the consent (e.g., 'big_data_donation_project')
+ * @param {String} recordId - id of the consent record to revoke
+ */
+export function revokeUserConsentRecord(api, consentType, recordId) {
+  return (dispatch, getState) => {
+    const { blip: { loggedInUserId } } = getState();
+
+    dispatch(sync.revokeUserConsentRecordRequest());
+
+    api.consent.revokeUserConsentRecord(loggedInUserId, recordId, err => {
+      if (err) {
+        dispatch(sync.revokeUserConsentRecordFailure (
+          createActionError(ErrorMessages.ERR_REVOKING_USER_CONSENT_RECORD, err), err
+        ));
+      } else {
+        dispatch(sync.revokeUserConsentRecordSuccess(consentType));
+      }
+    });
+  };
+}
+
+/**
  * Fetch Message Thread Action Creator
  *
  * @param  {Object} api an instance of the API wrapper
@@ -1428,52 +1556,6 @@ export function editMessageThread(api, message, cb = _.noop) {
 }
 
 /**
- * Update Data Donation Accounts Action Creator
- *
- * @param  {Object} api an instance of the API wrapper
- */
-export function updateDataDonationAccounts(api, addAccounts = [], removeAccounts = []) {
-  return (dispatch, getState) => {
-    dispatch(sync.updateDataDonationAccountsRequest());
-
-    const { blip: { loggedInUserId } } = getState();
-
-    const addAccount = (email, cb) => {
-      const permissions = {
-        view: {},
-        note: {},
-      };
-
-      dispatch(sendInvite(api, email, permissions, cb));
-    }
-
-    const removeAccount = (account, cb) => {
-      if (account.userid) {
-        dispatch(removeMemberFromTargetCareTeam(api, loggedInUserId, account.userid, cb));
-      } else {
-        dispatch(cancelSentInvite(api, account.email, cb));
-      }
-    }
-
-    async.parallel(async.reflectAll({
-      addAccounts:  cb => { async.map(addAccounts, addAccount, (err, results) => cb(err, results)) },
-      removeAccounts: cb => { async.map(removeAccounts, removeAccount, (err, results) => cb(err, results)) },
-    }), (err, results) => {
-      const resultsErr = _.mapValues(results, ({error}) => error);
-      const resultsVal = _.mapValues(results, ({value}) => value);
-      const error = resultsErr.addAccounts || resultsErr.removeAccounts;
-      if (error) {
-        dispatch(sync.updateDataDonationAccountsFailure(
-          createActionError(ErrorMessages.ERR_UPDATING_DATA_DONATION_ACCOUNTS, error), error
-        ));
-      } else {
-        dispatch(sync.updateDataDonationAccountsSuccess(resultsVal));
-      }
-    });
-  };
-}
-
-/**
  * Handle Banner Interaction Action Creator
  *
  * @param  {Object} api an instance of the API wrapper
@@ -1505,6 +1587,20 @@ export function handleBannerInteraction(api, userId, interactionId, interactionT
           [preferenceDateKey]: interactionTime,
         };
       }
+    } else if (interactionId === 'ClinicUsingAltRange') {
+      const { blip: { currentPatientInViewId, clinics } } = getState();
+      const clinicRanges = _.mapValues(clinics, clinic => clinic.patients?.[currentPatientInViewId]?.glycemicRanges);
+
+      preferences = {};
+
+      // If there are multiple clinics that currently use a non-standard range for the PwD, this
+      // one click should dismiss the banner for all clinics at once. Thus, we create a field in
+      // the preferences object for every clinic.
+      Object.entries(clinicRanges).forEach(([clinicId, glycemicRanges]) => {
+        if (isRangeWithNonStandardTarget(glycemicRanges)) {
+          preferences[getDismissedAltRangeBannerKey(clinicId)] = interactionTime;
+        }
+      });
     } else {
       const preferenceKey = `${interactionType}${interactionId}BannerTime`;
 
@@ -1950,6 +2046,40 @@ export function fetchPatientsForClinic(api, clinicId, options = {}) {
       } else {
         const { data, meta: { count, totalCount } } = results;
         dispatch(sync.fetchPatientsForClinicSuccess(clinicId, data, count, totalCount));
+      }
+    });
+  };
+}
+
+/**
+ * Fetch MRNs for form validation
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ * @param {Object} [options] - search options
+ * @param {String} [options.search] - search query string
+ * @param {Number} [options.offset] - search page offset
+ * @param {Number} [options.limit] - results per page
+ * @param {Number} [options.sort] - directionally prefixed field to sort by (e.g. +name or -name)
+ * @param {Number} [options.sortType] - type of bg data to sort by (cgm|bgm)
+ * @param {Number} [options.period] - summary period to sort by (1d|7d|14d|30d)
+ */
+export function fetchClinicMRNsForPatientFormValidation(api, clinicId, options = {}) {
+  return (dispatch) => {
+    dispatch(sync.fetchClinicMRNsForPatientFormValidationRequest());
+
+    api.clinics.getPatientsForClinic(clinicId, options, (err, results) => {
+      if (err) {
+        let errMsg = ErrorMessages.ERR_FETCHING_MRNS_FOR_CLINIC;
+        if (err?.status === 403) {
+          errMsg = ErrorMessages.ERR_FETCHING_MRNS_FOR_CLINIC_UNAUTHORIZED;
+        }
+        dispatch(sync.fetchClinicMRNsForPatientFormValidationFailure(
+          createActionError(errMsg, err), err, clinicId
+        ));
+      } else {
+        const { data, meta: { count, totalCount } } = results;
+        dispatch(sync.fetchClinicMRNsForPatientFormValidationSuccess(clinicId, data, count, totalCount));
       }
     });
   };
@@ -2668,6 +2798,54 @@ export function sendPatientDataProviderConnectRequest(api, clinicId, patientId, 
 }
 
 /**
+ * Fetch sites for a clinic
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ */
+export function fetchClinicSites(api, clinicId) {
+  return (dispatch) => {
+    dispatch(sync.fetchClinicSitesRequest());
+
+    api.clinics.get(clinicId, (err, { sites }) => {
+      if (err) {
+        let message = ErrorMessages.ERR_FETCHING_CLINIC_SITES;
+
+        dispatch(sync.fetchClinicSitesFailure(
+          createActionError(message, err), err
+        ));
+      } else {
+        dispatch(sync.fetchClinicSitesSuccess(clinicId, sites || []));
+      }
+    });
+  };
+}
+
+/**
+ * Fetch sites for a clinic
+ *
+ * @param {Object} api - an instance of the API wrapper
+ * @param {String} clinicId - Id of the clinic
+ */
+export function fetchClinicPatientTags(api, clinicId) {
+  return (dispatch) => {
+    dispatch(sync.fetchClinicPatientTagsRequest());
+
+    api.clinics.get(clinicId, (err, { patientTags }) => {
+      if (err) {
+        let message = ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_TAGS;
+
+        dispatch(sync.fetchClinicPatientTagsFailure(
+          createActionError(message, err), err
+        ));
+      } else {
+        dispatch(sync.fetchClinicPatientTagsSuccess(clinicId, patientTags || []));
+      }
+    });
+  };
+}
+
+/**
  * Create a site for a clinic
  *
  * @param {Object} api - an instance of the API wrapper
@@ -2679,7 +2857,7 @@ export function createClinicSite(api, clinicId, site) {
   return (dispatch) => {
     dispatch(sync.createClinicSiteRequest());
 
-    api.clinics.createClinicSite(clinicId, site, (err, updatedSites) => {
+    api.clinics.createClinicSite(clinicId, site, (err, newSite) => {
       if (err) {
         let message = ErrorMessages.ERR_CREATING_CLINIC_SITE;
 
@@ -2693,7 +2871,7 @@ export function createClinicSite(api, clinicId, site) {
           createActionError(message, err), err
         ));
       } else {
-        dispatch(sync.createClinicSiteSuccess(clinicId, updatedSites));
+        dispatch(sync.createClinicSiteSuccess(clinicId, newSite));
       }
     });
   };
@@ -2711,7 +2889,7 @@ export function createClinicPatientTag(api, clinicId, patientTag) {
   return (dispatch) => {
     dispatch(sync.createClinicPatientTagRequest());
 
-    api.clinics.createClinicPatientTag(clinicId, patientTag, (err, patientTags) => {
+    api.clinics.createClinicPatientTag(clinicId, patientTag, (err, patientTag) => {
       if (err) {
         let message = ErrorMessages.ERR_CREATING_CLINIC_PATIENT_TAG;
 
@@ -2725,7 +2903,7 @@ export function createClinicPatientTag(api, clinicId, patientTag) {
           createActionError(message, err), err
         ));
       } else {
-        dispatch(sync.createClinicPatientTagSuccess(clinicId, patientTags));
+        dispatch(sync.createClinicPatientTagSuccess(clinicId, patientTag));
       }
     });
   };
@@ -2744,7 +2922,7 @@ export function updateClinicSite(api, clinicId, siteId, site) {
   return (dispatch) => {
     dispatch(sync.updateClinicSiteRequest());
 
-    api.clinics.updateClinicSite(clinicId, siteId, site, (err, sites) => {
+    api.clinics.updateClinicSite(clinicId, siteId, site, (err, site) => {
       if (err) {
         let message = ErrorMessages.ERR_UPDATING_CLINIC_SITE;
 
@@ -2756,7 +2934,7 @@ export function updateClinicSite(api, clinicId, siteId, site) {
           createActionError(message, err), err
         ));
       } else {
-        dispatch(sync.updateClinicSiteSuccess(clinicId, sites));
+        dispatch(sync.updateClinicSiteSuccess(clinicId, site));
       }
     });
   };
@@ -2775,7 +2953,7 @@ export function updateClinicPatientTag(api, clinicId, patientTagId, patientTag) 
   return (dispatch) => {
     dispatch(sync.updateClinicPatientTagRequest());
 
-    api.clinics.updateClinicPatientTag(clinicId, patientTagId, patientTag, (err, patientTags) => {
+    api.clinics.updateClinicPatientTag(clinicId, patientTagId, patientTag, (err, patientTag) => {
       if (err) {
         let message = ErrorMessages.ERR_UPDATING_CLINIC_PATIENT_TAG;
 
@@ -2787,7 +2965,7 @@ export function updateClinicPatientTag(api, clinicId, patientTagId, patientTag) 
           createActionError(message, err), err
         ));
       } else {
-        dispatch(sync.updateClinicPatientTagSuccess(clinicId, patientTags));
+        dispatch(sync.updateClinicPatientTagSuccess(clinicId, patientTag));
       }
     });
   };
@@ -2804,13 +2982,13 @@ export function deleteClinicSite(api, clinicId, siteId) {
   return (dispatch) => {
     dispatch(sync.deleteClinicSiteRequest());
 
-    api.clinics.deleteClinicSite(clinicId, siteId, (err, sites) => {
+    api.clinics.deleteClinicSite(clinicId, siteId, (err) => {
       if (err) {
         dispatch(sync.deleteClinicSiteFailure(
           createActionError(ErrorMessages.ERR_DELETING_CLINIC_SITE, err), err
         ));
       } else {
-        dispatch(sync.deleteClinicSiteSuccess(clinicId, sites));
+        dispatch(sync.deleteClinicSiteSuccess(clinicId, siteId));
       }
     });
   };
@@ -2827,13 +3005,13 @@ export function deleteClinicPatientTag(api, clinicId, patientTagId) {
   return (dispatch) => {
     dispatch(sync.deleteClinicPatientTagRequest());
 
-    api.clinics.deleteClinicPatientTag(clinicId, patientTagId, (err, patientTags) => {
+    api.clinics.deleteClinicPatientTag(clinicId, patientTagId, (err) => {
       if (err) {
         dispatch(sync.deleteClinicPatientTagFailure(
           createActionError(ErrorMessages.ERR_DELETING_CLINIC_PATIENT_TAG, err), err
         ));
       } else {
-        dispatch(sync.deleteClinicPatientTagSuccess(clinicId, patientTags));
+        dispatch(sync.deleteClinicPatientTagSuccess(clinicId, patientTagId));
       }
     });
   };

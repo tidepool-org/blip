@@ -16,13 +16,15 @@ import {
   keys,
   map,
   max,
-  some
+  some,
 } from 'lodash';
 
 import { appBanners } from './appBanners';
 import { providers } from '../../components/datasources/DataConnections';
 import { selectPatientSharedAccounts } from '../../core/selectors';
-import { DATA_DONATION_NONPROFITS } from '../../core/constants';
+import { DATA_DONATION_CONSENT_TYPE, SUPPORTED_ORGANIZATIONS_OPTIONS } from '../../core/constants';
+
+import { getDismissedAltRangeBannerKey, isRangeWithNonStandardTarget } from './appBannerHelpers';
 
 export const CLICKED_BANNER_ACTION = 'clicked';
 export const DISMISSED_BANNER_ACTION = 'dismissed';
@@ -39,7 +41,7 @@ const AppBannerProvider = ({ children }) => {
   const isMobile = useMemo(() => utils.isMobile(), []);
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
-  const clinics = useSelector(state => state.blip.clinics);
+  const clinics = useSelector(state => state.blip.clinics) || {};
   const clinic = clinics?.[selectedClinicId];
 
   const loggedInUserId = useSelector(state => state.blip.loggedInUserId);
@@ -51,6 +53,15 @@ const AppBannerProvider = ({ children }) => {
   const userIsCurrentPatient = loggedInUserId === currentPatientInViewId;
   const isCustodialPatient = has(clinicPatient?.permissions, 'custodian');
   const userHasDiabetesType = !!loggedInUser?.profile?.patient?.diagnosisType;
+
+  const newClinicsUsingNonStandardRange = Object.values(clinics)
+    // We filter out any clinics that we already dismissed this banner for - we only show this
+    // banner if a NEW clinic has been added that has set a non-standard range. Thus this
+    // banner can re-appear if a NEW clinic is invited that sets a non-standard range.
+    .filter(clinic => !loggedInUser?.preferences?.[getDismissedAltRangeBannerKey(clinic.id)])
+    .filter(clinic => isRangeWithNonStandardTarget(clinic.patients?.[currentPatientInViewId]?.glycemicRanges));
+
+  const hasNewClinicsUsingNonStandardRange = newClinicsUsingNonStandardRange.length > 0;
 
   const patientMetaData = useSelector(state => state.blip.data.metaData);
   const patientDevices = patientMetaData?.devices;
@@ -76,14 +87,10 @@ const AppBannerProvider = ({ children }) => {
   const [bannerShownForPatient, setBannerShownForPatient] = useState({});
   const [bannerInteractedForPatient, setBannerInteractedForPatient] = useState({});
 
-  const userIsDonor = useSelector(state => state.blip.dataDonationAccounts?.length > 0);
-
-  // Check to see if a data-donating patient has selected a nonprofit to support
-  const userIsSupportingNonprofit = useSelector(state => {
-    const allDonationAccountEmails = map(DATA_DONATION_NONPROFITS(), nonprofit => `bigdata+${nonprofit.value}@tidepool.org`); // eslint-disable-line new-cap
-    const userDonationAccountEmails = map(state.blip.dataDonationAccounts, 'email');
-    return intersection(allDonationAccountEmails, userDonationAccountEmails).length > 0;
-  });
+  // Check to see if a patient is a data donor and has selected a nonprofit to support
+  const currentDataDonationConsent = useSelector(state => state.blip.consentRecords[DATA_DONATION_CONSENT_TYPE]);
+  const userIsDonor = !!currentDataDonationConsent;
+  const userIsSupportingNonprofit = currentDataDonationConsent?.metadata?.supportedOrganizations?.length > 0;
 
   // Because the original donate banner has been split into two separate banners, we need to check if the user has interacted with the original donate banner
   // and not show the new support proceeds banner unless they just interacted with the donate banner during this session
@@ -114,7 +121,7 @@ const AppBannerProvider = ({ children }) => {
 
     donateYourData: { // Temporary: hide on mobile until we have a mobile-friendly profile page
       show: !isMobile && userIsCurrentPatient && userHasData && !userIsDonor,
-      bannerArgs: [dispatch],
+      bannerArgs: [dispatch, loggedInUserId],
     },
 
     shareProceeds: {
@@ -145,6 +152,11 @@ const AppBannerProvider = ({ children }) => {
     sendVerification: {
       show: !bannerInteractedForPatient?.addEmail?.[currentPatientInViewId] && isCustodialPatient && !!clinicPatient?.email,
       bannerArgs: [dispatch, clinicPatient],
+    },
+
+    clinicUsingAltRange: {
+      show: userIsCurrentPatient && hasNewClinicsUsingNonStandardRange,
+      bannerArgs: [dispatch, loggedInUserId, newClinicsUsingNonStandardRange?.[0]?.name],
     },
   }), [
     bannerInteractedForPatient?.addEmail,

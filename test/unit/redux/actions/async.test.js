@@ -22,7 +22,7 @@ import initialState from '../../../../app/redux/reducers/initialState';
 import * as ErrorMessages from '../../../../app/redux/constants/errorMessages';
 import * as UserMessages from '../../../../app/redux/constants/usrMessages';
 
-import { TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL, MMOLL_UNITS, ALL_FETCHED_DATA_TYPES, MS_IN_MIN } from '../../../../app/core/constants';
+import { MMOLL_UNITS, ALL_FETCHED_DATA_TYPES, MS_IN_MIN } from '../../../../app/core/constants';
 
 // need to require() async in order to rewire utils inside
 const async = require('../../../../app/redux/actions/async');
@@ -2318,41 +2318,6 @@ describe('Actions', () => {
         sinon.assert.calledWithExactly(callback, null, invite);
       });
 
-      it('should trigger FETCH_PENDING_SENT_INVITES_REQUEST once for a successful request for a data donation account', () => {
-        let email = 'a@b.com';
-        let permissions = {
-          view: true
-        };
-        let invite = { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL };
-        let api = {
-          invitation: {
-            send: sinon.stub().callsArgWith(2, null, invite),
-            getSent: sinon.stub(),
-          }
-        };
-
-        let expectedActions = [
-          { type: 'SEND_INVITE_REQUEST' },
-          { type: 'FETCH_PENDING_SENT_INVITES_REQUEST' },
-          { type: 'SEND_INVITE_SUCCESS', payload: { invite: invite } },
-        ];
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
-        });
-        let store = mockStore({ blip: initialState });
-        const callback = sinon.stub();
-
-        store.dispatch(async.sendInvite(api, email, permissions, callback));
-
-        const actions = store.getActions();
-        expect(actions).to.eql(expectedActions);
-        expect(api.invitation.send.calledWith(email, permissions)).to.be.true;
-
-        // assert callback contains no error, and the invite
-        sinon.assert.calledOnce(callback);
-        sinon.assert.calledWithExactly(callback, null, invite);
-      });
-
       it('should trigger SEND_INVITE_FAILURE when invite has already been sent to the e-mail', () => {
         let email = 'a@b.com';
         let permissions = {
@@ -2556,101 +2521,6 @@ describe('Actions', () => {
         // assert callback contains the error
         sinon.assert.calledOnce(callback);
         sinon.assert.calledWithExactly(callback, error, email);
-      });
-    });
-
-    describe('updateDataDonationAccounts', () => {
-      it('should trigger UPDATE_DATA_DONATION_ACCOUNTS_SUCCESS and it should add and remove accounts for a successful request', () => {
-        let addAccounts = [
-          TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL,
-        ];
-
-        let removeAccounts = [
-          { email: 'bigdata+NSF@tidepool.org' },
-        ];
-
-        let api = {
-          invitation: {
-            send: sinon.stub().callsArgWith(2, null, { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL }),
-            cancel: sinon.stub().callsArgWith(1, null, { removedEmail: 'bigdata+NSF@tidepool.org' }),
-            getSent: sinon.stub(),
-          }
-        };
-
-        let expectedActions = [
-          { type: 'UPDATE_DATA_DONATION_ACCOUNTS_REQUEST' },
-          { type: 'SEND_INVITE_REQUEST'},
-          { type: 'FETCH_PENDING_SENT_INVITES_REQUEST'},
-          { type: 'SEND_INVITE_SUCCESS', payload: { invite: { email: TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL } } },
-          { type: 'CANCEL_SENT_INVITE_REQUEST' },
-          { type: 'CANCEL_SENT_INVITE_SUCCESS', payload: { removedEmail: 'bigdata+NSF@tidepool.org' } },
-          { type: 'UPDATE_DATA_DONATION_ACCOUNTS_SUCCESS', payload: { dataDonationAccounts: {
-            addAccounts: _.map(addAccounts, email => ({ email: email })),
-            removeAccounts: _.map(removeAccounts, account => account.email),
-          }}}
-        ];
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
-        });
-
-        let store = mockStore(_.assign({}, initialState, {
-          blip: { loggedInUserId: 1234 },
-        }));
-
-        store.dispatch(async.updateDataDonationAccounts(api, addAccounts, removeAccounts));
-
-        const actions = store.getActions();
-        expect(actions).to.eql(expectedActions);
-      });
-
-      it('should trigger UPDATE_DATA_DONATION_ACCOUNTS_FAILURE and it should call error once for a failed add account request', () => {
-        let addAccounts = [
-          TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL,
-        ];
-
-        let removeAccounts = [
-          { email: 'bigdata+NSF@tidepool.org' },
-        ];
-
-        let err = new Error(ErrorMessages.ERR_UPDATING_DATA_DONATION_ACCOUNTS);
-        err.status = 500;
-
-        let sendErr = new Error(ErrorMessages.ERR_SENDING_INVITE);
-        sendErr.status = 500;
-
-        let api = {
-          invitation: {
-            send: sinon.stub().callsArgWith(2, { status: 500, body: 'Error!' } , null),
-            cancel: sinon.stub().callsArgWith(1, null, { removedEmail: 'bigdata+NSF@tidepool.org' }),
-            getSent: sinon.stub(),
-          }
-        };
-
-        let expectedActions = [
-          { type: 'UPDATE_DATA_DONATION_ACCOUNTS_REQUEST' },
-          { type: 'SEND_INVITE_REQUEST' },
-          { type: 'SEND_INVITE_FAILURE', error: sendErr, meta: { apiError: { status: 500, body: 'Error!' } } },
-          { type: 'CANCEL_SENT_INVITE_REQUEST' },
-          { type: 'CANCEL_SENT_INVITE_SUCCESS', payload: { removedEmail: 'bigdata+NSF@tidepool.org' } },
-          { type: 'UPDATE_DATA_DONATION_ACCOUNTS_FAILURE', error: err, meta: { apiError: { status: 500, body: 'Error!' } } },
-        ];
-
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
-        });
-
-        let store = mockStore(_.assign({}, initialState, {
-          blip: { loggedInUserId: 1234 },
-        }));
-
-        store.dispatch(async.updateDataDonationAccounts(api, addAccounts, removeAccounts));
-
-        const actions = store.getActions();
-        expect(actions[2].error).to.deep.include({ message: ErrorMessages.ERR_SENDING_INVITE });
-        expectedActions[2].error = actions[2].error;
-        expect(actions[5].error).to.deep.include({ message: ErrorMessages.ERR_UPDATING_DATA_DONATION_ACCOUNTS });
-        expectedActions[5].error = actions[5].error;
-        expect(actions).to.eql(expectedActions);
       });
     });
 
@@ -4829,6 +4699,296 @@ describe('Actions', () => {
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.devices.getAll.callCount).to.equal(1);
+      });
+    });
+
+    describe('fetchLatestConsentByType', () => {
+      it('should trigger FETCH_LATEST_CONSENT_BY_TYPE_SUCCESS and it should call consent.getLatestConsentByType once for a successful request', () => {
+        const consentType = 'consentType123';
+        const consentDocument = { id: 'consentDocument123' };
+
+        const api = {
+          consent: {
+            getLatestConsentByType: sinon.stub().callsArgWith(1, null, consentDocument),
+          },
+        };
+
+        const expectedActions = [
+          { type: 'FETCH_LATEST_CONSENT_BY_TYPE_REQUEST' },
+          { type: 'FETCH_LATEST_CONSENT_BY_TYPE_SUCCESS', payload: { consentType, consentDocument } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        const store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchLatestConsentByType(api, consentType));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.consent.getLatestConsentByType.callCount).to.equal(1);
+      });
+
+      it('should trigger FETCH_LATEST_CONSENT_BY_TYPE_FAILURE and it should call error once for a failed request', () => {
+        const consentType = 'consentType123';
+
+        const api = {
+          consent: {
+            getLatestConsentByType: sinon.stub().callsArgWith(1, {status: 500, body: 'Error!'}, null),
+          },
+        };
+
+        const err = new Error(ErrorMessages.ERR_FETCHING_LATEST_CONSENT_BY_TYPE);
+        err.status = 500;
+
+        const expectedActions = [
+          { type: 'FETCH_LATEST_CONSENT_BY_TYPE_REQUEST' },
+          { type: 'FETCH_LATEST_CONSENT_BY_TYPE_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        const store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchLatestConsentByType(api, consentType));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_LATEST_CONSENT_BY_TYPE });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.consent.getLatestConsentByType.callCount).to.equal(1);
+      });
+    });
+
+    describe('fetchUserConsentRecords', () => {
+      it('should trigger FETCH_USER_CONSENT_RECORDS_SUCCESS and it should call consent.getLatestConsentByType once for a successful request', () => {
+        const consentType = 'consentType123';
+        const records = [{ id: 'consentDocument123' }];
+
+        const api = {
+          consent: {
+            getUserConsentRecords: sinon.stub().callsArgWith(2, null, records),
+          },
+        };
+
+        const expectedActions = [
+          { type: 'FETCH_USER_CONSENT_RECORDS_REQUEST' },
+          { type: 'FETCH_USER_CONSENT_RECORDS_SUCCESS', payload: { consentType, records } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        const store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchUserConsentRecords(api, consentType));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.consent.getUserConsentRecords.callCount).to.equal(1);
+      });
+
+      it('should trigger FETCH_USER_CONSENT_RECORDS_FAILURE and it should call error once for a failed request', () => {
+        const consentType = 'consentType123';
+
+        const api = {
+          consent: {
+            getUserConsentRecords: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null),
+          },
+        };
+
+        const err = new Error(ErrorMessages.ERR_FETCHING_USER_CONSENT_RECORDS);
+        err.status = 500;
+
+        const expectedActions = [
+          { type: 'FETCH_USER_CONSENT_RECORDS_REQUEST' },
+          { type: 'FETCH_USER_CONSENT_RECORDS_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        const store = mockStore({ blip: initialState });
+        store.dispatch(async.fetchUserConsentRecords(api, consentType));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_USER_CONSENT_RECORDS });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.consent.getUserConsentRecords.callCount).to.equal(1);
+      });
+    });
+
+    describe('createUserConsentRecord', () => {
+      it('should trigger CREATE_USER_CONSENT_RECORD_SUCCESS and it should call consent.getLatestConsentByType once for a successful request', () => {
+        const consentType = 'consentType123';
+        const createdRecord = { id: 'consentDocument123', type: consentType };
+
+        const api = {
+          consent: {
+            createUserConsentRecord: sinon.stub().callsArgWith(2, null, createdRecord),
+          },
+        };
+
+        const expectedActions = [
+          { type: 'CREATE_USER_CONSENT_RECORD_REQUEST' },
+          { type: 'CREATE_USER_CONSENT_RECORD_SUCCESS', payload: { createdRecord } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        const store = mockStore({ blip: initialState });
+        store.dispatch(async.createUserConsentRecord(api, createdRecord));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.consent.createUserConsentRecord.callCount).to.equal(1);
+      });
+
+      it('should trigger CREATE_USER_CONSENT_RECORD_FAILURE and it should call error once for a failed request', () => {
+        const consentType = 'consentType123';
+        const createdRecord = { id: 'consentDocument123', type: consentType };
+
+        const api = {
+          consent: {
+            createUserConsentRecord: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null),
+          },
+        };
+
+        const err = new Error(ErrorMessages.ERR_FETCHING_USER_CONSENT_RECORDS);
+        err.status = 500;
+
+        const expectedActions = [
+          { type: 'CREATE_USER_CONSENT_RECORD_REQUEST' },
+          { type: 'CREATE_USER_CONSENT_RECORD_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        const store = mockStore({ blip: initialState });
+        store.dispatch(async.createUserConsentRecord(api, createdRecord));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_CREATING_USER_CONSENT_RECORD });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.consent.createUserConsentRecord.callCount).to.equal(1);
+      });
+    });
+
+    describe('updateUserConsentRecord', () => {
+      it('should trigger UPDATE_USER_CONSENT_RECORD_SUCCESS and it should call consent.getLatestConsentByType once for a successful request', () => {
+        const consentType = 'consentType123';
+        const recordId = 'consentDocument123';
+        const updatedRecord = { id: recordId, type: consentType };
+
+        const api = {
+          consent: {
+            updateUserConsentRecord: sinon.stub().callsArgWith(3, null, updatedRecord),
+          },
+        };
+
+        const expectedActions = [
+          { type: 'UPDATE_USER_CONSENT_RECORD_REQUEST' },
+          { type: 'UPDATE_USER_CONSENT_RECORD_SUCCESS', payload: { updatedRecord } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        const store = mockStore({ blip: initialState });
+        store.dispatch(async.updateUserConsentRecord(api, recordId, updatedRecord));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.consent.updateUserConsentRecord.callCount).to.equal(1);
+      });
+
+      it('should trigger UPDATE_USER_CONSENT_RECORD_FAILURE and it should call error once for a failed request', () => {
+        const consentType = 'consentType123';
+        const recordId = 'consentDocument123';
+        const updatedRecord = { id: recordId, type: consentType };
+
+        const api = {
+          consent: {
+            updateUserConsentRecord: sinon.stub().callsArgWith(3, {status: 500, body: 'Error!'}, null),
+          },
+        };
+
+        const err = new Error(ErrorMessages.ERR_FETCHING_USER_CONSENT_RECORDS);
+        err.status = 500;
+
+        const expectedActions = [
+          { type: 'UPDATE_USER_CONSENT_RECORD_REQUEST' },
+          { type: 'UPDATE_USER_CONSENT_RECORD_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        const store = mockStore({ blip: initialState });
+        store.dispatch(async.updateUserConsentRecord(api, recordId, updatedRecord));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_UPDATING_USER_CONSENT_RECORD });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.consent.updateUserConsentRecord.callCount).to.equal(1);
+      });
+    });
+
+    describe('revokeUserConsentRecord', () => {
+      it('should trigger REVOKE_USER_CONSENT_RECORD_SUCCESS and it should call consent.getLatestConsentByType once for a successful request', () => {
+        const consentType = 'consentType123';
+        const recordId = 'consentDocument123';
+
+        const api = {
+          consent: {
+            revokeUserConsentRecord: sinon.stub().callsArgWith(2, null, null),
+          },
+        };
+
+        const expectedActions = [
+          { type: 'REVOKE_USER_CONSENT_RECORD_REQUEST' },
+          { type: 'REVOKE_USER_CONSENT_RECORD_SUCCESS', payload: { consentType } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        const store = mockStore({ blip: initialState });
+        store.dispatch(async.revokeUserConsentRecord(api, consentType, recordId));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.consent.revokeUserConsentRecord.callCount).to.equal(1);
+      });
+
+      it('should trigger REVOKE_USER_CONSENT_RECORD_FAILURE and it should call error once for a failed request', () => {
+        const consentType = 'consentType123';
+        const recordId = 'consentDocument123';
+
+        const api = {
+          consent: {
+            revokeUserConsentRecord: sinon.stub().callsArgWith(2, {status: 500, body: 'Error!'}, null),
+          },
+        };
+
+        const err = new Error(ErrorMessages.ERR_FETCHING_USER_CONSENT_RECORDS);
+        err.status = 500;
+
+        const expectedActions = [
+          { type: 'REVOKE_USER_CONSENT_RECORD_REQUEST' },
+          { type: 'REVOKE_USER_CONSENT_RECORD_FAILURE', error: err, meta: { apiError: {status: 500, body: 'Error!'} } }
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+        const store = mockStore({ blip: initialState });
+        store.dispatch(async.revokeUserConsentRecord(api, consentType, recordId));
+
+        const actions = store.getActions();
+        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_REVOKING_USER_CONSENT_RECORD });
+        expectedActions[1].error = actions[1].error;
+        expect(actions).to.eql(expectedActions);
+        expect(api.consent.revokeUserConsentRecord.callCount).to.equal(1);
       });
     });
 
@@ -8614,7 +8774,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'CREATE_CLINIC_PATIENT_TAG_REQUEST' },
-          { type: 'CREATE_CLINIC_PATIENT_TAG_SUCCESS', payload: { clinicId, patientTags: [patientTag] } }
+          { type: 'CREATE_CLINIC_PATIENT_TAG_SUCCESS', payload: { clinicId, patientTag: [patientTag] } },
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -8730,7 +8890,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'UPDATE_CLINIC_PATIENT_TAG_REQUEST' },
-          { type: 'UPDATE_CLINIC_PATIENT_TAG_SUCCESS', payload: { clinicId, patientTags: [patientTag] } }
+          { type: 'UPDATE_CLINIC_PATIENT_TAG_SUCCESS', payload: { clinicId, patientTag: [patientTag] } },
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -8818,7 +8978,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'DELETE_CLINIC_PATIENT_TAG_REQUEST' },
-          { type: 'DELETE_CLINIC_PATIENT_TAG_SUCCESS', payload: { clinicId, patientTags: [] } }
+          { type: 'DELETE_CLINIC_PATIENT_TAG_SUCCESS', payload: { clinicId, patientTagId: 'patientTagId1' } },
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;

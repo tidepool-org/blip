@@ -22,12 +22,10 @@ import sundial from 'sundial';
 import { withTranslation, Trans } from 'react-i18next';
 import i18next from '../../core/language';
 
-import { Element } from 'react-scroll';
-
 var personUtils = require('../../core/personutils');
 import PatientSettings from './patientsettings';
 import PatientBgUnits from '../../components/patientBgUnits';
-import DonateForm from '../../components/donateform';
+import DataDonationForm, { formContexts } from './DataDonationForm';
 import Export from '../../components/export';
 import { DIABETES_TYPES } from '../../core/constants';
 
@@ -41,17 +39,13 @@ var PatientInfo = withTranslation()(class extends React.Component {
   // many things *not* required here because they aren't needed for
   // /patients/:id/profile although they are for /patients/:id/share (or vice-versa)
   static propTypes = {
-    dataDonationAccounts: PropTypes.array,
-    dataDonationAccountsFetched: PropTypes.bool,
     fetchingPatient: PropTypes.bool.isRequired,
     fetchingUser: PropTypes.bool.isRequired,
-    onUpdateDataDonationAccounts: PropTypes.func,
     onUpdatePatient: PropTypes.func.isRequired,
     onUpdatePatientSettings: PropTypes.func,
     permsOfLoggedInUser: PropTypes.object,
     patient: PropTypes.object,
     trackMetric: PropTypes.func.isRequired,
-    updatingDataDonationAccounts: PropTypes.bool,
     updatingPatientBgUnits: PropTypes.bool,
     user: PropTypes.object,
     api: PropTypes.object.isRequired,
@@ -66,6 +60,16 @@ var PatientInfo = withTranslation()(class extends React.Component {
       validationErrors: {},
       bioLength: 0
     };
+  }
+
+  componentDidMount() {
+    // Scroll to the element with the ID from the fragment identifier
+    if (window.location.hash) {
+      const element = document.querySelector(window.location.hash);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
   }
 
   render() {
@@ -440,6 +444,7 @@ var PatientInfo = withTranslation()(class extends React.Component {
         onUpdatePatientSettings={this.props.onUpdatePatientSettings}
         patient={this.props.patient}
         trackMetric={this.props.trackMetric}
+        api={this.props.api}
       />
     );
   };
@@ -462,18 +467,17 @@ var PatientInfo = withTranslation()(class extends React.Component {
   };
 
   renderDonateForm = () => {
-    const { t } = this.props;
+    const { t, api, trackMetric } = this.props;
+
     if (this.isSamePersonUserAndPatient()) {
       return (
-        <div className="PatientPage-donateForm">
-          <div className="PatientPage-sectionTitle">{t('Donate my data?')}</div>
+        <div className="PatientPage-donateForm" id="donateForm">
+          <div className="PatientPage-sectionTitle">{t('The Tidepool Big Data Donation Project')}</div>
           <div className="PatientInfo-content">
-            <DonateForm
-              dataDonationAccounts={this.props.dataDonationAccounts || []}
-              dataDonationAccountsFetched={this.props.dataDonationAccountsFetched || false}
-              onUpdateDataDonationAccounts={this.props.onUpdateDataDonationAccounts}
-              working={this.props.updatingDataDonationAccounts || false}
-              trackMetric={this.props.trackMetric}
+            <DataDonationForm
+              api={api}
+              trackMetric={trackMetric}
+              formContext={formContexts.profile}
             />
           </div>
         </div>

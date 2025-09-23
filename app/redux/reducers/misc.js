@@ -22,7 +22,6 @@ import moment from 'moment';
 import initialState from './initialState';
 import * as types from '../constants/actionTypes';
 import actionWorkingMap from '../constants/actionWorkingMap';
-import { isDataDonationAccount } from '../../core/personutils';
 
 export const notification = (state = initialState.notification, action) => {
   switch (action.type) {
@@ -46,7 +45,6 @@ export const notification = (state = initialState.notification, action) => {
     case types.REJECT_RECEIVED_INVITE_FAILURE:
     case types.UPDATE_PATIENT_FAILURE:
     case types.UPDATE_USER_FAILURE:
-    case types.UPDATE_DATA_DONATION_ACCOUNTS_FAILURE:
     case types.FETCH_DATA_SOURCES_FAILURE:
     case types.FETCH_SERVER_TIME_FAILURE:
     case types.CONNECT_DATA_SOURCE_FAILURE:
@@ -489,36 +487,6 @@ export const pendingReceivedInvites = (state = initialState.pendingReceivedInvit
   }
 };
 
-export const dataDonationAccounts = (state = initialState.dataDonationAccounts, action) => {
-  let accounts;
-  switch(action.type) {
-    case types.FETCH_ASSOCIATED_ACCOUNTS_SUCCESS:
-      accounts = state.concat(_.get(action.payload, 'dataDonationAccounts', []));
-      return update(state, { $set: _.uniqBy(accounts, 'email') });
-
-    case types.FETCH_PENDING_SENT_INVITES_SUCCESS:
-      accounts = state.concat(_.get(action.payload, 'pendingSentInvites', []).map(invite => {
-        return {
-          email: invite.email,
-          status: 'pending',
-        };
-      }));
-      return update(state, { $set: _.uniqBy(_.filter(accounts, isDataDonationAccount), 'email') });
-
-    case types.CANCEL_SENT_INVITE_SUCCESS:
-      return _.reject(state, { email: _.get(action.payload, 'removedEmail') });
-
-    case types.REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_SUCCESS:
-      return _.reject(state, { userid: _.get(action.payload, 'removedMemberId') });
-
-    case types.LOGOUT_REQUEST:
-      return [];
-
-    default:
-      return state;
-  }
-};
-
 export const dataSources = (state = initialState.dataSources, action) => {
   switch (action.type) {
     case types.FETCH_DATA_SOURCES_SUCCESS:
@@ -583,6 +551,52 @@ export const devices = (state = initialState.devices, action) => {
     case types.FETCH_DEVICES_SUCCESS:
       const devices = _.get(action.payload, 'devices', {});
       return update(state, { $set: devices });
+
+    default:
+      return state;
+  }
+};
+
+export const consents = (state = initialState.consents, action) => {
+  switch (action.type) {
+    case types.FETCH_LATEST_CONSENT_BY_TYPE_SUCCESS:
+      const consentType = _.get(action.payload, 'consentType');
+      const consentDocument = _.get(action.payload, 'consentDocument.data.0');
+      return update(state, { $set: { [consentType]: consentDocument } });
+
+    default:
+      return state;
+  }
+};
+
+export const consentRecords = (state = initialState.consentRecords, action) => {
+  switch (action.type) {
+    case types.FETCH_USER_CONSENT_RECORDS_SUCCESS: {
+      const consentType = _.get(action.payload, 'consentType');
+      const latestRecord = _.get(action.payload, 'records.data.0');
+
+      // Only store active records so we don't have to litter our application with checks to see if the current consent record is active
+      if (latestRecord?.status === 'active') {
+        return update(state, { $set: { [consentType]: latestRecord } });
+      } else {
+        return update(state, { $unset: [consentType] });
+      }
+    }
+
+    case types.CREATE_USER_CONSENT_RECORD_SUCCESS: {
+      const createdRecord = _.get(action.payload, 'createdRecord');
+      return update(state, { $set: { [createdRecord.type]: createdRecord } });
+    }
+
+    case types.UPDATE_USER_CONSENT_RECORD_SUCCESS: {
+      const updatedRecord = _.get(action.payload, 'updatedRecord');
+      return update(state, { $set: { [updatedRecord.type]: updatedRecord } });
+    }
+
+    case types.REVOKE_USER_CONSENT_RECORD_SUCCESS: {
+      const consentType = _.get(action.payload, 'consentType');
+      return update(state, { $unset: [consentType] });
+    }
 
     default:
       return state;
@@ -932,9 +946,32 @@ export const clinics = (state = initialState.clinics, action) => {
         },
       });
     }
-    case types.CREATE_CLINIC_PATIENT_TAG_SUCCESS:
-    case types.UPDATE_CLINIC_PATIENT_TAG_SUCCESS:
+    case types.CREATE_CLINIC_PATIENT_TAG_SUCCESS: {
+      const { clinicId, patientTag } = action.payload;
+
+      return update(state, {
+        [clinicId]: {
+          patientTags: !!state[clinicId]?.patientTags
+            ? { $push: [patientTag] }
+            : { $set: [patientTag] },
+        },
+      });
+    }
+    case types.UPDATE_CLINIC_PATIENT_TAG_SUCCESS: {
+      const { clinicId, patientTag: newTag } = action.payload;
+
+      return update(state, {
+        [clinicId]: { patientTags: { $apply: tags => _.map(tags, t => t.id === newTag.id ? newTag : t) } },
+      });
+    }
     case types.DELETE_CLINIC_PATIENT_TAG_SUCCESS: {
+      const { clinicId, patientTagId } = action.payload;
+
+      return update(state, {
+        [clinicId]: { patientTags: { $apply: tags => _.filter(tags, t => t.id !== patientTagId) } },
+      });
+    }
+    case types.FETCH_CLINIC_PATIENT_TAGS_SUCCESS: {
       const {
         clinicId,
         patientTags,
@@ -944,9 +981,32 @@ export const clinics = (state = initialState.clinics, action) => {
         [clinicId]: { patientTags: { $set: patientTags } },
       });
     }
-    case types.CREATE_CLINIC_SITE_SUCCESS:
-    case types.UPDATE_CLINIC_SITE_SUCCESS:
+    case types.CREATE_CLINIC_SITE_SUCCESS: {
+      const { clinicId, site } = action.payload;
+
+      return update(state, {
+        [clinicId]: {
+          sites: !!state[clinicId]?.sites
+            ? { $push: [site] }
+            : { $set: [site] },
+        },
+      });
+    }
+    case types.UPDATE_CLINIC_SITE_SUCCESS: {
+      const { clinicId, site: newSite } = action.payload;
+
+      return update(state, {
+        [clinicId]: { sites: { $apply: sites => _.map(sites, s => s.id === newSite.id ? newSite : s) } },
+      });
+    }
     case types.DELETE_CLINIC_SITE_SUCCESS: {
+      const { clinicId, siteId } = action.payload;
+
+      return update(state, {
+        [clinicId]: { sites: { $apply: sites => _.filter(sites, s => s.id !== siteId) } },
+      });
+    }
+    case types.FETCH_CLINIC_SITES_SUCCESS: {
       const {
         clinicId,
         sites,
@@ -999,6 +1059,24 @@ export const clinics = (state = initialState.clinics, action) => {
     }
     case types.LOGOUT_REQUEST:
       return initialState.clinics;
+    default:
+      return state;
+  }
+};
+
+export const clinicMRNsForPatientFormValidation = (state = initialState.clinicMRNsForPatientFormValidation, action) => {
+  switch(action.type) {
+    case types.FETCH_CLINIC_MRNS_FOR_PATIENT_FORM_VALIDATION_SUCCESS: {
+      let { patients } = action.payload;
+      const newPatientSet = _.reduce(patients, (newSet, patient, i) => {
+        newSet[patient.id] = { ...patient, sortIndex: i };
+        return newSet;
+      }, {});
+
+      const existingMRNs = _.compact(_.map(newPatientSet, 'mrn'));
+
+      return existingMRNs;
+    }
     default:
       return state;
   }
