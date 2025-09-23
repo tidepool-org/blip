@@ -18,6 +18,7 @@ import DataConnectionsModal from '../../../app/components/datasources/DataConnec
 import { clinicUIDetails } from '../../../app/core/clinicUtils';
 import mockTideDashboardPatients from '../../fixtures/mockTideDashboardPatients.json';
 import LDClientMock from '../../fixtures/LDClientMock';
+import SelectTags from '../../../app/components/clinic/PatientForm/SelectTags';
 
 /* global chai */
 /* global sinon */
@@ -81,11 +82,17 @@ describe('TideDashboard', () => {
     TideDashboard.__Rewire__('useHistory', sinon.stub().returns({
       replace: sinon.stub()
     }));
+
+    SelectTags.__Rewire__('useLocation', sinon.stub().returns({
+      search: '',
+      pathname: '/dashboard/tide'
+    }));
   });
 
   afterEach(() => {
     TideDashboard.__ResetDependency__('useLDClient');
     TideDashboard.__ResetDependency__('useFlags');
+    SelectTags.__ResetDependency__('useLocation');
     DataConnections.__ResetDependency__('api');
     DataConnectionsModal.__ResetDependency__('api');
     DataConnectionsModal.__ResetDependency__('useHistory');
@@ -303,7 +310,7 @@ describe('TideDashboard', () => {
       tideDashboardConfig: {
         'clinicianUserId123|clinicID123': {
           period: '30d',
-          lastData: 14,
+          lastData: 7,
           tags: sampleTags.map(({ id }) => id),
         },
       },
@@ -425,7 +432,7 @@ describe('TideDashboard', () => {
         tideDashboardConfig: {
           'clinicianUserId123|clinicID123': {
             period: '30d',
-            lastData: 14,
+            lastData: 7,
             tags: [], // invalid: no tags selected
           },
         },
@@ -457,7 +464,7 @@ describe('TideDashboard', () => {
         tideDashboardConfig: {
           'clinicianUserId123|clinicID123': {
             period: '30d',
-            lastData: 14,
+            lastData: 7,
             tags: sampleTags.map(({ id }) => id),
           },
         },
@@ -465,6 +472,11 @@ describe('TideDashboard', () => {
 
       TideDashboard.__Rewire__('useLocalStorage', useLocalStorageRewire(mockedLocalStorage));
       TideDashboardConfigForm.__Rewire__('useLocalStorage', useLocalStorageRewire(mockedLocalStorage));
+      TideDashboard.__Rewire__('useFlags', sinon.stub().returns({
+        showSummaryDashboard: true,
+        showTideDashboard: true,
+        tideDashboardCategories: '',
+      }));
 
       TideDashboard.__Rewire__('useLDClient', sinon.stub().returns(new LDClientMock({ clinic : {
         tier: 'tier0300',
@@ -571,11 +583,11 @@ describe('TideDashboard', () => {
 
       const dashboardSectionLabels = dashboardSections.find('.dashboard-section-label').hostNodes();
       expect(dashboardSectionLabels).to.have.length(7);
-      expect(dashboardSectionLabels.at(0).text()).to.equal('Time below 54 mg/dL > 1%');
-      expect(dashboardSectionLabels.at(1).text()).to.equal('Time below 70 mg/dL > 4%');
-      expect(dashboardSectionLabels.at(2).text()).to.equal('Drop in Time in Range > 15%');
-      expect(dashboardSectionLabels.at(3).text()).to.equal('Time in Range < 70%');
-      expect(dashboardSectionLabels.at(4).text()).to.equal('CGM Wear Time < 70%');
+      expect(dashboardSectionLabels.at(0).text()).to.equal('Very Low> 1% Time below 54 mg/dL');
+      expect(dashboardSectionLabels.at(1).text()).to.equal('Low> 4% Time below 70 mg/dL');
+      expect(dashboardSectionLabels.at(2).text()).to.equal('Large Drop in Time in Range> 15%');
+      expect(dashboardSectionLabels.at(3).text()).to.equal('Low Time in Range< 70%');
+      expect(dashboardSectionLabels.at(4).text()).to.equal('Low CGM Wear Time< 70%');
       expect(dashboardSectionLabels.at(5).text()).to.equal('Meeting Targets');
       expect(dashboardSectionLabels.at(6).text()).to.equal('Data Issues');
 
@@ -804,8 +816,8 @@ describe('TideDashboard', () => {
 
         const dashboardSectionLabels = dashboardSections.find('.dashboard-section-label').hostNodes();
         expect(dashboardSectionLabels).to.have.length(7);
-        expect(dashboardSectionLabels.at(0).text()).to.equal('Time below 3.0 mmol/L > 1%');
-        expect(dashboardSectionLabels.at(1).text()).to.equal('Time below 3.9 mmol/L > 4%');
+        expect(dashboardSectionLabels.at(0).text()).to.equal('Very Low> 1% Time below 3.0 mmol/L');
+        expect(dashboardSectionLabels.at(1).text()).to.equal('Low> 4% Time below 3.9 mmol/L');
 
         const dashboardSectionTables = dashboardSections.find('.dashboard-table').hostNodes();
         const getTableRow = (tableIndex, rowIndex) => dashboardSectionTables.at(tableIndex).find('tr').at(rowIndex);
@@ -1000,8 +1012,8 @@ describe('TideDashboard', () => {
       expect(dashboardSectionLabels).to.have.length(4);
       expect(dashboardSectionLabels.at(0).text()).to.equal('Data Issues');
       expect(dashboardSectionLabels.at(1).text()).to.equal('Meeting Targets');
-      expect(dashboardSectionLabels.at(2).text()).to.equal('CGM Wear Time < 70%');
-      expect(dashboardSectionLabels.at(3).text()).to.equal('Time below 70 mg/dL > 4%');
+      expect(dashboardSectionLabels.at(2).text()).to.equal('Low CGM Wear Time< 70%');
+      expect(dashboardSectionLabels.at(3).text()).to.equal('Low> 4% Time below 70 mg/dL');
     });
   });
 
@@ -1020,24 +1032,8 @@ describe('TideDashboard', () => {
       expect(dialog().props().open).to.be.true;
       sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Show Tide Dashboard config dialog', sinon.match({ clinicId: 'clinicID123', source: 'Tide dashboard' }));
 
-      // Ensure tag options present
-      const tags = dialog().find('.tag-text').hostNodes();
-      expect(tags).to.have.lengthOf(3);
-      expect(tags.at(0).text()).to.equal('test tag 1');
-      expect(tags.at(1).text()).to.equal('test tag 2');
-      expect(tags.at(2).text()).to.equal('test tag 3');
-
-      // All tags initially selected
-      const selectedTags = () => dialog().find('.tag-text.selected').hostNodes();
-      expect(selectedTags()).to.have.length(3);
-
-      // Apply button disabled until tag, upload date, and report period selections made
-      tags.at(0).hostNodes().simulate('click');
-
-      // Tags should now be selected
-      expect(selectedTags()).to.have.lengthOf(2);
-      expect(selectedTags().at(0).text()).to.equal('test tag 2');
-      expect(selectedTags().at(1).text()).to.equal('test tag 3');
+      // Select 2 tags from select menu
+      wrapper.find(SelectTags).props().onChange([sampleTags[1].id, sampleTags[2].id]);
 
       // Ensure period filter option set correctly
       const summaryPeriodOptions = dialog().find('#period').find('label').hostNodes();
@@ -1054,14 +1050,14 @@ describe('TideDashboard', () => {
 
       // Ensure period filter options present
       const lastDataFilterOptions = dialog().find('#lastData').find('label').hostNodes();
-      expect(lastDataFilterOptions).to.have.lengthOf(5);
+      expect(lastDataFilterOptions).to.have.lengthOf(3);
 
       expect(lastDataFilterOptions.at(0).text()).to.equal('Within 24 hours');
       expect(lastDataFilterOptions.at(0).find('input').props().value).to.equal('1');
 
-      expect(lastDataFilterOptions.at(3).text()).to.equal('Within 14 days');
-      expect(lastDataFilterOptions.at(3).find('input').props().value).to.equal('14');
-      expect(lastDataFilterOptions.at(3).find('input').props().checked).to.be.true;
+      expect(lastDataFilterOptions.at(2).text()).to.equal('Within 7 days');
+      expect(lastDataFilterOptions.at(2).find('input').props().value).to.equal('7');
+      expect(lastDataFilterOptions.at(2).find('input').props().checked).to.be.true;
 
       lastDataFilterOptions.at(0).find('input').last().simulate('change', { target: { name: 'lastData', value: 1 } });
 
