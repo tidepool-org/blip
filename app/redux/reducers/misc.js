@@ -682,7 +682,6 @@ export const clinics = (state = initialState.clinics, action) => {
       let inviteId = _.get(action.payload, 'inviteId');
       let clinicId = _.get(action.payload, 'clinicId');
       let newState = _.cloneDeep(state);
-      if (_.isFinite(newState[clinicId]?.patientCount)) newState[clinicId].patientCount++;
       delete newState[clinicId]?.patientInvites?.[inviteId];
       return newState;
     }
@@ -751,8 +750,6 @@ export const clinics = (state = initialState.clinics, action) => {
       const patientId = _.get(action.payload, 'patientId');
       const clinicId = _.get(action.payload, 'clinicId');
       let fetchedPatientCount = state[clinicId].fetchedPatientCount;
-      let fetchedPatientTotalCount = state[clinicId].fetchedPatientTotalCount;
-      let patientCount = state[clinicId].patientCount;
 
       // Retain existing sortIndex, or, in the case of a new custodial patient, set to -1 to show at top of
       // list for easy visibility of the newly created patient.
@@ -760,18 +757,15 @@ export const clinics = (state = initialState.clinics, action) => {
 
       if (action.type === types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS) {
         fetchedPatientCount++;
-        fetchedPatientTotalCount++;
-        patientCount++;
       }
 
       return update(state, {
         [clinicId]: {
           patients: {
-            [patientId]: { $set: { ...patient, sortIndex: existingSortIndex } } },
-            fetchedPatientCount: { $set: fetchedPatientCount },
-            fetchedPatientTotalCount: { $set: fetchedPatientTotalCount },
-            patientCount: { $set: patientCount },
+            [patientId]: { $set: { ...patient, sortIndex: existingSortIndex } }
           },
+          fetchedPatientCount: { $set: fetchedPatientCount },
+        },
       });
     }
     case types.DELETE_CLINICIAN_FROM_CLINIC_SUCCESS: {
@@ -787,8 +781,6 @@ export const clinics = (state = initialState.clinics, action) => {
       let newState = _.cloneDeep(state);
       delete newState[clinicId]?.patients?.[patientId];
       if (newState[clinicId]?.fetchedPatientCount) newState[clinicId].fetchedPatientCount--;
-      if (newState[clinicId]?.fetchedPatientTotalCount) newState[clinicId].fetchedPatientTotalCount--;
-      if (newState[clinicId]?.patientCount) newState[clinicId].patientCount--;
       return newState;
     }
     case types.SEND_CLINICIAN_INVITE_SUCCESS: {

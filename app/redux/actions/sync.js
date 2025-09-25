@@ -2653,12 +2653,12 @@ export function fetchClinicPatientCountRequest() {
   };
 }
 
-export function fetchClinicPatientCountSuccess(clinicId, results) {
+export function fetchClinicPatientCountSuccess(clinicId, patientCount) {
   return {
     type: ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SUCCESS,
     payload: {
       clinicId: clinicId,
-      patientCount: results.patientCount,
+      patientCount: patientCount,
     },
   };
 }

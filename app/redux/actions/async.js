@@ -2008,10 +2008,8 @@ export function deletePatientFromClinic(api, clinicId, patientId, cb = _.noop) {
       } else {
         dispatch(sync.deletePatientFromClinicSuccess(clinicId, patientId));
 
-        if (isFinite(updatedClinic.patientCount)) {
-          updatedClinic.patientCount -= 1;
-          dispatch(sync.setClinicUIDetails(clinicId, clinicUIDetails(updatedClinic)));
-        }
+        // Re-fetch patient count to ensure we have the latest from the server
+        dispatch(fetchClinicPatientCount(api, clinicId));
       }
     });
   };
@@ -2126,7 +2124,6 @@ export function createClinicCustodialAccount(api, clinicId, patient) {
     api.clinics.createClinicCustodialAccount(clinicId, patient, (err, result) => {
       const { blip: { clinics = {} } } = getState();
       const clinic = clinics[clinicId];
-      const updatedClinic = { ...(clinic || {}) };
 
       if (err) {
         let errMsg = ErrorMessages.ERR_CREATING_CUSTODIAL_ACCOUNT;
@@ -2142,21 +2139,7 @@ export function createClinicCustodialAccount(api, clinicId, patient) {
           // This should only occur if the limit was pushed over by another team member in another
           // session, after the current user session had started with the patient count below the limit.
           // In this case, we re-fetch the patient count and update the UI to reflect it.
-          if (clinic) {
-            dispatch(sync.fetchClinicPatientCountRequest());
-
-            api.clinics.getClinicPatientCount(clinicId, (err, results) => {
-              if (err) {
-                dispatch(sync.fetchClinicPatientCountFailure(
-                  createActionError(ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_COUNT, err), err
-                ));
-              } else {
-                dispatch(sync.fetchClinicPatientCountSuccess(clinicId, results));
-                updatedClinic.patientCount = results.patientCount;
-                dispatch(sync.setClinicUIDetails(clinicId, clinicUIDetails(updatedClinic)));
-              }
-            });
-          }
+          dispatch(fetchClinicPatientCount(api, clinicId));
         }
 
         dispatch(sync.createClinicCustodialAccountFailure(
@@ -2165,10 +2148,35 @@ export function createClinicCustodialAccount(api, clinicId, patient) {
       } else {
         dispatch(sync.createClinicCustodialAccountSuccess(clinicId, result.id, result));
 
-        if (isFinite(updatedClinic.patientCount)) {
-          updatedClinic.patientCount += 1;
-          dispatch(sync.setClinicUIDetails(clinicId, clinicUIDetails(updatedClinic)));
+        // Re-fetch patient count to ensure we have the latest from the server
+        dispatch(fetchClinicPatientCount(api, clinicId));
+      }
+    });
+  };
+}
+
+export function fetchClinicPatientCount(api, clinicId) {
+  return (dispatch, getState) => {
+    dispatch(sync.fetchClinicPatientCountRequest());
+
+    api.clinics.getClinicPatientCount(clinicId, (err, patientCount) => {
+      if (err) {
+        dispatch(sync.fetchClinicPatientCountFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_COUNT, err), err
+        ));
+      } else {
+        // TODO delete this temporary mock of plan response after backend api updates are deployed
+        if (_.isFinite(patientCount?.patientCount) && !_.isFinite(patientCount?.plan)) {
+          patientCount.plan = patientCount.patientCount;
+          patientCount.demo = 1;
+          patientCount.total = patientCount.patientCount + patientCount.demo;
         }
+
+        const { blip: { clinics = {} } } = getState();
+        const clinic = clinics[clinicId] || {};
+
+        dispatch(sync.fetchClinicPatientCountSuccess(clinicId, patientCount));
+        dispatch(sync.setClinicUIDetails(clinicId, clinicUIDetails({ ...clinic, patientCount })));
       }
     });
   };
@@ -2412,7 +2420,7 @@ export function fetchPatientInvites(api, clinicId) {
  * @param {String[]} [patientDetails.tags] - Array of string tag IDs
  */
 export function acceptPatientInvitation(api, clinicId, inviteId, patientId, patientDetails) {
-  return (dispatch, getState) => {
+  return (dispatch) => {
     dispatch(sync.acceptPatientInvitationRequest());
 
     api.clinics.acceptPatientInvitation(clinicId, inviteId, patientDetails, (err, result) => {
@@ -2423,14 +2431,8 @@ export function acceptPatientInvitation(api, clinicId, inviteId, patientId, pati
       } else {
         dispatch(sync.acceptPatientInvitationSuccess(clinicId, inviteId, patientId));
 
-        const { blip: { clinics = {} } } = getState();
-        const clinic = clinics[clinicId];
-        const updatedClinic = { ...(clinic || {}) };
-
-        if (isFinite(updatedClinic.patientCount)) {
-          updatedClinic.patientCount += 1;
-          dispatch(sync.setClinicUIDetails(clinicId, clinicUIDetails(updatedClinic)));
-        }
+        // Re-fetch patient count to ensure we have the latest from the server
+        dispatch(fetchClinicPatientCount(api, clinicId));
       }
     });
   };
@@ -3160,16 +3162,28 @@ export function selectClinic(api, clinicId) {
         }
 
         if (values.clinicPatientCount) {
+          // TODO delete this temporary mock of plan response after backend api updates are deployed
+          if (_.isFinite(values.clinicPatientCount?.patientCount) && !_.isFinite(values.clinicPatientCount?.plan)) {
+            values.clinicPatientCount.plan = values.clinicPatientCount.patientCount;
+            values.clinicPatientCount.demo = 1;
+            values.clinicPatientCount.total = values.clinicPatientCount.patientCount + values.clinicPatientCount.demo;
+          }
+
           dispatch(sync.fetchClinicPatientCountSuccess(clinicId, values.clinicPatientCount));
-          selectedClinic.patientCount = values.clinicPatientCount?.patientCount;
+          selectedClinic.patientCount = values.clinicPatientCount;
         }
 
         if (values.clinicPatientCountSettings) {
+          // TODO delete this temporary mock of plan response after backend api updates are deployed
+          if (_.isFinite(values.clinicPatientCountSettings?.hardLimit?.patientCount) && !_.isFinite(values.clinicPatientCountSettings?.hardLimit?.plan)) {
+            values.clinicPatientCountSettings.hardLimit.plan = values.clinicPatientCountSettings.hardLimit.patientCount;
+          }
+
           dispatch(sync.fetchClinicPatientCountSettingsSuccess(clinicId, values.clinicPatientCountSettings));
           selectedClinic.patientCountSettings = values.clinicPatientCountSettings;
         }
 
-        if (_.isFinite(selectedClinic.patientCount) && _.isPlainObject(selectedClinic.patientCountSettings)) {
+        if (_.isPlainObject(selectedClinic.patientCount) && _.isPlainObject(selectedClinic.patientCountSettings)) {
           dispatch(sync.setClinicUIDetails(clinicId, clinicUIDetails(selectedClinic)));
         }
       });

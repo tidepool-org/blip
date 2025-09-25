@@ -16,6 +16,7 @@ import Button from '../elements/Button';
 import Icon from '../elements/Icon';
 import Pill from '../elements/Pill';
 import { URL_TIDEPOOL_PLUS_PLANS } from '../../core/constants';
+import { max } from 'lodash';
 
 const { ClipboardButton } = vizComponents;
 
@@ -27,7 +28,7 @@ export const ClinicWorkspaceHeader = (props) => {
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = get(clinics, selectedClinicId);
   const isWorkspacePath = pathname.indexOf('/clinic-workspace') === 0;
-  const fetchedPatientTotalCount = clinic?.fetchedPatientTotalCount || 0;
+  const remainingPatients = max([clinic?.patientCountSettings?.hardLimit?.plan - clinic?.patientCount?.plan, 0]);
 
   const buttonText = useMemo(() =>
     <Icon
@@ -157,7 +158,7 @@ export const ClinicWorkspaceHeader = (props) => {
                     px={1}
                     pt="2px"
                     pb={0}
-                    text={`${fetchedPatientTotalCount}${clinic.ui.display?.patientLimit ? ' / ' + clinic.patientCountSettings?.hardLimit?.patientCount : '' }`}
+                    text={`${clinic.patientCount?.total}${clinic.ui.display?.patientLimit ? ' / ' + clinic.patientCountSettings?.hardLimit?.plan : '' }`}
                     icon={clinic?.ui.warnings.limitReached ? WarningRoundedIcon : null}
                     label={t('Patient Count')}
                     colorPalette={clinic?.ui.warnings.limitReached || clinic?.ui.warnings.limitApproaching ? 'warning' : 'transparent'}
@@ -179,7 +180,7 @@ export const ClinicWorkspaceHeader = (props) => {
 
                     <Box
                       sx={{
-                        width: `${clinic.patientCount / clinic.patientCountSettings?.hardLimit?.patientCount * 100}%`,
+                        width: `${clinic.patientCount?.plan / clinic.patientCountSettings?.hardLimit?.plan * 100}%`,
                         minWidth: '3px',
                         height: '2px',
                         bg: clinic?.ui.warnings.limitApproaching ? 'feedback.warning' : 'purpleMedium',
