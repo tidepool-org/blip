@@ -854,7 +854,7 @@ const TideDashboardSection = React.memo(props => {
         data={patients}
         sx={{
           fontSize: 1,
-          'tr': { minHeight: '40px' },
+          'tr': { height: [null, null, '40px', '40px'] },
           'thead': { fontSize: 0 },
           'th': { padding: '16px' },
           'th div': { display: 'flex', alignItems: 'center' },
