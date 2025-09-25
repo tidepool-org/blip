@@ -244,10 +244,10 @@ export const clinicUIDetails = (clinic = {}) => {
   const unlockPlansText = t('Unlock plans');
 
   if (isBase) {
-    limitDescription = t('Limited to {{limit}} patients', { limit });
+    limitDescription = t('Limited to {{limit}} patients. Please note that the demo account and accounts connected to twiist do not count towards the limit.', { limit });
 
     limitFeedback = {
-      text: t('Maximum of {{limit}} patient accounts reached', { limit }),
+      text: t('Maximum number of patient accounts reached'),
       status: 'warning',
     };
 
@@ -288,7 +288,7 @@ export const clinicUIDetails = (clinic = {}) => {
   }
 
   if (isActiveSalesBase) {
-    limitDescription = t('Limited to {{limit}} patients', { limit });
+    limitDescription = t('Limited to {{limit}} patients. Please note that the demo account and accounts connected to twiist do not count towards the limit.', { limit });
 
     limitFeedback = {
       text: t('Change to plan in progress'),
