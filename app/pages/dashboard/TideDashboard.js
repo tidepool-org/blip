@@ -22,12 +22,14 @@ import values from 'lodash/values';
 import isNil from 'lodash/isNil';
 import noop from 'lodash/noop';
 import { Box, Flex, Text } from 'theme-ui';
+import PopoverLabel from '../../components/elements/PopoverLabel';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
 import MoreVertRoundedIcon from '@material-ui/icons/MoreVertRounded';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 import EditIcon from '@material-ui/icons/EditRounded';
-import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
+import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
+import { components as vizComponents, utils as vizUtils, colors as vizColors } from '@tidepool/viz';
 import ScrollToTop from 'react-scroll-to-top';
 import styled from '@emotion/styled';
 import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
@@ -231,7 +233,14 @@ const MoreMenu = React.memo(({
     t,
   ]);
 
-  return <PopoverMenu id={`action-menu-${patient?.id}`} items={items} icon={MoreVertRoundedIcon} />;
+  return (
+    <PopoverMenu
+      id={`action-menu-${patient?.id}`}
+      items={items}
+      icon={MoreVertRoundedIcon}
+      sx={{ position: 'relative', left: '-2px' }}
+    />
+  );
 });
 
 const SortPopover = React.memo(props => {
@@ -845,11 +854,10 @@ const TideDashboardSection = React.memo(props => {
         data={patients}
         sx={{
           fontSize: 1,
-          'tr': { minHeight: '48px' },
+          'tr': { minHeight: '40px' },
           'thead': { fontSize: 0 },
           'th': { padding: '16px' },
           'th div': { display: 'flex', alignItems: 'center' },
-          'th span': { fontSize: 1 },
         }}
         order={section.sortDirection}
         orderBy={section.sortKey}
@@ -1134,7 +1142,28 @@ export const TideDashboard = (props) => {
         sx={{ rowGap: 2, columnGap: 3, justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}
       >
         <Flex sx={{ gap: 3, alignItems: 'center' }}>
-          <Title id="tide-dashboard-header" sx={{ fontWeight: 'medium', fontSize: '18px' }}>{t('TIDE Dashboard')}</Title>
+          <Title id="tide-dashboard-header" sx={{ fontWeight: 'medium', fontSize: '18px' }}>
+            {t('TIDE Dashboard')}
+            <PopoverLabel
+              id={'tideDashboardTitleInfoHover'}
+              icon={InfoOutlinedIcon}
+              iconProps={{ sx: { fontSize: '18px', color: vizColors.blue50 } }}
+              popoverContent={
+                <Box p={1} sx={{ maxWidth: '280px', textAlign: 'center', lineHeight: 0 }}>
+                  <Text sx={{ color: vizColors.blue50, fontSize: 0, fontWeight: 'bold' }}>
+                    {t('This dashboard displays up to 100 patients prioritized for review, plus up to 50 additional patients with data issues.')}
+                  </Text>
+                </Box>
+              }
+              popoverProps={{
+                anchorOrigin: { vertical: 'bottom', horizontal: 'center' },
+                transformOrigin: { vertical: 'top', horizontal: 'center' },
+                sx: { width: 'auto' },
+              }}
+              sx={{ display: 'inline', position: 'relative', bottom: '-4px', marginLeft: '4px'}}
+              triggerOnHover
+            />
+          </Title>
 
           <Flex sx={{ gap: 2, position: 'relative', top: '2px', alignItems: 'center' }}>
             <Text
