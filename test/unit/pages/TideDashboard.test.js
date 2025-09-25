@@ -638,7 +638,7 @@ describe('TideDashboard', () => {
 
       // Should contain a "more" menu that allows opening a patient edit dialog and opening a patient data connections dialog
       const moreMenuIcon = getTableRow(0, 2).find('td').at(9).find('PopoverMenu').find('Icon').at(0);
-      const popoverMenu = () => wrapper.find(Popover).at(4);
+      const popoverMenu = () => wrapper.find(Popover).at(5);
       expect(popoverMenu().props().open).to.be.false;
       moreMenuIcon.simulate('click');
       expect(popoverMenu().props().open).to.be.true;
