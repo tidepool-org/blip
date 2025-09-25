@@ -1012,14 +1012,14 @@ export const TideDashboard = (props) => {
       queryOptions['lastDataCutoff'] = moment(getLocalizedCeiling(new Date().toISOString(), timePrefs)).subtract(lastData, 'days').toISOString();
 
       // If noData is not requested, we must add an explicit GET query param
-      const categoriesArg = [...categories].filter(category => category !== CATEGORY.noData);
-
-      if (!categories.includes(CATEGORY.noData)) {
-        queryOptions['excludeNoData'] = true;
-      }
+      const categoriesArg = categories.filter(category => category !== CATEGORY.noData);
 
       if (categoriesArg.length > 0) {
         queryOptions['categories'] = categoriesArg;
+      }
+
+      if (!categories.includes(CATEGORY.noData)) {
+        queryOptions['excludeNoData'] = true;
       }
 
       setLoading(true);
