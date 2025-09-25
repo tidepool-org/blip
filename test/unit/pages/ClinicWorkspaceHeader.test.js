@@ -86,11 +86,11 @@ describe('ClinicWorkspaceHeader', () => {
           shareCode: 'ABCD-ABCD-ABCD',
           preferredBgUnits: 'mmol/L',
           tier: 'tier0100',
-          patientCount: 251,
+          patientCount: { demo: 1, plan: 251, total: 252 },
           fetchedPatientTotalCount: 251,
           patientCountSettings: {
             hardLimit: {
-              patientCount: 250,
+              plan: 250,
               startDate: moment().subtract(1, 'day').toISOString(),
             },
           },
@@ -266,7 +266,7 @@ describe('ClinicWorkspaceHeader', () => {
 
     it('should render the patient count and limit', () => {
       const limits = () => wrapper.find('#clinicPatientLimits').hostNodes();
-      expect(limits().text()).to.equal('251 / 250');
+      expect(limits().text()).to.equal('0 remaining');
     });
 
     it('should render the unlock plans link for clinics with limit warnings', () => {

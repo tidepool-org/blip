@@ -6179,6 +6179,11 @@ describe('Actions', () => {
         let api = {
           clinics: {
             deletePatientFromClinic: sinon.stub().callsArgWith(2, null, { foo: 'bar '}),
+            getClinicPatientCount: sinon.stub().callsArgWith(1, null, {
+              demo: 1,
+              plan: 249,
+              total: 250
+            }),
           },
         };
 
@@ -6187,6 +6192,15 @@ describe('Actions', () => {
           { type: 'DELETE_PATIENT_FROM_CLINIC_SUCCESS', payload: {
             clinicId,
             patientId,
+          } },
+          { type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST' },
+          { type: 'FETCH_CLINIC_PATIENT_COUNT_SUCCESS', payload: {
+            clinicId,
+            patientCount: {
+              demo: 1,
+              plan: 249,
+              total: 250
+            }
           } },
           {
             payload: {
@@ -6213,10 +6227,10 @@ describe('Actions', () => {
                     workspacePlan: true,
                   },
                   text: {
-                    limitDescription: 'Limited to 250 patients',
+                    limitDescription: 'Limited to 250 patients. Please note that the demo account and accounts connected to twiist do not count towards the limit.',
                     limitFeedback: {
                       status: 'warning',
-                      text: 'Maximum of 250 patient accounts reached',
+                      text: 'Maximum number of patient accounts reached',
                     },
                     limitResolutionLink: {
                       text: 'Unlock plans',
@@ -6246,10 +6260,14 @@ describe('Actions', () => {
             [clinicId]: {
               country: 'US',
               tier: 'tier0100',
-              patientCount: 250,
+              patientCount: {
+                demo: 1,
+                plan: 250,
+                total: 251
+              },
               patientCountSettings: {
                 hardLimit: {
-                  patientCount: 250,
+                  plan: 250,
                   startDate: moment().subtract(1, 'day').toISOString(),
                 },
               },
@@ -6649,7 +6667,7 @@ describe('Actions', () => {
     });
 
     describe('createClinicCustodialAccount', () => {
-      it('should trigger CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS and it should call clinics.createClinicCustodialAccount and update clinic UI details once for a successful request', () => {
+      it('should trigger CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS and it should call clinics.createClinicCustodialAccount and refetch clinic patient counts', () => {
         let clinicId = '5f85fbe6686e6bb9170ab5d0';
         let patient = {
           fullName: 'patientName',
@@ -6660,6 +6678,11 @@ describe('Actions', () => {
         let api = {
           clinics: {
             createClinicCustodialAccount: sinon.stub().callsArgWith(2, null, patient),
+            getClinicPatientCount: sinon.stub().callsArgWith(1, null, {
+              demo: 1,
+              plan: 251,
+              total: 252
+            }),
           },
         };
 
@@ -6670,6 +6693,18 @@ describe('Actions', () => {
             patientId: 'patient123',
             patient,
           } },
+          { type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST' },
+          {
+            payload: {
+              clinicId: '5f85fbe6686e6bb9170ab5d0',
+              patientCount: {
+                demo: 1,
+                plan: 251,
+                total: 252
+              }
+            },
+            type: 'FETCH_CLINIC_PATIENT_COUNT_SUCCESS'
+          },
           {
             payload: {
               clinicId: '5f85fbe6686e6bb9170ab5d0',
@@ -6695,10 +6730,10 @@ describe('Actions', () => {
                     workspacePlan: true,
                   },
                   text: {
-                    limitDescription: 'Limited to 250 patients',
+                    limitDescription: 'Limited to 250 patients. Please note that the demo account and accounts connected to twiist do not count towards the limit.',
                     limitFeedback: {
                       status: 'warning',
-                      text: 'Maximum of 250 patient accounts reached',
+                      text: 'Maximum number of patient accounts reached',
                     },
                     limitResolutionLink: {
                       text: 'Contact us to unlock plans',
@@ -6726,10 +6761,10 @@ describe('Actions', () => {
             [clinicId]: {
               country: 'US',
               tier: 'tier0100',
-              patientCount: 249,
+              patientCount: { plan: 249 },
               patientCountSettings: {
                 hardLimit: {
-                  patientCount: 250,
+                  plan: 250,
                   startDate: moment().subtract(1, 'day').toISOString(),
                 },
               },
@@ -6870,7 +6905,7 @@ describe('Actions', () => {
         };
         let api = {
           clinics: {
-            getClinicPatientCount: sinon.stub().callsArgWith(1, null, { patientCount: 251 }),
+            getClinicPatientCount: sinon.stub().callsArgWith(1, null, { demo: 1, plan: 251, total: 252 }),
             createClinicCustodialAccount: sinon.stub()
               .callsArgWith(2, { status: 402, body: 'Error!' }, null),
           },
@@ -6884,7 +6919,7 @@ describe('Actions', () => {
         let expectedActions = [
           { type: 'CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST' },
           { type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST' },
-          { type: 'FETCH_CLINIC_PATIENT_COUNT_SUCCESS', payload: { clinicId: '5f85fbe6686e6bb9170ab5d0', patientCount: 251 } },
+          { type: 'FETCH_CLINIC_PATIENT_COUNT_SUCCESS', payload: { clinicId: '5f85fbe6686e6bb9170ab5d0', patientCount: { demo: 1, plan: 251, total: 252 } } },
           {
             type: 'SET_CLINIC_UI_DETAILS',
             payload: {
@@ -6912,10 +6947,10 @@ describe('Actions', () => {
                   },
                   text: {
                     planDisplayName: 'Base',
-                    limitDescription: 'Limited to 250 patients',
+                    limitDescription: 'Limited to 250 patients. Please note that the demo account and accounts connected to twiist do not count towards the limit.',
                     limitFeedback: {
                      status: 'warning',
-                     text: 'Maximum of 250 patient accounts reached',
+                     text: 'Maximum number of patient accounts reached',
                     },
                     limitResolutionLink: {
                       text: 'Contact us to unlock plans',
@@ -6947,7 +6982,7 @@ describe('Actions', () => {
               tier: 'tier0100',
               patientCountSettings: {
                 hardLimit: {
-                  patientCount: 250,
+                  plan: 250,
                   startDate: moment().subtract(1, 'day').toISOString(),
                 }
               }
@@ -7806,6 +7841,11 @@ describe('Actions', () => {
         let api = {
           clinics: {
             acceptPatientInvitation: sinon.stub().callsArgWith(3, null, {}),
+            getClinicPatientCount: sinon.stub().callsArgWith(1, null, {
+              demo: 1,
+              plan: 250,
+              total: 251
+            }),
           },
         };
 
@@ -7816,6 +7856,20 @@ describe('Actions', () => {
             inviteId: 'inviteIdABC',
             patientId: 'patientId456'
           } },
+          {
+            type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST'
+          },
+          {
+            payload: {
+              clinicId: 'clinicId123',
+              patientCount: {
+                demo: 1,
+                plan: 250,
+                total: 251
+              }
+            },
+            type: 'FETCH_CLINIC_PATIENT_COUNT_SUCCESS'
+          },
           {
             payload: {
               clinicId: 'clinicId123',
@@ -7841,10 +7895,10 @@ describe('Actions', () => {
                     workspacePlan: true,
                   },
                   text: {
-                    limitDescription: 'Limited to 250 patients',
+                    limitDescription: 'Limited to 250 patients. Please note that the demo account and accounts connected to twiist do not count towards the limit.',
                     limitFeedback: {
                       status: 'warning',
-                      text: 'Maximum of 250 patient accounts reached',
+                      text: 'Maximum number of patient accounts reached',
                     },
                     limitResolutionLink: {
                       text: 'Contact us to unlock plans',
@@ -7872,10 +7926,10 @@ describe('Actions', () => {
             [clinicId]: {
               country: 'US',
               tier: 'tier0100',
-              patientCount: 249,
+              patientCount: { plan: 249 },
               patientCountSettings: {
                 hardLimit: {
-                  patientCount: 250,
+                  plan: 250,
                   startDate: moment().subtract(1, 'day').toISOString(),
                 },
               },
@@ -9257,7 +9311,7 @@ describe('Actions', () => {
     describe('selectClinic', () => {
       it('should trigger SELECT_CLINIC_SUCCESS, FETCH_CLINIC_PATIENT_COUNT_SUCCESS, and FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS for a successful request', () => {
         const clinicId = 'clinic123';
-        const countResults = { patientCount: 33 };
+        const countResults = { plan: 33 };
         const settingsResults = {bar: 'baz'};
 
         let api = {
@@ -9277,7 +9331,7 @@ describe('Actions', () => {
           { type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST' },
           {
             type: 'FETCH_CLINIC_PATIENT_COUNT_SUCCESS',
-            payload: { clinicId, patientCount: 33 },
+            payload: { clinicId, patientCount: countResults },
           },
           {
             type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS',
@@ -9407,7 +9461,7 @@ describe('Actions', () => {
           ...initialState,
           clinics: {
             [clinicId]: {
-              patientCount: 33,
+              patientCount: { plan: 33 },
               patientCountSettings: { foo: 'bar' },
             },
           },

@@ -29,7 +29,7 @@ describe('WorkspaceSwitcher', () => {
       clinics: {
         getClinicsForClinician: sinon.stub().callsArgWith(2, null, { clinicsReturn: 'success' }),
         getPatientsForClinic: sinon.stub().callsArgWith(2, null, { patientsReturn: 'success' }),
-        getClinicPatientCount: sinon.stub().callsArgWith(1, null, { patientCount: 3 }),
+        getClinicPatientCount: sinon.stub().callsArgWith(1, null, { demo: 1, plan: 3, total: 4 }),
         getClinicPatientCountSettings: sinon.stub().callsArgWith(1, null, 'success'),
       },
     },
@@ -263,7 +263,7 @@ describe('WorkspaceSwitcher', () => {
           type: 'FETCH_CLINIC_PATIENT_COUNT_SUCCESS',
           payload: {
             clinicId: 'clinicID456',
-            patientCount: 3,
+            patientCount: { demo: 1, plan: 3, total: 4 },
           }
         },
         {

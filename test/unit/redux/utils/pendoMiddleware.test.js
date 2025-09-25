@@ -670,7 +670,11 @@ describe('pendoMiddleware', () => {
       type: ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SUCCESS,
       payload: {
         clinicId: 'clinicID123',
-        patientCount: 32,
+        patientCount: {
+          demo: 1,
+          plan: 32,
+          total: 33,
+        },
       },
     };
     getStateObj.getState.returns({
@@ -709,7 +713,7 @@ describe('pendoMiddleware', () => {
         clinicId: 'clinicID123',
         patientCountSettings: {
           hardLimit: {
-            patientCount: 250,
+            plan: 250,
             startDate: '2024-11-11T00:00:00.000Z',
           },
         },

@@ -8387,7 +8387,7 @@ describe('dataWorkerQueryData', () => {
 
         expect(requestState.fetchingClinicPatientCount.completed).to.be.null;
 
-        let successAction = actions.sync.fetchClinicPatientCountSuccess('foo', { patientCount: 33 });
+        let successAction = actions.sync.fetchClinicPatientCountSuccess('foo', { demo: 1, plan: 33, total: 34 });
         let successState = reducer(requestState, successAction);
 
         expect(successState.fetchingClinicPatientCount.completed).to.be.true;
@@ -8448,7 +8448,7 @@ describe('dataWorkerQueryData', () => {
       it('should set fetchingClinicPatientCount.completed to be true', () => {
         expect(initialState.fetchingClinicPatientCount.completed).to.be.null;
 
-        let successAction = actions.sync.fetchClinicPatientCountSuccess('foo', { patientCount: 33 });
+        let successAction = actions.sync.fetchClinicPatientCountSuccess('foo', { demo: 1, plan: 33, total: 34 });
         let state = reducer(initialState, successAction);
 
         expect(state.fetchingClinicPatientCount.completed).to.be.true;
@@ -8461,7 +8461,7 @@ describe('dataWorkerQueryData', () => {
         });
 
         let tracked = mutationTracker.trackObj(initialStateForTest);
-        let action = actions.sync.fetchClinicPatientCountSuccess('foo', { patientCount: 33 });
+        let action = actions.sync.fetchClinicPatientCountSuccess('foo', { demo: 1, plan: 33, total: 34 });
 
         expect(initialStateForTest.fetchingClinicPatientCount.inProgress).to.be.true;
 
