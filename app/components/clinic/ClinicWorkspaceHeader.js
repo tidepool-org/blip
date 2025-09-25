@@ -28,7 +28,7 @@ export const ClinicWorkspaceHeader = (props) => {
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = get(clinics, selectedClinicId);
   const isWorkspacePath = pathname.indexOf('/clinic-workspace') === 0;
-  const remainingPatients = max([clinic?.patientCountSettings?.hardLimit?.plan - clinic?.patientCount?.plan, 0]);
+  const planPatientsRemaining = max([clinic?.patientCountSettings?.hardLimit?.plan - clinic?.patientCount?.plan, 0]);
 
   const buttonText = useMemo(() =>
     <Icon
@@ -147,65 +147,47 @@ export const ClinicWorkspaceHeader = (props) => {
             </Flex>
           )}
 
-          {clinic?.ui && (
-            <Flex sx={{ color: 'text.primary', flexShrink: 0, gap: 2, fontSize: 1, alignItems: 'flex-end' }}>
-              <Text>{t('Patient Accounts:')}</Text>
-              <Box>
-                {clinic?.ui.display.patientCount && (
+          {clinic?.ui?.display?.patientCount && (
+            <Flex sx={{ color: 'text.primary', flexShrink: 0, gap: 3, fontSize: 1, alignItems: 'flex-end' }}>
+              <Text sx={{ display: 'flex', alignItems: 'flex-end', gap: 1 }}>
+                {t('Patient Accounts:')}
+
+                <Text sx={{ fontWeight: 'bold' }}>{clinic.patientCount?.total}</Text>
+
+                {clinic.ui.patientLimitEnforced && !(clinic.ui.warnings.limitReached || clinic.ui.warnings.limitApproaching) && (
+                  <Text sx={{ fontSize: 0, fontWeight: 'medium' }}>
+                    {t('({{count}} remaining)', { count: planPatientsRemaining })}
+                  </Text>
+                )}
+              </Text>
+
+              {(clinic.ui.warnings.limitReached || clinic.ui.warnings.limitApproaching) && (
+                <Flex sx={{ gap: 2, alignItems: 'flex-end' }}>
                   <Pill
                     id="clinicPatientLimits"
-                    sx={{ fontSize: 1 }}
-                    px={1}
+                    sx={{ fontSize: 1, alignItems: 'center' }}
+                    px={2}
                     pt="2px"
                     pb={0}
-                    text={`${clinic.patientCount?.total}${clinic.ui.display?.patientLimit ? ' / ' + clinic.patientCountSettings?.hardLimit?.plan : '' }`}
-                    icon={clinic?.ui.warnings.limitReached ? WarningRoundedIcon : null}
-                    label={t('Patient Count')}
-                    colorPalette={clinic?.ui.warnings.limitReached || clinic?.ui.warnings.limitApproaching ? 'warning' : 'transparent'}
+                    text={t('{{count}} remaining', { count: planPatientsRemaining })}
+                    icon={clinic.ui.warnings.limitReached ? WarningRoundedIcon : null}
+                    label={t('Patients remaining in plan')}
+                    colorPalette={'warning'}
                   />
-                )}
 
-                {clinic?.ui.display.patientLimit && !clinic?.ui.warnings.limitReached && (
-                  <Box sx={{ position: 'relative', top: clinic?.ui.warnings.limitApproaching ? '1px' : '-3px' }}>
-                    <Box
-                      sx={{
-                        width: '100%',
-                        height: '2px',
-                        bg: 'grays.1',
-                        position: 'absolute',
-                        zIndex: 0,
-                        borderRadius: 'full',
-                      }}
-                    />
-
-                    <Box
-                      sx={{
-                        width: `${clinic.patientCount?.plan / clinic.patientCountSettings?.hardLimit?.plan * 100}%`,
-                        minWidth: '3px',
-                        height: '2px',
-                        bg: clinic?.ui.warnings.limitApproaching ? 'feedback.warning' : 'purpleMedium',
-                        position: 'absolute',
-                        zIndex: 1,
-                        borderRadius: 'full',
-                      }}
-                    />
-                  </Box>
-                )}
-              </Box>
-
-              {(clinic?.ui?.warnings?.limitApproaching || clinic?.ui?.warnings?.limitReached) && (
-                <Link
-                  id="clinicProfileUnlockPlansLink"
-                  href={URL_TIDEPOOL_PLUS_PLANS}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  sx={{
-                    fontSize: 1,
-                    fontWeight: 'medium',
-                  }}
-                >
-                  {t('Unlock Plans')}
-                </Link>
+                  <Link
+                    id="clinicProfileUnlockPlansLink"
+                    href={URL_TIDEPOOL_PLUS_PLANS}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    sx={{
+                      fontSize: 1,
+                      fontWeight: 'medium',
+                    }}
+                  >
+                    {t('Unlock Plans')}
+                  </Link>
+                </Flex>
               )}
             </Flex>
           )}
