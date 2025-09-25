@@ -1002,7 +1002,7 @@ export const TideDashboard = (props) => {
     }
   }, [fetchingPatientFromClinic, selectedPatient?.id, clinic?.patients]);
 
-  const fetchDashboardPatients = useCallback((categories, config) => {
+  const fetchDashboardPatients = useCallback((categories = [], config) => {
     const options = { ...(config || localConfig?.[localConfigKey]) };
     if (options) {
       const lastData = Number(options.lastData);
@@ -1011,8 +1011,15 @@ export const TideDashboard = (props) => {
       queryOptions['tags'] = reject(options.tags || [], tagId => !patientTags?.[tagId]);
       queryOptions['lastDataCutoff'] = moment(getLocalizedCeiling(new Date().toISOString(), timePrefs)).subtract(lastData, 'days').toISOString();
 
-      if (categories.length > 0) {
-        queryOptions['categories'] = categories;
+      // If noData is not requested, we must add an explicit GET query param
+      const categoriesArg = [...categories].filter(category => category !== CATEGORY.noData);
+
+      if (!categories.includes(CATEGORY.noData)) {
+        queryOptions['excludeNoData'] = true;
+      }
+
+      if (categoriesArg.length > 0) {
+        queryOptions['categories'] = categoriesArg;
       }
 
       setLoading(true);
