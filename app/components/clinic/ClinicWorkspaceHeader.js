@@ -154,14 +154,14 @@ export const ClinicWorkspaceHeader = (props) => {
 
                 <Text sx={{ fontWeight: 'bold' }}>{clinic.patientCount?.total}</Text>
 
-                {clinic.ui.patientLimitEnforced && !(clinic.ui.warnings.limitReached || clinic.ui.warnings.limitApproaching) && (
+                {clinic.ui.display.patientLimit && !(clinic.ui.warnings.limitReached || clinic.ui.warnings.limitApproaching) && (
                   <Text sx={{ fontSize: 0, fontWeight: 'medium' }}>
                     {t('({{count}} remaining)', { count: planPatientsRemaining })}
                   </Text>
                 )}
               </Text>
 
-              {(clinic.ui.warnings.limitReached || clinic.ui.warnings.limitApproaching) && (
+              {clinic.ui.display.patientLimit && (clinic.ui.warnings.limitReached || clinic.ui.warnings.limitApproaching) && (
                 <Flex sx={{ gap: 2, alignItems: 'flex-end' }}>
                   <Pill
                     id="clinicPatientLimits"
