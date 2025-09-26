@@ -152,6 +152,8 @@ const useTideDashboardSections = () => {
 
     // Flag should contain a comma-delimited list of categories, e.g. 'meetingTargets,noData'
     // Here, we parse the string and filter out any invalid categories
+    if (typeof tideDashboardCategories !== 'string') return DEFAULT_SECTIONS;
+
     const categories = tideDashboardCategories.split(',')
                                               .map(category => category.trim())
                                               .filter(category => !!CATEGORY[category]);

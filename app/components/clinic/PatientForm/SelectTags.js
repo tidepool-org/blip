@@ -118,6 +118,7 @@ SelectTags.propTypes = {
   onChange: PropTypes.func.isRequired,
   selectMenuHeight: PropTypes.number,
   onMenuOpen: PropTypes.func,
+  closeMenuOnSelect: PropTypes.bool,
 };
 
 SelectTags.defaultProps = {
