@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.51.0-web-3680-pump-shutdown-events.1":
-  version: 1.51.0-web-3680-pump-shutdown-events.1
-  resolution: "@tidepool/viz@npm:1.51.0-web-3680-pump-shutdown-events.1"
+"@tidepool/viz@npm:1.52.0-web-3680-pump-shutdown-events.1":
+  version: 1.52.0-web-3680-pump-shutdown-events.1
+  resolution: "@tidepool/viz@npm:1.52.0-web-3680-pump-shutdown-events.1"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: b7c726ef8d88cc27e94f084274f662c5385ea01cfcfbd7024cf23bf1108d0f2be02f4de977558733631cdf1241aca48770dbbf61ff8d4a71d356279a57487600
+  checksum: b8341013311b0fc8e2094caa331e1a9e9aa18a848da7d5567911b4b6c4c2091267ef1528993198354b73b055cc852789aa079dbc85bec8547f25369fa383b770
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.51.0-web-3680-pump-shutdown-events.1
+    "@tidepool/viz": 1.52.0-web-3680-pump-shutdown-events.1
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
