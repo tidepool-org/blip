@@ -401,7 +401,7 @@ describe('Workspaces', () => {
           type: 'FETCH_CLINIC_PATIENT_COUNT_SUCCESS',
           payload: {
             clinicId: 'clinicID456',
-            patientCount: { demo: 1, plan: 3, total: 4 },
+            patientCounts: { demo: 1, plan: 3, total: 4 },
           },
         },
         {

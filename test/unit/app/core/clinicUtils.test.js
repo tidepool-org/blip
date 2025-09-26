@@ -446,7 +446,7 @@ describe('clinicUtils', function() {
     it('should add warnings if patientLimitEnforced is true and limit is approaching or reached', () => {
       const underWarningThreshold = clinicUtils.clinicUIDetails(createClinic({
         tier: 'tier0100',
-        patientCount: {
+        patientCounts: {
           plan: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT - CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD - 1,
           demo: 1,
           total: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT - CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD + 1,
@@ -461,7 +461,7 @@ describe('clinicUtils', function() {
 
       const atWarningThreshold = clinicUtils.clinicUIDetails(createClinic({
         tier: 'tier0100',
-        patientCount: {
+        patientCounts: {
           plan: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT - CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD,
           demo: 1,
           total: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT - CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD + 1,
@@ -476,7 +476,7 @@ describe('clinicUtils', function() {
 
       const atLimit = clinicUtils.clinicUIDetails(createClinic({
         tier: 'tier0100',
-        patientCount: {
+        patientCounts: {
           plan: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT,
           demo: 1,
           total: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT + 1
@@ -493,7 +493,7 @@ describe('clinicUtils', function() {
     it('should add text appropriate to the workspace plan', () => {
       const base = clinicUtils.clinicUIDetails(createClinic({
         tier: 'tier0100',
-        patientCount: { plan: 1, demo: 1, total: 2 },
+        patientCounts: { plan: 1, demo: 1, total: 2 },
         patientCountSettings: {
           hardLimit: {
             plan: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT,
@@ -517,7 +517,7 @@ describe('clinicUtils', function() {
 
       const baseLimitReached = clinicUtils.clinicUIDetails(createClinic({
         tier: 'tier0100',
-        patientCount: {
+        patientCounts: {
           plan: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT,
           demo: 1,
           total: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT + 1
@@ -547,7 +547,7 @@ describe('clinicUtils', function() {
 
       const honored = clinicUtils.clinicUIDetails(createClinic({
         tier: 'tier0100',
-        patientCount: { plan: 1, demo: 1, total: 2 },
+        patientCounts: { plan: 1, demo: 1, total: 2 },
         patientCountSettings: {
           hardLimit: {
             plan: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT,
@@ -571,14 +571,14 @@ describe('clinicUtils', function() {
 
       const honoredLimitApproaching = clinicUtils.clinicUIDetails(createClinic({
         tier: 'tier0100',
-        patientCount: {
+        patientCounts: {
           plan: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT - CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD,
           demo: 1,
           total: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT - CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD + 1
         },
         patientCountSettings: {
           hardLimit: {
-            patientCount: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT,
+            plan: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT,
             startDate,
           },
         },

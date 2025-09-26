@@ -6196,7 +6196,7 @@ describe('Actions', () => {
           { type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST' },
           { type: 'FETCH_CLINIC_PATIENT_COUNT_SUCCESS', payload: {
             clinicId,
-            patientCount: {
+            patientCounts: {
               demo: 1,
               plan: 249,
               total: 250
@@ -6260,7 +6260,7 @@ describe('Actions', () => {
             [clinicId]: {
               country: 'US',
               tier: 'tier0100',
-              patientCount: {
+              patientCounts: {
                 demo: 1,
                 plan: 250,
                 total: 251
@@ -6697,7 +6697,7 @@ describe('Actions', () => {
           {
             payload: {
               clinicId: '5f85fbe6686e6bb9170ab5d0',
-              patientCount: {
+              patientCounts: {
                 demo: 1,
                 plan: 251,
                 total: 252
@@ -6761,7 +6761,7 @@ describe('Actions', () => {
             [clinicId]: {
               country: 'US',
               tier: 'tier0100',
-              patientCount: { plan: 249 },
+              patientCounts: { plan: 249 },
               patientCountSettings: {
                 hardLimit: {
                   plan: 250,
@@ -6919,7 +6919,7 @@ describe('Actions', () => {
         let expectedActions = [
           { type: 'CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST' },
           { type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST' },
-          { type: 'FETCH_CLINIC_PATIENT_COUNT_SUCCESS', payload: { clinicId: '5f85fbe6686e6bb9170ab5d0', patientCount: { demo: 1, plan: 251, total: 252 } } },
+          { type: 'FETCH_CLINIC_PATIENT_COUNT_SUCCESS', payload: { clinicId: '5f85fbe6686e6bb9170ab5d0', patientCounts: { demo: 1, plan: 251, total: 252 } } },
           {
             type: 'SET_CLINIC_UI_DETAILS',
             payload: {
@@ -7862,7 +7862,7 @@ describe('Actions', () => {
           {
             payload: {
               clinicId: 'clinicId123',
-              patientCount: {
+              patientCounts: {
                 demo: 1,
                 plan: 250,
                 total: 251
@@ -7926,7 +7926,7 @@ describe('Actions', () => {
             [clinicId]: {
               country: 'US',
               tier: 'tier0100',
-              patientCount: { plan: 249 },
+              patientCounts: { plan: 249 },
               patientCountSettings: {
                 hardLimit: {
                   plan: 250,
@@ -9331,7 +9331,7 @@ describe('Actions', () => {
           { type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST' },
           {
             type: 'FETCH_CLINIC_PATIENT_COUNT_SUCCESS',
-            payload: { clinicId, patientCount: countResults },
+            payload: { clinicId, patientCounts: countResults },
           },
           {
             type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS',
@@ -9385,7 +9385,7 @@ describe('Actions', () => {
           ...initialState,
           clinics: {
             [clinicId]: {
-              patientCount: undefined,
+              patientCounts: undefined,
               patientCountSettings: undefined,
             },
           },
@@ -9461,7 +9461,7 @@ describe('Actions', () => {
           ...initialState,
           clinics: {
             [clinicId]: {
-              patientCount: { plan: 33 },
+              patientCounts: { plan: 33 },
               patientCountSettings: { foo: 'bar' },
             },
           },
@@ -9520,7 +9520,7 @@ describe('Actions', () => {
           ...initialState,
           clinics: {
             [clinicId]: {
-              patientCount: undefined,
+              patientCounts: undefined,
               patientCountSettings: undefined,
             },
           },

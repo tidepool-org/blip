@@ -28,7 +28,7 @@ export const ClinicWorkspaceHeader = (props) => {
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = get(clinics, selectedClinicId);
   const isWorkspacePath = pathname.indexOf('/clinic-workspace') === 0;
-  const planPatientsRemaining = max([clinic?.patientCountSettings?.hardLimit?.plan - clinic?.patientCount?.plan, 0]);
+  const planPatientsRemaining = max([clinic?.patientCountSettings?.hardLimit?.plan - clinic?.patientCounts?.plan, 0]);
 
   const buttonText = useMemo(() =>
     <Icon
@@ -152,7 +152,7 @@ export const ClinicWorkspaceHeader = (props) => {
               <Text sx={{ display: 'flex', alignItems: 'flex-end', gap: 1 }}>
                 {t('Patient Accounts:')}
 
-                <Text sx={{ fontWeight: 'bold' }}>{clinic.patientCount?.total}</Text>
+                <Text sx={{ fontWeight: 'bold' }}>{clinic.patientCounts?.total}</Text>
 
                 {clinic.ui.display.patientLimit && !(clinic.ui.warnings.limitReached || clinic.ui.warnings.limitApproaching) && (
                   <Text sx={{ fontSize: 0, fontWeight: 'medium' }}>

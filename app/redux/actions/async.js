@@ -2159,7 +2159,7 @@ export function fetchClinicPatientCount(api, clinicId) {
   return (dispatch, getState) => {
     dispatch(sync.fetchClinicPatientCountRequest());
 
-    api.clinics.getClinicPatientCount(clinicId, (err, patientCount) => {
+    api.clinics.getClinicPatientCount(clinicId, (err, patientCounts) => {
       if (err) {
         dispatch(sync.fetchClinicPatientCountFailure(
           createActionError(ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_COUNT, err), err
@@ -2168,8 +2168,8 @@ export function fetchClinicPatientCount(api, clinicId) {
         const { blip: { clinics = {} } } = getState();
         const clinic = clinics[clinicId] || {};
 
-        dispatch(sync.fetchClinicPatientCountSuccess(clinicId, patientCount));
-        dispatch(sync.setClinicUIDetails(clinicId, clinicUIDetails({ ...clinic, patientCount })));
+        dispatch(sync.fetchClinicPatientCountSuccess(clinicId, patientCounts));
+        dispatch(sync.setClinicUIDetails(clinicId, clinicUIDetails({ ...clinic, patientCounts })));
       }
     });
   };
@@ -3127,8 +3127,8 @@ export function selectClinic(api, clinicId) {
     if (clinic) {
       const fetchers = {};
 
-      if (_.isNil(clinics[clinicId].patientCount)) {
-        fetchers.clinicPatientCount = api.clinics.getClinicPatientCount.bind(api, clinicId);
+      if (_.isNil(clinics[clinicId].patientCounts)) {
+        fetchers.clinicPatientCounts = api.clinics.getClinicPatientCount.bind(api, clinicId);
         dispatch(sync.fetchClinicPatientCountRequest());
       }
 
@@ -3142,9 +3142,9 @@ export function selectClinic(api, clinicId) {
         const errors = _.mapValues(results, ({error}) => error);
         const values = _.mapValues(results, ({value}) => value);
 
-        if (errors?.clinicPatientCount) {
+        if (errors?.clinicPatientCounts) {
           dispatch(sync.fetchClinicPatientCountFailure(
-            createActionError(ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_COUNT, errors.clinicPatientCount), errors.clinicPatientCount
+            createActionError(ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_COUNT, errors.clinicPatientCounts), errors.clinicPatientCounts
           ));
         }
 
@@ -3154,9 +3154,9 @@ export function selectClinic(api, clinicId) {
           ));
         }
 
-        if (values.clinicPatientCount) {
-          dispatch(sync.fetchClinicPatientCountSuccess(clinicId, values.clinicPatientCount));
-          selectedClinic.patientCount = values.clinicPatientCount;
+        if (values.clinicPatientCounts) {
+          dispatch(sync.fetchClinicPatientCountSuccess(clinicId, values.clinicPatientCounts));
+          selectedClinic.patientCounts = values.clinicPatientCounts;
         }
 
         if (values.clinicPatientCountSettings) {
@@ -3164,7 +3164,7 @@ export function selectClinic(api, clinicId) {
           selectedClinic.patientCountSettings = values.clinicPatientCountSettings;
         }
 
-        if (_.isPlainObject(selectedClinic.patientCount) && _.isPlainObject(selectedClinic.patientCountSettings)) {
+        if (_.isPlainObject(selectedClinic.patientCounts) && _.isPlainObject(selectedClinic.patientCountSettings)) {
           dispatch(sync.setClinicUIDetails(clinicId, clinicUIDetails(selectedClinic)));
         }
       });

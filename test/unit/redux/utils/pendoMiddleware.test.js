@@ -670,7 +670,7 @@ describe('pendoMiddleware', () => {
       type: ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SUCCESS,
       payload: {
         clinicId: 'clinicID123',
-        patientCount: {
+        patientCounts: {
           demo: 1,
           plan: 32,
           total: 33,

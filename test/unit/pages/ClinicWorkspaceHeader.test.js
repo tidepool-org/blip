@@ -86,7 +86,7 @@ describe('ClinicWorkspaceHeader', () => {
           shareCode: 'ABCD-ABCD-ABCD',
           preferredBgUnits: 'mmol/L',
           tier: 'tier0100',
-          patientCount: { demo: 1, plan: 251, total: 252 },
+          patientCounts: { demo: 1, plan: 251, total: 252 },
           fetchedPatientTotalCount: 251,
           patientCountSettings: {
             hardLimit: {

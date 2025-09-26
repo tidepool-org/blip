@@ -185,7 +185,7 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
             tier: selectedClinic?.tier,
             created: selectedClinic?.createdTime,
             country: selectedClinic?.country,
-            patientCount: selectedClinic?.patientCount?.plan,
+            patientCount: selectedClinic?.patientCounts?.plan,
             clinicianCount: null,
           },
         });
@@ -197,13 +197,13 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
         blip: { selectedClinicId },
       } = getState();
 
-      const { clinicId, patientCount } = action.payload;
+      const { clinicId, patientCounts } = action.payload;
 
       if (clinicId === selectedClinicId) {
         pendoAction({
           account: {
             id: clinicId,
-            patientCount: patientCount?.plan,
+            patientCount: patientCounts?.plan,
           },
         });
       }

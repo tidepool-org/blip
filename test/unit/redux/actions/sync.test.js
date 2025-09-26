@@ -4422,18 +4422,18 @@ describe('Actions', () => {
 
     describe('fetchClinicPatientCountSuccess', () => {
       const clinicId = 'clinic123';
-      const patientCount = { plan: 33 };
+      const patientCounts = { plan: 33 };
 
       it('should be a TSA', () => {
-        let action = sync.fetchClinicPatientCountSuccess(clinicId, patientCount);
+        let action = sync.fetchClinicPatientCountSuccess(clinicId, patientCounts);
         expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal FETCH_CLINIC_PATIENT_COUNT_SUCCESS', () => {
-        let action = sync.fetchClinicPatientCountSuccess(clinicId, patientCount);
+        let action = sync.fetchClinicPatientCountSuccess(clinicId, patientCounts);
         expect(action.type).to.equal('FETCH_CLINIC_PATIENT_COUNT_SUCCESS');
         expect(action.payload.clinicId).to.equal('clinic123');
-        expect(action.payload.patientCount).to.eql({ plan: 33 });
+        expect(action.payload.patientCounts).to.eql({ plan: 33 });
       });
     });
 

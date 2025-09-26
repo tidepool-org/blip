@@ -1029,10 +1029,10 @@ export const clinics = (state = initialState.clinics, action) => {
       });
     }
     case types.FETCH_CLINIC_PATIENT_COUNT_SUCCESS: {
-      const { clinicId, patientCount } = action.payload;
+      const { clinicId, patientCounts } = action.payload;
 
       return update(state, {
-        [clinicId]: { patientCount: { $set: patientCount } },
+        [clinicId]: { patientCounts: { $set: patientCounts } },
       });
     }
     case types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS: {
