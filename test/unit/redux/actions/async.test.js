@@ -6193,8 +6193,8 @@ describe('Actions', () => {
             clinicId,
             patientId,
           } },
-          { type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST' },
-          { type: 'FETCH_CLINIC_PATIENT_COUNT_SUCCESS', payload: {
+          { type: 'FETCH_CLINIC_PATIENT_COUNTS_REQUEST' },
+          { type: 'FETCH_CLINIC_PATIENT_COUNTS_SUCCESS', payload: {
             clinicId,
             patientCounts: {
               demo: 1,
@@ -6693,7 +6693,7 @@ describe('Actions', () => {
             patientId: 'patient123',
             patient,
           } },
-          { type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST' },
+          { type: 'FETCH_CLINIC_PATIENT_COUNTS_REQUEST' },
           {
             payload: {
               clinicId: '5f85fbe6686e6bb9170ab5d0',
@@ -6703,7 +6703,7 @@ describe('Actions', () => {
                 total: 252
               }
             },
-            type: 'FETCH_CLINIC_PATIENT_COUNT_SUCCESS'
+            type: 'FETCH_CLINIC_PATIENT_COUNTS_SUCCESS'
           },
           {
             payload: {
@@ -6918,8 +6918,8 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST' },
-          { type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST' },
-          { type: 'FETCH_CLINIC_PATIENT_COUNT_SUCCESS', payload: { clinicId: '5f85fbe6686e6bb9170ab5d0', patientCounts: { demo: 1, plan: 251, total: 252 } } },
+          { type: 'FETCH_CLINIC_PATIENT_COUNTS_REQUEST' },
+          { type: 'FETCH_CLINIC_PATIENT_COUNTS_SUCCESS', payload: { clinicId: '5f85fbe6686e6bb9170ab5d0', patientCounts: { demo: 1, plan: 251, total: 252 } } },
           {
             type: 'SET_CLINIC_UI_DETAILS',
             payload: {
@@ -7857,7 +7857,7 @@ describe('Actions', () => {
             patientId: 'patientId456'
           } },
           {
-            type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST'
+            type: 'FETCH_CLINIC_PATIENT_COUNTS_REQUEST'
           },
           {
             payload: {
@@ -7868,7 +7868,7 @@ describe('Actions', () => {
                 total: 251
               }
             },
-            type: 'FETCH_CLINIC_PATIENT_COUNT_SUCCESS'
+            type: 'FETCH_CLINIC_PATIENT_COUNTS_SUCCESS'
           },
           {
             payload: {
@@ -9309,7 +9309,7 @@ describe('Actions', () => {
     });
 
     describe('selectClinic', () => {
-      it('should trigger SELECT_CLINIC_SUCCESS, FETCH_CLINIC_PATIENT_COUNT_SUCCESS, and FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS for a successful request', () => {
+      it('should trigger SELECT_CLINIC_SUCCESS, FETCH_CLINIC_PATIENT_COUNTS_SUCCESS, and FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS for a successful request', () => {
         const clinicId = 'clinic123';
         const countResults = { plan: 33 };
         const settingsResults = {bar: 'baz'};
@@ -9327,10 +9327,10 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId } },
-          { type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST' },
+          { type: 'FETCH_CLINIC_PATIENT_COUNTS_REQUEST' },
           { type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST' },
           {
-            type: 'FETCH_CLINIC_PATIENT_COUNT_SUCCESS',
+            type: 'FETCH_CLINIC_PATIENT_COUNTS_SUCCESS',
             payload: { clinicId, patientCounts: countResults },
           },
           {
@@ -9401,7 +9401,7 @@ describe('Actions', () => {
         expect(api.clinics.getClinicPatientCountSettings.callCount).to.equal(1);
       });
 
-      it('should trigger SELECT_CLINIC_SUCCESS, but not FETCH_CLINIC_PATIENT_COUNT_REQUEST or FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST for a successful request if data available in clinic state', () => {
+      it('should trigger SELECT_CLINIC_SUCCESS, but not FETCH_CLINIC_PATIENT_COUNTS_REQUEST or FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST for a successful request if data available in clinic state', () => {
         const clinicId = 'clinic123';
 
         let api = {
@@ -9477,7 +9477,7 @@ describe('Actions', () => {
         expect(api.clinics.getClinicPatientCountSettings.callCount).to.equal(0);
       });
 
-      it('should trigger FETCH_CLINIC_PATIENT_COUNT_FAILURE and FETCH_CLINIC_PATIENT_COUNT_SETTINGS_FAILURE and it should call error once for a failed request', () => {
+      it('should trigger FETCH_CLINIC_PATIENT_COUNTS_FAILURE and FETCH_CLINIC_PATIENT_COUNT_SETTINGS_FAILURE and it should call error once for a failed request', () => {
         const clinicId = 'clinic123';
 
         let api = {
@@ -9491,7 +9491,7 @@ describe('Actions', () => {
           },
         };
 
-        let countErr = new Error(ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_COUNT);
+        let countErr = new Error(ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_COUNTS);
         countErr.status = 500;
 
         let settingsErr = new Error(ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_COUNT_SETTINGS);
@@ -9499,10 +9499,10 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId } },
-          { type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST' },
+          { type: 'FETCH_CLINIC_PATIENT_COUNTS_REQUEST' },
           { type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST' },
           {
-            type: 'FETCH_CLINIC_PATIENT_COUNT_FAILURE',
+            type: 'FETCH_CLINIC_PATIENT_COUNTS_FAILURE',
             error: countErr,
             meta: { apiError: { status: 500, body: 'Count Error!' } },
           },
@@ -9533,7 +9533,7 @@ describe('Actions', () => {
         const actions = store.getActions();
 
         expect(actions[3].error).to.deep.include({
-          message: ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_COUNT,
+          message: ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_COUNTS,
         });
         expectedActions[3].error = actions[3].error;
 

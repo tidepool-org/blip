@@ -254,13 +254,13 @@ describe('WorkspaceSwitcher', () => {
           },
         },
         {
-          type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST'
+          type: 'FETCH_CLINIC_PATIENT_COUNTS_REQUEST'
         },
         {
           type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST'
         },
         {
-          type: 'FETCH_CLINIC_PATIENT_COUNT_SUCCESS',
+          type: 'FETCH_CLINIC_PATIENT_COUNTS_SUCCESS',
           payload: {
             clinicId: 'clinicID456',
             patientCounts: { demo: 1, plan: 3, total: 4 },

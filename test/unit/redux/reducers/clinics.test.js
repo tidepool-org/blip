@@ -845,7 +845,7 @@ describe('clinics', () => {
     });
   });
 
-  describe('fetchClinicPatientCountSuccess', () => {
+  describe('fetchClinicPatientCountsSuccess', () => {
     it('should update `patientCounts` in state', () => {
       let clinicId = 'clinicId123';
       let results = { demo: 2, plan: 33, total: 35 };
@@ -855,7 +855,7 @@ describe('clinics', () => {
           patientCounts: { demo: 1, plan: 32, total: 33 },
         },
       };
-      let action = actions.sync.fetchClinicPatientCountSuccess(clinicId, results);
+      let action = actions.sync.fetchClinicPatientCountsSuccess(clinicId, results);
       let state = reducer(initialStateForTest, action);
       expect(state[clinicId].patientCounts).to.eql(results);
     });

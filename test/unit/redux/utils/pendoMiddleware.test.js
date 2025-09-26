@@ -664,10 +664,10 @@ describe('pendoMiddleware', () => {
     expect(winMock.pendo.updateOptions.args[0][0]).to.eql(expectedConfig);
   });
 
-  it('should call update and set patient count for FETCH_CLINIC_PATIENT_COUNT_SUCCESS', () => {
+  it('should call update and set patient count for FETCH_CLINIC_PATIENT_COUNTS_SUCCESS', () => {
     winMock.pendo.visitorId = 'clinicAdminID';
-    const fetchClinicPatientCountSuccess = {
-      type: ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SUCCESS,
+    const fetchClinicPatientCountsSuccess = {
+      type: ActionTypes.FETCH_CLINIC_PATIENT_COUNTS_SUCCESS,
       payload: {
         clinicId: 'clinicID123',
         patientCounts: {
@@ -700,7 +700,7 @@ describe('pendoMiddleware', () => {
       visitor: {},
     };
     expect(winMock.pendo.updateOptions.callCount).to.equal(0);
-    pendoMiddleware(api, winMock)(getStateObj)(next)(fetchClinicPatientCountSuccess);
+    pendoMiddleware(api, winMock)(getStateObj)(next)(fetchClinicPatientCountsSuccess);
     expect(winMock.pendo.updateOptions.callCount).to.equal(1);
     expect(winMock.pendo.updateOptions.args[0][0]).to.eql(expectedConfig);
   });
