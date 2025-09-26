@@ -20,8 +20,6 @@ import { getDismissedAltRangeBannerKey, isRangeWithNonStandardTarget } from '../
 
 let win = window;
 
-const useMockCount = false; // TODO: delete this temporary mock of plan response after backend api updates are deployed
-
 function createActionError(usrErrMessage, apiError) {
   const err = new Error(usrErrMessage);
   if (apiError) {
@@ -2167,13 +2165,6 @@ export function fetchClinicPatientCount(api, clinicId) {
           createActionError(ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_COUNT, err), err
         ));
       } else {
-        // TODO delete this temporary mock of plan response after backend api updates are deployed
-        if (useMockCount &&_.isFinite(patientCount?.patientCount) && !_.isFinite(patientCount?.plan)) {
-          patientCount.plan = patientCount.patientCount;
-          patientCount.demo = 1;
-          patientCount.total = patientCount.patientCount + patientCount.demo;
-        }
-
         const { blip: { clinics = {} } } = getState();
         const clinic = clinics[clinicId] || {};
 
@@ -3164,23 +3155,11 @@ export function selectClinic(api, clinicId) {
         }
 
         if (values.clinicPatientCount) {
-          // TODO delete this temporary mock of plan response after backend api updates are deployed
-          if (useMockCount && _.isFinite(values.clinicPatientCount?.patientCount) && !_.isFinite(values.clinicPatientCount?.plan)) {
-            values.clinicPatientCount.plan = values.clinicPatientCount.patientCount;
-            values.clinicPatientCount.demo = 1;
-            values.clinicPatientCount.total = values.clinicPatientCount.patientCount + values.clinicPatientCount.demo;
-          }
-
           dispatch(sync.fetchClinicPatientCountSuccess(clinicId, values.clinicPatientCount));
           selectedClinic.patientCount = values.clinicPatientCount;
         }
 
         if (values.clinicPatientCountSettings) {
-          // TODO delete this temporary mock of plan response after backend api updates are deployed
-          if (useMockCount && _.isFinite(values.clinicPatientCountSettings?.hardLimit?.patientCount) && !_.isFinite(values.clinicPatientCountSettings?.hardLimit?.plan)) {
-            values.clinicPatientCountSettings.hardLimit.plan = values.clinicPatientCountSettings.hardLimit.patientCount;
-          }
-
           dispatch(sync.fetchClinicPatientCountSettingsSuccess(clinicId, values.clinicPatientCountSettings));
           selectedClinic.patientCountSettings = values.clinicPatientCountSettings;
         }
