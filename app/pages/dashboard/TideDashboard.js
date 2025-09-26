@@ -430,7 +430,7 @@ const TideDashboardSection = React.memo(props => {
       <Text
         sx={{
           display: 'inline-block',
-          fontSize: [1, null, 0],
+          fontSize: 1,
           fontWeight: 'medium',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
