@@ -2042,6 +2042,7 @@ export const PatientDataClass = createReactClass({
             deviceEvent: {},
             food: {},
             message: {},
+            pumpSettings: {},
             smbg: {},
             wizard: {},
           };
