@@ -96,6 +96,22 @@ const StyledDateRangePicker = styled(StyledDatePickerBase)`
   }
 `;
 
+const getDisplayFormat = (startDate, endDate) => {
+  const isStartDateMidnight = (startDate?.hours() === 0 && startDate?.minutes() === 0) ||
+                              (startDate?.hours() === 23 && startDate?.minutes() === 59);
+
+  const isEndDateMidnight = (endDate?.hours() === 0 && endDate?.minutes() === 0) ||
+                            (endDate?.hours() === 23 && endDate?.minutes() === 59);
+
+  const isMatchingDateBounds = isStartDateMidnight && isEndDateMidnight;
+
+  if (!isMatchingDateBounds) {
+    return 'MMM D, YYYY (h:mm A)';
+  }
+
+  return 'MMM D, YYYY';
+};
+
 export function DateRangePicker(props) {
   const {
     startDate,
@@ -110,17 +126,14 @@ export function DateRangePicker(props) {
     ...datePickerProps
   } = props;
 
-  const [dates, setDates] = useState({ startDate, endDate });
   const [focusedInput, setFocusedInput] = useState(focusedInputProp);
-
-  React.useEffect(() => {
-    setDates({ startDate, endDate });
-  }, [startDate, endDate]);
 
   const inputClasses = cx({
     error: !!(errors.startDate || errors.endDate),
     required,
   });
+
+  const displayFormat = getDisplayFormat(startDate, endDate);
 
   return (
     <Box as={StyledDateRangePicker} {...themeProps}>
@@ -138,12 +151,11 @@ export function DateRangePicker(props) {
         </Label>
       )}
       <DateRangePickerBase
-        startDate={dates.startDate}
+        startDate={startDate}
         startDateId={props.startDateId}
-        endDate={dates.endDate}
+        endDate={endDate}
         endDateId={props.endDateId}
         onDatesChange={newDates => {
-          setDates(newDates);
           onDatesChange(newDates);
         }}
         focusedInput={focusedInput}
@@ -152,7 +164,7 @@ export function DateRangePicker(props) {
           onFocusChange(selectedFocusedInput);
         }}
         numberOfMonths={2}
-        displayFormat="MMM D, YYYY"
+        displayFormat={displayFormat}
         verticalSpacing={0}
         navPrev={<Icon theme={baseTheme} label="previous month" icon={NavigateBeforeRoundedIcon} />}
         navNext={<Icon theme={baseTheme} label="next month" icon={NavigateNextRoundedIcon} />}

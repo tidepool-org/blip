@@ -63,7 +63,7 @@ export const ChartDateRangeModal = (props) => {
   };
 
   const defaultDates = () => defaultDatesProp
-    ? setDateRangeToExtents({
+    ? ({
       startDate: defaultDatesProp[0] ? moment.utc(defaultDatesProp[0]).tz(timezoneName) : null,
       endDate: defaultDatesProp[1] ? moment.utc(defaultDatesProp[1]).tz(timezoneName) : null,
     })
