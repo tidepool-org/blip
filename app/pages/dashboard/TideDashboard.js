@@ -799,23 +799,19 @@ const TideDashboardSection = React.memo(props => {
       lowGlucoseThreshold,
       clinicBgUnits,
     }),
-
     timeInExtremeHighPercent: extremeHighGlucoseThreshold ?
       t('> 1% Time above {{extremeHighGlucoseThreshold}} {{clinicBgUnits}}', {
         extremeHighGlucoseThreshold,
         clinicBgUnits,
       }) : null,
-
     timeInVeryHighPercent: t('> 5% Time above {{veryHighGlucoseThreshold}} {{clinicBgUnits}}', {
       veryHighGlucoseThreshold,
       clinicBgUnits,
     }),
-
     timeInHighPercent: t('> 25% Time above {{highGlucoseThreshold}} {{clinicBgUnits}}', {
       highGlucoseThreshold,
       clinicBgUnits,
     }),
-
     dropInTimeInTargetPercent: t('> 15%'),
     timeInTargetPercent: t('< 70%'),
     timeCGMUsePercent: t('< 70%'),
@@ -832,7 +828,7 @@ const TideDashboardSection = React.memo(props => {
           <Text sx={{ fontSize: 1, fontWeight: 'medium' }}>
             {sectionTitlesMap[section.groupKey]}
           </Text>
-          <Text sx={{ fontSize: 1 }}>
+          <Text sx={{ fontSize: 1, fontStyle: 'italic' }}>
             {sectionLabelsMap[section.groupKey] || null}
           </Text>
         </Flex>
@@ -858,7 +854,7 @@ const TideDashboardSection = React.memo(props => {
           fontSize: 1,
           'tr': { height: [null, null, '40px', '40px'] },
           'thead': { fontSize: 0 },
-          'th': { padding: '16px' },
+          'thead th': { fontWeight: 'normal' },
           'th div': { display: 'flex', alignItems: 'center' },
         }}
         order={section.sortDirection}
@@ -1151,15 +1147,15 @@ export const TideDashboard = (props) => {
         sx={{ rowGap: 2, columnGap: 3, justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}
       >
         <Flex sx={{ gap: 3, alignItems: 'center' }}>
-          <Title id="tide-dashboard-header" sx={{ fontWeight: 'medium', fontSize: '18px' }}>
+          <Title id="tide-dashboard-header" sx={{ fontWeight: 'medium', fontSize: '20px' }}>
             {t('TIDE Dashboard')}
             <PopoverLabel
               id={'tideDashboardTitleInfoHover'}
               icon={InfoOutlinedIcon}
               iconProps={{ sx: { fontSize: '18px', color: vizColors.blue50 } }}
               popoverContent={
-                <Box p={1} sx={{ maxWidth: '280px', textAlign: 'center', lineHeight: 0 }}>
-                  <Text sx={{ color: vizColors.blue50, fontSize: 0, fontWeight: 'bold' }}>
+                <Box p={1} sx={{ maxWidth: '280px', textAlign: 'start', lineHeight: 0 }}>
+                  <Text sx={{ color: vizColors.blue50, fontSize: 0, fontWeight: 'normal' }}>
                     {t('This dashboard displays up to 100 patients prioritized for review, plus up to 50 additional patients with data issues.')}
                   </Text>
                 </Box>
