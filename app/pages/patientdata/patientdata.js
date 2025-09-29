@@ -1257,8 +1257,7 @@ export const PatientDataClass = createReactClass({
 
     const datetimeInteger = _.isInteger(datetime) ? datetime : Date.parse(datetime);
     const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
-    const dateCeiling = getLocalizedCeiling(_.min([datetimeInteger, mostRecentDatumTime]), this.state.timePrefs);
-    const datetimeLocation = getDatetimeLocation(dateCeiling);
+    const datetimeLocation = getDatetimeLocation(_.max([datetimeInteger, mostRecentDatumTime]));
 
     const updateOpts = { updateChartEndpoints: true, forceRemountAfterQuery: true };
     if (datetime && mostRecentDatumTime) {
@@ -2191,7 +2190,6 @@ export const PatientDataClass = createReactClass({
       const isBgLog = chartType === 'bgLog';
 
       const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(props, chartType);
-      // const latestDatumDateCeiling = getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs);
 
       // If a datetime param is specified in URL, use that. Otherwise, use time of latest datum
       let datetimeLocation = _.get(props, 'queryParams.datetime', (isDaily || isBgLog)
