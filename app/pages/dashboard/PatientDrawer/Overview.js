@@ -9,7 +9,7 @@ import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
 const { Loader } = vizComponents;
 const { AGPConstants } = vizUtils.agp;
 
-import useAgpCGM, { STATUS } from './useAgpCGM';
+import { STATUS } from './useAgpCGM';
 import CGMStatistics from './CGMStatistics';
 import CGMDeltaSummary from './CGMDeltaSummary';
 
@@ -19,7 +19,7 @@ const StyledAGPImage = styled.img`
   display: ${props => props.src ? 'block' : 'none' };
 `;
 
-const InsufficientData = () => {
+export const InsufficientData = () => {
   const { t } = useTranslation();
 
   return (
@@ -29,7 +29,7 @@ const InsufficientData = () => {
   );
 };
 
-const NoPatientData = ({ patientName }) => {
+export const NoPatientData = ({ patientName }) => {
   const { t } = useTranslation();
 
   return (
@@ -53,11 +53,9 @@ const CategoryContainer = ({ title, subtitle, children }) => {
   );
 };
 
-const Content = ({ api, patientId, agpPeriodInDays }) => {
+const Overview = ({ patientId, agpCGMData }) => {
   const { t } = useTranslation();
-
-  const { status, svgDataURLS, agpCGM, offsetAgpCGM } = useAgpCGM(api, patientId, agpPeriodInDays);
-
+  const { status, svgDataURLS, agpCGM, offsetAgpCGM } = agpCGMData;
   const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
   const patient = clinic?.patients?.[patientId];
 
@@ -122,4 +120,4 @@ const Content = ({ api, patientId, agpPeriodInDays }) => {
   );
 };
 
-export default Content;
+export default Overview;

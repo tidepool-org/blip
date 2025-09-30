@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 import Icon from '../../../components/elements/Icon';
+import { useLocation, useHistory } from 'react-router-dom';
 import Drawer from '@material-ui/core/Drawer';
 import styled from '@emotion/styled';
 import { makeStyles } from '@material-ui/core/styles';
@@ -7,8 +8,10 @@ import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import { Box } from 'theme-ui';
 import { useFlags } from 'launchdarkly-react-client-sdk';
 
-import Content from './Content';
-import MenuBar from './MenuBar';
+import Overview from './Overview';
+import StackedDaily from './StackedDaily';
+import MenuBar, { OVERVIEW_TAB_INDEX, STACKED_DAILY_TAB_INDEX } from './MenuBar';
+import useAgpCGM from './useAgpCGM';
 
 const StyledCloseButton = styled(Icon)`
   position: absolute;
@@ -50,33 +53,64 @@ const getAgpPeriodInDays = (period) => {
 
 const PatientDrawer = ({ patientId, onClose, api, trackMetric, period }) => {
   const classes = useStyles();
-  const { showTideDashboardPatientDrawer } = useFlags(); 
+  const { showTideDashboardPatientDrawer } = useFlags();
+  const location = useLocation();
+  const history = useHistory();
+  const [selectedTab, setSelectedTab] = React.useState(OVERVIEW_TAB_INDEX);
+  const isOpen = !!patientId && isValidAgpPeriod(period);
+  const agpPeriodInDays = getAgpPeriodInDays(period);
+  const agpCGMData = useAgpCGM(api, patientId, agpPeriodInDays);
+
+  const Content = useCallback(() => {
+    if (selectedTab === OVERVIEW_TAB_INDEX) {
+      return <Overview patientId={patientId} agpCGMData={agpCGMData} />;
+    } else if (selectedTab === STACKED_DAILY_TAB_INDEX) {
+      return <StackedDaily patientId={patientId} agpCGMData={agpCGMData} />;
+    } else {
+      return null;
+    }
+  }, [selectedTab, patientId, api, agpPeriodInDays, agpCGMData]);
+
+  useEffect(() => {
+    if (isOpen) {
+      const drawerTab = new URLSearchParams(location.search).get('drawerTab') || OVERVIEW_TAB_INDEX;
+      setSelectedTab(parseInt(drawerTab, 10));
+    }
+  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!showTideDashboardPatientDrawer) return null;
 
-  const isOpen = !!patientId && isValidAgpPeriod(period);
+  function setDrawerTabParam(tabIndex) {
+    const { search, pathname } = location;
+    const params = new URLSearchParams(search);
+    params.set('drawerTab', tabIndex);
+    history.replace({ pathname, search: params.toString() });
+  }
 
-  const agpPeriodInDays = getAgpPeriodInDays(period);
+  function handleSelectTab(tabIndex) {
+    setSelectedTab(parseInt(tabIndex, 10));
+    setDrawerTabParam(tabIndex);
+  }
 
   return (
-    <StyledDrawer 
+    <StyledDrawer
       anchor='right'
       classes={{ paperAnchorRight: classes.paperAnchorRight }}
-      open={isOpen} 
+      open={isOpen}
       onClose={onClose}
-    > 
+    >
       <StyledCloseButton label="close" onClick={onClose} icon={CloseRoundedIcon} variant="button" />
 
       <Box px={4} py={4} sx={{
         width: `calc(100vw - ${DRAWER_CLOSE_BUTTON_GAP})`, // account space needed for close button
-        maxWidth: DESKTOP_DRAWER_WIDTH,  
-        height: '100%',  
-        overflowY: 'scroll' 
+        maxWidth: DESKTOP_DRAWER_WIDTH,
+        height: '100%',
+        overflowY: 'scroll'
       }}>
-        { isOpen && 
+        {isOpen &&
           <>
-            <MenuBar patientId={patientId} api={api} trackMetric={trackMetric} onClose={onClose} />
-            <Content patientId={patientId} api={api} agpPeriodInDays={agpPeriodInDays} />
+            <MenuBar patientId={patientId} trackMetric={trackMetric} onClose={onClose} selectedTab={selectedTab} onSelectTab={handleSelectTab} />
+            <Content />
           </>
         }
       </Box>

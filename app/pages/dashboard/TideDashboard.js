@@ -5,7 +5,6 @@ import { useLocation, useHistory } from 'react-router-dom';
 import { push } from 'connected-react-router';
 import { withTranslation, Trans } from 'react-i18next';
 import moment from 'moment-timezone';
-import compact from 'lodash/compact';
 import each from 'lodash/each';
 import find from 'lodash/find';
 import flatten from 'lodash/flatten';
@@ -82,17 +81,12 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
 import DataInIcon from '../../core/icons/DataInIcon.svg';
 import { colors, fontWeights, radii } from '../../themes/baseTheme';
 import PatientLastReviewed from '../../components/clinic/PatientLastReviewed';
+import { OVERVIEW_TAB_INDEX } from './PatientDrawer/MenuBar/MenuBar';
 
 const { Loader } = vizComponents;
 const { formatBgValue } = vizUtils.bg;
 const { formatStatsPercentage } = vizUtils.stat;
-
-const {
-  formatDateRange,
-  getLocalizedCeiling,
-  getOffset,
-  getTimezoneFromTimePrefs
-} = vizUtils.datetime;
+const { getLocalizedCeiling } = vizUtils.datetime;
 
 const StyledScrollToTop = styled(ScrollToTop)`
   background-color: ${colors.purpleMedium};
@@ -334,6 +328,7 @@ const TideDashboardSection = React.memo(props => {
         const { search, pathname } = location;
         const params = new URLSearchParams(search);
         params.set('drawerPatientId', patient.id);
+        params.set('drawerTab', OVERVIEW_TAB_INDEX);
         history.replace({ pathname, search: params.toString() });
 
         return;
@@ -973,7 +968,7 @@ export const TideDashboard = (props) => {
     // Failsafe to ensure blip.pdf is always cleared out after drawer is closed
     if (!drawerPatientId && !isEmpty(pdf)) {
       dispatch(actions.worker.removeGeneratedPDFS());
-      dispatch(actions.worker.dataWorkerRemoveDataRequest(null, drawerPatientId));
+      dispatch(actions.worker.dataWorkerRemoveDataRequest(null));
     }
   }, [drawerPatientId, pdf, config, location, history]);
 
@@ -999,6 +994,7 @@ export const TideDashboard = (props) => {
 
     const params = new URLSearchParams(search);
     params.delete('drawerPatientId');
+    params.delete('drawerTab');
     history.replace({ pathname, search: params.toString() });
   });
 
