@@ -398,6 +398,27 @@ export default ({
         color: colors.text.primaryDisabled,
       },
     },
+    tab: {
+      ...defaultStyles,
+      padding: `12px ${space[5]}px`,
+      fontWeight: fontWeights.medium,
+      backgroundColor: 'blue50',
+      color: colors.white,
+      border: 0,
+      borderRadius: radii.default,
+      borderBottomRightRadius: 0,
+      '&.selected': {
+        backgroundColor: 'blue80',
+        fontWeight: fontWeights.bold,
+      },
+      '&:hover': {
+        backgroundColor: 'blue80',
+      },
+      '&:disabled': {
+        color: colors.text.primaryDisabled,
+        pointerEvents: 'none',
+      },
+    },
     large: {
       ...defaultStyles,
       backgroundColor: colors.purpleMedium,
