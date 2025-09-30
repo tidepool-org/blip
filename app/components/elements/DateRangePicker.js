@@ -97,7 +97,7 @@ const StyledDateRangePicker = styled(StyledDatePickerBase)`
   }
 `;
 
-const getDisplayFormat = (startDate, endDate) => {
+export const getDisplayFormat = (startDate, endDate) => {
   const isStartDateMidnight = (startDate?.hours() === 0 && startDate?.minutes() === 0) ||
                               (startDate?.hours() === 23 && startDate?.minutes() === 59);
 

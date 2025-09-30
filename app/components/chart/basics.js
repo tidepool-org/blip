@@ -21,6 +21,8 @@ import Button from '../elements/Button';
 import BgSourceToggle from './bgSourceToggle';
 import Header from './header';
 import DeviceSelection from './deviceSelection';
+import moment from 'moment';
+import { getDisplayFormat } from '../elements/DateRangePicker';
 
 class Basics extends Component {
   static propTypes = {
@@ -204,9 +206,14 @@ class Basics extends Component {
       timezone = timePrefs.timezoneName || 'UTC';
     }
 
-    const dtMask = t('MMM D, YYYY');
-    return sundial.formatInTimezone(endpointsRange[0], timezone, dtMask) +
-      ' - ' + sundial.formatInTimezone(endpointsRange[1] - 1, timezone, dtMask);
+    const startDate = moment(endpointsRange[0]).tz(timezone);
+    const endDate = moment(endpointsRange[1]).tz(timezone);
+
+    const dtMask = getDisplayFormat(startDate, endDate);
+
+
+
+    return startDate.format(dtMask) + ' - ' + endDate.format(dtMask);
   }
 
   isMissingBasics = (props = this.props) => {
