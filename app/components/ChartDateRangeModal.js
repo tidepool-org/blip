@@ -52,8 +52,6 @@ export const ChartDateRangeModal = (props) => {
   });
 
   const getLastNDays = days => {
-    console.log('@@@ mostRecentDatumDate', mostRecentDatumDate)
-
     const endDate = mostRecentDatumDate
       ? moment.utc(mostRecentDatumDate)
       : endOfToday;
@@ -140,6 +138,29 @@ export const ChartDateRangeModal = (props) => {
     onClose();
   };
 
+  const handleDatesChange = newDates => {
+    const mostRecentDatumMoment = moment(mostRecentDatumDate).tz(timezoneName);
+    const adjustedDates = setDateRangeToExtents(newDates);
+
+    // If the date selected contains the mostRecentDatum, we want to exclude the time
+    // between the mostRecentDatum and the end of that day. We also adjust the start
+    // time so that the period is a multiple of 24 hours.
+    if (mostRecentDatumMoment?.isBefore(adjustedDates?.endDate)) {
+      const modifiedStart = adjustedDates?.startDate;
+      modifiedStart.hour(mostRecentDatumMoment.hour())
+                   .minute(mostRecentDatumMoment.minute());
+
+      setDates({
+        startDate: modifiedStart,
+        endDate: mostRecentDatumMoment,
+      });
+
+    } else {
+      setDates(adjustedDates);
+    }
+  };
+
+
   // Set to default state when dialog is newly opened
   useEffect(() => {
     if (open) {
@@ -193,7 +214,7 @@ export const ChartDateRangeModal = (props) => {
               startDateId="chart-start-date"
               endDate={dates.endDate}
               endDateId="chart-end-date"
-              onDatesChange={newDates => setDates(setDateRangeToExtents(newDates))}
+              onDatesChange={handleDatesChange}
               isOutsideRange={day => (
                 moment.utc(mostRecentDatumDate).tz(timezoneName).endOf('day').subtract(1, 'ms').diff(day) < 0 ||
                 endOfToday.diff(day) < 0 ||
