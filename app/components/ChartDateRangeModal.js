@@ -105,8 +105,8 @@ export const ChartDateRangeModal = (props) => {
   };
 
   const formatDateEndpoints = dates => ([
-    moment.utc(dates.startDate).tz(timezoneName).startOf('day').valueOf(),
-    moment.utc(dates.endDate).tz(timezoneName).add(1, 'day').startOf('day').valueOf(),
+    moment.utc(dates.startDate).tz(timezoneName).valueOf(),
+    moment.utc(dates.endDate).tz(timezoneName).valueOf(),
   ]);
 
   // Handlers
