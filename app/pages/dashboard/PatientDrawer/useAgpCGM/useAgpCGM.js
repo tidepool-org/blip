@@ -6,6 +6,7 @@ import moment from 'moment';
 
 import getOpts from './getOpts';
 import getQueries from './getQueries';
+import { cloneDeep } from 'lodash';
 
 export const STATUS = {
   // States in order of happy path AGP generation sequence
@@ -16,6 +17,7 @@ export const STATUS = {
   SVGS_GENERATED: 'SVGS_GENERATED',
 
   // Other states
+  NO_PATIENT_ID:  'NO_PATIENT_ID',
   NO_PATIENT_DATA:   'NO_PATIENT_DATA',
   INSUFFICIENT_DATA: 'INSUFFICIENT_DATA',
 };
@@ -30,6 +32,9 @@ const inferLastCompletedStep = (patientId, data, pdf) => {
   const hasOtherDataInState = !!data.metaData.patientId && data.metaData.patientId !== patientId;
 
   if (hasOtherPdfInState || hasOtherDataInState) return STATUS.INITIALIZED;
+
+  // No Patient ID --- (occurs when patient drawer is in a closed state and so patientId is unset)
+  if (!patientId) return STATUS.NO_PATIENT_ID;
 
   // Insufficient Data States ---
   const hasNoPatientData    = data.metaData?.size === 0;
@@ -112,6 +117,7 @@ const useAgpCGM = (
         break;
 
       case STATUS.SVGS_GENERATED: // image generation complete, no further steps necessary
+      case STATUS.NO_PATIENT_ID: // no patient is loaded, no further steps necessary
       default:
         break;
     }
@@ -132,8 +138,8 @@ const useAgpCGM = (
   return {
     status:       lastCompletedStep,
     svgDataURLS:  isCorrectPatientInState ? pdf.opts?.svgDataURLS : null,
-    agpCGM:       isCorrectPatientInState ? pdf.data?.agpCGM : null,
-    offsetAgpCGM: isCorrectPatientInState ? pdf.data?.offsetAgpCGM : null,
+    agpCGM:       isCorrectPatientInState ? cloneDeep(pdf.data?.agpCGM) : null,
+    offsetAgpCGM: isCorrectPatientInState ? cloneDeep(pdf.data?.offsetAgpCGM) : null,
   };
 };
 
