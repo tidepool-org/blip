@@ -52,13 +52,17 @@ export const ChartDateRangeModal = (props) => {
   });
 
   const getLastNDays = days => {
+    console.log('@@@ mostRecentDatumDate', mostRecentDatumDate)
+
     const endDate = mostRecentDatumDate
       ? moment.utc(mostRecentDatumDate)
       : endOfToday;
 
-    return setDateRangeToExtents({
-      startDate: moment.utc(endDate).tz(timezoneName).subtract(days - 1, 'days'),
-      endDate,
+    const startDate = moment.utc(endDate).tz(timezoneName).subtract(days - 1, 'days');
+
+    return ({
+      startDate: startDate ? moment.utc(startDate).tz(timezoneName) : null,
+      endDate: endDate ? moment.utc(endDate).tz(timezoneName).subtract(1, 'ms') : null,
     });
   };
 
