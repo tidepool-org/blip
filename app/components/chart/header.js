@@ -11,6 +11,7 @@ import { DesktopOnly, MobileOnly } from '../mediaqueries';
 
 import Icon from '../elements/Icon';
 import { Box } from 'theme-ui';
+import DateRangeTitle from './dateRangeTitle';
 
 const Header = withTranslation()(class Header extends Component {
   static propTypes = {
@@ -138,7 +139,7 @@ const Header = withTranslation()(class Header extends Component {
           {this.renderNavButton(backClass, this.props.onClickBack, this.props.iconBack)}
           <DesktopOnly>
             <div className={dateLinkClass}>
-              <span>{this.props.title}</span>
+              <DateRangeTitle title={this.props.title} />
               {canSelectDateRange && (
                 <Icon
                   variant="default"
