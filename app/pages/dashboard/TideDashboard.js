@@ -1260,9 +1260,14 @@ export const TideDashboard = (props) => {
       dispatch(push('/clinic-workspace/patients'));
     };
 
-    each(patientGroups.noData, record => {
-      record.daysSinceLastData = moment.utc().diff(record.lastData, 'days');
-    })
+    const groupPatients = groupKey => {
+      return (groupKey === 'noData')
+        ? map(patientGroups.noData, patient => ({
+          ...patient,
+          daysSinceLastData: moment.utc().diff(patient.lastData, 'days'),
+        }))
+        : patientGroups[groupKey] || [];
+    };
 
     return hasResults ? (
       <Box id="tide-dashboard-patient-groups">
@@ -1270,7 +1275,7 @@ export const TideDashboard = (props) => {
           <TideDashboardSection
             key={section.groupKey}
             section={section}
-            patients={patientGroups[section.groupKey]}
+            patients={groupPatients(section.groupKey)}
             emptyText={t('There are no patients that match your filter criteria.')}
             {...sectionProps}
           />
