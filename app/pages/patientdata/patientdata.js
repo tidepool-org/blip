@@ -1283,15 +1283,19 @@ export const PatientDataClass = createReactClass({
       .toISOString();
 
     const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
-    const dateCeiling = getLocalizedCeiling(_.min([Date.parse(datetime), mostRecentDatumTime]), this.state.timePrefs);
-    const datetimeLocation = getDatetimeLocation(dateCeiling);
+    const datetimeLocation = getDatetimeLocation(mostRecentDatumTime);
 
     const updateOpts = { updateChartEndpoints: true };
     if (datetime && mostRecentDatumTime) {
       updateOpts.mostRecentDatetimeLocation = getDatetimeLocation(mostRecentDatumTime)
     }
 
-    this.updateChart(chartType, datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType }), updateOpts);
+    this.updateChart(
+      chartType,
+      datetimeLocation,
+      this.getChartEndpoints(datetimeLocation, { chartType,  setEndToLocalCeiling: false }),
+      updateOpts
+    );
   },
 
   handleSwitchToBgLog: function(datetime) {

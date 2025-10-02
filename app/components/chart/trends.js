@@ -24,6 +24,7 @@ import {
   containers as vizContainers,
   utils as vizUtils,
 } from '@tidepool/viz';
+import { getDisplayFormat } from '../elements/DateRangePicker';
 
 const TrendsContainer = vizContainers.TrendsContainer;
 const getTimezoneFromTimePrefs = vizUtils.datetime.getTimezoneFromTimePrefs;
@@ -124,7 +125,13 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     const { t } = this.props;
     const timezone = getTimezoneFromTimePrefs(_.get(this.props, 'data.timePrefs', {}));
 
-    return sundial.formatInTimezone(datetime, timezone, t('MMM D, YYYY'));
+    const dateMoment = moment(datetime).tz(timezone);
+    const isMidnight = (dateMoment?.hours() === 0 && dateMoment?.minutes() === 0) ||
+                       (dateMoment?.hours() === 23 && dateMoment?.minutes() === 59);
+
+    const dtMask = isMidnight ? 'MMM D, YYYY' : 'MMM D, YYYY (h:mm A)';
+
+    return dateMoment.format(dtMask);
   }
 
   getNewDomain(current, extent) {
@@ -279,9 +286,7 @@ const Trends = withTranslation()(class Trends extends PureComponent {
       this.state.debouncedDateRangeUpdate.cancel();
     }
 
-    const dateCeiling = getLocalizedCeiling(datetimeLocationEndpoints[1], _.get(this.props, 'data.timePrefs', {}));
-
-    const datetimeLocation = moment.utc(dateCeiling.valueOf()).toISOString();
+    const datetimeLocation = moment.utc(datetimeLocationEndpoints[1]).toISOString();
 
     const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 250);
     debouncedDateRangeUpdate(datetimeLocation);

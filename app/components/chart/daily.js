@@ -563,7 +563,6 @@ class Daily extends Component {
     else {
       timezone = timePrefs.timezoneName || 'UTC';
     }
-
     return sundial.formatInTimezone(datetime, timezone, t('ddd, MMM D, YYYY'));
   };
 
