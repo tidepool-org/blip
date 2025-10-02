@@ -57,7 +57,7 @@ const getQueries = (
       aggregationsByDate: 'dataByDate, statsByDate',
       bgSource: 'cbg',
       stats,
-      types: { cbg: {} },
+      types: { cbg: {}, smbg: {} },
       fillData: { adjustForDSTChanges: true },
       bgPrefs,
       metaData: 'latestPumpUpload, bgSources',
