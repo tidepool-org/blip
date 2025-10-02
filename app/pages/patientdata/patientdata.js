@@ -1239,8 +1239,7 @@ export const PatientDataClass = createReactClass({
       .toISOString();
 
     const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
-    const dateCeiling = getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs);
-    const datetimeLocation = getDatetimeLocation(dateCeiling);
+    const datetimeLocation = getDatetimeLocation(mostRecentDatumTime);
 
     const updateOpts = { updateChartEndpoints: true };
 
