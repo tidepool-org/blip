@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React from 'react';
 import Icon from '../../../components/elements/Icon';
 import { useLocation, useHistory } from 'react-router-dom';
 import Drawer from '@material-ui/core/Drawer';
@@ -12,6 +12,7 @@ import Overview from './Overview';
 import StackedDaily from './StackedDaily';
 import MenuBar, { OVERVIEW_TAB_INDEX, STACKED_DAILY_TAB_INDEX } from './MenuBar';
 import useAgpCGM from './useAgpCGM';
+import { shadows } from '../../../themes/baseTheme';
 
 const StyledCloseButton = styled(Icon)`
   position: absolute;
@@ -57,11 +58,14 @@ const PatientDrawer = ({ patientId, onClose, api, trackMetric, period }) => {
   const location = useLocation();
   const history = useHistory();
   const [selectedTab, setSelectedTab] = React.useState(OVERVIEW_TAB_INDEX);
+  const [scrolledToTop, setScrolledToTop] = React.useState(true);
   const isOpen = !!patientId && isValidAgpPeriod(period);
   const agpPeriodInDays = getAgpPeriodInDays(period);
   const agpCGMData = useAgpCGM(api, patientId, agpPeriodInDays);
+  const contentRef = React.useRef(null);
+  const contentTopPosition = contentRef.current ? contentRef.current.getBoundingClientRect().top : 0;
 
-  const Content = useCallback(() => {
+  const Content = React.useCallback(() => {
     if (selectedTab === OVERVIEW_TAB_INDEX) {
       return <Overview patientId={patientId} agpCGMData={agpCGMData} />;
     } else if (selectedTab === STACKED_DAILY_TAB_INDEX) {
@@ -71,7 +75,7 @@ const PatientDrawer = ({ patientId, onClose, api, trackMetric, period }) => {
     }
   }, [selectedTab, patientId, api, agpPeriodInDays, agpCGMData]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (isOpen) {
       const drawerTab = new URLSearchParams(location.search).get('drawerTab') || OVERVIEW_TAB_INDEX;
       setSelectedTab(parseInt(drawerTab, 10));
@@ -92,6 +96,10 @@ const PatientDrawer = ({ patientId, onClose, api, trackMetric, period }) => {
     setDrawerTabParam(tabIndex);
   }
 
+  const handleContentScroll = (e) => {
+    setScrolledToTop((e.target.scrollTop || 0) <= 5);
+  }
+
   return (
     <StyledDrawer
       anchor='right'
@@ -101,16 +109,31 @@ const PatientDrawer = ({ patientId, onClose, api, trackMetric, period }) => {
     >
       <StyledCloseButton label="close" onClick={onClose} icon={CloseRoundedIcon} variant="button" />
 
-      <Box px={4} py={4} sx={{
-        width: `calc(100vw - ${DRAWER_CLOSE_BUTTON_GAP})`, // account space needed for close button
-        maxWidth: DESKTOP_DRAWER_WIDTH,
-        height: '100%',
-        overflowY: 'scroll'
-      }}>
+      <Box
+        sx={{
+          width: `calc(100vw - ${DRAWER_CLOSE_BUTTON_GAP})`, // account space needed for close button
+          maxWidth: DESKTOP_DRAWER_WIDTH,
+          height: '100%',
+        }}
+      >
+
         {isOpen &&
           <>
             <MenuBar patientId={patientId} trackMetric={trackMetric} onClose={onClose} selectedTab={selectedTab} onSelectTab={handleSelectTab} />
-            <Content />
+            <Box sx={{ height: '8px', position: 'sticky', boxShadow: scrolledToTop ? 'none' : shadows.large }} />
+
+            <Box
+              ref={contentRef}
+              px={4}
+              py={4}
+              sx={{
+                height: `calc(100% - ${contentTopPosition || 0}px)`,
+                overflowY: 'scroll',
+              }}
+              onScroll={handleContentScroll}
+            >
+              <Content />
+            </Box>
           </>
         }
       </Box>

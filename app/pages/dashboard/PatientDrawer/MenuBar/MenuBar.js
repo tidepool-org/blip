@@ -65,7 +65,7 @@ const MenuBar = ({ patientId, onClose, onSelectTab, selectedTab, trackMetric }) 
   const { fullName, birthDate } = patient || {};
 
   return (
-    <Box>
+    <Box px={4} pt={4} sx={{ position: 'sticky', top: 0, bg: 'white', zIndex: 1 }}>
       <Flex mb={4} sx={{ justifyContent: 'space-between', alignItems: 'center', minHeight: '30px' }}>
         <Flex sx={{ justifyContent: 'flex-start', gap: 2, alignItems: 'flex-end' }}>
           <Text sx={{ color: vizColors.purple90, fontWeight: 'bold', fontSize: 2, lineHeight: 0 }}>
@@ -102,7 +102,7 @@ const MenuBar = ({ patientId, onClose, onSelectTab, selectedTab, trackMetric }) 
         </Flex>
       </Flex>
 
-      <Flex mb={3} p="1px" sx={{ justifyContent: 'space-between', alignItems: 'center', bg: 'blue50', borderRadius: 'default' }}>
+      <Flex p="1px" sx={{ justifyContent: 'space-between', alignItems: 'center', bg: 'blue50', borderRadius: 'default' }}>
         <Flex sx={{ gap: '1px' }}>
           {map(keys(tabs), (tabKey) => (
             <Button
