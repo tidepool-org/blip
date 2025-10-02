@@ -1,20 +1,19 @@
-import React, { useRef } from 'react';
+import React, { useRef, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { Box } from 'theme-ui';
 import { STATUS } from './useAgpCGM';
+import sundial from 'sundial';
 
 import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
 import { NoPatientData, InsufficientData } from './Overview';
 import { map, includes } from 'lodash';
-const { Loader } = vizComponents;
+const { Loader, SMBGTooltip, CBGTooltip } = vizComponents;
 const { getLocalizedCeiling } = vizUtils.datetime;
 
 // tideline dependencies & plugins
 import tidelineBlip from 'tideline/plugins/blip';
-import { noop } from 'lodash';
 import { MS_IN_DAY } from '../../../core/constants';
-import { get } from 'lodash';
-import { chunk } from 'lodash';
+import { get, chunk, mean } from 'lodash';
 const chartDailyFactory = tidelineBlip.oneday;
 
 const CHART_HEIGHT = 300;
@@ -22,6 +21,8 @@ const CHART_HEIGHT = 300;
 const StackedDaily = ({ patientId, agpCGMData }) => {
   const { status } = agpCGMData;
   const chartRefs = useRef([]);
+  const [hoveredSMBG, setHoveredSMBG] = React.useState(false);
+  const [hoveredCBG, setHoveredCBG] = React.useState(false);
 
   const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
   const patient = clinic?.patients?.[patientId];
@@ -32,24 +33,24 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
   ).reverse();
 
   const dataByDate = agpCGMData?.agpCGM?.data?.current?.aggregationsByDate?.dataByDate;
+  const bgPrefs = agpCGMData?.agpCGM?.query?.bgPrefs;
+  const bgClasses = bgPrefs?.bgClasses;
+  const bgUnits = bgPrefs?.bgUnits;
+  const timePrefs = agpCGMData?.agpCGM?.timePrefs;
 
-  if (status === STATUS.NO_PATIENT_DATA)   return <NoPatientData patientName={patient?.fullName}/>;
-  if (status === STATUS.INSUFFICIENT_DATA) return <InsufficientData />;
-  if (!includes([STATUS.DATA_PROCESSED, STATUS.SVGS_GENERATED], status)) return <Loader show={true} overlay={false} />;
-
-  const charts = map(dataByDate, (data, date) => {
+  const charts = useMemo(() => map(dataByDate, (data, date) => {
     const timePrefs = agpCGMData?.agpCGM?.timePrefs;
     const chartStart = getLocalizedCeiling(date, timePrefs).valueOf();
     const chartEnd = chartStart + MS_IN_DAY;
 
     const chartOpts = {
-      bgClasses: agpCGMData?.agpCGM.query.bgPrefs?.bgClasses,
-      bgUnits: agpCGMData?.agpCGM.query.bgPrefs?.bgUnits,
-      timePrefs: agpCGMData?.agpCGM?.timePrefs,
-      onSMBGHover: noop,
-      onSMBGOut: noop,
-      onCBGHover: noop,
-      onCBGOut: noop,
+      bgClasses,
+      bgUnits,
+      timePrefs,
+      onSMBGHover: handleSMBGHover,
+      onSMBGOut: handleSMBGOut,
+      onCBGHover: handleCBGHover,
+      onCBGOut: handleCBGOut,
       endpoints: [chartStart, chartEnd],
       scrollNav: false,
       showPools: {
@@ -60,10 +61,14 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
       },
     };
 
-    return [chartOpts, [...data.cbg]];
-  });
+    return [chartOpts, [...(data.cbg || []), ...(data.smbg || [])]];
+  }), [dataByDate, agpCGMData, bgClasses, bgUnits]);
 
-  const addToRefs = (element) => {
+  if (status === STATUS.NO_PATIENT_DATA)   return <NoPatientData patientName={patient?.fullName}/>;
+  if (status === STATUS.INSUFFICIENT_DATA) return <InsufficientData />;
+  if (!includes([STATUS.DATA_PROCESSED, STATUS.SVGS_GENERATED], status)) return <Loader show={true} overlay={false} />;
+
+  function addToRefs(element) {
     if (element && !chartRefs.current.includes(element)) {
       element.style.height = `${CHART_HEIGHT}px`;
       element.offsetHeigth = `${CHART_HEIGHT}px`;
@@ -78,11 +83,77 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
         .load(processedData, true)
         .locate();
     }
-  };
+  }
+
+  function handleSMBGHover(smbg) {
+    const rect = smbg.rect;
+    const datetimeLocation = smbg.chartEndpoints[1];
+    // range here is -12 to 12
+    const hoursOffset = sundial.dateDifference(smbg.data.normalTime, datetimeLocation, 'h');
+    smbg.top = rect.top + (rect.height / 2)
+    if(hoursOffset > 5) {
+      smbg.side = 'left';
+      smbg.left = rect.left;
+    } else {
+      smbg.side = 'right';
+      smbg.left = rect.left + rect.width;
+    }
+    setHoveredSMBG(smbg);
+  }
+
+  function handleSMBGOut() {
+    setHoveredSMBG(false);
+  }
+
+  function handleCBGHover(cbg) {
+    var rect = cbg.rect;
+    console.log('cbg', cbg);
+    const datetimeLocation = mean(cbg.chartEndpoints);
+    // range here is -12 to 12
+    var hoursOffset = sundial.dateDifference(cbg.data.normalTime, datetimeLocation, 'h');
+    console.log('cbg.data.normalTime, datetimeLocation, hoursOffset', cbg.data.normalTime, datetimeLocation, hoursOffset);
+    cbg.top = rect.top + (rect.height / 2)
+    if(hoursOffset > 5) {
+      console.log('cbg left');
+      cbg.side = 'left';
+      cbg.left = rect.left;
+    } else {
+      console.log('cbg right');
+      cbg.side = 'right';
+      cbg.left = rect.left + rect.width;
+    }
+
+    setHoveredCBG(cbg);
+  }
+
+  function handleCBGOut() {
+    // setHoveredCBG(false);
+  }
 
   return (
-    <Box>
-      {map(charts, ([date]) => <Box key={date} ref={addToRefs} />)}
+    <Box className='patient-data' sx={{ position: 'relative' }}>
+      {map(charts, (chart, key) => <Box key={key} ref={addToRefs} />)}
+
+      {hoveredSMBG && <SMBGTooltip
+        position={{
+          top: hoveredSMBG.top,
+          left: hoveredSMBG.left
+        }}
+        side={hoveredSMBG.side}
+        smbg={hoveredSMBG.data}
+        timePrefs={timePrefs}
+        bgPrefs={bgPrefs}
+      />}
+      {hoveredCBG && <CBGTooltip
+        position={{
+          top: hoveredCBG.top,
+          left: hoveredCBG.left
+        }}
+        side={hoveredCBG.side}
+        cbg={hoveredCBG.data}
+        timePrefs={timePrefs}
+        bgPrefs={bgPrefs}
+      />}
     </Box>
   );
 };
