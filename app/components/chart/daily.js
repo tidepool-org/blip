@@ -48,7 +48,6 @@ import Header from './header';
 import CgmSampleIntervalRangeToggle from './cgmSampleIntervalRangeToggle';
 import EventsInfoLabel from './eventsInfoLabel';
 import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE } from '../../core/constants';
-import moment from 'moment';
 
 const DailyChart = withTranslation(null, { withRef: true })(class DailyChart extends Component {
   static propTypes = {
@@ -564,14 +563,6 @@ class Daily extends Component {
     else {
       timezone = timePrefs.timezoneName || 'UTC';
     }
-
-    const datetimeMoment = moment(datetime).tz(timezone);
-    const isMidday = (datetimeMoment?.hours() === 12 && datetimeMoment?.minutes() === 0) ||
-                     (datetimeMoment?.hours() === 11 && datetimeMoment?.minutes() === 59);
-
-    let dtMask = isMidday ? 'MMM D, YYYY' : 'MMM D, YYYY (h:mm A)';
-
-    return datetimeMoment.format(dtMask);
   };
 
   // handlers
