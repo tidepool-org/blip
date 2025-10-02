@@ -1243,7 +1243,12 @@ export const PatientDataClass = createReactClass({
 
     const updateOpts = { updateChartEndpoints: true };
 
-    this.updateChart(chartType, datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType }), updateOpts);
+    this.updateChart(
+      chartType,
+      datetimeLocation,
+      this.getChartEndpoints(datetimeLocation, { chartType, setEndToLocalCeiling: false }),
+      updateOpts
+    );
   },
 
   handleSwitchToDaily: function(datetime) {
