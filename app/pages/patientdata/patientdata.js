@@ -2203,7 +2203,7 @@ export const PatientDataClass = createReactClass({
 
       // If a datetime param is specified in URL, use that. Otherwise, use time of latest
       // datum unless it is the daily view, in which case use the end of that date
-      let datetimeLocation = _.get(props, 'queryParams.datetime', isDaily
+      let datetimeLocation = _.get(props, 'queryParams.datetime', (isDaily || isBgLog)
         ? moment.utc(latestDatumDateCeiling.valueOf())
           .tz(isDaily ? getTimezoneFromTimePrefs(this.state.timePrefs) : 'UTC')
           .subtract(12, 'hours')
