@@ -137,9 +137,8 @@ const Trends = withTranslation()(class Trends extends PureComponent {
   getNewDomain(current, extent) {
     const timePrefs = _.get(this.props, 'data.timePrefs', {});
     const timezone = getTimezoneFromTimePrefs(timePrefs);
-    const end = getLocalizedCeiling(current.valueOf(), timePrefs);
-    const start = moment(end.toISOString()).tz(timezone).subtract(extent, 'days');
-    const dateDomain = [start.toISOString(), end.toISOString()];
+    const start = moment(current.toISOString()).tz(timezone).subtract(extent, 'days');
+    const dateDomain = [start.toISOString(), current.toISOString()];
 
     return dateDomain;
   }
@@ -352,11 +351,9 @@ const Trends = withTranslation()(class Trends extends PureComponent {
   }
 
   isAtMostRecent() {
-    const mostRecentCeiling = getLocalizedCeiling(
-      this.props.mostRecentDatetimeLocation,
-      _.get(this.props, 'data.timePrefs', {})
-    ).toISOString();
-    return _.get(this.refs, 'chart.state.dateDomain.end') >= mostRecentCeiling;
+    const { mostRecentDatetimeLocation } = this.props;
+
+    return _.get(this.refs, 'chart.state.dateDomain.end') >= mostRecentDatetimeLocation;
   }
 
   markTrendsViewed() {
