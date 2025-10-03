@@ -120,7 +120,7 @@ const PatientDrawer = ({ patientId, onClose, api, trackMetric, period }) => {
         {isOpen &&
           <>
             <MenuBar patientId={patientId} trackMetric={trackMetric} onClose={onClose} selectedTab={selectedTab} onSelectTab={handleSelectTab} />
-            <Box sx={{ height: '8px', position: 'sticky', boxShadow: scrolledToTop ? 'none' : shadows.large }} />
+            <Box className='sticky-shadow' sx={{ height: '8px', position: 'sticky', zIndex: 1, boxShadow: scrolledToTop ? 'none' : shadows.large }} />
 
             <Box
               ref={contentRef}
