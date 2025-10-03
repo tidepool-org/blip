@@ -355,6 +355,7 @@ const TideDashboardSection = React.memo(props => {
     setShowEditPatientDialog,
     showTideDashboardLastReviewed,
     showTideDashboardPatientDrawer,
+    showExtremeHigh,
     t,
     trackMetric,
   } = props;
@@ -520,6 +521,7 @@ const TideDashboardSection = React.memo(props => {
     config={config}
     clinicBgUnits={clinicBgUnits}
     activeSummaryPeriod={config?.period}
+    showExtremeHigh={showExtremeHigh}
   />
   }, [clinicBgUnits, config]);
 
@@ -911,6 +913,7 @@ export const TideDashboard = (props) => {
     showTideDashboard,
     showTideDashboardLastReviewed,
     showTideDashboardPatientDrawer,
+    showExtremeHigh,
   } = useFlags();
   const ldClient = useLDClient();
   const ldContext = ldClient.getContext();
@@ -1388,6 +1391,7 @@ export const TideDashboard = (props) => {
       setShowEditPatientDialog,
       showTideDashboardLastReviewed,
       showTideDashboardPatientDrawer,
+      showExtremeHigh,
       t,
       trackMetric,
     };
