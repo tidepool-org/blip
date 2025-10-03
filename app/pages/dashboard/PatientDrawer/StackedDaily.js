@@ -2,7 +2,7 @@ import React, { useRef, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import { useTranslation } from 'react-i18next';
-import { Box } from 'theme-ui';
+import { Flex, Box } from 'theme-ui';
 import sundial from 'sundial';
 import { map, includes, get, chunk, mean } from 'lodash';
 
@@ -18,6 +18,7 @@ import { NoPatientData, InsufficientData } from './Overview';
 import { STATUS } from './useAgpCGM';
 import { Body1, Body2 } from '../../../components/elements/FontStyles';
 import { STACKED_DAILY_TAB_INDEX } from './MenuBar';
+import BgLegend from '../../../components/chart/BgLegend';
 
 const CHART_HEIGHT = 200;
 
@@ -162,7 +163,11 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
 
   return (
     <Box className='patient-data' sx={{ position: 'relative' }} ref={containerRef}>
-      <Body2 mb={3} sx={{ fontWeight: 'bold', color: 'purple90' }}>{t('Glucose ({{bgUnits}})', { bgUnits })}</Body2>
+      <Flex mb={3} sx={{ justifyContent: 'space-between', alignItems: 'center'}}>
+        <Body2 sx={{ fontWeight: 'bold', color: 'purple90' }}>{t('Glucose ({{bgUnits}})', { bgUnits })}</Body2>
+
+        <BgLegend />
+      </Flex>
 
       {map(charts, ([date, chartOpts]) => (
         <Box mb={4} key={date} className='chart-wrapper'>
