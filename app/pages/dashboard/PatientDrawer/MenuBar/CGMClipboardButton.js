@@ -14,7 +14,7 @@ const STATE = {
 
 const MINIMUM_HOURS_OF_DATA = 24;
 
-const CGMClipboardButton = ({ patient, data, variant }) => {
+const CGMClipboardButton = ({ patient, data, variant, ...buttonProps }) => {
   const { t } = useTranslation();
   const [buttonState, setButtonState] = useState(STATE.DEFAULT);
   const clipboardText = useMemo(() => agpCGMText(patient, data), [patient, data]);
@@ -39,7 +39,7 @@ const CGMClipboardButton = ({ patient, data, variant }) => {
   };
 
   return (
-    <Button disabled={isDataInsufficient} onClick={handleCopy} variant={variant} sx={{ position: 'relative', alignItems: 'center' }}>
+    <Button {...buttonProps} disabled={isDataInsufficient} onClick={handleCopy} variant={variant} sx={{ position: 'relative', alignItems: 'center' }}>
       <Box sx={{ visibility: buttonState === STATE.DEFAULT ? 'visible' : 'hidden' }}>{t('Copy as Text')}</Box>
 
       <Flex sx={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, alignSelf: 'center', justifySelf: 'center' }}>

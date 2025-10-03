@@ -13,6 +13,8 @@ import { useFlags } from 'launchdarkly-react-client-sdk';
 import CGMClipboardButton from './CGMClipboardButton';
 import api from '../../../../core/api';
 import { map, keys } from 'lodash';
+import copyIcon from '../../../../core/icons/copyIcon.svg';
+import viewIcon from '../../../../core/icons/viewIcon.svg';
 
 export const OVERVIEW_TAB_INDEX = 0;
 export const STACKED_DAILY_TAB_INDEX = 1;
@@ -45,6 +47,8 @@ const MenuBar = ({ patientId, onClose, onSelectTab, selectedTab, trackMetric }) 
   }, []);
 
   const handleViewData = () => {
+    // dispatch(actions.worker.removeGeneratedPDFS());
+    // dispatch(actions.worker.dataWorkerRemoveDataRequest(null, patientId));
     dispatch(push(`/patients/${patientId}/data/trends?dashboard=tide&drawerTab=${selectedTab}`));
   };
 
@@ -109,7 +113,7 @@ const MenuBar = ({ patientId, onClose, onSelectTab, selectedTab, trackMetric }) 
               variant="tab"
               key={tabKey}
               onClick={(e) => handleSelectTab(e, tabKey)}
-              selected={selectedTab == tabKey}
+              selected={parseInt(selectedTab) === parseInt(tabKey)}
             >
               {tabs[tabKey].label}
             </Button>
@@ -117,11 +121,11 @@ const MenuBar = ({ patientId, onClose, onSelectTab, selectedTab, trackMetric }) 
         </Flex>
 
         <Flex sx={{ justifyContent: 'space-between', alignItems: 'center', gap: '1px' }}>
-          <Button onClick={handleViewData} variant="tab">
+          <Button iconPosition="left" iconSrc={viewIcon} onClick={handleViewData} variant="tab">
             {t('View Data')}
           </Button>
 
-          <CGMClipboardButton patient={patient} data={pdf?.data?.agpCGM} variant="tab" />
+          <CGMClipboardButton iconPosition="left" iconSrc={copyIcon} patient={patient} data={pdf?.data?.agpCGM} variant="tab" />
         </Flex>
       </Flex>
     </Box>

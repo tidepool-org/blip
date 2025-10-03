@@ -407,16 +407,24 @@ export default ({
       border: 0,
       borderRadius: radii.default,
       borderBottomRightRadius: 0,
+      borderBottomLeftRadius: 0,
+      '.icon img': {
+        filter: 'brightness(0%) saturate(100%) invert(97%) sepia(100%) saturate(0%) hue-rotate(317deg) brightness(105%) contrast(101%)', // white
+      },
       '&.selected': {
         backgroundColor: 'blue80',
         fontWeight: fontWeights.bold,
       },
       '&:hover': {
-        backgroundColor: 'blue80',
+        backgroundColor: 'blue60',
       },
       '&:disabled': {
         color: colors.text.primaryDisabled,
         pointerEvents: 'none',
+
+        '.icon img': {
+          filter: 'brightness(0%) saturate(100%) invert(82%) sepia(19%) saturate(177%) hue-rotate(178deg) brightness(81%) contrast(90%)', // colors.text.primaryDisabled
+        },
       },
     },
     large: {
