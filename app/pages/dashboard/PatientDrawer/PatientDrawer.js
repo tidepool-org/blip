@@ -73,7 +73,7 @@ const PatientDrawer = ({ patientId, onClose, api, trackMetric, period }) => {
     } else {
       return null;
     }
-  }, [selectedTab, patientId, api, agpPeriodInDays, agpCGMData]);
+  }, [selectedTab, patientId, agpCGMData]);
 
   React.useEffect(() => {
     if (isOpen) {
@@ -125,7 +125,8 @@ const PatientDrawer = ({ patientId, onClose, api, trackMetric, period }) => {
             <Box
               ref={contentRef}
               px={4}
-              py={4}
+              pt={3}
+              pb={4}
               sx={{
                 height: `calc(100% - ${contentTopPosition || 0}px)`,
                 overflowY: 'scroll',

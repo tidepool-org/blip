@@ -1,43 +1,47 @@
 import React, { useRef, useMemo } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { push } from 'connected-react-router';
+import { useTranslation } from 'react-i18next';
 import { Box } from 'theme-ui';
-import { STATUS } from './useAgpCGM';
 import sundial from 'sundial';
+import { map, includes, get, chunk, mean } from 'lodash';
 
 import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
-import { NoPatientData, InsufficientData } from './Overview';
-import { map, includes } from 'lodash';
 const { Loader, SMBGTooltip, CBGTooltip } = vizComponents;
 const { getLocalizedCeiling } = vizUtils.datetime;
 
-// tideline dependencies & plugins
 import tidelineBlip from 'tideline/plugins/blip';
-import { MS_IN_DAY } from '../../../core/constants';
-import { get, chunk, mean } from 'lodash';
 const chartDailyFactory = tidelineBlip.oneday;
 
-const CHART_HEIGHT = 300;
+import { MS_IN_DAY } from '../../../core/constants';
+import { NoPatientData, InsufficientData } from './Overview';
+import { STATUS } from './useAgpCGM';
+import { Body1, Body2 } from '../../../components/elements/FontStyles';
+import { STACKED_DAILY_TAB_INDEX } from './MenuBar';
+
+const CHART_HEIGHT = 200;
 
 const StackedDaily = ({ patientId, agpCGMData }) => {
+  const { t } = useTranslation();
   const { status } = agpCGMData;
   const chartRefs = useRef([]);
   const containerRef = useRef(null);
   const [hoveredSMBG, setHoveredSMBG] = React.useState(false);
   const [hoveredCBG, setHoveredCBG] = React.useState(false);
-
   const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
   const patient = clinic?.patients?.[patientId];
-
-  const fillDataChunks = chunk(
-    get(agpCGMData, 'agpCGM.data.current.data.fill', []),
-    8 // number of 3hr intervals in a day
-  ).reverse();
+  const dispatch = useDispatch();
 
   const dataByDate = agpCGMData?.agpCGM?.data?.current?.aggregationsByDate?.dataByDate;
   const bgPrefs = agpCGMData?.agpCGM?.query?.bgPrefs;
   const bgClasses = bgPrefs?.bgClasses;
   const bgUnits = bgPrefs?.bgUnits;
   const timePrefs = agpCGMData?.agpCGM?.timePrefs;
+
+  const fillDataChunks = chunk(
+    get(agpCGMData, 'agpCGM.data.current.data.fill', []),
+    8 // number of 3hr intervals in a day
+  ).reverse();
 
   const charts = useMemo(() => map(dataByDate, (data, date) => {
     const timePrefs = agpCGMData?.agpCGM?.timePrefs;
@@ -53,16 +57,30 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
       onCBGHover: handleCBGHover,
       onCBGOut: handleCBGOut,
       endpoints: [chartStart, chartEnd],
-      scrollNav: false,
-      showPools: {
-        events: false,
-        bg: true,
-        bolus: false,
-        basal: false,
+      dayLabel: false,
+      minHeight: CHART_HEIGHT,
+      pool: {
+        events: {
+          hidden: true,
+        },
+        bg: {
+          hidden: false,
+          label: false,
+          legend: false,
+          heightRatio: 10,
+          gutterWeight: 0,
+        },
+        bolus: {
+          hidden: true,
+        },
+        basal: {
+          hidden: true,
+        },
       },
     };
 
-    return [chartOpts, [...(data.cbg || []), ...(data.smbg || [])]];
+    const chartData = [...(data.cbg || []), ...(data.smbg || [])]
+    return [date, chartOpts, chartData];
   }), [dataByDate, agpCGMData, bgClasses, bgUnits]);
 
   if (status === STATUS.NO_PATIENT_DATA)   return <NoPatientData patientName={patient?.fullName}/>;
@@ -71,13 +89,15 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
 
   function addToRefs(element) {
     if (element && !chartRefs.current.includes(element)) {
+      const chartIndex = chartRefs.current.length;
+
       element.style.height = `${CHART_HEIGHT}px`;
-      element.offsetHeigth = `${CHART_HEIGHT}px`;
+      element.id = `tideline-daily-${chartIndex}`;
       chartRefs.current.push(element);
 
-      const [chartOpts, data] = charts[chartRefs.current.length - 1];
-      const fillData = fillDataChunks[chartRefs.current.length - 1] || [];
-      const processedData = [...data, ...fillData];
+      const [_, chartOpts, chartData] = charts[chartIndex];
+      const fillData = fillDataChunks[chartIndex] || [];
+      const processedData = [...chartData, ...fillData];
 
       chartDailyFactory(element, chartOpts)
         .setupPools()
@@ -88,12 +108,14 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
 
   function handleSMBGHover(smbg) {
     const rect = smbg.rect;
-    const datetimeLocation = mean(smbg.chartEndpoints);
     const containerRect = containerRef.current?.getBoundingClientRect();
     const containerXOffset = containerRect?.x || 0;
+
     // range here is -12 to 12
+    const datetimeLocation = mean(smbg.chartEndpoints);
     const hoursOffset = sundial.dateDifference(smbg.data.normalTime, datetimeLocation, 'h');
     smbg.top = rect.top + (rect.height / 2)
+
     if(hoursOffset > 5) {
       smbg.side = 'left';
       smbg.left = rect.left;
@@ -101,6 +123,7 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
       smbg.side = 'right';
       smbg.left = rect.left + rect.width;
     }
+
     setHoveredSMBG({ ...smbg, left: smbg.left - containerXOffset });
   }
 
@@ -112,17 +135,16 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
     var rect = cbg.rect;
     const containerRect = containerRef.current?.getBoundingClientRect();
     const containerXOffset = containerRect?.x || 0;
-    const datetimeLocation = mean(cbg.chartEndpoints);
+
     // range here is -12 to 12
+    const datetimeLocation = mean(cbg.chartEndpoints);
     var hoursOffset = sundial.dateDifference(cbg.data.normalTime, datetimeLocation, 'h');
-    console.log('cbg.data.normalTime, datetimeLocation, hoursOffset', cbg.data.normalTime, datetimeLocation, hoursOffset);
     cbg.top = rect.top + (rect.height / 2)
+
     if(hoursOffset > 5) {
-      console.log('cbg left');
       cbg.side = 'left';
       cbg.left = rect.left;
     } else {
-      console.log('cbg right');
       cbg.side = 'right';
       cbg.left = rect.left + rect.width;
     }
@@ -134,9 +156,27 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
     setHoveredCBG(false);
   }
 
+  function handleSwitchToDaily(endpoints) {
+    dispatch(push(`/patients/${patientId}/data/daily?dashboard=tide&drawerTab=${STACKED_DAILY_TAB_INDEX}&datetime=${mean(endpoints)}`));
+  };
+
   return (
     <Box className='patient-data' sx={{ position: 'relative' }} ref={containerRef}>
-      {map(charts, (chart, key) => <Box key={key} ref={addToRefs} />)}
+      <Body2 mb={3} sx={{ fontWeight: 'bold', color: 'purple90' }}>{t('Glucose ({{bgUnits}})', { bgUnits })}</Body2>
+
+      {map(charts, ([date, chartOpts]) => (
+        <Box mb={4} key={date} className='chart-wrapper'>
+          <Body1
+            py={1}
+            sx={{ fontWeight: 'bold', '&:hover': { display: 'inline-block', textDecoration: 'underline', cursor: 'pointer' } }}
+            onClick={() => handleSwitchToDaily(chartOpts.endpoints)}
+          >
+            {date}
+          </Body1>
+
+          <Box className='chart-container' ref={addToRefs} />
+        </Box>
+      ))}
 
       {hoveredSMBG && <SMBGTooltip
         position={{
