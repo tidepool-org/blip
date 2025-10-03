@@ -21,6 +21,7 @@ const CHART_HEIGHT = 300;
 const StackedDaily = ({ patientId, agpCGMData }) => {
   const { status } = agpCGMData;
   const chartRefs = useRef([]);
+  const containerRef = useRef(null);
   const [hoveredSMBG, setHoveredSMBG] = React.useState(false);
   const [hoveredCBG, setHoveredCBG] = React.useState(false);
 
@@ -87,7 +88,9 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
 
   function handleSMBGHover(smbg) {
     const rect = smbg.rect;
-    const datetimeLocation = smbg.chartEndpoints[1];
+    const datetimeLocation = mean(smbg.chartEndpoints);
+    const containerRect = containerRef.current?.getBoundingClientRect();
+    const containerXOffset = containerRect?.x || 0;
     // range here is -12 to 12
     const hoursOffset = sundial.dateDifference(smbg.data.normalTime, datetimeLocation, 'h');
     smbg.top = rect.top + (rect.height / 2)
@@ -98,7 +101,7 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
       smbg.side = 'right';
       smbg.left = rect.left + rect.width;
     }
-    setHoveredSMBG(smbg);
+    setHoveredSMBG({ ...smbg, left: smbg.left - containerXOffset });
   }
 
   function handleSMBGOut() {
@@ -107,7 +110,8 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
 
   function handleCBGHover(cbg) {
     var rect = cbg.rect;
-    console.log('cbg', cbg);
+    const containerRect = containerRef.current?.getBoundingClientRect();
+    const containerXOffset = containerRect?.x || 0;
     const datetimeLocation = mean(cbg.chartEndpoints);
     // range here is -12 to 12
     var hoursOffset = sundial.dateDifference(cbg.data.normalTime, datetimeLocation, 'h');
@@ -123,15 +127,15 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
       cbg.left = rect.left + rect.width;
     }
 
-    setHoveredCBG(cbg);
+    setHoveredCBG({ ...cbg, left: cbg.left - containerXOffset });
   }
 
   function handleCBGOut() {
-    // setHoveredCBG(false);
+    setHoveredCBG(false);
   }
 
   return (
-    <Box className='patient-data' sx={{ position: 'relative' }}>
+    <Box className='patient-data' sx={{ position: 'relative' }} ref={containerRef}>
       {map(charts, (chart, key) => <Box key={key} ref={addToRefs} />)}
 
       {hoveredSMBG && <SMBGTooltip
