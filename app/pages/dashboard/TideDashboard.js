@@ -81,7 +81,7 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
 import DataInIcon from '../../core/icons/DataInIcon.svg';
 import { colors, fontWeights, radii } from '../../themes/baseTheme';
 import PatientLastReviewed from '../../components/clinic/PatientLastReviewed';
-import { OVERVIEW_TAB_INDEX } from './PatientDrawer/MenuBar/MenuBar';
+import { OVERVIEW_TAB_INDEX, STACKED_DAILY_TAB_INDEX } from './PatientDrawer/MenuBar/MenuBar';
 
 const { Loader } = vizComponents;
 const { formatBgValue } = vizUtils.bg;
@@ -329,6 +329,7 @@ const TideDashboardSection = React.memo(props => {
         const params = new URLSearchParams(search);
         params.set('drawerPatientId', patient.id);
         params.set('drawerTab', OVERVIEW_TAB_INDEX);
+        // params.set('drawerTab', STACKED_DAILY_TAB_INDEX);
         history.replace({ pathname, search: params.toString() });
 
         return;
@@ -805,6 +806,14 @@ export const TideDashboard = (props) => {
     updatingClinicPatient,
     fetchingTideDashboardPatients,
   } = useSelector((state) => state.blip.working);
+
+  // TODO: remove this when upgraded to React 18
+  // force another render when fetching dashboard patients state changes
+  // Addresses the same issue we had previously encountered on the ClinicPatients view to clear loading state consistently
+  const [forceUpdate, setForceUpdate] = useState();
+  if(!isEqual(forceUpdate, fetchingTideDashboardPatients)){
+    setForceUpdate(fetchingTideDashboardPatients);
+  }
 
   const previousUpdatingClinicPatient = usePrevious(updatingClinicPatient);
   const previousFetchingTideDashboardPatients = usePrevious(fetchingTideDashboardPatients);
