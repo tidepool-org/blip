@@ -59,15 +59,15 @@ export const ChartDateRangeModal = (props) => {
     const startDate = moment.utc(endDate).tz(timezoneName).subtract(days - 1, 'days');
 
     return ({
-      startDate: startDate ? moment.utc(startDate).tz(timezoneName) : null,
-      endDate: endDate ? moment.utc(endDate).tz(timezoneName).subtract(1, 'ms') : null,
+      startDate: startDate ? moment.utc(startDate).tz(timezoneName).endOf('hour').add(1, 'ms') : null,
+      endDate: endDate ? moment.utc(endDate).tz(timezoneName).endOf('hour').add(1, 'ms') : null,
     });
   };
 
   const defaultDates = () => defaultDatesProp
     ? ({
-      startDate: defaultDatesProp[0] ? moment.utc(defaultDatesProp[0]).tz(timezoneName) : null,
-      endDate: defaultDatesProp[1] ? moment.utc(defaultDatesProp[1]).tz(timezoneName) : null,
+      startDate: defaultDatesProp[0] ? moment.utc(defaultDatesProp[0]).tz(timezoneName).endOf('hour').add(1, 'ms') : null,
+      endDate: defaultDatesProp[1] ? moment.utc(defaultDatesProp[1]).tz(timezoneName).endOf('hour').add(1, 'ms') : null,
     })
     : getLastNDays(presetDaysOptions[0]);
 
@@ -147,12 +147,15 @@ export const ChartDateRangeModal = (props) => {
     // time so that the period is a multiple of 24 hours.
     if (mostRecentDatumMoment?.isBefore(adjustedDates?.endDate)) {
       const modifiedStart = adjustedDates?.startDate;
+
       modifiedStart.hour(mostRecentDatumMoment.hour())
-                   .minute(mostRecentDatumMoment.minute());
+                   .minute(mostRecentDatumMoment.minute())
+                   .endOf('hour')
+                   .add(1, 'ms');
 
       setDates({
         startDate: modifiedStart,
-        endDate: mostRecentDatumMoment,
+        endDate: mostRecentDatumMoment.endOf('hour').add(1, 'ms'),
       });
 
     } else {

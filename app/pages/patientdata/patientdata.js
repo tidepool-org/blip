@@ -1239,7 +1239,8 @@ export const PatientDataClass = createReactClass({
       .toISOString();
 
     const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
-    const datetimeLocation = getDatetimeLocation(mostRecentDatumTime);
+    const dateCeiling = moment.utc(mostRecentDatumTime).endOf('hour').add(1, 'ms').toISOString();
+    const datetimeLocation = getDatetimeLocation(dateCeiling);
 
     const updateOpts = { updateChartEndpoints: true };
 
@@ -1283,7 +1284,8 @@ export const PatientDataClass = createReactClass({
       .toISOString();
 
     const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
-    const datetimeLocation = getDatetimeLocation(mostRecentDatumTime);
+    const dateCeiling = moment.utc(mostRecentDatumTime).endOf('hour').add(1, 'ms').toISOString();
+    const datetimeLocation = getDatetimeLocation(dateCeiling);
 
     const updateOpts = { updateChartEndpoints: true };
     if (datetime && mostRecentDatumTime) {
@@ -2209,7 +2211,9 @@ export const PatientDataClass = createReactClass({
           .subtract(12, 'hours')
           .toISOString()
         : moment.utc(mostRecentDatumTime)
-          .toISOString());
+                .endOf('hour')
+                .add(1, 'ms')
+                .toISOString());
 
       if (_.isInteger(_.toNumber(datetimeLocation))) {
         datetimeLocation = moment.utc(_.toNumber(datetimeLocation)).toISOString();

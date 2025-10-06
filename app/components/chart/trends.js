@@ -137,8 +137,10 @@ const Trends = withTranslation()(class Trends extends PureComponent {
   getNewDomain(current, extent) {
     const timePrefs = _.get(this.props, 'data.timePrefs', {});
     const timezone = getTimezoneFromTimePrefs(timePrefs);
+
+    const end = moment(current.toISOString()).tz(timezone).endOf('hour').add(1, 'ms');
     const start = moment(current.toISOString()).tz(timezone).subtract(extent, 'days');
-    const dateDomain = [start.toISOString(), current.toISOString()];
+    const dateDomain = [start.toISOString(), end.toISOString()];
 
     return dateDomain;
   }
