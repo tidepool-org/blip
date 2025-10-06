@@ -17,7 +17,7 @@ export const STATUS = {
   SVGS_GENERATED: 'SVGS_GENERATED',
 
   // Other states
-  NO_PATIENT_ID:  'NO_PATIENT_ID',
+  NO_PATIENT:  'NO_PATIENT',
   NO_PATIENT_DATA:   'NO_PATIENT_DATA',
   INSUFFICIENT_DATA: 'INSUFFICIENT_DATA',
 };
@@ -27,14 +27,14 @@ const inferLastCompletedStep = (patientId, data, pdf) => {
   // If the outputted data for a step in the process exists, we infer that the step was successful.
   // We do the lookup in reverse order to return the LATEST completed step
 
+  // No Patient Selected
+  if (!patientId) return STATUS.NO_PATIENT;
+
   // Incorrect Patient --- (occurs when user switches patient partway through fetching)
   const hasOtherPdfInState  = !!pdf.opts && pdf.opts.patient?.id !== patientId;
   const hasOtherDataInState = !!data.metaData.patientId && data.metaData.patientId !== patientId;
 
   if (hasOtherPdfInState || hasOtherDataInState) return STATUS.INITIALIZED;
-
-  // No Patient ID --- (occurs when patient drawer is in a closed state and so patientId is unset)
-  if (!patientId) return STATUS.NO_PATIENT_ID;
 
   // Insufficient Data States ---
   const hasNoPatientData    = data.metaData?.size === 0;
@@ -117,7 +117,7 @@ const useAgpCGM = (
         break;
 
       case STATUS.SVGS_GENERATED: // image generation complete, no further steps necessary
-      case STATUS.NO_PATIENT_ID: // no patient is loaded, no further steps necessary
+      case STATUS.NO_PATIENT: // no patient is loaded, no further steps necessary
       default:
         break;
     }
