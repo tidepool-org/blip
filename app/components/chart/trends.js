@@ -28,7 +28,7 @@ import { getDisplayFormat } from '../elements/DateRangePicker';
 
 const TrendsContainer = vizContainers.TrendsContainer;
 const getTimezoneFromTimePrefs = vizUtils.datetime.getTimezoneFromTimePrefs;
-const getLocalizedCeiling = vizUtils.datetime.getLocalizedCeiling;
+const getLocalizedHourCeiling = vizUtils.datetime.getLocalizedHourCeiling;
 const trendsText = vizUtils.text.trendsText;
 const {
   ClipboardButton,
@@ -137,8 +137,7 @@ const Trends = withTranslation()(class Trends extends PureComponent {
   getNewDomain(current, extent) {
     const timePrefs = _.get(this.props, 'data.timePrefs', {});
     const timezone = getTimezoneFromTimePrefs(timePrefs);
-
-    const end = moment(current.toISOString()).tz(timezone).endOf('hour').add(1, 'ms');
+    const end = getLocalizedHourCeiling(current.valueOf(), timePrefs);
     const start = moment(current.toISOString()).tz(timezone).subtract(extent, 'days');
     const dateDomain = [start.toISOString(), end.toISOString()];
 
@@ -287,7 +286,9 @@ const Trends = withTranslation()(class Trends extends PureComponent {
       this.state.debouncedDateRangeUpdate.cancel();
     }
 
-    const datetimeLocation = moment.utc(datetimeLocationEndpoints[1]).toISOString();
+    const hourCeiling = getLocalizedHourCeiling(datetimeLocationEndpoints[1], _.get(this.props, 'data.timePrefs', {}));
+
+    const datetimeLocation = moment.utc(hourCeiling.valueOf()).toISOString();
 
     const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 250);
     debouncedDateRangeUpdate(datetimeLocation);

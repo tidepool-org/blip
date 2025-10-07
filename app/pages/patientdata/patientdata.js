@@ -66,7 +66,7 @@ import { DATA_DONATION_CONSENT_TYPE, DEFAULT_CGM_SAMPLE_INTERVAL, DEFAULT_CGM_SA
 const { GLYCEMIC_RANGE } = vizUtils.constants;
 
 const { Loader } = vizComponents;
-const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
+const { getLocalizedCeiling, getLocalizedHourCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
 const { commonStats, getStatDefinition } = vizUtils.stat;
 const { isCustomBgRange } = vizUtils.bg;
 
@@ -1239,8 +1239,8 @@ export const PatientDataClass = createReactClass({
       .toISOString();
 
     const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
-    const dateCeiling = moment.utc(mostRecentDatumTime).endOf('hour').add(1, 'ms').toISOString();
-    const datetimeLocation = getDatetimeLocation(dateCeiling);
+    const hourCeiling = getLocalizedHourCeiling(mostRecentDatumTime, this.state.timePrefs);
+    const datetimeLocation = getDatetimeLocation(hourCeiling);
 
     const updateOpts = { updateChartEndpoints: true };
 
@@ -1284,8 +1284,8 @@ export const PatientDataClass = createReactClass({
       .toISOString();
 
     const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
-    const dateCeiling = moment.utc(mostRecentDatumTime).endOf('hour').add(1, 'ms').toISOString();
-    const datetimeLocation = getDatetimeLocation(dateCeiling);
+    const hourCeiling = getLocalizedHourCeiling(_.min([Date.parse(datetime), mostRecentDatumTime]), this.state.timePrefs);
+    const datetimeLocation = getDatetimeLocation(hourCeiling);
 
     const updateOpts = { updateChartEndpoints: true };
     if (datetime && mostRecentDatumTime) {
@@ -2201,19 +2201,17 @@ export const PatientDataClass = createReactClass({
       const isBgLog = chartType === 'bgLog';
 
       const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(props, chartType);
-      const latestDatumDateCeiling = getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs);
+      const latestDatumHourCeiling = getLocalizedHourCeiling(mostRecentDatumTime, this.state.timePrefs);
 
       // If a datetime param is specified in URL, use that. Otherwise, use time of latest
       // datum unless it is the daily view, in which case use the end of that date
       let datetimeLocation = _.get(props, 'queryParams.datetime', (isDaily || isBgLog)
-        ? moment.utc(latestDatumDateCeiling.valueOf())
+        ? moment.utc(latestDatumHourCeiling.valueOf())
           .tz(isDaily ? getTimezoneFromTimePrefs(this.state.timePrefs) : 'UTC')
           .subtract(12, 'hours')
           .toISOString()
-        : moment.utc(mostRecentDatumTime)
-                .endOf('hour')
-                .add(1, 'ms')
-                .toISOString());
+        : moment.utc(latestDatumHourCeiling.valueOf())
+          .toISOString());
 
       if (_.isInteger(_.toNumber(datetimeLocation))) {
         datetimeLocation = moment.utc(_.toNumber(datetimeLocation)).toISOString();
