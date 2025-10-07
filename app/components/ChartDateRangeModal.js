@@ -69,10 +69,12 @@ export const ChartDateRangeModal = (props) => {
     });
   };
 
+  console.log('@@@ defaultDatesProp', defaultDatesProp)
+
   const defaultDates = () => defaultDatesProp
     ? ({
-      startDate: defaultDatesProp[0] ? moment.utc(defaultDatesProp[0]).tz(timezoneName).endOf('hour').add(1, 'ms') : null,
-      endDate: defaultDatesProp[1] ? moment.utc(defaultDatesProp[1]).tz(timezoneName).endOf('hour').add(1, 'ms') : null,
+      startDate: defaultDatesProp[0] ? moment.utc(defaultDatesProp[0]).tz(timezoneName) : null,
+      endDate: defaultDatesProp[1] ? moment.utc(defaultDatesProp[1]).tz(timezoneName) : null,
     })
     : getLastNDays(presetDaysOptions[0]);
 
