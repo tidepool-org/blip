@@ -212,12 +212,11 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
       ))}
 
       <Flex sx={{ justifyContent: 'space-between', alignItems: 'center', gap: 2 }}>
-        <Box sx={{ flexBasis: '1' }}>
+        <Box sx={{ flex: '1 1 0' }}>
           <Body1 sx={{ fontWeight: 'medium', color: 'gray50'}}>{visibleDaysText}</Body1>
         </Box>
 
-        <Flex sx={{ justifyContent: 'center', alignItems: 'center', gap: 2, flexBasis: 2, flexGrow: 1 }}>
-
+        <Flex sx={{ justifyContent: 'center', alignItems: 'center', gap: 1 }}>
           {hasMoreDays && (
             <Button
             sx={{ fontSize: 1, fontWeight: 'medium' }}
@@ -239,7 +238,7 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
           </Button>
         </Flex>
 
-        <Box sx={{ flexBasis: '1' }}></Box>
+        <Box sx={{ flex: '1 1 0' }}>&nbsp;</Box>
       </Flex>
 
       {hoveredSMBG && <SMBGTooltip
