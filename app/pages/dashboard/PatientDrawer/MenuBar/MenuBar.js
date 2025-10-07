@@ -47,8 +47,6 @@ const MenuBar = ({ patientId, onClose, onSelectTab, selectedTab, trackMetric }) 
   }, []);
 
   const handleViewData = () => {
-    // dispatch(actions.worker.removeGeneratedPDFS());
-    // dispatch(actions.worker.dataWorkerRemoveDataRequest(null, patientId));
     dispatch(push(`/patients/${patientId}/data/trends?dashboard=tide&drawerTab=${selectedTab}`));
   };
 

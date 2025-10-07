@@ -72,7 +72,7 @@ const Overview = ({ patientId, agpCGMData }) => {
   const { bgSource, glycemicRanges } = agpCGM.query;
 
   return (
-    <>
+    <Box pt={3}>
       <Box mb={3}>
         <CGMDeltaSummary agpCGM={agpCGM} offsetAgpCGM={offsetAgpCGM} />
       </Box>
@@ -116,7 +116,7 @@ const Overview = ({ patientId, agpCGMData }) => {
         <Text>{t('Patent pending – HealthPartners Institute dba International Diabetes Center – All Rights Reserved. ©2022')}</Text>
         <Text>{`${t('Tidepool')} | ${t('CapturAGP v5.0')}`}</Text>
       </Flex>
-    </>
+    </Box>
   );
 };
 

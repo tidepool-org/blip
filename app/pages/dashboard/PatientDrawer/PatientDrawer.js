@@ -65,16 +65,6 @@ const PatientDrawer = ({ patientId, onClose, api, trackMetric, period }) => {
   const contentRef = React.useRef(null);
   const contentTopPosition = contentRef.current ? contentRef.current.getBoundingClientRect().top : 0;
 
-  const Content = React.useCallback(() => {
-    if (selectedTab === OVERVIEW_TAB_INDEX) {
-      return <Overview patientId={patientId} agpCGMData={agpCGMData} />;
-    } else if (selectedTab === STACKED_DAILY_TAB_INDEX) {
-      return <StackedDaily patientId={patientId} agpCGMData={agpCGMData} />;
-    } else {
-      return null;
-    }
-  }, [selectedTab, patientId, agpCGMData]);
-
   React.useEffect(() => {
     if (isOpen) {
       const drawerTab = new URLSearchParams(location.search).get('drawerTab') || OVERVIEW_TAB_INDEX;
@@ -126,7 +116,6 @@ const PatientDrawer = ({ patientId, onClose, api, trackMetric, period }) => {
             <Box
               ref={contentRef}
               px={4}
-              pt={3}
               pb={4}
               sx={{
                 height: `calc(100% - ${contentTopPosition || 0}px)`,
@@ -134,7 +123,8 @@ const PatientDrawer = ({ patientId, onClose, api, trackMetric, period }) => {
               }}
               onScroll={handleContentScroll}
             >
-              <Content />
+              {selectedTab === OVERVIEW_TAB_INDEX && <Overview patientId={patientId} agpCGMData={agpCGMData} />}
+              {selectedTab === STACKED_DAILY_TAB_INDEX && <StackedDaily patientId={patientId} agpCGMData={agpCGMData} />}
             </Box>
           </>
         }
