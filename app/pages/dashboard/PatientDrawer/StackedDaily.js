@@ -4,6 +4,7 @@ import { push } from 'connected-react-router';
 import { useTranslation } from 'react-i18next';
 import { Flex, Box } from 'theme-ui';
 import sundial from 'sundial';
+import VerticalAlignTopRoundedIcon from '@material-ui/icons/VerticalAlignTopRounded';
 import { map, includes, get, chunk, mean } from 'lodash';
 
 import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
@@ -17,6 +18,7 @@ import { MS_IN_DAY } from '../../../core/constants';
 import { NoPatientData, InsufficientData } from './Overview';
 import { STATUS } from './useAgpCGM';
 import { Body1, Body2 } from '../../../components/elements/FontStyles';
+import Button from '../../../components/elements/Button';
 import { STACKED_DAILY_TAB_INDEX } from './MenuBar';
 import BgLegend from '../../../components/chart/BgLegend';
 
@@ -44,7 +46,19 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
     8 // number of 3hr intervals in a day
   ).reverse();
 
-  const charts = useMemo(() => map(dataByDate, (data, date) => {
+  const [visibleDays, setVisibleDays] = React.useState(7);
+  const dates = Object.keys(dataByDate || {});
+  const hasMoreDays = visibleDays < dates.length;
+
+  const visibleDaysText = visibleDays < dates.length
+    ? t('Showing {{count}} of {{total}} days', { count: visibleDays, total: dates.length })
+    : t('Showing all {{total}} days', { total: dates.length });
+
+  const handleViewMore = () => {
+    setVisibleDays(prev => prev + 7);
+  };
+
+  const allCharts = useMemo(() => map(dataByDate, (data, date) => {
     const timePrefs = agpCGMData?.agpCGM?.timePrefs;
     const chartStart = getLocalizedCeiling(date, timePrefs).valueOf();
     const chartEnd = chartStart + MS_IN_DAY;
@@ -83,6 +97,9 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
     const chartData = [...(data.cbg || []), ...(data.smbg || [])]
     return [date, chartOpts, chartData];
   }), [dataByDate, agpCGMData, bgClasses, bgUnits]);
+
+  // Limit charts to visibleDays count
+  const charts = useMemo(() => allCharts.slice(0, visibleDays), [allCharts, visibleDays]);
 
   if (status === STATUS.NO_PATIENT_DATA)   return <NoPatientData patientName={patient?.fullName}/>;
   if (status === STATUS.INSUFFICIENT_DATA) return <InsufficientData />;
@@ -159,10 +176,21 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
 
   function handleSwitchToDaily(endpoints) {
     dispatch(push(`/patients/${patientId}/data/daily?dashboard=tide&drawerTab=${STACKED_DAILY_TAB_INDEX}&datetime=${mean(endpoints)}`));
-  };
+  }
+
+  function scrollToTop() {
+    if (containerRef?.current) {
+      containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
 
   return (
-    <Box className='patient-data' sx={{ position: 'relative' }} ref={containerRef}>
+    <Box
+      className='patient-data'
+      pt={3}
+      sx={{ position: 'relative' }}
+      ref={containerRef}
+    >
       <Flex mb={3} sx={{ justifyContent: 'space-between', alignItems: 'center'}}>
         <Body2 sx={{ fontWeight: 'bold', color: 'purple90' }}>{t('Glucose ({{bgUnits}})', { bgUnits })}</Body2>
 
@@ -182,6 +210,37 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
           <Box className='chart-container' ref={addToRefs} />
         </Box>
       ))}
+
+      <Flex sx={{ justifyContent: 'space-between', alignItems: 'center', gap: 2 }}>
+        <Box sx={{ flexBasis: '1' }}>
+          <Body1 sx={{ fontWeight: 'medium', color: 'gray50'}}>{visibleDaysText}</Body1>
+        </Box>
+
+        <Flex sx={{ justifyContent: 'center', alignItems: 'center', gap: 2, flexBasis: 2, flexGrow: 1 }}>
+
+          {hasMoreDays && (
+            <Button
+            sx={{ fontSize: 1, fontWeight: 'medium' }}
+            variant="secondary"
+            onClick={handleViewMore}
+            >
+              {t('View More')}
+            </Button>
+          )}
+
+          <Button
+            sx={{ fontSize: 1, fontWeight: 'medium' }}
+            variant="textSecondary"
+            onClick={scrollToTop}
+            icon={VerticalAlignTopRoundedIcon}
+            iconPosition="right"
+          >
+            {t('Back to Top')}
+          </Button>
+        </Flex>
+
+        <Box sx={{ flexBasis: '1' }}></Box>
+      </Flex>
 
       {hoveredSMBG && <SMBGTooltip
         position={{
