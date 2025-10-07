@@ -20,6 +20,9 @@ import { MediumTitle, Caption, Body1 } from './elements/FontStyles';
 import i18next from '../core/language';
 import { breakpoints } from '../themes/baseTheme';
 import { DesktopOnly } from './mediaqueries';
+import { utils as vizUtils } from '@tidepool/viz';
+const getTimezoneFromTimePrefs = vizUtils.datetime.getTimezoneFromTimePrefs;
+const getLocalizedHourCeiling = vizUtils.datetime.getLocalizedHourCeiling;
 
 const t = i18next.t.bind(i18next);
 
@@ -37,10 +40,12 @@ export const ChartDateRangeModal = (props) => {
     open,
     presetDaysOptions,
     processing,
-    timePrefs: { timezoneName = 'UTC' },
+    timePrefs,
     title,
     trackMetric,
   } = props;
+
+  const { timezoneName = 'UTC' } = timePrefs;
 
   const endOfToday = useMemo(() => moment.utc().tz(timezoneName).endOf('day').subtract(1, 'ms'), [open]);
 
@@ -139,25 +144,18 @@ export const ChartDateRangeModal = (props) => {
   };
 
   const handleDatesChange = newDates => {
-    const mostRecentDatumMoment = moment(mostRecentDatumDate).tz(timezoneName);
+    const mostRecentDatumMoment = moment.utc(mostRecentDatumDate).tz(timezoneName);
     const adjustedDates = setDateRangeToExtents(newDates);
 
     // If the date selected contains the mostRecentDatum, we want to exclude the time
     // between the mostRecentDatum and the end of that day. We also adjust the start
     // time so that the period is a multiple of 24 hours.
     if (mostRecentDatumMoment?.isBefore(adjustedDates?.endDate)) {
-      const modifiedStart = adjustedDates?.startDate;
+      const hourCeiling = getLocalizedHourCeiling(mostRecentDatumDate);
+      const endDate = moment.utc(hourCeiling).tz(timezoneName);
+      const startDate = adjustedDates?.startDate.hour(endDate.hour());
 
-      modifiedStart.hour(mostRecentDatumMoment.hour())
-                   .minute(mostRecentDatumMoment.minute())
-                   .endOf('hour')
-                   .add(1, 'ms');
-
-      setDates({
-        startDate: modifiedStart,
-        endDate: mostRecentDatumMoment.endOf('hour').add(1, 'ms'),
-      });
-
+      setDates({ startDate, endDate });
     } else {
       setDates(adjustedDates);
     }
