@@ -69,18 +69,18 @@ export const ChartDateRangeModal = (props) => {
     });
   };
 
-  console.log('@@@ defaultDatesProp', defaultDatesProp)
+  const getDefaultDates = () => {
+    if (!defaultDatesProp) return getLastNDays(presetDaysOptions[0]);
 
-  const defaultDates = () => defaultDatesProp
-    ? ({
-      startDate: defaultDatesProp[0] ? moment.utc(defaultDatesProp[0]).tz(timezoneName) : null,
-      endDate: defaultDatesProp[1] ? moment.utc(defaultDatesProp[1]).tz(timezoneName) : null,
-    })
-    : getLastNDays(presetDaysOptions[0]);
+    const startDate = defaultDatesProp[0] ? moment.utc(defaultDatesProp[0]).tz(timezoneName) : null;
+    const endDate = defaultDatesProp[1] ? moment.utc(defaultDatesProp[1]).tz(timezoneName) : null;
+
+    return { startDate, endDate };
+  };
 
   const defaults = useMemo(() => ({
     datePickerOpen: false,
-    dates: defaultDates(),
+    dates: getDefaultDates(),
     errors: false,
     submitted: false,
   }), [mostRecentDatumDate, defaultDatesProp]);
