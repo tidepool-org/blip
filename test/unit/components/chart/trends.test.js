@@ -216,7 +216,7 @@ describe('Trends', () => {
         '2018-03-12T07:00:00.000Z',
       ]);
 
-      expect(wrapper.state().title).to.equal('Mar 5, 2018 - Mar 11, 2018');
+      expect(wrapper.state().title).to.equal('Mar 5, 2018 (8:00 AM) - Mar 11, 2018 (7:00 AM)');
     });
 
     it('should set the `title` state correctly when starting on a DST changeover date', () => {
@@ -238,7 +238,7 @@ describe('Trends', () => {
         '2018-03-18T07:00:00.000Z',
       ]);
 
-      expect(wrapper.state().title).to.equal('Mar 11, 2018 - Mar 17, 2018');
+      expect(wrapper.state().title).to.equal('Mar 11, 2018 (8:00 AM) - Mar 17, 2018 (7:00 AM)');
     });
 
     it('should set a debounced call of the `onUpdateChartDateRange` prop method', () => {

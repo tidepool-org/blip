@@ -80,10 +80,12 @@ describe('ChartDateRangeModal', function () {
     const endDateInPacific = pacificWrapper.find('#chart-end-date').hostNodes();
 
     expect(moment.utc('Mar 01, 2020', dateFormat).tz('US/Pacific').format(dateFormat)).to.equal('Feb 29, 2020');
-    expect(startDateInPacific.prop('value')).to.equal('Feb 29, 2020');
+
+    // Shows the hour of the latest datum localized to time zone
+    expect(startDateInPacific.prop('value')).to.equal('Feb 29, 2020 (4:00 PM)');
 
     expect(moment.utc('Mar 10, 2020', dateFormat).tz('US/Pacific').format(dateFormat)).to.equal('Mar 9, 2020');
-    expect(endDateInPacific.prop('value')).to.equal('Mar 9, 2020');
+    expect(endDateInPacific.prop('value')).to.equal('Mar 9, 2020 (5:00 PM)');
   });
 
   context('form is submitted', () => {
@@ -105,9 +107,11 @@ describe('ChartDateRangeModal', function () {
       // Submit form
       submitButton().simulate('click');
       sinon.assert.calledOnce(props.onSubmit);
+
+      // Sets the end time to the next hour after the latest datum
       sinon.assert.calledWith(props.onSubmit, [
-          moment.utc(Date.parse('2020-03-11T00:00:00.000Z')).subtract(30, 'days').valueOf(),
-          Date.parse('2020-03-11T00:00:00.000Z'),
+          Date.parse('2020-02-10T01:00:00.000Z'),
+          Date.parse('2020-03-10T01:00:00.000Z'),
       ]);
     });
 

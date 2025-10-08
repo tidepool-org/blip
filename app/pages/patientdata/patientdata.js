@@ -1023,10 +1023,11 @@ export const PatientDataClass = createReactClass({
   handleChartDateRangeUpdate: function(datetimeLocation, forceChartDataUpdate = false) {
     const isDaily = this.state.chartType === 'daily';
     const isTrends = this.state.chartType === 'trends';
+    const isBasics = this.state.chartType === 'basics';
 
-    const newEndpoints = this.getChartEndpoints(datetimeLocation, {
-      setEndToLocalCeiling: forceChartDataUpdate,
-    });
+    const setEndToLocalCeiling = forceChartDataUpdate || (!isDaily && !isTrends && !isBasics);
+
+    const newEndpoints = this.getChartEndpoints(datetimeLocation, { setEndToLocalCeiling });
 
     const endpointsChanged = newEndpoints && !_.isEqual(newEndpoints, this.state.endpoints);
     if (!endpointsChanged) return;
