@@ -909,9 +909,14 @@ export const TideDashboard = (props) => {
     }
   }, [api, dispatch, localConfig, localConfigKey, selectedClinicId]);
 
+  const drawerPatientId = new URLSearchParams(location.search).get('drawerPatientId') || null;
+
   useEffect(() => {
-    dispatch(actions.worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
-    dispatch(actions.sync.clearPatientInView());
+    if (currentPatientInViewId) {
+      dispatch(actions.sync.clearPatientInView());
+      if (currentPatientInViewId !== drawerPatientId) dispatch(actions.worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
+    }
+
     setClinicBgUnits((clinic?.preferredBgUnits || MGDL_UNITS));
   }, [clinic]);
 
@@ -960,8 +965,6 @@ export const TideDashboard = (props) => {
       dispatch(actions.sync.clearTideDashboardPatients());
     };
   }, []);
-
-  const drawerPatientId = new URLSearchParams(location.search).get('drawerPatientId') || null;
 
   // Patient Drawer effects
   useEffect(() => {
