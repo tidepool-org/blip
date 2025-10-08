@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../../../../redux/actions';
 import buildGenerateAGPImages from './buildGenerateAGPImages';
@@ -83,12 +83,17 @@ const useAgpCGM = (
   const dispatch = useDispatch();
   const generateAGPImages = buildGenerateAGPImages(dispatch);
 
+  const {
+    removingGeneratedPDFS,
+    removingData,
+    fetchingPatientData,
+    generatingPDF,
+  } = useSelector(state => state.blip.working);
+
   const data   = useSelector(state => state.blip.data);
   const pdf    = useSelector(state => state.blip.pdf);
   const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
-
   const clinicPatient = clinic?.patients?.[patientId];
-
   const lastCompletedStep = inferLastCompletedStep(patientId, data, pdf);
 
   useEffect(() => {
@@ -96,20 +101,20 @@ const useAgpCGM = (
 
     switch(lastCompletedStep) {
       case STATUS.INITIALIZED:
-        dispatch(actions.worker.removeGeneratedPDFS());
-        dispatch(actions.worker.dataWorkerRemoveDataRequest(null, patientId));
+        if (!removingGeneratedPDFS?.inProgress) dispatch(actions.worker.removeGeneratedPDFS());
+        if (!removingData?.inProgress) dispatch(actions.worker.dataWorkerRemoveDataRequest(null, patientId));
         break;
 
       case STATUS.STATE_CLEARED:
         const fetchPatientOpts = getFetchPatientOpts(agpPeriodInDays);
-        dispatch(actions.async.fetchPatientData(api, fetchPatientOpts, patientId));
+        if (!fetchingPatientData?.inProgress) dispatch(actions.async.fetchPatientData(api, fetchPatientOpts, patientId));
         break;
 
       case STATUS.PATIENT_LOADED:
         const opts    = getOpts(data, agpPeriodInDays);
         const queries = getQueries(data, clinicPatient, clinic, opts);
         const pdfOpts = { ...opts, patient: clinicPatient };
-        dispatch(actions.worker.generatePDFRequest('combined', queries, pdfOpts, patientId));
+        if (!generatingPDF?.inProgress) dispatch(actions.worker.generatePDFRequest('combined', queries, pdfOpts, patientId));
         break;
 
       case STATUS.DATA_PROCESSED:
