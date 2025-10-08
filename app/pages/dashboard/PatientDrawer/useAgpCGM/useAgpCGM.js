@@ -132,8 +132,8 @@ const useAgpCGM = (
     // Clear state on component dismount
 
     return () => {
-      dispatch(actions.worker.removeGeneratedPDFS());
-      dispatch(actions.worker.dataWorkerRemoveDataRequest(null, patientId));
+      if (!!pdf?.data) dispatch(actions.worker.removeGeneratedPDFS());
+      if (!!data?.metaData?.patientId) dispatch(actions.worker.dataWorkerRemoveDataRequest(null, patientId));
     };
   }, []);
 
