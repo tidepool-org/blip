@@ -886,7 +886,7 @@ export const clinics = (state = initialState.clinics, action) => {
       ];
 
       // Merge with existing patients to retain any additional data we may have stored
-      const patients = _.merge({...state[clinicId].patients || {}}, _.keyBy(tidePatients, 'id'));
+      const patients = _.merge( _.cloneDeep(state[clinicId].patients) || {}, _.keyBy(tidePatients, 'id'));
 
       return update(state, {
         [clinicId]: { $set: { ...state[clinicId], patients, fetchedPatientCount: _.size(patients), lastPatientFetchTime: moment.utc().valueOf() } },

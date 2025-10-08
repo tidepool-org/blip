@@ -133,7 +133,7 @@ const useAgpCGM = (
 
     return () => {
       if (!!pdf?.data) dispatch(actions.worker.removeGeneratedPDFS());
-      if (!!data?.metaData?.patientId) dispatch(actions.worker.dataWorkerRemoveDataRequest(null, patientId));
+      if (!!data?.metaData?.patientId && !fetchingPatientData?.inProgress) dispatch(actions.worker.dataWorkerRemoveDataRequest(null, patientId));
     };
   }, []);
 
