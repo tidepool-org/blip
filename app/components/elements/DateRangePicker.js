@@ -97,12 +97,12 @@ const StyledDateRangePicker = styled(StyledDatePickerBase)`
   }
 `;
 
-export const getDisplayFormat = (startDate, endDate) => {
+export const getChartDateBoundDisplayFormat = (startDate, endDate) => {
   const isStartDateMidnight = (startDate?.hours() === 0 && startDate?.minutes() === 0) ||
-                              (startDate?.hours() === 23 && startDate?.minutes() === 59);
+                              (startDate?.hours() === 23 && startDate?.minutes() >= 59);
 
   const isEndDateMidnight = (endDate?.hours() === 0 && endDate?.minutes() === 0) ||
-                            (endDate?.hours() === 23 && endDate?.minutes() === 59);
+                            (endDate?.hours() === 23 && endDate?.minutes() >= 59);
 
   const isMatchingDateBounds = isStartDateMidnight && isEndDateMidnight;
 
@@ -134,7 +134,7 @@ export function DateRangePicker(props) {
     required,
   });
 
-  const displayFormat = getDisplayFormat(startDate, endDate);
+  const displayFormat = getChartDateBoundDisplayFormat(startDate, endDate);
 
   return (
     <Box as={StyledDateRangePicker} {...themeProps}>

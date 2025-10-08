@@ -24,7 +24,6 @@ import {
   containers as vizContainers,
   utils as vizUtils,
 } from '@tidepool/viz';
-import { getDisplayFormat } from '../elements/DateRangePicker';
 
 const TrendsContainer = vizContainers.TrendsContainer;
 const getTimezoneFromTimePrefs = vizUtils.datetime.getTimezoneFromTimePrefs;
