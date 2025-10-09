@@ -5,7 +5,6 @@ import { useLocation, useHistory } from 'react-router-dom';
 import { push } from 'connected-react-router';
 import { withTranslation, Trans } from 'react-i18next';
 import moment from 'moment-timezone';
-import each from 'lodash/each';
 import find from 'lodash/find';
 import flatten from 'lodash/flatten';
 import get from 'lodash/get';
@@ -329,7 +328,6 @@ const TideDashboardSection = React.memo(props => {
         const params = new URLSearchParams(search);
         params.set('drawerPatientId', patient.id);
         params.set('drawerTab', OVERVIEW_TAB_INDEX);
-        // params.set('drawerTab', STACKED_DAILY_TAB_INDEX);
         history.replace({ pathname, search: params.toString() });
 
         return;

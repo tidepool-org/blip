@@ -8,7 +8,6 @@ import keyBy from 'lodash/keyBy';
 import map from 'lodash/map';
 import merge from 'lodash/merge';
 import defaults from 'lodash/defaults';
-import Table from '../../../app/components/elements/Table';
 import { ToastProvider } from '../../../app/providers/ToastProvider';
 import TideDashboard from '../../../app/pages/dashboard/TideDashboard';
 import Popover from '../../../app/components/elements/Popover';
@@ -85,6 +84,8 @@ describe('TideDashboard', () => {
   afterEach(() => {
     TideDashboard.__ResetDependency__('useLDClient');
     TideDashboard.__ResetDependency__('useFlags');
+    TideDashboard.__ResetDependency__('useLocation');
+    TideDashboard.__ResetDependency__('useHistory');
     DataConnections.__ResetDependency__('api');
     DataConnectionsModal.__ResetDependency__('api');
     DataConnectionsModal.__ResetDependency__('useHistory');
@@ -311,6 +312,7 @@ describe('TideDashboard', () => {
     TideDashboard.__Rewire__('useLocalStorage', useLocalStorageRewire(mockedLocalStorage));
     TideDashboardConfigForm.__Rewire__('useLocalStorage', useLocalStorageRewire(mockedLocalStorage));
     TideDashboardConfigForm.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/dashboard/tide' }));
+    TideDashboard.__Rewire__('PatientDrawer', sinon.stub().returns('stubbed patient drawer'));
 
     wrapper = mount(
       <Provider store={store}>
@@ -355,7 +357,7 @@ describe('TideDashboard', () => {
         </Provider>
       );
 
-      expect(store.getActions()[2]).to.eql({
+      expect(store.getActions()[0]).to.eql({
         payload: { args: ['/clinic-workspace'], method: 'push' },
         type: '@@router/CALL_HISTORY_METHOD',
       });
@@ -379,6 +381,10 @@ describe('TideDashboard', () => {
       );
 
       expect(store.getActions()[0]).to.eql({
+        type: 'CLEAR_PATIENT_IN_VIEW',
+      });
+
+      expect(store.getActions()[1]).to.eql({
         meta: {
           WebWorker: true,
           id: 'patientInViewID',
@@ -388,10 +394,6 @@ describe('TideDashboard', () => {
           predicate: undefined,
         },
         type: 'DATA_WORKER_REMOVE_DATA_REQUEST',
-      });
-
-      expect(store.getActions()[1]).to.eql({
-        type: 'CLEAR_PATIENT_IN_VIEW',
       });
     });
 
@@ -478,7 +480,7 @@ describe('TideDashboard', () => {
       );
 
       const expectedAction = { type: 'FETCH_TIDE_DASHBOARD_PATIENTS_REQUEST' };
-      expect(store.getActions()[2]).to.eql(expectedAction);
+      expect(store.getActions()[0]).to.eql(expectedAction);
     });
   });
 
