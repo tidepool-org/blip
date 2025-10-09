@@ -70,11 +70,17 @@ const MenuBar = ({ patientId, onClose, onSelectTab, selectedTab, trackMetric }) 
     <Box px={4} pt={4} sx={{ position: 'sticky', top: 0, bg: 'white', zIndex: 1 }}>
       <Flex mb={4} sx={{ justifyContent: 'space-between', alignItems: 'center', minHeight: '30px' }}>
         <Flex sx={{ justifyContent: 'flex-start', gap: 2, alignItems: 'flex-end' }}>
-          <Text sx={{ color: vizColors.purple90, fontWeight: 'bold', fontSize: 2, lineHeight: 0 }}>
+          <Text
+            data-testid="patient-name"
+            sx={{ color: vizColors.purple90, fontWeight: 'bold', fontSize: 2, lineHeight: 0 }}
+          >
             {fullName}
           </Text>
           {birthDate &&
-            <Text sx={{ color: 'grays.5', fontWeight: 'medium', fontSize: 0, lineHeight: 0 }}>
+            <Text
+              data-testid="patient-birthdate"
+              sx={{ color: 'grays.5', fontWeight: 'medium', fontSize: 0, lineHeight: 0 }}
+            >
               {t('DOB: {{birthDate}}', { birthDate })}
             </Text>
           }
@@ -82,7 +88,7 @@ const MenuBar = ({ patientId, onClose, onSelectTab, selectedTab, trackMetric }) 
 
         <Flex sx={{ fontSize: 0, alignItems: 'center', justifyContent: 'space-between', gap: 3 }}>
           {showTideDashboardLastReviewed && (
-            <>
+            <Box data-testid="last-reviewed-section">
               <Text sx={{
                 color: vizColors.purple90,
                 fontWeight: 'medium',
@@ -99,7 +105,7 @@ const MenuBar = ({ patientId, onClose, onSelectTab, selectedTab, trackMetric }) 
                 recentlyReviewedThresholdDate={recentlyReviewedThresholdDate}
                 onReview={handleReviewSuccess}
               />
-            </>
+            </Box>
           )}
         </Flex>
       </Flex>
@@ -110,6 +116,7 @@ const MenuBar = ({ patientId, onClose, onSelectTab, selectedTab, trackMetric }) 
             <Button
               variant="tab"
               key={tabKey}
+              data-testid={`tab-${tabs[tabKey].name}`}
               onClick={(e) => handleSelectTab(e, tabKey)}
               selected={parseInt(selectedTab) === parseInt(tabKey)}
             >
@@ -119,11 +126,24 @@ const MenuBar = ({ patientId, onClose, onSelectTab, selectedTab, trackMetric }) 
         </Flex>
 
         <Flex sx={{ justifyContent: 'space-between', alignItems: 'center', gap: '1px' }}>
-          <Button iconPosition="left" iconSrc={viewIcon} onClick={handleViewData} variant="tab">
+          <Button
+            data-testid="view-data-button"
+            iconPosition="left"
+            iconSrc={viewIcon}
+            onClick={handleViewData}
+            variant="tab"
+          >
             {t('View Data')}
           </Button>
 
-          <CGMClipboardButton iconPosition="left" iconSrc={copyIcon} patient={patient} data={pdf?.data?.agpCGM} variant="tab" />
+          <CGMClipboardButton
+            data-testid="cgm-clipboard-button"
+            iconPosition="left"
+            iconSrc={copyIcon}
+            patient={patient}
+            data={pdf?.data?.agpCGM}
+            variant="tab"
+          />
         </Flex>
       </Flex>
     </Box>
