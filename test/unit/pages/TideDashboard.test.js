@@ -680,25 +680,25 @@ describe('TideDashboard', () => {
       expect(getTableRow(1, 2).find('td').at(4).text()).contains('9 %');
       expect(getTableRow(1, 3).find('td').at(4).text()).contains('6 %');
 
-      // Confirm third table is sorted appropriately
+      // Confirm fifth table is sorted appropriately
       expect(getTableRow(4, 0).find('th').at(8).text()).contains('% Change in TIR');
       expect(getTableRow(4, 1).find('td').at(7).text()).contains('26');
       expect(getTableRow(4, 2).find('td').at(7).text()).contains('25');
       expect(getTableRow(4, 3).find('td').at(7).text()).contains('24');
 
-      // Confirm fourth table is sorted appropriately
+      // Confirm sixth table is sorted appropriately
       expect(getTableRow(5, 0).find('th').at(6).text()).contains('% TIR 70-180');
       expect(getTableRow(5, 1).find('td').at(5).text()).contains('42');
       expect(getTableRow(5, 2).find('td').at(5).text()).contains('42');
       expect(getTableRow(5, 3).find('td').at(5).text()).contains('48');
 
-      // Confirm fifth table is sorted appropriately
+      // Confirm sevent table is sorted appropriately
       expect(getTableRow(6, 0).find('th').at(3).text()).contains('CGM Use');
       expect(getTableRow(6, 1).find('td').at(2).text()).contains('57');
       expect(getTableRow(6, 2).find('td').at(2).text()).contains('66');
       expect(getTableRow(6, 3).find('td').at(2).text()).contains('69');
 
-      // Confirm sixth table is sorted appropriately
+      // Confirm eighth table is sorted appropriately
       expect(getTableRow(7, 0).find('th').at(4).text()).contains('% Time < 54');
       expect(getTableRow(7, 1).find('td').at(3).text()).contains('0.7 %');
       expect(getTableRow(7, 2).find('td').at(3).text()).contains('0.6 %');
@@ -706,7 +706,7 @@ describe('TideDashboard', () => {
       expect(getTableRow(7, 4).find('td').at(3).text()).contains('0.2 %');
       expect(getTableRow(7, 5).find('td').at(3).text()).contains('0.1 %');
 
-      // Confirm sixth table is sorted appropriately
+      // Confirm ninth table is sorted appropriately
       expect(getTableRow(8, 0).find('th').at(2).text()).contains('Days Since Last Data');
       expect(getTableRow(8, 1).find('td').at(1).text()).contains('200');
       expect(getTableRow(8, 2).find('td').at(1).text()).contains('45');
