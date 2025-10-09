@@ -240,14 +240,42 @@ describe('MenuBar Component', () => {
 
     it('should render view data button and handle clicks without errors', async () => {
       const user = userEvent.setup();
+      const { push } = require('connected-react-router');
+
+      // Mock push to return a plain object instead of a thunk
+      push.mockReturnValue({ type: 'MOCK_PUSH', payload: '/some/path' });
+
       renderMenuBar({ selectedTab: OVERVIEW_TAB_INDEX });
 
       const viewDataButton = screen.getByTestId('view-data-button');
       expect(viewDataButton).toBeInTheDocument();
       expect(viewDataButton).toHaveTextContent('View Data');
 
-      // Note: We can't test the actual navigation due to mock store limitations
-      // But we can verify the button renders and is clickable
+      // Click the view data button
+      await user.click(viewDataButton);
+
+      // Verify push was called with correct navigation URL
+      expect(push).toHaveBeenCalledWith(
+        `/patients/patient123/data/trends?dashboard=tide&drawerTab=${OVERVIEW_TAB_INDEX}`
+      );
+    });
+
+    it('should navigate to correct URL when view data button is clicked with stacked daily tab selected', async () => {
+      const user = userEvent.setup();
+      const { push } = require('connected-react-router');
+
+      // Mock push to return a plain object instead of a thunk
+      push.mockReturnValue({ type: 'MOCK_PUSH', payload: '/some/path' });
+
+      renderMenuBar({ selectedTab: STACKED_DAILY_TAB_INDEX });
+
+      const viewDataButton = screen.getByTestId('view-data-button');
+      await user.click(viewDataButton);
+
+      // Verify push was called with stacked daily tab index
+      expect(push).toHaveBeenCalledWith(
+        `/patients/patient123/data/trends?dashboard=tide&drawerTab=${STACKED_DAILY_TAB_INDEX}`
+      );
     });
   });
 

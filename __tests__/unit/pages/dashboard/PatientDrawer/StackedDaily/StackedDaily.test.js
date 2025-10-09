@@ -1,0 +1,346 @@
+/* global jest, beforeEach, afterEach, test, expect, describe, it */
+
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { Provider } from 'react-redux';
+import { MemoryRouter } from 'react-router-dom';
+import configureStore from 'redux-mock-store';
+import thunk from 'redux-thunk';
+
+import StackedDaily from '@app/pages/dashboard/PatientDrawer/StackedDaily';
+import { STATUS } from '@app/pages/dashboard/PatientDrawer/useAgpCGM';
+
+// Mock MenuBar to avoid complex dependency loading
+jest.mock('@app/pages/dashboard/PatientDrawer/MenuBar', () => ({
+  STACKED_DAILY_TAB_INDEX: 1,
+}));
+
+// Mock connected-react-router
+jest.mock('connected-react-router', () => ({
+  push: jest.fn(),
+}));
+
+// Mock tideline chart factory
+jest.mock('tideline/plugins/blip', () => ({
+  oneday: jest.fn(() => ({
+    setupPools: jest.fn(() => ({
+      load: jest.fn(() => ({
+        locate: jest.fn(),
+      })),
+    })),
+  })),
+}));
+
+// Mock @tidepool/viz components and utils to avoid complex dependency loading
+jest.mock('@tidepool/viz', () => ({
+  components: {
+    Loader: function MockLoader({ show }) {
+      return show ? <div data-testid="loader">Loading...</div> : null;
+    },
+    SMBGTooltip: function MockSMBGTooltip(props) {
+      return <div data-testid="smbg-tooltip">SMBG Tooltip</div>;
+    },
+    CBGTooltip: function MockCBGTooltip(props) {
+      return <div data-testid="cbg-tooltip">CBG Tooltip</div>;
+    },
+  },
+  utils: {
+    datetime: {
+      getLocalizedCeiling: jest.fn((date) => ({ valueOf: () => new Date(date).getTime() })),
+    },
+    stat: {
+      bankersRound: jest.fn(val => val),
+    },
+    constants: {},
+  },
+  colors: {},
+}));
+
+// Mock sundial
+jest.mock('sundial', () => ({
+  dateDifference: jest.fn(() => 3), // Mock return value for time offset
+}));
+
+// Mock lodash functions
+jest.mock('lodash', () => ({
+  map: jest.fn((obj, iteratee) => Object.keys(obj || {}).map(key => iteratee(obj[key], key))),
+  includes: jest.fn((array, value) => Array.isArray(array) && array.includes(value)),
+  get: jest.fn((obj, path, defaultValue) => {
+    const keys = path.split('.');
+    let result = obj;
+    for (const key of keys) {
+      if (result && typeof result === 'object' && key in result) {
+        result = result[key];
+      } else {
+        return defaultValue;
+      }
+    }
+    return result;
+  }),
+  chunk: jest.fn((array, size) => {
+    const chunks = [];
+    for (let i = 0; i < (array || []).length; i += size) {
+      chunks.push(array.slice(i, i + size));
+    }
+    return chunks;
+  }),
+  mean: jest.fn((array) => array.reduce((a, b) => a + b, 0) / array.length),
+}));
+
+// Mock Overview components
+jest.mock('@app/pages/dashboard/PatientDrawer/Overview', () => ({
+  NoPatientData: function MockNoPatientData({ patientName }) {
+    return <div data-testid="no-patient-data">No data for {patientName}</div>;
+  },
+  InsufficientData: function MockInsufficientData() {
+    return <div data-testid="insufficient-data">Insufficient data</div>;
+  },
+}));
+
+// Mock BgLegend component
+jest.mock('@app/components/chart/BgLegend', () => {
+  return function MockBgLegend() {
+    return <div data-testid="bg-legend-component">BG Legend</div>;
+  };
+});
+
+const mockStore = configureStore([thunk]);
+
+const defaultProps = {
+  patientId: 'patient123',
+  agpCGMData: {
+    status: STATUS.DATA_PROCESSED,
+    agpCGM: {
+      data: {
+        current: {
+          aggregationsByDate: {
+            dataByDate: {
+              '2024-01-01': { cbg: [{ value: 120 }], smbg: [{ value: 110 }] },
+              '2024-01-02': { cbg: [{ value: 130 }], smbg: [{ value: 115 }] },
+              '2024-01-03': { cbg: [{ value: 125 }], smbg: [{ value: 120 }] },
+            }
+          },
+          data: {
+            fill: [1, 2, 3, 4, 5, 6, 7, 8],
+          }
+        }
+      },
+      query: {
+        bgPrefs: {
+          bgClasses: { low: 70, target: 180, high: 250 },
+          bgUnits: 'mg/dL'
+        }
+      },
+      timePrefs: { timezoneAware: false }
+    }
+  }
+};
+
+const defaultState = {
+  blip: {
+    selectedClinicId: 'clinic123',
+    clinics: {
+      clinic123: {
+        patients: {
+          patient123: {
+            fullName: 'John Doe',
+          },
+        },
+      },
+    },
+  },
+};
+
+const renderComponent = (props = {}, storeState = {}) => {
+  const store = mockStore({ ...defaultState, ...storeState });
+  const finalProps = { ...defaultProps, ...props };
+
+  return render(
+    <Provider store={store}>
+      <MemoryRouter>
+        <StackedDaily {...finalProps} />
+      </MemoryRouter>
+    </Provider>
+  );
+};
+
+describe('StackedDaily Component', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('Status Handling', () => {
+    it('should render NoPatientData component when status is NO_PATIENT_DATA', () => {
+      renderComponent({
+        agpCGMData: {
+          status: STATUS.NO_PATIENT_DATA,
+        }
+      });
+
+      expect(screen.getByTestId('no-patient-data')).toBeInTheDocument();
+      expect(screen.getByText('No data for John Doe')).toBeInTheDocument();
+    });
+
+    it('should render InsufficientData component when status is INSUFFICIENT_DATA', () => {
+      renderComponent({
+        agpCGMData: {
+          status: STATUS.INSUFFICIENT_DATA,
+        }
+      });
+
+      expect(screen.getByTestId('insufficient-data')).toBeInTheDocument();
+    });
+
+    it('should render Loader component when status is not processed', () => {
+      renderComponent({
+        agpCGMData: {
+          status: 'PROCESSING',
+        }
+      });
+
+      expect(screen.getByTestId('loader')).toBeInTheDocument();
+    });
+
+    it('should render chart content when status is DATA_PROCESSED', () => {
+      renderComponent();
+
+      expect(screen.getByTestId('stacked-daily-container')).toBeInTheDocument();
+      expect(screen.getByTestId('glucose-units-label')).toBeInTheDocument();
+    });
+  });
+
+  describe('Data Display', () => {
+    it('should display glucose units label with correct units', () => {
+      renderComponent();
+
+      expect(screen.getByTestId('glucose-units-label')).toHaveTextContent('Glucose (mg/dL)');
+    });
+
+    it('should render BG legend component', () => {
+      renderComponent();
+
+      expect(screen.getByTestId('bg-legend')).toBeInTheDocument();
+      expect(screen.getByTestId('bg-legend-component')).toBeInTheDocument();
+    });
+
+    it('should render chart date headers for each day in data', () => {
+      renderComponent();
+
+      const dateHeaders = screen.getAllByTestId('chart-date-header');
+      expect(dateHeaders).toHaveLength(3);
+      expect(screen.getByText('2024-01-01')).toBeInTheDocument();
+      expect(screen.getByText('2024-01-02')).toBeInTheDocument();
+      expect(screen.getByText('2024-01-03')).toBeInTheDocument();
+    });
+
+    it('should render chart containers for each day', () => {
+      renderComponent();
+
+      const chartContainers = screen.getAllByTestId('chart-container');
+      expect(chartContainers).toHaveLength(3);
+    });
+  });
+
+  describe('View More Functionality', () => {
+    const manyDaysData = {
+      agpCGMData: {
+        ...defaultProps.agpCGMData,
+        agpCGM: {
+          ...defaultProps.agpCGMData.agpCGM,
+          data: {
+            ...defaultProps.agpCGMData.agpCGM.data,
+            current: {
+              ...defaultProps.agpCGMData.agpCGM.data.current,
+              aggregationsByDate: {
+                dataByDate: Array.from({ length: 15 }, (_, i) => [
+                  `2024-01-${String(i + 1).padStart(2, '0')}`,
+                  { cbg: [{ value: 120 + i }], smbg: [{ value: 110 + i }] }
+                ]).reduce((acc, [date, data]) => ({ ...acc, [date]: data }), {})
+              }
+            }
+          }
+        }
+      }
+    };
+
+    it('should show correct day count text when showing partial days', () => {
+      renderComponent(manyDaysData);
+
+      expect(screen.getByTestId('day-count-text')).toHaveTextContent('Showing 7 of 15 days');
+    });
+
+    it('should show view more button when there are more than 7 days', () => {
+      renderComponent(manyDaysData);
+
+      expect(screen.getByTestId('view-more-button')).toBeInTheDocument();
+      expect(screen.getByText('View More')).toBeInTheDocument();
+    });
+
+    it('should not show view more button when all days are visible', () => {
+      renderComponent(); // Only 3 days
+
+      expect(screen.queryByTestId('view-more-button')).not.toBeInTheDocument();
+      expect(screen.getByTestId('day-count-text')).toHaveTextContent('Showing all 3 days');
+    });
+
+    it('should increase visible days when view more button is clicked', async () => {
+      const user = userEvent.setup();
+      renderComponent(manyDaysData);
+
+      // Initially shows 7 days
+      expect(screen.getByTestId('day-count-text')).toHaveTextContent('Showing 7 of 15 days');
+
+      // Click view more
+      await user.click(screen.getByTestId('view-more-button'));
+
+      // Should now show 14 days (7 + 7)
+      expect(screen.getByTestId('day-count-text')).toHaveTextContent('Showing 14 of 15 days');
+    });
+  });
+
+  describe('Navigation and Interaction', () => {
+    it('should always render back to top button', () => {
+      renderComponent();
+
+      expect(screen.getByTestId('back-to-top-button')).toBeInTheDocument();
+      expect(screen.getByText('Back to Top')).toBeInTheDocument();
+    });
+
+    it('should handle back to top button click', async () => {
+      const user = userEvent.setup();
+      const scrollIntoViewMock = jest.fn();
+
+      // Mock scrollIntoView
+      Element.prototype.scrollIntoView = scrollIntoViewMock;
+
+      renderComponent();
+
+      await user.click(screen.getByTestId('back-to-top-button'));
+
+      expect(scrollIntoViewMock).toHaveBeenCalledWith({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    });
+
+    it('should handle date header clicks for navigation', async () => {
+      const user = userEvent.setup();
+      const { push } = require('connected-react-router');
+
+      // Mock push to return a plain object instead of a thunk
+      push.mockReturnValue({ type: 'MOCK_PUSH', payload: '/some/path' });
+
+      renderComponent();
+
+      const dateHeader = screen.getByText('2024-01-01');
+      await user.click(dateHeader);
+
+      expect(push).toHaveBeenCalled();
+      const pushCall = push.mock.calls[0][0];
+      expect(pushCall).toContain('/patients/patient123/data/daily');
+      expect(pushCall).toContain('dashboard=tide');
+      expect(pushCall).toContain('drawerTab=1');
+    });
+  });
+});

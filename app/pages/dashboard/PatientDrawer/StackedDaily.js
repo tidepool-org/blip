@@ -190,11 +190,14 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
       pt={3}
       sx={{ position: 'relative' }}
       ref={containerRef}
+      data-testid="stacked-daily-container"
     >
       <Flex mb={3} sx={{ justifyContent: 'space-between', alignItems: 'center'}}>
-        <Body2 sx={{ fontWeight: 'bold', color: 'purple90' }}>{t('Glucose ({{bgUnits}})', { bgUnits })}</Body2>
+        <Body2 sx={{ fontWeight: 'bold', color: 'purple90' }} data-testid="glucose-units-label">{t('Glucose ({{bgUnits}})', { bgUnits })}</Body2>
 
-        <BgLegend />
+        <Box data-testid="bg-legend">
+          <BgLegend />
+        </Box>
       </Flex>
 
       {map(charts, ([date, chartOpts]) => (
@@ -203,17 +206,18 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
             py={1}
             sx={{ fontWeight: 'bold', '&:hover': { display: 'inline-block', textDecoration: 'underline', cursor: 'pointer' } }}
             onClick={() => handleSwitchToDaily(chartOpts.endpoints)}
+            data-testid="chart-date-header"
           >
             {date}
           </Body1>
 
-          <Box className='chart-container' ref={addToRefs} />
+          <Box className='chart-container' ref={addToRefs} data-testid="chart-container" />
         </Box>
       ))}
 
       <Flex sx={{ justifyContent: 'space-between', alignItems: 'center', gap: 2 }}>
         <Box sx={{ flex: '1 1 0' }}>
-          <Body1 sx={{ fontWeight: 'medium', color: 'gray50'}}>{visibleDaysText}</Body1>
+          <Body1 sx={{ fontWeight: 'medium', color: 'gray50'}} data-testid="day-count-text">{visibleDaysText}</Body1>
         </Box>
 
         <Flex sx={{ justifyContent: 'center', alignItems: 'center', gap: 1 }}>
@@ -222,6 +226,7 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
             sx={{ fontSize: 1, fontWeight: 'medium' }}
             variant="secondary"
             onClick={handleViewMore}
+            data-testid="view-more-button"
             >
               {t('View More')}
             </Button>
@@ -233,6 +238,7 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
             onClick={scrollToTop}
             icon={VerticalAlignTopRoundedIcon}
             iconPosition="right"
+            data-testid="back-to-top-button"
           >
             {t('Back to Top')}
           </Button>
