@@ -578,29 +578,33 @@ describe('TideDashboard', () => {
 
     it('should render a heading and table for dashboard section, with correctly ordered results', () => {
       const dashboardSections = wrapper.find('.dashboard-section');
-      expect(dashboardSections.hostNodes()).to.have.length(7);
+      expect(dashboardSections.hostNodes()).to.have.length(9);
 
       const dashboardSectionLabels = dashboardSections.find('.dashboard-section-label').hostNodes();
-      expect(dashboardSectionLabels).to.have.length(7);
+      expect(dashboardSectionLabels).to.have.length(9);
       expect(dashboardSectionLabels.at(0).text()).to.equal('Very Low> 1% Time below 54 mg/dL');
       expect(dashboardSectionLabels.at(1).text()).to.equal('Low> 4% Time below 70 mg/dL');
-      expect(dashboardSectionLabels.at(2).text()).to.equal('Large Drop in Time in Range> 15%');
-      expect(dashboardSectionLabels.at(3).text()).to.equal('Low Time in Range< 70%');
-      expect(dashboardSectionLabels.at(4).text()).to.equal('Low CGM Wear Time< 70%');
-      expect(dashboardSectionLabels.at(5).text()).to.equal('Meeting Targets');
-      expect(dashboardSectionLabels.at(6).text()).to.equal('Data Issues');
+      expect(dashboardSectionLabels.at(2).text()).to.equal('Very High> 5% Time above 250 mg/dL');
+      expect(dashboardSectionLabels.at(3).text()).to.equal('High> 25% Time above 180 mg/dL');
+      expect(dashboardSectionLabels.at(4).text()).to.equal('Large Drop in Time in Range> 15%');
+      expect(dashboardSectionLabels.at(5).text()).to.equal('Low Time in Range< 70%');
+      expect(dashboardSectionLabels.at(6).text()).to.equal('Low CGM Wear Time< 70%');
+      expect(dashboardSectionLabels.at(7).text()).to.equal('Meeting Targets');
+      expect(dashboardSectionLabels.at(8).text()).to.equal('Data Issues');
 
       const dashboardSectionTables = dashboardSections.find('.dashboard-table').hostNodes();
-      expect(dashboardSectionTables).to.have.length(7);
+      expect(dashboardSectionTables).to.have.length(9);
 
       const getTableRow = (tableIndex, rowIndex) => dashboardSectionTables.at(tableIndex).find('tr').at(rowIndex);
 
       expect(dashboardSectionTables.at(0).find('tr')).to.have.length(4); // header row + 3 results
       expect(dashboardSectionTables.at(1).find('tr')).to.have.length(4); // header row + 3 results
-      expect(dashboardSectionTables.at(2).find('tr')).to.have.length(4); // header row + 3 results
-      expect(dashboardSectionTables.at(3).find('tr')).to.have.length(4); // header row + 3 results
+      expect(dashboardSectionTables.at(2).find('tr')).to.have.length(1); // header row
+      expect(dashboardSectionTables.at(3).find('tr')).to.have.length(1); // header row
       expect(dashboardSectionTables.at(4).find('tr')).to.have.length(4); // header row + 3 results
-      expect(dashboardSectionTables.at(5).find('tr')).to.have.length(6); // header row + 5 results
+      expect(dashboardSectionTables.at(5).find('tr')).to.have.length(4); // header row + 3 results
+      expect(dashboardSectionTables.at(6).find('tr')).to.have.length(4); // header row + 3 results
+      expect(dashboardSectionTables.at(7).find('tr')).to.have.length(6); // header row + 5 results
 
       // Verify all columns on present on a sample patient from first table
       expect(getTableRow(0, 0).find('th').at(0).text()).contains('Patient Name');
@@ -676,63 +680,63 @@ describe('TideDashboard', () => {
       expect(getTableRow(1, 2).find('td').at(4).text()).contains('9 %');
       expect(getTableRow(1, 3).find('td').at(4).text()).contains('6 %');
 
-      // Confirm third table is sorted appropriately
-      expect(getTableRow(2, 0).find('th').at(8).text()).contains('% Change in TIR');
-      expect(getTableRow(2, 1).find('td').at(7).text()).contains('26');
-      expect(getTableRow(2, 2).find('td').at(7).text()).contains('25');
-      expect(getTableRow(2, 3).find('td').at(7).text()).contains('24');
-
-      // Confirm fourth table is sorted appropriately
-      expect(getTableRow(3, 0).find('th').at(6).text()).contains('% TIR 70-180');
-      expect(getTableRow(3, 1).find('td').at(5).text()).contains('42');
-      expect(getTableRow(3, 2).find('td').at(5).text()).contains('42');
-      expect(getTableRow(3, 3).find('td').at(5).text()).contains('48');
-
       // Confirm fifth table is sorted appropriately
-      expect(getTableRow(4, 0).find('th').at(3).text()).contains('CGM Use');
-      expect(getTableRow(4, 1).find('td').at(2).text()).contains('57');
-      expect(getTableRow(4, 2).find('td').at(2).text()).contains('66');
-      expect(getTableRow(4, 3).find('td').at(2).text()).contains('69');
+      expect(getTableRow(4, 0).find('th').at(8).text()).contains('% Change in TIR');
+      expect(getTableRow(4, 1).find('td').at(7).text()).contains('26');
+      expect(getTableRow(4, 2).find('td').at(7).text()).contains('25');
+      expect(getTableRow(4, 3).find('td').at(7).text()).contains('24');
 
       // Confirm sixth table is sorted appropriately
-      expect(getTableRow(5, 0).find('th').at(4).text()).contains('% Time < 54');
-      expect(getTableRow(5, 1).find('td').at(3).text()).contains('0.7 %');
-      expect(getTableRow(5, 2).find('td').at(3).text()).contains('0.6 %');
-      expect(getTableRow(5, 3).find('td').at(3).text()).contains('0.3 %');
-      expect(getTableRow(5, 4).find('td').at(3).text()).contains('0.2 %');
-      expect(getTableRow(5, 5).find('td').at(3).text()).contains('0.1 %');
+      expect(getTableRow(5, 0).find('th').at(6).text()).contains('% TIR 70-180');
+      expect(getTableRow(5, 1).find('td').at(5).text()).contains('42');
+      expect(getTableRow(5, 2).find('td').at(5).text()).contains('42');
+      expect(getTableRow(5, 3).find('td').at(5).text()).contains('48');
 
-      // Confirm sixth table is sorted appropriately
-      expect(getTableRow(6, 0).find('th').at(2).text()).contains('Days Since Last Data');
-      expect(getTableRow(6, 1).find('td').at(1).text()).contains('200');
-      expect(getTableRow(6, 2).find('td').at(1).text()).contains('45');
-      expect(getTableRow(6, 3).find('td').at(1).text()).contains('30');
-      expect(getTableRow(6, 4).find('td').at(1).text()).contains('1');
-      expect(getTableRow(6, 5).find('td').at(1).text()).contains('-');
+      // Confirm sevent table is sorted appropriately
+      expect(getTableRow(6, 0).find('th').at(3).text()).contains('CGM Use');
+      expect(getTableRow(6, 1).find('td').at(2).text()).contains('57');
+      expect(getTableRow(6, 2).find('td').at(2).text()).contains('66');
+      expect(getTableRow(6, 3).find('td').at(2).text()).contains('69');
+
+      // Confirm eighth table is sorted appropriately
+      expect(getTableRow(7, 0).find('th').at(4).text()).contains('% Time < 54');
+      expect(getTableRow(7, 1).find('td').at(3).text()).contains('0.7 %');
+      expect(getTableRow(7, 2).find('td').at(3).text()).contains('0.6 %');
+      expect(getTableRow(7, 3).find('td').at(3).text()).contains('0.3 %');
+      expect(getTableRow(7, 4).find('td').at(3).text()).contains('0.2 %');
+      expect(getTableRow(7, 5).find('td').at(3).text()).contains('0.1 %');
+
+      // Confirm ninth table is sorted appropriately
+      expect(getTableRow(8, 0).find('th').at(2).text()).contains('Days Since Last Data');
+      expect(getTableRow(8, 1).find('td').at(1).text()).contains('200');
+      expect(getTableRow(8, 2).find('td').at(1).text()).contains('45');
+      expect(getTableRow(8, 3).find('td').at(1).text()).contains('30');
+      expect(getTableRow(8, 4).find('td').at(1).text()).contains('1');
+      expect(getTableRow(8, 5).find('td').at(1).text()).contains('-');
 
 
       // Verify columns present on a sample patient from the data issues table
-      expect(getTableRow(6, 0).find('th').at(0).text()).contains('Patient Name');
-      expect(getTableRow(6, 1).find('th').at(0).text()).contains('Judah Stopforth');
+      expect(getTableRow(8, 0).find('th').at(0).text()).contains('Patient Name');
+      expect(getTableRow(8, 1).find('th').at(0).text()).contains('Judah Stopforth');
 
-      expect(getTableRow(6, 0).find('th').at(1).text()).contains('Dexcom Connection Status');
-      expect(getTableRow(6, 1).find('td').at(0).text()).contains('Error Connecting');
+      expect(getTableRow(8, 0).find('th').at(1).text()).contains('Dexcom Connection Status');
+      expect(getTableRow(8, 1).find('td').at(0).text()).contains('Error Connecting');
 
-      expect(getTableRow(6, 0).find('th').at(2).text()).contains('Days Since Last Data');
-      expect(getTableRow(6, 1).find('td').at(1).text()).contains('200');
+      expect(getTableRow(8, 0).find('th').at(2).text()).contains('Days Since Last Data');
+      expect(getTableRow(8, 1).find('td').at(1).text()).contains('200');
 
       // Verify that various connection statuses are rendering correctly
-      expect(getTableRow(6, 2).find('th').at(0).text()).contains('Willie Gambles');
-      expect(getTableRow(6, 2).find('td').at(0).text()).contains('Invite Sent');
+      expect(getTableRow(8, 2).find('th').at(0).text()).contains('Willie Gambles');
+      expect(getTableRow(8, 2).find('td').at(0).text()).contains('Invite Sent');
 
-      expect(getTableRow(6, 3).find('th').at(0).text()).contains('Denys Ickov');
-      expect(getTableRow(6, 3).find('td').at(0).text()).contains('Patient Disconnected');
+      expect(getTableRow(8, 3).find('th').at(0).text()).contains('Denys Ickov');
+      expect(getTableRow(8, 3).find('td').at(0).text()).contains('Patient Disconnected');
 
-      expect(getTableRow(6, 4).find('th').at(0).text()).contains('Johna Slatcher');
-      expect(getTableRow(6, 4).find('td').at(0).text()).contains('No Pending Connections');
+      expect(getTableRow(8, 4).find('th').at(0).text()).contains('Johna Slatcher');
+      expect(getTableRow(8, 4).find('td').at(0).text()).contains('No Pending Connections');
 
-      expect(getTableRow(6, 5).find('th').at(0).text()).contains('Emelda Stangoe');
-      expect(getTableRow(6, 5).find('td').at(0).text()).contains('Invite Expired');
+      expect(getTableRow(8, 5).find('th').at(0).text()).contains('Emelda Stangoe');
+      expect(getTableRow(8, 5).find('td').at(0).text()).contains('Invite Expired');
     });
 
     it('should show empty text for a section without results', () => {
@@ -758,7 +762,7 @@ describe('TideDashboard', () => {
       );
 
       const dashboardSections = wrapper.find('.dashboard-section');
-      expect(dashboardSections.hostNodes()).to.have.length(7);
+      expect(dashboardSections.hostNodes()).to.have.length(9);
 
       const emptyTextNode = dashboardSections.at(1).find('.table-empty-text').hostNodes();
       expect(emptyTextNode).to.have.length(1);
@@ -811,10 +815,10 @@ describe('TideDashboard', () => {
 
       it('should show table headings mmol/L units', () => {
         const dashboardSections = wrapper.find('.dashboard-section');
-        expect(dashboardSections.hostNodes()).to.have.length(7);
+        expect(dashboardSections.hostNodes()).to.have.length(9);
 
         const dashboardSectionLabels = dashboardSections.find('.dashboard-section-label').hostNodes();
-        expect(dashboardSectionLabels).to.have.length(7);
+        expect(dashboardSectionLabels).to.have.length(9);
         expect(dashboardSectionLabels.at(0).text()).to.equal('Very Low> 1% Time below 3.0 mmol/L');
         expect(dashboardSectionLabels.at(1).text()).to.equal('Low> 4% Time below 3.9 mmol/L');
 
