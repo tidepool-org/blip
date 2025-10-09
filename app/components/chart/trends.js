@@ -148,7 +148,7 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     const timezone = getTimezoneFromTimePrefs(timePrefs);
 
     // endpoint is exclusive, so need to subtract a day
-    const end = moment(datetimeLocationEndpoints[1]).tz(timezone).subtract(1, 'day');
+    const end = moment(datetimeLocationEndpoints[1]).tz(timezone);
 
     return this.formatDate(datetimeLocationEndpoints[0]) + ' - ' + this.formatDate(end);
   }
