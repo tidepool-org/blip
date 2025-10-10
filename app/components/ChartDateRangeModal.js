@@ -62,7 +62,7 @@ export const ChartDateRangeModal = (props) => {
     const endDate = mostRecentDatumDate ? moment.utc(mostRecentDatumDate) : endOfToday;
     const endHourCeiling = getLocalizedHourCeiling(endDate.valueOf(), timePrefs);
 
-    const startDate = moment.utc(endDate).tz(timezoneName).subtract(days - 1, 'days');
+    const startDate = moment.utc(endDate).tz(timezoneName).subtract(days, 'days');
     const startHourCeiling = getLocalizedHourCeiling(startDate.valueOf(), timePrefs);
 
     return ({
