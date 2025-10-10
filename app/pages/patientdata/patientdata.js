@@ -1025,7 +1025,8 @@ export const PatientDataClass = createReactClass({
     const isTrends = this.state.chartType === 'trends';
     const isBasics = this.state.chartType === 'basics';
 
-    const setEndToLocalCeiling = forceChartDataUpdate || (!isDaily && !isTrends && !isBasics);
+    const canSplitDays = isDaily || isTrends || isBasics;
+    const setEndToLocalCeiling = forceChartDataUpdate || !canSplitDays;
 
     const newEndpoints = this.getChartEndpoints(datetimeLocation, { setEndToLocalCeiling });
 
