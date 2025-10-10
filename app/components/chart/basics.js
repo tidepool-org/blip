@@ -207,7 +207,7 @@ class Basics extends Component {
     }
 
     const startDate = moment(endpointsRange[0]).tz(timezone);
-    const endDate = moment(endpointsRange[1]).tz(timezone);
+    const endDate = moment(endpointsRange[1]).tz(timezone).subtract(1, 'ms');
 
     const dtMask = getChartDateBoundDisplayFormat(startDate, endDate);
 
