@@ -33,7 +33,7 @@ import SelectTags from '../../../app/components/clinic/PatientForm/SelectTags';
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
-describe.only('TideDashboard', () => {
+describe('TideDashboard', () => {
   let mount;
 
   const today = moment().toISOString();
