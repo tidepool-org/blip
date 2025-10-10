@@ -55,6 +55,9 @@ export const ChartDateRangeModal = (props) => {
     endDate: endDate ? moment.utc(endDate).tz(timezoneName).endOf('day').subtract(1, 'ms') : null,
   });
 
+  // Returns the bounds for the last N days based on the most recent datum. This method will
+  // shift the window to end at the start of the hour after the last datum. For example, if the
+  // latest datum was Oct 20 @ 15:23, the 14-day window will be Oct 6 @ 16:00 - Oct 20 @ 16:00
   const getLastNDays = days => {
     const endDate = mostRecentDatumDate ? moment.utc(mostRecentDatumDate) : endOfToday;
     const endHourCeiling = getLocalizedHourCeiling(endDate.valueOf(), timePrefs);
