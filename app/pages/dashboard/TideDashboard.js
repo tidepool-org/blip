@@ -137,7 +137,6 @@ const DEFAULT_SECTIONS = [
   CATEGORY.timeInVeryHighPercent,
   CATEGORY.timeInAnyHighPercent,
   CATEGORY.dropInTimeInTargetPercent,
-  CATEGORY.timeInTargetPercent,
   CATEGORY.timeCGMUsePercent,
   CATEGORY.meetingTargets,
   CATEGORY.noData,
