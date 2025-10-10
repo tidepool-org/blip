@@ -21,7 +21,6 @@ import i18next from '../core/language';
 import { breakpoints } from '../themes/baseTheme';
 import { DesktopOnly } from './mediaqueries';
 import { utils as vizUtils } from '@tidepool/viz';
-const getTimezoneFromTimePrefs = vizUtils.datetime.getTimezoneFromTimePrefs;
 const getLocalizedHourCeiling = vizUtils.datetime.getLocalizedHourCeiling;
 
 const t = i18next.t.bind(i18next);
@@ -57,15 +56,15 @@ export const ChartDateRangeModal = (props) => {
   });
 
   const getLastNDays = days => {
-    const endDate = mostRecentDatumDate
-      ? moment.utc(mostRecentDatumDate)
-      : endOfToday;
+    const endDate = mostRecentDatumDate ? moment.utc(mostRecentDatumDate) : endOfToday;
+    const endHourCeiling = getLocalizedHourCeiling(endDate.valueOf(), timePrefs);
 
     const startDate = moment.utc(endDate).tz(timezoneName).subtract(days - 1, 'days');
+    const startHourCeiling = getLocalizedHourCeiling(startDate.valueOf(), timePrefs);
 
     return ({
-      startDate: startDate ? moment.utc(startDate).tz(timezoneName).endOf('hour').add(1, 'ms') : null,
-      endDate: endDate ? moment.utc(endDate).tz(timezoneName).endOf('hour').add(1, 'ms') : null,
+      startDate: moment.utc(startHourCeiling).tz(timezoneName),
+      endDate: moment.utc(endHourCeiling).tz(timezoneName),
     });
   };
 
@@ -153,7 +152,7 @@ export const ChartDateRangeModal = (props) => {
     // between the mostRecentDatum and the end of that day. We also adjust the start
     // time so that the period is a multiple of 24 hours.
     if (mostRecentDatumMoment?.isBefore(adjustedDates?.endDate)) {
-      const hourCeiling = getLocalizedHourCeiling(mostRecentDatumDate);
+      const hourCeiling = getLocalizedHourCeiling(mostRecentDatumDate, timePrefs);
       const endDate = moment.utc(hourCeiling).tz(timezoneName);
       const startDate = adjustedDates?.startDate.hour(endDate.hour());
 
