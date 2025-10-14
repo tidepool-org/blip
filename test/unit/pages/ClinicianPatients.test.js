@@ -122,6 +122,7 @@ describe('ClinicianPatients', () => {
         creatingVCACustodialAccount: defaultWorkingState,
         sendingPatientDataProviderConnectRequest: defaultWorkingState,
         fetchingPatientsForClinic: defaultWorkingState,
+        fetchingClinicMRNsForPatientFormValidation: defaultWorkingState,
       },
       patientListFilters: {
         isPatientListVisible: true,

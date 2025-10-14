@@ -30,6 +30,7 @@ import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRo
 import EditIcon from '@material-ui/icons/EditRounded';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import { components as vizComponents, utils as vizUtils, colors as vizColors } from '@tidepool/viz';
+const { GLYCEMIC_RANGE } = vizUtils.constants;
 import ScrollToTop from 'react-scroll-to-top';
 import styled from '@emotion/styled';
 import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
@@ -517,10 +518,15 @@ const TideDashboardSection = React.memo(props => {
   }, [api, trackMetric]);
 
   const renderBgRangeSummary = useCallback(summary => {
+    // Alternate glycemic ranges not applied in TIDE Dashboard for now
+    const glycemicRanges = GLYCEMIC_RANGE.ADA_STANDARD;
+
     return <BgSummaryCell
+    id={summary.patient.id}
     summary={summary}
     config={config}
     clinicBgUnits={clinicBgUnits}
+    glycemicRanges={glycemicRanges}
     activeSummaryPeriod={config?.period}
     showExtremeHigh={showExtremeHigh}
   />
@@ -920,11 +926,7 @@ export const TideDashboard = (props) => {
   const ldContext = ldClient.getContext();
 
   const isTideDashboardEnabled = (ldContext?.clinic?.tier && showTideDashboard) || clinic?.entitlements?.tideDashboard;
-
-  const existingMRNs = useMemo(
-    () => compact(map(reject(clinic?.patients, { id: selectedPatient?.id }), 'mrn')),
-    [clinic?.patients, selectedPatient?.id]
-  );
+  const existingMRNs = useSelector(state => state.blip.clinicMRNsForPatientFormValidation)?.filter(mrn => mrn !== selectedPatient?.mrn) || [];
 
   const {
     fetchingPatientFromClinic,

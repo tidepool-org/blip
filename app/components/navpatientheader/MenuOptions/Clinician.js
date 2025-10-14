@@ -1,24 +1,42 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { Box, Flex } from 'theme-ui';
 import { useLocation } from 'react-router-dom';
 import { withTranslation } from 'react-i18next';
 
 import { getFinalSlug } from '../../../core/navutils';
 import { getButtonStyleProps, isDataView } from './menuOptionHelpers';
+import { selectPermsOfLoggedInUser } from '../../../core/selectors';
 
 import Button from '../../elements/Button';
-import viewIcon from '../../../core/icons/viewIcon.svg'
-import profileIcon from '../../../core/icons/profileIcon.svg'
-import uploadIcon from '../../../core/icons/uploadIcon.svg'
+import viewIcon from '../../../core/icons/viewIcon.svg';
+import profileIcon from '../../../core/icons/profileIcon.svg';
+import uploadIcon from '../../../core/icons/uploadIcon.svg';
+
+const EDIT_ACTION = {
+  OPEN_PATIENT_FORM: 'OPEN_PATIENT_FORM',
+  VIEW_PROFILE_PAGE: 'VIEW_PROFILE_PAGE',
+  NONE: 'NONE',
+};
 
 const ClinicianMenuOptions = ({
   t,
+  onOpenPatientForm,
   onViewProfile,
   onViewData,
   onUpload = null,
 }) => {
   const { pathname } = useLocation();
+  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
+  const permsOfLoggedInUser = useSelector(state => selectPermsOfLoggedInUser(state));
   const finalSlug = getFinalSlug(pathname);
+
+  let editActionState = EDIT_ACTION.NONE;
+  if (!!selectedClinicId) {
+    editActionState = EDIT_ACTION.OPEN_PATIENT_FORM; // viewing from a clinic
+  } else if (permsOfLoggedInUser?.custodian) {
+    editActionState = EDIT_ACTION.VIEW_PROFILE_PAGE; // viewing private workspace and user is custodian
+  }
 
   return (
     <Flex sx={{ ml: 'auto', columnGap: 32 }}>
@@ -33,17 +51,34 @@ const ClinicianMenuOptions = ({
           {t('View Data')}
         </Button>
       </Box>
-      <Box>
-        <Button
-          id="navPatientHeader_profileButton"
-          onClick={onViewProfile}
-          iconSrc={profileIcon}
-          iconLabel="Profile"
-          {...getButtonStyleProps(finalSlug === '/profile')}
-        >
-          {t('Patient Profile')}
-        </Button>
-      </Box>
+
+      {editActionState === EDIT_ACTION.OPEN_PATIENT_FORM &&
+        <Box>
+          <Button
+            id="navPatientHeader_profileButton"
+            onClick={onOpenPatientForm}
+            iconSrc={profileIcon}
+            iconLabel="Profile"
+            {...getButtonStyleProps(finalSlug === '/profile')}
+          >
+            {t('Edit Patient Details')}
+          </Button>
+        </Box>
+      }
+
+      {editActionState === EDIT_ACTION.VIEW_PROFILE_PAGE &&
+        <Box>
+          <Button
+            id="navPatientHeader_profileButton"
+            onClick={onViewProfile}
+            iconSrc={profileIcon}
+            iconLabel="Profile"
+            {...getButtonStyleProps(finalSlug === '/profile')}
+          >
+            {t('Patient Profile')}
+          </Button>
+        </Box>
+      }
 
       {onUpload &&
         <Box>
