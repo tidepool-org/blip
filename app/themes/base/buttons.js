@@ -402,7 +402,7 @@ export default ({
       ...defaultStyles,
       padding: `12px ${space[5]}px`,
       fontWeight: fontWeights.medium,
-      backgroundColor: 'blue50',
+      backgroundColor: colors.blue50,
       color: colors.white,
       border: 0,
       borderRadius: radii.default,
@@ -412,10 +412,10 @@ export default ({
         filter: 'brightness(0%) saturate(100%) invert(97%) sepia(100%) saturate(0%) hue-rotate(317deg) brightness(105%) contrast(101%)', // white
       },
       '&.selected': {
-        backgroundColor: 'blue80',
+        backgroundColor: colors.blue80,
       },
       '&:hover': {
-        backgroundColor: 'blue60',
+        backgroundColor: colors.blue60,
       },
       '&:disabled': {
         color: colors.text.primaryDisabled,
