@@ -110,7 +110,7 @@ const MenuBar = ({ patientId, onClose, onSelectTab, selectedTab, trackMetric }) 
         </Flex>
       </Flex>
 
-      <Flex p="1px" sx={{ justifyContent: 'space-between', alignItems: 'center', bg: 'blue50', borderRadius: 'default' }}>
+      <Flex p="1px" sx={{ justifyContent: 'space-between', bg: 'blue50', borderRadius: 'default' }}>
         <Flex role="tablist" sx={{ gap: '1px' }}>
           {map(keys(tabs), (tabKey) => (
             <Button
@@ -127,7 +127,7 @@ const MenuBar = ({ patientId, onClose, onSelectTab, selectedTab, trackMetric }) 
           ))}
         </Flex>
 
-        <Flex sx={{ justifyContent: 'space-between', alignItems: 'center', gap: '1px' }}>
+        <Flex sx={{ justifyContent: 'space-between', gap: '1px' }}>
           <Button
             data-testid="view-data-button"
             iconPosition="left"
