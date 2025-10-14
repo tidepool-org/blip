@@ -14,7 +14,6 @@ import i18n from '@app/core/language';
 
 // Mock LaunchDarkly
 jest.mock('launchdarkly-react-client-sdk', () => ({
-  // withFlags: jest.fn((Component) => Component),
   useFlags: jest.fn(() => ({
     showTideDashboardLastReviewed: false,
   })),
@@ -194,9 +193,10 @@ describe('MenuBar Component', () => {
       const overviewTab = screen.getByTestId('tab-overview');
       const stackedDailyTab = screen.getByTestId('tab-stackedDaily');
 
-      // Check that tabs exist (selected state might be handled via props, not attributes)
       expect(overviewTab).toBeInTheDocument();
+      expect(overviewTab).toHaveClass('selected');
       expect(stackedDailyTab).toBeInTheDocument();
+      expect(stackedDailyTab).not.toHaveClass('selected');
     });
 
     it('should show stacked daily tab as selected when specified', () => {
@@ -205,9 +205,10 @@ describe('MenuBar Component', () => {
       const overviewTab = screen.getByTestId('tab-overview');
       const stackedDailyTab = screen.getByTestId('tab-stackedDaily');
 
-      // Check that tabs exist (selected state might be handled via props, not attributes)
       expect(overviewTab).toBeInTheDocument();
+      expect(overviewTab).not.toHaveClass('selected');
       expect(stackedDailyTab).toBeInTheDocument();
+      expect(stackedDailyTab).toHaveClass('selected');
     });
 
     it('calls onSelectTab and trackMetric when a tab is clicked', () => {

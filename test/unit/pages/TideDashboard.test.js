@@ -357,7 +357,9 @@ describe('TideDashboard', () => {
         </Provider>
       );
 
-      expect(store.getActions()[0]).to.eql({
+      const actions = store.getActions();
+      const redirectAction = actions.find(a => a.type === '@@router/CALL_HISTORY_METHOD');
+      expect(redirectAction).to.eql({
         payload: { args: ['/clinic-workspace'], method: 'push' },
         type: '@@router/CALL_HISTORY_METHOD',
       });

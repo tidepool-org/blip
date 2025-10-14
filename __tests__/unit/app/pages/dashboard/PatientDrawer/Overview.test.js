@@ -1,10 +1,7 @@
 /* global jest */
 /* global expect */
 /* global describe */
-/* global sinon */
-/* global afterEach */
 /* global it */
-/* global beforeEach */
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';

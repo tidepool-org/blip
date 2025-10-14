@@ -59,7 +59,6 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
   };
 
   const allCharts = useMemo(() => map(dataByDate, (data, date) => {
-    const timePrefs = agpCGMData?.agpCGM?.timePrefs;
     const chartStart = getLocalizedCeiling(date, timePrefs).valueOf();
     const chartEnd = chartStart + MS_IN_DAY;
 
@@ -96,7 +95,7 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
 
     const chartData = [...(data.cbg || []), ...(data.smbg || [])]
     return [date, chartOpts, chartData];
-  }), [dataByDate, agpCGMData, bgClasses, bgUnits]);
+  }), [dataByDate, bgClasses, bgUnits, timePrefs]);
 
   // Limit charts to visibleDays count
   const charts = useMemo(() => allCharts.slice(0, visibleDays), [allCharts, visibleDays]);
@@ -124,54 +123,68 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
     }
   }
 
-  function handleSMBGHover(smbg) {
-    const rect = smbg.rect;
+  function handleDataHover(data, setHoveredState) {
+    const rect = data.rect;
     const containerRect = containerRef.current?.getBoundingClientRect();
     const containerXOffset = containerRect?.x || 0;
 
-    // range here is -12 to 12
-    const datetimeLocation = mean(smbg.chartEndpoints);
-    const hoursOffset = sundial.dateDifference(smbg.data.normalTime, datetimeLocation, 'h');
-    smbg.top = rect.top + (rect.height / 2)
+    const datetimeLocation = mean(data.chartEndpoints);
+    const hoursOffset = sundial.dateDifference(data.data.normalTime, datetimeLocation, 'h');
+    data.top = rect.top + (rect.height / 2);
 
-    if(hoursOffset > 5) {
-      smbg.side = 'left';
-      smbg.left = rect.left;
+    if (hoursOffset > 5) {
+      data.side = 'left';
+      data.left = rect.left;
     } else {
-      smbg.side = 'right';
-      smbg.left = rect.left + rect.width;
+      data.side = 'right';
+      data.left = rect.left + rect.width;
     }
 
-    setHoveredSMBG({ ...smbg, left: smbg.left - containerXOffset });
+    setHoveredState({ ...data, left: data.left - containerXOffset });
+  }
+
+  function handleDataOut(setHoveredState) {
+    setHoveredState(false);
+  }
+
+  function handleSMBGHover(smbg) {
+    handleDataHover(smbg, setHoveredSMBG);
   }
 
   function handleSMBGOut() {
-    setHoveredSMBG(false);
+    handleDataOut(setHoveredSMBG);
   }
 
   function handleCBGHover(cbg) {
-    var rect = cbg.rect;
-    const containerRect = containerRef.current?.getBoundingClientRect();
-    const containerXOffset = containerRect?.x || 0;
-
-    // range here is -12 to 12
-    const datetimeLocation = mean(cbg.chartEndpoints);
-    var hoursOffset = sundial.dateDifference(cbg.data.normalTime, datetimeLocation, 'h');
-    cbg.top = rect.top + (rect.height / 2)
-
-    if(hoursOffset > 5) {
-      cbg.side = 'left';
-      cbg.left = rect.left;
-    } else {
-      cbg.side = 'right';
-      cbg.left = rect.left + rect.width;
-    }
-
-    setHoveredCBG({ ...cbg, left: cbg.left - containerXOffset });
+    handleDataHover(cbg, setHoveredCBG);
   }
 
   function handleCBGOut() {
-    setHoveredCBG(false);
+    handleDataOut(setHoveredCBG);
+  }
+
+  function handleDataHover(data, setHoveredState) {
+    const rect = data.rect;
+    const containerRect = containerRef.current?.getBoundingClientRect();
+    const containerXOffset = containerRect?.x || 0;
+
+    const datetimeLocation = mean(data.chartEndpoints);
+    const hoursOffset = sundial.dateDifference(data.data.normalTime, datetimeLocation, 'h');
+    data.top = rect.top + (rect.height / 2);
+
+    if (hoursOffset > 5) {
+      data.side = 'left';
+      data.left = rect.left;
+    } else {
+      data.side = 'right';
+      data.left = rect.left + rect.width;
+    }
+
+    setHoveredState({ ...data, left: data.left - containerXOffset });
+  }
+
+  function handleDataOut(setHoveredState) {
+    setHoveredState(false);
   }
 
   function handleSwitchToDaily(endpoints) {

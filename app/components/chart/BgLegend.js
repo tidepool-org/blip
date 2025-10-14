@@ -3,16 +3,16 @@ import { Flex, Box } from 'theme-ui';
 import { useTranslation } from 'react-i18next';
 import { Body1 } from '../elements/FontStyles';
 
+const bgClasses = [
+  'veryLow',
+  'low',
+  'target',
+  'high',
+  'veryHigh',
+];
+
 export const BgLegend = () => {
   const { t } = useTranslation();
-
-  const bgClasses = [
-    'veryLow',
-    'low',
-    'target',
-    'high',
-    'veryHigh',
-  ];
 
   return (
     <Flex sx={{ justifyContent: 'space-between', alignItems: 'center', gap: 2 }}>

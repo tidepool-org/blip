@@ -50,6 +50,8 @@ const CGMClipboardButton = ({ patient, data, variant, ...buttonProps }) => {
 };
 
 CGMClipboardButton.propTypes = {
+  patient: PropTypes.object.isRequired,
+  data: PropTypes.object.isRequired,
   variant: PropTypes.oneOf(['secondary', 'tab']),
 };
 
