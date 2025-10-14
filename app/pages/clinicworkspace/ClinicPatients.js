@@ -2939,8 +2939,7 @@ export const ClinicPatients = (props) => {
       >
         <DialogTitle sx={{ alignItems: 'flex-start' }} onClose={handleCloseOverlays}>
           <Box mr={2}>
-            <MediumTitle sx={{ fontSize: 2 }} id="dialog-title">{t('Select Patients to Display in the TIDE Dashboard')}</MediumTitle>
-            <Body1 sx={{ fontWeight: 'medium', color: 'grays.4' }}>{t('You must make a selection in each category')}</Body1>
+            <MediumTitle id="dialog-title">{t('Filter the TIDE Dashboard')}</MediumTitle>
           </Box>
         </DialogTitle>
 
