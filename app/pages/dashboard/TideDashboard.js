@@ -80,7 +80,7 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
 import DataInIcon from '../../core/icons/DataInIcon.svg';
 import { colors, fontWeights, radii } from '../../themes/baseTheme';
 import PatientLastReviewed from '../../components/clinic/PatientLastReviewed';
-import { OVERVIEW_TAB_INDEX, STACKED_DAILY_TAB_INDEX } from './PatientDrawer/MenuBar/MenuBar';
+import { OVERVIEW_TAB_INDEX } from './PatientDrawer/MenuBar/MenuBar';
 
 const { Loader } = vizComponents;
 const { formatBgValue } = vizUtils.bg;
@@ -770,6 +770,7 @@ export const TideDashboard = (props) => {
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const pdf = useSelector((state) => state.blip.pdf);
+  const data = useSelector((state) => state.blip.data);
   const currentPatientInViewId = useSelector((state) => state.blip.currentPatientInViewId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const mrnSettings = clinic?.mrnSettings ?? {};
@@ -975,12 +976,12 @@ export const TideDashboard = (props) => {
       history.replace({ pathname, search: params.toString() });
     }
 
-    // Failsafe to ensure blip.pdf is always cleared out after drawer is closed
-    if (!drawerPatientId && !isEmpty(pdf)) {
+    // Failsafe to ensure blip.pdf and blip.data is always cleared out after drawer is closed
+    if (!drawerPatientId && (!isEmpty(pdf) || isFinite(data?.metaData?.size))) {
       dispatch(actions.worker.removeGeneratedPDFS());
       dispatch(actions.worker.dataWorkerRemoveDataRequest(null));
     }
-  }, [drawerPatientId, pdf, config, location, history]);
+  }, [drawerPatientId, pdf, data?.metaData?.size, config, location, history]);
 
   const handleEditPatientConfirm = useCallback(() => {
     trackMetric('Clinic - Edit patient confirmed', { clinicId: selectedClinicId });
