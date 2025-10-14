@@ -413,7 +413,6 @@ export default ({
       },
       '&.selected': {
         backgroundColor: 'blue80',
-        fontWeight: fontWeights.bold,
       },
       '&:hover': {
         backgroundColor: 'blue60',
