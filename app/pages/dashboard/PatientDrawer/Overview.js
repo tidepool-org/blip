@@ -69,7 +69,7 @@ const Overview = ({ patientId, agpCGMData }) => {
   const dailyGlucoseProfilesTop  = svgDataURLS?.agpCGM?.dailyGlucoseProfiles?.[0];
   const dailyGlucoseProfilesBot  = svgDataURLS?.agpCGM?.dailyGlucoseProfiles?.[1];
 
-  const { bgSource, glycemicRanges } = agpCGM.query;
+  const { bgSource, glycemicRanges } = agpCGM?.query || {};
 
   return (
     <Box pt={3}>
