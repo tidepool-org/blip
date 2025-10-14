@@ -10,11 +10,8 @@ import thunk from 'redux-thunk';
 
 import StackedDaily from '@app/pages/dashboard/PatientDrawer/StackedDaily';
 import { STATUS } from '@app/pages/dashboard/PatientDrawer/useAgpCGM';
-
-// Mock MenuBar to avoid complex dependency loading
-jest.mock('@app/pages/dashboard/PatientDrawer/MenuBar', () => ({
-  STACKED_DAILY_TAB_INDEX: 1,
-}));
+import { mean } from 'lodash';
+import { MS_IN_DAY } from '../../../../../../app/core/constants';
 
 // Mock connected-react-router
 jest.mock('connected-react-router', () => ({
@@ -32,61 +29,30 @@ jest.mock('tideline/plugins/blip', () => ({
   })),
 }));
 
-// Mock @tidepool/viz components and utils to avoid complex dependency loading
-jest.mock('@tidepool/viz', () => ({
-  components: {
-    Loader: function MockLoader({ show }) {
-      return show ? <div data-testid="loader">Loading...</div> : null;
-    },
-    SMBGTooltip: function MockSMBGTooltip(props) {
-      return <div data-testid="smbg-tooltip">SMBG Tooltip</div>;
-    },
-    CBGTooltip: function MockCBGTooltip(props) {
-      return <div data-testid="cbg-tooltip">CBG Tooltip</div>;
-    },
-  },
-  utils: {
-    datetime: {
-      getLocalizedCeiling: jest.fn((date) => ({ valueOf: () => new Date(date).getTime() })),
-    },
-    stat: {
-      bankersRound: jest.fn(val => val),
-    },
-    constants: {},
-  },
-  colors: {},
-}));
+const mockLocalizedCeiling = new Date('2024-01-01').valueOf();
 
-// Mock sundial
-jest.mock('sundial', () => ({
-  dateDifference: jest.fn(() => 3), // Mock return value for time offset
-}));
-
-// Mock lodash functions
-jest.mock('lodash', () => ({
-  map: jest.fn((obj, iteratee) => Object.keys(obj || {}).map(key => iteratee(obj[key], key))),
-  includes: jest.fn((array, value) => Array.isArray(array) && array.includes(value)),
-  get: jest.fn((obj, path, defaultValue) => {
-    const keys = path.split('.');
-    let result = obj;
-    for (const key of keys) {
-      if (result && typeof result === 'object' && key in result) {
-        result = result[key];
-      } else {
-        return defaultValue;
-      }
+// Mock the @tidepool/viz components while preserving other exports
+jest.mock('@tidepool/viz', () => {
+  const originalModule = jest.requireActual('@tidepool/viz');
+  return {
+    ...originalModule,
+    components: {
+      Loader: function MockLoader({ show }) {
+        return show ? <div data-testid="loader">Loading...</div> : null;
+      },
+      SMBGTooltip: function MockSMBGTooltip(props) {
+        return <div data-testid="smbg-tooltip">SMBG Tooltip</div>;
+      },
+      CBGTooltip: function MockCBGTooltip(props) {
+        return <div data-testid="cbg-tooltip">CBG Tooltip</div>;
+      },
+    },
+    utils: {
+      ...originalModule.utils,
+      getLocalizedCeiling: jest.fn(val => mockLocalizedCeiling),
     }
-    return result;
-  }),
-  chunk: jest.fn((array, size) => {
-    const chunks = [];
-    for (let i = 0; i < (array || []).length; i += size) {
-      chunks.push(array.slice(i, i + size));
-    }
-    return chunks;
-  }),
-  mean: jest.fn((array) => array.reduce((a, b) => a + b, 0) / array.length),
-}));
+  };
+});
 
 // Mock Overview components
 jest.mock('@app/pages/dashboard/PatientDrawer/Overview', () => ({
@@ -335,12 +301,11 @@ describe('StackedDaily Component', () => {
 
       const dateHeader = screen.getByText('2024-01-01');
       await user.click(dateHeader);
+      const expectedDatetime = mean([mockLocalizedCeiling, mockLocalizedCeiling + MS_IN_DAY]); // should be set to the middle of the day
 
       expect(push).toHaveBeenCalled();
       const pushCall = push.mock.calls[0][0];
-      expect(pushCall).toContain('/patients/patient123/data/daily');
-      expect(pushCall).toContain('dashboard=tide');
-      expect(pushCall).toContain('drawerTab=1');
+      expect(pushCall).toContain(`/patients/patient123/data/daily?dashboard=tide&drawerTab=1&datetime=${expectedDatetime}`);
     });
   });
 });
