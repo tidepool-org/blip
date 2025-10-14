@@ -62,8 +62,6 @@ const PatientDrawer = ({ patientId, onClose, api, trackMetric, period }) => {
   const isOpen = !!patientId && isValidAgpPeriod(period);
   const agpPeriodInDays = getAgpPeriodInDays(period);
   const agpCGMData = useAgpCGM(api, patientId, agpPeriodInDays);
-  const contentRef = React.useRef(null);
-  const contentTopPosition = contentRef.current ? contentRef.current.getBoundingClientRect().top : 0;
 
   React.useEffect(() => {
     if (isOpen) {
@@ -104,22 +102,26 @@ const PatientDrawer = ({ patientId, onClose, api, trackMetric, period }) => {
           width: `calc(100vw - ${DRAWER_CLOSE_BUTTON_GAP})`, // account space needed for close button
           maxWidth: DESKTOP_DRAWER_WIDTH,
           height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
 
         {isOpen &&
           <>
-            <MenuBar patientId={patientId} trackMetric={trackMetric} onClose={onClose} selectedTab={selectedTab} onSelectTab={handleSelectTab} />
+            <Box sx={{ flexShrink: 0 }}>
+              <MenuBar patientId={patientId} trackMetric={trackMetric} onClose={onClose} selectedTab={selectedTab} onSelectTab={handleSelectTab} />
 
-            <Box className='sticky-shadow' sx={{ height: '8px', position: 'sticky', zIndex: 1, visibility: scrolledToTop ? 'hidden' : 'visible', boxShadow: shadows.large }} />
+              <Box className='sticky-shadow' sx={{ height: '8px', position: 'sticky', zIndex: 1, visibility: scrolledToTop ? 'hidden' : 'visible', boxShadow: shadows.large }} />
+            </Box>
 
             <Box
-              ref={contentRef}
               px={4}
               pb={4}
               sx={{
-                height: `calc(100% - ${contentTopPosition || 0}px)`,
+                flex: 1,
                 overflowY: 'scroll',
+                minHeight: 0, // Important for flex child to shrink
               }}
               onScroll={handleContentScroll}
             >
