@@ -204,7 +204,7 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
         <Box mb={4} key={date} className='chart-wrapper'>
           <Body1
             py={1}
-            sx={{ fontWeight: 'bold', '&:hover': { display: 'inline-block', textDecoration: 'underline', cursor: 'pointer' } }}
+            sx={{ fontWeight: 'bold', display: 'inline-block', '&:hover': { textDecoration: 'underline', cursor: 'pointer' } }}
             onClick={() => handleSwitchToDaily(chartOpts.endpoints)}
             data-testid="chart-date-header"
           >
