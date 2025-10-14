@@ -111,11 +111,13 @@ const MenuBar = ({ patientId, onClose, onSelectTab, selectedTab, trackMetric }) 
       </Flex>
 
       <Flex p="1px" sx={{ justifyContent: 'space-between', alignItems: 'center', bg: 'blue50', borderRadius: 'default' }}>
-        <Flex sx={{ gap: '1px' }}>
+        <Flex role="tablist" sx={{ gap: '1px' }}>
           {map(keys(tabs), (tabKey) => (
             <Button
               variant="tab"
               key={tabKey}
+              role="tab"
+              aria-selected={parseInt(selectedTab) === parseInt(tabKey)}
               data-testid={`tab-${tabs[tabKey].name}`}
               onClick={(e) => handleSelectTab(e, tabKey)}
               selected={parseInt(selectedTab) === parseInt(tabKey)}
