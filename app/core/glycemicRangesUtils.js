@@ -23,7 +23,7 @@ export const getGlycemicRangesPreset = glycemicRanges => {
 };
 
 export const buildGlycemicRangesFromPreset = glycemicRangesPreset => {
-  if (!glycemicRangesPreset) return null;
+  if (!glycemicRangesPreset) return undefined;
 
   return {
     type: GLYCEMIC_RANGES_TYPE.PRESET,
