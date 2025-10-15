@@ -3,7 +3,8 @@ import { utils as vizUtils } from '@tidepool/viz';
 const { commonStats } = vizUtils.stat;
 
 import utils from '../../../../core/utils';
-const { GLYCEMIC_RANGE } = vizUtils.constants;
+import { buildGlycemicRangesFromPreset } from '../../../../core/glycemicRangesUtils';
+const { GLYCEMIC_RANGES_PRESET } = vizUtils.constants;
 
 const getQueries = (
   data,
@@ -17,7 +18,8 @@ const getQueries = (
     const stubPatientSettings = {};
 
     // For TIDE Patient Drawer, we currently only show ADA standard ranges
-    const clinicPatientArg = {...clinicPatient, glycemicRanges: GLYCEMIC_RANGE.ADA_STANDARD };
+    const glycemicRanges = buildGlycemicRangesFromPreset(GLYCEMIC_RANGES_PRESET.ADA_STANDARD);
+    const clinicPatientArg = {...clinicPatient, glycemicRanges };
 
     const bgUnitsOverride = {
       units: clinic?.preferredBgUnits,
@@ -31,7 +33,7 @@ const getQueries = (
   })();
 
   // For TIDE Patient Drawer, we currently only show ADA standard ranges
-  const glycemicRanges = GLYCEMIC_RANGE.ADA_STANDARD;
+  const glycemicRanges = GLYCEMIC_RANGES_PRESET.ADA_STANDARD;
 
   const timePrefs = (() => {
     const latestTimeZone = data?.metaData?.latestTimeZone;

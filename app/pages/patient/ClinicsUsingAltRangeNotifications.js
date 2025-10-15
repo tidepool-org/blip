@@ -6,7 +6,7 @@ import moment from 'moment';
 import { selectPatient, selectUser } from '../../core/selectors';
 import { MGDL_UNITS } from '../../core/constants';
 import { utils as vizUtils, colors as vizColors } from '@tidepool/viz';
-const { GLYCEMIC_RANGE, ADA_PREGNANCY_T1_BG_BOUNDS, ADA_GESTATIONAL_T2_BG_BOUNDS } = vizUtils.constants;
+const { GLYCEMIC_RANGES_PRESET, ADA_PREGNANCY_T1_BG_BOUNDS, ADA_GESTATIONAL_T2_BG_BOUNDS } = vizUtils.constants;
 import { Box, Flex } from 'theme-ui';
 import personUtils from '../../core/personutils';
 import baseTheme from '../../themes/baseTheme';
@@ -18,11 +18,12 @@ import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
 import pickBy from 'lodash/pickBy';
 
 import { getDismissedAltRangeNotificationKey, isRangeWithNonStandardTarget } from '../../providers/AppBanner/appBannerHelpers';
+import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils';
 
-const getRenderedTargetRange = (glycemicRanges, bgUnits) => {
-  switch(glycemicRanges) {
-    case GLYCEMIC_RANGE.ADA_PREGNANCY_T1:    return ADA_PREGNANCY_T1_BG_BOUNDS[bgUnits];
-    case GLYCEMIC_RANGE.ADA_GESTATIONAL_T2:  return ADA_GESTATIONAL_T2_BG_BOUNDS[bgUnits];
+const getRenderedTargetRange = (glycemicRangesPreset, bgUnits) => {
+  switch(glycemicRangesPreset) {
+    case GLYCEMIC_RANGES_PRESET.ADA_PREGNANCY_T1:    return ADA_PREGNANCY_T1_BG_BOUNDS[bgUnits];
+    case GLYCEMIC_RANGES_PRESET.ADA_GESTATIONAL_T2:  return ADA_GESTATIONAL_T2_BG_BOUNDS[bgUnits];
     default:                                 return null;
   }
 };
@@ -38,7 +39,9 @@ const Notification = ({ clinicId, onDismiss }) => {
 
   if (!glycemicRanges) return null;
 
-  const { targetLowerBound, targetUpperBound } = getRenderedTargetRange(glycemicRanges, clinicBgUnits) || {};
+  const glycemicRangesPreset = getGlycemicRangesPreset(glycemicRanges);
+
+  const { targetLowerBound, targetUpperBound } = getRenderedTargetRange(glycemicRangesPreset, clinicBgUnits) || {};
 
   return (
     <Box sx={{ background: vizColors.blue00, borderRadius: 8, width: '100%' }} py={2} px={3} mb={3}>
@@ -104,7 +107,8 @@ const ClinicsUsingAltRangeNotifications = ({ api }) => {
 
   const clinicsWithNotifications = pickBy(clinics, clinic => {
     const glycemicRanges = clinic?.patients?.[patient.userid]?.glycemicRanges;
-    const isNonStandardTarget = isRangeWithNonStandardTarget(glycemicRanges);
+    const glycemicRangesPreset = getGlycemicRangesPreset(glycemicRanges);
+    const isNonStandardTarget = isRangeWithNonStandardTarget(glycemicRangesPreset);
 
     // Each notification is clinic-specific and individually dismissable, so we need to check
     // if the notification for each particular clinic has been dismissed

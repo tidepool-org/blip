@@ -5,12 +5,13 @@ import map from 'lodash/map';
 import { withTranslation } from 'react-i18next';
 
 import { utils as vizUtils, colors as vizColors } from '@tidepool/viz';
-const { GLYCEMIC_RANGE } = vizUtils.constants;
+const { GLYCEMIC_RANGES_PRESET } = vizUtils.constants;
 
 import { MGDL_PER_MMOLL, MGDL_UNITS } from '../../core/constants';
 import BgRangeSummary from './BgRangeSummary';
 import PopoverLabel from '../elements/PopoverLabel';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
+import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils';
 
 const InsufficientDataFallback = withTranslation()(({ text = '' }) => (
   <Flex sx={{ justifyContent: 'center' }}>
@@ -80,7 +81,7 @@ export const BgSummaryCell = ({
   config,
   clinicBgUnits,
   activeSummaryPeriod,
-  glycemicRanges = GLYCEMIC_RANGE.ADA_STANDARD,
+  glycemicRanges,
   showExtremeHigh,
   t,
 }) => {
@@ -131,12 +132,14 @@ export const BgSummaryCell = ({
   const hasSufficientData = (activeSummaryPeriod === '1d' && cgmUsePercent >= minCgmPercent) ||
                             (cgmHours >= minCgmHours);
 
-  const isStandardRange = glycemicRanges === GLYCEMIC_RANGE.ADA_STANDARD;
+  const glycemicRangesPreset = getGlycemicRangesPreset(glycemicRanges);
+
+  const isStandardRange = glycemicRangesPreset === GLYCEMIC_RANGES_PRESET.ADA_STANDARD;
 
   const hasNonStandardTooltip = (
-    glycemicRanges === GLYCEMIC_RANGE.ADA_OLDER_HIGH_RISK ||
-    glycemicRanges === GLYCEMIC_RANGE.ADA_PREGNANCY_T1 ||
-    glycemicRanges === GLYCEMIC_RANGE.ADA_GESTATIONAL_T2
+    glycemicRangesPreset === GLYCEMIC_RANGES_PRESET.ADA_OLDER_HIGH_RISK ||
+    glycemicRangesPreset === GLYCEMIC_RANGES_PRESET.ADA_PREGNANCY_T1 ||
+    glycemicRangesPreset === GLYCEMIC_RANGES_PRESET.ADA_GESTATIONAL_T2
   );
 
   // Error messages are prioritized
