@@ -3,9 +3,12 @@ import map from 'lodash/map';
 import { utils as vizUtils } from '@tidepool/viz';
 const { GLYCEMIC_RANGES_TYPE, GLYCEMIC_RANGES_PRESET } = vizUtils.constants;
 
+import i18next from './language';
+const t = i18next.t.bind(i18next);
+
 export const glycemicRangesSchema = yup.object().shape({
-  type: yup.string().oneOf(map(GLYCEMIC_RANGES_TYPE)),
-  preset: yup.string().oneOf(map(GLYCEMIC_RANGES_PRESET)),
+  type: yup.string().oneOf(map(GLYCEMIC_RANGES_TYPE)).required(),
+  preset: yup.string().oneOf(map(GLYCEMIC_RANGES_PRESET)).required(),
   custom: yup.object().notRequired(),
 });
 
