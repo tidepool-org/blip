@@ -168,9 +168,7 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
   }
 
   function scrollToTop() {
-    if (containerRef?.current) {
-      containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    containerRef?.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   return (
