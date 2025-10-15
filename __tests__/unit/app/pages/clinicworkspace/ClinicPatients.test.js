@@ -689,7 +689,7 @@ describe('ClinicPatients', ()  => {
                 },
                 tags: ['tag1'],
                 sites: [{ id: 'site-3-id', name: 'Site Charlie' }],
-                glycemicRanges: 'ADA standard',
+                glycemicRanges: { type: 'preset', preset: 'adaStandard' },
                 reviews: [{ clinicianId: 'clinicianUserId123', time: yesterday }],
               },
               expect.any(Function), // callback fn passed to api
@@ -861,7 +861,7 @@ describe('ClinicPatients', ()  => {
                 },
                 tags: ['tag3'],
                 sites: [{ id: 'site-1-id', name: 'Site Alpha' }],
-                glycemicRanges: 'ADA standard',
+                glycemicRanges: { type: 'preset', preset: 'adaStandard' },
                 reviews: [{ clinicianId: 'clinicianUserId123', time: yesterday }],
               },
               expect.any(Function), // callback fn passed to api

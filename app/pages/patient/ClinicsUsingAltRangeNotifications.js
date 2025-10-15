@@ -24,7 +24,7 @@ const getRenderedTargetRange = (glycemicRangesPreset, bgUnits) => {
   switch(glycemicRangesPreset) {
     case GLYCEMIC_RANGES_PRESET.ADA_PREGNANCY_T1:    return ADA_PREGNANCY_T1_BG_BOUNDS[bgUnits];
     case GLYCEMIC_RANGES_PRESET.ADA_GESTATIONAL_T2:  return ADA_GESTATIONAL_T2_BG_BOUNDS[bgUnits];
-    default:                                 return null;
+    default:                                         return null;
   }
 };
 

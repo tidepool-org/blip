@@ -42,7 +42,7 @@ describe('ClinicsUsingAltRangeNotifications', () => {
           '1111': {
             id: '1111',
             name: 'First Clinic',
-            patients: { '1234': { glycemicRanges: 'ADA pregnancy type 1' } },
+            patients: { '1234': { glycemicRanges: { type: 'preset', preset: 'adaPregnancyType1' } } },
           },
         },
         working: {
@@ -74,23 +74,23 @@ describe('ClinicsUsingAltRangeNotifications', () => {
           '1111': {
             id: '1111',
             name: 'First Clinic',
-            patients: { '1234': { glycemicRanges: 'ADA pregnancy type 1' } },
+            patients: { '1234': { glycemicRanges: { type: 'preset', preset: 'adaPregnancyType1' } } },
           },
           '2222': {
             id: '2222',
             name: 'Second Clinic',
-            patients: { '1234': { glycemicRanges: 'ADA standard' } },
+            patients: { '1234': { glycemicRanges: { type: 'preset', preset: 'adaStandard' } } },
           },
           '3333': {
             id: '3333',
             name: 'Third Clinic',
-            patients: { '1234': { glycemicRanges: 'ADA older or high-risk' } },
+            patients: { '1234': { glycemicRanges: { type: 'preset', preset: 'adaHighRisk' } } },
           },
           '4444': {
             id: '4444',
             name: 'Fourth Clinic',
             preferredBgUnits: 'mmol/L',
-            patients: { '1234': { glycemicRanges: 'ADA pregnancy GDM or type 2' } },
+            patients: { '1234': { glycemicRanges: { type: 'preset', preset: 'ADA pregnancy GDM or type 2' } } },
           },
         },
         working: {

@@ -7,10 +7,17 @@ import i18next from './language';
 const t = i18next.t.bind(i18next);
 
 export const glycemicRangesSchema = yup.object().shape({
-  type: yup.string().oneOf(map(GLYCEMIC_RANGES_TYPE)).required(),
+  type: yup.string()
+           .oneOf(map(GLYCEMIC_RANGES_TYPE))
+           .required(t('Please select a target range option')),
   preset: yup.string().oneOf(map(GLYCEMIC_RANGES_PRESET)).required(),
   custom: yup.object().notRequired(),
 });
+
+export const DEFAULT_GLYCEMIC_RANGES = {
+  type: GLYCEMIC_RANGES_TYPE.PRESET,
+  preset: GLYCEMIC_RANGES_PRESET.ADA_STANDARD,
+};
 
 export const getGlycemicRangesPreset = glycemicRanges => {
   // glycemicRanges field will not exist on older clinicPatient records

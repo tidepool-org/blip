@@ -10,7 +10,7 @@ import thunk from 'redux-thunk';
 import mockLocalStorage from '../../../../utils/mockLocalStorage';
 
 import { utils as vizUtils } from '@tidepool/viz';
-const { GLYCEMIC_RANGE } = vizUtils.constants;
+const { GLYCEMIC_RANGES_PRESET } = vizUtils.constants;
 
 import SelectGlycemicRanges from '@app/components/clinic/PatientForm/SelectGlycemicRanges';
 
@@ -48,7 +48,7 @@ describe('SelectGlycemicRanges', ()  => {
     });
 
     const testProps = {
-      value: GLYCEMIC_RANGE.ADA_STANDARD,
+      value: GLYCEMIC_RANGES_PRESET.ADA_STANDARD,
       onChange: jest.fn(),
     };
 
@@ -80,6 +80,6 @@ describe('SelectGlycemicRanges', ()  => {
 
     // Clicking an option fires the onChange handler with the clicked option's value
     await userEvent.click(screen.getByText('Pregnancy (Type 1): 63-140 mg/dL'));
-    expect(testProps.onChange).toHaveBeenCalledWith(GLYCEMIC_RANGE.ADA_PREGNANCY_T1);
+    expect(testProps.onChange).toHaveBeenCalledWith(GLYCEMIC_RANGES_PRESET.ADA_PREGNANCY_T1);
   });
 });
