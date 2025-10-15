@@ -8464,7 +8464,7 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.37.0-web-3986-tide-stacked-daily.1
+    tideline: 1.37.0-web-3986-tide-stacked-daily.2
     tidepool-platform-client: 0.65.0-develop.1
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
@@ -22229,9 +22229,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.37.0-web-3986-tide-stacked-daily.1":
-  version: 1.37.0-web-3986-tide-stacked-daily.1
-  resolution: "tideline@npm:1.37.0-web-3986-tide-stacked-daily.1"
+"tideline@npm:1.37.0-web-3986-tide-stacked-daily.2":
+  version: 1.37.0-web-3986-tide-stacked-daily.2
+  resolution: "tideline@npm:1.37.0-web-3986-tide-stacked-daily.2"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -22252,7 +22252,7 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: 468c50d9acbd1eddf62b47bfc2a080c077b8a51d8f3887caaf37df595b2b67cafe1f3b73ca277a4403cca617a3bde031d9e75f72e01b73b1f1577637d08d2f88
+  checksum: 129595c78f7a414df5579b56d83d02cb98a90c68499a6c72fb3b180ff17cf6956c3bec52872f0faba50d8b9666abbf47472a854a20757150bc2ad3d93fcec201
   languageName: node
   linkType: hard
 
