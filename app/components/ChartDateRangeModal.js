@@ -55,14 +55,14 @@ export const ChartDateRangeModal = (props) => {
     endDate: endDate ? moment.utc(endDate).tz(timezoneName).endOf('day').subtract(1, 'ms') : null,
   });
 
-  // Returns the bounds for the last N days based on the most recent datum. This method will
-  // shift the window to end at the start of the hour after the last datum. For example, if the
+  // Returns the bounds for the last N 24-hour periods based on the most recent datum. This method
+  // will shift the window to end at the start of the hour after the last datum. For example, if the
   // latest datum was Oct 20 @ 15:23, the 14-day window will be Oct 6 @ 16:00 - Oct 20 @ 16:00
-  const getLastNDays = days => {
+  const getLastN24HourPeriods = numOfPeriods => {
     const endDate = mostRecentDatumDate ? moment.utc(mostRecentDatumDate) : endOfToday;
     const endHourCeiling = getLocalizedHourCeiling(endDate.valueOf(), timePrefs);
 
-    const startDate = moment.utc(endDate).tz(timezoneName).subtract(days, 'days');
+    const startDate = moment.utc(endDate).tz(timezoneName).subtract(numOfPeriods, 'days');
     const startHourCeiling = getLocalizedHourCeiling(startDate.valueOf(), timePrefs);
 
     return ({
@@ -72,7 +72,7 @@ export const ChartDateRangeModal = (props) => {
   };
 
   const getDefaultDates = () => {
-    if (!defaultDatesProp) return getLastNDays(presetDaysOptions[0]);
+    if (!defaultDatesProp) return getLastN24HourPeriods(presetDaysOptions[0]);
 
     const startDate = defaultDatesProp[0] ? moment.utc(defaultDatesProp[0]).tz(timezoneName) : null;
     const endDate = defaultDatesProp[1] ? moment.utc(defaultDatesProp[1]).tz(timezoneName) : null;
@@ -92,7 +92,7 @@ export const ChartDateRangeModal = (props) => {
   const [submitted, setSubmitted] = useState(defaults.submitted);
   const [datePickerOpen, setDatePickerOpen] = useState(defaults.datePickerOpen);
 
-  const presetDateRanges = useMemo(() => map(presetDaysOptions, days => getLastNDays(days, 'basics')), [open, presetDaysOptions]);
+  const presetDateRanges = useMemo(() => map(presetDaysOptions, days => getLastN24HourPeriods(days, 'basics')), [open, presetDaysOptions]);
 
   const datesMatchPreset = (dates, presetDates) => {
     return moment(dates.startDate).isSame(presetDates.startDate) && moment(dates.endDate).isSame(presetDates.endDate);
@@ -157,7 +157,7 @@ export const ChartDateRangeModal = (props) => {
     if (mostRecentDatumMoment?.isBefore(adjustedDates?.endDate)) {
       const hourCeiling = getLocalizedHourCeiling(mostRecentDatumDate, timePrefs);
       const endDate = moment.utc(hourCeiling).tz(timezoneName);
-      const startDate = adjustedDates?.startDate.hour(endDate.hour());
+      const startDate = adjustedDates?.startDate?.hour(endDate.hour());
 
       setDates({ startDate, endDate });
     } else {
@@ -205,7 +205,7 @@ export const ChartDateRangeModal = (props) => {
                   key={`days-chart-${i}`}
                   value={days}
                   selected={datesMatchPreset(dates, presetDateRanges[i])}
-                  onClick={() => setDates(getLastNDays(days))}
+                  onClick={() => setDates(getLastN24HourPeriods(days))}
                 >
                   {days} days
                 </Button>

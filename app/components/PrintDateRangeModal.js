@@ -22,6 +22,8 @@ import { MediumTitle, Caption, Body0 } from './elements/FontStyles';
 import i18next from '../core/language';
 import baseTheme, { borders } from '../themes/baseTheme';
 import { useLocalStorage } from '../core/hooks';
+import { utils as vizUtils } from '@tidepool/viz';
+const getLocalizedHourCeiling = vizUtils.datetime.getLocalizedHourCeiling;
 
 const t = i18next.t.bind(i18next);
 
@@ -34,10 +36,12 @@ export const PrintDateRangeModal = (props) => {
     onDatesChange,
     open,
     processing,
-    timePrefs: { timezoneName = 'UTC' },
+    timePrefs,
     trackMetric,
     loggedInUserId,
   } = props;
+
+  const { timezoneName = 'UTC' } = timePrefs;
 
   const enabledChartsLocalKey = `${loggedInUserId}_PDFChartsEnabled`;
   const defaultRangesLocalKey = `${loggedInUserId}_PDFChartsSelectedRangeIndices`;
@@ -51,7 +55,32 @@ export const PrintDateRangeModal = (props) => {
     endDate: endDate ? moment.utc(endDate).tz(timezoneName).endOf('day').subtract(1, 'ms') : null,
   });
 
+  // Returns the bounds for the last N 24-hour periods based on the most recent datum. This method
+  // will shift the window to end at the start of the hour after the last datum. For example, if the
+  // latest datum was Oct 20 @ 15:23, the 14-day window will be Oct 6 @ 16:00 - Oct 20 @ 16:00
+  const getLastN24HourPeriods = (numOfPeriods, chartType) => {
+    const endDate = get(mostRecentDatumDates, chartType)
+      ? moment.utc(mostRecentDatumDates[chartType])
+      : endOfToday;
+
+    const endHourCeiling = getLocalizedHourCeiling(endDate.valueOf(), timePrefs);
+
+    const startDate = moment.utc(endDate).tz(timezoneName).subtract(numOfPeriods, 'days');
+    const startHourCeiling = getLocalizedHourCeiling(startDate.valueOf(), timePrefs);
+
+    return ({
+      startDate: moment.utc(startHourCeiling).tz(timezoneName),
+      endDate: moment.utc(endHourCeiling).tz(timezoneName),
+    });
+  };
+
   const getLastNDays = (days, chartType) => {
+    // Basics chart can have a window that is offset from midnight.
+    // The window cannot end beyond the time of the last datum.
+    if (chartType === 'basics') {
+      return getLastN24HourPeriods(days, chartType);
+    }
+
     const endDate = get(mostRecentDatumDates, chartType)
       ? moment.utc(mostRecentDatumDates[chartType])
       : endOfToday;
@@ -194,14 +223,40 @@ export const PrintDateRangeModal = (props) => {
   ];
 
   const formatDateEndpoints = ({ startDate, endDate }) => (startDate && endDate ? [
-    startDate.valueOf(),
-    moment.utc(endDate).tz(timezoneName).add(1, 'day').startOf('day').valueOf(),
+    moment.utc(startDate).tz(timezoneName).valueOf(),
+    moment.utc(endDate).tz(timezoneName).valueOf(),
   ] : []);
 
   // Handlers
   const handleClickPreset = (key, days, presetIndex) => {
     setDates({ ...dates, [key]: getLastNDays(days, key) });
     setRangePresets({ ...rangePresets, [key]: presetIndex })
+  };
+
+  const handleSplitDatesChange = (newDates, chartType = 'basics') => {
+    const mostRecentDatumMoment = moment.utc(mostRecentDatumDates[chartType]).tz(timezoneName);
+    const adjustedDates = setDateRangeToExtents(newDates);
+
+    // If the date selected contains the mostRecentDatum, we want to exclude the time
+    // between the mostRecentDatum and the end of that day. We also adjust the start
+    // time so that the period is a multiple of 24 hours.
+    if (mostRecentDatumMoment?.isBefore(adjustedDates?.endDate)) {
+      const hourCeiling = getLocalizedHourCeiling(mostRecentDatumDates[chartType], timePrefs);
+      const endDate = moment.utc(hourCeiling).tz(timezoneName);
+      const startDate = adjustedDates?.startDate.hour(endDate.hour());
+
+      setDates(dates => ({ ...dates, [chartType]: { startDate, endDate } }));
+    } else {
+      setDates(dates => ({ ...dates, [chartType]: adjustedDates }));
+    }
+  };
+
+  const handleDatesChange = (newDates, chartType) => {
+    if (chartType === 'basics') {
+      return handleSplitDatesChange(newDates, chartType);
+    }
+
+    setDates(dates => ({ ...dates, [chartType]: setDateRangeToExtents(newDates) }));
   };
 
   const handleSubmit = () => {
@@ -244,6 +299,7 @@ export const PrintDateRangeModal = (props) => {
     };
 
     trackMetric('Submitted Print Options', metrics);
+
     onClickPrint(printOpts);
   };
 
@@ -342,7 +398,7 @@ export const PrintDateRangeModal = (props) => {
                       startDateId={`${[panel.key]}-start-date`}
                       endDate={dates[panel.key].endDate}
                       endDateId={`${[panel.key]}-end-date`}
-                      onDatesChange={newDates => setDates({ ...dates, [panel.key]: setDateRangeToExtents(newDates) })}
+                      onDatesChange={newDates => handleDatesChange(newDates, panel.key)}
                       isOutsideRange={day => (
                         moment.utc(mostRecentDatumDates[panel.key]).tz(timezoneName).endOf('day').subtract(1, 'ms').diff(day) < 0 ||
                         endOfToday.diff(day) < 0 ||
