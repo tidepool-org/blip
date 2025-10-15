@@ -14,11 +14,6 @@ export const glycemicRangesSchema = yup.object().shape({
   custom: yup.object().notRequired(),
 });
 
-export const DEFAULT_GLYCEMIC_RANGES = {
-  type: GLYCEMIC_RANGES_TYPE.PRESET,
-  preset: GLYCEMIC_RANGES_PRESET.ADA_STANDARD,
-};
-
 export const getGlycemicRangesPreset = glycemicRanges => {
   // glycemicRanges field will not exist on older clinicPatient records
   if (!glycemicRanges) return GLYCEMIC_RANGES_PRESET.ADA_STANDARD;
@@ -36,8 +31,14 @@ export const getGlycemicRangesPreset = glycemicRanges => {
 export const buildGlycemicRangesFromPreset = glycemicRangesPreset => {
   if (!glycemicRangesPreset) return undefined;
 
+  const isValid = map(GLYCEMIC_RANGES_PRESET).includes(glycemicRangesPreset);
+
+  if (!isValid) return undefined;
+
   return {
     type: GLYCEMIC_RANGES_TYPE.PRESET,
     preset: glycemicRangesPreset,
   };
 };
+
+export const DEFAULT_GLYCEMIC_RANGES = buildGlycemicRangesFromPreset(GLYCEMIC_RANGES_PRESET.ADA_STANDARD);
