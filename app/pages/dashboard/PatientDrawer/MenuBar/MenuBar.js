@@ -86,9 +86,9 @@ const MenuBar = ({ patientId, onClose, onSelectTab, selectedTab, trackMetric }) 
           }
         </Flex>
 
-        <Flex sx={{ fontSize: 0, alignItems: 'center', justifyContent: 'space-between', gap: 3 }}>
+        <Flex sx={{ fontSize: 0, alignItems: 'center' }}>
           {showTideDashboardLastReviewed && (
-            <Box data-testid="last-reviewed-section">
+            <Flex data-testid="last-reviewed-section" sx={{ alignItems: 'center', justifyContent: 'space-between', gap: 3 }}>
               <Text sx={{
                 color: vizColors.purple90,
                 fontWeight: 'medium',
@@ -105,7 +105,7 @@ const MenuBar = ({ patientId, onClose, onSelectTab, selectedTab, trackMetric }) 
                 recentlyReviewedThresholdDate={recentlyReviewedThresholdDate}
                 onReview={handleReviewSuccess}
               />
-            </Box>
+            </Flex>
           )}
         </Flex>
       </Flex>
