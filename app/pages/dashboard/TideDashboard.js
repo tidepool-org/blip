@@ -66,7 +66,7 @@ import {
 
 import * as actions from '../../redux/actions';
 import { useToasts } from '../../providers/ToastProvider';
-import { useIsFirstRender, useLocalStorage, usePrevious } from '../../core/hooks';
+import { useIsFirstRender, useLocalStorage, usePrevious, useScrollToTop } from '../../core/hooks';
 import { fieldsAreValid } from '../../core/forms';
 
 import {
@@ -763,6 +763,7 @@ const TideDashboardSection = React.memo(props => {
 )));
 
 export const TideDashboard = (props) => {
+  useScrollToTop();
   const { t, api, trackMetric } = props;
   const isFirstRender = useIsFirstRender();
   const dispatch = useDispatch();

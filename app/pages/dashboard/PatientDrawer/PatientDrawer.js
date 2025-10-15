@@ -13,6 +13,7 @@ import StackedDaily from './StackedDaily';
 import MenuBar, { OVERVIEW_TAB_INDEX, STACKED_DAILY_TAB_INDEX } from './MenuBar';
 import useAgpCGM from './useAgpCGM';
 import { shadows } from '../../../themes/baseTheme';
+import { useScrollToTop } from '../../../core/hooks';
 
 const StyledCloseButton = styled(Icon)`
   position: absolute;
@@ -62,6 +63,9 @@ const PatientDrawer = ({ patientId, onClose, api, trackMetric, period }) => {
   const isOpen = !!patientId && isValidAgpPeriod(period);
   const agpPeriodInDays = getAgpPeriodInDays(period);
   const agpCGMData = useAgpCGM(api, patientId, agpPeriodInDays);
+  const contentRef = React.useRef(undefined);
+
+  useScrollToTop(contentRef?.current, [selectedTab]);
 
   React.useEffect(() => {
     if (isOpen) {
@@ -124,6 +128,7 @@ const PatientDrawer = ({ patientId, onClose, api, trackMetric, period }) => {
                 minHeight: 0, // Important for flex child to shrink
               }}
               onScroll={handleContentScroll}
+              ref={contentRef}
             >
               {selectedTab === OVERVIEW_TAB_INDEX && <Overview patientId={patientId} agpCGMData={agpCGMData} />}
               {selectedTab === STACKED_DAILY_TAB_INDEX && <StackedDaily patientId={patientId} agpCGMData={agpCGMData} />}
