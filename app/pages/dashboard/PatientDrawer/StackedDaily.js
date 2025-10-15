@@ -163,30 +163,6 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
     handleDataOut(setHoveredCBG);
   }
 
-  function handleDataHover(data, setHoveredState) {
-    const rect = data.rect;
-    const containerRect = containerRef.current?.getBoundingClientRect();
-    const containerXOffset = containerRect?.x || 0;
-
-    const datetimeLocation = mean(data.chartEndpoints);
-    const hoursOffset = sundial.dateDifference(data.data.normalTime, datetimeLocation, 'h');
-    data.top = rect.top + (rect.height / 2);
-
-    if (hoursOffset > 5) {
-      data.side = 'left';
-      data.left = rect.left;
-    } else {
-      data.side = 'right';
-      data.left = rect.left + rect.width;
-    }
-
-    setHoveredState({ ...data, left: data.left - containerXOffset });
-  }
-
-  function handleDataOut(setHoveredState) {
-    setHoveredState(false);
-  }
-
   function handleSwitchToDaily(endpoints) {
     dispatch(push(`/patients/${patientId}/data/daily?dashboard=tide&drawerTab=${STACKED_DAILY_TAB_INDEX}&datetime=${mean(endpoints)}`));
   }
