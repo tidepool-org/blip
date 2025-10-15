@@ -256,6 +256,7 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
         timePrefs={timePrefs}
         bgPrefs={bgPrefs}
       />}
+
       {hoveredCBG && <CBGTooltip
         position={{
           top: hoveredCBG.top,
