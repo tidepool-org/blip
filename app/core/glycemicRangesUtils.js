@@ -13,6 +13,7 @@ export const glycemicRangesSchema = yup.object().shape({
 });
 
 export const getGlycemicRangesPreset = glycemicRanges => {
+  // glycemicRanges field will not exist on older clinicPatient records
   if (!glycemicRanges) return GLYCEMIC_RANGES_PRESET.ADA_STANDARD;
 
   switch (glycemicRanges.type) {
