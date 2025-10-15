@@ -1725,6 +1725,10 @@ export const PatientDataClass = createReactClass({
     this.setState(state, cb);
   },
 
+  componentDidMount() {
+    window.scrollTo(0, 0);
+  },
+
   UNSAFE_componentWillMount: function() {
     this.doFetching(this.props);
     var params = this.props.queryParams;
