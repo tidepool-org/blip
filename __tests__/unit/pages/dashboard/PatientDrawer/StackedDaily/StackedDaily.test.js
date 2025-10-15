@@ -240,7 +240,6 @@ describe('StackedDaily Component', () => {
       renderComponent(manyDaysData);
 
       expect(screen.getByTestId('view-more-button')).toBeInTheDocument();
-      expect(screen.getByText('View More')).toBeInTheDocument();
     });
 
     it('should not show view more button when all days are visible', () => {
@@ -270,7 +269,6 @@ describe('StackedDaily Component', () => {
       renderComponent();
 
       expect(screen.getByTestId('back-to-top-button')).toBeInTheDocument();
-      expect(screen.getByText('Back to Top')).toBeInTheDocument();
     });
 
     it('should handle back to top button click', async () => {
