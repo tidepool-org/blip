@@ -6,6 +6,7 @@ const { GLYCEMIC_RANGES_TYPE, GLYCEMIC_RANGES_PRESET } = vizUtils.constants;
 export const glycemicRangesSchema = yup.object().shape({
   type: yup.string().oneOf(map(GLYCEMIC_RANGES_TYPE)),
   preset: yup.string().oneOf(map(GLYCEMIC_RANGES_PRESET)),
+  custom: yup.object().notRequired(),
 });
 
 export const getGlycemicRangesPreset = glycemicRanges => {
