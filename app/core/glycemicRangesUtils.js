@@ -14,6 +14,14 @@ export const glycemicRangesSchema = yup.object().shape({
   custom: yup.object().notRequired(),
 });
 
+/**
+ * Extracts the glycemic ranges preset value from the glycemicRanges object of the
+ * clinicPatient record
+ *
+ * @param {Object} glycemicRanges the glycemicRanges object of the clinicPatient record
+ *
+ * @return {String} target range preset, e.g. 'adaStandard', 'adaPregnancyType1', etc
+ */
 export const getGlycemicRangesPreset = glycemicRanges => {
   // glycemicRanges field will not exist on older clinicPatient records
   if (!glycemicRanges) return GLYCEMIC_RANGES_PRESET.ADA_STANDARD;
@@ -28,6 +36,13 @@ export const getGlycemicRangesPreset = glycemicRanges => {
   }
 };
 
+/**
+ * Creates a glycemicRanges object to be stored in the clinicPatient record
+ *
+ * @param {String} glycemicRangesPreset target range preset, e.g. 'adaPregnancyType1', etc
+ *
+ * @return {Object} glycemicRanges object for the clinicPatient record
+ */
 export const buildGlycemicRangesFromPreset = glycemicRangesPreset => {
   if (!glycemicRangesPreset) return undefined;
 
