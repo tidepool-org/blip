@@ -504,7 +504,7 @@ describe('clinicUtils', function() {
 
       expect(base.ui.text).to.eql({
         planDisplayName: 'Base',
-        limitDescription: `Limited to ${DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT} patients. Please note that the demo account and accounts connected to twiist do not count towards the limit.`,
+        limitDescription: 'This plan allows for a limited number of patient accounts.',
         limitFeedback: {
           status: 'warning',
           text: 'Maximum number of patient accounts reached',
@@ -532,7 +532,7 @@ describe('clinicUtils', function() {
 
       expect(baseLimitReached.ui.text).to.eql({
         planDisplayName: 'Base',
-        limitDescription: `Limited to ${DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT} patients. Please note that the demo account and accounts connected to twiist do not count towards the limit.`,
+        limitDescription: 'This plan allows for a limited number of patient accounts.',
         limitFeedback: {
           status: 'warning',
           text: 'Maximum number of patient accounts reached',
@@ -603,7 +603,7 @@ describe('clinicUtils', function() {
 
       expect(activeSales.ui.text).to.eql({
         planDisplayName: 'Base',
-        limitDescription: `Limited to ${DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT} patients. Please note that the demo account and accounts connected to twiist do not count towards the limit.`,
+        limitDescription: 'This plan allows for a limited number of patient accounts.',
         limitFeedback: {
           status: 'success',
           text: 'Change to plan in progress',
