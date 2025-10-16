@@ -90,7 +90,7 @@ describe('ClinicsUsingAltRangeNotifications', () => {
             id: '4444',
             name: 'Fourth Clinic',
             preferredBgUnits: 'mmol/L',
-            patients: { '1234': { glycemicRanges: { type: 'preset', preset: 'ADA pregnancy GDM or type 2' } } },
+            patients: { '1234': { glycemicRanges: { type: 'preset', preset: 'adaPregnancyType2' } } },
           },
         },
         working: {
