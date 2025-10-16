@@ -86,7 +86,7 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
 import DataInIcon from '../../core/icons/DataInIcon.svg';
 import { colors, fontWeights, radii } from '../../themes/baseTheme';
 import PatientLastReviewed from '../../components/clinic/PatientLastReviewed';
-import { buildGlycemicRangesFromPreset } from '../../core/glycemicRangesUtils';
+import { DEFAULT_GLYCEMIC_RANGES } from '../../core/glycemicRangesUtils';
 
 const { Loader } = vizComponents;
 const { formatBgValue } = vizUtils.bg;
@@ -520,7 +520,7 @@ const TideDashboardSection = React.memo(props => {
 
   const renderBgRangeSummary = useCallback(summary => {
     // Alternate glycemic ranges not applied in TIDE Dashboard for now
-    const glycemicRanges = buildGlycemicRangesFromPreset(GLYCEMIC_RANGES_PRESET.ADA_STANDARD);
+    const glycemicRanges = DEFAULT_GLYCEMIC_RANGES;
 
     return (
       <BgSummaryCell

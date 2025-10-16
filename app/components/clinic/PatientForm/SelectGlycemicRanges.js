@@ -31,7 +31,7 @@ const GLYCEMIC_RANGE_OPTS = {
 
 const SelectGlycemicRanges = ({
   onChange,
-  value: glycemicRanges,
+  value, // glycemicRanges object
   selectMenuHeight = 240,
   onMenuOpen = noop,
 }) => {
@@ -40,7 +40,7 @@ const SelectGlycemicRanges = ({
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const clinicBgUnits = clinic?.preferredBgUnits || MGDL_UNITS;
 
-  const glycemicRangesPreset = getGlycemicRangesPreset(glycemicRanges);
+  const glycemicRangesPreset = getGlycemicRangesPreset(value);
 
   const selectOptions = [{ options: GLYCEMIC_RANGE_OPTS[clinicBgUnits] }];
 

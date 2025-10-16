@@ -11,7 +11,7 @@ import { MGDL_PER_MMOLL, MGDL_UNITS } from '../../core/constants';
 import BgRangeSummary from './BgRangeSummary';
 import PopoverLabel from '../elements/PopoverLabel';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
-import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils';
+import { DEFAULT_GLYCEMIC_RANGES, getGlycemicRangesPreset } from '../../core/glycemicRangesUtils';
 
 const InsufficientDataFallback = withTranslation()(({ text = '' }) => (
   <Flex sx={{ justifyContent: 'center' }}>
@@ -81,7 +81,7 @@ export const BgSummaryCell = ({
   config,
   clinicBgUnits,
   activeSummaryPeriod,
-  glycemicRanges,
+  glycemicRanges = DEFAULT_GLYCEMIC_RANGES,
   showExtremeHigh,
   t,
 }) => {
