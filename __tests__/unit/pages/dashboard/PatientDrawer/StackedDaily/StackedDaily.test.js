@@ -195,9 +195,9 @@ describe('StackedDaily Component', () => {
 
       const dateHeaders = screen.getAllByTestId('chart-date-header');
       expect(dateHeaders).toHaveLength(3);
-      expect(screen.getByText('2024-01-01')).toBeInTheDocument();
-      expect(screen.getByText('2024-01-02')).toBeInTheDocument();
-      expect(screen.getByText('2024-01-03')).toBeInTheDocument();
+      expect(screen.getByText('Mon, Jan 1, 2024')).toBeInTheDocument();
+      expect(screen.getByText('Tue, Jan 2, 2024')).toBeInTheDocument();
+      expect(screen.getByText('Wed, Jan 3, 2024')).toBeInTheDocument();
     });
 
     it('should render chart containers for each day', () => {
@@ -297,7 +297,7 @@ describe('StackedDaily Component', () => {
 
       renderComponent();
 
-      const dateHeader = screen.getByText('2024-01-01');
+      const dateHeader = screen.getByText('Mon, Jan 1, 2024');
       await user.click(dateHeader);
       const expectedDatetime = mean([mockLocalizedCeiling, mockLocalizedCeiling + MS_IN_DAY]); // should be set to the middle of the day
 
