@@ -223,6 +223,12 @@ export const PrintDateRangeModal = (props) => {
   ];
 
   const formatDateEndpoints = ({ startDate, endDate }) => (startDate && endDate ? [
+    startDate.valueOf(),
+    moment.utc(endDate).tz(timezoneName).add(1, 'day').startOf('day').valueOf(),
+  ] : []);
+
+  // Basics is a special because it allows split dates
+  const formatBasicsDateEndpoints = ({ startDate, endDate }) => (startDate && endDate ? [
     moment.utc(startDate).tz(timezoneName).valueOf(),
     moment.utc(endDate).tz(timezoneName).valueOf(),
   ] : []);
@@ -274,7 +280,7 @@ export const PrintDateRangeModal = (props) => {
     const printOpts = {
       agpBGM: { endpoints: formatDateEndpoints(dates.agpBGM), disabled: !enabled.agpBGM },
       agpCGM: { endpoints: formatDateEndpoints(dates.agpCGM), disabled: !enabled.agpCGM },
-      basics: { endpoints: formatDateEndpoints(dates.basics), disabled: !enabled.basics },
+      basics: { endpoints: formatBasicsDateEndpoints(dates.basics), disabled: !enabled.basics },
       bgLog: { endpoints: formatDateEndpoints(dates.bgLog), disabled: !enabled.bgLog },
       daily: { endpoints: formatDateEndpoints(dates.daily), disabled: !enabled.daily },
       settings: { disabled: !enabled.settings },
