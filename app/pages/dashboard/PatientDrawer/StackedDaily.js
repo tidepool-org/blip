@@ -6,6 +6,7 @@ import { Flex, Box } from 'theme-ui';
 import sundial from 'sundial';
 import VerticalAlignTopRoundedIcon from '@material-ui/icons/VerticalAlignTopRounded';
 import { map, includes, get, chunk, mean } from 'lodash';
+import moment from 'moment';
 
 import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
 const { Loader, SMBGTooltip, CBGTooltip } = vizComponents;
@@ -207,7 +208,7 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
             role="button"
             data-testid="chart-date-header"
           >
-            {date}
+            {moment(date).format('ddd, MMM D, YYYY')}
           </Body1>
 
           <Box className='chart-container' ref={addToRefs} data-testid="chart-container" />
