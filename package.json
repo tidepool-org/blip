@@ -37,7 +37,7 @@
     "helmet": "3.23.3",
     "i18n-iso-countries": "7.7.0",
     "plotly.js-basic-dist-min": "2.27.0",
-    "rollbar": "2.26.2"
+    "rollbar": "2.26.5"
   },
   "devDependencies": {
     "@babel/cli": "7.23.0",
