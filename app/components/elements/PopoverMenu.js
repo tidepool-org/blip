@@ -1,4 +1,5 @@
 import React from 'react';
+import { Box } from 'theme-ui';
 import PropTypes from 'prop-types';
 import MoreHorizRoundedIcon from '@material-ui/icons/MoreHorizRounded';
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -36,7 +37,7 @@ function PopoverMenu(props) {
   });
 
   return (
-    <React.Fragment>
+    <Box onClick={event => event.stopPropagation()}>
       <Icon
         color="text.primary"
         label="info"
@@ -70,7 +71,7 @@ function PopoverMenu(props) {
           </Button>
         ))}
       </Popover>
-    </React.Fragment>
+    </Box>
   );
 }
 

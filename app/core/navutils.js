@@ -68,8 +68,9 @@ export const getDemographicInfo = (patient, clinicPatient) => {
   const name = personUtils.patientFullName(combinedPatient);
   const birthday = combinedPatient?.profile?.patient?.birthday;
   const mrn = clinicPatient?.mrn;
+  const diagnosisType = clinicPatient?.diagnosisType;
 
-  return { name, birthday, mrn };
+  return { name, birthday, mrn, diagnosisType };
 };
 
 // For ease of testing

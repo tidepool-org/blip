@@ -70,6 +70,7 @@ describe('constants', function() {
     expect(_.map(Constants.DIABETES_TYPES(), 'value')).to.eql([ // eslint-disable-line new-cap
       'type1',
       'type2',
+      'type3c',
       'gestational',
       'prediabetes',
       'lada',
