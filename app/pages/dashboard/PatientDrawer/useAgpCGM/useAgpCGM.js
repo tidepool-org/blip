@@ -17,7 +17,6 @@ export const STATUS = {
   SVGS_GENERATED: 'SVGS_GENERATED',
 
   // Other states
-  NO_PATIENT:        'NO_PATIENT',
   NO_PATIENT_DATA:   'NO_PATIENT_DATA',
   INSUFFICIENT_DATA: 'INSUFFICIENT_DATA',
 };
@@ -26,9 +25,6 @@ export const STATUS = {
 const inferLastCompletedStep = (patientId, data, pdf) => {
   // If the outputted data for a step in the process exists, we infer that the step was successful.
   // We do the lookup in reverse order to return the LATEST completed step
-
-  // No Patient Selected
-  if (!patientId) return STATUS.NO_PATIENT;
 
   // Incorrect Patient --- (occurs when user switches patient partway through fetching)
   const hasOtherPdfInState  = !!pdf.opts && pdf.opts.patient?.id !== patientId;
@@ -83,13 +79,6 @@ const useAgpCGM = (
   const dispatch = useDispatch();
   const generateAGPImages = buildGenerateAGPImages(dispatch);
 
-  const {
-    removingGeneratedPDFS,
-    removingData,
-    fetchingPatientData,
-    generatingPDF,
-  } = useSelector(state => state.blip.working);
-
   const data   = useSelector(state => state.blip.data);
   const pdf    = useSelector(state => state.blip.pdf);
   const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
@@ -101,20 +90,20 @@ const useAgpCGM = (
 
     switch(lastCompletedStep) {
       case STATUS.INITIALIZED:
-        if (!removingGeneratedPDFS?.inProgress) dispatch(actions.worker.removeGeneratedPDFS());
-        if (!removingData?.inProgress) dispatch(actions.worker.dataWorkerRemoveDataRequest(null, patientId));
+        dispatch(actions.worker.removeGeneratedPDFS());
+        dispatch(actions.worker.dataWorkerRemoveDataRequest(null, patientId));
         break;
 
       case STATUS.STATE_CLEARED:
         const fetchPatientOpts = getFetchPatientOpts(agpPeriodInDays);
-        if (!fetchingPatientData?.inProgress) dispatch(actions.async.fetchPatientData(api, fetchPatientOpts, patientId));
+        dispatch(actions.async.fetchPatientData(api, fetchPatientOpts, patientId));
         break;
 
       case STATUS.PATIENT_LOADED:
         const opts    = getOpts(data, agpPeriodInDays);
         const queries = getQueries(data, clinicPatient, clinic, opts);
         const pdfOpts = { ...opts, patient: clinicPatient };
-        if (!generatingPDF?.inProgress) dispatch(actions.worker.generatePDFRequest('combined', queries, pdfOpts, patientId));
+        dispatch(actions.worker.generatePDFRequest('combined', queries, pdfOpts, patientId));
         break;
 
       case STATUS.DATA_PROCESSED:
@@ -122,7 +111,6 @@ const useAgpCGM = (
         break;
 
       case STATUS.SVGS_GENERATED: // image generation complete, no further steps necessary
-      case STATUS.NO_PATIENT: // no patient is loaded, no further steps necessary
       default:
         break;
     }
@@ -132,8 +120,8 @@ const useAgpCGM = (
     // Clear state on component dismount
 
     return () => {
-      if (!!pdf?.data) dispatch(actions.worker.removeGeneratedPDFS());
-      if (!!data?.metaData?.patientId && !fetchingPatientData?.inProgress) dispatch(actions.worker.dataWorkerRemoveDataRequest(null, patientId));
+      dispatch(actions.worker.removeGeneratedPDFS());
+      dispatch(actions.worker.dataWorkerRemoveDataRequest(null, patientId));
     };
   }, []);
 
