@@ -883,15 +883,7 @@ export const clinics = (state = initialState.clinics, action) => {
 
       const { clinicId } = config;
 
-      const patients = [
-        ..._.map(results.timeInVeryLowPercent, 'patient'),
-        ..._.map(results.timeInAnyLowPercent, 'patient'),
-        ..._.map(results.dropInTimeInTargetPercent, 'patient'),
-        ..._.map(results.timeInTargetPercent, 'patient'),
-        ..._.map(results.timeCGMUsePercent, 'patient'),
-        ..._.map(results.meetingTargets, 'patient'),
-        ..._.map(results.noData, 'patient'),
-      ];
+      const patients = _.flatMap(results, category => _.map(category, 'patient'));
 
       return update(state, {
         [clinicId]: { $set: { ...state[clinicId], patients: _.keyBy(patients, 'id'), fetchedPatientCount: patients.length, lastPatientFetchTime: moment.utc().valueOf() } },
