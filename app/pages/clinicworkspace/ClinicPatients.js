@@ -96,7 +96,7 @@ import {
 
 import { useToasts } from '../../providers/ToastProvider';
 import * as actions from '../../redux/actions';
-import { useIsFirstRender, useLocalStorage, usePrevious } from '../../core/hooks';
+import { useIsFirstRender, useLocalStorage, usePrevious, useScrollToTop } from '../../core/hooks';
 import { fieldsAreValid, getCommonFormikFieldProps } from '../../core/forms';
 
 import {
@@ -675,6 +675,7 @@ export const SPECIAL_FILTER_STATES = {
 };
 
 export const ClinicPatients = (props) => {
+  useScrollToTop();
   const { t, api, trackMetric, searchDebounceMs } = props;
   const isFirstRender = useIsFirstRender();
   const dispatch = useDispatch();

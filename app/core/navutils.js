@@ -41,9 +41,10 @@ export const getPermissions = (patient, permsOfLoggedInUser) => {
  */
 export const getPatientListLink = (clinicFlowActive, selectedClinicId, query, patientId) => {
   const dashboard = query?.dashboard;
+  const drawerTab = query?.drawerTab;
 
   if (dashboard && patientId) {
-    return `/dashboard/${dashboard}?drawerPatientId=${patientId}`;
+    return `/dashboard/${dashboard}?drawerPatientId=${patientId}&drawerTab=${drawerTab || 0}`;
   }
 
   if (dashboard) {
