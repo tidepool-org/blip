@@ -343,4 +343,28 @@ export const appBanners = [
       },
     }),
   },
+
+  {
+    id: 'clinicUsingAltRange',
+    variant: 'info',
+    priority: 12,
+    context: ['patient'],
+    paths: [pathRegexes.patientData],
+    getProps: (dispatch, loggedInUserId, clinicName = '') => ({
+      interactionId: 'ClinicUsingAltRange',
+      label: t(`${clinicName} is using a non-standard target range to view your data`),
+      message: t(`${clinicName} is using a non-standard target range to view your data`),
+      show: {
+        metric: 'Banner displayed See Alternate Glycemic Range',
+      },
+      action: {
+        text: t('See Range'),
+        metric: 'Clicked See Alternate Glycemic Range',
+        handler: () => dispatch(push(`/patients/${loggedInUserId}/profile`)),
+      },
+      dismiss: {
+        metric: 'See Alternate Glycemic Range dismissed',
+      },
+    }),
+  },
 ];

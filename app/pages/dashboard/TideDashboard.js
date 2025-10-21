@@ -5,8 +5,6 @@ import { useLocation, useHistory } from 'react-router-dom';
 import { push } from 'connected-react-router';
 import { withTranslation, Trans } from 'react-i18next';
 import moment from 'moment-timezone';
-import compact from 'lodash/compact';
-import each from 'lodash/each';
 import find from 'lodash/find';
 import flatten from 'lodash/flatten';
 import get from 'lodash/get';
@@ -30,6 +28,7 @@ import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRo
 import EditIcon from '@material-ui/icons/EditRounded';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import { components as vizComponents, utils as vizUtils, colors as vizColors } from '@tidepool/viz';
+const { GLYCEMIC_RANGE } = vizUtils.constants;
 import ScrollToTop from 'react-scroll-to-top';
 import styled from '@emotion/styled';
 import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
@@ -71,7 +70,7 @@ import {
 
 import * as actions from '../../redux/actions';
 import { useToasts } from '../../providers/ToastProvider';
-import { useIsFirstRender, useLocalStorage, usePrevious } from '../../core/hooks';
+import { useIsFirstRender, useLocalStorage, usePrevious, useScrollToTop } from '../../core/hooks';
 import { fieldsAreValid } from '../../core/forms';
 
 import {
@@ -85,17 +84,12 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
 import DataInIcon from '../../core/icons/DataInIcon.svg';
 import { colors, fontWeights, radii } from '../../themes/baseTheme';
 import PatientLastReviewed from '../../components/clinic/PatientLastReviewed';
+import { OVERVIEW_TAB_INDEX } from './PatientDrawer/MenuBar/MenuBar';
 
 const { Loader } = vizComponents;
 const { formatBgValue } = vizUtils.bg;
 const { formatStatsPercentage } = vizUtils.stat;
-
-const {
-  formatDateRange,
-  getLocalizedCeiling,
-  getOffset,
-  getTimezoneFromTimePrefs
-} = vizUtils.datetime;
+const { getLocalizedCeiling } = vizUtils.datetime;
 
 const StyledScrollToTop = styled(ScrollToTop)`
   background-color: ${colors.purpleMedium};
@@ -416,6 +410,7 @@ const TideDashboardSection = React.memo(props => {
         const { search, pathname } = location;
         const params = new URLSearchParams(search);
         params.set('drawerPatientId', patient.id);
+        params.set('drawerTab', OVERVIEW_TAB_INDEX);
         history.replace({ pathname, search: params.toString() });
 
         return;
@@ -517,10 +512,15 @@ const TideDashboardSection = React.memo(props => {
   }, [api, trackMetric]);
 
   const renderBgRangeSummary = useCallback(summary => {
+    // Alternate glycemic ranges not applied in TIDE Dashboard for now
+    const glycemicRanges = GLYCEMIC_RANGE.ADA_STANDARD;
+
     return <BgSummaryCell
+    id={summary.patient.id}
     summary={summary}
     config={config}
     clinicBgUnits={clinicBgUnits}
+    glycemicRanges={glycemicRanges}
     activeSummaryPeriod={config?.period}
     showExtremeHigh={showExtremeHigh}
   />
@@ -885,6 +885,7 @@ const TideDashboardSection = React.memo(props => {
 )));
 
 export const TideDashboard = (props) => {
+  useScrollToTop();
   const { t, api, trackMetric } = props;
   const isFirstRender = useIsFirstRender();
   const dispatch = useDispatch();
@@ -892,6 +893,7 @@ export const TideDashboard = (props) => {
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const pdf = useSelector((state) => state.blip.pdf);
+  const data = useSelector((state) => state.blip.data);
   const currentPatientInViewId = useSelector((state) => state.blip.currentPatientInViewId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const mrnSettings = clinic?.mrnSettings ?? {};
@@ -920,17 +922,21 @@ export const TideDashboard = (props) => {
   const ldContext = ldClient.getContext();
 
   const isTideDashboardEnabled = (ldContext?.clinic?.tier && showTideDashboard) || clinic?.entitlements?.tideDashboard;
-
-  const existingMRNs = useMemo(
-    () => compact(map(reject(clinic?.patients, { id: selectedPatient?.id }), 'mrn')),
-    [clinic?.patients, selectedPatient?.id]
-  );
+  const existingMRNs = useSelector(state => state.blip.clinicMRNsForPatientFormValidation)?.filter(mrn => mrn !== selectedPatient?.mrn) || [];
 
   const {
     fetchingPatientFromClinic,
     updatingClinicPatient,
     fetchingTideDashboardPatients,
   } = useSelector((state) => state.blip.working);
+
+  // TODO: remove this when upgraded to React 18
+  // force another render when fetching dashboard patients state changes
+  // Addresses the same issue we had previously encountered on the ClinicPatients view to clear loading state consistently
+  const [forceUpdate, setForceUpdate] = useState();
+  if(!isEqual(forceUpdate, fetchingTideDashboardPatients)){
+    setForceUpdate(fetchingTideDashboardPatients);
+  }
 
   const previousUpdatingClinicPatient = usePrevious(updatingClinicPatient);
   const previousFetchingTideDashboardPatients = usePrevious(fetchingTideDashboardPatients);
@@ -1029,9 +1035,14 @@ export const TideDashboard = (props) => {
     }
   }, [api, dispatch, localConfig, localConfigKey, selectedClinicId, timePrefs, patientTags]);
 
+  const drawerPatientId = new URLSearchParams(location.search).get('drawerPatientId') || null;
+
   useEffect(() => {
-    dispatch(actions.worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
-    dispatch(actions.sync.clearPatientInView());
+    if (currentPatientInViewId) {
+      dispatch(actions.sync.clearPatientInView());
+      if (currentPatientInViewId !== drawerPatientId) dispatch(actions.worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
+    }
+
     setClinicBgUnits((clinic?.preferredBgUnits || MGDL_UNITS));
   }, [clinic]);
 
@@ -1081,8 +1092,6 @@ export const TideDashboard = (props) => {
     };
   }, []);
 
-  const drawerPatientId = new URLSearchParams(location.search).get('drawerPatientId') || null;
-
   // Patient Drawer effects
   useEffect(() => {
     // If invalid period for AGP (ie. 1 day), clear drawerPatientId from searchParams
@@ -1094,12 +1103,12 @@ export const TideDashboard = (props) => {
       history.replace({ pathname, search: params.toString() });
     }
 
-    // Failsafe to ensure blip.pdf is always cleared out after drawer is closed
-    if (!drawerPatientId && !isEmpty(pdf)) {
+    // Failsafe to ensure blip.pdf and blip.data is always cleared out after drawer is closed
+    if (!drawerPatientId && (!isEmpty(pdf) || isFinite(data?.metaData?.size))) {
       dispatch(actions.worker.removeGeneratedPDFS());
-      dispatch(actions.worker.dataWorkerRemoveDataRequest(null, drawerPatientId));
+      dispatch(actions.worker.dataWorkerRemoveDataRequest(null));
     }
-  }, [drawerPatientId, pdf, config, location, history]);
+  }, [drawerPatientId, pdf, data?.metaData?.size, config, location, history]);
 
   const handleEditPatientConfirm = useCallback(() => {
     trackMetric('Clinic - Edit patient confirmed', { clinicId: selectedClinicId });
@@ -1123,6 +1132,7 @@ export const TideDashboard = (props) => {
 
     const params = new URLSearchParams(search);
     params.delete('drawerPatientId');
+    params.delete('drawerTab');
     history.replace({ pathname, search: params.toString() });
   });
 
@@ -1408,9 +1418,14 @@ export const TideDashboard = (props) => {
       dispatch(push('/clinic-workspace/patients'));
     };
 
-    each(patientGroups.noData, record => {
-      record.daysSinceLastData = moment.utc().diff(record.lastData, 'days');
-    })
+    const groupPatients = groupKey => {
+      return (groupKey === 'noData')
+        ? map(patientGroups.noData, patient => ({
+          ...patient,
+          daysSinceLastData: moment.utc().diff(patient.lastData, 'days'),
+        }))
+        : patientGroups[groupKey] || [];
+    };
 
     return hasResults ? (
       <Box id="tide-dashboard-patient-groups">
@@ -1418,7 +1433,7 @@ export const TideDashboard = (props) => {
           <TideDashboardSection
             key={section.groupKey}
             section={section}
-            patients={patientGroups[section.groupKey]}
+            patients={groupPatients(section.groupKey)}
             emptyText={t('There are no patients that match your filter criteria.')}
             {...sectionProps}
           />

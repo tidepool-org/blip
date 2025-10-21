@@ -5,10 +5,11 @@ import { Flex, Box, Text } from 'theme-ui';
 import { colors as vizColors } from '@tidepool/viz';
 import styled from '@emotion/styled';
 
-import { components as vizComponents } from '@tidepool/viz';
+import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
 const { Loader } = vizComponents;
+const { AGPConstants } = vizUtils.agp;
 
-import useAgpCGM, { STATUS } from './useAgpCGM';
+import { STATUS } from './useAgpCGM';
 import CGMStatistics from './CGMStatistics';
 import CGMDeltaSummary from './CGMDeltaSummary';
 
@@ -18,7 +19,7 @@ const StyledAGPImage = styled.img`
   display: ${props => props.src ? 'block' : 'none' };
 `;
 
-const InsufficientData = () => {
+export const InsufficientData = () => {
   const { t } = useTranslation();
 
   return (
@@ -28,7 +29,7 @@ const InsufficientData = () => {
   );
 };
 
-const NoPatientData = ({ patientName }) => {
+export const NoPatientData = ({ patientName }) => {
   const { t } = useTranslation();
 
   return (
@@ -52,11 +53,9 @@ const CategoryContainer = ({ title, subtitle, children }) => {
   );
 };
 
-const Content = ({ api, patientId, agpPeriodInDays }) => {
+const Overview = ({ patientId, agpCGMData }) => {
   const { t } = useTranslation();
-
-  const { status, svgDataURLS, agpCGM, offsetAgpCGM } = useAgpCGM(api, patientId, agpPeriodInDays);
-
+  const { status, svgDataURLS, agpCGM, offsetAgpCGM } = agpCGMData;
   const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
   const patient = clinic?.patients?.[patientId];
 
@@ -70,21 +69,22 @@ const Content = ({ api, patientId, agpPeriodInDays }) => {
   const dailyGlucoseProfilesTop  = svgDataURLS?.agpCGM?.dailyGlucoseProfiles?.[0];
   const dailyGlucoseProfilesBot  = svgDataURLS?.agpCGM?.dailyGlucoseProfiles?.[1];
 
-  const agpGraphHelpText = t('AGP is a summary of glucose values from the report period, with median (50%) and other percentiles shown as if they occurred in a single day.');
-  const agpGraphInsufficientText = t('Insufficient CGM data to generate AGP graph');
-  const dailyGlucoseProfilesHelpText = t('Each daily profile represents a midnight-to-midnight period.');
+  const { bgSource, glycemicRanges } = agpCGM?.query || {};
 
   return (
-    <>
+    <Box pt={3}>
       <Box mb={3}>
         <CGMDeltaSummary agpCGM={agpCGM} offsetAgpCGM={offsetAgpCGM} />
       </Box>
 
       <Flex mb={2} sx={{ fontSize: 1, fontWeight: 'medium', color: vizColors.gray50, gridColumn: '1 / 3' }}>
-        <Box>{t('AGP Report: Continuous Glucose Monitoring')}</Box>
+        <Box>{`${AGPConstants.text.reportHeader} ${AGPConstants.text.reportSubHeader[bgSource]}`}</Box>
       </Flex>
       <Box mb={3} sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3 }}>
-        <CategoryContainer title={t('Time in Ranges')} subtitle={t('Goals for Type 1 and Type 2 Diabetes')}>
+        <CategoryContainer
+          title={AGPConstants.text.percentInRanges.title[bgSource]}
+          subtitle={AGPConstants.text.percentInRanges.subtitle[glycemicRanges]}
+        >
           <StyledAGPImage src={percentInRanges} alt={t('Time in Ranges Chart')} />
         </CategoryContainer>
         <CategoryContainer>
@@ -93,15 +93,19 @@ const Content = ({ api, patientId, agpPeriodInDays }) => {
       </Box>
 
       <Box sx={{ display: 'grid', gridTemplateColumns: '1fr', gap: 3 }}>
-        <CategoryContainer title={t('Ambulatory Glucose Profile (AGP)')}>
+        <CategoryContainer title={AGPConstants.text.ambulatoryGlucoseProfile[bgSource].title}>
           <Box px={3} py={1} sx={{ fontSize: 0 }}>
-            { !!ambulatoryGlucoseProfile ? agpGraphHelpText : agpGraphInsufficientText }
+            {
+              !!ambulatoryGlucoseProfile
+                ? AGPConstants.text.ambulatoryGlucoseProfile[bgSource].description
+                : AGPConstants.text.ambulatoryGlucoseProfile[bgSource].insufficientData
+            }
           </Box>
           <StyledAGPImage src={ambulatoryGlucoseProfile} alt={t('Ambulatory Glucose Profile (AGP) Chart')} />
         </CategoryContainer>
-        <CategoryContainer title={t('Daily Glucose Profiles')}>
+        <CategoryContainer title={AGPConstants.text.dailyGlucoseProfiles[bgSource].title}>
           <Box px={3} py={1} sx={{ fontSize: 0 }}>
-            {dailyGlucoseProfilesHelpText}
+            {AGPConstants.text.dailyGlucoseProfiles[bgSource].description}
           </Box>
           <StyledAGPImage src={dailyGlucoseProfilesTop} alt={t('Daily Glucose Profiles First Chart')} />
           <StyledAGPImage src={dailyGlucoseProfilesBot} alt={t('Daily Glucose Profiles Second Chart')}/>
@@ -112,8 +116,8 @@ const Content = ({ api, patientId, agpPeriodInDays }) => {
         <Text>{t('Patent pending – HealthPartners Institute dba International Diabetes Center – All Rights Reserved. ©2022')}</Text>
         <Text>{`${t('Tidepool')} | ${t('CapturAGP v5.0')}`}</Text>
       </Flex>
-    </>
+    </Box>
   );
 };
 
-export default Content;
+export default Overview;

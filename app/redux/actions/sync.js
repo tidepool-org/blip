@@ -1586,6 +1586,37 @@ export function fetchPatientsForClinicFailure(error, apiError, clinicId) {
   };
 }
 
+export function fetchClinicMRNsForPatientFormValidationRequest() {
+  return {
+    type: ActionTypes.FETCH_CLINIC_MRNS_FOR_PATIENT_FORM_VALIDATION_REQUEST,
+  };
+}
+
+export function fetchClinicMRNsForPatientFormValidationSuccess(clinicId, patients, count, totalCount) {
+  return {
+    type: ActionTypes.FETCH_CLINIC_MRNS_FOR_PATIENT_FORM_VALIDATION_SUCCESS,
+    payload: {
+      count: count,
+      totalCount: totalCount,
+      patients: patients,
+      clinicId: clinicId,
+    },
+  };
+}
+
+export function fetchClinicMRNsForPatientFormValidationFailure(error, apiError, clinicId) {
+  return {
+    type: ActionTypes.FETCH_CLINIC_MRNS_FOR_PATIENT_FORM_VALIDATION_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+    payload: {
+      clinicId
+    }
+  };
+}
+
 export function fetchPatientFromClinicRequest() {
   return {
     type: ActionTypes.FETCH_PATIENT_FROM_CLINIC_REQUEST,
@@ -2616,25 +2647,25 @@ export function setSSOEnabledDisplay(value) {
   };
 }
 
-export function fetchClinicPatientCountRequest() {
+export function fetchClinicPatientCountsRequest() {
   return {
-    type: ActionTypes.FETCH_CLINIC_PATIENT_COUNT_REQUEST,
+    type: ActionTypes.FETCH_CLINIC_PATIENT_COUNTS_REQUEST,
   };
 }
 
-export function fetchClinicPatientCountSuccess(clinicId, results) {
+export function fetchClinicPatientCountsSuccess(clinicId, patientCounts) {
   return {
-    type: ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SUCCESS,
+    type: ActionTypes.FETCH_CLINIC_PATIENT_COUNTS_SUCCESS,
     payload: {
       clinicId: clinicId,
-      patientCount: results.patientCount,
+      patientCounts: patientCounts,
     },
   };
 }
 
-export function fetchClinicPatientCountFailure(error, apiError) {
+export function fetchClinicPatientCountsFailure(error, apiError) {
   return {
-    type: ActionTypes.FETCH_CLINIC_PATIENT_COUNT_FAILURE,
+    type: ActionTypes.FETCH_CLINIC_PATIENT_COUNTS_FAILURE,
     error,
     meta: {
       apiError: apiError || null,
