@@ -53,28 +53,18 @@ const getAgpPeriodInDays = (period) => {
   }
 };
 
-const PatientDrawer = ({ patientId, onClose, api, trackMetric, period }) => {
-  const classes = useStyles();
-  const { showTideDashboardPatientDrawer } = useFlags();
+const DrawerContent = ({ patientId, onClose, api, trackMetric, period }) => {
+  // Only rendered when patient is selected and isOpen is true
+  // this will also allow the hook to dismount and for the cleanup to be called
   const location = useLocation();
   const history = useHistory();
-  const [selectedTab, setSelectedTab] = React.useState(OVERVIEW_TAB_INDEX);
+  const drawerTab = parseInt(new URLSearchParams(location.search).get('drawerTab') || OVERVIEW_TAB_INDEX, 10);
+  const [selectedTab, setSelectedTab] = React.useState(drawerTab);
   const [scrolledToTop, setScrolledToTop] = React.useState(true);
-  const isOpen = !!patientId && isValidAgpPeriod(period);
   const agpPeriodInDays = getAgpPeriodInDays(period);
   const agpCGMData = useAgpCGM(api, patientId, agpPeriodInDays);
   const contentRef = React.useRef(undefined);
-
   useScrollToTop(contentRef?.current, [selectedTab]);
-
-  React.useEffect(() => {
-    if (isOpen) {
-      const drawerTab = new URLSearchParams(location.search).get('drawerTab') || OVERVIEW_TAB_INDEX;
-      setSelectedTab(parseInt(drawerTab, 10));
-    }
-  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  if (!showTideDashboardPatientDrawer) return null;
 
   function setDrawerTabParam(tabIndex) {
     const { search, pathname } = location;
@@ -91,6 +81,39 @@ const PatientDrawer = ({ patientId, onClose, api, trackMetric, period }) => {
   const handleContentScroll = (e) => {
     setScrolledToTop((e.target.scrollTop || 0) <= 5);
   }
+
+  return (
+    <>
+      <Box sx={{ flexShrink: 0 }}>
+        <MenuBar patientId={patientId} trackMetric={trackMetric} onClose={onClose} selectedTab={selectedTab} onSelectTab={handleSelectTab} />
+
+        <Box className='sticky-shadow' sx={{ height: '8px', position: 'sticky', zIndex: 1, visibility: scrolledToTop ? 'hidden' : 'visible', boxShadow: shadows.large }} />
+      </Box>
+
+      <Box
+        px={4}
+        pb={4}
+        sx={{
+          flex: 1,
+          overflowY: 'scroll',
+          minHeight: 0, // Important for flex child to shrink
+        }}
+        onScroll={handleContentScroll}
+        ref={contentRef}
+      >
+        {selectedTab === OVERVIEW_TAB_INDEX && <Overview patientId={patientId} agpCGMData={agpCGMData} />}
+        {selectedTab === STACKED_DAILY_TAB_INDEX && <StackedDaily patientId={patientId} agpCGMData={agpCGMData} />}
+      </Box>
+    </>
+  )
+}
+
+const PatientDrawer = ({ patientId, onClose, api, trackMetric, period }) => {
+  const classes = useStyles();
+  const { showTideDashboardPatientDrawer } = useFlags();
+  const isOpen = !!patientId && isValidAgpPeriod(period);
+
+  if (!showTideDashboardPatientDrawer) return null;
 
   return (
     <StyledDrawer
@@ -110,31 +133,7 @@ const PatientDrawer = ({ patientId, onClose, api, trackMetric, period }) => {
           flexDirection: 'column',
         }}
       >
-
-        {isOpen &&
-          <>
-            <Box sx={{ flexShrink: 0 }}>
-              <MenuBar patientId={patientId} trackMetric={trackMetric} onClose={onClose} selectedTab={selectedTab} onSelectTab={handleSelectTab} />
-
-              <Box className='sticky-shadow' sx={{ height: '8px', position: 'sticky', zIndex: 1, visibility: scrolledToTop ? 'hidden' : 'visible', boxShadow: shadows.large }} />
-            </Box>
-
-            <Box
-              px={4}
-              pb={4}
-              sx={{
-                flex: 1,
-                overflowY: 'scroll',
-                minHeight: 0, // Important for flex child to shrink
-              }}
-              onScroll={handleContentScroll}
-              ref={contentRef}
-            >
-              {selectedTab === OVERVIEW_TAB_INDEX && <Overview patientId={patientId} agpCGMData={agpCGMData} />}
-              {selectedTab === STACKED_DAILY_TAB_INDEX && <StackedDaily patientId={patientId} agpCGMData={agpCGMData} />}
-            </Box>
-          </>
-        }
+        {isOpen && <DrawerContent patientId={patientId} onClose={onClose} api={api} trackMetric={trackMetric} period={period} />}
       </Box>
     </StyledDrawer>
   );
