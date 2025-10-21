@@ -25,13 +25,11 @@ import { accountInfoFromClinicPatient } from '../../../core/personutils';
 import { Body0 } from '../../../components/elements/FontStyles';
 import { MediumTitle } from '../../../components/elements/FontStyles';
 
-import { utils as vizUtils } from '@tidepool/viz';
-const { GLYCEMIC_RANGE } = vizUtils.constants;
-
 import SelectDiabetesType from './SelectDiabetesType';
 import SelectGlycemicRanges from './SelectGlycemicRanges';
 import SelectTags from './SelectTags';
 import SelectSites from './SelectSites';
+import { DEFAULT_GLYCEMIC_RANGES } from '../../../core/glycemicRangesUtils';
 
 export function getFormValues(source, clinicPatientTags, clinicSites) {
   return {
@@ -43,7 +41,7 @@ export function getFormValues(source, clinicPatientTags, clinicSites) {
     dataSources: source?.dataSources || [],
     sites: source?.sites?.filter(site => !!clinicSites[site.id]) || [],
     diagnosisType: source?.diagnosisType || null,
-    glycemicRanges: source?.glycemicRanges || GLYCEMIC_RANGE.ADA_STANDARD,
+    glycemicRanges: source?.glycemicRanges || DEFAULT_GLYCEMIC_RANGES,
   };
 }
 
@@ -346,7 +344,7 @@ export const PatientForm = (props) => {
       {showGlycemicRanges && (
         <Box ref={targetRangePresetSectionRef} mb={3}>
           <SelectGlycemicRanges
-            value={values.glycemicRanges || ''}
+            value={values.glycemicRanges}
             onChange={glycemicRanges => setFieldValue('glycemicRanges', glycemicRanges)}
             onMenuOpen={() => handleScrollToRef(targetRangePresetSectionRef)}
           />

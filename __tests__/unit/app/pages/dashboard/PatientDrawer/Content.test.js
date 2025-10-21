@@ -98,7 +98,7 @@ describe('PatientDrawer/Content', () => {
           agpCGM: {
             query: {
               bgSource: 'cbg',
-              glycemicRanges: 'ADA standard',
+              glycemicRanges: { type: 'preset', preset: 'adaStandard' },
             },
           },
         });
@@ -135,7 +135,7 @@ describe('PatientDrawer/Content', () => {
         agpCGM: {
           query: {
             bgSource: 'cbg',
-            glycemicRanges: 'ADA standard',
+            glycemicRanges: { type: 'preset', preset: 'adaStandard' },
           },
         },
       });

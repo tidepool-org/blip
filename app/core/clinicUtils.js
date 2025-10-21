@@ -12,6 +12,8 @@ import postalCodes from './validation/postalCodes';
 import i18next from './language';
 import { timezoneNames } from './validation/timezoneNames';
 
+import { glycemicRangesSchema } from './glycemicRangesUtils';
+
 import {
   URL_TIDEPOOL_PLUS_PLANS,
   URL_TIDEPOOL_PLUS_CONTACT_SALES,
@@ -449,7 +451,7 @@ export const patientSchema = config => {
       })
     ),
     diagnosisType: yup.string().nullable(),
-    glycemicRanges: yup.string(),
+    glycemicRanges: glycemicRangesSchema,
   });
 };
 
