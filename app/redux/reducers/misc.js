@@ -875,7 +875,7 @@ export const clinics = (state = initialState.clinics, action) => {
 
       const { clinicId } = config;
 
-      const patients = [
+      const tidePatients = [
         ..._.map(results.timeInVeryLowPercent, 'patient'),
         ..._.map(results.timeInAnyLowPercent, 'patient'),
         ..._.map(results.dropInTimeInTargetPercent, 'patient'),
@@ -885,8 +885,11 @@ export const clinics = (state = initialState.clinics, action) => {
         ..._.map(results.noData, 'patient'),
       ];
 
+      // Merge with existing patients to retain any additional data we may have stored
+      const patients = _.merge( _.cloneDeep(state[clinicId].patients) || {}, _.keyBy(tidePatients, 'id'));
+
       return update(state, {
-        [clinicId]: { $set: { ...state[clinicId], patients: _.keyBy(patients, 'id'), fetchedPatientCount: patients.length, lastPatientFetchTime: moment.utc().valueOf() } },
+        [clinicId]: { $set: { ...state[clinicId], patients, fetchedPatientCount: _.size(patients), lastPatientFetchTime: moment.utc().valueOf() } },
       });
     }
     case types.SET_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS:
