@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.51.0-web-3830-schema-changes.1":
-  version: 1.51.0-web-3830-schema-changes.1
-  resolution: "@tidepool/viz@npm:1.51.0-web-3830-schema-changes.1"
+"@tidepool/viz@npm:1.51.0-web-3830-schema-changes.3":
+  version: 1.51.0-web-3830-schema-changes.3
+  resolution: "@tidepool/viz@npm:1.51.0-web-3830-schema-changes.3"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 77aba734039635be309aa36419156d2bdabba03365b9e11e52f7851d074008dc6cfd7ef4bc1e624167b122b2c6eaa02c02f857d95616133998084cb3f59723e1
+  checksum: de970f187213ed9181c315158a49dbb5e575e323b905859c933c3aa81c2f229138256f06611d732168616b95ab571ff54ca92e634a8f5b8286ccdb942dfa9b9a
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.51.0-web-3830-schema-changes.1
+    "@tidepool/viz": 1.51.0-web-3830-schema-changes.3
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0

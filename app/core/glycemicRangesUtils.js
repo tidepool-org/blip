@@ -1,5 +1,6 @@
 import * as yup from 'yup';
 import map from 'lodash/map';
+
 import { utils as vizUtils } from '@tidepool/viz';
 const { GLYCEMIC_RANGES_TYPE, GLYCEMIC_RANGES_PRESET } = vizUtils.constants;
 
@@ -14,27 +15,7 @@ export const glycemicRangesSchema = yup.object().shape({
   custom: yup.object().notRequired(),
 });
 
-/**
- * Extracts the glycemic ranges preset value from the glycemicRanges object of the
- * clinicPatient record
- *
- * @param {Object} glycemicRanges the glycemicRanges object of the clinicPatient record
- *
- * @return {String} target range preset, e.g. 'adaStandard', 'adaPregnancyType1', etc
- */
-export const getGlycemicRangesPreset = glycemicRanges => {
-  // glycemicRanges field will not exist on older clinicPatient records
-  if (!glycemicRanges) return GLYCEMIC_RANGES_PRESET.ADA_STANDARD;
-
-  switch (glycemicRanges.type) {
-    case GLYCEMIC_RANGES_TYPE.PRESET:
-      return glycemicRanges.preset;
-    case GLYCEMIC_RANGES_TYPE.CUSTOM:
-      // feature to be implemented in future revisions
-    default:
-      return GLYCEMIC_RANGES_PRESET.ADA_STANDARD;
-  }
-};
+export const getGlycemicRangesPreset = vizUtils.glycemicRanges.getGlycemicRangesPreset;
 
 /**
  * Creates a glycemicRanges object to be stored in the clinicPatient record
