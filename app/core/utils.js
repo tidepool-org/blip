@@ -336,10 +336,10 @@ utils.roundToNearest = (value, nearest) => {
  *
  * @return {Number} the converted value
  */
-utils.roundBgTarget = (value, units, nearestValue = null) => {
-  const nearest = nearestValue || (units === MGDL_UNITS ? 5 : 0.1);
+utils.roundBgTarget = (value, units) => {
+  const nearest = units === MGDL_UNITS ? 5 : 0.1;
   return utils.roundToNearest(value, nearest);
-};
+}
 
 utils.getTimePrefsForDataProcessing = (latestTimeZone, queryParams) => {
   var timePrefsForTideline;

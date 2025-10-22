@@ -130,19 +130,11 @@ export default withTranslation()(class PatientSettings extends Component {
 
     let chartTargets = {
       high: vizUtils.bg.formatBgValue(
-        utils.roundBgTarget(
-          settings.bgTarget.high,
-          settings.units.bg,
-          settings.units.bg === MGDL_UNITS ? 1 : 0.1,
-        ),
+        utils.roundToNearest(settings.bgTarget.high, settings.units.bg === MGDL_UNITS ? 1 : 0.1),
         { bgUnits: settings.units.bg },
       ),
       low: vizUtils.bg.formatBgValue(
-        utils.roundBgTarget(
-          settings.bgTarget.low,
-          settings.units.bg,
-          settings.units.bg === MGDL_UNITS ? 1 : 0.1,
-        ),
+        utils.roundToNearest(settings.bgTarget.low, settings.units.bg === MGDL_UNITS ? 1 : 0.1),
         { bgUnits: settings.units.bg },
       ),
     };
@@ -186,10 +178,9 @@ export default withTranslation()(class PatientSettings extends Component {
   }
 
   renderIncrementalInput(bound, settings) {
-    let value = utils.roundBgTarget(
+    let value = utils.roundToNearest(
       settings.bgTarget[bound],
-      settings.units.bg,
-      settings.units.bg === MGDL_UNITS ? 1 : 0.1,
+      settings.units.bg === MGDL_UNITS ? 1 : 0.1
     );
 
     const additionalAllowedValues = settings.units.bg === MGDL_UNITS ? [63] : [];
