@@ -21,6 +21,7 @@ import cx from 'classnames';
 import { MMOLL_UNITS } from '../../core/constants';
 import { utils } from '@tidepool/viz';
 
+// Returns an array of all possible values (every step between min and max)
 const getAllowedValues = (minValue, maxValue, step, additionalAllowedValues) => {
   let allowedValues = [];
 
@@ -35,6 +36,18 @@ const getAllowedValues = (minValue, maxValue, step, additionalAllowedValues) => 
   allowedValues.sort((a, b) => a - b);
 
   return _.uniq(allowedValues);
+};
+
+// Returns the index of the value within the allowedValues
+const getPosition = (allowedValues, value) => {
+  let position = allowedValues.findIndex(allowedValue => allowedValue === value);
+
+  // Find the closest index if the value doesn't exist within allowedValues
+  if (position === -1) {
+    position = _.findLastIndex(allowedValues, allowedValue => allowedValue < value);
+  };
+
+  return position;
 };
 
 const IncrementalInput = ({
@@ -52,11 +65,9 @@ const IncrementalInput = ({
     return getAllowedValues(minValue, maxValue, step, additionalAllowedValues);
   }, [additionalAllowedValues, minValue, maxValue, step]);
 
-  let position = allowedValues.findIndex(allowedValue => allowedValue === value);
-
-  if (position === -1) { // Fallback if value is not in allowedValues
-    position = _.findLastIndex(allowedValues, allowedValue => allowedValue < value);
-  };
+  const position = useMemo(() => {
+    return getPosition(allowedValues, value);
+  }, [allowedValues, value]);
 
   const validateValue = (value) => _.isNumber(value) && value <= maxValue && value >= minValue;
 
