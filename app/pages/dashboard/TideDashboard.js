@@ -914,7 +914,7 @@ export const TideDashboard = (props) => {
   useEffect(() => {
     if (currentPatientInViewId) {
       dispatch(actions.sync.clearPatientInView());
-      if (currentPatientInViewId !== drawerPatientId) dispatch(actions.worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
+      dispatch(actions.worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
     }
 
     setClinicBgUnits((clinic?.preferredBgUnits || MGDL_UNITS));
