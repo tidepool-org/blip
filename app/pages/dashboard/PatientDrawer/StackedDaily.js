@@ -194,8 +194,8 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
             py={1}
             sx={{
               fontWeight: 'bold',
+              display: 'inline-block',
               '&:hover,&:focus': {
-                display: 'inline-block',
                 textDecoration: 'underline',
                 cursor: 'pointer',
                 border: 'none',
