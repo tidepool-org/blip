@@ -52,7 +52,11 @@ const IncrementalInput = ({
     return getAllowedValues(minValue, maxValue, step, additionalAllowedValues);
   }, [additionalAllowedValues, minValue, maxValue, step]);
 
-  const position = allowedValues.findIndex(possibleValue => possibleValue === value);
+  let position = allowedValues.findIndex(allowedValue => allowedValue === value);
+
+  if (position === -1) { // Fallback if value is not in allowedValues
+    position = _.findLastIndex(allowedValues, allowedValue => allowedValue < value);
+  };
 
   const validateValue = (value) => _.isNumber(value) && value <= maxValue && value >= minValue;
 
