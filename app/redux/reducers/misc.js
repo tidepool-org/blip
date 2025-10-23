@@ -875,15 +875,7 @@ export const clinics = (state = initialState.clinics, action) => {
 
       const { clinicId } = config;
 
-      const tidePatients = [
-        ..._.map(results.timeInVeryLowPercent, 'patient'),
-        ..._.map(results.timeInAnyLowPercent, 'patient'),
-        ..._.map(results.dropInTimeInTargetPercent, 'patient'),
-        ..._.map(results.timeInTargetPercent, 'patient'),
-        ..._.map(results.timeCGMUsePercent, 'patient'),
-        ..._.map(results.meetingTargets, 'patient'),
-        ..._.map(results.noData, 'patient'),
-      ];
+      const tidePatients = _.flatMap(results, category => _.map(category, 'patient'));
 
       // Merge with existing patients to retain any additional data we may have stored
       const patients = _.merge( _.cloneDeep(state[clinicId].patients) || {}, _.keyBy(tidePatients, 'id'));
