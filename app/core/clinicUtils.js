@@ -244,7 +244,7 @@ export const clinicUIDetails = (clinic = {}) => {
   const unlockPlansText = t('Unlock plans');
 
   if (isBase) {
-    limitDescription = t('Limited to {{limit}} patients. Please note that the demo account and accounts connected to twiist do not count towards the limit.', { limit });
+    limitDescription = t('This plan allows for a limited number of patient accounts.');
 
     limitFeedback = {
       text: t('Maximum number of patient accounts reached'),
@@ -288,7 +288,7 @@ export const clinicUIDetails = (clinic = {}) => {
   }
 
   if (isActiveSalesBase) {
-    limitDescription = t('Limited to {{limit}} patients. Please note that the demo account and accounts connected to twiist do not count towards the limit.', { limit });
+    limitDescription = t('This plan allows for a limited number of patient accounts.');
 
     limitFeedback = {
       text: t('Change to plan in progress'),
@@ -453,6 +453,8 @@ export const patientSchema = config => {
   });
 };
 
+export const tideDashboardLastDataFilterOptions = lastDataFilterOptions.filter(opt => [1, 2, 7].includes(opt.value));
+
 export const tideDashboardConfigSchema = yup.object().shape({
   period: yup
     .string()
@@ -460,7 +462,7 @@ export const tideDashboardConfigSchema = yup.object().shape({
     .required(t('Please select a duration period')),
   lastData: yup
     .number()
-    .oneOf(map(lastDataFilterOptions, 'value'))
+    .oneOf(map(tideDashboardLastDataFilterOptions, 'value'))
     .required(t('Please select a data recency option')),
   tags: yup.array().of(yup.string())
     .min(1, t('Please select at least one tag')),

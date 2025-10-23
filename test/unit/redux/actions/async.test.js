@@ -6227,7 +6227,7 @@ describe('Actions', () => {
                     workspacePlan: true,
                   },
                   text: {
-                    limitDescription: 'Limited to 250 patients. Please note that the demo account and accounts connected to twiist do not count towards the limit.',
+                    limitDescription: 'This plan allows for a limited number of patient accounts.',
                     limitFeedback: {
                       status: 'warning',
                       text: 'Maximum number of patient accounts reached',
@@ -6730,7 +6730,7 @@ describe('Actions', () => {
                     workspacePlan: true,
                   },
                   text: {
-                    limitDescription: 'Limited to 250 patients. Please note that the demo account and accounts connected to twiist do not count towards the limit.',
+                    limitDescription: 'This plan allows for a limited number of patient accounts.',
                     limitFeedback: {
                       status: 'warning',
                       text: 'Maximum number of patient accounts reached',
@@ -6947,7 +6947,7 @@ describe('Actions', () => {
                   },
                   text: {
                     planDisplayName: 'Base',
-                    limitDescription: 'Limited to 250 patients. Please note that the demo account and accounts connected to twiist do not count towards the limit.',
+                    limitDescription: 'This plan allows for a limited number of patient accounts.',
                     limitFeedback: {
                      status: 'warning',
                      text: 'Maximum number of patient accounts reached',
@@ -7895,7 +7895,7 @@ describe('Actions', () => {
                     workspacePlan: true,
                   },
                   text: {
-                    limitDescription: 'Limited to 250 patients. Please note that the demo account and accounts connected to twiist do not count towards the limit.',
+                    limitDescription: 'This plan allows for a limited number of patient accounts.',
                     limitFeedback: {
                       status: 'warning',
                       text: 'Maximum number of patient accounts reached',

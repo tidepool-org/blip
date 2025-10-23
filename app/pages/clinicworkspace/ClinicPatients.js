@@ -96,7 +96,7 @@ import {
 
 import { useToasts } from '../../providers/ToastProvider';
 import * as actions from '../../redux/actions';
-import { useIsFirstRender, useLocalStorage, usePrevious } from '../../core/hooks';
+import { useIsFirstRender, useLocalStorage, usePrevious, useScrollToTop } from '../../core/hooks';
 import { fieldsAreValid, getCommonFormikFieldProps } from '../../core/forms';
 
 import {
@@ -675,6 +675,7 @@ export const SPECIAL_FILTER_STATES = {
 };
 
 export const ClinicPatients = (props) => {
+  useScrollToTop();
   const { t, api, trackMetric, searchDebounceMs } = props;
   const isFirstRender = useIsFirstRender();
   const dispatch = useDispatch();
@@ -3136,8 +3137,7 @@ export const ClinicPatients = (props) => {
       >
         <DialogTitle sx={{ alignItems: 'flex-start' }} onClose={handleCloseOverlays}>
           <Box mr={2}>
-            <MediumTitle sx={{ fontSize: 2 }} id="dialog-title">{t('Select Patients to Display in the TIDE Dashboard')}</MediumTitle>
-            <Body1 sx={{ fontWeight: 'medium', color: 'grays.4' }}>{t('You must make a selection in each category')}</Body1>
+            <MediumTitle id="dialog-title">{t('Filter the TIDE Dashboard')}</MediumTitle>
           </Box>
         </DialogTitle>
 

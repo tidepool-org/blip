@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../../../../redux/actions';
 import buildGenerateAGPImages from './buildGenerateAGPImages';
@@ -6,6 +6,7 @@ import moment from 'moment';
 
 import getOpts from './getOpts';
 import getQueries from './getQueries';
+import { cloneDeep } from 'lodash';
 
 export const STATUS = {
   // States in order of happy path AGP generation sequence
@@ -81,9 +82,7 @@ const useAgpCGM = (
   const data   = useSelector(state => state.blip.data);
   const pdf    = useSelector(state => state.blip.pdf);
   const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
-
   const clinicPatient = clinic?.patients?.[patientId];
-
   const lastCompletedStep = inferLastCompletedStep(patientId, data, pdf);
 
   useEffect(() => {
@@ -132,8 +131,8 @@ const useAgpCGM = (
   return {
     status:       lastCompletedStep,
     svgDataURLS:  isCorrectPatientInState ? pdf.opts?.svgDataURLS : null,
-    agpCGM:       isCorrectPatientInState ? pdf.data?.agpCGM : null,
-    offsetAgpCGM: isCorrectPatientInState ? pdf.data?.offsetAgpCGM : null,
+    agpCGM:       isCorrectPatientInState ? cloneDeep(pdf.data?.agpCGM) : null,
+    offsetAgpCGM: isCorrectPatientInState ? cloneDeep(pdf.data?.offsetAgpCGM) : null,
   };
 };
 

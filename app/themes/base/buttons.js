@@ -398,6 +398,34 @@ export default ({
         color: colors.text.primaryDisabled,
       },
     },
+    tab: {
+      ...defaultStyles,
+      padding: `12px ${space[5]}px`,
+      fontWeight: fontWeights.medium,
+      backgroundColor: colors.blue50,
+      color: colors.white,
+      border: 0,
+      borderRadius: radii.default,
+      borderBottomRightRadius: 0,
+      borderBottomLeftRadius: 0,
+      '.icon img': {
+        filter: 'brightness(0%) saturate(100%) invert(97%) sepia(100%) saturate(0%) hue-rotate(317deg) brightness(105%) contrast(101%)', // white
+      },
+      '&.selected': {
+        backgroundColor: colors.blue80,
+      },
+      '&:hover': {
+        backgroundColor: colors.blue60,
+      },
+      '&:disabled': {
+        color: colors.text.primaryDisabled,
+        pointerEvents: 'none',
+
+        '.icon img': {
+          filter: 'brightness(0%) saturate(100%) invert(82%) sepia(19%) saturate(177%) hue-rotate(178deg) brightness(81%) contrast(90%)', // colors.text.primaryDisabled
+        },
+      },
+    },
     large: {
       ...defaultStyles,
       backgroundColor: colors.purpleMedium,

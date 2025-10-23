@@ -224,3 +224,12 @@ export const useLaunchDarklyFlagOverrides = () => {
   const [launchDarklyOverrides] = useLocalStorage('launchDarklyOverrides', {});
   return { ...launchDarklyFlags, ...launchDarklyOverrides };
 }
+
+/**
+ * Custom hook to ensure an element is scrolled to the top on mount
+ */
+export const useScrollToTop = (element = window, deps = []) => {
+  useEffect(() => {
+    element?.scrollTo(0, 0);
+  }, [element, ...deps]);
+}
