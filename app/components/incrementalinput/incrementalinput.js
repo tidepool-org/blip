@@ -61,7 +61,7 @@ const IncrementalInput = ({
   step,
   onChange,
   error,
-  extraValues = [], // extra values that the input is allowed to take
+  extraValues = [], // additional value options that the input is allowed to take
 }) => {
   const valueOptions = useMemo(() => {
     return getValueOptions(minValue, maxValue, step, extraValues);
