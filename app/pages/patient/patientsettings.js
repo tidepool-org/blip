@@ -183,7 +183,7 @@ export default withTranslation()(class PatientSettings extends Component {
       settings.units.bg === MGDL_UNITS ? 1 : 0.1
     );
 
-    const additionalAllowedValues = settings.units.bg === MGDL_UNITS ? [63] : [];
+    const extraValues = settings.units.bg === MGDL_UNITS ? [63] : [];
 
     return (<IncrementalInput
       name={bound}
@@ -194,7 +194,7 @@ export default withTranslation()(class PatientSettings extends Component {
       maxValue={VALUES_MIN_MAX[settings.units.bg][bound].max}
       step={BG_INCREMENT_STEPS[settings.units.bg]}
       onChange={this.onIncrementChange}
-      additionalAllowedValues={additionalAllowedValues}
+      extraValues={extraValues}
       />);
   }
 

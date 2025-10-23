@@ -24,7 +24,7 @@ import utils from '../../core/utils';
 const MINIMUM_STEP = 0.1;
 
 // Returns an array of all possible values (every step between min and max)
-const getValueOptions = (minValue, maxValue, step, additionalAllowedValues) => {
+const getValueOptions = (minValue, maxValue, step, extraValues) => {
   let valueOptions = [];
 
   for (let currVal = minValue; currVal < maxValue; currVal += step) {
@@ -33,7 +33,7 @@ const getValueOptions = (minValue, maxValue, step, additionalAllowedValues) => {
 
   valueOptions.push(maxValue);
 
-  valueOptions.push(...additionalAllowedValues);
+  valueOptions.push(...extraValues);
 
   valueOptions.sort((a, b) => a - b);
 
@@ -61,11 +61,11 @@ const IncrementalInput = ({
   step,
   onChange,
   error,
-  additionalAllowedValues = [],
+  extraValues = [], // extra values that the input is allowed to take
 }) => {
   const valueOptions = useMemo(() => {
-    return getValueOptions(minValue, maxValue, step, additionalAllowedValues);
-  }, [additionalAllowedValues, minValue, maxValue, step]);
+    return getValueOptions(minValue, maxValue, step, extraValues);
+  }, [extraValues, minValue, maxValue, step]);
 
   const position = useMemo(() => {
     return getPosition(valueOptions, value);
@@ -112,7 +112,7 @@ IncrementalInput.propTypes = {
   maxValue: PropTypes.number.isRequired,
   step: PropTypes.number.isRequired,
   onChange: PropTypes.func.isRequired,
-  additionalAllowedValues: PropTypes.arrayOf(PropTypes.number),
+  extraValues: PropTypes.arrayOf(PropTypes.number),
 };
 
 export default IncrementalInput;

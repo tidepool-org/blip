@@ -34,7 +34,7 @@ describe('IncrementalInput', () => {
       step: 5,
       onChange: onChange,
       error: false,
-      additionalAllowedValues: [],
+      extraValues: [],
     };
 
     it('increments/decrements on button click', async () => {
@@ -86,7 +86,7 @@ describe('IncrementalInput', () => {
       // -----
 
       // When there is an additionalAllowedValue
-      rerender(<IncrementalInput {...props} value={65} additionalAllowedValues={[63]} />);
+      rerender(<IncrementalInput {...props} value={65} extraValues={[63]} />);
       onChange.mockClear();
 
       // Clicking Increment should not fire the callback since we are at min
@@ -111,7 +111,7 @@ describe('IncrementalInput', () => {
       step: 0.1,
       onChange: onChange,
       error: false,
-      additionalAllowedValues: [],
+      extraValues: [],
     };
 
     it('increments/decrements on button click', async () => {
