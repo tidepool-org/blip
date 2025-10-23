@@ -18,33 +18,35 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import React, { useMemo } from 'react';
 import cx from 'classnames';
-import { MMOLL_UNITS } from '../../core/constants';
-import { utils } from '@tidepool/viz';
+import { utils as vizUtils } from '@tidepool/viz';
+import utils from '../../core/utils';
+
+const MINIMUM_STEP = 0.1;
 
 // Returns an array of all possible values (every step between min and max)
-const getAllowedValues = (minValue, maxValue, step, additionalAllowedValues) => {
-  let allowedValues = [];
+const getValueOptions = (minValue, maxValue, step, additionalAllowedValues) => {
+  let valueOptions = [];
 
   for (let currVal = minValue; currVal < maxValue; currVal += step) {
-    allowedValues.push(currVal);
+    valueOptions.push(utils.roundToNearest(currVal, MINIMUM_STEP));
   }
 
-  allowedValues.push(maxValue);
+  valueOptions.push(maxValue);
 
-  allowedValues.push(...additionalAllowedValues);
+  valueOptions.push(...additionalAllowedValues);
 
-  allowedValues.sort((a, b) => a - b);
+  valueOptions.sort((a, b) => a - b);
 
-  return _.uniq(allowedValues);
+  return _.uniq(valueOptions);
 };
 
-// Returns the index of the value within the allowedValues
-const getPosition = (allowedValues, value) => {
-  let position = allowedValues.findIndex(allowedValue => allowedValue === value);
+// Returns the index of the value within the valueOptions
+const getPosition = (valueOptions, value) => {
+  let position = valueOptions.findIndex(allowedValue => allowedValue === value);
 
-  // Find the closest index if the value doesn't exist within allowedValues
+  // Find the closest index if the value doesn't exist within valueOptions
   if (position === -1) {
-    position = _.findLastIndex(allowedValues, allowedValue => allowedValue < value);
+    position = _.findLastIndex(valueOptions, allowedValue => allowedValue < value);
   };
 
   return position;
@@ -61,18 +63,18 @@ const IncrementalInput = ({
   error,
   additionalAllowedValues = [],
 }) => {
-  const allowedValues = useMemo(() => {
-    return getAllowedValues(minValue, maxValue, step, additionalAllowedValues);
+  const valueOptions = useMemo(() => {
+    return getValueOptions(minValue, maxValue, step, additionalAllowedValues);
   }, [additionalAllowedValues, minValue, maxValue, step]);
 
   const position = useMemo(() => {
-    return getPosition(allowedValues, value);
-  }, [allowedValues, value]);
+    return getPosition(valueOptions, value);
+  }, [valueOptions, value]);
 
   const validateValue = (value) => _.isNumber(value) && value <= maxValue && value >= minValue;
 
   const handlePositionChange = (targetPosition) => {
-    const targetValue = allowedValues[targetPosition];
+    const targetValue = valueOptions[targetPosition];
 
     if (!validateValue(targetValue)) return;
 
@@ -85,17 +87,17 @@ const IncrementalInput = ({
     [`IncrementalInput--${name}`]: true,
   });
 
-  let displayValue = utils.bg.formatBgValue(value, { bgUnits: unit });
+  let displayValue = vizUtils.bg.formatBgValue(value, { bgUnits: unit });
 
   return (
     <div className={classes}>
       <span>{displayValue} {unit}</span>
       <div className="IncrementalInputArrows">
         <svg className="IncrementalInputArrow IncrementalInputArrow--increase" operator="+" width="16" height="10" viewBox="-1 -1 16 10">
-          <path d="M7 0l7 8H0z" onClick={() => handlePositionChange(position + 1)} />
+          <path data-testid="increment-arrow" d="M7 0l7 8H0z" onClick={() => handlePositionChange(position + 1)} />
         </svg>
         <svg className="IncrementalInputArrow IncrementalInputArrow--decrease" operator="-" width="16" height="10" viewBox="-1 10 16 10">
-          <path d="M7 19l7-8H0z" onClick={() => handlePositionChange(position - 1)} />
+          <path data-testid="decrement-arrow" d="M7 19l7-8H0z" onClick={() => handlePositionChange(position - 1)} />
         </svg>
       </div>
     </div>
@@ -110,6 +112,7 @@ IncrementalInput.propTypes = {
   maxValue: PropTypes.number.isRequired,
   step: PropTypes.number.isRequired,
   onChange: PropTypes.func.isRequired,
+  additionalAllowedValues: PropTypes.arrayOf(PropTypes.number),
 };
 
 export default IncrementalInput;
