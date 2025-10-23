@@ -129,8 +129,14 @@ export default withTranslation()(class PatientSettings extends Component {
     const errorNode = (self.state.error.low || self.state.error.high) ? self.renderErrorNode() : null;
 
     let chartTargets = {
-      high: vizUtils.bg.formatBgValue(utils.roundBgTarget(settings.bgTarget.high, settings.units.bg), { bgUnits: settings.units.bg }),
-      low: vizUtils.bg.formatBgValue(utils.roundBgTarget(settings.bgTarget.low, settings.units.bg), { bgUnits: settings.units.bg }),
+      high: vizUtils.bg.formatBgValue(
+        utils.roundToNearest(settings.bgTarget.high, settings.units.bg === MGDL_UNITS ? 1 : 0.1),
+        { bgUnits: settings.units.bg },
+      ),
+      low: vizUtils.bg.formatBgValue(
+        utils.roundToNearest(settings.bgTarget.low, settings.units.bg === MGDL_UNITS ? 1 : 0.1),
+        { bgUnits: settings.units.bg },
+      ),
     };
 
     return (
@@ -172,7 +178,12 @@ export default withTranslation()(class PatientSettings extends Component {
   }
 
   renderIncrementalInput(bound, settings) {
-    let value = utils.roundBgTarget(settings.bgTarget[bound], settings.units.bg);
+    let value = utils.roundToNearest(
+      settings.bgTarget[bound],
+      settings.units.bg === MGDL_UNITS ? 1 : 0.1
+    );
+
+    const extraValues = settings.units.bg === MGDL_UNITS ? [63] : [];
 
     return (<IncrementalInput
       name={bound}
@@ -183,6 +194,7 @@ export default withTranslation()(class PatientSettings extends Component {
       maxValue={VALUES_MIN_MAX[settings.units.bg][bound].max}
       step={BG_INCREMENT_STEPS[settings.units.bg]}
       onChange={this.onIncrementChange}
+      extraValues={extraValues}
       />);
   }
 
