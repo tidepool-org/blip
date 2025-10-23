@@ -102,8 +102,10 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
   const charts = useMemo(() => allCharts.slice(0, visibleDays), [allCharts, visibleDays]);
 
   if (status === STATUS.NO_PATIENT_DATA)   return <NoPatientData patientName={patient?.fullName}/>;
-  if (status === STATUS.INSUFFICIENT_DATA) return <InsufficientData />;
-  if (!includes([STATUS.DATA_PROCESSED, STATUS.SVGS_GENERATED], status)) return <Loader show={true} overlay={false} />;
+
+  // We piggy-back on the useAgpCGM data and status for these charts, so we load until we have the data
+  // processed, and ignore the insufficient AGP data status, and show charts with whatever data is available.
+  if (!includes([STATUS.DATA_PROCESSED, STATUS.SVGS_GENERATED, STATUS.INSUFFICIENT_DATA], status)) return <Loader show={true} overlay={false} />;
 
   function addToRefs(element) {
     if (element && !chartRefs.current.includes(element)) {
