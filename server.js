@@ -111,6 +111,7 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
       'https://*.tidepool.org',
       'https://*.epic.com',
       'https://*.epichosted.com',
+      'https://boomertest.cchmc.org/fhir',
       'localhost:*'
     ]
   },
