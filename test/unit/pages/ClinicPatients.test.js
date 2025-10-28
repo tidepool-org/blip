@@ -689,6 +689,7 @@ describe('ClinicPatients', () => {
             email: 'patient@test.ca',
             tags: [],
             sites: [],
+            diagnosisType: '',
             glycemicRanges: { type: 'preset', preset: 'adaStandard' },
           }
         );
@@ -1189,6 +1190,7 @@ describe('ClinicPatients', () => {
               permissions: { custodian: {} },
               tags: [],
               sites: [],
+              diagnosisType: '',
               glycemicRanges: { type: 'preset', preset: 'adaStandard' },
             }
           );
@@ -1264,6 +1266,7 @@ describe('ClinicPatients', () => {
               permissions: { view: {} },
               tags: [],
               sites: [],
+              diagnosisType: '',
               glycemicRanges: { type: 'preset', preset: 'adaStandard' },
             }
           );
