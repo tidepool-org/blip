@@ -1632,6 +1632,8 @@ export const PatientDataClass = createReactClass({
           'message',
           'smbg',
           'wizard',
+          'reportedState',
+          'physicalActivity',
         ]);
         break;
 
@@ -2050,6 +2052,8 @@ export const PatientDataClass = createReactClass({
             pumpSettings: {},
             smbg: {},
             wizard: {},
+            reportedState: {},
+            physicalActivity: {},
           };
 
           chartQuery.cgmSampleIntervalRange = _.get(this.state.chartPrefs, 'daily.cgmSampleIntervalRange');
