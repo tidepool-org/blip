@@ -469,12 +469,11 @@ export const PatientDataClass = createReactClass({
 
           let setStateCallback = this.generatePDF;
 
-          if (startDate < fetchedUntil || !fetchedUntil) {
+          if (startDate < fetchedUntil) {
             this.fetchAdditionalData({
               returnData: false,
               showLoading: false,
               startDate,
-              noDates: !fetchedUntil,
             });
 
             // In cases where we need to fetch data via an async backend call, we need to pre-open
