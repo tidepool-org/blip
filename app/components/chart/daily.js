@@ -801,7 +801,12 @@ class Daily extends Component {
   handleEventHover = event => {
     this.throttledMetric('hovered over daily event tooltip');
     const rect = event.rect;
-    event.top = rect.top + rect.height + 20;
+
+    const isDetailedEvent = ['pump_shutdown'].includes(event.tags?.event);
+    const topOffset = isDetailedEvent ? 20 : 0;
+    const xEdgeOffset = isDetailedEvent ? 70 : 40;
+
+    event.top = rect.top + rect.height + topOffset;
     event.left = rect.left + (rect.width / 2);
     event.side = 'bottom';
 
@@ -809,12 +814,12 @@ class Daily extends Component {
     const leftOffset = event.left - event.chartExtents.left;
     const rightOffset = event.left - event.chartExtents.right;
 
-    if (leftOffset < 70) {
-      event.leftOffset = 70;
+    if (leftOffset < xEdgeOffset) {
+      event.leftOffset = xEdgeOffset;
     }
 
-    if (rightOffset > -70) {
-      event.leftOffset = -70;
+    if (rightOffset > -xEdgeOffset) {
+      event.leftOffset = -xEdgeOffset;
     }
 
     this.setState({
