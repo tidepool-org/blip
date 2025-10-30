@@ -40,14 +40,14 @@ export function getFormValues(source, clinicPatientTags, clinicSites) {
     tags: reject(source?.tags || [], tagId => !clinicPatientTags?.[tagId]),
     dataSources: source?.dataSources || [],
     sites: source?.sites?.filter(site => !!clinicSites[site.id]) || [],
-    diagnosisType: source?.diagnosisType || null,
+    diagnosisType: source?.diagnosisType || '',
     glycemicRanges: source?.glycemicRanges || DEFAULT_GLYCEMIC_RANGES,
   };
 }
 
 export function emptyValuesFilter(value, key) {
   // We want to allow sending an empty `tags` and `sites` arrays. Otherwise, strip empty fields from payload.
-  return !includes(['tags', 'sites'], key) && isEmpty(value);
+  return !includes(['tags', 'sites', 'diagnosisType'], key) && isEmpty(value);
 }
 
 export const PatientForm = (props) => {

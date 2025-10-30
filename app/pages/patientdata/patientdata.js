@@ -469,7 +469,7 @@ export const PatientDataClass = createReactClass({
 
           let setStateCallback = this.generatePDF;
 
-          if (startDate < fetchedUntil) {
+          if (startDate < fetchedUntil || !fetchedUntil) {
             this.fetchAdditionalData({
               returnData: false,
               showLoading: false,

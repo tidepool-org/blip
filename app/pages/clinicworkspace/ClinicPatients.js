@@ -2460,7 +2460,7 @@ export const ClinicPatients = (props) => {
                         variant="textPrimary"
                         onClick={handleFilterTimeInRange}
                       >
-                        {t('Apply Filter')}
+                        {t('Apply')}
                       </Button>
                     </DialogActions>
                   </Popover>
