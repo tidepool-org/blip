@@ -469,7 +469,7 @@ export const PatientDataClass = createReactClass({
 
           let setStateCallback = this.generatePDF;
 
-          if (startDate < fetchedUntil) {
+          if (startDate < fetchedUntil || !fetchedUntil) {
             this.fetchAdditionalData({
               returnData: false,
               showLoading: false,
@@ -2573,6 +2573,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
       };
       if(chartType === 'settings') {
         _.extend(fetchOptions, {
+          type: 'pumpSettings,upload',
           initial: false,
           startDate: undefined,
           endDate: undefined,
