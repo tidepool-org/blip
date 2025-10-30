@@ -241,19 +241,26 @@ export const PrintDateRangeModal = (props) => {
 
   const handleSplitDatesChange = (newDates, chartType = 'basics') => {
     const mostRecentDatumMoment = moment.utc(mostRecentDatumDates[chartType]).tz(timezoneName);
-    const adjustedDates = setDateRangeToExtents(newDates);
+    const midnightAlignedDates = setDateRangeToExtents(newDates);
+
+    const hasLastDatumContained = mostRecentDatumMoment?.isBefore(midnightAlignedDates?.endDate);
 
     // If the date selected contains the mostRecentDatum, we want to exclude the time
     // between the mostRecentDatum and the end of that day. We also adjust the start
     // time so that the period is a multiple of 24 hours.
-    if (mostRecentDatumMoment?.isBefore(adjustedDates?.endDate)) {
+    if (hasLastDatumContained) {
       const hourCeiling = getLocalizedHourCeiling(mostRecentDatumDates[chartType], timePrefs);
       const endDate = moment.utc(hourCeiling).tz(timezoneName);
-      const startDate = adjustedDates?.startDate.hour(endDate.hour());
+
+      // Calculate the number of whole days between start and end
+      const daysDiff = midnightAlignedDates.endDate.diff(midnightAlignedDates.startDate, 'days');
+
+      // Subtract that many days from endDate to get the adjusted startDate
+      const startDate = moment.utc(endDate).tz(timezoneName).subtract(daysDiff, 'days');
 
       setDates(dates => ({ ...dates, [chartType]: { startDate, endDate } }));
     } else {
-      setDates(dates => ({ ...dates, [chartType]: adjustedDates }));
+      setDates(dates => ({ ...dates, [chartType]: midnightAlignedDates }));
     }
   };
 

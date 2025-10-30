@@ -149,19 +149,26 @@ export const ChartDateRangeModal = (props) => {
 
   const handleDatesChange = newDates => {
     const mostRecentDatumMoment = moment.utc(mostRecentDatumDate).tz(timezoneName);
-    const adjustedDates = setDateRangeToExtents(newDates);
+    const midnightAlignedDates = setDateRangeToExtents(newDates);
+
+    const hasLastDatumContained = mostRecentDatumMoment?.isBefore(midnightAlignedDates?.endDate);
 
     // If the date selected contains the mostRecentDatum, we want to exclude the time
     // between the mostRecentDatum and the end of that day. We also adjust the start
     // time so that the period is a multiple of 24 hours.
-    if (mostRecentDatumMoment?.isBefore(adjustedDates?.endDate)) {
+    if (hasLastDatumContained) {
       const hourCeiling = getLocalizedHourCeiling(mostRecentDatumDate, timePrefs);
       const endDate = moment.utc(hourCeiling).tz(timezoneName);
-      const startDate = adjustedDates?.startDate?.hour(endDate.hour());
+
+      // Calculate the number of whole days between start timestamp and end timestamp
+      const daysDiff = midnightAlignedDates.endDate.diff(midnightAlignedDates.startDate, 'days');
+
+      // Subtract that many days from endDate to get the adjusted startDate
+      const startDate = moment.utc(endDate).tz(timezoneName).subtract(daysDiff, 'days');
 
       setDates({ startDate, endDate });
     } else {
-      setDates(adjustedDates);
+      setDates(midnightAlignedDates);
     }
   };
 
