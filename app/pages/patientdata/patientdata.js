@@ -965,6 +965,8 @@ export const PatientDataClass = createReactClass({
           message: {},
           smbg: {},
           wizard: {},
+          physicalActivity: {},
+          reportedState: {},
         },
         bgSource: _.get(state.chartPrefs, 'daily.bgSource'),
         cgmSampleIntervalRange: _.get(state.chartPrefs, 'daily.cgmSampleIntervalRange'),
