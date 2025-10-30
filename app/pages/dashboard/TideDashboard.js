@@ -30,6 +30,7 @@ import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRo
 import EditIcon from '@material-ui/icons/EditRounded';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import { components as vizComponents, utils as vizUtils, colors as vizColors } from '@tidepool/viz';
+const { GLYCEMIC_RANGES_PRESET } = vizUtils.constants;
 import ScrollToTop from 'react-scroll-to-top';
 import styled from '@emotion/styled';
 import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
@@ -85,6 +86,7 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
 import DataInIcon from '../../core/icons/DataInIcon.svg';
 import { colors, fontWeights, radii } from '../../themes/baseTheme';
 import PatientLastReviewed from '../../components/clinic/PatientLastReviewed';
+import { DEFAULT_GLYCEMIC_RANGES } from '../../core/glycemicRangesUtils';
 
 const { Loader } = vizComponents;
 const { formatBgValue } = vizUtils.bg;
@@ -517,13 +519,20 @@ const TideDashboardSection = React.memo(props => {
   }, [api, trackMetric]);
 
   const renderBgRangeSummary = useCallback(summary => {
-    return <BgSummaryCell
-    summary={summary}
-    config={config}
-    clinicBgUnits={clinicBgUnits}
-    activeSummaryPeriod={config?.period}
-    showExtremeHigh={showExtremeHigh}
-  />
+    // Alternate glycemic ranges not applied in TIDE Dashboard for now
+    const glycemicRanges = DEFAULT_GLYCEMIC_RANGES;
+
+    return (
+      <BgSummaryCell
+        id={summary.patient.id}
+        summary={summary}
+        config={config}
+        clinicBgUnits={clinicBgUnits}
+        glycemicRanges={glycemicRanges}
+        activeSummaryPeriod={config?.period}
+        showExtremeHigh={showExtremeHigh}
+      />
+    );
   }, [clinicBgUnits, config]);
 
   const renderTimeInTargetPercentDelta = useCallback(summary => {
@@ -920,11 +929,7 @@ export const TideDashboard = (props) => {
   const ldContext = ldClient.getContext();
 
   const isTideDashboardEnabled = (ldContext?.clinic?.tier && showTideDashboard) || clinic?.entitlements?.tideDashboard;
-
-  const existingMRNs = useMemo(
-    () => compact(map(reject(clinic?.patients, { id: selectedPatient?.id }), 'mrn')),
-    [clinic?.patients, selectedPatient?.id]
-  );
+  const existingMRNs = useSelector(state => state.blip.clinicMRNsForPatientFormValidation)?.filter(mrn => mrn !== selectedPatient?.mrn) || [];
 
   const {
     fetchingPatientFromClinic,

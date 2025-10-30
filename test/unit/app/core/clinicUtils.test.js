@@ -691,6 +691,8 @@ describe('clinicUtils', function() {
         'tags',
         'connectDexcom',
         'dataSources',
+        'glycemicRanges',
+        'diagnosisType',
       ]);
     });
 

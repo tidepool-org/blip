@@ -81,6 +81,7 @@ describe('ClinicPatients', ()  => {
         fetchingRpmReportPatients: defaultWorkingState,
         settingClinicPatientLastReviewed: defaultWorkingState,
         revertingClinicPatientLastReviewed: defaultWorkingState,
+        fetchingClinicMRNsForPatientFormValidation: defaultWorkingState,
       },
       patientListFilters: {
         patientListSearchTextInput: '',
@@ -644,7 +645,7 @@ describe('ClinicPatients', ()  => {
             expect(screen.getByText('Edit Patient Details')).toBeInTheDocument();
 
             // Add Site 3 and remove Site 1, then save
-            await userEvent.click(screen.getAllByRole('combobox')[1]); // open combobox dropdown
+            await userEvent.click(screen.getAllByRole('combobox')[3]); // open combobox dropdown
             await userEvent.click(screen.getByText('Site Charlie', { selector: 'div' }));
             await userEvent.click(screen.getByLabelText(/Remove Site Alpha/));
             await userEvent.click(screen.getByRole('button', { name: /Save Changes/ }));
@@ -688,6 +689,8 @@ describe('ClinicPatients', ()  => {
                 },
                 tags: ['tag1'],
                 sites: [{ id: 'site-3-id', name: 'Site Charlie' }],
+                diagnosisType: '',
+                glycemicRanges: { type: 'preset', preset: 'adaStandard' },
                 reviews: [{ clinicianId: 'clinicianUserId123', time: yesterday }],
               },
               expect.any(Function), // callback fn passed to api
@@ -815,7 +818,7 @@ describe('ClinicPatients', ()  => {
             expect(screen.getByText('Edit Patient Details')).toBeInTheDocument();
 
             // Add Tag 3 and remove Tag 1, then save
-            await userEvent.click(screen.getAllByRole('combobox')[0]); // open combobox dropdown
+            await userEvent.click(screen.getAllByRole('combobox')[2]); // open combobox dropdown
             await userEvent.click(screen.getByText('ttest tag 3', { selector: 'div' }));
             await userEvent.click(screen.getByLabelText(/Remove test tag 1/));
             await userEvent.click(screen.getByRole('button', { name: /Save Changes/ }));
@@ -859,6 +862,8 @@ describe('ClinicPatients', ()  => {
                 },
                 tags: ['tag3'],
                 sites: [{ id: 'site-1-id', name: 'Site Alpha' }],
+                diagnosisType: '',
+                glycemicRanges: { type: 'preset', preset: 'adaStandard' },
                 reviews: [{ clinicianId: 'clinicianUserId123', time: yesterday }],
               },
               expect.any(Function), // callback fn passed to api

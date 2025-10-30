@@ -195,6 +195,7 @@ export const TagList = withTranslation()(props => {
       ref={anchorRef}
       className="tag-list"
       sx={{ gap: 1, alignItems: 'center', flexWrap, ...sx }}
+      onClick={event => event.stopPropagation()}
       {...themeProps}
     >
       {map(visibleTags, tag => (

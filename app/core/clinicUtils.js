@@ -2,7 +2,6 @@ import React from 'react';
 import * as yup from 'yup';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
-import isNumber from 'lodash/isNumber';
 import keys from 'lodash/keys';
 import map from 'lodash/map';
 import moment from 'moment';
@@ -12,6 +11,8 @@ import states from './validation/states';
 import postalCodes from './validation/postalCodes';
 import i18next from './language';
 import { timezoneNames } from './validation/timezoneNames';
+
+import { glycemicRangesSchema } from './glycemicRangesUtils';
 
 import {
   URL_TIDEPOOL_PLUS_PLANS,
@@ -449,6 +450,8 @@ export const patientSchema = config => {
         name: yup.string(),
       })
     ),
+    diagnosisType: yup.string().nullable(),
+    glycemicRanges: glycemicRangesSchema,
   });
 };
 

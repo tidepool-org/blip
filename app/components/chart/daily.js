@@ -280,12 +280,10 @@ class Daily extends Component {
     const dataUpdated = this.props.updatingDatum.inProgress && nextProps.updatingDatum.completed;
     const newDataRecieved = this.props.queryDataCount !== nextProps.queryDataCount;
     const newEndpointsReceived = this.props.data?.data?.current?.endpoints !== nextProps.data?.data?.current?.endpoints;
-    const bgRangeUpdated = this.props.data?.bgPrefs?.useDefaultRange !== nextProps.data?.bgPrefs?.useDefaultRange;
 
     if (this.chartRef.current) {
       const updates = {};
       if (loadingJustCompleted || newDataAdded || dataUpdated || newDataRecieved) updates.data = nextProps.data;
-      if (nextProps.data?.bgPrefs?.bgClasses && bgRangeUpdated) updates.bgClasses = nextProps.data.bgPrefs.bgClasses;
       if (!_.isEmpty(updates)) this.chartRef.current?.rerenderChart(updates);
     }
 

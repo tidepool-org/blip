@@ -35,7 +35,7 @@ export function DialogTitle(props) {
   return (
     <Flex
       p={3}
-      sx={{ overflowX: 'hidden', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'nowrap', borderBottom: props.divider ? borders.dividerDarkThin : 'unset', ...sx }}
+      sx={{ overflow: 'hidden', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'nowrap', borderBottom: props.divider ? borders.dividerDarkThin : 'unset', ...sx }}
       {...dialogTitleProps}
     >
       <Box sx={{ flexGrow: 1, flexBasis: onBack ? 'auto' : 0, textAlign: 'left' }}>
@@ -135,6 +135,8 @@ DialogContent.defaultProps = {
 
 /* Dialog Actions Start */
 const StyledDialogActions = styled(Flex)`
+  min-height: 64px;
+
   @media screen and (max-width: ${MOBILE_BREAKPOINT}) {
     gap: 16px;
   }
