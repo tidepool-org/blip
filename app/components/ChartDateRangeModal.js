@@ -21,7 +21,7 @@ import i18next from '../core/language';
 import { breakpoints } from '../themes/baseTheme';
 import { DesktopOnly } from './mediaqueries';
 import { utils as vizUtils } from '@tidepool/viz';
-const getLocalizedHourCeiling = vizUtils.datetime.getLocalizedHourCeiling;
+const getLocalizedCeiling = vizUtils.datetime.getLocalizedCeiling;
 
 const t = i18next.t.bind(i18next);
 
@@ -60,10 +60,10 @@ export const ChartDateRangeModal = (props) => {
   // latest datum was Oct 20 @ 15:23, the 14-day window will be Oct 6 @ 16:00 - Oct 20 @ 16:00
   const getLastN24HourPeriods = numOfPeriods => {
     const endDate = mostRecentDatumDate ? moment.utc(mostRecentDatumDate) : endOfToday;
-    const endHourCeiling = getLocalizedHourCeiling(endDate.valueOf(), timePrefs);
+    const endHourCeiling = getLocalizedCeiling(endDate.valueOf(), timePrefs, 'hour');
 
     const startDate = moment.utc(endDate).tz(timezoneName).subtract(numOfPeriods, 'days');
-    const startHourCeiling = getLocalizedHourCeiling(startDate.valueOf(), timePrefs);
+    const startHourCeiling = getLocalizedCeiling(startDate.valueOf(), timePrefs, 'hour');
 
     return ({
       startDate: moment.utc(startHourCeiling).tz(timezoneName),
@@ -157,7 +157,7 @@ export const ChartDateRangeModal = (props) => {
     // between the mostRecentDatum and the end of that day. We also adjust the start
     // time so that the period is a multiple of 24 hours.
     if (hasLastDatumContained) {
-      const hourCeiling = getLocalizedHourCeiling(mostRecentDatumDate, timePrefs);
+      const hourCeiling = getLocalizedCeiling(mostRecentDatumDate, timePrefs, 'hour');
       const endDate = moment.utc(hourCeiling).tz(timezoneName);
 
       // Calculate the number of whole days between start timestamp and end timestamp

@@ -27,7 +27,7 @@ import {
 
 const TrendsContainer = vizContainers.TrendsContainer;
 const getTimezoneFromTimePrefs = vizUtils.datetime.getTimezoneFromTimePrefs;
-const getLocalizedHourCeiling = vizUtils.datetime.getLocalizedHourCeiling;
+const getLocalizedCeiling = vizUtils.datetime.getLocalizedCeiling;
 const trendsText = vizUtils.text.trendsText;
 const {
   ClipboardButton,
@@ -136,7 +136,7 @@ const Trends = withTranslation()(class Trends extends PureComponent {
   getNewDomain(current, extent) {
     const timePrefs = _.get(this.props, 'data.timePrefs', {});
     const timezone = getTimezoneFromTimePrefs(timePrefs);
-    const end = getLocalizedHourCeiling(current.valueOf(), timePrefs);
+    const end = getLocalizedCeiling(current.valueOf(), timePrefs, 'hour');
     const start = moment(current.toISOString()).tz(timezone).subtract(extent, 'days');
     const dateDomain = [start.toISOString(), end.toISOString()];
 
@@ -284,7 +284,8 @@ const Trends = withTranslation()(class Trends extends PureComponent {
       this.state.debouncedDateRangeUpdate.cancel();
     }
 
-    const hourCeiling = getLocalizedHourCeiling(datetimeLocationEndpoints[1], _.get(this.props, 'data.timePrefs', {}));
+    const timePrefs = _.get(this.props, 'data.timePrefs', {});
+    const hourCeiling = getLocalizedCeiling(datetimeLocationEndpoints[1], timePrefs, 'hour');
 
     const datetimeLocation = moment.utc(hourCeiling.valueOf()).toISOString();
 

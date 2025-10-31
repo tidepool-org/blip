@@ -23,7 +23,7 @@ import i18next from '../core/language';
 import baseTheme, { borders } from '../themes/baseTheme';
 import { useLocalStorage } from '../core/hooks';
 import { utils as vizUtils } from '@tidepool/viz';
-const getLocalizedHourCeiling = vizUtils.datetime.getLocalizedHourCeiling;
+const getLocalizedCeiling = vizUtils.datetime.getLocalizedCeiling;
 
 const t = i18next.t.bind(i18next);
 
@@ -63,10 +63,10 @@ export const PrintDateRangeModal = (props) => {
       ? moment.utc(mostRecentDatumDates[chartType])
       : endOfToday;
 
-    const endHourCeiling = getLocalizedHourCeiling(endDate.valueOf(), timePrefs);
+    const endHourCeiling = getLocalizedCeiling(endDate.valueOf(), timePrefs, 'hour');
 
     const startDate = moment.utc(endDate).tz(timezoneName).subtract(numOfPeriods, 'days');
-    const startHourCeiling = getLocalizedHourCeiling(startDate.valueOf(), timePrefs);
+    const startHourCeiling = getLocalizedCeiling(startDate.valueOf(), timePrefs, 'hour');
 
     return ({
       startDate: moment.utc(startHourCeiling).tz(timezoneName),
@@ -249,7 +249,7 @@ export const PrintDateRangeModal = (props) => {
     // between the mostRecentDatum and the end of that day. We also adjust the start
     // time so that the period is a multiple of 24 hours.
     if (hasLastDatumContained) {
-      const hourCeiling = getLocalizedHourCeiling(mostRecentDatumDates[chartType], timePrefs);
+      const hourCeiling = getLocalizedCeiling(mostRecentDatumDates[chartType], timePrefs, 'hour');
       const endDate = moment.utc(hourCeiling).tz(timezoneName);
 
       // Calculate the number of whole days between start and end
