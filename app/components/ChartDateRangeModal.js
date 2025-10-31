@@ -20,6 +20,8 @@ import { MediumTitle, Caption, Body1 } from './elements/FontStyles';
 import i18next from '../core/language';
 import { breakpoints } from '../themes/baseTheme';
 import { DesktopOnly } from './mediaqueries';
+import { utils as vizUtils } from '@tidepool/viz';
+const getLocalizedCeiling = vizUtils.datetime.getLocalizedCeiling;
 
 const t = i18next.t.bind(i18next);
 
@@ -37,10 +39,12 @@ export const ChartDateRangeModal = (props) => {
     open,
     presetDaysOptions,
     processing,
-    timePrefs: { timezoneName = 'UTC' },
+    timePrefs,
     title,
     trackMetric,
   } = props;
+
+  const { timezoneName = 'UTC' } = timePrefs;
 
   const endOfToday = useMemo(() => moment.utc().tz(timezoneName).endOf('day').subtract(1, 'ms'), [open]);
 
@@ -51,27 +55,34 @@ export const ChartDateRangeModal = (props) => {
     endDate: endDate ? moment.utc(endDate).tz(timezoneName).endOf('day').subtract(1, 'ms') : null,
   });
 
-  const getLastNDays = days => {
-    const endDate = mostRecentDatumDate
-      ? moment.utc(mostRecentDatumDate)
-      : endOfToday;
+  // Returns the bounds for the last N 24-hour periods based on the most recent datum. This method
+  // will shift the window to end at the start of the hour after the last datum. For example, if the
+  // latest datum was Oct 20 @ 15:23, the 14-day window will be Oct 6 @ 16:00 - Oct 20 @ 16:00
+  const getLastN24HourPeriods = numOfPeriods => {
+    const endDate = mostRecentDatumDate ? moment.utc(mostRecentDatumDate) : endOfToday;
+    const endHourCeiling = getLocalizedCeiling(endDate.valueOf(), timePrefs, 'hour');
 
-    return setDateRangeToExtents({
-      startDate: moment.utc(endDate).tz(timezoneName).subtract(days - 1, 'days'),
-      endDate,
+    const startDate = moment.utc(endDate).tz(timezoneName).subtract(numOfPeriods, 'days');
+    const startHourCeiling = getLocalizedCeiling(startDate.valueOf(), timePrefs, 'hour');
+
+    return ({
+      startDate: moment.utc(startHourCeiling).tz(timezoneName),
+      endDate: moment.utc(endHourCeiling).tz(timezoneName),
     });
   };
 
-  const defaultDates = () => defaultDatesProp
-    ? setDateRangeToExtents({
-      startDate: defaultDatesProp[0],
-      endDate: defaultDatesProp[1] - 1,
-    })
-    : getLastNDays(presetDaysOptions[0]);
+  const getDefaultDates = () => {
+    if (!defaultDatesProp) return getLastN24HourPeriods(presetDaysOptions[0]);
+
+    const startDate = defaultDatesProp[0] ? moment.utc(defaultDatesProp[0]).tz(timezoneName) : null;
+    const endDate = defaultDatesProp[1] ? moment.utc(defaultDatesProp[1]).tz(timezoneName) : null;
+
+    return { startDate, endDate };
+  };
 
   const defaults = useMemo(() => ({
     datePickerOpen: false,
-    dates: defaultDates(),
+    dates: getDefaultDates(),
     errors: false,
     submitted: false,
   }), [mostRecentDatumDate, defaultDatesProp]);
@@ -81,7 +92,7 @@ export const ChartDateRangeModal = (props) => {
   const [submitted, setSubmitted] = useState(defaults.submitted);
   const [datePickerOpen, setDatePickerOpen] = useState(defaults.datePickerOpen);
 
-  const presetDateRanges = useMemo(() => map(presetDaysOptions, days => getLastNDays(days, 'basics')), [open, presetDaysOptions]);
+  const presetDateRanges = useMemo(() => map(presetDaysOptions, days => getLastN24HourPeriods(days, 'basics')), [open, presetDaysOptions]);
 
   const datesMatchPreset = (dates, presetDates) => {
     return moment(dates.startDate).isSame(presetDates.startDate) && moment(dates.endDate).isSame(presetDates.endDate);
@@ -103,8 +114,8 @@ export const ChartDateRangeModal = (props) => {
   };
 
   const formatDateEndpoints = dates => ([
-    moment.utc(dates.startDate).tz(timezoneName).startOf('day').valueOf(),
-    moment.utc(dates.endDate).tz(timezoneName).add(1, 'day').startOf('day').valueOf(),
+    moment.utc(dates.startDate).tz(timezoneName).valueOf(),
+    moment.utc(dates.endDate).tz(timezoneName).valueOf(),
   ]);
 
   // Handlers
@@ -135,6 +146,32 @@ export const ChartDateRangeModal = (props) => {
   const handleClose = () => {
     onClose();
   };
+
+  const handleDatesChange = newDates => {
+    const mostRecentDatumMoment = moment.utc(mostRecentDatumDate).tz(timezoneName);
+    const midnightAlignedDates = setDateRangeToExtents(newDates);
+
+    const hasLastDatumContained = mostRecentDatumMoment?.isBefore(midnightAlignedDates?.endDate);
+
+    // If the date selected contains the mostRecentDatum, we want to exclude the time
+    // between the mostRecentDatum and the end of that day. We also adjust the start
+    // time so that the period is a multiple of 24 hours.
+    if (hasLastDatumContained) {
+      const hourCeiling = getLocalizedCeiling(mostRecentDatumDate, timePrefs, 'hour');
+      const endDate = moment.utc(hourCeiling).tz(timezoneName);
+
+      // Calculate the number of whole days between start timestamp and end timestamp
+      const daysDiff = midnightAlignedDates.endDate.diff(midnightAlignedDates.startDate, 'days');
+
+      // Subtract that many days from endDate to get the adjusted startDate
+      const startDate = moment.utc(endDate).tz(timezoneName).subtract(daysDiff, 'days');
+
+      setDates({ startDate, endDate });
+    } else {
+      setDates(midnightAlignedDates);
+    }
+  };
+
 
   // Set to default state when dialog is newly opened
   useEffect(() => {
@@ -175,7 +212,7 @@ export const ChartDateRangeModal = (props) => {
                   key={`days-chart-${i}`}
                   value={days}
                   selected={datesMatchPreset(dates, presetDateRanges[i])}
-                  onClick={() => setDates(getLastNDays(days))}
+                  onClick={() => setDates(getLastN24HourPeriods(days))}
                 >
                   {days} days
                 </Button>
@@ -189,7 +226,7 @@ export const ChartDateRangeModal = (props) => {
               startDateId="chart-start-date"
               endDate={dates.endDate}
               endDateId="chart-end-date"
-              onDatesChange={newDates => setDates(setDateRangeToExtents(newDates))}
+              onDatesChange={handleDatesChange}
               isOutsideRange={day => (
                 moment.utc(mostRecentDatumDate).tz(timezoneName).endOf('day').subtract(1, 'ms').diff(day) < 0 ||
                 endOfToday.diff(day) < 0 ||
