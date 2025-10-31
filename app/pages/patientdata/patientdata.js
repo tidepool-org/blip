@@ -959,6 +959,7 @@ export const PatientDataClass = createReactClass({
         types: {
           basal: {},
           bolus: {},
+          insulin: {},
           cbg: {},
           deviceEvent: {},
           food: {},
@@ -1628,6 +1629,7 @@ export const PatientDataClass = createReactClass({
         latestDatums = getLatestDatums([
           'basal',
           'bolus',
+          'insulin',
           'cbg',
           'deviceEvent',
           'food',
@@ -2047,6 +2049,7 @@ export const PatientDataClass = createReactClass({
           chartQuery.types = {
             basal: {},
             bolus: {},
+            insulin: {},
             cbg: {},
             deviceEvent: {},
             food: {},
