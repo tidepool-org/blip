@@ -1421,14 +1421,15 @@ export const TideDashboard = (props) => {
     const groupPatients = groupKey => {
       if (groupKey !== 'noData') return patientGroups[groupKey] || [];
 
-      return map(patientGroups.noData, patient => {
-        const normalizedLastDataTime = moment(patient.lastData).startOf('day');
-        const normalizedCurrentTime = moment().startOf('day');
+      const timezone = timePrefs?.timezoneName || new Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-        return {
-          ...patient,
-          daysSinceLastData: normalizedCurrentTime.diff(normalizedLastDataTime, 'days'),
-        };
+      return map(patientGroups.noData, patient => {
+        const startOfLastDataDay = moment.utc(patient.lastData).tz(timezone).startOf('day');
+        const startOfCurrentDay = moment().tz(timezone).startOf('day');
+
+        const daysSinceLastData = startOfCurrentDay.diff(startOfLastDataDay, 'days');
+
+        return { ...patient, daysSinceLastData };
       });
     };
 
