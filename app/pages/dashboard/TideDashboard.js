@@ -1419,12 +1419,17 @@ export const TideDashboard = (props) => {
     };
 
     const groupPatients = groupKey => {
-      return (groupKey === 'noData')
-        ? map(patientGroups.noData, patient => ({
+      if (groupKey !== 'noData') return patientGroups[groupKey] || [];
+
+      return map(patientGroups.noData, patient => {
+        const normalizedLastDataTime = moment(patient.lastData).startOf('day');
+        const normalizedCurrentTime = moment().startOf('day');
+
+        return {
           ...patient,
-          daysSinceLastData: moment.utc().diff(patient.lastData, 'days'),
-        }))
-        : patientGroups[groupKey] || [];
+          daysSinceLastData: normalizedCurrentTime.diff(normalizedLastDataTime, 'days'),
+        };
+      });
     };
 
     return hasResults ? (
