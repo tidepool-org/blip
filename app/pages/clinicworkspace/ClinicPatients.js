@@ -40,7 +40,7 @@ import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
 import { components as vizComponents, utils as vizUtils, colors as vizColors } from '@tidepool/viz';
-const { GLYCEMIC_RANGE } = vizUtils.constants;
+const { GLYCEMIC_RANGES_PRESET } = vizUtils.constants;
 import sundial from 'sundial';
 import ScrollToTop from 'react-scroll-to-top';
 import styled from '@emotion/styled';
@@ -117,6 +117,7 @@ import DataConnectionsModal from '../../components/datasources/DataConnectionsMo
 import Banner from '../../components/elements/Banner';
 import colorPalette from '../../themes/colorPalette';
 import noop from 'lodash/noop';
+import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils';
 
 const { Loader } = vizComponents;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels, formatBgValue } = vizUtils.bg;
@@ -2460,7 +2461,7 @@ export const ClinicPatients = (props) => {
                         variant="textPrimary"
                         onClick={handleFilterTimeInRange}
                       >
-                        {t('Apply Filter')}
+                        {t('Apply')}
                       </Button>
                     </DialogActions>
                   </Popover>
@@ -3137,8 +3138,7 @@ export const ClinicPatients = (props) => {
       >
         <DialogTitle sx={{ alignItems: 'flex-start' }} onClose={handleCloseOverlays}>
           <Box mr={2}>
-            <MediumTitle sx={{ fontSize: 2 }} id="dialog-title">{t('Select Patients to Display in the TIDE Dashboard')}</MediumTitle>
-            <Body1 sx={{ fontWeight: 'medium', color: 'grays.4' }}>{t('You must make a selection in each category')}</Body1>
+            <MediumTitle id="dialog-title">{t('Filter the TIDE Dashboard')}</MediumTitle>
           </Box>
         </DialogTitle>
 
@@ -3871,7 +3871,12 @@ export const ClinicPatients = (props) => {
   }, [clinicBgUnits, activeSummaryPeriod, t]);
 
   const renderBGEvent = useCallback((type, { summary, glycemicRanges }) => {
-    const isNonStandardRange = !!glycemicRanges && glycemicRanges !== GLYCEMIC_RANGE.ADA_STANDARD; // undefined glycemicRanges is standard
+    const glycemicRangesPreset = getGlycemicRangesPreset(glycemicRanges);
+
+    const isNonStandardRange = (
+      !!glycemicRangesPreset && // undefined glycemicRanges is standard
+      glycemicRangesPreset !== GLYCEMIC_RANGES_PRESET.ADA_STANDARD
+    );
 
     const rotation = type === 'low' ? 90 : -90;
     const color = isNonStandardRange ? vizColors.gray30 : (type === 'low' ? 'bg.veryLow' : 'bg.veryHigh');

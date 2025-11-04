@@ -63,7 +63,7 @@ import ShareBanner from '../../components/elements/Card/Banners/Share.png';
 import DataConnectionsBanner from '../../components/elements/Card/Banners/DataConnections.png';
 import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
 import { DATA_DONATION_CONSENT_TYPE, DEFAULT_CGM_SAMPLE_INTERVAL, DEFAULT_CGM_SAMPLE_INTERVAL_RANGE, MS_IN_MIN } from '../../core/constants';
-const { GLYCEMIC_RANGE } = vizUtils.constants;
+const { GLYCEMIC_RANGES_PRESET } = vizUtils.constants;
 
 const { Loader } = vizComponents;
 const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
@@ -469,7 +469,7 @@ export const PatientDataClass = createReactClass({
 
           let setStateCallback = this.generatePDF;
 
-          if (startDate < fetchedUntil) {
+          if (startDate < fetchedUntil || !fetchedUntil) {
             this.fetchAdditionalData({
               returnData: false,
               showLoading: false,
@@ -914,7 +914,7 @@ export const PatientDataClass = createReactClass({
     const combinedPatient = props.clinicPatient ? personUtils.combinedAccountAndClinicPatient(props.patient, props.clinicPatient) : null;
     const sourcePatient = personUtils.isClinicianAccount(props.user) && !!combinedPatient ? combinedPatient : props.patient;
 
-    const glycemicRanges = props.clinicPatient?.glycemicRanges || GLYCEMIC_RANGE.ADA_STANDARD;
+    const glycemicRanges = props.clinicPatient?.glycemicRanges || GLYCEMIC_RANGES_PRESET.ADA_STANDARD;
 
     const pdfPatient = _.assign({}, sourcePatient, {
       settings: _.assign({}, patientSettings, { siteChangeSource }),

@@ -12,6 +12,8 @@ import postalCodes from './validation/postalCodes';
 import i18next from './language';
 import { timezoneNames } from './validation/timezoneNames';
 
+import { glycemicRangesSchema } from './glycemicRangesUtils';
+
 import {
   URL_TIDEPOOL_PLUS_PLANS,
   URL_TIDEPOOL_PLUS_CONTACT_SALES,
@@ -449,9 +451,11 @@ export const patientSchema = config => {
       })
     ),
     diagnosisType: yup.string().nullable(),
-    glycemicRanges: yup.string(),
+    glycemicRanges: glycemicRangesSchema,
   });
 };
+
+export const tideDashboardLastDataFilterOptions = lastDataFilterOptions.filter(opt => [1, 2, 7].includes(opt.value));
 
 export const tideDashboardConfigSchema = yup.object().shape({
   period: yup
@@ -460,7 +464,7 @@ export const tideDashboardConfigSchema = yup.object().shape({
     .required(t('Please select a duration period')),
   lastData: yup
     .number()
-    .oneOf(map(lastDataFilterOptions, 'value'))
+    .oneOf(map(tideDashboardLastDataFilterOptions, 'value'))
     .required(t('Please select a data recency option')),
   tags: yup.array().of(yup.string())
     .min(1, t('Please select at least one tag')),
