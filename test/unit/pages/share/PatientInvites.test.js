@@ -103,6 +103,7 @@ describe('PatientInvites', () => {
         deletingPatientInvitation: defaultWorkingState,
         sendingPatientDataProviderConnectRequest: defaultWorkingState,
         fetchingPatientsForClinic: defaultWorkingState,
+        fetchingClinicMRNsForPatientFormValidation: defaultWorkingState,
       },
     },
   };
@@ -315,6 +316,8 @@ describe('PatientInvites', () => {
             mrn: 'MRN456',
             tags: [],
             sites: [],
+            diagnosisType: '',
+            glycemicRanges: { type: 'preset', preset: 'adaStandard' },
           }
         );
 
@@ -397,6 +400,8 @@ describe('PatientInvites', () => {
             mrn: 'MRN456',
             tags: [],
             sites: [],
+            diagnosisType: '',
+            glycemicRanges: { type: 'preset', preset: 'adaStandard' },
           }
         );
 

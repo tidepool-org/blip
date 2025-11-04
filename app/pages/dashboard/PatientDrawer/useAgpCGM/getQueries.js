@@ -3,26 +3,36 @@ import { utils as vizUtils } from '@tidepool/viz';
 const { commonStats } = vizUtils.stat;
 
 import utils from '../../../../core/utils';
+import { DEFAULT_GLYCEMIC_RANGES } from '../../../../core/glycemicRangesUtils';
 
 const getQueries = (
   data,
-  patient,
+  clinicPatient,
   clinic,
   opts,
 ) => {
   const bgPrefs = (() => {
-    const patientSettings = patient?.settings || {};
+    // TODO: Should set to Redux -> patient.settings. However, the only use case for useAgpCGM at present is
+    // for clinician views. Correct patientSettings will be necessary if useAgpCGM is implement on PwD views.
+    const stubPatientSettings = {};
+
+    // For TIDE Patient Drawer, we currently only show ADA standard ranges
+    const glycemicRanges = DEFAULT_GLYCEMIC_RANGES;
+    const clinicPatientArg = {...clinicPatient, glycemicRanges };
 
     const bgUnitsOverride = {
       units: clinic?.preferredBgUnits,
       source: 'preferred clinic units',
     };
 
-    const localBgPrefs = utils.getBGPrefsForDataProcessing(patientSettings, bgUnitsOverride);
+    const localBgPrefs = utils.getBGPrefsForDataProcessing(stubPatientSettings, clinicPatientArg, bgUnitsOverride);
     localBgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(localBgPrefs);
 
     return localBgPrefs;
   })();
+
+  // For TIDE Patient Drawer, we currently only show ADA standard ranges
+  const glycemicRanges = DEFAULT_GLYCEMIC_RANGES;
 
   const timePrefs = (() => {
     const latestTimeZone = data?.metaData?.latestTimeZone;
@@ -53,6 +63,7 @@ const getQueries = (
       metaData: 'latestPumpUpload, bgSources',
       timePrefs,
       excludedDevices: [],
+      glycemicRanges,
     },
     offsetAgpCGM: {
       endpoints: opts.offsetAgpCGM?.endpoints,
@@ -64,6 +75,7 @@ const getQueries = (
       metaData: 'latestPumpUpload, bgSources',
       timePrefs,
       excludedDevices: [],
+      glycemicRanges,
     },
   };
 

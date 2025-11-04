@@ -95,7 +95,12 @@ describe('PatientDrawer/Content', () => {
               dailyGlucoseProfiles: ['daily.top.img.jpg', 'daily.bot.img.jpg'],
             },
           },
-          agpCGM: null,
+          agpCGM: {
+            query: {
+              bgSource: 'cbg',
+              glycemicRanges: { type: 'preset', preset: 'adaStandard' },
+            },
+          },
         });
 
         render(<Provider store={store}> <Content {...props} /> </Provider>);
@@ -127,7 +132,12 @@ describe('PatientDrawer/Content', () => {
             dailyGlucoseProfiles: ['daily.top.img.jpg', 'daily.bot.img.jpg'],
           },
         },
-        agpCGM: null,
+        agpCGM: {
+          query: {
+            bgSource: 'cbg',
+            glycemicRanges: { type: 'preset', preset: 'adaStandard' },
+          },
+        },
       });
 
       render(<Provider store={store}> <Content {...props} /> </Provider>);

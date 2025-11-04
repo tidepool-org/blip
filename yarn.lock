@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.50.0":
-  version: 1.50.0
-  resolution: "@tidepool/viz@npm:1.50.0"
+"@tidepool/viz@npm:1.51.0":
+  version: 1.51.0
+  resolution: "@tidepool/viz@npm:1.51.0"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 804c4b8fee0c0019eaaad055326083321e570a411ccb30c4c9f471f668ef8f59e2e9ae68714b71009411d69cabd49b71da1a2dd9a09839c1b43e1415a887236d
+  checksum: e85e2917527f660b02a238fad80cc33804f3069f8fa00d0ead5c8211125ec98db2dffc6e97d3399131624553478d1541fec627b79e22199deb1d9fb9f2fd5754
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.50.0
+    "@tidepool/viz": 1.51.0
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -8464,7 +8464,7 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.36.0
+    tideline: 1.36.1
     tidepool-platform-client: 0.64.0
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
@@ -22229,9 +22229,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.36.0":
-  version: 1.36.0
-  resolution: "tideline@npm:1.36.0"
+"tideline@npm:1.36.1":
+  version: 1.36.1
+  resolution: "tideline@npm:1.36.1"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -22252,7 +22252,7 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: dbc859c414de2bda7221dd9ff9271355ad7d74e3ce71837083d030d1c0627a4689582e7b4edc0b9e406768bfe44a3e687531d2915ca3c97af59fd6376e905455
+  checksum: d449d3e0d79379c932ca42e022c5035e825be75149e718e3a1cee2b4ce3eae178fb6eeaf4d0591389e61089963c2ec675867460893139d0e0b76b0b01d994491
   languageName: node
   linkType: hard
 

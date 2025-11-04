@@ -8,6 +8,9 @@
 /* global after */
 
 import React, { createElement } from 'react';
+import { Provider } from 'react-redux';
+import configureStore from 'redux-mock-store';
+import thunk from 'redux-thunk';
 var expect = chai.expect;
 var PatientInfo = require('../../../../app/pages/patient/patientinfo');
 
@@ -17,6 +20,7 @@ import { BrowserRouter } from 'react-router-dom';
 describe('PatientInfo', function () {
 
   let props = {
+    api: { clinics: { getClinicsForPatient: sinon.stub() } },
     user: { userid: 5678 },
     patient: { userid: 1234 },
     fetchingPatient: false,
@@ -29,6 +33,9 @@ describe('PatientInfo', function () {
     disconnectDataSource: sinon.stub(),
   };
 
+  const mockStore = configureStore([thunk]);
+
+  let store;
   let wrapper;
 
   before(() => {
@@ -36,11 +43,22 @@ describe('PatientInfo', function () {
   });
 
   beforeEach(() => {
+    store = mockStore({
+      blip: {
+        clinics: {},
+        working: {
+          fetchingClinicsForPatient: {},
+        },
+      },
+    });
+
     wrapper = mount(
       createElement(
         props => (
           <BrowserRouter>
-            <PatientInfo {...props} />
+            <Provider store={store}>
+              <PatientInfo {...props} />
+            </Provider>
           </BrowserRouter>
         ), props )
     );
