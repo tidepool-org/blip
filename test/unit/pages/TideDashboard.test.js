@@ -577,7 +577,7 @@ describe('TideDashboard', () => {
       expect(period.text()).contains('14 days');
 
       const lastData = wrapper.find('#tide-dashboard-last-data').hostNodes();
-      expect(lastData.text()).contains('24 hours');
+      expect(lastData.text()).contains('Today');
     });
 
     it('should render a heading and table for dashboard section, with correctly ordered results', () => {
@@ -1051,7 +1051,7 @@ describe('TideDashboard', () => {
       const lastDataFilterOptions = dialog().find('#lastData').find('label').hostNodes();
       expect(lastDataFilterOptions).to.have.lengthOf(3);
 
-      expect(lastDataFilterOptions.at(0).text()).to.equal('Within 24 hours');
+      expect(lastDataFilterOptions.at(0).text()).to.equal('Today');
       expect(lastDataFilterOptions.at(0).find('input').props().value).to.equal('1');
 
       expect(lastDataFilterOptions.at(2).text()).to.equal('Within 7 days');
