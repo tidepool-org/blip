@@ -152,7 +152,7 @@ const initialState = {
     fetchingInfo: Object.assign({}, working),
     fetchingTideDashboardPatients: Object.assign({}, working),
     fetchingRpmReportPatients: Object.assign({}, working),
-    fetchingClinicPatientCount: Object.assign({}, working),
+    fetchingClinicPatientCounts: Object.assign({}, working),
     fetchingClinicPatientCountSettings: Object.assign({}, working),
     settingClinicPatientLastReviewed: Object.assign({}, working),
     revertingClinicPatientLastReviewed: Object.assign({}, working),

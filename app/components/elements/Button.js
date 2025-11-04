@@ -156,6 +156,7 @@ Button.propTypes = {
     'paginationLight',
     'filter',
     'chip',
+    'tab',
   ]),
 };
 

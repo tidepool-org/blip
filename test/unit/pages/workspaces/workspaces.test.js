@@ -35,7 +35,7 @@ describe('Workspaces', () => {
         acceptClinicianInvite: sinon.stub().callsArgWith(2, null, { acceptInvite: 'success' }),
         dismissClinicianInvite: sinon.stub().callsArgWith(2, null, { dismissInvite: 'success' }),
         getCliniciansFromClinic: sinon.stub().callsArgWith(2, null, { cliniciansReturn: 'success' }),
-        getClinicPatientCount: sinon.stub().callsArgWith(1, null, { patientCount: 3 }),
+        getClinicPatientCount: sinon.stub().callsArgWith(1, null, { demo: 1, plan: 3, total: 4 }),
         getClinicPatientCountSettings: sinon.stub().callsArgWith(1, null, 'success'),
       },
     },
@@ -392,16 +392,16 @@ describe('Workspaces', () => {
           },
         },
         {
-          type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST',
+          type: 'FETCH_CLINIC_PATIENT_COUNTS_REQUEST',
         },
         {
           type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST',
         },
         {
-          type: 'FETCH_CLINIC_PATIENT_COUNT_SUCCESS',
+          type: 'FETCH_CLINIC_PATIENT_COUNTS_SUCCESS',
           payload: {
             clinicId: 'clinicID456',
-            patientCount: 3,
+            patientCounts: { demo: 1, plan: 3, total: 4 },
           },
         },
         {

@@ -113,10 +113,10 @@ describe('clinics', () => {
   });
 
   describe('acceptPatientInvitationSuccess', () => {
-    it('should remove the patient invites from a clinic and increase the patientCount', () => {
+    it('should remove the patient invites from a clinic and increase the patientCounts', () => {
       let initialStateForTest = {
         clinicId123: {
-          patientCount: 2,
+          patientCounts: { demo: 1, plan: 2, total: 3 },
           patientInvites: {
             patientId123: { key: 'patientId123' },
             patientId456: { key: 'patientId456' },
@@ -130,7 +130,7 @@ describe('clinics', () => {
       let state = reducer(initialStateForTest, action);
       expect(state[clinic.id].patientInvites.patientId123).to.be.undefined;
       expect(state[clinic.id].patientInvites.patientId456).to.eql({ key: 'patientId456' });
-      expect(state[clinic.id].patientCount).to.equal(3);
+      expect(state[clinic.id].patientCounts).to.eql({ demo: 1, plan: 2, total: 3 });
     });
   });
 
@@ -374,7 +374,7 @@ describe('clinics', () => {
           },
           patients: {},
           fetchedPatientCount: 0,
-          patientCount: 0,
+          patientCounts: { demo: 0, plan: 0, total: 0 },
         },
       };
       let patient = {
@@ -385,7 +385,7 @@ describe('clinics', () => {
       let state = reducer(initialStateForTest, action);
       expect(state.clinicId123.patients.patient123.name).to.eql('Patient 123');
       expect(state.clinicId123.fetchedPatientCount).to.eql(1);
-      expect(state.clinicId123.patientCount).to.eql(1);
+      expect(state.clinicId123.patientCounts).to.eql({ demo: 0, plan: 0, total: 0 });
     });
   });
 
@@ -423,7 +423,7 @@ describe('clinics', () => {
             }
           },
           fetchedPatientCount: 1,
-          patientCount: 1,
+          patientCounts: { demo: 0, plan: 1, total: 1 },
           clinicians: {
             clinicianId: {},
           },
@@ -433,7 +433,7 @@ describe('clinics', () => {
       let state = reducer(initialStateForTest, action);
       expect(state.clinicId123.patients).to.eql({});
       expect(state.clinicId123.fetchedPatientCount).to.eql(0);
-      expect(state.clinicId123.patientCount).to.eql(0);
+      expect(state.clinicId123.patientCounts).to.eql({ demo: 0, plan: 1, total: 1 });
     });
   });
 
@@ -845,19 +845,19 @@ describe('clinics', () => {
     });
   });
 
-  describe('fetchClinicPatientCountSuccess', () => {
-    it('should update `patientCount` in state', () => {
+  describe('fetchClinicPatientCountsSuccess', () => {
+    it('should update `patientCounts` in state', () => {
       let clinicId = 'clinicId123';
-      let results = { patientCount: 33 };
+      let results = { demo: 2, plan: 33, total: 35 };
       let initialStateForTest = {
         [clinicId]: {
           id: clinicId,
-          patientCount: 32,
+          patientCounts: { demo: 1, plan: 32, total: 33 },
         },
       };
-      let action = actions.sync.fetchClinicPatientCountSuccess(clinicId, results);
+      let action = actions.sync.fetchClinicPatientCountsSuccess(clinicId, results);
       let state = reducer(initialStateForTest, action);
-      expect(state[clinicId].patientCount).to.eql(33);
+      expect(state[clinicId].patientCounts).to.eql(results);
     });
   });
 
@@ -884,14 +884,14 @@ describe('clinics', () => {
       let initialStateForTest = {
         [clinicId]: {
           id: clinicId,
-          patientCount: 1,
+          patientCounts: { demo: 0, plan: 1, total: 1 },
         },
       };
       let action = actions.sync.setClinicUIDetails(clinicId, uiDetails);
       let state = reducer(initialStateForTest, action);
       expect(state[clinicId]).to.eql({
         id: clinicId,
-        patientCount: 1,
+        patientCounts: { demo: 0, plan: 1, total: 1 },
         foo: 'bar',
         bar: 'baz',
       });
