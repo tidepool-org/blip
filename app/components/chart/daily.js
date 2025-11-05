@@ -93,6 +93,7 @@ const DailyChart = withTranslation(null, { withRef: true })(class DailyChart ext
       'bolusRatio',
       'carbUnits',
       'dynamicCarbs',
+      'insulinBolus',
       'timePrefs',
       'onBolusHover',
       'onBolusOut',
@@ -482,6 +483,11 @@ class Daily extends Component {
       { type: 'wizard', carbUnits: 'exchanges' }
     );
 
+    const hasInsulinData = _.some(
+      _.get(this.props, 'data.data.combined'),
+      { type: 'insulin' }
+    );
+
     const hasOneMinCgmSampleIntervalDevice = _.some(
       _.get(this.props, 'data.metaData.devices'),
       { oneMinCgmSampleInterval: true }
@@ -514,6 +520,7 @@ class Daily extends Component {
           <DailyChart
             automatedBasal={isAutomatedBasalDevice}
             automatedBolus={isAutomatedBolusDevice}
+            insulinBolus={hasInsulinData}
             bgClasses={bgPrefs.bgClasses}
             bgUnits={bgPrefs.bgUnits}
             bolusRatio={this.props.chartPrefs.bolusRatio}
