@@ -154,9 +154,6 @@ export const PatientDataClass = createReactClass({
           focusedSmbgRangeAvg: null,
           showingCbgDateTraces: false,
           touched: false,
-          stats: {
-            excludeDaysWithoutBolus: false,
-          },
         },
         bgLog: {
           bgSource: 'smbg',
@@ -677,41 +674,6 @@ export const PatientDataClass = createReactClass({
     }
   },
 
-  renderExcludeEmptyBolusDaysCheckbox: function(props, state) {
-    const { t } = props;
-
-    return (
-      <Box p={2} sx={{
-        borderTop: '1px solid',
-        borderColor: 'grays.1',
-      }}>
-        <PopoverLabel
-          id="exclude-bolus-info"
-          label={(
-            <Checkbox
-              checked={_.get(state, ['chartPrefs', state.chartType, 'stats', 'excludeDaysWithoutBolus'])}
-              label={t('Exclude days with no boluses')}
-              onChange={this.toggleDaysWithoutBoluses}
-              themeProps={{
-                color: 'stat.text',
-              }}
-            />
-          )}
-          popoverContent={(
-            <Box p={3}>
-              <Paragraph2>
-                <strong>{t('Only some of the days within the current range contain bolus data.')}</strong>
-              </Paragraph2>
-              <Paragraph2>
-                {t('If this option is checked, days without boluses will be excluded when calculating this stat and the "Avg per day" count in the "Bolusing" calendar summary.')}
-              </Paragraph2>
-            </Box>
-          )}
-        />
-      </Box>
-    );
-  },
-
   renderMessagesContainer: function() {
     if (this.state.createMessageDatetime) {
       return (
@@ -737,17 +699,6 @@ export const PatientDataClass = createReactClass({
           timePrefs={this.state.timePrefs} />
       );
     }
-  },
-
-  toggleDaysWithoutBoluses: function(e) {
-    if (e) {
-      e.preventDefault();
-    }
-
-    const prefs = _.cloneDeep(this.state.chartPrefs);
-    prefs[this.state.chartType].stats.excludeDaysWithoutBolus = !prefs[this.state.chartType].stats.excludeDaysWithoutBolus;
-    if (prefs[this.state.chartType].stats.excludeDaysWithoutBolus) this.props.trackMetric(`${_.capitalize(this.state.chartType)} exclude days without boluses`);
-    this.updateChartPrefs(prefs, false, true, true);
   },
 
   closeDatesDialog: function() {
@@ -804,9 +755,6 @@ export const PatientDataClass = createReactClass({
         delete stat.dataFormat.title;
         delete stat.data.dataPaths.title;
 
-        const activeDays = _.get(props, 'data.data.current.endpoints.activeDays');
-        const daysWithBoluses = _.keys(_.get(props, 'data.data.aggregationsByDate.boluses.byDate', {})).length;
-
         const averageDailyDoseStat = getStatDefinition(averageDailyDose, 'averageDailyDose', {
           bgSource,
           days: _.isFinite(endpoints.activeDays) ? endpoints.activeDays : endpoints.days,
@@ -842,18 +790,7 @@ export const PatientDataClass = createReactClass({
           </Box>
         );
 
-        if (state.chartType !== 'basics' && daysWithBoluses > 0 && daysWithBoluses < activeDays) {
-          // If any of the calendar dates within the range are missing boluses,
-          // present a checkbox to disable them from insulin stat calculations
-          stat.children = (
-            <React.Fragment>
-              {averageDailyDoseComponent}
-              {this.renderExcludeEmptyBolusDaysCheckbox(props, state)}
-            </React.Fragment>
-          )
-        } else {
-          stat.children = averageDailyDoseComponent;
-        }
+        stat.children = averageDailyDoseComponent;
       }
 
       stats.push(stat);
@@ -935,7 +872,6 @@ export const PatientDataClass = createReactClass({
         aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
         bgSource: _.get(state.chartPrefs, 'basics.bgSource'),
         stats: this.getStatsByChartType('basics'),
-        excludeDaysWithoutBolus: false, // deprecated for basics chartType
         ...commonQueries,
       };
     }
@@ -2004,7 +1940,6 @@ export const PatientDataClass = createReactClass({
       bgSource: options.bgSource,
       chartType: this.state.chartType,
       excludedDevices: _.get(this.state, 'chartPrefs.excludedDevices', []),
-      excludeDaysWithoutBolus: _.get(this.state, ['chartPrefs', this.state.chartType, 'stats', 'excludeDaysWithoutBolus']),
       endpoints: this.state.endpoints,
       metaData: options.metaData,
       forceRemountAfterQuery: options.forceRemountAfterQuery,
