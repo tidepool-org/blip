@@ -16,7 +16,7 @@ import tidelineBlip from 'tideline/plugins/blip';
 const chartDailyFactory = tidelineBlip.oneday;
 
 import { MS_IN_DAY } from '../../../core/constants';
-import { NoPatientData, InsufficientData } from './Overview';
+import { NoPatientData } from './Overview';
 import { STATUS } from './useAgpCGM';
 import { Body1, Body2 } from '../../../components/elements/FontStyles';
 import Button from '../../../components/elements/Button';
@@ -46,6 +46,8 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
     get(agpCGMData, 'agpCGM.data.current.data.fill', []),
     8 // number of 3hr intervals in a day
   ).reverse();
+
+  console.log('dataByDate, fillDataChunks', dataByDate, fillDataChunks);
 
   const [visibleDays, setVisibleDays] = React.useState(7);
   const dates = Object.keys(dataByDate || {});
@@ -115,12 +117,11 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
       element.id = `tideline-daily-${chartIndex}`;
       chartRefs.current.push(element);
 
-      const [_, chartOpts, chartData] = charts[chartIndex];
+      const [date, chartOpts, chartData] = charts[chartIndex];
 
       const fillData = find(fillDataChunks, chunk => {
         const fillDate = chunk[0]?.fillDate;
-        const dataDate = chartData[0]?.localDate;
-        return fillDate === dataDate;
+        return fillDate === date;
       }) || [];
 
       const processedData = [...chartData, ...fillData];
