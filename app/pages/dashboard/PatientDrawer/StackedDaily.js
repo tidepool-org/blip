@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Flex, Box } from 'theme-ui';
 import sundial from 'sundial';
 import VerticalAlignTopRoundedIcon from '@material-ui/icons/VerticalAlignTopRounded';
-import { map, includes, get, chunk, mean } from 'lodash';
+import { map, includes, get, chunk, mean, find } from 'lodash';
 import moment from 'moment';
 
 import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
@@ -116,7 +116,13 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
       chartRefs.current.push(element);
 
       const [_, chartOpts, chartData] = charts[chartIndex];
-      const fillData = fillDataChunks[chartIndex] || [];
+
+      const fillData = find(fillDataChunks, chunk => {
+        const fillDate = chunk[0]?.fillDate;
+        const dataDate = chartData[0]?.localDate;
+        return fillDate === dataDate;
+      }) || [];
+
       const processedData = [...chartData, ...fillData];
 
       chartDailyFactory(element, chartOpts)
