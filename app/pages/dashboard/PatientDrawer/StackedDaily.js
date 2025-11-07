@@ -59,7 +59,7 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
     // This is primarily due to piggy-backing on the AGP CGM data, which requires at least one CBG reading to define the ideal date range to include.
     // In that case, we remove that date so we don't show an empty chart.
     if (arr.length > 0) {
-      const [firstDate, firstData] = arr[0];
+      const [, firstData] = arr[0];
       const hasFirstDateData = (firstData.cbg && firstData.cbg.length > 0) || (firstData.smbg && firstData.smbg.length > 0);
       if (!hasFirstDateData) {
         arr = arr.slice(1);
