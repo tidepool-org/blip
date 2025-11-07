@@ -34,7 +34,7 @@ export const NoPatientData = ({ patientName }) => {
 
   return (
     <Flex sx={{ justifyContent: 'center', marginTop: '400px' }}>
-      <Text>{t('{{patientName}} does not have any data for the selected period.', { patientName })}</Text>
+      <Text>{t('{{patientName}} does not have any data yet.', { patientName })}</Text>
     </Flex>
   );
 };
