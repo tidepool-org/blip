@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Flex, Box } from 'theme-ui';
 import sundial from 'sundial';
 import VerticalAlignTopRoundedIcon from '@material-ui/icons/VerticalAlignTopRounded';
-import { map, includes, get, chunk, mean, find } from 'lodash';
+import { map, includes, get, chunk, mean, find, sortBy } from 'lodash';
 import moment from 'moment';
 
 import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
@@ -35,8 +35,6 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
   const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
   const patient = clinic?.patients?.[patientId];
   const dispatch = useDispatch();
-
-  const dataByDate = agpCGMData?.agpCGM?.data?.current?.aggregationsByDate?.dataByDate;
   const bgPrefs = agpCGMData?.agpCGM?.query?.bgPrefs;
   const bgClasses = bgPrefs?.bgClasses;
   const bgUnits = bgPrefs?.bgUnits;
@@ -47,21 +45,34 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
     8 // number of 3hr intervals in a day
   ).reverse();
 
-  console.log('dataByDate, fillDataChunks', dataByDate, fillDataChunks);
-
   const [visibleDays, setVisibleDays] = React.useState(7);
-  const dates = Object.keys(dataByDate || {});
-  const hasMoreDays = visibleDays < dates.length;
+  const dataByDate = agpCGMData?.agpCGM?.data?.current?.aggregationsByDate?.dataByDate;
 
-  const visibleDaysText = visibleDays < dates.length
-    ? t('Showing {{count}} of {{total}} days', { count: visibleDays, total: dates.length })
-    : t('Showing all {{total}} days', { total: dates.length });
+  // Because dataByDate is an object with date keys, we need to sort it to get consistent ordering
+  const sortedDataByDate = sortBy(map(dataByDate, (data, date) => [date, { ...data }]), ([date]) => date).reverse();
+
+  // In cases where there is only smbg data, there is potential for the first date to have no data.
+  // This is primarily due to piggy-backing on the AGP CGM data, which requires at least one CBG reading to define the ideal date range to include.
+  // In that case, we remove that date so we don't show an empty chart.
+  if (sortedDataByDate.length >  0) {
+    const [firstDate, firstData] = sortedDataByDate[0];
+    const hasFirstDateData = (firstData.cbg && firstData.cbg.length > 0) || (firstData.smbg && firstData.smbg.length > 0);
+    if (!hasFirstDateData) {
+      sortedDataByDate.shift(); // Remove the first element
+    }
+  }
+
+  const hasMoreDays = visibleDays < sortedDataByDate.length;
+
+  const visibleDaysText = visibleDays < sortedDataByDate.length
+    ? t('Showing {{count}} of {{total}} days', { count: visibleDays, total: sortedDataByDate.length })
+    : t('Showing all {{total}} days', { total: sortedDataByDate.length });
 
   const handleViewMore = () => {
     setVisibleDays(prev => prev + 7);
   };
 
-  const allCharts = useMemo(() => map(dataByDate, (data, date) => {
+  const allCharts = useMemo(() => map(sortedDataByDate, ([date, data]) => {
     const chartStart = getLocalizedCeiling(date, timePrefs).valueOf();
     const chartEnd = chartStart + MS_IN_DAY;
 
