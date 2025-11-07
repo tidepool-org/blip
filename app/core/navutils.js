@@ -43,8 +43,8 @@ export const getPatientListLink = (clinicFlowActive, selectedClinicId, query, pa
   const dashboard = query?.dashboard;
   const drawerTab = query?.drawerTab;
 
-  if (dashboard && patientId) {
-    return `/dashboard/${dashboard}?drawerPatientId=${patientId}&drawerTab=${drawerTab || 0}`;
+  if (dashboard && drawerTab && patientId) {
+    return `/dashboard/${dashboard}?drawerPatientId=${patientId}&drawerTab=${drawerTab}`;
   }
 
   if (dashboard) {
