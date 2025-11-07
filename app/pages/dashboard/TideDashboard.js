@@ -401,13 +401,14 @@ const TideDashboardSection = React.memo(props => {
     },
   }), []);
 
-  const handleClickPatient = useCallback(patient => {
+  const handleClickPatient = useCallback((patient, section) => {
     return () => {
       trackMetric('Selected PwD');
 
+      const isNoDataGroup = section.groupKey === CATEGORY.noData;
       const isValidAgpPeriod = ['7d', '14d', '30d'].includes(config?.period);
 
-      if (showTideDashboardPatientDrawer && isValidAgpPeriod) {
+      if (showTideDashboardPatientDrawer && isValidAgpPeriod && !isNoDataGroup) {
         const { search, pathname } = location;
         const params = new URLSearchParams(search);
         params.set('drawerPatientId', patient.id);
@@ -426,7 +427,7 @@ const TideDashboardSection = React.memo(props => {
   }, [setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal]);
 
   const renderPatientName = useCallback(({ patient }) => (
-    <Box onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
+    <Box onClick={handleClickPatient(patient, section)} sx={{ cursor: 'pointer' }}>
       <Text
         sx={{
           display: 'inline-block',
