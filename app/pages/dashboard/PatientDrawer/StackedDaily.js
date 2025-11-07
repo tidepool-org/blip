@@ -49,18 +49,24 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
   const dataByDate = agpCGMData?.agpCGM?.data?.current?.aggregationsByDate?.dataByDate;
 
   // Because dataByDate is an object with date keys, we need to sort it to get consistent ordering
-  const sortedDataByDate = sortBy(map(dataByDate, (data, date) => [date, { ...data }]), ([date]) => date).reverse();
-
-  // In cases where there is only smbg data, there is potential for the first date to have no data.
-  // This is primarily due to piggy-backing on the AGP CGM data, which requires at least one CBG reading to define the ideal date range to include.
-  // In that case, we remove that date so we don't show an empty chart.
-  if (sortedDataByDate.length >  0) {
-    const [firstDate, firstData] = sortedDataByDate[0];
-    const hasFirstDateData = (firstData.cbg && firstData.cbg.length > 0) || (firstData.smbg && firstData.smbg.length > 0);
-    if (!hasFirstDateData) {
-      sortedDataByDate.shift(); // Remove the first element
+  const sortedDataByDate = useMemo(() => {
+    // Sort and reverse the data
+    let arr = sortBy(
+      map(dataByDate, (data, date) => [date, { ...data }]),
+      ([date]) => date
+    ).reverse();
+    // In cases where there is only smbg data, there is potential for the first date to have no data.
+    // This is primarily due to piggy-backing on the AGP CGM data, which requires at least one CBG reading to define the ideal date range to include.
+    // In that case, we remove that date so we don't show an empty chart.
+    if (arr.length > 0) {
+      const [, firstData] = arr[0];
+      const hasFirstDateData = (firstData.cbg && firstData.cbg.length > 0) || (firstData.smbg && firstData.smbg.length > 0);
+      if (!hasFirstDateData) {
+        arr = arr.slice(1);
+      }
     }
-  }
+    return arr;
+  }, [dataByDate]);
 
   const hasMoreDays = visibleDays < sortedDataByDate.length;
 
