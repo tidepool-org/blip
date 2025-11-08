@@ -441,7 +441,7 @@ const TideDashboardSection = React.memo(props => {
         {patient?.fullName}
       </Text>
     </Box>
-  ), [handleClickPatient]);
+  ), [handleClickPatient, section]);
 
   const renderAverageGlucose = useCallback(summary => {
     const averageGlucose = summary?.averageGlucoseMmol;
