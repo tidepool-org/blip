@@ -859,21 +859,49 @@ describe('clinics', () => {
       let state = reducer(initialStateForTest, action);
       expect(state[clinicId].patientCounts).to.eql(results);
     });
+
+    it('should update `patientCounts` in state when receiving data in the legacy API format', () => {
+      let clinicId = 'clinicId123';
+      let results = { patientCount: 35 };
+      let initialStateForTest = {
+        [clinicId]: {
+          id: clinicId,
+          patientCounts: { demo: 0, plan: 32, total: 33 },
+        },
+      };
+      let action = actions.sync.fetchClinicPatientCountsSuccess(clinicId, results);
+      let state = reducer(initialStateForTest, action);
+      expect(state[clinicId].patientCounts).to.eql({ demo: 0, plan: 35, total: 35});
+    });
   });
 
   describe('fetchClinicPatientCountSettingsSuccess', () => {
     it('should update `patientCountSettings` in state', () => {
       let clinicId = 'clinicId123';
-      let results = { foo: 'bar' };
+      let results = { hardLimit: { plan: 300 }  };
       let initialStateForTest = {
         [clinicId]: {
           id: clinicId,
-          patientCountSettings: { bar: 'baz' },
+          patientCountSettings: { hardLimit: { plan: 250 }  },
         },
       };
       let action = actions.sync.fetchClinicPatientCountSettingsSuccess(clinicId, results);
       let state = reducer(initialStateForTest, action);
-      expect(state[clinicId].patientCountSettings).to.eql({ foo: 'bar' });
+      expect(state[clinicId].patientCountSettings).to.eql({ hardLimit: { plan: 300 }  });
+    });
+
+    it('should update `patientCountSettings` in state when receiving data in the legacy API format', () => {
+      let clinicId = 'clinicId123';
+      let results = { hardLimit: { patientCount: 300 }  };
+      let initialStateForTest = {
+        [clinicId]: {
+          id: clinicId,
+          patientCountSettings: { hardLimit: { plan: 250 }  },
+        },
+      };
+      let action = actions.sync.fetchClinicPatientCountSettingsSuccess(clinicId, results);
+      let state = reducer(initialStateForTest, action);
+      expect(state[clinicId].patientCountSettings).to.eql({ hardLimit: { plan: 300 }  });
     });
   });
 

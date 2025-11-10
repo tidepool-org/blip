@@ -1024,17 +1024,27 @@ export const clinics = (state = initialState.clinics, action) => {
       });
     }
     case types.FETCH_CLINIC_PATIENT_COUNTS_SUCCESS: {
-      const { clinicId, patientCounts } = action.payload;
+      const { clinicId, patientCounts = {} } = action.payload;
+
+      const {
+        demo = 0,
+        plan = patientCounts.patientCount,
+        total = patientCounts.patientCount,
+      } = patientCounts;
 
       return update(state, {
-        [clinicId]: { patientCounts: { $set: patientCounts } },
+        [clinicId]: { patientCounts: { $set: { demo, plan, total } } },
       });
     }
     case types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS: {
       const { clinicId, patientCountSettings } = action.payload;
 
+      const hardLimit = {
+        plan: patientCountSettings?.hardLimit?.plan || patientCountSettings?.hardLimit?.patientCount,
+      };
+
       return update(state, {
-        [clinicId]: { patientCountSettings: { $set: patientCountSettings } },
+        [clinicId]: { patientCountSettings: { $set: { hardLimit } } },
       });
     }
     case types.SET_CLINIC_UI_DETAILS: {
