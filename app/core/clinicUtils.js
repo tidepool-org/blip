@@ -222,7 +222,7 @@ export const clinicTierDetails = (clinic = {}) => {
 export const clinicUIDetails = (clinic = {}) => {
   const { display, ...tierDetails } = clinicTierDetails(clinic);
   const { patientCounts, patientCountSettings } = clinic;
-  const patientCountHardLimit = patientCountSettings?.hardLimit?.plan;
+  const patientCountHardLimit = patientCountSettings?.hardLimit?.plan ?? patientCountSettings?.hardLimit?.patientCount;
   const isBase = tierDetails.planName === 'base';
   const isHonoredBase = tierDetails.planName === 'honoredBase';
   const isActiveSalesBase = tierDetails.planName === 'activeSalesBase';
@@ -235,8 +235,9 @@ export const clinicUIDetails = (clinic = {}) => {
   const limit = patientCountHardLimit || DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT;
 
   if (tierDetails.patientLimitEnforced || isHonoredBase) {
-    warnings.limitReached = tierDetails.patientLimitEnforced && patientCounts?.plan >= limit;
-    warnings.limitApproaching = limit - patientCounts?.plan <= CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD;
+    const currentCount = patientCounts?.plan ?? patientCounts?.patientCount ?? 0;
+    warnings.limitReached = tierDetails.patientLimitEnforced && currentCount >= limit;
+    warnings.limitApproaching = limit - currentCount <= CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD;
   }
 
   let limitDescription;

@@ -490,6 +490,47 @@ describe('clinicUtils', function() {
       });
     });
 
+    it('should add warnings if patientLimitEnforced is true and limit is approaching or reached with limit data from the legacy API model', () => {
+      const underWarningThreshold = clinicUtils.clinicUIDetails(createClinic({
+        tier: 'tier0100',
+        patientCounts: {
+          patientCount: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT - CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD - 1,
+        },
+        patientCountSettings: { hardLimit: { patientCount: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT, startDate: moment().subtract(1, 'day').toISOString() } }
+      }));
+
+      expect(underWarningThreshold.ui.warnings).to.eql({
+        limitReached: false,
+        limitApproaching: false,
+      });
+
+      const atWarningThreshold = clinicUtils.clinicUIDetails(createClinic({
+        tier: 'tier0100',
+        patientCounts: {
+          patientCount: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT - CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD,
+        },
+        patientCountSettings: { hardLimit: { patientCount: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT, startDate: moment().subtract(1, 'day').toISOString() } }
+      }));
+
+      expect(atWarningThreshold.ui.warnings).to.eql({
+        limitReached: false,
+        limitApproaching: true,
+      });
+
+      const atLimit = clinicUtils.clinicUIDetails(createClinic({
+        tier: 'tier0100',
+        patientCounts: {
+          patientCount: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT,
+        },
+        patientCountSettings: { hardLimit: { patientCount: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT, startDate: moment().subtract(1, 'day').toISOString() } }
+      }));
+
+      expect(atLimit.ui.warnings).to.eql({
+        limitReached: true,
+        limitApproaching: true,
+      });
+    });
+
     it('should add text appropriate to the workspace plan', () => {
       const base = clinicUtils.clinicUIDetails(createClinic({
         tier: 'tier0100',
