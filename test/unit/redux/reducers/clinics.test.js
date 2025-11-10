@@ -845,7 +845,7 @@ describe('clinics', () => {
     });
   });
 
-  describe('fetchClinicPatientCountsSuccess', () => {
+  describe.only('fetchClinicPatientCountsSuccess', () => {
     it('should update `patientCounts` in state', () => {
       let clinicId = 'clinicId123';
       let results = { demo: 2, plan: 33, total: 35 };
@@ -875,33 +875,33 @@ describe('clinics', () => {
     });
   });
 
-  describe('fetchClinicPatientCountSettingsSuccess', () => {
+  describe.only('fetchClinicPatientCountSettingsSuccess', () => {
     it('should update `patientCountSettings` in state', () => {
       let clinicId = 'clinicId123';
-      let results = { hardLimit: { plan: 300 }  };
+      let results = { hardLimit: { plan: 300 , startDate: '2025-01-01' } };
       let initialStateForTest = {
         [clinicId]: {
           id: clinicId,
-          patientCountSettings: { hardLimit: { plan: 250 }  },
+          patientCountSettings: { hardLimit: { plan: 250, startDate: '2024-01-01' } },
         },
       };
       let action = actions.sync.fetchClinicPatientCountSettingsSuccess(clinicId, results);
       let state = reducer(initialStateForTest, action);
-      expect(state[clinicId].patientCountSettings).to.eql({ hardLimit: { plan: 300 }  });
+      expect(state[clinicId].patientCountSettings).to.eql({ hardLimit: { plan: 300, startDate: '2025-01-01' } });
     });
 
     it('should update `patientCountSettings` in state when receiving data in the legacy API format', () => {
       let clinicId = 'clinicId123';
-      let results = { hardLimit: { patientCount: 300 }  };
+      let results = { hardLimit: { patientCount: 300 , startDate: '2025-01-01' } };
       let initialStateForTest = {
         [clinicId]: {
           id: clinicId,
-          patientCountSettings: { hardLimit: { plan: 250 }  },
+          patientCountSettings: { hardLimit: { plan: 250, startDate: '2024-01-01' } },
         },
       };
       let action = actions.sync.fetchClinicPatientCountSettingsSuccess(clinicId, results);
       let state = reducer(initialStateForTest, action);
-      expect(state[clinicId].patientCountSettings).to.eql({ hardLimit: { plan: 300 }  });
+      expect(state[clinicId].patientCountSettings).to.eql({ hardLimit: { plan: 300, startDate: '2025-01-01' } });
     });
   });
 

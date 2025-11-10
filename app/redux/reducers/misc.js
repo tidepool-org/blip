@@ -1038,8 +1038,8 @@ export const clinics = (state = initialState.clinics, action) => {
     }
     case types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS: {
       const { clinicId, patientCountSettings } = action.payload;
-
       const { patientCount, plan, ...rest } = patientCountSettings?.hardLimit || {};
+
       const hardLimit = {
         ...rest,
         plan: plan ?? patientCount,
