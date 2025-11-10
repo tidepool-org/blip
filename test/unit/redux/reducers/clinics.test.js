@@ -871,7 +871,7 @@ describe('clinics', () => {
       };
       let action = actions.sync.fetchClinicPatientCountsSuccess(clinicId, results);
       let state = reducer(initialStateForTest, action);
-      expect(state[clinicId].patientCounts).to.eql({ demo: 0, plan: 35, total: 35});
+      expect(state[clinicId].patientCounts).to.eql({ demo: 0, plan: 35, total: 35 });
     });
   });
 
