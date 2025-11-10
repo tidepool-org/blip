@@ -845,7 +845,7 @@ describe('clinics', () => {
     });
   });
 
-  describe.only('fetchClinicPatientCountsSuccess', () => {
+  describe('fetchClinicPatientCountsSuccess', () => {
     it('should update `patientCounts` in state', () => {
       let clinicId = 'clinicId123';
       let results = { demo: 2, plan: 33, total: 35 };
@@ -875,7 +875,7 @@ describe('clinics', () => {
     });
   });
 
-  describe.only('fetchClinicPatientCountSettingsSuccess', () => {
+  describe('fetchClinicPatientCountSettingsSuccess', () => {
     it('should update `patientCountSettings` in state', () => {
       let clinicId = 'clinicId123';
       let results = { hardLimit: { plan: 300 , startDate: '2025-01-01' } };
