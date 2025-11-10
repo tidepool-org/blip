@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Flex, Box } from 'theme-ui';
 import sundial from 'sundial';
 import VerticalAlignTopRoundedIcon from '@material-ui/icons/VerticalAlignTopRounded';
-import { map, includes, get, chunk, mean, find, sortBy } from 'lodash';
+import { map, includes, get, chunk, mean, find } from 'lodash';
 import moment from 'moment';
 
 import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
@@ -50,11 +50,30 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
 
   // Because dataByDate is an object with date keys, we need to sort it to get consistent ordering
   const sortedDataByDate = useMemo(() => {
-    // Sort and reverse the data
-    let arr = sortBy(
-      map(dataByDate, (data, date) => [date, { ...data }]),
-      ([date]) => date
-    ).reverse();
+    if (!dataByDate) return [];
+
+    // Get all dates in the range
+    const dates = Object.keys(dataByDate);
+    if (dates.length === 0) return [];
+
+    const sortedDates = dates.sort();
+    const startDate = moment(sortedDates[0]);
+    const endDate = moment(sortedDates[sortedDates.length - 1]);
+
+    // Create array with all dates in range, including missing ones
+    const allDatesInRange = [];
+    let currentDate = moment(startDate);
+
+    while (currentDate.isSameOrBefore(endDate)) {
+      const dateKey = currentDate.format('YYYY-MM-DD');
+      const data = dataByDate[dateKey] || { cbg: [], smbg: [] };
+      allDatesInRange.push([dateKey, { ...data }]);
+      currentDate.add(1, 'day');
+    }
+
+    // Reverse to show most recent first
+    let arr = allDatesInRange.reverse();
+
     // In cases where there is only smbg data, there is potential for the first date to have no data.
     // This is primarily due to piggy-backing on the AGP CGM data, which requires at least one CBG reading to define the ideal date range to include.
     // In that case, we remove that date so we don't show an empty chart.
