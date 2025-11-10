@@ -479,10 +479,10 @@ export default (type) => {
     case types.FETCH_RPM_REPORT_PATIENTS_FAILURE:
       return 'fetchingRpmReportPatients';
 
-    case types.FETCH_CLINIC_PATIENT_COUNT_REQUEST:
-    case types.FETCH_CLINIC_PATIENT_COUNT_SUCCESS:
-    case types.FETCH_CLINIC_PATIENT_COUNT_FAILURE:
-      return 'fetchingClinicPatientCount';
+    case types.FETCH_CLINIC_PATIENT_COUNTS_REQUEST:
+    case types.FETCH_CLINIC_PATIENT_COUNTS_SUCCESS:
+    case types.FETCH_CLINIC_PATIENT_COUNTS_FAILURE:
+      return 'fetchingClinicPatientCounts';
 
     case types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST:
     case types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS:

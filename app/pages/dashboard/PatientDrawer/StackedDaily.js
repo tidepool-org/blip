@@ -1,0 +1,301 @@
+import React, { useRef, useMemo } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { push } from 'connected-react-router';
+import { useTranslation } from 'react-i18next';
+import { Flex, Box } from 'theme-ui';
+import sundial from 'sundial';
+import VerticalAlignTopRoundedIcon from '@material-ui/icons/VerticalAlignTopRounded';
+import { map, includes, get, chunk, mean, find, sortBy } from 'lodash';
+import moment from 'moment';
+
+import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
+const { Loader, SMBGTooltip, CBGTooltip } = vizComponents;
+const { getLocalizedCeiling } = vizUtils.datetime;
+
+import tidelineBlip from 'tideline/plugins/blip';
+const chartDailyFactory = tidelineBlip.oneday;
+
+import { MS_IN_DAY } from '../../../core/constants';
+import { NoPatientData } from './Overview';
+import { STATUS } from './useAgpCGM';
+import { Body1, Body2 } from '../../../components/elements/FontStyles';
+import Button from '../../../components/elements/Button';
+import { STACKED_DAILY_TAB_INDEX } from './MenuBar';
+import BgLegend from '../../../components/chart/BgLegend';
+
+const CHART_HEIGHT = 200;
+
+const StackedDaily = ({ patientId, agpCGMData }) => {
+  const { t } = useTranslation();
+  const { status } = agpCGMData;
+  const chartRefs = useRef([]);
+  const containerRef = useRef(null);
+  const [hoveredSMBG, setHoveredSMBG] = React.useState(false);
+  const [hoveredCBG, setHoveredCBG] = React.useState(false);
+  const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
+  const patient = clinic?.patients?.[patientId];
+  const dispatch = useDispatch();
+  const bgPrefs = agpCGMData?.agpCGM?.query?.bgPrefs;
+  const bgClasses = bgPrefs?.bgClasses;
+  const bgUnits = bgPrefs?.bgUnits;
+  const timePrefs = agpCGMData?.agpCGM?.timePrefs;
+
+  const fillDataChunks = chunk(
+    get(agpCGMData, 'agpCGM.data.current.data.fill', []),
+    8 // number of 3hr intervals in a day
+  ).reverse();
+
+  const [visibleDays, setVisibleDays] = React.useState(7);
+  const dataByDate = agpCGMData?.agpCGM?.data?.current?.aggregationsByDate?.dataByDate;
+
+  // Because dataByDate is an object with date keys, we need to sort it to get consistent ordering
+  const sortedDataByDate = useMemo(() => {
+    // Sort and reverse the data
+    let arr = sortBy(
+      map(dataByDate, (data, date) => [date, { ...data }]),
+      ([date]) => date
+    ).reverse();
+    // In cases where there is only smbg data, there is potential for the first date to have no data.
+    // This is primarily due to piggy-backing on the AGP CGM data, which requires at least one CBG reading to define the ideal date range to include.
+    // In that case, we remove that date so we don't show an empty chart.
+    if (arr.length > 0) {
+      const [, firstData] = arr[0];
+      const hasFirstDateData = (firstData.cbg && firstData.cbg.length > 0) || (firstData.smbg && firstData.smbg.length > 0);
+      if (!hasFirstDateData) {
+        arr = arr.slice(1);
+      }
+    }
+    return arr;
+  }, [dataByDate]);
+
+  const hasMoreDays = visibleDays < sortedDataByDate.length;
+
+  const visibleDaysText = visibleDays < sortedDataByDate.length
+    ? t('Showing {{count}} of {{total}} days', { count: visibleDays, total: sortedDataByDate.length })
+    : t('Showing all {{total}} days', { total: sortedDataByDate.length });
+
+  const handleViewMore = () => {
+    setVisibleDays(prev => prev + 7);
+  };
+
+  const allCharts = useMemo(() => map(sortedDataByDate, ([date, data]) => {
+    const chartStart = getLocalizedCeiling(date, timePrefs).valueOf();
+    const chartEnd = chartStart + MS_IN_DAY;
+
+    const chartOpts = {
+      bgClasses,
+      bgUnits,
+      timePrefs,
+      onSMBGHover: handleSMBGHover,
+      onSMBGOut: handleSMBGOut,
+      onCBGHover: handleCBGHover,
+      onCBGOut: handleCBGOut,
+      endpoints: [chartStart, chartEnd],
+      dayLabel: false,
+      minHeight: CHART_HEIGHT,
+      pool: {
+        events: {
+          hidden: true,
+        },
+        bg: {
+          hidden: false,
+          label: false,
+          legend: false,
+          heightRatio: 10,
+          gutterWeight: 0,
+        },
+        bolus: {
+          hidden: true,
+        },
+        basal: {
+          hidden: true,
+        },
+      },
+    };
+
+    const chartData = [...(data.cbg || []), ...(data.smbg || [])]
+    return [date, chartOpts, chartData];
+  }), [dataByDate, bgClasses, bgUnits, timePrefs]);
+
+  // Limit charts to visibleDays count
+  const charts = useMemo(() => allCharts.slice(0, visibleDays), [allCharts, visibleDays]);
+
+  if (status === STATUS.NO_PATIENT_DATA)   return <NoPatientData patientName={patient?.fullName}/>;
+
+  // We piggy-back on the useAgpCGM data and status for these charts, so we load until we have the data
+  // processed, and ignore the insufficient AGP data status, and show charts with whatever data is available.
+  if (!includes([STATUS.DATA_PROCESSED, STATUS.SVGS_GENERATED, STATUS.INSUFFICIENT_DATA], status)) return <Loader show={true} overlay={false} />;
+
+  function addToRefs(element) {
+    if (element && !chartRefs.current.includes(element)) {
+      const chartIndex = chartRefs.current.length;
+
+      element.style.height = `${CHART_HEIGHT}px`;
+      element.id = `tideline-daily-${chartIndex}`;
+      chartRefs.current.push(element);
+
+      const [date, chartOpts, chartData] = charts[chartIndex];
+
+      const fillData = find(fillDataChunks, chunk => {
+        const fillDate = chunk[0]?.fillDate;
+        return fillDate === date;
+      }) || [];
+
+      const processedData = [...chartData, ...fillData];
+
+      chartDailyFactory(element, chartOpts)
+        .setupPools()
+        .load(processedData, true)
+        .locate();
+    }
+  }
+
+  function handleDataHover(data, setHoveredState) {
+    const rect = data.rect;
+    const containerRect = containerRef.current?.getBoundingClientRect();
+    const containerXOffset = containerRect?.x || 0;
+
+    const datetimeLocation = mean(data.chartEndpoints);
+    const hoursOffset = sundial.dateDifference(data.data.normalTime, datetimeLocation, 'h');
+    data.top = rect.top + (rect.height / 2);
+
+    if (hoursOffset > 5) {
+      data.side = 'left';
+      data.left = rect.left;
+    } else {
+      data.side = 'right';
+      data.left = rect.left + rect.width;
+    }
+
+    setHoveredState({ ...data, left: data.left - containerXOffset });
+  }
+
+  function handleDataOut(setHoveredState) {
+    setHoveredState(false);
+  }
+
+  function handleSMBGHover(smbg) {
+    handleDataHover(smbg, setHoveredSMBG);
+  }
+
+  function handleSMBGOut() {
+    handleDataOut(setHoveredSMBG);
+  }
+
+  function handleCBGHover(cbg) {
+    handleDataHover(cbg, setHoveredCBG);
+  }
+
+  function handleCBGOut() {
+    handleDataOut(setHoveredCBG);
+  }
+
+  function handleSwitchToDaily(endpoints) {
+    dispatch(push(`/patients/${patientId}/data/daily?dashboard=tide&drawerTab=${STACKED_DAILY_TAB_INDEX}&datetime=${mean(endpoints)}`));
+  }
+
+  function scrollToTop() {
+    containerRef?.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  return (
+    <Box
+      className='patient-data'
+      pt={3}
+      sx={{ position: 'relative' }}
+      ref={containerRef}
+      data-testid="stacked-daily-container"
+    >
+      <Flex mb={3} sx={{ justifyContent: 'space-between', alignItems: 'center'}}>
+        <Body2 sx={{ fontWeight: 'bold', color: 'purple90' }} data-testid="glucose-units-label">{t('Glucose ({{bgUnits}})', { bgUnits })}</Body2>
+
+        <Box data-testid="bg-legend">
+          <BgLegend />
+        </Box>
+      </Flex>
+
+      {map(charts, ([date, chartOpts]) => (
+        <Box mb={4} key={date} className='chart-wrapper'>
+          <Body1
+            py={1}
+            sx={{
+              fontWeight: 'bold',
+              display: 'inline-block',
+              '&:hover,&:focus': {
+                textDecoration: 'underline',
+                cursor: 'pointer',
+                border: 'none',
+                outline: 'none',
+              },
+            }}
+            onClick={() => handleSwitchToDaily(chartOpts.endpoints)}
+            onKeyPress={(e) => e.key === 'Enter' && handleSwitchToDaily(chartOpts.endpoints)}
+            tabIndex={0}
+            role="button"
+            data-testid="chart-date-header"
+          >
+            {moment(date).format('ddd, MMM D, YYYY')}
+          </Body1>
+
+          <Box className='chart-container' ref={addToRefs} data-testid="chart-container" />
+        </Box>
+      ))}
+
+      <Flex sx={{ justifyContent: 'space-between', alignItems: 'center', gap: 2 }}>
+        <Box sx={{ flex: '1 1 0' }}>
+          <Body1 sx={{ fontWeight: 'medium', color: 'gray50'}} data-testid="day-count-text">{visibleDaysText}</Body1>
+        </Box>
+
+        <Flex sx={{ justifyContent: 'center', alignItems: 'center', gap: 1 }}>
+          {hasMoreDays && (
+            <Button
+            sx={{ fontSize: 1, fontWeight: 'medium' }}
+            variant="secondary"
+            onClick={handleViewMore}
+            data-testid="view-more-button"
+            >
+              {t('View More')}
+            </Button>
+          )}
+
+          <Button
+            sx={{ fontSize: 1, fontWeight: 'medium' }}
+            variant="textSecondary"
+            onClick={scrollToTop}
+            icon={VerticalAlignTopRoundedIcon}
+            iconPosition="right"
+            data-testid="back-to-top-button"
+          >
+            {t('Back to Top')}
+          </Button>
+        </Flex>
+
+        <Box sx={{ flex: '1 1 0' }}>&nbsp;</Box>
+      </Flex>
+
+      {hoveredSMBG && <SMBGTooltip
+        position={{
+          top: hoveredSMBG.top,
+          left: hoveredSMBG.left
+        }}
+        side={hoveredSMBG.side}
+        smbg={hoveredSMBG.data}
+        timePrefs={timePrefs}
+        bgPrefs={bgPrefs}
+      />}
+
+      {hoveredCBG && <CBGTooltip
+        position={{
+          top: hoveredCBG.top,
+          left: hoveredCBG.left
+        }}
+        side={hoveredCBG.side}
+        cbg={hoveredCBG.data}
+        timePrefs={timePrefs}
+        bgPrefs={bgPrefs}
+      />}
+    </Box>
+  );
+};
+
+export default StackedDaily;

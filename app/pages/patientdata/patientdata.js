@@ -1661,6 +1661,10 @@ export const PatientDataClass = createReactClass({
     this.setState(state, cb);
   },
 
+  componentDidMount() {
+    window.scrollTo(0, 0);
+  },
+
   UNSAFE_componentWillMount: function() {
     this.doFetching(this.props);
     var params = this.props.queryParams;
@@ -1690,8 +1694,9 @@ export const PatientDataClass = createReactClass({
     const patientSettings = _.get(nextProps, ['patient', 'settings'], null);
     const clinicPatient = _.get(nextProps.clinics, [nextProps.clinic?.id, 'patients', userId], {});
 
-    // Handle data refresh
-    if (this.props.removingData.inProgress && nextProps.removingData.completed) {
+    // Handle data refresh, assuming chartType is already set so that it can't trigger on initial load
+    // such as can happen if the data is being cleared upon exit from another view (e.g. TIDE drawer)
+    if (this.state.chartType && this.props.removingData.inProgress && nextProps.removingData.completed) {
       setTimeout(() => {
         this.setState({
           ...this.getInitialState(),
@@ -1977,6 +1982,7 @@ export const PatientDataClass = createReactClass({
             deviceEvent: {},
             food: {},
             message: {},
+            pumpSettings: {},
             smbg: {},
             wizard: {},
           };
