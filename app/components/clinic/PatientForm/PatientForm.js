@@ -25,13 +25,11 @@ import { accountInfoFromClinicPatient } from '../../../core/personutils';
 import { Body0 } from '../../../components/elements/FontStyles';
 import { MediumTitle } from '../../../components/elements/FontStyles';
 
-import { utils as vizUtils } from '@tidepool/viz';
-const { GLYCEMIC_RANGE } = vizUtils.constants;
-
 import SelectDiabetesType from './SelectDiabetesType';
 import SelectGlycemicRanges from './SelectGlycemicRanges';
 import SelectTags from './SelectTags';
 import SelectSites from './SelectSites';
+import { DEFAULT_GLYCEMIC_RANGES } from '../../../core/glycemicRangesUtils';
 
 export function getFormValues(source, clinicPatientTags, clinicSites) {
   return {
@@ -42,14 +40,14 @@ export function getFormValues(source, clinicPatientTags, clinicSites) {
     tags: reject(source?.tags || [], tagId => !clinicPatientTags?.[tagId]),
     dataSources: source?.dataSources || [],
     sites: source?.sites?.filter(site => !!clinicSites[site.id]) || [],
-    diagnosisType: source?.diagnosisType || null,
-    glycemicRanges: source?.glycemicRanges || GLYCEMIC_RANGE.ADA_STANDARD,
+    diagnosisType: source?.diagnosisType || '',
+    glycemicRanges: source?.glycemicRanges || DEFAULT_GLYCEMIC_RANGES,
   };
 }
 
 export function emptyValuesFilter(value, key) {
   // We want to allow sending an empty `tags` and `sites` arrays. Otherwise, strip empty fields from payload.
-  return !includes(['tags', 'sites'], key) && isEmpty(value);
+  return !includes(['tags', 'sites', 'diagnosisType'], key) && isEmpty(value);
 }
 
 export const PatientForm = (props) => {
@@ -346,7 +344,7 @@ export const PatientForm = (props) => {
       {showGlycemicRanges && (
         <Box ref={targetRangePresetSectionRef} mb={3}>
           <SelectGlycemicRanges
-            value={values.glycemicRanges || ''}
+            value={values.glycemicRanges}
             onChange={glycemicRanges => setFieldValue('glycemicRanges', glycemicRanges)}
             onMenuOpen={() => handleScrollToRef(targetRangePresetSectionRef)}
           />

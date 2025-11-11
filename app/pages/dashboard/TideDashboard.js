@@ -28,7 +28,7 @@ import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRo
 import EditIcon from '@material-ui/icons/EditRounded';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import { components as vizComponents, utils as vizUtils, colors as vizColors } from '@tidepool/viz';
-const { GLYCEMIC_RANGE } = vizUtils.constants;
+const { GLYCEMIC_RANGES_PRESET } = vizUtils.constants;
 import ScrollToTop from 'react-scroll-to-top';
 import styled from '@emotion/styled';
 import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
@@ -84,6 +84,7 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
 import DataInIcon from '../../core/icons/DataInIcon.svg';
 import { colors, fontWeights, radii } from '../../themes/baseTheme';
 import PatientLastReviewed from '../../components/clinic/PatientLastReviewed';
+import { DEFAULT_GLYCEMIC_RANGES } from '../../core/glycemicRangesUtils';
 import { OVERVIEW_TAB_INDEX } from './PatientDrawer/MenuBar/MenuBar';
 
 const { Loader } = vizComponents;
@@ -400,13 +401,14 @@ const TideDashboardSection = React.memo(props => {
     },
   }), []);
 
-  const handleClickPatient = useCallback(patient => {
+  const handleClickPatient = useCallback((patient, section) => {
     return () => {
       trackMetric('Selected PwD');
 
+      const isNoDataGroup = section.groupKey === CATEGORY.noData;
       const isValidAgpPeriod = ['7d', '14d', '30d'].includes(config?.period);
 
-      if (showTideDashboardPatientDrawer && isValidAgpPeriod) {
+      if (showTideDashboardPatientDrawer && isValidAgpPeriod && !isNoDataGroup) {
         const { search, pathname } = location;
         const params = new URLSearchParams(search);
         params.set('drawerPatientId', patient.id);
@@ -425,7 +427,7 @@ const TideDashboardSection = React.memo(props => {
   }, [setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal]);
 
   const renderPatientName = useCallback(({ patient }) => (
-    <Box onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
+    <Box onClick={handleClickPatient(patient, section)} sx={{ cursor: 'pointer' }}>
       <Text
         sx={{
           display: 'inline-block',
@@ -439,7 +441,7 @@ const TideDashboardSection = React.memo(props => {
         {patient?.fullName}
       </Text>
     </Box>
-  ), [handleClickPatient]);
+  ), [handleClickPatient, section]);
 
   const renderAverageGlucose = useCallback(summary => {
     const averageGlucose = summary?.averageGlucoseMmol;
@@ -513,17 +515,19 @@ const TideDashboardSection = React.memo(props => {
 
   const renderBgRangeSummary = useCallback(summary => {
     // Alternate glycemic ranges not applied in TIDE Dashboard for now
-    const glycemicRanges = GLYCEMIC_RANGE.ADA_STANDARD;
+    const glycemicRanges = DEFAULT_GLYCEMIC_RANGES;
 
-    return <BgSummaryCell
-    id={summary.patient.id}
-    summary={summary}
-    config={config}
-    clinicBgUnits={clinicBgUnits}
-    glycemicRanges={glycemicRanges}
-    activeSummaryPeriod={config?.period}
-    showExtremeHigh={showExtremeHigh}
-  />
+    return (
+      <BgSummaryCell
+        id={summary.patient.id}
+        summary={summary}
+        config={config}
+        clinicBgUnits={clinicBgUnits}
+        glycemicRanges={glycemicRanges}
+        activeSummaryPeriod={config?.period}
+        showExtremeHigh={showExtremeHigh}
+      />
+    );
   }, [clinicBgUnits, config]);
 
   const renderTimeInTargetPercentDelta = useCallback(summary => {
@@ -1040,7 +1044,7 @@ export const TideDashboard = (props) => {
   useEffect(() => {
     if (currentPatientInViewId) {
       dispatch(actions.sync.clearPatientInView());
-      if (currentPatientInViewId !== drawerPatientId) dispatch(actions.worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
+      dispatch(actions.worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
     }
 
     setClinicBgUnits((clinic?.preferredBgUnits || MGDL_UNITS));

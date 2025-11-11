@@ -91,6 +91,7 @@ describe('TideDashboard', () => {
   afterEach(() => {
     TideDashboard.__ResetDependency__('useLDClient');
     TideDashboard.__ResetDependency__('useFlags');
+    SelectTags.__ResetDependency__('useLocation');
     TideDashboard.__ResetDependency__('useLocation');
     TideDashboard.__ResetDependency__('useHistory');
     DataConnections.__ResetDependency__('api');

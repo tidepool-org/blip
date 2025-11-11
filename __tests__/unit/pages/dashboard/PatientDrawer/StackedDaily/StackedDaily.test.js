@@ -148,16 +148,6 @@ describe('StackedDaily Component', () => {
       expect(screen.getByText('No data for John Doe')).toBeInTheDocument();
     });
 
-    it('should render InsufficientData component when status is INSUFFICIENT_DATA', () => {
-      renderComponent({
-        agpCGMData: {
-          status: STATUS.INSUFFICIENT_DATA,
-        }
-      });
-
-      expect(screen.getByTestId('insufficient-data')).toBeInTheDocument();
-    });
-
     it('should render Loader component when status is not processed', () => {
       renderComponent({
         agpCGMData: {

@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Flex, Box } from 'theme-ui';
 import sundial from 'sundial';
 import VerticalAlignTopRoundedIcon from '@material-ui/icons/VerticalAlignTopRounded';
-import { map, includes, get, chunk, mean } from 'lodash';
+import { map, includes, get, chunk, mean, find } from 'lodash';
 import moment from 'moment';
 
 import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
@@ -16,7 +16,7 @@ import tidelineBlip from 'tideline/plugins/blip';
 const chartDailyFactory = tidelineBlip.oneday;
 
 import { MS_IN_DAY } from '../../../core/constants';
-import { NoPatientData, InsufficientData } from './Overview';
+import { NoPatientData } from './Overview';
 import { STATUS } from './useAgpCGM';
 import { Body1, Body2 } from '../../../components/elements/FontStyles';
 import Button from '../../../components/elements/Button';
@@ -35,8 +35,6 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
   const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
   const patient = clinic?.patients?.[patientId];
   const dispatch = useDispatch();
-
-  const dataByDate = agpCGMData?.agpCGM?.data?.current?.aggregationsByDate?.dataByDate;
   const bgPrefs = agpCGMData?.agpCGM?.query?.bgPrefs;
   const bgClasses = bgPrefs?.bgClasses;
   const bgUnits = bgPrefs?.bgUnits;
@@ -48,18 +46,58 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
   ).reverse();
 
   const [visibleDays, setVisibleDays] = React.useState(7);
-  const dates = Object.keys(dataByDate || {});
-  const hasMoreDays = visibleDays < dates.length;
+  const dataByDate = agpCGMData?.agpCGM?.data?.current?.aggregationsByDate?.dataByDate;
 
-  const visibleDaysText = visibleDays < dates.length
-    ? t('Showing {{count}} of {{total}} days', { count: visibleDays, total: dates.length })
-    : t('Showing all {{total}} days', { total: dates.length });
+  // Because dataByDate is an object with date keys, we need to sort it to get consistent ordering
+  const sortedDataByDate = useMemo(() => {
+    if (!dataByDate) return [];
+
+    // Get all dates in the range
+    const dates = Object.keys(dataByDate);
+    if (dates.length === 0) return [];
+
+    const sortedDates = dates.sort();
+    const startDate = moment(sortedDates[0]);
+    const endDate = moment(sortedDates[sortedDates.length - 1]);
+
+    // Create array with all dates in range, including missing ones
+    const allDatesInRange = [];
+    let currentDate = moment(startDate);
+
+    while (currentDate.isSameOrBefore(endDate)) {
+      const dateKey = currentDate.format('YYYY-MM-DD');
+      const data = dataByDate[dateKey] || { cbg: [], smbg: [] };
+      allDatesInRange.push([dateKey, { ...data }]);
+      currentDate.add(1, 'day');
+    }
+
+    // Reverse to show most recent first
+    let arr = allDatesInRange.reverse();
+
+    // In cases where there is only smbg data, there is potential for the first date to have no data.
+    // This is primarily due to piggy-backing on the AGP CGM data, which requires at least one CBG reading to define the ideal date range to include.
+    // In that case, we remove that date so we don't show an empty chart.
+    if (arr.length > 0) {
+      const [, firstData] = arr[0];
+      const hasFirstDateData = (firstData.cbg && firstData.cbg.length > 0) || (firstData.smbg && firstData.smbg.length > 0);
+      if (!hasFirstDateData) {
+        arr = arr.slice(1);
+      }
+    }
+    return arr;
+  }, [dataByDate]);
+
+  const hasMoreDays = visibleDays < sortedDataByDate.length;
+
+  const visibleDaysText = visibleDays < sortedDataByDate.length
+    ? t('Showing {{count}} of {{total}} days', { count: visibleDays, total: sortedDataByDate.length })
+    : t('Showing all {{total}} days', { total: sortedDataByDate.length });
 
   const handleViewMore = () => {
     setVisibleDays(prev => prev + 7);
   };
 
-  const allCharts = useMemo(() => map(dataByDate, (data, date) => {
+  const allCharts = useMemo(() => map(sortedDataByDate, ([date, data]) => {
     const chartStart = getLocalizedCeiling(date, timePrefs).valueOf();
     const chartEnd = chartStart + MS_IN_DAY;
 
@@ -102,8 +140,10 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
   const charts = useMemo(() => allCharts.slice(0, visibleDays), [allCharts, visibleDays]);
 
   if (status === STATUS.NO_PATIENT_DATA)   return <NoPatientData patientName={patient?.fullName}/>;
-  if (status === STATUS.INSUFFICIENT_DATA) return <InsufficientData />;
-  if (!includes([STATUS.DATA_PROCESSED, STATUS.SVGS_GENERATED], status)) return <Loader show={true} overlay={false} />;
+
+  // We piggy-back on the useAgpCGM data and status for these charts, so we load until we have the data
+  // processed, and ignore the insufficient AGP data status, and show charts with whatever data is available.
+  if (!includes([STATUS.DATA_PROCESSED, STATUS.SVGS_GENERATED, STATUS.INSUFFICIENT_DATA], status)) return <Loader show={true} overlay={false} />;
 
   function addToRefs(element) {
     if (element && !chartRefs.current.includes(element)) {
@@ -113,8 +153,13 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
       element.id = `tideline-daily-${chartIndex}`;
       chartRefs.current.push(element);
 
-      const [_, chartOpts, chartData] = charts[chartIndex];
-      const fillData = fillDataChunks[chartIndex] || [];
+      const [date, chartOpts, chartData] = charts[chartIndex];
+
+      const fillData = find(fillDataChunks, chunk => {
+        const fillDate = chunk[0]?.fillDate;
+        return fillDate === date;
+      }) || [];
+
       const processedData = [...chartData, ...fillData];
 
       chartDailyFactory(element, chartOpts)
@@ -194,8 +239,8 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
             py={1}
             sx={{
               fontWeight: 'bold',
+              display: 'inline-block',
               '&:hover,&:focus': {
-                display: 'inline-block',
                 textDecoration: 'underline',
                 cursor: 'pointer',
                 border: 'none',
