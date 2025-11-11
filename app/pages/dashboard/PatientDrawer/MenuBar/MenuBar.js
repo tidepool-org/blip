@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import PropTypes from 'prop-types';
 import * as actions from '../../../../redux/actions';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -10,11 +11,30 @@ import moment from 'moment';
 import PatientLastReviewed from '../../../../components/clinic/PatientLastReviewed';
 import { useFlags } from 'launchdarkly-react-client-sdk';
 import CGMClipboardButton from './CGMClipboardButton';
+import api from '../../../../core/api';
+import { map, keys } from 'lodash';
+import copyIcon from '../../../../core/icons/copyIcon.svg';
+import viewIcon from '../../../../core/icons/viewIcon.svg';
 
-const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
+export const OVERVIEW_TAB_INDEX = 0;
+export const STACKED_DAILY_TAB_INDEX = 1;
+
+const tabs = {
+  [OVERVIEW_TAB_INDEX]: {
+    name: 'overview',
+    label: 'Overview',
+    metric: 'TIDE Dashboard - clicked overview tab',
+  },
+  [STACKED_DAILY_TAB_INDEX]: {
+    name: 'stackedDaily',
+    label: 'Stacked Daily View',
+    metric: 'TIDE Dashboard - clicked stacked daily view',
+  },
+};
+
+const MenuBar = ({ patientId, onClose, onSelectTab, selectedTab, trackMetric }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
-
   const { showTideDashboardLastReviewed } = useFlags();
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
@@ -27,7 +47,7 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
   }, []);
 
   const handleViewData = () => {
-    dispatch(push(`/patients/${patientId}/data/trends?dashboard=tide`));
+    dispatch(push(`/patients/${patientId}/data/trends?dashboard=tide&drawerTab=${selectedTab}`));
   };
 
   const recentlyReviewedThresholdDate = moment().startOf('isoWeek').toISOString();
@@ -38,55 +58,106 @@ const MenuBar = ({ patientId, api, trackMetric, onClose }) => {
     }, 500);
   };
 
+  function handleSelectTab(event, tabIndex) {
+    event.preventDefault();
+    trackMetric(tabs[tabIndex]?.metric, { clinicId: selectedClinicId });
+    onSelectTab(tabIndex);
+  }
+
   const { fullName, birthDate } = patient || {};
 
   return (
-    <Box sx={{ display: 'grid', gridTemplateColumns: '32fr 18fr 18fr 32fr', gap: 3, minHeight: '42px', marginBottom: 3 }}>
-      <Flex sx={{ justifyContent: 'center', flexDirection: 'column' }}>
-        <Text sx={{ color: vizColors.purple90, fontWeight: 'bold', fontSize: 2 }}>
-          {fullName}
-        </Text>
-        { birthDate &&
-          <Text sx={{ color: 'grays.5', fontWeight: 'medium', fontSize: 0 }}>
-            {t('DOB: {{birthDate}}', { birthDate })}
+    <Box px={4} pt={4} sx={{ position: 'sticky', top: 0, bg: 'white', zIndex: 1 }}>
+      <Flex mb={4} sx={{ justifyContent: 'space-between', alignItems: 'center', minHeight: '30px' }}>
+        <Flex sx={{ justifyContent: 'flex-start', gap: 2, alignItems: 'flex-end' }}>
+          <Text
+            data-testid="patient-name"
+            sx={{ color: vizColors.purple90, fontWeight: 'bold', fontSize: 2, lineHeight: 0 }}
+          >
+            {fullName}
           </Text>
-        }
-      </Flex>
-
-      <Flex sx={{ justifyContent: 'flex-end', alignItems: 'center' }}>
-        <Button onClick={handleViewData} variant="secondary">
-          {t('View Data')}
-        </Button>
-      </Flex>
-
-      <Flex sx={{ justifyContent: 'flex-start', alignItems: 'center' }}>
-        <CGMClipboardButton patient={patient} data={pdf?.data?.agpCGM} />
-      </Flex>
-
-      <Flex sx={{ fontSize: 0, alignItems: 'center', justifyContent: 'flex-end' }}>
-        {
-          showTideDashboardLastReviewed &&
-            <>
-              <Text sx={{
-              color: vizColors.purple90,
-              fontWeight: 'medium',
-              marginRight: 3,
-            }}>
-              {t('Last Reviewed')}
+          {birthDate &&
+            <Text
+              data-testid="patient-birthdate"
+              sx={{ color: 'grays.5', fontWeight: 'medium', fontSize: 0, lineHeight: 0 }}
+            >
+              {t('DOB: {{birthDate}}', { birthDate })}
             </Text>
-            <PatientLastReviewed
-              api={api}
-              trackMetric={trackMetric}
-              metricSource="TIDE dashboard"
-              patientId={patientId}
-              recentlyReviewedThresholdDate={recentlyReviewedThresholdDate}
-              onReview={handleReviewSuccess}
-            />
-          </>
-        }
+          }
+        </Flex>
+
+        <Flex sx={{ fontSize: 0, alignItems: 'center' }}>
+          {showTideDashboardLastReviewed && (
+            <Flex data-testid="last-reviewed-section" sx={{ alignItems: 'center', justifyContent: 'space-between', gap: 3 }}>
+              <Text sx={{
+                color: vizColors.purple90,
+                fontWeight: 'medium',
+              }}>
+                {t('Last Reviewed')}
+              </Text>
+
+              <PatientLastReviewed
+                sx={{ flexGrow: 1 }}
+                api={api}
+                trackMetric={trackMetric}
+                metricSource="TIDE dashboard"
+                patientId={patientId}
+                recentlyReviewedThresholdDate={recentlyReviewedThresholdDate}
+                onReview={handleReviewSuccess}
+              />
+            </Flex>
+          )}
+        </Flex>
+      </Flex>
+
+      <Flex p="1px" sx={{ justifyContent: 'space-between', bg: 'blue50', borderRadius: 'default' }}>
+        <Flex role="tablist" sx={{ gap: '1px' }}>
+          {map(keys(tabs), (tabKey) => (
+            <Button
+              variant="tab"
+              key={tabKey}
+              role="tab"
+              aria-selected={parseInt(selectedTab) === parseInt(tabKey)}
+              data-testid={`tab-${tabs[tabKey].name}`}
+              onClick={(e) => handleSelectTab(e, tabKey)}
+              selected={parseInt(selectedTab) === parseInt(tabKey)}
+            >
+              {tabs[tabKey].label}
+            </Button>
+          ))}
+        </Flex>
+
+        <Flex sx={{ justifyContent: 'space-between', gap: '1px' }}>
+          <Button
+            data-testid="view-data-button"
+            iconPosition="left"
+            iconSrc={viewIcon}
+            onClick={handleViewData}
+            variant="tab"
+          >
+            {t('View Data')}
+          </Button>
+
+          <CGMClipboardButton
+            data-testid="cgm-clipboard-button"
+            iconPosition="left"
+            iconSrc={copyIcon}
+            patient={patient}
+            data={pdf?.data?.agpCGM}
+            variant="tab"
+          />
+        </Flex>
       </Flex>
     </Box>
   )
 }
+
+MenuBar.propTypes = {
+  patientId: PropTypes.string.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onSelectTab: PropTypes.func.isRequired,
+  selectedTab: PropTypes.number.isRequired,
+  trackMetric: PropTypes.func.isRequired,
+};
 
 export default MenuBar;

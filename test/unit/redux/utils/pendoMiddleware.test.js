@@ -1,5 +1,6 @@
 /* global sinon */
 /* global describe */
+/* global context */
 /* global it */
 /* global expect */
 /* global beforeEach */
@@ -664,13 +665,17 @@ describe('pendoMiddleware', () => {
     expect(winMock.pendo.updateOptions.args[0][0]).to.eql(expectedConfig);
   });
 
-  it('should call update and set patient count for FETCH_CLINIC_PATIENT_COUNT_SUCCESS', () => {
+  it('should call update and set patient count for FETCH_CLINIC_PATIENT_COUNTS_SUCCESS', () => {
     winMock.pendo.visitorId = 'clinicAdminID';
-    const fetchClinicPatientCountSuccess = {
-      type: ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SUCCESS,
+    const fetchClinicPatientCountsSuccess = {
+      type: ActionTypes.FETCH_CLINIC_PATIENT_COUNTS_SUCCESS,
       payload: {
         clinicId: 'clinicID123',
-        patientCount: 32,
+        patientCounts: {
+          demo: 1,
+          plan: 32,
+          total: 33,
+        },
       },
     };
     getStateObj.getState.returns({
@@ -696,7 +701,7 @@ describe('pendoMiddleware', () => {
       visitor: {},
     };
     expect(winMock.pendo.updateOptions.callCount).to.equal(0);
-    pendoMiddleware(api, winMock)(getStateObj)(next)(fetchClinicPatientCountSuccess);
+    pendoMiddleware(api, winMock)(getStateObj)(next)(fetchClinicPatientCountsSuccess);
     expect(winMock.pendo.updateOptions.callCount).to.equal(1);
     expect(winMock.pendo.updateOptions.args[0][0]).to.eql(expectedConfig);
   });
@@ -709,7 +714,7 @@ describe('pendoMiddleware', () => {
         clinicId: 'clinicID123',
         patientCountSettings: {
           hardLimit: {
-            patientCount: 250,
+            plan: 250,
             startDate: '2024-11-11T00:00:00.000Z',
           },
         },
@@ -783,6 +788,90 @@ describe('pendoMiddleware', () => {
     pendoMiddleware(api, winMock)(getStateObj)(next)(setClinicUIDetails);
     expect(winMock.pendo.updateOptions.callCount).to.equal(1);
     expect(winMock.pendo.updateOptions.args[0][0]).to.eql(expectedConfig);
+  });
+
+  context('Legacy patient count APIs', () => {
+    it('should call update and set patient count for FETCH_CLINIC_PATIENT_COUNTS_SUCCESS', () => {
+      winMock.pendo.visitorId = 'clinicAdminID';
+      const fetchClinicPatientCountsSuccess = {
+        type: ActionTypes.FETCH_CLINIC_PATIENT_COUNTS_SUCCESS,
+        payload: {
+          clinicId: 'clinicID123',
+          patientCounts: {
+            patientCount: 32,
+          },
+        },
+      };
+      getStateObj.getState.returns({
+        ...emptyState,
+        ...{
+          blip: {
+            clinics: _.pick(clinics, 'clinicID123'),
+            loggedInUserId: 'clinicAdminID',
+            allUsersMap: _.pick(users, 'clinicAdminID'),
+            selectedClinicId: 'clinicID123',
+            pendoData: {
+              account: {},
+              visitor: {},
+            },
+          },
+        },
+      });
+      const expectedConfig = {
+        account: {
+          id: 'clinicID123',
+          patientCount: 32,
+        },
+        visitor: {},
+      };
+      expect(winMock.pendo.updateOptions.callCount).to.equal(0);
+      pendoMiddleware(api, winMock)(getStateObj)(next)(fetchClinicPatientCountsSuccess);
+      expect(winMock.pendo.updateOptions.callCount).to.equal(1);
+      expect(winMock.pendo.updateOptions.args[0][0]).to.eql(expectedConfig);
+    });
+
+    it('should call update and set patient count limit and start date for FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS', () => {
+      winMock.pendo.visitorId = 'clinicAdminID';
+      const fetchClinicPatientCountSettingsSuccess = {
+        type: ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS,
+        payload: {
+          clinicId: 'clinicID123',
+          patientCountSettings: {
+            hardLimit: {
+              patientCount: 250,
+              startDate: '2024-11-11T00:00:00.000Z',
+            },
+          },
+        },
+      };
+      getStateObj.getState.returns({
+        ...emptyState,
+        ...{
+          blip: {
+            clinics: _.pick(clinics, 'clinicID123'),
+            loggedInUserId: 'clinicAdminID',
+            allUsersMap: _.pick(users, 'clinicAdminID'),
+            selectedClinicId: 'clinicID123',
+            pendoData: {
+              account: {},
+              visitor: {},
+            },
+          },
+        },
+      });
+      const expectedConfig = {
+        account: {
+          id: 'clinicID123',
+          patientCountHardLimit: 250,
+          patientCountHardLimitStartDate: '2024-11-11T00:00:00.000Z',
+        },
+        visitor: {},
+      };
+      expect(winMock.pendo.updateOptions.callCount).to.equal(0);
+      pendoMiddleware(api, winMock)(getStateObj)(next)(fetchClinicPatientCountSettingsSuccess);
+      expect(winMock.pendo.updateOptions.callCount).to.equal(1);
+      expect(winMock.pendo.updateOptions.args[0][0]).to.eql(expectedConfig);
+    });
   });
 
   it('should call update and set clinician count for FETCH_CLINICIANS_FROM_CLINIC_SUCCESS', () => {

@@ -486,4 +486,110 @@ describe('Daily', () => {
       expect(instance.state.hoveredAlarm).to.be.false;
     });
   });
+
+  describe('handleEventHover', () => {
+    it('should set hoveredEvent state with correct positioning', () => {
+      const event = {
+        rect: {
+          top: 100,
+          left: 200,
+          width: 20,
+          height: 30,
+        },
+        chartExtents: {
+          left: 50,
+          right: 400,
+        },
+        data: { tags: { event: 'pump_shutdown' } },
+      };
+
+      instance.handleEventHover(event);
+
+      expect(instance.state.hoveredEvent).to.deep.equal({
+        ...event,
+        top: 150, // rect.top + rect.height + 20
+        left: 210, // rect.left + (rect.width / 2)
+        side: 'bottom',
+      });
+    });
+
+    it('should adjust leftOffset when tooltip would spill over left edge', () => {
+      const event = {
+        rect: {
+          top: 100,
+          left: 60, // Close to left edge
+          width: 20,
+          height: 30,
+        },
+        chartExtents: {
+          left: 50,
+          right: 400,
+        },
+        data: { tags: { event: 'pump_shutdown' } },
+      };
+
+      instance.handleEventHover(event);
+
+      const hoveredEvent = instance.state.hoveredEvent;
+      expect(hoveredEvent.leftOffset).to.equal(70);
+    });
+
+    it('should adjust leftOffset when tooltip would spill over right edge', () => {
+      const event = {
+        rect: {
+          top: 100,
+          left: 390, // Close to right edge
+          width: 20,
+          height: 30,
+        },
+        chartExtents: {
+          left: 50,
+          right: 400,
+        },
+        data: { tags: { event: 'pump_shutdown' } },
+      };
+
+      instance.handleEventHover(event);
+
+      const hoveredEvent = instance.state.hoveredEvent;
+      expect(hoveredEvent.leftOffset).to.equal(-70);
+    });
+
+    it('should track metric when hovering over event', () => {
+      const event = {
+        rect: {
+          top: 100,
+          left: 200,
+          width: 20,
+          height: 30,
+        },
+        chartExtents: {
+          left: 50,
+          right: 400,
+        },
+        data: { tags: { event: 'pump_shutdown' } },
+      };
+
+      instance.handleEventHover(event);
+
+      expect(baseProps.trackMetric.calledWith('hovered over daily event tooltip')).to.be.true;
+    });
+  });
+
+  describe('handleEventOut', () => {
+    it('should set hoveredEvent state to false', () => {
+      // First set a hoveredEvent
+      instance.setState({
+        hoveredEvent: {
+          data: { tags: { event: 'pump_shutdown' } },
+          top: 100,
+          left: 200,
+        },
+      });
+
+      instance.handleEventOut();
+
+      expect(instance.state.hoveredEvent).to.be.false;
+    });
+  });
 });

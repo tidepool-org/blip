@@ -2379,6 +2379,7 @@ describe('PatientData', function () {
       context('data is removed prior to refresh', () => {
         it('should clear generated pdfs upon refresh', done => {
           const removeGeneratedPDFSStub = sinon.stub();
+          wrapper.setState({ chartType: 'currentChartType' });
 
           wrapper.setProps({
             ...props,

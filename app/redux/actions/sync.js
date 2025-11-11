@@ -2647,25 +2647,25 @@ export function setSSOEnabledDisplay(value) {
   };
 }
 
-export function fetchClinicPatientCountRequest() {
+export function fetchClinicPatientCountsRequest() {
   return {
-    type: ActionTypes.FETCH_CLINIC_PATIENT_COUNT_REQUEST,
+    type: ActionTypes.FETCH_CLINIC_PATIENT_COUNTS_REQUEST,
   };
 }
 
-export function fetchClinicPatientCountSuccess(clinicId, results) {
+export function fetchClinicPatientCountsSuccess(clinicId, patientCounts) {
   return {
-    type: ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SUCCESS,
+    type: ActionTypes.FETCH_CLINIC_PATIENT_COUNTS_SUCCESS,
     payload: {
       clinicId: clinicId,
-      patientCount: results.patientCount,
+      patientCounts: patientCounts,
     },
   };
 }
 
-export function fetchClinicPatientCountFailure(error, apiError) {
+export function fetchClinicPatientCountsFailure(error, apiError) {
   return {
-    type: ActionTypes.FETCH_CLINIC_PATIENT_COUNT_FAILURE,
+    type: ActionTypes.FETCH_CLINIC_PATIENT_COUNTS_FAILURE,
     error,
     meta: {
       apiError: apiError || null,
