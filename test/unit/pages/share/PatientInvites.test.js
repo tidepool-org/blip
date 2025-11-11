@@ -316,7 +316,8 @@ describe('PatientInvites', () => {
             mrn: 'MRN456',
             tags: [],
             sites: [],
-            glycemicRanges: 'ADA standard',
+            diagnosisType: '',
+            glycemicRanges: { type: 'preset', preset: 'adaStandard' },
           }
         );
 
@@ -399,7 +400,8 @@ describe('PatientInvites', () => {
             mrn: 'MRN456',
             tags: [],
             sites: [],
-            glycemicRanges: 'ADA standard',
+            diagnosisType: '',
+            glycemicRanges: { type: 'preset', preset: 'adaStandard' },
           }
         );
 

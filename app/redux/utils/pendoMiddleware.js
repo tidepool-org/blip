@@ -185,7 +185,7 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
             tier: selectedClinic?.tier,
             created: selectedClinic?.createdTime,
             country: selectedClinic?.country,
-            patientCount: selectedClinic?.patientCounts?.plan,
+            patientCount: selectedClinic?.patientCounts?.plan ?? selectedClinic?.patientCounts?.patientCount,
             clinicianCount: null,
           },
         });
@@ -203,7 +203,7 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
         pendoAction({
           account: {
             id: clinicId,
-            patientCount: patientCounts?.plan,
+            patientCount: patientCounts?.plan ?? patientCounts?.patientCount,
           },
         });
       }
@@ -220,7 +220,7 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
         pendoAction({
           account: {
             id: clinicId,
-            patientCountHardLimit: patientCountSettings?.hardLimit?.plan,
+            patientCountHardLimit: patientCountSettings?.hardLimit?.plan ?? patientCountSettings?.hardLimit?.patientCount,
             patientCountHardLimitStartDate: patientCountSettings?.hardLimit?.startDate,
           },
         });
