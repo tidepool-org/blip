@@ -1,7 +1,6 @@
 import moment from 'moment';
 import * as clinicUtils from '../../../../app/core/clinicUtils';
 import { CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD, DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT, URL_TIDEPOOL_PLUS_CONTACT_SALES, URL_TIDEPOOL_PLUS_PLANS } from '../../../../app/core/constants';
-import { patient } from '../../../../app/core/api';
 
 /* global chai */
 /* global sinon */
