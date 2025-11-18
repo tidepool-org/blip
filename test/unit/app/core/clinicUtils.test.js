@@ -1,6 +1,7 @@
 import moment from 'moment';
 import * as clinicUtils from '../../../../app/core/clinicUtils';
 import { CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD, DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT, URL_TIDEPOOL_PLUS_CONTACT_SALES, URL_TIDEPOOL_PLUS_PLANS } from '../../../../app/core/constants';
+import { patient } from '../../../../app/core/api';
 
 /* global chai */
 /* global sinon */
@@ -207,7 +208,9 @@ describe('clinicUtils', function() {
     it('should set appropriate details for a tier0100 clinic that is has a limit but is in active sales conversations', () => {
       const details = clinicUtils.clinicTierDetails(createClinic({
         tier: 'tier0100',
-        patientCountSettings: {}, // no hard or soft limits for a tier0100 denotes active sales convos
+        patientCountSettings: {
+          hardLimit: { plan: undefined, patientCount: undefined } // no hard limits for a tier0100 denotes active sales convos
+        },
       }));
 
       expect(details.planName).to.equal('activeSalesBase');
