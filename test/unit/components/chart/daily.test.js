@@ -578,7 +578,7 @@ describe('Daily', () => {
 
         expect(instance.state.hoveredEvent).to.deep.equal({
           ...event,
-          top: 130, // rect.top + rect.height + 20
+          top: 130, // rect.top + rect.height + 0
           left: 210, // rect.left + (rect.width / 2)
           side: 'bottom',
         });
