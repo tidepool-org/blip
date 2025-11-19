@@ -809,7 +809,7 @@ class Daily extends Component {
     this.throttledMetric('hovered over daily event tooltip');
     const rect = event.rect;
 
-    const isDetailedEvent = ['pump_shutdown'].includes(event.tags?.event);
+    const isDetailedEvent = ['pump_shutdown'].includes(event.data?.tags?.event);
     const topOffset = isDetailedEvent ? 20 : 0;
     const xEdgeOffset = isDetailedEvent ? 70 : 40;
 
