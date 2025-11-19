@@ -37,7 +37,7 @@ import PD, { PatientData, PatientDataClass, getFetchers, mapStateToProps } from 
 import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE, MGDL_UNITS, MS_IN_MIN, ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE } from '../../../app/core/constants';
 import { ToastProvider } from '../../../app/providers/ToastProvider.js';
 
-describe.only('PatientData', function () {
+describe('PatientData', function () {
   const defaultProps = {
     addingData: { inProgress: false, completed: false },
     removingData: { inProgress: false, completed: false },
