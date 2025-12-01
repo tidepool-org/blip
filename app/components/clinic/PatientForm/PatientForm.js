@@ -351,7 +351,7 @@ export const PatientForm = (props) => {
 
           <Body0 mb={3} mt={1}>
             { hasSummaryDashboard
-              ? t('Target ranges follow ADA guidelines. Setting a non-standard range will be used when viewing patient data, but will not be available in the dashboard view.')
+              ? t('Target ranges follow ADA guidelines. Setting an alternate range will be used when viewing patient data, but will not be available in the dashboard view.')
               : t('Target ranges follow ADA guidelines and will be used when viewing patient data.')
             }
           </Body0>
