@@ -5,7 +5,7 @@ import set from 'lodash/set';
 import map from 'lodash/map';
 import cloneDeep from 'lodash/cloneDeep';
 import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
-const { formatDatum } = vizUtils.stat;
+const { bankersRound } = vizUtils.stat;
 import { useLocalStorage } from '../../core/hooks';
 import utils from '../../core/utils';
 
@@ -15,23 +15,19 @@ const transformTIRStats = (statProps) => {
   const props = cloneDeep(statProps);
   const chartData = cloneDeep(props.data.data);
 
+  const total = props.data?.total?.value;
+
   const veryLowIndex = chartData.findIndex(d => d.id === 'veryLow');
   const lowIndex = chartData.findIndex(d => d.id === 'low');
   const targetIndex = chartData.findIndex(d => d.id === 'target');
   const highIndex = chartData.findIndex(d => d.id === 'high');
   const veryHighIndex = chartData.findIndex(d => d.id === 'veryHigh');
 
-  let { value: veryLowStr = '0' } = formatDatum(get(chartData, veryLowIndex, {}), props.dataFormat.label, props);
-  let { value: lowStr = '0' } = formatDatum(get(chartData, lowIndex, {}), props.dataFormat.label, props);
-  let { value: targetStr = '0' } = formatDatum(get(chartData, targetIndex, {}), props.dataFormat.label, props);
-  let { value: highStr = '0' } = formatDatum(get(chartData, highIndex, {}), props.dataFormat.label, props);
-  let { value: veryHighStr = '0' } = formatDatum(get(chartData, veryHighIndex, {}), props.dataFormat.label, props);
-
-  let veryLow = parseInt(veryLowStr);
-  let low = parseInt(lowStr);
-  let target = parseInt(targetStr);
-  let high = parseInt(highStr);
-  let veryHigh = parseInt(veryHighStr);
+  let veryLow = bankersRound((chartData[veryLowIndex]?.value || 0) * 100 / total);
+  let low = bankersRound((chartData[lowIndex]?.value || 0) * 100 / total);
+  let target = bankersRound((chartData[targetIndex]?.value || 0) * 100 / total);
+  let high = bankersRound((chartData[highIndex]?.value || 0) * 100 / total);
+  let veryHigh = bankersRound((chartData[veryHighIndex]?.value || 0) * 100 / total);
 
   const sum = veryLow + low + target + high + veryHigh;
 
