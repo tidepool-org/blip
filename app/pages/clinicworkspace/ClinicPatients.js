@@ -1814,8 +1814,8 @@ export const ClinicPatients = (props) => {
                     >
                       {activeFilters.lastData
                        ? activeFilters.lastData === 1
-                       ? t('Data within 1 day')
-                       : t('Data within') + find(customLastDataFilterOptions, { value: activeFilters.lastData })?.label.replace('Within', '')
+                        ? t('Data within 1 day')
+                        : t('Data within') + find(customLastDataFilterOptions, { value: activeFilters.lastData })?.label.replace('Within', '')
                        : t('Data Recency')
                       }
                     </Button>

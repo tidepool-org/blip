@@ -1425,7 +1425,7 @@ export const TideDashboard = (props) => {
 
       return map(patientGroups.noData, patient => {
         const startOfLastDataDay = moment.utc(patient.lastData).tz(timezone).startOf('day');
-        const startOfCurrentDay = moment().tz(timezone).startOf('day');
+        const startOfCurrentDay = moment.utc().tz(timezone).startOf('day');
 
         const daysSinceLastData = startOfCurrentDay.diff(startOfLastDataDay, 'days');
 
