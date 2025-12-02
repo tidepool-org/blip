@@ -3360,7 +3360,7 @@ describe('ClinicPatients', () => {
             expect(applyButton().props().disabled).to.be.true;
 
             // Choose a new startDate
-            startDate().simulate('change', { persist: noop, target: { name: 'rpm-report-start-date', value: moment().subtract(10, 'days').format('MMM D, YYYY') } });
+            startDate().simulate('change', { persist: noop, target: { name: 'rpm-report-start-date', value: moment().subtract(10, 'days').format('YYYY-MM-DD') } });
 
             // Apply button should now be active
             expect(applyButton().props().disabled).to.be.false;
