@@ -113,9 +113,9 @@ describe('ClinicsUsingAltRangeNotifications', () => {
       // Displays notifications for clinics using alternative target ranges.
       // Second and Third Clinic are both using target ranges of 70-180, so they do not have notifications.
       expect(container).not.toBeEmptyDOMElement();
-      expect(screen.getAllByText(/Non-Standard Target Range/).length).toBe(2);
-      expect(screen.getByText('First Clinic is using a non-standard target range of 63-140 mg/dL to view your data')).toBeInTheDocument();
-      expect(screen.getByText('Fourth Clinic is using a non-standard target range of 3.5-7.8 mmol/L to view your data')).toBeInTheDocument();
+      expect(screen.getAllByText(/Alternate Range/).length).toBe(2);
+      expect(screen.getByText('First Clinic is using an alternate range of 63-140 mg/dL to view your data')).toBeInTheDocument();
+      expect(screen.getByText('Fourth Clinic is using an alternate range of 3.5-7.8 mmol/L to view your data')).toBeInTheDocument();
 
       // Click a dismiss button. It updates the target ranges.
       const firstClinicDismissButton = screen.getAllByRole('button', { name: /Dismiss/ })[0];
@@ -149,12 +149,12 @@ describe('ClinicsUsingAltRangeNotifications', () => {
         </Provider>
       );
 
-      expect(screen.getAllByText(/Non-Standard Target Range/).length).toBe(1);
+      expect(screen.getAllByText(/Alternate Range/).length).toBe(1);
 
       // First Clinic was dismissed previously, so it doesn't appear
-      expect(screen.queryByText('First Clinic is using a non-standard target range of 63-140 mg/dL to view your data')).not.toBeInTheDocument();
+      expect(screen.queryByText('First Clinic is using an alternate range of 63-140 mg/dL to view your data')).not.toBeInTheDocument();
 
-      expect(screen.getByText('Fourth Clinic is using a non-standard target range of 3.5-7.8 mmol/L to view your data')).toBeInTheDocument();
+      expect(screen.getByText('Fourth Clinic is using an alternate range of 3.5-7.8 mmol/L to view your data')).toBeInTheDocument();
     });
   });
 });
