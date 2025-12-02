@@ -83,7 +83,7 @@ const Overview = ({ patientId, agpCGMData }) => {
       <Box mb={3} sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 3 }}>
         <CategoryContainer
           title={AGPConstants.text.percentInRanges.title[bgSource]}
-          subtitle={AGPConstants.text.percentInRanges.subtitle[glycemicRanges]}
+          subtitle={AGPConstants.text.percentInRanges.subtitle[bgSource][glycemicRanges?.preset]}
         >
           <StyledAGPImage src={percentInRanges} alt={t('Time in Ranges Chart')} />
         </CategoryContainer>

@@ -10,7 +10,7 @@ import thunk from 'redux-thunk';
 import mockLocalStorage from '../../../../utils/mockLocalStorage';
 
 import { utils as vizUtils } from '@tidepool/viz';
-const { GLYCEMIC_RANGE } = vizUtils.constants;
+const { GLYCEMIC_RANGES_PRESET, GLYCEMIC_RANGES_TYPE } = vizUtils.constants;
 
 import SelectGlycemicRanges from '@app/components/clinic/PatientForm/SelectGlycemicRanges';
 
@@ -34,7 +34,7 @@ describe('SelectGlycemicRanges', ()  => {
   const mockStore = configureStore([thunk]);
   let store = mockStore(storeFixture);
 
-  it('Should fire the onChange handler with the selected diabetes type', async () => {
+  it('Should fire the onChange handler with the selected glycemic range', async () => {
     mockLocalStorage({
       'activePatientFilters/abcd-1234/4b68d': JSON.stringify({
         timeCGMUsePercent: null,
@@ -48,7 +48,10 @@ describe('SelectGlycemicRanges', ()  => {
     });
 
     const testProps = {
-      value: GLYCEMIC_RANGE.ADA_STANDARD,
+      value: {
+        type: GLYCEMIC_RANGES_TYPE.PRESET,
+        preset: GLYCEMIC_RANGES_PRESET.ADA_STANDARD,
+      },
       onChange: jest.fn(),
     };
 
@@ -80,6 +83,9 @@ describe('SelectGlycemicRanges', ()  => {
 
     // Clicking an option fires the onChange handler with the clicked option's value
     await userEvent.click(screen.getByText('Pregnancy (Type 1): 63-140 mg/dL'));
-    expect(testProps.onChange).toHaveBeenCalledWith(GLYCEMIC_RANGE.ADA_PREGNANCY_T1);
+    expect(testProps.onChange).toHaveBeenCalledWith({
+      type: GLYCEMIC_RANGES_TYPE.PRESET,
+      preset: GLYCEMIC_RANGES_PRESET.ADA_PREGNANCY_T1,
+    });
   });
 });

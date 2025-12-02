@@ -12,6 +12,8 @@ import postalCodes from './validation/postalCodes';
 import i18next from './language';
 import { timezoneNames } from './validation/timezoneNames';
 
+import { glycemicRangesSchema } from './glycemicRangesUtils';
+
 import {
   URL_TIDEPOOL_PLUS_PLANS,
   URL_TIDEPOOL_PLUS_CONTACT_SALES,
@@ -110,7 +112,7 @@ export const clinicTierDetails = (clinic = {}) => {
     patientCountSettings = {},
   } = clinic;
 
-  const hardLimit = patientCountSettings?.hardLimit;
+  const hardLimit = patientCountSettings?.hardLimit?.plan ?? patientCountSettings?.hardLimit?.patientCount;
   const hardLimitStartDate = patientCountSettings?.hardLimit?.startDate;
   const hardLimitStartDateIsFuture = hardLimitStartDate && moment(hardLimitStartDate).isValid() && moment(hardLimitStartDate).isAfter();
   const isBaseTier = tier.indexOf('tier01') === 0;
@@ -220,7 +222,7 @@ export const clinicTierDetails = (clinic = {}) => {
 export const clinicUIDetails = (clinic = {}) => {
   const { display, ...tierDetails } = clinicTierDetails(clinic);
   const { patientCounts, patientCountSettings } = clinic;
-  const patientCountHardLimit = patientCountSettings?.hardLimit?.plan;
+  const patientCountHardLimit = patientCountSettings?.hardLimit?.plan ?? patientCountSettings?.hardLimit?.patientCount;
   const isBase = tierDetails.planName === 'base';
   const isHonoredBase = tierDetails.planName === 'honoredBase';
   const isActiveSalesBase = tierDetails.planName === 'activeSalesBase';
@@ -233,8 +235,9 @@ export const clinicUIDetails = (clinic = {}) => {
   const limit = patientCountHardLimit || DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT;
 
   if (tierDetails.patientLimitEnforced || isHonoredBase) {
-    warnings.limitReached = tierDetails.patientLimitEnforced && patientCounts?.plan >= limit;
-    warnings.limitApproaching = limit - patientCounts?.plan <= CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD;
+    const currentCount = patientCounts?.plan ?? patientCounts?.patientCount ?? 0;
+    warnings.limitReached = tierDetails.patientLimitEnforced && currentCount >= limit;
+    warnings.limitApproaching = limit - currentCount <= CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD;
   }
 
   let limitDescription;
@@ -449,7 +452,7 @@ export const patientSchema = config => {
       })
     ),
     diagnosisType: yup.string().nullable(),
-    glycemicRanges: yup.string(),
+    glycemicRanges: glycemicRangesSchema,
   });
 };
 

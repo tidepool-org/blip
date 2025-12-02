@@ -352,8 +352,8 @@ export const appBanners = [
     paths: [pathRegexes.patientData],
     getProps: (dispatch, loggedInUserId, clinicName = '') => ({
       interactionId: 'ClinicUsingAltRange',
-      label: t(`${clinicName} is using a non-standard target range to view your data`),
-      message: t(`${clinicName} is using a non-standard target range to view your data`),
+      label: t(`${clinicName} is using an alternate range to view your data`),
+      message: t(`${clinicName} is using an alternate range to view your data`),
       show: {
         metric: 'Banner displayed See Alternate Glycemic Range',
       },

@@ -1214,9 +1214,6 @@ describe('PatientData', function () {
           focusedSmbg: null,
           focusedSmbgRangeAvg: null,
           showingCbgDateTraces: false,
-          stats: {
-            excludeDaysWithoutBolus: false
-          },
           touched: false,
         },
         bgLog: {
@@ -3205,7 +3202,6 @@ describe('PatientData', function () {
           chartType: 'trends',
           endpoints: [100,200],
           excludedDevices: [],
-          excludeDaysWithoutBolus: undefined,
           forceRemountAfterQuery: undefined,
           types: 'cbg,smbg',
           metaData: 'bar',
@@ -3372,46 +3368,6 @@ describe('PatientData', function () {
           });
         });
       });
-    });
-  });
-
-  describe('toggleDaysWithoutBoluses', () => {
-    let wrapper;
-    let instance;
-
-    beforeEach(() => {
-      wrapper = shallow(<PatientDataClass {...defaultProps} />);
-      instance = wrapper.instance();
-    });
-
-    it('should call `updateChartPrefs` with the `excludeDaysWithoutBolus` chartPrefs state toggled', () => {
-      instance.setState({ chartType: 'basics' });
-      const updateChartPrefsSpy = sinon.spy(instance, 'updateChartPrefs');
-      instance.toggleDaysWithoutBoluses();
-
-      sinon.assert.calledWith(updateChartPrefsSpy, {
-        ...instance.state.chartPrefs,
-        basics: { extentSize: 14, sections: {}, stats: { excludeDaysWithoutBolus: true } },
-      });
-
-      instance.toggleDaysWithoutBoluses();
-
-      sinon.assert.calledWith(updateChartPrefsSpy, {
-        ...instance.state.chartPrefs,
-        basics: { extentSize: 14, sections: {}, stats: { excludeDaysWithoutBolus: false } },
-      });
-    });
-
-    it('should track a metric when `excludeDaysWithoutBolus` set to true on basics view', () => {
-      instance.setState({ chartType: 'basics' });
-      instance.toggleDaysWithoutBoluses();
-      sinon.assert.calledWith(defaultProps.trackMetric, 'Basics exclude days without boluses');
-    });
-
-    it('should track a metric when `excludeDaysWithoutBolus` set to true on trends view', () => {
-      instance.setState({ chartType: 'trends' });
-      instance.toggleDaysWithoutBoluses();
-      sinon.assert.calledWith(defaultProps.trackMetric, 'Trends exclude days without boluses');
     });
   });
 

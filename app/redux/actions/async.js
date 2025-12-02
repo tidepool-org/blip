@@ -17,6 +17,7 @@ import { worker } from '.';
 import utils from '../../core/utils';
 import { clinicUIDetails } from '../../core/clinicUtils.js';
 import { getDismissedAltRangeBannerKey, isRangeWithNonStandardTarget } from '../../providers/AppBanner/appBannerHelpers.js';
+import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils.js';
 
 let win = window;
 
@@ -1597,7 +1598,9 @@ export function handleBannerInteraction(api, userId, interactionId, interactionT
       // one click should dismiss the banner for all clinics at once. Thus, we create a field in
       // the preferences object for every clinic.
       Object.entries(clinicRanges).forEach(([clinicId, glycemicRanges]) => {
-        if (isRangeWithNonStandardTarget(glycemicRanges)) {
+        const glycemicRangesPreset = getGlycemicRangesPreset(glycemicRanges);
+
+        if (isRangeWithNonStandardTarget(glycemicRangesPreset)) {
           preferences[getDismissedAltRangeBannerKey(clinicId)] = interactionTime;
         }
       });

@@ -13,7 +13,7 @@ import utils from '../../../app/core/utils';
 import { MMOLL_UNITS, MGDL_UNITS } from '../../../app/core/constants';
 import releases from '../../fixtures/githubreleasefixture';
 import { utils as vizUtils } from '@tidepool/viz';
-const { GLYCEMIC_RANGE } = vizUtils.constants;
+const { GLYCEMIC_RANGES_PRESET } = vizUtils.constants;
 const expect = chai.expect;
 
 describe('utils', () => {
@@ -710,7 +710,7 @@ describe('utils', () => {
       it('should return correct classes when PwD has no custom bg range', () => {
         const result = utils.getBGPrefsForDataProcessing(
           {}, // patientSettings object is empty if settings have never once been modified by PwD
-          { id: 'abcd-1234', glycemicRanges: GLYCEMIC_RANGE.ADA_PREGNANCY_T1 },
+          { id: 'abcd-1234', glycemicRanges: { type: 'preset', preset: GLYCEMIC_RANGES_PRESET.ADA_PREGNANCY_T1 } },
           { source: 'preferred clinic units', units: 'mg/dL' }
         );
 
@@ -729,7 +729,7 @@ describe('utils', () => {
       it('should override classes when PwD has custom bg range setting', () => {
         const result = utils.getBGPrefsForDataProcessing(
           { bgTarget: { high: 165, low: 115 }, units: { bg: 'mg/dL' } },
-          { id: 'abcd-1234', glycemicRanges: GLYCEMIC_RANGE.ADA_OLDER_HIGH_RISK },
+          { id: 'abcd-1234', glycemicRanges: { type: 'preset', preset: GLYCEMIC_RANGES_PRESET.ADA_OLDER_HIGH_RISK } },
           { source: 'preferred clinic units', units: 'mg/dL' }
         );
 
@@ -748,7 +748,7 @@ describe('utils', () => {
       it('should override classes when PwD has custom bg range setting in different units', () => {
         const result = utils.getBGPrefsForDataProcessing(
           { bgTarget: { high: 8, low: 5 }, units: { bg: 'mmol/L' } },
-          { id: 'abcd-1234', glycemicRanges: GLYCEMIC_RANGE.ADA_PREGNANCY_T1 },
+          { id: 'abcd-1234', glycemicRanges: { type: 'preset', preset: GLYCEMIC_RANGES_PRESET.ADA_PREGNANCY_T1 } },
           { source: 'preferred clinic units', units: 'mg/dL' }
         );
 
