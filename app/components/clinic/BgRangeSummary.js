@@ -4,6 +4,7 @@ import { Text, Box, Flex } from 'theme-ui';
 import map from 'lodash/map';
 import pick from 'lodash/pick';
 import isEqual from 'lodash/isEqual';
+import cloneDeep from 'lodash/cloneDeep';
 import { withTranslation } from 'react-i18next';
 
 import {
@@ -16,8 +17,33 @@ import Popover from '../elements/Popover';
 import { space, shadows, radii } from '../../themes/baseTheme';
 
 import { utils as vizUtils } from '@tidepool/viz';
-const { formatStatsPercentage } = vizUtils.stat;
+const { formatStatsPercentage, bankersRound } = vizUtils.stat;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels } = vizUtils.bg;
+
+const normalizeRangeData = (rangeData) => {
+  const stats = cloneDeep(rangeData);
+
+  // Round each TIR percentage
+  Object.keys(stats).forEach(rangeKey => {
+    stats[rangeKey] = bankersRound(stats[rangeKey], 2);
+  });
+
+  // Calculate the sum of the percentages
+  let sum = 0;
+  Object.values(stats).forEach(percentage => sum += percentage);
+
+  // If the sum is not between 98% - 102%, something weird has happened.
+  // We do not do any calculations to avoid compounding math errors.
+  if (sum < 0.98 || sum > 1.02) {
+    return rangeData;
+  }
+
+  // Otherwise, ensure they now sum up to 100;
+  const diff = 1 - sum;
+  stats['high'] += diff;
+
+  return stats;
+};
 
 export const BgRangeSummary = React.memo(props => {
   const {
@@ -61,14 +87,17 @@ export const BgRangeSummary = React.memo(props => {
   const wrapperStyle = useMemo(() => ({ position: 'relative', borderRadius: `${radii.input}px`, overflow: 'hidden' }), []);
   const flexWidth = useMemo(() => (['155px', '175px']),[])
   const bgLabels = generateBgRangeLabels(bgPrefs, { condensed: true });
-  const renderedData = pick(data, ['veryLow', 'low', 'target', 'high', 'veryHigh']);
-  const barData = { ...renderedData };
+
+  const rangeData = pick(data, ['veryLow', 'low', 'target', 'high', 'veryHigh']);
+  const barData = { ...rangeData };
 
   if (data.extremeHigh) {
     barData.veryHigh -= data.extremeHigh || 0;
     barData.extremeHigh = data.extremeHigh || 0;
-    renderedData.extremeHigh = data.extremeHigh || 0;
+    rangeData.extremeHigh = data.extremeHigh || 0;
   }
+
+  const renderedData = useMemo(() => normalizeRangeData(rangeData), [rangeData]);
 
   return (
     <>
