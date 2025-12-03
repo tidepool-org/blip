@@ -3,47 +3,38 @@ import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import set from 'lodash/set';
 import map from 'lodash/map';
+import find from 'lodash/find';
+import keys from 'lodash/keys';
+import forEach from 'lodash/forEach';
 import cloneDeep from 'lodash/cloneDeep';
 import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
-const { bankersRound } = vizUtils.stat;
+const { bankersRound, reconcileTIRPercentages } = vizUtils.stat;
 import { useLocalStorage } from '../../core/hooks';
 import utils from '../../core/utils';
 
 const { Stat } = vizComponents;
 
-const transformTIRStats = (statProps) => {
-  const props = cloneDeep(statProps);
+const reconcileTIRDatumValues = (timeInRanges) => {
+  const props = cloneDeep(timeInRanges);
   const chartData = cloneDeep(props.data.data);
 
+  const ranges = {};
   const total = props.data?.total?.value;
 
-  const veryLowIndex = chartData.findIndex(d => d.id === 'veryLow');
-  const lowIndex = chartData.findIndex(d => d.id === 'low');
-  const targetIndex = chartData.findIndex(d => d.id === 'target');
-  const highIndex = chartData.findIndex(d => d.id === 'high');
-  const veryHighIndex = chartData.findIndex(d => d.id === 'veryHigh');
+  forEach(chartData, datum => {
+    if (['veryLow', 'low', 'target', 'high', 'veryHigh'].includes(datum.id)) {
+      ranges[datum.id] = datum.value / total;
+    }
+  });
 
-  let veryLow = bankersRound((chartData[veryLowIndex]?.value || 0) * 100 / total);
-  let low = bankersRound((chartData[lowIndex]?.value || 0) * 100 / total);
-  let target = bankersRound((chartData[targetIndex]?.value || 0) * 100 / total);
-  let high = bankersRound((chartData[highIndex]?.value || 0) * 100 / total);
-  let veryHigh = bankersRound((chartData[veryHighIndex]?.value || 0) * 100 / total);
+  const reconciledTimeInRanges = reconcileTIRPercentages(ranges);
 
-  const sum = veryLow + low + target + high + veryHigh;
+  const rangeKeys = keys(reconciledTimeInRanges);
+  forEach(rangeKeys, key => {
+    const datum = find(props.data.data, datum => datum.id === key);
+    datum.value = reconciledTimeInRanges[key] * 100;
+  });
 
-  // Sum should always be between 98 - 102%. If not, something weird happened;
-  // We display the stats without modification to prevent compounding calculation errors
-  if (sum > 102 || sum < 98) return props;
-
-  const diff = 100 - sum;
-
-  high += diff;
-
-  set(props, ['data', 'data', veryLowIndex, 'value'], veryLow);
-  set(props, ['data', 'data', lowIndex, 'value'], low);
-  set(props, ['data', 'data', targetIndex, 'value'], target);
-  set(props, ['data', 'data', highIndex, 'value'], high);
-  set(props, ['data', 'data', veryHighIndex, 'value'], veryHigh);
   set(props, ['data', 'total', 'value'], 100);
 
   return props;
@@ -79,7 +70,7 @@ const Stats = (props) => {
     <div className="Stats">
       {map(stats, statProps => {
         const isTIRStat = ['timeInRange', 'readingsInRange'].includes(statProps.id);
-        const stat = isTIRStat ? transformTIRStats(statProps) : statProps;
+        const stat = isTIRStat ? reconcileTIRDatumValues(statProps) : statProps;
 
         return (
           <div id={`Stat--${stat.id}`} key={stat.id}>

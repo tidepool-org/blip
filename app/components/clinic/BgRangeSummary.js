@@ -17,33 +17,8 @@ import Popover from '../elements/Popover';
 import { space, shadows, radii } from '../../themes/baseTheme';
 
 import { utils as vizUtils } from '@tidepool/viz';
-const { formatStatsPercentage, bankersRound } = vizUtils.stat;
+const { formatStatsPercentage, reconcileTIRPercentages } = vizUtils.stat;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels } = vizUtils.bg;
-
-const normalizeRangeData = (rangeData) => {
-  const stats = cloneDeep(rangeData);
-
-  // Round each TIR percentage
-  Object.keys(stats).forEach(rangeKey => {
-    stats[rangeKey] = bankersRound(stats[rangeKey], 2);
-  });
-
-  // Calculate the sum of the percentages
-  let sum = 0;
-  Object.values(stats).forEach(percentage => sum += percentage);
-
-  // If the sum is not between 98% - 102%, something weird has happened.
-  // We do not do any calculations to avoid compounding math errors.
-  if (sum < 0.98 || sum > 1.02) {
-    return rangeData;
-  }
-
-  // Otherwise, ensure they now sum up to 100;
-  const diff = 1 - sum;
-  stats['high'] += diff;
-
-  return stats;
-};
 
 export const BgRangeSummary = React.memo(props => {
   const {
@@ -88,16 +63,16 @@ export const BgRangeSummary = React.memo(props => {
   const flexWidth = useMemo(() => (['155px', '175px']),[])
   const bgLabels = generateBgRangeLabels(bgPrefs, { condensed: true });
 
-  const rangeData = pick(data, ['veryLow', 'low', 'target', 'high', 'veryHigh']);
-  const barData = { ...rangeData };
+  const timeInRanges = pick(data, ['veryLow', 'low', 'target', 'high', 'veryHigh']);
+  const barData = { ...timeInRanges };
 
   if (data.extremeHigh) {
     barData.veryHigh -= data.extremeHigh || 0;
     barData.extremeHigh = data.extremeHigh || 0;
-    rangeData.extremeHigh = data.extremeHigh || 0;
+    timeInRanges.extremeHigh = data.extremeHigh || 0;
   }
 
-  const renderedData = useMemo(() => normalizeRangeData(rangeData), [rangeData]);
+  const renderedData = useMemo(() => reconcileTIRPercentages(timeInRanges), [timeInRanges]);
 
   return (
     <>
