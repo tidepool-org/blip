@@ -63,7 +63,7 @@ import ShareBanner from '../../components/elements/Card/Banners/Share.png';
 import DataConnectionsBanner from '../../components/elements/Card/Banners/DataConnections.png';
 import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
 import { DATA_DONATION_CONSENT_TYPE, DEFAULT_CGM_SAMPLE_INTERVAL, DEFAULT_CGM_SAMPLE_INTERVAL_RANGE, MS_IN_MIN } from '../../core/constants';
-const { GLYCEMIC_RANGE } = vizUtils.constants;
+const { GLYCEMIC_RANGES_PRESET } = vizUtils.constants;
 
 const { Loader } = vizComponents;
 const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
@@ -154,9 +154,6 @@ export const PatientDataClass = createReactClass({
           focusedSmbgRangeAvg: null,
           showingCbgDateTraces: false,
           touched: false,
-          stats: {
-            excludeDaysWithoutBolus: false,
-          },
         },
         bgLog: {
           bgSource: 'smbg',
@@ -469,7 +466,7 @@ export const PatientDataClass = createReactClass({
 
           let setStateCallback = this.generatePDF;
 
-          if (startDate < fetchedUntil) {
+          if (startDate < fetchedUntil || !fetchedUntil) {
             this.fetchAdditionalData({
               returnData: false,
               showLoading: false,
@@ -677,41 +674,6 @@ export const PatientDataClass = createReactClass({
     }
   },
 
-  renderExcludeEmptyBolusDaysCheckbox: function(props, state) {
-    const { t } = props;
-
-    return (
-      <Box p={2} sx={{
-        borderTop: '1px solid',
-        borderColor: 'grays.1',
-      }}>
-        <PopoverLabel
-          id="exclude-bolus-info"
-          label={(
-            <Checkbox
-              checked={_.get(state, ['chartPrefs', state.chartType, 'stats', 'excludeDaysWithoutBolus'])}
-              label={t('Exclude days with no boluses')}
-              onChange={this.toggleDaysWithoutBoluses}
-              themeProps={{
-                color: 'stat.text',
-              }}
-            />
-          )}
-          popoverContent={(
-            <Box p={3}>
-              <Paragraph2>
-                <strong>{t('Only some of the days within the current range contain bolus data.')}</strong>
-              </Paragraph2>
-              <Paragraph2>
-                {t('If this option is checked, days without boluses will be excluded when calculating this stat and the "Avg per day" count in the "Bolusing" calendar summary.')}
-              </Paragraph2>
-            </Box>
-          )}
-        />
-      </Box>
-    );
-  },
-
   renderMessagesContainer: function() {
     if (this.state.createMessageDatetime) {
       return (
@@ -737,17 +699,6 @@ export const PatientDataClass = createReactClass({
           timePrefs={this.state.timePrefs} />
       );
     }
-  },
-
-  toggleDaysWithoutBoluses: function(e) {
-    if (e) {
-      e.preventDefault();
-    }
-
-    const prefs = _.cloneDeep(this.state.chartPrefs);
-    prefs[this.state.chartType].stats.excludeDaysWithoutBolus = !prefs[this.state.chartType].stats.excludeDaysWithoutBolus;
-    if (prefs[this.state.chartType].stats.excludeDaysWithoutBolus) this.props.trackMetric(`${_.capitalize(this.state.chartType)} exclude days without boluses`);
-    this.updateChartPrefs(prefs, false, true, true);
   },
 
   closeDatesDialog: function() {
@@ -804,9 +755,6 @@ export const PatientDataClass = createReactClass({
         delete stat.dataFormat.title;
         delete stat.data.dataPaths.title;
 
-        const activeDays = _.get(props, 'data.data.current.endpoints.activeDays');
-        const daysWithBoluses = _.keys(_.get(props, 'data.data.aggregationsByDate.boluses.byDate', {})).length;
-
         const averageDailyDoseStat = getStatDefinition(averageDailyDose, 'averageDailyDose', {
           bgSource,
           days: _.isFinite(endpoints.activeDays) ? endpoints.activeDays : endpoints.days,
@@ -842,18 +790,7 @@ export const PatientDataClass = createReactClass({
           </Box>
         );
 
-        if (state.chartType !== 'basics' && daysWithBoluses > 0 && daysWithBoluses < activeDays) {
-          // If any of the calendar dates within the range are missing boluses,
-          // present a checkbox to disable them from insulin stat calculations
-          stat.children = (
-            <React.Fragment>
-              {averageDailyDoseComponent}
-              {this.renderExcludeEmptyBolusDaysCheckbox(props, state)}
-            </React.Fragment>
-          )
-        } else {
-          stat.children = averageDailyDoseComponent;
-        }
+        stat.children = averageDailyDoseComponent;
       }
 
       stats.push(stat);
@@ -914,7 +851,7 @@ export const PatientDataClass = createReactClass({
     const combinedPatient = props.clinicPatient ? personUtils.combinedAccountAndClinicPatient(props.patient, props.clinicPatient) : null;
     const sourcePatient = personUtils.isClinicianAccount(props.user) && !!combinedPatient ? combinedPatient : props.patient;
 
-    const glycemicRanges = props.clinicPatient?.glycemicRanges || GLYCEMIC_RANGE.ADA_STANDARD;
+    const glycemicRanges = props.clinicPatient?.glycemicRanges || GLYCEMIC_RANGES_PRESET.ADA_STANDARD;
 
     const pdfPatient = _.assign({}, sourcePatient, {
       settings: _.assign({}, patientSettings, { siteChangeSource }),
@@ -935,7 +872,6 @@ export const PatientDataClass = createReactClass({
         aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
         bgSource: _.get(state.chartPrefs, 'basics.bgSource'),
         stats: this.getStatsByChartType('basics'),
-        excludeDaysWithoutBolus: false, // deprecated for basics chartType
         ...commonQueries,
       };
     }
@@ -1023,10 +959,12 @@ export const PatientDataClass = createReactClass({
   handleChartDateRangeUpdate: function(datetimeLocation, forceChartDataUpdate = false) {
     const isDaily = this.state.chartType === 'daily';
     const isTrends = this.state.chartType === 'trends';
+    const isBasics = this.state.chartType === 'basics';
 
-    const newEndpoints = this.getChartEndpoints(datetimeLocation, {
-      setEndToLocalCeiling: forceChartDataUpdate || !isDaily,
-    });
+    const canSplitDays = isDaily || isTrends || isBasics;
+    const setEndToLocalCeiling = forceChartDataUpdate || !canSplitDays;
+
+    const newEndpoints = this.getChartEndpoints(datetimeLocation, { setEndToLocalCeiling });
 
     const endpointsChanged = newEndpoints && !_.isEqual(newEndpoints, this.state.endpoints);
     if (!endpointsChanged) return;
@@ -1239,12 +1177,17 @@ export const PatientDataClass = createReactClass({
       .toISOString();
 
     const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
-    const dateCeiling = getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs);
-    const datetimeLocation = getDatetimeLocation(dateCeiling);
+    const hourCeiling = getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs, 'hour');
+    const datetimeLocation = getDatetimeLocation(hourCeiling);
 
     const updateOpts = { updateChartEndpoints: true };
 
-    this.updateChart(chartType, datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType }), updateOpts);
+    this.updateChart(
+      chartType,
+      datetimeLocation,
+      this.getChartEndpoints(datetimeLocation, { chartType, setEndToLocalCeiling: false }),
+      updateOpts
+    );
   },
 
   handleSwitchToDaily: function(datetime) {
@@ -1279,15 +1222,20 @@ export const PatientDataClass = createReactClass({
       .toISOString();
 
     const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
-    const dateCeiling = getLocalizedCeiling(_.min([Date.parse(datetime), mostRecentDatumTime]), this.state.timePrefs);
-    const datetimeLocation = getDatetimeLocation(dateCeiling);
+    const hourCeiling = getLocalizedCeiling(_.min([Date.parse(datetime), mostRecentDatumTime]), this.state.timePrefs, 'hour');
+    const datetimeLocation = getDatetimeLocation(hourCeiling);
 
     const updateOpts = { updateChartEndpoints: true };
     if (datetime && mostRecentDatumTime) {
       updateOpts.mostRecentDatetimeLocation = getDatetimeLocation(mostRecentDatumTime)
     }
 
-    this.updateChart(chartType, datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType }), updateOpts);
+    this.updateChart(
+      chartType,
+      datetimeLocation,
+      this.getChartEndpoints(datetimeLocation, { chartType,  setEndToLocalCeiling: false }),
+      updateOpts
+    );
   },
 
   handleSwitchToBgLog: function(datetime) {
@@ -1681,6 +1629,7 @@ export const PatientDataClass = createReactClass({
         'size',
         'devices',
         'matchedDevices',
+        'dataAnnotations',
       ],
       types: '*',
       raw,
@@ -1724,6 +1673,10 @@ export const PatientDataClass = createReactClass({
     this.setState(state, cb);
   },
 
+  componentDidMount() {
+    window.scrollTo(0, 0);
+  },
+
   UNSAFE_componentWillMount: function() {
     this.doFetching(this.props);
     var params = this.props.queryParams;
@@ -1753,8 +1706,9 @@ export const PatientDataClass = createReactClass({
     const patientSettings = _.get(nextProps, ['patient', 'settings'], null);
     const clinicPatient = _.get(nextProps.clinics, [nextProps.clinic?.id, 'patients', userId], {});
 
-    // Handle data refresh
-    if (this.props.removingData.inProgress && nextProps.removingData.completed) {
+    // Handle data refresh, assuming chartType is already set so that it can't trigger on initial load
+    // such as can happen if the data is being cleared upon exit from another view (e.g. TIDE drawer)
+    if (this.state.chartType && this.props.removingData.inProgress && nextProps.removingData.completed) {
       setTimeout(() => {
         this.setState({
           ...this.getInitialState(),
@@ -1992,7 +1946,7 @@ export const PatientDataClass = createReactClass({
       showLoading: true,
       updateChartEndpoints: options.updateChartEndpoints || !this.state.chartEndpoints,
       transitioningChartType: false,
-      metaData: 'bgSources,devices,matchedDevices,excludedDevices,queryDataCount',
+      metaData: 'bgSources,devices,matchedDevices,excludedDevices,queryDataCount,dataAnnotations',
       bgSource: _.get(this.state, ['chartPrefs', this.state.chartType, 'bgSource']),
     });
 
@@ -2003,7 +1957,6 @@ export const PatientDataClass = createReactClass({
       bgSource: options.bgSource,
       chartType: this.state.chartType,
       excludedDevices: _.get(this.state, 'chartPrefs.excludedDevices', []),
-      excludeDaysWithoutBolus: _.get(this.state, ['chartPrefs', this.state.chartType, 'stats', 'excludeDaysWithoutBolus']),
       endpoints: this.state.endpoints,
       metaData: options.metaData,
       forceRemountAfterQuery: options.forceRemountAfterQuery,
@@ -2041,6 +1994,7 @@ export const PatientDataClass = createReactClass({
             deviceEvent: {},
             food: {},
             message: {},
+            pumpSettings: {},
             smbg: {},
             wizard: {},
           };
@@ -2189,21 +2143,23 @@ export const PatientDataClass = createReactClass({
       const isBgLog = chartType === 'bgLog';
 
       const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(props, chartType);
-      const latestDatumDateCeiling = getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs);
+      const latestDatumHourCeiling = getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs, 'hour');
 
+      // If a datetime param is specified in URL, use that. Otherwise, use time of latest
+      // datum unless it is the daily view, in which case use the end of that date
       let datetimeLocation = _.get(props, 'queryParams.datetime', (isDaily || isBgLog)
-        ? moment.utc(latestDatumDateCeiling.valueOf())
+        ? moment.utc(latestDatumHourCeiling.valueOf())
           .tz(isDaily ? getTimezoneFromTimePrefs(this.state.timePrefs) : 'UTC')
           .subtract(12, 'hours')
           .toISOString()
-        : moment.utc(latestDatumDateCeiling.valueOf())
+        : moment.utc(latestDatumHourCeiling.valueOf())
           .toISOString());
 
       if (_.isInteger(_.toNumber(datetimeLocation))) {
         datetimeLocation = moment.utc(_.toNumber(datetimeLocation)).toISOString();
       }
 
-      const endpoints = this.getChartEndpoints(datetimeLocation, { chartType });
+      const endpoints = this.getChartEndpoints(datetimeLocation, { chartType, setEndToLocalCeiling: false });
 
       // Set the default bgSource for basics, daily, and trends charts
       this.updateChartPrefs({

@@ -51,7 +51,7 @@ import ClinicProfileFields from '../../components/clinic/ClinicProfileFields';
 import { useToasts } from '../../providers/ToastProvider';
 import baseTheme, { borders } from '../../themes/baseTheme';
 import * as actions from '../../redux/actions';
-import { usePrevious } from '../../core/hooks';
+import { usePrevious, useScrollToTop } from '../../core/hooks';
 
 import {
   clinicTypes,
@@ -66,6 +66,7 @@ import utils from '../../core/utils';
 const clinicTypesLabels = mapValues(keyBy(clinicTypes, 'value'), 'label');
 
 export const ClinicAdmin = (props) => {
+  useScrollToTop();
   const { t, api, trackMetric } = props;
   const { showPrescriptions } = useFlags();
   const dispatch = useDispatch();

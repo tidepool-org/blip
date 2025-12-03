@@ -1214,9 +1214,6 @@ describe('PatientData', function () {
           focusedSmbg: null,
           focusedSmbgRangeAvg: null,
           showingCbgDateTraces: false,
-          stats: {
-            excludeDaysWithoutBolus: false
-          },
           touched: false,
         },
         bgLog: {
@@ -2382,6 +2379,7 @@ describe('PatientData', function () {
       context('data is removed prior to refresh', () => {
         it('should clear generated pdfs upon refresh', done => {
           const removeGeneratedPDFSStub = sinon.stub();
+          wrapper.setState({ chartType: 'currentChartType' });
 
           wrapper.setProps({
             ...props,
@@ -2918,7 +2916,7 @@ describe('PatientData', function () {
               showLoading: true,
               updateChartEndpoints: true,
               transitioningChartType: false,
-              metaData: 'bgSources,devices,matchedDevices,excludedDevices,queryDataCount',
+              metaData: 'bgSources,devices,matchedDevices,excludedDevices,queryDataCount,dataAnnotations',
               bgSource: undefined,
             });
           });
@@ -2952,7 +2950,7 @@ describe('PatientData', function () {
                 showLoading: true,
                 updateChartEndpoints: true,
                 transitioningChartType: false,
-                metaData: 'bgSources,devices,matchedDevices,excludedDevices,queryDataCount',
+                metaData: 'bgSources,devices,matchedDevices,excludedDevices,queryDataCount,dataAnnotations',
                 bgSource: 'cbg',
               });
             });
@@ -3157,9 +3155,9 @@ describe('PatientData', function () {
       sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, { metaData: 'latestDatumByType, size' });
     });
 
-    it('should set the `metaData` query to `bgSources,devices` if arg not provided', () => {
+    it('should set the default `metaData` query if arg not provided', () => {
       instance.queryData(emptyQuery);
-      sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, { metaData: 'bgSources,devices,matchedDevices,excludedDevices,queryDataCount' });
+      sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, { metaData: 'bgSources,devices,matchedDevices,excludedDevices,queryDataCount,dataAnnotations' });
     });
 
     it('should set the `activeDays` query from `chartPrefs`', () => {
@@ -3204,7 +3202,6 @@ describe('PatientData', function () {
           chartType: 'trends',
           endpoints: [100,200],
           excludedDevices: [],
-          excludeDaysWithoutBolus: undefined,
           forceRemountAfterQuery: undefined,
           types: 'cbg,smbg',
           metaData: 'bar',
@@ -3371,46 +3368,6 @@ describe('PatientData', function () {
           });
         });
       });
-    });
-  });
-
-  describe('toggleDaysWithoutBoluses', () => {
-    let wrapper;
-    let instance;
-
-    beforeEach(() => {
-      wrapper = shallow(<PatientDataClass {...defaultProps} />);
-      instance = wrapper.instance();
-    });
-
-    it('should call `updateChartPrefs` with the `excludeDaysWithoutBolus` chartPrefs state toggled', () => {
-      instance.setState({ chartType: 'basics' });
-      const updateChartPrefsSpy = sinon.spy(instance, 'updateChartPrefs');
-      instance.toggleDaysWithoutBoluses();
-
-      sinon.assert.calledWith(updateChartPrefsSpy, {
-        ...instance.state.chartPrefs,
-        basics: { extentSize: 14, sections: {}, stats: { excludeDaysWithoutBolus: true } },
-      });
-
-      instance.toggleDaysWithoutBoluses();
-
-      sinon.assert.calledWith(updateChartPrefsSpy, {
-        ...instance.state.chartPrefs,
-        basics: { extentSize: 14, sections: {}, stats: { excludeDaysWithoutBolus: false } },
-      });
-    });
-
-    it('should track a metric when `excludeDaysWithoutBolus` set to true on basics view', () => {
-      instance.setState({ chartType: 'basics' });
-      instance.toggleDaysWithoutBoluses();
-      sinon.assert.calledWith(defaultProps.trackMetric, 'Basics exclude days without boluses');
-    });
-
-    it('should track a metric when `excludeDaysWithoutBolus` set to true on trends view', () => {
-      instance.setState({ chartType: 'trends' });
-      instance.toggleDaysWithoutBoluses();
-      sinon.assert.calledWith(defaultProps.trackMetric, 'Trends exclude days without boluses');
     });
   });
 
@@ -4244,7 +4201,7 @@ describe('PatientData', function () {
         instance.handleChartDateRangeUpdate(dateTimeLocation);
 
         sinon.assert.calledWith(instance.getChartEndpoints, dateTimeLocation, {
-          setEndToLocalCeiling: true,
+          setEndToLocalCeiling: false,
         })
       });
 
@@ -4811,14 +4768,14 @@ describe('PatientData', function () {
       wrapper.setState({timePrefs: { timezoneAware: true, timezoneName: 'utc' } })
 
       instance.updateChart = sinon.stub();
-      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns('2019-11-27T12:00:00.000Z');
+      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns('2019-11-27T11:22:00.000Z');
       instance.getChartEndpoints = sinon.stub().returns('endpoints stub');
 
       instance.handleSwitchToBasics();
 
       sinon.assert.calledWith(instance.getMostRecentDatumTimeByChartType, defaultProps, 'basics');
-      sinon.assert.calledWith(instance.getChartEndpoints, '2019-11-28T00:00:00.000Z', { chartType: 'basics' });
-      sinon.assert.calledWith(instance.updateChart, 'basics', '2019-11-28T00:00:00.000Z', 'endpoints stub')
+      sinon.assert.calledWith(instance.getChartEndpoints, '2019-11-27T12:00:00.000Z', { chartType: 'basics', setEndToLocalCeiling: false });
+      sinon.assert.calledWith(instance.updateChart, 'basics', '2019-11-27T12:00:00.000Z', 'endpoints stub')
     });
   });
 
@@ -4939,25 +4896,25 @@ describe('PatientData', function () {
       wrapper.setState({timePrefs: { timezoneAware: true, timezoneName: 'utc' } })
 
       instance.updateChart = sinon.stub();
-      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns('2019-11-27T12:00:00.000Z');
+      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns('2019-11-27T11:33:00.000Z');
       instance.getChartEndpoints = sinon.stub().returns('endpoints stub');
 
       instance.handleSwitchToTrends();
       sinon.assert.calledWith(instance.getMostRecentDatumTimeByChartType, defaultProps, 'trends');
-      sinon.assert.calledWith(instance.getChartEndpoints, '2019-11-28T00:00:00.000Z', { chartType: 'trends' });
-      sinon.assert.calledWith(instance.updateChart, 'trends', '2019-11-28T00:00:00.000Z', 'endpoints stub', {
+      sinon.assert.calledWith(instance.getChartEndpoints, '2019-11-27T12:00:00.000Z', { chartType: 'trends', setEndToLocalCeiling: false });
+      sinon.assert.calledWith(instance.updateChart, 'trends', '2019-11-27T12:00:00.000Z', 'endpoints stub', {
         updateChartEndpoints: true
       });
     });
 
-    it('should set the `datetimeLocation` state to the start of the next day for the provided datetime if it\'s after the very start of the day', () => {
+    it('should set the `datetimeLocation` state', () => {
       const wrapper = shallow(<PatientDataClass {...defaultProps} />);
       const instance = wrapper.instance();
 
       wrapper.setState({datetimeLocation: '2018-03-03T12:00:00.000Z'});
 
       instance.handleSwitchToTrends('2018-03-03T12:00:00.000Z');
-      expect(wrapper.state('datetimeLocation')).to.equal('2018-03-04T00:00:00.000Z');
+      expect(wrapper.state('datetimeLocation')).to.equal('2018-03-03T12:00:00.000Z');
     });
 
     it('should set the `datetimeLocation` state to the provided datetime as is if it\'s at the very start of the day', () => {
@@ -4975,13 +4932,13 @@ describe('PatientData', function () {
       const instance = wrapper.instance();
 
       instance.updateChart = sinon.stub();
-      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns(Date.parse('2018-02-04T08:00:00.000Z'));
+      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns(Date.parse('2018-02-04T08:22:00.000Z'));
       instance.getChartEndpoints = sinon.stub().returns('endpoints stub');
 
       // Provide a datetime that is beyond the one returned by getMostRecentDatumTimeByChartType
       instance.handleSwitchToTrends('2018-03-03T00:00:00.000Z');
-      sinon.assert.calledWith(instance.updateChart, 'trends', '2018-02-05T00:00:00.000Z', 'endpoints stub', {
-        mostRecentDatetimeLocation: '2018-02-04T08:00:00.000Z',
+      sinon.assert.calledWith(instance.updateChart, 'trends', '2018-02-04T09:00:00.000Z', 'endpoints stub', {
+        mostRecentDatetimeLocation: '2018-02-04T08:22:00.000Z',
         updateChartEndpoints: true,
       });
     });

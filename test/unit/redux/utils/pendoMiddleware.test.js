@@ -1,5 +1,6 @@
 /* global sinon */
 /* global describe */
+/* global context */
 /* global it */
 /* global expect */
 /* global beforeEach */
@@ -181,6 +182,7 @@ describe('pendoMiddleware', () => {
         environment: 'local',
         id: 'clinicAdminID',
         currentlyViewedDevices: [],
+        currentlyViewedDataAnnotations: [],
         permission: 'administrator',
         role: 'clinician',
         domain: 'example.com',
@@ -330,6 +332,7 @@ describe('pendoMiddleware', () => {
         environment: 'local',
         id: 'clinicAdminID',
         currentlyViewedDevices: [],
+        currentlyViewedDataAnnotations: [],
         permission: 'administrator',
         role: 'clinician',
         domain: 'example.com',
@@ -374,6 +377,7 @@ describe('pendoMiddleware', () => {
         environment: 'local',
         id: 'clinicAdminID',
         currentlyViewedDevices: [],
+        currentlyViewedDataAnnotations: [],
         role: 'clinician',
         termsAccepted: '2020-02-02T00:00:00.000Z',
       },
@@ -417,6 +421,7 @@ describe('pendoMiddleware', () => {
         environment: 'local',
         id: 'clinicAdminID',
         currentlyViewedDevices: [],
+        currentlyViewedDataAnnotations: [],
         permission: 'administrator',
         role: 'clinician',
         domain: 'example.com',
@@ -462,6 +467,7 @@ describe('pendoMiddleware', () => {
         environment: 'prd',
         id: 'clinicAdminID',
         currentlyViewedDevices: [],
+        currentlyViewedDataAnnotations: [],
         permission: 'administrator',
         role: 'clinician',
         termsAccepted: '2020-02-02T00:00:00.000Z',
@@ -478,6 +484,7 @@ describe('pendoMiddleware', () => {
         environment: 'qa1',
         id: 'clinicAdminID',
         currentlyViewedDevices: [],
+        currentlyViewedDataAnnotations: [],
         permission: 'administrator',
         role: 'clinician',
         termsAccepted: '2020-02-02T00:00:00.000Z',
@@ -542,6 +549,7 @@ describe('pendoMiddleware', () => {
       visitor: {
         id: 'clinicMemberID',
         currentlyViewedDevices: [],
+        currentlyViewedDataAnnotations: [],
         permission: 'member',
       },
     };
@@ -589,6 +597,7 @@ describe('pendoMiddleware', () => {
         existingVisitorData: 'existingVisitorData',
         id: 'clinicMemberID',
         currentlyViewedDevices: [],
+        currentlyViewedDataAnnotations: [],
         permission: 'member',
       },
     };
@@ -646,6 +655,7 @@ describe('pendoMiddleware', () => {
       visitor: {
         id: 'clinicAdminID',
         currentlyViewedDevices: [],
+        currentlyViewedDataAnnotations: [],
         permission: null,
       },
     };
@@ -655,13 +665,17 @@ describe('pendoMiddleware', () => {
     expect(winMock.pendo.updateOptions.args[0][0]).to.eql(expectedConfig);
   });
 
-  it('should call update and set patient count for FETCH_CLINIC_PATIENT_COUNT_SUCCESS', () => {
+  it('should call update and set patient count for FETCH_CLINIC_PATIENT_COUNTS_SUCCESS', () => {
     winMock.pendo.visitorId = 'clinicAdminID';
-    const fetchClinicPatientCountSuccess = {
-      type: ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SUCCESS,
+    const fetchClinicPatientCountsSuccess = {
+      type: ActionTypes.FETCH_CLINIC_PATIENT_COUNTS_SUCCESS,
       payload: {
         clinicId: 'clinicID123',
-        patientCount: 32,
+        patientCounts: {
+          demo: 1,
+          plan: 32,
+          total: 33,
+        },
       },
     };
     getStateObj.getState.returns({
@@ -687,7 +701,7 @@ describe('pendoMiddleware', () => {
       visitor: {},
     };
     expect(winMock.pendo.updateOptions.callCount).to.equal(0);
-    pendoMiddleware(api, winMock)(getStateObj)(next)(fetchClinicPatientCountSuccess);
+    pendoMiddleware(api, winMock)(getStateObj)(next)(fetchClinicPatientCountsSuccess);
     expect(winMock.pendo.updateOptions.callCount).to.equal(1);
     expect(winMock.pendo.updateOptions.args[0][0]).to.eql(expectedConfig);
   });
@@ -700,7 +714,7 @@ describe('pendoMiddleware', () => {
         clinicId: 'clinicID123',
         patientCountSettings: {
           hardLimit: {
-            patientCount: 250,
+            plan: 250,
             startDate: '2024-11-11T00:00:00.000Z',
           },
         },
@@ -774,6 +788,90 @@ describe('pendoMiddleware', () => {
     pendoMiddleware(api, winMock)(getStateObj)(next)(setClinicUIDetails);
     expect(winMock.pendo.updateOptions.callCount).to.equal(1);
     expect(winMock.pendo.updateOptions.args[0][0]).to.eql(expectedConfig);
+  });
+
+  context('Legacy patient count APIs', () => {
+    it('should call update and set patient count for FETCH_CLINIC_PATIENT_COUNTS_SUCCESS', () => {
+      winMock.pendo.visitorId = 'clinicAdminID';
+      const fetchClinicPatientCountsSuccess = {
+        type: ActionTypes.FETCH_CLINIC_PATIENT_COUNTS_SUCCESS,
+        payload: {
+          clinicId: 'clinicID123',
+          patientCounts: {
+            patientCount: 32,
+          },
+        },
+      };
+      getStateObj.getState.returns({
+        ...emptyState,
+        ...{
+          blip: {
+            clinics: _.pick(clinics, 'clinicID123'),
+            loggedInUserId: 'clinicAdminID',
+            allUsersMap: _.pick(users, 'clinicAdminID'),
+            selectedClinicId: 'clinicID123',
+            pendoData: {
+              account: {},
+              visitor: {},
+            },
+          },
+        },
+      });
+      const expectedConfig = {
+        account: {
+          id: 'clinicID123',
+          patientCount: 32,
+        },
+        visitor: {},
+      };
+      expect(winMock.pendo.updateOptions.callCount).to.equal(0);
+      pendoMiddleware(api, winMock)(getStateObj)(next)(fetchClinicPatientCountsSuccess);
+      expect(winMock.pendo.updateOptions.callCount).to.equal(1);
+      expect(winMock.pendo.updateOptions.args[0][0]).to.eql(expectedConfig);
+    });
+
+    it('should call update and set patient count limit and start date for FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS', () => {
+      winMock.pendo.visitorId = 'clinicAdminID';
+      const fetchClinicPatientCountSettingsSuccess = {
+        type: ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS,
+        payload: {
+          clinicId: 'clinicID123',
+          patientCountSettings: {
+            hardLimit: {
+              patientCount: 250,
+              startDate: '2024-11-11T00:00:00.000Z',
+            },
+          },
+        },
+      };
+      getStateObj.getState.returns({
+        ...emptyState,
+        ...{
+          blip: {
+            clinics: _.pick(clinics, 'clinicID123'),
+            loggedInUserId: 'clinicAdminID',
+            allUsersMap: _.pick(users, 'clinicAdminID'),
+            selectedClinicId: 'clinicID123',
+            pendoData: {
+              account: {},
+              visitor: {},
+            },
+          },
+        },
+      });
+      const expectedConfig = {
+        account: {
+          id: 'clinicID123',
+          patientCountHardLimit: 250,
+          patientCountHardLimitStartDate: '2024-11-11T00:00:00.000Z',
+        },
+        visitor: {},
+      };
+      expect(winMock.pendo.updateOptions.callCount).to.equal(0);
+      pendoMiddleware(api, winMock)(getStateObj)(next)(fetchClinicPatientCountSettingsSuccess);
+      expect(winMock.pendo.updateOptions.callCount).to.equal(1);
+      expect(winMock.pendo.updateOptions.args[0][0]).to.eql(expectedConfig);
+    });
   });
 
   it('should call update and set clinician count for FETCH_CLINICIANS_FROM_CLINIC_SUCCESS', () => {
@@ -901,6 +999,11 @@ describe('pendoMiddleware', () => {
               deviceType2: { device3: true },
               deviceType3: { 'device3_1.0.1-rc.1+10034': true },
             },
+            dataAnnotations: {
+              annotation1: { code: 'annotation1' },
+              annotation2: { code: 'annotation2' },
+              annotation3: { code: 'annotation3' },
+            }
           },
         },
       },
@@ -921,6 +1024,7 @@ describe('pendoMiddleware', () => {
             visitor: {
               id: 'clinicAdminID',
               currentlyViewedDevices: [],
+              currentlyViewedDataAnnotations: [],
             },
           },
         },
@@ -935,6 +1039,7 @@ describe('pendoMiddleware', () => {
       visitor: {
         id: 'clinicAdminID',
         currentlyViewedDevices: ['device1', 'device2', 'device3', 'device3_1', 'device3_1.0', 'device3_1.0.1'],
+        currentlyViewedDataAnnotations: ['annotation1', 'annotation2', 'annotation3'],
       },
     };
 
@@ -965,6 +1070,7 @@ describe('pendoMiddleware', () => {
             visitor: {
               id: 'clinicAdminID',
               currentlyViewedDevices: ['Device1', 'Device2'],
+              currentlyViewedDataAnnotations: [],
             },
           },
         },
@@ -979,6 +1085,7 @@ describe('pendoMiddleware', () => {
       visitor: {
         id: 'clinicAdminID',
         currentlyViewedDevices: [],
+        currentlyViewedDataAnnotations: [],
       },
     };
 
@@ -1009,6 +1116,7 @@ describe('pendoMiddleware', () => {
             visitor: {
               id: 'clinicAdminID',
               currentlyViewedDevices: ['Device1', 'Device2'],
+              currentlyViewedDataAnnotations: [],
             },
           },
         },
@@ -1023,6 +1131,7 @@ describe('pendoMiddleware', () => {
       visitor: {
         id: 'clinicAdminID',
         currentlyViewedDevices: [],
+        currentlyViewedDataAnnotations: [],
       },
     };
 

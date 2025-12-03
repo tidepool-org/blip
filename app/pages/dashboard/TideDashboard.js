@@ -5,8 +5,6 @@ import { useLocation, useHistory } from 'react-router-dom';
 import { push } from 'connected-react-router';
 import { withTranslation, Trans } from 'react-i18next';
 import moment from 'moment-timezone';
-import compact from 'lodash/compact';
-import each from 'lodash/each';
 import find from 'lodash/find';
 import flatten from 'lodash/flatten';
 import get from 'lodash/get';
@@ -19,14 +17,18 @@ import keyBy from 'lodash/keyBy';
 import map from 'lodash/map';
 import reject from 'lodash/reject';
 import values from 'lodash/values';
+import isNil from 'lodash/isNil';
+import noop from 'lodash/noop';
 import { Box, Flex, Text } from 'theme-ui';
+import PopoverLabel from '../../components/elements/PopoverLabel';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
 import MoreVertRoundedIcon from '@material-ui/icons/MoreVertRounded';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 import EditIcon from '@material-ui/icons/EditRounded';
-import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
-const { GLYCEMIC_RANGE } = vizUtils.constants;
+import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
+import { components as vizComponents, utils as vizUtils, colors as vizColors } from '@tidepool/viz';
+const { GLYCEMIC_RANGES_PRESET } = vizUtils.constants;
 import ScrollToTop from 'react-scroll-to-top';
 import styled from '@emotion/styled';
 import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
@@ -68,7 +70,7 @@ import {
 
 import * as actions from '../../redux/actions';
 import { useToasts } from '../../providers/ToastProvider';
-import { useIsFirstRender, useLocalStorage, usePrevious } from '../../core/hooks';
+import { useIsFirstRender, useLocalStorage, usePrevious, useScrollToTop } from '../../core/hooks';
 import { fieldsAreValid } from '../../core/forms';
 
 import {
@@ -82,17 +84,13 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../core/constants';
 import DataInIcon from '../../core/icons/DataInIcon.svg';
 import { colors, fontWeights, radii } from '../../themes/baseTheme';
 import PatientLastReviewed from '../../components/clinic/PatientLastReviewed';
+import { DEFAULT_GLYCEMIC_RANGES } from '../../core/glycemicRangesUtils';
+import { OVERVIEW_TAB_INDEX } from './PatientDrawer/MenuBar/MenuBar';
 
 const { Loader } = vizComponents;
 const { formatBgValue } = vizUtils.bg;
 const { formatStatsPercentage } = vizUtils.stat;
-
-const {
-  formatDateRange,
-  getLocalizedCeiling,
-  getOffset,
-  getTimezoneFromTimePrefs
-} = vizUtils.datetime;
+const { getLocalizedCeiling } = vizUtils.datetime;
 
 const StyledScrollToTop = styled(ScrollToTop)`
   background-color: ${colors.purpleMedium};
@@ -101,6 +99,78 @@ const StyledScrollToTop = styled(ScrollToTop)`
   border-radius: 20px;
   padding-top: 4px;
 `;
+
+const CATEGORY = {
+  timeInVeryLowPercent: 'timeInVeryLowPercent',
+  timeInAnyLowPercent: 'timeInAnyLowPercent',
+  timeInExtremeHighPercent: 'timeInExtremeHighPercent',
+  timeInVeryHighPercent: 'timeInVeryHighPercent',
+  timeInAnyHighPercent: 'timeInAnyHighPercent',
+  dropInTimeInTargetPercent: 'dropInTimeInTargetPercent',
+  timeInTargetPercent: 'timeInTargetPercent',
+  timeCGMUsePercent: 'timeCGMUsePercent',
+  meetingTargets: 'meetingTargets',
+  noData: 'noData',
+};
+
+const SECTION = [
+  { groupKey: CATEGORY.timeInVeryLowPercent, sortDirection: 'desc', sortKey: 'timeInVeryLowPercent' },
+  { groupKey: CATEGORY.timeInAnyLowPercent, sortDirection: 'desc', sortKey: 'timeInAnyLowPercent' },
+  { groupKey: CATEGORY.timeInExtremeHighPercent, sortDirection: 'desc', sortKey: 'timeInExtremeHighPercent' },
+  { groupKey: CATEGORY.timeInVeryHighPercent, sortDirection: 'desc', sortKey: 'timeInVeryHighPercent' },
+  { groupKey: CATEGORY.timeInAnyHighPercent, sortDirection: 'desc', sortKey: 'timeInAnyHighPercent' },
+  { groupKey: CATEGORY.dropInTimeInTargetPercent, sortDirection: 'asc', sortKey: 'timeInTargetPercentDelta' },
+  { groupKey: CATEGORY.timeInTargetPercent, sortDirection: 'asc', sortKey: 'timeInTargetPercent' },
+  { groupKey: CATEGORY.timeCGMUsePercent, sortDirection: 'asc', sortKey: 'timeCGMUsePercent' },
+  { groupKey: CATEGORY.meetingTargets, sortDirection: 'desc', sortKey: 'timeInVeryLowPercent' },
+  { groupKey: CATEGORY.noData, sortDirection: 'desc', sortKey: 'daysSinceLastData' },
+];
+
+const DEFAULT_SECTIONS = [
+  CATEGORY.timeInVeryLowPercent,
+  CATEGORY.timeInAnyLowPercent,
+  CATEGORY.timeInVeryHighPercent,
+  CATEGORY.timeInAnyHighPercent,
+  CATEGORY.dropInTimeInTargetPercent,
+  CATEGORY.timeCGMUsePercent,
+  CATEGORY.meetingTargets,
+  CATEGORY.noData,
+];
+
+const useTideDashboardSections = () => {
+  const { tideDashboardCategories } = useFlags();
+
+  const isInitializing = isNil(tideDashboardCategories);
+
+  const categories = useMemo(() => {
+    // Return nothing if LaunchDarkly has not returned the true flags yet
+    if (isInitializing) return [];
+
+    // Flag should contain a comma-delimited list of categories, e.g. 'meetingTargets,noData'
+    // Here, we parse the string and filter out any invalid categories
+    if (typeof tideDashboardCategories !== 'string') return DEFAULT_SECTIONS;
+
+    const categories = tideDashboardCategories.split(',')
+                                              .map(category => category.trim())
+                                              .filter(category => !!CATEGORY[category]);
+
+    // If the flag is empty or doesn't contain any usable categories, we return the default
+    if (!categories.length) return DEFAULT_SECTIONS;
+
+    return categories;
+  }, [tideDashboardCategories, isInitializing]);
+
+  const sections = useMemo(() => {
+    // Get each section from the definition, but retain the ordering specified in the config
+    return categories.map(category => (SECTION.find(({ groupKey }) => groupKey === category)));
+  }, [categories]);
+
+  return {
+    isSectionsLoading: isInitializing,
+    categories,
+    sections,
+  };
+};
 
 const prefixTideDashboardMetric = metric => `Clinic - Tide Dashboard - ${metric}`;
 
@@ -161,7 +231,14 @@ const MoreMenu = React.memo(({
     t,
   ]);
 
-  return <PopoverMenu id={`action-menu-${patient?.id}`} items={items} icon={MoreVertRoundedIcon} />;
+  return (
+    <PopoverMenu
+      id={`action-menu-${patient?.id}`}
+      items={items}
+      icon={MoreVertRoundedIcon}
+      sx={{ position: 'relative', left: '-2px' }}
+    />
+  );
 });
 
 const SortPopover = React.memo(props => {
@@ -169,7 +246,7 @@ const SortPopover = React.memo(props => {
     section,
     sections,
     selectedClinicId,
-    setSections,
+    setSections = noop,
     trackMetric,
     t,
   } = props;
@@ -269,12 +346,12 @@ const TideDashboardSection = React.memo(props => {
     section,
     sections,
     selectedClinicId,
-    setSections,
     setSelectedPatient,
     setShowDataConnectionsModal,
     setShowEditPatientDialog,
     showTideDashboardLastReviewed,
     showTideDashboardPatientDrawer,
+    showExtremeHigh,
     t,
     trackMetric,
   } = props;
@@ -324,16 +401,18 @@ const TideDashboardSection = React.memo(props => {
     },
   }), []);
 
-  const handleClickPatient = useCallback(patient => {
+  const handleClickPatient = useCallback((patient, section) => {
     return () => {
       trackMetric('Selected PwD');
 
+      const isNoDataGroup = section.groupKey === CATEGORY.noData;
       const isValidAgpPeriod = ['7d', '14d', '30d'].includes(config?.period);
 
-      if (showTideDashboardPatientDrawer && isValidAgpPeriod) {
+      if (showTideDashboardPatientDrawer && isValidAgpPeriod && !isNoDataGroup) {
         const { search, pathname } = location;
         const params = new URLSearchParams(search);
         params.set('drawerPatientId', patient.id);
+        params.set('drawerTab', OVERVIEW_TAB_INDEX);
         history.replace({ pathname, search: params.toString() });
 
         return;
@@ -348,11 +427,11 @@ const TideDashboardSection = React.memo(props => {
   }, [setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal]);
 
   const renderPatientName = useCallback(({ patient }) => (
-    <Box onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
+    <Box onClick={handleClickPatient(patient, section)} sx={{ cursor: 'pointer' }}>
       <Text
         sx={{
           display: 'inline-block',
-          fontSize: [1, null, 0],
+          fontSize: 1,
           fontWeight: 'medium',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
@@ -362,7 +441,7 @@ const TideDashboardSection = React.memo(props => {
         {patient?.fullName}
       </Text>
     </Box>
-  ), [handleClickPatient]);
+  ), [handleClickPatient, section]);
 
   const renderAverageGlucose = useCallback(summary => {
     const averageGlucose = summary?.averageGlucoseMmol;
@@ -436,16 +515,19 @@ const TideDashboardSection = React.memo(props => {
 
   const renderBgRangeSummary = useCallback(summary => {
     // Alternate glycemic ranges not applied in TIDE Dashboard for now
-    const glycemicRanges = GLYCEMIC_RANGE.ADA_STANDARD;
+    const glycemicRanges = DEFAULT_GLYCEMIC_RANGES;
 
-    return <BgSummaryCell
-    id={summary.patient.id}
-    summary={summary}
-    config={config}
-    clinicBgUnits={clinicBgUnits}
-    glycemicRanges={glycemicRanges}
-    activeSummaryPeriod={config?.period}
-  />
+    return (
+      <BgSummaryCell
+        id={summary.patient.id}
+        summary={summary}
+        config={config}
+        clinicBgUnits={clinicBgUnits}
+        glycemicRanges={glycemicRanges}
+        activeSummaryPeriod={config?.period}
+        showExtremeHigh={showExtremeHigh}
+      />
+    );
   }, [clinicBgUnits, config]);
 
   const renderTimeInTargetPercentDelta = useCallback(summary => {
@@ -567,6 +649,14 @@ const TideDashboardSection = React.memo(props => {
   const highGlucoseThreshold = clinicBgUnits === MGDL_UNITS
     ? utils.translateBg(config?.highGlucoseThreshold, MGDL_UNITS)
     : utils.formatDecimal(config?.highGlucoseThreshold, 1);
+
+  const extremeHighGlucoseThreshold = clinicBgUnits === MGDL_UNITS
+    ? utils.translateBg(config?.extremeHighGlucoseThreshold, MGDL_UNITS)
+    : utils.formatDecimal(config?.extremeHighGlucoseThreshold, 1);
+
+  const veryHighGlucoseThreshold = clinicBgUnits === MGDL_UNITS
+    ? utils.translateBg(config?.veryHighGlucoseThreshold, MGDL_UNITS)
+    : utils.formatDecimal(config?.veryHighGlucoseThreshold, 1);
 
   const columns = useMemo(() => {
     const cols = [
@@ -694,43 +784,67 @@ const TideDashboardSection = React.memo(props => {
     veryLowGlucoseThreshold,
   ]);
 
+  const sectionTitlesMap = {
+    timeInVeryLowPercent: t('Very Low'),
+    timeInAnyLowPercent: t('Low'),
+    timeInExtremeHighPercent: t('Highest'),
+    timeInVeryHighPercent: t('Very High'),
+    timeInAnyHighPercent: t('High'),
+    dropInTimeInTargetPercent: t('Large Drop in Time in Range'),
+    timeInTargetPercent: t('Low Time in Range'),
+    timeCGMUsePercent: t('Low CGM Wear Time'),
+    meetingTargets: t('Meeting Targets'),
+    noData: t('Data Issues'),
+  };
+
   const sectionLabelsMap = {
-    timeInVeryLowPercent: t('Time below {{veryLowGlucoseThreshold}} {{clinicBgUnits}} > 1%', {
+    timeInVeryLowPercent: t('> 1% Time below {{veryLowGlucoseThreshold}} {{clinicBgUnits}}', {
       veryLowGlucoseThreshold,
       clinicBgUnits,
     }),
-    timeInAnyLowPercent: t('Time below {{lowGlucoseThreshold}} {{clinicBgUnits}} > 4%', {
+    timeInAnyLowPercent: t('> 4% Time below {{lowGlucoseThreshold}} {{clinicBgUnits}}', {
       lowGlucoseThreshold,
       clinicBgUnits,
     }),
-    dropInTimeInTargetPercent: t('Drop in Time in Range > 15%'),
-    timeInTargetPercent: t('Time in Range < 70%'),
-    timeCGMUsePercent: t('CGM Wear Time < 70%'),
-    meetingTargets: t('Meeting Targets'),
-    noData: t('Data Issues'),
+    timeInExtremeHighPercent: extremeHighGlucoseThreshold ?
+      t('> 1% Time above {{extremeHighGlucoseThreshold}} {{clinicBgUnits}}', {
+        extremeHighGlucoseThreshold,
+        clinicBgUnits,
+      }) : null,
+    timeInVeryHighPercent: t('> 5% Time above {{veryHighGlucoseThreshold}} {{clinicBgUnits}}', {
+      veryHighGlucoseThreshold,
+      clinicBgUnits,
+    }),
+    timeInAnyHighPercent: t('> 25% Time above {{highGlucoseThreshold}} {{clinicBgUnits}}', {
+      highGlucoseThreshold,
+      clinicBgUnits,
+    }),
+    dropInTimeInTargetPercent: t('> 15%'),
+    timeInTargetPercent: t('< 70%'),
+    timeCGMUsePercent: t('< 70%'),
   };
 
   return (
     <Box className='dashboard-section' id={`dashboard-section-${section.groupKey}`} mb={4}>
       <Flex sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
-        <Text
+        <Flex
           className='dashboard-section-label'
-          sx={{
-            color: 'purples.9',
-            fontSize: 1,
-            fontWeight: 'medium',
-          }}
+          sx={{ color: 'purples.9', gap: 1 }}
           mb={2}
         >
-          {sectionLabelsMap[section.groupKey]}
-        </Text>
+          <Text sx={{ fontSize: 1, fontWeight: 'medium' }}>
+            {sectionTitlesMap[section.groupKey]}
+          </Text>
+          <Text sx={{ fontSize: 1, fontStyle: 'italic' }}>
+            {sectionLabelsMap[section.groupKey] || null}
+          </Text>
+        </Flex>
 
         {/* Commenting out sort functionality for now */}
         {/* <SortPopover
           section={section}
           sections={sections}
           selectedClinicId={selectedClinicId}
-          setSections={setSections}
           trackMetric={trackMetric}
           t={t}
         /> */}
@@ -743,7 +857,13 @@ const TideDashboardSection = React.memo(props => {
         label={'peopletablelabel'}
         columns={columns}
         data={patients}
-        sx={{ fontSize: 0 }}
+        sx={{
+          fontSize: 1,
+          'tr': { height: [null, null, '40px', '40px'] },
+          'thead': { fontSize: 0 },
+          'thead th': { fontWeight: 'normal' },
+          'th div': { display: 'flex', alignItems: 'center' },
+        }}
         order={section.sortDirection}
         orderBy={section.sortKey}
         emptyContentNode={emptyContentNode}
@@ -769,6 +889,7 @@ const TideDashboardSection = React.memo(props => {
 )));
 
 export const TideDashboard = (props) => {
+  useScrollToTop();
   const { t, api, trackMetric } = props;
   const isFirstRender = useIsFirstRender();
   const dispatch = useDispatch();
@@ -776,6 +897,7 @@ export const TideDashboard = (props) => {
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const pdf = useSelector((state) => state.blip.pdf);
+  const data = useSelector((state) => state.blip.data);
   const currentPatientInViewId = useSelector((state) => state.blip.currentPatientInViewId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const mrnSettings = clinic?.mrnSettings ?? {};
@@ -798,10 +920,12 @@ export const TideDashboard = (props) => {
     showTideDashboard,
     showTideDashboardLastReviewed,
     showTideDashboardPatientDrawer,
+    showExtremeHigh,
   } = useFlags();
   const ldClient = useLDClient();
   const ldContext = ldClient.getContext();
 
+  const isTideDashboardEnabled = (ldContext?.clinic?.tier && showTideDashboard) || clinic?.entitlements?.tideDashboard;
   const existingMRNs = useSelector(state => state.blip.clinicMRNsForPatientFormValidation)?.filter(mrn => mrn !== selectedPatient?.mrn) || [];
 
   const {
@@ -810,20 +934,18 @@ export const TideDashboard = (props) => {
     fetchingTideDashboardPatients,
   } = useSelector((state) => state.blip.working);
 
+  // TODO: remove this when upgraded to React 18
+  // force another render when fetching dashboard patients state changes
+  // Addresses the same issue we had previously encountered on the ClinicPatients view to clear loading state consistently
+  const [forceUpdate, setForceUpdate] = useState();
+  if(!isEqual(forceUpdate, fetchingTideDashboardPatients)){
+    setForceUpdate(fetchingTideDashboardPatients);
+  }
+
   const previousUpdatingClinicPatient = usePrevious(updatingClinicPatient);
   const previousFetchingTideDashboardPatients = usePrevious(fetchingTideDashboardPatients);
 
-  const defaultSections = [
-    { groupKey: 'timeInVeryLowPercent', sortDirection: 'desc', sortKey: 'timeInVeryLowPercent' },
-    { groupKey: 'timeInAnyLowPercent', sortDirection: 'desc', sortKey: 'timeInAnyLowPercent' },
-    { groupKey: 'dropInTimeInTargetPercent', sortDirection: 'asc', sortKey: 'timeInTargetPercentDelta' },
-    { groupKey: 'timeInTargetPercent', sortDirection: 'asc', sortKey: 'timeInTargetPercent' },
-    { groupKey: 'timeCGMUsePercent', sortDirection: 'asc', sortKey: 'timeCGMUsePercent' },
-    { groupKey: 'meetingTargets', sortDirection: 'desc', sortKey: 'timeInVeryLowPercent' },
-    { groupKey: 'noData', sortDirection: 'desc', sortKey: 'daysSinceLastData' },
-  ];
-
-  const [sections, setSections] = useState(defaultSections);
+  const { isSectionsLoading, sections, categories } = useTideDashboardSections();
 
   function handleCloseOverlays() {
     setShowTideDashboardConfigDialog(false);
@@ -892,21 +1014,39 @@ export const TideDashboard = (props) => {
     }
   }, [fetchingPatientFromClinic, selectedPatient?.id, clinic?.patients]);
 
-  const fetchDashboardPatients = useCallback((config) => {
+  const fetchDashboardPatients = useCallback((categories = [], config) => {
     const options = { ...(config || localConfig?.[localConfigKey]) };
     if (options) {
       const lastData = Number(options.lastData);
       const queryOptions = { period: options.period, lastData };
+
       queryOptions['tags'] = reject(options.tags || [], tagId => !patientTags?.[tagId]);
       queryOptions['lastDataCutoff'] = moment(getLocalizedCeiling(new Date().toISOString(), timePrefs)).subtract(lastData, 'days').toISOString();
+
+      // If noData is not requested, we must add an explicit GET query param
+      const categoriesArg = categories.filter(category => category !== CATEGORY.noData);
+
+      if (categoriesArg.length > 0) {
+        queryOptions['categories'] = categoriesArg;
+      }
+
+      if (!categories.includes(CATEGORY.noData)) {
+        queryOptions['excludeNoData'] = true;
+      }
+
       setLoading(true);
       dispatch(actions.async.fetchTideDashboardPatients(api, selectedClinicId, queryOptions));
     }
-  }, [api, dispatch, localConfig, localConfigKey, selectedClinicId]);
+  }, [api, dispatch, localConfig, localConfigKey, selectedClinicId, timePrefs, patientTags]);
+
+  const drawerPatientId = new URLSearchParams(location.search).get('drawerPatientId') || null;
 
   useEffect(() => {
-    dispatch(actions.worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
-    dispatch(actions.sync.clearPatientInView());
+    if (currentPatientInViewId) {
+      dispatch(actions.sync.clearPatientInView());
+      dispatch(actions.worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
+    }
+
     setClinicBgUnits((clinic?.preferredBgUnits || MGDL_UNITS));
   }, [clinic]);
 
@@ -940,19 +1080,21 @@ export const TideDashboard = (props) => {
   }
 
   useEffect(() => {
+    if (!isTideDashboardEnabled || isSectionsLoading) return;
+
     if (validateTideConfig(localConfig?.[localConfigKey], patientTags)) {
-      fetchDashboardPatients();
+      fetchDashboardPatients(categories);
     } else {
       setShowTideDashboardConfigDialog(true);
     }
+  }, [isTideDashboardEnabled, categories, isSectionsLoading]);
 
+  useEffect(() => {
     // Always clear stored dashboard results upon unmount to avoid flashing stale results upon remount
     return () => {
       dispatch(actions.sync.clearTideDashboardPatients());
-    }
-  }, [showTideDashboard]);
-
-  const drawerPatientId = new URLSearchParams(location.search).get('drawerPatientId') || null;
+    };
+  }, []);
 
   // Patient Drawer effects
   useEffect(() => {
@@ -965,12 +1107,12 @@ export const TideDashboard = (props) => {
       history.replace({ pathname, search: params.toString() });
     }
 
-    // Failsafe to ensure blip.pdf is always cleared out after drawer is closed
-    if (!drawerPatientId && !isEmpty(pdf)) {
+    // Failsafe to ensure blip.pdf and blip.data is always cleared out after drawer is closed
+    if (!drawerPatientId && (!isEmpty(pdf) || isFinite(data?.metaData?.size))) {
       dispatch(actions.worker.removeGeneratedPDFS());
-      dispatch(actions.worker.dataWorkerRemoveDataRequest(null, drawerPatientId));
+      dispatch(actions.worker.dataWorkerRemoveDataRequest(null));
     }
-  }, [drawerPatientId, pdf, config, location, history]);
+  }, [drawerPatientId, pdf, data?.metaData?.size, config, location, history]);
 
   const handleEditPatientConfirm = useCallback(() => {
     trackMetric('Clinic - Edit patient confirmed', { clinicId: selectedClinicId });
@@ -994,6 +1136,7 @@ export const TideDashboard = (props) => {
 
     const params = new URLSearchParams(search);
     params.delete('drawerPatientId');
+    params.delete('drawerTab');
     history.replace({ pathname, search: params.toString() });
   });
 
@@ -1005,8 +1148,8 @@ export const TideDashboard = (props) => {
   const handleConfigureTideDashboardConfirm = useCallback(() => {
     trackMetric('Clinic - Show Tide Dashboard config dialog confirmed', { clinicId: selectedClinicId, source: 'Tide dashboard' });
     tideDashboardFormContext?.handleSubmit();
-    fetchDashboardPatients(tideDashboardFormContext?.values);
-  }, [fetchDashboardPatients, tideDashboardFormContext, selectedClinicId, trackMetric]);
+    fetchDashboardPatients(categories, tideDashboardFormContext?.values);
+  }, [fetchDashboardPatients, categories, tideDashboardFormContext, selectedClinicId, trackMetric]);
 
   function handleTideDashboardConfigFormChange(formikContext) {
     setTideDashboardFormContext({...formikContext});
@@ -1022,7 +1165,28 @@ export const TideDashboard = (props) => {
         sx={{ rowGap: 2, columnGap: 3, justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}
       >
         <Flex sx={{ gap: 3, alignItems: 'center' }}>
-          <Title id="tide-dashboard-header" sx={{ fontWeight: 'medium', fontSize: '18px' }}>{t('TIDE Dashboard')}</Title>
+          <Title id="tide-dashboard-header" sx={{ fontWeight: 'medium', fontSize: '20px' }}>
+            {t('TIDE Dashboard')}
+            <PopoverLabel
+              id={'tideDashboardTitleInfoHover'}
+              icon={InfoOutlinedIcon}
+              iconProps={{ sx: { fontSize: '18px', color: vizColors.blue50 } }}
+              popoverContent={
+                <Box p={1} sx={{ maxWidth: '280px', textAlign: 'start', lineHeight: 0 }}>
+                  <Text sx={{ color: vizColors.blue50, fontSize: 0, fontWeight: 'normal' }}>
+                    {t('This dashboard displays up to 100 patients prioritized for review, plus up to 50 additional patients with data issues.')}
+                  </Text>
+                </Box>
+              }
+              popoverProps={{
+                anchorOrigin: { vertical: 'bottom', horizontal: 'center' },
+                transformOrigin: { vertical: 'top', horizontal: 'center' },
+                sx: { width: 'auto' },
+              }}
+              sx={{ display: 'inline', position: 'relative', bottom: '-4px', marginLeft: '4px'}}
+              triggerOnHover
+            />
+          </Title>
 
           <Flex sx={{ gap: 2, position: 'relative', top: '2px', alignItems: 'center' }}>
             <Text
@@ -1090,7 +1254,7 @@ export const TideDashboard = (props) => {
         <Button
           id="update-dashboard-config"
           variant="filter"
-          icon={KeyboardArrowDownRoundedIcon}
+          icon={EditIcon}
           iconLabel="Open dashboard config"
           onClick={handleConfigureTideDashboard}
           px={3}
@@ -1113,8 +1277,7 @@ export const TideDashboard = (props) => {
       >
         <DialogTitle sx={{ alignItems: 'flex-start' }} onClose={handleCloseOverlays}>
           <Box mr={2}>
-            <MediumTitle sx={{ fontSize: 2 }} id="dialog-title">{t('Select Patients to Display in the TIDE Dashboard')}</MediumTitle>
-            <Body1 sx={{ fontWeight: 'medium', color: 'grays.4' }}>{t('You must make a selection in each category')}</Body1>
+            <MediumTitle id="dialog-title">{t('Filter the TIDE Dashboard')}</MediumTitle>
           </Box>
         </DialogTitle>
 
@@ -1238,12 +1401,12 @@ export const TideDashboard = (props) => {
       patientTags,
       sections,
       selectedClinicId,
-      setSections,
       setSelectedPatient,
       setShowDataConnectionsModal,
       setShowEditPatientDialog,
       showTideDashboardLastReviewed,
       showTideDashboardPatientDrawer,
+      showExtremeHigh,
       t,
       trackMetric,
     };
@@ -1259,9 +1422,14 @@ export const TideDashboard = (props) => {
       dispatch(push('/clinic-workspace/patients'));
     };
 
-    each(patientGroups.noData, record => {
-      record.daysSinceLastData = moment.utc().diff(record.lastData, 'days');
-    })
+    const groupPatients = groupKey => {
+      return (groupKey === 'noData')
+        ? map(patientGroups.noData, patient => ({
+          ...patient,
+          daysSinceLastData: moment.utc().diff(patient.lastData, 'days'),
+        }))
+        : patientGroups[groupKey] || [];
+    };
 
     return hasResults ? (
       <Box id="tide-dashboard-patient-groups">
@@ -1269,7 +1437,7 @@ export const TideDashboard = (props) => {
           <TideDashboardSection
             key={section.groupKey}
             section={section}
-            patients={patientGroups[section.groupKey]}
+            patients={groupPatients(section.groupKey)}
             emptyText={t('There are no patients that match your filter criteria.')}
             {...sectionProps}
           />
