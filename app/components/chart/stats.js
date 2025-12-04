@@ -1,44 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
-import set from 'lodash/set';
 import map from 'lodash/map';
-import find from 'lodash/find';
-import keys from 'lodash/keys';
-import forEach from 'lodash/forEach';
-import cloneDeep from 'lodash/cloneDeep';
 import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
-const { bankersRound, reconcileTIRPercentages } = vizUtils.stat;
+const { reconcileTIRDatumValues } = vizUtils.stat;
 import { useLocalStorage } from '../../core/hooks';
 import utils from '../../core/utils';
 
 const { Stat } = vizComponents;
-
-const reconcileTIRDatumValues = (timeInRanges) => {
-  const props = cloneDeep(timeInRanges);
-  const chartData = cloneDeep(props.data.data);
-
-  const ranges = {};
-  const total = props.data?.total?.value;
-
-  forEach(chartData, datum => {
-    if (['veryLow', 'low', 'target', 'high', 'veryHigh'].includes(datum.id)) {
-      ranges[datum.id] = datum.value / total;
-    }
-  });
-
-  const reconciledTimeInRanges = reconcileTIRPercentages(ranges);
-
-  const rangeKeys = keys(reconciledTimeInRanges);
-  forEach(rangeKeys, key => {
-    const datum = find(props.data.data, datum => datum.id === key);
-    datum.value = reconciledTimeInRanges[key] * 100;
-  });
-
-  set(props, ['data', 'total', 'value'], 100);
-
-  return props;
-};
 
 const Stats = (props) => {
   const {
