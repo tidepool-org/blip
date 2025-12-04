@@ -37,9 +37,9 @@ const Stats = (props) => {
 
   return (
     <div className="Stats">
-      {map(stats, statProps => {
-        const isTIRStat = ['timeInRange', 'readingsInRange'].includes(statProps.id);
-        const stat = isTIRStat ? reconcileTIRDatumValues(statProps) : statProps;
+      {map(stats, statDatum => {
+        const isTIRStat = ['timeInRange', 'readingsInRange'].includes(statDatum.id);
+        const stat = isTIRStat ? reconcileTIRDatumValues(statDatum) : statDatum;
 
         return (
           <div id={`Stat--${stat.id}`} key={stat.id}>
