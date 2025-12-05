@@ -641,7 +641,7 @@ describe('ClinicPatients', ()  => {
             // Click the Edit Sites icon for a patient. The Dialog for Edit Patient Details should open.
             expect(screen.queryByText('Edit Patient Details')).not.toBeInTheDocument();
             await userEvent.click(screen.getByTestId('action-menu-patient2-icon'));
-            await userEvent.click(screen.getByRole('button', { name: /Edit Patient Information/ }));
+            await userEvent.click(screen.getByRole('button', { name: /Edit Patient Details/ }));
             expect(screen.getByText('Edit Patient Details')).toBeInTheDocument();
 
             // Add Site 3 and remove Site 1, then save

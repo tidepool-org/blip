@@ -650,7 +650,7 @@ describe('TideDashboard', () => {
       moreMenuIcon.simulate('click');
       expect(popoverMenu().props().open).to.be.true;
 
-      const editButton = popoverMenu().find('Button[iconLabel="Edit Patient Information"]');
+      const editButton = popoverMenu().find('Button[iconLabel="Edit Patient Details"]');
       expect(editButton).to.have.lengthOf(1);
 
       const editDialog = () => wrapper.find('Dialog#editPatient');
