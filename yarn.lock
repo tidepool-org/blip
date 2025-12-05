@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.53.0-web-3981-picker-dates.10":
-  version: 1.53.0-web-3981-picker-dates.10
-  resolution: "@tidepool/viz@npm:1.53.0-web-3981-picker-dates.10"
+"@tidepool/viz@npm:1.53.0-web-4069-data-minimum.2":
+  version: 1.53.0-web-4069-data-minimum.2
+  resolution: "@tidepool/viz@npm:1.53.0-web-4069-data-minimum.2"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: d98d736a6c1bad43e87ecb9a9ab5eb9641b245288a1d954e47bdb72e7a44e1a4f26172d7486cacbe0602d52805c12ca17c9193d22aa0a33ac70e5753bc7cdf01
+  checksum: 795ef8b7de6d67d2864014b40606101bcf6eb50772ac3c00e5be991d6585d8364c36b0881daa6c86401c76f86b420a6fbe42ac59ad150aabac00b1b7eae9de8a
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.53.0-web-3981-picker-dates.10
+    "@tidepool/viz": 1.53.0-web-4069-data-minimum.2
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
