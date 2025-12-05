@@ -642,7 +642,7 @@ describe('ClinicPatients', ()  => {
             expect(screen.queryByText('Edit Patient Details')).not.toBeInTheDocument();
             await userEvent.click(screen.getByTestId('action-menu-patient2-icon'));
             await userEvent.click(screen.getByRole('button', { name: /Edit Patient Information/ }));
-            expect(screen.getAllByText('Edit Patient Details')[0]).toBeInTheDocument();
+            expect(screen.getByText('Edit Patient Details')).toBeInTheDocument();
 
             // Add Site 3 and remove Site 1, then save
             await userEvent.click(screen.getAllByRole('combobox')[3]); // open combobox dropdown
@@ -815,7 +815,7 @@ describe('ClinicPatients', ()  => {
             // Click the Edit Tags icon for a patient. The Dialog for Edit Patient Details should open.
             expect(screen.queryByText('Edit Patient Details')).not.toBeInTheDocument();
             await userEvent.click(screen.getAllByTestId('edit-tags-icon')[0]); // Open patient2
-            expect(screen.getAllByText('Edit Patient Details')[0]).toBeInTheDocument();
+            expect(screen.getByText('Edit Patient Details')).toBeInTheDocument();
 
             // Add Tag 3 and remove Tag 1, then save
             await userEvent.click(screen.getAllByRole('combobox')[2]); // open combobox dropdown
