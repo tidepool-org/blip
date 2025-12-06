@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.53.0-web-4223-tir-sum.2":
-  version: 1.53.0-web-4223-tir-sum.2
-  resolution: "@tidepool/viz@npm:1.53.0-web-4223-tir-sum.2"
+"@tidepool/viz@npm:1.53.0-web-4223-tir-sum.3":
+  version: 1.53.0-web-4223-tir-sum.3
+  resolution: "@tidepool/viz@npm:1.53.0-web-4223-tir-sum.3"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 5f2d141e7e383b3de326867d2865ca815c4e34b8d1c0bdded08b27f0d7699b6fbd4a78bcd7314922f14cefe5c44d4820795bde50b5edf866926a285151eafe1f
+  checksum: c14471b8d631ac6c688bf98ae4879ddb62fd20903aa0f9e5f1c091d14cf40752833ca6bc97ed61800b062925c31a77dfb721bc0995da18a7aafdd57b3ad75f6d
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.53.0-web-4223-tir-sum.2
+    "@tidepool/viz": 1.53.0-web-4223-tir-sum.3
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
