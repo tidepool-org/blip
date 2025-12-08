@@ -697,11 +697,11 @@ describe('TideDashboard', () => {
 
       // Confirm seventh table is sorted appropriately
       expect(getTableRow(6, 0).find('th').at(4).text()).contains('% Time < 54');
-      expect(getTableRow(6, 1).find('td').at(3).text()).contains('0.7 %');
-      expect(getTableRow(6, 2).find('td').at(3).text()).contains('0.6 %');
-      expect(getTableRow(6, 3).find('td').at(3).text()).contains('0.3 %');
-      expect(getTableRow(6, 4).find('td').at(3).text()).contains('0.2 %');
-      expect(getTableRow(6, 5).find('td').at(3).text()).contains('0.1 %');
+      expect(getTableRow(6, 1).find('td').at(3).text()).contains('1 %');
+      expect(getTableRow(6, 2).find('td').at(3).text()).contains('1 %');
+      expect(getTableRow(6, 3).find('td').at(3).text()).contains('0 %');
+      expect(getTableRow(6, 4).find('td').at(3).text()).contains('0 %');
+      expect(getTableRow(6, 5).find('td').at(3).text()).contains('0 %');
 
       // Confirm eighth table is sorted appropriately
       expect(getTableRow(7, 0).find('th').at(2).text()).contains('Days Since Last Data');
