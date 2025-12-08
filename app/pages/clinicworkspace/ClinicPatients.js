@@ -1814,8 +1814,10 @@ export const ClinicPatients = (props) => {
                       sx={{ fontSize: 0, lineHeight: 1.3 }}
                     >
                       {activeFilters.lastData
-                        ? t('Data within') + find(customLastDataFilterOptions, { value: activeFilters.lastData })?.label.replace('Within', '')
-                        : t('Data Recency')
+                       ? activeFilters.lastData === 1
+                        ? t('Data within 1 day')
+                        : t('Data within') + find(customLastDataFilterOptions, { value: activeFilters.lastData })?.label.replace('Within', '')
+                       : t('Data Recency')
                       }
                     </Button>
                   </Box>
