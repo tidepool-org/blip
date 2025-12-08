@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.53.0-WEB-3841-pdf-bolus-limit.3":
-  version: 1.53.0-WEB-3841-pdf-bolus-limit.3
-  resolution: "@tidepool/viz@npm:1.53.0-WEB-3841-pdf-bolus-limit.3"
+"@tidepool/viz@npm:1.53.0-rc.1":
+  version: 1.53.0-rc.1
+  resolution: "@tidepool/viz@npm:1.53.0-rc.1"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: cd5e1642ea88723b33d488a9e7891849b32bf6571419de9c7a9274e61c913b937715a0d8897874c25ae2a4cde7ffd57eb50dc5ca16456e77a431ab0ce3b9b106
+  checksum: 50f376810df1125d16325b5861c4f4531f576613a4de3c8f27233eb1e42f3a637ae32f1e3df4c8b23ebcda5929b6f68c510e46b7c094590bfef4e50b3d835d4f
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.53.0-WEB-3841-pdf-bolus-limit.3
+    "@tidepool/viz": 1.53.0-rc.1
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
