@@ -1139,7 +1139,7 @@ describe('ClinicPatients', () => {
         const table = wrapper.find(Table);
         expect(table).to.have.length(1);
         expect(table.find('tr')).to.have.length(3); // header row + 2 invites
-        const editButton = table.find('tr').at(2).find('Button[iconLabel="Edit Patient Information"]');
+        const editButton = table.find('tr').at(2).find('Button[iconLabel="Edit Patient Details"]');
 
         const dialog = () => wrapper.find('Dialog#editPatient');
 
@@ -1216,7 +1216,7 @@ describe('ClinicPatients', () => {
         const table = wrapper.find(Table);
         expect(table).to.have.length(1);
         expect(table.find('tr')).to.have.length(3); // header row + 2 invites
-        const editButton = table.find('tr').at(1).find('Button[iconLabel="Edit Patient Information"]');
+        const editButton = table.find('tr').at(1).find('Button[iconLabel="Edit Patient Details"]');
 
         const dialog = () => wrapper.find('Dialog#editPatient');
 
