@@ -4,7 +4,6 @@ import { Text, Box, Flex } from 'theme-ui';
 import map from 'lodash/map';
 import pick from 'lodash/pick';
 import isEqual from 'lodash/isEqual';
-import cloneDeep from 'lodash/cloneDeep';
 import { withTranslation } from 'react-i18next';
 
 import {
@@ -72,7 +71,7 @@ export const BgRangeSummary = React.memo(props => {
     timeInRanges.extremeHigh = data.extremeHigh || 0;
   }
 
-  const renderedData = useMemo(() => reconcileTIRPercentages(timeInRanges), [timeInRanges]);
+  const renderedData = reconcileTIRPercentages(timeInRanges);
 
   return (
     <>
