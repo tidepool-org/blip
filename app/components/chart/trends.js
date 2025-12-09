@@ -24,6 +24,7 @@ import {
   containers as vizContainers,
   utils as vizUtils,
 } from '@tidepool/viz';
+import { CHART_DATE_BOUND_FORMAT } from '../elements/DateRangePicker';
 
 const TrendsContainer = vizContainers.TrendsContainer;
 const getTimezoneFromTimePrefs = vizUtils.datetime.getTimezoneFromTimePrefs;
@@ -128,7 +129,8 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     const isMidnight = (dateMoment?.hours() === 0 && dateMoment?.minutes() === 0) ||
                        (dateMoment?.hours() === 23 && dateMoment?.minutes() === 59);
 
-    const dtMask = isMidnight ? 'MMM D, YYYY' : 'MMM D, YYYY (h:mm A)';
+    const dtMask = isMidnight ? CHART_DATE_BOUND_FORMAT.DATE_ONLY
+                              : CHART_DATE_BOUND_FORMAT.DATE_AND_TIME;
 
     return dateMoment.format(dtMask);
   }
