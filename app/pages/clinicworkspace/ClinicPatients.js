@@ -400,7 +400,7 @@ const MoreMenu = ({
     let arr = [];
     arr.push({
       icon: EditIcon,
-      iconLabel: t('Edit Patient Information'),
+      iconLabel: t('Edit Patient Details'),
       iconPosition: 'left',
       id: `edit-${patient.id}`,
       variant: 'actionListItem',
@@ -408,7 +408,7 @@ const MoreMenu = ({
         _popupState.close();
         handleEditPatient(patient);
       },
-      text: t('Edit Patient Information'),
+      text: t('Edit Patient Details'),
     }, {
       iconSrc: DataInIcon,
       iconLabel: t('Bring Data into Tidepool'),
@@ -1814,8 +1814,10 @@ export const ClinicPatients = (props) => {
                       sx={{ fontSize: 0, lineHeight: 1.3 }}
                     >
                       {activeFilters.lastData
-                        ? t('Data within') + find(customLastDataFilterOptions, { value: activeFilters.lastData })?.label.replace('Within', '')
-                        : t('Data Recency')
+                       ? activeFilters.lastData === 1
+                        ? t('Data within 1 day')
+                        : t('Data within') + find(customLastDataFilterOptions, { value: activeFilters.lastData })?.label.replace('Within', '')
+                       : t('Data Recency')
                       }
                     </Button>
                   </Box>
