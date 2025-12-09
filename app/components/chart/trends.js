@@ -124,14 +124,20 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     const { t } = this.props;
     const timezone = getTimezoneFromTimePrefs(_.get(this.props, 'data.timePrefs', {}));
 
-    return sundial.formatInTimezone(datetime, timezone, t('MMM D, YYYY'));
+    const dateMoment = moment(datetime).tz(timezone);
+    const isMidnight = (dateMoment?.hours() === 0 && dateMoment?.minutes() === 0) ||
+                       (dateMoment?.hours() === 23 && dateMoment?.minutes() === 59);
+
+    const dtMask = isMidnight ? 'MMM D, YYYY' : 'MMM D, YYYY (h:mm A)';
+
+    return dateMoment.format(dtMask);
   }
 
   getNewDomain(current, extent) {
     const timePrefs = _.get(this.props, 'data.timePrefs', {});
     const timezone = getTimezoneFromTimePrefs(timePrefs);
-    const end = getLocalizedCeiling(current.valueOf(), timePrefs);
-    const start = moment(end.toISOString()).tz(timezone).subtract(extent, 'days');
+    const end = getLocalizedCeiling(current.valueOf(), timePrefs, 'hour');
+    const start = moment(current.toISOString()).tz(timezone).subtract(extent, 'days');
     const dateDomain = [start.toISOString(), end.toISOString()];
 
     return dateDomain;
@@ -141,8 +147,7 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     const timePrefs = _.get(this.props, 'data.timePrefs', {});
     const timezone = getTimezoneFromTimePrefs(timePrefs);
 
-    // endpoint is exclusive, so need to subtract a day
-    const end = moment(datetimeLocationEndpoints[1]).tz(timezone).subtract(1, 'day');
+    const end = moment(datetimeLocationEndpoints[1]).tz(timezone);
 
     return this.formatDate(datetimeLocationEndpoints[0]) + ' - ' + this.formatDate(end);
   }
@@ -279,9 +284,10 @@ const Trends = withTranslation()(class Trends extends PureComponent {
       this.state.debouncedDateRangeUpdate.cancel();
     }
 
-    const dateCeiling = getLocalizedCeiling(datetimeLocationEndpoints[1], _.get(this.props, 'data.timePrefs', {}));
+    const timePrefs = _.get(this.props, 'data.timePrefs', {});
+    const hourCeiling = getLocalizedCeiling(datetimeLocationEndpoints[1], timePrefs, 'hour');
 
-    const datetimeLocation = moment.utc(dateCeiling.valueOf()).toISOString();
+    const datetimeLocation = moment.utc(hourCeiling.valueOf()).toISOString();
 
     const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 250);
     debouncedDateRangeUpdate(datetimeLocation);
@@ -347,11 +353,9 @@ const Trends = withTranslation()(class Trends extends PureComponent {
   }
 
   isAtMostRecent() {
-    const mostRecentCeiling = getLocalizedCeiling(
-      this.props.mostRecentDatetimeLocation,
-      _.get(this.props, 'data.timePrefs', {})
-    ).toISOString();
-    return _.get(this.refs, 'chart.state.dateDomain.end') >= mostRecentCeiling;
+    const { mostRecentDatetimeLocation } = this.props;
+
+    return _.get(this.refs, 'chart.state.dateDomain.end') >= mostRecentDatetimeLocation;
   }
 
   markTrendsViewed() {

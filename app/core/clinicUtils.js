@@ -73,7 +73,7 @@ export const preferredBgUnits = [
 ];
 
 export const lastDataFilterOptions = [
-  { value: 1, label: t('Within 24 hours') },
+  { value: 1, label: t('Today') },
   { value: 2, label: t('Within 2 days') },
   { value: 7, label: t('Within 7 days') },
   { value: 14, label: t('Within 14 days') },
@@ -112,7 +112,7 @@ export const clinicTierDetails = (clinic = {}) => {
     patientCountSettings = {},
   } = clinic;
 
-  const hardLimit = patientCountSettings?.hardLimit;
+  const hardLimit = patientCountSettings?.hardLimit?.plan ?? patientCountSettings?.hardLimit?.patientCount;
   const hardLimitStartDate = patientCountSettings?.hardLimit?.startDate;
   const hardLimitStartDateIsFuture = hardLimitStartDate && moment(hardLimitStartDate).isValid() && moment(hardLimitStartDate).isAfter();
   const isBaseTier = tier.indexOf('tier01') === 0;

@@ -205,7 +205,7 @@ const MoreMenu = React.memo(({
 
   const items = useMemo(() => ([{
     icon: EditIcon,
-    iconLabel: t('Edit Patient Information'),
+    iconLabel: t('Edit Patient Details'),
     iconPosition: 'left',
     id: `edit-${patient?.id}`,
     variant: 'actionListItem',
@@ -213,7 +213,7 @@ const MoreMenu = React.memo(({
       _popupState.close();
       handleEditPatient(patient);
     },
-    text: t('Edit Patient Information'),
+    text: t('Edit Patient Details'),
   }, {
     iconSrc: DataInIcon,
     iconLabel: t('Bring Data into Tidepool'),
@@ -1423,12 +1423,18 @@ export const TideDashboard = (props) => {
     };
 
     const groupPatients = groupKey => {
-      return (groupKey === 'noData')
-        ? map(patientGroups.noData, patient => ({
-          ...patient,
-          daysSinceLastData: moment.utc().diff(patient.lastData, 'days'),
-        }))
-        : patientGroups[groupKey] || [];
+      if (groupKey !== 'noData') return patientGroups[groupKey] || [];
+
+      const timezone = timePrefs?.timezoneName || new Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+      return map(patientGroups.noData, patient => {
+        const startOfLastDataDay = moment.utc(patient.lastData).tz(timezone).startOf('day');
+        const startOfCurrentDay = moment.utc().tz(timezone).startOf('day');
+
+        const daysSinceLastData = startOfCurrentDay.diff(startOfLastDataDay, 'days');
+
+        return { ...patient, daysSinceLastData };
+      });
     };
 
     return hasResults ? (
