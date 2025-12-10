@@ -276,8 +276,19 @@ const Trends = withTranslation()(class Trends extends PureComponent {
   };
 
   handleDatetimeLocationChange(datetimeLocationEndpoints) {
+    const timePrefs = _.get(this.props, 'data.timePrefs', {});
+    const startHourCeiling = getLocalizedCeiling(datetimeLocationEndpoints[0], timePrefs, 'hour');
+    const endHourCeiling = getLocalizedCeiling(datetimeLocationEndpoints[1], timePrefs, 'hour');
+
+    const datetimeLocation = moment.utc(endHourCeiling.valueOf()).toISOString();
+
+    const updatedDatetimeLocationEndpoints = [
+      moment.utc(startHourCeiling.valueOf()).toISOString(),
+      moment.utc(endHourCeiling.valueOf()).toISOString(),
+    ];
+
     this.setState({
-      title: this.getTitle(datetimeLocationEndpoints),
+      title: this.getTitle(updatedDatetimeLocationEndpoints),
     });
 
     // Update the chart date range in the data component.
@@ -285,11 +296,6 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     if (this.state.debouncedDateRangeUpdate) {
       this.state.debouncedDateRangeUpdate.cancel();
     }
-
-    const timePrefs = _.get(this.props, 'data.timePrefs', {});
-    const hourCeiling = getLocalizedCeiling(datetimeLocationEndpoints[1], timePrefs, 'hour');
-
-    const datetimeLocation = moment.utc(hourCeiling.valueOf()).toISOString();
 
     const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 250);
     debouncedDateRangeUpdate(datetimeLocation);
