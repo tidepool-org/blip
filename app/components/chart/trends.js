@@ -192,7 +192,7 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     if (prefs.trends.activeDomain === '1 week' && prefs.trends.extentSize === 7) {
       return;
     }
-    const current = new Date(this.refs.chart.getCurrentDay());
+    const current = new Date(this.refs.chart.getCurrentChartTime());
     prefs.trends.activeDomain = '1 week';
     prefs.trends.extentSize = 7;
     this.props.updateChartPrefs(prefs);
@@ -209,7 +209,7 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     if (prefs.trends.activeDomain === '2 weeks' && prefs.trends.extentSize === 14) {
       return;
     }
-    const current = new Date(this.refs.chart.getCurrentDay());
+    const current = new Date(this.refs.chart.getCurrentChartTime());
     prefs.trends.activeDomain = '2 weeks';
     prefs.trends.extentSize = 14;
     this.props.updateChartPrefs(prefs);
@@ -226,7 +226,7 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     if (prefs.trends.activeDomain === '4 weeks' && prefs.trends.extentSize === 28) {
       return;
     }
-    const current = new Date(this.refs.chart.getCurrentDay());
+    const current = new Date(this.refs.chart.getCurrentChartTime());
     prefs.trends.activeDomain = '4 weeks';
     prefs.trends.extentSize = 28;
     this.props.updateChartPrefs(prefs);
