@@ -567,6 +567,7 @@ export const PatientDataClass = createReactClass({
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             onClickChartDates={this.handleClickChartDates}
             patient={this.props.patient}
+            copyAsTextMetadata={this.getCopyAsTextMetadata()}
             permsOfLoggedInUser={this.props.permsOfLoggedInUser}
             aggregations={aggregations}
             stats={stats}
@@ -616,6 +617,7 @@ export const PatientDataClass = createReactClass({
         return (
           <Trends
             addingData={this.props.addingData}
+            copyAsTextMetadata={this.getCopyAsTextMetadata()}
             chartPrefs={this.state.chartPrefs}
             currentPatientInViewId={this.props.currentPatientInViewId}
             data={this.props.data}
@@ -645,6 +647,7 @@ export const PatientDataClass = createReactClass({
           <BgLog
             addingData={this.props.addingData}
             chartPrefs={this.state.chartPrefs}
+            copyAsTextMetadata={this.getCopyAsTextMetadata()}
             data={this.props.data}
             initialDatetimeLocation={this.state.datetimeLocation}
             isClinicianAccount={personUtils.isClinicianAccount(this.props.user)}
@@ -1614,6 +1617,21 @@ export const PatientDataClass = createReactClass({
     }
 
     return _.max(_.map(latestDatums, d => (d.normalEnd || d.normalTime)));
+  },
+
+  getCopyAsTextMetadata: function () {
+    const { clinic, clinicPatient } = this.props;
+
+    const patientTagIds = clinicPatient?.tags || [];
+    const patientTags = clinic?.patientTags?.filter(tag => patientTagIds.includes(tag.id)) || [];
+
+    const patientSiteIds = clinicPatient?.sites?.map(s => s.id) || [];
+    const sites = clinic?.sites?.filter(site => patientSiteIds.includes(site.id)) || [];
+
+    return {
+      patientTags,
+      sites,
+    };
   },
 
   // Called via `window.loadPatientData` to populate global `patientData` object

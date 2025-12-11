@@ -28,6 +28,7 @@ class Basics extends Component {
   static propTypes = {
     aggregations: PropTypes.object.isRequired,
     chartPrefs: PropTypes.object.isRequired,
+    copyAsTextMetadata: PropTypes.object,
     data: PropTypes.object.isRequired,
     initialDatetimeLocation: PropTypes.string,
     loading: PropTypes.bool.isRequired,
@@ -118,7 +119,14 @@ class Basics extends Component {
                 <ClipboardButton
                   buttonTitle={t('For email or notes')}
                   onSuccess={this.handleCopyBasicsClicked}
-                  getText={basicsText.bind(this, this.props.patient, this.props.data, this.props.stats, this.props.aggregations)}
+                  getText={basicsText.bind(
+                    this,
+                    this.props.patient,
+                    this.props.data,
+                    this.props.stats,
+                    this.props.aggregations,
+                    this.props.copyAsTextMetadata,
+                  )}
                 />
                 <BgSourceToggle
                   bgSources={_.get(this.props, 'data.metaData.bgSources', {})}

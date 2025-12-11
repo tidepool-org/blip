@@ -40,6 +40,7 @@ const {
 const Trends = withTranslation()(class Trends extends PureComponent {
   static propTypes = {
     chartPrefs: PropTypes.object.isRequired,
+    copyAsTextMetadata: PropTypes.object,
     currentPatientInViewId: PropTypes.string.isRequired,
     data: PropTypes.object.isRequired,
     initialDatetimeLocation: PropTypes.string,
@@ -586,7 +587,14 @@ const Trends = withTranslation()(class Trends extends PureComponent {
                   <ClipboardButton
                     buttonTitle={t('For email or notes')}
                     onSuccess={this.handleCopyTrendsClicked}
-                    getText={trendsText.bind(this, this.props.patient, this.props.data, this.props.stats, this.props.chartPrefs[this.chartType])}
+                    getText={trendsText.bind(
+                      this,
+                      this.props.patient,
+                      this.props.data,
+                      this.props.stats,
+                      this.props.chartPrefs[this.chartType],
+                      this.props.copyAsTextMetadata,
+                    )}
                   />
                   <BgSourceToggle
                     bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
