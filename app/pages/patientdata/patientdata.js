@@ -1620,7 +1620,8 @@ export const PatientDataClass = createReactClass({
   },
 
   getCopyAsTextMetadata: function () {
-    const { clinic, clinicPatient } = this.props;
+    const { clinic, clinicPatient, user } = this.props;
+    const isClinicianAccount = personUtils.isClinicianAccount(this.props.user);
 
     const patientTagIds = clinicPatient?.tags || [];
     const patientTags = clinic?.patientTags?.filter(tag => patientTagIds.includes(tag.id)) || [];
@@ -1629,6 +1630,7 @@ export const PatientDataClass = createReactClass({
     const sites = clinic?.sites?.filter(site => patientSiteIds.includes(site.id)) || [];
 
     return {
+      isClinicianAccount,
       patientTags,
       sites,
     };
