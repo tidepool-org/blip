@@ -1640,8 +1640,8 @@ export const PatientDataClass = createReactClass({
     return {
       isClinicianAccount,
       diagnosisTypeLabel,
-      patientTags,
-      sites,
+      patientTags: isClinicianAccount ? patientTags : [],
+      sites: isClinicianAccount ? sites: [],
     };
   },
 
