@@ -62,7 +62,7 @@ import UploaderBanner from '../../components/elements/Card/Banners/Uploader.png'
 import ShareBanner from '../../components/elements/Card/Banners/Share.png';
 import DataConnectionsBanner from '../../components/elements/Card/Banners/DataConnections.png';
 import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
-import { DATA_DONATION_CONSENT_TYPE, DEFAULT_CGM_SAMPLE_INTERVAL, DEFAULT_CGM_SAMPLE_INTERVAL_RANGE, MS_IN_MIN } from '../../core/constants';
+import { DATA_DONATION_CONSENT_TYPE, DEFAULT_CGM_SAMPLE_INTERVAL, DEFAULT_CGM_SAMPLE_INTERVAL_RANGE, DIABETES_TYPES, MS_IN_MIN } from '../../core/constants';
 const { GLYCEMIC_RANGES_PRESET } = vizUtils.constants;
 
 const { Loader } = vizComponents;
@@ -1621,16 +1621,24 @@ export const PatientDataClass = createReactClass({
 
   getCopyAsTextMetadata: function () {
     const { clinic, clinicPatient, user } = this.props;
-    const isClinicianAccount = personUtils.isClinicianAccount(this.props.user);
 
+    // User Type
+    const isClinicianAccount = personUtils.isClinicianAccount(user);
+
+    // Clinic Patient Details
+    const diagnosisTypeLabel = DIABETES_TYPES().find(t => t.value === clinicPatient?.diagnosisType)?.label;
+
+    // Tags
     const patientTagIds = clinicPatient?.tags || [];
     const patientTags = clinic?.patientTags?.filter(tag => patientTagIds.includes(tag.id)) || [];
 
+    // Sites
     const patientSiteIds = clinicPatient?.sites?.map(s => s.id) || [];
     const sites = clinic?.sites?.filter(site => patientSiteIds.includes(site.id)) || [];
 
     return {
       isClinicianAccount,
+      diagnosisTypeLabel,
       patientTags,
       sites,
     };
