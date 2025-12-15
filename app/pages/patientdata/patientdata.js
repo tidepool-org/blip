@@ -1620,13 +1620,14 @@ export const PatientDataClass = createReactClass({
   },
 
   getCopyAsTextMetadata: function () {
-    const { clinic, clinicPatient, user } = this.props;
+    const { clinic, clinicPatient, patient, user } = this.props;
 
     // User Type
     const isClinicianAccount = personUtils.isClinicianAccount(user);
 
     // Clinic Patient Details
-    const diagnosisTypeLabel = DIABETES_TYPES().find(t => t.value === clinicPatient?.diagnosisType)?.label;
+    const diagnosisType = clinicPatient?.diagnosisType || patient?.profile?.patient?.diagnosisType;
+    const diagnosisTypeLabel = DIABETES_TYPES().find(t => t.value === diagnosisType)?.label;
 
     // Tags
     const patientTagIds = clinicPatient?.tags || [];
