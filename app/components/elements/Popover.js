@@ -52,6 +52,7 @@ function Popover(props) {
     marginBottom,
     onClickCloseIcon,
     padding,
+    containerElement,
     ...popoverProps
   } = props;
 
@@ -74,7 +75,7 @@ function Popover(props) {
       marginbottom={marginBottom}
       minwidth={minWidth}
       padding={padding}
-      container={() => document.getElementById('dialog-container')}
+      container={() => containerElement || document.getElementById('dialog-container')}
       {...popoverProps}
     >
       {closeIcon && (
