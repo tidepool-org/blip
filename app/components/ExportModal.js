@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import map from 'lodash/map';
 import noop from 'lodash/noop';
-import { Flex, Box, Text, Label, Radio } from 'theme-ui';
+import { Flex, Box, Text, Label } from 'theme-ui';
 import moment from 'moment-timezone';
 import { Element, scroller } from 'react-scroll';
 
@@ -50,14 +50,12 @@ export const ExportModal = (props) => {
     dates: defaultDates(),
     bgUnits: defaultBgUnits,
     format: 'excel',
-    allTime: false,
     error: null,
   }), [open]);
 
   const [dates, setDates] = useState(defaults.dates);
   const [bgUnits, setBgUnits] = useState(defaults.bgUnits);
   const [format, setFormat] = useState(defaults.format);
-  const [allTime, setAllTime] = useState(defaults.allTime);
   const [error, setError] = useState(defaults.error);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [processing, setProcessing] = useState(false);
@@ -71,18 +69,11 @@ export const ExportModal = (props) => {
 
   const handleClickPreset = (days) => {
     setDates(getLastNDays(days));
-    setAllTime(false);
-    trackMetric('Selected pre-determined date range');
-  };
-
-  const handleAllTimeClick = () => {
-    setAllTime(true);
     trackMetric('Selected pre-determined date range');
   };
 
   const handleDatesChange = (newDates) => {
     setDates(setDateRangeToExtents(newDates));
-    setAllTime(false);
   };
 
   const handleClose = () => {
@@ -99,17 +90,14 @@ export const ExportModal = (props) => {
       bgUnits,
     };
 
-    if (allTime) {
-      // No date filtering for all time
-    } else {
-      if (!dates.startDate || !dates.endDate) {
-        setError({ message: t('Please select a date range') });
-        setProcessing(false);
-        return;
-      }
-      options.startDate = moment(dates.startDate).utc().toISOString();
-      options.endDate = moment(dates.endDate).endOf('day').utc().toISOString();
+
+    if (!dates.startDate || !dates.endDate) {
+      setError({ message: t('Please select a date range') });
+      setProcessing(false);
+      return;
     }
+    options.startDate = moment(dates.startDate).utc().toISOString();
+    options.endDate = moment(dates.endDate).endOf('day').utc().toISOString();
 
     api.tidepool.getExportDataURL(
       patient.userid,
@@ -138,7 +126,6 @@ export const ExportModal = (props) => {
       setDates(defaults.dates);
       setBgUnits(defaults.bgUnits);
       setFormat(defaults.format);
-      setAllTime(defaults.allTime);
       setError(defaults.error);
       setDatePickerOpen(false);
       setProcessing(false);
@@ -173,21 +160,12 @@ export const ExportModal = (props) => {
                     name={`export-days-${i}`}
                     key={`export-days-${i}`}
                     value={days}
-                    selected={!allTime && datesMatchPreset(dates, presetDateRanges[i])}
+                    selected={datesMatchPreset(dates, presetDateRanges[i])}
                     onClick={() => handleClickPreset(days)}
                   >
                     {days} {t('days')}
                   </Button>
                 ))}
-                <Button
-                  variant="chip"
-                  id="export-all-time"
-                  name="export-all-time"
-                  selected={allTime}
-                  onClick={handleAllTimeClick}
-                >
-                  {t('All Data')}
-                </Button>
               </Flex>
             </Box>
 
@@ -229,7 +207,8 @@ export const ExportModal = (props) => {
             </Text>
             <Flex>
               <Label sx={{ alignItems: 'center', cursor: 'pointer', mr: 4 }}>
-                <Radio
+                <input
+                  type="radio"
                   name="bgUnits"
                   value={MGDL_UNITS}
                   checked={bgUnits === MGDL_UNITS}
@@ -237,11 +216,13 @@ export const ExportModal = (props) => {
                     setBgUnits(MGDL_UNITS);
                     trackMetric('Selected diabetes data format');
                   }}
+                  style={{ marginLeft: '20px', marginRight: '3px' }}
                 />
                 {MGDL_UNITS}
               </Label>
               <Label sx={{ alignItems: 'center', cursor: 'pointer' }}>
-                <Radio
+                <input
+                  type="radio"
                   name="bgUnits"
                   value={MMOLL_UNITS}
                   checked={bgUnits === MMOLL_UNITS}
@@ -249,6 +230,7 @@ export const ExportModal = (props) => {
                     setBgUnits(MMOLL_UNITS);
                     trackMetric('Selected diabetes data format');
                   }}
+                  style={{ marginLeft: '20px', marginRight: '3px' }}
                 />
                 {MMOLL_UNITS}
               </Label>
@@ -266,7 +248,8 @@ export const ExportModal = (props) => {
             </Text>
             <Flex>
               <Label sx={{ alignItems: 'center', cursor: 'pointer', mr: 4 }}>
-                <Radio
+                <input
+                  type="radio"
                   name="format"
                   value="excel"
                   checked={format === 'excel'}
@@ -274,11 +257,13 @@ export const ExportModal = (props) => {
                     setFormat('excel');
                     trackMetric('Selected file format');
                   }}
+                  style={{ marginLeft: '20px', marginRight: '3px' }}
                 />
                 Excel
               </Label>
               <Label sx={{ alignItems: 'center', cursor: 'pointer' }}>
-                <Radio
+                <input
+                  type="radio"
                   name="format"
                   value="json"
                   checked={format === 'json'}
@@ -286,6 +271,7 @@ export const ExportModal = (props) => {
                     setFormat('json');
                     trackMetric('Selected file format');
                   }}
+                  style={{ marginLeft: '20px', marginRight: '3px' }}
                 />
                 JSON
               </Label>
