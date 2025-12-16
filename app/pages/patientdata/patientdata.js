@@ -1638,7 +1638,6 @@ export const PatientDataClass = createReactClass({
     const sites = clinic?.sites?.filter(site => patientSiteIds.includes(site.id)) || [];
 
     return {
-      isClinicianAccount,
       diagnosisTypeLabel,
       patientTags: isClinicianAccount ? patientTags : [],
       sites: isClinicianAccount ? sites: [],
