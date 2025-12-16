@@ -35,6 +35,7 @@ class Basics extends Component {
     onClickNoDataRefresh: PropTypes.func.isRequired,
     onSwitchToBasics: PropTypes.func.isRequired,
     onSwitchToDaily: PropTypes.func.isRequired,
+    onClickExport: PropTypes.func.isRequired,
     onClickPrint: PropTypes.func.isRequired,
     onSwitchToSettings: PropTypes.func.isRequired,
     onSwitchToBgLog: PropTypes.func.isRequired,
@@ -92,6 +93,7 @@ class Basics extends Component {
             onClickRefresh={this.props.onClickRefresh}
             onClickSettings={this.props.onSwitchToSettings}
             onClickBgLog={this.handleClickBgLog}
+            onClickExport={this.handleClickExport}
             onClickPrint={this.handleClickPrint}
             ref="header"
           />
@@ -252,6 +254,14 @@ class Basics extends Component {
       e.preventDefault();
     }
     this.props.onSwitchToDaily(_.get(this.props, 'data.data.current.endpoints.range', [])[1]);
+  };
+
+  handleClickExport = e => {
+    if (e) {
+      e.preventDefault();
+    }
+
+    this.props.onClickExport();
   };
 
   handleClickPrint = e => {

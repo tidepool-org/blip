@@ -191,6 +191,7 @@ class BgLog extends Component {
     mostRecentDatetimeLocation: PropTypes.string,
     onClickNoDataRefresh: PropTypes.func.isRequired,
     onClickRefresh: PropTypes.func.isRequired,
+    onClickExport: PropTypes.func.isRequired,
     onClickPrint: PropTypes.func.isRequired,
     onSwitchToBasics: PropTypes.func.isRequired,
     onSwitchToDaily: PropTypes.func.isRequired,
@@ -373,6 +374,7 @@ class BgLog extends Component {
         onClickOneDay={this.handleClickOneDay}
         onClickSettings={this.props.onSwitchToSettings}
         onClickBgLog={this.handleClickBgLog}
+        onClickExport={this.handleClickExport}
         onClickPrint={this.handleClickPrint}
       ref="header" />
     );
@@ -390,6 +392,7 @@ class BgLog extends Component {
         onClickTrends={this.handleClickTrends}
         onClickSettings={this.props.onSwitchToSettings}
         onClickBgLog={this.handleClickBgLog}
+        onClickExport={this.handleClickExport}
         onClickPrint={this.handleClickPrint}
       ref="header" />
     );
@@ -467,6 +470,14 @@ class BgLog extends Component {
       datetime = this.refs.chart.getCurrentDay(this.props.timePrefs);
     }
     this.props.onSwitchToDaily(datetime);
+  };
+
+  handleClickExport = e => {
+    if (e) {
+      e.preventDefault();
+    }
+
+    this.props.onClickExport(this.props.pdf);
   };
 
   handleClickPrint = e => {

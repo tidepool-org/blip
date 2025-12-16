@@ -49,6 +49,7 @@ import Messages from '../../components/messages';
 import ChartDateRangeModal from '../../components/ChartDateRangeModal';
 import ChartDateModal from '../../components/ChartDateModal';
 import PrintDateRangeModal from '../../components/PrintDateRangeModal';
+import ExportModal from '../../components/ExportModal';
 import Button from '../../components/elements/Button';
 
 import ToastContext from '../../providers/ToastProvider';
@@ -173,6 +174,7 @@ export const PatientDataClass = createReactClass({
       datesDialogOpen: false,
       datesDialogProcessing: false,
       datesDialogFetchingData: false,
+      exportDialogOpen: false,
       printDialogOpen: false,
       printDialogProcessing: false,
       printDialogPDFOpts: null,
@@ -206,6 +208,7 @@ export const PatientDataClass = createReactClass({
     const patientData = this.renderPatientData();
     const messages = this.renderMessagesContainer();
     const datesDialog = this.renderDatesDialog();
+    const exportDialog = this.renderExportDialog();
     const printDialog = this.renderPrintDialog();
     const showLoader = this.isInitialProcessing() || this.state.transitioningChartType;
 
@@ -214,6 +217,7 @@ export const PatientDataClass = createReactClass({
         {messages}
         {patientData}
         {this.state.datesDialogOpen && datesDialog}
+        {exportDialog}
         {printDialog}
         <Loader show={showLoader} />
       </div>
@@ -441,6 +445,20 @@ export const PatientDataClass = createReactClass({
     );
   },
 
+  renderExportDialog: function() {
+    return (
+      <ExportModal
+        id="export-dialog"
+        api={this.props.api}
+        patient={this.props.patient}
+        user={this.props.user}
+        open={this.state.exportDialogOpen}
+        onClose={this.closeExportDialog}
+        trackMetric={this.props.trackMetric}
+      />
+    );
+  },
+
   renderPrintDialog: function() {
     return (
       <PrintDateRangeModal
@@ -527,6 +545,7 @@ export const PatientDataClass = createReactClass({
             onSwitchToTrends={this.handleSwitchToTrendsRoute}
             onSwitchToSettings={this.handleSwitchToSettingsRoute}
             onSwitchToBgLog={this.handleSwitchToBgLogRoute}
+            onClickExport={this.handleClickExport}
             onClickPrint={this.handleClickPrint}
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
@@ -563,6 +582,7 @@ export const PatientDataClass = createReactClass({
             loading={this.state.loading}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
+            onClickExport={this.handleClickExport}
             onClickPrint={this.handleClickPrint}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             onClickChartDates={this.handleClickChartDates}
@@ -594,6 +614,7 @@ export const PatientDataClass = createReactClass({
             onClickRefresh={this.handleClickRefresh}
             onCreateMessage={this.handleShowMessageCreation}
             onShowMessageThread={this.handleShowMessageThread}
+            onClickExport={this.handleClickExport}
             onClickPrint={this.handleClickPrint}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             onClickChartDates={this.handleClickChartDates}
@@ -623,6 +644,7 @@ export const PatientDataClass = createReactClass({
             loading={this.state.loading}
             mostRecentDatetimeLocation={this.state.mostRecentDatetimeLocation}
             onClickRefresh={this.handleClickRefresh}
+            onClickExport={this.handleClickExport}
             onClickPrint={this.handleClickPrint}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             patient={this.props.patient}
@@ -652,6 +674,7 @@ export const PatientDataClass = createReactClass({
             mostRecentDatetimeLocation={this.state.mostRecentDatetimeLocation}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
+            onClickExport={this.handleClickExport}
             onClickPrint={this.handleClickPrint}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             patient={this.props.patient}
@@ -1278,6 +1301,15 @@ export const PatientDataClass = createReactClass({
     });
 
     this.updateChart('settings');
+  },
+
+  handleClickExport: function() {
+    this.props.trackMetric('Clicked Export', { fromChart: this.state.chartType });
+    this.setState({ exportDialogOpen: true });
+  },
+
+  closeExportDialog: function() {
+    this.setState({ exportDialogOpen: false });
   },
 
   handleClickPrint: function() {
@@ -2541,6 +2573,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     onSaveComment: api.team.replyToMessageThread.bind(api),
     onCreateMessage: dispatchProps.createMessageThread.bind(null, api),
     onEditMessage: dispatchProps.editMessageThread.bind(null, api),
+    api: api,
     trackMetric: ownProps.trackMetric,
     queryParams: ownProps.location.query,
     currentPatientInViewId: ownProps.match.params.id,

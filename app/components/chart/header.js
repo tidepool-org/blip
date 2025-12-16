@@ -5,6 +5,7 @@ import cx from 'classnames';
 import { withTranslation } from 'react-i18next';
 import DateRangeRoundedIcon from '@material-ui/icons/DateRangeRounded';
 import PrintRoundedIcon from '@material-ui/icons/PrintRounded';
+import GetAppIcon from '@material-ui/icons/GetApp';
 import { colors as vizColors } from '@tidepool/viz';
 import Button from '../elements/Button';
 import { DesktopOnly, MobileOnly } from '../mediaqueries';
@@ -32,6 +33,7 @@ const Header = withTranslation()(class Header extends Component {
     onClickOneDay: PropTypes.func,
     onClickBgLog: PropTypes.func,
     onClickSettings: PropTypes.func,
+    onClickExport: PropTypes.func,
     onClickPrint: PropTypes.func,
   };
 
@@ -180,16 +182,21 @@ const Header = withTranslation()(class Header extends Component {
           {this.renderNavButton(mostRecentClass, this.props.onClickMostRecent, this.props.iconMostRecent)}
         </div>
         <div className="app-no-print patient-data-subnav-right">
+          <a href="" className={printLinkClass} onClick={this.props.onClickExport}>
+            <Icon
+              className="icon"
+              variant="default"
+              sx={{ mr: 2, mt: '-2px', color: vizColors.blue00, outline: 'none' }}
+              label="Export Data"
+              icon={GetAppIcon}
+            />
+            {t('Export Data')}
+          </a>
           <a href="" className={printLinkClass} onClick={this.props.onClickPrint}>
             <Icon
               className="icon"
               variant="default"
-              sx={{
-                mr: 2,
-                mt: '-2px',
-                color: vizColors.blue00,
-                outline: 'none',
-              }}
+              sx={{ mr: 2, mt: '-2px', color: vizColors.blue00, outline: 'none' }}
               label="Print PDF report"
               icon={PrintRoundedIcon}
             />

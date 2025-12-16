@@ -248,6 +248,7 @@ class Daily extends Component {
     // navigation handlers
     onSwitchToBasics: PropTypes.func.isRequired,
     onSwitchToDaily: PropTypes.func.isRequired,
+    onClickExport: PropTypes.func.isRequired,
     onClickPrint: PropTypes.func.isRequired,
     onSwitchToSettings: PropTypes.func.isRequired,
     onSwitchToBgLog: PropTypes.func.isRequired,
@@ -338,6 +339,7 @@ class Daily extends Component {
             onClickOneDay={this.handleClickOneDay}
             onClickSettings={this.props.onSwitchToSettings}
             onClickBgLog={this.handleClickBgLog}
+            onClickExport={this.handleClickExport}
             onClickPrint={this.handleClickPrint}
             ref={this.headerRef}
           />
@@ -624,6 +626,14 @@ class Daily extends Component {
       e.preventDefault();
     }
     return;
+  };
+
+  handleClickExport = e => {
+    if (e) {
+      e.preventDefault();
+    }
+
+    this.props.onClickExport();
   };
 
   handleClickPrint = e => {

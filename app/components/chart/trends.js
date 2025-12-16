@@ -46,6 +46,7 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     loading: PropTypes.bool.isRequired,
     mostRecentDatetimeLocation: PropTypes.string,
     onClickRefresh: PropTypes.func.isRequired,
+    onClickExport: PropTypes.func.isRequired,
     onClickPrint: PropTypes.func.isRequired,
     onSwitchToBasics: PropTypes.func.isRequired,
     onSwitchToDaily: PropTypes.func.isRequired,
@@ -264,6 +265,14 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     const datetime = this.refs.chart ? this.refs.chart.getCurrentDay() : this.props.initialDatetimeLocation;
     this.props.onSwitchToBgLog(datetime);
   }
+
+  handleClickExport = e => {
+    if (e) {
+      e.preventDefault();
+    }
+
+    this.props.onClickExport();
+  };
 
   handleClickPrint = e => {
     if (e) {
@@ -638,6 +647,7 @@ const Trends = withTranslation()(class Trends extends PureComponent {
         onClickOneDay={this.handleClickDaily}
         onClickBgLog={this.handleClickBgLog}
         onClickSettings={this.handleClickSettings}
+        onClickExport={this.handleClickExport}
         onClickPrint={this.handleClickPrint}
         ref="header" />
     );
