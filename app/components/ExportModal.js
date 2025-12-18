@@ -134,136 +134,122 @@ export const ExportModal = ({
         <MediumTitle>{t('Export Patient Data')}</MediumTitle>
       </DialogTitle>
       <DialogContent divider={false} sx={{ minWidth: '580px' }} pt={3} px={3}>
-        <Element name="export-wrapper">
-          <Box
-            variant="containers.fluidBordered"
-            sx={{ bg: 'white', color: 'text.primary' }}
-            p={3}
-            mb={3}
-          >
-            <Text as={Box} sx={{ fontSize: 1, fontWeight: 'bold' }} mb={3}>
-              {t('Date Range')}
-            </Text>
+        <Box p={3}>
+          <Text as={Box} sx={{ color: 'text.primary', fontSize: 1, fontWeight: 'bold' }} mb={3}>
+            {t('Export data from the last')}
+          </Text>
 
-            <Box mb={3}>
-              <Body0 mb={2}>{t('Number of days (most recent)')}</Body0>
-              <Flex>
-                {map(DAYS_OPTIONS, (days, i) => (
-                  <Button
-                    mr={2}
-                    variant="chip"
-                    id={`export-days-${i}`}
-                    name={`export-days-${i}`}
-                    key={`export-days-${i}`}
-                    value={days}
-                    selected={datesMatchPreset(days)}
-                    onClick={() => handleClickPreset(days)}
-                  >
-                    {days} {t('days')}
-                  </Button>
-                ))}
-              </Flex>
-            </Box>
+          <Box mb={3}>
+            <Flex>
+              {map(DAYS_OPTIONS, (days, i) => (
+                <Button
+                  mr={2}
+                  variant="chip"
+                  id={`export-days-${i}`}
+                  name={`export-days-${i}`}
+                  key={`export-days-${i}`}
+                  value={days}
+                  selected={datesMatchPreset(days)}
+                  onClick={() => handleClickPreset(days)}
+                >
+                  {days} {t('days')}
+                </Button>
+              ))}
+            </Flex>
+          </Box>
 
-            <Box mb={3}>
-              <Body0 mb={2}>{t('Or select a custom date range')}</Body0>
-              <DateRangePicker
-                startDate={moment.utc(dates.startDate)}
-                endDate={moment.utc(dates.endDate).endOf('day')}
-                startDateId="export-start-date"
-                endDateId="export-end-date"
-                onDatesChange={handleDatesChange}
-                isOutsideRange={day => endOfToday.diff(day) < 0}
-                onFocusChange={input => {
-                  setDatePickerOpen(!!input);
-                  if (input) {
-                    scroller.scrollTo('export-wrapper', {
-                      delay: 0,
-                      containerId: 'exportDialogInner',
-                      duration: 250,
-                      smooth: true,
-                    });
-                  }
-                }}
-                themeProps={{
-                  sx: { minHeight: datePickerOpen ? '310px' : undefined },
+          <Box>
+            <Body0 mb={2}>{t('Or select a custom date range (90 days max)')}</Body0>
+            <DateRangePicker
+              startDate={moment.utc(dates.startDate)}
+              endDate={moment.utc(dates.endDate).endOf('day')}
+              startDateId="export-start-date"
+              endDateId="export-end-date"
+              onDatesChange={handleDatesChange}
+              isOutsideRange={day => endOfToday.diff(day) < 0}
+              onFocusChange={input => {
+                setDatePickerOpen(!!input);
+              }}
+              themeProps={{
+                sx: { minHeight: datePickerOpen ? '310px' : undefined },
+              }}
+            />
+          </Box>
+        </Box>
+
+        <Box sx={{ bg: 'white', color: 'text.primary' }} p={3}>
+          <Text as={Box} sx={{ fontSize: 1, fontWeight: 'bold' }} mb={2}>
+            {t('Units')}
+          </Text>
+          <Flex sx={{ gap: 4, fontSize: 1 }}>
+            <Flex sx={{ gap: 1 }}>
+              <input
+                type="radio"
+                name="bgUnits"
+                id={`bgUnits_${MGDL_UNITS}`}
+                value={MGDL_UNITS}
+                checked={bgUnits === MGDL_UNITS}
+                onChange={() => {
+                  setBgUnits(MGDL_UNITS);
+                  trackMetric('Selected diabetes data format');
                 }}
               />
-            </Box>
-          </Box>
-
-          <Box variant="containers.fluidBordered" sx={{ bg: 'white', color: 'text.primary' }} p={3} mb={3}>
-            <Text as={Box} sx={{ fontSize: 1, fontWeight: 'bold' }} mb={3}>
-              {t('Units')}
-            </Text>
-            <Flex>
-              <Label sx={{ alignItems: 'center', cursor: 'pointer', mr: 4 }}>
-                <input
-                  type="radio"
-                  name="bgUnits"
-                  value={MGDL_UNITS}
-                  checked={bgUnits === MGDL_UNITS}
-                  onChange={() => {
-                    setBgUnits(MGDL_UNITS);
-                    trackMetric('Selected diabetes data format');
-                  }}
-                  style={{ marginLeft: '20px', marginRight: '3px' }}
-                />
-                {MGDL_UNITS}
-              </Label>
-              <Label sx={{ alignItems: 'center', cursor: 'pointer' }}>
-                <input
-                  type="radio"
-                  name="bgUnits"
-                  value={MMOLL_UNITS}
-                  checked={bgUnits === MMOLL_UNITS}
-                  onChange={() => {
-                    setBgUnits(MMOLL_UNITS);
-                    trackMetric('Selected diabetes data format');
-                  }}
-                  style={{ marginLeft: '20px', marginRight: '3px' }}
-                />
-                {MMOLL_UNITS}
-              </Label>
+              <label htmlFor={`bgUnits_${MGDL_UNITS}`}>{MGDL_UNITS}</label>
             </Flex>
-          </Box>
 
-          <Box variant="containers.fluidBordered" sx={{ bg: 'white', color: 'text.primary' }} p={3} mb={3}>
-            <Text as={Box} sx={{ fontSize: 1, fontWeight: 'bold' }} mb={3}>
-              {t('File Type')}
-            </Text>
-            <Flex>
-              <Label sx={{ alignItems: 'center', cursor: 'pointer', mr: 4 }}>
-                <input
-                  type="radio"
-                  name="format"
-                  value={EXPORT_FORMAT.EXCEL}
-                  checked={format === EXPORT_FORMAT.EXCEL}
-                  onChange={() => {
-                    setFormat(EXPORT_FORMAT.EXCEL);
-                    trackMetric('Selected file format');
-                  }}
-                  style={{ marginLeft: '20px', marginRight: '3px' }}
-                />
-                Excel
-              </Label>
-              <Label sx={{ alignItems: 'center', cursor: 'pointer' }}>
-                <input
-                  type="radio"
-                  name="format"
-                  value={EXPORT_FORMAT.JSON}
-                  checked={format === EXPORT_FORMAT.JSON}
-                  onChange={() => {
-                    setFormat(EXPORT_FORMAT.JSON);
-                    trackMetric('Selected file format');
-                  }}
-                  style={{ marginLeft: '20px', marginRight: '3px' }}
-                />
-                JSON
-              </Label>
+            <Flex sx={{ gap: 1 }}>
+              <input
+                type="radio"
+                name="bgUnits"
+                id={`bgUnits_${MMOLL_UNITS}`}
+                value={MMOLL_UNITS}
+                checked={bgUnits === MMOLL_UNITS}
+                onChange={() => {
+                  setBgUnits(MMOLL_UNITS);
+                  trackMetric('Selected diabetes data format');
+                }}
+              />
+              <label htmlFor={`bgUnits_${MMOLL_UNITS}`}>{MMOLL_UNITS}</label>
             </Flex>
-          </Box>
-        </Element>
+          </Flex>
+        </Box>
+
+        <Box sx={{ bg: 'white', color: 'text.primary' }} p={3}>
+          <Text as={Box} sx={{ fontSize: 1, fontWeight: 'bold' }} mb={2}>
+            {t('File Type')}
+          </Text>
+          <Flex sx={{ gap: 4, fontSize: 1 }}>
+            <Flex sx={{ gap: 1 }}>
+              <input
+                type="radio"
+                name="format"
+                id={`format_${EXPORT_FORMAT.EXCEL}`}
+                value={EXPORT_FORMAT.EXCEL}
+                checked={format === EXPORT_FORMAT.EXCEL}
+                onChange={() => {
+                  setFormat(EXPORT_FORMAT.EXCEL);
+                  trackMetric('Selected file format');
+                }}
+              />
+              <label htmlFor={`format_${EXPORT_FORMAT.EXCEL}`}>Excel</label>
+            </Flex>
+
+            <Flex sx={{ gap: 1 }}>
+              <input
+                type="radio"
+                name="format"
+                id={`format_${EXPORT_FORMAT.JSON}`}
+                value={EXPORT_FORMAT.JSON}
+                checked={format === EXPORT_FORMAT.JSON}
+                onChange={() => {
+                  setFormat(EXPORT_FORMAT.JSON);
+                  trackMetric('Selected file format');
+                }}
+              />
+              <label htmlFor={`format_${EXPORT_FORMAT.JSON}`}>JSON</label>
+            </Flex>
+          </Flex>
+        </Box>
 
         {error && (
           <Caption mx={3} mt={2} sx={{ color: 'feedback.danger' }} id="export-error">
