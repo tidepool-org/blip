@@ -1088,8 +1088,11 @@ export const ClinicPatients = (props) => {
     if (!clinic) return;
 
     // If a tag or site is deleted or otherwise missing, and is still present in an active filter, remove it from the filters
-    const missingTagsInFilter = difference(activeFilters.patientTags, map(patientTags, 'id'));
-    const missingSitesInFilter = difference(activeFilters.clinicSites, map(clinicSites, 'id'));
+    const validTagIdFilterValues = [...map(patientTags, 'id'), ...SPECIAL_FILTER_STATES.ZERO_TAGS];
+    const validSiteIdFilterValues = [...map(clinicSites, 'id'), ...SPECIAL_FILTER_STATES.ZERO_SITES];
+
+    const missingTagsInFilter = difference(activeFilters.patientTags, validTagIdFilterValues);
+    const missingSitesInFilter = difference(activeFilters.clinicSites, validSiteIdFilterValues);
 
     if (missingTagsInFilter.length || missingSitesInFilter.length) {
       setActiveFilters({
@@ -1814,8 +1817,10 @@ export const ClinicPatients = (props) => {
                       sx={{ fontSize: 0, lineHeight: 1.3 }}
                     >
                       {activeFilters.lastData
-                        ? t('Data within') + find(customLastDataFilterOptions, { value: activeFilters.lastData })?.label.replace('Within', '')
-                        : t('Data Recency')
+                       ? activeFilters.lastData === 1
+                        ? t('Data within 1 day')
+                        : t('Data within') + find(customLastDataFilterOptions, { value: activeFilters.lastData })?.label.replace('Within', '')
+                       : t('Data Recency')
                       }
                     </Button>
                   </Box>

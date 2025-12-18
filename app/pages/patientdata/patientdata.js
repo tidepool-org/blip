@@ -962,10 +962,12 @@ export const PatientDataClass = createReactClass({
   handleChartDateRangeUpdate: function(datetimeLocation, forceChartDataUpdate = false) {
     const isDaily = this.state.chartType === 'daily';
     const isTrends = this.state.chartType === 'trends';
+    const isBasics = this.state.chartType === 'basics';
 
-    const newEndpoints = this.getChartEndpoints(datetimeLocation, {
-      setEndToLocalCeiling: forceChartDataUpdate || !isDaily,
-    });
+    const canSplitDays = isDaily || isTrends || isBasics;
+    const setEndToLocalCeiling = forceChartDataUpdate || !canSplitDays;
+
+    const newEndpoints = this.getChartEndpoints(datetimeLocation, { setEndToLocalCeiling });
 
     const endpointsChanged = newEndpoints && !_.isEqual(newEndpoints, this.state.endpoints);
     if (!endpointsChanged) return;
@@ -1178,12 +1180,17 @@ export const PatientDataClass = createReactClass({
       .toISOString();
 
     const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
-    const dateCeiling = getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs);
-    const datetimeLocation = getDatetimeLocation(dateCeiling);
+    const hourCeiling = getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs, 'hour');
+    const datetimeLocation = getDatetimeLocation(hourCeiling);
 
     const updateOpts = { updateChartEndpoints: true };
 
-    this.updateChart(chartType, datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType }), updateOpts);
+    this.updateChart(
+      chartType,
+      datetimeLocation,
+      this.getChartEndpoints(datetimeLocation, { chartType, setEndToLocalCeiling: false }),
+      updateOpts
+    );
   },
 
   handleSwitchToDaily: function(datetime) {
@@ -1218,15 +1225,20 @@ export const PatientDataClass = createReactClass({
       .toISOString();
 
     const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
-    const dateCeiling = getLocalizedCeiling(_.min([Date.parse(datetime), mostRecentDatumTime]), this.state.timePrefs);
-    const datetimeLocation = getDatetimeLocation(dateCeiling);
+    const hourCeiling = getLocalizedCeiling(_.min([Date.parse(datetime), mostRecentDatumTime]), this.state.timePrefs, 'hour');
+    const datetimeLocation = getDatetimeLocation(hourCeiling);
 
     const updateOpts = { updateChartEndpoints: true };
     if (datetime && mostRecentDatumTime) {
       updateOpts.mostRecentDatetimeLocation = getDatetimeLocation(mostRecentDatumTime)
     }
 
-    this.updateChart(chartType, datetimeLocation, this.getChartEndpoints(datetimeLocation, { chartType }), updateOpts);
+    this.updateChart(
+      chartType,
+      datetimeLocation,
+      this.getChartEndpoints(datetimeLocation, { chartType,  setEndToLocalCeiling: false }),
+      updateOpts
+    );
   },
 
   handleSwitchToBgLog: function(datetime) {
@@ -2140,21 +2152,23 @@ export const PatientDataClass = createReactClass({
       const isBgLog = chartType === 'bgLog';
 
       const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(props, chartType);
-      const latestDatumDateCeiling = getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs);
+      const latestDatumHourCeiling = getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs, 'hour');
 
+      // If a datetime param is specified in URL, use that. Otherwise, use time of latest
+      // datum unless it is the daily view, in which case use the end of that date
       let datetimeLocation = _.get(props, 'queryParams.datetime', (isDaily || isBgLog)
-        ? moment.utc(latestDatumDateCeiling.valueOf())
+        ? moment.utc(latestDatumHourCeiling.valueOf())
           .tz(isDaily ? getTimezoneFromTimePrefs(this.state.timePrefs) : 'UTC')
           .subtract(12, 'hours')
           .toISOString()
-        : moment.utc(latestDatumDateCeiling.valueOf())
+        : moment.utc(latestDatumHourCeiling.valueOf())
           .toISOString());
 
       if (_.isInteger(_.toNumber(datetimeLocation))) {
         datetimeLocation = moment.utc(_.toNumber(datetimeLocation)).toISOString();
       }
 
-      const endpoints = this.getChartEndpoints(datetimeLocation, { chartType });
+      const endpoints = this.getChartEndpoints(datetimeLocation, { chartType, setEndToLocalCeiling: false });
 
       // Set the default bgSource for basics, daily, and trends charts
       this.updateChartPrefs({

@@ -4204,7 +4204,7 @@ describe('PatientData', function () {
         instance.handleChartDateRangeUpdate(dateTimeLocation);
 
         sinon.assert.calledWith(instance.getChartEndpoints, dateTimeLocation, {
-          setEndToLocalCeiling: true,
+          setEndToLocalCeiling: false,
         })
       });
 
@@ -4771,14 +4771,14 @@ describe('PatientData', function () {
       wrapper.setState({timePrefs: { timezoneAware: true, timezoneName: 'utc' } })
 
       instance.updateChart = sinon.stub();
-      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns('2019-11-27T12:00:00.000Z');
+      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns('2019-11-27T11:22:00.000Z');
       instance.getChartEndpoints = sinon.stub().returns('endpoints stub');
 
       instance.handleSwitchToBasics();
 
       sinon.assert.calledWith(instance.getMostRecentDatumTimeByChartType, defaultProps, 'basics');
-      sinon.assert.calledWith(instance.getChartEndpoints, '2019-11-28T00:00:00.000Z', { chartType: 'basics' });
-      sinon.assert.calledWith(instance.updateChart, 'basics', '2019-11-28T00:00:00.000Z', 'endpoints stub')
+      sinon.assert.calledWith(instance.getChartEndpoints, '2019-11-27T12:00:00.000Z', { chartType: 'basics', setEndToLocalCeiling: false });
+      sinon.assert.calledWith(instance.updateChart, 'basics', '2019-11-27T12:00:00.000Z', 'endpoints stub')
     });
   });
 
@@ -4899,25 +4899,25 @@ describe('PatientData', function () {
       wrapper.setState({timePrefs: { timezoneAware: true, timezoneName: 'utc' } })
 
       instance.updateChart = sinon.stub();
-      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns('2019-11-27T12:00:00.000Z');
+      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns('2019-11-27T11:33:00.000Z');
       instance.getChartEndpoints = sinon.stub().returns('endpoints stub');
 
       instance.handleSwitchToTrends();
       sinon.assert.calledWith(instance.getMostRecentDatumTimeByChartType, defaultProps, 'trends');
-      sinon.assert.calledWith(instance.getChartEndpoints, '2019-11-28T00:00:00.000Z', { chartType: 'trends' });
-      sinon.assert.calledWith(instance.updateChart, 'trends', '2019-11-28T00:00:00.000Z', 'endpoints stub', {
+      sinon.assert.calledWith(instance.getChartEndpoints, '2019-11-27T12:00:00.000Z', { chartType: 'trends', setEndToLocalCeiling: false });
+      sinon.assert.calledWith(instance.updateChart, 'trends', '2019-11-27T12:00:00.000Z', 'endpoints stub', {
         updateChartEndpoints: true
       });
     });
 
-    it('should set the `datetimeLocation` state to the start of the next day for the provided datetime if it\'s after the very start of the day', () => {
+    it('should set the `datetimeLocation` state', () => {
       const wrapper = shallow(<PatientDataClass {...defaultProps} />);
       const instance = wrapper.instance();
 
       wrapper.setState({datetimeLocation: '2018-03-03T12:00:00.000Z'});
 
       instance.handleSwitchToTrends('2018-03-03T12:00:00.000Z');
-      expect(wrapper.state('datetimeLocation')).to.equal('2018-03-04T00:00:00.000Z');
+      expect(wrapper.state('datetimeLocation')).to.equal('2018-03-03T12:00:00.000Z');
     });
 
     it('should set the `datetimeLocation` state to the provided datetime as is if it\'s at the very start of the day', () => {
@@ -4935,13 +4935,13 @@ describe('PatientData', function () {
       const instance = wrapper.instance();
 
       instance.updateChart = sinon.stub();
-      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns(Date.parse('2018-02-04T08:00:00.000Z'));
+      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns(Date.parse('2018-02-04T08:22:00.000Z'));
       instance.getChartEndpoints = sinon.stub().returns('endpoints stub');
 
       // Provide a datetime that is beyond the one returned by getMostRecentDatumTimeByChartType
       instance.handleSwitchToTrends('2018-03-03T00:00:00.000Z');
-      sinon.assert.calledWith(instance.updateChart, 'trends', '2018-02-05T00:00:00.000Z', 'endpoints stub', {
-        mostRecentDatetimeLocation: '2018-02-04T08:00:00.000Z',
+      sinon.assert.calledWith(instance.updateChart, 'trends', '2018-02-04T09:00:00.000Z', 'endpoints stub', {
+        mostRecentDatetimeLocation: '2018-02-04T08:22:00.000Z',
         updateChartEndpoints: true,
       });
     });

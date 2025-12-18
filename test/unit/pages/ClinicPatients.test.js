@@ -1730,7 +1730,7 @@ describe('ClinicPatients', () => {
           // Ensure period filter options present
           const periodFilterOptions = popover().find('#last-upload-filters').find('label').hostNodes();
           expect(periodFilterOptions).to.have.lengthOf(4);
-          expect(periodFilterOptions.at(0).text()).to.equal('Within 24 hours');
+          expect(periodFilterOptions.at(0).text()).to.equal('Today');
           expect(periodFilterOptions.at(0).find('input').props().value).to.equal('1');
 
           expect(periodFilterOptions.at(1).text()).to.equal('Within 2 days');
@@ -2819,7 +2819,7 @@ describe('ClinicPatients', () => {
             const lastDataFilterOptions = dialog().find('#lastData').find('label').hostNodes();
             expect(lastDataFilterOptions).to.have.lengthOf(3);
 
-            expect(lastDataFilterOptions.at(0).text()).to.equal('Within 24 hours');
+            expect(lastDataFilterOptions.at(0).text()).to.equal('Today');
             expect(lastDataFilterOptions.at(0).find('input').props().value).to.equal('1');
 
             expect(lastDataFilterOptions.at(1).text()).to.equal('Within 2 days');
@@ -3360,7 +3360,7 @@ describe('ClinicPatients', () => {
             expect(applyButton().props().disabled).to.be.true;
 
             // Choose a new startDate
-            startDate().simulate('change', { persist: noop, target: { name: 'rpm-report-start-date', value: moment().subtract(10, 'days').format('MMM D, YYYY') } });
+            startDate().simulate('change', { persist: noop, target: { name: 'rpm-report-start-date', value: moment().subtract(10, 'days').format('YYYY-MM-DD') } });
 
             // Apply button should now be active
             expect(applyButton().props().disabled).to.be.false;

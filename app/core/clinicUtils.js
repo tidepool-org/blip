@@ -73,7 +73,7 @@ export const preferredBgUnits = [
 ];
 
 export const lastDataFilterOptions = [
-  { value: 1, label: t('Within 24 hours') },
+  { value: 1, label: t('Today') },
   { value: 2, label: t('Within 2 days') },
   { value: 7, label: t('Within 7 days') },
   { value: 14, label: t('Within 14 days') },
