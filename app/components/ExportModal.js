@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import map from 'lodash/map';
@@ -11,60 +12,55 @@ import Button from './elements/Button';
 import DateRangePicker from './elements/DateRangePicker';
 import { Dialog, DialogActions, DialogContent, DialogTitle } from './elements/Dialog';
 import { MediumTitle, Caption, Body0 } from './elements/FontStyles';
-import i18next from '../core/language';
 import { borders } from '../themes/baseTheme';
 import { MGDL_UNITS, MMOLL_UNITS } from '../core/constants';
 
-const t = i18next.t.bind(i18next);
+const DAYS_OPTIONS = [14, 30, 90];
 
-export const ExportModal = (props) => {
-  const {
-    api,
-    patient,
-    user,
-    onClose,
-    open,
-    trackMetric,
-  } = props;
+const JS_DATE_FORMAT = 'YYYY-MM-DD';
 
-  const defaultBgUnits = get(patient, 'settings.units.bg', MGDL_UNITS);
+const EXPORT_FORMAT = {
+  JSON: 'json',
+  EXCEL: 'excel',
+};
 
-  const endOfToday = useMemo(() => moment().endOf('day').subtract(1, 'ms'), [open]);
+export const ExportModal = ({
+  api,
+  patient,
+  user,
+  onClose,
+  open,
+  trackMetric,
+}) => {
+  const { t } = useTranslation();
+
+  const endOfToday = useMemo(() => moment().endOf('day').subtract(1, 'ms'), [open]); // TODO: Resolve
 
   const getLastNDays = (days) => {
-    const endDate = endOfToday.clone();
-    const startDate = moment(endDate).subtract(days - 1, 'days').startOf('day');
+    let endDate = moment().format(JS_DATE_FORMAT);
+    let startDate = moment().subtract(days - 1, 'days').format(JS_DATE_FORMAT);
+
     return { startDate, endDate };
   };
 
-  const setDateRangeToExtents = ({ startDate, endDate }) => ({
-    startDate: startDate ? moment(startDate).startOf('day') : null,
-    endDate: endDate ? moment(endDate).endOf('day').subtract(1, 'ms') : null,
-  });
-
-  const daysOptions = [14, 30, 90];
-
-  const defaultDates = () => getLastNDays(30);
-
-  const defaults = useMemo(() => ({
-    dates: defaultDates(),
-    bgUnits: defaultBgUnits,
-    format: 'excel',
+  const initialState = {
+    dates: getLastNDays(30),
+    bgUnits: get(patient, 'settings.units.bg', MGDL_UNITS),
+    format: EXPORT_FORMAT.EXCEL,
     error: null,
-  }), [open]);
+  };
 
-  const [dates, setDates] = useState(defaults.dates);
-  const [bgUnits, setBgUnits] = useState(defaults.bgUnits);
-  const [format, setFormat] = useState(defaults.format);
-  const [error, setError] = useState(defaults.error);
+  const [dates, setDates] = useState(initialState.dates);
+  const [bgUnits, setBgUnits] = useState(initialState.bgUnits);
+  const [format, setFormat] = useState(initialState.format);
+  const [error, setError] = useState(initialState.error);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [processing, setProcessing] = useState(false);
 
-  const presetDateRanges = useMemo(() => map(daysOptions, days => getLastNDays(days)), [open]);
+  const datesMatchPreset = (dayCount) => {
+    const { startDate, endDate } = getLastNDays(dayCount);
 
-  const datesMatchPreset = (currentDates, presetDates) => {
-    return moment(currentDates.startDate).isSame(presetDates.startDate, 'day') &&
-           moment(currentDates.endDate).isSame(presetDates.endDate, 'day');
+    return startDate === dates.startDate && endDate === dates.endDate;
   };
 
   const handleClickPreset = (days) => {
@@ -72,37 +68,37 @@ export const ExportModal = (props) => {
     trackMetric('Selected pre-determined date range');
   };
 
-  const handleDatesChange = (newDates) => {
-    setDates(setDateRangeToExtents(newDates));
+  const handleDatesChange = ({ startDate: start, endDate: end }) => {
+    const startDate = start?.format(JS_DATE_FORMAT);
+    const endDate = end?.format(JS_DATE_FORMAT);
+
+    setDates({ startDate, endDate });
   };
 
-  const handleClose = () => {
-    onClose();
-  };
+  const handleClose = () => onClose();
 
   const handleSubmit = () => {
     trackMetric('Clicked "export data"');
     setError(null);
     setProcessing(true);
 
-    let options = {
-      format,
-      bgUnits,
-    };
+    const { startDate, endDate } = dates;
 
-
-    if (!dates.startDate || !dates.endDate) {
+    if (!startDate || !endDate) {
       setError({ message: t('Please select a date range') });
       setProcessing(false);
       return;
     }
-    options.startDate = moment(dates.startDate).utc().toISOString();
-    options.endDate = moment(dates.endDate).endOf('day').utc().toISOString();
 
     api.tidepool.getExportDataURL(
       patient.userid,
       user.userid,
-      options,
+      {
+        format,
+        bgUnits,
+        startDate: moment(startDate).toISOString(),
+        endDate: moment(endDate).toISOString(),
+      },
       (err, url) => {
         setProcessing(false);
         if (err) {
@@ -123,17 +119,17 @@ export const ExportModal = (props) => {
   // Reset to default state when dialog is opened
   useEffect(() => {
     if (open) {
-      setDates(defaults.dates);
-      setBgUnits(defaults.bgUnits);
-      setFormat(defaults.format);
-      setError(defaults.error);
+      setDates(initialState.dates);
+      setBgUnits(initialState.bgUnits);
+      setFormat(initialState.format);
+      setError(initialState.error);
       setDatePickerOpen(false);
       setProcessing(false);
     }
   }, [open]);
 
   return (
-    <Dialog id="exportDialog" PaperProps={{ id: 'exportDialogInner' }} maxWidth="md" open={open} onClose={handleClose}>
+    <Dialog id="exportDialog" onClose={handleClose} PaperProps={{ id: 'exportDialogInner' }} maxWidth="md" open={open}>
       <DialogTitle divider={true} onClose={handleClose}>
         <MediumTitle>{t('Export Patient Data')}</MediumTitle>
       </DialogTitle>
@@ -152,7 +148,7 @@ export const ExportModal = (props) => {
             <Box mb={3}>
               <Body0 mb={2}>{t('Number of days (most recent)')}</Body0>
               <Flex>
-                {map(daysOptions, (days, i) => (
+                {map(DAYS_OPTIONS, (days, i) => (
                   <Button
                     mr={2}
                     variant="chip"
@@ -160,7 +156,7 @@ export const ExportModal = (props) => {
                     name={`export-days-${i}`}
                     key={`export-days-${i}`}
                     value={days}
-                    selected={datesMatchPreset(dates, presetDateRanges[i])}
+                    selected={datesMatchPreset(days)}
                     onClick={() => handleClickPreset(days)}
                   >
                     {days} {t('days')}
@@ -172,8 +168,8 @@ export const ExportModal = (props) => {
             <Box mb={3}>
               <Body0 mb={2}>{t('Or select a custom date range')}</Body0>
               <DateRangePicker
-                startDate={dates.startDate}
-                endDate={dates.endDate}
+                startDate={moment.utc(dates.startDate)}
+                endDate={moment.utc(dates.endDate).endOf('day')}
                 startDateId="export-start-date"
                 endDateId="export-end-date"
                 onDatesChange={handleDatesChange}
@@ -196,12 +192,7 @@ export const ExportModal = (props) => {
             </Box>
           </Box>
 
-          <Box
-            variant="containers.fluidBordered"
-            sx={{ bg: 'white', color: 'text.primary' }}
-            p={3}
-            mb={3}
-          >
+          <Box variant="containers.fluidBordered" sx={{ bg: 'white', color: 'text.primary' }} p={3} mb={3}>
             <Text as={Box} sx={{ fontSize: 1, fontWeight: 'bold' }} mb={3}>
               {t('Units')}
             </Text>
@@ -237,12 +228,7 @@ export const ExportModal = (props) => {
             </Flex>
           </Box>
 
-          <Box
-            variant="containers.fluidBordered"
-            sx={{ bg: 'white', color: 'text.primary' }}
-            p={3}
-            mb={3}
-          >
+          <Box variant="containers.fluidBordered" sx={{ bg: 'white', color: 'text.primary' }} p={3} mb={3}>
             <Text as={Box} sx={{ fontSize: 1, fontWeight: 'bold' }} mb={3}>
               {t('File Type')}
             </Text>
@@ -251,10 +237,10 @@ export const ExportModal = (props) => {
                 <input
                   type="radio"
                   name="format"
-                  value="excel"
-                  checked={format === 'excel'}
+                  value={EXPORT_FORMAT.EXCEL}
+                  checked={format === EXPORT_FORMAT.EXCEL}
                   onChange={() => {
-                    setFormat('excel');
+                    setFormat(EXPORT_FORMAT.EXCEL);
                     trackMetric('Selected file format');
                   }}
                   style={{ marginLeft: '20px', marginRight: '3px' }}
@@ -265,10 +251,10 @@ export const ExportModal = (props) => {
                 <input
                   type="radio"
                   name="format"
-                  value="json"
-                  checked={format === 'json'}
+                  value={EXPORT_FORMAT.JSON}
+                  checked={format === EXPORT_FORMAT.JSON}
                   onChange={() => {
-                    setFormat('json');
+                    setFormat(EXPORT_FORMAT.JSON);
                     trackMetric('Selected file format');
                   }}
                   style={{ marginLeft: '20px', marginRight: '3px' }}
