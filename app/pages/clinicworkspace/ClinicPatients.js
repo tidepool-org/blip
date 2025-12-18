@@ -819,6 +819,8 @@ export const ClinicPatients = (props) => {
   const [pendingSummaryPeriod, setPendingSummaryPeriod] = useState(activeSummaryPeriod);
   const previousSummaryPeriod = usePrevious(activeSummaryPeriod);
 
+  console.log('@@@ activeSummaryPeriod', activeSummaryPeriod);
+
   const summaryPeriodPopupFilterState = usePopupState({
     variant: 'popover',
     popupId: 'summaryPeriodFilters',

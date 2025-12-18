@@ -10,6 +10,7 @@ import ClinicDetails from './pages/clinicdetails';
 import ClinicAdmin from './pages/clinicadmin';
 import ClinicWorkspace from './pages/clinicworkspace';
 import { TideDashboard } from './pages/dashboard';
+import TideDashboardV2 from './pages/dashboard/TideDashboardV2';
 import ClinicInvite from './pages/clinicinvite';
 import ClinicianEdit from './pages/clinicianedit';
 import Workspaces from './pages/workspaces';
@@ -449,6 +450,7 @@ export const getRoutes = (appContext) => {
           <Route path='/clinic-invite' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicInvite {...routeProps} {...props} /></Gate>)} />
           <Route path='/clinic-workspace/:tab?' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicWorkspace {...routeProps} {...props} /></Gate>)} />
           <Route path='/dashboard/tide' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><TideDashboard {...routeProps} {...props} /></Gate>)} />
+          <Route path='/dashboard/tide_v2' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><TideDashboardV2 {...routeProps} {...props} /></Gate>)} />
           <Route path='/clinician-edit' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicianEdit {...routeProps} {...props} /></Gate>)} />
           <Route path='/workspaces' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><Workspaces {...routeProps} {...props} /></Gate>)} />
           <Route path='/email-verification' render={routeProps => (<Gate onEnter={boundRequireNotVerified} key={routeProps.match.path}><EmailVerification {...routeProps} {...props} /></Gate>)} />
