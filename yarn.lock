@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.53.0-web-1463-dexcom-events.1":
-  version: 1.53.0-web-1463-dexcom-events.1
-  resolution: "@tidepool/viz@npm:1.53.0-web-1463-dexcom-events.1"
+"@tidepool/viz@npm:1.53.0-web-1463-dexcom-events.2":
+  version: 1.53.0-web-1463-dexcom-events.2
+  resolution: "@tidepool/viz@npm:1.53.0-web-1463-dexcom-events.2"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6111,7 +6111,7 @@ __metadata:
     moment: 2.29.4
     moment-timezone: 0.5.43
     parse-svg-path: 0.1.2
-    pdfkit: 0.13.0
+    pdfkit: 0.15.0
     process: 0.11.10
     prop-types: 15.8.1
     react: 16.14.0
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: fcb0c578c195e6f9dbf8671ee3fee82b48d61f48ae1924af81eadb2c97036d4a861368d0de9c33562a565d07b46ada30daa29c32b27b91b07035974ea21644f4
+  checksum: 97d49857a126c8c8a0272a7bc9b2702fcaa980129f461071d1bd0bc566768bd40b83dead817890d9664d306ca8e87f9086193972d35c4931cf7876dd2c1dab6c
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.53.0-web-1463-dexcom-events.1
+    "@tidepool/viz": 1.53.0-web-1463-dexcom-events.2
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -15232,6 +15232,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jpeg-exif@npm:^1.1.4":
+  version: 1.1.4
+  resolution: "jpeg-exif@npm:1.1.4"
+  checksum: a8693a7eeb6c6572ca39acc8bbaf4bac1eea1331a26ec7d460410c0c7aefcb944bbc6c31d3c4649a308eea9da89ee4d38e35fe2f2604e4bf2ed09abd600cff0b
+  languageName: node
+  linkType: hard
+
 "js-cookie@npm:^2.2.1":
   version: 2.2.1
   resolution: "js-cookie@npm:2.2.1"
@@ -18097,15 +18104,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pdfkit@npm:0.13.0":
-  version: 0.13.0
-  resolution: "pdfkit@npm:0.13.0"
+"pdfkit@npm:0.15.0":
+  version: 0.15.0
+  resolution: "pdfkit@npm:0.15.0"
   dependencies:
-    crypto-js: ^4.0.0
+    crypto-js: ^4.2.0
     fontkit: ^1.8.1
+    jpeg-exif: ^1.1.4
     linebreak: ^1.0.2
     png-js: ^1.0.0
-  checksum: 1c0875b5cc0cb8dbf06943089244358bd147493b5b453fefc6cabf55e4a4098dead253d14ec859caefaeb35604130faf454ac04f908d99f9c55f9394e9b21d69
+  checksum: 044d24f0efd563834bc4c45f12be6e91f98e31d0d664b042d89f35588d3fb985134566280bba6fa29360f61ae1ba62310dccba4b0f102aa448f307c6bbe65bd1
   languageName: node
   linkType: hard
 
