@@ -54,7 +54,7 @@ export const ExportModal = ({
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [processing, setProcessing] = useState(false);
 
-  const endOfToday = useMemo(() => moment().endOf('day').subtract(1, 'ms'), [open]); // TODO: Resolve
+  const endOfToday = useMemo(() => moment().endOf('day').subtract(1, 'ms'), [open]);
 
   const handleClickPreset = (days) => {
     setDates(getLastNDays(days));
