@@ -22,7 +22,7 @@ const TMP_UNITS = MGDL_UNITS;
 const TMP_EXTREME_HIGH = false;
 const TMP_STAT_EMPTY_TXT = '';
 
-const PATIENT_ROWS_PER_PAGE = 16;
+const PATIENT_ROW_LIMIT = 12;
 
 const renderBgRangeSummary = ({ id, summary, glycemicRanges }) => {
   return (
@@ -66,18 +66,18 @@ const fetchPatients = (api, clinicId, options) => {
 };
 
 const getOpts = (category, offset) => {
-  const opts = { offset, limit: PATIENT_ROWS_PER_PAGE };
+  const opts = { offset, limit: PATIENT_ROW_LIMIT };
 
   switch(category) {
     case CATEGORY.DEFAULT: return opts;
 
-    case CATEGORY.VERY_LOW: return {...opts, 'cgm.timeInVeryLowPercent': '>=0.01' };
-
     case CATEGORY.ANY_LOW: return {...opts, 'cgm.timeInAnyLowPercent': '>=0.04' };
 
-    case CATEGORY.VERY_HIGH: return {...opts, 'cgm.timeInVeryHighPercent': '>=0.05' };
-
     case CATEGORY.ANY_HIGH: return {...opts, 'cgm.timeInAnyHighPercent': '>=0.25' };
+
+    case CATEGORY.VERY_LOW: return {...opts, 'cgm.timeInVeryLowPercent': '>=0.01' };
+
+    case CATEGORY.VERY_HIGH: return {...opts, 'cgm.timeInVeryHighPercent': '>=0.05' };
 
     // TODO: These two are not quite possible yet without BE modifications to allowed parameters.
     case CATEGORY.OTHER: return opts;
@@ -85,17 +85,30 @@ const getOpts = (category, offset) => {
   }
 };
 
-const fetchPatientsWrapper = async (api, selectedClinicId, category, offset, onSuccess) => {
-  const options = getOpts(category, offset);
-  const response = await fetchPatients(api, selectedClinicId, options);
+const fetchPatientsWrapper = async (
+  api,
+  selectedClinicId,
+  category,
+  offset,
+  setLoading,
+  onSuccess
+) => {
+  setLoading(true);
+  try {
+    const options = getOpts(category, offset);
+    const response = await fetchPatients(api, selectedClinicId, options);
 
-  const patients = keyBy((response?.data || []), 'id');
-  const count = response?.meta?.count || 0;
+    const patients = keyBy((response?.data || []), 'id');
+    const count = response?.meta?.count || 0;
 
-  onSuccess(patients, count);
+    onSuccess(patients, count);
+    setLoading(false);
+  } catch(_err) {
+    setLoading(false);
+  }
 };
 
-const Flag = ({ summary }) => {
+const Flag = ({ loading, category, summary }) => {
   const period = summary?.cgmStats?.periods?.[TMP_SUMMARY_PERIOD];
 
   if (!period) return null;
@@ -107,6 +120,30 @@ const Flag = ({ summary }) => {
 
   // TODO: Fix text to be bgUnit-sensitive
   switch(true) {
+    case category === CATEGORY.VERY_LOW && period.timeInVeryLowPercent > 0.01:
+      value = 'timeInVeryLowPercent';
+      rangeName = 'veryLow';
+      title = 'Very Low';
+      text = 'Greater than 1% time <54 mg/dL';
+      break;
+    case category === CATEGORY.ANY_LOW && period.timeInAnyLowPercent > 0.04:
+      value = 'timeInAnyLowPercent';
+      rangeName = 'anyLow';
+      title = 'Low';
+      text = 'Greater than 4% time <70 mg/dL';
+      break;
+    case category === CATEGORY.VERY_HIGH && period.timeInVeryHighPercent > 0.05:
+      value = 'timeInVeryHighPercent';
+      rangeName = 'veryHigh';
+      title = 'Very High';
+      text = 'Greater than 5% time >250 mg/dL';
+      break;
+    case category === CATEGORY.ANY_HIGH && period.timeInAnyHighPercent > 0.25:
+      value = 'timeInAnyHighPercent';
+      rangeName = 'anyHigh';
+      title = 'High';
+      text = 'Greater than 25% time >180 mg/dL';
+      break;
     case period.timeInVeryLowPercent > 0.01:
       value = 'timeInVeryLowPercent';
       rangeName = 'veryLow';
@@ -134,6 +171,17 @@ const Flag = ({ summary }) => {
   }
 
   if (!value) return null;
+
+  if (loading) {
+    return (
+      <Box px={1} py={1} ml={-2} sx={{
+        backgroundColor: `${vizColors.gray30}1A`, // Adding '1A' reduces opacity to 0.1
+        borderRadius: 4,
+        minHeight: '25px',
+        minWidth: '200px',
+      }}></Box>
+    );
+  }
 
   return (
     <Box px={1} py={1} ml={-2} sx={{
@@ -188,6 +236,7 @@ const TideDashboardV2 = ({
 
   const [category, setCategory] = useState(CATEGORY.DEFAULT);
   const [clinicPatients, setClinicPatients] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const [count, setCount] = useState(0);
   const [offset, setOffset] = useState(0);
@@ -198,7 +247,7 @@ const TideDashboardV2 = ({
       setCount(count);
     };
 
-    fetchPatientsWrapper(api, selectedClinicId, category, offset, onSuccess);
+    fetchPatientsWrapper(api, selectedClinicId, category, offset, setLoading, onSuccess);
   }, [api, dispatch, selectedClinicId, category, offset]);
 
   // Define columns for Table component
@@ -218,7 +267,7 @@ const TideDashboardV2 = ({
       title: t('Flag'),
       field: '',
       align: 'left',
-      render: Flag,
+      render: (props) => <Flag loading={loading} category={category} {...props} />,
       width: 320,
     },
     {
@@ -252,11 +301,17 @@ const TideDashboardV2 = ({
       field: '',
       align: 'left',
     },
-  ], [t]);
+  ], [t, category, loading]);
+
+  const handleSelectCategory = (category) => {
+    setCount(0);
+    setOffset(0);
+    setCategory(category);
+  };
 
   return (
     <Box px={4}>
-      <CategorySelector value={category} onChange={setCategory} />
+      <CategorySelector value={category} onChange={handleSelectCategory} />
 
       <Table
         className='dashboard-table'
@@ -285,7 +340,7 @@ const TideDashboardV2 = ({
       />
 
       <Pagination
-        limit={PATIENT_ROWS_PER_PAGE}
+        limit={PATIENT_ROW_LIMIT}
         offset={offset}
         count={count}
         onChange={(newOffset) => setOffset(newOffset)}
