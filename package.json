@@ -4,7 +4,7 @@
     "node": "20.8.0"
   },
   "packageManager": "yarn@3.6.4",
-  "version": "1.92.0-WEB-3841-pdf-bolus-limit.2",
+  "version": "1.93.0-web-1463-dexcom-events.1",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test yarn jest --verbose --runInBand; JEST_EXIT_CODE=$?; TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' yarn karma start; KARMA_EXIT_CODE=$?; [ $JEST_EXIT_CODE -eq 0 ] && [ $KARMA_EXIT_CODE -eq 0 ]",
@@ -76,7 +76,7 @@
     "@testing-library/react": "12.1.5",
     "@testing-library/react-hooks": "8.0.1",
     "@testing-library/user-event": "14.6.1",
-    "@tidepool/viz": "1.53.0-web-3234-pdf-loop-settings.5",
+    "@tidepool/viz": "1.53.0-web-1463-dexcom-events.2",
     "async": "2.6.4",
     "autoprefixer": "10.4.16",
     "babel-core": "7.0.0-bridge.0",
@@ -198,7 +198,7 @@
     "terser": "5.22.0",
     "terser-webpack-plugin": "5.3.9",
     "theme-ui": "0.16.1",
-    "tideline": "1.37.0",
+    "tideline": "1.38.0-web-1463-dexcom-events.1",
     "tidepool-platform-client": "0.64.0",
     "tidepool-standard-action": "0.1.1",
     "ua-parser-js": "1.0.36",
