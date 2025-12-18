@@ -3,16 +3,16 @@ import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import values from 'lodash/values';
 import * as actions from '../../../redux/actions';
-import { radii } from '../../../themes/baseTheme';
+import { radii, colors } from '../../../themes/baseTheme';
 import Table from '../../../components/elements/Table';
-import { Box, Text } from 'theme-ui';
+import { Box, Text, Flex } from 'theme-ui';
 import { MGDL_UNITS } from '../../../core/constants';
 import BgSummaryCell from '../../../components/clinic/BgSummaryCell';
 import DeltaBar from '../../../components/elements/DeltaBar';
 import CategorySelector, { CATEGORY } from './CategorySelector';
 import Pagination from './Pagination';
 
-import { utils as vizUtils } from '@tidepool/viz';
+import { utils as vizUtils, colors as vizColors } from '@tidepool/viz';
 const { bankersRound } = vizUtils.stat;
 
 import keyBy from 'lodash/keyBy';
@@ -71,7 +71,7 @@ const getOpts = (category, offset) => {
   switch(category) {
     case CATEGORY.DEFAULT: return opts;
 
-    case CATEGORY.VERY_LOW: return {...opts, 'cgm.timeInVeryLowPercent': '>=0.02' };
+    case CATEGORY.VERY_LOW: return {...opts, 'cgm.timeInVeryLowPercent': '>=0.01' };
 
     case CATEGORY.ANY_LOW: return {...opts, 'cgm.timeInAnyLowPercent': '>=0.04' };
 
@@ -93,6 +93,89 @@ const fetchPatientsWrapper = async (api, selectedClinicId, category, offset, onS
   const count = response?.meta?.count || 0;
 
   onSuccess(patients, count);
+};
+
+const Flag = ({ summary }) => {
+  const period = summary?.cgmStats?.periods?.[TMP_SUMMARY_PERIOD];
+
+  if (!period) return null;
+
+  let value;
+  let rangeName;
+  let title;
+  let text;
+
+  // TODO: Fix text to be bgUnit-sensitive
+  switch(true) {
+    case period.timeInVeryLowPercent > 0.01:
+      value = 'timeInVeryLowPercent';
+      rangeName = 'veryLow';
+      title = 'Very Low';
+      text = 'Greater than 1% time <54 mg/dL';
+      break;
+    case period.timeInAnyLowPercent > 0.04:
+      value = 'timeInAnyLowPercent';
+      rangeName = 'anyLow';
+      title = 'Low';
+      text = 'Greater than 4% time <70 mg/dL';
+      break;
+    case period.timeInVeryHighPercent > 0.05:
+      value = 'timeInVeryHighPercent';
+      rangeName = 'veryHigh';
+      title = 'Very High';
+      text = 'Greater than 5% time >250 mg/dL';
+      break;
+    case period.timeInAnyHighPercent > 0.25:
+      value = 'timeInAnyHighPercent';
+      rangeName = 'anyHigh';
+      title = 'High';
+      text = 'Greater than 25% time >180 mg/dL';
+      break;
+  }
+
+  if (!value) return null;
+
+  return (
+    <Box px={1} py={1} ml={-2} sx={{
+      backgroundColor: `${colors.bg[rangeName]}1A`, // Adding '1A' reduces opacity to 0.1
+      borderRadius: 4,
+    }}>
+      <Flex as="label" htmlFor={`range-${value}-filter`} sx={{ alignItems: 'center' }}>
+        <Box
+          id={`range-${value}-filter-option-color-indicator`}
+          sx={{
+            position: 'relative',
+            borderRadius: 4,
+            backgroundColor: colors.bg[rangeName],
+            width: '12px',
+            height: '12px',
+
+            // The styles within the :after pseudo-class below create a diagonal line
+
+            border: value === 'timeInTargetPercent' && `1.5px solid ${colors.blueGreyDark}`,
+            '&::after': value === 'timeInTargetPercent' && {
+              content: '""',
+              height: '1.5px',
+              width: '141.421%',
+              backgroundColor: colors.blueGreyDark,
+              position: 'absolute',
+              bottom: '0px',
+              transform: 'rotate(-45deg)',
+              transformOrigin: '1px 1px',
+            },
+          }}
+          mr={2}
+        >
+        </Box>
+        <Text id={`range-${value}-filter-option-title`} sx={{ fontSize: 0, color: vizColors.black }} mr={2}>
+          {title}
+        </Text>
+        <Text id={`range-${value}-filter-option-text`} sx={{ fontSize: 0, color: vizColors.blue50 }} mr={2}>
+          {' - '}{text}
+        </Text>
+      </Flex>
+    </Box>
+  );
 };
 
 const TideDashboardV2 = ({
@@ -124,14 +207,22 @@ const TideDashboardV2 = ({
       title: t('Patient Name'),
       field: 'fullName',
       align: 'left',
+      render: ({ fullName }) => (
+        <Text sx={{ display: 'block', width: '240px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+          {fullName}
+        </Text>
+      ),
+      width: 320,
     },
     {
       title: t('Flag'),
       field: '',
       align: 'left',
+      render: Flag,
+      width: 320,
     },
     {
-      title: t('Average Glucose 14d'),
+      title: t('Average Glucose'),
       field: 'summary.cgmStats.periods.14d.averageGlucoseMmol',
       align: 'left',
       render: ({ summary }) => {
@@ -140,7 +231,7 @@ const TideDashboardV2 = ({
       },
     },
     {
-      title: t('GMI 14d'),
+      title: t('GMI'),
       field: 'summary.cgmStats.periods.14d.glucoseManagementIndicator',
       align: 'left',
       render: renderBgRangeSummary,
