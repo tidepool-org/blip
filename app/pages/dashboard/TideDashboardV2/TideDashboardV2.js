@@ -12,6 +12,12 @@ import DeltaBar from '../../../components/elements/DeltaBar';
 import CategorySelector from './CategorySelector';
 import { CATEGORY } from './CategorySelector';
 
+import { utils as vizUtils } from '@tidepool/viz';
+const { bankersRound } = vizUtils.stat;
+
+import keyBy from 'lodash/keyBy';
+import uniqBy from 'lodash/uniqBy';
+
 const TMP_SUMMARY_PERIOD = '14d';
 const TMP_UNITS = MGDL_UNITS;
 const TMP_EXTREME_HIGH = false;
@@ -45,6 +51,49 @@ const renderTimeInTargetPercentDelta = ({ summary }) => {
   );
 };
 
+const fetchPatients = (api, clinicId, options) => {
+  return new Promise((resolve, reject) => {
+    api.clinics.getPatientsForClinic(clinicId, options, (err, results) => {
+      if (err) {
+        reject(results);
+        return;
+      }
+
+      resolve(results);
+    });
+  });
+};
+
+const getFetchers = (category, api, selectedClinicId) => {
+  const opts = { offset: 0, limit: 16 };
+
+  switch(category) {
+    case CATEGORY.DEFAULT:
+      return [
+        fetchPatients(api, selectedClinicId, opts),
+      ];
+
+    case CATEGORY.LOWS:
+      return [
+        fetchPatients(api, selectedClinicId, {...opts, 'cgm.timeInVeryLowPercent': '>=0.02' }),
+        fetchPatients(api, selectedClinicId, {...opts, 'cgm.timeInAnyLowPercent': '>=0.04' }),
+      ];
+
+    case CATEGORY.HIGHS:
+      return [
+        fetchPatients(api, selectedClinicId, {...opts, 'cgm.timeInVeryHighPercent': '>=0.05' }),
+        fetchPatients(api, selectedClinicId, {...opts, 'cgm.timeInAnyHighPercent': '>=0.25' }),
+      ];
+
+    // TODO: These two are not quite possible yet without BE modifications to allowed parameters.
+    case CATEGORY.OTHER:
+    case CATEGORY.TARGET:
+      return [
+        fetchPatients(api, selectedClinicId, opts),
+      ];
+  }
+};
+
 const TideDashboardV2 = ({
   api,
 }) => {
@@ -52,23 +101,25 @@ const TideDashboardV2 = ({
   const { t } = useTranslation();
 
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
-  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
 
   const [category, setCategory] = useState(CATEGORY.DEFAULT);
+  const [clinicPatients, setClinicPatients] = useState({});
+
+  const fetchPatientsWrapper = async (api, selectedClinicId, category) => {
+    const fetchers = getFetchers(category, api, selectedClinicId);
+
+    const patientGroups = await Promise.all(fetchers);
+
+    const allPatients = patientGroups.reduce((acc, group) => [...acc, ...(group?.data || [])], []);
+    const uniquePatients = uniqBy(allPatients, 'id');
+    const patients = keyBy(uniquePatients, 'id');
+
+    setClinicPatients(patients);
+  };
 
   useEffect(() => {
-    dispatch(actions.async.fetchPatientsForClinic(api, selectedClinicId, {
-      limit: 16,
-      offset: 0,
-    }));
-  }, [api, dispatch, selectedClinicId]);
-
-  // Convert clinic.patients object to array for Table component
-  const patients = useMemo(() => {
-    if (!clinic?.patients) return [];
-
-    return values(clinic.patients);
-  }, [clinic?.patients]);
+    fetchPatientsWrapper(api, selectedClinicId, category);
+  }, [api, dispatch, selectedClinicId, category]);
 
   // Define columns for Table component
   const columns = useMemo(() => [
@@ -83,13 +134,16 @@ const TideDashboardV2 = ({
       align: 'left',
     },
     {
-      title: t('avgGlucose 14d'),
+      title: t('Average Glucose 14d'),
       field: 'summary.cgmStats.periods.14d.averageGlucoseMmol',
       align: 'left',
-      render: ({ summary }) => <span>{summary?.cgmStats?.periods?.['14d']?.averageGlucoseMmol}</span>
+      render: ({ summary }) => {
+        const averageGlucoseMmol = summary?.cgmStats?.periods?.[TMP_SUMMARY_PERIOD]?.averageGlucoseMmol;
+        return averageGlucoseMmol ? <span>{bankersRound(averageGlucoseMmol, 1)}</span> : null;
+      },
     },
     {
-      title: t('gmi 14d'),
+      title: t('GMI 14d'),
       field: 'summary.cgmStats.periods.14d.glucoseManagementIndicator',
       align: 'left',
       render: renderBgRangeSummary,
@@ -122,7 +176,7 @@ const TideDashboardV2 = ({
         variant="tableGroup"
         label={t('Patients Table')}
         columns={columns}
-        data={patients}
+        data={clinicPatients}
         sx={{
           fontSize: 1,
           'tr': { height: [null, null, '40px', '40px'] },
