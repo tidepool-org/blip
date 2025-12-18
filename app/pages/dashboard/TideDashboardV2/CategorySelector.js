@@ -5,8 +5,10 @@ import { useTranslation } from 'react-i18next';
 
 export const CATEGORY = {
   DEFAULT: 'DEFAULT', // 'All Categories'
-  LOWS: 'LOWS',       // 'Lows'
-  HIGHS: 'HIGHS',     // 'Highs'
+  ANY_LOW: 'ANY_LOW',       // 'Lows'
+  VERY_LOW: 'VERY_LOW',
+  ANY_HIGH: 'ANY_HIGH',     // 'Highs'
+  VERY_HIGH: 'VERY_HIGH',
   OTHER: 'OTHER',     // 'Other'
   TARGET: 'TARGET',   // 'Meeting Targets'
 };
@@ -58,7 +60,7 @@ const CategorySelector = ({
     <Flex
       sx={{
         padding: '4px',
-        maxWidth: '640px',
+        maxWidth: '800px',
         margin: '0px auto 24px',
         border: `1px solid ${vizColors.blue30}`,
         borderRadius: '4px',
@@ -71,16 +73,28 @@ const CategorySelector = ({
         onClick={() => onChange(CATEGORY.DEFAULT)}
       />
       <Category
-        label={t('Lows')}
-        selected={value === CATEGORY.LOWS}
-        onClick={() => onChange(CATEGORY.LOWS)}
+        label={t('Very Low')}
+        selected={value === CATEGORY.VERY_LOW}
+        onClick={() => onChange(CATEGORY.VERY_LOW)}
         indicatorColor={vizColors.low}
       />
       <Category
-        label={t('Highs')}
-        selected={value === CATEGORY.HIGHS}
-        onClick={() => onChange(CATEGORY.HIGHS)}
+        label={t('Low')}
+        selected={value === CATEGORY.ANY_LOW}
+        onClick={() => onChange(CATEGORY.ANY_LOW)}
+        indicatorColor={vizColors.low}
+      />
+      <Category
+        label={t('High')}
+        selected={value === CATEGORY.ANY_HIGH}
+        onClick={() => onChange(CATEGORY.ANY_HIGH)}
         indicatorColor={vizColors.high}
+      />
+      <Category
+        label={t('Very High')}
+        selected={value === CATEGORY.VERY_HIGH}
+        onClick={() => onChange(CATEGORY.VERY_HIGH)}
+        indicatorColor={vizColors.low}
       />
       <Category
         label={t('Other')}

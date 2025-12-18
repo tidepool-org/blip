@@ -9,19 +9,20 @@ import { Box, Text } from 'theme-ui';
 import { MGDL_UNITS } from '../../../core/constants';
 import BgSummaryCell from '../../../components/clinic/BgSummaryCell';
 import DeltaBar from '../../../components/elements/DeltaBar';
-import CategorySelector from './CategorySelector';
-import { CATEGORY } from './CategorySelector';
+import CategorySelector, { CATEGORY } from './CategorySelector';
+import Pagination from './Pagination';
 
 import { utils as vizUtils } from '@tidepool/viz';
 const { bankersRound } = vizUtils.stat;
 
 import keyBy from 'lodash/keyBy';
-import uniqBy from 'lodash/uniqBy';
 
 const TMP_SUMMARY_PERIOD = '14d';
 const TMP_UNITS = MGDL_UNITS;
 const TMP_EXTREME_HIGH = false;
 const TMP_STAT_EMPTY_TXT = '';
+
+const PATIENT_ROWS_PER_PAGE = 16;
 
 const renderBgRangeSummary = ({ id, summary, glycemicRanges }) => {
   return (
@@ -64,34 +65,34 @@ const fetchPatients = (api, clinicId, options) => {
   });
 };
 
-const getFetchers = (category, api, selectedClinicId) => {
-  const opts = { offset: 0, limit: 16 };
+const getOpts = (category, offset) => {
+  const opts = { offset, limit: PATIENT_ROWS_PER_PAGE };
 
   switch(category) {
-    case CATEGORY.DEFAULT:
-      return [
-        fetchPatients(api, selectedClinicId, opts),
-      ];
+    case CATEGORY.DEFAULT: return opts;
 
-    case CATEGORY.LOWS:
-      return [
-        fetchPatients(api, selectedClinicId, {...opts, 'cgm.timeInVeryLowPercent': '>=0.02' }),
-        fetchPatients(api, selectedClinicId, {...opts, 'cgm.timeInAnyLowPercent': '>=0.04' }),
-      ];
+    case CATEGORY.VERY_LOW: return {...opts, 'cgm.timeInVeryLowPercent': '>=0.02' };
 
-    case CATEGORY.HIGHS:
-      return [
-        fetchPatients(api, selectedClinicId, {...opts, 'cgm.timeInVeryHighPercent': '>=0.05' }),
-        fetchPatients(api, selectedClinicId, {...opts, 'cgm.timeInAnyHighPercent': '>=0.25' }),
-      ];
+    case CATEGORY.ANY_LOW: return {...opts, 'cgm.timeInAnyLowPercent': '>=0.04' };
+
+    case CATEGORY.VERY_HIGH: return {...opts, 'cgm.timeInVeryHighPercent': '>=0.05' };
+
+    case CATEGORY.ANY_HIGH: return {...opts, 'cgm.timeInAnyHighPercent': '>=0.25' };
 
     // TODO: These two are not quite possible yet without BE modifications to allowed parameters.
-    case CATEGORY.OTHER:
-    case CATEGORY.TARGET:
-      return [
-        fetchPatients(api, selectedClinicId, opts),
-      ];
+    case CATEGORY.OTHER: return opts;
+    case CATEGORY.TARGET: return opts;
   }
+};
+
+const fetchPatientsWrapper = async (api, selectedClinicId, category, offset, onSuccess) => {
+  const options = getOpts(category, offset);
+  const response = await fetchPatients(api, selectedClinicId, options);
+
+  const patients = keyBy((response?.data || []), 'id');
+  const count = response?.meta?.count || 0;
+
+  onSuccess(patients, count);
 };
 
 const TideDashboardV2 = ({
@@ -105,21 +106,17 @@ const TideDashboardV2 = ({
   const [category, setCategory] = useState(CATEGORY.DEFAULT);
   const [clinicPatients, setClinicPatients] = useState({});
 
-  const fetchPatientsWrapper = async (api, selectedClinicId, category) => {
-    const fetchers = getFetchers(category, api, selectedClinicId);
-
-    const patientGroups = await Promise.all(fetchers);
-
-    const allPatients = patientGroups.reduce((acc, group) => [...acc, ...(group?.data || [])], []);
-    const uniquePatients = uniqBy(allPatients, 'id');
-    const patients = keyBy(uniquePatients, 'id');
-
-    setClinicPatients(patients);
-  };
+  const [count, setCount] = useState(0);
+  const [offset, setOffset] = useState(0);
 
   useEffect(() => {
-    fetchPatientsWrapper(api, selectedClinicId, category);
-  }, [api, dispatch, selectedClinicId, category]);
+    const onSuccess = ( patients, count ) => {
+      setClinicPatients(patients);
+      setCount(count);
+    };
+
+    fetchPatientsWrapper(api, selectedClinicId, category, offset, onSuccess);
+  }, [api, dispatch, selectedClinicId, category, offset]);
 
   // Define columns for Table component
   const columns = useMemo(() => [
@@ -194,6 +191,13 @@ const TideDashboardV2 = ({
             },
           },
         }}
+      />
+
+      <Pagination
+        limit={PATIENT_ROWS_PER_PAGE}
+        offset={offset}
+        count={count}
+        onChange={(newOffset) => setOffset(newOffset)}
       />
     </Box>
   );
