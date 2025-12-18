@@ -24,6 +24,13 @@ const EXPORT_FORMAT = {
   EXCEL: 'excel',
 };
 
+const getLastNDays = (days) => {
+  let endDate = moment().format(JS_DATE_FORMAT);
+  let startDate = moment().subtract(days - 1, 'days').format(JS_DATE_FORMAT);
+
+  return { startDate, endDate };
+};
+
 export const ExportModal = ({
   api,
   patient,
@@ -34,28 +41,14 @@ export const ExportModal = ({
 }) => {
   const { t } = useTranslation();
 
-  const endOfToday = useMemo(() => moment().endOf('day').subtract(1, 'ms'), [open]); // TODO: Resolve
-
-  const getLastNDays = (days) => {
-    let endDate = moment().format(JS_DATE_FORMAT);
-    let startDate = moment().subtract(days - 1, 'days').format(JS_DATE_FORMAT);
-
-    return { startDate, endDate };
-  };
-
-  const initialState = {
-    dates: getLastNDays(30),
-    bgUnits: get(patient, 'settings.units.bg', MGDL_UNITS),
-    format: EXPORT_FORMAT.EXCEL,
-    error: null,
-  };
-
-  const [dates, setDates] = useState(initialState.dates);
-  const [bgUnits, setBgUnits] = useState(initialState.bgUnits);
-  const [format, setFormat] = useState(initialState.format);
-  const [error, setError] = useState(initialState.error);
+  const [dates, setDates] = useState(getLastNDays(DAYS_OPTIONS[0]));
+  const [bgUnits, setBgUnits] = useState(get(patient, 'settings.units.bg', MGDL_UNITS));
+  const [format, setFormat] = useState(EXPORT_FORMAT.EXCEL);
+  const [error, setError] = useState(null);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [processing, setProcessing] = useState(false);
+
+  const endOfToday = useMemo(() => moment().endOf('day').subtract(1, 'ms'), [open]); // TODO: Resolve
 
   const datesMatchPreset = (dayCount) => {
     const { startDate, endDate } = getLastNDays(dayCount);
@@ -116,20 +109,8 @@ export const ExportModal = ({
     );
   };
 
-  // Reset to default state when dialog is opened
-  useEffect(() => {
-    if (open) {
-      setDates(initialState.dates);
-      setBgUnits(initialState.bgUnits);
-      setFormat(initialState.format);
-      setError(initialState.error);
-      setDatePickerOpen(false);
-      setProcessing(false);
-    }
-  }, [open]);
-
   return (
-    <Dialog id="exportDialog" onClose={handleClose} PaperProps={{ id: 'exportDialogInner' }} maxWidth="md" open={open}>
+    <>
       <DialogTitle divider={true} onClose={handleClose}>
         <MediumTitle>{t('Export Patient Data')}</MediumTitle>
       </DialogTitle>
@@ -277,11 +258,27 @@ export const ExportModal = ({
           {t('Export')}
         </Button>
       </DialogActions>
+    </>
+  );
+};
+
+const ExportModalWrapper = (props) => {
+  const { onClose, open } = props;
+
+  return (
+    <Dialog
+      id="exportDialog"
+      open={open}
+      onClose={onClose}
+      PaperProps={{ id: 'exportDialogInner' }}
+      maxWidth="md"
+    >
+      {open && <ExportModal {...props} />}
     </Dialog>
   );
 };
 
-ExportModal.propTypes = {
+ExportModalWrapper.propTypes = {
   api: PropTypes.shape({
     tidepool: PropTypes.shape({
       getExportDataURL: PropTypes.func.isRequired,
@@ -303,9 +300,9 @@ ExportModal.propTypes = {
   trackMetric: PropTypes.func,
 };
 
-ExportModal.defaultProps = {
+ExportModalWrapper.defaultProps = {
   onClose: noop,
   trackMetric: noop,
 };
 
-export default ExportModal;
+export default ExportModalWrapper;
