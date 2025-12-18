@@ -31,6 +31,12 @@ const getLastNDays = (days) => {
   return { startDate, endDate };
 };
 
+const datesMatchPreset = (start, end, days) => {
+  const { startDate, endDate } = getLastNDays(days);
+
+  return startDate === start && endDate === end;
+};
+
 export const ExportModal = ({
   api,
   patient,
@@ -50,12 +56,6 @@ export const ExportModal = ({
 
   const endOfToday = useMemo(() => moment().endOf('day').subtract(1, 'ms'), [open]); // TODO: Resolve
 
-  const datesMatchPreset = (dayCount) => {
-    const { startDate, endDate } = getLastNDays(dayCount);
-
-    return startDate === dates.startDate && endDate === dates.endDate;
-  };
-
   const handleClickPreset = (days) => {
     setDates(getLastNDays(days));
     trackMetric('Selected pre-determined date range');
@@ -66,6 +66,10 @@ export const ExportModal = ({
     const endDate = end?.format(JS_DATE_FORMAT);
 
     setDates({ startDate, endDate });
+
+    if (endDate) {
+      trackMetric('Selected custom start or end date');
+    }
   };
 
   const handleClose = () => onClose();
@@ -75,13 +79,16 @@ export const ExportModal = ({
     setError(null);
     setProcessing(true);
 
-    const { startDate, endDate } = dates;
+    const { startDate: start, endDate: end } = dates;
 
-    if (!startDate || !endDate) {
+    if (!start || !end) {
       setError({ message: t('Please select a date range') });
       setProcessing(false);
       return;
     }
+
+    const startDate = moment(start).toISOString();
+    const endDate = moment(end).toISOString();
 
     api.tidepool.getExportDataURL(
       patient.userid,
@@ -89,8 +96,8 @@ export const ExportModal = ({
       {
         format,
         bgUnits,
-        startDate: moment(startDate).toISOString(),
-        endDate: moment(endDate).toISOString(),
+        startDate,
+        endDate,
       },
       (err, url) => {
         setProcessing(false);
@@ -114,7 +121,7 @@ export const ExportModal = ({
       <DialogTitle divider={true} onClose={handleClose}>
         <MediumTitle>{t('Export Patient Data')}</MediumTitle>
       </DialogTitle>
-      <DialogContent divider={false} sx={{ minWidth: '580px' }} pt={3} px={3}>
+      <DialogContent divider={false} sx={{ minWidth: '648px' }} pt={3} px={3}>
         <Box p={3}>
           <Text as={Box} sx={{ color: 'text.primary', fontSize: 1, fontWeight: 'bold' }} mb={3}>
             {t('Export data from the last')}
@@ -130,7 +137,7 @@ export const ExportModal = ({
                   name={`export-days-${i}`}
                   key={`export-days-${i}`}
                   value={days}
-                  selected={datesMatchPreset(days)}
+                  selected={datesMatchPreset(dates.startDate, dates.endDate, days)}
                   onClick={() => handleClickPreset(days)}
                 >
                   {days} {t('days')}
@@ -142,8 +149,8 @@ export const ExportModal = ({
           <Box>
             <Body0 mb={2}>{t('Or select a custom date range (90 days max)')}</Body0>
             <DateRangePicker
-              startDate={moment.utc(dates.startDate)}
-              endDate={moment.utc(dates.endDate).endOf('day')}
+              startDate={dates.startDate ? moment.utc(dates.startDate) : null}
+              endDate={dates.endDate ? moment.utc(dates.endDate) : null}
               startDateId="export-start-date"
               endDateId="export-end-date"
               onDatesChange={handleDatesChange}
@@ -241,10 +248,7 @@ export const ExportModal = ({
       <DialogActions
         mt={3}
         py="12px"
-        sx={{
-          borderTop: borders.default,
-          justifyContent: 'space-between',
-        }}
+        sx={{ borderTop: borders.default, justifyContent: 'space-between' }}
       >
         <Button variant="textSecondary" className="export-cancel" onClick={handleClose}>
           {t('Cancel')}
