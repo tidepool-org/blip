@@ -54,8 +54,6 @@ export const ExportModal = ({
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [processing, setProcessing] = useState(false);
 
-  const endOfToday = useMemo(() => moment().endOf('day').subtract(1, 'ms'), [open]);
-
   const handleClickPreset = (days) => {
     setDates(getLastNDays(days));
     trackMetric('Selected pre-determined date range');
@@ -154,7 +152,7 @@ export const ExportModal = ({
               startDateId="export-start-date"
               endDateId="export-end-date"
               onDatesChange={handleDatesChange}
-              isOutsideRange={day => endOfToday.diff(day) < 0}
+              isOutsideRange={day => (moment().diff(day) <= 0)}
               onFocusChange={input => {
                 setDatePickerOpen(!!input);
               }}
