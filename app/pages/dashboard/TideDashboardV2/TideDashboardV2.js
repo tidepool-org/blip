@@ -261,70 +261,14 @@ const TideDashboardV2 = ({ api, trackMetric }) => {
   const [count, setCount] = useState(0);
   const [offset, setOffset] = useState(0);
 
+  const onRefetchSuccess = (patients, count) => {
+    setClinicPatients(patients);
+    setCount(count);
+  };
+
   useEffect(() => {
-    const onSuccess = ( patients, count ) => {
-      setClinicPatients(patients);
-      setCount(count);
-    };
-
-    fetchPatientsWrapper(api, selectedClinicId, category, offset, setLoading, onSuccess);
+    fetchPatientsWrapper(api, selectedClinicId, category, offset, setLoading, onRefetchSuccess);
   }, [api, dispatch, selectedClinicId, category, offset]);
-
-  // Define columns for Table component
-  const columns = useMemo(() => [
-    {
-      title: t('Patient Name'),
-      field: 'fullName',
-      align: 'left',
-      render: ({ fullName }) => (
-        <Text sx={{ display: 'block', width: '240px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
-          {fullName}
-        </Text>
-      ),
-      width: 320,
-    },
-    {
-      title: t('Flag'),
-      field: '',
-      align: 'left',
-      render: props => <Flag loading={loading} category={category} {...props} />,
-      width: 320,
-    },
-    {
-      title: t('Avg Glucose'),
-      field: 'summary.cgmStats.periods.14d.averageGlucoseMmol',
-      align: 'center',
-      render: ({ summary }) => {
-        const averageGlucoseMmol = summary?.cgmStats?.periods?.[TMP_SUMMARY_PERIOD]?.averageGlucoseMmol;
-        return averageGlucoseMmol ? <span>{bankersRound(averageGlucoseMmol, 1)}</span> : null;
-      },
-    },
-    {
-      title: t('GMI'),
-      field: 'summary.cgmStats.periods.14d.glucoseManagementIndicator',
-      align: 'center',
-      render: renderBgRangeSummary,
-      width: 240,
-    },
-    {
-      title: t('% Change in TIR'),
-      field: 'timeInTargetPercentDelta',
-      align: 'center',
-      render: renderTimeInTargetPercentDelta,
-    },
-    {
-      title: t('Tags'),
-      field: 'patientTags',
-      align: 'center',
-      render: props => <RenderPatientTags {...props} />,
-    },
-    {
-      title: t('Last Reviewed'),
-      field: '',
-      align: 'center',
-      render: () => null,
-    },
-  ], [t, category, loading]);
 
   const handleSelectCategory = (category) => {
     setCount(0);
@@ -341,7 +285,60 @@ const TideDashboardV2 = ({ api, trackMetric }) => {
         id='dashboard-table-v2'
         variant="tableGroup"
         label={t('Patients Table')}
-        columns={columns}
+        columns={[
+          {
+            title: t('Patient Name'),
+            field: 'fullName',
+            align: 'left',
+            render: ({ fullName }) => (
+              <Text sx={{ display: 'block', width: '240px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                {fullName}
+              </Text>
+            ),
+            width: 320,
+          },
+          {
+            title: t('Flag'),
+            field: '',
+            align: 'left',
+            render: props => <Flag loading={loading} category={category} {...props} />,
+            width: 320,
+          },
+          {
+            title: t('Avg Glucose'),
+            field: 'summary.cgmStats.periods.14d.averageGlucoseMmol',
+            align: 'center',
+            render: ({ summary }) => {
+              const averageGlucoseMmol = summary?.cgmStats?.periods?.[TMP_SUMMARY_PERIOD]?.averageGlucoseMmol;
+              return averageGlucoseMmol ? <span>{bankersRound(averageGlucoseMmol, 1)}</span> : null;
+            },
+          },
+          {
+            title: t('GMI'),
+            field: 'summary.cgmStats.periods.14d.glucoseManagementIndicator',
+            align: 'center',
+            render: renderBgRangeSummary,
+            width: 240,
+          },
+          {
+            title: t('% Change in TIR'),
+            field: 'timeInTargetPercentDelta',
+            align: 'center',
+            render: renderTimeInTargetPercentDelta,
+          },
+          {
+            title: t('Tags'),
+            field: 'patientTags',
+            align: 'center',
+            render: props => <RenderPatientTags {...props} />,
+          },
+          {
+            title: t('Last Reviewed'),
+            field: '',
+            align: 'center',
+            render: () => null,
+          },
+        ]}
         data={clinicPatients}
         sx={{
           fontSize: 1,
