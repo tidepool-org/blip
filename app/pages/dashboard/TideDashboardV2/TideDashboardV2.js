@@ -273,6 +273,7 @@ const TideDashboardV2 = ({ api, trackMetric }) => {
   const handleSelectCategory = (category) => {
     setCount(0);
     setOffset(0);
+    setLoading(true);
     setCategory(category);
   };
 
