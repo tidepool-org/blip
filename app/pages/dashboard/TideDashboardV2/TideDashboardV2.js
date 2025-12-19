@@ -11,11 +11,15 @@ import BgSummaryCell from '../../../components/clinic/BgSummaryCell';
 import DeltaBar from '../../../components/elements/DeltaBar';
 import CategorySelector, { CATEGORY } from './CategorySelector';
 import Pagination from './Pagination';
+import { TagList } from '../../../components/elements/Tag';
 
+import moment from 'moment-timezone';
 import { utils as vizUtils, colors as vizColors } from '@tidepool/viz';
 const { bankersRound } = vizUtils.stat;
 
 import keyBy from 'lodash/keyBy';
+import reject from 'lodash/reject';
+import map from 'lodash/map';
 
 const TMP_SUMMARY_PERIOD = '14d';
 const TMP_UNITS = MGDL_UNITS;
@@ -49,6 +53,24 @@ const renderTimeInTargetPercentDelta = ({ summary }) => {
     />
   ) : (
     <Text sx={{ fontWeight: 'medium' }}>{TMP_STAT_EMPTY_TXT}</Text>
+  );
+};
+
+const RenderPatientTags = ({ id, tags }) => {
+  const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+  const patientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
+
+  const filteredPatientTags = reject(tags || [], tagId => !patientTags[tagId]);
+
+  return (
+    <TagList
+      maxTagsVisible={4}
+      maxCharactersVisible={12}
+      popupId={`tags-overflow-${id}`}
+      tagProps={{ variant: 'compact' }}
+      tags={map(filteredPatientTags, tagId => patientTags?.[tagId])}
+    />
   );
 };
 
@@ -226,9 +248,7 @@ const Flag = ({ loading, category, summary }) => {
   );
 };
 
-const TideDashboardV2 = ({
-  api,
-}) => {
+const TideDashboardV2 = ({ api, trackMetric }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
 
@@ -267,13 +287,13 @@ const TideDashboardV2 = ({
       title: t('Flag'),
       field: '',
       align: 'left',
-      render: (props) => <Flag loading={loading} category={category} {...props} />,
+      render: props => <Flag loading={loading} category={category} {...props} />,
       width: 320,
     },
     {
-      title: t('Average Glucose'),
+      title: t('Avg Glucose'),
       field: 'summary.cgmStats.periods.14d.averageGlucoseMmol',
-      align: 'left',
+      align: 'center',
       render: ({ summary }) => {
         const averageGlucoseMmol = summary?.cgmStats?.periods?.[TMP_SUMMARY_PERIOD]?.averageGlucoseMmol;
         return averageGlucoseMmol ? <span>{bankersRound(averageGlucoseMmol, 1)}</span> : null;
@@ -282,24 +302,27 @@ const TideDashboardV2 = ({
     {
       title: t('GMI'),
       field: 'summary.cgmStats.periods.14d.glucoseManagementIndicator',
-      align: 'left',
+      align: 'center',
       render: renderBgRangeSummary,
+      width: 240,
     },
     {
       title: t('% Change in TIR'),
       field: 'timeInTargetPercentDelta',
-      align: 'left',
+      align: 'center',
       render: renderTimeInTargetPercentDelta,
     },
     {
       title: t('Tags'),
-      field: '',
-      align: 'left',
+      field: 'patientTags',
+      align: 'center',
+      render: props => <RenderPatientTags {...props} />,
     },
     {
       title: t('Last Reviewed'),
       field: '',
-      align: 'left',
+      align: 'center',
+      render: () => null,
     },
   ], [t, category, loading]);
 
