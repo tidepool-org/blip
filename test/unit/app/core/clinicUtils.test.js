@@ -60,7 +60,7 @@ describe('clinicUtils', function() {
 
   it('should return all lastDataFilterOptions options', () => {
     expect(clinicUtils.lastDataFilterOptions).to.eql([
-      { value: 1, label: 'Within 24 hours' },
+      { value: 1, label: 'Today' },
       { value: 2, label: 'Within 2 days' },
       { value: 7, label: 'Within 7 days' },
       { value: 14, label: 'Within 14 days' },

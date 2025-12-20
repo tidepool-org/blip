@@ -56,11 +56,11 @@ const Notification = ({ clinicId, onDismiss }) => {
         />
         <Box>
           <Box sx={{ color: vizColors.blue50, fontWeight: 'medium' }}>
-            {t('Non-Standard Target Range')}
+            {t('Alternate Range')}
           </Box>
           <Box sx={{ color: vizColors.blue50, marginRight: 3 }}>
             {
-              t('{{ name }} is using a non-standard target range of {{targetLowerBound}}-{{targetUpperBound}} {{clinicBgUnits}} to view your data',
+              t('{{ name }} is using an alternate range of {{targetLowerBound}}-{{targetUpperBound}} {{clinicBgUnits}} to view your data',
               { name, targetLowerBound, targetUpperBound, clinicBgUnits })
             }
           </Box>

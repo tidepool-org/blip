@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.52.1":
-  version: 1.52.1
-  resolution: "@tidepool/viz@npm:1.52.1"
+"@tidepool/viz@npm:1.53.0-rc.4":
+  version: 1.53.0-rc.4
+  resolution: "@tidepool/viz@npm:1.53.0-rc.4"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6111,7 +6111,7 @@ __metadata:
     moment: 2.29.4
     moment-timezone: 0.5.43
     parse-svg-path: 0.1.2
-    pdfkit: 0.13.0
+    pdfkit: 0.15.0
     process: 0.11.10
     prop-types: 15.8.1
     react: 16.14.0
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 1272f4840bc35423869386ba9c58c1d898327f2804cd026dd108dddb0625806a12929f6218fe756ea26b260cde8ea3a97202f5a1a6d8fe64b4a9328a2b466172
+  checksum: c260165df94deaca086ed797ab995feccad9838bd25f0b3d10351bf2d08431333d5b6851d9ce0c227e2234bd781c28221f8e6500ac9cb4f4652564965ec4d4e2
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.52.1
+    "@tidepool/viz": 1.53.0-rc.4
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -15232,6 +15232,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jpeg-exif@npm:^1.1.4":
+  version: 1.1.4
+  resolution: "jpeg-exif@npm:1.1.4"
+  checksum: a8693a7eeb6c6572ca39acc8bbaf4bac1eea1331a26ec7d460410c0c7aefcb944bbc6c31d3c4649a308eea9da89ee4d38e35fe2f2604e4bf2ed09abd600cff0b
+  languageName: node
+  linkType: hard
+
 "js-cookie@npm:^2.2.1":
   version: 2.2.1
   resolution: "js-cookie@npm:2.2.1"
@@ -18097,15 +18104,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pdfkit@npm:0.13.0":
-  version: 0.13.0
-  resolution: "pdfkit@npm:0.13.0"
+"pdfkit@npm:0.15.0":
+  version: 0.15.0
+  resolution: "pdfkit@npm:0.15.0"
   dependencies:
-    crypto-js: ^4.0.0
+    crypto-js: ^4.2.0
     fontkit: ^1.8.1
+    jpeg-exif: ^1.1.4
     linebreak: ^1.0.2
     png-js: ^1.0.0
-  checksum: 1c0875b5cc0cb8dbf06943089244358bd147493b5b453fefc6cabf55e4a4098dead253d14ec859caefaeb35604130faf454ac04f908d99f9c55f9394e9b21d69
+  checksum: 044d24f0efd563834bc4c45f12be6e91f98e31d0d664b042d89f35588d3fb985134566280bba6fa29360f61ae1ba62310dccba4b0f102aa448f307c6bbe65bd1
   languageName: node
   linkType: hard
 
