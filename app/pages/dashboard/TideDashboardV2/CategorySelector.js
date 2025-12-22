@@ -97,16 +97,16 @@ const CategorySelector = ({
         indicatorColor={vizColors.low}
       />
       <Category
-        label={t('Other')}
-        selected={value === CATEGORY.OTHER}
-        onClick={() => onChange(CATEGORY.OTHER)}
-        indicatorColor={vizColors.gold05}
-      />
-      <Category
         label={t('Meeting Targets')}
         selected={value === CATEGORY.TARGET}
         onClick={() => onChange(CATEGORY.TARGET)}
         indicatorColor={vizColors.target}
+      />
+      <Category
+        label={t('Other')}
+        selected={value === CATEGORY.OTHER}
+        onClick={() => onChange(CATEGORY.OTHER)}
+        indicatorColor={vizColors.gold05}
       />
     </Flex>
   );
