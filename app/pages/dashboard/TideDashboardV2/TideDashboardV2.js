@@ -90,20 +90,51 @@ const fetchPatients = (api, clinicId, options) => {
 const getOpts = (category, offset) => {
   const opts = { offset, limit: PATIENT_ROW_LIMIT };
 
+  // Using negation strategy
   switch(category) {
-    case CATEGORY.DEFAULT: return opts;
+    case CATEGORY.DEFAULT:
+      return opts;
 
-    case CATEGORY.ANY_LOW: return {...opts, 'cgm.timeInAnyLowPercent': '>=0.04' };
+    case CATEGORY.VERY_LOW:
+      return {
+        ...opts,
+        'cgm.timeInVeryLowPercent': '>=0.01',
+      };
 
-    case CATEGORY.ANY_HIGH: return {...opts, 'cgm.timeInAnyHighPercent': '>=0.25' };
+    case CATEGORY.ANY_LOW:
+      return {
+        ...opts,
+        'cgm.timeInVeryLowPercent': '<0.01',
+        'cgm.timeInAnyLowPercent': '>=0.04',
+      };
 
-    case CATEGORY.VERY_LOW: return {...opts, 'cgm.timeInVeryLowPercent': '>=0.01' };
+    case CATEGORY.ANY_HIGH:
+      return {
+        ...opts,
+        'cgm.timeInVeryLowPercent': '<0.01',
+        'cgm.timeInAnyLowPercent': '<0.04',
+        'cgm.timeInAnyHighPercent': '>=0.25',
+      };
 
-    case CATEGORY.VERY_HIGH: return {...opts, 'cgm.timeInVeryHighPercent': '>=0.05' };
+    case CATEGORY.VERY_HIGH:
+      return {
+        ...opts,
+        'cgm.timeInVeryLowPercent': '<0.01',
+        'cgm.timeInAnyLowPercent': '<0.04',
+        'cgm.timeInAnyHighPercent': '<0.25',
+        'cgm.timeInVeryHighPercent': '>=0.05',
+      };
 
     // TODO: These two are not quite possible yet without BE modifications to allowed parameters.
-    case CATEGORY.OTHER: return opts;
-    case CATEGORY.TARGET: return opts;
+    case CATEGORY.OTHER:
+    case CATEGORY.TARGET:
+      return {
+        ...opts,
+        'cgm.timeInVeryLowPercent': '<0.01',
+        'cgm.timeInAnyLowPercent': '<0.04',
+        'cgm.timeInAnyHighPercent': '<0.25',
+        'cgm.timeInVeryHighPercent': '<0.05',
+      };
   }
 };
 
@@ -142,30 +173,6 @@ const Flag = ({ loading, category, summary }) => {
 
   // TODO: Fix text to be bgUnit-sensitive
   switch(true) {
-    case category === CATEGORY.VERY_LOW && period.timeInVeryLowPercent > 0.01:
-      value = 'timeInVeryLowPercent';
-      rangeName = 'veryLow';
-      title = 'Very Low';
-      text = 'Greater than 1% time <54 mg/dL';
-      break;
-    case category === CATEGORY.ANY_LOW && period.timeInAnyLowPercent > 0.04:
-      value = 'timeInAnyLowPercent';
-      rangeName = 'anyLow';
-      title = 'Low';
-      text = 'Greater than 4% time <70 mg/dL';
-      break;
-    case category === CATEGORY.VERY_HIGH && period.timeInVeryHighPercent > 0.05:
-      value = 'timeInVeryHighPercent';
-      rangeName = 'veryHigh';
-      title = 'Very High';
-      text = 'Greater than 5% time >250 mg/dL';
-      break;
-    case category === CATEGORY.ANY_HIGH && period.timeInAnyHighPercent > 0.25:
-      value = 'timeInAnyHighPercent';
-      rangeName = 'anyHigh';
-      title = 'High';
-      text = 'Greater than 25% time >180 mg/dL';
-      break;
     case period.timeInVeryLowPercent > 0.01:
       value = 'timeInVeryLowPercent';
       rangeName = 'veryLow';
@@ -190,6 +197,26 @@ const Flag = ({ loading, category, summary }) => {
       title = 'High';
       text = 'Greater than 25% time >180 mg/dL';
       break;
+    case period.timeInTargetPercentDelta < -0.15:
+      value = 'timeInTargetPercentDelta';
+      rangeName = 'anyLow';
+      title = 'Large Drop in TIR';
+      text = 'Greater than 15%';
+      break;
+    case period.timeInTargetPercent < 0.70:
+      value = 'timeInTargetPercent';
+      rangeName = 'anyLow';
+      title = 'Low TIR';
+      text = 'Less than 70% time between 70-180 mg/dL';
+      break;
+    case period.timeCGMUsePercent < 0.70:
+      value = 'timeCGMUsePercent';
+      rangeName = 'anyLow';
+      title = 'Low CGM Wear Time';
+      text = 'Less than 70%';
+      break;
+
+    // TODO: Need case for Meeting Targets
   }
 
   if (!value) return null;
