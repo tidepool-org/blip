@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.53.1-web-4271-remove-durations.1":
-  version: 1.53.1-web-4271-remove-durations.1
-  resolution: "@tidepool/viz@npm:1.53.1-web-4271-remove-durations.1"
+"@tidepool/viz@npm:1.53.1-web-4271-remove-durations.2":
+  version: 1.53.1-web-4271-remove-durations.2
+  resolution: "@tidepool/viz@npm:1.53.1-web-4271-remove-durations.2"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: f4bd9cae2e2d8ec84a47dac5ab4363318357b5083fcc9ba7ecfbf1d15def11eed5b0d377005acd7ea8cb6e77794d239f5986e992db0781efd6e83eec0ca40e89
+  checksum: a5f547fe19c4ba5120577f5d9c1b85a24a261af7b5acca39688f7c20b44a9c1de05756e59cb725ef182bc244b8fad6fc3ae775423f7f9388c6341725ee0e5593
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.53.1-web-4271-remove-durations.1
+    "@tidepool/viz": 1.53.1-web-4271-remove-durations.2
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
