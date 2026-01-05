@@ -4,9 +4,8 @@ import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import map from 'lodash/map';
 import noop from 'lodash/noop';
-import { Flex, Box, Text, Label } from 'theme-ui';
+import { Flex, Box, Text } from 'theme-ui';
 import moment from 'moment-timezone';
-import { Element, scroller } from 'react-scroll';
 
 import Button from './elements/Button';
 import DateRangePicker from './elements/DateRangePicker';
@@ -16,6 +15,8 @@ import { borders } from '../themes/baseTheme';
 import { MGDL_UNITS, MMOLL_UNITS } from '../core/constants';
 
 const DAYS_OPTIONS = [14, 30, 90];
+
+const MAX_DAYS = 90;
 
 const JS_DATE_FORMAT = 'YYYY-MM-DD';
 
@@ -42,7 +43,6 @@ export const ExportModal = ({
   patient,
   user,
   onClose,
-  open,
   trackMetric,
 }) => {
   const { t } = useTranslation();
@@ -152,7 +152,16 @@ export const ExportModal = ({
               startDateId="export-start-date"
               endDateId="export-end-date"
               onDatesChange={handleDatesChange}
-              isOutsideRange={day => (moment().diff(day) <= 0)}
+              isOutsideRange={day => {
+                const startMoment = dates.startDate ? moment(dates.startDate) : null;
+                const endMoment = dates.endDate ? moment(dates.endDate) : null;
+
+                return (
+                  moment().diff(day) <= 0 ||
+                  (endMoment && endMoment.diff(day, 'days') >= MAX_DAYS) ||
+                  (startMoment && startMoment.diff(day, 'days') <= -MAX_DAYS)
+                );
+              }}
               onFocusChange={input => {
                 setDatePickerOpen(!!input);
               }}
