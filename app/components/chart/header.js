@@ -125,6 +125,14 @@ const Header = withTranslation()(class Header extends Component {
       'patient-data-subnav-hidden': this.props.chartType === 'no-data',
     });
 
+    const exportLinkClass = cx({
+      'js-export': true,
+      'patient-data-subnav-tablink': true,
+      'patient-data-subnav-right': true,
+      'patient-data-subnav-right-label': true,
+      'patient-data-subnav-hidden': this.props.chartType === 'no-data',
+    });
+
     const canSelectDateRange = _.includes(['basics', 'daily'], this.props.chartType);
 
     return (
@@ -182,7 +190,7 @@ const Header = withTranslation()(class Header extends Component {
           {this.renderNavButton(mostRecentClass, this.props.onClickMostRecent, this.props.iconMostRecent)}
         </div>
         <div className="app-no-print patient-data-subnav-right">
-          <a href="" className={printLinkClass} onClick={this.props.onClickExport}>
+          <a href="" className={exportLinkClass} onClick={this.props.onClickExport}>
             <Icon
               className="icon"
               variant="default"
