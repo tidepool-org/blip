@@ -32,6 +32,7 @@ const StyledDateRangePicker = styled(StyledDatePickerBase)`
 
     .DateInput {
       border-radius: ${radii.input}px;
+      width: 180px;
 
       input {
         border-radius: ${radii.input}px;
@@ -96,6 +97,27 @@ const StyledDateRangePicker = styled(StyledDatePickerBase)`
   }
 `;
 
+export const CHART_DATE_BOUND_FORMAT = {
+  DATE_AND_TIME: 'MMM D, YYYY (h:mm A)',
+  DATE_ONLY: 'MMM D, YYYY',
+};
+
+export const getChartDateBoundDisplayFormat = (startDate, endDate) => {
+  const isStartDateMidnight = (startDate?.hours() === 0 && startDate?.minutes() === 0) ||
+                              (startDate?.hours() === 23 && startDate?.minutes() >= 59);
+
+  const isEndDateMidnight = (endDate?.hours() === 0 && endDate?.minutes() === 0) ||
+                            (endDate?.hours() === 23 && endDate?.minutes() >= 59);
+
+  const isMatchingDateBounds = isStartDateMidnight && isEndDateMidnight;
+
+  if (!isMatchingDateBounds) {
+    return CHART_DATE_BOUND_FORMAT.DATE_AND_TIME;
+  }
+
+  return CHART_DATE_BOUND_FORMAT.DATE_ONLY;
+};
+
 export function DateRangePicker(props) {
   const {
     startDate,
@@ -110,17 +132,14 @@ export function DateRangePicker(props) {
     ...datePickerProps
   } = props;
 
-  const [dates, setDates] = useState({ startDate, endDate });
   const [focusedInput, setFocusedInput] = useState(focusedInputProp);
-
-  React.useEffect(() => {
-    setDates({ startDate, endDate });
-  }, [startDate, endDate]);
 
   const inputClasses = cx({
     error: !!(errors.startDate || errors.endDate),
     required,
   });
+
+  const displayFormat = getChartDateBoundDisplayFormat(startDate, endDate);
 
   return (
     <Box as={StyledDateRangePicker} {...themeProps}>
@@ -138,12 +157,11 @@ export function DateRangePicker(props) {
         </Label>
       )}
       <DateRangePickerBase
-        startDate={dates.startDate}
+        startDate={startDate}
         startDateId={props.startDateId}
-        endDate={dates.endDate}
+        endDate={endDate}
         endDateId={props.endDateId}
         onDatesChange={newDates => {
-          setDates(newDates);
           onDatesChange(newDates);
         }}
         focusedInput={focusedInput}
@@ -152,7 +170,7 @@ export function DateRangePicker(props) {
           onFocusChange(selectedFocusedInput);
         }}
         numberOfMonths={2}
-        displayFormat="MMM D, YYYY"
+        displayFormat={displayFormat}
         verticalSpacing={0}
         navPrev={<Icon theme={baseTheme} label="previous month" icon={NavigateBeforeRoundedIcon} />}
         navNext={<Icon theme={baseTheme} label="next month" icon={NavigateNextRoundedIcon} />}

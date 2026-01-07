@@ -44,7 +44,7 @@ const NonStandardRangeFallback = withTranslation()(({ t, id, showTooltip }) => (
       }}
     >
       <Text sx={{ fontSize: '10px', fontWeight: 'medium', color: 'grays.4' }}>
-        {t('Non-standard target range')}
+        {t('Alternate range in use')}
       </Text>
 
       { showTooltip &&
