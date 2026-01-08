@@ -898,12 +898,15 @@ export const PatientDataClass = createReactClass({
         types: {
           basal: {},
           bolus: {},
+          insulin: {},
           cbg: {},
           deviceEvent: {},
           food: {},
           message: {},
           smbg: {},
           wizard: {},
+          physicalActivity: {},
+          reportedState: {},
         },
         bgSource: _.get(state.chartPrefs, 'daily.bgSource'),
         cgmSampleIntervalRange: _.get(state.chartPrefs, 'daily.cgmSampleIntervalRange'),
@@ -1577,12 +1580,15 @@ export const PatientDataClass = createReactClass({
         latestDatums = getLatestDatums([
           'basal',
           'bolus',
+          'insulin',
           'cbg',
           'deviceEvent',
           'food',
           'message',
           'smbg',
           'wizard',
+          'reportedState',
+          'physicalActivity',
         ]);
         break;
 
@@ -2018,6 +2024,7 @@ export const PatientDataClass = createReactClass({
           chartQuery.types = {
             basal: {},
             bolus: {},
+            insulin: {},
             cbg: {},
             deviceEvent: {},
             food: {},
@@ -2025,6 +2032,8 @@ export const PatientDataClass = createReactClass({
             pumpSettings: {},
             smbg: {},
             wizard: {},
+            reportedState: {},
+            physicalActivity: {},
           };
 
           chartQuery.cgmSampleIntervalRange = _.get(this.state.chartPrefs, 'daily.cgmSampleIntervalRange');
