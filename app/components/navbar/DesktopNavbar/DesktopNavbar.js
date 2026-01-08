@@ -40,10 +40,6 @@ export default withTranslation()(class extends React.Component {
       ? t('Back to Dashboard')
       : t('Back to Patient List');
 
-    const isDashboardView = /^\/dashboard\//.test(this.props.currentPage);
-
-    const showPatientListLink = personUtils.isClinicianAccount(this.props.user) && isDashboardView;
-
     return (
       <>
         <Flex
@@ -66,24 +62,6 @@ export default withTranslation()(class extends React.Component {
             {this.renderMenuSection()}
           </Box>
         </Flex>
-
-        {showPatientListLink && (
-          <Link className="static" to={patientListLink}>
-            <Button
-              variant="textSecondary"
-              icon={ChevronLeftRoundedIcon}
-              iconPosition='left'
-              id="patientListLink"
-              onClick={() => this.props.trackMetric('Clinic - View patient list', {
-                clinicId: this.props.selectedClinicId,
-                source: 'Dashboard'
-              })}
-              sx={{ display: 'inline-flex !important' }}
-            >
-              {linkText}
-            </Button>
-          </Link>
-        )}
       </>
     );
   }

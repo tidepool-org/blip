@@ -10,22 +10,25 @@ import Tab from '@material-ui/core/Tab';
 import { useFlags } from 'launchdarkly-react-client-sdk';
 
 import ClinicWorkspaceHeader from '../../components/clinic/ClinicWorkspaceHeader';
-import { borders, colors, space } from '../../themes/baseTheme';
+import { colors, space } from '../../themes/baseTheme';
 
 const StyledTab = styled(Tab)`
   && {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 500;
     font-family: inherit;
     min-height: auto;
     min-width: auto;
     text-transform: none;
-    padding: 16px ${space[5]}px;
+    padding: 12px ${space[5]}px;
     opacity: 1;
-    color: ${colors.text.primary};
+    color: #5D687F;
+    background-color: #CCD0DB;
+    border-radius: 4px 4px 0 0;
 
     &.Mui-selected {
-      color: ${colors.purpleMedium};
+      color: ${colors.white};
+      background-color: #5D687F;
       opacity: 1;
     }
 
@@ -33,8 +36,9 @@ const StyledTab = styled(Tab)`
       color: ${colors.text.primaryDisabled};
     }
 
-    &:hover {
-      background-color: ${colors.lightestGrey};
+    &:hover:not(.Mui-selected) {
+      color: ${colors.white};
+      background-color: #7D889F;
     }
 
     .MuiTab-wrapper {
@@ -49,24 +53,19 @@ const StyledTab = styled(Tab)`
 const StyledTabs = styled(Tabs)`
   && {
     min-height: auto;
-    background-color: ${colors.white};
-    border-radius: 8px 8px 0 0;
+    background-color: #CCD0DB;
+    border-radius: 4px 4px 0 0;
+    padding: 1px;
+    padding-bottom: 0;
 
     .MuiTabs-indicator {
-      background-color: ${colors.purpleMedium};
-      height: 3px;
-      z-index: 1;
+      display: none;
+    }
+
+    .MuiTabs-flexContainer {
+      gap: 1px;
     }
   }
-`;
-
-const TabDivider = styled(Box)`
-  width: 100%;
-  height: 2px;
-  border-top: ${borders.dividerDark};
-  position: relative;
-  top: -2px;
-  z-index: 0;
 `;
 
 export const ClinicWorkspaceLayout = (props) => {
@@ -159,7 +158,6 @@ export const ClinicWorkspaceLayout = (props) => {
             />
           ))}
         </StyledTabs>
-        <TabDivider />
 
         <Box
           id="clinic-workspace-content"

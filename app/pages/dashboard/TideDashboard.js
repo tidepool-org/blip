@@ -1494,6 +1494,7 @@ export const TideDashboard = (props) => {
       variant="containers.large"
       mb={8}
       px={3}
+      pt={3}
     >
       <Loader show={loading} overlay={!!patientGroups} />
       {renderHeader()}
