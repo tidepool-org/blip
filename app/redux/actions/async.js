@@ -1669,6 +1669,9 @@ export function connectDataSource(api, id, restrictedTokenCreate, dataSourceFilt
               ));
               return
             } else {
+              console.log('@@@ id', id)
+              console.log('@@@ url', url)
+
               dispatch(sync.connectDataSourceSuccess(id, url));
             }
           });

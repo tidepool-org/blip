@@ -1,12 +1,14 @@
 import React from 'react';
+import { useDispatch } from 'react-redux';
 import { Box } from 'theme-ui';
+import { providers } from '../../components/datasources/DataConnections';
+import * as actions from '../../redux/actions';
+import { useLocation } from 'react-router-dom';
 
-const TMP_RESTRICTED_TOKEN = 'passed-in-from-url';
-
-const createOAuthUrl = (api, providerName) => {
+const createOAuthUrl = (api, providerName, restrictedToken) => {
   let finalUrl;
 
-  api.user.createOAuthProviderAuthorization(providerName, TMP_RESTRICTED_TOKEN, (err, url) => {
+  api.user.createOAuthProviderAuthorization(providerName, restrictedToken, (err, url) => {
     if (err) {
 
     } else {
@@ -18,9 +20,19 @@ const createOAuthUrl = (api, providerName) => {
 };
 
 const VerificationWithC2C = ({ api }) => {
+  const dispatch = useDispatch();
+  const { search } = useLocation();
 
   const handleClickProvider = (providerName) => {
-    const url = createOAuthUrl(api, providerName);
+    const queryParams = new URLSearchParams(search);
+    const restrictedToken = queryParams.get('restrictedToken');
+
+    const url = createOAuthUrl(api, providerName, restrictedToken);
+    const providerId = providers[providerName]?.id;
+
+    if (!providerId) return;
+
+    dispatch(actions.sync.connectDataSourceSuccess(providerId, url));
   };
 
   return (
