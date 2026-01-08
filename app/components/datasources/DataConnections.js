@@ -32,6 +32,7 @@ import DataSourceDisconnectDialog from './DataSourceDisconnectDialog';
 import { Box, BoxProps } from 'theme-ui';
 import dexcomLogo from '../../core/icons/dexcom_logo.png';
 import libreLogo from '../../core/icons/libre_logo.svg';
+import ouraLogo from '../../core/icons/oura_logo.svg';
 import twiistLogo from '../../core/icons/twiist_logo.svg';
 import { colors } from '../../themes/baseTheme';
 
@@ -73,6 +74,23 @@ export const providers = {
       message: t('Disconnecting here has stopped new data collection from your FreeStyle Libre device. To fully revoke consent for sharing data with Tidepool, log into your FreeStyle Libre or LibreView app, access the "Connected Apps" page, and click "Manage" and then "Disconnect" next to Tidepool.'),
     },
   },
+  oura: {
+    id: 'oauth/oura',
+    displayName: 'ŌURA',
+    displayOrderIndex: 3,
+    restrictedTokenCreate: {
+        paths: [
+          '/v1/oauth/oura',
+        ],
+    },
+    dataSourceFilter: {
+      providerType: 'oauth',
+      providerName: 'oura',
+    },
+    logoImage: ouraLogo,
+    requiresLoggedInUser: true,
+    requiresExistingDataSource: true,
+  },
   twiist: {
     id: 'oauth/twiist',
     displayName: 'twiist',
@@ -95,9 +113,10 @@ export const availableProviders = orderBy(keys(providers), provider => providers
 
 export const getActiveProviders = (overrides = {}) => {
   const activeProviders = defaults(overrides, {
-    dexcom: true,
-    twiist: true,
     abbott: true,
+    dexcom: true,
+    oura: true,
+    twiist: true,
   });
 
   return filter(availableProviders, provider => activeProviders[provider]);
@@ -307,14 +326,25 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
 };
 
 export const getDataConnectionProps = (patient, isLoggedInUser, selectedClinicId, setActiveHandler) => reduce(availableProviders, (result, providerName) => {
-  result[providerName] = {};
 
-  let connectState;
-
+  const provider = providers[providerName];
   const dataSource = getCurrentDataSourceForProvider(patient, providerName);
   const connectStateUI = getConnectStateUI(patient, isLoggedInUser, providerName);
   const inviteExpired = dataSource?.expirationTime < moment.utc().toISOString();
 
+  // If the provider requires a logged in user to create the connection, then ensure that is the case.
+  if (!!provider.requiresLoggedInUser && !isLoggedInUser) {
+    return result;
+  }
+
+  // If the provider requires an existing data source to create the connection, then ensure that is the case.
+  // This mechanism can be used to limit access to certain providers to only users who have previously connected
+  // or where Tidepool has created a data source on their behalf.
+  if (!!provider.requiresExistingDataSource && !dataSource) {
+    return result;
+  }
+
+  let connectState;
   if (dataSource?.state) {
     connectState = includes(keys(connectStateUI), dataSource.state)
       ? dataSource.state
@@ -342,7 +372,10 @@ export const getDataConnectionProps = (patient, isLoggedInUser, selectedClinicId
     buttonStyle,
     emailRequired,
     patientUpdates,
-  } = getProviderHandlers(patient, selectedClinicId, providers[providerName])[handler] || {};
+  } = getProviderHandlers(patient, selectedClinicId, provider)[handler] || {};
+
+  // Now that we have everything we need, add the provider
+  result[providerName] = {};
 
   if (action) {
     result[providerName].buttonDisabled = buttonDisabled;
@@ -360,7 +393,7 @@ export const getDataConnectionProps = (patient, isLoggedInUser, selectedClinicId
   result[providerName].stateColor = color;
   result[providerName].stateText = text;
   result[providerName].providerName = providerName;
-  result[providerName].logoImage = providers[providerName]?.logoImage;
+  result[providerName].logoImage = provider?.logoImage;
   result[providerName].logoImageLabel = `${providerName} logo`;
 
   return result;
@@ -387,7 +420,7 @@ export const DataConnections = (props) => {
   const [patientUpdates, setPatientUpdates] = useState({});
   const [activeHandler, setActiveHandler] = useState(null);
   const dataConnectionProps = getDataConnectionProps(patient, isLoggedInUser, selectedClinicId, setActiveHandler);
-  const activeProviders = getActiveProviders();
+  const activeProviders = filter(getActiveProviders(), providerName => !!dataConnectionProps[providerName]); // Only those with connection props
 
   const {
     sendingPatientDataProviderConnectRequest,

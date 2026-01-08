@@ -28,6 +28,11 @@ export const OAuthConnection = (props) => {
   const [authStatus, setAuthStatus] = useState();
 
   const statusContent = {
+    accept: {
+      status: 'accept',
+      subheading: t('TODO[CLINT] (subheading)'),
+      message: t('TODO[CLINT] (message)'),
+    },
     authorized: {
       status: 'authorized',
       subheading: t('Thank you for connecting with Tidepool!'),
@@ -69,6 +74,16 @@ export const OAuthConnection = (props) => {
     trackMetric('Oauth - Connection', { providerName, status, custodialSignup });
   }, []);
 
+  const handleAccept = () => {
+    // Return to the authorization flow after accepting. The backend may enforce (or not) any 
+    // actual acceptance requirements for the connection (e.g. formal consent) and, if not met, 
+    // reroute back to this accept step until resolved. In the basic case, the backend does not 
+    // impose actual acceptance requirements other than just adding the accepted query param.
+    trackMetric('Oauth - Connection - Accept', { providerName, status });
+
+    window.location.href = queryParams.get('return_url');
+  }
+
   const handleClickClaimAccount = () => {
     trackMetric('Oauth - Connection - Claim Account', { providerName, status });
     dispatch(push(`/login?${queryParams.toString()}`));
@@ -89,9 +104,14 @@ export const OAuthConnection = (props) => {
     return;
   };
 
+  // TODO[CLINT]: I just hacked in the accept case here (without any real UI), so feel free to refactor. Also, 
+  // you'll likely want to disable the button on click and throw up a spinner or something for the redirect
+  // as it may take a second or two.
   return authStatus ? (
     <>
-      <Banner id={`banner-oauth-${authStatus.status}`} {...authStatus.banner} dismissable={false} />
+      {authStatus.banner &&
+        <Banner id={`banner-oauth-${authStatus.status}`} {...authStatus.banner} dismissable={false} />
+      }
 
       <Box
         variant="containers.smallBordered"
@@ -116,6 +136,18 @@ export const OAuthConnection = (props) => {
           </Body1>
         )}
 
+        {authStatus.status === 'accept' && (
+          <Button
+            id="oauth-redirect-home-button"
+            variant="primary"
+            onClick={handleAccept}
+            mx="auto"
+            mt={4}
+          >
+            {t('I understand')}
+          </Button>
+        )}
+
         {authStatus.status === 'error' && (
           <Trans i18nKey="html.oauth-support-message">
             <Body1 mb={3}>
@@ -124,7 +156,7 @@ export const OAuthConnection = (props) => {
           </Trans>
         )}
 
-        {isCustodial && authStatus.status !== 'error' && (
+        {isCustodial && authStatus.status !== 'accept' && authStatus.status !== 'error' && (
           <Box>
             <Body1 mb={3}>
               {t('If you\'d like to take ownership of your free account to view and upload data from home, please click the button below.')}
