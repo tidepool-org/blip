@@ -100,7 +100,7 @@ export function confirmSignup(api, signupKey, signupEmail) {
           createActionError(errMsg, err), err, signupKey
         ));
         if (err.status === 409) {
-          dispatch(push(`/verification-with-password?signupKey=${signupKey}&signupEmail=${signupEmail}`));
+          dispatch(push(`/verification-with-c2c?signupKey=${signupKey}&signupEmail=${signupEmail}`));
         }
       } else {
         dispatch(sync.confirmSignupSuccess())
