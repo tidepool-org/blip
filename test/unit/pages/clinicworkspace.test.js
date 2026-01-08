@@ -6,7 +6,7 @@ import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import merge from 'lodash/merge';
 import { ToastProvider } from '../../../app/providers/ToastProvider';
-import ClinicWorkspace from '../../../app/pages/clinicworkspace';
+import ClinicPatientsTabs from '../../../app/pages/clinicworkspace/ClinicPatientsTabs';
 
 /* global chai */
 /* global sinon */
@@ -21,7 +21,7 @@ import ClinicWorkspace from '../../../app/pages/clinicworkspace';
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
-describe('ClinicWorkspace', () => {
+describe('ClinicPatientsTabs', () => {
   let mount;
 
   let wrapper;
@@ -37,23 +37,21 @@ describe('ClinicWorkspace', () => {
 
   before(() => {
     mount = createMount();
-    ClinicWorkspace.__Rewire__('ClinicWorkspaceHeader', sinon.stub().returns('stubbed clinic profile'));
-    ClinicWorkspace.__Rewire__('PatientInvites', () => (<div>stubbed patient invites</div>));
-    ClinicWorkspace.__Rewire__('ClinicPatients', () => (<div>stubbed clinic patients</div>));
-    ClinicWorkspace.__Rewire__('Prescriptions', sinon.stub().returns('stubbed patient prescriptions'));
+    ClinicPatientsTabs.__Rewire__('PatientInvites', () => (<div>stubbed patient invites</div>));
+    ClinicPatientsTabs.__Rewire__('ClinicPatients', () => (<div>stubbed clinic patients</div>));
+    ClinicPatientsTabs.__Rewire__('Prescriptions', sinon.stub().returns('stubbed patient prescriptions'));
 
-    ClinicWorkspace.__Rewire__('useFlags', sinon.stub().returns({
+    ClinicPatientsTabs.__Rewire__('useFlags', sinon.stub().returns({
       showPrescriptions: true,
     }));
   });
 
   after(() => {
     mount.cleanUp();
-    ClinicWorkspace.__ResetDependency__('ClinicWorkspaceHeader');
-    ClinicWorkspace.__ResetDependency__('PatientInvites');
-    ClinicWorkspace.__ResetDependency__('ClinicPatients');
-    ClinicWorkspace.__ResetDependency__('Prescriptions');
-    ClinicWorkspace.__ResetDependency__('useFlags');
+    ClinicPatientsTabs.__ResetDependency__('PatientInvites');
+    ClinicPatientsTabs.__ResetDependency__('ClinicPatients');
+    ClinicPatientsTabs.__ResetDependency__('Prescriptions');
+    ClinicPatientsTabs.__ResetDependency__('useFlags');
   });
 
   afterEach(() => {
@@ -136,7 +134,7 @@ describe('ClinicWorkspace', () => {
         <Provider store={store}>
           <ToastProvider>
             <MemoryRouter initialEntries={[`/clinic-workspace/${route}`]}>
-              <Route path='/clinic-workspace/:tab?' children={() => (<ClinicWorkspace {...defaultProps} />)} />
+              <Route path='/clinic-workspace/:tab?' children={() => (<ClinicPatientsTabs {...defaultProps} />)} />
             </MemoryRouter>
           </ToastProvider>
         </Provider>
@@ -160,10 +158,6 @@ describe('ClinicWorkspace', () => {
       sinon.assert.callCount(defaultProps.api.clinics.getPatientInvites, 1);
       sinon.assert.calledWith(defaultProps.api.clinics.getPatientInvites, 'clinicID456');
     });
-  });
-
-  it('should render a clinic profile', () => {
-    expect(wrapper().text()).to.include('stubbed clinic profile');
   });
 
   it('should render the patients tab by default when no tab route param provided', () => {

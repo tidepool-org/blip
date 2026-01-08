@@ -1,25 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { push } from 'connected-react-router';
 import { withTranslation } from 'react-i18next';
 import forEach from 'lodash/forEach';
-import get from 'lodash/get'
-import values from 'lodash/values'
+import get from 'lodash/get';
+import values from 'lodash/values';
 import { Box } from 'theme-ui';
 import { Element } from 'react-scroll';
 import { useFlags } from 'launchdarkly-react-client-sdk';
 
 import TabGroup from '../../components/elements/TabGroup';
-import ClinicWorkspaceHeader from '../../components/clinic/ClinicWorkspaceHeader';
 import ClinicPatients from './ClinicPatients';
 import Prescriptions from '../prescription/Prescriptions';
 import { PatientInvites } from '../share';
 import * as actions from '../../redux/actions';
-import config from '../../config';
 
-export const ClinicWorkspace = (props) => {
+export const ClinicPatientsTabs = (props) => {
   const { t, api, trackMetric } = props;
   const dispatch = useDispatch();
   const { tab } = useParams();
@@ -35,7 +33,7 @@ export const ClinicWorkspace = (props) => {
     patients: 0,
     invites: 1,
     prescriptions: 2,
-  }
+  };
 
   const tabs = [
     {
@@ -95,55 +93,51 @@ export const ClinicWorkspace = (props) => {
     }
   }, [props.location?.state?.selectedClinicId]);
 
-  function handleSelectTab(event, newValue) {
+  function handleSelectTab(_event, newValue) {
     trackMetric(tabs[newValue]?.metric, { clinicId: selectedClinicId, source: 'Workspace table' });
     setSelectedTab(newValue);
     dispatch(push(`/clinic-workspace/${tabs[newValue].name}`));
   }
 
   return (
-    <>
-      <ClinicWorkspaceHeader api={api} trackMetric={trackMetric} />
-
-      <Box id="clinic-workspace" sx={{ alignItems: 'center' }} variant="containers.largeBordered" mb={9}>
-        <Element name="workspaceTabsTop" />
-        <TabGroup
-          aria-label="Clinic workspace tabs"
-          id="clinic-workspace-tabs"
-          variant="horizontal"
-          tabs={tabs}
-          value={selectedTab}
-          onChange={handleSelectTab}
-          themeProps={{
-            panel: {
-              p: 4,
-              pb: 0,
-              sx: {
-                minHeight: '10em',
-              },
+    <Box id="clinic-patients-tabs" sx={{ alignItems: 'center' }}>
+      <Element name="workspaceTabsTop" />
+      <TabGroup
+        aria-label="Clinic patients tabs"
+        id="clinic-patients-tabs-group"
+        variant="horizontal"
+        tabs={tabs}
+        value={selectedTab}
+        onChange={handleSelectTab}
+        themeProps={{
+          panel: {
+            p: 4,
+            pb: 0,
+            sx: {
+              minHeight: '10em',
             },
-          }}
-        >
-          <Box id="patientsTab">
-            {selectedTab === 0 && <ClinicPatients key={clinic?.id} {...props} />}
-          </Box>
+          },
+        }}
+      >
+        <Box id="patientsTab">
+          {selectedTab === 0 && <ClinicPatients key={clinic?.id} {...props} />}
+        </Box>
 
-          <Box id="invitesTab">
-            {selectedTab === 1 && <PatientInvites {...props} />}
-          </Box>
+        <Box id="invitesTab">
+          {selectedTab === 1 && <PatientInvites {...props} />}
+        </Box>
 
-          <Box id="prescriptionsTab">
-            {selectedTab === 2 && <Prescriptions {...props} />}
-          </Box>
-        </TabGroup>
-      </Box>
-    </>
+        <Box id="prescriptionsTab">
+          {selectedTab === 2 && <Prescriptions {...props} />}
+        </Box>
+      </TabGroup>
+    </Box>
   );
 };
 
-ClinicWorkspace.propTypes = {
+ClinicPatientsTabs.propTypes = {
   api: PropTypes.object.isRequired,
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default withTranslation()(ClinicWorkspace);
+export default withTranslation()(ClinicPatientsTabs);

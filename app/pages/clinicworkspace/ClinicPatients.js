@@ -1400,16 +1400,6 @@ export const ClinicPatients = (props) => {
     handleEditPatientConfirm();
   }, [patientFormContext, selectedClinicId, trackMetric, handleEditPatientConfirm]);
 
-  function handleConfigureTideDashboard() {
-    if (validateTideConfig(tideDashboardConfig[localConfigKey], patientTags)) {
-      trackMetric('Clinic - Navigate to Tide Dashboard', { clinicId: selectedClinicId, source: 'Patients list' });
-      dispatch(push('/dashboard/tide'));
-    } else {
-      trackMetric('Clinic - Show Tide Dashboard config dialog', { clinicId: selectedClinicId, source: 'Patients list' });
-      setShowTideDashboardConfigDialog(true);
-    }
-  }
-
   const handleConfigureTideDashboardConfirm = useCallback(() => {
     trackMetric('Clinic - Show Tide Dashboard config dialog confirmed', { clinicId: selectedClinicId, source: 'Patients list' });
     tideDashboardFormContext?.handleSubmit();
@@ -1698,46 +1688,6 @@ export const ClinicPatients = (props) => {
 
               <Box sx={{ flex: 1, flexBasis:'fit-content', position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
                 <Flex sx={{ justifyContent: 'space-between', alignContent: 'center', gap: 2 }}>
-                  {showTideDashboardUI && (
-                    <PopoverElement
-                      id="tideDashAddTagsPopover"
-                      triggerOnHover
-                      disabled={!!clinic?.patientTags?.length}
-                      popoverProps={{
-                        anchorOrigin: {
-                          vertical: 'bottom',
-                          horizontal: 'center',
-                        },
-                        transformOrigin: {
-                          vertical: 'top',
-                          horizontal: 'center',
-                        },
-                        backgroundColor: 'rgba(79, 106, 146, 0.85)',
-                        border: 'none',
-                        borderRadius: radii.input,
-                        marginTop: `-${space[2]}px`,
-                        padding: `0 ${space[2]}px`,
-                        width: 'auto',
-                      }}
-                      popoverContent={(
-                        <Text sx={{ color: 'white', fontSize:'10px', fontWeight: 'medium' }}>{t('Add and apply patient tags to use')}</Text>
-                      )}
-                    >
-                      <Button
-                        id="open-tide-dashboard"
-                        variant="tertiary"
-                        onClick={handleConfigureTideDashboard}
-                        tag={t('New')}
-                        px={2}
-                        sx={{ flexShrink: 0, fontSize: 0 }}
-                        disabled={!clinic?.patientTags?.length}
-                        tagColorPalette={!clinic?.patientTags?.length ? [colors.lightGrey, colors.text.primaryDisabled] : 'greens'}
-                      >
-                        {t('TIDE Dashboard View')}
-                      </Button>
-                    </PopoverElement>
-                  )}
-
                   <TextInput
                     themeProps={{
                       sx: { width: ['100%', null, '250px'] },
