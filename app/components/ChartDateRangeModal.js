@@ -9,7 +9,10 @@ import { Flex, Box } from 'theme-ui';
 import moment from 'moment-timezone';
 
 import Button from './elements/Button';
-import DateRangePicker from './elements/DateRangePicker';
+import DateRangePicker, {
+  getChartDateBoundDisplayFormat,
+  CHART_DATE_BOUND_FORMAT,
+} from './elements/DateRangePicker';
 import {
   Dialog,
   DialogActions,
@@ -21,6 +24,7 @@ import i18next from '../core/language';
 import { breakpoints } from '../themes/baseTheme';
 import { DesktopOnly } from './mediaqueries';
 import { utils as vizUtils } from '@tidepool/viz';
+import PartialDaysTooltip from './PartialDaysTooltip';
 const getLocalizedCeiling = vizUtils.datetime.getLocalizedCeiling;
 
 const t = i18next.t.bind(i18next);
@@ -189,6 +193,9 @@ export const ChartDateRangeModal = (props) => {
     onDatesChange(dates);
   }, [dates]);
 
+  const displayFormat = getChartDateBoundDisplayFormat(dates.startDate, dates.endDate);
+  const isPartialDaySelected = displayFormat === CHART_DATE_BOUND_FORMAT.DATE_AND_TIME;
+
   return (
     <Dialog id="ChartDateRangePicker" maxWidth="md" open={open} onClose={handleClose}>
       <DialogTitle divider={false} onClose={handleClose}>
@@ -221,26 +228,26 @@ export const ChartDateRangeModal = (props) => {
           </Box>
           <DesktopOnly sx={{ marginBottom: 3 }}>
             <Body1 mb={2}>{t('Or select a custom date range ({{maxDays}} days max)', { maxDays })}</Body1>
-            <DateRangePicker
-              startDate={dates.startDate}
-              startDateId="chart-start-date"
-              endDate={dates.endDate}
-              endDateId="chart-end-date"
-              onDatesChange={handleDatesChange}
-              isOutsideRange={day => (
-                moment.utc(mostRecentDatumDate).tz(timezoneName).endOf('day').subtract(1, 'ms').diff(day) < 0 ||
-                endOfToday.diff(day) < 0 ||
-                (moment.isMoment(dates.endDate) && dates.endDate.diff(day, 'days') >= maxDays) ||
-                (moment.isMoment(dates.startDate) && dates.startDate.diff(day, 'days') <= -maxDays)
-              )}
-              onFocusChange={input => setDatePickerOpen(!!input)}
-              themeProps={{
-                sx: {
-                  minWidth: '580px',
-                  minHeight: datePickerOpen ? '326px' : undefined,
-                },
-              }}
-            />
+            <Flex sx={{ minWidth: '580px', gap: 2 }}>
+              <DateRangePicker
+                startDate={dates.startDate}
+                startDateId="chart-start-date"
+                endDate={dates.endDate}
+                endDateId="chart-end-date"
+                onDatesChange={handleDatesChange}
+                isOutsideRange={day => (
+                  moment.utc(mostRecentDatumDate).tz(timezoneName).endOf('day').subtract(1, 'ms').diff(day) < 0 ||
+                  endOfToday.diff(day) < 0 ||
+                  (moment.isMoment(dates.endDate) && dates.endDate.diff(day, 'days') >= maxDays) ||
+                  (moment.isMoment(dates.startDate) && dates.startDate.diff(day, 'days') <= -maxDays)
+                )}
+                onFocusChange={input => setDatePickerOpen(!!input)}
+                themeProps={{
+                  sx: { minHeight: datePickerOpen ? '326px' : undefined },
+                }}
+              />
+              {isPartialDaySelected && <PartialDaysTooltip />}
+            </Flex>
           </DesktopOnly>
           {errors && (
             <Caption mt={2} sx={{ color: 'feedback.danger' }} id="chart-dates-error">
