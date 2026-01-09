@@ -184,6 +184,7 @@ class BgLogChart extends Component {
 class BgLog extends Component {
   static propTypes = {
     chartPrefs: PropTypes.object.isRequired,
+    copyAsTextMetadata: PropTypes.object,
     data: PropTypes.object.isRequired,
     initialDatetimeLocation: PropTypes.string,
     isClinicianAccount: PropTypes.bool.isRequired,
@@ -309,7 +310,13 @@ class BgLog extends Component {
                 <ClipboardButton
                   buttonTitle={t('For email or notes')}
                   onSuccess={this.handleCopyBgLogClicked}
-                  getText={bgLogText.bind(this, this.props.patient, this.props.data, this.props.stats)}
+                  getText={bgLogText.bind(
+                    this,
+                    this.props.patient,
+                    this.props.data,
+                    this.props.stats,
+                    this.props.copyAsTextMetadata,
+                  )}
                 />
               </Box>
               <Stats

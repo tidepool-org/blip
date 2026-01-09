@@ -426,13 +426,13 @@ describe('ClinicianPatients', () => {
         const patientRow2 = table.find('tr').at(2);
 
         expect(patientRow1.text()).contains('Patient One');
-        const patient1EditButton = patientRow1.find('Button[iconLabel="Edit Patient Information"]');
+        const patient1EditButton = patientRow1.find('Button[iconLabel="Edit Patient Details"]');
         assert(!hasPatientsState.blip.membershipPermissionsInOtherCareTeams.patient1.custodian)
         expect(patient1EditButton).to.have.length(0);
 
         expect(patientRow2.text()).contains('Patient Two');
         assert(hasPatientsState.blip.membershipPermissionsInOtherCareTeams.patient2.custodian)
-        const patient2EditButton = patientRow2.find('Button[iconLabel="Edit Patient Information"]');
+        const patient2EditButton = patientRow2.find('Button[iconLabel="Edit Patient Details"]');
         expect(patient2EditButton).to.have.length(1);
       });
 
@@ -440,7 +440,7 @@ describe('ClinicianPatients', () => {
         const table = wrapper.find(Table);
         expect(table).to.have.length(1);
         expect(table.find('tr')).to.have.length(3); // header row + 2 invites
-        const editButton = table.find('tr').at(2).find('Button[iconLabel="Edit Patient Information"]');
+        const editButton = table.find('tr').at(2).find('Button[iconLabel="Edit Patient Details"]');
 
         const dialog = () => wrapper.find('Dialog#editPatient');
 

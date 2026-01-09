@@ -4107,6 +4107,7 @@ describe('Actions', () => {
               'smbg',
               'basal',
               'bolus',
+              'insulin',
               'wizard',
               'food',
               'pumpSettings',
@@ -8776,6 +8777,113 @@ describe('Actions', () => {
         });
 
         let store = mockStore({ blip: initialState });
+
+        store.dispatch(async.sendPatientDataProviderConnectRequest(api, clinicId, patientId, providerName));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.sendPatientDataProviderConnectRequest.callCount).to.equal(1);
+      });
+
+      it('should trigger SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_SUCCESS and update clinic patient counts for a successful twiist connect request', () => {
+        const clinicId = 'clinicId1';
+        const patientId = 'patientId1';
+        const providerName = 'twiist';
+        const createdTime = '2022-02-02T00:00:00.000Z';
+
+        let api = {
+          clinics: {
+            sendPatientDataProviderConnectRequest: sinon.stub().callsArgWith(3, null),
+            getClinicPatientCount: sinon.stub().callsArgWith(1, null, {
+              demo: 1,
+              plan: 251,
+              total: 252
+            }),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_REQUEST' },
+          { type: 'SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_SUCCESS', payload: { clinicId, patientId, providerName, createdTime } },
+          { type: 'FETCH_CLINIC_PATIENT_COUNTS_REQUEST' },
+          {
+            payload: {
+              clinicId,
+              patientCounts: {
+                demo: 1,
+                plan: 251,
+                total: 252
+              }
+            },
+            type: 'FETCH_CLINIC_PATIENT_COUNTS_SUCCESS'
+          },
+          {
+            payload: {
+              clinicId,
+              uiDetails: {
+                entitlements: {
+                  patientTags: false,
+                  clinicSites: false,
+                  prescriptions: false,
+                  rpmReport: false,
+                  summaryDashboard: false,
+                  tideDashboard: false,
+                },
+                patientLimitEnforced: true,
+                planName: 'base',
+                ui: {
+                  display: {
+                    patientCount: true,
+                    patientLimit: true,
+                    planName: true,
+                    workspaceLimitDescription: false,
+                    workspaceLimitFeedback: true,
+                    workspaceLimitResolutionLink: true,
+                    workspacePlan: true,
+                  },
+                  text: {
+                    limitDescription: 'This plan allows for a limited number of patient accounts.',
+                    limitFeedback: {
+                      status: 'warning',
+                      text: 'Maximum number of patient accounts reached',
+                    },
+                    limitResolutionLink: {
+                      text: 'Contact us to unlock plans',
+                      url: 'https://app.cronofy.com/add_to_calendar/scheduling/-hq0nDA6',
+                    },
+                    planDisplayName: 'Base',
+                  },
+                  warnings: {
+                    limitApproaching: true,
+                    limitReached: true,
+                  },
+                },
+              },
+            },
+            type: 'SET_CLINIC_UI_DETAILS',
+          },
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: {
+          ...initialState,
+          clinics: {
+            [clinicId]: {
+              country: 'US',
+              tier: 'tier0100',
+              patientCounts: { plan: 249 },
+              patientCountSettings: {
+                hardLimit: {
+                  plan: 250,
+                  startDate: moment().subtract(1, 'day').toISOString(),
+                },
+              },
+            },
+          },
+        } });
+
         store.dispatch(async.sendPatientDataProviderConnectRequest(api, clinicId, patientId, providerName));
 
         const actions = store.getActions();
