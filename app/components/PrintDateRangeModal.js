@@ -11,7 +11,7 @@ import moment from 'moment-timezone';
 import { Element, scroller } from 'react-scroll';
 
 import Button from './elements/Button';
-import DateRangePicker from './elements/DateRangePicker';
+import DateRangePicker, { CHART_DATE_BOUND_FORMAT, getChartDateBoundDisplayFormat } from './elements/DateRangePicker';
 import {
   Dialog,
   DialogActions,
@@ -23,6 +23,7 @@ import i18next from '../core/language';
 import baseTheme, { borders } from '../themes/baseTheme';
 import { useLocalStorage } from '../core/hooks';
 import { utils as vizUtils } from '@tidepool/viz';
+import PartialDaysTooltip from './PartialDaysTooltip';
 const getLocalizedCeiling = vizUtils.datetime.getLocalizedCeiling;
 
 const t = i18next.t.bind(i18next);
@@ -405,32 +406,39 @@ export const PrintDateRangeModal = (props) => {
                   <Box>
                     <Body0 mb={2}>{t('Or select a custom date range ({{maxDays}} days max)', { maxDays })}</Body0>
 
-                    <DateRangePicker
-                      key={`date-range-picker-${panel.key}`}
-                      startDate={dates[panel.key].startDate}
-                      startDateId={`${[panel.key]}-start-date`}
-                      endDate={dates[panel.key].endDate}
-                      endDateId={`${[panel.key]}-end-date`}
-                      onDatesChange={newDates => handleDatesChange(newDates, panel.key)}
-                      isOutsideRange={day => (
-                        moment.utc(mostRecentDatumDates[panel.key]).tz(timezoneName).endOf('day').subtract(1, 'ms').diff(day) < 0 ||
-                        endOfToday.diff(day) < 0 ||
-                        (moment.isMoment(dates[panel.key].endDate) && dates[panel.key].endDate.diff(day, 'days') >= maxDays) ||
-                        (moment.isMoment(dates[panel.key].startDate) && dates[panel.key].startDate.diff(day, 'days') <= -maxDays)
-                      )}
-                      onFocusChange={input => {
-                        setDatePickerOpen({ ...datePickerOpen, [panel.key]: !!input });
-                        if (input) scroller.scrollTo(`${panel.key}-wrapper`, {
-                          delay: 0,
-                          containerId: 'printDateRangePickerInner',
-                          duration: 250,
-                          smooth: true,
-                        });
-                      }}
-                      themeProps={{
-                        sx: { minHeight: datePickerOpen[panel.key] ? '310px' : undefined },
-                      }}
-                    />
+                    <Flex sx={{ gap: 2 }}>
+                      <DateRangePicker
+                        key={`date-range-picker-${panel.key}`}
+                        startDate={dates[panel.key].startDate}
+                        startDateId={`${[panel.key]}-start-date`}
+                        endDate={dates[panel.key].endDate}
+                        endDateId={`${[panel.key]}-end-date`}
+                        onDatesChange={newDates => handleDatesChange(newDates, panel.key)}
+                        isOutsideRange={day => (
+                          moment.utc(mostRecentDatumDates[panel.key]).tz(timezoneName).endOf('day').subtract(1, 'ms').diff(day) < 0 ||
+                          endOfToday.diff(day) < 0 ||
+                          (moment.isMoment(dates[panel.key].endDate) && dates[panel.key].endDate.diff(day, 'days') >= maxDays) ||
+                          (moment.isMoment(dates[panel.key].startDate) && dates[panel.key].startDate.diff(day, 'days') <= -maxDays)
+                        )}
+                        onFocusChange={input => {
+                          setDatePickerOpen({ ...datePickerOpen, [panel.key]: !!input });
+                          if (input) scroller.scrollTo(`${panel.key}-wrapper`, {
+                            delay: 0,
+                            containerId: 'printDateRangePickerInner',
+                            duration: 250,
+                            smooth: true,
+                          });
+                        }}
+                        themeProps={{
+                          sx: { minHeight: datePickerOpen[panel.key] ? '310px' : undefined },
+                        }}
+                      />
+
+                      {
+                        getChartDateBoundDisplayFormat(dates[panel.key].startDate, dates[panel.key].endDate) === CHART_DATE_BOUND_FORMAT.DATE_AND_TIME &&
+                        <PartialDaysTooltip />
+                      }
+                    </Flex>
                   </Box>
                 </Box>
               )}
