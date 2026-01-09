@@ -1633,7 +1633,7 @@ export const PatientDataClass = createReactClass({
 
     // Clinic Patient Details
     const diagnosisType = clinicPatient?.diagnosisType || patient?.profile?.patient?.diagnosisType;
-    const diagnosisTypeLabel = DIABETES_TYPES().find(t => t.value === diagnosisType)?.label;
+    const diagnosisTypeLabel = DIABETES_TYPES().find(t => t.value === diagnosisType)?.label; // eslint-disable-line new-cap
 
     // Tags
     const patientTagIds = clinicPatient?.tags || [];
