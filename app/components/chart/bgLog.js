@@ -477,7 +477,7 @@ class BgLog extends Component {
       e.preventDefault();
     }
 
-    this.props.onClickExport(this.props.pdf);
+    this.props.onClickExport();
   };
 
   handleClickPrint = e => {
