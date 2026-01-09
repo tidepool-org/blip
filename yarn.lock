@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.53.0-web-4273-filter-incorrect-bgm-data.1":
-  version: 1.53.0-web-4273-filter-incorrect-bgm-data.1
-  resolution: "@tidepool/viz@npm:1.53.0-web-4273-filter-incorrect-bgm-data.1"
+"@tidepool/viz@npm:1.53.0-web-4273-filter-incorrect-bgm-data.2":
+  version: 1.53.0-web-4273-filter-incorrect-bgm-data.2
+  resolution: "@tidepool/viz@npm:1.53.0-web-4273-filter-incorrect-bgm-data.2"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 2c9e58f4ee58a203718616fc8f2bf6de4c80b9dc50e15a20d739d8c876d0426f72338b048b5da0dc7a15cbd33157ebeb673d896829545a47164ae547db9e6ba8
+  checksum: b1a95fa5b6854585c73021e311f6f83b300e94788aab7e6ca055b38486db68399636334541eaa265d08eb26cd4de3add26d929dbb60491630000653c3c03214d
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.53.0-web-4273-filter-incorrect-bgm-data.1
+    "@tidepool/viz": 1.53.0-web-4273-filter-incorrect-bgm-data.2
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
