@@ -5,6 +5,8 @@ import { providers } from '../../components/datasources/DataConnections';
 import * as actions from '../../redux/actions';
 import { useLocation } from 'react-router-dom';
 
+import PersonalBannerImage from './../../components/elements/Container/PersonalBanner.png'
+
 const createOAuthUrl = (api, providerName, restrictedToken) => {
   let finalUrl;
 
@@ -42,6 +44,7 @@ const VerificationWithC2C = ({ api }) => {
       height: '500px',
       border: '1px solid #888888',
       borderRadius: '8px',
+      overflow: 'hidden',
     }}>
       <Box sx={{
         height: '100px', // TODO: Fix static values
@@ -50,7 +53,8 @@ const VerificationWithC2C = ({ api }) => {
         alignItems: 'center',
         borderBottom: '1px solid #888888',
       }}>
-        HEADER
+        {/* TODO: Fix Image */}
+        <img src={PersonalBannerImage} width="100%" height="100%" />
       </Box>
 
       <Box sx={{ fontSize: 3, display: 'flex', justifyContent: 'center', margin: '24px' }}>
@@ -61,9 +65,28 @@ const VerificationWithC2C = ({ api }) => {
         First, choose which Diabetes Device you'd like to connect
       </Box>
 
-      <button onClick={() => handleClickProvider('dexcom')}>
-        Dexcom
-      </button>
+      {
+        Object.entries(providers).map(([providerName, provider]) => {
+          const { logoImage } = provider;
+
+          return (
+            <Box sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              padding: 2,
+              margin: 2,
+              border: '1px solid black',
+            }}>
+              {/* TODO: Fix Image */}
+              <img src={logoImage} />
+
+              <button onClick={() => handleClickProvider(providerName)}>
+                Connect
+              </button>
+            </Box>
+          );
+        })
+      }
     </Box>
   );
 };
