@@ -149,10 +149,10 @@ export const ClinicWorkspaceHeader = (props) => {
 
           {clinic?.ui?.display?.patientCount && (
             <Flex sx={{ color: 'text.primary', flexShrink: 0, gap: 3, fontSize: 1, alignItems: 'flex-end' }}>
-              <Text sx={{ display: 'flex', alignItems: 'flex-end', gap: 1 }}>
+              <Text id="clinicPatientCount" sx={{ display: 'flex', alignItems: 'flex-end', gap: 1 }}>
                 {t('Patient Accounts:')}
 
-                <Text sx={{ fontWeight: 'bold' }}>{clinic.patientCounts?.total}</Text>
+                <Text sx={{ fontWeight: 'bold' }}>{clinic.patientCounts?.total - (clinic.patientCounts?.demo ?? 0)}</Text>
 
                 {clinic.ui.display.patientLimit && !(clinic.ui.warnings.limitReached || clinic.ui.warnings.limitApproaching) && (
                   <Text sx={{ fontSize: 0, fontWeight: 'medium' }}>

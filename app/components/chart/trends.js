@@ -24,6 +24,7 @@ import {
   containers as vizContainers,
   utils as vizUtils,
 } from '@tidepool/viz';
+import { CHART_DATE_BOUND_FORMAT } from '../elements/DateRangePicker';
 
 const TrendsContainer = vizContainers.TrendsContainer;
 const getTimezoneFromTimePrefs = vizUtils.datetime.getTimezoneFromTimePrefs;
@@ -40,6 +41,7 @@ const {
 const Trends = withTranslation()(class Trends extends PureComponent {
   static propTypes = {
     chartPrefs: PropTypes.object.isRequired,
+    copyAsTextMetadata: PropTypes.object,
     currentPatientInViewId: PropTypes.string.isRequired,
     data: PropTypes.object.isRequired,
     initialDatetimeLocation: PropTypes.string,
@@ -128,7 +130,8 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     const isMidnight = (dateMoment?.hours() === 0 && dateMoment?.minutes() === 0) ||
                        (dateMoment?.hours() === 23 && dateMoment?.minutes() === 59);
 
-    const dtMask = isMidnight ? 'MMM D, YYYY' : 'MMM D, YYYY (h:mm A)';
+    const dtMask = isMidnight ? CHART_DATE_BOUND_FORMAT.DATE_ONLY
+                              : CHART_DATE_BOUND_FORMAT.DATE_AND_TIME;
 
     return dateMoment.format(dtMask);
   }
@@ -190,7 +193,7 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     if (prefs.trends.activeDomain === '1 week' && prefs.trends.extentSize === 7) {
       return;
     }
-    const current = new Date(this.refs.chart.getCurrentDay());
+    const current = new Date(this.refs.chart.getCurrentChartTime());
     prefs.trends.activeDomain = '1 week';
     prefs.trends.extentSize = 7;
     this.props.updateChartPrefs(prefs);
@@ -207,7 +210,7 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     if (prefs.trends.activeDomain === '2 weeks' && prefs.trends.extentSize === 14) {
       return;
     }
-    const current = new Date(this.refs.chart.getCurrentDay());
+    const current = new Date(this.refs.chart.getCurrentChartTime());
     prefs.trends.activeDomain = '2 weeks';
     prefs.trends.extentSize = 14;
     this.props.updateChartPrefs(prefs);
@@ -224,7 +227,7 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     if (prefs.trends.activeDomain === '4 weeks' && prefs.trends.extentSize === 28) {
       return;
     }
-    const current = new Date(this.refs.chart.getCurrentDay());
+    const current = new Date(this.refs.chart.getCurrentChartTime());
     prefs.trends.activeDomain = '4 weeks';
     prefs.trends.extentSize = 28;
     this.props.updateChartPrefs(prefs);
@@ -274,8 +277,19 @@ const Trends = withTranslation()(class Trends extends PureComponent {
   };
 
   handleDatetimeLocationChange(datetimeLocationEndpoints) {
+    const timePrefs = _.get(this.props, 'data.timePrefs', {});
+    const startHourCeiling = getLocalizedCeiling(datetimeLocationEndpoints[0], timePrefs, 'hour');
+    const endHourCeiling = getLocalizedCeiling(datetimeLocationEndpoints[1], timePrefs, 'hour');
+
+    const datetimeLocation = moment.utc(endHourCeiling.valueOf()).toISOString();
+
+    const updatedDatetimeLocationEndpoints = [
+      moment.utc(startHourCeiling.valueOf()).toISOString(),
+      moment.utc(endHourCeiling.valueOf()).toISOString(),
+    ];
+
     this.setState({
-      title: this.getTitle(datetimeLocationEndpoints),
+      title: this.getTitle(updatedDatetimeLocationEndpoints),
     });
 
     // Update the chart date range in the data component.
@@ -283,11 +297,6 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     if (this.state.debouncedDateRangeUpdate) {
       this.state.debouncedDateRangeUpdate.cancel();
     }
-
-    const timePrefs = _.get(this.props, 'data.timePrefs', {});
-    const hourCeiling = getLocalizedCeiling(datetimeLocationEndpoints[1], timePrefs, 'hour');
-
-    const datetimeLocation = moment.utc(hourCeiling.valueOf()).toISOString();
 
     const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 250);
     debouncedDateRangeUpdate(datetimeLocation);
@@ -586,7 +595,14 @@ const Trends = withTranslation()(class Trends extends PureComponent {
                   <ClipboardButton
                     buttonTitle={t('For email or notes')}
                     onSuccess={this.handleCopyTrendsClicked}
-                    getText={trendsText.bind(this, this.props.patient, this.props.data, this.props.stats, this.props.chartPrefs[this.chartType])}
+                    getText={trendsText.bind(
+                      this,
+                      this.props.patient,
+                      this.props.data,
+                      this.props.stats,
+                      this.props.chartPrefs[this.chartType],
+                      this.props.copyAsTextMetadata,
+                    )}
                   />
                   <BgSourceToggle
                     bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
