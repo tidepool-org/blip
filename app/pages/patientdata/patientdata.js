@@ -450,8 +450,6 @@ export const PatientDataClass = createReactClass({
       <ExportModal
         id="export-dialog"
         api={this.props.api}
-        patient={this.props.patient}
-        user={this.props.user}
         open={this.state.exportDialogOpen}
         onClose={this.closeExportDialog}
         trackMetric={this.props.trackMetric}
