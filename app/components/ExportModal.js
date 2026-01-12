@@ -27,7 +27,7 @@ const EXPORT_FORMAT = {
 
 const getLastNDays = (days) => {
   let endDate = moment().format(JS_DATE_FORMAT);
-  let startDate = moment().subtract(days - 1, 'days').format(JS_DATE_FORMAT);
+  let startDate = moment().subtract(days, 'days').format(JS_DATE_FORMAT);
 
   return { startDate, endDate };
 };
@@ -86,7 +86,7 @@ export const ExportModal = ({
     }
 
     const startDate = moment(start).toISOString();
-    const endDate = moment(end).toISOString();
+    const endDate = moment(end).add(1, 'days').subtract(1, 'ms').toISOString();
 
     api.tidepool.getExportDataURL(
       patient.userid,
