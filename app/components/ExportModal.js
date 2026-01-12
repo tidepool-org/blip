@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { selectUser, selectPatient } from '../core/selectors';
 import { useTranslation } from 'react-i18next';
