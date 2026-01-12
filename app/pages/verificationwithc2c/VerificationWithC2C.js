@@ -1,9 +1,11 @@
-import React from 'react';
-import { useDispatch } from 'react-redux';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 import { Box } from 'theme-ui';
 import { providers } from '../../components/datasources/DataConnections';
 import * as actions from '../../redux/actions';
 import { useLocation } from 'react-router-dom';
+import { usePrevious } from '../../core/hooks';
 
 import PersonalBannerImage from './../../components/elements/Container/PersonalBanner.png'
 
@@ -21,9 +23,32 @@ const createOAuthUrl = (api, providerName, restrictedToken) => {
   return finalUrl;
 };
 
+const useRedirectOnC2CConnectSuccess = () => {
+  const REDIRECT_PATH = '/verification-with-login';
+
+  const history = useHistory();
+  const { search } = useLocation();
+
+  const justConnectedDataSourceProviderName = useSelector(state => state.blip.justConnectedDataSourceProviderName);
+  const previousJustConnectedDataSourceProviderName = usePrevious(justConnectedDataSourceProviderName);
+
+  useEffect(() => {
+    if (justConnectedDataSourceProviderName && !previousJustConnectedDataSourceProviderName) {
+
+      console.log('@@@ SUCCESS');
+      console.log('@@@ REDIRECTING');
+
+      history.push(`${REDIRECT_PATH}${search}`);
+    }
+  }, [justConnectedDataSourceProviderName, previousJustConnectedDataSourceProviderName, history, search]);
+};
+
 const VerificationWithC2C = ({ api }) => {
   const dispatch = useDispatch();
   const { search } = useLocation();
+
+  // Listen for a successful C2C connection. If there is one, redirect to next login step.
+  useRedirectOnC2CConnectSuccess();
 
   const handleClickProvider = (providerName) => {
     const queryParams = new URLSearchParams(search);
