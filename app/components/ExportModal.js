@@ -49,7 +49,7 @@ export const ExportModal = ({
   const { t } = useTranslation();
   const { timezoneName = 'UTC' } = timePrefs;
 
-  const endOfToday = useMemo(() => moment.utc().tz(timezoneName).endOf('day').subtract(1, 'ms'), [open]);
+  const endOfToday = moment.utc().tz(timezoneName).endOf('day').subtract(1, 'ms');
 
   const patient = useSelector(state => selectPatient(state));
   const user = useSelector(state => selectUser(state));
