@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
+import { selectUser, selectPatient } from '../core/selectors';
 import { useTranslation } from 'react-i18next';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
@@ -40,12 +42,13 @@ const datesMatchPreset = (start, end, days) => {
 
 export const ExportModal = ({
   api,
-  patient,
-  user,
   onClose,
   trackMetric,
 }) => {
   const { t } = useTranslation();
+
+  const patient = useSelector(state => selectPatient(state));
+  const user = useSelector(state => selectUser(state));
 
   const [dates, setDates] = useState(getLastNDays(DAYS_OPTIONS[0]));
   const [bgUnits, setBgUnits] = useState(get(patient, 'settings.units.bg', MGDL_UNITS));
