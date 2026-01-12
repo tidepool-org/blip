@@ -153,8 +153,8 @@ export const ExportModal = ({
               endDateId="export-end-date"
               onDatesChange={handleDatesChange}
               isOutsideRange={day => {
-                const startMoment = dates.startDate ? moment(dates.startDate) : null;
-                const endMoment = dates.endDate ? moment(dates.endDate) : null;
+                const startMoment = dates.startDate ? moment.utc(dates.startDate) : null;
+                const endMoment = dates.endDate ? moment.utc(dates.endDate) : null;
 
                 return (
                   moment().diff(day) <= 0 ||
