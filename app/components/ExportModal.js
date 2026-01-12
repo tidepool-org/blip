@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { selectUser, selectPatient } from '../core/selectors';
 import { useTranslation } from 'react-i18next';
@@ -44,8 +44,12 @@ export const ExportModal = ({
   api,
   onClose,
   trackMetric,
+  timePrefs = {},
 }) => {
   const { t } = useTranslation();
+  const { timezoneName = 'UTC' } = timePrefs;
+
+  const endOfToday = useMemo(() => moment.utc().tz(timezoneName).endOf('day').subtract(1, 'ms'), [open]);
 
   const patient = useSelector(state => selectPatient(state));
   const user = useSelector(state => selectUser(state));
@@ -160,7 +164,7 @@ export const ExportModal = ({
                 const endMoment = dates.endDate ? moment.utc(dates.endDate) : null;
 
                 return (
-                  moment().diff(day) <= 0 ||
+                  endOfToday.diff(day) < 0 ||
                   (endMoment && endMoment.diff(day, 'days') >= MAX_DAYS) ||
                   (startMoment && startMoment.diff(day, 'days') <= -MAX_DAYS)
                 );

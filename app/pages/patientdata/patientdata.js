@@ -453,6 +453,7 @@ export const PatientDataClass = createReactClass({
         open={this.state.exportDialogOpen}
         onClose={this.closeExportDialog}
         trackMetric={this.props.trackMetric}
+        timePrefs={this.state.timePrefs}
       />
     );
   },
