@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.53.1-rc.2":
-  version: 1.53.1-rc.2
-  resolution: "@tidepool/viz@npm:1.53.1-rc.2"
+"@tidepool/viz@npm:1.53.1-web-4279-trends-sensor.1":
+  version: 1.53.1-web-4279-trends-sensor.1
+  resolution: "@tidepool/viz@npm:1.53.1-web-4279-trends-sensor.1"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 81d22dd2456a9010eda77b3d2f4114aa3bb24dc1f0df96d5501b5639b653c53577a3e16d7208cd3a109d28f437c8baebbdd3469927298c75dd32d1e1fab5ba0e
+  checksum: f8350ae55d7510cd7da318f6e6868c4bc472fdcf34a20e946de6cfc0252fbb36055b00966c65acaab4f6b0a95f7df7be98fa95ac272617653eccd4172a549b74
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.53.1-rc.2
+    "@tidepool/viz": 1.53.1-web-4279-trends-sensor.1
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
