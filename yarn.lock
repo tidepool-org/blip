@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.53.0-web-4273-filter-incorrect-bgm-data.2":
-  version: 1.53.0-web-4273-filter-incorrect-bgm-data.2
-  resolution: "@tidepool/viz@npm:1.53.0-web-4273-filter-incorrect-bgm-data.2"
+"@tidepool/viz@npm:1.53.0-web-4272-change-bolus-filter-name-from-calculator-to-meal.1":
+  version: 1.53.0-web-4272-change-bolus-filter-name-from-calculator-to-meal.1
+  resolution: "@tidepool/viz@npm:1.53.0-web-4272-change-bolus-filter-name-from-calculator-to-meal.1"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: b1a95fa5b6854585c73021e311f6f83b300e94788aab7e6ca055b38486db68399636334541eaa265d08eb26cd4de3add26d929dbb60491630000653c3c03214d
+  checksum: 964bba2ba9dd96727b7321ca362a2ae8f2a8450e362989733dfb0e0ca81bc2a39ff7973401ff0b19e5557a819249a87f996d43e7c764e542f0fee7edc51458f8
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.53.0-web-4273-filter-incorrect-bgm-data.2
+    "@tidepool/viz": 1.53.0-web-4272-change-bolus-filter-name-from-calculator-to-meal.1
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
