@@ -99,7 +99,7 @@ describe('ExportModal', () => {
       fireEvent.click(mmollRadioButton);
       fireEvent.click(jsonRadioButton);
 
-      // Values should be changes
+      // Values should be changed
       expect(startDateInput).toHaveValue('Nov 3, 2029');
       expect(endDateInput).toHaveValue('Feb 1, 2030');
 
