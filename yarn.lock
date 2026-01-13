@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.54.0-web-4274-copy-billing.2":
-  version: 1.54.0-web-4274-copy-billing.2
-  resolution: "@tidepool/viz@npm:1.54.0-web-4274-copy-billing.2"
+"@tidepool/viz@npm:1.54.0-web-4274-copy-billing.4":
+  version: 1.54.0-web-4274-copy-billing.4
+  resolution: "@tidepool/viz@npm:1.54.0-web-4274-copy-billing.4"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 4d05b7d65828ca0bae24076fb2ee1eefa949324c3ce74cfd048441341b830423d142868d9ddb13cda30e9a12cfbe66022418cc458951258d2032fb73d21b0289
+  checksum: 421f1954349aa2e1a8ca3fb814042da6e8017c5e66f3cc1730a3c68015235b136a521d44dc333882fff012edcb9d241f3eb4705fa157b05fb06d260feb480ec2
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.54.0-web-4274-copy-billing.2
+    "@tidepool/viz": 1.54.0-web-4274-copy-billing.4
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
