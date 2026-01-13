@@ -13,7 +13,6 @@ import configureStore from 'redux-mock-store';
 import _ from 'lodash';
 
 import ExportModal from '@app/components/ExportModal';
-import userEvent from '@testing-library/user-event';
 
 describe('ExportModal', () => {
   beforeEach(() => {
