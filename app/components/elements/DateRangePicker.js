@@ -103,6 +103,8 @@ export const CHART_DATE_BOUND_FORMAT = {
 };
 
 export const getChartDateBoundDisplayFormat = (startDate, endDate) => {
+  if (!endDate) return 'MMM D, YYYY';
+
   const isStartDateMidnight = (startDate?.hours() === 0 && startDate?.minutes() === 0) ||
                               (startDate?.hours() === 23 && startDate?.minutes() >= 59);
 
