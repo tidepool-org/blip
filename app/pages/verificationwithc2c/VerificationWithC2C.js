@@ -25,26 +25,75 @@ const createOAuthUrl = (api, providerName, restrictedToken) => {
   return finalUrl;
 };
 
-const useRedirectOnC2CConnectSuccess = () => {
+const useVerificationWithLoginLink = () => {
   const REDIRECT_PATH = '/verification-with-login';
-
-  const history = useHistory();
   const { search } = useLocation();
+
+  const nextStepPath = `${REDIRECT_PATH}${search}`;
+
+  return { nextStepPath };
+};
+
+const useRedirectOnC2CConnectSuccess = () => {
+  const history = useHistory();
+  const { nextStepPath } = useVerificationWithLoginLink();
 
   const justConnectedDataSourceProviderName = useSelector(state => state.blip.justConnectedDataSourceProviderName);
   const previousJustConnectedDataSourceProviderName = usePrevious(justConnectedDataSourceProviderName);
 
   useEffect(() => {
     if (justConnectedDataSourceProviderName && !previousJustConnectedDataSourceProviderName) {
-      history.push(`${REDIRECT_PATH}${search}`);
+      history.push(nextStepPath);
     }
-  }, [justConnectedDataSourceProviderName, previousJustConnectedDataSourceProviderName, history, search]);
+  }, [justConnectedDataSourceProviderName, previousJustConnectedDataSourceProviderName, history]);
+};
+
+const StepIndicator = ({ currentStep, totalSteps }) => {
+  const INDICATOR_SIZE = '32px';
+
+  const steps = Array.from({ length: totalSteps }, (_, i) => i + 1); // create an array from 1..(total)
+
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      {steps.map(stepId => {
+        const isCurrentStep = stepId === currentStep;
+        const isLastStep = stepId === steps[steps.length - 1];
+
+        return (
+          <>
+            <Box
+              key={stepId}
+              sx={{
+                borderRadius: '50%',
+                border: `2px solid ${vizColors.blue30}`,
+                backgroundColor: isCurrentStep ? vizColors.blue30 : vizColors.white,
+                color: isCurrentStep ? vizColors.white : vizColors.blue30,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                width: INDICATOR_SIZE,
+                height: INDICATOR_SIZE,
+              }}
+            >
+              {stepId}
+            </Box>
+
+            {!isLastStep && (
+              <Box sx={{ height: 0, width: '16px', borderTop: `2px dashed ${vizColors.blue30}` }}></Box>
+            )}
+          </>
+        );
+      })}
+    </Box>
+  );
 };
 
 const VerificationWithC2C = ({ api }) => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const { search } = useLocation();
-  const { t } = useTranslation();
+  const history = useHistory();
+  const { nextStepPath } = useVerificationWithLoginLink();
 
   // Listen for a successful C2C connection. If there is one, redirect to next login step.
   useRedirectOnC2CConnectSuccess();
@@ -65,11 +114,10 @@ const VerificationWithC2C = ({ api }) => {
     <Box sx={{
       margin: '100px auto 0', // TODO: Fix static values
       width: '800px',
-      height: '500px',
       border: `1px solid ${vizColors.gray10}`,
       borderRadius: '8px',
-      overflow: 'hidden',
       backgroundColor: vizColors.white,
+      paddingBottom: 4,
     }}>
       <Box
         sx={{
@@ -94,6 +142,10 @@ const VerificationWithC2C = ({ api }) => {
         }}
       >
         {t('Welcome!')}
+      </Box>
+
+      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+        <StepIndicator currentStep={1} totalSteps={2} />
       </Box>
 
       <Box
@@ -145,7 +197,7 @@ const VerificationWithC2C = ({ api }) => {
 
         <Box mb={4}>
           <Button
-            onClick={() => {}}
+            onClick={() => history.push(nextStepPath)}
             role="button"
             sx={{
               backgroundColor: vizColors.white,
