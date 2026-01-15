@@ -412,8 +412,6 @@ api.user.createRestrictedToken = function(request, cb) {
 }
 
 api.user.createOAuthProviderAuthorization = function(provider, restrictedToken, cb) {
-  console.log('@@@ restrictedToken', restrictedToken)
-
   tidepool.createOAuthProviderAuthorization(provider, restrictedToken, cb);
 }
 

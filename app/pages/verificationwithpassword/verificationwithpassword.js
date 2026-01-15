@@ -67,12 +67,12 @@ const useSignupWorkflow = () => {
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search);
 
-  // If there is a restrictedToken in the GET params, we assume that the user
-  // is coming in from the EHR C2C flow. Otherwise, we assume they are coming
+  // If there is a restrictedToken in the params, we assume that the user is
+  // coming in from the EHR C2C flow. Otherwise, we assume they are coming
   // in from the default "Claim Your Account" email flow.
-  const restrictedToken = queryParams.get('restrictedToken');
+  const isEHRSignupWorkflow = queryParams.has('restrictedToken');
 
-  if (!!restrictedToken) return SIGNUP_WORKFLOW.EHR;
+  if (isEHRSignupWorkflow) return SIGNUP_WORKFLOW.EHR;
 
   return SIGNUP_WORKFLOW.DEFAULT;
 };
