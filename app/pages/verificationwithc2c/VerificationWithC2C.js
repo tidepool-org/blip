@@ -9,7 +9,7 @@ import * as actions from '../../redux/actions';
 import { providers } from '../../components/datasources/DataConnections';
 import { Box } from 'theme-ui';
 import Button from '../../components/elements/Button';
-import SignupWizardContainer from '../../components/SignupWizardContainer';
+import { SignupWizardContainer, SignupWizardContents } from '../../components/SignupWizard';
 
 const createOAuthUrl = (api, providerName, restrictedToken) => {
   let finalUrl;
@@ -113,49 +113,51 @@ const VerificationWithC2C = ({ api }) => {
 
   return (
     <SignupWizardContainer>
-      <Box sx={styleProps.titleContainer}>
-        {t('Welcome!')}
-      </Box>
+      <SignupWizardContents>
+        <Box sx={styleProps.titleContainer}>
+          {t('Welcome!')}
+        </Box>
 
-      <Box sx={styleProps.subtitleContainer}>
-        {t('Choose how you manage your diabetes')}
-      </Box>
+        <Box sx={styleProps.subtitleContainer}>
+          {t('Choose how you manage your diabetes')}
+        </Box>
 
-      <Box>
         <Box>
-          {
-            Object.entries(providers).map(([providerName, provider]) => {
-              const { logoImage } = provider;
+          <Box>
+            {
+              Object.entries(providers).map(([providerName, provider]) => {
+                const { logoImage } = provider;
 
-              return (
-                <Box sx={styleProps.providerContainer}>
-                  {/* TODO: Fix Image */}
-                  <img src={logoImage} alt={providerName} style={{ objectFit: 'contain' }}/>
+                return (
+                  <Box sx={styleProps.providerContainer}>
+                    {/* TODO: Fix Image */}
+                    <img src={logoImage} alt={providerName} style={{ objectFit: 'contain' }}/>
 
-                  <Button
-                    onClick={() => handleClickProvider(providerName)}
-                    variant="textPrimary"
-                    sx={styleProps.providerConnectButton}
-                  >
-                    {t('Connect')}
-                  </Button>
-                </Box>
-              );
-            })
-          }
+                    <Button
+                      onClick={() => handleClickProvider(providerName)}
+                      variant="textPrimary"
+                      sx={styleProps.providerConnectButton}
+                    >
+                      {t('Connect')}
+                    </Button>
+                  </Box>
+                );
+              })
+            }
+          </Box>
+
+          <Button
+            onClick={() => history.push(nextStepPath)}
+            sx={styleProps.skipStepButton}
+          >
+            {t('I have a different device')}
+          </Button>
+
+          <Box sx={styleProps.c2cInfoContainer}>
+            {t('When you connect an account, data can flow into Tidepool without any extra effort. This helps your care team provide you with the best care. Only available in the US at this time. ')}
+          </Box>
         </Box>
-
-        <Button
-          onClick={() => history.push(nextStepPath)}
-          sx={styleProps.skipStepButton}
-        >
-          {t('I have a different device')}
-        </Button>
-
-        <Box sx={styleProps.c2cInfoContainer}>
-          {t('When you connect an account, data can flow into Tidepool without any extra effort. This helps your care team provide you with the best care. Only available in the US at this time. ')}
-        </Box>
-      </Box>
+      </SignupWizardContents>
     </SignupWizardContainer>
   );
 };

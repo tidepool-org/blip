@@ -1,10 +1,10 @@
 import React from 'react';
-import { Box } from 'theme-ui';
+import { Box, Flex } from 'theme-ui';
 import { colors as vizColors } from '@tidepool/viz';
 
 import PersonalBannerImage from '../../components/elements/Container/PersonalBanner.png';
 
-const SignupWizardContainer = ({ children }) => {
+export const SignupWizardContainer = ({ children }) => {
 
   return (
     <Box sx={{
@@ -13,7 +13,6 @@ const SignupWizardContainer = ({ children }) => {
       border: `1px solid ${vizColors.gray10}`,
       borderRadius: '8px',
       backgroundColor: vizColors.white,
-      paddingBottom: 4,
     }}>
       <Box
         sx={{
@@ -28,11 +27,31 @@ const SignupWizardContainer = ({ children }) => {
         <img src={PersonalBannerImage} width="100%" height="100%" />
       </Box>
 
-      <Box px={4} py={4}>
-        {children}
-      </Box>
+      <Box>{children}</Box>
     </Box>
   );
 };
 
-export default SignupWizardContainer;
+export const SignupWizardContents = ({ children }) => {
+  return <Box px={4} py={4}>{ children }</Box>;
+};
+
+export const SignupWizardActions = ({ children }) => {
+  return (
+    <Flex
+      sx={{
+        py: 4,
+        px: 4,
+        borderTop: `1px solid ${vizColors.gray10}`,
+        justifyContent: 'flex-end',
+      }}
+    >
+        { children }
+    </Flex>
+  );
+};
+
+export default {
+  SignupWizardContainer,
+  SignupWizardContents,
+};

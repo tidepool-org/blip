@@ -13,10 +13,15 @@ import _ from 'lodash';
 import utils from '../../core/utils';
 import { validateForm } from '../../core/validation';
 import { dateRegex } from '../../core/clinicUtils';
-import SignupWizardContainer from '../../components/SignupWizardContainer/SignupWizardContainer';
 import TextInput from '../../components/elements/TextInput';
 import { Box } from 'theme-ui';
 import Button from '../../components/elements/Button';
+
+import {
+  SignupWizardContainer,
+  SignupWizardContents,
+  SignupWizardActions,
+} from '../../components/SignupWizard';
 
 const styleProps = {
   titleContainer: {
@@ -32,6 +37,12 @@ const styleProps = {
     justifyContent: 'center',
     color: vizColors.blue50,
     my: 2,
+  },
+  inputFieldContainer: {
+    py: 2,
+  },
+  confirmButton: {
+    minWidth: '160px',
   },
 };
 
@@ -116,6 +127,7 @@ const VerificationWithPassword = ({
 
   return (
     <SignupWizardContainer>
+      <SignupWizardContents>
         <Box sx={styleProps.titleContainer}>
           {t('Optional: Setup Your Account')}
         </Box>
@@ -124,7 +136,7 @@ const VerificationWithPassword = ({
           {t('Set a password to access your data from home')}
         </Box>
 
-        <Box>
+        <Box sx={styleProps.inputFieldContainer}>
           <TextInput // Password Field
             type="password"
             name="password"
@@ -135,7 +147,9 @@ const VerificationWithPassword = ({
             error={validationErrors.password}
             width="100%"
           />
+        </Box>
 
+        <Box sx={styleProps.inputFieldContainer}>
           <TextInput // Confirm Password Field
             type="password"
             name="passwordConfirm"
@@ -146,7 +160,9 @@ const VerificationWithPassword = ({
             error={validationErrors.passwordConfirm}
             width="100%"
           />
+        </Box>
 
+        <Box sx={styleProps.inputFieldContainer}>
           <InputMask // Birthdate Field
             mask="99/99/9999"
             maskPlaceholder="mm/dd/yyyy"
@@ -165,20 +181,22 @@ const VerificationWithPassword = ({
             />
           </InputMask>
         </Box>
+      </SignupWizardContents>
 
-        <Box>
-          <Button
-            id="verificationWithPasswordConfirm"
-            variant="primary"
-            onClick={handleSubmit}
-            processing={working}
-            disabled={disabled}
-          >
-            {working ? t('Setting up...') : t('Confirm')}
-          </Button>
+      <SignupWizardActions>
+        <Button
+          id="verificationWithPasswordConfirm"
+          variant="primary"
+          onClick={handleSubmit}
+          processing={working}
+          disabled={disabled}
+          sx={styleProps.confirmButton}
+        >
+          {working ? t('Setting up...') : t('Confirm')}
+        </Button>
 
-          <Notification notification={notification || propsNotification}/>
-        </Box>
+        <Notification notification={notification || propsNotification}/>
+      </SignupWizardActions>
     </SignupWizardContainer>
   );
 };
