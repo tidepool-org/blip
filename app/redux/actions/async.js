@@ -86,7 +86,7 @@ export function signup(api, accountDetails) {
  * @param  {String} signupKey
  * @param  {String} signupEmail
  */
-export function confirmSignup(api, signupKey, signupEmail) {
+export function confirmSignup(api, signupKey, signupEmail, restrictedToken = null) {
   return (dispatch) => {
     dispatch(sync.confirmSignupRequest());
 
@@ -100,12 +100,16 @@ export function confirmSignup(api, signupKey, signupEmail) {
           createActionError(errMsg, err), err, signupKey
         ));
         if (err.status === 409) {
-          dispatch(push(`/verification-with-c2c?signupKey=${signupKey}&signupEmail=${signupEmail}`));
+          if (restrictedToken) {
+            dispatch(push(`/verification-with-c2c?signupKey=${signupKey}&signupEmail=${signupEmail}&restrictedToken=${restrictedToken}`));
+          } else {
+            dispatch(push(`/verification-with-login?signupKey=${signupKey}&signupEmail=${signupEmail}`));
+          }
         }
       } else {
-        dispatch(sync.confirmSignupSuccess())
+        dispatch(sync.confirmSignupSuccess());
       }
-    })
+    });
   };
 }
 

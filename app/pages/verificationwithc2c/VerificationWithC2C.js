@@ -34,9 +34,8 @@ const useVerificationWithLoginLink = () => {
   return { nextStepPath };
 };
 
-const useRedirectOnC2CConnectSuccess = () => {
+const useRedirectOnC2CConnectSuccess = ({ nextStepPath }) => {
   const history = useHistory();
-  const { nextStepPath } = useVerificationWithLoginLink();
 
   const justConnectedDataSourceProviderName = useSelector(state => state.blip.justConnectedDataSourceProviderName);
   const previousJustConnectedDataSourceProviderName = usePrevious(justConnectedDataSourceProviderName);
@@ -51,7 +50,7 @@ const useRedirectOnC2CConnectSuccess = () => {
 const StepIndicator = ({ currentStep, totalSteps }) => {
   const INDICATOR_SIZE = '32px';
 
-  const steps = Array.from({ length: totalSteps }, (_, i) => i + 1); // create an array from 1..(total)
+  const steps = Array.from({ length: totalSteps }, (_, i) => i + 1); // create an array from 1..(totalSteps)
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -96,7 +95,7 @@ const VerificationWithC2C = ({ api }) => {
   const { nextStepPath } = useVerificationWithLoginLink();
 
   // Listen for a successful C2C connection. If there is one, redirect to next login step.
-  useRedirectOnC2CConnectSuccess();
+  useRedirectOnC2CConnectSuccess({ nextStepPath });
 
   const handleClickProvider = (providerName) => {
     const queryParams = new URLSearchParams(search);
