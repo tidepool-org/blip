@@ -14,6 +14,7 @@ import utils from '../../core/utils';
 import LoginLogo from '../../components/loginlogo/loginlogo';
 import SimpleForm from '../../components/simpleform';
 import { validateForm } from '../../core/validation';
+import SignupWizardContainer from '../../components/SignupWizardContainer/SignupWizardContainer';
 
 var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 
@@ -80,25 +81,18 @@ export let VerificationWithPassword = withTranslation()(class extends React.Comp
   };
 
   render() {
-    const { t } = this.props;
-
     return (
-      <div className="VerificationWithPassword">
-        <LoginLogo />
-        <div className="container-small-outer VerificationWithPassword-form-container">
-          <div className="container-small-inner VerificationWithPassword-form-box">
-            <div className="VerificationWithPassword-title">{t('Verify your account')}</div>
-            <SimpleForm
-              inputs={this.formInputs()}
-              formValues={this.state.formValues}
-              validationErrors={this.state.validationErrors}
-              submitButtonText={this.getSubmitButtonText()}
-              submitDisabled={this.props.working}
-              onSubmit={this.handleSubmit}
-              notification={this.state.notification || this.props.notification} />
-          </div>
-        </div>
-      </div>
+      <SignupWizardContainer>
+        <SimpleForm
+          inputs={this.formInputs()}
+          formValues={this.state.formValues}
+          validationErrors={this.state.validationErrors}
+          submitButtonText={this.getSubmitButtonText()}
+          submitDisabled={this.props.working}
+          onSubmit={this.handleSubmit}
+          notification={this.state.notification || this.props.notification}
+        />
+      </SignupWizardContainer>
     );
   }
 

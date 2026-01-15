@@ -1,15 +1,15 @@
 import React, { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useLocation } from 'react-router-dom';
-import { Box } from 'theme-ui';
-import Button from '../../components/elements/Button';
-import { providers } from '../../components/datasources/DataConnections';
-import * as actions from '../../redux/actions';
 import { usePrevious } from '../../core/hooks';
 import { colors as vizColors } from '@tidepool/viz';
+import * as actions from '../../redux/actions';
 
-import PersonalBannerImage from './../../components/elements/Container/PersonalBanner.png'
-import { useTranslation } from 'react-i18next';
+import { providers } from '../../components/datasources/DataConnections';
+import { Box } from 'theme-ui';
+import Button from '../../components/elements/Button';
+import SignupWizardContainer from '../../components/SignupWizardContainer';
 
 const createOAuthUrl = (api, providerName, restrictedToken) => {
   let finalUrl;
@@ -110,27 +110,7 @@ const VerificationWithC2C = ({ api }) => {
   };
 
   return (
-    <Box sx={{
-      margin: '100px auto 0', // TODO: Fix static values
-      width: '800px',
-      border: `1px solid ${vizColors.gray10}`,
-      borderRadius: '8px',
-      backgroundColor: vizColors.white,
-      paddingBottom: 4,
-    }}>
-      <Box
-        sx={{
-          height: '100px', // TODO: Fix static values
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          borderBottom: `1px solid ${vizColors.gray10}`,
-        }}
-      >
-        {/* TODO: Fix Image */}
-        <img src={PersonalBannerImage} width="100%" height="100%" />
-      </Box>
-
+    <SignupWizardContainer>
       <Box
         sx={{
           fontSize: 3,
@@ -215,8 +195,7 @@ const VerificationWithC2C = ({ api }) => {
           {t('When you connect an account, data can flow into Tidepool without any extra effort. This helps your care team provide you with the best care. Only available in the US at this time. ')}
         </Box>
       </Box>
-    </Box>
-
+    </SignupWizardContainer>
   );
 };
 
