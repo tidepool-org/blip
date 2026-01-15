@@ -1,203 +1,164 @@
 import PropTypes from 'prop-types';
-import React from 'react';
-import { connect } from 'react-redux';
-import { withTranslation } from 'react-i18next';
-import { bindActionCreators } from 'redux';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+import InputMask from 'react-input-mask';
+import { useLocation } from 'react-router-dom';
 
 import * as actions from '../../redux/actions';
-import * as errorMessages from '../../redux/constants/errorMessages';
 
 import _ from 'lodash';
-import config from '../../config';
 
 import utils from '../../core/utils';
-import LoginLogo from '../../components/loginlogo/loginlogo';
-import SimpleForm from '../../components/simpleform';
 import { validateForm } from '../../core/validation';
+import { dateRegex } from '../../core/clinicUtils';
 import SignupWizardContainer from '../../components/SignupWizardContainer/SignupWizardContainer';
+import TextInput from '../../components/elements/TextInput';
 
 var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 
-export let VerificationWithPassword = withTranslation()(class extends React.Component {
-  static propTypes = {
-    acknowledgeNotification: PropTypes.func.isRequired,
-    api: PropTypes.object.isRequired,
-    notification: PropTypes.object,
-    signupEmail: PropTypes.string.isRequired,
-    signupKey: PropTypes.string.isRequired,
-    onSubmit: PropTypes.func.isRequired,
-    trackMetric: PropTypes.func.isRequired,
-    working: PropTypes.bool.isRequired
+const Notification = ({ notification = null }) => {
+  if (!notification?.message) return null;
+
+  const type = notification.type || 'alert';
+  const className = [
+    'simple-form-notification',
+    'simple-form-notification-' + type,
+    'js-form-notification',
+  ].join(' ');
+
+  return <div className={className}>{notification.message}</div>;
+};
+
+const VerificationWithPassword = ({
+  api,
+  fetchingUser,
+  user,
+  trackMetric = _.noop,
+}) => {
+  const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const location = useLocation();
+
+  const signupKey = utils.getSignupKey(location);
+  const signupEmail = utils.getSignupEmail(location);
+
+  const propsNotification = useSelector(state => state.blip.working.verifyingCustodial.notification);
+  const working = useSelector(state => state.blip.working.verifyingCustodial.inProgress);
+
+  useEffect(() => {
+    trackMetric('VCA Home Verification - Screen Displayed');
+  }, []);
+
+  const [formValues, setFormValues] = useState({});
+  const [validationErrors, setValidationErrors] = useState({});
+  const [notification, setNotification] = useState(null);
+
+  const disabled = fetchingUser && !user;
+
+  const handleInputChange = (name, value) => {
+    setFormValues(prevState => ({ ...prevState, [name]: value }));
   };
 
-  constructor(props) {
-    super(props);
-    var formValues = {};
-
-    this.state = {
-      loading: true,
-      formValues: formValues,
-      validationErrors: {},
-      notification: null
-    };
-  }
-
-  formInputs = () => {
-    const { t } = this.props;
-    return [
-      { name: 'birthday', label: t('Birthday'), type: 'datepicker' },
-      { name: 'password', label: t('Create Password'), type: 'password', placeholder: '' },
-      { name: 'passwordConfirm', label: t('Confirm password'), type: 'password', placeholder: '' }
-    ];
+  const resetFormStateBeforeSubmit = (formValues) => {
+    setFormValues(formValues);
+    setValidationErrors({});
+    setNotification(null);
   };
 
-  UNSAFE_componentWillMount() {
-    this.setState({ loading: false });
-  }
+  const validateFormValues = (formValues) => {
+    const [year, month, day] = formValues.birthday?.split('-');
+    const birthdayForValidation = { year, month, day };
 
-  componentDidMount() {
-    if (this.props.trackMetric) {
-      this.props.trackMetric('VCA Home Verification - Screen Displayed');
-    }
-  }
-
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    if (_.get(this.props, 'notification.message', null) === null &&
-        _.get(nextProps, 'notification.message') === errorMessages.ERR_BIRTHDAY_MISMATCH) {
-      this.props.trackMetric('VCA Home Verification - Birthday Mismatch')
-    }
-  }
-
-  isFormDisabled = () => {
-    return (this.props.fetchingUser && !this.props.user);
-  };
-
-  getSubmitButtonText = () => {
-    const { t } = this.props;
-    if (this.props.working) {
-      return t('Setting up...');
-    }
-    return t('Confirm');
-  };
-
-  render() {
-    return (
-      <SignupWizardContainer>
-        <SimpleForm
-          inputs={this.formInputs()}
-          formValues={this.state.formValues}
-          validationErrors={this.state.validationErrors}
-          submitButtonText={this.getSubmitButtonText()}
-          submitDisabled={this.props.working}
-          onSubmit={this.handleSubmit}
-          notification={this.state.notification || this.props.notification}
-        />
-      </SignupWizardContainer>
-    );
-  }
-
-  handleSubmit = (formValues) => {
-    var self = this;
-
-    if (this.props.working) {
-      return;
-    }
-
-    this.resetFormStateBeforeSubmit(formValues);
-
-    var validationErrors = this.validateFormValues(formValues);
-
-    if (!_.isEmpty(validationErrors)) {
-      return;
-    }
-
-    formValues = this.prepareFormValuesForSubmit(formValues);
-    this.props.onSubmit(this.props.api, this.props.signupKey, this.props.signupEmail, formValues.birthday, formValues.password);
-  };
-
-  resetFormStateBeforeSubmit = (formValues) => {
-    this.setState({
-      formValues: formValues,
-      validationErrors: {},
-      notification: null
-    });
-  };
-
-  validateFormValues = (formValues) => {
-    const { t } = this.props;
-    var form = [
-      { type: 'date', name: 'birthday', label: t('birthday'), value: formValues.birthday },
+    const form = [
+      { type: 'date', name: 'birthday', label: t('birthday'), value: birthdayForValidation },
       { type: 'password', name: 'password', label: t('password'), value: formValues.password},
       { type: 'confirmPassword', name: 'passwordConfirm', label: t('confirm password'), value: formValues.passwordConfirm, prerequisites: { password: formValues.password } }
     ];
-    var validationErrors = validateForm(form, true);
+    const validationErrors = validateForm(form, true);
 
     if (!_.isEmpty(validationErrors)) {
-      this.setState({
-        validationErrors: validationErrors,
-        notification: {
-          type: 'error',
-          message: t('Some entries are invalid.')
-        }
-      });
+      setValidationErrors({ validationErrors });
+      setNotification({ type: 'error', message: t('Some entries are invalid.')});
     }
 
     return validationErrors;
   };
 
-  handleInputChange = (attributes) => {
-    var key = attributes.name;
-    var value = attributes.value;
-    if (!key) {
-      return;
-    }
+  const handleSubmit = (evt) => {
+    if (evt) evt.preventDefault();
 
-    var formValues = _.clone(this.state.formValues);
-    formValues[key] = value;
-    this.setState({formValues: formValues});
+    if (working) return;
+
+    const formValuesToSubmit = { ...formValues };
+
+    resetFormStateBeforeSubmit(formValuesToSubmit);
+    const validationErrors = validateFormValues(formValuesToSubmit);
+
+    if (!_.isEmpty(validationErrors)) return;
+
+    const { birthday, password } = formValues;
+    dispatch(actions.async.verifyCustodial(api, signupKey, signupEmail, birthday, password));
   };
 
-  makeRawDateString = (dateObj) => {
+  return (
+    <SignupWizardContainer>
+      <form className="simple-form">
+        <div className="simple-form-inputs">
+          <InputMask
+            mask="99/99/9999"
+            maskPlaceholder="mm/dd/yyyy"
+            value={(formValues.birthday || '').replace(dateRegex, '$2/$3/$1')}
+            const onChange={(e) => handleInputChange('birthday', e.target.value.replace(dateRegex, '$3-$1-$2'))}
+            onBlur={(e) => handleInputChange('birthday', e.target.value.replace(dateRegex, '$3-$1-$2'))}
+            disabled={disabled}
+          >
+            <TextInput
+              name="birthday"
+              label={t('Birthday')}
+              placeholder="mm/dd/yyyy"
+              variant="condensed"
+              error={validationErrors.birthday}
+              width="100%"
+            />
+          </InputMask>
 
-    var mm = ''+(parseInt(dateObj.month) + 1); //as a string, add 1 because 0-indexed
-    mm = (mm.length === 1) ? '0'+ mm : mm;
-    var dd = (dateObj.day.length === 1) ? '0'+dateObj.day : dateObj.day;
+          <TextInput
+            type="password"
+            name="password"
+            label={t('Create Password')}
+            value={formValues.password || ''}
+            onChange={(e) => handleInputChange('password', e.target.value)}
+            disabled={disabled}
+            error={validationErrors.password}
+            width="100%"
+          />
 
-    return dateObj.year+'-'+mm+'-'+dd;
-  };
+          <TextInput
+            type="password"
+            name="passwordConfirm"
+            label={t('Confirm password')}
+            value={formValues.passwordConfirm || ''}
+            onChange={(e) => handleInputChange('passwordConfirm', e.target.value)}
+            disabled={disabled}
+            error={validationErrors.passwordConfirm}
+            width="100%"
+          />
+        </div>
 
-  prepareFormValuesForSubmit = (formValues) => {
-    return {
-      birthday: this.makeRawDateString(formValues.birthday),
-      password: formValues.password
-    };
-  };
-});
-
-/**
- * Expose "Smart" Component that is connect-ed to Redux
- */
-
-export function mapStateToProps(state) {
-  return {
-    notification: state.blip.working.verifyingCustodial.notification,
-    working: state.blip.working.verifyingCustodial.inProgress
-  };
-}
-
-let mapDispatchToProps = dispatch => bindActionCreators({
-  onSubmit: actions.async.verifyCustodial,
-  acknowledgeNotification: actions.sync.acknowledgeNotification
-}, dispatch);
-
-let mergeProps = (stateProps, dispatchProps, ownProps) => {
-  return Object.assign({}, stateProps, dispatchProps, {
-    configuredInviteKey: config.INVITE_KEY,
-    signupEmail: utils.getSignupEmail(ownProps.location),
-    signupKey: utils.getSignupKey(ownProps.location),
-    trackMetric: ownProps.trackMetric,
-    api: ownProps.api,
-  });
+        <div className="simple-form-action-group">
+          <button
+            className="simple-form-submit btn btn-primary js-form-submit"
+            onClick={handleSubmit}
+            disabled={disabled || working}
+          >
+            {working ? t('Setting up...') : t('Confirm')}
+          </button>
+          <Notification notification={notification || propsNotification}/>
+        </div>
+      </form>
+    </SignupWizardContainer>
+  );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(VerificationWithPassword);
+export default VerificationWithPassword;
