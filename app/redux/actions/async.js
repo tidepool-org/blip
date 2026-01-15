@@ -103,7 +103,7 @@ export function confirmSignup(api, signupKey, signupEmail, restrictedToken = nul
           if (restrictedToken) {
             dispatch(push(`/verification-with-c2c?signupKey=${signupKey}&signupEmail=${signupEmail}&restrictedToken=${restrictedToken}`));
           } else {
-            dispatch(push(`/verification-with-login?signupKey=${signupKey}&signupEmail=${signupEmail}`));
+            dispatch(push(`/verification-with-password?signupKey=${signupKey}&signupEmail=${signupEmail}`));
           }
         }
       } else {
