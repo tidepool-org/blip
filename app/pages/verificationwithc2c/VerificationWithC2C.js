@@ -47,46 +47,6 @@ const useRedirectOnC2CConnectSuccess = ({ nextStepPath }) => {
   }, [justConnectedDataSourceProviderName, previousJustConnectedDataSourceProviderName, history]);
 };
 
-const StepIndicator = ({ currentStep, totalSteps }) => {
-  const INDICATOR_SIZE = '32px';
-
-  const steps = Array.from({ length: totalSteps }, (_, i) => i + 1); // create an array from 1..(totalSteps)
-
-  return (
-    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      {steps.map(stepId => {
-        const isCurrentStep = stepId === currentStep;
-        const isLastStep = stepId === steps[steps.length - 1];
-
-        return (
-          <>
-            <Box
-              key={stepId}
-              sx={{
-                borderRadius: '50%',
-                border: `2px solid ${vizColors.blue30}`,
-                backgroundColor: isCurrentStep ? vizColors.blue30 : vizColors.white,
-                color: isCurrentStep ? vizColors.white : vizColors.blue30,
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                width: INDICATOR_SIZE,
-                height: INDICATOR_SIZE,
-              }}
-            >
-              {stepId}
-            </Box>
-
-            {!isLastStep && (
-              <Box sx={{ height: 0, width: '16px', borderTop: `2px dashed ${vizColors.blue30}` }}></Box>
-            )}
-          </>
-        );
-      })}
-    </Box>
-  );
-};
-
 const VerificationWithC2C = ({ api }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
@@ -116,15 +76,11 @@ const VerificationWithC2C = ({ api }) => {
           fontSize: 3,
           display: 'flex',
           justifyContent: 'center',
-          margin: 4,
           color: vizColors.blue50,
         }}
+        my={2}
       >
         {t('Welcome!')}
-      </Box>
-
-      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-        <StepIndicator currentStep={1} totalSteps={2} />
       </Box>
 
       <Box
@@ -132,14 +88,14 @@ const VerificationWithC2C = ({ api }) => {
           fontSize: 2,
           display: 'flex',
           justifyContent: 'center',
-          margin: 4,
           color: vizColors.blue50,
         }}
+        my={4}
       >
-        {t("First, choose which Diabetes Device you'd like to connect")}
+        {t('Choose how you manage your diabetes')}
       </Box>
 
-      <Box px={4}>
+      <Box>
         <Box>
           {
             Object.entries(providers).map(([providerName, provider]) => {

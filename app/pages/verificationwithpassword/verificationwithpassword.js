@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import InputMask from 'react-input-mask';
 import { useLocation } from 'react-router-dom';
+import { colors as vizColors } from '@tidepool/viz';
 
 import * as actions from '../../redux/actions';
 
@@ -14,8 +15,8 @@ import { validateForm } from '../../core/validation';
 import { dateRegex } from '../../core/clinicUtils';
 import SignupWizardContainer from '../../components/SignupWizardContainer/SignupWizardContainer';
 import TextInput from '../../components/elements/TextInput';
-
-var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
+import { Box } from 'theme-ui';
+import Button from '../../components/elements/Button';
 
 const Notification = ({ notification = null }) => {
   if (!notification?.message) return null;
@@ -34,7 +35,6 @@ const VerificationWithPassword = ({
   api,
   fetchingUser,
   user,
-  trackMetric = _.noop,
 }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
@@ -99,9 +99,54 @@ const VerificationWithPassword = ({
 
   return (
     <SignupWizardContainer>
-      <form className="simple-form">
-        <div className="simple-form-inputs">
-          <InputMask
+        <Box
+          sx={{
+            fontSize: 2,
+            display: 'flex',
+            justifyContent: 'center',
+            color: vizColors.blue50,
+          }}
+          my={2}
+        >
+          {t('Optional: Setup Your Account')}
+        </Box>
+
+        <Box
+          sx={{
+            fontSize: 1,
+            display: 'flex',
+            justifyContent: 'center',
+            color: vizColors.blue50,
+          }}
+          my={2}
+        >
+          {t('Set a password to access your data from home')}
+        </Box>
+
+        <Box>
+          <TextInput // Password Field
+            type="password"
+            name="password"
+            label={t('Create Password')}
+            value={formValues.password || ''}
+            onChange={(e) => handleInputChange('password', e.target.value)}
+            disabled={disabled}
+            error={validationErrors.password}
+            width="100%"
+          />
+
+          <TextInput // Confirm Password Field
+            type="password"
+            name="passwordConfirm"
+            label={t('Confirm password')}
+            value={formValues.passwordConfirm || ''}
+            onChange={(e) => handleInputChange('passwordConfirm', e.target.value)}
+            disabled={disabled}
+            error={validationErrors.passwordConfirm}
+            width="100%"
+          />
+
+          <InputMask // Birthdate Field
             mask="99/99/9999"
             maskPlaceholder="mm/dd/yyyy"
             value={(formValues.birthday || '').replace(dateRegex, '$2/$3/$1')}
@@ -118,41 +163,21 @@ const VerificationWithPassword = ({
               width="100%"
             />
           </InputMask>
+        </Box>
 
-          <TextInput
-            type="password"
-            name="password"
-            label={t('Create Password')}
-            value={formValues.password || ''}
-            onChange={(e) => handleInputChange('password', e.target.value)}
-            disabled={disabled}
-            error={validationErrors.password}
-            width="100%"
-          />
-
-          <TextInput
-            type="password"
-            name="passwordConfirm"
-            label={t('Confirm password')}
-            value={formValues.passwordConfirm || ''}
-            onChange={(e) => handleInputChange('passwordConfirm', e.target.value)}
-            disabled={disabled}
-            error={validationErrors.passwordConfirm}
-            width="100%"
-          />
-        </div>
-
-        <div className="simple-form-action-group">
-          <button
-            className="simple-form-submit btn btn-primary js-form-submit"
+        <Box>
+          <Button
+            id="verificationWithPasswordConfirm"
+            variant="primary"
             onClick={handleSubmit}
-            disabled={disabled || working}
+            processing={working}
+            disabled={disabled}
           >
             {working ? t('Setting up...') : t('Confirm')}
-          </button>
+          </Button>
+
           <Notification notification={notification || propsNotification}/>
-        </div>
-      </form>
+        </Box>
     </SignupWizardContainer>
   );
 };
