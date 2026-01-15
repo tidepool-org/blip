@@ -47,6 +47,48 @@ const useRedirectOnC2CConnectSuccess = ({ nextStepPath }) => {
   }, [justConnectedDataSourceProviderName, previousJustConnectedDataSourceProviderName, history]);
 };
 
+const styleProps = {
+  titleContainer: {
+    fontSize: 3,
+    display: 'flex',
+    justifyContent: 'center',
+    color: vizColors.blue50,
+    my: 2,
+  },
+  subtitleContainer: {
+    fontSize: 2,
+    display: 'flex',
+    justifyContent: 'center',
+    color: vizColors.blue50,
+    my: 4,
+  },
+  providerContainer: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    backgroundColor: vizColors.blue00,
+    padding: 2,
+    my: 2,
+  },
+  providerConnectButton:{
+    backgroundColor: vizColors.white,
+    px: 4,
+    py: 2,
+  },
+  skipStepButton: {
+    backgroundColor: vizColors.white,
+    border: `1px solid ${vizColors.blueGray30}`,
+    width: '100%',
+    color: vizColors.blue50,
+    px: 4,
+    py: 2,
+    marginBottom: 4,
+  },
+  c2cInfoContainer: {
+    color: vizColors.blue50,
+    fontSize: 1,
+  },
+};
+
 const VerificationWithC2C = ({ api }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
@@ -71,27 +113,11 @@ const VerificationWithC2C = ({ api }) => {
 
   return (
     <SignupWizardContainer>
-      <Box
-        sx={{
-          fontSize: 3,
-          display: 'flex',
-          justifyContent: 'center',
-          color: vizColors.blue50,
-        }}
-        my={2}
-      >
+      <Box sx={styleProps.titleContainer}>
         {t('Welcome!')}
       </Box>
 
-      <Box
-        sx={{
-          fontSize: 2,
-          display: 'flex',
-          justifyContent: 'center',
-          color: vizColors.blue50,
-        }}
-        my={4}
-      >
+      <Box sx={styleProps.subtitleContainer}>
         {t('Choose how you manage your diabetes')}
       </Box>
 
@@ -102,25 +128,14 @@ const VerificationWithC2C = ({ api }) => {
               const { logoImage } = provider;
 
               return (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    padding: 2,
-                    backgroundColor: vizColors.blue00,
-                  }}
-                  my={2}
-                >
+                <Box sx={styleProps.providerContainer}>
                   {/* TODO: Fix Image */}
                   <img src={logoImage} alt={providerName} style={{ objectFit: 'contain' }}/>
 
                   <Button
                     onClick={() => handleClickProvider(providerName)}
-                    role="button"
                     variant="textPrimary"
-                    sx={{ backgroundColor: vizColors.white }}
-                    px={4}
-                    py={2}
+                    sx={styleProps.providerConnectButton}
                   >
                     {t('Connect')}
                   </Button>
@@ -130,24 +145,14 @@ const VerificationWithC2C = ({ api }) => {
           }
         </Box>
 
-        <Box mb={4}>
-          <Button
-            onClick={() => history.push(nextStepPath)}
-            role="button"
-            sx={{
-              backgroundColor: vizColors.white,
-              border: `1px solid ${vizColors.blueGray30}`,
-              width: '100%',
-              color: vizColors.blue50,
-            }}
-            px={4}
-            py={2}
-          >
-            {t('I have a different device')}
-          </Button>
-        </Box>
+        <Button
+          onClick={() => history.push(nextStepPath)}
+          sx={styleProps.skipStepButton}
+        >
+          {t('I have a different device')}
+        </Button>
 
-        <Box sx={{ color: vizColors.blue50, fontSize: 1 }}>
+        <Box sx={styleProps.c2cInfoContainer}>
           {t('When you connect an account, data can flow into Tidepool without any extra effort. This helps your care team provide you with the best care. Only available in the US at this time. ')}
         </Box>
       </Box>

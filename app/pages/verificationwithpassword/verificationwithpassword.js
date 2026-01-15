@@ -18,6 +18,23 @@ import TextInput from '../../components/elements/TextInput';
 import { Box } from 'theme-ui';
 import Button from '../../components/elements/Button';
 
+const styleProps = {
+  titleContainer: {
+    fontSize: 2,
+    display: 'flex',
+    justifyContent: 'center',
+    color: vizColors.blue50,
+    my: 2,
+  },
+  subtitleContainer: {
+    fontSize: 1,
+    display: 'flex',
+    justifyContent: 'center',
+    color: vizColors.blue50,
+    my: 2,
+  },
+};
+
 const Notification = ({ notification = null }) => {
   if (!notification?.message) return null;
 
@@ -99,27 +116,11 @@ const VerificationWithPassword = ({
 
   return (
     <SignupWizardContainer>
-        <Box
-          sx={{
-            fontSize: 2,
-            display: 'flex',
-            justifyContent: 'center',
-            color: vizColors.blue50,
-          }}
-          my={2}
-        >
+        <Box sx={styleProps.titleContainer}>
           {t('Optional: Setup Your Account')}
         </Box>
 
-        <Box
-          sx={{
-            fontSize: 1,
-            display: 'flex',
-            justifyContent: 'center',
-            color: vizColors.blue50,
-          }}
-          my={2}
-        >
+        <Box sx={styleProps.subtitleContainer}>
           {t('Set a password to access your data from home')}
         </Box>
 
