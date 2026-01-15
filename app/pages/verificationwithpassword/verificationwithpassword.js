@@ -46,10 +46,6 @@ const VerificationWithPassword = ({
   const propsNotification = useSelector(state => state.blip.working.verifyingCustodial.notification);
   const working = useSelector(state => state.blip.working.verifyingCustodial.inProgress);
 
-  useEffect(() => {
-    trackMetric('VCA Home Verification - Screen Displayed');
-  }, []);
-
   const [formValues, setFormValues] = useState({});
   const [validationErrors, setValidationErrors] = useState({});
   const [notification, setNotification] = useState(null);
