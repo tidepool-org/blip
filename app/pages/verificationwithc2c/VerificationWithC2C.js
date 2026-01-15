@@ -25,26 +25,15 @@ const createOAuthUrl = (api, providerName, restrictedToken) => {
   return finalUrl;
 };
 
-const useVerificationWithLoginLink = () => {
-  const REDIRECT_PATH = '/verification-with-password';
-  const { search } = useLocation();
-
-  const nextStepPath = `${REDIRECT_PATH}${search}`;
-
-  return { nextStepPath };
-};
-
-const useRedirectOnC2CConnectSuccess = ({ nextStepPath }) => {
-  const history = useHistory();
-
+const useC2CSuccessListener = ({ onConnectSuccess }) => {
   const justConnectedDataSourceProviderName = useSelector(state => state.blip.justConnectedDataSourceProviderName);
   const previousJustConnectedDataSourceProviderName = usePrevious(justConnectedDataSourceProviderName);
 
   useEffect(() => {
     if (justConnectedDataSourceProviderName && !previousJustConnectedDataSourceProviderName) {
-      history.push(nextStepPath);
+      onConnectSuccess();
     }
-  }, [justConnectedDataSourceProviderName, previousJustConnectedDataSourceProviderName, history]);
+  }, [justConnectedDataSourceProviderName, previousJustConnectedDataSourceProviderName]);
 };
 
 const styleProps = {
@@ -94,10 +83,16 @@ const VerificationWithC2C = ({ api }) => {
   const dispatch = useDispatch();
   const { search } = useLocation();
   const history = useHistory();
-  const { nextStepPath } = useVerificationWithLoginLink();
+
+  const redirectToAccountSetup = () => {
+    const REDIRECT_PATH = '/verification-with-password';
+    const nextStepPath = `${REDIRECT_PATH}${search}`;
+
+    history.push(nextStepPath);
+  };
 
   // Listen for a successful C2C connection. If there is one, redirect to next login step.
-  useRedirectOnC2CConnectSuccess({ nextStepPath });
+  useC2CSuccessListener({ onConnectSuccess: () => redirectToAccountSetup() });
 
   const handleClickProvider = (providerName) => {
     const queryParams = new URLSearchParams(search);
@@ -147,7 +142,7 @@ const VerificationWithC2C = ({ api }) => {
           </Box>
 
           <Button
-            onClick={() => history.push(nextStepPath)}
+            onClick={() => redirectToAccountSetup()}
             sx={styleProps.skipStepButton}
           >
             {t('I have a different device')}
