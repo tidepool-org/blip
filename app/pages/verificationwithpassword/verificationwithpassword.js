@@ -1,8 +1,6 @@
-import PropTypes from 'prop-types';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import InputMask from 'react-input-mask';
 import { useLocation } from 'react-router-dom';
 import { colors as vizColors } from '@tidepool/viz';
 
@@ -16,6 +14,7 @@ import { dateRegex } from '../../core/clinicUtils';
 import TextInput from '../../components/elements/TextInput';
 import { Box } from 'theme-ui';
 import Button from '../../components/elements/Button';
+import InputMask from 'react-input-mask';
 
 import {
   SignupWizardContainer,
@@ -59,6 +58,25 @@ const Notification = ({ notification = null }) => {
   return <div className={className}>{notification.message}</div>;
 };
 
+const SIGNUP_WORKFLOW = {
+  DEFAULT: 'DEFAULT',
+  EHR: 'EHR',
+};
+
+const useSignupWorkflow = () => {
+  const { search } = useLocation();
+  const queryParams = new URLSearchParams(search);
+
+  // If there is a restrictedToken in the GET params, we assume that the user
+  // is coming in from the EHR C2C flow. Otherwise, we assume they are coming
+  // in from the default "Claim Your Account" email flow.
+  const restrictedToken = queryParams.get('restrictedToken');
+
+  if (!!restrictedToken) return SIGNUP_WORKFLOW.EHR;
+
+  return SIGNUP_WORKFLOW.DEFAULT;
+};
+
 const VerificationWithPassword = ({
   api,
   fetchingUser,
@@ -68,6 +86,7 @@ const VerificationWithPassword = ({
   const dispatch = useDispatch();
   const location = useLocation();
 
+  const signupWorkflow = useSignupWorkflow();
   const signupKey = utils.getSignupKey(location);
   const signupEmail = utils.getSignupEmail(location);
 
@@ -77,8 +96,6 @@ const VerificationWithPassword = ({
   const [formValues, setFormValues] = useState({});
   const [validationErrors, setValidationErrors] = useState({});
   const [notification, setNotification] = useState(null);
-
-  const disabled = fetchingUser && !user;
 
   const handleInputChange = (name, value) => {
     setFormValues(prevState => ({ ...prevState, [name]: value }));
@@ -125,11 +142,17 @@ const VerificationWithPassword = ({
     dispatch(actions.async.verifyCustodial(api, signupKey, signupEmail, birthday, password));
   };
 
+  const disabled = fetchingUser && !user;
+
+  const titleCopy = signupWorkflow === SIGNUP_WORKFLOW.EHR
+    ? t('Optional: Setup Your Account')
+    : t('Setup Your Account');
+
   return (
     <SignupWizardContainer>
       <SignupWizardContents>
         <Box sx={styleProps.titleContainer}>
-          {t('Optional: Setup Your Account')}
+          {titleCopy}
         </Box>
 
         <Box sx={styleProps.subtitleContainer}>
