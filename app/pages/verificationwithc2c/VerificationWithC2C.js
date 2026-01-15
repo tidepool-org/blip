@@ -26,7 +26,7 @@ const createOAuthUrl = (api, providerName, restrictedToken) => {
 };
 
 const useVerificationWithLoginLink = () => {
-  const REDIRECT_PATH = '/verification-with-login';
+  const REDIRECT_PATH = '/verification-with-password';
   const { search } = useLocation();
 
   const nextStepPath = `${REDIRECT_PATH}${search}`;
