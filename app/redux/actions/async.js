@@ -1712,6 +1712,38 @@ export function disconnectDataSource(api, dataSourceFilter) {
 }
 
 /**
+ * Connect Data Source (With Pre-Created Restricted Token)
+ *
+ * @param  {Object} api an instance of the API wrapper
+ * @param  {String} providerId the internal provider id
+ * @param  {String} restrictedToken the restricted token
+ * @param  {Object} dataSourceFilter the filter for the data source
+ */
+export function connectDataSourceWithRestrictedToken(api, providerId, restrictedToken, dataSourceFilter) {
+  return (dispatch) => {
+    dispatch(sync.connectDataSourceRequest());
+
+    if (dataSourceFilter.providerType !== 'oauth') {
+      let err = 'Unknown data source type';
+      dispatch(sync.connectDataSourceFailure(
+        createActionError(ErrorMessages.ERR_CONNECTING_DATA_SOURCE, err), err
+      ));
+    } else {
+      api.user.createOAuthProviderAuthorization(dataSourceFilter.providerName, restrictedToken, (err, url) => {
+        if (err) {
+          dispatch(sync.connectDataSourceFailure(
+            createActionError(ErrorMessages.ERR_CONNECTING_DATA_SOURCE, err), err
+          ));
+          return;
+        } else {
+          dispatch(sync.connectDataSourceSuccess(providerId, url));
+        }
+      });
+    }
+  };
+}
+
+/**
  * Get All Clinics Action Creator
  *
  * @param {Object} options

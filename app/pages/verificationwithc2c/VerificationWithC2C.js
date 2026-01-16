@@ -30,7 +30,7 @@ const useC2CSuccessListener = ({ onConnectSuccess }) => {
   const previousJustConnectedDataSourceProviderName = usePrevious(justConnectedDataSourceProviderName);
 
   useEffect(() => {
-    if (justConnectedDataSourceProviderName && !previousJustConnectedDataSourceProviderName) {
+    if (justConnectedDataSourceProviderName && justConnectedDataSourceProviderName !== previousJustConnectedDataSourceProviderName) {
       onConnectSuccess();
     }
   }, [justConnectedDataSourceProviderName, previousJustConnectedDataSourceProviderName]);
@@ -98,12 +98,12 @@ const VerificationWithC2C = ({ api }) => {
     const queryParams = new URLSearchParams(search);
     const restrictedToken = queryParams.get('restrictedToken');
 
-    const url = createOAuthUrl(api, providerName, restrictedToken);
     const providerId = providers[providerName]?.id;
+    const dataSourceFilter = providers[providerName]?.dataSourceFilter;
 
-    if (!providerId) return;
+    if (!providerId || !dataSourceFilter) return;
 
-    dispatch(actions.sync.connectDataSourceSuccess(providerId, url));
+    dispatch(actions.async.connectDataSourceWithRestrictedToken(api, providerId, restrictedToken, dataSourceFilter));
   };
 
   return (
