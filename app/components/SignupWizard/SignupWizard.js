@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Flex } from 'theme-ui';
+import { Box } from 'theme-ui';
 import { colors as vizColors } from '@tidepool/viz';
 
 import PersonalBannerImage from '../../components/elements/Container/PersonalBanner.png';
@@ -38,16 +38,9 @@ export const SignupWizardContents = ({ children }) => {
 
 export const SignupWizardActions = ({ children }) => {
   return (
-    <Flex
-      sx={{
-        py: 4,
-        px: 4,
-        borderTop: `1px solid ${vizColors.gray10}`,
-        justifyContent: 'flex-end',
-      }}
-    >
-        { children }
-    </Flex>
+    <Box sx={{ py: 4, px: 4, borderTop: `1px solid ${vizColors.gray10}` }}>
+      { children }
+    </Box>
   );
 };
 

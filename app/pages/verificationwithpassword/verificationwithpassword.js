@@ -40,9 +40,20 @@ const styleProps = {
   inputFieldContainer: {
     py: 2,
   },
+  passwordInputField: {
+    width: '100%',
+    'input[id="password"]': { padding: 2 },
+    'input[id="passwordConfirm"]': { padding: 2 },
+  },
   confirmButton: {
     minWidth: '160px',
+    marginLeft: 'auto',
   },
+  notificationContainer: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    fontSize: 0,
+  }
 };
 
 const Notification = ({ notification = null }) => {
@@ -119,7 +130,7 @@ const VerificationWithPassword = ({
     const validationErrors = validateForm(form, true);
 
     if (!_.isEmpty(validationErrors)) {
-      setValidationErrors({ validationErrors });
+      setValidationErrors(validationErrors);
       setNotification({ type: 'error', message: t('Some entries are invalid.')});
     }
 
@@ -168,7 +179,7 @@ const VerificationWithPassword = ({
             onChange={(e) => handleInputChange('password', e.target.value)}
             disabled={disabled}
             error={validationErrors.password}
-            width="100%"
+            sx={styleProps.passwordInputField}
           />
         </Box>
 
@@ -181,7 +192,7 @@ const VerificationWithPassword = ({
             onChange={(e) => handleInputChange('passwordConfirm', e.target.value)}
             disabled={disabled}
             error={validationErrors.passwordConfirm}
-            width="100%"
+            sx={styleProps.passwordInputField}
           />
         </Box>
 
@@ -207,18 +218,22 @@ const VerificationWithPassword = ({
       </SignupWizardContents>
 
       <SignupWizardActions>
-        <Button
-          id="verificationWithPasswordConfirm"
-          variant="primary"
-          onClick={handleSubmit}
-          processing={working}
-          disabled={disabled}
-          sx={styleProps.confirmButton}
-        >
-          {working ? t('Setting up...') : t('Confirm')}
-        </Button>
+        <Box>
+          <Button
+            id="verificationWithPasswordConfirm"
+            variant="primary"
+            onClick={handleSubmit}
+            processing={working}
+            disabled={disabled}
+            sx={styleProps.confirmButton}
+          >
+            {working ? t('Setting up...') : t('Confirm')}
+          </Button>
+        </Box>
 
-        <Notification notification={notification || propsNotification}/>
+        <Box sx={styleProps.notificationContainer}>
+          <Notification notification={notification || propsNotification}/>
+        </Box>
       </SignupWizardActions>
     </SignupWizardContainer>
   );

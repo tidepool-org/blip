@@ -119,8 +119,7 @@ const VerificationWithC2C = ({ api }) => {
 
         <Box>
           <Box>
-            {
-              Object.entries(providers).map(([providerName, provider]) => {
+            { Object.entries(providers).map(([providerName, provider]) => {
                 const { logoImage } = provider;
 
                 return (
