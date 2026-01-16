@@ -65,17 +65,29 @@ export const OAuthConnection = (props) => {
 
   const isCustodialMobileC2CSuccess = isCustodial && utils.isMobile() && authStatus.status === 'authorized';
 
-  const handleRedirectToClaimAccount = () => {
+  const handleRedirectToClaimAccount = (params) => {
     trackMetric('Oauth - Connection - Claim Account', { providerName, status });
-    history.push(`/verification-with-password?${queryParams.toString()}`);
+    history.push({ pathname: '/verification-with-password', search: params.toString() });
+  };
+
+  const handleClickClaimAccount = () => {
+    // If user clicks Claim My Account button, we redirect and forward all GET params to next page
+    handleRedirectToClaimAccount(queryParams);
   };
 
   useEffect(() => {
     trackMetric('Oauth - Connection', { providerName, status, custodialSignup: isCustodial });
   }, []);
 
+  // In EHR C2C flow, user will complete C2C before they have an account created. We redirect to
+  // Claim My Account automatically after landing on this page.
   useEffect(() => {
-    if (isCustodialMobileC2CSuccess) handleRedirectToClaimAccount();
+    if (isCustodialMobileC2CSuccess) {
+      const params = new URLSearchParams(queryParams);
+      params.append('isC2CSuccess', 'true');
+
+      handleRedirectToClaimAccount(params);
+    }
   }, [isCustodialMobileC2CSuccess]);
 
   const handleRedirectToTidepool = () => {
@@ -142,7 +154,7 @@ export const OAuthConnection = (props) => {
               <Button
                 id="oauth-claim-account-button"
                 variant="primary"
-                onClick={handleRedirectToClaimAccount}
+                onClick={handleClickClaimAccount}
               >
                 {t('Claim My Account')}
               </Button>

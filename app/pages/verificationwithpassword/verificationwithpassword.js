@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { colors as vizColors } from '@tidepool/viz';
 
 import * as actions from '../../redux/actions';
+import { useToasts } from '../../providers/ToastProvider';
 
 import _ from 'lodash';
 
@@ -21,6 +22,7 @@ import {
   SignupWizardContents,
   SignupWizardActions,
 } from '../../components/SignupWizard';
+import { toastMessages } from '../../components/datasources/useProviderConnectionPopup';
 
 const styleProps = {
   titleContainer: {
@@ -96,6 +98,9 @@ const VerificationWithPassword = ({
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const location = useLocation();
+  const { search } = location;
+  const queryParams = new URLSearchParams(search);
+  const { set: setToast } = useToasts();
 
   const signupWorkflow = useInferSignupWorkflow();
   const signupKey = utils.getSignupKey(location);
@@ -107,6 +112,14 @@ const VerificationWithPassword = ({
   const [formValues, setFormValues] = useState({});
   const [validationErrors, setValidationErrors] = useState({});
   const [notification, setNotification] = useState(null);
+
+  // On load, check if we landed on this page after a redirect from a successful C2C.
+  // If yes, then fire off a connection success toast message
+  useEffect(() => {
+    if (queryParams.get('isC2CSuccess') === 'true') {
+      setToast({ message: toastMessages.authorized, variant: 'success' });
+    }
+  }, [queryParams]);
 
   const handleInputChange = (name, value) => {
     setFormValues(prevState => ({ ...prevState, [name]: value }));

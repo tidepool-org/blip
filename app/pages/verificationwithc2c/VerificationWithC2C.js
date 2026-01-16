@@ -82,17 +82,20 @@ const VerificationWithC2C = ({ api }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const { search } = useLocation();
+  const queryParams = new URLSearchParams(search);
   const history = useHistory();
 
-  const redirectToAccountSetup = () => {
-    const REDIRECT_PATH = '/verification-with-password';
-    const nextStepPath = `${REDIRECT_PATH}${search}`;
-
-    history.push(nextStepPath);
+  const redirectToAccountSetup = (params) => {
+    history.push({ pathname: '/verification-with-password', search: params.toString() });
   };
 
   // Listen for a successful C2C connection. If there is one, redirect to next login step.
-  useC2CSuccessListener({ onConnectSuccess: () => redirectToAccountSetup() });
+  useC2CSuccessListener({ onConnectSuccess: () => {
+    const params = new URLSearchParams(search);
+    params.set('isC2CSuccess', 'true');
+
+    redirectToAccountSetup(params);
+  }});
 
   const handleClickProvider = (providerName) => {
     const queryParams = new URLSearchParams(search);
@@ -141,7 +144,7 @@ const VerificationWithC2C = ({ api }) => {
           </Box>
 
           <Button
-            onClick={() => redirectToAccountSetup()}
+            onClick={() => redirectToAccountSetup(queryParams)}
             sx={styleProps.skipStepButton}
           >
             {t('I have a different device')}
