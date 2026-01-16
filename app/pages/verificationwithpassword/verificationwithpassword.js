@@ -63,7 +63,7 @@ const SIGNUP_WORKFLOW = {
   EHR: 'EHR',
 };
 
-const useSignupWorkflow = () => {
+const useInferSignupWorkflow = () => {
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search);
 
@@ -86,7 +86,7 @@ const VerificationWithPassword = ({
   const dispatch = useDispatch();
   const location = useLocation();
 
-  const signupWorkflow = useSignupWorkflow();
+  const signupWorkflow = useInferSignupWorkflow();
   const signupKey = utils.getSignupKey(location);
   const signupEmail = utils.getSignupEmail(location);
 
