@@ -6,6 +6,7 @@ import { MS_IN_HOUR } from '../../../../core/constants';
 import { Box, Flex } from 'theme-ui';
 import { utils as vizUtils } from '@tidepool/viz';
 const { agpCGMText } = vizUtils.text;
+import { useFlags } from 'launchdarkly-react-client-sdk';
 
 const STATE = {
   DEFAULT: 'DEFAULT',
@@ -16,8 +17,13 @@ const MINIMUM_HOURS_OF_DATA = 24;
 
 const CGMClipboardButton = ({ patient, data, variant, ...buttonProps }) => {
   const { t } = useTranslation();
+  const { showCpt95251 } = useFlags();
+
   const [buttonState, setButtonState] = useState(STATE.DEFAULT);
-  const clipboardText = useMemo(() => agpCGMText(patient, data), [patient, data]);
+
+  const clipboardText = useMemo(() => {
+    return agpCGMText(patient, data, { showCpt95251 });
+  }, [patient, data, showCpt95251]);
 
   useEffect(() => {
     let buttonTextEffect = setTimeout(() => {
