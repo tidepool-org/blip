@@ -62,6 +62,7 @@ const styleProps = {
     backgroundColor: vizColors.white,
     px: 4,
     py: 2,
+    maxWidth: '108px',
   },
   skipStepButton: {
     backgroundColor: vizColors.white,

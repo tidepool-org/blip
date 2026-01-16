@@ -48,7 +48,7 @@ const styleProps = {
     'input[id="passwordConfirm"]': { padding: 2 },
   },
   confirmButton: {
-    minWidth: '160px',
+    minWidth: ['100%', '100%', '160px', '160px'],
     marginLeft: 'auto',
   },
   notificationContainer: {

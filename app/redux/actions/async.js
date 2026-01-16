@@ -100,6 +100,8 @@ export function confirmSignup(api, signupKey, signupEmail, restrictedToken = nul
           createActionError(errMsg, err), err, signupKey
         ));
         if (err.status === 409) {
+          // If restricted token exists, we infer that the user is being sent from EHR C2C workflow.
+          // We redirect them to connect C2C first. Otherwise, we redirect to account creation.
           if (restrictedToken) {
             dispatch(push(`/verification-with-c2c?signupKey=${signupKey}&signupEmail=${signupEmail}&restrictedToken=${restrictedToken}`));
           } else {

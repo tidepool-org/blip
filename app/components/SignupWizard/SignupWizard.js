@@ -4,27 +4,38 @@ import { colors as vizColors } from '@tidepool/viz';
 
 import PersonalBannerImage from '../../components/elements/Container/PersonalBanner.png';
 
+const styleProps = {
+  outerContainer: {
+    mx: 'auto',
+    marginTop: [0, 0, '80px', '80px'],
+    marginBottom: 0,
+    width: [null, null, '800px'],
+    border: `1px solid ${vizColors.gray10}`,
+    borderRadius: '8px',
+    backgroundColor: vizColors.white,
+  },
+  bannerContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderBottom: `1px solid ${vizColors.gray10}`,
+    maxHeight: '100px',
+    overflow: 'hidden',
+  },
+  bannerImage: {
+    width: '100%',
+    height: '100px',
+    objectFit: 'cover',
+  },
+};
+
 export const SignupWizardContainer = ({ children }) => {
 
   return (
-    <Box sx={{
-      margin: '100px auto 0', // TODO: Fix static values
-      width: '800px',
-      border: `1px solid ${vizColors.gray10}`,
-      borderRadius: '8px',
-      backgroundColor: vizColors.white,
-    }}>
-      <Box
-        sx={{
-          height: '100px', // TODO: Fix static values
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          borderBottom: `1px solid ${vizColors.gray10}`,
-        }}
-      >
+    <Box sx={styleProps.outerContainer}>
+      <Box sx={styleProps.bannerContainer}>
         {/* TODO: Fix Image */}
-        <img src={PersonalBannerImage} width="100%" height="100%" />
+        <img src={PersonalBannerImage} style={styleProps.bannerImage} />
       </Box>
 
       <Box>{children}</Box>
