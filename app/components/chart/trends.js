@@ -41,12 +41,14 @@ const {
 const Trends = withTranslation()(class Trends extends PureComponent {
   static propTypes = {
     chartPrefs: PropTypes.object.isRequired,
+    copyAsTextMetadata: PropTypes.object,
     currentPatientInViewId: PropTypes.string.isRequired,
     data: PropTypes.object.isRequired,
     initialDatetimeLocation: PropTypes.string,
     loading: PropTypes.bool.isRequired,
     mostRecentDatetimeLocation: PropTypes.string,
     onClickRefresh: PropTypes.func.isRequired,
+    onClickExport: PropTypes.func.isRequired,
     onClickPrint: PropTypes.func.isRequired,
     onSwitchToBasics: PropTypes.func.isRequired,
     onSwitchToDaily: PropTypes.func.isRequired,
@@ -266,6 +268,14 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     const datetime = this.refs.chart ? this.refs.chart.getCurrentDay() : this.props.initialDatetimeLocation;
     this.props.onSwitchToBgLog(datetime);
   }
+
+  handleClickExport = e => {
+    if (e) {
+      e.preventDefault();
+    }
+
+    this.props.onClickExport();
+  };
 
   handleClickPrint = e => {
     if (e) {
@@ -594,7 +604,14 @@ const Trends = withTranslation()(class Trends extends PureComponent {
                   <ClipboardButton
                     buttonTitle={t('For email or notes')}
                     onSuccess={this.handleCopyTrendsClicked}
-                    getText={trendsText.bind(this, this.props.patient, this.props.data, this.props.stats, this.props.chartPrefs[this.chartType])}
+                    getText={trendsText.bind(
+                      this,
+                      this.props.patient,
+                      this.props.data,
+                      this.props.stats,
+                      this.props.chartPrefs[this.chartType],
+                      this.props.copyAsTextMetadata,
+                    )}
                   />
                   <BgSourceToggle
                     bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
@@ -646,6 +663,7 @@ const Trends = withTranslation()(class Trends extends PureComponent {
         onClickOneDay={this.handleClickDaily}
         onClickBgLog={this.handleClickBgLog}
         onClickSettings={this.handleClickSettings}
+        onClickExport={this.handleClickExport}
         onClickPrint={this.handleClickPrint}
         ref="header" />
     );
