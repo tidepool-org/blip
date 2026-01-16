@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import { withTranslation, Trans } from 'react-i18next';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation, useHistory } from 'react-router-dom';
 import capitalize from 'lodash/capitalize';
 import includes from 'lodash/includes';
 import { Box, Flex } from 'theme-ui';
@@ -24,8 +24,7 @@ export const OAuthConnection = (props) => {
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search);
   const dispatch = useDispatch();
-  const [isCustodial, setIsCustodial] = useState();
-  const [authStatus, setAuthStatus] = useState();
+  const history = useHistory();
 
   const statusContent = {
     authorized: {
@@ -56,23 +55,28 @@ export const OAuthConnection = (props) => {
     },
   };
 
+  const isCustodial = queryParams.has('signupEmail') && queryParams.has('signupKey');
+
+  const authStatus = (
+    includes(availableProviders, providerName) && statusContent[status]
+      ? statusContent[status]
+      : statusContent.error
+  );
+
+  const isCustodialMobileC2CSuccess = isCustodial && utils.isMobile() && authStatus.status === 'authorized';
+
+  const handleRedirectToClaimAccount = () => {
+    trackMetric('Oauth - Connection - Claim Account', { providerName, status });
+    history.push(`/verification-with-password?${queryParams.toString()}`);
+  };
+
   useEffect(() => {
-    const custodialSignup = queryParams.has('signupEmail') && queryParams.has('signupKey');
-    setIsCustodial(custodialSignup);
-
-    if (includes(availableProviders, providerName) && statusContent[status]) {
-      setAuthStatus(statusContent[status]);
-    } else {
-      setAuthStatus(statusContent.error)
-    }
-
-    trackMetric('Oauth - Connection', { providerName, status, custodialSignup });
+    trackMetric('Oauth - Connection', { providerName, status, custodialSignup: isCustodial });
   }, []);
 
-  const handleClickClaimAccount = () => {
-    trackMetric('Oauth - Connection - Claim Account', { providerName, status });
-    dispatch(push(`/login?${queryParams.toString()}`));
-  };
+  useEffect(() => {
+    if (isCustodialMobileC2CSuccess) handleRedirectToClaimAccount();
+  }, [isCustodialMobileC2CSuccess]);
 
   const handleRedirectToTidepool = () => {
     // After the connection, we want to get back to the /data view but we don't have access to the
@@ -138,7 +142,7 @@ export const OAuthConnection = (props) => {
               <Button
                 id="oauth-claim-account-button"
                 variant="primary"
-                onClick={handleClickClaimAccount}
+                onClick={handleRedirectToClaimAccount}
               >
                 {t('Claim My Account')}
               </Button>
