@@ -11,20 +11,6 @@ import { Box } from 'theme-ui';
 import Button from '../../components/elements/Button';
 import { SignupWizardContainer, SignupWizardContents } from '../../components/SignupWizard';
 
-const createOAuthUrl = (api, providerName, restrictedToken) => {
-  let finalUrl;
-
-  api.user.createOAuthProviderAuthorization(providerName, restrictedToken, (err, url) => {
-    if (err) {
-
-    } else {
-      finalUrl = url;
-    }
-  });
-
-  return finalUrl;
-};
-
 const useC2CSuccessListener = ({ onConnectSuccess }) => {
   const justConnectedDataSourceProviderName = useSelector(state => state.blip.justConnectedDataSourceProviderName);
   const previousJustConnectedDataSourceProviderName = usePrevious(justConnectedDataSourceProviderName);
