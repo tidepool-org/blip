@@ -109,7 +109,11 @@ const VerificationWithPassword = ({
   const propsNotification = useSelector(state => state.blip.working.verifyingCustodial.notification);
   const working = useSelector(state => state.blip.working.verifyingCustodial.inProgress);
 
-  const [formValues, setFormValues] = useState({});
+  const [formValues, setFormValues] = useState({
+    password: '',
+    confirmPassword: '',
+    birthday: '',
+  });
   const [validationErrors, setValidationErrors] = useState({});
   const [notification, setNotification] = useState(null);
 
