@@ -93,7 +93,6 @@ describe('VerificationWithPassword', () => {
       </Provider>
     );
 
-
     const passwordInput = screen.getByLabelText('Create Password');
     const confirmPasswordInput = screen.getByLabelText('Confirm password');
     const birthdayInput = screen.getByLabelText('Birthday');
@@ -121,6 +120,7 @@ describe('VerificationWithPassword', () => {
     await userEvent.type(passwordInput, 'short');
     await userEvent.type(confirmPasswordInput, 'short');
     await userEvent.type(birthdayInput, '01/15/1990');
+
     await userEvent.click(confirmButton);
 
     expect(screen.getByText('Password must be at least 8 characters long.')).toBeInTheDocument();
@@ -142,6 +142,7 @@ describe('VerificationWithPassword', () => {
     await userEvent.type(passwordInput, 'ValidPass123!');
     await userEvent.type(confirmPasswordInput, 'DifferentPass456!');
     await userEvent.type(birthdayInput, '01/15/1990');
+
     await userEvent.click(confirmButton);
 
     expect(screen.getByText("Passwords don't match.")).toBeInTheDocument();

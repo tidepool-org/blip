@@ -129,12 +129,6 @@ const VerificationWithPassword = ({
     setFormValues(prevState => ({ ...prevState, [name]: value }));
   };
 
-  const resetFormStateBeforeSubmit = (formValues) => {
-    setFormValues(formValues);
-    setValidationErrors({});
-    setNotification(null);
-  };
-
   const validateFormValues = (formValues) => {
     const [year, month, day] = formValues.birthday?.split('-');
     const birthdayForValidation = { year, month, day };
@@ -159,10 +153,7 @@ const VerificationWithPassword = ({
 
     if (working) return;
 
-    const formValuesToSubmit = { ...formValues };
-
-    resetFormStateBeforeSubmit(formValuesToSubmit);
-    const validationErrors = validateFormValues(formValuesToSubmit);
+    const validationErrors = validateFormValues({ ...formValues });
 
     if (!_.isEmpty(validationErrors)) return;
 
