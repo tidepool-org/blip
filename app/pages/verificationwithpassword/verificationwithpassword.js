@@ -165,7 +165,7 @@ const VerificationWithPassword = ({
 
   const titleCopy = signupWorkflow === SIGNUP_WORKFLOW.EHR
     ? t('Optional: Setup Your Account')
-    : t('Setup Your Account');
+    : t('Claim Your Account');
 
   return (
     <SignupWizardContainer>
