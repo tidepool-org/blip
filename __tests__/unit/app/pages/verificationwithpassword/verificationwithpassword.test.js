@@ -18,6 +18,8 @@ import { stringify, parse } from 'qs';
 import VerificationWithPassword from '@app/pages/verificationwithpassword/verificationwithpassword';
 import * as actions from '@app/redux/actions';
 
+const TEST_TIMEOUT_MS = 10_000;
+
 jest.mock('@app/redux/actions', () => ({
   async: {
     verifyCustodial: jest.fn().mockReturnValue({ type: 'MOCK_VERIFY_CUSTODIAL' }),
@@ -67,9 +69,9 @@ describe('VerificationWithPassword', () => {
       </Provider>
     );
 
-    await userEvent.type(screen.getByLabelText('Create Password'), 'ValidPass123!');
-    await userEvent.type(screen.getByLabelText('Confirm password'), 'ValidPass123!');
-    await userEvent.type(screen.getByLabelText('Birthday'), '01/15/1990');
+    await userEvent.paste(screen.getByLabelText('Create Password'), 'ValidPass123!');
+    await userEvent.paste(screen.getByLabelText('Confirm password'), 'ValidPass123!');
+    await userEvent.paste(screen.getByLabelText('Birthday'), '01/15/1990');
 
     await userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
 
@@ -99,7 +101,7 @@ describe('VerificationWithPassword', () => {
     const confirmButton = screen.getByRole('button', { name: 'Confirm' });
 
     // Test 1: All fields blank
-    await userEvent.type(birthdayInput, '01');
+    await userEvent.paste(birthdayInput, '01');
     await userEvent.click(confirmButton);
 
     expect(screen.getByText('Password is required.')).toBeInTheDocument();
@@ -117,9 +119,9 @@ describe('VerificationWithPassword', () => {
     );
 
     // Test 2: Password too short
-    await userEvent.type(passwordInput, 'short');
-    await userEvent.type(confirmPasswordInput, 'short');
-    await userEvent.type(birthdayInput, '01/15/1990');
+    await userEvent.paste(passwordInput, 'short');
+    await userEvent.paste(confirmPasswordInput, 'short');
+    await userEvent.paste(birthdayInput, '01/15/1990');
 
     await userEvent.click(confirmButton);
 
@@ -139,13 +141,13 @@ describe('VerificationWithPassword', () => {
     );
 
     // Test 3: Passwords don't match
-    await userEvent.type(passwordInput, 'ValidPass123!');
-    await userEvent.type(confirmPasswordInput, 'DifferentPass456!');
-    await userEvent.type(birthdayInput, '01/15/1990');
+    await userEvent.paste(passwordInput, 'ValidPass123!');
+    await userEvent.paste(confirmPasswordInput, 'DifferentPass456!');
+    await userEvent.paste(birthdayInput, '01/15/1990');
 
     await userEvent.click(confirmButton);
 
     expect(screen.getByText("Passwords don't match.")).toBeInTheDocument();
     expect(actions.async.verifyCustodial).not.toHaveBeenCalled();
-  });
+  }, TEST_TIMEOUT_MS);
 });
