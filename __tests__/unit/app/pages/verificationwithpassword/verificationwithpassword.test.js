@@ -3,6 +3,7 @@
 /* global describe */
 /* global it */
 /* global beforeEach */
+/* global afterAll */
 
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
@@ -69,9 +70,12 @@ describe('VerificationWithPassword', () => {
       </Provider>
     );
 
-    await userEvent.paste(screen.getByLabelText('Create Password'), 'ValidPass123!');
-    await userEvent.paste(screen.getByLabelText('Confirm password'), 'ValidPass123!');
-    await userEvent.paste(screen.getByLabelText('Birthday'), '01/15/1990');
+    await userEvent.click(screen.getByLabelText('Create Password'));
+    await userEvent.paste('ValidPass123!');
+    await userEvent.click(screen.getByLabelText('Confirm password'));
+    await userEvent.paste('ValidPass123!');
+    await userEvent.click(screen.getByLabelText('Birthday'));
+    await userEvent.paste('01/15/1990');
 
     await userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
 
@@ -84,7 +88,7 @@ describe('VerificationWithPassword', () => {
         'ValidPass123!'
       );
     });
-  });
+  }, TEST_TIMEOUT_MS);
 
   it('does not call verifyCustodial and shows appropriate errors for invalid inputs', async () => {
     const { rerender } = render(
@@ -101,7 +105,8 @@ describe('VerificationWithPassword', () => {
     const confirmButton = screen.getByRole('button', { name: 'Confirm' });
 
     // Test 1: All fields blank
-    await userEvent.paste(birthdayInput, '01');
+    await userEvent.click(birthdayInput);
+    await userEvent.paste('01');
     await userEvent.click(confirmButton);
 
     expect(screen.getByText('Password is required.')).toBeInTheDocument();
@@ -119,9 +124,12 @@ describe('VerificationWithPassword', () => {
     );
 
     // Test 2: Password too short
-    await userEvent.paste(passwordInput, 'short');
-    await userEvent.paste(confirmPasswordInput, 'short');
-    await userEvent.paste(birthdayInput, '01/15/1990');
+    await userEvent.click(passwordInput);
+    await userEvent.paste('short');
+    await userEvent.click(confirmPasswordInput);
+    await userEvent.paste('short');
+    await userEvent.click(birthdayInput);
+    await userEvent.paste('01/15/1990');
 
     await userEvent.click(confirmButton);
 
@@ -141,9 +149,12 @@ describe('VerificationWithPassword', () => {
     );
 
     // Test 3: Passwords don't match
-    await userEvent.paste(passwordInput, 'ValidPass123!');
-    await userEvent.paste(confirmPasswordInput, 'DifferentPass456!');
-    await userEvent.paste(birthdayInput, '01/15/1990');
+    await userEvent.click(passwordInput);
+    await userEvent.paste('ValidPass123!');
+    await userEvent.click(confirmPasswordInput);
+    await userEvent.paste('DifferentPass456!');
+    await userEvent.click(birthdayInput);
+    await userEvent.paste('01/15/1990');
 
     await userEvent.click(confirmButton);
 
