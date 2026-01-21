@@ -139,6 +139,7 @@ describe('worker action creators', () => {
           patientId,
           fetchedUntil,
           oneMinCgmFetchedUntil: undefined,
+          localDataSource: undefined,
         },
       });
     });

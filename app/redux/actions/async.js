@@ -1035,6 +1035,7 @@ export function fetchPatientData(api, options, id) {
   // Default to only selecting the most recent 8 weeks of data
   _.defaults(options, {
     returnData: false,
+    localDataSource: false,
     useCache: true,
     initial: true,
     type: ALL_FETCHED_DATA_TYPES.join(','),
@@ -1181,7 +1182,7 @@ export function fetchPatientData(api, options, id) {
         (location.pathname.indexOf(id) >= 0 && (!fetchingPatientId || fetchingPatientId === id))
       ) {
         if (options.sampleIntervalMinimum === MS_IN_MIN) options.oneMinCgmFetchedUntil = options.startDate;
-        dispatch(worker.dataWorkerAddDataRequest(data, options.returnData, patientId, options.startDate, options.oneMinCgmFetchedUntil));
+        dispatch(worker.dataWorkerAddDataRequest(data, options.returnData, patientId, options.startDate, options.oneMinCgmFetchedUntil, options.localDataSource));
       }
     }
 
