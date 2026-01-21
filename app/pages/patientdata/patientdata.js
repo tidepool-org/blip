@@ -2569,6 +2569,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   const dexcom = utils.getDexcom(ownProps.location);
   const medtronic = utils.getMedtronic(ownProps.location);
   const cbgFilter = utils.getCBGFilter(ownProps.location);
+  const localDataSource = ownProps.location.query.localDataSource;
   const api = ownProps.api;
   const assignedDispatchProps = [
     'dataWorkerRemoveDataRequest',
@@ -2582,7 +2583,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   ];
 
   return Object.assign({}, _.pick(dispatchProps, assignedDispatchProps), stateProps, {
-    fetchers: getFetchers(dispatchProps, ownProps, stateProps, api, { carelink, dexcom, medtronic, cbgFilter }),
+    fetchers: getFetchers(dispatchProps, ownProps, stateProps, api, { carelink, dexcom, medtronic, cbgFilter, localDataSource }),
     history: ownProps.history,
     location: ownProps.location,
     match: ownProps.match,
