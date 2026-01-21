@@ -23,10 +23,10 @@ import { format } from 'd3-format';
 import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL } from './constants';
 import { utils as vizUtils } from '@tidepool/viz';
 const { bankersRound } = vizUtils.stat;
-import personUtils from '../core/personutils';
+import { getGlycemicRangesPreset } from './glycemicRangesUtils';
 
 const {
-  GLYCEMIC_RANGE,
+  GLYCEMIC_RANGES_PRESET,
   DEFAULT_BG_BOUNDS,
   ADA_OLDER_HIGH_RISK_BG_BOUNDS,
   ADA_PREGNANCY_T1_BG_BOUNDS,
@@ -423,14 +423,14 @@ utils.getBGPrefsForDataProcessing = (
     }
 
     // If clinician, use clinic-designated targets, or fall back to default
-    const glycemicRanges = clinicPatient?.glycemicRanges || GLYCEMIC_RANGE.ADA_STANDARD;
+    const glycemicRangesPreset = getGlycemicRangesPreset(clinicPatient?.glycemicRanges);
 
-    switch(glycemicRanges) {
-      case GLYCEMIC_RANGE.ADA_OLDER_HIGH_RISK: return ADA_OLDER_HIGH_RISK_BG_BOUNDS[bgUnits];
-      case GLYCEMIC_RANGE.ADA_PREGNANCY_T1:    return ADA_PREGNANCY_T1_BG_BOUNDS[bgUnits];
-      case GLYCEMIC_RANGE.ADA_GESTATIONAL_T2:  return ADA_GESTATIONAL_T2_BG_BOUNDS[bgUnits];
-      case GLYCEMIC_RANGE.ADA_STANDARD:        return DEFAULT_BG_BOUNDS[bgUnits];
-      default:                                 return DEFAULT_BG_BOUNDS[bgUnits];
+    switch(glycemicRangesPreset) {
+      case GLYCEMIC_RANGES_PRESET.ADA_OLDER_HIGH_RISK: return ADA_OLDER_HIGH_RISK_BG_BOUNDS[bgUnits];
+      case GLYCEMIC_RANGES_PRESET.ADA_PREGNANCY_T1:    return ADA_PREGNANCY_T1_BG_BOUNDS[bgUnits];
+      case GLYCEMIC_RANGES_PRESET.ADA_GESTATIONAL_T2:  return ADA_GESTATIONAL_T2_BG_BOUNDS[bgUnits];
+      case GLYCEMIC_RANGES_PRESET.ADA_STANDARD:        return DEFAULT_BG_BOUNDS[bgUnits];
+      default:                                         return DEFAULT_BG_BOUNDS[bgUnits];
     }
   })();
 

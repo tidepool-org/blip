@@ -39,6 +39,7 @@ const SelectTags = ({
   onChange,
   selectMenuHeight = 240,
   onMenuOpen = noop,
+  closeMenuOnSelect = false,
 }) => {
   const { pathname } = useLocation();
   const { t } = useTranslation();
@@ -54,7 +55,7 @@ const SelectTags = ({
   };
 
   // Suggest tags only if user is viewing ClinicPatients list (where Filters are used)
-  const shouldSuggestTags = pathname === '/clinic-workspace';
+  const shouldSuggestTags = pathname?.includes('/clinic-workspace');
 
   const selectOptions = buildSelectOptions(t, clinic?.patientTags, activeFilters, shouldSuggestTags);
 
@@ -74,7 +75,7 @@ const SelectTags = ({
       onChange={handleTagSelectionChange}
       onMenuOpen={onMenuOpen}
       options={selectOptions}
-      closeMenuOnSelect={false}
+      closeMenuOnSelect={closeMenuOnSelect}
       minMenuHeight={selectMenuHeight}
       maxMenuHeight={selectMenuHeight}
       filterOption={createFilter({ stringify: opt => opt.label })}
@@ -89,6 +90,7 @@ SelectTags.propTypes = {
   onChange: PropTypes.func.isRequired,
   selectMenuHeight: PropTypes.number,
   onMenuOpen: PropTypes.func,
+  closeMenuOnSelect: PropTypes.bool,
 };
 
 SelectTags.defaultProps = {

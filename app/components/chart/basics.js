@@ -21,11 +21,14 @@ import Button from '../elements/Button';
 import BgSourceToggle from './bgSourceToggle';
 import Header from './header';
 import DeviceSelection from './deviceSelection';
+import moment from 'moment';
+import { getChartDateBoundDisplayFormat } from '../elements/DateRangePicker';
 
 class Basics extends Component {
   static propTypes = {
     aggregations: PropTypes.object.isRequired,
     chartPrefs: PropTypes.object.isRequired,
+    copyAsTextMetadata: PropTypes.object,
     data: PropTypes.object.isRequired,
     initialDatetimeLocation: PropTypes.string,
     loading: PropTypes.bool.isRequired,
@@ -33,6 +36,7 @@ class Basics extends Component {
     onClickNoDataRefresh: PropTypes.func.isRequired,
     onSwitchToBasics: PropTypes.func.isRequired,
     onSwitchToDaily: PropTypes.func.isRequired,
+    onClickExport: PropTypes.func.isRequired,
     onClickPrint: PropTypes.func.isRequired,
     onSwitchToSettings: PropTypes.func.isRequired,
     onSwitchToBgLog: PropTypes.func.isRequired,
@@ -91,6 +95,7 @@ class Basics extends Component {
             onClickRefresh={this.props.onClickRefresh}
             onClickSettings={this.props.onSwitchToSettings}
             onClickBgLog={this.handleClickBgLog}
+            onClickExport={this.handleClickExport}
             onClickPrint={this.handleClickPrint}
             isSmartOnFhirMode={this.props.isSmartOnFhirMode}
             ref="header"
@@ -118,7 +123,14 @@ class Basics extends Component {
                 <ClipboardButton
                   buttonTitle={t('For email or notes')}
                   onSuccess={this.handleCopyBasicsClicked}
-                  getText={basicsText.bind(this, this.props.patient, this.props.data, this.props.stats, this.props.aggregations)}
+                  getText={basicsText.bind(
+                    this,
+                    this.props.patient,
+                    this.props.data,
+                    this.props.stats,
+                    this.props.aggregations,
+                    this.props.copyAsTextMetadata,
+                  )}
                 />
                 <BgSourceToggle
                   bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
@@ -206,9 +218,12 @@ class Basics extends Component {
       timezone = timePrefs.timezoneName || 'UTC';
     }
 
-    const dtMask = t('MMM D, YYYY');
-    return sundial.formatInTimezone(endpointsRange[0], timezone, dtMask) +
-      ' - ' + sundial.formatInTimezone(endpointsRange[1] - 1, timezone, dtMask);
+    const startDate = moment(endpointsRange[0]).tz(timezone);
+    const endDate = moment(endpointsRange[1]).tz(timezone);
+
+    const dtMask = getChartDateBoundDisplayFormat(startDate, endDate);
+
+    return startDate.format(dtMask) + ' - ' + endDate.format(dtMask);
   }
 
   isMissingBasics = (props = this.props) => {
@@ -249,6 +264,14 @@ class Basics extends Component {
       e.preventDefault();
     }
     this.props.onSwitchToDaily(_.get(this.props, 'data.data.current.endpoints.range', [])[1]);
+  };
+
+  handleClickExport = e => {
+    if (e) {
+      e.preventDefault();
+    }
+
+    this.props.onClickExport();
   };
 
   handleClickPrint = e => {

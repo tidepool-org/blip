@@ -11,7 +11,7 @@ import moment from 'moment-timezone';
 import { Element, scroller } from 'react-scroll';
 
 import Button from './elements/Button';
-import DateRangePicker from './elements/DateRangePicker';
+import DateRangePicker, { CHART_DATE_BOUND_FORMAT, getChartDateBoundDisplayFormat } from './elements/DateRangePicker';
 import {
   Dialog,
   DialogActions,
@@ -22,6 +22,9 @@ import { MediumTitle, Caption, Body0 } from './elements/FontStyles';
 import i18next from '../core/language';
 import baseTheme, { borders } from '../themes/baseTheme';
 import { useLocalStorage } from '../core/hooks';
+import { utils as vizUtils } from '@tidepool/viz';
+import PartialDaysTooltip from './PartialDaysTooltip';
+const getLocalizedCeiling = vizUtils.datetime.getLocalizedCeiling;
 
 const t = i18next.t.bind(i18next);
 
@@ -34,10 +37,12 @@ export const PrintDateRangeModal = (props) => {
     onDatesChange,
     open,
     processing,
-    timePrefs: { timezoneName = 'UTC' },
+    timePrefs,
     trackMetric,
     loggedInUserId,
   } = props;
+
+  const { timezoneName = 'UTC' } = timePrefs;
 
   const enabledChartsLocalKey = `${loggedInUserId}_PDFChartsEnabled`;
   const defaultRangesLocalKey = `${loggedInUserId}_PDFChartsSelectedRangeIndices`;
@@ -51,7 +56,32 @@ export const PrintDateRangeModal = (props) => {
     endDate: endDate ? moment.utc(endDate).tz(timezoneName).endOf('day').subtract(1, 'ms') : null,
   });
 
+  // Returns the bounds for the last N 24-hour periods based on the most recent datum. This method
+  // will shift the window to end at the start of the hour after the last datum. For example, if the
+  // latest datum was Oct 20 @ 15:23, the 14-day window will be Oct 6 @ 16:00 - Oct 20 @ 16:00
+  const getLastN24HourPeriods = (numOfPeriods, chartType) => {
+    const endDate = get(mostRecentDatumDates, chartType)
+      ? moment.utc(mostRecentDatumDates[chartType])
+      : endOfToday;
+
+    const endHourCeiling = getLocalizedCeiling(endDate.valueOf(), timePrefs, 'hour');
+
+    const startDate = moment.utc(endDate).tz(timezoneName).subtract(numOfPeriods, 'days');
+    const startHourCeiling = getLocalizedCeiling(startDate.valueOf(), timePrefs, 'hour');
+
+    return ({
+      startDate: moment.utc(startHourCeiling).tz(timezoneName),
+      endDate: moment.utc(endHourCeiling).tz(timezoneName),
+    });
+  };
+
   const getLastNDays = (days, chartType) => {
+    // Basics chart can have a window that is offset from midnight.
+    // The window cannot end beyond the time of the last datum.
+    if (chartType === 'basics') {
+      return getLastN24HourPeriods(days, chartType);
+    }
+
     const endDate = get(mostRecentDatumDates, chartType)
       ? moment.utc(mostRecentDatumDates[chartType])
       : endOfToday;
@@ -198,10 +228,49 @@ export const PrintDateRangeModal = (props) => {
     moment.utc(endDate).tz(timezoneName).add(1, 'day').startOf('day').valueOf(),
   ] : []);
 
+  // Basics is a special because it allows split dates
+  const formatBasicsDateEndpoints = ({ startDate, endDate }) => (startDate && endDate ? [
+    moment.utc(startDate).tz(timezoneName).valueOf(),
+    moment.utc(endDate).tz(timezoneName).valueOf(),
+  ] : []);
+
   // Handlers
   const handleClickPreset = (key, days, presetIndex) => {
     setDates({ ...dates, [key]: getLastNDays(days, key) });
     setRangePresets({ ...rangePresets, [key]: presetIndex })
+  };
+
+  const handleSplitDatesChange = (newDates, chartType = 'basics') => {
+    const mostRecentDatumMoment = moment.utc(mostRecentDatumDates[chartType]).tz(timezoneName);
+    const midnightAlignedDates = setDateRangeToExtents(newDates);
+
+    const hasLastDatumContained = mostRecentDatumMoment?.isBefore(midnightAlignedDates?.endDate);
+
+    // If the date selected contains the mostRecentDatum, we want to exclude the time
+    // between the mostRecentDatum and the end of that day. We also adjust the start
+    // time so that the period is a multiple of 24 hours.
+    if (hasLastDatumContained) {
+      const hourCeiling = getLocalizedCeiling(mostRecentDatumDates[chartType], timePrefs, 'hour');
+      const endDate = moment.utc(hourCeiling).tz(timezoneName);
+
+      // Calculate the number of whole days between start and end
+      const daysDiff = midnightAlignedDates.endDate.diff(midnightAlignedDates.startDate, 'days');
+
+      // Subtract that many days from endDate to get the adjusted startDate
+      const startDate = moment.utc(endDate).tz(timezoneName).subtract(daysDiff, 'days');
+
+      setDates(dates => ({ ...dates, [chartType]: { startDate, endDate } }));
+    } else {
+      setDates(dates => ({ ...dates, [chartType]: midnightAlignedDates }));
+    }
+  };
+
+  const handleDatesChange = (newDates, chartType) => {
+    if (chartType === 'basics') {
+      return handleSplitDatesChange(newDates, chartType);
+    }
+
+    setDates(dates => ({ ...dates, [chartType]: setDateRangeToExtents(newDates) }));
   };
 
   const handleSubmit = () => {
@@ -219,7 +288,7 @@ export const PrintDateRangeModal = (props) => {
     const printOpts = {
       agpBGM: { endpoints: formatDateEndpoints(dates.agpBGM), disabled: !enabled.agpBGM },
       agpCGM: { endpoints: formatDateEndpoints(dates.agpCGM), disabled: !enabled.agpCGM },
-      basics: { endpoints: formatDateEndpoints(dates.basics), disabled: !enabled.basics },
+      basics: { endpoints: formatBasicsDateEndpoints(dates.basics), disabled: !enabled.basics },
       bgLog: { endpoints: formatDateEndpoints(dates.bgLog), disabled: !enabled.bgLog },
       daily: { endpoints: formatDateEndpoints(dates.daily), disabled: !enabled.daily },
       settings: { disabled: !enabled.settings },
@@ -244,6 +313,7 @@ export const PrintDateRangeModal = (props) => {
     };
 
     trackMetric('Submitted Print Options', metrics);
+
     onClickPrint(printOpts);
   };
 
@@ -336,32 +406,39 @@ export const PrintDateRangeModal = (props) => {
                   <Box>
                     <Body0 mb={2}>{t('Or select a custom date range ({{maxDays}} days max)', { maxDays })}</Body0>
 
-                    <DateRangePicker
-                      key={`date-range-picker-${panel.key}`}
-                      startDate={dates[panel.key].startDate}
-                      startDateId={`${[panel.key]}-start-date`}
-                      endDate={dates[panel.key].endDate}
-                      endDateId={`${[panel.key]}-end-date`}
-                      onDatesChange={newDates => setDates({ ...dates, [panel.key]: setDateRangeToExtents(newDates) })}
-                      isOutsideRange={day => (
-                        moment.utc(mostRecentDatumDates[panel.key]).tz(timezoneName).endOf('day').subtract(1, 'ms').diff(day) < 0 ||
-                        endOfToday.diff(day) < 0 ||
-                        (moment.isMoment(dates[panel.key].endDate) && dates[panel.key].endDate.diff(day, 'days') >= maxDays) ||
-                        (moment.isMoment(dates[panel.key].startDate) && dates[panel.key].startDate.diff(day, 'days') <= -maxDays)
-                      )}
-                      onFocusChange={input => {
-                        setDatePickerOpen({ ...datePickerOpen, [panel.key]: !!input });
-                        if (input) scroller.scrollTo(`${panel.key}-wrapper`, {
-                          delay: 0,
-                          containerId: 'printDateRangePickerInner',
-                          duration: 250,
-                          smooth: true,
-                        });
-                      }}
-                      themeProps={{
-                        sx: { minHeight: datePickerOpen[panel.key] ? '310px' : undefined },
-                      }}
-                    />
+                    <Flex sx={{ gap: 2 }}>
+                      <DateRangePicker
+                        key={`date-range-picker-${panel.key}`}
+                        startDate={dates[panel.key].startDate}
+                        startDateId={`${[panel.key]}-start-date`}
+                        endDate={dates[panel.key].endDate}
+                        endDateId={`${[panel.key]}-end-date`}
+                        onDatesChange={newDates => handleDatesChange(newDates, panel.key)}
+                        isOutsideRange={day => (
+                          moment.utc(mostRecentDatumDates[panel.key]).tz(timezoneName).endOf('day').subtract(1, 'ms').diff(day) < 0 ||
+                          endOfToday.diff(day) < 0 ||
+                          (moment.isMoment(dates[panel.key].endDate) && dates[panel.key].endDate.diff(day, 'days') >= maxDays) ||
+                          (moment.isMoment(dates[panel.key].startDate) && dates[panel.key].startDate.diff(day, 'days') <= -maxDays)
+                        )}
+                        onFocusChange={input => {
+                          setDatePickerOpen({ ...datePickerOpen, [panel.key]: !!input });
+                          if (input) scroller.scrollTo(`${panel.key}-wrapper`, {
+                            delay: 0,
+                            containerId: 'printDateRangePickerInner',
+                            duration: 250,
+                            smooth: true,
+                          });
+                        }}
+                        themeProps={{
+                          sx: { minHeight: datePickerOpen[panel.key] ? '310px' : undefined },
+                        }}
+                      />
+
+                      {
+                        getChartDateBoundDisplayFormat(dates[panel.key].startDate, dates[panel.key].endDate) === CHART_DATE_BOUND_FORMAT.DATE_AND_TIME &&
+                        <PartialDaysTooltip />
+                      }
+                    </Flex>
                   </Box>
                 </Box>
               )}

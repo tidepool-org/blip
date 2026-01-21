@@ -1,5 +1,6 @@
 /* global chai */
 /* global describe */
+/* global context */
 /* global sinon */
 /* global it */
 /* global before */
@@ -187,6 +188,78 @@ describe('Daily', () => {
 
       wrapper.setProps(dayDataReadyProps);
       expect(chart().length).to.equal(1);
+    });
+
+    it('should render the Events pool label', () => {
+      const label = () => wrapper.find('EventsInfoLabel');
+      expect(label().length).to.equal(0);
+
+      var dayDataReadyProps = _.assign({}, baseProps, {
+        loading: false,
+        data: {
+          query: { chartType: 'daily'},
+          bgPrefs,
+          timePrefs: {
+            timezoneAware: false,
+            timezoneName: 'US/Pacific',
+          },
+        },
+      });
+
+      wrapper.setProps(dayDataReadyProps);
+      expect(label().length).to.equal(1);
+      expect(label().text()).to.equal('Events');
+    });
+
+    it('should render the Events pool label info tooltip, but only if there are alarm events in view', () => {
+      const label = () => wrapper.find('EventsInfoLabel');
+      const tooltip = () => label().find('.events-label-tooltip').hostNodes();
+
+      var dayDataReadyProps = _.assign({}, baseProps, {
+        loading: false,
+        data: {
+          query: { chartType: 'daily'},
+          bgPrefs,
+          timePrefs: {
+            timezoneAware: false,
+            timezoneName: 'US/Pacific',
+          },
+        },
+      });
+
+      wrapper.setProps(dayDataReadyProps);
+      expect(label().length).to.equal(1);
+      expect(tooltip().length).to.equal(0);
+
+      // Set data with an alarm event in view
+      wrapper.setProps({ data: {
+        query: { chartType: 'daily'},
+        bgPrefs,
+        timePrefs: {
+          timezoneAware: false,
+          timezoneName: 'US/Pacific',
+        },
+        data: {
+          combined: [{ tags: { alarm: true }, normalTime: new Date('2018-01-15T12:00:00.000Z').valueOf() }],
+          current: { endpoints: { range: [new Date('2018-01-15T00:00:00.000Z').valueOf(), new Date('2018-01-16T00:00:00.000Z').valueOf()] } },
+        },
+      } });
+      expect(tooltip().length).to.equal(1);
+
+      // Move endpoints so that alarm event is out of view
+      wrapper.setProps({ data: {
+        query: { chartType: 'daily'},
+        bgPrefs,
+        timePrefs: {
+          timezoneAware: false,
+          timezoneName: 'US/Pacific',
+        },
+        data: {
+          combined: [{ tags: { alarm: true }, normalTime: new Date('2018-01-15T12:00:00.000Z').valueOf() }],
+          current: { endpoints: { range: [new Date('2018-01-16T00:00:00.000Z').valueOf(), new Date('2018-01-17T00:00:00.000Z').valueOf()] } },
+        },
+      } });
+      expect(tooltip().length).to.equal(0);
     });
 
     it('should render the cgm interval toggle, but only if there is a current supporting device', () => {
@@ -412,6 +485,183 @@ describe('Daily', () => {
       instance.handleAlarmOut();
 
       expect(instance.state.hoveredAlarm).to.be.false;
+    });
+  });
+
+  describe('handleEventHover', () => {
+    context('pump_shutdown event', () => {
+      it('should set hoveredEvent state with correct positioning', () => {
+        const event = {
+          rect: {
+            top: 100,
+            left: 200,
+            width: 20,
+            height: 30,
+          },
+          chartExtents: {
+            left: 50,
+            right: 400,
+          },
+          data: { tags: { event: 'pump_shutdown' } },
+        };
+
+        instance.handleEventHover(event);
+
+        expect(instance.state.hoveredEvent).to.deep.equal({
+          ...event,
+          top: 150, // rect.top + rect.height + 20
+          left: 210, // rect.left + (rect.width / 2)
+          side: 'bottom',
+        });
+      });
+
+      it('should adjust leftOffset when tooltip would spill over left edge', () => {
+        const event = {
+          rect: {
+            top: 100,
+            left: 60, // Close to left edge
+            width: 20,
+            height: 30,
+          },
+          chartExtents: {
+            left: 50,
+            right: 400,
+          },
+          data: { tags: { event: 'pump_shutdown' } },
+        };
+
+        instance.handleEventHover(event);
+
+        const hoveredEvent = instance.state.hoveredEvent;
+        expect(hoveredEvent.leftOffset).to.equal(70);
+      });
+
+      it('should adjust leftOffset when tooltip would spill over right edge', () => {
+        const event = {
+          rect: {
+            top: 100,
+            left: 390, // Close to right edge
+            width: 20,
+            height: 30,
+          },
+          chartExtents: {
+            left: 50,
+            right: 400,
+          },
+          data: { tags: { event: 'pump_shutdown' } },
+        };
+
+        instance.handleEventHover(event);
+
+        const hoveredEvent = instance.state.hoveredEvent;
+        expect(hoveredEvent.leftOffset).to.equal(-70);
+      });
+    });
+
+    context('standard event', () => {
+      it('should set hoveredEvent state with correct positioning', () => {
+        const event = {
+          rect: {
+            top: 100,
+            left: 200,
+            width: 20,
+            height: 30,
+          },
+          chartExtents: {
+            left: 50,
+            right: 400,
+          },
+          data: { tags: { event: 'health' } },
+        };
+
+        instance.handleEventHover(event);
+
+        expect(instance.state.hoveredEvent).to.deep.equal({
+          ...event,
+          top: 130, // rect.top + rect.height + 0
+          left: 210, // rect.left + (rect.width / 2)
+          side: 'bottom',
+        });
+      });
+
+      it('should adjust leftOffset when tooltip would spill over left edge', () => {
+        const event = {
+          rect: {
+            top: 100,
+            left: 60, // Close to left edge
+            width: 20,
+            height: 30,
+          },
+          chartExtents: {
+            left: 50,
+            right: 400,
+          },
+          data: { tags: { event: 'health' } },
+        };
+
+        instance.handleEventHover(event);
+
+        const hoveredEvent = instance.state.hoveredEvent;
+        expect(hoveredEvent.leftOffset).to.equal(40);
+      });
+
+      it('should adjust leftOffset when tooltip would spill over right edge', () => {
+        const event = {
+          rect: {
+            top: 100,
+            left: 390, // Close to right edge
+            width: 20,
+            height: 30,
+          },
+          chartExtents: {
+            left: 50,
+            right: 400,
+          },
+          data: { tags: { event: 'health' } },
+        };
+
+        instance.handleEventHover(event);
+
+        const hoveredEvent = instance.state.hoveredEvent;
+        expect(hoveredEvent.leftOffset).to.equal(-40);
+      });
+    });
+
+    it('should track metric when hovering over event', () => {
+      const event = {
+        rect: {
+          top: 100,
+          left: 200,
+          width: 20,
+          height: 30,
+        },
+        chartExtents: {
+          left: 50,
+          right: 400,
+        },
+        data: { tags: { event: 'pump_shutdown' } },
+      };
+
+      instance.handleEventHover(event);
+
+      expect(baseProps.trackMetric.calledWith('hovered over daily event tooltip')).to.be.true;
+    });
+  });
+
+  describe('handleEventOut', () => {
+    it('should set hoveredEvent state to false', () => {
+      // First set a hoveredEvent
+      instance.setState({
+        hoveredEvent: {
+          data: { tags: { event: 'pump_shutdown' } },
+          top: 100,
+          left: 200,
+        },
+      });
+
+      instance.handleEventOut();
+
+      expect(instance.state.hoveredEvent).to.be.false;
     });
   });
 });

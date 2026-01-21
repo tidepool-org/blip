@@ -429,6 +429,11 @@ export default (type) => {
     case types.SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_FAILURE:
       return 'sendingPatientDataProviderConnectRequest';
 
+    case types.FETCH_CLINIC_SITES_REQUEST:
+    case types.FETCH_CLINIC_SITES_SUCCESS:
+    case types.FETCH_CLINIC_SITES_FAILURE:
+      return 'fetchingClinicSites';
+
     case types.CREATE_CLINIC_SITE_REQUEST:
     case types.CREATE_CLINIC_SITE_SUCCESS:
     case types.CREATE_CLINIC_SITE_FAILURE:
@@ -443,6 +448,11 @@ export default (type) => {
     case types.DELETE_CLINIC_SITE_SUCCESS:
     case types.DELETE_CLINIC_SITE_FAILURE:
       return 'deletingClinicSite';
+
+    case types.FETCH_CLINIC_PATIENT_TAGS_REQUEST:
+    case types.FETCH_CLINIC_PATIENT_TAGS_SUCCESS:
+    case types.FETCH_CLINIC_PATIENT_TAGS_FAILURE:
+      return 'fetchingClinicPatientTags';
 
     case types.CREATE_CLINIC_PATIENT_TAG_REQUEST:
     case types.CREATE_CLINIC_PATIENT_TAG_SUCCESS:
@@ -474,10 +484,10 @@ export default (type) => {
     case types.FETCH_RPM_REPORT_PATIENTS_FAILURE:
       return 'fetchingRpmReportPatients';
 
-    case types.FETCH_CLINIC_PATIENT_COUNT_REQUEST:
-    case types.FETCH_CLINIC_PATIENT_COUNT_SUCCESS:
-    case types.FETCH_CLINIC_PATIENT_COUNT_FAILURE:
-      return 'fetchingClinicPatientCount';
+    case types.FETCH_CLINIC_PATIENT_COUNTS_REQUEST:
+    case types.FETCH_CLINIC_PATIENT_COUNTS_SUCCESS:
+    case types.FETCH_CLINIC_PATIENT_COUNTS_FAILURE:
+      return 'fetchingClinicPatientCounts';
 
     case types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST:
     case types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS:

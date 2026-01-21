@@ -42,9 +42,11 @@ const CBGTooltip = vizComponents.CBGTooltip;
 const FoodTooltip = vizComponents.FoodTooltip;
 const PumpSettingsOverrideTooltip = vizComponents.PumpSettingsOverrideTooltip;
 const AlarmTooltip = vizComponents.AlarmTooltip;
+const EventTooltip = vizComponents.EventTooltip;
 
 import Header from './header';
 import CgmSampleIntervalRangeToggle from './cgmSampleIntervalRangeToggle';
+import EventsInfoLabel from './eventsInfoLabel';
 import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE } from '../../core/constants';
 
 const DailyChart = withTranslation(null, { withRef: true })(class DailyChart extends Component {
@@ -74,6 +76,10 @@ const DailyChart = withTranslation(null, { withRef: true })(class DailyChart ext
     onCarbOut: PropTypes.func.isRequired,
     onPumpSettingsOverrideHover: PropTypes.func.isRequired,
     onPumpSettingsOverrideOut: PropTypes.func.isRequired,
+    onAlarmHover: PropTypes.func.isRequired,
+    onAlarmOut: PropTypes.func.isRequired,
+    onEventHover: PropTypes.func.isRequired,
+    onEventOut: PropTypes.func.isRequired
   };
 
   constructor(props) {
@@ -87,6 +93,7 @@ const DailyChart = withTranslation(null, { withRef: true })(class DailyChart ext
       'bolusRatio',
       'carbUnits',
       'dynamicCarbs',
+      'insulinBolus',
       'timePrefs',
       'onBolusHover',
       'onBolusOut',
@@ -100,6 +107,8 @@ const DailyChart = withTranslation(null, { withRef: true })(class DailyChart ext
       'onPumpSettingsOverrideOut',
       'onAlarmHover',
       'onAlarmOut',
+      'onEventHover',
+      'onEventOut',
     ];
 
     this.log = bows('Daily Chart');
@@ -240,6 +249,7 @@ class Daily extends Component {
     // navigation handlers
     onSwitchToBasics: PropTypes.func.isRequired,
     onSwitchToDaily: PropTypes.func.isRequired,
+    onClickExport: PropTypes.func.isRequired,
     onClickPrint: PropTypes.func.isRequired,
     onSwitchToSettings: PropTypes.func.isRequired,
     onSwitchToBgLog: PropTypes.func.isRequired,
@@ -267,6 +277,7 @@ class Daily extends Component {
     return {
       atMostRecent: false,
       endpoints: [],
+      hasAlarmEventsInView: null,
       initialDatetimeLocation: this.props.initialDatetimeLocation,
       inTransition: false,
       title: '',
@@ -278,11 +289,23 @@ class Daily extends Component {
     const newDataAdded = this.props.addingData.inProgress && nextProps.addingData.completed;
     const dataUpdated = this.props.updatingDatum.inProgress && nextProps.updatingDatum.completed;
     const newDataRecieved = this.props.queryDataCount !== nextProps.queryDataCount;
+    const newEndpointsReceived = this.props.data?.data?.current?.endpoints !== nextProps.data?.data?.current?.endpoints;
 
     if (this.chartRef.current) {
       const updates = {};
       if (loadingJustCompleted || newDataAdded || dataUpdated || newDataRecieved) updates.data = nextProps.data;
       if (!_.isEmpty(updates)) this.chartRef.current?.rerenderChart(updates);
+    }
+
+    if (nextProps.data?.data?.combined && (this.state.hasAlarmEventsInView === null || newEndpointsReceived)) {
+      const hasAlarmEventsInView = _.some(
+        _.filter(nextProps.data.data.combined, d => !!d.tags?.alarm),
+        d => d.normalTime >= nextProps.data.data.current.endpoints.range[0] && d.normalTime <= nextProps.data.data.current.endpoints.range[1]
+      );
+
+      if (hasAlarmEventsInView !== this.state.hasAlarmEventsInView) {
+        this.setState({ hasAlarmEventsInView });
+      }
     }
   };
 
@@ -318,6 +341,7 @@ class Daily extends Component {
             onClickOneDay={this.handleClickOneDay}
             onClickSettings={this.props.onSwitchToSettings}
             onClickBgLog={this.handleClickBgLog}
+            onClickExport={this.handleClickExport}
             onClickPrint={this.handleClickPrint}
             isSmartOnFhirMode={this.props.isSmartOnFhirMode}
             ref={this.headerRef}
@@ -428,6 +452,19 @@ class Daily extends Component {
             alarm={this.state.hoveredAlarm.data}
             timePrefs={timePrefs}
           />}
+          {this.state.hoveredEvent && <EventTooltip
+            position={{
+              top: this.state.hoveredEvent.top,
+              left: this.state.hoveredEvent.left
+            }}
+            offset={{
+              top: 0,
+              left: this.state.hoveredEvent.leftOffset || 0
+            }}
+            side={this.state.hoveredEvent.side}
+            event={this.state.hoveredEvent.data}
+            timePrefs={timePrefs}
+          />}
           <WindowSizeListener onResize={this.handleWindowResize} />
         </Box>
       </div>
@@ -450,6 +487,11 @@ class Daily extends Component {
       { type: 'wizard', carbUnits: 'exchanges' }
     );
 
+    const hasInsulinData = _.some(
+      _.get(this.props, 'data.data.combined'),
+      { type: 'insulin' }
+    );
+
     const hasOneMinCgmSampleIntervalDevice = _.some(
       _.get(this.props, 'data.metaData.devices'),
       { oneMinCgmSampleInterval: true }
@@ -459,49 +501,64 @@ class Daily extends Component {
 
     return (
       <>
-        {showingCgmData && hasOneMinCgmSampleIntervalDevice && (
-          <Flex sx={{ justifyContent: 'flex-end', alignItems: 'center' }}>
+        <Flex
+          sx={{
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            position: 'relative',
+            zIndex: 1,
+          }}
+        >
+          <EventsInfoLabel hasAlarmEventsInView={this.state.hasAlarmEventsInView} />
+
+          {showingCgmData && hasOneMinCgmSampleIntervalDevice && (
             <CgmSampleIntervalRangeToggle
               chartPrefs={this.props.chartPrefs}
               chartType={this.chartType}
               onClickCgmSampleIntervalRangeToggle={this.toggleCgmSampleIntervalRange}
             />
-          </Flex>
-        )}
+          )}
+        </Flex>
 
-        <DailyChart
-          automatedBasal={isAutomatedBasalDevice}
-          automatedBolus={isAutomatedBolusDevice}
-          bgClasses={bgPrefs.bgClasses}
-          bgUnits={bgPrefs.bgUnits}
-          bolusRatio={this.props.chartPrefs.bolusRatio}
-          carbUnits={carbUnits}
-          data={this.props.data}
-          dynamicCarbs={this.props.chartPrefs.dynamicCarbs}
-          initialDatetimeLocation={this.props.initialDatetimeLocation}
-          timePrefs={timePrefs}
-          // message handlers
-          onCreateMessage={this.props.onCreateMessage}
-          onShowMessageThread={this.props.onShowMessageThread}
-          // other handlers
-          onDatetimeLocationChange={this.handleDatetimeLocationChange}
-          onHideBasalSettings={this.handleHideBasalSettings}
-          onMostRecent={this.handleMostRecent}
-          onShowBasalSettings={this.handleShowBasalSettings}
-          onTransition={this.handleInTransition}
-          onBolusHover={this.handleBolusHover}
-          onBolusOut={this.handleBolusOut}
-          onSMBGHover={this.handleSMBGHover}
-          onSMBGOut={this.handleSMBGOut}
-          onCBGHover={this.handleCBGHover}
-          onCBGOut={this.handleCBGOut}
-          onCarbHover={this.handleCarbHover}
-          onCarbOut={this.handleCarbOut}
-          onPumpSettingsOverrideHover={this.handlePumpSettingsOverrideHover}
-          onPumpSettingsOverrideOut={this.handlePumpSettingsOverrideOut}
-          onAlarmHover={this.handleAlarmHover}
-          onAlarmOut={this.handleAlarmOut}
-          ref={this.chartRef} />
+        <Box sx={{ position: 'relative', top: '-24px' }}>
+          <DailyChart
+            automatedBasal={isAutomatedBasalDevice}
+            automatedBolus={isAutomatedBolusDevice}
+            insulinBolus={hasInsulinData}
+            bgClasses={bgPrefs.bgClasses}
+            bgUnits={bgPrefs.bgUnits}
+            bolusRatio={this.props.chartPrefs.bolusRatio}
+            carbUnits={carbUnits}
+            data={this.props.data}
+            dynamicCarbs={this.props.chartPrefs.dynamicCarbs}
+            initialDatetimeLocation={this.props.initialDatetimeLocation}
+            timePrefs={timePrefs}
+            // message handlers
+            onCreateMessage={this.props.onCreateMessage}
+            onShowMessageThread={this.props.onShowMessageThread}
+            // other handlers
+            onDatetimeLocationChange={this.handleDatetimeLocationChange}
+            onHideBasalSettings={this.handleHideBasalSettings}
+            onMostRecent={this.handleMostRecent}
+            onShowBasalSettings={this.handleShowBasalSettings}
+            onTransition={this.handleInTransition}
+            onBolusHover={this.handleBolusHover}
+            onBolusOut={this.handleBolusOut}
+            onSMBGHover={this.handleSMBGHover}
+            onSMBGOut={this.handleSMBGOut}
+            onCBGHover={this.handleCBGHover}
+            onCBGOut={this.handleCBGOut}
+            onCarbHover={this.handleCarbHover}
+            onCarbOut={this.handleCarbOut}
+            onPumpSettingsOverrideHover={this.handlePumpSettingsOverrideHover}
+            onPumpSettingsOverrideOut={this.handlePumpSettingsOverrideOut}
+            onAlarmHover={this.handleAlarmHover}
+            onAlarmOut={this.handleAlarmOut}
+            onEventHover={this.handleEventHover}
+            onEventOut={this.handleEventOut}
+            ref={this.chartRef}
+          />
+        </Box>
       </>
     );
   }
@@ -578,6 +635,14 @@ class Daily extends Component {
       e.preventDefault();
     }
     return;
+  };
+
+  handleClickExport = e => {
+    if (e) {
+      e.preventDefault();
+    }
+
+    this.props.onClickExport();
   };
 
   handleClickPrint = e => {
@@ -749,6 +814,41 @@ class Daily extends Component {
   handleAlarmOut = () => {
     this.setState({
       hoveredAlarm: false
+    });
+  };
+
+  handleEventHover = event => {
+    this.throttledMetric('hovered over daily event tooltip');
+    const rect = event.rect;
+
+    const isDetailedEvent = ['pump_shutdown'].includes(event.data?.tags?.event);
+    const topOffset = isDetailedEvent ? 20 : 0;
+    const xEdgeOffset = isDetailedEvent ? 70 : 40;
+
+    event.top = rect.top + rect.height + topOffset;
+    event.left = rect.left + (rect.width / 2);
+    event.side = 'bottom';
+
+    // Prevent the tooltip from spilling over chart edges
+    const leftOffset = event.left - event.chartExtents.left;
+    const rightOffset = event.left - event.chartExtents.right;
+
+    if (leftOffset < xEdgeOffset) {
+      event.leftOffset = xEdgeOffset;
+    }
+
+    if (rightOffset > -xEdgeOffset) {
+      event.leftOffset = -xEdgeOffset;
+    }
+
+    this.setState({
+      hoveredEvent: event
+    });
+  };
+
+  handleEventOut = () => {
+    this.setState({
+      hoveredEvent: false
     });
   };
 

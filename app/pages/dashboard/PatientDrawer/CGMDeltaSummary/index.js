@@ -10,6 +10,15 @@ import { MS_IN_HOUR } from '../../../../core/constants';
 
 import getReportDaysText from '../getReportDaysText';
 
+// TODO: Import these colors from viz AGPConstants once that is exported from viz
+const AGPColors = {
+  veryLow: '#CC0019',
+  low: '#FF0000',
+  target: '#0BAD5A',
+  high: '#FFBF00',
+  veryHigh: '#FF6900',
+};
+
 const formatPercentChangeCopy = (t, currentValue, previousValue) => {
   const renderedDelta = bankersRound(Math.abs(currentValue - previousValue), 1);
 
@@ -36,6 +45,15 @@ const Delta = styled(Box)`
   font-size: 14px;
   font-weight: bold;
   color: ${vizColors.purple90};
+`;
+
+const LabelMarker = styled(Box)`
+  background-color: ${props => props.color};
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 4px;
 `;
 
 const Previous = styled(Box)`
@@ -177,37 +195,50 @@ const CGMDeltaSummary = ({ agpCGM, offsetAgpCGM }) => {
         </Box>
       </Flex>
       <Flex sx={{ justifyContent:'space-between', background: vizColors.blue00, padding: 3, borderRadius: '8px' }}>
-        { hasVeryLowRange && (
-          <Category data-testid="cgm-delta-summary-very-low">
-            <Label>{t('Time in Very Low')}</Label>
-            <Delta>{values?.timeInVeryLowPercentDeltaCopy}</Delta>
-            <Previous>{t('Was {{ value }}%', { value: values?.offsetTimeInVeryLowPercent })}</Previous>
-          </Category>
-        )}
+        <Category data-testid="cgm-delta-summary-very-low">
+          <Label>
+            <LabelMarker color={AGPColors.veryLow} />
+            {t('Time in Very Low')}
+          </Label>
+          <Delta>{values?.timeInVeryLowPercentDeltaCopy}</Delta>
+          <Previous>{t('Was {{ value }}%', { value: values?.offsetTimeInVeryLowPercent })}</Previous>
+        </Category>
         <Category data-testid="cgm-delta-summary-low">
-          <Label>{t('Time in Low')}</Label>
+          <Label>
+            <LabelMarker color={AGPColors.low} />
+            {t('Time in Low')}
+          </Label>
           <Delta>{values?.timeInLowPercentDeltaCopy}</Delta>
           <Previous>{t('Was {{ value }}%', { value: values?.offsetTimeInLowPercent })}</Previous>
         </Category>
         <Category data-testid="cgm-delta-summary-target">
-          <Label>{t('Time in Target')}</Label>
+          <Label>
+            <LabelMarker color={AGPColors.target} />
+            {t('Time in Target')}
+          </Label>
           <Delta>{values?.timeInTargetPercentDeltaCopy}</Delta>
           <Previous>{t('Was {{ value }}%', { value: values?.offsetTimeInTargetPercent })}</Previous>
         </Category>
         <Category data-testid="cgm-delta-summary-high">
-          <Label>{t('Time in High')}</Label>
+          <Label>
+            <LabelMarker color={AGPColors.high} />
+            {t('Time in High')}
+          </Label>
           <Delta>{values?.timeInHighPercentDeltaCopy}</Delta>
           <Previous>{t('Was {{ value }}%', { value: values?.offsetTimeInHighPercent })}</Previous>
         </Category>
-        { hasVeryHighRange && (
-          <Category data-testid="cgm-delta-summary-very-high">
-            <Label>{t('Time in Very High')}</Label>
-            <Delta>{values?.timeInVeryHighPercentDeltaCopy}</Delta>
-            <Previous>{t('Was {{ value }}%', { value: values?.offsetTimeInVeryHighPercent })}</Previous>
-          </Category>
-        )}
+        <Category data-testid="cgm-delta-summary-very-high">
+          <Label>
+            <LabelMarker color={AGPColors.veryHigh} />
+            {t('Time in Very High')}
+          </Label>
+          <Delta>{values?.timeInVeryHighPercentDeltaCopy}</Delta>
+          <Previous>{t('Was {{ value }}%', { value: values?.offsetTimeInVeryHighPercent })}</Previous>
+        </Category>
         <Category data-testid="cgm-delta-summary-cgm-active">
-          <Label>{t('Time CGM Active')}</Label>
+          <Label>
+            {t('Time CGM Active')}
+          </Label>
           <Delta>{values?.sensorUsageAGPDeltaCopy}</Delta>
           <Previous>{t('Was {{ value }}%', { value: values?.offsetSensorUsageAGP })}</Previous>
         </Category>

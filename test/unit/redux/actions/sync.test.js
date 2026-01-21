@@ -3870,7 +3870,7 @@ describe('Actions', () => {
 
     describe('createClinicSiteSuccess', () => {
       const clinicId = 'clinicId';
-      const sites = 'sites';
+      const site = 'site';
 
       it('should be a TSA', () => {
         let action = sync.createClinicSiteSuccess(clinicId);
@@ -3878,10 +3878,10 @@ describe('Actions', () => {
       });
 
       it('type should equal CREATE_CLINIC_SITE_SUCCESS', () => {
-        let action = sync.createClinicSiteSuccess(clinicId, sites);
+        let action = sync.createClinicSiteSuccess(clinicId, site);
         expect(action.type).to.equal('CREATE_CLINIC_SITE_SUCCESS');
         expect(action.payload.clinicId).to.equal('clinicId');
-        expect(action.payload.sites).to.equal('sites');
+        expect(action.payload.site).to.equal('site');
       });
     });
 
@@ -3914,18 +3914,18 @@ describe('Actions', () => {
 
     describe('createClinicPatientTagSuccess', () => {
       const clinicId = 'clinicId';
-      const patientTags = 'patientTags';
+      const patientTag = 'patientTag';
 
       it('should be a TSA', () => {
-        let action = sync.createClinicPatientTagSuccess(clinicId);
+        let action = sync.createClinicPatientTagSuccess();
         expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal CREATE_CLINIC_PATIENT_TAG_SUCCESS', () => {
-        let action = sync.createClinicPatientTagSuccess(clinicId, patientTags);
+        let action = sync.createClinicPatientTagSuccess(clinicId, patientTag);
         expect(action.type).to.equal('CREATE_CLINIC_PATIENT_TAG_SUCCESS');
         expect(action.payload.clinicId).to.equal('clinicId');
-        expect(action.payload.patientTags).to.equal('patientTags');
+        expect(action.payload.patientTag).to.equal('patientTag');
       });
     });
 
@@ -3958,7 +3958,7 @@ describe('Actions', () => {
 
     describe('updateClinicPatientTagSuccess', () => {
       const clinicId = 'clinicId';
-      const patientTags = 'patientTags';
+      const patientTag = 'patientTag';
 
       it('should be a TSA', () => {
         let action = sync.updateClinicPatientTagSuccess(clinicId);
@@ -3966,10 +3966,10 @@ describe('Actions', () => {
       });
 
       it('type should equal UPDATE_CLINIC_PATIENT_TAG_SUCCESS', () => {
-        let action = sync.updateClinicPatientTagSuccess(clinicId, patientTags);
+        let action = sync.updateClinicPatientTagSuccess(clinicId, patientTag);
         expect(action.type).to.equal('UPDATE_CLINIC_PATIENT_TAG_SUCCESS');
         expect(action.payload.clinicId).to.equal('clinicId');
-        expect(action.payload.patientTags).to.equal('patientTags');
+        expect(action.payload.patientTag).to.equal('patientTag');
       });
     });
 
@@ -4002,7 +4002,7 @@ describe('Actions', () => {
 
     describe('deleteClinicPatientTagSuccess', () => {
       const clinicId = 'clinicId';
-      const patientTags = 'patientTags';
+      const patientTagId = 'patientTagId';
 
       it('should be a TSA', () => {
         let action = sync.deleteClinicPatientTagSuccess(clinicId);
@@ -4010,10 +4010,10 @@ describe('Actions', () => {
       });
 
       it('type should equal DELETE_CLINIC_PATIENT_TAG_SUCCESS', () => {
-        let action = sync.deleteClinicPatientTagSuccess(clinicId, patientTags);
+        let action = sync.deleteClinicPatientTagSuccess(clinicId, patientTagId);
         expect(action.type).to.equal('DELETE_CLINIC_PATIENT_TAG_SUCCESS');
         expect(action.payload.clinicId).to.equal('clinicId');
-        expect(action.payload.patientTags).to.equal('patientTags');
+        expect(action.payload.patientTagId).to.equal('patientTagId');
       });
     });
 
@@ -4409,46 +4409,46 @@ describe('Actions', () => {
       });
     });
 
-    describe('fetchClinicPatientCountRequest', () => {
+    describe('fetchClinicPatientCountsRequest', () => {
       it('should be a TSA', () => {
-        let action = sync.fetchClinicPatientCountRequest();
+        let action = sync.fetchClinicPatientCountsRequest();
         expect(isTSA(action)).to.be.true;
       });
 
-      it('type should equal FETCH_CLINIC_PATIENT_COUNT_REQUEST', () => {
-        let action = sync.fetchClinicPatientCountRequest();
-        expect(action.type).to.equal('FETCH_CLINIC_PATIENT_COUNT_REQUEST');
+      it('type should equal FETCH_CLINIC_PATIENT_COUNTS_REQUEST', () => {
+        let action = sync.fetchClinicPatientCountsRequest();
+        expect(action.type).to.equal('FETCH_CLINIC_PATIENT_COUNTS_REQUEST');
       });
     });
 
-    describe('fetchClinicPatientCountSuccess', () => {
+    describe('fetchClinicPatientCountsSuccess', () => {
       const clinicId = 'clinic123';
-      const results = { patientCount: 33 };
+      const patientCounts = { plan: 33 };
 
       it('should be a TSA', () => {
-        let action = sync.fetchClinicPatientCountSuccess(clinicId, results);
+        let action = sync.fetchClinicPatientCountsSuccess(clinicId, patientCounts);
         expect(isTSA(action)).to.be.true;
       });
 
-      it('type should equal FETCH_CLINIC_PATIENT_COUNT_SUCCESS', () => {
-        let action = sync.fetchClinicPatientCountSuccess(clinicId, results);
-        expect(action.type).to.equal('FETCH_CLINIC_PATIENT_COUNT_SUCCESS');
+      it('type should equal FETCH_CLINIC_PATIENT_COUNTS_SUCCESS', () => {
+        let action = sync.fetchClinicPatientCountsSuccess(clinicId, patientCounts);
+        expect(action.type).to.equal('FETCH_CLINIC_PATIENT_COUNTS_SUCCESS');
         expect(action.payload.clinicId).to.equal('clinic123');
-        expect(action.payload.patientCount).to.equal(33);
+        expect(action.payload.patientCounts).to.eql({ plan: 33 });
       });
     });
 
-    describe('fetchClinicPatientCountFailure', () => {
+    describe('fetchClinicPatientCountsFailure', () => {
       it('should be a TSA', () => {
         let error = new Error('fetching patients failed :(');
-        let action = sync.fetchClinicPatientCountFailure(error);
+        let action = sync.fetchClinicPatientCountsFailure(error);
         expect(isTSA(action)).to.be.true;
       });
 
-      it('type should equal FETCH_CLINIC_PATIENT_COUNT_FAILURE and error should equal passed error', () => {
+      it('type should equal FETCH_CLINIC_PATIENT_COUNTS_FAILURE and error should equal passed error', () => {
         let error = new Error('stink :(');
-        let action = sync.fetchClinicPatientCountFailure(error);
-        expect(action.type).to.equal('FETCH_CLINIC_PATIENT_COUNT_FAILURE');
+        let action = sync.fetchClinicPatientCountsFailure(error);
+        expect(action.type).to.equal('FETCH_CLINIC_PATIENT_COUNTS_FAILURE');
         expect(action.error).to.equal(error);
       });
     });

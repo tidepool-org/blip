@@ -4214,6 +4214,7 @@ describe('Actions', () => {
               'smbg',
               'basal',
               'bolus',
+              'insulin',
               'wizard',
               'food',
               'pumpSettings',
@@ -6286,6 +6287,11 @@ describe('Actions', () => {
         let api = {
           clinics: {
             deletePatientFromClinic: sinon.stub().callsArgWith(2, null, { foo: 'bar '}),
+            getClinicPatientCount: sinon.stub().callsArgWith(1, null, {
+              demo: 1,
+              plan: 249,
+              total: 250
+            }),
           },
         };
 
@@ -6294,6 +6300,15 @@ describe('Actions', () => {
           { type: 'DELETE_PATIENT_FROM_CLINIC_SUCCESS', payload: {
             clinicId,
             patientId,
+          } },
+          { type: 'FETCH_CLINIC_PATIENT_COUNTS_REQUEST' },
+          { type: 'FETCH_CLINIC_PATIENT_COUNTS_SUCCESS', payload: {
+            clinicId,
+            patientCounts: {
+              demo: 1,
+              plan: 249,
+              total: 250
+            }
           } },
           {
             payload: {
@@ -6320,10 +6335,10 @@ describe('Actions', () => {
                     workspacePlan: true,
                   },
                   text: {
-                    limitDescription: 'Limited to 250 patients',
+                    limitDescription: 'This plan allows for a limited number of patient accounts.',
                     limitFeedback: {
                       status: 'warning',
-                      text: 'Maximum of 250 patient accounts reached',
+                      text: 'Maximum number of patient accounts reached',
                     },
                     limitResolutionLink: {
                       text: 'Unlock plans',
@@ -6353,10 +6368,14 @@ describe('Actions', () => {
             [clinicId]: {
               country: 'US',
               tier: 'tier0100',
-              patientCount: 250,
+              patientCounts: {
+                demo: 1,
+                plan: 250,
+                total: 251
+              },
               patientCountSettings: {
                 hardLimit: {
-                  patientCount: 250,
+                  plan: 250,
                   startDate: moment().subtract(1, 'day').toISOString(),
                 },
               },
@@ -6756,7 +6775,7 @@ describe('Actions', () => {
     });
 
     describe('createClinicCustodialAccount', () => {
-      it('should trigger CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS and it should call clinics.createClinicCustodialAccount and update clinic UI details once for a successful request', () => {
+      it('should trigger CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS and it should call clinics.createClinicCustodialAccount and refetch clinic patient counts', () => {
         let clinicId = '5f85fbe6686e6bb9170ab5d0';
         let patient = {
           fullName: 'patientName',
@@ -6767,6 +6786,11 @@ describe('Actions', () => {
         let api = {
           clinics: {
             createClinicCustodialAccount: sinon.stub().callsArgWith(2, null, patient),
+            getClinicPatientCount: sinon.stub().callsArgWith(1, null, {
+              demo: 1,
+              plan: 251,
+              total: 252
+            }),
           },
         };
 
@@ -6777,6 +6801,18 @@ describe('Actions', () => {
             patientId: 'patient123',
             patient,
           } },
+          { type: 'FETCH_CLINIC_PATIENT_COUNTS_REQUEST' },
+          {
+            payload: {
+              clinicId: '5f85fbe6686e6bb9170ab5d0',
+              patientCounts: {
+                demo: 1,
+                plan: 251,
+                total: 252
+              }
+            },
+            type: 'FETCH_CLINIC_PATIENT_COUNTS_SUCCESS'
+          },
           {
             payload: {
               clinicId: '5f85fbe6686e6bb9170ab5d0',
@@ -6802,10 +6838,10 @@ describe('Actions', () => {
                     workspacePlan: true,
                   },
                   text: {
-                    limitDescription: 'Limited to 250 patients',
+                    limitDescription: 'This plan allows for a limited number of patient accounts.',
                     limitFeedback: {
                       status: 'warning',
-                      text: 'Maximum of 250 patient accounts reached',
+                      text: 'Maximum number of patient accounts reached',
                     },
                     limitResolutionLink: {
                       text: 'Contact us to unlock plans',
@@ -6833,10 +6869,10 @@ describe('Actions', () => {
             [clinicId]: {
               country: 'US',
               tier: 'tier0100',
-              patientCount: 249,
+              patientCounts: { plan: 249 },
               patientCountSettings: {
                 hardLimit: {
-                  patientCount: 250,
+                  plan: 250,
                   startDate: moment().subtract(1, 'day').toISOString(),
                 },
               },
@@ -6977,7 +7013,7 @@ describe('Actions', () => {
         };
         let api = {
           clinics: {
-            getClinicPatientCount: sinon.stub().callsArgWith(1, null, { patientCount: 251 }),
+            getClinicPatientCount: sinon.stub().callsArgWith(1, null, { demo: 1, plan: 251, total: 252 }),
             createClinicCustodialAccount: sinon.stub()
               .callsArgWith(2, { status: 402, body: 'Error!' }, null),
           },
@@ -6990,8 +7026,8 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'CREATE_CLINIC_CUSTODIAL_ACCOUNT_REQUEST' },
-          { type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST' },
-          { type: 'FETCH_CLINIC_PATIENT_COUNT_SUCCESS', payload: { clinicId: '5f85fbe6686e6bb9170ab5d0', patientCount: 251 } },
+          { type: 'FETCH_CLINIC_PATIENT_COUNTS_REQUEST' },
+          { type: 'FETCH_CLINIC_PATIENT_COUNTS_SUCCESS', payload: { clinicId: '5f85fbe6686e6bb9170ab5d0', patientCounts: { demo: 1, plan: 251, total: 252 } } },
           {
             type: 'SET_CLINIC_UI_DETAILS',
             payload: {
@@ -7019,10 +7055,10 @@ describe('Actions', () => {
                   },
                   text: {
                     planDisplayName: 'Base',
-                    limitDescription: 'Limited to 250 patients',
+                    limitDescription: 'This plan allows for a limited number of patient accounts.',
                     limitFeedback: {
                      status: 'warning',
-                     text: 'Maximum of 250 patient accounts reached',
+                     text: 'Maximum number of patient accounts reached',
                     },
                     limitResolutionLink: {
                       text: 'Contact us to unlock plans',
@@ -7054,7 +7090,7 @@ describe('Actions', () => {
               tier: 'tier0100',
               patientCountSettings: {
                 hardLimit: {
-                  patientCount: 250,
+                  plan: 250,
                   startDate: moment().subtract(1, 'day').toISOString(),
                 }
               }
@@ -7913,6 +7949,11 @@ describe('Actions', () => {
         let api = {
           clinics: {
             acceptPatientInvitation: sinon.stub().callsArgWith(3, null, {}),
+            getClinicPatientCount: sinon.stub().callsArgWith(1, null, {
+              demo: 1,
+              plan: 250,
+              total: 251
+            }),
           },
         };
 
@@ -7923,6 +7964,20 @@ describe('Actions', () => {
             inviteId: 'inviteIdABC',
             patientId: 'patientId456'
           } },
+          {
+            type: 'FETCH_CLINIC_PATIENT_COUNTS_REQUEST'
+          },
+          {
+            payload: {
+              clinicId: 'clinicId123',
+              patientCounts: {
+                demo: 1,
+                plan: 250,
+                total: 251
+              }
+            },
+            type: 'FETCH_CLINIC_PATIENT_COUNTS_SUCCESS'
+          },
           {
             payload: {
               clinicId: 'clinicId123',
@@ -7948,10 +8003,10 @@ describe('Actions', () => {
                     workspacePlan: true,
                   },
                   text: {
-                    limitDescription: 'Limited to 250 patients',
+                    limitDescription: 'This plan allows for a limited number of patient accounts.',
                     limitFeedback: {
                       status: 'warning',
-                      text: 'Maximum of 250 patient accounts reached',
+                      text: 'Maximum number of patient accounts reached',
                     },
                     limitResolutionLink: {
                       text: 'Contact us to unlock plans',
@@ -7979,10 +8034,10 @@ describe('Actions', () => {
             [clinicId]: {
               country: 'US',
               tier: 'tier0100',
-              patientCount: 249,
+              patientCounts: { plan: 249 },
               patientCountSettings: {
                 hardLimit: {
-                  patientCount: 250,
+                  plan: 250,
                   startDate: moment().subtract(1, 'day').toISOString(),
                 },
               },
@@ -8829,6 +8884,113 @@ describe('Actions', () => {
         });
 
         let store = mockStore({ blip: initialState });
+
+        store.dispatch(async.sendPatientDataProviderConnectRequest(api, clinicId, patientId, providerName));
+
+        const actions = store.getActions();
+        expect(actions).to.eql(expectedActions);
+        expect(api.clinics.sendPatientDataProviderConnectRequest.callCount).to.equal(1);
+      });
+
+      it('should trigger SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_SUCCESS and update clinic patient counts for a successful twiist connect request', () => {
+        const clinicId = 'clinicId1';
+        const patientId = 'patientId1';
+        const providerName = 'twiist';
+        const createdTime = '2022-02-02T00:00:00.000Z';
+
+        let api = {
+          clinics: {
+            sendPatientDataProviderConnectRequest: sinon.stub().callsArgWith(3, null),
+            getClinicPatientCount: sinon.stub().callsArgWith(1, null, {
+              demo: 1,
+              plan: 251,
+              total: 252
+            }),
+          },
+        };
+
+        let expectedActions = [
+          { type: 'SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_REQUEST' },
+          { type: 'SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_SUCCESS', payload: { clinicId, patientId, providerName, createdTime } },
+          { type: 'FETCH_CLINIC_PATIENT_COUNTS_REQUEST' },
+          {
+            payload: {
+              clinicId,
+              patientCounts: {
+                demo: 1,
+                plan: 251,
+                total: 252
+              }
+            },
+            type: 'FETCH_CLINIC_PATIENT_COUNTS_SUCCESS'
+          },
+          {
+            payload: {
+              clinicId,
+              uiDetails: {
+                entitlements: {
+                  patientTags: false,
+                  clinicSites: false,
+                  prescriptions: false,
+                  rpmReport: false,
+                  summaryDashboard: false,
+                  tideDashboard: false,
+                },
+                patientLimitEnforced: true,
+                planName: 'base',
+                ui: {
+                  display: {
+                    patientCount: true,
+                    patientLimit: true,
+                    planName: true,
+                    workspaceLimitDescription: false,
+                    workspaceLimitFeedback: true,
+                    workspaceLimitResolutionLink: true,
+                    workspacePlan: true,
+                  },
+                  text: {
+                    limitDescription: 'This plan allows for a limited number of patient accounts.',
+                    limitFeedback: {
+                      status: 'warning',
+                      text: 'Maximum number of patient accounts reached',
+                    },
+                    limitResolutionLink: {
+                      text: 'Contact us to unlock plans',
+                      url: 'https://app.cronofy.com/add_to_calendar/scheduling/-hq0nDA6',
+                    },
+                    planDisplayName: 'Base',
+                  },
+                  warnings: {
+                    limitApproaching: true,
+                    limitReached: true,
+                  },
+                },
+              },
+            },
+            type: 'SET_CLINIC_UI_DETAILS',
+          },
+        ];
+        _.each(expectedActions, (action) => {
+          expect(isTSA(action)).to.be.true;
+        });
+
+        let store = mockStore({ blip: {
+          ...initialState,
+          clinics: {
+            [clinicId]: {
+              country: 'US',
+              tier: 'tier0100',
+              patientCounts: { plan: 249 },
+              patientCountSettings: {
+                hardLimit: {
+                  plan: 250,
+                  startDate: moment().subtract(1, 'day').toISOString(),
+                },
+              },
+            },
+          },
+        } });
+
         store.dispatch(async.sendPatientDataProviderConnectRequest(api, clinicId, patientId, providerName));
 
         const actions = store.getActions();
@@ -8881,7 +9043,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'CREATE_CLINIC_PATIENT_TAG_REQUEST' },
-          { type: 'CREATE_CLINIC_PATIENT_TAG_SUCCESS', payload: { clinicId, patientTags: [patientTag] } }
+          { type: 'CREATE_CLINIC_PATIENT_TAG_SUCCESS', payload: { clinicId, patientTag: [patientTag] } },
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -8997,7 +9159,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'UPDATE_CLINIC_PATIENT_TAG_REQUEST' },
-          { type: 'UPDATE_CLINIC_PATIENT_TAG_SUCCESS', payload: { clinicId, patientTags: [patientTag] } }
+          { type: 'UPDATE_CLINIC_PATIENT_TAG_SUCCESS', payload: { clinicId, patientTag: [patientTag] } },
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -9085,7 +9247,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'DELETE_CLINIC_PATIENT_TAG_REQUEST' },
-          { type: 'DELETE_CLINIC_PATIENT_TAG_SUCCESS', payload: { clinicId, patientTags: [] } }
+          { type: 'DELETE_CLINIC_PATIENT_TAG_SUCCESS', payload: { clinicId, patientTagId: 'patientTagId1' } },
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).to.be.true;
@@ -9362,9 +9524,9 @@ describe('Actions', () => {
     });
 
     describe('selectClinic', () => {
-      it('should trigger SELECT_CLINIC_SUCCESS, FETCH_CLINIC_PATIENT_COUNT_SUCCESS, and FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS for a successful request', () => {
+      it('should trigger SELECT_CLINIC_SUCCESS, FETCH_CLINIC_PATIENT_COUNTS_SUCCESS, and FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS for a successful request', () => {
         const clinicId = 'clinic123';
-        const countResults = { patientCount: 33 };
+        const countResults = { plan: 33 };
         const settingsResults = {bar: 'baz'};
 
         let api = {
@@ -9380,11 +9542,11 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId } },
-          { type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST' },
+          { type: 'FETCH_CLINIC_PATIENT_COUNTS_REQUEST' },
           { type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST' },
           {
-            type: 'FETCH_CLINIC_PATIENT_COUNT_SUCCESS',
-            payload: { clinicId, patientCount: 33 },
+            type: 'FETCH_CLINIC_PATIENT_COUNTS_SUCCESS',
+            payload: { clinicId, patientCounts: countResults },
           },
           {
             type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS',
@@ -9438,7 +9600,7 @@ describe('Actions', () => {
           ...initialState,
           clinics: {
             [clinicId]: {
-              patientCount: undefined,
+              patientCounts: undefined,
               patientCountSettings: undefined,
             },
           },
@@ -9454,7 +9616,7 @@ describe('Actions', () => {
         expect(api.clinics.getClinicPatientCountSettings.callCount).to.equal(1);
       });
 
-      it('should trigger SELECT_CLINIC_SUCCESS, but not FETCH_CLINIC_PATIENT_COUNT_REQUEST or FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST for a successful request if data available in clinic state', () => {
+      it('should trigger SELECT_CLINIC_SUCCESS, but not FETCH_CLINIC_PATIENT_COUNTS_REQUEST or FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST for a successful request if data available in clinic state', () => {
         const clinicId = 'clinic123';
 
         let api = {
@@ -9514,7 +9676,7 @@ describe('Actions', () => {
           ...initialState,
           clinics: {
             [clinicId]: {
-              patientCount: 33,
+              patientCounts: { plan: 33 },
               patientCountSettings: { foo: 'bar' },
             },
           },
@@ -9530,7 +9692,7 @@ describe('Actions', () => {
         expect(api.clinics.getClinicPatientCountSettings.callCount).to.equal(0);
       });
 
-      it('should trigger FETCH_CLINIC_PATIENT_COUNT_FAILURE and FETCH_CLINIC_PATIENT_COUNT_SETTINGS_FAILURE and it should call error once for a failed request', () => {
+      it('should trigger FETCH_CLINIC_PATIENT_COUNTS_FAILURE and FETCH_CLINIC_PATIENT_COUNT_SETTINGS_FAILURE and it should call error once for a failed request', () => {
         const clinicId = 'clinic123';
 
         let api = {
@@ -9544,7 +9706,7 @@ describe('Actions', () => {
           },
         };
 
-        let countErr = new Error(ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_COUNT);
+        let countErr = new Error(ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_COUNTS);
         countErr.status = 500;
 
         let settingsErr = new Error(ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_COUNT_SETTINGS);
@@ -9552,10 +9714,10 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId } },
-          { type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST' },
+          { type: 'FETCH_CLINIC_PATIENT_COUNTS_REQUEST' },
           { type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST' },
           {
-            type: 'FETCH_CLINIC_PATIENT_COUNT_FAILURE',
+            type: 'FETCH_CLINIC_PATIENT_COUNTS_FAILURE',
             error: countErr,
             meta: { apiError: { status: 500, body: 'Count Error!' } },
           },
@@ -9573,7 +9735,7 @@ describe('Actions', () => {
           ...initialState,
           clinics: {
             [clinicId]: {
-              patientCount: undefined,
+              patientCounts: undefined,
               patientCountSettings: undefined,
             },
           },
@@ -9586,7 +9748,7 @@ describe('Actions', () => {
         const actions = store.getActions();
 
         expect(actions[3].error).to.deep.include({
-          message: ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_COUNT,
+          message: ErrorMessages.ERR_FETCHING_CLINIC_PATIENT_COUNTS,
         });
         expectedActions[3].error = actions[3].error;
 

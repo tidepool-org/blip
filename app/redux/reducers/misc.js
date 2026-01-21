@@ -697,7 +697,6 @@ export const clinics = (state = initialState.clinics, action) => {
       let inviteId = _.get(action.payload, 'inviteId');
       let clinicId = _.get(action.payload, 'clinicId');
       let newState = _.cloneDeep(state);
-      if (_.isFinite(newState[clinicId]?.patientCount)) newState[clinicId].patientCount++;
       delete newState[clinicId]?.patientInvites?.[inviteId];
       return newState;
     }
@@ -766,8 +765,6 @@ export const clinics = (state = initialState.clinics, action) => {
       const patientId = _.get(action.payload, 'patientId');
       const clinicId = _.get(action.payload, 'clinicId');
       let fetchedPatientCount = state[clinicId].fetchedPatientCount;
-      let fetchedPatientTotalCount = state[clinicId].fetchedPatientTotalCount;
-      let patientCount = state[clinicId].patientCount;
 
       // Retain existing sortIndex, or, in the case of a new custodial patient, set to -1 to show at top of
       // list for easy visibility of the newly created patient.
@@ -775,18 +772,15 @@ export const clinics = (state = initialState.clinics, action) => {
 
       if (action.type === types.CREATE_CLINIC_CUSTODIAL_ACCOUNT_SUCCESS) {
         fetchedPatientCount++;
-        fetchedPatientTotalCount++;
-        patientCount++;
       }
 
       return update(state, {
         [clinicId]: {
           patients: {
-            [patientId]: { $set: { ...patient, sortIndex: existingSortIndex } } },
-            fetchedPatientCount: { $set: fetchedPatientCount },
-            fetchedPatientTotalCount: { $set: fetchedPatientTotalCount },
-            patientCount: { $set: patientCount },
+            [patientId]: { $set: { ...patient, sortIndex: existingSortIndex } }
           },
+          fetchedPatientCount: { $set: fetchedPatientCount },
+        },
       });
     }
     case types.DELETE_CLINICIAN_FROM_CLINIC_SUCCESS: {
@@ -802,8 +796,6 @@ export const clinics = (state = initialState.clinics, action) => {
       let newState = _.cloneDeep(state);
       delete newState[clinicId]?.patients?.[patientId];
       if (newState[clinicId]?.fetchedPatientCount) newState[clinicId].fetchedPatientCount--;
-      if (newState[clinicId]?.fetchedPatientTotalCount) newState[clinicId].fetchedPatientTotalCount--;
-      if (newState[clinicId]?.patientCount) newState[clinicId].patientCount--;
       return newState;
     }
     case types.SEND_CLINICIAN_INVITE_SUCCESS: {
@@ -898,18 +890,13 @@ export const clinics = (state = initialState.clinics, action) => {
 
       const { clinicId } = config;
 
-      const patients = [
-        ..._.map(results.timeInVeryLowPercent, 'patient'),
-        ..._.map(results.timeInAnyLowPercent, 'patient'),
-        ..._.map(results.dropInTimeInTargetPercent, 'patient'),
-        ..._.map(results.timeInTargetPercent, 'patient'),
-        ..._.map(results.timeCGMUsePercent, 'patient'),
-        ..._.map(results.meetingTargets, 'patient'),
-        ..._.map(results.noData, 'patient'),
-      ];
+      const tidePatients = _.flatMap(results, category => _.map(category, 'patient'));
+
+      // Merge with existing patients to retain any additional data we may have stored
+      const patients = _.merge( _.cloneDeep(state[clinicId].patients) || {}, _.keyBy(tidePatients, 'id'));
 
       return update(state, {
-        [clinicId]: { $set: { ...state[clinicId], patients: _.keyBy(patients, 'id'), fetchedPatientCount: patients.length, lastPatientFetchTime: moment.utc().valueOf() } },
+        [clinicId]: { $set: { ...state[clinicId], patients, fetchedPatientCount: _.size(patients), lastPatientFetchTime: moment.utc().valueOf() } },
       });
     }
     case types.SET_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS:
@@ -961,9 +948,32 @@ export const clinics = (state = initialState.clinics, action) => {
         },
       });
     }
-    case types.CREATE_CLINIC_PATIENT_TAG_SUCCESS:
-    case types.UPDATE_CLINIC_PATIENT_TAG_SUCCESS:
+    case types.CREATE_CLINIC_PATIENT_TAG_SUCCESS: {
+      const { clinicId, patientTag } = action.payload;
+
+      return update(state, {
+        [clinicId]: {
+          patientTags: !!state[clinicId]?.patientTags
+            ? { $push: [patientTag] }
+            : { $set: [patientTag] },
+        },
+      });
+    }
+    case types.UPDATE_CLINIC_PATIENT_TAG_SUCCESS: {
+      const { clinicId, patientTag: newTag } = action.payload;
+
+      return update(state, {
+        [clinicId]: { patientTags: { $apply: tags => _.map(tags, t => t.id === newTag.id ? newTag : t) } },
+      });
+    }
     case types.DELETE_CLINIC_PATIENT_TAG_SUCCESS: {
+      const { clinicId, patientTagId } = action.payload;
+
+      return update(state, {
+        [clinicId]: { patientTags: { $apply: tags => _.filter(tags, t => t.id !== patientTagId) } },
+      });
+    }
+    case types.FETCH_CLINIC_PATIENT_TAGS_SUCCESS: {
       const {
         clinicId,
         patientTags,
@@ -973,9 +983,32 @@ export const clinics = (state = initialState.clinics, action) => {
         [clinicId]: { patientTags: { $set: patientTags } },
       });
     }
-    case types.CREATE_CLINIC_SITE_SUCCESS:
-    case types.UPDATE_CLINIC_SITE_SUCCESS:
+    case types.CREATE_CLINIC_SITE_SUCCESS: {
+      const { clinicId, site } = action.payload;
+
+      return update(state, {
+        [clinicId]: {
+          sites: !!state[clinicId]?.sites
+            ? { $push: [site] }
+            : { $set: [site] },
+        },
+      });
+    }
+    case types.UPDATE_CLINIC_SITE_SUCCESS: {
+      const { clinicId, site: newSite } = action.payload;
+
+      return update(state, {
+        [clinicId]: { sites: { $apply: sites => _.map(sites, s => s.id === newSite.id ? newSite : s) } },
+      });
+    }
     case types.DELETE_CLINIC_SITE_SUCCESS: {
+      const { clinicId, siteId } = action.payload;
+
+      return update(state, {
+        [clinicId]: { sites: { $apply: sites => _.filter(sites, s => s.id !== siteId) } },
+      });
+    }
+    case types.FETCH_CLINIC_SITES_SUCCESS: {
       const {
         clinicId,
         sites,
@@ -1005,18 +1038,30 @@ export const clinics = (state = initialState.clinics, action) => {
         [clinicId]: { mrnSettings: { $set: settings } },
       });
     }
-    case types.FETCH_CLINIC_PATIENT_COUNT_SUCCESS: {
-      const { clinicId, patientCount } = action.payload;
+    case types.FETCH_CLINIC_PATIENT_COUNTS_SUCCESS: {
+      const { clinicId, patientCounts = {} } = action.payload;
+
+      const {
+        demo = 0,
+        plan = patientCounts.patientCount,
+        total = patientCounts.patientCount,
+      } = patientCounts;
 
       return update(state, {
-        [clinicId]: { patientCount: { $set: patientCount } },
+        [clinicId]: { patientCounts: { $set: { demo, plan, total } } },
       });
     }
     case types.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS: {
       const { clinicId, patientCountSettings } = action.payload;
+      const { patientCount, plan, ...rest } = patientCountSettings?.hardLimit || {};
+
+      const hardLimit = {
+        ...rest,
+        plan: plan ?? patientCount,
+      };
 
       return update(state, {
-        [clinicId]: { patientCountSettings: { $set: patientCountSettings } },
+        [clinicId]: { patientCountSettings: { $set: { hardLimit } } },
       });
     }
     case types.SET_CLINIC_UI_DETAILS: {

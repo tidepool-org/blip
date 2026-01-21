@@ -60,7 +60,7 @@ describe('clinicUtils', function() {
 
   it('should return all lastDataFilterOptions options', () => {
     expect(clinicUtils.lastDataFilterOptions).to.eql([
-      { value: 1, label: 'Within 24 hours' },
+      { value: 1, label: 'Today' },
       { value: 2, label: 'Within 2 days' },
       { value: 7, label: 'Within 7 days' },
       { value: 14, label: 'Within 14 days' },
@@ -91,7 +91,7 @@ describe('clinicUtils', function() {
     it('should set appropriate details for a tier0100 clinic that has a patient count hard limit and no start date', () => {
       const details = clinicUtils.clinicTierDetails(createClinic({
         tier: 'tier0100',
-        patientCountSettings: { hardLimit: { patientCount: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT } }
+        patientCountSettings: { hardLimit: { plan: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT } }
       }));
 
       expect(details.planName).to.equal('base');
@@ -120,7 +120,7 @@ describe('clinicUtils', function() {
     it('should set appropriate details for a tier0100 clinic that has a patient count hard limit start date in the past', () => {
       const details = clinicUtils.clinicTierDetails(createClinic({
         tier: 'tier0100',
-        patientCountSettings: { hardLimit: { patientCount: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT, startDate: moment().subtract(1, 'day').toISOString() } }
+        patientCountSettings: { hardLimit: { plan: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT, startDate: moment().subtract(1, 'day').toISOString() } }
       }));
 
       expect(details.planName).to.equal('base');
@@ -149,7 +149,7 @@ describe('clinicUtils', function() {
     it('should set appropriate details for a tier0100 clinic that has a patient count hard limit start date in the future', () => {
       const details = clinicUtils.clinicTierDetails(createClinic({
         tier: 'tier0100',
-        patientCountSettings: { hardLimit: { patientCount: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT, startDate: moment().add(1, 'day').toISOString() } }
+        patientCountSettings: { hardLimit: { plan: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT, startDate: moment().add(1, 'day').toISOString() } }
       }));
 
       expect(details.planName).to.equal('honoredBase');
@@ -207,7 +207,9 @@ describe('clinicUtils', function() {
     it('should set appropriate details for a tier0100 clinic that is has a limit but is in active sales conversations', () => {
       const details = clinicUtils.clinicTierDetails(createClinic({
         tier: 'tier0100',
-        patientCountSettings: {}, // no hard or soft limits for a tier0100 denotes active sales convos
+        patientCountSettings: {
+          hardLimit: { plan: undefined, patientCount: undefined } // no hard limits for a tier0100 denotes active sales convos
+        },
       }));
 
       expect(details.planName).to.equal('activeSalesBase');
@@ -446,7 +448,56 @@ describe('clinicUtils', function() {
     it('should add warnings if patientLimitEnforced is true and limit is approaching or reached', () => {
       const underWarningThreshold = clinicUtils.clinicUIDetails(createClinic({
         tier: 'tier0100',
-        patientCount: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT - CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD - 1,
+        patientCounts: {
+          plan: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT - CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD - 1,
+          demo: 1,
+          total: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT - CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD + 1,
+        },
+        patientCountSettings: { hardLimit: { plan: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT, startDate: moment().subtract(1, 'day').toISOString() } }
+      }));
+
+      expect(underWarningThreshold.ui.warnings).to.eql({
+        limitReached: false,
+        limitApproaching: false,
+      });
+
+      const atWarningThreshold = clinicUtils.clinicUIDetails(createClinic({
+        tier: 'tier0100',
+        patientCounts: {
+          plan: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT - CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD,
+          demo: 1,
+          total: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT - CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD + 1,
+        },
+        patientCountSettings: { hardLimit: { plan: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT, startDate: moment().subtract(1, 'day').toISOString() } }
+      }));
+
+      expect(atWarningThreshold.ui.warnings).to.eql({
+        limitReached: false,
+        limitApproaching: true,
+      });
+
+      const atLimit = clinicUtils.clinicUIDetails(createClinic({
+        tier: 'tier0100',
+        patientCounts: {
+          plan: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT,
+          demo: 1,
+          total: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT + 1
+        },
+        patientCountSettings: { hardLimit: { plan: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT, startDate: moment().subtract(1, 'day').toISOString() } }
+      }));
+
+      expect(atLimit.ui.warnings).to.eql({
+        limitReached: true,
+        limitApproaching: true,
+      });
+    });
+
+    it('should add warnings if patientLimitEnforced is true and limit is approaching or reached with limit data from the legacy API model', () => {
+      const underWarningThreshold = clinicUtils.clinicUIDetails(createClinic({
+        tier: 'tier0100',
+        patientCounts: {
+          patientCount: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT - CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD - 1,
+        },
         patientCountSettings: { hardLimit: { patientCount: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT, startDate: moment().subtract(1, 'day').toISOString() } }
       }));
 
@@ -457,7 +508,9 @@ describe('clinicUtils', function() {
 
       const atWarningThreshold = clinicUtils.clinicUIDetails(createClinic({
         tier: 'tier0100',
-        patientCount: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT - CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD,
+        patientCounts: {
+          patientCount: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT - CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD,
+        },
         patientCountSettings: { hardLimit: { patientCount: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT, startDate: moment().subtract(1, 'day').toISOString() } }
       }));
 
@@ -468,7 +521,9 @@ describe('clinicUtils', function() {
 
       const atLimit = clinicUtils.clinicUIDetails(createClinic({
         tier: 'tier0100',
-        patientCount: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT,
+        patientCounts: {
+          patientCount: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT,
+        },
         patientCountSettings: { hardLimit: { patientCount: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT, startDate: moment().subtract(1, 'day').toISOString() } }
       }));
 
@@ -481,9 +536,10 @@ describe('clinicUtils', function() {
     it('should add text appropriate to the workspace plan', () => {
       const base = clinicUtils.clinicUIDetails(createClinic({
         tier: 'tier0100',
-        patientCount: 1,
+        patientCounts: { plan: 1, demo: 1, total: 2 },
         patientCountSettings: {
           hardLimit: {
+            plan: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT,
             startDate: moment().subtract(1, 'day').toISOString(),
           },
         },
@@ -491,10 +547,10 @@ describe('clinicUtils', function() {
 
       expect(base.ui.text).to.eql({
         planDisplayName: 'Base',
-        limitDescription: `Limited to ${DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT} patients`,
+        limitDescription: 'This plan allows for a limited number of patient accounts.',
         limitFeedback: {
           status: 'warning',
-          text: `Maximum of ${DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT} patient accounts reached`,
+          text: 'Maximum number of patient accounts reached',
         },
         limitResolutionLink: {
           text: 'Unlock plans',
@@ -504,9 +560,14 @@ describe('clinicUtils', function() {
 
       const baseLimitReached = clinicUtils.clinicUIDetails(createClinic({
         tier: 'tier0100',
-        patientCount: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT,
+        patientCounts: {
+          plan: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT,
+          demo: 1,
+          total: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT + 1
+        },
         patientCountSettings: {
           hardLimit: {
+            plan: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT,
             startDate: moment().subtract(1, 'day').toISOString(),
           },
         },
@@ -514,10 +575,10 @@ describe('clinicUtils', function() {
 
       expect(baseLimitReached.ui.text).to.eql({
         planDisplayName: 'Base',
-        limitDescription: `Limited to ${DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT} patients`,
+        limitDescription: 'This plan allows for a limited number of patient accounts.',
         limitFeedback: {
           status: 'warning',
-          text: `Maximum of ${DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT} patient accounts reached`,
+          text: 'Maximum number of patient accounts reached',
         },
         limitResolutionLink: {
           text: 'Contact us to unlock plans',
@@ -529,9 +590,10 @@ describe('clinicUtils', function() {
 
       const honored = clinicUtils.clinicUIDetails(createClinic({
         tier: 'tier0100',
-        patientCount: 1,
+        patientCounts: { plan: 1, demo: 1, total: 2 },
         patientCountSettings: {
           hardLimit: {
+            plan: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT,
             startDate,
           },
         },
@@ -552,9 +614,14 @@ describe('clinicUtils', function() {
 
       const honoredLimitApproaching = clinicUtils.clinicUIDetails(createClinic({
         tier: 'tier0100',
-        patientCount: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT - CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD,
+        patientCounts: {
+          plan: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT - CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD,
+          demo: 1,
+          total: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT - CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD + 1
+        },
         patientCountSettings: {
           hardLimit: {
+            plan: DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT,
             startDate,
           },
         },
@@ -579,7 +646,7 @@ describe('clinicUtils', function() {
 
       expect(activeSales.ui.text).to.eql({
         planDisplayName: 'Base',
-        limitDescription: `Limited to ${DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT} patients`,
+        limitDescription: 'This plan allows for a limited number of patient accounts.',
         limitFeedback: {
           status: 'success',
           text: 'Change to plan in progress',

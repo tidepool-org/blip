@@ -390,10 +390,10 @@ export const ClinicianPatients = (props) => {
   };
 
   const renderPatient = patient => (
-    <Box sx={{ cursor: 'pointer' }}>
+    <Flex sx={{ cursor: 'pointer', gap: 3 }}>
       <Text fontWeight="medium">{patient.fullName}</Text>
       {patient.email && <Text>{patient.email}</Text>}
-    </Box>
+    </Flex>
   );
 
   const renderDemographicField = (field, patient) => (
@@ -409,7 +409,7 @@ export const ClinicianPatients = (props) => {
     if (isLoggedInUser || membershipPermissionsInOtherCareTeams?.[patient.id]?.custodian) {
       items.push({
         icon: EditIcon,
-        iconLabel: t('Edit Patient Information'),
+        iconLabel: t('Edit Patient Details'),
         iconPosition: 'left',
         id: `edit-${patient.id}`,
         variant: 'actionListItem',
@@ -417,7 +417,7 @@ export const ClinicianPatients = (props) => {
           _popupState.close();
           handleEditPatient(patient);
         },
-        text: t('Edit Patient Information'),
+        text: t('Edit Patient Details'),
       });
     }
 

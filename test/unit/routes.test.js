@@ -1090,7 +1090,7 @@ describe('routes', () => {
 
           let expectedActions = [
             { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: 'clinic123' } },
-            { type: 'FETCH_CLINIC_PATIENT_COUNT_REQUEST' },
+            { type: 'FETCH_CLINIC_PATIENT_COUNTS_REQUEST' },
             { type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST' },
             routeAction('/clinic-details'),
           ];
