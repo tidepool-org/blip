@@ -17,11 +17,7 @@ import { Box } from 'theme-ui';
 import Button from '../../components/elements/Button';
 import InputMask from 'react-input-mask';
 
-import {
-  SignupWizardContainer,
-  SignupWizardContents,
-  SignupWizardActions,
-} from '../../components/SignupWizard';
+import Container from '../../components/elements/Container';
 import { toastMessages } from '../../components/datasources/useProviderConnectionPopup';
 
 const styleProps = {
@@ -168,16 +164,23 @@ const VerificationWithPassword = ({
     : t('Claim Your Account');
 
   return (
-    <SignupWizardContainer>
-      <SignupWizardContents>
-        <Box sx={styleProps.titleContainer}>
-          {titleCopy}
-        </Box>
-
-        <Box sx={styleProps.subtitleContainer}>
-          {t('Set a password to access your data from home')}
-        </Box>
-
+    <Box sx={{ paddingTop: ['72px', '72px', '86px', '86px'] }}>
+      <Container
+        title={titleCopy}
+        subtitle={t('Set a password to access your data from home')}
+        variant="mediumBordered"
+        p={4}
+        pt={3}
+        actions={[{
+          id: 'verificationWithPasswordConfirm',
+          variant: 'primary',
+          onClick: handleSubmit,
+          children: working ? t('Setting up...') : t('Confirm'),
+          processing: working,
+          disabled: disabled,
+          sx: styleProps.confirmButton,
+        }]}
+      >
         <Box sx={styleProps.inputFieldContainer}>
           <TextInput // Password Field
             type="password"
@@ -223,27 +226,12 @@ const VerificationWithPassword = ({
             />
           </InputMask>
         </Box>
-      </SignupWizardContents>
-
-      <SignupWizardActions>
-        <Box>
-          <Button
-            id="verificationWithPasswordConfirm"
-            variant="primary"
-            onClick={handleSubmit}
-            processing={working}
-            disabled={disabled}
-            sx={styleProps.confirmButton}
-          >
-            {working ? t('Setting up...') : t('Confirm')}
-          </Button>
-        </Box>
 
         <Box sx={styleProps.notificationContainer}>
           <Notification notification={notification || propsNotification}/>
         </Box>
-      </SignupWizardActions>
-    </SignupWizardContainer>
+      </Container>
+    </Box>
   );
 };
 

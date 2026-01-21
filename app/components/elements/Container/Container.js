@@ -93,7 +93,7 @@ export function Container(props) {
       >
         {children}
       </Box>
-      {actions.length && (
+      {actions?.length > 0 && (
         <Flex
           className="container-actions"
           p={3}

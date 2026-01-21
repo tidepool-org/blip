@@ -9,7 +9,7 @@ import * as actions from '../../redux/actions';
 import { providers } from '../../components/datasources/DataConnections';
 import { Box } from 'theme-ui';
 import Button from '../../components/elements/Button';
-import { SignupWizardContainer, SignupWizardContents } from '../../components/SignupWizard';
+import Container from '../../components/elements/Container';
 
 const useC2CSuccessListener = ({ onConnectSuccess }) => {
   const justConnectedDataSourceProviderName = useSelector(state => state.blip.justConnectedDataSourceProviderName);
@@ -97,16 +97,14 @@ const VerificationWithC2C = ({ api }) => {
   };
 
   return (
-    <SignupWizardContainer>
-      <SignupWizardContents>
-        <Box sx={styleProps.titleContainer}>
-          {t('Welcome!')}
-        </Box>
-
-        <Box sx={styleProps.subtitleContainer}>
-          {t('Choose how you manage your diabetes')}
-        </Box>
-
+    <Box sx={{ paddingTop: ['72px', '72px', '86px', '86px'] }}>
+      <Container
+        title={t('Welcome!')}
+        subtitle={t('Choose how you manage your diabetes')}
+        variant="mediumBordered"
+        p={4}
+        pt={3}
+      >
         <Box>
           <Box>
             { Object.entries(providers).map(([providerName, provider]) => {
@@ -141,8 +139,8 @@ const VerificationWithC2C = ({ api }) => {
             {t('When you connect an account, data can flow into Tidepool without any extra effort. This helps your care team provide you with the best care. Only available in the US at this time. ')}
           </Box>
         </Box>
-      </SignupWizardContents>
-    </SignupWizardContainer>
+      </Container>
+    </Box>
   );
 };
 
