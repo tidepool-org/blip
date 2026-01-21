@@ -4169,6 +4169,7 @@ describe('Actions', () => {
                   fetchedUntil: '2018-01-01T00:00:00.000Z',
                   oneMinCgmFetchedUntil: undefined,
                   returnData: false,
+                  localDataSource: false,
                 },
               },
             ];
@@ -4210,6 +4211,7 @@ describe('Actions', () => {
                   fetchedUntil: '2018-01-01T00:00:00.000Z',
                   oneMinCgmFetchedUntil: '2018-01-01T00:00:00.000Z',
                   returnData: false,
+                  localDataSource: false,
                 },
               },
             ];
