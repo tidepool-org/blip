@@ -20,7 +20,6 @@ import { BrowserRouter } from 'react-router-dom';
 describe('PatientInfo', function () {
 
   let props = {
-    api: { clinics: { getClinicsForPatient: sinon.stub() } },
     user: { userid: 5678 },
     patient: { userid: 1234 },
     fetchingPatient: false,
@@ -35,6 +34,7 @@ describe('PatientInfo', function () {
     disconnectDataSource: sinon.stub(),
     isSmartOnFhirMode: false,
     api: {
+      clinics: { getClinicsForPatient: sinon.stub() },
       export: { get: sinon.stub() }
     },
     permsOfLoggedInUser: {},

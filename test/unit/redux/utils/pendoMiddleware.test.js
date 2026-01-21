@@ -334,6 +334,7 @@ describe('pendoMiddleware', () => {
         id: 'clinicAdminID',
         isSmartOnFhir: true,
         currentlyViewedDevices: [],
+        currentlyViewedDataAnnotations: [],
         permission: 'administrator',
         role: 'clinician',
         domain: 'example.com',
