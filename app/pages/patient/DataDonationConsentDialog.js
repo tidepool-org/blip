@@ -164,6 +164,8 @@ export const DataDonationConsentDialog = (props) => {
     setCaregiverName(e.target.value);
   };
 
+  const isConsentReadForCurrentStep = formikContext.values[`${formSteps[currentConsentStep]}ConsentRead`];
+
   return (
     <Dialog
       id="dataDonationConsentDialog"
@@ -305,11 +307,25 @@ export const DataDonationConsentDialog = (props) => {
               themeProps={{ sx: { bg: 'transparent', textAlign: 'left' } }}
               data-testid="consent-checkbox"
               label={consentInputLabel}
-              disabled={!formikContext.values[`${formSteps[currentConsentStep]}ConsentRead`]}
+              disabled={!isConsentReadForCurrentStep}
               sx={{
                 boxShadow: `0 0 0 2px ${colors.lightestGrey} inset`,
               }}
             />
+          </Box>
+
+          <Box id="consentReviewRequiredMessageContainer" sx={{ minHeight: '32px' }}>
+            {!isConsentReadForCurrentStep && (
+              <Pill
+                id="consentReviewRequiredMessage"
+                mb={3}
+                sx={{ fontSize: 1, margin: '0 auto 0 0' }}
+                text={t('Please scroll to the bottom of the consent form to enable the agreement checkbox.')}
+                icon={InfoRoundedIcon}
+                label={t('Consent review requiremd message')}
+                colorPalette="info"
+              />
+            )}
           </Box>
         </Box>
       </DialogContent>
