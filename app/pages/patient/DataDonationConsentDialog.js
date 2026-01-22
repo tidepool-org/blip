@@ -322,7 +322,7 @@ export const DataDonationConsentDialog = (props) => {
                 sx={{ fontSize: 1, margin: '0 auto 0 0' }}
                 text={t('Please scroll to the bottom of the consent form to enable the agreement checkbox.')}
                 icon={InfoRoundedIcon}
-                label={t('Consent review requiremd message')}
+                label={t('Consent review required message')}
                 colorPalette="info"
               />
             )}
