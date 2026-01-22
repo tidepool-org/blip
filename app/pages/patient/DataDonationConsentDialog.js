@@ -318,8 +318,7 @@ export const DataDonationConsentDialog = (props) => {
             {!isConsentReadForCurrentStep && (
               <Pill
                 id="consentReviewRequiredMessage"
-                mb={3}
-                sx={{ fontSize: 1, margin: '0 auto 0 0' }}
+                sx={{ fontSize: 1 }}
                 text={t('Please scroll to the bottom of the consent form to enable the agreement checkbox.')}
                 icon={InfoRoundedIcon}
                 label={t('Consent review required message')}
