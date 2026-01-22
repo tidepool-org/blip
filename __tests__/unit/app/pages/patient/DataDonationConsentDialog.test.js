@@ -107,9 +107,11 @@ describe('DataDonationConsentDialog', () => {
       // Check consent checkboxes
       const readCheckbox = screen.getByLabelText(/I have read the consent statement/);
       const consentCheckbox = screen.getByLabelText(/As their parent or guardian, I have read this form/);
+      const consentPrompt = screen.getByText('Please scroll to the bottom of the consent form to enable the agreement checkbox.');
 
       expect(readCheckbox).not.toBeChecked(); // Should be unchecked until document is scrolled
       expect(consentCheckbox).toBeDisabled(); // Should be disabled until read checkbox is checked
+      expect(consentPrompt).toBeInTheDocument(); // Should be visible until user scrolls to bottom
 
       // Find the consent document container and simulate scroll
       const consentText = screen.getByTestId('consentDocumentText');
@@ -123,6 +125,7 @@ describe('DataDonationConsentDialog', () => {
 
       expect(readCheckbox).toBeChecked(); // Should be checked after scrolling
       expect(consentCheckbox).toBeEnabled(); // Should be enabled after scrolling
+      expect(consentPrompt).not.toBeInTheDocument(); // Should be hidden since user has read entire consent
       await user.click(consentCheckbox);
 
       // Click Next to advance to second step
