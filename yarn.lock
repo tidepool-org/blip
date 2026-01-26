@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.54.0-web-4274-copy-billing.6":
-  version: 1.54.0-web-4274-copy-billing.6
-  resolution: "@tidepool/viz@npm:1.54.0-web-4274-copy-billing.6"
+"@tidepool/viz@npm:1.55.0-web-4330-missing-settings.1":
+  version: 1.55.0-web-4330-missing-settings.1
+  resolution: "@tidepool/viz@npm:1.55.0-web-4330-missing-settings.1"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: f80b2d6aefb7399772ce3084b7b1699737daa89b1f92ced5b01f40620dce72eb76b04f91e20f4285ba6e075630f0361c8adb952aec36dc7ba1888d491266eef6
+  checksum: c212f8ac43d74938fa064edee12e6e1d097da5a579400ee7c55e9e58fad149ed91f20d0f62bfabf5c3307633ded90f8146ae82fe8f3e7e524af6bc98050cd881
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.54.0-web-4274-copy-billing.6
+    "@tidepool/viz": 1.55.0-web-4330-missing-settings.1
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
