@@ -241,8 +241,8 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
   let patientConnectedText = t('Connected');
 
   if (!dataSource?.lastImportTime && !providers[providerName]?.indeterminateDataImportTime) {
-    patientConnectedMessage = t('This can take a few minutes');
-    patientConnectedText = t('Connecting');
+    patientConnectedMessage = t('Awaiting data, this can take a few minutes');
+    patientConnectedText = t('Connected');
   } else if (!dataSource?.latestDataTime) {
     patientConnectedMessage = t('No data found as of {{timeAgo}}', { timeAgo });
   } else {
