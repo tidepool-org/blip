@@ -97,7 +97,14 @@ const StyledDateRangePicker = styled(StyledDatePickerBase)`
   }
 `;
 
+export const CHART_DATE_BOUND_FORMAT = {
+  DATE_AND_TIME: 'MMM D, YYYY (h:mm A)',
+  DATE_ONLY: 'MMM D, YYYY',
+};
+
 export const getChartDateBoundDisplayFormat = (startDate, endDate) => {
+  if (!endDate) return 'MMM D, YYYY';
+
   const isStartDateMidnight = (startDate?.hours() === 0 && startDate?.minutes() === 0) ||
                               (startDate?.hours() === 23 && startDate?.minutes() >= 59);
 
@@ -107,10 +114,10 @@ export const getChartDateBoundDisplayFormat = (startDate, endDate) => {
   const isMatchingDateBounds = isStartDateMidnight && isEndDateMidnight;
 
   if (!isMatchingDateBounds) {
-    return 'MMM D, YYYY (h:mm A)';
+    return CHART_DATE_BOUND_FORMAT.DATE_AND_TIME;
   }
 
-  return 'MMM D, YYYY';
+  return CHART_DATE_BOUND_FORMAT.DATE_ONLY;
 };
 
 export function DateRangePicker(props) {
