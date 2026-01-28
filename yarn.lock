@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.54.0-web-4274-copy-billing.6":
-  version: 1.54.0-web-4274-copy-billing.6
-  resolution: "@tidepool/viz@npm:1.54.0-web-4274-copy-billing.6"
+"@tidepool/viz@npm:1.54.0-rc.4":
+  version: 1.54.0-rc.4
+  resolution: "@tidepool/viz@npm:1.54.0-rc.4"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: f80b2d6aefb7399772ce3084b7b1699737daa89b1f92ced5b01f40620dce72eb76b04f91e20f4285ba6e075630f0361c8adb952aec36dc7ba1888d491266eef6
+  checksum: 5966ae6f92c87f8a489fee656e3a44c73cefe51de53d6066dec6ef4be20c41a622e963dbbf8f0728b60cec5c00b675dcb4d0fd9ed338d568e209478c784b4928
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.54.0-web-4274-copy-billing.6
+    "@tidepool/viz": 1.54.0-rc.4
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -8464,7 +8464,7 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.38.0-web-3886-basics-view-site-change-regression.1
+    tideline: 1.38.0-rc.1
     tidepool-platform-client: 0.64.0
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
@@ -22237,9 +22237,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.38.0-web-3886-basics-view-site-change-regression.1":
-  version: 1.38.0-web-3886-basics-view-site-change-regression.1
-  resolution: "tideline@npm:1.38.0-web-3886-basics-view-site-change-regression.1"
+"tideline@npm:1.38.0-rc.1":
+  version: 1.38.0-rc.1
+  resolution: "tideline@npm:1.38.0-rc.1"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -22260,7 +22260,7 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: 8277fa09c97f099919ebfeaf86b6e9be5f13f5b73bc9db510e741491059b36795d013c6175c339e51fb119a460de2e2680fa38ce7f33c828b211106fc5a6501d
+  checksum: a68c02fb0462cc87a2185d8a5459c1422f950c1b24397a1b97ad187f65b1c0e8d529e0ed3142fa21fcfe9fd78351579cbc7b79a6bee7b626f33686e076b7acc8
   languageName: node
   linkType: hard
 
