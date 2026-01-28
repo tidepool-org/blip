@@ -414,7 +414,7 @@ describe('getConnectStateUI', () => {
       expect(UI.pendingExpired.handler).to.equal('connect');
 
       expect(UI.connected.message).to.equal('Awaiting data, this can take a few minutes');
-      expect(UI.connected.text).to.equal('Connecting');
+      expect(UI.connected.text).to.equal('Connected');
       expect(UI.connected.handler).to.equal('disconnect');
       expect(UINoDataFound.connected.message).to.equal('No data found as of 10 days ago');
       expect(UINoDataFound.connected.text).to.equal('Connected');
