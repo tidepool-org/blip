@@ -98,7 +98,15 @@ export const OAuthConnection = (props) => {
     // impose actual acceptance requirements other than just adding the accepted query param.
     trackMetric('Oauth - Connection - Accept', { providerName, status });
     setAcceptProcessing(true);
-    window.location.href = queryParams.get('return_url');
+    const returnUrl = queryParams.get('return_url');
+
+    if (returnUrl) {
+      window.location.href = returnUrl;
+    } else {
+      // If no return_url is provided, log an error.
+      // eslint-disable-next-line no-console
+      console.error('OAuthConnection: missing return_url query parameter on accept.');
+    }
   }
 
   const handleClickClaimAccount = () => {
