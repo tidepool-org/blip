@@ -32,7 +32,7 @@ import DataSourceDisconnectDialog from './DataSourceDisconnectDialog';
 import { Box, BoxProps } from 'theme-ui';
 import dexcomLogo from '../../core/icons/dexcom_logo.png';
 import libreLogo from '../../core/icons/libre_logo.svg';
-import ouraLogo from '../../core/icons/oura_logo.svg';
+import ouraLogo from '../../core/icons/oura_logo.png';
 import twiistLogo from '../../core/icons/twiist_logo.svg';
 import { colors } from '../../themes/baseTheme';
 
