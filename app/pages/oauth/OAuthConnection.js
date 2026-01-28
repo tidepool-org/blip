@@ -91,6 +91,17 @@ export const OAuthConnection = (props) => {
     trackMetric('Oauth - Connection', { providerName, status, custodialSignup });
   }, []);
 
+  const isSafeReturnUrl = (url) => {
+    if (typeof url !== 'string') return false;
+
+    // Must be an absolute path on the current origin (no protocol, no protocol-relative URL)
+    if (!url.startsWith('/')) return false;
+    if (url.startsWith('//')) return false;
+    if (url.includes('://')) return false;
+
+    return true;
+  };
+
   const handleAccept = () => {
     // Return to the authorization flow after accepting. The backend may enforce (or not) any
     // actual acceptance requirements for the connection (e.g. formal consent) and, if not met,
@@ -100,14 +111,14 @@ export const OAuthConnection = (props) => {
     setAcceptProcessing(true);
     const returnUrl = queryParams.get('return_url');
 
-    // Validate return_url is a relative path to prevent open redirect attacks
-    if (returnUrl?.startsWith('/')) {
+    // Validate return_url is a safe relative path to prevent open redirect attacks
+    if (isSafeReturnUrl(returnUrl)) {
       window.location.href = returnUrl;
     } else {
       // eslint-disable-next-line no-console
       console.error('OAuthConnection: invalid or missing return_url query parameter on accept.');
     }
-  }
+  };
 
   const handleClickClaimAccount = () => {
     trackMetric('Oauth - Connection - Claim Account', { providerName, status });

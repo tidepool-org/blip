@@ -37,7 +37,7 @@ const mockStore = configureStore([thunk]);
 
 describe('providers', () => {
   it('should define the provider details', () => {
-    const { dexcom, abbott, twiist } = providers;
+    const { dexcom, abbott, twiist, oura } = providers;
 
     expect(dexcom.id).to.equal('oauth/dexcom');
     expect(dexcom.displayName).to.equal('Dexcom');
@@ -64,22 +64,30 @@ describe('providers', () => {
     expect(twiist.logoImage).to.be.a('string');
     expect(twiist.disconnectInstructions).to.be.undefined;
     expect(twiist.indeterminateDataImportTime).to.be.true;
+
+    expect(oura.id).to.equal('oauth/oura');
+    expect(oura.displayName).to.equal('ŌURA');
+    expect(oura.restrictedTokenCreate).to.eql({ paths: ['/v1/oauth/oura'] });
+    expect(oura.dataSourceFilter).to.eql({ providerType: 'oauth', providerName: 'oura' });
+    expect(oura.logoImage).to.be.a('string');
+    expect(oura.requiresLoggedInUser).to.be.true;
+    expect(oura.requiresExistingDataSource).to.be.true;
   });
 });
 
 describe('availableProviders', () => {
   it('should define a list of all available providers', () => {
-    expect(availableProviders).to.eql(['dexcom', 'twiist', 'abbott']);
+    expect(availableProviders).to.eql(['dexcom', 'twiist', 'abbott', 'oura']);
   });
 });
 
 describe('getActiveProviders', () => {
   it('should define a default list of all available providers when called without overrides', () => {
-    expect(getActiveProviders()).to.eql(['dexcom', 'twiist', 'abbott']);
+    expect(getActiveProviders()).to.eql(['dexcom', 'twiist', 'abbott', 'oura']);
   });
 
   it('should define an overridden list of all available providers when called with overrides', () => {
-    expect(getActiveProviders({ dexcom: false, abbott: true })).to.eql(['twiist', 'abbott']);
+    expect(getActiveProviders({ dexcom: false, abbott: true })).to.eql(['twiist', 'abbott', 'oura']);
   });
 });
 
@@ -545,6 +553,64 @@ describe('getDataConnectionProps', () => {
       connectState: 'connectState1',
       handler: 'connectState1 handler stub',
     });
+  });
+
+  it('should exclude providers with requiresLoggedInUser when user is not logged in', () => {
+    DataConnections.__Rewire__('providers', {
+      provider123: {
+        logoImage: 'provider123 logo image stub',
+        requiresLoggedInUser: true,
+      }
+    });
+
+    const patient = createPatientWithConnectionState('connectState1', moment.utc().subtract(2, 'days').toISOString());
+    const props = getDataConnectionProps(patient, false, 'clinic125', setActiveHandlerStub);
+
+    expect(props.provider123).to.be.undefined;
+  });
+
+  it('should include providers with requiresLoggedInUser when user is logged in', () => {
+    DataConnections.__Rewire__('providers', {
+      provider123: {
+        logoImage: 'provider123 logo image stub',
+        requiresLoggedInUser: true,
+      }
+    });
+
+    const patient = createPatientWithConnectionState('connectState1', moment.utc().subtract(2, 'days').toISOString());
+    const props = getDataConnectionProps(patient, true, 'clinic125', setActiveHandlerStub);
+
+    expect(props.provider123).to.be.an('object');
+  });
+
+  it('should exclude providers with requiresExistingDataSource when no data source exists', () => {
+    DataConnections.__Rewire__('providers', {
+      provider123: {
+        logoImage: 'provider123 logo image stub',
+        requiresExistingDataSource: true,
+        dataSourceFilter: { providerName: 'provider123' },
+      }
+    });
+
+    const patient = { id: 'patient123', dataSources: [] };
+    const props = getDataConnectionProps(patient, true, 'clinic125', setActiveHandlerStub);
+
+    expect(props.provider123).to.be.undefined;
+  });
+
+  it('should include providers with requiresExistingDataSource when data source exists', () => {
+    DataConnections.__Rewire__('providers', {
+      provider123: {
+        logoImage: 'provider123 logo image stub',
+        requiresExistingDataSource: true,
+        dataSourceFilter: { providerName: 'provider123' },
+      }
+    });
+
+    const patient = createPatientWithConnectionState('connectState1', moment.utc().subtract(2, 'days').toISOString());
+    const props = getDataConnectionProps(patient, true, 'clinic125', setActiveHandlerStub);
+
+    expect(props.provider123).to.be.an('object');
   });
 });
 

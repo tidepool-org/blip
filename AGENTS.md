@@ -18,6 +18,7 @@
 - **Test single Jest file**: `yarn test:jest --testPathPattern="ChartDateRangeModal"` (matches pattern in file path)
 - **Test Karma only**: `yarn test:karma` (legacy test suite)
 - **Test Karma watch**: `yarn test:karma:watch`
+- **Test single Karma file**: `yarn test:karma --grep "describe block name"` (matches describe block names)
 - **Storybook**: `yarn storybook` (port 6006)
 - **Update translations**: `yarn update-translations`
 
@@ -25,6 +26,8 @@
 - Tests require `TZ=UTC` environment variable (automatically set in test scripts)
 - Build commands require `NODE_OPTIONS='--max-old-space-size=4096'` (automatically set in scripts)
 - Node version: 20.8.0, Yarn version: 3.6.4
+
+**IMPORTANT: When running tests, always target only the specific tests you've modified or added.** Running the full test suite is slow and wastes time/tokens. Use `--testPathPattern` for Jest or `--grep` for Karma to run targeted tests.
 
 ## Project Structure
 
@@ -104,6 +107,7 @@ import * as actions from '../../redux/actions/async';
 ### Framework Choice
 - **New tests**: Use Jest with @testing-library/react in `__tests__/`
 - **Legacy tests**: Karma/Mocha in `test/` (maintain existing, don't expand)
+- **Minor updates to existing code**: When updating existing code that only has Karma/Mocha tests in `test/`, add tests to the existing test file rather than creating a new Jest test file. This keeps related tests together and avoids duplication.
 
 ### Jest Tests (Preferred)
 Located in `__tests__/` mirroring `app/` structure:
