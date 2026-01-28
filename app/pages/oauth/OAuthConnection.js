@@ -6,7 +6,7 @@ import { withTranslation, Trans } from 'react-i18next';
 import { useParams, useLocation } from 'react-router-dom';
 import includes from 'lodash/includes';
 import map from 'lodash/map';
-import { Box, Flex, Divider, Image } from 'theme-ui';
+import { Box, Flex, Divider, Image, Link } from 'theme-ui';
 import { components as vizComponents } from '@tidepool/viz';
 import utils from '../../core/utils';
 
@@ -14,6 +14,7 @@ import Banner from '../../components/elements/Banner';
 import Button from '../../components/elements/Button';
 import { Title, Subheading, Body1 } from '../../components/elements/FontStyles';
 import { availableProviders, providers } from '../../components/datasources/DataConnections';
+import { URL_PRIVACY_POLICY } from '../../core/constants';
 import consentDataImage from './images/consent_data.png';
 
 const { Loader } = vizComponents;
@@ -37,7 +38,11 @@ export const OAuthConnection = (props) => {
       title: t('Your Body, Your Data'),
       subheading: t('Your ŌURA data may contain information about your reproductive health'),
       message: [
-        t('As part of using Tidepool Apps and Services or as part of certain initiatives, we may collect reproductive health data that you provide to us or that you authorize a 3rd Party to provide to us on your behalf. This data may be used and disclosed in accordance with Tidepool’s Privacy Policy and applicable law. You can stop sharing reproductive health data at any point by accessing your Devices page and disconnecting 3rd Party devices, which share these data to Tidepool. You may also request your data be deleted at any time. Please see 1.2.4 Export, Delete, or Change Your Information and 1.2.5 Cancel Your Account in our Privacy Policy.'),
+        <Trans i18nKey="html.oauth-accept-privacy-message">
+          <Body1 mb={3}>
+            As part of using Tidepool Apps and Services or as part of certain initiatives, we may collect reproductive health data that you provide to us or that you authorize a 3rd Party to provide to us on your behalf. This data may be used and disclosed in accordance with <Link href={URL_PRIVACY_POLICY} target="_blank" rel="noreferrer noopener">Tidepool's Privacy Policy</Link> and applicable law. You can stop sharing reproductive health data at any point by accessing your Devices page and disconnecting 3rd Party devices, which share these data to Tidepool. You may also request your data be deleted at any time. Please see 1.2.4 Export, Delete, or Change Your Information and 1.2.5 Cancel Your Account in our Privacy Policy.
+          </Body1>
+        </Trans>,
         t('By linking your Oura account, you acknowledge that Tidepool may collect, use, and disclose data derived from your device, including reproductive health data. Please consider the laws governing reproductive health in your jurisdiction before providing Tidepool with such data.'),
       ],
       image: consentDataImage,
@@ -162,7 +167,9 @@ export const OAuthConnection = (props) => {
               </Flex>
             </Flex>
             {map(authStatus.message, (message, index) => (
-              <Body1 id="oauth-message" key={index} mb={3}>{message}</Body1>
+              typeof message === 'string'
+                ? <Body1 id="oauth-message" key={index} mb={3}>{message}</Body1>
+                : <React.Fragment key={index}>{message}</React.Fragment>
             ))}
           </Box>
         ) : (
