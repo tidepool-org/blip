@@ -100,12 +100,12 @@ export const OAuthConnection = (props) => {
     setAcceptProcessing(true);
     const returnUrl = queryParams.get('return_url');
 
-    if (returnUrl) {
+    // Validate return_url is a relative path to prevent open redirect attacks
+    if (returnUrl?.startsWith('/')) {
       window.location.href = returnUrl;
     } else {
-      // If no return_url is provided, log an error.
       // eslint-disable-next-line no-console
-      console.error('OAuthConnection: missing return_url query parameter on accept.');
+      console.error('OAuthConnection: invalid or missing return_url query parameter on accept.');
     }
   }
 
