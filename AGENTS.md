@@ -18,7 +18,7 @@
 - **Test single Jest file**: `yarn test:jest --testPathPattern="ChartDateRangeModal"` (matches pattern in file path)
 - **Test Karma only**: `yarn test:karma` (legacy test suite)
 - **Test Karma watch**: `yarn test:karma:watch`
-- **Test single Karma file**: `yarn test:karma --grep "describe block name"` (matches describe block names)
+- **Isolate Karma tests**: Use `.only` on `describe` or `it` blocks (e.g., `describe.only(...)` or `it.only(...)`). **Remember to remove `.only` before committing.**
 - **Storybook**: `yarn storybook` (port 6006)
 - **Update translations**: `yarn update-translations`
 
@@ -27,7 +27,7 @@
 - Build commands require `NODE_OPTIONS='--max-old-space-size=4096'` (automatically set in scripts)
 - Node version: 20.8.0, Yarn version: 3.6.4
 
-**IMPORTANT: When running tests, always target only the specific tests you've modified or added.** Running the full test suite is slow and wastes time/tokens. Use `--testPathPattern` for Jest or `--grep` for Karma to run targeted tests.
+**IMPORTANT: When running tests, always target only the specific tests you've modified or added.** Running the full test suite is slow and wastes time/tokens. Use `--testPathPattern` for Jest or `.only` for Karma to run targeted tests.
 
 ## Project Structure
 

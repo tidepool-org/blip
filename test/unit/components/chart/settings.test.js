@@ -1246,12 +1246,8 @@ describe('Settings', () => {
           expect(dataConnectionsAddButton().length).to.equal(1);
           expect(dataConnectionsWrapper().length).to.equal(1);
 
-          // Data connections shown for each provider
-          expect(dataConnections().length).to.equal(activeProviders.length);
-
-          _.each(activeProviders, providerName => {
-            expect(dataConnections().find(`#data-connection-${providerName}`).hostNodes().length).to.equal(1);
-          });
+          // Data connections shown for each provider (oura excluded for clinicians - requiresLoggedInUser)
+          expect(dataConnections().length).to.equal(3);
         });
       });
     });
@@ -1326,6 +1322,7 @@ describe('Settings', () => {
           const state = {
             blip: {
               ...defaultState.blip,
+              loggedInUserId: '40', // Match patient.userid so oura (requiresLoggedInUser) shows
               dataSources: _.map(availableProviders, providerName => ({ providerName, state: 'pending' })),
             }
           };

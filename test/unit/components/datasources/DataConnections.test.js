@@ -413,7 +413,7 @@ describe('getConnectStateUI', () => {
       expect(UI.pendingExpired.text).to.equal('Invite Expired');
       expect(UI.pendingExpired.handler).to.equal('connect');
 
-      expect(UI.connected.message).to.equal('This can take a few minutes');
+      expect(UI.connected.message).to.equal('Awaiting data, this can take a few minutes');
       expect(UI.connected.text).to.equal('Connecting');
       expect(UI.connected.handler).to.equal('disconnect');
       expect(UINoDataFound.connected.message).to.equal('No data found as of 10 days ago');
@@ -1261,12 +1261,12 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionJustConnected);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(3);
+        expect(connections).to.have.lengthOf(4);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
-        expect(dexcomConnection.find('.state-text').hostNodes().text()).to.equal('Connecting');
-        expect(dexcomConnection.find('.state-message').hostNodes().text()).to.equal(' - This can take a few minutes');
+        expect(dexcomConnection.find('.state-text').hostNodes().text()).to.equal('Connected');
+        expect(dexcomConnection.find('.state-message').hostNodes().text()).to.equal(' - Awaiting data, this can take a few minutes');
 
         const twiistConnection = wrapper.find('#data-connection-twiist').hostNodes();
         expect(twiistConnection).to.have.lengthOf(1);
@@ -1279,7 +1279,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionJustConnected);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(3);
+        expect(connections).to.have.lengthOf(4);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -1311,7 +1311,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionConnectedWithNoData);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(3);
+        expect(connections).to.have.lengthOf(4);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -1329,7 +1329,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionConnectedWithNoData);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(3);
+        expect(connections).to.have.lengthOf(4);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -1361,7 +1361,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionConnectedWithData);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(3);
+        expect(connections).to.have.lengthOf(4);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -1379,7 +1379,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionConnectedWithData);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(3);
+        expect(connections).to.have.lengthOf(4);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -1411,7 +1411,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionDisconnected);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(3);
+        expect(connections).to.have.lengthOf(4);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -1429,7 +1429,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionDisconnected);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(3);
+        expect(connections).to.have.lengthOf(4);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -1464,7 +1464,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionError);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(3);
+        expect(connections).to.have.lengthOf(4);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
@@ -1482,7 +1482,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionError);
 
         const connections = wrapper.find('.data-connection').hostNodes();
-        expect(connections).to.have.lengthOf(3);
+        expect(connections).to.have.lengthOf(4);
 
         const dexcomConnection = wrapper.find('#data-connection-dexcom').hostNodes();
         expect(dexcomConnection).to.have.lengthOf(1);
