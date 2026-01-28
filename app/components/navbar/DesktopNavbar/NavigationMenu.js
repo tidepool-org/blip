@@ -29,6 +29,7 @@ import Popover from '../../elements/Popover';
 import NotificationIcon from '../../elements/NotificationIcon';
 import personUtils from '../../../core/personutils';
 import { borders, colors, space } from '../../../themes/baseTheme';
+import { selectIsSmartOnFhirMode } from '../../../core/selectors';
 
 export const NavigationMenu = props => {
   const { t, api, trackMetric } = props;
@@ -38,6 +39,7 @@ export const NavigationMenu = props => {
   const allUsersMap = useSelector((state) => state.blip.allUsersMap);
   const clinics = useSelector((state) => state.blip.clinics);
   const clinicFlowActive = useSelector((state) => state.blip.clinicFlowActive);
+  const isSmartOnFhirMode = useSelector(state => selectIsSmartOnFhirMode(state));
   const pendingReceivedClinicianInvites = useSelector((state) => state.blip.pendingReceivedClinicianInvites);
 
   const {
@@ -116,6 +118,10 @@ export const NavigationMenu = props => {
   function handleMenuAction(menuOption) {
     menuOption.action();
     popupState.close();
+  }
+
+  if (isSmartOnFhirMode) {
+    return null;
   }
 
   return (
@@ -197,6 +203,7 @@ export const NavigationMenu = props => {
 NavigationMenu.propTypes = {
   api: PropTypes.object.isRequired,
   t: PropTypes.func.isRequired,
+  trackMetric: PropTypes.func.isRequired,
 };
 
 export default withTranslation()(NavigationMenu);

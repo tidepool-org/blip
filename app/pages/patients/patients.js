@@ -24,6 +24,7 @@ import { Box } from 'theme-ui';
 
 import * as actions from '../../redux/actions';
 import utils from '../../core/utils';
+import { selectIsSmartOnFhirMode } from '../../core/selectors';
 
 import _ from 'lodash';
 import cx from 'classnames';
@@ -228,6 +229,7 @@ export let Patients = withTranslation()(class extends React.Component {
             uploadUrl={this.props.uploadUrl}
             onClickPerson={this.handleClickPatient}
             onRemovePatient={this.props.onRemovePatient}
+            isSmartOnFhirMode={this.props.isSmartOnFhirMode}
           />
         </div>
       </div>
@@ -448,6 +450,7 @@ export function mapStateToProps(state) {
     selectedClinicId: state.blip.selectedClinicId,
     showingWelcomeMessage: state.blip.showingWelcomeMessage,
     user,
+    isSmartOnFhirMode: selectIsSmartOnFhirMode(state),
   }
 }
 

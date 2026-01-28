@@ -85,6 +85,7 @@ describe('Basics', () => {
     updateChartPrefs: sinon.stub(),
     uploadUrl: 'http://uploadUrl',
     t: i18next.t.bind(i18next),
+    isSmartOnFhirMode: false,
   };
 
   let wrapper;

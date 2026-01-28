@@ -55,11 +55,13 @@ appContext.trackMetric = (...args) => {
 
   const clinician = personUtils.isClinicianAccount(user);
   const mobile = utils.isMobile();
+  const isSmartOnFhir = !!state?.blip?.smartOnFhirData;
 
   let eventMetadata = {
     selectedClinicId,
     clinician,
     mobile,
+    ...(isSmartOnFhir && { isSmartOnFhir: true }),
   };
 
   // Empty values should be omitted from the metadata object to prevent sending blank query params

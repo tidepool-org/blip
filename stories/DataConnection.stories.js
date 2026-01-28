@@ -11,7 +11,7 @@ import DataConnection from '../app/components/datasources/DataConnection';
 import PatientDetails from '../app/components/datasources/PatientDetails';
 import { Divider } from 'theme-ui';
 import { Subheading } from '../app/components/elements/FontStyles';
-import { clinicPatientFromAccountInfo } from '../app/core/personutils';
+import personUtils from '../app/core/personutils';
 import { reduce } from 'lodash';
 
 /* eslint-disable max-len */
@@ -315,7 +315,7 @@ export const PatientDetailBar = {
       <React.Fragment>
         <PatientDetails mb={2} patient={clinicPatient} />
         <PatientDetails mb={2} patient={noMRNPatient} />
-        <PatientDetails patient={clinicPatientFromAccountInfo(accountPatient)} />
+        <PatientDetails patient={personUtils.clinicPatientFromAccountInfo(accountPatient)} />
       </React.Fragment>
     );
   },

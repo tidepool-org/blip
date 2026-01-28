@@ -27,6 +27,7 @@ describe('MobileNavbar/Menu', () => {
       currentPatientInViewId: '1234-abcd',
       permissionsOfMembersInTargetCareTeam: { '1234-abcd': { root: {} } },
       loggedInUserId: '1234-abcd',
+      smartCorrelationId: null,
       allUsersMap: {
         '1234-abcd': {
           userid: '1234',
@@ -86,6 +87,27 @@ describe('MobileNavbar/Menu', () => {
 
   afterEach(() => {
     defaultProps.trackMetric.resetHistory();
+  });
+
+  describe('Smart-on-FHIR Mode', () => {
+    beforeEach(() => {
+      const localStore = mockStore({
+        blip: {
+          ...store.getState().blip,
+          smartCorrelationId: 'test-correlation-id',
+        },
+      });
+
+      wrapper = mount(
+        <Provider store={localStore}>
+          <Menu {...defaultProps} />
+        </Provider>
+      );
+    });
+
+    it('should not render the component in Smart-on-FHIR mode', () => {
+      expect(wrapper.find(Menu).isEmptyRender()).to.be.true;
+    });
   });
 
   describe('Component Visibility', () => {

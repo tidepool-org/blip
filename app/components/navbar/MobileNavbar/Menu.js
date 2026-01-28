@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import _ from 'lodash';
 import styled from '@emotion/styled';
@@ -22,7 +23,7 @@ import shareIcon from '../../../core/icons/shareIcon.svg';
 import devicesIcon from '../../../core/icons/devicesIcon.svg';
 
 import { getDemographicInfo, getPermissions, useNavigation } from '../../../core/navutils';
-import { selectClinicPatient, selectPatient, selectUser, selectPermsOfLoggedInUser } from '../../../core/selectors';
+import { selectClinicPatient, selectPatient, selectUser, selectPermsOfLoggedInUser, selectIsSmartOnFhirMode } from '../../../core/selectors';
 
 const StyledMenuDropdownButton = styled(Button)`
   background: none;
@@ -72,6 +73,7 @@ const Menu = ({ api, trackMetric }) => {
   const clinicPatient = useSelector(state => selectClinicPatient(state));
   const permsOfLoggedInUser = useSelector(state => selectPermsOfLoggedInUser(state));
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
+  const isSmartOnFhirMode = useSelector(state => selectIsSmartOnFhirMode(state));
 
   const popupState = usePopupState({ variant: 'popover', popupId: 'mobileNavigationMenu' });
 
@@ -139,6 +141,11 @@ const Menu = ({ api, trackMetric }) => {
     },
   ];
 
+  // Don't render the menu in Smart-on-FHIR mode
+  if (isSmartOnFhirMode) {
+    return null;
+  }
+
   return (
     <Box sx={{ gridColumn: '3/4' }}>
       <StyledMenuDropdownButton
@@ -169,7 +176,7 @@ const Menu = ({ api, trackMetric }) => {
               </Box>
             }
             { menuOptions.map(({ id, onClick, iconSrc, label }) => (
-                <MenuOption>
+                <MenuOption key={id}>
                   <Button
                     id={id}
                     onClick={closeDropdownOnClick(onClick)}
@@ -190,6 +197,7 @@ const Menu = ({ api, trackMetric }) => {
         <Box id="mobile-navbar-account-options" px={4} py={4} sx={{ background: vizColors.blue00 }}>
           {accountOptions.map(({ id, onClick, icon, label }) => (
             <Button
+              key={id}
               id={id}
               onClick={closeDropdownOnClick(onClick)}
               icon={icon}
@@ -207,6 +215,11 @@ const Menu = ({ api, trackMetric }) => {
       </StyledPopover>
     </Box>
   );
+};
+
+Menu.propTypes = {
+  api: PropTypes.object.isRequired,
+  trackMetric: PropTypes.func.isRequired,
 };
 
 export default Menu;

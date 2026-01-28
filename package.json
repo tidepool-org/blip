@@ -4,7 +4,7 @@
     "node": "20.8.0"
   },
   "packageManager": "yarn@3.6.4",
-  "version": "1.93.0-web-4272-change-bolus-filter-name-from-calculator-to-meal.1",
+  "version": "1.93.0-web-3071-smart-on-fhir.2",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test yarn jest --verbose --runInBand; JEST_EXIT_CODE=$?; TZ=UTC NODE_ENV=test NODE_OPTIONS='--max-old-space-size=4096' yarn karma start; KARMA_EXIT_CODE=$?; [ $JEST_EXIT_CODE -eq 0 ] && [ $KARMA_EXIT_CODE -eq 0 ]",
@@ -27,8 +27,8 @@
     "update-translations": "i18next 'app/**/*.js' 'node_modules/tideline/{plugins,js}/**/*.js' \"${TIDEPOOL_DOCKER_VIZ_DIR:-'../viz'}/{storiesDatatypes,storybookDatatypes,stories,src}/**/*.js\" -c i18next-parser.config.json -o .",
     "storybook": "NODE_ENV=test yarn sb dev -p 6006 --ci",
     "build-storybook": "build-storybook",
-    "lint": "yarn eslint app stories test __tests__",
-    "lint:jest": "yarn eslint __tests__"
+    "lint": "NODE_ENV=test yarn eslint app stories test __tests__",
+    "lint:jest": "NODE_ENV=test yarn eslint __tests__"
   },
   "dependencies": {
     "body-parser": "1.20.3",
@@ -80,7 +80,6 @@
     "async": "2.6.4",
     "autoprefixer": "10.4.16",
     "babel-core": "7.0.0-bridge.0",
-    "babel-eslint": "9.0.0",
     "babel-loader": "9.1.3",
     "babel-plugin-istanbul": "6.1.1",
     "babel-plugin-rewire": "1.2.0",
@@ -136,7 +135,7 @@
     "karma-sinon": "1.0.5",
     "karma-sourcemap-loader": "0.4.0",
     "karma-webpack": "5.0.0",
-    "keycloak-js": "22.0.4",
+    "keycloak-js": "26.1.3",
     "launchdarkly-react-client-sdk": "3.0.9",
     "less": "4.2.0",
     "less-loader": "11.1.3",
@@ -199,7 +198,7 @@
     "terser-webpack-plugin": "5.3.9",
     "theme-ui": "0.16.1",
     "tideline": "1.38.0-web-3886-basics-view-site-change-regression.1",
-    "tidepool-platform-client": "0.64.0",
+    "tidepool-platform-client": "0.65.0-web-3071-smart-on-fhir.5",
     "tidepool-standard-action": "0.1.1",
     "ua-parser-js": "1.0.36",
     "url-loader": "4.1.1",

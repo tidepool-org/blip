@@ -103,17 +103,18 @@ describe('Trends', () => {
     trackMetric: sinon.stub(),
     updateChartPrefs: sinon.stub(),
     uploadUrl: '',
+    isSmartOnFhirMode: false,
   };
 
   let wrapper;
-  let instance
+  let instance;
   beforeEach(() => {
     wrapper = shallow(<Trends.WrappedComponent {...baseProps} />);
     instance = wrapper.instance();
     instance.refs = {
       chart: {},
     };
-  })
+  });
 
   afterEach(() => {
     baseProps.onClickPrint.reset();

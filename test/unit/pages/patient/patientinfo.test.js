@@ -20,17 +20,24 @@ import { BrowserRouter } from 'react-router-dom';
 describe('PatientInfo', function () {
 
   let props = {
-    api: { clinics: { getClinicsForPatient: sinon.stub() } },
     user: { userid: 5678 },
     patient: { userid: 1234 },
     fetchingPatient: false,
     fetchingUser: false,
     onUpdatePatient: sinon.stub(),
+    onUpdatePatientSettings: sinon.stub(),
+    onUpdateDataDonationAccounts: sinon.stub(),
     trackMetric: sinon.stub(),
     dataSources: [],
     fetchDataSources: sinon.stub(),
     connectDataSource: sinon.stub(),
     disconnectDataSource: sinon.stub(),
+    isSmartOnFhirMode: false,
+    api: {
+      clinics: { getClinicsForPatient: sinon.stub() },
+      export: { get: sinon.stub() }
+    },
+    permsOfLoggedInUser: {},
   };
 
   const mockStore = configureStore([thunk]);
@@ -70,6 +77,9 @@ describe('PatientInfo', function () {
     props.fetchDataSources.reset();
     props.connectDataSource.reset();
     props.disconnectDataSource.reset();
+    props.onUpdatePatientSettings.reset();
+    props.onUpdateDataDonationAccounts.reset();
+    props.api.export.get.reset();
   });
 
   after(() => {
@@ -1132,5 +1142,79 @@ describe('PatientInfo', function () {
     it('should render the export UI', function(){
       expect(wrapper.find('.PatientPage-export')).to.have.length(1);
     })
+  });
+
+  describe('Smart on FHIR Mode', function() {
+    describe('renderExport', function() {
+      it('should not render the export UI in Smart on FHIR mode', function() {
+        wrapper.setProps({ isSmartOnFhirMode: true });
+        expect(wrapper.find('.PatientPage-export')).to.have.length(0);
+      });
+    });
+
+    describe('renderEditLink', function() {
+      it('should not render the edit link in Smart on FHIR mode', function() {
+        wrapper.setProps({
+          isSmartOnFhirMode: false,
+          permsOfLoggedInUser: { root: true }
+        });
+        wrapper.update();
+        expect(wrapper.find('.PatientInfo-button--primary')).to.have.length(1);
+
+        wrapper.setProps({
+          isSmartOnFhirMode: true,
+          user: { userid: 1234 },
+          patient: { userid: 1234 },
+          permsOfLoggedInUser: { root: true }
+        });
+        wrapper.update();
+        expect(wrapper.find('.PatientInfo-button--primary')).to.have.length(0);
+      });
+    });
+
+    describe('profile field clickability', function() {
+      it('should not render clickable profile fields in Smart on FHIR mode', function() {
+        wrapper.setProps({
+          isSmartOnFhirMode: true,
+          user: { userid: 1234 },
+          patient: {
+            userid: 1234,
+            profile: {
+              fullName: 'Test User',
+              patient: {
+                birthday: '1990-01-01',
+                diagnosisDate: '2000-01-01',
+                diagnosisType: 'type1'
+              }
+            }
+          }
+        });
+
+        // Profile fields should be non-clickable divs, not links
+        expect(wrapper.find('.PatientInfo-block a')).to.have.length(0);
+        expect(wrapper.find('.PatientInfo-block').at(0).type()).to.equal('div');
+      });
+
+      it('should render clickable profile fields when not in Smart on FHIR mode', function() {
+        wrapper.setProps({
+          isSmartOnFhirMode: false,
+          user: { userid: 1234 },
+          patient: {
+            userid: 1234,
+            profile: {
+              fullName: 'Test User',
+              patient: {
+                birthday: '1990-01-01',
+                diagnosisDate: '2000-01-01',
+                diagnosisType: 'type1'
+              }
+            }
+          }
+        });
+
+        // Profile fields should be clickable links when user is viewing their own profile
+        expect(wrapper.find('a.PatientInfo-block')).to.have.length(3); // name, age, diagnosis
+      });
+    });
   });
 });

@@ -798,6 +798,29 @@ export function fetchPatientFailure(error, apiError, link) {
   };
 }
 
+export function fetchPatientsRequest() {
+  return {
+    type: ActionTypes.FETCH_PATIENTS_REQUEST,
+  };
+}
+
+export function fetchPatientsSuccess(results) {
+  return {
+    type: ActionTypes.FETCH_PATIENTS_SUCCESS,
+    payload: { results },
+  };
+}
+
+export function fetchPatientsFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_PATIENTS_FAILURE,
+    error: error,
+    meta: {
+      apiError: apiError || null,
+    },
+  };
+}
+
 export function fetchAssociatedAccountsRequest() {
   return {
     type: ActionTypes.FETCH_ASSOCIATED_ACCOUNTS_REQUEST,
@@ -2525,6 +2548,20 @@ export function keycloakTokensReceived(tokens) {
   return {
     type: ActionTypes.KEYCLOAK_TOKENS_RECEIVED,
     payload: { tokens },
+  };
+}
+
+export function smartOnFhirAuthSuccess(smartOnFhirData) {
+  return {
+    type: ActionTypes.SMART_ON_FHIR_AUTH_SUCCESS,
+    payload: { smartOnFhirData },
+  };
+}
+
+export function setSmartCorrelationId(correlationId) {
+  return {
+    type: ActionTypes.SET_SMART_CORRELATION_ID,
+    payload: { correlationId },
   };
 }
 

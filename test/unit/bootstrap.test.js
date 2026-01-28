@@ -26,14 +26,18 @@ describe('appContext', () => {
   });
 
   afterEach(() => {
-    appContext.api.metrics.track.resetHistory();
+    appContext.api.metrics.track.reset();
+    appContext.store.getState.reset();
   });
 
   it('should call appContext.api.metrics.track with arguments when selectedClinicId is not present', () => {
     appContext.trackMetric('someMetric');
 
     expect(appContext.api.metrics.track.calledOnce).to.be.true;
-    expect(appContext.api.metrics.track.calledWith('someMetric')).to.be.true;
+    expect(appContext.api.metrics.track.calledWith('someMetric', {
+      clinician: false,
+      mobile: false
+    })).to.be.true;
   });
 
   it('should call appContext.api.metrics.track with clinicId defaulted to selectedClinicId when it is present', () => {
@@ -72,6 +76,35 @@ describe('appContext', () => {
         selectedClinicId: 'anotherClinic',
         mobile: false,
         clinician: true,
+      })
+    ).to.be.true;
+  });
+
+  it('should call appContext.api.metrics.track with isSmartOnFhir true when SMART on FHIR data is present', () => {
+    const selectedClinicId = 'clinic123';
+    const loggedInUserId = 'abcd-1234';
+    const allUsersMap = {
+      [loggedInUserId]: { username: 'canelo.alvarez@tidepool.test', roles: ['clinician'] },
+    };
+
+    appContext.store.getState.returns({
+      blip: {
+        selectedClinicId,
+        loggedInUserId,
+        allUsersMap,
+        smartOnFhirData: { patients: [] },
+      },
+    });
+
+    appContext.trackMetric('smartMetric');
+
+    expect(appContext.api.metrics.track.calledOnce).to.be.true;
+    expect(
+      appContext.api.metrics.track.calledWith('smartMetric', {
+        selectedClinicId: 'clinic123',
+        mobile: false,
+        clinician: true,
+        isSmartOnFhir: true,
       })
     ).to.be.true;
   });

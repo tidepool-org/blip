@@ -4,15 +4,19 @@ import i18next from '../../core/language';
 import _ from 'lodash';
 import Version from '../version';
 import { Flex } from 'theme-ui';
+import { useSelector } from 'react-redux';
+import { selectIsSmartOnFhirMode } from '../../core/selectors';
 
 const t = i18next.t.bind(i18next);
 
 const Footer = ({ version, location, trackMetric }) => {
+  const inSmartOnFhirMode = useSelector(state => selectIsSmartOnFhirMode(state));
+
   const metricFnMkr = (link) => {
     return () => { trackMetric(`Clicked Footer ${link}`); };
   };
 
-  const shouldDisplayFooterLinks = !_.includes(
+  const shouldDisplayFooterLinks = !inSmartOnFhirMode && !_.includes(
     [
       '/signup',
       '/signup/personal',
@@ -62,13 +66,13 @@ const Footer = ({ version, location, trackMetric }) => {
         <div className='footer-section'>
           <div className='footer-link secondary large-format-only'>
             <a
-              href="http://support.tidepool.org/"
+              href="https://support.tidepool.org/"
               id='support'
               onClick={metricFnMkr('Support')}
               target="_blank"
               rel="noreferrer noopener">{t('Get Support')}</a>
             <a
-              href='http://tidepool.org/legal/'
+              href='https://tidepool.org/legal/'
               id='legal'
               onClick={metricFnMkr('PP and TOU')}
               target='_blank'
@@ -85,6 +89,7 @@ const Footer = ({ version, location, trackMetric }) => {
 
 Footer.propTypes = {
   version: PropTypes.string,
+  location: PropTypes.string.isRequired,
   trackMetric: PropTypes.func.isRequired,
 };
 
