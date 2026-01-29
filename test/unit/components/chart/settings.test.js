@@ -184,6 +184,23 @@ describe('Settings', () => {
         timezoneOffset: -480,
         timezoneDisplay: '(GMT-08:00) Pacific Time (US & Canada)',
       },
+      data: {
+        metaData: {
+          devices: [
+            {
+              id: 'source1-id',
+              deviceName: 'Tandem t:slim X2',
+              label: 'Tandem 1002717 (Control-IQ)',
+              serialNumber: '1234',
+            },
+            {
+              id: 'source2-id',
+              label: 'Medtronic MM1780',
+              serialNumber: '5678',
+            },
+          ],
+        },
+      },
     },
 
     charts: {
@@ -525,7 +542,7 @@ describe('Settings', () => {
     const deviceRadioGroup = wrapper.find('RadioGroup#device');
     const radioOptions = deviceRadioGroup.find('Radio');
     expect(radioOptions).to.have.lengthOf(1);
-    expect(radioOptions.at(0).text()).to.equal('source1 (Serial #: 1234)');
+    expect(radioOptions.at(0).text()).to.equal('Tandem t:slim X2 (Serial #: 1234)');
   });
 
   it('generates device selection options correctly with multiple entries from a single source', () => {
@@ -556,7 +573,7 @@ describe('Settings', () => {
     const deviceRadioGroup = wrapper.find('RadioGroup#device');
     const radioOptions = deviceRadioGroup.find('Radio');
     expect(radioOptions).to.have.lengthOf(1);
-    expect(radioOptions.at(0).text()).to.equal('source1 (Serial #: 1234)');
+    expect(radioOptions.at(0).text()).to.equal('Tandem t:slim X2 (Serial #: 1234)');
   });
 
   it('generates device selection options correctly with multiple sources with multiple entries', () => {
@@ -587,8 +604,8 @@ describe('Settings', () => {
     const deviceRadioGroup = wrapper.find('RadioGroup#device');
     const radioOptions = deviceRadioGroup.find('Radio');
     expect(radioOptions).to.have.lengthOf(2);
-    expect(radioOptions.at(0).text()).to.equal('source2 (Serial #: 5678)');
-    expect(radioOptions.at(1).text()).to.equal('source1 (Serial #: 1234)');
+    expect(radioOptions.at(0).text()).to.equal('Medtronic MM1780 (Serial #: 5678)');
+    expect(radioOptions.at(1).text()).to.equal('Tandem t:slim X2 (Serial #: 1234)');
   });
 
   it('omits device serial number from device selection options when not available', () => {
@@ -663,7 +680,7 @@ describe('Settings', () => {
     deviceRadioGroup = wrapper.find('RadioGroup#device');
     radioOptions = deviceRadioGroup.find('Radio');
     expect(radioOptions).to.have.lengthOf(1);
-    expect(radioOptions.at(0).text()).to.equal('source1 (Serial #: 1234)');
+    expect(radioOptions.at(0).text()).to.equal('Tandem t:slim X2 (Serial #: 1234)');
   });
 
   it('generates settings selection options correctly with a single entry from a single source', () => {
