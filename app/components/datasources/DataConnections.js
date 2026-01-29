@@ -76,7 +76,7 @@ export const providers = {
   },
   oura: {
     id: 'oauth/oura',
-    displayName: 'ŌURA',
+    displayName: 'Oura',
     displayOrderIndex: 3,
     restrictedTokenCreate: {
         paths: [

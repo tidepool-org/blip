@@ -66,7 +66,7 @@ describe('providers', () => {
     expect(twiist.indeterminateDataImportTime).to.be.true;
 
     expect(oura.id).to.equal('oauth/oura');
-    expect(oura.displayName).to.equal('ŌURA');
+    expect(oura.displayName).to.equal('Oura');
     expect(oura.restrictedTokenCreate).to.eql({ paths: ['/v1/oauth/oura'] });
     expect(oura.dataSourceFilter).to.eql({ providerType: 'oauth', providerName: 'oura' });
     expect(oura.logoImage).to.be.a('string');
