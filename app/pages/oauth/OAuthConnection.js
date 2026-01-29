@@ -36,14 +36,14 @@ export const OAuthConnection = (props) => {
     accept: {
       status: 'accept',
       title: t('Your Body, Your Data'),
-      subheading: t('Your ŌURA data may contain information about your reproductive health'),
+      subheading: t('Your {{displayName}} data may contain information about your reproductive health', { displayName }),
       message: [
         <Trans i18nKey="html.oauth-accept-privacy-message">
           <Body1 mb={3}>
             As part of using Tidepool Apps and Services or as part of certain initiatives, we may collect reproductive health data that you provide to us or that you authorize a 3rd Party to provide to us on your behalf. This data may be used and disclosed in accordance with <Link href={URL_PRIVACY_POLICY} target="_blank" rel="noreferrer noopener">Tidepool's Privacy Policy</Link> and applicable law. You can stop sharing reproductive health data at any point by accessing your Devices page and disconnecting 3rd Party devices, which share these data to Tidepool. You may also request your data be deleted at any time. Please see 1.2.4 Export, Delete, or Change Your Information and 1.2.5 Cancel Your Account in our Privacy Policy.
           </Body1>
         </Trans>,
-        t('By linking your Oura account, you acknowledge that Tidepool may collect, use, and disclose data derived from your device, including reproductive health data. Please consider the laws governing reproductive health in your jurisdiction before providing Tidepool with such data.'),
+        t('By linking your {{ displayName }} account, you acknowledge that Tidepool may collect, use, and disclose data derived from your device, including reproductive health data. Please consider the laws governing reproductive health in your jurisdiction before providing Tidepool with such data.', { displayName }),
       ],
       image: consentDataImage,
     },
