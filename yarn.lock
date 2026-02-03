@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.55.0-web-3632-device-names.5":
-  version: 1.55.0-web-3632-device-names.5
-  resolution: "@tidepool/viz@npm:1.55.0-web-3632-device-names.5"
+"@tidepool/viz@npm:1.55.0-web-3632-device-names.6":
+  version: 1.55.0-web-3632-device-names.6
+  resolution: "@tidepool/viz@npm:1.55.0-web-3632-device-names.6"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: f28664c894c2d659fcf191f572b5b3c185f94119b1030f5161a451acdfb53f28db687e75a418f7268830831ada9d1994940abeb63ab6fea3ea2dd389d9448e36
+  checksum: 4d28460cfacde527661d6e7a8a08174a3f8f39d7eab5683072e36f728577d897d56142ec583beb13dc8ac1d6752fc25d9e3f9e732ac8afe8d1fc04c9184b02e7
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.55.0-web-3632-device-names.5
+    "@tidepool/viz": 1.55.0-web-3632-device-names.6
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
