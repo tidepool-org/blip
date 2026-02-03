@@ -6,6 +6,7 @@
 /* global it */
 /* global beforeEach */
 /* global afterEach */
+/* global Promise */
 
 import React, { createElement } from 'react';
 import mutationTracker from 'object-invariant-test-helper';
@@ -264,19 +265,32 @@ describe('Signup', function () {
     const mockStore = configureStore([thunk]);
     let store = mockStore(storeState);
     const keycloakMock = {
-      createRegisterUrl: sinon.stub(),
+      // createRegisterUrl returns a Promise
+      createRegisterUrl: sinon.stub().resolves('https://keycloak.example.com/register'),
     };
     let RewiredSignup;
     let wrapper;
 
-    afterEach(() => {
-      keycloakMock.createRegisterUrl.reset();
-    });
+    const flushPromises = () => new Promise((resolve) => { setTimeout(resolve, 0); });
 
     before(() => {
       Signup.__Rewire__('keycloak', keycloakMock);
       Signup.__Rewire__('win', { location: { origin: 'testOrigin', assign: sinon.stub() } });
       RewiredSignup = require('../../../app/pages/signup/signup.js').default;
+    });
+
+    beforeEach(() => {
+      keycloakMock.createRegisterUrl.reset();
+      storeState = {
+        blip: {
+          working: {
+            signingUp: defaultWorkingState,
+            fetchingInfo: { ...defaultWorkingState, completed: true },
+          },
+          keycloakConfig: {},
+        },
+      };
+      store = mockStore(storeState);
       wrapper = mount(
         createElement(
           (props) => (
@@ -296,7 +310,7 @@ describe('Signup', function () {
       Signup.__ResetDependency__('win');
     });
 
-    it('should send the user to keycloak signup if keycloak is initialized', () => {
+    it('should send the user to keycloak signup if keycloak is initialized', async () => {
       expect(keycloakMock.createRegisterUrl.callCount).to.equal(0);
       storeState = merge(storeState, {
         blip: { keycloakConfig: { initialized: true } },
@@ -308,11 +322,12 @@ describe('Signup', function () {
           initialized: true,
         },
       });
+      await flushPromises();
       expect(keycloakMock.createRegisterUrl.callCount).to.equal(1);
       expect(keycloakMock.createRegisterUrl.calledWith({ redirectUri: 'testOrigin' })).to.be.true;
     });
 
-    it('should provide loginHint if inviteEmail is provided', () => {
+    it('should provide loginHint if inviteEmail is provided', async () => {
       expect(keycloakMock.createRegisterUrl.callCount).to.equal(0);
       storeState = merge(storeState, {
         blip: { keycloakConfig: { initialized: true } },
@@ -325,6 +340,7 @@ describe('Signup', function () {
           initialized: true,
         },
       });
+      await flushPromises();
       expect(keycloakMock.createRegisterUrl.callCount).to.equal(1);
       expect(keycloakMock.createRegisterUrl.calledWith({loginHint: 'someEmail@provider.com'}));
     });

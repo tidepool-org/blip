@@ -562,7 +562,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/parser@npm:^7.0.0, @babel/parser@npm:^7.1.0, @babel/parser@npm:^7.13.16, @babel/parser@npm:^7.14.7, @babel/parser@npm:^7.20.7, @babel/parser@npm:^7.22.15, @babel/parser@npm:^7.22.7, @babel/parser@npm:^7.23.0, @babel/parser@npm:^7.23.3, @babel/parser@npm:^7.23.4":
+"@babel/parser@npm:^7.1.0, @babel/parser@npm:^7.13.16, @babel/parser@npm:^7.14.7, @babel/parser@npm:^7.20.7, @babel/parser@npm:^7.22.15, @babel/parser@npm:^7.22.7, @babel/parser@npm:^7.23.0, @babel/parser@npm:^7.23.3, @babel/parser@npm:^7.23.4":
   version: 7.23.4
   resolution: "@babel/parser@npm:7.23.4"
   bin:
@@ -2013,7 +2013,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/traverse@npm:^7.0.0, @babel/traverse@npm:^7.1.6, @babel/traverse@npm:^7.22.8, @babel/traverse@npm:^7.23.0, @babel/traverse@npm:^7.23.3, @babel/traverse@npm:^7.23.4":
+"@babel/traverse@npm:^7.1.6, @babel/traverse@npm:^7.22.8, @babel/traverse@npm:^7.23.0, @babel/traverse@npm:^7.23.3, @babel/traverse@npm:^7.23.4":
   version: 7.23.4
   resolution: "@babel/traverse@npm:7.23.4"
   dependencies:
@@ -7924,20 +7924,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-eslint@npm:9.0.0":
-  version: 9.0.0
-  resolution: "babel-eslint@npm:9.0.0"
-  dependencies:
-    "@babel/code-frame": ^7.0.0
-    "@babel/parser": ^7.0.0
-    "@babel/traverse": ^7.0.0
-    "@babel/types": ^7.0.0
-    eslint-scope: 3.7.1
-    eslint-visitor-keys: ^1.0.0
-  checksum: a32b12187f733c1a50a72e9eac8d9609fd101bd3ade5c3df3640fea69058c38a12bffd95ce9acd047707b4fa2c5b415234086dbcea1441bfd98600c9effcd574
-  languageName: node
-  linkType: hard
-
 "babel-jest@npm:^29.7.0":
   version: 29.7.0
   resolution: "babel-jest@npm:29.7.0"
@@ -8201,7 +8187,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"base64-js@npm:^1.1.2, base64-js@npm:^1.3.0, base64-js@npm:^1.3.1, base64-js@npm:^1.5.1":
+"base64-js@npm:^1.1.2, base64-js@npm:^1.3.0, base64-js@npm:^1.3.1":
   version: 1.5.1
   resolution: "base64-js@npm:1.5.1"
   checksum: 669632eb3745404c2f822a18fc3a0122d2f9a7a13f7fb8b5823ee19d1d2ff9ee5b52c53367176ea4ad093c332fd5ab4bd0ebae5a8e27917a4105a4cfc86b1005
@@ -8339,7 +8325,6 @@ __metadata:
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
-    babel-eslint: 9.0.0
     babel-loader: 9.1.3
     babel-plugin-istanbul: 6.1.1
     babel-plugin-rewire: 1.2.0
@@ -8400,7 +8385,7 @@ __metadata:
     karma-sinon: 1.0.5
     karma-sourcemap-loader: 0.4.0
     karma-webpack: 5.0.0
-    keycloak-js: 22.0.4
+    keycloak-js: 26.1.3
     launchdarkly-react-client-sdk: 3.0.9
     less: 4.2.0
     less-loader: 11.1.3
@@ -8465,7 +8450,7 @@ __metadata:
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
     tideline: 1.38.0-web-3886-basics-view-site-change-regression.1
-    tidepool-platform-client: 0.64.0
+    tidepool-platform-client: 0.65.0-web-3071-smart-on-fhir.5
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
     url-loader: 4.1.1
@@ -11890,16 +11875,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-scope@npm:3.7.1":
-  version: 3.7.1
-  resolution: "eslint-scope@npm:3.7.1"
-  dependencies:
-    esrecurse: ^4.1.0
-    estraverse: ^4.1.1
-  checksum: dc10d4d0cba3652a9df2505fb4398c3a8ecc09e4911b2136a9360e7a06352514776aae975c98e940ec1d24c4c8402375addc04ba4f83add06e937afb43c7cd20
-  languageName: node
-  linkType: hard
-
 "eslint-scope@npm:5.1.1":
   version: 5.1.1
   resolution: "eslint-scope@npm:5.1.1"
@@ -11917,13 +11892,6 @@ __metadata:
     esrecurse: ^4.3.0
     estraverse: ^5.2.0
   checksum: ec97dbf5fb04b94e8f4c5a91a7f0a6dd3c55e46bfc7bbcd0e3138c3a76977570e02ed89a1810c778dcd72072ff0e9621ba1379b4babe53921d71e2e4486fda3e
-  languageName: node
-  linkType: hard
-
-"eslint-visitor-keys@npm:^1.0.0":
-  version: 1.3.0
-  resolution: "eslint-visitor-keys@npm:1.3.0"
-  checksum: 37a19b712f42f4c9027e8ba98c2b06031c17e0c0a4c696cd429bd9ee04eb43889c446f2cd545e1ff51bef9593fcec94ecd2c2ef89129fcbbf3adadbef520376a
   languageName: node
   linkType: hard
 
@@ -12025,7 +11993,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"esrecurse@npm:^4.1.0, esrecurse@npm:^4.3.0":
+"esrecurse@npm:^4.3.0":
   version: 4.3.0
   resolution: "esrecurse@npm:4.3.0"
   dependencies:
@@ -15246,13 +15214,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"js-sha256@npm:^0.9.0":
-  version: 0.9.0
-  resolution: "js-sha256@npm:0.9.0"
-  checksum: ffad54b3373f81581e245866abfda50a62c483803a28176dd5c28fd2d313e0bdf830e77dac7ff8afd193c53031618920f3d98daf21cbbe80082753ab639c0365
-  languageName: node
-  linkType: hard
-
 "js-tokens@npm:^3.0.0 || ^4.0.0, js-tokens@npm:^4.0.0":
   version: 4.0.0
   resolution: "js-tokens@npm:4.0.0"
@@ -15716,13 +15677,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"keycloak-js@npm:22.0.4":
-  version: 22.0.4
-  resolution: "keycloak-js@npm:22.0.4"
-  dependencies:
-    base64-js: ^1.5.1
-    js-sha256: ^0.9.0
-  checksum: 60703ccbc06ffd485392fa5384b5fbe1ea716f97519a4b5e5b0057ce48a3310d691292d2faf452be1755be5253695c2024701a8125aeb39d154ab8610879be35
+"keycloak-js@npm:26.1.3":
+  version: 26.1.3
+  resolution: "keycloak-js@npm:26.1.3"
+  checksum: 083d242f14cd07f533211e2657c0e8632bfdecb4403af0c12015be6f95d6697cdc97fb4f93136ff98717acaf0b3a8391a72eaf1c86b9c7d08634ebb7504e94c6
   languageName: node
   linkType: hard
 
@@ -22264,15 +22222,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tidepool-platform-client@npm:0.64.0":
-  version: 0.64.0
-  resolution: "tidepool-platform-client@npm:0.64.0"
+"tidepool-platform-client@npm:0.65.0-web-3071-smart-on-fhir.5":
+  version: 0.65.0-web-3071-smart-on-fhir.5
+  resolution: "tidepool-platform-client@npm:0.65.0-web-3071-smart-on-fhir.5"
   dependencies:
     async: 0.9.0
     lodash: 4.17.21
     superagent: 5.2.2
     uuid: 3.1.0
-  checksum: 03a45ff21b56df6acb0fbaa283bef12812127ad3c0378929ee44762f31f9fc16eb503997701e07b21ee10d37b8d7c6b505bc1be68b4283f953a78eb1b8cced79
+  checksum: 833e331f1c30a0ee975b8a2743ba5ea8aab23e04e6ff8da303697768e78207e2659b7f0af4ce70ea6565456c9abe4b1dab09bc233ec4f862ea1a396818e8f89c
   languageName: node
   linkType: hard
 

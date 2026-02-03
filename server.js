@@ -106,7 +106,14 @@ app.use(nonceMiddleware, helmet.contentSecurityPolicy({
       'https://pendo-static-5707274877534208.storage.googleapis.com',
       'https://*.launchdarkly.com',
     ]).filter(src => src !== undefined),
-    frameAncestors: ['https://app.pendo.io', 'https://*.tidepool.org', 'localhost:*']
+    frameAncestors: [
+      'https://app.pendo.io',
+      'https://*.tidepool.org',
+      'https://*.epic.com',
+      'https://*.epichosted.com',
+      'https://boomertest.cchmc.org/fhir',
+      'localhost:*'
+    ]
   },
   reportOnly: false,
 }));

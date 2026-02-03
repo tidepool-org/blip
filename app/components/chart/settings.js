@@ -121,7 +121,8 @@ const Settings = ({
   uploadUrl,
   pdf,
   currentPatientInViewId,
-  t
+  t,
+  isSmartOnFhirMode
 }) => {
   const { location } = useHistory();
   const isJustConnected = !!location?.query?.dataConnectionStatus;
@@ -748,6 +749,7 @@ const Settings = ({
           onClickBgLog={handleClickBgLog}
           onClickExport={handleClickExport}
           onClickPrint={handleClickPrint}
+          isSmartOnFhirMode={isSmartOnFhirMode}
         />
 
         <Box variant="containers.patientDataInner">
@@ -818,6 +820,7 @@ Settings.propTypes = {
   pdf: PropTypes.object,
   currentPatientInViewId: PropTypes.string.isRequired,
   t: PropTypes.func.isRequired,
+  isSmartOnFhirMode: PropTypes.bool.isRequired,
 };
 
 export default withTranslation()(Settings);

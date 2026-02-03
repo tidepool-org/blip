@@ -35,6 +35,7 @@ const Header = withTranslation()(class Header extends Component {
     onClickSettings: PropTypes.func,
     onClickExport: PropTypes.func,
     onClickPrint: PropTypes.func,
+    isSmartOnFhirMode: PropTypes.bool.isRequired,
   };
 
   static defaultProps = {
@@ -190,26 +191,30 @@ const Header = withTranslation()(class Header extends Component {
           {this.renderNavButton(mostRecentClass, this.props.onClickMostRecent, this.props.iconMostRecent)}
         </div>
         <div className="app-no-print patient-data-subnav-right">
-          <a href="" className={exportLinkClass} onClick={this.props.onClickExport}>
-            <Icon
-              className="icon"
-              variant="default"
-              sx={{ mr: 2, mt: '-2px', color: vizColors.blue00, outline: 'none' }}
-              label="Export Data"
-              icon={GetAppIcon}
-            />
-            {t('Export Data')}
-          </a>
-          <a href="" className={printLinkClass} onClick={this.props.onClickPrint}>
-            <Icon
-              className="icon"
-              variant="default"
-              sx={{ mr: 2, mt: '-2px', color: vizColors.blue00, outline: 'none' }}
-              label="Print PDF report"
-              icon={PrintRoundedIcon}
-            />
-            {t('Print')}
-          </a>
+        {!this.props.isSmartOnFhirMode && (
+          <>
+            <a href="" className={exportLinkClass} onClick={this.props.onClickExport}>
+              <Icon
+                className="icon"
+                variant="default"
+                sx={{ mr: 2, mt: '-2px', color: vizColors.blue00, outline: 'none' }}
+                label="Export Data"
+                icon={GetAppIcon}
+              />
+              {t('Export Data')}
+            </a>
+            <a href="" className={printLinkClass} onClick={this.props.onClickPrint}>
+              <Icon
+                className="icon"
+                variant="default"
+                sx={{ mr: 2, mt: '-2px', color: vizColors.blue00, outline: 'none' }}
+                label="Print PDF report"
+                icon={PrintRoundedIcon}
+              />
+              {t('Print')}
+            </a>
+          </>
+        )}
         </div>
       </Box>
     );

@@ -22,6 +22,7 @@ import {
 } from 'material-ui-popup-state/hooks';
 
 import * as actions from '../../redux/actions';
+import { selectIsSmartOnFhirMode } from '../../core/selectors';
 import Button from '../elements/Button';
 import Popover from '../elements/Popover';
 import { colors } from '../../themes/baseTheme';
@@ -34,6 +35,7 @@ export const WorkspaceSwitcher = props => {
   const clinics = useSelector((state) => state.blip.clinics);
   const membershipInOtherCareTeams = useSelector((state) => state.blip.membershipInOtherCareTeams);
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
+  const isSmartOnFhirMode = useSelector(selectIsSmartOnFhirMode);
   const hasPatientProfile = !!get(allUsersMap, [loggedInUserId, 'profile', 'patient'], false);
   const { pathname } = useLocation();
 
@@ -88,73 +90,79 @@ export const WorkspaceSwitcher = props => {
 
   return menuOptions.length ? (
     <Flex id='workspace-switcher' sx={{ justifyContent: ['center', 'flex-start', 'center'] }}>
-      {menuOptions.length > 1 && (
-        <>
-          <Button
-            id="workspace-switcher-current"
-            variant="textPrimary"
-            color="text.primary"
-            {...bindTrigger(popupState)}
-            icon={KeyboardArrowDownRoundedIcon}
-            iconLabel={t('Open navigation menu')}
-            sx={{
-              fontSize: 2,
-              '&:hover': {
-                color: colors.purpleDark,
-              },
-            }}
-          >
-            {selectedClinic?.label}
-          </Button>
-
-          <Popover
-            minWidth="15em"
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'center',
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'center',
-            }}
-            {...bindPopover(popupState)}
-          >
-            <Box py={2}>
-              {map(menuOptions, (option, key) => (
-                <Button
-                  className="workspace-option"
-                  variant="textPrimary"
-                  color="text.primary"
-                  pt={2}
-                  pb={3}
-                  px={3}
-                  key={key}
-                  icon={option.id === selectedClinic?.id ? CheckRoundedIcon : null}
-                  iconLabel={t('Selected')}
-                  onClick={() => handleSelect(option)}
-                  sx={{
-                    width: '100%',
-                    fontSize: 2,
-                    justifyContent: 'space-between',
-                    '&:hover': {
-                      color: colors.purpleDark,
-                    },
-                    '&:last-child': {
-                      pb: 2,
-                    },
-                    textAlign: 'left',
-                  }}
-                >
-                  {option.label}
-                </Button>
-              ))}
-            </Box>
-          </Popover>
-        </>
-      )}
-
-      {menuOptions.length === 1 && (
+      {isSmartOnFhirMode ? (
         <Text fontSize={2} color="text.primary">{selectedClinic?.label}</Text>
+      ) : (
+        <>
+          {menuOptions.length > 1 && (
+            <>
+              <Button
+                id="workspace-switcher-current"
+                variant="textPrimary"
+                color="text.primary"
+                {...bindTrigger(popupState)}
+                icon={KeyboardArrowDownRoundedIcon}
+                iconLabel={t('Open navigation menu')}
+                sx={{
+                  fontSize: 2,
+                  '&:hover': {
+                    color: colors.purpleDark,
+                  },
+                }}
+              >
+                {selectedClinic?.label}
+              </Button>
+
+              <Popover
+                minWidth="15em"
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'center',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'center',
+                }}
+                {...bindPopover(popupState)}
+              >
+                <Box py={2}>
+                  {map(menuOptions, (option, key) => (
+                    <Button
+                      className="workspace-option"
+                      variant="textPrimary"
+                      color="text.primary"
+                      pt={2}
+                      pb={3}
+                      px={3}
+                      key={key}
+                      icon={option.id === selectedClinic?.id ? CheckRoundedIcon : null}
+                      iconLabel={t('Selected')}
+                      onClick={() => handleSelect(option)}
+                      sx={{
+                        width: '100%',
+                        fontSize: 2,
+                        justifyContent: 'space-between',
+                        '&:hover': {
+                          color: colors.purpleDark,
+                        },
+                        '&:last-child': {
+                          pb: 2,
+                        },
+                        textAlign: 'left',
+                      }}
+                    >
+                      {option.label}
+                    </Button>
+                  ))}
+                </Box>
+              </Popover>
+            </>
+          )}
+
+          {menuOptions.length === 1 && (
+            <Text fontSize={2} color="text.primary">{selectedClinic?.label}</Text>
+          )}
+        </>
       )}
     </Flex>
   ) : null;
