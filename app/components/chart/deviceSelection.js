@@ -7,6 +7,9 @@ import { Box, Flex, Text } from 'theme-ui';
 
 import { colors, fontSizes } from '../../themes/baseTheme';
 import utils from '../../core/utils';
+import { utils as vizUtils } from '@tidepool/viz';
+
+const { getDeviceName } = vizUtils.settings;
 
 export const DeviceSelection = (props) => {
   const {
@@ -47,18 +50,18 @@ export const DeviceSelection = (props) => {
           <Box sx={{ fontSize: 3 }}>{devices.length - excludedDevices.length}</Box>
         </Flex>
       }
-      children={map(devices, ({id, label}) => (
+      children={map(devices, device => (
         <Box mb={1}>
           <Checkbox
-            checked={!includes(excludedDevices, id)}
+            checked={!includes(excludedDevices, device.id)}
             onChange={toggleDevice}
-            name={`${id}-toggle`}
-            value={id}
-            key={id}
+            name={`${device.id}-toggle`}
+            value={device.id}
+            key={device.id}
             themeProps={{ sx: { color: colors.stat.text } }}
             label={
               <Text sx={{ textWrap: 'wrap', overflowWrap: 'break-word' }}>
-                {label || id}
+                {getDeviceName(device)}
               </Text>
             }
           />
