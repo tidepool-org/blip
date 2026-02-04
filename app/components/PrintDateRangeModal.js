@@ -11,7 +11,7 @@ import moment from 'moment-timezone';
 import { Element, scroller } from 'react-scroll';
 
 import Button from './elements/Button';
-import DateRangePicker, { CHART_DATE_BOUND_FORMAT, getChartDateBoundDisplayFormat } from './elements/DateRangePicker';
+import DateRangePicker from './elements/DateRangePicker';
 import {
   Dialog,
   DialogActions,
@@ -434,10 +434,7 @@ export const PrintDateRangeModal = (props) => {
                         }}
                       />
 
-                      {
-                        getChartDateBoundDisplayFormat(dates[panel.key].startDate, dates[panel.key].endDate) === CHART_DATE_BOUND_FORMAT.DATE_AND_TIME &&
-                        <PartialDaysTooltip />
-                      }
+                      <PartialDaysTooltip />
                     </Flex>
                   </Box>
                 </Box>
