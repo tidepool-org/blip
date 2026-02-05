@@ -28,13 +28,15 @@ const log = bows('RpmReportConfigForm');
 
 export const exportRpmReport = ({ config, results }) => {
   let { startDate = '', endDate = '' } = config?.rawConfig || {};
-  startDate = startDate.replace(dateRegex, '$2/$3/$1');
-  endDate = endDate.replace(dateRegex, '$2/$3/$1');
 
   // Check if CPT-99445 column should be included (periods starting on or after 1/1/2026)
   const reportStartDate = new Date(startDate);
   const cpt99445EffectiveDate = new Date('2026-01-01');
   const showCpt99445 = reportStartDate >= cpt99445EffectiveDate;
+
+  // Convert dates to MM/DD/YYYY for display
+  startDate = startDate.replace(dateRegex, '$2/$3/$1');
+  endDate = endDate.replace(dateRegex, '$2/$3/$1');
 
   const csvRows = [
     [

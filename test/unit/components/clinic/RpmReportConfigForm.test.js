@@ -14,6 +14,7 @@ import mockRpmReportPatients from '../../../fixtures/mockRpmReportPatients.json'
 /* global beforeEach */
 /* global before */
 /* global after */
+/* global afterEach */
 
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
@@ -441,6 +442,7 @@ describe('RpmReportConfigForm', () => {
       const expectedCsv = expectedCsvRows.map((row) => row.join(',')).join('\n');
       const expectedBlob = new Blob([expectedCsv], { type: 'text/csv;charset=utf-8;' });
       const expectedUrl = 'mock-url';
+      const expectedDownloadFileName = 'RPM Report (12-01-2025 - 12-31-2025).csv';
 
       createBlobSpy = sinon.spy(window, 'Blob');
 
@@ -456,6 +458,7 @@ describe('RpmReportConfigForm', () => {
       expect(createElementStub.calledOnceWithExactly('a')).to.be.true;
       expect(createObjectURLStub.calledOnceWithExactly(expectedBlob)).to.be.true;
       expect(createElementStub.returnValues[0].href).to.equal(expectedUrl);
+      expect(createElementStub.returnValues[0].download).to.equal(expectedDownloadFileName);
       expect(createElementStub.returnValues[0].click.calledOnce).to.be.true;
     });
 
@@ -470,10 +473,10 @@ describe('RpmReportConfigForm', () => {
           },
         },
         results: [
-          { "fullName": "Exactly 2 Days", "birthDate": "2000-01-01", "mrn": "EDGE001", "realtimeDays": 2, "hasSufficientData": false },
-          { "fullName": "Exactly 15 Days", "birthDate": "2000-01-01", "mrn": "EDGE002", "realtimeDays": 15, "hasSufficientData": false },
-          { "fullName": "Exactly 1 Day", "birthDate": "2000-01-01", "mrn": "EDGE003", "realtimeDays": 1, "hasSufficientData": false },
-          { "fullName": "Exactly 16 Days", "birthDate": "2000-01-01", "mrn": "EDGE004", "realtimeDays": 16, "hasSufficientData": true },
+          { 'fullName': 'Exactly 2 Days', 'birthDate': '2000-01-01', 'mrn': 'EDGE001', 'realtimeDays': 2, 'hasSufficientData': false },
+          { 'fullName': 'Exactly 15 Days', 'birthDate': '2000-01-01', 'mrn': 'EDGE002', 'realtimeDays': 15, 'hasSufficientData': false },
+          { 'fullName': 'Exactly 1 Day', 'birthDate': '2000-01-01', 'mrn': 'EDGE003', 'realtimeDays': 1, 'hasSufficientData': false },
+          { 'fullName': 'Exactly 16 Days', 'birthDate': '2000-01-01', 'mrn': 'EDGE004', 'realtimeDays': 16, 'hasSufficientData': true },
         ],
       };
 
@@ -523,6 +526,7 @@ describe('RpmReportConfigForm', () => {
       const expectedCsv = expectedCsvRows.map((row) => row.join(',')).join('\n');
       const expectedBlob = new Blob([expectedCsv], { type: 'text/csv;charset=utf-8;' });
       const expectedUrl = 'mock-url';
+      const expectedDownloadFileName = 'RPM Report (01-01-2026 - 01-31-2026).csv';
 
       createBlobSpy = sinon.spy(window, 'Blob');
 
@@ -538,6 +542,7 @@ describe('RpmReportConfigForm', () => {
       expect(createElementStub.calledOnceWithExactly('a')).to.be.true;
       expect(createObjectURLStub.calledOnceWithExactly(expectedBlob)).to.be.true;
       expect(createElementStub.returnValues[0].href).to.equal(expectedUrl);
+      expect(createElementStub.returnValues[0].download).to.equal(expectedDownloadFileName);
       expect(createElementStub.returnValues[0].click.calledOnce).to.be.true;
     });
   });
