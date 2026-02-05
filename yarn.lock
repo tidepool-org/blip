@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.54.0-rc.7":
-  version: 1.54.0-rc.7
-  resolution: "@tidepool/viz@npm:1.54.0-rc.7"
+"@tidepool/viz@npm:1.54.0":
+  version: 1.54.0
+  resolution: "@tidepool/viz@npm:1.54.0"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: a169ea55ce1249b762bf1cb02c17b10c76b52daffaf9dbe10fd9e07ba9a78471b63b1d81566506f25b8dd93a91977582a46597167bccf1123f8feaef3aa75f4b
+  checksum: 31ad98e648caf890cd94ea39a36b17451eba456e28850c242433651f521d301b2c556d8b851fbc1cd828a06bb857d3a68059cfa3bdd9ba5e6b64f25a94e475e2
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.54.0-rc.7
+    "@tidepool/viz": 1.54.0
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -8464,7 +8464,7 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.38.0-rc.1
+    tideline: 1.38.0
     tidepool-platform-client: 0.64.0
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
@@ -22237,9 +22237,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.38.0-rc.1":
-  version: 1.38.0-rc.1
-  resolution: "tideline@npm:1.38.0-rc.1"
+"tideline@npm:1.38.0":
+  version: 1.38.0
+  resolution: "tideline@npm:1.38.0"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -22260,7 +22260,7 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: a68c02fb0462cc87a2185d8a5459c1422f950c1b24397a1b97ad187f65b1c0e8d529e0ed3142fa21fcfe9fd78351579cbc7b79a6bee7b626f33686e076b7acc8
+  checksum: fd560828bb05cafeb127a1413e5690f31ce34651f50b257d7ec10f4d50731ad242cd86cdfb768e3dbb8b9e5ba24f4caeace086f3feee0b81ae77a3fcb4d86477
   languageName: node
   linkType: hard
 
