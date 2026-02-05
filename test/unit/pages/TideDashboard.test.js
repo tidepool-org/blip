@@ -697,9 +697,9 @@ describe('TideDashboard', () => {
 
       // Confirm seventh table is sorted appropriately
       expect(getTableRow(6, 0).find('th').at(4).text()).contains('% Time < 54');
-      expect(getTableRow(6, 1).find('td').at(3).text()).contains('1 %');
+      expect(getTableRow(6, 1).find('td').at(3).text()).contains('0 %');
       expect(getTableRow(6, 2).find('td').at(3).text()).contains('1 %');
-      expect(getTableRow(6, 3).find('td').at(3).text()).contains('0 %');
+      expect(getTableRow(6, 3).find('td').at(3).text()).contains('1 %');
       expect(getTableRow(6, 4).find('td').at(3).text()).contains('0 %');
       expect(getTableRow(6, 5).find('td').at(3).text()).contains('0 %');
 
@@ -864,10 +864,10 @@ describe('TideDashboard', () => {
           const rows = table.find('tbody tr');
           const lastReviewData = row => rows.at(row).find('.MuiTableCell-root').at(10);
 
-          expect(lastReviewData(4).text()).to.contain('Today');
+          expect(lastReviewData(0).text()).to.contain('Today');
           expect(lastReviewData(1).text()).to.contain('Yesterday');
-          expect(lastReviewData(2).text()).to.contain('30 days ago');
-          expect(lastReviewData(3).text()).to.contain('2024-03-05');
+          expect(lastReviewData(3).text()).to.contain('30 days ago');
+          expect(lastReviewData(4).text()).to.contain('2024-03-05');
         });
 
         it('should allow setting last reviewed date', done => {
@@ -905,9 +905,9 @@ describe('TideDashboard', () => {
           const table = wrapper.find('table#dashboard-table-meetingTargets');
           const rows = table.find('tbody tr');
           const lastReviewData = row => rows.at(row).find('.MuiTableCell-root').at(10);
-          const updateButton = () =>lastReviewData(4).find('button');
+          const updateButton = () =>lastReviewData(0).find('button');
 
-          expect(lastReviewData(4).text()).to.contain('Today');
+          expect(lastReviewData(0).text()).to.contain('Today');
           expect(updateButton().text()).to.equal('Undo');
 
           store.clearActions();
