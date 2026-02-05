@@ -98,6 +98,7 @@ appContext.init = callback => {
 };
 
 const LAUNCHDARKLY_FLAG_DEFAULTS = {
+  'showCpt95251': false,
   'showExtremeHigh': false,
   'showPrescriptions': false,
   'showRpmReport': false,

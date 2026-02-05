@@ -4107,6 +4107,7 @@ describe('Actions', () => {
               'smbg',
               'basal',
               'bolus',
+              'insulin',
               'wizard',
               'food',
               'pumpSettings',

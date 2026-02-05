@@ -3854,7 +3854,10 @@ describe('PatientData', function () {
           cbg: {},
           deviceEvent: {},
           food: {},
+          insulin: {},
           message: {},
+          physicalActivity: {},
+          reportedState: {},
           smbg: {},
           wizard: {},
         });

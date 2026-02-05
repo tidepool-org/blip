@@ -49,6 +49,7 @@ import Messages from '../../components/messages';
 import ChartDateRangeModal from '../../components/ChartDateRangeModal';
 import ChartDateModal from '../../components/ChartDateModal';
 import PrintDateRangeModal from '../../components/PrintDateRangeModal';
+import ExportModal from '../../components/ExportModal';
 import Button from '../../components/elements/Button';
 
 import ToastContext from '../../providers/ToastProvider';
@@ -62,7 +63,7 @@ import UploaderBanner from '../../components/elements/Card/Banners/Uploader.png'
 import ShareBanner from '../../components/elements/Card/Banners/Share.png';
 import DataConnectionsBanner from '../../components/elements/Card/Banners/DataConnections.png';
 import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
-import { DATA_DONATION_CONSENT_TYPE, DEFAULT_CGM_SAMPLE_INTERVAL, DEFAULT_CGM_SAMPLE_INTERVAL_RANGE, MS_IN_MIN } from '../../core/constants';
+import { DATA_DONATION_CONSENT_TYPE, DEFAULT_CGM_SAMPLE_INTERVAL, DEFAULT_CGM_SAMPLE_INTERVAL_RANGE, DIABETES_TYPES, MS_IN_MIN } from '../../core/constants';
 const { GLYCEMIC_RANGES_PRESET } = vizUtils.constants;
 
 const { Loader } = vizComponents;
@@ -173,6 +174,7 @@ export const PatientDataClass = createReactClass({
       datesDialogOpen: false,
       datesDialogProcessing: false,
       datesDialogFetchingData: false,
+      exportDialogOpen: false,
       printDialogOpen: false,
       printDialogProcessing: false,
       printDialogPDFOpts: null,
@@ -206,6 +208,7 @@ export const PatientDataClass = createReactClass({
     const patientData = this.renderPatientData();
     const messages = this.renderMessagesContainer();
     const datesDialog = this.renderDatesDialog();
+    const exportDialog = this.renderExportDialog();
     const printDialog = this.renderPrintDialog();
     const showLoader = this.isInitialProcessing() || this.state.transitioningChartType;
 
@@ -214,6 +217,7 @@ export const PatientDataClass = createReactClass({
         {messages}
         {patientData}
         {this.state.datesDialogOpen && datesDialog}
+        {exportDialog}
         {printDialog}
         <Loader show={showLoader} />
       </div>
@@ -441,6 +445,19 @@ export const PatientDataClass = createReactClass({
     );
   },
 
+  renderExportDialog: function() {
+    return (
+      <ExportModal
+        id="export-dialog"
+        api={this.props.api}
+        open={this.state.exportDialogOpen}
+        onClose={this.closeExportDialog}
+        trackMetric={this.props.trackMetric}
+        timePrefs={this.state.timePrefs}
+      />
+    );
+  },
+
   renderPrintDialog: function() {
     return (
       <PrintDateRangeModal
@@ -527,6 +544,7 @@ export const PatientDataClass = createReactClass({
             onSwitchToTrends={this.handleSwitchToTrendsRoute}
             onSwitchToSettings={this.handleSwitchToSettingsRoute}
             onSwitchToBgLog={this.handleSwitchToBgLogRoute}
+            onClickExport={this.handleClickExport}
             onClickPrint={this.handleClickPrint}
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
@@ -563,10 +581,12 @@ export const PatientDataClass = createReactClass({
             loading={this.state.loading}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
+            onClickExport={this.handleClickExport}
             onClickPrint={this.handleClickPrint}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             onClickChartDates={this.handleClickChartDates}
             patient={this.props.patient}
+            copyAsTextMetadata={this.getCopyAsTextMetadata()}
             permsOfLoggedInUser={this.props.permsOfLoggedInUser}
             aggregations={aggregations}
             stats={stats}
@@ -594,6 +614,7 @@ export const PatientDataClass = createReactClass({
             onClickRefresh={this.handleClickRefresh}
             onCreateMessage={this.handleShowMessageCreation}
             onShowMessageThread={this.handleShowMessageThread}
+            onClickExport={this.handleClickExport}
             onClickPrint={this.handleClickPrint}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             onClickChartDates={this.handleClickChartDates}
@@ -616,6 +637,7 @@ export const PatientDataClass = createReactClass({
         return (
           <Trends
             addingData={this.props.addingData}
+            copyAsTextMetadata={this.getCopyAsTextMetadata()}
             chartPrefs={this.state.chartPrefs}
             currentPatientInViewId={this.props.currentPatientInViewId}
             data={this.props.data}
@@ -623,6 +645,7 @@ export const PatientDataClass = createReactClass({
             loading={this.state.loading}
             mostRecentDatetimeLocation={this.state.mostRecentDatetimeLocation}
             onClickRefresh={this.handleClickRefresh}
+            onClickExport={this.handleClickExport}
             onClickPrint={this.handleClickPrint}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             patient={this.props.patient}
@@ -645,6 +668,7 @@ export const PatientDataClass = createReactClass({
           <BgLog
             addingData={this.props.addingData}
             chartPrefs={this.state.chartPrefs}
+            copyAsTextMetadata={this.getCopyAsTextMetadata()}
             data={this.props.data}
             initialDatetimeLocation={this.state.datetimeLocation}
             isClinicianAccount={personUtils.isClinicianAccount(this.props.user)}
@@ -652,6 +676,7 @@ export const PatientDataClass = createReactClass({
             mostRecentDatetimeLocation={this.state.mostRecentDatetimeLocation}
             onClickRefresh={this.handleClickRefresh}
             onClickNoDataRefresh={this.handleClickNoDataRefresh}
+            onClickExport={this.handleClickExport}
             onClickPrint={this.handleClickPrint}
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             patient={this.props.patient}
@@ -895,12 +920,15 @@ export const PatientDataClass = createReactClass({
         types: {
           basal: {},
           bolus: {},
+          insulin: {},
           cbg: {},
           deviceEvent: {},
           food: {},
           message: {},
           smbg: {},
           wizard: {},
+          physicalActivity: {},
+          reportedState: {},
         },
         bgSource: _.get(state.chartPrefs, 'daily.bgSource'),
         cgmSampleIntervalRange: _.get(state.chartPrefs, 'daily.cgmSampleIntervalRange'),
@@ -1280,6 +1308,15 @@ export const PatientDataClass = createReactClass({
     this.updateChart('settings');
   },
 
+  handleClickExport: function() {
+    this.props.trackMetric('Clicked Export', { fromChart: this.state.chartType });
+    this.setState({ exportDialogOpen: true });
+  },
+
+  closeExportDialog: function() {
+    this.setState({ exportDialogOpen: false });
+  },
+
   handleClickPrint: function() {
     const metricProps = { fromChart: this.state.chartType };
 
@@ -1574,12 +1611,15 @@ export const PatientDataClass = createReactClass({
         latestDatums = getLatestDatums([
           'basal',
           'bolus',
+          'insulin',
           'cbg',
           'deviceEvent',
           'food',
           'message',
           'smbg',
           'wizard',
+          'reportedState',
+          'physicalActivity',
         ]);
         break;
 
@@ -1614,6 +1654,31 @@ export const PatientDataClass = createReactClass({
     }
 
     return _.max(_.map(latestDatums, d => (d.normalEnd || d.normalTime)));
+  },
+
+  getCopyAsTextMetadata: function () {
+    const { clinic, clinicPatient, patient, user } = this.props;
+
+    // User Type
+    const isClinicianAccount = personUtils.isClinicianAccount(user);
+
+    // Clinic Patient Details
+    const diagnosisType = clinicPatient?.diagnosisType || patient?.profile?.patient?.diagnosisType;
+    const diagnosisTypeLabel = DIABETES_TYPES().find(t => t.value === diagnosisType)?.label; // eslint-disable-line new-cap
+
+    // Tags
+    const patientTagIds = clinicPatient?.tags || [];
+    const patientTags = clinic?.patientTags?.filter(tag => patientTagIds.includes(tag.id)) || [];
+
+    // Sites
+    const patientSiteIds = clinicPatient?.sites?.map(s => s.id) || [];
+    const sites = clinic?.sites?.filter(site => patientSiteIds.includes(site.id)) || [];
+
+    return {
+      diagnosisTypeLabel,
+      patientTags: isClinicianAccount ? patientTags : [],
+      sites: isClinicianAccount ? sites: [],
+    };
   },
 
   // Called via `window.loadPatientData` to populate global `patientData` object
@@ -1990,6 +2055,7 @@ export const PatientDataClass = createReactClass({
           chartQuery.types = {
             basal: {},
             bolus: {},
+            insulin: {},
             cbg: {},
             deviceEvent: {},
             food: {},
@@ -1997,6 +2063,8 @@ export const PatientDataClass = createReactClass({
             pumpSettings: {},
             smbg: {},
             wizard: {},
+            reportedState: {},
+            physicalActivity: {},
           };
 
           chartQuery.cgmSampleIntervalRange = _.get(this.state.chartPrefs, 'daily.cgmSampleIntervalRange');
@@ -2541,6 +2609,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     onSaveComment: api.team.replyToMessageThread.bind(api),
     onCreateMessage: dispatchProps.createMessageThread.bind(null, api),
     onEditMessage: dispatchProps.editMessageThread.bind(null, api),
+    api: api,
     trackMetric: ownProps.trackMetric,
     queryParams: ownProps.location.query,
     currentPatientInViewId: ownProps.match.params.id,

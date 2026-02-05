@@ -65,6 +65,7 @@ export const DIABETES_DATA_TYPES = [
   ...BG_DATA_TYPES,
   'basal',
   'bolus',
+  'insulin',
   'wizard',
   'food',
 ];
@@ -74,7 +75,6 @@ export const ALL_FETCHED_DATA_TYPES = [
   'cgmSettings',
   'deviceEvent',
   'dosingDecision',
-  'insulin',
   'physicalActivity',
   'pumpSettings',
   'reportedState',

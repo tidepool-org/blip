@@ -93,6 +93,7 @@ const DailyChart = withTranslation(null, { withRef: true })(class DailyChart ext
       'bolusRatio',
       'carbUnits',
       'dynamicCarbs',
+      'insulinBolus',
       'timePrefs',
       'onBolusHover',
       'onBolusOut',
@@ -248,6 +249,7 @@ class Daily extends Component {
     // navigation handlers
     onSwitchToBasics: PropTypes.func.isRequired,
     onSwitchToDaily: PropTypes.func.isRequired,
+    onClickExport: PropTypes.func.isRequired,
     onClickPrint: PropTypes.func.isRequired,
     onSwitchToSettings: PropTypes.func.isRequired,
     onSwitchToBgLog: PropTypes.func.isRequired,
@@ -338,6 +340,7 @@ class Daily extends Component {
             onClickOneDay={this.handleClickOneDay}
             onClickSettings={this.props.onSwitchToSettings}
             onClickBgLog={this.handleClickBgLog}
+            onClickExport={this.handleClickExport}
             onClickPrint={this.handleClickPrint}
             ref={this.headerRef}
           />
@@ -482,6 +485,11 @@ class Daily extends Component {
       { type: 'wizard', carbUnits: 'exchanges' }
     );
 
+    const hasInsulinData = _.some(
+      _.get(this.props, 'data.data.combined'),
+      { type: 'insulin' }
+    );
+
     const hasOneMinCgmSampleIntervalDevice = _.some(
       _.get(this.props, 'data.metaData.devices'),
       { oneMinCgmSampleInterval: true }
@@ -514,6 +522,7 @@ class Daily extends Component {
           <DailyChart
             automatedBasal={isAutomatedBasalDevice}
             automatedBolus={isAutomatedBolusDevice}
+            insulinBolus={hasInsulinData}
             bgClasses={bgPrefs.bgClasses}
             bgUnits={bgPrefs.bgUnits}
             bolusRatio={this.props.chartPrefs.bolusRatio}
@@ -624,6 +633,14 @@ class Daily extends Component {
       e.preventDefault();
     }
     return;
+  };
+
+  handleClickExport = e => {
+    if (e) {
+      e.preventDefault();
+    }
+
+    this.props.onClickExport();
   };
 
   handleClickPrint = e => {
@@ -801,7 +818,12 @@ class Daily extends Component {
   handleEventHover = event => {
     this.throttledMetric('hovered over daily event tooltip');
     const rect = event.rect;
-    event.top = rect.top + rect.height + 20;
+
+    const isDetailedEvent = ['pump_shutdown'].includes(event.data?.tags?.event);
+    const topOffset = isDetailedEvent ? 20 : 0;
+    const xEdgeOffset = isDetailedEvent ? 70 : 40;
+
+    event.top = rect.top + rect.height + topOffset;
     event.left = rect.left + (rect.width / 2);
     event.side = 'bottom';
 
@@ -809,12 +831,12 @@ class Daily extends Component {
     const leftOffset = event.left - event.chartExtents.left;
     const rightOffset = event.left - event.chartExtents.right;
 
-    if (leftOffset < 70) {
-      event.leftOffset = 70;
+    if (leftOffset < xEdgeOffset) {
+      event.leftOffset = xEdgeOffset;
     }
 
-    if (rightOffset > -70) {
-      event.leftOffset = -70;
+    if (rightOffset > -xEdgeOffset) {
+      event.leftOffset = -xEdgeOffset;
     }
 
     this.setState({
