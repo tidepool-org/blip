@@ -124,10 +124,17 @@ const Trends = withTranslation()(class Trends extends PureComponent {
   };
 
   formatDate(datetime) {
+    const { t } = this.props;
     const timezone = getTimezoneFromTimePrefs(_.get(this.props, 'data.timePrefs', {}));
-    const dateMoment = moment(datetime).tz(timezone);
 
-    return dateMoment.format(CHART_DATE_BOUND_FORMAT);
+    const dateMoment = moment(datetime).tz(timezone);
+    const isMidnight = (dateMoment?.hours() === 0 && dateMoment?.minutes() === 0) ||
+                       (dateMoment?.hours() === 23 && dateMoment?.minutes() === 59);
+
+    const dtMask = isMidnight ? CHART_DATE_BOUND_FORMAT.DATE_ONLY
+                              : CHART_DATE_BOUND_FORMAT.DATE_AND_TIME;
+
+    return dateMoment.format(dtMask);
   }
 
   getNewDomain(current, extent) {

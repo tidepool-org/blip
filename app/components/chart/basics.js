@@ -22,7 +22,7 @@ import BgSourceToggle from './bgSourceToggle';
 import Header from './header';
 import DeviceSelection from './deviceSelection';
 import moment from 'moment';
-import { CHART_DATE_BOUND_FORMAT } from '../elements/DateRangePicker';
+import { getChartDateBoundDisplayFormat } from '../elements/DateRangePicker';
 
 class Basics extends Component {
   static propTypes = {
@@ -219,7 +219,9 @@ class Basics extends Component {
     const startDate = moment(endpointsRange[0]).tz(timezone);
     const endDate = moment(endpointsRange[1]).tz(timezone);
 
-    return startDate.format(CHART_DATE_BOUND_FORMAT) + ' - ' + endDate.format(CHART_DATE_BOUND_FORMAT);
+    const dtMask = getChartDateBoundDisplayFormat(startDate, endDate);
+
+    return startDate.format(dtMask) + ' - ' + endDate.format(dtMask);
   }
 
   isMissingBasics = (props = this.props) => {

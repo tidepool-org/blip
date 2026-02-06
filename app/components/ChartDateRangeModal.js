@@ -9,7 +9,10 @@ import { Flex, Box } from 'theme-ui';
 import moment from 'moment-timezone';
 
 import Button from './elements/Button';
-import DateRangePicker from './elements/DateRangePicker';
+import DateRangePicker, {
+  getChartDateBoundDisplayFormat,
+  CHART_DATE_BOUND_FORMAT,
+} from './elements/DateRangePicker';
 import {
   Dialog,
   DialogActions,
@@ -190,6 +193,9 @@ export const ChartDateRangeModal = (props) => {
     onDatesChange(dates);
   }, [dates]);
 
+  const displayFormat = getChartDateBoundDisplayFormat(dates.startDate, dates.endDate);
+  const isPartialDaySelected = displayFormat === CHART_DATE_BOUND_FORMAT.DATE_AND_TIME;
+
   return (
     <Dialog id="ChartDateRangePicker" maxWidth="md" open={open} onClose={handleClose}>
       <DialogTitle divider={false} onClose={handleClose}>
@@ -240,7 +246,7 @@ export const ChartDateRangeModal = (props) => {
                   sx: { minHeight: datePickerOpen ? '326px' : undefined },
                 }}
               />
-              <PartialDaysTooltip />
+              {isPartialDaySelected && <PartialDaysTooltip />}
             </Flex>
           </DesktopOnly>
           {errors && (
