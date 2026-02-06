@@ -39,7 +39,7 @@ import createWorkerMiddleware from '../utils/workerMiddleware';
 import pendoMiddleware from '../utils/pendoMiddleware';
 import launchDarklyMiddleware from '../utils/launchDarklyMiddleware';
 import { keycloakMiddleware } from '../../keycloak';
-import { api as rtkApi } from '../api/baseApi';
+import { RTKQueryApi } from '../api/baseApi';
 
 function getDebugSessionKey() {
   const matches = window.location.href.match(/[?&]debug_session=([^&]+)\b/);
@@ -51,7 +51,7 @@ export const history = qhistory(createBrowserHistory(), stringify, parse);
 const reducer = combineReducers({
   blip: reducers,
   router: connectRouter(history),
-  [rtkApi.reducerPath]: rtkApi.reducer,
+  [RTKQueryApi.reducerPath]: RTKQueryApi.reducer,
 });
 
 const loggerMiddleware = createLogger({
@@ -68,7 +68,7 @@ if (!__DEV_TOOLS__) {
     const middlewares = [
       workerMiddleware,
       thunkMiddleware,
-      rtkApi.middleware,
+      RTKQueryApi.middleware,
       routerMiddleware(history),
       createErrorLogger(api),
       trackingMiddleware(api),
@@ -87,7 +87,7 @@ if (!__DEV_TOOLS__) {
     const middlewares = [
       workerMiddleware,
       thunkMiddleware,
-      rtkApi.middleware,
+      RTKQueryApi.middleware,
       loggerMiddleware,
       routerMiddleware(history),
       createErrorLogger(api),
@@ -120,7 +120,7 @@ function _createStore(api) {
       store.replaceReducer(combineReducers({
         blip: require('../reducers'),
         router: connectRouter(history),
-        [rtkApi.reducerPath]: rtkApi.reducer,
+        [RTKQueryApi.reducerPath]: RTKQueryApi.reducer,
       }))
     );
   };

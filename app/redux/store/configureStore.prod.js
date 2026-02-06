@@ -35,14 +35,14 @@ import pendoMiddleware from '../utils/pendoMiddleware';
 import launchDarklyMiddleware from '../utils/launchDarklyMiddleware';
 import { keycloak, keycloakMiddleware } from '../../keycloak';
 import config from '../../config';
-import { api as rtkApi } from '../api/baseApi';
+import { RTKQueryApi } from '../api/baseApi';
 
 export const history = qhistory(createBrowserHistory(), stringify, parse);
 
 const reducer = combineReducers({
   blip: reducers,
   router: connectRouter(history),
-  [rtkApi.reducerPath]: rtkApi.reducer,
+  [RTKQueryApi.reducerPath]: RTKQueryApi.reducer,
 });
 
 const worker = new Worker(new URL('./../../worker/index', import.meta.url));
@@ -52,7 +52,7 @@ function _createStore(api) {
   const middlewares = [
     workerMiddleware,
     thunkMiddleware,
-    rtkApi.middleware,
+    RTKQueryApi.middleware,
     routerMiddleware(history),
     createErrorLogger(api),
     trackingMiddleware(api),
