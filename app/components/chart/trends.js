@@ -127,7 +127,7 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     const timezone = getTimezoneFromTimePrefs(_.get(this.props, 'data.timePrefs', {}));
     const dateMoment = moment(datetime).tz(timezone);
 
-    return dateMoment.format(CHART_DATE_BOUND_FORMAT.DATE_AND_TIME);
+    return dateMoment.format(CHART_DATE_BOUND_FORMAT);
   }
 
   getNewDomain(current, extent) {
