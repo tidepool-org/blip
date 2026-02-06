@@ -16,7 +16,8 @@
  */
 
 import { createBrowserHistory } from 'history';
-import { legacy_createStore as createStore, applyMiddleware, combineReducers } from 'redux';
+import { legacy_createStore as createStore, combineReducers } from '@reduxjs/toolkit';
+import { applyMiddleware } from 'redux';
 import thunkMiddleware from 'redux-thunk';
 import { connectRouter, routerMiddleware } from 'connected-react-router';
 import qhistory from 'qhistory';
@@ -35,12 +36,14 @@ import pendoMiddleware from '../utils/pendoMiddleware';
 import launchDarklyMiddleware from '../utils/launchDarklyMiddleware';
 import { keycloak, keycloakMiddleware } from '../../keycloak';
 import config from '../../config';
+import { api as rtkApi } from '../api/baseApi';
 
 export const history = qhistory(createBrowserHistory(), stringify, parse);
 
 const reducer = combineReducers({
   blip: reducers,
   router: connectRouter(history),
+  [rtkApi.reducerPath]: rtkApi.reducer,
 });
 
 const worker = new Worker(new URL('./../../worker/index', import.meta.url));
@@ -48,6 +51,7 @@ const workerMiddleware = createWorkerMiddleware(worker);
 
 function _createStore(api) {
   const middlewares = [
+    rtkApi.middleware,
     workerMiddleware,
     thunkMiddleware,
     routerMiddleware(history),
