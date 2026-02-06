@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.55.0-web-4330-missing-settings.2":
-  version: 1.55.0-web-4330-missing-settings.2
-  resolution: "@tidepool/viz@npm:1.55.0-web-4330-missing-settings.2"
+"@tidepool/viz@npm:1.55.0-web-4384-date-mismatch.2":
+  version: 1.55.0-web-4384-date-mismatch.2
+  resolution: "@tidepool/viz@npm:1.55.0-web-4384-date-mismatch.2"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 56c247e4db6b04b741ff9c5421fcfadfbdc66bf87ab9140726b82d1baf1393ee9098f40d6820582a042294938978c4d866e4709b512bb745f0825bcfaed75df3
+  checksum: 98b288ff53e0c431fb8bba067e019d1039f88ab4d6bd8bc24019a48f76c401aab32f14a50d5d4ecb328b0971a0c895f605b9cbddcb934fab70ac0b861ef608a6
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.55.0-web-4330-missing-settings.2
+    "@tidepool/viz": 1.55.0-web-4384-date-mismatch.2
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
