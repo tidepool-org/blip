@@ -22,7 +22,7 @@ import BgSourceToggle from './bgSourceToggle';
 import Header from './header';
 import DeviceSelection from './deviceSelection';
 import moment from 'moment';
-import { getChartDateBoundDisplayFormat } from '../elements/DateRangePicker';
+import { CHART_DATE_BOUND_FORMAT, getChartDateBoundDisplayFormat } from '../elements/DateRangePicker';
 
 class Basics extends Component {
   static propTypes = {
@@ -220,6 +220,10 @@ class Basics extends Component {
     const endDate = moment(endpointsRange[1]).tz(timezone);
 
     const dtMask = getChartDateBoundDisplayFormat(startDate, endDate);
+
+    if (dtMask === CHART_DATE_BOUND_FORMAT.DATE_ONLY) {
+      endDate.subtract(1, 'ms');
+    }
 
     return startDate.format(dtMask) + ' - ' + endDate.format(dtMask);
   }
