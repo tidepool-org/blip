@@ -18,10 +18,9 @@
 /* global __DEV_TOOLS__ */
 
 import { createBrowserHistory } from 'history';
-import { legacy_createStore as createStore, combineReducers } from '@reduxjs/toolkit';
-import { applyMiddleware, compose } from 'redux';
+import { legacy_createStore as createStore, applyMiddleware, compose, combineReducers } from 'redux';
 import { persistState } from 'redux-devtools';
-import thunkMiddleware from 'redux-thunk';
+import { thunk as thunkMiddleware } from 'redux-thunk';
 import { createLogger } from 'redux-logger';
 import { connectRouter, routerMiddleware } from 'connected-react-router';
 import mutationTracker from 'redux-immutable-state-invariant';
@@ -67,9 +66,9 @@ let enhancer;
 if (!__DEV_TOOLS__) {
   enhancer = (api) => {
     const middlewares = [
-      rtkApi.middleware,
       workerMiddleware,
       thunkMiddleware,
+      rtkApi.middleware,
       routerMiddleware(history),
       createErrorLogger(api),
       trackingMiddleware(api),
@@ -86,9 +85,9 @@ if (!__DEV_TOOLS__) {
   enhancer = (api) => {
     const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
     const middlewares = [
-      rtkApi.middleware,
       workerMiddleware,
       thunkMiddleware,
+      rtkApi.middleware,
       loggerMiddleware,
       routerMiddleware(history),
       createErrorLogger(api),

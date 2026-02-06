@@ -16,9 +16,8 @@
  */
 
 import { createBrowserHistory } from 'history';
-import { legacy_createStore as createStore, combineReducers } from '@reduxjs/toolkit';
-import { applyMiddleware } from 'redux';
-import thunkMiddleware from 'redux-thunk';
+import { legacy_createStore as createStore, applyMiddleware, combineReducers } from 'redux';
+import { thunk as thunkMiddleware } from 'redux-thunk';
 import { connectRouter, routerMiddleware } from 'connected-react-router';
 import qhistory from 'qhistory';
 import { stringify, parse } from 'qs';
@@ -51,9 +50,9 @@ const workerMiddleware = createWorkerMiddleware(worker);
 
 function _createStore(api) {
   const middlewares = [
-    rtkApi.middleware,
     workerMiddleware,
     thunkMiddleware,
+    rtkApi.middleware,
     routerMiddleware(history),
     createErrorLogger(api),
     trackingMiddleware(api),
