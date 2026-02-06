@@ -219,7 +219,7 @@ class Basics extends Component {
     const startDate = moment(endpointsRange[0]).tz(timezone);
     const endDate = moment(endpointsRange[1]).tz(timezone);
 
-    return startDate.format(CHART_DATE_BOUND_FORMAT) + ' - ' + endDate.format(CHART_DATE_BOUND_FORMAT);
+    return startDate.format(CHART_DATE_BOUND_FORMAT.DATE_AND_TIME) + ' - ' + endDate.format(CHART_DATE_BOUND_FORMAT.DATE_AND_TIME);
   }
 
   isMissingBasics = (props = this.props) => {
