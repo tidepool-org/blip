@@ -8474,7 +8474,7 @@ __metadata:
     react-snap-carousel: 0.5.1
     react-window-size-listener: 1.5.4
     readable-stream: 4.4.2
-    redux: ^5.0.1
+    redux: 5.0.1
     redux-cache: 0.3.0
     redux-devtools: 3.7.0
     redux-devtools-dock-monitor: 1.2.0
@@ -8482,8 +8482,8 @@ __metadata:
     redux-immutable-state-invariant: 2.1.0
     redux-logger: 3.0.6
     redux-mock-store: 1.5.4
-    redux-thunk: ^3.1.0
-    reselect: ^5.1.0
+    redux-thunk: 3.1.0
+    reselect: 5.1.0
     rimraf: 5.0.5
     rollbar: 2.26.2
     rollbar-sourcemap-webpack-plugin: 3.3.0
@@ -20135,7 +20135,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"redux-thunk@npm:^3.1.0":
+"redux-thunk@npm:3.1.0, redux-thunk@npm:^3.1.0":
   version: 3.1.0
   resolution: "redux-thunk@npm:3.1.0"
   peerDependencies:
@@ -20153,7 +20153,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"redux@npm:^5.0.1":
+"redux@npm:5.0.1, redux@npm:^5.0.1":
   version: 5.0.1
   resolution: "redux@npm:5.0.1"
   checksum: e74affa9009dd5d994878b9a1ce30d6569d986117175056edb003de2651c05b10fe7819d6fa94aea1a94de9a82f252f986547f007a2fbeb35c317a2e5f5ecf2c
@@ -20376,6 +20376,13 @@ __metadata:
   version: 1.0.0
   resolution: "requires-port@npm:1.0.0"
   checksum: eee0e303adffb69be55d1a214e415cf42b7441ae858c76dfc5353148644f6fd6e698926fc4643f510d5c126d12a705e7c8ed7e38061113bdf37547ab356797ff
+  languageName: node
+  linkType: hard
+
+"reselect@npm:5.1.0":
+  version: 5.1.0
+  resolution: "reselect@npm:5.1.0"
+  checksum: 5bc9c5d03d7caea00d0c0e24330bf23d91801227346fec1cef6a60988ab8d3dd7cee76e6994ca0915bc1c20845bb2bd929b95753763e0a9db74c0f9dff5cb845
   languageName: node
   linkType: hard
 
