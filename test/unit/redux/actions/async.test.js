@@ -10,7 +10,7 @@
 /* global context */
 
 import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 import trackingMiddleware from '../../../../app/redux/utils/trackingMiddleware';
 import moment from 'moment';
 import _ from 'lodash';

@@ -3,7 +3,7 @@ import { defaultsDeep } from 'lodash';
 import { Provider } from 'react-redux';
 import { combineReducers } from 'redux';
 import { legacy_createStore as createStore, applyMiddleware } from 'redux';
-import thunkMiddleware from 'redux-thunk';
+import { thunk as thunkMiddleware } from 'redux-thunk';
 import { mount } from 'enzyme';
 
 import reducers from '../../app/redux/reducers';

@@ -6,7 +6,7 @@ import userEvent from '@testing-library/user-event';
 import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
 import { MemoryRouter, Route, Switch } from 'react-router-dom';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 import merge from 'lodash/merge';
 import moment from 'moment';
 
