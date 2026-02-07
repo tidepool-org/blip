@@ -4219,7 +4219,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@reduxjs/toolkit@npm:^2.11.2":
+"@reduxjs/toolkit@npm:2.11.2":
   version: 2.11.2
   resolution: "@reduxjs/toolkit@npm:2.11.2"
   dependencies:
@@ -8354,7 +8354,7 @@ __metadata:
     "@octokit/rest": 21.1.0
     "@pmmmwh/react-refresh-webpack-plugin": 0.5.11
     "@react-keycloak/web": 3.4.0
-    "@reduxjs/toolkit": ^2.11.2
+    "@reduxjs/toolkit": 2.11.2
     "@storybook/addon-a11y": 7.5.1
     "@storybook/addon-actions": 7.5.1
     "@storybook/addon-designs": 7.0.5
