@@ -589,9 +589,9 @@ describe('TideDashboard', () => {
       expect(dashboardSectionLabels).to.have.length(8);
       expect(dashboardSectionLabels.at(0).text()).to.equal('Very Low> 1% Time below 54 mg/dL');
       expect(dashboardSectionLabels.at(1).text()).to.equal('Low> 4% Time below 70 mg/dL');
-      expect(dashboardSectionLabels.at(2).text()).to.equal('Very High> 5% Time above 250 mg/dL');
+      expect(dashboardSectionLabels.at(2).text()).to.equal('Large Drop in Time in Range> 15%');
       expect(dashboardSectionLabels.at(3).text()).to.equal('High> 25% Time above 180 mg/dL');
-      expect(dashboardSectionLabels.at(4).text()).to.equal('Large Drop in Time in Range> 15%');
+      expect(dashboardSectionLabels.at(4).text()).to.equal('Very High> 5% Time above 250 mg/dL');
       expect(dashboardSectionLabels.at(5).text()).to.equal('Low CGM Wear Time< 70%');
       expect(dashboardSectionLabels.at(6).text()).to.equal('Meeting Targets');
       expect(dashboardSectionLabels.at(7).text()).to.equal('Data Issues');
@@ -603,9 +603,9 @@ describe('TideDashboard', () => {
 
       expect(dashboardSectionTables.at(0).find('tr')).to.have.length(4); // header row + 3 results
       expect(dashboardSectionTables.at(1).find('tr')).to.have.length(4); // header row + 3 results
-      expect(dashboardSectionTables.at(2).find('tr')).to.have.length(1); // header row
+      expect(dashboardSectionTables.at(2).find('tr')).to.have.length(4); // header row + 3 results
       expect(dashboardSectionTables.at(3).find('tr')).to.have.length(1); // header row
-      expect(dashboardSectionTables.at(4).find('tr')).to.have.length(4); // header row + 3 results
+      expect(dashboardSectionTables.at(4).find('tr')).to.have.length(1); // header row
       expect(dashboardSectionTables.at(5).find('tr')).to.have.length(4); // header row + 3 results
       expect(dashboardSectionTables.at(6).find('tr')).to.have.length(6); // header row + 5 results
 
@@ -683,11 +683,11 @@ describe('TideDashboard', () => {
       expect(getTableRow(1, 2).find('td').at(4).text()).contains('9 %');
       expect(getTableRow(1, 3).find('td').at(4).text()).contains('6 %');
 
-      // Confirm fifth table is sorted appropriately
-      expect(getTableRow(4, 0).find('th').at(8).text()).contains('% Change in TIR');
-      expect(getTableRow(4, 1).find('td').at(7).text()).contains('26');
-      expect(getTableRow(4, 2).find('td').at(7).text()).contains('25');
-      expect(getTableRow(4, 3).find('td').at(7).text()).contains('24');
+      // Confirm third table is sorted appropriately
+      expect(getTableRow(2, 0).find('th').at(8).text()).contains('% Change in TIR');
+      expect(getTableRow(2, 1).find('td').at(7).text()).contains('26');
+      expect(getTableRow(2, 2).find('td').at(7).text()).contains('25');
+      expect(getTableRow(2, 3).find('td').at(7).text()).contains('24');
 
       // Confirm sixth table is sorted appropriately
       expect(getTableRow(5, 0).find('th').at(3).text()).contains('CGM Use');
