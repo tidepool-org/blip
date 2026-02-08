@@ -24,7 +24,10 @@ import {
   containers as vizContainers,
   utils as vizUtils,
 } from '@tidepool/viz';
-import { CHART_DATE_BOUND_FORMAT, getChartDateBoundDisplayFormat } from '../elements/DateRangePicker';
+const {
+  CHART_DATE_BOUND_FORMAT,
+  getChartDateBoundFormat,
+} = vizUtils.datetime;
 
 const TrendsContainer = vizContainers.TrendsContainer;
 const getTimezoneFromTimePrefs = vizUtils.datetime.getTimezoneFromTimePrefs;
@@ -139,7 +142,7 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     const startMoment = moment(datetimeLocationEndpoints[0]).tz(timezone);
     const endMoment = moment(datetimeLocationEndpoints[1]).tz(timezone);
 
-    const dtMask = getChartDateBoundDisplayFormat(startMoment, endMoment);
+    const dtMask = getChartDateBoundFormat(startMoment, endMoment);
 
     if (dtMask === CHART_DATE_BOUND_FORMAT.DATE_ONLY) {
       endMoment.subtract(1, 'ms');
