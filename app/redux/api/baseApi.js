@@ -7,7 +7,7 @@ import tidepoolApi from '../../core/api';
 
 const fallbackSessionTrace = uuidv4();
 
-const MAX_RETRIES = 3;
+const RETRY_COUNT = 1;
 
 const getSessionTrace = () => {
   // To ensure that all requests from Blip have the same trace-session token, we inject
@@ -23,16 +23,13 @@ export const RTKQueryApi = createApi({
     fetchBaseQuery({
       baseUrl: `${config.API_HOST}/v1/`,
       prepareHeaders: (headers) => {
-        if (keycloak?.token) {
-          headers.set('x-tidepool-session-token', keycloak?.token);
-        }
-
+        headers.set('x-tidepool-session-token', keycloak?.token || '');
         headers.set('x-tidepool-trace-session', getSessionTrace());
 
         return headers;
       },
     }),
-    { maxRetries: MAX_RETRIES },
+    { maxRetries: RETRY_COUNT },
   ),
   endpoints: () => ({}),
 });
