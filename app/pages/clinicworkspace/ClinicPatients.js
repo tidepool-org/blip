@@ -3312,7 +3312,7 @@ export const ClinicPatients = (props) => {
                     </Flex>
 
                     <Flex sx={{ justifyContent: 'flex-end' }}>
-                      <Text sx={{ fontSize: 0, fontStyle: 'italic', color: vizColors.gray50 }}>
+                      <Text data-testid={`site-${id}-numPatients`} sx={{ fontSize: 0, fontStyle: 'italic', color: vizColors.gray50 }}>
                         {numPatients || 0}
                       </Text>
                     </Flex>
@@ -3483,7 +3483,7 @@ export const ClinicPatients = (props) => {
                     </Flex>
 
                     <Flex sx={{ justifyContent: 'flex-end' }}>
-                      <Text sx={{ fontSize: 0, fontStyle: 'italic', color: vizColors.gray50 }}>
+                      <Text data-testid={`tag-${id}-numPatients`} sx={{ fontSize: 0, fontStyle: 'italic', color: vizColors.gray50 }}>
                         {numPatients || 0}
                       </Text>
                     </Flex>

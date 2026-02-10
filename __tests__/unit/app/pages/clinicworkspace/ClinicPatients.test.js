@@ -539,6 +539,7 @@ describe('ClinicPatients', ()  => {
             // Open the Edit Sites Dialog
             await userEvent.click(screen.getByRole('button', { name: /Sites/ }));
             await userEvent.click(screen.getByRole('button', { name: /Edit Sites/ }));
+            expect(screen.getByTestId('site-site-3-id-numPatients')).toHaveTextContent(3)
 
             // Fetch latest site data
             expect(defaultProps.api.clinics.get).toHaveBeenCalled();
@@ -717,6 +718,7 @@ describe('ClinicPatients', ()  => {
             // Open the Edit Sites Dialog
             await userEvent.click(screen.getByRole('button', { name: /Tags/ }));
             await userEvent.click(screen.getByRole('button', { name: /Edit Tags/ }));
+            expect(screen.getByTestId('tag-tag2-numPatients')).toHaveTextContent(2)
 
             expect(defaultProps.api.clinics.get).toHaveBeenCalled();
 
