@@ -8,7 +8,7 @@ import tidepoolApi from '../../core/api';
 
 const fallbackSessionTrace = uuidv4();
 
-const RETRY_COUNT = 3;
+const RETRY_COUNT = 1;
 
 const getSessionTrace = () => {
   // To ensure that all requests from Blip have the same trace-session token, we inject
