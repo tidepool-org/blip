@@ -1002,7 +1002,7 @@ export const ClinicPatients = (props) => {
   }, [isFirstRender, setToast]);
 
   const handlePatientCreatedOrEdited = useCallback(() => {
-    dispatch(actions.async.fetchClinic(api, selectedClinicId)); // tags or sites count may have changed
+    dispatch(actions.async.fetchClinic(api, selectedClinicId)); // patient counts for tags and/or sites may have changed
 
     if (patientFormContext?.status?.showDataConnectionsModalNext) {
       let currentPatient = selectedPatient;
