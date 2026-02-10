@@ -18,11 +18,15 @@ const getSessionTrace = () => {
   return tidepoolApi?.tidepool?.getSessionTrace() || fallbackSessionTrace;
 };
 
+const getSessionToken = () => {
+  return keycloak?.token || '';
+};
+
 const baseQuery = fetchBaseQuery({
   baseUrl: `${config.API_HOST}/v1/`,
   prepareHeaders: (headers) => {
-    headers.set('x-tidepool-session-token', keycloak?.token || '');
     headers.set('x-tidepool-trace-session', getSessionTrace());
+    headers.set('x-tidepool-session-token', getSessionToken());
 
     return headers;
   },
