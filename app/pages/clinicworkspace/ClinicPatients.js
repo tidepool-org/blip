@@ -1002,6 +1002,8 @@ export const ClinicPatients = (props) => {
   }, [isFirstRender, setToast]);
 
   const handlePatientCreatedOrEdited = useCallback(() => {
+    dispatch(actions.async.fetchClinic(api, selectedClinicId)); // tags or sites count may have changed
+
     if (patientFormContext?.status?.showDataConnectionsModalNext) {
       let currentPatient = selectedPatient;
 
@@ -1017,6 +1019,8 @@ export const ClinicPatients = (props) => {
       handleCloseOverlays();
     }
   }, [
+    api,
+    dispatch,
     handleCloseOverlays,
     patientFormContext?.status,
     creatingClinicCustodialAccount,
