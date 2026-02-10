@@ -1019,8 +1019,6 @@ export const ClinicPatients = (props) => {
       handleCloseOverlays();
     }
   }, [
-    api,
-    dispatch,
     handleCloseOverlays,
     patientFormContext?.status,
     creatingClinicCustodialAccount,
