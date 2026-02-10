@@ -17,18 +17,30 @@ const getSessionTrace = () => {
   return tidepoolApi?.tidepool?.getSessionTrace() || fallbackSessionTrace;
 };
 
+const baseQuery = fetchBaseQuery({
+  baseUrl: `${config.API_HOST}/v1/`,
+  prepareHeaders: (headers) => {
+    headers.set('x-tidepool-session-token', keycloak?.token || '');
+    headers.set('x-tidepool-trace-session', getSessionTrace());
+
+    return headers;
+  },
+});
+
+const baseQueryWithKeycloakErrorHandling = async (args, api, extraOptions) => {
+  const result = await baseQuery(args, api, extraOptions);
+
+  if (result.error && [401, 403].includes(result.error.status)) {
+    api.dispatch({ type: 'RTK_QUERY_AUTH_ERROR', error: { status: result.error.status } });
+  }
+
+  return result;
+};
+
 export const RTKQueryApi = createApi({
   reducerPath: 'api',
   baseQuery: retry(
-    fetchBaseQuery({
-      baseUrl: `${config.API_HOST}/v1/`,
-      prepareHeaders: (headers) => {
-        headers.set('x-tidepool-session-token', keycloak?.token || '');
-        headers.set('x-tidepool-trace-session', getSessionTrace());
-
-        return headers;
-      },
-    }),
+    baseQueryWithKeycloakErrorHandling,
     { maxRetries: RETRY_COUNT },
   ),
   endpoints: () => ({}),
