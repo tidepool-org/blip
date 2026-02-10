@@ -2099,6 +2099,7 @@ export const ClinicPatients = (props) => {
                           variant="textPrimary"
                           onClick={() => {
                             trackMetric(prefixPopHealthMetric('Edit clinic sites open'), { clinicId: selectedClinicId, source: 'Filter menu' });
+                            dispatch(actions.async.fetchClinicSites(api, selectedClinicId)); // current data in clinic object may be stale
                             setShowClinicSitesDialog(true);
                           }}
                         >
@@ -2283,6 +2284,7 @@ export const ClinicPatients = (props) => {
                           variant="textPrimary"
                           onClick={() => {
                             trackMetric(prefixPopHealthMetric('Edit clinic tags open'), { clinicId: selectedClinicId, source: 'Filter menu' });
+                            dispatch(actions.async.fetchClinicPatientTags(api, selectedClinicId)); // current data in clinic object may be stale
                             setShowClinicPatientTagsDialog(true);
                           }}
                         >
