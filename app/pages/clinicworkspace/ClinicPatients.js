@@ -3267,22 +3267,31 @@ export const ClinicPatients = (props) => {
                     {t('Click on the edit icon to rename the site or trash icon to delete it.')}
                   </Text>
                 </Box>
-                <Box mt={1} mb={0}>
-                  <Text sx={{ fontSize: 0, color: colors.gray50, fontStyle: 'italic' }}>
-                    {t('Name')}
-                  </Text>
-                </Box>
+
+                <Grid mt={1} mb={0} sx={{ gridTemplateColumns: '1fr 128px 36px' }}>
+                  <Box>
+                    <Text sx={{ fontSize: 0, color: colors.gray50, fontStyle: 'italic' }}>
+                      {t('Name')}
+                    </Text>
+                  </Box>
+
+                  <Flex sx={{ justifyContent: 'flex-end' }}>
+                    <Text sx={{ fontSize: 0, color: colors.gray50, fontStyle: 'italic' }}>
+                      {t('Patients with Site')}
+                    </Text>
+                  </Flex>
+                </Grid>
               </>
             }
 
             <Box mt={1} id="clinic-patients-edit-site-list">
               {
-                orderedSites.map(({ id, name }) => (
+                orderedSites.map(({ id, name, numPatients }) => (
                   <Grid
                     key={`edit-sites-list-${id}`}
                     py={2}
                     sx={{
-                      gridTemplateColumns: '1fr 72px 16px',
+                      gridTemplateColumns: '1fr 128px 36px',
                       borderTop: `1px solid ${colors.gray05}`,
                       alignItems: 'center',
                     }}
@@ -3297,9 +3306,13 @@ export const ClinicPatients = (props) => {
                         onClick={isClinicAdmin ? () => handleUpdateClinicSite(id) : noop}
                       />
                     </Flex>
-                    <Box>
 
-                    </Box>
+                    <Flex sx={{ justifyContent: 'flex-end' }}>
+                      <Text sx={{ fontSize: 0, fontStyle: 'italic', color: vizColors.gray50 }}>
+                        {numPatients || 0}
+                      </Text>
+                    </Flex>
+
                     <Flex sx={{ justifyContent: 'flex-end' }}>
                       <Icon
                         id={`delete-site-button-${id}`}
@@ -3427,22 +3440,30 @@ export const ClinicPatients = (props) => {
                     {t('Click on the edit icon to rename the tag or trash icon to delete it.')}
                   </Text>
                 </Box>
-                <Box mt={1} mb={0}>
-                  <Text sx={{ fontSize: 0, color: colors.gray50, fontStyle: 'italic' }}>
-                    {t('Name')}
-                  </Text>
-                </Box>
+                <Grid mt={1} mb={0} sx={{ gridTemplateColumns: '1fr 128px 36px' }}>
+                  <Box>
+                    <Text sx={{ fontSize: 0, color: colors.gray50, fontStyle: 'italic' }}>
+                      {t('Name')}
+                    </Text>
+                  </Box>
+
+                  <Flex sx={{ justifyContent: 'flex-end' }}>
+                    <Text sx={{ fontSize: 0, color: colors.gray50, fontStyle: 'italic' }}>
+                      {t('Patients with Tag')}
+                    </Text>
+                  </Flex>
+                </Grid>
               </>
             }
 
             <Box mt={1} id="clinic-patients-edit-tag-list">
               {
-                orderedTags.map(({ id, name }) => (
+                orderedTags.map(({ id, name, numPatients }) => (
                   <Grid
                     key={`edit-tags-list-${id}`}
                     py={2}
                     sx={{
-                      gridTemplateColumns: '1fr 72px 16px',
+                      gridTemplateColumns: '1fr 128px 36px',
                       borderTop: `1px solid ${colors.gray05}`,
                       alignItems: 'center',
                     }}>
@@ -3456,9 +3477,12 @@ export const ClinicPatients = (props) => {
                         onClick={isClinicAdmin ? () => handleUpdateClinicPatientTag(id) : noop}
                       />
                     </Flex>
-                    <Box>
 
-                    </Box>
+                    <Flex sx={{ justifyContent: 'flex-end' }}>
+                      <Text sx={{ fontSize: 0, fontStyle: 'italic', color: vizColors.gray50 }}>
+                        {numPatients || 0}
+                      </Text>
+                    </Flex>
                     <Flex sx={{ justifyContent: 'flex-end' }}>
                       <Icon
                         id={`delete-tag-button-${id}`}
