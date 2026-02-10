@@ -1698,6 +1698,17 @@ export const ClinicPatients = (props) => {
 
               <Box sx={{ flex: 1, flexBasis:'fit-content', position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
                 <Flex sx={{ justifyContent: 'space-between', alignContent: 'center', gap: 2 }}>
+                  <Button
+                    id="open-rtk-demo"
+                    variant="tertiary"
+                    onClick={() => dispatch(push('/rtk-demo'))}
+                    tag={t('New')}
+                    px={2}
+                    sx={{ flexShrink: 0, fontSize: 0 }}
+                  >
+                    {t('RTK Demo')}
+                  </Button>
+
                   {showTideDashboardUI && (
                     <PopoverElement
                       id="tideDashAddTagsPopover"
