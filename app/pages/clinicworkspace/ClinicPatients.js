@@ -118,6 +118,7 @@ import Banner from '../../components/elements/Banner';
 import colorPalette from '../../themes/colorPalette';
 import noop from 'lodash/noop';
 import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils';
+import ClinicSitesDialog from './ClinicSitesDialog';
 
 const { Loader } = vizComponents;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels, formatBgValue } = vizUtils.bg;
@@ -198,6 +199,8 @@ const editPatientDataConnections = (patient, setSelectedPatient, selectedClinicI
   setSelectedPatient(patient);
   setShowDataConnectionsModal(true);
 };
+
+export const prefixPopHealthMetric = metric => `Clinic - Population Health - ${metric}`;
 
 const ClearButton = styled.button`
   background: none;
@@ -358,7 +361,6 @@ const MoreMenu = ({
   setSelectedPatient,
   setShowDataConnectionsModal,
   setShowEditPatientDialog,
-  prefixPopHealthMetric,
   setShowSendUploadReminderDialog,
   setShowDeleteDialog,
 }) => {
@@ -470,7 +472,6 @@ const PatientTags = ({
   patient,
   patientTags,
   patientTagsFilterOptions,
-  prefixPopHealthMetric,
   selectedClinicId,
   selectedPatient,
   setSelectedPatient,
@@ -900,8 +901,6 @@ export const ClinicPatients = (props) => {
   const previousUpdatingClinicPatientTag = usePrevious(updatingClinicPatientTag);
   const previousDeletingClinicPatientTag = usePrevious(deletingClinicPatientTag);
   const previousFetchingRpmReportPatients = usePrevious(fetchingRpmReportPatients);
-
-  const prefixPopHealthMetric = useCallback(metric => `Clinic - Population Health - ${metric}`, []);
 
   const handleCloseOverlays = useCallback(() => {
     const resetList = showAddPatientDialog || showEditPatientDialog;
@@ -3175,170 +3174,25 @@ export const ClinicPatients = (props) => {
   ]);
 
   const renderClinicSitesDialog = useCallback(() => {
-    const orderedSites = clinic?.sites?.toSorted((a, b) => utils.compareLabels(a.name, b.name)) || [];
-
     return (
-      <Dialog
-        id="editClinicSitesDialog"
-        aria-labelledby="dialog-title"
-        open={showClinicSitesDialog}
-        onClose={() => {
-          handleCloseOverlays();
+      <ClinicSitesDialog
+        onUpdate={isClinicAdmin ? (id) => handleUpdateClinicSite(id) : noop}
+        onDelete={isClinicAdmin ? (id) => handleDeleteClinicSite(id) : noop}
+        onCreate={(clinicSite, context) => {
+          trackMetric(prefixPopHealthMetric('Edit clinic sites add'), { clinicId: selectedClinicId });
+          setClinicSiteFormContext(context);
+          handleCreateClinicSite(clinicSite);
         }}
-      >
-        <Box variant="containers.small" mb={0} sx={{ width: ['100%', '100%'] }}>
-          <DialogTitle
-            divider
-            onClose={() => {
-              trackMetric(prefixPopHealthMetric('Edit clinic sites dialog close'), { clinicId: selectedClinicId });
-              handleCloseOverlays();
-            }}
-          >
-            <Body1 sx={{ fontWeight: 'medium', fontSize: 3 }}>{t('Edit Sites')}</Body1>
-          </DialogTitle>
-
-          <DialogContent pt={0} divider={false} sx={{ minWidth: '512px', maxHeight: '70vh' }}>
-            <Formik
-              initialValues={{ name: '' }}
-              onSubmit={(clinicSite, context) => {
-                trackMetric(prefixPopHealthMetric('Edit clinic sites add'), { clinicId: selectedClinicId });
-                setClinicSiteFormContext(context);
-                handleCreateClinicSite(clinicSite);
-              }}
-              validationSchema={clinicSiteSchema}
-            >
-              {clinicSitesFormikContext => (
-                <Form id="patient-site-add">
-                  <Box mt={3}>
-                    <Text sx={{ fontSize: 1, color: 'text.primary', fontWeight: 'medium' }}>
-                      {t('Add a Site')}{' - '}
-                    </Text>
-                    <Text sx={{ fontSize: 0, color: 'text.primary' }}>
-                      {t('You may add up to {{ maxWorkspaceClinicSites }} sites', { maxWorkspaceClinicSites })}
-                    </Text>
-                  </Box>
-                  <Flex mb={3} mt={1} sx={{ gap: 2, position: 'relative' }}>
-                    <TextInput
-                      themeProps={{
-                        width: '100%',
-                        sx: {
-                          width: '100%',
-                          input: {
-                            height: '38px',
-                            py: '0 !important',
-                            paddingRight: '90px', // creates visual space for the Add Button
-                          },
-                        },
-                        flex: 1,
-                        fontSize: '12px',
-                      }}
-                      disabled={clinic?.sites?.length >= maxWorkspaceClinicSites}
-                      maxLength={200}
-                      placeholder={t('Add a Site')}
-                      captionProps={{ mt: 0, fontSize: '10px', color: colors.grays[4] }}
-                      variant="condensed"
-                      {...getCommonFormikFieldProps('name', clinicSitesFormikContext)}
-                    />
-
-                    <Button
-                      disabled={!clinicSitesFormikContext.values.name.trim().length || clinic?.sites?.length >= maxWorkspaceClinicSites || !clinicSitesFormikContext.isValid}
-                      type="submit"
-                      sx={{
-                        height: '32px',
-                        position: 'absolute',
-                        top: 1,
-                        right: 1,
-                      }}
-                    >
-                      {t('Add')}
-                    </Button>
-                  </Flex>
-                </Form>
-              )}
-            </Formik>
-
-            { clinicSitesFilterOptions.length > 0 &&
-              <>
-                <Box>
-                  <Text sx={{ fontSize: 1, color: 'text.primary', fontWeight: 'medium' }}>
-                    {t('Sites ({{ count }})', { count: clinic?.sites?.length || '0' })}{' - '}
-                  </Text>
-                  <Text sx={{ fontSize: 0, color: 'text.primary' }}>
-                    {t('Click on the edit icon to rename the site or trash icon to delete it.')}
-                  </Text>
-                </Box>
-                <Box mt={1} mb={0}>
-                  <Text sx={{ fontSize: 0, color: colors.gray50, fontStyle: 'italic' }}>
-                    {t('Name')}
-                  </Text>
-                </Box>
-              </>
-            }
-
-            <Box mt={1} id="clinic-patients-edit-site-list">
-              {
-                orderedSites.map(({ id, name }) => (
-                  <Grid
-                    key={`edit-sites-list-${id}`}
-                    py={2}
-                    sx={{
-                      gridTemplateColumns: '1fr 72px 16px',
-                      borderTop: `1px solid ${colors.gray05}`,
-                      alignItems: 'center',
-                    }}
-                  >
-                    <Flex sx={{ alignItems: 'center'}}>
-                      <Text className="clinic-site-text" sx={{ fontSize: 1, color: 'text.primary' }}>{name}</Text>
-                      <Icon
-                        id={`edit-site-button-${id}`}
-                        data-testid={`edit-site-button-${id}`}
-                        icon={EditIcon}
-                        sx={{ fontSize: 1, marginLeft: 2 }}
-                        onClick={isClinicAdmin ? () => handleUpdateClinicSite(id) : noop}
-                      />
-                    </Flex>
-                    <Box>
-
-                    </Box>
-                    <Flex sx={{ justifyContent: 'flex-end' }}>
-                      <Icon
-                        id={`delete-site-button-${id}`}
-                        data-testid={`delete-site-button-${id}`}
-                        icon={DeleteIcon}
-                        sx={{ fontSize: 1 }}
-                        onClick={isClinicAdmin ? () => handleDeleteClinicSite(id) : noop}
-                      />
-                    </Flex>
-                  </Grid>
-                ))
-              }
-            </Box>
-          </DialogContent>
-
-          <DialogActions sx={{ borderTop: borders.divider, display: 'flex', justifyContent: 'flex-end' }}>
-            <Button
-              id="edit-sites-dialog-done"
-              variant="secondary"
-              sx={{ minWidth: '120px'}}
-              onClick={handleCloseOverlays}
-            >
-              {t('Done')}
-            </Button>
-          </DialogActions>
-        </Box>
-      </Dialog>
+      />
     );
   }, [
-    clinic?.sites,
-    handleCreateClinicSite,
+    isClinicAdmin,
     handleUpdateClinicSite,
     handleDeleteClinicSite,
-    isClinicAdmin,
+    handleCreateClinicSite,
+    trackMetric,
     prefixPopHealthMetric,
     selectedClinicId,
-    showClinicSitesDialog,
-    trackMetric,
-    t,
   ]);
 
   const renderClinicPatientTagsDialog = useCallback(() => {
@@ -3821,7 +3675,6 @@ export const ClinicPatients = (props) => {
       patient={patient}
       patientTags={patientTags}
       patientTagsFilterOptions={patientTagsFilterOptions}
-      prefixPopHealthMetric={prefixPopHealthMetric}
       selectedClinicId={selectedClinicId}
       selectedPatient={selectedPatient}
       setSelectedPatient={setSelectedPatient}
@@ -3834,7 +3687,6 @@ export const ClinicPatients = (props) => {
     api,
     patientTags,
     patientTagsFilterOptions,
-    prefixPopHealthMetric,
     selectedClinicId,
     selectedPatient,
     setSelectedPatient,
@@ -3961,7 +3813,6 @@ export const ClinicPatients = (props) => {
       setSelectedPatient={setSelectedPatient}
       setShowDataConnectionsModal={setShowDataConnectionsModal}
       setShowEditPatientDialog={setShowEditPatientDialog}
-      prefixPopHealthMetric={prefixPopHealthMetric}
       setShowSendUploadReminderDialog={setShowSendUploadReminderDialog}
       setShowDeleteDialog={setShowDeleteDialog}
     />;
@@ -3973,7 +3824,6 @@ export const ClinicPatients = (props) => {
     trackMetric,
     setSelectedPatient,
     setShowEditPatientDialog,
-    prefixPopHealthMetric,
     setShowSendUploadReminderDialog,
     setShowDeleteDialog,
   ]);
@@ -4284,9 +4134,9 @@ export const ClinicPatients = (props) => {
       {showRpmReportUI && renderRpmReportConfigDialog()}
       {showRpmReportUI && renderRpmReportLimitDialog()}
       {showSendUploadReminderDialog && renderSendUploadReminderDialog()}
-      {isClinicSitesDialogVisible && renderClinicSitesDialog()}
       {isClinicPatientTagsDialogVisible && renderClinicPatientTagsDialog()}
       {showDataConnectionsModal && renderDataConnectionsModal()}
+      {isClinicSitesDialogVisible && renderClinicSitesDialog()}
 
       <StyledScrollToTop
         smooth
