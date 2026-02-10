@@ -2,6 +2,7 @@ import { createApi, fetchBaseQuery, retry } from '@reduxjs/toolkit/query/react';
 import config from '../../config';
 import { keycloak } from '../../keycloak';
 import { v4 as uuidv4 } from 'uuid';
+import { RTK_QUERY_REQUEST_ERROR, RTK_QUERY_REQUEST_SUCCESS } from '../constants/actionTypes';
 
 import tidepoolApi from '../../core/api';
 
@@ -27,11 +28,14 @@ const baseQuery = fetchBaseQuery({
   },
 });
 
-const baseQueryWithKeycloakErrorHandling = async (args, api, extraOptions) => {
+const baseQueryWithDispatch = async (args, api, extraOptions) => {
   const result = await baseQuery(args, api, extraOptions);
 
-  if (result.error && [401, 403].includes(result.error.status)) {
-    api.dispatch({ type: 'RTK_QUERY_AUTH_ERROR', error: { status: result.error.status } });
+  // Notify Middleware
+  if (result.error) {
+    api.dispatch({ type: RTK_QUERY_REQUEST_ERROR, error: result.error });
+  } else {
+    api.dispatch({ type: RTK_QUERY_REQUEST_SUCCESS, data: result.data });
   }
 
   return result;
@@ -40,7 +44,7 @@ const baseQueryWithKeycloakErrorHandling = async (args, api, extraOptions) => {
 export const RTKQueryApi = createApi({
   reducerPath: 'api',
   baseQuery: retry(
-    baseQueryWithKeycloakErrorHandling,
+    baseQueryWithDispatch,
     { maxRetries: RETRY_COUNT },
   ),
   endpoints: () => ({}),
