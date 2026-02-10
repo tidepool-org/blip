@@ -2,6 +2,7 @@ import { createApi, fetchBaseQuery, retry } from '@reduxjs/toolkit/query/react';
 import config from '../../config';
 import { keycloak } from '../../keycloak';
 import { v4 as uuidv4 } from 'uuid';
+import { RTK_QUERY_REQUEST_ERROR, RTK_QUERY_REQUEST_SUCCESS } from '../constants/actionTypes';
 
 import tidepoolApi from '../../core/api';
 
@@ -17,18 +18,33 @@ const getSessionTrace = () => {
   return tidepoolApi?.tidepool?.getSessionTrace() || fallbackSessionTrace;
 };
 
+const baseQuery = fetchBaseQuery({
+  baseUrl: `${config.API_HOST}/v1/`,
+  prepareHeaders: (headers) => {
+    headers.set('x-tidepool-session-token', keycloak?.token || '');
+    headers.set('x-tidepool-trace-session', getSessionTrace());
+
+    return headers;
+  },
+});
+
+const baseQueryWithDispatch = async (args, api, extraOptions) => {
+  const result = await baseQuery(args, api, extraOptions);
+
+  // Notify Middleware
+  if (result.error) {
+    api.dispatch({ type: RTK_QUERY_REQUEST_ERROR, error: result.error });
+  } else {
+    api.dispatch({ type: RTK_QUERY_REQUEST_SUCCESS, data: result.data });
+  }
+
+  return result;
+};
+
 export const RTKQueryApi = createApi({
   reducerPath: 'api',
   baseQuery: retry(
-    fetchBaseQuery({
-      baseUrl: `${config.API_HOST}/v1/`,
-      prepareHeaders: (headers) => {
-        headers.set('x-tidepool-session-token', keycloak?.token || '');
-        headers.set('x-tidepool-trace-session', getSessionTrace());
-
-        return headers;
-      },
-    }),
+    baseQueryWithDispatch,
     { maxRetries: RETRY_COUNT },
   ),
   endpoints: () => ({}),
