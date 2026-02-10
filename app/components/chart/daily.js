@@ -509,6 +509,7 @@ class Daily extends Component {
         >
           <EventsInfoLabel hasAlarmEventsInView={this.state.hasAlarmEventsInView} />
 
+          {/* TODO: re-enable CgmSampleIntervalRangeToggle once twiist data issue is resolved */}
           {/* {showingCgmData && hasOneMinCgmSampleIntervalDevice && (
             <CgmSampleIntervalRangeToggle
               chartPrefs={this.props.chartPrefs}
