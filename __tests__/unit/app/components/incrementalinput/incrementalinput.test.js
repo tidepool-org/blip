@@ -10,7 +10,6 @@ import { Provider } from 'react-redux';
 import { render, screen } from '@testing-library/react';
 import _ from 'lodash';
 import configureStore from 'redux-mock-store';
-import { thunk } from 'redux-thunk';
 import { MemoryRouter, Route, Switch } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 
