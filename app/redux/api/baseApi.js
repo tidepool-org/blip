@@ -1,8 +1,7 @@
 import { createApi, fetchBaseQuery, retry } from '@reduxjs/toolkit/query/react';
 import config from '../../config';
-import { keycloak } from '../../keycloak';
+import { keycloak, refreshToken } from '../../keycloak';
 import { v4 as uuidv4 } from 'uuid';
-import { RTK_QUERY_REQUEST_ERROR, RTK_QUERY_REQUEST_SUCCESS } from '../constants/actionTypes';
 
 import tidepoolApi from '../../core/api';
 
@@ -32,14 +31,15 @@ const baseQuery = fetchBaseQuery({
   },
 });
 
-const baseQueryWithDispatch = async (args, api, extraOptions) => {
-  const result = await baseQuery(args, api, extraOptions);
+const baseQueryWithReAuth = async (args, api, extraOptions) => {
+  let result = await baseQuery(args, api, extraOptions);
 
-  // Notify Middleware
-  if (result.error) {
-    api.dispatch({ type: RTK_QUERY_REQUEST_ERROR, error: result.error });
-  } else {
-    api.dispatch({ type: RTK_QUERY_REQUEST_SUCCESS, data: result.data });
+  if (result.error && [401, 403].includes(result.error.status)) {
+    await refreshToken();
+
+    // refreshToken will redirect to 'logged out' screen if session
+    // has expired. Otherwise, retry with the refreshed token
+    result = await baseQuery(args, api, extraOptions);
   }
 
   return result;
@@ -48,7 +48,7 @@ const baseQueryWithDispatch = async (args, api, extraOptions) => {
 export const RTKQueryApi = createApi({
   reducerPath: 'api',
   baseQuery: retry(
-    baseQueryWithDispatch,
+    baseQueryWithReAuth,
     { maxRetries: RETRY_COUNT },
   ),
   endpoints: () => ({}),
