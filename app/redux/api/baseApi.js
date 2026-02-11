@@ -37,5 +37,6 @@ export const RTKQueryApi = createApi({
     baseQuery,
     { maxRetries: RETRY_COUNT },
   ),
+  refetchOnMountOrArgChange: true,
   endpoints: () => ({}),
 });
