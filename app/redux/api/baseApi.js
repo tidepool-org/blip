@@ -31,24 +31,10 @@ const baseQuery = fetchBaseQuery({
   },
 });
 
-const baseQueryWithReAuth = async (args, api, extraOptions) => {
-  let result = await baseQuery(args, api, extraOptions);
-
-  if (result.error && [401, 403].includes(result.error.status)) {
-    await refreshToken();
-
-    // refreshToken will redirect to 'logged out' screen if session
-    // has expired. Otherwise, retry with the refreshed token
-    result = await baseQuery(args, api, extraOptions);
-  }
-
-  return result;
-};
-
 export const RTKQueryApi = createApi({
   reducerPath: 'api',
   baseQuery: retry(
-    baseQueryWithReAuth,
+    baseQuery,
     { maxRetries: RETRY_COUNT },
   ),
   endpoints: () => ({}),
