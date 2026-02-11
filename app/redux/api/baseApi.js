@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery, retry } from '@reduxjs/toolkit/query/react';
 import config from '../../config';
-import { keycloak, refreshToken } from '../../keycloak';
+import { keycloak } from '../../keycloak';
 import { v4 as uuidv4 } from 'uuid';
 
 import tidepoolApi from '../../core/api';

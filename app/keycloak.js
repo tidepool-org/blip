@@ -24,10 +24,6 @@ export const setTokenRefresh = (keycloak) => {
   refreshTimeout = setTimeout(() => { keycloak.updateToken(-1); }, expiresIn - 10000);
 };
 
-export const refreshToken = () => {
-  return keycloak.updateToken(-1);
-};
-
 export const updateKeycloakConfig = (info, store) => {
   if (!(isEmpty(info) || isEqual(_keycloakConfig, info))) {
     // eslint-disable-next-line new-cap
