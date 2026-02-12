@@ -649,6 +649,7 @@ describe('SmartOnFhir', () => {
           },
         },
         smartCorrelationId: 'correlation-123',
+        loggedInUserId: 'clinician-123',
         working: {
           fetchingPatients: {
             inProgress: false,
@@ -711,6 +712,7 @@ describe('SmartOnFhir', () => {
           },
         },
         smartCorrelationId: 'correlation-123',
+        loggedInUserId: 'clinician-123',
         working: {
           fetchingPatients: {
             inProgress: false,
