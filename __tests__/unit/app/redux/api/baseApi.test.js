@@ -44,7 +44,7 @@ describe('RTKQueryApi', () => {
     server.use(
       http.get('http://app.tidepool.test/v1/settings', async () => {
         await delay(100);
-        return HttpResponse.json({ username: 'test_admin' });
+        return HttpResponse.json({ username: 'canelo', name: 'Saul Alvarez' });
       })
     );
 
@@ -56,10 +56,13 @@ describe('RTKQueryApi', () => {
 
     // Should see loading state on initialization
     expect(screen.getByText('LOADING')).toBeInTheDocument();
+    expect(screen.queryByText('USERNAME: canelo')).not.toBeInTheDocument();
 
     // Should see data on fetch success
     await waitFor(() => {
-      expect(screen.getByText('USERNAME: test_admin')).toBeInTheDocument();
+      expect(screen.getByText('USERNAME: canelo')).toBeInTheDocument();
     });
+
+    expect(screen.queryByText('LOADING')).not.toBeInTheDocument();
   });
 });
