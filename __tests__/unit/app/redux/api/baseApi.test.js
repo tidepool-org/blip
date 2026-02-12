@@ -20,7 +20,9 @@ const TestApi = RTKQueryApi.injectEndpoints({
 const TestComponent = () => {
   const { data, isFetching } = TestApi.useTestPatientsQuery();
 
-  if (isFetching && !data) return <p>LOADING</p>;
+  if (isFetching) return <p>LOADING</p>;
+
+  if (!data) return <p>NO DATA</p>;
 
   return <p>USERNAME: {data.username}</p>;
 };
