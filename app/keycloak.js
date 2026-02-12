@@ -122,6 +122,8 @@ export const keycloakMiddleware = (api) => (storeAPI) => (next) => (action) => {
         action?.error?.originalError?.status === 401 ||
         action?.error?.status === 403 ||
         action?.error?.originalError?.status === 403 ||
+
+        // Errors from RTK Query
         (isRejected(action) && action?.payload?.status === 401) ||
         (isRejected(action) && action?.payload?.status === 403)
       ) {
