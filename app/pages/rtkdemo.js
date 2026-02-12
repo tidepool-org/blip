@@ -29,7 +29,7 @@ const RTKDemo = () => {
 
       <textarea
         style={{ width: '100%', height: '640px' }}
-        value={data ? JSON.stringify(data): ''}
+        value={data ? JSON.stringify(data, null, 2): ''}
       ></textarea>
     </Grid>
   );
