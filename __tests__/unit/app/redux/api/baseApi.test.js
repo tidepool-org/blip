@@ -34,12 +34,13 @@ describe('RTKQueryApi', () => {
 
   beforeAll(() => server.listen());
 
+  beforeEach(() => {
+    store = setupStore();
+  });
+
   afterEach(() => server.resetHandlers());
 
   afterAll(() => server.close());
-
-  store = setupStore();
-
   it('A GET request successfully fetches data', async () => {
     server.use(
       http.get('http://app.tidepool.test/v1/settings', async () => {
