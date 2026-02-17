@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.55.0-web-4384-date-mismatch.5":
-  version: 1.55.0-web-4384-date-mismatch.5
-  resolution: "@tidepool/viz@npm:1.55.0-web-4384-date-mismatch.5"
+"@tidepool/viz@npm:1.55.0-web-4406-insulin-calc.1":
+  version: 1.55.0-web-4406-insulin-calc.1
+  resolution: "@tidepool/viz@npm:1.55.0-web-4406-insulin-calc.1"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: a7edc0b73df9e61b03cff41841f51e0b8253080f228ee442edeacf4b6c8e45ae98f843a0b54f4f24ffe14dd9b35cc6235b9f60ad2d4f994ff9fe9392a317c906
+  checksum: c8abed1f3dfc753858b24ddfb41c91b82bcec2be1a45d5534a7e31cc1d7f8afc336d839286461590b4705da618bce16a41c37ff3f6595296ceb8e507cc2b10b5
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.55.0-web-4384-date-mismatch.5
+    "@tidepool/viz": 1.55.0-web-4406-insulin-calc.1
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
