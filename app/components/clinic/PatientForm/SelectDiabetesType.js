@@ -1,5 +1,6 @@
-import { noop } from 'lodash';
 import React from 'react';
+import PropTypes from 'prop-types';
+import { noop } from 'lodash';
 import { useTranslation } from 'react-i18next';
 import Select from 'react-select';
 import { selectElementStyleOverrides } from './styles';
@@ -44,12 +45,21 @@ const SelectDiabetesType = ({
         onMenuOpen={onMenuOpen}
         options={selectOptions}
         closeMenuOnSelect
+        minMenuHeight={selectMenuHeight}
         maxMenuHeight={selectMenuHeight}
         isClearable
         isDisabled={isDisabled}
       />
     </>
   );
+};
+
+SelectDiabetesType.propTypes = {
+  value: PropTypes.string,
+  onChange: PropTypes.func.isRequired,
+  selectMenuHeight: PropTypes.number,
+  onMenuOpen: PropTypes.func,
+  isDisabled: PropTypes.bool,
 };
 
 export default SelectDiabetesType;

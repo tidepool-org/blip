@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { noop } from 'lodash';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -76,6 +77,14 @@ const SelectGlycemicRanges = ({
       />
     </>
   );
+};
+
+SelectGlycemicRanges.propTypes = {
+  value: PropTypes.object,
+  onChange: PropTypes.func.isRequired,
+  selectMenuHeight: PropTypes.number,
+  onMenuOpen: PropTypes.func,
+  isDisabled: PropTypes.bool,
 };
 
 export default SelectGlycemicRanges;
