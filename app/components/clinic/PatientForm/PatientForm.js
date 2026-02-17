@@ -61,6 +61,7 @@ export const PatientForm = (props) => {
     trackMetric,
     searchDebounceMs,
     initialFocusedInput = 'fullName',
+    isReadOnly = false,
     ...boxProps
   } = props;
 
@@ -145,7 +146,7 @@ export const PatientForm = (props) => {
 
       dispatch(actions.async[actionMap[action][context].handler](api, ...handlerArgs));
     },
-    validationSchema: validationSchema({mrnSettings, existingMRNs}),
+    validationSchema: validationSchema({ mrnSettings, existingMRNs }),
   });
 
   const {
@@ -263,6 +264,7 @@ export const PatientForm = (props) => {
           placeholder={t('Full Name')}
           variant="condensed"
           sx={{ width: '100%' }}
+          disabled={isReadOnly}
         />
       </Box>
 
@@ -279,6 +281,7 @@ export const PatientForm = (props) => {
             formikContext.setFieldTouched('birthDate');
             formikContext.setFieldValue('birthDate', e.target.value.replace(dateRegex, '$3-$1-$2'));
           }}
+          disabled={isReadOnly}
         >
           <TextInput
             name="birthDate"
@@ -287,6 +290,7 @@ export const PatientForm = (props) => {
             placeholder={dateInputFormat.toLowerCase()}
             variant="condensed"
             sx={{ width: '100%' }}
+            disabled={isReadOnly}
           />
         </InputMask>
       </Box>
@@ -308,6 +312,7 @@ export const PatientForm = (props) => {
             formikContext.setFieldTouched('mrn');
             formikContext.setFieldValue('mrn', e.target.value.toUpperCase());
           }}
+          disabled={isReadOnly}
         />
       </Box>
 
@@ -321,8 +326,8 @@ export const PatientForm = (props) => {
               placeholder={t('Email')}
               variant="condensed"
               sx={{ width: '100%' }}
-              disabled={patient?.id && !patient?.permissions?.custodian}
-              />
+              disabled={isReadOnly || (patient?.id && !patient?.permissions?.custodian)}
+            />
           </Box>
 
           <Body0 mb={3}>
@@ -337,6 +342,7 @@ export const PatientForm = (props) => {
             value={values.diagnosisType || ''}
             onChange={diagnosisType => setFieldValue('diagnosisType', diagnosisType)}
             onMenuOpen={() => handleScrollToRef(diagnosisTypeSectionRef)}
+            isDisabled={isReadOnly}
           />
         </Box>
       )}
@@ -347,10 +353,11 @@ export const PatientForm = (props) => {
             value={values.glycemicRanges}
             onChange={glycemicRanges => setFieldValue('glycemicRanges', glycemicRanges)}
             onMenuOpen={() => handleScrollToRef(targetRangePresetSectionRef)}
+            isDisabled={isReadOnly}
           />
 
           <Body0 mb={3} mt={1}>
-            { hasSummaryDashboard
+            {hasSummaryDashboard
               ? t('Target ranges follow ADA guidelines. Setting an alternate range will be used when viewing patient data, but will not be available in the dashboard view.')
               : t('Target ranges follow ADA guidelines and will be used when viewing patient data.')
             }
@@ -366,6 +373,7 @@ export const PatientForm = (props) => {
             currentTagIds={values.tags || []}
             onChange={tagIds => setFieldValue('tags', tagIds)}
             onMenuOpen={() => handleScrollToRef(tagSectionRef)}
+            isDisabled={isReadOnly}
           />
         </Box>
       )}
@@ -378,6 +386,7 @@ export const PatientForm = (props) => {
             currentSites={values.sites || []}
             onChange={sites => setFieldValue('sites', sites)}
             onMenuOpen={() => handleScrollToRef(siteSectionRef)}
+            isDisabled={isReadOnly}
           />
         </Box>
       )}
@@ -396,6 +405,7 @@ PatientForm.propTypes = {
   searchDebounceMs: PropTypes.number.isRequired,
   initialFocusedInput: PropTypes.string,
   action: PropTypes.oneOf(['create', 'edit', 'acceptInvite']).isRequired,
+  isReadOnly: PropTypes.bool,
 };
 
 PatientForm.defaultProps = {

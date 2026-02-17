@@ -34,6 +34,7 @@ const SelectGlycemicRanges = ({
   value, // glycemicRanges object
   selectMenuHeight = 240,
   onMenuOpen = noop,
+  isDisabled = false,
 }) => {
   const { t } = useTranslation();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
@@ -71,6 +72,7 @@ const SelectGlycemicRanges = ({
         closeMenuOnSelect
         minMenuHeight={selectMenuHeight}
         maxMenuHeight={selectMenuHeight}
+        isDisabled={isDisabled}
       />
     </>
   );

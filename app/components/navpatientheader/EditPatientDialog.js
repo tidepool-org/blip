@@ -60,6 +60,7 @@ const EditPatientDialog = ({
   const currentPatientInViewId = useSelector(state => state.blip.currentPatientInViewId);
   const clinicPatient = useSelector(state => selectClinicPatient(state));
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+  const isSmartOnFhir = useSelector((state) => !!state.blip.smartOnFhirData);
 
   const mrnSettings = useMemo(() => clinic?.mrnSettings ?? {}, [clinic?.mrnSettings]);
   const existingMRNs = useSelector(state => state.blip.clinicMRNsForPatientFormValidation)?.filter(mrn => mrn !== clinicPatient?.mrn) || [];
@@ -106,6 +107,7 @@ const EditPatientDialog = ({
           patient={clinicPatient}
           searchDebounceMs={PATIENT_FORM_SEARCH_DEBOUNCE_MS}
           action="edit"
+          isReadOnly={isSmartOnFhir}
         />
       </DialogContent>
 
@@ -122,7 +124,7 @@ const EditPatientDialog = ({
           variant="primary"
           onClick={handleEditPatientConfirm}
           processing={updatingClinicPatient.inProgress}
-          disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema({ mrnSettings, existingMRNs }), patientFormContext?.values)}
+          disabled={isSmartOnFhir || !fieldsAreValid(keys(patientFormContext?.values), validationSchema({ mrnSettings, existingMRNs }), patientFormContext?.values)}
         >
           {t('Save Changes')}
         </Button>

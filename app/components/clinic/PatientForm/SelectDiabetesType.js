@@ -15,6 +15,7 @@ const SelectDiabetesType = ({
   value,
   selectMenuHeight = 240,
   onMenuOpen = noop,
+  isDisabled = false,
 }) => {
   const { t } = useTranslation();
 
@@ -43,9 +44,9 @@ const SelectDiabetesType = ({
         onMenuOpen={onMenuOpen}
         options={selectOptions}
         closeMenuOnSelect
-        minMenuHeight={selectMenuHeight}
         maxMenuHeight={selectMenuHeight}
         isClearable
+        isDisabled={isDisabled}
       />
     </>
   );
