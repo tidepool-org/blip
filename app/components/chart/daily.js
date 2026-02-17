@@ -509,13 +509,14 @@ class Daily extends Component {
         >
           <EventsInfoLabel hasAlarmEventsInView={this.state.hasAlarmEventsInView} />
 
-          {showingCgmData && hasOneMinCgmSampleIntervalDevice && (
+          {/* TODO: re-enable CgmSampleIntervalRangeToggle once twiist data issue is resolved */}
+          {/* {showingCgmData && hasOneMinCgmSampleIntervalDevice && (
             <CgmSampleIntervalRangeToggle
               chartPrefs={this.props.chartPrefs}
               chartType={this.chartType}
               onClickCgmSampleIntervalRangeToggle={this.toggleCgmSampleIntervalRange}
             />
-          )}
+          )} */}
         </Flex>
 
         <Box sx={{ position: 'relative', top: '-24px' }}>

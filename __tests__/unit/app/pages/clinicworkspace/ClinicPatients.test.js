@@ -135,14 +135,14 @@ describe('ClinicPatients', ()  => {
           }),
           tier: 'tier0300',
           patientTags: [
-            { id: 'tag3', name: 'ttest tag 3'},
-            { id: 'tag2', name: 'test tag 2'},
-            { id: 'tag1', name: 'test tag 1'},
+            { id: 'tag3', name: 'ttest tag 3', numPatients: 3 },
+            { id: 'tag2', name: 'test tag 2', numPatients: 2 },
+            { id: 'tag1', name: 'test tag 1', numPatients: 1 },
           ],
           sites: [
-            { id: 'site-1-id', name: 'Site Alpha' },
-            { id: 'site-2-id', name: 'Site Bravo' },
-            { id: 'site-3-id', name: 'Site Charlie' },
+            { id: 'site-1-id', name: 'Site Alpha', numPatients: 1 },
+            { id: 'site-2-id', name: 'Site Bravo', numPatients: 2 },
+            { id: 'site-3-id', name: 'Site Charlie', numPatients: 3 },
           ],
           patients: {
             patient1: {
@@ -310,6 +310,7 @@ describe('ClinicPatients', ()  => {
     searchDebounceMs: 0,
     api: {
       clinics: {
+        get: jest.fn(),
         getPatientFromClinic: jest.fn(),
         getPatientsForClinic: jest.fn(),
         deletePatientFromClinic: jest.fn(),
@@ -351,6 +352,7 @@ describe('ClinicPatients', ()  => {
   beforeEach(() => {
     defaultProps.trackMetric.mockClear();
     defaultProps.api.clinics.getPatientsForClinic.mockClear();
+    defaultProps.api.clinics.get.mockClear();
   });
 
   describe('has patients', () => {
@@ -532,9 +534,15 @@ describe('ClinicPatients', ()  => {
               </MockedProviderWrappers>
             );
 
+            expect(defaultProps.api.clinics.get).not.toHaveBeenCalled();
+
             // Open the Edit Sites Dialog
             await userEvent.click(screen.getByRole('button', { name: /Sites/ }));
             await userEvent.click(screen.getByRole('button', { name: /Edit Sites/ }));
+            expect(screen.getByTestId('site-site-3-id-numPatients')).toHaveTextContent(3)
+
+            // Fetch latest site data
+            expect(defaultProps.api.clinics.get).toHaveBeenCalled();
 
             // Type in a new site "Charlie" into the textbox and click add
             const newSiteInputField = await screen.findByRole('textbox');
@@ -705,9 +713,14 @@ describe('ClinicPatients', ()  => {
               </MockedProviderWrappers>
             );
 
+            expect(defaultProps.api.clinics.get).not.toHaveBeenCalled();
+
             // Open the Edit Sites Dialog
             await userEvent.click(screen.getByRole('button', { name: /Tags/ }));
             await userEvent.click(screen.getByRole('button', { name: /Edit Tags/ }));
+            expect(screen.getByTestId('tag-tag2-numPatients')).toHaveTextContent(2)
+
+            expect(defaultProps.api.clinics.get).toHaveBeenCalled();
 
             // Type in a new tag "Delta" into the textbox and click add
             const newTag = await screen.findByRole('textbox');
