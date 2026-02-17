@@ -92,10 +92,17 @@ export const OAuthConnection = (props) => {
   }, []);
 
   const isSafeReturnUrl = (url) => {
+    if (!url) return false;
+
     try {
-      // Must be on the same origin
       const returnUrl = new URL(url, window.location.origin);
-      return returnUrl.origin === window.location.origin;
+
+      // Enforce same-origin and restrict to http/https protocols and absolute paths
+      const isSameOrigin = returnUrl.origin === window.location.origin;
+      const isHttpProtocol = returnUrl.protocol === 'http:' || returnUrl.protocol === 'https:';
+      const isAbsolutePath = returnUrl.pathname.startsWith('/');
+
+      return isSameOrigin && isHttpProtocol && isAbsolutePath;
     } catch (e) {
       return false;
     }
