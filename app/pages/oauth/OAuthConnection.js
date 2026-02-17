@@ -92,14 +92,13 @@ export const OAuthConnection = (props) => {
   }, []);
 
   const isSafeReturnUrl = (url) => {
-    if (typeof url !== 'string') return false;
-
-    // Must be an absolute path on the current origin (no protocol, no protocol-relative URL)
-    if (!url.startsWith('/')) return false;
-    if (url.startsWith('//')) return false;
-    if (url.includes('://')) return false;
-
-    return true;
+    try {
+      // Must be on the same origin
+      const returnUrl = new URL(url, window.location.origin);
+      return returnUrl.origin === window.location.origin;
+    } catch (e) {
+      return false;
+    }
   };
 
   const handleAccept = () => {
