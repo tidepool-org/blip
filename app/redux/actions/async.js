@@ -2790,6 +2790,11 @@ export function sendPatientDataProviderConnectRequest(api, clinicId, patientId, 
         ));
       } else {
         dispatch(sync.sendPatientDataProviderConnectRequestSuccess(clinicId, patientId, providerName, moment.utc().toISOString()));
+
+        if (providerName === 'twiist') {
+          // Re-fetch patient count to ensure we have the latest from the server to account for plan exemptions for twiist-connected patients
+          dispatch(fetchClinicPatientCounts(api, clinicId));
+        }
       }
     });
   };

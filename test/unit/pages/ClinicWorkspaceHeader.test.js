@@ -265,6 +265,9 @@ describe('ClinicWorkspaceHeader', () => {
     });
 
     it('should render the patient count and limit', () => {
+      const count = () => wrapper.find('#clinicPatientCount').hostNodes();
+      expect(count().text()).to.equal('Patient Accounts:251'); // 252 total - 1 demo = 251
+
       const limits = () => wrapper.find('#clinicPatientLimits').hostNodes();
       expect(limits().text()).to.equal('0 remaining');
     });

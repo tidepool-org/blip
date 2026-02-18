@@ -9,7 +9,9 @@ import noop from 'lodash/noop';
 import styled from '@emotion/styled';
 import { Label, Box, BoxProps } from 'theme-ui';
 import cx from 'classnames';
-import { colors as vizColors } from '@tidepool/viz';
+import { colors as vizColors, utils as vizUtils } from '@tidepool/viz';
+
+const { getChartDateBoundFormat } = vizUtils.datetime;
 
 import { Caption } from './FontStyles';
 import { DatePicker as StyledDatePickerBase } from './InputStyles';
@@ -97,22 +99,6 @@ const StyledDateRangePicker = styled(StyledDatePickerBase)`
   }
 `;
 
-export const getChartDateBoundDisplayFormat = (startDate, endDate) => {
-  const isStartDateMidnight = (startDate?.hours() === 0 && startDate?.minutes() === 0) ||
-                              (startDate?.hours() === 23 && startDate?.minutes() >= 59);
-
-  const isEndDateMidnight = (endDate?.hours() === 0 && endDate?.minutes() === 0) ||
-                            (endDate?.hours() === 23 && endDate?.minutes() >= 59);
-
-  const isMatchingDateBounds = isStartDateMidnight && isEndDateMidnight;
-
-  if (!isMatchingDateBounds) {
-    return 'MMM D, YYYY (h:mm A)';
-  }
-
-  return 'MMM D, YYYY';
-};
-
 export function DateRangePicker(props) {
   const {
     startDate,
@@ -134,7 +120,7 @@ export function DateRangePicker(props) {
     required,
   });
 
-  const displayFormat = getChartDateBoundDisplayFormat(startDate, endDate);
+  const displayFormat = getChartDateBoundFormat(startDate, endDate);
 
   return (
     <Box as={StyledDateRangePicker} {...themeProps}>

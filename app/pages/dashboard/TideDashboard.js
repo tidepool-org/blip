@@ -122,16 +122,16 @@ const SECTION = [
   { groupKey: CATEGORY.dropInTimeInTargetPercent, sortDirection: 'asc', sortKey: 'timeInTargetPercentDelta' },
   { groupKey: CATEGORY.timeInTargetPercent, sortDirection: 'asc', sortKey: 'timeInTargetPercent' },
   { groupKey: CATEGORY.timeCGMUsePercent, sortDirection: 'asc', sortKey: 'timeCGMUsePercent' },
-  { groupKey: CATEGORY.meetingTargets, sortDirection: 'desc', sortKey: 'timeInVeryLowPercent' },
+  { groupKey: CATEGORY.meetingTargets, sortDirection: 'desc', sortKey: 'timeInTargetPercent' },
   { groupKey: CATEGORY.noData, sortDirection: 'desc', sortKey: 'daysSinceLastData' },
 ];
 
 const DEFAULT_SECTIONS = [
   CATEGORY.timeInVeryLowPercent,
   CATEGORY.timeInAnyLowPercent,
-  CATEGORY.timeInVeryHighPercent,
-  CATEGORY.timeInAnyHighPercent,
   CATEGORY.dropInTimeInTargetPercent,
+  CATEGORY.timeInAnyHighPercent,
+  CATEGORY.timeInVeryHighPercent,
   CATEGORY.timeCGMUsePercent,
   CATEGORY.meetingTargets,
   CATEGORY.noData,
@@ -205,7 +205,7 @@ const MoreMenu = React.memo(({
 
   const items = useMemo(() => ([{
     icon: EditIcon,
-    iconLabel: t('Edit Patient Information'),
+    iconLabel: t('Edit Patient Details'),
     iconPosition: 'left',
     id: `edit-${patient?.id}`,
     variant: 'actionListItem',
@@ -213,7 +213,7 @@ const MoreMenu = React.memo(({
       _popupState.close();
       handleEditPatient(patient);
     },
-    text: t('Edit Patient Information'),
+    text: t('Edit Patient Details'),
   }, {
     iconSrc: DataInIcon,
     iconLabel: t('Bring Data into Tidepool'),

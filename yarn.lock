@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.53.0-web-1463-dexcom-events.2":
-  version: 1.53.0-web-1463-dexcom-events.2
-  resolution: "@tidepool/viz@npm:1.53.0-web-1463-dexcom-events.2"
+"@tidepool/viz@npm:1.55.0-web-4384-date-mismatch.5":
+  version: 1.55.0-web-4384-date-mismatch.5
+  resolution: "@tidepool/viz@npm:1.55.0-web-4384-date-mismatch.5"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 97d49857a126c8c8a0272a7bc9b2702fcaa980129f461071d1bd0bc566768bd40b83dead817890d9664d306ca8e87f9086193972d35c4931cf7876dd2c1dab6c
+  checksum: a7edc0b73df9e61b03cff41841f51e0b8253080f228ee442edeacf4b6c8e45ae98f843a0b54f4f24ffe14dd9b35cc6235b9f60ad2d4f994ff9fe9392a317c906
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.53.0-web-1463-dexcom-events.2
+    "@tidepool/viz": 1.55.0-web-4384-date-mismatch.5
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -8464,7 +8464,7 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.38.0-web-1463-dexcom-events.1
+    tideline: 1.38.0
     tidepool-platform-client: 0.64.0
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
@@ -22237,9 +22237,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.38.0-web-1463-dexcom-events.1":
-  version: 1.38.0-web-1463-dexcom-events.1
-  resolution: "tideline@npm:1.38.0-web-1463-dexcom-events.1"
+"tideline@npm:1.38.0":
+  version: 1.38.0
+  resolution: "tideline@npm:1.38.0"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -22260,7 +22260,7 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: 5a2009c8533b1660ac14178433ec2d567b893f4b83735291d5fafae6ff159f2113e36c5bffe80ede0191bbfbf42633aa1692e1718ccb5d9d832da5e266c70ae5
+  checksum: fd560828bb05cafeb127a1413e5690f31ce34651f50b257d7ec10f4d50731ad242cd86cdfb768e3dbb8b9e5ba24f4caeace086f3feee0b81ae77a3fcb4d86477
   languageName: node
   linkType: hard
 

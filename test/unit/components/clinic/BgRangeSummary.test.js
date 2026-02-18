@@ -82,7 +82,7 @@ describe('BgRangeSummary', () => {
     expect(veryLow.text()).to.equal('0%');
 
     const low = popover().find('.range-summary-value-low').hostNodes();
-    expect(low.text()).to.equal('0.4%');
+    expect(low.text()).to.equal('0%');
 
     const target = popover().find('.range-summary-value-target').hostNodes();
     expect(target.text()).to.equal('70%');
@@ -165,7 +165,7 @@ describe('BgRangeSummary', () => {
       expect(veryLow.text()).to.equal('0%');
 
       const low = popover().find('.range-summary-value-low').hostNodes();
-      expect(low.text()).to.equal('0.4%');
+      expect(low.text()).to.equal('0%');
 
       const target = popover().find('.range-summary-value-target').hostNodes();
       expect(target.text()).to.equal('70%');

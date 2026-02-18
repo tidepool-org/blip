@@ -81,7 +81,7 @@ describe('Stats', () => {
       wrapper.setProps({
         ...wrapper.props(),
         stats: [
-          { id: 'timeInRange' },
+          { id: 'timeInRange', data: { data: [], total: { value: 100 } } },
           { id: 'averageGlucose' },
           { id: 'sensorUsage' },
           { id: 'totalInsulin' },

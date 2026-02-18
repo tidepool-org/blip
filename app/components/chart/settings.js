@@ -111,6 +111,7 @@ const Settings = ({
   onSwitchToDaily,
   onSwitchToTrends,
   onSwitchToBgLog,
+  onClickExport,
   onClickPrint,
   patient,
   clinicPatient,
@@ -346,6 +347,13 @@ const Settings = ({
       e.preventDefault();
     }
   }, []);
+
+  const handleClickExport = useCallback((e) => {
+    if (e) {
+      e.preventDefault();
+    }
+    onClickExport();
+  }, [onClickExport]);
 
   const handleClickPrint = useCallback((e) => {
     if (e) {
@@ -738,6 +746,7 @@ const Settings = ({
           onClickRefresh={onClickRefresh}
           onClickSettings={handleClickSettings}
           onClickBgLog={handleClickBgLog}
+          onClickExport={handleClickExport}
           onClickPrint={handleClickPrint}
         />
 
@@ -800,6 +809,7 @@ Settings.propTypes = {
   onSwitchToTrends: PropTypes.func.isRequired,
   onSwitchToSettings: PropTypes.func.isRequired,
   onSwitchToBgLog: PropTypes.func.isRequired,
+  onClickExport: PropTypes.func.isRequired,
   onClickPrint: PropTypes.func.isRequired,
   patient: PropTypes.object,
   trackMetric: PropTypes.func.isRequired,

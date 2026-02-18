@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
 import { Flex, Box, FlexProps } from 'theme-ui';
@@ -26,6 +26,8 @@ function PopoverLabel(props) {
     ...wrapperProps
   } = props;
 
+  const containerRef = useRef();
+
   const popupState = usePopupState({
     disableAutoFocus: true,
     variant: 'popover',
@@ -44,9 +46,16 @@ function PopoverLabel(props) {
         />
       </Flex>
 
-      <Popover {...bindPopover(popupState)} useHoverPopover={triggerOnHover} {...popoverProps}>
+      <Popover
+        {...bindPopover(popupState)}
+        useHoverPopover={triggerOnHover}
+        {...popoverProps}
+        containerElement={containerRef?.current}
+      >
         {React.cloneElement(PopoverContent, {})}
       </Popover>
+
+      <div ref={containerRef} />
     </React.Fragment>
   );
 }
