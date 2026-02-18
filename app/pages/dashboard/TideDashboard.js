@@ -122,16 +122,16 @@ const SECTION = [
   { groupKey: CATEGORY.dropInTimeInTargetPercent, sortDirection: 'asc', sortKey: 'timeInTargetPercentDelta' },
   { groupKey: CATEGORY.timeInTargetPercent, sortDirection: 'asc', sortKey: 'timeInTargetPercent' },
   { groupKey: CATEGORY.timeCGMUsePercent, sortDirection: 'asc', sortKey: 'timeCGMUsePercent' },
-  { groupKey: CATEGORY.meetingTargets, sortDirection: 'desc', sortKey: 'timeInVeryLowPercent' },
+  { groupKey: CATEGORY.meetingTargets, sortDirection: 'desc', sortKey: 'timeInTargetPercent' },
   { groupKey: CATEGORY.noData, sortDirection: 'desc', sortKey: 'daysSinceLastData' },
 ];
 
 const DEFAULT_SECTIONS = [
   CATEGORY.timeInVeryLowPercent,
   CATEGORY.timeInAnyLowPercent,
-  CATEGORY.timeInVeryHighPercent,
-  CATEGORY.timeInAnyHighPercent,
   CATEGORY.dropInTimeInTargetPercent,
+  CATEGORY.timeInAnyHighPercent,
+  CATEGORY.timeInVeryHighPercent,
   CATEGORY.timeCGMUsePercent,
   CATEGORY.meetingTargets,
   CATEGORY.noData,

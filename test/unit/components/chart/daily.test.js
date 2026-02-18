@@ -262,7 +262,7 @@ describe('Daily', () => {
       expect(tooltip().length).to.equal(0);
     });
 
-    it('should render the cgm interval toggle, but only if there is a current supporting device', () => {
+    it('should not render the cgm interval toggle, even if there is a current supporting device', () => {
       const toggle = () => wrapper.find('CgmSampleIntervalRangeToggle');
       expect(toggle().length).to.equal(0);
 
@@ -278,7 +278,7 @@ describe('Daily', () => {
       });
 
       wrapper.setProps(hasOneMinCgmSampleIntervalDeviceProps);
-      expect(toggle().length).to.equal(1);
+      expect(toggle().length).to.equal(0);
     });
 
     it('should render the bg toggle', () => {
