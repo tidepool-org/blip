@@ -13,6 +13,8 @@ import MultiplePatientError from './MultiplePatientError';
 import NoPatientMatch from './NoPatientMatch';
 import NoClinicsError from './NoClinicsError';
 
+import NoClinicAccessError from './NoClinicAccessError';
+
 const SmartOnFhirLayout = ({ children }) => (
   <Flex sx={{ justifyContent: 'center', alignItems: 'center' }}>
     <Box sx={{ maxWidth: '600px', width: '100%', p: 3 }}>
@@ -106,58 +108,67 @@ export const SmartOnFhir = (props) => {
         }
       }
 
-       getClinics(api, loggedInUserId, (err, clinics) => {
-         if (err) {
-           handleError(ErrorMessages.ERR_SMARTONFHIR_CLINICIAN_NO_CLINICS, 'Direct Connect Clinics Fetch Failure');
-           return;
-         }
-         if (!clinics || clinics.length === 0) {
-           handleError(ErrorMessages.ERR_SMARTONFHIR_CLINICIAN_NO_CLINICS, 'Direct Connect Clinician No Clinics');
-           return;
-         }
+      getClinics(api, loggedInUserId, (err, clinics) => {
+        if (err) {
+          handleError(ErrorMessages.ERR_SMARTONFHIR_CLINICIAN_NO_CLINICS, 'Direct Connect Clinics Fetch Failure');
+          return;
+        }
+        if (!clinics || clinics.length === 0) {
+          handleError(ErrorMessages.ERR_SMARTONFHIR_CLINICIAN_NO_CLINICS, 'Direct Connect Clinician No Clinics');
+          return;
+        }
 
-         const patientInfo = smartOnFhirData.patients?.[correlationId];
-         if (!patientInfo) {
-           handleError(ErrorMessages.ERR_SMARTONFHIR_PATIENT_INFO_NOT_FOUND);
-           return;
-         }
+        const contextClinicId = smartOnFhirData.context?.clinicId;
+        if (contextClinicId) {
+          const hasAccessToContextClinic = clinics.some(c => c.clinic.id === contextClinicId);
+          if (!hasAccessToContextClinic) {
+            handleError(ErrorMessages.ERR_SMARTONFHIR_CLINICIAN_NOT_IN_CLINIC, 'Direct Connect Clinician Not In Clinic');
+            return;
+          }
+        }
 
-         const { mrn, dob } = patientInfo;
-         if (!mrn) {
-           handleError(ErrorMessages.ERR_SMARTONFHIR_MRN_NOT_FOUND);
-           return;
-         }
-         if (!dob) {
-           handleError(ErrorMessages.ERR_SMARTONFHIR_DOB_NOT_FOUND);
-           return;
-         }
+        const patientInfo = smartOnFhirData.patients?.[correlationId];
+        if (!patientInfo) {
+          handleError(ErrorMessages.ERR_SMARTONFHIR_PATIENT_INFO_NOT_FOUND);
+          return;
+        }
 
-          fetchPatients(api, { mrn, birthDate: dob }, (err, results) => {
-            if (err) {
-              handleError(ErrorMessages.ERR_SMARTONFHIR_FETCHING_PATIENT, 'Direct Connect Patient Lookup Failure');
-              return;
-            }
-            if (!results || results.length === 0) {
-              handleError(ErrorMessages.ERR_SMARTONFHIR_NO_PATIENTS_FOUND, 'Direct Connect Patient Not Found');
-              return;
-            }
-            if (results.length > 1) {
-              handleError(ErrorMessages.ERR_SMARTONFHIR_MULTIPLE_PATIENTS_FOUND, 'Direct Connect Multiple Patients Found');
-              return;
-            }
+        const { mrn, dob } = patientInfo;
+        if (!mrn) {
+          handleError(ErrorMessages.ERR_SMARTONFHIR_MRN_NOT_FOUND);
+          return;
+        }
+        if (!dob) {
+          handleError(ErrorMessages.ERR_SMARTONFHIR_DOB_NOT_FOUND);
+          return;
+        }
 
-            const patient = results[0]?.patient;
-            if (!patient || !patient.id) {
-                handleError(ErrorMessages.ERR_SMARTONFHIR_INVALID_PATIENT_DATA, 'Direct Connect Patient Lookup Failure');
-              return;
-            }
+        fetchPatients(api, { mrn, birthDate: dob }, (err, results) => {
+          if (err) {
+            handleError(ErrorMessages.ERR_SMARTONFHIR_FETCHING_PATIENT, 'Direct Connect Patient Lookup Failure');
+            return;
+          }
+          if (!results || results.length === 0) {
+            handleError(ErrorMessages.ERR_SMARTONFHIR_NO_PATIENTS_FOUND, 'Direct Connect Patient Not Found');
+            return;
+          }
+          if (results.length > 1) {
+            handleError(ErrorMessages.ERR_SMARTONFHIR_MULTIPLE_PATIENTS_FOUND, 'Direct Connect Multiple Patients Found');
+            return;
+          }
 
-            trackMetric('Direct Connect Patient Lookup Success');
-            navigateTo(`/patients/${patient.id}/data`);
-          });
-       });
-     }
-   }, [smartOnFhirData, isProcessing, working.fetchingPatients.inProgress, api, fetchPatients, navigateTo, error, smartCorrelationId, setSmartCorrelationId, windowObj, trackMetric, loggedInUserId, getClinics, handleError]);
+          const patient = results[0]?.patient;
+          if (!patient || !patient.id) {
+            handleError(ErrorMessages.ERR_SMARTONFHIR_INVALID_PATIENT_DATA, 'Direct Connect Patient Lookup Failure');
+            return;
+          }
+
+          trackMetric('Direct Connect Patient Lookup Success');
+          navigateTo(`/patients/${patient.id}/data`);
+        });
+      });
+    }
+  }, [smartOnFhirData, isProcessing, working.fetchingPatients.inProgress, api, fetchPatients, navigateTo, error, smartCorrelationId, setSmartCorrelationId, windowObj, trackMetric, loggedInUserId, getClinics, handleError]);
 
   if (isProcessing || working.fetchingPatients.inProgress) {
     return (
@@ -173,7 +184,8 @@ export const SmartOnFhir = (props) => {
     const isMultiplePatientError = error === ErrorMessages.ERR_SMARTONFHIR_MULTIPLE_PATIENTS_FOUND;
     const isNoPatientMatchError = error === ErrorMessages.ERR_SMARTONFHIR_NO_PATIENTS_FOUND;
     const isNoClinicsError = error === ErrorMessages.ERR_SMARTONFHIR_CLINICIAN_NO_CLINICS;
-    const isCustomError = isMultiplePatientError || isNoPatientMatchError || isNoClinicsError;
+    const isNoClinicAccessError = error === ErrorMessages.ERR_SMARTONFHIR_CLINICIAN_NOT_IN_CLINIC;
+    const isCustomError = isMultiplePatientError || isNoPatientMatchError || isNoClinicsError || isNoClinicAccessError;
 
     return (
       <SmartOnFhirLayout>
@@ -184,6 +196,8 @@ export const SmartOnFhir = (props) => {
             <NoPatientMatch />
           ) : isNoClinicsError ? (
             <NoClinicsError />
+          ) : isNoClinicAccessError ? (
+            <NoClinicAccessError />
           ) : (
             <Body1>Error: {error}</Body1>
           )}

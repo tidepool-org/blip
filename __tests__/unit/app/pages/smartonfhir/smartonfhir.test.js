@@ -617,6 +617,127 @@ describe('SmartOnFhir', () => {
     expect(screen.getByText('You don\'t appear to have a Tidepool account yet.')).toBeInTheDocument();
   });
 
+  it('should show NoClinicAccessError when clinician is not a member of the context clinic', async () => {
+    mockApi = {
+      clinics: {
+        getClinicsForClinician: jest.fn().mockImplementation((clinicianId, options, callback) => {
+          callback(null, [{ clinic: { id: 'clinic1' } }]);
+        }),
+        getEHRSettings: jest.fn().mockImplementation((clinicId, callback) => {
+          callback(null, {});
+        }),
+        getMRNSettings: jest.fn().mockImplementation((clinicId, callback) => {
+          callback(null, {});
+        }),
+      },
+      patient: {
+        getAll: jest.fn(),
+      },
+    };
+
+    const contextStore = mockStore({
+      blip: {
+        smartOnFhirData: {
+          patients: {
+            'correlation-123': {
+              mrn: '12345',
+              dob: '1990-01-01',
+            },
+          },
+          context: {
+            clinicId: 'clinic2',
+          },
+        },
+        smartCorrelationId: 'correlation-123',
+        loggedInUserId: 'clinician-123',
+        working: {
+          fetchingPatients: {
+            inProgress: false,
+          },
+        },
+      }
+    });
+
+    render(
+      <Provider store={contextStore}>
+        <MemoryRouter>
+          <SmartOnFhir
+            api={mockApi}
+            window={{ sessionStorage: mockSessionStorage }}
+            trackMetric={mockTrackMetric}
+          />
+        </MemoryRouter>
+      </Provider>
+    );
+
+    await waitFor(() => {
+      expect(mockTrackMetric).toHaveBeenCalledWith('Direct Connect Clinician Not In Clinic');
+    });
+
+    expect(screen.getByText('Clinic Access Required')).toBeInTheDocument();
+    expect(screen.getByText('Your Tidepool account does not have access to the clinic this PWD account is associated with.')).toBeInTheDocument();
+  });
+
+  it('should proceed with patient lookup when clinician IS a member of the context clinic', async () => {
+    mockApi = {
+      clinics: {
+        getClinicsForClinician: jest.fn().mockImplementation((clinicianId, options, callback) => {
+          callback(null, [{ clinic: { id: 'clinic1' } }]);
+        }),
+        getEHRSettings: jest.fn().mockImplementation((clinicId, callback) => {
+          callback(null, {});
+        }),
+        getMRNSettings: jest.fn().mockImplementation((clinicId, callback) => {
+          callback(null, {});
+        }),
+      },
+      patient: {
+        getAll: jest.fn().mockImplementation((params, callback) => {
+          callback(null, [{ patient: { id: 'user1' }, clinic: { id: 'clinic1' } }]);
+        }),
+      },
+    };
+
+    const contextStore = mockStore({
+      blip: {
+        smartOnFhirData: {
+          patients: {
+            'correlation-123': {
+              mrn: '12345',
+              dob: '1990-01-01',
+            },
+          },
+          context: {
+            clinicId: 'clinic1',
+          },
+        },
+        smartCorrelationId: 'correlation-123',
+        loggedInUserId: 'clinician-123',
+        working: {
+          fetchingPatients: {
+            inProgress: false,
+          },
+        },
+      }
+    });
+
+    render(
+      <Provider store={contextStore}>
+        <MemoryRouter>
+          <SmartOnFhir
+            api={mockApi}
+            window={{ sessionStorage: mockSessionStorage }}
+            trackMetric={mockTrackMetric}
+          />
+        </MemoryRouter>
+      </Provider>
+    );
+
+    await waitFor(() => {
+      expect(mockTrackMetric).toHaveBeenCalledWith('Direct Connect Patient Lookup Success');
+    });
+  });
+
   it('should proceed with patient lookup when clinician has clinics', async () => {
     mockApi = {
       clinics: {
