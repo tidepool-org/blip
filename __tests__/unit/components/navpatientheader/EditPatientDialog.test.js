@@ -65,11 +65,11 @@ const renderEditPatientDialog = (storeState = initialState) => {
 };
 
 describe('EditPatientDialog', () => {
-  it('sets isReadOnly=true and disables save button when smartOnFhirData is present', () => {
+  it('sets isReadOnly=true and disables save button when smartCorrelationId is present', () => {
     const smartOnFhirState = {
       blip: {
         ...initialState.blip,
-        smartOnFhirData: { some: 'data' },
+        smartCorrelationId: 'some-correlation-id',
       },
     };
 
@@ -83,7 +83,7 @@ describe('EditPatientDialog', () => {
     expect(saveButton).toBeDisabled();
   });
 
-  it('sets isReadOnly=false when smartOnFhirData is absent', () => {
+  it('sets isReadOnly=false when smartCorrelationId is absent', () => {
     renderEditPatientDialog(initialState);
 
     const patientForm = screen.getByTestId('PatientForm');
