@@ -6,6 +6,7 @@ import { Box, Text } from 'theme-ui';
 import { DIABETES_TYPES } from '../../../core/constants';
 
 import { RTKQueryApi } from '../../../redux/api/baseApi';
+import { TagList } from '../../../components/elements/Tag';
 
 const LIMIT = 50;
 
@@ -28,26 +29,11 @@ const deviceIssuesApi = RTKQueryApi.injectEndpoints({
 
 export const { useGetDeviceIssuesPatientsQuery } = deviceIssuesApi;
 
-// const transformPatientData = (data = {}) => {
-//   const { data: responseData } = data;
-
-//   if (!responseData) return [];
-
-//   const tableData = responseData.map(patient => {
-
-//     return {
-//       fullName: patient.fullName,
-//       tags: patient.tags || [],
-//     };
-//   });
-// };
-
 const RenderTags = ({ patient, patientTags }) => {
-  const tags = patient?.tags || [];
+  const tagIds = patient?.tags || [];
+  const tags = tagIds.map(tag => patientTags.find(ptTag => ptTag.id === tag)); // TODO: index
 
-  return <>
-    {tags.map(tag => patientTags.find(ptTag => ptTag.id === tag)?.name)}
-  </>;
+  return <TagList tags={tags} />;
 };
 
 const RenderPatient = ({ patient }) => {
