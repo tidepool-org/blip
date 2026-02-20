@@ -4210,9 +4210,6 @@ export const ClinicPatients = (props) => {
 
   const data = useMemo(() => orderBy(values(clinic?.patients), 'sortIndex'), [clinic?.patients]);
 
-  console.log('clinic?.patients', clinic?.patients)
-  console.log('data', data);
-
   const tableStyle = useMemo(() => ({
     fontSize: showSummaryData ? 0 : 1,
 
