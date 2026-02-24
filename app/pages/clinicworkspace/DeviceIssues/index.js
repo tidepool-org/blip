@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import Table from '../../../components/elements/Table';
 import { Box, Text, Flex } from 'theme-ui';
@@ -10,6 +10,8 @@ import { TagList } from '../../../components/elements/Tag';
 import ActiveFilterCount from '../Filters/ActiveFilterCount';
 import TagsFilter from '../Filters/TagsFilter';
 import { CategorySelector, CategoryTab } from '../Filters/CategoryFilter';
+import useClinicPatientsFilters from '../useClinicPatientsFilters';
+import { setPatientTagsFilter } from '../clinicWorkspaceFiltersSlice';
 
 const LIMIT = 50;
 
@@ -58,12 +60,23 @@ const RenderPatient = ({ patient }) => {
   </Box>;
 };
 
+const useInitialReduxSetup = () => {
+  const dispatch = useDispatch();
+
+  const [activeFiltersInLocalStorage] = useClinicPatientsFilters();
+  useEffect(() => {
+    dispatch(setPatientTagsFilter(activeFiltersInLocalStorage.patientTags));
+  }, []);
+};
+
 const DeviceIssues = () => {
   const { t } = useTranslation();
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const patientTags = useSelector(state => state.blip.clinicWorkspaceFilters.patientTags);
   const [offset, setOffset] = useState(0);
+
+  useInitialReduxSetup();
 
   const { data } = useGetDeviceIssuesPatientsQuery(
     { clinicId: selectedClinicId, offset, tags: patientTags, limit: LIMIT },

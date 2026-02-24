@@ -32,10 +32,12 @@ const prefixPopHealthMetric = () => noop;
 
 import { SPECIAL_FILTER_STATES } from '../ClinicPatients';
 import { setPatientTagsFilter } from '../clinicWorkspaceFiltersSlice';
+import useClinicPatientsFilters from '../useClinicPatientsFilters';
 
 const TagsFilter = () => {
   const { t } = useTranslation();
   const { showTideDashboard } = useFlags();
+  const [activeFilters, setActiveFilters] = useClinicPatientsFilters();
 
   const dispatch = useDispatch();
   const patientTags = useSelector(state => state.blip.clinicWorkspaceFilters.patientTags);
@@ -56,6 +58,11 @@ const TagsFilter = () => {
   const [pendingTags, setPendingTags] = useState(patientTags);
 
   const isFilteringForZeroTags = isEqual(pendingTags, SPECIAL_FILTER_STATES.ZERO_TAGS);
+
+  const handleApplyTagFilter = (patientTags) => {
+    dispatch(setPatientTagsFilter(patientTags));
+    setActiveFilters({ ...activeFilters, patientTags });
+  };
 
   return (
     <>
@@ -196,7 +203,7 @@ const TagsFilter = () => {
               onClick={() => {
                 trackMetric(prefixPopHealthMetric('Patient tag filter clear'), { clinicId: selectedClinicId });
                 setPendingTags([]);
-                dispatch(setPatientTagsFilter([]));
+                handleApplyTagFilter([]);
                 patientTagsPopupFilterState.close();
               }}
             >
@@ -205,7 +212,7 @@ const TagsFilter = () => {
 
             <Button id="apply-patient-tags-filter" sx={{ fontSize: 1 }} variant="textPrimary" onClick={() => {
               trackMetric(prefixPopHealthMetric('Patient tag filter apply'), { clinicId: selectedClinicId });
-              dispatch(setPatientTagsFilter(pendingTags));
+              handleApplyTagFilter(pendingTags);
               patientTagsPopupFilterState.close();
             }}>
               {t('Apply')}
