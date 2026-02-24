@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import Table from '../../../components/elements/Table';
@@ -52,8 +53,29 @@ const RenderPatient = ({ patient }) => {
   </Box>;
 };
 
+export const useRequireSummaryDashboardEntitlement = () => {
+  const history = useHistory();
+  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+
+  const isEntitlementsLoaded = !!clinic?.entitlements;
+  const hasSummaryDashboard = clinic?.entitlements?.summaryDashboard || false;
+
+  useEffect(() => {
+    if (isEntitlementsLoaded && hasSummaryDashboard) {
+      history.push('/clinic-workspace/patients');
+    }
+  }, [isEntitlementsLoaded, hasSummaryDashboard]);
+
+  const isAuthorized = isEntitlementsLoaded && hasSummaryDashboard;
+
+  return isAuthorized;
+};
+
 const DeviceIssues = () => {
   const { t } = useTranslation();
+
+  const isAuthorized = useRequireSummaryDashboardEntitlement();
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const [offset, setOffset] = useState(0);
@@ -63,7 +85,7 @@ const DeviceIssues = () => {
     { skip: !selectedClinicId }
   );
 
-  if (!data) return null;
+  if (!data || !isAuthorized) return null;
 
   const tableData = data?.data || [];
 
