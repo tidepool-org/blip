@@ -32,7 +32,7 @@ const prefixPopHealthMetric = () => noop;
 
 import { SPECIAL_FILTER_STATES } from '../ClinicPatients';
 
-const TagsFilterContent = ({
+const DropdownContent = ({
   patientTags = [],
   onClose = noop,
   onChange = noop,
@@ -157,7 +157,7 @@ const TagsFilterContent = ({
   );
 };
 
-const TagsFilter = ({
+const FilterByTags = ({
   patientTags = [],
   onChange = noop,
 }) => {
@@ -234,7 +234,7 @@ const TagsFilter = ({
         }}
       >
         { patientTagsPopupFilterState.isOpen &&
-          <TagsFilterContent
+          <DropdownContent
             patientTags={patientTags}
             onChange={onChange}
             onClose={handleCloseDropdown}
@@ -245,4 +245,4 @@ const TagsFilter = ({
   );
 };
 
-export default TagsFilter;
+export default FilterByTags;

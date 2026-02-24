@@ -1,10 +1,10 @@
 import React from 'react';
 import { Flex, Text } from 'theme-ui';
-import Pill from '../../../components/elements/Pill';
-import { borders } from '../../../themes/baseTheme';
-import Icon from '../../../components/elements/Icon';
+import Pill from '../../components/elements/Pill';
+import { borders } from '../../themes/baseTheme';
+import Icon from '../../components/elements/Icon';
 
-import FilterIcon from '../../../core/icons/FilterIcon.svg';
+import FilterIcon from '../../core/icons/FilterIcon.svg';
 import { useTranslation } from 'react-i18next';
 
 const ActiveFilterCount = ({ count }) => {

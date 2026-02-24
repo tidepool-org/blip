@@ -8,9 +8,10 @@ import { DIABETES_TYPES } from '../../../core/constants';
 
 import { RTKQueryApi } from '../../../redux/api/baseApi';
 import { TagList } from '../../../components/elements/Tag';
-import ActiveFilterCount from '../Filters/ActiveFilterCount';
-import TagsFilter from '../Filters/TagsFilter';
+
 import useClinicPatientsFilters from '../useClinicPatientsFilters';
+import ActiveFilterCount from '../ActiveFilterCount';
+import FilterByTags from './FilterByTags';
 import FilterByCategory, { CATEGORY_TAB } from './FilterByCategory';
 
 const LIMIT = 12;
@@ -107,7 +108,7 @@ const DeviceIssues = () => {
     <>
       <Flex mb={3}>
         <ActiveFilterCount count={activeFiltersCount} />
-        <TagsFilter patientTags={patientTags} onChange={handleFilterChange} />
+        <FilterByTags patientTags={patientTags} onChange={handleFilterChange} />
       </Flex>
 
       <Flex mb={3} sx={{ justifyContent: 'center' }}>
