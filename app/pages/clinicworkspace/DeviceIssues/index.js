@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import Table from '../../../components/elements/Table';
-import { Box, Text } from 'theme-ui';
+import { Box, Text, Flex } from 'theme-ui';
 import { DIABETES_TYPES } from '../../../core/constants';
 
 import { RTKQueryApi } from '../../../redux/api/baseApi';
 import { TagList } from '../../../components/elements/Tag';
+import { CategorySelector, CategoryTab } from '../Filters/CategoryFilter';
 
 const LIMIT = 50;
 
@@ -68,6 +69,17 @@ const DeviceIssues = () => {
 
   return (
     <>
+      <Flex mb={3} sx={{ justifyContent: 'center' }}>
+        <CategorySelector>
+          <CategoryTab selected={true}>{t('All Issues')}</CategoryTab>
+          <CategoryTab>{t('Missing Data')}</CategoryTab>
+          <CategoryTab>{t('Disconnected or Error')}</CategoryTab>
+          <CategoryTab>{t('Invite Expired')}</CategoryTab>
+          <CategoryTab>{t('Invite Sent')}</CategoryTab>
+          <CategoryTab>{t('Hidden Issues')}</CategoryTab>
+        </CategorySelector>
+      </Flex>
+
       <Table
         id="deviceIssuesPatientsTable"
         variant="condensed"
