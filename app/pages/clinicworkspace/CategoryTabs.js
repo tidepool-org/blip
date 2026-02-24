@@ -10,6 +10,7 @@ export const CategorySelector = ({ children }) => (
       borderRadius: 3,
       backgroundColor: vizColors.white,
       padding: 1,
+      gap: 1,
     }}>
     {children}
   </Flex>
@@ -37,7 +38,9 @@ export const CategoryTab = ({
         color: selected ? vizColors.blue60 : vizColors.blue50,
         backgroundColor: selected ? vizColors.blue05 : vizColors.white,
         transition: 'background-color 0.2s ease, color 0.2s ease, font-weight 0.2s ease',
-        '&:hover': { cursor: 'pointer' },
+        '&:hover': selected
+            ? { cursor: 'default' }
+            : { cursor: 'pointer', backgroundColor: vizColors.gray05 },
       }}>
 
       {children}
