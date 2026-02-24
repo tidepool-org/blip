@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { Box, Flex, Text } from 'theme-ui';
@@ -31,13 +31,14 @@ const trackMetric = () => noop;
 const prefixPopHealthMetric = () => noop;
 
 import { SPECIAL_FILTER_STATES } from '../ClinicPatients';
+import { setPatientTagsFilter } from '../clinicWorkspaceFiltersSlice';
 
-const TagsFilter = ({
-  activeTags = [],
-  setActiveTags = noop,
-}) => {
+const TagsFilter = () => {
   const { t } = useTranslation();
   const { showTideDashboard } = useFlags();
+
+  const dispatch = useDispatch();
+  const patientTags = useSelector(state => state.blip.clinicWorkspaceFilters.patientTags);
 
   const patientTagsPopupFilterState = usePopupState({
     variant: 'popover',
@@ -52,7 +53,7 @@ const TagsFilter = ({
       .toSorted((a, b) => utils.compareLabels(a.label, b.label));
   }, [clinic?.patientTags]);
 
-  const [pendingTags, setPendingTags] = useState(activeTags);
+  const [pendingTags, setPendingTags] = useState(patientTags);
 
   const isFilteringForZeroTags = isEqual(pendingTags, SPECIAL_FILTER_STATES.ZERO_TAGS);
 
@@ -67,7 +68,7 @@ const TagsFilter = ({
         <Button
           variant="filter"
           id="patient-tags-filter-trigger"
-          selected={activeTags.length > 0}
+          selected={patientTags.length > 0}
           {...bindTrigger(patientTagsPopupFilterState)}
           icon={KeyboardArrowDownRoundedIcon}
           iconLabel="Filter by patient tags"
@@ -82,7 +83,7 @@ const TagsFilter = ({
 
             {t('Tags')}
 
-            {activeTags.length > 0 && (
+            {patientTags.length > 0 && (
               <Pill
                 id="patient-tags-filter-count"
                 label="filter count"
@@ -95,7 +96,7 @@ const TagsFilter = ({
                   display: 'inline-block',
                 }}
                 colorPalette={['purpleMedium', 'white']}
-                text={`${activeTags.length}`}
+                text={`${patientTags.length}`}
               />
             )}
           </Flex>
@@ -111,7 +112,7 @@ const TagsFilter = ({
         }}
         onClose={() => {
           patientTagsPopupFilterState.close();
-          setPendingTags(activeTags);
+          setPendingTags(patientTags);
         }}
       >
         <DialogContent px={2} pt={1} pb={3} mt={3} sx={{ maxHeight: '400px', maxWidth: '240px' }} dividers>
@@ -195,7 +196,7 @@ const TagsFilter = ({
               onClick={() => {
                 trackMetric(prefixPopHealthMetric('Patient tag filter clear'), { clinicId: selectedClinicId });
                 setPendingTags([]);
-                setActiveTags([]);
+                dispatch(setPatientTagsFilter([]));
                 patientTagsPopupFilterState.close();
               }}
             >
@@ -204,7 +205,7 @@ const TagsFilter = ({
 
             <Button id="apply-patient-tags-filter" sx={{ fontSize: 1 }} variant="textPrimary" onClick={() => {
               trackMetric(prefixPopHealthMetric('Patient tag filter apply'), { clinicId: selectedClinicId });
-              setActiveTags(pendingTags);
+              dispatch(setPatientTagsFilter(pendingTags));
               patientTagsPopupFilterState.close();
             }}>
               {t('Apply')}

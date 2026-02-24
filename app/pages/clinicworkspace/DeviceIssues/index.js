@@ -57,7 +57,7 @@ const DeviceIssues = () => {
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const patientTags = clinic?.patientTags || [];
 
-  const [activeTags, setActiveTags] = useState([]);
+  const activeTags = useSelector(state => state.blip.clinicWorkspaceFilters.patientTags);
   const [offset, setOffset] = useState(0);
 
   const { data } = useGetDeviceIssuesPatientsQuery(
@@ -72,7 +72,7 @@ const DeviceIssues = () => {
   return (
     <>
       <Box mb={4}>
-        <TagsFilter activeTags={activeTags} setActiveTags={setActiveTags}/>
+        <TagsFilter />
       </Box>
 
       <Table
