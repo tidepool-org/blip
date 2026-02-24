@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Table from '../../../components/elements/Table';
 import { Box, Text, Flex } from 'theme-ui';
@@ -77,21 +78,41 @@ const usePersistFiltersToLocalStorage = () => {
   }, [clinicWorkspaceFilters]);
 };
 
+export const useRequireSummaryDashboardEntitlement = () => {
+  const history = useHistory();
+  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+
+  const isEntitlementsLoaded = !!clinic?.entitlements;
+  const hasSummaryDashboard = clinic?.entitlements?.summaryDashboard || false;
+
+  useEffect(() => {
+    if (isEntitlementsLoaded && hasSummaryDashboard) {
+      history.push('/clinic-workspace/patients');
+    }
+  }, [isEntitlementsLoaded, hasSummaryDashboard]);
+
+  const isAuthorized = isEntitlementsLoaded && hasSummaryDashboard;
+
+  return isAuthorized;
+};
+
 const DeviceIssues = () => {
   const { t } = useTranslation();
+
+  usePersistFiltersToLocalStorage();
+  const isAuthorized = useRequireSummaryDashboardEntitlement();
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const patientTags = useSelector(state => state.blip.clinicWorkspaceFilters.patientTags);
   const [offset, setOffset] = useState(0);
-
-  usePersistFiltersToLocalStorage();
 
   const { data } = useGetDeviceIssuesPatientsQuery(
     { clinicId: selectedClinicId, offset, tags: patientTags, limit: LIMIT },
     { skip: !selectedClinicId }
   );
 
-  if (!data) return null;
+  if (!data || !isAuthorized) return null;
 
   const tableData = data?.data || [];
 
