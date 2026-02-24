@@ -9,7 +9,8 @@ import { DIABETES_TYPES } from '../../../core/constants';
 import { RTKQueryApi } from '../../../redux/api/baseApi';
 import { TagList } from '../../../components/elements/Tag';
 import FilterByCategory, { CATEGORY_TAB } from './FilterByCategory';
-import DashboardPagination from '../DashboardPagination';
+import DashboardPagination from '../components/DashboardPagination';
+import { useRequireSummaryDashboardEntitlement } from '../hooks';
 
 const LIMIT = 12;
 
@@ -54,25 +55,6 @@ const RenderPatient = ({ patient }) => {
       }</Text>
     }
   </Box>;
-};
-
-export const useRequireSummaryDashboardEntitlement = () => {
-  const history = useHistory();
-  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
-  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
-
-  const isEntitlementsLoaded = !!clinic?.entitlements;
-  const hasSummaryDashboard = clinic?.entitlements?.summaryDashboard || false;
-
-  useEffect(() => {
-    if (isEntitlementsLoaded && !hasSummaryDashboard) {
-      history.push('/clinic-workspace/patients');
-    }
-  }, [isEntitlementsLoaded, hasSummaryDashboard]);
-
-  const isAuthorized = isEntitlementsLoaded && hasSummaryDashboard;
-
-  return isAuthorized;
 };
 
 const DeviceIssues = () => {

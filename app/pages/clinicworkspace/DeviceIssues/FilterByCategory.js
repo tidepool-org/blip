@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { CategorySelector, CategoryTab } from '../CategoryTabs';
+import { CategorySelector, CategoryTab } from '../components/CategoryTabs';
 
 export const CATEGORY_TAB = {
   DEFAULT: 'DEFAULT',

@@ -1,5 +1,5 @@
 import React from 'react';
-import Pagination from '../../components/elements/Pagination';
+import Pagination from '../../../components/elements/Pagination';
 
 const DashboardPagination = ({ total = 0, limit, offset, onOffsetChange }) => {
   const pageCount = Math.ceil(total / limit);
