@@ -11,7 +11,7 @@ import ActiveFilterCount from '../Filters/ActiveFilterCount';
 import TagsFilter from '../Filters/TagsFilter';
 import { CategorySelector, CategoryTab } from '../Filters/CategoryFilter';
 import useClinicPatientsFilters from '../useClinicPatientsFilters';
-import { setPatientTagsFilter } from '../clinicWorkspaceFiltersSlice';
+import { setClinicWorkspaceFilters } from '../clinicWorkspaceFiltersSlice';
 
 const LIMIT = 50;
 
@@ -60,13 +60,21 @@ const RenderPatient = ({ patient }) => {
   </Box>;
 };
 
-const useInitialReduxSetup = () => {
+const usePersistFiltersToLocalStorage = () => {
   const dispatch = useDispatch();
+  const clinicWorkspaceFilters = useSelector(state => state.blip.clinicWorkspaceFilters);
 
-  const [activeFiltersInLocalStorage] = useClinicPatientsFilters();
+  const [activeFilters, setActiveFilters] = useClinicPatientsFilters();
+
+  // On load, initialize Redux state from localStorage
   useEffect(() => {
-    dispatch(setPatientTagsFilter(activeFiltersInLocalStorage.patientTags));
+    dispatch(setClinicWorkspaceFilters(activeFilters));
   }, []);
+
+  // Whenever the filters change, push to localStorage
+  useEffect(() => {
+    setActiveFilters(clinicWorkspaceFilters);
+  }, [clinicWorkspaceFilters]);
 };
 
 const DeviceIssues = () => {
@@ -76,7 +84,7 @@ const DeviceIssues = () => {
   const patientTags = useSelector(state => state.blip.clinicWorkspaceFilters.patientTags);
   const [offset, setOffset] = useState(0);
 
-  useInitialReduxSetup();
+  usePersistFiltersToLocalStorage();
 
   const { data } = useGetDeviceIssuesPatientsQuery(
     { clinicId: selectedClinicId, offset, tags: patientTags, limit: LIMIT },
