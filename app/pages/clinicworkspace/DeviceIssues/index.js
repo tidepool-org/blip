@@ -12,12 +12,6 @@ const LIMIT = 50;
 
 const deviceIssuesApi = RTKQueryApi.injectEndpoints({
   endpoints: (builder) => ({
-    getDeviceIssuesClinicsForClinician: builder.query({
-      query: ({ clinicId, offset, limit }) => ({
-        url: `/clinics/${clinicId}/patients`,
-        params: { offset, limit },
-      }),
-    }),
     getDeviceIssuesPatients: builder.query({
       query: ({ clinicId, offset, limit }) => ({
         url: `/clinics/${clinicId}/patients`,
