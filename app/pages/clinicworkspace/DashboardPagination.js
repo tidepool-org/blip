@@ -1,0 +1,28 @@
+import React from 'react';
+import Pagination from '../../components/elements/Pagination';
+
+const DashboardPagination = ({ total = 0, limit, offset, onOffsetChange }) => {
+  const pageCount = Math.ceil(total / limit);
+  const currentPageNumber = Math.floor(offset / limit) + 1; // 1-indexed
+
+  const handlePageChange = (_event, newPageNumber) => {
+    onOffsetChange((newPageNumber - 1) * limit);
+  };
+
+  return (
+    <Pagination
+      px="5%"
+      sx={{ width: '100%', mt: 3 }}
+      id="device-issues-pagination"
+      count={pageCount}
+      disabled={pageCount < 2}
+      onChange={handlePageChange}
+      page={currentPageNumber}
+      showFirstButton={false}
+      showLastButton={false}
+      siblingCount={2}
+    />
+  );
+};
+
+export default DashboardPagination;

@@ -13,6 +13,7 @@ import useClinicPatientsFilters from '../useClinicPatientsFilters';
 import ActiveFilterCount from '../ActiveFilterCount';
 import FilterByTags from './FilterByTags';
 import FilterByCategory, { CATEGORY_TAB } from './FilterByCategory';
+import DashboardPagination from '../DashboardPagination';
 
 const LIMIT = 12;
 
@@ -136,6 +137,15 @@ const DeviceIssues = () => {
         // onClickRow={handleClickPatient}
         // emptyContentNode={}
       />
+
+      <Flex pb={4}>
+        <DashboardPagination
+          limit={LIMIT}
+          total={data?.meta?.count || 0}
+          offset={offset}
+          onOffsetChange={newOffset => setOffset(newOffset)}
+        />
+      </Flex>
     </>
   );
 };
