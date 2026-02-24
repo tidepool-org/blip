@@ -12,7 +12,6 @@ import ActiveFilterCount from '../Filters/ActiveFilterCount';
 import TagsFilter from '../Filters/TagsFilter';
 import { CategorySelector, CategoryTab } from '../Filters/CategoryFilter';
 import useClinicPatientsFilters from '../useClinicPatientsFilters';
-import { setClinicWorkspaceFilters } from '../clinicWorkspaceFiltersSlice';
 
 const LIMIT = 50;
 
@@ -39,7 +38,7 @@ const RenderTags = ({ patient }) => {
   const patientTags = clinic?.patientTags || [];
 
   const tagIds = patient?.tags || [];
-  const tags = tagIds.map(tag => patientTags.find(ptTag => ptTag.id === tag)); // TODO: index
+  const tags = tagIds.map(tag => patientTags.find(patientTag => patientTag.id === tag)); // TODO: index
 
   return <TagList tags={tags} />;
 };
@@ -59,23 +58,6 @@ const RenderPatient = ({ patient }) => {
       }</Text>
     }
   </Box>;
-};
-
-const usePersistFiltersToLocalStorage = () => {
-  const dispatch = useDispatch();
-  const clinicWorkspaceFilters = useSelector(state => state.blip.clinicWorkspaceFilters);
-
-  const [activeFilters, setActiveFilters] = useClinicPatientsFilters();
-
-  // On load, initialize Redux state from localStorage
-  useEffect(() => {
-    dispatch(setClinicWorkspaceFilters(activeFilters));
-  }, []);
-
-  // Whenever the filters change, push to localStorage
-  useEffect(() => {
-    setActiveFilters(clinicWorkspaceFilters);
-  }, [clinicWorkspaceFilters]);
 };
 
 export const useRequireSummaryDashboardEntitlement = () => {
@@ -100,11 +82,11 @@ export const useRequireSummaryDashboardEntitlement = () => {
 const DeviceIssues = () => {
   const { t } = useTranslation();
 
-  usePersistFiltersToLocalStorage();
   const isAuthorized = useRequireSummaryDashboardEntitlement();
+  const [activeFilters, setActiveFilters, activeFiltersCount] = useClinicPatientsFilters();
+  const { patientTags } = activeFilters;
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
-  const patientTags = useSelector(state => state.blip.clinicWorkspaceFilters.patientTags);
   const [offset, setOffset] = useState(0);
 
   const { data } = useGetDeviceIssuesPatientsQuery(
@@ -116,11 +98,15 @@ const DeviceIssues = () => {
 
   const tableData = data?.data || [];
 
+  const handleFilterChange = (payload) => {
+    setActiveFilters({ ...activeFilters, ...payload });
+  };
+
   return (
     <>
       <Flex mb={3}>
-        <ActiveFilterCount />
-        <TagsFilter />
+        <ActiveFilterCount count={activeFiltersCount} />
+        <TagsFilter patientTags={patientTags} onChange={handleFilterChange} />
       </Flex>
 
       <Flex mb={3} sx={{ justifyContent: 'center' }}>

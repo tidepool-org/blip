@@ -20,7 +20,6 @@ import working from './working';
 import pdf from './pdf';
 import data from './data';
 import patientListFilters from './patientListFilters';
-import clinicWorkspaceFilters from '../../pages/clinicworkspace/clinicWorkspaceFiltersSlice';
 
 import {
   bgPrefs,
@@ -106,5 +105,4 @@ export default combineReducers({
   pendoData,
   clinicMRNsForPatientFormValidation,
   patientListFilters,
-  clinicWorkspaceFilters,
 });

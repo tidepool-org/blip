@@ -31,17 +31,15 @@ const trackMetric = () => noop;
 const prefixPopHealthMetric = () => noop;
 
 import { SPECIAL_FILTER_STATES } from '../ClinicPatients';
-import { setPatientTagsFilter } from '../clinicWorkspaceFiltersSlice';
 
 const TagsFilterContent = ({
+  patientTags = [],
   onClose = noop,
+  onChange = noop,
 }) => {
   const { t } = useTranslation();
-  const dispatch = useDispatch();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
-  const clinicWorkspaceFilters = useSelector(state => state.blip.clinicWorkspaceFilters);
-  const { patientTags } = clinicWorkspaceFilters;
 
   const [pendingTags, setPendingTags] = useState(patientTags);
 
@@ -51,6 +49,10 @@ const TagsFilterContent = ({
     return map(clinic?.patientTags, ({ id, name }) => ({ id, label: name }))
       .toSorted((a, b) => utils.compareLabels(a.label, b.label));
   }, [clinic?.patientTags]);
+
+  const handleApplyFilter = (payload) => {
+    onChange({ patientTags: payload });
+  };
 
   return (
     <>
@@ -135,7 +137,7 @@ const TagsFilterContent = ({
             onClick={() => {
               trackMetric(prefixPopHealthMetric('Patient tag filter clear'), { clinicId: selectedClinicId });
               setPendingTags([]);
-              dispatch(setPatientTagsFilter([]));
+              handleApplyFilter([]);
               onClose();
             }}
           >
@@ -144,7 +146,7 @@ const TagsFilterContent = ({
 
           <Button id="apply-patient-tags-filter" sx={{ fontSize: 1 }} variant="textPrimary" onClick={() => {
             trackMetric(prefixPopHealthMetric('Patient tag filter apply'), { clinicId: selectedClinicId });
-            dispatch(setPatientTagsFilter(pendingTags));
+            handleApplyFilter(pendingTags);
             onClose();
           }}>
             {t('Apply')}
@@ -155,12 +157,12 @@ const TagsFilterContent = ({
   );
 };
 
-const TagsFilter = () => {
+const TagsFilter = ({
+  patientTags = [],
+  onChange = noop,
+}) => {
   const { t } = useTranslation();
   const { showTideDashboard } = useFlags();
-
-  const clinicWorkspaceFilters = useSelector(state => state.blip.clinicWorkspaceFilters);
-  const { patientTags } = clinicWorkspaceFilters;
 
   const patientTagsPopupFilterState = usePopupState({
     variant: 'popover',
@@ -169,6 +171,10 @@ const TagsFilter = () => {
 
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+
+  const handleCloseDropdown = () => {
+    patientTagsPopupFilterState.close();
+  };
 
   return (
     <>
@@ -228,7 +234,11 @@ const TagsFilter = () => {
         }}
       >
         { patientTagsPopupFilterState.isOpen &&
-          <TagsFilterContent onClose={() => patientTagsPopupFilterState.close()} />
+          <TagsFilterContent
+            patientTags={patientTags}
+            onChange={onChange}
+            onClose={handleCloseDropdown}
+          />
         }
       </Popover>
     </>
