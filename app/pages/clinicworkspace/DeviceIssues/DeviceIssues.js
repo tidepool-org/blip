@@ -9,6 +9,7 @@ import { DIABETES_TYPES } from '../../../core/constants';
 import { RTKQueryApi } from '../../../redux/api/baseApi';
 import { TagList } from '../../../components/elements/Tag';
 import FilterByCategory, { CATEGORY_TAB } from './FilterByCategory';
+import DashboardPagination from '../DashboardPagination';
 
 const LIMIT = 12;
 
@@ -119,6 +120,15 @@ const DeviceIssues = () => {
         // onClickRow={handleClickPatient}
         // emptyContentNode={}
       />
+
+      <Flex pb={4}>
+        <DashboardPagination
+          limit={LIMIT}
+          total={data?.meta?.count || 0}
+          offset={offset}
+          onOffsetChange={newOffset => setOffset(newOffset)}
+        />
+      </Flex>
     </>
   );
 };
