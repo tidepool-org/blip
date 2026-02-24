@@ -7,6 +7,7 @@ import { DIABETES_TYPES } from '../../../core/constants';
 
 import { RTKQueryApi } from '../../../redux/api/baseApi';
 import { TagList } from '../../../components/elements/Tag';
+import TagsFilter from '../Filters/TagsFilter';
 
 const LIMIT = 50;
 
@@ -19,10 +20,14 @@ const deviceIssuesApi = RTKQueryApi.injectEndpoints({
       }),
     }),
     getDeviceIssuesPatients: builder.query({
-      query: ({ clinicId, offset, limit }) => ({
-        url: `/clinics/${clinicId}/patients`,
-        params: { offset, limit: LIMIT },
-      }),
+      query: ({ clinicId, offset, tags = [] }) => {
+        const formattedTags = tags.length > 0 ? tags.join(',') : undefined;
+
+        return {
+          url: `/clinics/${clinicId}/patients`,
+          params: { offset, tags: formattedTags, limit: LIMIT },
+        };
+      },
     }),
   }),
 });
@@ -56,12 +61,13 @@ const DeviceIssues = () => {
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
-  const [offset, setOffset] = useState(0);
-
   const patientTags = clinic?.patientTags || [];
 
+  const [activeTags, setActiveTags] = useState([]);
+  const [offset, setOffset] = useState(0);
+
   const { data } = useGetDeviceIssuesPatientsQuery(
-    { clinicId: selectedClinicId, offset, limit: LIMIT },
+    { clinicId: selectedClinicId, offset, tags: activeTags, limit: LIMIT },
     { skip: !selectedClinicId }
   );
 
@@ -71,6 +77,10 @@ const DeviceIssues = () => {
 
   return (
     <>
+      <Box mb={4}>
+        <TagsFilter activeTags={activeTags} setActiveTags={setActiveTags}/>
+      </Box>
+
       <Table
         id="deviceIssuesPatientsTable"
         variant="condensed"
