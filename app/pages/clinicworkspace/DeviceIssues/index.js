@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import Table from '../../../components/elements/Table';
-import { Box, Text } from 'theme-ui';
+import { Flex, Box, Text } from 'theme-ui';
 import { DIABETES_TYPES } from '../../../core/constants';
 
 import { RTKQueryApi } from '../../../redux/api/baseApi';
 import { TagList } from '../../../components/elements/Tag';
+import ActiveFilterCount from '../Filters/ActiveFilterCount';
 import TagsFilter from '../Filters/TagsFilter';
 
 const LIMIT = 50;
@@ -71,9 +72,10 @@ const DeviceIssues = () => {
 
   return (
     <>
-      <Box mb={4}>
+      <Flex mb={4}>
+        <ActiveFilterCount />
         <TagsFilter />
-      </Box>
+      </Flex>
 
       <Table
         id="deviceIssuesPatientsTable"
