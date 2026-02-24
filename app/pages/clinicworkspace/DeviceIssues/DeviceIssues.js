@@ -10,15 +10,17 @@ import { RTKQueryApi } from '../../../redux/api/baseApi';
 import { TagList } from '../../../components/elements/Tag';
 import { CategorySelector, CategoryTab } from '../Filters/CategoryFilter';
 
-const LIMIT = 50;
+const LIMIT = 12;
 
 const deviceIssuesApi = RTKQueryApi.injectEndpoints({
   endpoints: (builder) => ({
     getDeviceIssuesPatients: builder.query({
-      query: ({ clinicId, offset, limit }) => ({
-        url: `/clinics/${clinicId}/patients`,
-        params: { offset, limit: LIMIT },
-      }),
+      query: ({ clinicId, offset, category, limit }) => {
+        return {
+          url: `/clinics/${clinicId}/patients`,
+          params: { offset, category, limit },
+        };
+      },
     }),
   }),
 });
@@ -72,16 +74,43 @@ export const useRequireSummaryDashboardEntitlement = () => {
   return isAuthorized;
 };
 
+export const CATEGORY_TAB = {
+  DEFAULT: 'DEFAULT',
+  MISSING_DATA: 'MISSING_DATA',
+  DISCONNECTED: 'DISCONNECTED',
+  INVITE_EXPIRED: 'INVITE_EXPIRED',
+  INVITE_SENT: 'INVITE_SENT',
+  HIDDEN: 'HIDDEN',
+};
+
+const { DEFAULT, MISSING_DATA, DISCONNECTED, INVITE_EXPIRED, INVITE_SENT, HIDDEN } = CATEGORY_TAB;
+
+const FilterByCategory = ({ value, onChange }) => {
+  const { t } = useTranslation();
+
+  return (
+    <CategorySelector>
+      <CategoryTab selected={value === DEFAULT} onClick={() => onChange(DEFAULT)}>{t('All Issues')}</CategoryTab>
+      <CategoryTab selected={value === MISSING_DATA} onClick={() => onChange(MISSING_DATA)}>{t('Missing Data')}</CategoryTab>
+      <CategoryTab selected={value === DISCONNECTED} onClick={() => onChange(DISCONNECTED)}>{t('Disconnected or Error')}</CategoryTab>
+      <CategoryTab selected={value === INVITE_EXPIRED} onClick={() => onChange(INVITE_EXPIRED)}>{t('Invite Expired')}</CategoryTab>
+      <CategoryTab selected={value === INVITE_SENT} onClick={() => onChange(INVITE_SENT)}>{t('Invite Sent')}</CategoryTab>
+      <CategoryTab selected={value === HIDDEN} onClick={() => onChange(HIDDEN)}>{t('Hidden Issues')}</CategoryTab>
+    </CategorySelector>
+  );
+};
+
 const DeviceIssues = () => {
   const { t } = useTranslation();
 
   const isAuthorized = useRequireSummaryDashboardEntitlement();
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
+  const [category, setCategory] = useState(DEFAULT);
   const [offset, setOffset] = useState(0);
 
   const { data } = useGetDeviceIssuesPatientsQuery(
-    { clinicId: selectedClinicId, offset, limit: LIMIT },
+    { clinicId: selectedClinicId, offset, category, limit: LIMIT },
     { skip: !selectedClinicId }
   );
 
@@ -92,14 +121,7 @@ const DeviceIssues = () => {
   return (
     <>
       <Flex mb={3} sx={{ justifyContent: 'center' }}>
-        <CategorySelector>
-          <CategoryTab selected={true}>{t('All Issues')}</CategoryTab>
-          <CategoryTab>{t('Missing Data')}</CategoryTab>
-          <CategoryTab>{t('Disconnected or Error')}</CategoryTab>
-          <CategoryTab>{t('Invite Expired')}</CategoryTab>
-          <CategoryTab>{t('Invite Sent')}</CategoryTab>
-          <CategoryTab>{t('Hidden Issues')}</CategoryTab>
-        </CategorySelector>
+        <FilterByCategory value={category} onChange={setCategory} />
       </Flex>
 
       <Table

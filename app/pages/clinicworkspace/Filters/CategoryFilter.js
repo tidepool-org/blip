@@ -33,9 +33,10 @@ export const CategoryTab = ({
       sx={{
         borderRadius: 3,
         minWidth: '24px',
-        fontWeight: selected ? 'medium' : 'normal',
+        fontWeight: 'medium',
         color: selected ? vizColors.blue60 : vizColors.blue50,
         backgroundColor: selected ? vizColors.blue05 : vizColors.white,
+        transition: 'background-color 0.2s ease, color 0.2s ease, font-weight 0.2s ease',
         '&:hover': { cursor: 'pointer' },
       }}>
 
