@@ -87,7 +87,7 @@ export const useRequireSummaryDashboardEntitlement = () => {
   const hasSummaryDashboard = clinic?.entitlements?.summaryDashboard || false;
 
   useEffect(() => {
-    if (isEntitlementsLoaded && hasSummaryDashboard) {
+    if (isEntitlementsLoaded && !hasSummaryDashboard) {
       history.push('/clinic-workspace/patients');
     }
   }, [isEntitlementsLoaded, hasSummaryDashboard]);
