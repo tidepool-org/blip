@@ -87,12 +87,12 @@ const DeviceIssues = () => {
         label="deviceIssuesPatientsTable"
         columns={[
           { title: t('Patient Details'), field: 'fullName', align: 'left', render: patient => <RenderPatient patient={patient} /> },
-          { title: t('Device'), field: 'fullName', align: 'left' },
-          { title: t('Connection Status'), field: 'fullName', align: 'left' },
-          { title: t('Last Update'), field: 'fullName', align: 'left' },
+          { title: t('Device'), field: '', align: 'left' },
+          { title: t('Connection Status'), field: '', align: 'left' },
+          { title: t('Last Update'), field: '', align: 'left' },
           { title: t('Tags'), field: 'tags', align: 'left', render: patient => <RenderTags patient={patient} /> },
-          { title: t('Last Outreach'), field: 'fullName', align: 'left' },
-          { title: t(''), field: 'fullName', align: 'left' }, // More
+          { title: t('Last Outreach'), field: '', align: 'left' },
+          { title: t(''), field: '', align: 'left' }, // More
         ]}
         data={tableData}
         // sx={tableStyle}
