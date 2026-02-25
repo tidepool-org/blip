@@ -15,7 +15,7 @@ import FilterByTags from './FilterByTags';
 import FilterByCategory, { CATEGORY_TAB } from './FilterByCategory';
 import DashboardPagination from '../components/DashboardPagination';
 import useRequireSummaryDashboardEntitlement from '../hooks/useRequireSummaryDashboardEntitlement';
-import ResetFiltersButton from '../components/ResetFiltersButton';
+import ResetFilters from '../components/ResetFilters';
 
 const LIMIT = 12;
 
@@ -96,7 +96,7 @@ const DeviceIssues = () => {
           patientTags={patientTags}
           onChange={handleActiveFilterChange}
         />
-        <ResetFiltersButton
+        <ResetFilters
           hidden={activeFiltersCount <= 0}
           onClick={() => handleActiveFilterChange(defaultFilterState)}
         />

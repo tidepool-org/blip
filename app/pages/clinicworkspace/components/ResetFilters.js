@@ -3,7 +3,7 @@ import noop from 'lodash/noop';
 import { useTranslation } from 'react-i18next';
 import Button from '../../../components/elements/Button';
 
-const ResetFiltersButton = ({ hidden = false, onClick = noop }) => {
+const ResetFilters = ({ hidden = false, onClick = noop }) => {
   const { t } = useTranslation();
 
   if (hidden) return null;
@@ -23,4 +23,4 @@ const ResetFiltersButton = ({ hidden = false, onClick = noop }) => {
   );
 };
 
-export default ResetFiltersButton;
+export default ResetFilters;
