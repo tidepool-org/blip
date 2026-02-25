@@ -10,7 +10,7 @@ import { RTKQueryApi } from '../../../redux/api/baseApi';
 import { TagList } from '../../../components/elements/Tag';
 import FilterByCategory, { CATEGORY_TAB } from './FilterByCategory';
 import DashboardPagination from '../components/DashboardPagination';
-import { useRequireSummaryDashboardEntitlement } from '../hooks';
+import useRequireSummaryDashboardEntitlement from '../hooks/useRequireSummaryDashboardEntitlement';
 
 const LIMIT = 12;
 
