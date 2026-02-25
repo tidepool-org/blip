@@ -9,7 +9,7 @@ import { DIABETES_TYPES } from '../../../core/constants';
 import { RTKQueryApi } from '../../../redux/api/baseApi';
 import { TagList } from '../../../components/elements/Tag';
 
-import useClinicPatientsFilters from '../useClinicPatientsFilters';
+import useClinicPatientsFilters from '../hooks/useClinicPatientsFilters';
 import ActiveFilterCount from '../ActiveFilterCount';
 import FilterByTags from './FilterByTags';
 import FilterByCategory, { CATEGORY_TAB } from './FilterByCategory';

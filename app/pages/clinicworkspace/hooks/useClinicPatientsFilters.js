@@ -1,5 +1,5 @@
 import { useSelector } from 'react-redux';
-import { useLocalStorage } from '../../core/hooks';
+import { useLocalStorage } from '../../../core/hooks';
 import without from 'lodash/without';
 
 export const defaultFilterState = {
