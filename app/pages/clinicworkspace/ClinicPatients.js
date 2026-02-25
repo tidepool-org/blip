@@ -48,7 +48,7 @@ import { scroller } from 'react-scroll';
 import { Formik, Form } from 'formik';
 import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
 import { Link as RouterLink } from 'react-router-dom';
-import useClinicPatientsFilters, { defaultFilterState } from './hooks/useClinicPatientsFilters';
+import useClinicPatientsFilters, { defaultFilterState } from './useClinicPatientsFilters';
 
 import {
   bindPopover,

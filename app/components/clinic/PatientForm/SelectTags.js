@@ -5,7 +5,7 @@ import keyBy from 'lodash/keyBy';
 import partition from 'lodash/partition';
 import Select, { createFilter } from 'react-select';
 import { useLocation } from 'react-router-dom';
-import useClinicPatientsFilters from '../../../pages/clinicworkspace/hooks/useClinicPatientsFilters';
+import useClinicPatientsFilters from '../../../pages/clinicworkspace/useClinicPatientsFilters';
 import { useTranslation } from 'react-i18next';
 import { noop } from 'lodash';
 import utils from '../../../core/utils';
