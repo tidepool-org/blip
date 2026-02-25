@@ -32,6 +32,7 @@ export const CategoryTab = ({
       tabIndex="0"
       px={4}
       sx={{
+        textAlign: 'center',
         borderRadius: 3,
         minWidth: '24px',
         fontWeight: 'medium',
