@@ -10,7 +10,6 @@ import { RTKQueryApi } from '../../../redux/api/baseApi';
 import { TagList } from '../../../components/elements/Tag';
 import FilterByCategory, { CATEGORY_TAB } from './FilterByCategory';
 import DashboardPagination from '../components/DashboardPagination';
-import useRequireSummaryDashboardEntitlement from '../hooks/useRequireSummaryDashboardEntitlement';
 
 const LIMIT = 12;
 
@@ -60,8 +59,6 @@ const RenderPatient = ({ patient }) => {
 const DeviceIssues = () => {
   const { t } = useTranslation();
 
-  const isAuthorized = useRequireSummaryDashboardEntitlement();
-
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const [category, setCategory] = useState(CATEGORY_TAB.DEFAULT);
   const [offset, setOffset] = useState(0);
@@ -71,7 +68,7 @@ const DeviceIssues = () => {
     { skip: !selectedClinicId }
   );
 
-  if (!data || !isAuthorized) return null;
+  if (!data) return null;
 
   const tableData = data?.data || [];
 
