@@ -13,7 +13,7 @@ import { mount } from 'enzyme';
 import sundial from 'sundial';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 import { BrowserRouter } from 'react-router-dom';
 import Signup, { Signup as SignupFunction } from '../../../app/pages/signup';
 import { mapStateToProps } from '../../../app/pages/signup';

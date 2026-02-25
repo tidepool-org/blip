@@ -2,7 +2,7 @@ import React from 'react';
 import { createMount } from '@material-ui/core/test-utils';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 import { ToastProvider } from '../../../../app/providers/ToastProvider';
 import ShareInvite from '../../../../app/pages/share/ShareInvite';
 import * as sync from '../../../../app/redux/actions/sync';
