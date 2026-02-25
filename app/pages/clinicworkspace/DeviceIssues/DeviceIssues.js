@@ -88,7 +88,7 @@ const DeviceIssues = () => {
 
   return (
     <>
-      <Flex mb={3} sx={{ gap: 2, alignItems: 'center' }}>
+      <Flex id="device-issues-filters" mb={3} sx={{ gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
         <ActiveFilterCount count={activeFiltersCount} />
         <FilterByTags
           patientTags={patientTags}

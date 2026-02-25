@@ -12,40 +12,35 @@ const ActiveFilterCount = ({ count }) => {
 
   return (
     <Flex
-      sx={{ alignItems: 'center', gap: 2, justifyContent: 'flex-start', flexWrap: 'wrap' }}
-      id='summary-dashboard-filters'
+      pl={[0, 0, 2]}
+      py={1}
+      sx={{
+        color: count > 0 ? 'purpleMedium' : 'grays.4',
+        alignItems: 'center',
+        gap: 1,
+        borderLeft: ['none', null, borders.divider],
+        flexShrink: 0,
+      }}
     >
-      <Flex
-        pl={[0, 0, 2]}
-        py={1}
-        sx={{
-          color: count > 0 ? 'purpleMedium' : 'grays.4',
-          alignItems: 'center',
-          gap: 1,
-          borderLeft: ['none', null, borders.divider],
-          flexShrink: 0,
-        }}
-      >
-        {count > 0 ? (
-          <Pill
-            id="filter-count"
-            label="filter count"
-            round
-            sx={{ width: '14px', lineHeight: '15px', fontSize: '9px', display: 'flex', justifyContent: 'center' }}
-            colorPalette={['purpleMedium', 'white']}
-            text={`${count}`}
-          />
-        ) : (
-          <Icon
-            id="filter-icon"
-            variant="static"
-            iconSrc={FilterIcon}
-            label={t('Filter')}
-            sx={{ fontSize: 1, width: '14px', color: 'grays.4' }}
-          />
-        )}
-        <Text sx={{ fontSize: 0 }}>{t('Filter By')}</Text>
-      </Flex>
+      {count > 0 ? (
+        <Pill
+          id="filter-count"
+          label="filter count"
+          round
+          sx={{ width: '14px', lineHeight: '15px', fontSize: '9px', display: 'flex', justifyContent: 'center' }}
+          colorPalette={['purpleMedium', 'white']}
+          text={`${count}`}
+        />
+      ) : (
+        <Icon
+          id="filter-icon"
+          variant="static"
+          iconSrc={FilterIcon}
+          label={t('Filter')}
+          sx={{ fontSize: 1, width: '14px', color: 'grays.4' }}
+        />
+      )}
+      <Text sx={{ fontSize: 0 }}>{t('Filter By')}</Text>
     </Flex>
   );
 };

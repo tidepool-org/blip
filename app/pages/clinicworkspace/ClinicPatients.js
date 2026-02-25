@@ -86,6 +86,7 @@ import SendEmailIcon from '../../core/icons/SendEmailIcon.svg';
 import TabularReportIcon from '../../core/icons/TabularReportIcon.svg';
 import utils from '../../core/utils';
 import LimitReached from './images/LimitReached.svg';
+import ActiveFilterCount from './components/ActiveFilterCount';
 
 import {
   Dialog,
@@ -776,7 +777,7 @@ export const ClinicPatients = (props) => {
     [clinicBgUnits]
   );
 
-  const [activeFilters, setActiveFilters] = useClinicPatientsFilters();
+  const [activeFilters, setActiveFilters, activeFiltersCount] = useClinicPatientsFilters();
   const [pendingFilters, setPendingFilters] = useState({ ...defaultFilterState, ...activeFilters });
   const previousActiveFilters = usePrevious(activeFilters);
 
@@ -1609,14 +1610,6 @@ export const ClinicPatients = (props) => {
   }, [api, dispatch, selectedClinicId, selectedPatient?.id, trackMetric]);
 
   const renderHeader = () => {
-    const activeFiltersCount = without([
-      activeFilters.timeCGMUsePercent,
-      activeFilters.lastData,
-      activeFilters.clinicSites?.length,
-      activeFilters.timeInRange?.length,
-      activeFilters.patientTags?.length,
-    ], null, 0, undefined).length;
-
     const sortedSiteFilterOptions = clinicSitesFilterOptions?.toSorted((a, b) => utils.compareLabels(a.label, b.label)) || [];
     const sortedTagFilterOptions = patientTagsFilterOptions?.toSorted((a, b) => utils.compareLabels(a.label, b.label)) || [];
 
@@ -1770,37 +1763,7 @@ export const ClinicPatients = (props) => {
                 sx={{ alignItems: 'center', gap: 2, justifyContent: 'flex-start', flexWrap: 'wrap' }}
                 id='summary-dashboard-filters'
               >
-                <Flex
-                  pl={[0, 0, 2]}
-                  py={1}
-                  sx={{
-                    color: activeFiltersCount > 0 ? 'purpleMedium' : 'grays.4',
-                    alignItems: 'center',
-                    gap: 1,
-                    borderLeft: ['none', null, borders.divider],
-                    flexShrink: 0
-                  }}
-                >
-                  {activeFiltersCount > 0 ? (
-                    <Pill
-                      id="filter-count"
-                      label="filter count"
-                      round
-                      sx={{ width: '14px', lineHeight: '15px', fontSize: '9px', display: 'flex', justifyContent: 'center' }}
-                      colorPalette={['purpleMedium', 'white']}
-                      text={`${activeFiltersCount}`}
-                    />
-                  ) : (
-                    <Icon
-                      id="filter-icon"
-                      variant="static"
-                      iconSrc={FilterIcon}
-                      label={t('Filter')}
-                      sx={{ fontSize: 1, width: '14px', color: 'grays.4' }}
-                    />
-                  )}
-                  <Text sx={{ fontSize: 0 }}>{t('Filter By')}</Text>
-                </Flex>
+                <ActiveFilterCount count={activeFiltersCount} />
 
                 <Flex sx={{ flexShrink: 0, gap: 2 }}>
                   <Box
