@@ -10,7 +10,7 @@ import { RTKQueryApi } from '../../../redux/api/baseApi';
 import { TagList } from '../../../components/elements/Tag';
 
 import useClinicPatientsFilters, { defaultFilterState } from '../hooks/useClinicPatientsFilters';
-import ActiveFilterCount from '../ActiveFilterCount';
+import ActiveFilterCount from '../components/ActiveFilterCount';
 import FilterByTags from './FilterByTags';
 import FilterByCategory, { CATEGORY_TAB } from './FilterByCategory';
 import DashboardPagination from '../components/DashboardPagination';
