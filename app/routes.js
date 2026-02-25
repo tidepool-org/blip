@@ -8,6 +8,7 @@ import AppComponent from './pages/app';
 import BrowserWarning from './pages/browserwarning';
 import ClinicDetails from './pages/clinicdetails';
 import ClinicAdmin from './pages/clinicadmin';
+import RTKDemo from './pages/rtkdemo';
 import ClinicWorkspace from './pages/clinicworkspace';
 import { TideDashboard } from './pages/dashboard';
 import ClinicInvite from './pages/clinicinvite';
@@ -445,6 +446,7 @@ export const getRoutes = (appContext) => {
           <Route path='/terms' render={routeProps => (<Terms {...routeProps} {...props} />)} />
           <Route path='/signup' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><Signup {...routeProps} {...props} /></Gate>)} />
           <Route path='/clinic-admin' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicAdmin {...routeProps} {...props} /></Gate>)} />
+          <Route path='/rtk-demo' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><RTKDemo {...routeProps} {...props} /></Gate>)} />
           <Route path='/clinic-details/:action' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicDetails {...routeProps} {...props} /></Gate>)} />
           <Route path='/clinic-invite' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicInvite {...routeProps} {...props} /></Gate>)} />
           <Route path='/clinic-workspace/:tab?' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicWorkspace {...routeProps} {...props} /></Gate>)} />
