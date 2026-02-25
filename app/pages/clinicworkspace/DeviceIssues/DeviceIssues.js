@@ -8,9 +8,12 @@ import { Flex } from 'theme-ui';
 import { RTKQueryApi } from '../../../redux/api/baseApi';
 import FilterByCategory, { CATEGORY_TAB } from './FilterByCategory';
 import DashboardPagination from '../components/DashboardPagination';
+import Modals from './Modals';
 
 import PatientCell from './PatientCell';
+import MoreMenuCell from './MoreMenuCell';
 import TagListCell from '../components/TagListCell';
+
 
 const LIMIT = 12;
 
@@ -62,7 +65,7 @@ const DeviceIssues = () => {
           { title: t('Last Update'), field: '', align: 'left' },
           { title: t('Tags'), field: 'tags', align: 'left', render: patient => <TagListCell patient={patient} /> },
           { title: t('Last Outreach'), field: '', align: 'left' },
-          { title: t(''), field: '', align: 'left' }, // More
+          { title: t(''), field: '', align: 'left', render: patient => <MoreMenuCell patient={patient} /> }, // More
         ]}
         data={tableData}
         // sx={tableStyle}
@@ -81,6 +84,8 @@ const DeviceIssues = () => {
           onOffsetChange={newOffset => setOffset(newOffset)}
         />
       </Flex>
+
+      <Modals />
     </>
   );
 };
