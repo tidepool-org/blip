@@ -8,8 +8,6 @@ const ResetFilters = ({ hidden = false, onClick = noop }) => {
 
   if (hidden) return null;
 
-  console.log('AYOOO')
-
   return (
     <Button
       id="reset-all-active-filters"
