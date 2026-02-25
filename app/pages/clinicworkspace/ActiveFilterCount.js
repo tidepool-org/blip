@@ -12,7 +12,6 @@ const ActiveFilterCount = ({ count }) => {
 
   return (
     <Flex
-      mr={4}
       sx={{ alignItems: 'center', gap: 2, justifyContent: 'flex-start', flexWrap: 'wrap' }}
       id='summary-dashboard-filters'
     >

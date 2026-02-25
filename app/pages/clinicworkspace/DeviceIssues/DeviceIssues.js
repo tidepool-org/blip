@@ -9,12 +9,13 @@ import { DIABETES_TYPES } from '../../../core/constants';
 import { RTKQueryApi } from '../../../redux/api/baseApi';
 import { TagList } from '../../../components/elements/Tag';
 
-import useClinicPatientsFilters from '../hooks/useClinicPatientsFilters';
+import useClinicPatientsFilters, { defaultFilterState } from '../hooks/useClinicPatientsFilters';
 import ActiveFilterCount from '../ActiveFilterCount';
 import FilterByTags from './FilterByTags';
 import FilterByCategory, { CATEGORY_TAB } from './FilterByCategory';
 import DashboardPagination from '../components/DashboardPagination';
 import useRequireSummaryDashboardEntitlement from '../hooks/useRequireSummaryDashboardEntitlement';
+import ResetFiltersButton from '../components/ResetFiltersButton';
 
 const LIMIT = 12;
 
@@ -83,15 +84,22 @@ const DeviceIssues = () => {
 
   const tableData = data?.data || [];
 
-  const handleFilterChange = (payload) => {
+  const handleActiveFilterChange = (payload) => {
     setActiveFilters({ ...activeFilters, ...payload });
   };
 
   return (
     <>
-      <Flex mb={3}>
+      <Flex mb={3} sx={{ gap: 2, alignItems: 'center' }}>
         <ActiveFilterCount count={activeFiltersCount} />
-        <FilterByTags patientTags={patientTags} onChange={handleFilterChange} />
+        <FilterByTags
+          patientTags={patientTags}
+          onChange={handleActiveFilterChange}
+        />
+        <ResetFiltersButton
+          hidden={activeFiltersCount <= 0}
+          onClick={() => handleActiveFilterChange(defaultFilterState)}
+        />
       </Flex>
 
       <Flex mb={3} sx={{ justifyContent: 'center' }}>
