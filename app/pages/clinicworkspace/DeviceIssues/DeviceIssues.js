@@ -14,7 +14,6 @@ import ActiveFilterCount from '../components/ActiveFilterCount';
 import FilterByTags from './FilterByTags';
 import FilterByCategory, { CATEGORY_TAB } from './FilterByCategory';
 import DashboardPagination from '../components/DashboardPagination';
-import useRequireSummaryDashboardEntitlement from '../hooks/useRequireSummaryDashboardEntitlement';
 import ResetFilters from '../components/ResetFilters';
 
 const LIMIT = 12;
@@ -67,7 +66,6 @@ const RenderPatient = ({ patient }) => {
 const DeviceIssues = () => {
   const { t } = useTranslation();
 
-  const isAuthorized = useRequireSummaryDashboardEntitlement();
   const [activeFilters, setActiveFilters, activeFiltersCount] = useClinicPatientsFilters();
   const { patientTags } = activeFilters;
 
@@ -80,7 +78,7 @@ const DeviceIssues = () => {
     { skip: !selectedClinicId }
   );
 
-  if (!data || !isAuthorized) return null;
+  if (!data) return null;
 
   const tableData = data?.data || [];
 
