@@ -16,6 +16,7 @@ import { Title, Subheading, Body1 } from '../../components/elements/FontStyles';
 import { availableProviders, providers } from '../../components/datasources/DataConnections';
 import { URL_PRIVACY_POLICY } from '../../core/constants';
 import consentDataImage from './images/consent_data.png';
+import logoSrc from '../../components/navbar/images/tidepool-logo-408x46.png';
 
 const { Loader } = vizComponents;
 
@@ -44,6 +45,7 @@ export const OAuthConnection = (props) => {
           </Body1>
         </Trans>,
         t('By linking your {{ displayName }} account, you acknowledge that Tidepool may collect, use, and disclose data derived from your device, including reproductive health data. Please consider the laws governing reproductive health in your jurisdiction before providing Tidepool with such data.', { displayName }),
+        <Body1 sx={{ fontStyle: 'italic', textAlign: 'center' }}>{t('After tapping “I understand” you will be redirected to Oura to connect your account.')}</Body1>
       ],
       image: consentDataImage,
     },
@@ -161,6 +163,13 @@ export const OAuthConnection = (props) => {
           textAlign: 'center'
         }}
       >
+        {/* Logo */}
+        {isAcceptStatus && (
+          <Flex sx={{ flexDirection: 'row', justifyContent: 'center' }} mb={5}>
+            <img src={logoSrc} width={190} />
+          </Flex>
+        )}
+
         {/* Header */}
         <Box px={4}>
           <Title id="oauth-heading" mb={2} sx={{ fontWeight: 'medium' }}>
