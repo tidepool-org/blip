@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
+import { colors as vizColors } from '@tidepool/viz';
 import Table from '../../../components/elements/Table';
-import { Flex } from 'theme-ui';
+import { Flex, Text } from 'theme-ui';
 
 import ActiveFilterCount from '../components/ActiveFilterCount';
 import FilterByTags from '../components/FilterByTags';
@@ -48,6 +49,14 @@ const DeviceIssues = () => {
 
   return (
     <>
+      <Flex mb={2}>
+        <Trans>
+          <Text sx={{ fontSize: 0, color: vizColors.blueGray50, fontStyle: 'italic' }}>
+            Only patients with active device issues or delayed data from a <Text sx={{ fontWeight: 'bold' }}>cloud-connected device</Text> will be displayed.
+          </Text>
+        </Trans>
+      </Flex>
+
       <Flex id="device-issues-filters" mb={3} sx={{ gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
         <ActiveFilterCount count={activeFiltersCount} />
         <FilterByTags />
