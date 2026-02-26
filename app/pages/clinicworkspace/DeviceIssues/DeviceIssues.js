@@ -5,8 +5,6 @@ import { useTranslation } from 'react-i18next';
 import Table from '../../../components/elements/Table';
 import { Flex } from 'theme-ui';
 
-import { RTKQueryApi } from '../../../redux/api/baseApi';
-
 import useClinicPatientsFilters, { defaultFilterState } from '../useClinicPatientsFilters';
 import ActiveFilterCount from '../components/ActiveFilterCount';
 import FilterByTags from '../components/FilterByTags';
@@ -17,25 +15,9 @@ import ResetFilters from '../components/ResetFilters';
 import PatientCell from './PatientCell';
 import TagListCell from '../components/TagListCell';
 import { resetDeviceIssuesState } from './deviceIssuesSlice';
+import { useGetDeviceIssuesPatientsQuery } from './deviceIssuesApi';
 
 const LIMIT = 12;
-
-const deviceIssuesApi = RTKQueryApi.injectEndpoints({
-  endpoints: (builder) => ({
-    getDeviceIssuesPatients: builder.query({
-      query: ({ clinicId, offset, category, tags, limit }) => {
-        const formattedTags = tags.length > 0 ? tags.join(',') : undefined;
-
-        return {
-          url: `/clinics/${clinicId}/patients`,
-          params: { offset, category, tags: formattedTags, limit },
-        };
-      },
-    }),
-  }),
-});
-
-export const { useGetDeviceIssuesPatientsQuery } = deviceIssuesApi;
 
 const DeviceIssues = () => {
   const { t } = useTranslation();
