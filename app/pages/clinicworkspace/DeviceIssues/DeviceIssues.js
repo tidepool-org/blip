@@ -5,30 +5,15 @@ import { useTranslation } from 'react-i18next';
 import Table from '../../../components/elements/Table';
 import { Flex } from 'theme-ui';
 
-import { RTKQueryApi } from '../../../redux/api/baseApi';
 import FilterByCategory from './FilterByCategory';
 import DashboardPagination from '../components/DashboardPagination';
 
 import PatientCell from './PatientCell';
 import TagListCell from '../components/TagListCell';
 import { resetDeviceIssuesState } from './deviceIssuesSlice';
+import { useGetDeviceIssuesPatientsQuery } from './deviceIssuesApi';
 
 const LIMIT = 12;
-
-const deviceIssuesApi = RTKQueryApi.injectEndpoints({
-  endpoints: (builder) => ({
-    getDeviceIssuesPatients: builder.query({
-      query: ({ clinicId, offset, category, limit }) => {
-        return {
-          url: `/clinics/${clinicId}/patients`,
-          params: { offset, category, limit },
-        };
-      },
-    }),
-  }),
-});
-
-export const { useGetDeviceIssuesPatientsQuery } = deviceIssuesApi;
 
 const DeviceIssues = () => {
   const { t } = useTranslation();
