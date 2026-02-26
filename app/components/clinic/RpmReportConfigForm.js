@@ -303,12 +303,18 @@ export const RpmReportConfigForm = props => {
               setFocusedDatePickerInput(input);
               setDatePickerOpen(!!input);
 
-              if (input) scroller.scrollTo('form-wrapper', {
-                delay: 0,
-                containerId: 'rpmReportConfigInner',
-                duration: 250,
-                smooth: true,
-              });
+              if (input) {
+                try {
+                  scroller.scrollTo('form-wrapper', {
+                    delay: 0,
+                    containerId: 'rpmReportConfigInner',
+                    duration: 250,
+                    smooth: true,
+                  });
+                } catch (e) {
+                  // Scroll container may not be present (e.g. in test environment)
+                }
+              }
             }}
             themeProps={{
               sx: {

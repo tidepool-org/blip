@@ -1,54 +1,46 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 import AppWrapper from '../../../../app/pages/app/AppWrapper';
-import AppBanner from '../../../../app/providers/AppBanner/AppBanner';
-import useProviderConnectionPopup from '../../../../app/components/datasources/useProviderConnectionPopup';
+
+const mockUseProviderConnectionPopup = jest.fn();
+const mockAppBanner = jest.fn(({ trackMetric }) => <div data-testid="app-banner" data-trackmetric={trackMetric ? 'present' : 'missing'} />);
+
+jest.mock('../../../../app/providers/AppBanner/AppBanner', () => props => mockAppBanner(props));
+jest.mock('../../../../app/components/datasources/useProviderConnectionPopup', () => (...args) => mockUseProviderConnectionPopup(...args));
 
 /* global describe */
 /* global it */
 /* global expect */
-/* global sinon */
-/* global beforeEach */
-/* global afterEach */
-
 describe('AppWrapper', () => {
-  let AppBannerStub;
-  let trackMetricStub;
-  let useProviderConnectionPopupStub;
+  const trackMetricStub = jest.fn();
 
   beforeEach(() => {
-    AppBannerStub = () => <div classname="app-banner-stub" />;
-    trackMetricStub = sinon.stub();
-    useProviderConnectionPopupStub = sinon.stub()
-    AppWrapper.__Rewire__('AppBanner', AppBannerStub);
-    AppWrapper.__Rewire__('useProviderConnectionPopup', useProviderConnectionPopupStub);
-  });
-
-  afterEach(() => {
-    AppWrapper.__ResetDependency__('AppBanner');
-    AppWrapper.__ResetDependency__('useProviderConnectionPopup');
+    mockUseProviderConnectionPopup.mockReset();
+    mockAppBanner.mockClear();
+    trackMetricStub.mockReset();
   });
 
   it('should call useProviderConnectionPopup hook', () => {
-    shallow(<AppWrapper trackMetric={trackMetricStub}><div className="child" /></AppWrapper>);
-    expect(useProviderConnectionPopupStub.calledOnce).to.be.true;
+    render(<AppWrapper trackMetric={trackMetricStub}><div className="child" /></AppWrapper>);
+    expect(mockUseProviderConnectionPopup).toHaveBeenCalledTimes(1);
+    expect(mockUseProviderConnectionPopup).toHaveBeenCalledWith({ trackMetric: trackMetricStub });
   });
 
   it('should render AppBanner with trackMetric prop', () => {
-    const wrapper = shallow(<AppWrapper trackMetric={trackMetricStub}><div className="child" /></AppWrapper>);
-    const appBanner = wrapper.find(AppBannerStub);
-    expect(appBanner).to.have.lengthOf(1);
-    expect(appBanner.prop('trackMetric')).to.equal(trackMetricStub);
+    render(<AppWrapper trackMetric={trackMetricStub}><div className="child" /></AppWrapper>);
+    expect(screen.getByTestId('app-banner')).toBeTruthy();
+    expect(mockAppBanner).toHaveBeenCalled();
+    expect(mockAppBanner.mock.calls[0][0].trackMetric).toEqual(trackMetricStub);
   });
 
   it('should render children passed to it', () => {
-    const wrapper = shallow(
+    render(
       <AppWrapper trackMetric={trackMetricStub}>
         <div className="child1" />
         <div className="child2" />
       </AppWrapper>
     );
-    expect(wrapper.contains(<div className="child1" />)).to.be.true;
-    expect(wrapper.contains(<div className="child2" />)).to.be.true;
+    expect(document.querySelector('.child1')).toBeTruthy();
+    expect(document.querySelector('.child2')).toBeTruthy();
   });
 });

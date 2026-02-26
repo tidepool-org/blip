@@ -44,13 +44,26 @@
   ],
   "overrides": [
 		{
-			"files": ["**/__tests__/**/*.test.[jt]s?(x)"],
+			"files": ["**/__tests__/**/*.test.[jt]s?(x)", "**/?(*.)+(test).[jt]s?(x)"],
 			"extends": [
         "plugin:testing-library/react",
         "plugin:jest-dom/recommended"
       ],
+      "env": {
+        "jest": true
+      },
       "rules": {
-        "testing-library/prefer-presence-queries": "warn"
+        "testing-library/prefer-presence-queries": "warn",
+        "testing-library/no-node-access": "warn",
+        "testing-library/render-result-naming-convention": "warn",
+        "testing-library/no-manual-cleanup": "warn",
+        "testing-library/no-container": "warn",
+        "testing-library/no-render-in-lifecycle": "warn",
+        "testing-library/no-wait-for-multiple-assertions": "warn",
+        "testing-library/prefer-screen-queries": "warn",
+        "jest-dom/prefer-in-document": "warn",
+        "jest-dom/prefer-enabled-disabled": "warn",
+        "jest-dom/prefer-empty": "warn",
       }
 		}
 	]

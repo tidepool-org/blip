@@ -1,15 +1,18 @@
 /* global after, before, chai, describe, it, sinon, beforeEach, context */
 
 import React from 'react';
-import { shallow } from 'enzyme';
+import { render, fireEvent } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 
 import '../../../../../app/core/language';
 import DesktopNavbar from '../../../../../app/components/navbar/DesktopNavbar/DesktopNavbar';
 
+jest.mock('../../../../../app/components/navbar/DesktopNavbar/NavigationMenu', () => () => <div />);
+jest.mock('../../../../../app/components/clinic/WorkspaceSwitcher', () => () => <div />);
+
 const expect = chai.expect;
 
 describe('DesktopNavbar', ()  => {
-  let wrapper;
   let consoleErrorSpy;
 
   const props = {
@@ -19,23 +22,10 @@ describe('DesktopNavbar', ()  => {
 
   before(() => {
     consoleErrorSpy = sinon.spy(console, 'error');
-    // we have to rewire IndexLink because React Router throws an error
-    // when rendering a IndexLink or Link out of the routing context :(
-    DesktopNavbar.__Rewire__('IndexLink', (props) => {
-      return (
-        <div>
-          {props.children}
-        </div>
-      );
-    });
-    // The HOC makes it difficult to access / set properties of the pure component,
-    // in this case the trackMetric property of PureNavbar. So we test
-    // on the pure component instead.
-    wrapper = shallow(<DesktopNavbar {...props} />).dive();
   });
 
   after(() => {
-    DesktopNavbar.__ResetDependency__('IndexLink');
+    consoleErrorSpy.restore();
   });
 
   it('should be exposed as a module and be of type function', function() {
@@ -51,22 +41,45 @@ describe('DesktopNavbar', ()  => {
       const clinicClinicianProps = {
         ...props,
         clinicFlowActive: true,
+        clinics: {
+          clinic123: {
+            clinicians: {
+              user123: {
+                id: 'user123',
+              },
+            },
+          },
+        },
         user: {
           isClinicMember: true,
+          userid: 'user123',
+          roles: ['clinic'],
         },
         selectedClinicId: 'clinic123',
       };
 
-      wrapper = shallow(<DesktopNavbar {...clinicClinicianProps} currentPage="/dashboard/tide" />).dive();
-      expect(wrapper.find('Link[to="/clinic-workspace/patients"]')).to.have.lengthOf(1);
+      const { container: clinicContainer } = render(
+        <MemoryRouter>
+          <DesktopNavbar {...clinicClinicianProps} currentPage="/dashboard/tide" />
+        </MemoryRouter>
+      );
+
+      expect(clinicContainer.querySelector('a[href="/clinic-workspace/patients"]')).to.not.equal(null);
     });
   });
 
   describe('interactions', () => {
     it('should fire trackMetric when the logo is clicked', () => {
-      const logo = wrapper.find('.Navbar-logo');
+      const { container } = render(
+        <MemoryRouter>
+          <DesktopNavbar {...props} />
+        </MemoryRouter>
+      );
+
+      const logo = container.querySelector('.Navbar-logo');
+      expect(logo).to.not.be.null;
       expect(props.trackMetric.callCount).to.equal(0);
-      logo.simulate('click');
+      fireEvent.click(logo);
       expect(props.trackMetric.callCount).to.equal(1);
       expect(props.trackMetric.firstCall.args[0]).to.equal('Clicked Navbar Logo');
     });

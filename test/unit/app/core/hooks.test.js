@@ -1,17 +1,22 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 
 import {
-  default as hooksModule,
   usePrevious,
   useFieldArray,
   useInitialFocusedInput,
   useLaunchDarklyFlagOverrides,
 } from '../../../../app/core/hooks';
 
+import { render } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks/dom';
 import { Formik } from 'formik';
 import _ from 'lodash';
-import { mount } from 'enzyme';
+
+jest.mock('launchdarkly-react-client-sdk', () => ({
+  useFlags: jest.fn(),
+}));
+
+import { useFlags } from 'launchdarkly-react-client-sdk';
 
 /* global chai */
 /* global sinon */
@@ -52,18 +57,17 @@ describe('hooks', function() {
 
       const renderedHook = renderHook(() => useFieldArray({
         name: 'foo',
-          type: 'checkbox',
-          multiple: 'true',
-          value: fooResult.current.foo,
-        }, {
-          setFieldValue,
-        }), {
-          wrapper: props => <Formik {...props}/>,
-          initialProps: {
-            initialValues: fooResult.current,
-          },
-        }
-      );
+        type: 'checkbox',
+        multiple: true,
+        value: fooResult.current.foo,
+      }, {
+        setFieldValue,
+      }), {
+        wrapper: props => <Formik onSubmit={() => {}} {...props} />,
+        initialProps: {
+          initialValues: { foo: fooResult.current.foo },
+        },
+      });
 
       result = renderedHook.result;
       rerender = renderedHook.rerender;
@@ -76,7 +80,6 @@ describe('hooks', function() {
     it('should return a reference to the field, it\'s meta, and the array helpers', () => {
       expect(result.current).to.be.an('array').and.have.lengthOf(3);
 
-      // Field
       expect(result.current[0]).to.be.an('object').and.to.include.all.keys([
         'name',
         'value',
@@ -85,7 +88,6 @@ describe('hooks', function() {
       ]);
       expect(result.current[0]).to.be.an('object').and.to.include({ name: 'foo' });
 
-      // Meta
       expect(result.current[1]).to.be.an('object').and.to.include.all.keys([
         'value',
         'error',
@@ -95,7 +97,6 @@ describe('hooks', function() {
         'initialError',
       ]);
 
-      // Helpers
       expect(result.current[2]).to.be.an('object').and.to.include.all.keys([
         'push',
         'swap',
@@ -217,46 +218,25 @@ describe('hooks', function() {
   });
 
   describe('useInitialFocusedInput', () => {
-    let wrapper;
-
-    afterEach(() => {
-      // We make sure to unmount, since the element is being attached to the document body
-      // to test focus and we don't want it to stick around and pollute other tests.
-      wrapper && wrapper.unmount();
-    });
-
     it('should focus an element when ref is assigned to element', () => {
       const { result: { current: ref }, rerender } = renderHook(() => useInitialFocusedInput());
       expect(ref.current).to.be.undefined;
 
-      wrapper = mount(<button ref={ref}>Click Me</button>, { attachTo: document.body });
-      const button = wrapper.find('button').getDOMNode();
+      const { getByRole, unmount } = render(<button ref={ref}>Click Me</button>);
+      const button = getByRole('button', { name: 'Click Me' });
 
-      const focusedElement = () => document.activeElement;
-
-      expect(focusedElement()).to.not.equal(button);
+      expect(document.activeElement).to.not.equal(button);
       rerender();
 
-      expect(focusedElement()).to.equal(button);
+      expect(document.activeElement).to.equal(button);
+      unmount();
     });
   });
 
   describe('useLaunchDarklyFlagOverrides', () => {
-    let useLocalStorageStub;
-    let useFlagsStub;
-
     beforeEach(() => {
-      useLocalStorageStub = sinon.stub().returns([{}]);
-      hooksModule.__Rewire__('useLocalStorage', useLocalStorageStub);
-
-      // Mock the LaunchDarkly useFlags hook
-      useFlagsStub = sinon.stub();
-      hooksModule.__Rewire__('useFlags', useFlagsStub);
-    });
-
-    afterEach(() => {
-      hooksModule.__ResetDependency__('useLocalStorage');
-      hooksModule.__ResetDependency__('useFlags');
+      window.localStorage.removeItem('launchDarklyOverrides');
+      useFlags.mockReset();
     });
 
     it('should return LaunchDarkly flags when no local storage overrides exist', () => {
@@ -266,13 +246,11 @@ describe('hooks', function() {
         featureC: 'enabled',
       };
 
-      useFlagsStub.returns(launchDarklyFlags);
-      useLocalStorageStub.returns([{}]);
+      useFlags.mockReturnValue(launchDarklyFlags);
 
       const { result } = renderHook(() => useLaunchDarklyFlagOverrides());
 
       expect(result.current).to.deep.equal(launchDarklyFlags);
-      expect(useLocalStorageStub.calledWith('launchDarklyOverrides', {})).to.be.true;
     });
 
     it('should merge LaunchDarkly flags with local storage overrides', () => {
@@ -287,16 +265,16 @@ describe('hooks', function() {
         featureD: 'override',
       };
 
-      useFlagsStub.returns(launchDarklyFlags);
-      useLocalStorageStub.returns([localOverrides]);
+      useFlags.mockReturnValue(launchDarklyFlags);
+      window.localStorage.setItem('launchDarklyOverrides', JSON.stringify(localOverrides));
 
       const { result } = renderHook(() => useLaunchDarklyFlagOverrides());
 
       expect(result.current).to.deep.equal({
         featureA: true,
-        featureB: true, // Overridden from false to true
+        featureB: true,
         featureC: 'enabled',
-        featureD: 'override', // New flag from local storage
+        featureD: 'override',
       });
     });
 
@@ -307,12 +285,12 @@ describe('hooks', function() {
       };
 
       const localOverrides = {
-        featureA: false, // Override LaunchDarkly value
-        featureB: true,  // Override LaunchDarkly value
+        featureA: false,
+        featureB: true,
       };
 
-      useFlagsStub.returns(launchDarklyFlags);
-      useLocalStorageStub.returns([localOverrides]);
+      useFlags.mockReturnValue(launchDarklyFlags);
+      window.localStorage.setItem('launchDarklyOverrides', JSON.stringify(localOverrides));
 
       const { result } = renderHook(() => useLaunchDarklyFlagOverrides());
 

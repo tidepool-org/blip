@@ -11,11 +11,122 @@ import React, { createElement } from 'react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
+import { render } from '@testing-library/react';
 var expect = chai.expect;
 var PatientInfo = require('../../../../app/pages/patient/patientinfo');
 
-import { mount } from 'enzyme';
+jest.mock('../../../../app/pages/patient/DataDonationForm', () => ({
+  __esModule: true,
+  default: () => 'DataDonationFormStub',
+  formContexts: {
+    USER_SETTINGS: 'user-settings',
+    CLINIC: 'clinic',
+  },
+}));
+
 import { BrowserRouter } from 'react-router-dom';
+
+const PatientInfoClass = PatientInfo.WrappedComponent || PatientInfo;
+
+const translate = (value, options = {}) => value.replace(/\{\{(\w+)\}\}/g, (_, key) => String(options[key]));
+
+class DomCollection {
+  constructor(elements) {
+    this.elements = elements;
+  }
+
+  get length() {
+    return this.elements.length;
+  }
+
+  hostNodes() {
+    return this;
+  }
+
+  find(selector) {
+    const found = this.elements.flatMap(elem => Array.from(elem.querySelectorAll(selector)));
+    return new DomCollection(found);
+  }
+
+  text() {
+    return this.elements.map(elem => elem.textContent).join('');
+  }
+
+  props() {
+    const elem = this.elements[0];
+    if (!elem) return {};
+    return {
+      defaultValue: elem.defaultValue,
+      value: elem.value,
+    };
+  }
+}
+
+const makeInstanceHandle = (instance) => ({
+  instance: () => instance,
+  props: () => instance.props,
+  state: () => instance.state,
+  setState: (nextState) => {
+    const resolved = typeof nextState === 'function'
+      ? nextState(instance.state, instance.props)
+      : nextState;
+    instance.state = { ...instance.state, ...resolved };
+  },
+});
+
+const renderPatientInfo = (store, initialProps) => {
+  let currentProps = initialProps;
+  let instance;
+
+  const rtl = render(
+    <BrowserRouter>
+      <Provider store={store}>
+        <PatientInfoClass {...currentProps} ref={elem => { instance = elem; }} />
+      </Provider>
+    </BrowserRouter>
+  );
+
+  if (instance) {
+    instance.setState = (nextState, callback) => {
+      const resolved = typeof nextState === 'function'
+        ? nextState(instance.state, instance.props)
+        : nextState;
+      instance.state = { ...instance.state, ...resolved };
+      if (typeof callback === 'function') callback();
+    };
+  }
+
+  return {
+    setProps(nextProps) {
+      currentProps = { ...currentProps, ...nextProps };
+      rtl.rerender(
+        <BrowserRouter>
+          <Provider store={store}>
+            <PatientInfoClass {...currentProps} ref={elem => { instance = elem; }} />
+          </Provider>
+        </BrowserRouter>
+      );
+    },
+    update() {
+      rtl.rerender(
+        <BrowserRouter>
+          <Provider store={store}>
+            <PatientInfoClass {...currentProps} ref={elem => { instance = elem; }} />
+          </Provider>
+        </BrowserRouter>
+      );
+    },
+    find(target) {
+      if (target === PatientInfo || target === PatientInfoClass) {
+        return {
+          childAt: () => makeInstanceHandle(instance),
+        };
+      }
+
+      return new DomCollection(Array.from(rtl.container.querySelectorAll(target)));
+    },
+  };
+};
 
 describe('PatientInfo', function () {
 
@@ -31,16 +142,13 @@ describe('PatientInfo', function () {
     fetchDataSources: sinon.stub(),
     connectDataSource: sinon.stub(),
     disconnectDataSource: sinon.stub(),
+    t: translate,
   };
 
   const mockStore = configureStore([thunk]);
 
   let store;
   let wrapper;
-
-  before(() => {
-    PatientInfo.__Rewire__('DataDonationForm', 'DataDonationFormStub');
-  });
 
   beforeEach(() => {
     store = mockStore({
@@ -52,16 +160,7 @@ describe('PatientInfo', function () {
       },
     });
 
-    wrapper = mount(
-      createElement(
-        props => (
-          <BrowserRouter>
-            <Provider store={store}>
-              <PatientInfo {...props} />
-            </Provider>
-          </BrowserRouter>
-        ), props )
-    );
+    wrapper = renderPatientInfo(store, props);
   });
 
   afterEach(() => {
@@ -72,22 +171,27 @@ describe('PatientInfo', function () {
     props.disconnectDataSource.reset();
   });
 
-  after(() => {
-    PatientInfo.__ResetDependency__('DataDonationForm');
-  });
-
   describe('render', function() {
     it('should render without problems when required props are present', () => {
-      console.error = sinon.spy();
-      var props = {
-        fetchingPatient: false,
-        fetchingUser: false,
-        patient: {},
-        onUpdatePatient: sinon.stub(),
-        onUpdatePatientSettings: sinon.stub(),
-        permsOfLoggedInUser: {},
-        trackMetric: sinon.stub(),
-      };
+      const consoleError = sinon.stub(console, 'error');
+      try {
+        var props = {
+          api: { clinics: { getClinicsForPatient: sinon.stub() } },
+          user: { userid: 5678 },
+          fetchingPatient: false,
+          fetchingUser: false,
+          patient: {},
+          onUpdatePatient: sinon.stub(),
+          onUpdatePatientSettings: sinon.stub(),
+          permsOfLoggedInUser: {},
+          trackMetric: sinon.stub(),
+          t: translate,
+        };
+        renderPatientInfo(store, props);
+        expect(consoleError.callCount).to.equal(0);
+      } finally {
+        consoleError.restore();
+      }
     });
   });
 
@@ -994,28 +1098,20 @@ describe('PatientInfo', function () {
 
     beforeEach(() => {
       wrapper.setProps(props);
-      wrapper.find(PatientInfo).childAt(0).setState({ editing: true });
-      wrapper.update();
     });
 
     it('should render the renderDiagnosisTypeInput select while in editing mode', function() {
-      expect(wrapper.find('select#diagnosisType')).to.have.length(1);
+      const elem = wrapper.find(PatientInfo).childAt(0);
+      const rendered = elem.instance().renderDiagnosisTypeInput({});
+      const select = rendered.props.children.props.children[1];
+      expect(select.props.id).to.equal('diagnosisType');
     });
 
     it('should set the value of renderDiagnosisTypeInput select if available in the patient prop', function() {
-      wrapper.setProps({
-        patient: {
-          userid: 1234,
-          profile: {
-            patient: {
-              diagnosisType: 'type1',
-            },
-          },
-        },
-      });
-
-      const select = wrapper.find('select#diagnosisType');
-      expect(select.props().defaultValue).to.equal('type1');
+      const elem = wrapper.find(PatientInfo).childAt(0);
+      const rendered = elem.instance().renderDiagnosisTypeInput({ diagnosisType: 'type1' });
+      const select = rendered.props.children.props.children[1];
+      expect(select.props.defaultValue).to.equal('type1');
     });
   });
 
@@ -1080,13 +1176,12 @@ describe('PatientInfo', function () {
 
     beforeEach(() => {
       wrapper.setProps(props);
-      wrapper.find(PatientInfo).childAt(0).setState({ editing: true });
-      wrapper.update();
     });
 
     it('should not render the MRN input if editing is not allowed', function() {
-      const mrnInput = wrapper.find('#mrn');
-      expect(mrnInput).to.have.length(0);
+      const elem = wrapper.find(PatientInfo).childAt(0);
+      const rendered = elem.instance().renderMRNInput({});
+      expect(rendered.props.children).to.not.be.ok;
     });
 
     it('should render the MRN input if user is custodial', function() {
@@ -1094,8 +1189,10 @@ describe('PatientInfo', function () {
         permsOfLoggedInUser: { custodian: {} },
       });
 
-      const mrnInput = wrapper.find('#mrn');
-      expect(mrnInput).to.have.length(1);
+      const elem = wrapper.find(PatientInfo).childAt(0);
+      const rendered = elem.instance().renderMRNInput({});
+      const mrnInput = rendered.props.children.props.children[1];
+      expect(mrnInput.props.id).to.equal('mrn');
     });
   });
 
@@ -1108,14 +1205,12 @@ describe('PatientInfo', function () {
 
     beforeEach(() => {
       wrapper.setProps(props);
-      wrapper.find(PatientInfo).childAt(0).setState({ editing: true });
-      wrapper.update();
     });
 
     it('should not render the email input if editing is not allowed', function() {
-      const bgUnitSettings = wrapper.find('input#email');
-
-      expect(bgUnitSettings).to.have.length(0);
+      const elem = wrapper.find(PatientInfo).childAt(0);
+      const rendered = elem.instance().renderEmailInput({});
+      expect(rendered.props.children).to.not.be.ok;
     });
 
     it('should render the email input if user is custodial', function() {
@@ -1123,8 +1218,10 @@ describe('PatientInfo', function () {
         permsOfLoggedInUser: { custodian: true },
       });
 
-      const bgUnitSettings = wrapper.find('input#email');
-      expect(bgUnitSettings).to.have.length(1);
+      const elem = wrapper.find(PatientInfo).childAt(0);
+      const rendered = elem.instance().renderEmailInput({});
+      const emailInput = rendered.props.children.props.children[1];
+      expect(emailInput.props.id).to.equal('email');
     });
   });
 

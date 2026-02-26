@@ -1,17 +1,14 @@
-/* global chai */
 /* global describe */
 /* global sinon */
 /* global it */
 
 var React = require('react');
-var expect = chai.expect;
-
-import { mount } from 'enzyme';
+import { render, fireEvent } from '@testing-library/react';
 import BrowserWarning from '../../../app/components/browserwarning';
 
 describe('BrowserWarning', function () {
   it('should be a function', function() {
-    expect(BrowserWarning).to.be.a('function');
+    expect(typeof BrowserWarning).toBe('function');
   });
 
   describe('render', function() {
@@ -20,8 +17,8 @@ describe('BrowserWarning', function () {
         trackMetric: function() {}
       };
       var browserWarningElem = React.createElement(BrowserWarning, props);
-      var elem = mount(browserWarningElem);
-      expect(elem).to.be.ok;
+      var elem = render(browserWarningElem);
+      expect(elem.container.firstChild).not.toBeNull();
     });
 
     it('should fire metric when mounted/rendered', function() {
@@ -29,10 +26,10 @@ describe('BrowserWarning', function () {
         trackMetric: sinon.stub()
       };
       var browserWarningElem = React.createElement(BrowserWarning, props);
-      var elem = mount(browserWarningElem);
-      expect(elem).to.be.ok;
-      expect(props.trackMetric.callCount).to.equal(1);
-      expect(props.trackMetric.calledWith('Unsupported Browser - Screen Displayed')).to.be.true;
+      var elem = render(browserWarningElem);
+      expect(elem.container.firstChild).not.toBeNull();
+      expect(props.trackMetric.callCount).toBe(1);
+      expect(props.trackMetric.calledWith('Unsupported Browser - Screen Displayed')).toBe(true);
     });
 
     it('should fire metric when google chrome clicked', function() {
@@ -40,13 +37,14 @@ describe('BrowserWarning', function () {
         trackMetric: sinon.stub()
       };
       var browserWarningElem = React.createElement(BrowserWarning, props);
-      var elem = mount(browserWarningElem);
-      var chromeIcon = elem.find('.browser-warning-chrome-image');
-      expect(props.trackMetric.callCount).to.equal(1);
-      expect(props.trackMetric.calledWith('Unsupported Browser - Screen Displayed')).to.be.true;
-      chromeIcon.simulate('click')
-      expect(props.trackMetric.callCount).to.equal(2);
-      expect(props.trackMetric.calledWith('Clicked Download Chrome')).to.be.true;
+      var elem = render(browserWarningElem);
+      var chromeIcon = elem.container.querySelector('.browser-warning-chrome-image');
+      expect(props.trackMetric.callCount).toBe(1);
+      expect(props.trackMetric.calledWith('Unsupported Browser - Screen Displayed')).toBe(true);
+      expect(chromeIcon).not.toBeNull();
+      fireEvent.click(chromeIcon);
+      expect(props.trackMetric.callCount).toBe(2);
+      expect(props.trackMetric.calledWith('Clicked Download Chrome')).toBe(true);
     });
 
     it('should fire metric when Chrome clicked', function() {
@@ -54,13 +52,14 @@ describe('BrowserWarning', function () {
         trackMetric: sinon.stub()
       };
       var browserWarningElem = React.createElement(BrowserWarning, props);
-      var elem = mount(browserWarningElem);
-      var chromeLink = elem.find('.chromeBrowserLink');
-      expect(props.trackMetric.callCount).to.equal(1);
-      expect(props.trackMetric.calledWith('Unsupported Browser - Screen Displayed')).to.be.true;
-      chromeLink.simulate('click');
-      expect(props.trackMetric.callCount).to.equal(2);
-      expect(props.trackMetric.calledWith('Clicked Download Chrome')).to.be.true;
+      var elem = render(browserWarningElem);
+      var chromeLink = elem.container.querySelector('.chromeBrowserLink');
+      expect(props.trackMetric.callCount).toBe(1);
+      expect(props.trackMetric.calledWith('Unsupported Browser - Screen Displayed')).toBe(true);
+      expect(chromeLink).not.toBeNull();
+      fireEvent.click(chromeLink);
+      expect(props.trackMetric.callCount).toBe(2);
+      expect(props.trackMetric.calledWith('Clicked Download Chrome')).toBe(true);
     });
 
     it('should fire metric when Edge clicked', function() {
@@ -68,13 +67,14 @@ describe('BrowserWarning', function () {
         trackMetric: sinon.stub()
       };
       var browserWarningElem = React.createElement(BrowserWarning, props);
-      var elem = mount(browserWarningElem);
-      var edgeLink = elem.find('.edgeBrowserLink');
-      expect(props.trackMetric.callCount).to.equal(1);
-      expect(props.trackMetric.calledWith('Unsupported Browser - Screen Displayed')).to.be.true;
-      edgeLink.simulate('click');
-      expect(props.trackMetric.callCount).to.equal(2);
-      expect(props.trackMetric.calledWith('Clicked Download Edge')).to.be.true;
+      var elem = render(browserWarningElem);
+      var edgeLink = elem.container.querySelector('.edgeBrowserLink');
+      expect(props.trackMetric.callCount).toBe(1);
+      expect(props.trackMetric.calledWith('Unsupported Browser - Screen Displayed')).toBe(true);
+      expect(edgeLink).not.toBeNull();
+      fireEvent.click(edgeLink);
+      expect(props.trackMetric.callCount).toBe(2);
+      expect(props.trackMetric.calledWith('Clicked Download Edge')).toBe(true);
     });
   });
 });

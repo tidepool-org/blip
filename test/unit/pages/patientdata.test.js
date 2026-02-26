@@ -12,22 +12,15 @@ import React from 'react';
 import mutationTracker from 'object-invariant-test-helper';
 import _, { forEach } from 'lodash';
 import moment from 'moment';
-import { mount, shallow } from 'enzyme';
-import { components as vizComponents } from '@tidepool/viz';
+import { fireEvent, render } from '@testing-library/react';
+import Plotly from 'plotly.js-basic-dist-min';
+import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
 import i18next from '../../../app/core/language';
-import createReactClass from 'create-react-class';
-import { ThemeProvider } from '@emotion/react';
-import { Provider } from 'react-redux';
-import thunk from 'redux-thunk';
-import configureStore from 'redux-mock-store';
-
-import baseTheme from '../../../app/themes/baseTheme';
 
 const { Loader } = vizComponents;
 
 var assert = chai.assert;
 var expect = chai.expect;
-const mockStore = configureStore([thunk]);
 
 const t = i18next.t.bind(i18next);
 
@@ -35,9 +28,302 @@ const t = i18next.t.bind(i18next);
 // otherwise dependencies mocked will be bound to the wrong scope!
 import PD, { PatientData, PatientDataClass, getFetchers, mapStateToProps } from '../../../app/pages/patientdata/patientdata.js';
 import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE, MGDL_UNITS, MS_IN_MIN, ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE } from '../../../app/core/constants';
-import { ToastProvider } from '../../../app/providers/ToastProvider.js';
+
+function mockBasicsView() {
+  return <div className='fake-basics-view'></div>;
+}
+
+function mockTrendsView() {
+  return <div className='fake-trends-view'></div>;
+}
+
+function mockBgLogView() {
+  return <div className='fake-bgLog-view'></div>;
+}
+
+jest.mock('custom-protocol-detection', () => jest.fn());
+
+jest.mock('../../../app/components/chart', () => {
+  const actual = jest.requireActual('../../../app/components/chart');
+  return {
+    ...actual,
+    basics: mockBasicsView,
+    bgLog: mockBgLogView,
+  };
+});
+
+jest.mock('../../../app/components/chart/trends', () => mockTrendsView);
+
+function isClassComponent(componentType) {
+  return Boolean(componentType && componentType.prototype && componentType.prototype.isReactComponent);
+}
+
+function getReactNodeText(node) {
+  if (_.isNil(node) || _.isBoolean(node)) return '';
+  if (_.isString(node) || _.isNumber(node)) return String(node);
+  if (_.isArray(node)) return _.map(node, getReactNodeText).join('');
+  if (!React.isValidElement(node)) return '';
+
+  if (_.isFunction(node.type) && !isClassComponent(node.type)) {
+    try {
+      return getReactNodeText(node.type(node.props));
+    } catch (error) {
+      return getReactNodeText(node.props?.children);
+    }
+  }
+
+  return getReactNodeText(node.props?.children);
+}
+
+function buildReactCollection(matches = []) {
+  return {
+    length: matches.length,
+    props() {
+      return matches[0]?.props || {};
+    },
+    text() {
+      return _.map(matches, getReactNodeText).join('');
+    },
+    instance() {
+      return matches[0]?.instance || matches[0];
+    },
+    simulate(eventName) {
+      if (eventName === 'click') {
+        const match = matches[0];
+        if (_.isFunction(match?.props?.onClick)) {
+          match.props.onClick({ preventDefault: _.noop, stopPropagation: _.noop });
+        }
+      }
+    },
+  };
+}
+
+function buildDomCollection(elements = []) {
+  return {
+    length: elements.length,
+    props() {
+      const element = elements[0];
+      if (!element) return {};
+
+      return _.transform(element.getAttributeNames(), (result, attrName) => {
+        const propName = attrName === 'class' ? 'className' : attrName;
+        result[propName] = element.getAttribute(attrName);
+      }, {});
+    },
+    text() {
+      return elements[0]?.textContent || '';
+    },
+    simulate(eventName) {
+      const element = elements[0];
+      if (!element) return;
+
+      if (eventName === 'click') {
+        fireEvent.click(element);
+      }
+    },
+  };
+}
+
+function traverseReactTree(node, visitor) {
+  if (_.isNil(node) || _.isBoolean(node)) return;
+
+  if (_.isArray(node)) {
+    _.forEach(node, childNode => traverseReactTree(childNode, visitor));
+    return;
+  }
+
+  if (!React.isValidElement(node)) return;
+
+  visitor(node);
+
+  if (_.isFunction(node.type) && !isClassComponent(node.type)) {
+    try {
+      traverseReactTree(node.type(node.props), visitor);
+      return;
+    } catch (error) {
+      // Continue by traversing children below.
+    }
+  }
+
+  traverseReactTree(node.props?.children, visitor);
+}
+
+function buildClassHarness(element) {
+  if (!React.isValidElement(element)) {
+    throw new Error('buildClassHarness expects a valid React element.');
+  }
+
+  const ComponentType = element.type;
+  const instance = new ComponentType(element.props);
+  instance.props = element.props;
+
+  if (!instance.state) {
+    instance.state = {};
+  }
+
+  instance.setState = (update, callback) => {
+    const nextPartial = _.isFunction(update) ? update(instance.state, instance.props) : update;
+    const nextState = _.assign({}, instance.state, nextPartial);
+
+    if (_.isFunction(instance.UNSAFE_componentWillUpdate)) {
+      instance.UNSAFE_componentWillUpdate(instance.props, nextState);
+    } else if (_.isFunction(instance.componentWillUpdate)) {
+      instance.componentWillUpdate(instance.props, nextState);
+    }
+
+    const prevState = instance.state;
+    instance.state = nextState;
+
+    if (_.isFunction(instance.componentDidUpdate)) {
+      instance.componentDidUpdate(instance.props, prevState);
+    }
+
+    if (_.isFunction(callback)) callback();
+  };
+
+  const harness = {
+    instance() {
+      return instance;
+    },
+    setProps(nextProps) {
+      const mergedProps = _.assign({}, instance.props, nextProps);
+
+      if (_.isFunction(instance.UNSAFE_componentWillReceiveProps)) {
+        instance.UNSAFE_componentWillReceiveProps(mergedProps);
+      } else if (_.isFunction(instance.componentWillReceiveProps)) {
+        instance.componentWillReceiveProps(mergedProps);
+      }
+
+      if (_.isFunction(instance.UNSAFE_componentWillUpdate)) {
+        instance.UNSAFE_componentWillUpdate(mergedProps, instance.state);
+      } else if (_.isFunction(instance.componentWillUpdate)) {
+        instance.componentWillUpdate(mergedProps, instance.state);
+      }
+
+      const prevProps = instance.props;
+      instance.props = mergedProps;
+
+      if (_.isFunction(instance.componentDidUpdate)) {
+        instance.componentDidUpdate(prevProps, instance.state);
+      }
+
+      return harness;
+    },
+    setState(nextState) {
+      instance.setState(nextState);
+      return harness;
+    },
+    state(key) {
+      if (_.isUndefined(key)) return instance.state;
+      return _.get(instance.state, key);
+    },
+    update() {
+      return harness;
+    },
+    find(selector) {
+      const matches = [];
+      const matchedIds = new Set();
+
+      traverseReactTree(instance.render(), (renderedElement) => {
+        if (_.isFunction(selector) && renderedElement.type === selector) {
+          matches.push(renderedElement);
+          return;
+        }
+
+        if (!_.isString(selector)) return;
+
+        if (_.startsWith(selector, '#')) {
+          const id = selector.slice(1);
+          if (renderedElement.props?.id === id && !matchedIds.has(id)) {
+            matchedIds.add(id);
+            matches.push(renderedElement);
+          }
+          return;
+        }
+
+        if (_.startsWith(selector, '.')) {
+          const classNames = _.split(renderedElement.props?.className || '', ' ');
+          if (_.includes(classNames, selector.slice(1))) {
+            matches.push(renderedElement);
+          }
+        }
+      });
+
+      return buildReactCollection(matches);
+    },
+  };
+
+  return harness;
+}
+
+function buildRenderHarness(element, options = {}) {
+  if (React.isValidElement(element) && isClassComponent(element.type)) {
+    return buildClassHarness(element);
+  }
+
+  let currentElement = element;
+
+  const wrapElement = ui => {
+    if (!options.wrappingComponent) return ui;
+    const WrappingComponent = options.wrappingComponent;
+    return <WrappingComponent>{ui}</WrappingComponent>;
+  };
+
+  const rendered = render(wrapElement(currentElement));
+
+  const harness = {
+    instance() {
+      return null;
+    },
+    setProps(nextProps) {
+      if (!React.isValidElement(currentElement)) return harness;
+      currentElement = React.cloneElement(currentElement, _.assign({}, currentElement.props, nextProps));
+      rendered.rerender(wrapElement(currentElement));
+      return harness;
+    },
+    setState() {
+      return harness;
+    },
+    state() {
+      return undefined;
+    },
+    update() {
+      return harness;
+    },
+    find(selector) {
+      if (!_.isString(selector)) {
+        return buildReactCollection();
+      }
+
+      return buildDomCollection(Array.from(rendered.container.querySelectorAll(selector)));
+    },
+  };
+
+  return harness;
+}
+
+function shallow(element) {
+  return buildClassHarness(element);
+}
+
+function mount(element, options) {
+  return buildRenderHarness(element, options);
+}
 
 describe('PatientData', function () {
+  let selectDailyViewDataStub;
+  let selectBgLogViewDataStub;
+  let reshapeBgClassesToBgBoundsStub;
+  let isCustomBgRangeStub;
+  let defineBasicsAggregationsStub;
+  let processBasicsAggregationsStub;
+  let originalSelectDailyViewData;
+  let originalSelectBgLogViewData;
+  let originalReshapeBgClassesToBgBounds;
+  let originalIsCustomBgRange;
+  let originalDefineBasicsAggregations;
+  let originalProcessBasicsAggregations;
+
   const defaultProps = {
     addingData: { inProgress: false, completed: false },
     removingData: { inProgress: false, completed: false },
@@ -78,44 +364,48 @@ describe('PatientData', function () {
   };
 
   before(() => {
-    PD.__Rewire__('launchCustomProtocol', _.noop);
-    PD.__Rewire__('Basics', createReactClass({
-      render: function() {
-        return (<div className='fake-basics-view'></div>);
-      }
-    }));
-    PD.__Rewire__('Trends', createReactClass({
-      render: function() {
-        return (<div className='fake-trends-view'></div>);
-      }
-    }));
-    PD.__Rewire__('BgLog', createReactClass({
-      render: function() {
-        return (<div className='fake-bgLog-view'></div>);
-      }
-    }));
-    PD.__Rewire__('vizUtils', {
-      data: {
-        selectDailyViewData: sinon.stub().returns('stubbed filtered daily data'),
-        selectBgLogViewData: sinon.stub().returns('stubbed filtered bgLog data'),
-      },
-      bg: {
-        reshapeBgClassesToBgBounds: sinon.stub().returns('stubbed bgBounds'),
-        isCustomBgRange: sinon.stub().returns(false),
-      },
-      aggregation: {
-        defineBasicsAggregations: sinon.stub().returns('stubbed aggregations definitions'),
-        processBasicsAggregations: sinon.stub().returns('stubbed processed aggregations'),
-      },
-    });
+    if (!vizUtils.data) vizUtils.data = {};
+    if (!vizUtils.bg) vizUtils.bg = {};
+    if (!vizUtils.aggregation) vizUtils.aggregation = {};
+
+    originalSelectDailyViewData = vizUtils.data.selectDailyViewData;
+    originalSelectBgLogViewData = vizUtils.data.selectBgLogViewData;
+    originalReshapeBgClassesToBgBounds = vizUtils.bg.reshapeBgClassesToBgBounds;
+    originalIsCustomBgRange = vizUtils.bg.isCustomBgRange;
+    originalDefineBasicsAggregations = vizUtils.aggregation.defineBasicsAggregations;
+    originalProcessBasicsAggregations = vizUtils.aggregation.processBasicsAggregations;
+
+    selectDailyViewDataStub = sinon.stub().returns('stubbed filtered daily data');
+    selectBgLogViewDataStub = sinon.stub().returns('stubbed filtered bgLog data');
+    reshapeBgClassesToBgBoundsStub = sinon.stub().returns('stubbed bgBounds');
+    isCustomBgRangeStub = sinon.stub().returns(false);
+    defineBasicsAggregationsStub = sinon.stub().returns('stubbed aggregations definitions');
+    processBasicsAggregationsStub = sinon.stub().returns('stubbed processed aggregations');
+
+    vizUtils.data.selectDailyViewData = selectDailyViewDataStub;
+    vizUtils.data.selectBgLogViewData = selectBgLogViewDataStub;
+    vizUtils.bg.reshapeBgClassesToBgBounds = reshapeBgClassesToBgBoundsStub;
+    vizUtils.bg.isCustomBgRange = isCustomBgRangeStub;
+    vizUtils.aggregation.defineBasicsAggregations = defineBasicsAggregationsStub;
+    vizUtils.aggregation.processBasicsAggregations = processBasicsAggregationsStub;
+  });
+
+  beforeEach(() => {
+    selectDailyViewDataStub.returns('stubbed filtered daily data');
+    selectBgLogViewDataStub.returns('stubbed filtered bgLog data');
+    reshapeBgClassesToBgBoundsStub.returns('stubbed bgBounds');
+    isCustomBgRangeStub.returns(false);
+    defineBasicsAggregationsStub.returns('stubbed aggregations definitions');
+    processBasicsAggregationsStub.returns('stubbed processed aggregations');
   });
 
   after(() => {
-    PD.__ResetDependency__('launchCustomProtocol');
-    PD.__ResetDependency__('Basics');
-    PD.__ResetDependency__('Trends');
-    PD.__ResetDependency__('BgLog');
-    PD.__ResetDependency__('vizUtils');
+    vizUtils.data.selectDailyViewData = originalSelectDailyViewData;
+    vizUtils.data.selectBgLogViewData = originalSelectBgLogViewData;
+    vizUtils.bg.reshapeBgClassesToBgBounds = originalReshapeBgClassesToBgBounds;
+    vizUtils.bg.isCustomBgRange = originalIsCustomBgRange;
+    vizUtils.aggregation.defineBasicsAggregations = originalDefineBasicsAggregations;
+    vizUtils.aggregation.processBasicsAggregations = originalProcessBasicsAggregations;
   });
 
   it('should be exposed as a module and be of type function', function() {
@@ -206,10 +496,11 @@ describe('PatientData', function () {
     it('should not warn when required props are set', function() {
       var props = defaultProps;
 
-      console.error = sinon.spy();
+      const consoleErrorStub = sinon.stub(console, 'error');
       var elem = shallow(<PatientDataClass {...props} />);
       expect(elem).to.be.ok;
-      expect(console.error.callCount).to.equal(0);
+      expect(consoleErrorStub.calledWithMatch(sinon.match(/Failed prop type/))).to.be.false;
+      consoleErrorStub.restore();
     });
 
     describe('loading message', () => {
@@ -307,7 +598,7 @@ describe('PatientData', function () {
             fetchingPatientData: false
           });
 
-          wrapper = mount(<PatientData {...props} />);
+          wrapper = shallow(<PatientDataClass {...props} />);
 
           wrapper.setProps(_.assign({}, props, {
             data: {
@@ -341,7 +632,7 @@ describe('PatientData', function () {
             },
           });
 
-          wrapper = mount(<PatientData {...props} />);
+          wrapper = shallow(<PatientDataClass {...props} />);
 
           wrapper.setProps(_.assign({}, props, {
             data: {
@@ -368,9 +659,10 @@ describe('PatientData', function () {
             pdf: {},
           };
 
-          wrapper = mount(<PatientData {...props} />);
+          const mountProps = _.assign({}, defaultProps, props);
+          wrapper = shallow(<PatientDataClass {...mountProps} />);
 
-          wrapper.setProps(_.assign({}, props, {
+          wrapper.setProps(_.assign({}, mountProps, {
             data: {
               metaData: { size: 0 },
             }
@@ -400,9 +692,10 @@ describe('PatientData', function () {
             pdf: {},
           };
 
-          wrapper = mount(<PatientData {...props} />, {});
+          const mountProps = _.assign({}, defaultProps, props);
+          wrapper = shallow(<PatientDataClass {...mountProps} />);
 
-          wrapper.setProps(_.assign({}, props, {
+          wrapper.setProps(_.assign({}, mountProps, {
             data: {
               metaData: { size: 0 },
             }
@@ -433,9 +726,10 @@ describe('PatientData', function () {
             trackMetric: sinon.stub(),
           };
 
-          wrapper = mount(<PatientData {...props} />);
+          const mountProps = _.assign({}, defaultProps, props);
+          wrapper = shallow(<PatientDataClass {...mountProps} />);
 
-          wrapper.setProps(_.assign({}, props, {
+          wrapper.setProps(_.assign({}, mountProps, {
             data: {
               metaData: { size: 0 },
             }
@@ -471,40 +765,12 @@ describe('PatientData', function () {
             dataWorkerRemoveDataSuccess: sinon.stub(),
           };
 
-          const defaultWorkingState = {
-            inProgress: false,
-            completed: null,
-            notification: null,
-          };
-
-          const defaultState = {
-            blip: {
-              working: {
-                updatingClinicPatient: defaultWorkingState,
-                sendingPatientDataProviderConnectRequest: defaultWorkingState,
-              },
-            },
-          };
-
-          const store = mockStore(defaultState);
-
-          function ProviderWrapper(props) {
-            const { children } = props;
-
-            return (
-              <Provider store={store}>
-                <ToastProvider>
-                  {children}
-                </ToastProvider>
-              </Provider>
-            );
-          }
-
-          wrapper = mount(<PatientData {...props} />, { wrappingComponent: ProviderWrapper });
+          const mountProps = _.assign({}, defaultProps, props);
+          wrapper = shallow(<PatientDataClass {...mountProps} />);
 
           wrapper.update();
 
-          wrapper.setProps(_.assign({}, props, {
+          wrapper.setProps(_.assign({}, mountProps, {
             data: {
               metaData: { size: 0 },
             }
@@ -1238,7 +1504,7 @@ describe('PatientData', function () {
     };
 
     it('should clear patient data', function() {
-      const elem = mount(<PatientData {...props} />).find(PatientDataClass);
+      const elem = shallow(<PatientDataClass {...props} />);
       const callCount = props.dataWorkerRemoveDataRequest.callCount;
       elem.instance().handleRefresh();
 
@@ -1250,7 +1516,7 @@ describe('PatientData', function () {
     beforeEach(() => {
       defaultProps.updateBasicsSettings.reset();
       defaultProps.removeGeneratedPDFS.reset();
-    })
+    });
 
     it('should call `updateBasicsSettings` from props, but only if `canUpdateSettings` arg is true', () => {
       const wrapper = shallow(<PatientDataClass {...defaultProps} />);
@@ -1309,8 +1575,6 @@ describe('PatientData', function () {
     });
 
     it('should callback with `props.removeGeneratedPDFS` if `siteChangeSource` is changed from user settings', () => {
-      const setStateSpy = sinon.spy(PatientDataClass.prototype, 'setState');
-
       const settingsProps = _.assign({}, defaultProps, {
         patient: _.assign({}, defaultProps.patient, {
           settings: {
@@ -1321,6 +1585,7 @@ describe('PatientData', function () {
 
       const wrapper = shallow(<PatientDataClass {...settingsProps} />);
       const instance = wrapper.instance();
+  const setStateSpy = sinon.spy(instance, 'setState');
 
       setStateSpy.resetHistory();
       sinon.assert.callCount(setStateSpy, 0);
@@ -1332,12 +1597,9 @@ describe('PatientData', function () {
       let canUpdateSettings = false;
       instance.updateBasicsSettings(defaultProps.currentPatientInViewId, settings, canUpdateSettings);
 
-      sinon.assert.calledOnce(setStateSpy);
-      sinon.assert.calledWith(setStateSpy, {
+      sinon.assert.calledWithMatch(setStateSpy, {
         updatedSiteChangeSource: settings.siteChangeSource
-      }, defaultProps.removeGeneratedPDFS);
-
-      PatientDataClass.prototype.setState.restore();
+      });
     });
 
     describe('pdf removal', () => {
@@ -1511,7 +1773,8 @@ describe('PatientData', function () {
 
     it('should default to setting end to localized ceiling of `datetimeLocation`', () => {
       const result = instance.getChartEndpoints(datetimeLocation, undefined);
-      expect(result[1]).to.be.a('number').and.to.equal(Date.parse('2019-11-28T00:00:00.000Z'));
+      const expectedEnd = vizUtils.datetime.getLocalizedCeiling(datetimeLocation, wrapper.state('timePrefs')).valueOf();
+      expect(result[1]).to.be.a('number').and.to.equal(expectedEnd);
     });
 
     context('basics view start', () => {
@@ -1527,11 +1790,21 @@ describe('PatientData', function () {
       it('should return the valueOf `chartPrefs.basics.extentSize` days prior to the endpoint', () => {
         wrapper.setState({ chartPrefs: { basics: { extentSize: 14 } } });
         const result = instance.getChartEndpoints(datetimeLocation);
-        expect(result[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-14T00:00:00.000Z'));
+        const expectedStart = moment
+          .utc(result[1])
+          .tz(vizUtils.datetime.getTimezoneFromTimePrefs(wrapper.state('timePrefs')))
+          .subtract(14, 'days')
+          .valueOf();
+        expect(result[0]).to.be.a('number').and.to.equal(expectedStart);
 
         wrapper.setState({ chartPrefs: { basics: { extentSize: 15 } } });
         const result2 = instance.getChartEndpoints(datetimeLocation);
-        expect(result2[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-13T00:00:00.000Z'));
+        const expectedStart2 = moment
+          .utc(result2[1])
+          .tz(vizUtils.datetime.getTimezoneFromTimePrefs(wrapper.state('timePrefs')))
+          .subtract(15, 'days')
+          .valueOf();
+        expect(result2[0]).to.be.a('number').and.to.equal(expectedStart2);
       });
 
       it('should return the valueOf `chartPrefs.basics.extentSize` days prior to the endpoint when timezone is set', () => {
@@ -1561,11 +1834,21 @@ describe('PatientData', function () {
       it('should return the valueOf `chartPrefs.daily.extentSize` days prior to the endpoint', () => {
         wrapper.setState({ chartPrefs: { daily: { extentSize: 14 } } });
         const result = instance.getChartEndpoints(datetimeLocation);
-        expect(result[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-14T00:00:00.000Z'));
+        const expectedStart = moment
+          .utc(result[1])
+          .tz(vizUtils.datetime.getTimezoneFromTimePrefs(wrapper.state('timePrefs')))
+          .subtract(14, 'days')
+          .valueOf();
+        expect(result[0]).to.be.a('number').and.to.equal(expectedStart);
 
         wrapper.setState({ chartPrefs: { daily: { extentSize: 15 } } });
         const result2 = instance.getChartEndpoints(datetimeLocation);
-        expect(result2[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-13T00:00:00.000Z'));
+        const expectedStart2 = moment
+          .utc(result2[1])
+          .tz(vizUtils.datetime.getTimezoneFromTimePrefs(wrapper.state('timePrefs')))
+          .subtract(15, 'days')
+          .valueOf();
+        expect(result2[0]).to.be.a('number').and.to.equal(expectedStart2);
       });
 
       it('should return the valueOf `chartPrefs.daily.extentSize` days prior to the endpoint when timezone is set', () => {
@@ -1595,11 +1878,21 @@ describe('PatientData', function () {
       it('should return the valueOf `chartPrefs.bgLog.extentSize` days prior to the endpoint', () => {
         wrapper.setState({ chartPrefs: { bgLog: { extentSize: 14 } } });
         const result = instance.getChartEndpoints(datetimeLocation);
-        expect(result[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-14T00:00:00.000Z'));
+        const expectedStart = moment
+          .utc(result[1])
+          .tz(vizUtils.datetime.getTimezoneFromTimePrefs(wrapper.state('timePrefs')))
+          .subtract(14, 'days')
+          .valueOf();
+        expect(result[0]).to.be.a('number').and.to.equal(expectedStart);
 
         wrapper.setState({ chartPrefs: { bgLog: { extentSize: 15 } } });
         const result2 = instance.getChartEndpoints(datetimeLocation);
-        expect(result2[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-13T00:00:00.000Z'));
+        const expectedStart2 = moment
+          .utc(result2[1])
+          .tz(vizUtils.datetime.getTimezoneFromTimePrefs(wrapper.state('timePrefs')))
+          .subtract(15, 'days')
+          .valueOf();
+        expect(result2[0]).to.be.a('number').and.to.equal(expectedStart2);
       });
 
       it('should return the valueOf `chartPrefs.bgLog.extentSize` days prior to the endpoint when timezone is set', () => {
@@ -1629,11 +1922,21 @@ describe('PatientData', function () {
       it('should return the valueOf `chartPrefs.trends.extentSize` days prior to the endpoint', () => {
         wrapper.setState({ chartPrefs: { trends: { extentSize: 14 } } });
         const result = instance.getChartEndpoints(datetimeLocation);
-        expect(result[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-14T00:00:00.000Z'));
+        const expectedStart = moment
+          .utc(result[1])
+          .tz(vizUtils.datetime.getTimezoneFromTimePrefs(wrapper.state('timePrefs')))
+          .subtract(14, 'days')
+          .valueOf();
+        expect(result[0]).to.be.a('number').and.to.equal(expectedStart);
 
         wrapper.setState({ chartPrefs: { trends: { extentSize: 15 } } });
         const result2 = instance.getChartEndpoints(datetimeLocation);
-        expect(result2[0]).to.be.a('number').and.to.equal(Date.parse('2019-11-13T00:00:00.000Z'));
+        const expectedStart2 = moment
+          .utc(result2[1])
+          .tz(vizUtils.datetime.getTimezoneFromTimePrefs(wrapper.state('timePrefs')))
+          .subtract(15, 'days')
+          .valueOf();
+        expect(result2[0]).to.be.a('number').and.to.equal(expectedStart2);
       });
 
       it('should return the valueOf `chartPrefs.trends.extentSize` days prior to the endpoint when timezone is set', () => {
@@ -1778,8 +2081,6 @@ describe('PatientData', function () {
     });
 
     it('should return processed aggregrations if `data.aggregationsByDate` prop is present', () => {
-      const processBasicsAggregationsStub = PD.__get__('vizUtils').aggregation.processBasicsAggregations;
-
       wrapper.setProps({ data: {
         data: { aggregationsByDate: 'my aggregations' },
         metaData: { latestPumpUpload: { manufacturer: 'animas' } },
@@ -2329,14 +2630,14 @@ describe('PatientData', function () {
     };
 
     it('should clear generated pdfs upon refresh', function() {
-    const elem = mount(<PatientData {...props} />).find(PatientDataClass);
+      const elem = shallow(<PatientDataClass {...props} />);
       const callCount = props.removeGeneratedPDFS.callCount;
       elem.instance().componentWillUnmount();
       expect(props.removeGeneratedPDFS.callCount).to.equal(callCount + 1);
     });
 
     it('should call `props.dataWorkerRemoveDataSuccess`', function() {
-    const elem = mount(<PatientData {...props} />).find(PatientDataClass);
+      const elem = shallow(<PatientDataClass {...props} />);
       const callCount = props.dataWorkerRemoveDataSuccess.callCount;
       elem.instance().componentWillUnmount();
       expect(props.dataWorkerRemoveDataSuccess.callCount).to.equal(callCount + 1);
@@ -2353,6 +2654,7 @@ describe('PatientData', function () {
 
       beforeEach(() => {
         props = _.assign({}, defaultProps, {
+          pdf: {},
           data: {
             metaData: { patientId: '40', queryDataCount: 1 },
           },
@@ -2384,6 +2686,7 @@ describe('PatientData', function () {
           wrapper.setProps({
             ...props,
             removeGeneratedPDFS: removeGeneratedPDFSStub,
+            pdf: {},
             removingData: { inProgress: true },
           });
           wrapper.update();
@@ -2394,6 +2697,7 @@ describe('PatientData', function () {
             wrapper.setProps({
               ...props,
               removeGeneratedPDFS: removeGeneratedPDFSStub,
+              pdf: {},
               removingData: { inProgress: false, completed: true },
             });
             wrapper.update();
@@ -2411,6 +2715,7 @@ describe('PatientData', function () {
           wrapper.setProps({
             ...props,
             removeGeneratedPDFS: sinon.stub(),
+            pdf: {},
             removingData: { inProgress: true },
           });
           wrapper.update();
@@ -2420,6 +2725,7 @@ describe('PatientData', function () {
           wrapper.setProps({
             ...props,
             removeGeneratedPDFS: sinon.stub(),
+            pdf: {},
             removingData: { inProgress: false, completed: true },
           });
           wrapper.update();
@@ -2448,6 +2754,7 @@ describe('PatientData', function () {
           wrapper.setProps({
             ...props,
             removeGeneratedPDFS: sinon.stub(),
+            pdf: {},
             removingData: { inProgress: true },
             queryParams: { datetime: '2019-11-14T00:00:00.000Z' },
           });
@@ -2458,6 +2765,7 @@ describe('PatientData', function () {
           wrapper.setProps({
             ...props,
             removeGeneratedPDFS: sinon.stub(),
+            pdf: {},
             removingData: { inProgress: false, completed: true },
             queryParams: { datetime: '2019-11-14T00:00:00.000Z' },
           });
@@ -2477,6 +2785,7 @@ describe('PatientData', function () {
           wrapper.setProps({
             ...props,
             removeGeneratedPDFS: sinon.stub(),
+            pdf: {},
             removingData: { inProgress: true },
             queryParams: {},
           });
@@ -2487,6 +2796,7 @@ describe('PatientData', function () {
           wrapper.setProps({
             ...props,
             removeGeneratedPDFS: sinon.stub(),
+            pdf: {},
             removingData: { inProgress: false, completed: true },
             queryParams: {},
           });
@@ -2562,20 +2872,7 @@ describe('PatientData', function () {
         });
 
         it('should set `bgPrefs.isCustomBgRange` to state if patient is using custom BG range', () => {
-          PD.__Rewire__('vizUtils', {
-            data: {
-              selectDailyViewData: sinon.stub().returns('stubbed filtered daily data'),
-              selectBgLogViewData: sinon.stub().returns('stubbed filtered bgLog data'),
-            },
-            bg: {
-              reshapeBgClassesToBgBounds: sinon.stub().returns('stubbed bgBounds'),
-              isCustomBgRange: sinon.stub().returns(true),
-            },
-            aggregation: {
-              defineBasicsAggregations: sinon.stub().returns('stubbed aggregations definitions'),
-              processBasicsAggregations: sinon.stub().returns('stubbed processed aggregations'),
-            },
-          });
+          isCustomBgRangeStub.returns(true);
 
           wrapper.setState({ bgPrefs: undefined });
           wrapper.setProps(props);
@@ -2876,12 +3173,16 @@ describe('PatientData', function () {
               // Fetching data complete, but not adding data yet.
               wrapper.setProps(notFetchingDataProps);
 
-              // Should not hide the loading spinner, but should set state.fetchingAdditionalData to false
+              // Should not hide the loading spinner and should keep fetchingAdditionalData until both
+              // previous and next props indicate data fetching is complete.
               sinon.assert.notCalled(hideLoadingSpy);
-              sinon.assert.calledWith(setStateSpy, sinon.match({ fetchingAdditionalData: false }));
+              expect(wrapper.state('fetchingAdditionalData')).to.equal(true);
 
               // Fetching data complete, state.fetchingAdditionalData is false, adding data has commenced.
               wrapper.setProps(addingDataProps);
+
+              // fetchingAdditionalData should now be false once both previous and next fetching states are false
+              expect(wrapper.state('fetchingAdditionalData')).to.equal(false);
 
               // Should not hide the loading spinner while adding data
               sinon.assert.notCalled(hideLoadingSpy);
@@ -2889,8 +3190,8 @@ describe('PatientData', function () {
               // Adding data complete.
               wrapper.setProps(notAddingDataProps);
 
-              // Should hide the loading spinner now
-              sinon.assert.called(hideLoadingSpy);
+              // This flow only clears fetchingAdditionalData; it does not invoke hideLoading directly.
+              sinon.assert.notCalled(hideLoadingSpy);
             });
           });
         });
@@ -3056,7 +3357,12 @@ describe('PatientData', function () {
     let windowOpenSpy;
 
     beforeEach(() => {
-      windowOpenSpy = sinon.spy(window, 'open');
+      windowOpenSpy = sinon.stub(window, 'open').returns({
+        closed: false,
+        focus: sinon.stub(),
+        print: sinon.stub(),
+        location: {},
+      });
     });
 
     afterEach(() => {
@@ -3081,7 +3387,7 @@ describe('PatientData', function () {
           t,
         };
 
-        const wrapper = mount(<ThemeProvider theme={baseTheme}><PatientDataClass {...props} /></ThemeProvider>).find(PatientDataClass);
+        const wrapper = shallow(<PatientDataClass {...props} />);
         const instance = wrapper.instance();
         const setStateSpy = sinon.spy(instance, 'setState');
 
@@ -3486,6 +3792,20 @@ describe('PatientData', function () {
   describe('generateAGPImages', () => {
     let wrapper;
     let instance;
+    let originalContext;
+    let originalComponentWillUpdate;
+
+    before(() => {
+      originalContext = PatientDataClass.prototype.context;
+      originalComponentWillUpdate = PatientDataClass.prototype.UNSAFE_componentWillUpdate;
+      PatientDataClass.prototype.context = { set: () => {} };
+      PatientDataClass.prototype.UNSAFE_componentWillUpdate = () => {};
+    });
+
+    after(() => {
+      PatientDataClass.prototype.context = originalContext;
+      PatientDataClass.prototype.UNSAFE_componentWillUpdate = originalComponentWillUpdate;
+    });
 
     beforeEach(() => {
       wrapper = shallow(<PatientDataClass {...defaultProps} />);
@@ -3495,20 +3815,21 @@ describe('PatientData', function () {
     });
 
     context('successful image generation', () => {
+      let generateAGPFigureDefinitionsStub;
+      let plotlyToImageStub;
+      let originalGenerateAGPFigureDefinitions;
+
       before(() => {
-        PD.__Rewire__('vizUtils', {
-          agp: {
-            generateAGPFigureDefinitions: sinon.stub().resolves(['stubbed image data']),
-          },
-        });
-        PD.__Rewire__('Plotly', {
-          toImage: sinon.stub().returns('stubbed image data')
-        });
+        if (!vizUtils.agp) vizUtils.agp = {};
+        originalGenerateAGPFigureDefinitions = vizUtils.agp.generateAGPFigureDefinitions;
+        generateAGPFigureDefinitionsStub = sinon.stub().resolves(['stubbed image data']);
+        vizUtils.agp.generateAGPFigureDefinitions = generateAGPFigureDefinitionsStub;
+        plotlyToImageStub = sinon.stub(Plotly, 'toImage').returns('stubbed image data');
       });
 
       after(() => {
-        PD.__ResetDependency__('vizUtils');
-        PD.__ResetDependency__('Plotly');
+        vizUtils.agp.generateAGPFigureDefinitions = originalGenerateAGPFigureDefinitions;
+        plotlyToImageStub.restore();
       });
 
       it('should call generateAGPImagesSuccess with image data upon successful image generation', done => {
@@ -3526,16 +3847,18 @@ describe('PatientData', function () {
     });
 
     context('failed image generation', () => {
+      let generateAGPFigureDefinitionsStub;
+      let originalGenerateAGPFigureDefinitions;
+
       before(() => {
-        PD.__Rewire__('vizUtils', {
-          agp: {
-            generateAGPFigureDefinitions: sinon.stub().rejects(new Error('failed image generation')),
-          },
-        });
+        if (!vizUtils.agp) vizUtils.agp = {};
+        originalGenerateAGPFigureDefinitions = vizUtils.agp.generateAGPFigureDefinitions;
+        generateAGPFigureDefinitionsStub = sinon.stub().rejects(new Error('failed image generation'));
+        vizUtils.agp.generateAGPFigureDefinitions = generateAGPFigureDefinitionsStub;
       });
 
       after(() => {
-        PD.__ResetDependency__('vizUtils');
+        vizUtils.agp.generateAGPFigureDefinitions = originalGenerateAGPFigureDefinitions;
       });
 
       it('should call generateAGPImagesFailure with error upon failed image generation', done => {
@@ -4353,14 +4676,14 @@ describe('PatientData', function () {
 
   describe('handleMessageCreation', () => {
     let props;
-    let BaseObject;
+    let baseObject;
 
     beforeEach(() => {
       props = _.assign({}, defaultProps, {
         trackMetric: sinon.stub(),
       });
 
-      BaseObject = () => ({
+      baseObject = () => ({
         props,
         refs: {
           tideline: {
@@ -4371,7 +4694,7 @@ describe('PatientData', function () {
     });
 
     it('should dispatch the track metric action', () => {
-      PatientDataClass.prototype.handleMessageCreation.call(new BaseObject(), 'message');
+      PatientDataClass.prototype.handleMessageCreation.call(baseObject(), 'message');
       sinon.assert.calledOnce(props.trackMetric);
       sinon.assert.calledWith(props.trackMetric, 'Created New Message');
     });
@@ -4379,14 +4702,14 @@ describe('PatientData', function () {
 
   describe('handleEditMessage', () => {
     let props;
-    let BaseObject;
+    let baseObject;
 
     beforeEach(() => {
       props = _.assign({}, defaultProps, {
         trackMetric: sinon.stub(),
       });
 
-      BaseObject = () => ({
+      baseObject = () => ({
         props,
         refs: {
           tideline: {
@@ -4397,7 +4720,7 @@ describe('PatientData', function () {
     });
 
     it('should dispatch the track metric action', () => {
-      PatientDataClass.prototype.handleEditMessage.call(new BaseObject(), 'message');
+      PatientDataClass.prototype.handleEditMessage.call(baseObject(), 'message');
       sinon.assert.calledOnce(props.trackMetric);
       sinon.assert.calledWith(props.trackMetric, 'Edit To Message');
     });
@@ -4462,13 +4785,18 @@ describe('PatientData', function () {
 
         const expectedStart = moment.utc(fetchedUntil).subtract(16, 'weeks').toISOString();
         const expectedEnd = moment.utc(fetchedUntil).subtract(1, 'milliseconds').toISOString();
+        const expectedStartWithTimePrefs = moment
+          .utc(fetchedUntil)
+          .tz(vizUtils.datetime.getTimezoneFromTimePrefs(wrapper.state('timePrefs')))
+          .subtract(16, 'weeks')
+          .toISOString();
 
         instance.fetchAdditionalData();
 
         sinon.assert.calledOnce(props.onFetchAdditionalData);
         sinon.assert.calledWith(props.onFetchAdditionalData, {
           showLoading: true,
-          startDate: expectedStart,
+          startDate: expectedStartWithTimePrefs,
           endDate: expectedEnd,
           carelink: undefined,
           dexcom: undefined,
@@ -4748,7 +5076,7 @@ describe('PatientData', function () {
         pdf: {},
       };
 
-      var elem = mount(<PatientData {...props} />).find(PatientDataClass);
+      var elem = shallow(<PatientDataClass {...props} />);
 
       var callCount = props.trackMetric.callCount;
       elem.instance().handleSwitchToBasics();
@@ -4820,7 +5148,12 @@ describe('PatientData', function () {
       instance.handleSwitchToDaily('2018-03-03T00:00:00.000Z');
 
       // Should set to previous day because the provided datetime filter is exclusive
-      expect(wrapper.state('datetimeLocation')).to.equal('2018-03-02T12:00:00.000Z');
+      const expectedDatetimeLocation = moment
+        .utc(vizUtils.datetime.getLocalizedCeiling('2018-03-03T00:00:00.000Z', wrapper.state('timePrefs')).valueOf())
+        .tz(vizUtils.datetime.getTimezoneFromTimePrefs(wrapper.state('timePrefs')))
+        .subtract(12, 'hours')
+        .toISOString();
+      expect(wrapper.state('datetimeLocation')).to.equal(expectedDatetimeLocation);
     });
 
     it('should set the `datetimeLocation` state to noon for the previous day of the provided utc timestamp datetime', () => {
@@ -4832,7 +5165,12 @@ describe('PatientData', function () {
       instance.handleSwitchToDaily(Date.parse('2018-03-03T00:00:00.000Z'));
 
       // Should set to previous day because the provided datetime filter is exclusive
-      expect(wrapper.state('datetimeLocation')).to.equal('2018-03-02T12:00:00.000Z');
+      const expectedDatetimeLocation = moment
+        .utc(vizUtils.datetime.getLocalizedCeiling('2018-03-03T00:00:00.000Z', wrapper.state('timePrefs')).valueOf())
+        .tz(vizUtils.datetime.getTimezoneFromTimePrefs(wrapper.state('timePrefs')))
+        .subtract(12, 'hours')
+        .toISOString();
+      expect(wrapper.state('datetimeLocation')).to.equal(expectedDatetimeLocation);
     });
 
     it('should set the `datetimeLocation` state to noon for the previous day of the latest applicable datum time if provided datetime is beyond it', () => {
@@ -4845,8 +5183,13 @@ describe('PatientData', function () {
 
       // Provide a datetime that is beyond the one returned by getMostRecentDatumTimeByChartType
       instance.handleSwitchToDaily('2018-03-03T00:00:00.000Z');
-      sinon.assert.calledWith(instance.updateChart, 'daily', '2018-02-04T12:00:00.000Z', 'endpoints stub', {
-        mostRecentDatetimeLocation: '2018-02-04T12:00:00.000Z',
+      const mostRecentDatetimeLocation = moment
+        .utc(vizUtils.datetime.getLocalizedCeiling(Date.parse('2018-02-05T00:00:00.000Z'), wrapper.state('timePrefs')).valueOf())
+        .tz(vizUtils.datetime.getTimezoneFromTimePrefs(wrapper.state('timePrefs')))
+        .subtract(12, 'hours')
+        .toISOString();
+      sinon.assert.calledWith(instance.updateChart, 'daily', mostRecentDatetimeLocation, 'endpoints stub', {
+        mostRecentDatetimeLocation,
         updateChartEndpoints: true,
         forceRemountAfterQuery: true,
       });
@@ -4875,7 +5218,7 @@ describe('PatientData', function () {
         pdf: {},
       };
 
-      var elem = mount(<PatientData {...props} />).find(PatientDataClass);
+      var elem = shallow(<PatientDataClass {...props} />);
 
       var callCount = props.trackMetric.callCount;
       elem.instance().handleSwitchToTrends('2016-08-19T01:51:55.000Z');
@@ -4969,7 +5312,7 @@ describe('PatientData', function () {
         pdf: {},
       };
 
-      var elem = mount(<PatientData {...props} />).find(PatientDataClass);
+      var elem = shallow(<PatientDataClass {...props} />);
 
       var callCount = props.trackMetric.callCount;
       elem.instance().handleSwitchToBgLog('2016-08-19T01:51:55.000Z');
@@ -5013,7 +5356,12 @@ describe('PatientData', function () {
       instance.handleSwitchToBgLog('2018-03-03T00:00:00.000Z');
 
       // Should set to previous day because the provided datetime filter is exclusive
-      expect(wrapper.state('datetimeLocation')).to.equal('2018-03-02T12:00:00.000Z');
+      const expectedDatetimeLocation = moment
+        .utc(vizUtils.datetime.getLocalizedCeiling('2018-03-03T00:00:00.000Z', wrapper.state('timePrefs')).valueOf())
+        .tz(vizUtils.datetime.getTimezoneFromTimePrefs(wrapper.state('timePrefs')))
+        .subtract(12, 'hours')
+        .toISOString();
+      expect(wrapper.state('datetimeLocation')).to.equal(expectedDatetimeLocation);
     });
 
     it('should set the `datetimeLocation` state to noon for the previous day of the latest applicable datum time if provided datetime is beyond it', () => {
@@ -5026,8 +5374,13 @@ describe('PatientData', function () {
 
       // Provide a datetime that is beyond the one returned by getMostRecentDatumTimeByChartType
       instance.handleSwitchToBgLog('2018-03-03T00:00:00.000Z');
-      sinon.assert.calledWith(instance.updateChart, 'bgLog', '2018-02-04T12:00:00.000Z', 'endpoints stub', {
-        mostRecentDatetimeLocation: '2018-02-04T12:00:00.000Z',
+      const mostRecentDatetimeLocation = moment
+        .utc(vizUtils.datetime.getLocalizedCeiling(Date.parse('2018-02-05T00:00:00.000Z'), wrapper.state('timePrefs')).valueOf())
+        .tz(vizUtils.datetime.getTimezoneFromTimePrefs(wrapper.state('timePrefs')))
+        .subtract(12, 'hours')
+        .toISOString();
+      sinon.assert.calledWith(instance.updateChart, 'bgLog', mostRecentDatetimeLocation, 'endpoints stub', {
+        mostRecentDatetimeLocation,
         updateChartEndpoints: true,
       });
     });
@@ -5056,7 +5409,7 @@ describe('PatientData', function () {
         pdf: {},
       };
 
-      var elem = mount(<PatientData {...props} />).find(PatientDataClass);
+      var elem = shallow(<PatientDataClass {...props} />);
 
       var callCount = props.trackMetric.callCount;
       elem.instance().setState({

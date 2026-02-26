@@ -1,6 +1,6 @@
 import React from 'react';
-import { createMount } from '@material-ui/core/test-utils';
-import BgRangeSummary from '../../../../app/components/clinic/BgRangeSummary';
+import { render, fireEvent, waitFor, cleanup } from '@testing-library/react';
+import { BgRangeSummary } from '../../../../app/components/clinic/BgRangeSummary';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 
 /* global chai */
@@ -8,19 +8,14 @@ import { MGDL_UNITS } from '../../../../app/core/constants';
 /* global describe */
 /* global context */
 /* global it */
-/* global beforeEach */
-/* global before */
-/* global afterEach */
-/* global after */
 
 const expect = chai.expect;
 
 describe('BgRangeSummary', () => {
-  let mount;
-  let wrapper;
+  afterEach(cleanup);
 
   let defaultProps = {
-    t: sinon.stub().callsFake((string) => string),
+    t: sinon.stub().callsFake((string, params) => params ? string.replace(/\{\{(\w+)\}\}/g, (_, k) => params[k] !== undefined ? params[k] : `{{${k}}}`) : string),
     bgUnits: MGDL_UNITS,
     data: {
       veryLow: 0.0004,
@@ -34,174 +29,176 @@ describe('BgRangeSummary', () => {
     targetRange: [60, 190],
   };
 
-  before(() => {
-    mount = createMount();
-  });
-
-  after(() => {
-    mount.cleanUp();
-  });
-
-  beforeEach(() => {
-    wrapper = mount(<BgRangeSummary {...defaultProps} />);
-  });
-
   it('should show the bg range summary bars with appropriate widths', () => {
-    const summaryBars = wrapper.find('.range-summary-bars').hostNodes();
+    const { container } = render(<BgRangeSummary {...defaultProps} />);
+
+    const summaryBars = container.querySelectorAll('.range-summary-bars');
     expect(summaryBars).to.have.lengthOf(1);
 
-    const veryLow = summaryBars.find('.range-summary-bars-veryLow').hostNodes();
-    expect(veryLow.props()['data-width']).to.equal('0.04%');
+    const veryLow = summaryBars[0].querySelector('.range-summary-bars-veryLow');
+    expect(veryLow.getAttribute('data-width')).to.equal('0.04%');
 
-    const low = summaryBars.find('.range-summary-bars-low').hostNodes();
-    expect(low.props()['data-width']).to.equal('0.4%');
+    const low = summaryBars[0].querySelector('.range-summary-bars-low');
+    expect(low.getAttribute('data-width')).to.equal('0.4%');
 
-    const target = summaryBars.find('.range-summary-bars-target').hostNodes();
-    expect(target.props()['data-width']).to.equal('70%');
+    const target = summaryBars[0].querySelector('.range-summary-bars-target');
+    expect(target.getAttribute('data-width')).to.equal('70%');
 
-    const high = summaryBars.find('.range-summary-bars-high').hostNodes();
-    expect(high.props()['data-width']).to.equal('25%');
+    const high = summaryBars[0].querySelector('.range-summary-bars-high');
+    expect(high.getAttribute('data-width')).to.equal('25%');
 
-    const veryHigh = summaryBars.find('.range-summary-bars-veryHigh').hostNodes();
-    expect(veryHigh.props()['data-width']).to.equal('15%');
+    const veryHigh = summaryBars[0].querySelector('.range-summary-bars-veryHigh');
+    expect(veryHigh.getAttribute('data-width')).to.equal('15%');
   });
 
-  it('should show a popover with correct data', () => {
-    const summaryBars = wrapper.find('.range-summary-bars').hostNodes();
+  it('should show a popover with correct data', async () => {
+    const { container } = render(<BgRangeSummary {...defaultProps} />);
+
+    const summaryBars = container.querySelectorAll('.range-summary-bars');
     expect(summaryBars).to.have.lengthOf(1);
 
-    const popover = () => wrapper.find('.range-summary-data').hostNodes();
+    const popover = () => document.querySelectorAll('.range-summary-data');
     expect(popover()).to.have.lengthOf(1);
 
-    expect(popover().props().style.visibility).to.equal('hidden');
+    expect(popover()[0].style.visibility).to.equal('hidden');
 
-    summaryBars.simulate('mouseover');
-    expect(popover().props().style.visibility).to.be.undefined;
+    fireEvent.mouseOver(summaryBars[0]);
+    await waitFor(() => {
+      expect(popover()[0].style.visibility).to.equal('');
+    });
 
-    const veryLow = popover().find('.range-summary-value-veryLow').hostNodes();
-    expect(veryLow.text()).to.equal('0%');
+    const veryLow = popover()[0].querySelector('.range-summary-value-veryLow');
+    expect(veryLow.textContent).to.equal('0%');
 
-    const low = popover().find('.range-summary-value-low').hostNodes();
-    expect(low.text()).to.equal('0%');
+    const low = popover()[0].querySelector('.range-summary-value-low');
+    expect(low.textContent).to.equal('0%');
 
-    const target = popover().find('.range-summary-value-target').hostNodes();
-    expect(target.text()).to.equal('70%');
+    const target = popover()[0].querySelector('.range-summary-value-target');
+    expect(target.textContent).to.equal('70%');
 
-    const high = popover().find('.range-summary-value-high').hostNodes();
-    expect(high.text()).to.equal('25%');
+    const high = popover()[0].querySelector('.range-summary-value-high');
+    expect(high.textContent).to.equal('25%');
 
-    const veryHigh = popover().find('.range-summary-value-veryHigh').hostNodes();
-    expect(veryHigh.text()).to.equal('15%');
+    const veryHigh = popover()[0].querySelector('.range-summary-value-veryHigh');
+    expect(veryHigh.textContent).to.equal('15%');
 
-    const veryLowRange = popover().find('.range-summary-range-veryLow').hostNodes();
-    expect(veryLowRange.text()).to.equal('<54');
+    const veryLowRange = popover()[0].querySelector('.range-summary-range-veryLow');
+    expect(veryLowRange.textContent).to.equal('<54');
 
-    const lowRange = popover().find('.range-summary-range-low').hostNodes();
-    expect(lowRange.text()).to.equal('54-59');
+    const lowRange = popover()[0].querySelector('.range-summary-range-low');
+    expect(lowRange.textContent).to.equal('54-59');
 
-    const targetRange = popover().find('.range-summary-range-target').hostNodes();
-    expect(targetRange.text()).to.equal('60-190');
+    const targetRange = popover()[0].querySelector('.range-summary-range-target');
+    expect(targetRange.textContent).to.equal('60-190');
 
-    const highRange = popover().find('.range-summary-range-high').hostNodes();
-    expect(highRange.text()).to.equal('191-250');
+    const highRange = popover()[0].querySelector('.range-summary-range-high');
+    expect(highRange.textContent).to.equal('191-250');
 
-    const veryHighRange = popover().find('.range-summary-range-veryHigh').hostNodes();
-    expect(veryHighRange.text()).to.equal('>250');
+    const veryHighRange = popover()[0].querySelector('.range-summary-range-veryHigh');
+    expect(veryHighRange.textContent).to.equal('>250');
 
-    const bgUnits = popover().find('.range-summary-bg-units').hostNodes();
-    expect(bgUnits.text()).to.equal('Units in mg/dL');
+    const bgUnits = popover()[0].querySelector('.range-summary-bg-units');
+    expect(bgUnits.textContent).to.equal('Units in mg/dL');
 
-    const cgmUse = popover().find('.range-summary-cgm-use').hostNodes();
-    expect(cgmUse.text()).to.equal('% CGM Use: 78 %');
+    const cgmUse = popover()[0].querySelector('.range-summary-cgm-use');
+    expect(cgmUse.textContent).to.equal('% CGM Use: 78 %');
   });
 
   context('has extremeHigh data', () => {
-    beforeEach(() => {
-      wrapper = mount(<BgRangeSummary {...{
+    it('should show the bg range summary bars with appropriate widths', () => {
+      const { container } = render(<BgRangeSummary {...{
         ...defaultProps,
         data: {
           ...defaultProps.data,
           extremeHigh: 0.03,
         },
       }} />);
-    });
 
-    it('should show the bg range summary bars with appropriate widths', () => {
-      const summaryBars = wrapper.find('.range-summary-bars').hostNodes();
+      const summaryBars = container.querySelectorAll('.range-summary-bars');
       expect(summaryBars).to.have.lengthOf(1);
 
-      const veryLow = summaryBars.find('.range-summary-bars-veryLow').hostNodes();
-      expect(veryLow.props()['data-width']).to.equal('0.04%');
+      const veryLow = summaryBars[0].querySelector('.range-summary-bars-veryLow');
+      expect(veryLow.getAttribute('data-width')).to.equal('0.04%');
 
-      const low = summaryBars.find('.range-summary-bars-low').hostNodes();
-      expect(low.props()['data-width']).to.equal('0.4%');
+      const low = summaryBars[0].querySelector('.range-summary-bars-low');
+      expect(low.getAttribute('data-width')).to.equal('0.4%');
 
-      const target = summaryBars.find('.range-summary-bars-target').hostNodes();
-      expect(target.props()['data-width']).to.equal('70%');
+      const target = summaryBars[0].querySelector('.range-summary-bars-target');
+      expect(target.getAttribute('data-width')).to.equal('70%');
 
-      const high = summaryBars.find('.range-summary-bars-high').hostNodes();
-      expect(high.props()['data-width']).to.equal('25%');
+      const high = summaryBars[0].querySelector('.range-summary-bars-high');
+      expect(high.getAttribute('data-width')).to.equal('25%');
 
-      const veryHigh = summaryBars.find('.range-summary-bars-veryHigh').hostNodes();
-      expect(veryHigh.props()['data-width']).to.equal('12%'); // width is 15% reduced by the 3% width of extremeHigh
+      const veryHigh = summaryBars[0].querySelector('.range-summary-bars-veryHigh');
+      expect(veryHigh.getAttribute('data-width')).to.equal('12%');
 
-      const extremeHigh = summaryBars.find('.range-summary-bars-extremeHigh').hostNodes();
-      expect(extremeHigh.props()['data-width']).to.equal('3%');
+      const extremeHigh = summaryBars[0].querySelector('.range-summary-bars-extremeHigh');
+      expect(extremeHigh.getAttribute('data-width')).to.equal('3%');
     });
 
-    it('should show a popover with correct data', () => {
-      const summaryBars = wrapper.find('.range-summary-bars').hostNodes();
+    it('should show a popover with correct data', async () => {
+      const { container } = render(<BgRangeSummary {...{
+        ...defaultProps,
+        data: {
+          ...defaultProps.data,
+          extremeHigh: 0.03,
+        },
+      }} />);
+
+      const summaryBars = container.querySelectorAll('.range-summary-bars');
       expect(summaryBars).to.have.lengthOf(1);
 
-      const popover = () => wrapper.find('.range-summary-data').hostNodes();
+      const popover = () => document.querySelectorAll('.range-summary-data');
       expect(popover()).to.have.lengthOf(1);
 
-      expect(popover().props().style.visibility).to.equal('hidden');
+      expect(popover()[0].style.visibility).to.equal('hidden');
 
-      summaryBars.simulate('mouseover');
-      expect(popover().props().style.visibility).to.be.undefined;
+      fireEvent.mouseOver(summaryBars[0]);
+      await waitFor(() => {
+        expect(popover()[0].style.visibility).to.equal('');
+      });
 
-      const veryLow = popover().find('.range-summary-value-veryLow').hostNodes();
-      expect(veryLow.text()).to.equal('0%');
+      const veryLow = popover()[0].querySelector('.range-summary-value-veryLow');
+      expect(veryLow.textContent).to.equal('0%');
 
-      const low = popover().find('.range-summary-value-low').hostNodes();
-      expect(low.text()).to.equal('0%');
+      const low = popover()[0].querySelector('.range-summary-value-low');
+      expect(low.textContent).to.equal('0%');
 
-      const target = popover().find('.range-summary-value-target').hostNodes();
-      expect(target.text()).to.equal('70%');
+      const target = popover()[0].querySelector('.range-summary-value-target');
+      expect(target.textContent).to.equal('70%');
 
-      const high = popover().find('.range-summary-value-high').hostNodes();
-      expect(high.text()).to.equal('25%');
+      const high = popover()[0].querySelector('.range-summary-value-high');
+      expect(high.textContent).to.equal('25%');
 
-      const veryHigh = popover().find('.range-summary-value-veryHigh').hostNodes();
-      expect(veryHigh.text()).to.equal('15%');
+      const veryHigh = popover()[0].querySelector('.range-summary-value-veryHigh');
+      expect(veryHigh.textContent).to.equal('15%');
 
-      const extremeHigh = popover().find('.range-summary-value-extremeHigh').hostNodes();
-      expect(extremeHigh.text()).to.equal('3%');
+      const extremeHigh = popover()[0].querySelector('.range-summary-value-extremeHigh');
+      expect(extremeHigh.textContent).to.equal('3%');
 
-      const veryLowRange = popover().find('.range-summary-range-veryLow').hostNodes();
-      expect(veryLowRange.text()).to.equal('<54');
+      const veryLowRange = popover()[0].querySelector('.range-summary-range-veryLow');
+      expect(veryLowRange.textContent).to.equal('<54');
 
-      const lowRange = popover().find('.range-summary-range-low').hostNodes();
-      expect(lowRange.text()).to.equal('54-59');
+      const lowRange = popover()[0].querySelector('.range-summary-range-low');
+      expect(lowRange.textContent).to.equal('54-59');
 
-      const targetRange = popover().find('.range-summary-range-target').hostNodes();
-      expect(targetRange.text()).to.equal('60-190');
+      const targetRange = popover()[0].querySelector('.range-summary-range-target');
+      expect(targetRange.textContent).to.equal('60-190');
 
-      const highRange = popover().find('.range-summary-range-high').hostNodes();
-      expect(highRange.text()).to.equal('191-250');
+      const highRange = popover()[0].querySelector('.range-summary-range-high');
+      expect(highRange.textContent).to.equal('191-250');
 
-      const veryHighRange = popover().find('.range-summary-range-veryHigh').hostNodes();
-      expect(veryHighRange.text()).to.equal('>250');
+      const veryHighRange = popover()[0].querySelector('.range-summary-range-veryHigh');
+      expect(veryHighRange.textContent).to.equal('>250');
 
-      const extremeHighRange = popover().find('.range-summary-range-extremeHigh').hostNodes();
-      expect(extremeHighRange.text()).to.equal('>350');
+      const extremeHighRange = popover()[0].querySelector('.range-summary-range-extremeHigh');
+      expect(extremeHighRange.textContent).to.equal('>350');
 
-      const bgUnits = popover().find('.range-summary-bg-units').hostNodes();
-      expect(bgUnits.text()).to.equal('Units in mg/dL');
+      const bgUnits = popover()[0].querySelector('.range-summary-bg-units');
+      expect(bgUnits.textContent).to.equal('Units in mg/dL');
 
-      const cgmUse = popover().find('.range-summary-cgm-use').hostNodes();
-      expect(cgmUse.text()).to.equal('% CGM Use: 78 %');
+      const cgmUse = popover()[0].querySelector('.range-summary-cgm-use');
+      expect(cgmUse.textContent).to.equal('% CGM Use: 78 %');
     });
   });
 });

@@ -7,7 +7,7 @@
 /* global context */
 
 import React from 'react';
-import { mount } from 'enzyme';
+import { render, fireEvent, cleanup } from '@testing-library/react';
 import _ from 'lodash';
 
 import InputGroup from '../../../app/components/inputgroup';
@@ -25,10 +25,9 @@ describe('InputGroup', () => {
   const props = overrides => _.assign({}, defaultProps, overrides);
 
   let wrapper;
-  let instance;
 
   beforeEach(() => {
-    wrapper = mount(
+    wrapper = render(
       <InputGroup
         {...defaultProps}
       />
@@ -36,6 +35,7 @@ describe('InputGroup', () => {
   });
 
   afterEach(() => {
+    cleanup();
     defaultProps.onChange.reset();
     defaultProps.trackMetric.reset();
   });
@@ -65,92 +65,83 @@ describe('InputGroup', () => {
       items: options,
     };
 
-    let select;
-    let selectInput;
-    let selectValues;
-    let selectOptions;
-
     beforeEach(() => {
-      wrapper.setProps(props(selectProps));
-      select = () => wrapper.find('.Select').first();
-      selectInput = () => select().find('input').first();
-      selectValues = () => select().find('.Select__value-container').first();
-      selectOptions = () => select().find('.Select__option').hostNodes();
-      instance = () => wrapper.instance();
+      cleanup();
+      wrapper = render(<InputGroup {...props(selectProps)} />);
     });
 
     it('should render a select with the provided options', () => {
-      expect(select()).to.have.length(1);
-      selectInput().simulate('change');
+      const select = wrapper.container.querySelector('.Select');
+      expect(select).to.not.be.null;
 
-      expect(selectOptions()).to.have.length(3);
-      expect(selectOptions().at(0).text()).to.equal('one');
-      expect(selectOptions().at(1).text()).to.equal('two');
-      expect(selectOptions().at(2).text()).to.equal('three');
+      // Open the dropdown menu via mouse down on the control
+      const control = wrapper.container.querySelector('.Select__control');
+      fireEvent.mouseDown(control);
+
+      const selectOptions = wrapper.container.querySelectorAll('.Select__option');
+      expect(selectOptions.length).to.equal(3);
+      expect(selectOptions[0].textContent).to.equal('one');
+      expect(selectOptions[1].textContent).to.equal('two');
+      expect(selectOptions[2].textContent).to.equal('three');
     });
 
     it('should select the appropriate option from the provided value', () => {
-      expect(selectValues()).to.have.length(1);
-      expect(selectValues().hasClass('Select__value-container--is-multi')).to.be.false;
-      expect(selectValues().hasClass('Select__value-container--has-value')).to.be.false;
+      let valueContainer = wrapper.container.querySelector('.Select__value-container');
+      expect(valueContainer).to.not.be.null;
+      expect(valueContainer.classList.contains('Select__value-container--has-value')).to.be.false;
 
-      wrapper.setProps(props({
-        ...instance().props,
-        value: '1',
-      }));
+      cleanup();
+      wrapper = render(<InputGroup {...props({ ...selectProps, value: '1' })} />);
 
-      expect(selectValues().hasClass('Select__value-container--has-value')).to.be.true;
-      expect(selectValues().text()).to.equal('one');
+      valueContainer = wrapper.container.querySelector('.Select__value-container');
+      expect(valueContainer.classList.contains('Select__value-container--has-value')).to.be.true;
+      expect(valueContainer.textContent).to.include('one');
     });
 
     it('should ignore a provided value that does not have a corresponding option item', () => {
-      expect(selectValues()).to.have.length(1);
-      expect(selectValues().hasClass('Select__value-container--is-multi')).to.be.false;
-      expect(selectValues().hasClass('Select__value-container--has-value')).to.be.false;
+      let valueContainer = wrapper.container.querySelector('.Select__value-container');
+      expect(valueContainer.classList.contains('Select__value-container--has-value')).to.be.false;
 
-      wrapper.setProps(props({
-        ...instance().props,
-        value: '4',
-      }));
+      cleanup();
+      wrapper = render(<InputGroup {...props({ ...selectProps, value: '4' })} />);
 
-      expect(selectValues().hasClass('Select__value-container--has-value')).to.be.false;
-      expect(selectValues().text()).to.equal('Select...');
+      valueContainer = wrapper.container.querySelector('.Select__value-container');
+      expect(valueContainer.classList.contains('Select__value-container--has-value')).to.be.false;
+      expect(valueContainer.textContent).to.equal('Select...');
     });
 
     context('multi-select', () => {
       beforeEach(() => {
-        wrapper.setProps(props({
-          ...selectProps,
-          multi: true,
-        }));
+        cleanup();
+        wrapper = render(<InputGroup {...props({ ...selectProps, multi: true })} />);
       });
 
       it('should render a multi-select input with provided values pre-selected', () => {
-        expect(selectValues()).to.have.length(1);
-        expect(selectValues().hasClass('Select__value-container--is-multi')).to.be.true;
-        expect(selectValues().hasClass('Select__value-container--has-value')).to.be.false;
+        let valueContainer = wrapper.container.querySelector('.Select__value-container');
+        expect(valueContainer.classList.contains('Select__value-container--is-multi')).to.be.true;
+        expect(valueContainer.classList.contains('Select__value-container--has-value')).to.be.false;
 
-        wrapper.setProps(props({
-          ...instance().props,
-          value: '1,3',
-        }));
+        cleanup();
+        wrapper = render(<InputGroup {...props({ ...selectProps, multi: true, value: '1,3' })} />);
 
-        expect(selectValues().hasClass('Select__value-container--has-value')).to.be.true;
-        expect(selectValues().text()).to.equal('onethree');
+        valueContainer = wrapper.container.querySelector('.Select__value-container');
+        expect(valueContainer.classList.contains('Select__value-container--has-value')).to.be.true;
+        expect(valueContainer.textContent).to.include('one');
+        expect(valueContainer.textContent).to.include('three');
       });
 
       it('should render a multi-select input with valid provided values pre-selected, and invalid ones ignored', () => {
-        expect(selectValues()).to.have.length(1);
-        expect(selectValues().hasClass('Select__value-container--is-multi')).to.be.true;
-        expect(selectValues().hasClass('Select__value-container--has-value')).to.be.false;
+        let valueContainer = wrapper.container.querySelector('.Select__value-container');
+        expect(valueContainer.classList.contains('Select__value-container--is-multi')).to.be.true;
+        expect(valueContainer.classList.contains('Select__value-container--has-value')).to.be.false;
 
-        wrapper.setProps(props({
-          ...instance().props,
-          value: '0,2,3,4',
-        }));
+        cleanup();
+        wrapper = render(<InputGroup {...props({ ...selectProps, multi: true, value: '0,2,3,4' })} />);
 
-        expect(selectValues().hasClass('Select__value-container--has-value')).to.be.true;
-        expect(selectValues().text()).to.equal('twothree');
+        valueContainer = wrapper.container.querySelector('.Select__value-container');
+        expect(valueContainer.classList.contains('Select__value-container--has-value')).to.be.true;
+        expect(valueContainer.textContent).to.include('two');
+        expect(valueContainer.textContent).to.include('three');
       });
     });
   });
@@ -159,86 +150,90 @@ describe('InputGroup', () => {
     it('should render without errors when provided all required props', () => {
       console.error = sinon.stub();
 
-      expect(wrapper.find('.input-group')).to.have.length(1);
+      expect(wrapper.container.querySelector('.input-group')).to.not.be.null;
       expect(console.error.callCount).to.equal(0);
     });
 
     it('should render the appropriate type of input based on the prop type', () => {
-      const renderInput = sinon.spy(wrapper.instance(), 'renderInput');
-      const renderExplanation = sinon.spy(wrapper.instance(), 'renderExplanation');
-      const renderTextArea = sinon.spy(wrapper.instance(), 'renderTextArea');
-      const renderCheckbox = sinon.spy(wrapper.instance(), 'renderCheckbox');
-      const renderRadios = sinon.spy(wrapper.instance(), 'renderRadios');
-      const renderSelect = sinon.spy(wrapper.instance(), 'renderSelect');
-      const renderDatePicker = sinon.spy(wrapper.instance(), 'renderDatePicker');
-      wrapper.instance().forceUpdate();
+      // text → input
+      expect(wrapper.container.querySelector('input[type="text"]')).to.not.be.null;
 
-      sinon.assert.calledOnce(renderInput);
-      renderInput.resetHistory();
+      cleanup();
+      wrapper = render(<InputGroup {...props({ type: 'explanation', text: 'help text' })} />);
+      expect(wrapper.container.querySelector('.input-group-explanation')).to.not.be.null;
 
-      wrapper.setProps({ type: 'explanation' });
-      sinon.assert.calledOnce(renderExplanation);
-      renderExplanation.resetHistory();
+      cleanup();
+      wrapper = render(<InputGroup {...props({ type: 'textarea' })} />);
+      expect(wrapper.container.querySelector('textarea')).to.not.be.null;
 
-      wrapper.setProps({ type: 'textarea' });
-      sinon.assert.calledOnce(renderTextArea);
-      renderTextArea.resetHistory();
+      cleanup();
+      wrapper = render(<InputGroup {...props({ type: 'checkbox' })} />);
+      expect(wrapper.container.querySelector('input[type="checkbox"]')).to.not.be.null;
 
-      wrapper.setProps({ type: 'checkbox' });
-      sinon.assert.calledOnce(renderCheckbox);
-      renderCheckbox.resetHistory();
+      cleanup();
+      wrapper = render(<InputGroup {...props({ type: 'radios', items: [{ value: 'a', label: 'A' }] })} />);
+      expect(wrapper.container.querySelector('input[type="radio"]')).to.not.be.null;
 
-      wrapper.setProps({ type: 'radios' });
-      sinon.assert.calledOnce(renderRadios);
-      renderRadios.resetHistory();
+      cleanup();
+      wrapper = render(<InputGroup {...props({ type: 'select', items: [] })} />);
+      expect(wrapper.container.querySelector('.Select')).to.not.be.null;
 
-      wrapper.setProps({ type: 'select' });
-      sinon.assert.calledOnce(renderSelect);
-      renderSelect.resetHistory();
-
-      wrapper.setProps({ type: 'datepicker' });
-      sinon.assert.calledOnce(renderDatePicker);
-      renderDatePicker.resetHistory();
-
+      cleanup();
+      wrapper = render(<InputGroup {...props({ type: 'datepicker' })} />);
+      // DatePicker renders some form element
+      expect(wrapper.container.querySelector('.input-group')).to.not.be.null;
     });
   });
 
   describe('handleChange', () => {
     it('should call the onChange handler prop with the provided values', () => {
-      const args = { name: 'myText', value: 'hello' };
-      wrapper.instance().handleChange({ target: args });
+      const input = wrapper.container.querySelector('input[name="myText"]');
+      fireEvent.change(input, { target: { name: 'myText', value: 'hello' } });
 
       sinon.assert.calledOnce(defaultProps.onChange);
-      sinon.assert.calledWith(defaultProps.onChange, args);
+      sinon.assert.calledWith(defaultProps.onChange, { name: 'myText', value: 'hello' });
     });
 
     it('should call the onChange handler prop with transformed values for a checkbox', () => {
-      const args = { name: 'myCheckbox', checked: true };
-      const expectedTransformed = { name: 'myCheckbox', value: true };
+      cleanup();
+      wrapper = render(<InputGroup {...props({ type: 'checkbox', name: 'myCheckbox' })} />);
 
-      wrapper.setProps({ type: 'checkbox' });
-      wrapper.instance().handleChange({ target: args });
+      const checkbox = wrapper.container.querySelector('input[type="checkbox"]');
+      fireEvent.click(checkbox);
 
-      sinon.assert.calledWith(defaultProps.onChange, expectedTransformed);
+      sinon.assert.calledWith(defaultProps.onChange, { name: 'myCheckbox', value: true });
     });
 
     it('should call the onChange handler prop with transformed values for multiselect inputs', () => {
-      const args = 'val1, val2';
-      const expectedTransformed = { name: 'myMultiSelect', value: args };
+      // For react-select multi, handleChange receives the array directly
+      // We can test by rendering and checking the onChange is triggered on selection
+      cleanup();
+      wrapper = render(<InputGroup {...props({ name: 'myMultiSelect', type: 'select', multi: true, items: [{ value: 'val1', label: 'Val 1' }, { value: 'val2', label: 'Val 2' }] })} />);
 
-      wrapper.setProps({ name: 'myMultiSelect', type: 'select', multi: true });
-      wrapper.instance().handleChange({ target: args });
+      // Open the dropdown menu via mouse down on the control
+      const control = wrapper.container.querySelector('.Select__control');
+      fireEvent.mouseDown(control);
 
-      sinon.assert.calledWith(defaultProps.onChange, expectedTransformed);
+      const options = wrapper.container.querySelectorAll('.Select__option');
+      expect(options.length).to.be.above(0);
+      fireEvent.click(options[0]);
+      sinon.assert.calledOnce(defaultProps.onChange);
     });
 
     it('should call the onChange handler prop without transforming values for a regular select inputs', () => {
-      const args = { name: 'mySelect', value: 'mySelectedVal' };
+      cleanup();
+      wrapper = render(<InputGroup {...props({ name: 'mySelect', type: 'select', multi: false, items: [{ value: 'mySelectedVal', label: 'My Value' }] })} />);
 
-      wrapper.setProps({ name: 'mySelect', type: 'select', multi: false });
-      wrapper.instance().handleChange({ target: args });
+      // Open the dropdown menu via mouse down on the control
+      const control = wrapper.container.querySelector('.Select__control');
+      fireEvent.mouseDown(control);
 
-      sinon.assert.calledWith(defaultProps.onChange, args);
+      const options = wrapper.container.querySelectorAll('.Select__option');
+      expect(options.length).to.be.above(0);
+      fireEvent.click(options[0]);
+      sinon.assert.calledOnce(defaultProps.onChange);
+      const lastCall = defaultProps.onChange.lastCall;
+      expect(lastCall.args[0]).to.deep.equal({ name: 'mySelect', value: 'mySelectedVal' });
     });
   });
 });

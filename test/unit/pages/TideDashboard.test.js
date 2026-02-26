@@ -1,5 +1,6 @@
 import React from 'react';
-import { createMount } from '@material-ui/core/test-utils';
+import { render, screen, fireEvent, waitFor, within, cleanup } from '@testing-library/react';
+import { mountWithProviders } from '../../utils/mountWithProviders';
 import moment from 'moment-timezone';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
@@ -9,12 +10,16 @@ import map from 'lodash/map';
 import merge from 'lodash/merge';
 import defaults from 'lodash/defaults';
 import { ToastProvider } from '../../../app/providers/ToastProvider';
+import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
+import { useHistory, useLocation } from 'react-router-dom';
+import { useLocalStorage } from '../../../app/core/hooks';
 import TideDashboard from '../../../app/pages/dashboard/TideDashboard';
 import Popover from '../../../app/components/elements/Popover';
 import TideDashboardConfigForm from '../../../app/components/clinic/TideDashboardConfigForm';
 import DataConnections from '../../../app/components/datasources/DataConnections';
 import DataConnectionsModal from '../../../app/components/datasources/DataConnectionsModal';
 import { clinicUIDetails } from '../../../app/core/clinicUtils';
+import api from '../../../app/core/api';
 import mockTideDashboardPatients from '../../fixtures/mockTideDashboardPatients.json';
 import LDClientMock from '../../fixtures/LDClientMock';
 import SelectTags from '../../../app/components/clinic/PatientForm/SelectTags';
@@ -29,12 +34,53 @@ import SelectTags from '../../../app/components/clinic/PatientForm/SelectTags';
 /* global after */
 /* global afterEach */
 
+jest.mock('launchdarkly-react-client-sdk', () => {
+  const actual = jest.requireActual('launchdarkly-react-client-sdk');
+
+  return {
+    ...actual,
+    useFlags: jest.fn(),
+    useLDClient: jest.fn(),
+  };
+});
+
+jest.mock('react-router-dom', () => {
+  const actual = jest.requireActual('react-router-dom');
+
+  return {
+    ...actual,
+    useHistory: jest.fn(),
+    useLocation: jest.fn(),
+  };
+});
+
+jest.mock('../../../app/core/hooks', () => {
+  const actual = jest.requireActual('../../../app/core/hooks');
+
+  return {
+    ...actual,
+    useLocalStorage: jest.fn(),
+  };
+});
+
+jest.mock('../../../app/components/clinic/PatientForm/SelectTags', () => {
+  const React = require('react');
+  return jest.fn((props) => (
+    React.createElement('div', {
+      'data-testid': 'mock-select-tags',
+      onClick: () => props.onChange(['646f7efd08e23bc18d91caa6', '63d98f3dda7008171a96ab04'])
+    }, 'Mock Select Tags')
+  ));
+});
+
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
-describe('TideDashboard', () => {
-  let mount;
+beforeAll(() => {
+  window.scrollTo = jest.fn();
+});
 
+describe('TideDashboard', () => {
   const today = moment().toISOString();
   const yesterday = moment(today).subtract(1, 'day').toISOString();
 
@@ -53,50 +99,31 @@ describe('TideDashboard', () => {
     },
   };
 
-  before(() => {
-    mount = createMount();
-  });
-
   beforeEach(() => {
-    TideDashboard.__Rewire__('useLDClient', sinon.stub().returns(new LDClientMock()));
+    useLDClient.mockReturnValue(new LDClientMock());
 
-    TideDashboard.__Rewire__('useFlags', sinon.stub().returns({
+    useFlags.mockReturnValue({
       showTideDashboard: true,
       showSummaryDashboard: true,
       tideDashboardCategories: '',
-    }));
+    });
 
-    DataConnections.__Rewire__('api', defaultProps.api);
-    DataConnectionsModal.__Rewire__('api', defaultProps.api);
-    DataConnectionsModal.__Rewire__('useHistory', sinon.stub().returns({
+    useHistory.mockReturnValue({
       location: { query: {}, pathname: '/settings' },
       replace: sinon.stub(),
-    }));
+    });
 
-    TideDashboard.__Rewire__('useLocation', sinon.stub().returns({
+    useLocation.mockReturnValue({
       search: '',
       pathname: '/dashboard/tide'
-    }));
+    });
 
-    TideDashboard.__Rewire__('useHistory', sinon.stub().returns({
-      replace: sinon.stub()
-    }));
-
-    SelectTags.__Rewire__('useLocation', sinon.stub().returns({
-      search: '',
-      pathname: '/dashboard/tide'
-    }));
+    api.clinics.getPatientFromClinic = defaultProps.api.clinics.getPatientFromClinic;
   });
 
   afterEach(() => {
-    TideDashboard.__ResetDependency__('useLDClient');
-    TideDashboard.__ResetDependency__('useFlags');
-    SelectTags.__ResetDependency__('useLocation');
-    TideDashboard.__ResetDependency__('useLocation');
-    TideDashboard.__ResetDependency__('useHistory');
-    DataConnections.__ResetDependency__('api');
-    DataConnectionsModal.__ResetDependency__('api');
-    DataConnectionsModal.__ResetDependency__('useHistory');
+    cleanup();
+    jest.clearAllMocks();
   });
 
   const sampleTags = [
@@ -151,6 +178,13 @@ describe('TideDashboard', () => {
       tideDashboardPatients: {},
       timePrefs: { timezoneName: 'UTC' },
       selectedClinicId: 'clinicID123',
+      data: {
+        metaData: {},
+      },
+      allUsersMap: {
+        clinicianUserId123,
+      },
+      consentRecords: {},
       working: {
         fetchingPatientFromClinic: defaultWorkingState,
         fetchingTideDashboardPatients: completedState,
@@ -240,6 +274,9 @@ describe('TideDashboard', () => {
           timeInTargetPercent: [],
           timeCGMUsePercent: [],
           meetingTargets: [],
+          timeInVeryHighPercent: [],
+          timeInAnyHighPercent: [],
+          noData: [],
         }
       },
     },
@@ -300,7 +337,7 @@ describe('TideDashboard', () => {
   let mockedLocalStorage;
 
   beforeEach(() => {
-    delete localStorage.tideDashboardConfig;
+    localStorage.removeItem('tideDashboardConfig');
     defaultProps.trackMetric.resetHistory();
     defaultProps.api.clinics.getPatientsForTideDashboard.resetHistory();
     defaultProps.api.clinics.updateClinicPatient.resetHistory();
@@ -311,37 +348,22 @@ describe('TideDashboard', () => {
       tideDashboardConfig: {
         'clinicianUserId123|clinicID123': {
           period: '30d',
-          lastData: 7,
+          lastData: '7',
           tags: sampleTags.map(({ id }) => id),
         },
       },
     };
 
-    TideDashboard.__Rewire__('useLocalStorage', useLocalStorageRewire(mockedLocalStorage));
-    TideDashboardConfigForm.__Rewire__('useLocalStorage', useLocalStorageRewire(mockedLocalStorage));
-    TideDashboardConfigForm.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/dashboard/tide' }));
-    TideDashboard.__Rewire__('PatientDrawer', sinon.stub().returns('stubbed patient drawer'));
-
-    wrapper = mount(
-      <Provider store={store}>
-        <ToastProvider>
-          <TideDashboard {...defaultProps} />
-        </ToastProvider>
-      </Provider>
+    useLocalStorage.mockImplementation(useLocalStorageRewire(mockedLocalStorage));
+    wrapper = mountWithProviders(
+      <TideDashboard {...defaultProps} />,
+      { store }
     );
   });
 
   afterEach(() => {
     store.clearActions();
-    TideDashboard.__ResetDependency__('useFlags');
-    TideDashboard.__ResetDependency__('useLDClient');
-    TideDashboard.__ResetDependency__('useLocalStorage');
-    TideDashboardConfigForm.__ResetDependency__('useLocalStorage');
-    TideDashboardConfigForm.__ResetDependency__('useLocation');
-  });
-
-  after(() => {
-    mount.cleanUp();
+    jest.clearAllMocks();
   });
 
   context('on mount', () => {
@@ -349,20 +371,17 @@ describe('TideDashboard', () => {
       store = mockStore(tier0300ClinicState);
       store.clearActions();
 
-      TideDashboard.__Rewire__('useLDClient', sinon.stub().returns(new LDClientMock({ clinic : {
+      useLDClient.mockReturnValue(new LDClientMock({ clinic : {
         tier: 'tier0300'
-      }})));
+      }}));
 
-      TideDashboard.__Rewire__('useFlags', sinon.stub().returns({
+      useFlags.mockReturnValue({
         showTideDashboard: false,
-      }));
+      });
 
-      wrapper = mount(
-        <Provider store={store}>
-          <ToastProvider>
-            <TideDashboard {...defaultProps} />
-          </ToastProvider>
-        </Provider>
+      wrapper = mountWithProviders(
+        <TideDashboard {...defaultProps} />,
+        { store }
       );
 
       const actions = store.getActions();
@@ -382,12 +401,9 @@ describe('TideDashboard', () => {
       });
       store.clearActions();
 
-      wrapper = mount(
-        <Provider store={store}>
-          <ToastProvider>
-            <TideDashboard {...defaultProps} />
-          </ToastProvider>
-        </Provider>
+      wrapper = mountWithProviders(
+        <TideDashboard {...defaultProps} />,
+        { store }
       );
 
       expect(store.getActions()[0]).to.eql({
@@ -410,24 +426,19 @@ describe('TideDashboard', () => {
     it('should open the config dialog if the configuration is not set', () => {
       store = mockStore(noResultsState);
       mockedLocalStorage = {};
-      TideDashboard.__Rewire__('useLocalStorage', useLocalStorageRewire(mockedLocalStorage));
-      TideDashboardConfigForm.__Rewire__('useLocalStorage', useLocalStorageRewire(mockedLocalStorage));
+      useLocalStorage.mockImplementation(useLocalStorageRewire(mockedLocalStorage));
 
-      TideDashboard.__Rewire__('useLDClient', sinon.stub().returns(new LDClientMock({ clinic : {
+      useLDClient.mockReturnValue(new LDClientMock({ clinic : {
         tier: 'tier0300',
-      }})));
+      }}));
 
-      wrapper = mount(
-        <Provider store={store}>
-          <ToastProvider>
-            <TideDashboard {...defaultProps} />
-          </ToastProvider>
-        </Provider>
+      wrapper = mountWithProviders(
+        <TideDashboard {...defaultProps} />,
+        { store }
       );
 
-      const dialog = () => wrapper.find('Dialog#tideDashboardConfig');
-      expect(dialog()).to.have.length(1);
-      expect(dialog().props().open).to.be.true;
+      const dialog = document.querySelector('#tideDashboardConfig');
+      expect(dialog).to.not.be.null;
     });
 
     it('should open the config dialog if the configuration is invalid', () => {
@@ -436,29 +447,24 @@ describe('TideDashboard', () => {
         tideDashboardConfig: {
           'clinicianUserId123|clinicID123': {
             period: '30d',
-            lastData: 7,
+            lastData: '7',
             tags: [], // invalid: no tags selected
           },
         },
       };
-      TideDashboard.__Rewire__('useLocalStorage', useLocalStorageRewire(mockedLocalStorage));
-      TideDashboardConfigForm.__Rewire__('useLocalStorage', useLocalStorageRewire(mockedLocalStorage));
+      useLocalStorage.mockImplementation(useLocalStorageRewire(mockedLocalStorage));
 
-      TideDashboard.__Rewire__('useLDClient', sinon.stub().returns(new LDClientMock({ clinic : {
+      useLDClient.mockReturnValue(new LDClientMock({ clinic : {
         tier: 'tier0300',
-      }})));
+      }}));
 
-      wrapper = mount(
-        <Provider store={store}>
-          <ToastProvider>
-            <TideDashboard {...defaultProps} />
-          </ToastProvider>
-        </Provider>
+      wrapper = mountWithProviders(
+        <TideDashboard {...defaultProps} />,
+        { store }
       );
 
-      const dialog = () => wrapper.find('Dialog#tideDashboardConfig');
-      expect(dialog()).to.have.length(1);
-      expect(dialog().props().open).to.be.true;
+      const dialog = document.querySelector('#tideDashboardConfig');
+      expect(dialog).to.not.be.null;
     });
 
     it('should fetch dashboard results if the configuration is set', () => {
@@ -468,30 +474,26 @@ describe('TideDashboard', () => {
         tideDashboardConfig: {
           'clinicianUserId123|clinicID123': {
             period: '30d',
-            lastData: 7,
+            lastData: '7',
             tags: sampleTags.map(({ id }) => id),
           },
         },
       };
 
-      TideDashboard.__Rewire__('useLocalStorage', useLocalStorageRewire(mockedLocalStorage));
-      TideDashboardConfigForm.__Rewire__('useLocalStorage', useLocalStorageRewire(mockedLocalStorage));
-      TideDashboard.__Rewire__('useFlags', sinon.stub().returns({
+      useLocalStorage.mockImplementation(useLocalStorageRewire(mockedLocalStorage));
+      useFlags.mockReturnValue({
         showSummaryDashboard: true,
         showTideDashboard: true,
         tideDashboardCategories: '',
-      }));
+      });
 
-      TideDashboard.__Rewire__('useLDClient', sinon.stub().returns(new LDClientMock({ clinic : {
+      useLDClient.mockReturnValue(new LDClientMock({ clinic : {
         tier: 'tier0300',
-      }})));
+      }}));
 
-      wrapper = mount(
-        <Provider store={store}>
-          <ToastProvider>
-            <TideDashboard {...defaultProps} />
-          </ToastProvider>
-        </Provider>
+      wrapper = mountWithProviders(
+        <TideDashboard {...defaultProps} />,
+        { store }
       );
 
       const expectedAction = { type: 'FETCH_TIDE_DASHBOARD_PATIENTS_REQUEST' };
@@ -517,21 +519,18 @@ describe('TideDashboard', () => {
     beforeEach(() => {
       store = mockStore(hasEmptyResultsState);
       defaultProps.trackMetric.resetHistory();
-      wrapper = mount(
-        <Provider store={store}>
-          <ToastProvider>
-            <TideDashboard {...defaultProps} />
-          </ToastProvider>
-        </Provider>
+      wrapper = mountWithProviders(
+        <TideDashboard {...defaultProps} />,
+        { store }
       );
     });
 
     it('should show empty table text', () => {
-      const dashboardSections = wrapper.find('.dashboard-section');
-      expect(dashboardSections.hostNodes()).to.have.length(1);
-      const emptyTextNode = dashboardSections.at(1).find('#no-tide-results').hostNodes();
-      expect(emptyTextNode).to.have.length(1);
-      expect(emptyTextNode.text()).contains('To make sure your patients are tagged and you have set the correct patient filters, go to your Clinic Workspace.');
+      const dashboardSections = document.querySelectorAll('.dashboard-section');
+      expect(dashboardSections).to.have.length(1);
+      const emptyTextNode = dashboardSections[0].querySelector('#no-tide-results');
+      expect(emptyTextNode).to.not.be.null;
+      expect(emptyTextNode.textContent).contains('To make sure your patients are tagged and you have set the correct patient filters, go to your Clinic Workspace.');
     });
   });
 
@@ -539,12 +538,9 @@ describe('TideDashboard', () => {
     beforeEach(() => {
       store = mockStore(hasResultsState);
       defaultProps.trackMetric.resetHistory();
-      wrapper = mount(
-        <Provider store={store}>
-          <ToastProvider>
-            <TideDashboard {...defaultProps} />
-          </ToastProvider>
-        </Provider>
+      wrapper = mountWithProviders(
+        <TideDashboard {...defaultProps} />,
+        { store }
       );
     });
 
@@ -563,177 +559,181 @@ describe('TideDashboard', () => {
         },
       });
       defaultProps.trackMetric.resetHistory();
-      wrapper = mount(
-        <Provider store={store}>
-          <ToastProvider>
-            <TideDashboard {...defaultProps} />
-          </ToastProvider>
-        </Provider>
+      wrapper = mountWithProviders(
+        <TideDashboard {...defaultProps} />,
+        { store }
       );
 
-      const header = wrapper.find('#tide-dashboard-header').hostNodes();
-      expect(header.text()).to.equal('TIDE Dashboard');
+      const header = document.querySelector('#tide-dashboard-header');
+      expect(header.textContent).to.equal('TIDE Dashboard');
 
-      const period = wrapper.find('#tide-dashboard-summary-period').hostNodes();
-      expect(period.text()).contains('14 days');
+      const period = document.querySelector('#tide-dashboard-summary-period');
+      expect(period.textContent).contains('14 days');
 
-      const lastData = wrapper.find('#tide-dashboard-last-data').hostNodes();
-      expect(lastData.text()).contains('Today');
+      const lastData = document.querySelector('#tide-dashboard-last-data');
+      expect(lastData.textContent).contains('Today');
     });
 
-    it('should render a heading and table for dashboard section, with correctly ordered results', () => {
-      const dashboardSections = wrapper.find('.dashboard-section');
-      expect(dashboardSections.hostNodes()).to.have.length(8);
+    it('should render a heading and table for dashboard section, with correctly ordered results', async () => {
+      const dashboardSections = document.querySelectorAll('.dashboard-section');
+      expect(dashboardSections).to.have.length(8);
 
-      const dashboardSectionLabels = dashboardSections.find('.dashboard-section-label').hostNodes();
+      const dashboardSectionLabels = document.querySelectorAll('.dashboard-section-label');
       expect(dashboardSectionLabels).to.have.length(8);
-      expect(dashboardSectionLabels.at(0).text()).to.equal('Very Low> 1% Time below 54 mg/dL');
-      expect(dashboardSectionLabels.at(1).text()).to.equal('Low> 4% Time below 70 mg/dL');
-      expect(dashboardSectionLabels.at(2).text()).to.equal('Large Drop in Time in Range> 15%');
-      expect(dashboardSectionLabels.at(3).text()).to.equal('High> 25% Time above 180 mg/dL');
-      expect(dashboardSectionLabels.at(4).text()).to.equal('Very High> 5% Time above 250 mg/dL');
-      expect(dashboardSectionLabels.at(5).text()).to.equal('Low CGM Wear Time< 70%');
-      expect(dashboardSectionLabels.at(6).text()).to.equal('Meeting Targets');
-      expect(dashboardSectionLabels.at(7).text()).to.equal('Data Issues');
+      expect(dashboardSectionLabels[0].textContent).to.equal('Very Low> 1% Time below 54 mg/dL');
+      expect(dashboardSectionLabels[1].textContent).to.equal('Low> 4% Time below 70 mg/dL');
+      expect(dashboardSectionLabels[2].textContent).to.equal('Large Drop in Time in Range> 15%');
+      expect(dashboardSectionLabels[3].textContent).to.equal('High> 25% Time above 180 mg/dL');
+      expect(dashboardSectionLabels[4].textContent).to.equal('Very High> 5% Time above 250 mg/dL');
+      expect(dashboardSectionLabels[5].textContent).to.equal('Low CGM Wear Time< 70%');
+      expect(dashboardSectionLabels[6].textContent).to.equal('Meeting Targets');
+      expect(dashboardSectionLabels[7].textContent).to.equal('Data Issues');
 
-      const dashboardSectionTables = dashboardSections.find('.dashboard-table').hostNodes();
+      const dashboardSectionTables = document.querySelectorAll('.dashboard-table');
       expect(dashboardSectionTables).to.have.length(8);
 
-      const getTableRow = (tableIndex, rowIndex) => dashboardSectionTables.at(tableIndex).find('tr').at(rowIndex);
+      const getTableRow = (tableIndex, rowIndex) => dashboardSectionTables[tableIndex].querySelectorAll('tr')[rowIndex];
 
-      expect(dashboardSectionTables.at(0).find('tr')).to.have.length(4); // header row + 3 results
-      expect(dashboardSectionTables.at(1).find('tr')).to.have.length(4); // header row + 3 results
-      expect(dashboardSectionTables.at(2).find('tr')).to.have.length(4); // header row + 3 results
-      expect(dashboardSectionTables.at(3).find('tr')).to.have.length(1); // header row
-      expect(dashboardSectionTables.at(4).find('tr')).to.have.length(1); // header row
-      expect(dashboardSectionTables.at(5).find('tr')).to.have.length(4); // header row + 3 results
-      expect(dashboardSectionTables.at(6).find('tr')).to.have.length(6); // header row + 5 results
+      expect(dashboardSectionTables[0].querySelectorAll('tr')).to.have.length(4); // header row + 3 results
+      expect(dashboardSectionTables[1].querySelectorAll('tr')).to.have.length(4); // header row + 3 results
+      expect(dashboardSectionTables[2].querySelectorAll('tr')).to.have.length(4); // header row + 3 results
+      expect(dashboardSectionTables[3].querySelectorAll('tr')).to.have.length(1); // header row
+      expect(dashboardSectionTables[4].querySelectorAll('tr')).to.have.length(1); // header row
+      expect(dashboardSectionTables[5].querySelectorAll('tr')).to.have.length(4); // header row + 3 results
+      expect(dashboardSectionTables[6].querySelectorAll('tr')).to.have.length(6); // header row + 5 results
 
       // Verify all columns on present on a sample patient from first table
-      expect(getTableRow(0, 0).find('th').at(0).text()).contains('Patient Name');
-      expect(getTableRow(0, 2).find('th').at(0).text()).contains('Charmane Fassman');
+      expect(getTableRow(0, 0).querySelectorAll('th')[0].textContent).contains('Patient Name');
+      expect(getTableRow(0, 2).querySelectorAll('th')[0].textContent).contains('Charmane Fassman');
 
-      expect(getTableRow(0, 0).find('th').at(1).text()).contains('Avg. Glucose');
-      expect(getTableRow(0, 2).find('td').at(0).text()).contains('97');
+      expect(getTableRow(0, 0).querySelectorAll('th')[1].textContent).contains('Avg. Glucose');
+      expect(getTableRow(0, 2).querySelectorAll('td')[0].textContent).contains('97');
 
-      expect(getTableRow(0, 0).find('th').at(2).text()).contains('GMI');
-      expect(getTableRow(0, 2).find('td').at(1).text()).contains('12.2 %');
+      expect(getTableRow(0, 0).querySelectorAll('th')[2].textContent).contains('GMI');
+      expect(getTableRow(0, 2).querySelectorAll('td')[1].textContent).contains('12.2 %');
 
-      expect(getTableRow(0, 0).find('th').at(3).text()).contains('CGM Use');
-      expect(getTableRow(0, 2).find('td').at(2).text()).contains('84 %');
+      expect(getTableRow(0, 0).querySelectorAll('th')[3].textContent).contains('CGM Use');
+      expect(getTableRow(0, 2).querySelectorAll('td')[2].textContent).contains('84 %');
 
       // Confirm first table is sorted appropriately
-      expect(getTableRow(0, 0).find('th').at(4).text()).contains('% Time < 54');
-      expect(getTableRow(0, 1).find('td').at(3).text()).contains('4 %');
-      expect(getTableRow(0, 2).find('td').at(3).text()).contains('3 %');
-      expect(getTableRow(0, 3).find('td').at(3).text()).contains('1 %');
+      expect(getTableRow(0, 0).querySelectorAll('th')[4].textContent).contains('% Time < 54');
+      expect(getTableRow(0, 1).querySelectorAll('td')[3].textContent).contains('4 %');
+      expect(getTableRow(0, 2).querySelectorAll('td')[3].textContent).contains('3 %');
+      expect(getTableRow(0, 3).querySelectorAll('td')[3].textContent).contains('1 %');
 
-      expect(getTableRow(0, 0).find('th').at(5).text()).contains('% Time < 70');
-      expect(getTableRow(0, 2).find('td').at(4).text()).contains('17 %');
+      expect(getTableRow(0, 0).querySelectorAll('th')[5].textContent).contains('% Time < 70');
+      expect(getTableRow(0, 2).querySelectorAll('td')[4].textContent).contains('17 %');
 
-      expect(getTableRow(0, 0).find('th').at(6).text()).contains('% TIR 70-180');
-      expect(getTableRow(0, 2).find('td').at(5).text()).contains('71 %');
+      expect(getTableRow(0, 0).querySelectorAll('th')[6].textContent).contains('% TIR 70-180');
+      expect(getTableRow(0, 2).querySelectorAll('td')[5].textContent).contains('71 %');
 
-      expect(getTableRow(0, 0).find('th').at(7).text()).contains('% Time in Range');
-      expect(getTableRow(0, 2).find('td').at(6).find('.range-summary-bars').hostNodes()).to.have.lengthOf(1);
+      expect(getTableRow(0, 0).querySelectorAll('th')[7].textContent).contains('% Time in Range');
+      expect(getTableRow(0, 2).querySelectorAll('td')[6].querySelectorAll('.range-summary-bars')).to.have.lengthOf(1);
 
-      expect(getTableRow(0, 0).find('th').at(8).text()).contains('% Change in TIR');
-      expect(getTableRow(0, 2).find('td').at(7).text()).contains('10');
+      expect(getTableRow(0, 0).querySelectorAll('th')[8].textContent).contains('% Change in TIR');
+      expect(getTableRow(0, 2).querySelectorAll('td')[7].textContent).contains('10');
 
-      expect(getTableRow(0, 0).find('th').at(9).text()).contains('Tags');
-      expect(getTableRow(0, 2).find('td').at(8).text()).contains('test tag 1');
+      expect(getTableRow(0, 0).querySelectorAll('th')[9].textContent).contains('Tags');
+      expect(getTableRow(0, 2).querySelectorAll('td')[8].textContent).contains('test tag 1');
 
       // Should contain a "more" menu that allows opening a patient edit dialog and opening a patient data connections dialog
-      const moreMenuIcon = getTableRow(0, 2).find('td').at(9).find('PopoverMenu').find('Icon').at(0);
-      const popoverMenu = () => wrapper.find(Popover).at(5);
-      expect(popoverMenu().props().open).to.be.false;
-      moreMenuIcon.simulate('click');
-      expect(popoverMenu().props().open).to.be.true;
+      const moreMenuIcon = getTableRow(0, 2).querySelectorAll('td')[9].querySelector('button');
+      
+      expect(document.querySelector('#editPatient')).to.be.null;
+      fireEvent.click(moreMenuIcon);
+      
+      const editButton = (await screen.findAllByText('Edit Patient Details'))[0];
+      expect(editButton).to.not.be.null;
 
-      const editButton = popoverMenu().find('Button[iconLabel="Edit Patient Details"]');
-      expect(editButton).to.have.lengthOf(1);
-
-      const editDialog = () => wrapper.find('Dialog#editPatient');
-      expect(editDialog()).to.have.length(0);
-      editButton.simulate('click');
-      wrapper.update();
-      expect(editDialog()).to.have.length(1);
-      expect(editDialog().props().open).to.be.true;
+      fireEvent.click(editButton);
+      
+      const editDialog = await waitFor(() => document.querySelector('#editPatient'));
+      expect(editDialog).to.not.be.null;
 
       expect(defaultProps.trackMetric.calledWith('Clinic - Edit patient')).to.be.true;
       expect(defaultProps.trackMetric.callCount).to.equal(1);
 
-      const dataConnectionsButton = popoverMenu().find('Button[iconLabel="Bring Data into Tidepool"]');
-      expect(dataConnectionsButton).to.have.lengthOf(1);
+      // Close the dialog without triggering the "Edit patient close" trackMetric
+      // (clicking aria-label="close dialog" fires an extra metric via DialogTitle's onClose handler)
+      // Click the MUI backdrop instead which triggers Dialog.onClose = handleCloseOverlays (no metric)
+      fireEvent.click(document.querySelector('#editPatient .MuiBackdrop-root'));
+      await waitFor(() => expect(document.querySelector('#editPatient')).to.be.null);
 
-      const dataConnectionsDialog = () => wrapper.find('Dialog#data-connections');
-      expect(dataConnectionsDialog()).to.have.length(0);
+      // Open menu again
+      fireEvent.click(moreMenuIcon);
 
-      dataConnectionsButton.simulate('click');
-      wrapper.update();
-      expect(dataConnectionsDialog()).to.have.length(1);
-      expect(dataConnectionsDialog().props().open).to.be.true;
+      await screen.findAllByText('Bring Data into Tidepool'); // wait for DOM to settle
+      const dataConnectionsButton = Array.from(document.querySelectorAll('.action-list-item'))
+        .find(el => el.textContent.includes('Bring Data into Tidepool'));
+      expect(dataConnectionsButton).to.not.be.null;
+
+      expect(document.querySelector('#data-connections')).to.be.null;
+
+      fireEvent.click(dataConnectionsButton);
+      
+      const dataConnectionsDialog = await waitFor(() => document.querySelector('#data-connections'));
+      expect(dataConnectionsDialog).to.not.be.null;
 
       expect(defaultProps.trackMetric.calledWith('Clinic - Edit patient data connections')).to.be.true;
       expect(defaultProps.trackMetric.callCount).to.equal(2);
 
       // Confirm second table is sorted appropriately
-      expect(getTableRow(1, 0).find('th').at(5).text()).contains('% Time < 70');
-      expect(getTableRow(1, 1).find('td').at(4).text()).contains('9 %');
-      expect(getTableRow(1, 2).find('td').at(4).text()).contains('9 %');
-      expect(getTableRow(1, 3).find('td').at(4).text()).contains('6 %');
+      expect(getTableRow(1, 0).querySelectorAll('th')[5].textContent).contains('% Time < 70');
+      expect(getTableRow(1, 1).querySelectorAll('td')[4].textContent).contains('9 %');
+      expect(getTableRow(1, 2).querySelectorAll('td')[4].textContent).contains('9 %');
+      expect(getTableRow(1, 3).querySelectorAll('td')[4].textContent).contains('6 %');
 
       // Confirm third table is sorted appropriately
-      expect(getTableRow(2, 0).find('th').at(8).text()).contains('% Change in TIR');
-      expect(getTableRow(2, 1).find('td').at(7).text()).contains('26');
-      expect(getTableRow(2, 2).find('td').at(7).text()).contains('25');
-      expect(getTableRow(2, 3).find('td').at(7).text()).contains('24');
+      expect(getTableRow(2, 0).querySelectorAll('th')[8].textContent).contains('% Change in TIR');
+      expect(getTableRow(2, 1).querySelectorAll('td')[7].textContent).contains('26');
+      expect(getTableRow(2, 2).querySelectorAll('td')[7].textContent).contains('25');
+      expect(getTableRow(2, 3).querySelectorAll('td')[7].textContent).contains('24');
 
       // Confirm sixth table is sorted appropriately
-      expect(getTableRow(5, 0).find('th').at(3).text()).contains('CGM Use');
-      expect(getTableRow(5, 1).find('td').at(2).text()).contains('57');
-      expect(getTableRow(5, 2).find('td').at(2).text()).contains('66');
-      expect(getTableRow(5, 3).find('td').at(2).text()).contains('69');
+      expect(getTableRow(5, 0).querySelectorAll('th')[3].textContent).contains('CGM Use');
+      expect(getTableRow(5, 1).querySelectorAll('td')[2].textContent).contains('57');
+      expect(getTableRow(5, 2).querySelectorAll('td')[2].textContent).contains('66');
+      expect(getTableRow(5, 3).querySelectorAll('td')[2].textContent).contains('69');
 
       // Confirm seventh table is sorted appropriately
-      expect(getTableRow(6, 0).find('th').at(4).text()).contains('% Time < 54');
-      expect(getTableRow(6, 1).find('td').at(3).text()).contains('0 %');
-      expect(getTableRow(6, 2).find('td').at(3).text()).contains('1 %');
-      expect(getTableRow(6, 3).find('td').at(3).text()).contains('1 %');
-      expect(getTableRow(6, 4).find('td').at(3).text()).contains('0 %');
-      expect(getTableRow(6, 5).find('td').at(3).text()).contains('0 %');
+      expect(getTableRow(6, 0).querySelectorAll('th')[4].textContent).contains('% Time < 54');
+      expect(getTableRow(6, 1).querySelectorAll('td')[3].textContent).contains('0 %');
+      expect(getTableRow(6, 2).querySelectorAll('td')[3].textContent).contains('1 %');
+      expect(getTableRow(6, 3).querySelectorAll('td')[3].textContent).contains('1 %');
+      expect(getTableRow(6, 4).querySelectorAll('td')[3].textContent).contains('0 %');
+      expect(getTableRow(6, 5).querySelectorAll('td')[3].textContent).contains('0 %');
 
       // Confirm eighth table is sorted appropriately
-      expect(getTableRow(7, 0).find('th').at(2).text()).contains('Days Since Last Data');
-      expect(getTableRow(7, 1).find('td').at(1).text()).contains('200');
-      expect(getTableRow(7, 2).find('td').at(1).text()).contains('45');
-      expect(getTableRow(7, 3).find('td').at(1).text()).contains('30');
-      expect(getTableRow(7, 4).find('td').at(1).text()).contains('1');
-      expect(getTableRow(7, 5).find('td').at(1).text()).contains('-');
+      expect(getTableRow(7, 0).querySelectorAll('th')[2].textContent).contains('Days Since Last Data');
+      expect(getTableRow(7, 1).querySelectorAll('td')[1].textContent).contains('20');
+      expect(getTableRow(7, 2).querySelectorAll('td')[1].textContent).contains('45');
+      expect(getTableRow(7, 3).querySelectorAll('td')[1].textContent).contains('30');
+      expect(getTableRow(7, 4).querySelectorAll('td')[1].textContent).contains('1');
+      expect(getTableRow(7, 5).querySelectorAll('td')[1].textContent).contains('-');
 
 
       // Verify columns present on a sample patient from the data issues table
-      expect(getTableRow(7, 0).find('th').at(0).text()).contains('Patient Name');
-      expect(getTableRow(7, 1).find('th').at(0).text()).contains('Judah Stopforth');
+      expect(getTableRow(7, 0).querySelectorAll('th')[0].textContent).contains('Patient Name');
+      expect(getTableRow(7, 1).querySelectorAll('th')[0].textContent).contains('Judah Stopforth');
 
-      expect(getTableRow(7, 0).find('th').at(1).text()).contains('Dexcom Connection Status');
-      expect(getTableRow(7, 1).find('td').at(0).text()).contains('Error Connecting');
+      expect(getTableRow(7, 0).querySelectorAll('th')[1].textContent).contains('Dexcom Connection Status');
+      expect(getTableRow(7, 1).querySelectorAll('td')[0].textContent).contains('Error Connecting');
 
-      expect(getTableRow(7, 0).find('th').at(2).text()).contains('Days Since Last Data');
-      expect(getTableRow(7, 1).find('td').at(1).text()).contains('200');
+      expect(getTableRow(7, 0).querySelectorAll('th')[2].textContent).contains('Days Since Last Data');
+      expect(getTableRow(7, 1).querySelectorAll('td')[1].textContent).contains('20');
 
       // Verify that various connection statuses are rendering correctly
-      expect(getTableRow(7, 2).find('th').at(0).text()).contains('Willie Gambles');
-      expect(getTableRow(7, 2).find('td').at(0).text()).contains('Invite Sent');
+      expect(getTableRow(7, 2).querySelectorAll('th')[0].textContent).contains('Willie Gambles');
+      expect(getTableRow(7, 2).querySelectorAll('td')[0].textContent).contains('Invite Sent');
 
-      expect(getTableRow(7, 3).find('th').at(0).text()).contains('Denys Ickov');
-      expect(getTableRow(7, 3).find('td').at(0).text()).contains('Patient Disconnected');
+      expect(getTableRow(7, 3).querySelectorAll('th')[0].textContent).contains('Denys Ickov');
+      expect(getTableRow(7, 3).querySelectorAll('td')[0].textContent).contains('Patient Disconnected');
 
-      expect(getTableRow(7, 4).find('th').at(0).text()).contains('Johna Slatcher');
-      expect(getTableRow(7, 4).find('td').at(0).text()).contains('No Pending Connections');
+      expect(getTableRow(7, 4).querySelectorAll('th')[0].textContent).contains('Johna Slatcher');
+      expect(getTableRow(7, 4).querySelectorAll('td')[0].textContent).contains('No Pending Connections');
 
-      expect(getTableRow(7, 5).find('th').at(0).text()).contains('Emelda Stangoe');
-      expect(getTableRow(7, 5).find('td').at(0).text()).contains('Invite Expired');
+      expect(getTableRow(7, 5).querySelectorAll('th')[0].textContent).contains('Emelda Stangoe');
+      expect(getTableRow(7, 5).querySelectorAll('td')[0].textContent).contains('Invite Expired');
     });
 
     it('should show empty text for a section without results', () => {
@@ -750,33 +750,29 @@ describe('TideDashboard', () => {
         }
       });
       defaultProps.trackMetric.resetHistory();
-      wrapper = mount(
-        <Provider store={store}>
-          <ToastProvider>
-            <TideDashboard {...defaultProps} />
-          </ToastProvider>
-        </Provider>
+      wrapper = mountWithProviders(
+        <TideDashboard {...defaultProps} />,
+        { store }
       );
 
-      const dashboardSections = wrapper.find('.dashboard-section');
-      expect(dashboardSections.hostNodes()).to.have.length(8);
+      const dashboardSections = document.querySelectorAll('.dashboard-section');
+      expect(dashboardSections).to.have.length(8);
 
-      const emptyTextNode = dashboardSections.at(1).find('.table-empty-text').hostNodes();
-      expect(emptyTextNode).to.have.length(1);
-      expect(emptyTextNode.text()).contains('There are no patients that match your filter criteria.');
+      const emptyTextNode = dashboardSections[0].querySelector('.table-empty-text');
+      expect(emptyTextNode).to.not.be.null;
+      expect(emptyTextNode.textContent).contains('There are no patients that match your filter criteria.');
     });
 
     it('should link to a patient data trends view when patient name is clicked', () => {
-      const dashboardSections = wrapper.find('.dashboard-section');
-      const dashboardSectionTables = dashboardSections.find('.dashboard-table').hostNodes();
-      const getTableRow = (tableIndex, rowIndex) => dashboardSectionTables.at(tableIndex).find('tr').at(rowIndex);
+      const dashboardSectionTables = document.querySelectorAll('.dashboard-table');
+      const getTableRow = (tableIndex, rowIndex) => dashboardSectionTables[tableIndex].querySelectorAll('tr')[rowIndex];
 
-      const firstPatientName = getTableRow(0, 2).find('span').at(0).hostNodes();
-      expect(firstPatientName.text()).contains('Charmane Fassman');
+      const firstPatientName = getTableRow(0, 2).querySelectorAll('span')[0];
+      expect(firstPatientName.textContent).contains('Charmane Fassman');
       const expectedPatientId = '6da2c016-263b-92db-1c3e-11ed92f5be4b';
 
       store.clearActions();
-      firstPatientName.simulate('click');
+      fireEvent.click(firstPatientName);
 
       expect(store.getActions()).to.eql([
         {
@@ -790,46 +786,42 @@ describe('TideDashboard', () => {
       beforeEach(() => {
         store = mockStore(hasResultsStateMmoll);
 
-        wrapper = mount(
-          <Provider store={store}>
-            <ToastProvider>
-              <TideDashboard {...defaultProps} />
-            </ToastProvider>
-          </Provider>
+        wrapper = mountWithProviders(
+          <TideDashboard {...defaultProps} />,
+          { store }
         );
 
         defaultProps.trackMetric.resetHistory();
       });
 
       it('should show the bgm average glucose in mmol/L units', () => {
-        const dashboardSections = wrapper.find('.dashboard-section');
-        const dashboardSectionTables = dashboardSections.find('.dashboard-table').hostNodes();
-        const getTableRow = (tableIndex, rowIndex) => dashboardSectionTables.at(tableIndex).find('tr').at(rowIndex);
+        const dashboardSectionTables = document.querySelectorAll('.dashboard-table');
+        const getTableRow = (tableIndex, rowIndex) => dashboardSectionTables[tableIndex].querySelectorAll('tr')[rowIndex];
 
-        expect(getTableRow(0, 0).find('th').at(1).text()).contains('Avg. Glucose');
-        expect(getTableRow(0, 2).find('td').at(0).text()).contains('5.4');
+        expect(getTableRow(0, 0).querySelectorAll('th')[1].textContent).contains('Avg. Glucose');
+        expect(getTableRow(0, 2).querySelectorAll('td')[0].textContent).contains('5.4');
       });
 
       it('should show table headings mmol/L units', () => {
-        const dashboardSections = wrapper.find('.dashboard-section');
-        expect(dashboardSections.hostNodes()).to.have.length(8);
+        const dashboardSections = document.querySelectorAll('.dashboard-section');
+        expect(dashboardSections).to.have.length(8);
 
-        const dashboardSectionLabels = dashboardSections.find('.dashboard-section-label').hostNodes();
+        const dashboardSectionLabels = document.querySelectorAll('.dashboard-section-label');
         expect(dashboardSectionLabels).to.have.length(8);
-        expect(dashboardSectionLabels.at(0).text()).to.equal('Very Low> 1% Time below 3.0 mmol/L');
-        expect(dashboardSectionLabels.at(1).text()).to.equal('Low> 4% Time below 3.9 mmol/L');
+        expect(dashboardSectionLabels[0].textContent).to.equal('Very Low> 1% Time below 3.0 mmol/L');
+        expect(dashboardSectionLabels[1].textContent).to.equal('Low> 4% Time below 3.9 mmol/L');
 
-        const dashboardSectionTables = dashboardSections.find('.dashboard-table').hostNodes();
-        const getTableRow = (tableIndex, rowIndex) => dashboardSectionTables.at(tableIndex).find('tr').at(rowIndex);
+        const dashboardSectionTables = document.querySelectorAll('.dashboard-table');
+        const getTableRow = (tableIndex, rowIndex) => dashboardSectionTables[tableIndex].querySelectorAll('tr')[rowIndex];
 
         // Confirm first table is sorted appropriately
-        expect(getTableRow(0, 0).find('th').at(4).text()).contains('% Time < 3.0');
-        expect(getTableRow(0, 1).find('td').at(3).text()).contains('4 %');
-        expect(getTableRow(0, 2).find('td').at(3).text()).contains('3 %');
-        expect(getTableRow(0, 3).find('td').at(3).text()).contains('1 %');
+        expect(getTableRow(0, 0).querySelectorAll('th')[4].textContent).contains('% Time < 3.0');
+        expect(getTableRow(0, 1).querySelectorAll('td')[3].textContent).contains('4 %');
+        expect(getTableRow(0, 2).querySelectorAll('td')[3].textContent).contains('3 %');
+        expect(getTableRow(0, 3).querySelectorAll('td')[3].textContent).contains('1 %');
 
-        expect(getTableRow(0, 0).find('th').at(5).text()).contains('% Time < 3.9');
-        expect(getTableRow(0, 2).find('td').at(4).text()).contains('17 %');
+        expect(getTableRow(0, 0).querySelectorAll('th')[5].textContent).contains('% Time < 3.9');
+        expect(getTableRow(0, 2).querySelectorAll('td')[4].textContent).contains('17 %');
       });
     });
 
@@ -838,144 +830,133 @@ describe('TideDashboard', () => {
         beforeEach(() => {
           store = mockStore(hasResultsState);
 
-          TideDashboard.__Rewire__('useFlags', sinon.stub().returns({
+          useFlags.mockReturnValue({
             showTideDashboardLastReviewed: true,
             tideDashboardCategories: '',
-          }));
+          });
 
-          wrapper = mount(
-            <Provider store={store}>
-              <ToastProvider>
-                <TideDashboard {...defaultProps} />
-              </ToastProvider>
-            </Provider>
+          wrapper = mountWithProviders(
+            <TideDashboard {...defaultProps} />,
+            { store }
           );
         });
 
         afterEach(() => {
-          TideDashboard.__ResetDependency__('useFlags');
+          jest.clearAllMocks();
         });
 
         it('should render the Last Reviewed column', () => {
-          const lastReviewedHeader = wrapper.find('#dashboard-table-meetingTargets-header-lastReviewed').hostNodes();
-          expect(lastReviewedHeader).to.have.length(1);
+          const lastReviewedHeader = document.querySelector('#dashboard-table-meetingTargets-header-lastReviewed');
+          expect(lastReviewedHeader).to.not.be.null;
 
-          const table = wrapper.find('table#dashboard-table-meetingTargets');
-          const rows = table.find('tbody tr');
-          const lastReviewData = row => rows.at(row).find('.MuiTableCell-root').at(10);
+          const table = document.querySelector('table#dashboard-table-meetingTargets');
+          const rows = table.querySelectorAll('tbody tr');
+          const lastReviewData = row => rows[row].querySelectorAll('.MuiTableCell-root')[10];
 
-          expect(lastReviewData(0).text()).to.contain('Today');
-          expect(lastReviewData(1).text()).to.contain('Yesterday');
-          expect(lastReviewData(3).text()).to.contain('30 days ago');
-          expect(lastReviewData(4).text()).to.contain('2024-03-05');
+          expect(lastReviewData(0).textContent).to.contain('Today');
+          expect(lastReviewData(1).textContent).to.contain('Yesterday');
+          expect(lastReviewData(3).textContent).to.contain('30 days ago');
+          expect(lastReviewData(4).textContent).to.contain('2024-03-05');
         });
 
-        it('should allow setting last reviewed date', done => {
-          const table = wrapper.find('table#dashboard-table-meetingTargets');
-          const rows = table.find('tbody tr');
-          const lastReviewData = row => rows.at(row).find('.MuiTableCell-root').at(10);
-          const updateButton = () =>lastReviewData(1).find('button');
+        it('should allow setting last reviewed date', async () => {
+          const table = document.querySelector('table#dashboard-table-meetingTargets');
+          const rows = table.querySelectorAll('tbody tr');
+          const lastReviewData = row => rows[row].querySelectorAll('.MuiTableCell-root')[10];
+          const updateButton = () => lastReviewData(1).querySelector('button');
 
-          expect(lastReviewData(1).text()).to.contain('Yesterday');
-          expect(updateButton().text()).to.equal('Mark Reviewed');
+          expect(lastReviewData(1).textContent).to.contain('Yesterday');
+          expect(updateButton().textContent).to.equal('Mark Reviewed');
 
           store.clearActions();
-          updateButton().simulate('click');
-          setTimeout(() => {
+          fireEvent.click(updateButton());
+          
+          await waitFor(() => {
             sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Mark patient reviewed', sinon.match({ clinicId: 'clinicID123', source: 'TIDE dashboard' }));
-
-            sinon.assert.calledWith(
-              defaultProps.api.clinics.setClinicPatientLastReviewed,
-              'clinicID123',
-            );
-
-            expect(store.getActions()).to.eql([
-              { type: 'SET_CLINIC_PATIENT_LAST_REVIEWED_REQUEST' },
-              {
-                type: 'SET_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS',
-                payload: { clinicId: 'clinicID123', patientId: 'ea8ab4da-d4ed-bc6a-dec3-6aa170a99d49', reviews: [today, yesterday] },
-              },
-            ]);
-
-            done();
           });
+
+          sinon.assert.calledWith(
+            defaultProps.api.clinics.setClinicPatientLastReviewed,
+            'clinicID123',
+          );
+
+          expect(store.getActions()).to.eql([
+            { type: 'SET_CLINIC_PATIENT_LAST_REVIEWED_REQUEST' },
+            {
+              type: 'SET_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS',
+              payload: { clinicId: 'clinicID123', patientId: 'ea8ab4da-d4ed-bc6a-dec3-6aa170a99d49', reviews: [today, yesterday] },
+            },
+          ]);
         });
 
-        it('should allow undoing last reviewed date', done => {
-          const table = wrapper.find('table#dashboard-table-meetingTargets');
-          const rows = table.find('tbody tr');
-          const lastReviewData = row => rows.at(row).find('.MuiTableCell-root').at(10);
-          const updateButton = () =>lastReviewData(0).find('button');
+        it('should allow undoing last reviewed date', async () => {
+          const table = document.querySelector('table#dashboard-table-meetingTargets');
+          const rows = table.querySelectorAll('tbody tr');
+          const lastReviewData = row => rows[row].querySelectorAll('.MuiTableCell-root')[10];
+          const updateButton = () => lastReviewData(0).querySelector('button');
 
-          expect(lastReviewData(0).text()).to.contain('Today');
-          expect(updateButton().text()).to.equal('Undo');
+          expect(lastReviewData(0).textContent).to.contain('Today');
+          expect(updateButton().textContent).to.equal('Undo');
 
           store.clearActions();
-          updateButton().simulate('click');
-          setTimeout(() => {
+          fireEvent.click(updateButton());
+          
+          await waitFor(() => {
             sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Undo mark patient reviewed', sinon.match({ clinicId: 'clinicID123', source: 'TIDE dashboard' }));
-
-            sinon.assert.calledWith(
-              defaultProps.api.clinics.revertClinicPatientLastReviewed,
-              'clinicID123',
-            );
-
-            expect(store.getActions()).to.eql([
-              { type: 'REVERT_CLINIC_PATIENT_LAST_REVIEWED_REQUEST' },
-              {
-                type: 'REVERT_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS',
-                payload: { clinicId: 'clinicID123', patientId: 'ecabff50-0698-ec3d-f2b9-b9d3720cbe14', reviews: [yesterday] },
-              },
-            ]);
-
-            done();
           });
+
+          sinon.assert.calledWith(
+            defaultProps.api.clinics.revertClinicPatientLastReviewed,
+            'clinicID123',
+          );
+
+          expect(store.getActions()).to.eql([
+            { type: 'REVERT_CLINIC_PATIENT_LAST_REVIEWED_REQUEST' },
+            {
+              type: 'REVERT_CLINIC_PATIENT_LAST_REVIEWED_SUCCESS',
+              payload: { clinicId: 'clinicID123', patientId: 'ecabff50-0698-ec3d-f2b9-b9d3720cbe14', reviews: [yesterday] },
+            },
+          ]);
         });
 
         it('should not render the Last Reviewed column if showSummaryData flag is false', () => {
-          TideDashboard.__Rewire__('useFlags', sinon.stub().returns({
+          useFlags.mockReturnValue({
             showSummaryData: false,
-          }));
+          });
 
           store = mockStore(hasResultsState);
-          wrapper = mount(
-            <Provider store={store}>
-              <ToastProvider>
-                <TideDashboard {...defaultProps} />
-              </ToastProvider>
-            </Provider>
+          wrapper = mountWithProviders(
+            <TideDashboard {...defaultProps} />,
+            { store }
           );
 
-          const lastReviewedHeader = wrapper.find('#dashboard-table-meetingTargets-header-lastReviewed').hostNodes();
-          expect(lastReviewedHeader).to.have.length(0);
+          const lastReviewedHeader = document.querySelector('#dashboard-table-meetingTargets-header-lastReviewed');
+          expect(lastReviewedHeader).to.be.null;
 
-          TideDashboard.__ResetDependency__('useFlags');
+          jest.clearAllMocks();
         });
       });
 
       context('showSummaryDashboardLastReviewed flag is false', () => {
         beforeEach(() => {
-          TideDashboard.__Rewire__('useFlags', sinon.stub().returns({
+          useFlags.mockReturnValue({
             showSummaryDashboardLastReviewed: false,
-          }));
+          });
         });
 
         afterEach(() => {
-          TideDashboard.__ResetDependency__('useFlags');
+          jest.clearAllMocks();
         });
 
         it('should not show the Last Reviewed column, even if clinic tier >= tier0300', () => {
           store = mockStore(tier0300ClinicState);
-          wrapper = mount(
-            <Provider store={store}>
-              <ToastProvider>
-                <TideDashboard {...defaultProps} />
-              </ToastProvider>
-            </Provider>
+          wrapper = mountWithProviders(
+            <TideDashboard {...defaultProps} />,
+            { store }
           );
 
-          const lastReviewedHeader = wrapper.find('#dashboard-table-meetingTargets-header-lastReviewed').hostNodes();
-          expect(lastReviewedHeader).to.have.length(0);
+          const lastReviewedHeader = document.querySelector('#dashboard-table-meetingTargets-header-lastReviewed');
+          expect(lastReviewedHeader).to.be.null;
         });
       });
     });
@@ -983,106 +964,100 @@ describe('TideDashboard', () => {
 
   context('has custom tideDashboardCategories setting configured in LaunchDarkly', () => {
     beforeEach(() => {
-      TideDashboard.__Rewire__('useFlags', sinon.stub().returns({
+      useFlags.mockReturnValue({
         showTideDashboard: true,
         showSummaryDashboard: true,
         tideDashboardCategories: 'noData,fooBar,meetingTargets , timeCGMUsePercent,timeInAnyLowPercent',
-      }));
+      });
 
       store = mockStore(hasResultsState);
       defaultProps.trackMetric.resetHistory();
-      wrapper = mount(
-        <Provider store={store}>
-          <ToastProvider>
-            <TideDashboard {...defaultProps} />
-          </ToastProvider>
-        </Provider>
+      wrapper = mountWithProviders(
+        <TideDashboard {...defaultProps} />,
+        { store }
       );
     });
 
     afterEach(() => {
-      TideDashboard.__ResetDependency__('useFlags');
+      jest.clearAllMocks();
     });
 
     it('returns custom sections in expected order and filters out invalid sections', () => {
-      const dashboardSections = wrapper.find('.dashboard-section');
-      expect(dashboardSections.hostNodes()).to.have.length(4);
+      const dashboardSections = document.querySelectorAll('.dashboard-section');
+      expect(dashboardSections).to.have.length(4);
 
-      const dashboardSectionLabels = dashboardSections.find('.dashboard-section-label').hostNodes();
+      const dashboardSectionLabels = document.querySelectorAll('.dashboard-section-label');
       expect(dashboardSectionLabels).to.have.length(4);
-      expect(dashboardSectionLabels.at(0).text()).to.equal('Data Issues');
-      expect(dashboardSectionLabels.at(1).text()).to.equal('Meeting Targets');
-      expect(dashboardSectionLabels.at(2).text()).to.equal('Low CGM Wear Time< 70%');
-      expect(dashboardSectionLabels.at(3).text()).to.equal('Low> 4% Time below 70 mg/dL');
+      expect(dashboardSectionLabels[0].textContent).to.equal('Data Issues');
+      expect(dashboardSectionLabels[1].textContent).to.equal('Meeting Targets');
+      expect(dashboardSectionLabels[2].textContent).to.equal('Low CGM Wear Time< 70%');
+      expect(dashboardSectionLabels[3].textContent).to.equal('Low> 4% Time below 70 mg/dL');
     });
   });
 
   describe('Updating dashboard config', () => {
-    it('should open a modal to update the dashboard, with the current config from localStorage as a starting point', done => {
-      const tideDashboardButton = wrapper.find('#update-dashboard-config').hostNodes();
-      expect(tideDashboardButton).to.have.length(1);
-
-      const dialog = () => wrapper.find('Dialog#tideDashboardConfig');
+    it('should open a modal to update the dashboard, with the current config from localStorage as a starting point', async () => {
+      const tideDashboardButton = document.querySelector('#update-dashboard-config');
+      expect(tideDashboardButton).to.not.be.null;
 
       // Open dashboard config popover
-      expect(dialog()).to.have.length(0);
-      tideDashboardButton.simulate('click');
-      wrapper.update();
-      expect(dialog()).to.have.length(1);
-      expect(dialog().props().open).to.be.true;
+      expect(document.querySelector('#tideDashboardConfig')).to.be.null;
+      fireEvent.click(tideDashboardButton);
+      
+      const dialog = await waitFor(() => document.querySelector('#tideDashboardConfig'));
+      expect(dialog).to.not.be.null;
+      
       sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Show Tide Dashboard config dialog', sinon.match({ clinicId: 'clinicID123', source: 'Tide dashboard' }));
 
       // Select 2 tags from select menu
-      wrapper.find(SelectTags).props().onChange([sampleTags[1].id, sampleTags[2].id]);
+      fireEvent.click(screen.getByTestId('mock-select-tags'));
 
       // Ensure period filter option set correctly
-      const summaryPeriodOptions = dialog().find('#period').find('label').hostNodes();
+      const summaryPeriodOptions = dialog.querySelector('#period').querySelectorAll('label');
       expect(summaryPeriodOptions).to.have.lengthOf(4);
 
-      expect(summaryPeriodOptions.at(1).text()).to.equal('7 days');
-      expect(summaryPeriodOptions.at(1).find('input').props().value).to.equal('7d');
+      expect(summaryPeriodOptions[1].textContent).to.equal('7 days');
+      expect(summaryPeriodOptions[1].querySelector('input').value).to.equal('7d');
 
-      expect(summaryPeriodOptions.at(3).text()).to.equal('30 days');
-      expect(summaryPeriodOptions.at(3).find('input').props().value).to.equal('30d');
-      expect(summaryPeriodOptions.at(3).find('input').props().checked).to.be.true;
+      expect(summaryPeriodOptions[3].textContent).to.equal('30 days');
+      expect(summaryPeriodOptions[3].querySelector('input').value).to.equal('30d');
+      expect(summaryPeriodOptions[3].querySelector('input').checked).to.be.true;
 
-      summaryPeriodOptions.at(3).find('input').last().simulate('change', { target: { name: 'period', value: '7d' } });
+      fireEvent.click(summaryPeriodOptions[1].querySelector('input'));
 
       // Ensure period filter options present
-      const lastDataFilterOptions = dialog().find('#lastData').find('label').hostNodes();
+      const lastDataFilterOptions = dialog.querySelector('#lastData').querySelectorAll('label');
       expect(lastDataFilterOptions).to.have.lengthOf(3);
 
-      expect(lastDataFilterOptions.at(0).text()).to.equal('Today');
-      expect(lastDataFilterOptions.at(0).find('input').props().value).to.equal('1');
+      expect(lastDataFilterOptions[0].textContent).to.equal('Today');
+      expect(lastDataFilterOptions[0].querySelector('input').value).to.equal('1');
 
-      expect(lastDataFilterOptions.at(2).text()).to.equal('Within 7 days');
-      expect(lastDataFilterOptions.at(2).find('input').props().value).to.equal('7');
-      expect(lastDataFilterOptions.at(2).find('input').props().checked).to.be.true;
+      expect(lastDataFilterOptions[2].textContent).to.equal('Within 7 days');
+      expect(lastDataFilterOptions[2].querySelector('input').value).to.equal('7');
+      expect(lastDataFilterOptions[2].querySelector('input').checked).to.be.true;
 
-      lastDataFilterOptions.at(0).find('input').last().simulate('change', { target: { name: 'lastData', value: 1 } });
+      fireEvent.click(lastDataFilterOptions[0].querySelector('input'));
 
       // Submit the form
-      const applyButton = () => dialog().find('#configureTideDashboardConfirm').hostNodes();
+      const applyButton = dialog.querySelector('#configureTideDashboardConfirm');
       store.clearActions();
       defaultProps.trackMetric.resetHistory();
-      applyButton().simulate('click');
+      fireEvent.click(applyButton);
 
       // Should redirect to the Tide dashboard after saving the dashboard opts to localStorage,
       // keyed to clinician|clinic IDs
-      setTimeout(() => {
+      await waitFor(() => {
         expect(store.getActions()).to.eql([
           { type: 'FETCH_TIDE_DASHBOARD_PATIENTS_REQUEST' },
         ]);
+      });
 
-        sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Show Tide Dashboard config dialog confirmed', sinon.match({ clinicId: 'clinicID123', source: 'Tide dashboard' }));
+      sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Show Tide Dashboard config dialog confirmed', sinon.match({ clinicId: 'clinicID123', source: 'Tide dashboard' }));
 
-        expect(mockedLocalStorage.tideDashboardConfig?.['clinicianUserId123|clinicID123']).to.eql({
-          period: '7d',
-          lastData: 1,
-          tags: [sampleTags[1].id, sampleTags[2].id],
-        });
-
-        done();
+      expect(mockedLocalStorage.tideDashboardConfig?.['clinicianUserId123|clinicID123']).to.eql({
+        period: '7d',
+        lastData: '1',
+        tags: [sampleTags[1].id, sampleTags[2].id],
       });
     });
   });

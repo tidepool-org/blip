@@ -7,20 +7,26 @@ var React = require('react');
 var expect = chai.expect;
 
 var NotificationElem = require('../../../app/components/notification');
-const { mount } = require('enzyme');
+const { render } = require('@testing-library/react');
+const { BrowserRouter } = require('react-router-dom');
 
 describe('NotificationElem', function () {
   describe('render', function() {
     it('should render without problems', function () {
-      console.error = sinon.stub();
+      const consoleErrorStub = sinon.stub(console, 'error');
       var props = {
         contents: {},
         onClose: sinon.stub()
       }
-      var elem = mount(<NotificationElem {...props}/>);
+      var elem = render(
+        <BrowserRouter>
+          <NotificationElem {...props}/>
+        </BrowserRouter>
+      );
 
-      expect(elem).to.be.ok;
-      expect(console.error.callCount).to.equal(0);
+      expect(elem.container.firstChild).to.be.ok;
+      expect(consoleErrorStub.callCount).to.equal(0);
+      consoleErrorStub.restore();
     });
   });
 });

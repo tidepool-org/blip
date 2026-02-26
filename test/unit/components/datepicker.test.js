@@ -1,13 +1,12 @@
 /* global chai */
 /* global describe */
-/* global sinon */
 /* global it */
 
-var React = require('react');
-import { mount } from 'enzyme';
+import React from 'react';
+import { render } from '@testing-library/react';
 var expect = chai.expect;
 
-var DatePicker = require('../../../app/components/datepicker');
+import DatePicker from '../../../app/components/datepicker';
 
 describe('DatePicker', function () {
 
@@ -17,8 +16,8 @@ describe('DatePicker', function () {
 
   describe('render', function() {
     it('should render without problems', function () {
-      var elem = mount(<DatePicker/>);
-      expect(elem).to.be.ok;
+      const { container } = render(<DatePicker/>);
+      expect(container.firstChild).to.be.ok;
     });
   });
 });

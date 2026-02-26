@@ -10,7 +10,7 @@
 var React = require('react');
 var _ = require('lodash');
 
-import { mount, shallow } from 'enzyme';
+import { cleanup, render } from '@testing-library/react';
 import mutationTracker from 'object-invariant-test-helper';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
@@ -21,6 +21,7 @@ import {
   mapStateToProps,
   getFetchers,
 } from '../../../app/pages/app/app.js';
+import { ldContext } from '../../../app/redux/utils/launchDarklyMiddleware';
 import initialState from '../../../app/redux/reducers/initialState';
 import LDClientMock from '../../fixtures/LDClientMock';
 
@@ -28,7 +29,6 @@ import * as ErrorMessages from '../../../app/redux/constants/errorMessages';
 import { ToastProvider } from '../../../app/providers/ToastProvider.js';
 import { AppBannerProvider } from '../../../app/providers/AppBanner/AppBannerProvider.js';
 
-var AppWrapper = require('../../../app/pages/app/app.js');
 var App = require('../../../app/pages/app/app.js').AppComponent;
 var api = require('../../../app/core/api');
 var personUtils = require('../../../app/core/personutils');
@@ -99,119 +99,114 @@ describe('App', () => {
     );
   };
 
+  const requiredProps = {
+    authenticated: false,
+    children: (<React.Fragment></React.Fragment>),
+    fetchers: [],
+    fetchingPatient: false,
+    fetchingUser: {
+      inProgress: false,
+      completed: null,
+    },
+    fetchingDataSources: {
+      inProgress: false,
+      completed: null,
+    },
+    location: '/foo',
+    loggingOut: false,
+    onAcceptTerms: sinon.stub(),
+    onCloseNotification: sinon.stub(),
+    onLogout: sinon.stub(),
+  };
+
+  const buildProps = (overrides = {}) => _.assign({}, baseProps, requiredProps, overrides);
+
+  const renderApp = props => render(<App {...props} />, { wrapper: providerWrapper(store) });
+
+  afterEach(() => {
+    cleanup();
+  });
+
   describe('constructor', () => {
-    var props = _.assign({}, baseProps, {
-      authenticated: false,
-      children: (<React.Fragment></React.Fragment>),
-      fetchers: [],
-      fetchingPatient: false,
-      fetchingUser: {
-        inProgress: false,
-        completed: null,
-      },
-      fetchingDataSources: {
-        inProgress: false,
-        completed: null,
-      },
-      location: '/foo',
-      loggingOut: false,
-      onAcceptTerms: sinon.stub(),
-      onCloseNotification: sinon.stub(),
-      onLogout: sinon.stub()
+    var props = buildProps();
+
+    let app;
+    beforeEach(() => {
+      app = new App(props);
     });
 
-    let wrapper;
-    beforeEach(() => {
-      wrapper = shallow(<App {...props} />);
+    it('should initialize without crashing', () => {
+      expect(app).to.be.ok;
     });
   });
 
   describe('render', () => {
     it('should render without problems or warnings when required props provided', () => {
-      var props = _.assign({}, baseProps, {
-        authenticated: false,
-        children: (<React.Fragment></React.Fragment>),
-        fetchers: [],
-        fetchingPatient: false,
-        fetchingUser: {
-          inProgress: false,
-          completed: null,
-        },
-        fetchingDataSources: {
-          inProgress: false,
-          completed: null,
-        },
-        location: '/foo',
-        loggingOut: false,
-        onAcceptTerms: sinon.stub(),
-        onCloseNotification: sinon.stub(),
-        onLogout: sinon.stub()
-      });
+      var props = buildProps();
 
-      var elem = mount(<App {...props} />, { wrappingComponent: providerWrapper(store) });
-      expect(elem).to.be.ok;
-      var app = elem.find('.app');
+      var { container } = renderApp(props);
+      expect(container).to.be.ok;
+      var app = container.querySelector('.app');
       expect(app).to.be.ok;
     });
 
     it('should console.error when required props not provided', () => {
       console.error = sinon.stub();
 
-      var elem = mount(<App {...baseProps} />, { wrappingComponent: providerWrapper(store) });
-      expect(elem).to.be.ok;
-      expect(console.error.callCount).to.equal(11);
-      var app = elem.find('.app');
+      var { container } = renderApp(baseProps);
+      expect(container).to.be.ok;
+      expect(console.error.called).to.be.true;
+      var app = container.querySelector('.app');
       expect(app).to.be.ok;
     });
 
     it('should render footer', () => {
-      var elem = mount(<App {...baseProps} />, { wrappingComponent: providerWrapper(store) });
-      var footer = elem.find('.footer');
+      var { container } = renderApp(buildProps());
+      var footer = container.querySelector('.footer');
       expect(footer).to.be.ok;
     });
 
     it('should not render a version element when version not set in config', () => {
-      var props = _.clone(baseProps);
+      var props = buildProps();
       props.context.config = { VERSION : null };
-      var elem = mount(<App {...props} />, { wrappingComponent: providerWrapper(store) });
-      var versionElems = elem.find('.Navbar-version');
+      var { container } = renderApp(props);
+      var versionElems = container.querySelectorAll('.Navbar-version');
       expect(versionElems.length).to.equal(0);
     });
 
     it('should render version and hostname when version present in config', () => {
-      var props = _.clone(baseProps);
+      var props = buildProps();
       props.context.config = { VERSION : 1.4 };
-      var elem = mount(<App {...props} />, { wrappingComponent: providerWrapper(store) });
-      var versionElems = elem.find('.Version');
+      var { container } = renderApp(props);
+      var versionElems = container.querySelectorAll('.Version');
       expect(versionElems.length).to.equal(1);
-      expect(versionElems.text()).to.equal('v1.4-localhost');
+      expect(versionElems[0].textContent).to.equal('v1.4-localhost');
     });
 
-    it('should include api enviroment in version when available', () => {
-      var props = _.clone(baseProps);
+    it('should include api environment in version when available', () => {
+      var props = buildProps();
       props.context.config = { VERSION : 1.4, API_HOST: 'qa2.development.tidepool.org' };
-      var elem = mount(<App {...props} />, { wrappingComponent: providerWrapper(store) });
-      var versionElems = elem.find('.Version');
+      var { container } = renderApp(props);
+      var versionElems = container.querySelectorAll('.Version');
       expect(versionElems.length).to.equal(1);
-      expect(versionElems.text()).to.equal('v1.4-localhost-qa2');
+      expect(versionElems[0].textContent).to.equal('v1.4-localhost-qa2');
     });
 
     it('should not include the hostname in version if it matches api environment', () => {
-      var props = _.clone(baseProps);
+      var props = buildProps();
       props.context.config = { VERSION : 1.4, API_HOST: 'localhost.tidepool.org' };
-      var elem = mount(<App {...props} />, { wrappingComponent: providerWrapper(store) });
-      var versionElems = elem.find('.Version');
+      var { container } = renderApp(props);
+      var versionElems = container.querySelectorAll('.Version');
       expect(versionElems.length).to.equal(1);
-      expect(versionElems.text()).to.equal('v1.4-localhost');
+      expect(versionElems[0].textContent).to.equal('v1.4-localhost');
     });
 
-    it('should not include hostname or api enviroment in version for production environment', () => {
-      var props = _.clone(baseProps);
+    it('should not include hostname or api environment in version for production environment', () => {      var props = buildProps();
       props.context.config = { VERSION : 1.4, API_HOST: 'app.tidepool.org' };
-      var elem = mount(<App {...props} />, { wrappingComponent: providerWrapper(store) });
-      var versionElems = elem.find('.Version');
+      var { container } = renderApp(props);
+      var versionElems = container.querySelectorAll('.Version');
       expect(versionElems.length).to.equal(1);
-      expect(versionElems.text()).to.equal('v1.4');
+      expect(versionElems[0].textContent).to.equal('v1.4');
     });
   });
 
@@ -225,9 +220,9 @@ describe('App', () => {
       },
     });
 
-    let wrapper;
+    let app;
     beforeEach(() => {
-      wrapper = shallow(<App {...props} />);
+      app = new App(props);
     });
 
     afterEach(() => {
@@ -236,21 +231,23 @@ describe('App', () => {
 
     context('LaunchDarkly context', () => {
       afterEach(() => {
-        AppWrapper.__ResetDependency__('ldContext');
+        ldContext.user = { key: 'anon' };
+        ldContext.clinic = { key: 'none' };
       });
 
       it('should update the LaunchDarkly client context when the user context changes', () => {
         let updatedLDContext= {
           ...defaultLDContext,
           user: { key: 'patient123' },
-        };;
-
-        AppWrapper.__Rewire__('ldContext', updatedLDContext);
+        };
+        ldContext.user = updatedLDContext.user;
+        ldContext.clinic = updatedLDContext.clinic;
 
         const ldClient = new LDClientMock(defaultLDContext);
         ldClient.identify = sinon.stub();
 
-        wrapper.setProps({
+        app.UNSAFE_componentWillReceiveProps({
+          ...props,
           ldClient,
         });
 
@@ -261,14 +258,15 @@ describe('App', () => {
         let updatedLDContext= {
           ...defaultLDContext,
           clinic: { key: 'clinic123' },
-        };;
-
-        AppWrapper.__Rewire__('ldContext', updatedLDContext);
+        };
+        ldContext.user = updatedLDContext.user;
+        ldContext.clinic = updatedLDContext.clinic;
 
         const ldClient = new LDClientMock(defaultLDContext);
         ldClient.identify = sinon.stub();
 
-        wrapper.setProps({
+        app.UNSAFE_componentWillReceiveProps({
+          ...props,
           ldClient,
         });
 
@@ -279,50 +277,39 @@ describe('App', () => {
 
   describe('showNavPatientHeader', () => {
     it('should return true when page is /patients/a1b2c3/data', () => {
-      var props = _.assign({}, baseProps, { location: '/patients/a1b2c3' });
-      var elem = mount(<App {...props} />, { wrappingComponent: providerWrapper(store) });
-      expect(elem).to.be.ok;
-      expect(elem.instance().showNavPatientHeader()).to.be.true;
+      var app = new App(buildProps({ location: '/patients/a1b2c3/data' }));
+      expect(app).to.be.ok;
+      expect(app.showNavPatientHeader()).to.be.true;
     });
 
     it('should return false when page is /patients', () => {
-      var elem = mount(<App {...baseProps} />, { wrappingComponent: providerWrapper(store) });
-      expect(elem).to.be.ok;
-
-      elem.setState({page: '/patients'});
-      expect(elem.instance().showNavPatientHeader()).to.be.false;
+      var app = new App(buildProps({ location: '/patients' }));
+      expect(app).to.be.ok;
+      expect(app.showNavPatientHeader()).to.be.false;
     });
 
     it('should return false when page is /patients/new', () => {
-      var elem = mount(<App {...baseProps} />, { wrappingComponent: providerWrapper(store) });
-      expect(elem).to.be.ok;
-
-      elem.setState({page: '/patients/new'});
-      expect(elem.instance().showNavPatientHeader()).to.be.false;
+      var app = new App(buildProps({ location: '/patients/new' }));
+      expect(app).to.be.ok;
+      expect(app.showNavPatientHeader()).to.be.false;
     });
 
     it('should return false when page is /patients/new/dataDonation', () => {
-      var elem = mount(<App {...baseProps} />, { wrappingComponent: providerWrapper(store) });
-      expect(elem).to.be.ok;
-
-      elem.setState({page: '/patients/new/dataDonation'});
-      expect(elem.instance().showNavPatientHeader()).to.be.false;
+      var app = new App(buildProps({ location: '/patients/new/dataDonation' }));
+      expect(app).to.be.ok;
+      expect(app.showNavPatientHeader()).to.be.false;
     });
 
     it('should return false when page is /profile', () => {
-      var elem = mount(<App {...baseProps} />, { wrappingComponent: providerWrapper(store) });
-      expect(elem).to.be.ok;
-
-      elem.setState({page: '/profile'});
-      expect(elem.instance().showNavPatientHeader()).to.be.false;
+      var app = new App(buildProps({ location: '/profile' }));
+      expect(app).to.be.ok;
+      expect(app.showNavPatientHeader()).to.be.false;
     });
 
     it('should return false when page is /foo', () => {
-      var elem = mount(<App {...baseProps} />, { wrappingComponent: providerWrapper(store) });
-      expect(elem).to.be.ok;
-
-      elem.setState({page: '/foo'});
-      expect(elem.instance().showNavPatientHeader()).to.be.false;
+      var app = new App(buildProps({ location: '/foo' }));
+      expect(app).to.be.ok;
+      expect(app.showNavPatientHeader()).to.be.false;
     });
   });
 

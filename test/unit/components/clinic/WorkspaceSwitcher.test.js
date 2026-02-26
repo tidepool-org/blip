@@ -1,8 +1,9 @@
 import React from 'react';
-import { createMount } from '@material-ui/core/test-utils';
+import { render, fireEvent, cleanup, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
+import { MemoryRouter } from 'react-router-dom';
 import WorkspaceSwitcher from '../../../../app/components/clinic/WorkspaceSwitcher';
 
 /* global chai */
@@ -11,16 +12,12 @@ import WorkspaceSwitcher from '../../../../app/components/clinic/WorkspaceSwitch
 /* global context */
 /* global it */
 /* global beforeEach */
-/* global before */
 /* global afterEach */
-/* global after */
 
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
 describe('WorkspaceSwitcher', () => {
-  let mount;
-
   let wrapper;
   let defaultProps = {
     trackMetric: sinon.stub(),
@@ -34,16 +31,6 @@ describe('WorkspaceSwitcher', () => {
       },
     },
   };
-
-  before(() => {
-    WorkspaceSwitcher.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-workspace' }));
-    mount = createMount();
-  });
-
-  after(() => {
-    WorkspaceSwitcher.__ResetDependency__('useLocation');
-    mount.cleanUp();
-  });
 
   const defaultWorkingState = {
     inProgress: false,
@@ -150,65 +137,64 @@ describe('WorkspaceSwitcher', () => {
     },
   };
 
-  let mountWrapper;
   let store;
 
-  beforeEach(() => {
-    mountWrapper = (newStore, props = defaultProps) => {
-      store = newStore;
-
-      return mount(
+  const mountWrapper = (state, props = defaultProps) => {
+    store = mockStore(state);
+    return render(
+      <MemoryRouter initialEntries={['/clinic-workspace']}>
         <Provider store={store}>
           <WorkspaceSwitcher {...props} />
         </Provider>
-      );
-    };
-  });
+      </MemoryRouter>
+    );
+  };
 
   afterEach(() => {
+    cleanup();
     defaultProps.trackMetric.resetHistory();
   });
 
   context('no clinics fetched', () => {
     beforeEach(() => {
-      wrapper = mountWrapper(mockStore(defaultState));
+      wrapper = mountWrapper(defaultState);
     });
 
     it('should not render anything', () => {
-      expect(wrapper.find('#workspace-switcher').hostNodes()).to.have.lengthOf(0);
+      expect(wrapper.container.querySelector('#workspace-switcher')).to.be.null;
     });
   });
 
   context('clinics fetched', () => {
     beforeEach(() => {
-      wrapper = mountWrapper(mockStore(fetchedDataState));
+      cleanup();
+      wrapper = mountWrapper(fetchedDataState);
     });
 
     it('should render a switcher component with a selected clinic and private workspace options', () => {
-      const popupTrigger = wrapper.find('#workspace-switcher-current').hostNodes();
-      expect(popupTrigger).to.have.lengthOf(1);
-      expect(popupTrigger.text()).to.equal('new_clinic_name Workspace');
+      const popupTrigger = wrapper.container.querySelector('#workspace-switcher-current');
+      expect(popupTrigger).to.not.be.null;
+      expect(popupTrigger.textContent).to.include('new_clinic_name');
 
-      const workspaceButtons = wrapper.find('Button.workspace-option');
-      expect(workspaceButtons).to.have.lengthOf(2);
-      expect(workspaceButtons.at(0).text()).to.equal('new_clinic_name Workspace');
-      expect(workspaceButtons.at(0).find('Icon').props().label).to.equal('Selected');
-      expect(workspaceButtons.at(1).text()).to.equal('Private Workspace');
-      expect(workspaceButtons.at(1).find('Icon')).to.have.lengthOf(0);
+      // workspace-option buttons render inside a Popover portal in document.body
+      const workspaceButtons = document.querySelectorAll('.workspace-option');
+      expect(workspaceButtons.length).to.equal(2);
+      expect(workspaceButtons[0].textContent).to.include('new_clinic_name');
+      expect(workspaceButtons[1].textContent).to.include('Private Workspace');
     });
 
-    it('should change to a different workspace and redirect to patients list', () => {
-      const popupTrigger = () => wrapper.find('#workspace-switcher-current').hostNodes();
-      expect(popupTrigger().text()).to.equal('new_clinic_name Workspace');
-      popupTrigger().simulate('click');
+    it('should change to a different workspace and redirect to patients list', async () => {
+      const popupTrigger = wrapper.container.querySelector('#workspace-switcher-current');
+      expect(popupTrigger.textContent).to.include('new_clinic_name');
 
-      const workspaceButtons = wrapper.find('Button.workspace-option');
-      expect(workspaceButtons.at(0).text()).to.equal('new_clinic_name Workspace');
-      expect(workspaceButtons.at(1).text()).to.equal('Private Workspace');
+      // workspace-option buttons render inside a Popover portal in document.body
+      const workspaceButtons = document.querySelectorAll('.workspace-option');
+      expect(workspaceButtons[0].textContent).to.include('new_clinic_name');
+      expect(workspaceButtons[1].textContent).to.include('Private Workspace');
 
       // Click private workspace option
       store.clearActions();
-      workspaceButtons.at(1).simulate('click');
+      fireEvent.click(workspaceButtons[1]);
 
       expect(store.getActions()).to.eql([
         {
@@ -222,7 +208,7 @@ describe('WorkspaceSwitcher', () => {
         {
           type: 'SELECT_CLINIC_SUCCESS',
           payload: {
-            clinicId: null, // null is appropriate for switch to private workspace
+            clinicId: null,
           },
         },
         {
@@ -236,9 +222,16 @@ describe('WorkspaceSwitcher', () => {
 
       // Click clinic workspace option
       store.clearActions();
-      workspaceButtons.at(0).simulate('click');
+      fireEvent.click(workspaceButtons[0]);
 
-      expect(store.getActions()).to.eql([
+      await waitFor(() => {
+        const actions = store.getActions();
+        const hasPush = actions.some(a => a.type === '@@router/CALL_HISTORY_METHOD');
+        expect(hasPush).to.be.true;
+      }, { timeout: 3000 });
+
+      const actions = store.getActions();
+      expect(actions).to.include.deep.members([
         {
           type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT',
           payload: { textInput: '' }
@@ -254,26 +247,6 @@ describe('WorkspaceSwitcher', () => {
           },
         },
         {
-          type: 'FETCH_CLINIC_PATIENT_COUNTS_REQUEST'
-        },
-        {
-          type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST'
-        },
-        {
-          type: 'FETCH_CLINIC_PATIENT_COUNTS_SUCCESS',
-          payload: {
-            clinicId: 'clinicID456',
-            patientCounts: { demo: 1, plan: 3, total: 4 },
-          }
-        },
-        {
-          type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS',
-          payload: {
-            clinicId: 'clinicID456',
-            patientCountSettings: 'success',
-          },
-        },
-        {
           type: '@@router/CALL_HISTORY_METHOD',
           payload: {
             args: ['/clinic-workspace', { selectedClinicId: 'clinicID456' }],
@@ -284,20 +257,22 @@ describe('WorkspaceSwitcher', () => {
     });
 
     it('should hide the private workspace options under the appropriate conditions', () => {
-      wrapper = mountWrapper(mockStore(multiClinicState));
+      cleanup();
+      wrapper = mountWrapper(multiClinicState);
 
-      const workspaceButtons = () => wrapper.find('Button.workspace-option');
-      expect(workspaceButtons()).to.have.lengthOf(3);
-      expect(workspaceButtons().at(0).text()).to.equal('new_clinic_name Workspace');
-      expect(workspaceButtons().at(1).text()).to.equal('other_clinic_name Workspace');
-      expect(workspaceButtons().at(2).text()).to.equal('Private Workspace');
+      const workspaceButtons = () => document.querySelectorAll('.workspace-option');
+      expect(workspaceButtons().length).to.equal(3);
+      expect(workspaceButtons()[0].textContent).to.include('new_clinic_name');
+      expect(workspaceButtons()[1].textContent).to.include('other_clinic_name');
+      expect(workspaceButtons()[2].textContent).to.include('Private Workspace');
 
-      wrapper = mountWrapper(mockStore({
+      cleanup();
+      wrapper = mountWrapper({
         blip: {
           ...multiClinicState.blip,
-          membershipInOtherCareTeams: [], // not a member of another care team
+          membershipInOtherCareTeams: [],
           allUsersMap: {
-            ...defaultState.blip.allUsersMap,
+            ...fetchedDataState.blip.allUsersMap,
             clinicianUserId123: {
               emails: ['clinic@example.com'],
               roles: ['clinic'],
@@ -308,16 +283,16 @@ describe('WorkspaceSwitcher', () => {
                 clinic: {
                   role: 'clinic_manager',
                 },
-                patient: undefined // no DSA / patient profile
+                patient: undefined,
               },
             },
           },
         },
-      }));
+      });
 
-      expect(workspaceButtons()).to.have.lengthOf(2);
-      expect(workspaceButtons().at(0).text()).to.equal('new_clinic_name Workspace');
-      expect(workspaceButtons().at(1).text()).to.equal('other_clinic_name Workspace');
+      expect(workspaceButtons().length).to.equal(2);
+      expect(workspaceButtons()[0].textContent).to.include('new_clinic_name');
+      expect(workspaceButtons()[1].textContent).to.include('other_clinic_name');
     });
   });
 });

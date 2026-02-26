@@ -4,16 +4,26 @@
 /* global afterEach */
 /* global context */
 /* global it */
-/* global before */
-/* global after */
 
 import React from 'react';
-import { mount } from 'enzyme';
+import { render, fireEvent, screen } from '@testing-library/react';
 import _ from 'lodash';
 
-import CGMClipboardButton from '../../../../../../app/pages/dashboard/PatientDrawer/MenuBar/CGMClipboardButton';
+jest.mock('@tidepool/viz', () => {
+  const actual = jest.requireActual('@tidepool/viz');
+  return {
+    ...actual,
+    utils: {
+      ...actual.utils,
+      text: {
+        ...actual.utils.text,
+        agpCGMText: jest.fn().mockReturnValue('AGP_DATA_STRING_TO_COPY'),
+      },
+    },
+  };
+});
 
-const expect = chai.expect;
+import CGMClipboardButton from '../../../../../../app/pages/dashboard/PatientDrawer/MenuBar/CGMClipboardButton';
 
 const patient = {
   birthDate: '2001-01-01',
@@ -43,16 +53,38 @@ const pdf = {
 };
 
 describe('PatientDrawer/MenuBar/CGMClipboardButton', () => {
-  CGMClipboardButton.__Rewire__('agpCGMText', sinon.stub().returns('AGP_DATA_STRING_TO_COPY'));
+  const originalClipboard = window.navigator.clipboard;
+  let writeTextSpy;
 
-  const writeTextSpy = sinon.stub(window?.navigator?.clipboard, 'writeText');
+  beforeAll(() => {
+    writeTextSpy = sinon.stub().resolves();
+
+    Object.defineProperty(window.navigator, 'clipboard', {
+      configurable: true,
+      value: {
+        writeText: writeTextSpy,
+      },
+    });
+  });
+
+  afterAll(() => {
+    Object.defineProperty(window.navigator, 'clipboard', {
+      configurable: true,
+      value: originalClipboard,
+    });
+  });
+
+  afterEach(() => {
+    writeTextSpy.resetHistory();
+  });
 
   describe('When data is not present', () => {
     const insufficientAgpCGM = null;
-    const wrapper = mount(<CGMClipboardButton patient={patient} data={insufficientAgpCGM} />);
 
     it('is disabled', () => {
-      expect(wrapper.find('button').props().disabled).to.be.true;
+      render(<CGMClipboardButton patient={patient} data={insufficientAgpCGM} />);
+
+      expect(screen.getByRole('button').disabled).toBe(true);
     });
   });
 
@@ -60,10 +92,10 @@ describe('PatientDrawer/MenuBar/CGMClipboardButton', () => {
     const insufficientAgpCGM = _.cloneDeep(pdf.data.agpCGM);
     insufficientAgpCGM.data.current.stats.sensorUsage.count = 100;
 
-    const wrapper = mount(<CGMClipboardButton patient={patient} data={insufficientAgpCGM} />);
-
     it('is disabled', () => {
-      expect(wrapper.find('button').props().disabled).to.be.true;
+      render(<CGMClipboardButton patient={patient} data={insufficientAgpCGM} />);
+
+      expect(screen.getByRole('button').disabled).toBe(true);
     });
   });
 
@@ -79,20 +111,21 @@ describe('PatientDrawer/MenuBar/CGMClipboardButton', () => {
       },
     };
 
-    const wrapper = mount(<CGMClipboardButton patient={patient} data={insufficientAgpCGM} />);
-
     it('is disabled', () => {
-      expect(wrapper.find('button').props().disabled).to.be.true;
+      render(<CGMClipboardButton patient={patient} data={insufficientAgpCGM} />);
+
+      expect(screen.getByRole('button').disabled).toBe(true);
     });
   });
 
   describe('When data is present', () => {
-    const wrapper = mount(<CGMClipboardButton patient={patient} data={pdf.data.agpCGM} />);
-    wrapper.find('button').simulate('click');
-
     it('calls writeText on navigator API with correct data', () => {
-      expect(wrapper.find('button').props().disabled).to.be.false;
-      expect(writeTextSpy.getCall(0).args[0]).to.eql('AGP_DATA_STRING_TO_COPY');
+      render(<CGMClipboardButton patient={patient} data={pdf.data.agpCGM} />);
+
+      const button = screen.getByRole('button');
+      expect(button.disabled).toBe(false);
+      fireEvent.click(button);
+      expect(writeTextSpy.getCall(0).args[0]).toEqual('AGP_DATA_STRING_TO_COPY');
     });
   });
 });

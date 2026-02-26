@@ -1,18 +1,14 @@
 import React from 'react';
-import { createMount } from '@material-ui/core/test-utils';
+import { render, cleanup } from '@testing-library/react';
 import PatientDetails from '../../../../app/components/datasources/PatientDetails';
-
 /* global chai */
 /* global describe */
 /* global it */
-/* global beforeEach */
 
 const expect = chai.expect;
 
 describe('PatientDetails', () => {
-  const mount = createMount();
-
-  let wrapper;
+  afterEach(cleanup);
   const defaultProps = {
     patient: {
       id: 'patient123',
@@ -30,37 +26,35 @@ describe('PatientDetails', () => {
     },
   };
 
-  beforeEach(() => {
-    wrapper = mount(<PatientDetails {...defaultProps} />);
-  });
-
   it('should render the provided patient details', () => {
-    const fullName = wrapper.find('#patient-details-fullName').hostNodes();
+    const { container } = render(<PatientDetails {...defaultProps} />);
+
+    const fullName = container.querySelectorAll('#patient-details-fullName');
     expect(fullName).to.have.lengthOf(1);
-    expect(fullName.text()).to.equal('Patient 123');
+    expect(fullName[0].textContent).to.equal('Patient 123');
 
-    const birthDate = wrapper.find('#patient-details-birthDate').hostNodes();
+    const birthDate = container.querySelectorAll('#patient-details-birthDate');
     expect(birthDate).to.have.lengthOf(1);
-    expect(birthDate.text()).to.equal('DOB: 2004-02-03');
+    expect(birthDate[0].textContent).to.equal('DOB: 2004-02-03');
 
-    const mrn = wrapper.find('#patient-details-mrn').hostNodes();
+    const mrn = container.querySelectorAll('#patient-details-mrn');
     expect(mrn).to.have.lengthOf(1);
-    expect(mrn.text()).to.equal('MRN: 12345');
+    expect(mrn[0].textContent).to.equal('MRN: 12345');
   });
 
   it('should render the provided patient details with mrn missing', () => {
-    wrapper = mount(<PatientDetails {...noPatientMRNProps} />);
+    const { container } = render(<PatientDetails {...noPatientMRNProps} />);
 
-    const fullName = wrapper.find('#patient-details-fullName').hostNodes();
+    const fullName = container.querySelectorAll('#patient-details-fullName');
     expect(fullName).to.have.lengthOf(1);
-    expect(fullName.text()).to.equal('Patient 123');
+    expect(fullName[0].textContent).to.equal('Patient 123');
 
-    const birthDate = wrapper.find('#patient-details-birthDate').hostNodes();
+    const birthDate = container.querySelectorAll('#patient-details-birthDate');
     expect(birthDate).to.have.lengthOf(1);
-    expect(birthDate.text()).to.equal('DOB: 2004-02-03');
+    expect(birthDate[0].textContent).to.equal('DOB: 2004-02-03');
 
-    const mrn = wrapper.find('#patient-details-mrn').hostNodes();
+    const mrn = container.querySelectorAll('#patient-details-mrn');
     expect(mrn).to.have.lengthOf(1);
-    expect(mrn.text()).to.equal('MRN: -');
+    expect(mrn[0].textContent).to.equal('MRN: -');
   });
 });

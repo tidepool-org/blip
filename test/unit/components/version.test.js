@@ -1,7 +1,7 @@
 /* global afterEach, before, chai, describe, it, sinon */
 
 import React from 'react';
-import { shallow } from 'enzyme';
+import { render } from '@testing-library/react';
 
 import Version from '../../../app/components/version/';
 
@@ -12,9 +12,8 @@ describe('Version', () => {
     version: '1.15.4',
   };
 
-  const wrapper = shallow(<Version {...props} />);
-
   it('should render the semver with `v` prepended', () => {
-    expect(wrapper.text()).to.equal(`v${props.version}`);
+    const { container } = render(<Version {...props} />);
+    expect(container.textContent).to.equal(`v${props.version}`);
   });
 });

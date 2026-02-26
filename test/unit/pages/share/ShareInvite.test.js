@@ -1,5 +1,5 @@
 import React from 'react';
-import { createMount } from '@material-ui/core/test-utils';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
@@ -12,16 +12,12 @@ import * as sync from '../../../../app/redux/actions/sync';
 /* global describe */
 /* global it */
 /* global beforeEach */
-/* global before */
-/* global after */
 
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
 describe('ShareInvite', () => {
   describe('member invite', () => {
-    let mount;
-
     let wrapper;
     const defaultProps = {
       trackMetric: sinon.stub(),
@@ -49,14 +45,6 @@ describe('ShareInvite', () => {
         },
       },
     };
-
-    before(() => {
-      mount = createMount();
-    });
-
-    after(() => {
-      mount.cleanUp();
-    });
 
     const defaultWorkingState = {
       inProgress: false,
@@ -171,7 +159,7 @@ describe('ShareInvite', () => {
       store = mockStore(state);
       defaultProps.trackMetric.resetHistory();
 
-      wrapper = mount(
+      wrapper = render(
         <Provider store={store}>
           <ToastProvider>
             <ShareInvite {...defaultProps} />
@@ -181,19 +169,19 @@ describe('ShareInvite', () => {
     });
 
     it('should show an invite form with an email address field and an upload permissions checkbox', () => {
-      const form = wrapper.find('form#invite');
-      expect(form).to.have.length(1);
+      const form = wrapper.container.querySelector('form#invite');
+      expect(form).to.not.be.null;
 
-      const emailField = wrapper.find('input#email[type="text"]');
-      expect(emailField).to.have.length(1);
+      const emailField = wrapper.container.querySelector('input#email[type="text"]');
+      expect(emailField).to.not.be.null;
 
-      const permissionsCheckbox = wrapper.find('input#uploadPermission[type="checkbox"]');
-      expect(permissionsCheckbox).to.have.length(1);
+      const permissionsCheckbox = wrapper.container.querySelector('input#uploadPermission[type="checkbox"]');
+      expect(permissionsCheckbox).to.not.be.null;
     });
 
     it('should go back to main share page if cancel is clicked', () => {
-      const cancelButton = wrapper.find('button#cancel');
-      expect(cancelButton).to.have.length(1);
+      const cancelButton = wrapper.container.querySelector('button#cancel');
+      expect(cancelButton).to.not.be.null;
 
       const expectedActions = [
         {
@@ -207,38 +195,36 @@ describe('ShareInvite', () => {
         },
       ];
 
-      cancelButton.props().onClick();
+      fireEvent.click(cancelButton);
       const actions = store.getActions();
       expect(actions).to.eql(expectedActions);
     });
 
-    it('should sumbit an invitation if submit is clicked', (done) => {
-      const submitButton = () => wrapper.find('button#submit');
-      expect(submitButton()).to.have.length(1);
-      expect(submitButton().prop('disabled')).to.be.true;
+    it('should submit an invitation if submit is clicked', async () => {
+      const submitButton = () => wrapper.container.querySelector('button#submit');
+      expect(submitButton()).to.not.be.null;
+      expect(submitButton().disabled).to.be.true;
 
-      const emailField = wrapper.find('input#email[type="text"]');
-      expect(emailField).to.have.length(1);
+      const emailField = wrapper.container.querySelector('input#email[type="text"]');
+      expect(emailField).to.not.be.null;
 
-      const memberRadioSelect = wrapper.find('input[name="type"][value="member"]');
-      expect(memberRadioSelect).to.have.length(1);
+      const memberRadioSelect = wrapper.container.querySelector('input[name="type"][value="member"]');
+      expect(memberRadioSelect).to.not.be.null;
 
-      memberRadioSelect.simulate('change', {target: { name: 'type', checked: true, value: 'member'}});
+      fireEvent.click(memberRadioSelect);
 
       // input bad email, submit remains disabled
-      emailField.simulate('change', { target: { id: 'email', value: 'clint@foo'} });
-      expect(submitButton().prop('disabled')).to.be.true;
+      fireEvent.change(emailField, { target: { value: 'clint@foo'} });
+      await waitFor(() => expect(submitButton().disabled).to.be.true);
 
       // input good email, submit becomes enabled
-      emailField.simulate('change', { target: { id: 'email', value: 'clint@foo.com'} });
-      expect(submitButton().prop('disabled')).to.be.false;
+      fireEvent.change(emailField, { target: { value: 'clint@foo.com'} });
+      await waitFor(() => expect(submitButton().disabled).to.be.false);
 
-      // enable upload permission
-      const permissionsCheckbox = wrapper.find('input#uploadPermission[type="checkbox"]');
-      expect(permissionsCheckbox).to.have.length(1);
-      permissionsCheckbox.simulate('change', {
-        target: { id: 'uploadPermission', checked: true, value: true },
-      });
+      // uploadPermission defaults to true, so upload permission is already enabled
+      const permissionsCheckbox = wrapper.container.querySelector('input#uploadPermission[type="checkbox"]');
+      expect(permissionsCheckbox).to.not.be.null;
+      expect(permissionsCheckbox.checked).to.be.true;
 
       const expectedActions = [
         {
@@ -246,51 +232,47 @@ describe('ShareInvite', () => {
         },
       ];
 
-      submitButton().simulate('submit');
-      const actions = store.getActions();
-
-      // Formik submissions are async, so need to wrap in a timeout and call done()
-      window.setTimeout(() => {
+      fireEvent.submit(submitButton());
+      
+      await waitFor(() => {
+        const actions = store.getActions();
         expect(actions).to.eql(expectedActions);
         sinon.assert.calledWith(
           defaultProps.api.invitation.send,
           'clint@foo.com',
           { note: {}, upload: {}, view: {} }
         );
-        done();
-      }, 0);
+      });
     });
 
-    it('should not allow sumbitting an invitation existing invite or share exists on the entered email', () => {
-      const submitButton = () => wrapper.find('button#submit');
-      expect(submitButton()).to.have.length(1);
-      expect(submitButton().prop('disabled')).to.be.true;
+    it('should not allow submitting an invitation when existing invite or share exists on the entered email', async () => {
+      const submitButton = () => wrapper.container.querySelector('button#submit');
+      expect(submitButton()).to.not.be.null;
+      expect(submitButton().disabled).to.be.true;
 
-      const emailField = wrapper.find('input#email[type="text"]');
-      expect(emailField).to.have.length(1);
+      const emailField = wrapper.container.querySelector('input#email[type="text"]');
+      expect(emailField).to.not.be.null;
 
-      const memberRadioSelect = wrapper.find('input[name="type"][value="member"]');
-      expect(memberRadioSelect).to.have.length(1);
+      const memberRadioSelect = wrapper.container.querySelector('input[name="type"][value="member"]');
+      expect(memberRadioSelect).to.not.be.null;
 
-      memberRadioSelect.simulate('change', {target: { name: 'type', checked: true, value: 'member'}});
+      fireEvent.click(memberRadioSelect);
 
       // input existing pending share email, submit remains disabled
-      emailField.simulate('change', { target: { id: 'email', value: 'pendingShare@example.com'} });
-      expect(submitButton().prop('disabled')).to.be.true;
+      fireEvent.change(emailField, { target: { value: 'pendingShare@example.com'} });
+      await waitFor(() => expect(submitButton().disabled).to.be.true);
 
       // input existing care team member email, submit remains disabled
-      emailField.simulate('change', { target: { id: 'email', value: 'existingShare@example.com'} });
-      expect(submitButton().prop('disabled')).to.be.true;
+      fireEvent.change(emailField, { target: { value: 'existingShare@example.com'} });
+      await waitFor(() => expect(submitButton().disabled).to.be.true);
 
       // input declined share email, submit should be enabled, to allow re-inviting a declined share
-      emailField.simulate('change', { target: { id: 'email', value: 'declinedShare@example.com'} });
-      expect(submitButton().prop('disabled')).to.be.false;
+      fireEvent.change(emailField, { target: { value: 'declinedShare@example.com'} });
+      await waitFor(() => expect(submitButton().disabled).to.be.false);
     });
   });
 
   describe('clinic invite', () => {
-    let mount;
-
     const clinic = {
       id: 'clinic123',
       name: 'myClinic',
@@ -309,14 +291,6 @@ describe('ShareInvite', () => {
         },
       },
     };
-
-    before(() => {
-      mount = createMount();
-    });
-
-    after(() => {
-      mount.cleanUp();
-    });
 
     const defaultWorkingState = {
       inProgress: false,
@@ -428,13 +402,15 @@ describe('ShareInvite', () => {
     };
 
     let getStore;
+    let store;
 
     beforeEach(() => {
       getStore = state => mockStore(state);
+      store = getStore(state);
       defaultProps.trackMetric.resetHistory();
 
-      wrapper = mount(
-        <Provider store={getStore(state)}>
+      wrapper = render(
+        <Provider store={store}>
           <ToastProvider>
             <ShareInvite {...defaultProps} />
           </ToastProvider>
@@ -443,16 +419,16 @@ describe('ShareInvite', () => {
     });
 
     it('should show an invite form with a share code field', () => {
-      const form = wrapper.find('form#invite');
-      expect(form).to.have.length(1);
+      const form = wrapper.container.querySelector('form#invite');
+      expect(form).to.not.be.null;
 
-      const shareCodeField = wrapper.find('input#shareCode[type="text"]');
-      expect(shareCodeField).to.have.length(1);
+      const shareCodeField = wrapper.container.querySelector('input#shareCode[type="text"]');
+      expect(shareCodeField).to.not.be.null;
     });
 
     it('should go back to main share page if cancel is clicked', () => {
-      const cancelButton = wrapper.find('button#cancel');
-      expect(cancelButton).to.have.length(1);
+      const cancelButton = wrapper.container.querySelector('button#cancel');
+      expect(cancelButton).to.not.be.null;
 
       const expectedActions = [
         {
@@ -466,33 +442,32 @@ describe('ShareInvite', () => {
         },
       ];
 
-      cancelButton.props().onClick();
-      const store = wrapper.props().store;
+      fireEvent.click(cancelButton);
       const actions = store.getActions();
       expect(actions).to.eql(expectedActions);
     });
 
-    it('should fetch clinic by share code, then submit an invitation', (done) => {
-      const submitButton = () => wrapper.find('button#submit');
-      expect(submitButton()).to.have.length(1);
-      expect(submitButton().prop('disabled')).to.be.true;
+    it('should fetch clinic by share code, then submit an invitation', async () => {
+      const submitButton = () => wrapper.container.querySelector('button#submit');
+      expect(submitButton()).to.not.be.null;
+      expect(submitButton().disabled).to.be.true;
 
-      const shareCodeField = wrapper.find('input#shareCode[type="text"]');
-      expect(shareCodeField).to.have.length(1);
+      const shareCodeField = wrapper.container.querySelector('input#shareCode[type="text"]');
+      expect(shareCodeField).to.not.be.null;
 
-      // Clinic name field and permission checkbox should not render by default until clinic is fetched
-      const clinicNameField = () => wrapper.find('input#clinicName');
-      const permissionsCheckbox = () => wrapper.find('input#uploadPermission[type="checkbox"]');
-      expect(clinicNameField()).to.have.length(0);
-      expect(permissionsCheckbox()).to.have.length(1);
+      // Clinic name field should not render until clinic is fetched; base permission checkbox always renders
+      const clinicNameField = () => wrapper.container.querySelector('input#clinicName');
+      const permissionsCheckbox = () => wrapper.container.querySelectorAll('input#uploadPermission[type="checkbox"]');
+      expect(clinicNameField()).to.be.null;
+      expect(permissionsCheckbox().length).to.equal(1);
 
       // input bad shareCode, submit remains disabled
-      shareCodeField.simulate('change', { target: { id: 'shareCode', value: 'foo' } });
-      expect(submitButton().prop('disabled')).to.be.true;
+      fireEvent.change(shareCodeField, { target: { value: 'foo' } });
+      await waitFor(() => expect(submitButton().disabled).to.be.true);
 
       // input good shareCode, submit becomes enabled
-      shareCodeField.simulate('change', { target: { id: 'shareCode', value: clinic.shareCode } });
-      expect(submitButton().prop('disabled')).to.be.false;
+      fireEvent.change(shareCodeField, { target: { value: clinic.shareCode } });
+      await waitFor(() => expect(submitButton().disabled).to.be.false);
 
       let expectedActions = [
         {
@@ -504,80 +479,78 @@ describe('ShareInvite', () => {
         },
       ];
 
-      submitButton().simulate('submit');
-      let store = wrapper.props().store;
+      fireEvent.submit(submitButton());
       let actions = store.getActions();
 
-      // Formik submissions are async, so need to wrap in a timeout
-      window.setTimeout(() => {
+      await waitFor(() => {
         expect(actions).to.eql(expectedActions);
         sinon.assert.calledWith(
           defaultProps.api.clinics.getClinicByShareCode,
           clinic.shareCode
         );
+      });
 
-        store.dispatch(sync.fetchClinicSuccess(clinic));
+      store.dispatch(sync.fetchClinicSuccess(clinic));
 
-        wrapper.setProps({store: getStore(clinicFetchedState)});
-        store = wrapper.props().store;
-        wrapper.update();
+      const clinicFetchedStore = mockStore(clinicFetchedState);
+      wrapper.rerender(
+        <Provider store={clinicFetchedStore}>
+          <ToastProvider>
+            <ShareInvite {...defaultProps} />
+          </ToastProvider>
+        </Provider>
+      );
 
+      // clinic name and permissions fields should now be rendered
+      expect(clinicNameField()).to.not.be.null;
+      expect(permissionsCheckbox().length).to.equal(2);
 
-        // clinic name and permissions fields should now be rendered
-        expect(clinicNameField()).to.have.length(1);
-        expect(permissionsCheckbox()).to.have.length(2);
+      expect(clinicNameField().value).to.equal('myClinic');
+      expect(clinicNameField().disabled).to.be.true;
 
-        expect(clinicNameField().props().value).to.equal('myClinic');
-        expect(clinicNameField().props().disabled).to.be.true;
+      // uploadPermission defaults to true, it is already enabled
+      expect(permissionsCheckbox()[0].checked).to.be.true;
 
-        // enable upload permission
-        permissionsCheckbox().at(0).simulate('change', {
-          target: { id: 'uploadPermission', checked: true, value: true },
-        });
+      expectedActions = [
+        {
+          type: 'SEND_CLINIC_INVITE_REQUEST',
+        },
+      ];
 
-        expectedActions = [
-          {
-            type: 'SEND_CLINIC_INVITE_REQUEST',
-          },
-        ];
+      // Submit form to finalize invites
+      fireEvent.submit(submitButton());
+      actions = clinicFetchedStore.getActions();
 
-        // Submit form to finalize invites
-        submitButton().simulate('submit');
-        actions = store.getActions();
-
-        // Formik submissions are async, so need to wrap in a timeout and call done()
-        window.setTimeout(() => {
-          expect(actions).to.eql(expectedActions);
-          sinon.assert.calledWith(
-            defaultProps.api.clinics.inviteClinic,
-            'A2B2-C3D4-E5F6',
-            { note: {}, upload: {}, view: {} },
-            'patient123'
-          );
-          done();
-        }, 0);
-      }, 0);
+      await waitFor(() => {
+        expect(actions).to.eql(expectedActions);
+        sinon.assert.calledWith(
+          defaultProps.api.clinics.inviteClinic,
+          'A2B2-C3D4-E5F6',
+          { note: {}, upload: {}, view: {} },
+          'patient123'
+        );
+      });
     });
 
-    it('should not allow sumbitting an invitation using the share code of an existing or pending shared clinic', () => {
-      const submitButton = () => wrapper.find('button#submit');
-      expect(submitButton()).to.have.length(1);
-      expect(submitButton().prop('disabled')).to.be.true;
+    it('should not allow submitting an invitation using the share code of an existing or pending shared clinic', async () => {
+      const submitButton = () => wrapper.container.querySelector('button#submit');
+      expect(submitButton()).to.not.be.null;
+      expect(submitButton().disabled).to.be.true;
 
-      const shareCodeField = wrapper.find('input#shareCode[type="text"]');
-      expect(shareCodeField).to.have.length(1);
+      const shareCodeField = wrapper.container.querySelector('input#shareCode[type="text"]');
+      expect(shareCodeField).to.not.be.null;
 
       // input shareCode of clinic which user is already a member of, submit remains disabled
-      shareCodeField.simulate('change', { target: { id: 'shareCode', value: '3333-3333-3333' } });
-      expect(submitButton().prop('disabled')).to.be.true;
+      fireEvent.change(shareCodeField, { target: { value: '3333-3333-3333' } });
+      await waitFor(() => expect(submitButton().disabled).to.be.true);
 
       // input shareCode of clinic to which user has a pending share invite extended, submit remains disabled
-      shareCodeField.simulate('change', { target: { id: 'shareCode', value: '4444-4444-4444' } });
-      expect(submitButton().prop('disabled')).to.be.true;
+      fireEvent.change(shareCodeField, { target: { value: '4444-4444-4444' } });
+      await waitFor(() => expect(submitButton().disabled).to.be.true);
 
       // input shareCode of clinic which user is not a member of, submit is enabled
-      shareCodeField.simulate('change', { target: { id: 'shareCode', value: '2222-2222-2222' } });
-      expect(submitButton().prop('disabled')).to.be.false;
+      fireEvent.change(shareCodeField, { target: { value: '2222-2222-2222' } });
+      await waitFor(() => expect(submitButton().disabled).to.be.false);
     });
   });
 });

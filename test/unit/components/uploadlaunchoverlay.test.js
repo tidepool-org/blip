@@ -19,11 +19,24 @@
 /* global beforeEach */
 
 import React from 'react';
-import { mount } from 'enzyme';
+import { render, fireEvent, waitFor } from '@testing-library/react';
+import { __mockListReleases as mockListReleases } from '@octokit/rest';
 
 import UploadLaunchOverlay from '../../../app/components/uploadlaunchoverlay';
 import ModalOverlay from '../../../app/components/modaloverlay';
 import { URL_UPLOADER_DOWNLOAD_PAGE } from '../../../app/core/constants';
+
+jest.mock('@octokit/rest', () => {
+  const __mockListReleases = jest.fn();
+  return {
+    __mockListReleases,
+    Octokit: jest.fn(() => ({
+      repos: {
+        listReleases: __mockListReleases,
+      },
+    })),
+  };
+});
 
 const expect = chai.expect;
 
@@ -32,9 +45,10 @@ describe('UploadLaunchOverlay', function () {
     modalDismissHandler: sinon.spy(),
   };
 
-  let wrapper;
   beforeEach(() => {
-    wrapper = mount( <UploadLaunchOverlay {...props} /> );
+    props.modalDismissHandler.resetHistory();
+    mockListReleases.mockReset();
+    mockListReleases.mockResolvedValue({ data: [] });
   });
 
   it('should be a function', function() {
@@ -43,54 +57,68 @@ describe('UploadLaunchOverlay', function () {
 
   describe('render', function() {
     it('should render without problems', function () {
-      expect(wrapper.find(UploadLaunchOverlay)).to.have.length(1);
-      expect(wrapper.find(ModalOverlay)).to.have.length(1);
+      const { container } = render(<UploadLaunchOverlay {...props} />);
+      expect(container.querySelector('.UploadLaunchOverlay')).to.exist;
+      expect(container.querySelector('.ModalOverlay')).to.exist;
     });
 
     it('should respond to an onClick event', () => {
-      var callCount = props.modalDismissHandler.callCount;
-      wrapper.find('.ModalOverlay-target').simulate('click');
+      const { container } = render(<UploadLaunchOverlay {...props} />);
+      const callCount = props.modalDismissHandler.callCount;
+      fireEvent.click(container.querySelector('.ModalOverlay-target'));
       expect(props.modalDismissHandler.callCount).to.equal(callCount + 1);
     });
 
     it('dismiss button should respond to an onClick event', () => {
-      var callCount = props.modalDismissHandler.callCount;
-      wrapper.find('.ModalOverlay-dismiss').simulate('click');
+      const { container } = render(<UploadLaunchOverlay {...props} />);
+      const callCount = props.modalDismissHandler.callCount;
+      fireEvent.click(container.querySelector('.ModalOverlay-dismiss'));
       expect(props.modalDismissHandler.callCount).to.equal(callCount + 1);
     });
 
-    it('should have disabled download buttons if no URLs have been set', () => {
-      wrapper.childAt(0).instance().setState({
-        latestWinRelease: null,
-        latestMacRelease: null,
+    it('should have disabled download buttons if no URLs have been set', async () => {
+      const { container } = render(<UploadLaunchOverlay {...props} />);
+
+      await waitFor(() => {
+        const macButton = container.querySelector('button.btn-download-mac');
+        const winButton = container.querySelector('button.btn-download-win');
+
+        expect(macButton).to.exist;
+        expect(winButton).to.exist;
+        expect(macButton.disabled).to.equal(true);
+        expect(winButton.disabled).to.equal(true);
       });
-
-      const macButton = wrapper.find('button.btn-download-mac');
-      expect(macButton).to.have.length(1);
-      expect(macButton.prop('disabled')).to.be.true;
-
-      const winButton = wrapper.find('button.btn-download-win');
-      expect(winButton).to.have.length(1);
-      expect(winButton.prop('disabled')).to.be.true;
     });
 
-    it('should have active buttons if URLs have been set', () => {
-      wrapper.childAt(0).instance().setState({
-        latestMacRelease: 'test',
-        latestWinRelease: 'test',
-        uploadDismiss: 'test',
+    it('should have active buttons if URLs have been set', async () => {
+      mockListReleases.mockResolvedValue({
+        // eslint-disable-next-line camelcase
+        data: [{ prerelease: false, tag_name: 'v2.3.4' }],
       });
-      wrapper.update();
-      expect(wrapper.find('a')).to.have.length(3);
-      expect(wrapper.find('a.disabled')).to.have.length(0);
+
+      const { container } = render(<UploadLaunchOverlay {...props} />);
+
+      await waitFor(() => {
+        const macButton = container.querySelector('button.btn-download-mac');
+        const winButton = container.querySelector('button.btn-download-win');
+        expect(macButton).to.exist;
+        expect(winButton).to.exist;
+        expect(macButton.disabled).to.equal(false);
+        expect(winButton.disabled).to.equal(false);
+
+        const anchors = container.querySelectorAll('a');
+        expect(anchors.length).to.be.greaterThan(0);
+        expect(container.querySelectorAll('a.disabled').length).to.equal(0);
+      });
     });
 
-    it('should display download link if error retrieving github releases', () => {
-      wrapper.childAt(0).instance().setState({
-        error: 'some error',
+    it('should display download link if error retrieving github releases', async () => {
+      mockListReleases.mockRejectedValueOnce(new Error('release error'));
+      const { container } = render(<UploadLaunchOverlay {...props} />);
+
+      await waitFor(() => {
+        expect(container.querySelector(`a[href="${URL_UPLOADER_DOWNLOAD_PAGE}"]`)).to.exist;
       });
-      wrapper.update();
-      expect(wrapper.find({ href: URL_UPLOADER_DOWNLOAD_PAGE }).filter('a')).to.have.length(1);
     });
   });
 });
