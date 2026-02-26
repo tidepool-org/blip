@@ -10,7 +10,7 @@ import { RTKQueryApi } from '../../../redux/api/baseApi';
 import useClinicPatientsFilters, { defaultFilterState } from '../useClinicPatientsFilters';
 import ActiveFilterCount from '../components/ActiveFilterCount';
 import FilterByTags from '../components/FilterByTags';
-import FilterByCategory, { CATEGORY_TAB } from './FilterByCategory';
+import FilterByCategory from './FilterByCategory';
 import DashboardPagination from '../components/DashboardPagination';
 import ResetFilters from '../components/ResetFilters';
 
@@ -43,7 +43,8 @@ const DeviceIssues = () => {
   const { patientTags } = activeFilters;
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
-  const [category, setCategory] = useState(CATEGORY_TAB.DEFAULT);
+  const category = useSelector(state => state.blip.deviceIssues.category);
+
   const [offset, setOffset] = useState(0);
 
   const { data } = useGetDeviceIssuesPatientsQuery(
@@ -74,7 +75,7 @@ const DeviceIssues = () => {
       </Flex>
 
       <Flex mb={3} sx={{ justifyContent: 'center' }}>
-        <FilterByCategory value={category} onChange={setCategory} />
+        <FilterByCategory />
       </Flex>
 
       <Table
