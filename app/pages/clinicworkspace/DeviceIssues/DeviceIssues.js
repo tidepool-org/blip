@@ -6,7 +6,7 @@ import Table from '../../../components/elements/Table';
 import { Flex } from 'theme-ui';
 
 import { RTKQueryApi } from '../../../redux/api/baseApi';
-import FilterByCategory, { CATEGORY_TAB } from './FilterByCategory';
+import FilterByCategory from './FilterByCategory';
 import DashboardPagination from '../components/DashboardPagination';
 import Modals from './Modals';
 
@@ -36,7 +36,8 @@ const DeviceIssues = () => {
   const { t } = useTranslation();
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
-  const [category, setCategory] = useState(CATEGORY_TAB.DEFAULT);
+  const category = useSelector(state => state.blip.deviceIssues.category);
+
   const [offset, setOffset] = useState(0);
 
   const { data } = useGetDeviceIssuesPatientsQuery(
@@ -51,7 +52,7 @@ const DeviceIssues = () => {
   return (
     <>
       <Flex mb={3} sx={{ justifyContent: 'center' }}>
-        <FilterByCategory value={category} onChange={setCategory} />
+        <FilterByCategory />
       </Flex>
 
       <Table
