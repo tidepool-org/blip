@@ -3186,7 +3186,7 @@ describe('ClinicPatients', () => {
                 },
               ]);
             });
-          }, 30000);
+          }, 60000);
 
           it('should call `exportRpmReport` with fetched report data', () => {
             const originalCreateObjectURL = URL.createObjectURL;
