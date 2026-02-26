@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { resetEditPatientDialog } from './deviceIssuesSlice';
 import { RTKQueryApi } from '../../../redux/api/baseApi';
 import EditPatientDialog from '../../../components/modals/EditPatientDialog';
-import { CACHE_TAGS } from './DeviceIssues';
+import { CACHE_TAGS } from './deviceIssuesApi';
 
 const trackMetric = () => {};
 

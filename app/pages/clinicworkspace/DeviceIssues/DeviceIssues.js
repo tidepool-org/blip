@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next';
 import Table from '../../../components/elements/Table';
 import { Flex } from 'theme-ui';
 
-import { RTKQueryApi } from '../../../redux/api/baseApi';
 import FilterByCategory from './FilterByCategory';
 import DashboardPagination from '../components/DashboardPagination';
 import EditPatientModal from './EditPatientModal';
@@ -14,32 +13,9 @@ import PatientCell from './PatientCell';
 import MoreMenuCell from './MoreMenuCell';
 import TagListCell from '../components/TagListCell';
 import { resetDeviceIssuesState } from './deviceIssuesSlice';
+import { useGetDeviceIssuesPatientsQuery } from './deviceIssuesApi';
 
 const LIMIT = 12;
-
-export const CACHE_TAGS = {
-  DEVICE_ISSUES_PATIENTS: 'DEVICE_ISSUES_PATIENTS',
-};
-
-RTKQueryApi.enhanceEndpoints({
-  addTagTypes: [CACHE_TAGS.DEVICE_ISSUES_PATIENTS],
-});
-
-const deviceIssuesApi = RTKQueryApi.injectEndpoints({
-  endpoints: (builder) => ({
-    getDeviceIssuesPatients: builder.query({
-      query: ({ clinicId, offset, category, limit }) => {
-        return {
-          url: `/clinics/${clinicId}/patients`,
-          params: { offset, category, limit },
-        };
-      },
-      providesTags: [CACHE_TAGS.DEVICE_ISSUES_PATIENTS],
-    }),
-  }),
-});
-
-export const { useGetDeviceIssuesPatientsQuery } = deviceIssuesApi;
 
 const DeviceIssues = ({ api, trackMetric }) => {
   const { t } = useTranslation();
