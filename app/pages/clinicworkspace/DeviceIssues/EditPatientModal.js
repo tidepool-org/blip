@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { setEditPatientDialogIsOpen, setEditPatientDialogPatientId } from './deviceIssuesSlice';
+import { resetEditPatientDialog } from './deviceIssuesSlice';
 import EditPatientDialog from '../../../components/modals/EditPatientDialog';
 
 const trackMetric = () => {};
@@ -12,8 +12,7 @@ const EditPatientModal = ({ api, patients }) => {
   const clinicPatient = patients.find(patient => patient.id === editPatientDialog.patientId);
 
   const handleCloseModal = () => {
-    dispatch(setEditPatientDialogIsOpen(false));
-    dispatch(setEditPatientDialogPatientId(null));
+    dispatch(resetEditPatientDialog());
   };
 
   return (
