@@ -23,8 +23,9 @@ const deviceIssuesSlice = createSlice({
     setEditPatientDialogIsOpen: (state, action) => {
       state.editPatientDialog.isOpen = action.payload;
     },
+    resetDeviceIssuesState: () => initialState,
   },
 });
 
-export const { setCategory, setEditPatientDialogPatientId, setEditPatientDialogIsOpen } = deviceIssuesSlice.actions;
+export const { setCategory, setEditPatientDialogPatientId, setEditPatientDialogIsOpen, resetDeviceIssuesState} = deviceIssuesSlice.actions;
 export default deviceIssuesSlice.reducer;
