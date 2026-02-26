@@ -119,6 +119,7 @@ import Banner from '../../components/elements/Banner';
 import colorPalette from '../../themes/colorPalette';
 import noop from 'lodash/noop';
 import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils';
+import ResetFilters from './components/ResetFilters';
 
 const { Loader } = vizComponents;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels, formatBgValue } = vizUtils.bg;
@@ -2533,17 +2534,10 @@ export const ClinicPatients = (props) => {
                   </Popover>
                 </Flex>
 
-                {activeFiltersCount > 0 && (
-                  <Button
-                    id="reset-all-active-filters"
-                    variant="textSecondary"
-                    onClick={handleResetFilters}
-                    sx={{ fontSize: 0, color: 'grays.4', flexShrink: 0 }}
-                    px={0}
-                  >
-                    {t('Reset Filters')}
-                  </Button>
-                )}
+                <ResetFilters
+                  hidden={activeFiltersCount <= 0}
+                  onClick={handleResetFilters}
+                />
               </Flex>
             )}
 
