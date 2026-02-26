@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next';
 import Table from '../../../components/elements/Table';
 import { Flex } from 'theme-ui';
 
-import useClinicPatientsFilters, { defaultFilterState } from '../useClinicPatientsFilters';
 import ActiveFilterCount from '../components/ActiveFilterCount';
 import FilterByTags from '../components/FilterByTags';
 import FilterByCategory from './FilterByCategory';
@@ -15,7 +14,9 @@ import ResetFilters from '../components/ResetFilters';
 import PatientCell from './PatientCell';
 import TagListCell from '../components/TagListCell';
 import { resetDeviceIssuesState } from './deviceIssuesSlice';
+import { resetDeviceIssuesFilters } from './deviceIssuesFiltersSlice';
 import { useGetDeviceIssuesPatientsQuery } from './deviceIssuesApi';
+import useActiveFiltersCount from './useActiveFiltersCount';
 
 const LIMIT = 12;
 
@@ -23,11 +24,9 @@ const DeviceIssues = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
-  const [activeFilters, setActiveFilters, activeFiltersCount] = useClinicPatientsFilters();
-  const { patientTags } = activeFilters;
-
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const category = useSelector(state => state.blip.deviceIssues.category);
+  const { patientTags } = useSelector(state => state.blip.deviceIssuesFilters);
 
   const [offset, setOffset] = useState(0);
 
@@ -35,6 +34,8 @@ const DeviceIssues = () => {
     { clinicId: selectedClinicId, offset, category, tags: patientTags, limit: LIMIT },
     { skip: !selectedClinicId }
   );
+
+  const activeFiltersCount = useActiveFiltersCount();
 
   // reset state on dismount
   useEffect(() => {
@@ -45,21 +46,14 @@ const DeviceIssues = () => {
 
   const tableData = data?.data || [];
 
-  const handleActiveFilterChange = (payload) => {
-    setActiveFilters({ ...activeFilters, ...payload });
-  };
-
   return (
     <>
       <Flex id="device-issues-filters" mb={3} sx={{ gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
         <ActiveFilterCount count={activeFiltersCount} />
-        <FilterByTags
-          patientTags={patientTags}
-          onChange={handleActiveFilterChange}
-        />
+        <FilterByTags />
         <ResetFilters
           hidden={activeFiltersCount <= 0}
-          onClick={() => handleActiveFilterChange(defaultFilterState)}
+          onClick={() => dispatch(resetDeviceIssuesFilters())}
         />
       </Flex>
 

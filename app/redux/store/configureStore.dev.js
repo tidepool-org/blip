@@ -112,6 +112,7 @@ function _createStore(api) {
   store.subscribe(throttle(() => {
     saveLocalState({
       selectedClinicId: store.getState().blip?.selectedClinicId,
+      deviceIssuesFilters: store.getState().blip?.deviceIssuesFilters,
     });
   }, 1000));
 

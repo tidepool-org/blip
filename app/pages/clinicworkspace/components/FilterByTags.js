@@ -31,15 +31,16 @@ const trackMetric = () => noop;
 const prefixPopHealthMetric = () => noop;
 
 import { SPECIAL_FILTER_STATES } from '../ClinicPatients';
+import { setPatientTagsFilter } from '../DeviceIssues/deviceIssuesFiltersSlice';
 
 const DropdownContent = ({
-  patientTags = [],
   onClose = noop,
-  onChange = noop,
 }) => {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+  const { patientTags } = useSelector(state => state.blip.deviceIssuesFilters);
 
   const [pendingTags, setPendingTags] = useState(patientTags);
 
@@ -50,9 +51,7 @@ const DropdownContent = ({
       .toSorted((a, b) => utils.compareLabels(a.label, b.label));
   }, [clinic?.patientTags]);
 
-  const handleApplyFilter = (payload) => {
-    onChange({ patientTags: payload });
-  };
+  const handleChange = (patientTags) => dispatch(setPatientTagsFilter(patientTags));
 
   return (
     <>
@@ -137,7 +136,7 @@ const DropdownContent = ({
             onClick={() => {
               trackMetric(prefixPopHealthMetric('Patient tag filter clear'), { clinicId: selectedClinicId });
               setPendingTags([]);
-              handleApplyFilter([]);
+              handleChange([]);
               onClose();
             }}
           >
@@ -146,7 +145,7 @@ const DropdownContent = ({
 
           <Button id="apply-patient-tags-filter" sx={{ fontSize: 1 }} variant="textPrimary" onClick={() => {
             trackMetric(prefixPopHealthMetric('Patient tag filter apply'), { clinicId: selectedClinicId });
-            handleApplyFilter(pendingTags);
+            handleChange(pendingTags);
             onClose();
           }}>
             {t('Apply')}
@@ -157,10 +156,7 @@ const DropdownContent = ({
   );
 };
 
-const FilterByTags = ({
-  patientTags = [],
-  onChange = noop,
-}) => {
+const FilterByTags = () => {
   const { t } = useTranslation();
   const { showTideDashboard } = useFlags();
 
@@ -171,6 +167,7 @@ const FilterByTags = ({
 
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+  const { patientTags } = useSelector(state => state.blip.deviceIssuesFilters);
 
   const handleCloseDropdown = () => {
     patientTagsPopupFilterState.close();
@@ -236,7 +233,6 @@ const FilterByTags = ({
         { patientTagsPopupFilterState.isOpen &&
           <DropdownContent
             patientTags={patientTags}
-            onChange={onChange}
             onClose={handleCloseDropdown}
           />
         }
