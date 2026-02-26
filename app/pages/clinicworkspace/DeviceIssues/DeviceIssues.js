@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import Table from '../../../components/elements/Table';
 import { Flex } from 'theme-ui';
@@ -11,6 +11,7 @@ import DashboardPagination from '../components/DashboardPagination';
 
 import PatientCell from './PatientCell';
 import TagListCell from '../components/TagListCell';
+import { resetDeviceIssuesState } from './deviceIssuesSlice';
 
 const LIMIT = 12;
 
@@ -31,6 +32,7 @@ export const { useGetDeviceIssuesPatientsQuery } = deviceIssuesApi;
 
 const DeviceIssues = () => {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const category = useSelector(state => state.blip.deviceIssues.category);
@@ -41,6 +43,11 @@ const DeviceIssues = () => {
     { clinicId: selectedClinicId, offset, category, limit: LIMIT },
     { skip: !selectedClinicId }
   );
+
+  // reset state on dismount
+  useEffect(() => {
+    return () => dispatch(resetDeviceIssuesState());
+  }, []);
 
   if (!data) return null;
 

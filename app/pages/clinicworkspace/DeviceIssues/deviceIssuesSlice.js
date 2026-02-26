@@ -13,8 +13,9 @@ const deviceIssuesSlice = createSlice({
     setCategory: (state, action) => {
       state.category = action.payload;
     },
+    resetDeviceIssuesState: () => initialState,
   },
 });
 
-export const { setCategory } = deviceIssuesSlice.actions;
+export const { setCategory, resetDeviceIssuesState } = deviceIssuesSlice.actions;
 export default deviceIssuesSlice.reducer;
