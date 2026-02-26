@@ -7,7 +7,8 @@ import { Flex } from 'theme-ui';
 
 import FilterByCategory from './FilterByCategory';
 import DashboardPagination from '../components/DashboardPagination';
-import EditPatientModal from './EditPatientModal';
+import EditPatientDialogController from './EditPatientDialogController';
+import DataConnectionsModalController from './DataConnectionsModalController';
 
 import PatientCell from './PatientCell';
 import MoreMenuCell from './MoreMenuCell';
@@ -77,9 +78,13 @@ const DeviceIssues = ({ api, trackMetric }) => {
         />
       </Flex>
 
-      <EditPatientModal
+      <EditPatientDialogController
         api={api}
         trackMetric={trackMetric}
+        patients={patients}
+      />
+
+      <DataConnectionsModalController
         patients={patients}
       />
     </>

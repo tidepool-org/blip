@@ -8,6 +8,10 @@ const initialState = {
     patientId: null,
     isOpen: false,
   },
+  dataConnectionsModal: {
+    patientId: null,
+    isOpen: false,
+  },
 };
 
 const deviceIssuesSlice = createSlice({
@@ -23,8 +27,15 @@ const deviceIssuesSlice = createSlice({
     setEditPatientDialogIsOpen: (state, action) => {
       state.editPatientDialog.isOpen = action.payload;
     },
-    resetEditPatientDialog: (state) => {
+    setDataConnectionsModalPatientId: (state, action) => {
+      state.dataConnectionsModal.patientId = action.payload;
+    },
+    setDataConnectionsModalIsOpen: (state, action) => {
+      state.dataConnectionsModal.isOpen = action.payload;
+    },
+    closeModals: (state) => {
       state.editPatientDialog = initialState.editPatientDialog;
+      state.dataConnectionsModal = initialState.dataConnectionsModal;
     },
     resetDeviceIssuesState: () => initialState,
   },
@@ -34,7 +45,9 @@ export const {
   setCategory,
   setEditPatientDialogPatientId,
   setEditPatientDialogIsOpen,
-  resetEditPatientDialog,
+  setDataConnectionsModalPatientId,
+  setDataConnectionsModalIsOpen,
+  closeModals,
   resetDeviceIssuesState,
 } = deviceIssuesSlice.actions;
 export default deviceIssuesSlice.reducer;
