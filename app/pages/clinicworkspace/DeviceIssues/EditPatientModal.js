@@ -3,7 +3,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import { resetEditPatientDialog } from './deviceIssuesSlice';
 import { RTKQueryApi } from '../../../redux/api/baseApi';
 import EditPatientDialog from '../../../components/modals/EditPatientDialog';
-import { CACHE_TAGS } from './deviceIssuesApi';
+import { tagTypes } from './deviceIssuesApi';
+
+const { DEVICE_ISSUES_PATIENTS } = tagTypes;
 
 const trackMetric = () => {};
 
@@ -18,7 +20,7 @@ const EditPatientModal = ({ api, patients }) => {
   };
 
   const handleEditSuccess = () => {
-    dispatch(RTKQueryApi.util.invalidateTags([CACHE_TAGS.DEVICE_ISSUES_PATIENTS]));
+    dispatch(RTKQueryApi.util.invalidateTags([DEVICE_ISSUES_PATIENTS]));
   };
 
   return (
