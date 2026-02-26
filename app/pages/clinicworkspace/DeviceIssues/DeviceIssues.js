@@ -8,12 +8,11 @@ import { Flex } from 'theme-ui';
 import { RTKQueryApi } from '../../../redux/api/baseApi';
 import FilterByCategory from './FilterByCategory';
 import DashboardPagination from '../components/DashboardPagination';
-import Modals from './Modals';
+import EditPatientModal from './EditPatientModal';
 
 import PatientCell from './PatientCell';
 import MoreMenuCell from './MoreMenuCell';
 import TagListCell from '../components/TagListCell';
-
 
 const LIMIT = 12;
 
@@ -32,7 +31,7 @@ const deviceIssuesApi = RTKQueryApi.injectEndpoints({
 
 export const { useGetDeviceIssuesPatientsQuery } = deviceIssuesApi;
 
-const DeviceIssues = () => {
+const DeviceIssues = ({ api, trackMetric }) => {
   const { t } = useTranslation();
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
@@ -47,7 +46,7 @@ const DeviceIssues = () => {
 
   if (!data) return null;
 
-  const tableData = data?.data || [];
+  const patients = data?.data || [];
 
   return (
     <>
@@ -68,7 +67,7 @@ const DeviceIssues = () => {
           { title: t('Last Outreach'), field: '', align: 'left' },
           { title: t(''), field: '', align: 'left', render: patient => <MoreMenuCell patient={patient} /> }, // More
         ]}
-        data={tableData}
+        data={patients}
         // sx={tableStyle}
         // onSort={handleSortChange}
         // order={sort?.substring(0, 1) === '+' ? 'asc' : 'desc'}
@@ -86,7 +85,11 @@ const DeviceIssues = () => {
         />
       </Flex>
 
-      <Modals />
+      <EditPatientModal
+        api={api}
+        trackMetric={trackMetric}
+        patients={patients}
+      />
     </>
   );
 };
