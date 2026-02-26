@@ -16,6 +16,7 @@ import ResetFilters from '../components/ResetFilters';
 
 import PatientCell from './PatientCell';
 import TagListCell from '../components/TagListCell';
+import { resetDeviceIssuesState } from './deviceIssuesSlice';
 
 const LIMIT = 12;
 
@@ -38,6 +39,7 @@ export const { useGetDeviceIssuesPatientsQuery } = deviceIssuesApi;
 
 const DeviceIssues = () => {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
 
   const [activeFilters, setActiveFilters, activeFiltersCount] = useClinicPatientsFilters();
   const { patientTags } = activeFilters;
@@ -51,6 +53,11 @@ const DeviceIssues = () => {
     { clinicId: selectedClinicId, offset, category, tags: patientTags, limit: LIMIT },
     { skip: !selectedClinicId }
   );
+
+  // reset state on dismount
+  useEffect(() => {
+    return () => dispatch(resetDeviceIssuesState());
+  }, []);
 
   if (!data) return null;
 
