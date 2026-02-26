@@ -21,11 +21,14 @@
 /* global expect */
 /* global beforeEach */
 /* global afterEach */
+/* global chai */
 
 import Promise from 'bluebird';
 
 import PDFWorker from '../../../app/worker/PDFWorker';
 import * as actions from '../../../app/redux/actions/worker';
+
+const expect = chai.expect;
 
 describe('PDFWorker', () => {
   let Worker;

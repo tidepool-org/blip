@@ -7,13 +7,11 @@
 /* global afterEach */
 
 import React from 'react';
-import { mount } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 import _ from 'lodash';
 import { Provider } from 'react-redux'
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
-import { components as vizComponents } from '@tidepool/viz';
-const { Loader } = vizComponents;
 
 import Gate from '../../../app/components/gate';
 
@@ -22,12 +20,16 @@ const expect = chai.expect;
 describe('Gate', () => {
   const props = {
     onEnter: sinon.stub().callsFake((cb) => (dispatch) => {cb()}),
-    children: <div className='child'></div>
+    children: <div className='child'>child</div>
   };
 
-  let wrapper;
+  let rendered;
   beforeEach(() => {
-    wrapper = mount(<Provider store={configureStore([thunk])({blip: {}})}><Gate {...props} /></Provider>);
+    rendered = render(
+      <Provider store={configureStore([thunk])({blip: {}})}>
+        <Gate {...props} />
+      </Provider>
+    );
   });
   afterEach(() => {
     props.onEnter.resetHistory();
@@ -38,26 +40,35 @@ describe('Gate', () => {
   });
 
   it('should render without errors when provided all required props', () => {
-    console.error = sinon.stub();
-
-    expect(wrapper.find(Gate)).to.have.length(1);
-    expect(console.error.callCount).to.equal(0);
-    expect(props.onEnter.callCount).to.equal(1);
+    const consoleErrorStub = sinon.stub(console, 'error');
+    try {
+      expect(screen.getByText('child')).to.exist;
+      expect(consoleErrorStub.callCount).to.equal(0);
+      expect(props.onEnter.callCount).to.equal(1);
+    } finally {
+      consoleErrorStub.restore();
+    }
   });
 
   describe('render', () => {
     it('should render child', () => {
-      expect(wrapper.find('.child')).to.have.length(1);
+      expect(screen.getByText('child')).to.exist;
       expect(props.onEnter.callCount).to.equal(1);
     });
     it('should render loader if callback returns false', () => {
-      const props = {
+      const loadingProps = {
         onEnter: sinon.stub().callsFake((cb) => (dispatch) => {cb(false)}),
-        children: <div className='child'></div>
+        children: <div className='child'>child</div>
       };
-      wrapper = mount(<Provider store={configureStore([thunk])({blip: {}})}><Gate {...props} /></Provider>);
-      expect(wrapper.find(Loader)).to.have.length(1);
-      expect(props.onEnter.callCount).to.equal(1);
+      rendered.unmount();
+      const loadingRender = render(
+        <Provider store={configureStore([thunk])({blip: {}})}>
+          <Gate {...loadingProps} />
+        </Provider>
+      );
+
+      expect(loadingRender.queryByText('child')).to.not.exist;
+      expect(loadingProps.onEnter.callCount).to.equal(1);
     });
   });
 

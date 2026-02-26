@@ -6,22 +6,29 @@
 import React from 'react';
 import mutationTracker from 'object-invariant-test-helper';
 import { BrowserRouter } from 'react-router-dom';
-import { mount } from 'enzyme';
+import { render, fireEvent, screen } from '@testing-library/react';
 
 import { ConfirmPasswordReset } from '../../../../app/pages/passwordreset/confirm';
 import { mapStateToProps } from '../../../../app/pages/passwordreset/confirm';
 
 var assert = chai.assert;
-var expect = chai.expect;
 
 describe('ConfirmPasswordReset', function () {
+  let consoleErrorStub;
+
+  beforeEach(function() {
+    consoleErrorStub = sinon.stub(console, 'error');
+  });
+
+  afterEach(function() {
+    consoleErrorStub.restore();
+  });
   it('should be exposed as a module and be of type function', function() {
-    expect(ConfirmPasswordReset).to.be.a('function');
+    expect(typeof ConfirmPasswordReset).toEqual('function');
   });
 
   describe('render', function() {
     it('should render without problems when required props are set', function () {
-      console.error = sinon.stub();
       var props = {
         acknowledgeNotification: sinon.stub(),
         api: {},
@@ -31,14 +38,13 @@ describe('ConfirmPasswordReset', function () {
         trackMetric: sinon.stub(),
         working: false
       };
-      mount(<BrowserRouter><ConfirmPasswordReset {...props} /></BrowserRouter>);
-      expect(console.error.callCount).to.equal(0);
+      render(<BrowserRouter><ConfirmPasswordReset {...props} /></BrowserRouter>);
+      expect(consoleErrorStub.callCount).toEqual(0);
     });
   });
 
   describe('formInputs', function() {
     it('should return array with one entry for email', function() {
-      console.error = sinon.stub();
       var props = {
         acknowledgeNotification: sinon.stub(),
         api: {},
@@ -48,28 +54,28 @@ describe('ConfirmPasswordReset', function () {
         trackMetric: sinon.stub(),
         working: false
       };
-      var wrapper = mount(<BrowserRouter><ConfirmPasswordReset {...props} /></BrowserRouter>).find(ConfirmPasswordReset).childAt(0);
-      var formInputs = wrapper.instance().formInputs();
-      expect(formInputs.length).to.equal(3);
-      expect(formInputs[0].name).to.equal('email');
-      expect(formInputs[0].label).to.equal('Email');
-      expect(formInputs[0].type).to.equal('email');
+      const { container } = render(<BrowserRouter><ConfirmPasswordReset {...props} /></BrowserRouter>);
+      const inputs = container.querySelectorAll('input');
 
-      expect(formInputs[1].name).to.equal('password');
-      expect(formInputs[1].label).to.equal('New password');
-      expect(formInputs[1].type).to.equal('password');
-      expect(formInputs[1].placeholder).to.be.undefined;
+      expect(inputs.length).toEqual(3);
+      expect(inputs[0].name).toEqual('email');
+      expect(inputs[0].type).toEqual('email');
+      expect(screen.getByLabelText('Email')).toBeTruthy();
 
-      expect(formInputs[2].name).to.equal('passwordConfirm');
-      expect(formInputs[2].label).to.equal('Confirm new password');
-      expect(formInputs[2].type).to.equal('password');
-      expect(formInputs[2].placeholder).to.be.undefined;
+      expect(inputs[1].name).toEqual('password');
+      expect(inputs[1].type).toEqual('password');
+      expect(screen.getByLabelText('New password')).toBeTruthy();
+      expect(inputs[1].placeholder).toEqual('');
+
+      expect(inputs[2].name).toEqual('passwordConfirm');
+      expect(inputs[2].type).toEqual('password');
+      expect(screen.getByLabelText('Confirm new password')).toBeTruthy();
+      expect(inputs[2].placeholder).toEqual('');
     });
   });
 
   describe('initial state', function() {
     it('should be in this expected format', function() {
-      console.error = sinon.stub();
       var props = {
         acknowledgeNotification: sinon.stub(),
         api: {},
@@ -79,17 +85,18 @@ describe('ConfirmPasswordReset', function () {
         trackMetric: sinon.stub(),
         working: false
       };
-      var wrapper = mount(<BrowserRouter><ConfirmPasswordReset {...props} /></BrowserRouter>).find(ConfirmPasswordReset).childAt(0);
-      var initialState = wrapper.state();
-      expect(Object.keys(initialState.formValues).length).to.equal(0);
-      expect(Object.keys(initialState.validationErrors).length).to.equal(0);
-      expect(initialState.notification).to.equal(null);
+      render(<BrowserRouter><ConfirmPasswordReset {...props} /></BrowserRouter>);
+
+      expect(screen.getByLabelText('Email').value).toEqual('');
+      expect(screen.getByLabelText('New password').value).toEqual('');
+      expect(screen.getByLabelText('Confirm new password').value).toEqual('');
+      expect(screen.queryByText('This field is required.')).toBeNull();
+      expect(screen.queryByRole('alert')).toBeNull();
     });
   });
 
   describe('prepareFormValuesForSubmit', function() {
     it('should be in this expected format', function() {
-      console.error = sinon.stub();
       var props = {
         acknowledgeNotification: sinon.stub(),
         api: {},
@@ -99,15 +106,20 @@ describe('ConfirmPasswordReset', function () {
         trackMetric: sinon.stub(),
         working: false
       };
-      var render = mount(<BrowserRouter><ConfirmPasswordReset {...props} /></BrowserRouter>).find(ConfirmPasswordReset).childAt(0);
-      var vals = {
+      render(<BrowserRouter><ConfirmPasswordReset {...props} /></BrowserRouter>);
+
+      fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'foo@bar.com' } });
+      fireEvent.change(screen.getByLabelText('New password'), { target: { value: 'woowoo' } });
+      fireEvent.change(screen.getByLabelText('Confirm new password'), { target: { value: 'woowoo' } });
+      fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+      expect(props.onSubmit.callCount).toEqual(1);
+      expect(props.onSubmit.getCall(0).args[0]).toEqual(props.api);
+      expect(props.onSubmit.getCall(0).args[1]).toEqual({
+        key: 'some-key',
         email: 'foo@bar.com',
-        password: 'woowoo'
-      };
-      var formValues = render.instance().prepareFormValuesForSubmit(vals);
-      expect(formValues.key).to.equal('some-key');
-      expect(formValues.email).to.equal('foo@bar.com');
-      expect(formValues.password).to.equal('woowoo');
+        password: 'woowoo',
+      });
     });
   });
 
@@ -123,7 +135,7 @@ describe('ConfirmPasswordReset', function () {
     const result = mapStateToProps({blip: state});
 
     it('should not mutate the state', () => {
-      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      expect(mutationTracker.hasMutated(tracked)).toBe(false);
     });
 
     it('should be a function', () => {
@@ -131,15 +143,15 @@ describe('ConfirmPasswordReset', function () {
     });
 
     it('should map working.confirmingPasswordReset.notification to notification', () => {
-      expect(result.notification).to.equal(state.working.confirmingPasswordReset.notification);
+      expect(result.notification).toEqual(state.working.confirmingPasswordReset.notification);
     });
 
     it('should map working.confirmingPasswordReset.inProgress to working', () => {
-      expect(result.working).to.equal(state.working.confirmingPasswordReset.inProgress);
+      expect(result.working).toEqual(state.working.confirmingPasswordReset.inProgress);
     });
 
     it('should map passwordResetConfirmed to success', () => {
-      expect(result.success).to.equal(state.passwordResetConfirmed);
+      expect(result.success).toEqual(state.passwordResetConfirmed);
     });
   });
 });

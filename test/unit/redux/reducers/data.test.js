@@ -2,7 +2,6 @@
 /* global sinon */
 /* global describe */
 /* global it */
-/* global expect */
 /* global beforeEach */
 /* global afterEach */
 
@@ -12,6 +11,8 @@ import _ from 'lodash';
 import * as actionTypes from '../../../../app/redux/constants/actionTypes';
 import reducer from '../../../../app/redux/reducers/data';
 import initialState from '../../../../app/redux/reducers/initialState';
+
+const expect = chai.expect;
 
 describe('data reducer', () => {
   let initialStateForTest;

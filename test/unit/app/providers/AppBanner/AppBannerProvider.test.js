@@ -1,17 +1,33 @@
 import React, { useContext } from 'react';
-import { expect } from 'chai';
-import { mount } from 'enzyme';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
+jest.mock('react-redux', () => {
+  const actual = jest.requireActual('react-redux');
+  return {
+    ...actual,
+    useDispatch: () => 'dispatchStub',
+  };
+});
 import configureStore from 'redux-mock-store';
 import { MemoryRouter } from 'react-router-dom';
-import sinon from 'sinon';
 
 /* global describe */
 /* global it */
 /* global beforeEach */
 /* global afterEach */
 
-import ABP, { AppBannerProvider, AppBannerContext } from '../../../../../app/providers/AppBanner/AppBannerProvider';
+import { AppBannerProvider, AppBannerContext } from '../../../../../app/providers/AppBanner/AppBannerProvider';
+
+jest.mock('../../../../../app/components/datasources/DataConnections', () => ({
+  providers: {
+    provider1: {
+      dataSourceFilter: {
+        providerType: 'oauth',
+        providerName: 'provider1',
+      },
+    },
+  },
+}));
 import { ToastProvider } from '../../../../../app/providers/ToastProvider';
 import { find, keys, pickBy } from 'lodash';
 import { appBanners } from '../../../../../app/providers/AppBanner/appBanners';
@@ -81,19 +97,19 @@ describe('AppBannerProvider', () => {
 
   beforeEach(() => {
     dispatchStub = 'dispatchStub';
-    ABP.__Rewire__('useDispatch', () => dispatchStub);
-    ABP.__Rewire__('providers', providersStub);
+
+    
     store = mockStore(initialState);
   });
 
   afterEach(() => {
-    ABP.__ResetDependency__('useDispatch');
-    ABP.__ResetDependency__('providers');
-    sinon.restore();
+    
+    
+    jest.restoreAllMocks();
   });
 
   it('should render children', () => {
-    const wrapper = mount(
+    const { container, baseElement } = render(
       <Provider store={store}>
         <ToastProvider>
           <MemoryRouter initialEntries={['/patients/user1/data']}>
@@ -104,12 +120,12 @@ describe('AppBannerProvider', () => {
         </ToastProvider>
       </Provider>
     );
-    expect(wrapper.find('[data-testid="child"]')).to.have.lengthOf(1);
-    expect(wrapper.find('[data-testid="child"]').text()).to.equal('Child Content');
+    expect(screen.queryByTestId('child')).toBeTruthy();
+    expect(screen.queryByTestId('child')?.textContent).toEqual('Child Content');
   });
 
   it('should provide expected context keys', () => {
-    const wrapper = mount(
+    const { container, baseElement } = render(
       <Provider store={store}>
         <ToastProvider>
           <MemoryRouter initialEntries={['/patients/user1/data']}>
@@ -121,8 +137,8 @@ describe('AppBannerProvider', () => {
       </Provider>
     );
 
-    const contextData = JSON.parse(wrapper.find('[data-testid="context"]').text());
-    expect(contextData.keys).to.include.members([
+    const contextData = JSON.parse(screen.getByTestId('context').textContent);
+    expect(contextData.keys).toEqual(expect.arrayContaining([
       'banner',
       'bannerInteractedForPatient',
       'bannerShownForPatient',
@@ -130,8 +146,8 @@ describe('AppBannerProvider', () => {
       'setBannerInteractedForPatient',
       'setBannerShownForPatient',
       'setFormikContext',
-    ]);
-    expect(contextData.hasBanner).to.be.false;
+    ]));
+    expect(contextData.hasBanner).toBe(false);
   });
 
   it('should update currentBanner when a matching banner is available', () => {
@@ -172,7 +188,7 @@ describe('AppBannerProvider', () => {
 
     store = mockStore(stateWithBanner);
 
-    const wrapper = mount(
+    const { container, baseElement } = render(
       <Provider store={store}>
         <ToastProvider>
           <MemoryRouter initialEntries={['/patients/user1/data']}>
@@ -184,8 +200,8 @@ describe('AppBannerProvider', () => {
       </Provider>
     );
 
-    const contextData = JSON.parse(wrapper.find('[data-testid="context"]').text());
-    expect(contextData.hasBanner).to.be.true;
+    const contextData = JSON.parse(screen.getByTestId('context').textContent);
+    expect(contextData.hasBanner).toBe(true);
   });
 
   it('should show dataSourceJustConnected banner when a data source is just connected', () => {
@@ -201,7 +217,7 @@ describe('AppBannerProvider', () => {
 
     store = mockStore(stateWithJustConnectedDataSource);
 
-    const wrapper = mount(
+    const { container, baseElement } = render(
       <Provider store={store}>
         <ToastProvider>
           <MemoryRouter initialEntries={['/patients/user1/data']}>
@@ -213,10 +229,10 @@ describe('AppBannerProvider', () => {
       </Provider>
     );
 
-    const contextData = JSON.parse(wrapper.find('[data-testid="context"]').text());
-    expect(contextData.hasBanner).to.be.true;
-    expect(contextData.banner.id).to.equal('dataSourceJustConnected');
-    expect(contextData.processedBanner.bannerArgs).to.eql([providersStub.provider1, dataSource]);
+    const contextData = JSON.parse(screen.getByTestId('context').textContent);
+    expect(contextData.hasBanner).toBe(true);
+    expect(contextData.banner.id).toEqual('dataSourceJustConnected');
+    expect(contextData.processedBanner.bannerArgs).toEqual([providersStub.provider1, dataSource]);
   });
 
   it('should show dataSourceReconnect banner when a data source has an error', () => {
@@ -231,7 +247,7 @@ describe('AppBannerProvider', () => {
 
     store = mockStore(stateWithErroredDataSource);
 
-    const wrapper = mount(
+    const { container, baseElement } = render(
       <Provider store={store}>
         <ToastProvider>
           <MemoryRouter initialEntries={['/patients/user1/data']}>
@@ -243,11 +259,11 @@ describe('AppBannerProvider', () => {
       </Provider>
     );
 
-    const contextData = JSON.parse(wrapper.find('[data-testid="context"]').text());
+    const contextData = JSON.parse(screen.getByTestId('context').textContent);
 
-    expect(contextData.hasBanner).to.be.true;
-    expect(contextData.banner.id).to.equal('dataSourceReconnect');
-    expect(contextData.processedBanner.bannerArgs).to.eql([dispatchStub, providersStub.provider1, dataSource]);
+    expect(contextData.hasBanner).toBe(true);
+    expect(contextData.banner.id).toEqual('dataSourceReconnect');
+    expect(contextData.processedBanner.bannerArgs).toEqual([dispatchStub, providersStub.provider1, dataSource]);
   });
 
   it('should show uploader banner when user is current patient and has a data source connection but no pump data', () => {
@@ -260,7 +276,7 @@ describe('AppBannerProvider', () => {
 
     store = mockStore(stateWithNoPumpData);
 
-    const wrapper = mount(
+    const { container, baseElement } = render(
       <Provider store={store}>
         <ToastProvider>
           <MemoryRouter initialEntries={['/patients/user1/data']}>
@@ -272,11 +288,11 @@ describe('AppBannerProvider', () => {
       </Provider>
     );
 
-    const contextData = JSON.parse(wrapper.find('[data-testid="context"]').text());
+    const contextData = JSON.parse(screen.getByTestId('context').textContent);
 
-    expect(contextData.hasBanner).to.be.true;
-    expect(contextData.banner.id).to.equal('uploader');
-    expect(contextData.processedBanner.bannerArgs).to.eql([]);
+    expect(contextData.hasBanner).toBe(true);
+    expect(contextData.banner.id).toEqual('uploader');
+    expect(contextData.processedBanner.bannerArgs).toEqual([]);
   });
 
   it('should show shareData banner when user is current patient and has data but no shared accounts', () => {
@@ -297,7 +313,7 @@ describe('AppBannerProvider', () => {
 
     store = mockStore(stateWithDataButNoShares);
 
-    const wrapper = mount(
+    const { container, baseElement } = render(
       <Provider store={store}>
         <ToastProvider>
           <MemoryRouter initialEntries={['/patients/user1/data']}>
@@ -309,11 +325,11 @@ describe('AppBannerProvider', () => {
       </Provider>
     );
 
-    const contextData = JSON.parse(wrapper.find('[data-testid="context"]').text());
+    const contextData = JSON.parse(screen.getByTestId('context').textContent);
 
-    expect(contextData.hasBanner).to.be.true;
-    expect(contextData.banner.id).to.equal('shareData');
-    expect(contextData.processedBanner.bannerArgs).to.eql([dispatchStub, 'user1']);
+    expect(contextData.hasBanner).toBe(true);
+    expect(contextData.banner.id).toEqual('shareData');
+    expect(contextData.processedBanner.bannerArgs).toEqual([dispatchStub, 'user1']);
   });
 
   it('should show donate banner when user is current patient and has data but is not a donor', () => {
@@ -329,7 +345,7 @@ describe('AppBannerProvider', () => {
 
     store = mockStore(stateWithDonate);
 
-    const wrapper = mount(
+    const { container, baseElement } = render(
       <Provider store={store}>
         <ToastProvider>
           <MemoryRouter initialEntries={['/patients/user1/data']}>
@@ -341,11 +357,11 @@ describe('AppBannerProvider', () => {
       </Provider>
     );
 
-    const contextData = JSON.parse(wrapper.find('[data-testid="context"]').text());
+    const contextData = JSON.parse(screen.getByTestId('context').textContent);
 
-    expect(contextData.hasBanner).to.be.true;
-    expect(contextData.banner.id).to.equal('donateYourData');
-    expect(contextData.processedBanner.bannerArgs).to.eql([dispatchStub, 'user1']);
+    expect(contextData.hasBanner).toBe(true);
+    expect(contextData.banner.id).toEqual('donateYourData');
+    expect(contextData.processedBanner.bannerArgs).toEqual([dispatchStub, 'user1']);
   });
 
   it('should show shareProceeds banner when user is current patient, has data, is a donor, but not supporting a nonprofit', () => {
@@ -366,7 +382,7 @@ describe('AppBannerProvider', () => {
 
     store = mockStore(stateWithShareProceeds);
 
-    const wrapper = mount(
+    const { container, baseElement } = render(
       <Provider store={store}>
         <ToastProvider>
           <MemoryRouter initialEntries={['/patients/user1/data']}>
@@ -378,11 +394,11 @@ describe('AppBannerProvider', () => {
       </Provider>
     );
 
-    const contextData = JSON.parse(wrapper.find('[data-testid="context"]').text());
+    const contextData = JSON.parse(screen.getByTestId('context').textContent);
 
-    expect(contextData.hasBanner).to.be.true;
-    expect(contextData.banner.id).to.equal('shareProceeds');
-    expect(contextData.processedBanner.bannerArgs).to.eql([dispatchStub, 'user1']);
+    expect(contextData.hasBanner).toBe(true);
+    expect(contextData.banner.id).toEqual('shareProceeds');
+    expect(contextData.processedBanner.bannerArgs).toEqual([dispatchStub, 'user1']);
   });
 
   it('should show updateType banner when user is current patient, has data, but no diabetes type', () => {
@@ -404,7 +420,7 @@ describe('AppBannerProvider', () => {
 
     store = mockStore(stateWithUpdateType);
 
-    const wrapper = mount(
+    const { container, baseElement } = render(
       <Provider store={store}>
         <ToastProvider>
           <MemoryRouter initialEntries={['/patients/user1/data']}>
@@ -416,11 +432,11 @@ describe('AppBannerProvider', () => {
       </Provider>
     );
 
-    const contextData = JSON.parse(wrapper.find('[data-testid="context"]').text());
+    const contextData = JSON.parse(screen.getByTestId('context').textContent);
 
-    expect(contextData.hasBanner).to.be.true;
-    expect(contextData.banner.id).to.equal('updateType');
-    expect(contextData.processedBanner.bannerArgs).to.eql([dispatchStub, 'user1']);
+    expect(contextData.hasBanner).toBe(true);
+    expect(contextData.banner.id).toEqual('updateType');
+    expect(contextData.processedBanner.bannerArgs).toEqual([dispatchStub, 'user1']);
   });
 
   it('should show patientLimit banner when clinic patient limit is enforced and limit is reached', () => {
@@ -451,7 +467,7 @@ describe('AppBannerProvider', () => {
 
     store = mockStore(stateWithPatientLimit);
 
-    const wrapper = mount(
+    const { container, baseElement } = render(
       <Provider store={store}>
         <ToastProvider>
           <MemoryRouter initialEntries={['/clinic-workspace']}>
@@ -463,11 +479,11 @@ describe('AppBannerProvider', () => {
       </Provider>
     );
 
-    const contextData = JSON.parse(wrapper.find('[data-testid="context"]').text());
+    const contextData = JSON.parse(screen.getByTestId('context').textContent);
 
-    expect(contextData.hasBanner).to.be.true;
-    expect(contextData.banner.id).to.equal('patientLimit');
-    expect(contextData.processedBanner.bannerArgs).to.eql([stateWithPatientLimit.blip.clinics.clinic1]);
+    expect(contextData.hasBanner).toBe(true);
+    expect(contextData.banner.id).toEqual('patientLimit');
+    expect(contextData.processedBanner.bannerArgs).toEqual([stateWithPatientLimit.blip.clinics.clinic1]);
   });
 
   it('should show dataSourceReconnectInvite banner when a data source has an error and user is a clinic patient', () => {
@@ -493,7 +509,7 @@ describe('AppBannerProvider', () => {
 
     store = mockStore(stateWithDataSourceReconnectInvite);
 
-    const wrapper = mount(
+    const { container, baseElement } = render(
       <Provider store={store}>
         <ToastProvider>
           <MemoryRouter initialEntries={['/patients/user1/data']}>
@@ -505,11 +521,11 @@ describe('AppBannerProvider', () => {
       </Provider>
     );
 
-    const contextData = JSON.parse(wrapper.find('[data-testid="context"]').text());
+    const contextData = JSON.parse(screen.getByTestId('context').textContent);
 
-    expect(contextData.hasBanner).to.be.true;
-    expect(contextData.banner.id).to.equal('dataSourceReconnectInvite');
-    expect(contextData.processedBanner.bannerArgs).to.eql([dispatchStub, 'clinic1', stateWithDataSourceReconnectInvite.blip.clinics.clinic1.patients.user1, providersStub.provider1]);
+    expect(contextData.hasBanner).toBe(true);
+    expect(contextData.banner.id).toEqual('dataSourceReconnectInvite');
+    expect(contextData.processedBanner.bannerArgs).toEqual([dispatchStub, 'clinic1', stateWithDataSourceReconnectInvite.blip.clinics.clinic1.patients.user1, providersStub.provider1]);
   });
 
   it('should show addEmail banner when user is a custodial patient and has no email', () => {
@@ -534,7 +550,7 @@ describe('AppBannerProvider', () => {
 
     store = mockStore(stateWithAddEmail);
 
-    const wrapper = mount(
+    const { container, baseElement } = render(
       <Provider store={store}>
         <ToastProvider>
           <MemoryRouter initialEntries={['/patients/user1/data']}>
@@ -546,11 +562,11 @@ describe('AppBannerProvider', () => {
       </Provider>
     );
 
-    const contextData = JSON.parse(wrapper.find('[data-testid="context"]').text());
+    const contextData = JSON.parse(screen.getByTestId('context').textContent);
 
-    expect(contextData.hasBanner).to.be.true;
-    expect(contextData.banner.id).to.equal('addEmail');
-    expect(contextData.processedBanner.bannerArgs).to.eql([{}, stateWithAddEmail.blip.clinics.clinic1.patients.user1]);
+    expect(contextData.hasBanner).toBe(true);
+    expect(contextData.banner.id).toEqual('addEmail');
+    expect(contextData.processedBanner.bannerArgs).toEqual([{}, stateWithAddEmail.blip.clinics.clinic1.patients.user1]);
   });
 
   it('should show sendVerification banner when user is a custodial patient and has an email', () => {
@@ -575,7 +591,7 @@ describe('AppBannerProvider', () => {
 
     store = mockStore(stateWithSendVerification);
 
-    const wrapper = mount(
+    const { container, baseElement } = render(
       <Provider store={store}>
         <ToastProvider>
           <MemoryRouter initialEntries={['/patients/user1/data']}>
@@ -587,11 +603,11 @@ describe('AppBannerProvider', () => {
       </Provider>
     );
 
-    const contextData = JSON.parse(wrapper.find('[data-testid="context"]').text());
+    const contextData = JSON.parse(screen.getByTestId('context').textContent);
 
-    expect(contextData.hasBanner).to.be.true;
-    expect(contextData.banner.id).to.equal('sendVerification');
-    expect(contextData.processedBanner.bannerArgs).to.eql([dispatchStub, stateWithSendVerification.blip.clinics.clinic1.patients.user1]);
+    expect(contextData.hasBanner).toBe(true);
+    expect(contextData.banner.id).toEqual('sendVerification');
+    expect(contextData.processedBanner.bannerArgs).toEqual([dispatchStub, stateWithSendVerification.blip.clinics.clinic1.patients.user1]);
   });
 
   it('should hide a banner when user interaction occurred after ignoreBannerInteractionsBeforeTime', () => {
@@ -599,9 +615,9 @@ describe('AppBannerProvider', () => {
     const modifiedTime = '2025-02-25T10:00:00.000Z';
     const interactionTime = '2025-02-25T11:00:00.000Z';
 
-    ABP.__Rewire__('appBanners', [
-      { ...find(appBanners, { id: 'dataSourceJustConnected' }), ignoreBannerInteractionsBeforeTime: modifiedTime },
-    ]);
+    const originalBanners = [...appBanners];
+    appBanners.length = 0;
+    appBanners.push({ ...find(originalBanners, { id: 'dataSourceJustConnected' }), ignoreBannerInteractionsBeforeTime: modifiedTime });
 
     const stateWithInteraction = {
       blip: {
@@ -627,7 +643,7 @@ describe('AppBannerProvider', () => {
 
     store = mockStore(stateWithInteraction);
 
-    const wrapper = mount(
+    const { container, baseElement } = render(
       <Provider store={store}>
         <ToastProvider>
           <MemoryRouter initialEntries={['/patients/user1/data']}>
@@ -639,12 +655,13 @@ describe('AppBannerProvider', () => {
       </Provider>
     );
 
-    const contextData = JSON.parse(wrapper.find('[data-testid="context"]').text());
+    const contextData = JSON.parse(screen.getByTestId('context').textContent);
 
     // Since the user interaction occurred after modifiedTime,
-    // we expect the provider to show the banner.
-    expect(contextData.hasBanner).to.be.false;
-    ABP.__ResetDependency__('appBanners');
+    // we expect the provider to NOT show the banner.
+    expect(contextData.hasBanner).toBe(false);
+    appBanners.length = 0;
+    appBanners.push(...originalBanners);
   });
 
   it('should show a banner when user interaction occurred before ignoreBannerInteractionsBeforeTime', () => {
@@ -652,9 +669,9 @@ describe('AppBannerProvider', () => {
     const modifiedTime = '2025-02-25T10:00:00.000Z';
     const interactionTime = '2025-02-25T09:00:00.000Z';
 
-    ABP.__Rewire__('appBanners', [
-      { ...find(appBanners, { id: 'dataSourceJustConnected' }), ignoreBannerInteractionsBeforeTime: modifiedTime },
-    ]);
+    const originalBanners = [...appBanners];
+    appBanners.length = 0;
+    appBanners.push({ ...find(originalBanners, { id: 'dataSourceJustConnected' }), ignoreBannerInteractionsBeforeTime: modifiedTime });
 
     const stateWithInteraction = {
       blip: {
@@ -680,7 +697,7 @@ describe('AppBannerProvider', () => {
 
     store = mockStore(stateWithInteraction);
 
-    const wrapper = mount(
+    const { container, baseElement } = render(
       <Provider store={store}>
         <ToastProvider>
           <MemoryRouter initialEntries={['/patients/user1/data']}>
@@ -692,22 +709,25 @@ describe('AppBannerProvider', () => {
       </Provider>
     );
 
-    const contextData = JSON.parse(wrapper.find('[data-testid="context"]').text());
+    const contextData = JSON.parse(screen.getByTestId('context').textContent);
 
     // Since the user interaction occurred before modifiedTime,
     // we expect the provider to show the banner.
-    expect(contextData.hasBanner).to.be.true;
-    expect(contextData.banner.id).to.equal('dataSourceJustConnected');
-    ABP.__ResetDependency__('appBanners');
+    expect(contextData.hasBanner).toBe(true);
+    expect(contextData.banner.id).toEqual('dataSourceJustConnected');
+    appBanners.length = 0;
+    appBanners.push(...originalBanners);
   });
 
   it('should show the banner with the lowest priority value when multiple banners are available', () => {
-    ABP.__Rewire__('appBanners', [
-      { ...find(appBanners, { id: 'dataSourceJustConnected' }), priority: 2 },
-      { ...find(appBanners, { id: 'uploader' }), priority: 4 },
-      { ...find(appBanners, { id: 'donateYourData' }), priority: 1 },
-      { ...find(appBanners, { id: 'updateType' }), priority: 3 },
-    ]);
+    const originalBanners = [...appBanners];
+    appBanners.length = 0;
+    appBanners.push(
+      { ...find(originalBanners, { id: 'dataSourceJustConnected' }), priority: 2 },
+      { ...find(originalBanners, { id: 'uploader' }), priority: 4 },
+      { ...find(originalBanners, { id: 'donateYourData' }), priority: 1 },
+      { ...find(originalBanners, { id: 'updateType' }), priority: 3 }
+    );
 
     const stateWithMultipleBanners = {
       blip: {
@@ -722,7 +742,7 @@ describe('AppBannerProvider', () => {
 
     store = mockStore(stateWithMultipleBanners);
 
-    const wrapper = mount(
+    const { container, baseElement } = render(
       <Provider store={store}>
         <ToastProvider>
           <MemoryRouter initialEntries={['/patients/user1/data']}>
@@ -734,11 +754,12 @@ describe('AppBannerProvider', () => {
       </Provider>
     );
 
-    const contextData = JSON.parse(wrapper.find('[data-testid="context"]').text());
+    const contextData = JSON.parse(screen.getByTestId('context').textContent);
     const bannerCandidates = pickBy(contextData.processedBanners, { show: true });
-    expect(keys(bannerCandidates)).to.have.lengthOf(4);
-    expect(contextData.hasBanner).to.be.true;
-    expect(contextData.banner.id).to.equal('donateYourData');
-    ABP.__ResetDependency__('appBanners');
+    expect(keys(bannerCandidates)).toHaveLength(4);
+    expect(contextData.hasBanner).toBe(true);
+    expect(contextData.banner.id).toEqual('donateYourData');
+    appBanners.length = 0;
+    appBanners.push(...originalBanners);
   });
 });

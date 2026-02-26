@@ -71,6 +71,16 @@ const { getLocalizedCeiling, getTimezoneFromTimePrefs } = vizUtils.datetime;
 const { commonStats, getStatDefinition } = vizUtils.stat;
 const { isCustomBgRange } = vizUtils.bg;
 
+export const computeIsInitialProcessing = ({ chartType, dataSize, chartEndpointsCurrent }) => {
+  const isSettings = chartType === 'settings';
+  const isEmptyDataSet = dataSize === 0;
+  const rangeDataLoaded = isSettings || _.get(chartEndpointsCurrent, '0', 0) !== 0;
+
+  return isEmptyDataSet
+    ? false
+    : !dataSize || !rangeDataLoaded;
+};
+
 export const PatientDataClass = createReactClass({
   displayName: 'PatientData',
 
@@ -194,14 +204,11 @@ export const PatientDataClass = createReactClass({
   log: bows('PatientData'),
 
   isInitialProcessing: function() {
-    const isSettings = this.state.chartType === 'settings';
-    const dataFetched = _.get(this.props.data, 'metaData.size');
-    const isEmptyDataSet = dataFetched === 0;
-    const rangeDataLoaded = isSettings || _.get(this.state, 'chartEndpoints.current.0', 0) !== 0;
-
-    return isEmptyDataSet
-      ? false
-      : !dataFetched || !rangeDataLoaded;
+    return computeIsInitialProcessing({
+      chartType: this.state.chartType,
+      dataSize: _.get(this.props.data, 'metaData.size'),
+      chartEndpointsCurrent: _.get(this.state, 'chartEndpoints.current'),
+    });
   },
 
   render: function() {
@@ -1954,7 +1961,7 @@ export const PatientDataClass = createReactClass({
   },
 
   UNSAFE_componentWillUpdate: function (nextProps, nextState) {
-    const pdfGenerated = _.isObject(nextProps.pdf.combined);
+    const pdfGenerated = _.isObject(_.get(nextProps, 'pdf.combined'));
     const pdfGenerationFailed = _.get(nextProps, 'generatingPDF.notification.type') === 'error';
 
     if (nextState.printDialogProcessing && pdfGenerated) {

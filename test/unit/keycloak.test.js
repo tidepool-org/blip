@@ -4,94 +4,125 @@
 /* global it */
 /* global beforeEach */
 /* global afterEach */
-/* global context */
-/* global before */
-/* global after */
 /* global Promise */
 
 import React from 'react';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
-import * as ActionTypes from '../../app/redux/constants/actionTypes';
-
-import {
-  KeycloakWrapper,
-  __RewireAPI__ as KeycloakRewireAPI,
-  default as keycloak,
-} from '../../app/keycloak';
-import { mount } from 'enzyme';
+import { render } from '@testing-library/react';
 import { Provider } from 'react-redux';
-
-const {
+import * as ActionTypes from '../../app/redux/constants/actionTypes';
+import api from '../../app/core/api';
+import {
+  keycloak as keycloakClient,
+  updateKeycloakConfig,
+  KeycloakWrapper,
   onKeycloakEvent,
   onKeycloakTokens,
   keycloakMiddleware,
-  generateSSOLinkUri
-} = keycloak;
+  generateSSOLinkUri,
+} from '../../app/keycloak';
+
+const mockKeycloakCtor = jest.fn();
+
+jest.mock('keycloak-js/dist/keycloak.js', () => ({
+  __esModule: true,
+  default: function KeycloakMock(config) {
+    return mockKeycloakCtor(config);
+  },
+}));
+
+jest.mock('../../app/core/api', () => ({
+  __esModule: true,
+  default: {
+    user: {
+      saveSession: jest.fn(),
+    },
+  },
+}));
+
+jest.mock('../../app/redux/actions', () => ({
+  __esModule: true,
+  sync: {
+    keycloakReady: (event, error, logoutUrl) => ({ type: 'KEYCLOAK_READY', payload: { event, error, logoutUrl } }),
+    keycloakInitError: (event, error) => ({ type: 'KEYCLOAK_INIT_ERROR', error, payload: { event, error } }),
+    keycloakAuthSuccess: (event, error) => ({ type: 'KEYCLOAK_AUTH_SUCCESS', payload: { event, error } }),
+    keycloakAuthError: (event, error) => ({ type: 'KEYCLOAK_AUTH_ERROR', error, payload: { event, error } }),
+    keycloakAuthRefreshSuccess: (event, error) => ({ type: 'KEYCLOAK_AUTH_REFRESH_SUCCESS', payload: { event, error } }),
+    keycloakAuthRefreshError: (event, error) => ({ type: 'KEYCLOAK_AUTH_REFRESH_ERROR', error, payload: { event, error } }),
+    keycloakTokenExpired: (event, error) => ({ type: 'KEYCLOAK_TOKEN_EXPIRED', payload: { event, error } }),
+    keycloakAuthLogout: (event, error) => ({ type: 'KEYCLOAK_AUTH_LOGOUT', payload: { event, error } }),
+    keycloakTokensReceived: (tokens) => ({ type: 'KEYCLOAK_TOKENS_RECEIVED', payload: { tokens } }),
+  },
+  async: {
+    login: jest.fn(() => () => {}),
+    loggedOut: jest.fn(() => () => {}),
+  },
+}));
 
 const expect = chai.expect;
 
-const apiMock = {
-  user: {
-    saveSession: sinon.stub(),
+const mockStore = configureStore([thunk]);
+
+const makeKeycloakInstance = (overrides = {}) => ({
+  createLogoutUrl: sinon.stub().returns('keycloakLogoutUrl'),
+  logout: sinon.stub(),
+  init: sinon.stub().returns(new Promise(sinon.stub())),
+  tokenParsed: {
+    exp: 5000,
+    sub: 'sub-id',
+    // eslint-disable-next-line camelcase
+    session_state: 'keycloakSessionState',
   },
-};
-
-const asyncMock = {
-  login: sinon.stub().returns(sinon.stub().callsFake(0)),
-  loggedOut: sinon.stub().returns(sinon.stub()),
-};
-
-const keycloakMock = {
-  createLogoutUrl: sinon.stub().returns('keycloakLogoutUrl')
-};
+  token: 'tokenValue',
+  timeSkew: 2,
+  updateToken: sinon.stub(),
+  authServerUrl: 'http://keycloakauthserverurl',
+  realm: 'keycloakRealm',
+  clientId: 'keycloakClientId',
+  ...overrides,
+});
 
 describe('keycloak', () => {
-  const mockStore = configureStore([thunk]);
-
-  before(() => {
-    keycloak.__Rewire__('api', apiMock);
-    keycloak.__Rewire__('async', asyncMock);
-    keycloak.__Rewire__('keycloak', keycloakMock);
-  });
-
-  after(() => {
-    keycloak.__ResetDependency__('api');
-    keycloak.__ResetDependency__('async');
-    keycloak.__ResetDependency__('keycloak');
-  });
-
   beforeEach(() => {
-    apiMock.user.saveSession.resetHistory();
+    jest.clearAllMocks();
+    mockKeycloakCtor.mockReset();
+    const instance = makeKeycloakInstance();
+    mockKeycloakCtor.mockImplementation(() => instance);
+    updateKeycloakConfig({ url: `someUrl-${Date.now()}`, realm: 'realm' }, {});
   });
 
-  const store = mockStore();
+  afterEach(() => {
+    sinon.restore();
+  });
 
   describe('onKeycloakEvent', () => {
-    const onEvent = onKeycloakEvent(store);
-
-    beforeEach(() => {
-      store.clearActions();
-    });
-
     it('should dispatch keycloakReady for onReady', () => {
-      const expectedActions = [
+      const store = mockStore();
+      const onEvent = onKeycloakEvent(store);
+
+      onEvent('onReady', null);
+
+      expect(store.getActions()).to.eql([
         {
           type: 'KEYCLOAK_READY',
           payload: {
             event: 'onReady',
             error: null,
-            logoutUrl: 'keycloakLogoutUrl'
+            logoutUrl: 'keycloakLogoutUrl',
           },
         },
-      ];
-      onEvent('onReady', null);
-      expect(store.getActions()).to.eql(expectedActions);
+      ]);
     });
 
     it('should dispatch keycloakInitError for onInitError', () => {
+      const store = mockStore();
+      const onEvent = onKeycloakEvent(store);
       const err = new Error('keycloak init error');
-      const expectedActions = [
+
+      onEvent('onInitError', err);
+
+      expect(store.getActions()).to.eql([
         {
           type: 'KEYCLOAK_INIT_ERROR',
           error: err,
@@ -100,30 +131,50 @@ describe('keycloak', () => {
             error: err,
           },
         },
-      ];
-      onEvent('onInitError', err);
-      expect(store.getActions()).to.eql(expectedActions);
+      ]);
     });
 
-    it('should dispatch keycloakAuthSuccess and call saveSession for onReady', () => {
-      const expectedActions = [
-        {
-          type: 'KEYCLOAK_AUTH_SUCCESS',
-          payload: {
-            event: 'onAuthSuccess',
-            error: null,
-          },
+    it('should dispatch keycloakReady and not call saveSession for onReady', () => {
+      const store = mockStore();
+      const onEvent = onKeycloakEvent(store);
+
+      onEvent('onReady', null);
+
+      expect(store.getActions()[0]).to.eql({
+        type: 'KEYCLOAK_READY',
+        payload: {
+          event: 'onReady',
+          error: null,
+          logoutUrl: 'keycloakLogoutUrl',
         },
-      ];
-      expect(apiMock.user.saveSession.callCount).to.equal(0);
+      });
+      expect(api.user.saveSession.mock.calls.length).to.equal(0);
+    });
+
+    it('should dispatch keycloakAuthSuccess and call saveSession for onAuthSuccess', () => {
+      const store = mockStore();
+      const onEvent = onKeycloakEvent(store);
+
       onEvent('onAuthSuccess', null);
-      expect(store.getActions()).to.eql(expectedActions);
-      expect(apiMock.user.saveSession.callCount).to.equal(1);
+
+      expect(store.getActions()[0]).to.eql({
+        type: 'KEYCLOAK_AUTH_SUCCESS',
+        payload: {
+          event: 'onAuthSuccess',
+          error: null,
+        },
+      });
+      expect(api.user.saveSession.mock.calls.length).to.equal(1);
     });
 
     it('should dispatch keycloakAuthError for onAuthError', () => {
+      const store = mockStore();
+      const onEvent = onKeycloakEvent(store);
       const err = new Error('keycloak auth error');
-      const expectedActions = [
+
+      onEvent('onAuthError', err);
+
+      expect(store.getActions()).to.eql([
         {
           type: 'KEYCLOAK_AUTH_ERROR',
           error: err,
@@ -132,13 +183,16 @@ describe('keycloak', () => {
             error: err,
           },
         },
-      ];
-      onEvent('onAuthError', err);
-      expect(store.getActions()).to.eql(expectedActions);
+      ]);
     });
 
     it('should dispatch keycloakAuthRefreshSuccess for onAuthRefreshSuccess', () => {
-      const expectedActions = [
+      const store = mockStore();
+      const onEvent = onKeycloakEvent(store);
+
+      onEvent('onAuthRefreshSuccess', null);
+
+      expect(store.getActions()).to.eql([
         {
           type: 'KEYCLOAK_AUTH_REFRESH_SUCCESS',
           payload: {
@@ -146,29 +200,33 @@ describe('keycloak', () => {
             error: null,
           },
         },
-      ];
-      onEvent('onAuthRefreshSuccess', null);
-      expect(store.getActions()).to.eql(expectedActions);
+      ]);
     });
 
     it('should dispatch keycloakAuthRefreshError for onAuthRefreshError', () => {
+      const store = mockStore();
+      const onEvent = onKeycloakEvent(store);
       const err = new Error('keycloak auth refresh error');
-      const expectedActions = [
-        {
-          type: 'KEYCLOAK_AUTH_REFRESH_ERROR',
-          error: err,
-          payload: {
-            event: 'onAuthRefreshError',
-            error: err,
-          },
-        },
-      ];
+
       onEvent('onAuthRefreshError', err);
-      expect(store.getActions()).to.eql(expectedActions);
+
+      expect(store.getActions()[0]).to.eql({
+        type: 'KEYCLOAK_AUTH_REFRESH_ERROR',
+        error: err,
+        payload: {
+          event: 'onAuthRefreshError',
+          error: err,
+        },
+      });
     });
 
     it('should dispatch keycloakTokenExpired for onTokenExpired', () => {
-      const expectedActions = [
+      const store = mockStore();
+      const onEvent = onKeycloakEvent(store);
+
+      onEvent('onTokenExpired', null);
+
+      expect(store.getActions()).to.eql([
         {
           type: 'KEYCLOAK_TOKEN_EXPIRED',
           payload: {
@@ -176,122 +234,83 @@ describe('keycloak', () => {
             error: null,
           },
         },
-      ];
-      onEvent('onTokenExpired', null);
-      expect(store.getActions()).to.eql(expectedActions);
+      ]);
     });
 
     it('should dispatch keycloakAuthLogout for onAuthLogout', () => {
-      const expectedActions = [
-        {
-          type: 'KEYCLOAK_AUTH_LOGOUT',
-          payload: {
-            event: 'onAuthLogout',
-            error: null,
-          },
-        },
-      ];
+      const store = mockStore();
+      const onEvent = onKeycloakEvent(store);
+
       onEvent('onAuthLogout', null);
-      expect(store.getActions()).to.eql(expectedActions);
+
+      expect(store.getActions()[0]).to.eql({
+        type: 'KEYCLOAK_AUTH_LOGOUT',
+        payload: {
+          event: 'onAuthLogout',
+          error: null,
+        },
+      });
     });
   });
 
   describe('onKeycloakTokens', () => {
-    const keycloakMock = {
-      logout: sinon.stub(),
-      init: sinon.stub().returns(new Promise(sinon.stub())),
-      tokenParsed: {
-        exp: 5000,
-      },
-      timeSkew: 2,
-      updateToken: sinon.stub(),
-    };
-    var clock;
-
-    beforeEach(() => {
-      store.clearActions();
-    });
-
-    before(() => {
-      KeycloakRewireAPI.__Rewire__('keycloak', keycloakMock);
-      clock = sinon.useFakeTimers();
-    });
-
-    after(() => {
-      KeycloakRewireAPI.__ResetDependency__('keycloak');
-      clock.restore();
-    });
-
-    const onTokens = onKeycloakTokens(store);
-
     it('should dispatch keycloakTokensReceived, call saveSession, and set up refresh timeout', () => {
-      const tokens = { token: 'tokenValue' };
-      const expectedActions = [
+      const store = mockStore();
+      const onTokens = onKeycloakTokens(store);
+      const clock = sinon.useFakeTimers();
+
+      onTokens({ token: 'tokenValue' });
+
+      expect(store.getActions()).to.eql([
         {
           type: 'KEYCLOAK_TOKENS_RECEIVED',
           payload: {
-            tokens,
+            tokens: { token: 'tokenValue' },
           },
         },
-      ];
-      expect(apiMock.user.saveSession.callCount).to.equal(0);
-      onTokens(tokens);
-      expect(store.getActions()).to.eql(expectedActions);
-      expect(apiMock.user.saveSession.callCount).to.equal(1);
+      ]);
+      expect(api.user.saveSession.mock.calls.length).to.equal(1);
+
       clock.next();
-      expect(keycloakMock.updateToken.callCount).to.equal(1);
-      expect(keycloakMock.updateToken.calledWithExactly(-1)).to.be.true;
+      expect(keycloakClient.updateToken.calledWithExactly(-1)).to.be.true;
+      clock.restore();
     });
   });
 
   describe('keycloakMiddleware', () => {
-    const keycloakMock = {
-      logout: sinon.stub(),
-      updateToken: sinon.stub(),
-    };
-    const updateKeycloakConfigMock = sinon.stub();
-
-    before(() => {
-      keycloak.__Rewire__('keycloak', keycloakMock);
-      keycloak.__Rewire__('updateKeycloakConfig', updateKeycloakConfigMock);
-    });
-
-    after(() => {
-      keycloak.__ResetDependency__('keycloak');
-      keycloak.__ResetDependency__('updateKeycloakConfig');
-    });
-
     it('should update keycloak config if FETCH_INFO returns new config', () => {
-      expect(updateKeycloakConfigMock.callCount).to.equal(0);
+      const callsBefore = mockKeycloakCtor.mock.calls.length;
+
       keycloakMiddleware()()(sinon.stub())({
         type: ActionTypes.FETCH_INFO_SUCCESS,
         payload: {
           info: {
             auth: {
-              url: 'newUrl',
+              url: `newUrl-${Date.now()}`,
+              realm: 'realm',
             },
           },
         },
       });
-      expect(updateKeycloakConfigMock.callCount).to.equal(1);
+
+      expect(mockKeycloakCtor.mock.calls.length).to.equal(callsBefore + 1);
     });
 
     it('should not update keycloak config if FETCH_INFO returns already fetched config', () => {
-      keycloak.__Rewire__('_keycloakConfig', { url: 'newUrl' });
-      updateKeycloakConfigMock.resetHistory();
-      expect(updateKeycloakConfigMock.callCount).to.equal(0);
+      const config = { url: `sameUrl-${Date.now()}`, realm: 'realm' };
+      updateKeycloakConfig(config, {});
+      const callsBefore = mockKeycloakCtor.mock.calls.length;
+
       keycloakMiddleware()()(sinon.stub())({
         type: ActionTypes.FETCH_INFO_SUCCESS,
         payload: {
           info: {
-            auth: {
-              url: 'newUrl',
-            },
+            auth: config,
           },
         },
       });
-      expect(updateKeycloakConfigMock.callCount).to.equal(0);
-      keycloak.__ResetDependency__('_keycloakConfig');
+
+      expect(mockKeycloakCtor.mock.calls.length).to.equal(callsBefore);
     });
 
     it('should call keycloak.updateToken() when action has 401 error', () => {
@@ -299,17 +318,14 @@ describe('keycloak', () => {
         type: 'SOME_ACTION',
         error: {
           status: 401,
-          originalError:{
+          originalError: {
             status: 401,
           },
         },
       };
 
-      expect(keycloakMock.updateToken.callCount).to.equal(0);
       keycloakMiddleware()()(sinon.stub())(action401);
-      expect(keycloakMock.updateToken.callCount).to.equal(1);
-      sinon.assert.calledWithExactly(keycloakMock.updateToken, -1);
-      keycloakMock.updateToken.resetHistory();
+      sinon.assert.calledWithExactly(keycloakClient.updateToken, -1);
     });
 
     it('should call keycloak.updateToken() when action has 403 error', () => {
@@ -317,43 +333,28 @@ describe('keycloak', () => {
         type: 'SOME_ACTION',
         error: {
           status: 403,
-          originalError:{
+          originalError: {
             status: 403,
           },
         },
       };
 
-      expect(keycloakMock.updateToken.callCount).to.equal(0);
       keycloakMiddleware()()(sinon.stub())(action403);
-      expect(keycloakMock.updateToken.callCount).to.equal(1);
-      sinon.assert.calledWithExactly(keycloakMock.updateToken, -1);
+      sinon.assert.calledWithExactly(keycloakClient.updateToken, -1);
     });
   });
 
   describe('KeycloakWrapper', () => {
-    const keycloakMock = {
-      logout: sinon.stub(),
-      init: sinon.stub().returns(new Promise(sinon.stub())),
-    };
-
-    before(() => {
-      KeycloakRewireAPI.__Rewire__('keycloak', keycloakMock);
-    });
-
-    after(() => {
-      KeycloakRewireAPI.__ResetDependency__('keycloak');
-    });
-
     it('should not initialize keycloak without keycloak url configured', () => {
-      expect(keycloakMock.init.callCount).to.equal(0);
-      let wrapper = mount(
+      render(
         <Provider store={configureStore([thunk])({ blip: {} })}>
           <KeycloakWrapper>
             <div>test child</div>
           </KeycloakWrapper>
         </Provider>
       );
-      expect(keycloakMock.init.callCount).to.equal(0);
+
+      expect(keycloakClient.init.callCount).to.equal(0);
     });
 
     it('should initialize the keycloak provider if a keycloak url is configured', () => {
@@ -366,44 +367,23 @@ describe('keycloak', () => {
           },
         },
       });
-      expect(keycloakMock.init.callCount).to.equal(0);
-      let wrapper = mount(
+
+      render(
         <Provider store={store}>
           <KeycloakWrapper>
             <div>test child</div>
           </KeycloakWrapper>
         </Provider>
       );
-      expect(keycloakMock.init.callCount).to.equal(1);
+
+      expect(keycloakClient.init.callCount).to.equal(1);
     });
   });
 
   describe('generateSSOLinkUri', () => {
-    const keycloakMock = {
-      authServerUrl: 'http://keycloakauthserverurl',
-      realm: 'keycloakRealm',
-      tokenParsed: {
-        // eslint-disable-next-line camelcase
-        session_state: 'keycloakSessionState',
-      },
-      clientId: 'keycloakClientId',
-    };
-
-    before(() => {
-      keycloak.__Rewire__('keycloak', keycloakMock);
-    });
-
-    after(() => {
-      keycloak.__ResetDependency__('keycloak');
-    });
-
     it('should return a SSO Uri', () => {
       expect(
-       generateSSOLinkUri(
-          'anIdp',
-          'aRedirectUri',
-          'providedNonce'
-        )
+        generateSSOLinkUri('anIdp', 'aRedirectUri', 'providedNonce')
       ).to.equal(
         'http://keycloakauthserverurl/realms/keycloakRealm/broker/anIdp/link?nonce=providedNonce&hash=9poE5eoZoNI83tBnkjtE_v-LgE4nAa0jZTFjBaOvG8w&client_id=keycloakClientId&redirect_uri=aRedirectUri'
       );

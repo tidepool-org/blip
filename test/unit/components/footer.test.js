@@ -1,21 +1,16 @@
 /* global afterEach, before, chai, describe, it, sinon */
 
 import React from 'react';
-import { shallow } from 'enzyme';
+import { render, fireEvent } from '@testing-library/react';
 
 import Footer from '../../../app/components/footer/';
 
 const expect = chai.expect;
 
 describe('Footer', () => {
-  let wrapper;
   const props = {
     trackMetric: sinon.spy(),
   };
-
-  before(() => {
-    wrapper = shallow(<Footer {...props} />);
-  });
 
   afterEach(() => {
     props.trackMetric.resetHistory();
@@ -23,7 +18,8 @@ describe('Footer', () => {
 
   describe('render', () => {
     it('should render four links', () => {
-      expect(wrapper.find('a').length).to.equal(4);
+      const { container } = render(<Footer {...props} />);
+      expect(container.querySelectorAll('a').length).to.equal(4);
     });
   });
 
@@ -44,9 +40,11 @@ describe('Footer', () => {
 
     links.forEach((link) => {
       it(`a#${link.id} should fire the trackMetric function when clicked`, () => {
-        const linkEl = wrapper.find(`#${link.id}`);
+        const { container } = render(<Footer {...props} />);
+        const linkEl = container.querySelector(`#${link.id}`);
+        expect(linkEl).to.not.be.null;
         expect(props.trackMetric.callCount).to.equal(0);
-        linkEl.simulate('click');
+        fireEvent.click(linkEl);
         expect(props.trackMetric.callCount).to.equal(1);
         expect(props.trackMetric.firstCall.args[0]).to.equal(`Clicked Footer ${link.metric}`);
       });

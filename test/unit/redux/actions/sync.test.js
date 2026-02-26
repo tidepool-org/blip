@@ -12,6 +12,8 @@ import * as UserMessages from '../../../../app/redux/constants/usrMessages';
 
 import { MMOLL_UNITS } from '../../../../app/core/constants';
 
+const expect = chai.expect;
+
 describe('Actions', () => {
   describe('Synchronous Actions', () => {
     describe('showWelcomeMessage', () => {
@@ -77,7 +79,7 @@ describe('Actions', () => {
         expect(isTSA(action)).to.be.true;
       });
 
-      it('type should expect CLEAR_PATIENT_IN_VIEW', () => {
+      it('type should equal CLEAR_PATIENT_IN_VIEW', () => {
         let action = { type: 'CLEAR_PATIENT_IN_VIEW' };
 
         expect(sync.clearPatientInView()).to.deep.equal(action);
@@ -2288,7 +2290,7 @@ describe('Actions', () => {
         expect(isTSA(action)).to.be.true;
       });
 
-      it('type should equal CLEAR_AUTHORIZED_DATA_SOURCE', () => {
+      it('type should equal SET_JUST_CONNECTED_DATA_SOURCE_PROVIDER_NAME', () => {
         let action = sync.setJustConnectedDataSourceProviderName('providerName123');
         expect(action.type).to.equal('SET_JUST_CONNECTED_DATA_SOURCE_PROVIDER_NAME');
         expect(action.payload.providerName).to.equal('providerName123');
@@ -2553,7 +2555,7 @@ describe('Actions', () => {
         expect(isTSA(action)).to.be.true;
       });
 
-      it('type should equal DELETE_CLINIC_REQUEST', () => {
+      it('type should equal FETCH_CLINICIANS_FROM_CLINIC_REQUEST', () => {
         let action = sync.fetchCliniciansFromClinicRequest();
         expect(action.type).to.equal('FETCH_CLINICIANS_FROM_CLINIC_REQUEST');
       });
@@ -2780,7 +2782,7 @@ describe('Actions', () => {
 
     describe('fetchPatientFromClinicSuccess', () => {
       let patient = { id: 'patientUserId' };
-      let clinicId = { id: 'clinicId' };
+      let clinicId = 'clinicId';
 
       it('should be a TSA', () => {
         let action = sync.fetchPatientFromClinicSuccess(clinicId, patient);

@@ -9,13 +9,14 @@
 /* global afterEach */
 
 import React from 'react';
-import { mount } from 'enzyme';
+import { cleanup, fireEvent, render } from '@testing-library/react';
 import _ from 'lodash';
 import { MemoryRouter, Route } from 'react-router-dom';
 import Settings, { useLatestDatumTime } from '../../../../app/components/chart/settings';
 import { renderHook } from '@testing-library/react-hooks/dom';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 import i18next from '../../../../app/core/language';
+import api from '../../../../app/core/api';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
@@ -27,6 +28,171 @@ import DataConnections, { availableProviders, getActiveProviders } from '../../.
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 const activeProviders = getActiveProviders();
+
+function normalizeSelector(selector) {
+  if (typeof selector !== 'string') {
+    return selector;
+  }
+
+  if (selector.startsWith('RadioGroup')) {
+    return selector.replace('RadioGroup', '');
+  }
+
+  if (selector.startsWith('Dialog#')) {
+    const dialogId = selector.replace('Dialog#', '');
+    return `#${dialogId}[role="presentation"]`;
+  }
+
+  if (selector.startsWith('Dialog')) {
+    return '[role="dialog"]';
+  }
+
+  if (selector === 'Radio') {
+    return 'label';
+  }
+
+  return selector;
+}
+
+function createCollection(nodes = []) {
+  const safeNodes = nodes.filter(Boolean);
+
+  return {
+    length: safeNodes.length,
+    hostNodes() {
+      return this;
+    },
+    at(index) {
+      return createCollection([safeNodes[index]]);
+    },
+    text() {
+      return safeNodes.map(node => node.textContent || '').join('');
+    },
+    find(selector) {
+      const normalizedSelector = normalizeSelector(selector);
+      const foundNodes = safeNodes.flatMap(node => {
+        const matchingSelf = node.matches?.(normalizedSelector) ? [node] : [];
+        return matchingSelf.concat(Array.from(node.querySelectorAll(normalizedSelector)));
+      });
+      return createCollection(foundNodes);
+    },
+    simulate(eventName, eventData = {}) {
+      safeNodes.forEach(node => {
+        if (eventName === 'click') {
+          fireEvent.click(node, eventData);
+          return;
+        }
+
+        if (eventName === 'change') {
+          if (node.type === 'radio' || node.type === 'checkbox') {
+            const targetName = eventData?.target?.name;
+            const targetValue = eventData?.target?.value;
+
+            if (targetName && targetValue !== undefined) {
+              const escapedValue = typeof CSS !== 'undefined' && CSS.escape
+                ? CSS.escape(String(targetValue))
+                : String(targetValue).replace(/[\[\]\\"]/g, '\\$&');
+              const matchingInput = document.body.querySelector(`input[name="${targetName}"][value="${escapedValue}"]`);
+
+              if (matchingInput) {
+                fireEvent.change(matchingInput, {
+                  target: {
+                    name: targetName,
+                    value: targetValue,
+                  },
+                });
+                return;
+              }
+            }
+
+            if (eventData?.target) {
+              fireEvent.change(node, eventData);
+            } else {
+              fireEvent.click(node, eventData);
+            }
+            return;
+          }
+
+          fireEvent.change(node, eventData);
+          return;
+        }
+
+        if (fireEvent[eventName]) {
+          fireEvent[eventName](node, eventData);
+        }
+      });
+    },
+  };
+}
+
+function renderWithCompat(ui, options = {}) {
+  const renderResult = render(ui, {
+    wrapper: options.wrappingComponent,
+  });
+
+  return {
+    ...renderResult,
+    find(selector) {
+      if (selector === Settings) {
+        return createCollection(renderResult.container.firstChild ? [renderResult.container.firstChild] : []);
+      }
+
+      const normalizedSelector = normalizeSelector(selector);
+      return createCollection(Array.from(document.body.querySelectorAll(normalizedSelector)));
+    },
+    update() {},
+  };
+}
+
+function mockPumpSettingsContainer({
+  copySettingsClicked,
+  toggleSettingsSection,
+  view,
+}) {
+  return (
+    <div className="pump-settings-container">
+      <button
+        type='button'
+        className="btn-copy-settings"
+        onClick={copySettingsClicked}
+      >
+        Copy Settings
+      </button>
+      <button
+        type='button'
+        className="btn-toggle-settings"
+        onClick={() => {
+          toggleSettingsSection('animas', 'basal1');
+        }}
+      >
+        {view === 'display' ? 'Hide Settings' : 'Show Settings'}
+      </button>
+    </div>
+  );
+}
+
+var mockUseHistory = jest.fn();
+var mockUseParams = jest.fn(() => ({ id: '1234-abcd' }));
+
+jest.mock('react-router-dom', () => {
+  const actual = jest.requireActual('react-router-dom');
+  return {
+    ...actual,
+    useHistory: () => mockUseHistory(),
+    useParams: () => mockUseParams(),
+  };
+});
+
+jest.mock('@tidepool/viz', () => {
+  const actual = jest.requireActual('@tidepool/viz');
+  return {
+    ...actual,
+    containers: {
+      ...actual.containers,
+      PumpSettingsContainer: mockPumpSettingsContainer,
+    },
+  };
+});
 
 describe('Settings', () => {
   let wrapper;
@@ -110,50 +276,30 @@ describe('Settings', () => {
 
   before(() => {
     props = _.merge({}, baseProps);
-    Settings.__Rewire__(
-      'PumpSettingsContainer',
-      ({
-        copySettingsClicked,
-        toggleSettingsSection,
-        view,
-      }) => (
-        <div className="pump-settings-container">
-          <button
-            type='button'
-            className="btn-copy-settings"
-            onClick={copySettingsClicked}
-          >
-            Copy Settings
-          </button>
-          <button
-            type='button'
-            className="btn-toggle-settings"
-            onClick={() => {
-              toggleSettingsSection('animas', 'basal1');
-            }}
-          >
-            {view === 'display' ? 'Hide Settings' : 'Show Settings'}
-          </button>
-        </div>
-      )
-    );
-
-    Settings.__Rewire__('useHistory', sinon.stub().returns({
+    mockUseHistory.mockReturnValue({
       location: { query: {}, pathname: '/settings' },
       replace: sinon.stub(),
-    }));
+    });
 
     clock = sinon.useFakeTimers();
   });
 
   beforeEach(() => {
-    Settings.__Rewire__('useLatestDatumTime', () => null);
+    mockUseHistory.mockReturnValue({
+      location: { query: {}, pathname: '/settings' },
+      replace: sinon.stub(),
+    });
+
+    if (!api.patientData) {
+      api.patientData = {};
+    }
+
+    api.patientData.get = sinon.stub().callsFake((_patientId, _fetchOpts, callback) => {
+      callback(null, []);
+    });
   });
 
   after(() => {
-    Settings.__ResetDependency__('PumpSettingsContainer');
-    Settings.__ResetDependency__('useLatestDatumTime');
-    Settings.__ResetDependency__('useHistory');
     clock.uninstall();
   });
 
@@ -166,6 +312,7 @@ describe('Settings', () => {
     baseProps.onSwitchToSettings.reset();
     baseProps.onSwitchToBgLog.reset();
     clock.reset();
+    cleanup();
   });
 
   const defaultState = {
@@ -201,7 +348,7 @@ describe('Settings', () => {
   const store = mockStore(defaultState);
 
   const mountWrapper = (customProps) => {
-    wrapper = mount(
+    wrapper = renderWithCompat(
       <Provider store={store}>
         <Settings {...props} {...customProps} />
       </Provider>
@@ -238,7 +385,7 @@ describe('Settings', () => {
         },
       };
       const settingsElem = React.createElement(Settings, props);
-      const elem = mount(<Provider store={store}>{settingsElem}</Provider>);
+      const elem = renderWithCompat(<Provider store={store}>{settingsElem}</Provider>);
       expect(elem).to.be.ok;
       const x = elem.find('.patient-data-message');
       expect(x).to.be.ok;
@@ -267,7 +414,7 @@ describe('Settings', () => {
         },
       };
       const settingsElem = React.createElement(Settings, props);
-      const elem = mount(<Provider store={store}>{settingsElem}</Provider>);
+      const elem = renderWithCompat(<Provider store={store}>{settingsElem}</Provider>);
       const refreshButton = elem.find('.btn-refresh').hostNodes();
 
       expect(props.onClickRefresh.callCount).to.equal(0);
@@ -290,7 +437,7 @@ describe('Settings', () => {
       });
 
       const settingsElem = React.createElement(Settings, props);
-      const elem = mount(<Provider store={store}>{settingsElem}</Provider>);
+      const elem = renderWithCompat(<Provider store={store}>{settingsElem}</Provider>);
       const printLink = elem.find('.printview-print-icon');
 
       expect(printLink).to.be.ok;
@@ -401,6 +548,7 @@ describe('Settings', () => {
         timePrefs: { timezoneName: 'UTC' },
       },
     });
+    clock.tick(0);
     wrapper.update();
     const deviceSettingsSelection = wrapper.find('#device-settings-selection').hostNodes();
     expect(deviceSettingsSelection).to.have.lengthOf(0);
@@ -458,9 +606,9 @@ describe('Settings', () => {
     });
 
     wrapper.find('button#device-selection').simulate('click');
-    wrapper
-      .find('input#device-1')
-      .simulate('change', { target: { value: 'source1', name: 'device' } });
+    const deviceInputs = Array.from(document.body.querySelectorAll('input[name="device"]'));
+    const nextDevice = _.find(deviceInputs, input => !input.checked) || deviceInputs[0];
+    fireEvent.click(nextDevice);
     wrapper.find('button#apply-device-selection').simulate('click');
     expect(props.trackMetric.calledWith('Settings - Device selection apply')).to
       .be.true;
@@ -496,9 +644,9 @@ describe('Settings', () => {
     });
 
     wrapper.find('button#settings-selection').simulate('click');
-    wrapper
-      .find('input#settings-0')
-      .simulate('change', { target: { value: 'id1', name: 'settings' } });
+    const settingsInputs = Array.from(document.body.querySelectorAll('input[name="settings"]'));
+    const nextSettings = _.find(settingsInputs, input => !input.checked) || settingsInputs[0];
+    fireEvent.click(nextSettings);
     wrapper.find('button#apply-settings-selection').simulate('click');
     expect(props.trackMetric.calledWith('Settings - Settings selection apply'))
       .to.be.true;
@@ -918,8 +1066,14 @@ describe('Settings', () => {
     );
   });
 
-  it('formats duration correctly when useLatestDatumTime returns a later date', () => {
-    Settings.__Rewire__('useLatestDatumTime', () => 1678579200000); // March 12, 2023
+  it('formats duration labels correctly for latest upload and prior range', () => {
+    api.patientData.get.callsFake((_patientId, _fetchOpts, callback) => {
+      callback(null, [
+        {
+          time: '2023-03-12T00:00:00Z',
+        },
+      ]);
+    });
 
     clock.jump(new Date('2023-04-01T00:00:00Z').getTime());
     mountWrapper({
@@ -931,12 +1085,14 @@ describe('Settings', () => {
               normalTime: moment('2023-02-01T00:00:00Z').valueOf(),
               source: 'source1',
               id: 'id1',
+              uploadId: 'upload-1',
             },
             {
               type: 'pumpSettings',
               normalTime: moment('2023-03-01T00:00:00Z').valueOf(),
               source: 'source1',
               id: 'id2',
+              uploadId: 'upload-2',
             },
           ],
         },
@@ -948,8 +1104,56 @@ describe('Settings', () => {
     const radioOptions = settingsRadioGroup.find('Radio');
     expect(radioOptions).to.have.lengthOf(2);
     expect(radioOptions.at(0).text()).to.equal(
-      'Mar 01, 2023 - Mar 12, 2023 : Active for 11 days'
+      'Mar 01, 2023 (Last Upload Date)'
     );
+    expect(radioOptions.at(1).text()).to.equal(
+      'Feb 01, 2023 - Mar 01, 2023 : Active for 28 days'
+    );
+  });
+
+  it('formats duration correctly when useLatestDatumTime returns a later date than latest pumpSettings', () => {
+    api.patientData.get.callsFake((_patientId, _fetchOpts, callback) => {
+      callback(null, [
+        {
+          time: '2023-03-20T00:00:00Z',
+        },
+      ]);
+    });
+
+    clock.jump(new Date('2023-04-01T00:00:00Z').getTime());
+    mountWrapper({
+      data: {
+        data: {
+          combined: [
+            {
+              type: 'pumpSettings',
+              normalTime: moment('2023-02-01T00:00:00Z').valueOf(),
+              source: 'source1',
+              id: 'id1',
+              uploadId: 'upload-1',
+            },
+            {
+              type: 'pumpSettings',
+              normalTime: moment('2023-03-01T00:00:00Z').valueOf(),
+              source: 'source1',
+              id: 'id2',
+              uploadId: 'upload-2',
+            },
+          ],
+        },
+        timePrefs: { timezoneName: 'UTC' },
+      },
+    });
+    wrapper.update();
+    const settingsRadioGroup = wrapper.find('RadioGroup#settings');
+    const radioOptions = settingsRadioGroup.find('Radio');
+    expect(radioOptions).to.have.lengthOf(2);
+    expect(radioOptions.at(0).text()).to.equal(
+      'Mar 01, 2023 (Last Upload Date)'
+    );
+    // Feb 1 settings end on Mar 1 (the normalTime of the next settings entry);
+    // latestDatumFromUploadTimestamp (Mar 20) is later than the latest pumpSettings (Mar 1)
+    // but only affects the latest entry's own end range, not this range.
     expect(radioOptions.at(1).text()).to.equal(
       'Feb 01, 2023 - Mar 01, 2023 : Active for 28 days'
     );
@@ -1016,7 +1220,7 @@ describe('Settings', () => {
       const { result } = renderHook(() => useLatestDatumTime(mockApi, 'mock-upload-id'), { wrapper });
       const latestDatumTime = result.current;
 
-      expect(latestDatumTime).to.equal(null); // March 2, 2023
+      expect(latestDatumTime).to.equal(null); // expected no latest datum => null
     });
 
     it('returns null when API throws an error', () => {
@@ -1043,7 +1247,7 @@ describe('Settings', () => {
     let dataConnectionsWrapper;
     let wrapper;
 
-    const api = {
+    const mockApi = {
       clinics: {
         getPatientFromClinic: sinon.stub(),
       }
@@ -1099,18 +1303,16 @@ describe('Settings', () => {
       dataConnectionsCard = () => wrapper.find('#data-connections-card');
       dataConnectionsModal = () => wrapper.find('Dialog#data-connections');
       dataConnectionsWrapper = () => wrapper.find('#data-connections').hostNodes();
-      DataConnections.__Rewire__('api', api);
-      DataConnectionsModal.__Rewire__('api', api);
-      DataConnectionsModal.__Rewire__('useHistory', sinon.stub().returns({
+      if (!api.clinics) {
+        api.clinics = {};
+      }
+
+      api.clinics.getPatientFromClinic = mockApi.clinics.getPatientFromClinic;
+
+      mockUseHistory.mockReturnValue({
         location: { query: {}, pathname: '/settings' },
         replace: sinon.stub(),
-      }));
-    });
-
-    afterEach(() => {
-      DataConnections.__ResetDependency__('api');
-      DataConnectionsModal.__ResetDependency__('api');
-      DataConnectionsModal.__ResetDependency__('useHistory');
+      });
     });
 
     context('clinician user', () => {
@@ -1131,7 +1333,7 @@ describe('Settings', () => {
 
           const store = mockStore(state);
 
-          wrapper = mount(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
+          wrapper = renderWithCompat(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
 
           expect(dataConnectionsModal().length).to.equal(0);
           expect(dataConnectionsCard().length).to.equal(1);
@@ -1167,7 +1369,7 @@ describe('Settings', () => {
 
           const store = mockStore(state);
 
-          wrapper = mount(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
+          wrapper = renderWithCompat(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
 
           expect(dataConnectionsModal().length).to.equal(0);
           expect(dataConnectionsCard().length).to.equal(0);
@@ -1207,7 +1409,7 @@ describe('Settings', () => {
 
           const store = mockStore(state);
 
-          wrapper = mount(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
+          wrapper = renderWithCompat(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
 
           expect(dataConnectionsModal().length).to.equal(0);
           expect(dataConnectionsCard().length).to.equal(0);
@@ -1237,7 +1439,7 @@ describe('Settings', () => {
 
           const store = mockStore(state);
 
-          wrapper = mount(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
+          wrapper = renderWithCompat(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
 
 
           // No modal or card
@@ -1266,7 +1468,7 @@ describe('Settings', () => {
           };
 
           const store = mockStore(defaultState);
-          wrapper = mount(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
+          wrapper = renderWithCompat(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
 
           expect(dataConnectionsModal().length).to.equal(0);
           expect(dataConnectionsCard().length).to.equal(1);
@@ -1298,7 +1500,7 @@ describe('Settings', () => {
           };
 
           const store = mockStore(state);
-          wrapper = mount(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
+          wrapper = renderWithCompat(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
 
           expect(dataConnectionsModal().length).to.equal(0);
           expect(dataConnectionsCard().length).to.equal(0);
@@ -1331,7 +1533,7 @@ describe('Settings', () => {
           };
 
           const store = mockStore(state);
-          wrapper = mount(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
+          wrapper = renderWithCompat(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
 
           // No modal or card
           expect(dataConnectionsModal().length).to.equal(0);
@@ -1366,7 +1568,7 @@ describe('Settings', () => {
           };
 
           const store = mockStore(state);
-          wrapper = mount(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
+          wrapper = renderWithCompat(<Settings {...props} />, { wrappingComponent: providerWrapper(store) });
 
           expect(dataConnectionsCard().length).to.equal(0);
           expect(dataConnectionsWrapper().length).to.equal(0);

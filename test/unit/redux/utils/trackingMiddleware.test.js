@@ -26,6 +26,8 @@ import _ from 'lodash';
 import * as ActionTypes from '../../../../app/redux/constants/actionTypes';
 import trackingMiddleware from '../../../../app/redux/utils/trackingMiddleware';
 
+const expect = chai.expect;
+
 describe('trackingMiddleware', () => {
   const api = {
     metrics: {

@@ -8,7 +8,7 @@
 
 import React from 'react';
 import moment from 'moment-timezone';
-import { mount } from 'enzyme';
+import { render, fireEvent, screen, waitFor } from '@testing-library/react';
 
 import ChartDateModal from '../../../app/components/ChartDateModal';
 
@@ -29,9 +29,9 @@ describe('ChartDateModal', function () {
     trackMetric: sinon.stub(),
   };
 
-  let wrapper;
+  let rendered;
   beforeEach(() => {
-    wrapper = mount( <ChartDateModal {...props} /> );
+    rendered = render(<ChartDateModal {...props} />);
   });
 
   afterEach(() => {
@@ -40,14 +40,14 @@ describe('ChartDateModal', function () {
     props.trackMetric.reset();
   });
 
-  it('should be visible when open prop is true', () => {
-    const dialog = () => wrapper.find('.MuiDialog-container').hostNodes();
-    expect(dialog().prop('style').opacity).to.equal(1);
+  it('should be visible when open prop is true', async () => {
+    expect(screen.queryByRole('dialog')).to.not.be.null;
 
-    wrapper.setProps({ ...props, open: false });
-    wrapper.update();
+    rendered.rerender(<ChartDateModal {...props} open={false} />);
 
-    expect(dialog().prop('style').opacity).to.equal(0);
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).to.be.null;
+    });
   });
 
   it('should set default date as provided by props', () => {
@@ -55,36 +55,37 @@ describe('ChartDateModal', function () {
     // Note: we expect the start dates to show a date that is the preset range MINUS 1 day prior
     // to the end date, since the resulting date range goes from the first ms of the start date
     // to the last ms of the end date
-    const date = wrapper.find('#chart-date').hostNodes();
-    expect(date.prop('value')).to.equal('Mar 10, 2020');
+    const date = document.body.querySelector('#chart-date');
+    expect(date.value).to.equal('Mar 10, 2020');
 
     // Use 'US/Pacific' time zone
-    const pacificWrapper = mount( <ChartDateModal {...{ ...props, timePrefs: { timezoneName: 'US/Pacific' } }} /> )
+    rendered.unmount();
+    const renderedPacific = render(<ChartDateModal {...{ ...props, timePrefs: { timezoneName: 'US/Pacific' } }} />);
 
-    const dateInPacific = pacificWrapper.find('#chart-date').hostNodes();
+    const dateInPacific = document.body.querySelector('#chart-date');
 
     expect(moment.utc('Mar 10, 2020', dateFormat).tz('US/Pacific').format(dateFormat)).to.equal('Mar 9, 2020');
-    expect(dateInPacific.prop('value')).to.equal('Mar 9, 2020');
+    expect(dateInPacific.value).to.equal('Mar 9, 2020');
   });
 
   context('form is submitted', () => {
     let submitButton;
 
     beforeEach(() => {
-      submitButton = () => wrapper.find('button.chart-dates-submit').hostNodes();
+      submitButton = () => document.body.querySelector('button.chart-dates-submit');
     });
 
     it('should call `onSubmit` prop method with appropriate print ranges and disabled statuses', () => {
-      const date = wrapper.find('#chart-date').hostNodes();
-      expect(date.prop('value')).to.equal('Mar 10, 2020');
+      const date = document.body.querySelector('#chart-date');
+      expect(date.value).to.equal('Mar 10, 2020');
 
       // Change date to Mar 1, 2020
-      date.simulate('change', {
+      fireEvent.change(date, {
         target: { name: 'chart-date', value: 'Mar 1, 2020' }
       });
 
       // Submit form
-      submitButton().simulate('click');
+      fireEvent.click(submitButton());
       sinon.assert.calledOnce(props.onSubmit);
       sinon.assert.calledWith(props.onSubmit, [
           Date.parse('2020-03-01T00:00:00.000Z'),
@@ -93,33 +94,33 @@ describe('ChartDateModal', function () {
     });
 
     it('should not call `onSubmit` if there are date validation errors and render error message', () => {
-      const datesClearButton = () => wrapper.find('button.SingleDatePickerInput_clearDate').hostNodes();
-      const date = () => wrapper.find('#chart-date').hostNodes();
-      const error = () => wrapper.find('#chart-dates-error').hostNodes();
+      const datesClearButton = () => document.body.querySelector('button.SingleDatePickerInput_clearDate');
+      const date = () => document.body.querySelector('#chart-date');
+      const error = () => document.body.querySelector('#chart-dates-error');
 
       // Clear dates
-      datesClearButton().simulate('click');
-      expect(date().prop('value')).to.equal('');
-      expect(error()).to.have.lengthOf(0);
+      fireEvent.click(datesClearButton());
+      expect(date().value).to.equal('');
+      expect(error()).to.not.exist;
 
-      submitButton().simulate('click');
+      fireEvent.click(submitButton());
       sinon.assert.notCalled(props.onSubmit);
 
-      expect(error()).to.have.lengthOf(1);
-      expect(error().text()).to.equal('Please select a date');
+      expect(error()).to.exist;
+      expect(error().textContent).to.equal('Please select a date');
     });
 
     it('should send metric', () => {
-      const date = wrapper.find('#chart-date').hostNodes();
+      const date = document.body.querySelector('#chart-date');
       sinon.assert.notCalled(props.trackMetric);
 
       // Change date to Mar 1, 2020
-      date.simulate('change', {
+      fireEvent.change(date, {
         target: { name: 'chart-date', value: 'Mar 1, 2020' }
       });
 
       // Submit form
-      submitButton().simulate('click');
+      fireEvent.click(submitButton());
 
       sinon.assert.calledWith(props.trackMetric, 'Set Custom Chart Date', {
         chartType: 'daily',
@@ -128,14 +129,14 @@ describe('ChartDateModal', function () {
   });
 
   it('should run `onClose` prop method when "Cancel" button is clicked', () => {
-    const cancelButton = wrapper.find('button.chart-dates-cancel').hostNodes();
-    cancelButton.simulate('click');
+    const cancelButton = document.body.querySelector('button.chart-dates-cancel');
+    fireEvent.click(cancelButton);
     sinon.assert.calledOnce(props.onClose);
   });
 
   it('should run `onClose` prop method when the close icon is clicked', () => {
-    const closeIcon = wrapper.find('button[aria-label="close dialog"]').hostNodes();
-    closeIcon.simulate('click');
+    const closeIcon = document.body.querySelector('button[aria-label="close dialog"]');
+    fireEvent.click(closeIcon);
     sinon.assert.calledOnce(props.onClose);
   });
 });

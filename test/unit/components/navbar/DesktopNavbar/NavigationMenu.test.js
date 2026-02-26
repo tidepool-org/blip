@@ -1,9 +1,27 @@
 import React from 'react';
-import { createMount } from '@material-ui/core/test-utils';
+import { render, fireEvent } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
+import { useLocation } from 'react-router-dom';
+import { useNavigation } from '../../../../../app/core/navutils';
 import NavigationMenu from '../../../../../app/components/navbar/DesktopNavbar/NavigationMenu';
+
+jest.mock('react-router-dom', () => {
+  const actual = jest.requireActual('react-router-dom');
+  return {
+    ...actual,
+    useLocation: jest.fn(),
+  };
+});
+
+jest.mock('../../../../../app/core/navutils', () => {
+  const actual = jest.requireActual('../../../../../app/core/navutils');
+  return {
+    ...actual,
+    useNavigation: jest.fn(),
+  };
+});
 
 /* global chai */
 /* global sinon */
@@ -19,53 +37,12 @@ const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
 describe('NavigationMenu', () => {
-  let mount;
-
-  let wrapper;
-  let defaultProps = {
-    trackMetric: sinon.stub(),
-    t: sinon.stub().callsFake((string) => string),
-    api: {
-      clinics: {
-        getClinicsForClinician: sinon.stub().callsArgWith(2, null, { clinicsReturn: 'success' }),
-        getPatientsForClinic: sinon.stub().callsArgWith(2, null, { patientsReturn: 'success' }),
-        getClinicPatientCount: sinon.stub(),
-        getClinicPatientCountSettings: sinon.stub(),
-      },
-      user: {
-        logout: sinon.stub(),
-      },
-    },
-  };
+  let defaultProps;
 
   const handleSelectWorkspace = sinon.stub();
   const handleViewManageWorkspaces = sinon.stub();
   const handleViewAccountSettings = sinon.stub();
   const handleLogout = sinon.stub();
-
-  before(() => {
-    mount = createMount();
-    NavigationMenu.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-workspace' }));
-    NavigationMenu.__Rewire__('useNavigation', sinon.stub().returns({
-      handleSelectWorkspace,
-      handleViewManageWorkspaces,
-      handleViewAccountSettings,
-      handleLogout,
-    }));
-  });
-
-  beforeEach(() => {
-    handleSelectWorkspace.resetHistory();
-    handleViewManageWorkspaces.resetHistory();
-    handleViewAccountSettings.resetHistory();
-    handleLogout.resetHistory();
-  });
-
-  after(() => {
-    NavigationMenu.__ResetDependency__('useNavigation');
-    NavigationMenu.__ResetDependency__('useLocation');
-    mount.cleanUp();
-  });
 
   const defaultWorkingState = {
     inProgress: false,
@@ -157,19 +134,49 @@ describe('NavigationMenu', () => {
     },
   };
 
-  let mountWrapper;
-  let store;
+  const renderMenu = (state, path = '/clinic-workspace', props = defaultProps) => {
+    useLocation.mockReturnValue({ pathname: path });
+    const store = mockStore(state);
+
+    render(
+      <Provider store={store}>
+        <NavigationMenu {...props} />
+      </Provider>
+    );
+
+    fireEvent.click(document.querySelector('#navigation-menu-trigger'));
+  };
+
+  const getMenuOptions = () => Array.from(document.querySelectorAll('button.navigation-menu-option'));
 
   beforeEach(() => {
-    mountWrapper = (newStore, props = defaultProps) => {
-      store = newStore;
-
-      return mount(
-        <Provider store={store}>
-          <NavigationMenu {...props} />
-        </Provider>
-      );
+    defaultProps = {
+      trackMetric: sinon.stub(),
+      t: sinon.stub().callsFake((string) => string),
+      api: {
+        clinics: {
+          getClinicsForClinician: sinon.stub().callsArgWith(2, null, { clinicsReturn: 'success' }),
+          getPatientsForClinic: sinon.stub().callsArgWith(2, null, { patientsReturn: 'success' }),
+          getClinicPatientCount: sinon.stub(),
+          getClinicPatientCountSettings: sinon.stub(),
+        },
+        user: {
+          logout: sinon.stub(),
+        },
+      },
     };
+
+    handleSelectWorkspace.resetHistory();
+    handleViewManageWorkspaces.resetHistory();
+    handleViewAccountSettings.resetHistory();
+    handleLogout.resetHistory();
+
+    useNavigation.mockReturnValue({
+      handleSelectWorkspace,
+      handleViewManageWorkspaces,
+      handleViewAccountSettings,
+      handleLogout,
+    });
   });
 
   afterEach(() => {
@@ -177,244 +184,176 @@ describe('NavigationMenu', () => {
   });
 
   context('no clinic workspaces available', () => {
-    beforeEach(() => {
-      wrapper = mountWrapper(mockStore(defaultUserState));
-    });
+    it('should render default menu options and dispatch correct actions when no clinic workspaces are available', () => {
+      renderMenu(defaultUserState);
 
-    it('should render default menu options and dispatch correct actions', () => {
-      const menuTrigger = wrapper.find('#navigation-menu-trigger').hostNodes();
-      expect(menuTrigger).to.have.lengthOf(1);
-      expect(menuTrigger.text()).to.equal('Example User');
+      const menuTrigger = document.querySelector('#navigation-menu-trigger');
+      expect(menuTrigger.textContent).to.contain('Example User');
 
-      const menuOptions = wrapper.find('Button.navigation-menu-option');
+      const menuOptions = getMenuOptions();
       expect(menuOptions).to.have.lengthOf(3);
-      expect(menuOptions.at(0).text()).to.equal('Private Workspace');
-      expect(menuOptions.at(1).text()).to.equal('Account Settings');
-      expect(menuOptions.at(2).text()).to.equal('Logout');
+      expect(menuOptions[0].textContent).to.equal('Private Workspace');
+      expect(menuOptions[1].textContent).to.equal('Account Settings');
+      expect(menuOptions[2].textContent).to.equal('Logout');
 
-      // Click private workspace option
-      menuOptions.at(0).simulate('click');
+      fireEvent.click(getMenuOptions()[0]);
       expect(handleSelectWorkspace.calledOnce).to.be.true;
 
-      // Click account settings option
-      menuOptions.at(1).simulate('click');
+      fireEvent.click(getMenuOptions()[1]);
       expect(handleViewAccountSettings.calledOnce).to.be.true;
 
-      // Click logout option
-      menuOptions.at(2).simulate('click');
+      fireEvent.click(getMenuOptions()[2]);
       expect(handleLogout.calledOnce).to.be.true;
     });
   });
 
   context('clinic workspaces available', () => {
-    beforeEach(() => {
-      wrapper = mountWrapper(mockStore(clinicWorkflowState));
-    });
+    it('should render clinic workspace options and dispatch correct actions when clinic workspaces are available', () => {
+      renderMenu(clinicWorkflowState);
 
-    it('should render clinic workspace and default menu options and dispatch correct actions', () => {
-      const menuTrigger = wrapper.find('#navigation-menu-trigger').hostNodes();
-      expect(menuTrigger).to.have.lengthOf(1);
-      expect(menuTrigger.text()).to.equal('Example Clinic');
+      const menuTrigger = document.querySelector('#navigation-menu-trigger');
+      expect(menuTrigger.textContent).to.contain('Example Clinic');
 
-      const menuOptions = wrapper.find('Button.navigation-menu-option');
+      const menuOptions = getMenuOptions();
       expect(menuOptions).to.have.lengthOf(5);
-      expect(menuOptions.at(0).text()).to.equal('new_clinic_name Workspace');
-      expect(menuOptions.at(1).text()).to.equal('Manage Workspaces');
-      expect(menuOptions.at(2).text()).to.equal('Private Workspace');
-      expect(menuOptions.at(3).text()).to.equal('Account Settings');
-      expect(menuOptions.at(4).text()).to.equal('Logout');
+      expect(menuOptions[0].textContent).to.equal('new_clinic_name Workspace');
+      expect(menuOptions[1].textContent).to.equal('Manage Workspaces');
+      expect(menuOptions[2].textContent).to.equal('Private Workspace');
+      expect(menuOptions[3].textContent).to.equal('Account Settings');
+      expect(menuOptions[4].textContent).to.equal('Logout');
 
-      // Click clinic workspace option
-      menuOptions.at(0).simulate('click');
+      fireEvent.click(menuOptions[0]);
       expect(handleSelectWorkspace.getCall(0).args).to.eql(['clinicID456']);
 
-      // Click manage workspaces option
-      menuOptions.at(1).simulate('click');
+      fireEvent.click(menuOptions[1]);
       expect(handleViewManageWorkspaces.calledOnce).to.be.true;
 
-      // Click private workspace option
-      menuOptions.at(2).simulate('click');
+      fireEvent.click(menuOptions[2]);
       expect(handleSelectWorkspace.getCall(1).args).to.eql([null]);
 
-      // Click account settings option
-      menuOptions.at(3).simulate('click');
+      fireEvent.click(menuOptions[3]);
       expect(handleViewAccountSettings.calledOnce).to.be.true;
 
-      // Click logout option
-      menuOptions.at(4).simulate('click');
+      fireEvent.click(menuOptions[4]);
       expect(handleLogout.calledOnce).to.be.true;
     });
+  });
 
-
-    context('clinician has a data storage account for private data', () => {
-      beforeEach(() => {
-        wrapper = mountWrapper(mockStore({
-          blip: {
-            ...clinicWorkflowState.blip,
-            allUsersMap: {
-              clinicianUserId123: {
-                emails: ['clinic@example.com'],
-                roles: ['clinic'],
-                userid: 'clinicianUserId123',
-                username: 'clinic@example.com',
-                profile: {
-                  fullName: 'Example Clinic',
-                  clinic: {
-                    role: 'clinic_manager',
-                  },
-                  patient: { // patient profile indicates that a DSA has been set up
-                    foo: 'bar',
-                  },
-                },
+  context('clinician has a data storage account for private data', () => {
+    it('should render a `Private Workspace` option in a addition to the standard options', () => {
+      renderMenu({
+        blip: {
+          ...clinicWorkflowState.blip,
+          allUsersMap: {
+            clinicianUserId123: {
+              emails: ['clinic@example.com'],
+              roles: ['clinic'],
+              userid: 'clinicianUserId123',
+              username: 'clinic@example.com',
+              profile: {
+                fullName: 'Example Clinic',
+                clinic: { role: 'clinic_manager' },
+                patient: { foo: 'bar' }, // patient profile indicates a DSA has been set up
               },
             },
           },
-        }));
+        },
       });
 
-      it('should render a `Private Workspace` option in a addition to the standard options', () => {
-        const menuTrigger = wrapper.find('#navigation-menu-trigger').hostNodes();
-        expect(menuTrigger).to.have.lengthOf(1);
-        expect(menuTrigger.text()).to.equal('Example Clinic');
+      const menuTrigger = document.querySelector('#navigation-menu-trigger');
+      expect(menuTrigger.textContent).to.contain('Example Clinic');
 
-        const menuOptions = wrapper.find('Button.navigation-menu-option');
-        expect(menuOptions).to.have.lengthOf(5);
-        expect(menuOptions.at(0).text()).to.equal('new_clinic_name Workspace');
-        expect(menuOptions.at(1).text()).to.equal('Manage Workspaces');
-        expect(menuOptions.at(2).text()).to.equal('Private Workspace');
-        expect(menuOptions.at(3).text()).to.equal('Account Settings');
-        expect(menuOptions.at(4).text()).to.equal('Logout');
+      const menuOptions = getMenuOptions();
+      expect(menuOptions).to.have.lengthOf(5);
+      expect(menuOptions[0].textContent).to.equal('new_clinic_name Workspace');
+      expect(menuOptions[1].textContent).to.equal('Manage Workspaces');
+      expect(menuOptions[2].textContent).to.equal('Private Workspace');
+      expect(menuOptions[3].textContent).to.equal('Account Settings');
+      expect(menuOptions[4].textContent).to.equal('Logout');
 
-        // Click private workspace option
-        menuOptions.at(2).simulate('click');
-
-
-        expect(handleSelectWorkspace.calledOnceWithExactly(null)).to.be.true;
-      });
+      fireEvent.click(menuOptions[2]);
+      expect(handleSelectWorkspace.calledOnceWithExactly(null)).to.be.true;
     });
+  });
 
-    context('clinician has other accounts data shared with theirs', () => {
-      beforeEach(() => {
-        wrapper = mountWrapper(mockStore({
-          blip: {
-            ...clinicWorkflowState.blip,
-            membershipInOtherCareTeams: [
-              'otherUser123',
-            ],
-          },
-        }));
+  context('clinician has other accounts data shared with theirs', () => {
+    it('should render a `Private Workspace` option in a addition to the standard options', () => {
+      renderMenu({
+        blip: {
+          ...clinicWorkflowState.blip,
+          membershipInOtherCareTeams: ['otherUser123'],
+        },
       });
 
-      it('should render a `Private Workspace` option in a addition to the standard options', () => {
-        const menuTrigger = wrapper.find('#navigation-menu-trigger').hostNodes();
-        expect(menuTrigger).to.have.lengthOf(1);
-        expect(menuTrigger.text()).to.equal('Example Clinic');
+      const menuTrigger = document.querySelector('#navigation-menu-trigger');
+      expect(menuTrigger.textContent).to.contain('Example Clinic');
 
-        const menuOptions = wrapper.find('Button.navigation-menu-option');
-        expect(menuOptions).to.have.lengthOf(5);
-        expect(menuOptions.at(0).text()).to.equal('new_clinic_name Workspace');
-        expect(menuOptions.at(1).text()).to.equal('Manage Workspaces');
-        expect(menuOptions.at(2).text()).to.equal('Private Workspace');
-        expect(menuOptions.at(3).text()).to.equal('Account Settings');
-        expect(menuOptions.at(4).text()).to.equal('Logout');
+      const menuOptions = getMenuOptions();
+      expect(menuOptions).to.have.lengthOf(5);
+      expect(menuOptions[0].textContent).to.equal('new_clinic_name Workspace');
+      expect(menuOptions[1].textContent).to.equal('Manage Workspaces');
+      expect(menuOptions[2].textContent).to.equal('Private Workspace');
+      expect(menuOptions[3].textContent).to.equal('Account Settings');
+      expect(menuOptions[4].textContent).to.equal('Logout');
 
-        // Click private workspace option
-        menuOptions.at(2).simulate('click');
-
-
-        expect(handleSelectWorkspace.calledOnceWithExactly(null)).to.be.true;
-      });
+      fireEvent.click(menuOptions[2]);
+      expect(handleSelectWorkspace.calledOnceWithExactly(null)).to.be.true;
     });
   });
 
   context('clinic team member has pending clinic invites', () => {
-    beforeEach(() => {
-      wrapper = mountWrapper(mockStore({
+    it('should render notification icon next to trigger and Manage Workspaces option for pending clinic invites', () => {
+      renderMenu({
         blip: {
           ...clinicWorkflowState.blip,
-          pendingReceivedClinicianInvites: [
-            'clinicInvite123',
-          ],
+          pendingReceivedClinicianInvites: ['clinicInvite123'],
         },
-      }));
-    });
+      });
 
-    it('should render a notification icon next to the navigation menu trigger and the `Manage Workspaces` option', () => {
-      const menuTrigger = wrapper.find('#navigation-menu-trigger').hostNodes();
-      expect(menuTrigger).to.have.lengthOf(1);
-      expect(menuTrigger.text()).to.equal('Example Clinic');
-      expect(menuTrigger.find('.notification-icon').hostNodes()).to.have.lengthOf(1);
+      const menuTrigger = document.querySelector('#navigation-menu-trigger');
+      expect(menuTrigger.querySelector('.notification-icon')).to.not.equal(null);
 
-      const menuOptions = wrapper.find('Button.navigation-menu-option');
-      expect(menuOptions.at(1).text()).to.equal('Manage Workspaces');
-      expect(menuOptions.at(1).find('.notification-icon').hostNodes()).to.have.lengthOf(1);
+      const menuOptions = getMenuOptions();
+      expect(menuOptions[1].textContent).to.contain('Manage Workspaces');
+      expect(menuOptions[1].querySelector('.notification-icon')).to.not.equal(null);
     });
   });
 
   context('non clinic team member has pending clinic invites', () => {
-    beforeEach(() => {
-      wrapper = mountWrapper(mockStore({
+    it('should render a notification icon next to the navigation menu trigger and the `Manage Workspaces` option', () => {
+      renderMenu({
         blip: {
           ...defaultUserState.blip,
-          pendingReceivedClinicianInvites: [
-            'clinicInvite123',
-          ],
+          pendingReceivedClinicianInvites: ['clinicInvite123'],
           clinicFlowActive: true,
         },
-      }));
-    });
+      });
 
-    it('should render a notification icon next to the navigation menu trigger and the `Manage Workspaces` option', () => {
-      const menuTrigger = wrapper.find('#navigation-menu-trigger').hostNodes();
-      expect(menuTrigger).to.have.lengthOf(1);
-      expect(menuTrigger.text()).to.equal('Example User');
-      expect(menuTrigger.find('.notification-icon').hostNodes()).to.have.lengthOf(1);
+      const menuTrigger = document.querySelector('#navigation-menu-trigger');
+      expect(menuTrigger.textContent).to.contain('Example User');
+      expect(menuTrigger.querySelector('.notification-icon')).to.not.equal(null);
 
-      const menuOptions = wrapper.find('Button.navigation-menu-option');
-      expect(menuOptions.at(0).text()).to.equal('Manage Workspaces');
-      expect(menuOptions.at(0).find('.notification-icon').hostNodes()).to.have.lengthOf(1);
+      const menuOptions = getMenuOptions();
+      expect(menuOptions[0].textContent).to.equal('Manage Workspaces');
+      expect(menuOptions[0].querySelector('.notification-icon')).to.not.equal(null);
     });
   });
 
   context('clinician profile form page', () => {
-  before(() => {
-      NavigationMenu.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-details/profile' }));
-      mount = createMount();
-    });
-
-    beforeEach(() => {
-      wrapper = mountWrapper(mockStore(defaultUserState));
-    });
-
-    it('should only show the logout action', () => {
-      const menuTrigger = wrapper.find('#navigation-menu-trigger').hostNodes();
-      expect(menuTrigger).to.have.lengthOf(1);
-      expect(menuTrigger.text()).to.equal('Example User');
-
-      const menuOptions = wrapper.find('Button.navigation-menu-option');
+    it('should only show logout action on clinician profile page', () => {
+      renderMenu(defaultUserState, '/clinic-details/profile');
+      const menuOptions = getMenuOptions();
       expect(menuOptions).to.have.lengthOf(1);
-      expect(menuOptions.at(0).text()).to.equal('Logout');
+      expect(menuOptions[0].textContent).to.equal('Logout');
     });
   });
 
   context('clinic migration form page', () => {
-    before(() => {
-      NavigationMenu.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-details/migrate' }));
-      mount = createMount();
-    });
-
-    beforeEach(() => {
-      wrapper = mountWrapper(mockStore(clinicWorkflowState));
-    });
-
-    it('should only show the logout action', () => {
-      const menuTrigger = wrapper.find('#navigation-menu-trigger').hostNodes();
-      expect(menuTrigger).to.have.lengthOf(1);
-      expect(menuTrigger.text()).to.equal('Example Clinic');
-
-      const menuOptions = wrapper.find('Button.navigation-menu-option');
+    it('should only show logout action on clinic migration page', () => {
+      renderMenu(clinicWorkflowState, '/clinic-details/migrate');
+      const menuOptions = getMenuOptions();
       expect(menuOptions).to.have.lengthOf(1);
-      expect(menuOptions.at(0).text()).to.equal('Logout');
+      expect(menuOptions[0].textContent).to.equal('Logout');
     });
   });
 });

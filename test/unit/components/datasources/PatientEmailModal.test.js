@@ -1,12 +1,17 @@
 import React from 'react';
-import { createMount } from '@material-ui/core/test-utils';
+import { render, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
 import PatientEmailModal from '../../../../app/components/datasources/PatientEmailModal';
-import Banner from '../../../../app/components/elements/Banner';
-import { Dialog } from '../../../../app/components/elements/Dialog';
 import noop from 'lodash/noop';
+
+jest.mock('../../../../app/core/api', () => ({
+  __esModule: true,
+  default: { clinics: { updateClinicPatient: jest.fn() } },
+}));
+
+const mockApi = jest.requireMock('../../../../app/core/api').default;
 
 /* global chai */
 /* global sinon */
@@ -14,22 +19,12 @@ import noop from 'lodash/noop';
 /* global context */
 /* global it */
 /* global beforeEach */
-/* global before */
 /* global afterEach */
-/* global after */
 
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
 describe('PatientEmailModal', () => {
-  let mount;
-
-  const api = {
-    clinics: {
-      updateClinicPatient: sinon.stub(),
-    },
-  };
-
   let wrapper;
   const patientWithEmail = {
     id: 'patient123',
@@ -49,14 +44,6 @@ describe('PatientEmailModal', () => {
     patient: patientWithEmail,
     trackMetric: sinon.stub(),
   };
-
-  before(() => {
-    mount = createMount();
-  });
-
-  after(() => {
-    mount.cleanUp();
-  });
 
   const fetchedDataState = {
     blip: {
@@ -78,8 +65,8 @@ describe('PatientEmailModal', () => {
   let store = mockStore(fetchedDataState);
 
   beforeEach(() => {
-    PatientEmailModal.__Rewire__('api', api);
-    wrapper = mount(
+    mockApi.clinics.updateClinicPatient.mockReset();
+    wrapper = render(
       <Provider store={store}>
         <PatientEmailModal {...defaultProps} />
       </Provider>
@@ -87,29 +74,31 @@ describe('PatientEmailModal', () => {
   });
 
   afterEach(() => {
+    cleanup();
     defaultProps.trackMetric.resetHistory();
     defaultProps.onFormChange.resetHistory();
     defaultProps.onSubmit.resetHistory();
-    PatientEmailModal.__ResetDependency__('api');
   });
 
   it('should render a dialog for updating an existing patient email address', done => {
-    const dialog = () => wrapper.find(Dialog).at(0);
-    expect(dialog()).to.have.lengthOf(1);
-    expect(dialog().props().open).to.be.true;
+    // Dialog portal renders into document.body
+    const dialog = document.getElementById('patient-email-modal');
+    expect(dialog).to.not.be.null;
 
-    const title = dialog().find('#patient-email-modal-title').hostNodes();
-    expect(title.text()).to.equal('Edit Patient Email');
+    const title = document.getElementById('patient-email-modal-title');
+    expect(title.textContent).to.equal('Edit Patient Email');
 
-    const submitButton = dialog().find('Button#patient-email-modal-submit');
-    expect(submitButton.text()).to.equal('Save');
+    const submitButton = document.getElementById('patient-email-modal-submit');
+    expect(submitButton.textContent).to.equal('Save');
 
-    const banner = dialog().find(Banner);
-    expect(banner.find('.title').hostNodes().text()).to.equal('Changing this email will update the email associated with the account.')
+    const bannerTitle = document.querySelector('.title');
+    expect(bannerTitle.textContent).to.equal('Changing this email will update the email associated with the account.');
 
-    expect(dialog().find('input[name="email"]').prop('value')).to.equal('patient@test.ca');
-    dialog().find('input[name="email"]').simulate('change', { persist: noop, target: { name: 'email', value: 'patient-updated@test.ca' } });
-    expect(dialog().find('input[name="email"]').prop('value')).to.equal('patient-updated@test.ca');
+    const emailInput = document.querySelector('input[name="email"]');
+    expect(emailInput.value).to.equal('patient@test.ca');
+
+    fireEvent.change(emailInput, { target: { name: 'email', value: 'patient-updated@test.ca' } });
+    expect(emailInput.value).to.equal('patient-updated@test.ca');
 
     sinon.assert.calledWith(defaultProps.onFormChange, sinon.match({ values: {
       birthDate: '2004-02-03',
@@ -117,11 +106,11 @@ describe('PatientEmailModal', () => {
       fullName: 'Patient 123',
       mrn: '12345',
       tags: ['tag1', 'tag2'],
-      dataSources: [] ,
+      dataSources: [],
     } }));
 
     store.clearActions();
-    submitButton.simulate('click');
+    fireEvent.click(submitButton);
 
     setTimeout(() => {
       sinon.assert.calledOnce(defaultProps.onSubmit);
@@ -130,28 +119,30 @@ describe('PatientEmailModal', () => {
   });
 
   it('should render a dialog for adding an email and sending an invite for a patient without an email address', done => {
-    wrapper = mount(
+    cleanup();
+    wrapper = render(
       <Provider store={store}>
         <PatientEmailModal {...defaultProps} patient={{ ...defaultProps.patient, email: undefined }} />
       </Provider>
     );
 
-    const dialog = () => wrapper.find(Dialog).at(0);
-    expect(dialog()).to.have.lengthOf(1);
-    expect(dialog().props().open).to.be.true;
+    const dialog = document.getElementById('patient-email-modal');
+    expect(dialog).to.not.be.null;
 
-    const title = dialog().find('#patient-email-modal-title').hostNodes();
-    expect(title.text()).to.equal('Add a Patient Email');
+    const title = document.getElementById('patient-email-modal-title');
+    expect(title.textContent).to.equal('Add a Patient Email');
 
-    const submitButton = dialog().find('Button#patient-email-modal-submit');
-    expect(submitButton.text()).to.equal('Send Invite');
+    const submitButton = document.getElementById('patient-email-modal-submit');
+    expect(submitButton.textContent).to.equal('Send Invite');
 
-    const banner = dialog().find(Banner);
-    expect(banner.find('.title').hostNodes().text()).to.equal('Please set the email address for this patient account.')
+    const bannerTitle = document.querySelector('.title');
+    expect(bannerTitle.textContent).to.equal('Please set the email address for this patient account.');
 
-    expect(dialog().find('input[name="email"]').prop('value')).to.equal('');
-    dialog().find('input[name="email"]').simulate('change', { persist: noop, target: { name: 'email', value: 'patient@test.ca' } });
-    expect(dialog().find('input[name="email"]').prop('value')).to.equal('patient@test.ca');
+    const emailInput = document.querySelector('input[name="email"]');
+    expect(emailInput.value).to.equal('');
+
+    fireEvent.change(emailInput, { target: { name: 'email', value: 'patient@test.ca' } });
+    expect(emailInput.value).to.equal('patient@test.ca');
 
     sinon.assert.calledWith(defaultProps.onFormChange, sinon.match({ values: {
       birthDate: '2004-02-03',
@@ -159,11 +150,11 @@ describe('PatientEmailModal', () => {
       fullName: 'Patient 123',
       mrn: '12345',
       tags: ['tag1', 'tag2'],
-      dataSources: [] ,
+      dataSources: [],
     } }));
 
     store.clearActions();
-    submitButton.simulate('click');
+    fireEvent.click(submitButton);
 
     setTimeout(() => {
       sinon.assert.calledOnce(defaultProps.onSubmit);

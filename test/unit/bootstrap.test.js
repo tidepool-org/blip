@@ -8,6 +8,14 @@
 /* global after */
 
 const expect = chai.expect;
+
+jest.mock('../../app/redux/store', () => ({
+  getState: jest.fn(() => ({})),
+  dispatch: jest.fn(),
+  subscribe: jest.fn(),
+}));
+jest.mock('../../app/routes', () => ({ getRoutes: () => [] }));
+
 import appContext from '../../app/bootstrap';
 
 describe('appContext', () => {

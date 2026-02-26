@@ -26,6 +26,7 @@ const mockStore = configureStore([thunk]);
 describe('navutils', () => {
   describe('useNavigation', () => {
     const { useNavigation, uploadUtils } = navutils;
+    let originalLaunchCustomProtocol;
 
     const getWrapper = (store) => ({ children }) => (
       <Provider store={store}>
@@ -51,13 +52,14 @@ describe('navutils', () => {
     let wrapper;
 
     beforeEach(() => {
-      NU.__Rewire__('uploadUtils', { launchCustomProtocol: launchCustomProtocolStub });
+      originalLaunchCustomProtocol = uploadUtils.launchCustomProtocol;
+      uploadUtils.launchCustomProtocol = launchCustomProtocolStub;
       store = mockStore(state);
       wrapper = getWrapper(store);
     });
 
     afterEach(() => {
-      NU.__ResetDependency__('uploadUtils');
+      uploadUtils.launchCustomProtocol = originalLaunchCustomProtocol;
       trackMetric.resetHistory();
       launchCustomProtocolStub.resetHistory();
       store.clearActions();

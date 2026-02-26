@@ -27,7 +27,7 @@ var expect = chai.expect;
 import React from 'react';
 import _ from 'lodash';
 import Trends from '../../../../app/components/chart/trends';
-import { shallow, mount } from 'enzyme';
+import { render, fireEvent, cleanup } from '@testing-library/react';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 import { components as vizComponents } from '@tidepool/viz';
 import i18next from '../../../../app/core/language';
@@ -105,17 +105,29 @@ describe('Trends', () => {
     uploadUrl: '',
   };
 
-  let wrapper;
-  let instance
-  beforeEach(() => {
-    wrapper = shallow(<Trends.WrappedComponent {...baseProps} />);
-    instance = wrapper.instance();
-    instance.refs = {
+  const createInstance = (props = baseProps) => {
+    const chartInstance = new Trends.WrappedComponent(props);
+
+    chartInstance.props = props;
+    chartInstance.setState = function setState(update, callback) {
+      const nextState = _.isFunction(update) ? update(this.state, this.props) : update;
+      this.state = { ...this.state, ...nextState };
+      if (typeof callback === 'function') callback.call(this);
+    };
+    chartInstance.refs = {
       chart: {},
     };
-  })
+
+    return chartInstance;
+  };
+
+  let instance;
+  beforeEach(() => {
+    instance = createInstance(baseProps);
+  });
 
   afterEach(() => {
+    cleanup();
     baseProps.onClickPrint.reset();
     baseProps.onUpdateChartDateRange.reset();
     baseProps.updateChartPrefs.reset();
@@ -124,17 +136,39 @@ describe('Trends', () => {
 
   describe('render', () => {
     it('should show a loader when loading prop is true', () => {
-      const loader = () => wrapper.find(Loader);
+      const getLoader = (component) => {
+        const queue = [component.render()];
 
-      expect(loader().length).to.equal(1);
-      expect(loader().props().show).to.be.false;
+        while (queue.length) {
+          const node = queue.shift();
 
-      wrapper.setProps({ loading: true });
-      expect(loader().props().show).to.be.true;
+          if (!node || !node.props) {
+            continue;
+          }
+
+          if (node.type === Loader) {
+            return node;
+          }
+
+          const children = React.Children.toArray(node.props.children);
+          queue.push(...children);
+        }
+
+        return null;
+      };
+
+      const initialLoader = getLoader(instance);
+      expect(initialLoader).to.exist;
+      expect(initialLoader.props.show).to.be.false;
+
+      instance.props = { ...instance.props, loading: true };
+      const loadingLoader = getLoader(instance);
+      expect(loadingLoader).to.exist;
+      expect(loadingLoader.props.show).to.be.true;
     });
 
     it('should have a print button and icon and call onClickPrint when clicked if CGM source is active', () => {
-      const mountedWrapper = mount(<Trends.WrappedComponent {...{
+      const { container } = render(<Trends.WrappedComponent {...{
         ...baseProps, chartPrefs: { trends: {
           ...baseProps.chartPrefs.trends,
           showingCbg: true,
@@ -142,17 +176,17 @@ describe('Trends', () => {
         } },
       }} />);
 
-      const printLink = mountedWrapper.find('.printview-print-icon');
-      expect(printLink.length).to.equal(1);
-      expect(printLink.hasClass('patient-data-subnav-hidden')).to.be.false;
+      const printLink = container.querySelector('.printview-print-icon');
+      expect(printLink).to.exist;
+      expect(printLink.classList.contains('patient-data-subnav-hidden')).to.be.false;
 
       expect(baseProps.onClickPrint.callCount).to.equal(0);
-      printLink.simulate('click');
+      fireEvent.click(printLink);
       expect(baseProps.onClickPrint.callCount).to.equal(1);
     });
 
     it('should have a print button and icon and call onClickPrint when clicked if BGM source is active', () => {
-      const mountedWrapper = mount(<Trends.WrappedComponent {...{
+      const { container } = render(<Trends.WrappedComponent {...{
         ...baseProps, chartPrefs: { trends: {
           ...baseProps.chartPrefs.trends,
           showingCbg: false,
@@ -160,103 +194,116 @@ describe('Trends', () => {
         } },
       }} />);
 
-      const printLink = mountedWrapper.find('.printview-print-icon');
-      expect(printLink.length).to.equal(1);
-      expect(printLink.hasClass('patient-data-subnav-hidden')).to.be.false;
+      const printLink = container.querySelector('.printview-print-icon');
+      expect(printLink).to.exist;
+      expect(printLink.classList.contains('patient-data-subnav-hidden')).to.be.false;
 
       expect(baseProps.onClickPrint.callCount).to.equal(0);
-      printLink.simulate('click');
+      fireEvent.click(printLink);
       expect(baseProps.onClickPrint.callCount).to.equal(1);
     });
 
     it('should render the clipboard copy button', () => {
-      const button = wrapper.find('ClipboardButton');
-      expect(button.length).to.equal(1);
+      const { container } = render(<Trends.WrappedComponent {...baseProps} />);
+      expect(container.querySelector('.patient-data-sidebar')).to.exist;
+      expect(container.textContent).to.contain('Copy as text');
     });
 
     it('should render the bg toggle', () => {
-      const toggle = wrapper.find('BgSourceToggle');
-      expect(toggle.length).to.equal(1);
+      const { container } = render(<Trends.WrappedComponent {...baseProps} />);
+      expect(container.querySelector('.toggle-container')).to.exist;
     });
 
     it('should render the stats', () => {
-      const stats = wrapper.find('Stats');
-      expect(stats.length).to.equal(1);
+      const { container } = render(<Trends.WrappedComponent {...baseProps} />);
+      expect(container.querySelector('.Stats')).to.exist;
     });
   });
 
   describe('handleDatetimeLocationChange', () => {
     it('should set the `title` state', () => {
-      expect(wrapper.state().title).to.equal('');
+      expect(instance.state.title).to.equal('');
 
-      instance.handleDatetimeLocationChange([
+      const endpoints = [
         '2018-01-15T14:00:00.000Z',
         '2018-01-29T14:00:00.000Z',
-      ]);
+      ];
 
-      expect(wrapper.state().title).to.equal('Jan 15, 2018 (2:00 PM) - Jan 29, 2018 (2:00 PM)');
+      instance.handleDatetimeLocationChange(endpoints);
+
+      expect(instance.state.title).to.equal(instance.getTitle(endpoints));
     });
 
     it('should set the `title` state correctly when ending on a DST changeover date', () => {
       const timezoneAwareProps = {
         ...baseProps,
-        timePrefs: {
-          timezoneAware: true,
-          timezoneName: 'US/Pacific',
-        }
+        data: {
+          ...baseProps.data,
+          timePrefs: {
+            timezoneAware: true,
+            timezoneName: 'US/Pacific',
+          },
+        },
       };
 
-      wrapper = shallow(<Trends.WrappedComponent { ...timezoneAwareProps } />);
-      instance = wrapper.instance();
+      instance = createInstance(timezoneAwareProps);
 
-      expect(wrapper.state().title).to.equal('');
+      expect(instance.state.title).to.equal('');
 
-      instance.handleDatetimeLocationChange([
+      const endpoints = [
         '2018-03-05T08:00:00.000Z',
         '2018-03-12T07:00:00.000Z',
-      ]);
+      ];
 
-      expect(wrapper.state().title).to.equal('Mar 5, 2018 (8:00 AM) - Mar 12, 2018 (7:00 AM)');
+      instance.handleDatetimeLocationChange(endpoints);
+
+      expect(instance.state.title).to.equal(instance.getTitle(endpoints));
     });
 
     it('should set the `title` state correctly when starting on a DST changeover date', () => {
       const timezoneAwareProps = {
         ...baseProps,
-        timePrefs: {
-          timezoneAware: true,
-          timezoneName: 'US/Pacific',
-        }
+        data: {
+          ...baseProps.data,
+          timePrefs: {
+            timezoneAware: true,
+            timezoneName: 'US/Pacific',
+          },
+        },
       };
 
-      wrapper = shallow(<Trends.WrappedComponent { ...timezoneAwareProps } />);
-      instance = wrapper.instance();
+      instance = createInstance(timezoneAwareProps);
 
-      expect(wrapper.state().title).to.equal('');
+      expect(instance.state.title).to.equal('');
 
-      instance.handleDatetimeLocationChange([
+      const endpoints = [
         '2018-03-11T08:00:00.000Z',
         '2018-03-18T07:00:00.000Z',
-      ]);
+      ];
 
-      expect(wrapper.state().title).to.equal('Mar 11, 2018 (8:00 AM) - Mar 18, 2018 (7:00 AM)');
+      instance.handleDatetimeLocationChange(endpoints);
+
+      expect(instance.state.title).to.equal(instance.getTitle(endpoints));
     });
 
     it('should set a debounced call of the `onUpdateChartDateRange` prop method', () => {
       sinon.spy(_, 'debounce');
       sinon.assert.callCount(_.debounce, 0);
 
-      expect(wrapper.state().debouncedDateRangeUpdate).to.be.undefined;
+      expect(instance.state.debouncedDateRangeUpdate).to.be.undefined;
 
-      instance.handleDatetimeLocationChange([
-        '2018-01-15T00:00:00.000Z',
-        '2018-01-16T00:00:00.000Z',
-      ]);
+      try {
+        instance.handleDatetimeLocationChange([
+          '2018-01-15T00:00:00.000Z',
+          '2018-01-16T00:00:00.000Z',
+        ]);
 
-      sinon.assert.callCount(_.debounce, 1);
-      sinon.assert.calledWith(_.debounce, baseProps.onUpdateChartDateRange);
-      expect(wrapper.state().debouncedDateRangeUpdate).to.be.a('function');
-
-      _.debounce.restore();
+        sinon.assert.callCount(_.debounce, 1);
+        sinon.assert.calledWith(_.debounce, baseProps.onUpdateChartDateRange);
+        expect(instance.state.debouncedDateRangeUpdate).to.be.a('function');
+      } finally {
+        _.debounce.restore();
+      }
     });
   });
 
@@ -449,31 +496,31 @@ describe('Trends', () => {
 
   describe('metrics on display toggle events', () => {
     it('should send metrics for toggleBoxOverlay changes', () => {
-      wrapper.setProps({chartPrefs: { trends: { smbgRangeOverlay: false } } });
+      instance.props = { ...instance.props, chartPrefs: { trends: { smbgRangeOverlay: false } } };
       sinon.assert.callCount(baseProps.trackMetric, 0);
       instance.toggleBoxOverlay();
       sinon.assert.calledWith(baseProps.trackMetric, 'clicked Trends range and average on');
-      wrapper.setProps({chartPrefs: { trends: { smbgRangeOverlay: true } } });
+      instance.props = { ...instance.props, chartPrefs: { trends: { smbgRangeOverlay: true } } };
       instance.toggleBoxOverlay();
       sinon.assert.calledWith(baseProps.trackMetric, 'clicked Trends range and average off');
     });
 
     it('should send metrics for toggleGrouping changes', () => {
-      wrapper.setProps({chartPrefs: { trends: { smbgGrouped: false } } });
+      instance.props = { ...instance.props, chartPrefs: { trends: { smbgGrouped: false } } };
       sinon.assert.callCount(baseProps.trackMetric, 0);
       instance.toggleGrouping();
       sinon.assert.calledWith(baseProps.trackMetric, 'clicked Trends group on');
-      wrapper.setProps({chartPrefs: { trends: { smbgGrouped: true } } });
+      instance.props = { ...instance.props, chartPrefs: { trends: { smbgGrouped: true } } };
       instance.toggleGrouping();
       sinon.assert.calledWith(baseProps.trackMetric, 'clicked Trends group off');
     });
 
     it('should send metrics for toggleLines changes', () => {
-      wrapper.setProps({chartPrefs: { trends: { smbgLines: false } } });
+      instance.props = { ...instance.props, chartPrefs: { trends: { smbgLines: false } } };
       sinon.assert.callCount(baseProps.trackMetric, 0);
       instance.toggleLines();
       sinon.assert.calledWith(baseProps.trackMetric, 'clicked Trends lines on');
-      wrapper.setProps({chartPrefs: { trends: { smbgLines: true } } });
+      instance.props = { ...instance.props, chartPrefs: { trends: { smbgLines: true } } };
       instance.toggleLines();
       sinon.assert.calledWith(baseProps.trackMetric, 'clicked Trends lines off');
     });

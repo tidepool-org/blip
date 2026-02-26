@@ -1,12 +1,14 @@
 /* global sinon */
 /* global describe */
 /* global it */
-/* global expect */
+/* global chai */
 /* global beforeEach */
 /* global afterEach */
 
 import DataWorker from '../../../app/worker/DataWorker';
 import * as actions from '../../../app/redux/actions/worker';
+
+const expect = chai.expect;
 
 describe('DataWorker', () => {
   let Worker;

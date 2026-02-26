@@ -13,6 +13,7 @@ export function Card(props) {
       onClick={onClick}
       variant={variant}
       sx={{ height: '100%' }}
+      {...themeProps}
     >
       {bannerImage && (
         <Flex className="card-banner-image">

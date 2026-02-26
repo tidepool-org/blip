@@ -1,6 +1,7 @@
-module.exports = {
+/** @type {import('jest').Config} */
+const config = {
   testEnvironment: 'jsdom',
-  roots: ['<rootDir>/__tests__'],
+  roots: ['<rootDir>/__tests__', '<rootDir>/test'],
   moduleNameMapper: {
     '^@app/(.*)$': '<rootDir>/app/$1',
     '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$':
@@ -22,31 +23,57 @@ module.exports = {
     'd3-time-format': '<rootDir>/node_modules/d3-time-format/dist/d3-time-format.min.js',
 
     // Path aliases
-    '^@app/(.*)': '<rootDir>/app/$1',
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testMatch: [
     '**/__tests__/**/*.test.[jt]s?(x)',
+    '<rootDir>/test/unit/**/*.test.[jt]s?(x)',
   ],
+  silent: true,
+  testTimeout: 15000,
   transform: {
-    '^.+\\.(js|jsx|ts|tsx)$': [
+    '^.+[\\\\/]node_modules[\\\\/].+\\.(js|jsx|ts|tsx)$': [
       '@swc/jest',
       {
-        'test': '.js?$',
-        'jsc': {
-          'parser': {
-            'syntax': 'ecmascript',
-            'jsx': true,
+
+        jsc: {
+          parser: {
+            syntax: 'ecmascript',
+            jsx: true,
           },
         },
       },
     ],
+    '^.+\\.(js|jsx|ts|tsx)$': [
+      '@swc/jest',
+      {
+        jsc: {
+          parser: {
+            syntax: 'ecmascript',
+            jsx: true,
+          },
+          transform: {
+            react: {
+              runtime: 'automatic',
+            },
+          },
+          target: 'es2020',
+        },
+        module: {
+          type: 'commonjs',
+        },
+      },
+    ],
   },
+  maxWorkers: '50%',
+  workerIdleMemoryLimit: '512MB',
   transformIgnorePatterns: [
     // This pattern ensures that @swc/jest transforms @tidepool/viz and all other dependencies.
     // In the event that a `Jest failed to parse a file` error is encountered and it is a
     // node_module, the module name can be added here to ensure pre-processing by @swc/jest.
 
-    'node_modules/(?!(.*\\.mjs$|@tidepool/viz|internmap|react-markdown|vfile|unist-util-stringify-position|unified|bail|is-plain-obj|trough|remark-parse|mdast-util-from-markdown|mdast-util-to-string|mdast-util-to-hast|micromark|decode-named-character-reference|remark-rehype|unist-util-position|trim-lines|unist-util-visit|unist-util-is|unist-util-generated|mdast-util-definitions|property-information|hast-util-whitespace|space-separated-tokens|comma-separated-tokens|@octokit|universal-user-agent|before-after-hook))',
+    'node_modules/(?!(.*\\.mjs$|@tidepool/viz|internmap|react-markdown|vfile|unist-util-stringify-position|unified|bail|is-plain-obj|trough|remark-parse|mdast-util-from-markdown|mdast-util-to-string|mdast-util-to-hast|micromark|decode-named-character-reference|remark-rehype|unist-util-position|trim-lines|unist-util-visit|unist-util-is|unist-util-generated|mdast-util-definitions|property-information|hast-util-whitespace|space-separated-tokens|comma-separated-tokens|@octokit|universal-user-agent|before-after-hook|sinon|cheerio|tideline|crypto-hash|reductio))',
   ],
 };
+
+module.exports = config;

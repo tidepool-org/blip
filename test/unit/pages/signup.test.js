@@ -9,18 +9,108 @@
 
 import React, { createElement } from 'react';
 import mutationTracker from 'object-invariant-test-helper';
-import { mount } from 'enzyme';
+import { fireEvent, render } from '@testing-library/react';
 import sundial from 'sundial';
-import { Provider } from 'react-redux';
-import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
-import { BrowserRouter } from 'react-router-dom';
 import Signup, { Signup as SignupFunction } from '../../../app/pages/signup';
 import { mapStateToProps } from '../../../app/pages/signup';
-import merge from 'lodash/merge';
+
+const mockCreateRegisterUrl = jest.fn();
+
+jest.mock('../../../app/keycloak', () => ({
+  keycloak: {
+    createRegisterUrl: (...args) => mockCreateRegisterUrl(...args),
+  },
+}));
 
 var assert = chai.assert;
 var expect = chai.expect;
+
+const SignupClass = SignupFunction.WrappedComponent || SignupFunction;
+
+const buildProps = (overrides = {}) => ({
+  acknowledgeNotification: sinon.stub(),
+  api: {},
+  configuredInviteKey: '',
+  fetchingInfo: {
+    inProgress: false,
+    completed: true,
+  },
+  keycloakConfig: {},
+  location: { pathname: 'signup' },
+  onSubmit: sinon.stub(),
+  trackMetric: sinon.stub(),
+  working: false,
+  t: str => str,
+  ...overrides,
+});
+
+class DomCollection {
+  constructor(elements) {
+    this.elements = elements;
+  }
+
+  get length() {
+    return this.elements.length;
+  }
+
+  first() {
+    return new DomCollection(this.elements.length ? [this.elements[0]] : []);
+  }
+
+  find(selector) {
+    const found = this.elements.flatMap(elem => Array.from(elem.querySelectorAll(selector)));
+    return new DomCollection(found);
+  }
+
+  text() {
+    return this.elements.map(elem => elem.textContent).join('');
+  }
+
+  simulate(eventName, payload) {
+    const elem = this.elements[0];
+    if (!elem) return;
+    if (eventName === 'click') {
+      fireEvent.click(elem, payload);
+    }
+    if (eventName === 'change') {
+      fireEvent.change(elem, payload);
+    }
+  }
+}
+
+const makeInstanceHandle = (instance) => ({
+  state: () => instance.state,
+  setState: (next) => instance.setState(next),
+  instance: () => instance,
+});
+
+const renderSignup = (initialProps = {}) => {
+  let props = buildProps(initialProps);
+  let instance;
+  const ref = elem => {
+    instance = elem;
+  };
+
+  const rtl = render(<SignupClass {...props} ref={ref} />);
+
+  return {
+    setProps(nextProps) {
+      props = { ...props, ...nextProps };
+      rtl.rerender(<SignupClass {...props} ref={ref} />);
+    },
+    update() {},
+    find(target) {
+      if (target === SignupFunction || target === SignupClass) {
+        return {
+          childAt: () => makeInstanceHandle(instance),
+        };
+      }
+
+      const elems = Array.from(rtl.container.querySelectorAll(target));
+      return new DomCollection(elems);
+    },
+  };
+};
 
 describe('Signup', function () {
   it('should be exposed as a module and be of type function', function() {
@@ -38,14 +128,7 @@ describe('Signup', function () {
 
   let wrapper;
   beforeEach(() => {
-    wrapper = mount(
-      createElement(
-        props => (
-          <BrowserRouter>
-            <SignupFunction {...props} />
-          </BrowserRouter>
-        ), props )
-    );
+    wrapper = renderSignup(props);
   });
 
   afterEach(() => {
@@ -54,19 +137,23 @@ describe('Signup', function () {
 
   describe('render', function() {
     it('should render without problems when required props are set', function () {
-      console.error = sinon.stub();
-      var props = {
-        acknowledgeNotification: sinon.stub(),
-        api: {},
-        configuredInviteKey: '',
-        onSubmit: sinon.stub(),
-        trackMetric: sinon.stub(),
-        working: false,
-        location: { pathname: 'signup' },
-      };
-      wrapper.setProps(props);
+      const consoleErrorStub = sinon.stub(console, 'error');
+      try {
+        var props = {
+          acknowledgeNotification: sinon.stub(),
+          api: {},
+          configuredInviteKey: '',
+          onSubmit: sinon.stub(),
+          trackMetric: sinon.stub(),
+          working: false,
+          location: { pathname: 'signup' },
+        };
+        wrapper.setProps(props);
 
-      expect(console.error.callCount).to.equal(0);
+        expect(consoleErrorStub.callCount).to.equal(0);
+      } finally {
+        consoleErrorStub.restore();
+      }
     });
 
     it('should render signup-selection when no key is set and no key is configured', function () {
@@ -247,86 +334,40 @@ describe('Signup', function () {
   });
 
   describe('keycloak enabled', () => {
-    const defaultWorkingState = {
-      inProgress: false,
-      completed: false,
-      notification: null,
-    };
-    let storeState = {
-      blip: {
-        working: {
-          signingUp: defaultWorkingState,
-          fetchingInfo: { ...defaultWorkingState, completed: true },
-        },
-        keycloakConfig: {},
-      },
-    };
-    const mockStore = configureStore([thunk]);
-    let store = mockStore(storeState);
-    const keycloakMock = {
-      createRegisterUrl: sinon.stub(),
-    };
-    let RewiredSignup;
     let wrapper;
 
     afterEach(() => {
-      keycloakMock.createRegisterUrl.reset();
-    });
-
-    before(() => {
-      Signup.__Rewire__('keycloak', keycloakMock);
-      Signup.__Rewire__('win', { location: { origin: 'testOrigin', assign: sinon.stub() } });
-      RewiredSignup = require('../../../app/pages/signup/signup.js').default;
-      wrapper = mount(
-        createElement(
-          (props) => (
-            <Provider store={store}>
-              <BrowserRouter>
-                <RewiredSignup {...props} />
-              </BrowserRouter>
-            </Provider>
-          ),
-          props
-        )
-      );
-    });
-
-    after(() => {
-      Signup.__ResetDependency__('keycloak');
-      Signup.__ResetDependency__('win');
+      mockCreateRegisterUrl.mockReset();
     });
 
     it('should send the user to keycloak signup if keycloak is initialized', () => {
-      expect(keycloakMock.createRegisterUrl.callCount).to.equal(0);
-      storeState = merge(storeState, {
-        blip: { keycloakConfig: { initialized: true } },
-      });
-      store = mockStore(storeState);
-      wrapper.setProps({
+      mockCreateRegisterUrl.mockReturnValue('https://example.com/register');
+      expect(mockCreateRegisterUrl.mock.calls.length).to.equal(0);
+      wrapper = renderSignup({
         keycloakConfig: {
           url: 'keycloakUrl',
           initialized: true,
         },
       });
-      expect(keycloakMock.createRegisterUrl.callCount).to.equal(1);
-      expect(keycloakMock.createRegisterUrl.calledWith({ redirectUri: 'testOrigin' })).to.be.true;
+      expect(mockCreateRegisterUrl.mock.calls.length).to.equal(1);
+      expect(mockCreateRegisterUrl.mock.calls[0][0]).to.deep.equal({ redirectUri: window.location.origin });
     });
 
     it('should provide loginHint if inviteEmail is provided', () => {
-      expect(keycloakMock.createRegisterUrl.callCount).to.equal(0);
-      storeState = merge(storeState, {
-        blip: { keycloakConfig: { initialized: true } },
-      });
-      store = mockStore(storeState);
-      wrapper.setProps({
+      mockCreateRegisterUrl.mockReturnValue('https://example.com/register');
+      expect(mockCreateRegisterUrl.mock.calls.length).to.equal(0);
+      wrapper = renderSignup({
         inviteEmail: 'someEmail@provider.com',
         keycloakConfig: {
           url: 'keycloakUrl',
           initialized: true,
         },
       });
-      expect(keycloakMock.createRegisterUrl.callCount).to.equal(1);
-      expect(keycloakMock.createRegisterUrl.calledWith({loginHint: 'someEmail@provider.com'}));
+      expect(mockCreateRegisterUrl.mock.calls.length).to.equal(1);
+      expect(mockCreateRegisterUrl.mock.calls[0][0]).to.deep.equal({
+        redirectUri: window.location.origin,
+        loginHint: 'someEmail@provider.com',
+      });
     });
 
 
@@ -343,16 +384,9 @@ describe('Signup', function () {
         },
         keycloakConfig: {},
       };
-      wrapper = mount(
-        createElement(
-          props => (
-            <BrowserRouter>
-              <SignupFunction {...props} />
-            </BrowserRouter>
-          ), props )
-      );
-      var render = wrapper.find(SignupFunction).childAt(0);
-      var state = render.state();
+      wrapper = renderSignup(props);
+      var signupRender = wrapper.find(SignupFunction).childAt(0);
+      var state = signupRender.state();
 
       expect(state.loading).to.equal(false); // once rendered, loading has been set to false
       expect(state.formValues.username).to.equal(props.inviteEmail);
@@ -444,7 +478,7 @@ describe('Signup', function () {
     });
 
     after(function() {
-      dateStub.reset();
+      dateStub.restore();
     });
 
     it('should prepare the form values for submission of the personal signup form', function() {

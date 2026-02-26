@@ -19,7 +19,8 @@ import { clinicUIDetails } from '../../core/clinicUtils.js';
 import { getDismissedAltRangeBannerKey, isRangeWithNonStandardTarget } from '../../providers/AppBanner/appBannerHelpers.js';
 import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils.js';
 
-let win = window;
+// Exported as a mutable reference to allow location to be swapped in tests
+export const _win = { location: window.location };
 
 function createActionError(usrErrMessage, apiError) {
   const err = new Error(usrErrMessage);
@@ -142,7 +143,7 @@ export function verifyCustodial(api, signupKey, signupEmail, birthday, password)
       } else {
         const { blip: { keycloakConfig } } = getState();
         if (keycloakConfig.initialized) {
-          keycloak.login({ loginHint: signupEmail, redirectUri: win.location.origin + '/login' });
+          keycloak.login({ loginHint: signupEmail, redirectUri: _win.location.origin + '/login' });
         } else {
           dispatch(login(api, { username: signupEmail, password: password }, null, sync.verifyCustodialSuccess));
         }
@@ -397,7 +398,7 @@ export function logout(api) {
     api.user.logout(() => {
       dispatch(sync.logoutSuccess());
       if(keycloakConfig.logoutUrl){
-        win.location.assign(keycloakConfig.logoutUrl);
+        _win.location.assign(keycloakConfig.logoutUrl);
       } else {
         dispatch(push('/'));
       }

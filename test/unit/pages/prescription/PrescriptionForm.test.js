@@ -1,5 +1,5 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { fireEvent, render } from '@testing-library/react';
 import moment from 'moment';
 import { Provider } from 'react-redux';
 import { MemoryRouter, Route } from 'react-router';
@@ -8,6 +8,46 @@ import thunk from 'redux-thunk';
 import { withFormik } from 'formik';
 import defaults from 'lodash/defaults';
 
+let mockUseFlagsImpl = () => ({});
+let mockUseLDClientImpl = () => ({ getContext: () => ({}) });
+let mockUseLocalStorageImpl;
+let mockUseFormikContextImpl;
+
+jest.mock('launchdarkly-react-client-sdk', () => ({
+  useFlags: (...args) => mockUseFlagsImpl(...args),
+  useLDClient: (...args) => mockUseLDClientImpl(...args),
+}));
+
+jest.mock('crypto-hash', () => ({
+  sha512: jest.fn(async () => 'mocked-sha512-hash'),
+}));
+
+jest.mock('../../../../app/core/hooks', () => {
+  const actual = jest.requireActual('../../../../app/core/hooks');
+  return {
+    ...actual,
+    useLocalStorage: (...args) => {
+      if (typeof mockUseLocalStorageImpl === 'function') {
+        return mockUseLocalStorageImpl(...args);
+      }
+      return [undefined, () => {}];
+    },
+  };
+});
+
+jest.mock('formik', () => {
+  const actual = jest.requireActual('formik');
+  return {
+    ...actual,
+    useFormikContext: (...args) => {
+      if (typeof mockUseFormikContextImpl === 'function') {
+        return mockUseFormikContextImpl(...args);
+      }
+      return actual.useFormikContext(...args);
+    },
+  };
+});
+
 import {
   clearCalculator,
   clearCalculatorInputs,
@@ -15,7 +55,6 @@ import {
   generateTherapySettingsOrderText,
   prescriptionForm,
   PrescriptionForm,
-  default as PF,
 } from '../../../../app/pages/prescription/PrescriptionForm';
 
 import { ToastProvider } from '../../../../app/providers/ToastProvider';
@@ -36,7 +75,7 @@ const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
 describe('PrescriptionForm', () => {
-  let wrapper;
+  let rendered;
   const today = moment().format('MMM D, YYYY');
 
   let defaultProps = {
@@ -74,23 +113,22 @@ describe('PrescriptionForm', () => {
   });
 
   before(() => {
-    PF.__Rewire__('useLDClient', sinon.stub().returns(new LDClientMock()));
-
-    PF.__Rewire__('useFlags', sinon.stub().returns({
+    mockUseLDClientImpl = sinon.stub().returns(new LDClientMock());
+    mockUseFlagsImpl = sinon.stub().returns({
       showPrescriptions: true,
-    }));
+    });
   });
 
   after(() => {
-    PF.__ResetDependency__('useLDClient');
-    PF.__ResetDependency__('useFlags');
+    mockUseLDClientImpl = () => ({ getContext: () => ({}) });
+    mockUseFlagsImpl = () => ({});
   });
 
   beforeEach(() => {
     defaultProps.trackMetric.resetHistory();
 
     const Element = withFormik(prescriptionForm())(formikProps => <PrescriptionForm {...defaultProps} {...formikProps} />);
-    wrapper = mount(
+    rendered = render(
       <Provider store={defaultState}>
         <ToastProvider>
             <MemoryRouter initialEntries={['/prescriptions/new']}>
@@ -102,14 +140,14 @@ describe('PrescriptionForm', () => {
   });
 
   it('should render the prescription form with a submit handler', () => {
-    const form = wrapper.find('form#prescription-form');
-    expect(form).to.have.length(1);
-    expect(form.props().onSubmit).to.be.a('function');
+    const form = rendered.container.querySelector('form#prescription-form');
+    expect(form).to.not.equal(null);
+    expect(form.getAttribute('id')).to.equal('prescription-form');
   });
 
   it('should render a hidden field mapped to formik `id` field via the name attribute', () => {
-    const idField = wrapper.find('input[name="id"][type="hidden"]');
-    expect(idField).to.have.length(1);
+    const idField = rendered.container.querySelector('input[name="id"][type="hidden"]');
+    expect(idField).to.not.equal(null);
   });
 
   it('should render the all the form steps when skippedFieldsProps is provided as an empty array', () => {
@@ -123,7 +161,7 @@ describe('PrescriptionForm', () => {
     };
 
     const Element = withFormik(prescriptionForm())(formikProps => <PrescriptionForm {...noSkippedFieldsProps} {...formikProps} />);
-    wrapper = mount(
+    rendered = render(
       <Provider store={defaultState}>
         <ToastProvider>
             <MemoryRouter initialEntries={['/prescriptions/new']}>
@@ -133,19 +171,19 @@ describe('PrescriptionForm', () => {
       </Provider>
     );
 
-    const stepper = wrapper.find('#prescription-form-steps').hostNodes();
-    expect(stepper).to.have.length(1);
+    const stepper = rendered.container.querySelector('#prescription-form-steps');
+    expect(stepper).to.not.equal(null);
 
-    const steps = stepper.find('.MuiStep-root');
+    const steps = Array.from(stepper.querySelectorAll('.MuiStep-root'));
     expect(steps).to.have.length(5);
 
-    expect(steps.at(0).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Create Patient Account');
-    expect(steps.at(0).hasClass('active')).to.be.true;
+    expect(steps[0].querySelector('.MuiStepLabel-label')?.textContent).to.equal('Create Patient Account');
+    expect(steps[0].classList.contains('active')).to.be.true;
 
-    expect(steps.at(1).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Complete Patient Profile');
-    expect(steps.at(2).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Therapy Settings Calculator');
-    expect(steps.at(3).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Enter Therapy Settings');
-    expect(steps.at(4).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Review and Save Tidepool Loop Start Order');
+    expect(steps[1].querySelector('.MuiStepLabel-label')?.textContent).to.equal('Complete Patient Profile');
+    expect(steps[2].querySelector('.MuiStepLabel-label')?.textContent).to.equal('Therapy Settings Calculator');
+    expect(steps[3].querySelector('.MuiStepLabel-label')?.textContent).to.equal('Enter Therapy Settings');
+    expect(steps[4].querySelector('.MuiStepLabel-label')?.textContent).to.equal('Review and Save Tidepool Loop Start Order');
   });
 
   it('should not render the calculator form steps when using the default-provided skipFields props', () => {
@@ -159,7 +197,7 @@ describe('PrescriptionForm', () => {
     };
 
     const Element = withFormik(prescriptionForm())(formikProps => <PrescriptionForm {...defaultSkippedFieldProps} {...formikProps} />);
-    wrapper = mount(
+    rendered = render(
       <Provider store={defaultState}>
         <ToastProvider>
             <MemoryRouter initialEntries={['/prescriptions/new']}>
@@ -169,18 +207,18 @@ describe('PrescriptionForm', () => {
       </Provider>
     );
 
-    const stepper = wrapper.find('#prescription-form-steps').hostNodes();
-    expect(stepper).to.have.length(1);
+    const stepper = rendered.container.querySelector('#prescription-form-steps');
+    expect(stepper).to.not.equal(null);
 
-    const steps = stepper.find('.MuiStep-root');
+    const steps = Array.from(stepper.querySelectorAll('.MuiStep-root'));
     expect(steps).to.have.length(4);
 
-    expect(steps.at(0).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Create Patient Account');
-    expect(steps.at(0).hasClass('active')).to.be.true;
+    expect(steps[0].querySelector('.MuiStepLabel-label')?.textContent).to.equal('Create Patient Account');
+    expect(steps[0].classList.contains('active')).to.be.true;
 
-    expect(steps.at(1).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Complete Patient Profile');
-    expect(steps.at(2).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Enter Therapy Settings');
-    expect(steps.at(3).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Review and Save Tidepool Loop Start Order');
+    expect(steps[1].querySelector('.MuiStepLabel-label')?.textContent).to.equal('Complete Patient Profile');
+    expect(steps[2].querySelector('.MuiStepLabel-label')?.textContent).to.equal('Enter Therapy Settings');
+    expect(steps[3].querySelector('.MuiStepLabel-label')?.textContent).to.equal('Review and Save Tidepool Loop Start Order');
   });
 
   it('should render the calculator form steps when using custom skipFields prop that does not exclude calculator', () => {
@@ -194,7 +232,7 @@ describe('PrescriptionForm', () => {
     };
 
     const Element = withFormik(prescriptionForm())(formikProps => <PrescriptionForm {...skippedFieldProps} {...formikProps} />);
-    wrapper = mount(
+    rendered = render(
       <Provider store={defaultState}>
         <ToastProvider>
             <MemoryRouter initialEntries={['/prescriptions/new']}>
@@ -204,30 +242,30 @@ describe('PrescriptionForm', () => {
       </Provider>
     );
 
-    const stepper = wrapper.find('#prescription-form-steps').hostNodes();
-    expect(stepper).to.have.length(1);
+    const stepper = rendered.container.querySelector('#prescription-form-steps');
+    expect(stepper).to.not.equal(null);
 
-    const steps = stepper.find('.MuiStep-root');
+    const steps = Array.from(stepper.querySelectorAll('.MuiStep-root'));
     expect(steps).to.have.length(5);
 
-    expect(steps.at(0).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Create Patient Account');
-    expect(steps.at(0).hasClass('active')).to.be.true;
+    expect(steps[0].querySelector('.MuiStepLabel-label')?.textContent).to.equal('Create Patient Account');
+    expect(steps[0].classList.contains('active')).to.be.true;
 
-    expect(steps.at(1).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Complete Patient Profile');
-    expect(steps.at(2).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Therapy Settings Calculator');
-    expect(steps.at(3).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Enter Therapy Settings');
-    expect(steps.at(4).find('.MuiStepLabel-label').hostNodes().text()).to.equal('Review and Save Tidepool Loop Start Order');
+    expect(steps[1].querySelector('.MuiStepLabel-label')?.textContent).to.equal('Complete Patient Profile');
+    expect(steps[2].querySelector('.MuiStepLabel-label')?.textContent).to.equal('Therapy Settings Calculator');
+    expect(steps[3].querySelector('.MuiStepLabel-label')?.textContent).to.equal('Enter Therapy Settings');
+    expect(steps[4].querySelector('.MuiStepLabel-label')?.textContent).to.equal('Review and Save Tidepool Loop Start Order');
   });
 
   it('should render the form actions, with only the `next` button on the first step', () => {
-    const actions = wrapper.find('.step-actions').hostNodes();
-    expect(actions).to.have.length(1);
+    const actions = rendered.container.querySelector('.step-actions');
+    expect(actions).to.not.equal(null);
 
-    const nextButton = actions.find('button.step-next').hostNodes();
-    expect(nextButton).to.have.length(1);
+    const nextButton = actions.querySelector('button.step-next');
+    expect(nextButton).to.not.equal(null);
 
-    const backButton = actions.find('button.step-back').hostNodes();
-    expect(backButton).to.have.length(0);
+    const backButton = actions.querySelector('button.step-back');
+    expect(backButton).to.equal(null);
   });
 
   describe('clearCalculatorInputs', () => {
@@ -372,15 +410,15 @@ describe('PrescriptionForm', () => {
       };
 
       before(() => {
-        PF.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
+        mockUseLocalStorageImpl = sinon.stub().callsFake(key => {
           defaults(mockedLocalStorage, { [key]: {} });
           return [
             mockedLocalStorage[key],
             sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
           ];
-        }));
+        });
 
-        PF.__Rewire__('useFormikContext', sinon.stub().returns(formikContext));
+        mockUseFormikContextImpl = sinon.stub().returns(formikContext);
       });
 
       beforeEach(() => {
@@ -397,12 +435,12 @@ describe('PrescriptionForm', () => {
       });
 
       after(() => {
-        PF.__ResetDependency__('useLocalStorage');
-        PF.__ResetDependency__('useFormikContext');
+        mockUseLocalStorageImpl = undefined;
+        mockUseFormikContextImpl = undefined;
       })
 
       it('should hydrate from localstorage if there is no stored `id` and there are active step query params', () => {
-        wrapper = mount(
+        rendered = render(
           <Provider store={defaultState}>
             <ToastProvider>
               <MemoryRouter initialEntries={['/prescriptions/new']}>
@@ -429,7 +467,7 @@ describe('PrescriptionForm', () => {
           },
         };
 
-        wrapper = mount(
+        rendered = render(
           <Provider store={defaultState}>
             <ToastProvider>
               <MemoryRouter initialEntries={['/prescriptions/new']}>
@@ -460,15 +498,15 @@ describe('PrescriptionForm', () => {
       };
 
       before(() => {
-        PF.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
+        mockUseLocalStorageImpl = sinon.stub().callsFake(key => {
           defaults(mockedLocalStorage, { [key]: {} });
           return [
             mockedLocalStorage[key],
             sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
           ];
-        }));
+        });
 
-        PF.__Rewire__('useFormikContext', sinon.stub().returns(formikContext));
+        mockUseFormikContextImpl = sinon.stub().returns(formikContext);
       });
 
       beforeEach(() => {
@@ -486,12 +524,12 @@ describe('PrescriptionForm', () => {
       });
 
       after(() => {
-        PF.__ResetDependency__('useLocalStorage');
-        PF.__ResetDependency__('useFormikContext');
+        mockUseLocalStorageImpl = undefined;
+        mockUseFormikContextImpl = undefined;
       })
 
       it('should hydrate from localstorage if stored `id` matches the URL `id` param', () => {
-        wrapper = mount(
+        rendered = render(
           <Provider store={defaultState}>
             <ToastProvider>
               <MemoryRouter initialEntries={[`/prescriptions/${prescriptionId}`]}>
@@ -512,7 +550,7 @@ describe('PrescriptionForm', () => {
       it('should not hydrate from localstorage if stored `id` does not match the URL `id` param', () => {
         const nonMatchingPrescriptionId = 'rxId456';
 
-        wrapper = mount(
+        rendered = render(
           <Provider store={defaultState}>
             <ToastProvider>
               <MemoryRouter initialEntries={[`/prescriptions/${nonMatchingPrescriptionId}`]}>
@@ -537,7 +575,7 @@ describe('PrescriptionForm', () => {
 
     beforeEach(() => {
       const Element = withFormik(prescriptionForm())(formikProps => <PrescriptionForm {...reviewStepProps} {...formikProps} />);
-      wrapper = mount(
+      rendered = render(
         <Provider store={defaultState}>
           <ToastProvider>
             <MemoryRouter initialEntries={['/prescriptions/new']}>
@@ -549,9 +587,10 @@ describe('PrescriptionForm', () => {
     });
 
     it('should track a metric when copy as text button is clicked', () => {
-      const copyButton = wrapper.find('button[title="Copy therapy settings order as text"]').at(0);
+      const copyButton = rendered.container.querySelector('button[title="Copy therapy settings order as text"]');
+      expect(copyButton).to.not.be.null;
       sinon.assert.notCalled(defaultProps.trackMetric);
-      copyButton.simulate('click');
+      fireEvent.click(copyButton);
       sinon.assert.calledWith(defaultProps.trackMetric, 'Clicked Copy Therapy Settings Order');
     });
   });

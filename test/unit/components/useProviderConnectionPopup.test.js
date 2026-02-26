@@ -1,7 +1,14 @@
 import React from 'react';
 import useProviderConnectionPopup from '../../../app/components/datasources/useProviderConnectionPopup';
 import * as actions from '../../../app/redux/actions';
-import { mountWithProviders } from '../../utils/mountWithProviders';
+import { render } from '@testing-library/react';
+import { Provider } from 'react-redux';
+import { MemoryRouter, Route } from 'react-router';
+import { AppBannerProvider } from '../../../app/providers/AppBanner/AppBannerProvider';
+import { setupStore } from '../../utils/mountWithProviders';
+import { useToasts } from '../../../app/providers/ToastProvider';
+import api from '../../../app/core/api';
+import utils from '../../../app/core/utils';
 
 /* global chai */
 /* global describe */
@@ -16,68 +23,112 @@ import { mountWithProviders } from '../../utils/mountWithProviders';
 
 const expect = chai.expect;
 
-describe('useProviderConnectionPopup', function () {
-  let wrapper, store;
+jest.mock('../../../app/providers/ToastProvider', () => {
+  const actual = jest.requireActual('../../../app/providers/ToastProvider');
+  return {
+    ...actual,
+    useToasts: jest.fn(),
+  };
+});
 
-  const setToast = sinon.stub();
-  const providers = {
+jest.mock('../../../app/components/datasources/DataConnections', () => ({
+  providers: {
     testProvider: {
       id: 'oauth/testProvider',
       displayName: 'Test Provider',
       restrictedTokenCreate: {
-          paths: [
-            '/v1/oauth/testProvider',
-          ],
+        paths: [
+          '/v1/oauth/testProvider',
+        ],
       },
       dataSourceFilter: {
         providerType: 'oauth',
         providerName: 'testProvider',
       },
     },
-  };
+  },
+}));
 
-  const api = {
+jest.mock('../../../app/core/api', () => ({
+  __esModule: true,
+  default: {
     user: {
-      getDataSources: sinon.stub(),
+      getDataSources: jest.fn(),
     },
-  };
+  },
+}));
+
+describe('useProviderConnectionPopup', function () {
+  let wrapper, store;
+  let mockPopup;
+  let openStub;
+  let isMobileStub;
+
+  const setToast = sinon.stub();
 
   const trackMetric = sinon.stub();
 
+  const renderWithProviders = (ui) => {
+    const Wrapper = ({ children }) => (
+      <Provider store={store}>
+        <MemoryRouter initialEntries={['/']}>
+          <Route
+            path='/'
+            children={() => (
+              <AppBannerProvider>
+                {children}
+              </AppBannerProvider>
+            )}
+          />
+        </MemoryRouter>
+      </Provider>
+    );
+
+    return render(ui, { wrapper: Wrapper });
+  };
+
   beforeEach(() => {
-    useProviderConnectionPopup.__Rewire__('useToasts', () => ({ set: setToast }));
-    useProviderConnectionPopup.__Rewire__('providers', providers);
-    useProviderConnectionPopup.__Rewire__('api', api);
+    store = setupStore(undefined);
+    useToasts.mockReturnValue({ set: setToast });
+    isMobileStub = sinon.stub(utils, 'isMobile').returns(false);
+
+    mockPopup = {
+      location: {
+        href: `${window.location.origin}/foobar.html`,
+        pathname: '/foobar.html',
+      },
+      closed: false,
+      close: sinon.stub().callsFake(() => {
+        mockPopup.closed = true;
+      }),
+    };
+    openStub = sinon.stub(window, 'open').returns(mockPopup);
 
     const TestComponent = () => {
       const popup = useProviderConnectionPopup({ popupWatchTimeout: 0, trackMetric });
       return <div>{popup?.location?.href ? 'Popup Open' : 'No Popup'}</div>;
     };
 
-    const mount = mountWithProviders(<TestComponent />);
-    store = mount.store;
-    wrapper = mount.wrapper;
+    wrapper = renderWithProviders(<TestComponent />);
   });
 
   afterEach(() => {
-    api.user.getDataSources.resetHistory();
-    useProviderConnectionPopup.__ResetDependency__('useToasts');
-    useProviderConnectionPopup.__ResetDependency__('providers');
-    useProviderConnectionPopup.__ResetDependency__('api');
+    api.user.getDataSources.mockReset();
+    isMobileStub.restore();
+    openStub.restore();
     setToast.resetHistory();
     trackMetric.resetHistory();
   });
 
   it('should open a popup when authorizedDataSource is set', (done) => {
     sinon.assert.notCalled(trackMetric);
-    expect(wrapper.text()).to.equal('No Popup');
+    expect(wrapper.getByText('No Popup')).to.not.equal(null);
 
     const authorizedDataSource = { id: 'oauth/testProvider', url: `${window.location.origin}/foobar.html`};
     store.dispatch(actions.sync.connectDataSourceSuccess(authorizedDataSource.id, authorizedDataSource.url));
-    wrapper.update();
 
     setTimeout(() => {
-      expect(wrapper.text()).to.equal('Popup Open');
+      expect(wrapper.getByText('Popup Open')).to.not.equal(null);
 
       sinon.assert.calledWith(trackMetric, 'Started provider connection flow', {
         providerName: 'testProvider',
@@ -88,15 +139,14 @@ describe('useProviderConnectionPopup', function () {
     }, 100);
   });
 
-  it('should close the popup, show a toast message, and set justConnectedDataSourceProviderName on authorization success when popup url matches error oauth path', (done) => {
+  it('should close the popup, show a success toast, and set justConnectedDataSourceProviderName on authorization success when popup url matches authorized oauth path', (done) => {
     sinon.assert.notCalled(trackMetric);
 
     // Simulate success redirect path
+    mockPopup.location.href = `${window.location.origin}/oauth/testProvider/authorized`;
+    mockPopup.location.pathname = '/oauth/testProvider/authorized';
     const authorizedDataSource = { id: 'oauth/testProvider', url: `${window.location.origin}/oauth/testProvider/authorized`};
     store.dispatch(actions.sync.connectDataSourceSuccess(authorizedDataSource.id, authorizedDataSource.url));
-    wrapper.update();
-
-    sinon.spy(actions.sync, 'setJustConnectedDataSourceProviderName');
 
     setTimeout(() => {
       expect(setToast.calledOnce).to.be.true;
@@ -106,15 +156,12 @@ describe('useProviderConnectionPopup', function () {
         variant: 'success',
       })).to.be.true;
 
-      sinon.assert.calledOnce(actions.sync.setJustConnectedDataSourceProviderName);
-      sinon.assert.calledWith(actions.sync.setJustConnectedDataSourceProviderName, 'testProvider');
+      expect(store.getState().blip.justConnectedDataSourceProviderName).to.equal('testProvider');
 
       sinon.assert.calledWith(trackMetric, 'Completed provider connection flow', {
         providerName: 'testProvider',
         status: 'authorized',
       });
-
-      sinon.restore();
 
       done();
     }, 1000);
@@ -122,9 +169,10 @@ describe('useProviderConnectionPopup', function () {
 
   it('should close the popup and show a toast message on authorization error when popup url matches error oauth path', (done) => {
     // Simulate error redirect path
+    mockPopup.location.href = `${window.location.origin}/oauth/testProvider/error`;
+    mockPopup.location.pathname = '/oauth/testProvider/error';
     const authorizedDataSource = { id: 'oauth/testProvider', url: `${window.location.origin}/oauth/testProvider/error`};
     store.dispatch(actions.sync.connectDataSourceSuccess(authorizedDataSource.id, authorizedDataSource.url));
-    wrapper.update();
 
     setTimeout(() => {
       expect(setToast.calledOnce).to.be.true;
@@ -139,24 +187,24 @@ describe('useProviderConnectionPopup', function () {
 
   it('should not show a toast message when the authorization status is `redirect`', (done) => {
     // Simulate interim platform redirect path
+    mockPopup.location.href = `${window.location.origin}/v1/oauth/testProvider/redirect`;
+    mockPopup.location.pathname = '/v1/oauth/testProvider/redirect';
     const authorizedDataSource = { id: 'oauth/testProvider', url: `${window.location.origin}/v1/oauth/testProvider/redirect`};
     store.dispatch(actions.sync.connectDataSourceSuccess(authorizedDataSource.id, authorizedDataSource.url));
-    wrapper.update();
 
     setTimeout(() => {
       expect(setToast.notCalled).to.be.true;
       done();
-    }, 100);
+    }, 1000);
   });
 
   it('should fetch patient data sources when justConnectedDataSourceProviderName state is set', (done) => {
-    sinon.assert.notCalled(api.user.getDataSources);
+    expect(api.user.getDataSources.mock.calls.length).to.equal(0);
 
     store.dispatch(actions.sync.setJustConnectedDataSourceProviderName('testProvider'));
-    wrapper.update();
 
     setTimeout(() => {
-      sinon.assert.calledOnce(api.user.getDataSources);
+      expect(api.user.getDataSources.mock.calls.length).to.equal(1);
       done();
     }, 100);
   });

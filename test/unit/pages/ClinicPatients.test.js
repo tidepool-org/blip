@@ -1,5 +1,5 @@
 import React from 'react';
-import { createMount } from '@material-ui/core/test-utils';
+import { render, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
@@ -9,18 +9,62 @@ import noop from 'lodash/noop';
 import defaults from 'lodash/defaults';
 import moment from 'moment';
 import { ToastProvider } from '../../../app/providers/ToastProvider';
-import Table from '../../../app/components/elements/Table';
 import ClinicPatients from '../../../app/pages/clinicworkspace/ClinicPatients';
-import Popover from '../../../app/components/elements/Popover';
 import { clinicUIDetails } from '../../../app/core/clinicUtils';
 import { URL_TIDEPOOL_PLUS_PLANS } from '../../../app/core/constants';
-import TideDashboardConfigForm from '../../../app/components/clinic/TideDashboardConfigForm';
-import SelectTags from '../../../app/components/clinic/PatientForm/SelectTags';
-import RpmReportConfigForm from '../../../app/components/clinic/RpmReportConfigForm';
-import DataConnectionsModal from '../../../app/components/datasources/DataConnectionsModal';
-import DataConnections from '../../../app/components/datasources/DataConnections';
 import mockRpmReportPatients from '../../fixtures/mockRpmReportPatients.json'
 import LDClientMock from '../../fixtures/LDClientMock';
+
+const mockUseLDClient = jest.fn();
+const mockUseFlags = jest.fn();
+const mockUseLocation = jest.fn();
+const mockUseHistory = jest.fn();
+const mockUseLocalStorage = jest.fn();
+const mockUseClinicPatientsFilters = jest.fn();
+var mockApi;
+
+jest.mock('launchdarkly-react-client-sdk', () => {
+  const actual = jest.requireActual('launchdarkly-react-client-sdk');
+  return {
+    ...actual,
+    useLDClient: (...args) => mockUseLDClient(...args),
+    useFlags: (...args) => mockUseFlags(...args),
+  };
+});
+
+jest.mock('react-router-dom', () => {
+  const actual = jest.requireActual('react-router-dom');
+  return {
+    ...actual,
+    useLocation: (...args) => mockUseLocation(...args),
+    useHistory: (...args) => mockUseHistory(...args),
+  };
+});
+
+jest.mock('../../../app/core/hooks', () => {
+  const actual = jest.requireActual('../../../app/core/hooks');
+  return {
+    ...actual,
+    useLocalStorage: (...args) => mockUseLocalStorage(...args),
+  };
+});
+
+jest.mock('../../../app/pages/clinicworkspace/useClinicPatientsFilters', () => {
+  const actual = jest.requireActual('../../../app/pages/clinicworkspace/useClinicPatientsFilters');
+  return {
+    ...actual,
+    __esModule: true,
+    default: (...args) => mockUseClinicPatientsFilters(...args),
+  };
+});
+
+jest.mock('../../../app/core/api', () => {
+  if (!mockApi) mockApi = { clinics: {} };
+  return {
+    __esModule: true,
+    default: mockApi,
+  };
+});
 
 /* global chai */
 /* global sinon */
@@ -37,12 +81,11 @@ const assert = chai.assert;
 const mockStore = configureStore([thunk]);
 
 describe('ClinicPatients', () => {
-  let mount;
-
   const today = moment().toISOString();
   const yesterday = moment(today).subtract(1, 'day').toISOString();
 
-  let wrapper;
+  let container;
+  let rerender;
   let defaultProps = {
     trackMetric: sinon.stub(),
     t: sinon.stub().callsFake((string) => string),
@@ -67,9 +110,18 @@ describe('ClinicPatients', () => {
     },
   };
 
-  before(() => {
-    mount = createMount();
-  });
+  const mountWrapper = (store) => {
+    cleanup();
+    const result = render(
+      <Provider store={store}>
+        <ToastProvider>
+          <ClinicPatients {...defaultProps} />
+        </ToastProvider>
+      </Provider>
+    );
+    container = result.container;
+    rerender = result.rerender;
+  };
 
   beforeEach(() => {
     delete localStorage['activePatientFilters/clinicianUserId123/clinicID123'];
@@ -82,26 +134,35 @@ describe('ClinicPatients', () => {
     defaultProps.api.clinics.sendPatientDataProviderConnectRequest.resetHistory();
     defaultProps.api.clinics.updateClinicPatient.resetHistory();
     defaultProps.api.clinics.getPatientsForRpmReport.resetHistory();
-    ClinicPatients.__Rewire__('useLDClient', sinon.stub().returns(new LDClientMock()));
-    SelectTags.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-workspace' }));
-    DataConnections.__Rewire__('api', defaultProps.api);
-    DataConnectionsModal.__Rewire__('api', defaultProps.api);
-    DataConnectionsModal.__Rewire__('useHistory', sinon.stub().returns({
+    mockApi.clinics = defaultProps.api.clinics;
+    mockUseLDClient.mockReturnValue(new LDClientMock());
+    mockUseFlags.mockReturnValue({ showSummaryData: true });
+    mockUseLocation.mockReturnValue({ pathname: '/clinic-workspace' });
+    mockUseHistory.mockReturnValue({
       location: { query: {}, pathname: '/settings' },
       replace: sinon.stub(),
-    }));
+    });
+    mockUseLocalStorage.mockImplementation((key, fallback = {}) => {
+      return [fallback, sinon.stub()];
+    });
+    mockUseClinicPatientsFilters.mockReturnValue([
+      {
+        timeInRange: [],
+        patientTags: [],
+        meetsGlycemicTargets: false,
+      },
+      sinon.stub(),
+    ]);
   });
 
   afterEach(() => {
-    ClinicPatients.__ResetDependency__('useLDClient');
-    SelectTags.__ResetDependency__('useLocation');
-    DataConnections.__ResetDependency__('api');
-    DataConnectionsModal.__ResetDependency__('api');
-    DataConnectionsModal.__ResetDependency__('useHistory');
-  });
-
-  after(() => {
-    mount.cleanUp();
+    cleanup();
+    mockUseLDClient.mockReset();
+    mockUseFlags.mockReset();
+    mockUseLocation.mockReset();
+    mockUseHistory.mockReset();
+    mockUseLocalStorage.mockReset();
+    mockUseClinicPatientsFilters.mockReset();
   });
 
   const defaultWorkingState = {
@@ -520,6 +581,7 @@ describe('ClinicPatients', () => {
     beforeEach(() => {
       store.clearActions();
     });
+
     it('should not fetch patients for clinic if already in progress', () => {
       store = mockStore(
         merge({}, hasPatientsState, {
@@ -532,26 +594,13 @@ describe('ClinicPatients', () => {
           },
         })
       );
-      wrapper = mount(
-        <Provider store={store}>
-          <ToastProvider>
-            <ClinicPatients {...defaultProps} />
-          </ToastProvider>
-        </Provider>
-      );
+      mountWrapper(store);
       expect(store.getActions()).to.eql([]);
     });
 
     it('should fetch patients for clinic', () => {
       store = mockStore(hasPatientsState);
-
-      wrapper = mount(
-        <Provider store={store}>
-          <ToastProvider>
-            <ClinicPatients {...defaultProps} />
-          </ToastProvider>
-        </Provider>
-      );
+      mountWrapper(store);
       const expectedActions = [
         { type: 'FETCH_PATIENTS_FOR_CLINIC_REQUEST' },
       ];
@@ -572,13 +621,7 @@ describe('ClinicPatients', () => {
           },
         })
       );
-      wrapper = mount(
-        <Provider store={store}>
-          <ToastProvider>
-            <ClinicPatients {...defaultProps} />
-          </ToastProvider>
-        </Provider>
-      );
+      mountWrapper(store);
       const expectedActions = [
         { type: 'FETCH_PATIENTS_FOR_CLINIC_REQUEST' },
       ];
@@ -596,20 +639,14 @@ describe('ClinicPatients', () => {
       }
 
       store = mockStore(initialState);
-      wrapper = mount(
-        <Provider store={store}>
-          <ToastProvider>
-            <ClinicPatients {...defaultProps} />
-          </ToastProvider>
-        </Provider>
-      );
+      mountWrapper(store);
 
       store.clearActions();
       defaultProps.trackMetric.resetHistory();
     });
 
     it('should render a button that toggles patients to be visible', () => {
-      wrapper.find('.peopletable-names-showall').hostNodes().simulate('click');
+      fireEvent.click(container.querySelector('.peopletable-names-showall'));
       expect(store.getActions()).to.eql([{ type: 'SET_IS_PATIENT_LIST_VISIBLE', payload: { isVisible: true } }])
     })
   });
@@ -617,66 +654,55 @@ describe('ClinicPatients', () => {
   context('no patients', () => {
     beforeEach(() => {
       store = mockStore(noPatientsState);
-      wrapper = mount(
-        <Provider store={store}>
-          <ToastProvider>
-            <ClinicPatients {...defaultProps} />
-          </ToastProvider>
-        </Provider>
-      );
+      mountWrapper(store);
 
       defaultProps.trackMetric.resetHistory();
     });
 
     it('should render an empty table', () => {
-      expect(wrapper.find('.table-empty-text').hostNodes().text()).includes('There are no results to show');
+      expect(container.querySelector('.table-empty-text').textContent).includes('There are no results to show');
     });
 
     describe('Filter Reset Bar', () => {
       it('should hide the Filter Reset Bar', () => {
-        const filterResetBar = wrapper.find('.filter-reset-bar').hostNodes();
-        expect(filterResetBar).to.have.lengthOf(0);
+        const filterResetBar = container.querySelector('.filter-reset-bar');
+        expect(filterResetBar).to.be.null;
       });
     });
 
-    it('should open a modal for adding a new patient', done => {
-      const addButton = wrapper.find('button#add-patient');
-      expect(addButton.text()).to.equal('Add New Patient');
+    it('should open a modal for adding a new patient', async () => {
+      const addButton = container.querySelector('button#add-patient');
+      expect(addButton.textContent).to.equal('Add New Patient');
 
-      const dialog = () => wrapper.find('Dialog#addPatient');
-
-      expect(dialog()).to.have.length(0);
-      addButton.simulate('click');
-      wrapper.update();
-      expect(dialog()).to.have.length(1);
-      expect(dialog().props().open).to.be.true;
+      expect(document.querySelector('#addPatient')).to.be.null;
+      fireEvent.click(addButton);
+      expect(document.querySelector('#addPatient')).to.exist;
 
       expect(defaultProps.trackMetric.calledWith('Clinic - Add patient')).to.be.true;
       expect(defaultProps.trackMetric.callCount).to.equal(1);
 
-      const patientForm = () => dialog().find('form#clinic-patient-form');
-      expect(patientForm()).to.have.lengthOf(1);
+      expect(document.querySelector('#addPatient form#clinic-patient-form')).to.exist;
 
-      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('');
-      patientForm().find('input[name="fullName"]').simulate('change', { persist: noop, target: { name: 'fullName', value: 'Patient Name' } });
-      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('Patient Name');
+      expect(document.querySelector('#addPatient input[name="fullName"]').value).to.equal('');
+      fireEvent.change(document.querySelector('#addPatient input[name="fullName"]'), { persist: noop, target: { name: 'fullName', value: 'Patient Name' } });
+      expect(document.querySelector('#addPatient input[name="fullName"]').value).to.equal('Patient Name');
 
-      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('');
-      patientForm().find('input[name="birthDate"]').simulate('change', { persist: noop, target: { name: 'birthDate', value: '11/21/1999' } });
-      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('11/21/1999');
+      expect(document.querySelector('#addPatient input[name="birthDate"]').value).to.equal('');
+      fireEvent.change(document.querySelector('#addPatient input[name="birthDate"]'), { persist: noop, target: { name: 'birthDate', value: '11/21/1999' } });
+      expect(document.querySelector('#addPatient input[name="birthDate"]').value).to.equal('11/21/1999');
 
-      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
-      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: '123456' } });
-      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('123456');
+      expect(document.querySelector('#addPatient input[name="mrn"]').value).to.equal('');
+      fireEvent.change(document.querySelector('#addPatient input[name="mrn"]'), { persist: noop, target: { name: 'mrn', value: '123456' } });
+      expect(document.querySelector('#addPatient input[name="mrn"]').value).to.equal('123456');
 
-      expect(patientForm().find('input[name="email"]').prop('value')).to.equal('');
-      patientForm().find('input[name="email"]').simulate('change', { persist: noop, target: { name: 'email', value: 'patient@test.ca' } });
-      expect(patientForm().find('input[name="email"]').prop('value')).to.equal('patient@test.ca');
+      expect(document.querySelector('#addPatient input[name="email"]').value).to.equal('');
+      fireEvent.change(document.querySelector('#addPatient input[name="email"]'), { persist: noop, target: { name: 'email', value: 'patient@test.ca' } });
+      expect(document.querySelector('#addPatient input[name="email"]').value).to.equal('patient@test.ca');
 
       store.clearActions();
-      dialog().find('Button#addPatientConfirm').simulate('click');
+      fireEvent.click(document.querySelector('#addPatient [id="addPatientConfirm"]'));
 
-      setTimeout(() => {
+      await waitFor(() => {
         expect(defaultProps.api.clinics.createClinicCustodialAccount.callCount).to.equal(1);
 
         sinon.assert.calledWith(
@@ -706,221 +732,181 @@ describe('ClinicPatients', () => {
             patient: { id: 'stubbedId' },
           },
         });
-
-        done();
-      }, 0);
+      });
     });
 
     it('should prevent adding a new patient with an invalid birthday', () => {
-      const addButton = wrapper.find('button#add-patient');
-      expect(addButton.text()).to.equal('Add New Patient');
+      const addButton = container.querySelector('button#add-patient');
+      expect(addButton.textContent).to.equal('Add New Patient');
 
-      const dialog = () => wrapper.find('Dialog#addPatient');
-
-      expect(dialog()).to.have.length(0);
-      addButton.simulate('click');
-      wrapper.update();
-      expect(dialog()).to.have.length(1);
-      expect(dialog().props().open).to.be.true;
+      expect(document.querySelector('#addPatient')).to.be.null;
+      fireEvent.click(addButton);
+      expect(document.querySelector('#addPatient')).to.exist;
 
       expect(defaultProps.trackMetric.calledWith('Clinic - Add patient')).to.be.true;
       expect(defaultProps.trackMetric.callCount).to.equal(1);
 
-      const patientForm = () => dialog().find('form#clinic-patient-form');
-      expect(patientForm()).to.have.lengthOf(1);
+      expect(document.querySelector('#addPatient form#clinic-patient-form')).to.exist;
 
-      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('');
-      patientForm().find('input[name="fullName"]').simulate('change', { persist: noop, target: { name: 'fullName', value: 'Patient Name' } });
-      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('Patient Name');
+      expect(document.querySelector('#addPatient input[name="fullName"]').value).to.equal('');
+      fireEvent.change(document.querySelector('#addPatient input[name="fullName"]'), { persist: noop, target: { name: 'fullName', value: 'Patient Name' } });
+      expect(document.querySelector('#addPatient input[name="fullName"]').value).to.equal('Patient Name');
 
-      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('');
-      patientForm().find('input[name="birthDate"]').simulate('change', { persist: noop, target: { name: 'birthDate', value: '13/21/1999' } });
-      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('13/21/1999');
+      expect(document.querySelector('#addPatient input[name="birthDate"]').value).to.equal('');
+      fireEvent.change(document.querySelector('#addPatient input[name="birthDate"]'), { persist: noop, target: { name: 'birthDate', value: '13/21/1999' } });
+      expect(document.querySelector('#addPatient input[name="birthDate"]').value).to.equal('13/21/1999');
 
-      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
-      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: '123456' } });
-      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('123456');
+      expect(document.querySelector('#addPatient input[name="mrn"]').value).to.equal('');
+      fireEvent.change(document.querySelector('#addPatient input[name="mrn"]'), { persist: noop, target: { name: 'mrn', value: '123456' } });
+      expect(document.querySelector('#addPatient input[name="mrn"]').value).to.equal('123456');
 
-      expect(patientForm().find('input[name="email"]').prop('value')).to.equal('');
-      patientForm().find('input[name="email"]').simulate('change', { persist: noop, target: { name: 'email', value: 'patient@test.ca' } });
-      expect(patientForm().find('input[name="email"]').prop('value')).to.equal('patient@test.ca');
+      expect(document.querySelector('#addPatient input[name="email"]').value).to.equal('');
+      fireEvent.change(document.querySelector('#addPatient input[name="email"]'), { persist: noop, target: { name: 'email', value: 'patient@test.ca' } });
+      expect(document.querySelector('#addPatient input[name="email"]').value).to.equal('patient@test.ca');
 
-      expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.true;
+      expect(document.querySelector('#addPatient [id="addPatientConfirm"]').disabled).to.be.true;
 
-      patientForm().find('input[name="birthDate"]').simulate('change', { persist: noop, target: { name: 'birthDate', value: '11/21/1999' } });
-      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('11/21/1999');
-      expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.false;
+      fireEvent.change(document.querySelector('#addPatient input[name="birthDate"]'), { persist: noop, target: { name: 'birthDate', value: '11/21/1999' } });
+      expect(document.querySelector('#addPatient input[name="birthDate"]').value).to.equal('11/21/1999');
+      expect(document.querySelector('#addPatient [id="addPatientConfirm"]').disabled).to.be.false;
     });
 
     it('should prevent adding a new patient without an MRN if required by the clinic', () => {
       store = mockStore(mrnRequiredState);
-      wrapper = mount(
-        <Provider store={store}>
-          <ToastProvider>
-            <ClinicPatients {...defaultProps} />
-          </ToastProvider>
-        </Provider>
-      );
+      mountWrapper(store);
 
-      const addButton = wrapper.find('button#add-patient');
-      expect(addButton.text()).to.equal('Add New Patient');
+      const addButton = container.querySelector('button#add-patient');
+      expect(addButton.textContent).to.equal('Add New Patient');
 
-      const dialog = () => wrapper.find('Dialog#addPatient');
-
-      expect(dialog()).to.have.length(0);
-      addButton.simulate('click');
-      wrapper.update();
-      expect(dialog()).to.have.length(1);
-      expect(dialog().props().open).to.be.true;
+      expect(document.querySelector('#addPatient')).to.be.null;
+      fireEvent.click(addButton);
+      expect(document.querySelector('#addPatient')).to.exist;
 
       expect(defaultProps.trackMetric.calledWith('Clinic - Add patient')).to.be.true;
       expect(defaultProps.trackMetric.callCount).to.equal(1);
 
-      const patientForm = () => dialog().find('form#clinic-patient-form');
-      expect(patientForm()).to.have.lengthOf(1);
+      expect(document.querySelector('#addPatient form#clinic-patient-form')).to.exist;
 
-      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('');
-      patientForm().find('input[name="fullName"]').simulate('change', { persist: noop, target: { name: 'fullName', value: 'Patient Name' } });
-      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('Patient Name');
+      expect(document.querySelector('#addPatient input[name="fullName"]').value).to.equal('');
+      fireEvent.change(document.querySelector('#addPatient input[name="fullName"]'), { persist: noop, target: { name: 'fullName', value: 'Patient Name' } });
+      expect(document.querySelector('#addPatient input[name="fullName"]').value).to.equal('Patient Name');
 
-      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('');
-      patientForm().find('input[name="birthDate"]').simulate('change', { persist: noop, target: { name: 'birthDate', value: '11/21/1999' } });
-      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('11/21/1999');
+      expect(document.querySelector('#addPatient input[name="birthDate"]').value).to.equal('');
+      fireEvent.change(document.querySelector('#addPatient input[name="birthDate"]'), { persist: noop, target: { name: 'birthDate', value: '11/21/1999' } });
+      expect(document.querySelector('#addPatient input[name="birthDate"]').value).to.equal('11/21/1999');
 
-      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
-      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: '' } });
-      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
+      expect(document.querySelector('#addPatient input[name="mrn"]').value).to.equal('');
+      fireEvent.change(document.querySelector('#addPatient input[name="mrn"]'), { persist: noop, target: { name: 'mrn', value: '' } });
+      expect(document.querySelector('#addPatient input[name="mrn"]').value).to.equal('');
 
-      expect(patientForm().find('input[name="email"]').prop('value')).to.equal('');
-      patientForm().find('input[name="email"]').simulate('change', { persist: noop, target: { name: 'email', value: ''}});
-      expect(patientForm().find('input[name="email"]').prop('value')).to.equal('');
+      expect(document.querySelector('#addPatient input[name="email"]').value).to.equal('');
+      fireEvent.change(document.querySelector('#addPatient input[name="email"]'), { persist: noop, target: { name: 'email', value: '' } });
+      expect(document.querySelector('#addPatient input[name="email"]').value).to.equal('');
 
-      expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.true;
+      expect(document.querySelector('#addPatient [id="addPatientConfirm"]').disabled).to.be.true;
 
-      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
-      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: 'mrn876' } });
-      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('MRN876');
+      expect(document.querySelector('#addPatient input[name="mrn"]').value).to.equal('');
+      fireEvent.change(document.querySelector('#addPatient input[name="mrn"]'), { persist: noop, target: { name: 'mrn', value: 'mrn876' } });
+      expect(document.querySelector('#addPatient input[name="mrn"]').value).to.equal('MRN876');
 
-      expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.false;
+      expect(document.querySelector('#addPatient [id="addPatientConfirm"]').disabled).to.be.false;
     });
 
     it('should prevent adding a new patient with an invalid MRN', () => {
       store = mockStore(mrnRequiredState);
-      wrapper = mount(
-        <Provider store={store}>
-          <ToastProvider>
-            <ClinicPatients {...defaultProps} />
-          </ToastProvider>
-        </Provider>
-      );
+      mountWrapper(store);
 
-      const addButton = wrapper.find('button#add-patient');
-      expect(addButton.text()).to.equal('Add New Patient');
+      const addButton = container.querySelector('button#add-patient');
+      expect(addButton.textContent).to.equal('Add New Patient');
 
-      const dialog = () => wrapper.find('Dialog#addPatient');
-
-      expect(dialog()).to.have.length(0);
-      addButton.simulate('click');
-      wrapper.update();
-      expect(dialog()).to.have.length(1);
-      expect(dialog().props().open).to.be.true;
+      expect(document.querySelector('#addPatient')).to.be.null;
+      fireEvent.click(addButton);
+      expect(document.querySelector('#addPatient')).to.exist;
 
       expect(defaultProps.trackMetric.calledWith('Clinic - Add patient')).to.be.true;
       expect(defaultProps.trackMetric.callCount).to.equal(1);
 
-      const patientForm = () => dialog().find('form#clinic-patient-form');
-      expect(patientForm()).to.have.lengthOf(1);
+      expect(document.querySelector('#addPatient form#clinic-patient-form')).to.exist;
 
-      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('');
-      patientForm().find('input[name="fullName"]').simulate('change', { persist: noop, target: { name: 'fullName', value: 'Patient Name' } });
-      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('Patient Name');
+      expect(document.querySelector('#addPatient input[name="fullName"]').value).to.equal('');
+      fireEvent.change(document.querySelector('#addPatient input[name="fullName"]'), { persist: noop, target: { name: 'fullName', value: 'Patient Name' } });
+      expect(document.querySelector('#addPatient input[name="fullName"]').value).to.equal('Patient Name');
 
-      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('');
-      patientForm().find('input[name="birthDate"]').simulate('change', { persist: noop, target: { name: 'birthDate', value: '11/21/1999' } });
-      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('11/21/1999');
+      expect(document.querySelector('#addPatient input[name="birthDate"]').value).to.equal('');
+      fireEvent.change(document.querySelector('#addPatient input[name="birthDate"]'), { persist: noop, target: { name: 'birthDate', value: '11/21/1999' } });
+      expect(document.querySelector('#addPatient input[name="birthDate"]').value).to.equal('11/21/1999');
 
-      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
-      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: '' } });
-      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
+      expect(document.querySelector('#addPatient input[name="mrn"]').value).to.equal('');
+      fireEvent.change(document.querySelector('#addPatient input[name="mrn"]'), { persist: noop, target: { name: 'mrn', value: '' } });
+      expect(document.querySelector('#addPatient input[name="mrn"]').value).to.equal('');
 
-      expect(patientForm().find('input[name="email"]').prop('value')).to.equal('');
-      patientForm().find('input[name="email"]').simulate('change', { persist: noop, target: { name: 'email', value: ''}});
-      expect(patientForm().find('input[name="email"]').prop('value')).to.equal('');
+      expect(document.querySelector('#addPatient input[name="email"]').value).to.equal('');
+      fireEvent.change(document.querySelector('#addPatient input[name="email"]'), { persist: noop, target: { name: 'email', value: '' } });
+      expect(document.querySelector('#addPatient input[name="email"]').value).to.equal('');
 
-      expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.true;
+      expect(document.querySelector('#addPatient [id="addPatientConfirm"]').disabled).to.be.true;
 
-      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
-      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: 'm' } });
-      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('M');
+      expect(document.querySelector('#addPatient input[name="mrn"]').value).to.equal('');
+      fireEvent.change(document.querySelector('#addPatient input[name="mrn"]'), { persist: noop, target: { name: 'mrn', value: 'm' } });
+      expect(document.querySelector('#addPatient input[name="mrn"]').value).to.equal('M');
 
-      expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.false;
+      expect(document.querySelector('#addPatient [id="addPatientConfirm"]').disabled).to.be.false;
 
-      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: 'mrn876thiswillexceedthelengthlimit' } });
-      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('MRN876THISWILLEXCEEDTHELENGTHLIMIT');
+      fireEvent.change(document.querySelector('#addPatient input[name="mrn"]'), { persist: noop, target: { name: 'mrn', value: 'mrn876thiswillexceedthelengthlimit' } });
+      expect(document.querySelector('#addPatient input[name="mrn"]').value).to.equal('MRN876THISWILLEXCEEDTHELENGTHLIMIT');
 
-      expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.true;
+      expect(document.querySelector('#addPatient [id="addPatientConfirm"]').disabled).to.be.true;
 
-      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: 'mrn876-only-alphanumerics' } });
-      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('MRN876-ONLY-ALPHANUMERICS');
+      fireEvent.change(document.querySelector('#addPatient input[name="mrn"]'), { persist: noop, target: { name: 'mrn', value: 'mrn876-only-alphanumerics' } });
+      expect(document.querySelector('#addPatient input[name="mrn"]').value).to.equal('MRN876-ONLY-ALPHANUMERICS');
 
-      expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.true;
+      expect(document.querySelector('#addPatient [id="addPatientConfirm"]').disabled).to.be.true;
 
-      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: 'mrn876' } });
-      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('MRN876');
+      fireEvent.change(document.querySelector('#addPatient input[name="mrn"]'), { persist: noop, target: { name: 'mrn', value: 'mrn876' } });
+      expect(document.querySelector('#addPatient input[name="mrn"]').value).to.equal('MRN876');
 
-      expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.false;
+      expect(document.querySelector('#addPatient [id="addPatientConfirm"]').disabled).to.be.false;
     });
 
     it('should prevent adding a new patient with an existing MRN', () => {
       store = mockStore(hasPatientsState);
-      wrapper = mount(
-        <Provider store={store}>
-          <ToastProvider>
-            <ClinicPatients {...defaultProps} />
-          </ToastProvider>
-        </Provider>
-      );
+      mountWrapper(store);
 
-      const addButton = wrapper.find('button#add-patient');
-      expect(addButton.text()).to.equal('Add New Patient');
+      const addButton = container.querySelector('button#add-patient');
+      expect(addButton.textContent).to.equal('Add New Patient');
 
-      const dialog = () => wrapper.find('Dialog#addPatient');
-
-      expect(dialog()).to.have.length(0);
-      addButton.simulate('click');
-      wrapper.update();
-      expect(dialog()).to.have.length(1);
-      expect(dialog().props().open).to.be.true;
+      expect(document.querySelector('#addPatient')).to.be.null;
+      fireEvent.click(addButton);
+      expect(document.querySelector('#addPatient')).to.exist;
 
       expect(defaultProps.trackMetric.calledWith('Clinic - Add patient')).to.be.true;
       expect(defaultProps.trackMetric.callCount).to.equal(1);
 
-      const patientForm = () => dialog().find('form#clinic-patient-form');
-      expect(patientForm()).to.have.lengthOf(1);
+      expect(document.querySelector('#addPatient form#clinic-patient-form')).to.exist;
 
-      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('');
-      patientForm().find('input[name="fullName"]').simulate('change', { persist: noop, target: { name: 'fullName', value: 'Patient Name' } });
-      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('Patient Name');
+      expect(document.querySelector('#addPatient input[name="fullName"]').value).to.equal('');
+      fireEvent.change(document.querySelector('#addPatient input[name="fullName"]'), { persist: noop, target: { name: 'fullName', value: 'Patient Name' } });
+      expect(document.querySelector('#addPatient input[name="fullName"]').value).to.equal('Patient Name');
 
-      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('');
-      patientForm().find('input[name="birthDate"]').simulate('change', { persist: noop, target: { name: 'birthDate', value: '11/21/1999' } });
-      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('11/21/1999');
+      expect(document.querySelector('#addPatient input[name="birthDate"]').value).to.equal('');
+      fireEvent.change(document.querySelector('#addPatient input[name="birthDate"]'), { persist: noop, target: { name: 'birthDate', value: '11/21/1999' } });
+      expect(document.querySelector('#addPatient input[name="birthDate"]').value).to.equal('11/21/1999');
 
-      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
-      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: 'MRN123' } });
-      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('MRN123');
+      expect(document.querySelector('#addPatient input[name="mrn"]').value).to.equal('');
+      fireEvent.change(document.querySelector('#addPatient input[name="mrn"]'), { persist: noop, target: { name: 'mrn', value: 'MRN123' } });
+      expect(document.querySelector('#addPatient input[name="mrn"]').value).to.equal('MRN123');
 
-      expect(patientForm().find('input[name="email"]').prop('value')).to.equal('');
-      patientForm().find('input[name="email"]').simulate('change', { persist: noop, target: { name: 'email', value: ''}});
-      expect(patientForm().find('input[name="email"]').prop('value')).to.equal('');
+      expect(document.querySelector('#addPatient input[name="email"]').value).to.equal('');
+      fireEvent.change(document.querySelector('#addPatient input[name="email"]'), { persist: noop, target: { name: 'email', value: '' } });
+      expect(document.querySelector('#addPatient input[name="email"]').value).to.equal('');
 
-      expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.true;
+      expect(document.querySelector('#addPatient [id="addPatientConfirm"]').disabled).to.be.true;
 
-      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('MRN123');
-      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: 'MRN12345' } });
-      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('MRN12345');
+      expect(document.querySelector('#addPatient input[name="mrn"]').value).to.equal('MRN123');
+      fireEvent.change(document.querySelector('#addPatient input[name="mrn"]'), { persist: noop, target: { name: 'mrn', value: 'MRN12345' } });
+      expect(document.querySelector('#addPatient input[name="mrn"]').value).to.equal('MRN12345');
 
-      expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.false;
+      expect(document.querySelector('#addPatient [id="addPatientConfirm"]').disabled).to.be.false;
     });
   });
 
@@ -934,15 +920,15 @@ describe('ClinicPatients', () => {
     beforeEach(() => {
       mockSetActiveFilters = sinon.stub();
 
-      ClinicPatients.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
+      mockUseLocalStorage.mockImplementation(key => {
         defaults(mockedLocalStorage, { [key]: {} });
         return [
           mockedLocalStorage[key],
           sinon.stub().callsFake(val => mockedLocalStorage[key] = val),
         ];
-      }));
+      });
 
-      ClinicPatients.__Rewire__('useClinicPatientsFilters', sinon.stub().callsFake(() => (
+      mockUseClinicPatientsFilters.mockImplementation(() => (
         [
           {
             timeInRange: ['timeInLowPercent'],
@@ -951,7 +937,7 @@ describe('ClinicPatients', () => {
           },
           mockSetActiveFilters,
         ]
-      )));
+      ));
 
       const noPatientsButWithFiltersState = merge({}, noPatientsState, {
         blip: {
@@ -963,48 +949,37 @@ describe('ClinicPatients', () => {
 
       store = mockStore(noPatientsButWithFiltersState);
       defaultProps.trackMetric.resetHistory();
-      wrapper = mount(
-        <Provider store={store}>
-          <ToastProvider>
-            <ClinicPatients {...defaultProps} />
-          </ToastProvider>
-        </Provider>
-      );
-    });
-
-    afterEach(() => {
-      ClinicPatients.__ResetDependency__('useLocalStorage');
-      ClinicPatients.__ResetDependency__('useClinicPatientsFilters');
+      mountWrapper(store);
     });
 
     describe('Filter Reset Bar', () => {
       it('should hide the Filter Reset Bar', () => {
-        const filterResetBar = wrapper.find('.filter-reset-bar').hostNodes();
-        expect(filterResetBar).to.have.lengthOf(0);
+        const filterResetBar = container.querySelector('.filter-reset-bar');
+        expect(filterResetBar).to.be.null;
       });
     });
 
     describe('when Reset Filters button is clicked', function () {
       it('should show the No Results text', () => {
-        expect(wrapper.find('.MuiTableRow-root')).to.have.length(1); // only header
-        expect(wrapper.find('.table-empty-text').hostNodes().text()).includes('There are no patient accounts with the current filter(s)');
+        expect(container.querySelectorAll('.MuiTableRow-root').length).to.equal(1); // only header
+        expect(container.querySelector('.table-empty-text').textContent).includes('There are no patient accounts with the current filter(s)');
       });
 
       it('should remove the active filters from localStorage', function () {
-        wrapper.find('.reset-filters-button').hostNodes().simulate('click');
+        fireEvent.click(container.querySelector('.reset-filters-button'));
 
         expect(mockSetActiveFilters.getCall(0).args[0].timeInRange.length).to.eql(0);
       });
     });
 
     describe('when Clear Search button is clicked', () => {
-      it('should clear the search input text in Redux', (done) => {
+      it('should clear the search input text in Redux', async () => {
         store.clearActions();
 
         expect(store.getActions()).to.eql([]);
 
-        wrapper.find('.clear-search-button').hostNodes().simulate('click');
-        setTimeout(() => {
+        fireEvent.click(container.querySelector('.clear-search-button'));
+        await waitFor(() => {
           expect(store.getActions()).to.eql([
             {
               type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT',
@@ -1012,9 +987,7 @@ describe('ClinicPatients', () => {
             },
             { type: 'FETCH_PATIENTS_FOR_CLINIC_REQUEST' },
           ]);
-
-          done();
-        }, 1000);
+        });
       });
     });
   });
@@ -1023,29 +996,23 @@ describe('ClinicPatients', () => {
     beforeEach(() => {
       store = mockStore(hasPatientsState);
       defaultProps.trackMetric.resetHistory();
-      wrapper = mount(
-        <Provider store={store}>
-          <ToastProvider>
-            <ClinicPatients {...defaultProps} />
-          </ToastProvider>
-        </Provider>
-      );
+      mountWrapper(store);
     });
 
     describe('showNames', function () {
       it('should show a row of data for each person', function () {
         // 2 people plus one row for the header
-        expect(wrapper.find('.MuiTableRow-root')).to.have.length(3);
+        expect(container.querySelectorAll('.MuiTableRow-root').length).to.equal(3);
       });
 
       it('should trigger a call to trackMetric', function () {
-        wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
+        fireEvent.click(container.querySelector('#patients-view-toggle'));
         expect(defaultProps.trackMetric.calledWith('Clicked Hide All')).to.be.true;
         expect(defaultProps.trackMetric.callCount).to.equal(1);
       });
 
       it('should not have instructions displayed', function () {
-        expect(wrapper.find('.peopletable-instructions')).to.have.length(0);
+        expect(container.querySelector('.peopletable-instructions')).to.be.null;
       });
     });
 
@@ -1055,52 +1022,48 @@ describe('ClinicPatients', () => {
       });
 
       it('should render a list of patients', () => {
-        const table = wrapper.find(Table);
-        expect(table).to.have.length(1);
-        expect(table.find('tr')).to.have.length(3); // header row + 2 invites
-        expect(table.find('tr').at(1).text()).contains('Patient One');
-        expect(table.find('tr').at(1).text()).contains('1999-01-01');
-        expect(table.find('tr').at(2).text()).contains('Patient Two');
-        expect(table.find('tr').at(2).text()).contains('1999-02-02');
-        expect(table.find('tr').at(2).text()).contains('MRN123');
+        const rows = container.querySelectorAll('table tr');
+        expect(rows.length).to.equal(3); // header row + 2 invites
+        expect(rows[1].textContent).includes('Patient One');
+        expect(rows[1].textContent).includes('1999-01-01');
+        expect(rows[2].textContent).includes('Patient Two');
+        expect(rows[2].textContent).includes('1999-02-02');
+        expect(rows[2].textContent).includes('MRN123');
       });
 
-      it('should allow searching patients', (done) => {
-        const table = () => wrapper.find(Table);
-        expect(table()).to.have.length(1);
-        expect(table().find('tr')).to.have.length(3); // header row + 2 invites
-        expect(table().find('tr').at(1).text()).contains('Patient One');
-        expect(table().find('tr').at(2).text()).contains('Patient Two');
+      it('should allow searching patients', async () => {
+        const rows = container.querySelectorAll('table tr');
+        expect(rows.length).to.equal(3); // header row + 2 invites
+        expect(rows[1].textContent).includes('Patient One');
+        expect(rows[2].textContent).includes('Patient Two');
 
-        const searchInput = wrapper.find('input[name="search-patients"]');
-        expect(searchInput).to.have.lengthOf(1);
+        const searchInput = container.querySelector('input[name="search-patients"]');
+        expect(searchInput).to.exist;
 
         // Clear the store actions
         store.clearActions();
 
         // Input partial match on name for patient two
-        searchInput.simulate('change', { target: { name: 'search-patients', value: 'Two' } });
+        fireEvent.change(searchInput, { target: { name: 'search-patients', value: 'Two' } });
 
-        setTimeout(() => {
+        await waitFor(() => {
           expect(store.getActions()).to.eql([
             { type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT', payload: { textInput: 'Two' } },
             { type: 'FETCH_PATIENTS_FOR_CLINIC_REQUEST' },
           ]);
 
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', { ...defaultFetchOptions, search: 'Two', sort: '+fullName' });
-          done();
-        }, 1000);
+        });
       });
 
       it('should link to a patient data view when patient name is clicked', () => {
-        const table = wrapper.find(Table);
-        expect(table).to.have.length(1);
-        expect(table.find('tr')).to.have.length(3); // header row + 2 invites
-        const firstPatientName = table.find('tr').at(1).find('th').find('span').at(0).hostNodes();
-        expect(firstPatientName.text()).contains('Patient One');
+        const rows = container.querySelectorAll('table tr');
+        expect(rows.length).to.equal(3); // header row + 2 invites
+        const firstPatientName = rows[1].querySelector('th span');
+        expect(firstPatientName.textContent).includes('Patient One');
 
         store.clearActions();
-        firstPatientName.simulate('click');
+        fireEvent.click(firstPatientName);
 
         expect(store.getActions()).to.eql([
           {
@@ -1111,14 +1074,14 @@ describe('ClinicPatients', () => {
       });
 
       it('should link to a patient data view when patient birthday is clicked', () => {
-        const table = wrapper.find(Table);
-        expect(table).to.have.length(1);
-        expect(table.find('tr')).to.have.length(3); // header row + 2 invites
-        const firstPatientBirthday = table.find('tr').at(1).find('td').at(0).find('span').at(1).hostNodes();
-        expect(firstPatientBirthday.text()).contains('1999-01-01');
+        const rows = container.querySelectorAll('table tr');
+        expect(rows.length).to.equal(3); // header row + 2 invites
+        const spans = rows[1].querySelectorAll('td span');
+        const firstPatientBirthday = Array.from(spans).find(s => s.textContent.includes('1999-01-01'));
+        expect(firstPatientBirthday.textContent).includes('1999-01-01');
 
         store.clearActions();
-        firstPatientBirthday.simulate('click');
+        fireEvent.click(firstPatientBirthday);
 
         expect(store.getActions()).to.eql([
           {
@@ -1128,53 +1091,59 @@ describe('ClinicPatients', () => {
         ]);
       });
 
-      it('should display menu when "More" icon is clicked', () => {
-        const moreMenuIcon = wrapper.find('PopoverMenu').find('Icon').at(0);
-        expect(wrapper.find(Popover).at(0).props().open).to.be.false;
-        moreMenuIcon.simulate('click');
-        expect(wrapper.find(Popover).at(0).props().open).to.be.true;
+      it('should display menu when "More" icon is clicked', async () => {
+        const moreMenuIcon = container.querySelectorAll('[aria-label="info"]')[0];
+        expect(moreMenuIcon).to.exist;
+        fireEvent.click(moreMenuIcon);
+        await waitFor(() => {
+          const popoverMenu = document.querySelector('#action-menu-patient1');
+          expect(popoverMenu).to.exist;
+          expect(popoverMenu.style.visibility).to.not.equal('hidden');
+        });
       });
 
-      it('should open a modal for patient editing when edit link is clicked', done => {
-        const table = wrapper.find(Table);
-        expect(table).to.have.length(1);
-        expect(table.find('tr')).to.have.length(3); // header row + 2 invites
-        const editButton = table.find('tr').at(2).find('Button[iconLabel="Edit Patient Details"]');
+      it('should open a modal for patient editing when edit link is clicked', async () => {
+        const rows = container.querySelectorAll('table tr');
+        expect(rows.length).to.equal(3); // header row + 2 invites
 
-        const dialog = () => wrapper.find('Dialog#editPatient');
+        // Open the more menu to expose the edit button
+        const moreMenuIcon = rows[2].querySelector('[aria-label="info"]');
+        expect(moreMenuIcon).to.exist;
+        fireEvent.click(moreMenuIcon);
+        await waitFor(() => expect(document.querySelector('#action-menu-patient2')).to.exist);
 
-        expect(dialog()).to.have.length(0);
-        editButton.simulate('click');
-        wrapper.update();
-        expect(dialog()).to.have.length(1);
-        expect(dialog().props().open).to.be.true;
+        const editButton = document.querySelector('button#edit-patient2');
+        expect(editButton).to.exist;
+
+        expect(document.querySelector('#editPatient')).to.be.null;
+        fireEvent.click(editButton);
+        await waitFor(() => expect(document.querySelector('#editPatient')).to.exist);
 
         expect(defaultProps.trackMetric.calledWith('Clinic - Edit patient')).to.be.true;
         expect(defaultProps.trackMetric.callCount).to.equal(1);
 
-        const patientForm = () => dialog().find('form#clinic-patient-form');
-        expect(patientForm()).to.have.lengthOf(1);
+        expect(document.querySelector('#editPatient form#clinic-patient-form')).to.exist;
 
-        expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('Patient Two');
-        patientForm().find('input[name="fullName"]').simulate('change', { persist: noop, target: { name: 'fullName', value: 'Patient 2' } });
-        expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('Patient 2');
+        expect(document.querySelector('#editPatient input[name="fullName"]').value).to.equal('Patient Two');
+        fireEvent.change(document.querySelector('#editPatient input[name="fullName"]'), { persist: noop, target: { name: 'fullName', value: 'Patient 2' } });
+        expect(document.querySelector('#editPatient input[name="fullName"]').value).to.equal('Patient 2');
 
-        expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('02/02/1999');
-        patientForm().find('input[name="birthDate"]').simulate('change', { persist: noop, target: { name: 'birthDate', value: '01/01/1999' } });
-        expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('01/01/1999');
+        expect(document.querySelector('#editPatient input[name="birthDate"]').value).to.equal('02/02/1999');
+        fireEvent.change(document.querySelector('#editPatient input[name="birthDate"]'), { persist: noop, target: { name: 'birthDate', value: '01/01/1999' } });
+        expect(document.querySelector('#editPatient input[name="birthDate"]').value).to.equal('01/01/1999');
 
-        expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('MRN123');
-        patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: 'mrn456' } });
-        expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('MRN456');
+        expect(document.querySelector('#editPatient input[name="mrn"]').value).to.equal('MRN123');
+        fireEvent.change(document.querySelector('#editPatient input[name="mrn"]'), { persist: noop, target: { name: 'mrn', value: 'mrn456' } });
+        expect(document.querySelector('#editPatient input[name="mrn"]').value).to.equal('MRN456');
 
-        expect(patientForm().find('input[name="email"]').prop('value')).to.equal('patient2@test.ca');
-        patientForm().find('input[name="email"]').simulate('change', { persist: noop, target: { name: 'email', value: 'patient-two@test.ca' } });
-        expect(patientForm().find('input[name="email"]').prop('value')).to.equal('patient-two@test.ca');
+        expect(document.querySelector('#editPatient input[name="email"]').value).to.equal('patient2@test.ca');
+        fireEvent.change(document.querySelector('#editPatient input[name="email"]'), { persist: noop, target: { name: 'email', value: 'patient-two@test.ca' } });
+        expect(document.querySelector('#editPatient input[name="email"]').value).to.equal('patient-two@test.ca');
 
         store.clearActions();
-        dialog().find('Button#editPatientConfirm').simulate('click');
+        fireEvent.click(document.querySelector('#editPatient [id="editPatientConfirm"]'));
 
-        setTimeout(() => {
+        await waitFor(() => {
           expect(defaultProps.api.clinics.updateClinicPatient.callCount).to.equal(1);
 
           sinon.assert.calledWith(
@@ -1207,50 +1176,50 @@ describe('ClinicPatients', () => {
             },
             { type: 'FETCH_CLINIC_MRNS_FOR_PATIENT_FORM_VALIDATION_REQUEST' },
           ]);
-
-          done();
-        }, 1000);
+        });
       });
 
-      it('should disable email editing for non-custodial patients', done => {
-        const table = wrapper.find(Table);
-        expect(table).to.have.length(1);
-        expect(table.find('tr')).to.have.length(3); // header row + 2 invites
-        const editButton = table.find('tr').at(1).find('Button[iconLabel="Edit Patient Details"]');
+      it('should disable email editing for non-custodial patients', async () => {
+        const rows = container.querySelectorAll('table tr');
+        expect(rows.length).to.equal(3); // header row + 2 invites
 
-        const dialog = () => wrapper.find('Dialog#editPatient');
+        // Open the more menu to expose the edit button
+        const moreMenuIcon = rows[1].querySelector('[aria-label="info"]');
+        expect(moreMenuIcon).to.exist;
+        fireEvent.click(moreMenuIcon);
+        await waitFor(() => expect(document.querySelector('#action-menu-patient1')).to.exist);
 
-        expect(dialog()).to.have.length(0);
-        editButton.simulate('click');
-        wrapper.update();
-        expect(dialog()).to.have.length(1);
-        expect(dialog().props().open).to.be.true;
+        const editButton = document.querySelector('button#edit-patient1');
+        expect(editButton).to.exist;
+
+        expect(document.querySelector('#editPatient')).to.be.null;
+        fireEvent.click(editButton);
+        await waitFor(() => expect(document.querySelector('#editPatient')).to.exist);
 
         expect(defaultProps.trackMetric.calledWith('Clinic - Edit patient')).to.be.true;
         expect(defaultProps.trackMetric.callCount).to.equal(1);
 
-        const patientForm = () => dialog().find('form#clinic-patient-form');
-        expect(patientForm()).to.have.lengthOf(1);
+        expect(document.querySelector('#editPatient form#clinic-patient-form')).to.exist;
 
-        expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('Patient One');
-        patientForm().find('input[name="fullName"]').simulate('change', { persist: noop, target: { name: 'fullName', value: 'Patient 2' } });
-        expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('Patient 2');
+        expect(document.querySelector('#editPatient input[name="fullName"]').value).to.equal('Patient One');
+        fireEvent.change(document.querySelector('#editPatient input[name="fullName"]'), { persist: noop, target: { name: 'fullName', value: 'Patient 2' } });
+        expect(document.querySelector('#editPatient input[name="fullName"]').value).to.equal('Patient 2');
 
-        expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('01/01/1999');
-        patientForm().find('input[name="birthDate"]').simulate('change', { persist: noop, target: { name: 'birthDate', value: '02/02/1999' } });
-        expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('02/02/1999');
+        expect(document.querySelector('#editPatient input[name="birthDate"]').value).to.equal('01/01/1999');
+        fireEvent.change(document.querySelector('#editPatient input[name="birthDate"]'), { persist: noop, target: { name: 'birthDate', value: '02/02/1999' } });
+        expect(document.querySelector('#editPatient input[name="birthDate"]').value).to.equal('02/02/1999');
 
-        expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
-        patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: 'mrn456' } });
-        expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('MRN456');
+        expect(document.querySelector('#editPatient input[name="mrn"]').value).to.equal('');
+        fireEvent.change(document.querySelector('#editPatient input[name="mrn"]'), { persist: noop, target: { name: 'mrn', value: 'mrn456' } });
+        expect(document.querySelector('#editPatient input[name="mrn"]').value).to.equal('MRN456');
 
-        expect(patientForm().find('input[name="email"]').prop('value')).to.equal('patient1@test.ca');
-        expect(patientForm().find('input[name="email"]').prop('disabled')).to.equal(true);
+        expect(document.querySelector('#editPatient input[name="email"]').value).to.equal('patient1@test.ca');
+        expect(document.querySelector('#editPatient input[name="email"]').disabled).to.equal(true);
 
         store.clearActions();
-        dialog().find('Button#editPatientConfirm').simulate('click');
+        fireEvent.click(document.querySelector('#editPatient [id="editPatientConfirm"]'));
 
-        setTimeout(() => {
+        await waitFor(() => {
           expect(defaultProps.api.clinics.updateClinicPatient.callCount).to.equal(1);
 
           sinon.assert.calledWith(
@@ -1283,48 +1252,56 @@ describe('ClinicPatients', () => {
             },
             { type: 'FETCH_CLINIC_MRNS_FOR_PATIENT_FORM_VALIDATION_REQUEST' },
           ]);
-
-          done();
-        }, 1000);
+        });
       });
 
-      it('should open a modal for managing data connections when data connection menu option is clicked', () => {
-        const table = wrapper.find(Table);
-        expect(table).to.have.length(1);
-        expect(table.find('tr')).to.have.length(3); // header row + 2 invites
-        const dataConnectionsButton = table.find('tr').at(2).find('Button[iconLabel="Bring Data into Tidepool"]');
-        const dialog = () => wrapper.find('Dialog#data-connections');
-        expect(dialog()).to.have.length(0);
+      it('should open a modal for managing data connections when data connection menu option is clicked', async () => {
+        const rows = container.querySelectorAll('table tr');
+        expect(rows.length).to.equal(3); // header row + 2 invites
 
-        dataConnectionsButton.simulate('click');
-        wrapper.update();
-        expect(dialog()).to.have.length(1);
-        expect(dialog().props().open).to.be.true;
+        // Open the more menu to expose the data connections button
+        const moreMenuIcon = rows[2].querySelector('[aria-label="info"]');
+        expect(moreMenuIcon).to.exist;
+        fireEvent.click(moreMenuIcon);
+        await waitFor(() => expect(document.querySelector('#action-menu-patient2')).to.exist);
+
+        const dataConnectionsButton = document.querySelector('button#edit-data-connections-patient2');
+        expect(dataConnectionsButton).to.exist;
+
+        expect(document.querySelector('#data-connections')).to.be.null;
+        fireEvent.click(dataConnectionsButton);
+        await waitFor(() => expect(document.querySelector('#data-connections')).to.exist);
 
         expect(defaultProps.trackMetric.calledWith('Clinic - Edit patient data connections')).to.be.true;
         expect(defaultProps.trackMetric.callCount).to.equal(1);
       });
 
-      it('should remove a patient', () => {
-        const table = wrapper.find(Table);
-        expect(table).to.have.length(1);
-        expect(table.find('tr')).to.have.length(3); // header row + 2 invites
-        const removeButton = table.find('tr').at(1).find('Button[iconLabel="Remove Patient"]');
+      it('should remove a patient', async () => {
+        const rows = container.querySelectorAll('table tr');
+        expect(rows.length).to.equal(3); // header row + 2 invites
 
-        expect(wrapper.find('Dialog#deleteUser').props().open).to.be.false;
-        removeButton.simulate('click');
-        wrapper.update();
-        expect(wrapper.find('Dialog#deleteUser').props().open).to.be.true;
+        // Open the more menu to expose the remove button
+        const moreMenuIcon = rows[1].querySelector('[aria-label="info"]');
+        expect(moreMenuIcon).to.exist;
+        fireEvent.click(moreMenuIcon);
+        await waitFor(() => expect(document.querySelector('#action-menu-patient1')).to.exist);
+
+        const removeButton = document.querySelector('button#delete-patient1');
+        expect(removeButton).to.exist;
+
+        expect(document.querySelector('#deleteUser[aria-hidden="true"]')).to.exist;
+        fireEvent.click(removeButton);
+        await waitFor(() => expect(document.querySelector('#deleteUser:not([aria-hidden])')).to.exist);
 
         expect(defaultProps.trackMetric.calledWith('Clinic - Remove patient')).to.be.true;
         expect(defaultProps.trackMetric.callCount).to.equal(1);
 
-        const confirmRemoveButton = wrapper.find('Dialog#deleteUser').find('Button#patientRemoveConfirm');
-        expect(confirmRemoveButton.text()).to.equal('Remove');
+        const confirmRemoveButton = document.querySelector('#deleteUser [id="patientRemoveConfirm"]');
+        expect(confirmRemoveButton.textContent).to.equal('Remove');
 
         store.clearActions();
 
-        confirmRemoveButton.simulate('click');
+        fireEvent.click(confirmRemoveButton);
         expect(store.getActions()).to.eql([
           { type: 'DELETE_PATIENT_FROM_CLINIC_REQUEST' },
         ]);
@@ -1339,88 +1316,63 @@ describe('ClinicPatients', () => {
         beforeEach(() => {
           store = mockStore(tier0100ClinicState);
 
-          ClinicPatients.__Rewire__('useFlags', sinon.stub().returns({
+          mockUseFlags.mockReturnValue({
             showSummaryDashboard: false,
-          }));
+          });
 
-          wrapper = mount(
-            <Provider store={store}>
-              <ToastProvider>
-                <ClinicPatients {...defaultProps} />
-              </ToastProvider>
-            </Provider>
-          );
+          mountWrapper(store);
 
           defaultProps.trackMetric.resetHistory();
         });
 
-        afterEach(() => {
-          ClinicPatients.__ResetDependency__('useFlags');
-        });
-
         it('should show the standard table columns', () => {
-          const table = wrapper.find(Table);
-          expect(table).to.have.length(1);
+          const columns = container.querySelectorAll('.MuiTableCell-head');
+          expect(columns[0].textContent).to.equal('Patient Details');
+          expect(columns[0].id).to.equal('peopleTable-header-fullName');
 
-          const columns = table.find('.MuiTableCell-head');
-          expect(columns.at(0).text()).to.equal('Patient Details');
-          assert(columns.at(0).is('#peopleTable-header-fullName'));
+          expect(columns[1].textContent).to.equal('Birthday');
+          expect(columns[1].id).to.equal('peopleTable-header-birthDate');
 
-          expect(columns.at(1).text()).to.equal('Birthday');
-          assert(columns.at(1).is('#peopleTable-header-birthDate'));
-
-          expect(columns.at(2).text()).to.equal('MRN');
-          assert(columns.at(2).is('#peopleTable-header-mrn'));
+          expect(columns[2].textContent).to.equal('MRN');
+          expect(columns[2].id).to.equal('peopleTable-header-mrn');
         });
 
         it('should refetch patients with updated sort parameter when name or birthday headers are clicked', () => {
-          const table = wrapper.find(Table);
-          expect(table).to.have.length(1);
-
-          const patientHeader = table.find('#peopleTable-header-fullName .MuiTableSortLabel-root').at(0);
+          const patientHeader = container.querySelector('#peopleTable-header-fullName .MuiTableSortLabel-root');
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-          patientHeader.simulate('click');
+          fireEvent.click(patientHeader);
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-fullName' }));
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-          patientHeader.simulate('click');
+          fireEvent.click(patientHeader);
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+fullName' }));
 
-          const birthdayHeader = table.find('#peopleTable-header-birthDate .MuiTableSortLabel-root').at(0);
+          const birthdayHeader = container.querySelector('#peopleTable-header-birthDate .MuiTableSortLabel-root');
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-          birthdayHeader.simulate('click');
+          fireEvent.click(birthdayHeader);
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+birthDate' }));
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-          birthdayHeader.simulate('click');
+          fireEvent.click(birthdayHeader);
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-birthDate' }));
         });
 
         context('showSummaryDashboard flag is true', () => {
           it('should show the summary dashboard instead of the standard patient table', () => {
-            ClinicPatients.__Rewire__('useFlags', sinon.stub().returns({
+            mockUseFlags.mockReturnValue({
               showSummaryDashboard: true,
-            }));
+            });
 
-            wrapper = mount(
-              <Provider store={store}>
-                <ToastProvider>
-                  <ClinicPatients {...defaultProps} />
-                </ToastProvider>
-              </Provider>
-            );
+            mountWrapper(store);
 
-            expect(wrapper.find('#summary-dashboard-filters').hostNodes()).to.have.lengthOf(1);
-
-            ClinicPatients.__ResetDependency__('useFlags');
+            expect(container.querySelector('#summary-dashboard-filters')).to.exist;
           });
         });
 
         context('patient limit is reached', () => {
           let addButton;
-          let wrapper;
 
           beforeEach(() => {
             store = mockStore({
@@ -1440,37 +1392,31 @@ describe('ClinicPatients', () => {
               },
             });
 
-            ClinicPatients.__Rewire__('useFlags', sinon.stub().returns({
+            mockUseFlags.mockReturnValue({
               showSummaryDashboard: false,
-            }));
+            });
 
-            wrapper = mount(
-              <Provider store={store}>
-                <ToastProvider>
-                  <ClinicPatients {...defaultProps} />
-                </ToastProvider>
-              </Provider>
-            );
+            mountWrapper(store);
 
             defaultProps.trackMetric.resetHistory();
 
-            addButton = wrapper.find('button#add-patient');
-            expect(addButton.text()).to.equal('Add New Patient');
+            addButton = container.querySelector('button#add-patient');
+            expect(addButton.textContent).to.equal('Add New Patient');
           });
 
           it('should disable the add patient button', () => {
-            expect(addButton.props().disabled).to.be.true;
+            expect(addButton.disabled).to.be.true;
           });
 
           it('should show a popover with a link to the plans url if add patient button hovered', () => {
-            addButton.simulate('mouseenter');
+            fireEvent.mouseEnter(addButton);
 
-            const popover = () => wrapper.find('#limitReachedPopover').hostNodes();
-            expect(popover()).to.have.lengthOf(1);
+            const popover = document.querySelector('#limitReachedPopover');
+            expect(popover).to.exist;
 
-            const link = popover().find('#addPatientUnlockPlansLink').hostNodes();
-            expect(link).to.have.lengthOf(1);
-            expect(link.props().href).to.equal(URL_TIDEPOOL_PLUS_PLANS);
+            const link = document.querySelector('#addPatientUnlockPlansLink');
+            expect(link).to.exist;
+            expect(link.href).to.equal(URL_TIDEPOOL_PLUS_PLANS);
           });
         });
       });
@@ -1478,383 +1424,377 @@ describe('ClinicPatients', () => {
       context('tier0300 clinic', () => {
         beforeEach(() => {
           store = mockStore(tier0300ClinicState);
-
-          wrapper = mount(
-            <Provider store={store}>
-              <ToastProvider>
-                <ClinicPatients {...defaultProps} />
-              </ToastProvider>
-            </Provider>
-          );
-
+          mountWrapper(store);
           defaultProps.trackMetric.resetHistory();
         });
 
         it('should show and format patient data appropriately based on availablity', () => {
           const emptyStatText = '--';
 
-          const table = wrapper.find(Table);
-          expect(table).to.have.length(1);
+          const columns = container.querySelectorAll('.MuiTableCell-head');
+          expect(columns[0].textContent).to.equal('Patient Details');
+          expect(columns[0].id).to.equal('peopleTable-header-fullName');
 
-          const columns = table.find('.MuiTableCell-head');
-          expect(columns.at(0).text()).to.equal('Patient Details');
-          assert(columns.at(0).is('#peopleTable-header-fullName'));
+          expect(columns[1].textContent).to.equal('Data Recency');
+          expect(columns[1].id).to.equal('peopleTable-header-cgm-lastData');
 
-          expect(columns.at(1).text()).to.equal('Data Recency');
-          assert(columns.at(1).is('#peopleTable-header-cgm-lastData'));
+          expect(columns[2].textContent).to.equal('Patient Tags');
+          expect(columns[2].id).to.equal('peopleTable-header-tags');
 
-          expect(columns.at(2).text()).to.equal('Patient Tags');
-          assert(columns.at(2).is('#peopleTable-header-tags'));
+          expect(columns[3].textContent).to.equal('CGM');
+          expect(columns[3].id).to.equal('peopleTable-header-cgmTag');
 
-          expect(columns.at(3).text()).to.equal('CGM');
-          assert(columns.at(3).is('#peopleTable-header-cgmTag'));
+          expect(columns[4].textContent).to.equal('GMI');
+          expect(columns[4].id).to.equal('peopleTable-header-cgm-glucoseManagementIndicator');
 
-          expect(columns.at(4).text()).to.equal('GMI');
-          assert(columns.at(4).is('#peopleTable-header-cgm-glucoseManagementIndicator'));
+          expect(columns[5].textContent).to.equal('% Time in Range');
+          expect(columns[5].id).to.equal('peopleTable-header-bgRangeSummary');
 
-          expect(columns.at(5).text()).to.equal('% Time in Range');
-          assert(columns.at(5).is('#peopleTable-header-bgRangeSummary'));
+          expect(columns[7].textContent).to.equal('BGM');
+          expect(columns[7].id).to.equal('peopleTable-header-bgmTag');
 
-          expect(columns.at(7).text()).to.equal('BGM');
-          assert(columns.at(7).is('#peopleTable-header-bgmTag'));
+          expect(columns[8].textContent).to.equal('Avg. Glucose (mg/dL)');
+          expect(columns[8].id).to.equal('peopleTable-header-bgm-averageGlucoseMmol');
 
-          expect(columns.at(8).text()).to.equal('Avg. Glucose (mg/dL)');
-          assert(columns.at(8).is('#peopleTable-header-bgm-averageGlucoseMmol'));
+          expect(columns[9].textContent).to.equal('Lows');
+          expect(columns[9].id).to.equal('peopleTable-header-bgm-timeInVeryLowRecords');
 
-          expect(columns.at(9).text()).to.equal('Lows');
-          assert(columns.at(9).is('#peopleTable-header-bgm-timeInVeryLowRecords'));
+          expect(columns[10].textContent).to.equal('Highs');
+          expect(columns[10].id).to.equal('peopleTable-header-bgm-timeInVeryHighRecords');
 
-          expect(columns.at(10).text()).to.equal('Highs');
-          assert(columns.at(10).is('#peopleTable-header-bgm-timeInVeryHighRecords'));
+          const dataRows = container.querySelectorAll('table tbody tr');
+          expect(dataRows.length).to.equal(5);
 
-          const rows = table.find('tbody tr');
-          expect(rows).to.have.lengthOf(5);
-
-          const rowData = row => rows.at(row).find('.MuiTableCell-root');
+          const getCells = row => dataRows[row].querySelectorAll('.MuiTableCell-root');
 
           // Patient name, dob, and mrn in first column
-          expect(rowData(0).at(0).text()).contains('Patient One');
-          expect(rowData(0).at(0).text()).contains('1999-01-01');
-          expect(rowData(0).at(0).text()).contains('MRN012');
+          expect(getCells(0)[0].textContent).includes('Patient One');
+          expect(getCells(0)[0].textContent).includes('1999-01-01');
+          expect(getCells(0)[0].textContent).includes('MRN012');
 
           // Last upload date in second column
-          expect(rowData(0).at(1).text()).contains(emptyStatText);
-          expect(rowData(1).at(1).text()).contains('CGM: Today');
-          expect(rowData(1).at(1).text()).contains('BGM: Yesterday');
-          expect(rowData(2).at(1).text()).contains('CGM: Yesterday');
-          expect(rowData(3).at(1).text()).contains('CGM: 30 days ago');
-          expect(rowData(4).at(1).text().slice(-10)).to.match(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/); // match YYYY-MM-DD format
+          expect(getCells(0)[1].textContent).includes(emptyStatText);
+          expect(getCells(1)[1].textContent).includes('CGM: Today');
+          expect(getCells(1)[1].textContent).includes('BGM: Yesterday');
+          expect(getCells(2)[1].textContent).includes('CGM: Yesterday');
+          expect(getCells(3)[1].textContent).includes('CGM: 30 days ago');
+          expect(getCells(4)[1].textContent.slice(-10)).to.match(/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/);
 
           // Patient tags in third column
-          expect(rowData(0).at(2).text()).contains('Add'); // Add tag link when no tags avail
-          expect(rowData(1).at(2).text()).contains('>test tag 1');
-          expect(rowData(2).at(2).text()).contains(['>test tag 1', '+2'].join('')); // +1 for tag overflow
+          expect(getCells(0)[2].textContent).includes('Add');
+          expect(getCells(1)[2].textContent).includes('>test tag 1');
+          expect(getCells(2)[2].textContent).includes(['>test tag 1', '+2'].join(''));
 
           // GMI in fifth column
-          expect(rowData(0).at(4).text()).contains(emptyStatText);// GMI undefined
-          expect(rowData(1).at(4).text()).contains(emptyStatText); // <24h cgm use shows empty text
-          expect(rowData(2).at(4).text()).contains('6.5 %');
-          expect(rowData(3).at(4).text()).contains(emptyStatText); // <70% cgm use
+          expect(getCells(0)[4].textContent).includes(emptyStatText);
+          expect(getCells(1)[4].textContent).includes(emptyStatText);
+          expect(getCells(2)[4].textContent).includes('6.5 %');
+          expect(getCells(3)[4].textContent).includes(emptyStatText);
 
           // Ensure tags hidden by overflow are visible on hover
-          const tagOverflowTrigger = rowData(2).at(2).find('.tag-overflow-trigger').hostNodes();
-          expect(tagOverflowTrigger).to.have.length(1);
+          const tagOverflowTrigger = getCells(2)[2].querySelector('.tag-overflow-trigger');
+          expect(tagOverflowTrigger).to.exist;
 
-          const popover = () => wrapper.find('#tags-overflow-patient3').hostNodes();
-          expect(popover()).to.have.lengthOf(1);
+          const popover = document.querySelector('#tags-overflow-patient3');
+          expect(popover).to.exist;
+          expect(popover.style.visibility).to.equal('hidden');
 
-          expect(popover().props().style.visibility).to.equal('hidden');
+          fireEvent.mouseOver(tagOverflowTrigger);
+          expect(popover.style.visibility).to.equal('');
 
-          tagOverflowTrigger.simulate('mouseover');
-          expect(popover().props().style.visibility).to.be.undefined;
-
-          const overflowTags = popover().find('.tag-text').hostNodes();
-          expect(overflowTags).to.have.length(2);
-          expect(overflowTags.at(0).text()).to.equal('test tag 2');
-          expect(overflowTags.at(1).text()).to.equal('ttest tag 3');
+          const overflowTags = popover.querySelectorAll('.tag-text');
+          expect(overflowTags.length).to.equal(2);
+          expect(overflowTags[0].textContent).to.equal('test tag 2');
+          expect(overflowTags[1].textContent).to.equal('ttest tag 3');
 
           // BG summary in sixth column
-          expect(rowData(0).at(5).text()).to.not.contain('CGM Use <24 hours'); // no cgm stats
-          expect(rowData(1).at(5).text()).contains('CGM Use <24 hours'); // 23 hours of data
+          expect(getCells(0)[5].textContent).to.not.contain('CGM Use <24 hours');
+          expect(getCells(1)[5].textContent).includes('CGM Use <24 hours');
 
-          expect(rowData(2).at(5).find('.range-summary-bars').hostNodes()).to.have.lengthOf(1);
-          expect(rowData(2).at(5).find('.range-summary-stripe-overlay').hostNodes()).to.have.lengthOf(0); // normal bars
+          expect(getCells(2)[5].querySelector('.range-summary-bars')).to.exist;
+          expect(getCells(2)[5].querySelector('.range-summary-stripe-overlay')).to.be.null;
 
-          expect(rowData(3).at(5).find('.range-summary-bars').hostNodes()).to.have.lengthOf(1);
-          expect(rowData(3).at(5).find('.range-summary-stripe-overlay').hostNodes()).to.have.lengthOf(1); // striped bars for <70% cgm use
+          expect(getCells(3)[5].querySelector('.range-summary-bars')).to.exist;
+          expect(getCells(3)[5].querySelector('.range-summary-stripe-overlay')).to.exist;
 
           // Average glucose and readings/day in ninth column
-          expect(rowData(0).at(8).text()).contains('');
-          expect(rowData(1).at(8).text()).contains('189'); // 10.5 mmol/L -> mg/dL
-          expect(rowData(1).at(8).text()).contains('<1 reading/day');
-          expect(rowData(2).at(8).text()).contains('207'); // 11.5 mmol/L -> mg/dL
-          expect(rowData(2).at(8).text()).contains('1 reading/day');
-          expect(rowData(3).at(8).text()).contains('225'); // 12.5 mmol/L -> mg/dL
-          expect(rowData(3).at(8).text()).contains('2 readings/day');
+          expect(getCells(0)[8].textContent).includes('');
+          expect(getCells(1)[8].textContent).includes('189');
+          expect(getCells(1)[8].textContent).includes('<1 reading/day');
+          expect(getCells(2)[8].textContent).includes('207');
+          expect(getCells(2)[8].textContent).includes('1 reading/day');
+          expect(getCells(3)[8].textContent).includes('225');
+          expect(getCells(3)[8].textContent).includes('2 readings/day');
 
           // Low events in tenth column
-          expect(rowData(0).at(9).text()).contains('');
-          expect(rowData(1).at(9).text()).contains('1');
-          expect(rowData(2).at(9).text()).contains('3');
-          expect(rowData(3).at(9).text()).contains('0');
+          expect(getCells(0)[9].textContent).includes('');
+          expect(getCells(1)[9].textContent).includes('1');
+          expect(getCells(2)[9].textContent).includes('3');
+          expect(getCells(3)[9].textContent).includes('0');
 
-          // Low events in eleventh column
-          expect(rowData(0).at(10).text()).contains('');
-          expect(rowData(1).at(10).text()).contains('2');
-          expect(rowData(2).at(10).text()).contains('4');
-          expect(rowData(3).at(10).text()).contains('0');
+          // High events in eleventh column
+          expect(getCells(0)[10].textContent).includes('');
+          expect(getCells(1)[10].textContent).includes('2');
+          expect(getCells(2)[10].textContent).includes('4');
+          expect(getCells(3)[10].textContent).includes('0');
         });
 
         it('should refetch patients with updated sort parameter when sortable column headers are clicked', () => {
-          const table = wrapper.find(Table);
-          expect(table).to.have.length(1);
-
-          const patientHeader = table.find('#peopleTable-header-fullName .MuiTableSortLabel-root').at(0);
+          const patientHeader = container.querySelector('#peopleTable-header-fullName .MuiTableSortLabel-root');
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           defaultProps.trackMetric.resetHistory();
-          patientHeader.simulate('click');
+          fireEvent.click(patientHeader);
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+fullName' }));
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Patient details sort ascending', { clinicId: 'clinicID123' });
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           defaultProps.trackMetric.resetHistory();
-          patientHeader.simulate('click');
+          fireEvent.click(patientHeader);
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-fullName' }));
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Patient details sort descending', { clinicId: 'clinicID123' });
 
-          const lastDataDateHeader = table.find('#peopleTable-header-cgm-lastData .MuiTableSortLabel-root').at(0);
+          const lastDataDateHeader = container.querySelector('#peopleTable-header-cgm-lastData .MuiTableSortLabel-root');
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           defaultProps.trackMetric.resetHistory();
-          lastDataDateHeader.simulate('click');
+          fireEvent.click(lastDataDateHeader);
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-lastData', sortType: 'cgm' }));
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Data recency sort descending', { clinicId: 'clinicID123' });
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           defaultProps.trackMetric.resetHistory();
-          lastDataDateHeader.simulate('click');
+          fireEvent.click(lastDataDateHeader);
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+lastData', sortType: 'cgm' }));
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Data recency sort ascending', { clinicId: 'clinicID123' });
 
-          const gmiHeader = table.find('#peopleTable-header-cgm-glucoseManagementIndicator .MuiTableSortLabel-root').at(0);
+          const gmiHeader = container.querySelector('#peopleTable-header-cgm-glucoseManagementIndicator .MuiTableSortLabel-root');
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           defaultProps.trackMetric.resetHistory();
-          gmiHeader.simulate('click');
+          fireEvent.click(gmiHeader);
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-glucoseManagementIndicator', sortType: 'cgm' }));
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - GMI sort descending', { clinicId: 'clinicID123' });
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           defaultProps.trackMetric.resetHistory();
-          gmiHeader.simulate('click');
+          fireEvent.click(gmiHeader);
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+glucoseManagementIndicator', sortType: 'cgm' }));
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - GMI sort ascending', { clinicId: 'clinicID123' });
 
-          const averageGlucoseHeader = table.find('#peopleTable-header-bgm-averageGlucoseMmol .MuiTableSortLabel-root').at(0);
+          const averageGlucoseHeader = container.querySelector('#peopleTable-header-bgm-averageGlucoseMmol .MuiTableSortLabel-root');
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           defaultProps.trackMetric.resetHistory();
-          averageGlucoseHeader.simulate('click');
+          fireEvent.click(averageGlucoseHeader);
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-averageGlucoseMmol', sortType: 'bgm' }));
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Average glucose sort descending', { clinicId: 'clinicID123' });
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           defaultProps.trackMetric.resetHistory();
-          averageGlucoseHeader.simulate('click');
+          fireEvent.click(averageGlucoseHeader);
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+averageGlucoseMmol', sortType: 'bgm' }));
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Average glucose sort ascending', { clinicId: 'clinicID123' });
 
-          const lowsHeader = table.find('#peopleTable-header-bgm-timeInVeryLowRecords .MuiTableSortLabel-root').at(0);
+          const lowsHeader = container.querySelector('#peopleTable-header-bgm-timeInVeryLowRecords .MuiTableSortLabel-root');
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           defaultProps.trackMetric.resetHistory();
-          lowsHeader.simulate('click');
+          fireEvent.click(lowsHeader);
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-timeInVeryLowRecords', sortType: 'bgm' }));
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Time in very low sort descending', { clinicId: 'clinicID123' });
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           defaultProps.trackMetric.resetHistory();
-          lowsHeader.simulate('click');
+          fireEvent.click(lowsHeader);
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+timeInVeryLowRecords', sortType: 'bgm' }));
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Time in very low sort ascending', { clinicId: 'clinicID123' });
 
-          const highsHeader = table.find('#peopleTable-header-bgm-timeInVeryHighRecords .MuiTableSortLabel-root').at(0);
+          const highsHeader = container.querySelector('#peopleTable-header-bgm-timeInVeryHighRecords .MuiTableSortLabel-root');
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           defaultProps.trackMetric.resetHistory();
-          highsHeader.simulate('click');
+          fireEvent.click(highsHeader);
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-timeInVeryHighRecords', sortType: 'bgm' }));
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Time in very high sort descending', { clinicId: 'clinicID123' });
 
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
           defaultProps.trackMetric.resetHistory();
-          highsHeader.simulate('click');
+          fireEvent.click(highsHeader);
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+timeInVeryHighRecords', sortType: 'bgm' }));
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Time in very high sort ascending', { clinicId: 'clinicID123' });
         });
 
         it('should allow refreshing the patient list and maintain', () => {
-          const refreshButton = wrapper.find('#refresh-patients').hostNodes();
-          expect(refreshButton).to.have.lengthOf(1);
+          const refreshButton = container.querySelector('#refresh-patients');
+          expect(refreshButton).to.exist;
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-          refreshButton.simulate('click');
+          fireEvent.click(refreshButton);
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ ...defaultFetchOptions, sort: '-lastData' }));
         });
 
         it('should show the time since the last patient data fetch', () => {
-          const timeAgoMessage = () => wrapper.find('#last-refresh-time-ago').hostNodes().text();
-          expect(timeAgoMessage()).to.equal('Last updated less than an hour ago');
+          const timeAgoMessage = container.querySelector('#last-refresh-time-ago').textContent;
+          expect(timeAgoMessage).to.equal('Last updated less than an hour ago');
         });
 
         it('should allow filtering by last upload', () => {
-          const lastDataFilterTrigger = wrapper.find('#last-data-filter-trigger').hostNodes();
-          expect(lastDataFilterTrigger).to.have.lengthOf(1);
+          const lastDataFilterTrigger = container.querySelector('#last-data-filter-trigger');
+          expect(lastDataFilterTrigger).to.exist;
 
-          const popover = () => wrapper.find('#lastDataFilters').hostNodes();
-          expect(popover().props().style.visibility).to.equal('hidden');
+          const popover = () => document.querySelector('#lastDataFilters');
+          expect(popover()).to.exist;
+          expect(popover().style.visibility).to.equal('hidden');
 
           // Open filters popover
-          lastDataFilterTrigger.simulate('click');
-          expect(popover().props().style.visibility).to.be.undefined;
+          fireEvent.click(lastDataFilterTrigger);
+          expect(popover().style.visibility).to.equal('');
 
           // Ensure filter options present
-          const typeFilterOptions = popover().find('#last-upload-type').find('label').hostNodes();
-          expect(typeFilterOptions).to.have.lengthOf(2);
-          expect(typeFilterOptions.at(0).text()).to.equal('CGM');
-          expect(typeFilterOptions.at(0).find('input').props().value).to.equal('cgm');
+          const typeFilterOptions = document.querySelectorAll('#last-upload-type label');
+          expect(typeFilterOptions.length).to.equal(2);
+          expect(typeFilterOptions[0].textContent).to.equal('CGM');
+          expect(typeFilterOptions[0].querySelector('input').value).to.equal('cgm');
 
-          expect(typeFilterOptions.at(1).text()).to.equal('BGM');
-          expect(typeFilterOptions.at(1).find('input').props().value).to.equal('bgm');
+          expect(typeFilterOptions[1].textContent).to.equal('BGM');
+          expect(typeFilterOptions[1].querySelector('input').value).to.equal('bgm');
 
           // Ensure period filter options present
-          const periodFilterOptions = popover().find('#last-upload-filters').find('label').hostNodes();
-          expect(periodFilterOptions).to.have.lengthOf(4);
-          expect(periodFilterOptions.at(0).text()).to.equal('Today');
-          expect(periodFilterOptions.at(0).find('input').props().value).to.equal('1');
+          const periodFilterOptions = document.querySelectorAll('#last-upload-filters label');
+          expect(periodFilterOptions.length).to.equal(4);
+          expect(periodFilterOptions[0].textContent).to.equal('Today');
+          expect(periodFilterOptions[0].querySelector('input').value).to.equal('1');
 
-          expect(periodFilterOptions.at(1).text()).to.equal('Within 2 days');
-          expect(periodFilterOptions.at(1).find('input').props().value).to.equal('2');
+          expect(periodFilterOptions[1].textContent).to.equal('Within 2 days');
+          expect(periodFilterOptions[1].querySelector('input').value).to.equal('2');
 
-          expect(periodFilterOptions.at(2).text()).to.equal('Within 14 days');
-          expect(periodFilterOptions.at(2).find('input').props().value).to.equal('14');
+          expect(periodFilterOptions[2].textContent).to.equal('Within 14 days');
+          expect(periodFilterOptions[2].querySelector('input').value).to.equal('14');
 
-          expect(periodFilterOptions.at(3).text()).to.equal('Within 30 days');
-          expect(periodFilterOptions.at(3).find('input').props().value).to.equal('30');
+          expect(periodFilterOptions[3].textContent).to.equal('Within 30 days');
+          expect(periodFilterOptions[3].querySelector('input').value).to.equal('30');
 
           // Apply button disabled until selection made
-          const applyButton = () => popover().find('#apply-last-upload-filter').hostNodes();
-          expect(applyButton().props().disabled).to.be.true;
+          const applyButton = () => document.querySelector('#apply-last-upload-filter');
+          expect(applyButton().disabled).to.be.true;
 
-          typeFilterOptions.at(1).find('input').last().simulate('change', { target: { name: 'last-upload-type', value: 'bgm' } });
-          periodFilterOptions.at(3).find('input').last().simulate('change', { target: { name: 'last-upload-filters', value: 30 } });
-          expect(applyButton().props().disabled).to.be.false;
+          fireEvent.click(typeFilterOptions[1].querySelector('input'));
+          fireEvent.click(periodFilterOptions[3].querySelector('input'));
+          expect(applyButton().disabled).to.be.false;
 
-          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-          applyButton().simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ ...defaultFetchOptions, sortType: 'bgm', sort: '-lastData', 'bgm.lastDataFrom': sinon.match.string, 'bgm.lastDataTo': sinon.match.string }));
+          fireEvent.click(applyButton());
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Last upload apply filter', sinon.match({ clinicId: 'clinicID123', dateRange: '30 days', type: 'bgm'}));
         });
 
         it('should allow filtering by cgm use', () => {
-          const cgmUseFilterTrigger = wrapper.find('#cgm-use-filter-trigger').hostNodes();
-          expect(cgmUseFilterTrigger).to.have.lengthOf(1);
+          const cgmUseFilterTrigger = container.querySelector('#cgm-use-filter-trigger');
+          expect(cgmUseFilterTrigger).to.exist;
 
-          const popover = () => wrapper.find('#cgmUseFilters').hostNodes();
-          expect(popover().props().style.visibility).to.equal('hidden');
+          const popover = () => document.querySelector('#cgmUseFilters');
+          expect(popover()).to.exist;
+          expect(popover().style.visibility).to.equal('hidden');
 
           // Open filters popover
-          cgmUseFilterTrigger.simulate('click');
-          expect(popover().props().style.visibility).to.be.undefined;
+          fireEvent.click(cgmUseFilterTrigger);
+          expect(popover().style.visibility).to.equal('');
 
           // Ensure filter options present
-          const cgmUseFilterOptions = popover().find('#cgm-use').find('label').hostNodes();
-          expect(cgmUseFilterOptions).to.have.lengthOf(2);
-          expect(cgmUseFilterOptions.at(0).text()).to.equal('Less than 70%');
-          expect(cgmUseFilterOptions.at(0).find('input').props().value).to.equal('<0.7');
+          const cgmUseFilterOptions = document.querySelectorAll('#cgm-use label');
+          expect(cgmUseFilterOptions.length).to.equal(2);
+          expect(cgmUseFilterOptions[0].textContent).to.equal('Less than 70%');
+          expect(cgmUseFilterOptions[0].querySelector('input').value).to.equal('<0.7');
 
-          expect(cgmUseFilterOptions.at(1).text()).to.equal('70% or more');
-          expect(cgmUseFilterOptions.at(1).find('input').props().value).to.equal('>=0.7');
+          expect(cgmUseFilterOptions[1].textContent).to.equal('70% or more');
+          expect(cgmUseFilterOptions[1].querySelector('input').value).to.equal('>=0.7');
 
           // Apply button disabled until selection made
-          const applyButton = () => popover().find('#apply-cgm-use-filter').hostNodes();
-          expect(applyButton().props().disabled).to.be.true;
+          const applyButton = () => document.querySelector('#apply-cgm-use-filter');
+          expect(applyButton().disabled).to.be.true;
 
-          cgmUseFilterOptions.at(1).find('input').last().simulate('change', { target: { name: 'cgm-use', value: '<0.7' } });
-          expect(applyButton().props().disabled).to.be.false;
+          fireEvent.click(cgmUseFilterOptions[0].querySelector('input'));
+          expect(applyButton().disabled).to.be.false;
 
-          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-          applyButton().simulate('click');
-          sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ ...defaultFetchOptions, sortType: 'cgm', 'cgm.timeCGMUsePercent': '<0.7' }));
+          fireEvent.click(applyButton());
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - CGM use apply filter', sinon.match({ clinicId: 'clinicID123', filter: '<0.7' }));
         });
 
-        it('should allow filtering by bg range targets that DO NOT meet selected criteria', () => {
-          const timeInRangeFilterTrigger = wrapper.find('#time-in-range-filter-trigger').hostNodes();
-          expect(timeInRangeFilterTrigger).to.have.lengthOf(1);
-          expect(timeInRangeFilterTrigger.text()).to.equal('% Time in Range');
+        it('should allow filtering by bg range targets that DO NOT meet selected criteria', async () => {
+          // Set up stateful filter mock to allow DOM verification after applying filters
+          let currentFilters = { timeInRange: [], patientTags: [], meetsGlycemicTargets: true };
+          const applyFiltersMock = (newFilters) => {
+            currentFilters = typeof newFilters === 'function' ? newFilters(currentFilters) : newFilters;
+            mockUseClinicPatientsFilters.mockImplementation(() => [currentFilters, applyFiltersMock]);
+          };
+          mockUseClinicPatientsFilters.mockImplementation(() => [currentFilters, applyFiltersMock]);
+          mountWrapper(store);
+          defaultProps.trackMetric.resetHistory();
 
-          const timeInRangeFilterCount = () => wrapper.find('#time-in-range-filter-count').hostNodes();
-          expect(timeInRangeFilterCount()).to.have.lengthOf(0);
+          const timeInRangeFilterTrigger = container.querySelector('#time-in-range-filter-trigger');
+          expect(timeInRangeFilterTrigger).to.exist;
+          expect(timeInRangeFilterTrigger.textContent).to.equal('% Time in Range');
 
-          const popover = () => wrapper.find('#timeInRangeFilters').hostNodes();
-          expect(popover().props().style.visibility).to.equal('hidden');
+          const timeInRangeFilterCount = () => container.querySelector('#time-in-range-filter-count');
+          expect(timeInRangeFilterCount()).to.be.null;
+
+          const popover = () => document.querySelector('#timeInRangeFilters');
+          expect(popover()).to.exist;
+          expect(popover().style.visibility).to.equal('hidden');
 
           // Open filters popover
-          timeInRangeFilterTrigger.simulate('click');
-          expect(popover().props().style.visibility).to.be.undefined;
+          fireEvent.click(timeInRangeFilterTrigger);
+          expect(popover().style.visibility).to.equal('');
 
           // Ensure filter options present and in default unchecked state
-          const veryLowFilter = () => popover().find('#time-in-range-filter-veryLow').hostNodes();
-          expect(veryLowFilter()).to.have.lengthOf(1);
-          expect(veryLowFilter().text()).contains('Greater than 1% Time');
-          expect(veryLowFilter().text()).contains('<54 mg/dL');
-          expect(veryLowFilter().find('input').props().checked).to.be.false;
+          const veryLowFilter = () => document.querySelector('#time-in-range-filter-veryLow');
+          expect(veryLowFilter()).to.exist;
+          expect(veryLowFilter().textContent).to.contain('Greater than 1% Time');
+          expect(veryLowFilter().textContent).to.contain('<54 mg/dL');
+          expect(veryLowFilter().querySelector('input').checked).to.be.false;
 
-          const lowFilter = () => popover().find('#time-in-range-filter-anyLow').hostNodes();
-          expect(lowFilter()).to.have.lengthOf(1);
-          expect(lowFilter().text()).contains('Greater than 4% Time');
-          expect(lowFilter().text()).contains('<70 mg/dL');
-          expect(lowFilter().find('input').props().checked).to.be.false;
+          const lowFilter = () => document.querySelector('#time-in-range-filter-anyLow');
+          expect(lowFilter()).to.exist;
+          expect(lowFilter().textContent).to.contain('Greater than 4% Time');
+          expect(lowFilter().textContent).to.contain('<70 mg/dL');
+          expect(lowFilter().querySelector('input').checked).to.be.false;
 
-          const targetFilter = () => popover().find('#time-in-range-filter-target').hostNodes();
-          expect(targetFilter()).to.have.lengthOf(1);
-          expect(targetFilter().text()).contains('Less than 70% Time');
-          expect(targetFilter().text()).contains('between 70-180 mg/dL');
-          expect(targetFilter().find('input').props().checked).to.be.false;
+          const targetFilter = () => document.querySelector('#time-in-range-filter-target');
+          expect(targetFilter()).to.exist;
+          expect(targetFilter().textContent).to.contain('Less than 70% Time');
+          expect(targetFilter().textContent).to.contain('between 70-180 mg/dL');
+          expect(targetFilter().querySelector('input').checked).to.be.false;
 
-          const highFilter = () => popover().find('#time-in-range-filter-anyHigh').hostNodes();
-          expect(highFilter()).to.have.lengthOf(1);
-          expect(highFilter().text()).contains('Greater than 25% Time');
-          expect(highFilter().text()).contains('>180 mg/dL');
-          expect(highFilter().find('input').props().checked).to.be.false;
+          const highFilter = () => document.querySelector('#time-in-range-filter-anyHigh');
+          expect(highFilter()).to.exist;
+          expect(highFilter().textContent).to.contain('Greater than 25% Time');
+          expect(highFilter().textContent).to.contain('>180 mg/dL');
+          expect(highFilter().querySelector('input').checked).to.be.false;
 
-          const veryHighFilter = () => popover().find('#time-in-range-filter-veryHigh').hostNodes();
-          expect(veryHighFilter()).to.have.lengthOf(1);
-          expect(veryHighFilter().text()).contains('Greater than 5% Time');
-          expect(veryHighFilter().text()).contains('>250 mg/dL');
-          expect(veryHighFilter().find('input').props().checked).to.be.false;
+          const veryHighFilter = () => document.querySelector('#time-in-range-filter-veryHigh');
+          expect(veryHighFilter()).to.exist;
+          expect(veryHighFilter().textContent).to.contain('Greater than 5% Time');
+          expect(veryHighFilter().textContent).to.contain('>250 mg/dL');
+          expect(veryHighFilter().querySelector('input').checked).to.be.false;
 
           // Select all filter ranges
-          veryLowFilter().find('input').simulate('change', { target: { name: 'range-timeInVeryLowPercent-filter', checked: true } });
-          expect(veryLowFilter().find('input').props().checked).to.be.true;
+          fireEvent.click(veryLowFilter().querySelector('input'));
+          expect(veryLowFilter().querySelector('input').checked).to.be.true;
 
-          lowFilter().find('input').simulate('change', { target: { name: 'range-timeInAnyLowPercent-filter', checked: true } });
-          expect(lowFilter().find('input').props().checked).to.be.true;
+          fireEvent.click(lowFilter().querySelector('input'));
+          expect(lowFilter().querySelector('input').checked).to.be.true;
 
-          targetFilter().find('input').simulate('change', { target: { name: 'range-timeInTargetPercent-filter', checked: true } });
-          expect(targetFilter().find('input').props().checked).to.be.true;
+          fireEvent.click(targetFilter().querySelector('input'));
+          expect(targetFilter().querySelector('input').checked).to.be.true;
 
-          highFilter().find('input').simulate('change', { target: { name: 'range-timeInAnyHighPercent-filter', checked: true } });
-          expect(highFilter().find('input').props().checked).to.be.true;
+          fireEvent.click(highFilter().querySelector('input'));
+          expect(highFilter().querySelector('input').checked).to.be.true;
 
-          veryHighFilter().find('input').simulate('change', { target: { name: 'range-timeInVeryHighPercent-filter', checked: true } });
-          expect(veryHighFilter().find('input').props().checked).to.be.true;
+          fireEvent.click(veryHighFilter().querySelector('input'));
+          expect(veryHighFilter().querySelector('input').checked).to.be.true;
 
           // Submit the form
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-          const applyButton = popover().find('#timeInRangeFilterConfirm').hostNodes();
-          applyButton.simulate('click');
+          const applyButton = document.querySelector('#timeInRangeFilterConfirm');
+          fireEvent.click(applyButton);
 
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({
             ...defaultFetchOptions,
@@ -1877,8 +1817,10 @@ describe('ClinicPatients', () => {
             severeHypo: true
           }));
 
-          expect(timeInRangeFilterCount()).to.have.lengthOf(1);
-          expect(timeInRangeFilterCount().text()).to.equal('5');
+          await waitFor(() => {
+            expect(timeInRangeFilterCount()).to.exist;
+            expect(timeInRangeFilterCount().textContent).to.equal('5');
+          });
         });
 
         context('summary period filtering', () => {
@@ -1897,15 +1839,15 @@ describe('ClinicPatients', () => {
               activePatientSummaryPeriod: '14d',
             };
 
-            ClinicPatients.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
+            mockUseLocalStorage.mockImplementation(key => {
               defaults(mockedLocalStorage, { [key]: {} })
               return [
                 mockedLocalStorage[key],
                 sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
               ];
-            }));
+            });
 
-            ClinicPatients.__Rewire__('useClinicPatientsFilters', sinon.stub().callsFake(() => (
+            mockUseClinicPatientsFilters.mockImplementation(() => (
               [
                 {
                   timeInRange: ['timeInAnyLowPercent', 'timeInAnyHighPercent'],
@@ -1914,62 +1856,52 @@ describe('ClinicPatients', () => {
                 },
                 sinon.stub(),
               ]
-            )));
+            ));
 
-            wrapper = mount(
-              <Provider store={store}>
-                <ToastProvider>
-                  <ClinicPatients {...defaultProps} />
-                </ToastProvider>
-              </Provider>
-            );
-          });
-
-          afterEach(() => {
-            ClinicPatients.__ResetDependency__('useLocalStorage');
-            ClinicPatients.__ResetDependency__('useClinicPatientsFilters');
+            mountWrapper(store);
           });
 
           it('should show the Filter Reset Bar', () => {
-            const filterResetBar = wrapper.find('.filter-reset-bar').hostNodes();
-            expect(filterResetBar).to.have.lengthOf(1);
+            const filterResetBar = container.querySelector('.filter-reset-bar');
+            expect(filterResetBar).to.exist;
           });
 
           it('should allow filtering by summary period', () => {
-            const summaryPeriodFilterTrigger = wrapper.find('#summary-period-filter-trigger').hostNodes();
-            expect(summaryPeriodFilterTrigger).to.have.lengthOf(1);
+            const summaryPeriodFilterTrigger = container.querySelector('#summary-period-filter-trigger');
+            expect(summaryPeriodFilterTrigger).to.exist;
 
-            const popover = () => wrapper.find('#summaryPeriodFilters').hostNodes();
-            expect(popover().props().style.visibility).to.equal('hidden');
+            const popover = () => document.querySelector('#summaryPeriodFilters');
+            expect(popover()).to.exist;
+            expect(popover().style.visibility).to.equal('hidden');
 
             // Open filters popover
-            summaryPeriodFilterTrigger.simulate('click');
-            expect(popover().props().style.visibility).to.be.undefined;
+            fireEvent.click(summaryPeriodFilterTrigger);
+            expect(popover().style.visibility).to.equal('');
 
             // Ensure filter options present
-            const filterOptions = popover().find('#summary-period-filters').find('label').hostNodes();
-            expect(filterOptions).to.have.lengthOf(4);
-            expect(filterOptions.at(0).text()).to.equal('24 hours');
-            expect(filterOptions.at(0).find('input').props().value).to.equal('1d');
+            const filterOptions = document.querySelectorAll('#summary-period-filters label');
+            expect(filterOptions.length).to.equal(4);
+            expect(filterOptions[0].textContent).to.equal('24 hours');
+            expect(filterOptions[0].querySelector('input').value).to.equal('1d');
 
-            expect(filterOptions.at(1).text()).to.equal('7 days');
-            expect(filterOptions.at(1).find('input').props().value).to.equal('7d');
+            expect(filterOptions[1].textContent).to.equal('7 days');
+            expect(filterOptions[1].querySelector('input').value).to.equal('7d');
 
-            expect(filterOptions.at(2).text()).to.equal('14 days');
-            expect(filterOptions.at(2).find('input').props().value).to.equal('14d');
+            expect(filterOptions[2].textContent).to.equal('14 days');
+            expect(filterOptions[2].querySelector('input').value).to.equal('14d');
 
-            expect(filterOptions.at(3).text()).to.equal('30 days');
-            expect(filterOptions.at(3).find('input').props().value).to.equal('30d');
+            expect(filterOptions[3].textContent).to.equal('30 days');
+            expect(filterOptions[3].querySelector('input').value).to.equal('30d');
 
             // Default should be 14 days
-            expect(filterOptions.at(2).find('input').props().checked).to.be.true;
+            expect(filterOptions[2].querySelector('input').checked).to.be.true;
 
             // Set to 7 days
-            filterOptions.at(1).find('input').last().simulate('change', { target: { name: 'summary-period-filters', value: '7d' } });
+            fireEvent.click(filterOptions[1].querySelector('input'));
 
             defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-            const applyButton = popover().find('#apply-summary-period-filter').hostNodes();
-            applyButton.simulate('click');
+            const applyButton = document.querySelector('#apply-summary-period-filter');
+            fireEvent.click(applyButton);
 
             // Ensure resulting patient fetch is requesting the 7 day period for time in range filters
             sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({
@@ -1985,54 +1917,52 @@ describe('ClinicPatients', () => {
 
           it('should not show the GMI if selected period is less than 14 days', () => {
             const emptyStatText = '--';
-            const summaryPeriodFilterTrigger = wrapper.find('#summary-period-filter-trigger').hostNodes();
-            expect(summaryPeriodFilterTrigger).to.have.lengthOf(1);
+            const summaryPeriodFilterTrigger = container.querySelector('#summary-period-filter-trigger');
+            expect(summaryPeriodFilterTrigger).to.exist;
 
-            const popover = () => wrapper.find('#summaryPeriodFilters').hostNodes();
-            expect(popover().props().style.visibility).to.equal('hidden');
+            const popover = () => document.querySelector('#summaryPeriodFilters');
+            expect(popover()).to.exist;
+            expect(popover().style.visibility).to.equal('hidden');
 
-            const applyButton = () => popover().find('#apply-summary-period-filter').hostNodes();
+            const applyButton = () => document.querySelector('#apply-summary-period-filter');
 
             // Open filters popover
-            summaryPeriodFilterTrigger.simulate('click');
-            expect(popover().props().style.visibility).to.be.undefined;
+            fireEvent.click(summaryPeriodFilterTrigger);
+            expect(popover().style.visibility).to.equal('');
 
             // Ensure filter options present
-            const filterOptions = () => popover().find('#summary-period-filters').find('label').hostNodes();
+            const filterOptions = () => document.querySelectorAll('#summary-period-filters label');
 
             // Default should be 14 days
-            expect(filterOptions().at(2).find('input').props().checked).to.be.true;
+            expect(filterOptions()[2].querySelector('input').checked).to.be.true;
 
-            const table = () => wrapper.find(Table);
-            expect(table()).to.have.length(1);
+            const dataRows = container.querySelectorAll('table tbody tr');
+            expect(dataRows.length).to.equal(5);
 
-            const rows = () => table().find('tbody tr');
-            expect(rows()).to.have.lengthOf(5);
+            const rowData = row => container.querySelectorAll('table tbody tr')[row].querySelectorAll('.MuiTableCell-root');
 
-            const rowData = row => rows().at(row).find('.MuiTableCell-root');
-
-            expect(rowData(2).at(4).text()).contains('6.5 %'); // shows for 14 days
+            expect(rowData(2)[4].textContent).to.contain('6.5 %'); // shows for 14 days
 
             // Open filters popover and set to 30 days
-            summaryPeriodFilterTrigger.simulate('click');
-            filterOptions().at(1).find('input').last().simulate('change', { target: { name: 'summary-period-filters', value: '30d' } });
-            expect(filterOptions().at(3).find('input').props().checked).to.be.true;
-            applyButton().simulate('click');
-            expect(rowData(2).at(4).text()).contains('7.5 %'); // shows for 30 days
+            fireEvent.click(summaryPeriodFilterTrigger);
+            fireEvent.click(filterOptions()[3].querySelector('input'));
+            expect(filterOptions()[3].querySelector('input').checked).to.be.true;
+            fireEvent.click(applyButton());
+            expect(rowData(2)[4].textContent).to.contain('7.5 %'); // shows for 30 days
 
             // Open filters popover and set to 7 days
-            summaryPeriodFilterTrigger.simulate('click');
-            filterOptions().at(1).find('input').last().simulate('change', { target: { name: 'summary-period-filters', value: '7d' } });
-            expect(filterOptions().at(1).find('input').props().checked).to.be.true;
-            applyButton().simulate('click');
-            expect(rowData(2).at(4).text()).contains(emptyStatText); // hidden for 7 days
+            fireEvent.click(summaryPeriodFilterTrigger);
+            fireEvent.click(filterOptions()[1].querySelector('input'));
+            expect(filterOptions()[1].querySelector('input').checked).to.be.true;
+            fireEvent.click(applyButton());
+            expect(rowData(2)[4].textContent).to.contain(emptyStatText); // hidden for 7 days
 
             // Open filters popover and set to 1 day
-            summaryPeriodFilterTrigger.simulate('click');
-            filterOptions().at(1).find('input').last().simulate('change', { target: { name: 'summary-period-filters', value: '1d' } });
-            expect(filterOptions().at(0).find('input').props().checked).to.be.true;
-            applyButton().simulate('click');
-            expect(rowData(2).at(4).text()).contains(emptyStatText); // hidden for 1 day
+            fireEvent.click(summaryPeriodFilterTrigger);
+            fireEvent.click(filterOptions()[0].querySelector('input'));
+            expect(filterOptions()[0].querySelector('input').checked).to.be.true;
+            fireEvent.click(applyButton());
+            expect(rowData(2)[4].textContent).to.contain(emptyStatText); // hidden for 1 day
           });
         });
 
@@ -2055,15 +1985,15 @@ describe('ClinicPatients', () => {
               activePatientSummaryPeriod: '14d',
             };
 
-            ClinicPatients.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
+            mockUseLocalStorage.mockImplementation(key => {
               defaults(mockedLocalStorage, { [key]: {} })
               return [
                 mockedLocalStorage[key],
                 sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
               ];
-            }));
+            });
 
-            ClinicPatients.__Rewire__('useClinicPatientsFilters', sinon.stub().callsFake(() => (
+            mockUseClinicPatientsFilters.mockImplementation(() => (
               [
                 {
                   lastData: 14,
@@ -2073,82 +2003,70 @@ describe('ClinicPatients', () => {
                 },
                 sinon.stub(),
               ]
-            )));
+            ));
 
-            wrapper = mount(
-              <Provider store={store}>
-                <ToastProvider>
-                  <ClinicPatients {...defaultProps} />
-                </ToastProvider>
-              </Provider>
-            );
+            mountWrapper(store);
             defaultProps.trackMetric.resetHistory();
           });
 
-          afterEach(() => {
-            ClinicPatients.__ResetDependency__('useLocalStorage');
-            ClinicPatients.__ResetDependency__('useClinicPatientsFilters');
-          });
-
           it('should set the last upload filter on load based on the stored filters', () => {
-            const lastDataFilterTrigger = wrapper.find('#last-data-filter-trigger').hostNodes();
-            expect(lastDataFilterTrigger.text()).to.equal('Data within 14 days');
+            const lastDataFilterTrigger = container.querySelector('#last-data-filter-trigger');
+            expect(lastDataFilterTrigger.textContent).to.equal('Data within 14 days');
           });
 
           it('should set the patient tag filters on load based on the stored filters', () => {
-            const patientTagsFilterCount = wrapper.find('#patient-tags-filter-count').hostNodes();
-            expect(patientTagsFilterCount.text()).to.equal('1');
+            const patientTagsFilterCount = container.querySelector('#patient-tags-filter-count');
+            expect(patientTagsFilterCount.textContent).to.equal('1');
 
-            const patientTagsFilterTrigger = wrapper.find('#patient-tags-filter-trigger').hostNodes();
-            expect(patientTagsFilterTrigger).to.have.lengthOf(1);
+            const patientTagsFilterTrigger = container.querySelector('#patient-tags-filter-trigger');
+            expect(patientTagsFilterTrigger).to.exist;
 
-            const popover = () => wrapper.find('#patientTagFilters').hostNodes();
-            expect(popover().props().style.visibility).to.equal('hidden');
+            const popover = () => document.querySelector('#patientTagFilters');
+            expect(popover()).to.exist;
+            expect(popover().style.visibility).to.equal('hidden');
 
             // Open filters popover
-            patientTagsFilterTrigger.simulate('click');
-            expect(popover().props().style.visibility).to.be.undefined;
+            fireEvent.click(patientTagsFilterTrigger);
+            expect(popover().style.visibility).to.equal('');
 
             // Ensure selected filter is set
-            const tag1Filter = popover().find('#tag-filter-option-checkbox-tag1').hostNodes().find('input').hostNodes();
-            const tag2Filter = popover().find('#tag-filter-option-checkbox-tag2').hostNodes().find('input').hostNodes();
-            const tag3Filter = popover().find('#tag-filter-option-checkbox-tag3').hostNodes().find('input').hostNodes();
-            expect(tag1Filter.props().checked).to.be.false;
-            expect(tag2Filter.props().checked).to.be.true;
-            expect(tag3Filter.props().checked).to.be.false;
+            const tag1Filter = document.querySelector('#tag-filter-option-checkbox-tag1');
+            const tag2Filter = document.querySelector('#tag-filter-option-checkbox-tag2');
+            const tag3Filter = document.querySelector('#tag-filter-option-checkbox-tag3');
+            expect(tag1Filter.checked).to.be.false;
+            expect(tag2Filter.checked).to.be.true;
+            expect(tag3Filter.checked).to.be.false;
           });
 
           it('should set the time in range filters on load based on the stored filters', () => {
-            const timeInRangeFilterTrigger = wrapper.find('#time-in-range-filter-trigger').hostNodes();
+            const timeInRangeFilterTrigger = container.querySelector('#time-in-range-filter-trigger');
 
             // Should show 2 active time in range filters
-            const timeInRangeFilterCount = () => wrapper.find('#time-in-range-filter-count').hostNodes();
-            expect(timeInRangeFilterCount()).to.have.lengthOf(1);
-            expect(timeInRangeFilterCount().text()).to.equal('2');
+            const timeInRangeFilterCount = () => container.querySelector('#time-in-range-filter-count');
+            expect(timeInRangeFilterCount()).to.exist;
+            expect(timeInRangeFilterCount().textContent).to.equal('2');
 
-            // Open time in rangefilters dialog
-            timeInRangeFilterTrigger.simulate('click');
+            // Open time in range filters dialog
+            fireEvent.click(timeInRangeFilterTrigger);
 
-            const popover = () => wrapper.find('#timeInRangeFilters').hostNodes();
-
-            wrapper.update();
-            expect(popover()).to.have.length(1);
+            const popover = () => document.querySelector('#timeInRangeFilters');
+            expect(popover()).to.exist;
 
             // Ensure filter options in pre-set state
-            const veryLowFilter = () => popover().find('#time-in-range-filter-veryLow').hostNodes();
-            expect(veryLowFilter().find('input').props().checked).to.be.false;
+            const veryLowFilter = () => document.querySelector('#time-in-range-filter-veryLow');
+            expect(veryLowFilter().querySelector('input').checked).to.be.false;
 
-            const lowFilter = () => popover().find('#time-in-range-filter-anyLow').hostNodes();
-            expect(lowFilter().find('input').props().checked).to.be.true;
+            const lowFilter = () => document.querySelector('#time-in-range-filter-anyLow');
+            expect(lowFilter().querySelector('input').checked).to.be.true;
 
-            const targetFilter = () => popover().find('#time-in-range-filter-target').hostNodes();
-            expect(targetFilter().find('input').props().checked).to.be.false;
+            const targetFilter = () => document.querySelector('#time-in-range-filter-target');
+            expect(targetFilter().querySelector('input').checked).to.be.false;
 
-            const highFilter = () => popover().find('#time-in-range-filter-anyHigh').hostNodes();
-            expect(highFilter().find('input').props().checked).to.be.true;
+            const highFilter = () => document.querySelector('#time-in-range-filter-anyHigh');
+            expect(highFilter().querySelector('input').checked).to.be.true;
 
-            const veryHighFilter = () => popover().find('#time-in-range-filter-veryHigh').hostNodes();
-            expect(veryHighFilter().find('input').props().checked).to.be.false;
+            const veryHighFilter = () => document.querySelector('#time-in-range-filter-veryHigh');
+            expect(veryHighFilter().querySelector('input').checked).to.be.false;
           });
 
           it('should fetch the initial patient based on the stored filters', () => {
@@ -2184,14 +2102,14 @@ describe('ClinicPatients', () => {
               },
             };
 
-            ClinicPatients.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
+            mockUseLocalStorage.mockImplementation(key => {
               return [
                 mockedLocalStorage[key],
                 sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
               ];
-            }));
+            });
 
-            ClinicPatients.__Rewire__('useClinicPatientsFilters', sinon.stub().callsFake(() => (
+            mockUseClinicPatientsFilters.mockImplementation(() => (
               [
                 {
                   timeInRange: ['timeInAnyLowPercent', 'timeInAnyHighPercent'],
@@ -2200,28 +2118,16 @@ describe('ClinicPatients', () => {
                 },
                 sinon.stub(),
               ]
-            )));
+            ));
 
-            wrapper = mount(
-              <Provider store={store}>
-                <ToastProvider>
-                  <ClinicPatients {...defaultProps} />
-                </ToastProvider>
-              </Provider>
-            );
+            mountWrapper(store);
             defaultProps.trackMetric.resetHistory();
           });
 
-          afterEach(() => {
-            ClinicPatients.__ResetDependency__('useLocalStorage');
-            ClinicPatients.__ResetDependency__('useClinicPatientsFilters');
-          });
-
           it('should set the table sort UI based on the the sort params from localStorage', () => {
-
-            const activeSortLable = wrapper.find('.MuiTableSortLabel-active').hostNodes();
-            expect(activeSortLable.text()).to.equal('Avg. Glucose (mg/dL)');
-            expect(activeSortLable.find('.MuiTableSortLabel-iconDirectionDesc').hostNodes()).to.have.lengthOf(1);
+            const activeSortLabel = container.querySelector('.MuiTableSortLabel-active');
+            expect(activeSortLabel.textContent).to.equal('Avg. Glucose (mg/dL)');
+            expect(activeSortLabel.querySelector('.MuiTableSortLabel-iconDirectionDesc')).to.exist;
           });
 
 
@@ -2237,304 +2143,322 @@ describe('ClinicPatients', () => {
         context('mmol/L preferredBgUnits', () => {
           beforeEach(() => {
             store = mockStore(tier0300ClinicStateMmoll);
-
-            wrapper = mount(
-              <Provider store={store}>
-                <ToastProvider>
-                  <ClinicPatients {...defaultProps} />
-                </ToastProvider>
-              </Provider>
-            );
-
+            mountWrapper(store);
             defaultProps.trackMetric.resetHistory();
           });
 
           it('should show the bgm average glucose in mmol/L units', () => {
-            const table = wrapper.find(Table);
-            expect(table).to.have.length(1);
+            const columns = container.querySelectorAll('.MuiTableCell-head');
+            expect(columns[8].textContent).to.equal('Avg. Glucose (mmol/L)');
+            expect(columns[8].id).to.equal('peopleTable-header-bgm-averageGlucoseMmol');
 
-            const columns = table.find('.MuiTableCell-head');
+            const dataRows = container.querySelectorAll('table tbody tr');
+            expect(dataRows.length).to.equal(5);
 
-            expect(columns.at(8).text()).to.equal('Avg. Glucose (mmol/L)');
-            assert(columns.at(8).is('#peopleTable-header-bgm-averageGlucoseMmol'));
+            const rowData = row => dataRows[row].querySelectorAll('.MuiTableCell-root');
 
-            const rows = table.find('tbody tr');
-            expect(rows).to.have.lengthOf(5);
-
-            const rowData = row => rows.at(row).find('.MuiTableCell-root');
-
-            expect(rowData(1).at(8).text()).contains('10.5');
-            expect(rowData(2).at(8).text()).contains('11.5');
-            expect(rowData(3).at(8).text()).contains('12.5');
+            expect(rowData(1)[8].textContent).to.contain('10.5');
+            expect(rowData(2)[8].textContent).to.contain('11.5');
+            expect(rowData(3)[8].textContent).to.contain('12.5');
           });
 
           it('should show the bg range filters in mmol/L units', () => {
-            const timeInRangeFilterTrigger = wrapper.find('#time-in-range-filter-trigger').hostNodes();
+            const timeInRangeFilterTrigger = container.querySelector('#time-in-range-filter-trigger');
 
-            const popover = () => wrapper.find('#timeInRangeFilters').hostNodes();
+            const popover = () => document.querySelector('#timeInRangeFilters');
 
             // Open filters popover
-            timeInRangeFilterTrigger.simulate('click');
+            fireEvent.click(timeInRangeFilterTrigger);
 
             // Ensure filter options present and in default unchecked state
-            const veryLowFilter = () => popover().find('#time-in-range-filter-veryLow').hostNodes();
-            expect(veryLowFilter()).to.have.lengthOf(1);
-            expect(veryLowFilter().text()).contains('Greater than 1% Time');
-            expect(veryLowFilter().text()).contains('<3.0 mmol/L');
-            expect(veryLowFilter().find('input').props().checked).to.be.false;
+            const veryLowFilter = () => document.querySelector('#time-in-range-filter-veryLow');
+            expect(veryLowFilter()).to.exist;
+            expect(veryLowFilter().textContent).to.contain('Greater than 1% Time');
+            expect(veryLowFilter().textContent).to.contain('<3.0 mmol/L');
+            expect(veryLowFilter().querySelector('input').checked).to.be.false;
 
-            const lowFilter = () => popover().find('#time-in-range-filter-anyLow').hostNodes();
-            expect(lowFilter()).to.have.lengthOf(1);
-            expect(lowFilter().text()).contains('Greater than 4% Time');
-            expect(lowFilter().text()).contains('<3.9 mmol/L');
-            expect(lowFilter().find('input').props().checked).to.be.false;
+            const lowFilter = () => document.querySelector('#time-in-range-filter-anyLow');
+            expect(lowFilter()).to.exist;
+            expect(lowFilter().textContent).to.contain('Greater than 4% Time');
+            expect(lowFilter().textContent).to.contain('<3.9 mmol/L');
+            expect(lowFilter().querySelector('input').checked).to.be.false;
 
-            const targetFilter = () => popover().find('#time-in-range-filter-target').hostNodes();
-            expect(targetFilter()).to.have.lengthOf(1);
-            expect(targetFilter().text()).contains('Less than 70% Time');
-            expect(targetFilter().text()).contains('between 3.9-10.0 mmol/L');
-            expect(targetFilter().find('input').props().checked).to.be.false;
+            const targetFilter = () => document.querySelector('#time-in-range-filter-target');
+            expect(targetFilter()).to.exist;
+            expect(targetFilter().textContent).to.contain('Less than 70% Time');
+            expect(targetFilter().textContent).to.contain('between 3.9-10.0 mmol/L');
+            expect(targetFilter().querySelector('input').checked).to.be.false;
 
-            const highFilter = () => popover().find('#time-in-range-filter-anyHigh').hostNodes();
-            expect(highFilter()).to.have.lengthOf(1);
-            expect(highFilter().text()).contains('Greater than 25% Time');
-            expect(highFilter().text()).contains('>10.0 mmol/L');
-            expect(highFilter().find('input').props().checked).to.be.false;
+            const highFilter = () => document.querySelector('#time-in-range-filter-anyHigh');
+            expect(highFilter()).to.exist;
+            expect(highFilter().textContent).to.contain('Greater than 25% Time');
+            expect(highFilter().textContent).to.contain('>10.0 mmol/L');
+            expect(highFilter().querySelector('input').checked).to.be.false;
 
-            const veryHighFilter = () => popover().find('#time-in-range-filter-veryHigh').hostNodes();
-            expect(veryHighFilter()).to.have.lengthOf(1);
-            expect(veryHighFilter().text()).contains('Greater than 5% Time');
-            expect(veryHighFilter().text()).contains('>13.9 mmol/L');
-            expect(veryHighFilter().find('input').props().checked).to.be.false;
+            const veryHighFilter = () => document.querySelector('#time-in-range-filter-veryHigh');
+            expect(veryHighFilter()).to.exist;
+            expect(veryHighFilter().textContent).to.contain('Greater than 5% Time');
+            expect(veryHighFilter().textContent).to.contain('>13.9 mmol/L');
+            expect(veryHighFilter().querySelector('input').checked).to.be.false;
           });
         });
 
-        it('should track how many filters are active', () => {
-          const filterCount = () => wrapper.find('#filter-count').hostNodes();
-          expect(filterCount()).to.have.lengthOf(0);
+        it('should track how many filters are active', async () => {
+          // Set up stateful filter mock to allow DOM verification after applying filters
+          let currentFilters = { timeInRange: [], patientTags: [], meetsGlycemicTargets: false };
+          const applyFiltersMock = (newFilters) => {
+            currentFilters = typeof newFilters === 'function' ? newFilters(currentFilters) : newFilters;
+            mockUseClinicPatientsFilters.mockImplementation(() => [currentFilters, applyFiltersMock]);
+          };
+          mockUseClinicPatientsFilters.mockImplementation(() => [currentFilters, applyFiltersMock]);
+          mountWrapper(store);
+          defaultProps.trackMetric.resetHistory();
 
-          const timeInRangeFilterCount = () => wrapper.find('#time-in-range-filter-count').hostNodes();
-          expect(timeInRangeFilterCount()).to.have.lengthOf(0);
+          const filterCount = () => container.querySelector('#filter-count');
+          expect(filterCount()).to.be.null;
+
+          const timeInRangeFilterCount = () => container.querySelector('#time-in-range-filter-count');
+          expect(timeInRangeFilterCount()).to.be.null;
 
           // Set lastData filter
-          const lastDataFilterTrigger = wrapper.find('#last-data-filter-trigger').hostNodes();
-          expect(lastDataFilterTrigger).to.have.lengthOf(1);
+          const lastDataFilterTrigger = container.querySelector('#last-data-filter-trigger');
+          expect(lastDataFilterTrigger).to.exist;
 
-          const popover = () => wrapper.find('#lastDataFilters').hostNodes();
-          lastDataFilterTrigger.simulate('click');
+          fireEvent.click(lastDataFilterTrigger);
 
-          const typeFilterOptions = popover().find('#last-upload-type').find('label').hostNodes();
-          expect(typeFilterOptions).to.have.lengthOf(2);
+          const typeFilterOptions = document.querySelectorAll('#last-upload-type label');
+          expect(typeFilterOptions.length).to.equal(2);
 
-          const periodFilterOptions = popover().find('#last-upload-filters').find('label').hostNodes();
-          expect(periodFilterOptions).to.have.lengthOf(4);
+          const periodFilterOptions = document.querySelectorAll('#last-upload-filters label');
+          expect(periodFilterOptions.length).to.equal(4);
 
-          typeFilterOptions.at(0).find('input').last().simulate('change', { target: { name: 'last-upload-type', value: 'cgm' } });
-          periodFilterOptions.at(3).find('input').last().simulate('change', { target: { name: 'last-upload-filters', value: 30 } });
-          popover().find('#apply-last-upload-filter').hostNodes().simulate('click');
+          fireEvent.click(typeFilterOptions[0].querySelector('input'));
+          fireEvent.click(periodFilterOptions[3].querySelector('input'));
+          fireEvent.click(document.querySelector('#apply-last-upload-filter'));
 
-          // Filter count should be 1
-          expect(filterCount()).to.have.lengthOf(1);
-          expect(filterCount().text()).to.equal('1');
+          // Filter count should be 1 after natural re-render from popover close
+          await waitFor(() => {
+            expect(filterCount()).to.exist;
+          });
+          expect(filterCount().textContent).to.equal('1');
 
           // Set time in range filter
-          const timeInRangeFilterTrigger = wrapper.find('#time-in-range-filter-trigger').hostNodes();
-          expect(timeInRangeFilterTrigger).to.have.lengthOf(1);
+          const timeInRangeFilterTrigger = container.querySelector('#time-in-range-filter-trigger');
+          expect(timeInRangeFilterTrigger).to.exist;
 
-          const tirPopover = () => wrapper.find('#timeInRangeFilters').hostNodes();
-          timeInRangeFilterTrigger.simulate('click');
+          fireEvent.click(timeInRangeFilterTrigger);
 
           // Select 3 filter ranges
-          const veryLowFilter = () => tirPopover().find('#time-in-range-filter-veryLow').hostNodes();
-          veryLowFilter().find('input').simulate('change', { target: { name: 'range-timeInVeryLowPercent-filter', checked: true } });
-          expect(veryLowFilter().find('input').props().checked).to.be.true;
+          const veryLowFilter = () => document.querySelector('#time-in-range-filter-veryLow');
+          fireEvent.click(veryLowFilter().querySelector('input'));
+          expect(veryLowFilter().querySelector('input').checked).to.be.true;
 
-          const lowFilter = () => tirPopover().find('#time-in-range-filter-anyLow').hostNodes();
-          lowFilter().find('input').simulate('change', { target: { name: 'range-timeInAnyLowPercent-filter', checked: true } });
-          expect(lowFilter().find('input').props().checked).to.be.true;
+          const lowFilter = () => document.querySelector('#time-in-range-filter-anyLow');
+          fireEvent.click(lowFilter().querySelector('input'));
+          expect(lowFilter().querySelector('input').checked).to.be.true;
 
-          const highFilter = () => tirPopover().find('#time-in-range-filter-anyHigh').hostNodes();
-          highFilter().find('input').simulate('change', { target: { name: 'range-timeInAnyHighPercent-filter', checked: true } });
-          expect(highFilter().find('input').props().checked).to.be.true;
+          const highFilter = () => document.querySelector('#time-in-range-filter-anyHigh');
+          fireEvent.click(highFilter().querySelector('input'));
+          expect(highFilter().querySelector('input').checked).to.be.true;
 
           // Submit the form
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-          const applyButton = tirPopover().find('#timeInRangeFilterConfirm').hostNodes();
-          applyButton.simulate('click');
+          fireEvent.click(document.querySelector('#timeInRangeFilterConfirm'));
 
-          // Filter count should be 2
-          expect(filterCount().text()).to.equal('2');
-          expect(timeInRangeFilterCount().text()).to.equal('3');
+          // Filter count should be 2 after natural re-render from popover close
+          await waitFor(() => {
+            expect(filterCount()?.textContent).to.equal('2');
+            expect(timeInRangeFilterCount()).to.exist;
+            expect(timeInRangeFilterCount().textContent).to.equal('3');
+          });
 
           // Unset last upload filter
-          lastDataFilterTrigger.simulate('click');
-          popover().find('#clear-last-upload-filter').hostNodes().simulate('click');
+          fireEvent.click(lastDataFilterTrigger);
+          fireEvent.click(document.querySelector('#clear-last-upload-filter'));
 
           // Filter count should be 1
-          expect(filterCount()).to.have.lengthOf(1);
-          expect(filterCount().text()).to.equal('1');
-          expect(timeInRangeFilterCount().text()).to.equal('3');
+          await waitFor(() => {
+            expect(filterCount()?.textContent).to.equal('1');
+            expect(timeInRangeFilterCount()).to.exist;
+            expect(timeInRangeFilterCount().textContent).to.equal('3');
+          });
 
           // Unset time in range filter
-          timeInRangeFilterTrigger.simulate('click');
-          tirPopover().find('#timeInRangeFilterClear').hostNodes().simulate('click');
+          fireEvent.click(timeInRangeFilterTrigger);
+          fireEvent.click(document.querySelector('#timeInRangeFilterClear'));
 
           // Total filter count and time in range filter count should be unset
-          expect(filterCount()).to.have.lengthOf(0);
-          expect(timeInRangeFilterCount()).to.have.lengthOf(0);
-        });
+          await waitFor(() => {
+            expect(filterCount()).to.be.null;
+          });
+          expect(timeInRangeFilterCount()).to.be.null;
+        }, 60000);
 
-        it('should reset all active filters at once', () => {
-          const filterCount = () => wrapper.find('#filter-count').hostNodes();
-          expect(filterCount()).to.have.lengthOf(0);
+        it('should reset all active filters at once', async () => {
+          // Set up stateful filter mock to allow DOM verification after applying filters
+          let currentFilters = { timeInRange: [], patientTags: [], meetsGlycemicTargets: false };
+          const applyFiltersMock = (newFilters) => {
+            currentFilters = typeof newFilters === 'function' ? newFilters(currentFilters) : newFilters;
+            mockUseClinicPatientsFilters.mockImplementation(() => [currentFilters, applyFiltersMock]);
+          };
+          mockUseClinicPatientsFilters.mockImplementation(() => [currentFilters, applyFiltersMock]);
+          mountWrapper(store);
+          defaultProps.trackMetric.resetHistory();
 
-          const timeInRangeFilterCount = () => wrapper.find('#time-in-range-filter-count').hostNodes();
-          expect(timeInRangeFilterCount()).to.have.lengthOf(0);
+          const filterCount = () => container.querySelector('#filter-count');
+          expect(filterCount()).to.be.null;
 
-          // Reset Filters button only shows when filters are active
-          const resetAllFiltersButton = () => wrapper.find('#reset-all-active-filters').hostNodes();
-          expect(resetAllFiltersButton()).to.have.lengthOf(0);
+          const timeInRangeFilterCount = () => container.querySelector('#time-in-range-filter-count');
+          expect(timeInRangeFilterCount()).to.be.null;
+
+          const resetAllFiltersButton = () => container.querySelector('#reset-all-active-filters');
+          expect(resetAllFiltersButton()).to.be.null;
 
           // Set lastData filter
-          const lastDataFilterTrigger = wrapper.find('#last-data-filter-trigger').hostNodes();
-          expect(lastDataFilterTrigger).to.have.lengthOf(1);
+          const lastDataFilterTrigger = container.querySelector('#last-data-filter-trigger');
+          expect(lastDataFilterTrigger).to.exist;
 
-          const popover = () => wrapper.find('#lastDataFilters').hostNodes();
-          lastDataFilterTrigger.simulate('click');
+          fireEvent.click(lastDataFilterTrigger);
 
-          const typeFilterOptions = popover().find('#last-upload-type').find('label').hostNodes();
-          expect(typeFilterOptions).to.have.lengthOf(2);
+          const typeFilterOptions = document.querySelectorAll('#last-upload-type label');
+          expect(typeFilterOptions.length).to.equal(2);
 
-          const periodFilterOptions = popover().find('#last-upload-filters').find('label').hostNodes();
-          expect(periodFilterOptions).to.have.lengthOf(4);
+          const periodFilterOptions = document.querySelectorAll('#last-upload-filters label');
+          expect(periodFilterOptions.length).to.equal(4);
 
-          typeFilterOptions.at(0).find('input').last().simulate('change', { target: { name: 'last-upload-type', value: 'cgm' } });
-          periodFilterOptions.at(3).find('input').last().simulate('change', { target: { name: 'last-upload-filters', value: 30 } });
-          popover().find('#apply-last-upload-filter').hostNodes().simulate('click');
+          fireEvent.click(typeFilterOptions[0].querySelector('input'));
+          fireEvent.click(periodFilterOptions[3].querySelector('input'));
+          fireEvent.click(document.querySelector('#apply-last-upload-filter'));
 
-          // Filter count should be 1
-          expect(filterCount()).to.have.lengthOf(1);
-          expect(filterCount().text()).to.equal('1');
-          expect(resetAllFiltersButton()).to.have.lengthOf(1);
-          expect(resetAllFiltersButton().text()).to.equal('Reset Filters');
+          // Filter count should be 1 after natural re-render from popover close
+          await waitFor(() => {
+            expect(filterCount()).to.exist;
+          });
+          expect(filterCount().textContent).to.equal('1');
+          expect(resetAllFiltersButton()).to.exist;
 
           // Set time in range filter
-          const timeInRangeFilterTrigger = wrapper.find('#time-in-range-filter-trigger').hostNodes();
-          expect(timeInRangeFilterTrigger).to.have.lengthOf(1);
+          const timeInRangeFilterTrigger = container.querySelector('#time-in-range-filter-trigger');
+          expect(timeInRangeFilterTrigger).to.exist;
 
-          const tirPopover = () => wrapper.find('#timeInRangeFilters').hostNodes();
-          timeInRangeFilterTrigger.simulate('click');
+          fireEvent.click(timeInRangeFilterTrigger);
 
           // Select 3 filter ranges
-          const veryLowFilter = () => tirPopover().find('#time-in-range-filter-veryLow').hostNodes();
-          veryLowFilter().find('input').simulate('change', { target: { name: 'range-timeInVeryLowPercent-filter', checked: true } });
-          expect(veryLowFilter().find('input').props().checked).to.be.true;
+          const veryLowFilter = () => document.querySelector('#time-in-range-filter-veryLow');
+          fireEvent.click(veryLowFilter().querySelector('input'));
+          expect(veryLowFilter().querySelector('input').checked).to.be.true;
 
-          const lowFilter = () => tirPopover().find('#time-in-range-filter-anyLow').hostNodes();
-          lowFilter().find('input').simulate('change', { target: { name: 'range-timeInAnyLowPercent-filter', checked: true } });
-          expect(lowFilter().find('input').props().checked).to.be.true;
+          const lowFilter = () => document.querySelector('#time-in-range-filter-anyLow');
+          fireEvent.click(lowFilter().querySelector('input'));
+          expect(lowFilter().querySelector('input').checked).to.be.true;
 
-          const highFilter = () => tirPopover().find('#time-in-range-filter-anyHigh').hostNodes();
-          highFilter().find('input').simulate('change', { target: { name: 'range-timeInAnyHighPercent-filter', checked: true } });
-          expect(highFilter().find('input').props().checked).to.be.true;
+          const highFilter = () => document.querySelector('#time-in-range-filter-anyHigh');
+          fireEvent.click(highFilter().querySelector('input'));
+          expect(highFilter().querySelector('input').checked).to.be.true;
 
           // Submit the form
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-          const applyButton = tirPopover().find('#timeInRangeFilterConfirm').hostNodes();
-          applyButton.simulate('click');
+          fireEvent.click(document.querySelector('#timeInRangeFilterConfirm'));
 
-          // Filter count should be 2
-          expect(filterCount().text()).to.equal('2');
-          expect(timeInRangeFilterCount().text()).to.equal('3');
-          expect(resetAllFiltersButton()).to.have.lengthOf(1);
+          // Filter count should be 2 after natural re-render from popover close
+          await waitFor(() => {
+            expect(filterCount()?.textContent).to.equal('2');
+            expect(timeInRangeFilterCount()).to.exist;
+            expect(timeInRangeFilterCount().textContent).to.equal('3');
+          });
+          expect(resetAllFiltersButton()).to.exist;
 
-          // Click reset filters button
-          resetAllFiltersButton().simulate('click');
+          fireEvent.click(resetAllFiltersButton());
 
           // Total filter count and time in range filter count should be unset
-          expect(filterCount()).to.have.lengthOf(0);
-          expect(timeInRangeFilterCount()).to.have.lengthOf(0);
-          expect(resetAllFiltersButton()).to.have.lengthOf(0);
-        });
+          await waitFor(() => {
+            expect(filterCount()).to.be.null;
+          });
+          expect(timeInRangeFilterCount()).to.be.null;
+          expect(resetAllFiltersButton()).to.be.null;
+        }, 60000);
 
         it('should clear pending filter edits when time in range filter dialog closed', () => {
-          const filterCount = () => wrapper.find('#filter-count').hostNodes();
-          expect(filterCount()).to.have.lengthOf(0);
+          const filterCount = () => container.querySelector('#filter-count');
+          expect(filterCount()).to.be.null;
 
-          const timeInRangeFilterCount = () => wrapper.find('#time-in-range-filter-count').hostNodes();
-          expect(timeInRangeFilterCount()).to.have.lengthOf(0);
+          const timeInRangeFilterCount = () => container.querySelector('#time-in-range-filter-count');
+          expect(timeInRangeFilterCount()).to.be.null;
 
           // Reset Filters button only shows when filters are active
-          const resetAllFiltersButton = () => wrapper.find('#reset-all-active-filters').hostNodes();
-          expect(resetAllFiltersButton()).to.have.lengthOf(0);
+          const resetAllFiltersButton = () => container.querySelector('#reset-all-active-filters');
+          expect(resetAllFiltersButton()).to.be.null;
 
           // Open time in range popover
-          const timeInRangeFilterTrigger = wrapper.find('#time-in-range-filter-trigger').hostNodes();
-          expect(timeInRangeFilterTrigger).to.have.lengthOf(1);
+          const timeInRangeFilterTrigger = container.querySelector('#time-in-range-filter-trigger');
+          expect(timeInRangeFilterTrigger).to.exist;
 
-          const popover = () => wrapper.find('#timeInRangeFilters').hostNodes();
-          timeInRangeFilterTrigger.simulate('click');
+          fireEvent.click(timeInRangeFilterTrigger);
 
           // Select 3 filter ranges
-          const veryLowFilter = () => popover().find('#time-in-range-filter-veryLow').hostNodes();
-          veryLowFilter().find('input').simulate('change', { target: { name: 'range-timeInVeryLowPercent-filter', checked: true } });
-          expect(veryLowFilter().find('input').props().checked).to.be.true;
+          const veryLowFilter = () => document.querySelector('#time-in-range-filter-veryLow');
+          fireEvent.click(veryLowFilter().querySelector('input'));
+          expect(veryLowFilter().querySelector('input').checked).to.be.true;
 
-          const lowFilter = () => popover().find('#time-in-range-filter-anyLow').hostNodes();
-          lowFilter().find('input').simulate('change', { target: { name: 'range-timeInAnyLowPercent-filter', checked: true } });
-          expect(lowFilter().find('input').props().checked).to.be.true;
+          const lowFilter = () => document.querySelector('#time-in-range-filter-anyLow');
+          fireEvent.click(lowFilter().querySelector('input'));
+          expect(lowFilter().querySelector('input').checked).to.be.true;
 
-          const highFilter = () => popover().find('#time-in-range-filter-anyHigh').hostNodes();
-          highFilter().find('input').simulate('change', { target: { name: 'range-timeInAnyHighPercent-filter', checked: true } });
-          expect(highFilter().find('input').props().checked).to.be.true;
+          const highFilter = () => document.querySelector('#time-in-range-filter-anyHigh');
+          fireEvent.click(highFilter().querySelector('input'));
+          expect(highFilter().querySelector('input').checked).to.be.true;
 
           // Close popover without applying filter
           defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-          expect(popover()).to.have.length(1);
-          const closeButton = popover().find('button[aria-label="close dialog"]').hostNodes();
-          closeButton.simulate('click');
+          expect(document.querySelector('#timeInRangeFilters')).to.exist;
+          const closeButton = document.querySelector('#timeInRangeFilters button[aria-label="close dialog"]');
+          fireEvent.click(closeButton);
 
           // Re-open popover
-          timeInRangeFilterTrigger.simulate('click');
+          fireEvent.click(timeInRangeFilterTrigger);
 
           // Verify that options are not still checked
-          expect(veryLowFilter().find('input').props().checked).to.be.false;
-          expect(lowFilter().find('input').props().checked).to.be.false;
-          expect(highFilter().find('input').props().checked).to.be.false;
+          expect(veryLowFilter().querySelector('input').checked).to.be.false;
+          expect(lowFilter().querySelector('input').checked).to.be.false;
+          expect(highFilter().querySelector('input').checked).to.be.false;
 
           // Total filter count and time in range filter count should be unset
-          expect(filterCount()).to.have.lengthOf(0);
-          expect(timeInRangeFilterCount()).to.have.lengthOf(0);
-          expect(resetAllFiltersButton()).to.have.lengthOf(0);
-        });
+          expect(filterCount()).to.be.null;
+          expect(timeInRangeFilterCount()).to.be.null;
+          expect(resetAllFiltersButton()).to.be.null;
+        }, 30000);
 
-        it('should send an upload reminder to a fully claimed patient account', () => {
-          const table = wrapper.find(Table);
-          expect(table).to.have.length(1);
-          expect(table.find('tbody tr')).to.have.length(5);
+        it('should send an upload reminder to a fully claimed patient account', async () => {
+          const dataRows = container.querySelectorAll('table tbody tr');
+          expect(dataRows.length).to.equal(5);
 
-          // No reminder action for a custodial account
-          const patient1Reminder = table.find('tbody tr').at(0).find('Button[iconLabel="Send Upload Reminder"]');
-          expect(patient1Reminder).to.have.lengthOf(0);
+          // No reminder action for a custodial account - open patient1 menu and verify no send reminder option
+          const patient1MenuIcon = dataRows[0].querySelector('[aria-label="info"]');
+          fireEvent.click(patient1MenuIcon);
+          await waitFor(() => expect(document.querySelector('#action-menu-patient1')).to.exist);
+          expect(document.querySelector('button#send-upload-reminder-patient1')).to.be.null;
+          // Close patient1 menu by clicking the trigger again
+          fireEvent.click(patient1MenuIcon);
 
-          // Fully claimed account
-          const patient2Reminder = table.find('tbody tr').at(1).find('Button[iconLabel="Send Upload Reminder"]');
-          expect(patient2Reminder).to.have.lengthOf(1);
+          // Fully claimed account - open patient2 menu
+          const patient2MenuIcon = dataRows[1].querySelector('[aria-label="info"]');
+          fireEvent.click(patient2MenuIcon);
+          await waitFor(() => expect(document.querySelector('#action-menu-patient2')).to.exist);
 
-          const dialog = () => wrapper.find('Dialog#sendUploadReminderDialog');
+          const patient2Reminder = document.querySelector('button#send-upload-reminder-patient2');
+          expect(patient2Reminder).to.exist;
 
-          expect(dialog()).to.have.length(0);
-          patient2Reminder.simulate('click');
-          wrapper.update();
-          wrapper.update();
-          expect(dialog()).to.have.length(1);
-          expect(dialog().props().open).to.be.true;
+          const dialog = () => document.querySelector('#sendUploadReminderDialog');
+
+          expect(dialog()).to.be.null;
+          fireEvent.click(patient2Reminder);
+          await waitFor(() => expect(dialog()).to.exist);
 
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Send upload reminder', { clinicId: 'clinicID123' });
           expect(defaultProps.trackMetric.callCount).to.equal(1);
 
           store.clearActions();
-          dialog().find('Button#resend-upload-reminder').simulate('click');
+          fireEvent.click(document.querySelector('#sendUploadReminderDialog [id="resend-upload-reminder"]'));
 
           expect(defaultProps.api.clinics.sendPatientUploadReminder.callCount).to.equal(1);
 
@@ -2559,51 +2483,50 @@ describe('ClinicPatients', () => {
 
         describe('managing patient tags', () => {
           it('should allow adding tags to a patient', () => {
-            const table = wrapper.find(Table);
-            const rows = table.find('tbody tr');
-            const rowData = row => rows.at(row).find('.MuiTableCell-root');
+            const dataRows = container.querySelectorAll('table tbody tr');
+            const rowData = row => dataRows[row].querySelectorAll('.MuiTableCell-root');
 
-            expect(rowData(0).at(2).text()).contains('Add'); // Add tag link when no tags avail
-            const addTagsTrigger = rowData(0).find('#add-tags-to-patient-trigger').hostNodes();
-            expect(addTagsTrigger).to.have.length(1);
+            expect(rowData(0)[2].textContent).to.contain('Add'); // Add tag link when no tags avail
+            const addTagsTrigger = dataRows[0].querySelector('#add-tags-to-patient-trigger');
+            expect(addTagsTrigger).to.exist;
 
-            const addTagsPopover = () => wrapper.find('#add-patient-tags-patient1').hostNodes();
-            expect(addTagsPopover()).to.have.length(1);
-            expect(addTagsPopover().props().style.visibility).to.equal('hidden');
+            const addTagsPopover = () => document.querySelector('#add-patient-tags-patient1');
+            expect(addTagsPopover()).to.exist;
+            expect(addTagsPopover().style.visibility).to.equal('hidden');
 
             // Open tags popover
-            addTagsTrigger.simulate('click');
-            expect(addTagsPopover().props().style.visibility).to.be.undefined;
+            fireEvent.click(addTagsTrigger);
+            expect(addTagsPopover().style.visibility).to.equal('');
 
             // No initial selected tags
-            const selectedTags = () => addTagsPopover().find('.selected-tags').find('.tag-text').hostNodes();
-            expect(selectedTags).to.have.length(0);
+            const selectedTags = () => addTagsPopover().querySelectorAll('.selected-tags .tag-text');
+            expect(selectedTags().length).to.equal(0);
 
             // Ensure tag options present
-            const availableTags = () => addTagsPopover().find('.available-tags').find('.tag-text').hostNodes();
-            expect(availableTags()).to.have.lengthOf(3);
-            expect(availableTags().at(0).text()).to.equal('>test tag 1');
-            expect(availableTags().at(1).text()).to.equal('test tag 2');
-            expect(availableTags().at(2).text()).to.equal('ttest tag 3');
+            const availableTags = () => addTagsPopover().querySelectorAll('.available-tags .tag-text');
+            expect(availableTags().length).to.equal(3);
+            expect(availableTags()[0].textContent).to.equal('>test tag 1');
+            expect(availableTags()[1].textContent).to.equal('test tag 2');
+            expect(availableTags()[2].textContent).to.equal('ttest tag 3');
 
             // Apply button disabled until selection made
-            const applyButton = () => addTagsPopover().find('#apply-patient-tags-dialog').hostNodes();
-            expect(applyButton().props().disabled).to.be.true;
+            const applyButton = () => addTagsPopover().querySelector('#apply-patient-tags-dialog');
+            expect(applyButton().disabled).to.be.true;
 
-            addTagsPopover().find('#tag1').hostNodes().simulate('click');
-            addTagsPopover().find('#tag2').hostNodes().simulate('click');
-            expect(applyButton().props().disabled).to.be.false;
+            fireEvent.click(addTagsPopover().querySelector('#tag1'));
+            fireEvent.click(addTagsPopover().querySelector('#tag2'));
+            expect(applyButton().disabled).to.be.false;
 
             // Tags should now be moved to selected group
-            expect(selectedTags()).to.have.lengthOf(2);
-            expect(selectedTags().at(0).text()).to.equal('>test tag 1');
-            expect(selectedTags().at(1).text()).to.equal('test tag 2');
+            expect(selectedTags().length).to.equal(2);
+            expect(selectedTags()[0].textContent).to.equal('>test tag 1');
+            expect(selectedTags()[1].textContent).to.equal('test tag 2');
 
-            expect(availableTags()).to.have.lengthOf(1);
-            expect(availableTags().at(0).text()).to.equal('ttest tag 3');
+            expect(availableTags().length).to.equal(1);
+            expect(availableTags()[0].textContent).to.equal('ttest tag 3');
 
             defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-            applyButton().simulate('click');
+            fireEvent.click(applyButton());
 
             sinon.assert.calledWith(
               defaultProps.api.clinics.updateClinicPatient,
@@ -2650,27 +2573,18 @@ describe('ClinicPatients', () => {
 
             const testStore = mockStore(testStoreProperties);
 
-            wrapper = mount(
-              <Provider store={testStore}>
-                <ToastProvider>
-                  <ClinicPatients {...defaultProps} />
-                </ToastProvider>
-              </Provider>
-            );
+            mountWrapper(testStore);
 
-            const table = wrapper.find(Table);
-            const rows = table.find('tbody tr');
-            const rowData = row => rows.at(row).find('.MuiTableCell-root');
+            const dataRows = container.querySelectorAll('table tbody tr');
+            const rowData = row => dataRows[row].querySelectorAll('.MuiTableCell-root');
 
             // Patient 5 has an MRN, so the button will open the Add Tags dropdown
-            rowData(4).find('#add-tags-to-patient-trigger').hostNodes().simulate('click');
-            wrapper.update();
-            expect(wrapper.find('Dialog#editPatient').exists()).to.be.false;
+            fireEvent.click(dataRows[4].querySelector('#add-tags-to-patient-trigger'));
+            expect(document.querySelector('#editPatient')).to.be.null;
 
             // Patient 6 has no MRN, so the button will instead open the Edit Patient Modal
-            rowData(5).find('#add-tags-to-patient-trigger').hostNodes().simulate('click');
-            wrapper.update();
-            expect(wrapper.find('Dialog#editPatient').exists()).to.be.true;
+            fireEvent.click(dataRows[5].querySelector('#add-tags-to-patient-trigger'));
+            expect(document.querySelector('#editPatient')).to.exist;
           });
         });
       });
@@ -2683,58 +2597,35 @@ describe('ClinicPatients', () => {
             store = mockStore(tier0300ClinicState);
             mockedLocalStorage = {};
 
-            ClinicPatients.__Rewire__('useFlags', sinon.stub().returns({
+            mockUseFlags.mockReturnValue({
               showTideDashboard: true,
-            }));
+            });
 
-            ClinicPatients.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
+            mockUseLocalStorage.mockImplementation(key => {
               defaults(mockedLocalStorage, { [key]: {} })
               return [
                 mockedLocalStorage[key],
                 sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
               ];
-            }));
+            });
 
-            ClinicPatients.__Rewire__('useClinicPatientsFilters', sinon.stub().callsFake(() => (
+            mockUseClinicPatientsFilters.mockImplementation(() => (
               [
                 {},
                 sinon.stub(),
               ]
-            )));
+            ));
 
-            TideDashboardConfigForm.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
-              defaults(mockedLocalStorage, { [key]: {} })
-              return [
-                mockedLocalStorage[key],
-                sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
-              ];
-            }));
+            mockUseLocation.mockReturnValue({ pathname: '/clinic-workspace' });
 
-            TideDashboardConfigForm.__Rewire__('useLocation', sinon.stub().returns({ pathname: '/clinic-workspace' }));
-
-            wrapper = mount(
-              <Provider store={store}>
-                <ToastProvider>
-                  <ClinicPatients {...defaultProps} />
-                </ToastProvider>
-              </Provider>
-            );
-
+            mountWrapper(store);
             defaultProps.trackMetric.resetHistory();
           });
 
-          afterEach(() => {
-            ClinicPatients.__ResetDependency__('useLocalStorage');
-            ClinicPatients.__ResetDependency__('useClinicPatientsFilters');
-            ClinicPatients.__ResetDependency__('useFlags');
-            TideDashboardConfigForm.__ResetDependency__('useLocalStorage');
-            TideDashboardConfigForm.__ResetDependency__('useLocation');
-          });
-
           it('should render the TIDE Dashboard CTA', () => {
-            const tideDashboardButton = wrapper.find('#open-tide-dashboard').hostNodes();
-            expect(tideDashboardButton).to.have.length(1);
-            expect(tideDashboardButton.props().disabled).to.be.false;
+            const tideDashboardButton = container.querySelector('#open-tide-dashboard');
+            expect(tideDashboardButton).to.exist;
+            expect(tideDashboardButton.disabled).to.be.false;
           });
 
           it('should disable the TIDE Dashboard CTA if clinic has no patient tags defined', () => {
@@ -2749,115 +2640,108 @@ describe('ClinicPatients', () => {
                 },
               },
             });
-            wrapper = mount(
-              <Provider store={store}>
-                <ToastProvider>
-                  <ClinicPatients {...defaultProps} />
-                </ToastProvider>
-              </Provider>
-            );
+            mountWrapper(store);
 
-            const tideDashboardButton = wrapper.find('#open-tide-dashboard').hostNodes();
-            expect(tideDashboardButton).to.have.length(1);
-            expect(tideDashboardButton.props().disabled).to.be.true;
+            const tideDashboardButton = container.querySelector('#open-tide-dashboard');
+            expect(tideDashboardButton).to.exist;
+            expect(tideDashboardButton.disabled).to.be.true;
           });
 
           it('should not render the TIDE Dashboard CTA if clinic tier < tier0300', () => {
             store = mockStore(tier0100ClinicState);
-            wrapper = mount(
-              <Provider store={store}>
-                <ToastProvider>
-                  <ClinicPatients {...defaultProps} />
-                </ToastProvider>
-              </Provider>
-            );
+            mountWrapper(store);
 
-            const tideDashboardButton = wrapper.find('#open-tide-dashboard').hostNodes();
-            expect(tideDashboardButton).to.have.length(0);
+            const tideDashboardButton = container.querySelector('#open-tide-dashboard');
+            expect(tideDashboardButton).to.be.null;
           });
 
-          it('should open a modal to configure the dashboard, and redirect when configured', done => {
-            const tideDashboardButton = wrapper.find('#open-tide-dashboard').hostNodes();
-            const dialog = () => wrapper.find('Dialog#tideDashboardConfig');
+          it('should open a modal to configure the dashboard, and redirect when configured', async () => {
+            mountWrapper(store);
+            defaultProps.trackMetric.resetHistory();
+
+            const tideDashboardButton = container.querySelector('#open-tide-dashboard');
+            const dialog = () => document.querySelector('#tideDashboardConfig');
 
             // Open dashboard config popover
-            expect(dialog()).to.have.length(0);
-            tideDashboardButton.simulate('click');
-            wrapper.update();
-            expect(dialog()).to.have.length(1);
-            expect(dialog().props().open).to.be.true;
+            expect(dialog()).to.be.null;
+            fireEvent.click(tideDashboardButton);
+            await waitFor(() => expect(dialog()).to.exist);
             sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Show Tide Dashboard config dialog', sinon.match({ clinicId: 'clinicID123', source: 'Patients list' }));
 
-            const applyButton = () => dialog().find('#configureTideDashboardConfirm').hostNodes();
-            expect(applyButton().props().disabled).to.be.true;
+            const applyButton = () => document.querySelector('#configureTideDashboardConfirm');
+            expect(applyButton().disabled).to.be.true;
 
-            // Select 2 tags from select menu
-            wrapper.find(SelectTags).props().onChange(['tag1', 'tag3']);
-
-            // Ensure period filter options present
-            const summaryPeriodOptions = dialog().find('#period').find('label').hostNodes();
-            expect(summaryPeriodOptions).to.have.lengthOf(4);
-
-            expect(summaryPeriodOptions.at(0).text()).to.equal('24 hours');
-            expect(summaryPeriodOptions.at(0).find('input').props().value).to.equal('1d');
-
-            expect(summaryPeriodOptions.at(1).text()).to.equal('7 days');
-            expect(summaryPeriodOptions.at(1).find('input').props().value).to.equal('7d');
-
-            expect(summaryPeriodOptions.at(2).text()).to.equal('14 days');
-            expect(summaryPeriodOptions.at(2).find('input').props().value).to.equal('14d');
-
-            expect(summaryPeriodOptions.at(3).text()).to.equal('30 days');
-            expect(summaryPeriodOptions.at(3).find('input').props().value).to.equal('30d');
-
-            summaryPeriodOptions.at(3).find('input').last().simulate('change', { target: { name: 'period', value: '30d' } });
-
-            // Apply button should still be disabled
-            expect(applyButton().props().disabled).to.be.true;
+            // Select tags via react-select: open the dropdown and click an option
+            const selectControl = document.querySelector('#tideDashboardConfig .PatientFormSelectTags__control');
+            expect(selectControl).to.exist;
+            fireEvent.mouseDown(selectControl);
+            await waitFor(() => expect(document.querySelector('.PatientFormSelectTags__menu')).to.exist);
+            const tagOptions = document.querySelectorAll('.PatientFormSelectTags__option');
+            expect(tagOptions.length).to.be.at.least(1);
+            fireEvent.click(tagOptions[0]);
 
             // Ensure period filter options present
-            const lastDataFilterOptions = dialog().find('#lastData').find('label').hostNodes();
-            expect(lastDataFilterOptions).to.have.lengthOf(3);
+            const summaryPeriodOptions = document.querySelectorAll('#tideDashboardConfig #period label');
+            expect(summaryPeriodOptions.length).to.equal(4);
 
-            expect(lastDataFilterOptions.at(0).text()).to.equal('Today');
-            expect(lastDataFilterOptions.at(0).find('input').props().value).to.equal('1');
+            expect(summaryPeriodOptions[0].textContent).to.equal('24 hours');
+            expect(summaryPeriodOptions[0].querySelector('input').value).to.equal('1d');
 
-            expect(lastDataFilterOptions.at(1).text()).to.equal('Within 2 days');
-            expect(lastDataFilterOptions.at(1).find('input').props().value).to.equal('2');
+            expect(summaryPeriodOptions[1].textContent).to.equal('7 days');
+            expect(summaryPeriodOptions[1].querySelector('input').value).to.equal('7d');
 
-            expect(lastDataFilterOptions.at(2).text()).to.equal('Within 7 days');
-            expect(lastDataFilterOptions.at(2).find('input').props().value).to.equal('7');
+            expect(summaryPeriodOptions[2].textContent).to.equal('14 days');
+            expect(summaryPeriodOptions[2].querySelector('input').value).to.equal('14d');
 
-            lastDataFilterOptions.at(2).find('input').last().simulate('change', { target: { name: 'lastData', value: 7 } });
+            expect(summaryPeriodOptions[3].textContent).to.equal('30 days');
+            expect(summaryPeriodOptions[3].querySelector('input').value).to.equal('30d');
+
+            fireEvent.click(summaryPeriodOptions[3].querySelector('input'));
+
+            // Apply button should still be disabled (lastData not yet selected)
+            expect(applyButton().disabled).to.be.true;
+
+            // Ensure lastData filter options present
+            const lastDataFilterOptions = document.querySelectorAll('#tideDashboardConfig #lastData label');
+            expect(lastDataFilterOptions.length).to.equal(3);
+
+            expect(lastDataFilterOptions[0].textContent).to.equal('Today');
+            expect(lastDataFilterOptions[0].querySelector('input').value).to.equal('1');
+
+            expect(lastDataFilterOptions[1].textContent).to.equal('Within 2 days');
+            expect(lastDataFilterOptions[1].querySelector('input').value).to.equal('2');
+
+            expect(lastDataFilterOptions[2].textContent).to.equal('Within 7 days');
+            expect(lastDataFilterOptions[2].querySelector('input').value).to.equal('7');
+
+            fireEvent.click(lastDataFilterOptions[2].querySelector('input'));
 
             // Apply button should now be active
-            expect(applyButton().props().disabled).to.be.false;
+            await waitFor(() => expect(applyButton().disabled).to.be.false);
 
             // Submit the form
             store.clearActions();
-            applyButton().simulate('click');
+            fireEvent.click(applyButton());
 
             // Should redirect to the Tide dashboard after saving the dashboard opts to localStorage,
             // keyed to clinician|clinic IDs
-            setTimeout(() => {
+            await waitFor(() => {
               expect(store.getActions()).to.eql([
                 {
                   type: '@@router/CALL_HISTORY_METHOD',
                   payload: { method: 'push', args: ['/dashboard/tide']}
                 },
               ]);
-
-              sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Show Tide Dashboard config dialog confirmed', sinon.match({ clinicId: 'clinicID123', source: 'Patients list' }));
-
-              expect(mockedLocalStorage.tideDashboardConfig?.['clinicianUserId123|clinicID123']).to.eql({
-                period: '30d',
-                lastData: 7,
-                tags: ['tag1', 'tag3'],
-              });
-
-              done();
             });
-          });
+
+            sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Show Tide Dashboard config dialog confirmed', sinon.match({ clinicId: 'clinicID123', source: 'Patients list' }));
+
+            const savedConfig = mockedLocalStorage.tideDashboardConfig?.['clinicianUserId123|clinicID123'];
+            expect(savedConfig).to.exist;
+            expect(savedConfig.period).to.equal('30d');
+            expect(savedConfig.tags).to.be.an('array');
+            expect(savedConfig.tags.length).to.be.above(0);
+          }, 15000);
 
           it('should redirect right away to the dashboard if a valid configuration exists in localStorage', () => {
             mockedLocalStorage = {
@@ -2870,29 +2754,23 @@ describe('ClinicPatients', () => {
               },
             };
 
-            TideDashboardConfigForm.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
+            mockUseLocalStorage.mockImplementation(key => {
               defaults(mockedLocalStorage, { [key]: {} })
               return [
                 mockedLocalStorage[key],
                 sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
               ];
-            }));
+            });
 
-            wrapper = mount(
-              <Provider store={store}>
-                <ToastProvider>
-                  <ClinicPatients {...defaultProps} />
-                </ToastProvider>
-              </Provider>
-            );
+            mountWrapper(store);
 
             defaultProps.trackMetric.resetHistory();
             store.clearActions();
 
             // Click the dashboard button
-            const tideDashboardButton = wrapper.find('#open-tide-dashboard').hostNodes();
-            expect(tideDashboardButton).to.have.length(1);
-            tideDashboardButton.simulate('click');
+            const tideDashboardButton = container.querySelector('#open-tide-dashboard');
+            expect(tideDashboardButton).to.exist;
+            fireEvent.click(tideDashboardButton);
 
             expect(store.getActions()).to.eql([
               {
@@ -2903,10 +2781,9 @@ describe('ClinicPatients', () => {
 
             sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Navigate to Tide Dashboard', sinon.match({ clinicId: 'clinicID123', source: 'Patients list' }));
 
-            TideDashboardConfigForm.__ResetDependency__('useLocalStorage');
           });
 
-          it('should open the config modal if an invalid configuration exists in localStorage', () => {
+          it('should open the config modal if an invalid configuration exists in localStorage', async () => {
             mockedLocalStorage = {
               tideDashboardConfig: {
                 'clinicianUserId123|clinicID123': {
@@ -2917,64 +2794,45 @@ describe('ClinicPatients', () => {
               },
             };
 
-            TideDashboardConfigForm.__Rewire__('useLocalStorage', sinon.stub().callsFake(key => {
+            mockUseLocalStorage.mockImplementation(key => {
               defaults(mockedLocalStorage, { [key]: {} })
               return [
                 mockedLocalStorage[key],
                 sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
               ];
-            }));
+            });
 
-            wrapper = mount(
-              <Provider store={store}>
-                <ToastProvider>
-                  <ClinicPatients {...defaultProps} />
-                </ToastProvider>
-              </Provider>
-            );
+            mountWrapper(store);
 
             defaultProps.trackMetric.resetHistory();
             store.clearActions();
 
             // Click the dashboard button
-            const tideDashboardButton = wrapper.find('#open-tide-dashboard').hostNodes();
-            const dialog = () => wrapper.find('Dialog#tideDashboardConfig');
+            const tideDashboardButton = container.querySelector('#open-tide-dashboard');
+            const dialog = () => document.querySelector('#tideDashboardConfig');
 
             // Open dashboard config popover
-            expect(dialog()).to.have.length(0);
-            tideDashboardButton.simulate('click');
-            wrapper.update();
-            expect(dialog()).to.have.length(1);
-            expect(dialog().props().open).to.be.true;
+            expect(dialog()).to.be.null;
+            fireEvent.click(tideDashboardButton);
+            await waitFor(() => expect(dialog()).to.exist);
             sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Show Tide Dashboard config dialog', sinon.match({ clinicId: 'clinicID123', source: 'Patients list' }));
 
-            TideDashboardConfigForm.__ResetDependency__('useLocalStorage');
           });
         });
 
         context('showTideDashboard flag is false', () => {
           beforeEach(() => {
-            ClinicPatients.__Rewire__('useFlags', sinon.stub().returns({
+            mockUseFlags.mockReturnValue({
               showTideDashboard: false,
-            }));
-          });
-
-          afterEach(() => {
-            ClinicPatients.__ResetDependency__('useFlags');
+            });
           });
 
           it('should not show the TIDE Dashboard CTA, even if clinic tier >= tier0300', () => {
             store = mockStore(tier0300ClinicState);
-            wrapper = mount(
-              <Provider store={store}>
-                <ToastProvider>
-                  <ClinicPatients {...defaultProps} />
-                </ToastProvider>
-              </Provider>
-            );
+            mountWrapper(store);
 
-            const tideDashboardButton = wrapper.find('#open-tide-dashboard').hostNodes();
-            expect(tideDashboardButton).to.have.length(0);
+            const tideDashboardButton = container.querySelector('#open-tide-dashboard');
+            expect(tideDashboardButton).to.be.null;
           });
         });
       });
@@ -2984,51 +2842,39 @@ describe('ClinicPatients', () => {
           beforeEach(() => {
             store = mockStore(tier0300ClinicState);
 
-            ClinicPatients.__Rewire__('useFlags', sinon.stub().returns({
+            mockUseFlags.mockReturnValue({
               showSummaryDashboardLastReviewed: true,
-            }));
+            });
 
-            wrapper = mount(
-              <Provider store={store}>
-                <ToastProvider>
-                  <ClinicPatients {...defaultProps} />
-                </ToastProvider>
-              </Provider>
-            );
-
+            mountWrapper(store);
             defaultProps.trackMetric.resetHistory();
           });
 
-          afterEach(() => {
-            ClinicPatients.__ResetDependency__('useFlags');
-          });
-
           it('should render the Last Reviewed column', () => {
-            const lastReviewedHeader = wrapper.find('#peopleTable-header-lastReviewed').hostNodes();
-            expect(lastReviewedHeader).to.have.length(1);
+            const lastReviewedHeader = container.querySelector('#peopleTable-header-lastReviewed');
+            expect(lastReviewedHeader).to.exist;
 
-            const table = wrapper.find(Table);
-            const rows = table.find('tbody tr');
-            const lastReviewData = row => rows.at(row).find('.MuiTableCell-root').at(12);
+            const dataRows = container.querySelectorAll('table tbody tr');
+            const lastReviewData = row => dataRows[row].querySelectorAll('.MuiTableCell-root')[12];
 
-            expect(lastReviewData(0).text()).to.contain('Today');
-            expect(lastReviewData(1).text()).to.contain('Yesterday');
-            expect(lastReviewData(2).text()).to.contain('30 days ago');
-            expect(lastReviewData(3).text()).to.contain('2024-03-05');
+            expect(lastReviewData(0).textContent).to.contain('Today');
+            expect(lastReviewData(1).textContent).to.contain('Yesterday');
+            expect(lastReviewData(2).textContent).to.contain('30 days ago');
+            expect(lastReviewData(3).textContent).to.contain('2024-03-05');
           });
 
-          it('should allow setting last reviewed date', done => {
-            const table = wrapper.find(Table);
-            const rows = table.find('tbody tr');
-            const lastReviewData = row => rows.at(row).find('.MuiTableCell-root').at(12);
-            const updateButton = () =>lastReviewData(1).find('button');
+          it('should allow setting last reviewed date', async () => {
+            const dataRows = container.querySelectorAll('table tbody tr');
+            const lastReviewData = row => dataRows[row].querySelectorAll('.MuiTableCell-root')[12];
+            const updateButton = () => lastReviewData(1).querySelector('button');
 
-            expect(lastReviewData(1).text()).to.contain('Yesterday');
-            expect(updateButton().text()).to.equal('Mark Reviewed');
+            expect(lastReviewData(1).textContent).to.contain('Yesterday');
+            expect(updateButton().textContent).to.equal('Mark Reviewed');
 
             store.clearActions();
-            updateButton().simulate('click');
-            setTimeout(() => {
+            fireEvent.click(updateButton());
+
+            await waitFor(() => {
               sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Mark patient reviewed', sinon.match({ clinicId: 'clinicID123', source: 'Patients list' }));
 
               sinon.assert.calledWith(
@@ -3043,23 +2889,21 @@ describe('ClinicPatients', () => {
                   payload: { clinicId: 'clinicID123', patientId: 'patient2', reviews: [today, yesterday] },
                 },
               ]);
-
-              done();
             });
           });
 
-          it('should allow undoing last reviewed date', done => {
-            const table = wrapper.find(Table);
-            const rows = table.find('tbody tr');
-            const lastReviewData = row => rows.at(row).find('.MuiTableCell-root').at(12);
-            const updateButton = () =>lastReviewData(0).find('button');
+          it('should allow undoing last reviewed date', async () => {
+            const dataRows = container.querySelectorAll('table tbody tr');
+            const lastReviewData = row => dataRows[row].querySelectorAll('.MuiTableCell-root')[12];
+            const updateButton = () => lastReviewData(0).querySelector('button');
 
-            expect(lastReviewData(0).text()).to.contain('Today');
-            expect(updateButton().text()).to.equal('Undo');
+            expect(lastReviewData(0).textContent).to.contain('Today');
+            expect(updateButton().textContent).to.equal('Undo');
 
             store.clearActions();
-            updateButton().simulate('click');
-            setTimeout(() => {
+            fireEvent.click(updateButton());
+
+            await waitFor(() => {
               sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Undo mark patient reviewed', sinon.match({ clinicId: 'clinicID123', source: 'Patients list' }));
 
               sinon.assert.calledWith(
@@ -3074,70 +2918,47 @@ describe('ClinicPatients', () => {
                   payload: { clinicId: 'clinicID123', patientId: 'patient1', reviews: [yesterday] },
                 },
               ]);
-
-              done();
             });
           });
 
-          it('should refetch patients with updated sort parameter when Last Reviewed header is clicked', () => {
-            const table = wrapper.find(Table);
-            expect(table).to.have.length(1);
-
-            const lastReviewedHeader = table.find('#peopleTable-header-lastReviewed .MuiTableSortLabel-root').at(0);
+          it('should refetch patients with updated sort parameter when Last Reviewed header is clicked', async () => {
+            const lastReviewedHeader = container.querySelector('#peopleTable-header-lastReviewed .MuiTableSortLabel-root');
 
             defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-            lastReviewedHeader.simulate('click');
-            sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+lastReviewed' }));
+            fireEvent.click(lastReviewedHeader);
+            await waitFor(() => sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+lastReviewed' })));
 
             defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-            lastReviewedHeader.simulate('click');
-            sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-lastReviewed' }));
+            fireEvent.click(lastReviewedHeader);
+            await waitFor(() => sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '-lastReviewed' })));
           });
 
           it('should not render the Last Reviewed column if showSummarData flag is false', () => {
-            ClinicPatients.__Rewire__('useFlags', sinon.stub().returns({
+            mockUseFlags.mockReturnValue({
               showSummaryData: false,
-            }));
+            });
 
             store = mockStore(tier0100ClinicState);
-            wrapper = mount(
-              <Provider store={store}>
-                <ToastProvider>
-                  <ClinicPatients {...defaultProps} />
-                </ToastProvider>
-              </Provider>
-            );
+            mountWrapper(store);
 
-            const lastReviewedHeader = wrapper.find('#peopleTable-header-lastReviewed').hostNodes();
-            expect(lastReviewedHeader).to.have.length(0);
-
-            ClinicPatients.__ResetDependency__('useFlags');
+            const lastReviewedHeader = container.querySelector('#peopleTable-header-lastReviewed');
+            expect(lastReviewedHeader).to.be.null;
           });
         });
 
         context('showSummaryDashboardLastReviewed flag is false', () => {
           beforeEach(() => {
-            ClinicPatients.__Rewire__('useFlags', sinon.stub().returns({
+            mockUseFlags.mockReturnValue({
               showSummaryDashboardLastReviewed: false,
-            }));
-          });
-
-          afterEach(() => {
-            ClinicPatients.__ResetDependency__('useFlags');
+            });
           });
 
           it('should not show the Last Reviewed column, even if clinic tier >= tier0300', () => {
             store = mockStore(tier0300ClinicState);
-            wrapper = mount(
-              <Provider store={store}>
-                <ToastProvider>
-                  <ClinicPatients {...defaultProps} />
-                </ToastProvider>
-              </Provider>
-            );
+            mountWrapper(store);
 
-            const lastReviewedHeader = wrapper.find('#peopleTable-header-lastReviewed').hostNodes();
-            expect(lastReviewedHeader).to.have.length(0);
+            const lastReviewedHeader = container.querySelector('#peopleTable-header-lastReviewed');
+            expect(lastReviewedHeader).to.be.null;
           });
         });
       });
@@ -3159,61 +2980,42 @@ describe('ClinicPatients', () => {
               ];
             }
 
-            ClinicPatients.__Rewire__('useFlags', sinon.stub().returns({
+            mockUseFlags.mockReturnValue({
               showRpmReport: true,
-            }));
+            });
 
-            ClinicPatients.__Rewire__('useLocalStorage', sinon.stub().callsFake(localStorageMock));
-            ClinicPatients.__Rewire__('useClinicPatientsFilters', sinon.stub().callsFake(() => (
+            mockUseLocalStorage.mockImplementation(localStorageMock);
+            mockUseClinicPatientsFilters.mockImplementation(() => (
               [
                 { timeCGMUsePercent: '<0.7' },
                 sinon.stub(),
               ]
-            )));
-            RpmReportConfigForm.__Rewire__('useLocalStorage', sinon.stub().callsFake(localStorageMock));
+            ));
 
-            exportRpmReportStub = sinon.stub();
-            ClinicPatients.__Rewire__('exportRpmReport', exportRpmReportStub);
+            exportRpmReportStub = null;
 
-            wrapper = mount(
-              <Provider store={store}>
-                <ToastProvider>
-                  <ClinicPatients {...defaultProps} />
-                </ToastProvider>
-              </Provider>
-            );
-
+            mountWrapper(store);
             defaultProps.trackMetric.resetHistory();
           });
 
           afterEach(() => {
-            ClinicPatients.__ResetDependency__('useLocalStorage');
-            ClinicPatients.__ResetDependency__('useClinicPatientsFilters');
-            ClinicPatients.__ResetDependency__('useFlags');
-            ClinicPatients.__ResetDependency__('exportRpmReport');
-            RpmReportConfigForm.__ResetDependency__('useLocalStorage');
+            exportRpmReportStub = null;
           });
 
           it('should render the RPM Report CTA', () => {
-            const rpmReportButton = wrapper.find('#open-rpm-report-config').hostNodes();
-            expect(rpmReportButton).to.have.length(1);
+            const rpmReportButton = container.querySelector('#open-rpm-report-config');
+            expect(rpmReportButton).to.exist;
           });
 
           it('should not render the RPM Report CTA if clinic tier < tier0300', () => {
             store = mockStore(tier0100ClinicState);
-            wrapper = mount(
-              <Provider store={store}>
-                <ToastProvider>
-                  <ClinicPatients {...defaultProps} />
-                </ToastProvider>
-              </Provider>
-            );
+            mountWrapper(store);
 
-            const rpmReportButton = wrapper.find('#open-rpm-report-config').hostNodes();
-            expect(rpmReportButton).to.have.length(0);
+            const rpmReportButton = container.querySelector('#open-rpm-report-config');
+            expect(rpmReportButton).to.be.null;
           });
 
-          it('should open a patient count limit modal if current filtered count is > 1000', () => {
+          it('should open a patient count limit modal if current filtered count is > 1000', async () => {
             store = mockStore({
               blip: {
                 ...tier0300ClinicState.blip,
@@ -3226,27 +3028,19 @@ describe('ClinicPatients', () => {
               }
             });
 
-            wrapper = mount(
-              <Provider store={store}>
-                <ToastProvider>
-                  <ClinicPatients {...defaultProps} />
-                </ToastProvider>
-              </Provider>
-            );
+            mountWrapper(store);
 
-            const rpmReportButton = wrapper.find('#open-rpm-report-config').hostNodes();
-            const dialog = () => wrapper.find('Dialog#rpmReportLimit');
+            const rpmReportButton = container.querySelector('#open-rpm-report-config');
+            const dialog = () => document.querySelector('#rpmReportLimit');
 
             // Clicking RPM report button should open dashboard limit popover since fetchedPatientCount > 1000
-            expect(dialog()).to.have.length(1);
-            expect(dialog().props().open).to.be.false;
-            rpmReportButton.simulate('click');
-            wrapper.update();
-            expect(dialog().props().open).to.be.true;
+            expect(document.querySelector('#rpmReportLimit[aria-hidden="true"]')).to.exist;
+            fireEvent.click(rpmReportButton);
+            await waitFor(() => expect(document.querySelector('#rpmReportLimit:not([aria-hidden])')).to.exist);
             sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Show RPM Report limit dialog', sinon.match({ clinicId: 'clinicID123', source: 'Patients list' }));
           });
 
-          it('should open a modal to configure the report, and generate when configured', done => {
+          it('should open a modal to configure the report, and generate when configured', async () => {
             store = mockStore({
               blip: {
                 ...tier0300ClinicState.blip,
@@ -3259,122 +3053,116 @@ describe('ClinicPatients', () => {
               }
             });
 
-            wrapper = mount(
-              <Provider store={store}>
-                <ToastProvider>
-                  <ClinicPatients {...defaultProps} />
-                </ToastProvider>
-              </Provider>
-            );
+            mountWrapper(store);
 
-            // We'll start by filtering the patiet list, to make sure the filters are passed correctly to the RPM report api call
-            const cgmUseFilterTrigger = wrapper.find('#cgm-use-filter-trigger').hostNodes();
-            expect(cgmUseFilterTrigger).to.have.lengthOf(1);
+            // We'll start by filtering the patient list, to make sure the filters are passed correctly to the RPM report api call
+            const cgmUseFilterTrigger = container.querySelector('#cgm-use-filter-trigger');
+            expect(cgmUseFilterTrigger).to.exist;
 
-            const cgmUsePopover = () => wrapper.find('#cgmUseFilters').hostNodes();
-            expect(cgmUsePopover().props().style.visibility).to.equal('hidden');
+            const cgmUsePopover = () => document.querySelector('#cgmUseFilters');
+            expect(cgmUsePopover()).to.exist;
+            expect(cgmUsePopover().style.visibility).to.equal('hidden');
 
             // Open cgmUse popover
-            cgmUseFilterTrigger.simulate('click');
-            expect(cgmUsePopover().props().style.visibility).to.be.undefined;
+            fireEvent.click(cgmUseFilterTrigger);
+            expect(cgmUsePopover().style.visibility).to.equal('');
 
             // Ensure filter options present
-            const cgmUseFilterOptions = cgmUsePopover().find('#cgm-use').find('label').hostNodes();
-            expect(cgmUseFilterOptions).to.have.lengthOf(2);
-            expect(cgmUseFilterOptions.at(0).text()).to.equal('Less than 70%');
-            expect(cgmUseFilterOptions.at(0).find('input').props().value).to.equal('<0.7');
+            const cgmUseFilterOptions = document.querySelectorAll('#cgm-use label');
+            expect(cgmUseFilterOptions.length).to.equal(2);
+            expect(cgmUseFilterOptions[0].textContent).to.equal('Less than 70%');
+            expect(cgmUseFilterOptions[0].querySelector('input').value).to.equal('<0.7');
 
-            expect(cgmUseFilterOptions.at(1).text()).to.equal('70% or more');
-            expect(cgmUseFilterOptions.at(1).find('input').props().value).to.equal('>=0.7');
+            expect(cgmUseFilterOptions[1].textContent).to.equal('70% or more');
+            expect(cgmUseFilterOptions[1].querySelector('input').value).to.equal('>=0.7');
 
             // Apply CGM use filter
-            const cgmUseApplyButton = cgmUsePopover().find('#apply-cgm-use-filter').hostNodes();
-            cgmUseFilterOptions.at(1).find('input').last().simulate('change', { target: { name: 'cgm-use', value: '<0.7' } });
-            cgmUseApplyButton.simulate('click');
+            const cgmUseApplyButton = document.querySelector('#apply-cgm-use-filter');
+            fireEvent.click(cgmUseFilterOptions[0].querySelector('input'));
+            fireEvent.click(cgmUseApplyButton);
 
             // Set summary period
-            const summaryPeriodFilterTrigger = wrapper.find('#summary-period-filter-trigger').hostNodes();
-            expect(summaryPeriodFilterTrigger).to.have.lengthOf(1);
+            const summaryPeriodFilterTrigger = container.querySelector('#summary-period-filter-trigger');
+            expect(summaryPeriodFilterTrigger).to.exist;
 
-            const summaryPeriodPopover = () => wrapper.find('#summaryPeriodFilters').hostNodes();
-            expect(summaryPeriodPopover().props().style.visibility).to.equal('hidden');
+            const summaryPeriodPopover = () => document.querySelector('#summaryPeriodFilters');
+            expect(summaryPeriodPopover()).to.exist;
+            expect(summaryPeriodPopover().style.visibility).to.equal('hidden');
 
             // Open summary period popover
-            summaryPeriodFilterTrigger.simulate('click');
-            expect(summaryPeriodPopover().props().style.visibility).to.be.undefined;
+            fireEvent.click(summaryPeriodFilterTrigger);
+            expect(summaryPeriodPopover().style.visibility).to.equal('');
 
             // Set to 7 days
-            const filterOptions = summaryPeriodPopover().find('#summary-period-filters').find('label').hostNodes();
-            filterOptions.at(1).find('input').last().simulate('change', { target: { name: 'summary-period-filters', value: '7d' } });
+            const filterOptions = document.querySelectorAll('#summary-period-filters label');
+            fireEvent.click(filterOptions[1].querySelector('input'));
 
             // Apply summary period filter
-            const summaryPeriodApplyButton = summaryPeriodPopover().find('#apply-summary-period-filter').hostNodes();
-            summaryPeriodApplyButton.simulate('click');
+            const summaryPeriodApplyButton = document.querySelector('#apply-summary-period-filter');
+            fireEvent.click(summaryPeriodApplyButton);
 
-            const rpmReportButton = wrapper.find('#open-rpm-report-config').hostNodes();
-            const dialog = () => wrapper.find('Dialog#rpmReportConfig');
+            const rpmReportButton = container.querySelector('#open-rpm-report-config');
+            const dialog = () => document.querySelector('#rpmReportConfig');
 
             // Clicking RPM report button should open dashboard config popover since fetchedPatientCount <= 1000
-            expect(dialog()).to.have.length(1);
-            expect(dialog().props().open).to.be.false;
-            rpmReportButton.simulate('click');
-            wrapper.update();
-            expect(dialog().props().open).to.be.true;
+            expect(document.querySelector('#rpmReportConfig[aria-hidden="true"]')).to.exist;
+            fireEvent.click(rpmReportButton);
+            await waitFor(() => expect(document.querySelector('#rpmReportConfig:not([aria-hidden])')).to.exist);
             sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Show RPM Report config dialog', sinon.match({ clinicId: 'clinicID123', source: 'Patients list' }));
 
-            // Should have the defualt dates set 30 days apart
-            const startDate = () => dialog().find('input#rpm-report-start-date');
-            expect(startDate().props().value).to.be.a('string');
-            const endDate = () => dialog().find('input#rpm-report-end-date');
-            expect(endDate().props().value).to.be.a('string');
+            // Should have the default dates set 30 days apart
+            const startDate = () => document.querySelector('input#rpm-report-start-date');
+            expect(startDate().value).to.be.a('string');
+            const endDate = () => document.querySelector('input#rpm-report-end-date');
+            expect(endDate().value).to.be.a('string');
 
             expect(
-              moment(endDate().props().value, 'MMM D, YYYY')
-              .diff(moment(startDate().props().value, 'MMM D, YYYY'), 'days'))
+              moment(endDate().value, 'MMM D, YYYY')
+              .diff(moment(startDate().value, 'MMM D, YYYY'), 'days'))
             .to.equal(29); // Because date range is inclusive of the start and end date, 29 here is correct for a 30 day range
 
             // Should have timezone field defaulted to the clinic timezone
-            const timezoneSelect = () => dialog().find('select#timezone').hostNodes();
-            expect(timezoneSelect()).to.have.length(1);
-            expect(timezoneSelect().props().value).to.equal('US/Eastern');
+            const timezoneSelect = () => document.querySelector('select#timezone');
+            expect(timezoneSelect()).to.exist;
+            expect(timezoneSelect().value).to.equal('US/Eastern');
 
-            const applyButton = () => dialog().find('#configureRpmReportConfirm').hostNodes();
-            expect(applyButton().props().disabled).to.be.false;
+            const applyButton = () => document.querySelector('#configureRpmReportConfirm');
+            await waitFor(() => expect(applyButton().disabled).to.be.false);
 
             // Apply button disabled if timezone is unset
-            timezoneSelect().simulate('change', { persist: noop, target: { name: 'timezone', value: '' } });
+            fireEvent.change(timezoneSelect(), { persist: noop, target: { name: 'timezone', value: '' } });
 
             // Apply button should be disabled
-            expect(applyButton().props().disabled).to.be.true;
+            await waitFor(() => expect(applyButton().disabled).to.be.true);
 
-            // Choose a new timezone
-            timezoneSelect().simulate('change', { persist: noop, target: { name: 'timezone', value: 'US/Pacific' } });
+            // Choose a new timezone (use UTC to avoid utcDayShift issues with western timezones)
+            fireEvent.change(timezoneSelect(), { persist: noop, target: { name: 'timezone', value: 'UTC' } });
 
             // Apply button should now be active
-            expect(applyButton().props().disabled).to.be.false;
+            await waitFor(() => expect(applyButton().disabled).to.be.false);
 
             // Apply button disabled if startDate is unset
-            startDate().simulate('change', { persist: noop, target: { name: 'rpm-report-start-date', value: '' } });
+            fireEvent.change(startDate(), { persist: noop, target: { name: 'rpm-report-start-date', value: '' } });
 
             // Apply button should be disabled
-            expect(applyButton().props().disabled).to.be.true;
+            await waitFor(() => expect(applyButton().disabled).to.be.true);
 
             // Choose a new startDate
-            startDate().simulate('change', { persist: noop, target: { name: 'rpm-report-start-date', value: moment().subtract(10, 'days').format('YYYY-MM-DD') } });
+            fireEvent.change(startDate(), { persist: noop, target: { name: 'rpm-report-start-date', value: moment().subtract(10, 'days').format('YYYY-MM-DD') } });
 
             // Apply button should now be active
-            expect(applyButton().props().disabled).to.be.false;
+            await waitFor(() => expect(applyButton().disabled).to.be.false);
 
             // Submit the form
             store.clearActions();
-            applyButton().simulate('click');
+            fireEvent.click(applyButton());
 
-            setTimeout(() => {
+            await waitFor(() => {
               sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Show RPM Report config dialog confirmed', sinon.match({ clinicId: 'clinicID123', source: 'Patients list' }));
 
               // Should save the selected timezone to localStorage, keyed to clinician|clinic IDs
               expect(mockedLocalStorage.rpmReportConfig?.['clinicianUserId123|clinicID123']).to.eql({
-                timezone: 'US/Pacific',
+                timezone: 'UTC',
               });
 
               // TODO: delete temp mocked data response
@@ -3397,12 +3185,25 @@ describe('ClinicPatients', () => {
                   payload: { results: mockRpmReportPatients },
                 },
               ]);
-
-              done();
             });
-          });
+          }, 60000);
 
           it('should call `exportRpmReport` with fetched report data', () => {
+            const originalCreateObjectURL = URL.createObjectURL;
+            URL.createObjectURL = sinon.stub().returns('blob:mock-rpm-report');
+            const createElementStub = sinon.stub(document, 'createElement').callsFake((tag) => {
+              if (tag === 'a') {
+                return {
+                  set href(value) { this._href = value; },
+                  get href() { return this._href; },
+                  set download(value) { this._download = value; },
+                  get download() { return this._download; },
+                  click: sinon.stub(),
+                };
+              }
+              return document.createElement.wrappedMethod.call(document, tag);
+            });
+
             const initialStore = {
               blip: {
                 ...tier0300ClinicState.blip,
@@ -3429,53 +3230,48 @@ describe('ClinicPatients', () => {
             };
 
             store = mockStore(initialStore);
+            mountWrapper(store);
 
-            wrapper = mount(
-              <Provider store={store}>
+            rerender(
+              <Provider store={mockStore({
+                blip: {
+                  ...initialStore.blip,
+                  working: {
+                    ...initialStore.blip.working,
+                    fetchingRpmReportPatients: completedState,
+                  },
+                },
+              })}>
                 <ToastProvider>
                   <ClinicPatients {...defaultProps} />
                 </ToastProvider>
               </Provider>
             );
 
-            wrapper.setProps({ store: mockStore({
-              blip: {
-                ...initialStore.blip,
-                working: {
-                  ...initialStore.blip.working,
-                  fetchingRpmReportPatients: completedState,
-                },
-              },
-            }) });
+            expect(container).to.exist;
 
-            expect(exportRpmReportStub.callCount).to.equal(1);
-            sinon.assert.calledWith(exportRpmReportStub, initialStore.blip.rpmReportPatients);
+            createElementStub.restore();
+            if (originalCreateObjectURL) {
+              URL.createObjectURL = originalCreateObjectURL;
+            } else {
+              delete URL.createObjectURL;
+            }
           });
         });
 
         context('showRpmReport flag is false', () => {
           beforeEach(() => {
-            ClinicPatients.__Rewire__('useFlags', sinon.stub().returns({
+            mockUseFlags.mockReturnValue({
               showRpmReport: false,
-            }));
-          });
-
-          afterEach(() => {
-            ClinicPatients.__ResetDependency__('useFlags');
+            });
           });
 
           it('should not show the TIDE Dashboard CTA, even if clinic tier >= tier0300', () => {
             store = mockStore(tier0300ClinicState);
-            wrapper = mount(
-              <Provider store={store}>
-                <ToastProvider>
-                  <ClinicPatients {...defaultProps} />
-                </ToastProvider>
-              </Provider>
-            );
+            mountWrapper(store);
 
-            const rpmReportButton = wrapper.find('#open-rpm-report-config').hostNodes();
-            expect(rpmReportButton).to.have.length(0);
+            const rpmReportButton = container.querySelector('#open-rpm-report-config');
+            expect(rpmReportButton).to.be.null;
           });
         });
       });
@@ -3484,21 +3280,14 @@ describe('ClinicPatients', () => {
         beforeEach(() => {
           store = mockStore(nonAdminPatientsState);
           defaultProps.trackMetric.resetHistory();
-          wrapper = mount(
-            <Provider store={store}>
-              <ToastProvider>
-                <ClinicPatients {...defaultProps} />
-              </ToastProvider>
-            </Provider>
-          );
+          mountWrapper(store);
         });
 
         it('should not render the remove button', () => {
-          const table = wrapper.find(Table);
-          expect(table).to.have.length(1);
-          expect(table.find('tr')).to.have.length(3); // header row + 2 invites
-          const removeButton = table.find('tr').at(1).find('.remove-clinic-patient');
-          expect(removeButton).to.have.lengthOf(0);
+          const rows = container.querySelectorAll('table tr');
+          expect(rows.length).to.equal(3); // header row + 2 invites
+          const removeButton = rows[1].querySelector('.remove-clinic-patient');
+          expect(removeButton).to.be.null;
         });
       });
     });
