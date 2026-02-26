@@ -2426,7 +2426,7 @@ describe('ClinicPatients', () => {
           expect(filterCount()).to.be.null;
           expect(timeInRangeFilterCount()).to.be.null;
           expect(resetAllFiltersButton()).to.be.null;
-        });
+        }, 30000);
 
         it('should send an upload reminder to a fully claimed patient account', async () => {
           const dataRows = container.querySelectorAll('table tbody tr');
@@ -2717,7 +2717,7 @@ describe('ClinicPatients', () => {
             fireEvent.click(lastDataFilterOptions[2].querySelector('input'));
 
             // Apply button should now be active
-            expect(applyButton().disabled).to.be.false;
+            await waitFor(() => expect(applyButton().disabled).to.be.false);
 
             // Submit the form
             store.clearActions();

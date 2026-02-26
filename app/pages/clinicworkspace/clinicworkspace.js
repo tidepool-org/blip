@@ -61,7 +61,7 @@ export const ClinicWorkspace = (props) => {
   const [selectedTab, setSelectedTab] = useState(get(tabIndices, tab, 0));
 
   useEffect(() => {
-    if (tab && tabIndices[tab] !== undefined && tabIndices[tab] !== selectedTab) {
+    if (tab && tab in tabIndices && tabIndices[tab] !== selectedTab) {
       setSelectedTab(tabIndices[tab]);
     }
   }, [tab]);

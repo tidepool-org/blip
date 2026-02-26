@@ -95,7 +95,7 @@ export const ClinicDetails = (props) => {
   const [logoutPending, setLogoutPending] = useState(false);
   const [clinicInvite, setClinicInvite] = useState();
   const [formikReady, setFormikReady] = useState(
-    !!(working.fetchingClinicianInvites.completed && working.fetchingClinicsForClinician.completed)
+    working.fetchingClinicianInvites.completed && working.fetchingClinicsForClinician.completed
   );
   const location = useLocation();
   const referrer = location.state?.referrer;
