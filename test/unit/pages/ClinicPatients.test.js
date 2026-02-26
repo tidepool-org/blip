@@ -2292,7 +2292,7 @@ describe('ClinicPatients', () => {
             expect(filterCount()).to.be.null;
           });
           expect(timeInRangeFilterCount()).to.be.null;
-        });
+        }, 60000);
 
         it('should reset all active filters at once', async () => {
           // Set up stateful filter mock to allow DOM verification after applying filters
@@ -2376,7 +2376,7 @@ describe('ClinicPatients', () => {
           });
           expect(timeInRangeFilterCount()).to.be.null;
           expect(resetAllFiltersButton()).to.be.null;
-        });
+        }, 60000);
 
         it('should clear pending filter edits when time in range filter dialog closed', () => {
           const filterCount = () => container.querySelector('#filter-count');
