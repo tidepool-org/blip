@@ -4,6 +4,10 @@ import { CATEGORY_TAB } from './FilterByCategory';
 
 const initialState = {
   category: CATEGORY_TAB.DEFAULT,
+  editPatientDialog: {
+    patientId: null,
+    isOpen: false,
+  },
 };
 
 const deviceIssuesSlice = createSlice({
@@ -13,8 +17,14 @@ const deviceIssuesSlice = createSlice({
     setCategory: (state, action) => {
       state.category = action.payload;
     },
+    setEditPatientDialogPatientId: (state, action) => {
+      state.editPatientDialog.patientId = action.payload;
+    },
+    setEditPatientDialogIsOpen: (state, action) => {
+      state.editPatientDialog.isOpen = action.payload;
+    },
   },
 });
 
-export const { setCategory } = deviceIssuesSlice.actions;
+export const { setCategory, setEditPatientDialogPatientId, setEditPatientDialogIsOpen } = deviceIssuesSlice.actions;
 export default deviceIssuesSlice.reducer;
