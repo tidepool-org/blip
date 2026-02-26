@@ -53,6 +53,7 @@ const EditPatientDialog = ({
   clinicPatient,
   isOpen,
   onClose = noop,
+  onEditSuccess = noop,
 }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
@@ -67,6 +68,7 @@ const EditPatientDialog = ({
   const onUpdateSuccess = () => {
     if (isOpen) onClose();
 
+    onEditSuccess();
     dispatch(actions.worker.dataWorkerRemoveDataRequest(null, patientId));
   };
 

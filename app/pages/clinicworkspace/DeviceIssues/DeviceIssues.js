@@ -17,6 +17,14 @@ import { resetDeviceIssuesState } from './deviceIssuesSlice';
 
 const LIMIT = 12;
 
+export const CACHE_TAGS = {
+  DEVICE_ISSUES_PATIENTS: 'DEVICE_ISSUES_PATIENTS',
+};
+
+RTKQueryApi.enhanceEndpoints({
+  addTagTypes: [CACHE_TAGS.DEVICE_ISSUES_PATIENTS],
+});
+
 const deviceIssuesApi = RTKQueryApi.injectEndpoints({
   endpoints: (builder) => ({
     getDeviceIssuesPatients: builder.query({
@@ -26,6 +34,7 @@ const deviceIssuesApi = RTKQueryApi.injectEndpoints({
           params: { offset, category, limit },
         };
       },
+      providesTags: [CACHE_TAGS.DEVICE_ISSUES_PATIENTS],
     }),
   }),
 });
