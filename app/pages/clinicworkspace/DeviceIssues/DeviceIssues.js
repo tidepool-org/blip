@@ -7,9 +7,9 @@ import Table from '../../../components/elements/Table';
 import { Flex, Text } from 'theme-ui';
 
 import FilterByCategory from './FilterByCategory';
-import DashboardPagination from '../components/DashboardPagination';
 import EditPatientDialogController from './EditPatientDialogController';
 import DataConnectionsModalController from './DataConnectionsModalController';
+import PaginationController from '../components/PaginationController';
 
 import PatientCell from './PatientCell';
 import MoreMenuCell from './MoreMenuCell';
@@ -79,7 +79,7 @@ const DeviceIssues = ({ api, trackMetric }) => {
       />
 
       <Flex pb={4}>
-        <DashboardPagination
+        <PaginationController
           limit={LIMIT}
           total={data?.meta?.count || 0}
           offset={offset}
