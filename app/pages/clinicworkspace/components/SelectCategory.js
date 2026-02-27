@@ -3,7 +3,7 @@ import { colors as vizColors } from '@tidepool/viz';
 import { Box, Flex } from 'theme-ui';
 import noop from 'lodash/noop';
 
-export const CategorySelector = ({ children }) => (
+export const SelectCategory = ({ children }) => (
   <Flex
     sx={{
       border: `1px solid ${ vizColors.gray10 }`,
@@ -11,12 +11,13 @@ export const CategorySelector = ({ children }) => (
       backgroundColor: vizColors.white,
       padding: 1,
       gap: 1,
-    }}>
+    }}
+  >
     {children}
   </Flex>
 );
 
-export const CategoryTab = ({
+export const Tab = ({
   children,
   selected = false,
   onClick = noop,
@@ -42,14 +43,14 @@ export const CategoryTab = ({
         '&:hover': selected
             ? { cursor: 'default' }
             : { cursor: 'pointer', backgroundColor: vizColors.gray05 },
-      }}>
-
+      }}
+    >
       {children}
     </Box>
   );
 };
 
 export default {
-  CategorySelector,
-  CategoryTab,
+  SelectCategory,
+  Tab,
 };
