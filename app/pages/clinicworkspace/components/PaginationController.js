@@ -15,7 +15,7 @@ const PaginationController = ({ total = 0, limit, offset, onOffsetChange }) => {
     <Pagination
       px="5%"
       sx={{ width: '100%', mt: 3 }}
-      id="device-issues-pagination"
+      id="clinic-workspace-pagination"
       count={pageCount}
       disabled={disabled}
       onChange={handlePageChange}
