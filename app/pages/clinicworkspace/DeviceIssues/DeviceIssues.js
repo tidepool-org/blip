@@ -9,7 +9,7 @@ import { Flex, Text } from 'theme-ui';
 import FilterByCategory from './FilterByCategory';
 import EditPatientDialogController from './EditPatientDialogController';
 import DataConnectionsModalController from './DataConnectionsModalController';
-import PaginationController from '../components/PaginationController';
+import ClinicWorkspacePagination from '../components/ClinicWorkspacePagination';
 
 import PatientCell from './PatientCell';
 import MoreMenuCell from './MoreMenuCell';
@@ -78,8 +78,8 @@ const DeviceIssues = ({ api, trackMetric }) => {
         // emptyContentNode={}
       />
 
-      <Flex pb={4}>
-        <PaginationController
+      <Flex pb={4} sx={{ maxWidth: '640px', justifyContent: 'center', margin: '0 auto' }}>
+        <ClinicWorkspacePagination
           limit={LIMIT}
           total={data?.meta?.count || 0}
           offset={offset}
