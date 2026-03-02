@@ -7,7 +7,7 @@ import Table from '../../../components/elements/Table';
 import { Flex, Text } from 'theme-ui';
 
 import FilterByCategory from './FilterByCategory';
-import PaginationController from '../components/PaginationController';
+import ClinicWorkspacePagination from '../components/ClinicWorkspacePagination';
 
 import PatientCell from './PatientCell';
 import TagListCell from '../components/TagListCell';
@@ -75,8 +75,8 @@ const DeviceIssues = () => {
         // emptyContentNode={}
       />
 
-      <Flex pb={4}>
-        <PaginationController
+      <Flex pb={4} sx={{ maxWidth: '640px', justifyContent: 'center', margin: '0 auto' }}>
+        <ClinicWorkspacePagination
           limit={LIMIT}
           total={data?.meta?.count || 0}
           offset={offset}
