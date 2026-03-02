@@ -9,7 +9,7 @@ const { DEVICE_ISSUES_PATIENTS } = tagTypes;
 
 const trackMetric = () => {};
 
-const EditPatientDialogController = ({ api, patients }) => {
+const DeviceIssuesEditPatientDialog = ({ api, patients }) => {
   const dispatch = useDispatch();
   const editPatientDialog = useSelector(state => state.blip.deviceIssues.editPatientDialog);
 
@@ -37,4 +37,4 @@ const EditPatientDialogController = ({ api, patients }) => {
   );
 };
 
-export default EditPatientDialogController;
+export default DeviceIssuesEditPatientDialog;

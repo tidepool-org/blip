@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import DataConnectionsModal from '../../../components/datasources/DataConnectionsModal';
 import { closeModals } from './deviceIssuesSlice';
 
-const DataConnectionsModalController = ({ patients }) => {
+const DeviceIssuesDataConnectionsModal = ({ patients }) => {
   const dispatch = useDispatch();
 
   const dataConnectionsModal = useSelector(state => state.blip.deviceIssues.dataConnectionsModal);
@@ -24,4 +24,4 @@ const DataConnectionsModalController = ({ patients }) => {
   );
 };
 
-export default DataConnectionsModalController;
+export default DeviceIssuesDataConnectionsModal;
