@@ -15,6 +15,7 @@ import TabGroup from '../../components/elements/TabGroup';
 import ClinicWorkspaceHeader from '../../components/clinic/ClinicWorkspaceHeader';
 import ClinicPatients from './ClinicPatients';
 import DeviceIssues from './DeviceIssues';
+import TideDashboardV2 from './TideDashboardV2';
 import Prescriptions from '../prescription/Prescriptions';
 import { PatientInvites } from '../share';
 import * as actions from '../../redux/actions';
@@ -35,8 +36,9 @@ export const ClinicWorkspace = (props) => {
   const tabIndices = {
     patients: 0,
     'device-issues': 1,
-    invites: 2,
-    prescriptions: 3,
+    'tide-dashboard': 2,
+    invites: 3,
+    prescriptions: 4,
   };
 
   const tabs = [
@@ -49,6 +51,11 @@ export const ClinicWorkspace = (props) => {
       name: 'device-issues',
       label: t('Device Issues'),
       metric: 'Clinic - View device issues',
+    },
+    {
+      name: 'tide-dashboard',
+      label: t('TIDE Dashboard'),
+      metric: 'Clinic - View TIDE Dashboard',
     },
     {
       name: 'invites',
@@ -139,12 +146,16 @@ export const ClinicWorkspace = (props) => {
             {selectedTab === 1 && <DeviceIssues key={clinic?.id} {...props} />}
           </Box>
 
+          <Box id="tideDashboardTab">
+            {selectedTab === 2 && <TideDashboardV2 key={clinic?.id} {...props} />}
+          </Box>
+
           <Box id="invitesTab">
-            {selectedTab === 2 && <PatientInvites {...props} />}
+            {selectedTab === 3 && <PatientInvites {...props} />}
           </Box>
 
           <Box id="prescriptionsTab">
-            {selectedTab === 3 && <Prescriptions {...props} />}
+            {selectedTab === 4 && <Prescriptions {...props} />}
           </Box>
         </TabGroup>
       </Box>
