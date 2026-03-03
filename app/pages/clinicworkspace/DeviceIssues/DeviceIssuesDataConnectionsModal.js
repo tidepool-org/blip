@@ -13,8 +13,6 @@ const DeviceIssuesDataConnectionsModal = ({ patients }) => {
 
   const handleClose = () => dispatch(closeModals());
 
-  if (!patient) return null;
-
   return (
     <DataConnectionsModal
       open={isOpen}
