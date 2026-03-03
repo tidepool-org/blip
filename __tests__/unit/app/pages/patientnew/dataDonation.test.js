@@ -7,7 +7,7 @@ import { MemoryRouter } from 'react-router-dom'; // for useParams
 import configureStore from 'redux-mock-store'; // for mockStore
 import { Switch, Route } from 'react-router-dom';
 import { Provider } from 'react-redux';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 
 import { default as DataDonation} from '@app/pages/patientnew/dataDonation';
 import { ToastProvider } from '@app/providers/ToastProvider';

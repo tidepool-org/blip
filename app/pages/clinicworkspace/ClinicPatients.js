@@ -67,7 +67,7 @@ import Button from '../../components/elements/Button';
 import Icon from '../../components/elements/Icon';
 import Table from '../../components/elements/Table';
 import { TagList } from '../../components/elements/Tag';
-import Pagination from '../../components/elements/Pagination';
+import PaginationController from './components/PaginationController';
 import TextInput from '../../components/elements/TextInput';
 import BgSummaryCell from '../../components/clinic/BgSummaryCell';
 import PatientForm from '../../components/clinic/PatientForm';
@@ -1561,11 +1561,8 @@ export const ClinicPatients = (props) => {
     debounceSearch('');
   }
 
-  const handlePageChange = useCallback((event, page) => {
-    setPatientFetchOptions({
-      ...patientFetchOptions,
-      offset: (page - 1) * patientFetchOptions.limit,
-    });
+  const handleOffsetChange = useCallback(offset => {
+    setPatientFetchOptions({ ...patientFetchOptions, offset: offset });
   }, [patientFetchOptions]);
 
   function handleResetFilters() {
@@ -4222,7 +4219,6 @@ export const ClinicPatients = (props) => {
 
   const renderPeopleTable = useCallback(() => {
     const pageCount = Math.ceil(clinic?.fetchedPatientCount / patientFetchOptions.limit);
-    const page = Math.ceil(patientFetchOptions.offset / patientFetchOptions.limit) + 1;
     const sort = patientFetchOptions.sort || defaultPatientFetchOptions.sort;
 
     const patientListQueryState = getPatientListQueryState(activeFilters, patientListSearchTextInput);
@@ -4270,17 +4266,14 @@ export const ClinicPatients = (props) => {
         />
 
         {pageCount > 1 && (
-          <Pagination
-            px="5%"
-            sx={{ width: '100%', position: 'absolute', bottom: '-50px' }}
-            id="clinic-patients-pagination"
-            count={pageCount}
-            disabled={pageCount < 2}
-            onChange={handlePageChange}
-            page={page}
-            showFirstButton={false}
-            showLastButton={false}
-          />
+          <Box sx={{ width: '100%', position: 'absolute', bottom: '-50px' }}>
+            <PaginationController
+              total={clinic?.fetchedPatientCount}
+              limit={patientFetchOptions.limit}
+              offset={patientFetchOptions.offset}
+              onOffsetChange={handleOffsetChange}
+            />
+          </Box>
         )}
       </Box>
     );
@@ -4289,7 +4282,7 @@ export const ClinicPatients = (props) => {
     columns,
     data,
     defaultPatientFetchOptions.sort,
-    handlePageChange,
+    handleOffsetChange,
     handleSortChange,
     loading,
     patientFetchOptions,

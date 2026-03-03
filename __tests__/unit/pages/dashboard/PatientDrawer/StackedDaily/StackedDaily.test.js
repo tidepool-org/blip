@@ -6,7 +6,7 @@ import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 
 import StackedDaily from '@app/pages/dashboard/PatientDrawer/StackedDaily';
 import { STATUS } from '@app/pages/dashboard/PatientDrawer/useAgpCGM';

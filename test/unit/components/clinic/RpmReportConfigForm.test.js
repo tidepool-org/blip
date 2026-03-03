@@ -1,7 +1,7 @@
 import React from 'react';
 import { createMount } from '@material-ui/core/test-utils';
 import { Provider } from 'react-redux';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 import configureStore from 'redux-mock-store';
 import RpmReportConfigForm, { exportRpmReport } from '../../../../app/components/clinic/RpmReportConfigForm';
 import mockRpmReportPatients from '../../../fixtures/mockRpmReportPatients.json';

@@ -11,7 +11,7 @@ import { mount } from 'enzyme';
 import _ from 'lodash';
 import { Provider } from 'react-redux'
 import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 import { components as vizComponents } from '@tidepool/viz';
 const { Loader } = vizComponents;
 

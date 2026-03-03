@@ -8,7 +8,7 @@ import { render, screen } from '@testing-library/react';
 import _ from 'lodash';
 import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 
 import Overview from '@app/pages/dashboard/PatientDrawer/Overview';
 
