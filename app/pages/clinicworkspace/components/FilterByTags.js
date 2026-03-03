@@ -31,16 +31,15 @@ const trackMetric = () => noop;
 const prefixPopHealthMetric = () => noop;
 
 import { SPECIAL_FILTER_STATES } from '../ClinicPatients';
-import { setPatientTagsFilter } from '../DeviceIssues/deviceIssuesFiltersSlice';
 
 const DropdownContent = ({
   onClose = noop,
+  onChange = noop,
+  patientTags = [],
 }) => {
   const { t } = useTranslation();
-  const dispatch = useDispatch();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
-  const { patientTags } = useSelector(state => state.blip.deviceIssuesFilters);
 
   const [pendingTags, setPendingTags] = useState(patientTags);
 
@@ -51,7 +50,7 @@ const DropdownContent = ({
       .toSorted((a, b) => utils.compareLabels(a.label, b.label));
   }, [clinic?.patientTags]);
 
-  const handleChange = (patientTags) => dispatch(setPatientTagsFilter(patientTags));
+  const handleChange = (patientTags) => onChange(patientTags);
 
   return (
     <>
@@ -156,7 +155,10 @@ const DropdownContent = ({
   );
 };
 
-const FilterByTags = () => {
+const FilterByTags = ({
+  onChange = noop,
+  patientTags = [],
+}) => {
   const { t } = useTranslation();
   const { showTideDashboard } = useFlags();
 
@@ -167,7 +169,6 @@ const FilterByTags = () => {
 
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
-  const { patientTags } = useSelector(state => state.blip.deviceIssuesFilters);
 
   const handleCloseDropdown = () => {
     patientTagsPopupFilterState.close();
@@ -234,6 +235,7 @@ const FilterByTags = () => {
           <DropdownContent
             patientTags={patientTags}
             onClose={handleCloseDropdown}
+            onChange={onChange}
           />
         }
       </Popover>
