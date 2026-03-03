@@ -9,7 +9,7 @@ import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 import { MMOLL_UNITS, MGDL_UNITS } from '@app/core/constants';
 
 import PatientSettings from '@app/pages/patient/patientsettings';

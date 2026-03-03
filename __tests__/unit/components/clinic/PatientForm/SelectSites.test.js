@@ -6,7 +6,7 @@ import userEvent from '@testing-library/user-event';
 import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
 import { MemoryRouter, Route, Switch } from 'react-router-dom';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 import mockLocalStorage from '../../../../utils/mockLocalStorage';
 
 import SelectSites, { buildSelectOptions } from '@app/components/clinic/PatientForm/SelectSites';
