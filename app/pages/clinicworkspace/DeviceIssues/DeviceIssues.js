@@ -10,7 +10,7 @@ import ActiveFilterCount from '../components/ActiveFilterCount';
 import FilterByTags from '../components/FilterByTags';
 import FilterByCategory from './FilterByCategory';
 import ResetFilters from '../components/ResetFilters';
-import ClinicWorkspacePagination from '../components/ClinicWorkspacePagination';
+import PaginationController from '../components/PaginationController';
 
 import PatientCell from './PatientCell';
 import TagListCell from '../components/TagListCell';
@@ -93,7 +93,7 @@ const DeviceIssues = () => {
       />
 
       <Flex pb={4} sx={{ maxWidth: '640px', justifyContent: 'center', margin: '0 auto' }}>
-        <ClinicWorkspacePagination
+        <PaginationController
           limit={LIMIT}
           total={data?.meta?.count || 0}
           offset={offset}

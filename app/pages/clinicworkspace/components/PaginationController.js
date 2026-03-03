@@ -1,7 +1,7 @@
 import React from 'react';
 import Pagination from '../../../components/elements/Pagination';
 
-const ClinicWorkspacePagination = ({ total = 0, limit, offset, onOffsetChange }) => {
+const PaginationController = ({ total = 0, limit, offset, onOffsetChange }) => {
   const pageCount = Math.ceil(total / limit);
   const currentPageNumber = Math.floor(offset / limit) + 1; // 1-indexed
 
@@ -27,4 +27,4 @@ const ClinicWorkspacePagination = ({ total = 0, limit, offset, onOffsetChange })
   );
 };
 
-export default ClinicWorkspacePagination;
+export default PaginationController;
