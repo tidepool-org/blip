@@ -1,0 +1,15 @@
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { setPatientTagsFilter } from './deviceIssuesFiltersSlice';
+import FilterByTags from '../components/FilterByTags';
+
+const FilterByTagsController = () => {
+  const dispatch = useDispatch();
+  const { patientTags } = useSelector(state => state.blip.deviceIssuesFilters);
+
+  const handleChange = (tags) => dispatch(setPatientTagsFilter(tags));
+
+  return <FilterByTags onChange={handleChange} patientTags={patientTags} />;
+};
+
+export default FilterByTagsController;
