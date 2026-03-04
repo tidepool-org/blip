@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector, useDispatch } from 'react-redux';
-import { SelectCategory, Tab } from '../components/SelectCategory';
+import { CategorySegmentedControl, Segment } from '../components/CategorySegmentedControl';
 import { setCategory } from './tideDashboardSlice';
 
 export const CATEGORY_TAB = {
@@ -25,16 +25,16 @@ const FilterByCategory = () => {
   const handleChange = (category) => dispatch(setCategory(category));
 
   return (
-    <SelectCategory>
-      <Tab selected={category === DEFAULT} onClick={() => handleChange(DEFAULT)}>{t('All Patients')}</Tab>
-      <Tab selected={category === VERY_LOW} onClick={() => handleChange(VERY_LOW)}>{t('Very Low')}</Tab>
-      <Tab selected={category === LOW} onClick={() => handleChange(LOW)}>{t('Low')}</Tab>
-      <Tab selected={category === DROP_IN_TIR} onClick={() => handleChange(DROP_IN_TIR)}>{t('Drop in TIR')}</Tab>
-      <Tab selected={category === HIGH} onClick={() => handleChange(HIGH)}>{t('High')}</Tab>
-      <Tab selected={category === VERY_HIGH} onClick={() => handleChange(VERY_HIGH)}>{t('Very High')}</Tab>
-      <Tab selected={category === LOW_CGM_WEAR} onClick={() => handleChange(LOW_CGM_WEAR)}>{t('Low CGM Wear Time')}</Tab>
-      <Tab selected={category === MEETING_TARGETS} onClick={() => handleChange(MEETING_TARGETS)}>{t('Meeting Targets')}</Tab>
-    </SelectCategory>
+    <CategorySegmentedControl>
+      <Segment selected={category === DEFAULT} onClick={() => handleChange(DEFAULT)}>{t('All Patients')}</Segment>
+      <Segment selected={category === VERY_LOW} onClick={() => handleChange(VERY_LOW)}>{t('Very Low')}</Segment>
+      <Segment selected={category === LOW} onClick={() => handleChange(LOW)}>{t('Low')}</Segment>
+      <Segment selected={category === DROP_IN_TIR} onClick={() => handleChange(DROP_IN_TIR)}>{t('Drop in TIR')}</Segment>
+      <Segment selected={category === HIGH} onClick={() => handleChange(HIGH)}>{t('High')}</Segment>
+      <Segment selected={category === VERY_HIGH} onClick={() => handleChange(VERY_HIGH)}>{t('Very High')}</Segment>
+      <Segment selected={category === LOW_CGM_WEAR} onClick={() => handleChange(LOW_CGM_WEAR)}>{t('Low CGM Wear Time')}</Segment>
+      <Segment selected={category === MEETING_TARGETS} onClick={() => handleChange(MEETING_TARGETS)}>{t('Meeting Targets')}</Segment>
+    </CategorySegmentedControl>
   );
 };
 

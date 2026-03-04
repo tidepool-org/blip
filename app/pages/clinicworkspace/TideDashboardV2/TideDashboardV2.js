@@ -7,8 +7,8 @@ import Table from '../../../components/elements/Table';
 import { Flex, Text } from 'theme-ui';
 
 import FilterByCategory from './FilterByCategory';
-import FilterByTagsController from './FilterByTagsController';
-import PaginationController from '../components/PaginationController';
+import FilterByTags from './FilterByTags';
+import PaginationControls from '../components/PaginationControls';
 import ActiveFilterCount from '../components/ActiveFilterCount';
 
 import PatientCell from './PatientCell';
@@ -51,7 +51,7 @@ const TideDashboard = () => {
     <>
       <Flex id="tide-dashboard-filters" mb={3} sx={{ gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
         <ActiveFilterCount count={activeFiltersCount} />
-        <FilterByTagsController />
+        <FilterByTags />
         <ResetFilters
           hidden={activeFiltersCount <= 0}
           onClick={() => dispatch(resetTideDashboardFilters())}
@@ -89,7 +89,7 @@ const TideDashboard = () => {
       />
 
       <Flex pb={4} sx={{ maxWidth: '640px', justifyContent: 'center', margin: '0 auto' }}>
-        <PaginationController
+        <PaginationControls
           limit={LIMIT}
           total={data?.meta?.count || 0}
           offset={offset}
