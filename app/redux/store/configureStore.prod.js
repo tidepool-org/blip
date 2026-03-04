@@ -69,6 +69,7 @@ function _createStore(api) {
     saveLocalState({
       selectedClinicId: store.getState().blip?.selectedClinicId,
       deviceIssuesFilters: store.getState().blip?.deviceIssuesFilters,
+      tideDashboardFilters: store.getState().blip?.tideDashboardFilters,
     });
   }, 1000));
 

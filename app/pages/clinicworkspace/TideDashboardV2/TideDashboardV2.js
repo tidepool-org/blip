@@ -7,12 +7,17 @@ import Table from '../../../components/elements/Table';
 import { Flex, Text } from 'theme-ui';
 
 import FilterByCategory from './FilterByCategory';
+import FilterByTagsController from './FilterByTagsController';
 import PaginationController from '../components/PaginationController';
+import ActiveFilterCount from '../components/ActiveFilterCount';
 
 import PatientCell from './PatientCell';
 import TagListCell from '../components/TagListCell';
 import { resetTideDashboardState } from './tideDashboardSlice';
 import { useGetTideDashboardPatientsQuery } from './tideDashboardApi';
+import ResetFilters from '../components/ResetFilters';
+import useActiveFiltersCount from './useActiveFiltersCount';
+import { resetTideDashboardFilters } from './tideDashboardFiltersSlice';
 
 const LIMIT = 12;
 
@@ -22,13 +27,16 @@ const TideDashboard = () => {
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const category = useSelector(state => state.blip.tideDashboard.category);
+  const { patientTags } = useSelector(state => state.blip.tideDashboardFilters);
 
   const [offset, setOffset] = useState(0);
 
   const { data } = useGetTideDashboardPatientsQuery(
-    { clinicId: selectedClinicId, offset, category, limit: LIMIT },
+    { clinicId: selectedClinicId, offset, category, tags: patientTags, limit: LIMIT },
     { skip: !selectedClinicId }
   );
+
+  const activeFiltersCount = useActiveFiltersCount();
 
   // reset state on dismount
   useEffect(() => {
@@ -41,6 +49,15 @@ const TideDashboard = () => {
 
   return (
     <>
+      <Flex id="tide-dashboard-filters" mb={3} sx={{ gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+        <ActiveFilterCount count={activeFiltersCount} />
+        <FilterByTagsController />
+        <ResetFilters
+          hidden={activeFiltersCount <= 0}
+          onClick={() => dispatch(resetTideDashboardFilters())}
+        />
+      </Flex>
+
       <Flex mb={3} sx={{ justifyContent: 'center' }}>
         <FilterByCategory />
       </Flex>
