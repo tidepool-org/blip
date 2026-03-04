@@ -1,7 +1,7 @@
 import React from 'react';
 import Pagination from '../../../components/elements/Pagination';
 
-const PaginationController = ({ total = 0, limit, offset, onOffsetChange }) => {
+const PaginationControls = ({ total = 0, limit, offset, onOffsetChange }) => {
   const pageCount = Math.ceil(total / limit);
   const currentPageNumber = Math.floor(offset / limit) + 1; // 1-indexed
 
@@ -27,4 +27,4 @@ const PaginationController = ({ total = 0, limit, offset, onOffsetChange }) => {
   );
 };
 
-export default PaginationController;
+export default PaginationControls;
