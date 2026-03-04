@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { CategorySegmentedControl, Segment } from '../components/CategorySegmentedControl';
 import { setCategory } from './tideDashboardSlice';
 
-export const CATEGORY_TAB = {
+export const CATEGORY = {
   DEFAULT: 'DEFAULT',
   VERY_LOW: 'VERY_LOW',
   LOW: 'LOW',
@@ -15,7 +15,7 @@ export const CATEGORY_TAB = {
   MEETING_TARGETS: 'MEETING_TARGETS',
 };
 
-const { DEFAULT, VERY_LOW, LOW, DROP_IN_TIR, HIGH, VERY_HIGH, LOW_CGM_WEAR, MEETING_TARGETS } = CATEGORY_TAB;
+const { DEFAULT, VERY_LOW, LOW, DROP_IN_TIR, HIGH, VERY_HIGH, LOW_CGM_WEAR, MEETING_TARGETS } = CATEGORY;
 
 const FilterByCategory = () => {
   const { t } = useTranslation();
