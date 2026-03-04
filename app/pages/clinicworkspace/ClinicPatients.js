@@ -67,7 +67,7 @@ import Button from '../../components/elements/Button';
 import Icon from '../../components/elements/Icon';
 import Table from '../../components/elements/Table';
 import { TagList } from '../../components/elements/Tag';
-import PaginationController from './components/PaginationController';
+import PaginationControls from './components/PaginationControls';
 import TextInput from '../../components/elements/TextInput';
 import BgSummaryCell from '../../components/clinic/BgSummaryCell';
 import PatientForm from '../../components/clinic/PatientForm';
@@ -4266,7 +4266,7 @@ export const ClinicPatients = (props) => {
 
         {pageCount > 1 && (
           <Box sx={{ width: '100%', position: 'absolute', bottom: '-50px' }}>
-            <PaginationController
+            <PaginationControls
               total={clinic?.fetchedPatientCount}
               limit={patientFetchOptions.limit}
               offset={patientFetchOptions.offset}
