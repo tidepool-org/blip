@@ -8,6 +8,7 @@ import { Flex, Text } from 'theme-ui';
 
 import FilterByCategory from './FilterByCategory';
 import FilterByTags from './FilterByTags';
+import FilterByDataRecency from './FilterByDataRecency';
 import PaginationControls from '../components/PaginationControls';
 import ActiveFilterCount from '../components/ActiveFilterCount';
 
@@ -18,6 +19,10 @@ import { useGetTideDashboardPatientsQuery } from './tideDashboardApi';
 import ResetFilters from '../components/ResetFilters';
 import useActiveFiltersCount from './useActiveFiltersCount';
 import { resetTideDashboardFilters } from './tideDashboardFiltersSlice';
+import moment from 'moment';
+
+import { utils as vizUtils } from '@tidepool/viz';
+const { getLocalizedCeiling} = vizUtils.datetime;
 
 const LIMIT = 12;
 
@@ -27,12 +32,16 @@ const TideDashboard = () => {
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const category = useSelector(state => state.blip.tideDashboard.category);
-  const { patientTags } = useSelector(state => state.blip.tideDashboardFilters);
+  const { patientTags, lastData } = useSelector(state => state.blip.tideDashboardFilters);
+  const timePrefs = useSelector((state) => state.blip.timePrefs);
+
+  const lastDataTo = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
+  const lastDataFrom = moment(lastDataTo).subtract(lastData, 'days').toISOString();
 
   const [offset, setOffset] = useState(0);
 
   const { data } = useGetTideDashboardPatientsQuery(
-    { clinicId: selectedClinicId, offset, category, tags: patientTags, limit: LIMIT },
+    { clinicId: selectedClinicId, offset, category, lastDataTo, lastDataFrom, tags: patientTags, limit: LIMIT },
     { skip: !selectedClinicId }
   );
 
@@ -51,6 +60,7 @@ const TideDashboard = () => {
     <>
       <Flex id="tide-dashboard-filters" mb={3} sx={{ gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
         <ActiveFilterCount count={activeFiltersCount} />
+        <FilterByDataRecency />
         <FilterByTags />
         <ResetFilters
           hidden={activeFiltersCount <= 0}
