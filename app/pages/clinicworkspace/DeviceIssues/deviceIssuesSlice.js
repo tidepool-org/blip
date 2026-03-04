@@ -1,9 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-import { CATEGORY_TAB } from './FilterByCategory';
+import { CATEGORY } from './FilterByCategory';
 
 const initialState = {
-  category: CATEGORY_TAB.DEFAULT,
+  category: CATEGORY.DEFAULT,
 };
 
 const deviceIssuesSlice = createSlice({
