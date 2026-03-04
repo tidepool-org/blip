@@ -155,7 +155,7 @@ const DropdownContent = ({
   );
 };
 
-const FilterByTags = ({
+const TagFilterDropdown = ({
   onChange = noop,
   patientTags = [],
 }) => {
@@ -243,4 +243,4 @@ const FilterByTags = ({
   );
 };
 
-export default FilterByTags;
+export default TagFilterDropdown;
