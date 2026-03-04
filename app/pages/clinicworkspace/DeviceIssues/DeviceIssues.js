@@ -7,7 +7,7 @@ import Table from '../../../components/elements/Table';
 import { Flex, Text } from 'theme-ui';
 
 import ActiveFilterCount from '../components/ActiveFilterCount';
-import FilterByTagsController from './FilterByTagsController';
+import FilterByTags from './FilterByTags';
 import FilterByCategory from './FilterByCategory';
 import ResetFilters from '../components/ResetFilters';
 import PaginationControls from '../components/PaginationControls';
@@ -59,7 +59,7 @@ const DeviceIssues = () => {
 
       <Flex id="device-issues-filters" mb={3} sx={{ gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
         <ActiveFilterCount count={activeFiltersCount} />
-        <FilterByTagsController />
+        <FilterByTags />
         <ResetFilters
           hidden={activeFiltersCount <= 0}
           onClick={() => dispatch(resetDeviceIssuesFilters())}
