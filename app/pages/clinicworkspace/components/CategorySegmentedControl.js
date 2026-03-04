@@ -3,7 +3,7 @@ import { colors as vizColors } from '@tidepool/viz';
 import { Box, Flex } from 'theme-ui';
 import noop from 'lodash/noop';
 
-export const SelectCategory = ({ children }) => (
+export const CategorySegmentedControl = ({ children }) => (
   <Flex
     sx={{
       border: `1px solid ${ vizColors.gray10 }`,
@@ -17,7 +17,7 @@ export const SelectCategory = ({ children }) => (
   </Flex>
 );
 
-export const Tab = ({
+export const Segment = ({
   children,
   selected = false,
   onClick = noop,
@@ -51,6 +51,6 @@ export const Tab = ({
 };
 
 export default {
-  SelectCategory,
-  Tab,
+  CategorySegmentedControl,
+  Segment,
 };
