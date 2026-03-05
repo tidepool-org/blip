@@ -28,6 +28,13 @@ const log = bows('RpmReportConfigForm');
 
 export const exportRpmReport = ({ config, results }) => {
   let { startDate = '', endDate = '' } = config?.rawConfig || {};
+
+  // Check if CPT-99445 column should be included (periods starting on or after 1/1/2026)
+  const reportStartDate = new Date(startDate);
+  const cpt99445EffectiveDate = new Date('2026-01-01');
+  const showCpt99445 = reportStartDate >= cpt99445EffectiveDate;
+
+  // Convert dates to MM/DD/YYYY for display
   startDate = startDate.replace(dateRegex, '$2/$3/$1');
   endDate = endDate.replace(dateRegex, '$2/$3/$1');
 
@@ -38,6 +45,7 @@ export const exportRpmReport = ({ config, results }) => {
       t('MRN'),
       t('# Days With Qualifying Data between {{startDate}} and {{endDate}}', { startDate, endDate }),
       t('Sufficient Data for {{code}}', { code: config?.code }),
+      ...(showCpt99445 ? [t('Sufficient Data for CPT-99445')] : []),
     ],
   ];
 
@@ -53,13 +61,19 @@ export const exportRpmReport = ({ config, results }) => {
   results.forEach(patient => {
     const { fullName, birthDate, mrn, realtimeDays, hasSufficientData } = patient;
 
-    csvRows.push([
+    // Calculate CPT-99445 eligibility: 2-15 days of qualifying data
+    const hasSufficientData99445 = realtimeDays >= 2 && realtimeDays <= 15;
+
+    const patientRow = [
       csvEscape(fullName),
       isNull(birthDate) ? t('N/A') : csvEscape(birthDate.replace(dateRegex, '$2/$3/$1')),
       csvEscape(mrn),
       csvEscape(realtimeDays),
       hasSufficientData ? t('TRUE') : t('FALSE'),
-    ]);
+      ...(showCpt99445 ? [hasSufficientData99445 ? t('TRUE') : t('FALSE')] : []),
+    ];
+
+    csvRows.push(patientRow);
   });
 
   const csv = csvRows.map((row) => row.join(',')).join('\n');
