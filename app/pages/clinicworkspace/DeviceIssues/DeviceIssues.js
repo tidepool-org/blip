@@ -18,6 +18,7 @@ import { resetDeviceIssuesState } from './deviceIssuesSlice';
 import { resetDeviceIssuesFilters } from './deviceIssuesFiltersSlice';
 import { useGetDeviceIssuesPatientsQuery } from './deviceIssuesApi';
 import useActiveFiltersCount from './useActiveFiltersCount';
+import EmptyContentNode from './EmptyContentNode';
 
 const LIMIT = 12;
 
@@ -84,12 +85,16 @@ const DeviceIssues = () => {
           { title: t(''), field: '', align: 'left' }, // More
         ]}
         data={tableData}
-        // sx={tableStyle}
+        emptyContentNode={<EmptyContentNode />}
+        sx={{
+          '&.MuiTable-root': {
+            display: tableData?.length > 0 ? 'table' : 'none',
+          },
+        }}
         // onSort={handleSortChange}
         // order={sort?.substring(0, 1) === '+' ? 'asc' : 'desc'}
         // orderBy={sort?.substring(1)}
         // onClickRow={handleClickPatient}
-        // emptyContentNode={}
       />
 
       <Flex pb={4} sx={{ maxWidth: '640px', justifyContent: 'center', margin: '0 auto' }}>
