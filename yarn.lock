@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.55.0":
-  version: 1.55.0
-  resolution: "@tidepool/viz@npm:1.55.0"
+"@tidepool/viz@npm:1.55.0-web-4406-insulin-calc.2":
+  version: 1.55.0-web-4406-insulin-calc.2
+  resolution: "@tidepool/viz@npm:1.55.0-web-4406-insulin-calc.2"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 3d128ac683c0daf647b78f1b060d822235eba6b721cc42cb62483af3b46a46987eee8161a1fc25e45665cbf8be147d77a2318096cdbd8842508652d9b3ea3b7a
+  checksum: 86852b47568f9f85c32b2fbd5f9592b8533d4820530ba4b6e19e2e54f142d4ff4cb45e3e496e9b4b5a6a3c26586ed0be162e9721c46fb2445bb97000c3ddeb08
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.55.0
+    "@tidepool/viz": 1.55.0-web-4406-insulin-calc.2
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
