@@ -7,15 +7,15 @@ import { setCategory } from './tideDashboardSlice';
 export const CATEGORY = {
   DEFAULT: 'DEFAULT',
   VERY_LOW: 'VERY_LOW',
-  LOW: 'LOW',
+  ANY_LOW: 'ANY_LOW',
   DROP_IN_TIR: 'DROP_IN_TIR',
-  HIGH: 'HIGH',
+  ANY_HIGH: 'ANY_HIGH',
   VERY_HIGH: 'VERY_HIGH',
   LOW_CGM_WEAR: 'LOW_CGM_WEAR',
-  MEETING_TARGETS: 'MEETING_TARGETS',
+  TARGET: 'TARGET',
 };
 
-const { DEFAULT, VERY_LOW, LOW, DROP_IN_TIR, HIGH, VERY_HIGH, LOW_CGM_WEAR, MEETING_TARGETS } = CATEGORY;
+const { DEFAULT, VERY_LOW, ANY_LOW, DROP_IN_TIR, ANY_HIGH, VERY_HIGH, LOW_CGM_WEAR, TARGET } = CATEGORY;
 
 const FilterByCategory = () => {
   const { t } = useTranslation();
@@ -28,12 +28,12 @@ const FilterByCategory = () => {
     <CategorySegmentedControl>
       <Segment selected={category === DEFAULT} onClick={() => handleChange(DEFAULT)}>{t('All Patients')}</Segment>
       <Segment selected={category === VERY_LOW} onClick={() => handleChange(VERY_LOW)}>{t('Very Low')}</Segment>
-      <Segment selected={category === LOW} onClick={() => handleChange(LOW)}>{t('Low')}</Segment>
+      <Segment selected={category === ANY_LOW} onClick={() => handleChange(ANY_LOW)}>{t('Low')}</Segment>
       <Segment selected={category === DROP_IN_TIR} onClick={() => handleChange(DROP_IN_TIR)}>{t('Drop in TIR')}</Segment>
-      <Segment selected={category === HIGH} onClick={() => handleChange(HIGH)}>{t('High')}</Segment>
+      <Segment selected={category === ANY_HIGH} onClick={() => handleChange(ANY_HIGH)}>{t('High')}</Segment>
       <Segment selected={category === VERY_HIGH} onClick={() => handleChange(VERY_HIGH)}>{t('Very High')}</Segment>
       <Segment selected={category === LOW_CGM_WEAR} onClick={() => handleChange(LOW_CGM_WEAR)}>{t('Low CGM Wear Time')}</Segment>
-      <Segment selected={category === MEETING_TARGETS} onClick={() => handleChange(MEETING_TARGETS)}>{t('Meeting Targets')}</Segment>
+      <Segment selected={category === TARGET} onClick={() => handleChange(TARGET)}>{t('Meeting Targets')}</Segment>
     </CategorySegmentedControl>
   );
 };
