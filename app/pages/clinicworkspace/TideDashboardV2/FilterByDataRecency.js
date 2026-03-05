@@ -37,15 +37,7 @@ const DropdownContent = ({
   return (
     <>
       <DialogContent px={2} py={3} dividers>
-        <Box
-          mt={3}
-          mb={2}
-          pt={3}
-          sx={{
-            alignItems: 'center',
-            borderTop: borders.divider,
-          }}
-        >
+        <Box mb={2} sx={{ alignItems: 'center' }}>
           <Body0 color="grays.4" sx={{ fontWeight: 'bold' }} mb={0}>{t('Data Recency')}</Body0>
           <Body0 color="grays.4" sx={{ fontWeight: 'medium' }} mb={2}>{t('Tidepool will only show patients who have data within the selected number of days.')}</Body0>
         </Box>
