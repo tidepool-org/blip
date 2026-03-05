@@ -6,16 +6,16 @@ const initialState = {
   category: CATEGORY.DEFAULT,
 };
 
-const deviceIssuesSlice = createSlice({
-  name: 'deviceIssues',
+const tideDashboardSlice = createSlice({
+  name: 'tideDashboard',
   initialState,
   reducers: {
     setCategory: (state, action) => {
       state.category = action.payload;
     },
-    resetDeviceIssuesState: () => initialState,
+    resetTideDashboardState: () => initialState,
   },
 });
 
-export const { setCategory, resetDeviceIssuesState } = deviceIssuesSlice.actions;
-export default deviceIssuesSlice.reducer;
+export const { setCategory, resetTideDashboardState } = tideDashboardSlice.actions;
+export default tideDashboardSlice.reducer;
