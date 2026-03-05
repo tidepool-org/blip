@@ -2,8 +2,9 @@ import { RTKQueryApi } from '../../../redux/api/baseApi';
 import { CATEGORY } from './FilterByCategory';
 import CGMExclusionQuery from './CGMExclusionQuery';
 
-// Each rule ensures that rules before it are negated to ensure list deduplication
-// For example, a query for ANY_LOW patients will have a param to exclude VERY_LOW patients
+
+// Each rule matches a category and automatically negates all preceding
+// rules, ensuring patients appear in at most one category.
 const cgmExclusionQuery = new CGMExclusionQuery()
   .addRule(CATEGORY.VERY_LOW,  'cgm.timeInVeryLowPercent',  '>=0.01')
   .addRule(CATEGORY.ANY_LOW,   'cgm.timeInAnyLowPercent',   '>=0.04')
