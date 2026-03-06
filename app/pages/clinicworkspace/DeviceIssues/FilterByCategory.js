@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector, useDispatch } from 'react-redux';
 import { CategorySegmentedControl, Segment } from '../components/CategorySegmentedControl';
-import { setCategory } from './deviceIssuesSlice';
+import { setCategory, setOffset } from './deviceIssuesSlice';
 
 export const CATEGORY = {
   DEFAULT: 'DEFAULT',
@@ -20,7 +20,10 @@ const FilterByCategory = () => {
   const dispatch = useDispatch();
   const category = useSelector(state => state.blip.deviceIssues.category);
 
-  const handleChange = (category) => dispatch(setCategory(category));
+  const handleChange = (category) => {
+    dispatch(setCategory(category));
+    dispatch(setOffset(0));
+  };
 
   return (
     <CategorySegmentedControl>

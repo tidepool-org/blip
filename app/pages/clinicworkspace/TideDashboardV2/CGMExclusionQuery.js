@@ -1,3 +1,7 @@
+// Builds mutually exclusive query params for CGM categories.
+// Rules are registered in priority order. Each rule's query params include
+// negations of all higher-priority rules, so patients match at most one category.
+
 export default class CGMExclusionQuery {
   constructor() {
     this.rules = [];
@@ -16,16 +20,18 @@ export default class CGMExclusionQuery {
   }
 
   addRule(category, paramKey, threshold) {
-    const negations = {};
+    const queryParams = {};
 
-    // For each existing rule, we need to negate that query in the new query params
+    // For every existing rule, we need to negate the corresponding query
     for (const rule of this.rules) {
-      negations[rule.paramKey] = this.negate(rule.threshold);
+      queryParams[rule.paramKey] = this.negate(rule.threshold);
     }
 
-    // Store the new query params
-    const categoryQueryParams = { ...negations, [paramKey]: threshold };
-    this.computedParams[category] = categoryQueryParams;
+    // Add the new query
+    queryParams[paramKey] = threshold;
+
+    // Store the new query params for retrieval by getQueryParams()
+    this.computedParams[category] = queryParams;
     this.rules.push({ category, paramKey, threshold });
 
     return this;

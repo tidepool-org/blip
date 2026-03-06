@@ -4,6 +4,7 @@ import { CATEGORY } from './FilterByCategory';
 
 const initialState = {
   category: CATEGORY.DEFAULT,
+  offset: 0,
 };
 
 const tideDashboardSlice = createSlice({
@@ -13,9 +14,12 @@ const tideDashboardSlice = createSlice({
     setCategory: (state, action) => {
       state.category = action.payload;
     },
+    setOffset: (state, action) => {
+      state.offset = action.payload;
+    },
     resetTideDashboardState: () => initialState,
   },
 });
 
-export const { setCategory, resetTideDashboardState } = tideDashboardSlice.actions;
+export const { setCategory, setOffset, resetTideDashboardState } = tideDashboardSlice.actions;
 export default tideDashboardSlice.reducer;
