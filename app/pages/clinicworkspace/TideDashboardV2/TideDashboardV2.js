@@ -36,6 +36,7 @@ const TideDashboard = () => {
   const { patientTags, lastData } = useSelector(state => state.blip.tideDashboardFilters);
   const timePrefs = useSelector((state) => state.blip.timePrefs);
 
+  // TODO: memoize so that new call isn't made every render due to changing timestamp
   const lastDataTo = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
   const lastDataFrom = moment(lastDataTo).subtract(lastData, 'days').toISOString();
 
