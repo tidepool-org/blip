@@ -45,6 +45,11 @@ const DeviceIssues = () => {
 
   const handleChangeOffset = (newOffset) => dispatch(setOffset(newOffset));
 
+  const handleResetFilters = () => {
+    dispatch(resetDeviceIssuesFilters());
+    dispatch(setOffset(0));
+  };
+
   if (!data) return null;
 
   const tableData = data?.data || [];
@@ -62,10 +67,7 @@ const DeviceIssues = () => {
       <Flex id="device-issues-filters" mb={3} sx={{ gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
         <ActiveFilterCount count={activeFiltersCount} />
         <FilterByTags />
-        <ResetFilters
-          hidden={activeFiltersCount <= 0}
-          onClick={() => dispatch(resetDeviceIssuesFilters())}
-        />
+        <ResetFilters hidden={activeFiltersCount <= 0} onClick={handleResetFilters} />
       </Flex>
 
       <Flex mb={3} sx={{ justifyContent: 'center' }}>
