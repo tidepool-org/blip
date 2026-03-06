@@ -1,9 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-import { CATEGORY_TAB } from './FilterByCategory';
+import { CATEGORY } from './FilterByCategory';
 
 const initialState = {
-  category: CATEGORY_TAB.DEFAULT,
+  category: CATEGORY.DEFAULT,
+  offset: 0,
 };
 
 const deviceIssuesSlice = createSlice({
@@ -13,9 +14,12 @@ const deviceIssuesSlice = createSlice({
     setCategory: (state, action) => {
       state.category = action.payload;
     },
+    setOffset: (state, action) => {
+      state.offset = action.payload;
+    },
     resetDeviceIssuesState: () => initialState,
   },
 });
 
-export const { setCategory, resetDeviceIssuesState } = deviceIssuesSlice.actions;
+export const { setCategory, setOffset, resetDeviceIssuesState } = deviceIssuesSlice.actions;
 export default deviceIssuesSlice.reducer;

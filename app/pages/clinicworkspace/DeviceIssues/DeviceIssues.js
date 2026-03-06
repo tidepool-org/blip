@@ -14,8 +14,8 @@ import PaginationControls from '../components/PaginationControls';
 
 import PatientCell from './PatientCell';
 import TagListCell from '../components/TagListCell';
-import { resetDeviceIssuesState } from './deviceIssuesSlice';
 import { resetDeviceIssuesFilters } from './deviceIssuesFiltersSlice';
+import { setOffset, resetDeviceIssuesState } from './deviceIssuesSlice';
 import { useGetDeviceIssuesPatientsQuery } from './deviceIssuesApi';
 import useActiveFiltersCount from './useActiveFiltersCount';
 import EmptyContentNode from './EmptyContentNode';
@@ -28,9 +28,8 @@ const DeviceIssues = () => {
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const category = useSelector(state => state.blip.deviceIssues.category);
+  const offset = useSelector(state => state.blip.deviceIssues.offset);
   const { patientTags } = useSelector(state => state.blip.deviceIssuesFilters);
-
-  const [offset, setOffset] = useState(0);
 
   const { data } = useGetDeviceIssuesPatientsQuery(
     { clinicId: selectedClinicId, offset, category, tags: patientTags, limit: LIMIT },
@@ -43,6 +42,8 @@ const DeviceIssues = () => {
   useEffect(() => {
     return () => dispatch(resetDeviceIssuesState());
   }, []);
+
+  const handleChangeOffset = (newOffset) => dispatch(setOffset(newOffset));
 
   if (!data) return null;
 
@@ -102,7 +103,7 @@ const DeviceIssues = () => {
           limit={LIMIT}
           total={data?.meta?.count || 0}
           offset={offset}
-          onOffsetChange={newOffset => setOffset(newOffset)}
+          onOffsetChange={handleChangeOffset}
         />
       </Flex>
     </>
