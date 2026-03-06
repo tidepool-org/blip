@@ -1,9 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-import { CATEGORY_TAB } from './FilterByCategory';
+import { CATEGORY } from './FilterByCategory';
 
 const initialState = {
-  category: CATEGORY_TAB.DEFAULT,
+  category: CATEGORY.DEFAULT,
+  offset: 0,
   editPatientDialog: {
     patientId: null,
     isOpen: false,
@@ -20,6 +21,9 @@ const deviceIssuesSlice = createSlice({
   reducers: {
     setCategory: (state, action) => {
       state.category = action.payload;
+    },
+    setOffset: (state, action) => {
+      state.offset = action.payload;
     },
     setEditPatientDialogPatientId: (state, action) => {
       state.editPatientDialog.patientId = action.payload;
@@ -43,6 +47,7 @@ const deviceIssuesSlice = createSlice({
 
 export const {
   setCategory,
+  setOffset,
   setEditPatientDialogPatientId,
   setEditPatientDialogIsOpen,
   setDataConnectionsModalPatientId,
@@ -50,4 +55,5 @@ export const {
   closeModals,
   resetDeviceIssuesState,
 } = deviceIssuesSlice.actions;
+
 export default deviceIssuesSlice.reducer;

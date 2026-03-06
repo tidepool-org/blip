@@ -14,7 +14,7 @@ import PaginationControls from '../components/PaginationControls';
 import PatientCell from './PatientCell';
 import MoreMenuCell from './MoreMenuCell';
 import TagListCell from '../components/TagListCell';
-import { resetDeviceIssuesState } from './deviceIssuesSlice';
+import { setOffset, resetDeviceIssuesState } from './deviceIssuesSlice';
 import { useGetDeviceIssuesPatientsQuery } from './deviceIssuesApi';
 
 const LIMIT = 12;
@@ -25,8 +25,7 @@ const DeviceIssues = ({ api, trackMetric }) => {
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const category = useSelector(state => state.blip.deviceIssues.category);
-
-  const [offset, setOffset] = useState(0);
+  const offset = useSelector(state => state.blip.deviceIssues.offset);
 
   const { data } = useGetDeviceIssuesPatientsQuery(
     { clinicId: selectedClinicId, offset, category, limit: LIMIT },
@@ -37,6 +36,8 @@ const DeviceIssues = ({ api, trackMetric }) => {
   useEffect(() => {
     return () => dispatch(resetDeviceIssuesState());
   }, []);
+
+  const handleChangeOffset = (newOffset) => dispatch(setOffset(newOffset));
 
   if (!data) return null;
 
@@ -83,7 +84,7 @@ const DeviceIssues = ({ api, trackMetric }) => {
           limit={LIMIT}
           total={data?.meta?.count || 0}
           offset={offset}
-          onOffsetChange={newOffset => setOffset(newOffset)}
+          onOffsetChange={handleChangeOffset}
         />
       </Flex>
 
