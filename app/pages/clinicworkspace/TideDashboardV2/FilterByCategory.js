@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector, useDispatch } from 'react-redux';
 import { CategorySegmentedControl, Segment } from '../components/CategorySegmentedControl';
-import { setCategory } from './tideDashboardSlice';
+import { setCategory, setOffset } from './tideDashboardSlice';
 
 export const CATEGORY = {
   DEFAULT: 'DEFAULT',
@@ -22,7 +22,10 @@ const FilterByCategory = () => {
   const dispatch = useDispatch();
   const category = useSelector(state => state.blip.tideDashboard.category);
 
-  const handleChange = (category) => dispatch(setCategory(category));
+  const handleChange = (category) => {
+    dispatch(setCategory(category));
+    dispatch(setOffset(0));
+  };
 
   return (
     <CategorySegmentedControl>

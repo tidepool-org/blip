@@ -13,7 +13,7 @@ import ActiveFilterCount from '../components/ActiveFilterCount';
 
 import PatientCell from './PatientCell';
 import TagListCell from '../components/TagListCell';
-import { resetTideDashboardState } from './tideDashboardSlice';
+import { resetTideDashboardState, setOffset } from './tideDashboardSlice';
 import { useGetTideDashboardPatientsQuery } from './tideDashboardApi';
 import ResetFilters from '../components/ResetFilters';
 import useActiveFiltersCount from './useActiveFiltersCount';
@@ -27,9 +27,8 @@ const TideDashboard = () => {
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const category = useSelector(state => state.blip.tideDashboard.category);
+  const offset = useSelector(state => state.blip.tideDashboard.offset);
   const { patientTags } = useSelector(state => state.blip.tideDashboardFilters);
-
-  const [offset, setOffset] = useState(0);
 
   const { data } = useGetTideDashboardPatientsQuery(
     { clinicId: selectedClinicId, offset, category, tags: patientTags, limit: LIMIT },
@@ -42,6 +41,8 @@ const TideDashboard = () => {
   useEffect(() => {
     return () => dispatch(resetTideDashboardState());
   }, []);
+
+  const handleChangeOffset = (newOffset) => dispatch(setOffset(newOffset));
 
   if (!data) return null;
 
@@ -93,7 +94,7 @@ const TideDashboard = () => {
           limit={LIMIT}
           total={data?.meta?.count || 0}
           offset={offset}
-          onOffsetChange={newOffset => setOffset(newOffset)}
+          onOffsetChange={handleChangeOffset}
         />
       </Flex>
     </>
