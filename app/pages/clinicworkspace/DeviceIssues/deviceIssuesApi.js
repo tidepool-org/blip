@@ -1,5 +1,15 @@
 import { RTKQueryApi } from '../../../redux/api/baseApi';
 
+export const tagTypes = {
+  DEVICE_ISSUES_PATIENTS: 'DEVICE_ISSUES_PATIENTS',
+};
+
+const { DEVICE_ISSUES_PATIENTS } = tagTypes;
+
+RTKQueryApi.enhanceEndpoints({
+  addTagTypes: [DEVICE_ISSUES_PATIENTS],
+});
+
 const deviceIssuesApi = RTKQueryApi.injectEndpoints({
   endpoints: (builder) => ({
     getDeviceIssuesPatients: builder.query({
@@ -9,6 +19,7 @@ const deviceIssuesApi = RTKQueryApi.injectEndpoints({
           params: { offset, category, limit },
         };
       },
+      providesTags: [DEVICE_ISSUES_PATIENTS],
     }),
   }),
 });

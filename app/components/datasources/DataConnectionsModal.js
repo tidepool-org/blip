@@ -54,14 +54,14 @@ export const DataConnectionsModal = (props) => {
     dataSources,
    } : patient;
 
-   const [showPatientEmailModal, setShowPatientEmailModal] = useState(false);
+  const [showPatientEmailModal, setShowPatientEmailModal] = useState(false);
   const [processingEmailUpdate, setProcessingEmailUpdate] = useState(false);
   const [patientEmailFormContext, setPatientEmailFormContext] = useState();
   const dispatch = useDispatch();
 
   const fetchPatientDetails = useCallback(() => {
-    dispatch(actions.async.fetchPatientFromClinic(api, selectedClinicId, patient.id));
-  }, [dispatch, patient.id, selectedClinicId])
+    dispatch(actions.async.fetchPatientFromClinic(api, selectedClinicId, patient?.id));
+  }, [dispatch, patient?.id, selectedClinicId]);
 
   // Pull the patient on load to ensure the most recent dexcom connection state is made available
   useEffect(() => {
@@ -135,6 +135,8 @@ export const DataConnectionsModal = (props) => {
   const learnMoreText = selectedClinicId
     ? t('Learn more.')
     : t('Learn more here.');
+
+  if (!patient) return null;
 
   return (
     <>
