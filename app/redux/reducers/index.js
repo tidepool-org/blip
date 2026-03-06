@@ -21,6 +21,7 @@ import pdf from './pdf';
 import data from './data';
 import patientListFilters from './patientListFilters';
 import deviceIssues from '../../pages/clinicworkspace/DeviceIssues/deviceIssuesSlice';
+import deviceIssuesFilters from '../../pages/clinicworkspace/DeviceIssues/deviceIssuesFiltersSlice';
 
 import {
   bgPrefs,
@@ -107,4 +108,5 @@ export default combineReducers({
   clinicMRNsForPatientFormValidation,
   patientListFilters,
   deviceIssues,
+  deviceIssuesFilters,
 });
