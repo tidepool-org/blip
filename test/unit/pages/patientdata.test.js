@@ -3571,7 +3571,7 @@ describe('PatientData', function () {
 
     const commonQueries = {
       bgPrefs,
-      metaData: 'latestPumpUpload, bgSources, devices',
+      metaData: 'latestPumpUpload, bgSources, devices, matchedDevices',
       timePrefs,
     };
 
