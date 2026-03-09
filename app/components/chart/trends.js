@@ -24,7 +24,10 @@ import {
   containers as vizContainers,
   utils as vizUtils,
 } from '@tidepool/viz';
-import { CHART_DATE_BOUND_FORMAT } from '../elements/DateRangePicker';
+const {
+  CHART_DATE_BOUND_FORMAT,
+  getChartDateBoundFormat,
+} = vizUtils.datetime;
 
 const TrendsContainer = vizContainers.TrendsContainer;
 const getTimezoneFromTimePrefs = vizUtils.datetime.getTimezoneFromTimePrefs;
@@ -41,12 +44,14 @@ const {
 const Trends = withTranslation()(class Trends extends PureComponent {
   static propTypes = {
     chartPrefs: PropTypes.object.isRequired,
+    copyAsTextMetadata: PropTypes.object,
     currentPatientInViewId: PropTypes.string.isRequired,
     data: PropTypes.object.isRequired,
     initialDatetimeLocation: PropTypes.string,
     loading: PropTypes.bool.isRequired,
     mostRecentDatetimeLocation: PropTypes.string,
     onClickRefresh: PropTypes.func.isRequired,
+    onClickExport: PropTypes.func.isRequired,
     onClickPrint: PropTypes.func.isRequired,
     onSwitchToBasics: PropTypes.func.isRequired,
     onSwitchToDaily: PropTypes.func.isRequired,
@@ -75,7 +80,6 @@ const Trends = withTranslation()(class Trends extends PureComponent {
       visibleDays: 0,
     };
 
-    this.formatDate = this.formatDate.bind(this);
     this.getNewDomain = this.getNewDomain.bind(this);
     this.getTitle = this.getTitle.bind(this);
     this.handleWindowResize = this.handleWindowResize.bind(this);
@@ -121,20 +125,6 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     this.props.updateChartPrefs(prefs, false);
   };
 
-  formatDate(datetime) {
-    const { t } = this.props;
-    const timezone = getTimezoneFromTimePrefs(_.get(this.props, 'data.timePrefs', {}));
-
-    const dateMoment = moment(datetime).tz(timezone);
-    const isMidnight = (dateMoment?.hours() === 0 && dateMoment?.minutes() === 0) ||
-                       (dateMoment?.hours() === 23 && dateMoment?.minutes() === 59);
-
-    const dtMask = isMidnight ? CHART_DATE_BOUND_FORMAT.DATE_ONLY
-                              : CHART_DATE_BOUND_FORMAT.DATE_AND_TIME;
-
-    return dateMoment.format(dtMask);
-  }
-
   getNewDomain(current, extent) {
     const timePrefs = _.get(this.props, 'data.timePrefs', {});
     const timezone = getTimezoneFromTimePrefs(timePrefs);
@@ -149,9 +139,16 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     const timePrefs = _.get(this.props, 'data.timePrefs', {});
     const timezone = getTimezoneFromTimePrefs(timePrefs);
 
-    const end = moment(datetimeLocationEndpoints[1]).tz(timezone);
+    const startMoment = moment(datetimeLocationEndpoints[0]).tz(timezone);
+    const endMoment = moment(datetimeLocationEndpoints[1]).tz(timezone);
 
-    return this.formatDate(datetimeLocationEndpoints[0]) + ' - ' + this.formatDate(end);
+    const dtMask = getChartDateBoundFormat(startMoment, endMoment);
+
+    if (dtMask === CHART_DATE_BOUND_FORMAT.DATE_ONLY) {
+      endMoment.subtract(1, 'ms');
+    }
+
+    return startMoment.format(dtMask) + ' - ' + endMoment.format(dtMask);
   }
 
   handleWindowResize(windowSize) {
@@ -266,6 +263,14 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     const datetime = this.refs.chart ? this.refs.chart.getCurrentDay() : this.props.initialDatetimeLocation;
     this.props.onSwitchToBgLog(datetime);
   }
+
+  handleClickExport = e => {
+    if (e) {
+      e.preventDefault();
+    }
+
+    this.props.onClickExport();
+  };
 
   handleClickPrint = e => {
     if (e) {
@@ -594,7 +599,14 @@ const Trends = withTranslation()(class Trends extends PureComponent {
                   <ClipboardButton
                     buttonTitle={t('For email or notes')}
                     onSuccess={this.handleCopyTrendsClicked}
-                    getText={trendsText.bind(this, this.props.patient, this.props.data, this.props.stats, this.props.chartPrefs[this.chartType])}
+                    getText={trendsText.bind(
+                      this,
+                      this.props.patient,
+                      this.props.data,
+                      this.props.stats,
+                      this.props.chartPrefs[this.chartType],
+                      this.props.copyAsTextMetadata,
+                    )}
                   />
                   <BgSourceToggle
                     bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
@@ -646,6 +658,7 @@ const Trends = withTranslation()(class Trends extends PureComponent {
         onClickOneDay={this.handleClickDaily}
         onClickBgLog={this.handleClickBgLog}
         onClickSettings={this.handleClickSettings}
+        onClickExport={this.handleClickExport}
         onClickPrint={this.handleClickPrint}
         ref="header" />
     );
