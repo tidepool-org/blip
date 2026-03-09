@@ -274,7 +274,7 @@ export let Login = withTranslation()(class extends React.Component {
 let getFetchers = (dispatchProps, ownProps, other, api) => {
   if (other.signupKey && !other.confirmingSignup.inProgress) {
     return [
-      dispatchProps.confirmSignup.bind(null, api, other.signupKey, other.signupEmail, other.restrictedToken)
+      dispatchProps.confirmSignup.bind(null, api, other.signupKey, other.signupEmail, other.restrictedToken),
     ];
   }
 
@@ -302,7 +302,8 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   let location = ownProps.location;
   let signupEmail = utils.getSignupEmail(location);
   let inviteEmail = utils.getInviteEmail(location);
-  let restrictedToken = location?.query?.restrictedToken;
+  let restrictedToken = location?.query?.restrictedTokenId;
+
   let seedEmail = inviteEmail || signupEmail;
   let signupKey = utils.getSignupKey(location);
   let isInvite = !_.isEmpty(inviteEmail);
