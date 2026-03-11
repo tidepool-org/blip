@@ -86,7 +86,7 @@ export function signup(api, accountDetails) {
  * @param  {String} signupKey
  * @param  {String} signupEmail
  */
-export function confirmSignup(api, signupKey, signupEmail) {
+export function confirmSignup(api, signupKey, signupEmail, restrictedToken = null) {
   return (dispatch) => {
     dispatch(sync.confirmSignupRequest());
 
@@ -100,12 +100,18 @@ export function confirmSignup(api, signupKey, signupEmail) {
           createActionError(errMsg, err), err, signupKey
         ));
         if (err.status === 409) {
-          dispatch(push(`/verification-with-password?signupKey=${signupKey}&signupEmail=${signupEmail}`));
+          // If restricted token exists, we infer that the user is being sent from EHR C2C workflow.
+          // We redirect them to connect C2C first. Otherwise, we redirect to account creation.
+          if (restrictedToken) {
+            dispatch(push(`/verification-with-c2c?signupKey=${signupKey}&signupEmail=${signupEmail}&restrictedToken=${restrictedToken}`));
+          } else {
+            dispatch(push(`/verification-with-password?signupKey=${signupKey}&signupEmail=${signupEmail}`));
+          }
         }
       } else {
-        dispatch(sync.confirmSignupSuccess())
+        dispatch(sync.confirmSignupSuccess());
       }
-    })
+    });
   };
 }
 
@@ -1701,6 +1707,38 @@ export function disconnectDataSource(api, dataSourceFilter) {
           ));
         } else {
           dispatch(sync.disconnectDataSourceSuccess());
+        }
+      });
+    }
+  };
+}
+
+/**
+ * Connect Data Source (With Pre-Created Restricted Token)
+ *
+ * @param  {Object} api an instance of the API wrapper
+ * @param  {String} providerId the internal provider id
+ * @param  {String} restrictedToken the restricted token
+ * @param  {Object} dataSourceFilter the filter for the data source
+ */
+export function connectDataSourceWithRestrictedToken(api, providerId, restrictedToken, dataSourceFilter) {
+  return (dispatch) => {
+    dispatch(sync.connectDataSourceRequest());
+
+    if (dataSourceFilter.providerType !== 'oauth') {
+      let err = 'Unknown data source type';
+      dispatch(sync.connectDataSourceFailure(
+        createActionError(ErrorMessages.ERR_CONNECTING_DATA_SOURCE, err), err
+      ));
+    } else {
+      api.user.createOAuthProviderAuthorization(dataSourceFilter.providerName, restrictedToken, (err, url) => {
+        if (err) {
+          dispatch(sync.connectDataSourceFailure(
+            createActionError(ErrorMessages.ERR_CONNECTING_DATA_SOURCE, err), err
+          ));
+          return;
+        } else {
+          dispatch(sync.connectDataSourceSuccess(providerId, url));
         }
       });
     }

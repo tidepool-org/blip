@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import { withTranslation, Trans } from 'react-i18next';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation, useHistory } from 'react-router-dom';
 import capitalize from 'lodash/capitalize';
 import includes from 'lodash/includes';
 import { Box, Flex } from 'theme-ui';
@@ -24,8 +24,7 @@ export const OAuthConnection = (props) => {
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search);
   const dispatch = useDispatch();
-  const [isCustodial, setIsCustodial] = useState();
-  const [authStatus, setAuthStatus] = useState();
+  const history = useHistory();
 
   const statusContent = {
     authorized: {
@@ -56,23 +55,40 @@ export const OAuthConnection = (props) => {
     },
   };
 
-  useEffect(() => {
-    const custodialSignup = queryParams.has('signupEmail') && queryParams.has('signupKey');
-    setIsCustodial(custodialSignup);
+  const isCustodial = queryParams.has('signupEmail') && queryParams.has('signupKey');
 
-    if (includes(availableProviders, providerName) && statusContent[status]) {
-      setAuthStatus(statusContent[status]);
-    } else {
-      setAuthStatus(statusContent.error)
-    }
+  const authStatus = (
+    includes(availableProviders, providerName) && statusContent[status]
+      ? statusContent[status]
+      : statusContent.error
+  );
 
-    trackMetric('Oauth - Connection', { providerName, status, custodialSignup });
-  }, []);
+  const isCustodialMobileC2CSuccess = isCustodial && utils.isMobile() && authStatus.status === 'authorized';
+
+  const handleRedirectToClaimAccount = (params) => {
+    trackMetric('Oauth - Connection - Claim Account', { providerName, status });
+    history.push({ pathname: '/verification-with-password', search: params.toString() });
+  };
 
   const handleClickClaimAccount = () => {
-    trackMetric('Oauth - Connection - Claim Account', { providerName, status });
-    dispatch(push(`/login?${queryParams.toString()}`));
+    // If user clicks Claim My Account button, we redirect and forward all GET params to next page
+    handleRedirectToClaimAccount(queryParams);
   };
+
+  useEffect(() => {
+    trackMetric('Oauth - Connection', { providerName, status, custodialSignup: isCustodial });
+  }, []);
+
+  // In EHR C2C flow, user will complete C2C before they have an account created. We redirect to
+  // Claim My Account automatically after landing on this page.
+  useEffect(() => {
+    if (isCustodialMobileC2CSuccess) {
+      const params = new URLSearchParams(queryParams);
+      params.append('isC2CSuccess', 'true');
+
+      handleRedirectToClaimAccount(params);
+    }
+  }, [isCustodialMobileC2CSuccess]);
 
   const handleRedirectToTidepool = () => {
     // After the connection, we want to get back to the /data view but we don't have access to the
@@ -80,11 +96,11 @@ export const OAuthConnection = (props) => {
     // access to the patientId, with a flag to open the DataConnections modal back up on load.
     trackMetric('Oauth - Connection - Redirect back to Tidepool App', { providerName, status });
 
-    let path = '/patients?justLoggedIn=true'
+    let path = 'justLoggedIn=true'
              + `&dataConnectionStatus=${status}`
              + `&dataConnectionProviderName=${providerName}`;
 
-    dispatch(push(path));
+    history.push({ pathname: '/patients', search: path });
 
     return;
   };

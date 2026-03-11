@@ -27,6 +27,7 @@ import RequestPasswordReset from './pages/passwordreset/request';
 import Signup from './pages/signup';
 import Terms from './pages/terms';
 import UserProfile from './pages/userprofile';
+import VerificationWithC2C from './pages/verificationwithc2c';
 import VerificationWithPassword from './pages/verificationwithpassword';
 import Gate from './components/gate';
 import UploadRedirect from './pages/uploadredirect';
@@ -466,6 +467,7 @@ export const getRoutes = (appContext) => {
           <Route path='/confirm-password-reset' render={routeProps => (<Gate onEnter={boundEnsureNoAuth} key={routeProps.match.path}><ConfirmPasswordReset {...routeProps} {...props} /></Gate>)} />
           <Route path='/oauth/:providerName/:status' render={routeProps => (<OAuthConnection {...routeProps} {...props} />)} />
           <Route path='/request-password-from-uploader' render={routeProps => (<Gate onEnter={boundOnUploaderPasswordReset} key={routeProps.match.path}><RequestPasswordReset {...routeProps} {...props} /></Gate>)} />
+          <Route path='/verification-with-c2c' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><VerificationWithC2C {...routeProps} {...props} /></Gate>)} />
           <Route path='/verification-with-password' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><VerificationWithPassword {...routeProps} {...props} /></Gate>)} />
           <Route path='/browser-warning' render={routeProps => (<BrowserWarning {...routeProps} {...props} />)} />
           <Route path="/upload-redirect" render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><UploadRedirect {...routeProps} {...props} /></Gate>)} />
