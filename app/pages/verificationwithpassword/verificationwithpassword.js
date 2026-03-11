@@ -43,15 +43,14 @@ const styleProps = {
     'input[id="password"]': { padding: 2 },
     'input[id="passwordConfirm"]': { padding: 2 },
   },
-  confirmButton: {
+  actionButton: {
     minWidth: ['100%', '100%', '160px', '160px'],
-    marginLeft: 'auto',
   },
   notificationContainer: {
     display: 'flex',
     justifyContent: 'flex-end',
     fontSize: 0,
-  }
+  },
 };
 
 const Notification = ({ notification = null }) => {
@@ -67,12 +66,7 @@ const Notification = ({ notification = null }) => {
   return <div className={className}>{notification.message}</div>;
 };
 
-const SIGNUP_WORKFLOW = {
-  DEFAULT: 'DEFAULT',
-  EHR: 'EHR',
-};
-
-const useInferSignupWorkflow = () => {
+const useInferEHRSignupWorkflow = () => {
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search);
 
@@ -81,9 +75,7 @@ const useInferSignupWorkflow = () => {
   // in from the default "Claim Your Account" email flow.
   const isEHRSignupWorkflow = queryParams.has('restrictedToken');
 
-  if (isEHRSignupWorkflow) return SIGNUP_WORKFLOW.EHR;
-
-  return SIGNUP_WORKFLOW.DEFAULT;
+  return isEHRSignupWorkflow;
 };
 
 const VerificationWithPassword = ({
@@ -98,7 +90,7 @@ const VerificationWithPassword = ({
   const queryParams = new URLSearchParams(search);
   const { set: setToast } = useToasts();
 
-  const signupWorkflow = useInferSignupWorkflow();
+  const isEHRSignupWorkflow = useInferEHRSignupWorkflow();
   const signupKey = utils.getSignupKey(location);
   const signupEmail = utils.getSignupEmail(location);
 
@@ -119,7 +111,7 @@ const VerificationWithPassword = ({
     if (queryParams.get('isC2CSuccess') === 'true') {
       setToast({ message: toastMessages.authorized, variant: 'success' });
     }
-  }, [queryParams]);
+  }, []);
 
   const handleInputChange = (name, value) => {
     setFormValues(prevState => ({ ...prevState, [name]: value }));
@@ -144,6 +136,8 @@ const VerificationWithPassword = ({
     return validationErrors;
   };
 
+  const handleSkip = () => window?.close();
+
   const handleSubmit = (evt) => {
     if (evt) evt.preventDefault();
 
@@ -161,27 +155,39 @@ const VerificationWithPassword = ({
 
   const disabled = fetchingUser && !user;
 
-  const titleCopy = signupWorkflow === SIGNUP_WORKFLOW.EHR
-    ? t('Optional: Setup Your Account')
-    : t('Claim Your Account');
-
   return (
     <Box sx={{ paddingTop: ['72px', '72px', '86px', '86px'] }}>
       <Container
-        title={titleCopy}
+        title={
+          isEHRSignupWorkflow
+            ? t('Optional: Setup Your Account')
+            : t('Claim Your Account')
+        }
         subtitle={t('Set a password to access your data from home')}
         variant="mediumBordered"
         p={4}
         pt={3}
-        actions={[{
-          id: 'verificationWithPasswordConfirm',
-          variant: 'primary',
-          onClick: handleSubmit,
-          children: working ? t('Setting up...') : t('Confirm'),
-          processing: working,
-          disabled: disabled,
-          sx: styleProps.confirmButton,
-        }]}
+        sx={{ flexDirection: ['column', 'column', 'row', 'row'] }}
+        actions={[
+          (isEHRSignupWorkflow && {
+            id: 'verificationWithPasswordSkip',
+            variant: 'secondary',
+            onClick: handleSkip,
+            children: t('Skip this step'),
+            processing: working,
+            disabled: disabled,
+            sx: styleProps.actionButton,
+          }),
+          {
+            id: 'verificationWithPasswordConfirm',
+            variant: 'primary',
+            onClick: handleSubmit,
+            children: working ? t('Setting up...') : t('Confirm'),
+            processing: working,
+            disabled: disabled,
+            sx: styleProps.actionButton,
+          },
+        ].filter(a => !!a)}
       >
         <Box sx={styleProps.inputFieldContainer}>
           <TextInput // Password Field

@@ -101,6 +101,7 @@ export function Container(props) {
             gap: 2,
             borderTop: borders.input,
             justifyContent: ['center', 'flex-end'],
+            ...sx,
           }}
         >
           {map(actions, (buttonProps, i) => <Button key={`container-action-${i}`} {...buttonProps} />)}
