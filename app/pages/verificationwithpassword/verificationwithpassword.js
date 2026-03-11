@@ -220,7 +220,7 @@ const VerificationWithPassword = ({
           >
             <TextInput
               name="birthday"
-              label={t('Birthday')}
+              label={t('Birthdate - This should match the birthdate your clinician has on record')}
               placeholder="mm/dd/yyyy"
               variant="condensed"
               error={validationErrors.birthday}

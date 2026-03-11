@@ -43,12 +43,15 @@ const styleProps = {
     backgroundColor: vizColors.blue00,
     padding: 2,
     my: 2,
+    borderRadius: 4,
   },
   providerConnectButton:{
     backgroundColor: vizColors.white,
     px: 4,
     py: 2,
     maxWidth: '108px',
+    fontWeight: 'medium',
+    borderRadius: 4,
   },
   skipStepButton: {
     backgroundColor: vizColors.white,
