@@ -149,6 +149,8 @@ const VerificationWithPassword = ({
 
     if (working) return;
 
+    setValidationErrors({});
+    setNotification(null);
     const validationErrors = validateFormValues({ ...formValues });
 
     if (!_.isEmpty(validationErrors)) return;
