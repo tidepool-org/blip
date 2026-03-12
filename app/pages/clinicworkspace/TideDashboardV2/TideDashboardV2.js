@@ -12,8 +12,8 @@ import FilterByDataRecency from './FilterByDataRecency';
 import PaginationControls from '../components/PaginationControls';
 import ActiveFilterCount from '../components/ActiveFilterCount';
 
-import PatientCell from './PatientCell';
 import TagListCell from '../components/TagListCell';
+import { PatientCell } from './Cells';
 import { resetTideDashboardState, setOffset } from './tideDashboardSlice';
 import { useGetTideDashboardPatientsQuery } from './tideDashboardApi';
 import ResetFilters from '../components/ResetFilters';

@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Text } from 'theme-ui';
 
-const PatientCell = ({ patient }) => {
+export const PatientCell = ({ patient }) => {
   const { t } = useTranslation();
 
   const { fullName, birthDate, mrn } = patient || {};
@@ -14,4 +14,6 @@ const PatientCell = ({ patient }) => {
   </Box>;
 };
 
-export default PatientCell;
+export default {
+  PatientCell,
+};
