@@ -13,13 +13,14 @@ import PaginationControls from '../components/PaginationControls';
 import ActiveFilterCount from '../components/ActiveFilterCount';
 
 import TagListCell from '../components/TagListCell';
-import { PatientCell } from './Cells';
+import { AvgGlucoseCell, CGMUseCell, ChangeTIRCell, GMICell, PatientCell, PercentTIRCell } from './Cells';
 import { resetTideDashboardState, setOffset } from './tideDashboardSlice';
 import { useGetTideDashboardPatientsQuery } from './tideDashboardApi';
 import ResetFilters from '../components/ResetFilters';
 import useActiveFiltersCount from './useActiveFiltersCount';
 import { resetTideDashboardFilters } from './tideDashboardFiltersSlice';
 import moment from 'moment';
+import getPeriod from './getPeriod';
 
 import { utils as vizUtils } from '@tidepool/viz';
 const { getLocalizedCeiling} = vizUtils.datetime;
@@ -58,6 +59,8 @@ const TideDashboard = () => {
 
   const tableData = data?.data || [];
 
+  const period = getPeriod(lastData);
+
   return (
     <>
       <Flex id="tide-dashboard-filters" mb={3} sx={{ gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -79,17 +82,16 @@ const TideDashboard = () => {
         variant="condensed"
         label="tideDashboardPatientsTable"
         columns={[
-          { title: t('Patient Details'), field: 'fullName', align: 'left', render: patient => <PatientCell patient={patient} /> },
-          { title: t('Flag'), field: '', align: 'left' },
-          { title: t('Avg Glucose'), field: '', align: 'left' },
-          { title: t('% TIR'), field: '', align: 'left' },
-          { title: t('% Time in Range'), field: '', align: 'left' },
-          { title: t('% Change in TIR'), field: '', align: 'left' },
-          { title: t('GMI'), field: '', align: 'left' },
-          { title: t('CGM Use'), field: '', align: 'left' },
-          { title: t('Tags'), field: 'tags', align: 'left', render: patient => <TagListCell patient={patient} /> },
-          { title: t('Last Reviewed'), field: '', align: 'left' },
-          { title: t(''), field: '', align: 'left' }, // More
+          { title: t('Patient Details'), field: 'fullName', align: 'center', render: patient => <PatientCell patient={patient} /> },
+          { title: t('Flag'), field: '', align: 'center' },
+          { title: t('Avg Glucose'), field: '', align: 'center', render: patient => <AvgGlucoseCell patient={patient} period={period} /> },
+          { title: t('Time in Range'), field: '', align: 'center', render: patient => <PercentTIRCell patient={patient} period={period} /> },
+          { title: t('% Change in TIR'), field: '', align: 'center', render: patient => <ChangeTIRCell patient={patient} period={period} /> },
+          { title: t('GMI'), field: '', align: 'center', render: patient => <GMICell patient={patient} period={period} />},
+          { title: t('CGM Use'), field: '', align: 'center', render: patient => <CGMUseCell patient={patient} period={period} /> },
+          { title: t('Tags'), field: 'tags', align: 'center', render: patient => <TagListCell patient={patient} /> },
+          { title: t('Last Reviewed'), field: '', align: 'center' },
+          { title: t(''), field: '', align: 'center' }, // More
         ]}
         data={tableData}
         // sx={tableStyle}
