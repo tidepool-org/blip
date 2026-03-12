@@ -21,3 +21,14 @@ const tideDashboardFiltersSlice = createSlice({
 
 export const { setLastDataFilter, setPatientTagsFilter, resetTideDashboardFilters } = tideDashboardFiltersSlice.actions;
 export default tideDashboardFiltersSlice.reducer;
+
+export const selectPeriod = (state) => {
+  switch(state.blip.tideDashboardFilters?.lastData) {
+    case 1: return '1d';
+    case 7: return '7d';
+    case 14: return '14d';
+    case 30: return '30d';
+    case 90: return '90d';
+    default: return null;
+  }
+};

@@ -9,6 +9,7 @@ import { MGDL_UNITS } from '../../../core/constants';
 import BgSummaryCell from '../../../components/clinic/BgSummaryCell';
 import DeltaBar from '../../../components/elements/DeltaBar';
 import utils from '../../../core/utils';
+import { selectPeriod } from './tideDashboardFiltersSlice';
 
 export const PatientCell = ({ patient }) => {
   const { t } = useTranslation();
@@ -28,14 +29,16 @@ export const NumericTemplateCell = ({ value, isPercent = false }) => {
   return <Text sx={{ fontWeight: 'normal' }}>{value} {isPercent && '%'}</Text>;
 };
 
-export const AvgGlucoseCell = ({ patient, period, units }) => {
+export const AvgGlucoseCell = ({ patient, units }) => { // TODO: Fix for units
+  const period = useSelector(state => selectPeriod(state));
   const rawValue = patient?.summary?.cgmStats?.periods?.[period]?.averageGlucoseMmol;
-  const value = utils.formatDecimal(rawValue, 1); // TODO: Fix for units
+  const value = utils.formatDecimal(rawValue, 1);
 
   return <NumericTemplateCell value={value} />;
 };
 
-export const PercentTIRCell = ({ patient, period }) => {
+export const PercentTIRCell = ({ patient }) => {
+  const period = useSelector(state => selectPeriod(state));
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const clinicBgUnits = clinic?.preferredBgUnits || MGDL_UNITS;
@@ -52,20 +55,23 @@ export const PercentTIRCell = ({ patient, period }) => {
   />;
 };
 
-export const GMICell = ({ patient, period }) => {
+export const GMICell = ({ patient }) => {
+  const period = useSelector(state => selectPeriod(state));
   const value = patient?.summary?.cgmStats?.periods?.[period]?.glucoseManagementIndicator;
 
   return <NumericTemplateCell value={value} isPercent />;
 };
 
-export const CGMUseCell = ({ patient, period }) => {
+export const CGMUseCell = ({ patient }) => {
+  const period = useSelector(state => selectPeriod(state));
   const rawValue = patient?.summary?.cgmStats?.periods?.[period]?.timeCGMUsePercent;
   const value = utils.formatDecimal(rawValue * 100, 1);
 
   return <NumericTemplateCell value={value} isPercent/>;
 };
 
-export const ChangeTIRCell = ({ patient, period }) => {
+export const ChangeTIRCell = ({ patient }) => {
+  const period = useSelector(state => selectPeriod(state));
   const timeInTargetPercentDelta = patient?.summary?.cgmStats?.periods?.[period]?.timeInTargetPercentDelta;
 
   if (!timeInTargetPercentDelta) return <Text sx={{ fontWeight: 'medium' }}>--</Text>;
