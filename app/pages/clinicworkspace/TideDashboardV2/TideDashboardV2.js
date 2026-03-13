@@ -19,11 +19,8 @@ import { resetTideDashboardState, setOffset } from './tideDashboardSlice';
 import { useGetTideDashboardPatientsQuery } from './tideDashboardApi';
 import ResetFilters from '../components/ResetFilters';
 import useActiveFiltersCount from './useActiveFiltersCount';
+import useDerivedDataRecencyEndpoints from './useDerivedDataRecencyEndpoints';
 import { resetTideDashboardFilters } from './tideDashboardFiltersSlice';
-import moment from 'moment';
-
-import { utils as vizUtils } from '@tidepool/viz';
-const { getLocalizedCeiling} = vizUtils.datetime;
 
 const LIMIT = 12;
 
@@ -34,12 +31,9 @@ const TideDashboard = () => {
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const category = useSelector(state => state.blip.tideDashboard.category);
   const offset = useSelector(state => state.blip.tideDashboard.offset);
-  const { patientTags, lastData } = useSelector(state => state.blip.tideDashboardFilters);
-  const timePrefs = useSelector((state) => state.blip.timePrefs);
+  const patientTags = useSelector(state => state.blip.tideDashboardFilters.patientTags);
 
-  // TODO: memoize so that new call isn't made every render due to changing timestamp
-  const lastDataTo = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
-  const lastDataFrom = moment(lastDataTo).subtract(lastData, 'days').toISOString();
+  const [lastDataFrom, lastDataTo] = useDerivedDataRecencyEndpoints();
 
   const { data } = useGetTideDashboardPatientsQuery(
     { clinicId: selectedClinicId, offset, category, lastDataTo, lastDataFrom, tags: patientTags, limit: LIMIT },
