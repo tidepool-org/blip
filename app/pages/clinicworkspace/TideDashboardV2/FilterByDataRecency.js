@@ -18,6 +18,7 @@ import { lastDataFilterOptions } from '../../../core/clinicUtils';
 import { borders } from '../../../themes/baseTheme';
 import { DialogActions, DialogContent } from '../../../components/elements/Dialog';
 import { Body0 } from '../../../components/elements/FontStyles';
+import { setOffset } from './tideDashboardSlice';
 
 const trackMetric = noop;
 const prefixPopHealthMetric = noop;
@@ -84,6 +85,7 @@ const DropdownContent = ({
             });
 
             dispatch(setLastDataFilter(pendingLastData));
+            dispatch(setOffset(0));
             onClose();
           }}
         >
