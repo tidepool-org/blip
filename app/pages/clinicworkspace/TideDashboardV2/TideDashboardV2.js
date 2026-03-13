@@ -49,7 +49,8 @@ const TideDashboard = () => {
     { skip: !selectedClinicId }
   );
 
-  // Sync category to data fetching resolution in order to prevent visual glitch
+  // Sync category to data fetching resolution; prevents visual glitch due to
+  // category updating view before the API call resolves and updates it again
   const resolvedCategory = data?.category || category;
 
   const tableColumns = useTableColumns(resolvedCategory);
