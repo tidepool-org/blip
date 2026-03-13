@@ -18,6 +18,8 @@ import utils from '../../core/utils';
 import { clinicUIDetails } from '../../core/clinicUtils.js';
 import { getDismissedAltRangeBannerKey, isRangeWithNonStandardTarget } from '../../providers/AppBanner/appBannerHelpers.js';
 import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils.js';
+import { getDeviceIssuesFiltersKey, loadLocalState } from '../store/localStorage';
+import { setDeviceIssuesFilters } from '../../pages/clinicworkspace/DeviceIssues/deviceIssuesFiltersSlice';
 
 let win = window;
 
@@ -3129,7 +3131,13 @@ export function selectClinic(api, clinicId) {
   return (dispatch, getState) => {
     dispatch(sync.selectClinicSuccess(clinicId));
 
-    const { blip: { clinics = {} } } = getState();
+    const { blip: { clinics = {}, loggedInUserId } } = getState();
+
+    const deviceIssuesFiltersKey = getDeviceIssuesFiltersKey(loggedInUserId, clinicId);
+
+    const deviceIssuesFilters = loggedInUserId && clinicId ? loadLocalState(deviceIssuesFiltersKey) : undefined;
+    dispatch(setDeviceIssuesFilters(deviceIssuesFilters));
+
     const clinic = clinics[clinicId];
 
     if (clinic) {
