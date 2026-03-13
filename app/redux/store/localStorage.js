@@ -19,3 +19,7 @@ export const saveLocalState = (state, key = 'blipState') => {
     console.error(err);
   }
 };
+
+export const getDeviceIssuesFiltersKey = (userId, clinicId) => {
+  return `deviceIssuesFilters/${userId}/${clinicId}`;
+};

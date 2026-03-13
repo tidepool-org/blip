@@ -31,7 +31,7 @@ import { stringify, parse } from 'qs';
 
 import blipState from '../reducers/initialState';
 import reducers from '../reducers';
-import { loadLocalState, saveLocalState } from './localStorage';
+import { getDeviceIssuesFiltersKey, loadLocalState, saveLocalState } from './localStorage';
 
 import createErrorLogger from '../utils/logErrorMiddleware';
 import trackingMiddleware from '../utils/trackingMiddleware';
@@ -118,8 +118,10 @@ function _createStore(api) {
     saveLocalState({ selectedClinicId });
 
     if (loggedInUserId && selectedClinicId) {
-      saveLocalState(store.getState().blip?.deviceIssuesFilters, `deviceIssuesFilters/${loggedInUserId}/${selectedClinicId}`);
+      const deviceIssuesFiltersKey = getDeviceIssuesFiltersKey(loggedInUserId, selectedClinicId);
+
       saveLocalState(store.getState().blip?.tideDashboardFilters, `tideDashboardFilters/${loggedInUserId}/${selectedClinicId}`);
+      saveLocalState(store.getState().blip?.deviceIssuesFilters, deviceIssuesFiltersKey);
     }
   }, 1000));
 
