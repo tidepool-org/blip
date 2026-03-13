@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation, Trans } from 'react-i18next';
 import { colors as vizColors } from '@tidepool/viz';
 import Table from '../../../components/elements/Table';
-import { Flex, Text } from 'theme-ui';
+import { Flex, Text, Box } from 'theme-ui';
 
 import FilterByCategory from './FilterByCategory';
 import FilterByTags from './FilterByTags';
@@ -23,6 +23,8 @@ import useDerivedDataRecencyEndpoints from './useDerivedDataRecencyEndpoints';
 import { resetTideDashboardFilters } from './tideDashboardFiltersSlice';
 
 const LIMIT = 12;
+
+const Divider = () => <Box id='filter-divider' mx={2} sx={{ border: `1px solid ${vizColors.gray05}`, height: '24px' }}></Box>;
 
 const TideDashboard = () => {
   const { t } = useTranslation();
@@ -59,6 +61,7 @@ const TideDashboard = () => {
         <ActiveFilterCount count={activeFiltersCount} />
         <FilterByDataRecency />
         <FilterBySummaryPeriod />
+        <Divider />
         <FilterByTags />
         <ResetFilters
           hidden={activeFiltersCount <= 0}
