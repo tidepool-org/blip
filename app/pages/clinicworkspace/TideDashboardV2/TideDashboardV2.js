@@ -21,6 +21,7 @@ import ResetFilters from '../components/ResetFilters';
 import useActiveFiltersCount from './useActiveFiltersCount';
 import useDerivedDataRecencyEndpoints from './useDerivedDataRecencyEndpoints';
 import { resetTideDashboardFilters } from './tideDashboardFiltersSlice';
+import EmptyContentNode from './EmptyContentNode';
 
 const LIMIT = 12;
 
@@ -91,12 +92,12 @@ const TideDashboard = () => {
           { title: t(''), field: '', align: 'left' }, // More
         ]}
         data={tableData}
+        emptyContentNode={<EmptyContentNode />}
         // sx={tableStyle}
         // onSort={handleSortChange}
         // order={sort?.substring(0, 1) === '+' ? 'asc' : 'desc'}
         // orderBy={sort?.substring(1)}
         // onClickRow={handleClickPatient}
-        // emptyContentNode={}
       />
 
       <Flex pb={4} sx={{ maxWidth: '640px', justifyContent: 'center', margin: '0 auto' }}>
