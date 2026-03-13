@@ -102,37 +102,60 @@ const useTableColumns = () => {
   const columns = useMemo(() => {
     const columnTypes = getColumnTypes(t);
 
-    switch(category) {
-      case CATEGORY.VERY_LOW:
-        return [
-          columnTypes.patientDetails,
-          columnTypes.flag,
-          columnTypes.avgGlucose,
-          columnTypes.timeInVeryLow,
-          columnTypes.timeInAnyLow,
-          columnTypes.timeInTarget,
-          columnTypes.timeInRangeBarChart,
-          columnTypes.changeInTIR,
-          columnTypes.gmi,
-          columnTypes.tags,
-          columnTypes.lastReviewed,
-          columnTypes.moreMenu,
-        ];
+    const standardColumnSet = [
+      columnTypes.patientDetails,
+      columnTypes.flag,
+      columnTypes.avgGlucose,
+      columnTypes.timeInTarget,
+      columnTypes.timeInRangeBarChart,
+      columnTypes.changeInTIR,
+      columnTypes.gmi,
+      columnTypes.cgmUse,
+      columnTypes.tags,
+      columnTypes.lastReviewed,
+      columnTypes.moreMenu,
+    ];
 
-      case CATEGORY.DEFAULT:
-      default:
-        return [
-          columnTypes.patientDetails,
-          columnTypes.flag,
-          columnTypes.avgGlucose,
-          columnTypes.timeInRangeBarChart,
-          columnTypes.changeInTIR,
-          columnTypes.gmi,
-          columnTypes.cgmUse,
-          columnTypes.tags,
-          columnTypes.lastReviewed,
-          columnTypes.moreMenu,
-        ];
+    const lowColumnSet = [
+      columnTypes.patientDetails,
+      columnTypes.flag,
+      columnTypes.avgGlucose,
+      columnTypes.timeInVeryLow,
+      columnTypes.timeInAnyLow,
+      columnTypes.timeInTarget,
+      columnTypes.timeInRangeBarChart,
+      columnTypes.changeInTIR,
+      columnTypes.gmi,
+      columnTypes.tags,
+      columnTypes.lastReviewed,
+      columnTypes.moreMenu,
+    ];
+
+    const highColumnSet = [
+      columnTypes.patientDetails,
+      columnTypes.flag,
+      columnTypes.avgGlucose,
+      // columnTypes.timeInVeryLow, // TODO: Implement "high" columns
+      // columnTypes.timeInAnyLow,
+      columnTypes.timeInTarget,
+      columnTypes.timeInRangeBarChart,
+      columnTypes.changeInTIR,
+      columnTypes.gmi,
+      columnTypes.tags,
+      columnTypes.lastReviewed,
+      columnTypes.moreMenu,
+    ];
+
+    switch(category) {
+      case CATEGORY.DEFAULT: return standardColumnSet;
+      case CATEGORY.VERY_LOW: return lowColumnSet;
+      case CATEGORY.LOW: return lowColumnSet;
+      case CATEGORY.DROP_IN_TIR: return standardColumnSet;
+      case CATEGORY.HIGH: return highColumnSet;
+      case CATEGORY.VERY_HIGH: return highColumnSet;
+      case CATEGORY.LOW_CGM_WEAR: return standardColumnSet;
+      case CATEGORY.TARGET: return standardColumnSet;
+      default: return standardColumnSet;
     }
   }, [category]);
 
