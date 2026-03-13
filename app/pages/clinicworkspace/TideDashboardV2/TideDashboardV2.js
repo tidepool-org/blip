@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation, Trans } from 'react-i18next';
@@ -12,8 +12,6 @@ import FilterByDataRecency from './FilterByDataRecency';
 import PaginationControls from '../components/PaginationControls';
 import ActiveFilterCount from '../components/ActiveFilterCount';
 
-import TagListCell from '../components/TagListCell';
-import { AvgGlucoseCell, CGMUseCell, ChangeTIRCell, GMICell, PatientCell, PercentTIRCell } from './Cells';
 import { resetTideDashboardState, setOffset } from './tideDashboardSlice';
 import { useGetTideDashboardPatientsQuery } from './tideDashboardApi';
 import ResetFilters from '../components/ResetFilters';
@@ -22,6 +20,7 @@ import { resetTideDashboardFilters } from './tideDashboardFiltersSlice';
 import moment from 'moment';
 
 import { utils as vizUtils } from '@tidepool/viz';
+import useTableColumns from './useTableColumns';
 const { getLocalizedCeiling} = vizUtils.datetime;
 
 const LIMIT = 12;
@@ -36,16 +35,21 @@ const TideDashboard = () => {
   const { patientTags, lastData } = useSelector(state => state.blip.tideDashboardFilters);
   const timePrefs = useSelector((state) => state.blip.timePrefs);
 
-  // TODO: memoize so that new call isn't made every render due to changing timestamp
-  const lastDataTo = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
-  const lastDataFrom = moment(lastDataTo).subtract(lastData, 'days').toISOString();
+  const tableColumns = useTableColumns();
+  const activeFiltersCount = useActiveFiltersCount();
+
+  const lastDataTo = useMemo(() => {
+    return getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
+  }, [timePrefs]);
+
+  const lastDataFrom = useMemo(() => {
+    return moment(lastDataTo).subtract(lastData, 'days').toISOString();
+  }, [lastDataTo, lastData]);
 
   const { data } = useGetTideDashboardPatientsQuery(
     { clinicId: selectedClinicId, offset, category, lastDataTo, lastDataFrom, tags: patientTags, limit: LIMIT },
     { skip: !selectedClinicId }
   );
-
-  const activeFiltersCount = useActiveFiltersCount();
 
   // reset state on dismount
   useEffect(() => {
@@ -78,18 +82,7 @@ const TideDashboard = () => {
         id="tideDashboardPatientsTable"
         variant="condensed"
         label="tideDashboardPatientsTable"
-        columns={[
-          { title: t('Patient Details'), field: 'fullName', align: 'center', render: patient => <PatientCell patient={patient} /> },
-          { title: t('Flag'), field: '', align: 'center' },
-          { title: t('Avg Glucose'), field: '', align: 'center', render: patient => <AvgGlucoseCell patient={patient} /> },
-          { title: t('Time in Range'), field: '', align: 'center', render: patient => <PercentTIRCell patient={patient} /> },
-          { title: t('% Change in TIR'), field: '', align: 'center', render: patient => <ChangeTIRCell patient={patient} /> },
-          { title: t('GMI'), field: '', align: 'center', render: patient => <GMICell patient={patient} />},
-          { title: t('CGM Use'), field: '', align: 'center', render: patient => <CGMUseCell patient={patient} /> },
-          { title: t('Tags'), field: 'tags', align: 'center', render: patient => <TagListCell patient={patient} /> },
-          { title: t('Last Reviewed'), field: '', align: 'center' },
-          { title: t(''), field: '', align: 'center' }, // More
-        ]}
+        columns={tableColumns}
         data={tableData}
         // sx={tableStyle}
         // onSort={handleSortChange}

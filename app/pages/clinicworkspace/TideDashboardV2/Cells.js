@@ -37,7 +37,7 @@ export const AvgGlucoseCell = ({ patient, units }) => { // TODO: Fix for units
   return <NumericTemplateCell value={value} />;
 };
 
-export const PercentTIRCell = ({ patient }) => {
+export const TimeInRangePercentBarChartCell = ({ patient }) => {
   const period = useSelector(state => selectPeriod(state));
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
@@ -55,6 +55,30 @@ export const PercentTIRCell = ({ patient }) => {
   />;
 };
 
+export const TimeInTargetPercentCell = ({ patient }) => {
+  const period = useSelector(state => selectPeriod(state));
+  const rawValue = patient?.summary?.cgmStats?.periods?.[period]?.timeInTargetPercent;
+  const value = utils.formatDecimal(rawValue * 100, 0);
+
+  return <NumericTemplateCell value={value} isPercent />;
+};
+
+export const TimeInAnyLowPercentCell = ({ patient }) => {
+  const period = useSelector(state => selectPeriod(state));
+  const rawValue = patient?.summary?.cgmStats?.periods?.[period]?.timeInAnyLowPercent;
+  const value = utils.formatDecimal(rawValue * 100, 0);
+
+  return <NumericTemplateCell value={value} isPercent />;
+};
+
+export const TimeInVeryLowPercentCell = ({ patient }) => {
+  const period = useSelector(state => selectPeriod(state));
+  const rawValue = patient?.summary?.cgmStats?.periods?.[period]?.timeInVeryLowPercent;
+  const value = utils.formatDecimal(rawValue * 100, 0);
+
+  return <NumericTemplateCell value={value} isPercent />;
+};
+
 export const GMICell = ({ patient }) => {
   const period = useSelector(state => selectPeriod(state));
   const value = patient?.summary?.cgmStats?.periods?.[period]?.glucoseManagementIndicator;
@@ -65,7 +89,7 @@ export const GMICell = ({ patient }) => {
 export const CGMUseCell = ({ patient }) => {
   const period = useSelector(state => selectPeriod(state));
   const rawValue = patient?.summary?.cgmStats?.periods?.[period]?.timeCGMUsePercent;
-  const value = utils.formatDecimal(rawValue * 100, 1);
+  const value = utils.formatDecimal(rawValue * 100, 0);
 
   return <NumericTemplateCell value={value} isPercent/>;
 };
@@ -87,7 +111,8 @@ export default {
   PatientCell,
   NumericTemplateCell,
   AvgGlucoseCell,
-  PercentTIRCell,
+  TimeInRangePercentBarChartCell,
+  TimeInVeryLowPercentCell,
   ChangeTIRCell,
   GMICell,
   CGMUseCell,
