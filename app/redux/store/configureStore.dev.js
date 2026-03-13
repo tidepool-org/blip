@@ -110,10 +110,14 @@ function _createStore(api) {
   const store = createStore(reducer, initialState, enhancer(api));
 
   store.subscribe(throttle(() => {
-    saveLocalState({
-      selectedClinicId: store.getState().blip?.selectedClinicId,
-      deviceIssuesFilters: store.getState().blip?.deviceIssuesFilters,
-    });
+    const selectedClinicId = store.getState().blip?.selectedClinicId;
+    const loggedInUserId = store.getState().blip?.loggedInUserId;
+
+    saveLocalState({ selectedClinicId });
+
+    if (loggedInUserId && selectedClinicId) {
+      saveLocalState(store.getState().blip?.deviceIssuesFilters, `deviceIssuesFilters/${loggedInUserId}/${selectedClinicId}`);
+    }
   }, 1000));
 
   if (module.hot) {
