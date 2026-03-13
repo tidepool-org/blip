@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation, Trans } from 'react-i18next';
@@ -13,14 +13,13 @@ import FilterBySummaryPeriod from './FilterBySummaryPeriod';
 import PaginationControls from '../components/PaginationControls';
 import ActiveFilterCount from '../components/ActiveFilterCount';
 
-import TagListCell from '../components/TagListCell';
-import { PatientCell } from './Cells';
 import { resetTideDashboardState, setOffset } from './tideDashboardSlice';
 import { useGetTideDashboardPatientsQuery } from './tideDashboardApi';
 import ResetFilters from '../components/ResetFilters';
 import useActiveFiltersCount from './useActiveFiltersCount';
 import useDerivedDataRecencyEndpoints from './useDerivedDataRecencyEndpoints';
 import { resetTideDashboardFilters } from './tideDashboardFiltersSlice';
+import useTableColumns from './useTableColumns';
 import EmptyContentNode from './EmptyContentNode';
 
 const LIMIT = 12;
@@ -43,6 +42,11 @@ const TideDashboard = () => {
     { skip: !selectedClinicId }
   );
 
+  // Sync category to data fetching resolution; prevents visual glitch due to
+  // category updating view before the API call resolves and updates it again
+  const resolvedCategory = data?.category || category;
+
+  const tableColumns = useTableColumns(resolvedCategory);
   const activeFiltersCount = useActiveFiltersCount();
 
   // reset state on dismount
@@ -78,19 +82,7 @@ const TideDashboard = () => {
         id="tideDashboardPatientsTable"
         variant="condensed"
         label="tideDashboardPatientsTable"
-        columns={[
-          { title: t('Patient Details'), field: 'fullName', align: 'left', render: patient => <PatientCell patient={patient} /> },
-          { title: t('Flag'), field: '', align: 'left' },
-          { title: t('Avg Glucose'), field: '', align: 'left' },
-          { title: t('% TIR'), field: '', align: 'left' },
-          { title: t('% Time in Range'), field: '', align: 'left' },
-          { title: t('% Change in TIR'), field: '', align: 'left' },
-          { title: t('GMI'), field: '', align: 'left' },
-          { title: t('CGM Use'), field: '', align: 'left' },
-          { title: t('Tags'), field: 'tags', align: 'left', render: patient => <TagListCell patient={patient} /> },
-          { title: t('Last Reviewed'), field: '', align: 'left' },
-          { title: t(''), field: '', align: 'left' }, // More
-        ]}
+        columns={tableColumns}
         data={tableData}
         emptyContentNode={<EmptyContentNode />}
         // sx={tableStyle}
