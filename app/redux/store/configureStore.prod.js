@@ -26,7 +26,7 @@ import throttle from 'lodash/throttle';
 
 import blipState from '../reducers/initialState';
 import reducers from '../reducers';
-import { getDeviceIssuesFiltersKey, loadLocalState, saveLocalState } from './localStorage';
+import { getDeviceIssuesFiltersKey, getTideDashboardFiltersKey, loadLocalState, saveLocalState } from './localStorage';
 
 import createErrorLogger from '../utils/logErrorMiddleware';
 import trackingMiddleware from '../utils/trackingMiddleware';
@@ -74,9 +74,10 @@ function _createStore(api) {
     saveLocalState({ selectedClinicId });
 
     if (loggedInUserId && selectedClinicId) {
+      const tideDashboardFiltersKey = getTideDashboardFiltersKey(loggedInUserId, selectedClinicId);
       const deviceIssuesFiltersKey = getDeviceIssuesFiltersKey(loggedInUserId, selectedClinicId);
 
-      saveLocalState(store.getState().blip?.tideDashboardFilters, `tideDashboardFilters/${loggedInUserId}/${selectedClinicId}`);
+      saveLocalState(store.getState().blip?.tideDashboardFilters, tideDashboardFiltersKey);
       saveLocalState(store.getState().blip?.deviceIssuesFilters, deviceIssuesFiltersKey);
     }
   }, 1000));
