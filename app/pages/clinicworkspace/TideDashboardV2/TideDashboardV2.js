@@ -36,9 +36,6 @@ const TideDashboard = () => {
   const { patientTags, lastData } = useSelector(state => state.blip.tideDashboardFilters);
   const timePrefs = useSelector((state) => state.blip.timePrefs);
 
-  const tableColumns = useTableColumns();
-  const activeFiltersCount = useActiveFiltersCount();
-
   const lastDataTo = useMemo(() => {
     return getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
   }, [timePrefs]);
@@ -51,6 +48,12 @@ const TideDashboard = () => {
     { clinicId: selectedClinicId, offset, category, lastDataTo, lastDataFrom, tags: patientTags, limit: LIMIT },
     { skip: !selectedClinicId }
   );
+
+  // Sync category to data fetching resolution in order to prevent visual glitch
+  const resolvedCategory = data?.category || category;
+
+  const tableColumns = useTableColumns(resolvedCategory);
+  const activeFiltersCount = useActiveFiltersCount();
 
   // reset state on dismount
   useEffect(() => {

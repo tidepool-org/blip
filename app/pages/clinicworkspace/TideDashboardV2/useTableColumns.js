@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { CATEGORY } from './FilterByCategory';
 
@@ -95,9 +94,8 @@ const getColumnTypes = (t) => ({
   }, // More
 });
 
-const useTableColumns = () => {
+const useTableColumns = (category) => {
   const { t } = useTranslation();
-  const category = useSelector(state => state.blip.tideDashboard.category);
 
   const columns = useMemo(() => {
     const columnTypes = getColumnTypes(t);
