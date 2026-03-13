@@ -7,16 +7,19 @@ import Table from '../../../components/elements/Table';
 import { Flex, Text } from 'theme-ui';
 
 import FilterByCategory from './FilterByCategory';
+import EditPatientDialogController from './EditPatientDialogController';
+import DataConnectionsModalController from './DataConnectionsModalController';
 import PaginationControls from '../components/PaginationControls';
 
 import PatientCell from './PatientCell';
+import MoreMenuCell from './MoreMenuCell';
 import TagListCell from '../components/TagListCell';
 import { setOffset, resetDeviceIssuesState } from './deviceIssuesSlice';
 import { useGetDeviceIssuesPatientsQuery } from './deviceIssuesApi';
 
 const LIMIT = 12;
 
-const DeviceIssues = () => {
+const DeviceIssues = ({ api, trackMetric }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
@@ -38,7 +41,7 @@ const DeviceIssues = () => {
 
   if (!data) return null;
 
-  const tableData = data?.data || [];
+  const patients = data?.data || [];
 
   return (
     <>
@@ -65,9 +68,9 @@ const DeviceIssues = () => {
           { title: t('Last Update'), field: '', align: 'left' },
           { title: t('Tags'), field: 'tags', align: 'left', render: patient => <TagListCell patient={patient} /> },
           { title: t('Last Outreach'), field: '', align: 'left' },
-          { title: t(''), field: '', align: 'left' }, // More
+          { title: t(''), field: '', align: 'left', render: patient => <MoreMenuCell patient={patient} /> }, // More
         ]}
-        data={tableData}
+        data={patients}
         // sx={tableStyle}
         // onSort={handleSortChange}
         // order={sort?.substring(0, 1) === '+' ? 'asc' : 'desc'}
@@ -84,6 +87,16 @@ const DeviceIssues = () => {
           onOffsetChange={handleChangeOffset}
         />
       </Flex>
+
+      <EditPatientDialogController
+        api={api}
+        trackMetric={trackMetric}
+        patients={patients}
+      />
+
+      <DataConnectionsModalController
+        patients={patients}
+      />
     </>
   );
 };

@@ -50,16 +50,17 @@ const PATIENT_FORM_SEARCH_DEBOUNCE_MS = 600;
 const EditPatientDialog = ({
   api,
   trackMetric,
+  clinicPatient,
   isOpen,
   onClose = noop,
+  onEditSuccess = noop,
 }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
-  const currentPatientInViewId = useSelector(state => state.blip.currentPatientInViewId);
-  const clinicPatient = useSelector(state => selectClinicPatient(state));
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+  const patientId = clinicPatient?.id;
 
   const mrnSettings = useMemo(() => clinic?.mrnSettings ?? {}, [clinic?.mrnSettings]);
   const existingMRNs = useSelector(state => state.blip.clinicMRNsForPatientFormValidation)?.filter(mrn => mrn !== clinicPatient?.mrn) || [];
@@ -67,7 +68,8 @@ const EditPatientDialog = ({
   const onUpdateSuccess = () => {
     if (isOpen) onClose();
 
-    dispatch(actions.worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
+    onEditSuccess();
+    dispatch(actions.worker.dataWorkerRemoveDataRequest(null, patientId));
   };
 
   const updatingClinicPatient = useUpdatingClinicPatientWorkingState({ onUpdateSuccess });
@@ -82,7 +84,7 @@ const EditPatientDialog = ({
     setPatientFormContext({ ...formikContext });
   };
 
-  if (!currentPatientInViewId || !selectedClinicId) return null;
+  if (!patientId || !selectedClinicId) return null;
 
   return (
     <Dialog
