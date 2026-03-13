@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
   lastData: 14,
   patientTags: [],
+  summaryPeriod: '14d',
 };
 
 const tideDashboardFiltersSlice = createSlice({
@@ -15,9 +16,12 @@ const tideDashboardFiltersSlice = createSlice({
     setPatientTagsFilter: (state, action) => {
       state.patientTags = action.payload;
     },
+    setSummaryPeriodFilter: (state, action) => {
+      state.summaryPeriod = action.payload;
+    },
     resetTideDashboardFilters: () => initialState,
   },
 });
 
-export const { setLastDataFilter, setPatientTagsFilter, resetTideDashboardFilters } = tideDashboardFiltersSlice.actions;
+export const { setLastDataFilter, setPatientTagsFilter, setSummaryPeriodFilter, resetTideDashboardFilters } = tideDashboardFiltersSlice.actions;
 export default tideDashboardFiltersSlice.reducer;
