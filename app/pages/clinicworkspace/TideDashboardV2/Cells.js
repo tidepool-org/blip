@@ -9,7 +9,6 @@ import { MGDL_UNITS } from '../../../core/constants';
 import BgSummaryCell from '../../../components/clinic/BgSummaryCell';
 import DeltaBar from '../../../components/elements/DeltaBar';
 import utils from '../../../core/utils';
-import { selectPeriod } from './tideDashboardFiltersSlice';
 
 export const PatientCell = ({ patient }) => {
   const { t } = useTranslation();
@@ -30,15 +29,15 @@ export const NumericTemplateCell = ({ value, isPercent = false }) => {
 };
 
 export const AvgGlucoseCell = ({ patient, units }) => { // TODO: Fix for units
-  const period = useSelector(state => selectPeriod(state));
-  const rawValue = patient?.summary?.cgmStats?.periods?.[period]?.averageGlucoseMmol;
+  const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
+  const rawValue = patient?.summary?.cgmStats?.periods?.[summaryPeriod]?.averageGlucoseMmol;
   const value = utils.formatDecimal(rawValue, 1);
 
   return <NumericTemplateCell value={value} />;
 };
 
 export const TimeInRangePercentBarChartCell = ({ patient }) => {
-  const period = useSelector(state => selectPeriod(state));
+  const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const clinicBgUnits = clinic?.preferredBgUnits || MGDL_UNITS;
@@ -47,56 +46,56 @@ export const TimeInRangePercentBarChartCell = ({ patient }) => {
 
   return <BgSummaryCell
     id={patient?.id}
-    summary={patient?.summary?.cgmStats?.periods?.[period]}
+    summary={patient?.summary?.cgmStats?.periods?.[summaryPeriod]}
     config={patient?.summary?.cgmStats?.config}
-    activeSummaryPeriod={period}
+    activeSummaryPeriod={summaryPeriod}
     glycemicRanges={patient?.glycemicRanges}
     clinicBgUnits={clinicBgUnits}
   />;
 };
 
 export const TimeInTargetPercentCell = ({ patient }) => {
-  const period = useSelector(state => selectPeriod(state));
-  const rawValue = patient?.summary?.cgmStats?.periods?.[period]?.timeInTargetPercent;
+  const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
+  const rawValue = patient?.summary?.cgmStats?.periods?.[summaryPeriod]?.timeInTargetPercent;
   const value = utils.formatDecimal(rawValue * 100, 0);
 
   return <NumericTemplateCell value={value} isPercent />;
 };
 
 export const TimeInAnyLowPercentCell = ({ patient }) => {
-  const period = useSelector(state => selectPeriod(state));
-  const rawValue = patient?.summary?.cgmStats?.periods?.[period]?.timeInAnyLowPercent;
+  const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
+  const rawValue = patient?.summary?.cgmStats?.periods?.[summaryPeriod]?.timeInAnyLowPercent;
   const value = utils.formatDecimal(rawValue * 100, 0);
 
   return <NumericTemplateCell value={value} isPercent />;
 };
 
 export const TimeInVeryLowPercentCell = ({ patient }) => {
-  const period = useSelector(state => selectPeriod(state));
-  const rawValue = patient?.summary?.cgmStats?.periods?.[period]?.timeInVeryLowPercent;
+  const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
+  const rawValue = patient?.summary?.cgmStats?.periods?.[summaryPeriod]?.timeInVeryLowPercent;
   const value = utils.formatDecimal(rawValue * 100, 0);
 
   return <NumericTemplateCell value={value} isPercent />;
 };
 
 export const GMICell = ({ patient }) => {
-  const period = useSelector(state => selectPeriod(state));
-  const value = patient?.summary?.cgmStats?.periods?.[period]?.glucoseManagementIndicator;
+  const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
+  const value = patient?.summary?.cgmStats?.periods?.[summaryPeriod]?.glucoseManagementIndicator;
 
   return <NumericTemplateCell value={value} isPercent />;
 };
 
 export const CGMUseCell = ({ patient }) => {
-  const period = useSelector(state => selectPeriod(state));
-  const rawValue = patient?.summary?.cgmStats?.periods?.[period]?.timeCGMUsePercent;
+  const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
+  const rawValue = patient?.summary?.cgmStats?.periods?.[summaryPeriod]?.timeCGMUsePercent;
   const value = utils.formatDecimal(rawValue * 100, 0);
 
   return <NumericTemplateCell value={value} isPercent/>;
 };
 
 export const ChangeTIRCell = ({ patient }) => {
-  const period = useSelector(state => selectPeriod(state));
-  const timeInTargetPercentDelta = patient?.summary?.cgmStats?.periods?.[period]?.timeInTargetPercentDelta;
+  const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
+  const timeInTargetPercentDelta = patient?.summary?.cgmStats?.periods?.[summaryPeriod]?.timeInTargetPercentDelta;
 
   if (!timeInTargetPercentDelta) return <Text sx={{ fontWeight: 'medium' }}>--</Text>;
 
