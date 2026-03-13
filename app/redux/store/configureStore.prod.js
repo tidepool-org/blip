@@ -65,12 +65,17 @@ function _createStore(api) {
   const initialState = { blip: assign(blipState, loadLocalState()) };
   const store = createStoreWithMiddleware(reducer, initialState);
 
+  // tideDashboardFilters: store.getState().blip?.tideDashboardFilters,
+
   store.subscribe(throttle(() => {
-    saveLocalState({
-      selectedClinicId: store.getState().blip?.selectedClinicId,
-      deviceIssuesFilters: store.getState().blip?.deviceIssuesFilters,
-      tideDashboardFilters: store.getState().blip?.tideDashboardFilters,
-    });
+    const selectedClinicId = store.getState().blip?.selectedClinicId;
+    const loggedInUserId = store.getState().blip?.loggedInUserId;
+
+    saveLocalState({ selectedClinicId });
+
+    if (loggedInUserId && selectedClinicId) {
+      saveLocalState(store.getState().blip?.deviceIssuesFilters, `deviceIssuesFilters/${loggedInUserId}/${selectedClinicId}`);
+    }
   }, 1000));
 
   return store;
