@@ -20,6 +20,7 @@ import { getDismissedAltRangeBannerKey, isRangeWithNonStandardTarget } from '../
 import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils.js';
 import { loadLocalState } from '../store/localStorage';
 import { setDeviceIssuesFilters } from '../../pages/clinicworkspace/DeviceIssues/deviceIssuesFiltersSlice';
+import { setTideDashboardFilters } from '../../pages/clinicworkspace/TideDashboardV2/tideDashboardFiltersSlice';
 
 let win = window;
 
@@ -3135,6 +3136,9 @@ export function selectClinic(api, clinicId) {
 
     const deviceIssuesFilters = loggedInUserId && clinicId ? loadLocalState(`deviceIssuesFilters/${loggedInUserId}/${clinicId}`) : undefined;
     dispatch(setDeviceIssuesFilters(deviceIssuesFilters));
+
+    const tideDashboardFilters = loggedInUserId && clinicId ? loadLocalState(`tideDashboardFilters/${loggedInUserId}/${clinicId}`) : undefined;
+    dispatch(setTideDashboardFilters(tideDashboardFilters));
 
     const clinic = clinics[clinicId];
 

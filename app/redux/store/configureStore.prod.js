@@ -75,6 +75,7 @@ function _createStore(api) {
 
     if (loggedInUserId && selectedClinicId) {
       saveLocalState(store.getState().blip?.deviceIssuesFilters, `deviceIssuesFilters/${loggedInUserId}/${selectedClinicId}`);
+      saveLocalState(store.getState().blip?.tideDashboardFilters, `tideDashboardFilters/${loggedInUserId}/${selectedClinicId}`);
     }
   }, 1000));
 
