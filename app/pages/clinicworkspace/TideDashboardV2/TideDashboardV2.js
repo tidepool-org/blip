@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation, Trans } from 'react-i18next';
 import { colors as vizColors } from '@tidepool/viz';
 import Table from '../../../components/elements/Table';
-import { Flex, Text } from 'theme-ui';
+import { Flex, Text, Box } from 'theme-ui';
 
 import FilterByCategory from './FilterByCategory';
 import FilterByTags from './FilterByTags';
@@ -20,8 +20,11 @@ import useActiveFiltersCount from './useActiveFiltersCount';
 import useDerivedDataRecencyEndpoints from './useDerivedDataRecencyEndpoints';
 import { resetTideDashboardFilters } from './tideDashboardFiltersSlice';
 import useTableColumns from './useTableColumns';
+import EmptyContentNode from './EmptyContentNode';
 
 const LIMIT = 12;
+
+const Divider = () => <Box id='filter-divider' mx={2} sx={{ border: `1px solid ${vizColors.gray05}`, height: '24px' }}></Box>;
 
 const TideDashboard = () => {
   const { t } = useTranslation();
@@ -63,6 +66,7 @@ const TideDashboard = () => {
         <ActiveFilterCount count={activeFiltersCount} />
         <FilterByDataRecency />
         <FilterBySummaryPeriod />
+        <Divider />
         <FilterByTags />
         <ResetFilters
           hidden={activeFiltersCount <= 0}
@@ -80,12 +84,12 @@ const TideDashboard = () => {
         label="tideDashboardPatientsTable"
         columns={tableColumns}
         data={tableData}
+        emptyContentNode={<EmptyContentNode />}
         // sx={tableStyle}
         // onSort={handleSortChange}
         // order={sort?.substring(0, 1) === '+' ? 'asc' : 'desc'}
         // orderBy={sort?.substring(1)}
         // onClickRow={handleClickPatient}
-        // emptyContentNode={}
       />
 
       <Flex pb={4} sx={{ maxWidth: '640px', justifyContent: 'center', margin: '0 auto' }}>

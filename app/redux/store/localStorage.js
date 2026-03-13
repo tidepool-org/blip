@@ -1,7 +1,7 @@
 // c.f. https://github.com/gaearon/todos/tree/03-persisting-state-to-local-storage
-export const loadLocalState = () => {
+export const loadLocalState = (key = 'blipState') => {
   try {
-    const serializedState = localStorage.getItem('blipState');
+    const serializedState = localStorage.getItem(key);
     if (serializedState === null) {
       return undefined;
     }
@@ -11,11 +11,19 @@ export const loadLocalState = () => {
   }
 };
 
-export const saveLocalState = (state) => {
+export const saveLocalState = (state, key = 'blipState') => {
   try {
     const serializedState = JSON.stringify(state);
-    localStorage.setItem('blipState', serializedState);
+    localStorage.setItem(key, serializedState);
   } catch (err) {
     console.error(err);
   }
+};
+
+export const getDeviceIssuesFiltersKey = (userId, clinicId) => {
+  return `deviceIssuesFilters/${userId}/${clinicId}`;
+};
+
+export const getTideDashboardFiltersKey = (userId, clinicId) => {
+  return `tideDashboardFilters/${userId}/${clinicId}`;
 };

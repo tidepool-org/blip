@@ -10,6 +10,7 @@ const tideDashboardFiltersSlice = createSlice({
   name: 'tideDashboardFilters',
   initialState,
   reducers: {
+    setTideDashboardFilters: (_state, action) => action.payload || initialState,
     setLastDataFilter: (state, action) => {
       state.lastData = action.payload;
     },
@@ -23,5 +24,5 @@ const tideDashboardFiltersSlice = createSlice({
   },
 });
 
-export const { setLastDataFilter, setPatientTagsFilter, setSummaryPeriodFilter, resetTideDashboardFilters } = tideDashboardFiltersSlice.actions;
+export const { setLastDataFilter, setPatientTagsFilter, setSummaryPeriodFilter, setTideDashboardFilters, resetTideDashboardFilters } = tideDashboardFiltersSlice.actions;
 export default tideDashboardFiltersSlice.reducer;
