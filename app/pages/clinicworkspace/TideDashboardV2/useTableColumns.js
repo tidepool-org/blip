@@ -11,6 +11,8 @@ import {
   TimeInRangePercentBarChartCell,
   TimeInVeryLowPercentCell,
   TimeInAnyLowPercentCell,
+  TimeInVeryHighPercentCell,
+  TimeInAnyHighPercentCell,
   TimeInTargetPercentCell,
 } from './Cells';
 
@@ -47,16 +49,28 @@ const getColumnTypes = (t) => ({
     render: patient => <ChangeTIRCell patient={patient} />,
   },
   timeInVeryLow: {
-    title: t('% Time < 54'),
+    title: t('% Time < 54'), // TODO: Fix to be variable based on unit
     field: 'timeInVeryLow',
     align: 'center',
     render: patient => <TimeInVeryLowPercentCell patient={patient} />,
   },
   timeInAnyLow: {
-    title: t('% Time < 70'),
+    title: t('% Time < 70'), // TODO: Fix to be variable based on unit
     field: 'timeInAnyLow',
     align: 'center',
     render: patient => <TimeInAnyLowPercentCell patient={patient} />,
+  },
+  timeInVeryHigh: {
+    title: t('% Time > 180'), // TODO: Fix to be variable based on unit
+    field: 'timeInVeryHigh',
+    align: 'center',
+    render: patient => <TimeInVeryHighPercentCell patient={patient} />,
+  },
+  timeInAnyHigh: {
+    title: t('% Time > 250'), // TODO: Fix to be variable based on unit
+    field: 'timeInAnyHigh',
+    align: 'center',
+    render: patient => <TimeInAnyHighPercentCell patient={patient} />,
   },
   timeInTarget: {
     title: t('% TIR 70-180'),
@@ -133,8 +147,8 @@ const useTableColumns = (category) => {
       columnTypes.patientDetails,
       columnTypes.flag,
       columnTypes.avgGlucose,
-      // columnTypes.timeInVeryLow, // TODO: Implement "high" columns
-      // columnTypes.timeInAnyLow,
+      columnTypes.timeInVeryHigh,
+      columnTypes.timeInAnyHigh,
       columnTypes.timeInTarget,
       columnTypes.timeInRangeBarChart,
       columnTypes.changeInTIR,
@@ -147,9 +161,9 @@ const useTableColumns = (category) => {
     switch(category) {
       case CATEGORY.DEFAULT: return standardColumnSet;
       case CATEGORY.VERY_LOW: return lowColumnSet;
-      case CATEGORY.LOW: return lowColumnSet;
+      case CATEGORY.ANY_LOW: return lowColumnSet;
       case CATEGORY.DROP_IN_TIR: return standardColumnSet;
-      case CATEGORY.HIGH: return highColumnSet;
+      case CATEGORY.ANY_HIGH: return highColumnSet;
       case CATEGORY.VERY_HIGH: return highColumnSet;
       case CATEGORY.LOW_CGM_WEAR: return standardColumnSet;
       case CATEGORY.TARGET: return standardColumnSet;
