@@ -9,6 +9,7 @@ import { Flex, Text } from 'theme-ui';
 import FilterByCategory from './FilterByCategory';
 import FilterByTags from './FilterByTags';
 import FilterByDataRecency from './FilterByDataRecency';
+import FilterBySummaryPeriod from './FilterBySummaryPeriod';
 import PaginationControls from '../components/PaginationControls';
 import ActiveFilterCount from '../components/ActiveFilterCount';
 
@@ -67,6 +68,7 @@ const TideDashboard = () => {
       <Flex id="tide-dashboard-filters" mb={3} sx={{ gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
         <ActiveFilterCount count={activeFiltersCount} />
         <FilterByDataRecency />
+        <FilterBySummaryPeriod />
         <FilterByTags />
         <ResetFilters
           hidden={activeFiltersCount <= 0}
