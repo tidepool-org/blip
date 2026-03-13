@@ -18,8 +18,9 @@ import utils from '../../core/utils';
 import { clinicUIDetails } from '../../core/clinicUtils.js';
 import { getDismissedAltRangeBannerKey, isRangeWithNonStandardTarget } from '../../providers/AppBanner/appBannerHelpers.js';
 import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils.js';
-import { getDeviceIssuesFiltersKey, loadLocalState } from '../store/localStorage';
+import { getDeviceIssuesFiltersKey, getTideDashboardFiltersKey, loadLocalState } from '../store/localStorage';
 import { setDeviceIssuesFilters } from '../../pages/clinicworkspace/DeviceIssues/deviceIssuesFiltersSlice';
+import { setTideDashboardFilters } from '../../pages/clinicworkspace/TideDashboardV2/tideDashboardFiltersSlice';
 
 let win = window;
 
@@ -3134,9 +3135,12 @@ export function selectClinic(api, clinicId) {
     const { blip: { clinics = {}, loggedInUserId } } = getState();
 
     const deviceIssuesFiltersKey = getDeviceIssuesFiltersKey(loggedInUserId, clinicId);
-
     const deviceIssuesFilters = loggedInUserId && clinicId ? loadLocalState(deviceIssuesFiltersKey) : undefined;
     dispatch(setDeviceIssuesFilters(deviceIssuesFilters));
+
+    const tideDashboardFiltersKey = getTideDashboardFiltersKey(loggedInUserId, clinicId);
+    const tideDashboardFilters = loggedInUserId && clinicId ? loadLocalState(tideDashboardFiltersKey) : undefined;
+    dispatch(setTideDashboardFilters(tideDashboardFilters));
 
     const clinic = clinics[clinicId];
 
