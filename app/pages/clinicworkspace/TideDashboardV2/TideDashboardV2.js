@@ -17,6 +17,7 @@ import { resetTideDashboardState, setOffset } from './tideDashboardSlice';
 import { useGetTideDashboardPatientsQuery } from './tideDashboardApi';
 import ResetFilters from '../components/ResetFilters';
 import useActiveFiltersCount from './useActiveFiltersCount';
+import usePruneInvalidTags from './usePruneInvalidTags';
 import { resetTideDashboardFilters } from './tideDashboardFiltersSlice';
 import EmptyContentNode from './EmptyContentNode';
 
@@ -25,6 +26,8 @@ const LIMIT = 12;
 const TideDashboard = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+
+  usePruneInvalidTags();
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const category = useSelector(state => state.blip.tideDashboard.category);
