@@ -1,5 +1,5 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { Box, Text } from 'theme-ui';
 import { utils as vizUtils } from '@tidepool/viz';
@@ -9,13 +9,21 @@ import { MGDL_UNITS } from '../../../core/constants';
 import BgSummaryCell from '../../../components/clinic/BgSummaryCell';
 import DeltaBar from '../../../components/elements/DeltaBar';
 import utils from '../../../core/utils';
+import { setPatientDrawerPatientId } from './tideDashboardSlice';
 
 export const PatientCell = ({ patient }) => {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
 
   const { fullName, birthDate, mrn } = patient || {};
 
-  return <Box>
+  const handleClick = () => {
+    if (!patient.id) return;
+
+    dispatch(setPatientDrawerPatientId(patient.id));
+  };
+
+  return <Box onClick={handleClick}>
     <Text sx={{ display: 'block', fontSize: [1, null, 0], fontWeight: 'medium' }}>{fullName}</Text>
     <Text sx={{ fontSize: [0, null, '10px'], whiteSpace: 'nowrap' }}>{t('DOB:')} {birthDate}</Text>
     {mrn && <Text sx={{ fontSize: [0, null, '10px'], whiteSpace: 'nowrap' }}>, {t('MRN: {{mrn}}', { mrn: mrn })}</Text>}

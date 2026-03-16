@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import * as actions from '../../../../redux/actions';
+import * as actions from '../../../redux/actions';
 import buildGenerateAGPImages from './buildGenerateAGPImages';
 import moment from 'moment';
 
@@ -131,8 +131,8 @@ const useAgpCGM = (
   return {
     status:       lastCompletedStep,
     svgDataURLS:  isCorrectPatientInState ? pdf.opts?.svgDataURLS : null,
-    agpCGM:       isCorrectPatientInState ? cloneDeep(pdf.data?.agpCGM) : null,
-    offsetAgpCGM: isCorrectPatientInState ? cloneDeep(pdf.data?.offsetAgpCGM) : null,
+    agpCGM:       isCorrectPatientInState ? pdf.data?.agpCGM : null,
+    offsetAgpCGM: isCorrectPatientInState ? pdf.data?.offsetAgpCGM : null,
   };
 };
 

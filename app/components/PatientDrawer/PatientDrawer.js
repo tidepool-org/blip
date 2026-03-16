@@ -1,5 +1,5 @@
-import React from 'react';
-import Icon from '../../../components/elements/Icon';
+import React, { useState } from 'react';
+import Icon from '../../components/elements/Icon';
 import { useLocation, useHistory } from 'react-router-dom';
 import Drawer from '@material-ui/core/Drawer';
 import styled from '@emotion/styled';
@@ -12,8 +12,8 @@ import Overview from './Overview';
 import StackedDaily from './StackedDaily';
 import MenuBar, { OVERVIEW_TAB_INDEX, STACKED_DAILY_TAB_INDEX } from './MenuBar';
 import useAgpCGM from './useAgpCGM';
-import { shadows } from '../../../themes/baseTheme';
-import { useScrollToTop } from '../../../core/hooks';
+import { shadows } from '../../themes/baseTheme';
+import { useScrollToTop } from '../../core/hooks';
 
 const StyledCloseButton = styled(Icon)`
   position: absolute;
