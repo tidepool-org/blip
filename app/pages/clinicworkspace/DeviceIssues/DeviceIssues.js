@@ -11,11 +11,9 @@ import EditPatientDialogController from './EditPatientDialogController';
 import DataConnectionsModalController from './DataConnectionsModalController';
 import PaginationControls from '../components/PaginationControls';
 
-import PatientCell from './PatientCell';
-import MoreMenuCell from './MoreMenuCell';
-import TagListCell from '../components/TagListCell';
 import { setOffset, resetDeviceIssuesState } from './deviceIssuesSlice';
 import { useGetDeviceIssuesPatientsQuery } from './deviceIssuesApi';
+import useTableColumns from './useTableColumns';
 
 const LIMIT = 12;
 
@@ -26,6 +24,8 @@ const DeviceIssues = ({ api, trackMetric }) => {
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const category = useSelector(state => state.blip.deviceIssues.category);
   const offset = useSelector(state => state.blip.deviceIssues.offset);
+
+  const columns = useTableColumns();
 
   const { data } = useGetDeviceIssuesPatientsQuery(
     { clinicId: selectedClinicId, offset, category, limit: LIMIT },
@@ -61,15 +61,7 @@ const DeviceIssues = ({ api, trackMetric }) => {
         id="deviceIssuesPatientsTable"
         variant="condensed"
         label="deviceIssuesPatientsTable"
-        columns={[
-          { title: t('Patient Details'), field: 'fullName', align: 'left', render: patient => <PatientCell patient={patient} /> },
-          { title: t('Device'), field: '', align: 'left' },
-          { title: t('Connection Status'), field: '', align: 'left' },
-          { title: t('Last Update'), field: '', align: 'left' },
-          { title: t('Tags'), field: 'tags', align: 'left', render: patient => <TagListCell patient={patient} /> },
-          { title: t('Last Outreach'), field: '', align: 'left' },
-          { title: t(''), field: '', align: 'left', render: patient => <MoreMenuCell patient={patient} /> }, // More
-        ]}
+        columns={columns}
         data={patients}
         // sx={tableStyle}
         // onSort={handleSortChange}
