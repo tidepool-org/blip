@@ -5,9 +5,6 @@ import { CATEGORY } from './FilterByCategory';
 const initialState = {
   category: CATEGORY.DEFAULT,
   offset: 0,
-  patientDrawer: {
-    patientId: null,
-  },
 };
 
 const tideDashboardSlice = createSlice({
@@ -20,9 +17,6 @@ const tideDashboardSlice = createSlice({
     setOffset: (state, action) => {
       state.offset = action.payload;
     },
-    setPatientDrawerPatientId: (state, action) => {
-      state.patientDrawer.patientId = action.payload;
-    },
     resetTideDashboardState: () => initialState,
   },
 });
@@ -30,7 +24,6 @@ const tideDashboardSlice = createSlice({
 export const {
   setCategory,
   setOffset,
-  setPatientDrawerPatientId,
   resetTideDashboardState,
 } = tideDashboardSlice.actions;
 export default tideDashboardSlice.reducer;

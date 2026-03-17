@@ -1,6 +1,7 @@
 import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
+import { useLocation, useHistory } from 'react-router-dom';
 import { Box, Text } from 'theme-ui';
 import { utils as vizUtils } from '@tidepool/viz';
 const { bankersRound } = vizUtils.stat;
@@ -9,18 +10,22 @@ import { MGDL_UNITS } from '../../../core/constants';
 import BgSummaryCell from '../../../components/clinic/BgSummaryCell';
 import DeltaBar from '../../../components/elements/DeltaBar';
 import utils from '../../../core/utils';
-import { setPatientDrawerPatientId } from './tideDashboardSlice';
+import { OVERVIEW_TAB_INDEX } from '../../../components/PatientDrawer/MenuBar/MenuBar';
 
 export const PatientCell = ({ patient }) => {
   const { t } = useTranslation();
-  const dispatch = useDispatch();
+  const { search, pathname } = useLocation();
+  const history = useHistory();
 
   const { fullName, birthDate, mrn } = patient || {};
 
   const handleClick = () => {
     if (!patient.id) return;
 
-    dispatch(setPatientDrawerPatientId(patient.id));
+    const params = new URLSearchParams(search);
+    params.set('drawerPatientId', patient.id);
+    params.set('drawerTab', OVERVIEW_TAB_INDEX);
+    history.replace({ pathname, search: params.toString() });
   };
 
   return <Box onClick={handleClick}>
