@@ -29,9 +29,12 @@ const DeviceIssues = () => {
   usePruneInvalidTags();
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const category = useSelector(state => state.blip.deviceIssues.category);
   const offset = useSelector(state => state.blip.deviceIssues.offset);
   const { patientTags } = useSelector(state => state.blip.deviceIssuesFilters);
+
+  const showTags = clinic?.entitlements?.patientTags;
 
   const columns = useTableColumns();
 
@@ -60,19 +63,19 @@ const DeviceIssues = () => {
 
   return (
     <>
-      <Flex mb={2}>
+      <Flex mb={3} sx={{ fontSize: 0, color: vizColors.blueGray50, fontStyle: 'italic' }}>
         <Trans>
-          <Text sx={{ fontSize: 0, color: vizColors.blueGray50, fontStyle: 'italic' }}>
-            Only patients with active device issues or delayed data from a <Text sx={{ fontWeight: 'bold' }}>cloud-connected device</Text> will be displayed.
-          </Text>
+          Only patients with active device issues or delayed data from a <Text sx={{ fontWeight: 'bold' }}>cloud-connected device</Text> will be displayed.
         </Trans>
       </Flex>
 
-      <Flex id="device-issues-filters" mb={3} sx={{ gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
-        <ActiveFilterCount count={activeFiltersCount} />
-        <FilterByTags />
-        <ResetFilters hidden={activeFiltersCount <= 0} onClick={handleResetFilters} />
-      </Flex>
+      { showTags &&
+        <Flex mb={3} sx={{ gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+          <ActiveFilterCount count={activeFiltersCount} />
+          <FilterByTags />
+          <ResetFilters hidden={activeFiltersCount <= 0} onClick={handleResetFilters} />
+        </Flex>
+      }
 
       <Flex mb={3} sx={{ justifyContent: 'center' }}>
         <FilterByCategory />
