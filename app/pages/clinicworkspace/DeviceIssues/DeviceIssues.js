@@ -12,14 +12,13 @@ import FilterByCategory from './FilterByCategory';
 import ResetFilters from '../components/ResetFilters';
 import PaginationControls from '../components/PaginationControls';
 
-import PatientCell from './PatientCell';
-import TagListCell from '../components/TagListCell';
 import { resetDeviceIssuesFilters } from './deviceIssuesFiltersSlice';
 import { setOffset, resetDeviceIssuesState } from './deviceIssuesSlice';
 import { useGetDeviceIssuesPatientsQuery } from './deviceIssuesApi';
 import useActiveFiltersCount from './useActiveFiltersCount';
 import EmptyContentNode from './EmptyContentNode';
 import usePruneInvalidTags from './usePruneInvalidTags';
+import useTableColumns from './useTableColumns';
 
 const LIMIT = 12;
 
@@ -33,6 +32,8 @@ const DeviceIssues = () => {
   const category = useSelector(state => state.blip.deviceIssues.category);
   const offset = useSelector(state => state.blip.deviceIssues.offset);
   const { patientTags } = useSelector(state => state.blip.deviceIssuesFilters);
+
+  const columns = useTableColumns();
 
   const { data } = useGetDeviceIssuesPatientsQuery(
     { clinicId: selectedClinicId, offset, category, tags: patientTags, limit: LIMIT },
@@ -81,15 +82,7 @@ const DeviceIssues = () => {
         id="deviceIssuesPatientsTable"
         variant="condensed"
         label="deviceIssuesPatientsTable"
-        columns={[
-          { title: t('Patient Details'), field: 'fullName', align: 'left', render: patient => <PatientCell patient={patient} /> },
-          { title: t('Device'), field: '', align: 'left' },
-          { title: t('Connection Status'), field: '', align: 'left' },
-          { title: t('Last Update'), field: '', align: 'left' },
-          { title: t('Tags'), field: 'tags', align: 'left', render: patient => <TagListCell patient={patient} /> },
-          { title: t('Last Outreach'), field: '', align: 'left' },
-          { title: t(''), field: '', align: 'left' }, // More
-        ]}
+        columns={columns}
         data={tableData}
         emptyContentNode={<EmptyContentNode />}
         sx={{

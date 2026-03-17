@@ -23,7 +23,7 @@ export const Segment = ({
   onClick = noop,
 }) => {
   return (
-    <Box
+    <Flex
       onClick={onClick}
       onKeyDown={(evt) => {
         if (evt.key === 'Enter' || evt.key === ' ') {
@@ -33,6 +33,7 @@ export const Segment = ({
       tabIndex="0"
       px={4}
       sx={{
+        alignItems: 'center',
         textAlign: 'center',
         borderRadius: 3,
         minWidth: '24px',
@@ -46,7 +47,7 @@ export const Segment = ({
       }}
     >
       {children}
-    </Box>
+    </Flex>
   );
 };
 
