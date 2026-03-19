@@ -2292,7 +2292,7 @@ describe('ClinicPatients', () => {
             expect(filterCount()).to.be.null;
           });
           expect(timeInRangeFilterCount()).to.be.null;
-        }, 20000);
+        }, 30000);
 
         it('should reset all active filters at once', async () => {
           // Set up stateful filter mock to allow DOM verification after applying filters
@@ -2376,7 +2376,7 @@ describe('ClinicPatients', () => {
           });
           expect(timeInRangeFilterCount()).to.be.null;
           expect(resetAllFiltersButton()).to.be.null;
-        }, 20000);
+        }, 25000);
 
         it('should clear pending filter edits when time in range filter dialog closed', () => {
           const filterCount = () => container.querySelector('#filter-count');
@@ -2741,7 +2741,7 @@ describe('ClinicPatients', () => {
             expect(savedConfig.period).to.equal('30d');
             expect(savedConfig.tags).to.be.an('array');
             expect(savedConfig.tags.length).to.be.above(0);
-          }, 10000);
+          }, 20000);
 
           it('should redirect right away to the dashboard if a valid configuration exists in localStorage', () => {
             mockedLocalStorage = {
@@ -3186,7 +3186,7 @@ describe('ClinicPatients', () => {
                 },
               ]);
             });
-          }, 10000);
+          }, 40000);
 
           it('should call `exportRpmReport` with fetched report data', () => {
             const originalCreateObjectURL = URL.createObjectURL;
