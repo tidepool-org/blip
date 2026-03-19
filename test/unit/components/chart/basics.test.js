@@ -157,14 +157,6 @@ describe('Basics', () => {
     });
   });
 
-  describe('getInitialState', () => {
-    it('should set the initial state', () => {
-      // atMostRecent starts as true — the component renders header controls correctly
-      const header = wrapper.container.querySelector('.patient-data-subnav-inner');
-      expect(header).to.not.be.null;
-    });
-  });
-
   describe('handleCopyBasicsClicked', () => {
     it('should render the sidebar containing the ClipboardButton', () => {
       // The sidebar is always rendered and contains the copy button

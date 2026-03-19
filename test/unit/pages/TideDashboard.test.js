@@ -705,7 +705,7 @@ describe('TideDashboard', () => {
 
       // Confirm eighth table is sorted appropriately
       expect(getTableRow(7, 0).querySelectorAll('th')[2].textContent).contains('Days Since Last Data');
-      expect(getTableRow(7, 1).querySelectorAll('td')[1].textContent).contains('20');
+      expect(getTableRow(7, 1).querySelectorAll('td')[1].textContent).contains('200');
       expect(getTableRow(7, 2).querySelectorAll('td')[1].textContent).contains('45');
       expect(getTableRow(7, 3).querySelectorAll('td')[1].textContent).contains('30');
       expect(getTableRow(7, 4).querySelectorAll('td')[1].textContent).contains('1');
@@ -720,7 +720,7 @@ describe('TideDashboard', () => {
       expect(getTableRow(7, 1).querySelectorAll('td')[0].textContent).contains('Error Connecting');
 
       expect(getTableRow(7, 0).querySelectorAll('th')[2].textContent).contains('Days Since Last Data');
-      expect(getTableRow(7, 1).querySelectorAll('td')[1].textContent).contains('20');
+      expect(getTableRow(7, 1).querySelectorAll('td')[1].textContent).contains('200');
 
       // Verify that various connection statuses are rendering correctly
       expect(getTableRow(7, 2).querySelectorAll('th')[0].textContent).contains('Willie Gambles');

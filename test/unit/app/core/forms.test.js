@@ -272,8 +272,7 @@ describe('forms', function() {
 
     it('return a function that sets parent field as touched and validate it, and do the same for child fields after a delay', done => {
       const setDependantsTouched = true;
-      const debounceValidateMs = 1;
-      const DEBOUNCE_TEST_BUFFER_MS = 50;
+      const debounceValidateMs = 50;
 
       const changeHandler = formUtils.onChangeWithDependantFields(parentFieldPath, dependantFields, formikContext, setDependantsTouched, debounceValidateMs);
       expect(changeHandler).to.be.a('function');
@@ -314,7 +313,7 @@ describe('forms', function() {
           sinon.assert.calledWith(formikContext.validateField, 'nested.dependantFieldArray.1.value');
 
           done();
-        }, debounceValidateMs + DEBOUNCE_TEST_BUFFER_MS);
+        }, debounceValidateMs);
       }, 0)
     });
 

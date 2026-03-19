@@ -18,7 +18,7 @@ global.after = afterAll;
 global.context = describe;
 
 // Define global variables that might be expected in tests
-global.__DEV__ = true;
+global.__DEV__ = false;
 global.__TEST__ = true;
 global.__PROD__ = false;
 global.__I18N_ENABLED__ = 'false';
