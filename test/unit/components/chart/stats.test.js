@@ -157,6 +157,53 @@ describe('Stats', () => {
         baseProps.trackMetric.resetHistory();
       });
 
+      it('should render the stats with correct `isOpened` and `title` props from localStorage', () => {
+        const stats = [
+          {
+            id: 'carbs',
+            collapsible: false,
+            title: 'Carbs',
+            collapsedTitle: 'Carbs Collapsed',
+          },
+          {
+            id: 'averageDailyDose',
+            collapsible: true,
+            title: 'Daily Dose',
+            collapsedTitle: 'Daily Dose Collapsed',
+          },
+        ];
+
+        // averageDailyDose: false means not collapsed → should be open
+        // carbs: true in localStorage but collapsible:false → always open
+        localStorage.setItem('statsCollapsedState', JSON.stringify({
+          basics: { averageDailyDose: false, carbs: true },
+        }));
+
+        const { getByTestId } = renderStats({ stats });
+
+        expect(getByTestId('stat-carbs').getAttribute('data-is-opened')).to.equal('true');
+        expect(getByTestId('stat-carbs').getAttribute('data-title')).to.equal('Carbs');
+
+        expect(getByTestId('stat-averageDailyDose').getAttribute('data-is-opened')).to.equal('true');
+        expect(getByTestId('stat-averageDailyDose').getAttribute('data-title')).to.equal('Daily Dose');
+
+        // Re-mount after updating localStorage so useLocalStorage re-reads on the new mount
+        cleanup();
+        localStorage.setItem('statsCollapsedState', JSON.stringify({
+          basics: { averageDailyDose: true, carbs: true },
+        }));
+
+        const { getByTestId: getByTestId2 } = renderStats({ stats });
+
+        // Collapsible stat now collapsed → isOpened=false, shows collapsedTitle
+        expect(getByTestId2('stat-averageDailyDose').getAttribute('data-is-opened')).to.equal('false');
+        expect(getByTestId2('stat-averageDailyDose').getAttribute('data-title')).to.equal('Daily Dose Collapsed');
+
+        // Non-collapsible stat always open regardless of localStorage
+        expect(getByTestId2('stat-carbs').getAttribute('data-is-opened')).to.equal('true');
+        expect(getByTestId2('stat-carbs').getAttribute('data-title')).to.equal('Carbs');
+      });
+
       it('should render stats with default isOpened=true and correct title when localStorage is empty', () => {
         const { getByTestId } = renderStats({
           stats: [

@@ -139,12 +139,6 @@ describe('PrescriptionForm', () => {
     );
   });
 
-  it('should render the prescription form with a submit handler', () => {
-    const form = rendered.container.querySelector('form#prescription-form');
-    expect(form).to.not.equal(null);
-    expect(form.getAttribute('id')).to.equal('prescription-form');
-  });
-
   it('should render a hidden field mapped to formik `id` field via the name attribute', () => {
     const idField = rendered.container.querySelector('input[name="id"][type="hidden"]');
     expect(idField).to.not.equal(null);

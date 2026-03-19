@@ -31,6 +31,27 @@ import BgLog from '../../../../app/components/chart/bgLog';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 import i18next from '../../../../app/core/language';
 
+jest.mock('@tidepool/viz', () => {
+  const React = require('react');
+  const actual = jest.requireActual('@tidepool/viz');
+  return {
+    ...actual,
+    components: {
+      ...actual.components,
+      ClipboardButton: ({ onSuccess }) => React.createElement(
+        'button',
+        { 'data-testid': 'clipboard-button', onClick: () => onSuccess?.() },
+        'Copy'
+      ),
+      Loader: ({ show, overlay }) => React.createElement('div', {
+        'data-testid': 'loader',
+        'data-show': String(show),
+        'data-overlay': String(overlay),
+      }),
+    },
+  };
+});
+
 describe('BG Log', () => {
   const bgPrefs = {
     bgClasses: {
@@ -109,6 +130,22 @@ describe('BG Log', () => {
   });
 
   describe('render', () => {
+    it('should show a loader when loading prop is true', () => {
+      cleanup();
+      // refs.chart is null on the initial render (child mounts after parent's first render).
+      // Render first with loading=false so BgLogChart mounts and sets refs.chart, then
+      // rerender with loading=true so the parent re-evaluates show={!!this.refs.chart && loading}.
+      const dataWithSmbg = {
+        ...baseProps.data,
+        query: { chartType: 'bgLog' },
+        metaData: { latestDatumByType: { smbg: { type: 'smbg', time: '2019-11-27T00:00:00.000Z' } } },
+      };
+      const { container, rerender } = render(<BgLog {...baseProps} loading={false} data={dataWithSmbg} />);
+      expect(container.querySelector('[data-testid="loader"]').getAttribute('data-show')).to.equal('false');
+      rerender(<BgLog {...baseProps} loading={true} data={dataWithSmbg} />);
+      expect(container.querySelector('[data-testid="loader"]').getAttribute('data-show')).to.equal('true');
+    });
+
     it('should render the clipboard copy button', () => {
       // ClipboardButton renders inside the sidebar when the component mounts
       expect(wrapper.container.querySelector('.patient-data-sidebar')).to.not.be.null;
@@ -132,13 +169,13 @@ describe('BG Log', () => {
   });
 
   describe('handleCopyBgLogClicked', () => {
-    it('should render copy button and not have called trackMetric before any click', () => {
-      // The ClipboardButton's onSuccess callback is handleCopyBgLogClicked which calls trackMetric.
-      // Actually triggering the clipboard in JSDOM crashes (ClipboardButton accesses a ref.current
-      // that is null in JSDOM), so we verify the button renders and no metric was pre-fired.
-      const copyButton = wrapper.container.querySelector('.patient-data-sidebar button');
-      expect(copyButton).to.not.be.null;
-      expect(baseProps.trackMetric.calledWith('Clicked Copy Settings', { source: 'BG Log' })).to.be.false;
+    it('should track metric with source param when called', () => {
+      const clipboardButton = wrapper.container.querySelector('[data-testid="clipboard-button"]');
+      expect(clipboardButton).to.not.be.null;
+      expect(baseProps.trackMetric.callCount).to.equal(0);
+      fireEvent.click(clipboardButton);
+      sinon.assert.callCount(baseProps.trackMetric, 1);
+      sinon.assert.calledWith(baseProps.trackMetric, 'Clicked Copy Settings', { source: 'BG Log' });
     });
   });
 

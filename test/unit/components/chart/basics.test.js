@@ -33,6 +33,36 @@ import Basics from '../../../../app/components/chart/basics';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 import i18next from '../../../../app/core/language';
 
+jest.mock('tideline/plugins/blip', () => {
+  const React = require('react');
+  return {
+    basics: ({ onSelectDay }) => React.createElement(
+      'button',
+      {
+        'data-testid': 'basics-chart-day',
+        onClick: () => onSelectDay?.('2025-01-27', 'TEST_TITLE'),
+      },
+      'day cell'
+    ),
+  };
+});
+
+jest.mock('@tidepool/viz', () => {
+  const React = require('react');
+  const actual = jest.requireActual('@tidepool/viz');
+  return {
+    ...actual,
+    components: {
+      ...actual.components,
+      ClipboardButton: ({ onSuccess }) => React.createElement(
+        'button',
+        { 'data-testid': 'clipboard-button', onClick: () => onSuccess?.() },
+        'Copy'
+      ),
+    },
+  };
+});
+
 describe('Basics', () => {
   const bgPrefs = {
     bgClasses: {
@@ -158,19 +188,18 @@ describe('Basics', () => {
   });
 
   describe('handleCopyBasicsClicked', () => {
-    it('should render the sidebar containing the ClipboardButton', () => {
-      // The sidebar is always rendered and contains the copy button
-      expect(wrapper.container.querySelector('.patient-data-sidebar')).to.not.be.null;
-      // The ClipboardButton renders a button with the copy action title
-      const copyButton = wrapper.container.querySelector('.copy-settings-button');
-      // The sidebar is present; ClipboardButton renders within it
-      expect(wrapper.container.querySelector('.patient-data-sidebar button')).to.not.be.null;
+    it('should track metric with source param when called', () => {
+      const clipboardButton = wrapper.getByTestId('clipboard-button');
+      expect(baseProps.trackMetric.callCount).to.equal(0);
+      fireEvent.click(clipboardButton);
+      sinon.assert.callCount(baseProps.trackMetric, 1);
+      sinon.assert.calledWith(baseProps.trackMetric, 'Clicked Copy Settings', { source: 'Basics' });
     });
   });
 
   describe('handleSelectDay', () => {
-    it('should render the chart area that passes the day-selection handler down', () => {
-      // Re-render with data so the chart renders (without data, chart container is absent)
+    it('should track metric when called', () => {
+      // Needs data so renderChart() is called and the mock BasicsChart button renders
       cleanup();
       wrapper = render(<Basics {...{
         ...baseProps,
@@ -180,18 +209,19 @@ describe('Basics', () => {
             aggregationsByDate: {
               basals: {
                 byDate: {
-                  '2019-11-27': [
-                    { type: 'smbg' },
-                  ],
+                  '2025-01-27': [{ type: 'smbg' }],
                 },
               },
             },
           },
-        }
+        },
       }} />);
-      // With data present the no-data message should not render
-      const noDataMessage = wrapper.container.querySelector('.patient-data-message');
-      expect(noDataMessage).to.be.null;
+
+      const dayCell = wrapper.getByTestId('basics-chart-day');
+      expect(baseProps.trackMetric.callCount).to.equal(0);
+      fireEvent.click(dayCell);
+      sinon.assert.callCount(baseProps.trackMetric, 1);
+      sinon.assert.calledWith(baseProps.trackMetric, 'Clicked Basics TEST_TITLE calendar', { fromChart: 'basics' });
     });
   });
 

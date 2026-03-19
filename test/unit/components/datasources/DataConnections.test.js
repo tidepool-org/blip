@@ -445,24 +445,6 @@ describe('getDataConnectionProps', () => {
     setActiveHandlerStub.resetHistory();
   });
 
-  it('should merge real connect state UI and handler props based on provider connection state for a patient', () => {
-    const dataConnectionProps = getDataConnectionProps(createPatientWithPendingDexcomConnection(), false, 'clinic125', setActiveHandlerStub);
-
-    expect(dataConnectionProps).to.have.all.keys(availableProviders);
-
-    const dexcomConnection = dataConnectionProps.dexcom;
-    expect(dexcomConnection.buttonHandler).to.be.a('function');
-    expect(dexcomConnection.buttonText).to.equal('Resend Invite');
-    expect(dexcomConnection.iconLabel).to.equal('connection status: pending');
-    expect(dexcomConnection.label).to.equal('dexcom data connection state');
-    expect(dexcomConnection.logoImage).to.be.a('string');
-    expect(dexcomConnection.logoImageLabel).to.equal('dexcom logo');
-    expect(dexcomConnection.messageColor).to.equal('#6D6D6D');
-    expect(dexcomConnection.messageText).to.contain('Invite sent');
-    expect(dexcomConnection.providerName).to.equal('dexcom');
-    expect(dexcomConnection.stateText).to.equal('Connection Pending');
-  });
-
   it('should merge the appropriate connect state UI and handler props based on the current provider connection state for a patient', () => {
     const dataConnectionProps = getDataConnectionProps(createPatientWithPendingDexcomConnection(), false, 'clinic125', setActiveHandlerStub);
 
