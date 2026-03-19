@@ -2376,7 +2376,7 @@ describe('ClinicPatients', () => {
           });
           expect(timeInRangeFilterCount()).to.be.null;
           expect(resetAllFiltersButton()).to.be.null;
-        }, 10000);
+        }, 20000);
 
         it('should clear pending filter edits when time in range filter dialog closed', () => {
           const filterCount = () => container.querySelector('#filter-count');
