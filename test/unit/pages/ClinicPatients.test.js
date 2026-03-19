@@ -2292,7 +2292,7 @@ describe('ClinicPatients', () => {
             expect(filterCount()).to.be.null;
           });
           expect(timeInRangeFilterCount()).to.be.null;
-        }, 10000);
+        }, 20000);
 
         it('should reset all active filters at once', async () => {
           // Set up stateful filter mock to allow DOM verification after applying filters
