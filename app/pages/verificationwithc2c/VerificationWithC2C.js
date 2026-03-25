@@ -11,13 +11,17 @@ import { Box } from 'theme-ui';
 import Button from '../../components/elements/Button';
 import Container from '../../components/elements/Container';
 
-const useC2CSuccessListener = ({ onConnectSuccess }) => {
+const useRedirectOnC2CSuccess = ({ onRedirect }) => {
+  const { search } = useLocation();
   const justConnectedDataSourceProviderName = useSelector(state => state.blip.justConnectedDataSourceProviderName);
   const previousJustConnectedDataSourceProviderName = usePrevious(justConnectedDataSourceProviderName);
 
   useEffect(() => {
     if (justConnectedDataSourceProviderName && justConnectedDataSourceProviderName !== previousJustConnectedDataSourceProviderName) {
-      onConnectSuccess();
+      const params = new URLSearchParams(search);
+      params.set('isC2CSuccess', 'true');
+
+      onRedirect(params);
     }
   }, [justConnectedDataSourceProviderName, previousJustConnectedDataSourceProviderName]);
 };
@@ -80,12 +84,7 @@ const VerificationWithC2C = ({ api }) => {
   };
 
   // Listen for a successful C2C connection. If there is one, redirect to next login step.
-  useC2CSuccessListener({ onConnectSuccess: () => {
-    const params = new URLSearchParams(search);
-    params.set('isC2CSuccess', 'true');
-
-    redirectToAccountSetup(params);
-  }});
+  useRedirectOnC2CSuccess({ onRedirect: redirectToAccountSetup });
 
   const handleClickProvider = (providerName) => {
     const queryParams = new URLSearchParams(search);

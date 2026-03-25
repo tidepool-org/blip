@@ -14,7 +14,7 @@ import Banner from '../../components/elements/Banner';
 import Button from '../../components/elements/Button';
 import { Title, Subheading, Body1 } from '../../components/elements/FontStyles';
 import { availableProviders, providers } from '../../components/datasources/DataConnections';
-import useRedirectOnCustodialMobileC2CSuccess from './useRedirectOnMobileC2CSuccess';
+import useRedirectOnCustodialMobileC2CSuccess from './useRedirectOnCustodialMobileC2CSuccess';
 
 const { Loader } = vizComponents;
 
