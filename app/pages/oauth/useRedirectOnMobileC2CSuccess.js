@@ -9,10 +9,10 @@ const useRedirectOnCustodialMobileC2CSuccess = ({
 }) => {
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search);
-  const isCustodial = queryParams.has('signupEmail') && queryParams.has('signupKey');
+  const isCustodialSignup = queryParams.has('signupEmail') && queryParams.has('signupKey');
   const isMobile = utils.isMobile();
 
-  const isCustodialMobileC2CSuccess = isAuthorized && isCustodial && isMobile;
+  const isCustodialMobileC2CSuccess = isAuthorized && isCustodialSignup && isMobile;
 
   useEffect(() => {
     if (isCustodialMobileC2CSuccess) {
