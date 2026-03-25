@@ -10,21 +10,7 @@ import { providers } from '../../components/datasources/DataConnections';
 import { Box } from 'theme-ui';
 import Button from '../../components/elements/Button';
 import Container from '../../components/elements/Container';
-
-const useRedirectOnC2CSuccess = ({ onRedirect }) => {
-  const { search } = useLocation();
-  const justConnectedDataSourceProviderName = useSelector(state => state.blip.justConnectedDataSourceProviderName);
-  const previousJustConnectedDataSourceProviderName = usePrevious(justConnectedDataSourceProviderName);
-
-  useEffect(() => {
-    if (justConnectedDataSourceProviderName && justConnectedDataSourceProviderName !== previousJustConnectedDataSourceProviderName) {
-      const params = new URLSearchParams(search);
-      params.set('isC2CSuccess', 'true');
-
-      onRedirect(params);
-    }
-  }, [justConnectedDataSourceProviderName, previousJustConnectedDataSourceProviderName]);
-};
+import useRedirectOnC2CSuccess from './useRedirectOnC2CSuccess';
 
 const styleProps = {
   titleContainer: {
