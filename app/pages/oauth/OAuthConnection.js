@@ -14,6 +14,7 @@ import Banner from '../../components/elements/Banner';
 import Button from '../../components/elements/Button';
 import { Title, Subheading, Body1 } from '../../components/elements/FontStyles';
 import { availableProviders, providers } from '../../components/datasources/DataConnections';
+import useRedirectOnCustodialMobileC2CSuccess from './useRedirectOnMobileC2CSuccess';
 
 const { Loader } = vizComponents;
 
@@ -63,8 +64,6 @@ export const OAuthConnection = (props) => {
       : statusContent.error
   );
 
-  const isCustodialMobileC2CSuccess = isCustodial && utils.isMobile() && authStatus.status === 'authorized';
-
   const handleRedirectToClaimAccount = (params) => {
     trackMetric('Oauth - Connection - Claim Account', { providerName, status });
     history.push({ pathname: '/verification-with-password', search: params.toString() });
@@ -81,14 +80,8 @@ export const OAuthConnection = (props) => {
 
   // In EHR C2C flow, user will complete C2C before they have an account created. We redirect to
   // Claim My Account automatically after landing on this page.
-  useEffect(() => {
-    if (isCustodialMobileC2CSuccess) {
-      const params = new URLSearchParams(queryParams);
-      params.append('isC2CSuccess', 'true');
-
-      handleRedirectToClaimAccount(params);
-    }
-  }, [isCustodialMobileC2CSuccess]);
+  const isAuthorized = authStatus.status === 'authorized';
+  useRedirectOnCustodialMobileC2CSuccess({ isAuthorized, onRedirect: handleRedirectToClaimAccount });
 
   const handleRedirectToTidepool = () => {
     // After the connection, we want to get back to the /data view but we don't have access to the
