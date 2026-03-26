@@ -18,7 +18,6 @@ import Button from '../../components/elements/Button';
 import InputMask from 'react-input-mask';
 
 import Container from '../../components/elements/Container';
-import { toastMessages } from '../../components/datasources/useProviderConnectionPopup';
 
 const styleProps = {
   titleContainer: {
@@ -104,14 +103,6 @@ const VerificationWithPassword = ({
   });
   const [validationErrors, setValidationErrors] = useState({});
   const [notification, setNotification] = useState(null);
-
-  // On load, check if we landed on this page after a redirect from a successful C2C.
-  // If yes, then fire off a connection success toast message
-  useEffect(() => {
-    if (queryParams.get('isC2CSuccess') === 'true') {
-      setToast({ message: toastMessages.authorized, variant: 'success' });
-    }
-  }, []);
 
   const handleInputChange = (name, value) => {
     setFormValues(prevState => ({ ...prevState, [name]: value }));

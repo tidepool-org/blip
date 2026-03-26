@@ -66,7 +66,7 @@ export const OAuthConnection = (props) => {
 
   const handleRedirectToClaimAccount = (params) => {
     trackMetric('Oauth - Connection - Claim Account', { providerName, status });
-    history.push({ pathname: '/verification-with-password', search: params.toString() });
+    history.push({ pathname: '/verification-with-password', search: params?.toString() });
   };
 
   const handleClickClaimAccount = () => {

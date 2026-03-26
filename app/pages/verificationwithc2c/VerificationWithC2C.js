@@ -62,8 +62,10 @@ const VerificationWithC2C = ({ api }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const { search } = useLocation();
-  const queryParams = new URLSearchParams(search);
   const history = useHistory();
+
+  const queryParams = new URLSearchParams(search);
+  const restrictedToken = queryParams.get('restrictedToken');
 
   const redirectToAccountSetup = (params) => {
     history.push({ pathname: '/verification-with-password', search: params.toString() });
@@ -73,9 +75,6 @@ const VerificationWithC2C = ({ api }) => {
   useRedirectOnC2CSuccess({ onRedirect: redirectToAccountSetup });
 
   const handleClickProvider = (providerName) => {
-    const queryParams = new URLSearchParams(search);
-    const restrictedToken = queryParams.get('restrictedToken');
-
     const providerId = providers[providerName]?.id;
     const dataSourceFilter = providers[providerName]?.dataSourceFilter;
 
