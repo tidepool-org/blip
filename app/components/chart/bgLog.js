@@ -212,6 +212,8 @@ class BgLog extends Component {
     this.chartType = 'bgLog';
     this.log = bows('BgLog View');
     this.state = this.getInitialState()
+    // Created once so rapid-fire D3 'navigated' events during pan animation properly debounce
+    this.debouncedDateRangeUpdate = _.debounce((...args) => this.props.onUpdateChartDateRange(...args), 250);
   }
 
   getInitialState = () => {
@@ -233,9 +235,7 @@ class BgLog extends Component {
   };
 
   componentWillUnmount = () => {
-    if (this.state.debouncedDateRangeUpdate) {
-      this.state.debouncedDateRangeUpdate.cancel();
-    }
+    this.debouncedDateRangeUpdate.cancel();
   };
 
   render = () => {
@@ -507,22 +507,15 @@ class BgLog extends Component {
       title: this.getTitle(datetimeLocationEndpoints),
     });
 
-    // Update the chart date range in the data component.
-    // We debounce this to avoid excessive updates while panning the view.
-    if (this.state.debouncedDateRangeUpdate) {
-      this.state.debouncedDateRangeUpdate.cancel();
-    }
-
     const dateCeiling = getLocalizedCeiling(datetimeLocationEndpoints[1], _.get(this.props, 'data.timePrefs', {}));
 
     const datetimeLocation = moment.utc(dateCeiling.valueOf())
       .subtract(12, 'hours')
       .toISOString();
 
-    const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 250);
-    debouncedDateRangeUpdate(datetimeLocation);
-
-    this.setState({ debouncedDateRangeUpdate });
+    // The debounced function is a stable instance property so that rapid-fire D3 'navigated'
+    // events (emitted on every animation frame during a pan) correctly cancel each other.
+    this.debouncedDateRangeUpdate(datetimeLocation);
   };
 
   handleInTransition = inTransition => {

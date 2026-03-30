@@ -310,19 +310,18 @@ describe('Daily', () => {
       expect(instance.state.title).to.equal('Tue, Jan 16, 2018');
     });
 
-    it('should set a debounced call of the `onUpdateChartDateRange` prop method', () => {
-      sinon.spy(_, 'debounce');
-      sinon.assert.callCount(_.debounce, 0);
-
+    it('should call the `onUpdateChartDateRange` prop method debounced via a stable instance property', () => {
+      expect(instance.debouncedDateRangeUpdate).to.be.a('function');
       expect(instance.state.debouncedDateRangeUpdate).to.be.undefined;
+
+      const debounceStub = sinon.stub(instance, 'debouncedDateRangeUpdate');
 
       instance.handleDatetimeLocationChange(endpoints);
 
-      sinon.assert.callCount(_.debounce, 1);
-      sinon.assert.calledWith(_.debounce, baseProps.onUpdateChartDateRange);
-      expect(instance.state.debouncedDateRangeUpdate).to.be.a('function');
+      sinon.assert.calledOnce(debounceStub);
+      sinon.assert.calledWith(debounceStub, endpoints[0].end.toISOString());
 
-      _.debounce.restore();
+      debounceStub.restore();
     });
   });
 
