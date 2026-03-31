@@ -141,9 +141,8 @@ export const FlagCell = ({ patient, category = null, }) => {
       case category === VERY_HIGH: return 'veryHigh';
       case category === ANY_HIGH: return 'anyHigh';
       case category === DROP_IN_TIR: return 'dropInTIR';
-      case category === VERY_LOW: return 'lowTIR';
       case category === LOW_CGM_WEAR: return 'lowSensorUsage';
-      case category === TARGET: return 'meetingTargets';
+      case category === TARGET: return 'target';
 
       // If no category, then read from summary
       case period.timeInVeryLowPercent > 0.01: return 'veryLow';
@@ -151,7 +150,6 @@ export const FlagCell = ({ patient, category = null, }) => {
       case period.timeInVeryHighPercent > 0.05: return 'veryHigh';
       case period.timeInAnyHighPercent > 0.25: return 'anyHigh';
       case period.timeInTargetPercentDelta < -0.15: return 'dropInTIR';
-      case period.timeInTargetPercent < 0.70: return 'lowTIR';
       case period.timeCGMUsePercent < 0.70: return 'lowSensorUsage';
 
       default: return null;
@@ -166,22 +164,23 @@ export const FlagCell = ({ patient, category = null, }) => {
     veryHigh: t('Very High'),
     anyHigh: t('High'),
     dropInTIR: t('Large Drop in TIR'),
-    lowTIR: t('Low TIR'),
     lowSensorUsage: t('Low CGM Wear Time'),
-    meetingTargets: t('Meeting Targets'),
+    target: t('Meeting Targets'),
   };
+
+  const flagColor = colors.bg[rangeName] || vizColors.gold30;
 
   return (
     <Flex className='tide-dashboard-flag-cell' sx={{ minWidth: '120px' }}>
       <Flex
         className='tide-dashboard-flag'
         px={2} py={1} sx={{
-        backgroundColor: `${colors.bg[rangeName]}1A`, // adding '1A' reduces opacity to 0.1
+        backgroundColor: `${flagColor}1A`, // adding '1A' reduces opacity to 0.1
         borderRadius: 4,
         alignItems: 'center',
       }}>
           <Box
-            sx={{ borderRadius: 4, backgroundColor: colors.bg[rangeName], width: '12px', height: '12px' }}
+            sx={{ borderRadius: 4, backgroundColor: flagColor, width: '12px', height: '12px' }}
             mr={2}
           >
           </Box>
