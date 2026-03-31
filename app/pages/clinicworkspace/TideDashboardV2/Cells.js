@@ -1,10 +1,11 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { Box, Text } from 'theme-ui';
-import { utils as vizUtils } from '@tidepool/viz';
+import { Box, Flex, Text } from 'theme-ui';
+import { utils as vizUtils, colors as vizColors  } from '@tidepool/viz';
 const { bankersRound } = vizUtils.stat;
 import { MGDL_UNITS } from '../../../core/constants';
+import { colors } from '../../../themes/baseTheme';
 
 import BgSummaryCell from '../../../components/clinic/BgSummaryCell';
 import DeltaBar from '../../../components/elements/DeltaBar';
@@ -122,6 +123,86 @@ export const ChangeTIRCell = ({ patient }) => {
   />;
 };
 
+export const FlagCell = ({ patient }) => {
+  const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
+  const period = patient?.summary?.cgmStats?.periods?.[summaryPeriod];
+
+  if (!period) return null;
+
+  let value;
+  let rangeName;
+  let title;
+
+  // TODO: Fix text to be bgUnit-sensitive
+  switch(true) {
+    case period.timeInVeryLowPercent > 0.01:
+      value = 'timeInVeryLowPercent';
+      rangeName = 'veryLow';
+      title = 'Very Low';
+      break;
+    case period.timeInAnyLowPercent > 0.04:
+      value = 'timeInAnyLowPercent';
+      rangeName = 'anyLow';
+      title = 'Low';
+      break;
+    case period.timeInVeryHighPercent > 0.05:
+      value = 'timeInVeryHighPercent';
+      rangeName = 'veryHigh';
+      title = 'Very High';
+      break;
+    case period.timeInAnyHighPercent > 0.25:
+      value = 'timeInAnyHighPercent';
+      rangeName = 'anyHigh';
+      title = 'High';
+      break;
+    case period.timeInTargetPercentDelta < -0.15:
+      value = 'timeInTargetPercentDelta';
+      rangeName = 'anyLow';
+      title = 'Large Drop in TIR';
+      break;
+    case period.timeInTargetPercent < 0.70:
+      value = 'timeInTargetPercent';
+      rangeName = 'anyLow';
+      title = 'Low TIR';
+      break;
+    case period.timeCGMUsePercent < 0.70:
+      value = 'timeCGMUsePercent';
+      rangeName = 'anyLow';
+      title = 'Low CGM Wear Time';
+      break;
+
+    // TODO: Need case for Meeting Targets
+  }
+
+  if (!value) return null;
+
+  return (
+    <Flex className='tide-dashboard-flag-container' sx={{ minWidth: '120px' }}>
+      <Flex
+        className='tide-dashboard-flag'
+        px={2} py={1} sx={{
+        backgroundColor: `${colors.bg[rangeName]}1A`, // adding '1A' reduces opacity to 0.1
+        borderRadius: 4,
+        alignItems: 'center',
+      }}>
+          <Box
+            sx={{
+              borderRadius: 4,
+              backgroundColor: colors.bg[rangeName],
+              width: '12px',
+              height: '12px',
+            }}
+            mr={2}
+          >
+          </Box>
+          <Text sx={{ fontSize: 0, color: vizColors.black, fontWeight: 'medium' }}>
+            {title}
+          </Text>
+      </Flex>
+    </Flex>
+  );
+};
+
 export default {
   PatientCell,
   NumericTemplateCell,
@@ -131,4 +212,5 @@ export default {
   ChangeTIRCell,
   GMICell,
   CGMUseCell,
+  FlagCell,
 };

@@ -19,6 +19,7 @@ import {
   TimeInVeryHighPercentCell,
   TimeInAnyHighPercentCell,
   TimeInTargetPercentCell,
+  FlagCell,
 } from './Cells';
 
 import TagListCell from '../components/TagListCell';
@@ -34,6 +35,7 @@ const getColumnTypes = (t, thresholds) => ({
     title: t('Flag'),
     field: 'flag',
     align: 'center',
+    render: patient => <FlagCell patient={patient} />,
   },
   avgGlucose: {
     title: t('Avg Glucose'),
