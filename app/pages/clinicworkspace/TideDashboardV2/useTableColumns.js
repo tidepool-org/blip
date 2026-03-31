@@ -19,12 +19,13 @@ import {
   TimeInVeryHighPercentCell,
   TimeInAnyHighPercentCell,
   TimeInTargetPercentCell,
+  FlagCell,
 } from './Cells';
 
 import TagListCell from '../components/TagListCell';
 import PatientLastReviewed from './PatientLastReviewed';
 
-const getColumnTypes = (t, thresholds) => ({
+const getColumnTypes = (t, category, thresholds) => ({
   patientDetails: {
     title: t('Patient Details'),
     field: 'fullName',
@@ -35,6 +36,7 @@ const getColumnTypes = (t, thresholds) => ({
     title: t('Flag'),
     field: 'flag',
     align: 'center',
+    render: patient => <FlagCell category={category} patient={patient} />,
   },
   avgGlucose: {
     title: t('Avg Glucose'),
@@ -130,7 +132,7 @@ const useTableColumns = (category) => {
 
   const columns = useMemo(() => {
     const thresholds = getFormattedThresholds(clinicBgUnits);
-    const columnTypes = getColumnTypes(t, thresholds);
+    const columnTypes = getColumnTypes(t, category, thresholds);
 
     const standardColumnSet = [
       columnTypes.patientDetails,
