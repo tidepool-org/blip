@@ -10,6 +10,7 @@ import { colors } from '../../../themes/baseTheme';
 import BgSummaryCell from '../../../components/clinic/BgSummaryCell';
 import DeltaBar from '../../../components/elements/DeltaBar';
 import utils from '../../../core/utils';
+import { CATEGORY } from './FilterByCategory';
 
 export const PatientCell = ({ patient }) => {
   const { t } = useTranslation();
@@ -124,60 +125,55 @@ export const ChangeTIRCell = ({ patient }) => {
 };
 
 export const FlagCell = ({ patient }) => {
+  const { t } = useTranslation();
+  const category = useSelector(state => state.blip.tideDashboard.category);
   const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
   const period = patient?.summary?.cgmStats?.periods?.[summaryPeriod];
 
+  const { VERY_LOW, ANY_LOW, DROP_IN_TIR, ANY_HIGH, VERY_HIGH, LOW_CGM_WEAR, TARGET } = CATEGORY;
+
   if (!period) return null;
 
-  let value;
-  let rangeName;
-  let title;
+  const rangeName = (() => {
+    switch(true) {
+      // Current dashboard category takes priority
+      case category === VERY_LOW: return 'veryLow';
+      case category === ANY_LOW: return 'anyLow';
+      case category === VERY_HIGH: return 'veryHigh';
+      case category === ANY_HIGH: return 'anyHigh';
+      case category === DROP_IN_TIR: return 'dropInTIR';
+      case category === VERY_LOW: return 'lowTIR';
+      case category === LOW_CGM_WEAR: return 'lowSensorUsage';
+      case category === TARGET: return 'meetingTargets';
 
-  // TODO: Fix text to be bgUnit-sensitive
-  switch(true) {
-    case period.timeInVeryLowPercent > 0.01:
-      value = 'timeInVeryLowPercent';
-      rangeName = 'veryLow';
-      title = 'Very Low';
-      break;
-    case period.timeInAnyLowPercent > 0.04:
-      value = 'timeInAnyLowPercent';
-      rangeName = 'anyLow';
-      title = 'Low';
-      break;
-    case period.timeInVeryHighPercent > 0.05:
-      value = 'timeInVeryHighPercent';
-      rangeName = 'veryHigh';
-      title = 'Very High';
-      break;
-    case period.timeInAnyHighPercent > 0.25:
-      value = 'timeInAnyHighPercent';
-      rangeName = 'anyHigh';
-      title = 'High';
-      break;
-    case period.timeInTargetPercentDelta < -0.15:
-      value = 'timeInTargetPercentDelta';
-      rangeName = 'anyLow';
-      title = 'Large Drop in TIR';
-      break;
-    case period.timeInTargetPercent < 0.70:
-      value = 'timeInTargetPercent';
-      rangeName = 'anyLow';
-      title = 'Low TIR';
-      break;
-    case period.timeCGMUsePercent < 0.70:
-      value = 'timeCGMUsePercent';
-      rangeName = 'anyLow';
-      title = 'Low CGM Wear Time';
-      break;
+      // If no category, then read from summary
+      case period.timeInVeryLowPercent > 0.01: return 'veryLow';
+      case period.timeInAnyLowPercent > 0.04: return 'anyLow';
+      case period.timeInVeryHighPercent > 0.05: return 'veryHigh';
+      case period.timeInAnyHighPercent > 0.25: return 'anyHigh';
+      case period.timeInTargetPercentDelta < -0.15: return 'dropInTIR';
+      case period.timeInTargetPercent < 0.70: return 'lowTIR';
+      case period.timeCGMUsePercent < 0.70: return 'lowSensorUsage';
 
-    // TODO: Need case for Meeting Targets
-  }
+      default: return null;
+    }
+  })();
 
-  if (!value) return null;
+  if (!rangeName) return null;
+
+  const flagLabels = {
+    veryLow: t('Very Low'),
+    anyLow: t('Low'),
+    veryHigh: t('Very High'),
+    anyHigh: t('High'),
+    dropInTIR: t('Large Drop in TIR'),
+    lowTIR: t('Low TIR'),
+    lowSensorUsage: t('Low CGM Wear Time'),
+    meetingTargets: t('Meeting Targets'),
+  };
 
   return (
-    <Flex className='tide-dashboard-flag-container' sx={{ minWidth: '120px' }}>
+    <Flex className='tide-dashboard-flag-cell' sx={{ minWidth: '120px' }}>
       <Flex
         className='tide-dashboard-flag'
         px={2} py={1} sx={{
@@ -186,17 +182,12 @@ export const FlagCell = ({ patient }) => {
         alignItems: 'center',
       }}>
           <Box
-            sx={{
-              borderRadius: 4,
-              backgroundColor: colors.bg[rangeName],
-              width: '12px',
-              height: '12px',
-            }}
+            sx={{ borderRadius: 4, backgroundColor: colors.bg[rangeName], width: '12px', height: '12px' }}
             mr={2}
           >
           </Box>
           <Text sx={{ fontSize: 0, color: vizColors.black, fontWeight: 'medium' }}>
-            {title}
+            {flagLabels[rangeName] || ''}
           </Text>
       </Flex>
     </Flex>
