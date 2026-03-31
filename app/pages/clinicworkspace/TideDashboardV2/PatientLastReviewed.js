@@ -18,9 +18,7 @@ const {
   getTimezoneFromTimePrefs,
 } = vizUtils.datetime;
 
-const trackMetric = () => {};
-
-const recentlyReviewedThresholdDate = null;
+const trackMetric = () => {}; // TODO: FIX
 
 const PatientLastReviewed = ({ patient }) => {
   const { t } = useTranslation();
@@ -45,6 +43,8 @@ const PatientLastReviewed = ({ patient }) => {
     // trackMetric('Clinic - Undo mark patient reviewed', { clinicId: selectedClinicId, source: metricSource });
     revertClinicPatientLastReviewed({ clinicId: selectedClinicId, patientId });
   };
+
+  const recentlyReviewedThresholdDate = moment().startOf('isoWeek').toISOString();
 
   let clickHandler = handleReview;
   let buttonText = t('Mark Reviewed');
