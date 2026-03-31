@@ -124,9 +124,8 @@ export const ChangeTIRCell = ({ patient }) => {
   />;
 };
 
-export const FlagCell = ({ patient }) => {
+export const FlagCell = ({ patient, category = null, }) => {
   const { t } = useTranslation();
-  const category = useSelector(state => state.blip.tideDashboard.category);
   const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
   const period = patient?.summary?.cgmStats?.periods?.[summaryPeriod];
 
