@@ -14,15 +14,12 @@ import PaginationControls from '../components/PaginationControls';
 import ActiveFilterCount from '../components/ActiveFilterCount';
 
 import { resetTideDashboardState, setOffset } from './tideDashboardSlice';
-import { useGetTideDashboardPatientsQuery } from './tideDashboardApi';
+import useTideDashboardPatients, { LIMIT } from './useTideDashboardPatients';
 import ResetFilters from '../components/ResetFilters';
 import useActiveFiltersCount from './useActiveFiltersCount';
-import useDerivedDataRecencyEndpoints from './useDerivedDataRecencyEndpoints';
 import { resetTideDashboardFilters } from './tideDashboardFiltersSlice';
 import useTableColumns from './useTableColumns';
 import EmptyContentNode from './EmptyContentNode';
-
-const LIMIT = 12;
 
 const Divider = () => <Box id='filter-divider' mx={2} sx={{ border: `1px solid ${vizColors.gray05}`, height: '24px' }}></Box>;
 
@@ -30,17 +27,10 @@ const TideDashboard = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
-  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const category = useSelector(state => state.blip.tideDashboard.category);
   const offset = useSelector(state => state.blip.tideDashboard.offset);
-  const patientTags = useSelector(state => state.blip.tideDashboardFilters.patientTags);
 
-  const [lastDataFrom, lastDataTo] = useDerivedDataRecencyEndpoints();
-
-  const { data } = useGetTideDashboardPatientsQuery(
-    { clinicId: selectedClinicId, offset, category, lastDataTo, lastDataFrom, tags: patientTags, limit: LIMIT },
-    { skip: !selectedClinicId }
-  );
+  const { data } = useTideDashboardPatients();
 
   // Sync category to data fetching resolution; prevents visual glitch due to
   // category updating view before the API call resolves and updates it again

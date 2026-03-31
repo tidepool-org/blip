@@ -11,6 +11,7 @@ import HoverButton from '../../../components/elements/HoverButton';
 import Icon from '../../../components/elements/Icon';
 import { useToasts } from '../../../providers/ToastProvider';
 import { useSetClinicPatientLastReviewedMutation, useRevertClinicPatientLastReviewedMutation } from './tideDashboardApi';
+import useTideDashboardPatients from './useTideDashboardPatients';
 
 const {
   formatTimeAgo,
@@ -23,11 +24,13 @@ const recentlyReviewedThresholdDate = null;
 
 const PatientLastReviewed = ({ patient }) => {
   const { t } = useTranslation();
-  const { set: setToast } = useToasts();
+  // const { set: setToast } = useToasts();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const timePrefs = useSelector((state) => state.blip.timePrefs);
   const patientId = patient?.id;
+
+  const { isFetching } = useTideDashboardPatients();
 
   const [setClinicPatientLastReviewed, { isLoading: isSetting }] = useSetClinicPatientLastReviewedMutation();
   const [revertClinicPatientLastReviewed, { isLoading: isReverting }] = useRevertClinicPatientLastReviewedMutation();
@@ -85,7 +88,7 @@ const PatientLastReviewed = ({ patient }) => {
           onClick: clickHandler,
           variant: 'quickActionCondensed',
           ml: canReview ? -2 : 0,
-          processing: isSetting || isReverting,
+          disabled: isSetting || isReverting || isFetching,
         }}
         hideChildrenOnHover={canReview}
       >
