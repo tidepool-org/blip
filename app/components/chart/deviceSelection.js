@@ -10,16 +10,16 @@ import utils from '../../core/utils';
 
 // If user has both HealthKit and Twiist devices, filter out HealthKit as it will show duplicate data
 export const useHealthKitTwiistDisableOnMount = (devices, chartPrefs, updateChartPrefs) => {
-  const HEALTHKIT_SLUG = 'HealthKit twiist';
-  const TWIIST_SLUG = 'twiist_';
+  const HEALTHKIT_PREFIX = 'HealthKit twiist';
+  const TWIIST_PREFIX = 'twiist_';
 
   useEffect(() => {
-    const hasHealthKit = devices.some(d => d.id && d.id.includes(HEALTHKIT_SLUG));
-    const hasTwiist = devices.some(d => d.id && d.id.includes(TWIIST_SLUG));
+    const hasHealthKit = devices.some(d => d.id && d.id.includes(HEALTHKIT_PREFIX));
+    const hasTwiist = devices.some(d => d.id && d.id.includes(TWIIST_PREFIX));
 
     if (hasHealthKit && hasTwiist) {
       const prefs = cloneDeep(chartPrefs);
-      const healthKitIds = devices.filter(d => d.id && d.id.includes(HEALTHKIT_SLUG)).map(d => d.id);
+      const healthKitIds = devices.filter(d => d.id?.includes(HEALTHKIT_PREFIX)).map(d => d.id);
       prefs.excludedDevices = union(prefs.excludedDevices, healthKitIds);
       updateChartPrefs(prefs, true, true);
     }
