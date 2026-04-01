@@ -11,7 +11,7 @@ import moment from 'moment-timezone';
 import { Element, scroller } from 'react-scroll';
 
 import Button from './elements/Button';
-import DateRangePicker, { CHART_DATE_BOUND_FORMAT, getChartDateBoundDisplayFormat } from './elements/DateRangePicker';
+import DateRangePicker from './elements/DateRangePicker';
 import {
   Dialog,
   DialogActions,
@@ -22,9 +22,14 @@ import { MediumTitle, Caption, Body0 } from './elements/FontStyles';
 import i18next from '../core/language';
 import baseTheme, { borders } from '../themes/baseTheme';
 import { useLocalStorage } from '../core/hooks';
-import { utils as vizUtils } from '@tidepool/viz';
 import PartialDaysTooltip from './PartialDaysTooltip';
-const getLocalizedCeiling = vizUtils.datetime.getLocalizedCeiling;
+
+import { utils as vizUtils } from '@tidepool/viz';
+const {
+  getLocalizedCeiling,
+  getChartDateBoundFormat,
+  CHART_DATE_BOUND_FORMAT,
+} = vizUtils.datetime;
 
 const t = i18next.t.bind(i18next);
 
@@ -435,7 +440,7 @@ export const PrintDateRangeModal = (props) => {
                       />
 
                       {
-                        getChartDateBoundDisplayFormat(dates[panel.key].startDate, dates[panel.key].endDate) === CHART_DATE_BOUND_FORMAT.DATE_AND_TIME &&
+                        getChartDateBoundFormat(dates[panel.key].startDate, dates[panel.key].endDate) === CHART_DATE_BOUND_FORMAT.DATE_AND_TIME &&
                         <PartialDaysTooltip />
                       }
                     </Flex>

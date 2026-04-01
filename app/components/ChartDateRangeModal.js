@@ -9,10 +9,6 @@ import { Flex, Box } from 'theme-ui';
 import moment from 'moment-timezone';
 
 import Button from './elements/Button';
-import DateRangePicker, {
-  getChartDateBoundDisplayFormat,
-  CHART_DATE_BOUND_FORMAT,
-} from './elements/DateRangePicker';
 import {
   Dialog,
   DialogActions,
@@ -25,7 +21,14 @@ import { breakpoints } from '../themes/baseTheme';
 import { DesktopOnly } from './mediaqueries';
 import { utils as vizUtils } from '@tidepool/viz';
 import PartialDaysTooltip from './PartialDaysTooltip';
-const getLocalizedCeiling = vizUtils.datetime.getLocalizedCeiling;
+
+import DateRangePicker from './elements/DateRangePicker';
+
+const {
+  getLocalizedCeiling,
+  getChartDateBoundFormat,
+  CHART_DATE_BOUND_FORMAT,
+} = vizUtils.datetime;
 
 const t = i18next.t.bind(i18next);
 
@@ -193,7 +196,7 @@ export const ChartDateRangeModal = (props) => {
     onDatesChange(dates);
   }, [dates]);
 
-  const displayFormat = getChartDateBoundDisplayFormat(dates.startDate, dates.endDate);
+  const displayFormat = getChartDateBoundFormat(dates.startDate, dates.endDate);
   const isPartialDaySelected = displayFormat === CHART_DATE_BOUND_FORMAT.DATE_AND_TIME;
 
   return (
