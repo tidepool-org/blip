@@ -8,17 +8,18 @@ import { Box, Flex, Text } from 'theme-ui';
 import { colors, fontSizes } from '../../themes/baseTheme';
 import utils from '../../core/utils';
 
-// If both HealthKit and Twiist exist, filter out HealthKit as it will show duplicate data
-export const useHealthKitTwiistDisable = (devices, chartPrefs, updateChartPrefs) => {
+// If user has both HealthKit and Twiist devices, filter out HealthKit as it will show duplicate data
+export const useHealthKitTwiistDisableOnMount = (devices, chartPrefs, updateChartPrefs) => {
+  const HEALTHKIT_SLUG = 'HealthKit twiist';
+  const TWIIST_SLUG = 'twiist_';
+
   useEffect(() => {
-    const hasHealthKit = devices.some(d => d.id && d.id.includes('HealthKit twiist'));
-    const hasTwiist = devices.some(d => d.id && d.id.includes('twiist_'));
+    const hasHealthKit = devices.some(d => d.id && d.id.includes(HEALTHKIT_SLUG));
+    const hasTwiist = devices.some(d => d.id && d.id.includes(TWIIST_SLUG));
 
     if (hasHealthKit && hasTwiist) {
       const prefs = cloneDeep(chartPrefs);
-      const healthKitIds = devices
-        .filter(d => d.id && d.id.includes('HealthKit twiist'))
-        .map(d => d.id);
+      const healthKitIds = devices.filter(d => d.id && d.id.includes(HEALTHKIT_SLUG)).map(d => d.id);
       prefs.excludedDevices = union(prefs.excludedDevices, healthKitIds);
       updateChartPrefs(prefs, true, true);
     }
@@ -35,7 +36,7 @@ export const DeviceSelection = (props) => {
     updateChartPrefs,
   } = props;
 
-  useHealthKitTwiistDisable(devices, chartPrefs, updateChartPrefs);
+  useHealthKitTwiistDisableOnMount(devices, chartPrefs, updateChartPrefs);
 
   const excludedDevices = get(chartPrefs, 'excludedDevices', []);
 
