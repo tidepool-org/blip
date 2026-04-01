@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { cloneDeep, pull, map, union, get, includes } from 'lodash';
 import Accordion from '../elements/Accordion';
@@ -7,6 +7,23 @@ import { Box, Flex, Text } from 'theme-ui';
 
 import { colors, fontSizes } from '../../themes/baseTheme';
 import utils from '../../core/utils';
+
+// If both HealthKit and Twiist exist, filter out HealthKit as it will show duplicate data
+export const useHealthKitTwiistDisable = (devices, chartPrefs, updateChartPrefs) => {
+  useEffect(() => {
+    const hasHealthKit = devices.some(d => d.id && d.id.includes('HealthKit twiist'));
+    const hasTwiist = devices.some(d => d.id && d.id.includes('twiist_'));
+
+    if (hasHealthKit && hasTwiist) {
+      const prefs = cloneDeep(chartPrefs);
+      const healthKitIds = devices
+        .filter(d => d.id && d.id.includes('HealthKit twiist'))
+        .map(d => d.id);
+      prefs.excludedDevices = union(prefs.excludedDevices, healthKitIds);
+      updateChartPrefs(prefs, true, true);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+};
 
 export const DeviceSelection = (props) => {
   const {
@@ -17,6 +34,8 @@ export const DeviceSelection = (props) => {
     trackMetric,
     updateChartPrefs,
   } = props;
+
+  useHealthKitTwiistDisable(devices, chartPrefs, updateChartPrefs);
 
   const excludedDevices = get(chartPrefs, 'excludedDevices', []);
 
