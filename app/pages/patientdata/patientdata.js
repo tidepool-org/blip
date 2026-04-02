@@ -2171,7 +2171,6 @@ export const PatientDataClass = createReactClass({
     const latestDiabetesDatum = _.last(_.sortBy(latestDiabetesDatums, ['normalTime']));
     const bgSource = this.getMetaData('bgSources.current');
     const excludedDevices = this.getMetaData('excludedDevices', undefined, props);
-
     const chartTypeFromPath = props.match?.params?.chartType;
 
     let defaultChartTypeForPatient = null;
