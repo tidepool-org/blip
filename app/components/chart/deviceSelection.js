@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { cloneDeep, pull, map, union, get, includes } from 'lodash';
 import Accordion from '../elements/Accordion';
