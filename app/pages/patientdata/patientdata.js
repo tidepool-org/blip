@@ -2171,6 +2171,13 @@ export const PatientDataClass = createReactClass({
     const latestDiabetesDatum = _.last(_.sortBy(latestDiabetesDatums, ['normalTime']));
     const bgSource = this.getMetaData('bgSources.current');
     const excludedDevices = this.getMetaData('excludedDevices', undefined, props);
+    const devices = this.getMetaData('devices', [], props);
+
+    // Disable HealthKit
+    const HEALTHKIT_PREFIX = 'HealthKit twiist';
+    const healthKitIds = devices.filter(d => d.id?.includes(HEALTHKIT_PREFIX)).map(d => d.id);
+    const mergedExcludedDevices = _.union(excludedDevices || [], healthKitIds);
+
     const chartTypeFromPath = props.match?.params?.chartType;
 
     let defaultChartTypeForPatient = null;
@@ -2234,7 +2241,7 @@ export const PatientDataClass = createReactClass({
         basics: { ...this.state.chartPrefs.basics, bgSource },
         daily: { ...this.state.chartPrefs.daily, bgSource },
         trends: { ...this.state.chartPrefs.trends, bgSource },
-        excludedDevices,
+        excludedDevices: mergedExcludedDevices,
       }, false);
 
       if (chartType === 'settings') {

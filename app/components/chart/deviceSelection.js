@@ -8,24 +8,6 @@ import { Box, Flex, Text } from 'theme-ui';
 import { colors, fontSizes } from '../../themes/baseTheme';
 import utils from '../../core/utils';
 
-// If user has both HealthKit and Twiist devices, filter out HealthKit as it will show duplicate data
-export const useHealthKitTwiistDisableOnMount = (devices, chartPrefs, updateChartPrefs) => {
-  const HEALTHKIT_PREFIX = 'HealthKit twiist';
-  const TWIIST_PREFIX = 'twiist_';
-
-  useEffect(() => {
-    const hasHealthKit = devices.some(d => d.id && d.id.includes(HEALTHKIT_PREFIX));
-    const hasTwiist = devices.some(d => d.id && d.id.includes(TWIIST_PREFIX));
-
-    if (hasHealthKit && hasTwiist) {
-      const prefs = cloneDeep(chartPrefs);
-      const healthKitIds = devices.filter(d => d.id?.includes(HEALTHKIT_PREFIX)).map(d => d.id);
-      prefs.excludedDevices = union(prefs.excludedDevices, healthKitIds);
-      updateChartPrefs(prefs, true, true);
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-};
-
 export const DeviceSelection = (props) => {
   const {
     chartPrefs,
@@ -35,8 +17,6 @@ export const DeviceSelection = (props) => {
     trackMetric,
     updateChartPrefs,
   } = props;
-
-  useHealthKitTwiistDisableOnMount(devices, chartPrefs, updateChartPrefs);
 
   const excludedDevices = get(chartPrefs, 'excludedDevices', []);
 
