@@ -1191,11 +1191,14 @@ export function fetchPatientData(api, options, id) {
 
       const fetchers = {
         patientData: api.patientData.get.bind(api, id, options),
-        teamNotes: api.team.getNotes.bind(api, id, _.assign({}, options, {
+      };
+
+      if (!options.forceDataWorkerAddDataRequest) {
+        fetchers.teamNotes = api.team.getNotes.bind(api, id, _.assign({}, options, {
           start: options.startDate,
           end: options.endDate,
-        })),
-      };
+        }));
+      }
 
       if (options.getPumpSettingsUploadRecordById) {
         fetchers.latestPumpSettingsUpload = api.patientData.get.bind(api, id, {
@@ -1207,16 +1210,19 @@ export function fetchPatientData(api, options, id) {
       async.parallel(async.reflectAll(fetchers), (err, results) => {
         const resultsErr = _.mapValues(results, ({error}) => error);
         const resultsVal = _.mapValues(results, ({value}) => value);
-        const hasError = _.some(resultsErr, err => !_.isUndefined(err));
+        const hasFatalError = resultsErr.patientData !== undefined || resultsErr.latestPumpSettingsUpload !== undefined;
 
-        if (hasError) {
+        if (hasFatalError) {
           handleFetchErrors(resultsErr);
         }
         else {
+          if (resultsErr.teamNotes) {
+            handleFetchErrors({ teamNotes: resultsErr.teamNotes });
+          }
           const combinedData = [
             ...resultsVal.patientData,
             ...(resultsVal.latestPumpSettingsUpload || []),
-            ...resultsVal.teamNotes,
+            ...(resultsVal.teamNotes || []),
           ];
 
           // If the latest upload or pumpSettings is later than the latest diabetes datum, it would have been

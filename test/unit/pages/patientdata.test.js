@@ -1854,6 +1854,7 @@ describe('PatientData', function () {
           'carbs',
           'averageDailyDose',
           'glucoseManagementIndicator',
+          'glycemiaRiskIndex',
           'standardDev',
           'coefficientOfVariation',
           'bgExtents',
@@ -1919,6 +1920,7 @@ describe('PatientData', function () {
           'averageGlucose',
           'totalInsulin',
           'carbs',
+          'glycemiaRiskIndex',
           'standardDev',
           'coefficientOfVariation',
         ]);
@@ -1988,6 +1990,7 @@ describe('PatientData', function () {
           'totalInsulin',
           'averageDailyDose',
           'glucoseManagementIndicator',
+          'glycemiaRiskIndex',
           'standardDev',
           'coefficientOfVariation',
           'bgExtents',
@@ -2070,6 +2073,7 @@ describe('PatientData', function () {
           'averageGlucose',
           'totalInsulin',
           'carbs',
+          'glycemiaRiskIndex',
           'standardDev',
           'coefficientOfVariation',
         ]);

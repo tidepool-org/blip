@@ -39,6 +39,7 @@ import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined'
 import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
+import PrintRoundedIcon from '@material-ui/icons/PrintRounded';
 import { components as vizComponents, utils as vizUtils, colors as vizColors } from '@tidepool/viz';
 import sundial from 'sundial';
 import ScrollToTop from 'react-scroll-to-top';
@@ -75,6 +76,7 @@ import TideDashboardConfigForm, { validateTideConfig } from '../../components/cl
 import RpmReportConfigForm, { exportRpmReport } from '../../components/clinic/RpmReportConfigForm';
 import Pill from '../../components/elements/Pill';
 import PopoverMenu from '../../components/elements/PopoverMenu';
+import PrintDateRangeModal from '../../components/PrintDateRangeModal';
 import PopoverLabel from '../../components/elements/PopoverLabel';
 import Popover from '../../components/elements/Popover';
 import RadioGroup from '../../components/elements/RadioGroup';
@@ -95,6 +97,7 @@ import {
 
 import { useToasts } from '../../providers/ToastProvider';
 import * as actions from '../../redux/actions';
+import usePrintPDF, { STATUS as PRINT_STATUS } from './usePrintPDF/usePrintPDF';
 import { useIsFirstRender, useLocalStorage, usePrevious } from '../../core/hooks';
 import { fieldsAreValid, getCommonFormikFieldProps } from '../../core/forms';
 
@@ -314,6 +317,7 @@ const MoreMenu = ({
   prefixPopHealthMetric,
   setShowSendUploadReminderDialog,
   setShowDeleteDialog,
+  handlePrintPatient,
 }) => {
   const handleEditPatient = useCallback(() => {
     editPatient(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog, 'action menu');
@@ -390,6 +394,19 @@ const MoreMenu = ({
       });
     }
 
+    arr.push({
+      icon: PrintRoundedIcon,
+      iconLabel: t('Print PDF'),
+      iconPosition: 'left',
+      id: `print-${patient.id}`,
+      variant: 'actionListItem',
+      onClick: (_popupState) => {
+        _popupState.close();
+        handlePrintPatient(patient);
+      },
+      text: t('Print PDF'),
+    });
+
     if (isClinicAdmin) {
       arr.push({
         icon: DeleteIcon,
@@ -407,6 +424,7 @@ const MoreMenu = ({
     return arr;
   }, [
     handleEditPatient,
+    handlePrintPatient,
     handleRemove,
     handleSendUploadReminder,
     isClinicAdmin,
@@ -664,6 +682,12 @@ export const ClinicPatients = (props) => {
   const [selectedPatientTag, setSelectedPatientTag] = useState(null);
   const [loading, setLoading] = useState(false);
   const [patientFormContext, setPatientFormContext] = useState();
+  const [printPatient, setPrintPatient] = useState(null);
+  const [printMostRecentDates, setPrintMostRecentDates] = useState({});
+  const [printTimePrefs, setPrintTimePrefs] = useState({ timezoneName: 'UTC' });
+  const [printDialogOpen, setPrintDialogOpen] = useState(false);
+  const [printLoading, setPrintLoading] = useState(false);
+  const { status: printStatus, triggerPrint, reset: resetPrint } = usePrintPDF(api);
   const [rpmReportFormContext, setRpmReportFormContext] = useState();
   const [tideDashboardFormContext, setTideDashboardFormContext] = useState();
   const [clinicSiteFormContext, setClinicSiteFormContext] = useState();
@@ -852,6 +876,83 @@ export const ClinicPatients = (props) => {
   const previousFetchingRpmReportPatients = usePrevious(fetchingRpmReportPatients);
 
   const prefixPopHealthMetric = useCallback(metric => `Clinic - Population Health - ${metric}`, []);
+
+  // Show a non-dismissible toast while the PDF is generating in the background;
+  // dismiss it once the hook reaches a terminal state.
+  const isGeneratingPDF = ![PRINT_STATUS.IDLE, PRINT_STATUS.COMPLETE, PRINT_STATUS.ERROR].includes(printStatus);
+  const previouslyGeneratingPDF = usePrevious(isGeneratingPDF);
+
+  useEffect(() => {
+    if (isGeneratingPDF && !previouslyGeneratingPDF) {
+      setToast({ message: t('Generating PDF…'), variant: 'info', autoHideDuration: null });
+    } else if (!isGeneratingPDF && previouslyGeneratingPDF) {
+      if (printStatus === PRINT_STATUS.ERROR) {
+        setToast({ message: t('Failed to generate PDF.'), variant: 'danger' });
+      } else {
+        setToast(null);
+      }
+    }
+  }, [isGeneratingPDF, previouslyGeneratingPDF, printStatus]);
+
+  const handlePrintPatient = useCallback((patient) => {
+    trackMetric('Clinic - Print patient PDF', { clinicId: selectedClinicId });
+    setPrintPatient(patient);
+    setPrintLoading(true);
+
+    api.patientData.get(
+      patient.id,
+      { type: 'basal,bolus,cbg,deviceEvent,food,smbg,wizard', latest: 1 },
+      (err, latestDatums) => {
+        const mostRecentDates = {};
+        let timePrefs = { timezoneName: 'UTC' };
+
+        if (!err && latestDatums?.length) {
+          const maxTime = (...types) => {
+            const times = latestDatums
+              .filter(d => types.includes(d.type))
+              .map(d => d.normalEnd || d.normalTime || (d.time ? Date.parse(d.time) : undefined))
+              .filter(Boolean);
+            return times.length ? times.reduce((a, b) => (a > b ? a : b)) : undefined;
+          };
+          mostRecentDates.agpBGM = maxTime('smbg');
+          mostRecentDates.agpCGM = maxTime('cbg');
+          mostRecentDates.basics = maxTime('basal', 'bolus', 'cbg', 'deviceEvent', 'smbg', 'wizard');
+          mostRecentDates.bgLog = maxTime('smbg');
+          mostRecentDates.daily = maxTime('basal', 'bolus', 'cbg', 'deviceEvent', 'food', 'smbg', 'wizard');
+
+          // Determine patient timezone from the most recent diabetes datum, mirroring DataUtil logic
+          const diabetesTypes = ['cbg', 'smbg', 'basal', 'bolus', 'wizard', 'food'];
+          const latestDiabetesDatum = latestDatums
+            .filter(d => diabetesTypes.includes(d.type) && Number.isFinite(d.timezoneOffset))
+            .reduce((latest, d) => (!latest || d.time > latest.time ? d : latest), null);
+
+          if (latestDiabetesDatum) {
+            let timezoneName = latestDiabetesDatum.timezone;
+            if (!timezoneName) {
+              const { timezoneOffset } = latestDiabetesDatum;
+              const offsetSign = Math.sign(timezoneOffset) === -1 ? '+' : '-';
+              const offsetDuration = moment.duration(Math.abs(timezoneOffset), 'minutes');
+              let offsetHours = offsetDuration.hours();
+              const offsetMinutes = offsetDuration.minutes();
+              if (offsetMinutes >= 30) offsetHours += 1;
+              timezoneName = `Etc/GMT${offsetSign}${offsetHours}`;
+            }
+            try {
+              sundial.checkTimezoneName(timezoneName);
+              timePrefs = { timezoneAware: true, timezoneName };
+            } catch (e) {
+              // invalid timezone name, fall back to UTC
+            }
+          }
+        }
+
+        setPrintMostRecentDates(mostRecentDates);
+        setPrintTimePrefs(timePrefs);
+        setPrintLoading(false);
+        setPrintDialogOpen(true);
+      }
+    );
+  }, [api, selectedClinicId, trackMetric]);
 
   const handleCloseOverlays = useCallback(() => {
     const resetList = showAddPatientDialog || showEditPatientDialog;
@@ -3926,6 +4027,7 @@ export const ClinicPatients = (props) => {
       prefixPopHealthMetric={prefixPopHealthMetric}
       setShowSendUploadReminderDialog={setShowSendUploadReminderDialog}
       setShowDeleteDialog={setShowDeleteDialog}
+      handlePrintPatient={handlePrintPatient}
     />;
   }, [
     isClinicAdmin,
@@ -3938,6 +4040,7 @@ export const ClinicPatients = (props) => {
     prefixPopHealthMetric,
     setShowSendUploadReminderDialog,
     setShowDeleteDialog,
+    handlePrintPatient,
   ]);
 
   const columns = useMemo(() => {
@@ -4249,6 +4352,29 @@ export const ClinicPatients = (props) => {
       {isClinicSitesDialogVisible && renderClinicSitesDialog()}
       {isClinicPatientTagsDialogVisible && renderClinicPatientTagsDialog()}
       {showDataConnectionsModal && renderDataConnectionsModal()}
+      {printPatient && (
+        <PrintDateRangeModal
+          id="print-dialog"
+          loggedInUserId={loggedInUserId}
+          mostRecentDatumDates={printMostRecentDates}
+          open={printDialogOpen}
+          onClose={() => {
+            setPrintDialogOpen(false);
+            setPrintPatient(null);
+            setPrintMostRecentDates({});
+            setPrintTimePrefs({ timezoneName: 'UTC' });
+            resetPrint();
+          }}
+          onClickPrint={opts => {
+            setPrintDialogOpen(false);
+            triggerPrint(printPatient.id, opts);
+            setPrintPatient(null);
+          }}
+          processing={printLoading}
+          timePrefs={printTimePrefs}
+          trackMetric={trackMetric}
+        />
+      )}
 
       <StyledScrollToTop
         smooth

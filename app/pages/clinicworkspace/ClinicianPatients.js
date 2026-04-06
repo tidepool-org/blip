@@ -14,6 +14,7 @@ import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import EditIcon from '@material-ui/icons/EditRounded';
 import DeleteIcon from '@material-ui/icons/DeleteRounded';
+import PrintRoundedIcon from '@material-ui/icons/PrintRounded';
 import { components as vizComponents } from '@tidepool/viz';
 
 import {
@@ -29,6 +30,7 @@ import Pagination from '../../components/elements/Pagination';
 import TextInput from '../../components/elements/TextInput';
 import PatientForm from '../../components/clinic/PatientForm';
 import PopoverMenu from '../../components/elements/PopoverMenu';
+import PrintDateRangeModal from '../../components/PrintDateRangeModal';
 
 import {
   Dialog,
@@ -62,6 +64,10 @@ export const ClinicianPatients = (props) => {
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [loading, setLoading] = useState(false);
   const [patientFormContext, setPatientFormContext] = useState();
+  const [printPatient, setPrintPatient] = useState(null);
+  const [printMostRecentDates, setPrintMostRecentDates] = useState({});
+  const [printDialogOpen, setPrintDialogOpen] = useState(false);
+  const [printLoading, setPrintLoading] = useState(false);
   const rowsPerPage = 8;
 
   const { patientListSearchTextInput, isPatientListVisible } = useSelector(({ blip }) => blip.patientListFilters);
@@ -325,6 +331,37 @@ export const ClinicianPatients = (props) => {
     dispatch(actions.async.removeMembershipInOtherCareTeam(api, selectedPatient?.id));
   }
 
+  function handlePrintPatient(patient) {
+    trackMetric('Clinician - Print patient PDF');
+    setPrintPatient(patient);
+    setPrintLoading(true);
+
+    api.patientData.get(
+      patient.id,
+      { type: 'basal,bolus,cbg,deviceEvent,food,smbg,wizard', latest: 1 },
+      (err, latestDatums) => {
+        const mostRecentDates = {};
+        if (!err && latestDatums?.length) {
+          const maxTime = (...types) => {
+            const times = latestDatums
+              .filter(d => types.includes(d.type))
+              .map(d => d.normalEnd || d.normalTime)
+              .filter(Boolean);
+            return times.length ? times.reduce((a, b) => (a > b ? a : b)) : undefined;
+          };
+          mostRecentDates.agpBGM = maxTime('smbg');
+          mostRecentDates.agpCGM = maxTime('cbg');
+          mostRecentDates.basics = maxTime('basal', 'bolus', 'cbg', 'deviceEvent', 'smbg', 'wizard');
+          mostRecentDates.bgLog = maxTime('smbg');
+          mostRecentDates.daily = maxTime('basal', 'bolus', 'cbg', 'deviceEvent', 'food', 'smbg', 'wizard');
+        }
+        setPrintMostRecentDates(mostRecentDates);
+        setPrintLoading(false);
+        setPrintDialogOpen(true);
+      }
+    );
+  }
+
   function handleCloseOverlay() {
     setShowDeleteDialog(false);
     setShowAddPatientDialog(false);
@@ -423,6 +460,19 @@ export const ClinicianPatients = (props) => {
       });
     }
 
+    items.push({
+      icon: PrintRoundedIcon,
+      iconLabel: t('Print PDF'),
+      iconPosition: 'left',
+      id: `print-${patient.id}`,
+      variant: 'actionListItem',
+      onClick: _popupState => {
+        _popupState.close();
+        handlePrintPatient(patient);
+      },
+      text: t('Print PDF'),
+    });
+
     if (!isLoggedInUser) items.push({
       icon: DeleteIcon,
       iconLabel: t('Remove Patient'),
@@ -510,6 +560,27 @@ export const ClinicianPatients = (props) => {
         {renderRemoveDialog()}
         {showAddPatientDialog && renderAddPatientDialog()}
         {showEditPatientDialog && renderEditPatientDialog()}
+        {printPatient && (
+          <PrintDateRangeModal
+            id="print-dialog"
+            loggedInUserId={loggedInUserId}
+            mostRecentDatumDates={printMostRecentDates}
+            open={printDialogOpen}
+            onClose={() => {
+              setPrintDialogOpen(false);
+              setPrintPatient(null);
+              setPrintMostRecentDates({});
+            }}
+            onClickPrint={opts => {
+              setPrintDialogOpen(false);
+              dispatch(push(`/patients/${printPatient.id}/data`, { autoPrint: true, printOpts: opts }));
+              setPrintPatient(null);
+            }}
+            processing={printLoading}
+            timePrefs={{ timezoneName: 'UTC' }}
+            trackMetric={trackMetric}
+          />
+        )}
       </Box>
 
       {isPatientListVisible && patients.length > rowsPerPage && (

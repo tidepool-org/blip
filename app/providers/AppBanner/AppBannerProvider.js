@@ -173,7 +173,6 @@ const AppBannerProvider = ({ children }) => {
   ]);
 
   useEffect(() => {
-    setCurrentBanner(null);
     const context = userIsCurrentPatient ? 'patient' : 'clinic';
     const bannerInteractionKeys = banner => map([CLICKED_BANNER_ACTION, DISMISSED_BANNER_ACTION], action => `${action}${banner.interactionId}BannerTime`);
 
@@ -222,8 +221,10 @@ const AppBannerProvider = ({ children }) => {
     // Sort banners based on priority (lower values mean higher priority)
     const sortedBanners = filteredBanners.sort((a, b) => a.priority - b.priority);
 
-    // Set the first available banner to display, else null
-    setCurrentBanner(first(sortedBanners) || null);
+    // Only update state when the banner id actually changes to avoid re-render loops
+    // during rapid Redux state updates (e.g. data loading on patient data page)
+    const newBanner = first(sortedBanners) || null;
+    setCurrentBanner(prev => (prev?.id === newBanner?.id ? prev : newBanner));
   }, [
     bannerInteractedForPatient,
     currentPatientInViewId,

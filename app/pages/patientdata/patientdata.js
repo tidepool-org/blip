@@ -1899,6 +1899,12 @@ export const PatientDataClass = createReactClass({
           window.loadPatientData = this.saveDataToDestination.bind(this, 'window');
           window.downloadPatientData = this.saveDataToDestination.bind(this, 'download');
 
+          if (this.props.location?.state?.autoPrint) {
+            stateUpdates.printDialogOpen = true;
+            stateUpdates.printDialogProcessing = true;
+            stateUpdates.printDialogPDFOpts = this.props.location.state.printOpts;
+          }
+
         // If the route has changed, we need to update the chartType
         } else if (this.props.location.pathname !== nextProps.location.pathname) {
           this.handleRouteChangeEvent(nextProps);
@@ -1942,6 +1948,26 @@ export const PatientDataClass = createReactClass({
             ) {
               this.hideLoading(hideLoadingTimeout);
             }
+
+          if (stateUpdates.printDialogPDFOpts) {
+            this.props.removeGeneratedPDFS();
+            const opts = stateUpdates.printDialogPDFOpts;
+            const enabledOpts = _.filter(opts, { disabled: false });
+            const earliestPrintDate = _.min(_.at(enabledOpts, _.map(_.keys(enabledOpts), key => `${key}.endpoints.0`)));
+            const startDate = moment.utc(earliestPrintDate).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).toISOString();
+            const fetchedUntil = this.getCurrentFetchedUntilDate();
+
+            if (startDate < fetchedUntil) {
+              if (!this.printWindowRef || this.printWindowRef.closed) {
+                const waitMessage = this.props.t('Please wait while Tidepool generates your PDF report.');
+                this.printWindowRef = window.open();
+                this.printWindowRef.document.write(`<p align="center" style="margin-top:20px;font-size:16px;font-family:sans-serif">${waitMessage}</p>`);
+              }
+              this.fetchAdditionalData({ returnData: false, showLoading: false, startDate });
+            } else {
+              this.generatePDF();
+            }
+          }
         };
       }
 
