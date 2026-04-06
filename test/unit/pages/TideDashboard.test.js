@@ -587,33 +587,38 @@ describe('TideDashboard', () => {
       expect(getTableRow(0, 0).find('th').at(2).text()).contains('GMI');
       expect(getTableRow(0, 2).find('td').at(1).text()).contains('12.2 %');
 
-      expect(getTableRow(0, 0).find('th').at(3).text()).contains('CGM Use');
-      expect(getTableRow(0, 2).find('td').at(2).text()).contains('84 %');
+      expect(getTableRow(0, 0).find('th').at(3).text()).contains('GRI');
+      expect(getTableRow(0, 2).find('td').at(2).text()).contains('59');
+
+      expect(getTableRow(0, 0).find('th').at(4).text()).contains('CGM Use');
+      expect(getTableRow(0, 2).find('td').at(3).text()).contains('84 %');
 
       // Confirm first table is sorted appropriately
-      expect(getTableRow(0, 0).find('th').at(4).text()).contains('% Time < 54');
-      expect(getTableRow(0, 1).find('td').at(3).text()).contains('4 %');
-      expect(getTableRow(0, 2).find('td').at(3).text()).contains('3 %');
-      expect(getTableRow(0, 3).find('td').at(3).text()).contains('1 %');
+      expect(getTableRow(0, 0).find('th').at(5).text()).contains('% Time < 54');
+      expect(getTableRow(0, 1).find('td').at(4).text()).contains('4 %');
+      expect(getTableRow(0, 2).find('td').at(4).text()).contains('3 %');
+      expect(getTableRow(0, 3).find('td').at(4).text()).contains('1 %');
 
-      expect(getTableRow(0, 0).find('th').at(5).text()).contains('% Time < 70');
-      expect(getTableRow(0, 2).find('td').at(4).text()).contains('17 %');
+      expect(getTableRow(0, 0).find('th').at(6).text()).contains('% Time < 70');
+      expect(getTableRow(0, 2).find('td').at(5).text()).contains('17 %');
 
-      expect(getTableRow(0, 0).find('th').at(6).text()).contains('% TIR 70-180');
-      expect(getTableRow(0, 2).find('td').at(5).text()).contains('71 %');
+      expect(getTableRow(0, 0).find('th').at(7).text()).contains('% TIR 70-180');
+      expect(getTableRow(0, 2).find('td').at(6).text()).contains('71 %');
 
-      expect(getTableRow(0, 0).find('th').at(7).text()).contains('% Time in Range');
-      expect(getTableRow(0, 2).find('td').at(6).find('.range-summary-bars').hostNodes()).to.have.lengthOf(1);
+      expect(getTableRow(0, 0).find('th').at(8).text()).contains('% Time in Range');
+      expect(getTableRow(0, 2).find('td').at(7).find('.range-summary-bars').hostNodes()).to.have.lengthOf(1);
 
-      expect(getTableRow(0, 0).find('th').at(8).text()).contains('% Change in TIR');
-      expect(getTableRow(0, 2).find('td').at(7).text()).contains('10');
+      expect(getTableRow(0, 0).find('th').at(9).text()).contains('% Change in TIR');
+      expect(getTableRow(0, 2).find('td').at(8).text()).contains('10');
 
-      expect(getTableRow(0, 0).find('th').at(9).text()).contains('Tags');
-      expect(getTableRow(0, 2).find('td').at(8).text()).contains('test tag 1');
+      expect(getTableRow(0, 0).find('th').at(10).text()).contains('Tags');
+      expect(getTableRow(0, 2).find('td').at(9).text()).contains('test tag 1');
 
       // Should contain a "more" menu that allows opening a patient edit dialog and opening a patient data connections dialog
-      const moreMenuIcon = getTableRow(0, 2).find('td').at(9).find('PopoverMenu').find('Icon').at(0);
-      const popoverMenu = () => wrapper.find(Popover).at(4);
+      const moreMenuCell = getTableRow(0, 2).find('td').at(10);
+      const moreMenu = moreMenuCell.find('PopoverMenu');
+      const moreMenuIcon = moreMenu.find('Icon').at(0);
+      const popoverMenu = () => wrapper.find(Popover).filterWhere(popover => popover.prop('id') === moreMenu.prop('id')).first();
       expect(popoverMenu().props().open).to.be.false;
       moreMenuIcon.simulate('click');
       expect(popoverMenu().props().open).to.be.true;
@@ -646,36 +651,36 @@ describe('TideDashboard', () => {
       expect(defaultProps.trackMetric.callCount).to.equal(2);
 
       // Confirm second table is sorted appropriately
-      expect(getTableRow(1, 0).find('th').at(5).text()).contains('% Time < 70');
-      expect(getTableRow(1, 1).find('td').at(4).text()).contains('9 %');
-      expect(getTableRow(1, 2).find('td').at(4).text()).contains('9 %');
-      expect(getTableRow(1, 3).find('td').at(4).text()).contains('6 %');
+      expect(getTableRow(1, 0).find('th').at(6).text()).contains('% Time < 70');
+      expect(getTableRow(1, 1).find('td').at(5).text()).contains('9 %');
+      expect(getTableRow(1, 2).find('td').at(5).text()).contains('9 %');
+      expect(getTableRow(1, 3).find('td').at(5).text()).contains('6 %');
 
       // Confirm third table is sorted appropriately
-      expect(getTableRow(2, 0).find('th').at(8).text()).contains('% Change in TIR');
-      expect(getTableRow(2, 1).find('td').at(7).text()).contains('26');
-      expect(getTableRow(2, 2).find('td').at(7).text()).contains('25');
-      expect(getTableRow(2, 3).find('td').at(7).text()).contains('24');
+      expect(getTableRow(2, 0).find('th').at(9).text()).contains('% Change in TIR');
+      expect(getTableRow(2, 1).find('td').at(8).text()).contains('26');
+      expect(getTableRow(2, 2).find('td').at(8).text()).contains('25');
+      expect(getTableRow(2, 3).find('td').at(8).text()).contains('24');
 
       // Confirm fourth table is sorted appropriately
-      expect(getTableRow(3, 0).find('th').at(6).text()).contains('% TIR 70-180');
-      expect(getTableRow(3, 1).find('td').at(5).text()).contains('42');
-      expect(getTableRow(3, 2).find('td').at(5).text()).contains('42');
-      expect(getTableRow(3, 3).find('td').at(5).text()).contains('48');
+      expect(getTableRow(3, 0).find('th').at(7).text()).contains('% TIR 70-180');
+      expect(getTableRow(3, 1).find('td').at(6).text()).contains('42');
+      expect(getTableRow(3, 2).find('td').at(6).text()).contains('42');
+      expect(getTableRow(3, 3).find('td').at(6).text()).contains('48');
 
       // Confirm fifth table is sorted appropriately
-      expect(getTableRow(4, 0).find('th').at(3).text()).contains('CGM Use');
-      expect(getTableRow(4, 1).find('td').at(2).text()).contains('57');
-      expect(getTableRow(4, 2).find('td').at(2).text()).contains('66');
-      expect(getTableRow(4, 3).find('td').at(2).text()).contains('69');
+      expect(getTableRow(4, 0).find('th').at(4).text()).contains('CGM Use');
+      expect(getTableRow(4, 1).find('td').at(3).text()).contains('57');
+      expect(getTableRow(4, 2).find('td').at(3).text()).contains('66');
+      expect(getTableRow(4, 3).find('td').at(3).text()).contains('69');
 
       // Confirm sixth table is sorted appropriately
-      expect(getTableRow(5, 0).find('th').at(4).text()).contains('% Time < 54');
-      expect(getTableRow(5, 1).find('td').at(3).text()).contains('0.7 %');
-      expect(getTableRow(5, 2).find('td').at(3).text()).contains('0.6 %');
-      expect(getTableRow(5, 3).find('td').at(3).text()).contains('0.3 %');
-      expect(getTableRow(5, 4).find('td').at(3).text()).contains('0.2 %');
-      expect(getTableRow(5, 5).find('td').at(3).text()).contains('0.1 %');
+      expect(getTableRow(5, 0).find('th').at(5).text()).contains('% Time < 54');
+      expect(getTableRow(5, 1).find('td').at(4).text()).contains('0.7 %');
+      expect(getTableRow(5, 2).find('td').at(4).text()).contains('0.6 %');
+      expect(getTableRow(5, 3).find('td').at(4).text()).contains('0.3 %');
+      expect(getTableRow(5, 4).find('td').at(4).text()).contains('0.2 %');
+      expect(getTableRow(5, 5).find('td').at(4).text()).contains('0.1 %');
 
       // Confirm sixth table is sorted appropriately
       expect(getTableRow(6, 0).find('th').at(2).text()).contains('Days Since Last Data');

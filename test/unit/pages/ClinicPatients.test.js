@@ -369,6 +369,10 @@ describe('ClinicPatients', () => {
                     timeCGMUsePercent: 0.85,
                     timeCGMUseMinutes: 23 * 60,
                     glucoseManagementIndicator: 7.75,
+                    timeInVeryLowPercent: 0.05,
+                    timeInLowPercent: 0.1,
+                    timeInHighPercent: 0.2,
+                    timeInVeryHighPercent: 0.15,
                   } },
                 },
               },
@@ -403,21 +407,37 @@ describe('ClinicPatients', () => {
                       timeCGMUsePercent: 0.70,
                       timeCGMUseMinutes:  7 * 24 * 60,
                       glucoseManagementIndicator: 7.5,
+                      timeInVeryLowPercent: 0.01,
+                      timeInLowPercent: 0.06,
+                      timeInHighPercent: 0.22,
+                      timeInVeryHighPercent: 0.12,
                     },
                     '14d': {
                       timeCGMUsePercent: 0.70,
                       timeCGMUseMinutes:  7 * 24 * 60,
                       glucoseManagementIndicator: 6.5,
+                      timeInVeryLowPercent: 0.02,
+                      timeInLowPercent: 0.08,
+                      timeInHighPercent: 0.25,
+                      timeInVeryHighPercent: 0.1,
                     },
                     '7d': {
                       timeCGMUsePercent: 0.70,
                       timeCGMUseMinutes:  7 * 24 * 60,
                       glucoseManagementIndicator: 5.5,
+                      timeInVeryLowPercent: 0.02,
+                      timeInLowPercent: 0.08,
+                      timeInHighPercent: 0.25,
+                      timeInVeryHighPercent: 0.1,
                     },
                     '1d': {
                       timeCGMUsePercent: 0.70,
                       timeCGMUseMinutes:  7 * 24 * 60,
                       glucoseManagementIndicator: 4.5,
+                      timeInVeryLowPercent: 0.02,
+                      timeInLowPercent: 0.08,
+                      timeInHighPercent: 0.25,
+                      timeInVeryHighPercent: 0.1,
                     },
                   },
                 },
@@ -1346,7 +1366,7 @@ describe('ClinicPatients', () => {
         });
 
         it('should show the standard table columns', () => {
-          const table = wrapper.find(Table);
+          let table = wrapper.find(Table);
           expect(table).to.have.length(1);
 
           const columns = table.find('.MuiTableCell-head');
@@ -1499,20 +1519,23 @@ describe('ClinicPatients', () => {
           expect(columns.at(4).text()).to.equal('GMI');
           assert(columns.at(4).is('#peopleTable-header-cgm-glucoseManagementIndicator'));
 
-          expect(columns.at(5).text()).to.equal('% Time in Range');
-          assert(columns.at(5).is('#peopleTable-header-bgRangeSummary'));
+          expect(columns.at(5).text()).to.equal('GRI');
+          assert(columns.at(5).is('#peopleTable-header-cgm-glycemiaRiskIndex'));
 
-          expect(columns.at(7).text()).to.equal('BGM');
-          assert(columns.at(7).is('#peopleTable-header-bgmTag'));
+          expect(columns.at(6).text()).to.equal('% Time in Range');
+          assert(columns.at(6).is('#peopleTable-header-bgRangeSummary'));
 
-          expect(columns.at(8).text()).to.equal('Avg. Glucose (mg/dL)');
-          assert(columns.at(8).is('#peopleTable-header-bgm-averageGlucoseMmol'));
+          expect(columns.at(8).text()).to.equal('BGM');
+          assert(columns.at(8).is('#peopleTable-header-bgmTag'));
 
-          expect(columns.at(9).text()).to.equal('Lows');
-          assert(columns.at(9).is('#peopleTable-header-bgm-timeInVeryLowRecords'));
+          expect(columns.at(9).text()).to.equal('Avg. Glucose (mg/dL)');
+          assert(columns.at(9).is('#peopleTable-header-bgm-averageGlucoseMmol'));
 
-          expect(columns.at(10).text()).to.equal('Highs');
-          assert(columns.at(10).is('#peopleTable-header-bgm-timeInVeryHighRecords'));
+          expect(columns.at(10).text()).to.equal('Lows');
+          assert(columns.at(10).is('#peopleTable-header-bgm-timeInVeryLowRecords'));
+
+          expect(columns.at(11).text()).to.equal('Highs');
+          assert(columns.at(11).is('#peopleTable-header-bgm-timeInVeryHighRecords'));
 
           const rows = table.find('tbody tr');
           expect(rows).to.have.lengthOf(5);
@@ -1537,11 +1560,18 @@ describe('ClinicPatients', () => {
           expect(rowData(1).at(2).text()).contains('>test tag 1');
           expect(rowData(2).at(2).text()).contains(['>test tag 1', '+2'].join('')); // +1 for tag overflow
 
+          // GRI in fifth column
           // GMI in fifth column
           expect(rowData(0).at(4).text()).contains(emptyStatText);// GMI undefined
           expect(rowData(1).at(4).text()).contains(emptyStatText); // <24h cgm use shows empty text
           expect(rowData(2).at(4).text()).contains('6.5 %');
           expect(rowData(3).at(4).text()).contains(emptyStatText); // <70% cgm use
+
+          // GRI in sixth column
+          expect(rowData(0).at(5).text()).to.equal(emptyStatText);
+          expect(rowData(1).at(5).text()).to.equal(emptyStatText);
+          expect(rowData(2).at(5).text()).to.equal('61');
+          expect(rowData(3).at(5).text()).to.equal(emptyStatText);
 
           // Ensure tags hidden by overflow are visible on hover
           const tagOverflowTrigger = rowData(2).at(2).find('.tag-overflow-trigger').hostNodes();
@@ -1560,36 +1590,36 @@ describe('ClinicPatients', () => {
           expect(overflowTags.at(0).text()).to.equal('test tag 2');
           expect(overflowTags.at(1).text()).to.equal('ttest tag 3');
 
-          // BG summary in sixth column
-          expect(rowData(0).at(5).text()).to.not.contain('CGM Use <24 hours'); // no cgm stats
-          expect(rowData(1).at(5).text()).contains('CGM Use <24 hours'); // 23 hours of data
+          // BG summary in seventh column
+          expect(rowData(0).at(6).text()).to.not.contain('CGM Use <24 hours'); // no cgm stats
+          expect(rowData(1).at(6).text()).contains('CGM Use <24 hours'); // 23 hours of data
 
-          expect(rowData(2).at(5).find('.range-summary-bars').hostNodes()).to.have.lengthOf(1);
-          expect(rowData(2).at(5).find('.range-summary-stripe-overlay').hostNodes()).to.have.lengthOf(0); // normal bars
+          expect(rowData(2).at(6).find('.range-summary-bars').hostNodes()).to.have.lengthOf(1);
+          expect(rowData(2).at(6).find('.range-summary-stripe-overlay').hostNodes()).to.have.lengthOf(0); // normal bars
 
-          expect(rowData(3).at(5).find('.range-summary-bars').hostNodes()).to.have.lengthOf(1);
-          expect(rowData(3).at(5).find('.range-summary-stripe-overlay').hostNodes()).to.have.lengthOf(1); // striped bars for <70% cgm use
+          expect(rowData(3).at(6).find('.range-summary-bars').hostNodes()).to.have.lengthOf(1);
+          expect(rowData(3).at(6).find('.range-summary-stripe-overlay').hostNodes()).to.have.lengthOf(1); // striped bars for <70% cgm use
 
-          // Average glucose and readings/day in ninth column
-          expect(rowData(0).at(8).text()).contains('');
-          expect(rowData(1).at(8).text()).contains('189'); // 10.5 mmol/L -> mg/dL
-          expect(rowData(1).at(8).text()).contains('<1 reading/day');
-          expect(rowData(2).at(8).text()).contains('207'); // 11.5 mmol/L -> mg/dL
-          expect(rowData(2).at(8).text()).contains('1 reading/day');
-          expect(rowData(3).at(8).text()).contains('225'); // 12.5 mmol/L -> mg/dL
-          expect(rowData(3).at(8).text()).contains('2 readings/day');
-
-          // Low events in tenth column
+          // Average glucose and readings/day in tenth column
           expect(rowData(0).at(9).text()).contains('');
-          expect(rowData(1).at(9).text()).contains('1');
-          expect(rowData(2).at(9).text()).contains('3');
-          expect(rowData(3).at(9).text()).contains('0');
+          expect(rowData(1).at(9).text()).contains('189'); // 10.5 mmol/L -> mg/dL
+          expect(rowData(1).at(9).text()).contains('<1 reading/day');
+          expect(rowData(2).at(9).text()).contains('207'); // 11.5 mmol/L -> mg/dL
+          expect(rowData(2).at(9).text()).contains('1 reading/day');
+          expect(rowData(3).at(9).text()).contains('225'); // 12.5 mmol/L -> mg/dL
+          expect(rowData(3).at(9).text()).contains('2 readings/day');
 
           // Low events in eleventh column
           expect(rowData(0).at(10).text()).contains('');
-          expect(rowData(1).at(10).text()).contains('2');
-          expect(rowData(2).at(10).text()).contains('4');
+          expect(rowData(1).at(10).text()).contains('1');
+          expect(rowData(2).at(10).text()).contains('3');
           expect(rowData(3).at(10).text()).contains('0');
+
+          // High events in twelfth column
+          expect(rowData(0).at(11).text()).contains('');
+          expect(rowData(1).at(11).text()).contains('2');
+          expect(rowData(2).at(11).text()).contains('4');
+          expect(rowData(3).at(11).text()).contains('0');
         });
 
         it('should refetch patients with updated sort parameter when sortable column headers are clicked', () => {
@@ -1637,6 +1667,39 @@ describe('ClinicPatients', () => {
           gmiHeader.simulate('click');
           sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({ sort: '+glucoseManagementIndicator', sortType: 'cgm' }));
           sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - GMI sort ascending', { clinicId: 'clinicID123' });
+
+          let griHeader = wrapper.find('#peopleTable-header-cgm-glycemiaRiskIndex .MuiTableSortLabel-root').at(0);
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          defaultProps.trackMetric.resetHistory();
+          griHeader.simulate('click');
+          sinon.assert.notCalled(defaultProps.api.clinics.getPatientsForClinic);
+          sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - GRI sort descending', { clinicId: 'clinicID123' });
+          wrapper.update();
+          table = wrapper.find(Table);
+          expect(table.prop('orderBy')).to.equal('glycemiaRiskIndex');
+          expect(table.prop('order')).to.equal('desc');
+          const emptyStatText = '--';
+          let griValues = table.find('tbody tr').map(row => row.find('.MuiTableCell-root').at(5).text());
+          let numericValues = griValues.filter(value => value !== emptyStatText).map(Number);
+          expect(numericValues).to.deep.equal([...numericValues].sort((a, b) => b - a));
+          expect(griValues.findIndex(value => value === emptyStatText)).to.equal(numericValues.length);
+
+          griHeader = wrapper.find('#peopleTable-header-cgm-glycemiaRiskIndex .MuiTableSortLabel-root').at(0);
+
+          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
+          defaultProps.trackMetric.resetHistory();
+          griHeader.simulate('click');
+          sinon.assert.notCalled(defaultProps.api.clinics.getPatientsForClinic);
+          sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - GRI sort ascending', { clinicId: 'clinicID123' });
+          wrapper.update();
+          table = wrapper.find(Table);
+          expect(table.prop('orderBy')).to.equal('glycemiaRiskIndex');
+          expect(table.prop('order')).to.equal('asc');
+          griValues = table.find('tbody tr').map(row => row.find('.MuiTableCell-root').at(5).text());
+          numericValues = griValues.filter(value => value !== emptyStatText).map(Number);
+          expect(numericValues).to.deep.equal([...numericValues].sort((a, b) => a - b));
+          expect(griValues.findIndex(value => value === emptyStatText)).to.equal(numericValues.length);
 
           const averageGlucoseHeader = table.find('#peopleTable-header-bgm-averageGlucoseMmol .MuiTableSortLabel-root').at(0);
 
@@ -1999,28 +2062,32 @@ describe('ClinicPatients', () => {
 
             const rowData = row => rows().at(row).find('.MuiTableCell-root');
 
-            expect(rowData(2).at(4).text()).contains('6.5 %'); // shows for 14 days
+            expect(rowData(2).at(4).text()).contains('6.5 %'); // GMI shows for 14 days
+            expect(rowData(2).at(5).text()).to.equal('61'); // GRI shows for 14 days
 
             // Open filters popover and set to 30 days
             summaryPeriodFilterTrigger.simulate('click');
             filterOptions().at(1).find('input').last().simulate('change', { target: { name: 'summary-period-filters', value: '30d' } });
             expect(filterOptions().at(3).find('input').props().checked).to.be.true;
             applyButton().simulate('click');
-            expect(rowData(2).at(4).text()).contains('7.5 %'); // shows for 30 days
+            expect(rowData(2).at(4).text()).contains('7.5 %'); // GMI shows for 30 days
+            expect(rowData(2).at(5).text()).to.equal('54'); // GRI shows for 30 days
 
             // Open filters popover and set to 7 days
             summaryPeriodFilterTrigger.simulate('click');
             filterOptions().at(1).find('input').last().simulate('change', { target: { name: 'summary-period-filters', value: '7d' } });
             expect(filterOptions().at(1).find('input').props().checked).to.be.true;
             applyButton().simulate('click');
-            expect(rowData(2).at(4).text()).contains(emptyStatText); // hidden for 7 days
+            expect(rowData(2).at(4).text()).contains(emptyStatText); // GMI hidden for 7 days
+            expect(rowData(2).at(5).text()).to.equal(emptyStatText); // GRI hidden for 7 days
 
             // Open filters popover and set to 1 day
             summaryPeriodFilterTrigger.simulate('click');
             filterOptions().at(1).find('input').last().simulate('change', { target: { name: 'summary-period-filters', value: '1d' } });
             expect(filterOptions().at(0).find('input').props().checked).to.be.true;
             applyButton().simulate('click');
-            expect(rowData(2).at(4).text()).contains(emptyStatText); // hidden for 1 day
+            expect(rowData(2).at(4).text()).contains(emptyStatText); // GMI hidden for 1 day
+            expect(rowData(2).at(5).text()).to.equal(emptyStatText); // GRI hidden for 1 day
           });
         });
 
@@ -2243,17 +2310,17 @@ describe('ClinicPatients', () => {
 
             const columns = table.find('.MuiTableCell-head');
 
-            expect(columns.at(8).text()).to.equal('Avg. Glucose (mmol/L)');
-            assert(columns.at(8).is('#peopleTable-header-bgm-averageGlucoseMmol'));
+            expect(columns.at(9).text()).to.equal('Avg. Glucose (mmol/L)');
+            assert(columns.at(9).is('#peopleTable-header-bgm-averageGlucoseMmol'));
 
             const rows = table.find('tbody tr');
             expect(rows).to.have.lengthOf(5);
 
             const rowData = row => rows.at(row).find('.MuiTableCell-root');
 
-            expect(rowData(1).at(8).text()).contains('10.5');
-            expect(rowData(2).at(8).text()).contains('11.5');
-            expect(rowData(3).at(8).text()).contains('12.5');
+            expect(rowData(1).at(9).text()).contains('10.5');
+            expect(rowData(2).at(9).text()).contains('11.5');
+            expect(rowData(3).at(9).text()).contains('12.5');
           });
 
           it('should show the bg range filters in mmol/L units', () => {

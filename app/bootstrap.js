@@ -14,6 +14,7 @@
  */
 
 /* global __LAUNCHDARKLY_CLIENT_TOKEN__ */
+/* global __LAUNCHDARKLY_OVERRIDES__ */
 
 import React from 'react';
 import { render } from 'react-dom';
@@ -98,27 +99,48 @@ appContext.init = callback => {
 };
 
 appContext.render = async Component => {
-  const LDProvider = await asyncWithLDProvider({
-    clientSideID: __LAUNCHDARKLY_CLIENT_TOKEN__,
-    context: ldContext,
-    options: { streaming: true },
-    flags: {
-      'showAbbottProvider': false,
-      'showExtremeHigh': false,
-      'showPrescriptions': false,
-      'showRpmReport': false,
-      'showSummaryDashboard': false,
-      'showSummaryDashboardLastReviewed': false,
-      'showTideDashboard': false,
-      'showTideDashboardLastReviewed': false,
-      'showTideDashboardPatientDrawer': false,
-    },
-  });
+  let launchDarklyOverrides = {};
+
+  if (typeof __LAUNCHDARKLY_OVERRIDES__ !== 'undefined') {
+    try {
+      launchDarklyOverrides =
+        typeof __LAUNCHDARKLY_OVERRIDES__ === 'string'
+          ? JSON.parse(__LAUNCHDARKLY_OVERRIDES__)
+          : (__LAUNCHDARKLY_OVERRIDES__ || {});
+    } catch (e) {
+      launchDarklyOverrides = {};
+    }
+  }
+
+  const clientSideID = __LAUNCHDARKLY_CLIENT_TOKEN__;
+  let ProviderComponent;
+
+  if (clientSideID) {
+    ProviderComponent = await asyncWithLDProvider({
+      clientSideID,
+      context: ldContext,
+      options: { streaming: true },
+      flags: {
+        'showAbbottProvider': false,
+        'showExtremeHigh': false,
+        'showPrescriptions': false,
+        'showRpmReport': false,
+        'showSummaryDashboard': false,
+        'showSummaryDashboardLastReviewed': false,
+        'showTideDashboard': false,
+        'showTideDashboardLastReviewed': false,
+        'showTideDashboardPatientDrawer': false,
+        ...launchDarklyOverrides,
+      },
+    });
+  } else {
+    ProviderComponent = ({ children }) => <>{children}</>;
+  }
 
   render(
-    <LDProvider>
+    <ProviderComponent>
       <Component store={appContext.store} routing={appContext.routing} />,
-    </LDProvider>,
+    </ProviderComponent>,
     document.getElementById('app'),
   );
 };

@@ -16,7 +16,7 @@ import tidepoolPlusLogo from '../images/tidepool+Logo.svg';
 export default withTranslation()(class extends React.Component {
   static propTypes = {
     clinicFlowActive: PropTypes.bool,
-    clinics: PropTypes.array,
+    clinics: PropTypes.object,
     currentPage: PropTypes.string,
     user: PropTypes.object,
     fetchingUser: PropTypes.bool,

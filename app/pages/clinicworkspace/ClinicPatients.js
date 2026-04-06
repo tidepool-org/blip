@@ -69,6 +69,8 @@ import { TagList } from '../../components/elements/Tag';
 import Pagination from '../../components/elements/Pagination';
 import TextInput from '../../components/elements/TextInput';
 import BgSummaryCell from '../../components/clinic/BgSummaryCell';
+import { GriCell } from '../../components/clinic/GriCell';
+import { getGriPercentile } from '../../core/data/griPercentiles';
 import PatientForm from '../../components/clinic/PatientForm';
 import PatientLastReviewed from '../../components/clinic/PatientLastReviewed';
 import TideDashboardConfigForm, { validateTideConfig } from '../../components/clinic/TideDashboardConfigForm';
@@ -117,7 +119,9 @@ import Banner from '../../components/elements/Banner';
 import colorPalette from '../../themes/colorPalette';
 import noop from 'lodash/noop';
 
-const { Loader } = vizComponents;
+const { Loader, GriGrid } = vizComponents;
+
+const isBillTesting = typeof __IS_BILL_TESTING__ !== 'undefined' && __IS_BILL_TESTING__;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels, formatBgValue } = vizUtils.bg;
 const { getLocalizedCeiling, formatTimeAgo } = vizUtils.datetime;
 
@@ -678,13 +682,23 @@ export const ClinicPatients = (props) => {
   const previousFetchOptions = usePrevious(patientFetchOptions);
   const [tideDashboardConfig] = useLocalStorage('tideDashboardConfig', {});
   const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
-  const { showExtremeHigh, showSummaryDashboard, showSummaryDashboardLastReviewed, showTideDashboard, showRpmReport } = useFlags();
+  const {
+    showExtremeHigh,
+    showSummaryDashboard,
+    showSummaryDashboardLastReviewed,
+    showTideDashboard,
+    showRpmReport,
+  } = useFlags();
+
+  const effectiveShowSummaryDashboard = isBillTesting ? true : showSummaryDashboard;
+  const effectiveShowSummaryDashboardLastReviewed = isBillTesting ? true : showSummaryDashboardLastReviewed;
+  const effectiveShowTideDashboard = isBillTesting ? true : showTideDashboard;
   const [showSummaryData, setShowSummaryData] = useState();
   const previousShowSummaryData = usePrevious(showSummaryData)
   const showRpmReportUI = showSummaryData && (showRpmReport || clinic?.entitlements?.rpmReport);
-  const showTideDashboardUI = showSummaryData && (showTideDashboard || clinic?.entitlements?.tideDashboard);
-  const ldClient = useLDClient();
-  const ldContext = ldClient.getContext();
+  const showTideDashboardUI = isBillTesting || (showSummaryData && (effectiveShowTideDashboard || clinic?.entitlements?.tideDashboard));
+  const ldClient = useLDClient?.();
+  const ldContext = ldClient?.getContext ? ldClient.getContext() : {};
 
   const defaultPatientFetchOptions = useMemo(
     () => {
@@ -696,14 +710,14 @@ export const ClinicPatients = (props) => {
       // We hold off setting the sort on initial render to allow us to properly detect what to sort
       // by (unless we already have the showDashboard entitlements figured out).
       // This prevents the a premature patient fetch to begin with an incorrect default sort.
-      if (!isFirstRender || (isBoolean(showSummaryDashboard) && isBoolean(clinic?.entitlements?.summaryDashboard))) {
-        options.sort = showSummaryData || showSummaryDashboard || clinic?.entitlements?.summaryDashboard ? '-lastData' : '+fullName';
+      if (!isFirstRender || (isBoolean(effectiveShowSummaryDashboard) && isBoolean(clinic?.entitlements?.summaryDashboard))) {
+        options.sort = showSummaryData || effectiveShowSummaryDashboard || clinic?.entitlements?.summaryDashboard ? '-lastData' : '+fullName';
         options.sortType = 'cgm';
       }
 
       return options;
     },
-    [showSummaryData]
+    [showSummaryData, effectiveShowSummaryDashboard, clinic?.entitlements?.summaryDashboard]
   );
 
   const [activeSort, setActiveSort] = useLocalStorage('activePatientSort', pick(defaultPatientFetchOptions, ['sort', 'sortType']), true);
@@ -712,6 +726,7 @@ export const ClinicPatients = (props) => {
     fullName: 'asc',
     birthDate: 'asc',
     glucoseManagementIndicator: 'desc',
+    glycemiaRiskIndex: 'desc',
     averageGlucoseMmol: 'desc',
     lastData: 'desc',
     lastReviewed: 'asc',
@@ -730,6 +745,11 @@ export const ClinicPatients = (props) => {
       ),
     [clinicBgUnits]
   );
+
+  const currentSort = patientFetchOptions.sort || defaultPatientFetchOptions.sort || '';
+  const currentSortField = currentSort.substring(1);
+  const currentSortOrder = currentSort.startsWith('-') ? 'desc' : 'asc';
+  const isLocalGriSort = showSummaryData && currentSortField === 'glycemiaRiskIndex';
 
   const [activeFilters, setActiveFilters] = useClinicPatientsFilters();
   const [pendingFilters, setPendingFilters] = useState({ ...defaultFilterState, ...activeFilters });
@@ -1115,10 +1135,30 @@ export const ClinicPatients = (props) => {
       !isEmpty(patientFetchOptions) &&
       !(patientFetchOptions === previousFetchOptions)
     ) {
+      const isLocalSortOnlyChange = Boolean(
+        isLocalGriSort &&
+        previousFetchOptions &&
+        patientFetchOptions.sort !== previousFetchOptions.sort &&
+        isEqual(
+          omit(patientFetchOptions, ['sort', 'sortType', 'offset']),
+          omit(previousFetchOptions, ['sort', 'sortType', 'offset'])
+        )
+      );
+
+      if (isLocalSortOnlyChange) return;
+
       const fetchOptions = { ...patientFetchOptions };
       if (isEmpty(fetchOptions.search)) {
         delete fetchOptions.search;
       }
+
+      if (isLocalGriSort) {
+        const fallbackSort = defaultPatientFetchOptions.sort || '-lastData';
+        const fallbackSortType = defaultPatientFetchOptions.sortType || 'cgm';
+        fetchOptions.sort = fallbackSort;
+        fetchOptions.sortType = fallbackSortType;
+      }
+
       dispatch(
         actions.async.fetchPatientsForClinic(api, clinic.id, fetchOptions)
       );
@@ -1127,16 +1167,23 @@ export const ClinicPatients = (props) => {
     api,
     clinic,
     dispatch,
+    defaultPatientFetchOptions,
     fetchingPatientsForClinic,
     loggedInUserId,
     patientFetchOptions,
     previousClinic?.id,
     previousFetchOptions,
+    isLocalGriSort,
   ]);
 
   useEffect(() => {
-    setShowSummaryData(showSummaryDashboard || clinic?.entitlements?.summaryDashboard)
-  }, [showSummaryDashboard, clinic?.entitlements]);
+    if (isBillTesting) {
+      setShowSummaryData(true);
+      return;
+    }
+
+    setShowSummaryData(effectiveShowSummaryDashboard || clinic?.entitlements?.summaryDashboard);
+  }, [effectiveShowSummaryDashboard, clinic?.entitlements]);
 
   useEffect(() => {
     // Hold off on generating the fetch options until we know if we need to include summary filters
@@ -1427,10 +1474,9 @@ export const ClinicPatients = (props) => {
   }
 
   const handleSortChange = useCallback((newOrderBy, field) => {
-    const sort = patientFetchOptions.sort || defaultPatientFetchOptions.sort;
     const [fieldKey, sortType = 'cgm'] = field.split('.').reverse();
-    const currentOrder = sort[0];
-    const currentOrderBy = sort.substring(1);
+    const currentOrder = currentSort[0];
+    const currentOrderBy = currentSort.substring(1);
     let newOrder = defaultSortOrders[fieldKey] === 'desc' ? '-' : '+';
     if (newOrderBy === currentOrderBy) newOrder = currentOrder === '+' ? '-' : '+';
     const newSort = `${newOrder}${newOrderBy}`;
@@ -1449,6 +1495,7 @@ export const ClinicPatients = (props) => {
         fullName: 'Patient details',
         lastData: 'Data recency',
         glucoseManagementIndicator: 'GMI',
+        glycemiaRiskIndex: 'GRI',
         averageGlucoseMmol: 'Average glucose',
         timeInVeryLowRecords: 'Time in very low',
         timeInVeryHighRecords: 'Time in very high',
@@ -1461,13 +1508,12 @@ export const ClinicPatients = (props) => {
       setActiveSort({ sort: newSort, sortType });
     }
   }, [
-    defaultPatientFetchOptions.sort,
+    activeSummaryPeriod,
+    currentSort,
     defaultSortOrders,
-    patientFetchOptions.sort,
     prefixPopHealthMetric,
     selectedClinicId,
     showSummaryData,
-    activeSummaryPeriod,
     trackMetric,
     setActiveSort,
   ]);
@@ -1538,8 +1584,13 @@ export const ClinicPatients = (props) => {
       activeFilters.patientTags?.length,
     ], null, 0, undefined).length;
 
-    const sortedSiteFilterOptions = clinicSitesFilterOptions?.toSorted((a, b) => utils.compareLabels(a.label, b.label)) || [];
-    const sortedTagFilterOptions = patientTagsFilterOptions?.toSorted((a, b) => utils.compareLabels(a.label, b.label)) || [];
+    const sortedSiteFilterOptions = clinicSitesFilterOptions
+      ? [...clinicSitesFilterOptions].sort((a, b) => utils.compareLabels(a.label, b.label))
+      : [];
+
+    const sortedTagFilterOptions = patientTagsFilterOptions
+      ? [...patientTagsFilterOptions].sort((a, b) => utils.compareLabels(a.label, b.label))
+      : [];
 
     const VisibilityIcon = isPatientListVisible ? VisibilityOffOutlinedIcon : VisibilityOutlinedIcon;
     const hoursAgo = Math.floor(patientFetchMinutesAgo / 60);
@@ -2043,7 +2094,7 @@ export const ClinicPatients = (props) => {
                       sx={{ fontSize: 0, lineHeight: 1.3 }}
                     >
                       <Flex sx={{ alignItems: 'center', gap: 1 }}>
-                        {showTideDashboard && !clinic?.patientTags?.length && <Icon
+                        {effectiveShowTideDashboard && !clinic?.patientTags?.length && <Icon
                           variant="static"
                           icon={InfoOutlinedIcon}
                           sx={{ fontSize: '14px' }}
@@ -2536,7 +2587,7 @@ export const ClinicPatients = (props) => {
           <MediumTitle id="dialog-title">{t('Remove {{name}}', { name: fullName })}</MediumTitle>
         </DialogTitle>
 
-        <DialogContent>
+        <DialogContent divider={false}>
           <Trans className="ModalOverlay-content" i18nKey="html.peopletable-remove-patient-confirm">
             <Body1>
               Are you sure you want to remove patient: {{fullName}} from your list?
@@ -2945,7 +2996,9 @@ export const ClinicPatients = (props) => {
   ]);
 
   const renderClinicSitesDialog = useCallback(() => {
-    const orderedSites = clinic?.sites?.toSorted((a, b) => utils.compareLabels(a.name, b.name)) || [];
+    const orderedSites = clinic?.sites
+      ? [...clinic.sites].sort((a, b) => utils.compareLabels(a.name, b.name))
+      : [];
 
     return (
       <Dialog
@@ -3112,7 +3165,9 @@ export const ClinicPatients = (props) => {
   ]);
 
   const renderClinicPatientTagsDialog = useCallback(() => {
-    const orderedTags = clinic?.patientTags?.toSorted((a, b) => utils.compareLabels(a.name, b.name)) || [];
+    const orderedTags = clinic?.patientTags
+      ? [...clinic.patientTags].sort((a, b) => utils.compareLabels(a.name, b.name))
+      : [];
 
     return (
       <Dialog
@@ -3764,6 +3819,56 @@ export const ClinicPatients = (props) => {
     );
   }, [t, timePrefs]);
 
+  const calculateGriMetrics = useCallback(stats => {
+    if (!stats) return null;
+
+    const rangeValues = [
+      stats.timeInVeryLowPercent,
+      stats.timeInLowPercent,
+      stats.timeInHighPercent,
+      stats.timeInVeryHighPercent,
+    ];
+
+    if (!rangeValues.some(value => value != null)) return null;
+
+    const toPercent = value => (Number(value) || 0) * 100;
+    const veryLow = toPercent(stats.timeInVeryLowPercent);
+    const low = toPercent(stats.timeInLowPercent);
+    const high = toPercent(stats.timeInHighPercent);
+    const veryHigh = toPercent(stats.timeInVeryHighPercent);
+
+    const hypoglycemiaComponent = Math.min(100, veryLow + (0.8 * low));
+    const hyperglycemiaComponent = Math.min(100, veryHigh + (0.5 * high));
+    const glycemiaRiskIndex = Math.min(100, (3 * hypoglycemiaComponent) + (1.6 * hyperglycemiaComponent));
+
+    if (!Number.isFinite(glycemiaRiskIndex)) return null;
+
+    return {
+      glycemiaRiskIndex,
+      hypoglycemiaComponent,
+      hyperglycemiaComponent,
+    };
+  }, []);
+
+  const getDisplayableGriMetrics = useCallback(periodStats => {
+    if (!periodStats) return null;
+
+    const cgmUsePercent = periodStats?.timeCGMUsePercent || 0;
+    const cgmHours = (periodStats?.timeCGMUseMinutes || 0) / 60;
+    const minCgmHours = 24;
+    const minCgmPercent = 0.7;
+
+    if (
+      includes(['1d', '7d'], activeSummaryPeriod) ||
+      cgmUsePercent < minCgmPercent ||
+      cgmHours < minCgmHours
+    ) {
+      return null;
+    }
+
+    return calculateGriMetrics(periodStats);
+  }, [activeSummaryPeriod, calculateGriMetrics]);
+
   const renderGMI = useCallback(({ summary }) => {
     const cgmUsePercent = (summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeCGMUsePercent || 0);
     const cgmHours = (summary?.cgmStats?.periods?.[activeSummaryPeriod]?.timeCGMUseMinutes || 0) / 60;
@@ -3771,7 +3876,7 @@ export const ClinicPatients = (props) => {
     const minCgmHours = 24;
     const minCgmPercent = 0.7;
 
-    let formattedGMI = gmi ? utils.formatDecimal(gmi, 1) : statEmptyText;
+    let formattedGMI = Number.isFinite(gmi) ? utils.formatDecimal(gmi, 1) : statEmptyText;
 
     if (includes(['1d', '7d'], activeSummaryPeriod)
       || cgmUsePercent < minCgmPercent
@@ -3785,6 +3890,146 @@ export const ClinicPatients = (props) => {
       </Box>
     );
   }, [activeSummaryPeriod]);
+
+  const renderGRI = useCallback(({ summary, patient }) => {
+    const periodStats = summary?.cgmStats?.periods?.[activeSummaryPeriod];
+    const griMetrics = getDisplayableGriMetrics(periodStats);
+
+    const currentGri = griMetrics?.glycemiaRiskIndex != null
+      ? Number(utils.formatDecimal(griMetrics.glycemiaRiskIndex, 0))
+      : null;
+
+    // TODO: Replace mock data with real historical GRI data from backend
+    // Generate mock history based on current GRI (for demo purposes)
+    const generateMockHistory = (current) => {
+      if (current === null) return [];
+
+      // Create 6 historical points with some variation
+      const history = [];
+      const variance = 8; // +/- variance
+
+      for (let i = 0; i < 6; i++) {
+        const trend = (current - 35) * 0.15; // Trend toward current value
+        const randomVariance = (Math.random() - 0.5) * variance;
+        const value = Math.max(10, Math.min(100, current - (5 - i) * trend + randomVariance));
+
+        // Generate date labels for last 6 periods (2-week periods)
+        const weeksAgo = (5 - i) * 2;
+        const endDate = moment().subtract(weeksAgo, 'weeks').format('YYYY-MM-DD');
+        const startDate = moment().subtract(weeksAgo + 2, 'weeks').format('YYYY-MM-DD');
+
+        history.push({
+          value: Math.round(value),
+          label: `${startDate} – ${endDate}`,
+        });
+      }
+
+      return history;
+    };
+
+    const griHistory = generateMockHistory(currentGri);
+
+    // Fallback to old display if no GRI data
+    if (currentGri === null || griHistory.length === 0) {
+      return (
+        <Box classname="patient-gri">
+          <Text sx={{ fontWeight: 'medium' }}>{statEmptyText}</Text>
+        </Box>
+      );
+    }
+
+    // Render function for GRI value with optional popover
+    const renderGriValueWithPopover = (griValue) => {
+      const griValueContent = (
+        <Box classname="patient-gri">
+          <Text sx={{ fontWeight: 'medium' }}>{griValue}</Text>
+        </Box>
+      );
+
+      if (!griMetrics) return griValueContent;
+
+      return (
+        <PopoverElement
+          id={`gri-grid-popover-${activeSummaryPeriod}`}
+          triggerOnHover
+          popoverProps={{
+            anchorOrigin: {
+              vertical: 'bottom',
+              horizontal: 'center',
+            },
+            transformOrigin: {
+              vertical: 'top',
+              horizontal: 'center',
+            },
+            disableRestoreFocus: true,
+            borderRadius: `${radii.input}px`,
+            padding: 0,
+          }}
+          popoverContent={(
+            <Box sx={{ padding: 2 }}>
+              <GriGrid
+                width={300}
+                height={240}
+                point={{
+                  glycemiaRiskIndex: griMetrics.glycemiaRiskIndex,
+                  hypoglycemiaComponent: griMetrics.hypoglycemiaComponent,
+                  hyperglycemiaComponent: griMetrics.hyperglycemiaComponent,
+                }}
+              />
+              {(griMetrics?.hypoglycemiaComponent != null || griMetrics?.hyperglycemiaComponent != null) && (
+                <Box sx={{ marginTop: 2, paddingTop: 2, borderTop: '1px solid #e5e7eb', fontSize: '12px' }}>
+                  <Text sx={{ fontWeight: 600, marginBottom: 1, display: 'block' }}>Population Comparison:</Text>
+                  {griMetrics?.hypoglycemiaComponent != null && (
+                    <Box sx={{ marginBottom: 1 }}>
+                      <Text>
+                        <strong>Hypoglycemia:</strong> {griMetrics.hypoglycemiaComponent.toFixed(1)}%
+                        {(() => {
+                          const hypoPercentile = getGriPercentile(griMetrics.hypoglycemiaComponent, 'hypo');
+                          return hypoPercentile != null ? ` (${Math.round(hypoPercentile)}th percentile)` : '';
+                        })()}
+                      </Text>
+                    </Box>
+                  )}
+                  {griMetrics?.hyperglycemiaComponent != null && (
+                    <Box>
+                      <Text>
+                        <strong>Hyperglycemia:</strong> {griMetrics.hyperglycemiaComponent.toFixed(1)}%
+                        {(() => {
+                          const hyperPercentile = getGriPercentile(griMetrics.hyperglycemiaComponent, 'hyper');
+                          return hyperPercentile != null ? ` (${Math.round(hyperPercentile)}th percentile)` : '';
+                        })()}
+                      </Text>
+                    </Box>
+                  )}
+                </Box>
+              )}
+            </Box>
+          )}
+        >
+          {griValueContent}
+        </PopoverElement>
+      );
+    };
+
+    // Render GriCell with sparkline
+    return (
+      <GriCell
+        currentGri={currentGri}
+        history={griHistory}
+        hypoComponent={griMetrics?.hypoglycemiaComponent}
+        hyperComponent={griMetrics?.hyperglycemiaComponent}
+        renderGriValue={renderGriValueWithPopover}
+        onClick={() => {
+          // Navigate to patient detail (reuse existing patient navigation logic)
+          const patientId = patient?.id;
+          if (patientId) {
+            trackMetric(`${prefixPopHealthMetric} - Navigate to patient from GRI cell`);
+            dispatch(push(`/clinic-workspace/${selectedClinicId}/patient/${patientId}/data`));
+          }
+        }}
+      />
+    );
+  }, [activeSummaryPeriod, getDisplayableGriMetrics, radii.input, dispatch, selectedClinicId, trackMetric, prefixPopHealthMetric]);
 
   const renderPatientTags = useCallback(patient => (
     <PatientTags
@@ -4009,6 +4254,16 @@ export const ClinicPatients = (props) => {
             className: 'group-left',
           },
           {
+            title: t('GRI'),
+            field: 'cgm.glycemiaRiskIndex',
+            align: 'left',
+            sortable: true,
+            defaultOrder: defaultSortOrders.glycemiaRiskIndex,
+            sortBy: 'glycemiaRiskIndex',
+            render: renderGRI,
+            className: 'group-center',
+          },
+          {
             title: t('% Time in Range'),
             field: 'bgRangeSummary',
             align: 'center',
@@ -4084,7 +4339,7 @@ export const ClinicPatients = (props) => {
         ]
       );
 
-      if (showSummaryDashboardLastReviewed) {
+      if (effectiveShowSummaryDashboardLastReviewed) {
         cols.splice(12, 0, {
           title: t('Last Reviewed'),
           field: 'lastReviewed',
@@ -4102,6 +4357,7 @@ export const ClinicPatients = (props) => {
     renderAverageGlucose,
     renderBGEvent,
     renderBgRangeSummary,
+    renderGRI,
     renderGMI,
     renderLastReviewed,
     renderLastDataDate,
@@ -4110,7 +4366,7 @@ export const ClinicPatients = (props) => {
     renderPatient,
     renderPatientTags,
     showSummaryData,
-    showSummaryDashboardLastReviewed,
+    effectiveShowSummaryDashboardLastReviewed,
     t,
     activeFilters.lastDataType,
     defaultSortOrders.averageGlucoseMmol,
@@ -4122,7 +4378,53 @@ export const ClinicPatients = (props) => {
     defaultSortOrders.timeInVeryLowRecords
   ]);
 
-  const data = useMemo(() => orderBy(values(clinic?.patients), 'sortIndex'), [clinic?.patients]);
+  const data = useMemo(() => {
+    const patientList = orderBy(values(clinic?.patients), 'sortIndex');
+
+    if (!showSummaryData) return patientList;
+
+    const enrichedList = patientList.map(patient => {
+      const periodStats = patient?.summary?.cgmStats?.periods?.[activeSummaryPeriod];
+      const griMetrics = getDisplayableGriMetrics(periodStats);
+      const existingCgm = patient?.cgm || {};
+
+      if (Number.isFinite(griMetrics?.glycemiaRiskIndex)) {
+        if (existingCgm.glycemiaRiskIndex === griMetrics.glycemiaRiskIndex) return patient;
+
+        return {
+          ...patient,
+          cgm: { ...existingCgm, glycemiaRiskIndex: griMetrics.glycemiaRiskIndex },
+        };
+      }
+
+      if (existingCgm.glycemiaRiskIndex == null) return patient;
+
+      const { glycemiaRiskIndex, ...restCgm } = existingCgm;
+      return {
+        ...patient,
+        cgm: { ...restCgm },
+      };
+    });
+
+    if (!isLocalGriSort) return enrichedList;
+
+    return orderBy(
+      enrichedList,
+      patient => {
+        const value = patient?.cgm?.glycemiaRiskIndex;
+        if (!Number.isFinite(value)) return currentSortOrder === 'asc' ? Infinity : -Infinity;
+        return value;
+      },
+      [currentSortOrder]
+    );
+  }, [
+    activeSummaryPeriod,
+    clinic?.patients,
+    currentSortOrder,
+    getDisplayableGriMetrics,
+    isLocalGriSort,
+    showSummaryData,
+  ]);
 
   const tableStyle = useMemo(() => ({
     fontSize: showSummaryData ? 0 : 1,
@@ -4136,7 +4438,7 @@ export const ClinicPatients = (props) => {
   const renderPeopleTable = useCallback(() => {
     const pageCount = Math.ceil(clinic?.fetchedPatientCount / patientFetchOptions.limit);
     const page = Math.ceil(patientFetchOptions.offset / patientFetchOptions.limit) + 1;
-    const sort = patientFetchOptions.sort || defaultPatientFetchOptions.sort;
+    const sort = currentSort;
 
     const patientListQueryState = getPatientListQueryState(activeFilters, patientListSearchTextInput);
 
@@ -4200,7 +4502,7 @@ export const ClinicPatients = (props) => {
     clinic?.fetchedPatientCount,
     columns,
     data,
-    defaultPatientFetchOptions.sort,
+    currentSort,
     handlePageChange,
     handleSortChange,
     loading,

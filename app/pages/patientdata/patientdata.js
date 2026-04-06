@@ -1587,6 +1587,7 @@ export const PatientDataClass = createReactClass({
         stats.push(commonStats.carbs);
         stats.push(commonStats.averageDailyDose);
         cbgSelected && stats.push(commonStats.glucoseManagementIndicator);
+        cbgSelected && stats.push(commonStats.glycemiaRiskIndex);
         stats.push(commonStats.standardDev);
         stats.push(commonStats.coefficientOfVariation);
         stats.push(commonStats.bgExtents);
@@ -1600,6 +1601,7 @@ export const PatientDataClass = createReactClass({
         isAutomatedBasalDevice && stats.push(commonStats.timeInAuto);
         isSettingsOverrideDevice && stats.push(commonStats.timeInOverride);
         stats.push(commonStats.carbs);
+        cbgSelected && stats.push(commonStats.glycemiaRiskIndex);
         cbgSelected && stats.push(commonStats.standardDev);
         cbgSelected && stats.push(commonStats.coefficientOfVariation);
         break;
@@ -1638,6 +1640,7 @@ export const PatientDataClass = createReactClass({
         isAutomatedBasalDevice && stats.push(commonStats.timeInAuto);
         isSettingsOverrideDevice && stats.push(commonStats.timeInOverride);
         cbgSelected && stats.push(commonStats.glucoseManagementIndicator);
+        cbgSelected && stats.push(commonStats.glycemiaRiskIndex);
         stats.push(commonStats.standardDev);
         stats.push(commonStats.coefficientOfVariation);
         stats.push(commonStats.bgExtents);

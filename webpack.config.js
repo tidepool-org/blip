@@ -148,6 +148,8 @@ const plugins = [
     __VERSION__: JSON.stringify(VERSION),
     __ROLLBAR_POST_CLIENT_TOKEN__: JSON.stringify(ROLLBAR_POST_CLIENT_TOKEN),
     __LAUNCHDARKLY_CLIENT_TOKEN__: JSON.stringify(launchDarklyClientToken),
+    __LAUNCHDARKLY_OVERRIDES__: JSON.stringify(_.get(optional('./config/local'), 'launchDarklyOverrides', {})),
+    __IS_BILL_TESTING__: JSON.stringify(_.get(optional('./config/local'), 'isBillTesting', false)),
     __VERSION_SHA__: JSON.stringify(VERSION_SHA),
     __DEV__: isDev,
     __TEST__: isTest,
@@ -304,6 +306,9 @@ module.exports = {
   resolve,
   resolveLoader: resolve,
   cache: isDev,
+  ignoreWarnings: [
+    warning => warning?.module?.resource?.includes(`${path.sep}node_modules${path.sep}optional${path.sep}optional.js`),
+  ],
   watchOptions: {
     ignored: /node_modules([\\]+|\/)+(?!(tideline|tidepool-platform-client|@tidepool\/viz))|(tideline|tidepool-platform-client|@tidepool\/viz)([\\]+|\/)node_modules/,
   },

@@ -51,6 +51,7 @@ import TideDashboardConfigForm, { validateTideConfig } from '../../components/cl
 import BgSummaryCell from '../../components/clinic/BgSummaryCell';
 import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
 import Popover from '../../components/elements/Popover';
+import PopoverElement from '../../components/elements/PopoverElement';
 import PopoverMenu from '../../components/elements/PopoverMenu';
 import RadioGroup from '../../components/elements/RadioGroup';
 import DeltaBar from '../../components/elements/DeltaBar';
@@ -82,7 +83,8 @@ import DataInIcon from '../../core/icons/DataInIcon.svg';
 import { colors, fontWeights, radii } from '../../themes/baseTheme';
 import PatientLastReviewed from '../../components/clinic/PatientLastReviewed';
 
-const { Loader } = vizComponents;
+const { Loader, GriGrid } = vizComponents;
+const isBillTesting = typeof __IS_BILL_TESTING__ !== 'undefined' && __IS_BILL_TESTING__;
 const { formatBgValue } = vizUtils.bg;
 const { formatStatsPercentage } = vizUtils.stat;
 
@@ -272,8 +274,8 @@ const TideDashboardSection = React.memo(props => {
     setSelectedPatient,
     setShowDataConnectionsModal,
     setShowEditPatientDialog,
-    showTideDashboardLastReviewed,
-    showTideDashboardPatientDrawer,
+    shouldShowTideDashboardLastReviewed,
+    shouldShowTideDashboardPatientDrawer,
     t,
     trackMetric,
   } = props;
@@ -329,7 +331,7 @@ const TideDashboardSection = React.memo(props => {
 
       const isValidAgpPeriod = ['7d', '14d', '30d'].includes(config?.period);
 
-      if (showTideDashboardPatientDrawer && isValidAgpPeriod) {
+      if (shouldShowTideDashboardPatientDrawer && isValidAgpPeriod) {
         const { search, pathname } = location;
         const params = new URLSearchParams(search);
         params.set('drawerPatientId', patient.id);
@@ -340,7 +342,7 @@ const TideDashboardSection = React.memo(props => {
 
       dispatch(push(`/patients/${patient?.id}/data/trends?dashboard=tide`));
     }
-  }, [dispatch, trackMetric, showTideDashboardPatientDrawer, config]);
+  }, [dispatch, trackMetric, shouldShowTideDashboardPatientDrawer, config]);
 
   const handleEditPatientDataConnections = useCallback((patient) => {
     editPatientDataConnections(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal, 'dexcom connection status');
@@ -398,6 +400,97 @@ const TideDashboardSection = React.memo(props => {
       </Box>
     );
   }, [config?.period]);
+
+  const calculateGriMetrics = useCallback(summary => {
+    if (!summary) return null;
+
+    const rangeValues = [
+      summary.timeInVeryLowPercent,
+      summary.timeInLowPercent,
+      summary.timeInHighPercent,
+      summary.timeInVeryHighPercent,
+    ];
+
+    if (!rangeValues.some(value => value != null)) return null;
+
+    const toPercent = value => (Number(value) || 0) * 100;
+    const veryLow = toPercent(summary.timeInVeryLowPercent);
+    const low = toPercent(summary.timeInLowPercent);
+    const high = toPercent(summary.timeInHighPercent);
+    const veryHigh = toPercent(summary.timeInVeryHighPercent);
+
+    const hypoglycemiaComponent = Math.min(100, veryLow + (0.8 * low));
+    const hyperglycemiaComponent = Math.min(100, veryHigh + (0.5 * high));
+    const glycemiaRiskIndex = Math.min(100, (3 * hypoglycemiaComponent) + (1.6 * hyperglycemiaComponent));
+
+    if (!Number.isFinite(glycemiaRiskIndex)) return null;
+
+    return {
+      glycemiaRiskIndex,
+      hypoglycemiaComponent,
+      hyperglycemiaComponent,
+    };
+  }, []);
+
+  const renderGRI = useCallback(summary => {
+    const griMetrics = calculateGriMetrics(summary);
+    const cgmUsePercent = summary?.timeCGMUsePercent || 0;
+    const cgmHours = (summary?.timeCGMUseMinutes || 0) / 60;
+    const minCgmHours = 24;
+    const minCgmPercent = 0.7;
+
+    const shouldHide = !griMetrics ||
+      includes(['1d', '7d'], config?.period) ||
+      cgmUsePercent < minCgmPercent ||
+      cgmHours < minCgmHours;
+
+    const displayScore = !shouldHide
+      ? utils.formatDecimal(griMetrics.glycemiaRiskIndex, 0)
+      : statEmptyText;
+
+    const scoreContent = (
+      <Box classname="patient-gri">
+        <Text sx={{ fontWeight: 'medium' }}>{displayScore}</Text>
+      </Box>
+    );
+
+    if (shouldHide) return scoreContent;
+
+    return (
+      <PopoverElement
+        id={`tide-gri-grid-popover-${summary?.patient?.id || ''}`}
+        triggerOnHover
+        popoverProps={{
+          anchorOrigin: {
+            vertical: 'bottom',
+            horizontal: 'center',
+          },
+          transformOrigin: {
+            vertical: 'top',
+            horizontal: 'center',
+          },
+          disableRestoreFocus: true,
+          borderRadius: `${radii.input}px`,
+          padding: 0,
+        }}
+        popoverContent={(
+          <Box sx={{ padding: 2 }}>
+            <GriGrid
+              width={300}
+              height={240}
+              point={{
+                glycemiaRiskIndex: griMetrics.glycemiaRiskIndex,
+                hypoglycemiaComponent: griMetrics.hypoglycemiaComponent,
+                hyperglycemiaComponent: griMetrics.hyperglycemiaComponent,
+              }}
+            />
+          </Box>
+        )}
+      >
+        {scoreContent}
+      </PopoverElement>
+    );
+  }, [calculateGriMetrics, config?.period, radii.input]);
 
   const renderTimeInPercent = useCallback((summaryKey, summary) => {
 
@@ -584,6 +677,12 @@ const TideDashboardSection = React.memo(props => {
         render: renderGMI,
       },
       {
+        title: t('GRI'),
+        field: 'glycemiaRiskIndex',
+        align: 'center',
+        render: renderGRI,
+      },
+      {
         title: t('CGM Use'),
         field: 'timeCGMUsePercent',
         align: 'center',
@@ -638,7 +737,7 @@ const TideDashboardSection = React.memo(props => {
       },
     ];
 
-    if (showTideDashboardLastReviewed) {
+    if (shouldShowTideDashboardLastReviewed) {
       cols.splice(10, 0, {
         title: t('Last Reviewed'),
         field: 'lastReviewed',
@@ -676,14 +775,15 @@ const TideDashboardSection = React.memo(props => {
     renderAverageGlucose,
     renderBgRangeSummary,
     renderGMI,
+    renderGRI,
     renderLastReviewed,
     renderMore,
     renderPatientName,
     renderPatientTags,
     renderTimeInPercent,
     renderTimeInTargetPercentDelta,
-    showTideDashboardLastReviewed,
-    showTideDashboardPatientDrawer,
+    shouldShowTideDashboardLastReviewed,
+    shouldShowTideDashboardPatientDrawer,
     t,
     veryLowGlucoseThreshold,
   ]);
@@ -793,8 +893,11 @@ export const TideDashboard = (props) => {
     showTideDashboardLastReviewed,
     showTideDashboardPatientDrawer,
   } = useFlags();
-  const ldClient = useLDClient();
-  const ldContext = ldClient.getContext();
+  const ldClient = useLDClient?.();
+  const ldContext = ldClient?.getContext ? ldClient.getContext() : {};
+  const shouldShowTideDashboardFlag = isBillTesting ? true : showTideDashboard;
+  const shouldShowTideDashboardLastReviewedFlag = isBillTesting ? true : showTideDashboardLastReviewed;
+  const shouldShowTideDashboardPatientDrawerFlag = isBillTesting ? true : showTideDashboardPatientDrawer;
 
   const existingMRNs = useMemo(
     () => compact(map(reject(clinic?.patients, { id: selectedPatient?.id }), 'mrn')),
@@ -918,15 +1021,17 @@ export const TideDashboard = (props) => {
     dispatch,
     localConfig,
     localConfigKey,
-    showTideDashboard,
+    shouldShowTideDashboardFlag,
     fetchDashboardPatients,
   ]);
 
   useEffect(() => {
     // Redirect to the workspace if the LD clinic context is set and showTideDashboard flag is false
     // and the clinic does not have the tideDashboard entitlement
-    if ((clinic?.entitlements && !clinic.entitlements.tideDashboard) && (ldContext?.clinic?.tier && !showTideDashboard)) dispatch(push('/clinic-workspace'));
-  }, [ldContext, showTideDashboard, selectedClinicId, clinic?.entitlements, dispatch]);
+    if (!isBillTesting && (clinic?.entitlements && !clinic.entitlements.tideDashboard) && (ldContext?.clinic?.tier && !shouldShowTideDashboardFlag)) {
+      dispatch(push('/clinic-workspace'));
+    }
+  }, [ldContext, shouldShowTideDashboardFlag, selectedClinicId, clinic?.entitlements, dispatch]);
 
   useEffect(() => {
     handleAsyncResult({ ...fetchingTideDashboardPatients, prevInProgress: previousFetchingTideDashboardPatients?.inProgress }, null, handleCloseOverlays);
@@ -947,7 +1052,7 @@ export const TideDashboard = (props) => {
     return () => {
       dispatch(actions.sync.clearTideDashboardPatients());
     }
-  }, [showTideDashboard]);
+  }, [shouldShowTideDashboardFlag]);
 
   const drawerPatientId = new URLSearchParams(location.search).get('drawerPatientId') || null;
 
@@ -1239,8 +1344,8 @@ export const TideDashboard = (props) => {
       setSelectedPatient,
       setShowDataConnectionsModal,
       setShowEditPatientDialog,
-      showTideDashboardLastReviewed,
-      showTideDashboardPatientDrawer,
+      showTideDashboardLastReviewed: shouldShowTideDashboardLastReviewedFlag,
+      showTideDashboardPatientDrawer: shouldShowTideDashboardPatientDrawerFlag,
       t,
       trackMetric,
     };
@@ -1300,8 +1405,8 @@ export const TideDashboard = (props) => {
     selectedClinicId,
     setSelectedPatient,
     setShowEditPatientDialog,
-    showTideDashboardLastReviewed,
-    showTideDashboardPatientDrawer,
+    shouldShowTideDashboardLastReviewedFlag,
+    shouldShowTideDashboardPatientDrawerFlag,
     t,
     trackMetric,
   ]);

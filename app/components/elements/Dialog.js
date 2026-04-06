@@ -111,11 +111,11 @@ const StyledDialogContent = styled(Box)`
   }
 `;
 
-export function DialogContent({ sx = {}, ...props }) {
+export function DialogContent({ sx = {}, dividers, divider, ...props }) {
   return <StyledDialogContent
     p={4}
     sx={{
-      borderBottom: props.divider ? borders.divider : 'unset',
+      borderBottom: (dividers || divider) ? borders.divider : 'unset',
       [`@media screen and (max-width: ${breakpoints[1]})`]: { minWidth: '100vw' },
       ...sx,
     }}
