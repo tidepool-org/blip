@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-import { withTranslation, Trans} from 'react-i18next';
+import { withTranslation, Trans } from 'react-i18next';
 import { bindActionCreators } from 'redux';
 import sundial from 'sundial';
 
@@ -16,7 +16,7 @@ import utils from '../../core/utils';
 import LoginLogo from '../../components/loginlogo/loginlogo';
 import SimpleForm from '../../components/simpleform';
 import { keycloak } from '../../keycloak';
-import { components as vizComponents} from '@tidepool/viz';
+import { components as vizComponents } from '@tidepool/viz';
 const { Loader } = vizComponents;
 
 import check from './images/check.svg';
@@ -51,7 +51,8 @@ export let Signup = withTranslation()(class extends React.Component {
       validationErrors: {},
       notification: null,
       selected: null,
-      madeSelection: false
+      madeSelection: false,
+      redirecting: false
     }, this.getFormStateFromPath(props.location.pathname));
   }
 
@@ -109,7 +110,7 @@ export let Signup = withTranslation()(class extends React.Component {
   };
 
   UNSAFE_componentWillMount() {
-    this.setState({loading: false});
+    this.setState({ loading: false });
   }
 
   UNSAFE_componentWillReceiveProps(nextProps) {
@@ -148,11 +149,39 @@ export let Signup = withTranslation()(class extends React.Component {
   };
 
   handleSelectionClick = (option) => {
-    this.setState({selected: option})
+    this.setState({ selected: option })
+  };
+
+  redirectToKeycloak = async () => {
+    if (this.state.redirecting) return;
+    this.setState({ redirecting: true });
+
+    const { inviteEmail } = this.props;
+    let options = {
+      redirectUri: win.location.origin
+    };
+    if (inviteEmail) {
+      options.loginHint = inviteEmail;
+    }
+
+    // Build Keycloak register URL with role parameter
+    let registerUrl = await keycloak.createRegisterUrl(options);
+    switch (this.state.selected) {
+      case 'personal':
+        registerUrl += '&role=patient';
+        break;
+
+      case 'clinician':
+        registerUrl += '&role=clinician';
+        break;
+    }
+
+    // Assign window location to Keycloak register URL
+    win.location.assign(registerUrl);
   };
 
   render() {
-    const { keycloakConfig, fetchingInfo, inviteEmail } = this.props;
+    const { keycloakConfig, fetchingInfo } = this.props;
     let form = this.renderForm();
     let inviteIntro = this.renderInviteIntroduction();
     let typeSelection = this.renderTypeSelection();
@@ -160,28 +189,8 @@ export let Signup = withTranslation()(class extends React.Component {
       !(fetchingInfo.completed || !!fetchingInfo.notification) ||
       (!!keycloakConfig.url && !keycloakConfig.initialized);
 
-    if(keycloakConfig.initialized){
-      let options = {
-        redirectUri: win.location.origin
-      };
-      if(inviteEmail){
-        options.loginHint = inviteEmail;
-      }
-
-      // Build Keycloak register URL with role parameter
-      let registerUrl = keycloak.createRegisterUrl(options);
-      switch (this.state.selected) {
-        case 'personal':
-          registerUrl += '&role=patient';
-          break;
-
-        case 'clinician':
-          registerUrl += '&role=clinician';
-          break;
-      }
-
-      // Assign window location to Keycloak register URL
-      win.location.assign(registerUrl);
+    if (keycloakConfig.initialized) {
+      this.redirectToKeycloak();
     }
 
     let content = isLoading || keycloakConfig.initialized ? null : (
@@ -251,7 +260,7 @@ export let Signup = withTranslation()(class extends React.Component {
         );
         break;
 
-        case 'clinician':
+      case 'clinician':
         href = '/signup/personal';
 
         content = (
@@ -299,7 +308,7 @@ export let Signup = withTranslation()(class extends React.Component {
       submitButtonText = submitButtonWorkingText;
     }
 
-    if(!this.state.madeSelection){
+    if (!this.state.madeSelection) {
       return null;
     }
 
@@ -316,7 +325,7 @@ export let Signup = withTranslation()(class extends React.Component {
             submitDisabled={this.props.working || submitButtonDisabled}
             onSubmit={this.handleSubmit}
             onChange={this.handleChange}
-            notification={this.state.notification || this.props.notification}/>
+            notification={this.state.notification || this.props.notification} />
 
           {this.renderFormTypeSwitch()}
         </div>
@@ -326,7 +335,7 @@ export let Signup = withTranslation()(class extends React.Component {
 
   renderTypeSelection = () => {
     const { t } = this.props;
-    if(this.state.madeSelection){
+    if (this.state.madeSelection) {
       return null;
     }
     let personalClass = 'signup-selection' + (this.state.selected === 'personal' ? ' selected' : '');
@@ -371,13 +380,13 @@ export let Signup = withTranslation()(class extends React.Component {
   };
 
   handleContinueClick = (e) => {
-    this.setState({madeSelection: true});
+    this.setState({ madeSelection: true });
     this.props.history.push(`/signup/${this.state.selected}`);
   };
 
   handleTypeSwitchClick = (type, e) => {
     e.preventDefault();
-    this.setState({selected: type});
+    this.setState({ selected: type });
     this.props.history.push(`/signup/${type}`);
   };
 
@@ -386,7 +395,7 @@ export let Signup = withTranslation()(class extends React.Component {
       [attributes.name]: attributes.value,
     });
 
-    this.setState({formValues});
+    this.setState({ formValues });
   };
 
   handleSubmit = (formValues) => {
@@ -452,13 +461,13 @@ export let Signup = withTranslation()(class extends React.Component {
       roles: roles,
     };
 
-    if(this.state.selected === 'personal') {
+    if (this.state.selected === 'personal') {
       values.profile = {
         fullName: formValues.fullName,
       };
     }
 
-    if(this.state.selected === 'clinician') {
+    if (this.state.selected === 'clinician') {
       if (formValues.termsAccepted) {
         values.termsAccepted = sundial.utcDateString();
       }
