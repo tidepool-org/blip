@@ -148,7 +148,7 @@ const usePrintPDF = (
         break;
 
       case STATUS.SECOND_LOADED:
-        const queries = getQueries(clinicPatient, clinic, getTimePrefs(), getPrintOpts());
+        const queries = getQueries(data, clinicPatient, clinic, getTimePrefs(), getPrintOpts());
         const pdfOpts = { ...getPrintOpts(), patient: clinicPatient };
         dispatch(actions.worker.generatePDFRequest('combined', queries, pdfOpts, patientId));
         break;
@@ -159,7 +159,7 @@ const usePrintPDF = (
 
       case STATUS.SVGS_GENERATED:
         printOptsRef.current = pdf.opts;
-        const updatedQueries = getQueries(clinicPatient, clinic, getTimePrefs(), getPrintOpts());
+        const updatedQueries = getQueries(data, clinicPatient, clinic, getTimePrefs(), getPrintOpts());
         dispatch(actions.worker.generatePDFRequest('combined', updatedQueries, getPrintOpts(), patientId));
         break;
 

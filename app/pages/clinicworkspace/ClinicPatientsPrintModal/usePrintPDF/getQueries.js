@@ -6,16 +6,10 @@ import utils from '../../../../core/utils';
 import { DEFAULT_GLYCEMIC_RANGES } from '../../../../core/glycemicRangesUtils';
 import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE } from '../../../../core/constants';
 
-const getStatsByChartType = (chartType, bgSource) => {
+const getStatsByChartType = (chartType, bgSource, isAutomatedBasalDevice, isSettingsOverrideDevice) => {
   const currentBgSource = bgSource;
-  const cbgSelected =  currentBgSource === 'cbg';
+  const cbgSelected = currentBgSource === 'cbg';
   const smbgSelected = currentBgSource === 'smbg';
-
-  const isAutomatedBasalDevice = false; // TODO: FIX;
-  const isSettingsOverrideDevice = false; // TODO: FIX;
-
-  // const isAutomatedBasalDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isAutomatedBasalDevice');
-  // const isSettingsOverrideDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isSettingsOverrideDevice');
 
   let stats = [];
 
@@ -93,6 +87,7 @@ const getStatsByChartType = (chartType, bgSource) => {
 
 
 const getQueries = (
+  data,
   clinicPatient,
   clinic,
   timePrefs,
@@ -122,8 +117,11 @@ const getQueries = (
     return localBgPrefs;
   })();
 
-  // For TIDE Patient Drawer, we currently only show ADA standard ranges
+  // TODO: FIX
   const glycemicRanges = DEFAULT_GLYCEMIC_RANGES;
+
+  const isAutomatedBasalDevice = _.get(data, 'metaData.latestPumpUpload.isAutomatedBasalDevice', false);
+  const isSettingsOverrideDevice = _.get(data, 'metaData.latestPumpUpload.isSettingsOverrideDevice', false);
 
   const commonQueries = {
     bgPrefs: bgPrefs,
@@ -134,80 +132,80 @@ const getQueries = (
 
   const queries = {};
 
-    if (!opts.basics?.disabled) {
-      queries.basics = {
-        endpoints: opts.basics?.endpoints,
-        aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
-        bgSource: bgSource,
-        stats: getStatsByChartType('basics'),
-        ...commonQueries,
-      };
-    }
+  if (!opts.basics?.disabled) {
+    queries.basics = {
+      endpoints: opts.basics?.endpoints,
+      aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
+      bgSource: bgSource,
+      stats: getStatsByChartType('basics', bgSource, isAutomatedBasalDevice, isSettingsOverrideDevice),
+      ...commonQueries,
+    };
+  }
 
-    if (!opts.bgLog?.disabled) {
-      queries.bgLog = {
-        endpoints: opts.bgLog?.endpoints,
-        aggregationsByDate: 'dataByDate',
-        stats: getStatsByChartType('bgLog'),
-        types: { smbg: {} },
-        bgSource: bgSource,
-        ...commonQueries,
-      };
-    }
+  if (!opts.bgLog?.disabled) {
+    queries.bgLog = {
+      endpoints: opts.bgLog?.endpoints,
+      aggregationsByDate: 'dataByDate',
+      stats: getStatsByChartType('bgLog', bgSource, isAutomatedBasalDevice, isSettingsOverrideDevice),
+      types: { smbg: {} },
+      bgSource: bgSource,
+      ...commonQueries,
+    };
+  }
 
-    if (!opts.daily?.disabled) {
-      queries.daily = {
-        endpoints: opts.daily?.endpoints,
-        aggregationsByDate: 'dataByDate, statsByDate',
-        stats: getStatsByChartType('daily'),
-        types: {
-          basal: {},
-          bolus: {},
-          insulin: {},
-          cbg: {},
-          deviceEvent: {},
-          food: {},
-          message: {},
-          smbg: {},
-          wizard: {},
-          physicalActivity: {},
-          reportedState: {},
-        },
-        bgSource: bgSource,
-        cgmSampleIntervalRange: cgmSampleIntervalRange,
-        ...commonQueries,
-      };
-    }
+  if (!opts.daily?.disabled) {
+    queries.daily = {
+      endpoints: opts.daily?.endpoints,
+      aggregationsByDate: 'dataByDate, statsByDate',
+      stats: getStatsByChartType('daily', bgSource, isAutomatedBasalDevice, isSettingsOverrideDevice),
+      types: {
+        basal: {},
+        bolus: {},
+        insulin: {},
+        cbg: {},
+        deviceEvent: {},
+        food: {},
+        message: {},
+        smbg: {},
+        wizard: {},
+        physicalActivity: {},
+        reportedState: {},
+      },
+      bgSource: bgSource,
+      cgmSampleIntervalRange: cgmSampleIntervalRange,
+      ...commonQueries,
+    };
+  }
 
-    if (!opts.agpBGM?.disabled) {
-      queries.agpBGM = {
-        endpoints: opts.agpBGM?.endpoints,
-        aggregationsByDate: 'dataByDate, statsByDate',
-        bgSource: bgSource,
-        stats: getStatsByChartType('agpBGM'),
-        types: { smbg: {} },
-        glycemicRanges,
-        ...commonQueries,
-      };
-    }
+  if (!opts.agpBGM?.disabled) {
+    queries.agpBGM = {
+      endpoints: opts.agpBGM?.endpoints,
+      aggregationsByDate: 'dataByDate, statsByDate',
+      bgSource: bgSource,
+      stats: getStatsByChartType('agpBGM', bgSource, isAutomatedBasalDevice, isSettingsOverrideDevice),
+      types: { smbg: {} },
+      glycemicRanges,
+      ...commonQueries,
+    };
+  }
 
-    if (!opts.agpCGM?.disabled) {
-      queries.agpCGM = {
-        endpoints: opts.agpCGM?.endpoints,
-        aggregationsByDate: 'dataByDate, statsByDate',
-        bgSource: bgSource,
-        stats: getStatsByChartType('agpCGM'),
-        types: { cbg: {} },
-        glycemicRanges,
-        ...commonQueries,
-      };
-    }
+  if (!opts.agpCGM?.disabled) {
+    queries.agpCGM = {
+      endpoints: opts.agpCGM?.endpoints,
+      aggregationsByDate: 'dataByDate, statsByDate',
+      bgSource: bgSource,
+      stats: getStatsByChartType('agpCGM', bgSource, isAutomatedBasalDevice, isSettingsOverrideDevice),
+      types: { cbg: {} },
+      glycemicRanges,
+      ...commonQueries,
+    };
+  }
 
-    if (!opts.settings?.disabled) {
-      queries.settings = {
-        ...commonQueries,
-      };
-    }
+  if (!opts.settings?.disabled) {
+    queries.settings = {
+      ...commonQueries,
+    };
+  }
 
   return queries;
 };
