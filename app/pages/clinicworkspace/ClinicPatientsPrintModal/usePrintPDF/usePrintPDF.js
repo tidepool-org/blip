@@ -129,8 +129,6 @@ const usePrintPDF = (
   useEffect(() => {
     // Whenever a step is successfully completed, this effect triggers the next step in the sequence.
 
-    const printOpts = printOptsRef.current;
-
     switch(lastCompletedStep) {
       case STATUS.INITIALIZED:
         dispatch(actions.worker.removeGeneratedPDFS());
@@ -147,13 +145,13 @@ const usePrintPDF = (
         break;
 
       case STATUS.PRINT_STARTED:
-        const fetchPatientOpts = getFetchPatientOpts(data, printOpts);
+        const fetchPatientOpts = getFetchPatientOpts(data, printOptsRef.current);
         dispatch(actions.async.fetchPatientData(api, fetchPatientOpts, patientId));
         break;
 
       case STATUS.SECOND_LOADED:
-        const queries = getQueries(data, clinicPatient, clinic, printOpts);
-        const pdfOpts = { ...printOpts, patient: clinicPatient };
+        const queries = getQueries(data, clinicPatient, clinic, printOptsRef.current);
+        const pdfOpts = { ...printOptsRef.current, patient: clinicPatient };
         dispatch(actions.worker.generatePDFRequest('combined', queries, pdfOpts, patientId));
         break;
 
