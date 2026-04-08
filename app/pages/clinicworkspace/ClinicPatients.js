@@ -118,6 +118,7 @@ import Banner from '../../components/elements/Banner';
 import colorPalette from '../../themes/colorPalette';
 import noop from 'lodash/noop';
 import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils';
+import ClinicPatientsPrintModal from './ClinicPatientsPrintModal/ClinicPatientsPrintModal';
 
 const { Loader } = vizComponents;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels, formatBgValue } = vizUtils.bg;
@@ -197,6 +198,12 @@ const editPatientDataConnections = (patient, setSelectedPatient, selectedClinicI
   trackMetric('Clinic - Edit patient data connections', { clinicId: selectedClinicId, source });
   setSelectedPatient(patient);
   setShowDataConnectionsModal(true);
+};
+
+const printPatientData = (patient, setSelectedPatient, selectedClinicId, trackMetric, setShowPrintDataModal, source) => {
+  trackMetric('Clinic - open print patient data modal', { clinicId: selectedClinicId, source });
+  setSelectedPatient(patient);
+  setShowPrintDataModal(true);
 };
 
 const ClearButton = styled.button`
@@ -357,6 +364,7 @@ const MoreMenu = ({
   trackMetric,
   setSelectedPatient,
   setShowDataConnectionsModal,
+  setShowPrintDataModal,
   setShowEditPatientDialog,
   prefixPopHealthMetric,
   setShowSendUploadReminderDialog,
@@ -369,6 +377,10 @@ const MoreMenu = ({
   const handleEditPatientDataConnections = useCallback(() => {
     editPatientDataConnections(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal, 'action menu');
   }, [patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal]);
+
+  const handlePrintPatientData = useCallback(() => {
+    printPatientData(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowPrintDataModal, 'action menu');
+  }, [patient, setSelectedPatient, selectedClinicId, trackMetric, setShowPrintDataModal]);
 
   const handleSendUploadReminder = useCallback(
     (patient) => {
@@ -420,6 +432,17 @@ const MoreMenu = ({
         handleEditPatientDataConnections(patient);
       },
       text: t('Bring Data into Tidepool'),
+    }, {
+      iconSrc: DataInIcon,
+      iconLabel: t('Print Patient Data'),
+      iconPosition: 'left',
+      id: `print-patient-data-${patient.id}`,
+      variant: 'actionListItem',
+      onClick: (_popupState) => {
+        _popupState.close();
+        handlePrintPatientData(patient);
+      },
+      text: t('Print Patient Data'),
     });
 
     if (showSummaryData && patient.email && !patient.permissions?.custodian) {
@@ -698,6 +721,7 @@ export const ClinicPatients = (props) => {
   const [showRpmReportLimitDialog, setShowRpmReportLimitDialog] = useState(false);
   const [showTideDashboardConfigDialog, setShowTideDashboardConfigDialog] = useState(false);
   const [showDataConnectionsModal, setShowDataConnectionsModal] = useState(false);
+  const [showPrintDataModal, setShowPrintDataModal] = useState(false);
   const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
   const [showClinicSitesDialog, setShowClinicSitesDialog] = useState(false);
   const [showClinicPatientTagsDialog, setShowClinicPatientTagsDialog] = useState(false);
@@ -908,6 +932,7 @@ export const ClinicPatients = (props) => {
     setShowAddPatientDialog(false);
     setShowDeleteDialog(false);
     setShowDataConnectionsModal(false);
+    setShowPrintDataModal(false);
     setShowEditPatientDialog(false);
     setShowClinicPatientTagsDialog(false);
     setShowClinicSitesDialog(false);
@@ -3751,6 +3776,22 @@ export const ClinicPatients = (props) => {
     selectedPatient,
   ]);
 
+  const renderPrintDataModal = useCallback(() => {
+    if (!selectedPatient) return null;
+
+    return (
+      <ClinicPatientsPrintModal
+        api={api}
+        onClose={() => setShowPrintDataModal(false)}
+        patientId={selectedPatient.id}
+      />
+    );
+  }, [
+    api,
+    setShowPrintDataModal,
+    selectedPatient,
+  ]);
+
   const renderPatient = useCallback(patient => (
     <Box>
       <Text sx={{ display: 'block', fontSize: [1, null, 0], fontWeight: 'medium' }}>{patient.fullName}</Text>
@@ -4009,6 +4050,7 @@ export const ClinicPatients = (props) => {
       trackMetric={trackMetric}
       setSelectedPatient={setSelectedPatient}
       setShowDataConnectionsModal={setShowDataConnectionsModal}
+      setShowPrintDataModal={setShowPrintDataModal}
       setShowEditPatientDialog={setShowEditPatientDialog}
       prefixPopHealthMetric={prefixPopHealthMetric}
       setShowSendUploadReminderDialog={setShowSendUploadReminderDialog}
@@ -4022,6 +4064,7 @@ export const ClinicPatients = (props) => {
     trackMetric,
     setSelectedPatient,
     setShowEditPatientDialog,
+    setShowPrintDataModal,
     prefixPopHealthMetric,
     setShowSendUploadReminderDialog,
     setShowDeleteDialog,
@@ -4336,6 +4379,7 @@ export const ClinicPatients = (props) => {
       {isClinicSitesDialogVisible && renderClinicSitesDialog()}
       {isClinicPatientTagsDialogVisible && renderClinicPatientTagsDialog()}
       {showDataConnectionsModal && renderDataConnectionsModal()}
+      {showPrintDataModal && renderPrintDataModal()}
 
       <StyledScrollToTop
         smooth

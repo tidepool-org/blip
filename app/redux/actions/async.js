@@ -1181,7 +1181,7 @@ export function fetchPatientData(api, options, id) {
         (location.pathname.indexOf(id) >= 0 && (!fetchingPatientId || fetchingPatientId === id))
       ) {
         if (options.sampleIntervalMinimum === MS_IN_MIN) options.oneMinCgmFetchedUntil = options.startDate;
-        dispatch(worker.dataWorkerAddDataRequest(data, options.returnData, patientId, options.startDate, options.oneMinCgmFetchedUntil));
+        dispatch(worker.dataWorkerAddDataRequest(data, options.returnData, patientId, options.startDate, options.oneMinCgmFetchedUntil, options.initial));
       }
     }
 
