@@ -4,10 +4,28 @@ import { useSelector } from 'react-redux';
 import PrintDateRangeModal from '../../../components/PrintDateRangeModal';
 import getMostRecentDatumTimeByChartType from './getMostRecentDatumTimeByChartType';
 import noop from 'lodash/noop';
+import { Dialog, DialogTitle, DialogContent } from '../../../components/elements/Dialog';
+import { MediumTitle } from '../../../components/elements/FontStyles';
 
 import usePrintPDF from './usePrintPDF';
+import { useTranslation } from 'react-i18next';
 
 const trackMetric = noop; // this.props.trackMetric
+
+const LoadingModal = ({ onClose = noop }) => {
+  const { t } = useTranslation();
+
+  return (
+    <Dialog PaperProps={{ id: 'printDateRangePickerInner'}} maxWidth="md" open={open} onClose={onClose}>
+      <DialogTitle divider={true} onClose={onClose}>
+        <MediumTitle>{t('Print Report')}</MediumTitle>
+      </DialogTitle>
+      <DialogContent divider={false} sx={{ minWidth: '768px' }} pt={3} px={3}>
+        Loading ...
+      </DialogContent>
+    </Dialog>
+  );
+};
 
 const ClinicPatientsPrintModal = ({ api, patientId, onClose }) => {
   const loggedInUserId = useSelector(state => state.blip.loggedInUserId);
@@ -22,7 +40,7 @@ const ClinicPatientsPrintModal = ({ api, patientId, onClose }) => {
 
   const tempTimePrefs = { timezoneName: 'Etc/GMT+4', timezoneAware: true };
 
-  if (!latestDatumByType) return null; // TODO: Placeholder Modal
+  if (!latestDatumByType) return <LoadingModal onClose={onClose} />;
 
   return (
     <PrintDateRangeModal
