@@ -8,7 +8,6 @@ import { utils as vizUtils } from '@tidepool/viz';
 const { getTimezoneFromTimePrefs } = vizUtils.datetime;
 import utils from '../../../../core/utils';
 
-import getOpts from './getOpts';
 import getQueries from './getQueries';
 
 import noop from 'lodash/noop';
@@ -163,7 +162,9 @@ const usePrintPDF = (
         break;
 
       case STATUS.SVGS_GENERATED:
-        // TODO: Fix AGP mounting
+        const updatedPdfOpts = pdf.opts;
+        const updatedQueries = getQueries(data, clinicPatient, clinic, updatedPdfOpts);
+        dispatch(actions.worker.generatePDFRequest('combined', updatedQueries, updatedPdfOpts, patientId));
         break;
 
       case STATUS.PDF_GENERATED:
