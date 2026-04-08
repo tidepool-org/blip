@@ -4,9 +4,19 @@ import * as actions from '../../../../redux/actions';
 import buildGenerateAGPImages from './buildGenerateAGPImages';
 import moment from 'moment';
 
+import { utils as vizUtils } from '@tidepool/viz';
+const { getTimezoneFromTimePrefs } = vizUtils.datetime;
+import utils from '../../../../core/utils';
+
 import getOpts from './getOpts';
 import getQueries from './getQueries';
+
 import noop from 'lodash/noop';
+import filter from 'lodash/filter';
+import min from 'lodash/min';
+import at from 'lodash/at';
+import map from 'lodash/map';
+import keys from 'lodash/keys';
 
 export const STATUS = {
   // States in order of happy path AGP generation sequence
@@ -68,8 +78,7 @@ const inferLastCompletedStep = (patientId, data, pdf, hasPrintStarted) => {
   return STATUS.STATE_CLEARED;
 };
 
-const getFetchLatestDatumPatientOpts = (
-) => {
+const getFetchLatestDatumPatientOpts = () => {
   return {
     initial: true,
     forceDataWorkerAddDataRequest: true,
@@ -77,28 +86,31 @@ const getFetchLatestDatumPatientOpts = (
   };
 };
 
-const getFetchPatientOpts = (
-  agpPeriodInDays,
-  safetyFactorDays = 3,
-) => {
-  let daysToFetch = agpPeriodInDays * 2; // Fetch enough data for current AND past-period AGP (ie. double)
-  daysToFetch += safetyFactorDays;       // Request a few extra days in case of timezone mismatch.
+const getFetchPatientOpts = (data, opts) => {
+  const enabledOpts = filter(opts, { disabled: false });
+  const earliestPrintDate = min(at(enabledOpts, map(keys(enabledOpts), key => `${key}.endpoints.0`)));
+
+  const timePrefs = (() => {
+    const latestTimeZone = data?.metaData?.latestTimeZone;
+    const queryParams = {};
+
+    const localTimePrefs = utils.getTimePrefsForDataProcessing(latestTimeZone, queryParams);
+
+    return localTimePrefs;
+  })();
 
   return {
     initial: false,
-    startDate: moment.utc().subtract(daysToFetch, 'days').toISOString(),
+    startDate: moment.utc(earliestPrintDate).tz(getTimezoneFromTimePrefs(timePrefs)).toISOString(),
     endDate: moment.utc().add(1, 'days').toISOString(),
     forceDataWorkerAddDataRequest: true,
     useCache: false,
   };
 };
 
-const DEFAULT_AGP_PERIOD_IN_DAYS = 14;
-
 const usePrintPDF = (
   api,
   patientId,
-  agpPeriodInDays = DEFAULT_AGP_PERIOD_IN_DAYS,
 ) => {
   const dispatch = useDispatch();
   const generateAGPImages = buildGenerateAGPImages(dispatch);
@@ -117,6 +129,8 @@ const usePrintPDF = (
   useEffect(() => {
     // Whenever a step is successfully completed, this effect triggers the next step in the sequence.
 
+    const printOpts = printOptsRef.current;
+
     switch(lastCompletedStep) {
       case STATUS.INITIALIZED:
         dispatch(actions.worker.removeGeneratedPDFS());
@@ -133,15 +147,13 @@ const usePrintPDF = (
         break;
 
       case STATUS.PRINT_STARTED:
-        const fetchPatientOpts = getFetchPatientOpts(agpPeriodInDays);
+        const fetchPatientOpts = getFetchPatientOpts(data, printOpts);
         dispatch(actions.async.fetchPatientData(api, fetchPatientOpts, patientId));
         break;
 
       case STATUS.SECOND_LOADED:
-        // const opts    = getOpts(data, agpPeriodInDays);
-        const opts = printOptsRef.current;
-        const queries = getQueries(data, clinicPatient, clinic, opts);
-        const pdfOpts = { ...opts, patient: clinicPatient };
+        const queries = getQueries(data, clinicPatient, clinic, printOpts);
+        const pdfOpts = { ...printOpts, patient: clinicPatient };
         dispatch(actions.worker.generatePDFRequest('combined', queries, pdfOpts, patientId));
         break;
 
@@ -183,6 +195,7 @@ const usePrintPDF = (
   return {
     status: lastCompletedStep,
     canPrint,
+    latestDatumByType: canPrint ? data?.metaData?.latestDatumByType : null,
     onPrintPDF: canPrint ? onPrintPDF : noop,
   };
 };

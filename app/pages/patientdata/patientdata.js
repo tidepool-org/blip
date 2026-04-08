@@ -475,8 +475,6 @@ export const PatientDataClass = createReactClass({
         onClickPrint={opts => {
           this.setState({ printDialogProcessing: true })
 
-          console.log('@@@ opts', opts)
-
           // Determine the earliest startDate needed to fetch data to.
           const enabledOpts = _.filter(opts, { disabled: false });
           const earliestPrintDate = _.min(_.at(enabledOpts, _.map(_.keys(enabledOpts), key => `${key}.endpoints.0`)));
