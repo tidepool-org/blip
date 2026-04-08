@@ -111,6 +111,7 @@ const getFetchPatientOpts = (data, opts) => {
 const usePrintPDF = (
   api,
   patientId,
+  onPrintTriggered = noop,
 ) => {
   const dispatch = useDispatch();
   const generateAGPImages = buildGenerateAGPImages(dispatch);
@@ -169,6 +170,7 @@ const usePrintPDF = (
         const printWindowRef = window.open(pdf.combined.url);
         printWindowRef.focus();
         printWindowRef.print();
+        onPrintTriggered();
 
       default:
         break;

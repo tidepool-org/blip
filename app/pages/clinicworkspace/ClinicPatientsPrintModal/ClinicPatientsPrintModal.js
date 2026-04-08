@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import _ from 'lodash';
 import { useSelector } from 'react-redux';
 import PrintDateRangeModal from '../../../components/PrintDateRangeModal';
@@ -27,16 +27,18 @@ const LoadingModal = ({ onClose = noop }) => {
   );
 };
 
-const ClinicPatientsPrintModal = ({ api, patientId, onClose }) => {
+const ClinicPatientsPrintModal = ({ api, patientId, onClose = noop }) => {
   const loggedInUserId = useSelector(state => state.blip.loggedInUserId);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const { status, latestDatumByType, canPrint, onPrintPDF } = usePrintPDF(api, patientId, 14);
+  const handlePrintTriggered = () => onClose();
+
+  const { status, latestDatumByType, canPrint, onPrintPDF } = usePrintPDF(api, patientId, handlePrintTriggered);
 
   const handleClickPrint = (opts) => {
+    setIsProcessing(true);
     onPrintPDF(opts);
   };
-
-  const isProcessing = false;
 
   const tempTimePrefs = { timezoneName: 'Etc/GMT+4', timezoneAware: true };
 
