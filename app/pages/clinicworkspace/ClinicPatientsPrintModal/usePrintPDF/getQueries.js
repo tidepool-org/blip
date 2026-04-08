@@ -93,9 +93,9 @@ const getStatsByChartType = (chartType, bgSource) => {
 
 
 const getQueries = (
-  data,
   clinicPatient,
   clinic,
+  timePrefs,
   opts,
 ) => {
   const bgSource = 'cgm'; // TODO: FIX
@@ -124,15 +124,6 @@ const getQueries = (
 
   // For TIDE Patient Drawer, we currently only show ADA standard ranges
   const glycemicRanges = DEFAULT_GLYCEMIC_RANGES;
-
-  const timePrefs = (() => {
-    const latestTimeZone = data?.metaData?.latestTimeZone;
-    const queryParams = {};
-
-    const localTimePrefs = utils.getTimePrefsForDataProcessing(latestTimeZone, queryParams);
-
-    return localTimePrefs;
-  })();
 
   const commonQueries = {
     bgPrefs: bgPrefs,

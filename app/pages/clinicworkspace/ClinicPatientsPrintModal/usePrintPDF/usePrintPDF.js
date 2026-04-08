@@ -85,18 +85,9 @@ const getFetchLatestDatumPatientOpts = () => {
   };
 };
 
-const getFetchPatientOpts = (data, opts) => {
+const getFetchPatientOpts = (timePrefs, opts) => {
   const enabledOpts = filter(opts, { disabled: false });
   const earliestPrintDate = min(at(enabledOpts, map(keys(enabledOpts), key => `${key}.endpoints.0`)));
-
-  const timePrefs = (() => {
-    const latestTimeZone = data?.metaData?.latestTimeZone;
-    const queryParams = {};
-
-    const localTimePrefs = utils.getTimePrefsForDataProcessing(latestTimeZone, queryParams);
-
-    return localTimePrefs;
-  })();
 
   return {
     initial: false,
@@ -122,7 +113,11 @@ const usePrintPDF = (
 
   const [canPrint, setCanPrint] = useState(false);
   const [hasPrintStarted, setHasPrintStarted] = useState(false);
+
   const printOptsRef = useRef(null);
+  const timePrefsRef = useRef(null);
+  const getPrintOpts = () => printOptsRef.current;
+  const getTimePrefs = () => timePrefsRef.current;
 
   const lastCompletedStep = inferLastCompletedStep(patientId, data, pdf, hasPrintStarted);
 
@@ -141,17 +136,19 @@ const usePrintPDF = (
         break;
 
       case STATUS.FIRST_LOADED:
+        const latestTimeZone = data?.metaData?.latestTimeZone || {};
+        timePrefsRef.current = utils.getTimePrefsForDataProcessing(latestTimeZone, {});
         setCanPrint(true);
         break;
 
       case STATUS.PRINT_STARTED:
-        const fetchPatientOpts = getFetchPatientOpts(data, printOptsRef.current);
+        const fetchPatientOpts = getFetchPatientOpts(getTimePrefs(), getPrintOpts());
         dispatch(actions.async.fetchPatientData(api, fetchPatientOpts, patientId));
         break;
 
       case STATUS.SECOND_LOADED:
-        const queries = getQueries(data, clinicPatient, clinic, printOptsRef.current);
-        const pdfOpts = { ...printOptsRef.current, patient: clinicPatient };
+        const queries = getQueries(clinicPatient, clinic, getTimePrefs(), getPrintOpts());
+        const pdfOpts = { ...getPrintOpts(), patient: clinicPatient };
         dispatch(actions.worker.generatePDFRequest('combined', queries, pdfOpts, patientId));
         break;
 
@@ -160,9 +157,9 @@ const usePrintPDF = (
         break;
 
       case STATUS.SVGS_GENERATED:
-        const updatedPdfOpts = pdf.opts;
-        const updatedQueries = getQueries(data, clinicPatient, clinic, updatedPdfOpts);
-        dispatch(actions.worker.generatePDFRequest('combined', updatedQueries, updatedPdfOpts, patientId));
+        printOptsRef.current = pdf.opts;
+        const updatedQueries = getQueries(clinicPatient, clinic, getTimePrefs(), getPrintOpts());
+        dispatch(actions.worker.generatePDFRequest('combined', updatedQueries, getPrintOpts(), patientId));
         break;
 
       case STATUS.PDF_GENERATED:
@@ -196,6 +193,7 @@ const usePrintPDF = (
   return {
     status: lastCompletedStep,
     canPrint,
+    timePrefs: timePrefsRef.current,
     latestDatumByType: canPrint ? data?.metaData?.latestDatumByType : null,
     onPrintPDF: canPrint ? onPrintPDF : noop,
   };

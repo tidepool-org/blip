@@ -33,16 +33,14 @@ const ClinicPatientsPrintModal = ({ api, patientId, onClose = noop }) => {
 
   const handlePrintTriggered = () => onClose();
 
-  const { status, latestDatumByType, canPrint, onPrintPDF } = usePrintPDF(api, patientId, handlePrintTriggered);
+  const { status, timePrefs, latestDatumByType, canPrint, onPrintPDF } = usePrintPDF(api, patientId, handlePrintTriggered);
 
   const handleClickPrint = (opts) => {
     setIsProcessing(true);
     onPrintPDF(opts);
   };
 
-  const tempTimePrefs = { timezoneName: 'Etc/GMT+4', timezoneAware: true };
-
-  if (!latestDatumByType) return <LoadingModal onClose={onClose} />;
+  if (!latestDatumByType || !timePrefs) return <LoadingModal onClose={onClose} />;
 
   return (
     <PrintDateRangeModal
@@ -59,7 +57,7 @@ const ClinicPatientsPrintModal = ({ api, patientId, onClose = noop }) => {
       onClose={onClose}
       onClickPrint={handleClickPrint}
       processing={!canPrint || isProcessing}
-      timePrefs={tempTimePrefs}
+      timePrefs={timePrefs}
       trackMetric={trackMetric}
     />
   );
