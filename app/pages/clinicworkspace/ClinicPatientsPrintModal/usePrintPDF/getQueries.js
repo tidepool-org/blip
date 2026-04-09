@@ -14,10 +14,11 @@ const getQueries = (
   timePrefs,
   opts,
 ) => {
-  const bgSource = 'cbg'; // TODO: FIX
-  const agpBGMBgSource = 'smbg'; // TODO: FIX
+  const derivedBgSource = _.get(data, 'metaData.bgSources.current', 'cbg'); // based on user's recent data
+
   const cgmSampleIntervalRange = DEFAULT_CGM_SAMPLE_INTERVAL_RANGE; // TODO: FIX
   const excludedDevices = []; // TODO: FIX;
+
   const glycemicRanges = clinicPatient?.glycemicRanges || DEFAULT_GLYCEMIC_RANGES;
 
   const bgPrefs = (() => {
@@ -55,8 +56,8 @@ const getQueries = (
     queries.basics = {
       endpoints: opts.basics?.endpoints,
       aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
-      bgSource: bgSource,
-      stats: getStatsByChartType('basics', bgSource, deviceOpts),
+      bgSource: derivedBgSource,
+      stats: getStatsByChartType('basics', derivedBgSource, deviceOpts),
       ...commonQueries,
     };
   }
@@ -65,9 +66,9 @@ const getQueries = (
     queries.bgLog = {
       endpoints: opts.bgLog?.endpoints,
       aggregationsByDate: 'dataByDate',
-      stats: getStatsByChartType('bgLog', bgSource, deviceOpts),
+      stats: getStatsByChartType('bgLog', 'smbg', deviceOpts),
       types: { smbg: {} },
-      bgSource: bgSource,
+      bgSource: 'smbg',
       ...commonQueries,
     };
   }
@@ -76,7 +77,7 @@ const getQueries = (
     queries.daily = {
       endpoints: opts.daily?.endpoints,
       aggregationsByDate: 'dataByDate, statsByDate',
-      stats: getStatsByChartType('daily', bgSource, deviceOpts),
+      stats: getStatsByChartType('daily', derivedBgSource, deviceOpts),
       types: {
         basal: {},
         bolus: {},
@@ -90,7 +91,7 @@ const getQueries = (
         physicalActivity: {},
         reportedState: {},
       },
-      bgSource: bgSource,
+      bgSource: derivedBgSource,
       cgmSampleIntervalRange: cgmSampleIntervalRange,
       ...commonQueries,
     };
@@ -100,8 +101,8 @@ const getQueries = (
     queries.agpBGM = {
       endpoints: opts.agpBGM?.endpoints,
       aggregationsByDate: 'dataByDate, statsByDate',
-      bgSource: agpBGMBgSource,
-      stats: getStatsByChartType('agpBGM', agpBGMBgSource, deviceOpts),
+      bgSource: 'smbg',
+      stats: getStatsByChartType('agpBGM', 'smbg', deviceOpts),
       types: { smbg: {} },
       glycemicRanges,
       ...commonQueries,
@@ -112,8 +113,8 @@ const getQueries = (
     queries.agpCGM = {
       endpoints: opts.agpCGM?.endpoints,
       aggregationsByDate: 'dataByDate, statsByDate',
-      bgSource: bgSource,
-      stats: getStatsByChartType('agpCGM', bgSource, deviceOpts),
+      bgSource: 'cbg',
+      stats: getStatsByChartType('agpCGM', 'cbg', deviceOpts),
       types: { cbg: {} },
       glycemicRanges,
       ...commonQueries,
