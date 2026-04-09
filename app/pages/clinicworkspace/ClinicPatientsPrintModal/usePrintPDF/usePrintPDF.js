@@ -47,15 +47,8 @@ const inferLastCompletedStep = (patientId, data, pdf, hasClickedPrint, isSecondS
 
   // Insufficient Data States ---
   const hasNoPatientData    = data.metaData?.size === 0;
-  const hasInsufficientData = !!pdf?.opts?.svgDataURLS && !pdf?.opts?.svgDataURLS.agpCGM;
-
-
-
-
+  const hasInsufficientData = !!pdf?.opts?.svgDataURLS && !pdf?.opts?.svgDataURLS.agpCGM && !pdf?.opts?.svgDataURLS.agpBGM;
   // const hasNoCGMData        = !!pdf?.combined && !pdf?.data; // TODO: FIX
-
-
-
 
   if (hasNoPatientData)    return STATUS.NO_PATIENT_DATA;
   if (hasInsufficientData) return STATUS.INSUFFICIENT_DATA;
@@ -183,7 +176,10 @@ const usePrintPDF = (
         break;
 
       case STATUS.DATA_PROCESSED:
-        generateAGPImages(pdf, ['agpCGM']); // TODO: FIX
+        const hasAgpBGM = pdf?.opts?.agpBGM?.disabled === false;
+        const hasAgpCGM = pdf?.opts?.agpCGM?.disabled === false;
+        const reportTypes = [(hasAgpBGM && 'agpBGM'), (hasAgpCGM && 'agpCGM')].filter(s => s);
+        generateAGPImages(pdf, reportTypes);
         break;
 
       case STATUS.SVGS_GENERATED:

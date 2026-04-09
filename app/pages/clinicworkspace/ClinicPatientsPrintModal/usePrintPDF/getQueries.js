@@ -15,6 +15,7 @@ const getQueries = (
   opts,
 ) => {
   const bgSource = 'cbg'; // TODO: FIX
+  const agpBGMBgSource = 'smbg'; // TODO: FIX
   const cgmSampleIntervalRange = DEFAULT_CGM_SAMPLE_INTERVAL_RANGE; // TODO: FIX
   const excludedDevices = []; // TODO: FIX;
   const glycemicRanges = clinicPatient?.glycemicRanges || DEFAULT_GLYCEMIC_RANGES;
@@ -99,8 +100,8 @@ const getQueries = (
     queries.agpBGM = {
       endpoints: opts.agpBGM?.endpoints,
       aggregationsByDate: 'dataByDate, statsByDate',
-      bgSource: bgSource,
-      stats: getStatsByChartType('agpBGM', bgSource, deviceOpts),
+      bgSource: agpBGMBgSource,
+      stats: getStatsByChartType('agpBGM', agpBGMBgSource, deviceOpts),
       types: { smbg: {} },
       glycemicRanges,
       ...commonQueries,
