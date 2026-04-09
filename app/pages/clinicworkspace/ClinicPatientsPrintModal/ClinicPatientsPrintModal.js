@@ -6,6 +6,8 @@ import getMostRecentDatumTimeByChartType from './getMostRecentDatumTimeByChartTy
 import noop from 'lodash/noop';
 import { Dialog, DialogTitle, DialogContent } from '../../../components/elements/Dialog';
 import { MediumTitle } from '../../../components/elements/FontStyles';
+import { components as vizComponents } from '@tidepool/viz';
+const { Loader } = vizComponents;
 
 import usePrintPDF from './usePrintPDF';
 import { useTranslation } from 'react-i18next';
@@ -20,8 +22,8 @@ const LoadingModal = ({ onClose = noop }) => {
       <DialogTitle divider={true} onClose={onClose}>
         <MediumTitle>{t('Print Report')}</MediumTitle>
       </DialogTitle>
-      <DialogContent divider={false} sx={{ minWidth: '768px' }} pt={3} px={3}>
-        Loading ...
+      <DialogContent divider={false} sx={{ minWidth: '768px', minHeight: '360px' }} pt={3} px={3}>
+        <Loader show />
       </DialogContent>
     </Dialog>
   );
