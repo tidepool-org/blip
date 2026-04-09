@@ -93,7 +93,7 @@ const getQueries = (
   timePrefs,
   opts,
 ) => {
-  const bgSource = 'cgm'; // TODO: FIX
+  const bgSource = 'cbg'; // TODO: FIX
   const cgmSampleIntervalRange = DEFAULT_CGM_SAMPLE_INTERVAL_RANGE; // TODO: FIX
   const excludedDevices = []; // TODO: FIX;
 
