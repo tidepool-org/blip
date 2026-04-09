@@ -882,6 +882,7 @@ export const PatientDataClass = createReactClass({
       settings: _.assign({}, patientSettings, { siteChangeSource }),
     });
 
+    const chartType = this.state.chartType;
     const bgSource = _.get(this.state.chartPrefs, [chartType, 'bgSource']);
     const isAutomatedBasalDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isAutomatedBasalDevice');
     const isSettingsOverrideDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isSettingsOverrideDevice');
