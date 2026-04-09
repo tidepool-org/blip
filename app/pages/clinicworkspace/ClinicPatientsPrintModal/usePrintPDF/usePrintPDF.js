@@ -80,26 +80,34 @@ const inferLastCompletedStep = (patientId, data, pdf, hasClickedPrint, isSecondS
   return STATUS.STATE_CLEARED;
 };
 
-const getFetchLatestDatumPatientOpts = () => ({
+const getInitialFetchOpts = () => ({
   initial: true,
   forceDataWorkerAddDataRequest: true,
+  returnData: false,
   useCache: false,
 });
 
-const getFetchPatientOpts = (timePrefs, opts) => {
+const getMainFetchOpts = (timePrefs, opts, fetchedUntil) => {
   const enabledOpts = filter(opts, { disabled: false });
   const earliestPrintDate = min(at(enabledOpts, map(keys(enabledOpts), key => `${key}.endpoints.0`)));
 
+  const startDate = moment.utc(earliestPrintDate).tz(getTimezoneFromTimePrefs(timePrefs)).toISOString();
+
+  const endDate = fetchedUntil
+    ? moment.utc(fetchedUntil).subtract(1, 'milliseconds').toISOString()
+    : moment.utc().add(1, 'days').toISOString();
+
   return {
     initial: false,
-    startDate: moment.utc(earliestPrintDate).tz(getTimezoneFromTimePrefs(timePrefs)).toISOString(),
-    endDate: moment.utc().add(1, 'days').toISOString(),
+    startDate: startDate,
+    endDate: endDate,
+    returnData: false,
     forceDataWorkerAddDataRequest: true,
     useCache: false,
   };
 };
 
-const getEarliestDataRequired = (printOpts, timePrefs) => {
+const getEarliestPrintDate = (printOpts, timePrefs) => {
   const enabledOpts = filter(printOpts, { disabled: false });
   const earliestPrintDate = min(at(enabledOpts, map(keys(enabledOpts), key => `${key}.endpoints.0`)));
   const startDate = moment.utc(earliestPrintDate).tz(getTimezoneFromTimePrefs(timePrefs)).toISOString();
@@ -144,8 +152,8 @@ const usePrintPDF = (
         break;
 
       case STATUS.STATE_CLEARED:
-        const latestDatumFetchOpts = getFetchLatestDatumPatientOpts();
-        dispatch(actions.async.fetchPatientData(api, latestDatumFetchOpts, patientId));
+        const initialFetchOpts = getInitialFetchOpts();
+        dispatch(actions.async.fetchPatientData(api, initialFetchOpts, patientId));
         break;
 
       case STATUS.FIRST_LOADED:
@@ -155,11 +163,11 @@ const usePrintPDF = (
         break;
 
       case STATUS.PRINT_STARTED:
-        const startDate = getEarliestDataRequired(getPrintOpts(), getTimePrefs());
+        const startDate = getEarliestPrintDate(getPrintOpts(), getTimePrefs());
         const isSecondFetchRequired = startDate < fetchedUntil || !fetchedUntil;
 
         if (isSecondFetchRequired) {
-          const fetchPatientOpts = getFetchPatientOpts(getTimePrefs(), getPrintOpts());
+          const fetchPatientOpts = getMainFetchOpts(getTimePrefs(), getPrintOpts(), fetchedUntil);
           dispatch(actions.async.fetchPatientData(api, fetchPatientOpts, patientId));
         } else {
           setIsSecondSkipped(true);
