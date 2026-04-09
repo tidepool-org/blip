@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import _ from 'lodash';
 import { useSelector } from 'react-redux';
 import PrintDateRangeModal from '../../../components/PrintDateRangeModal';
-import utils from '../../../core/utils';
 import noop from 'lodash/noop';
 import { Dialog, DialogTitle, DialogContent } from '../../../components/elements/Dialog';
 import { MediumTitle } from '../../../components/elements/FontStyles';
 import { components as vizComponents } from '@tidepool/viz';
 const { Loader } = vizComponents;
+import { getMostRecentDatumTimeByChartType } from '../../../core/dataViewUtils';
 
 import usePrintPDF from './usePrintPDF';
 import { useTranslation } from 'react-i18next';
@@ -50,11 +50,11 @@ const ClinicPatientsPrintModal = ({ api, patientId, onClose = noop }) => {
       id="print-dialog"
       loggedInUserId={loggedInUserId}
       mostRecentDatumDates={{
-        agpBGM: utils.getMostRecentDatumTimeByChartType(latestDatumByType, 'agpBGM'),
-        agpCGM: utils.getMostRecentDatumTimeByChartType(latestDatumByType, 'agpCGM'),
-        basics: utils.getMostRecentDatumTimeByChartType(latestDatumByType, 'basics'),
-        bgLog: utils.getMostRecentDatumTimeByChartType(latestDatumByType, 'bgLog'),
-        daily: utils.getMostRecentDatumTimeByChartType(latestDatumByType, 'daily'),
+        agpBGM: getMostRecentDatumTimeByChartType(latestDatumByType, 'agpBGM'),
+        agpCGM: getMostRecentDatumTimeByChartType(latestDatumByType, 'agpCGM'),
+        basics: getMostRecentDatumTimeByChartType(latestDatumByType, 'basics'),
+        bgLog: getMostRecentDatumTimeByChartType(latestDatumByType, 'bgLog'),
+        daily: getMostRecentDatumTimeByChartType(latestDatumByType, 'daily'),
       }}
       onClose={onClose}
       onClickPrint={handleClickPrint}

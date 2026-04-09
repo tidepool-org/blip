@@ -2,8 +2,10 @@ import _ from 'lodash';
 import { utils as vizUtils } from '@tidepool/viz';
 
 import utils from '../../../../core/utils';
+import { getStatsByChartType } from '../../../../core/dataViewUtils';
 import { DEFAULT_GLYCEMIC_RANGES } from '../../../../core/glycemicRangesUtils';
 import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE } from '../../../../core/constants';
+
 
 const getQueries = (
   data,
@@ -53,7 +55,7 @@ const getQueries = (
       endpoints: opts.basics?.endpoints,
       aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
       bgSource: bgSource,
-      stats: utils.getStatsByChartType('basics', bgSource, deviceOpts),
+      stats: getStatsByChartType('basics', bgSource, deviceOpts),
       ...commonQueries,
     };
   }
@@ -62,7 +64,7 @@ const getQueries = (
     queries.bgLog = {
       endpoints: opts.bgLog?.endpoints,
       aggregationsByDate: 'dataByDate',
-      stats: utils.getStatsByChartType('bgLog', bgSource, deviceOpts),
+      stats: getStatsByChartType('bgLog', bgSource, deviceOpts),
       types: { smbg: {} },
       bgSource: bgSource,
       ...commonQueries,
@@ -73,7 +75,7 @@ const getQueries = (
     queries.daily = {
       endpoints: opts.daily?.endpoints,
       aggregationsByDate: 'dataByDate, statsByDate',
-      stats: utils.getStatsByChartType('daily', bgSource, deviceOpts),
+      stats: getStatsByChartType('daily', bgSource, deviceOpts),
       types: {
         basal: {},
         bolus: {},
@@ -98,7 +100,7 @@ const getQueries = (
       endpoints: opts.agpBGM?.endpoints,
       aggregationsByDate: 'dataByDate, statsByDate',
       bgSource: bgSource,
-      stats: utils.getStatsByChartType('agpBGM', bgSource, deviceOpts),
+      stats: getStatsByChartType('agpBGM', bgSource, deviceOpts),
       types: { smbg: {} },
       glycemicRanges,
       ...commonQueries,
@@ -110,7 +112,7 @@ const getQueries = (
       endpoints: opts.agpCGM?.endpoints,
       aggregationsByDate: 'dataByDate, statsByDate',
       bgSource: bgSource,
-      stats: utils.getStatsByChartType('agpCGM', bgSource, deviceOpts),
+      stats: getStatsByChartType('agpCGM', bgSource, deviceOpts),
       types: { cbg: {} },
       glycemicRanges,
       ...commonQueries,

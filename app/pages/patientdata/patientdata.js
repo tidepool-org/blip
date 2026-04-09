@@ -34,6 +34,7 @@ import { utils as vizUtils, components as vizComponents } from '@tidepool/viz';
 
 import personUtils from '../../core/personutils';
 import utils from '../../core/utils';
+import { getMostRecentDatumTimeByChartType, getStatsByChartType } from '../../core/dataViewUtils';
 import { header as Header } from '../../components/chart';
 import { basics as Basics } from '../../components/chart';
 import { daily as Daily } from '../../components/chart';
@@ -404,7 +405,7 @@ export const PatientDataClass = createReactClass({
     return (
       <DatePickerComponent
         chartType={this.state.chartType}
-        mostRecentDatumDate={utils.getMostRecentDatumTimeByChartType(latestDatumByType, this.state.chartType)}
+        mostRecentDatumDate={getMostRecentDatumTimeByChartType(latestDatumByType, this.state.chartType)}
         open={this.state.datesDialogOpen}
         onClose={this.closeDatesDialog}
         onSubmit={dates => {
@@ -468,11 +469,11 @@ export const PatientDataClass = createReactClass({
         id="print-dialog"
         loggedInUserId={this.props.user?.userid}
         mostRecentDatumDates={{
-          agpBGM: utils.getMostRecentDatumTimeByChartType(latestDatumByType, 'agpBGM'),
-          agpCGM: utils.getMostRecentDatumTimeByChartType(latestDatumByType, 'agpCGM'),
-          basics: utils.getMostRecentDatumTimeByChartType(latestDatumByType, 'basics'),
-          bgLog: utils.getMostRecentDatumTimeByChartType(latestDatumByType, 'bgLog'),
-          daily: utils.getMostRecentDatumTimeByChartType(latestDatumByType, 'daily'),
+          agpBGM: getMostRecentDatumTimeByChartType(latestDatumByType, 'agpBGM'),
+          agpCGM: getMostRecentDatumTimeByChartType(latestDatumByType, 'agpCGM'),
+          basics: getMostRecentDatumTimeByChartType(latestDatumByType, 'basics'),
+          bgLog: getMostRecentDatumTimeByChartType(latestDatumByType, 'bgLog'),
+          daily: getMostRecentDatumTimeByChartType(latestDatumByType, 'daily'),
         }}
         open={this.state.printDialogOpen}
         onClose={this.closePrintDialog}
@@ -863,7 +864,7 @@ export const PatientDataClass = createReactClass({
         endpoints: printDialogPDFOpts.basics?.endpoints,
         aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
         bgSource: _.get(state.chartPrefs, 'basics.bgSource'),
-        stats: utils.getStatsByChartType('basics', bgSource, deviceOpts),
+        stats: getStatsByChartType('basics', bgSource, deviceOpts),
         ...commonQueries,
       };
     }
@@ -872,7 +873,7 @@ export const PatientDataClass = createReactClass({
       queries.bgLog = {
         endpoints: printDialogPDFOpts.bgLog?.endpoints,
         aggregationsByDate: 'dataByDate',
-        stats: utils.getStatsByChartType('bgLog', bgSource, deviceOpts),
+        stats: getStatsByChartType('bgLog', bgSource, deviceOpts),
         types: { smbg: {} },
         bgSource: _.get(state.chartPrefs, 'bgLog.bgSource'),
         ...commonQueries,
@@ -883,7 +884,7 @@ export const PatientDataClass = createReactClass({
       queries.daily = {
         endpoints: printDialogPDFOpts.daily?.endpoints,
         aggregationsByDate: 'dataByDate, statsByDate',
-        stats: utils.getStatsByChartType('daily', bgSource, deviceOpts),
+        stats: getStatsByChartType('daily', bgSource, deviceOpts),
         types: {
           basal: {},
           bolus: {},
@@ -908,7 +909,7 @@ export const PatientDataClass = createReactClass({
         endpoints: printDialogPDFOpts.agpBGM?.endpoints,
         aggregationsByDate: 'dataByDate, statsByDate',
         bgSource: _.get(state.chartPrefs, 'agpBGM.bgSource'),
-        stats: utils.getStatsByChartType('agpBGM', bgSource, deviceOpts),
+        stats: getStatsByChartType('agpBGM', bgSource, deviceOpts),
         types: { smbg: {} },
         glycemicRanges,
         ...commonQueries,
@@ -920,7 +921,7 @@ export const PatientDataClass = createReactClass({
         endpoints: printDialogPDFOpts.agpCGM?.endpoints,
         aggregationsByDate: 'dataByDate, statsByDate',
         bgSource: _.get(state.chartPrefs, 'agpCGM.bgSource'),
-        stats: utils.getStatsByChartType('agpCGM', bgSource, deviceOpts),
+        stats: getStatsByChartType('agpCGM', bgSource, deviceOpts),
         types: { cbg: {} },
         glycemicRanges,
         ...commonQueries,
@@ -994,7 +995,7 @@ export const PatientDataClass = createReactClass({
         endpoints: newEndpoints,
         nextDays,
         prevDays,
-        stats: utils.getStatsByChartType(chartType, bgSource, deviceOpts),
+        stats: getStatsByChartType(chartType, bgSource, deviceOpts),
       },
     };
 
@@ -1178,7 +1179,7 @@ export const PatientDataClass = createReactClass({
       .toISOString();
 
     const latestDatumByType = _.get(this.props.data, 'metaData.latestDatumByType');
-    const mostRecentDatumTime = utils.getMostRecentDatumTimeByChartType(latestDatumByType, chartType);
+    const mostRecentDatumTime = getMostRecentDatumTimeByChartType(latestDatumByType, chartType);
     const hourCeiling = getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs, 'hour');
     const datetimeLocation = getDatetimeLocation(hourCeiling);
 
@@ -1202,7 +1203,7 @@ export const PatientDataClass = createReactClass({
 
     const datetimeInteger = _.isInteger(datetime) ? datetime : Date.parse(datetime);
     const latestDatumByType = _.get(this.props.data, 'metaData.latestDatumByType');
-    const mostRecentDatumTime = utils.getMostRecentDatumTimeByChartType(latestDatumByType, chartType);
+    const mostRecentDatumTime = getMostRecentDatumTimeByChartType(latestDatumByType, chartType);
     const dateCeiling = getLocalizedCeiling(_.min([datetimeInteger, mostRecentDatumTime]), this.state.timePrefs);
     const datetimeLocation = getDatetimeLocation(dateCeiling);
 
@@ -1225,7 +1226,7 @@ export const PatientDataClass = createReactClass({
       .toISOString();
 
     const latestDatumByType = _.get(this.props.data, 'metaData.latestDatumByType');
-    const mostRecentDatumTime = utils.getMostRecentDatumTimeByChartType(latestDatumByType, chartType);
+    const mostRecentDatumTime = getMostRecentDatumTimeByChartType(latestDatumByType, chartType);
     const hourCeiling = getLocalizedCeiling(_.min([Date.parse(datetime), mostRecentDatumTime]), this.state.timePrefs, 'hour');
     const datetimeLocation = getDatetimeLocation(hourCeiling);
 
@@ -1254,7 +1255,7 @@ export const PatientDataClass = createReactClass({
       .toISOString();
 
     const latestDatumByType = _.get(this.props.data, 'metaData.latestDatumByType');
-    const mostRecentDatumTime = utils.getMostRecentDatumTimeByChartType(latestDatumByType, chartType);
+    const mostRecentDatumTime = getMostRecentDatumTimeByChartType(latestDatumByType, chartType);
     const dateCeiling = getLocalizedCeiling(_.min([Date.parse(datetime), mostRecentDatumTime]), this.state.timePrefs);
     const datetimeLocation = getDatetimeLocation(dateCeiling);
 
@@ -1386,7 +1387,7 @@ export const PatientDataClass = createReactClass({
         const query = {
           bgPrefs: _.get(this.state, 'bgPrefs'),
           endpoints: _.get(this.state, 'chartEndpoints.current'),
-          stats: queryStats ? utils.getStatsByChartType(chartType, bgSource, deviceOpts) : undefined,
+          stats: queryStats ? getStatsByChartType(chartType, bgSource, deviceOpts) : undefined,
           aggregationsByDate: queryAggregations ? this.getAggregationsByChartType() : undefined,
         };
 
@@ -1943,7 +1944,7 @@ export const PatientDataClass = createReactClass({
       const isSettingsOverrideDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isSettingsOverrideDevice');
       const deviceOpts = { isAutomatedBasalDevice, isSettingsOverrideDevice };
 
-      chartQuery.stats = utils.getStatsByChartType(this.state.chartType, options.bgSource, deviceOpts);
+      chartQuery.stats = getStatsByChartType(this.state.chartType, options.bgSource, deviceOpts);
       chartQuery.nextDays = nextDays;
       chartQuery.prevDays = prevDays;
 
@@ -2055,7 +2056,7 @@ export const PatientDataClass = createReactClass({
       const isBgLog = chartType === 'bgLog';
 
       const latestDatumByType = _.get(props.data, 'metaData.latestDatumByType');
-      const mostRecentDatumTime = utils.getMostRecentDatumTimeByChartType(latestDatumByType, chartType);
+      const mostRecentDatumTime = getMostRecentDatumTimeByChartType(latestDatumByType, chartType);
       const latestDatumHourCeiling = getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs, 'hour');
 
       // If a datetime param is specified in URL, use that. Otherwise, use time of latest
