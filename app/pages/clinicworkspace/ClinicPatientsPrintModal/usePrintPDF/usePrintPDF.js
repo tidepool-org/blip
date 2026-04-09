@@ -35,7 +35,7 @@ export const STATUS = {
 };
 
 // TODO: Revisit best way to listen for progress when we move away from blip.working
-const inferLastCompletedStep = (patientId, data, pdf, hasPrintStarted) => {
+const inferLastCompletedStep = (patientId, data, pdf, hasClickedPrint, isSecondSkipped) => {
   // If the outputted data for a step in the process exists, we infer that the step was successful.
   // We do the lookup in reverse order to return the LATEST completed step
 
@@ -65,14 +65,16 @@ const inferLastCompletedStep = (patientId, data, pdf, hasPrintStarted) => {
   const hasPDFUrlInState  = !!pdf?.combined?.url;
   const hasImagesInState  = !!pdf?.opts?.svgDataURLS;
   const hasPDFDataInState = !!pdf?.data;
-  const hasSecondData = !!data?.metaData?.patientId && data?.metaData?.initial === false;
+
+  const hasAllData = data?.metaData?.initial === false || isSecondSkipped;
+  const hasSecondData = !!data?.metaData?.patientId && hasAllData;
   const hasFirstData = !!data?.metaData?.patientId;
 
   if (hasPDFUrlInState)                return STATUS.PDF_GENERATED;
   if (hasImagesInState)                return STATUS.SVGS_GENERATED;
   if (hasPDFDataInState)               return STATUS.DATA_PROCESSED;
   if (hasSecondData)                   return STATUS.SECOND_LOADED;
-  if (hasFirstData && hasPrintStarted) return STATUS.PRINT_STARTED;
+  if (hasFirstData && hasClickedPrint) return STATUS.PRINT_STARTED;
   if (hasFirstData)                    return STATUS.FIRST_LOADED;
 
   return STATUS.STATE_CLEARED;
@@ -97,6 +99,14 @@ const getFetchPatientOpts = (timePrefs, opts) => {
   };
 };
 
+const getEarliestDataRequired = (printOpts, timePrefs) => {
+  const enabledOpts = filter(printOpts, { disabled: false });
+  const earliestPrintDate = min(at(enabledOpts, map(keys(enabledOpts), key => `${key}.endpoints.0`)));
+  const startDate = moment.utc(earliestPrintDate).tz(getTimezoneFromTimePrefs(timePrefs)).toISOString();
+
+  return startDate;
+};
+
 const usePrintPDF = (
   api,
   patientId,
@@ -110,16 +120,19 @@ const usePrintPDF = (
   const pdf    = useSelector(state => state.blip.pdf);
   const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
   const clinicPatient = clinic?.patients?.[patientId];
+  const fetchedUntil = data?.fetchedUntil;
 
   const [canPrint, setCanPrint] = useState(false);
-  const [hasPrintStarted, setHasPrintStarted] = useState(false);
+  const [hasClickedPrint, setHasClickedPrint] = useState(false);
+  const [isSecondSkipped, setIsSecondSkipped] = useState(false);
 
   const printOptsRef = useRef(null);
   const timePrefsRef = useRef(null);
+
   const getPrintOpts = () => printOptsRef.current;
   const getTimePrefs = () => timePrefsRef.current;
 
-  const lastCompletedStep = inferLastCompletedStep(patientId, data, pdf, hasPrintStarted);
+  const lastCompletedStep = inferLastCompletedStep(patientId, data, pdf, hasClickedPrint, isSecondSkipped);
 
   useEffect(() => {
     // Whenever a step is successfully completed, this effect triggers the next step in the sequence.
@@ -142,8 +155,16 @@ const usePrintPDF = (
         break;
 
       case STATUS.PRINT_STARTED:
-        const fetchPatientOpts = getFetchPatientOpts(getTimePrefs(), getPrintOpts());
-        dispatch(actions.async.fetchPatientData(api, fetchPatientOpts, patientId));
+        const startDate = getEarliestDataRequired(getPrintOpts(), getTimePrefs());
+        const isSecondFetchRequired = startDate < fetchedUntil || !fetchedUntil;
+
+        if (isSecondFetchRequired) {
+          const fetchPatientOpts = getFetchPatientOpts(getTimePrefs(), getPrintOpts());
+          dispatch(actions.async.fetchPatientData(api, fetchPatientOpts, patientId));
+        } else {
+          setIsSecondSkipped(true);
+        }
+
         openPrintWindow();
         break;
 
@@ -186,7 +207,7 @@ const usePrintPDF = (
 
   const onPrintPDF = (opts = {}) => {
     printOptsRef.current = opts;
-    setHasPrintStarted(true);
+    setHasClickedPrint(true);
   };
 
   return {
