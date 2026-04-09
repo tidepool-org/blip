@@ -96,14 +96,13 @@ const getQueries = (
   const bgSource = 'cbg'; // TODO: FIX
   const cgmSampleIntervalRange = DEFAULT_CGM_SAMPLE_INTERVAL_RANGE; // TODO: FIX
   const excludedDevices = []; // TODO: FIX;
+  const glycemicRanges = clinicPatient?.glycemicRanges || DEFAULT_GLYCEMIC_RANGES;
 
   const bgPrefs = (() => {
     // TODO: Should set to Redux -> patient.settings. However, the only use case for useAgpCGM at present is
     // for clinician views. Correct patientSettings will be necessary if useAgpCGM is implement on PwD views.
     const stubPatientSettings = {};
 
-    // For TIDE Patient Drawer, we currently only show ADA standard ranges
-    const glycemicRanges = DEFAULT_GLYCEMIC_RANGES;
     const clinicPatientArg = {...clinicPatient, glycemicRanges };
 
     const bgUnitsOverride = {
@@ -116,9 +115,6 @@ const getQueries = (
 
     return localBgPrefs;
   })();
-
-  // TODO: FIX
-  const glycemicRanges = DEFAULT_GLYCEMIC_RANGES;
 
   const isAutomatedBasalDevice = _.get(data, 'metaData.latestPumpUpload.isAutomatedBasalDevice', false);
   const isSettingsOverrideDevice = _.get(data, 'metaData.latestPumpUpload.isSettingsOverrideDevice', false);
