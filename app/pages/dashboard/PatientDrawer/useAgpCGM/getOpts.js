@@ -10,16 +10,9 @@ const getOpts = (
   data, // data from redux (state.blip.data)
   agpPeriodInDays,
 ) => {
-  const getMostRecentDatumTimeByChartType = (data, _chartType) => {
-    const getLatestDatums = types => _.pick(_.get(data, 'metaData.latestDatumByType'), types);
-
-    let latestDatums = getLatestDatums(['cbg']) || [];
-
-    return _.max(_.map(latestDatums, d => (d.normalEnd || d.normalTime)));
-  };
-
+  const latestDatumByType = _.get(data, 'metaData.latestDatumByType');
   const mostRecentDatumDates = {
-    agpCGM: getMostRecentDatumTimeByChartType(data, 'agpCGM'),
+    agpCGM: utils.getMostRecentDatumTimeByChartType(latestDatumByType, 'agpCGM'),
   };
 
   const timePrefs = (() => {

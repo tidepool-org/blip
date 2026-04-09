@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import _ from 'lodash';
 import { useSelector } from 'react-redux';
 import PrintDateRangeModal from '../../../components/PrintDateRangeModal';
-import getMostRecentDatumTimeByChartType from './getMostRecentDatumTimeByChartType';
+import utils from '../../../core/utils';
 import noop from 'lodash/noop';
 import { Dialog, DialogTitle, DialogContent } from '../../../components/elements/Dialog';
 import { MediumTitle } from '../../../components/elements/FontStyles';
@@ -50,11 +50,11 @@ const ClinicPatientsPrintModal = ({ api, patientId, onClose = noop }) => {
       id="print-dialog"
       loggedInUserId={loggedInUserId}
       mostRecentDatumDates={{
-        agpBGM: getMostRecentDatumTimeByChartType(latestDatumByType, 'agpBGM'),
-        agpCGM: getMostRecentDatumTimeByChartType(latestDatumByType, 'agpCGM'),
-        basics: getMostRecentDatumTimeByChartType(latestDatumByType, 'basics'),
-        bgLog: getMostRecentDatumTimeByChartType(latestDatumByType, 'bgLog'),
-        daily: getMostRecentDatumTimeByChartType(latestDatumByType, 'daily'),
+        agpBGM: utils.getMostRecentDatumTimeByChartType(latestDatumByType, 'agpBGM'),
+        agpCGM: utils.getMostRecentDatumTimeByChartType(latestDatumByType, 'agpCGM'),
+        basics: utils.getMostRecentDatumTimeByChartType(latestDatumByType, 'basics'),
+        bgLog: utils.getMostRecentDatumTimeByChartType(latestDatumByType, 'bgLog'),
+        daily: utils.getMostRecentDatumTimeByChartType(latestDatumByType, 'daily'),
       }}
       onClose={onClose}
       onClickPrint={handleClickPrint}

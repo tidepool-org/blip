@@ -391,6 +391,7 @@ export const PatientDataClass = createReactClass({
   renderDatesDialog: function() {
     const isDaily = this.state.chartType === 'daily';
     const DatePickerComponent = isDaily ? ChartDateModal : ChartDateRangeModal;
+    const latestDatumByType = _.get(this.props.data, 'metaData.latestDatumByType');
 
     const extraProps = isDaily ? {
       id: 'chart-date-dialog',
@@ -403,7 +404,7 @@ export const PatientDataClass = createReactClass({
     return (
       <DatePickerComponent
         chartType={this.state.chartType}
-        mostRecentDatumDate={this.getMostRecentDatumTimeByChartType()}
+        mostRecentDatumDate={utils.getMostRecentDatumTimeByChartType(latestDatumByType, this.state.chartType)}
         open={this.state.datesDialogOpen}
         onClose={this.closeDatesDialog}
         onSubmit={dates => {
@@ -460,16 +461,18 @@ export const PatientDataClass = createReactClass({
   },
 
   renderPrintDialog: function() {
+    const latestDatumByType = _.get(this.props.data, 'metaData.latestDatumByType');
+
     return (
       <PrintDateRangeModal
         id="print-dialog"
         loggedInUserId={this.props.user?.userid}
         mostRecentDatumDates={{
-          agpBGM: this.getMostRecentDatumTimeByChartType(this.props, 'agpBGM'),
-          agpCGM: this.getMostRecentDatumTimeByChartType(this.props, 'agpCGM'),
-          basics: this.getMostRecentDatumTimeByChartType(this.props, 'basics'),
-          bgLog: this.getMostRecentDatumTimeByChartType(this.props, 'bgLog'),
-          daily: this.getMostRecentDatumTimeByChartType(this.props, 'daily'),
+          agpBGM: utils.getMostRecentDatumTimeByChartType(latestDatumByType, 'agpBGM'),
+          agpCGM: utils.getMostRecentDatumTimeByChartType(latestDatumByType, 'agpCGM'),
+          basics: utils.getMostRecentDatumTimeByChartType(latestDatumByType, 'basics'),
+          bgLog: utils.getMostRecentDatumTimeByChartType(latestDatumByType, 'bgLog'),
+          daily: utils.getMostRecentDatumTimeByChartType(latestDatumByType, 'daily'),
         }}
         open={this.state.printDialogOpen}
         onClose={this.closePrintDialog}
@@ -1174,7 +1177,8 @@ export const PatientDataClass = createReactClass({
     const getDatetimeLocation = d => moment.utc(d.valueOf())
       .toISOString();
 
-    const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
+    const latestDatumByType = _.get(this.props.data, 'metaData.latestDatumByType');
+    const mostRecentDatumTime = utils.getMostRecentDatumTimeByChartType(latestDatumByType, chartType);
     const hourCeiling = getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs, 'hour');
     const datetimeLocation = getDatetimeLocation(hourCeiling);
 
@@ -1197,7 +1201,8 @@ export const PatientDataClass = createReactClass({
       .toISOString();
 
     const datetimeInteger = _.isInteger(datetime) ? datetime : Date.parse(datetime);
-    const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
+    const latestDatumByType = _.get(this.props.data, 'metaData.latestDatumByType');
+    const mostRecentDatumTime = utils.getMostRecentDatumTimeByChartType(latestDatumByType, chartType);
     const dateCeiling = getLocalizedCeiling(_.min([datetimeInteger, mostRecentDatumTime]), this.state.timePrefs);
     const datetimeLocation = getDatetimeLocation(dateCeiling);
 
@@ -1219,7 +1224,8 @@ export const PatientDataClass = createReactClass({
     const getDatetimeLocation = d => moment.utc(d.valueOf())
       .toISOString();
 
-    const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
+    const latestDatumByType = _.get(this.props.data, 'metaData.latestDatumByType');
+    const mostRecentDatumTime = utils.getMostRecentDatumTimeByChartType(latestDatumByType, chartType);
     const hourCeiling = getLocalizedCeiling(_.min([Date.parse(datetime), mostRecentDatumTime]), this.state.timePrefs, 'hour');
     const datetimeLocation = getDatetimeLocation(hourCeiling);
 
@@ -1247,7 +1253,8 @@ export const PatientDataClass = createReactClass({
       .subtract(12, 'hours')
       .toISOString();
 
-    const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
+    const latestDatumByType = _.get(this.props.data, 'metaData.latestDatumByType');
+    const mostRecentDatumTime = utils.getMostRecentDatumTimeByChartType(latestDatumByType, chartType);
     const dateCeiling = getLocalizedCeiling(_.min([Date.parse(datetime), mostRecentDatumTime]), this.state.timePrefs);
     const datetimeLocation = getDatetimeLocation(dateCeiling);
 
@@ -1484,71 +1491,6 @@ export const PatientDataClass = createReactClass({
     }
 
     return days;
-  },
-
-  getMostRecentDatumTimeByChartType: function(props = this.props, chartType = this.state.chartType) {
-    let latestDatums;
-    const getLatestDatums = types => _.pick(_.get(props.data, 'metaData.latestDatumByType'), types);
-
-    switch (chartType) {
-      case 'basics':
-        latestDatums = getLatestDatums([
-          'basal',
-          'bolus',
-          'cbg',
-          'deviceEvent',
-          'smbg',
-          'wizard',
-        ]);
-        break
-
-      case 'daily':
-        latestDatums = getLatestDatums([
-          'basal',
-          'bolus',
-          'insulin',
-          'cbg',
-          'deviceEvent',
-          'food',
-          'message',
-          'smbg',
-          'wizard',
-          'reportedState',
-          'physicalActivity',
-        ]);
-        break;
-
-      case 'bgLog':
-        latestDatums = getLatestDatums([
-          'smbg',
-        ]);
-        break;
-
-      case 'agpBGM':
-        latestDatums = getLatestDatums([
-          'smbg',
-        ]);
-        break;
-
-      case 'agpCGM':
-        latestDatums = getLatestDatums([
-          'cbg',
-        ]);
-        break;
-
-      case 'trends':
-        latestDatums = getLatestDatums([
-          'cbg',
-          'smbg',
-        ]);
-        break;
-
-      default:
-        latestDatums = [];
-        break;
-    }
-
-    return _.max(_.map(latestDatums, d => (d.normalEnd || d.normalTime)));
   },
 
   getCopyAsTextMetadata: function () {
@@ -2112,7 +2054,8 @@ export const PatientDataClass = createReactClass({
       const isDaily = chartType === 'daily';
       const isBgLog = chartType === 'bgLog';
 
-      const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(props, chartType);
+      const latestDatumByType = _.get(props.data, 'metaData.latestDatumByType');
+      const mostRecentDatumTime = utils.getMostRecentDatumTimeByChartType(latestDatumByType, chartType);
       const latestDatumHourCeiling = getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs, 'hour');
 
       // If a datetime param is specified in URL, use that. Otherwise, use time of latest
