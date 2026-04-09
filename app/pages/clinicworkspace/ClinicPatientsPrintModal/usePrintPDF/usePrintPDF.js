@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../../../../redux/actions';
-import buildGenerateAGPImages from './buildGenerateAGPImages';
 import moment from 'moment';
 import usePrintWindow from './usePrintWindow';
 
@@ -17,6 +16,7 @@ import min from 'lodash/min';
 import at from 'lodash/at';
 import map from 'lodash/map';
 import keys from 'lodash/keys';
+import { useGenerateAGPImages } from '../../../../core/agpUtils';
 
 export const STATUS = {
   // States in order of happy path AGP generation sequence
@@ -121,7 +121,7 @@ const usePrintPDF = (
   onPrintTriggered = noop,
 ) => {
   const dispatch = useDispatch();
-  const generateAGPImages = buildGenerateAGPImages(dispatch);
+  const generateAGPImages = useGenerateAGPImages();
   const { openPrintWindow, triggerPrint } = usePrintWindow();
 
   const data   = useSelector(state => state.blip.data);
@@ -183,7 +183,7 @@ const usePrintPDF = (
         break;
 
       case STATUS.DATA_PROCESSED:
-        generateAGPImages(pdf, ['agpCGM']);
+        generateAGPImages(pdf, ['agpCGM']); // TODO: FIX
         break;
 
       case STATUS.SVGS_GENERATED:

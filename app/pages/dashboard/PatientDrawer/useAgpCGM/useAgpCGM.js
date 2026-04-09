@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../../../../redux/actions';
-import buildGenerateAGPImages from './buildGenerateAGPImages';
 import moment from 'moment';
 
 import getOpts from './getOpts';
 import getQueries from './getQueries';
 import { cloneDeep } from 'lodash';
+import { useGenerateAGPImages } from '../../../../core/agpUtils';
 
 export const STATUS = {
   // States in order of happy path AGP generation sequence
@@ -77,7 +77,7 @@ const useAgpCGM = (
   agpPeriodInDays = DEFAULT_AGP_PERIOD_IN_DAYS,
 ) => {
   const dispatch = useDispatch();
-  const generateAGPImages = buildGenerateAGPImages(dispatch);
+  const generateAGPImages = useGenerateAGPImages();
 
   const data   = useSelector(state => state.blip.data);
   const pdf    = useSelector(state => state.blip.pdf);

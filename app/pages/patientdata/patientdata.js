@@ -64,6 +64,7 @@ import ShareBanner from '../../components/elements/Card/Banners/Share.png';
 import DataConnectionsBanner from '../../components/elements/Card/Banners/DataConnections.png';
 import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
 import { DATA_DONATION_CONSENT_TYPE, DEFAULT_CGM_SAMPLE_INTERVAL, DEFAULT_CGM_SAMPLE_INTERVAL_RANGE, DIABETES_TYPES, MS_IN_MIN } from '../../core/constants';
+import { generateAGPImages } from '../../core/agpUtils';
 const { GLYCEMIC_RANGES_PRESET } = vizUtils.constants;
 
 const { Loader } = vizComponents;
@@ -823,50 +824,6 @@ export const PatientDataClass = createReactClass({
 
     this.log('stats', stats);
     return stats;
-  },
-
-  generateAGPImages: async function(props = this.props, reportTypes = []) {
-    const promises = [];
-    let errored = false
-
-    await _.each(reportTypes, async reportType => {
-      let images;
-
-      try{
-        images = await vizUtils.agp.generateAGPFigureDefinitions({ ...props.pdf.data?.[reportType] });
-      } catch(e) {
-        errored = true
-        return props.generateAGPImagesFailure(e);
-      }
-
-      promises.push(..._.map(images, async (image, key) => {
-        if (_.isArray(image)) {
-          const processedArray = await Promise.all(
-            _.map(image, async (img) => {
-              return await Plotly.toImage(img, { format: 'svg' });
-            })
-          );
-          return [reportType, [key, processedArray]];
-        } else {
-          const processedValue = await Plotly.toImage(image, { format: 'svg' });
-          return [reportType, [key, processedValue]];
-        }
-      }));
-    });
-
-    const results = await Promise.all(promises);
-
-    if (results.length) {
-      const processedImages = _.reduce(results, (res, entry, i) => {
-        const processedImage = _.fromPairs(entry.slice(1));
-        res[entry[0]] = {...res[entry[0]], ...processedImage };
-        return res;
-      }, {});
-
-      props.generateAGPImagesSuccess(processedImages);
-    } else if (!errored) {
-      props.generateAGPImagesSuccess(results);
-    }
   },
 
   generatePDF: function(props = this.props, state = this.state) {
@@ -1881,7 +1838,10 @@ export const PatientDataClass = createReactClass({
         const reportTypes = [];
         needsAgpBGMImagesGenerated && reportTypes.push('agpBGM');
         needsAgpCGMImagesGenerated && reportTypes.push('agpCGM');
-        this.generateAGPImages(nextProps, reportTypes);
+        const onSuccess = nextProps.generateAGPImagesSuccess;
+        const onFailure = nextProps.generateAGPImagesFailure;
+
+        generateAGPImages(onSuccess, onFailure)(nextProps.pdf, reportTypes);
       } else if (agpImagesGenerated) {
         this.generatePDF(nextProps, {
           ...this.state,
