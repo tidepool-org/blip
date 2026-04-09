@@ -14,12 +14,14 @@ const getQueries = (
   timePrefs,
   opts,
 ) => {
-  const derivedBgSource = _.get(data, 'metaData.bgSources.current', 'cbg'); // based on user's recent data
-
-  const cgmSampleIntervalRange = DEFAULT_CGM_SAMPLE_INTERVAL_RANGE; // TODO: FIX
+  // Use sensible defaults for settings that we don't allow manual configuration of
+  const cgmSampleIntervalRange = DEFAULT_CGM_SAMPLE_INTERVAL_RANGE;
   const excludedDevices = []; // TODO: FIX;
-
   const glycemicRanges = clinicPatient?.glycemicRanges || DEFAULT_GLYCEMIC_RANGES;
+  const derivedBgSource = _.get(data, 'metaData.bgSources.current', 'cbg'); // derive from user's recent data
+  const isAutomatedBasalDevice = _.get(data, 'metaData.latestPumpUpload.isAutomatedBasalDevice', false);
+  const isSettingsOverrideDevice = _.get(data, 'metaData.latestPumpUpload.isSettingsOverrideDevice', false);
+  const deviceOpts = { isAutomatedBasalDevice, isSettingsOverrideDevice };
 
   const bgPrefs = (() => {
     // TODO: Should set to Redux -> patient.settings. However, the only use case for useAgpCGM at present is
@@ -38,10 +40,6 @@ const getQueries = (
 
     return localBgPrefs;
   })();
-
-  const isAutomatedBasalDevice = _.get(data, 'metaData.latestPumpUpload.isAutomatedBasalDevice', false);
-  const isSettingsOverrideDevice = _.get(data, 'metaData.latestPumpUpload.isSettingsOverrideDevice', false);
-  const deviceOpts = { isAutomatedBasalDevice, isSettingsOverrideDevice };
 
   const commonQueries = {
     bgPrefs: bgPrefs,
