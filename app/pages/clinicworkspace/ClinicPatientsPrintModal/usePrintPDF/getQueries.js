@@ -1,90 +1,9 @@
 import _ from 'lodash';
 import { utils as vizUtils } from '@tidepool/viz';
-const { commonStats } = vizUtils.stat;
 
 import utils from '../../../../core/utils';
 import { DEFAULT_GLYCEMIC_RANGES } from '../../../../core/glycemicRangesUtils';
 import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE } from '../../../../core/constants';
-
-const getStatsByChartType = (chartType, bgSource, isAutomatedBasalDevice, isSettingsOverrideDevice) => {
-  const currentBgSource = bgSource;
-  const cbgSelected = currentBgSource === 'cbg';
-  const smbgSelected = currentBgSource === 'smbg';
-
-  let stats = [];
-
-  switch (chartType) {
-    case 'basics':
-      cbgSelected && stats.push(commonStats.timeInRange);
-      smbgSelected && stats.push(commonStats.readingsInRange);
-      stats.push(commonStats.averageGlucose);
-      cbgSelected && stats.push(commonStats.sensorUsage);
-      stats.push(commonStats.totalInsulin);
-      isAutomatedBasalDevice && stats.push(commonStats.timeInAuto);
-      isSettingsOverrideDevice && stats.push(commonStats.timeInOverride);
-      stats.push(commonStats.carbs);
-      stats.push(commonStats.averageDailyDose);
-      cbgSelected && stats.push(commonStats.glucoseManagementIndicator);
-      stats.push(commonStats.standardDev);
-      stats.push(commonStats.coefficientOfVariation);
-      stats.push(commonStats.bgExtents);
-      break;
-
-    case 'daily':
-      cbgSelected && stats.push(commonStats.timeInRange);
-      smbgSelected && stats.push(commonStats.readingsInRange);
-      stats.push(commonStats.averageGlucose);
-      stats.push(commonStats.totalInsulin);
-      isAutomatedBasalDevice && stats.push(commonStats.timeInAuto);
-      isSettingsOverrideDevice && stats.push(commonStats.timeInOverride);
-      stats.push(commonStats.carbs);
-      cbgSelected && stats.push(commonStats.standardDev);
-      cbgSelected && stats.push(commonStats.coefficientOfVariation);
-      break;
-
-    case 'bgLog':
-      stats.push(commonStats.readingsInRange);
-      stats.push(commonStats.averageGlucose);
-      stats.push(commonStats.standardDev);
-      stats.push(commonStats.coefficientOfVariation);
-      break;
-
-    case 'agpBGM':
-      stats.push(commonStats.averageGlucose,);
-      stats.push(commonStats.bgExtents,);
-      stats.push(commonStats.coefficientOfVariation,);
-      stats.push(commonStats.glucoseManagementIndicator,);
-      stats.push(commonStats.readingsInRange,);
-      break;
-
-    case 'agpCGM':
-      stats.push(commonStats.averageGlucose);
-      stats.push(commonStats.bgExtents);
-      stats.push(commonStats.coefficientOfVariation);
-      stats.push(commonStats.glucoseManagementIndicator);
-      stats.push(commonStats.sensorUsage);
-      stats.push(commonStats.timeInRange);
-      break;
-
-    case 'trends':
-      cbgSelected && stats.push(commonStats.timeInRange);
-      smbgSelected && stats.push(commonStats.readingsInRange);
-      stats.push(commonStats.averageGlucose);
-      cbgSelected && stats.push(commonStats.sensorUsage);
-      stats.push(commonStats.totalInsulin);
-      stats.push(commonStats.averageDailyDose);
-      isAutomatedBasalDevice && stats.push(commonStats.timeInAuto);
-      isSettingsOverrideDevice && stats.push(commonStats.timeInOverride);
-      cbgSelected && stats.push(commonStats.glucoseManagementIndicator);
-      stats.push(commonStats.standardDev);
-      stats.push(commonStats.coefficientOfVariation);
-      stats.push(commonStats.bgExtents);
-      break;
-  }
-
-  return stats;
-};
-
 
 const getQueries = (
   data,
@@ -118,6 +37,7 @@ const getQueries = (
 
   const isAutomatedBasalDevice = _.get(data, 'metaData.latestPumpUpload.isAutomatedBasalDevice', false);
   const isSettingsOverrideDevice = _.get(data, 'metaData.latestPumpUpload.isSettingsOverrideDevice', false);
+  const deviceOpts = { isAutomatedBasalDevice, isSettingsOverrideDevice };
 
   const commonQueries = {
     bgPrefs: bgPrefs,
@@ -133,7 +53,7 @@ const getQueries = (
       endpoints: opts.basics?.endpoints,
       aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
       bgSource: bgSource,
-      stats: getStatsByChartType('basics', bgSource, isAutomatedBasalDevice, isSettingsOverrideDevice),
+      stats: utils.getStatsByChartType('basics', bgSource, deviceOpts),
       ...commonQueries,
     };
   }
@@ -142,7 +62,7 @@ const getQueries = (
     queries.bgLog = {
       endpoints: opts.bgLog?.endpoints,
       aggregationsByDate: 'dataByDate',
-      stats: getStatsByChartType('bgLog', bgSource, isAutomatedBasalDevice, isSettingsOverrideDevice),
+      stats: utils.getStatsByChartType('bgLog', bgSource, deviceOpts),
       types: { smbg: {} },
       bgSource: bgSource,
       ...commonQueries,
@@ -153,7 +73,7 @@ const getQueries = (
     queries.daily = {
       endpoints: opts.daily?.endpoints,
       aggregationsByDate: 'dataByDate, statsByDate',
-      stats: getStatsByChartType('daily', bgSource, isAutomatedBasalDevice, isSettingsOverrideDevice),
+      stats: utils.getStatsByChartType('daily', bgSource, deviceOpts),
       types: {
         basal: {},
         bolus: {},
@@ -178,7 +98,7 @@ const getQueries = (
       endpoints: opts.agpBGM?.endpoints,
       aggregationsByDate: 'dataByDate, statsByDate',
       bgSource: bgSource,
-      stats: getStatsByChartType('agpBGM', bgSource, isAutomatedBasalDevice, isSettingsOverrideDevice),
+      stats: utils.getStatsByChartType('agpBGM', bgSource, deviceOpts),
       types: { smbg: {} },
       glycemicRanges,
       ...commonQueries,
@@ -190,7 +110,7 @@ const getQueries = (
       endpoints: opts.agpCGM?.endpoints,
       aggregationsByDate: 'dataByDate, statsByDate',
       bgSource: bgSource,
-      stats: getStatsByChartType('agpCGM', bgSource, isAutomatedBasalDevice, isSettingsOverrideDevice),
+      stats: utils.getStatsByChartType('agpCGM', bgSource, deviceOpts),
       types: { cbg: {} },
       glycemicRanges,
       ...commonQueries,

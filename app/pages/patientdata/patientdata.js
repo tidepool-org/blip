@@ -882,12 +882,18 @@ export const PatientDataClass = createReactClass({
       settings: _.assign({}, patientSettings, { siteChangeSource }),
     });
 
+    const bgSource = _.get(this.state.chartPrefs, [chartType, 'bgSource']);
+    const isAutomatedBasalDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isAutomatedBasalDevice');
+    const isSettingsOverrideDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isSettingsOverrideDevice');
+    const deviceOpts = { isAutomatedBasalDevice, isSettingsOverrideDevice };
+
     const commonQueries = {
       bgPrefs: state.bgPrefs,
       metaData: 'latestPumpUpload, bgSources',
       timePrefs: state.timePrefs,
       excludedDevices: state.chartPrefs?.excludedDevices,
     };
+
 
     const queries = {};
 
@@ -896,7 +902,7 @@ export const PatientDataClass = createReactClass({
         endpoints: printDialogPDFOpts.basics?.endpoints,
         aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
         bgSource: _.get(state.chartPrefs, 'basics.bgSource'),
-        stats: this.getStatsByChartType('basics'),
+        stats: utils.getStatsByChartType('basics', bgSource, deviceOpts),
         ...commonQueries,
       };
     }
@@ -905,7 +911,7 @@ export const PatientDataClass = createReactClass({
       queries.bgLog = {
         endpoints: printDialogPDFOpts.bgLog?.endpoints,
         aggregationsByDate: 'dataByDate',
-        stats: this.getStatsByChartType('bgLog'),
+        stats: utils.getStatsByChartType('bgLog', bgSource, deviceOpts),
         types: { smbg: {} },
         bgSource: _.get(state.chartPrefs, 'bgLog.bgSource'),
         ...commonQueries,
@@ -916,7 +922,7 @@ export const PatientDataClass = createReactClass({
       queries.daily = {
         endpoints: printDialogPDFOpts.daily?.endpoints,
         aggregationsByDate: 'dataByDate, statsByDate',
-        stats: this.getStatsByChartType('daily'),
+        stats: utils.getStatsByChartType('daily', bgSource, deviceOpts),
         types: {
           basal: {},
           bolus: {},
@@ -941,7 +947,7 @@ export const PatientDataClass = createReactClass({
         endpoints: printDialogPDFOpts.agpBGM?.endpoints,
         aggregationsByDate: 'dataByDate, statsByDate',
         bgSource: _.get(state.chartPrefs, 'agpBGM.bgSource'),
-        stats: this.getStatsByChartType('agpBGM'),
+        stats: utils.getStatsByChartType('agpBGM', bgSource, deviceOpts),
         types: { smbg: {} },
         glycemicRanges,
         ...commonQueries,
@@ -953,7 +959,7 @@ export const PatientDataClass = createReactClass({
         endpoints: printDialogPDFOpts.agpCGM?.endpoints,
         aggregationsByDate: 'dataByDate, statsByDate',
         bgSource: _.get(state.chartPrefs, 'agpCGM.bgSource'),
-        stats: this.getStatsByChartType('agpCGM'),
+        stats: utils.getStatsByChartType('agpCGM', bgSource, deviceOpts),
         types: { cbg: {} },
         glycemicRanges,
         ...commonQueries,
@@ -1014,6 +1020,12 @@ export const PatientDataClass = createReactClass({
     const fetchedUntil = this.getCurrentFetchedUntilDate();
     const newChartRangeNeedsDataFetch = moment.utc(newEndpoints[0]).subtract(nextDays, 'days').startOf('day').toISOString() <= fetchedUntil;
 
+    const chartType = this.state.chartType;
+    const bgSource = _.get(this.state.chartPrefs, [chartType, 'bgSource']);
+    const isAutomatedBasalDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isAutomatedBasalDevice');
+    const isSettingsOverrideDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isSettingsOverrideDevice');
+    const deviceOpts = { isAutomatedBasalDevice, isSettingsOverrideDevice };
+
     const updateOpts = {
       showLoading: newChartRangeNeedsDataFetch || updateChartData,
       updateChartEndpoints: isTrends || updateChartData,
@@ -1021,7 +1033,7 @@ export const PatientDataClass = createReactClass({
         endpoints: newEndpoints,
         nextDays,
         prevDays,
-        stats: this.getStatsByChartType(),
+        stats: utils.getStatsByChartType(chartType, bgSource, deviceOpts),
       },
     };
 
@@ -1400,10 +1412,16 @@ export const PatientDataClass = createReactClass({
       if (queryData) {
         this.queryData(undefined, queryOpts);
       } else if (queryStats || queryAggregations) {
+        const chartType = this.state.chartType;
+        const bgSource = _.get(this.state.chartPrefs, [chartType, 'bgSource']);
+        const isAutomatedBasalDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isAutomatedBasalDevice');
+        const isSettingsOverrideDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isSettingsOverrideDevice');
+        const deviceOpts = { isAutomatedBasalDevice, isSettingsOverrideDevice };
+
         const query = {
           bgPrefs: _.get(this.state, 'bgPrefs'),
           endpoints: _.get(this.state, 'chartEndpoints.current'),
-          stats: queryStats ? this.getStatsByChartType() : undefined,
+          stats: queryStats ? utils.getStatsByChartType(chartType, bgSource, deviceOpts) : undefined,
           aggregationsByDate: queryAggregations ? this.getAggregationsByChartType() : undefined,
         };
 
@@ -1484,87 +1502,6 @@ export const PatientDataClass = createReactClass({
     }
 
     return aggregations;
-  },
-
-  getStatsByChartType: function(chartType = this.state.chartType, bgSource) {
-    const currentBgSource = bgSource || _.get(this.state.chartPrefs, [chartType, 'bgSource']);
-    const cbgSelected =  currentBgSource === 'cbg';
-    const smbgSelected = currentBgSource === 'smbg';
-    const isAutomatedBasalDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isAutomatedBasalDevice');
-    const isSettingsOverrideDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isSettingsOverrideDevice');
-
-    let stats = [];
-
-    switch (chartType) {
-      case 'basics':
-        cbgSelected && stats.push(commonStats.timeInRange);
-        smbgSelected && stats.push(commonStats.readingsInRange);
-        stats.push(commonStats.averageGlucose);
-        cbgSelected && stats.push(commonStats.sensorUsage);
-        stats.push(commonStats.totalInsulin);
-        isAutomatedBasalDevice && stats.push(commonStats.timeInAuto);
-        isSettingsOverrideDevice && stats.push(commonStats.timeInOverride);
-        stats.push(commonStats.carbs);
-        stats.push(commonStats.averageDailyDose);
-        cbgSelected && stats.push(commonStats.glucoseManagementIndicator);
-        stats.push(commonStats.standardDev);
-        stats.push(commonStats.coefficientOfVariation);
-        stats.push(commonStats.bgExtents);
-        break;
-
-      case 'daily':
-        cbgSelected && stats.push(commonStats.timeInRange);
-        smbgSelected && stats.push(commonStats.readingsInRange);
-        stats.push(commonStats.averageGlucose);
-        stats.push(commonStats.totalInsulin);
-        isAutomatedBasalDevice && stats.push(commonStats.timeInAuto);
-        isSettingsOverrideDevice && stats.push(commonStats.timeInOverride);
-        stats.push(commonStats.carbs);
-        cbgSelected && stats.push(commonStats.standardDev);
-        cbgSelected && stats.push(commonStats.coefficientOfVariation);
-        break;
-
-      case 'bgLog':
-        stats.push(commonStats.readingsInRange);
-        stats.push(commonStats.averageGlucose);
-        stats.push(commonStats.standardDev);
-        stats.push(commonStats.coefficientOfVariation);
-        break;
-
-      case 'agpBGM':
-        stats.push(commonStats.averageGlucose,);
-        stats.push(commonStats.bgExtents,);
-        stats.push(commonStats.coefficientOfVariation,);
-        stats.push(commonStats.glucoseManagementIndicator,);
-        stats.push(commonStats.readingsInRange,);
-        break;
-
-      case 'agpCGM':
-        stats.push(commonStats.averageGlucose);
-        stats.push(commonStats.bgExtents);
-        stats.push(commonStats.coefficientOfVariation);
-        stats.push(commonStats.glucoseManagementIndicator);
-        stats.push(commonStats.sensorUsage);
-        stats.push(commonStats.timeInRange);
-        break;
-
-      case 'trends':
-        cbgSelected && stats.push(commonStats.timeInRange);
-        smbgSelected && stats.push(commonStats.readingsInRange);
-        stats.push(commonStats.averageGlucose);
-        cbgSelected && stats.push(commonStats.sensorUsage);
-        stats.push(commonStats.totalInsulin);
-        stats.push(commonStats.averageDailyDose);
-        isAutomatedBasalDevice && stats.push(commonStats.timeInAuto);
-        isSettingsOverrideDevice && stats.push(commonStats.timeInOverride);
-        cbgSelected && stats.push(commonStats.glucoseManagementIndicator);
-        stats.push(commonStats.standardDev);
-        stats.push(commonStats.coefficientOfVariation);
-        stats.push(commonStats.bgExtents);
-        break;
-    }
-
-    return stats;
   },
 
   getDaysByType: function() {
@@ -2099,7 +2036,11 @@ export const PatientDataClass = createReactClass({
 
       const { next: nextDays, prev: prevDays } = this.getDaysByType();
 
-      chartQuery.stats = this.getStatsByChartType(this.state.chartType, options.bgSource);
+      const isAutomatedBasalDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isAutomatedBasalDevice');
+      const isSettingsOverrideDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isSettingsOverrideDevice');
+      const deviceOpts = { isAutomatedBasalDevice, isSettingsOverrideDevice };
+
+      chartQuery.stats = utils.getStatsByChartType(this.state.chartType, options.bgSource, deviceOpts);
       chartQuery.nextDays = nextDays;
       chartQuery.prevDays = prevDays;
 
