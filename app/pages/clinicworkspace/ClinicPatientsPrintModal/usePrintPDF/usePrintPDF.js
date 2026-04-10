@@ -154,11 +154,6 @@ const usePrintPDF = (
 
   const lastCompletedStep = inferLastCompletedStep(patientId, data, patient, pdf, hasClickedPrint, isSecondSkipped);
 
-  const onPrintPDF = (opts = {}) => {
-    printOptsRef.current = opts;
-    setHasClickedPrint(true);
-  };
-
   useEffect(() => {
     // Whenever a step is successfully completed, this effect triggers the next step in the sequence.
 
@@ -233,18 +228,13 @@ const usePrintPDF = (
     };
   }, []);
 
-  // Failsafe to ensure that data is being returned for correct patient
+  // Note: probably unnecessary; failsafe to ensure that data is being returned for correct patient
   const isCorrectPatientInState = pdf.opts?.patient?.id === patientId; // TODO: FIX
 
-  if (!isCorrectPatientInState) {
-    return {
-      status: lastCompletedStep,
-      canPrint: false,
-      timePrefs: null,
-      latestDatumByType: null,
-      onPrintPDF: noop,
-    };
-  }
+  const onPrintPDF = (opts = {}) => {
+    printOptsRef.current = opts;
+    setHasClickedPrint(true);
+  };
 
   return {
     status: lastCompletedStep,
