@@ -9,6 +9,7 @@ import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE } from '../../../../core/constants';
 
 const getQueries = (
   data,
+  patient,
   clinicPatient,
   clinic,
   timePrefs,
@@ -22,20 +23,13 @@ const getQueries = (
   const isAutomatedBasalDevice = _.get(data, 'metaData.latestPumpUpload.isAutomatedBasalDevice', false);
   const isSettingsOverrideDevice = _.get(data, 'metaData.latestPumpUpload.isSettingsOverrideDevice', false);
   const deviceOpts = { isAutomatedBasalDevice, isSettingsOverrideDevice };
+  const { settings = {} } = patient || {};
 
   const bgPrefs = (() => {
-    // TODO: Should set to Redux -> patient.settings. However, the only use case for useAgpCGM at present is
-    // for clinician views. Correct patientSettings will be necessary if useAgpCGM is implement on PwD views.
-    const stubPatientSettings = {};
-
     const clinicPatientArg = {...clinicPatient, glycemicRanges };
 
-    const bgUnitsOverride = {
-      units: clinic?.preferredBgUnits,
-      source: 'preferred clinic units',
-    };
-
-    const localBgPrefs = utils.getBGPrefsForDataProcessing(stubPatientSettings, clinicPatientArg, bgUnitsOverride);
+    const bgUnitsOverride = { units: clinic?.preferredBgUnits, source: 'preferred clinic units' };
+    const localBgPrefs = utils.getBGPrefsForDataProcessing(settings, clinicPatientArg, bgUnitsOverride);
     localBgPrefs.bgBounds = vizUtils.bg.reshapeBgClassesToBgBounds(localBgPrefs);
 
     return localBgPrefs;

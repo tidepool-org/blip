@@ -17,6 +17,7 @@ import at from 'lodash/at';
 import map from 'lodash/map';
 import keys from 'lodash/keys';
 import { useGenerateAGPImages } from '../../../../core/agpUtils';
+import { selectPatient } from '../../../../core/selectors';
 
 export const STATUS = {
   // States in order of happy path AGP generation sequence
@@ -35,7 +36,7 @@ export const STATUS = {
 };
 
 // TODO: Revisit best way to listen for progress when we move away from blip.working
-const inferLastCompletedStep = (patientId, data, pdf, hasClickedPrint, isSecondSkipped) => {
+const inferLastCompletedStep = (patientId, data, patient, pdf, hasClickedPrint, isSecondSkipped) => {
   // If the outputted data for a step in the process exists, we infer that the step was successful.
   // We do the lookup in reverse order to return the LATEST completed step
 
@@ -61,7 +62,7 @@ const inferLastCompletedStep = (patientId, data, pdf, hasClickedPrint, isSecondS
 
   const hasAllData = data?.metaData?.initial === false || isSecondSkipped;
   const hasSecondData = !!data?.metaData?.patientId && hasAllData;
-  const hasFirstData = !!data?.metaData?.patientId;
+  const hasFirstData = !!data?.metaData?.patientId && patient?.userid;
 
   if (hasPDFUrlInState)                return STATUS.PDF_GENERATED;
   if (hasImagesInState)                return STATUS.SVGS_GENERATED;
@@ -108,6 +109,15 @@ const getEarliestPrintDate = (printOpts, timePrefs) => {
   return startDate;
 };
 
+const getPdfOpts = (printOpts, clinicPatient, patient) => {
+  const patientSettings = patient?.settings || {};
+  const siteChangeSource = patient?.settings?.siteChangeSource;
+
+  const pdfPatient = { ...clinicPatient, settings: { ...patientSettings, siteChangeSource } };
+
+  return { ...printOpts, patient: pdfPatient };
+};
+
 const usePrintPDF = (
   api,
   patientId,
@@ -119,6 +129,7 @@ const usePrintPDF = (
 
   const data   = useSelector(state => state.blip.data);
   const pdf    = useSelector(state => state.blip.pdf);
+  const patient = useSelector(state => selectPatient(state));
   const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
   const clinicPatient = clinic?.patients?.[patientId];
   const fetchedUntil = data?.fetchedUntil;
@@ -133,7 +144,7 @@ const usePrintPDF = (
   const getPrintOpts = () => printOptsRef.current;
   const getTimePrefs = () => timePrefsRef.current;
 
-  const lastCompletedStep = inferLastCompletedStep(patientId, data, pdf, hasClickedPrint, isSecondSkipped);
+  const lastCompletedStep = inferLastCompletedStep(patientId, data, patient, pdf, hasClickedPrint, isSecondSkipped);
 
   useEffect(() => {
     // Whenever a step is successfully completed, this effect triggers the next step in the sequence.
@@ -147,6 +158,7 @@ const usePrintPDF = (
       case STATUS.STATE_CLEARED:
         const initialFetchOpts = getInitialFetchOpts();
         dispatch(actions.async.fetchPatientData(api, initialFetchOpts, patientId));
+        dispatch(actions.async.fetchPatient(api, patientId));
         break;
 
       case STATUS.FIRST_LOADED:
@@ -170,8 +182,8 @@ const usePrintPDF = (
         break;
 
       case STATUS.SECOND_LOADED:
-        const queries = getQueries(data, clinicPatient, clinic, getTimePrefs(), getPrintOpts());
-        const pdfOpts = { ...getPrintOpts(), patient: clinicPatient };
+        const queries = getQueries(data, patient, clinicPatient, clinic, getTimePrefs(), getPrintOpts());
+        const pdfOpts = getPdfOpts(getPrintOpts(), clinicPatient, patient);
         dispatch(actions.worker.generatePDFRequest('combined', queries, pdfOpts, patientId));
         break;
 
@@ -184,8 +196,9 @@ const usePrintPDF = (
 
       case STATUS.SVGS_GENERATED:
         printOptsRef.current = pdf.opts;
-        const updatedQueries = getQueries(data, clinicPatient, clinic, getTimePrefs(), getPrintOpts());
-        dispatch(actions.worker.generatePDFRequest('combined', updatedQueries, getPrintOpts(), patientId));
+        const agpQueries = getQueries(data, patient, clinicPatient, clinic, getTimePrefs(), getPrintOpts());
+        const agpPdfOpts = getPdfOpts(getPrintOpts(), clinicPatient, patient);
+        dispatch(actions.worker.generatePDFRequest('combined', agpQueries, agpPdfOpts, patientId));
         break;
 
       case STATUS.PDF_GENERATED:
@@ -201,6 +214,7 @@ const usePrintPDF = (
     // Clear state on component dismount
 
     return () => {
+      dispatch(actions.sync.clearPatientInView());
       dispatch(actions.worker.removeGeneratedPDFS());
       dispatch(actions.worker.dataWorkerRemoveDataRequest(null, patientId));
     };
