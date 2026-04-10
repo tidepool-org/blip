@@ -211,7 +211,7 @@ const usePrintPDF = (
 
       case STATUS.PDF_GENERATED:
         triggerPrint(pdf);
-        // onPrintTriggered();
+        setTimeout(() => onPrintTriggered(), 100);
 
       default:
         break;
