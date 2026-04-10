@@ -17,7 +17,6 @@ const getQueries = (
 ) => {
   // Use sensible defaults for settings that we don't allow manual configuration of
   const cgmSampleIntervalRange = DEFAULT_CGM_SAMPLE_INTERVAL_RANGE;
-  const excludedDevices = []; // TODO: FIX;
   const glycemicRanges = clinicPatient?.glycemicRanges || DEFAULT_GLYCEMIC_RANGES;
   const derivedBgSource = _.get(data, 'metaData.bgSources.current', 'cbg'); // derive from user's recent data
   const isAutomatedBasalDevice = _.get(data, 'metaData.latestPumpUpload.isAutomatedBasalDevice', false);
@@ -39,7 +38,6 @@ const getQueries = (
     bgPrefs: bgPrefs,
     metaData: 'latestPumpUpload, bgSources',
     timePrefs: timePrefs,
-    excludedDevices: excludedDevices,
   };
 
   const queries = {};
