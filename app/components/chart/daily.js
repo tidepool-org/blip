@@ -93,6 +93,7 @@ const DailyChart = withTranslation(null, { withRef: true })(class DailyChart ext
       'bolusRatio',
       'carbUnits',
       'dynamicCarbs',
+      'editedCarbs',
       'insulinBolus',
       'timePrefs',
       'onBolusHover',
@@ -490,6 +491,11 @@ class Daily extends Component {
       { type: 'insulin' }
     );
 
+    const hasEditedCarbs = _.some(
+      _.get(this.props, 'data.data.combined'),
+      d => d.type === 'food' && (d.tags?.carbsEdited === true || d.tags?.entryTimeDiffers === true)
+    );
+
     const hasOneMinCgmSampleIntervalDevice = _.some(
       _.get(this.props, 'data.metaData.devices'),
       { oneMinCgmSampleInterval: true }
@@ -530,6 +536,7 @@ class Daily extends Component {
             carbUnits={carbUnits}
             data={this.props.data}
             dynamicCarbs={this.props.chartPrefs.dynamicCarbs}
+            editedCarbs={hasEditedCarbs}
             initialDatetimeLocation={this.props.initialDatetimeLocation}
             timePrefs={timePrefs}
             // message handlers
