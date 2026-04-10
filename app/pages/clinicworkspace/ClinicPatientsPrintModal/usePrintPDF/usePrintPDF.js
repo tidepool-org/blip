@@ -7,6 +7,7 @@ import usePrintWindow from './usePrintWindow';
 import { utils as vizUtils } from '@tidepool/viz';
 const { getTimezoneFromTimePrefs } = vizUtils.datetime;
 import utils from '../../../../core/utils';
+import personUtils from '../../../../core/personutils';
 
 import getQueries from './getQueries';
 
@@ -17,7 +18,7 @@ import at from 'lodash/at';
 import map from 'lodash/map';
 import keys from 'lodash/keys';
 import { useGenerateAGPImages } from '../../../../core/agpUtils';
-import { selectPatient } from '../../../../core/selectors';
+import { selectPatient, selectUser } from '../../../../core/selectors';
 
 export const STATUS = {
   // States in order of happy path AGP generation sequence
@@ -109,11 +110,17 @@ const getEarliestPrintDate = (printOpts, timePrefs) => {
   return startDate;
 };
 
-const getPdfOpts = (printOpts, clinicPatient, patient) => {
+const getPdfOpts = (printOpts, user, patient, clinicPatient) => {
+  const combinedPatient = clinicPatient ? personUtils.combinedAccountAndClinicPatient(patient, clinicPatient) : null;
+  const sourcePatient = personUtils.isClinicianAccount(user) && !!combinedPatient ? combinedPatient : patient;
   const patientSettings = patient?.settings || {};
   const siteChangeSource = patient?.settings?.siteChangeSource;
 
-  const pdfPatient = { ...clinicPatient, settings: { ...patientSettings, siteChangeSource } };
+  const pdfPatient = {
+    ...sourcePatient,
+    id: clinicPatient?.id || patient?.id,
+    settings: { ...patientSettings, siteChangeSource },
+  };
 
   return { ...printOpts, patient: pdfPatient };
 };
@@ -127,9 +134,10 @@ const usePrintPDF = (
   const generateAGPImages = useGenerateAGPImages();
   const { openPrintWindow, triggerPrint } = usePrintWindow();
 
-  const data   = useSelector(state => state.blip.data);
-  const pdf    = useSelector(state => state.blip.pdf);
+  const data = useSelector(state => state.blip.data);
+  const pdf = useSelector(state => state.blip.pdf);
   const patient = useSelector(state => selectPatient(state));
+  const user = useSelector(state => selectUser(state));
   const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
   const clinicPatient = clinic?.patients?.[patientId];
   const fetchedUntil = data?.fetchedUntil;
@@ -183,7 +191,7 @@ const usePrintPDF = (
 
       case STATUS.SECOND_LOADED:
         const queries = getQueries(data, patient, clinicPatient, clinic, getTimePrefs(), getPrintOpts());
-        const pdfOpts = getPdfOpts(getPrintOpts(), clinicPatient, patient);
+        const pdfOpts = getPdfOpts(getPrintOpts(), user, patient, clinicPatient);
         dispatch(actions.worker.generatePDFRequest('combined', queries, pdfOpts, patientId));
         break;
 
@@ -197,13 +205,13 @@ const usePrintPDF = (
       case STATUS.SVGS_GENERATED:
         printOptsRef.current = pdf.opts;
         const agpQueries = getQueries(data, patient, clinicPatient, clinic, getTimePrefs(), getPrintOpts());
-        const agpPdfOpts = getPdfOpts(getPrintOpts(), clinicPatient, patient);
+        const agpPdfOpts = getPdfOpts(getPrintOpts(), user, patient, clinicPatient);
         dispatch(actions.worker.generatePDFRequest('combined', agpQueries, agpPdfOpts, patientId));
         break;
 
       case STATUS.PDF_GENERATED:
         triggerPrint(pdf);
-        onPrintTriggered();
+        // onPrintTriggered();
 
       default:
         break;
