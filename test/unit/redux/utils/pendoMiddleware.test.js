@@ -299,6 +299,55 @@ describe('pendoMiddleware', () => {
     expect(winMock.pendo.initialize.calledWithMatch({ visitor: { id: 'migratedClinicianID', role: 'clinician' }})).to.be.true;
   });
 
+  it('should include isSmartOnFhir true when SMART on FHIR data is present', () => {
+    const loginSuccess = {
+      type: ActionTypes.LOGIN_SUCCESS,
+      payload: {
+        user: {},
+      },
+    };
+    getStateObj.getState.returns({
+      ...emptyState,
+      ...{
+        blip: {
+          clinics: _.pick(clinics, 'clinicID123'),
+          loggedInUserId: 'clinicAdminID',
+          allUsersMap: _.pick(users, 'clinicAdminID'),
+          smartOnFhirData: {
+            patientId: 'smart-patient-123',
+          },
+          pendoData: {
+            account: {},
+            visitor: {},
+          },
+        },
+      },
+    });
+    const expectedConfig = {
+      account: {
+        clinic: 'Mock Clinic Name',
+        id: 'clinicID123',
+      },
+      visitor: {
+        application: 'Web',
+        environment: 'local',
+        id: 'clinicAdminID',
+        isSmartOnFhir: true,
+        currentlyViewedDevices: [],
+        currentlyViewedDataAnnotations: [],
+        permission: 'administrator',
+        role: 'clinician',
+        domain: 'example.com',
+        termsAccepted: '2020-02-02T00:00:00.000Z',
+      },
+    };
+    expect(winMock.pendo.initialize.callCount).to.equal(0);
+    pendoMiddleware(api, winMock)(getStateObj)(next)(loginSuccess);
+    expect(winMock.pendo.initialize.callCount).to.equal(1);
+    expect(winMock.pendo.initialize.getCall(0).args[0]).to.eql(expectedConfig);
+    expect(winMock.pendo.initialize.calledWith(expectedConfig)).to.be.true;
+  });
+
   it('should call updateOptions for LOGIN_SUCCESS if pendo is already initialized', () => {
     winMock.pendo.visitorId = 'clinicAdminID';
 
