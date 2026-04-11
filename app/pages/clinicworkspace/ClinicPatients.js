@@ -31,6 +31,7 @@ import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import DeleteIcon from '@material-ui/icons/DeleteRounded';
 import DoubleArrowIcon from '@material-ui/icons/DoubleArrow';
 import EditIcon from '@material-ui/icons/EditRounded';
+import PrintRoundedIcon from '@material-ui/icons/PrintRounded';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 import RefreshRoundedIcon from '@material-ui/icons/RefreshRounded';
@@ -433,7 +434,7 @@ const MoreMenu = ({
       },
       text: t('Bring Data into Tidepool'),
     }, {
-      iconSrc: DataInIcon,
+      icon: PrintRoundedIcon,
       iconLabel: t('Print Patient Data'),
       iconPosition: 'left',
       id: `print-patient-data-${patient.id}`,
@@ -442,7 +443,7 @@ const MoreMenu = ({
         _popupState.close();
         handlePrintPatientData(patient);
       },
-      text: t('Print Patient Data'),
+      text: t('Print Report'),
     });
 
     if (showSummaryData && patient.email && !patient.permissions?.custodian) {
