@@ -22,17 +22,17 @@ import { selectPatient, selectUser } from '../../../../core/selectors';
 
 export const STATUS = {
   // States in order of happy path AGP generation sequence
-  INITIALIZED:    'INITIALIZED',
-  STATE_CLEARED:  'STATE_CLEARED',
-  FIRST_LOADED:   'FIRST_LOADED',
-  PRINT_STARTED:  'PRINT_STARTED',
-  SECOND_LOADED:  'SECOND_LOADED',
-  DATA_PROCESSED: 'DATA_PROCESSED',
-  SVGS_GENERATED: 'SVGS_GENERATED',
-  PDF_GENERATED:  'PDF_GENERATED',
+  CLEARING_CACHE: 'CLEARING_CACHE',
+  FETCHING_MODAL_DATA: 'FETCHING_MODAL_DATA',
+  AWAITING_USER: 'AWAITING_USER',
+  FETCHING_PDF_DATA: 'FETCHING_PDF_DATA',
+  GENERATING_PDF: 'GENERATING_PDF',
+  GENERATING_AGP: 'GENERATING_AGP',
+  APPENDING_AGP: 'APPENDING_AGP',
+  TRIGGERING_PRINT: 'TRIGGERING_PRINT',
 
   // Other states
-  NO_PATIENT_DATA:   'NO_PATIENT_DATA',
+  NO_PATIENT_DATA: 'NO_PATIENT_DATA',
   INSUFFICIENT_DATA: 'INSUFFICIENT_DATA',
 };
 
@@ -45,7 +45,7 @@ const inferLastCompletedStep = (patientId, data, patient, pdf, hasClickedPrint, 
   const hasOtherPdfInState  = !!pdf.opts && pdf.opts.patient?.id !== patientId;
   const hasOtherDataInState = !!data.metaData.patientId && data.metaData.patientId !== patientId;
 
-  if (hasOtherPdfInState || hasOtherDataInState) return STATUS.INITIALIZED;
+  if (hasOtherPdfInState || hasOtherDataInState) return STATUS.CLEARING_CACHE;
 
   // Insufficient Data States ---
   const hasNoPatientData    = data.metaData?.size === 0;
@@ -61,18 +61,18 @@ const inferLastCompletedStep = (patientId, data, patient, pdf, hasClickedPrint, 
   const hasImagesInState  = !!pdf?.opts?.svgDataURLS;
   const hasPDFDataInState = !!pdf?.data;
 
-  const hasSecondData = !!data?.metaData?.patientId && !!data?.fetchedUntil && data.fetchedUntil <= pdfStartDate;
+  const hasPatientDataInState = !!data?.metaData?.patientId && !!data?.fetchedUntil && data.fetchedUntil <= pdfStartDate;
   const hasPrintTriggered = !!data?.metaData?.patientId && patient?.userid && hasClickedPrint;
-  const hasFirstData = !!data?.metaData?.patientId && patient?.userid;
+  const hasModalDataInState = !!data?.metaData?.patientId && patient?.userid;
 
-  if (hasPDFUrlInState)  return STATUS.PDF_GENERATED;
-  if (hasImagesInState)  return STATUS.SVGS_GENERATED;
-  if (hasPDFDataInState) return STATUS.DATA_PROCESSED;
-  if (hasSecondData)     return STATUS.SECOND_LOADED;
-  if (hasPrintTriggered) return STATUS.PRINT_STARTED;
-  if (hasFirstData)      return STATUS.FIRST_LOADED;
+  if (hasPDFUrlInState)      return STATUS.TRIGGERING_PRINT;
+  if (hasImagesInState)      return STATUS.APPENDING_AGP;
+  if (hasPDFDataInState)     return STATUS.GENERATING_AGP;
+  if (hasPatientDataInState) return STATUS.GENERATING_PDF;
+  if (hasPrintTriggered)     return STATUS.FETCHING_PDF_DATA;
+  if (hasModalDataInState)   return STATUS.AWAITING_USER;
 
-  return STATUS.STATE_CLEARED;
+  return STATUS.FETCHING_MODAL_DATA;
 };
 
 const getInitialFetchOpts = () => ({
@@ -159,49 +159,49 @@ const usePrintPDF = (
     // Whenever a step is successfully completed, this effect triggers the next step in the sequence.
 
     switch(lastCompletedStep) {
-      case STATUS.INITIALIZED:
+      case STATUS.CLEARING_CACHE:
         dispatch(actions.worker.removeGeneratedPDFS());
         dispatch(actions.worker.dataWorkerRemoveDataRequest(null, patientId));
         break;
 
-      case STATUS.STATE_CLEARED:
+      case STATUS.FETCHING_MODAL_DATA:
         const initialFetchOpts = getInitialFetchOpts();
         dispatch(actions.async.fetchPatientData(api, initialFetchOpts, patientId));
         dispatch(actions.async.fetchPatient(api, patientId));
         break;
 
-      case STATUS.FIRST_LOADED:
+      case STATUS.AWAITING_USER:
         const latestTimeZone = data?.metaData?.latestTimeZone || {};
         timePrefsRef.current = utils.getTimePrefsForDataProcessing(latestTimeZone, {});
         setCanPrint(true);
         break;
 
-      case STATUS.PRINT_STARTED:
+      case STATUS.FETCHING_PDF_DATA:
         const fetchPatientOpts = getMainFetchOpts(getTimePrefs(), getPrintOpts(), fetchedUntil);
         dispatch(actions.async.fetchPatientData(api, fetchPatientOpts, patientId));
         break;
 
-      case STATUS.SECOND_LOADED:
+      case STATUS.GENERATING_PDF:
         const queries = getQueries(data, patient, clinicPatient, clinic, getTimePrefs(), getPrintOpts());
         const pdfOpts = getPdfOpts(getPrintOpts(), user, patient, clinicPatient);
         dispatch(actions.worker.generatePDFRequest('combined', queries, pdfOpts, patientId));
         break;
 
-      case STATUS.DATA_PROCESSED:
+      case STATUS.GENERATING_AGP:
         const hasAgpBGM = pdf?.opts?.agpBGM?.disabled === false;
         const hasAgpCGM = pdf?.opts?.agpCGM?.disabled === false;
         const reportTypes = [(hasAgpBGM && 'agpBGM'), (hasAgpCGM && 'agpCGM')].filter(s => s);
         generateAGPImages(pdf, reportTypes);
         break;
 
-      case STATUS.SVGS_GENERATED:
+      case STATUS.APPENDING_AGP:
         printOptsRef.current = pdf.opts;
         const agpQueries = getQueries(data, patient, clinicPatient, clinic, getTimePrefs(), getPrintOpts());
         const agpPdfOpts = getPdfOpts(getPrintOpts(), user, patient, clinicPatient);
         dispatch(actions.worker.generatePDFRequest('combined', agpQueries, agpPdfOpts, patientId));
         break;
 
-      case STATUS.PDF_GENERATED:
+      case STATUS.TRIGGERING_PRINT:
         triggerPrint(pdf);
         setTimeout(() => onPrintTriggered(), 100);
 
