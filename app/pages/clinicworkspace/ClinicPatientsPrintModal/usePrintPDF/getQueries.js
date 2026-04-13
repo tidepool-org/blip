@@ -25,7 +25,7 @@ const getQueries = (
   const { settings = {} } = patient || {};
 
   const bgPrefs = (() => {
-    const clinicPatientArg = {...clinicPatient, glycemicRanges };
+    const clinicPatientArg = clinicPatient ? { ...clinicPatient, glycemicRanges } : undefined;
 
     const bgUnitsOverride = { units: clinic?.preferredBgUnits, source: 'preferred clinic units' };
     const localBgPrefs = utils.getBGPrefsForDataProcessing(settings, clinicPatientArg, bgUnitsOverride);

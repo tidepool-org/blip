@@ -17,6 +17,7 @@ import min from 'lodash/min';
 import at from 'lodash/at';
 import map from 'lodash/map';
 import keys from 'lodash/keys';
+import isNil from 'lodash/isNil';
 import { useGenerateAGPImages } from '../../../../core/agpUtils';
 import { selectPatient, selectUser } from '../../../../core/selectors';
 
@@ -42,7 +43,7 @@ const inferLastCompletedStep = (patientId, data, patient, pdf, hasClickedPrint, 
   // We do the lookup in reverse order to return the LATEST completed step
 
   // Incorrect Patient --- (occurs when user switches patient partway through fetching)
-  const hasOtherPdfInState  = !!pdf.opts && pdf.opts.patient?.id !== patientId;
+  const hasOtherPdfInState = !!pdf.opts?.patient && [pdf.opts.patient.id, pdf.opts.patient.userid].some(id => !isNil(id) && id !== patientId);
   const hasOtherDataInState = !!data.metaData.patientId && data.metaData.patientId !== patientId;
 
   if (hasOtherPdfInState || hasOtherDataInState) return STATUS.CLEARING_CACHE;
