@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.56.0-web-3529-carb-edits.1":
-  version: 1.56.0-web-3529-carb-edits.1
-  resolution: "@tidepool/viz@npm:1.56.0-web-3529-carb-edits.1"
+"@tidepool/viz@npm:1.56.0-web-3529-carb-edits.2":
+  version: 1.56.0-web-3529-carb-edits.2
+  resolution: "@tidepool/viz@npm:1.56.0-web-3529-carb-edits.2"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: d4e9cdc1b57d01d9a523157ff0f126b3fd8b7ae9ed81b88514db42d326ebacfd76ad63d1b48863dcff29903967bd6af6f893c627b6ca2572a3169ffaa498f83e
+  checksum: bec204c2aaf663fefc2db44d16b060339b80b87212852f5e291d8503fd9f2557cdb5ca7699671c75c99c36ab615c7752bb873638e5cb9816623167454cd714fb
   languageName: node
   linkType: hard
 
@@ -8321,7 +8321,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.56.0-web-3529-carb-edits.1
+    "@tidepool/viz": 1.56.0-web-3529-carb-edits.2
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -8449,7 +8449,7 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.39.0-web-3529-carb-edits.1
+    tideline: 1.39.0-web-3529-carb-edits.2
     tidepool-platform-client: 0.65.0
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
@@ -22195,9 +22195,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.39.0-web-3529-carb-edits.1":
-  version: 1.39.0-web-3529-carb-edits.1
-  resolution: "tideline@npm:1.39.0-web-3529-carb-edits.1"
+"tideline@npm:1.39.0-web-3529-carb-edits.2":
+  version: 1.39.0-web-3529-carb-edits.2
+  resolution: "tideline@npm:1.39.0-web-3529-carb-edits.2"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -22218,7 +22218,7 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: 8466e4b077c59d1b2e40c5e2772874bf10fa7b7c914c18b1df7ca40fc019f05d64c9e96d388ea060582c62da7cc071b1fd19358f3b847ed6a6156da72dd74bf3
+  checksum: 25d7b8618b58c6b6b9f91c9894daa499fe405b2d525aa38ef555c12a095f78e8d1e1a6883eb82cd87539cb760954e76a72120c35df2c6d5748d2af2658229d6f
   languageName: node
   linkType: hard
 
