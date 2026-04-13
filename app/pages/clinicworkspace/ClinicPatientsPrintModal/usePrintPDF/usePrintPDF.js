@@ -210,16 +210,6 @@ const usePrintPDF = (
     }
   }, [lastCompletedStep]);
 
-  useEffect(() => {
-    // Clear state on component dismount
-
-    return () => {
-      dispatch(actions.sync.clearPatientInView());
-      dispatch(actions.worker.removeGeneratedPDFS());
-      dispatch(actions.worker.dataWorkerRemoveDataRequest(null, patientId));
-    };
-  }, []);
-
   // Note: probably unnecessary; failsafe to ensure that data is being returned for correct patient
   const isCorrectPatientInState = pdf.opts?.patient?.id === patientId; // TODO: FIX
 

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import _ from 'lodash';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import PrintDateRangeModal from '../../../components/PrintDateRangeModal';
 import noop from 'lodash/noop';
 import { Dialog, DialogTitle, DialogContent } from '../../../components/elements/Dialog';
@@ -8,6 +8,7 @@ import { MediumTitle } from '../../../components/elements/FontStyles';
 import { components as vizComponents } from '@tidepool/viz';
 const { Loader } = vizComponents;
 import { getMostRecentDatumTimeByChartType } from '../../../core/dataViewUtils';
+import * as actions from '../../../redux/actions';
 
 import usePrintPDF from './usePrintPDF';
 import { useTranslation } from 'react-i18next';
@@ -30,8 +31,17 @@ const LoadingModal = ({ onClose = noop }) => {
 };
 
 const ClinicPatientsPrintModal = ({ api, patientId, onClose = noop }) => {
+  const dispatch = useDispatch();
   const loggedInUserId = useSelector(state => state.blip.loggedInUserId);
   const [isProcessing, setIsProcessing] = useState(false);
+
+  useEffect(() => {
+    if (!patientId) {
+      dispatch(actions.sync.clearPatientInView());
+      dispatch(actions.worker.removeGeneratedPDFS());
+      dispatch(actions.worker.dataWorkerRemoveDataRequest(null, patientId));
+    }
+  }, [patientId]);
 
   const handlePrintTriggered = () => onClose();
 
