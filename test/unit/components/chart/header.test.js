@@ -27,6 +27,8 @@ const makeProps = (overrides = {}) => ({
   onClickOneDay: sinon.stub(),
   onClickBgLog: sinon.stub(),
   onClickSettings: sinon.stub(),
+  onClickPrint: sinon.stub(),
+  isSmartOnFhirMode: false,
   ...overrides,
 });
 
@@ -50,6 +52,7 @@ describe('Header', function () {
       const { container } = render(<Header {...props} />);
       const backButton = container.querySelector('.js-back');
       expect(backButton).to.not.be.null;
+
       expect(props.onClickBack.callCount).to.equal(0);
       fireEvent.click(backButton);
       expect(props.onClickBack.callCount).to.equal(1);
@@ -60,6 +63,7 @@ describe('Header', function () {
       const { container } = render(<Header {...props} />);
       const backButton = container.querySelector('.js-back');
       expect(backButton).to.not.be.null;
+
       expect(props.onClickBack.callCount).to.equal(0);
       fireEvent.click(backButton);
       expect(props.onClickBack.callCount).to.equal(0);
@@ -70,6 +74,7 @@ describe('Header', function () {
       const { container } = render(<Header {...props} />);
       const trendsButton = container.querySelector('.js-trends');
       expect(trendsButton).to.not.be.null;
+
       expect(props.onClickTrends.callCount).to.equal(0);
       fireEvent.click(trendsButton);
       expect(props.onClickTrends.callCount).to.equal(1);
@@ -80,6 +85,7 @@ describe('Header', function () {
       const { container } = render(<Header {...props} />);
       const mostRecentButton = container.querySelector('.js-most-recent');
       expect(mostRecentButton).to.not.be.null;
+
       expect(props.onClickMostRecent.callCount).to.equal(0);
       fireEvent.click(mostRecentButton);
       expect(props.onClickMostRecent.callCount).to.equal(1);
@@ -90,6 +96,7 @@ describe('Header', function () {
       const { container } = render(<Header {...props} />);
       const mostRecentButton = container.querySelector('.js-most-recent');
       expect(mostRecentButton).to.not.be.null;
+
       expect(props.onClickMostRecent.callCount).to.equal(0);
       fireEvent.click(mostRecentButton);
       expect(props.onClickMostRecent.callCount).to.equal(0);
@@ -100,6 +107,7 @@ describe('Header', function () {
       const { container } = render(<Header {...props} />);
       const nextButton = container.querySelector('.js-next');
       expect(nextButton).to.not.be.null;
+
       expect(props.onClickNext.callCount).to.equal(0);
       fireEvent.click(nextButton);
       expect(props.onClickNext.callCount).to.equal(1);
@@ -110,6 +118,7 @@ describe('Header', function () {
       const { container } = render(<Header {...props} />);
       const nextButton = container.querySelector('.js-next');
       expect(nextButton).to.not.be.null;
+
       expect(props.onClickNext.callCount).to.equal(0);
       fireEvent.click(nextButton);
       expect(props.onClickNext.callCount).to.equal(0);
@@ -120,6 +129,7 @@ describe('Header', function () {
       const { container } = render(<Header {...props} />);
       const basicsButton = container.querySelector('.js-basics');
       expect(basicsButton).to.not.be.null;
+
       expect(props.onClickBasics.callCount).to.equal(0);
       fireEvent.click(basicsButton);
       expect(props.onClickBasics.callCount).to.equal(1);
@@ -130,6 +140,7 @@ describe('Header', function () {
       const { container } = render(<Header {...props} />);
       const dayButton = container.querySelector('.js-daily');
       expect(dayButton).to.not.be.null;
+
       expect(props.onClickOneDay.callCount).to.equal(0);
       fireEvent.click(dayButton);
       expect(props.onClickOneDay.callCount).to.equal(1);
@@ -140,6 +151,7 @@ describe('Header', function () {
       const { container } = render(<Header {...props} />);
       const bgLogButton = container.querySelector('.js-bgLog');
       expect(bgLogButton).to.not.be.null;
+
       expect(props.onClickBgLog.callCount).to.equal(0);
       fireEvent.click(bgLogButton);
       expect(props.onClickBgLog.callCount).to.equal(1);
@@ -150,9 +162,35 @@ describe('Header', function () {
       const { container } = render(<Header {...props} />);
       const settingsButton = container.querySelector('.js-settings');
       expect(settingsButton).to.not.be.null;
+
       expect(props.onClickSettings.callCount).to.equal(0);
       fireEvent.click(settingsButton);
       expect(props.onClickSettings.callCount).to.equal(1);
+    });
+
+    describe('Print button behavior', function() {
+      it('should render print button when not in Smart on FHIR mode', function () {
+        const props = makeProps({ chartType: 'daily', isSmartOnFhirMode: false });
+        const { container } = render(<Header {...props} />);
+        const printButton = container.querySelector('.printview-print-icon');
+        expect(printButton).to.not.be.null;
+      });
+
+      it('should not render print button when in Smart on FHIR mode', function () {
+        const props = makeProps({ chartType: 'daily', isSmartOnFhirMode: true });
+        const { container } = render(<Header {...props} />);
+        const printButton = container.querySelector('.printview-print-icon');
+        expect(printButton).to.be.null;
+      });
+
+      it('should trigger onClickPrint when print button is clicked and not in Smart on FHIR mode', function () {
+        const props = makeProps({ chartType: 'daily', isSmartOnFhirMode: false });
+        const { container } = render(<Header {...props} />);
+        const printButton = container.querySelector('.printview-print-icon');
+        expect(props.onClickPrint.callCount).to.equal(0);
+        fireEvent.click(printButton);
+        expect(props.onClickPrint.callCount).to.equal(1);
+      });
     });
   });
 });

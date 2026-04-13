@@ -25,7 +25,7 @@ import {
 
 const mockKeycloakCtor = jest.fn();
 
-jest.mock('keycloak-js/dist/keycloak.js', () => ({
+jest.mock('keycloak-js', () => ({
   __esModule: true,
   default: function KeycloakMock(config) {
     return mockKeycloakCtor(config);

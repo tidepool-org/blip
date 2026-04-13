@@ -55,7 +55,8 @@ describe('NavbarPatientCard', function () {
         const props = {
           href: 'foo',
           patient: {},
-          trackMetric: function() {}
+          trackMetric: function() {},
+          isSmartOnFhirMode: false,
         };
         const { container } = render(
           <BrowserRouter>

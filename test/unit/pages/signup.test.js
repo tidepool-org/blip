@@ -6,6 +6,7 @@
 /* global it */
 /* global beforeEach */
 /* global afterEach */
+/* global Promise */
 
 import React, { createElement } from 'react';
 import mutationTracker from 'object-invariant-test-helper';

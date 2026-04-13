@@ -16,7 +16,8 @@ describe('PeopleList', function () {
       const consoleErrorStub = sinon.stub(console, 'error');
       try {
         const props = {
-          trackMetric: function() {}
+          trackMetric: function() {},
+          isSmartOnFhirMode: false,
         };
         const { container } = render(<BrowserRouter><PeopleList {...props}></PeopleList></BrowserRouter>);
 

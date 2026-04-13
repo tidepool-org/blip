@@ -35,7 +35,8 @@ describe('PatientCard', function () {
         const props = {
           trackMetric: function() {},
           href: 'foo',
-          patient: {}
+          patient: {},
+          isSmartOnFhirMode: false,
         };
         const { container } = render(<BrowserRouter><PatientCard {...props} /></BrowserRouter>);
 

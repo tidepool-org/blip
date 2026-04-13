@@ -35,6 +35,7 @@ describe('MobileNavbar/Menu', () => {
       currentPatientInViewId: '1234-abcd',
       permissionsOfMembersInTargetCareTeam: { '1234-abcd': { root: {} } },
       loggedInUserId: '1234-abcd',
+      smartCorrelationId: null,
       allUsersMap: {
         '1234-abcd': {
           userid: '1234',
@@ -94,6 +95,28 @@ describe('MobileNavbar/Menu', () => {
   const openMenu = () => {
     fireEvent.click(container.querySelector('#mobile-navigation-menu-trigger'));
   };
+
+  describe('Smart-on-FHIR Mode', () => {
+    beforeEach(() => {
+      const localStore = mockStore({
+        blip: {
+          ...store.getState().blip,
+          smartCorrelationId: 'test-correlation-id',
+        },
+      });
+
+      const rendered = render(
+        <Provider store={localStore}>
+          <Menu {...defaultProps} />
+        </Provider>
+      );
+      container = rendered.container;
+    });
+
+    it('should not render the component in Smart-on-FHIR mode', () => {
+      expect(container.innerHTML).to.equal('');
+    });
+  });
 
   describe('Component Visibility', () => {
     it('should show Share button when user has correct permissions', () => {

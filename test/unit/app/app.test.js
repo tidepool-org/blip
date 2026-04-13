@@ -155,7 +155,7 @@ describe('App', () => {
 
       var { container } = renderApp(baseProps);
       expect(container).to.be.ok;
-      expect(console.error.called).to.be.true;
+      expect(console.error.callCount).to.equal(12);
       var app = container.querySelector('.app');
       expect(app).to.be.ok;
     });

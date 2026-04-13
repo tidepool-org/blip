@@ -103,6 +103,7 @@ describe('Trends', () => {
     trackMetric: sinon.stub(),
     updateChartPrefs: sinon.stub(),
     uploadUrl: '',
+    isSmartOnFhirMode: false,
   };
 
   const createInstance = (props = baseProps) => {

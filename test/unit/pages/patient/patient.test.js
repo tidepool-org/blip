@@ -28,6 +28,7 @@ const buildProps = (overrides = {}) => ({
   fetchDataSources: sinon.stub(),
   connectDataSource: sinon.stub(),
   disconnectDataSource: sinon.stub(),
+  isSmartOnFhirMode: false,
   t: str => str,
   ...overrides,
 });

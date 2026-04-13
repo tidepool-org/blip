@@ -1,16 +1,20 @@
 /* global chai */
 /* global describe */
 /* global sinon */
+/* global Promise */
 /* global it */
 /* global afterEach */
 
-import React from'react';
+import React from 'react';
 import mutationTracker from 'object-invariant-test-helper';
 import { BrowserRouter } from 'react-router-dom';
 import { render } from '@testing-library/react';
 
 jest.mock('../../../app/keycloak', () => ({
-  keycloak: { login: jest.fn() },
+  keycloak: {
+    login: jest.fn(),
+    createLoginUrl: jest.fn().mockResolvedValue('loginUrl'),
+  },
 }));
 
 import Login, {
@@ -29,14 +33,15 @@ describe('Login', function () {
     expect(typeof LoginFunction).toBe('function');
   });
 
-  describe('render', function() {
-    var props = {
+  describe('render', () => {
+    const props = {
       acknowledgeNotification: sinon.stub(),
       confirmSignup: sinon.stub(),
       fetchers: [],
       isInvite: false,
       onSubmit: sinon.stub(),
       trackMetric: sinon.stub(),
+      setSmartCorrelationId: sinon.stub(),
       working: false,
       fetchingInfo: {
         inProgress: false,
@@ -75,7 +80,7 @@ describe('Login', function () {
           working: {
             loggingIn: defaultWorkingState,
             confirmingSignup: defaultWorkingState,
-            fetchingInfo: {...defaultWorkingState, completed: true},
+            fetchingInfo: { ...defaultWorkingState, completed: true },
           },
           keycloakConfig: {
             url: 'someUrl',
@@ -102,16 +107,18 @@ describe('Login', function () {
 
       afterEach(() => {
         keycloak.login.mockReset();
+        keycloak.createLoginUrl.mockReset();
+        keycloak.createLoginUrl.mockResolvedValue('loginUrl');
         store.clearActions();
       });
 
       it('should forward a user to keycloak login when initialized', () => {
-        expect(keycloak.login).toHaveBeenCalledTimes(1);
-        expect(keycloak.login).toHaveBeenCalledWith({ redirectUri: window.location.origin });
+        expect(keycloak.createLoginUrl).toHaveBeenCalledTimes(1);
+        expect(keycloak.createLoginUrl).toHaveBeenCalledWith({ redirectUri: window.location.origin });
       });
 
       it('should include a destination if provided in router state', () => {
-        let destStoreState = {
+        const destStoreState = {
           ...storeState,
           router: {
             location: {
@@ -121,7 +128,7 @@ describe('Login', function () {
             }
           }
         };
-        let destStore = mockStore(destStoreState);
+        const destStore = mockStore(destStoreState);
 
         wrapper = render(
           <Provider store={destStore}>
@@ -130,15 +137,15 @@ describe('Login', function () {
             </BrowserRouter>
           </Provider>
         );
-        expect(keycloak.login).toHaveBeenCalledTimes(1);
-        expect(keycloak.login).toHaveBeenCalledWith({
+        expect(keycloak.createLoginUrl).toHaveBeenCalledTimes(1);
+        expect(keycloak.createLoginUrl).toHaveBeenCalledWith({
           redirectUri: `${window.location.origin}/a_destination`,
         });
       });
 
       describe('when error from declining TOS', () => {
         it('should forward to keycloak login', () => {
-          let errorProps = {
+          const errorProps = {
             ...props,
             keycloakConfig: {
               error: 'access_denied',
@@ -153,19 +160,19 @@ describe('Login', function () {
             </Provider>
           );
 
-          expect(keycloak.login).toHaveBeenCalledTimes(1);
-          expect(keycloak.login).toHaveBeenCalledWith({ redirectUri: window.location.origin });
+          expect(keycloak.createLoginUrl).toHaveBeenCalledTimes(1);
+          expect(keycloak.createLoginUrl).toHaveBeenCalledWith({ redirectUri: window.location.origin });
         });
       });
 
       describe('when claiming an account', () => {
         it('should forward user to verification-with-password if signupEmail+signupKey present and 409 on confirm', () => {
-          let claimProps = {
+          const claimProps = {
             ...props,
             api: {
               user: {
                 isAuthenticated: sinon.stub().returns(false),
-                confirmSignUp: sinon.stub().callsArgWith(1, {status: 409}),
+                confirmSignUp: sinon.stub().callsArgWith(1, { status: 409 }),
               }
             },
             location: {
@@ -175,10 +182,10 @@ describe('Login', function () {
               },
             },
           };
-          let err = new Error(ErrorMessages.ERR_CONFIRMING_SIGNUP);
+          const err = new Error(ErrorMessages.ERR_CONFIRMING_SIGNUP);
           err.status = 409;
 
-          let expectedActions = [
+          const expectedActions = [
             {
               type: 'CONFIRM_SIGNUP_REQUEST',
             },
@@ -219,12 +226,12 @@ describe('Login', function () {
           });
           expectedActions[1].error = actions[1].error;
           expect(actions).toEqual(expectedActions);
-          expect(keycloak.login).not.toHaveBeenCalled();
+          expect(keycloak.createLoginUrl).not.toHaveBeenCalled();
           expect(claimProps.api.user.confirmSignUp.callCount).toBe(1);
         });
 
         it('should confirm signup if signupEmail+signupKey present and no error on confirm', () => {
-          let claimProps = {
+          const claimProps = {
             ...props,
             location: {
               query: {
@@ -234,7 +241,7 @@ describe('Login', function () {
             },
           };
 
-          let expectedActions = [
+          const expectedActions = [
             {
               type: 'CONFIRM_SIGNUP_REQUEST',
             },
@@ -267,13 +274,13 @@ describe('Login', function () {
         initialized: false,
       },
       working: {
-        confirmingSignup: {inProgress: false, notification: null},
-        loggingIn: {inProgress: false, notification: {type: 'alert', message: 'Hi!'}}
+        confirmingSignup: { inProgress: false, notification: null },
+        loggingIn: { inProgress: false, notification: { type: 'alert', message: 'Hi!' } }
       }
     };
 
     const tracked = mutationTracker.trackObj(state);
-    const result = mapStateToProps({blip: state});
+    const result = mapStateToProps({ blip: state });
 
     it('should not mutate the state', () => {
       expect(mutationTracker.hasMutated(tracked)).toBe(false);
@@ -298,8 +305,8 @@ describe('Login', function () {
     it('should map working.confirmingSignup.notification to notification if working.loggingIn.notification is null', () => {
       const anotherState = {
         working: {
-          loggingIn: {inProgress: false, notification: null},
-          confirmingSignup: {inProgress: false, notification: {status: 500, body: 'Error :('}}
+          loggingIn: { inProgress: false, notification: null },
+          confirmingSignup: { inProgress: false, notification: { status: 500, body: 'Error :(' } }
         }
       };
       const anotherRes = mapStateToProps({blip: anotherState});
@@ -309,13 +316,13 @@ describe('Login', function () {
     describe('when some state is `null`', () => {
       const state = {
         working: {
-          confirmingSignup: {inProgress: false, notification: null},
-          loggingIn: {inProgress: false, notification: null}
+          confirmingSignup: { inProgress: false, notification: null },
+          loggingIn: { inProgress: false, notification: null }
         }
       };
 
       const tracked = mutationTracker.trackObj(state);
-      const result = mapStateToProps({blip: state});
+      const result = mapStateToProps({ blip: state });
 
       it('should not mutate the state', () => {
         expect(mutationTracker.hasMutated(tracked)).toBe(false);
