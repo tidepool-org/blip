@@ -51,6 +51,7 @@ class Basics extends Component {
     updateChartPrefs: PropTypes.func.isRequired,
     uploadUrl: PropTypes.string.isRequired,
     removeGeneratedPDFS: PropTypes.func.isRequired,
+    isSmartOnFhirMode: PropTypes.bool.isRequired,
   };
 
   static displayName = 'Basics';
@@ -97,6 +98,7 @@ class Basics extends Component {
             onClickBgLog={this.handleClickBgLog}
             onClickExport={this.handleClickExport}
             onClickPrint={this.handleClickPrint}
+            isSmartOnFhirMode={this.props.isSmartOnFhirMode}
             ref="header"
           />
 

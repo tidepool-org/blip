@@ -53,7 +53,8 @@ describe('NavbarPatientCard', function () {
       console.error = sinon.stub();
       var props = {
         href: 'foo',
-        trackMetric: function() {}
+        trackMetric: function() {},
+        isSmartOnFhirMode: false,
       };
       var navbarElem = React.createElement(NavbarPatientCard, props);
       var wrapper = React.createElement(BrowserRouter, props, navbarElem);
