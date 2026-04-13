@@ -56,6 +56,7 @@ const DailyChart = withTranslation(null, { withRef: true })(class DailyChart ext
     bolusRatio: PropTypes.number,
     data: PropTypes.object.isRequired,
     dynamicCarbs: PropTypes.bool,
+    editedCarbs: PropTypes.bool,
     initialDatetimeLocation: PropTypes.string,
     patient: PropTypes.object,
     timePrefs: PropTypes.object.isRequired,
@@ -293,7 +294,13 @@ class Daily extends Component {
 
     if (this.chartRef.current) {
       const updates = {};
-      if (loadingJustCompleted || newDataAdded || dataUpdated || newDataRecieved) updates.data = nextProps.data;
+      if (loadingJustCompleted || newDataAdded || dataUpdated || newDataRecieved) {
+        updates.data = nextProps.data;
+        updates.editedCarbs = _.some(
+          _.get(nextProps, 'data.data.combined'),
+          d => d.type === 'food' && (d.tags?.carbsEdited === true || d.tags?.entryTimeDiffers === true)
+        );
+      }
       if (!_.isEmpty(updates)) this.chartRef.current?.rerenderChart(updates);
     }
 
