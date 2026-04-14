@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import _ from 'lodash';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import PrintDateRangeModal from '../../../components/PrintDateRangeModal';
 import noop from 'lodash/noop';
 import { Dialog, DialogTitle, DialogContent } from '../../../components/elements/Dialog';
@@ -31,17 +31,8 @@ const LoadingModal = ({ onClose = noop }) => {
 };
 
 const ClinicPatientsPrintModal = ({ api, patientId, onClose = noop }) => {
-  const dispatch = useDispatch();
   const loggedInUserId = useSelector(state => state.blip.loggedInUserId);
   const [isProcessing, setIsProcessing] = useState(false);
-
-  useEffect(() => {
-    if (!patientId) {
-      dispatch(actions.sync.clearPatientInView());
-      dispatch(actions.worker.removeGeneratedPDFS());
-      dispatch(actions.worker.dataWorkerRemoveDataRequest(null, patientId));
-    }
-  }, [patientId]);
 
   const { status, timePrefs, latestDatumByType, canPrint, onPrintPDF } = usePrintPDF(api, patientId, onClose);
 
