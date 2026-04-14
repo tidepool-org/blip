@@ -25,11 +25,11 @@ export const STATUS = {
   // States in order of happy path AGP generation sequence
   CLEARING_CACHE: 'CLEARING_CACHE',
   FETCHING_MODAL_DATA: 'FETCHING_MODAL_DATA',
-  AWAITING_USER: 'AWAITING_USER',
+  AWAITING_INPUT: 'AWAITING_INPUT',
   FETCHING_PDF_DATA: 'FETCHING_PDF_DATA',
   GENERATING_PDF: 'GENERATING_PDF',
   GENERATING_AGP: 'GENERATING_AGP',
-  APPENDING_AGP: 'APPENDING_AGP',
+  ATTACHING_SVGS: 'ATTACHING_SVGS',
   TRIGGERING_PRINT: 'TRIGGERING_PRINT',
 
   // Other states
@@ -67,11 +67,11 @@ const inferLastCompletedStep = (patientId, data, patient, pdf, hasClickedPrint, 
   const hasModalDataInState = !!data?.metaData?.patientId && patient?.userid;
 
   if (hasPDFUrlInState)      return STATUS.TRIGGERING_PRINT;
-  if (hasImagesInState)      return STATUS.APPENDING_AGP;
+  if (hasImagesInState)      return STATUS.ATTACHING_SVGS;
   if (hasPDFDataInState)     return STATUS.GENERATING_AGP;
   if (hasPatientDataInState) return STATUS.GENERATING_PDF;
   if (hasPrintTriggered)     return STATUS.FETCHING_PDF_DATA;
-  if (hasModalDataInState)   return STATUS.AWAITING_USER;
+  if (hasModalDataInState)   return STATUS.AWAITING_INPUT;
 
   return STATUS.FETCHING_MODAL_DATA;
 };
@@ -171,7 +171,7 @@ const usePrintPDF = (
         dispatch(actions.async.fetchPatient(api, patientId));
         break;
 
-      case STATUS.AWAITING_USER:
+      case STATUS.AWAITING_INPUT:
         const latestTimeZone = data?.metaData?.latestTimeZone || {};
         timePrefsRef.current = utils.getTimePrefsForDataProcessing(latestTimeZone, {});
         setCanPrint(true);
@@ -195,8 +195,9 @@ const usePrintPDF = (
         generateAGPImages(pdf, reportTypes);
         break;
 
-      case STATUS.APPENDING_AGP:
+      case STATUS.ATTACHING_SVGS:
         printOptsRef.current = pdf.opts;
+        // Call generatePDFRequest a second time with SVGs in args to attach them to the PDF
         const agpQueries = getQueries(data, patient, clinicPatient, clinic, getTimePrefs(), getPrintOpts());
         const agpPdfOpts = getPdfOpts(getPrintOpts(), user, patient, clinicPatient);
         dispatch(actions.worker.generatePDFRequest('combined', agpQueries, agpPdfOpts, patientId));
