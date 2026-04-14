@@ -12,6 +12,7 @@ import personUtils from '../../../../core/personutils';
 import getQueries from './getQueries';
 
 import noop from 'lodash/noop';
+import get from 'lodash/get';
 import filter from 'lodash/filter';
 import min from 'lodash/min';
 import at from 'lodash/at';
@@ -20,6 +21,7 @@ import keys from 'lodash/keys';
 import isNil from 'lodash/isNil';
 import { useGenerateAGPImages } from '../../../../core/agpUtils';
 import { selectPatient, selectUser } from '../../../../core/selectors';
+import { MS_IN_MIN } from '../../../../core/constants';
 
 export const STATUS = {
   // States in order of happy path AGP generation sequence
@@ -38,7 +40,7 @@ export const STATUS = {
 };
 
 // TODO: Revisit best way to listen for progress when we move away from blip.working
-const inferLastCompletedStep = (patientId, data, patient, pdf, hasClickedPrint, pdfStartDate) => {
+const inferLastCompletedStep = (patientId, data, patient, pdf, hasClickedPrint, hasFetchedPDFData) => {
   // If the outputted data for a step in the process exists, we infer that the step was successful.
   // We do the lookup in reverse order to return the LATEST completed step
 
@@ -62,7 +64,7 @@ const inferLastCompletedStep = (patientId, data, patient, pdf, hasClickedPrint, 
   const hasImagesInState  = !!pdf?.opts?.svgDataURLS;
   const hasPDFDataInState = !!pdf?.data;
 
-  const hasPatientDataInState = !!data?.metaData?.patientId && !!data?.fetchedUntil && data.fetchedUntil <= pdfStartDate;
+  const hasPatientDataInState = !!data?.metaData?.patientId && hasFetchedPDFData;
   const hasPrintTriggered = !!data?.metaData?.patientId && patient?.userid && hasClickedPrint;
   const hasModalDataInState = !!data?.metaData?.patientId && patient?.userid;
 
@@ -126,6 +128,12 @@ const getPdfOpts = (printOpts, user, patient, clinicPatient) => {
   return { ...printOpts, patient: pdfPatient };
 };
 
+const getFetchedUntil = (data, printOpts) => {
+  return printOpts?.cgmSampleIntervalRange?.[0] === MS_IN_MIN
+    ? get(data, 'oneMinCgmFetchedUntil') || moment.utc().toISOString()
+    : get(data, 'fetchedUntil');
+};
+
 const usePrintPDF = (
   api,
   patientId,
@@ -141,10 +149,6 @@ const usePrintPDF = (
   const user = useSelector(state => selectUser(state));
   const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
   const clinicPatient = clinic?.patients?.[patientId];
-  const fetchedUntil = data?.fetchedUntil;
-
-  const [canPrint, setCanPrint] = useState(false);
-  const [hasClickedPrint, setHasClickedPrint] = useState(false);
 
   const printOptsRef = useRef(null);
   const timePrefsRef = useRef(null);
@@ -154,7 +158,13 @@ const usePrintPDF = (
   const getTimePrefs = () => timePrefsRef.current;
   const getPdfStartDate = () => pdfStartDateRef.current;
 
-  const lastCompletedStep = inferLastCompletedStep(patientId, data, patient, pdf, hasClickedPrint, getPdfStartDate());
+  const [canPrint, setCanPrint] = useState(false);
+  const [hasClickedPrint, setHasClickedPrint] = useState(false);
+
+  const fetchedUntil = getFetchedUntil(data, getPrintOpts());
+  const hasFetchedPDFData = !!fetchedUntil && !!getPdfStartDate() && fetchedUntil <= getPdfStartDate();
+
+  const lastCompletedStep = inferLastCompletedStep(patientId, data, patient, pdf, hasClickedPrint, hasFetchedPDFData);
 
   useEffect(() => {
     // Whenever a step is successfully completed, this effect triggers the next step in the sequence.

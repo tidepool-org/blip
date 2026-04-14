@@ -25,6 +25,7 @@ import { useLocalStorage } from '../core/hooks';
 import PartialDaysTooltip from './PartialDaysTooltip';
 
 import { utils as vizUtils } from '@tidepool/viz';
+import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE } from '../core/constants';
 const {
   getLocalizedCeiling,
   getChartDateBoundFormat,
@@ -316,6 +317,8 @@ export const PrintDateRangeModal = (props) => {
       daily: printOpts.daily.disabled ? 'disabled' : getDateRangeMetric(presetDaysOptions.daily, 'daily'),
       settings: printOpts.settings.disabled ? 'disabled' : 'enabled',
     };
+
+    printOpts.cgmSampleIntervalRange = DEFAULT_CGM_SAMPLE_INTERVAL_RANGE;
 
     trackMetric('Submitted Print Options', metrics);
 

@@ -461,6 +461,7 @@ export const PatientDataClass = createReactClass({
       <PatientDataPrintModal
         api={this.props.api}
         patientId={this.props.currentPatientInViewId}
+        chartPrefs={this.state.chartPrefs}
         onClose={() => this.setState({ printDialogOpen: false })}
       />
     );

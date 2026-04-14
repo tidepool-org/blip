@@ -15,7 +15,7 @@ import { useTranslation } from 'react-i18next';
 
 const trackMetric = noop; // this.props.trackMetric
 
-const PatientDataPrintModal = ({ api, patientId, onClose = noop }) => {
+const PatientDataPrintModal = ({ api, patientId, chartPrefs = {}, onClose = noop }) => {
   const dispatch = useDispatch();
   const loggedInUserId = useSelector(state => state.blip.loggedInUserId);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -24,13 +24,14 @@ const PatientDataPrintModal = ({ api, patientId, onClose = noop }) => {
     return () => dispatch(actions.worker.removeGeneratedPDFS());
   }, []);
 
-  const handlePrintTriggered = () => onClose();
-
-  const { status, timePrefs, latestDatumByType, canPrint, onPrintPDF } = usePrintPDF(api, patientId, handlePrintTriggered);
+  const { status, timePrefs, latestDatumByType, canPrint, onPrintPDF } = usePrintPDF(api, patientId, onClose);
 
   const handleClickPrint = (opts) => {
+    const enrichedOpts = _.cloneDeep(opts);
+    enrichedOpts.cgmSampleIntervalRange = chartPrefs?.daily?.cgmSampleIntervalRange;
+
     setIsProcessing(true);
-    onPrintPDF(opts);
+    onPrintPDF(enrichedOpts);
   };
 
   if (!latestDatumByType || !timePrefs) return null;

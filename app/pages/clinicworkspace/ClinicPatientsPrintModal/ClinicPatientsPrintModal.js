@@ -43,9 +43,7 @@ const ClinicPatientsPrintModal = ({ api, patientId, onClose = noop }) => {
     }
   }, [patientId]);
 
-  const handlePrintTriggered = () => onClose();
-
-  const { status, timePrefs, latestDatumByType, canPrint, onPrintPDF } = usePrintPDF(api, patientId, handlePrintTriggered);
+  const { status, timePrefs, latestDatumByType, canPrint, onPrintPDF } = usePrintPDF(api, patientId, onClose);
 
   const handleClickPrint = (opts) => {
     setIsProcessing(true);
