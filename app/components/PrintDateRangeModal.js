@@ -296,7 +296,11 @@ export const PrintDateRangeModal = (props) => {
       agpCGM: { endpoints: formatDateEndpoints(dates.agpCGM), disabled: !enabled.agpCGM },
       basics: { endpoints: formatBasicsDateEndpoints(dates.basics), disabled: !enabled.basics },
       bgLog: { endpoints: formatDateEndpoints(dates.bgLog), disabled: !enabled.bgLog },
-      daily: { endpoints: formatDateEndpoints(dates.daily), disabled: !enabled.daily },
+      daily: {
+        endpoints: formatDateEndpoints(dates.daily),
+        disabled: !enabled.daily,
+        cgmSampleIntervalRange: DEFAULT_CGM_SAMPLE_INTERVAL_RANGE,
+      },
       settings: { disabled: !enabled.settings },
     };
 
@@ -317,8 +321,6 @@ export const PrintDateRangeModal = (props) => {
       daily: printOpts.daily.disabled ? 'disabled' : getDateRangeMetric(presetDaysOptions.daily, 'daily'),
       settings: printOpts.settings.disabled ? 'disabled' : 'enabled',
     };
-
-    printOpts.cgmSampleIntervalRange = DEFAULT_CGM_SAMPLE_INTERVAL_RANGE;
 
     trackMetric('Submitted Print Options', metrics);
 

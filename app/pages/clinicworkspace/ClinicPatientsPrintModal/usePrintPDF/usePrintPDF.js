@@ -21,7 +21,7 @@ import keys from 'lodash/keys';
 import isNil from 'lodash/isNil';
 import { useGenerateAGPImages } from '../../../../core/agpUtils';
 import { selectPatient, selectUser } from '../../../../core/selectors';
-import { MS_IN_MIN } from '../../../../core/constants';
+import { DEFAULT_CGM_SAMPLE_INTERVAL, MS_IN_MIN } from '../../../../core/constants';
 
 export const STATUS = {
   // States in order of happy path AGP generation sequence
@@ -95,13 +95,16 @@ const getMainFetchOpts = (timePrefs, opts, fetchedUntil) => {
     ? moment.utc(fetchedUntil).subtract(1, 'milliseconds').toISOString()
     : moment.utc().add(1, 'days').toISOString();
 
+  const sampleIntervalMinimum = opts.daily?.cgmSampleIntervalRange?.[0] || DEFAULT_CGM_SAMPLE_INTERVAL;
+
   return {
     initial: false,
-    startDate: startDate,
-    endDate: endDate,
+    startDate,
+    endDate,
     returnData: false,
     forceDataWorkerAddDataRequest: true,
     useCache: false,
+    sampleIntervalMinimum,
   };
 };
 
@@ -129,7 +132,7 @@ const getPdfOpts = (printOpts, user, patient, clinicPatient) => {
 };
 
 const getFetchedUntil = (data, printOpts) => {
-  return printOpts?.cgmSampleIntervalRange?.[0] === MS_IN_MIN
+  return printOpts?.daily?.cgmSampleIntervalRange?.[0] === MS_IN_MIN
     ? get(data, 'oneMinCgmFetchedUntil') || moment.utc().toISOString()
     : get(data, 'fetchedUntil');
 };

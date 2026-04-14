@@ -3,15 +3,11 @@ import _ from 'lodash';
 import { useSelector, useDispatch } from 'react-redux';
 import PrintDateRangeModal from '../../components/PrintDateRangeModal';
 import noop from 'lodash/noop';
-import { Dialog, DialogTitle, DialogContent } from '../../components/elements/Dialog';
-import { MediumTitle } from '../../components/elements/FontStyles';
 import { components as vizComponents } from '@tidepool/viz';
-const { Loader } = vizComponents;
 import { getMostRecentDatumTimeByChartType } from '../../core/dataViewUtils';
 import * as actions from '../../redux/actions';
 
 import usePrintPDF from './../../pages/clinicworkspace/ClinicPatientsPrintModal/usePrintPDF';
-import { useTranslation } from 'react-i18next';
 
 const trackMetric = noop; // this.props.trackMetric
 
@@ -28,7 +24,11 @@ const PatientDataPrintModal = ({ api, patientId, chartPrefs = {}, onClose = noop
 
   const handleClickPrint = (opts) => {
     const enrichedOpts = _.cloneDeep(opts);
-    enrichedOpts.cgmSampleIntervalRange = chartPrefs?.daily?.cgmSampleIntervalRange;
+
+    // Inject cgmSampleIntervalRange into printOptions
+    if (!!enrichedOpts.daily) {
+      enrichedOpts.daily.cgmSampleIntervalRange = chartPrefs?.daily?.cgmSampleIntervalRange;
+    }
 
     setIsProcessing(true);
     onPrintPDF(enrichedOpts);
