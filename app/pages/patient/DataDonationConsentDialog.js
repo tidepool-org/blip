@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { withTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -158,6 +158,24 @@ export const DataDonationConsentDialog = (props) => {
     }
   };
 
+  // If the consent content is short enough that it isn't scrollable, the scroll
+  // handler can't fire, so mark the current step as read automatically.
+  const scrollContainerRef = useRef(null);
+
+  const setScrollContainerRef = useCallback((el) => {
+    scrollContainerRef.current = el;
+  }, []);
+
+  useEffect(() => {
+    const el = scrollContainerRef.current;
+    if (!el || !consentDocument?.content) return;
+    const fieldName = `${formSteps[currentConsentStep]}ConsentRead`;
+    if (formikContext.values[fieldName]) return;
+    if (el.clientHeight > 0 && el.scrollHeight <= el.clientHeight) {
+      formikContext.setFieldValue(fieldName, true);
+    }
+  }, [consentDocument?.content, currentConsentStep, formikContext.values]);
+
   const handleCaregiverNameChange = (e) => {
     if (!e?.target) return;
     formikContext.handleChange(e);
@@ -178,6 +196,7 @@ export const DataDonationConsentDialog = (props) => {
       <DialogContent>
         <Box id="consentDocument" variant="containers.wellBordered" p={0} mb={4}>
           <Box
+            ref={setScrollContainerRef}
             id="consentDocumentText"
             data-testid="consentDocumentText"
             onScroll={handleConsentDocumentScroll}
