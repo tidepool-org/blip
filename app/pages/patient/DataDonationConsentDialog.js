@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { withTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -97,6 +97,7 @@ export const getConsentText = memoize((accountType, patientAgeGroup, patientName
 
 export const DataDonationConsentDialog = (props) => {
   const { onClose, onConfirm, open, accountType, patientAgeGroup, patientName, caregiverName: caregiverNameProp, consentDate } = props;
+  const isChild = patientAgeGroup === 'child';
   const patientAssentRequired = patientAgeGroup === 'youth';
   const formSteps = patientAssentRequired ? ['primary', 'secondary'] : ['primary'];
   const [currentConsentStep, setCurrentConsentStep] = React.useState(0);
@@ -116,7 +117,7 @@ export const DataDonationConsentDialog = (props) => {
   const secondaryConsentSchema = createConsentSchema('secondary');
 
   const schemas = {
-    primary: patientAssentRequired && accountType === 'personal' ? nameSchema.concat(primaryConsentSchema) : primaryConsentSchema,
+    primary: (isChild || patientAssentRequired) && accountType === 'personal' ? nameSchema.concat(primaryConsentSchema) : primaryConsentSchema,
     secondary: secondaryConsentSchema,
   };
 
@@ -159,22 +160,20 @@ export const DataDonationConsentDialog = (props) => {
   };
 
   // If the consent content is short enough that it isn't scrollable, the scroll
-  // handler can't fire, so mark the current step as read automatically.
-  const scrollContainerRef = useRef(null);
-
-  const setScrollContainerRef = useCallback((el) => {
-    scrollContainerRef.current = el;
-  }, []);
+  // handler can't fire, so mark the current step as read automatically. Using
+  // useState (not useRef) for the element so that when MUI's Portal mounts its
+  // children on a later render, our component re-renders and the effect below
+  // runs with the element available.
+  const [scrollContainer, setScrollContainer] = useState(null);
 
   useEffect(() => {
-    const el = scrollContainerRef.current;
-    if (!el || !consentDocument?.content) return;
+    if (!scrollContainer || !consentDocument?.content) return;
     const fieldName = `${formSteps[currentConsentStep]}ConsentRead`;
     if (formikContext.values[fieldName]) return;
-    if (el.clientHeight > 0 && el.scrollHeight <= el.clientHeight) {
+    if (scrollContainer.clientHeight > 0 && scrollContainer.scrollHeight <= scrollContainer.clientHeight) {
       formikContext.setFieldValue(fieldName, true);
     }
-  }, [consentDocument?.content, currentConsentStep, formikContext.values]);
+  }, [scrollContainer, consentDocument?.content, currentConsentStep, formikContext.values]);
 
   const handleCaregiverNameChange = (e) => {
     if (!e?.target) return;
@@ -196,7 +195,7 @@ export const DataDonationConsentDialog = (props) => {
       <DialogContent>
         <Box id="consentDocument" variant="containers.wellBordered" p={0} mb={4}>
           <Box
-            ref={setScrollContainerRef}
+            ref={setScrollContainer}
             id="consentDocumentText"
             data-testid="consentDocumentText"
             onScroll={handleConsentDocumentScroll}
