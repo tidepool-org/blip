@@ -8,10 +8,10 @@ import { MediumTitle } from '../../../components/elements/FontStyles';
 import { components as vizComponents } from '@tidepool/viz';
 const { Loader } = vizComponents;
 import { getMostRecentDatumTimeByChartType } from '../../../core/dataViewUtils';
-import * as actions from '../../../redux/actions';
 
-import usePrintPDF from './usePrintPDF';
+import usePrintPDF, { STATUS } from './usePrintPDF';
 import { useTranslation } from 'react-i18next';
+import { useToasts } from '../../../providers/ToastProvider';
 
 const trackMetric = noop; // this.props.trackMetric
 
@@ -31,10 +31,19 @@ const LoadingModal = ({ onClose = noop }) => {
 };
 
 const ClinicPatientsPrintModal = ({ api, patientId, onClose = noop }) => {
+  const { t } = useTranslation();
+  const { set: setToast } = useToasts();
   const loggedInUserId = useSelector(state => state.blip.loggedInUserId);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const { status, modalData, canPrint, print } = usePrintPDF(api, patientId, onClose);
+
+  useEffect(() => {
+    if (status === STATUS.NO_PATIENT_DATA) {
+      setToast({ message: t('This patient does not have any data'), variant: 'danger' });
+      onClose();
+    }
+  }, [status]);
 
   const handleClickPrint = (opts) => {
     setIsProcessing(true);

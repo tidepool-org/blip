@@ -3806,6 +3806,7 @@ export const ClinicPatients = (props) => {
   }, [
     api,
     setShowPrintDataModal,
+    setSelectedPatient,
     selectedPatient,
   ]);
 
