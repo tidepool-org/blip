@@ -6083,9 +6083,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.51.0-web-3359.1":
-  version: 1.51.0-web-3359.1
-  resolution: "@tidepool/viz@npm:1.51.0-web-3359.1"
+"@tidepool/viz@npm:1.55.0-web-3359.2":
+  version: 1.55.0-web-3359.2
+  resolution: "@tidepool/viz@npm:1.55.0-web-3359.2"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6111,7 +6111,7 @@ __metadata:
     moment: 2.29.4
     moment-timezone: 0.5.43
     parse-svg-path: 0.1.2
-    pdfkit: 0.13.0
+    pdfkit: 0.15.0
     process: 0.11.10
     prop-types: 15.8.1
     react: 16.14.0
@@ -6146,7 +6146,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 98917f2352ef48bdab01ace7ea75c9201701721cdc1eb5fead6a5bde98324d02ecb700b5769b39c6b736b6e1e5e147430bddb3ceb31be1ffe5e28015eb9412ea
+  checksum: fe9438af82c0d6e56c9bbcc116d7569e1033ce6d981f5c832901c60237bb6989ef861389266b947b8fe620fe796eaea308a3680e50b84e3becf2094e0f280190
   languageName: node
   linkType: hard
 
@@ -8335,7 +8335,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.51.0-web-3359.1
+    "@tidepool/viz": 1.55.0-web-3359.2
     async: 2.6.4
     autoprefixer: 10.4.16
     babel-core: 7.0.0-bridge.0
@@ -8462,7 +8462,7 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.37.0-web-3359.1
+    tideline: 1.38.0-web-3359.2
     tidepool-platform-client: 0.64.0-web-3571-delete-sites.3
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
@@ -15230,6 +15230,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jpeg-exif@npm:^1.1.4":
+  version: 1.1.4
+  resolution: "jpeg-exif@npm:1.1.4"
+  checksum: a8693a7eeb6c6572ca39acc8bbaf4bac1eea1331a26ec7d460410c0c7aefcb944bbc6c31d3c4649a308eea9da89ee4d38e35fe2f2604e4bf2ed09abd600cff0b
+  languageName: node
+  linkType: hard
+
 "js-cookie@npm:^2.2.1":
   version: 2.2.1
   resolution: "js-cookie@npm:2.2.1"
@@ -18095,15 +18102,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pdfkit@npm:0.13.0":
-  version: 0.13.0
-  resolution: "pdfkit@npm:0.13.0"
+"pdfkit@npm:0.15.0":
+  version: 0.15.0
+  resolution: "pdfkit@npm:0.15.0"
   dependencies:
-    crypto-js: ^4.0.0
+    crypto-js: ^4.2.0
     fontkit: ^1.8.1
+    jpeg-exif: ^1.1.4
     linebreak: ^1.0.2
     png-js: ^1.0.0
-  checksum: 1c0875b5cc0cb8dbf06943089244358bd147493b5b453fefc6cabf55e4a4098dead253d14ec859caefaeb35604130faf454ac04f908d99f9c55f9394e9b21d69
+  checksum: 044d24f0efd563834bc4c45f12be6e91f98e31d0d664b042d89f35588d3fb985134566280bba6fa29360f61ae1ba62310dccba4b0f102aa448f307c6bbe65bd1
   languageName: node
   linkType: hard
 
@@ -22218,9 +22226,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.37.0-web-3359.1":
-  version: 1.37.0-web-3359.1
-  resolution: "tideline@npm:1.37.0-web-3359.1"
+"tideline@npm:1.38.0-web-3359.2":
+  version: 1.38.0-web-3359.2
+  resolution: "tideline@npm:1.38.0-web-3359.2"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -22241,7 +22249,7 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: 81dc882f3c39da8645f46e1586ed20bc9fbbea0c8148d38a1e904049b1b71d0bae8d00763984f134d23664cbbf1d48e9f44ce08d670f6930e9ecb9fb65df17e8
+  checksum: 8ea61f3898a19a0c268296b193334f54e9f65324566869ef0898f61ff92c1589b3df70cef34af820c37b00f2eb831d80b8fb4358b2f625b94b9ac96a4925450d
   languageName: node
   linkType: hard
 
