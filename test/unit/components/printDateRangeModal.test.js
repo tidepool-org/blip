@@ -271,13 +271,14 @@ describe('PrintDateRangeModal', function () {
 
   it('should set appropriate default dates for each applicable chart based on most recent datum dates', () => {
     const dateFormat = 'MMM D, YYYY';
-    // Note: we expect the start dates to show a date that is the preset range MINUS 1 day prior
-    // to the end date, since the resulting date range goes from the first ms of the start date
-    // to the last ms of the end date
     const basicsEndDate = wrapper.find('#basics-end-date').hostNodes();
     const basicsStartDate = wrapper.find('#basics-start-date').hostNodes();
     expect(basicsEndDate.prop('value')).to.equal('Mar 10, 2020');
-    expect(basicsStartDate.prop('value')).to.equal(moment.utc('Mar 10, 2020', dateFormat).subtract(14 - 1, 'days').format(dateFormat));
+    expect(basicsStartDate.prop('value')).to.equal(moment.utc('Mar 10, 2020', dateFormat).subtract(14, 'days').format(dateFormat));
+
+    // Note: we expect the start dates to show a date that is the preset range MINUS 1 day prior
+    // to the end date, since the resulting date range goes from the first ms of the start date
+    // to the last ms of the end date
 
     const bgLogEndDate = wrapper.find('#bgLog-end-date').hostNodes();
     const bgLogStartDate = wrapper.find('#bgLog-start-date').hostNodes();
@@ -296,10 +297,10 @@ describe('PrintDateRangeModal', function () {
     const basicsStartDateInPacific = pacificWrapper.find('#basics-start-date').hostNodes();
 
     expect(moment.utc('Mar 10, 2020', dateFormat).tz('US/Pacific').format(dateFormat)).to.equal('Mar 9, 2020');
-    expect(basicsEndDateInPacific.prop('value')).to.equal('Mar 9, 2020');
+    expect(basicsEndDateInPacific.prop('value')).to.equal('Mar 9, 2020 (5:00 PM)');
 
     expect(moment.utc('Mar 10, 2020', dateFormat).tz('US/Pacific').subtract(14 - 1, 'days').format(dateFormat)).to.equal('Feb 25, 2020');
-    expect(basicsStartDateInPacific.prop('value')).to.equal('Feb 25, 2020');
+    expect(basicsStartDateInPacific.prop('value')).to.equal('Feb 24, 2020 (5:00 PM)');
   });
 
   context('form is submitted', () => {
@@ -336,8 +337,8 @@ describe('PrintDateRangeModal', function () {
           Date.parse('2020-03-11T00:00:00.000Z'),
         ] },
         basics: { disabled: false, endpoints: [
-          moment.utc(Date.parse('2020-03-11T00:00:00.000Z')).subtract(14, 'days').valueOf(),
-          Date.parse('2020-03-11T00:00:00.000Z'),
+          moment.utc(Date.parse('2020-03-10T00:00:00.000Z')).subtract(14, 'days').valueOf(),
+          Date.parse('2020-03-10T00:00:00.000Z'),
         ] },
         bgLog: { disabled: true, endpoints: [ // Disabled ✓
           moment.utc(Date.parse('2020-03-13T00:00:00.000Z')).subtract(30, 'days').valueOf(),

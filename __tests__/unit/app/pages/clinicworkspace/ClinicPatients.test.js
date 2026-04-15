@@ -81,6 +81,7 @@ describe('ClinicPatients', ()  => {
         fetchingRpmReportPatients: defaultWorkingState,
         settingClinicPatientLastReviewed: defaultWorkingState,
         revertingClinicPatientLastReviewed: defaultWorkingState,
+        fetchingClinicMRNsForPatientFormValidation: defaultWorkingState,
       },
       patientListFilters: {
         patientListSearchTextInput: '',
@@ -134,14 +135,14 @@ describe('ClinicPatients', ()  => {
           }),
           tier: 'tier0300',
           patientTags: [
-            { id: 'tag3', name: 'ttest tag 3'},
-            { id: 'tag2', name: 'test tag 2'},
-            { id: 'tag1', name: 'test tag 1'},
+            { id: 'tag3', name: 'ttest tag 3', numPatients: 3 },
+            { id: 'tag2', name: 'test tag 2', numPatients: 2 },
+            { id: 'tag1', name: 'test tag 1', numPatients: 1 },
           ],
           sites: [
-            { id: 'site-1-id', name: 'Site Alpha' },
-            { id: 'site-2-id', name: 'Site Bravo' },
-            { id: 'site-3-id', name: 'Site Charlie' },
+            { id: 'site-1-id', name: 'Site Alpha', numPatients: 1 },
+            { id: 'site-2-id', name: 'Site Bravo', numPatients: 2 },
+            { id: 'site-3-id', name: 'Site Charlie', numPatients: 3 },
           ],
           patients: {
             patient1: {
@@ -309,6 +310,7 @@ describe('ClinicPatients', ()  => {
     searchDebounceMs: 0,
     api: {
       clinics: {
+        get: jest.fn(),
         getPatientFromClinic: jest.fn(),
         getPatientsForClinic: jest.fn(),
         deletePatientFromClinic: jest.fn(),
@@ -350,6 +352,7 @@ describe('ClinicPatients', ()  => {
   beforeEach(() => {
     defaultProps.trackMetric.mockClear();
     defaultProps.api.clinics.getPatientsForClinic.mockClear();
+    defaultProps.api.clinics.get.mockClear();
   });
 
   describe('has patients', () => {
@@ -531,9 +534,15 @@ describe('ClinicPatients', ()  => {
               </MockedProviderWrappers>
             );
 
+            expect(defaultProps.api.clinics.get).not.toHaveBeenCalled();
+
             // Open the Edit Sites Dialog
             await userEvent.click(screen.getByRole('button', { name: /Sites/ }));
             await userEvent.click(screen.getByRole('button', { name: /Edit Sites/ }));
+            // expect(screen.getByTestId('site-site-3-id-numPatients')).toHaveTextContent(3);
+
+            // Fetch latest site data
+            expect(defaultProps.api.clinics.get).toHaveBeenCalled();
 
             // Type in a new site "Charlie" into the textbox and click add
             const newSiteInputField = await screen.findByRole('textbox');
@@ -638,13 +647,12 @@ describe('ClinicPatients', ()  => {
             );
 
             // Click the Edit Sites icon for a patient. The Dialog for Edit Patient Details should open.
-            expect(screen.queryByText('Edit Patient Details')).not.toBeInTheDocument();
             await userEvent.click(screen.getByTestId('action-menu-patient2-icon'));
-            await userEvent.click(screen.getByRole('button', { name: /Edit Patient Information/ }));
-            expect(screen.getByText('Edit Patient Details')).toBeInTheDocument();
+            await userEvent.click(screen.getByRole('button', { name: /Edit Patient Details/ }));
+            expect(screen.getByRole('heading', { level: 3, name: 'Edit Patient Details' })).toBeInTheDocument();
 
             // Add Site 3 and remove Site 1, then save
-            await userEvent.click(screen.getAllByRole('combobox')[1]); // open combobox dropdown
+            await userEvent.click(screen.getAllByRole('combobox')[3]); // open combobox dropdown
             await userEvent.click(screen.getByText('Site Charlie', { selector: 'div' }));
             await userEvent.click(screen.getByLabelText(/Remove Site Alpha/));
             await userEvent.click(screen.getByRole('button', { name: /Save Changes/ }));
@@ -688,6 +696,8 @@ describe('ClinicPatients', ()  => {
                 },
                 tags: ['tag1'],
                 sites: [{ id: 'site-3-id', name: 'Site Charlie' }],
+                diagnosisType: '',
+                glycemicRanges: { type: 'preset', preset: 'adaStandard' },
                 reviews: [{ clinicianId: 'clinicianUserId123', time: yesterday }],
               },
               expect.any(Function), // callback fn passed to api
@@ -703,9 +713,14 @@ describe('ClinicPatients', ()  => {
               </MockedProviderWrappers>
             );
 
+            expect(defaultProps.api.clinics.get).not.toHaveBeenCalled();
+
             // Open the Edit Sites Dialog
             await userEvent.click(screen.getByRole('button', { name: /Tags/ }));
             await userEvent.click(screen.getByRole('button', { name: /Edit Tags/ }));
+            // expect(screen.getByTestId('tag-tag2-numPatients')).toHaveTextContent(2);
+
+            expect(defaultProps.api.clinics.get).toHaveBeenCalled();
 
             // Type in a new tag "Delta" into the textbox and click add
             const newTag = await screen.findByRole('textbox');
@@ -810,12 +825,11 @@ describe('ClinicPatients', ()  => {
             );
 
             // Click the Edit Tags icon for a patient. The Dialog for Edit Patient Details should open.
-            expect(screen.queryByText('Edit Patient Details')).not.toBeInTheDocument();
             await userEvent.click(screen.getAllByTestId('edit-tags-icon')[0]); // Open patient2
-            expect(screen.getByText('Edit Patient Details')).toBeInTheDocument();
+            expect(screen.getByRole('heading', { level: 3, name: 'Edit Patient Details' })).toBeInTheDocument();
 
             // Add Tag 3 and remove Tag 1, then save
-            await userEvent.click(screen.getAllByRole('combobox')[0]); // open combobox dropdown
+            await userEvent.click(screen.getAllByRole('combobox')[2]); // open combobox dropdown
             await userEvent.click(screen.getByText('ttest tag 3', { selector: 'div' }));
             await userEvent.click(screen.getByLabelText(/Remove test tag 1/));
             await userEvent.click(screen.getByRole('button', { name: /Save Changes/ }));
@@ -859,6 +873,8 @@ describe('ClinicPatients', ()  => {
                 },
                 tags: ['tag3'],
                 sites: [{ id: 'site-1-id', name: 'Site Alpha' }],
+                diagnosisType: '',
+                glycemicRanges: { type: 'preset', preset: 'adaStandard' },
                 reviews: [{ clinicianId: 'clinicianUserId123', time: yesterday }],
               },
               expect.any(Function), // callback fn passed to api

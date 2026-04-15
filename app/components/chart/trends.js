@@ -24,6 +24,10 @@ import {
   containers as vizContainers,
   utils as vizUtils,
 } from '@tidepool/viz';
+const {
+  CHART_DATE_BOUND_FORMAT,
+  getChartDateBoundFormat,
+} = vizUtils.datetime;
 
 const TrendsContainer = vizContainers.TrendsContainer;
 const getTimezoneFromTimePrefs = vizUtils.datetime.getTimezoneFromTimePrefs;
@@ -40,12 +44,14 @@ const {
 const Trends = withTranslation()(class Trends extends PureComponent {
   static propTypes = {
     chartPrefs: PropTypes.object.isRequired,
+    copyAsTextMetadata: PropTypes.object,
     currentPatientInViewId: PropTypes.string.isRequired,
     data: PropTypes.object.isRequired,
     initialDatetimeLocation: PropTypes.string,
     loading: PropTypes.bool.isRequired,
     mostRecentDatetimeLocation: PropTypes.string,
     onClickRefresh: PropTypes.func.isRequired,
+    onClickExport: PropTypes.func.isRequired,
     onClickPrint: PropTypes.func.isRequired,
     onSwitchToBasics: PropTypes.func.isRequired,
     onSwitchToDaily: PropTypes.func.isRequired,
@@ -60,6 +66,7 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     updateChartPrefs: PropTypes.func.isRequired,
     uploadUrl: PropTypes.string.isRequired,
     removeGeneratedPDFS: PropTypes.func.isRequired,
+    isSmartOnFhirMode: PropTypes.bool.isRequired,
   };
 
   constructor(props) {
@@ -74,7 +81,6 @@ const Trends = withTranslation()(class Trends extends PureComponent {
       visibleDays: 0,
     };
 
-    this.formatDate = this.formatDate.bind(this);
     this.getNewDomain = this.getNewDomain.bind(this);
     this.getTitle = this.getTitle.bind(this);
     this.handleWindowResize = this.handleWindowResize.bind(this);
@@ -120,18 +126,11 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     this.props.updateChartPrefs(prefs, false);
   };
 
-  formatDate(datetime) {
-    const { t } = this.props;
-    const timezone = getTimezoneFromTimePrefs(_.get(this.props, 'data.timePrefs', {}));
-
-    return sundial.formatInTimezone(datetime, timezone, t('MMM D, YYYY'));
-  }
-
   getNewDomain(current, extent) {
     const timePrefs = _.get(this.props, 'data.timePrefs', {});
     const timezone = getTimezoneFromTimePrefs(timePrefs);
-    const end = getLocalizedCeiling(current.valueOf(), timePrefs);
-    const start = moment(end.toISOString()).tz(timezone).subtract(extent, 'days');
+    const end = getLocalizedCeiling(current.valueOf(), timePrefs, 'hour');
+    const start = moment(current.toISOString()).tz(timezone).subtract(extent, 'days');
     const dateDomain = [start.toISOString(), end.toISOString()];
 
     return dateDomain;
@@ -141,10 +140,16 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     const timePrefs = _.get(this.props, 'data.timePrefs', {});
     const timezone = getTimezoneFromTimePrefs(timePrefs);
 
-    // endpoint is exclusive, so need to subtract a day
-    const end = moment(datetimeLocationEndpoints[1]).tz(timezone).subtract(1, 'day');
+    const startMoment = moment(datetimeLocationEndpoints[0]).tz(timezone);
+    const endMoment = moment(datetimeLocationEndpoints[1]).tz(timezone);
 
-    return this.formatDate(datetimeLocationEndpoints[0]) + ' - ' + this.formatDate(end);
+    const dtMask = getChartDateBoundFormat(startMoment, endMoment);
+
+    if (dtMask === CHART_DATE_BOUND_FORMAT.DATE_ONLY) {
+      endMoment.subtract(1, 'ms');
+    }
+
+    return startMoment.format(dtMask) + ' - ' + endMoment.format(dtMask);
   }
 
   handleWindowResize(windowSize) {
@@ -185,7 +190,7 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     if (prefs.trends.activeDomain === '1 week' && prefs.trends.extentSize === 7) {
       return;
     }
-    const current = new Date(this.refs.chart.getCurrentDay());
+    const current = new Date(this.refs.chart.getCurrentChartTime());
     prefs.trends.activeDomain = '1 week';
     prefs.trends.extentSize = 7;
     this.props.updateChartPrefs(prefs);
@@ -202,7 +207,7 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     if (prefs.trends.activeDomain === '2 weeks' && prefs.trends.extentSize === 14) {
       return;
     }
-    const current = new Date(this.refs.chart.getCurrentDay());
+    const current = new Date(this.refs.chart.getCurrentChartTime());
     prefs.trends.activeDomain = '2 weeks';
     prefs.trends.extentSize = 14;
     this.props.updateChartPrefs(prefs);
@@ -219,7 +224,7 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     if (prefs.trends.activeDomain === '4 weeks' && prefs.trends.extentSize === 28) {
       return;
     }
-    const current = new Date(this.refs.chart.getCurrentDay());
+    const current = new Date(this.refs.chart.getCurrentChartTime());
     prefs.trends.activeDomain = '4 weeks';
     prefs.trends.extentSize = 28;
     this.props.updateChartPrefs(prefs);
@@ -260,6 +265,14 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     this.props.onSwitchToBgLog(datetime);
   }
 
+  handleClickExport = e => {
+    if (e) {
+      e.preventDefault();
+    }
+
+    this.props.onClickExport();
+  };
+
   handleClickPrint = e => {
     if (e) {
       e.preventDefault();
@@ -269,8 +282,19 @@ const Trends = withTranslation()(class Trends extends PureComponent {
   };
 
   handleDatetimeLocationChange(datetimeLocationEndpoints) {
+    const timePrefs = _.get(this.props, 'data.timePrefs', {});
+    const startHourCeiling = getLocalizedCeiling(datetimeLocationEndpoints[0], timePrefs, 'hour');
+    const endHourCeiling = getLocalizedCeiling(datetimeLocationEndpoints[1], timePrefs, 'hour');
+
+    const datetimeLocation = moment.utc(endHourCeiling.valueOf()).toISOString();
+
+    const updatedDatetimeLocationEndpoints = [
+      moment.utc(startHourCeiling.valueOf()).toISOString(),
+      moment.utc(endHourCeiling.valueOf()).toISOString(),
+    ];
+
     this.setState({
-      title: this.getTitle(datetimeLocationEndpoints),
+      title: this.getTitle(updatedDatetimeLocationEndpoints),
     });
 
     // Update the chart date range in the data component.
@@ -278,10 +302,6 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     if (this.state.debouncedDateRangeUpdate) {
       this.state.debouncedDateRangeUpdate.cancel();
     }
-
-    const dateCeiling = getLocalizedCeiling(datetimeLocationEndpoints[1], _.get(this.props, 'data.timePrefs', {}));
-
-    const datetimeLocation = moment.utc(dateCeiling.valueOf()).toISOString();
 
     const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 250);
     debouncedDateRangeUpdate(datetimeLocation);
@@ -347,11 +367,9 @@ const Trends = withTranslation()(class Trends extends PureComponent {
   }
 
   isAtMostRecent() {
-    const mostRecentCeiling = getLocalizedCeiling(
-      this.props.mostRecentDatetimeLocation,
-      _.get(this.props, 'data.timePrefs', {})
-    ).toISOString();
-    return _.get(this.refs, 'chart.state.dateDomain.end') >= mostRecentCeiling;
+    const { mostRecentDatetimeLocation } = this.props;
+
+    return _.get(this.refs, 'chart.state.dateDomain.end') >= mostRecentDatetimeLocation;
   }
 
   markTrendsViewed() {
@@ -582,7 +600,14 @@ const Trends = withTranslation()(class Trends extends PureComponent {
                   <ClipboardButton
                     buttonTitle={t('For email or notes')}
                     onSuccess={this.handleCopyTrendsClicked}
-                    getText={trendsText.bind(this, this.props.patient, this.props.data, this.props.stats, this.props.chartPrefs[this.chartType])}
+                    getText={trendsText.bind(
+                      this,
+                      this.props.patient,
+                      this.props.data,
+                      this.props.stats,
+                      this.props.chartPrefs[this.chartType],
+                      this.props.copyAsTextMetadata,
+                    )}
                   />
                   <BgSourceToggle
                     bgSources={_.get(this.props, 'data.metaData.bgSources', {})}
@@ -634,7 +659,9 @@ const Trends = withTranslation()(class Trends extends PureComponent {
         onClickOneDay={this.handleClickDaily}
         onClickBgLog={this.handleClickBgLog}
         onClickSettings={this.handleClickSettings}
+        onClickExport={this.handleClickExport}
         onClickPrint={this.handleClickPrint}
+        isSmartOnFhirMode={this.props.isSmartOnFhirMode}
         ref="header" />
     );
   }

@@ -68,13 +68,13 @@ export const PatientLastReviewed = ({ api, patientId, recentlyReviewedThresholdD
 
   const handleReview = () => {
     trackMetric('Clinic - Mark patient reviewed', { clinicId: selectedClinicId, source: metricSource });
-    dispatch(actions.async.setClinicPatientLastReviewed(api, selectedClinicId, patient?.id));
+    dispatch(actions.async.setClinicPatientLastReviewed(api, selectedClinicId, patientId));
     onReview && onReview();
   };
 
   const handleUndo = () => {
     trackMetric('Clinic - Undo mark patient reviewed', { clinicId: selectedClinicId, source: metricSource });
-    dispatch(actions.async.revertClinicPatientLastReviewed(api, selectedClinicId, patient?.id));
+    dispatch(actions.async.revertClinicPatientLastReviewed(api, selectedClinicId, patientId));
   };
 
   let clickHandler = handleReview;

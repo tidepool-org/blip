@@ -5,11 +5,11 @@ import keyBy from 'lodash/keyBy';
 import partition from 'lodash/partition';
 import Select, { createFilter } from 'react-select';
 import { useLocation } from 'react-router-dom';
-import { colors } from '../../../themes/baseTheme';
 import useClinicPatientsFilters from '../../../pages/clinicworkspace/useClinicPatientsFilters';
 import { useTranslation } from 'react-i18next';
 import { noop } from 'lodash';
 import utils from '../../../core/utils';
+import { selectElementStyleOverrides } from './styles';
 
 export const buildSelectOptions = (
   t,
@@ -19,7 +19,7 @@ export const buildSelectOptions = (
 ) => {
   // Format tags for react-select (label and value properties), then sort
   const options = clinicTags.map(tag => ({ label: tag.name, value: tag.id }))
-                            .toSorted((a, b) => utils.compareLabels(a.label, b.label));
+    .toSorted((a, b) => utils.compareLabels(a.label, b.label));
 
   // If suggesting is disabled, return a single group of all options
   if (!shouldSuggestTags) return [{ options: options, label: '' }];
@@ -34,39 +34,13 @@ export const buildSelectOptions = (
   ];
 };
 
-export const selectElementStyleOverrides = {
-  option: base => ({ ...base, paddingLeft: '4px', paddingRight: '4px', fontSize: 14, color: colors.blueGreyDark }),
-  placeholder: base => ({ ...base, fontSize: 14, color: colors.blueGreyMedium }),
-  groupHeading: base => ({ ...base, textTransform: 'none', fontWeight: 'normal', paddingLeft: '4px', paddingRight: '0' }),
-  menu: base => ({ ...base, top: 'unset' }),
-  multiValue: base => ({ ...base, borderRadius: '3px', background: colors.blueGreyDark, border: 'none' }),
-  multiValueLabel: base => ({ ...base, borderRadius: '0', color: colors.white }),
-  input: base => ({ ...base, color: colors.blueGreyDark, fontSize: 14 }),
-  control: base => ({
-    ...base,
-    borderRadius: '3px',
-    border: '1px solid #DFE2E6',
-    '&:hover': { border: '1px solid #DFE2E6' },
-  }),
-  group: base => ({
-    ...base,
-    marginLeft: '12px',
-    marginRight: '12px',
-    '&:nth-of-type(2)': { borderTop: `1px solid ${colors.blueGray10}` },
-  }),
-  multiValueRemove: base => ({
-    ...base,
-    borderRadius: '3px',
-    color: colors.white,
-    '&:hover': { background: 'none', cursor: 'pointer', color: colors.white },
-  }),
-};
-
 const SelectTags = ({
   currentTagIds, // Array of tag IDs, e.g. ['id1', 'id2', 'id3']
   onChange,
   selectMenuHeight = 240,
   onMenuOpen = noop,
+  closeMenuOnSelect = false,
+  isDisabled = false,
 }) => {
   const { pathname } = useLocation();
   const { t } = useTranslation();
@@ -82,7 +56,7 @@ const SelectTags = ({
   };
 
   // Suggest tags only if user is viewing ClinicPatients list (where Filters are used)
-  const shouldSuggestTags = pathname === '/clinic-workspace';
+  const shouldSuggestTags = pathname?.includes('/clinic-workspace');
 
   const selectOptions = buildSelectOptions(t, clinic?.patientTags, activeFilters, shouldSuggestTags);
 
@@ -102,12 +76,13 @@ const SelectTags = ({
       onChange={handleTagSelectionChange}
       onMenuOpen={onMenuOpen}
       options={selectOptions}
-      closeMenuOnSelect={false}
+      closeMenuOnSelect={closeMenuOnSelect}
       minMenuHeight={selectMenuHeight}
       maxMenuHeight={selectMenuHeight}
       filterOption={createFilter({ stringify: opt => opt.label })}
       isMulti
       isClearable
+      isDisabled={isDisabled}
     />
   );
 };
@@ -117,6 +92,8 @@ SelectTags.propTypes = {
   onChange: PropTypes.func.isRequired,
   selectMenuHeight: PropTypes.number,
   onMenuOpen: PropTypes.func,
+  closeMenuOnSelect: PropTypes.bool,
+  isDisabled: PropTypes.bool,
 };
 
 SelectTags.defaultProps = {

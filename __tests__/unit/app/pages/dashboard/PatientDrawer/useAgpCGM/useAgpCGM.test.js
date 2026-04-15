@@ -52,6 +52,25 @@ jest.mock('@tidepool/viz', () => ({
   },
 }));
 
+const idleWorkingState = {
+  inProgress: false,
+  completed: null,
+  notification: null,
+};
+
+const inProgressWorkingState = {
+  inProgress: true,
+  completed: null,
+  notification: null,
+};
+
+const working = {
+  removingGeneratedPDFS: idleWorkingState,
+  removingData: idleWorkingState,
+  fetchingPatientData: idleWorkingState,
+  generatingPDF: idleWorkingState,
+};
+
 describe('useAgpCGM', () => {
   const getWrapper = (store) => ({ children }) => <Provider store={store}>{children}</Provider>;
 
@@ -68,6 +87,7 @@ describe('useAgpCGM', () => {
   describe('When another patients data is in state', () => {
     const state = {
       blip: {
+        working,
         data: { metaData: { patientId: 'patient-2' } },
         pdf: { opts: { patient: { id: 'patient-2' } } },
         selectedClinicId: 'clinic-1',
@@ -90,6 +110,7 @@ describe('useAgpCGM', () => {
   describe('When state is clear', () => {
     const state = {
       blip: {
+        working,
         data: { metaData: {} },
         pdf: {},
         selectedClinicId: 'clinic-1',
@@ -111,6 +132,7 @@ describe('useAgpCGM', () => {
   describe('When patient is loaded into state', () => {
     const state = {
       blip: {
+        working,
         data: { metaData: { patientId: 'patient-1' } },
         pdf: {},
         selectedClinicId: 'clinic-1',
@@ -132,6 +154,7 @@ describe('useAgpCGM', () => {
   describe('When pdf has been loaded into state', () => {
     const state = {
       blip: {
+        working,
         data: { metaData: { patientId: 'patient-1' } },
         pdf: {
           data: {
@@ -164,6 +187,7 @@ describe('useAgpCGM', () => {
   describe('When svgs have been successfully generated', () => {
     const state = {
       blip: {
+        working,
         data: { metaData: { patientId: 'patient-1' } },
         pdf: {
           data: {

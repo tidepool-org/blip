@@ -55,11 +55,13 @@ appContext.trackMetric = (...args) => {
 
   const clinician = personUtils.isClinicianAccount(user);
   const mobile = utils.isMobile();
+  const isSmartOnFhir = !!state?.blip?.smartOnFhirData;
 
   let eventMetadata = {
     selectedClinicId,
     clinician,
     mobile,
+    ...(isSmartOnFhir && { isSmartOnFhir: true }),
   };
 
   // Empty values should be omitted from the metadata object to prevent sending blank query params
@@ -97,22 +99,29 @@ appContext.init = callback => {
   beginInit();
 };
 
+const LAUNCHDARKLY_FLAG_DEFAULTS = {
+  'showCpt95251': false,
+  'showExtremeHigh': false,
+  'showPrescriptions': false,
+  'showRpmReport': false,
+  'showSummaryDashboard': false,
+  'showSummaryDashboardLastReviewed': false,
+  'showTideDashboard': false,
+  'showTideDashboardLastReviewed': false,
+  'showTideDashboardPatientDrawer': false,
+  'tideDashboardCategories': null,
+};
+
+// Configuration Docs: https://launchdarkly.github.io/react-client-sdk/interfaces/ProviderConfig.html
 appContext.render = async Component => {
   const LDProvider = await asyncWithLDProvider({
     clientSideID: __LAUNCHDARKLY_CLIENT_TOKEN__,
     context: ldContext,
-    options: { streaming: true },
-    flags: {
-      'showAbbottProvider': false,
-      'showExtremeHigh': false,
-      'showPrescriptions': false,
-      'showRpmReport': false,
-      'showSummaryDashboard': false,
-      'showSummaryDashboardLastReviewed': false,
-      'showTideDashboard': false,
-      'showTideDashboardLastReviewed': false,
-      'showTideDashboardPatientDrawer': false,
+    options: {
+      streaming: false,
+      bootstrap: LAUNCHDARKLY_FLAG_DEFAULTS, // default flag values
     },
+    flags: LAUNCHDARKLY_FLAG_DEFAULTS, // flags keys to listen for changes on
   });
 
   render(

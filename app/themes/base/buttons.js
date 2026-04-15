@@ -312,6 +312,32 @@ export default ({
         },
       },
     },
+    paginationDot: {
+      ...defaultStyles,
+      margin: 0,
+      padding: 0,
+      fontSize: 0,
+      backgroundColor: 'transparent',
+      color: 'transparent',
+      border: `1px solid ${colors.purpleMedium}`,
+      width: '10px',
+      height: '10px',
+      borderRadius: 5,
+      '&:hover': {
+        backgroundColor: colors.lightGrey,
+      },
+      '&:active': {
+        backgroundColor: colors.purpleMedium,
+        border: `1px solid ${colors.purpleMedium}`,
+      },
+      '&:disabled': {
+        color: colors.text.primaryDisabled,
+      },
+      '&.selected': {
+        backgroundColor: colors.purpleMedium,
+        border: `1px solid ${colors.purpleMedium}`,
+      },
+    },
     filter: {
       ...defaultStyles,
       ...tertiaryStyles,
@@ -370,6 +396,34 @@ export default ({
         backgroundColor: colors.lightestGrey,
         borderColor: colors.lightestGrey,
         color: colors.text.primaryDisabled,
+      },
+    },
+    tab: {
+      ...defaultStyles,
+      padding: `12px ${space[5]}px`,
+      fontWeight: fontWeights.medium,
+      backgroundColor: colors.blue50,
+      color: colors.white,
+      border: 0,
+      borderRadius: radii.default,
+      borderBottomRightRadius: 0,
+      borderBottomLeftRadius: 0,
+      '.icon img': {
+        filter: 'brightness(0%) saturate(100%) invert(97%) sepia(100%) saturate(0%) hue-rotate(317deg) brightness(105%) contrast(101%)', // white
+      },
+      '&.selected': {
+        backgroundColor: colors.blue80,
+      },
+      '&:hover': {
+        backgroundColor: colors.blue60,
+      },
+      '&:disabled': {
+        color: colors.text.primaryDisabled,
+        pointerEvents: 'none',
+
+        '.icon img': {
+          filter: 'brightness(0%) saturate(100%) invert(82%) sepia(19%) saturate(177%) hue-rotate(178deg) brightness(81%) contrast(90%)', // colors.text.primaryDisabled
+        },
       },
     },
     large: {

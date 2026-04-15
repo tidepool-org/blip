@@ -335,10 +335,8 @@ export const ClinicianPatients = (props) => {
   }
 
   function handleClickPatient(patient) {
-    return () => {
-      trackMetric('Selected PwD');
-      dispatch(push(`/patients/${patient.id}/data`));
-    }
+    trackMetric('Selected PwD');
+    dispatch(push(`/patients/${patient.id}/data`));
   }
 
   function handleAddPatient() {
@@ -392,14 +390,14 @@ export const ClinicianPatients = (props) => {
   };
 
   const renderPatient = patient => (
-    <Box onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
+    <Flex sx={{ cursor: 'pointer', gap: 3 }}>
       <Text fontWeight="medium">{patient.fullName}</Text>
       {patient.email && <Text>{patient.email}</Text>}
-    </Box>
+    </Flex>
   );
 
-  const renderLinkedField = (field, patient) => (
-    patient[field] ? <Box classname={`patient-${field}`} onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
+  const renderDemographicField = (field, patient) => (
+    patient[field] ? <Box classname={`patient-${field}`} sx={{ cursor: 'pointer' }}>
       <Text fontWeight="medium">{patient[field]}</Text>
     </Box> : null
   );
@@ -411,7 +409,7 @@ export const ClinicianPatients = (props) => {
     if (isLoggedInUser || membershipPermissionsInOtherCareTeams?.[patient.id]?.custodian) {
       items.push({
         icon: EditIcon,
-        iconLabel: t('Edit Patient Information'),
+        iconLabel: t('Edit Patient Details'),
         iconPosition: 'left',
         id: `edit-${patient.id}`,
         variant: 'actionListItem',
@@ -419,7 +417,7 @@ export const ClinicianPatients = (props) => {
           _popupState.close();
           handleEditPatient(patient);
         },
-        text: t('Edit Patient Information'),
+        text: t('Edit Patient Details'),
       });
     }
 
@@ -456,13 +454,13 @@ export const ClinicianPatients = (props) => {
         field: 'birthDate',
         align: 'left',
         sortable: true,
-        render: renderLinkedField.bind(null, 'birthDate'),
+        render: renderDemographicField.bind(null, 'birthDate'),
       },
       {
         title: t('MRN'),
         field: 'mrn',
         align: 'left',
-        render: renderLinkedField.bind(null, 'mrn'),
+        render: renderDemographicField.bind(null, 'mrn'),
         hideEmpty: true,
       },
       {
@@ -485,6 +483,7 @@ export const ClinicianPatients = (props) => {
           sx={{ fontSize: 1 }}
           orderBy="fullNameOrderable"
           order="asc"
+          onClickRow={handleClickPatient}
           rowsPerPage={rowsPerPage}
           searchText={patientListSearchTextInput}
           page={page}

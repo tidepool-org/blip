@@ -33,7 +33,9 @@ describe('trackingMiddleware', () => {
     }
   };
   const getStateObj = {
-    getState: sinon.stub()
+    getState: sinon.stub().returns({
+      blip: {}
+    })
   };
   const next = sinon.stub();
 
@@ -76,7 +78,7 @@ describe('trackingMiddleware', () => {
     expect(api.metrics.track.callCount).to.equal(0);
     trackingMiddleware(api)(getStateObj)(next)(signupSuccess);
     expect(api.metrics.track.calledWith('Signed Up', { roles: ['clinic'] })).to.be.true;
-    expect(api.metrics.track.calledWith('Web - Clinician Account Created')).to.be.true;
+    expect(api.metrics.track.calledWith('Web - Clinician Account Created', undefined)).to.be.true;
     expect(api.metrics.track.callCount).to.equal(2);
   });
 
@@ -234,5 +236,27 @@ describe('trackingMiddleware', () => {
     trackingMiddleware(api)(getStateObj)(next)(turnOffMedian);
     expect(api.metrics.track.callCount).to.equal(1);
     expect(api.metrics.track.calledWith(metricString)).to.be.true;
+  });
+
+  it('should include isSmartOnFhir true when SMART on FHIR data is present', () => {
+    const smartStateObj = {
+      getState: sinon.stub().returns({
+        blip: {
+          smartOnFhirData: { patients: [] }
+        }
+      })
+    };
+
+    const loginSuccess = {
+      type: ActionTypes.LOGIN_SUCCESS,
+      payload: {
+        user: { roles: ['clinic'] },
+      },
+    };
+
+    expect(api.metrics.track.callCount).to.equal(0);
+    trackingMiddleware(api)(smartStateObj)(next)(loginSuccess);
+    expect(api.metrics.track.callCount).to.equal(1);
+    expect(api.metrics.track.calledWith('Logged In', { mobile: false, clinician: true, isSmartOnFhir: true })).to.be.true;
   });
 });

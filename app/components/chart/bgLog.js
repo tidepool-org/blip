@@ -184,6 +184,7 @@ class BgLogChart extends Component {
 class BgLog extends Component {
   static propTypes = {
     chartPrefs: PropTypes.object.isRequired,
+    copyAsTextMetadata: PropTypes.object,
     data: PropTypes.object.isRequired,
     initialDatetimeLocation: PropTypes.string,
     isClinicianAccount: PropTypes.bool.isRequired,
@@ -191,6 +192,7 @@ class BgLog extends Component {
     mostRecentDatetimeLocation: PropTypes.string,
     onClickNoDataRefresh: PropTypes.func.isRequired,
     onClickRefresh: PropTypes.func.isRequired,
+    onClickExport: PropTypes.func.isRequired,
     onClickPrint: PropTypes.func.isRequired,
     onSwitchToBasics: PropTypes.func.isRequired,
     onSwitchToDaily: PropTypes.func.isRequired,
@@ -202,6 +204,7 @@ class BgLog extends Component {
     trackMetric: PropTypes.func.isRequired,
     uploadUrl: PropTypes.string.isRequired,
     removeGeneratedPDFS: PropTypes.func.isRequired,
+    isSmartOnFhirMode: PropTypes.bool,
   };
 
   constructor(props) {
@@ -224,14 +227,9 @@ class BgLog extends Component {
   UNSAFE_componentWillReceiveProps = nextProps => {
     const loadingJustCompleted = this.props.loading && !nextProps.loading;
     const newDataRecieved = this.props.queryDataCount !== nextProps.queryDataCount;
-    const bgRangeUpdated = this.props.data?.bgPrefs?.useDefaultRange !== nextProps.data?.bgPrefs?.useDefaultRange;
 
     if (this.refs.chart) {
       if (loadingJustCompleted || newDataRecieved) this.refs.chart.rerenderChart({ data: nextProps.data });
-
-      if (nextProps.data?.bgPrefs?.bgClasses && bgRangeUpdated) {
-        this.refs.chart.remountChart({ bgClasses: nextProps.data.bgPrefs.bgClasses });
-      }
     }
   };
 
@@ -313,7 +311,13 @@ class BgLog extends Component {
                 <ClipboardButton
                   buttonTitle={t('For email or notes')}
                   onSuccess={this.handleCopyBgLogClicked}
-                  getText={bgLogText.bind(this, this.props.patient, this.props.data, this.props.stats)}
+                  getText={bgLogText.bind(
+                    this,
+                    this.props.patient,
+                    this.props.data,
+                    this.props.stats,
+                    this.props.copyAsTextMetadata,
+                  )}
                 />
               </Box>
               <Stats
@@ -378,8 +382,10 @@ class BgLog extends Component {
         onClickOneDay={this.handleClickOneDay}
         onClickSettings={this.props.onSwitchToSettings}
         onClickBgLog={this.handleClickBgLog}
+        onClickExport={this.handleClickExport}
         onClickPrint={this.handleClickPrint}
-      ref="header" />
+        isSmartOnFhirMode={this.props.isSmartOnFhirMode}
+        ref="header" />
     );
   };
 
@@ -395,8 +401,10 @@ class BgLog extends Component {
         onClickTrends={this.handleClickTrends}
         onClickSettings={this.props.onSwitchToSettings}
         onClickBgLog={this.handleClickBgLog}
+        onClickExport={this.handleClickExport}
         onClickPrint={this.handleClickPrint}
-      ref="header" />
+        isSmartOnFhirMode={this.props.isSmartOnFhirMode}
+        ref="header" />
     );
   };
 
@@ -472,6 +480,14 @@ class BgLog extends Component {
       datetime = this.refs.chart.getCurrentDay(this.props.timePrefs);
     }
     this.props.onSwitchToDaily(datetime);
+  };
+
+  handleClickExport = e => {
+    if (e) {
+      e.preventDefault();
+    }
+
+    this.props.onClickExport();
   };
 
   handleClickPrint = e => {

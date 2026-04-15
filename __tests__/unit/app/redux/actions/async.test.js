@@ -36,17 +36,17 @@ describe('Actions', () => {
     describe('createClinicSite', () => {
       it('should trigger CREATE_CLINIC_SITE_SUCCESS and it should call clinics.createClinicSite once for a successful request', () => {
         const clinicId = 'clinicId1';
-        const updatedSites = [{ id: 'site-alpha-id', name: 'Site Alpha' }];
+        const newSite = { id: 'site-alpha-id', name: 'Site Alpha' };
 
         let api = {
           clinics: {
-            createClinicSite: jest.fn().mockImplementation((_arg1, _arg2, cb) => cb(null, updatedSites)),
+            createClinicSite: jest.fn().mockImplementation((_arg1, _arg2, cb) => cb(null, newSite)),
           },
         };
 
         let expectedActions = [
           { type: 'CREATE_CLINIC_SITE_REQUEST' },
-          { type: 'CREATE_CLINIC_SITE_SUCCESS', payload: { clinicId, sites: updatedSites } },
+          { type: 'CREATE_CLINIC_SITE_SUCCESS', payload: { clinicId, site: newSite } },
         ];
         _.each(expectedActions, (action) => {
           expect(isTSA(action)).toBe(true);

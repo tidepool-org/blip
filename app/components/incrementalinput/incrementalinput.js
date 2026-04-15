@@ -14,62 +14,95 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+import _ from 'lodash';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useMemo } from 'react';
 import cx from 'classnames';
-import { MMOLL_UNITS } from '../../core/constants';
-import { utils } from '@tidepool/viz';
+import { utils as vizUtils } from '@tidepool/viz';
+import utils from '../../core/utils';
 
-const IncrementalInput = (props) => {
-  function calculate(e) {
-    const {
-      name,
-      value,
-      unit,
-      minValue,
-      maxValue,
-      step,
-      onChange,
-    } = props;
-    const operator = e.target.parentNode.getAttribute('operator');
-    const operations = {
-      '+': function(value, step) {
-        return value + step;
-      },
-      '-': function(value, step) {
-        return value - step;
-      },
-    };
+const MINIMUM_STEP = 0.1;
 
-    const newValue = operations[operator](value, step);
+// Returns an array of all possible values (every step between min and max)
+const getValueOptions = (minValue, maxValue, step, extraValues) => {
+  let valueOptions = [];
 
-    if (newValue >= minValue && newValue <= maxValue) {
-      onChange(name, newValue, unit);
-    }
+  for (let currVal = minValue; currVal < maxValue; currVal += step) {
+    valueOptions.push(utils.roundToNearest(currVal, MINIMUM_STEP));
   }
+
+  valueOptions.push(maxValue);
+
+  valueOptions.push(...extraValues);
+
+  valueOptions.sort((a, b) => a - b);
+
+  return _.uniq(valueOptions);
+};
+
+// Returns the index of the value within the valueOptions
+const getPosition = (valueOptions, value) => {
+  let position = valueOptions.findIndex(allowedValue => allowedValue === value);
+
+  // Find the closest index if the value doesn't exist within valueOptions
+  if (position === -1) {
+    position = _.findLastIndex(valueOptions, allowedValue => allowedValue < value);
+  };
+
+  return position;
+};
+
+const IncrementalInput = ({
+  name,
+  value,
+  unit,
+  minValue,
+  maxValue,
+  step,
+  onChange,
+  error,
+  extraValues = [], // additional value options that the input is allowed to take
+}) => {
+  const valueOptions = useMemo(() => {
+    return getValueOptions(minValue, maxValue, step, extraValues);
+  }, [extraValues, minValue, maxValue, step]);
+
+  const position = useMemo(() => {
+    return getPosition(valueOptions, value);
+  }, [valueOptions, value]);
+
+  const validateValue = (value) => _.isNumber(value) && value <= maxValue && value >= minValue;
+
+  const handlePositionChange = (targetPosition) => {
+    const targetValue = valueOptions[targetPosition];
+
+    if (!validateValue(targetValue)) return;
+
+    onChange(name, targetValue, unit);
+  };
 
   const classes = cx({
     'IncrementalInput': true,
-    'IncrementalInput--error': props.error,
-    [`IncrementalInput--${props.name}`]: true,
+    'IncrementalInput--error': error,
+    [`IncrementalInput--${name}`]: true,
   });
 
-  let displayValue = utils.bg.formatBgValue(props.value, { bgUnits: props.unit });
+  let displayValue = vizUtils.bg.formatBgValue(value, { bgUnits: unit });
 
   return (
     <div className={classes}>
-      <span>{displayValue} {props.unit}</span>
+      <span>{displayValue} {unit}</span>
       <div className="IncrementalInputArrows">
         <svg className="IncrementalInputArrow IncrementalInputArrow--increase" operator="+" width="16" height="10" viewBox="-1 -1 16 10">
-          <path d="M7 0l7 8H0z" onClick={calculate} />
+          <path data-testid="increment-arrow" d="M7 0l7 8H0z" onClick={() => handlePositionChange(position + 1)} />
         </svg>
         <svg className="IncrementalInputArrow IncrementalInputArrow--decrease" operator="-" width="16" height="10" viewBox="-1 10 16 10">
-          <path d="M7 19l7-8H0z" onClick={calculate} />
+          <path data-testid="decrement-arrow" d="M7 19l7-8H0z" onClick={() => handlePositionChange(position - 1)} />
         </svg>
       </div>
     </div>
   );
-}
+};
 
 IncrementalInput.propTypes = {
   name: PropTypes.string.isRequired,
@@ -79,6 +112,7 @@ IncrementalInput.propTypes = {
   maxValue: PropTypes.number.isRequired,
   step: PropTypes.number.isRequired,
   onChange: PropTypes.func.isRequired,
+  extraValues: PropTypes.arrayOf(PropTypes.number),
 };
 
 export default IncrementalInput;

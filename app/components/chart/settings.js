@@ -111,6 +111,7 @@ const Settings = ({
   onSwitchToDaily,
   onSwitchToTrends,
   onSwitchToBgLog,
+  onClickExport,
   onClickPrint,
   patient,
   clinicPatient,
@@ -120,7 +121,8 @@ const Settings = ({
   uploadUrl,
   pdf,
   currentPatientInViewId,
-  t
+  t,
+  isSmartOnFhirMode
 }) => {
   const { location } = useHistory();
   const isJustConnected = !!location?.query?.dataConnectionStatus;
@@ -346,6 +348,13 @@ const Settings = ({
       e.preventDefault();
     }
   }, []);
+
+  const handleClickExport = useCallback((e) => {
+    if (e) {
+      e.preventDefault();
+    }
+    onClickExport();
+  }, [onClickExport]);
 
   const handleClickPrint = useCallback((e) => {
     if (e) {
@@ -738,7 +747,9 @@ const Settings = ({
           onClickRefresh={onClickRefresh}
           onClickSettings={handleClickSettings}
           onClickBgLog={handleClickBgLog}
+          onClickExport={handleClickExport}
           onClickPrint={handleClickPrint}
+          isSmartOnFhirMode={isSmartOnFhirMode}
         />
 
         <Box variant="containers.patientDataInner">
@@ -800,6 +811,7 @@ Settings.propTypes = {
   onSwitchToTrends: PropTypes.func.isRequired,
   onSwitchToSettings: PropTypes.func.isRequired,
   onSwitchToBgLog: PropTypes.func.isRequired,
+  onClickExport: PropTypes.func.isRequired,
   onClickPrint: PropTypes.func.isRequired,
   patient: PropTypes.object,
   trackMetric: PropTypes.func.isRequired,
@@ -808,6 +820,7 @@ Settings.propTypes = {
   pdf: PropTypes.object,
   currentPatientInViewId: PropTypes.string.isRequired,
   t: PropTypes.func.isRequired,
+  isSmartOnFhirMode: PropTypes.bool.isRequired,
 };
 
 export default withTranslation()(Settings);

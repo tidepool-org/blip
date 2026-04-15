@@ -40,6 +40,7 @@ import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
 import { components as vizComponents, utils as vizUtils, colors as vizColors } from '@tidepool/viz';
+const { GLYCEMIC_RANGES_PRESET } = vizUtils.constants;
 import sundial from 'sundial';
 import ScrollToTop from 'react-scroll-to-top';
 import styled from '@emotion/styled';
@@ -95,7 +96,7 @@ import {
 
 import { useToasts } from '../../providers/ToastProvider';
 import * as actions from '../../redux/actions';
-import { useIsFirstRender, useLocalStorage, usePrevious } from '../../core/hooks';
+import { useIsFirstRender, useLocalStorage, usePrevious, useScrollToTop } from '../../core/hooks';
 import { fieldsAreValid, getCommonFormikFieldProps } from '../../core/forms';
 
 import {
@@ -109,13 +110,14 @@ import {
   maxWorkspaceClinicSites,
 } from '../../core/clinicUtils';
 
-import { MGDL_UNITS, MMOLL_UNITS, URL_TIDEPOOL_PLUS_PLANS } from '../../core/constants';
+import { DIABETES_TYPES, MGDL_UNITS, MMOLL_UNITS, URL_TIDEPOOL_PLUS_PLANS } from '../../core/constants';
 import baseTheme, { borders, radii, colors, space, fontWeights } from '../../themes/baseTheme';
 import PopoverElement from '../../components/elements/PopoverElement';
 import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
 import Banner from '../../components/elements/Banner';
 import colorPalette from '../../themes/colorPalette';
 import noop from 'lodash/noop';
+import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils';
 
 const { Loader } = vizComponents;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels, formatBgValue } = vizUtils.bg;
@@ -139,6 +141,51 @@ const glycemicTargetThresholds = {
   timeInVeryHighPercent: { value: 5, comparator: '>' },
   timeInExtremeHighPercent: { value: 1, comparator: '>' },
 };
+
+const getTimeInRangeFilterOptions = (showExtremeHigh = false, t) => [
+  (showExtremeHigh && {
+    title: t('Highest'),
+    value: 'timeInExtremeHighPercent',
+    threshold: glycemicTargetThresholds.timeInExtremeHighPercent.value,
+    prefix: t('Greater than'),
+    rangeName: 'extremeHigh',
+  }),
+  {
+    title: t('Very High'),
+    value: 'timeInVeryHighPercent',
+    threshold: glycemicTargetThresholds.timeInVeryHighPercent.value,
+    prefix: t('Greater than'),
+    rangeName: 'veryHigh',
+  },
+  {
+    title: t('High'),
+    value: 'timeInAnyHighPercent',
+    threshold: glycemicTargetThresholds.timeInAnyHighPercent.value,
+    prefix: t('Greater than'),
+    rangeName: 'anyHigh',
+  },
+  {
+    title: t('Not meeting TIR'),
+    value: 'timeInTargetPercent',
+    threshold: glycemicTargetThresholds.timeInTargetPercent.value,
+    prefix: t('Less than'),
+    rangeName: 'target',
+  },
+  {
+    title: t('Low'),
+    value: 'timeInAnyLowPercent',
+    threshold: glycemicTargetThresholds.timeInAnyLowPercent.value,
+    prefix: t('Greater than'),
+    rangeName: 'anyLow',
+  },
+  {
+    title: t('Very Low'),
+    value: 'timeInVeryLowPercent',
+    threshold: glycemicTargetThresholds.timeInVeryLowPercent.value,
+    prefix: t('Greater than'),
+    rangeName: 'veryLow',
+  },
+].filter(Boolean);
 
 const editPatient = (patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog, source) => {
   trackMetric('Clinic - Edit patient', { clinicId: selectedClinicId, source });
@@ -353,7 +400,7 @@ const MoreMenu = ({
     let arr = [];
     arr.push({
       icon: EditIcon,
-      iconLabel: t('Edit Patient Information'),
+      iconLabel: t('Edit Patient Details'),
       iconPosition: 'left',
       id: `edit-${patient.id}`,
       variant: 'actionListItem',
@@ -361,7 +408,7 @@ const MoreMenu = ({
         _popupState.close();
         handleEditPatient(patient);
       },
-      text: t('Edit Patient Information'),
+      text: t('Edit Patient Details'),
     }, {
       iconSrc: DataInIcon,
       iconLabel: t('Bring Data into Tidepool'),
@@ -477,7 +524,7 @@ const PatientTags = ({
       tags={map(filteredPatientTags, tagId => patientTags?.[tagId])}
     />
   ) : (
-    <React.Fragment>
+    <Box onClick={event => event.stopPropagation()}>
       <Box {...addTagsBindTrigger}>
         <Button
           id="add-tags-to-patient-trigger"
@@ -615,7 +662,7 @@ const PatientTags = ({
           </Button>
         </DialogActions>
       </Popover>
-    </React.Fragment>
+    </Box>
   );
 };
 
@@ -629,6 +676,7 @@ export const SPECIAL_FILTER_STATES = {
 };
 
 export const ClinicPatients = (props) => {
+  useScrollToTop();
   const { t, api, trackMetric, searchDebounceMs } = props;
   const isFirstRender = useIsFirstRender();
   const dispatch = useDispatch();
@@ -653,13 +701,8 @@ export const ClinicPatients = (props) => {
   const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
   const [showClinicSitesDialog, setShowClinicSitesDialog] = useState(false);
   const [showClinicPatientTagsDialog, setShowClinicPatientTagsDialog] = useState(false);
-  const [showTimeInRangeDialog, setShowTimeInRangeDialog] = useState(false);
   const [showSendUploadReminderDialog, setShowSendUploadReminderDialog] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
-  const existingMRNs = useMemo(
-    () => compact(map(reject(clinic?.patients, { id: selectedPatient?.id }), 'mrn')),
-    [clinic?.patients, selectedPatient?.id]
-  );
   const [selectedClinicSite, setSelectedClinicSite] = useState(null);
   const [selectedPatientTag, setSelectedPatientTag] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -685,6 +728,8 @@ export const ClinicPatients = (props) => {
   const showTideDashboardUI = showSummaryData && (showTideDashboard || clinic?.entitlements?.tideDashboard);
   const ldClient = useLDClient();
   const ldContext = ldClient.getContext();
+
+  const existingMRNs = useSelector(state => state.blip.clinicMRNsForPatientFormValidation)?.filter(mrn => mrn !== selectedPatient?.mrn) || [];
 
   const defaultPatientFetchOptions = useMemo(
     () => {
@@ -794,6 +839,11 @@ export const ClinicPatients = (props) => {
     popupId: 'patientTagFilters',
   });
 
+  const timeInRangePopupFilterState = usePopupState({
+    variant: 'popover',
+    popupId: 'timeInRangeFilters',
+  });
+
   const cgmUsePopupFilterState = usePopupState({
     variant: 'popover',
     popupId: 'cgmUseFilters',
@@ -861,7 +911,6 @@ export const ClinicPatients = (props) => {
     setShowEditPatientDialog(false);
     setShowClinicPatientTagsDialog(false);
     setShowClinicSitesDialog(false);
-    setShowTimeInRangeDialog(false);
     setShowSendUploadReminderDialog(false);
     setShowTideDashboardConfigDialog(false);
     setShowRpmReportConfigDialog(false);
@@ -903,6 +952,32 @@ export const ClinicPatients = (props) => {
     });
   }, [clinicPatientTagFormContext, prefixPopHealthMetric, selectedClinicId, trackMetric]);
 
+  const handleClinicSitesModified = useCallback(() => {
+    clinicSiteFormContext?.resetForm();
+    handleCloseClinicSiteUpdateDialog();
+
+    dispatch(actions.async.fetchClinicSites(api, selectedClinicId)); // refetch to get latest sites
+  }, [
+    clinicSiteFormContext,
+    handleCloseClinicSiteUpdateDialog,
+    dispatch,
+    api,
+    selectedClinicId,
+  ]);
+
+  const handleClinicPatientTagsModified = useCallback(() => {
+    clinicPatientTagFormContext?.resetForm();
+    handleCloseClinicPatientTagUpdateDialog();
+
+    dispatch(actions.async.fetchClinicPatientTags(api, selectedClinicId)); // refetch to get latest tags
+  }, [
+    clinicPatientTagFormContext,
+    handleCloseClinicPatientTagUpdateDialog,
+    dispatch,
+    api,
+    selectedClinicId,
+  ]);
+
   const handleAsyncResult = useCallback((workingState, successMessage, onComplete = handleCloseOverlays) => {
     const { inProgress, completed, notification, prevInProgress } = workingState;
 
@@ -927,6 +1002,8 @@ export const ClinicPatients = (props) => {
   }, [isFirstRender, setToast]);
 
   const handlePatientCreatedOrEdited = useCallback(() => {
+    dispatch(actions.async.fetchClinic(api, selectedClinicId)); // patient counts for tags and/or sites may have changed
+
     if (patientFormContext?.status?.showDataConnectionsModalNext) {
       let currentPatient = selectedPatient;
 
@@ -985,36 +1062,39 @@ export const ClinicPatients = (props) => {
   }, [fetchingRpmReportPatients, rpmReportPatients, handleAsyncResult, handleCloseOverlays, previousFetchingRpmReportPatients?.inProgress, t]);
 
   useEffect(() => {
-    handleAsyncResult({ ...creatingClinicSite, prevInProgress: previousCreatingClinicSite?.inProgress }, t('Site created.'), () => clinicSiteFormContext?.resetForm());
-  }, [clinicSiteFormContext, creatingClinicSite, handleAsyncResult, previousCreatingClinicSite?.inProgress, t]);
+    handleAsyncResult({ ...creatingClinicSite, prevInProgress: previousCreatingClinicSite?.inProgress }, t('Site created.'), handleClinicSitesModified);
+  }, [creatingClinicSite, handleClinicSitesModified, handleAsyncResult, previousCreatingClinicSite?.inProgress, t]);
 
   useEffect(() => {
-    handleAsyncResult({ ...updatingClinicSite, prevInProgress: previousUpdatingClinicSite?.inProgress }, t('Site updated.'), handleCloseClinicSiteUpdateDialog);
-  }, [clinicSiteFormContext, updatingClinicSite, handleAsyncResult, previousUpdatingClinicSite?.inProgress, t]);
+    handleAsyncResult({ ...updatingClinicSite, prevInProgress: previousUpdatingClinicSite?.inProgress }, t('Site updated.'), handleClinicSitesModified);
+  }, [updatingClinicSite, handleClinicSitesModified, handleAsyncResult, previousUpdatingClinicSite?.inProgress, t]);
 
   useEffect(() => {
-    handleAsyncResult({ ...deletingClinicSite, prevInProgress: previousDeletingClinicSite?.inProgress }, t('Site removed.'), handleCloseClinicSiteUpdateDialog);
-  }, [deletingClinicSite, handleAsyncResult, handleCloseClinicSiteUpdateDialog, previousDeletingClinicSite?.inProgress, t]);
+    handleAsyncResult({ ...deletingClinicSite, prevInProgress: previousDeletingClinicSite?.inProgress }, t('Site removed.'), handleClinicSitesModified);
+  }, [deletingClinicSite, handleClinicSitesModified, handleAsyncResult, previousDeletingClinicSite?.inProgress, t]);
 
   useEffect(() => {
-    handleAsyncResult({ ...creatingClinicPatientTag, prevInProgress: previousCreatingClinicPatientTag?.inProgress }, t('Tag created.'), () => clinicPatientTagFormContext?.resetForm());
-  }, [clinicPatientTagFormContext, creatingClinicPatientTag, handleAsyncResult, previousCreatingClinicPatientTag?.inProgress, t]);
+    handleAsyncResult({ ...creatingClinicPatientTag, prevInProgress: previousCreatingClinicPatientTag?.inProgress }, t('Tag created.'), handleClinicPatientTagsModified);
+  }, [creatingClinicPatientTag, handleClinicPatientTagsModified, handleAsyncResult, previousCreatingClinicPatientTag?.inProgress, t]);
 
   useEffect(() => {
-    handleAsyncResult({ ...updatingClinicPatientTag, prevInProgress: previousUpdatingClinicPatientTag?.inProgress }, t('Tag updated.'), handleCloseClinicPatientTagUpdateDialog);
-  }, [updatingClinicPatientTag, handleAsyncResult, handleCloseClinicPatientTagUpdateDialog, previousUpdatingClinicPatientTag?.inProgress, t]);
+    handleAsyncResult({ ...updatingClinicPatientTag, prevInProgress: previousUpdatingClinicPatientTag?.inProgress }, t('Tag updated.'), handleClinicPatientTagsModified);
+  }, [updatingClinicPatientTag, handleClinicPatientTagsModified, handleAsyncResult, previousUpdatingClinicPatientTag?.inProgress, t]);
 
   useEffect(() => {
-    handleAsyncResult({ ...deletingClinicPatientTag, prevInProgress: previousDeletingClinicPatientTag?.inProgress }, t('Tag removed.'), handleCloseClinicPatientTagUpdateDialog);
-  }, [deletingClinicPatientTag, handleAsyncResult, handleCloseClinicPatientTagUpdateDialog, previousDeletingClinicPatientTag?.inProgress, t]);
+    handleAsyncResult({ ...deletingClinicPatientTag, prevInProgress: previousDeletingClinicPatientTag?.inProgress }, t('Tag removed.'), handleClinicPatientTagsModified);
+  }, [deletingClinicPatientTag, handleClinicPatientTagsModified, handleAsyncResult, previousDeletingClinicPatientTag?.inProgress, t]);
 
   useEffect(() => {
     // Prevent this effect from firing on logout, which would clear all patient tags and clinic sites from localStorage
     if (!clinic) return;
 
     // If a tag or site is deleted or otherwise missing, and is still present in an active filter, remove it from the filters
-    const missingTagsInFilter = difference(activeFilters.patientTags, map(patientTags, 'id'));
-    const missingSitesInFilter = difference(activeFilters.clinicSites, map(clinicSites, 'id'));
+    const validTagIdFilterValues = [...map(patientTags, 'id'), ...SPECIAL_FILTER_STATES.ZERO_TAGS];
+    const validSiteIdFilterValues = [...map(clinicSites, 'id'), ...SPECIAL_FILTER_STATES.ZERO_SITES];
+
+    const missingTagsInFilter = difference(activeFilters.patientTags, validTagIdFilterValues);
+    const missingSitesInFilter = difference(activeFilters.clinicSites, validSiteIdFilterValues);
 
     if (missingTagsInFilter.length || missingSitesInFilter.length) {
       setActiveFilters({
@@ -1182,6 +1262,10 @@ export const ClinicPatients = (props) => {
           filterOptions['tags'] = activeFilters.patientTags;
         }
 
+        if (activeFilters.timeInRange?.length > 0) {
+          filterOptions['omitNonStandardRanges'] = true;
+        }
+
         forEach(activeFilters.timeInRange, filter => {
           let { comparator, value } = glycemicTargetThresholds[filter];
           value = value / 100;
@@ -1213,6 +1297,7 @@ export const ClinicPatients = (props) => {
           'cgm.timeInAnyHighPercent',
           'cgm.timeInVeryHighPercent',
           'cgm.timeInExtremeHighPercent',
+          'omitNonStandardRanges',
         ]),
         ...filterOptions,
       };
@@ -1286,10 +1371,8 @@ export const ClinicPatients = (props) => {
   }, [prefixPopHealthMetric, selectedClinicId, isPatientListVisible, showSummaryData, trackMetric]);
 
   const handleClickPatient = useCallback(patient => {
-    return () => {
-      trackMetric('Selected PwD');
-      dispatch(push(`/patients/${patient.id}/data`));
-    }
+    trackMetric('Selected PwD');
+    dispatch(push(`/patients/${patient.id}/data`));
   }, [dispatch, trackMetric]);
 
   function handleAddPatient() {
@@ -1491,11 +1574,6 @@ export const ClinicPatients = (props) => {
     setPendingFilters(defaultFilterState);
   }
 
-  function handleOpenTimeInRangeFilter() {
-    trackMetric(prefixPopHealthMetric('Time in range filter open'), { clinicId: selectedClinicId });
-    setShowTimeInRangeDialog(true);
-  }
-
   const handleFilterTimeInRange = useCallback(() => {
     trackMetric(prefixPopHealthMetric('Time in range apply filter'), {
       clinicId: selectedClinicId,
@@ -1514,7 +1592,7 @@ export const ClinicPatients = (props) => {
       timeInRange: pendingFilters.timeInRange,
     });
 
-    setShowTimeInRangeDialog(false);
+    timeInRangePopupFilterState.close();
   }, [
     activeFilters,
     pendingFilters.meetsGlycemicTargets,
@@ -1534,6 +1612,7 @@ export const ClinicPatients = (props) => {
     const activeFiltersCount = without([
       activeFilters.timeCGMUsePercent,
       activeFilters.lastData,
+      activeFilters.clinicSites?.length,
       activeFilters.timeInRange?.length,
       activeFilters.patientTags?.length,
     ], null, 0, undefined).length;
@@ -1707,7 +1786,7 @@ export const ClinicPatients = (props) => {
                       id="filter-count"
                       label="filter count"
                       round
-                      sx={{ width: '14px', lineHeight: '15px', fontSize: '9px' }}
+                      sx={{ width: '14px', lineHeight: '15px', fontSize: '9px', display: 'flex', justifyContent: 'center' }}
                       colorPalette={['purpleMedium', 'white']}
                       text={`${activeFiltersCount}`}
                     />
@@ -1740,8 +1819,10 @@ export const ClinicPatients = (props) => {
                       sx={{ fontSize: 0, lineHeight: 1.3 }}
                     >
                       {activeFilters.lastData
-                        ? t('Data within') + find(customLastDataFilterOptions, { value: activeFilters.lastData })?.label.replace('Within', '')
-                        : t('Data Recency')
+                       ? activeFilters.lastData === 1
+                        ? t('Data within 1 day')
+                        : t('Data within') + find(customLastDataFilterOptions, { value: activeFilters.lastData })?.label.replace('Within', '')
+                       : t('Data Recency')
                       }
                     </Button>
                   </Box>
@@ -2016,6 +2097,7 @@ export const ClinicPatients = (props) => {
                           variant="textPrimary"
                           onClick={() => {
                             trackMetric(prefixPopHealthMetric('Edit clinic sites open'), { clinicId: selectedClinicId, source: 'Filter menu' });
+                            dispatch(actions.async.fetchClinicSites(api, selectedClinicId)); // current data in clinic object may be stale
                             setShowClinicSitesDialog(true);
                           }}
                         >
@@ -2124,7 +2206,7 @@ export const ClinicPatients = (props) => {
                         }
 
                         { // Display an option to filter for patients with zero tags
-                          sortedSiteFilterOptions.length > 0 &&
+                          sortedTagFilterOptions.length > 0 &&
                           <Box mt={2} mx={-2} pt={3} px={2} sx={{ borderTop: borders.divider }} className="clinic-site-filter-option" key="clinic-site-filter-option-PWDS_WITH_ZERO_TAGS">
                             <Checkbox
                               id="tag-filter-option-checkbox-PWDS_WITH_ZERO_TAGS"
@@ -2200,6 +2282,7 @@ export const ClinicPatients = (props) => {
                           variant="textPrimary"
                           onClick={() => {
                             trackMetric(prefixPopHealthMetric('Edit clinic tags open'), { clinicId: selectedClinicId, source: 'Filter menu' });
+                            dispatch(actions.async.fetchClinicPatientTags(api, selectedClinicId)); // current data in clinic object may be stale
                             setShowClinicPatientTagsDialog(true);
                           }}
                         >
@@ -2210,35 +2293,187 @@ export const ClinicPatients = (props) => {
                     }
                   </Popover>
 
-                  <Button
-                    id="time-in-range-filter-trigger"
-                    variant="filter"
-                    selected={!!activeFilters.timeInRange?.length}
-                    onClick={handleOpenTimeInRangeFilter}
-                    icon={KeyboardArrowDownRoundedIcon}
-                    iconLabel="Filter by Time In Range"
-                    sx={{ fontSize: 0, lineHeight: 1.3, flexShrink: 0 }}
+                  <Box
+                    onClick={() => {
+                      if (!timeInRangePopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('Time in range filter open'), { clinicId: selectedClinicId });
+                    }}
                   >
-                    <Flex sx={{ gap: 1 }}>
-                      {t('% Time in Range')}
-                      {!!activeFilters.timeInRange?.length && (
-                        <Pill
-                          id="time-in-range-filter-count"
-                          label="filter count"
-                          round
-                          sx={{
-                            width: '14px',
-                            fontSize: '9px',
-                            lineHeight: '15px',
-                            textAlign: 'center',
-                            display: 'inline-block',
-                          }}
-                          colorPalette={['purpleMedium', 'white']}
-                          text={`${activeFilters.timeInRange?.length}`}
-                        />
-                      )}
-                      </Flex>
-                  </Button>
+                    <Button
+                      id="time-in-range-filter-trigger"
+                      variant="filter"
+                      selected={!!activeFilters.timeInRange?.length}
+                      {...bindTrigger(timeInRangePopupFilterState)}
+                      icon={KeyboardArrowDownRoundedIcon}
+                      iconLabel="Filter by Time in Range"
+                      sx={{ fontSize: 0, lineHeight: 1.3, flexShrink: 0 }}
+                    >
+                      <Flex sx={{ gap: 1 }}>
+                        {t('% Time in Range')}
+                        {!!activeFilters.timeInRange?.length && (
+                          <Pill
+                            id="time-in-range-filter-count"
+                            label="filter count"
+                            round
+                            sx={{
+                              width: '14px',
+                              fontSize: '9px',
+                              lineHeight: '15px',
+                              textAlign: 'center',
+                              display: 'inline-block',
+                            }}
+                            colorPalette={['purpleMedium', 'white']}
+                            text={`${activeFilters.timeInRange?.length}`}
+                          />
+                        )}
+                        </Flex>
+                    </Button>
+                  </Box>
+
+                  <Popover
+                    minWidth="11em"
+                    closeIcon
+                    {...bindPopover(timeInRangePopupFilterState)}
+                    onClickCloseIcon={() => {
+                      trackMetric(prefixPopHealthMetric('Time in range filter close'), { clinicId: selectedClinicId });
+                    }}
+                    onClose={() => {
+                      timeInRangePopupFilterState.close();
+                      setPendingFilters(activeFilters);
+                    }}
+                  >
+                    <DialogContent color="text.primary" pl={4} pr={6} pb={3}>
+                      <Box mb={3} sx={{ fontSize: 1, fontWeight: 'medium' }}>
+                        <Box mr={2} sx={{ color: vizColors.gray50, fontWeight: 'medium', fontSize: 1, whiteSpace: 'nowrap' }}>
+                          {t('% Time in Range')}
+                        </Box>
+                        <Box mt={2} sx={{ color: vizColors.blue50, fontWeight: 'normal', fontStyle: 'italic', fontSize: 0, lineHeight: 1 }}>
+                          <Text>{t('Only patients using the standard target range will be included.')}</Text>
+                        </Box>
+                      </Box>
+
+                      {map(getTimeInRangeFilterOptions(showExtremeHigh, t), ({ value, title, rangeName, threshold, prefix }) => {
+                        const {prefix: bgPrefix, suffix, value:glucoseTargetValue} = bgLabels[rangeName];
+
+                        return (
+                          <Flex
+                            id={`time-in-range-filter-${rangeName}`}
+                            key={rangeName}
+                            mb={3}
+                            ml={2}
+                            sx={{ alignItems: 'center', gap: 2 }}
+                          >
+                            <Checkbox
+                              id={`range-${value}-filter`}
+                              name={`range-${value}-filter`}
+                              key={value}
+                              checked={includes([...pendingFilters.timeInRange], value)}
+                              onChange={event => {
+                                setPendingFilters(event.target.checked
+                                  ? { ...pendingFilters, timeInRange: [...pendingFilters.timeInRange, value] }
+                                  : { ...pendingFilters, timeInRange: without(pendingFilters.timeInRange, value) }
+                                );
+                              }}
+                            />
+
+                          <Box
+                            px={1}
+                            py={1}
+                            ml={-2}
+                            sx={{
+                              backgroundColor: `${colors.bg[rangeName]}1A`, // Adding '1A' reduces opacity to 0.1
+                              borderRadius: 4,
+                            }}
+                          >
+                            <Flex as="label" htmlFor={`range-${value}-filter`} sx={{ alignItems: 'center' }}>
+                              <Box
+                                id={`range-${value}-filter-option-color-indicator`}
+                                sx={{
+                                  position: 'relative',
+                                  borderRadius: 4,
+                                  backgroundColor: colors.bg[rangeName],
+                                  width: '12px',
+                                  height: '12px',
+
+                                  // The styles within the :after pseudo-class below create a diagonal line
+
+                                  border: value === 'timeInTargetPercent' && `1.5px solid ${colors.blueGreyDark}`,
+                                  '&::after': value === 'timeInTargetPercent' && {
+                                    content: '""',
+                                    height: '1.5px',
+                                    width: '141.421%',
+                                    backgroundColor: colors.blueGreyDark,
+                                    position: 'absolute',
+                                    bottom: '0px',
+                                    transform: 'rotate(-45deg)',
+                                    transformOrigin: '1px 1px',
+                                  },
+                                }}
+                                mr={2}
+                              >
+                              </Box>
+
+                              <Text
+                                id={`range-${value}-filter-option-title`}
+                                sx={{ fontSize: 1, fontWeight: 'bold', color: 'black' }}
+                                mr={2}
+                              >
+                                {title}
+                              </Text>
+
+                              <Text id={`range-${value}-filter-option-definition`} sx={{ fontSize: 1 }} mr={2}>
+                                {prefix}{' '}
+                                <Text sx={{ fontSize: 2, fontWeight: 'bold' }}>
+                                  {threshold}
+                                </Text>
+                                % {t('Time')}{' '}
+                                {bgPrefix && `${t(bgPrefix)} `}
+                                <Text sx={{ fontSize: 2, fontWeight: 'bold' }}>
+                                  {glucoseTargetValue}
+                                </Text>{' '}
+                                {suffix}
+                              </Text>
+                            </Flex>
+                          </Box>
+                        </Flex>
+                        );
+                      })}
+
+                      <Button
+                        variant="textSecondary"
+                        px={0}
+                        sx={{ fontSize: 0 }}
+                        onClick={() => {
+                          trackMetric(prefixPopHealthMetric('Time in range unselect all'), { clinicId: selectedClinicId });
+                          setPendingFilters({ ...pendingFilters, timeInRange: defaultFilterState.timeInRange });
+                        }}
+                      >
+                        {t('Unselect all')}
+                      </Button>
+                    </DialogContent>
+
+                    <DialogActions sx={{ justifyContent: 'space-between' }} p={2}>
+                      <Button
+                        id="timeInRangeFilterClear"
+                        variant="textSecondary"
+                        onClick={() => {
+                          trackMetric(prefixPopHealthMetric('Time in range clear filter'), { clinicId: selectedClinicId });
+                          setPendingFilters({ ...activeFilters, timeInRange: defaultFilterState.timeInRange });
+                          setActiveFilters({ ...activeFilters, timeInRange: defaultFilterState.timeInRange });
+                          timeInRangePopupFilterState.close();
+                        }}
+                      >
+                        {t('Clear')}
+                      </Button>
+
+                      <Button
+                        id="timeInRangeFilterConfirm"
+                        variant="textPrimary"
+                        onClick={handleFilterTimeInRange}
+                      >
+                        {t('Apply')}
+                      </Button>
+                    </DialogActions>
+                  </Popover>
 
                   <Box
                     onClick={() => {
@@ -2701,7 +2936,7 @@ export const ClinicPatients = (props) => {
   }, [handleUpdateClinicPatientTagConfirm, handleCloseClinicPatientTagUpdateDialog, selectedPatientTag?.name, showUpdateClinicPatientTagDialog, t]);
 
   const renderDeleteClinicSiteDialog = useCallback(() => {
-    const name = selectedClinicSite?.name;
+    const { name, numPatients = 0 } = selectedClinicSite || {};
 
     return (
       <Dialog
@@ -2718,9 +2953,19 @@ export const ClinicPatients = (props) => {
           <Flex variant="banners.danger" py={3} sx={{ justifyContent: 'flex-start', gap: 2, borderRadius: '4px' }}>
             <Icon className="icon" theme={baseTheme} variant="static" icon={ErrorRoundedIcon} label='danger' />
             <Body1>
-              <Text sx={{ fontWeight: 'medium' }}>
-                {t('Are you sure you want to remove the site: "{{name}}" from the workspace?', { name })}
-              </Text>
+              <Box>
+                <Text sx={{ fontWeight: 'medium' }}>
+                  {t('Are you sure you want to remove the site: "{{name}}" from the workspace?', { name })}
+                </Text>
+              </Box>
+
+              {/* { numPatients > 0 && (
+                <Box mt={2}>
+                  <Text sx={{ fontWeight: 'normal' }}>
+                    {t('If you remove it, {{ count }} patient accounts will no longer be associated with this site.', { count: numPatients })}
+                  </Text>
+                </Box>
+              )} */}
             </Body1>
           </Flex>
         </DialogContent>
@@ -2743,7 +2988,7 @@ export const ClinicPatients = (props) => {
   }, [handleDeleteClinicSiteConfirm, handleCloseClinicSiteUpdateDialog, selectedClinicSite?.name, showDeleteClinicSiteDialog, t]);
 
   const renderDeleteClinicPatientTagDialog = useCallback(() => {
-    const name = selectedPatientTag?.name;
+    const { name, numPatients = 0 } = selectedPatientTag || {};
 
     return (
       <Dialog
@@ -2760,9 +3005,19 @@ export const ClinicPatients = (props) => {
           <Flex variant="banners.danger" py={3} sx={{ justifyContent: 'flex-start', gap: 2, borderRadius: '4px' }}>
             <Icon className="icon" theme={baseTheme} variant="static" icon={ErrorRoundedIcon} label='danger' />
             <Body1>
-              <Text sx={{ fontWeight: 'medium' }}>
-                {t('Are you sure you want to remove the tag: "{{name}}" from the workspace?', { name })}
-              </Text>
+              <Box>
+                <Text sx={{ fontWeight: 'medium' }}>
+                  {t('Are you sure you want to remove the tag: "{{name}}" from the workspace?', { name })}
+                </Text>
+              </Box>
+
+              {/* {numPatients > 0 && (
+                <Box mt={2}>
+                  <Text sx={{ fontWeight: 'normal' }}>
+                    {t('If you remove it, {{ count }} patient accounts will no longer be associated with this tag.', { count: numPatients })}
+                  </Text>
+                </Box>
+              )} */}
             </Body1>
           </Flex>
         </DialogContent>
@@ -2912,8 +3167,7 @@ export const ClinicPatients = (props) => {
       >
         <DialogTitle sx={{ alignItems: 'flex-start' }} onClose={handleCloseOverlays}>
           <Box mr={2}>
-            <MediumTitle sx={{ fontSize: 2 }} id="dialog-title">{t('Select Patients to Display in the TIDE Dashboard')}</MediumTitle>
-            <Body1 sx={{ fontWeight: 'medium', color: 'grays.4' }}>{t('You must make a selection in each category')}</Body1>
+            <MediumTitle id="dialog-title">{t('Filter the TIDE Dashboard')}</MediumTitle>
           </Box>
         </DialogTitle>
 
@@ -3037,22 +3291,31 @@ export const ClinicPatients = (props) => {
                     {t('Click on the edit icon to rename the site or trash icon to delete it.')}
                   </Text>
                 </Box>
-                <Box mt={1} mb={0}>
-                  <Text sx={{ fontSize: 0, color: colors.gray50, fontStyle: 'italic' }}>
-                    {t('Name')}
-                  </Text>
-                </Box>
+
+                <Grid mt={1} mb={0} sx={{ gridTemplateColumns: '1fr 128px 36px' }}>
+                  <Box>
+                    <Text sx={{ fontSize: 0, color: colors.gray50, fontStyle: 'italic' }}>
+                      {t('Name')}
+                    </Text>
+                  </Box>
+
+                  {/* <Flex sx={{ justifyContent: 'flex-end' }}>
+                    <Text sx={{ fontSize: 0, color: colors.gray50, fontStyle: 'italic' }}>
+                      {t('Patients with Site')}
+                    </Text>
+                  </Flex> */}
+                </Grid>
               </>
             }
 
             <Box mt={1} id="clinic-patients-edit-site-list">
               {
-                orderedSites.map(({ id, name }) => (
+                orderedSites.map(({ id, name, numPatients = 0 }) => (
                   <Grid
                     key={`edit-sites-list-${id}`}
                     py={2}
                     sx={{
-                      gridTemplateColumns: '1fr 72px 16px',
+                      gridTemplateColumns: '1fr 128px 36px',
                       borderTop: `1px solid ${colors.gray05}`,
                       alignItems: 'center',
                     }}
@@ -3067,9 +3330,13 @@ export const ClinicPatients = (props) => {
                         onClick={isClinicAdmin ? () => handleUpdateClinicSite(id) : noop}
                       />
                     </Flex>
-                    <Box>
 
-                    </Box>
+                    <Flex sx={{ justifyContent: 'flex-end' }}>
+                      {/* <Text data-testid={`site-${id}-numPatients`} sx={{ fontSize: 0, fontStyle: 'italic', color: vizColors.gray50 }}>
+                        {numPatients}
+                      </Text> */}
+                    </Flex>
+
                     <Flex sx={{ justifyContent: 'flex-end' }}>
                       <Icon
                         id={`delete-site-button-${id}`}
@@ -3197,22 +3464,30 @@ export const ClinicPatients = (props) => {
                     {t('Click on the edit icon to rename the tag or trash icon to delete it.')}
                   </Text>
                 </Box>
-                <Box mt={1} mb={0}>
-                  <Text sx={{ fontSize: 0, color: colors.gray50, fontStyle: 'italic' }}>
-                    {t('Name')}
-                  </Text>
-                </Box>
+                <Grid mt={1} mb={0} sx={{ gridTemplateColumns: '1fr 128px 36px' }}>
+                  <Box>
+                    <Text sx={{ fontSize: 0, color: colors.gray50, fontStyle: 'italic' }}>
+                      {t('Name')}
+                    </Text>
+                  </Box>
+
+                  {/* <Flex sx={{ justifyContent: 'flex-end' }}>
+                    <Text sx={{ fontSize: 0, color: colors.gray50, fontStyle: 'italic' }}>
+                      {t('Patients with Tag')}
+                    </Text>
+                  </Flex> */}
+                </Grid>
               </>
             }
 
             <Box mt={1} id="clinic-patients-edit-tag-list">
               {
-                orderedTags.map(({ id, name }) => (
+                orderedTags.map(({ id, name, numPatients = 0 }) => (
                   <Grid
                     key={`edit-tags-list-${id}`}
                     py={2}
                     sx={{
-                      gridTemplateColumns: '1fr 72px 16px',
+                      gridTemplateColumns: '1fr 128px 36px',
                       borderTop: `1px solid ${colors.gray05}`,
                       alignItems: 'center',
                     }}>
@@ -3226,9 +3501,13 @@ export const ClinicPatients = (props) => {
                         onClick={isClinicAdmin ? () => handleUpdateClinicPatientTag(id) : noop}
                       />
                     </Flex>
-                    <Box>
 
-                    </Box>
+                    <Flex sx={{ justifyContent: 'flex-end' }}>
+                      {/* <Text data-testid={`tag-${id}-numPatients`} sx={{ fontSize: 0, fontStyle: 'italic', color: vizColors.gray50 }}>
+                        {numPatients}
+                      </Text> */}
+                    </Flex>
+
                     <Flex sx={{ justifyContent: 'flex-end' }}>
                       <Icon
                         id={`delete-tag-button-${id}`}
@@ -3342,212 +3621,6 @@ export const ClinicPatients = (props) => {
     timePrefs?.timezoneName,
     trackMetric,
   ]);
-
-  const renderTimeInRangeDialog = useCallback(() => {
-    const timeInRangeFilterOptions = [
-      {
-        title: t('Very High'),
-        value: 'timeInVeryHighPercent',
-        threshold: glycemicTargetThresholds.timeInVeryHighPercent.value,
-        prefix: t('Greater than'),
-        rangeName: 'veryHigh',
-      },
-      {
-        title: t('High'),
-        value: 'timeInAnyHighPercent',
-        threshold: glycemicTargetThresholds.timeInAnyHighPercent.value,
-        prefix: t('Greater than'),
-        rangeName: 'anyHigh',
-      },
-      {
-        title: t('Not meeting TIR'),
-        value: 'timeInTargetPercent',
-        threshold: glycemicTargetThresholds.timeInTargetPercent.value,
-        prefix: t('Less than'),
-        rangeName: 'target',
-      },
-      {
-        title: t('Low'),
-        value: 'timeInAnyLowPercent',
-        threshold: glycemicTargetThresholds.timeInAnyLowPercent.value,
-        prefix: t('Greater than'),
-        rangeName: 'anyLow',
-      },
-      {
-        title: t('Very Low'),
-        value: 'timeInVeryLowPercent',
-        threshold: glycemicTargetThresholds.timeInVeryLowPercent.value,
-        prefix: t('Greater than'),
-        rangeName: 'veryLow',
-      },
-    ];
-
-    if (showExtremeHigh) timeInRangeFilterOptions.unshift({
-      title: t('Highest'),
-      value: 'timeInExtremeHighPercent',
-      threshold: glycemicTargetThresholds.timeInExtremeHighPercent.value,
-      prefix: t('Greater than'),
-      rangeName: 'extremeHigh',
-    });
-
-    return (
-      <Dialog
-        id="timeInRangeDialog"
-        aria-label="Time in range filters"
-        open={showTimeInRangeDialog}
-        onClose={() => {
-          setPendingFilters(activeFilters);
-          handleCloseOverlays();
-        }}
-        maxWidth='lg'
-      >
-        <DialogTitle
-          p={0}
-          sx={{
-            border: 'none',
-            button: { position: 'absolute !important', top: 1, right: 1 },
-          }}
-          onClose={() => {
-            trackMetric(prefixPopHealthMetric('Time in range filter close'), { clinicId: selectedClinicId });
-            setPendingFilters(activeFilters);
-            handleCloseOverlays();
-          }}
-        />
-
-        <DialogContent color="text.primary" pl={4} pr={6} pb={3}>
-          <Flex mb={3} sx={{ alignItems: 'center', fontSize: 1, fontWeight: 'medium' }}>
-            <Text mr={2} sx={{ whiteSpace: 'nowrap' }}>
-              {t('Filter by Time in Range')}
-            </Text>
-          </Flex>
-
-          {map(timeInRangeFilterOptions, ({ value, title, rangeName, threshold, prefix }) => {
-            const {prefix: bgPrefix, suffix, value:glucoseTargetValue} = bgLabels[rangeName];
-
-            return (
-              <Flex
-                id={`time-in-range-filter-${rangeName}`}
-                key={rangeName}
-                mb={3}
-                ml={2}
-                sx={{ alignItems: 'center', gap: 2 }}
-              >
-                <Checkbox
-                  id={`range-${value}-filter`}
-                  name={`range-${value}-filter`}
-                  key={value}
-                  checked={includes([...pendingFilters.timeInRange], value)}
-                  onChange={event => {
-                    setPendingFilters(event.target.checked
-                      ? { ...pendingFilters, timeInRange: [...pendingFilters.timeInRange, value] }
-                      : { ...pendingFilters, timeInRange: without(pendingFilters.timeInRange, value) }
-                    );
-                  }}
-                />
-
-              <Box
-                px={1}
-                py={1}
-                ml={-2}
-                sx={{
-                  backgroundColor: `${colors.bg[rangeName]}1A`, // Adding '1A' reduces opacity to 0.1
-                  borderRadius: 4,
-                }}
-              >
-                <Flex as="label" htmlFor={`range-${value}-filter`} sx={{ alignItems: 'center' }}>
-                  <Box
-                    id={`range-${value}-filter-option-color-indicator`}
-                    sx={{
-                      position: 'relative',
-                      borderRadius: 4,
-                      backgroundColor: colors.bg[rangeName],
-                      width: '12px',
-                      height: '12px',
-
-                      // The styles within the :after pseudo-class below create a diagonal line
-
-                      border: value === 'timeInTargetPercent' && `1.5px solid ${colors.blueGreyDark}`,
-                      '&::after': value === 'timeInTargetPercent' && {
-                        content: '""',
-                        height: '1.5px',
-                        width: '141.421%',
-                        backgroundColor: colors.blueGreyDark,
-                        position: 'absolute',
-                        bottom: '0px',
-                        transform: 'rotate(-45deg)',
-                        transformOrigin: '1px 1px',
-                      },
-                    }}
-                    mr={2}
-                  >
-                  </Box>
-
-                  <Text
-                    id={`range-${value}-filter-option-title`}
-                    sx={{ fontSize: 1, fontWeight: 'bold', color: 'black' }}
-                    mr={2}
-                  >
-                    {title}
-                  </Text>
-
-                  <Text
-                    id={`range-${value}-filter-option-definition`}
-                    sx={{ fontSize: 1 }} mr={2}
-                  >
-                    {prefix}{' '}
-                    <Text sx={{ fontSize: 2, fontWeight: 'bold' }}>
-                      {threshold}
-                    </Text>
-                    % {t('Time')}{' '}
-                    {bgPrefix && `${t(bgPrefix)} `}
-                    <Text sx={{ fontSize: 2, fontWeight: 'bold' }}>
-                      {glucoseTargetValue}
-                    </Text>{' '}
-                    {suffix}
-                  </Text>
-                </Flex>
-              </Box>
-            </Flex>
-          )})}
-
-          <Button
-            variant="textSecondary"
-            px={0}
-            sx={{ fontSize: 0 }}
-            onClick={() => {
-              trackMetric(prefixPopHealthMetric('Time in range unselect all'), { clinicId: selectedClinicId });
-              setPendingFilters({ ...pendingFilters, timeInRange: defaultFilterState.timeInRange });
-            }}
-          >
-            {t('Unselect all')}
-          </Button>
-        </DialogContent>
-
-        <DialogActions sx={{ justifyContent: 'space-between' }} p={2}>
-          <Button
-            id="timeInRangeFilterClear"
-            variant="textSecondary"
-            onClick={() => {
-              trackMetric(prefixPopHealthMetric('Time in range clear filter'), { clinicId: selectedClinicId });
-              setPendingFilters({ ...activeFilters, timeInRange: defaultFilterState.timeInRange });
-              setActiveFilters({ ...activeFilters, timeInRange: defaultFilterState.timeInRange });
-              handleCloseOverlays();
-            }}
-          >
-            {t('Clear')}
-          </Button>
-
-          <Button
-            id="timeInRangeFilterConfirm"
-            variant="textPrimary"
-            onClick={handleFilterTimeInRange}
-          >
-            {t('Apply Filter')}
-          </Button>
-        </DialogActions>
-      </Dialog>
-    );
-  }, [activeFilters, bgLabels, handleFilterTimeInRange, pendingFilters, prefixPopHealthMetric, selectedClinicId, setActiveFilters, showTimeInRangeDialog, t, trackMetric]);
 
   const renderRpmReportConfigDialog = useCallback(() => {
     return (
@@ -3679,13 +3752,18 @@ export const ClinicPatients = (props) => {
   ]);
 
   const renderPatient = useCallback(patient => (
-    <Box onClick={handleClickPatient(patient)} sx={{ cursor: 'pointer' }}>
+    <Box>
       <Text sx={{ display: 'block', fontSize: [1, null, 0], fontWeight: 'medium' }}>{patient.fullName}</Text>
       {showSummaryData && <Text sx={{ fontSize: [0, null, '10px'], whiteSpace: 'nowrap' }}>{t('DOB:')} {patient.birthDate}</Text>}
       {showSummaryData && patient.mrn && <Text sx={{ fontSize: [0, null, '10px'], whiteSpace: 'nowrap' }}>, {t('MRN: {{mrn}}', { mrn: patient.mrn })}</Text>}
+      {showSummaryData && patient.diagnosisType &&
+        <Text sx={{ fontSize: [0, null, '10px'], whiteSpace: 'nowrap' }}>{
+          `, ${t(DIABETES_TYPES().find(type => type.value === patient.diagnosisType)?.label || '')}` // eslint-disable-line new-cap
+        }</Text>
+      }
       {!showSummaryData && patient.email && <Text sx={{ fontSize: [0, null, '10px'] }}>{patient.email}</Text>}
     </Box>
-  ), [handleClickPatient, showSummaryData, t]);
+  ), [showSummaryData, t]);
 
   const renderLastDataDate = useCallback(({ summary }) => {
     let formattedLastDataDateCGM, formattedLastDataDateBGM;
@@ -3814,12 +3892,14 @@ export const ClinicPatients = (props) => {
     trackMetric,
   ]);
 
-  const renderBgRangeSummary = useCallback(({summary}) => {
+  const renderBgRangeSummary = useCallback(({ id, summary, glycemicRanges }) => {
     return <BgSummaryCell
+      id={id}
       summary={summary?.cgmStats?.periods?.[activeSummaryPeriod]}
       config={summary?.cgmStats?.config}
       clinicBgUnits={clinicBgUnits}
       activeSummaryPeriod={activeSummaryPeriod}
+      glycemicRanges={glycemicRanges}
       showExtremeHigh={showExtremeHigh}
     />
   }, [clinicBgUnits, activeSummaryPeriod, showExtremeHigh]);
@@ -3844,9 +3924,16 @@ export const ClinicPatients = (props) => {
     ) : null;
   }, [clinicBgUnits, activeSummaryPeriod, t]);
 
-  const renderBGEvent = useCallback((type, { summary }) => {
+  const renderBGEvent = useCallback((type, { summary, glycemicRanges }) => {
+    const glycemicRangesPreset = getGlycemicRangesPreset(glycemicRanges);
+
+    const isNonStandardRange = (
+      !!glycemicRangesPreset && // undefined glycemicRanges is standard
+      glycemicRangesPreset !== GLYCEMIC_RANGES_PRESET.ADA_STANDARD
+    );
+
     const rotation = type === 'low' ? 90 : -90;
-    const color = type === 'low' ? 'bg.veryLow' : 'bg.veryHigh';
+    const color = isNonStandardRange ? vizColors.gray30 : (type === 'low' ? 'bg.veryLow' : 'bg.veryHigh');
     const field = type === 'low' ? 'timeInVeryLowRecords' : 'timeInVeryHighRecords';
     const value = summary?.bgmStats?.periods?.[activeSummaryPeriod]?.[field];
     const visibility = value > 0 ? 'visible' : 'hidden';
@@ -3898,18 +3985,18 @@ export const ClinicPatients = (props) => {
     </Box>
   );
 
-  const renderLinkedField = useCallback((field, patient) => (
-    <Box
-      classname={`patient-${field}`}
-      onClick={handleClickPatient(patient)}
-      sx={{ cursor: 'pointer' }}
-    >
+  const renderDemographicField = useCallback((field, patient) => (
+    <Box className={`patient-${field}`} sx={{ cursor: 'pointer' }}>
       <Text sx={{ fontWeight: 'medium' }}>{patient[field]}</Text>
     </Box>
-  ), [handleClickPatient]);
+  ), []);
 
   const renderLastReviewed = useCallback((patient) => {
-    return <PatientLastReviewed api={api} trackMetric={trackMetric} metricSource="Patients list" patientId={patient.id} recentlyReviewedThresholdDate={moment().startOf('day').toISOString()} />
+    return (
+      <Box onClick={event => event.stopPropagation()}>
+        <PatientLastReviewed api={api} trackMetric={trackMetric} metricSource="Patients list" patientId={patient.id} recentlyReviewedThresholdDate={moment().startOf('day').toISOString()} />
+      </Box>
+    );
   }, [api, trackMetric]);
 
   const renderMore = useCallback((patient) => {
@@ -3957,13 +4044,13 @@ export const ClinicPatients = (props) => {
         align: 'left',
         sortable: true,
         defaultOrder: defaultSortOrders.birthDate,
-        render: renderLinkedField.bind(null, 'birthDate'),
+        render: renderDemographicField.bind(null, 'birthDate'),
       },
       {
         title: t('MRN'),
         field: 'mrn',
         align: 'left',
-        render: renderLinkedField.bind(null, 'mrn'),
+        render: renderDemographicField.bind(null, 'mrn'),
         hideEmpty: true,
       },
       {
@@ -4105,7 +4192,7 @@ export const ClinicPatients = (props) => {
     renderGMI,
     renderLastReviewed,
     renderLastDataDate,
-    renderLinkedField,
+    renderDemographicField,
     renderMore,
     renderPatient,
     renderPatientTags,
@@ -4170,6 +4257,7 @@ export const ClinicPatients = (props) => {
           onSort={handleSortChange}
           order={sort?.substring(0, 1) === '+' ? 'asc' : 'desc'}
           orderBy={sort?.substring(1)}
+          onClickRow={handleClickPatient}
           emptyContentNode={
             <EmptyContentNode patientListQueryState={patientListQueryState}>
               <ClearFilterButtons
@@ -4244,7 +4332,6 @@ export const ClinicPatients = (props) => {
       {showTideDashboardUI && showTideDashboardConfigDialog && renderTideDashboardConfigDialog()}
       {showRpmReportUI && renderRpmReportConfigDialog()}
       {showRpmReportUI && renderRpmReportLimitDialog()}
-      {showTimeInRangeDialog && renderTimeInRangeDialog()}
       {showSendUploadReminderDialog && renderSendUploadReminderDialog()}
       {isClinicSitesDialogVisible && renderClinicSitesDialog()}
       {isClinicPatientTagsDialogVisible && renderClinicPatientTagsDialog()}

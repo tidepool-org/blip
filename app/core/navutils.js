@@ -41,9 +41,10 @@ export const getPermissions = (patient, permsOfLoggedInUser) => {
  */
 export const getPatientListLink = (clinicFlowActive, selectedClinicId, query, patientId) => {
   const dashboard = query?.dashboard;
+  const drawerTab = query?.drawerTab;
 
-  if (dashboard && patientId) {
-    return `/dashboard/${dashboard}?drawerPatientId=${patientId}`;
+  if (dashboard && drawerTab !== undefined && patientId) {
+    return `/dashboard/${dashboard}?drawerPatientId=${patientId}&drawerTab=${drawerTab}`;
   }
 
   if (dashboard) {
@@ -68,8 +69,9 @@ export const getDemographicInfo = (patient, clinicPatient) => {
   const name = personUtils.patientFullName(combinedPatient);
   const birthday = combinedPatient?.profile?.patient?.birthday;
   const mrn = clinicPatient?.mrn;
+  const diagnosisType = clinicPatient?.diagnosisType;
 
-  return { name, birthday, mrn };
+  return { name, birthday, mrn, diagnosisType };
 };
 
 // For ease of testing

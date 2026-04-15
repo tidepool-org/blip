@@ -15,11 +15,11 @@ describe('PatientProfile', () => {
   describe('getFetchers', () => {
     const stateProps = {
       user: { userid: '12345' },
-      fetchingPendingSentInvites: {
+      fetchingAssociatedAccounts: {
         inProgress: false,
         completed: null,
       },
-      fetchingAssociatedAccounts: {
+      fetchingUserConsentRecords: {
         inProgress: false,
         completed: null,
       },
@@ -33,10 +33,10 @@ describe('PatientProfile', () => {
 
     const dispatchProps = {
       fetchPatient: sinon.stub().returns('fetchPatient'),
-      fetchPendingSentInvites: sinon.stub().returns('fetchPendingSentInvites'),
       fetchAssociatedAccounts: sinon.stub().returns('fetchAssociatedAccounts'),
       fetchPatientFromClinic: sinon.stub().returns('fetchPatientFromClinic'),
       fetchPatientFromClinic: sinon.stub().returns('fetchPatientFromClinic'),
+      fetchUserConsentRecords: sinon.stub().returns('fetchUserConsentRecords'),
     };
 
     const api = {};
@@ -46,22 +46,20 @@ describe('PatientProfile', () => {
       expect(result[0]).to.be.a('function');
       expect(result[0]()).to.equal('fetchPatient');
       expect(result[1]).to.be.a('function');
-      expect(result[1]()).to.equal('fetchPendingSentInvites');
-      expect(result[2]).to.be.a('function');
-      expect(result[2]()).to.equal('fetchAssociatedAccounts');
+      expect(result[1]()).to.equal('fetchAssociatedAccounts');
     });
 
-    it('should only add the associated accounts and pending invites fetchers if fetches are not already in progress or completed', () => {
+    it('should only add the associated accounts, consents, and pending invites fetchers if fetches are not already in progress or completed', () => {
       const standardResult = getFetchers(dispatchProps, ownProps, stateProps, api);
-      expect(standardResult.length).to.equal(3);
+      expect(standardResult.length).to.equal(2);
 
       const inProgressResult = getFetchers(dispatchProps, ownProps, {
         user: { userid: '12345' },
-        fetchingPendingSentInvites: {
+        fetchingAssociatedAccounts: {
           inProgress: true,
           completed: null,
         },
-        fetchingAssociatedAccounts: {
+        fetchingUserConsentRecords: {
           inProgress: true,
           completed: null,
         },
@@ -72,11 +70,11 @@ describe('PatientProfile', () => {
 
       const completedResult = getFetchers(dispatchProps, ownProps, {
         user: { userid: '12345' },
-        fetchingPendingSentInvites: {
+        fetchingAssociatedAccounts: {
           inProgress: false,
           completed: true,
         },
-        fetchingAssociatedAccounts: {
+        fetchingUserConsentRecords: {
           inProgress: false,
           completed: true,
         },
@@ -88,7 +86,7 @@ describe('PatientProfile', () => {
 
     it('should only add the associated accounts fetcher when viewing the profile of the logged-in user', () => {
       const standardResult = getFetchers(dispatchProps, ownProps, stateProps, api);
-      expect(standardResult.length).to.equal(3);
+      expect(standardResult.length).to.equal(2);
 
       const loggedInUserResult = getFetchers(dispatchProps, {
         match: {
@@ -96,22 +94,22 @@ describe('PatientProfile', () => {
         }
       }, {
         user: { userid: '12345' },
-        fetchingPendingSentInvites: {
+        fetchingAssociatedAccounts: {
           inProgress: false,
           completed: null,
         },
-        fetchingAssociatedAccounts: {
+        fetchingUserConsentRecords: {
           inProgress: false,
           completed: null,
         },
       }, dispatchProps, api);
 
-      expect(loggedInUserResult.length).to.equal(3);
+      expect(loggedInUserResult.length).to.equal(2);
     });
 
     it('should only fetch the clinic patient if selectedClinicId is set, and the patient permissions are unavailable', () => {
       const standardResult = getFetchers(dispatchProps, ownProps, stateProps, api);
-      expect(standardResult.length).to.equal(3);
+      expect(standardResult.length).to.equal(2);
 
       const clinicUserResult = getFetchers(dispatchProps, {
         match: {
@@ -123,7 +121,7 @@ describe('PatientProfile', () => {
         clinics: { clinic123: { patients: { '12345': { name: 'Jackie', permissions: { foo: 'bar' } } } } }
       }, dispatchProps, api);
 
-      expect(clinicUserResult.length).to.equal(3);
+      expect(clinicUserResult.length).to.equal(2);
 
       const clinicUserMissingPermissionsResult = getFetchers(dispatchProps, {
         match: {
@@ -135,9 +133,9 @@ describe('PatientProfile', () => {
         clinics: { clinic123: { patients: { '12345': { name: 'Jackie' } } } }
       }, dispatchProps, api);
 
-      expect(clinicUserMissingPermissionsResult.length).to.equal(4);
-      expect(clinicUserMissingPermissionsResult[3]).to.be.a('function');
-      expect(clinicUserMissingPermissionsResult[3]()).to.equal('fetchPatientFromClinic');
+      expect(clinicUserMissingPermissionsResult.length).to.equal(3);
+      expect(clinicUserMissingPermissionsResult[2]).to.be.a('function');
+      expect(clinicUserMissingPermissionsResult[2]()).to.equal('fetchPatientFromClinic');
     });
   });
 
@@ -154,7 +152,6 @@ describe('PatientProfile', () => {
           fetchingUser: {inProgress: false, notification: null},
           fetchingPendingSentInvites: { inProgress: false, completed: null },
           fetchingAssociatedAccounts: { inProgress: false, completed: null },
-          updatingDataDonationAccounts: { inProgress: false },
           updatingPatientBgUnits: { inProgress: false },
           updatingPatient: { inProgress: false },
           updatingClinicPatient: { inProgress: false },
@@ -206,7 +203,6 @@ describe('PatientProfile', () => {
           fetchingUser: { inProgress: false, notification: null },
           fetchingPendingSentInvites: { inProgress: false, completed: null },
           fetchingAssociatedAccounts: { inProgress: false, completed: null },
-          updatingDataDonationAccounts: { inProgress: false },
           updatingPatientBgUnits: { inProgress: false },
           updatingPatient: { inProgress: false },
           updatingClinicPatient: { inProgress: false },

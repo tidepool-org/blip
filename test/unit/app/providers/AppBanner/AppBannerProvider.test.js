@@ -13,9 +13,9 @@ import sinon from 'sinon';
 
 import ABP, { AppBannerProvider, AppBannerContext } from '../../../../../app/providers/AppBanner/AppBannerProvider';
 import { ToastProvider } from '../../../../../app/providers/ToastProvider';
-import { DATA_DONATION_NONPROFITS } from '../../../../../app/core/constants';
 import { find, keys, pickBy } from 'lodash';
 import { appBanners } from '../../../../../app/providers/AppBanner/appBanners';
+import { DATA_DONATION_CONSENT_TYPE } from '../../../../../app/core/constants';
 
 // Create a dummy child component that consumes the AppBannerContext
 const DummyConsumer = () => {
@@ -64,7 +64,7 @@ describe('AppBannerProvider', () => {
       },
       dataSources: [],
       justConnectedDataSourceProviderName: null,
-      dataDonationAccounts: [],
+      consentRecords: {},
     },
   };
 
@@ -166,7 +166,7 @@ describe('AppBannerProvider', () => {
           metaData: { size: 1, devices: [] },
         },
         dataSources: [{ state: 'active' }],
-        dataDonationAccounts: [],
+        consentRecords: {},
       },
     };
 
@@ -323,6 +323,7 @@ describe('AppBannerProvider', () => {
         data: {
           metaData: { size: 1, devices: [] },
         },
+        consentRecords: {},
       },
     };
 
@@ -344,7 +345,7 @@ describe('AppBannerProvider', () => {
 
     expect(contextData.hasBanner).to.be.true;
     expect(contextData.banner.id).to.equal('donateYourData');
-    expect(contextData.processedBanner.bannerArgs).to.eql([dispatchStub]);
+    expect(contextData.processedBanner.bannerArgs).to.eql([dispatchStub, 'user1']);
   });
 
   it('should show shareProceeds banner when user is current patient, has data, is a donor, but not supporting a nonprofit', () => {
@@ -354,7 +355,12 @@ describe('AppBannerProvider', () => {
         data: {
           metaData: { size: 1, devices: [] },
         },
-        dataDonationAccounts: [{ email: 'donor@example.com' }],
+        consentRecords: {
+          [DATA_DONATION_CONSENT_TYPE]: {
+            status: 'active',
+            metadata: { supportedOrganizations: [] },
+          },
+        },
       },
     };
 
@@ -386,8 +392,13 @@ describe('AppBannerProvider', () => {
         data: {
           metaData: { size: 1, devices: [] },
         },
-        // addind a data donation account so that the higher-priority donate banner is not shown
-        dataDonationAccounts: [{ email: `bigdata+${DATA_DONATION_NONPROFITS()[0].value}@tidepool.org` }], // eslint-disable-line new-cap
+        // adding a data donation account so that the higher-priority donate banner is not shown
+        consentRecords: {
+          [DATA_DONATION_CONSENT_TYPE]: {
+            status: 'active',
+            metadata: { supportedOrganizations: ['foo'] },
+          },
+        },
       },
     };
 

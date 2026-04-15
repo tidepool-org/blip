@@ -10,6 +10,15 @@ import { MS_IN_HOUR } from '../../../../core/constants';
 
 import getReportDaysText from '../getReportDaysText';
 
+// TODO: Import these colors from viz AGPConstants once that is exported from viz
+const AGPColors = {
+  veryLow: '#CC0019',
+  low: '#FF0000',
+  target: '#0BAD5A',
+  high: '#FFBF00',
+  veryHigh: '#FF6900',
+};
+
 const formatPercentChangeCopy = (t, currentValue, previousValue) => {
   const renderedDelta = bankersRound(Math.abs(currentValue - previousValue), 1);
 
@@ -36,6 +45,15 @@ const Delta = styled(Box)`
   font-size: 14px;
   font-weight: bold;
   color: ${vizColors.purple90};
+`;
+
+const LabelMarker = styled(Box)`
+  background-color: ${props => props.color};
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 4px;
 `;
 
 const Previous = styled(Box)`
@@ -76,11 +94,11 @@ const getRenderedValues = (agpCGM, offsetAgpCGM, t) => {
   const roundedBgDaysWorn = bankersRound(bgDaysWorn, 0);
 
   // Current Period Values
-  const timeInVeryHighFraction = _.toNumber(counts.veryHigh) / counts.total;
+  const timeInVeryHighFraction = _.toNumber(counts.veryHigh || 0) / counts.total;
   const timeInHighFraction = _.toNumber(counts.high) / counts.total;
   const timeInTargetFraction = _.toNumber(counts.target) / counts.total;
   const timeInLowFraction = _.toNumber(counts.low) / counts.total;
-  const timeInVeryLowFraction = _.toNumber(counts.veryLow) / counts.total;
+  const timeInVeryLowFraction = _.toNumber(counts.veryLow || 0) / counts.total;
 
   const timeInVeryHighPercent = bankersRound(timeInVeryHighFraction * 100, 0);
   const timeInHighPercent = bankersRound(timeInHighFraction * 100, 0);
@@ -89,11 +107,11 @@ const getRenderedValues = (agpCGM, offsetAgpCGM, t) => {
   const timeInVeryLowPercent = bankersRound(timeInVeryLowFraction * 100, 0);
 
   // Past Period Values
-  const offsetTimeInVeryHighFraction = _.toNumber(offsetCounts.veryHigh) / offsetCounts.total;
+  const offsetTimeInVeryHighFraction = _.toNumber(offsetCounts.veryHigh || 0) / offsetCounts.total;
   const offsetTimeInHighFraction = _.toNumber(offsetCounts.high) / offsetCounts.total;
   const offsetTimeInTargetFraction = _.toNumber(offsetCounts.target) / offsetCounts.total;
   const offsetTimeInLowFraction = _.toNumber(offsetCounts.low) / offsetCounts.total;
-  const offsetTimeInVeryLowFraction = _.toNumber(offsetCounts.veryLow) / offsetCounts.total;
+  const offsetTimeInVeryLowFraction = _.toNumber(offsetCounts.veryLow || 0) / offsetCounts.total;
 
   const offsetTimeInVeryHighPercent = bankersRound(offsetTimeInVeryHighFraction * 100, 0);
   const offsetTimeInHighPercent = bankersRound(offsetTimeInHighFraction * 100, 0);
@@ -164,6 +182,10 @@ const CGMDeltaSummary = ({ agpCGM, offsetAgpCGM }) => {
 
   if (isDataInsufficient) return <InsufficientData />;
 
+  // Some glycemic range presets do not have veryLow or veryHigh ranges (e.g. ADA Pregnancy T1)
+  const hasVeryLowRange = _.isNumber(agpCGM.data.current.stats.timeInRange.counts.veryLow);
+  const hasVeryHighRange = _.isNumber(agpCGM.data.current.stats.timeInRange.counts.veryHigh);
+
   return (
     <>
       <Flex mb={2} sx={{ justifyContent: 'space-between', fontSize: 1, fontWeight: 'medium', color: vizColors.gray50 }}>
@@ -174,32 +196,49 @@ const CGMDeltaSummary = ({ agpCGM, offsetAgpCGM }) => {
       </Flex>
       <Flex sx={{ justifyContent:'space-between', background: vizColors.blue00, padding: 3, borderRadius: '8px' }}>
         <Category data-testid="cgm-delta-summary-very-low">
-          <Label>{t('Time in Very Low')}</Label>
+          <Label>
+            <LabelMarker color={AGPColors.veryLow} />
+            {t('Time in Very Low')}
+          </Label>
           <Delta>{values?.timeInVeryLowPercentDeltaCopy}</Delta>
           <Previous>{t('Was {{ value }}%', { value: values?.offsetTimeInVeryLowPercent })}</Previous>
         </Category>
         <Category data-testid="cgm-delta-summary-low">
-          <Label>{t('Time in Low')}</Label>
+          <Label>
+            <LabelMarker color={AGPColors.low} />
+            {t('Time in Low')}
+          </Label>
           <Delta>{values?.timeInLowPercentDeltaCopy}</Delta>
           <Previous>{t('Was {{ value }}%', { value: values?.offsetTimeInLowPercent })}</Previous>
         </Category>
         <Category data-testid="cgm-delta-summary-target">
-          <Label>{t('Time in Target')}</Label>
+          <Label>
+            <LabelMarker color={AGPColors.target} />
+            {t('Time in Target')}
+          </Label>
           <Delta>{values?.timeInTargetPercentDeltaCopy}</Delta>
           <Previous>{t('Was {{ value }}%', { value: values?.offsetTimeInTargetPercent })}</Previous>
         </Category>
         <Category data-testid="cgm-delta-summary-high">
-          <Label>{t('Time in High')}</Label>
+          <Label>
+            <LabelMarker color={AGPColors.high} />
+            {t('Time in High')}
+          </Label>
           <Delta>{values?.timeInHighPercentDeltaCopy}</Delta>
           <Previous>{t('Was {{ value }}%', { value: values?.offsetTimeInHighPercent })}</Previous>
         </Category>
         <Category data-testid="cgm-delta-summary-very-high">
-          <Label>{t('Time in Very High')}</Label>
+          <Label>
+            <LabelMarker color={AGPColors.veryHigh} />
+            {t('Time in Very High')}
+          </Label>
           <Delta>{values?.timeInVeryHighPercentDeltaCopy}</Delta>
           <Previous>{t('Was {{ value }}%', { value: values?.offsetTimeInVeryHighPercent })}</Previous>
         </Category>
         <Category data-testid="cgm-delta-summary-cgm-active">
-          <Label>{t('Time CGM Active')}</Label>
+          <Label>
+            {t('Time CGM Active')}
+          </Label>
           <Delta>{values?.sensorUsageAGPDeltaCopy}</Delta>
           <Previous>{t('Was {{ value }}%', { value: values?.offsetSensorUsageAGP })}</Previous>
         </Category>

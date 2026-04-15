@@ -75,6 +75,7 @@ describe('PatientData', function () {
     uploadUrl: 'http://foo.com',
     user: { id: 'loggedInUserId'},
     t,
+    isSmartOnFhirMode: false,
   };
 
   before(() => {
@@ -304,7 +305,8 @@ describe('PatientData', function () {
               }
             },
             fetchingPatient: false,
-            fetchingPatientData: false
+            fetchingPatientData: false,
+            isSmartOnFhirMode: false,
           });
 
           wrapper = mount(<PatientData {...props} />);
@@ -339,6 +341,7 @@ describe('PatientData', function () {
             patientNotesMap: {
               '40': [],
             },
+            isSmartOnFhirMode: false,
           });
 
           wrapper = mount(<PatientData {...props} />);
@@ -366,6 +369,7 @@ describe('PatientData', function () {
             removingData: { inProgress: false },
             generatingPDF: { inProgress: false },
             pdf: {},
+            isSmartOnFhirMode: false,
           };
 
           wrapper = mount(<PatientData {...props} />);
@@ -398,6 +402,7 @@ describe('PatientData', function () {
             removingData: { inProgress: false },
             generatingPDF: { inProgress: false },
             pdf: {},
+            isSmartOnFhirMode: false,
           };
 
           wrapper = mount(<PatientData {...props} />, {});
@@ -431,6 +436,9 @@ describe('PatientData', function () {
             generatingPDF: { inProgress: false },
             pdf: {},
             trackMetric: sinon.stub(),
+            removeGeneratedPDFS: sinon.stub(),
+            dataWorkerRemoveDataSuccess: sinon.stub(),
+            isSmartOnFhirMode: false,
           };
 
           wrapper = mount(<PatientData {...props} />);
@@ -451,6 +459,28 @@ describe('PatientData', function () {
           expect(props.trackMetric.calledWith('Clicked No Data Upload Card')).to.be.true;
         });
 
+        it('should NOT render the uploader card when in smartonfhir mode', function() {
+          var props = {
+            isUserPatient: true,
+            fetchingPatient: false,
+            fetchingPatientData: false,
+            removingData: { inProgress: false },
+            generatingPDF: { inProgress: false },
+            pdf: {},
+            isSmartOnFhirMode: true,
+          };
+
+          wrapper = mount(<PatientData {...props} />);
+
+          wrapper.setProps(_.assign({}, props, {
+            data: {
+              metaData: { size: 0 },
+            }
+          }));
+
+          expect(uploaderCard().length).to.equal(0);
+        });
+
         it('should track click on Data Connections card', function() {
           const props = {
             currentPatientInViewId: '40',
@@ -469,6 +499,7 @@ describe('PatientData', function () {
             trackMetric: sinon.stub(),
             removeGeneratedPDFS: sinon.stub(),
             dataWorkerRemoveDataSuccess: sinon.stub(),
+            isSmartOnFhirMode: false,
           };
 
           const defaultWorkingState = {
@@ -556,6 +587,7 @@ describe('PatientData', function () {
         fetchingPatient: false,
         fetchingPatientData: false,
         generatingPDF: { inProgress: false },
+        isSmartOnFhirMode: false,
       });
 
       beforeEach(() => {
@@ -1029,6 +1061,7 @@ describe('PatientData', function () {
         },
         fetchingPatient: false,
         fetchingPatientData: false,
+        isSmartOnFhirMode: false,
       });
 
       beforeEach(() => {
@@ -1214,9 +1247,6 @@ describe('PatientData', function () {
           focusedSmbg: null,
           focusedSmbgRangeAvg: null,
           showingCbgDateTraces: false,
-          stats: {
-            excludeDaysWithoutBolus: false
-          },
           touched: false,
         },
         bgLog: {
@@ -1238,6 +1268,7 @@ describe('PatientData', function () {
       removeGeneratedPDFS: sinon.stub(),
       generatingPDF: { inProgress: false },
       pdf: {},
+      isSmartOnFhirMode: false,
     };
 
     it('should clear patient data', function() {
@@ -2382,6 +2413,7 @@ describe('PatientData', function () {
       context('data is removed prior to refresh', () => {
         it('should clear generated pdfs upon refresh', done => {
           const removeGeneratedPDFSStub = sinon.stub();
+          wrapper.setState({ chartType: 'currentChartType' });
 
           wrapper.setProps({
             ...props,
@@ -2918,7 +2950,7 @@ describe('PatientData', function () {
               showLoading: true,
               updateChartEndpoints: true,
               transitioningChartType: false,
-              metaData: 'bgSources,devices,matchedDevices,excludedDevices,queryDataCount',
+              metaData: 'bgSources,devices,matchedDevices,excludedDevices,queryDataCount,dataAnnotations',
               bgSource: undefined,
             });
           });
@@ -2952,7 +2984,7 @@ describe('PatientData', function () {
                 showLoading: true,
                 updateChartEndpoints: true,
                 transitioningChartType: false,
-                metaData: 'bgSources,devices,matchedDevices,excludedDevices,queryDataCount',
+                metaData: 'bgSources,devices,matchedDevices,excludedDevices,queryDataCount,dataAnnotations',
                 bgSource: 'cbg',
               });
             });
@@ -3157,9 +3189,9 @@ describe('PatientData', function () {
       sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, { metaData: 'latestDatumByType, size' });
     });
 
-    it('should set the `metaData` query to `bgSources,devices` if arg not provided', () => {
+    it('should set the default `metaData` query if arg not provided', () => {
       instance.queryData(emptyQuery);
-      sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, { metaData: 'bgSources,devices,matchedDevices,excludedDevices,queryDataCount' });
+      sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, { metaData: 'bgSources,devices,matchedDevices,excludedDevices,queryDataCount,dataAnnotations' });
     });
 
     it('should set the `activeDays` query from `chartPrefs`', () => {
@@ -3204,7 +3236,6 @@ describe('PatientData', function () {
           chartType: 'trends',
           endpoints: [100,200],
           excludedDevices: [],
-          excludeDaysWithoutBolus: undefined,
           forceRemountAfterQuery: undefined,
           types: 'cbg,smbg',
           metaData: 'bar',
@@ -3371,103 +3402,6 @@ describe('PatientData', function () {
           });
         });
       });
-    });
-  });
-
-  describe('toggleDaysWithoutBoluses', () => {
-    let wrapper;
-    let instance;
-
-    beforeEach(() => {
-      wrapper = shallow(<PatientDataClass {...defaultProps} />);
-      instance = wrapper.instance();
-    });
-
-    it('should call `updateChartPrefs` with the `excludeDaysWithoutBolus` chartPrefs state toggled', () => {
-      instance.setState({ chartType: 'basics' });
-      const updateChartPrefsSpy = sinon.spy(instance, 'updateChartPrefs');
-      instance.toggleDaysWithoutBoluses();
-
-      sinon.assert.calledWith(updateChartPrefsSpy, {
-        ...instance.state.chartPrefs,
-        basics: { extentSize: 14, sections: {}, stats: { excludeDaysWithoutBolus: true } },
-      });
-
-      instance.toggleDaysWithoutBoluses();
-
-      sinon.assert.calledWith(updateChartPrefsSpy, {
-        ...instance.state.chartPrefs,
-        basics: { extentSize: 14, sections: {}, stats: { excludeDaysWithoutBolus: false } },
-      });
-    });
-
-    it('should track a metric when `excludeDaysWithoutBolus` set to true on basics view', () => {
-      instance.setState({ chartType: 'basics' });
-      instance.toggleDaysWithoutBoluses();
-      sinon.assert.calledWith(defaultProps.trackMetric, 'Basics exclude days without boluses');
-    });
-
-    it('should track a metric when `excludeDaysWithoutBolus` set to true on trends view', () => {
-      instance.setState({ chartType: 'trends' });
-      instance.toggleDaysWithoutBoluses();
-      sinon.assert.calledWith(defaultProps.trackMetric, 'Trends exclude days without boluses');
-    });
-  });
-
-  describe('toggleDefaultBgRange', () => {
-    let wrapper;
-    let instance;
-
-    beforeEach(() => {
-      wrapper = shallow(<PatientDataClass {...defaultProps} />);
-      instance = wrapper.instance();
-    });
-
-    it('should call `updateChartPrefs` with arguments needed to trigger stats and aggregations refresh', () => {
-      instance.setState({ chartType: 'basics' });
-      const updateChartPrefsSpy = sinon.spy(instance, 'updateChartPrefs');
-      instance.toggleDefaultBgRange();
-      sinon.assert.calledWith(updateChartPrefsSpy, {}, false, true, true);
-    });
-
-    it('should call `setState` with the `useDefaultRange` bgPrefs state toggled', () => {
-      const setStateSpy = sinon.spy(instance, 'setState');
-      instance.setState({ chartType: 'basics' });
-      instance.toggleDefaultBgRange();
-
-      sinon.assert.calledWith(setStateSpy, {
-        bgPrefs:  {
-          bgBounds: 'stubbed bgBounds',
-          bgClasses: { low: { boundary: 70 }, target: { boundary: 180 } },
-          bgUnits: 'mg/dL',
-          useDefaultRange: true,
-        }
-      });
-
-      instance.toggleDefaultBgRange();
-
-      sinon.assert.calledWith(setStateSpy, {
-        bgPrefs:  {
-          bgBounds: 'stubbed bgBounds',
-          bgClasses: { low: { boundary: 70 }, target: { boundary: 180 } },
-          bgUnits: 'mg/dL',
-          useDefaultRange: false
-        }
-      });
-    });
-
-    it('should track a metric when `useDefaultRange` set to true on basics view', () => {
-      defaultProps.trackMetric.resetHistory();
-      instance.setState({ chartType: 'basics' });
-      instance.toggleDefaultBgRange();
-      sinon.assert.calledWith(defaultProps.trackMetric, 'Basics - use default BG range');
-    });
-
-    it('should track a metric when `useDefaultRange` set to true on trends view', () => {
-      defaultProps.trackMetric.resetHistory();
-      instance.setState({ chartType: 'trends' });
-      instance.toggleDefaultBgRange();
-      sinon.assert.calledWith(defaultProps.trackMetric, 'Trends - use default BG range');
     });
   });
 
@@ -3954,7 +3888,10 @@ describe('PatientData', function () {
           cbg: {},
           deviceEvent: {},
           food: {},
+          insulin: {},
           message: {},
+          physicalActivity: {},
+          reportedState: {},
           smbg: {},
           wizard: {},
         });
@@ -4301,7 +4238,7 @@ describe('PatientData', function () {
         instance.handleChartDateRangeUpdate(dateTimeLocation);
 
         sinon.assert.calledWith(instance.getChartEndpoints, dateTimeLocation, {
-          setEndToLocalCeiling: true,
+          setEndToLocalCeiling: false,
         })
       });
 
@@ -4841,8 +4778,12 @@ describe('PatientData', function () {
         fetchingPatientData: false,
         fetchingUser: false,
         trackMetric: sinon.stub(),
+        removingData: { inProgress: false },
         generatingPDF: { inProgress: false },
         pdf: {},
+        removeGeneratedPDFS: sinon.stub(),
+        dataWorkerRemoveDataSuccess: sinon.stub(),
+        isSmartOnFhirMode: false,
       };
 
       var elem = mount(<PatientData {...props} />).find(PatientDataClass);
@@ -4868,14 +4809,14 @@ describe('PatientData', function () {
       wrapper.setState({timePrefs: { timezoneAware: true, timezoneName: 'utc' } })
 
       instance.updateChart = sinon.stub();
-      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns('2019-11-27T12:00:00.000Z');
+      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns('2019-11-27T11:22:00.000Z');
       instance.getChartEndpoints = sinon.stub().returns('endpoints stub');
 
       instance.handleSwitchToBasics();
 
       sinon.assert.calledWith(instance.getMostRecentDatumTimeByChartType, defaultProps, 'basics');
-      sinon.assert.calledWith(instance.getChartEndpoints, '2019-11-28T00:00:00.000Z', { chartType: 'basics' });
-      sinon.assert.calledWith(instance.updateChart, 'basics', '2019-11-28T00:00:00.000Z', 'endpoints stub')
+      sinon.assert.calledWith(instance.getChartEndpoints, '2019-11-27T12:00:00.000Z', { chartType: 'basics', setEndToLocalCeiling: false });
+      sinon.assert.calledWith(instance.updateChart, 'basics', '2019-11-27T12:00:00.000Z', 'endpoints stub')
     });
   });
 
@@ -4967,9 +4908,13 @@ describe('PatientData', function () {
         fetchingPatient: false,
         fetchingPatientData: false,
         fetchingUser: false,
+        removingData: { inProgress: false },
         trackMetric: sinon.stub(),
         generatingPDF: { inProgress: false },
         pdf: {},
+        removeGeneratedPDFS: sinon.stub(),
+        dataWorkerRemoveDataSuccess: sinon.stub(),
+        isSmartOnFhirMode: false,
       };
 
       var elem = mount(<PatientData {...props} />).find(PatientDataClass);
@@ -4996,25 +4941,25 @@ describe('PatientData', function () {
       wrapper.setState({timePrefs: { timezoneAware: true, timezoneName: 'utc' } })
 
       instance.updateChart = sinon.stub();
-      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns('2019-11-27T12:00:00.000Z');
+      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns('2019-11-27T11:33:00.000Z');
       instance.getChartEndpoints = sinon.stub().returns('endpoints stub');
 
       instance.handleSwitchToTrends();
       sinon.assert.calledWith(instance.getMostRecentDatumTimeByChartType, defaultProps, 'trends');
-      sinon.assert.calledWith(instance.getChartEndpoints, '2019-11-28T00:00:00.000Z', { chartType: 'trends' });
-      sinon.assert.calledWith(instance.updateChart, 'trends', '2019-11-28T00:00:00.000Z', 'endpoints stub', {
+      sinon.assert.calledWith(instance.getChartEndpoints, '2019-11-27T12:00:00.000Z', { chartType: 'trends', setEndToLocalCeiling: false });
+      sinon.assert.calledWith(instance.updateChart, 'trends', '2019-11-27T12:00:00.000Z', 'endpoints stub', {
         updateChartEndpoints: true
       });
     });
 
-    it('should set the `datetimeLocation` state to the start of the next day for the provided datetime if it\'s after the very start of the day', () => {
+    it('should set the `datetimeLocation` state', () => {
       const wrapper = shallow(<PatientDataClass {...defaultProps} />);
       const instance = wrapper.instance();
 
       wrapper.setState({datetimeLocation: '2018-03-03T12:00:00.000Z'});
 
       instance.handleSwitchToTrends('2018-03-03T12:00:00.000Z');
-      expect(wrapper.state('datetimeLocation')).to.equal('2018-03-04T00:00:00.000Z');
+      expect(wrapper.state('datetimeLocation')).to.equal('2018-03-03T12:00:00.000Z');
     });
 
     it('should set the `datetimeLocation` state to the provided datetime as is if it\'s at the very start of the day', () => {
@@ -5032,13 +4977,13 @@ describe('PatientData', function () {
       const instance = wrapper.instance();
 
       instance.updateChart = sinon.stub();
-      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns(Date.parse('2018-02-04T08:00:00.000Z'));
+      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns(Date.parse('2018-02-04T08:22:00.000Z'));
       instance.getChartEndpoints = sinon.stub().returns('endpoints stub');
 
       // Provide a datetime that is beyond the one returned by getMostRecentDatumTimeByChartType
       instance.handleSwitchToTrends('2018-03-03T00:00:00.000Z');
-      sinon.assert.calledWith(instance.updateChart, 'trends', '2018-02-05T00:00:00.000Z', 'endpoints stub', {
-        mostRecentDatetimeLocation: '2018-02-04T08:00:00.000Z',
+      sinon.assert.calledWith(instance.updateChart, 'trends', '2018-02-04T09:00:00.000Z', 'endpoints stub', {
+        mostRecentDatetimeLocation: '2018-02-04T08:22:00.000Z',
         updateChartEndpoints: true,
       });
     });
@@ -5062,8 +5007,12 @@ describe('PatientData', function () {
         fetchingPatientData: false,
         fetchingUser: false,
         trackMetric: sinon.stub(),
+        removingData: { inProgress: false },
         generatingPDF: { inProgress: false },
         pdf: {},
+        removeGeneratedPDFS: sinon.stub(),
+        dataWorkerRemoveDataSuccess: sinon.stub(),
+        isSmartOnFhirMode: false,
       };
 
       var elem = mount(<PatientData {...props} />).find(PatientDataClass);
@@ -5160,6 +5109,7 @@ describe('PatientData', function () {
         endpoints: [100,200],
       });
       elem.instance().handleSwitchToSettings();
+      expect(props.onFetchAdditionalData.callCount).to.equal(1);
       expect(props.trackMetric.callCount).to.equal(callCount + 2);
       expect(props.trackMetric.calledWith('Clicked Switch To Settings')).to.be.true;
     });
@@ -5325,6 +5275,10 @@ describe('PatientData', function () {
         inProgress: false,
         completed: null,
       },
+      fetchingUserConsentRecords: {
+        inProgress: false,
+        completed: null,
+      },
       fetchingClinicsForPatient: {
         inProgress: false,
         completed: null,
@@ -5344,6 +5298,7 @@ describe('PatientData', function () {
       fetchPendingSentInvites: sinon.stub().returns('fetchPendingSentInvites'),
       fetchAssociatedAccounts: sinon.stub().returns('fetchAssociatedAccounts'),
       fetchPatientFromClinic: sinon.stub().returns('fetchPatientFromClinic'),
+      fetchUserConsentRecords: sinon.stub().returns('fetchUserConsentRecords'),
       fetchClinicsForPatient: sinon.stub().returns('fetchClinicsForPatient'),
       selectClinic: sinon.stub().returns('selectClinic'),
     };
@@ -5357,8 +5312,8 @@ describe('PatientData', function () {
     });
 
     it('should return an array containing the patient and patient data fetchers from dispatchProps when viewing own patient data', () => {
-      const result = getFetchers(dispatchProps, ownProps, { ...stateProps, isUserPatient: true }, api);
-      expect(result).to.have.lengthOf(5);
+      const result = getFetchers(dispatchProps, ownProps, { ...stateProps, user: { userid: '12345' }, api });
+      expect(result).to.have.lengthOf(6);
       expect(result[0]).to.be.a('function');
       expect(result[0]()).to.equal('fetchPatient');
       expect(result[1]).to.be.a('function');
@@ -5369,10 +5324,12 @@ describe('PatientData', function () {
       expect(result[3]()).to.equal('fetchClinicsForPatient');
       expect(result[4]).to.be.a('function');
       expect(result[4]()).to.equal('fetchAssociatedAccounts');
+      expect(result[5]).to.be.a('function');
+      expect(result[5]()).to.equal('fetchUserConsentRecords');
     });
 
     it('should return an array containing the patient and patient data fetchers from dispatchProps when viewing another patient', () => {
-      const result = getFetchers(dispatchProps, ownProps, { ...stateProps, isUserPatient: false }, api);
+      const result = getFetchers(dispatchProps, ownProps, { ...stateProps, user: { userid: '67890' } }, api);
       expect(result).to.have.lengthOf(4);
       expect(result[0]).to.be.a('function');
       expect(result[0]()).to.equal('fetchPatient');
@@ -5384,9 +5341,9 @@ describe('PatientData', function () {
       expect(result[3]()).to.equal('fetchAssociatedAccounts');
     });
 
-    it('should only add the associated accounts, patient clinics, and pending invites fetchers if fetches are not already in progress or completed', () => {
-      const standardResult = getFetchers(dispatchProps, ownProps, { ...stateProps, isUserPatient: true }, api);
-      expect(standardResult.length).to.equal(5);
+    it('should only add the associated accounts, patient clinics, patient consents, and pending invites fetchers if fetches are not already in progress or completed', () => {
+      const standardResult = getFetchers(dispatchProps, ownProps, { ...stateProps, user: { userid: '12345' } }, api);
+      expect(standardResult.length).to.equal(6);
 
       const inProgressResult = getFetchers(dispatchProps, ownProps, {
         fetchingPendingSentInvites: {
@@ -5398,6 +5355,10 @@ describe('PatientData', function () {
           completed: null,
         },
         fetchingAssociatedAccounts: {
+          inProgress: true,
+          completed: null,
+        },
+        fetchingUserConsentRecords: {
           inProgress: true,
           completed: null,
         },
@@ -5417,6 +5378,10 @@ describe('PatientData', function () {
           completed: true,
         },
         fetchingAssociatedAccounts: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingUserConsentRecords: {
           inProgress: false,
           completed: true,
         },
@@ -5457,6 +5422,10 @@ describe('PatientData', function () {
           inProgress: false,
           completed: true,
         },
+        fetchingUserConsentRecords: {
+          inProgress: false,
+          completed: true,
+        },
       });
 
       expect(fetchPatientsResult.length).to.equal(4);
@@ -5494,6 +5463,10 @@ describe('PatientData', function () {
           completed: true,
         },
         fetchingAssociatedAccounts: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingUserConsentRecords: {
           inProgress: false,
           completed: true,
         },
@@ -5538,6 +5511,10 @@ describe('PatientData', function () {
           inProgress: false,
           completed: true,
         },
+        fetchingUserConsentRecords: {
+          inProgress: false,
+          completed: true,
+        },
       });
 
       expect(fetchPatientsResult.length).to.equal(3);
@@ -5575,6 +5552,10 @@ describe('PatientData', function () {
           completed: true,
         },
         fetchingAssociatedAccounts: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingUserConsentRecords: {
           inProgress: false,
           completed: true,
         },
@@ -5621,6 +5602,10 @@ describe('PatientData', function () {
           completed: true,
         },
         fetchingAssociatedAccounts: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingUserConsentRecords: {
           inProgress: false,
           completed: true,
         },

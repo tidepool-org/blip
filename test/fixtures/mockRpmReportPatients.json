@@ -11,6 +11,9 @@
     { "fullName": "Jonathan Seabass", "birthDate": "1993-04-12", "mrn": "994249", "realtimeDays": 16, "hasSufficientData": true },
     { "fullName": "Timithon Saltflat", "birthDate": "1977-11-11", "mrn": "994423", "realtimeDays": 29, "hasSufficientData": true },
     { "fullName": "Jimithon Nodata", "birthDate": null, "mrn": null, "realtimeDays": 0, "hasSufficientData": false },
-    { "fullName": "Flotsam N. Jetsam", "birthDate": "2000-02-29", "mrn": "994234", "realtimeDays": 30, "hasSufficientData": true }
+    { "fullName": "Flotsam N. Jetsam", "birthDate": "2000-02-29", "mrn": "994234", "realtimeDays": 30, "hasSufficientData": true },
+    { "fullName": "CPT99445 True", "birthDate": "1990-05-15", "mrn": "994451", "realtimeDays": 10, "hasSufficientData": false },
+    { "fullName": "CPT99445 False Low", "birthDate": "1985-08-20", "mrn": "994452", "realtimeDays": 1, "hasSufficientData": false },
+    { "fullName": "CPT99445 False High", "birthDate": "1992-12-01", "mrn": "994453", "realtimeDays": 16, "hasSufficientData": true }
   ]
 }

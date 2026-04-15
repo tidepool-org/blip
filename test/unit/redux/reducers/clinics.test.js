@@ -4,6 +4,8 @@
 /* global it */
 /* global expect */
 
+import mutationTracker from 'object-invariant-test-helper';
+
 import { clinics as reducer } from '../../../../app/redux/reducers/misc';
 
 import * as actions from '../../../../app/redux/actions/index';
@@ -40,6 +42,47 @@ describe('clinics', () => {
           patientInvites: {},
         },
       });
+    });
+  });
+
+  describe('fetchPatientsSuccess', () => {
+    it('should add patients to state when they do not currently exist in state', () => {
+      let initialStateForTest = {};
+      let tracked = mutationTracker.trackObj(initialStateForTest);
+
+      let results = [
+        { patient: { userid: 'a1b2c3', name: 'Jenny' }, clinic: { id: 'clinic1' } },
+        { patient: { userid: 'd4e5f6', name: 'John' }, clinic: { id: 'clinic2' } },
+      ];
+
+      let action = actions.sync.fetchPatientsSuccess(results);
+      let state = reducer(initialStateForTest, action);
+
+      expect(Object.keys(state).length).to.equal(2); // 2 clinics
+
+      expect(state[results[0].clinic.id].patients[results[0].patient.userid]).to.eql({
+        userid: results[0].patient.userid,
+        name: results[0].patient.name,
+      });
+      expect(state[results[1].clinic.id].patients[results[1].patient.userid]).to.eql({
+        userid: results[1].patient.userid,
+        name: results[1].patient.name,
+      });
+
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
+
+    it('should handle empty patients array', () => {
+      let initialStateForTest = {};
+      let tracked = mutationTracker.trackObj(initialStateForTest);
+
+      let patients = [];
+
+      let action = actions.sync.fetchPatientsSuccess(patients);
+      let state = reducer(initialStateForTest, action);
+
+      expect(Object.keys(state).length).to.equal(0);
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 
@@ -113,10 +156,10 @@ describe('clinics', () => {
   });
 
   describe('acceptPatientInvitationSuccess', () => {
-    it('should remove the patient invites from a clinic and increase the patientCount', () => {
+    it('should remove the patient invites from a clinic and increase the patientCounts', () => {
       let initialStateForTest = {
         clinicId123: {
-          patientCount: 2,
+          patientCounts: { demo: 1, plan: 2, total: 3 },
           patientInvites: {
             patientId123: { key: 'patientId123' },
             patientId456: { key: 'patientId456' },
@@ -130,7 +173,7 @@ describe('clinics', () => {
       let state = reducer(initialStateForTest, action);
       expect(state[clinic.id].patientInvites.patientId123).to.be.undefined;
       expect(state[clinic.id].patientInvites.patientId456).to.eql({ key: 'patientId456' });
-      expect(state[clinic.id].patientCount).to.equal(3);
+      expect(state[clinic.id].patientCounts).to.eql({ demo: 1, plan: 2, total: 3 });
     });
   });
 
@@ -374,7 +417,7 @@ describe('clinics', () => {
           },
           patients: {},
           fetchedPatientCount: 0,
-          patientCount: 0,
+          patientCounts: { demo: 0, plan: 0, total: 0 },
         },
       };
       let patient = {
@@ -385,7 +428,7 @@ describe('clinics', () => {
       let state = reducer(initialStateForTest, action);
       expect(state.clinicId123.patients.patient123.name).to.eql('Patient 123');
       expect(state.clinicId123.fetchedPatientCount).to.eql(1);
-      expect(state.clinicId123.patientCount).to.eql(1);
+      expect(state.clinicId123.patientCounts).to.eql({ demo: 0, plan: 0, total: 0 });
     });
   });
 
@@ -423,7 +466,7 @@ describe('clinics', () => {
             }
           },
           fetchedPatientCount: 1,
-          patientCount: 1,
+          patientCounts: { demo: 0, plan: 1, total: 1 },
           clinicians: {
             clinicianId: {},
           },
@@ -433,7 +476,7 @@ describe('clinics', () => {
       let state = reducer(initialStateForTest, action);
       expect(state.clinicId123.patients).to.eql({});
       expect(state.clinicId123.fetchedPatientCount).to.eql(0);
-      expect(state.clinicId123.patientCount).to.eql(0);
+      expect(state.clinicId123.patientCounts).to.eql({ demo: 0, plan: 1, total: 1 });
     });
   });
 
@@ -797,80 +840,111 @@ describe('clinics', () => {
   describe('createClinicPatientTagSuccess', () => {
     it('should update `patientTags` in state', () => {
       let clinicId = 'clinicId123';
-      let patientTags = ['patientTag123'];
+      let patientTag = { name: 'patientTag123', id: '123' };
       let initialStateForTest = {
         [clinicId]: {
           id: clinicId,
           patientTags: [],
         },
       };
-      let action = actions.sync.createClinicPatientTagSuccess(clinicId, patientTags);
+      let action = actions.sync.createClinicPatientTagSuccess(clinicId, patientTag);
       let state = reducer(initialStateForTest, action);
-      expect(state.clinicId123.patientTags).to.eql(patientTags);
+      expect(state.clinicId123.patientTags).to.eql([patientTag]);
     });
   });
 
   describe('updateClinicPatientTagSuccess', () => {
     it('should update `patientTags` in state', () => {
       let clinicId = 'clinicId123';
-      let patientTags = ['patientTag456'];
+      let patientTag = { name: 'UPDATED', id: '123' };
       let initialStateForTest = {
         [clinicId]: {
           id: clinicId,
-          patientTags: ['patientTag123'],
+          patientTags: [{ name: 'patientTag123', id: '123' }],
         },
       };
-      let action = actions.sync.updateClinicPatientTagSuccess(clinicId, patientTags);
+      let action = actions.sync.updateClinicPatientTagSuccess(clinicId, patientTag);
       let state = reducer(initialStateForTest, action);
-      expect(state.clinicId123.patientTags).to.eql(patientTags);
+      expect(state.clinicId123.patientTags).to.eql([{ name: 'UPDATED', id: '123' }]);
     });
   });
 
   describe('deleteClinicPatientTagSuccess', () => {
     it('should update `patientTags` in state', () => {
       let clinicId = 'clinicId123';
-      let patientTags = ['patientTag123'];
+      let patientTagId = '123';
       let initialStateForTest = {
         [clinicId]: {
           id: clinicId,
-          patientTags: ['patientTag123', 'patientTag456'],
+          patientTags: [
+            { name: 'patientTag123', id: '123' },
+            { name: 'patientTag456', id: '456' },
+          ],
         },
       };
-      let action = actions.sync.deleteClinicPatientTagSuccess(clinicId, patientTags);
+      let action = actions.sync.deleteClinicPatientTagSuccess(clinicId, patientTagId);
       let state = reducer(initialStateForTest, action);
-      expect(state.clinicId123.patientTags).to.eql(patientTags);
+      expect(state.clinicId123.patientTags).to.eql([{ name: 'patientTag456', id: '456' }]);
     });
   });
 
-  describe('fetchClinicPatientCountSuccess', () => {
-    it('should update `patientCount` in state', () => {
+  describe('fetchClinicPatientCountsSuccess', () => {
+    it('should update `patientCounts` in state', () => {
       let clinicId = 'clinicId123';
-      let results = { patientCount: 33 };
+      let results = { demo: 2, plan: 33, total: 35 };
       let initialStateForTest = {
         [clinicId]: {
           id: clinicId,
-          patientCount: 32,
+          patientCounts: { demo: 1, plan: 32, total: 33 },
         },
       };
-      let action = actions.sync.fetchClinicPatientCountSuccess(clinicId, results);
+      let action = actions.sync.fetchClinicPatientCountsSuccess(clinicId, results);
       let state = reducer(initialStateForTest, action);
-      expect(state[clinicId].patientCount).to.eql(33);
+      expect(state[clinicId].patientCounts).to.eql(results);
+    });
+
+    it('should update `patientCounts` in state when receiving data in the legacy API format', () => {
+      let clinicId = 'clinicId123';
+      let results = { patientCount: 35 };
+      let initialStateForTest = {
+        [clinicId]: {
+          id: clinicId,
+          patientCounts: { demo: 0, plan: 32, total: 33 },
+        },
+      };
+      let action = actions.sync.fetchClinicPatientCountsSuccess(clinicId, results);
+      let state = reducer(initialStateForTest, action);
+      expect(state[clinicId].patientCounts).to.eql({ demo: 0, plan: 35, total: 35 });
     });
   });
 
   describe('fetchClinicPatientCountSettingsSuccess', () => {
     it('should update `patientCountSettings` in state', () => {
       let clinicId = 'clinicId123';
-      let results = { foo: 'bar' };
+      let results = { hardLimit: { plan: 300 , startDate: '2025-01-01' } };
       let initialStateForTest = {
         [clinicId]: {
           id: clinicId,
-          patientCountSettings: { bar: 'baz' },
+          patientCountSettings: { hardLimit: { plan: 250, startDate: '2024-01-01' } },
         },
       };
       let action = actions.sync.fetchClinicPatientCountSettingsSuccess(clinicId, results);
       let state = reducer(initialStateForTest, action);
-      expect(state[clinicId].patientCountSettings).to.eql({ foo: 'bar' });
+      expect(state[clinicId].patientCountSettings).to.eql({ hardLimit: { plan: 300, startDate: '2025-01-01' } });
+    });
+
+    it('should update `patientCountSettings` in state when receiving data in the legacy API format', () => {
+      let clinicId = 'clinicId123';
+      let results = { hardLimit: { patientCount: 300 , startDate: '2025-01-01' } };
+      let initialStateForTest = {
+        [clinicId]: {
+          id: clinicId,
+          patientCountSettings: { hardLimit: { plan: 250, startDate: '2024-01-01' } },
+        },
+      };
+      let action = actions.sync.fetchClinicPatientCountSettingsSuccess(clinicId, results);
+      let state = reducer(initialStateForTest, action);
+      expect(state[clinicId].patientCountSettings).to.eql({ hardLimit: { plan: 300, startDate: '2025-01-01' } });
     });
   });
 
@@ -881,14 +955,14 @@ describe('clinics', () => {
       let initialStateForTest = {
         [clinicId]: {
           id: clinicId,
-          patientCount: 1,
+          patientCounts: { demo: 0, plan: 1, total: 1 },
         },
       };
       let action = actions.sync.setClinicUIDetails(clinicId, uiDetails);
       let state = reducer(initialStateForTest, action);
       expect(state[clinicId]).to.eql({
         id: clinicId,
-        patientCount: 1,
+        patientCounts: { demo: 0, plan: 1, total: 1 },
         foo: 'bar',
         bar: 'baz',
       });

@@ -4,7 +4,6 @@ import { withTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import compact from 'lodash/compact';
 import debounce from 'lodash/debounce';
-import find from 'lodash/find';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
@@ -16,7 +15,6 @@ import reject from 'lodash/reject';
 import { useFormik } from 'formik';
 import InputMask from 'react-input-mask';
 import { Box, BoxProps } from 'theme-ui';
-import moment from 'moment';
 
 import * as actions from '../../../redux/actions';
 import TextInput from '../../../components/elements/TextInput';
@@ -27,8 +25,11 @@ import { accountInfoFromClinicPatient } from '../../../core/personutils';
 import { Body0 } from '../../../components/elements/FontStyles';
 import { MediumTitle } from '../../../components/elements/FontStyles';
 
+import SelectDiabetesType from './SelectDiabetesType';
+import SelectGlycemicRanges from './SelectGlycemicRanges';
 import SelectTags from './SelectTags';
 import SelectSites from './SelectSites';
+import { DEFAULT_GLYCEMIC_RANGES } from '../../../core/glycemicRangesUtils';
 
 export function getFormValues(source, clinicPatientTags, clinicSites) {
   return {
@@ -39,12 +40,14 @@ export function getFormValues(source, clinicPatientTags, clinicSites) {
     tags: reject(source?.tags || [], tagId => !clinicPatientTags?.[tagId]),
     dataSources: source?.dataSources || [],
     sites: source?.sites?.filter(site => !!clinicSites[site.id]) || [],
+    diagnosisType: source?.diagnosisType || '',
+    glycemicRanges: source?.glycemicRanges || DEFAULT_GLYCEMIC_RANGES,
   };
 }
 
 export function emptyValuesFilter(value, key) {
-  // We want to allow sending an empty `tags` array. Otherwise, strip empty fields from payload.
-  return !includes(['tags'], key) && isEmpty(value);
+  // We want to allow sending an empty `tags` and `sites` arrays. Otherwise, strip empty fields from payload.
+  return !includes(['tags', 'sites', 'diagnosisType'], key) && isEmpty(value);
 }
 
 export const PatientForm = (props) => {
@@ -58,6 +61,7 @@ export const PatientForm = (props) => {
     trackMetric,
     searchDebounceMs,
     initialFocusedInput = 'fullName',
+    isReadOnly = false,
     ...boxProps
   } = props;
 
@@ -65,26 +69,32 @@ export const PatientForm = (props) => {
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const mrnSettings = clinic?.mrnSettings ?? {};
-  const existingMRNs = useMemo(
-    () => compact(map(reject(clinic?.patients, { id: patient?.id }), 'mrn')),
-    [clinic?.patients, patient?.id]
-  );
+
+  const existingMRNs = useSelector(state => state.blip.clinicMRNsForPatientFormValidation)?.filter(mrn => mrn !== patient?.mrn) || [];
+
   const dateInputFormat = 'MM/DD/YYYY';
   const dateMaskFormat = dateInputFormat.replace(/[A-Z]/g, '9');
   const [initialValues, setInitialValues] = useState({});
+
+  const hasSummaryDashboard = clinic?.entitlements?.summaryDashboard;
   const showTags = clinic?.entitlements?.patientTags && !!clinic?.patientTags?.length;
   const showSites = clinic?.entitlements?.clinicSites && !!clinic?.sites?.length;
+  const showDiabetesType = !!selectedClinicId; // hide in private workspace
+  const showGlycemicRanges = !!selectedClinicId; // hide in private workspace
+
   const clinicPatientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
   const clinicSites = useMemo(() => keyBy(clinic?.sites, 'id'), [clinic?.sites]);
   const showEmail = action !== 'acceptInvite';
-  const { fetchingPatientsForClinic } = useSelector((state) => state.blip.working);
+  const { fetchingClinicMRNsForPatientFormValidation } = useSelector((state) => state.blip.working);
   const [patientFetchOptions, setPatientFetchOptions] = useState({});
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
-  const previousFetchingPatientsForClinic = usePrevious(fetchingPatientsForClinic);
+  const previousFetchingClinicMRNsForPatientFormValidation = usePrevious(fetchingClinicMRNsForPatientFormValidation);
   const previousFetchOptions = usePrevious(patientFetchOptions);
   const initialFocusedInputRef = useInitialFocusedInput();
   const tagSectionRef = useRef(null);
   const siteSectionRef = useRef(null);
+  const diagnosisTypeSectionRef = useRef(null);
+  const targetRangePresetSectionRef = useRef(null);
 
   const formikContext = useFormik({
     initialValues: getFormValues(patient, clinicPatientTags, clinicSites),
@@ -117,7 +127,7 @@ export const PatientForm = (props) => {
           clinic: {
             handler: 'acceptPatientInvitation',
             args: () => [selectedClinicId, invite.key, invite.creatorId, omitBy(
-              pick(getFormValues(values, clinicPatientTags, clinicSites), ['mrn', 'birthDate', 'fullName', 'tags']),
+              pick(getFormValues(values, clinicPatientTags, clinicSites), ['mrn', 'birthDate', 'fullName', 'tags', 'sites', 'diagnosisType', 'glycemicRanges']),
               emptyValuesFilter
             )],
           },
@@ -136,7 +146,7 @@ export const PatientForm = (props) => {
 
       dispatch(actions.async[actionMap[action][context].handler](api, ...handlerArgs));
     },
-    validationSchema: validationSchema({mrnSettings, existingMRNs}),
+    validationSchema: validationSchema({ mrnSettings, existingMRNs }),
   });
 
   const {
@@ -151,7 +161,7 @@ export const PatientForm = (props) => {
     if (
       loggedInUserId &&
       clinic?.id &&
-      !fetchingPatientsForClinic.inProgress &&
+      !fetchingClinicMRNsForPatientFormValidation.inProgress &&
       !isEmpty(patientFetchOptions) &&
       !(patientFetchOptions === previousFetchOptions)
     ) {
@@ -160,14 +170,14 @@ export const PatientForm = (props) => {
         delete fetchOptions.search;
       }
       dispatch(
-        actions.async.fetchPatientsForClinic(api, clinic.id, fetchOptions)
+        actions.async.fetchClinicMRNsForPatientFormValidation(api, clinic.id, fetchOptions)
       );
     }
   }, [
     api,
     clinic,
     dispatch,
-    fetchingPatientsForClinic,
+    fetchingClinicMRNsForPatientFormValidation,
     loggedInUserId,
     patientFetchOptions,
     previousFetchOptions
@@ -176,15 +186,15 @@ export const PatientForm = (props) => {
   // revalidate form on patient fetch complete
   useEffect(() => {
     if (
-      previousFetchingPatientsForClinic?.inProgress &&
-      !fetchingPatientsForClinic.inProgress
+      previousFetchingClinicMRNsForPatientFormValidation?.inProgress &&
+      !fetchingClinicMRNsForPatientFormValidation.inProgress
     ) {
       formikContext.validateForm();
     }
   }, [
-    fetchingPatientsForClinic.inProgress,
+    fetchingClinicMRNsForPatientFormValidation.inProgress,
     formikContext,
-    previousFetchingPatientsForClinic?.inProgress,
+    previousFetchingClinicMRNsForPatientFormValidation?.inProgress,
   ]);
 
   useEffect(() => {
@@ -222,6 +232,11 @@ export const PatientForm = (props) => {
     debounceSearch(event.target.value);
   }
 
+  function handleScrollToRef(ref) {
+    // Wait for height modal to expand via CSS, then scroll down to enhance dropdown visibility
+    setTimeout(() => ref?.current?.scrollIntoView(), 50);
+  }
+
   return (
     <Box
       as="form"
@@ -230,6 +245,8 @@ export const PatientForm = (props) => {
         minWidth: [null, '320px'],
 
         // When the select Tags or Sites dropdowns are open, expand the modal to give extra room
+        '&:has(.PatientFormSelectDiabetesType__control--menu-is-open)': { paddingBottom: '24px' },
+        '&:has(.PatientFormSelectGlycemicRanges__control--menu-is-open)': { paddingBottom: '24px' },
         '&:has(.PatientFormSelectTags__control--menu-is-open)': { paddingBottom: '162px' },
         '&:has(.PatientFormSelectSites__control--menu-is-open)': { paddingBottom: '242px' },
       }}
@@ -247,6 +264,7 @@ export const PatientForm = (props) => {
           placeholder={t('Full Name')}
           variant="condensed"
           sx={{ width: '100%' }}
+          disabled={isReadOnly}
         />
       </Box>
 
@@ -263,6 +281,7 @@ export const PatientForm = (props) => {
             formikContext.setFieldTouched('birthDate');
             formikContext.setFieldValue('birthDate', e.target.value.replace(dateRegex, '$3-$1-$2'));
           }}
+          disabled={isReadOnly}
         >
           <TextInput
             name="birthDate"
@@ -271,6 +290,7 @@ export const PatientForm = (props) => {
             placeholder={dateInputFormat.toLowerCase()}
             variant="condensed"
             sx={{ width: '100%' }}
+            disabled={isReadOnly}
           />
         </InputMask>
       </Box>
@@ -292,6 +312,7 @@ export const PatientForm = (props) => {
             formikContext.setFieldTouched('mrn');
             formikContext.setFieldValue('mrn', e.target.value.toUpperCase());
           }}
+          disabled={isReadOnly}
         />
       </Box>
 
@@ -305,14 +326,43 @@ export const PatientForm = (props) => {
               placeholder={t('Email')}
               variant="condensed"
               sx={{ width: '100%' }}
-              disabled={patient?.id && !patient?.permissions?.custodian}
-              />
+              disabled={isReadOnly || (patient?.id && !patient?.permissions?.custodian)}
+            />
           </Box>
 
-          <Body0 sx={{ fontWeight: 'medium' }} mb={3}>
+          <Body0 mb={3}>
             {t('If you want your patients to upload their data from home, you must include their email address.')}
           </Body0>
         </>
+      )}
+
+      {showDiabetesType && (
+        <Box ref={diagnosisTypeSectionRef} mb={3}>
+          <SelectDiabetesType
+            value={values.diagnosisType || ''}
+            onChange={diagnosisType => setFieldValue('diagnosisType', diagnosisType)}
+            onMenuOpen={() => handleScrollToRef(diagnosisTypeSectionRef)}
+            isDisabled={isReadOnly}
+          />
+        </Box>
+      )}
+
+      {showGlycemicRanges && (
+        <Box ref={targetRangePresetSectionRef} mb={3}>
+          <SelectGlycemicRanges
+            value={values.glycemicRanges}
+            onChange={glycemicRanges => setFieldValue('glycemicRanges', glycemicRanges)}
+            onMenuOpen={() => handleScrollToRef(targetRangePresetSectionRef)}
+            isDisabled={isReadOnly}
+          />
+
+          <Body0 mb={3} mt={1}>
+            {hasSummaryDashboard
+              ? t('Target ranges follow ADA guidelines. Setting an alternate range will be used when viewing patient data, but will not be available in the dashboard view.')
+              : t('Target ranges follow ADA guidelines and will be used when viewing patient data.')
+            }
+          </Body0>
+        </Box>
       )}
 
       {showTags && (
@@ -322,10 +372,8 @@ export const PatientForm = (props) => {
           <SelectTags
             currentTagIds={values.tags || []}
             onChange={tagIds => setFieldValue('tags', tagIds)}
-            onMenuOpen={() => {
-              // Wait for height modal to expand via CSS, then scroll down to enhance dropdown visibility
-              setTimeout(() => tagSectionRef?.current?.scrollIntoView(), 50);
-            }}
+            onMenuOpen={() => handleScrollToRef(tagSectionRef)}
+            isDisabled={isReadOnly}
           />
         </Box>
       )}
@@ -337,10 +385,8 @@ export const PatientForm = (props) => {
           <SelectSites
             currentSites={values.sites || []}
             onChange={sites => setFieldValue('sites', sites)}
-            onMenuOpen={() => {
-              // Wait for height modal to expand via CSS, then scroll down to enhance dropdown visibility
-              setTimeout(() => siteSectionRef?.current?.scrollIntoView(), 50);
-            }}
+            onMenuOpen={() => handleScrollToRef(siteSectionRef)}
+            isDisabled={isReadOnly}
           />
         </Box>
       )}
@@ -359,6 +405,7 @@ PatientForm.propTypes = {
   searchDebounceMs: PropTypes.number.isRequired,
   initialFocusedInput: PropTypes.string,
   action: PropTypes.oneOf(['create', 'edit', 'acceptInvite']).isRequired,
+  isReadOnly: PropTypes.bool,
 };
 
 PatientForm.defaultProps = {

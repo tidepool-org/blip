@@ -23,8 +23,15 @@ import { format } from 'd3-format';
 import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL } from './constants';
 import { utils as vizUtils } from '@tidepool/viz';
 const { bankersRound } = vizUtils.stat;
+import { getGlycemicRangesPreset } from './glycemicRangesUtils';
 
-const { DEFAULT_BG_BOUNDS } = vizUtils.constants;
+const {
+  GLYCEMIC_RANGES_PRESET,
+  DEFAULT_BG_BOUNDS,
+  ADA_OLDER_HIGH_RISK_BG_BOUNDS,
+  ADA_PREGNANCY_T1_BG_BOUNDS,
+  ADA_GESTATIONAL_T2_BG_BOUNDS,
+} = vizUtils.constants;
 
 const utils = {};
 
@@ -387,41 +394,59 @@ utils.getTimePrefsForDataProcessing = (latestTimeZone, queryParams) => {
   return timePrefsForTideline;
 };
 
-utils.getBGPrefsForDataProcessing = (patientSettings, { units: overrideUnits, source: overrideSource }) => {
-  // Allow overriding stored BG Unit preferences via query param or preferred clinic BG units
-  // If no override is specified, use patient settings units if availiable, otherwise 'mg/dL'
-  const patientSettingsBgUnits = patientSettings?.units?.bg || MGDL_UNITS;
+utils.getBGPrefsForDataProcessing = (
+  patientSettings,
+  clinicPatient,
+  bgUnitsOverride = {}, // { units: 'mmol/L' | 'mg/dL' | 'mmoll' | 'mgdl', source: String }
+) => {
+  // If bgUnits overriden, use those. Otherwise, check if patient has preferred bgUnits.
+  let bgUnits = null;
+  if (!!bgUnitsOverride.units) {
+    bgUnits = bgUnitsOverride.units?.replace('/', '').toLowerCase() === 'mmoll' ? MMOLL_UNITS : MGDL_UNITS;
+  } else {
+    bgUnits = patientSettings?.units?.bg || MGDL_UNITS;
+  }
 
-  const bgUnits = overrideUnits
-    ? (overrideUnits?.replace('/', '').toLowerCase() === 'mmoll' ? MMOLL_UNITS : MGDL_UNITS)
-    : patientSettingsBgUnits;
+  const bounds = (() => {
+    // If user is a PwD, use any self-defined custom bg targets
+    if (_.isEmpty(clinicPatient)) {
+      let low = _.get(patientSettings, 'bgTarget.low', DEFAULT_BG_BOUNDS[bgUnits].targetLowerBound);
+      let high = _.get(patientSettings, 'bgTarget.high', DEFAULT_BG_BOUNDS[bgUnits].targetUpperBound);
 
-  const settingsOverrideActive = patientSettingsBgUnits !== bgUnits;
-  const low = _.get(patientSettings, 'bgTarget.low', DEFAULT_BG_BOUNDS[bgUnits].targetLowerBound);
-  const high = _.get(patientSettings, 'bgTarget.high', DEFAULT_BG_BOUNDS[bgUnits].targetUpperBound);
+      return ({
+        veryLowThreshold: DEFAULT_BG_BOUNDS[bgUnits].veryLowThreshold,
+        targetLowerBound: low,
+        targetUpperBound: high,
+        veryHighThreshold: DEFAULT_BG_BOUNDS[bgUnits].veryHighThreshold,
+        extremeHighThreshold: DEFAULT_BG_BOUNDS[bgUnits].extremeHighThreshold,
+      });
+    }
 
-  var bgClasses = {
-    low: {
-      boundary: utils.roundBgTarget(
-        settingsOverrideActive && patientSettings?.bgTarget?.low ? utils.translateBg(patientSettings.bgTarget.low, bgUnits) : low,
-        bgUnits
-      )
-    },
-    target: {
-      boundary: utils.roundBgTarget(
-        settingsOverrideActive && patientSettings?.bgTarget?.high ? utils.translateBg(patientSettings.bgTarget.high, bgUnits) : high,
-        bgUnits
-      )
-    },
+    // If clinician, use clinic-designated targets, or fall back to default
+    const glycemicRangesPreset = getGlycemicRangesPreset(clinicPatient?.glycemicRanges);
+
+    switch(glycemicRangesPreset) {
+      case GLYCEMIC_RANGES_PRESET.ADA_OLDER_HIGH_RISK: return ADA_OLDER_HIGH_RISK_BG_BOUNDS[bgUnits];
+      case GLYCEMIC_RANGES_PRESET.ADA_PREGNANCY_T1:    return ADA_PREGNANCY_T1_BG_BOUNDS[bgUnits];
+      case GLYCEMIC_RANGES_PRESET.ADA_GESTATIONAL_T2:  return ADA_GESTATIONAL_T2_BG_BOUNDS[bgUnits];
+      case GLYCEMIC_RANGES_PRESET.ADA_STANDARD:        return DEFAULT_BG_BOUNDS[bgUnits];
+      default:                                         return DEFAULT_BG_BOUNDS[bgUnits];
+    }
+  })();
+
+  const bgClasses = {
+    'very-low': { boundary: bounds.veryLowThreshold || null },
+    'low': { boundary: bounds.targetLowerBound || null },
+    'target': { boundary: bounds.targetUpperBound || null },
+    'high': { boundary: bounds.veryHighThreshold || null },
+    'very-high': { boundary: bounds.extremeHighThreshold || null },
   };
-
-  if (settingsOverrideActive) console.log(`Displaying BG in ${bgUnits} from ${overrideSource}`);
 
   return {
-    bgUnits,
     bgClasses,
+    bgUnits,
   };
-}
+};
 
 // from http://bgrins.github.io/devtools-snippets/#console-save
 // MIT license

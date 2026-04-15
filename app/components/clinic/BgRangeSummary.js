@@ -16,7 +16,7 @@ import Popover from '../elements/Popover';
 import { space, shadows, radii } from '../../themes/baseTheme';
 
 import { utils as vizUtils } from '@tidepool/viz';
-const { formatStatsPercentage } = vizUtils.stat;
+const { formatStatsPercentage, reconcileTIRPercentages } = vizUtils.stat;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels } = vizUtils.bg;
 
 export const BgRangeSummary = React.memo(props => {
@@ -61,14 +61,17 @@ export const BgRangeSummary = React.memo(props => {
   const wrapperStyle = useMemo(() => ({ position: 'relative', borderRadius: `${radii.input}px`, overflow: 'hidden' }), []);
   const flexWidth = useMemo(() => (['155px', '175px']),[])
   const bgLabels = generateBgRangeLabels(bgPrefs, { condensed: true });
-  const renderedData = pick(data, ['veryLow', 'low', 'target', 'high', 'veryHigh']);
-  const barData = { ...renderedData };
+
+  const timeInRanges = pick(data, ['veryLow', 'low', 'target', 'high', 'veryHigh']);
+  const barData = { ...timeInRanges };
 
   if (data.extremeHigh) {
     barData.veryHigh -= data.extremeHigh || 0;
     barData.extremeHigh = data.extremeHigh || 0;
-    renderedData.extremeHigh = data.extremeHigh || 0;
+    timeInRanges.extremeHigh = data.extremeHigh || 0;
   }
+
+  const renderedData = reconcileTIRPercentages(timeInRanges);
 
   return (
     <>

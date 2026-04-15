@@ -52,6 +52,7 @@ export default ({ borders, colors, radii, space, breakpoints, fonts, fontSizes, 
     bg: colors.lightestGrey,
     p: space[3],
     mb: 0,
+    scrollbarColor: `${colors.gray30} transparent`,
   };
 
   const infoWell = {

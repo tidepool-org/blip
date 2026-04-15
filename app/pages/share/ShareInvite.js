@@ -57,7 +57,6 @@ const ShareInvite = (props) => {
   const clinics = useSelector((state) => state.blip.clinics);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const allUsers = useSelector((state) => state.blip.allUsersMap);
-  const dataDonationAccounts = useSelector((state) => state.blip.dataDonationAccounts);
   const membersOfTargetCareTeam = useSelector((state) => state.blip.membersOfTargetCareTeam);
   const [pendingClinicInvites, setPendingClinicInvites] = useState([]);
   const pendingSentInvites = useSelector((state) => state.blip.pendingSentInvites);
@@ -151,7 +150,6 @@ const ShareInvite = (props) => {
     clinics,
     membersOfTargetCareTeam,
     pendingSentInvites,
-    dataDonationAccounts,
     permissionsOfMembersInTargetCareTeam,
     allUsers,
     loggedInUserId

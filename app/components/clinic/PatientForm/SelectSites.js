@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { noop } from 'lodash';
 import utils from '../../../core/utils';
 
-import { selectElementStyleOverrides } from './SelectTags';
+import { selectElementStyleOverrides } from './styles';
 
 export const buildSelectOptions = (
   t,
@@ -19,7 +19,7 @@ export const buildSelectOptions = (
 ) => {
   // Format sites for react-select (label and value properties), then sort
   const options = clinicSites.map(site => ({ label: site.name, value: site.id }))
-                             .toSorted((a, b) => utils.compareLabels(a.label, b.label));
+    .toSorted((a, b) => utils.compareLabels(a.label, b.label));
 
   // If suggesting is disabled, return a single group of all options
   if (!shouldSuggestSites) return [{ options: options, label: '' }];
@@ -39,6 +39,7 @@ const SelectSites = ({
   onChange,
   selectMenuHeight = 240,
   onMenuOpen = noop,
+  isDisabled = false,
 }) => {
   const { pathname } = useLocation();
   const { t } = useTranslation();
@@ -53,7 +54,7 @@ const SelectSites = ({
   };
 
   // Suggest sites only if user is viewing ClinicPatients list (where Filters are used)
-  const shouldSuggestSites = pathname === '/clinic-workspace';
+  const shouldSuggestSites = pathname?.includes('/clinic-workspace');
 
   const selectOptions = buildSelectOptions(t, clinic?.sites, activeFilters, shouldSuggestSites);
 
@@ -79,6 +80,7 @@ const SelectSites = ({
       filterOption={createFilter({ stringify: opt => opt.label })}
       isMulti
       isClearable
+      isDisabled={isDisabled}
     />
   );
 };
@@ -93,6 +95,7 @@ SelectSites.propTypes = {
   onChange: PropTypes.func.isRequired,
   selectMenuHeight: PropTypes.number,
   onMenuOpen: PropTypes.func,
+  isDisabled: PropTypes.bool,
 };
 
 SelectSites.defaultProps = {

@@ -51,6 +51,7 @@ export function Container(props) {
       {!!title && (
         <Text
           className="container-title"
+          role="heading"
           sx={{
             mt: 4,
             mb: !!subtitle ? 0 : 2,
@@ -102,7 +103,7 @@ export function Container(props) {
             justifyContent: ['center', 'flex-end'],
           }}
         >
-          {map(actions, buttonProps => <Button {...buttonProps} />)}
+          {map(actions, (buttonProps, i) => <Button key={`container-action-${i}`} {...buttonProps} />)}
         </Flex>
       )}
     </Box>

@@ -2,7 +2,6 @@ import React from 'react';
 import * as yup from 'yup';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
-import isNumber from 'lodash/isNumber';
 import keys from 'lodash/keys';
 import map from 'lodash/map';
 import moment from 'moment';
@@ -12,6 +11,8 @@ import states from './validation/states';
 import postalCodes from './validation/postalCodes';
 import i18next from './language';
 import { timezoneNames } from './validation/timezoneNames';
+
+import { glycemicRangesSchema } from './glycemicRangesUtils';
 
 import {
   URL_TIDEPOOL_PLUS_PLANS,
@@ -72,7 +73,7 @@ export const preferredBgUnits = [
 ];
 
 export const lastDataFilterOptions = [
-  { value: 1, label: t('Within 24 hours') },
+  { value: 1, label: t('Today') },
   { value: 2, label: t('Within 2 days') },
   { value: 7, label: t('Within 7 days') },
   { value: 14, label: t('Within 14 days') },
@@ -111,7 +112,7 @@ export const clinicTierDetails = (clinic = {}) => {
     patientCountSettings = {},
   } = clinic;
 
-  const hardLimit = patientCountSettings?.hardLimit;
+  const hardLimit = patientCountSettings?.hardLimit?.plan ?? patientCountSettings?.hardLimit?.patientCount;
   const hardLimitStartDate = patientCountSettings?.hardLimit?.startDate;
   const hardLimitStartDateIsFuture = hardLimitStartDate && moment(hardLimitStartDate).isValid() && moment(hardLimitStartDate).isAfter();
   const isBaseTier = tier.indexOf('tier01') === 0;
@@ -220,8 +221,8 @@ export const clinicTierDetails = (clinic = {}) => {
 
 export const clinicUIDetails = (clinic = {}) => {
   const { display, ...tierDetails } = clinicTierDetails(clinic);
-  const { patientCount, patientCountSettings } = clinic;
-  const patientCountHardLimit = patientCountSettings?.hardLimit?.patientCount;
+  const { patientCounts, patientCountSettings } = clinic;
+  const patientCountHardLimit = patientCountSettings?.hardLimit?.plan ?? patientCountSettings?.hardLimit?.patientCount;
   const isBase = tierDetails.planName === 'base';
   const isHonoredBase = tierDetails.planName === 'honoredBase';
   const isActiveSalesBase = tierDetails.planName === 'activeSalesBase';
@@ -234,8 +235,9 @@ export const clinicUIDetails = (clinic = {}) => {
   const limit = patientCountHardLimit || DEFAULT_CLINIC_PATIENT_COUNT_HARD_LIMIT;
 
   if (tierDetails.patientLimitEnforced || isHonoredBase) {
-    warnings.limitReached = tierDetails.patientLimitEnforced && patientCount >= limit;
-    warnings.limitApproaching = limit - patientCount <= CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD;
+    const currentCount = patientCounts?.plan ?? patientCounts?.patientCount ?? 0;
+    warnings.limitReached = tierDetails.patientLimitEnforced && currentCount >= limit;
+    warnings.limitApproaching = limit - currentCount <= CLINIC_REMAINING_PATIENTS_WARNING_THRESHOLD;
   }
 
   let limitDescription;
@@ -245,10 +247,10 @@ export const clinicUIDetails = (clinic = {}) => {
   const unlockPlansText = t('Unlock plans');
 
   if (isBase) {
-    limitDescription = t('Limited to {{limit}} patients', { limit });
+    limitDescription = t('This plan allows for a limited number of patient accounts.');
 
     limitFeedback = {
-      text: t('Maximum of {{limit}} patient accounts reached', { limit }),
+      text: t('Maximum number of patient accounts reached'),
       status: 'warning',
     };
 
@@ -289,7 +291,7 @@ export const clinicUIDetails = (clinic = {}) => {
   }
 
   if (isActiveSalesBase) {
-    limitDescription = t('Limited to {{limit}} patients', { limit });
+    limitDescription = t('This plan allows for a limited number of patient accounts.');
 
     limitFeedback = {
       text: t('Change to plan in progress'),
@@ -449,8 +451,12 @@ export const patientSchema = config => {
         name: yup.string(),
       })
     ),
+    diagnosisType: yup.string().nullable(),
+    glycemicRanges: glycemicRangesSchema,
   });
 };
+
+export const tideDashboardLastDataFilterOptions = lastDataFilterOptions.filter(opt => [1, 2, 7].includes(opt.value));
 
 export const tideDashboardConfigSchema = yup.object().shape({
   period: yup
@@ -459,7 +465,7 @@ export const tideDashboardConfigSchema = yup.object().shape({
     .required(t('Please select a duration period')),
   lastData: yup
     .number()
-    .oneOf(map(lastDataFilterOptions, 'value'))
+    .oneOf(map(tideDashboardLastDataFilterOptions, 'value'))
     .required(t('Please select a data recency option')),
   tags: yup.array().of(yup.string())
     .min(1, t('Please select at least one tag')),

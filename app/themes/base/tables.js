@@ -256,7 +256,7 @@ export default ({ borders, colors, fonts, fontSizes, shadows, radii }) => {
       backgroundColor: 'white',
       borderColor: `${colors.lightestGrey} !important`,
       color: `${colors.purples[9]} !important`,
-      fontSize: '10px !important',
+      fontSize: '10px',
       py: [0, null, '6px'],
       whiteSpace: 'nowrap',
 

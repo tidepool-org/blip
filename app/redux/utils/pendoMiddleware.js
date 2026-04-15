@@ -1,7 +1,7 @@
 import compact from 'lodash/compact';
 import each from 'lodash/each';
-import get from 'lodash/get';
 import filter from 'lodash/filter';
+import get from 'lodash/get';
 import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
@@ -16,6 +16,13 @@ import * as ActionTypes from '../constants/actionTypes';
 import { isClinicianAccount } from '../../core/personutils';
 import { setPendoData } from '../actions/sync';
 
+const getSmartOnFhirProperties = (getState) => {
+  const state = getState();
+  const isSmartOnFhir = !!state?.blip?.smartOnFhirData;
+  // Only include isSmartOnFhir when it's true to avoid cluttering analytics
+  return isSmartOnFhir ? { isSmartOnFhir: true } : undefined;
+};
+
 const trackingActions = [
   ActionTypes.LOGIN_SUCCESS,
   ActionTypes.LOGOUT_REQUEST,
@@ -23,7 +30,7 @@ const trackingActions = [
   ActionTypes.DATA_WORKER_ADD_DATA_SUCCESS,
   ActionTypes.DATA_WORKER_QUERY_DATA_SUCCESS,
   ActionTypes.DATA_WORKER_REMOVE_DATA_SUCCESS,
-  ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SUCCESS,
+  ActionTypes.FETCH_CLINIC_PATIENT_COUNTS_SUCCESS,
   ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS,
   ActionTypes.SET_CLINIC_UI_DETAILS,
   ActionTypes.FETCH_CLINICIANS_FROM_CLINIC_SUCCESS,
@@ -100,7 +107,7 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
         return clinic?.clinicians?.[user?.userid];
       });
 
-      const optionalVisitorProperties = { currentlyViewedDevices: [] };
+      const optionalVisitorProperties = { currentlyViewedDevices: [], currentlyViewedDataAnnotations: [] };
       const optionalAccountProperties = {};
       let clinic = null;
 
@@ -121,16 +128,22 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
       }
 
       const role = isClinicianAccount(user) ? 'clinician' : 'personal';
+      const smartProperties = getSmartOnFhirProperties(getState);
+
+      let visitorProperties = {
+        id: user.userid,
+        role,
+        application: 'Web',
+        environment: env,
+        termsAccepted: user.termsAccepted,
+        ...optionalVisitorProperties,
+      };
+      if (smartProperties) {
+        visitorProperties = { ...visitorProperties, ...smartProperties };
+      }
 
       pendoAction({
-        visitor: {
-          id: user.userid,
-          role,
-          application: 'Web',
-          environment: env,
-          termsAccepted: user.termsAccepted,
-          ...optionalVisitorProperties,
-        },
+        visitor: visitorProperties,
         account: {
           id: clinic ? clinic.id : user.userid,
           ...optionalAccountProperties,
@@ -146,13 +159,21 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
       const user = allUsersMap[loggedInUserId];
       const clinicId = action.payload.clinicId;
 
+      const smartProperties = getSmartOnFhirProperties(getState);
+
       if(isNull(clinicId)){
+        let visitorProperties = {
+          id: user.userid,
+          currentlyViewedDevices: [],
+          currentlyViewedDataAnnotations: [],
+          permission: null,
+        };
+        if (smartProperties) {
+          visitorProperties = { ...visitorProperties, ...smartProperties };
+        }
+
         pendoAction({
-          visitor: {
-            id: user.userid,
-            currentlyViewedDevices: [],
-            permission: null,
-          },
+          visitor: visitorProperties,
           account: {
             id: user.userid,
             clinic: null,
@@ -166,42 +187,48 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
       } else {
         const selectedClinic = clinics[clinicId];
 
+        let visitorProperties = {
+          id: user.userid,
+          currentlyViewedDevices: [],
+          currentlyViewedDataAnnotations: [],
+          permission: includes(
+            selectedClinic?.clinicians?.[user.userid]?.roles,
+            'CLINIC_ADMIN'
+          )
+            ? 'administrator'
+            : 'member',
+        };
+        if (smartProperties) {
+          visitorProperties = { ...visitorProperties, ...smartProperties };
+        }
+
         pendoAction({
-          visitor: {
-            id: user.userid,
-            currentlyViewedDevices: [],
-            permission: includes(
-              selectedClinic?.clinicians?.[user.userid]?.roles,
-              'CLINIC_ADMIN'
-            )
-              ? 'administrator'
-              : 'member',
-          },
+          visitor: visitorProperties,
           account: {
             id: clinicId,
             clinic: selectedClinic?.name,
             tier: selectedClinic?.tier,
             created: selectedClinic?.createdTime,
             country: selectedClinic?.country,
-            patientCount: selectedClinic?.patientCount,
+            patientCount: selectedClinic?.patientCounts?.plan ?? selectedClinic?.patientCounts?.patientCount,
             clinicianCount: null,
           },
         });
       }
       break;
     }
-    case ActionTypes.FETCH_CLINIC_PATIENT_COUNT_SUCCESS: {
+    case ActionTypes.FETCH_CLINIC_PATIENT_COUNTS_SUCCESS: {
       const {
         blip: { selectedClinicId },
       } = getState();
 
-      const { clinicId, patientCount } = action.payload;
+      const { clinicId, patientCounts } = action.payload;
 
       if (clinicId === selectedClinicId) {
         pendoAction({
           account: {
             id: clinicId,
-            patientCount,
+            patientCount: patientCounts?.plan ?? patientCounts?.patientCount,
           },
         });
       }
@@ -218,7 +245,7 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
         pendoAction({
           account: {
             id: clinicId,
-            patientCountHardLimit: patientCountSettings?.hardLimit?.patientCount,
+            patientCountHardLimit: patientCountSettings?.hardLimit?.plan ?? patientCountSettings?.hardLimit?.patientCount,
             patientCountHardLimitStartDate: patientCountSettings?.hardLimit?.startDate,
           },
         });
@@ -269,12 +296,18 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
 
       if (patientId === loggedInUserId) {
         const lastUpload = get(action.payload, 'result.metaData.latestDatumByType.upload._deviceTime');
+        const smartProperties = getSmartOnFhirProperties(getState);
+
+        let visitorProperties = {
+          id: patientId,
+          lastUpload,
+        };
+        if (smartProperties) {
+          visitorProperties = { ...visitorProperties, ...smartProperties };
+        }
 
         pendoAction({
-          visitor: {
-            id: patientId,
-            lastUpload,
-          },
+          visitor: visitorProperties,
         });
       }
       break;
@@ -285,9 +318,11 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
       } = getState();
 
       let currentlyViewedDevices = [];
+      let currentlyViewedDataAnnotations = [];
 
       if (currentPatientInViewId) {
         const matchedDevices = get(action.payload, 'result.metaData.matchedDevices');
+        const dataAnnotations = get(action.payload, 'result.metaData.dataAnnotations');
 
         currentlyViewedDevices = uniq(reduce(values(matchedDevices), (acc, device) => {
           each(keys(device), (key) => {
@@ -295,13 +330,23 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
           });
           return acc;
         }, []));
+
+        currentlyViewedDataAnnotations = keys(dataAnnotations) || [];
+      }
+
+      const smartProperties = getSmartOnFhirProperties(getState);
+
+      let visitorProperties = {
+        id: loggedInUserId,
+        currentlyViewedDevices,
+        currentlyViewedDataAnnotations,
+      };
+      if (smartProperties) {
+        visitorProperties = { ...visitorProperties, ...smartProperties };
       }
 
       pendoAction({
-        visitor: {
-          id: loggedInUserId,
-          currentlyViewedDevices,
-        },
+        visitor: visitorProperties,
       });
 
       break;
@@ -312,11 +357,19 @@ const pendoMiddleware = (api, win = window) => (storeAPI) => (next) => (action) 
         blip: { loggedInUserId },
       } = getState();
 
+      const smartProperties = getSmartOnFhirProperties(getState);
+
+      let visitorProperties = {
+        id: loggedInUserId,
+        currentlyViewedDevices: [],
+        currentlyViewedDataAnnotations: [],
+      };
+      if (smartProperties) {
+        visitorProperties = { ...visitorProperties, ...smartProperties };
+      }
+
       pendoAction({
-        visitor: {
-          id: loggedInUserId,
-          currentlyViewedDevices: [],
-        },
+        visitor: visitorProperties,
       });
       break;
     }

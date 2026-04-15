@@ -15,10 +15,11 @@ import { TagList } from '../../components/elements/Tag';
 import RadioGroup from '../../components/elements/RadioGroup';
 import { useLocalStorage } from '../../core/hooks';
 import { getCommonFormikFieldProps, getFieldError } from '../../core/forms';
-import { tideDashboardConfigSchema as validationSchema, summaryPeriodOptions, lastDataFilterOptions } from '../../core/clinicUtils';
-import { Body0, Caption } from '../../components/elements/FontStyles';
+import { tideDashboardConfigSchema as validationSchema, summaryPeriodOptions, tideDashboardLastDataFilterOptions } from '../../core/clinicUtils';
+import { Body0, Body1, Caption } from '../../components/elements/FontStyles';
 import { borders } from '../../themes/baseTheme';
 import { push } from 'connected-react-router';
+import SelectTags from './PatientForm/SelectTags';
 
 function getFormValues(config, clinicPatientTags) {
   return {
@@ -80,29 +81,13 @@ export const TideDashboardConfigForm = props => {
       {...boxProps}
     >
       <Box id='patient-tags-select' mb={3}>
-        <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Select Patient Tag(s)')}</Body0>
+        <Body1 sx={{ fontWeight: 'bold' }} mb={0}>{t('Select Patient Tag(s)')}</Body1>
+        <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Only patients with ALL of the tags you select below will be shown.')}</Body0>
 
-        <TagList
-          tags={map(clinic?.patientTags, tag => ({
-            ...tag,
-            selected: includes(values.tags, tag.id),
-          }))}
-          tagProps={{
-            onClick: tagId => {
-              setFieldTouched('tags', true, true);
-              setFieldValue('tags', [...(values.tags || []), tagId]);
-            },
-            sx: { userSelect: 'none' },
-          }}
-          selectedTagProps={{
-            onClick: tagId => {
-              setFieldValue('tags', without(values.tags, tagId));
-            },
-            sx: {
-              color: 'white',
-              backgroundColor: 'purpleMedium',
-            },
-          }}
+        <SelectTags
+          currentTagIds={values.tags || []}
+          onChange={tagIds => setFieldValue('tags', tagIds)}
+          closeMenuOnSelect
         />
 
         {getFieldError('tags', formikContext, false) && (
@@ -113,18 +98,18 @@ export const TideDashboardConfigForm = props => {
       </Box>
 
       <Box sx={{ borderTop: borders.default }} py={3}>
-        <Body0 sx={{ fontWeight: 'bold' }} mb={0}>{t('Data Recency')}</Body0>
+        <Body1 sx={{ fontWeight: 'bold' }} mb={0}>{t('Data Recency')}</Body1>
         <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Tidepool will only show patients who have data within the selected number of days.')}</Body0>
 
         <RadioGroup
-          options={lastDataFilterOptions}
+          options={tideDashboardLastDataFilterOptions}
           {...getCommonFormikFieldProps('lastData', formikContext)}
           variant="vertical"
         />
       </Box>
 
       <Box sx={{ borderTop: borders.default }} pt={3}>
-        <Body0 sx={{ fontWeight: 'bold' }} mb={0}>{t('Number of Days to Summarize')}</Body0>
+        <Body1 sx={{ fontWeight: 'bold' }} mb={0}>{t('Number of Days to Summarize')}</Body1>
         <Body0 sx={{ fontWeight: 'medium' }} mb={2}>{t('Tidepool will generate health summaries for the selected number of days.')}</Body0>
 
         <RadioGroup
