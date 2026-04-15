@@ -707,6 +707,7 @@ export const ClinicPatients = (props) => {
   const { set: setToast } = useToasts();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
+  const pdf = useSelector((state) => state.blip.pdf);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const mrnSettings = useMemo(() => clinic?.mrnSettings ?? {}, [clinic?.mrnSettings]);
   const timePrefs = useSelector((state) => state.blip.timePrefs);
@@ -1379,6 +1380,12 @@ export const ClinicPatients = (props) => {
       }
     }
   }, [ldContext, showExtremeHigh, activeFilters]);
+
+  useEffect(() => {
+    if (!selectedPatient?.id && !!pdf.opts) {
+      dispatch(actions.worker.removeGeneratedPDFS());
+    }
+  }, [selectedPatient?.id, pdf.opts]);
 
   const handleRefreshPatients = useCallback(() => {
     trackMetric(prefixPopHealthMetric('Refresh data'), { clinicId: selectedClinicId });
