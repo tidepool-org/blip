@@ -36,7 +36,6 @@ export const STATUS = {
 
   // Other states
   NO_PATIENT_DATA: 'NO_PATIENT_DATA',
-  INSUFFICIENT_DATA: 'INSUFFICIENT_DATA',
 };
 
 // TODO: Revisit best way to listen for progress when we move away from blip.working
@@ -53,11 +52,9 @@ const inferLastCompletedStep = (requestId, patientId, data, patient, pdf, hasCli
   // Insufficient Data States ---
   const hasNoPatientData    = data.metaData?.size === 0;
   const hasInsufficientData = !!pdf?.opts?.svgDataURLS && !pdf?.opts?.svgDataURLS.agpCGM && !pdf?.opts?.svgDataURLS.agpBGM;
-  // const hasNoCGMData        = !!pdf?.combined && !pdf?.data; // TODO: FIX
 
   if (hasNoPatientData)    return STATUS.NO_PATIENT_DATA;
   if (hasInsufficientData) return STATUS.INSUFFICIENT_DATA;
-  // if (hasNoCGMData)        return STATUS.INSUFFICIENT_DATA;
 
   // Happy Path States ---
   const hasPDFUrlInState  = !!pdf?.combined?.url;
