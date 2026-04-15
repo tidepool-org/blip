@@ -10,6 +10,7 @@ import { withTranslation } from 'react-i18next';
 
 import * as actions from '../../redux/actions';
 import { ldContext } from '../../redux/utils/launchDarklyMiddleware';
+import { selectIsSmartOnFhirMode } from '../../core/selectors';
 
 import utils from '../../core/utils';
 import config from '../../config';
@@ -64,6 +65,7 @@ export class AppComponent extends React.Component {
     termsAccepted: PropTypes.string,
     user: PropTypes.object,
     permsOfLoggedInUser: PropTypes.object,
+    isSmartOnFhirMode: PropTypes.bool.isRequired,
   };
 
   /**
@@ -179,6 +181,7 @@ export class AppComponent extends React.Component {
               permsOfLoggedInUser={this.props.permsOfLoggedInUser}
               api={this.props.context.api}
               selectedClinicId={this.props.selectedClinicId}
+              isSmartOnFhirMode={this.props.isSmartOnFhirMode}
             />
           </Box>
         );
@@ -206,6 +209,7 @@ export class AppComponent extends React.Component {
         permsOfLoggedInUser={permsOfLoggedInUser}
         trackMetric={trackMetric}
         api={api}
+        isSmartOnFhirMode={this.props.isSmartOnFhirMode}
       />
     );
   }
@@ -425,6 +429,7 @@ export function mapStateToProps(state) {
     permsOfLoggedInUser: permsOfLoggedInUser,
     selectedClinicId: state.blip.selectedClinicId,
     fetchingInfo: state.blip.working.fetchingInfo,
+    isSmartOnFhirMode: selectIsSmartOnFhirMode(state),
   };
 }
 
