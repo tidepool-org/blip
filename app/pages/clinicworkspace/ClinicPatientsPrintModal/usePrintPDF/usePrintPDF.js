@@ -215,16 +215,17 @@ const usePrintPDF = (
         break;
 
       case STATUS.TRIGGERING_PRINT:
-        triggerPrint(pdf);
-        setTimeout(() => onPrintTriggered(), 100);
+        if (pdf?.opts?.requestId === requestId) {
+          triggerPrint(pdf);
+        }
+        setTimeout(() => {
+          onPrintTriggered();
+        }, 100);
 
       default:
         break;
     }
   }, [lastCompletedStep]);
-
-  // Note: probably unnecessary; failsafe to ensure that data is being returned for correct patient
-  const isCorrectPatientInState = pdf.opts?.patient?.id === patientId; // TODO: FIX
 
   const onPrintPDF = (opts = {}) => {
     printOptsRef.current = { ...opts, requestId };
