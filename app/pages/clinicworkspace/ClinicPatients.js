@@ -3786,14 +3786,10 @@ export const ClinicPatients = (props) => {
 
   const renderPrintDataModal = useCallback(() => {
     const handleClose = () => {
-      const patientId = selectedPatient?.id;
-
+      handleCloseOverlays();
       dispatch(actions.sync.clearPatientInView());
       dispatch(actions.worker.removeGeneratedPDFS());
-      dispatch(actions.worker.dataWorkerRemoveDataRequest(null, patientId));
-
-      setShowPrintDataModal(false);
-      setSelectedPatient(null);
+      dispatch(actions.worker.dataWorkerRemoveDataRequest(null, selectedPatient?.id));
     };
 
     return (
@@ -3805,9 +3801,10 @@ export const ClinicPatients = (props) => {
     );
   }, [
     api,
+    handleCloseOverlays,
     setShowPrintDataModal,
     setSelectedPatient,
-    selectedPatient,
+    selectedPatient?.id,
   ]);
 
   const renderPatient = useCallback(patient => (
