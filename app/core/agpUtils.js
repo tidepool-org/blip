@@ -44,7 +44,7 @@ export const generateAGPImages = (resolve, reject) => async (pdf, reportTypes = 
       return res;
     }, {});
 
-    resolve(processedImages);
+    resolve(processedImages, pdf.opts || {});
   } else if (!errored) {
     resolve(results);
   }
@@ -52,7 +52,7 @@ export const generateAGPImages = (resolve, reject) => async (pdf, reportTypes = 
 
 export const useGenerateAGPImages = () => {
   const dispatch = useDispatch();
-  const onSuccess = (images) => dispatch(actions.sync.generateAGPImagesSuccess(images));
+  const onSuccess = (images, opts) => dispatch(actions.sync.generateAGPImagesSuccess(images, opts));
   const onFailure = (error) => dispatch(actions.sync.generateAGPImagesFailure(error));
 
   return (pdf, reportTypes) => generateAGPImages(onSuccess, onFailure)(pdf, reportTypes);

@@ -40,12 +40,12 @@ export const STATUS = {
 };
 
 // TODO: Revisit best way to listen for progress when we move away from blip.working
-const inferLastCompletedStep = (patientId, data, patient, pdf, hasClickedPrint, hasFetchedPDFData) => {
+const inferLastCompletedStep = (requestId, patientId, data, patient, pdf, hasClickedPrint, hasFetchedPDFData) => {
   // If the outputted data for a step in the process exists, we infer that the step was successful.
   // We do the lookup in reverse order to return the LATEST completed step
 
   // Incorrect Patient --- (occurs when user switches patient partway through fetching)
-  const hasOtherPdfInState = !!pdf.opts?.patient && [pdf.opts.patient.id, pdf.opts.patient.userid].some(id => !isNil(id) && id !== patientId);
+  const hasOtherPdfInState = !!pdf.opts?.requestId && pdf.opts.requestId !== requestId;
   const hasOtherDataInState = !!data.metaData.patientId && data.metaData.patientId !== patientId;
 
   if (hasOtherPdfInState || hasOtherDataInState) return STATUS.CLEARING_CACHE;
@@ -145,6 +145,7 @@ const usePrintPDF = (
   const dispatch = useDispatch();
   const generateAGPImages = useGenerateAGPImages();
   const { openPrintWindow, triggerPrint } = usePrintWindow();
+  const [requestId] = useState(crypto.randomUUID());
 
   const data = useSelector(state => state.blip.data);
   const pdf = useSelector(state => state.blip.pdf);
@@ -167,7 +168,7 @@ const usePrintPDF = (
   const fetchedUntil = getFetchedUntil(data, getPrintOpts());
   const hasFetchedPDFData = !!fetchedUntil && !!getPdfStartDate() && fetchedUntil <= getPdfStartDate();
 
-  const lastCompletedStep = inferLastCompletedStep(patientId, data, patient, pdf, hasClickedPrint, hasFetchedPDFData);
+  const lastCompletedStep = inferLastCompletedStep(requestId, patientId, data, patient, pdf, hasClickedPrint, hasFetchedPDFData);
 
   useEffect(() => {
     // Whenever a step is successfully completed, this effect triggers the next step in the sequence.
@@ -229,8 +230,9 @@ const usePrintPDF = (
   const isCorrectPatientInState = pdf.opts?.patient?.id === patientId; // TODO: FIX
 
   const onPrintPDF = (opts = {}) => {
-    printOptsRef.current = opts;
+    printOptsRef.current = { ...opts, requestId };
     pdfStartDateRef.current = getEarliestPrintDate(getPrintOpts(), getTimePrefs());
+
     openPrintWindow();
     setHasClickedPrint(true);
   };

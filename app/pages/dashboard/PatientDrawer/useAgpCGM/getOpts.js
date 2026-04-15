@@ -8,6 +8,7 @@ import { getMostRecentDatumTimeByChartType } from '../../../../core/dataViewUtil
 const getTimezoneFromTimePrefs = vizUtils.datetime.getTimezoneFromTimePrefs;
 
 const getOpts = (
+  requestId,
   data, // data from redux (state.blip.data)
   agpPeriodInDays,
 ) => {
@@ -60,6 +61,7 @@ const getOpts = (
   ] : []);
 
   const opts = {
+    requestId,
     agpCGM:       { disabled: false, endpoints: formatDateEndpoints(dates) },
     offsetAgpCGM: { disabled: false, endpoints: formatDateEndpoints(offsetDates) },
     agpBGM:       { disabled: true },
