@@ -240,9 +240,11 @@ const usePrintPDF = (
   return {
     status: lastCompletedStep,
     canPrint,
-    timePrefs: timePrefsRef.current,
-    latestDatumByType: canPrint ? data?.metaData?.latestDatumByType : null,
-    onPrintPDF: canPrint ? onPrintPDF : noop,
+    print: canPrint ? onPrintPDF : noop,
+    modalData: {
+      timePrefs: getTimePrefs(),
+      latestDatumByType: canPrint ? data?.metaData?.latestDatumByType : null,
+    },
   };
 };
 

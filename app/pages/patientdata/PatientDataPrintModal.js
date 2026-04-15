@@ -20,7 +20,7 @@ const PatientDataPrintModal = ({ api, patientId, chartPrefs = {}, onClose = noop
     return () => dispatch(actions.worker.removeGeneratedPDFS());
   }, []);
 
-  const { status, timePrefs, latestDatumByType, canPrint, onPrintPDF } = usePrintPDF(api, patientId, onClose);
+  const { status, modalData, canPrint, print } = usePrintPDF(api, patientId, onClose);
 
   const handleClickPrint = (opts) => {
     const enrichedOpts = _.cloneDeep(opts);
@@ -31,8 +31,10 @@ const PatientDataPrintModal = ({ api, patientId, chartPrefs = {}, onClose = noop
     }
 
     setIsProcessing(true);
-    onPrintPDF(enrichedOpts);
+    print(enrichedOpts);
   };
+
+  const { latestDatumByType, timePrefs } = modalData;
 
   if (!latestDatumByType || !timePrefs) return null;
 

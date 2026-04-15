@@ -34,12 +34,14 @@ const ClinicPatientsPrintModal = ({ api, patientId, onClose = noop }) => {
   const loggedInUserId = useSelector(state => state.blip.loggedInUserId);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const { status, timePrefs, latestDatumByType, canPrint, onPrintPDF } = usePrintPDF(api, patientId, onClose);
+  const { status, modalData, canPrint, print } = usePrintPDF(api, patientId, onClose);
 
   const handleClickPrint = (opts) => {
     setIsProcessing(true);
-    onPrintPDF(opts);
+    print(opts);
   };
+
+  const { latestDatumByType, timePrefs } = modalData;
 
   if (!latestDatumByType || !timePrefs) return <LoadingModal onClose={onClose} />;
 
