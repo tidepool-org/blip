@@ -19,7 +19,7 @@ const data = (state = initialState.data, action) => {
         fetchedUntil: { $set: fetchedUntil ? fetchedUntil : state.fetchedUntil },
         oneMinCgmFetchedUntil: { $set: oneMinCgmFetchedUntil ? oneMinCgmFetchedUntil : state.oneMinCgmFetchedUntil },
         cacheUntil: { $set: generateCacheTTL(36e5) },
-        metaData: { $merge: { size: _.get(state, 'metaData.size', 0) + action.payload.fetchedCount, initial: !!action.payload.initial } },
+        metaData: { $merge: { size: _.get(state, 'metaData.size', 0) + action.payload.fetchedCount } },
       });
 
     case actionTypes.DATA_WORKER_ADD_DATA_SUCCESS:
