@@ -1,16 +1,17 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useHistory, useLocation } from 'react-router-dom';
-import { usePrevious } from '../../core/hooks';
 import { colors as vizColors } from '@tidepool/viz';
 import * as actions from '../../redux/actions';
 
 import { providers } from '../../components/datasources/DataConnections';
+import validateRestrictedToken from './validateRestrictedToken';
 import { Box } from 'theme-ui';
 import Button from '../../components/elements/Button';
 import Container from '../../components/elements/Container';
 import useRedirectOnC2CSuccess from './useRedirectOnC2CSuccess';
+import { useToasts } from '../../providers/ToastProvider';
 
 const styleProps = {
   titleContainer: {
@@ -63,22 +64,35 @@ const VerificationWithC2C = ({ api }) => {
   const dispatch = useDispatch();
   const { search } = useLocation();
   const history = useHistory();
+  const { set: setToast } = useToasts();
 
   const queryParams = new URLSearchParams(search);
   const restrictedToken = queryParams.get('restrictedToken');
 
-  const redirectToAccountSetup = (params) => {
-    history.push({ pathname: '/verification-with-password', search: params.toString() });
+  const redirectToAccountSetup = () => {
+    history.push({ pathname: '/verification-with-password', search: queryParams.toString() });
   };
 
   // Listen for a successful C2C connection. If there is one, redirect to next login step.
   useRedirectOnC2CSuccess({ onRedirect: redirectToAccountSetup });
 
-  const handleClickProvider = (providerName) => {
+  const handleClickProvider = async (providerName) => {
     const providerId = providers[providerName]?.id;
     const dataSourceFilter = providers[providerName]?.dataSourceFilter;
 
     if (!providerId || !dataSourceFilter) return;
+
+    const { isValid } = await validateRestrictedToken({ providerName, restrictedToken });
+
+    if (!isValid) {
+      redirectToAccountSetup();
+      setToast({
+        message: t('An error occurred. Your connection invite may be expired or already used. Create an account to check your connection status.'),
+        variant: 'danger',
+      });
+
+      return;
+    }
 
     dispatch(actions.async.connectDataSourceWithRestrictedToken(api, providerId, restrictedToken, dataSourceFilter));
   };
@@ -116,7 +130,7 @@ const VerificationWithC2C = ({ api }) => {
           </Box>
 
           <Button
-            onClick={() => redirectToAccountSetup(queryParams)}
+            onClick={redirectToAccountSetup}
             sx={styleProps.skipStepButton}
           >
             {t('I have a different device')}

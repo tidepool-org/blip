@@ -6,9 +6,6 @@ import { useToasts } from '../../providers/ToastProvider';
 import { toastMessages } from '../../components/datasources/useProviderConnectionPopup';
 
 const useRedirectOnC2CSuccess = ({ onRedirect }) => {
-  const { search } = useLocation();
-  const queryParams = new URLSearchParams(search);
-
   const justConnectedDataSourceProviderName = useSelector(state => state.blip.justConnectedDataSourceProviderName);
   const previousJustConnectedDataSourceProviderName = usePrevious(justConnectedDataSourceProviderName);
   const { set: setToast } = useToasts();
@@ -16,7 +13,7 @@ const useRedirectOnC2CSuccess = ({ onRedirect }) => {
   useEffect(() => {
     if (justConnectedDataSourceProviderName && justConnectedDataSourceProviderName !== previousJustConnectedDataSourceProviderName) {
       setToast({ message: toastMessages.authorized, variant: 'success' });
-      onRedirect(queryParams);
+      onRedirect();
     }
   }, [justConnectedDataSourceProviderName, previousJustConnectedDataSourceProviderName]);
 };
