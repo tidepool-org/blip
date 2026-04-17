@@ -1,12 +1,13 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { useHistory, useLocation } from 'react-router-dom';
 import { colors as vizColors } from '@tidepool/viz';
 import * as actions from '../../redux/actions';
 
 import { providers } from '../../components/datasources/DataConnections';
 import validateRestrictedToken from './validateRestrictedToken';
+import config from '../../config';
 import { Box } from 'theme-ui';
 import Button from '../../components/elements/Button';
 import Container from '../../components/elements/Container';
@@ -59,11 +60,15 @@ const styleProps = {
   },
 };
 
-const VerificationWithC2C = ({ api }) => {
+const getDataConnectionPopupUrl = (providerName, restrictedToken = '') => {
+  return `${config.API_HOST}/v1/oauth/${providerName}/authorize?restricted_token=${restrictedToken}`;
+};
+
+const VerificationWithC2C = () => {
   const { t } = useTranslation();
-  const dispatch = useDispatch();
   const { search } = useLocation();
   const history = useHistory();
+  const dispatch = useDispatch();
   const { set: setToast } = useToasts();
 
   const queryParams = new URLSearchParams(search);
@@ -94,7 +99,8 @@ const VerificationWithC2C = ({ api }) => {
       return;
     }
 
-    dispatch(actions.async.connectDataSourceWithRestrictedToken(api, providerId, restrictedToken, dataSourceFilter));
+    const popupUrl = getDataConnectionPopupUrl(providerName, restrictedToken);
+    dispatch(actions.sync.connectDataSourceSuccess(providerId, popupUrl));
   };
 
   return (
