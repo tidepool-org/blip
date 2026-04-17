@@ -3,7 +3,7 @@ import React from 'react';
 import config from '../../config';
 import { getSessionTrace, getSessionToken } from '../../redux/api/baseApi';
 
-const validateRestrictedToken = async (providerName, restrictedToken) => {
+const validateRestrictedToken = async (restrictedToken, providerName) => {
   const LOGIN_URL = `${config.API_HOST}/v1/oauth/${providerName}/authorize?restricted_token=${restrictedToken}`;
 
   try {

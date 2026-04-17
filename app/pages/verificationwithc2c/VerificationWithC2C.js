@@ -82,7 +82,7 @@ const VerificationWithC2C = ({ api }) => {
 
     if (!providerId || !dataSourceFilter) return;
 
-    const { isValid } = await validateRestrictedToken({ providerName, restrictedToken });
+    const { isValid } = await validateRestrictedToken(restrictedToken, providerName);
 
     if (!isValid) {
       redirectToAccountSetup();
