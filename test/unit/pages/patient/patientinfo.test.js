@@ -10,7 +10,7 @@
 import React, { createElement } from 'react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 var expect = chai.expect;
 var PatientInfo = require('../../../../app/pages/patient/patientinfo');
 

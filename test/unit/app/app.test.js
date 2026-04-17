@@ -14,7 +14,7 @@ import { mount, shallow } from 'enzyme';
 import mutationTracker from 'object-invariant-test-helper';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 import { BrowserRouter } from 'react-router-dom';
 
 import {

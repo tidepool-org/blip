@@ -18,7 +18,7 @@ import i18next from '../../../app/core/language';
 import createReactClass from 'create-react-class';
 import { ThemeProvider } from '@emotion/react';
 import { Provider } from 'react-redux';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 import configureStore from 'redux-mock-store';
 
 import baseTheme from '../../../app/themes/baseTheme';

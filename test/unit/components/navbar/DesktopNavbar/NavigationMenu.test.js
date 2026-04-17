@@ -2,7 +2,7 @@ import React from 'react';
 import { createMount } from '@material-ui/core/test-utils';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 import NavigationMenu from '../../../../../app/components/navbar/DesktopNavbar/NavigationMenu';
 
 /* global chai */

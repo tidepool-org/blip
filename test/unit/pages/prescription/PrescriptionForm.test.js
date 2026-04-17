@@ -4,7 +4,7 @@ import moment from 'moment';
 import { Provider } from 'react-redux';
 import { MemoryRouter, Route } from 'react-router';
 import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 import { withFormik } from 'formik';
 import defaults from 'lodash/defaults';
 

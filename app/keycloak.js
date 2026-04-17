@@ -8,6 +8,7 @@ import cryptoJS from 'crypto-js';
 import * as ActionTypes from './redux/constants/actionTypes';
 import { sync, async } from './redux/actions';
 import api from './core/api';
+import { isRejected } from '@reduxjs/toolkit';
 
 export let keycloak = null;
 
@@ -120,7 +121,11 @@ export const keycloakMiddleware = (api) => (storeAPI) => (next) => (action) => {
         action?.error?.status === 401 ||
         action?.error?.originalError?.status === 401 ||
         action?.error?.status === 403 ||
-        action?.error?.originalError?.status === 403
+        action?.error?.originalError?.status === 403 ||
+
+        // Errors from RTK Query
+        (isRejected(action) && action?.payload?.status === 401) ||
+        (isRejected(action) && action?.payload?.status === 403)
       ) {
         // on any action with a 401 or 403, we try to refresh to keycloak token to verify
         // if the user is still logged in

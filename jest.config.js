@@ -1,5 +1,5 @@
 module.exports = {
-  testEnvironment: 'jsdom',
+  testEnvironment: 'jest-fixed-jsdom',
   roots: ['<rootDir>/__tests__'],
   moduleNameMapper: {
     '^@app/(.*)$': '<rootDir>/app/$1',
@@ -23,6 +23,7 @@ module.exports = {
 
     // Path aliases
     '^@app/(.*)': '<rootDir>/app/$1',
+    '^@tests/(.*)': '<rootDir>/__tests__/$1',
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testMatch: [
@@ -47,6 +48,6 @@ module.exports = {
     // In the event that a `Jest failed to parse a file` error is encountered and it is a
     // node_module, the module name can be added here to ensure pre-processing by @swc/jest.
 
-    'node_modules/(?!(.*\\.mjs$|@tidepool/viz|internmap|react-markdown|vfile|unist-util-stringify-position|unified|bail|is-plain-obj|trough|remark-parse|mdast-util-from-markdown|mdast-util-to-string|mdast-util-to-hast|micromark|decode-named-character-reference|remark-rehype|unist-util-position|trim-lines|unist-util-visit|unist-util-is|unist-util-generated|mdast-util-definitions|property-information|hast-util-whitespace|space-separated-tokens|comma-separated-tokens|@octokit|universal-user-agent|before-after-hook))',
+    'node_modules/(?!(.*\\.mjs$|@tidepool/viz|internmap|react-markdown|vfile|unist-util-stringify-position|unified|bail|is-plain-obj|trough|remark-parse|mdast-util-from-markdown|mdast-util-to-string|mdast-util-to-hast|micromark|decode-named-character-reference|remark-rehype|unist-util-position|trim-lines|unist-util-visit|unist-util-is|unist-util-generated|mdast-util-definitions|property-information|hast-util-whitespace|space-separated-tokens|comma-separated-tokens|@octokit|universal-user-agent|before-after-hook|character-entities|until-async|uuid))',
   ],
 };

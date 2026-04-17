@@ -20,7 +20,7 @@
 import { createBrowserHistory } from 'history';
 import { legacy_createStore as createStore, applyMiddleware, compose, combineReducers } from 'redux';
 import { persistState } from 'redux-devtools';
-import thunkMiddleware from 'redux-thunk';
+import { thunk as thunkMiddleware } from 'redux-thunk';
 import { createLogger } from 'redux-logger';
 import { connectRouter, routerMiddleware } from 'connected-react-router';
 import mutationTracker from 'redux-immutable-state-invariant';
@@ -39,6 +39,7 @@ import createWorkerMiddleware from '../utils/workerMiddleware';
 import pendoMiddleware from '../utils/pendoMiddleware';
 import launchDarklyMiddleware from '../utils/launchDarklyMiddleware';
 import { keycloakMiddleware } from '../../keycloak';
+import { RTKQueryApi } from '../api/baseApi';
 
 function getDebugSessionKey() {
   const matches = window.location.href.match(/[?&]debug_session=([^&]+)\b/);
@@ -50,6 +51,7 @@ export const history = qhistory(createBrowserHistory(), stringify, parse);
 const reducer = combineReducers({
   blip: reducers,
   router: connectRouter(history),
+  [RTKQueryApi.reducerPath]: RTKQueryApi.reducer,
 });
 
 const loggerMiddleware = createLogger({
@@ -66,6 +68,7 @@ if (!__DEV_TOOLS__) {
     const middlewares = [
       workerMiddleware,
       thunkMiddleware,
+      RTKQueryApi.middleware,
       routerMiddleware(history),
       createErrorLogger(api),
       trackingMiddleware(api),
@@ -84,6 +87,7 @@ if (!__DEV_TOOLS__) {
     const middlewares = [
       workerMiddleware,
       thunkMiddleware,
+      RTKQueryApi.middleware,
       loggerMiddleware,
       routerMiddleware(history),
       createErrorLogger(api),
@@ -116,6 +120,7 @@ function _createStore(api) {
       store.replaceReducer(combineReducers({
         blip: require('../reducers'),
         router: connectRouter(history),
+        [RTKQueryApi.reducerPath]: RTKQueryApi.reducer,
       }))
     );
   };

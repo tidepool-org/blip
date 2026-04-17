@@ -2,7 +2,7 @@ import React from 'react';
 import { createMount } from '@material-ui/core/test-utils';
 import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 import DataConnectionsModal from '../../../../app/components/datasources/DataConnectionsModal';
 import DataConnections, { availableProviders } from '../../../../app/components/datasources/DataConnections';
 import { Dialog } from '../../../../app/components/elements/Dialog';

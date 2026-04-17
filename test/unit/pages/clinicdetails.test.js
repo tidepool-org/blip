@@ -3,7 +3,7 @@ import { createMount } from '@material-ui/core/test-utils';
 import { Provider } from 'react-redux';
 import { MemoryRouter, Route } from 'react-router';
 import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 import merge from 'lodash/merge';
 import noop from 'lodash/noop';
 import { ToastProvider } from '../../../app/providers/ToastProvider';
