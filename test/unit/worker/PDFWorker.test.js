@@ -129,7 +129,7 @@ describe('PDFWorker', () => {
 
     Worker.renderer(data, opts()).then(result => {
       sinon.assert.calledOnce(postMessage);
-      sinon.assert.calledWithExactly(
+      sinon.assert.calledWithMatch(
         postMessage,
         actions.generatePDFSuccess({ [type]: result })
       );

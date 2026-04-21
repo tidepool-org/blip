@@ -50,11 +50,9 @@ const inferLastCompletedStep = (requestId, patientId, data, patient, pdf, hasCli
   if (hasOtherPdfInState || hasOtherDataInState) return STATUS.CLEARING_CACHE;
 
   // Insufficient Data States ---
-  const hasNoPatientData    = data.metaData?.size === 0;
-  const hasInsufficientData = !!pdf?.opts?.svgDataURLS && !pdf?.opts?.svgDataURLS.agpCGM && !pdf?.opts?.svgDataURLS.agpBGM;
+  const hasNoPatientData = data.metaData?.size === 0;
 
-  if (hasNoPatientData)    return STATUS.NO_PATIENT_DATA;
-  if (hasInsufficientData) return STATUS.INSUFFICIENT_DATA;
+  if (hasNoPatientData) return STATUS.NO_PATIENT_DATA;
 
   // Happy Path States ---
   const hasPDFUrlInState  = !!pdf?.combined?.url;

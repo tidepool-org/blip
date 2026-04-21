@@ -21,3 +21,10 @@ global.__DEV_TOOLS__ = false;
 // Prevent computing of styles for faster test execution
 // https://web.archive.org/web/20250216081109/https://www.helpscout.com/blog/improve-react-testing-times/
 window.getComputedStyle = () => ({ getPropertyValue: () => undefined });
+
+// Polyfill crypto.randomUUID for jsdom (not available in Node's test environment by default)
+if (!global.crypto) global.crypto = {};
+if (!global.crypto.randomUUID) {
+  let counter = 0;
+  global.crypto.randomUUID = () => `test-uuid-${++counter}`;
+}
