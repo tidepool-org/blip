@@ -308,7 +308,6 @@ describe('usePrintPDF', () => {
         pdf: {
           combined: { url: 'blob:http://localhost/pdf-url' },
           opts: {
-            // requestId must match the hook's internal requestId (FIXED_REQUEST_ID via mock)
             requestId: '1234-abcd-5678-qwer',
             svgDataURLS: { agpCGM: { ambulatoryGlucoseProfile: 'data:image/svg+xml...' } },
           },
