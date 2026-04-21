@@ -81,7 +81,7 @@ describe('EditPatientDialog', () => {
 
     const saveButton = screen.getByRole('button', { name: 'Save Changes' });
     expect(saveButton).toBeInTheDocument();
-    expect(saveButton).not.toBeDisabled();
+    expect(saveButton).toBeEnabled();
   });
 
   it('sets smartOnFhirMode=false when smartCorrelationId is absent', () => {
