@@ -34,8 +34,6 @@ jest.mock('@app/redux/actions', () => ({
 jest.mock('@app/pages/clinicworkspace/ClinicPatientsPrintModal/usePrintPDF/usePrintWindow');
 jest.mock('@app/core/agpUtils');
 
-const FIXED_REQUEST_ID = 'fixed-test-uuid';
-
 const mockOpenPrintWindow = jest.fn();
 const mockTriggerPrint = jest.fn();
 const mockGenerateAGPImages = jest.fn();
@@ -60,6 +58,8 @@ describe('usePrintPDF', () => {
     });
 
     useGenerateAGPImages.mockReturnValue(mockGenerateAGPImages);
+
+    jest.spyOn(crypto, 'randomUUID').mockReturnValue('1234-abcd-5678-qwer');
 
     actions.worker.removeGeneratedPDFS.mockReturnValue({ type: 'REMOVE_GENERATED_PDFS' });
     actions.worker.dataWorkerRemoveDataRequest.mockReturnValue({ type: 'DATA_WORKER_REMOVE_DATA_REQUEST' });
@@ -87,10 +87,27 @@ describe('usePrintPDF', () => {
   });
 
   describe('When another patient data is in state (CLEARING_CACHE)', () => {
-    it('returns CLEARING_CACHE status and dispatches cache cleanup actions', () => {
+    it('returns CLEARING_CACHE status and dispatches cache cleanup actions when wrong patient', () => {
       const state = makePatientState({
-        data: { metaData: { patientId: 'other-patient' } },
-        pdf: { opts: { requestId: 'other-request-id' } },
+        data: { metaData: { patientId: 'patient-5' } },
+        pdf: { opts: { requestId: '1234-abcd-5678-qwer' } },
+      });
+      const store = mockStore(state);
+
+      const { result } = renderHook(
+        () => usePrintPDF(api, patientId, onPrintTriggered),
+        { wrapper: getWrapper(store) },
+      );
+
+      expect(result.current.status).toBe(STATUS.CLEARING_CACHE);
+      expect(actions.worker.removeGeneratedPDFS).toHaveBeenCalledTimes(1);
+      expect(actions.worker.dataWorkerRemoveDataRequest).toHaveBeenCalledWith(null, patientId);
+    });
+
+    it('returns CLEARING_CACHE status and dispatches cache cleanup actions when wrong requestId', () => {
+      const state = makePatientState({
+        data: { metaData: { patientId: 'patient-1' } },
+        pdf: { opts: { requestId: '87436-askdbfsbf' } },
       });
       const store = mockStore(state);
 
@@ -292,7 +309,7 @@ describe('usePrintPDF', () => {
           combined: { url: 'blob:http://localhost/pdf-url' },
           opts: {
             // requestId must match the hook's internal requestId (FIXED_REQUEST_ID via mock)
-            requestId: FIXED_REQUEST_ID,
+            requestId: '1234-abcd-5678-qwer',
             svgDataURLS: { agpCGM: { ambulatoryGlucoseProfile: 'data:image/svg+xml...' } },
           },
         },
