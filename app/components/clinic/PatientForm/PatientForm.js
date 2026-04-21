@@ -62,6 +62,7 @@ export const PatientForm = (props) => {
     searchDebounceMs,
     initialFocusedInput = 'fullName',
     isReadOnly = false,
+    smartOnFhirMode = false,
     ...boxProps
   } = props;
 
@@ -264,7 +265,7 @@ export const PatientForm = (props) => {
           placeholder={t('Full Name')}
           variant="condensed"
           sx={{ width: '100%' }}
-          disabled={isReadOnly}
+          disabled={isReadOnly || smartOnFhirMode}
         />
       </Box>
 
@@ -281,7 +282,7 @@ export const PatientForm = (props) => {
             formikContext.setFieldTouched('birthDate');
             formikContext.setFieldValue('birthDate', e.target.value.replace(dateRegex, '$3-$1-$2'));
           }}
-          disabled={isReadOnly}
+          disabled={isReadOnly || smartOnFhirMode}
         >
           <TextInput
             name="birthDate"
@@ -290,7 +291,7 @@ export const PatientForm = (props) => {
             placeholder={dateInputFormat.toLowerCase()}
             variant="condensed"
             sx={{ width: '100%' }}
-            disabled={isReadOnly}
+            disabled={isReadOnly || smartOnFhirMode}
           />
         </InputMask>
       </Box>
@@ -312,7 +313,7 @@ export const PatientForm = (props) => {
             formikContext.setFieldTouched('mrn');
             formikContext.setFieldValue('mrn', e.target.value.toUpperCase());
           }}
-          disabled={isReadOnly}
+          disabled={isReadOnly || smartOnFhirMode}
         />
       </Box>
 
@@ -326,7 +327,7 @@ export const PatientForm = (props) => {
               placeholder={t('Email')}
               variant="condensed"
               sx={{ width: '100%' }}
-              disabled={isReadOnly || (patient?.id && !patient?.permissions?.custodian)}
+              disabled={isReadOnly || smartOnFhirMode || (patient?.id && !patient?.permissions?.custodian)}
             />
           </Box>
 
@@ -406,6 +407,7 @@ PatientForm.propTypes = {
   initialFocusedInput: PropTypes.string,
   action: PropTypes.oneOf(['create', 'edit', 'acceptInvite']).isRequired,
   isReadOnly: PropTypes.bool,
+  smartOnFhirMode: PropTypes.bool,
 };
 
 PatientForm.defaultProps = {

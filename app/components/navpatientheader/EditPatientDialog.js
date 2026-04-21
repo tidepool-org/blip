@@ -107,7 +107,7 @@ const EditPatientDialog = ({
           patient={clinicPatient}
           searchDebounceMs={PATIENT_FORM_SEARCH_DEBOUNCE_MS}
           action="edit"
-          isReadOnly={isSmartOnFhir}
+          smartOnFhirMode={isSmartOnFhir}
         />
       </DialogContent>
 
@@ -124,7 +124,7 @@ const EditPatientDialog = ({
           variant="primary"
           onClick={handleEditPatientConfirm}
           processing={updatingClinicPatient.inProgress}
-          disabled={isSmartOnFhir || !fieldsAreValid(keys(patientFormContext?.values), validationSchema({ mrnSettings, existingMRNs }), patientFormContext?.values)}
+          disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema({ mrnSettings, existingMRNs }), patientFormContext?.values)}
         >
           {t('Save Changes')}
         </Button>

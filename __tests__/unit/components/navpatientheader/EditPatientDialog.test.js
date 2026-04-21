@@ -10,7 +10,7 @@ import { ToastProvider } from '../../../../app/providers/ToastProvider';
 
 jest.mock('../../../../app/components/clinic/PatientForm', () => {
   return (props) => (
-    <div data-testid="PatientForm" data-is-read-only={props.isReadOnly ? 'true' : 'false'}>
+    <div data-testid="PatientForm" data-is-read-only={props.isReadOnly ? 'true' : 'false'} data-smart-on-fhir-mode={props.smartOnFhirMode ? 'true' : 'false'}>
       PatientForm Mock
     </div>
   );
@@ -65,7 +65,7 @@ const renderEditPatientDialog = (storeState = initialState) => {
 };
 
 describe('EditPatientDialog', () => {
-  it('sets isReadOnly=true and disables save button when smartCorrelationId is present', () => {
+  it('sets smartOnFhirMode=true and does not disable save button when smartCorrelationId is present', () => {
     const smartOnFhirState = {
       blip: {
         ...initialState.blip,
@@ -76,17 +76,18 @@ describe('EditPatientDialog', () => {
     renderEditPatientDialog(smartOnFhirState);
 
     const patientForm = screen.getByTestId('PatientForm');
-    expect(patientForm).toHaveAttribute('data-is-read-only', 'true');
+    expect(patientForm).toHaveAttribute('data-smart-on-fhir-mode', 'true');
+    expect(patientForm).toHaveAttribute('data-is-read-only', 'false');
 
     const saveButton = screen.getByRole('button', { name: 'Save Changes' });
     expect(saveButton).toBeInTheDocument();
-    expect(saveButton).toBeDisabled();
+    expect(saveButton).not.toBeDisabled();
   });
 
-  it('sets isReadOnly=false when smartCorrelationId is absent', () => {
+  it('sets smartOnFhirMode=false when smartCorrelationId is absent', () => {
     renderEditPatientDialog(initialState);
 
     const patientForm = screen.getByTestId('PatientForm');
-    expect(patientForm).toHaveAttribute('data-is-read-only', 'false');
+    expect(patientForm).toHaveAttribute('data-smart-on-fhir-mode', 'false');
   });
 });

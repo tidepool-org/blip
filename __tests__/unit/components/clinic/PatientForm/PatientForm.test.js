@@ -122,6 +122,22 @@ describe('PatientForm', () => {
     expect(screen.getByTestId('SelectSites')).toHaveAttribute('data-is-disabled', 'true');
   });
 
+  it('renders with Name/DOB/MRN/Email disabled but Tags/Sites/Target/DiabetesType enabled when smartOnFhirMode=true', () => {
+    renderPatientForm({ smartOnFhirMode: true });
+
+    // Identity fields should be disabled
+    expect(screen.getByLabelText('Full Name')).toBeDisabled();
+    expect(screen.getByLabelText('Email (optional)')).toBeDisabled();
+    expect(screen.getByLabelText('MRN (optional)')).toBeDisabled();
+    expect(screen.getByLabelText('Birthdate')).toBeDisabled();
+
+    // Clinic fields should remain enabled
+    expect(screen.getByTestId('SelectDiabetesType')).toHaveAttribute('data-is-disabled', 'false');
+    expect(screen.getByTestId('SelectGlycemicRanges')).toHaveAttribute('data-is-disabled', 'false');
+    expect(screen.getByTestId('SelectTags')).toHaveAttribute('data-is-disabled', 'false');
+    expect(screen.getByTestId('SelectSites')).toHaveAttribute('data-is-disabled', 'false');
+  });
+
   it('renders with editable fields when isReadOnly is not provided (default false)', () => {
     renderPatientForm();
 
