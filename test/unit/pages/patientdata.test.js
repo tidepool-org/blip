@@ -16,6 +16,7 @@ import { fireEvent, render } from '@testing-library/react';
 import Plotly from 'plotly.js-basic-dist-min';
 import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
 import i18next from '../../../app/core/language';
+import { expect as jestExpect } from '@jest/globals';
 
 const { Loader } = vizComponents;
 
@@ -28,6 +29,16 @@ const t = i18next.t.bind(i18next);
 // otherwise dependencies mocked will be bound to the wrong scope!
 import PD, { PatientData, PatientDataClass, getFetchers, mapStateToProps } from '../../../app/pages/patientdata/patientdata.js';
 import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE, MGDL_UNITS, MS_IN_MIN, ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE } from '../../../app/core/constants';
+
+jest.mock('../../../app/core/dataViewUtils', () => {
+  const actual = jest.requireActual('../../../app/core/dataViewUtils');
+  return {
+    ...actual,
+    getMostRecentDatumTimeByChartType: jest.fn(),
+    getStatsByChartType: jest.fn(),
+  };
+});
+import { getMostRecentDatumTimeByChartType, getStatsByChartType } from '../../../app/core/dataViewUtils';
 
 function mockBasicsView() {
   return <div className='fake-basics-view'></div>;
@@ -328,7 +339,11 @@ describe('PatientData', function () {
     addingData: { inProgress: false, completed: false },
     removingData: { inProgress: false, completed: false },
     currentPatientInViewId: 'otherPatientId',
-    data: {},
+    data: {
+      metaData: {
+        latestDatumByType: 'latestDatumByTypeMock'
+      }
+    },
     dataWorkerRemoveDataRequest: sinon.stub(),
     dataWorkerRemoveDataSuccess: sinon.stub(),
     dataWorkerQueryDataRequest: sinon.stub(),
@@ -407,6 +422,10 @@ describe('PatientData', function () {
     vizUtils.bg.isCustomBgRange = originalIsCustomBgRange;
     vizUtils.aggregation.defineBasicsAggregations = originalDefineBasicsAggregations;
     vizUtils.aggregation.processBasicsAggregations = originalProcessBasicsAggregations;
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it('should be exposed as a module and be of type function', function() {
@@ -1346,7 +1365,7 @@ describe('PatientData', function () {
       });
 
       it('should render a chart date dialog on basics, with appropriate initial props', () => {
-        instance.getMostRecentDatumTimeByChartType = sinon.stub().returns('2018-01-01T00:00:00.000Z');
+        getMostRecentDatumTimeByChartType.mockReturnValueOnce('2018-01-01T00:00:00.000Z');
         instance.setState({ timePrefs: { timezoneName: 'US/Pacific' }, chartType: 'basics', datesDialogOpen: true });
         wrapper.update();
 
@@ -1363,7 +1382,7 @@ describe('PatientData', function () {
       });
 
       it('should render a chart date dialog on daily, with appropriate initial props', () => {
-        instance.getMostRecentDatumTimeByChartType = sinon.stub().returns('2018-01-01T00:00:00.000Z');
+        getMostRecentDatumTimeByChartType.mockReturnValueOnce('2018-01-01T00:00:00.000Z');
         instance.setState({ timePrefs: { timezoneName: 'US/Pacific' }, chartType: 'daily', datesDialogOpen: true });
         wrapper.update();
 
@@ -1376,28 +1395,6 @@ describe('PatientData', function () {
         expect(dialogProps.processing).to.equal(false);
         expect(dialogProps.timePrefs).to.eql({ timezoneName: 'US/Pacific' });
         expect(dialogProps.mostRecentDatumDate).to.equal('2018-01-01T00:00:00.000Z');
-      });
-
-      it('should render a print dialog, with appropriate initial props', () => {
-        instance.setState({ timePrefs: { timezoneName: 'US/Pacific' } });
-        wrapper.update();
-
-        const dialog = wrapper.find('#print-dialog');
-        expect(dialog.length).to.equal(1);
-        const dialogProps = dialog.props();
-
-        expect(dialogProps.open).to.equal(false);
-        expect(dialogProps.processing).to.equal(false);
-        expect(dialogProps.maxDays).to.equal(90);
-        expect(dialogProps.timePrefs).to.eql({ timezoneName: 'US/Pacific' });
-
-        expect(dialogProps.mostRecentDatumDates).to.be.an('object').and.have.keys([
-          'agpBGM',
-          'agpCGM',
-          'basics',
-          'bgLog',
-          'daily',
-        ]);
       });
 
       describe('logged-in user is not current patient targeted for viewing', () => {
@@ -1693,7 +1690,7 @@ describe('PatientData', function () {
       wrapper = shallow(<PatientDataClass {...defaultProps} />);
       instance = wrapper.instance();
       instance.queryData = sinon.stub();
-      instance.getStatsByChartType = sinon.stub().returns('stats stub');
+      getStatsByChartType.mockReturnValue('stats stub');
       instance.getAggregationsByChartType = sinon.stub().returns('aggregations stub');
 
       wrapper.setState({
@@ -1726,17 +1723,17 @@ describe('PatientData', function () {
 
       // queryData set to false and queryStats set undefined
       instance.updateChartPrefs({ trends: 'bar'}, false);
-      sinon.assert.notCalled(instance.getStatsByChartType);
+      jestExpect(getStatsByChartType).not.toHaveBeenCalled();
       sinon.assert.notCalled(instance.queryData);
 
       // queryData set to true and queryStats set to false
       instance.updateChartPrefs({ trends: 'bar' }, true, false);
-      sinon.assert.notCalled(instance.getStatsByChartType);
+      jestExpect(getStatsByChartType).not.toHaveBeenCalled();
       sinon.assert.calledWith(instance.queryData, undefined, { showLoading: false });
 
       // queryData set to false and queryStats set to true
       instance.updateChartPrefs({ trends: 'bar'}, false, true);
-      sinon.assert.called(instance.getStatsByChartType);
+      jestExpect(getStatsByChartType).toHaveBeenCalled();
       sinon.assert.calledWith(
         instance.queryData,
         sinon.match({
@@ -2163,253 +2160,6 @@ describe('PatientData', function () {
     });
   });
 
-  describe('getStatsByChartType', () => {
-    let wrapper;
-    let instance;
-
-    beforeEach(() => {
-      wrapper = shallow(<PatientDataClass {...defaultProps} />);
-      instance = wrapper.instance();
-    });
-
-    context('basics', () => {
-      beforeEach(() => {
-        wrapper.setState({ chartType: 'basics' });
-      });
-
-      it('should add appropriate stats when cbg is selected', () => {
-        wrapper.setState({ chartPrefs: { basics: { bgSource: 'cbg' } } });
-        expect(instance.getStatsByChartType()).to.eql([
-          'timeInRange',
-          'averageGlucose',
-          'sensorUsage',
-          'totalInsulin',
-          'carbs',
-          'averageDailyDose',
-          'glucoseManagementIndicator',
-          'standardDev',
-          'coefficientOfVariation',
-          'bgExtents',
-        ]);
-      });
-
-      it('should add appropriate stats when smbg is selected', () => {
-        wrapper.setState({ chartPrefs: { basics: { bgSource: 'smbg' } } });
-        expect(instance.getStatsByChartType()).to.eql([
-          'readingsInRange',
-          'averageGlucose',
-          'totalInsulin',
-          'carbs',
-          'averageDailyDose',
-          'standardDev',
-          'coefficientOfVariation',
-          'bgExtents',
-        ]);
-      });
-
-      it('should add appropriate stats when automated basal device is detected', () => {
-        wrapper.setState({ chartPrefs: { basics: { bgSource: 'smbg' } } });
-        wrapper.setProps({ data: { metaData: { latestPumpUpload: { isAutomatedBasalDevice: true } } } });
-        expect(instance.getStatsByChartType()).to.eql([
-          'readingsInRange',
-          'averageGlucose',
-          'totalInsulin',
-          'timeInAuto',
-          'carbs',
-          'averageDailyDose',
-          'standardDev',
-          'coefficientOfVariation',
-          'bgExtents',
-        ]);
-      });
-
-      it('should add appropriate stats when a settings-overridable device is detected', () => {
-        wrapper.setState({ chartPrefs: { basics: { bgSource: 'smbg' } } });
-        wrapper.setProps({ data: { metaData: { latestPumpUpload: { isSettingsOverrideDevice: true } } } });
-        expect(instance.getStatsByChartType()).to.eql([
-          'readingsInRange',
-          'averageGlucose',
-          'totalInsulin',
-          'timeInOverride',
-          'carbs',
-          'averageDailyDose',
-          'standardDev',
-          'coefficientOfVariation',
-          'bgExtents',
-        ]);
-      });
-    });
-
-    context('daily', () => {
-      beforeEach(() => {
-        wrapper.setState({ chartType: 'daily' });
-      });
-
-      it('should add appropriate stats when cbg is selected', () => {
-        wrapper.setState({ chartPrefs: { daily: { bgSource: 'cbg' } } });
-        expect(instance.getStatsByChartType()).to.eql([
-          'timeInRange',
-          'averageGlucose',
-          'totalInsulin',
-          'carbs',
-          'standardDev',
-          'coefficientOfVariation',
-        ]);
-      });
-
-      it('should add appropriate stats when smbg is selected', () => {
-        wrapper.setState({ chartPrefs: { daily: { bgSource: 'smbg' } } });
-        expect(instance.getStatsByChartType()).to.eql([
-          'readingsInRange',
-          'averageGlucose',
-          'totalInsulin',
-          'carbs',
-        ]);
-      });
-
-      it('should add appropriate stats when automated basal device is detected', () => {
-        wrapper.setState({ chartPrefs: { daily: { bgSource: 'smbg' } } });
-        wrapper.setProps({ data: { metaData: { latestPumpUpload: { isAutomatedBasalDevice: true } } } });
-        expect(instance.getStatsByChartType()).to.eql([
-          'readingsInRange',
-          'averageGlucose',
-          'totalInsulin',
-          'timeInAuto',
-          'carbs',
-        ]);
-      });
-
-      it('should add appropriate stats when settings-overridable device is detected', () => {
-        wrapper.setState({ chartPrefs: { daily: { bgSource: 'smbg' } } });
-        wrapper.setProps({ data: { metaData: { latestPumpUpload: { isSettingsOverrideDevice: true } } } });
-        expect(instance.getStatsByChartType()).to.eql([
-          'readingsInRange',
-          'averageGlucose',
-          'totalInsulin',
-          'timeInOverride',
-          'carbs',
-        ]);
-      });
-    });
-
-    context('bgLog', () => {
-      beforeEach(() => {
-        wrapper.setState({ chartType: 'bgLog' });
-      });
-
-      it('should add appropriate stats', () => {
-        expect(instance.getStatsByChartType()).to.eql([
-          'readingsInRange',
-          'averageGlucose',
-          'standardDev',
-          'coefficientOfVariation',
-        ]);
-      });
-    });
-
-    context('trends', () => {
-      beforeEach(() => {
-        wrapper.setState({ chartType: 'trends' });
-      });
-
-      it('should add appropriate stats when cbg is selected', () => {
-        wrapper.setState({ chartPrefs: { trends: { bgSource: 'cbg' } } });
-        expect(instance.getStatsByChartType()).to.eql([
-          'timeInRange',
-          'averageGlucose',
-          'sensorUsage',
-          'totalInsulin',
-          'averageDailyDose',
-          'glucoseManagementIndicator',
-          'standardDev',
-          'coefficientOfVariation',
-          'bgExtents',
-        ]);
-      });
-
-      it('should add appropriate stats when smbg is selected', () => {
-        wrapper.setState({ chartPrefs: { trends: { bgSource: 'smbg' } } });
-        expect(instance.getStatsByChartType()).to.eql([
-          'readingsInRange',
-          'averageGlucose',
-          'totalInsulin',
-          'averageDailyDose',
-          'standardDev',
-          'coefficientOfVariation',
-          'bgExtents',
-        ]);
-      });
-
-      it('should add appropriate stats when automated basal device is detected', () => {
-        wrapper.setState({ chartPrefs: { trends: { bgSource: 'smbg' } } });
-        wrapper.setProps({ data: { metaData: { latestPumpUpload: { isAutomatedBasalDevice: true } } } });
-        expect(instance.getStatsByChartType()).to.eql([
-          'readingsInRange',
-          'averageGlucose',
-          'totalInsulin',
-          'averageDailyDose',
-          'timeInAuto',
-          'standardDev',
-          'coefficientOfVariation',
-          'bgExtents',
-        ]);
-      });
-
-      it('should add appropriate stats when settings-overridable device is detected', () => {
-        wrapper.setState({ chartPrefs: { trends: { bgSource: 'smbg' } } });
-        wrapper.setProps({ data: { metaData: { latestPumpUpload: { isSettingsOverrideDevice: true } } } });
-        expect(instance.getStatsByChartType()).to.eql([
-          'readingsInRange',
-          'averageGlucose',
-          'totalInsulin',
-          'averageDailyDose',
-          'timeInOverride',
-          'standardDev',
-          'coefficientOfVariation',
-          'bgExtents',
-        ]);
-      });
-    });
-
-    context('chartType undefined', () => {
-      beforeEach(() => {
-        wrapper.setState({ chartType: undefined });
-      });
-
-      it('should return an empty array', () => {
-        expect(instance.getStatsByChartType()).to.eql([]);
-      });
-    });
-
-    context('bgSource chartPref state missing', () => {
-      beforeEach(() => {
-        wrapper.setState({
-          chartType: 'daily',
-          chartPrefs: { daily: { bgSource: undefined } },
-        });
-      });
-
-      it('should add appropriate stats when no bgSource is available', () => {
-        expect(instance.getStatsByChartType('daily')).to.eql([
-          'averageGlucose',
-          'totalInsulin',
-          'carbs',
-        ]);
-      });
-
-      it('should add appropriate stats when cbg is provided via arg', () => {
-        expect(instance.getStatsByChartType('daily', 'cbg')).to.eql([
-          'timeInRange',
-          'averageGlucose',
-          'totalInsulin',
-          'carbs',
-          'standardDev',
-          'coefficientOfVariation',
-        ]);
-      });
-    });
-  });
-
   describe('getDaysByType', () => {
     let wrapper;
     let instance;
@@ -2456,54 +2206,6 @@ describe('PatientData', function () {
           prev: 0,
         });
       });
-    });
-  });
-
-  describe('getMostRecentDatumTimeByChartType', () => {
-    let wrapper;
-    let instance;
-
-    beforeEach(() => {
-      wrapper = shallow(<PatientDataClass {...defaultProps} />);
-      instance = wrapper.instance();
-
-      wrapper.setProps({
-        data: {
-          metaData: {
-            latestDatumByType: {
-              basal: { type: 'basal', normalTime: 1, normalEnd: 10 },
-              bolus: { type: 'bolus', normalTime: 2 },
-              smbg: { type: 'cbg', normalTime: 3 },
-              deviceEvent: { type: 'deviceEvent', normalTime: 4 },
-              food: { type: 'food', normalTime: 5 },
-              message: { type: 'message', normalTime: 6 },
-              pumpSettings: { type: 'pumpSettings', normalTime: 7 },
-              cbg: { type: 'smbg', normalTime: 8 },
-              wizard: { type: 'wizard', normalTime: 9 },
-            }
-          }
-        }
-      });
-    });
-
-    it('should return the latest datum time for basics', () => {
-      // should return the basal normalEnd
-      expect(instance.getMostRecentDatumTimeByChartType(undefined, 'basics')).to.equal(10);
-    });
-
-    it('should return the latest datum time for daily', () => {
-      // should return the basal normalEnd
-      expect(instance.getMostRecentDatumTimeByChartType(undefined, 'daily')).to.equal(10);
-    });
-
-    it('should return the latest datum time for bgLog', () => {
-      // should return the smbg normalTime
-      expect(instance.getMostRecentDatumTimeByChartType(undefined, 'bgLog')).to.equal(3);
-    });
-
-    it('should return the latest datum time for trends', () => {
-      // should return the cbg normalTime
-      expect(instance.getMostRecentDatumTimeByChartType(undefined, 'trends')).to.equal(8);
     });
   });
 
@@ -3292,58 +2994,6 @@ describe('PatientData', function () {
             });
           });
 
-          it('should not generate a pdf if `printDialogPDFOpts` state is not set', () => {
-            const generatePDFSpy = sinon.spy(instance, 'generatePDF');
-
-            // ensure query for initial data doesn't pollute test
-            wrapper.setState({ printDialogPDFOpts: undefined })
-
-            // Adding Data
-            wrapper.setProps(_.assign({}, props, {
-              addingData: { inProgress: true, completed: false }
-            }));
-
-            // Completed adding data
-            wrapper.setProps(_.assign({}, props, {
-              addingData: { inProgress: false, completed: true }
-            }));
-
-            // Ensure generatePDF not called
-            sinon.assert.notCalled(generatePDFSpy);
-          });
-
-          it('should generate a pdf if `printDialogPDFOpts` state is set', () => {
-            const generatePDFSpy = sinon.spy(instance, 'generatePDF');
-
-            const pdfOpts = {
-              agpBGM: {},
-              agpCGM: {},
-              basics: {},
-              bgLog: {},
-              daily: {},
-              settings: {},
-            }
-
-            // ensure query for initial data doesn't pollute test
-            wrapper.setState({ printDialogPDFOpts: pdfOpts })
-
-            // Adding Data
-            wrapper.setProps(_.assign({}, props, {
-              addingData: { inProgress: true, completed: false }
-            }));
-
-            // Completed adding data
-            const nextProps = {
-              ...props,
-              addingData: { inProgress: false, completed: true }
-            }
-
-            wrapper.setProps(nextProps);
-
-            // Ensure generatePDF is called
-            sinon.assert.calledWith(generatePDFSpy, nextProps);
-          });
-
           it('should not close the dates dialog if `datesDialogFetchingData` state is false', () => {
             const closeDatesDialogSpy = sinon.spy(instance, 'closeDatesDialog');
 
@@ -3384,55 +3034,6 @@ describe('PatientData', function () {
             sinon.assert.calledOnce(closeDatesDialogSpy);
           });
         });
-      });
-    });
-  });
-
-  describe('componentWillUpdate', function() {
-    let windowOpenSpy;
-
-    beforeEach(() => {
-      windowOpenSpy = sinon.stub(window, 'open').returns({
-        closed: false,
-        focus: sinon.stub(),
-        print: sinon.stub(),
-        location: {},
-      });
-    });
-
-    afterEach(() => {
-      windowOpenSpy.restore();
-    });
-
-    context('print dialog is processing and pdf is generated', () => {
-      it('should close the dialog and reset the processing and pdf options state, and open the pdf', function () {
-        var props = {
-          currentPatientInViewId: 40,
-          isUserPatient: true,
-          patient: {
-            userid: 40,
-            profile: {
-              fullName: 'Fooey McBar'
-            }
-          },
-          data: {
-            metaData: { size: 1 },
-          },
-          pdf: { combined: { url: 'pdfUrl' } },
-          t,
-        };
-
-        const wrapper = shallow(<PatientDataClass {...props} />);
-        const instance = wrapper.instance();
-        const setStateSpy = sinon.spy(instance, 'setState');
-
-        instance.setState({ printDialogProcessing: true, printDialogOpen: true });
-        sinon.assert.callCount(setStateSpy, 3);
-        sinon.assert.calledWith(setStateSpy, { printDialogProcessing: false });
-        sinon.assert.calledWith(setStateSpy, { printDialogOpen: false, printDialogPDFOpts: null });
-
-        sinon.assert.callCount(windowOpenSpy, 1);
-        sinon.assert.calledWith(windowOpenSpy, 'pdfUrl');
       });
     });
   });
@@ -3564,6 +3165,7 @@ describe('PatientData', function () {
       });
 
       it('should set `stats` to result of `getStatsByChartType`', () => {
+        getStatsByChartType.mockReturnValueOnce(['stat 1', 'stat 2']);
         instance.queryData();
         sinon.assert.calledWithMatch(defaultProps.dataWorkerQueryDataRequest, {
           stats: ['stat 1', 'stat 2'],
@@ -3733,26 +3335,6 @@ describe('PatientData', function () {
     });
   });
 
-  describe('closePrintDialog', () => {
-    let wrapper;
-    let instance;
-
-    beforeEach(() => {
-      wrapper = shallow(<PatientDataClass {...defaultProps} />);
-      instance = wrapper.instance();
-    });
-
-    it('should set the `printDialogOpen` state to false and `printDialogPDFOpts` to null', () => {
-      const setStateSpy = sinon.spy(instance, 'setState');
-      instance.closePrintDialog();
-
-      sinon.assert.calledWith(setStateSpy, {
-        printDialogOpen: false,
-        printDialogPDFOpts: null,
-      });
-    });
-  });
-
   describe('handleClickPrint', () => {
     let wrapper;
     let instance;
@@ -3820,489 +3402,6 @@ describe('PatientData', function () {
 
       sinon.assert.calledWith(defaultProps.trackMetric, 'Clicked Chart Dates', {
         fromChart: instance.state.chartType,
-      });
-    });
-  });
-
-  describe('generateAGPImages', () => {
-    let wrapper;
-    let instance;
-    let originalContext;
-    let originalComponentWillUpdate;
-
-    before(() => {
-      originalContext = PatientDataClass.prototype.context;
-      originalComponentWillUpdate = PatientDataClass.prototype.UNSAFE_componentWillUpdate;
-      PatientDataClass.prototype.context = { set: () => {} };
-      PatientDataClass.prototype.UNSAFE_componentWillUpdate = () => {};
-    });
-
-    after(() => {
-      PatientDataClass.prototype.context = originalContext;
-      PatientDataClass.prototype.UNSAFE_componentWillUpdate = originalComponentWillUpdate;
-    });
-
-    beforeEach(() => {
-      wrapper = shallow(<PatientDataClass {...defaultProps} />);
-      instance = wrapper.instance();
-      defaultProps.generateAGPImagesSuccess.resetHistory();
-      defaultProps.generateAGPImagesFailure.resetHistory();
-    });
-
-    context('successful image generation', () => {
-      let generateAGPFigureDefinitionsStub;
-      let plotlyToImageStub;
-      let originalGenerateAGPFigureDefinitions;
-
-      before(() => {
-        if (!vizUtils.agp) vizUtils.agp = {};
-        originalGenerateAGPFigureDefinitions = vizUtils.agp.generateAGPFigureDefinitions;
-        generateAGPFigureDefinitionsStub = sinon.stub().resolves(['stubbed image data']);
-        vizUtils.agp.generateAGPFigureDefinitions = generateAGPFigureDefinitionsStub;
-        plotlyToImageStub = sinon.stub(Plotly, 'toImage').returns('stubbed image data');
-      });
-
-      after(() => {
-        vizUtils.agp.generateAGPFigureDefinitions = originalGenerateAGPFigureDefinitions;
-        plotlyToImageStub.restore();
-      });
-
-      it('should call generateAGPImagesSuccess with image data upon successful image generation', done => {
-        instance.generateAGPImages(undefined, ['agpCGM']);
-        wrapper.update();
-        setTimeout(() => {
-          sinon.assert.callCount(defaultProps.generateAGPImagesFailure, 0);
-          sinon.assert.callCount(defaultProps.generateAGPImagesSuccess, 1);
-          sinon.assert.calledWithMatch(defaultProps.generateAGPImagesSuccess, {
-            agpCGM: { 0: 'stubbed image data' },
-          });
-          done();
-        });
-      });
-    });
-
-    context('failed image generation', () => {
-      let generateAGPFigureDefinitionsStub;
-      let originalGenerateAGPFigureDefinitions;
-
-      before(() => {
-        if (!vizUtils.agp) vizUtils.agp = {};
-        originalGenerateAGPFigureDefinitions = vizUtils.agp.generateAGPFigureDefinitions;
-        generateAGPFigureDefinitionsStub = sinon.stub().rejects(new Error('failed image generation'));
-        vizUtils.agp.generateAGPFigureDefinitions = generateAGPFigureDefinitionsStub;
-      });
-
-      after(() => {
-        vizUtils.agp.generateAGPFigureDefinitions = originalGenerateAGPFigureDefinitions;
-      });
-
-      it('should call generateAGPImagesFailure with error upon failed image generation', done => {
-        instance.generateAGPImages(undefined, ['agpCGM']);
-        wrapper.update();
-        setTimeout(() => {
-          sinon.assert.callCount(defaultProps.generateAGPImagesSuccess, 0);
-          sinon.assert.callCount(defaultProps.generateAGPImagesFailure, 1);
-          expect(defaultProps.generateAGPImagesFailure.getCall(0).lastArg.message).to.equal('failed image generation');
-          done();
-        });
-      });
-    });
-  });
-
-  describe('generatePDF', () => {
-    let wrapper;
-    let instance;
-
-    const bgPrefs = { units: MGDL_UNITS };
-    const timePrefs = { timezoneAware: true, timezoneName: 'US/Eastern' };
-    const mostRecentDatumTimeStub = '2019-11-27T12:00:00.000Z';
-    const queryEndpointsStub = [100, 200];
-
-    const printDialogPDFOpts = {
-      agpBGM: { endpoints: 'agpBGM endpoints'},
-      agpCGM: { endpoints: 'agpCGM endpoints'},
-      basics: { endpoints: 'basics endpoints'},
-      bgLog: { endpoints: 'bgLog endpoints'},
-      daily: { endpoints: 'daily endpoints'},
-      settings: { endpoints: 'settings endpoints'},
-    };
-
-    const commonQueries = {
-      bgPrefs,
-      metaData: 'latestPumpUpload, bgSources',
-      timePrefs,
-    };
-
-    beforeEach(() => {
-      wrapper = shallow(<PatientDataClass {...defaultProps} />);
-      wrapper.setState({ bgPrefs, timePrefs, printDialogPDFOpts });
-      instance = wrapper.instance();
-      defaultProps.generatePDFRequest.resetHistory();
-    });
-
-    it('should call `props.generatePDFRequest` with appropriate args', () => {
-      instance.generatePDF();
-      sinon.assert.calledWith(defaultProps.generatePDFRequest,
-        'combined',
-        {
-          agpBGM: sinon.match.object,
-          agpCGM: sinon.match.object,
-          basics: sinon.match.object,
-          daily: sinon.match.object,
-          bgLog: sinon.match.object,
-          settings: sinon.match.object,
-        },
-        {
-          patient: sinon.match(defaultProps.patient),
-          agpBGM: sinon.match.object,
-          agpCGM: sinon.match.object,
-          basics: sinon.match.object,
-          daily: sinon.match.object,
-          bgLog: sinon.match.object,
-          settings: sinon.match.object,
-        },
-      );
-    });
-
-    it('should call `props.generatePDFRequest` with exixting pdf data if available in props', () => {
-      wrapper.setProps({
-        ...defaultProps,
-        currentPatientInViewId: 'patient123',
-        pdf: { data: 'some data' },
-      });
-
-      instance.generatePDF();
-      sinon.assert.calledWith(defaultProps.generatePDFRequest,
-        'combined',
-        {
-          agpBGM: sinon.match.object,
-          agpCGM: sinon.match.object,
-          basics: sinon.match.object,
-          daily: sinon.match.object,
-          bgLog: sinon.match.object,
-          settings: sinon.match.object,
-        },
-        {
-          patient: sinon.match(defaultProps.patient),
-          agpBGM: sinon.match.object,
-          agpCGM: sinon.match.object,
-          basics: sinon.match.object,
-          daily: sinon.match.object,
-          bgLog: sinon.match.object,
-          settings: sinon.match.object,
-        },
-        'patient123',
-        'some data',
-      );
-    });
-
-    it('should call `props.generatePDFRequest` with current printDialogPDFOpts state if state arg is empty', () => {
-      wrapper.setState({ printDialogPDFOpts: {
-        ...printDialogPDFOpts,
-        bgLog: { disabled: true },
-        daily: { disabled: true },
-        settings: { disabled: true },
-      } });
-
-      instance.generatePDF();
-      sinon.assert.calledWith(defaultProps.generatePDFRequest,
-        'combined',
-        {
-          agpBGM: sinon.match.object,
-          agpCGM: sinon.match.object,
-          basics: sinon.match.object,
-        },
-        {
-          patient: sinon.match(defaultProps.patient),
-          agpBGM: { endpoints: 'agpBGM endpoints' },
-          agpCGM: { endpoints: 'agpCGM endpoints' },
-          basics: { endpoints: 'basics endpoints' },
-          bgLog: { disabled: true },
-          daily: { disabled: true },
-          settings: { disabled: true },
-        },
-      );
-    });
-
-    it('should call `props.generatePDFRequest` with passed in pdf options state overrides', () => {
-      const stateOverrides = {
-        printDialogPDFOpts: {
-          ...printDialogPDFOpts,
-          agpBGM: { disabled: true },
-          agpCGM: { disabled: true },
-          basics: { disabled: true },
-        }
-      };
-
-      instance.generatePDF(undefined, stateOverrides);
-      sinon.assert.calledWith(defaultProps.generatePDFRequest,
-        'combined',
-        {
-          daily: sinon.match.object,
-          bgLog: sinon.match.object,
-          settings: sinon.match.object,
-        },
-        {
-          patient: sinon.match(defaultProps.patient),
-          agpBGM: { disabled: true },
-          agpCGM: { disabled: true },
-          basics: { disabled: true },
-          daily: { endpoints: 'daily endpoints' },
-          bgLog: { endpoints: 'bgLog endpoints' },
-          settings: { endpoints: 'settings endpoints' },
-        },
-      );
-    });
-
-    context('generating agpCGM query', () => {
-      it('should set the `endpoints` query from the `pdfOpts` arg', () => {
-        instance.generatePDF();
-        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.agpCGM.endpoints).to.eql('agpCGM endpoints');
-      });
-
-      it('should query the required `aggregationsByDate`', () => {
-        instance.generatePDF();
-        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.agpCGM.aggregationsByDate).to.equal('dataByDate, statsByDate');
-      });
-
-      it('should query the required `types`', () => {
-        instance.generatePDF();
-        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.agpCGM.types).to.eql({
-          cbg: {},
-        });
-      });
-
-      it('should query the required `stats`', () => {
-        instance.getStatsByChartType = sinon.stub().returns('agpCGM stats');
-
-        instance.generatePDF();
-
-        sinon.assert.calledWith(instance.getStatsByChartType, 'agpCGM');
-
-        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.agpCGM.stats).to.eql('agpCGM stats');
-      });
-
-      it('should query the required `bgSource` from `chartPrefs.agpCGM.bgSource` state', () => {
-        wrapper.setState({ chartPrefs: { agpCGM: { bgSource: 'agpCGM bgSource' } } });
-        instance.generatePDF();
-        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.agpCGM.bgSource).to.equal('agpCGM bgSource');
-      });
-
-      it('should query the required `commonQueries`', () => {
-        instance.generatePDF();
-        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.agpCGM.bgPrefs).to.eql(commonQueries.bgPrefs);
-        expect(query.agpCGM.metaData).to.equal(commonQueries.metaData);
-        expect(query.agpCGM.timePrefs).to.eql(commonQueries.timePrefs);
-      });
-    });
-
-    context('generating agpBGM query', () => {
-      it('should set the `endpoints` query from the `pdfOpts` arg', () => {
-        instance.generatePDF();
-        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.agpBGM.endpoints).to.eql('agpBGM endpoints');
-      });
-
-      it('should query the required `aggregationsByDate`', () => {
-        instance.generatePDF();
-        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.agpBGM.aggregationsByDate).to.equal('dataByDate, statsByDate');
-      });
-
-      it('should query the required `types`', () => {
-        instance.generatePDF();
-        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.agpBGM.types).to.eql({
-          smbg: {},
-        });
-      });
-
-      it('should query the required `stats`', () => {
-        instance.getStatsByChartType = sinon.stub().returns('agpBGM stats');
-
-        instance.generatePDF();
-
-        sinon.assert.calledWith(instance.getStatsByChartType, 'agpBGM');
-
-        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.agpBGM.stats).to.eql('agpBGM stats');
-      });
-
-      it('should query the required `bgSource` from `chartPrefs.agpBGM.bgSource` state', () => {
-        wrapper.setState({ chartPrefs: { agpBGM: { bgSource: 'agpBGM bgSource' } } });
-        instance.generatePDF();
-        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.agpBGM.bgSource).to.equal('agpBGM bgSource');
-      });
-
-      it('should query the required `commonQueries`', () => {
-        instance.generatePDF();
-        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.agpBGM.bgPrefs).to.eql(commonQueries.bgPrefs);
-        expect(query.agpBGM.metaData).to.equal(commonQueries.metaData);
-        expect(query.agpBGM.timePrefs).to.eql(commonQueries.timePrefs);
-      });
-    });
-
-    context('generating basics query', () => {
-      it('should set the `endpoints` query from the `pdfOpts` arg', () => {
-        instance.generatePDF();
-        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.basics.endpoints).to.eql('basics endpoints');
-      });
-
-      it('should query the required `aggregationsByDate`', () => {
-        instance.generatePDF();
-        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.basics.aggregationsByDate).to.equal('basals, boluses, fingersticks, siteChanges');
-      });
-
-      it('should query the required `stats`', () => {
-        instance.getStatsByChartType = sinon.stub().returns('basics stats');
-
-        instance.generatePDF();
-
-        sinon.assert.calledWith(instance.getStatsByChartType, 'basics');
-
-        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.basics.stats).to.eql('basics stats');
-      });
-
-      it('should query the required `bgSource` from `chartPrefs.basics.bgSource` state', () => {
-        wrapper.setState({ chartPrefs: { basics: { bgSource: 'basics bgSource' } } });
-        instance.generatePDF();
-        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.basics.bgSource).to.equal('basics bgSource');
-      });
-
-      it('should query the required `commonQueries`', () => {
-        instance.generatePDF();
-        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.basics.bgPrefs).to.eql(commonQueries.bgPrefs);
-        expect(query.basics.metaData).to.equal(commonQueries.metaData);
-        expect(query.basics.timePrefs).to.eql(commonQueries.timePrefs);
-      });
-    });
-
-    context('generating daily query', () => {
-      it('should set the `endpoints` query from the `pdfOpts` arg', () => {
-        instance.generatePDF();
-        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.daily.endpoints).to.eql('daily endpoints');
-      });
-
-      it('should query the required `aggregationsByDate`', () => {
-        instance.generatePDF();
-        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.daily.aggregationsByDate).to.equal('dataByDate, statsByDate');
-      });
-
-      it('should query the required `types`', () => {
-        instance.generatePDF();
-        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.daily.types).to.eql({
-          basal: {},
-          bolus: {},
-          cbg: {},
-          deviceEvent: {},
-          food: {},
-          insulin: {},
-          message: {},
-          physicalActivity: {},
-          reportedState: {},
-          smbg: {},
-          wizard: {},
-        });
-      });
-
-      it('should query the required `stats`', () => {
-        instance.getStatsByChartType = sinon.stub().returns('daily stats');
-
-        instance.generatePDF();
-
-        sinon.assert.calledWith(instance.getStatsByChartType, 'daily');
-
-        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.daily.stats).to.eql('daily stats');
-      });
-
-      it('should query the required `bgSource` from `chartPrefs.daily.bgSource` state', () => {
-        wrapper.setState({ chartPrefs: { daily: { bgSource: 'daily bgSource' } } });
-        instance.generatePDF();
-        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.daily.bgSource).to.equal('daily bgSource');
-      });
-
-      it('should query the required `commonQueries`', () => {
-        instance.generatePDF();
-        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.daily.bgPrefs).to.eql(commonQueries.bgPrefs);
-        expect(query.daily.metaData).to.equal(commonQueries.metaData);
-        expect(query.daily.timePrefs).to.eql(commonQueries.timePrefs);
-      });
-    });
-
-    context('generating bgLog query', () => {
-      it('should set the `endpoints` query from the `pdfOpts` arg', () => {
-        instance.generatePDF();
-        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.bgLog.endpoints).to.eql('bgLog endpoints');
-      });
-
-      it('should query the required `aggregationsByDate`', () => {
-        instance.generatePDF();
-        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.bgLog.aggregationsByDate).to.equal('dataByDate');
-      });
-
-      it('should query the required `types`', () => {
-        instance.generatePDF();
-        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.bgLog.types).to.eql({
-          smbg: {},
-        });
-      });
-
-      it('should query the required `stats`', () => {
-        instance.getStatsByChartType = sinon.stub().returns('bgLog stats');
-
-        instance.generatePDF();
-
-        sinon.assert.calledWith(instance.getStatsByChartType, 'bgLog');
-
-        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.bgLog.stats).to.eql('bgLog stats');
-      });
-
-      it('should query the required `bgSource` from `chartPrefs.bgLog.bgSource` state', () => {
-        wrapper.setState({ chartPrefs: { bgLog: { bgSource: 'bgLog bgSource' } } });
-        instance.generatePDF();
-        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.bgLog.bgSource).to.equal('bgLog bgSource');
-      });
-
-      it('should query the required `commonQueries`', () => {
-        instance.generatePDF();
-        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.bgLog.bgPrefs).to.eql(commonQueries.bgPrefs);
-        expect(query.bgLog.metaData).to.equal(commonQueries.metaData);
-        expect(query.bgLog.timePrefs).to.eql(commonQueries.timePrefs);
-      });
-    });
-
-    context('generating settings query', () => {
-      it('should query the required `commonQueries`', () => {
-        instance.generatePDF();
-        const query = defaultProps.generatePDFRequest.getCall(0).args[1];
-        expect(query.settings.bgPrefs).to.eql(commonQueries.bgPrefs);
-        expect(query.settings.metaData).to.equal(commonQueries.metaData);
-        expect(query.settings.timePrefs).to.eql(commonQueries.timePrefs);
       });
     });
   });
@@ -5138,12 +4237,12 @@ describe('PatientData', function () {
       wrapper.setState({timePrefs: { timezoneAware: true, timezoneName: 'utc' } })
 
       instance.updateChart = sinon.stub();
-      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns('2019-11-27T11:22:00.000Z');
+      getMostRecentDatumTimeByChartType.mockReturnValueOnce('2019-11-27T11:22:00.000Z');
       instance.getChartEndpoints = sinon.stub().returns('endpoints stub');
 
       instance.handleSwitchToBasics();
 
-      sinon.assert.calledWith(instance.getMostRecentDatumTimeByChartType, defaultProps, 'basics');
+      jestExpect(getMostRecentDatumTimeByChartType).toHaveBeenCalledWith('latestDatumByTypeMock', 'basics');
       sinon.assert.calledWith(instance.getChartEndpoints, '2019-11-27T12:00:00.000Z', { chartType: 'basics', setEndToLocalCeiling: false });
       sinon.assert.calledWith(instance.updateChart, 'basics', '2019-11-27T12:00:00.000Z', 'endpoints stub')
     });
@@ -5166,11 +4265,11 @@ describe('PatientData', function () {
       wrapper.setState({timePrefs: { timezoneAware: true, timezoneName: 'utc' } })
 
       instance.updateChart = sinon.stub();
-      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns('2019-11-27T12:00:00.000Z');
+      getMostRecentDatumTimeByChartType.mockReturnValueOnce('2019-11-27T12:00:00.000Z');
       instance.getChartEndpoints = sinon.stub().returns('endpoints stub');
 
       instance.handleSwitchToDaily();
-      sinon.assert.calledWith(instance.getMostRecentDatumTimeByChartType, defaultProps, 'daily');
+      jestExpect(getMostRecentDatumTimeByChartType).toHaveBeenCalledWith('latestDatumByTypeMock', 'daily');
       sinon.assert.calledWith(instance.getChartEndpoints, '2019-11-27T12:00:00.000Z', { chartType: 'daily' });
       sinon.assert.calledWith(instance.updateChart, 'daily', '2019-11-27T12:00:00.000Z', 'endpoints stub', {
         updateChartEndpoints: true,
@@ -5217,7 +4316,7 @@ describe('PatientData', function () {
       const instance = wrapper.instance();
 
       instance.updateChart = sinon.stub();
-      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns(Date.parse('2018-02-05T00:00:00.000Z'));
+      getMostRecentDatumTimeByChartType.mockReturnValueOnce(Date.parse('2018-02-05T00:00:00.000Z'));
       instance.getChartEndpoints = sinon.stub().returns('endpoints stub');
 
       // Provide a datetime that is beyond the one returned by getMostRecentDatumTimeByChartType
@@ -5285,11 +4384,11 @@ describe('PatientData', function () {
       wrapper.setState({timePrefs: { timezoneAware: true, timezoneName: 'utc' } })
 
       instance.updateChart = sinon.stub();
-      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns('2019-11-27T11:33:00.000Z');
+      getMostRecentDatumTimeByChartType.mockReturnValueOnce('2019-11-27T11:33:00.000Z');
       instance.getChartEndpoints = sinon.stub().returns('endpoints stub');
 
       instance.handleSwitchToTrends();
-      sinon.assert.calledWith(instance.getMostRecentDatumTimeByChartType, defaultProps, 'trends');
+      jestExpect(getMostRecentDatumTimeByChartType).toHaveBeenCalledWith('latestDatumByTypeMock', 'trends');
       sinon.assert.calledWith(instance.getChartEndpoints, '2019-11-27T12:00:00.000Z', { chartType: 'trends', setEndToLocalCeiling: false });
       sinon.assert.calledWith(instance.updateChart, 'trends', '2019-11-27T12:00:00.000Z', 'endpoints stub', {
         updateChartEndpoints: true
@@ -5321,7 +4420,7 @@ describe('PatientData', function () {
       const instance = wrapper.instance();
 
       instance.updateChart = sinon.stub();
-      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns(Date.parse('2018-02-04T08:22:00.000Z'));
+      getMostRecentDatumTimeByChartType.mockReturnValueOnce(Date.parse('2018-02-04T08:22:00.000Z'));
       instance.getChartEndpoints = sinon.stub().returns('endpoints stub');
 
       // Provide a datetime that is beyond the one returned by getMostRecentDatumTimeByChartType
@@ -5383,11 +4482,11 @@ describe('PatientData', function () {
       wrapper.setState({timePrefs: { timezoneAware: true, timezoneName: 'utc' } })
 
       instance.updateChart = sinon.stub();
-      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns('2019-11-27T12:00:00.000Z');
+      getMostRecentDatumTimeByChartType.mockReturnValueOnce('2019-11-27T12:00:00.000Z');
       instance.getChartEndpoints = sinon.stub().returns('endpoints stub');
 
       instance.handleSwitchToBgLog();
-      sinon.assert.calledWith(instance.getMostRecentDatumTimeByChartType, defaultProps, 'bgLog');
+      jestExpect(getMostRecentDatumTimeByChartType).toHaveBeenCalledWith('latestDatumByTypeMock', 'bgLog');
       sinon.assert.calledWith(instance.getChartEndpoints, '2019-11-27T12:00:00.000Z', { chartType: 'bgLog' });
       sinon.assert.calledWith(instance.updateChart, 'bgLog', '2019-11-27T12:00:00.000Z', 'endpoints stub', {
         updateChartEndpoints: true
@@ -5416,7 +4515,7 @@ describe('PatientData', function () {
       const instance = wrapper.instance();
 
       instance.updateChart = sinon.stub();
-      instance.getMostRecentDatumTimeByChartType = sinon.stub().returns(Date.parse('2018-02-05T00:00:00.000Z'));
+      getMostRecentDatumTimeByChartType.mockReturnValueOnce(Date.parse('2018-02-05T00:00:00.000Z'));
       instance.getChartEndpoints = sinon.stub().returns('endpoints stub');
 
       // Provide a datetime that is beyond the one returned by getMostRecentDatumTimeByChartType
