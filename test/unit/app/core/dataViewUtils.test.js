@@ -208,22 +208,22 @@ describe('getMostRecentDatumTimeByChartType', () => {
   };
 
   it('should return the latest datum time for basics', () => {
-    // basal.normalEnd (10) is the max across basics datum types
+    // should return the basal normalEnd
     expect(getMostRecentDatumTimeByChartType(latestDatumByType, 'basics')).toBe(10);
   });
 
   it('should return the latest datum time for daily', () => {
-    // basal.normalEnd (10) is the max across daily datum types
+    // should return the basal normalEnd
     expect(getMostRecentDatumTimeByChartType(latestDatumByType, 'daily')).toBe(10);
   });
 
   it('should return the latest datum time for bgLog', () => {
-    // smbg.normalTime (3) is the only bgLog datum type
+    // should return the smbg normalTime
     expect(getMostRecentDatumTimeByChartType(latestDatumByType, 'bgLog')).toBe(3);
   });
 
   it('should return the latest datum time for trends', () => {
-    // cbg.normalTime (8) is the max across trends datum types [cbg, smbg]
+    // should return the cbg normalTime
     expect(getMostRecentDatumTimeByChartType(latestDatumByType, 'trends')).toBe(8);
   });
 });
