@@ -12,14 +12,12 @@ var React = require('react');
 var _ = require('lodash');
 var expect = chai.expect;
 
-import { shallow, mount } from 'enzyme';
-import { withTranslation } from 'react-i18next';
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 
 import i18next from '../../../../app/core/language';
 import Daily from '../../../../app/components/chart/daily';
 import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE, MGDL_UNITS, ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE } from '../../../../app/core/constants';
 import { components as vizComponents } from '@tidepool/viz';
-import createReactClass from 'create-react-class';
 
 const { Loader } = vizComponents;
 
@@ -28,6 +26,8 @@ require('../../../../app/core/less/fonts.less');
 require('../../../../app/style.less');
 
 describe('Daily', () => {
+  const DailyClass = Daily.WrappedComponent || Daily;
+
   const bgPrefs = {
     bgClasses: {
       'very-low': {
@@ -92,15 +92,49 @@ describe('Daily', () => {
     updatingDatum: { inProgress: false, complete: false },
   };
 
-  let wrapper;
+  const createInstance = (props = baseProps) => {
+    const chartInstance = new DailyClass(props);
+
+    chartInstance.props = props;
+    chartInstance.setState = function setState(update) {
+      const nextState = _.isFunction(update) ? update(this.state, this.props) : update;
+      this.state = { ...this.state, ...nextState };
+    };
+    chartInstance.chartRef = { current: {} };
+    chartInstance.headerRef = { current: {} };
+
+    return chartInstance;
+  };
+
+  const getNodeByType = (component, type) => {
+    const queue = [component.render()];
+
+    while (queue.length) {
+      const node = queue.shift();
+
+      if (!node || !node.props) {
+        continue;
+      }
+
+      if (node.type === type) {
+        return node;
+      }
+
+      const children = React.Children.toArray(node.props.children);
+      queue.push(...children);
+    }
+
+    return null;
+  };
+
   let instance;
 
   beforeEach(() => {
-    wrapper = mount(<Daily {...baseProps} />);
-    instance = wrapper.childAt(0).instance();
+    instance = createInstance(baseProps);
   });
 
   afterEach(() => {
+    cleanup();
     baseProps.onClickPrint.reset();
     baseProps.onUpdateChartDateRange.reset();
     baseProps.trackMetric.reset();
@@ -108,40 +142,27 @@ describe('Daily', () => {
   });
 
   describe('render', () => {
-    before(() => {
-      Daily.__Rewire__('DailyChart', withTranslation()(createReactClass({
-        rerenderChart: sinon.stub(),
-        render: () => <div className='fake-daily-chart' />,
-      })));
-    });
-
-    beforeEach(() => {
-      wrapper = mount(<Daily {...baseProps} />);
-    });
-
-    after(() => {
-      Daily.__ResetDependency__('DailyChart');
-    });
-
     it('should have a refresh button which should call onClickRefresh when clicked', () => {
       var props = _.assign({}, baseProps, {
         onClickRefresh: sinon.spy(),
       });
 
-      wrapper.setProps(props);
-
-      var refreshButton = wrapper.find('.btn-refresh').hostNodes();
+      const { container } = render(<DailyClass {...props} />);
+      const refreshButton = container.querySelector('.btn-refresh');
 
       sinon.assert.callCount(props.onClickRefresh, 0);
-      refreshButton.simulate('click');
+      expect(refreshButton).to.not.be.null;
+      fireEvent.click(refreshButton);
       sinon.assert.callCount(props.onClickRefresh, 1);
     });
 
     it('should have a print button and icon and call onClickPrint when clicked', () => {
-      var printLink = wrapper.find('.printview-print-icon').hostNodes();
+      const { container } = render(<DailyClass {...baseProps} />);
+      const printLink = container.querySelector('.printview-print-icon');
 
       sinon.assert.callCount(baseProps.onClickPrint, 0);
-      printLink.simulate('click');
+      expect(printLink).to.not.be.null;
+      fireEvent.click(printLink);
       sinon.assert.callCount(baseProps.onClickPrint, 1);
     });
 
@@ -155,18 +176,23 @@ describe('Daily', () => {
             timezoneAware: false,
             timezoneName: 'US/Pacific',
           },
+          data: {
+            combined: [{ type: 'cbg', normalTime: new Date('2018-01-15T12:00:00.000Z').valueOf() }],
+            current: { endpoints: { range: [new Date('2018-01-15T00:00:00.000Z').valueOf(), new Date('2018-01-16T00:00:00.000Z').valueOf()] } },
+          },
         },
       });
 
-      wrapper.setProps(dayDataReadyProps);
+      const dailyInstance = createInstance(dayDataReadyProps);
+      const initialLoader = getNodeByType(dailyInstance, Loader);
 
-      const loader = () => wrapper.find(Loader);
+      expect(initialLoader).to.exist;
+      expect(initialLoader.props.show).to.be.false;
 
-      expect(loader().length).to.equal(1);
-      expect(loader().props().show).to.be.false;
-
-      wrapper.setProps({ loading: true });
-      expect(loader().props().show).to.be.true;
+      dailyInstance.props = { ...dailyInstance.props, loading: true };
+      const loadingLoader = getNodeByType(dailyInstance, Loader);
+      expect(loadingLoader).to.exist;
+      expect(loadingLoader.props.show).to.be.true;
     });
 
     it('should only render the daily chart when the daily data is ready', () => {
@@ -179,20 +205,26 @@ describe('Daily', () => {
             timezoneAware: false,
             timezoneName: 'US/Pacific',
           },
+          data: {
+            combined: [{ type: 'cbg', normalTime: new Date('2018-01-15T12:00:00.000Z').valueOf() }],
+            current: { endpoints: { range: [new Date('2018-01-15T00:00:00.000Z').valueOf(), new Date('2018-01-16T00:00:00.000Z').valueOf()] } },
+          },
         },
       });
 
-      const chart = () => wrapper.find('.fake-daily-chart');
+      const { container, rerender } = render(<DailyClass {...baseProps} />);
+      const chart = () => container.querySelectorAll('.patient-data-chart').length;
 
-      expect(chart().length).to.equal(0);
+      expect(chart()).to.equal(0);
 
-      wrapper.setProps(dayDataReadyProps);
-      expect(chart().length).to.equal(1);
+      rerender(<DailyClass {...dayDataReadyProps} />);
+      expect(chart()).to.equal(1);
     });
 
     it('should render the Events pool label', () => {
-      const label = () => wrapper.find('EventsInfoLabel');
-      expect(label().length).to.equal(0);
+      const { container, rerender } = render(<DailyClass {...baseProps} />);
+      const label = () => container.querySelector('.events-label-container');
+      expect(!!label()).to.equal(false);
 
       var dayDataReadyProps = _.assign({}, baseProps, {
         loading: false,
@@ -203,17 +235,22 @@ describe('Daily', () => {
             timezoneAware: false,
             timezoneName: 'US/Pacific',
           },
+          data: {
+            combined: [{ type: 'cbg', normalTime: new Date('2018-01-15T12:00:00.000Z').valueOf() }],
+            current: { endpoints: { range: [new Date('2018-01-15T00:00:00.000Z').valueOf(), new Date('2018-01-16T00:00:00.000Z').valueOf()] } },
+          },
         },
       });
 
-      wrapper.setProps(dayDataReadyProps);
-      expect(label().length).to.equal(1);
-      expect(label().text()).to.equal('Events');
+      rerender(<DailyClass {...dayDataReadyProps} />);
+      expect(!!label()).to.equal(true);
+      expect(label().textContent).to.equal('Events');
     });
 
-    it('should render the Events pool label info tooltip, but only if there are alarm events in view', () => {
-      const label = () => wrapper.find('EventsInfoLabel');
-      const tooltip = () => label().find('.events-label-tooltip').hostNodes();
+    it('should render the Events pool label info tooltip, but only if there are alarm events in view', async () => {
+      const { container, rerender } = render(<DailyClass {...baseProps} />);
+      const label = () => container.querySelector('.events-label-container');
+      const tooltip = () => container.querySelectorAll('.events-label-tooltip').length;
 
       var dayDataReadyProps = _.assign({}, baseProps, {
         loading: false,
@@ -224,52 +261,67 @@ describe('Daily', () => {
             timezoneAware: false,
             timezoneName: 'US/Pacific',
           },
+          data: {
+            combined: [{ type: 'cbg', normalTime: new Date('2018-01-15T12:00:00.000Z').valueOf() }],
+            current: { endpoints: { range: [new Date('2018-01-15T00:00:00.000Z').valueOf(), new Date('2018-01-16T00:00:00.000Z').valueOf()] } },
+          },
         },
       });
 
-      wrapper.setProps(dayDataReadyProps);
-      expect(label().length).to.equal(1);
-      expect(tooltip().length).to.equal(0);
+      rerender(<DailyClass {...dayDataReadyProps} />);
+      expect(!!label()).to.equal(true);
+      expect(tooltip()).to.equal(0);
 
       // Set data with an alarm event in view
-      wrapper.setProps({ data: {
-        query: { chartType: 'daily'},
-        bgPrefs,
-        timePrefs: {
-          timezoneAware: false,
-          timezoneName: 'US/Pacific',
-        },
+      rerender(<DailyClass {...{
+        ...dayDataReadyProps,
         data: {
-          combined: [{ tags: { alarm: true }, normalTime: new Date('2018-01-15T12:00:00.000Z').valueOf() }],
-          current: { endpoints: { range: [new Date('2018-01-15T00:00:00.000Z').valueOf(), new Date('2018-01-16T00:00:00.000Z').valueOf()] } },
+          query: { chartType: 'daily'},
+          bgPrefs,
+          timePrefs: {
+            timezoneAware: false,
+            timezoneName: 'US/Pacific',
+          },
+          data: {
+            combined: [{ tags: { alarm: true }, normalTime: new Date('2018-01-15T12:00:00.000Z').valueOf() }],
+            current: { endpoints: { range: [new Date('2018-01-15T00:00:00.000Z').valueOf(), new Date('2018-01-16T00:00:00.000Z').valueOf()] } },
+          },
         },
-      } });
-      expect(tooltip().length).to.equal(1);
+      }} />);
+      await waitFor(() => expect(tooltip()).to.equal(1));
 
       // Move endpoints so that alarm event is out of view
-      wrapper.setProps({ data: {
-        query: { chartType: 'daily'},
-        bgPrefs,
-        timePrefs: {
-          timezoneAware: false,
-          timezoneName: 'US/Pacific',
-        },
+      rerender(<DailyClass {...{
+        ...dayDataReadyProps,
         data: {
-          combined: [{ tags: { alarm: true }, normalTime: new Date('2018-01-15T12:00:00.000Z').valueOf() }],
-          current: { endpoints: { range: [new Date('2018-01-16T00:00:00.000Z').valueOf(), new Date('2018-01-17T00:00:00.000Z').valueOf()] } },
+          query: { chartType: 'daily'},
+          bgPrefs,
+          timePrefs: {
+            timezoneAware: false,
+            timezoneName: 'US/Pacific',
+          },
+          data: {
+            combined: [{ tags: { alarm: true }, normalTime: new Date('2018-01-15T12:00:00.000Z').valueOf() }],
+            current: { endpoints: { range: [new Date('2018-01-16T00:00:00.000Z').valueOf(), new Date('2018-01-17T00:00:00.000Z').valueOf()] } },
+          },
         },
-      } });
-      expect(tooltip().length).to.equal(0);
+      }} />);
+      await waitFor(() => expect(tooltip()).to.equal(0));
     });
 
     it('should not render the cgm interval toggle, even if there is a current supporting device', () => {
-      const toggle = () => wrapper.find('CgmSampleIntervalRangeToggle');
-      expect(toggle().length).to.equal(0);
+      const { container, rerender } = render(<DailyClass {...baseProps} />);
+      const toggle = () => container.querySelectorAll('.cgm-sample-interval-range-toggle').length;
+      expect(toggle()).to.equal(0);
 
       var hasOneMinCgmSampleIntervalDeviceProps = _.assign({}, baseProps, {
         loading: false,
         data: {
           query: { chartType: 'daily' },
+          data: {
+            combined: [{ type: 'cbg', normalTime: new Date('2018-01-15T12:00:00.000Z').valueOf() }],
+            current: { endpoints: { range: [new Date('2018-01-15T00:00:00.000Z').valueOf(), new Date('2018-01-16T00:00:00.000Z').valueOf()] } },
+          },
           metaData: { devices: [{ oneMinCgmSampleInterval: true }] },
         },
         chartPrefs: {
@@ -277,18 +329,20 @@ describe('Daily', () => {
         },
       });
 
-      wrapper.setProps(hasOneMinCgmSampleIntervalDeviceProps);
-      expect(toggle().length).to.equal(0);
+      rerender(<DailyClass {...hasOneMinCgmSampleIntervalDeviceProps} />);
+      expect(toggle()).to.equal(0);
     });
 
     it('should render the bg toggle', () => {
-      const toggle = wrapper.find('BgSourceToggle');
-      expect(toggle.length).to.equal(1);
+      const { container } = render(<DailyClass {...baseProps} />);
+      const toggle = container.querySelector('.toggle-container');
+      expect(toggle).to.exist;
     });
 
     it('should render the stats', () => {
-      const stats = wrapper.find('Stats');
-      expect(stats.length).to.equal(1);
+      const { container } = render(<DailyClass {...baseProps} />);
+      const stats = container.querySelector('.Stats');
+      expect(stats).to.exist;
     });
   });
 

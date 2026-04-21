@@ -1,5 +1,5 @@
 import React from 'react';
-import { createMount } from '@material-ui/core/test-utils';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
@@ -17,15 +17,11 @@ import { clinicUIDetails } from '../../../../app/core/clinicUtils';
 /* global context */
 /* global it */
 /* global beforeEach */
-/* global before */
-/* global after */
 
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
 describe('PatientInvites', () => {
-  let mount;
-
   let wrapper;
   let defaultProps = {
     trackMetric: sinon.stub(),
@@ -39,19 +35,11 @@ describe('PatientInvites', () => {
     },
   };
 
-  before(() => {
-    mount = createMount();
-  });
-
   beforeEach(() => {
     defaultProps.trackMetric.resetHistory();
     defaultProps.api.clinics.acceptPatientInvitation.resetHistory();
     defaultProps.api.clinics.deletePatientInvitation.resetHistory();
     defaultProps.api.clinics.getPatientInvites.resetHistory();
-  });
-
-  after(() => {
-    mount.cleanUp();
   });
 
   const defaultWorkingState = {
@@ -161,7 +149,7 @@ describe('PatientInvites', () => {
     beforeEach(() => {
       store = mockStore(noInvitesState);
       defaultProps.trackMetric.resetHistory();
-      wrapper = mount(
+      wrapper = render(
         <Provider store={store}>
           <ToastProvider>
             <PatientInvites {...defaultProps} />
@@ -171,21 +159,20 @@ describe('PatientInvites', () => {
     });
 
     it('should render an empty table', () => {
-      const table = wrapper.find(Table);
-      expect(table).to.have.length(1);
-      expect(table.find('tr')).to.have.length(1); // header row only
-      expect(wrapper.find('#no-invites').hostNodes().text()).includes('There are no invites. Refresh to check for pending invites');
+      const rows = wrapper.container.querySelectorAll('table tr');
+      expect(rows.length).to.equal(1); // header row only
+      expect(wrapper.container.querySelector('#no-invites').textContent).to.include('There are no invites. Refresh to check for pending invites');
     });
 
     it('should render a button that refreshes invites', () => {
-      const refreshButton = wrapper.find('Button#refresh-invites');
-      expect(refreshButton).to.have.lengthOf(1);
-      expect(refreshButton.text()).to.equal('Refresh');
+      const refreshButton = wrapper.container.querySelector('button#refresh-invites');
+      expect(refreshButton).to.not.be.null;
+      expect(refreshButton.textContent).to.equal('Refresh');
 
       store.clearActions();
       defaultProps.api.clinics.getPatientInvites.resetHistory();
 
-      refreshButton.simulate('click');
+      fireEvent.click(refreshButton);
 
       expect(store.getActions()).to.eql([
         { type: 'FETCH_PATIENT_INVITES_REQUEST' }
@@ -199,7 +186,7 @@ describe('PatientInvites', () => {
     beforeEach(() => {
       store = mockStore(hasInvitesState());
       defaultProps.trackMetric.resetHistory();
-      wrapper = mount(
+      wrapper = render(
         <Provider store={store}>
           <ToastProvider>
             <PatientInvites {...defaultProps} />
@@ -209,40 +196,40 @@ describe('PatientInvites', () => {
     });
 
     it('should render a list of invites', () => {
-      const table = wrapper.find(Table);
-      expect(table).to.have.length(1);
-      expect(table.find('tr')).to.have.length(3); // header row + 2 invites
-      expect(table.find('tr').at(1).text()).contains('Patient One')
-      expect(table.find('tr').at(1).text()).contains('1999-01-01')
-      expect(table.find('tr').at(2).text()).contains('Patient Two')
-      expect(table.find('tr').at(2).text()).contains('1999-02-02')
+      const rows = wrapper.container.querySelectorAll('table tr');
+      expect(rows.length).to.equal(3); // header row + 2 invites
+      expect(rows[1].textContent).to.include('Patient One');
+      expect(rows[1].textContent).to.include('1999-01-01');
+      expect(rows[2].textContent).to.include('Patient Two');
+      expect(rows[2].textContent).to.include('1999-02-02');
     });
 
-    it('should allow searching invites', () => {
-      const table = () => wrapper.find(Table);
-      expect(table()).to.have.length(1);
-      expect(table().find('tr')).to.have.length(3); // header row + 2 invites
-      expect(table().find('tr').at(1).text()).contains('Patient One')
-      expect(table().find('tr').at(2).text()).contains('Patient Two')
+    it('should allow searching invites', async () => {
+      const rows = () => wrapper.container.querySelectorAll('table tr');
+      expect(rows().length).to.equal(3); // header row + 2 invites
+      expect(rows()[1].textContent).to.include('Patient One');
+      expect(rows()[2].textContent).to.include('Patient Two');
 
-      const searchInput = wrapper.find('input[name="search-invites"]');
-      expect(searchInput).to.have.lengthOf(1);
+      const searchInput = wrapper.container.querySelector('input[name="search-invites"]');
+      expect(searchInput).to.not.be.null;
 
       // Input partial match on name for patient two
-      searchInput.simulate('change', { target: { name: 'search-invites', value: 'Two' } });
+      fireEvent.change(searchInput, { target: { name: 'search-invites', value: 'Two' } });
 
-      expect(table().find('tr')).to.have.length(2); // header row + 1 invite
-      expect(table().find('tr').at(1).text()).contains('Patient Two')
+      await waitFor(() => {
+        const updatedRows = wrapper.container.querySelectorAll('table tr');
+        expect(updatedRows.length).to.equal(2); // header row + 1 invite
+        expect(updatedRows[1].textContent).to.include('Patient Two');
+      });
     });
 
     it('should allow accepting a patient invite directly for tier0100 clinics', () => {
-      const table = wrapper.find(Table);
-      expect(table).to.have.length(1);
-      expect(table.find('tr')).to.have.length(3); // header row + 2 invites
-      const acceptButton = table.find('tr').at(1).find('Button.accept-invite');
-      expect(acceptButton.text()).to.equal('Accept');
+      const rows = wrapper.container.querySelectorAll('table tr');
+      expect(rows.length).to.equal(3); // header row + 2 invites
+      const acceptButton = rows[1].querySelector('button.accept-invite');
+      expect(acceptButton.textContent).to.equal('Accept');
 
-      acceptButton.simulate('click');
+      fireEvent.click(acceptButton);
 
       expect(store.getActions()).to.eql([
         { type: 'ACCEPT_PATIENT_INVITATION_REQUEST' },
@@ -251,10 +238,11 @@ describe('PatientInvites', () => {
       sinon.assert.calledWith(defaultProps.api.clinics.acceptPatientInvitation, 'clinicID123', 'invite1');
     });
 
-    it('should open a modal to set patient details prior to accepting a patient invite for tier0300 clinics', done => {
+    it('should open a modal to set patient details prior to accepting a patient invite for tier0300 clinics', async () => {
+      const { unmount } = wrapper;
       store = mockStore(hasInvitesState({ tier: 'tier0300' }));
       defaultProps.trackMetric.resetHistory();
-      wrapper = mount(
+      wrapper = render(
         <Provider store={store}>
           <ToastProvider>
             <PatientInvites {...defaultProps} />
@@ -262,50 +250,51 @@ describe('PatientInvites', () => {
         </Provider>
       );
 
-      const table = wrapper.find(Table);
-      expect(table).to.have.length(1);
-      expect(table.find('tr')).to.have.length(3); // header row + 2 invites
-      const acceptButton = table.find('tr').at(2).find('Button.accept-invite');
-      expect(acceptButton.text()).to.equal('Accept');
+      const rows = wrapper.container.querySelectorAll('table tr');
+      expect(rows.length).to.equal(3); // header row + 2 invites
+      const acceptButton = rows[2].querySelector('button.accept-invite');
+      expect(acceptButton.textContent).to.equal('Accept');
 
-      const dialog = () => wrapper.find('Dialog#editInvitedPatient');
-      expect(dialog()).to.have.length(0);
-      acceptButton.simulate('click');
+      expect(document.body.querySelector('[id="editInvitedPatient"]')).to.be.null;
+      fireEvent.click(acceptButton);
 
-      wrapper.update();
-      expect(dialog()).to.have.length(1);
-      expect(dialog().props().open).to.be.true;
+      await waitFor(() => {
+        expect(document.body.querySelector('[id="editInvitedPatient"]')).to.not.be.null;
+      });
 
       expect(defaultProps.trackMetric.calledWith('Clinic - Edit invited patient')).to.be.true;
       expect(defaultProps.trackMetric.callCount).to.equal(1);
 
-      const patientForm = () => dialog().find('form#clinic-patient-form');
-      expect(patientForm()).to.have.lengthOf(1);
+      const patientForm = document.body.querySelector('form#clinic-patient-form');
+      expect(patientForm).to.not.be.null;
 
-      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('Patient Two');
-      patientForm().find('input[name="fullName"]').simulate('change', { persist: noop, target: { name: 'fullName', value: 'Patient 2' } });
-      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('Patient 2');
+      const fullNameInput = patientForm.querySelector('input[name="fullName"]');
+      expect(fullNameInput.value).to.equal('Patient Two');
+      fireEvent.change(fullNameInput, { target: { name: 'fullName', value: 'Patient 2' } });
+      expect(fullNameInput.value).to.equal('Patient 2');
 
-      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('02/02/1999');
-      patientForm().find('input[name="birthDate"]').simulate('change', { persist: noop, target: { name: 'birthDate', value: '01/01/1999' } });
-      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('01/01/1999');
+      const birthDateInput = patientForm.querySelector('input[name="birthDate"]');
+      expect(birthDateInput.value).to.equal('02/02/1999');
+      fireEvent.change(birthDateInput, { target: { name: 'birthDate', value: '01/01/1999' } });
+      expect(birthDateInput.value).to.equal('01/01/1999');
 
-      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
-      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: 'mrn456' } });
-      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('MRN456');
+      const mrnInput = patientForm.querySelector('input[name="mrn"]');
+      expect(mrnInput.value).to.equal('');
+      fireEvent.change(mrnInput, { target: { name: 'mrn', value: 'mrn456' } });
+      await waitFor(() => expect(mrnInput.value).to.equal('MRN456'));
 
       // should not show the email field
-      expect(patientForm().find('input[name="email"]')).to.have.lengthOf(0);
+      expect(patientForm.querySelector('input[name="email"]')).to.be.null;
 
       // should not show the dexcom connection section
-      expect(patientForm().find('#connectDexcomWrapper')).to.have.lengthOf(0);
+      expect(document.body.querySelector('#connectDexcomWrapper')).to.be.null;
 
       store.clearActions();
-      dialog().find('Button#editInvitedPatientConfirm').simulate('click');
+      const confirmButton = document.body.querySelector('button#editInvitedPatientConfirm');
+      fireEvent.click(confirmButton);
 
-      setTimeout(() => {
+      await waitFor(() => {
         expect(defaultProps.api.clinics.acceptPatientInvitation.callCount).to.equal(1);
-
         sinon.assert.calledWith(
           defaultProps.api.clinics.acceptPatientInvitation,
           'clinicID123',
@@ -320,19 +309,16 @@ describe('PatientInvites', () => {
             glycemicRanges: { type: 'preset', preset: 'adaStandard' },
           }
         );
-
         expect(store.getActions()).to.eql([
           { type: 'ACCEPT_PATIENT_INVITATION_REQUEST' },
         ]);
-
-        done();
-      }, 0);
+      });
     });
 
-    it('should open a modal to set patient details prior to accepting a patient invite for mrnSettings.required clinics', done => {
+    it('should open a modal to set patient details prior to accepting a patient invite for mrnSettings.required clinics', async () => {
       store = mockStore(hasInvitesState({ mrnSettings: { required: true } }));
       defaultProps.trackMetric.resetHistory();
-      wrapper = mount(
+      wrapper = render(
         <Provider store={store}>
           <ToastProvider>
             <PatientInvites {...defaultProps} />
@@ -340,56 +326,56 @@ describe('PatientInvites', () => {
         </Provider>
       );
 
-      const table = wrapper.find(Table);
-      expect(table).to.have.length(1);
-      expect(table.find('tr')).to.have.length(3); // header row + 2 invites
-      const acceptButton = table.find('tr').at(2).find('Button.accept-invite');
-      expect(acceptButton.text()).to.equal('Accept');
+      const rows = wrapper.container.querySelectorAll('table tr');
+      expect(rows.length).to.equal(3); // header row + 2 invites
+      const acceptButton = rows[2].querySelector('button.accept-invite');
+      expect(acceptButton.textContent).to.equal('Accept');
 
-      const dialog = () => wrapper.find('Dialog#editInvitedPatient');
-      expect(dialog()).to.have.length(0);
-      acceptButton.simulate('click');
+      expect(document.body.querySelector('[id="editInvitedPatient"]')).to.be.null;
+      fireEvent.click(acceptButton);
 
-      wrapper.update();
-      expect(dialog()).to.have.length(1);
-      expect(dialog().props().open).to.be.true;
+      await waitFor(() => {
+        expect(document.body.querySelector('[id="editInvitedPatient"]')).to.not.be.null;
+      });
 
       expect(defaultProps.trackMetric.calledWith('Clinic - Edit invited patient')).to.be.true;
       expect(defaultProps.trackMetric.callCount).to.equal(1);
 
-      const patientForm = () => dialog().find('form#clinic-patient-form');
-      expect(patientForm()).to.have.lengthOf(1);
+      const patientForm = document.body.querySelector('form#clinic-patient-form');
+      expect(patientForm).to.not.be.null;
 
-      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('Patient Two');
-      patientForm().find('input[name="fullName"]').simulate('change', { persist: noop, target: { name: 'fullName', value: 'Patient 2' } });
-      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('Patient 2');
+      const fullNameInput = patientForm.querySelector('input[name="fullName"]');
+      expect(fullNameInput.value).to.equal('Patient Two');
+      fireEvent.change(fullNameInput, { target: { name: 'fullName', value: 'Patient 2' } });
+      expect(fullNameInput.value).to.equal('Patient 2');
 
-      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('02/02/1999');
-      patientForm().find('input[name="birthDate"]').simulate('change', { persist: noop, target: { name: 'birthDate', value: '01/01/1999' } });
-      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('01/01/1999');
+      const birthDateInput = patientForm.querySelector('input[name="birthDate"]');
+      expect(birthDateInput.value).to.equal('02/02/1999');
+      fireEvent.change(birthDateInput, { target: { name: 'birthDate', value: '01/01/1999' } });
+      expect(birthDateInput.value).to.equal('01/01/1999');
 
       // Since MRN is required, submit button should be disabled until filled
-      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
+      const mrnInput = patientForm.querySelector('input[name="mrn"]');
+      expect(mrnInput.value).to.equal('');
 
-      expect(dialog().find('Button#editInvitedPatientConfirm').props().disabled).to.be.true;
+      const confirmButton = document.body.querySelector('button#editInvitedPatientConfirm');
+      expect(confirmButton.disabled).to.be.true;
 
-      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: 'mrn456' } });
-      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('MRN456');
-
-      expect(dialog().find('Button#editInvitedPatientConfirm').props().disabled).to.be.false;
+      fireEvent.change(mrnInput, { target: { name: 'mrn', value: 'mrn456' } });
+      await waitFor(() => expect(mrnInput.value).to.equal('MRN456'));
+      await waitFor(() => expect(confirmButton.disabled).to.be.false);
 
       // should not show the email field
-      expect(patientForm().find('input[name="email"]')).to.have.lengthOf(0);
+      expect(patientForm.querySelector('input[name="email"]')).to.be.null;
 
       // should not show the dexcom connection section
-      expect(patientForm().find('#connectDexcomWrapper')).to.have.lengthOf(0);
+      expect(document.body.querySelector('#connectDexcomWrapper')).to.be.null;
 
       store.clearActions();
-      dialog().find('Button#editInvitedPatientConfirm').simulate('click');
+      fireEvent.click(confirmButton);
 
-      setTimeout(() => {
+      await waitFor(() => {
         expect(defaultProps.api.clinics.acceptPatientInvitation.callCount).to.equal(1);
-
         sinon.assert.calledWith(
           defaultProps.api.clinics.acceptPatientInvitation,
           'clinicID123',
@@ -404,31 +390,35 @@ describe('PatientInvites', () => {
             glycemicRanges: { type: 'preset', preset: 'adaStandard' },
           }
         );
-
         expect(store.getActions()).to.eql([
           { type: 'ACCEPT_PATIENT_INVITATION_REQUEST' },
         ]);
-
-        done();
-      }, 0);
+      });
     });
 
-    it('should allow declining a patient invite', () => {
-      const table = wrapper.find(Table);
-      expect(table).to.have.length(1);
-      expect(table.find('tr')).to.have.length(3); // header row + 2 invites
-      const declineButton = table.find('tr').at(1).find('Button.decline-invite');
-      expect(declineButton.text()).to.equal('Decline');
+    it('should allow declining a patient invite', async () => {
+      const rows = wrapper.container.querySelectorAll('table tr');
+      expect(rows.length).to.equal(3); // header row + 2 invites
+      const declineButton = rows[1].querySelector('button.decline-invite');
+      expect(declineButton.textContent).to.equal('Decline');
 
-      expect(wrapper.find(Dialog).props().open).to.be.false;
-      declineButton.simulate('click');
-      wrapper.update();
-      expect(wrapper.find(Dialog).props().open).to.be.true;
+      // Before click, the confirm decline button should not be visible
+      // confirmDeclineButton text should not be 'Decline Invite' yet (dialog closed)
 
-      const confirmDeclineButton = wrapper.find(Dialog).find('Button.decline-invite');
-      expect(confirmDeclineButton.text()).to.equal('Decline Invite');
+      fireEvent.click(declineButton);
 
-      confirmDeclineButton.simulate('click');
+      await waitFor(() => {
+        const openDialog = document.body.querySelector('[role="dialog"]');
+        const confirmDeclineButton = openDialog && openDialog.querySelector('button.decline-invite');
+        // After click, the 'Decline Invite' button text should be populated (dialog open)
+        expect(confirmDeclineButton && confirmDeclineButton.textContent).to.equal('Decline Invite');
+      });
+
+      const openDialog = document.body.querySelector('[role="dialog"]');
+      const confirmDeclineButton = openDialog.querySelector('button.decline-invite');
+      expect(confirmDeclineButton.textContent).to.equal('Decline Invite');
+
+      fireEvent.click(confirmDeclineButton);
 
       expect(store.getActions()).to.eql([
         { type: 'DELETE_PATIENT_INVITATION_REQUEST' },

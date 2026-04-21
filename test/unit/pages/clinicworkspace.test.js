@@ -1,12 +1,25 @@
 import React from 'react';
-import { createMount } from '@material-ui/core/test-utils';
 import { Provider } from 'react-redux';
 import { MemoryRouter, Route } from 'react-router';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import merge from 'lodash/merge';
+import { render } from '@testing-library/react';
 import { ToastProvider } from '../../../app/providers/ToastProvider';
 import ClinicWorkspace from '../../../app/pages/clinicworkspace';
+
+let mockUseFlags = () => ({ showPrescriptions: true });
+
+jest.mock('launchdarkly-react-client-sdk', () => ({
+  useFlags: (...args) => mockUseFlags(...args),
+}));
+
+jest.mock('../../../app/components/clinic/ClinicWorkspaceHeader', () => () => <div>stubbed clinic profile</div>);
+jest.mock('../../../app/pages/share', () => ({
+  PatientInvites: () => <div>stubbed patient invites</div>,
+}));
+jest.mock('../../../app/pages/clinicworkspace/ClinicPatients', () => () => <div>stubbed clinic patients</div>);
+jest.mock('../../../app/pages/prescription/Prescriptions', () => () => <div>stubbed patient prescriptions</div>);
 
 /* global chai */
 /* global sinon */
@@ -14,51 +27,13 @@ import ClinicWorkspace from '../../../app/pages/clinicworkspace';
 /* global describe */
 /* global it */
 /* global beforeEach */
-/* global before */
-/* global after */
-/* global afterEach */
 
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
 describe('ClinicWorkspace', () => {
-  let mount;
-
-  let wrapper;
-  let defaultProps = {
-    trackMetric: sinon.stub(),
-    t: sinon.stub().callsFake((string) => string),
-    api: {
-      clinics: {
-        getPatientInvites: sinon.stub().callsArgWith(1, null, { invitesReturn: 'success' }),
-      },
-    },
-  };
-
-  before(() => {
-    mount = createMount();
-    ClinicWorkspace.__Rewire__('ClinicWorkspaceHeader', sinon.stub().returns('stubbed clinic profile'));
-    ClinicWorkspace.__Rewire__('PatientInvites', () => (<div>stubbed patient invites</div>));
-    ClinicWorkspace.__Rewire__('ClinicPatients', () => (<div>stubbed clinic patients</div>));
-    ClinicWorkspace.__Rewire__('Prescriptions', sinon.stub().returns('stubbed patient prescriptions'));
-
-    ClinicWorkspace.__Rewire__('useFlags', sinon.stub().returns({
-      showPrescriptions: true,
-    }));
-  });
-
-  after(() => {
-    mount.cleanUp();
-    ClinicWorkspace.__ResetDependency__('ClinicWorkspaceHeader');
-    ClinicWorkspace.__ResetDependency__('PatientInvites');
-    ClinicWorkspace.__ResetDependency__('ClinicPatients');
-    ClinicWorkspace.__ResetDependency__('Prescriptions');
-    ClinicWorkspace.__ResetDependency__('useFlags');
-  });
-
-  afterEach(() => {
-    defaultProps.api.clinics.getPatientInvites.resetHistory();
-  });
+  let defaultProps;
+  let store;
 
   const defaultWorkingState = {
     inProgress: false,
@@ -124,31 +99,36 @@ describe('ClinicWorkspace', () => {
     }),
   };
 
-  let store = mockStore(fetchedDataState);
+  const renderPage = (route = '', providedStore = store) => {
+    return render(
+      <Provider store={providedStore}>
+        <ToastProvider>
+          <MemoryRouter initialEntries={[`/clinic-workspace/${route}`]}>
+            <Route path='/clinic-workspace/:tab?' children={() => (<ClinicWorkspace {...defaultProps} />)} />
+          </MemoryRouter>
+        </ToastProvider>
+      </Provider>
+    );
+  };
 
   beforeEach(() => {
-    defaultProps.trackMetric.resetHistory();
+    defaultProps = {
+      trackMetric: sinon.stub(),
+      t: sinon.stub().callsFake((string) => string),
+      api: {
+        clinics: {
+          getPatientInvites: sinon.stub().callsArgWith(1, null, { invitesReturn: 'success' }),
+        },
+      },
+    };
 
-    wrapper = (route = '', providedStore = store) => {
-      store = providedStore;
-
-      return mount(
-        <Provider store={store}>
-          <ToastProvider>
-            <MemoryRouter initialEntries={[`/clinic-workspace/${route}`]}>
-              <Route path='/clinic-workspace/:tab?' children={() => (<ClinicWorkspace {...defaultProps} />)} />
-            </MemoryRouter>
-          </ToastProvider>
-        </Provider>
-      );
-    }
+    store = mockStore(fetchedDataState);
+    mockUseFlags = () => ({ showPrescriptions: true });
   });
 
   context('initial fetching', () => {
-    let initialWrapper;
-
     beforeEach(() => {
-      initialWrapper = wrapper('', mockStore({
+      renderPage('', mockStore({
         blip: {
           ...fetchedDataState.blip,
           working: workingState.blip.working,
@@ -163,31 +143,37 @@ describe('ClinicWorkspace', () => {
   });
 
   it('should render a clinic profile', () => {
-    expect(wrapper().text()).to.include('stubbed clinic profile');
+    const { container } = renderPage();
+    expect(container.textContent).to.include('stubbed clinic profile');
   });
 
   it('should render the patients tab by default when no tab route param provided', () => {
-    expect(wrapper().find('button[aria-selected=true]').hostNodes().text()).to.equal('Patient List');
-    expect(wrapper().find('div[role="tabpanel"][hidden=false]').parent('#patientsTab')).to.have.lengthOf(1);
+    const { container } = renderPage();
+    expect(container.querySelector('button[aria-selected="true"]')?.textContent).to.equal('Patient List');
+    expect(container.textContent).to.include('stubbed clinic patients');
   });
 
   it('should render the patients tab by default when an unmatched route param provided', () => {
-    expect(wrapper('foo').find('button[aria-selected=true]').hostNodes().text()).to.equal('Patient List');
-    expect(wrapper().find('div[role="tabpanel"][hidden=false]').parent('#patientsTab')).to.have.lengthOf(1);
+    const { container } = renderPage('foo');
+    expect(container.querySelector('button[aria-selected="true"]')?.textContent).to.equal('Patient List');
+    expect(container.textContent).to.include('stubbed clinic patients');
   });
 
   it('should render the patients tab by default when `patients` route param provided', () => {
-    expect(wrapper('patients').find('button[aria-selected=true]').hostNodes().text()).to.equal('Patient List');
-    expect(wrapper().find('div[role="tabpanel"][hidden=false]').parent('#patientsTab')).to.have.lengthOf(1);
+    const { container } = renderPage('patients');
+    expect(container.querySelector('button[aria-selected="true"]')?.textContent).to.equal('Patient List');
+    expect(container.textContent).to.include('stubbed clinic patients');
   });
 
   it('should render the invites tab by default when `invites` route param provided', () => {
-    expect(wrapper('invites').find('button[aria-selected=true]').hostNodes().text()).to.equal('Invites (0)');
-    expect(wrapper().find('div[role="tabpanel"][hidden=false]').parent('#invitesTab')).to.have.lengthOf(1);
+    const { container } = renderPage('invites');
+    expect(container.querySelector('button[aria-selected="true"]')?.textContent).to.equal('Invites (0)');
+    expect(container.textContent).to.include('stubbed patient invites');
   });
 
   it('should render the prescriptions tab by default when `prescriptions` route param provided', () => {
-    expect(wrapper('prescriptions').find('button[aria-selected=true]').hostNodes().text()).to.equal('Tidepool Loop Start Orders');
-    expect(wrapper().find('div[role="tabpanel"][hidden=false]').parent('#prescriptionsTab')).to.have.lengthOf(1);
+    const { container } = renderPage('prescriptions');
+    expect(container.querySelector('button[aria-selected="true"]')?.textContent).to.equal('Tidepool Loop Start Orders');
+    expect(container.textContent).to.include('stubbed patient prescriptions');
   });
 });

@@ -66,6 +66,7 @@ const Trends = withTranslation()(class Trends extends PureComponent {
     updateChartPrefs: PropTypes.func.isRequired,
     uploadUrl: PropTypes.string.isRequired,
     removeGeneratedPDFS: PropTypes.func.isRequired,
+    isSmartOnFhirMode: PropTypes.bool.isRequired,
   };
 
   constructor(props) {
@@ -660,6 +661,7 @@ const Trends = withTranslation()(class Trends extends PureComponent {
         onClickSettings={this.handleClickSettings}
         onClickExport={this.handleClickExport}
         onClickPrint={this.handleClickPrint}
+        isSmartOnFhirMode={this.props.isSmartOnFhirMode}
         ref="header" />
     );
   }

@@ -1,177 +1,156 @@
 import React from 'react';
-import { createMount } from '@material-ui/core/test-utils';
 import { Provider } from 'react-redux';
-import { MemoryRouter, Route } from 'react-router';
+import { Route, Router } from 'react-router';
+import { cleanup, render } from '@testing-library/react';
+import { createMemoryHistory } from 'history';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
-import { Title } from '../../../app/components/elements/FontStyles';
 import UploadRedirect from '../../../app/pages/uploadredirect';
 
-/* global chai */
 /* global sinon */
+/* global chai */
 /* global context */
 /* global describe */
 /* global it */
 /* global beforeEach */
-/* global before */
-/* global after */
 /* global afterEach */
 
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
-describe('UploadRedirect', () => {
-  let mount;
+let mockBrowserName = 'Chrome';
+const mockCustomProtocolCheck = jest.fn((linkUrl, onFail, onSuccess) => onSuccess());
 
-  let wrapper;
-  let createWrapper;
-  let defaultProps = {
-    t: sinon.stub().callsFake((string) => string),
+jest.mock('custom-protocol-check', () => (...args) => mockCustomProtocolCheck(...args));
+jest.mock('ua-parser-js', () => jest.fn().mockImplementation(() => ({
+  getResult: () => ({ browser: { name: mockBrowserName } }),
+})));
+
+describe('UploadRedirect', () => {
+  let defaultProps;
+  let store;
+
+  const renderWithRoute = (hash = '', propOverrides = {}) => {
+    const history = createMemoryHistory({ initialEntries: [`/upload-redirect${hash}`] });
+
+    const renderResult = render(
+      <Provider store={store}>
+        <Router history={history}>
+          <Route
+            path="/upload-redirect"
+            render={(routeProps) => (
+              <UploadRedirect {...routeProps} {...defaultProps} {...propOverrides} />
+            )}
+          />
+          <Route path="/login" render={() => <div>login page</div>} />
+        </Router>
+      </Provider>
+    );
+
+    return {
+      history,
+      ...renderResult,
+    };
   };
 
-  let store = mockStore({
-    blip: {
-      allUsersMap: {
-        user123: {
-          profile: {
-            fullName: 'cool user'
-          }
-        }
+  beforeEach(() => {
+    defaultProps = {
+      t: sinon.stub().callsFake((string) => string),
+    };
+
+    store = mockStore({
+      blip: {
+        allUsersMap: {
+          user123: {
+            profile: {
+              fullName: 'cool user',
+            },
+          },
+        },
+        loggedInUserId: 'user123',
       },
-      loggedInUserId: 'user123'
-    }
-  });
-  let customProtocolCheckStub = sinon.stub().callsArg(2);
+    });
 
-  before(() => {
-    mount = createMount();
-    UploadRedirect.__Rewire__('customProtocolCheck', customProtocolCheckStub);
-  });
-
-  after(() => {
-    mount.cleanUp();
-    UploadRedirect.__ResetDependency__('customProtocolCheck');
+    mockCustomProtocolCheck.mockClear();
+    mockBrowserName = 'Chrome';
   });
 
   afterEach(() => {
     store.clearActions();
-  });
-
-  beforeEach(() => {
-    customProtocolCheckStub.resetHistory();
-
-    createWrapper = (hash = '') => {
-      return mount(
-        <Provider store={store}>
-          <MemoryRouter initialEntries={[`/upload-redirect${hash}`]}>
-            <Route
-              path="/upload-redirect"
-              render={(routeProps) => (
-                <UploadRedirect {...routeProps} {...defaultProps} />
-              )}
-            />
-          </MemoryRouter>
-        </Provider>
-      );
-    };
+    cleanup();
   });
 
   context('no hash provided', () => {
-    beforeEach(() => {
-      wrapper = createWrapper();
-    });
-
     it('should redirect to `/login`', () => {
-      expect(wrapper.find('UploadRedirect')).to.have.lengthOf(0);
-      expect(wrapper.find('Router').prop('history').location.pathname).to.equal(
-        '/login'
-      );
+      const { history } = renderWithRoute();
+      expect(history.location.pathname).to.equal('/login');
     });
   });
 
   context('hash provided', () => {
-    beforeEach(() => {
-      wrapper = createWrapper('#someloginhash');
-    });
-
     it('should run the custom protocol check with the expected link url', () => {
-      expect(customProtocolCheckStub.calledOnce).to.be.true;
-      expect(
-        customProtocolCheckStub.calledWith(
-          'tidepooluploader://localhost/keycloak-redirect#someloginhash'
-        )
-      ).to.be.true;
+      renderWithRoute('#someloginhash');
+      expect(mockCustomProtocolCheck.mock.calls.length).to.equal(1);
+      expect(mockCustomProtocolCheck.mock.calls[0][0]).to.equal('tidepooluploader://localhost/keycloak-redirect#someloginhash');
     });
 
     it('should contain Chrome specific open text in Chrome', () => {
-      let title = wrapper.find(Title);
-      expect(title.text()).to.include('Click Open Tidepool Uploader on the dialog')
+      const { container } = renderWithRoute('#someloginhash');
+      expect(container.textContent).to.include('Click Open Tidepool Uploader on the dialog shown by your browser');
     });
 
     context('in Firefox', () => {
-      before(() => {
-        UploadRedirect.__Rewire__('UAParser', () => ({getResult:()=>({browser:{name:'Firefox'}})}))
-      })
-      after(()=>{
-        UploadRedirect.__ResetDependency__('UAParser')
-      })
       it('should contain Firefox specific open text in Firefox', () => {
-        let title = wrapper.find(Title);
-        expect(title.text()).to.include('Click Open Link on the dialog')
+        mockBrowserName = 'Firefox';
+        const { container } = renderWithRoute('#someloginhash');
+        expect(container.textContent).to.include('Click Open Link on the dialog shown by your browser');
       });
     });
 
     context('in Edge', () => {
-      before(() => {
-        UploadRedirect.__Rewire__('UAParser', () => ({getResult:()=>({browser:{name:'Edge'}})}))
-      })
-      after(()=>{
-        UploadRedirect.__ResetDependency__('UAParser')
-      })
       it('should contain Edge specific open text in Edge', () => {
-        let title = wrapper.find(Title);
-        expect(title.text()).to.include('Click Open on the dialog')
+        mockBrowserName = 'Edge';
+        const { container } = renderWithRoute('#someloginhash');
+        expect(container.textContent).to.include('Click Open on the dialog shown by your browser');
       });
     });
 
     it("shouldn't run the protocol check when component is rendered a second time", () => {
-      expect(customProtocolCheckStub.notCalled).to.be.true;
+      renderWithRoute('#someloginhash');
+      const firstRenderCallCount = mockCustomProtocolCheck.mock.calls.length;
+      cleanup();
+      renderWithRoute('#someloginhash');
+      expect(mockCustomProtocolCheck.mock.calls.length).to.equal(firstRenderCallCount);
     });
 
     it('should have a link with custom protocol URL attached', () => {
-      let launchAnchor = wrapper.find('#launch_uploader');
-      expect(launchAnchor).to.have.lengthOf(1);
-      expect(launchAnchor.prop('href')).to.equal(
+      renderWithRoute('#someloginhash');
+      const launchAnchor = document.querySelector('#launch_uploader');
+      expect(launchAnchor).to.exist;
+      expect(launchAnchor.getAttribute('href')).to.equal(
         'tidepooluploader://localhost/keycloak-redirect#someloginhash'
       );
     });
 
     context('from profile form', () => {
-      before(() => {
-        defaultProps = {
-          ...defaultProps,
+      it('should contain thank you text', () => {
+        const { container } = renderWithRoute('#uploader', {
           location: {
             state: {
               referrer: 'profile',
             },
+            hash: '#uploader',
+            pathname: '/upload-redirect',
+            search: '',
           },
-        };
-      });
+        });
 
-      beforeEach(() => {
-        wrapper = createWrapper();
-      });
-
-      it('should contain thank you text', () => {
-        let title = wrapper.find(Title);
-        expect(title.text()).to.include(
-          'Thank you for completing your account registration'
-        );
+        expect(container.textContent).to.include('Thank you for completing your account registration');
       });
     });
 
     context('user has no fullName', () => {
-      before(() => {
+      it('should forward the user to the user profile', () => {
         store = mockStore({
           blip: {
             allUsersMap: {
@@ -182,15 +161,10 @@ describe('UploadRedirect', () => {
             loggedInUserId: 'user123',
           },
         });
-      });
 
-      beforeEach(() => {
-        store.clearActions();
-        wrapper = createWrapper();
-      });
+        renderWithRoute('#someloginhash');
 
-      it('should forward the user to the user profile', () => {
-        let expectedActions = [
+        const expectedActions = [
           {
             type: '@@router/CALL_HISTORY_METHOD',
             payload: {
@@ -206,13 +180,14 @@ describe('UploadRedirect', () => {
             },
           },
         ];
-        let actions = store.getActions();
+
+        const actions = store.getActions();
         expect(actions).to.deep.equal(expectedActions);
       });
     });
 
     context('clinician has no clinic profile', () => {
-      before(() => {
+      it('should forward the user to the clinician profile', () => {
         store = mockStore({
           blip: {
             allUsersMap: {
@@ -224,15 +199,10 @@ describe('UploadRedirect', () => {
             loggedInUserId: 'user123',
           },
         });
-      });
 
-      beforeEach(() => {
-        store.clearActions();
-        wrapper = createWrapper();
-      });
+        renderWithRoute('#someloginhash');
 
-      it('should forward the user to the clinician profile', () => {
-        let expectedActions = [
+        const expectedActions = [
           {
             type: '@@router/CALL_HISTORY_METHOD',
             payload: {
@@ -248,10 +218,10 @@ describe('UploadRedirect', () => {
             },
           },
         ];
-        let actions = store.getActions();
+
+        const actions = store.getActions();
         expect(actions).to.deep.equal(expectedActions);
       });
     });
-
   });
 });

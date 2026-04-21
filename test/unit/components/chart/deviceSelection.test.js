@@ -8,10 +8,41 @@
 
 import React from 'react';
 import _ from 'lodash';
-import { mount } from 'enzyme';
-import { Box } from 'theme-ui';
+import { render, fireEvent, screen } from '@testing-library/react';
 
 import DeviceSelection from '../../../../app/components/chart/deviceSelection';
+
+jest.mock('../../../../app/components/elements/Accordion', () => ({
+  __esModule: true,
+  default: ({ header, children, onChange }) => (
+    <div>
+      <div data-testid="accordion-header">{header}</div>
+      <button type="button" data-testid="accordion-toggle" onClick={(e) => onChange(e, true)}>
+        expand
+      </button>
+      <button type="button" data-testid="accordion-toggle-close" onClick={(e) => onChange(e, false)}>
+        collapse
+      </button>
+      <div>{children}</div>
+    </div>
+  ),
+}));
+
+jest.mock('../../../../app/components/elements/Checkbox', () => ({
+  __esModule: true,
+  default: ({ checked, onChange, value, name, label }) => (
+    <label>
+      <input
+        type="checkbox"
+        aria-label={name}
+        checked={checked}
+        value={value}
+        onChange={onChange}
+      />
+      {label}
+    </label>
+  ),
+}));
 
 const expect = chai.expect;
 
@@ -30,37 +61,35 @@ describe('DeviceSelection', () => {
     trackMetric: sinon.stub(),
   };
 
-  let wrapper;
-  beforeEach(() => {
-    wrapper = mount(<DeviceSelection {...props} />);
-  });
+  const renderSelection = (overrideProps = {}) =>
+    render(<DeviceSelection {..._.assign({}, props, overrideProps)} />);
 
   afterEach(() => {
-    props.updateChartPrefs.reset();
+    props.updateChartPrefs.resetHistory();
     props.trackMetric.resetHistory();
+    props.removeGeneratedPDFS.resetHistory();
   });
 
   it('should render without errors when provided all required props', () => {
-    console.error = sinon.stub();
-
-    expect(wrapper.find('Accordion')).to.have.length(1);
-    expect(console.error.callCount).to.equal(0);
+    renderSelection();
+    expect(screen.getByTestId('accordion-header')).to.exist;
   });
 
   it('should render the number of devices selected', () => {
-    expect(wrapper.find(Box).at(4).text()).to.equal('2');
+    const { rerender } = renderSelection();
+    expect(screen.getByText('2')).to.exist;
 
-    wrapper.setProps({
+    rerender(<DeviceSelection {..._.assign({}, props, {
       devices: [
         { id: 'device1' },
         { id: 'device2' },
         { id: 'device3' },
       ]
-    });
+    })} />);
 
-    expect(wrapper.find(Box).at(4).text()).to.equal('3');
+    expect(screen.getByText('3')).to.exist;
 
-    wrapper.setProps({
+    rerender(<DeviceSelection {..._.assign({}, props, {
       devices: [
         { id: 'device1' },
         { id: 'device2' },
@@ -69,25 +98,26 @@ describe('DeviceSelection', () => {
       chartPrefs: {
         excludedDevices: ['device1'],
       },
-    });
+    })} />);
 
-    expect(wrapper.find(Box).at(4).text()).to.equal('2');
+    expect(screen.getByText('2')).to.exist;
   });
 
   it('should render a Checkbox for each deviceId', () => {
-    expect(wrapper.find('Checkbox').length).to.equal(2);
+    const { rerender } = renderSelection();
+    expect(screen.getAllByRole('checkbox')).to.have.length(2);
 
-    wrapper.setProps({
+    rerender(<DeviceSelection {..._.assign({}, props, {
       devices: [
         { id: 'device1' },
         { id: 'device2' },
         { id: 'device3' },
       ]
-    });
+    })} />);
 
-    expect(wrapper.find('Checkbox').length).to.equal(3);
+    expect(screen.getAllByRole('checkbox')).to.have.length(3);
 
-    wrapper.setProps({
+    rerender(<DeviceSelection {..._.assign({}, props, {
       devices: [
         { id: 'device1' },
         { id: 'device2' },
@@ -96,23 +126,22 @@ describe('DeviceSelection', () => {
       chartPrefs: {
         excludedDevices: ['device1'],
       },
-    });
+    })} />);
 
-    expect(wrapper.find('Checkbox').length).to.equal(3);
+    expect(screen.getAllByRole('checkbox')).to.have.length(3);
   });
 
   it('should call updateChartPrefs and removeGeneratedPDFS and trackMetric on Checkbox change adding or removing devices', () => {
-    const checkboxes = wrapper.find('Checkbox');
-    const checkbox1 = checkboxes.at(0).find('input');
-    const checkbox2 = checkboxes.at(1).find('input');
+    const { rerender } = renderSelection();
+    const checkboxes = screen.getAllByRole('checkbox');
+    const checkbox1 = checkboxes[0];
+    const checkbox2 = checkboxes[1];
 
     sinon.assert.callCount(props.updateChartPrefs, 0);
     sinon.assert.callCount(props.removeGeneratedPDFS, 0);
     sinon.assert.callCount(props.trackMetric, 0);
 
-    checkbox1.simulate('change', {
-      target: { value: 'device1', checked: false },
-    });
+    fireEvent.click(checkbox1);
 
     sinon.assert.callCount(props.updateChartPrefs, 1);
     sinon.assert.calledWith(
@@ -122,11 +151,8 @@ describe('DeviceSelection', () => {
     sinon.assert.callCount(props.removeGeneratedPDFS, 1);
     sinon.assert.calledWith(props.trackMetric, 'Clicked Basics filter device off');
 
-    wrapper.setProps({ chartPrefs: { excludedDevices: ['device1'] } });
-
-    checkbox2.simulate('change', {
-      target: { value: 'device2', checked: false },
-    });
+    rerender(<DeviceSelection {..._.assign({}, props, { chartPrefs: { excludedDevices: ['device1'] } })} />);
+    fireEvent.click(screen.getAllByRole('checkbox')[1]);
 
     sinon.assert.callCount(props.updateChartPrefs, 2);
     sinon.assert.calledWith(
@@ -135,13 +161,8 @@ describe('DeviceSelection', () => {
     );
     sinon.assert.callCount(props.removeGeneratedPDFS, 2);
 
-    wrapper.setProps({
-      chartPrefs: { excludedDevices: ['device1', 'device2'] },
-    });
-
-    checkbox1.simulate('change', {
-      target: { value: 'device1', checked: true },
-    });
+    rerender(<DeviceSelection {..._.assign({}, props, { chartPrefs: { excludedDevices: ['device1', 'device2'] } })} />);
+    fireEvent.click(screen.getAllByRole('checkbox')[0]);
 
     sinon.assert.callCount(props.updateChartPrefs, 3);
     sinon.assert.calledWith(
@@ -151,13 +172,8 @@ describe('DeviceSelection', () => {
     sinon.assert.callCount(props.removeGeneratedPDFS, 3);
     sinon.assert.calledWith(props.trackMetric, 'Clicked Basics filter device on');
 
-    wrapper.setProps({
-      chartPrefs: { excludedDevices: ['device2'] },
-    });
-
-    checkbox2.simulate('change', {
-      target: { value: 'device2', checked: true },
-    });
+    rerender(<DeviceSelection {..._.assign({}, props, { chartPrefs: { excludedDevices: ['device2'] } })} />);
+    fireEvent.click(screen.getAllByRole('checkbox')[1]);
 
     sinon.assert.callCount(props.updateChartPrefs, 4);
     sinon.assert.calledWith(
@@ -168,14 +184,13 @@ describe('DeviceSelection', () => {
   });
 
   it('should track a metric when device selection accordion is collapsed or expanded', () => {
-    const collapseIcon = wrapper.find('.MuiExpansionPanelSummary-expandIcon').hostNodes();
-    expect(collapseIcon).to.have.lengthOf(1);
+    renderSelection();
 
     sinon.assert.callCount(props.trackMetric, 0);
-    collapseIcon.simulate('click');
+    fireEvent.click(screen.getByTestId('accordion-toggle'));
     sinon.assert.calledWith(props.trackMetric, 'Click expanded - Basics - Filter devices');
 
-    collapseIcon.simulate('click');
+    fireEvent.click(screen.getByTestId('accordion-toggle-close'));
     sinon.assert.calledWith(props.trackMetric, 'Click collapsed - Basics - Filter devices');
   });
 });

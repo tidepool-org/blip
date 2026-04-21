@@ -38,6 +38,7 @@ var PatientCard = withTranslation()(class extends React.Component {
     uploadUrl: PropTypes.string,
     patient: PropTypes.object.isRequired,
     trackMetric: PropTypes.func.isRequired,
+    isSmartOnFhirMode: PropTypes.bool.isRequired,
   };
 
   state = {
@@ -60,7 +61,7 @@ var PatientCard = withTranslation()(class extends React.Component {
     var upload = this.renderUpload(patient);
     var share = this.renderShare(patient);
     var profile = this.renderProfile(patient);
-    var uploadLaunchOverlay = this.state.showUploadOverlay ? this.renderUploadOverlay() : null;
+    var uploadLaunchOverlay = this.state.showUploadOverlay && !this.props.isSmartOnFhirMode ? this.renderUploadOverlay() : null;
 
     return (
       <div>

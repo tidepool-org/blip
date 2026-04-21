@@ -19,12 +19,13 @@
 /* global sinon */
 /* global describe */
 /* global it */
-/* global expect */
 
 import mutationTracker from 'object-invariant-test-helper';
 
 import * as actionTypes from '../../../../app/redux/constants/actionTypes';
 import reducer from '../../../../app/redux/reducers/pdf';
+
+const expect = chai.expect;
 
 describe('pdf reducer', () => {
   it('should return the initial state of {}', () => {
@@ -32,7 +33,7 @@ describe('pdf reducer', () => {
   });
 
   describe('GENERATE_PDF_SUCCESS', () => {
-    it('should merge the pdf data recieved', () => {
+    it('should merge the pdf data received', () => {
       const pdfObject = {
         url: 'someUrl',
         blob: 'someBlob',

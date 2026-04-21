@@ -7,8 +7,24 @@
 /* global after */
 /* global afterEach */
 
-import api from '../../../../app/core/api';
 import _ from 'lodash';
+
+let mockCreateTidepoolClient = () => {
+  throw new Error('createTidepoolClientMock not initialized');
+};
+
+jest.mock('tidepool-platform-client', () => (...args) => mockCreateTidepoolClient(...args));
+
+jest.mock('../../../../app/rollbar', () => ({
+  __esModule: true,
+  default: {
+    configure: jest.fn(),
+    error: jest.fn(),
+  },
+}));
+
+import api from '../../../../app/core/api';
+import rollbarMock from '../../../../app/rollbar';
 
 const noop = _.noop;
 const currentUserId = 'a1b2c3';
@@ -85,15 +101,12 @@ describe('api', () => {
       createUserConsentRecord: sinon.stub(),
       updateUserConsentRecord: sinon.stub(),
       revokeUserConsentRecord: sinon.stub(),
+      initialize: sinon.stub().callsArg(0),
     };
 
-    rollbar = {
-      configure: sinon.stub(),
-      error: sinon.stub(),
-    }
-
-    api.__Rewire__('tidepool', tidepool);
-    api.__Rewire__('rollbar', rollbar);
+    rollbar = rollbarMock;
+    mockCreateTidepoolClient = sinon.stub().returns(tidepool);
+    api.init(noop);
   });
 
   beforeEach(() => {
@@ -163,14 +176,16 @@ describe('api', () => {
     tidepool.createUserConsentRecord.resetHistory();
     tidepool.updateUserConsentRecord.resetHistory();
     tidepool.revokeUserConsentRecord.resetHistory();
+    tidepool.initialize.resetHistory();
 
-    rollbar.configure.resetHistory();
-    rollbar.error.resetHistory();
+    rollbar.configure.mockClear();
+    rollbar.error.mockClear();
   });
 
   after(() => {
-    api.__ResetDependency__('tidepool');
-    api.__ResetDependency__('rollbar');
+    mockCreateTidepoolClient = () => {
+      throw new Error('createTidepoolClientMock not initialized');
+    };
   });
 
   describe('user', () => {
@@ -337,8 +352,8 @@ describe('api', () => {
 
         api.user.get(cb);
 
-        sinon.assert.calledOnce(rollbar.configure);
-        sinon.assert.calledWith(rollbar.configure, {
+        expect(rollbar.configure).toHaveBeenCalledTimes(1);
+        expect(rollbar.configure).toHaveBeenCalledWith({
           payload: {
             person: {
               id: currentUserId,
@@ -517,8 +532,8 @@ describe('api', () => {
       it('should set the user config in Rollbar', () => {
         api.user.login(user, cb);
 
-        sinon.assert.calledOnce(rollbar.configure);
-        sinon.assert.calledWith(rollbar.configure, {
+        expect(rollbar.configure).toHaveBeenCalledTimes(1);
+        expect(rollbar.configure).toHaveBeenCalledWith({
           payload: {
             person: {
               id: currentUserId,
@@ -546,8 +561,8 @@ describe('api', () => {
 
         api.user.logout(cb);
 
-        sinon.assert.calledOnce(rollbar.configure);
-        sinon.assert.calledWith(rollbar.configure, {
+        expect(rollbar.configure).toHaveBeenCalledTimes(1);
+        expect(rollbar.configure).toHaveBeenCalledWith({
           payload: {
             person: null,
           },
@@ -728,8 +743,8 @@ describe('api', () => {
       it('should log an error to Rollbar', () => {
         const error = 'error';
         api.errors.log(error);
-        sinon.assert.calledOnce(rollbar.error);
-        sinon.assert.calledWith(rollbar.error, error);
+        expect(rollbar.error).toHaveBeenCalledTimes(1);
+        expect(rollbar.error).toHaveBeenCalledWith(error, {});
       });
 
       it('should log an error to Tidepool backend', () => {
@@ -746,8 +761,8 @@ describe('api', () => {
         const originalError = new Error('original');
         const error = { originalError, other: 'property' };
         api.errors.log(error);
-        sinon.assert.calledOnce(rollbar.error);
-        sinon.assert.calledWith(rollbar.error, originalError, { displayError: { other: 'property' }});
+        expect(rollbar.error).toHaveBeenCalledTimes(1);
+        expect(rollbar.error).toHaveBeenCalledWith(originalError, { displayError: { other: 'property' }});
       });
     });
   });
