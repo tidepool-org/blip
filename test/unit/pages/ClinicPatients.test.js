@@ -228,7 +228,8 @@ describe('ClinicPatients', () => {
       patientListFilters: {
         patientListSearchTextInput: '',
         isPatientListVisible: true
-      }
+      },
+      pdf: {},
     },
   };
 
