@@ -270,6 +270,8 @@ class Daily extends Component {
     this.state = this.getInitialState()
     this.chartRef = React.createRef();
     this.headerRef = React.createRef();
+    // Created once so rapid-fire D3 'navigated' events during pan animation properly debounce
+    this.debouncedDateRangeUpdate = _.debounce((...args) => this.props.onUpdateChartDateRange(...args), 250);
   }
 
   getInitialState = () => {
@@ -310,9 +312,7 @@ class Daily extends Component {
   };
 
   componentWillUnmount = () => {
-    if (this.state.debouncedDateRangeUpdate) {
-      this.state.debouncedDateRangeUpdate.cancel();
-    }
+    this.debouncedDateRangeUpdate.cancel();
   };
 
   render = () => {
@@ -669,14 +669,9 @@ class Daily extends Component {
 
     // Update the chart date range in the data component.
     // We debounce this to avoid excessive updates while panning the view.
-    if (this.state.debouncedDateRangeUpdate) {
-      this.state.debouncedDateRangeUpdate.cancel();
-    }
-
-    const debouncedDateRangeUpdate = _.debounce(this.props.onUpdateChartDateRange, 250);
-    debouncedDateRangeUpdate(datetimeLocationEndpoints[0].end.toISOString());
-
-    this.setState({ debouncedDateRangeUpdate });
+    // The debounced function is a stable instance property so that rapid-fire D3 'navigated'
+    // events (emitted on every animation frame during a pan) correctly cancel each other.
+    this.debouncedDateRangeUpdate(datetimeLocationEndpoints[0].end.toISOString());
   };
 
   handleInTransition = inTransition => {
