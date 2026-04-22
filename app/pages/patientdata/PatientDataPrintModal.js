@@ -8,6 +8,7 @@ import { getMostRecentDatumTimeByChartType } from '../../core/dataViewUtils';
 import * as actions from '../../redux/actions';
 
 import usePrintPDF from './../../pages/clinicworkspace/ClinicPatientsPrintModal/usePrintPDF';
+import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE } from '../../core/constants';
 
 const trackMetric = noop; // this.props.trackMetric
 
@@ -25,9 +26,10 @@ const PatientDataPrintModal = ({ api, patientId, chartPrefs = {}, onClose = noop
   const handleClickPrint = (opts) => {
     const enrichedOpts = _.cloneDeep(opts);
 
-    // Inject cgmSampleIntervalRange into printOptions
+    // Inject cgmSampleIntervalRange from patient data view into printOptions
     if (!!enrichedOpts.daily) {
-      enrichedOpts.daily.cgmSampleIntervalRange = chartPrefs?.daily?.cgmSampleIntervalRange;
+      const rangeFromChartPrefs = chartPrefs?.daily?.cgmSampleIntervalRange;
+      enrichedOpts.daily.cgmSampleIntervalRange = rangeFromChartPrefs || DEFAULT_CGM_SAMPLE_INTERVAL_RANGE;
     }
 
     setIsProcessing(true);
