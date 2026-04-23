@@ -114,25 +114,20 @@ const VerificationWithC2C = () => {
       >
         <Box>
           <Box>
-            { Object.entries(providers).map(([providerName, provider]) => {
-                const { logoImage } = provider;
+            { Object.entries(providers).map(([providerName, provider]) => (
+                <Box sx={styleProps.providerContainer}>
+                  {/* TODO: Fix Image */}
+                  <img src={provider.logoImage} alt={providerName} style={{ objectFit: 'contain' }}/>
 
-                return (
-                  <Box sx={styleProps.providerContainer}>
-                    {/* TODO: Fix Image */}
-                    <img src={logoImage} alt={providerName} style={{ objectFit: 'contain' }}/>
-
-                    <Button
-                      onClick={() => handleClickProvider(providerName)}
-                      variant="textPrimary"
-                      sx={styleProps.providerConnectButton}
-                    >
-                      {t('Connect')}
-                    </Button>
-                  </Box>
-                );
-              })
-            }
+                  <Button
+                    onClick={() => handleClickProvider(providerName)}
+                    variant="textPrimary"
+                    sx={styleProps.providerConnectButton}
+                  >
+                    {t('Connect')}
+                  </Button>
+                </Box>
+              ))}
           </Box>
 
           <Button
