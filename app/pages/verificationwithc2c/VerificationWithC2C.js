@@ -72,7 +72,7 @@ const VerificationWithC2C = () => {
   const { set: setToast } = useToasts();
 
   const queryParams = new URLSearchParams(search);
-  const restrictedToken = queryParams.get('restrictedToken');
+  const restrictedToken = queryParams.get('restrictedTokenId');
 
   const redirectToAccountSetup = () => {
     history.push({ pathname: '/verification-with-password', search: queryParams.toString() });
