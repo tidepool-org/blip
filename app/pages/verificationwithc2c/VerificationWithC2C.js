@@ -6,13 +6,13 @@ import { colors as vizColors } from '@tidepool/viz';
 import * as actions from '../../redux/actions';
 
 import { providers } from '../../components/datasources/DataConnections';
-import validateRestrictedToken from './validateRestrictedToken';
 import config from '../../config';
 import { Box } from 'theme-ui';
 import Button from '../../components/elements/Button';
 import Container from '../../components/elements/Container';
 import useRedirectOnC2CSuccess from './useRedirectOnC2CSuccess';
 import { useToasts } from '../../providers/ToastProvider';
+import { useLazyValidateRestrictedTokenQuery } from './VerificationApi';
 
 const styleProps = {
   titleContainer: {
@@ -73,6 +73,7 @@ const VerificationWithC2C = () => {
 
   const queryParams = new URLSearchParams(search);
   const restrictedToken = queryParams.get('restrictedTokenId');
+  const [validateRestrictedToken] = useLazyValidateRestrictedTokenQuery();
 
   const redirectToAccountSetup = () => {
     history.push({ pathname: '/verification-with-password', search: queryParams.toString() });
@@ -87,7 +88,7 @@ const VerificationWithC2C = () => {
 
     if (!providerId || !dataSourceFilter) return;
 
-    const { isValid } = await validateRestrictedToken(restrictedToken, providerName);
+    const { isValid } = await validateRestrictedToken({ restrictedToken, providerName }).unwrap();
 
     if (!isValid) {
       redirectToAccountSetup();

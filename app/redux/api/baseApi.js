@@ -24,16 +24,18 @@ export const getSessionToken = () => {
 const apiHost = config.API_HOST;
 const apiVersion = 'v1';
 
-const baseUrl = `${apiHost}/${apiVersion}/`;
+export const baseUrl = `${apiHost}/${apiVersion}/`;
+
+export const prepareHeaders = (headers) => {
+  headers.set('x-tidepool-trace-session', getSessionTrace());
+  headers.set('x-tidepool-session-token', getSessionToken());
+
+  return headers;
+};
 
 const baseQuery = fetchBaseQuery({
   baseUrl: baseUrl,
-  prepareHeaders: (headers) => {
-    headers.set('x-tidepool-trace-session', getSessionTrace());
-    headers.set('x-tidepool-session-token', getSessionToken());
-
-    return headers;
-  },
+  prepareHeaders,
 });
 
 export const RTKQueryApi = createApi({
