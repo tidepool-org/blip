@@ -31,6 +31,8 @@ import BgLog from '../../../../app/components/chart/bgLog';
 import { MGDL_UNITS } from '../../../../app/core/constants';
 import i18next from '../../../../app/core/language';
 
+const BgLogClass = BgLog.WrappedComponent || BgLog;
+
 jest.mock('@tidepool/viz', () => {
   const React = require('react');
   const actual = jest.requireActual('@tidepool/viz');
@@ -117,9 +119,23 @@ describe('BG Log', () => {
   };
 
   let wrapper;
+  let instance;
+
+  const createInstance = (props = baseProps) => {
+    const chartInstance = new BgLogClass(props);
+
+    chartInstance.props = props;
+    chartInstance.setState = function setState(update) {
+      const nextState = _.isFunction(update) ? update(this.state, this.props) : update;
+      this.state = { ...this.state, ...nextState };
+    };
+
+    return chartInstance;
+  };
 
   beforeEach(() => {
-    wrapper = render(<BgLog {...baseProps} />);
+    instance = createInstance(baseProps);
+    wrapper = render(<BgLogClass {...baseProps} />);
   });
 
   afterEach(() => {
@@ -187,11 +203,20 @@ describe('BG Log', () => {
       expect(wrapper.container.querySelector('#tidelineMain')).to.not.be.null;
     });
 
-    it('should set a debounced call of the `onUpdateChartDateRange` prop method', () => {
-      // Debounced update is triggered by handleDatetimeLocationChange (chart navigation)
-      // Full debounce testing requires chart navigation events from a live tideline chart;
-      // verifying the component renders and prop is wired (will not throw on mount)
-      expect(baseProps.onUpdateChartDateRange.callCount).to.equal(0);
+    it('should call the `onUpdateChartDateRange` prop method debounced via a stable instance property', () => {
+      expect(instance.debouncedDateRangeUpdate).to.be.a('function');
+      expect(instance.state.debouncedDateRangeUpdate).to.be.undefined;
+
+      const debounceStub = sinon.stub(instance, 'debouncedDateRangeUpdate');
+
+      instance.handleDatetimeLocationChange([
+        '2018-01-15T00:00:00.000Z',
+        '2018-01-16T00:00:00.000Z',
+      ]);
+
+      sinon.assert.calledOnce(debounceStub);
+
+      debounceStub.restore();
     });
   });
 });
