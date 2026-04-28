@@ -1,14 +1,12 @@
 import React from 'react';
-import { createMount } from '@material-ui/core/test-utils';
-import { Provider } from 'react-redux';
+import { screen, fireEvent, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import merge from 'lodash/merge';
 import noop from 'lodash/noop';
-import { ToastProvider } from '../../../app/providers/ToastProvider';
-import Table from '../../../app/components/elements/Table';
+import { mountWithProviders } from '../../utils/mountWithProviders';
 import ClinicianPatients from '../../../app/pages/clinicworkspace/ClinicianPatients';
-import Popover from '../../../app/components/elements/Popover';
 
 /* global chai */
 /* global sinon */
@@ -21,13 +19,10 @@ import Popover from '../../../app/components/elements/Popover';
 /* global assert */
 
 const expect = chai.expect;
+const assert = chai.assert;
 const mockStore = configureStore([thunk]);
 
 describe('ClinicianPatients', () => {
-  let mount;
-
-  let wrapper;
-
   let patient1 = {
     userid: 'patient1',
     username: 'patient1@test.ca',
@@ -76,19 +71,11 @@ describe('ClinicianPatients', () => {
     patients: [],
   };
 
-  before(() => {
-    mount = createMount();
-  });
-
   beforeEach(() => {
     defaultProps.trackMetric.resetHistory();
     defaultProps.api.access.leaveGroup.resetHistory();
     defaultProps.api.user.createCustodialAccount.resetHistory();
     defaultProps.api.patient.put.resetHistory();
-  });
-
-  after(() => {
-    mount.cleanUp();
   });
 
   const defaultWorkingState = {
@@ -114,6 +101,8 @@ describe('ClinicianPatients', () => {
     blip: {
       loggedInUserId,
       allUsersMap: { clinicianUserId123 },
+      data: { metaData: {} },
+      consentRecords: {},
       working: {
         updatingClinicPatient: defaultWorkingState,
         fetchingAssociatedAccounts: completedState,
@@ -152,6 +141,11 @@ describe('ClinicianPatients', () => {
     },
   });
 
+  const renderComponent = (props, state) => {
+    store = mockStore(state);
+    return mountWithProviders(<ClinicianPatients {...props} />, { store });
+  };
+
   context('patients hidden', () => {
     beforeEach(() => {
       const initialState = {
@@ -161,183 +155,168 @@ describe('ClinicianPatients', () => {
         }
       }
 
-      store = mockStore(initialState);
-      wrapper = mount(
-        <Provider store={store}>
-          <ToastProvider>
-            <ClinicianPatients {...defaultProps} />
-          </ToastProvider>
-        </Provider>
-      );
-
+      renderComponent(defaultProps, initialState);
       store.clearActions();
       defaultProps.trackMetric.resetHistory();
     });
 
     it('should render a button that toggles patients to be visible', () => {
-      wrapper.find('.peopletable-names-showall').hostNodes().simulate('click');
+      const showAllButton = document.querySelector('.peopletable-names-showall');
+      fireEvent.click(showAllButton);
       expect(store.getActions()).to.eql([{ type: 'SET_IS_PATIENT_LIST_VISIBLE', payload: { isVisible: true } }])
     })
   });
 
   context('no patients', () => {
     beforeEach(() => {
-      store = mockStore(noPatientsState);
-      wrapper = mount(
-        <Provider store={store}>
-          <ToastProvider>
-            <ClinicianPatients {...noPatientProps} />
-          </ToastProvider>
-        </Provider>
-      );
-
+      renderComponent(noPatientProps, noPatientsState);
       defaultProps.trackMetric.resetHistory();
     });
 
     it('should render an empty table', () => {
-      const table = wrapper.find(Table);
-
-      expect(table).to.have.length(1);
-      expect(table.find('tr')).to.have.length(1); // header row only
-      expect(wrapper.find('.table-empty-text').hostNodes().text()).includes('There are no results to show.');
+      const table = document.querySelector('table');
+      expect(table).to.not.be.null;
+      expect(table.querySelectorAll('tr')).to.have.length(1); // header row only
+      expect(document.querySelector('.table-empty-text').textContent).to.include('There are no results to show.');
     });
 
-    it('should open a modal for adding a new patient', done => {
-      const addButton = wrapper.find('button#add-patient');
-      expect(addButton.text()).to.equal('Add New Patient');
+    it('should open a modal for adding a new patient', async () => {
+      const addButton = document.querySelector('button#add-patient');
+      expect(addButton.textContent).to.equal('Add New Patient');
 
-      const dialog = () => wrapper.find('Dialog#addPatient');
-
-      expect(dialog()).to.have.length(0);
-      addButton.simulate('click');
-      wrapper.update();
-      expect(dialog()).to.have.length(1);
-      expect(dialog().props().open).to.be.true;
+      expect(document.querySelector('#addPatient')).to.be.null;
+      fireEvent.click(addButton);
+      
+      await waitFor(() => {
+        expect(document.querySelector('#addPatient')).to.not.be.null;
+      });
 
       expect(defaultProps.trackMetric.calledWith('Clinician - Add patient')).to.be.true;
       expect(defaultProps.trackMetric.callCount).to.equal(1);
 
-      const patientForm = () => dialog().find('form#clinic-patient-form');
-      expect(patientForm()).to.have.lengthOf(1);
+      const patientForm = document.querySelector('form#clinic-patient-form');
+      expect(patientForm).to.not.be.null;
 
-      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('');
-      patientForm().find('input[name="fullName"]').simulate('change', { persist: noop, target: { name: 'fullName', value: 'Patient Name' } });
-      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('Patient Name');
+      const fullNameInput = document.querySelector('input[name="fullName"]');
+      expect(fullNameInput.value).to.equal('');
+      fireEvent.change(fullNameInput, { target: { value: 'Patient Name' } });
+      expect(fullNameInput.value).to.equal('Patient Name');
 
-      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('');
-      patientForm().find('input[name="birthDate"]').simulate('change', { persist: noop, target: { name: 'birthDate', value: '11/21/1999' } });
-      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('11/21/1999');
+      const birthDateInput = document.querySelector('input[name="birthDate"]');
+      expect(birthDateInput.value).to.equal('');
+      fireEvent.change(birthDateInput, { target: { value: '11/21/1999' } });
+      expect(birthDateInput.value).to.equal('11/21/1999');
 
-      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
-      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: '123456' } });
-      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('123456');
+      const mrnInput = document.querySelector('input[name="mrn"]');
+      expect(mrnInput.value).to.equal('');
+      fireEvent.change(mrnInput, { target: { value: '123456' } });
+      expect(mrnInput.value).to.equal('123456');
 
-      expect(patientForm().find('input[name="email"]').prop('value')).to.equal('');
-      patientForm().find('input[name="email"]').simulate('change', { persist: noop, target: { name: 'email', value: 'patient@test.ca' } });
-      expect(patientForm().find('input[name="email"]').prop('value')).to.equal('patient@test.ca');
+      const emailInput = document.querySelector('input[name="email"]');
+      expect(emailInput.value).to.equal('');
+      fireEvent.change(emailInput, { target: { value: 'patient@test.ca' } });
+      expect(emailInput.value).to.equal('patient@test.ca');
 
       // should not show the dexcom connection section
-      expect(patientForm().find('#connectDexcomWrapper')).to.have.lengthOf(0);
+      expect(document.querySelector('#connectDexcomWrapper')).to.be.null;
 
       store.clearActions();
-      dialog().find('Button#addPatientConfirm').simulate('click');
+      fireEvent.click(document.querySelector('button#addPatientConfirm'));
 
-      setTimeout(() => {
+      await waitFor(() => {
         expect(defaultProps.api.user.createCustodialAccount.callCount).to.equal(1);
+      });
 
-        sinon.assert.calledWith(
-          defaultProps.api.user.createCustodialAccount,
-          {
-            emails: ['patient@test.ca'],
-            fullName: 'Patient Name',
-            patient: { birthday: '1999-11-21', mrn: '123456' }
-          }
-        );
+      sinon.assert.calledWith(
+        defaultProps.api.user.createCustodialAccount,
+        {
+          emails: ['patient@test.ca'],
+          fullName: 'Patient Name',
+          patient: { birthday: '1999-11-21', mrn: '123456' }
+        }
+      );
 
-        expect(store.getActions()).to.eql([
-          { type: 'CREATE_VCA_CUSTODIAL_ACCOUNT_REQUEST' },
-          {
-            type: 'CREATE_VCA_CUSTODIAL_ACCOUNT_SUCCESS',
-            payload: {
-              patientId: 'stubbedId',
-              patient: { userid: 'stubbedId' },
-            },
+      expect(store.getActions()).to.eql([
+        { type: 'CREATE_VCA_CUSTODIAL_ACCOUNT_REQUEST' },
+        {
+          type: 'CREATE_VCA_CUSTODIAL_ACCOUNT_SUCCESS',
+          payload: {
+            patientId: 'stubbedId',
+            patient: { userid: 'stubbedId' },
           },
-        ]);
-
-        done();
-      }, 0);
+        },
+      ]);
     });
 
-    it('should prevent adding a new patient with an invalid birthday', () => {
-      const addButton = wrapper.find('button#add-patient');
-      expect(addButton.text()).to.equal('Add New Patient');
+    it('should prevent adding a new patient with an invalid birthday', async () => {
+      const addButton = document.querySelector('button#add-patient');
+      expect(addButton.textContent).to.equal('Add New Patient');
 
-      const dialog = () => wrapper.find('Dialog#addPatient');
-
-      expect(dialog()).to.have.length(0);
-      addButton.simulate('click');
-      wrapper.update();
-      expect(dialog()).to.have.length(1);
-      expect(dialog().props().open).to.be.true;
+      expect(document.querySelector('#addPatient')).to.be.null;
+      fireEvent.click(addButton);
+      
+      await waitFor(() => {
+        expect(document.querySelector('#addPatient')).to.not.be.null;
+      });
 
       expect(defaultProps.trackMetric.calledWith('Clinician - Add patient')).to.be.true;
       expect(defaultProps.trackMetric.callCount).to.equal(1);
 
-      const patientForm = () => dialog().find('form#clinic-patient-form');
-      expect(patientForm()).to.have.lengthOf(1);
+      const patientForm = document.querySelector('form#clinic-patient-form');
+      expect(patientForm).to.not.be.null;
 
-      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('');
-      patientForm().find('input[name="fullName"]').simulate('change', { persist: noop, target: { name: 'fullName', value: 'Patient Name' } });
-      expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('Patient Name');
+      const fullNameInput = document.querySelector('input[name="fullName"]');
+      expect(fullNameInput.value).to.equal('');
+      fireEvent.change(fullNameInput, { target: { value: 'Patient Name' } });
+      expect(fullNameInput.value).to.equal('Patient Name');
 
-      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('');
-      patientForm().find('input[name="birthDate"]').simulate('change', { persist: noop, target: { name: 'birthDate', value: '13/21/1999' } });
-      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('13/21/1999');
+      const birthDateInput = document.querySelector('input[name="birthDate"]');
+      expect(birthDateInput.value).to.equal('');
+      fireEvent.change(birthDateInput, { target: { value: '13/21/1999' } });
+      expect(birthDateInput.value).to.equal('13/21/1999');
 
-      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('');
-      patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: '123456' } });
-      expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('123456');
+      const mrnInput = document.querySelector('input[name="mrn"]');
+      expect(mrnInput.value).to.equal('');
+      fireEvent.change(mrnInput, { target: { value: '123456' } });
+      expect(mrnInput.value).to.equal('123456');
 
-      expect(patientForm().find('input[name="email"]').prop('value')).to.equal('');
-      patientForm().find('input[name="email"]').simulate('change', { persist: noop, target: { name: 'email', value: 'patient@test.ca' } });
-      expect(patientForm().find('input[name="email"]').prop('value')).to.equal('patient@test.ca');
+      const emailInput = document.querySelector('input[name="email"]');
+      expect(emailInput.value).to.equal('');
+      fireEvent.change(emailInput, { target: { value: 'patient@test.ca' } });
+      expect(emailInput.value).to.equal('patient@test.ca');
 
-      expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.true;
+      expect(document.querySelector('button#addPatientConfirm').disabled).to.be.true;
 
-      patientForm().find('input[name="birthDate"]').simulate('change', { persist: noop, target: { name: 'birthDate', value: '11/21/1999' } });
-      expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('11/21/1999');
-      expect(dialog().find('Button#addPatientConfirm').prop('disabled')).to.be.false;
+      fireEvent.change(birthDateInput, { target: { value: '11/21/1999' } });
+      expect(birthDateInput.value).to.equal('11/21/1999');
+      
+      await waitFor(() => {
+        expect(document.querySelector('button#addPatientConfirm').disabled).to.be.false;
+      });
     });
   });
 
   context('has patients', () => {
     beforeEach(() => {
-      store = mockStore(hasPatientsState);
       defaultProps.trackMetric.resetHistory();
-      wrapper = mount(
-        <Provider store={store}>
-          <ToastProvider>
-            <ClinicianPatients {...defaultProps} />
-          </ToastProvider>
-        </Provider>
-      );
+      renderComponent(defaultProps, hasPatientsState);
+      store.clearActions();
     });
 
     describe('showNames', function () {
       it('should show a row of data for each person', function () {
         // 2 people plus one row for the header
-        expect(wrapper.find('.MuiTableRow-root')).to.have.length(3);
+        expect(document.querySelectorAll('.MuiTableRow-root')).to.have.length(3);
       });
 
       it('should trigger a call to trackMetric', function () {
-        wrapper.find('#patients-view-toggle').hostNodes().simulate('click');
+        fireEvent.click(document.querySelector('#patients-view-toggle'));
         expect(defaultProps.trackMetric.calledWith('Clicked Hide All')).to.be.true;
         expect(defaultProps.trackMetric.callCount).to.equal(1);
       });
 
       it('should not have instructions displayed', function () {
-        expect(wrapper.find('.peopletable-instructions')).to.have.length(0);
+        expect(document.querySelectorAll('.peopletable-instructions')).to.have.length(0);
       });
     });
 
@@ -347,28 +326,30 @@ describe('ClinicianPatients', () => {
       });
 
       it('should render a list of patients', () => {
-        const table = wrapper.find(Table);
-        expect(table).to.have.length(1);
-        expect(table.find('tr')).to.have.length(3); // header row + 2 invites
-        expect(table.find('tr').at(1).text()).contains('Patient One');
-        expect(table.find('tr').at(1).text()).contains('1999-01-01');
-        expect(table.find('tr').at(2).text()).contains('Patient Two');
-        expect(table.find('tr').at(2).text()).contains('1999-02-02');
-        expect(table.find('tr').at(2).text()).contains('mrn123');
+        const table = document.querySelector('table');
+        expect(table).to.not.be.null;
+        const rows = table.querySelectorAll('tr');
+        expect(rows).to.have.length(3); // header row + 2 invites
+        expect(rows[1].textContent).to.include('Patient One');
+        expect(rows[1].textContent).to.include('1999-01-01');
+        expect(rows[2].textContent).to.include('Patient Two');
+        expect(rows[2].textContent).to.include('1999-02-02');
+        expect(rows[2].textContent).to.include('mrn123');
       });
 
       it('should allow searching patients', () => {
-        const table = () => wrapper.find(Table);
-        expect(table()).to.have.length(1);
-        expect(table().find('tr')).to.have.length(3); // header row + 2 invites
-        expect(table().find('tr').at(1).text()).contains('Patient One');
-        expect(table().find('tr').at(2).text()).contains('Patient Two');
+        const table = document.querySelector('table');
+        expect(table).to.not.be.null;
+        const rows = table.querySelectorAll('tr');
+        expect(rows).to.have.length(3); // header row + 2 invites
+        expect(rows[1].textContent).to.include('Patient One');
+        expect(rows[2].textContent).to.include('Patient Two');
 
-        const searchInput = wrapper.find('input[name="search-patients"]');
-        expect(searchInput).to.have.lengthOf(1);
+        const searchInput = document.querySelector('input[name="search-patients"]');
+        expect(searchInput).to.not.be.null;
 
         // Input partial match on name for patient two
-        searchInput.simulate('change', { target: { name: 'search-patients', value: 'Two' } });
+        fireEvent.change(searchInput, { target: { value: 'Two' } });
         expect(store.getActions()).to.eql([
           { type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT', payload: { textInput: 'Two' } },
           { type: 'SET_IS_PATIENT_LIST_VISIBLE', payload: { isVisible: true } } // a search query should automatically toggle the visibility to true
@@ -376,14 +357,15 @@ describe('ClinicianPatients', () => {
       });
 
       it('should link to a patient data view when patient name is clicked', () => {
-        const table = wrapper.find(Table);
-        expect(table).to.have.length(1);
-        expect(table.find('tr')).to.have.length(3); // header row + 2 invites
-        const firstPatientName = table.find('tr').at(1).find('th').find('span').at(0).hostNodes();
-        expect(firstPatientName.text()).contains('Patient One');
+        const table = document.querySelector('table');
+        expect(table).to.not.be.null;
+        const rows = table.querySelectorAll('tr');
+        expect(rows).to.have.length(3); // header row + 2 invites
+        const firstPatientName = rows[1].querySelector('th span');
+        expect(firstPatientName.textContent).to.include('Patient One');
 
         store.clearActions();
-        firstPatientName.simulate('click');
+        fireEvent.click(firstPatientName);
 
         expect(store.getActions()).to.eql([
           {
@@ -394,14 +376,15 @@ describe('ClinicianPatients', () => {
       });
 
       it('should link to a patient data view when patient birthday is clicked', () => {
-        const table = wrapper.find(Table);
-        expect(table).to.have.length(1);
-        expect(table.find('tr')).to.have.length(3); // header row + 2 invites
-        const firstPatientBirthday = table.find('tr').at(1).find('td').at(0).find('span').at(1).hostNodes();
-        expect(firstPatientBirthday.text()).contains('1999-01-01');
+        const table = document.querySelector('table');
+        expect(table).to.not.be.null;
+        const rows = table.querySelectorAll('tr');
+        expect(rows).to.have.length(3); // header row + 2 invites
+        const firstPatientBirthday = rows[1].querySelectorAll('td')[0].querySelectorAll('span')[1];
+        expect(firstPatientBirthday.textContent).to.include('1999-01-01');
 
         store.clearActions();
-        firstPatientBirthday.simulate('click');
+        fireEvent.click(firstPatientBirthday);
 
         expect(store.getActions()).to.eql([
           {
@@ -411,125 +394,175 @@ describe('ClinicianPatients', () => {
         ]);
       });
 
-      it('should display menu when "More" icon is clicked', () => {
-        const moreMenuIcon = wrapper.find('PopoverMenu').find('Icon').at(0);
-        expect(wrapper.find(Popover).at(0).props().open).to.be.false;
-        moreMenuIcon.simulate('click');
-        expect(wrapper.find(Popover).at(0).props().open).to.be.true;
+      it('should display menu when "More" icon is clicked', async () => {
+        const moreMenuIcon = document.querySelectorAll('[aria-label="info"]')[0];
+        fireEvent.click(moreMenuIcon);
+        await waitFor(() => {
+          expect(document.querySelector('#action-menu-patient1')).to.not.be.null;
+          expect(document.querySelector('#action-menu-patient1').style.visibility).to.not.equal('hidden');
+        });
       });
 
-      it('should not show the patient edit link for non-custodial patient accounts', () => {
-        const table = wrapper.find(Table);
-        expect(table).to.have.length(1);
-        expect(table.find('tr')).to.have.length(3); // header row + 2 invites
-        const patientRow1 = table.find('tr').at(1);
-        const patientRow2 = table.find('tr').at(2);
+      it('should not show the patient edit link for non-custodial patient accounts', async () => {
+        const table = document.querySelector('table');
+        expect(table).to.not.be.null;
+        const rows = table.querySelectorAll('tr');
+        expect(rows).to.have.length(3); // header row + 2 invites
+        const patientRow1 = rows[1];
+        const patientRow2 = rows[2];
 
-        expect(patientRow1.text()).contains('Patient One');
-        const patient1EditButton = patientRow1.find('Button[iconLabel="Edit Patient Details"]');
-        assert(!hasPatientsState.blip.membershipPermissionsInOtherCareTeams.patient1.custodian)
-        expect(patient1EditButton).to.have.length(0);
+        expect(patientRow1.textContent).to.include('Patient One');
+        
+        // Open popover for patient 1
+        const moreMenuIcon1 = patientRow1.querySelector('[aria-label="info"]');
+        fireEvent.click(moreMenuIcon1);
+        
+        await waitFor(() => {
+          expect(document.querySelector('#action-menu-patient1').style.visibility).to.not.equal('hidden');
+        });
+        
+        assert(!hasPatientsState.blip.membershipPermissionsInOtherCareTeams.patient1.custodian);
+        const patient1EditButton = document.querySelector('#action-menu-patient1').querySelector('button#edit-patient1');
+        expect(patient1EditButton).to.be.null;
+        
+        // Close popover
+        fireEvent.keyDown(document.querySelector('#action-menu-patient1'), { key: 'Escape', code: 'Escape' });
+        await waitFor(() => {
+          expect(document.querySelector('#action-menu-patient1').style.visibility).to.equal('hidden');
+        });
 
-        expect(patientRow2.text()).contains('Patient Two');
-        assert(hasPatientsState.blip.membershipPermissionsInOtherCareTeams.patient2.custodian)
-        const patient2EditButton = patientRow2.find('Button[iconLabel="Edit Patient Details"]');
-        expect(patient2EditButton).to.have.length(1);
+        expect(patientRow2.textContent).to.include('Patient Two');
+        assert(hasPatientsState.blip.membershipPermissionsInOtherCareTeams.patient2.custodian);
+        
+        // Open popover for patient 2
+        const moreMenuIcon2 = patientRow2.querySelector('[aria-label="info"]');
+        fireEvent.click(moreMenuIcon2);
+        
+        await waitFor(() => {
+          expect(document.querySelector('#action-menu-patient2').style.visibility).to.not.equal('hidden');
+        });
+        
+        const patient2EditButton = document.querySelector('#action-menu-patient2').querySelector('button#edit-patient2');
+        expect(patient2EditButton).to.not.be.null;
       });
 
-      it('should open a modal for patient editing when edit link is clicked', done => {
-        const table = wrapper.find(Table);
-        expect(table).to.have.length(1);
-        expect(table.find('tr')).to.have.length(3); // header row + 2 invites
-        const editButton = table.find('tr').at(2).find('Button[iconLabel="Edit Patient Details"]');
+      it('should open a modal for patient editing when edit link is clicked', async () => {
+        const table = document.querySelector('table');
+        expect(table).to.not.be.null;
+        const rows = table.querySelectorAll('tr');
+        expect(rows).to.have.length(3); // header row + 2 invites
+        
+        // Open popover for patient 2
+        const moreMenuIcon2 = rows[2].querySelector('[aria-label="info"]');
+        fireEvent.click(moreMenuIcon2);
+        
+        await waitFor(() => {
+          expect(document.querySelector('#action-menu-patient2').style.visibility).to.not.equal('hidden');
+        });
+        
+        const editButton = document.querySelector('#action-menu-patient2').querySelector('button#edit-patient2');
 
-        const dialog = () => wrapper.find('Dialog#editPatient');
-
-        expect(dialog()).to.have.length(0);
-        editButton.simulate('click');
-        wrapper.update();
-        expect(dialog()).to.have.length(1);
-        expect(dialog().props().open).to.be.true;
+        expect(document.querySelector('#editPatient')).to.be.null;
+        fireEvent.click(editButton);
+        
+        await waitFor(() => {
+          expect(document.querySelector('#editPatient')).to.not.be.null;
+        });
 
         expect(defaultProps.trackMetric.calledWith('Clinician - Edit patient')).to.be.true;
         expect(defaultProps.trackMetric.callCount).to.equal(1);
 
-        const patientForm = () => dialog().find('form#clinic-patient-form');
-        expect(patientForm()).to.have.lengthOf(1);
+        const patientForm = document.querySelector('form#clinic-patient-form');
+        expect(patientForm).to.not.be.null;
 
-        expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('Patient Two');
-        patientForm().find('input[name="fullName"]').simulate('change', { persist: noop, target: { name: 'fullName', value: 'Patient 2' } });
-        expect(patientForm().find('input[name="fullName"]').prop('value')).to.equal('Patient 2');
+        const fullNameInput = document.querySelector('input[name="fullName"]');
+        expect(fullNameInput.value).to.equal('Patient Two');
+        fireEvent.change(fullNameInput, { target: { value: 'Patient 2' } });
+        expect(fullNameInput.value).to.equal('Patient 2');
 
-        expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('02/02/1999');
-        patientForm().find('input[name="birthDate"]').simulate('change', { persist: noop, target: { name: 'birthDate', value: '01/01/1999' } });
-        expect(patientForm().find('input[name="birthDate"]').prop('value')).to.equal('01/01/1999');
+        const birthDateInput = document.querySelector('input[name="birthDate"]');
+        expect(birthDateInput.value).to.equal('02/02/1999');
+        fireEvent.change(birthDateInput, { target: { value: '01/01/1999' } });
+        expect(birthDateInput.value).to.equal('01/01/1999');
 
-        expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('mrn123');
-        patientForm().find('input[name="mrn"]').simulate('change', { persist: noop, target: { name: 'mrn', value: 'mrn456' } });
-        expect(patientForm().find('input[name="mrn"]').prop('value')).to.equal('MRN456');
+        const mrnInput = document.querySelector('input[name="mrn"]');
+        expect(mrnInput.value).to.equal('mrn123');
+        fireEvent.change(mrnInput, { target: { value: 'mrn456' } });
+        expect(mrnInput.value).to.equal('MRN456');
 
-        expect(patientForm().find('input[name="email"]').prop('value')).to.equal('patient2@test.ca');
-        patientForm().find('input[name="email"]').simulate('change', { persist: noop, target: { name: 'email', value: 'patient-two@test.ca' } });
-        expect(patientForm().find('input[name="email"]').prop('value')).to.equal('patient-two@test.ca');
+        const emailInput = document.querySelector('input[name="email"]');
+        expect(emailInput.value).to.equal('patient2@test.ca');
+        fireEvent.change(emailInput, { target: { value: 'patient-two@test.ca' } });
+        expect(emailInput.value).to.equal('patient-two@test.ca');
 
         // should not show the dexcom connection section
-        expect(patientForm().find('#connectDexcomWrapper')).to.have.lengthOf(0);
+        expect(document.querySelector('#connectDexcomWrapper')).to.be.null;
 
         store.clearActions();
-        dialog().find('Button#editPatientConfirm').simulate('click');
+        fireEvent.click(document.querySelector('button#editPatientConfirm'));
 
-        setTimeout(() => {
+        await waitFor(() => {
           expect(defaultProps.api.patient.put.callCount).to.equal(1);
+        });
 
-          sinon.assert.calledWith(
-            defaultProps.api.patient.put,
-            {
+        sinon.assert.calledWith(
+          defaultProps.api.patient.put,
+          {
+            emails: ['patient-two@test.ca'],
+            permissions: undefined,
+            profile: {
               emails: ['patient-two@test.ca'],
-              permissions: undefined,
-              profile: {
-                emails: ['patient-two@test.ca'],
-                fullName: 'Patient 2',
-                patient: { birthday: '1999-01-01', mrn: 'MRN456' },
-              },
-              userid: 'patient2',
-              username: 'patient-two@test.ca',
-            }
-          );
-
-          expect(store.getActions()).to.eql([
-            { type: 'UPDATE_PATIENT_REQUEST' },
-            {
-              type: 'UPDATE_PATIENT_SUCCESS',
-              payload: {
-                updatedPatient: { stubbedUpdates: 'foo' },
-              },
+              fullName: 'Patient 2',
+              patient: { birthday: '1999-01-01', mrn: 'MRN456' },
             },
-          ]);
+            userid: 'patient2',
+            username: 'patient-two@test.ca',
+          }
+        );
 
-          done();
-        }, 0);
+        expect(store.getActions()).to.eql([
+          { type: 'UPDATE_PATIENT_REQUEST' },
+          {
+            type: 'UPDATE_PATIENT_SUCCESS',
+            payload: {
+              updatedPatient: { stubbedUpdates: 'foo' },
+            },
+          },
+        ]);
       });
 
-      it('should remove a patient', () => {
-        const table = wrapper.find(Table);
-        expect(table).to.have.length(1);
-        expect(table.find('tr')).to.have.length(3); // header row + 2 invites
-        const removeButton = table.find('tr').at(1).find('Button[iconLabel="Remove Patient"]');
+      it('should remove a patient', async () => {
+        const table = document.querySelector('table');
+        expect(table).to.not.be.null;
+        const rows = table.querySelectorAll('tr');
+        expect(rows).to.have.length(3); // header row + 2 invites
+        
+        // Open popover for patient 1
+        const moreMenuIcon1 = rows[1].querySelector('[aria-label="info"]');
+        fireEvent.click(moreMenuIcon1);
+        
+        await waitFor(() => {
+          expect(document.querySelector('#action-menu-patient1').style.visibility).to.not.equal('hidden');
+        });
+        
+        const removeButton = document.querySelector('#action-menu-patient1').querySelector('button#delete-patient1');
 
-        expect(wrapper.find('Dialog#deleteUser').props().open).to.be.false;
-        removeButton.simulate('click');
-        wrapper.update();
-        expect(wrapper.find('Dialog#deleteUser').props().open).to.be.true;
+        expect(document.querySelector('#deleteUser').style.visibility).to.equal('hidden');
+        fireEvent.click(removeButton);
+        
+        await waitFor(() => {
+          expect(document.querySelector('#deleteUser').style.visibility).to.not.equal('hidden');
+        });
 
         expect(defaultProps.trackMetric.calledWith('Clinician - Remove patient')).to.be.true;
         expect(defaultProps.trackMetric.callCount).to.equal(1);
 
-        const confirmRemoveButton = wrapper.find('Dialog#deleteUser').find('Button#patientRemoveConfirm');
-        expect(confirmRemoveButton.text()).to.equal('Remove');
+        const confirmRemoveButton = document.querySelector('button#patientRemoveConfirm');
+        expect(confirmRemoveButton.textContent).to.equal('Remove');
 
         store.clearActions();
 
-        confirmRemoveButton.simulate('click');
+        fireEvent.click(confirmRemoveButton);
 
         expect(store.getActions()).to.eql([
           { type: 'REMOVE_MEMBERSHIP_IN_OTHER_CARE_TEAM_REQUEST' },

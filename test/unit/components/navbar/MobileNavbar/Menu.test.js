@@ -1,10 +1,18 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { render, fireEvent } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import Menu from '../../../../../app/components/navbar/MobileNavbar/Menu';
-import _ from 'lodash';
+import { useNavigation } from '../../../../../app/core/navutils';
+
+jest.mock('../../../../../app/core/navutils', () => {
+  const actual = jest.requireActual('../../../../../app/core/navutils');
+  return {
+    ...actual,
+    useNavigation: jest.fn(),
+  };
+});
 
 /* global chai */
 /* global sinon */
@@ -46,7 +54,7 @@ describe('MobileNavbar/Menu', () => {
     api: {},
   };
 
-  let wrapper;
+  let container;
 
   const handleViewData = sinon.stub();
   const handleViewSettingsChart = sinon.stub();
@@ -55,18 +63,16 @@ describe('MobileNavbar/Menu', () => {
   const handleViewAccountSettings = sinon.stub();
   const handleLogout = sinon.stub();
 
-  before(() => {
-    Menu.__Rewire__('useNavigation', sinon.stub().returns({
+  beforeEach(() => {
+    useNavigation.mockReturnValue({
       handleViewData,
       handleViewSettingsChart,
       handleShare,
       handleSelectWorkspace,
       handleViewAccountSettings,
       handleLogout,
-    }));
-  });
+    });
 
-  beforeEach(() => {
     handleViewData.resetHistory();
     handleViewSettingsChart.resetHistory();
     handleShare.resetHistory();
@@ -74,20 +80,21 @@ describe('MobileNavbar/Menu', () => {
     handleViewAccountSettings.resetHistory();
     handleLogout.resetHistory();
 
-    wrapper = mount(
+    const rendered = render(
       <Provider store={store}>
         <Menu {...defaultProps} />
       </Provider>
     );
-  });
-
-  after(() => {
-    Menu.__ResetDependency__('useNavigation');
+    container = rendered.container;
   });
 
   afterEach(() => {
     defaultProps.trackMetric.resetHistory();
   });
+
+  const openMenu = () => {
+    fireEvent.click(container.querySelector('#mobile-navigation-menu-trigger'));
+  };
 
   describe('Smart-on-FHIR Mode', () => {
     beforeEach(() => {
@@ -98,56 +105,65 @@ describe('MobileNavbar/Menu', () => {
         },
       });
 
-      wrapper = mount(
+      const rendered = render(
         <Provider store={localStore}>
           <Menu {...defaultProps} />
         </Provider>
       );
+      container = rendered.container;
     });
 
     it('should not render the component in Smart-on-FHIR mode', () => {
-      expect(wrapper.find(Menu).isEmptyRender()).to.be.true;
+      expect(container.innerHTML).to.equal('');
     });
   });
 
   describe('Component Visibility', () => {
     it('should show Share button when user has correct permissions', () => {
-      expect(wrapper.find('Button#mobileNavbar_shareButton').exists()).to.be.true;
+      openMenu();
+      expect(!!document.querySelector('#mobileNavbar_shareButton')).to.be.true;
     });
 
     it('should show Devices button when user has correct context', () => {
-      expect(wrapper.find('Button#mobileNavbar_settingsChartButton').exists()).to.be.true;
+      openMenu();
+      expect(!!document.querySelector('#mobileNavbar_settingsChartButton')).to.be.true;
     });
   });
 
   describe('Button Actions', () => {
     it('should navigate to view data when button is pressed', () => {
-      wrapper.find('Button#mobileNavbar_viewDataButton').simulate('click');
+      openMenu();
+      fireEvent.click(document.querySelector('#mobileNavbar_viewDataButton'));
       expect(handleViewData.calledOnce).to.be.true;
     });
 
     it('should navigate to view settings when button is pressed', () => {
-      wrapper.find('Button#mobileNavbar_settingsChartButton').simulate('click');
+      openMenu();
+      fireEvent.click(document.querySelector('#mobileNavbar_settingsChartButton'));
       expect(handleViewSettingsChart.calledOnce).to.be.true;
     });
 
     it('should navigate to share page button is pressed', () => {
-      wrapper.find('Button#mobileNavbar_shareButton').simulate('click');
+      openMenu();
+      fireEvent.click(document.querySelector('#mobileNavbar_shareButton'));
       expect(handleShare.calledOnce).to.be.true;
     });
 
     it('should navigate to private workspace when button is pressed', () => {
-      wrapper.find('Button#mobileNavbar_workspaceButton').simulate('click');
+      openMenu();
+      fireEvent.click(document.querySelector('#mobileNavbar_workspaceButton'));
       expect(handleSelectWorkspace.calledOnceWithExactly(null)).to.be.true;
     });
 
     it('should navigate to account settings when button is pressed', () => {
-      wrapper.find('Button#mobileNavbar_accountSettingsButton').simulate('click');
+      openMenu();
+      fireEvent.click(document.querySelector('#mobileNavbar_accountSettingsButton'));
       expect(handleViewAccountSettings.calledOnce).to.be.true;
     });
 
     it('should logout when button is pressed', () => {
-      wrapper.find('Button#mobileNavbar_logoutButton').simulate('click');
+      openMenu();
+      fireEvent.click(document.querySelector('#mobileNavbar_logoutButton'));
       expect(handleLogout.calledOnce).to.be.true;
     });
   });

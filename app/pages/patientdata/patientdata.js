@@ -1963,7 +1963,7 @@ export const PatientDataClass = createReactClass({
   },
 
   UNSAFE_componentWillUpdate: function (nextProps, nextState) {
-    const pdfGenerated = _.isObject(nextProps.pdf.combined);
+    const pdfGenerated = _.isObject(_.get(nextProps, 'pdf.combined'));
     const pdfGenerationFailed = _.get(nextProps, 'generatingPDF.notification.type') === 'error';
 
     if (nextState.printDialogProcessing && pdfGenerated) {

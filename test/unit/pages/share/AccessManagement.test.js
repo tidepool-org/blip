@@ -1,13 +1,11 @@
 import React from 'react';
-import { createMount } from '@material-ui/core/test-utils';
+import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import merge from 'lodash/merge';
 import { ToastProvider } from '../../../../app/providers/ToastProvider';
-import Table from '../../../../app/components/elements/Table';
 import AccessManagement from '../../../../app/pages/share/AccessManagement';
-import { Dialog } from '../../../../app/components/elements/Dialog';
 
 /* global chai */
 /* global sinon */
@@ -15,15 +13,12 @@ import { Dialog } from '../../../../app/components/elements/Dialog';
 /* global context */
 /* global it */
 /* global beforeEach */
-/* global before */
-/* global after */
+/* global afterEach */
 
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
 describe('AccessManagement', () => {
-  let mount;
-
   let wrapper;
   let defaultProps = {
     trackMetric: sinon.stub(),
@@ -46,20 +41,12 @@ describe('AccessManagement', () => {
     },
   };
 
-  before(() => {
-    mount = createMount();
-  });
-
   beforeEach(() => {
     defaultProps.trackMetric.resetHistory();
     defaultProps.api.access.setMemberPermissions.resetHistory();
     defaultProps.api.access.removeMember.resetHistory();
     defaultProps.api.invitation.cancel.resetHistory();
     defaultProps.api.invitation.resend.resetHistory();
-  });
-
-  after(() => {
-    mount.cleanUp();
   });
 
   const defaultWorkingState = {
@@ -184,7 +171,7 @@ describe('AccessManagement', () => {
   beforeEach(() => {
     store = mockStore(blipState);
     defaultProps.trackMetric.resetHistory();
-    wrapper = mount(
+    wrapper = render(
       <Provider store={store}>
         <ToastProvider>
           <AccessManagement {...defaultProps} />
@@ -194,10 +181,9 @@ describe('AccessManagement', () => {
   });
 
   it('should render a Share Data button', () => {
-    const inviteButton = wrapper.find('button#invite');
-    expect(inviteButton).to.have.length(1);
-    expect(inviteButton.text()).to.equal('Share Data');
-    expect(inviteButton.props().onClick).to.be.a('function');
+    const inviteButton = wrapper.container.querySelector('button#invite');
+    expect(inviteButton).to.not.be.null;
+    expect(inviteButton.textContent).to.equal('Share Data');
 
     const expectedActions = [
       {
@@ -211,78 +197,113 @@ describe('AccessManagement', () => {
       },
     ];
 
-    inviteButton.props().onClick();
+    fireEvent.click(inviteButton);
     const actions = store.getActions();
     expect(actions).to.eql(expectedActions);
   });
 
   it('should not render an empty Table with no data', () => {
-    const table = wrapper.find(Table);
-    expect(table).to.have.length(0);
-    expect(wrapper.find('#member-invites-label').hostNodes().text()).to.equal('You have not invited any other members to view your data.');
+    const table = wrapper.container.querySelector('table');
+    expect(table).to.be.null;
+    expect(wrapper.container.querySelector('#member-invites-label').textContent).to.equal('You have not invited any other members to view your data.');
   });
 
+  // Helper: click the PopoverMenu trigger icon in a specific row and return visible action button elements
+  const openRowMenu = async (row) => {
+    // PopoverMenu trigger: Icon with label="Access Management actions" (overrides default label="info")
+    // These buttons are inside wrapper.container as part of the table rows
+    const allTriggers = Array.from(wrapper.container.querySelectorAll('[aria-label="Access Management actions"]'));
+    const rows = Array.from(wrapper.container.querySelectorAll('table tr'));
+    const rowIndex = rows.indexOf(row);
+    // Data rows start at index 1 (row 0 is header), so trigger index matches rowIndex - 1
+    expect(rowIndex, `row not found in table rows (rows.length=${rows.length})`).to.not.equal(-1);
+    expect(rowIndex - 1, `rowIndex ${rowIndex} yields a negative trigger index — row must be a data row (index >= 1)`).to.be.at.least(0);
+    expect(rowIndex - 1, `rowIndex ${rowIndex} is out of bounds for allTriggers (length=${allTriggers.length})`).to.be.below(allTriggers.length);
+    const triggerIcon = allTriggers[rowIndex - 1];
+    expect(triggerIcon, `triggerIcon not found at allTriggers[${rowIndex - 1}] (allTriggers.length=${allTriggers.length})`).to.exist;
+    fireEvent.click(triggerIcon);
+    // Return a function that always re-queries fresh action buttons from the open popover
+    // MUI Popover with keepMounted: items are always in DOM, visibility changes on open
+    const getActionButtons = () => {
+      const allPopovers = Array.from(document.querySelectorAll('[id="access-management-actions"]'));
+      const openPopover = allPopovers.find(p => {
+        const style = p.getAttribute('style') || '';
+        return !style.includes('visibility: hidden') && p.getAttribute('aria-hidden') !== 'true';
+      });
+      return openPopover ? Array.from(openPopover.querySelectorAll('.action-list-item')) : [];
+    };
+    await waitFor(() => {
+      expect(getActionButtons().length).to.be.at.least(1);
+    });
+    return getActionButtons;
+  };
+
   context('table has data', () => {
+    afterEach(() => {
+      cleanup();
+    });
+
     beforeEach(() => {
+      cleanup(); // clean up outer beforeEach render before rendering with data
       store = mockStore(fetchedDataState);
-      wrapper = mount(
+      defaultProps.api.access.setMemberPermissions.resetHistory();
+      defaultProps.api.access.removeMember.resetHistory();
+      defaultProps.api.clinics.updatePatientPermissions.resetHistory();
+      defaultProps.api.clinics.deletePatientFromClinic.resetHistory();
+      defaultProps.api.clinics.deletePatientInvitation.resetHistory();
+      defaultProps.api.invitation.cancel.resetHistory();
+      defaultProps.api.invitation.resend.resetHistory();
+      wrapper = render(
         <Provider store={store}>
           <ToastProvider>
             <AccessManagement {...defaultProps} />
           </ToastProvider>
         </Provider>
       );
-    })
+    });
 
     it('should render a Table when data is available', () => {
-      const table = wrapper.find(Table);
-      expect(table).to.have.length(1);
-      expect(table.find('tr')).to.have.length(7); // data (member, clinician + clinic share, 2 member + clinic invites) + header
-      expect(table.find('td')).to.have.length(24);
+      const table = wrapper.container.querySelector('table');
+      expect(table).to.not.be.null;
+      const rows = wrapper.container.querySelectorAll('table tr');
+      expect(rows.length).to.equal(7);
+      const cells = wrapper.container.querySelectorAll('table td');
+      expect(cells.length).to.equal(24);
+      const triggers = wrapper.container.querySelectorAll('[aria-label="Access Management actions"]');
+      expect(triggers.length).to.equal(6); // one per data row
     });
 
-    it('should render a "More" icon that opens a popover menu', () => {
-      const table = () => wrapper.find(Table)
+    it('should render a "More" icon that opens a popover menu', async () => {
+      // Trigger buttons are inside wrapper.container with aria-label="Access Management actions"
+      const allTriggers = wrapper.container.querySelectorAll('[aria-label="Access Management actions"]');
+      const triggerIcon = allTriggers[0]; // first data row trigger
+      expect(triggerIcon).to.not.be.null;
 
-      const accountRow = () => table().find('tr').at(1);
+      fireEvent.click(triggerIcon);
 
-      const popoverMenu = () => accountRow().find('PopoverMenu');
-      expect(popoverMenu()).to.have.length(1);
-
-      const popover = () => popoverMenu().find('Popover');
-      expect(popover()).to.have.length(1);
-      expect(popover().prop('open')).to.be.false;
-
-      popoverMenu().find('button').at(0).simulate('click');
-      expect(popover().prop('open')).to.be.true;
+      await waitFor(() => {
+        const popovers = Array.from(document.querySelectorAll('[id="access-management-actions"]'));
+        const open = popovers.find(p => p.getAttribute('aria-hidden') !== 'true');
+        expect(open).to.not.be.undefined;
+        const items = open.querySelectorAll('.action-list-item');
+        expect(items.length).to.be.at.least(1);
+      });
     });
 
-    it('should render appropriate popover actions for a classic clinic team member', () => {
-      const table = wrapper.find(Table)
-
-      const accountRow = table.find('tr').at(1);
-      expect(accountRow.text()).contains('Example Clinic').and.contains('clinician');
-
-      const popoverMenu = accountRow.find('PopoverMenu');
-      expect(popoverMenu).to.have.length(1);
-      const popoverActionButtons = popoverMenu.find('button.action-list-item');
-      expect(popoverActionButtons).to.have.length(2)
-
-      const expectedActions = [
-        {
-          type: 'SET_MEMBER_PERMISSIONS_REQUEST',
-        },
-        {
-          type: 'REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_REQUEST',
-        },
-      ];
+    it('should render appropriate popover actions for a classic clinic team member', async () => {
+      const rows = wrapper.container.querySelectorAll('table tr');
+      const accountRow = rows[1];
+      expect(accountRow.textContent).to.include('Example Clinic');
+      expect(accountRow.textContent).to.include('clinician');
 
       const actions = () => store.getActions();
 
-      // Click upload permissions toggle
-      expect(popoverActionButtons.at(0).text()).contains('Remove upload permission');
-      popoverActionButtons.at(0).props().onClick();
-      expect(actions()[0]).to.eql(expectedActions[0]);
+      const getActionButtons = await openRowMenu(accountRow);
+      expect(getActionButtons().length).to.equal(2);
+
+      expect(getActionButtons()[0].textContent).to.include('Remove upload permission');
+      fireEvent.click(getActionButtons()[0]);
+      expect(actions()[0].type).to.equal('SET_MEMBER_PERMISSIONS_REQUEST');
 
       sinon.assert.calledWith(
         defaultProps.api.access.setMemberPermissions,
@@ -291,17 +312,16 @@ describe('AccessManagement', () => {
       );
 
       // Click Remove Care Team Member button to open confirmation modal
-      expect(popoverActionButtons.at(1).text()).contains('Remove Care Team Member');
-      expect(wrapper.find(Dialog).at(0).props().open).to.be.false;
-      popoverActionButtons.at(1).props().onClick();
-      wrapper.update();
-      expect(wrapper.find(Dialog).at(0).props().open).to.be.true;
+      expect(getActionButtons()[1].textContent).to.include('Remove Care Team Member');
+      fireEvent.click(getActionButtons()[1]);
 
-      // Confirm delete in modal
-      const deleteButton = wrapper.find('button.remove-account-access');
-      expect(deleteButton).to.have.length(1);
-      deleteButton.props().onClick();
-      expect(actions()[1]).to.eql(expectedActions[1]);
+      await waitFor(() => {
+        expect(document.body.querySelector('button.remove-account-access')).to.not.be.null;
+      });
+
+      const confirmBtn = document.body.querySelector('button.remove-account-access');
+      fireEvent.click(confirmBtn);
+      expect(actions()[1].type).to.equal('REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_REQUEST');
 
       sinon.assert.calledWith(
         defaultProps.api.access.removeMember,
@@ -309,32 +329,20 @@ describe('AccessManagement', () => {
       );
     });
 
-    it('should render appropriate popover actions for a care team member', () => {
-      const table = wrapper.find(Table)
-
-      const accountRow = table.find('tr').at(2);
-      expect(accountRow.text()).contains('Fooey McBear').and.contains('member').and.contains('Sharing');
-
-      const popoverMenu = accountRow.find('PopoverMenu');
-      expect(popoverMenu).to.have.length(1);
-      const popoverActionButtons = popoverMenu.find('button.action-list-item');
-      expect(popoverActionButtons).to.have.length(2)
-
-      const expectedActions = [
-        {
-          type: 'SET_MEMBER_PERMISSIONS_REQUEST',
-        },
-        {
-          type: 'REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_REQUEST',
-        },
-      ];
+    it('should render appropriate popover actions for a care team member', async () => {
+      const rows = wrapper.container.querySelectorAll('table tr');
+      const accountRow = rows[2];
+      expect(accountRow.textContent).to.include('Fooey McBear');
+      expect(accountRow.textContent).to.include('member');
 
       const actions = () => store.getActions();
 
-      // Click upload permissions toggle
-      expect(popoverActionButtons.at(0).text()).contains('Remove upload permission');
-      popoverActionButtons.at(0).props().onClick();
-      expect(actions()[0]).to.eql(expectedActions[0]);
+      const getActionButtons = await openRowMenu(accountRow);
+      expect(getActionButtons().length).to.equal(2);
+
+      expect(getActionButtons()[0].textContent).to.include('Remove upload permission');
+      fireEvent.click(getActionButtons()[0]);
+      expect(actions()[0].type).to.equal('SET_MEMBER_PERMISSIONS_REQUEST');
 
       sinon.assert.calledWith(
         defaultProps.api.access.setMemberPermissions,
@@ -342,18 +350,16 @@ describe('AccessManagement', () => {
         { upload: undefined, view: {} }
       );
 
-      // Click Remove Care Team Member button to open confirmation modal
-      expect(popoverActionButtons.at(1).text()).contains('Remove Care Team Member');
-      expect(wrapper.find(Dialog).at(0).props().open).to.be.false;
-      popoverActionButtons.at(1).props().onClick();
-      wrapper.update();
-      expect(wrapper.find(Dialog).at(0).props().open).to.be.true;
+      expect(getActionButtons()[1].textContent).to.include('Remove Care Team Member');
+      fireEvent.click(getActionButtons()[1]);
 
-      // Confirm delete in modal
-      const deleteButton = wrapper.find('button.remove-account-access');
-      expect(deleteButton).to.have.length(1);
-      deleteButton.props().onClick();
-      expect(actions()[1]).to.eql(expectedActions[1]);
+      await waitFor(() => {
+        expect(document.body.querySelector('button.remove-account-access')).to.not.be.null;
+      });
+
+      const confirmBtn = document.body.querySelector('button.remove-account-access');
+      fireEvent.click(confirmBtn);
+      expect(actions()[1].type).to.equal('REMOVE_MEMBER_FROM_TARGET_CARE_TEAM_REQUEST');
 
       sinon.assert.calledWith(
         defaultProps.api.access.removeMember,
@@ -361,129 +367,85 @@ describe('AccessManagement', () => {
       );
     });
 
-    it('should render appropriate popover actions for a pending care team invitation', () => {
-      const table = wrapper.find(Table)
-
-      const accountRow = table.find('tr').at(5);
-      expect(accountRow.text()).contains('pendingpatient@example.com').and.contains('Invite sent').and.contains('member');
-
-      const popoverMenu = accountRow.find('PopoverMenu');
-      expect(popoverMenu).to.have.length(1);
-      const popoverActionButtons = popoverMenu.find('button.action-list-item');
-      expect(popoverActionButtons).to.have.length(2)
-
-      const expectedActions = [
-        {
-          type: 'RESEND_INVITE_REQUEST',
-        },
-        {
-          type: 'CANCEL_SENT_INVITE_REQUEST',
-        },
-      ];
+    it('should render appropriate popover actions for a pending care team invitation', async () => {
+      const rows = wrapper.container.querySelectorAll('table tr');
+      const accountRow = rows[5];
+      expect(accountRow.textContent).to.include('pendingpatient@example.com');
+      expect(accountRow.textContent).to.include('Invite sent');
 
       const actions = () => store.getActions();
 
-      // Click resent invitation button to open confirmation modal
-      expect(popoverActionButtons.at(0).text()).contains('Resend Invite');
-      expect(wrapper.find(Dialog).at(1).props().open).to.be.false;
-      popoverActionButtons.at(0).props().onClick();
-      wrapper.update()
-      expect(wrapper.find(Dialog).at(1).props().open).to.be.true;
+      const getActionButtons = await openRowMenu(accountRow);
+      expect(getActionButtons().length).to.equal(2);
 
-      // Confirm resend invitation in modal
-      const resendButton = wrapper.find('button.resend-invitation');
-      expect(resendButton).to.have.length(1);
-      resendButton.props().onClick();
-      expect(actions()[0]).to.eql(expectedActions[0]);
+      expect(getActionButtons()[0].textContent).to.include('Resend Invite');
+      fireEvent.click(getActionButtons()[0]);
 
-      sinon.assert.calledWith(
-        defaultProps.api.invitation.resend,
-        '789'
-      );
+      await waitFor(() => {
+        expect(document.body.querySelector('button.resend-invitation')).to.not.be.null;
+      });
 
-      // Click Revoke Invite button to open confirmation modal
-      expect(popoverActionButtons.at(1).text()).contains('Revoke Invite');
-      expect(wrapper.find(Dialog).at(0).props().open).to.be.false;
-      popoverActionButtons.at(1).props().onClick();
-      wrapper.update();
-      expect(wrapper.find(Dialog).at(0).props().open).to.be.true;
+      const resendConfirmBtn = document.body.querySelector('button.resend-invitation');
+      fireEvent.click(resendConfirmBtn);
+      expect(actions()[0].type).to.equal('RESEND_INVITE_REQUEST');
 
-      // Confirm delete in modal
-      const deleteButton = wrapper.find('button.remove-account-access');
-      expect(deleteButton).to.have.length(1);
-      deleteButton.props().onClick();
-      expect(actions()[1]).to.eql(expectedActions[1]);
+      sinon.assert.calledWith(defaultProps.api.invitation.resend, '789');
 
-      sinon.assert.calledWith(
-        defaultProps.api.invitation.cancel,
-        'pendingpatient@example.com',
-      );
+      // Re-open the row menu since the popover closed after first action
+      const getActionButtons2 = await openRowMenu(wrapper.container.querySelectorAll('table tr')[5]);
+      expect(getActionButtons2()[1].textContent).to.include('Revoke Invite');
+      fireEvent.click(getActionButtons2()[1]);
+
+      await waitFor(() => {
+        expect(document.body.querySelector('button.remove-account-access')).to.not.be.null;
+      });
+
+      const confirmBtn = document.body.querySelector('button.remove-account-access');
+      fireEvent.click(confirmBtn);
+      expect(actions()[1].type).to.equal('CANCEL_SENT_INVITE_REQUEST');
+
+      sinon.assert.calledWith(defaultProps.api.invitation.cancel, 'pendingpatient@example.com');
     });
 
-    it('should render appropriate popover actions for a declined care team invitation', () => {
-      const table = wrapper.find(Table)
-
-      const accountRow = table.find('tr').at(6);
-      expect(accountRow.text()).contains('yetanotherpatient@example.com').and.contains('Invite declined').and.contains('member');
-
-      const popoverMenu = accountRow.find('PopoverMenu');
-      expect(popoverMenu).to.have.length(1);
-      const popoverActionButtons = popoverMenu.find('button.action-list-item');
-      expect(popoverActionButtons).to.have.length(1)
-
-      const expectedActions = [
-        {
-          type: 'CANCEL_SENT_INVITE_REQUEST',
-        },
-      ];
+    it('should render appropriate popover actions for a declined care team invitation', async () => {
+      const rows = wrapper.container.querySelectorAll('table tr');
+      const accountRow = rows[6];
+      expect(accountRow.textContent).to.include('yetanotherpatient@example.com');
+      expect(accountRow.textContent).to.include('Invite declined');
 
       const actions = () => store.getActions();
 
-      // Click Revoke Invite button to open confirmation modal
-      expect(popoverActionButtons.at(0).text()).contains('Revoke Invite');
-      expect(wrapper.find(Dialog).at(0).props().open).to.be.false;
-      popoverActionButtons.at(0).props().onClick();
-      wrapper.update();
-      expect(wrapper.find(Dialog).at(0).props().open).to.be.true;
+      const getActionButtons = await openRowMenu(accountRow);
+      expect(getActionButtons().length).to.equal(1);
 
-      // Confirm delete in modal
-      const deleteButton = wrapper.find('button.remove-account-access');
-      expect(deleteButton).to.have.length(1);
-      deleteButton.props().onClick();
-      expect(actions()[0]).to.eql(expectedActions[0]);
+      expect(getActionButtons()[0].textContent).to.include('Revoke Invite');
+      fireEvent.click(getActionButtons()[0]);
 
-      sinon.assert.calledWith(
-        defaultProps.api.invitation.cancel,
-        'yetanotherpatient@example.com',
-      );
+      await waitFor(() => {
+        expect(document.body.querySelector('button.remove-account-access')).to.not.be.null;
+      });
+
+      const confirmBtn = document.body.querySelector('button.remove-account-access');
+      fireEvent.click(confirmBtn);
+      expect(actions()[0].type).to.equal('CANCEL_SENT_INVITE_REQUEST');
+
+      sinon.assert.calledWith(defaultProps.api.invitation.cancel, 'yetanotherpatient@example.com');
     });
 
-    it('should render appropriate popover actions for a clinic member', () => {
-      const table = wrapper.find(Table)
-
-      const accountRow = table.find('tr').at(3);
-      expect(accountRow.text()).contains('new_clinic_name').and.contains('clinic');
-
-      const popoverMenu = accountRow.find('PopoverMenu');
-      expect(popoverMenu).to.have.length(1);
-      const popoverActionButtons = popoverMenu.find('button.action-list-item');
-      expect(popoverActionButtons).to.have.length(2)
-
-      const expectedActions = [
-        {
-          type: 'UPDATE_PATIENT_PERMISSIONS_REQUEST',
-        },
-        {
-          type: 'DELETE_PATIENT_FROM_CLINIC_REQUEST',
-        },
-      ];
+    it('should render appropriate popover actions for a clinic member', async () => {
+      const rows = wrapper.container.querySelectorAll('table tr');
+      const accountRow = rows[3];
+      expect(accountRow.textContent).to.include('new_clinic_name');
+      expect(accountRow.textContent).to.include('clinic');
 
       const actions = () => store.getActions();
 
-      // Click upload permissions toggle
-      expect(popoverActionButtons.at(0).text()).contains('Remove upload permission');
-      popoverActionButtons.at(0).props().onClick();
-      expect(actions()[0]).to.eql(expectedActions[0]);
+      const getActionButtons = await openRowMenu(accountRow);
+      expect(getActionButtons().length).to.equal(2);
+
+      expect(getActionButtons()[0].textContent).to.include('Remove upload permission');
+      fireEvent.click(getActionButtons()[0]);
+      expect(actions()[0].type).to.equal('UPDATE_PATIENT_PERMISSIONS_REQUEST');
 
       sinon.assert.calledWith(
         defaultProps.api.clinics.updatePatientPermissions,
@@ -492,18 +454,16 @@ describe('AccessManagement', () => {
         { upload: undefined, view: {} }
       );
 
-      // Click Remove Clinic button to open confirmation modal
-      expect(popoverActionButtons.at(1).text()).contains('Remove Clinic');
-      expect(wrapper.find(Dialog).at(0).props().open).to.be.false;
-      popoverActionButtons.at(1).props().onClick();
-      wrapper.update();
-      expect(wrapper.find(Dialog).at(0).props().open).to.be.true;
+      expect(getActionButtons()[1].textContent).to.include('Remove Clinic');
+      fireEvent.click(getActionButtons()[1]);
 
-      // Confirm delete in modal
-      const deleteButton = wrapper.find('button.remove-account-access');
-      expect(deleteButton).to.have.length(1);
-      deleteButton.props().onClick();
-      expect(actions()[1]).to.eql(expectedActions[1]);
+      await waitFor(() => {
+        expect(document.body.querySelector('button.remove-account-access')).to.not.be.null;
+      });
+
+      const confirmBtn = document.body.querySelector('button.remove-account-access');
+      fireEvent.click(confirmBtn);
+      expect(actions()[1].type).to.equal('DELETE_PATIENT_FROM_CLINIC_REQUEST');
 
       sinon.assert.calledWith(
         defaultProps.api.clinics.deletePatientFromClinic,
@@ -512,37 +472,28 @@ describe('AccessManagement', () => {
       );
     });
 
-    it('should render appropriate popover actions for a clinic invitation', () => {
-      const table = wrapper.find(Table)
-
-      const accountRow = table.find('tr').at(4);
-      expect(accountRow.text()).contains('other_clinic_name').and.contains('Invite sent').and.contains('clinic');
-
-      const popoverMenu = accountRow.find('PopoverMenu');
-      expect(popoverMenu).to.have.length(1);
-      const popoverActionButtons = popoverMenu.find('button.action-list-item');
-      expect(popoverActionButtons).to.have.length(1)
-
-      const expectedActions = [
-        {
-          type: 'CANCEL_SENT_INVITE_REQUEST',
-        },
-      ];
+    it('should render appropriate popover actions for a clinic invitation', async () => {
+      const rows = wrapper.container.querySelectorAll('table tr');
+      const accountRow = rows[4];
+      expect(accountRow.textContent).to.include('other_clinic_name');
+      expect(accountRow.textContent).to.include('Invite sent');
+      expect(accountRow.textContent).to.include('clinic');
 
       const actions = () => store.getActions();
 
-      // Click Revoke Invite button to open confirmation modal
-      expect(popoverActionButtons.at(0).text()).contains('Revoke Invite');
-      expect(wrapper.find(Dialog).at(0).props().open).to.be.false;
-      popoverActionButtons.at(0).props().onClick();
-      wrapper.update();
-      expect(wrapper.find(Dialog).at(0).props().open).to.be.true;
+      const getActionButtons = await openRowMenu(accountRow);
+      expect(getActionButtons().length).to.equal(1);
 
-      // Confirm delete in modal
-      const deleteButton = wrapper.find('button.remove-account-access');
-      expect(deleteButton).to.have.length(1);
-      deleteButton.props().onClick();
-      expect(actions()[1]).to.eql(expectedActions[1]);
+      expect(getActionButtons()[0].textContent).to.include('Revoke Invite');
+      fireEvent.click(getActionButtons()[0]);
+
+      await waitFor(() => {
+        expect(document.body.querySelector('button.remove-account-access')).to.not.be.null;
+      });
+
+      const confirmBtn = document.body.querySelector('button.remove-account-access');
+      fireEvent.click(confirmBtn);
+      expect(actions()[0].type).to.equal('DELETE_PATIENT_INVITATION_REQUEST');
 
       sinon.assert.calledWith(
         defaultProps.api.clinics.deletePatientInvitation,
