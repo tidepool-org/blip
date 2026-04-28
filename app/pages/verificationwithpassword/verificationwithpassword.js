@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { colors as vizColors } from '@tidepool/viz';
+import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined';
+import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
 
 import * as actions from '../../redux/actions';
 import { useToasts } from '../../providers/ToastProvider';
@@ -15,6 +17,7 @@ import { dateRegex } from '../../core/clinicUtils';
 import TextInput from '../../components/elements/TextInput';
 import { Box } from 'theme-ui';
 import Button from '../../components/elements/Button';
+import Icon from '../../components/elements/Icon';
 import InputMask from 'react-input-mask';
 
 import Container from '../../components/elements/Container';
@@ -35,7 +38,18 @@ const styleProps = {
     my: 2,
   },
   inputFieldContainer: {
+    position: 'relative',
     py: 2,
+  },
+  visibilityIconContainer: {
+    color: vizColors.gray50,
+    position: 'absolute',
+    right: '12px',
+    bottom: '12px',
+
+  },
+  visibilityIcon: {
+    '&:focus:not(:focus-visible)': { boxShadow: 'none' },
   },
   passwordInputField: {
     width: '100%',
@@ -96,6 +110,7 @@ const VerificationWithPassword = ({
   const propsNotification = useSelector(state => state.blip.working.verifyingCustodial.notification);
   const working = useSelector(state => state.blip.working.verifyingCustodial.inProgress);
 
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [formValues, setFormValues] = useState({
     password: '',
     confirmPassword: '',
@@ -146,6 +161,8 @@ const VerificationWithPassword = ({
 
   const disabled = fetchingUser && !user;
 
+  const VisibilityIcon = isPasswordVisible ? VisibilityOffOutlinedIcon : VisibilityOutlinedIcon;
+
   return (
     <Box sx={{ paddingTop: ['72px', '72px', '86px', '86px'] }}>
       <Container
@@ -182,7 +199,7 @@ const VerificationWithPassword = ({
       >
         <Box sx={styleProps.inputFieldContainer}>
           <TextInput // Password Field
-            type="password"
+            type={isPasswordVisible ? 'text' : 'password'}
             name="password"
             label={t('Create Password')}
             value={formValues.password || ''}
@@ -191,11 +208,21 @@ const VerificationWithPassword = ({
             error={validationErrors.password}
             sx={styleProps.passwordInputField}
           />
+          <Box sx={styleProps.visibilityIconContainer}>
+            <Icon
+              id="password-view-toggle"
+              variant="default"
+              icon={VisibilityIcon}
+              sx={styleProps.visibilityIcon}
+              label={t('Toggle visibility')}
+              onClick={() => setIsPasswordVisible(isVisible => !isVisible)}
+            />
+          </Box>
         </Box>
 
         <Box sx={styleProps.inputFieldContainer}>
           <TextInput // Confirm Password Field
-            type="password"
+            type={isPasswordVisible ? 'text' : 'password'}
             name="passwordConfirm"
             label={t('Confirm password')}
             value={formValues.passwordConfirm || ''}
@@ -204,6 +231,16 @@ const VerificationWithPassword = ({
             error={validationErrors.passwordConfirm}
             sx={styleProps.passwordInputField}
           />
+          <Box sx={styleProps.visibilityIconContainer}>
+            <Icon
+              id="password-view-toggle-confirm"
+              variant="default"
+              icon={VisibilityIcon}
+              sx={styleProps.visibilityIcon}
+              label={t('Toggle visibility')}
+              onClick={() => setIsPasswordVisible(isVisible => !isVisible)}
+            />
+          </Box>
         </Box>
 
         <Box sx={styleProps.inputFieldContainer}>
