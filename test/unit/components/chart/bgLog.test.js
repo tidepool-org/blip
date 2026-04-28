@@ -174,22 +174,20 @@ describe('BG Log', () => {
       expect(state().title).to.equal('Jan 15, 2018 - Jan 28, 2018');
     });
 
-    it('should set a debounced call of the `onUpdateChartDateRange` prop method', () => {
-      sinon.spy(_, 'debounce');
-      sinon.assert.callCount(_.debounce, 0);
-
+    it('should call the `onUpdateChartDateRange` prop method debounced via a stable instance property', () => {
+      expect(instance.debouncedDateRangeUpdate).to.be.a('function');
       expect(state().debouncedDateRangeUpdate).to.be.undefined;
+
+      const debounceStub = sinon.stub(instance, 'debouncedDateRangeUpdate');
 
       instance.handleDatetimeLocationChange([
         '2018-01-15T00:00:00.000Z',
         '2018-01-16T00:00:00.000Z',
       ], chart);
 
-      sinon.assert.callCount(_.debounce, 1);
-      sinon.assert.calledWith(_.debounce, baseProps.onUpdateChartDateRange);
-      expect(state().debouncedDateRangeUpdate).to.be.a('function');
+      sinon.assert.calledOnce(debounceStub);
 
-      _.debounce.restore();
+      debounceStub.restore();
     });
   });
 });
