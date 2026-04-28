@@ -3,8 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { colors as vizColors } from '@tidepool/viz';
-import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined';
-import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
+import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
+import VisibilityIcon from '@material-ui/icons/Visibility';
 
 import * as actions from '../../redux/actions';
 import { useToasts } from '../../providers/ToastProvider';
@@ -111,6 +111,7 @@ const VerificationWithPassword = ({
   const working = useSelector(state => state.blip.working.verifyingCustodial.inProgress);
 
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isPasswordConfirmVisible, setIsPasswordConfirmVisible] = useState(false);
   const [formValues, setFormValues] = useState({
     password: '',
     confirmPassword: '',
@@ -161,8 +162,6 @@ const VerificationWithPassword = ({
 
   const disabled = fetchingUser && !user;
 
-  const VisibilityIcon = isPasswordVisible ? VisibilityOffOutlinedIcon : VisibilityOutlinedIcon;
-
   return (
     <Box sx={{ paddingTop: ['72px', '72px', '86px', '86px'] }}>
       <Container
@@ -212,7 +211,7 @@ const VerificationWithPassword = ({
             <Icon
               id="password-view-toggle"
               variant="default"
-              icon={VisibilityIcon}
+              icon={isPasswordVisible ? VisibilityOffIcon : VisibilityIcon}
               sx={styleProps.visibilityIcon}
               label={t('Toggle visibility')}
               onClick={() => setIsPasswordVisible(isVisible => !isVisible)}
@@ -222,7 +221,7 @@ const VerificationWithPassword = ({
 
         <Box sx={styleProps.inputFieldContainer}>
           <TextInput // Confirm Password Field
-            type={isPasswordVisible ? 'text' : 'password'}
+            type={isPasswordConfirmVisible ? 'text' : 'password'}
             name="passwordConfirm"
             label={t('Confirm password')}
             value={formValues.passwordConfirm || ''}
@@ -235,10 +234,10 @@ const VerificationWithPassword = ({
             <Icon
               id="password-view-toggle-confirm"
               variant="default"
-              icon={VisibilityIcon}
+              icon={isPasswordConfirmVisible ? VisibilityOffIcon : VisibilityIcon}
               sx={styleProps.visibilityIcon}
               label={t('Toggle visibility')}
-              onClick={() => setIsPasswordVisible(isVisible => !isVisible)}
+              onClick={() => setIsPasswordConfirmVisible(isVisible => !isVisible)}
             />
           </Box>
         </Box>
