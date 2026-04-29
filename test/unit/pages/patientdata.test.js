@@ -1719,7 +1719,7 @@ describe('PatientData', function () {
     });
 
     it('should query stats if enabled via arg, but not by default, nor if querying data', () => {
-      instance.setState({ chartEndpoints: { current: [100, 200] }, bgPrefs: 'bgPrefs' });
+      instance.setState({ endpoints: [100, 200], bgPrefs: 'bgPrefs' });
 
       // queryData set to false and queryStats set undefined
       instance.updateChartPrefs({ trends: 'bar'}, false);
@@ -1746,7 +1746,7 @@ describe('PatientData', function () {
     });
 
     it('should query aggregations if enabled via arg, but not by default, nor if querying data', () => {
-      instance.setState({ chartEndpoints: { current: [100, 200] }, bgPrefs: 'bgPrefs' });
+      instance.setState({ endpoints: [100, 200], bgPrefs: 'bgPrefs' });
 
       // queryData and queryStats set to false and queryAggregations set undefined
       instance.updateChartPrefs({ trends: 'bar'}, false, false);

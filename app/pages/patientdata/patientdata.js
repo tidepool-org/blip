@@ -1216,7 +1216,7 @@ export const PatientDataClass = createReactClass({
 
         const query = {
           bgPrefs: _.get(this.state, 'bgPrefs'),
-          endpoints: _.get(this.state, 'chartEndpoints.current'),
+          endpoints: this.state.endpoints,
           stats: queryStats ? getStatsByChartType(chartType, bgSource, deviceOpts) : undefined,
           aggregationsByDate: queryAggregations ? this.getAggregationsByChartType() : undefined,
         };
