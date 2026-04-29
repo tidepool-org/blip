@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import { combineReducers } from 'redux';
 import { legacy_createStore as createStore, applyMiddleware } from 'redux';
 import thunkMiddleware from 'redux-thunk';
-import { mount } from 'enzyme';
+import { render, cleanup } from '@testing-library/react';
 
 import reducers from '../../app/redux/reducers';
 import initialState from '../../app/redux/reducers/initialState';
@@ -14,7 +14,7 @@ import { MemoryRouter, Route } from 'react-router';
 
 const reducer = combineReducers({
   blip: reducers,
-  router: {},
+  router: (state = {}) => state,
 });
 
 export const setupStore = (preloadedState, dispatchSpy) => {
@@ -26,7 +26,7 @@ export const setupStore = (preloadedState, dispatchSpy) => {
 
 // Inspired by the redux team recommended approach to testing connected components
 // https://redux.js.org/usage/writing-tests#setting-up-a-reusable-test-render-function
-// Their examples use react-testing-library, and redux tookit, so perhaps this will stil be useful
+// Their examples use react-testing-library, and redux tookit, so perhaps this will still be useful
 // when we migrate to those libraries.
 export function mountWithProviders(
   ui,
@@ -53,5 +53,7 @@ export function mountWithProviders(
       </Provider>
     );
   }
-  return { store, wrapper: mount(ui, { wrappingComponent: Wrapper, ...mountOptions }) };
+  cleanup();
+  const rendered = render(ui, { ...mountOptions, wrapper: Wrapper });
+  return { store, ...rendered };
 }

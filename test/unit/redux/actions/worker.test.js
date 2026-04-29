@@ -25,6 +25,8 @@ import isTSA from 'tidepool-standard-action';
 import * as actionTypes from '../../../../app/redux/constants/actionTypes';
 import * as worker from '../../../../app/redux/actions/worker';
 
+const expect = chai.expect;
+
 describe('worker action creators', () => {
   const patientId = 'abc123';
 

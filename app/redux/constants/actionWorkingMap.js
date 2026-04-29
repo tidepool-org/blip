@@ -32,6 +32,11 @@ export default (type) => {
     case types.FETCH_PATIENT_DATA_FAILURE:
       return 'fetchingPatientData';
 
+    case types.FETCH_PATIENTS_REQUEST:
+    case types.FETCH_PATIENTS_SUCCESS:
+    case types.FETCH_PATIENTS_FAILURE:
+      return 'fetchingPatients';
+
     case types.FETCH_CLINIC_PRESCRIPTIONS_REQUEST:
     case types.FETCH_CLINIC_PRESCRIPTIONS_SUCCESS:
     case types.FETCH_CLINIC_PRESCRIPTIONS_FAILURE:
