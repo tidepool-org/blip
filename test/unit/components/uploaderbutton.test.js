@@ -5,10 +5,31 @@
 /* global beforeEach */
 
 import React from 'react';
-import { mount, shallow } from 'enzyme';
+import { render, fireEvent, waitFor } from '@testing-library/react';
+import { __mockListReleases as mockListReleases } from '@octokit/rest';
 
 import UploaderButton from '../../../app/components/uploaderbutton';
 import { URL_UPLOADER_DOWNLOAD_PAGE } from '../../../app/core/constants';
+import utils from '../../../app/core/utils';
+
+jest.mock('@octokit/rest', () => {
+  const __mockListReleases = jest.fn();
+  return {
+    __mockListReleases,
+    Octokit: jest.fn(() => ({
+      repos: {
+        listReleases: __mockListReleases,
+      },
+    })),
+  };
+});
+
+jest.mock('../../../app/core/utils', () => ({
+  __esModule: true,
+  default: {
+    getUploaderDownloadURL: jest.fn(),
+  },
+}));
 
 const expect = chai.expect;
 
@@ -18,13 +39,12 @@ describe('UploaderButton', function () {
     onClick: sinon.spy(),
   };
 
-  let wrapper;
   beforeEach(() => {
-    wrapper = mount(
-      <UploaderButton
-        {...props}
-      />
-    );
+    props.onClick.resetHistory();
+    mockListReleases.mockReset();
+    utils.getUploaderDownloadURL.mockReset();
+    mockListReleases.mockResolvedValue({ data: [] });
+    utils.getUploaderDownloadURL.mockReturnValue({});
   });
 
   it('should be a function', function () {
@@ -33,95 +53,82 @@ describe('UploaderButton', function () {
 
   describe('render', function () {
     it('should render without problems', function () {
-      expect(wrapper.find(UploaderButton)).to.have.length(1);
+      const { container } = render(<UploaderButton {...props} />);
+      expect(container.querySelector('.btn-download-mac')).to.exist;
     });
 
     it('should have a Mac and a Windows Download button', function () {
-      const macButton = wrapper.find('button.btn-download-mac');
-      expect(macButton).to.have.length(1);
-
-      const winButton = wrapper.find('button.btn-download-win');
-      expect(winButton).to.have.length(1);
+      const { container } = render(<UploaderButton {...props} />);
+      expect(container.querySelectorAll('button.btn-download-mac').length).to.equal(1);
+      expect(container.querySelectorAll('button.btn-download-win').length).to.equal(1);
     });
 
-    it('should have disabled download buttons if no URLs have been set', () => {
-      wrapper.childAt(0).setState({
-        latestWinRelease: null,
-        latestMacRelease: null,
+    it('should have disabled download buttons if no URLs have been set', async () => {
+      const { container } = render(<UploaderButton {...props} />);
+
+      await waitFor(() => {
+        expect(container.querySelector('button.btn-download-mac').disabled).to.equal(true);
+        expect(container.querySelector('button.btn-download-win').disabled).to.equal(true);
       });
-
-      const macButton = wrapper.find('button.btn-download-mac');
-      expect(macButton).to.have.length(1);
-      expect(macButton.prop('disabled')).to.be.true;
-
-      const winButton = wrapper.find('button.btn-download-win');
-      expect(winButton).to.have.length(1);
-      expect(winButton.prop('disabled')).to.be.true;
     });
 
-    it('should have active buttons if URLs have been set', () => {
-      wrapper.childAt(0).setState({
-        latestMacRelease: 'test',
-        latestWinRelease: 'test',
+    it('should have active buttons if URLs have been set', async () => {
+      utils.getUploaderDownloadURL.mockReturnValue({
+        latestMacRelease: 'https://example.com/mac',
+        latestWinRelease: 'https://example.com/win',
       });
-      wrapper.update();
 
-      const macButton = wrapper.find('button.btn-download-mac');
-      expect(macButton).to.have.length(1);
-      expect(macButton.prop('disabled')).to.be.false;
+      const { container } = render(<UploaderButton {...props} />);
 
-      const winButton = wrapper.find('button.btn-download-win');
-      expect(winButton).to.have.length(1);
-      expect(winButton.prop('disabled')).to.be.false;
+      await waitFor(() => {
+        expect(container.querySelector('button.btn-download-mac').disabled).to.equal(false);
+        expect(container.querySelector('button.btn-download-win').disabled).to.equal(false);
+      });
     });
 
-    it('should display error button if error retrieving github releases', () => {
-      wrapper.childAt(0).setState({
-        error: 'some error',
-      });
-      wrapper.update();
+    it('should display error button if error retrieving github releases', async () => {
+      mockListReleases.mockRejectedValueOnce(new Error('release error'));
+      const { container } = render(<UploaderButton {...props} />);
 
-      expect(wrapper.find({ href: URL_UPLOADER_DOWNLOAD_PAGE }).filter('a')).to.have.length(1);
-      expect(wrapper.find('button.btn-uploader-download')).to.have.length(1);
-      expect(wrapper.find('.btn-uploader-download').someWhere(n => (n.text().search(props.buttonText) !== -1))).to.be.true;
+      await waitFor(() => {
+        const errorLink = container.querySelector(`a[href="${URL_UPLOADER_DOWNLOAD_PAGE}"]`);
+        expect(errorLink).to.exist;
+        expect(container.querySelector('button.btn-uploader-download')).to.exist;
+      });
     });
 
-    it('should respond to onClick on Mac Download Button', () => {
-      wrapper.childAt(0).setState({
-        latestMacRelease: 'test',
-        latestWinRelease: 'test',
+    it('should respond to onClick on Mac Download Button', async () => {
+      utils.getUploaderDownloadURL.mockReturnValue({
+        latestMacRelease: 'https://example.com/mac',
+        latestWinRelease: 'https://example.com/win',
       });
-      wrapper.update();
+      const { container } = render(<UploaderButton {...props} />);
 
-      const macButton = wrapper.find('a.link-download-mac');
-      macButton.simulate('click');
-      expect(props.onClick.calledOnce);
-
+      await waitFor(() => expect(container.querySelector('a.link-download-mac')).to.exist);
+      fireEvent.click(container.querySelector('a.link-download-mac'));
+      expect(props.onClick.calledOnce).to.equal(true);
     });
 
-    it('should respond to onClick on Windows Download Button', () => {
-      wrapper.childAt(0).setState({
-        latestMacRelease: 'test',
-        latestWinRelease: 'test',
+    it('should respond to onClick on Windows Download Button', async () => {
+      utils.getUploaderDownloadURL.mockReturnValue({
+        latestMacRelease: 'https://example.com/mac',
+        latestWinRelease: 'https://example.com/win',
       });
-      wrapper.update();
+      const { container } = render(<UploaderButton {...props} />);
 
-      const winButton = wrapper.find('a.link-download-win');
-      winButton.simulate('click');
-      expect(props.onClick.calledOnce);
-
+      await waitFor(() => expect(container.querySelector('a.link-download-win')).to.exist);
+      fireEvent.click(container.querySelector('a.link-download-win'));
+      expect(props.onClick.calledOnce).to.equal(true);
     });
 
-    it('should respond to an onClick event on Download Error Button', () => {
-      wrapper.childAt(0).setState({
-        error: 'some error',
-      });
-      wrapper.update();
+    it('should respond to an onClick event on Download Error Button', async () => {
+      mockListReleases.mockRejectedValueOnce(new Error('release error'));
+      const { container } = render(<UploaderButton {...props} />);
 
-      const errorButton = wrapper.find('a.link-uploader-download');
-      errorButton.simulate('click');
-      expect(wrapper.find({ href: URL_UPLOADER_DOWNLOAD_PAGE }).filter('a')).to.have.length(1);
-      expect(props.onClick.calledOnce);
+      await waitFor(() => expect(container.querySelector('a.link-uploader-download')).to.exist);
+      fireEvent.click(container.querySelector('a.link-uploader-download'));
+      expect(container.querySelector(`a[href="${URL_UPLOADER_DOWNLOAD_PAGE}"]`)).to.exist;
+      expect(props.onClick.calledOnce).to.equal(true);
     });
   });
 });

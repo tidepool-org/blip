@@ -19,7 +19,7 @@ export const buildSelectOptions = (
 ) => {
   // Format tags for react-select (label and value properties), then sort
   const options = clinicTags.map(tag => ({ label: tag.name, value: tag.id }))
-                            .toSorted((a, b) => utils.compareLabels(a.label, b.label));
+    .toSorted((a, b) => utils.compareLabels(a.label, b.label));
 
   // If suggesting is disabled, return a single group of all options
   if (!shouldSuggestTags) return [{ options: options, label: '' }];
@@ -40,6 +40,7 @@ const SelectTags = ({
   selectMenuHeight = 240,
   onMenuOpen = noop,
   closeMenuOnSelect = false,
+  isDisabled = false,
 }) => {
   const { pathname } = useLocation();
   const { t } = useTranslation();
@@ -81,6 +82,7 @@ const SelectTags = ({
       filterOption={createFilter({ stringify: opt => opt.label })}
       isMulti
       isClearable
+      isDisabled={isDisabled}
     />
   );
 };
@@ -91,6 +93,7 @@ SelectTags.propTypes = {
   selectMenuHeight: PropTypes.number,
   onMenuOpen: PropTypes.func,
   closeMenuOnSelect: PropTypes.bool,
+  isDisabled: PropTypes.bool,
 };
 
 SelectTags.defaultProps = {

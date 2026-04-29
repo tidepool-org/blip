@@ -23,7 +23,7 @@
 /* global afterEach */
 
 import React from 'react';
-import { mount } from 'enzyme';
+import { render, fireEvent } from '@testing-library/react';
 import _ from 'lodash';
 
 import PatientBgUnits from '../../../app/components/patientBgUnits';
@@ -44,18 +44,9 @@ describe('PatientBgUnits', () => {
     bgUnits: MGDL_UNITS,
   };
 
-  let wrapper;
-  beforeEach(() => {
-    wrapper = mount(
-      <PatientBgUnits
-        {...props}
-      />
-    );
-  });
-
   afterEach(() => {
-    props.onUpdatePatientSettings.reset();
-    props.trackMetric.reset();
+    props.onUpdatePatientSettings.resetHistory();
+    props.trackMetric.resetHistory();
   });
 
   it('should be a function', () => {
@@ -63,49 +54,61 @@ describe('PatientBgUnits', () => {
   });
 
   it('should render without errors when provided all required props', () => {
-    console.error = sinon.stub();
+    const consoleErrorStub = sinon.stub(console, 'error');
+    try {
+      const { container } = render(<PatientBgUnits {...props} />);
 
-    expect(wrapper.find('.PatientBgUnits')).to.have.length(1);
-    expect(console.error.callCount).to.equal(0);
+      expect(container.querySelector('.PatientBgUnits')).to.exist;
+      expect(consoleErrorStub.callCount).to.equal(0);
+    } finally {
+      consoleErrorStub.restore();
+    }
   });
 
   it('should set the initial state', () => {
-    const expectedInitialState = {
-      formValues: expectedInitialFormValues,
-    };
+    const { container } = render(<PatientBgUnits {...props} />);
+    const radios = container.querySelectorAll('input.input-group-radio-control[type="radio"]');
 
-    expect(wrapper.state()).to.eql(expectedInitialState);
+    expect(radios.length).to.equal(2);
+    expect(radios[0].checked).to.equal(true);
+    expect(radios[1].checked).to.equal(false);
+    expect(radios[0].value).to.equal(expectedInitialFormValues.bgUnits);
   });
 
   describe('render', () => {
     it('should render a radio input group when editingAllowed prop is true', () => {
-      const group = wrapper.find('.input-group-radios');
-      const labels = wrapper.find('.input-group-radio-label');
-      const radios = wrapper.find('input.input-group-radio-control[type="radio"]');
+      const { container } = render(<PatientBgUnits {...props} />);
+      const group = container.querySelectorAll('.input-group-radios');
+      const labels = container.querySelectorAll('.input-group-radio-label');
+      const radios = container.querySelectorAll('input.input-group-radio-control[type="radio"]');
 
-      expect(group).to.have.length(1);
-      expect(radios).to.have.length(2);
-      expect(labels.first().text()).to.include(MGDL_UNITS);
-      expect(labels.last().text()).to.include(MMOLL_UNITS);
+      expect(group.length).to.equal(1);
+      expect(radios.length).to.equal(2);
+      expect(labels[0].textContent).to.include(MGDL_UNITS);
+      expect(labels[labels.length - 1].textContent).to.include(MMOLL_UNITS);
     });
 
     it('should render the BG units as text when editingAllowed prop is false', () => {
-      wrapper.setProps({ editingAllowed: false });
-      const content = wrapper.find('.bgUnits');
+      const { container } = render(<PatientBgUnits {...props} editingAllowed={false} />);
+      const content = container.querySelector('.bgUnits');
 
-      expect(content).to.have.length(1);
-      expect(content.text()).to.include(MGDL_UNITS);
+      expect(content).to.exist;
+      expect(content.textContent).to.include(MGDL_UNITS);
     });
   });
 
   describe('getInitialFormValues', () => {
     it('should set appropriate default form values when no patient BG settings are provided', () => {
-      expect(wrapper.state('formValues')).to.eql(expectedInitialFormValues);
+      const { container } = render(<PatientBgUnits {...props} editingAllowed={false} />);
+      const bgUnitsEl = container.querySelector('.bgUnits');
+      expect(bgUnitsEl).to.exist;
+      expect(bgUnitsEl.textContent).to.eql(expectedInitialFormValues.bgUnits);
     });
 
     it('should set appropriate initial form values for a patient who has BG unit settings set', () => {
       const newProps = _.assign({}, props, {
         patient: {
+          userid: 1234,
           settings: {
             units: {
               bg: MMOLL_UNITS,
@@ -118,65 +121,58 @@ describe('PatientBgUnits', () => {
         bgUnits: MMOLL_UNITS,
       };
 
-      const element = mount(<PatientBgUnits {...newProps} />)
-      expect(element.state('formValues')).to.eql(expectedFormValues);
+      const { container } = render(<PatientBgUnits {...newProps} editingAllowed={false} />);
+      expect(container.querySelector('.bgUnits').textContent).to.eql(expectedFormValues.bgUnits);
     });
   });
 
   describe('handleChange', () => {
-    let spy, radio1, radio2;
-
-    beforeEach(() => {
-      spy = sinon.spy(wrapper.instance(), 'handleChange');
-      wrapper.instance().forceUpdate();
-
-      radio1 = wrapper.find('.simple-form').first().find('.input-group').first().find('input').first();
-      radio2 = wrapper.find('.simple-form').first().find('.input-group').first().find('input').last();
-    });
-
     it('should update the form values in state when a form value changes', () => {
-      expect(wrapper.state('formValues').bgUnits).to.equal(MGDL_UNITS);
+      const { container, rerender } = render(<PatientBgUnits {...props} />);
+      const radios = container.querySelectorAll('input.input-group-radio-control[type="radio"]');
 
-      radio2.simulate('change', { target: { name: 'bgUnits', value: MMOLL_UNITS } });
+      fireEvent.click(radios[1]);
+      expect(radios[0].checked).to.equal(false);
+      expect(radios[1].checked).to.equal(true);
+      sinon.assert.calledOnce(props.onUpdatePatientSettings);
 
-      sinon.assert.calledOnce(spy);
-      expect(wrapper.state('formValues').bgUnits).to.equal(MMOLL_UNITS);
-
-      wrapper.setProps({
-        patient: {
-          userid: 1234,
-          settings: { units: { bg: MMOLL_UNITS } }
-        }
-      });
-      radio1.simulate('change', { target: { name: 'bgUnits', value: MGDL_UNITS } });
-
-      sinon.assert.calledTwice(spy);
-      expect(wrapper.state('formValues').bgUnits).to.equal(MGDL_UNITS);
+      rerender(
+        <PatientBgUnits
+          {...props}
+          patient={{ userid: 1234, settings: { units: { bg: MMOLL_UNITS } } }}
+        />
+      );
+      const updatedRadios = container.querySelectorAll('input.input-group-radio-control[type="radio"]');
+      expect(updatedRadios[0].checked).to.equal(false);
+      expect(updatedRadios[1].checked).to.equal(true);
+      fireEvent.click(updatedRadios[0]);
+      expect(updatedRadios[0].checked).to.equal(true);
+      expect(updatedRadios[1].checked).to.equal(false);
+      sinon.assert.calledTwice(props.onUpdatePatientSettings);
     });
 
     it('should return without doing anything if the units selected match the current patient bg unit settings', () => {
-      expect(wrapper.state('formValues').bgUnits).to.equal(MGDL_UNITS);
-
-      radio1.simulate('change', { target: { name: 'bgUnits', value: MGDL_UNITS } });
+      const { container } = render(<PatientBgUnits {...props} />);
+      const radio1 = container.querySelectorAll('input.input-group-radio-control[type="radio"]')[0];
+      fireEvent.click(radio1);
 
       sinon.assert.callCount(props.onUpdatePatientSettings, 0);
       sinon.assert.callCount(props.trackMetric, 0);
-      expect(wrapper.state('formValues').bgUnits).to.equal(MGDL_UNITS);
     });
 
     it('should return without doing anything if the working prop is set to true', () => {
-      expect(wrapper.state('formValues').bgUnits).to.equal(MGDL_UNITS);
-
-      wrapper.setProps({ working: true });
-      radio2.simulate('change', { target: { name: 'bgUnits', value: MMOLL_UNITS } });
+      const { container } = render(<PatientBgUnits {...props} working={true} />);
+      const radio2 = container.querySelectorAll('input.input-group-radio-control[type="radio"]')[1];
+      fireEvent.click(radio2);
 
       sinon.assert.callCount(props.onUpdatePatientSettings, 0);
       sinon.assert.callCount(props.trackMetric, 0);
-      expect(wrapper.state('formValues').bgUnits).to.equal(MGDL_UNITS);
     });
 
     it('should set the patient BG units', () => {
-      radio2.simulate('change', { target: { name: 'bgUnits', value: MMOLL_UNITS } });
+      const { container } = render(<PatientBgUnits {...props} />);
+      const radio2 = container.querySelectorAll('input.input-group-radio-control[type="radio"]')[1];
+      fireEvent.click(radio2);
 
       sinon.assert.calledOnce(props.onUpdatePatientSettings);
       sinon.assert.calledWith(props.onUpdatePatientSettings, props.patient.userid, {
@@ -186,18 +182,21 @@ describe('PatientBgUnits', () => {
     });
 
     it('should track metrics when units are changed', () => {
-      radio2.simulate('change', { target: { name: 'bgUnits', value: MMOLL_UNITS } });
+      const { container, rerender } = render(<PatientBgUnits {...props} />);
+      let radios = container.querySelectorAll('input.input-group-radio-control[type="radio"]');
+      fireEvent.click(radios[1]);
 
       sinon.assert.calledOnce(props.trackMetric);
       sinon.assert.calledWith(props.trackMetric, 'web - switched to mmoll');
 
-      wrapper.setProps({
-        patient: {
-          userid: 1234,
-          settings: { units: { bg: MMOLL_UNITS } }
-        }
-      });
-      radio1.simulate('change', { target: { name: 'bgUnits', value: MGDL_UNITS } });
+      rerender(
+        <PatientBgUnits
+          {...props}
+          patient={{ userid: 1234, settings: { units: { bg: MMOLL_UNITS } } }}
+        />
+      );
+      radios = container.querySelectorAll('input.input-group-radio-control[type="radio"]');
+      fireEvent.click(radios[0]);
 
       sinon.assert.calledTwice(props.trackMetric);
       sinon.assert.calledWith(props.trackMetric, 'web - switched to mgdl');
