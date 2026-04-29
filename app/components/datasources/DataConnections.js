@@ -28,7 +28,8 @@ import i18next from '../../core/language';
 import DataConnection from './DataConnection';
 import PatientEmailModal from './PatientEmailModal';
 import ResendDataSourceConnectRequestDialog from '../clinic/ResendDataSourceConnectRequestDialog';
-import DataSourceDisconnectDialog from './DataSourceDisconnectDialog';
+import DataSourceDisconnectConfirmDialog from './DataSourceDisconnectConfirmDialog';
+import DataSourcePostDisconnectInstructionsDialog from './DataSourcePostDisconnectInstructionsDialog';
 import { Box, BoxProps } from 'theme-ui';
 import dexcomLogo from '../../core/icons/dexcom_logo.png';
 import libreLogo from '../../core/icons/libre_logo.svg';
@@ -133,8 +134,9 @@ export function getProviderHandlers(patient, selectedClinicId, provider) {
     disconnect: {
       buttonText: t('Disconnect'),
       buttonStyle: providerName === 'twiist' ? 'hidden' : 'text',
-      action: actions.async.disconnectDataSource,
-      args: [api, dataSourceFilter],
+      action: selectedClinicId ? actions.async.deleteClinicPatientDataSource : actions.async.disconnectDataSource,
+      args: selectedClinicId ? [api, selectedClinicId, patient?.id, dataSourceFilter] : [api, dataSourceFilter],
+      requiresConfirmation: !!selectedClinicId,
     },
     inviteSent: {
       buttonDisabled: true,
@@ -276,7 +278,7 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
     },
     connected: {
       color: colors.text.primary,
-      handler: isLoggedInUser ? 'disconnect' : null,
+      handler: 'disconnect',
       message: isLoggedInUser && (providerName !== 'twiist') ? patientConnectedMessage : null, // Temporarily hide the message for twiist while we await a backend data source fix
       icon: isLoggedInUser ? patientConnectedIcon : CheckCircleRoundedIcon,
       text: isLoggedInUser ? patientConnectedText : t('Connected'),
@@ -299,7 +301,7 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
     },
     unknown: {
       color: colors.feedback.warning,
-      handler: null,
+      handler: 'disconnect',
       icon: ErrorRoundedIcon,
       text: t('Unknown Status'),
     },
@@ -342,12 +344,13 @@ export const getDataConnectionProps = (patient, isLoggedInUser, selectedClinicId
     buttonStyle,
     emailRequired,
     patientUpdates,
+    requiresConfirmation,
   } = getProviderHandlers(patient, selectedClinicId, providers[providerName])[handler] || {};
 
   if (action) {
     result[providerName].buttonDisabled = buttonDisabled;
     result[providerName].buttonIcon = buttonIcon;
-    result[providerName].buttonHandler = () => setActiveHandler({ action, args, emailRequired, patientUpdates, providerName, connectState, handler });
+    result[providerName].buttonHandler = () => setActiveHandler({ action, args, emailRequired, patientUpdates, providerName, connectState, handler, requiresConfirmation });
     result[providerName].buttonText = buttonText;
     result[providerName].buttonStyle = buttonStyle;
   }
@@ -380,6 +383,7 @@ export const DataConnections = (props) => {
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const isLoggedInUser = useSelector((state) => state.blip.loggedInUserId === patient?.id);
   const [showResendDataSourceConnectRequest, setShowResendDataSourceConnectRequest] = useState(false);
+  const [showDataSourceDisconnectConfirm, setShowDataSourceDisconnectConfirm] = useState(false);
   const [dataSourceDisconnectInstructions, setDataSourceDisconnectInstructions] = useState();
   const [showPatientEmailModal, setShowPatientEmailModal] = useState(false);
   const [patientEmailFormContext, setPatientEmailFormContext] = useState();
@@ -514,6 +518,33 @@ export const DataConnections = (props) => {
     setDataSourceDisconnectInstructions();
   };
 
+  const handleDataSourceDisconnectConfirmOpen = useCallback(() => {
+    trackMetric('Clinic - Disconnect DataSource', {
+      clinicId: selectedClinicId,
+      providerName: activeHandler?.providerName,
+      dataSourceConnectState: activeHandler?.connectState,
+      source: 'patientForm',
+    });
+    setShowDataSourceDisconnectConfirm(true);
+  }, [
+    activeHandler?.connectState,
+    activeHandler?.providerName,
+    selectedClinicId,
+    trackMetric,
+  ]);
+
+  const handleDataSourceDisconnectConfirmClose = () => {
+    trackMetric('Clinic - Disconnect DataSource cancel', { clinicId: selectedClinicId, source: 'patientForm' });
+    setShowDataSourceDisconnectConfirm(false);
+    setActiveHandler(null);
+  };
+
+  const handleDataSourceDisconnectConfirm = () => {
+    trackMetric('Clinic - Disconnect DataSource confirm', { clinicId: selectedClinicId, source: 'patientForm' });
+    setShowDataSourceDisconnectConfirm(false);
+    if (activeHandler?.action) dispatch(activeHandler.action(...activeHandler.args));
+  };
+
   const handleResendDataSourceConnectEmailConfirm = () => {
     trackMetric('Clinic - Resend DataSource connect email confirm', { clinicId: selectedClinicId, source: 'patientForm' });
     if (activeHandler?.action) dispatch(activeHandler.action(...activeHandler.args));
@@ -559,6 +590,8 @@ export const DataConnections = (props) => {
         dispatch(actions.async.updateClinicPatient(api, selectedClinicId, patient.id, { ...patient, ...activeHandler.patientUpdates }));
       } else if (activeHandler.handler === 'resendInvite') {
         handleResendDataSourceConnectEmailOpen();
+      } else if (activeHandler.requiresConfirmation) {
+        handleDataSourceDisconnectConfirmOpen();
       } else {
         // No need to update patient object prior to firing data connection action. Fire away.
         dispatch(activeHandler.action(...activeHandler.args));
@@ -568,6 +601,7 @@ export const DataConnections = (props) => {
     activeHandler,
     dispatch,
     handleAddPatientEmailOpen,
+    handleDataSourceDisconnectConfirmOpen,
     handleResendDataSourceConnectEmailOpen,
     patient,
     selectedClinicId,
@@ -621,7 +655,7 @@ export const DataConnections = (props) => {
             className="data-connection"
             key={i}
             mb={1}
-            buttonProcessing={activeHandler?.providerName === provider && !showPatientEmailModal && !showResendDataSourceConnectRequest}
+            buttonProcessing={activeHandler?.providerName === provider && !showPatientEmailModal && !showResendDataSourceConnectRequest && !showDataSourceDisconnectConfirm}
             { ...dataConnectionProps[provider]}
           />
         ))}
@@ -648,7 +682,16 @@ export const DataConnections = (props) => {
         trackMetric={trackMetric}
       />
 
-      <DataSourceDisconnectDialog
+      <DataSourceDisconnectConfirmDialog
+        onClose={handleDataSourceDisconnectConfirmClose}
+        onConfirm={handleDataSourceDisconnectConfirm}
+        open={showDataSourceDisconnectConfirm}
+        patient={patient}
+        providerName={activeHandler?.providerName}
+        t={t}
+      />
+
+      <DataSourcePostDisconnectInstructionsDialog
         onClose={handleDataSourceDisconnectDialogClose}
         onConfirm={handleDataSourceDisconnectDialogClose}
         open={!!dataSourceDisconnectInstructions}

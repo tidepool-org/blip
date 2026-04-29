@@ -16,7 +16,7 @@ import {
   DialogActions,
 } from '../elements/Dialog';
 
-export const DataSourceDisconnectDialog = (props) => {
+export const DataSourcePostDisconnectInstructionsDialog = (props) => {
   const { t, onClose, onConfirm, open, disconnectInstructions = {} } = props;
   const { title, message } = disconnectInstructions;
 
@@ -61,7 +61,7 @@ export const DataSourceDisconnectDialog = (props) => {
   );
 };
 
-DataSourceDisconnectDialog.propTypes = {
+DataSourcePostDisconnectInstructionsDialog.propTypes = {
   onClose: PropTypes.func.isRequired,
   onConfirm: PropTypes.func.isRequired,
   open: PropTypes.bool,
@@ -72,4 +72,4 @@ DataSourceDisconnectDialog.propTypes = {
   t: PropTypes.func.isRequired,
 };
 
-export default withTranslation()(DataSourceDisconnectDialog);
+export default withTranslation()(DataSourcePostDisconnectInstructionsDialog);

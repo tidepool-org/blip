@@ -1078,6 +1078,10 @@ api.clinics.sendPatientDataProviderConnectRequest = function(clinicId, patientId
   return tidepool.sendPatientDataProviderConnectRequest(clinicId, patientId, providerName, cb);
 };
 
+api.clinics.deletePatientOAuthProviderAuthorization = function(clinicId, patientId, providerName, cb) {
+  return tidepool.deletePatientOAuthProviderAuthorization(clinicId, patientId, providerName, cb);
+};
+
 api.clinics.createClinicSite = function(clinicId, clinicSite, cb) {
   return tidepool.createClinicSite(clinicId, clinicSite, cb);
 };
