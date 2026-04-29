@@ -6,10 +6,11 @@ import noop from 'lodash/noop';
 import { Body1, Title } from '../FontStyles';
 
 export function Card(props) {
-  const { onClick, title, subtitle, bannerImage, children, variant, ...themeProps } = props;
+  const { id, onClick, title, subtitle, bannerImage, children, variant, ...themeProps } = props;
 
   return (
     <Box
+      id={id}
       onClick={onClick}
       variant={variant}
       sx={{ height: '100%' }}

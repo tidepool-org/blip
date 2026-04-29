@@ -94,7 +94,9 @@ export const ClinicDetails = (props) => {
   const [showMigrationDialog, setShowMigrationDialog] = useState(false);
   const [logoutPending, setLogoutPending] = useState(false);
   const [clinicInvite, setClinicInvite] = useState();
-  const [formikReady, setFormikReady] = useState(false);
+  const invitesDone = working.fetchingClinicianInvites.completed || !!working.fetchingClinicianInvites.notification;
+  const clinicsDone = working.fetchingClinicsForClinician.completed || !!working.fetchingClinicsForClinician.notification;
+  const formikReady = !!(invitesDone && clinicsDone);
   const location = useLocation();
   const referrer = location.state?.referrer;
   const isUploadLaunch = referrer === 'upload-launch';
@@ -337,10 +339,6 @@ export const ClinicDetails = (props) => {
 
     return () => clearTimeout(messageDelayTimer);
   }, [working.triggeringInitialClinicMigration]);
-
-  useEffect(() => {
-    setFormikReady((working.fetchingClinicianInvites.completed && working.fetchingClinicsForClinician.completed))
-  }, [working.fetchingClinicianInvites.completed, working.fetchingClinicsForClinician.completed])
 
   function openMigrationConfirmationModal() {
     setShowMigrationDialog(true);
