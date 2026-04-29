@@ -893,7 +893,7 @@ export const PatientDataClass = createReactClass({
 
     const commonQueries = {
       bgPrefs: state.bgPrefs,
-      metaData: 'latestPumpUpload, bgSources',
+      metaData: 'latestPumpUpload, bgSources, devices, matchedDevices',
       timePrefs: state.timePrefs,
       excludedDevices: state.chartPrefs?.excludedDevices,
     };
