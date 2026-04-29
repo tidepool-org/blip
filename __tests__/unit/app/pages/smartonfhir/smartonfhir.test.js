@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 import { MemoryRouter } from 'react-router-dom';
 
 import SmartOnFhir from '@app/pages/smartonfhir/smartonfhir';
