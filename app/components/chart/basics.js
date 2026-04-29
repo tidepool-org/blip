@@ -14,6 +14,8 @@ import { components as vizComponents, utils as vizUtils } from '@tidepool/viz';
 const { ClipboardButton, Loader } = vizComponents;
 const { basicsText } = vizUtils.text;
 
+const { CHART_DATE_BOUND_FORMAT, getChartDateBoundFormat } = vizUtils.datetime;
+
 import { isMissingBasicsData } from '../../core/data';
 
 import Stats from './stats';
@@ -22,7 +24,6 @@ import BgSourceToggle from './bgSourceToggle';
 import Header from './header';
 import DeviceSelection from './deviceSelection';
 import moment from 'moment';
-import { getChartDateBoundDisplayFormat } from '../elements/DateRangePicker';
 
 class Basics extends Component {
   static propTypes = {
@@ -50,6 +51,7 @@ class Basics extends Component {
     updateChartPrefs: PropTypes.func.isRequired,
     uploadUrl: PropTypes.string.isRequired,
     removeGeneratedPDFS: PropTypes.func.isRequired,
+    isSmartOnFhirMode: PropTypes.bool.isRequired,
   };
 
   static displayName = 'Basics';
@@ -96,6 +98,7 @@ class Basics extends Component {
             onClickBgLog={this.handleClickBgLog}
             onClickExport={this.handleClickExport}
             onClickPrint={this.handleClickPrint}
+            isSmartOnFhirMode={this.props.isSmartOnFhirMode}
             ref="header"
           />
 
@@ -219,7 +222,11 @@ class Basics extends Component {
     const startDate = moment(endpointsRange[0]).tz(timezone);
     const endDate = moment(endpointsRange[1]).tz(timezone);
 
-    const dtMask = getChartDateBoundDisplayFormat(startDate, endDate);
+    const dtMask = getChartDateBoundFormat(startDate, endDate);
+
+    if (dtMask === CHART_DATE_BOUND_FORMAT.DATE_ONLY) {
+      endDate.subtract(1, 'ms');
+    }
 
     return startDate.format(dtMask) + ' - ' + endDate.format(dtMask);
   }

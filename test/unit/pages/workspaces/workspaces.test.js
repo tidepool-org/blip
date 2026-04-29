@@ -1,5 +1,5 @@
 import React from 'react';
-import { createMount } from '@material-ui/core/test-utils';
+import { render, fireEvent, cleanup } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter, Route } from 'react-router';
 import configureStore from 'redux-mock-store';
@@ -13,18 +13,16 @@ import { ToastProvider } from '../../../../app/providers/ToastProvider';
 /* global context */
 /* global it */
 /* global beforeEach */
-/* global before */
 /* global afterEach */
-/* global after */
 
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
 describe('Workspaces', () => {
-  let mount;
-
   let wrapper;
-  let defaultProps = {
+  let store;
+
+  const defaultProps = {
     trackMetric: sinon.stub(),
     t: sinon.stub().callsFake((string) => string),
     api: {
@@ -40,14 +38,6 @@ describe('Workspaces', () => {
       },
     },
   };
-
-  before(() => {
-    mount = createMount();
-  });
-
-  after(() => {
-    mount.cleanUp();
-  });
 
   const defaultWorkingState = {
     inProgress: false,
@@ -115,7 +105,7 @@ describe('Workspaces', () => {
             clinicianUserId456: {
               id: 'clinicianUserId456',
               roles: ['CLINIC_ADMIN'],
-            }
+            },
           },
           patients: {},
           id: 'clinicID456',
@@ -134,15 +124,15 @@ describe('Workspaces', () => {
           creator: {
             userid: 'bf62d3c88b',
             clinicId: '61003144b78cc595b9560e7d',
-            clinicName: 'Example Health'
+            clinicName: 'Example Health',
           },
           context: null,
           created: '2021-07-27T16:16:46.891Z',
           status: 'pending',
           restrictions: {
             canAccept: true,
-          }
-        }
+          },
+        },
       ],
     },
   };
@@ -164,7 +154,7 @@ describe('Workspaces', () => {
             clinicianUserId123: {
               id: 'clinicianUserId123',
               roles: ['CLINIC_ADMIN'],
-            }
+            },
           },
           patients: {},
           id: 'clinicID456',
@@ -173,8 +163,8 @@ describe('Workspaces', () => {
           email: 'new_clinic_email_address@example.com',
         },
       },
-    }
-  }
+    },
+  };
 
   const fetchedDataLastAdminInvitedState = {
     blip: {
@@ -190,7 +180,7 @@ describe('Workspaces', () => {
               id: 'clinicianUserId456',
               roles: ['CLINIC_ADMIN'],
               inviteId: 'invite_id_456',
-            }
+            },
           },
           patients: {},
           id: 'clinicID456',
@@ -199,8 +189,8 @@ describe('Workspaces', () => {
           email: 'new_clinic_email_address@example.com',
         },
       },
-    }
-  }
+    },
+  };
 
   const fetchedNoIdpEmailMismatchState = {
     blip: {
@@ -215,18 +205,18 @@ describe('Workspaces', () => {
           creator: {
             userid: 'bf62d3c88b',
             clinicId: '61003144b78cc595b9560e7d',
-            clinicName: 'Example Health'
+            clinicName: 'Example Health',
           },
           context: null,
           created: '2021-07-27T16:16:46.891Z',
           status: 'pending',
           restrictions: {
             canAccept: false,
-          }
-        }
+          },
+        },
       ],
-    }
-  }
+    },
+  };
 
   const fetchedIdpEmailMatchState = {
     blip: {
@@ -241,94 +231,84 @@ describe('Workspaces', () => {
           creator: {
             userid: 'bf62d3c88b',
             clinicId: '61003144b78cc595b9560e7d',
-            clinicName: 'Example Health'
+            clinicName: 'Example Health',
           },
           context: null,
           created: '2021-07-27T16:16:46.891Z',
           status: 'pending',
           restrictions: {
             canAccept: false,
-            requiredIdp: 'awesome-idp'
-          }
-        }
+            requiredIdp: 'awesome-idp',
+          },
+        },
       ],
-    }
-  }
+    },
+  };
 
-  let mountWrapper;
-  let store;
-
-  beforeEach(() => {
-    mountWrapper = (newStore, props = defaultProps) => {
-      store = newStore;
-
-      return mount(
-        <Provider store={store}>
-          <ToastProvider>
-            <MemoryRouter initialEntries={['/workspaces']}>
-              <Route path='/workspaces' children={() => (<Workspaces {...props} />)} />
-            </MemoryRouter>
-          </ToastProvider>
-        </Provider>
-      );
-    };
-  });
+  const mountWrapper = (storeState, props = defaultProps) => {
+    store = mockStore(storeState);
+    wrapper = render(
+      <Provider store={store}>
+        <ToastProvider>
+          <MemoryRouter initialEntries={['/workspaces']}>
+            <Route path='/workspaces' children={() => <Workspaces {...props} />} />
+          </MemoryRouter>
+        </ToastProvider>
+      </Provider>
+    );
+    return wrapper;
+  };
 
   afterEach(() => {
+    cleanup();
     defaultProps.trackMetric.resetHistory();
   });
 
   context('no clinic invites fetched', () => {
     beforeEach(() => {
-      wrapper = mountWrapper(mockStore(defaultState));
+      mountWrapper(defaultState);
     });
 
     it('should fetch clinician invites', () => {
       const expectedActions = [
-        {
-          type: 'FETCH_CLINICIAN_INVITES_REQUEST',
-        },
+        { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
         {
           type: 'FETCH_CLINICIAN_INVITES_SUCCESS',
-          payload: {
-            invites: {
-              invitesReturn: 'success',
-            },
-          },
+          payload: { invites: { invitesReturn: 'success' } },
         },
       ];
-
       expect(store.getActions()).to.eql(expectedActions);
     });
   });
 
   context('clinic and invite data fetched', () => {
     beforeEach(() => {
-      wrapper = mountWrapper(mockStore(fetchedDataState));
+      mountWrapper(fetchedDataState);
     });
 
     it('should not fetch clinics', () => {
-      wrapper = mountWrapper(mockStore(fetchedClinicInvitesState));
+      cleanup();
+      mountWrapper(fetchedClinicInvitesState);
       expect(store.getActions()).to.eql([]);
     });
 
     it('should render the workspaces title', () => {
-      const title = wrapper.find('h2').at(0);
-      expect(title.text()).to.equal('Welcome To Tidepool');
+      const title = wrapper.container.querySelector('h2');
+      expect(title.textContent).to.equal('Welcome To Tidepool');
     });
 
     it('should render the workspaces section heading', () => {
-      const heading = wrapper.find('h3').at(0);
-      expect(heading.text()).to.equal('Clinic Workspace');
+      const heading = wrapper.container.querySelector('h3');
+      expect(heading.textContent).to.equal('Clinic Workspace');
     });
 
     it('should render a button to add a new clinic', () => {
-      const button = wrapper.find('button#workspace-create-clinic');
-      expect(button).to.have.lengthOf(1);
-      expect(button.text()).contains('Create a New Clinic');
+      const button = wrapper.container.querySelector('button#workspace-create-clinic');
+      expect(button).to.exist;
+      expect(button.textContent).to.contain('Create a New Clinic');
 
       store.clearActions();
-      button.simulate('click');
+      fireEvent.click(button);
       expect(store.getActions()).to.eql([
         { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: null } },
         {
@@ -343,73 +323,53 @@ describe('Workspaces', () => {
 
     context('no clinics or invites', () => {
       beforeEach(() => {
-        wrapper = mountWrapper(mockStore(fetchedDataEmptyState));
+        cleanup();
+        mountWrapper(fetchedDataEmptyState);
       });
 
       it('should render new clinic creation info', () => {
-        const emptyWorkspaces = wrapper.find('#workspaces-empty').hostNodes();
-        expect(emptyWorkspaces).to.have.lengthOf(1);
-        expect(emptyWorkspaces.text()).contains('Start by creating a new clinic.');
+        const emptyWorkspaces = wrapper.container.querySelector('#workspaces-empty');
+        expect(emptyWorkspaces).to.exist;
+        expect(emptyWorkspaces.textContent).to.contain('Start by creating a new clinic.');
       });
     });
 
     it('should render a list of clinics and pending invites for the clinician', () => {
-      const workspaceList = wrapper.find('#workspaces-clinics-list').hostNodes();
-      expect(workspaceList).to.have.lengthOf(1);
+      const workspaceList = wrapper.container.querySelector('#workspaces-clinics-list');
+      expect(workspaceList).to.exist;
 
-      const clinics = workspaceList.find('div.workspace-item-clinic');
+      const clinics = workspaceList.querySelectorAll('div.workspace-item-clinic');
       expect(clinics).to.have.lengthOf(1);
-      expect(clinics.at(0).text()).contains('new_clinic_name');
-      expect(clinics.at(0).find('.notification-icon').hostNodes()).to.have.lengthOf(0);
+      expect(clinics[0].textContent).to.contain('new_clinic_name');
+      expect(clinics[0].querySelectorAll('.notification-icon')).to.have.lengthOf(0);
 
-      const invites = workspaceList.find('div.workspace-item-clinician_invitation');
+      const invites = workspaceList.querySelectorAll('div.workspace-item-clinician_invitation');
       expect(invites).to.have.lengthOf(1);
-      expect(invites.at(0).text()).contains('Example Health');
-      expect(invites.at(0).find('.notification-icon').hostNodes()).to.have.lengthOf(1);
+      expect(invites[0].textContent).to.contain('Example Health');
+      expect(invites[0].querySelectorAll('.notification-icon')).to.have.lengthOf(1);
     });
 
     it('should allow a clinician to navigate to a clinic workspace', () => {
-      const clinic = wrapper.find('div.workspace-item-clinic').at(0);
-      const navigateButton = clinic.find('Button[variant="primary"]');
-      expect(navigateButton).to.have.lengthOf(1);
-      expect(navigateButton.text()).to.equal('Go To Workspace');
+      const clinic = wrapper.container.querySelector('div.workspace-item-clinic');
+      const buttons = clinic.querySelectorAll('button');
+      const navigateButton = Array.from(buttons).find(b => b.textContent.trim() === 'Go To Workspace');
+      expect(navigateButton).to.exist;
 
       store.clearActions();
-      navigateButton.simulate('click');
+      fireEvent.click(navigateButton);
       expect(store.getActions()).to.eql([
-        {
-          type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT',
-          payload: { textInput: '' }
-        },
-        {
-          type: 'SET_IS_PATIENT_LIST_VISIBLE',
-          payload: { isVisible: false }
-        },
-        {
-          type: 'SELECT_CLINIC_SUCCESS',
-          payload: {
-            clinicId: 'clinicID456',
-          },
-        },
-        {
-          type: 'FETCH_CLINIC_PATIENT_COUNTS_REQUEST',
-        },
-        {
-          type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST',
-        },
+        { type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT', payload: { textInput: '' } },
+        { type: 'SET_IS_PATIENT_LIST_VISIBLE', payload: { isVisible: false } },
+        { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: 'clinicID456' } },
+        { type: 'FETCH_CLINIC_PATIENT_COUNTS_REQUEST' },
+        { type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST' },
         {
           type: 'FETCH_CLINIC_PATIENT_COUNTS_SUCCESS',
-          payload: {
-            clinicId: 'clinicID456',
-            patientCounts: { demo: 1, plan: 3, total: 4 },
-          },
+          payload: { clinicId: 'clinicID456', patientCounts: { demo: 1, plan: 3, total: 4 } },
         },
         {
-         type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS',
-          payload: {
-            clinicId: 'clinicID456',
-            patientCountSettings: 'success',
-          },
+          type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS',
+          payload: { clinicId: 'clinicID456', patientCountSettings: 'success' },
         },
         {
           type: '@@router/CALL_HISTORY_METHOD',
@@ -422,198 +382,177 @@ describe('Workspaces', () => {
     });
 
     it('should allow a clinician to leave a clinic', () => {
-      const clinic = wrapper.find('div.workspace-item-clinic').at(0);
+      const clinic = wrapper.container.querySelector('div.workspace-item-clinic');
+      const leaveButton = Array.from(clinic.querySelectorAll('button')).find(
+        b => b.textContent.trim() === 'Leave Clinic'
+      );
+      expect(leaveButton).to.exist;
 
-      const deleteDialog = () => wrapper.find('Dialog');
-      expect(deleteDialog()).to.have.lengthOf(1);
-      expect(deleteDialog().props().open).to.be.false;
+      // Dialog is in DOM but empty/hidden when closed
+      const dialogTitleEl = document.querySelector('#dialog-title');
+      expect(dialogTitleEl).to.not.be.null;
+      expect(dialogTitleEl.textContent).to.equal('');
 
-      const leaveButton = clinic.find('Button[variant="secondary"]');
-      expect(leaveButton).to.have.lengthOf(1);
-      expect(leaveButton.text()).to.equal('Leave Clinic');
+      fireEvent.click(leaveButton);
 
-      leaveButton.simulate('click');
-      expect(deleteDialog().props().open).to.be.true;
+      expect(dialogTitleEl.textContent).to.equal('Leave new_clinic_name');
 
-      const dialogTitle = deleteDialog().find('#dialog-title').hostNodes();
-      expect(dialogTitle).to.have.lengthOf(1);
-      expect(dialogTitle.text()).to.equal('Leave new_clinic_name');
-
-      const confirmLeaveButton = deleteDialog().find('Button[variant="danger"]');
-      expect(confirmLeaveButton).to.have.lengthOf(1);
-      expect(confirmLeaveButton.text()).to.equal('Leave Clinic');
+      const allButtons = document.querySelectorAll('button');
+      const confirmLeaveButton = Array.from(allButtons).find(
+        b => b.textContent.trim() === 'Leave Clinic' && b !== leaveButton
+      );
+      expect(confirmLeaveButton).to.exist;
 
       store.clearActions();
-      confirmLeaveButton.simulate('click');
+      fireEvent.click(confirmLeaveButton);
       expect(store.getActions()).to.eql([
-        {
-          type: 'DELETE_CLINICIAN_FROM_CLINIC_REQUEST',
-        },
+        { type: 'DELETE_CLINICIAN_FROM_CLINIC_REQUEST' },
         {
           type: 'DELETE_CLINICIAN_FROM_CLINIC_SUCCESS',
-          payload: {
-            clinicId: 'clinicID456',
-            clinicianId: 'clinicianUserId123',
-          },
+          payload: { clinicId: 'clinicID456', clinicianId: 'clinicianUserId123' },
         },
       ]);
     });
 
     it('should prevent the last admin clinician from leaving a clinic', () => {
-      wrapper = mountWrapper(mockStore(fetchedDataLastAdminState));
-      const clinic = wrapper.find('div.workspace-item-clinic').at(0);
+      cleanup();
+      mountWrapper(fetchedDataLastAdminState);
+      const clinic = wrapper.container.querySelector('div.workspace-item-clinic');
+      const leaveButton = Array.from(clinic.querySelectorAll('button')).find(
+        b => b.textContent.trim() === 'Leave Clinic'
+      );
+      expect(leaveButton).to.exist;
 
-      const deleteDialog = () => wrapper.find('Dialog');
-      expect(deleteDialog()).to.have.lengthOf(1);
-      expect(deleteDialog().props().open).to.be.false;
+      fireEvent.click(leaveButton);
 
-      const leaveButton = clinic.find('Button[variant="secondary"]');
-      expect(leaveButton).to.have.lengthOf(1);
-      expect(leaveButton.text()).to.equal('Leave Clinic');
+      const dialogTitle = document.querySelector('#dialog-title');
+      expect(dialogTitle).to.exist;
+      expect(dialogTitle.textContent).to.equal('Unable to leave new_clinic_name');
 
-      leaveButton.simulate('click');
-      expect(deleteDialog().props().open).to.be.true;
+      // No danger/confirm button — only OK
+      const allDialogButtons = document.querySelectorAll('button');
+      const okButton = Array.from(allDialogButtons).find(b => b.textContent.trim() === 'OK');
+      expect(okButton).to.exist;
 
-      const dialogTitle = deleteDialog().find('#dialog-title').hostNodes();
-      expect(dialogTitle).to.have.lengthOf(1);
-      expect(dialogTitle.text()).to.equal('Unable to leave new_clinic_name');
-
-      const confirmLeaveButton = deleteDialog().find('Button[variant="danger"]');
-      expect(confirmLeaveButton).to.have.lengthOf(0);
-
-      const cancelLeaveButton = deleteDialog().find('Button[variant="secondary"]');
-      expect(cancelLeaveButton).to.have.lengthOf(1);
-      expect(cancelLeaveButton.text()).to.equal('OK');
+      // No "Leave Clinic" button inside dialog (danger variant)
+      const dangerLeave = Array.from(allDialogButtons).filter(
+        b => b.textContent.trim() === 'Leave Clinic' && b !== leaveButton
+      );
+      expect(dangerLeave).to.have.lengthOf(0);
     });
 
     it('should prevent the last admin clinician from leaving a clinic with invited clinic admins', () => {
-      wrapper = mountWrapper(mockStore(fetchedDataLastAdminInvitedState));
-      const clinic = wrapper.find('div.workspace-item-clinic').at(0);
+      cleanup();
+      mountWrapper(fetchedDataLastAdminInvitedState);
+      const clinic = wrapper.container.querySelector('div.workspace-item-clinic');
+      const leaveButton = Array.from(clinic.querySelectorAll('button')).find(
+        b => b.textContent.trim() === 'Leave Clinic'
+      );
+      expect(leaveButton).to.exist;
 
-      const deleteDialog = () => wrapper.find('Dialog');
-      expect(deleteDialog()).to.have.lengthOf(1);
-      expect(deleteDialog().props().open).to.be.false;
+      fireEvent.click(leaveButton);
 
-      const leaveButton = clinic.find('Button[variant="secondary"]');
-      expect(leaveButton).to.have.lengthOf(1);
-      expect(leaveButton.text()).to.equal('Leave Clinic');
+      const dialogTitle = document.querySelector('#dialog-title');
+      expect(dialogTitle).to.exist;
+      expect(dialogTitle.textContent).to.equal('Unable to leave new_clinic_name');
 
-      leaveButton.simulate('click');
-      expect(deleteDialog().props().open).to.be.true;
+      const allDialogButtons = document.querySelectorAll('button');
+      const okButton = Array.from(allDialogButtons).find(b => b.textContent.trim() === 'OK');
+      expect(okButton).to.exist;
 
-      const dialogTitle = deleteDialog().find('#dialog-title').hostNodes();
-      expect(dialogTitle).to.have.lengthOf(1);
-      expect(dialogTitle.text()).to.equal('Unable to leave new_clinic_name');
-
-      const confirmLeaveButton = deleteDialog().find('Button[variant="danger"]');
-      expect(confirmLeaveButton).to.have.lengthOf(0);
-
-      const cancelLeaveButton = deleteDialog().find('Button[variant="secondary"]');
-      expect(cancelLeaveButton).to.have.lengthOf(1);
-      expect(cancelLeaveButton.text()).to.equal('OK');
+      const dangerLeave = Array.from(allDialogButtons).filter(
+        b => b.textContent.trim() === 'Leave Clinic' && b !== leaveButton
+      );
+      expect(dangerLeave).to.have.lengthOf(0);
     });
 
     it('should allow a clinician to accept a clinic invite', () => {
-      const invite = wrapper.find('div.workspace-item-clinician_invitation').at(0);
-      const acceptButton = invite.find('Button[variant="primary"]');
-      expect(acceptButton).to.have.lengthOf(1);
-      expect(acceptButton.text()).to.equal('Accept Invite');
+      const invite = wrapper.container.querySelector('div.workspace-item-clinician_invitation');
+      const acceptButton = Array.from(invite.querySelectorAll('button')).find(
+        b => b.textContent.trim() === 'Accept Invite'
+      );
+      expect(acceptButton).to.exist;
 
       store.clearActions();
-      acceptButton.simulate('click');
+      fireEvent.click(acceptButton);
       expect(store.getActions()).to.eql([
-        {
-          type: 'ACCEPT_CLINICIAN_INVITE_REQUEST',
-        },
+        { type: 'ACCEPT_CLINICIAN_INVITE_REQUEST' },
         {
           type: 'ACCEPT_CLINICIAN_INVITE_SUCCESS',
-          payload: {
-            inviteId: 'i5Ch7l27au7s4f9BHZCdnzA2qlH1qHnK',
-          },
+          payload: { inviteId: 'i5Ch7l27au7s4f9BHZCdnzA2qlH1qHnK' },
         },
       ]);
     });
 
     it('should allow a clinician to decline a clinic invite', () => {
-      const invite = wrapper.find('div.workspace-item-clinician_invitation').at(0);
+      const invite = wrapper.container.querySelector('div.workspace-item-clinician_invitation');
+      const declineButton = Array.from(invite.querySelectorAll('button')).find(
+        b => b.textContent.trim() === 'Decline'
+      );
+      expect(declineButton).to.exist;
 
-      const deleteDialog = () => wrapper.find('Dialog');
-      expect(deleteDialog()).to.have.lengthOf(1);
-      expect(deleteDialog().props().open).to.be.false;
+      // Dialog is in DOM but empty/hidden when closed
+      const dialogTitleEl = document.querySelector('#dialog-title');
+      expect(dialogTitleEl).to.not.be.null;
+      expect(dialogTitleEl.textContent).to.equal('');
 
-      const declineButton = invite.find('Button[variant="secondary"]');
-      expect(declineButton).to.have.lengthOf(1);
-      expect(declineButton.text()).to.equal('Decline');
+      fireEvent.click(declineButton);
 
-      declineButton.simulate('click');
-      expect(deleteDialog().props().open).to.be.true;
+      expect(dialogTitleEl.textContent).to.equal('Decline Example Health');
 
-      const dialogTitle = deleteDialog().find('#dialog-title').hostNodes();
-      expect(dialogTitle).to.have.lengthOf(1);
-      expect(dialogTitle.text()).to.equal('Decline Example Health');
-
-      const confirmDeclineButton = deleteDialog().find('Button[variant="danger"]');
-      expect(confirmDeclineButton).to.have.lengthOf(1);
-      expect(confirmDeclineButton.text()).to.equal('Decline Invite');
+      const allButtons = document.querySelectorAll('button');
+      const confirmDeclineButton = Array.from(allButtons).find(
+        b => b.textContent.trim() === 'Decline Invite'
+      );
+      expect(confirmDeclineButton).to.exist;
 
       store.clearActions();
-      confirmDeclineButton.simulate('click');
+      fireEvent.click(confirmDeclineButton);
       expect(store.getActions()).to.eql([
-        {
-          type: 'DISMISS_CLINICIAN_INVITE_REQUEST',
-        },
+        { type: 'DISMISS_CLINICIAN_INVITE_REQUEST' },
         {
           type: 'DISMISS_CLINICIAN_INVITE_SUCCESS',
-          payload: {
-            inviteId: 'i5Ch7l27au7s4f9BHZCdnzA2qlH1qHnK',
-          },
+          payload: { inviteId: 'i5Ch7l27au7s4f9BHZCdnzA2qlH1qHnK' },
         },
       ]);
     });
 
     it('should display an error and SSO link button if an IDP is required', () => {
-      wrapper = mountWrapper(mockStore(fetchedIdpEmailMatchState));
-      const invite = wrapper
-        .find('div.workspace-item-clinician_invitation')
-        .at(0);
-      const acceptButton = invite.find('Button[variant="primary"]');
-      expect(acceptButton).to.have.lengthOf(1);
-      expect(acceptButton.text()).to.equal('Link Account');
-      const error = wrapper.find('.workspace-error').hostNodes();
-      expect(error.text()).to.equal(
+      cleanup();
+      mountWrapper(fetchedIdpEmailMatchState);
+      const invite = wrapper.container.querySelector('div.workspace-item-clinician_invitation');
+      const linkButton = Array.from(invite.querySelectorAll('button')).find(
+        b => b.textContent.trim() === 'Link Account'
+      );
+      expect(linkButton).to.exist;
+      const error = wrapper.container.querySelector('.workspace-error');
+      expect(error).to.exist;
+      expect(error.textContent).to.equal(
         'Single Sign-On (SSO) is required to join this Clinic. Please link your account to enable SSO.'
       );
     });
 
     it('should display an error and disabled accept button if email mismatch', () => {
-      wrapper = mountWrapper(mockStore(fetchedNoIdpEmailMismatchState));
-      const invite = wrapper
-        .find('div.workspace-item-clinician_invitation')
-        .at(0);
-      const acceptButton = invite.find('Button[variant="primary"]');
-      expect(acceptButton).to.have.lengthOf(1);
-      expect(acceptButton.text()).to.equal('Accept Invite');
-      expect(acceptButton.props().disabled).to.be.true;
-      const error = wrapper.find('.workspace-error').hostNodes();
-      expect(error.text()).to.equal(
+      cleanup();
+      mountWrapper(fetchedNoIdpEmailMismatchState);
+      const invite = wrapper.container.querySelector('div.workspace-item-clinician_invitation');
+      const acceptButton = Array.from(invite.querySelectorAll('button')).find(
+        b => b.textContent.trim() === 'Accept Invite'
+      );
+      expect(acceptButton).to.exist;
+      expect(acceptButton.disabled).to.be.true;
+      const error = wrapper.container.querySelector('.workspace-error');
+      expect(error).to.exist;
+      expect(error.textContent).to.equal(
         "Your account doesn't satisfy the security requirements. Please contact this clinic's IT administrator."
       );
     });
 
     it('should set SSO enabled display state to false if it is true', () => {
-      wrapper = mountWrapper(
-        mockStore({
-          blip: { ...fetchedClinicInvitesState.blip, ssoEnabledDisplay: true },
-        })
-      );
-
+      cleanup();
+      mountWrapper({ blip: { ...fetchedClinicInvitesState.blip, ssoEnabledDisplay: true } });
       expect(store.getActions()).to.eql([
-        {
-          type: 'SET_SSO_ENABLED_DISPLAY',
-          payload: {
-            value: false,
-          },
-        },
+        { type: 'SET_SSO_ENABLED_DISPLAY', payload: { value: false } },
       ]);
     });
   });

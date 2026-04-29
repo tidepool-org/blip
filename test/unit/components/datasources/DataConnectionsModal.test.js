@@ -1,12 +1,21 @@
 import React from 'react';
-import { createMount } from '@material-ui/core/test-utils';
+import { render, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
 import DataConnectionsModal from '../../../../app/components/datasources/DataConnectionsModal';
-import DataConnections, { availableProviders } from '../../../../app/components/datasources/DataConnections';
-import { Dialog } from '../../../../app/components/elements/Dialog';
 import { ToastProvider } from '../../../../app/providers/ToastProvider';
+import coreApi from '../../../../app/core/api';
+
+const mockUseHistory = jest.fn();
+
+jest.mock('react-router-dom', () => {
+  const actual = jest.requireActual('react-router-dom');
+  return {
+    ...actual,
+    useHistory: () => mockUseHistory(),
+  };
+});
 
 /* global chai */
 /* global sinon */
@@ -14,15 +23,18 @@ import { ToastProvider } from '../../../../app/providers/ToastProvider';
 /* global context */
 /* global it */
 /* global beforeEach */
-/* global before */
 /* global afterEach */
-/* global after */
 
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
 describe('DataConnectionsModal', () => {
-  let mount;
+  const originalCoreApiMethods = {
+    clinics: {
+      getPatientFromClinic: coreApi.clinics.getPatientFromClinic,
+      updateClinicPatient: coreApi.clinics.updateClinicPatient,
+    },
+  };
 
   const api = {
     clinics: {
@@ -32,7 +44,6 @@ describe('DataConnectionsModal', () => {
   };
 
   let wrapper;
-  let formikContext;
 
   const patientWithEmail = {
     id: 'patient123',
@@ -70,14 +81,6 @@ describe('DataConnectionsModal', () => {
     trackMetric: sinon.stub(),
   };
 
-  before(() => {
-    mount = createMount();
-  });
-
-  after(() => {
-    mount.cleanUp();
-  });
-
   const defaultWorkingState = {
     inProgress: false,
     completed: false,
@@ -108,16 +111,15 @@ describe('DataConnectionsModal', () => {
   let store = mockStore(fetchedDataState);
 
   beforeEach(() => {
-    DataConnectionsModal.__Rewire__('api', api);
-    DataConnections.__Rewire__('api', api);
-    DataConnections.__Rewire__('getActiveProviders', () => availableProviders);
+    coreApi.clinics.getPatientFromClinic = api.clinics.getPatientFromClinic;
+    coreApi.clinics.updateClinicPatient = api.clinics.updateClinicPatient;
 
-    DataConnectionsModal.__Rewire__('useHistory', sinon.stub().returns({
+    mockUseHistory.mockReturnValue({
       location: { query: {}, pathname: '/settings' },
       replace: sinon.stub(),
-    }));
+    });
 
-    wrapper = mount(
+    wrapper = render(
       <Provider store={store}>
         <ToastProvider>
           <DataConnectionsModal {...defaultProps} />
@@ -127,62 +129,54 @@ describe('DataConnectionsModal', () => {
   });
 
   afterEach(() => {
+    cleanup();
+    store.clearActions();
     defaultProps.trackMetric.resetHistory();
     defaultProps.onClose.resetHistory();
     defaultProps.onBack.resetHistory();
-    DataConnections.__ResetDependency__('api');
-    DataConnectionsModal.__ResetDependency__('api');
-    DataConnectionsModal.__ResetDependency__('getActiveProviders');
-    DataConnectionsModal.__ResetDependency__('useHistory');
+    coreApi.clinics.getPatientFromClinic = originalCoreApiMethods.clinics.getPatientFromClinic;
+    coreApi.clinics.updateClinicPatient = originalCoreApiMethods.clinics.updateClinicPatient;
   });
 
   it('should render the modal title', () => {
-    const dialog = () => wrapper.find(Dialog).at(0);
-    expect(dialog()).to.have.lengthOf(1);
-    expect(dialog().props().open).to.be.true;
-
-    const title = dialog().find('#data-connections-title').hostNodes();
-    expect(title).to.have.lengthOf(1);
-    expect(title.text()).to.equal('Bring Data into Tidepool');
+    // Dialog portals into document.body
+    const title = document.getElementById('data-connections-title');
+    expect(title).to.not.be.null;
+    expect(title.textContent).to.equal('Bring Data into Tidepool');
   });
 
   it('should render patient details', () => {
-    const dialog = () => wrapper.find(Dialog).at(0);
-    expect(dialog()).to.have.lengthOf(1);
-    expect(dialog().props().open).to.be.true;
-
-    const details = dialog().find('#data-connections-patient-details').hostNodes();
-    expect(details).to.have.lengthOf(1);
+    const details = document.getElementById('data-connections-patient-details');
+    expect(details).to.not.be.null;
   });
 
   it('should render a patients data connection statuses', () => {
-    const dialog = () => wrapper.find(Dialog).at(0);
-    expect(dialog()).to.have.lengthOf(1);
-    expect(dialog().props().open).to.be.true;
+    const connections = document.querySelectorAll('.data-connection');
+    expect(connections.length).to.equal(3);
 
-    const connections = dialog().find('.data-connection').hostNodes();
-    expect(connections).to.have.lengthOf(3);
-
-    expect(connections.at(0).is('#data-connection-dexcom')).to.be.true;
-    expect(connections.at(1).is('#data-connection-twiist')).to.be.true;
-    expect(connections.at(2).is('#data-connection-abbott')).to.be.true;
+    expect(connections[0].id).to.equal('data-connection-dexcom');
+    expect(connections[1].id).to.equal('data-connection-twiist');
+    expect(connections[2].id).to.equal('data-connection-abbott');
   });
 
-  it('should allow opening a dialog for updating an existing email address for a custodial patient', () => {
-    const dialog = () => wrapper.find('Dialog#patient-email-modal');
-    expect(dialog()).to.have.lengthOf(0);
+  it('should allow opening a dialog for updating an existing email address for a custodial patient', async () => {
+    // patient-email-modal should not be open initially
+    expect(document.getElementById('patient-email-modal')).to.be.null;
 
-    const dialogButton = wrapper.find('#data-connections-open-email-modal').hostNodes();
-    expect(dialogButton).to.have.lengthOf(1);
-    expect(dialogButton.text()).to.equal(patientWithEmail.email);
+    const dialogButton = document.getElementById('data-connections-open-email-modal');
+    expect(dialogButton).to.not.be.null;
+    expect(dialogButton.textContent).to.equal(patientWithEmail.email);
 
-    dialogButton.simulate('click');
-    expect(dialog()).to.have.lengthOf(1);
-    expect(dialog().props().open).to.be.true;
+    fireEvent.click(dialogButton);
+
+    await waitFor(() => {
+      expect(document.getElementById('patient-email-modal')).to.not.be.null;
+    });
   });
 
   it('should not allow opening a dialog for updating an email address for a custodial patient without an existing email address', () => {
-    wrapper = mount(
+    cleanup();
+    wrapper = render(
       <Provider store={store}>
         <ToastProvider>
           <DataConnectionsModal {...{ ...defaultProps, patient: patientWithoutEmail }} />
@@ -190,15 +184,13 @@ describe('DataConnectionsModal', () => {
       </Provider>
     );
 
-    const dialog = () => wrapper.find('Dialog#patient-email-modal');
-    expect(dialog()).to.have.lengthOf(0);
-
-    const dialogButton = wrapper.find('#data-connections-open-email-modal').hostNodes();
-    expect(dialogButton).to.have.lengthOf(0);
+    expect(document.getElementById('patient-email-modal')).to.be.null;
+    expect(document.getElementById('data-connections-open-email-modal')).to.be.null;
   });
 
   it('should not allow opening a dialog for updating an existing email address for a patient without custodial access', () => {
-    wrapper = mount(
+    cleanup();
+    wrapper = render(
       <Provider store={store}>
         <ToastProvider>
           <DataConnectionsModal {...{ ...defaultProps, patient: patientWithoutCustodialPermission }} />
@@ -206,10 +198,7 @@ describe('DataConnectionsModal', () => {
       </Provider>
     );
 
-    const dialog = () => wrapper.find('Dialog#patient-email-modal');
-    expect(dialog()).to.have.lengthOf(0);
-
-    const dialogButton = wrapper.find('#data-connections-open-email-modal').hostNodes();
-    expect(dialogButton).to.have.lengthOf(0);
+    expect(document.getElementById('patient-email-modal')).to.be.null;
+    expect(document.getElementById('data-connections-open-email-modal')).to.be.null;
   });
 });

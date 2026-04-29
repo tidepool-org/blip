@@ -129,9 +129,9 @@ const SECTION = [
 const DEFAULT_SECTIONS = [
   CATEGORY.timeInVeryLowPercent,
   CATEGORY.timeInAnyLowPercent,
-  CATEGORY.timeInVeryHighPercent,
-  CATEGORY.timeInAnyHighPercent,
   CATEGORY.dropInTimeInTargetPercent,
+  CATEGORY.timeInAnyHighPercent,
+  CATEGORY.timeInVeryHighPercent,
   CATEGORY.timeCGMUsePercent,
   CATEGORY.meetingTargets,
   CATEGORY.noData,

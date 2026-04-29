@@ -1002,6 +1002,8 @@ export const ClinicPatients = (props) => {
   }, [isFirstRender, setToast]);
 
   const handlePatientCreatedOrEdited = useCallback(() => {
+    dispatch(actions.async.fetchClinic(api, selectedClinicId)); // patient counts for tags and/or sites may have changed
+
     if (patientFormContext?.status?.showDataConnectionsModalNext) {
       let currentPatient = selectedPatient;
 
@@ -2095,6 +2097,7 @@ export const ClinicPatients = (props) => {
                           variant="textPrimary"
                           onClick={() => {
                             trackMetric(prefixPopHealthMetric('Edit clinic sites open'), { clinicId: selectedClinicId, source: 'Filter menu' });
+                            dispatch(actions.async.fetchClinicSites(api, selectedClinicId)); // current data in clinic object may be stale
                             setShowClinicSitesDialog(true);
                           }}
                         >
@@ -2279,6 +2282,7 @@ export const ClinicPatients = (props) => {
                           variant="textPrimary"
                           onClick={() => {
                             trackMetric(prefixPopHealthMetric('Edit clinic tags open'), { clinicId: selectedClinicId, source: 'Filter menu' });
+                            dispatch(actions.async.fetchClinicPatientTags(api, selectedClinicId)); // current data in clinic object may be stale
                             setShowClinicPatientTagsDialog(true);
                           }}
                         >
@@ -2932,7 +2936,7 @@ export const ClinicPatients = (props) => {
   }, [handleUpdateClinicPatientTagConfirm, handleCloseClinicPatientTagUpdateDialog, selectedPatientTag?.name, showUpdateClinicPatientTagDialog, t]);
 
   const renderDeleteClinicSiteDialog = useCallback(() => {
-    const name = selectedClinicSite?.name;
+    const { name, numPatients = 0 } = selectedClinicSite || {};
 
     return (
       <Dialog
@@ -2949,9 +2953,19 @@ export const ClinicPatients = (props) => {
           <Flex variant="banners.danger" py={3} sx={{ justifyContent: 'flex-start', gap: 2, borderRadius: '4px' }}>
             <Icon className="icon" theme={baseTheme} variant="static" icon={ErrorRoundedIcon} label='danger' />
             <Body1>
-              <Text sx={{ fontWeight: 'medium' }}>
-                {t('Are you sure you want to remove the site: "{{name}}" from the workspace?', { name })}
-              </Text>
+              <Box>
+                <Text sx={{ fontWeight: 'medium' }}>
+                  {t('Are you sure you want to remove the site: "{{name}}" from the workspace?', { name })}
+                </Text>
+              </Box>
+
+              { numPatients > 0 && (
+                <Box mt={2}>
+                  <Text sx={{ fontWeight: 'normal' }}>
+                    {t('If you remove it, {{ count }} patient accounts will no longer be associated with this site.', { count: numPatients })}
+                  </Text>
+                </Box>
+              )}
             </Body1>
           </Flex>
         </DialogContent>
@@ -2974,7 +2988,7 @@ export const ClinicPatients = (props) => {
   }, [handleDeleteClinicSiteConfirm, handleCloseClinicSiteUpdateDialog, selectedClinicSite?.name, showDeleteClinicSiteDialog, t]);
 
   const renderDeleteClinicPatientTagDialog = useCallback(() => {
-    const name = selectedPatientTag?.name;
+    const { name, numPatients = 0 } = selectedPatientTag || {};
 
     return (
       <Dialog
@@ -2991,9 +3005,19 @@ export const ClinicPatients = (props) => {
           <Flex variant="banners.danger" py={3} sx={{ justifyContent: 'flex-start', gap: 2, borderRadius: '4px' }}>
             <Icon className="icon" theme={baseTheme} variant="static" icon={ErrorRoundedIcon} label='danger' />
             <Body1>
-              <Text sx={{ fontWeight: 'medium' }}>
-                {t('Are you sure you want to remove the tag: "{{name}}" from the workspace?', { name })}
-              </Text>
+              <Box>
+                <Text sx={{ fontWeight: 'medium' }}>
+                  {t('Are you sure you want to remove the tag: "{{name}}" from the workspace?', { name })}
+                </Text>
+              </Box>
+
+              {numPatients > 0 && (
+                <Box mt={2}>
+                  <Text sx={{ fontWeight: 'normal' }}>
+                    {t('If you remove it, {{ count }} patient accounts will no longer be associated with this tag.', { count: numPatients })}
+                  </Text>
+                </Box>
+              )}
             </Body1>
           </Flex>
         </DialogContent>
@@ -3267,22 +3291,31 @@ export const ClinicPatients = (props) => {
                     {t('Click on the edit icon to rename the site or trash icon to delete it.')}
                   </Text>
                 </Box>
-                <Box mt={1} mb={0}>
-                  <Text sx={{ fontSize: 0, color: colors.gray50, fontStyle: 'italic' }}>
-                    {t('Name')}
-                  </Text>
-                </Box>
+
+                <Grid mt={1} mb={0} sx={{ gridTemplateColumns: '1fr 128px 36px' }}>
+                  <Box>
+                    <Text sx={{ fontSize: 0, color: colors.gray50, fontStyle: 'italic' }}>
+                      {t('Name')}
+                    </Text>
+                  </Box>
+
+                  <Flex sx={{ justifyContent: 'flex-end' }}>
+                    <Text sx={{ fontSize: 0, color: colors.gray50, fontStyle: 'italic' }}>
+                      {t('Patients with Site')}
+                    </Text>
+                  </Flex>
+                </Grid>
               </>
             }
 
             <Box mt={1} id="clinic-patients-edit-site-list">
               {
-                orderedSites.map(({ id, name }) => (
+                orderedSites.map(({ id, name, numPatients = 0 }) => (
                   <Grid
                     key={`edit-sites-list-${id}`}
                     py={2}
                     sx={{
-                      gridTemplateColumns: '1fr 72px 16px',
+                      gridTemplateColumns: '1fr 128px 36px',
                       borderTop: `1px solid ${colors.gray05}`,
                       alignItems: 'center',
                     }}
@@ -3297,9 +3330,13 @@ export const ClinicPatients = (props) => {
                         onClick={isClinicAdmin ? () => handleUpdateClinicSite(id) : noop}
                       />
                     </Flex>
-                    <Box>
 
-                    </Box>
+                    <Flex sx={{ justifyContent: 'flex-end' }}>
+                      <Text data-testid={`site-${id}-numPatients`} sx={{ fontSize: 0, fontStyle: 'italic', color: vizColors.gray50 }}>
+                        {numPatients}
+                      </Text>
+                    </Flex>
+
                     <Flex sx={{ justifyContent: 'flex-end' }}>
                       <Icon
                         id={`delete-site-button-${id}`}
@@ -3427,22 +3464,30 @@ export const ClinicPatients = (props) => {
                     {t('Click on the edit icon to rename the tag or trash icon to delete it.')}
                   </Text>
                 </Box>
-                <Box mt={1} mb={0}>
-                  <Text sx={{ fontSize: 0, color: colors.gray50, fontStyle: 'italic' }}>
-                    {t('Name')}
-                  </Text>
-                </Box>
+                <Grid mt={1} mb={0} sx={{ gridTemplateColumns: '1fr 128px 36px' }}>
+                  <Box>
+                    <Text sx={{ fontSize: 0, color: colors.gray50, fontStyle: 'italic' }}>
+                      {t('Name')}
+                    </Text>
+                  </Box>
+
+                  <Flex sx={{ justifyContent: 'flex-end' }}>
+                    <Text sx={{ fontSize: 0, color: colors.gray50, fontStyle: 'italic' }}>
+                      {t('Patients with Tag')}
+                    </Text>
+                  </Flex>
+                </Grid>
               </>
             }
 
             <Box mt={1} id="clinic-patients-edit-tag-list">
               {
-                orderedTags.map(({ id, name }) => (
+                orderedTags.map(({ id, name, numPatients = 0 }) => (
                   <Grid
                     key={`edit-tags-list-${id}`}
                     py={2}
                     sx={{
-                      gridTemplateColumns: '1fr 72px 16px',
+                      gridTemplateColumns: '1fr 128px 36px',
                       borderTop: `1px solid ${colors.gray05}`,
                       alignItems: 'center',
                     }}>
@@ -3456,9 +3501,12 @@ export const ClinicPatients = (props) => {
                         onClick={isClinicAdmin ? () => handleUpdateClinicPatientTag(id) : noop}
                       />
                     </Flex>
-                    <Box>
 
-                    </Box>
+                    <Flex sx={{ justifyContent: 'flex-end' }}>
+                      <Text data-testid={`tag-${id}-numPatients`} sx={{ fontSize: 0, fontStyle: 'italic', color: vizColors.gray50 }}>
+                        {numPatients}
+                      </Text>
+                    </Flex>
                     <Flex sx={{ justifyContent: 'flex-end' }}>
                       <Icon
                         id={`delete-tag-button-${id}`}
