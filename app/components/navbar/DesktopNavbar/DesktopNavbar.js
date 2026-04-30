@@ -127,7 +127,10 @@ export default withTranslation()(class extends React.Component {
   renderMiddleSection = () => {
     if (personUtils.isClinicianAccount(this.props.user)) {
       return (
-        <WorkspaceSwitcher api={this.props.api} trackMetric={this.props.trackMetric} />
+        <WorkspaceSwitcher
+          api={this.props.api}
+          trackMetric={this.props.trackMetric}
+        />
       );
     }
 

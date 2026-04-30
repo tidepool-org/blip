@@ -75,6 +75,7 @@ describe('PatientData', function () {
     uploadUrl: 'http://foo.com',
     user: { id: 'loggedInUserId'},
     t,
+    isSmartOnFhirMode: false,
   };
 
   before(() => {
@@ -304,7 +305,8 @@ describe('PatientData', function () {
               }
             },
             fetchingPatient: false,
-            fetchingPatientData: false
+            fetchingPatientData: false,
+            isSmartOnFhirMode: false,
           });
 
           wrapper = mount(<PatientData {...props} />);
@@ -339,6 +341,7 @@ describe('PatientData', function () {
             patientNotesMap: {
               '40': [],
             },
+            isSmartOnFhirMode: false,
           });
 
           wrapper = mount(<PatientData {...props} />);
@@ -366,6 +369,7 @@ describe('PatientData', function () {
             removingData: { inProgress: false },
             generatingPDF: { inProgress: false },
             pdf: {},
+            isSmartOnFhirMode: false,
           };
 
           wrapper = mount(<PatientData {...props} />);
@@ -398,6 +402,7 @@ describe('PatientData', function () {
             removingData: { inProgress: false },
             generatingPDF: { inProgress: false },
             pdf: {},
+            isSmartOnFhirMode: false,
           };
 
           wrapper = mount(<PatientData {...props} />, {});
@@ -431,6 +436,9 @@ describe('PatientData', function () {
             generatingPDF: { inProgress: false },
             pdf: {},
             trackMetric: sinon.stub(),
+            removeGeneratedPDFS: sinon.stub(),
+            dataWorkerRemoveDataSuccess: sinon.stub(),
+            isSmartOnFhirMode: false,
           };
 
           wrapper = mount(<PatientData {...props} />);
@@ -451,6 +459,28 @@ describe('PatientData', function () {
           expect(props.trackMetric.calledWith('Clicked No Data Upload Card')).to.be.true;
         });
 
+        it('should NOT render the uploader card when in smartonfhir mode', function() {
+          var props = {
+            isUserPatient: true,
+            fetchingPatient: false,
+            fetchingPatientData: false,
+            removingData: { inProgress: false },
+            generatingPDF: { inProgress: false },
+            pdf: {},
+            isSmartOnFhirMode: true,
+          };
+
+          wrapper = mount(<PatientData {...props} />);
+
+          wrapper.setProps(_.assign({}, props, {
+            data: {
+              metaData: { size: 0 },
+            }
+          }));
+
+          expect(uploaderCard().length).to.equal(0);
+        });
+
         it('should track click on Data Connections card', function() {
           const props = {
             currentPatientInViewId: '40',
@@ -469,6 +499,7 @@ describe('PatientData', function () {
             trackMetric: sinon.stub(),
             removeGeneratedPDFS: sinon.stub(),
             dataWorkerRemoveDataSuccess: sinon.stub(),
+            isSmartOnFhirMode: false,
           };
 
           const defaultWorkingState = {
@@ -556,6 +587,7 @@ describe('PatientData', function () {
         fetchingPatient: false,
         fetchingPatientData: false,
         generatingPDF: { inProgress: false },
+        isSmartOnFhirMode: false,
       });
 
       beforeEach(() => {
@@ -1029,6 +1061,7 @@ describe('PatientData', function () {
         },
         fetchingPatient: false,
         fetchingPatientData: false,
+        isSmartOnFhirMode: false,
       });
 
       beforeEach(() => {
@@ -1235,6 +1268,7 @@ describe('PatientData', function () {
       removeGeneratedPDFS: sinon.stub(),
       generatingPDF: { inProgress: false },
       pdf: {},
+      isSmartOnFhirMode: false,
     };
 
     it('should clear patient data', function() {
@@ -4744,8 +4778,12 @@ describe('PatientData', function () {
         fetchingPatientData: false,
         fetchingUser: false,
         trackMetric: sinon.stub(),
+        removingData: { inProgress: false },
         generatingPDF: { inProgress: false },
         pdf: {},
+        removeGeneratedPDFS: sinon.stub(),
+        dataWorkerRemoveDataSuccess: sinon.stub(),
+        isSmartOnFhirMode: false,
       };
 
       var elem = mount(<PatientData {...props} />).find(PatientDataClass);
@@ -4870,9 +4908,13 @@ describe('PatientData', function () {
         fetchingPatient: false,
         fetchingPatientData: false,
         fetchingUser: false,
+        removingData: { inProgress: false },
         trackMetric: sinon.stub(),
         generatingPDF: { inProgress: false },
         pdf: {},
+        removeGeneratedPDFS: sinon.stub(),
+        dataWorkerRemoveDataSuccess: sinon.stub(),
+        isSmartOnFhirMode: false,
       };
 
       var elem = mount(<PatientData {...props} />).find(PatientDataClass);
@@ -4965,8 +5007,12 @@ describe('PatientData', function () {
         fetchingPatientData: false,
         fetchingUser: false,
         trackMetric: sinon.stub(),
+        removingData: { inProgress: false },
         generatingPDF: { inProgress: false },
         pdf: {},
+        removeGeneratedPDFS: sinon.stub(),
+        dataWorkerRemoveDataSuccess: sinon.stub(),
+        isSmartOnFhirMode: false,
       };
 
       var elem = mount(<PatientData {...props} />).find(PatientDataClass);

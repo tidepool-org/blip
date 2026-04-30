@@ -41,6 +41,7 @@ var PatientInfo = withTranslation()(class extends React.Component {
   static propTypes = {
     fetchingPatient: PropTypes.bool.isRequired,
     fetchingUser: PropTypes.bool.isRequired,
+    isSmartOnFhirMode: PropTypes.bool.isRequired,
     onUpdatePatient: PropTypes.func.isRequired,
     onUpdatePatientSettings: PropTypes.func,
     permsOfLoggedInUser: PropTypes.object,
@@ -91,7 +92,7 @@ var PatientInfo = withTranslation()(class extends React.Component {
     var nameNode;
     var ageNode;
     var diagnosisNode;
-    if (this.isSamePersonUserAndPatient()) {
+    if (this.isSamePersonUserAndPatient() && !this.props.isSmartOnFhirMode) {
       nameNode = (
         <a href="" onClick={handleClick} className="PatientInfo-block PatientInfo-block--withArrow">
           {this.getDisplayName(patient)}
@@ -191,7 +192,8 @@ var PatientInfo = withTranslation()(class extends React.Component {
 
   renderEditLink = () => {
     const { t } = this.props;
-    if (!this.isSamePersonUserAndPatient() && !this.isEditingAllowed(this.props.permsOfLoggedInUser)) {
+    if (this.props.isSmartOnFhirMode ||
+        (!this.isSamePersonUserAndPatient() && !this.isEditingAllowed(this.props.permsOfLoggedInUser))) {
       return null;
     }
 
@@ -489,6 +491,10 @@ var PatientInfo = withTranslation()(class extends React.Component {
 
   renderExport = () => {
     const { t } = this.props;
+    if (this.props.isSmartOnFhirMode) {
+      return null;
+    }
+
     return (
       <div className="PatientPage-export">
         <div className="PatientPage-sectionTitle">{t('Export My Data')}</div>
@@ -509,6 +515,10 @@ var PatientInfo = withTranslation()(class extends React.Component {
   };
 
   isEditingAllowed = (permissions) => {
+    if (this.props.isSmartOnFhirMode) {
+      return false;
+    }
+
     if (_.isPlainObject(permissions)) {
       return permissions.hasOwnProperty('custodian') || permissions.hasOwnProperty('root');
     }

@@ -259,6 +259,7 @@ class Daily extends Component {
     updateChartPrefs: PropTypes.func.isRequired,
     trackMetric: PropTypes.func.isRequired,
     removeGeneratedPDFS: PropTypes.func.isRequired,
+    isSmartOnFhirMode: PropTypes.bool.isRequired,
   };
 
   constructor(props) {
@@ -342,6 +343,7 @@ class Daily extends Component {
             onClickBgLog={this.handleClickBgLog}
             onClickExport={this.handleClickExport}
             onClickPrint={this.handleClickPrint}
+            isSmartOnFhirMode={this.props.isSmartOnFhirMode}
             ref={this.headerRef}
           />
 
