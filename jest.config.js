@@ -23,6 +23,7 @@ const config = {
     'd3-time-format': '<rootDir>/node_modules/d3-time-format/dist/d3-time-format.min.js',
 
     // Path aliases
+    '.*/core/metricUtils(\\.js)?$': '<rootDir>/__mocks__/metricUtils.js',
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testMatch: [

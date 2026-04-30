@@ -9,7 +9,7 @@ import * as actions from '../../redux/actions';
 
 import usePrintPDF from './../../pages/clinicworkspace/ClinicPatientsPrintModal/usePrintPDF';
 import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE } from '../../core/constants';
-import { trackMetric } from '../../bootstrap';
+import { trackMetric } from '../../core/metricUtils';
 
 const PatientDataPrintModal = ({ api, patientId, chartPrefs = {}, onClose = noop }) => {
   const dispatch = useDispatch();

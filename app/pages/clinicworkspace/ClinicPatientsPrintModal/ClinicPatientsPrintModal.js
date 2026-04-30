@@ -12,7 +12,7 @@ import { getMostRecentDatumTimeByChartType } from '../../../core/dataViewUtils';
 import usePrintPDF, { STATUS } from './usePrintPDF';
 import { useTranslation } from 'react-i18next';
 import { useToasts } from '../../../providers/ToastProvider';
-import { trackMetric } from '../../../bootstrap';
+import { trackMetric } from '../../../core/metricUtils';
 
 const LoadingModal = ({ onClose = noop }) => {
   const { t } = useTranslation();

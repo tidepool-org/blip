@@ -154,6 +154,4 @@ appContext.start = (Component) => {
   });
 };
 
-export const trackMetric = appContext.trackMetric;
-
 export default appContext;
