@@ -1,5 +1,5 @@
-import React from 'react';
-import { render, act } from '@testing-library/react';
+import { renderHook } from '@testing-library/react-hooks';
+import { act } from '@testing-library/react';
 import { useToasts } from '../../../../../app/providers/ToastProvider';
 import usePrintWindow from '../../../../../app/pages/clinicworkspace/ClinicPatientsPrintModal/usePrintPDF/usePrintWindow';
 
@@ -19,19 +19,6 @@ describe('usePrintWindow', () => {
   let setToast;
   let openStub;
   let mockWindow;
-  let result;
-
-  const TestComponent = ({ onMount }) => {
-    const hook = usePrintWindow();
-    React.useEffect(() => { onMount(hook); }, []);
-    return null;
-  };
-
-  const renderHook = () => {
-    return new Promise((resolve) => {
-      render(<TestComponent onMount={resolve} />);
-    });
-  };
 
   beforeEach(() => {
     setToast = jest.fn();
@@ -57,9 +44,9 @@ describe('usePrintWindow', () => {
 
   describe('openPrintWindow', () => {
     it('opens a new window and writes the waiting message', async () => {
-      result = await renderHook();
+      const { result } = renderHook(() => usePrintWindow());
 
-      act(() => { result.openPrintWindow(); });
+      act(() => { result.current.openPrintWindow(); });
 
       expect(window.open).toHaveBeenCalledTimes(1);
       expect(window.open).toHaveBeenCalledWith();
@@ -69,23 +56,23 @@ describe('usePrintWindow', () => {
     });
 
     it('does not open a second window if one is already open', async () => {
-      result = await renderHook();
+      const { result } = renderHook(() => usePrintWindow());
 
       act(() => {
-        result.openPrintWindow();
-        result.openPrintWindow();
+        result.current.openPrintWindow();
+        result.current.openPrintWindow();
       });
 
       expect(window.open).toHaveBeenCalledTimes(1);
     });
 
     it('opens a new window if the existing window has been closed', async () => {
-      result = await renderHook();
+      const { result } = renderHook(() => usePrintWindow());
 
-      act(() => { result.openPrintWindow(); });
+      act(() => { result.current.openPrintWindow(); });
       mockWindow.closed = true;
 
-      act(() => { result.openPrintWindow(); });
+      act(() => { result.current.openPrintWindow(); });
 
       expect(window.open).toHaveBeenCalledTimes(2);
     });
@@ -93,14 +80,14 @@ describe('usePrintWindow', () => {
 
   describe('triggerPrint', () => {
     it('reuses an existing open window by setting its location href', async () => {
-      result = await renderHook();
+      const { result } = renderHook(() => usePrintWindow());
 
-      act(() => { result.openPrintWindow(); });
+      act(() => { result.current.openPrintWindow(); });
 
       const pdf = { combined: { url: 'blob:tidepool.test/abcd-1234-efgh-7689' } };
 
       act(() => {
-        result.triggerPrint(pdf);
+        result.current.triggerPrint(pdf);
         jest.runAllTimers();
       });
 
@@ -111,12 +98,12 @@ describe('usePrintWindow', () => {
     });
 
     it('opens a new window with the pdf url when no window is currently open', async () => {
-      result = await renderHook();
+      const { result } = renderHook(() => usePrintWindow());
 
       const pdf = { combined: { url: 'blob:tidepool.test/abcd-1234-efgh-7689' } };
 
       act(() => {
-        result.triggerPrint(pdf);
+        result.current.triggerPrint(pdf);
         jest.runAllTimers();
       });
 
@@ -127,12 +114,12 @@ describe('usePrintWindow', () => {
 
     it('shows a warning toast with a retry action when the window is blocked by a popup blocker', async () => {
       openStub.mockReturnValue(null);
-      result = await renderHook();
+      const { result } = renderHook(() => usePrintWindow());
 
       const pdf = { combined: { url: 'blob:tidepool.test/abcd-1234-efgh-7689' } };
 
       act(() => {
-        result.triggerPrint(pdf);
+        result.current.triggerPrint(pdf);
         jest.runAllTimers();
       });
 

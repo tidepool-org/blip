@@ -1,7 +1,7 @@
 import { getStatsByChartType, getMostRecentDatumTimeByChartType } from '../../../../app/core/dataViewUtils';
 
 describe('getStatsByChartType', () => {
-  context('basics', () => {
+  describe('basics', () => {
     it('should add appropriate stats when cbg is selected', () => {
       expect(getStatsByChartType('basics', 'cbg')).toEqual([
         'timeInRange',
@@ -59,7 +59,7 @@ describe('getStatsByChartType', () => {
     });
   });
 
-  context('daily', () => {
+  describe('daily', () => {
     it('should add appropriate stats when cbg is selected', () => {
       expect(getStatsByChartType('daily', 'cbg')).toEqual([
         'timeInRange',
@@ -101,7 +101,7 @@ describe('getStatsByChartType', () => {
     });
   });
 
-  context('bgLog', () => {
+  describe('bgLog', () => {
     it('should add appropriate stats', () => {
       expect(getStatsByChartType('bgLog')).toEqual([
         'readingsInRange',
@@ -112,7 +112,7 @@ describe('getStatsByChartType', () => {
     });
   });
 
-  context('trends', () => {
+  describe('trends', () => {
     it('should add appropriate stats when cbg is selected', () => {
       expect(getStatsByChartType('trends', 'cbg')).toEqual([
         'timeInRange',
@@ -166,13 +166,13 @@ describe('getStatsByChartType', () => {
     });
   });
 
-  context('chartType undefined', () => {
+  describe('chartType undefined', () => {
     it('should return an empty array', () => {
       expect(getStatsByChartType(undefined)).toEqual([]);
     });
   });
 
-  context('bgSource chartPref state missing', () => {
+  describe('bgSource chartPref state missing', () => {
     it('should add appropriate stats when no bgSource is available', () => {
       expect(getStatsByChartType('daily', undefined)).toEqual([
         'averageGlucose',
