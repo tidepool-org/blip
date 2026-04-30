@@ -9,8 +9,6 @@ const usePrintWindow = () => {
 
   const printWindowRef = useRef(null);
 
-  // TODO: Clear windowRef to prevent race condition?
-
   const waitMessage = t('Please wait while Tidepool generates your PDF report.');
   const waitHTML = `<p align="center" style="margin-top:20px;font-size:16px;font-family:sans-serif">${waitMessage}</p>`;
 
