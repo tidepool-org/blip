@@ -20,7 +20,7 @@ const usePrintWindow = () => {
   };
 
   const triggerPrint = (pdf) => {
-    if (!pdf?.combined?.url) return; // TODO: error?
+    if (!pdf?.combined?.url) return;
 
     if (printWindowRef.current && !printWindowRef.current?.closed) {
       // If we already have a ref to a PDF window, (re)use it
