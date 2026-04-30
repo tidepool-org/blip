@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:experimental
 
 ### Stage: Base image
-FROM node:24-alpine as base
+FROM node:24.15.0-alpine as base
 WORKDIR /app
 RUN corepack enable \
   && yarn set version 3.6.4 \
