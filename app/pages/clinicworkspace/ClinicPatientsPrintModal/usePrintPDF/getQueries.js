@@ -34,7 +34,7 @@ const getQueries = (
 
   const commonQueries = {
     bgPrefs: bgPrefs,
-    metaData: 'latestPumpUpload, bgSources',
+    metaData: 'latestPumpUpload, bgSources, devices, matchedDevices',
     timePrefs: timePrefs,
   };
 
