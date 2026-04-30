@@ -1273,7 +1273,6 @@ export function fetchPatientData(api, options, id) {
  * and the bulk data fetch. Used to quickly populate latestDatumByType in Redux.
  *
  * @param  {Object} api an instance of the API wrapper
- * @param  {Object} options
  * @param  {String|Number} id
  */
 export function fetchPatientLatestDatums(api, id) {
