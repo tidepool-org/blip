@@ -35,7 +35,7 @@ const usePrintWindow = () => {
         printWindowRef.current.focus();
         printWindowRef.current.print();
       } else {
-        if (!pdf?.combined?.url) return; // TODO: error?
+        if (!pdf?.combined?.url) return;
 
         setToast({
           message: t('A popup blocker is preventing your report from opening.'),
