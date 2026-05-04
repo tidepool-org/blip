@@ -135,7 +135,7 @@ export function getProviderHandlers(patient, selectedClinicId, provider) {
       buttonText: t('Disconnect'),
       buttonStyle: providerName === 'twiist' ? 'hidden' : 'text',
       action: selectedClinicId ? actions.async.deleteClinicPatientDataSource : actions.async.disconnectDataSource,
-      args: selectedClinicId ? [api, selectedClinicId, patient?.id, dataSourceFilter] : [api, dataSourceFilter],
+      args: selectedClinicId ? [api, patient?.id, dataSourceFilter] : [api, dataSourceFilter],
       requiresConfirmation: !!selectedClinicId,
     },
     inviteSent: {

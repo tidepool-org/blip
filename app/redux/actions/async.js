@@ -1740,11 +1740,11 @@ export function disconnectDataSource(api, dataSourceFilter) {
   };
 }
 
-export function deleteClinicPatientDataSource(api, clinicId, patientId, dataSourceFilter) {
+export function deleteClinicPatientDataSource(api, patientId, dataSourceFilter) {
   return (dispatch) => {
     dispatch(sync.disconnectDataSourceRequest());
 
-    api.clinics.deletePatientOAuthProviderAuthorization(clinicId, patientId, dataSourceFilter.providerName, (err) => {
+    api.clinics.deletePatientOAuthProviderAuthorization(patientId, dataSourceFilter.providerName, (err) => {
       if (err) {
         dispatch(sync.disconnectDataSourceFailure(
           createActionError(ErrorMessages.ERR_DISCONNECTING_DATA_SOURCE, err), err
