@@ -3929,7 +3929,7 @@ describe('PatientData', function () {
 
     const commonQueries = {
       bgPrefs,
-      metaData: 'latestPumpUpload, bgSources',
+      metaData: 'latestPumpUpload, bgSources, devices, matchedDevices',
       timePrefs,
     };
 
