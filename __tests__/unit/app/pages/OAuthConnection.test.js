@@ -10,7 +10,7 @@ import { Provider } from 'react-redux';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 import { MemoryRouter, Route, Switch } from 'react-router-dom';
 
 import OAuthConnection from '../../../../app/pages/oauth/OAuthConnection';
@@ -31,10 +31,12 @@ jest.mock('../../../../app/core/utils', () => ({
   default: { isMobile: jest.fn() },
 }));
 
+jest.mock('@app/providers/ToastProvider', () => ({
+  useToasts: () => ({ set: jest.fn() }),
+}));
+
 describe('OAuthConnection', () => {
   const trackMetric = jest.fn();
-  // const historyPushSpy = jest.fn();
-
   const mockStore = configureStore([thunk]);
   let store;
 
@@ -186,7 +188,7 @@ describe('OAuthConnection', () => {
 
         expect(mockHistoryPush).toHaveBeenCalledWith({
           pathname: '/verification-with-password',
-          search: 'signupKey=abc&signupEmail=patient%40mail.com&isC2CSuccess=true',
+          search: 'signupKey=abc&signupEmail=patient%40mail.com',
         });
       });
     });
@@ -425,7 +427,7 @@ describe('OAuthConnection', () => {
 
         expect(mockHistoryPush).toHaveBeenCalledWith({
           pathname: '/verification-with-password',
-          search: 'signupKey=abc&signupEmail=patient%40mail.com&isC2CSuccess=true',
+          search: 'signupKey=abc&signupEmail=patient%40mail.com',
         });
       });
     });

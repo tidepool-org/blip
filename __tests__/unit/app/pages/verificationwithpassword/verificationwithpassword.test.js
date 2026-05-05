@@ -10,7 +10,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 import { Router } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
 import qhistory from 'qhistory';
@@ -74,7 +74,7 @@ describe('VerificationWithPassword', () => {
     await userEvent.paste('ValidPass123!');
     await userEvent.click(screen.getByLabelText('Confirm password'));
     await userEvent.paste('ValidPass123!');
-    await userEvent.click(screen.getByLabelText('Birthday'));
+    await userEvent.click(screen.getByLabelText('Birthdate', { exact: false }));
     await userEvent.paste('01/15/1990');
 
     await userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
@@ -101,7 +101,7 @@ describe('VerificationWithPassword', () => {
 
     const passwordInput = screen.getByLabelText('Create Password');
     const confirmPasswordInput = screen.getByLabelText('Confirm password');
-    const birthdayInput = screen.getByLabelText('Birthday');
+    const birthdayInput = screen.getByLabelText('Birthdate', { exact: false });
     const confirmButton = screen.getByRole('button', { name: 'Confirm' });
 
     // Test 1: All fields blank
