@@ -2,7 +2,7 @@ import React from 'react';
 import { fireEvent, render, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 import _ from 'lodash';
 import { ToastProvider } from '../../../app/providers/ToastProvider';
 import ClinicianEdit from '../../../app/pages/clinicianedit';

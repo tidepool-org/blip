@@ -2,7 +2,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { MemoryRouter, Route } from 'react-router';
 import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 import merge from 'lodash/merge';
 import { render } from '@testing-library/react';
 import { ToastProvider } from '../../../app/providers/ToastProvider';

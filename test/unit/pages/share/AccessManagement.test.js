@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 import merge from 'lodash/merge';
 import { ToastProvider } from '../../../../app/providers/ToastProvider';
 import AccessManagement from '../../../../app/pages/share/AccessManagement';

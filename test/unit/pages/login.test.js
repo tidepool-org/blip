@@ -24,7 +24,7 @@ import Login, {
 import { keycloak } from '../../../app/keycloak';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 
 import * as ErrorMessages from '../../../app/redux/constants/errorMessages';
 

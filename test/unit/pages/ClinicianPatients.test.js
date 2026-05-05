@@ -2,7 +2,7 @@ import React from 'react';
 import { screen, fireEvent, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 import merge from 'lodash/merge';
 import noop from 'lodash/noop';
 import { mountWithProviders } from '../../utils/mountWithProviders';
