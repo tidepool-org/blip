@@ -9,11 +9,15 @@ deploy
 dist
 test/bin
 coverage
+coverage-jest
+coverage-jest-rtl
 tmp
 web
 *.log
 Dockerfile
 .dockerignore
+.yarn/cache
+.yarn/install-state.gz
 
 # Use yarn.lock
 package-lock.json

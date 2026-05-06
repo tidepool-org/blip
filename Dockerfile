@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:experimental
+# syntax=docker/dockerfile:1.7
 
 ### Stage: Base image
 FROM node:20.8.0-alpine as base
@@ -67,7 +67,7 @@ RUN --mount=type=bind,source=package.json,target=package.json \
     --mount=type=cache,target=.yarn/cache,uid=1000,gid=1000 \
     yarn install --immutable
 COPY . .
-RUN npm run test
+CMD ["npm", "run", "test"]
 
 
 ### Stage: Build production-ready release
@@ -106,9 +106,7 @@ RUN npm run build
 
 ### Stage: Serve production-ready release
 FROM base as production
-RUN apk --no-cache update \
-  && apk --no-cache upgrade \
-  && apk add --no-cache git
+RUN apk add --no-cache git
 COPY package.json .
 COPY yarn.lock .
 COPY .yarnrc.yml .
