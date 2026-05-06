@@ -14,6 +14,7 @@ import { useFlags } from 'launchdarkly-react-client-sdk';
 import TabGroup from '../../components/elements/TabGroup';
 import ClinicWorkspaceHeader from '../../components/clinic/ClinicWorkspaceHeader';
 import ClinicPatients from './ClinicPatients';
+import DeviceIssues from './DeviceIssues';
 import Prescriptions from '../prescription/Prescriptions';
 import { PatientInvites } from '../share';
 import * as actions from '../../redux/actions';
@@ -33,15 +34,21 @@ export const ClinicWorkspace = (props) => {
 
   const tabIndices = {
     patients: 0,
-    invites: 1,
-    prescriptions: 2,
-  }
+    'device-issues': 1,
+    invites: 2,
+    prescriptions: 3,
+  };
 
   const tabs = [
     {
       name: 'patients',
       label: t('Patient List'),
       metric: 'Clinic - View patient list',
+    },
+    {
+      name: 'device-issues',
+      label: t('Device Issues'),
+      metric: 'Clinic - View device issues',
     },
     {
       name: 'invites',
@@ -128,12 +135,16 @@ export const ClinicWorkspace = (props) => {
             {selectedTab === 0 && <ClinicPatients key={clinic?.id} {...props} />}
           </Box>
 
+          <Box id="deviceIssuesTab">
+            {selectedTab === 1 && <DeviceIssues key={clinic?.id} {...props} />}
+          </Box>
+
           <Box id="invitesTab">
-            {selectedTab === 1 && <PatientInvites {...props} />}
+            {selectedTab === 2 && <PatientInvites {...props} />}
           </Box>
 
           <Box id="prescriptionsTab">
-            {selectedTab === 2 && <Prescriptions {...props} />}
+            {selectedTab === 3 && <Prescriptions {...props} />}
           </Box>
         </TabGroup>
       </Box>
