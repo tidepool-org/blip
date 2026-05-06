@@ -12,13 +12,13 @@ import FilterByCategory from './FilterByCategory';
 import ResetFilters from '../components/ResetFilters';
 import PaginationControls from '../components/PaginationControls';
 
-import PatientCell from './PatientCell';
-import TagListCell from '../components/TagListCell';
 import { resetDeviceIssuesFilters } from './deviceIssuesFiltersSlice';
 import { setOffset, resetDeviceIssuesState } from './deviceIssuesSlice';
 import { useGetDeviceIssuesPatientsQuery } from './deviceIssuesApi';
 import useActiveFiltersCount from './useActiveFiltersCount';
 import EmptyContentNode from './EmptyContentNode';
+import usePruneInvalidTags from './usePruneInvalidTags';
+import useTableColumns from './useTableColumns';
 
 const LIMIT = 12;
 
@@ -26,10 +26,17 @@ const DeviceIssues = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
+  usePruneInvalidTags();
+
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const category = useSelector(state => state.blip.deviceIssues.category);
   const offset = useSelector(state => state.blip.deviceIssues.offset);
   const { patientTags } = useSelector(state => state.blip.deviceIssuesFilters);
+
+  const showTags = clinic?.entitlements?.patientTags;
+
+  const columns = useTableColumns();
 
   const { data } = useGetDeviceIssuesPatientsQuery(
     { clinicId: selectedClinicId, offset, category, tags: patientTags, limit: LIMIT },
@@ -56,19 +63,19 @@ const DeviceIssues = () => {
 
   return (
     <>
-      <Flex mb={2}>
+      <Flex mb={3} sx={{ fontSize: 0, color: vizColors.blueGray50, fontStyle: 'italic' }}>
         <Trans>
-          <Text sx={{ fontSize: 0, color: vizColors.blueGray50, fontStyle: 'italic' }}>
-            Only patients with active device issues or delayed data from a <Text sx={{ fontWeight: 'bold' }}>cloud-connected device</Text> will be displayed.
-          </Text>
+          Only patients with active device issues or delayed data from a <Text sx={{ fontWeight: 'bold' }}>cloud-connected device</Text> will be displayed.
         </Trans>
       </Flex>
 
-      <Flex id="device-issues-filters" mb={3} sx={{ gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
-        <ActiveFilterCount count={activeFiltersCount} />
-        <FilterByTags />
-        <ResetFilters hidden={activeFiltersCount <= 0} onClick={handleResetFilters} />
-      </Flex>
+      { showTags &&
+        <Flex mb={3} sx={{ gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+          <ActiveFilterCount count={activeFiltersCount} />
+          <FilterByTags />
+          <ResetFilters hidden={activeFiltersCount <= 0} onClick={handleResetFilters} />
+        </Flex>
+      }
 
       <Flex mb={3} sx={{ justifyContent: 'center' }}>
         <FilterByCategory />
@@ -78,15 +85,7 @@ const DeviceIssues = () => {
         id="deviceIssuesPatientsTable"
         variant="condensed"
         label="deviceIssuesPatientsTable"
-        columns={[
-          { title: t('Patient Details'), field: 'fullName', align: 'left', render: patient => <PatientCell patient={patient} /> },
-          { title: t('Device'), field: '', align: 'left' },
-          { title: t('Connection Status'), field: '', align: 'left' },
-          { title: t('Last Update'), field: '', align: 'left' },
-          { title: t('Tags'), field: 'tags', align: 'left', render: patient => <TagListCell patient={patient} /> },
-          { title: t('Last Outreach'), field: '', align: 'left' },
-          { title: t(''), field: '', align: 'left' }, // More
-        ]}
+        columns={columns}
         data={tableData}
         emptyContentNode={<EmptyContentNode />}
         sx={{

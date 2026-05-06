@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import colorPalette from '../../../themes/colorPalette';
 import { Flex, Text, Box } from 'theme-ui';
@@ -23,6 +23,11 @@ const EmptyContentNode = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
+  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+
+  const showTags = clinic?.entitlements?.patientTags;
+
   const activeFiltersCount = useActiveFiltersCount();
   const hasActiveFilters = activeFiltersCount > 0;
 
@@ -31,6 +36,8 @@ const EmptyContentNode = () => {
     : t('There are no results to show');
 
   const handleResetFilters = () => dispatch(resetDeviceIssuesFilters());
+
+  const showResetButton = showTags && hasActiveFilters;
 
   return (
     <Flex sx={{
@@ -47,7 +54,7 @@ const EmptyContentNode = () => {
         {emptyContentCopy}
       </Text>
 
-      { hasActiveFilters && (
+      { showResetButton && (
         <ClearButton className='reset-filters-button' onClick={handleResetFilters}>
           {t('Reset Filter')}
         </ClearButton>

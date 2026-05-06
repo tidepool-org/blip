@@ -757,13 +757,8 @@ describe('personutils', () => {
   });
 
   describe('fullnameFromSplitNames', () => {
-    it('should split a fullName string into first and last name parts', () => {
-      it('should split a fullName string into first and last name parts', () => {
-        expect(personUtils.fullnameFromSplitNames({
-          firstName: 'Test',
-          lastName: 'Van der Name',
-        })).to.eql('Test Van der Name');
-      });
+    it('should join first and last name parts into a fullName string', () => {
+      expect(personUtils.fullnameFromSplitNames('Test', 'Van der Name')).to.eql('Test Van der Name');
     });
   });
 });

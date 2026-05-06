@@ -1,7 +1,6 @@
 import React from 'react';
-import { createMount } from '@material-ui/core/test-utils';
+import { render, fireEvent } from '@testing-library/react';
 import DataConnection from '../../../../app/components/datasources/DataConnection';
-
 /* global chai */
 /* global sinon */
 /* global describe */
@@ -11,9 +10,6 @@ import DataConnection from '../../../../app/components/datasources/DataConnectio
 const expect = chai.expect;
 
 describe('DataConnection', () => {
-  const mount = createMount();
-
-  let wrapper;
   const defaultProps = {
     label: 'test data connection',
     buttonDisabled: false,
@@ -29,54 +25,51 @@ describe('DataConnection', () => {
   });
 
   it('should render the data connection text with the provided props', () => {
-    wrapper = mount(<DataConnection {...defaultProps} />);
+    const { container } = render(<DataConnection {...defaultProps} />);
 
-    const state = wrapper.find('.state-text').hostNodes();
+    const state = container.querySelectorAll('.state-text');
     expect(state).to.have.lengthOf(1);
-    expect(state.text()).to.equal('The state');
+    expect(state[0].textContent).to.equal('The state');
 
-    const stateMessage = wrapper.find('.state-message').hostNodes();
+    const stateMessage = container.querySelectorAll('.state-message');
     expect(stateMessage).to.have.lengthOf(1);
-    expect(stateMessage.text()).to.equal(' - Some message');
+    expect(stateMessage[0].textContent.trim()).to.equal('- Some message');
 
-    const button = wrapper.find('.action').hostNodes();
+    const button = container.querySelectorAll('.action');
     expect(button).to.have.lengthOf(1);
-    expect(button.text()).to.equal('Click Me');
+    expect(button[0].textContent).to.equal('Click Me');
   });
 
   it('should call the button handler', () => {
-    wrapper = mount(<DataConnection {...defaultProps} />);
+    const { container } = render(<DataConnection {...defaultProps} />);
 
-    const button = wrapper.find('.action').hostNodes();
+    const button = container.querySelectorAll('.action');
     expect(button).to.have.lengthOf(1);
 
     sinon.assert.notCalled(defaultProps.buttonHandler);
-    expect(button.props().disabled).to.be.false;
-    expect(button.is('.processing')).to.be.false;
-    button.simulate('click');
+    expect(button[0].disabled).to.be.false;
+    expect(button[0].classList.contains('processing')).to.be.false;
+    fireEvent.click(button[0]);
     sinon.assert.calledOnce(defaultProps.buttonHandler);
   });
 
   it('should not show the button if no button handler is provided', () => {
-    wrapper = mount(<DataConnection {...{ ...defaultProps, buttonHandler: undefined } } />);
-
-    const button = wrapper.find('.action').hostNodes();
+    const { container } = render(<DataConnection {...{ ...defaultProps, buttonHandler: undefined } } />);
+    const button = container.querySelectorAll('.action');
     expect(button).to.have.lengthOf(0);
   });
 
   it('should show a disabled button if dictated by prop', () => {
-    wrapper = mount(<DataConnection {...{ ...defaultProps, buttonDisabled: true } } />);
-
-    const button = wrapper.find('.action').hostNodes();
+    const { container } = render(<DataConnection {...{ ...defaultProps, buttonDisabled: true } } />);
+    const button = container.querySelectorAll('.action');
     expect(button).to.have.lengthOf(1);
-    expect(button.props().disabled).to.be.true;
+    expect(button[0].disabled).to.be.true;
   });
 
   it('should show a processing button if dictated by prop', () => {
-    wrapper = mount(<DataConnection {...{ ...defaultProps, buttonProcessing: true } } />);
-
-    const button = wrapper.find('.action').hostNodes();
+    const { container } = render(<DataConnection {...{ ...defaultProps, buttonProcessing: true } } />);
+    const button = container.querySelectorAll('.action');
     expect(button).to.have.lengthOf(1);
-    expect(button.is('.processing')).to.be.true;
+    expect(button[0].classList.contains('processing')).to.be.true;
   });
 });

@@ -7,7 +7,7 @@ var React = require('react');
 var expect = chai.expect;
 
 var MailTo = require('../../../app/components/mailto');
-const { mount } = require('enzyme');
+const { render } = require('@testing-library/react');
 
 describe('MailTo', function () {
   it('should be exposed as a module and be of type function', function() {
@@ -16,7 +16,7 @@ describe('MailTo', function () {
 
   describe('render', function() {
     it('should render without problems when required props are present', function () {
-      console.error = sinon.stub();
+      const consoleErrorStub = sinon.stub(console, 'error');
       var props = {
         linkTitle: 'some string',
         emailAddress: 'gordonmdent@gmail.com',
@@ -24,8 +24,9 @@ describe('MailTo', function () {
         onLinkClicked: sinon.stub()
       };
       var elem = React.createElement(MailTo, props);
-      var render = mount(elem);
-      expect(console.error.callCount).to.equal(0);
+      render(elem);
+      expect(consoleErrorStub.callCount).to.equal(0);
+      consoleErrorStub.restore();
     });
   });
 });
