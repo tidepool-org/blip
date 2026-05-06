@@ -1,12 +1,9 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { ToastProvider, useToasts } from '../../../../app/providers/ToastProvider';
 
-/* global chai */
-/* global describe */
-/* global it */
 
-const expect = chai.expect;
+
 
 const Element = ({ toast }) => {
   const { set, clear } = useToasts();
@@ -19,91 +16,83 @@ const Element = ({ toast }) => {
 }
 
 describe('ToastProvider', () => {
-  it('should render a success toast message', () => {
-    const wrapper = mount(
+  it('should render a success toast message', async () => {
+    render(
       <ToastProvider>
         <Element toast={{ message: 'Success!', variant: 'success' }}/>
       </ToastProvider>
     );
 
-    const toast = wrapper.childAt(1);
-
-    expect(toast.text()).to.equal('Success!');
-    expect(toast.find('div.success')).to.have.lengthOf(1);
+    expect(await screen.findByText('Success!')).toBeTruthy();
+    expect(document.querySelector('div.success')).toBeTruthy();
   });
 
-  it('should render a warning toast message', () => {
-    const wrapper = mount(
+  it('should render a warning toast message', async () => {
+    render(
       <ToastProvider>
         <Element toast={{ message: 'Warning!', variant: 'warning' }}/>
       </ToastProvider>
     );
 
-    const toast = wrapper.childAt(1);
-
-    expect(toast.text()).to.equal('Warning!');
-    expect(toast.find('div.warning')).to.have.lengthOf(1);
+    expect(await screen.findByText('Warning!')).toBeTruthy();
+    expect(document.querySelector('div.warning')).toBeTruthy();
   });
 
-  it('should render a danger toast message', () => {
-    const wrapper = mount(
+  it('should render a danger toast message', async () => {
+    render(
       <ToastProvider>
         <Element toast={{ message: 'Danger!', variant: 'danger' }}/>
       </ToastProvider>
     );
 
-    const toast = wrapper.childAt(1);
-
-    expect(toast.text()).to.equal('Danger!');
-    expect(toast.find('div.danger')).to.have.lengthOf(1);
+    expect(await screen.findByText('Danger!')).toBeTruthy();
+    expect(document.querySelector('div.danger')).toBeTruthy();
   });
 
-  it('should render an info toast message', () => {
-    const wrapper = mount(
+  it('should render an info toast message', async () => {
+    render(
       <ToastProvider>
         <Element toast={{ message: 'Info!', variant: 'info' }}/>
       </ToastProvider>
     );
 
-    const toast = wrapper.childAt(1);
-
-    expect(toast.text()).to.equal('Info!');
-    expect(toast.find('div.info')).to.have.lengthOf(1);
+    expect(await screen.findByText('Info!')).toBeTruthy();
+    expect(document.querySelector('div.info')).toBeTruthy();
   });
 
-  it('should close the toast when triggered by the `clear` method from an external element', () => {
-    const wrapper = mount(
+  it('should close the toast when triggered by the `clear` method from an external element', async () => {
+    render(
       <ToastProvider>
         <Element toast={{ message: 'Info!' }}/>
       </ToastProvider>
     );
 
-    const toast = () => wrapper.childAt(1);
-    expect(toast()).to.have.lengthOf(1);
-    expect(toast().text()).to.equal('Info!');
+    expect(await screen.findByText('Info!')).toBeTruthy();
 
-    const button = wrapper.find('button.clear');
-    expect(button).to.have.lengthOf(1);
+    const button = document.querySelector('button.clear');
+    expect(button).toBeTruthy();
 
-    button.simulate('click');
-    expect(toast()).to.have.lengthOf(0);
+    fireEvent.click(button);
+    await waitFor(() => {
+      expect(screen.queryByText('Info!')).toBeNull();
+    });
   });
 
-  it('should close the toast when triggered by the `close` icon of the toast', () => {
-    const wrapper = mount(
+  it('should close the toast when triggered by the `close` icon of the toast', async () => {
+    render(
       <ToastProvider>
         <Element toast={{ message: 'Info!' }}/>
       </ToastProvider>
     );
 
-    const toast = () => wrapper.childAt(1);
-    expect(toast()).to.have.lengthOf(1);
-    expect(toast().text()).to.equal('Info!');
+    expect(await screen.findByText('Info!')).toBeTruthy();
 
-    const closeIcon = toast().find('button.close');
-    expect(closeIcon).to.have.lengthOf(1);
+    const closeIcon = document.querySelector('button.close');
+    expect(closeIcon).toBeTruthy();
 
-    closeIcon.simulate('click');
-    expect(toast()).to.have.lengthOf(0);
+    fireEvent.click(closeIcon);
+    await waitFor(() => {
+      expect(screen.queryByText('Info!')).toBeNull();
+    });
   });
 });
