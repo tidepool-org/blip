@@ -36,6 +36,12 @@ script:
   # artifact.sh's docker build hits cache for every layer (effectively
   # just a re-tag). Mirrors the logic in
   # https://raw.githubusercontent.com/tidepool-org/tools/master/artifact/artifact.sh
+  #
+  # We tag this build as tidepool/blip:cache rather than :latest because
+  # artifact.sh's `docker build -t tidepool/blip` does NOT pass
+  # BUILDKIT_INLINE_CACHE=1, so it would otherwise replace the :latest
+  # tag with an image stripped of inline cache metadata, defeating
+  # --cache-from on the next build.
   - |
     RX_ENABLED=${RX_ENABLED:-false}
     case ",${RX_ENABLED_BRANCHES:-}," in
@@ -48,12 +54,12 @@ script:
       --build-arg REACT_APP_GAID="${REACT_APP_GAID:-}" \
       --build-arg RX_ENABLED="${RX_ENABLED}" \
       --build-arg TRAVIS_COMMIT="${TRAVIS_COMMIT}" \
-      --cache-from tidepool/blip \
+      --cache-from tidepool/blip:cache \
       --target production \
-      -t tidepool/blip .
+      -t tidepool/blip:cache .
   - ./artifact.sh
 
 before_cache:
   - mkdir -p $HOME/docker-cache
-  - docker save blip-test tidepool/blip -o $HOME/docker-cache/images.tar
+  - docker save blip-test tidepool/blip:cache -o $HOME/docker-cache/images.tar
   - du -sh $HOME/docker-cache/images.tar || true
