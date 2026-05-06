@@ -1,8 +1,10 @@
 import * as dataUtils from '../../../../app/core/data';
 
+/* global chai */
 /* global describe */
 /* global it */
-/* global expect */
+
+const expect = chai.expect;
 
 describe('isMissingBasicsData', () => {
   const emptyAggregations = {
