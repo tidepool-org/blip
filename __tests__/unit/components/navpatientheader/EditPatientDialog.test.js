@@ -9,11 +9,16 @@ import EditPatientDialog from '../../../../app/components/navpatientheader/EditP
 import { ToastProvider } from '../../../../app/providers/ToastProvider';
 
 jest.mock('../../../../app/components/clinic/PatientForm', () => {
-  return (props) => (
-    <div data-testid="PatientForm" data-is-read-only={props.isReadOnly ? 'true' : 'false'} data-smart-on-fhir-mode={props.smartOnFhirMode ? 'true' : 'false'}>
-      PatientForm Mock
-    </div>
-  );
+  return (props) => {
+    React.useEffect(() => {
+      props.onFormChange({ handleSubmit: jest.fn(), values: {} });
+    }, []);
+    return (
+      <div data-testid="PatientForm" data-is-read-only={props.isReadOnly ? 'true' : 'false'} data-smart-on-fhir-mode={props.smartOnFhirMode ? 'true' : 'false'}>
+        PatientForm Mock
+      </div>
+    );
+  };
 });
 
 jest.mock('../../../../app/core/hooks', () => ({
