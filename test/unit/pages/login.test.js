@@ -3,28 +3,34 @@
 /* global sinon */
 /* global Promise */
 /* global it */
-/* global before */
-/* global after */
 /* global afterEach */
 
 import React from 'react';
 import mutationTracker from 'object-invariant-test-helper';
 import { BrowserRouter } from 'react-router-dom';
-import { mount } from 'enzyme';
+import { render } from '@testing-library/react';
 
-import Login, { Login as LoginFunction, mapStateToProps } from '../../../app/pages/login/login.js';
+jest.mock('../../../app/keycloak', () => ({
+  keycloak: {
+    login: jest.fn(),
+    createLoginUrl: jest.fn().mockResolvedValue('loginUrl'),
+  },
+}));
+
+import Login, {
+  Login as LoginFunction,
+  mapStateToProps,
+} from '../../../app/pages/login/login.js';
+import { keycloak } from '../../../app/keycloak';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 
 import * as ErrorMessages from '../../../app/redux/constants/errorMessages';
 
-const assert = chai.assert;
-const expect = chai.expect;
-
-describe('Login', () => {
-  it('should be exposed as a module and be of type function', () => {
-    expect(LoginFunction).to.be.a('function');
+describe('Login', function () {
+  it('should be exposed as a module and be of type function', function() {
+    expect(typeof LoginFunction).toBe('function');
   });
 
   describe('render', () => {
@@ -56,14 +62,11 @@ describe('Login', () => {
       },
     };
 
-    it('should render without problems when required props are present', () => {
-      const errorStub = sinon.stub(console, 'error');
-      try {
-        mount(<BrowserRouter><LoginFunction {...props} /></BrowserRouter>);
-        expect(errorStub.callCount).to.equal(0);
-      } finally {
-        errorStub.restore();
-      }
+    it('should render without problems when required props are present', function () {
+      console.error = sinon.stub();
+
+      render(<BrowserRouter><LoginFunction {...props} /></BrowserRouter>)
+      expect(console.error.callCount).toBe(0);
     });
 
     describe('keycloak enabled', () => {
@@ -88,40 +91,30 @@ describe('Login', () => {
       const mockStore = configureStore([thunk]);
       const store = mockStore(storeState);
 
-      const keycloakMock = {
-        login: sinon.stub(),
-        createLoginUrl: sinon.stub().returns(Promise.resolve('loginUrl')),
-      };
-      let RewiredLogin;
+      let ConnectedLogin;
       let wrapper;
 
-      before(() => {
-        Login.__Rewire__('keycloak', keycloakMock);
-        Login.__Rewire__('win', { location: { origin: 'testOrigin' } });
-        RewiredLogin = require('../../../app/pages/login/login.js').default;
-        wrapper = mount(
+      beforeAll(() => {
+        ConnectedLogin = Login;
+        wrapper = render(
           <Provider store={store}>
             <BrowserRouter>
-              <RewiredLogin {...props} />
+              <ConnectedLogin {...props} />
             </BrowserRouter>
           </Provider>
         );
       });
 
-      after(() => {
-        Login.__ResetDependency__('keycloak');
-        Login.__ResetDependency__('win');
-      });
-
       afterEach(() => {
-        keycloakMock.login.resetHistory();
-        keycloakMock.createLoginUrl.resetHistory();
+        keycloak.login.mockReset();
+        keycloak.createLoginUrl.mockReset();
+        keycloak.createLoginUrl.mockResolvedValue('loginUrl');
         store.clearActions();
       });
 
       it('should forward a user to keycloak login when initialized', () => {
-        expect(keycloakMock.createLoginUrl.callCount).to.equal(1);
-        expect(keycloakMock.createLoginUrl.calledWith({ redirectUri: 'testOrigin' })).to.be.true;
+        expect(keycloak.createLoginUrl).toHaveBeenCalledTimes(1);
+        expect(keycloak.createLoginUrl).toHaveBeenCalledWith({ redirectUri: window.location.origin });
       });
 
       it('should include a destination if provided in router state', () => {
@@ -137,19 +130,17 @@ describe('Login', () => {
         };
         const destStore = mockStore(destStoreState);
 
-        wrapper = mount(
+        wrapper = render(
           <Provider store={destStore}>
             <BrowserRouter>
-              <RewiredLogin {...props} />
+              <ConnectedLogin {...props} />
             </BrowserRouter>
           </Provider>
         );
-        expect(keycloakMock.createLoginUrl.callCount).to.equal(1);
-        expect(
-          keycloakMock.createLoginUrl.calledWith({
-            redirectUri: 'testOrigin/a_destination',
-          })
-        ).to.be.true;
+        expect(keycloak.createLoginUrl).toHaveBeenCalledTimes(1);
+        expect(keycloak.createLoginUrl).toHaveBeenCalledWith({
+          redirectUri: `${window.location.origin}/a_destination`,
+        });
       });
 
       describe('when error from declining TOS', () => {
@@ -161,17 +152,16 @@ describe('Login', () => {
             },
           };
 
-          wrapper = mount(
+          wrapper = render(
             <Provider store={store}>
               <BrowserRouter>
-                <RewiredLogin {...errorProps} />
+                <ConnectedLogin {...errorProps} />
               </BrowserRouter>
             </Provider>
           );
 
-          expect(keycloakMock.createLoginUrl.callCount).to.equal(1);
-          expect(keycloakMock.createLoginUrl.calledWith({ redirectUri: 'testOrigin' }))
-            .to.be.true;
+          expect(keycloak.createLoginUrl).toHaveBeenCalledTimes(1);
+          expect(keycloak.createLoginUrl).toHaveBeenCalledWith({ redirectUri: window.location.origin });
         });
       });
 
@@ -222,22 +212,22 @@ describe('Login', () => {
             },
           ];
 
-          wrapper = mount(
+          wrapper = render(
             <Provider store={store}>
               <BrowserRouter>
-                <RewiredLogin {...claimProps} />
+                <ConnectedLogin {...claimProps} />
               </BrowserRouter>
             </Provider>
           );
 
-          const actions = store.getActions();
-          expect(actions[1].error).to.deep.include({
+          let actions = store.getActions();
+          expect(actions[1].error).toMatchObject({
             message: ErrorMessages.ERR_CONFIRMING_SIGNUP,
           });
           expectedActions[1].error = actions[1].error;
-          expect(actions).to.eql(expectedActions);
-          expect(keycloakMock.createLoginUrl.callCount).to.equal(0);
-          expect(claimProps.api.user.confirmSignUp.callCount).to.equal(1);
+          expect(actions).toEqual(expectedActions);
+          expect(keycloak.createLoginUrl).not.toHaveBeenCalled();
+          expect(claimProps.api.user.confirmSignUp.callCount).toBe(1);
         });
 
         it('should confirm signup if signupEmail+signupKey present and no error on confirm', () => {
@@ -260,18 +250,18 @@ describe('Login', () => {
             }
           ];
 
-          wrapper = mount(
+          wrapper = render(
             <Provider store={store}>
               <BrowserRouter>
-                <RewiredLogin {...claimProps} />
+                <ConnectedLogin {...claimProps} />
               </BrowserRouter>
             </Provider>
           );
 
-          const actions = store.getActions();
-          expect(actions).to.eql(expectedActions);
-          expect(keycloakMock.login.callCount).to.equal(0);
-          expect(claimProps.api.user.confirmSignUp.callCount).to.equal(1);
+          let actions = store.getActions();
+          expect(actions).toEqual(expectedActions);
+          expect(keycloak.login).not.toHaveBeenCalled();
+          expect(claimProps.api.user.confirmSignUp.callCount).toBe(1);
         });
       });
     });
@@ -293,23 +283,23 @@ describe('Login', () => {
     const result = mapStateToProps({ blip: state });
 
     it('should not mutate the state', () => {
-      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      expect(mutationTracker.hasMutated(tracked)).toBe(false);
     });
 
     it('should be a function', () => {
-      assert.isFunction(mapStateToProps);
+      expect(typeof mapStateToProps).toBe('function');
     });
 
     it('should map working.loggingIn.inProgress to working', () => {
-      expect(result.working).to.equal(state.working.loggingIn.inProgress);
+      expect(result.working).toEqual(state.working.loggingIn.inProgress);
     });
 
     it('should map working.loggingIn.notification to notification', () => {
-      expect(result.notification).to.equal(state.working.loggingIn.notification);
+      expect(result.notification).toEqual(state.working.loggingIn.notification);
     });
 
     it('should map keycloakConfig to keycloakConfig', () => {
-      expect(result.keycloakConfig).to.equal(state.keycloakConfig);
+      expect(result.keycloakConfig).toEqual(state.keycloakConfig);
     });
 
     it('should map working.confirmingSignup.notification to notification if working.loggingIn.notification is null', () => {
@@ -319,8 +309,8 @@ describe('Login', () => {
           confirmingSignup: { inProgress: false, notification: { status: 500, body: 'Error :(' } }
         }
       };
-      const anotherRes = mapStateToProps({ blip: anotherState });
-      expect(anotherRes.notification).to.equal(anotherState.working.confirmingSignup.notification);
+      const anotherRes = mapStateToProps({blip: anotherState});
+      expect(anotherRes.notification).toEqual(anotherState.working.confirmingSignup.notification);
     });
 
     describe('when some state is `null`', () => {
@@ -335,11 +325,11 @@ describe('Login', () => {
       const result = mapStateToProps({ blip: state });
 
       it('should not mutate the state', () => {
-        expect(mutationTracker.hasMutated(tracked)).to.be.false;
+        expect(mutationTracker.hasMutated(tracked)).toBe(false);
       });
 
       it('should map working.loggingIn.notification to notification', () => {
-        expect(result.notification).to.be.null;
+        expect(result.notification).toBeNull();
       });
     });
   });

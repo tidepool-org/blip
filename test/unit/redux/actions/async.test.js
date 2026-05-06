@@ -10,7 +10,7 @@
 /* global context */
 
 import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 import trackingMiddleware from '../../../../app/redux/utils/trackingMiddleware';
 import moment from 'moment';
 import _ from 'lodash';
@@ -24,8 +24,10 @@ import * as UserMessages from '../../../../app/redux/constants/usrMessages';
 
 import { MMOLL_UNITS, ALL_FETCHED_DATA_TYPES, MS_IN_MIN } from '../../../../app/core/constants';
 
-// need to require() async in order to rewire utils inside
+const expect = chai.expect;
+
 const async = require('../../../../app/redux/actions/async');
+const { _win } = async;
 const sync = require('../../../../app/redux/actions/sync');
 
 describe('Actions', () => {
@@ -35,21 +37,7 @@ describe('Actions', () => {
     trackingMiddleware({ metrics: { track: trackMetric } })
   ]);
 
-  const rewiredSync = {
-    ...sync,
-    setClinicUIDetails: sinon.stub().callsFake((clinicId, uiDetails) => ({
-      type: 'SET_CLINIC_UI_DETAILS',
-      payload: { clinicId, uiDetails },
-    })),
-  };
-
-  beforeEach(() => {
-    async.__Rewire__('sync', rewiredSync);
-  });
-
   afterEach(function() {
-    async.__ResetDependency__('utils');
-    async.__ResetDependency__('sync');
     trackMetric.resetHistory();
   })
 
@@ -895,6 +883,8 @@ describe('Actions', () => {
 
         beforeEach(() => {
           creds = { username: 'bruce', password: 'wayne' };
+          clinicEHRSettings = { ehrEnabled: true };
+          clinicMRNSettings = { mrnRequired: true };
 
           setAPIData = returnData => {
             const invitesError = _.get(returnData, 'invitesError', null);
@@ -2072,18 +2062,21 @@ describe('Actions', () => {
     });
 
     describe('logout', () => {
-      let winMock = {
-        location: {
-          assign: sinon.stub()
-        }
-      };
+      let assignStub;
+      let savedLocation;
 
       before(() => {
-        async.__Rewire__('win', winMock);
+        assignStub = sinon.stub();
+        savedLocation = _win.location;
+        _win.location = { assign: assignStub, origin: savedLocation.origin };
       });
 
       after(() => {
-        async.__ResetDependency__('win');
+        _win.location = savedLocation;
+      });
+
+      afterEach(() => {
+        assignStub.resetHistory();
       });
 
       it('should trigger LOGOUT_SUCCESS and it should call logout once for a successful request', () => {
@@ -2141,7 +2134,7 @@ describe('Actions', () => {
         expect(actions).to.eql(expectedActions);
         expect(api.user.logout.callCount).to.equal(1);
         expect(trackMetric.calledWith('Logged Out')).to.be.true;
-        expect(winMock.location.assign.calledOnceWith('keycloakLogoutUrl')).to.be.true;
+        expect(assignStub.calledOnceWith('keycloakLogoutUrl')).to.be.true;
       });
     });
 
@@ -3800,7 +3793,7 @@ describe('Actions', () => {
 
       it('[404] should trigger FETCH_PATIENT_FAILURE and it should call error once for a failed request', () => {
         let patient = { id: 58686, name: 'Buddy Holly', age: 65 };
-        let thisInitialState = Object.assign(initialState, {loggedInUserId: 58686});
+        let thisInitialState = Object.assign({}, initialState, {loggedInUserId: 58686});
 
         let api = {
           patient: {
@@ -3829,7 +3822,7 @@ describe('Actions', () => {
       });
 
       it('[401] should trigger FETCH_PATIENT_FAILURE and it should call error once for a failed request', () => {
-        let thisInitialState = Object.assign(initialState, {
+        let thisInitialState = Object.assign({}, initialState, {
           loggedInUserId: 58686,
         });
 
@@ -3870,7 +3863,7 @@ describe('Actions', () => {
       });
 
       it('[401 clinician] should trigger FETCH_PATIENT_FAILURE and it should call error once for a failed request', () => {
-        let thisInitialState = Object.assign(initialState, {
+        let thisInitialState = Object.assign({}, initialState, {
           loggedInUserId: 58688,
         });
 
@@ -3884,7 +3877,7 @@ describe('Actions', () => {
         let err = new Error(
           ErrorMessages.ERR_FETCHING_PATIENT_CLINICIAN_UNAUTHORIZED
         );
-        err.status = 404;
+        err.status = 401;
 
         let expectedActions = [
           { type: 'FETCH_PATIENT_REQUEST' },
@@ -3995,15 +3988,6 @@ describe('Actions', () => {
       let teamNotes;
       let uploadRecord;
       let api;
-      let rollbar;
-
-      before(() => {
-        rollbar = {
-          info: sinon.stub(),
-        };
-
-        async.__Rewire__('rollbar', rollbar);
-      });
 
       beforeEach(() => {
         options = {
@@ -4040,14 +4024,6 @@ describe('Actions', () => {
             getTime: sinon.stub().callsArgWith(0, null, { data: { time: serverTime } })
           }
         };
-      });
-
-      afterEach(() => {
-        rollbar.info.resetHistory();
-      });
-
-      after(() => {
-        async.__ResetDependency__('rollbar');
       });
 
       context('data is available in cache', () => {
@@ -7493,7 +7469,7 @@ describe('Actions', () => {
         let err = new Error(
           ErrorMessages.ERR_SENDING_CLINICIAN_INVITE_UNAUTHORIZED
         );
-        err.status = 409;
+        err.status = 401;
 
         let expectedActions = [
           { type: 'SEND_CLINICIAN_INVITE_REQUEST' },
@@ -8853,14 +8829,16 @@ describe('Actions', () => {
     });
 
     describe('sendPatientDataProviderConnectRequest', () => {
+      let momentUtcStub;
+
       beforeEach(() => {
-        async.__Rewire__('moment', {
-          utc: () => ({ toISOString: () => '2022-02-02T00:00:00.000Z'})
+        momentUtcStub = sinon.stub(moment, 'utc').returns({
+          toISOString: () => '2022-02-02T00:00:00.000Z',
         });
       });
 
       afterEach(() => {
-        async.__ResetDependency__('moment');
+        momentUtcStub.restore();
       });
 
       it('should trigger SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_SUCCESS and it should call clinics.sendPatientDataProviderConnectRequest once for a successful request', () => {
