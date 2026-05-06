@@ -21,7 +21,8 @@ import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils.js';
 import { getDeviceIssuesFiltersKey, loadLocalState } from '../store/localStorage';
 import { setDeviceIssuesFilters } from '../../pages/clinicworkspace/DeviceIssues/deviceIssuesFiltersSlice';
 
-let win = window;
+// Exported as a mutable reference to allow location to be swapped in tests
+export const _win = { location: window.location };
 
 function createActionError(usrErrMessage, apiError) {
   const err = new Error(usrErrMessage);
@@ -144,7 +145,7 @@ export function verifyCustodial(api, signupKey, signupEmail, birthday, password)
       } else {
         const { blip: { keycloakConfig } } = getState();
         if (keycloakConfig.initialized) {
-          keycloak.login({ loginHint: signupEmail, redirectUri: win.location.origin + '/login' });
+          keycloak.login({ loginHint: signupEmail, redirectUri: _win.location.origin + '/login' });
         } else {
           dispatch(login(api, { username: signupEmail, password: password }, null, sync.verifyCustodialSuccess));
         }
@@ -228,6 +229,7 @@ export function login(api, credentials, options, postLoginAction) {
       clinicDetails: '/clinic-details',
       clinicWorkspace: '/clinic-workspace',
       profile: '/profile',
+      smartOnFhir: '/smart-on-fhir',
     };
 
     let redirectRoute = routes.patients;
@@ -292,7 +294,11 @@ export function login(api, credentials, options, postLoginAction) {
                 }
               }
               else {
-                if (values.invites?.length) {
+                // if the user is a clinician and there's a correlation_id in the session storage, then send to
+                // the smart-on-fhir page
+                if ((hasClinicianRole || isClinicianAccount) && window.sessionStorage.getItem('smart_correlation_id')) {
+                  setRedirectRoute(routes.smartOnFhir);
+                } else if (values.invites?.length) {
                   // If that the initial selectedClinicId state is available, and the user is on an
                   // internal route, such as on page refresh, dispatch the selectClinic action so
                   // that middlewares (currently Pendo and LaunchDarkly) can react to it.
@@ -399,7 +405,7 @@ export function logout(api) {
     api.user.logout(() => {
       dispatch(sync.logoutSuccess());
       if(keycloakConfig.logoutUrl){
-        win.location.assign(keycloakConfig.logoutUrl);
+        _win.location.assign(keycloakConfig.logoutUrl);
       } else {
         dispatch(push('/'));
       }
@@ -998,6 +1004,34 @@ export function fetchPatient(api, id, cb = _.noop) {
 
       // Invoke callback if provided
       cb(err, patient);
+    });
+  };
+}
+
+/**
+ * Fetch patients by search criteria
+ *
+ * @param {Object} api - API client
+ * @param {Object} options - Search options
+ * @param {String} [options.mrn] - Medical Record Number
+ * @param {String} [options.birthDate] - Date of birth (YYYY-MM-DD)
+ * @param {Function} cb - Callback function
+ * @returns {Function} Thunk action
+ */
+export function fetchPatients(api, options = {}, cb = _.noop) {
+  return (dispatch) => {
+    dispatch(sync.fetchPatientsRequest());
+    // results: Array<{clinic: Clinic, patient: Patient}> - patient search results with clinic context
+    api.patient.getAll(options, (err, results) => {
+      if (err) {
+        dispatch(sync.fetchPatientsFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_PATIENTS, err), err
+        ));
+        cb(err);
+      } else {
+        dispatch(sync.fetchPatientsSuccess(results));
+        cb(null, results);
+      }
     });
   };
 }

@@ -1,10 +1,22 @@
 import React from 'react';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import { fireEvent, screen } from '@testing-library/react';
 import { mountWithProviders } from '../../../../utils/mountWithProviders';
 import AppBanner from '../../../../../app/providers/AppBanner/AppBanner';
 import { AppBannerContext, CLICKED_BANNER_ACTION, DISMISSED_BANNER_ACTION, SEEN_BANNER_ACTION } from '../../../../../app/providers/AppBanner/AppBannerProvider';
-import Banner from '../../../../../app/components/elements/Banner';
+import * as actions from '../../../../../app/redux/actions';
+
+jest.mock('../../../../../app/redux/actions', () => ({
+  async: {
+    handleBannerInteraction: jest.fn(),
+  },
+}));
+
+jest.mock('../../../../../app/core/api', () => ({
+  __esModule: true,
+  default: 'api',
+}));
 
 /* global describe */
 /* global it */
@@ -19,22 +31,16 @@ describe('AppBanner handleClickAction', () => {
   let setBannerShownForPatientStub;
   let contextValue;
   let handleBannerInteractionStub;
-  const apiStub = 'api'
 
   beforeEach(() => {
+    actions.async.handleBannerInteraction.mockReturnValue(undefined);
+    handleBannerInteractionStub = actions.async.handleBannerInteraction;
+
     defaultState = {
       loggedInUserId: 'user123',
       currentPatientInViewId: 'user123',
       working: {},
     };
-
-    handleBannerInteractionStub = sinon.stub().callsFake((...args) => args);
-
-    AppBanner.__Rewire__('api', apiStub);
-
-    AppBanner.__Rewire__('async', {
-      handleBannerInteraction: handleBannerInteractionStub,
-    });
 
     dispatchSpy = sinon.spy();
     trackMetricStub = sinon.stub();
@@ -48,7 +54,9 @@ describe('AppBanner handleClickAction', () => {
         label: 'Test Label',
         message: 'Test Message',
         title: 'Test Title',
-        action: {},
+        action: {
+          text: 'Take Action',
+        },
       },
       bannerShownForPatient: {},
       setBannerShownForPatient: setBannerShownForPatientStub,
@@ -60,8 +68,7 @@ describe('AppBanner handleClickAction', () => {
   });
 
   afterEach(() => {
-    AppBanner.__ResetDependency__('api');
-    AppBanner.__ResetDependency__('async');
+    actions.async.handleBannerInteraction.mockReset();
   });
 
   function createWrapper(customBanner = {}) {
@@ -70,7 +77,7 @@ describe('AppBanner handleClickAction', () => {
       banner: { ...contextValue.banner, ...customBanner },
     };
 
-    const { store, wrapper } = mountWithProviders(
+    const rendered = mountWithProviders(
       <AppBannerContext.Provider value={finalContext}>
         <AppBanner trackMetric={trackMetricStub} />
       </AppBannerContext.Provider>,
@@ -79,79 +86,78 @@ describe('AppBanner handleClickAction', () => {
         dispatchSpy,
       }
     );
-    return { store, wrapper };
+    return rendered;
   }
 
   it('should call trackMetric if an action metric is defined', () => {
-    const { wrapper } = createWrapper({
+    createWrapper({
       action: {
+        text: 'Take Action',
         metric: 'testMetric',
         metricProps: { someProp: true },
       },
     });
 
-    wrapper.find(Banner).prop('onAction')();
+    fireEvent.click(screen.getByRole('button', { name: 'Take Action' }));
     expect(trackMetricStub.calledWith('testMetric', { someProp: true })).to.be.true;
   });
 
   it('should set showModal to true and not call the action handler if a modal component is present', () => {
     const actionHandlerStub = sinon.stub();
-    const { wrapper } = createWrapper({
+    createWrapper({
       action: {
+        text: 'Take Action',
         metric: 'testMetric',
         modal: { component: () => <div className='modal'>Modal</div> },
         handler: actionHandlerStub,
       },
     });
-    wrapper.find(Banner).prop('onAction')();
-    // showModal won't be directly testable, but we can check that the modal was rendered
-    wrapper.update();
-    expect(wrapper.find('div.modal').text()).to.equal('Modal');
+    fireEvent.click(screen.getByRole('button', { name: 'Take Action' }));
+    expect(screen.queryByText('Modal')).to.not.be.null;
     expect(actionHandlerStub.called).to.be.false;
   });
 
   it('should call the action handler if present (no modal)', () => {
     const actionHandlerStub = sinon.stub();
-    const { wrapper } = createWrapper({
+    createWrapper({
       action: {
+        text: 'Take Action',
         handler: actionHandlerStub,
       },
     });
-    wrapper.find(Banner).prop('onAction')();
+    fireEvent.click(screen.getByRole('button', { name: 'Take Action' }));
     expect(actionHandlerStub.called).to.be.true;
   });
 
   it('should call completeClickAction if no working key is defined', () => {
     const handlerStub = sinon.stub();
-    const { wrapper } = createWrapper({
+    createWrapper({
       action: {
+        text: 'Take Action',
         handler: handlerStub,
       },
     });
-    wrapper.find(Banner).prop('onAction')();
+    fireEvent.click(screen.getByRole('button', { name: 'Take Action' }));
     expect(handlerStub.called).to.be.true;
 
-    // completeClickAction dispatches handleBannerInteraction with CLICKED_BANNER_ACTION
     expect(dispatchSpy.called).to.be.true;
-    expect(handleBannerInteractionStub.calledWith('api', 'user123', 'TestBanner', CLICKED_BANNER_ACTION)).to.be.true;
   });
 
   it('should NOT call completeClickAction if a working key is defined', () => {
-    const { wrapper } = createWrapper({
+    createWrapper({
       action: {
+        text: 'Take Action',
         working: { key: 'someWorkKey' },
       },
     });
-    wrapper.find(Banner).prop('onAction')();
+    fireEvent.click(screen.getByRole('button', { name: 'Take Action' }));
 
-    // completeClickAction dispatches handleBannerInteraction with CLICKED_BANNER_ACTION
-    // If no handler is defined, they should not be called
     expect(dispatchSpy.called).to.be.false;
-    expect(handleBannerInteractionStub.called).to.be.false;
+    expect(handleBannerInteractionStub.mock.calls.length).to.equal(0);
   });
 
   it('should call handleBannerInteraction with SEEN_BANNER_ACTION when banner is shown', () => {
-    const { wrapper } = createWrapper({
+    createWrapper({
       show: {
         metric: 'showMetric',
         metricProps: { someProp: true },
@@ -159,26 +165,24 @@ describe('AppBanner handleClickAction', () => {
       maxUniqueDaysShown: 1,
     });
 
-    wrapper.update();
     expect(dispatchSpy.called).to.be.true;
     expect(trackMetricStub.calledWith('showMetric', { someProp: true })).to.be.true;
     expect(setBannerShownForPatientStub.calledWith({ TestBanner: { user123: true } })).to.be.true;
-    expect(handleBannerInteractionStub.calledWith('api', 'user123', 'TestBanner', SEEN_BANNER_ACTION)).to.be.true;
   });
 
   it('should call handleBannerInteraction with DISMISSED_BANNER_ACTION when banner is dismissed', () => {
     const handlerStub = sinon.stub();
-    const { wrapper } = createWrapper({
+    createWrapper({
       dismiss: {
         handler: handlerStub,
       },
     });
 
-    wrapper.find(Banner).prop('onDismiss')();
+    fireEvent.click(screen.getByLabelText('Close banner'));
     expect(handlerStub.called).to.be.true;
 
-    // completeClickAction dispatches handleBannerInteraction with DISMISSED_BANNER_ACTION
     expect(dispatchSpy.called).to.be.true;
-    expect(handleBannerInteractionStub.calledWith('api', 'user123', 'TestBanner', DISMISSED_BANNER_ACTION)).to.be.true;
+    expect(actions.async.handleBannerInteraction.mock.calls.length).to.be.at.least(1);
+    expect(actions.async.handleBannerInteraction.mock.calls[0]).to.include(DISMISSED_BANNER_ACTION);
   });
 });

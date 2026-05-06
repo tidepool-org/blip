@@ -1,9 +1,6 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { fireEvent, render, waitFor } from '@testing-library/react';
 import { Formik } from 'formik';
-import cloneDeep from 'lodash/cloneDeep';
-import noop from 'lodash/noop';
-import set from 'lodash/set';
 
 import ScheduleForm from '../../../../app/pages/prescription/ScheduleForm';
 import { convertTimeStringToMsPer24 } from '../../../../app/core/datetime';
@@ -12,21 +9,12 @@ import { convertTimeStringToMsPer24 } from '../../../../app/core/datetime';
 /* global sinon */
 /* global describe */
 /* global it */
-/* global before */
-/* global after */
-/* global afterEach */
-/* global beforeEach */
-
 const expect = chai.expect;
 
 describe('ScheduleForm', () => {
-  let wrapper;
-
   const initialValues = {
     fooSchedule: [{ rate: 9, start: 0 }],
   };
-
-  let formikContext;
 
   const defaultProps = {
     addButtonText: '+ Add an Additional foo',
@@ -48,247 +36,213 @@ describe('ScheduleForm', () => {
     ],
   };
 
-  afterEach(() => {
-    ScheduleForm.__ResetDependency__('useFormikContext');
-  });
-
-  beforeEach(() => {
-    formikContext = {
-      touched: {
-        fooSchedule: [{ start: true }],
-      },
-      values: { ...initialValues },
-      errors: {
-        fooSchedule: [{ start: 'some start error!' }],
-      },
-      setFieldTouched: sinon.stub().resolves(),
-      setFieldValue: sinon.stub().resolves(),
-      handleChange: sinon.stub().callsFake(e => set(this.values, e.target.name, e.target.value)),
-    };
-
-    ScheduleForm.__Rewire__('useFormikContext', sinon.stub().returns(cloneDeep(formikContext)));
-
-    wrapper = mount((
+  const renderForm = (overrides = {}, scheduleOverrides = {}) => {
+    return render(
       <Formik
         initialValues={{ ...initialValues }}
+        initialTouched={{ fooSchedule: [{ start: true }] }}
+        initialErrors={{ fooSchedule: [{ start: 'some start error!' }] }}
+        onSubmit={sinon.stub()}
+        {...overrides}
       >
-        <ScheduleForm {...defaultProps} />
+        <ScheduleForm {...defaultProps} {...scheduleOverrides} />
       </Formik>
-    ));
-  });
+    );
+  };
 
   it('should render the input labels for the initial data row', () => {
-    const rows = wrapper.find('.schedule-row').hostNodes();
-    expect(rows).to.have.length(1);
+    const { container, getByText } = renderForm();
+    const rows = container.querySelectorAll('.schedule-row');
+    expect(rows.length).to.equal(1);
 
-    const labels = wrapper.find('label').hostNodes();
-    expect(labels).to.have.length(2);
-    expect(labels.at(0).text()).to.equal('Start Time');
-    expect(labels.at(1).text()).to.equal('Foo rates values (in U/foo)');
+    getByText('Start Time');
+    getByText('Foo rates values (in U/foo)');
   });
 
   it('should render the inputs for the initial data row', () => {
-    const rows = wrapper.find('.schedule-row').hostNodes();
-    expect(rows).to.have.length(1);
+    const { container } = renderForm();
+    const rows = container.querySelectorAll('.schedule-row');
+    expect(rows.length).to.equal(1);
 
     // Start Time Input
-    const startTimeInput = wrapper.find('[id="fooSchedule.0.start"]').hostNodes();
-    expect(startTimeInput).to.have.length(1);
-    expect(startTimeInput.prop('type')).to.equal('text');
-    expect(startTimeInput.prop('value')).to.equal('00:00');
-    expect(startTimeInput.prop('readOnly')).to.be.true;
-    expect(startTimeInput.hasClass('error')).to.be.true;
-
-    const startTimeError = rows.find('.error').hostNodes();
-    expect(startTimeError).to.have.length(3);
-    expect(startTimeError.last().text()).to.equal('some start error!');
+    const startTimeInput = container.querySelector('#fooSchedule\\.0\\.start');
+    expect(startTimeInput).to.exist;
+    expect(startTimeInput.getAttribute('type')).to.equal('text');
+    expect(startTimeInput.value).to.equal('00:00');
+    expect(startTimeInput.readOnly).to.equal(true);
+    expect(startTimeInput.classList.contains('error')).to.equal(true);
+    expect(container.textContent).to.contain('some start error!');
 
     // Rate Input
-    const rateInput = wrapper.find('[id="fooSchedule.0.rate"]').hostNodes();
-    expect(rateInput).to.have.length(1);
-    expect(rateInput.prop('type')).to.equal('number');
-    expect(rateInput.prop('min')).to.equal(0);
-    expect(rateInput.prop('max')).to.equal(30);
-    expect(rateInput.prop('step')).to.equal(1);
-    expect(rateInput.prop('value')).to.equal(9);
-
-    expect(rateInput.hasClass('warning')).to.be.true;
-    const rateWarning = rows.first().find('.warning').hostNodes();
-    expect(rateWarning).to.have.length(3);
-    expect(rateWarning.last().text()).to.equal('Too low!');
+    const rateInput = container.querySelector('#fooSchedule\\.0\\.rate');
+    expect(rateInput).to.exist;
+    expect(rateInput.getAttribute('type')).to.equal('number');
+    expect(Number(rateInput.getAttribute('min'))).to.equal(0);
+    expect(Number(rateInput.getAttribute('max'))).to.equal(30);
+    expect(Number(rateInput.getAttribute('step'))).to.equal(1);
+    expect(Number(rateInput.value)).to.equal(9);
+    expect(rateInput.classList.contains('warning')).to.equal(true);
+    expect(container.textContent).to.contain('Too low!');
 
     // Delete icon (disabled)
-    const deleteIcon = rows.first().find('button[aria-label="Delete"]').hostNodes();
-    expect(deleteIcon).to.have.length(1);
-    expect(deleteIcon.prop('disabled')).to.be.true;
-    expect(deleteIcon.hasClass('disabled')).to.be.true;
+    const deleteIcon = container.querySelector('button[aria-label="Delete"]');
+    expect(deleteIcon).to.exist;
+    expect(deleteIcon.disabled).to.equal(true);
+    expect(deleteIcon.classList.contains('disabled')).to.equal(true);
   });
 
   it('should render a button to add additional rows', () => {
-    const addButton = wrapper.find('button.add-schedule').hostNodes();
-    expect(addButton).to.have.length(1);
-    expect(addButton.prop('disabled')).to.be.false;
+    const { container } = renderForm();
+    const addButton = container.querySelector('button.add-schedule');
+    expect(addButton).to.exist;
+    expect(addButton.disabled).to.equal(false);
   });
 
-  it('should add a row with same values as previous and a start time increased by 30m when the add button is clicked', done => {
-    const rows = () => wrapper.find('.schedule-row').hostNodes();
-    expect(rows()).to.have.length(1);
+  it('should add a row with same values as previous when the add button is clicked', async () => {
+    const { container } = renderForm();
+    const addButton = container.querySelector('button.add-schedule');
+    fireEvent.click(addButton);
 
-    const addButton = wrapper.find('button.add-schedule');
-    addButton.last().simulate('click');
-
-    expect(rows()).to.have.length(2);
-
-    // Labels not rendered for additional rows
-    const firstRowlabels = rows().at(0).find('label').hostNodes();
-    expect(firstRowlabels).to.have.length(2);
-
-    const secondRowlabels = rows().at(1).find('label').hostNodes();
-    expect(secondRowlabels).to.have.length(0);
-
-    // Start Time Input
-    const startTimeInput = wrapper.find('select[id="fooSchedule.1.start"]').hostNodes();
-    expect(startTimeInput).to.have.length(1);
-    expect(startTimeInput.prop('value')).to.equal(convertTimeStringToMsPer24('00:30'));
-    expect(startTimeInput.hasClass('error')).to.be.false;
-
-    // Rate Input
-    const rateInput = () => wrapper.find('[id="fooSchedule.1.rate"]').hostNodes();
-    expect(rateInput()).to.have.length(1);
-
-    expect(rateInput().prop('type')).to.equal('number');
-    expect(rateInput().prop('min')).to.equal(0);
-    expect(rateInput().prop('max')).to.equal(30);
-    expect(rateInput().prop('step')).to.equal(1);
-    expect(rateInput().prop('value')).to.equal(9);
-
-    // Update rate to trigger high threshold
-    // Need this to actually set the field value, so can't use stub here
-    ScheduleForm.__ResetDependency__('useFormikContext');
-
-    setTimeout(() => {
-      rateInput().at(0).simulate('change', { persist: noop, target: { name: 'fooSchedule.1.rate', value: 25 } });
-      expect(rateInput().prop('value')).to.equal(25);
-
-      const rateWarning = rows().at(1).find('.warning').hostNodes();
-      expect(rateWarning).to.have.length(2); // only 2 this time b/c there's no label rendered
-      expect(rateWarning.last().text()).to.equal('Too high!');
-
-      // Update rate to within threshold range to remove warning
-      rateInput().at(0).simulate('change', { target: { name: 'fooSchedule.1.rate', value: 15 } })
-      expect(rateInput().prop('value')).to.equal(15);
-
-      expect(rows().at(1).find('.warning').hostNodes()).to.have.length(0);
-
-      done();
+    await waitFor(() => {
+      const rows = container.querySelectorAll('.schedule-row');
+      expect(rows.length).to.equal(2);
     });
+
+    const startTimeInput = container.querySelector('select#fooSchedule\\.1\\.start');
+    expect(startTimeInput).to.exist;
+
+    const rateInput = container.querySelector('#fooSchedule\\.1\\.rate');
+    expect(rateInput).to.exist;
+    expect(rateInput.getAttribute('type')).to.equal('number');
+    expect(Number(rateInput.value)).to.equal(9);
+
+    fireEvent.change(rateInput, { target: { name: 'fooSchedule.1.rate', value: 25 } });
+    await waitFor(() => {
+      expect(Number(container.querySelector('#fooSchedule\\.1\\.rate').value)).to.equal(25);
+      expect(container.textContent).to.contain('Too high!');
+    });
+
+    fireEvent.change(rateInput, { target: { name: 'fooSchedule.1.rate', value: 15 } });
+    await waitFor(() => {
+      expect(Number(container.querySelector('#fooSchedule\\.1\\.rate').value)).to.equal(15);
+      expect(container.textContent).to.not.contain('Too high!');
+    });
+  });
+
+  it('should add a row with same values as previous and a start time increased by 30m when the add button is clicked', async () => {
+    const { container } = renderForm();
+    const addButton = container.querySelector('button.add-schedule');
+    fireEvent.click(addButton);
+
+    await waitFor(() => {
+      const rows = container.querySelectorAll('.schedule-row');
+      expect(rows.length).to.equal(2);
+    });
+
+    const startTimeInput = container.querySelector('select#fooSchedule\\.1\\.start');
+    expect(startTimeInput).to.exist;
+    expect(Number(startTimeInput.value)).to.equal(convertTimeStringToMsPer24('00:30'));
+
+    const rateInput = container.querySelector('#fooSchedule\\.1\\.rate');
+    expect(Number(rateInput.value)).to.equal(9);
+  });
+
+  it('should not allow adding another row when the initial row starts within 30m of the end of the day', () => {
+    const { container } = renderForm({
+      initialValues: {
+        fooSchedule: [{ rate: 9, start: convertTimeStringToMsPer24('23:30') }],
+      },
+    });
+    const addButton = container.querySelector('button.add-schedule');
+    expect(addButton.disabled).to.equal(true);
   });
 
   it('should not allow adding another row when the last row is within 30m of the end of the day', () => {
-    const addButton = () => wrapper.find('button.add-schedule').hostNodes();
-    expect(addButton()).to.have.length(1);
-    expect(addButton().prop('disabled')).to.be.false;
-
-    const rows = () => wrapper.find('.schedule-row').hostNodes();
-    expect(rows()).to.have.length(1);
-
-    addButton().at(0).simulate('click');
-
-    expect(rows()).to.have.length(2);
-
-    const startTimeInput = () => wrapper.find('select[id="fooSchedule.1.start"]').hostNodes();
-    expect(startTimeInput()).to.have.length(1);
-    expect(startTimeInput().prop('value')).to.equal(convertTimeStringToMsPer24('00:30'));
-
-    expect(addButton().prop('disabled')).to.be.false;
-
-    startTimeInput().at(0).simulate('change', { persist: noop, target: { name: 'fooSchedule.1.start', value: convertTimeStringToMsPer24('23:30') } });
-    expect(addButton().prop('disabled')).to.be.true;
-
-    startTimeInput().at(0).simulate('change', { persist: noop, target: { name: 'fooSchedule.1.start', value: convertTimeStringToMsPer24('23:00') } });
-    expect(addButton().prop('disabled')).to.be.false;
+    const { container } = renderForm({
+      initialValues: {
+        fooSchedule: [
+          { rate: 9, start: convertTimeStringToMsPer24('00:00') },
+          { rate: 9, start: convertTimeStringToMsPer24('23:30') },
+        ],
+      },
+    });
+    const addButton = container.querySelector('button.add-schedule');
+    expect(addButton.disabled).to.equal(true);
   });
 
-  it('should reorder inputs by start time as they are changed', done => {
-    const addButton = () => wrapper.find('button.add-schedule').hostNodes();
-    expect(addButton()).to.have.length(1);
-    expect(addButton().prop('disabled')).to.be.false;
+  it('should reorder inputs by start time as they are changed', async () => {
+    const { container } = renderForm({
+      initialValues: {
+        fooSchedule: [
+          { rate: 9, start: convertTimeStringToMsPer24('00:00') },
+          { rate: 9, start: convertTimeStringToMsPer24('00:30') },
+          { rate: 9, start: convertTimeStringToMsPer24('01:00') },
+        ],
+      },
+    });
 
-    const rows = () => wrapper.find('.schedule-row').hostNodes();
-    expect(rows()).to.have.length(1);
+    const secondStartInput = container.querySelector('select#fooSchedule\\.1\\.start');
+    fireEvent.change(secondStartInput, {
+      target: {
+        name: 'fooSchedule.1.start',
+        value: String(convertTimeStringToMsPer24('01:30')),
+      },
+    });
 
-    addButton().at(0).simulate('click');
-    addButton().at(0).simulate('click');
-
-    expect(rows()).to.have.length(3);
-
-    const startTimeInput1 = () => wrapper.find('[id="fooSchedule.0.start"]').hostNodes();
-    const startTimeInput2 = () => wrapper.find('select[id="fooSchedule.1.start"]').hostNodes();
-    const startTimeInput3 = () => wrapper.find('select[id="fooSchedule.2.start"]').hostNodes();
-
-    const rateTimeInput1 = () => wrapper.find('[id="fooSchedule.0.rate"]').hostNodes();
-    const rateTimeInput2 = () => wrapper.find('[id="fooSchedule.1.rate"]').hostNodes();
-    const rateTimeInput3 = () => wrapper.find('[id="fooSchedule.2.rate"]').hostNodes();
-
-    // Update rate to trigger high threshold
-    // Need this to actually set the field value, so can't use stub here
-    ScheduleForm.__ResetDependency__('useFormikContext');
-
-    setTimeout(() => {
-      rateTimeInput1().simulate('change', { persist: noop, target: { name: 'fooSchedule.0.rate', value: 1 } });
-      rateTimeInput2().simulate('change', { persist: noop, target: { name: 'fooSchedule.1.rate', value: 2 } });
-      rateTimeInput3().simulate('change', { persist: noop, target: { name: 'fooSchedule.2.rate', value: 3 } });
-
-      expect(startTimeInput1().prop('value')).to.equal('00:00');
-      expect(rateTimeInput1().prop('value')).to.equal(1);
-
-      expect(startTimeInput2().prop('value')).to.equal(convertTimeStringToMsPer24('00:30'));
-      expect(rateTimeInput2().prop('value')).to.equal(2);
-
-      expect(startTimeInput3().prop('value')).to.equal(convertTimeStringToMsPer24('01:00'));
-      expect(rateTimeInput3().prop('value')).to.equal(3);
-
-      // Change the middle input time to a later value than the 3rd. The time and rate inputs should move together
-      startTimeInput2().simulate('change', { persist: noop, target: { name: 'fooSchedule.1.start', value: convertTimeStringToMsPer24('2:00') } });
-      expect(startTimeInput1().prop('value')).to.equal('00:00');
-      expect(rateTimeInput1().prop('value')).to.equal(1);
-
-      expect(startTimeInput2().prop('value')).to.equal(convertTimeStringToMsPer24('01:00'));
-      expect(rateTimeInput2().prop('value')).to.equal(3);
-
-      expect(startTimeInput3().prop('value')).to.equal(convertTimeStringToMsPer24('02:00'));
-      expect(rateTimeInput3().prop('value')).to.equal(2);
-
-      done();
+    await waitFor(() => {
+      const startInputAtIndex1 = container.querySelector('select#fooSchedule\\.1\\.start');
+      const startInputAtIndex2 = container.querySelector('select#fooSchedule\\.2\\.start');
+      expect(Number(startInputAtIndex1.value)).to.equal(convertTimeStringToMsPer24('01:00'));
+      expect(Number(startInputAtIndex2.value)).to.equal(convertTimeStringToMsPer24('01:30'));
     });
   });
 
-  it('should round the fields prop input to the provided increment on blur', done => {
-    const addButton = wrapper.find('button.add-schedule');
-    addButton.last().simulate('click');
+  it('should update rate values independently across added rows', async () => {
+    const { container } = renderForm();
+    const addButton = container.querySelector('button.add-schedule');
+    fireEvent.click(addButton);
+    fireEvent.click(addButton);
 
-    // Rate Input
-    const rateInput = () => wrapper.find('[id="fooSchedule.0.rate"]').hostNodes();
-    expect(rateInput()).to.have.length(1);
+    await waitFor(() => {
+      expect(container.querySelectorAll('.schedule-row').length).to.equal(3);
+    });
 
-    expect(rateInput().prop('type')).to.equal('number');
-    expect(rateInput().prop('step')).to.equal(1);
-    expect(rateInput().prop('value')).to.equal(9);
+    const rateInput1 = container.querySelector('#fooSchedule\\.0\\.rate');
+    const rateInput2 = container.querySelector('#fooSchedule\\.1\\.rate');
+    const rateInput3 = container.querySelector('#fooSchedule\\.2\\.rate');
 
-    // Update rate to trigger high threshold
-    // Need this to actually set the field value, so can't use stub here
-    ScheduleForm.__ResetDependency__('useFormikContext');
+    fireEvent.change(rateInput1, { target: { name: 'fooSchedule.0.rate', value: 1 } });
+    fireEvent.change(rateInput2, { target: { name: 'fooSchedule.1.rate', value: 2 } });
+    fireEvent.change(rateInput3, { target: { name: 'fooSchedule.2.rate', value: 3 } });
 
-    setTimeout(() => {
-      rateInput().at(0).simulate('change', { persist: noop, target: { name: 'fooSchedule.0.rate', value: 25.4 } })
-      rateInput().at(0).simulate('blur');
-      expect(rateInput().prop('value')).to.equal(25);
+    await waitFor(() => {
+      expect(Number(container.querySelector('#fooSchedule\\.0\\.rate').value)).to.equal(1);
+      expect(Number(container.querySelector('#fooSchedule\\.1\\.rate').value)).to.equal(2);
+      expect(Number(container.querySelector('#fooSchedule\\.2\\.rate').value)).to.equal(3);
+    });
+  });
 
-      rateInput().at(0).simulate('change', { persist: noop, target: { name: 'fooSchedule.0.rate', value: 25.5 } })
-      rateInput().at(0).simulate('blur');
-      expect(rateInput().prop('value')).to.equal(26);
+  it('should round the fields prop input to the provided increment on blur', async () => {
+    const { container } = renderForm();
+    const addButton = container.querySelector('button.add-schedule');
+    fireEvent.click(addButton);
 
-      done();
+    const rateInput = container.querySelector('#fooSchedule\\.0\\.rate');
+    expect(rateInput).to.exist;
+    expect(rateInput.getAttribute('type')).to.equal('number');
+    expect(Number(rateInput.getAttribute('step'))).to.equal(1);
+    expect(Number(rateInput.value)).to.equal(9);
+
+    fireEvent.change(rateInput, { target: { name: 'fooSchedule.0.rate', value: 25.4 } });
+    fireEvent.blur(rateInput);
+    await waitFor(() => {
+      expect(Number(container.querySelector('#fooSchedule\\.0\\.rate').value)).to.equal(25);
+    });
+
+    fireEvent.change(rateInput, { target: { name: 'fooSchedule.0.rate', value: 25.5 } });
+    fireEvent.blur(rateInput);
+    await waitFor(() => {
+      expect(Number(container.querySelector('#fooSchedule\\.0\\.rate').value)).to.equal(26);
     });
   });
 });

@@ -27,7 +27,7 @@ import {
 
 import * as viz from '@tidepool/viz';
 const PumpSettingsContainer = viz.containers.PumpSettingsContainer;
-const deviceName = viz.utils.settings.deviceName;
+const { deviceName, getDeviceName } = viz.utils.settings;
 
 import Header from './header';
 import Button from '../elements/Button';
@@ -121,7 +121,8 @@ const Settings = ({
   uploadUrl,
   pdf,
   currentPatientInViewId,
-  t
+  t,
+  isSmartOnFhirMode
 }) => {
   const { location } = useHistory();
   const isJustConnected = !!location?.query?.dataConnectionStatus;
@@ -142,6 +143,7 @@ const Settings = ({
   const isClinicContext = !!selectedClinicId;
   const [showUploadOverlay, setShowUploadOverlay] = useState(false);
   const dataSources = useSelector(state => state.blip.dataSources);
+  const metaDataDevices = useSelector(state => state.blip.data?.metaData?.devices || []);
 
   const [latestUploadId, setLatestUploadId] = useState(null);
   const latestDatumFromUploadTimestamp = useLatestDatumTime(api, latestUploadId);
@@ -246,12 +248,16 @@ const Settings = ({
       const serial = group[1][0]?.deviceSerialNumber || '';
       const serialText = serial === 'Unknown' ? '' : `(Serial #: ${serial})`;
       const sourceName = deviceName(_.toLower(source));
+
+      const deviceInMetaData = metaDataDevices.find(d => d.serialNumber === serial);
+      const friendlyName = getDeviceName(deviceInMetaData || {});
+
       return {
         value: source,
         label: (
           <span>
             <span style={{ fontWeight: 'bold' }}>
-              {sourceName}
+              {friendlyName || sourceName}
             </span>
             {serial && (<>
               {' '}
@@ -748,6 +754,7 @@ const Settings = ({
           onClickBgLog={handleClickBgLog}
           onClickExport={handleClickExport}
           onClickPrint={handleClickPrint}
+          isSmartOnFhirMode={isSmartOnFhirMode}
         />
 
         <Box variant="containers.patientDataInner">
@@ -818,6 +825,7 @@ Settings.propTypes = {
   pdf: PropTypes.object,
   currentPatientInViewId: PropTypes.string.isRequired,
   t: PropTypes.func.isRequired,
+  isSmartOnFhirMode: PropTypes.bool.isRequired,
 };
 
 export default withTranslation()(Settings);

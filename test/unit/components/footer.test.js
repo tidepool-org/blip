@@ -1,20 +1,27 @@
-/* global afterEach, before, chai, describe, it, sinon */
+/* global afterEach, before, chai, describe, it, sinon, after */
 
 import React from 'react';
-import { shallow } from 'enzyme';
+import { render, fireEvent } from '@testing-library/react';
+import { Provider } from 'react-redux';
+import configureStore from 'redux-mock-store';
+import { thunk } from 'redux-thunk';
 
 import Footer from '../../../app/components/footer/';
 
 const expect = chai.expect;
+const mockStore = configureStore([thunk]);
 
 describe('Footer', () => {
-  let wrapper;
   const props = {
     trackMetric: sinon.spy(),
+    version: '1.0.0',
+    location: '/patient'
   };
 
-  before(() => {
-    wrapper = shallow(<Footer {...props} />);
+  const defaultStore = mockStore({
+    blip: {
+      smartCorrelationId: null
+    }
   });
 
   afterEach(() => {
@@ -23,33 +30,65 @@ describe('Footer', () => {
 
   describe('render', () => {
     it('should render four links', () => {
-      expect(wrapper.find('a').length).to.equal(4);
+      const { container } = render(
+        <Provider store={defaultStore}>
+          <Footer {...props} />
+        </Provider>
+      );
+      expect(container.querySelectorAll('a').length).to.equal(4);
+    });
+
+    describe('in Smart-on-FHIR mode', () => {
+      let smartOnFhirContainer;
+
+      beforeEach(() => {
+        const smartOnFhirStore = mockStore({
+          blip: {
+            smartCorrelationId: 'test-correlation-id'
+          }
+        });
+        const { container } = render(
+          <Provider store={smartOnFhirStore}>
+            <Footer {...props} />
+          </Provider>
+        );
+        smartOnFhirContainer = container;
+      });
+
+      it('should not render social media links', () => {
+        // Should not find Twitter and Facebook links
+        expect(smartOnFhirContainer.querySelector('a#twitter')).to.be.null;
+        expect(smartOnFhirContainer.querySelector('a#facebook')).to.be.null;
+      });
+
+      it('should still render version info', () => {
+        expect(smartOnFhirContainer.querySelector('.Version')).to.not.be.null;
+      });
     });
   });
 
   describe('interactions', () => {
-    const links = [{
-      id: 'twitter',
-      metric: 'Twitter',
-    }, {
-      id: 'facebook',
-      metric: 'Facebook',
-    }, {
-      id: 'support',
-      metric: 'Support',
-    }, {
-      id: 'legal',
-      metric: 'PP and TOU',
-    }];
+    const links = [
+      { id: 'twitter', metric: 'Twitter' },
+      { id: 'facebook', metric: 'Facebook' },
+      { id: 'support', metric: 'Support' },
+      { id: 'legal', metric: 'PP and TOU' }
+    ];
 
-    links.forEach((link) => {
+    for (const link of links) {
       it(`a#${link.id} should fire the trackMetric function when clicked`, () => {
-        const linkEl = wrapper.find(`#${link.id}`);
+        const { container } = render(
+          <Provider store={defaultStore}>
+            <Footer {...props} />
+          </Provider>
+        );
+        const linkEl = container.querySelector(`#${link.id}`);
+        expect(linkEl).to.not.be.null;
         expect(props.trackMetric.callCount).to.equal(0);
-        linkEl.simulate('click');
+        fireEvent.click(linkEl);
         expect(props.trackMetric.callCount).to.equal(1);
         expect(props.trackMetric.firstCall.args[0]).to.equal(`Clicked Footer ${link.metric}`);
       });
-    });
+    }
   });
 });
