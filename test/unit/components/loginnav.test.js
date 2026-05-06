@@ -6,15 +6,21 @@
 /* global after */
 
 import React from 'react';
-import { createMount } from '@material-ui/core/test-utils';
-import { createElement } from 'react';
+import { render, fireEvent } from '@testing-library/react';
 const expect = chai.expect;
 import { BrowserRouter } from 'react-router-dom';
 
+jest.mock('../../../app/keycloak', () => ({
+  keycloak: {
+    register: jest.fn(),
+    login: jest.fn(),
+  },
+}));
+
+import { keycloak } from '../../../app/keycloak';
 import LoginNav from '../../../app/components/loginnav';
 
 describe('LoginNav', function () {
-  let mount = createMount();
   it('should be exposed as a module and be of type function', function () {
     expect(LoginNav).to.be.a('function');
   });
@@ -25,48 +31,45 @@ describe('LoginNav', function () {
 
   describe('render', function () {
     it('should render without problems when required props are present', function () {
-      console.error = sinon.stub();
-
-      var elem = createElement(LoginNav, props);
-      var wrapper = createElement(BrowserRouter, null, elem);
-      var render = mount(wrapper);
-      expect(render).to.be.ok;
-      expect(console.error.callCount).to.equal(0);
+      const consoleErrorStub = sinon.stub(console, 'error');
+      try {
+        const { container } = render(
+          <BrowserRouter>
+            <LoginNav {...props} />
+          </BrowserRouter>
+        );
+        expect(container).to.be.ok;
+        expect(consoleErrorStub.callCount).to.equal(0);
+      } finally {
+        consoleErrorStub.restore();
+      }
     });
   });
 
   describe('keycloak', () => {
-    let keycloakMock = {
-      register: sinon.stub(),
-    };
     let props = {
       trackMetric: sinon.stub(),
       keycloakConfig: {
         url: 'someUrl',
         initialized: true,
       }
-    }
+    };
 
-    before(() => {
-      LoginNav.__Rewire__('keycloak', keycloakMock);
-      LoginNav.__Rewire__('win', { location: { origin: 'testOrigin' } });
-    });
-    after(() => {
-      LoginNav.__ResetDependency__('keycloak');
-      LoginNav.__ResetDependency__('win');
+    beforeEach(() => {
+      keycloak.register.mockClear();
     });
 
     it('should send users to keycloak register if keycloak is initialized', () => {
-      const wrapper = mount(
+      const { getByText } = render(
         <BrowserRouter>
           <LoginNav {...props}></LoginNav>
         </BrowserRouter>
       );
-      const link = wrapper.find('Link');
-      expect(keycloakMock.register.callCount).to.equal(0);
-      link.simulate('click');
-      expect(keycloakMock.register.callCount).to.equal(1);
-      expect(keycloakMock.register.calledWith({ redirectUri: 'testOrigin' })).to.be.true;
+
+      expect(keycloak.register.mock.calls.length).to.equal(0);
+      fireEvent.click(getByText('Sign up'));
+      expect(keycloak.register.mock.calls.length).to.equal(1);
+      expect(keycloak.register.mock.calls[0][0]).to.eql({ redirectUri: window.location.origin });
     });
   });
 });
