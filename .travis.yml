@@ -46,6 +46,6 @@ script:
 before_cache:
   # Atomic swap so the cache reflects the last successful build only,
   # preventing unbounded growth from incremental BuildKit writes.
-  - rm -rf $HOME/.buildx-cache
-  - mv $HOME/.buildx-cache-new $HOME/.buildx-cache
+  # Only swap when a new cache was actually produced; otherwise keep the existing one.
+  - if [ -d "$HOME/.buildx-cache-new" ]; then rm -rf $HOME/.buildx-cache && mv $HOME/.buildx-cache-new $HOME/.buildx-cache; fi
   - du -sh $HOME/.buildx-cache || true
