@@ -7,6 +7,8 @@ import Table from '../../../components/elements/Table';
 import { Flex, Text } from 'theme-ui';
 
 import FilterByCategory from './FilterByCategory';
+import EditPatientDialogController from './EditPatientDialogController';
+import DataConnectionsModalController from './DataConnectionsModalController';
 import PaginationControls from '../components/PaginationControls';
 
 import { setOffset, resetDeviceIssuesState } from './deviceIssuesSlice';
@@ -15,7 +17,7 @@ import useTableColumns from './useTableColumns';
 
 const LIMIT = 12;
 
-const DeviceIssues = () => {
+const DeviceIssues = ({ api, trackMetric }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
@@ -39,7 +41,7 @@ const DeviceIssues = () => {
 
   if (!data) return null;
 
-  const tableData = data?.data || [];
+  const patients = data?.data || [];
 
   return (
     <>
@@ -60,7 +62,7 @@ const DeviceIssues = () => {
         variant="condensed"
         label="deviceIssuesPatientsTable"
         columns={columns}
-        data={tableData}
+        data={patients}
         // sx={tableStyle}
         // onSort={handleSortChange}
         // order={sort?.substring(0, 1) === '+' ? 'asc' : 'desc'}
@@ -77,6 +79,16 @@ const DeviceIssues = () => {
           onOffsetChange={handleChangeOffset}
         />
       </Flex>
+
+      <EditPatientDialogController
+        api={api}
+        trackMetric={trackMetric}
+        patients={patients}
+      />
+
+      <DataConnectionsModalController
+        patients={patients}
+      />
     </>
   );
 };
