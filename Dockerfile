@@ -72,7 +72,14 @@ CMD ["npm", "run", "test"]
 
 ### Stage: Build production-ready release
 FROM base as build
-# ARGs
+USER node
+# yarn install is intentionally upstream of any per-commit ARG/ENV so its
+# layer hash depends only on the lockfile and stays cacheable across commits.
+RUN --mount=type=bind,source=package.json,target=package.json \
+    --mount=type=bind,source=yarn.lock,target=yarn.lock \
+    --mount=type=bind,source=.yarnrc.yml,target=.yarnrc.yml \
+    --mount=type=cache,target=.yarn/cache,uid=1000,gid=1000 \
+    yarn install --immutable
 ARG API_HOST
 ARG REALM_HOST
 ARG PORT=3000
@@ -82,7 +89,6 @@ ARG LAUNCHDARKLY_CLIENT_TOKEN
 ARG I18N_ENABLED=false
 ARG PENDO_ENABLED=true
 ARG TRAVIS_COMMIT
-# Set ENV from ARGs
 ENV \
   API_HOST=$API_HOST \
   REALM_HOST=$REALM_HOST \
@@ -94,12 +100,6 @@ ENV \
   PENDO_ENABLED=$PENDO_ENABLED \
   TRAVIS_COMMIT=$TRAVIS_COMMIT \
   NODE_ENV=production
-USER node
-RUN --mount=type=bind,source=package.json,target=package.json \
-    --mount=type=bind,source=yarn.lock,target=yarn.lock \
-    --mount=type=bind,source=.yarnrc.yml,target=.yarnrc.yml \
-    --mount=type=cache,target=.yarn/cache,uid=1000,gid=1000 \
-    yarn install --immutable
 COPY . .
 RUN npm run build
 
@@ -110,7 +110,8 @@ RUN apk add --no-cache git
 COPY package.json .
 COPY yarn.lock .
 COPY .yarnrc.yml .
-RUN yarn plugin import workspace-tools && yarn workspaces focus --production
+RUN --mount=type=cache,target=.yarn/cache,uid=1000,gid=1000 \
+    yarn plugin import workspace-tools && yarn workspaces focus --production
 # Copy only files needed to run the server
 COPY --from=build /app/dist dist
 COPY --from=build /app/tilt tilt
