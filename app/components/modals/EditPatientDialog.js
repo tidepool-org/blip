@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useIsFirstRender, usePrevious } from '../../core/hooks';
 import { useTranslation } from 'react-i18next';
-import { selectClinicPatient } from '../../core/selectors';
+import { selectClinicPatient, selectIsSmartOnFhirMode } from '../../core/selectors';
 import { Dialog, DialogActions, DialogContent, DialogTitle } from '../elements/Dialog';
 import { MediumTitle } from '../elements/FontStyles';
 import Button from '../elements/Button';
@@ -60,6 +60,7 @@ const EditPatientDialog = ({
 
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+  const isSmartOnFhir = useSelector(selectIsSmartOnFhirMode);
   const patientId = clinicPatient?.id;
 
   const mrnSettings = useMemo(() => clinic?.mrnSettings ?? {}, [clinic?.mrnSettings]);
@@ -108,6 +109,7 @@ const EditPatientDialog = ({
           patient={clinicPatient}
           searchDebounceMs={PATIENT_FORM_SEARCH_DEBOUNCE_MS}
           action="edit"
+          isReadOnly={isSmartOnFhir}
         />
       </DialogContent>
 
@@ -124,7 +126,7 @@ const EditPatientDialog = ({
           variant="primary"
           onClick={handleEditPatientConfirm}
           processing={updatingClinicPatient.inProgress}
-          disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema({ mrnSettings, existingMRNs }), patientFormContext?.values)}
+          disabled={isSmartOnFhir || !fieldsAreValid(keys(patientFormContext?.values), validationSchema({ mrnSettings, existingMRNs }), patientFormContext?.values)}
         >
           {t('Save Changes')}
         </Button>
