@@ -65,75 +65,97 @@ export const selectPatientSharedAccounts = createSelector([state => state.blip],
   return accounts;
 });
 
-export const selectPatient = (state) => {
-  let patient = null;
-  let permissions = null;
+export const selectPatient = createSelector(
+  [
+    state => state.blip.allUsersMap,
+    state => state.blip.currentPatientInViewId,
+    state => state.blip.permissionsOfMembersInTargetCareTeam,
+  ],
+  (allUsersMap, currentPatientInViewId, permissionsOfMembersInTargetCareTeam) => {
+    let patient = null;
+    let permissions = null;
 
-  if (state.blip.allUsersMap) {
-    if (state.blip.currentPatientInViewId) {
-      patient = get(
-        state.blip.allUsersMap,
-        state.blip.currentPatientInViewId,
-        null
-      );
-
-      permissions = get(
-        state.blip.permissionsOfMembersInTargetCareTeam,
-        state.blip.currentPatientInViewId,
-        {}
-      );
+    if (allUsersMap && currentPatientInViewId) {
+      patient = get(allUsersMap, currentPatientInViewId, null);
+      permissions = get(permissionsOfMembersInTargetCareTeam, currentPatientInViewId, {});
     }
+
+    return patient ? { ...patient, permissions } : null;
   }
+);
 
-  return patient ? { permissions, ...patient } : null;
-};
+export const selectClinicPatient = createSelector(
+  [
+    state => state.blip.allUsersMap,
+    state => state.blip.currentPatientInViewId,
+    state => state.blip.clinics,
+    state => state.blip.selectedClinicId,
+  ],
+  (allUsersMap, currentPatientInViewId, clinics, selectedClinicId) => {
+    let clinicPatient;
 
-export const selectClinicPatient = (state) => {
-  let clinicPatient;
-
-  if (state.blip.allUsersMap) {
-    if (state.blip.currentPatientInViewId) {
-      clinicPatient = get(state.blip.clinics, [state.blip.selectedClinicId, 'patients', state.blip.currentPatientInViewId]);
+    if (allUsersMap && currentPatientInViewId) {
+      clinicPatient = get(clinics, [selectedClinicId, 'patients', currentPatientInViewId]);
     }
+
+    return clinicPatient;
   }
+);
 
-  return clinicPatient;
-};
+export const selectPermsOfLoggedInUser = createSelector(
+  [
+    state => state.blip.allUsersMap,
+    state => state.blip.currentPatientInViewId,
+    state => state.blip.selectedClinicId,
+    state => state.blip.clinics,
+    state => state.blip.membershipPermissionsInOtherCareTeams,
+  ],
+  (allUsersMap, currentPatientInViewId, selectedClinicId, clinics, membershipPermissionsInOtherCareTeams) => {
+    let permsOfLoggedInUser = null;
 
-export const selectPermsOfLoggedInUser = (state) => {
-  let permsOfLoggedInUser = null;
-
-  if (state.blip.allUsersMap) {
-    if (state.blip.currentPatientInViewId) {
-      permsOfLoggedInUser = state.blip.selectedClinicId
+    if (allUsersMap && currentPatientInViewId) {
+      permsOfLoggedInUser = selectedClinicId
         ? get(
-          state.blip.clinics,
+          clinics,
           [
-            state.blip.selectedClinicId,
+            selectedClinicId,
             'patients',
-            state.blip.currentPatientInViewId,
+            currentPatientInViewId,
             'permissions',
           ],
           {}
         ) : get(
-          state.blip.membershipPermissionsInOtherCareTeams,
-          state.blip.currentPatientInViewId,
+          membershipPermissionsInOtherCareTeams,
+          currentPatientInViewId,
           {}
         );
     }
+
+    return permsOfLoggedInUser;
   }
+);
 
-  return permsOfLoggedInUser;
-};
+export const selectUser = createSelector(
+  [
+    state => state.blip.allUsersMap,
+    state => state.blip.loggedInUserId,
+  ],
+  (allUsersMap, loggedInUserId) => {
+    let user = null;
 
-export const selectUser = (state) => {
-  let user = null;
-
-  if (state.blip.allUsersMap) {
-    if (state.blip.loggedInUserId) {
-      user = state.blip.allUsersMap[state.blip.loggedInUserId];
+    if (allUsersMap && loggedInUserId) {
+      user = allUsersMap[loggedInUserId];
     }
-  }
 
-  return user;
-};
+    return user;
+  }
+);
+
+export const selectIsSmartOnFhirMode = createSelector(
+  [
+    state => state.blip.smartCorrelationId,
+  ],
+  (smartCorrelationId) => {
+    return !!smartCorrelationId;
+  }
+);
