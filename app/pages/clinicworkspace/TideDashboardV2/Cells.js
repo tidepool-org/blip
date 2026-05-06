@@ -7,12 +7,16 @@ import { utils as vizUtils } from '@tidepool/viz';
 const { bankersRound } = vizUtils.stat;
 import { MGDL_UNITS } from '../../../core/constants';
 import { push } from 'connected-react-router';
+import { Box, Flex, Text } from 'theme-ui';
+import { utils as vizUtils, colors as vizColors  } from '@tidepool/viz';
+import { colors } from '../../../themes/baseTheme';
 
 import BgSummaryCell from '../../../components/clinic/BgSummaryCell';
 import DeltaBar from '../../../components/elements/DeltaBar';
 import utils from '../../../core/utils';
 import { OVERVIEW_TAB_INDEX } from '../../../components/PatientDrawer/MenuBar/MenuBar';
 import { useFlags } from 'launchdarkly-react-client-sdk';
+import { CATEGORY } from './FilterByCategory';
 
 export const PatientCell = ({ patient }) => {
   const { t } = useTranslation();
@@ -146,6 +150,74 @@ export const ChangeTIRCell = ({ patient }) => {
   />;
 };
 
+export const FlagCell = ({ patient, category = null, }) => {
+  const { t } = useTranslation();
+  const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
+  const period = patient?.summary?.cgmStats?.periods?.[summaryPeriod];
+
+  const { VERY_LOW, ANY_LOW, DROP_IN_TIR, ANY_HIGH, VERY_HIGH, LOW_CGM_WEAR, TARGET } = CATEGORY;
+
+  if (!period) return null;
+
+  const rangeName = (() => {
+    switch(true) {
+      // Current dashboard category takes priority
+      case category === VERY_LOW: return 'veryLow';
+      case category === ANY_LOW: return 'anyLow';
+      case category === VERY_HIGH: return 'veryHigh';
+      case category === ANY_HIGH: return 'anyHigh';
+      case category === DROP_IN_TIR: return 'dropInTIR';
+      case category === LOW_CGM_WEAR: return 'lowSensorUsage';
+      case category === TARGET: return 'target';
+
+      // If no category, then read from summary
+      case period.timeInVeryLowPercent > 0.01: return 'veryLow';
+      case period.timeInAnyLowPercent > 0.04: return 'anyLow';
+      case period.timeInVeryHighPercent > 0.05: return 'veryHigh';
+      case period.timeInAnyHighPercent > 0.25: return 'anyHigh';
+      case period.timeInTargetPercentDelta < -0.15: return 'dropInTIR';
+      case period.timeCGMUsePercent < 0.70: return 'lowSensorUsage';
+
+      default: return null;
+    }
+  })();
+
+  if (!rangeName) return null;
+
+  const flagLabels = {
+    veryLow: t('Very Low'),
+    anyLow: t('Low'),
+    veryHigh: t('Very High'),
+    anyHigh: t('High'),
+    dropInTIR: t('Large Drop in TIR'),
+    lowSensorUsage: t('Low CGM Wear Time'),
+    target: t('Meeting Targets'),
+  };
+
+  const flagColor = colors.bg[rangeName] || vizColors.gold30;
+
+  return (
+    <Flex className='tide-dashboard-flag-cell' sx={{ minWidth: '120px' }}>
+      <Flex
+        className='tide-dashboard-flag'
+        px={2} py={1} sx={{
+        backgroundColor: `${flagColor}1A`, // adding '1A' reduces opacity to 0.1
+        borderRadius: 4,
+        alignItems: 'center',
+      }}>
+          <Box
+            sx={{ borderRadius: 4, backgroundColor: flagColor, width: '12px', height: '12px' }}
+            mr={2}
+          >
+          </Box>
+          <Text sx={{ fontSize: 0, color: vizColors.black, fontWeight: 'medium' }}>
+            {flagLabels[rangeName] || ''}
+          </Text>
+      </Flex>
+    </Flex>
+  );
+};
+
 export default {
   PatientCell,
   NumericTemplateCell,
@@ -155,4 +227,5 @@ export default {
   ChangeTIRCell,
   GMICell,
   CGMUseCell,
+  FlagCell,
 };

@@ -1,4 +1,5 @@
 /* global sinon */
+/* global chai */
 /* global describe */
 /* global it */
 /* global expect */
@@ -7,6 +8,8 @@
 
 import * as ActionTypes from '../../../../app/redux/constants/actionTypes';
 import launchDarklyMiddleware, { ldContext } from '../../../../app/redux/utils/launchDarklyMiddleware';
+
+const expect = chai.expect;
 
 describe('launchDarklyMiddleware', () => {
   const emptyState = {

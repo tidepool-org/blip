@@ -28,6 +28,7 @@ import Signup from './pages/signup';
 import Terms from './pages/terms';
 import UserProfile from './pages/userprofile';
 import VerificationWithPassword from './pages/verificationwithpassword';
+import SmartOnFhir from './pages/smartonfhir';
 import Gate from './components/gate';
 import UploadRedirect from './pages/uploadredirect';
 import LoggedOut from './pages/loggedout';
@@ -415,6 +416,22 @@ export const onUploaderPasswordReset = (api, cb = _.noop) => (dispatch) => {
 }
 
 /**
+ * This function handles the Smart on FHIR authentication flow
+ *
+ * @param {Object} api
+ */
+export const requireSmartOnFhir = (api, cb = _.noop) => (dispatch, getState) => {
+  const { blip: state, router: routerState } = getState();
+
+  if (!state.smartOnFhirData) {
+    dispatch(push({ ...routerState?.location, pathname: '/login' }));
+    return cb(false);
+  }
+
+  cb(true);
+}
+
+/**
  * Creates the route map with authentication associated with each route built in.
  *
  * @param  {Object} appContext
@@ -430,6 +447,7 @@ export const getRoutes = (appContext) => {
   const boundRequireAuth = requireAuth.bind(null, api);
   const boundRequireNotVerified = requireNotVerified.bind(null, api);
   const boundRequireAuthAndNoPatient = requireAuthAndNoPatient.bind(null, api);
+  const boundRequireSmartOnFhir = requireSmartOnFhir.bind(null, api);
   const boundRequireSupportedBrowser = requireSupportedBrowser.bind(null, boundRequireAuth);
   const boundRequireSupportedBrowserForUserType = requireSupportedBrowserForUserType.bind(null, api, boundRequireAuth);
   const boundEnsureNoAuth = ensureNoAuth.bind(null, api);
@@ -442,6 +460,7 @@ export const getRoutes = (appContext) => {
         <Switch>
           <Route exact path='/' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><Login {...routeProps} {...props} /></Gate>)} />
           <Route path='/login' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><Login {...routeProps} {...props} /></Gate>)} />
+          <Route path='/smart-on-fhir' render={routeProps => (<Gate onEnter={boundRequireSmartOnFhir} key={routeProps.match.path}><SmartOnFhir {...routeProps} {...props} /></Gate>)} />
           <Route path='/terms' render={routeProps => (<Terms {...routeProps} {...props} />)} />
           <Route path='/signup' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><Signup {...routeProps} {...props} /></Gate>)} />
           <Route path='/clinic-admin' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicAdmin {...routeProps} {...props} /></Gate>)} />
@@ -470,8 +489,12 @@ export const getRoutes = (appContext) => {
           <Route path='/browser-warning' render={routeProps => (<BrowserWarning {...routeProps} {...props} />)} />
           <Route path="/upload-redirect" render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><UploadRedirect {...routeProps} {...props} /></Gate>)} />
           <Route path="/logged-out" render={routeProps => (<LoggedOut {...routeProps} {...props}/>)} />
-          <Route>
-            { api.user.isAuthenticated() ? <Redirect to={authenticatedFallbackRoute} /> : <Redirect to='/login' /> }
+          <Route component={({ location }) =>
+              api.user.isAuthenticated() ? <Redirect to={authenticatedFallbackRoute} /> : <Redirect to={{
+                ...location,
+                pathname: '/login'
+             }} />
+            }>
           </Route>
         </Switch>
       </AppComponent>
