@@ -4,7 +4,7 @@ import { mountWithProviders } from '../../utils/mountWithProviders';
 import moment from 'moment-timezone';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 import keyBy from 'lodash/keyBy';
 import map from 'lodash/map';
 import merge from 'lodash/merge';

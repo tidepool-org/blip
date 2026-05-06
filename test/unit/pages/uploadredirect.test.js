@@ -4,7 +4,7 @@ import { Route, Router } from 'react-router';
 import { cleanup, render } from '@testing-library/react';
 import { createMemoryHistory } from 'history';
 import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 import UploadRedirect from '../../../app/pages/uploadredirect';
 
 /* global sinon */

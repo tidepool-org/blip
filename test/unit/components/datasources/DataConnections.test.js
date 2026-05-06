@@ -3,7 +3,7 @@ import moment from 'moment';
 import { render, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
 import { ToastProvider } from '../../../../app/providers/ToastProvider';
 import map from 'lodash/map';
