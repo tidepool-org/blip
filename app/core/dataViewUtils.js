@@ -1,4 +1,3 @@
-import _  from 'lodash';
 import { utils as vizUtils } from '@tidepool/viz';
 const { commonStats } = vizUtils.stat;
 

@@ -18,7 +18,6 @@ import min from 'lodash/min';
 import at from 'lodash/at';
 import map from 'lodash/map';
 import keys from 'lodash/keys';
-import isNil from 'lodash/isNil';
 import { useGenerateAGPImages } from '../../../../core/agpUtils';
 import { selectPatient, selectUser } from '../../../../core/selectors';
 import { DEFAULT_CGM_SAMPLE_INTERVAL, MS_IN_MIN } from '../../../../core/constants';

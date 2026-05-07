@@ -46,7 +46,7 @@ export const generateAGPImages = (resolve, reject) => async (pdf, reportTypes = 
 
     resolve(processedImages, pdf.opts || {});
   } else if (!errored) {
-    resolve(results);
+    resolve(results, pdf.opts || {});
   }
 };
 

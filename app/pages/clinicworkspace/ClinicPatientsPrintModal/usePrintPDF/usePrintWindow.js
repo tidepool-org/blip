@@ -47,7 +47,11 @@ const usePrintWindow = () => {
               sx= {{ lineHeight: 1.5, fontSize: 1 }}
               variant="textPrimary"
               onClick={() => {
-                printWindowRef.current = window.open(pdf.combined.url);
+                const printWindow = window.open(pdf.combined.url);
+
+                if (!printWindow) return;
+
+                printWindowRef.current = printWindow;
                 printWindowRef.current.focus();
                 printWindowRef.current.print();
                 setToast(null);

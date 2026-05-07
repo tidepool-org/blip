@@ -22,7 +22,7 @@ import { format } from 'd3-format';
 
 import { MGDL_UNITS, MMOLL_UNITS, MGDL_PER_MMOLL } from './constants';
 import { utils as vizUtils } from '@tidepool/viz';
-const { bankersRound, commonStats } = vizUtils.stat;
+const { bankersRound } = vizUtils.stat;
 import { getGlycemicRangesPreset } from './glycemicRangesUtils';
 
 const {

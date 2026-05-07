@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import _ from 'lodash';
 import { useSelector } from 'react-redux';
 import PrintDateRangeModal from '../../../components/PrintDateRangeModal';
 import noop from 'lodash/noop';
@@ -18,7 +17,7 @@ const LoadingModal = ({ onClose = noop }) => {
   const { t } = useTranslation();
 
   return (
-    <Dialog PaperProps={{ id: 'printDateRangePickerInner'}} maxWidth="md" open={open} onClose={onClose}>
+    <Dialog PaperProps={{ id: 'printDateRangePickerInner'}} maxWidth="md" open onClose={onClose}>
       <DialogTitle divider={true} onClose={onClose}>
         <MediumTitle>{t('Print Report')}</MediumTitle>
       </DialogTitle>
