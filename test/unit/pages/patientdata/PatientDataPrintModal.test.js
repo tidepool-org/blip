@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 
 import PatientDataPrintModal from '../../../../app/pages/patientdata/PatientDataPrintModal';
 import usePrintPDF, { STATUS } from '../../../../app/pages/clinicworkspace/ClinicPatientsPrintModal/usePrintPDF';

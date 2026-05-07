@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 
 import ClinicPatientsPrintModal from '../../../../app/pages/clinicworkspace/ClinicPatientsPrintModal/ClinicPatientsPrintModal';
 import { ToastProvider } from '../../../../app/providers/ToastProvider';

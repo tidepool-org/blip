@@ -8,7 +8,7 @@ import React from 'react';
 import { renderHook, act } from '@testing-library/react-hooks/dom';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 import moment from 'moment';
 
 import usePrintPDF, { STATUS } from '@app/pages/clinicworkspace/ClinicPatientsPrintModal/usePrintPDF/usePrintPDF';
@@ -25,7 +25,6 @@ jest.mock('@app/redux/actions', () => ({
     generatePDFRequest: jest.fn(),
   },
   async: {
-    fetchPatientLatestDatums: jest.fn(),
     fetchPatientData: jest.fn(),
     fetchPatient: jest.fn(),
   },
@@ -60,7 +59,6 @@ describe('usePrintPDF', () => {
     actions.worker.removeGeneratedPDFS.mockReturnValue({ type: 'REMOVE_GENERATED_PDFS' });
     actions.worker.dataWorkerRemoveDataRequest.mockReturnValue({ type: 'DATA_WORKER_REMOVE_DATA_REQUEST' });
     actions.worker.generatePDFRequest.mockReturnValue({ type: 'GENERATE_PDF_REQUEST' });
-    actions.async.fetchPatientLatestDatums.mockReturnValue({ type: 'FETCH_PATIENT_LATEST_DATUMS' });
     actions.async.fetchPatientData.mockReturnValue({ type: 'FETCH_PATIENT_DATA' });
     actions.async.fetchPatient.mockReturnValue({ type: 'FETCH_PATIENT' });
   });
@@ -144,7 +142,16 @@ describe('usePrintPDF', () => {
 
       expect(result.current.status).toBe(STATUS.FETCHING_MODAL_DATA);
       expect(onPrintTriggered).not.toHaveBeenCalled();
-      expect(actions.async.fetchPatientLatestDatums).toHaveBeenCalledWith(api, patientId);
+      expect(actions.async.fetchPatientData).toHaveBeenCalledWith(
+        api,
+        {
+          forceDataWorkerAddDataRequest: true,
+          initial: true,
+          returnData: false,
+          useCache: false,
+        },
+        patientId,
+    );
       expect(actions.async.fetchPatient).toHaveBeenCalledWith(api, patientId);
 
       expect(result.current.canPrint).toBe(false);
@@ -210,6 +217,54 @@ describe('usePrintPDF', () => {
       });
 
       expect(mockOpenPrintWindow).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('When print clicked but PDF data has not yet been fetched', () => {
+    it('dispatches fetchPatientData with main fetch options', () => {
+      const store = mockStore({
+        blip: {
+          data: {
+            metaData: { patientId },
+            fetchedUntil: moment.utc('2025-01-18').valueOf()
+          },
+          pdf: {},
+          allUsersMap: {
+            [patientId]: { userid: patientId, profile: {} },
+            [userId]: { userid: userId, profile: {}, roles: ['CLINIC_ADMIN'] },
+          },
+          currentPatientInViewId: patientId,
+          loggedInUserId: userId,
+          selectedClinicId: clinicId,
+          clinics: { [clinicId]: { patients: { [patientId]: { fullName: 'Test Patient' } } } },
+        },
+      });
+
+      const { result } = renderHook(
+        () => usePrintPDF(api, patientId, onPrintTriggered),
+        { wrapper: ({ children }) => <Provider store={store}>{children}</Provider> },
+      );
+
+      act(() => {
+        result.current.print({
+          basics: { disabled: false, endpoints: [moment.utc('2025-01-01').valueOf(), moment.utc('2025-01-15').valueOf()] },
+        });
+      });
+
+      expect(result.current.status).toBe(STATUS.FETCHING_PDF_DATA);
+      expect(actions.async.fetchPatientData).toHaveBeenCalledWith(
+        api,
+        expect.objectContaining({
+          initial: false,
+          returnData: false,
+          forceDataWorkerAddDataRequest: true,
+          useCache: false,
+          startDate: '2025-01-01T00:00:00.000Z',
+          endDate: '2025-01-17T23:59:59.999Z',
+          sampleIntervalMinimum: 300000,
+        }),
+        patientId,
+      );
     });
   });
 
