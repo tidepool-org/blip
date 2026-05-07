@@ -64,7 +64,7 @@ const config = {
       },
     ],
   },
-  maxWorkers: '50%',
+  maxWorkers: process.env.CI ? 2 : '50%',
   workerIdleMemoryLimit: '512MB',
   transformIgnorePatterns: [
     // This pattern ensures that @swc/jest transforms @tidepool/viz and all other dependencies.
