@@ -3,7 +3,7 @@ import { ThemeProvider } from '@emotion/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 
 import baseTheme from '../app/themes/baseTheme';
 import { SmartOnFhir } from '../app/pages/smartonfhir/smartonfhir';

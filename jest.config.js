@@ -1,9 +1,10 @@
 /** @type {import('jest').Config} */
 const config = {
-  testEnvironment: 'jsdom',
+  testEnvironment: 'jest-fixed-jsdom',
   roots: ['<rootDir>/__tests__', '<rootDir>/test'],
   moduleNameMapper: {
     '^@app/(.*)$': '<rootDir>/app/$1',
+    '^@tests/(.*)': '<rootDir>/__tests__/$1',
     '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$':
       '<rootDir>/__mocks__/fileMock.js',
     '\\.(css|less)$': '<rootDir>/__mocks__/styleMock.js',
@@ -73,7 +74,7 @@ const config = {
     // In the event that a `Jest failed to parse a file` error is encountered and it is a
     // node_module, the module name can be added here to ensure pre-processing by @swc/jest.
 
-    'node_modules/(?!(.*\\.mjs$|@tidepool/viz|internmap|react-markdown|vfile|unist-util-stringify-position|unified|bail|is-plain-obj|trough|remark-parse|mdast-util-from-markdown|mdast-util-to-string|mdast-util-to-hast|micromark|decode-named-character-reference|remark-rehype|unist-util-position|trim-lines|unist-util-visit|unist-util-is|unist-util-generated|mdast-util-definitions|property-information|hast-util-whitespace|space-separated-tokens|comma-separated-tokens|@octokit|universal-user-agent|before-after-hook|sinon|cheerio|tideline|crypto-hash|reductio|keycloak-js))',
+    'node_modules/(?!(.*\\.mjs$|@tidepool/viz|internmap|react-markdown|vfile|unist-util-stringify-position|unified|bail|is-plain-obj|trough|remark-parse|mdast-util-from-markdown|mdast-util-to-string|mdast-util-to-hast|micromark|decode-named-character-reference|remark-rehype|unist-util-position|trim-lines|unist-util-visit|unist-util-is|unist-util-generated|mdast-util-definitions|property-information|hast-util-whitespace|space-separated-tokens|comma-separated-tokens|@octokit|universal-user-agent|before-after-hook|sinon|cheerio|tideline|crypto-hash|reductio|keycloak-js|character-entities|until-async|uuid))',
   ],
 };
 

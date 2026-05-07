@@ -24,6 +24,10 @@ global.__PROD__ = false;
 global.__I18N_ENABLED__ = 'false';
 global.__DEV_TOOLS__ = false;
 
+window.config = {
+  API_HOST: 'http://app.tidepool.test', // For MSW testing
+};
+
 if (!global.URL) {
 	global.URL = require('url').URL;
 }

@@ -11,7 +11,7 @@ import { render, screen } from '@testing-library/react';
 import _ from 'lodash';
 import { Provider } from 'react-redux'
 import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 
 import Gate from '../../../app/components/gate';
 

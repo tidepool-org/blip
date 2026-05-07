@@ -19,7 +19,7 @@ import i18next from '../../../../app/core/language';
 import api from '../../../../app/core/api';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 import moment from 'moment-timezone';
 
 import { ToastProvider } from '../../../../app/providers/ToastProvider.js';
