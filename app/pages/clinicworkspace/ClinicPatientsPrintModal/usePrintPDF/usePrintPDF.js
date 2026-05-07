@@ -72,6 +72,13 @@ const inferLastCompletedStep = (requestId, patientId, data, patient, pdf, hasCli
   return STATUS.FETCHING_MODAL_DATA;
 };
 
+const getInitialFetchOpts = () => ({
+  initial: true,
+  forceDataWorkerAddDataRequest: true,
+  returnData: false,
+  useCache: false,
+});
+
 const getMainFetchOpts = (timePrefs, opts, fetchedUntil) => {
   const enabledOpts = filter(opts, { disabled: false });
   const earliestPrintDate = min(at(enabledOpts, map(keys(enabledOpts), key => `${key}.endpoints.0`)));
@@ -167,7 +174,8 @@ const usePrintPDF = (
         break;
 
       case STATUS.FETCHING_MODAL_DATA:
-        dispatch(actions.async.fetchPatientLatestDatums(api, patientId));
+        const initialFetchOpts = getInitialFetchOpts();
+        dispatch(actions.async.fetchPatientData(api, initialFetchOpts, patientId));
         dispatch(actions.async.fetchPatient(api, patientId));
         break;
 
