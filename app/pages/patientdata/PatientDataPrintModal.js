@@ -3,7 +3,6 @@ import _ from 'lodash';
 import { useSelector, useDispatch } from 'react-redux';
 import PrintDateRangeModal from '../../components/PrintDateRangeModal';
 import noop from 'lodash/noop';
-import { components as vizComponents } from '@tidepool/viz';
 import { getMostRecentDatumTimeByChartType } from '../../core/dataViewUtils';
 import * as actions from '../../redux/actions';
 

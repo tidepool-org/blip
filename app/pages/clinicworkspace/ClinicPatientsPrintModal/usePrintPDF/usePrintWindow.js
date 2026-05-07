@@ -15,7 +15,7 @@ const usePrintWindow = () => {
   const openPrintWindow = () => {
     if (!printWindowRef.current || printWindowRef.current?.closed) {
       printWindowRef.current = window.open();
-      printWindowRef.current.document.write(waitHTML);
+      printWindowRef.current?.document?.write(waitHTML);
     }
   };
 
