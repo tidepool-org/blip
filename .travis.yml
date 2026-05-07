@@ -30,7 +30,17 @@ script:
       --target test \
       --cache-from blip-test \
       -t blip-test .
-  - docker run --rm blip-test npm run test
+  # DIAGNOSTIC: print CPU counts as the container
+  # sees them, then run jest with --runInBand 
+  - |
+    docker run --rm blip-test sh -c '
+      echo "--- CPU detection ---"
+      echo "nproc: $(nproc)"
+      echo "/proc/cpuinfo processors: $(grep -c ^processor /proc/cpuinfo)"
+      node -e "console.log(\"os.cpus():\", require(\"os\").cpus().length)"
+      echo "---------------------"
+      npm run lint && TZ=UTC NODE_ENV=test yarn jest --verbose --runInBand
+    '
   # Pre-build the production image with the same args artifact.sh will
   # use. This populates the daemon's BuildKit content cache so
   # artifact.sh's docker build hits cache for every layer (effectively
