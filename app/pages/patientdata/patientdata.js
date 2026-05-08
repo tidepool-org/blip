@@ -34,6 +34,7 @@ import { utils as vizUtils, components as vizComponents } from '@tidepool/viz';
 
 import personUtils from '../../core/personutils';
 import utils from '../../core/utils';
+import { getMostRecentDatumTimeByChartType, getStatsByChartType } from '../../core/dataViewUtils';
 import { header as Header } from '../../components/chart';
 import { basics as Basics } from '../../components/chart';
 import { daily as Daily } from '../../components/chart';
@@ -48,7 +49,6 @@ import { DesktopOnly, MobileOnly } from '../../components/mediaqueries';
 import Messages from '../../components/messages';
 import ChartDateRangeModal from '../../components/ChartDateRangeModal';
 import ChartDateModal from '../../components/ChartDateModal';
-import PrintDateRangeModal from '../../components/PrintDateRangeModal';
 import ExportModal from '../../components/ExportModal';
 import Button from '../../components/elements/Button';
 
@@ -64,6 +64,7 @@ import ShareBanner from '../../components/elements/Card/Banners/Share.png';
 import DataConnectionsBanner from '../../components/elements/Card/Banners/DataConnections.png';
 import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
 import { DATA_DONATION_CONSENT_TYPE, DEFAULT_CGM_SAMPLE_INTERVAL, DEFAULT_CGM_SAMPLE_INTERVAL_RANGE, DIABETES_TYPES, MS_IN_MIN } from '../../core/constants';
+import PatientDataPrintModal from './PatientDataPrintModal';
 const { GLYCEMIC_RANGES_PRESET } = vizUtils.constants;
 import { selectIsSmartOnFhirMode } from '../../core/selectors';
 
@@ -86,8 +87,6 @@ export const PatientDataClass = createReactClass({
     fetchingPatient: PropTypes.bool.isRequired,
     fetchingPatientData: PropTypes.bool.isRequired,
     fetchingUser: PropTypes.bool.isRequired,
-    generatePDFRequest: PropTypes.func.isRequired,
-    generatingPDF: PropTypes.object.isRequired,
     isUserPatient: PropTypes.bool.isRequired,
     messageThread: PropTypes.array,
     onCloseMessageThread: PropTypes.func.isRequired,
@@ -101,8 +100,6 @@ export const PatientDataClass = createReactClass({
     queryingData: PropTypes.object.isRequired,
     queryParams: PropTypes.object.isRequired,
     removeGeneratedPDFS: PropTypes.func.isRequired,
-    generateAGPImagesSuccess: PropTypes.func.isRequired,
-    generateAGPImagesFailure: PropTypes.func.isRequired,
     trackMetric: PropTypes.func.isRequired,
     updateBasicsSettings: PropTypes.func.isRequired,
     updatingDatum: PropTypes.object.isRequired,
@@ -178,8 +175,6 @@ export const PatientDataClass = createReactClass({
       datesDialogFetchingData: false,
       exportDialogOpen: false,
       printDialogOpen: false,
-      printDialogProcessing: false,
-      printDialogPDFOpts: null,
       createMessage: null,
       createMessageDatetime: null,
       datetimeLocation: null,
@@ -394,6 +389,7 @@ export const PatientDataClass = createReactClass({
   renderDatesDialog: function() {
     const isDaily = this.state.chartType === 'daily';
     const DatePickerComponent = isDaily ? ChartDateModal : ChartDateRangeModal;
+    const latestDatumByType = _.get(this.props.data, 'metaData.latestDatumByType');
 
     const extraProps = isDaily ? {
       id: 'chart-date-dialog',
@@ -406,7 +402,7 @@ export const PatientDataClass = createReactClass({
     return (
       <DatePickerComponent
         chartType={this.state.chartType}
-        mostRecentDatumDate={this.getMostRecentDatumTimeByChartType()}
+        mostRecentDatumDate={getMostRecentDatumTimeByChartType(latestDatumByType, this.state.chartType)}
         open={this.state.datesDialogOpen}
         onClose={this.closeDatesDialog}
         onSubmit={dates => {
@@ -463,55 +459,14 @@ export const PatientDataClass = createReactClass({
   },
 
   renderPrintDialog: function() {
+    if (!this.state.printDialogOpen) return null;
+
     return (
-      <PrintDateRangeModal
-        id="print-dialog"
-        loggedInUserId={this.props.user?.userid}
-        mostRecentDatumDates={{
-          agpBGM: this.getMostRecentDatumTimeByChartType(this.props, 'agpBGM'),
-          agpCGM: this.getMostRecentDatumTimeByChartType(this.props, 'agpCGM'),
-          basics: this.getMostRecentDatumTimeByChartType(this.props, 'basics'),
-          bgLog: this.getMostRecentDatumTimeByChartType(this.props, 'bgLog'),
-          daily: this.getMostRecentDatumTimeByChartType(this.props, 'daily'),
-        }}
-        open={this.state.printDialogOpen}
-        onClose={this.closePrintDialog}
-        onClickPrint={opts => {
-          this.setState({ printDialogProcessing: true })
-
-          // Determine the earliest startDate needed to fetch data to.
-          const enabledOpts = _.filter(opts, { disabled: false });
-          const earliestPrintDate = _.min(_.at(enabledOpts, _.map(_.keys(enabledOpts), key => `${key}.endpoints.0`)));
-          const startDate = moment.utc(earliestPrintDate).tz(getTimezoneFromTimePrefs(this.state.timePrefs)).toISOString();
-          const fetchedUntil = this.getCurrentFetchedUntilDate();
-
-          let setStateCallback = this.generatePDF;
-
-          if (startDate < fetchedUntil || !fetchedUntil) {
-            this.fetchAdditionalData({
-              returnData: false,
-              showLoading: false,
-              startDate,
-            });
-
-            // In cases where we need to fetch data via an async backend call, we need to pre-open
-            // the PDF tab ahead of time. Otherwise, it will be treated as a popup, and likely blocked.
-            if (!this.printWindowRef || this.printWindowRef.closed) {
-              const waitMessage = this.props.t('Please wait while Tidepool generates your PDF report.');
-              this.printWindowRef = window.open();
-              this.printWindowRef.document.write(`<p align="center" style="margin-top:20px;font-size:16px;font-family:sans-serif">${waitMessage}</p>`);
-            }
-
-            setStateCallback = _.noop;
-          }
-
-          this.setState({ printDialogPDFOpts: opts }, () => {
-            setStateCallback();
-          });
-        }}
-        processing={this.state.printDialogProcessing}
-        timePrefs={this.state.timePrefs}
-        trackMetric={this.props.trackMetric}
+      <PatientDataPrintModal
+        api={this.props.api}
+        patientId={this.props.currentPatientInViewId}
+        chartPrefs={this.state.chartPrefs}
+        onClose={() => this.setState({ printDialogOpen: false })}
       />
     );
   },
@@ -743,13 +698,6 @@ export const PatientDataClass = createReactClass({
     });
   },
 
-  closePrintDialog: function() {
-    this.setState({
-      printDialogOpen: false,
-      printDialogPDFOpts: null,
-    });
-  },
-
   closeMessageThread: function(){
     this.props.onCloseMessageThread();
     this.props.trackMetric('Closed Message Thread Modal');
@@ -834,165 +782,6 @@ export const PatientDataClass = createReactClass({
     return stats;
   },
 
-  generateAGPImages: async function(props = this.props, reportTypes = []) {
-    const promises = [];
-    let errored = false
-
-    await _.each(reportTypes, async reportType => {
-      let images;
-
-      try{
-        images = await vizUtils.agp.generateAGPFigureDefinitions({ ...props.pdf.data?.[reportType] });
-      } catch(e) {
-        errored = true
-        return props.generateAGPImagesFailure(e);
-      }
-
-      promises.push(..._.map(images, async (image, key) => {
-        if (_.isArray(image)) {
-          const processedArray = await Promise.all(
-            _.map(image, async (img) => {
-              return await Plotly.toImage(img, { format: 'svg' });
-            })
-          );
-          return [reportType, [key, processedArray]];
-        } else {
-          const processedValue = await Plotly.toImage(image, { format: 'svg' });
-          return [reportType, [key, processedValue]];
-        }
-      }));
-    });
-
-    const results = await Promise.all(promises);
-
-    if (results.length) {
-      const processedImages = _.reduce(results, (res, entry, i) => {
-        const processedImage = _.fromPairs(entry.slice(1));
-        res[entry[0]] = {...res[entry[0]], ...processedImage };
-        return res;
-      }, {});
-
-      props.generateAGPImagesSuccess(processedImages);
-    } else if (!errored) {
-      props.generateAGPImagesSuccess(results);
-    }
-  },
-
-  generatePDF: function(props = this.props, state = this.state) {
-    const patientSettings = _.get(props, 'patient.settings', {});
-    const printDialogPDFOpts = state.printDialogPDFOpts || {};
-    const siteChangeSource = state.updatedSiteChangeSource || _.get(props, 'patient.settings.siteChangeSource');
-    const combinedPatient = props.clinicPatient ? personUtils.combinedAccountAndClinicPatient(props.patient, props.clinicPatient) : null;
-    const sourcePatient = personUtils.isClinicianAccount(props.user) && !!combinedPatient ? combinedPatient : props.patient;
-
-    const glycemicRanges = props.clinicPatient?.glycemicRanges || GLYCEMIC_RANGES_PRESET.ADA_STANDARD;
-
-    const pdfPatient = _.assign({}, sourcePatient, {
-      settings: _.assign({}, patientSettings, { siteChangeSource }),
-    });
-
-    const commonQueries = {
-      bgPrefs: state.bgPrefs,
-      metaData: 'latestPumpUpload, bgSources, devices, matchedDevices',
-      timePrefs: state.timePrefs,
-      excludedDevices: state.chartPrefs?.excludedDevices,
-    };
-
-    const queries = {};
-
-    if (!printDialogPDFOpts.basics?.disabled) {
-      queries.basics = {
-        endpoints: printDialogPDFOpts.basics?.endpoints,
-        aggregationsByDate: 'basals, boluses, fingersticks, siteChanges',
-        bgSource: _.get(state.chartPrefs, 'basics.bgSource'),
-        stats: this.getStatsByChartType('basics'),
-        ...commonQueries,
-      };
-    }
-
-    if (!printDialogPDFOpts.bgLog?.disabled) {
-      queries.bgLog = {
-        endpoints: printDialogPDFOpts.bgLog?.endpoints,
-        aggregationsByDate: 'dataByDate',
-        stats: this.getStatsByChartType('bgLog'),
-        types: { smbg: {} },
-        bgSource: _.get(state.chartPrefs, 'bgLog.bgSource'),
-        ...commonQueries,
-      };
-    }
-
-    if (!printDialogPDFOpts.daily?.disabled) {
-      queries.daily = {
-        endpoints: printDialogPDFOpts.daily?.endpoints,
-        aggregationsByDate: 'dataByDate, statsByDate',
-        stats: this.getStatsByChartType('daily'),
-        types: {
-          basal: {},
-          bolus: {},
-          insulin: {},
-          cbg: {},
-          deviceEvent: {},
-          food: {},
-          message: {},
-          smbg: {},
-          wizard: {},
-          physicalActivity: {},
-          reportedState: {},
-        },
-        bgSource: _.get(state.chartPrefs, 'daily.bgSource'),
-        cgmSampleIntervalRange: _.get(state.chartPrefs, 'daily.cgmSampleIntervalRange'),
-        ...commonQueries,
-      };
-    }
-
-    if (!printDialogPDFOpts.agpBGM?.disabled) {
-      queries.agpBGM = {
-        endpoints: printDialogPDFOpts.agpBGM?.endpoints,
-        aggregationsByDate: 'dataByDate, statsByDate',
-        bgSource: _.get(state.chartPrefs, 'agpBGM.bgSource'),
-        stats: this.getStatsByChartType('agpBGM'),
-        types: { smbg: {} },
-        glycemicRanges,
-        ...commonQueries,
-      };
-    }
-
-    if (!printDialogPDFOpts.agpCGM?.disabled) {
-      queries.agpCGM = {
-        endpoints: printDialogPDFOpts.agpCGM?.endpoints,
-        aggregationsByDate: 'dataByDate, statsByDate',
-        bgSource: _.get(state.chartPrefs, 'agpCGM.bgSource'),
-        stats: this.getStatsByChartType('agpCGM'),
-        types: { cbg: {} },
-        glycemicRanges,
-        ...commonQueries,
-      };
-    }
-
-    if (!printDialogPDFOpts.settings?.disabled) {
-      queries.settings = {
-        ...commonQueries,
-      };
-    }
-
-    this.log('Generating PDF with', queries, printDialogPDFOpts);
-
-    window.downloadPDFDataQueries = () => {
-      console.save(queries, 'PDFDataQueries.json');
-    };
-
-    props.generatePDFRequest(
-      'combined',
-      queries,
-      {
-        ...printDialogPDFOpts,
-        patient: pdfPatient,
-      },
-      this.props.currentPatientInViewId,
-      props.pdf?.data,
-    );
-  },
-
   handleChartDateRangeUpdate: function(datetimeLocation, forceChartDataUpdate = false) {
     const isDaily = this.state.chartType === 'daily';
     const isTrends = this.state.chartType === 'trends';
@@ -1023,6 +812,12 @@ export const PatientDataClass = createReactClass({
     const fetchedUntil = this.getCurrentFetchedUntilDate();
     const newChartRangeNeedsDataFetch = moment.utc(newEndpoints[0]).subtract(nextDays, 'days').startOf('day').toISOString() <= fetchedUntil;
 
+    const chartType = this.state.chartType;
+    const bgSource = _.get(this.state.chartPrefs, [chartType, 'bgSource']);
+    const isAutomatedBasalDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isAutomatedBasalDevice');
+    const isSettingsOverrideDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isSettingsOverrideDevice');
+    const deviceOpts = { isAutomatedBasalDevice, isSettingsOverrideDevice };
+
     const updateOpts = {
       showLoading: newChartRangeNeedsDataFetch || updateChartData,
       updateChartEndpoints: isTrends || updateChartData,
@@ -1030,7 +825,7 @@ export const PatientDataClass = createReactClass({
         endpoints: newEndpoints,
         nextDays,
         prevDays,
-        stats: this.getStatsByChartType(),
+        stats: getStatsByChartType(chartType, bgSource, deviceOpts),
       },
     };
 
@@ -1213,7 +1008,8 @@ export const PatientDataClass = createReactClass({
     const getDatetimeLocation = d => moment.utc(d.valueOf())
       .toISOString();
 
-    const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
+    const latestDatumByType = _.get(this.props.data, 'metaData.latestDatumByType');
+    const mostRecentDatumTime = getMostRecentDatumTimeByChartType(latestDatumByType, chartType);
     const hourCeiling = getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs, 'hour');
     const datetimeLocation = getDatetimeLocation(hourCeiling);
 
@@ -1236,7 +1032,8 @@ export const PatientDataClass = createReactClass({
       .toISOString();
 
     const datetimeInteger = _.isInteger(datetime) ? datetime : Date.parse(datetime);
-    const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
+    const latestDatumByType = _.get(this.props.data, 'metaData.latestDatumByType');
+    const mostRecentDatumTime = getMostRecentDatumTimeByChartType(latestDatumByType, chartType);
     const dateCeiling = getLocalizedCeiling(_.min([datetimeInteger, mostRecentDatumTime]), this.state.timePrefs);
     const datetimeLocation = getDatetimeLocation(dateCeiling);
 
@@ -1258,7 +1055,8 @@ export const PatientDataClass = createReactClass({
     const getDatetimeLocation = d => moment.utc(d.valueOf())
       .toISOString();
 
-    const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
+    const latestDatumByType = _.get(this.props.data, 'metaData.latestDatumByType');
+    const mostRecentDatumTime = getMostRecentDatumTimeByChartType(latestDatumByType, chartType);
     const hourCeiling = getLocalizedCeiling(_.min([Date.parse(datetime), mostRecentDatumTime]), this.state.timePrefs, 'hour');
     const datetimeLocation = getDatetimeLocation(hourCeiling);
 
@@ -1286,7 +1084,8 @@ export const PatientDataClass = createReactClass({
       .subtract(12, 'hours')
       .toISOString();
 
-    const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(this.props, chartType);
+    const latestDatumByType = _.get(this.props.data, 'metaData.latestDatumByType');
+    const mostRecentDatumTime = getMostRecentDatumTimeByChartType(latestDatumByType, chartType);
     const dateCeiling = getLocalizedCeiling(_.min([Date.parse(datetime), mostRecentDatumTime]), this.state.timePrefs);
     const datetimeLocation = getDatetimeLocation(dateCeiling);
 
@@ -1409,10 +1208,16 @@ export const PatientDataClass = createReactClass({
       if (queryData) {
         this.queryData(undefined, queryOpts);
       } else if (queryStats || queryAggregations) {
+        const chartType = this.state.chartType;
+        const bgSource = _.get(this.state.chartPrefs, [chartType, 'bgSource']);
+        const isAutomatedBasalDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isAutomatedBasalDevice');
+        const isSettingsOverrideDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isSettingsOverrideDevice');
+        const deviceOpts = { isAutomatedBasalDevice, isSettingsOverrideDevice };
+
         const query = {
           bgPrefs: _.get(this.state, 'bgPrefs'),
           endpoints: this.state.endpoints,
-          stats: queryStats ? this.getStatsByChartType() : undefined,
+          stats: queryStats ? getStatsByChartType(chartType, bgSource, deviceOpts) : undefined,
           aggregationsByDate: queryAggregations ? this.getAggregationsByChartType() : undefined,
         };
 
@@ -1495,87 +1300,6 @@ export const PatientDataClass = createReactClass({
     return aggregations;
   },
 
-  getStatsByChartType: function(chartType = this.state.chartType, bgSource) {
-    const currentBgSource = bgSource || _.get(this.state.chartPrefs, [chartType, 'bgSource']);
-    const cbgSelected =  currentBgSource === 'cbg';
-    const smbgSelected = currentBgSource === 'smbg';
-    const isAutomatedBasalDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isAutomatedBasalDevice');
-    const isSettingsOverrideDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isSettingsOverrideDevice');
-
-    let stats = [];
-
-    switch (chartType) {
-      case 'basics':
-        cbgSelected && stats.push(commonStats.timeInRange);
-        smbgSelected && stats.push(commonStats.readingsInRange);
-        stats.push(commonStats.averageGlucose);
-        cbgSelected && stats.push(commonStats.sensorUsage);
-        stats.push(commonStats.totalInsulin);
-        isAutomatedBasalDevice && stats.push(commonStats.timeInAuto);
-        isSettingsOverrideDevice && stats.push(commonStats.timeInOverride);
-        stats.push(commonStats.carbs);
-        stats.push(commonStats.averageDailyDose);
-        cbgSelected && stats.push(commonStats.glucoseManagementIndicator);
-        stats.push(commonStats.standardDev);
-        stats.push(commonStats.coefficientOfVariation);
-        stats.push(commonStats.bgExtents);
-        break;
-
-      case 'daily':
-        cbgSelected && stats.push(commonStats.timeInRange);
-        smbgSelected && stats.push(commonStats.readingsInRange);
-        stats.push(commonStats.averageGlucose);
-        stats.push(commonStats.totalInsulin);
-        isAutomatedBasalDevice && stats.push(commonStats.timeInAuto);
-        isSettingsOverrideDevice && stats.push(commonStats.timeInOverride);
-        stats.push(commonStats.carbs);
-        cbgSelected && stats.push(commonStats.standardDev);
-        cbgSelected && stats.push(commonStats.coefficientOfVariation);
-        break;
-
-      case 'bgLog':
-        stats.push(commonStats.readingsInRange);
-        stats.push(commonStats.averageGlucose);
-        stats.push(commonStats.standardDev);
-        stats.push(commonStats.coefficientOfVariation);
-        break;
-
-      case 'agpBGM':
-        stats.push(commonStats.averageGlucose,);
-        stats.push(commonStats.bgExtents,);
-        stats.push(commonStats.coefficientOfVariation,);
-        stats.push(commonStats.glucoseManagementIndicator,);
-        stats.push(commonStats.readingsInRange,);
-        break;
-
-      case 'agpCGM':
-        stats.push(commonStats.averageGlucose);
-        stats.push(commonStats.bgExtents);
-        stats.push(commonStats.coefficientOfVariation);
-        stats.push(commonStats.glucoseManagementIndicator);
-        stats.push(commonStats.sensorUsage);
-        stats.push(commonStats.timeInRange);
-        break;
-
-      case 'trends':
-        cbgSelected && stats.push(commonStats.timeInRange);
-        smbgSelected && stats.push(commonStats.readingsInRange);
-        stats.push(commonStats.averageGlucose);
-        cbgSelected && stats.push(commonStats.sensorUsage);
-        stats.push(commonStats.totalInsulin);
-        stats.push(commonStats.averageDailyDose);
-        isAutomatedBasalDevice && stats.push(commonStats.timeInAuto);
-        isSettingsOverrideDevice && stats.push(commonStats.timeInOverride);
-        cbgSelected && stats.push(commonStats.glucoseManagementIndicator);
-        stats.push(commonStats.standardDev);
-        stats.push(commonStats.coefficientOfVariation);
-        stats.push(commonStats.bgExtents);
-        break;
-    }
-
-    return stats;
-  },
-
   getDaysByType: function() {
     const days = {};
 
@@ -1598,71 +1322,6 @@ export const PatientDataClass = createReactClass({
     }
 
     return days;
-  },
-
-  getMostRecentDatumTimeByChartType: function(props = this.props, chartType = this.state.chartType) {
-    let latestDatums;
-    const getLatestDatums = types => _.pick(_.get(props.data, 'metaData.latestDatumByType'), types);
-
-    switch (chartType) {
-      case 'basics':
-        latestDatums = getLatestDatums([
-          'basal',
-          'bolus',
-          'cbg',
-          'deviceEvent',
-          'smbg',
-          'wizard',
-        ]);
-        break
-
-      case 'daily':
-        latestDatums = getLatestDatums([
-          'basal',
-          'bolus',
-          'insulin',
-          'cbg',
-          'deviceEvent',
-          'food',
-          'message',
-          'smbg',
-          'wizard',
-          'reportedState',
-          'physicalActivity',
-        ]);
-        break;
-
-      case 'bgLog':
-        latestDatums = getLatestDatums([
-          'smbg',
-        ]);
-        break;
-
-      case 'agpBGM':
-        latestDatums = getLatestDatums([
-          'smbg',
-        ]);
-        break;
-
-      case 'agpCGM':
-        latestDatums = getLatestDatums([
-          'cbg',
-        ]);
-        break;
-
-      case 'trends':
-        latestDatums = getLatestDatums([
-          'cbg',
-          'smbg',
-        ]);
-        break;
-
-      default:
-        latestDatums = [];
-        break;
-    }
-
-    return _.max(_.map(latestDatums, d => (d.normalEnd || d.normalTime)));
   },
 
   getCopyAsTextMetadata: function () {
@@ -1932,85 +1591,11 @@ export const PatientDataClass = createReactClass({
         // New data has been added. Let's query it to update the chart.
         this.queryData(null, queryOpts);
 
-        // If new data was fetched to support requested PDF dates, kick off pdf generation.
-        if (this.state.printDialogPDFOpts) {
-          this.generatePDF(nextProps);
-        }
-
         // If new data was fetched to support new chart dates,
         // close the and reset the chart date dialog.
         if (this.state.datesDialogFetchingData) {
           this.closeDatesDialog();
         }
-      }
-
-      const needsAgpBGMImagesGenerated = this.props.pdf?.opts?.agpBGM?.disabled === undefined && nextProps.pdf?.opts?.agpBGM?.disabled === false && !_.isObject(nextProps.pdf.images);
-      const needsAgpCGMImagesGenerated = this.props.pdf?.opts?.agpCGM?.disabled === undefined && nextProps.pdf?.opts?.agpCGM?.disabled === false && !_.isObject(nextProps.pdf.images);
-      const agpImagesGenerated = !_.isObject(this.props.pdf.opts?.svgDataURLS) && _.isObject(nextProps.pdf.opts?.svgDataURLS);
-
-      if (needsAgpBGMImagesGenerated || needsAgpCGMImagesGenerated ) {
-        const reportTypes = [];
-        needsAgpBGMImagesGenerated && reportTypes.push('agpBGM');
-        needsAgpCGMImagesGenerated && reportTypes.push('agpCGM');
-        this.generateAGPImages(nextProps, reportTypes);
-      } else if (agpImagesGenerated) {
-        this.generatePDF(nextProps, {
-          ...this.state,
-          printDialogPDFOpts: nextProps.pdf.opts,
-        });
-      }
-    }
-  },
-
-  UNSAFE_componentWillUpdate: function (nextProps, nextState) {
-    const pdfGenerated = _.isObject(_.get(nextProps, 'pdf.combined'));
-    const pdfGenerationFailed = _.get(nextProps, 'generatingPDF.notification.type') === 'error';
-
-    if (nextState.printDialogProcessing && pdfGenerated) {
-      this.setState({ printDialogProcessing: false });
-
-      if (nextState.printDialogOpen && !pdfGenerationFailed) {
-        this.closePrintDialog();
-      }
-
-      if (nextProps.pdf.combined.url) {
-        if (this.printWindowRef && !this.printWindowRef.closed) {
-          // If we already have a ref to a PDF window, (re)use it
-          this.printWindowRef.location.href = nextProps.pdf.combined.url;
-        } else {
-          // Otherwise, we create and open a new PDF window ref.
-          this.printWindowRef = window.open(nextProps.pdf.combined.url);
-        }
-
-        setTimeout(() => {
-          if (this.printWindowRef) {
-            this.printWindowRef.focus();
-            this.printWindowRef.print();
-          } else {
-            const { set: setToast } = this.context;
-
-            setToast({
-              message: this.props.t('A popup blocker is preventing your report from opening.'),
-              variant: 'warning',
-              autoHideDuration: null,
-              action: (
-                <Button
-                  p={0}
-                  sx= {{ lineHeight: 1.5, fontSize: 1 }}
-                  variant="textPrimary"
-                  onClick={() => {
-                    this.printWindowRef = window.open(nextProps.pdf.combined.url);
-                    this.printWindowRef.focus();
-                    this.printWindowRef.print();
-                    setToast(null);
-                  }}
-                >
-                  {this.props.t('Open it anyway')}
-                </Button>
-              ),
-            });
-          }
-        });
       }
     }
   },
@@ -2108,7 +1693,11 @@ export const PatientDataClass = createReactClass({
 
       const { next: nextDays, prev: prevDays } = this.getDaysByType();
 
-      chartQuery.stats = this.getStatsByChartType(this.state.chartType, options.bgSource);
+      const isAutomatedBasalDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isAutomatedBasalDevice');
+      const isSettingsOverrideDevice = _.get(this.props.data, 'metaData.latestPumpUpload.isSettingsOverrideDevice');
+      const deviceOpts = { isAutomatedBasalDevice, isSettingsOverrideDevice };
+
+      chartQuery.stats = getStatsByChartType(this.state.chartType, options.bgSource, deviceOpts);
       chartQuery.nextDays = nextDays;
       chartQuery.prevDays = prevDays;
 
@@ -2219,7 +1808,8 @@ export const PatientDataClass = createReactClass({
       const isDaily = chartType === 'daily';
       const isBgLog = chartType === 'bgLog';
 
-      const mostRecentDatumTime = this.getMostRecentDatumTimeByChartType(props, chartType);
+      const latestDatumByType = _.get(props.data, 'metaData.latestDatumByType');
+      const mostRecentDatumTime = getMostRecentDatumTimeByChartType(latestDatumByType, chartType);
       const latestDatumHourCeiling = getLocalizedCeiling(mostRecentDatumTime, this.state.timePrefs, 'hour');
 
       // If a datetime param is specified in URL, use that. Otherwise, use time of latest
@@ -2541,7 +2131,6 @@ export function mapStateToProps(state, props) {
     removingData: state.blip.working.removingData,
     updatingDatum: state.blip.working.updatingDatum,
     queryingData: state.blip.working.queryingData,
-    generatingPDF: state.blip.working.generatingPDF,
     pdf: state.blip.pdf,
     data: state.blip.data,
     selectedClinicId: state.blip.selectedClinicId,
@@ -2568,8 +2157,6 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   fetchMessageThread: actions.async.fetchMessageThread,
   generatePDFRequest: actions.worker.generatePDFRequest,
   removeGeneratedPDFS: actions.worker.removeGeneratedPDFS,
-  generateAGPImagesSuccess: actions.sync.generateAGPImagesSuccess,
-  generateAGPImagesFailure: actions.sync.generateAGPImagesFailure,
   selectClinic: actions.async.selectClinic,
   updateSettings: actions.async.updateSettings,
 }, dispatch);
@@ -2587,8 +2174,6 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     'generatePDFRequest',
     'processPatientDataRequest',
     'removeGeneratedPDFS',
-    'generateAGPImagesSuccess',
-    'generateAGPImagesFailure',
   ];
 
   return Object.assign({}, _.pick(dispatchProps, assignedDispatchProps), stateProps, {

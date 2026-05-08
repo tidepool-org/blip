@@ -25,6 +25,7 @@ import { useLocalStorage } from '../core/hooks';
 import PartialDaysTooltip from './PartialDaysTooltip';
 
 import { utils as vizUtils } from '@tidepool/viz';
+import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE } from '../core/constants';
 const {
   getLocalizedCeiling,
   getChartDateBoundFormat,
@@ -295,7 +296,11 @@ export const PrintDateRangeModal = (props) => {
       agpCGM: { endpoints: formatDateEndpoints(dates.agpCGM), disabled: !enabled.agpCGM },
       basics: { endpoints: formatBasicsDateEndpoints(dates.basics), disabled: !enabled.basics },
       bgLog: { endpoints: formatDateEndpoints(dates.bgLog), disabled: !enabled.bgLog },
-      daily: { endpoints: formatDateEndpoints(dates.daily), disabled: !enabled.daily },
+      daily: {
+        endpoints: formatDateEndpoints(dates.daily),
+        disabled: !enabled.daily,
+        cgmSampleIntervalRange: DEFAULT_CGM_SAMPLE_INTERVAL_RANGE,
+      },
       settings: { disabled: !enabled.settings },
     };
 

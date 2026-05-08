@@ -22,6 +22,9 @@ const config = {
     'd3-timer': '<rootDir>/node_modules/d3-timer/dist/d3-timer.min.js',
     'd3-voronoi': '<rootDir>/node_modules/d3-voronoi/dist/d3-voronoi.min.js',
     'd3-time-format': '<rootDir>/node_modules/d3-time-format/dist/d3-time-format.min.js',
+
+    // Path aliases
+    '.*/core/metricUtils(\\.js)?$': '<rootDir>/__mocks__/metricUtils.js',
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testMatch: [

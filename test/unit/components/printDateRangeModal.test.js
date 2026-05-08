@@ -11,6 +11,7 @@ import moment from 'moment-timezone';
 import { render, fireEvent } from '@testing-library/react';
 
 import PrintDateRangeModal from '../../../app/components/PrintDateRangeModal';
+import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE } from '../../../app/core/constants';
 
 const expect = chai.expect;
 
@@ -236,7 +237,9 @@ describe('PrintDateRangeModal', function () {
           ]
         },
         daily: {
-          disabled: false, endpoints: [
+          cgmSampleIntervalRange: DEFAULT_CGM_SAMPLE_INTERVAL_RANGE,
+          disabled: false,
+          endpoints: [
             moment.utc(Date.parse('2020-03-06T00:00:00.000Z')).subtract(30, 'days').valueOf(),
             Date.parse('2020-03-06T00:00:00.000Z'),
           ]
