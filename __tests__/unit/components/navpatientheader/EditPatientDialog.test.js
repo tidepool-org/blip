@@ -14,7 +14,7 @@ jest.mock('../../../../app/components/clinic/PatientForm', () => {
       props.onFormChange({ handleSubmit: jest.fn(), values: {} });
     }, []);
     return (
-      <div data-testid="PatientForm" data-is-read-only={props.isReadOnly ? 'true' : 'false'} data-smart-on-fhir-mode={props.smartOnFhirMode ? 'true' : 'false'}>
+      <div data-testid="PatientForm" data-disabled-fields={JSON.stringify(props.disabledFields || {})}>
         PatientForm Mock
       </div>
     );
@@ -70,7 +70,7 @@ const renderEditPatientDialog = (storeState = initialState) => {
 };
 
 describe('EditPatientDialog', () => {
-  it('sets smartOnFhirMode=true and does not disable save button when smartCorrelationId is present', () => {
+  it('locks identity fields and leaves the save button enabled when smartCorrelationId is present', () => {
     const smartOnFhirState = {
       blip: {
         ...initialState.blip,
@@ -81,18 +81,22 @@ describe('EditPatientDialog', () => {
     renderEditPatientDialog(smartOnFhirState);
 
     const patientForm = screen.getByTestId('PatientForm');
-    expect(patientForm).toHaveAttribute('data-smart-on-fhir-mode', 'true');
-    expect(patientForm).toHaveAttribute('data-is-read-only', 'false');
+    expect(JSON.parse(patientForm.getAttribute('data-disabled-fields'))).toEqual({
+      fullName: true,
+      birthDate: true,
+      mrn: true,
+      email: true,
+    });
 
     const saveButton = screen.getByRole('button', { name: 'Save Changes' });
     expect(saveButton).toBeInTheDocument();
     expect(saveButton).toBeEnabled();
   });
 
-  it('sets smartOnFhirMode=false when smartCorrelationId is absent', () => {
+  it('passes an empty disabledFields object when smartCorrelationId is absent', () => {
     renderEditPatientDialog(initialState);
 
     const patientForm = screen.getByTestId('PatientForm');
-    expect(patientForm).toHaveAttribute('data-smart-on-fhir-mode', 'false');
+    expect(JSON.parse(patientForm.getAttribute('data-disabled-fields'))).toEqual({});
   });
 });
