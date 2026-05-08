@@ -6211,9 +6211,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.56.0-web-3529-carb-edits.3":
-  version: 1.56.0-web-3529-carb-edits.3
-  resolution: "@tidepool/viz@npm:1.56.0-web-3529-carb-edits.3"
+"@tidepool/viz@npm:1.56.0-rc.1":
+  version: 1.56.0-rc.1
+  resolution: "@tidepool/viz@npm:1.56.0-rc.1"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6274,7 +6274,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 98e9474ef5b32ee5607a65bf352492ac132582b4d079a4ad9467647d6e590053b6460812a6871378926e77fab52741ea68cba499221723d554877c33419ce7dd
+  checksum: ed88791eaeec9e4b75418aae4a205dfdab21fdb48a675c6fddce8c617c42c4aea68f4b0ee8209888ab67d653bf5dd64e4bafe12548091073b3a3ff937383ef24
   languageName: node
   linkType: hard
 
@@ -8410,7 +8410,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.56.0-web-3529-carb-edits.3
+    "@tidepool/viz": 1.56.0-rc.1
     "@types/jest": 29.5.14
     async: 2.6.4
     autoprefixer: 10.4.16
@@ -8527,8 +8527,8 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.39.0-web-3529-carb-edits.2
-    tidepool-platform-client: 0.65.0-web-4390-install-rtk.2
+    tideline: 1.39.0-rc.1
+    tidepool-platform-client: 0.66.0-rc.1
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
     url-loader: 4.1.1
@@ -21759,9 +21759,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.39.0-web-3529-carb-edits.2":
-  version: 1.39.0-web-3529-carb-edits.2
-  resolution: "tideline@npm:1.39.0-web-3529-carb-edits.2"
+"tideline@npm:1.39.0-rc.1":
+  version: 1.39.0-rc.1
+  resolution: "tideline@npm:1.39.0-rc.1"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -21782,19 +21782,19 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: 25d7b8618b58c6b6b9f91c9894daa499fe405b2d525aa38ef555c12a095f78e8d1e1a6883eb82cd87539cb760954e76a72120c35df2c6d5748d2af2658229d6f
+  checksum: ef51214209d9a3a0c7e8535c93a84c0950758913eaa748b062ba9c0704aa38eca563ca94deca9ffffaedb5515d1c82888cf8e56761977b8b11f1e0c7deb11da2
   languageName: node
   linkType: hard
 
-"tidepool-platform-client@npm:0.65.0-web-4390-install-rtk.2":
-  version: 0.65.0-web-4390-install-rtk.2
-  resolution: "tidepool-platform-client@npm:0.65.0-web-4390-install-rtk.2"
+"tidepool-platform-client@npm:0.66.0-rc.1":
+  version: 0.66.0-rc.1
+  resolution: "tidepool-platform-client@npm:0.66.0-rc.1"
   dependencies:
     async: 0.9.0
     lodash: 4.17.21
     superagent: 5.2.2
     uuid: 3.1.0
-  checksum: bbd520da6db2be6c0e6839527bfb6773275fab8875640a5e2ab627e253cb9084c1af027533e866226d6092c949aa40c2fd39af0d923e0988b1b558c87d9644f1
+  checksum: 9be8111a06ffdedef8eb79dd6b0feb41d323e53b4a014cd7fa5c77d5a0bd73b3b9f8e937e4be319133b7d2d5817ae9d6c1a074a7ab5e31e8748a0e38f0b10dce
   languageName: node
   linkType: hard
 
