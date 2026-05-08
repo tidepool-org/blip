@@ -6,228 +6,247 @@
 
 import React from 'react';
 import mutationTracker from 'object-invariant-test-helper';
+import { render, fireEvent } from '@testing-library/react';
 
 var assert = chai.assert;
 var expect = chai.expect;
 
 import { Terms, mapStateToProps } from '../../../app/pages/terms';
 import config from '../../../app/config';
-import { mount } from 'enzyme';
+
+const TermsClass = Terms.WrappedComponent || Terms;
+
+const buildProps = (overrides = {}) => ({
+  authenticated: false,
+  acceptedLatestTerms: true,
+  termsAccepted: true,
+  onSubmit: sinon.stub(),
+  trackMetric: sinon.stub(),
+  t: str => str,
+  ...overrides,
+});
+
+const createInstance = (overrides = {}) => {
+  const props = { ...TermsClass.defaultProps, ...buildProps(overrides) };
+  const instance = new TermsClass(props);
+  instance.props = props;
+  instance.setState = (nextState) => {
+    const resolved = typeof nextState === 'function'
+      ? nextState(instance.state, instance.props)
+      : nextState;
+    instance.state = { ...instance.state, ...resolved };
+  };
+
+  return { instance, props };
+};
 
 describe('Terms', () => {
 
   describe('render', () => {
     it('should not console.error when required props are set', () => {
-      console.error = sinon.stub();
-      var props = {
-        authenticated: false,
-        acceptedLatestTerms: true,
-        termsAccepted: true,
-        onSubmit: sinon.stub(),
-        trackMetric: sinon.stub()
-      };
-      var termsElem = React.createElement(Terms, props);
-      var elem = mount(termsElem);
+      const consoleErrorStub = sinon.stub(console, 'error');
+      try {
+        var props = buildProps();
+        var elem = render(React.createElement(TermsClass, props));
 
-      expect(elem).to.be.ok;
-      expect(console.error.callCount).to.equal(0);
+        expect(elem.container.firstChild).to.not.be.null;
+        expect(consoleErrorStub.callCount).to.equal(0);
+      } finally {
+        consoleErrorStub.restore();
+      }
     });
   });
 
   describe('by default', function(){
-    config.LATEST_TERMS = '2015-01-00T00:00:00+10:00';
-    var elem;
+    let originalLatestTerms;
+    var instance;
 
     beforeEach(() => {
-      var props = {};
-      var termsElem = React.createElement(Terms, props);
-      elem = mount(termsElem).childAt(0);
+      originalLatestTerms = config.LATEST_TERMS;
+      config.LATEST_TERMS = '2015-01-01T00:00:00+10:00';
+      instance = createInstance().instance;
+    });
+
+    afterEach(() => {
+      config.LATEST_TERMS = originalLatestTerms;
     });
 
     it('is not agreed', () => {
-      expect(elem.state().agreed).to.equal(false);
+      expect(instance.state.agreed).to.equal(false);
     });
     it('is not agreedOnBehalf', () => {
-      expect(elem.state().agreedOnBehalf).to.equal(false);
+      expect(instance.state.agreedOnBehalf).to.equal(false);
     });
     it('age is over 18', () => {
-      expect(elem.state().ageSelected).to.equal(elem.props().ages.OF_AGE.value);
+      expect(instance.state.ageSelected).to.equal(instance.props.ages.OF_AGE.value);
     });
     it('should NOT render terms form when user has acccepted latest terms and is logged in', () => {
-      var props = { authenticated: true, termsAccepted: true, acceptedLatestTerms: true, fetchingUser: false }
-      var termsElem = React.createElement(Terms, props);
-      var elem = mount(termsElem);
+      var props = buildProps({ authenticated: true, termsAccepted: true, acceptedLatestTerms: true, fetchingUser: false });
+      const { container } = render(React.createElement(TermsClass, props));
 
-      var termsElems = elem.find('.terms-form');
+      var termsElems = container.querySelectorAll('.terms-form');
       expect(termsElems.length).to.equal(0);
     });
     it('should NOT render age confirmation nor terms acceptance form when user is not logged in', () => {
-      var props = {};
-      var elem = mount(<Terms />);
+      const { container } = render(<TermsClass {...buildProps({ authenticated: false, acceptedLatestTerms: false, termsAccepted: false })} />);
 
-      var termsElems = elem.find('.terms-form');
+      var termsElems = container.querySelectorAll('.terms-form');
       expect(termsElems.length).to.equal(0);
     });
     it('should render terms form when user has acccepted terms previously, but not the latest terms and is logged in', () => {
-      var props = { authenticated: true, termsAccepted: true, acceptedLatestTerms: false, fetchingUser: false }
-      var termsElem = React.createElement(Terms, props);
-      var elem = mount(termsElem);
+      var props = buildProps({ authenticated: true, termsAccepted: true, acceptedLatestTerms: false, fetchingUser: false });
+      const { container } = render(React.createElement(TermsClass, props));
 
-      var termsElems = elem.find('.terms-form');
+      var termsElems = container.querySelectorAll('.terms-form');
       expect(termsElems.length).to.equal(1);
     });
     it('should render updated terms notice when user has acccepted terms previously, but not the latest terms and is logged in', () => {
-      var props = { authenticated: true, termsAccepted: true, acceptedLatestTerms: false, fetchingUser: false }
-      var termsElem = React.createElement(Terms, props);
-      var elem = mount(termsElem);
+      var props = buildProps({ authenticated: true, termsAccepted: true, acceptedLatestTerms: false, fetchingUser: false });
+      const { container } = render(React.createElement(TermsClass, props));
 
-      var termsElems = elem.find('.terms-title');
+      var termsElems = container.querySelectorAll('.terms-title');
       expect(termsElems.length).to.equal(1);
     });
   });
 
   describe('age confirmation', () => {
-    var wrapper;
-    var termsElem;
+    var container;
 
     beforeEach(() => {
-      var props = {
+      var props = buildProps({
         authenticated: true,
-        trackMetric: sinon.stub()
-      };
-      wrapper = mount(React.createElement(Terms, props));
-      termsElem = wrapper.childAt(0);
+        acceptedLatestTerms: false,
+        termsAccepted: true,
+        trackMetric: sinon.stub(),
+      });
+      ({ container } = render(React.createElement(TermsClass, props)));
     });
 
     describe('flow for 18 and over login', () => {
       it('has correct behaviour', () => {
-        var overEighteen = termsElem.find('input').at(0);
-        expect(overEighteen.props().value).to.equal(termsElem.props().ages.OF_AGE.value);
+        var overEighteen = container.querySelectorAll('input')[0];
+        expect(overEighteen.value).to.equal(TermsClass.defaultProps.ages.OF_AGE.value);
         // continue
-        var ageBtn = termsElem.find('button');
-        ageBtn.simulate('click');
+        fireEvent.click(container.querySelector('button'));
 
-        var buttons = () => wrapper.find('button');
-        expect(buttons().at(0).text()).to.equal('Continue');
+        var button = container.querySelector('button');
+        expect(button.textContent).to.equal('Continue');
         // Continue button should be disabled
-        expect(buttons().at(0).props().disabled).to.equal(true);
+        expect(button.disabled).to.equal(true);
 
-        // check state
-        expect(termsElem.state().ageSelected).to.equal(termsElem.props().ages.OF_AGE.value);
-        expect(termsElem.state().agreed).to.equal(false);
+        // check state: agreed checkbox is not yet checked
+        expect(container.querySelector('#agreed').checked).to.equal(false);
 
-        var inputs = wrapper.find('input');
+        var inputs = container.querySelectorAll('input');
 
         // The inputs are the radio buttons, followed by any checkboxes
         expect(inputs.length).to.equal(4);
-        var agreed = inputs.at(3);
+        var agreed = inputs[3];
 
-        agreed.simulate('change');
+        fireEvent.click(agreed);
 
-        expect(termsElem.state().agreed).to.equal(true);
+        // check state: agreed is now checked
+        expect(agreed.checked).to.equal(true);
 
         // now we should be able to click the Continue button
-        expect(buttons().at(0).props().disabled).to.equal(false);
+        expect(container.querySelector('button').disabled).to.equal(false);
       });
     });
 
     describe('flow for between 13 and 17 years old', () => {
       it('has correct behaviour', () => {
         // select between 13 and 17
-        var thirteenToSeventeenOpt = termsElem.find('input').at(1);
-        thirteenToSeventeenOpt.simulate('change');
+        var thirteenToSeventeenOpt = container.querySelectorAll('input')[1];
+        fireEvent.click(thirteenToSeventeenOpt);
         // select Continue
-        var ageBtn = termsElem.find('button');
-        ageBtn.simulate('click');
+        fireEvent.click(container.querySelector('button'));
 
-        var buttons = () => wrapper.find('button');
-        expect(buttons().at(0).text()).to.equal('Continue');
+        var button = container.querySelector('button');
+        expect(button.textContent).to.equal('Continue');
         // Continue button should be disabled
-        expect(buttons().at(0).props().disabled).to.equal(true);
+        expect(button.disabled).to.equal(true);
 
-        // check state
-        expect(termsElem.state().ageSelected).to.equal(termsElem.props().ages.WITH_CONSENT.value);
-        expect(termsElem.state().agreed).to.equal(false);
-        expect(termsElem.state().agreedOnBehalf).to.equal(false);
+        // check state: neither agreed nor agreedOnBehalf is checked
+        expect(container.querySelector('#agreed').checked).to.equal(false);
+        expect(container.querySelector('#agreedOnBehalf').checked).to.equal(false);
 
-        var inputs = wrapper.find('input').hostNodes();
+        var inputs = container.querySelectorAll('input');
         // The inputs are the radio buttons, followed by any checkboxes
         expect(inputs.length).to.equal(5);
-        var agreed = inputs.at(3);
-        var agreedOnBehalf = inputs.at(4);
+        var agreed = inputs[3];
+        var agreedOnBehalf = inputs[4];
 
-        agreedOnBehalf.simulate('change');
-        agreed.simulate('change');
+        fireEvent.click(agreedOnBehalf);
+        fireEvent.click(agreed);
 
-        expect(termsElem.state().agreed).to.equal(true);
-        expect(termsElem.state().agreedOnBehalf).to.equal(true);
+        // check state: both agreed and agreedOnBehalf are now checked
+        expect(container.querySelector('#agreed').checked).to.equal(true);
+        expect(container.querySelector('#agreedOnBehalf').checked).to.equal(true);
 
         // now we should be able to click the button
-        expect(buttons().at(0).props().disabled).to.equal(false);
+        expect(container.querySelector('button').disabled).to.equal(false);
       });
 
       it('will not allow confirmation if both checkboxes are not selected', () => {
         // select between 13 and 17
-        var thirteenToSeventeenOpt = termsElem.find('input').at(1);
-        thirteenToSeventeenOpt.simulate('change');
+        var thirteenToSeventeenOpt = container.querySelectorAll('input')[1];
+        fireEvent.click(thirteenToSeventeenOpt);
         // select Continue
-        var ageBtn = termsElem.find('button');
-        ageBtn.simulate('click');
-        // age confirmation is now true
-        expect(termsElem.state().ageSelected).to.equal(termsElem.props().ages.WITH_CONSENT.value);
-        expect(termsElem.state().agreed).to.equal(false);
-        expect(termsElem.state().agreedOnBehalf).to.equal(false);
+        fireEvent.click(container.querySelector('button'));
 
-        var inputs = wrapper.find('input');
+        // check state: neither agreed nor agreedOnBehalf is checked
+        expect(container.querySelector('#agreed').checked).to.equal(false);
+        expect(container.querySelector('#agreedOnBehalf').checked).to.equal(false);
+
+        var inputs = container.querySelectorAll('input');
 
         expect(inputs.length).to.equal(5);
 
-        var agreed = inputs.at(3);
-        var agreedOnBehalf = inputs.at(4);
+        var agreed = inputs[3];
+        var agreedOnBehalf = inputs[4];
         // only check one
-        agreedOnBehalf.simulate('change');
+        fireEvent.click(agreedOnBehalf);
 
-        expect(termsElem.state().agreed).to.equal(false);
-        expect(termsElem.state().agreedOnBehalf).to.equal(true);
+        // check state: only agreedOnBehalf is checked
+        expect(container.querySelector('#agreed').checked).to.equal(false);
+        expect(container.querySelector('#agreedOnBehalf').checked).to.equal(true);
 
         // now we should NOT be able to click the button
-        var buttons = () => wrapper.find('button');
-        expect(buttons().at(0).text()).to.equal('Continue');
-        expect(buttons().at(0).props().disabled).to.equal(true);
+        var button = container.querySelector('button');
+        expect(button.textContent).to.equal('Continue');
+        expect(button.disabled).to.equal(true);
 
         // now switch to test the other way also
-        agreedOnBehalf.simulate('change');
-        agreed.simulate('change');
-        expect(termsElem.state().agreed).to.equal(true);
-        expect(termsElem.state().agreedOnBehalf).to.equal(false);
+        fireEvent.click(agreedOnBehalf);
+        fireEvent.click(agreed);
+
+        // check state: only agreed is checked
+        expect(container.querySelector('#agreed').checked).to.equal(true);
+        expect(container.querySelector('#agreedOnBehalf').checked).to.equal(false);
 
         // now we should STILL NOT be able to click the button
-        expect(buttons().at(0).text()).to.equal('Continue');
-        expect(buttons().at(0).props().disabled).to.equal(true);
+        expect(container.querySelector('button').textContent).to.equal('Continue');
+        expect(container.querySelector('button').disabled).to.equal(true);
       });
     });
 
     describe('flow for under 12 login flow', () => {
       it('display sorry message', () => {
         // I am 12 years old or younger.
-        var underTwelveOpt = termsElem.find('input').at(2);
+        var underTwelveOpt = container.querySelectorAll('input')[2];
 
-        underTwelveOpt.simulate('change');
-        expect(underTwelveOpt.props().value).to.equal(termsElem.props().ages.NOT_OF_AGE.value);
+        fireEvent.click(underTwelveOpt);
+        expect(underTwelveOpt.value).to.equal(TermsClass.defaultProps.ages.NOT_OF_AGE.value);
 
         // select Continue
-        var ageBtn = termsElem.find('button');
-        ageBtn.simulate('click');
+        fireEvent.click(container.querySelector('button'));
 
-        // state check
-        expect(termsElem.state().ageSelected).to.equal(termsElem.props().ages.NOT_OF_AGE.value);
-        expect(termsElem.state().agreed).to.equal(false);
+        // check state: no agreed checkbox rendered for under-12
+        expect(container.querySelector('#agreed')).to.be.null;
 
         // sorry message shown
-        var sorryMsg = termsElem.find('terms-sorry-message');
-        expect(sorryMsg).not.to.equal(null);
-        // still not accepted
-        expect(termsElem.state().agreed).to.equal(false);
+        var sorryMsg = container.querySelector('.terms-sorry-message');
+        expect(sorryMsg).to.not.equal(null);
       });
     });
   });
@@ -244,32 +263,42 @@ describe('Terms', () => {
     };
 
     const tracked = mutationTracker.trackObj(state);
-    const result = mapStateToProps({blip: state});
 
     it('should be a function', () => {
       assert.isFunction(mapStateToProps);
     });
 
     it('should not mutate the state', () => {
+      mapStateToProps({blip: state});
       expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
 
     it('result.termsAccepted should be true if valid date in allUsersMap.a1b2c3.termsAccepted, and LATEST_TERMS is null', () => {
       config.LATEST_TERMS = null;
+      const result = mapStateToProps({blip: state});
       expect(result.termsAccepted).to.be.true;
     });
 
     it('result.termsAccepted should be true if valid date in allUsersMap.a1b2c3.termsAccepted, and is later than LATEST_TERMS', () => {
       config.LATEST_TERMS = '2016-12-26T00:00:00.000Z';
+      const result = mapStateToProps({blip: state});
       expect(result.termsAccepted).to.be.true;
     });
 
     it('result.termsAccepted should be false if valid date in allUsersMap.a1b2c3.termsAccepted, and is earlier than LATEST_TERMS', () => {
       config.LATEST_TERMS = '2017-01-02T00:00:00.000Z';
+      const result = mapStateToProps({blip: state});
       expect(result.termsAccepted).to.be.true;
     });
 
+    it('result.acceptedLatestTerms should be false if termsAccepted date is earlier than LATEST_TERMS', () => {
+      config.LATEST_TERMS = '2017-01-02T00:00:00.000Z';
+      const result = mapStateToProps({blip: state});
+      expect(result.acceptedLatestTerms).to.be.false;
+    });
+
     it('should map isLoggedIn to authenticated', () => {
+      const result = mapStateToProps({blip: state});
       expect(result.authenticated).to.equal(state.isLoggedIn);
     });
   });

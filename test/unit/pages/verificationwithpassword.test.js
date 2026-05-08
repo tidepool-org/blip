@@ -5,13 +5,42 @@
 
 import React from 'react';
 import mutationTracker from 'object-invariant-test-helper';
+import { render } from '@testing-library/react';
 
 var assert = chai.assert;
 var expect = chai.expect;
 import * as errorMessages from '../../../app/redux/constants/errorMessages';
 
 import { VerificationWithPassword, mapStateToProps } from '../../../app/pages/verificationwithpassword/verificationwithpassword';
-import { mount } from 'enzyme';
+
+const VerificationWithPasswordClass = VerificationWithPassword.WrappedComponent || VerificationWithPassword;
+
+const buildProps = (overrides = {}) => ({
+  acknowledgeNotification: sinon.stub(),
+  api: {},
+  signupEmail: 'g@a.com',
+  signupKey: 'bar',
+  onSubmit: sinon.stub(),
+  trackMetric: sinon.stub(),
+  working: false,
+  t: str => str,
+  ...overrides,
+});
+
+const createInstance = (overrides = {}) => {
+  const props = buildProps(overrides);
+  const instance = new VerificationWithPasswordClass(props);
+  instance.props = props;
+  instance.setState = (nextState, callback) => {
+    const resolved = typeof nextState === 'function'
+      ? nextState(instance.state, instance.props)
+      : nextState;
+    instance.state = { ...instance.state, ...resolved };
+    if (typeof callback === 'function') callback();
+  };
+
+  return { instance, props };
+};
 
 describe('VerificationWithPassword', () => {
   it('should be a function', () => {
@@ -21,33 +50,14 @@ describe('VerificationWithPassword', () => {
   describe('render', function() {
     it('should render without warnings when all required props provided', function () {
       console.error = sinon.stub();
-
-      let props = {
-        acknowledgeNotification: sinon.stub(),
-        api: {},
-        signupEmail: 'g@a.com',
-        signupKey: 'bar',
-        onSubmit: sinon.stub(),
-        trackMetric: sinon.stub(),
-        working: false
-      };
-      let elem = React.createElement(VerificationWithPassword, props);
-      let render = mount(elem);
+      const props = buildProps();
+      render(React.createElement(VerificationWithPasswordClass, props));
       expect(console.error.callCount).to.equal(0);
     });
 
     it('should fire metric when mounted/rendered', function() {
-      let props = {
-        acknowledgeNotification: sinon.stub(),
-        api: {},
-        signupEmail: 'g@a.com',
-        signupKey: 'bar',
-        onSubmit: sinon.stub(),
-        trackMetric: sinon.stub(),
-        working: false
-      };
-      let elem = React.createElement(VerificationWithPassword, props);
-      let render = mount(elem);
+      const props = buildProps();
+      render(React.createElement(VerificationWithPasswordClass, props));
       expect(props.trackMetric.callCount).to.equal(1);
       expect(props.trackMetric.calledWith('VCA Home Verification - Screen Displayed')).to.be.true;
     });
@@ -56,17 +66,9 @@ describe('VerificationWithPassword', () => {
   describe('componentWillReceiveProps', function() {
     it('should fire a metric for birthday mismatch', () => {
       console.error = sinon.stub();
-      let props = {
-        acknowledgeNotification: sinon.stub(),
-        api: {},
-        signupEmail: 'g@a.com',
-        signupKey: 'bar',
-        onSubmit: sinon.stub(),
-        trackMetric: sinon.stub(),
-        working: false
-      };
-      let render = mount(React.createElement(VerificationWithPassword, props)).childAt(0);
-      render.instance().UNSAFE_componentWillReceiveProps({notification:{message: errorMessages.ERR_BIRTHDAY_MISMATCH}});
+      const { instance, props } = createInstance();
+      instance.componentDidMount();
+      instance.UNSAFE_componentWillReceiveProps({notification:{message: errorMessages.ERR_BIRTHDAY_MISMATCH}});
       expect(console.error.callCount).to.equal(0);
       expect(props.trackMetric.callCount).to.equal(2);
       expect(props.trackMetric.calledWith('VCA Home Verification - Screen Displayed')).to.be.true;
@@ -77,15 +79,7 @@ describe('VerificationWithPassword', () => {
   describe('initial state', () => {
     it('should return an Object that matches expectedInitialState', () => {
       console.error = sinon.stub();
-      let props = {
-        acknowledgeNotification: sinon.stub(),
-        api: {},
-        signupEmail: 'g@a.com',
-        signupKey: 'bar',
-        onSubmit: sinon.stub(),
-        trackMetric: sinon.stub(),
-        working: false
-      }
+
       let expectedInitialState = {
         loading: false,
         formValues: {},
@@ -93,10 +87,10 @@ describe('VerificationWithPassword', () => {
         notification: null
       };
 
-      let elem = React.createElement(VerificationWithPassword, props);
-      let render = mount(elem).childAt(0);
+      const { instance } = createInstance();
+      instance.UNSAFE_componentWillMount();
       expect(console.error.callCount).to.equal(0);
-      expect(render.state()).to.eql(expectedInitialState);
+      expect(instance.state).to.eql(expectedInitialState);
     });
   });
 
@@ -104,15 +98,7 @@ describe('VerificationWithPassword', () => {
   describe('handleInputChange', () => {
     it('should update formValues in state with changed value', () => {
       console.error = sinon.stub();
-      let props = {
-        acknowledgeNotification: sinon.stub(),
-        api: {},
-        signupEmail: 'g@a.com',
-        signupKey: 'bar',
-        onSubmit: sinon.stub(),
-        trackMetric: sinon.stub(),
-        working: false
-      }
+
       let expectedInitialState = {
         loading: false,
         formValues: {},
@@ -120,54 +106,44 @@ describe('VerificationWithPassword', () => {
         notification: null
       };
 
-      let elem = React.createElement(VerificationWithPassword, props);
-      let render = mount(elem).childAt(0);
+      const { instance } = createInstance();
+      instance.UNSAFE_componentWillMount();
 
-      expect(render.state()).to.eql(expectedInitialState);
+      expect(instance.state).to.eql(expectedInitialState);
 
-      render.instance().handleInputChange({name: 'password', value: 'foo'});
+      instance.handleInputChange({name: 'password', value: 'foo'});
 
-      expect(render.state().formValues.password).to.equal('foo');
+      expect(instance.state.formValues.password).to.equal('foo');
     });
   });
 
   describe('resetFormStateBeforeSubmit', () => {
-    it('should update state ith supplied formValues and empty validation errors and notification', () => {
-      console.error = sinon.stub();
-      let props = {
-        acknowledgeNotification: sinon.stub(),
-        api: {},
-        signupEmail: 'g@a.com',
-        signupKey: 'bar',
-        onSubmit: sinon.stub(),
-        trackMetric: sinon.stub(),
-        working: false,
-        inviteEmail: 'bill@ted.com'
-      }
+    it('should update state with supplied formValues and empty validation errors and notification', () => {      console.error = sinon.stub();
+
       let expectedInitialState = {
         loading: true,
         formValues: {
-          username: props.inviteEmail
+          username: 'bill@ted.com'
         },
         validationErrors: {},
         notification: null
       };
 
-      let elem = React.createElement(VerificationWithPassword, props);
-      let render = mount(elem).childAt(0);
+      const { instance } = createInstance({ inviteEmail: 'bill@ted.com' });
+      instance.UNSAFE_componentWillMount();
 
       let intermediateState = {
         validationErrors: {
           username: 'This is not valid'
         }
       };
-      render.instance().setState(intermediateState);
+      instance.setState(intermediateState);
 
-      expect(render.state().validationErrors).to.eql(intermediateState.validationErrors);
+      expect(instance.state.validationErrors).to.eql(intermediateState.validationErrors);
 
-      render.instance().resetFormStateBeforeSubmit({});
+      instance.resetFormStateBeforeSubmit({});
 
-      expect(render.state()).to.eql({
+      expect(instance.state).to.eql({
         loading: false,
         formValues: {},
         validationErrors: {},
@@ -207,38 +183,13 @@ describe('VerificationWithPassword', () => {
 
   describe('isFormDisabled', () => {
     it('should return true if fetching user', () => {
-      let props = {
-        acknowledgeNotification: sinon.stub(),
-        api: {},
-        signupEmail: 'g@a.com',
-        signupKey: 'bar',
-        onSubmit: sinon.stub(),
-        trackMetric: sinon.stub(),
-        working: false,
-        fetchingUser: true
-      }
-
-      let elem = React.createElement(VerificationWithPassword, props);
-      let render = mount(elem).childAt(0);
-
-      expect(render.instance().isFormDisabled()).to.be.true;
+      const { instance } = createInstance({ fetchingUser: true });
+      expect(instance.isFormDisabled()).to.be.true;
     });
 
     it('should return undefined otherwise', () => {
-      let props = {
-        acknowledgeNotification: sinon.stub(),
-        api: {},
-        signupEmail: 'g@a.com',
-        signupKey: 'bar',
-        onSubmit: sinon.stub(),
-        trackMetric: sinon.stub(),
-        working: false
-      }
-
-      let elem = React.createElement(VerificationWithPassword, props);
-      let render = mount(elem).childAt(0);
-
-      expect(render.instance().isFormDisabled()).to.be.undefined;
+      const { instance } = createInstance();
+      expect(instance.isFormDisabled()).to.be.undefined;
     });
 
   });

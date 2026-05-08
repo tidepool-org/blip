@@ -6,17 +6,16 @@
 import React from 'react';
 import mutationTracker from 'object-invariant-test-helper';
 import { BrowserRouter } from 'react-router-dom';
-import { mount } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 
 import { RequestPasswordReset } from '../../../../app/pages/passwordreset/request';
 import { mapStateToProps } from '../../../../app/pages/passwordreset/request';
 
 var assert = chai.assert;
-var expect = chai.expect;
 
 describe('RequestPasswordReset', function () {
   it('should be exposed as a module and be of type function', function() {
-    expect(RequestPasswordReset).to.be.a('function');
+    expect(typeof RequestPasswordReset).toEqual('function');
   });
 
   describe('render', function() {
@@ -29,8 +28,8 @@ describe('RequestPasswordReset', function () {
         trackMetric: sinon.stub(),
         working: false
       };
-      mount(<BrowserRouter><RequestPasswordReset {...props} /></BrowserRouter>);
-      expect(console.error.callCount).to.equal(0);
+      render(<BrowserRouter><RequestPasswordReset {...props} /></BrowserRouter>);
+      expect(console.error.callCount).toEqual(0);
     });
   });
 
@@ -44,12 +43,13 @@ describe('RequestPasswordReset', function () {
         trackMetric: sinon.stub(),
         working: false
       };
-      var render = mount(<BrowserRouter><RequestPasswordReset {...props} /></BrowserRouter>).find(RequestPasswordReset).childAt(0);
-      var formInputs = render.instance().formInputs();
-      expect(formInputs.length).to.equal(1);
-      expect(formInputs[0].name).to.equal('email');
-      expect(formInputs[0].label).to.equal('Email');
-      expect(formInputs[0].type).to.equal('email');
+      const { container } = render(<BrowserRouter><RequestPasswordReset {...props} /></BrowserRouter>);
+      const inputs = container.querySelectorAll('input');
+
+      expect(inputs.length).toEqual(1);
+      expect(inputs[0].name).toEqual('email');
+      expect(inputs[0].type).toEqual('email');
+      expect(screen.getByLabelText('Email')).toBeTruthy();
     });
   });
 
@@ -63,12 +63,12 @@ describe('RequestPasswordReset', function () {
         trackMetric: sinon.stub(),
         working: false
       };
-      var render = mount(<BrowserRouter><RequestPasswordReset {...props} /></BrowserRouter>).find(RequestPasswordReset).childAt(0);
-      var initialState = render.state();
-      expect(initialState.success).to.equal(false);
-      expect(Object.keys(initialState.formValues).length).to.equal(0);
-      expect(Object.keys(initialState.validationErrors).length).to.equal(0);
-      expect(initialState.notification).to.equal(null);
+      render(<BrowserRouter><RequestPasswordReset {...props} /></BrowserRouter>);
+
+      expect(screen.getByText('Forgot your password?')).toBeTruthy();
+      expect(screen.getByLabelText('Email').value).toEqual('');
+      expect(screen.queryByText('This field is required.')).toBeNull();
+      expect(screen.queryByRole('alert')).toBeNull();
     });
   });
 
@@ -83,7 +83,7 @@ describe('RequestPasswordReset', function () {
     const result = mapStateToProps({blip: state});
 
     it('should not mutate the state', () => {
-      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      expect(mutationTracker.hasMutated(tracked)).toBe(false);
     });
 
     it('should be a function', () => {
@@ -91,11 +91,11 @@ describe('RequestPasswordReset', function () {
     });
 
     it('should map working.requestingPasswordReset.notification to notification', () => {
-      expect(result.notification).to.equal(state.working.requestingPasswordReset.notification);
+      expect(result.notification).toEqual(state.working.requestingPasswordReset.notification);
     });
 
     it('should map working.requestingPasswordReset.inProgress to working', () => {
-      expect(result.working).to.equal(state.working.requestingPasswordReset.inProgress);
+      expect(result.working).toEqual(state.working.requestingPasswordReset.inProgress);
     });
 
     describe('when some state is `null`', () => {
@@ -107,7 +107,7 @@ describe('RequestPasswordReset', function () {
       const result = mapStateToProps({blip: state});
 
       it('should map working.requestingPasswordReset.notification to notification', () => {
-        expect(result.notification).to.be.null;
+        expect(result.notification).toBeNull();
       });
     });
   });
