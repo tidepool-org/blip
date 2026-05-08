@@ -10,7 +10,7 @@
 /* global context */
 
 import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 import trackingMiddleware from '../../../../app/redux/utils/trackingMiddleware';
 import moment from 'moment';
 import _ from 'lodash';
@@ -24,8 +24,10 @@ import * as UserMessages from '../../../../app/redux/constants/usrMessages';
 
 import { MMOLL_UNITS, ALL_FETCHED_DATA_TYPES, MS_IN_MIN } from '../../../../app/core/constants';
 
-// need to require() async in order to rewire utils inside
+const expect = chai.expect;
+
 const async = require('../../../../app/redux/actions/async');
+const { _win } = async;
 const sync = require('../../../../app/redux/actions/sync');
 
 describe('Actions', () => {
@@ -35,21 +37,7 @@ describe('Actions', () => {
     trackingMiddleware({ metrics: { track: trackMetric } })
   ]);
 
-  const rewiredSync = {
-    ...sync,
-    setClinicUIDetails: sinon.stub().callsFake((clinicId, uiDetails) => ({
-      type: 'SET_CLINIC_UI_DETAILS',
-      payload: { clinicId, uiDetails },
-    })),
-  };
-
-  beforeEach(() => {
-    async.__Rewire__('sync', rewiredSync);
-  });
-
   afterEach(function() {
-    async.__ResetDependency__('utils');
-    async.__ResetDependency__('sync');
     trackMetric.resetHistory();
   })
 
@@ -895,6 +883,8 @@ describe('Actions', () => {
 
         beforeEach(() => {
           creds = { username: 'bruce', password: 'wayne' };
+          clinicEHRSettings = { ehrEnabled: true };
+          clinicMRNSettings = { mrnRequired: true };
 
           setAPIData = returnData => {
             const invitesError = _.get(returnData, 'invitesError', null);
@@ -926,6 +916,113 @@ describe('Actions', () => {
               },
             };
           };
+        });
+
+        context('smart on fhir data is available', () => {
+          beforeEach(() => {
+            setAPIData({
+              clinics: [],
+              invites: [],
+              patient: { foo: 'bar' },
+              patients: [],
+            });
+          });
+
+          it('should trigger LOGIN_SUCCESS and redirect to smart-on-fhir page when clinician has correlation_id in sessionStorage', () => {
+            const originalSessionStorage = global.sessionStorage;
+            Object.defineProperty(global, 'sessionStorage', {
+              value: {
+                getItem: sinon.stub().withArgs('smart_correlation_id').returns('test-correlation-id'),
+                setItem: sinon.stub(),
+                removeItem: sinon.stub(),
+              },
+              writable: true,
+              configurable: true
+            });
+
+            setAPIData({
+              user: { userid: 27, roles: [ 'clinician' ], profile: {}, emailVerified: true },
+            });
+
+            const expectedActions = [
+              { type: 'LOGIN_REQUEST' },
+              { type: 'FETCH_USER_REQUEST' },
+              { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
+              { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+              { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 27, clinics: [] }},
+              { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
+              { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
+              { type: 'LOGIN_SUCCESS', payload: { user } },
+              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/smart-on-fhir', { selectedClinicId: null } ] } }
+            ];
+            _.each(expectedActions, (action) => {
+              expect(isTSA(action)).to.be.true;
+            });
+
+            const store = mockStore({ blip: initialState });
+
+            store.dispatch(async.login(api, creds));
+
+            const actions = store.getActions();
+
+            expect(actions).to.eql(expectedActions);
+            expect(api.user.login.calledWith(creds)).to.be.true;
+            expect(api.user.get.callCount).to.equal(1);
+            expect(trackMetric.calledWith('Logged In')).to.be.true;
+            expect(global.sessionStorage.getItem.calledWith('smart_correlation_id')).to.be.true;
+
+            global.sessionStorage = originalSessionStorage;
+          });
+
+          it('should trigger LOGIN_SUCCESS and redirect to smart-on-fhir page when legacy clinic user has correlation_id in sessionStorage', () => {
+            const originalSessionStorage = global.sessionStorage;
+            Object.defineProperty(global, 'sessionStorage', {
+              value: {
+                getItem: sinon.stub().withArgs('smart_correlation_id').returns('test-correlation-id'),
+                setItem: sinon.stub(),
+                removeItem: sinon.stub(),
+              },
+              writable: true,
+              configurable: true
+            });
+
+            setAPIData({
+              user: { userid: 27, roles: [ 'clinic' ], profile: {}, emailVerified: true },
+            });
+
+            const expectedActions = [
+              { type: 'LOGIN_REQUEST' },
+              { type: 'FETCH_USER_REQUEST' },
+              { type: 'FETCH_USER_SUCCESS', payload: { user: user } },
+              { type: 'GET_CLINICS_FOR_CLINICIAN_REQUEST' },
+              { type: 'GET_CLINICS_FOR_CLINICIAN_SUCCESS', payload: { clinicianId: 27, clinics: [] }},
+              { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
+              { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] }},
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_REQUEST' },
+              { type: 'FETCH_ASSOCIATED_ACCOUNTS_SUCCESS', payload: { patients: [] }},
+              { type: 'LOGIN_SUCCESS', payload: { user } },
+              { type: '@@router/CALL_HISTORY_METHOD', payload: { method: 'push', args: [ '/smart-on-fhir', { selectedClinicId: null } ] } }
+            ];
+            _.each(expectedActions, (action) => {
+              expect(isTSA(action)).to.be.true;
+            });
+
+            const store = mockStore({ blip: initialState });
+
+            store.dispatch(async.login(api, creds));
+
+            const actions = store.getActions();
+
+            expect(actions).to.eql(expectedActions);
+            expect(api.user.login.calledWith(creds)).to.be.true;
+            expect(api.user.get.callCount).to.equal(1);
+            expect(trackMetric.calledWith('Logged In')).to.be.true;
+            expect(global.sessionStorage.getItem.calledWith('smart_correlation_id')).to.be.true;
+
+            global.sessionStorage = originalSessionStorage;
+          });
         });
 
         context('clinician has no clinic invites or associated clinics', () => {
@@ -1965,18 +2062,21 @@ describe('Actions', () => {
     });
 
     describe('logout', () => {
-      let winMock = {
-        location: {
-          assign: sinon.stub()
-        }
-      };
+      let assignStub;
+      let savedLocation;
 
       before(() => {
-        async.__Rewire__('win', winMock);
+        assignStub = sinon.stub();
+        savedLocation = _win.location;
+        _win.location = { assign: assignStub, origin: savedLocation.origin };
       });
 
       after(() => {
-        async.__ResetDependency__('win');
+        _win.location = savedLocation;
+      });
+
+      afterEach(() => {
+        assignStub.resetHistory();
       });
 
       it('should trigger LOGOUT_SUCCESS and it should call logout once for a successful request', () => {
@@ -2034,7 +2134,7 @@ describe('Actions', () => {
         expect(actions).to.eql(expectedActions);
         expect(api.user.logout.callCount).to.equal(1);
         expect(trackMetric.calledWith('Logged Out')).to.be.true;
-        expect(winMock.location.assign.calledOnceWith('keycloakLogoutUrl')).to.be.true;
+        expect(assignStub.calledOnceWith('keycloakLogoutUrl')).to.be.true;
       });
     });
 
@@ -3693,7 +3793,7 @@ describe('Actions', () => {
 
       it('[404] should trigger FETCH_PATIENT_FAILURE and it should call error once for a failed request', () => {
         let patient = { id: 58686, name: 'Buddy Holly', age: 65 };
-        let thisInitialState = Object.assign(initialState, {loggedInUserId: 58686});
+        let thisInitialState = Object.assign({}, initialState, {loggedInUserId: 58686});
 
         let api = {
           patient: {
@@ -3722,7 +3822,7 @@ describe('Actions', () => {
       });
 
       it('[401] should trigger FETCH_PATIENT_FAILURE and it should call error once for a failed request', () => {
-        let thisInitialState = Object.assign(initialState, {
+        let thisInitialState = Object.assign({}, initialState, {
           loggedInUserId: 58686,
         });
 
@@ -3763,7 +3863,7 @@ describe('Actions', () => {
       });
 
       it('[401 clinician] should trigger FETCH_PATIENT_FAILURE and it should call error once for a failed request', () => {
-        let thisInitialState = Object.assign(initialState, {
+        let thisInitialState = Object.assign({}, initialState, {
           loggedInUserId: 58688,
         });
 
@@ -3777,7 +3877,7 @@ describe('Actions', () => {
         let err = new Error(
           ErrorMessages.ERR_FETCHING_PATIENT_CLINICIAN_UNAUTHORIZED
         );
-        err.status = 404;
+        err.status = 401;
 
         let expectedActions = [
           { type: 'FETCH_PATIENT_REQUEST' },
@@ -3888,15 +3988,6 @@ describe('Actions', () => {
       let teamNotes;
       let uploadRecord;
       let api;
-      let rollbar;
-
-      before(() => {
-        rollbar = {
-          info: sinon.stub(),
-        };
-
-        async.__Rewire__('rollbar', rollbar);
-      });
 
       beforeEach(() => {
         options = {
@@ -3933,14 +4024,6 @@ describe('Actions', () => {
             getTime: sinon.stub().callsArgWith(0, null, { data: { time: serverTime } })
           }
         };
-      });
-
-      afterEach(() => {
-        rollbar.info.resetHistory();
-      });
-
-      after(() => {
-        async.__ResetDependency__('rollbar');
       });
 
       context('data is available in cache', () => {
@@ -7386,7 +7469,7 @@ describe('Actions', () => {
         let err = new Error(
           ErrorMessages.ERR_SENDING_CLINICIAN_INVITE_UNAUTHORIZED
         );
-        err.status = 409;
+        err.status = 401;
 
         let expectedActions = [
           { type: 'SEND_CLINICIAN_INVITE_REQUEST' },
@@ -8746,14 +8829,16 @@ describe('Actions', () => {
     });
 
     describe('sendPatientDataProviderConnectRequest', () => {
+      let momentUtcStub;
+
       beforeEach(() => {
-        async.__Rewire__('moment', {
-          utc: () => ({ toISOString: () => '2022-02-02T00:00:00.000Z'})
+        momentUtcStub = sinon.stub(moment, 'utc').returns({
+          toISOString: () => '2022-02-02T00:00:00.000Z',
         });
       });
 
       afterEach(() => {
-        async.__ResetDependency__('moment');
+        momentUtcStub.restore();
       });
 
       it('should trigger SEND_PATIENT_DATA_PROVIDER_CONNECT_REQUEST_SUCCESS and it should call clinics.sendPatientDataProviderConnectRequest once for a successful request', () => {
@@ -9653,6 +9738,148 @@ describe('Actions', () => {
 
         expect(api.clinics.getClinicPatientCount.callCount).to.equal(1);
         expect(api.clinics.getClinicPatientCountSettings.callCount).to.equal(1);
+      });
+    });
+
+    describe('fetchPatients', () => {
+      let api;
+      let store;
+      let mockResults;
+
+      beforeEach(() => {
+        api = {
+          patient: {
+            getAll: sinon.stub()
+          }
+        };
+
+        store = mockStore({
+          blip: {
+            working: {
+              fetchingPatients: {
+                inProgress: false,
+                notification: null
+              }
+            }
+          }
+        });
+
+        mockResults = [
+          { patient: { userid: 'a1b2c3', name: 'Jenny' }, clinic: { id: 'clinic1' }},
+          { patient: { userid: 'd4e5f6', name: 'John' }, clinic: { id: 'clinic2' }},
+        ];
+      });
+
+      it('should dispatch FETCH_PATIENTS_REQUEST and FETCH_PATIENTS_SUCCESS when successful with MRN', () => {
+        api.patient.getAll.callsArgWith(1, null, mockResults);
+
+        const expectedActions = [
+          { type: 'FETCH_PATIENTS_REQUEST' },
+          {
+            type: 'FETCH_PATIENTS_SUCCESS',
+            payload: { results: mockResults }
+          }
+        ];
+
+        const options = { mrn: '12345' };
+        const callback = sinon.stub();
+
+        store.dispatch(async.fetchPatients(api, options, callback));
+
+        const actions = store.getActions();
+        expect(actions[0].type).to.equal(expectedActions[0].type);
+        expect(actions[1].type).to.equal(expectedActions[1].type);
+        expect(actions[1].payload).to.deep.equal(expectedActions[1].payload);
+
+        expect(api.patient.getAll.calledOnce).to.be.true;
+        expect(api.patient.getAll.calledWith(options)).to.be.true;
+        expect(callback.calledOnce).to.be.true;
+        expect(callback.calledWith(null, mockResults)).to.be.true;
+      });
+
+      it('should dispatch FETCH_PATIENTS_REQUEST and FETCH_PATIENTS_SUCCESS when successful with birthDate', () => {
+        api.patient.getAll.callsArgWith(1, null, mockResults);
+
+        const expectedActions = [
+          { type: 'FETCH_PATIENTS_REQUEST' },
+          {
+            type: 'FETCH_PATIENTS_SUCCESS',
+            payload: { results: mockResults }
+          }
+        ];
+
+        const options = { birthDate: '1990-01-01' };
+        const callback = sinon.stub();
+
+        store.dispatch(async.fetchPatients(api, options, callback));
+
+        const actions = store.getActions();
+        expect(actions[0].type).to.equal(expectedActions[0].type);
+        expect(actions[1].type).to.equal(expectedActions[1].type);
+        expect(actions[1].payload).to.deep.equal(expectedActions[1].payload);
+
+        expect(api.patient.getAll.calledOnce).to.be.true;
+        expect(api.patient.getAll.calledWith(options)).to.be.true;
+        expect(callback.calledOnce).to.be.true;
+        expect(callback.calledWith(null, mockResults)).to.be.true;
+      });
+
+      it('should dispatch FETCH_PATIENTS_REQUEST and FETCH_PATIENTS_SUCCESS when successful with both MRN and birthDate', () => {
+        api.patient.getAll.callsArgWith(1, null, mockResults);
+
+        const expectedActions = [
+          { type: 'FETCH_PATIENTS_REQUEST' },
+          {
+            type: 'FETCH_PATIENTS_SUCCESS',
+            payload: { results: mockResults }
+          }
+        ];
+
+        const options = { mrn: '12345', birthDate: '1990-01-01' };
+        const callback = sinon.stub();
+
+        store.dispatch(async.fetchPatients(api, options, callback));
+
+        const actions = store.getActions();
+        expect(actions[0].type).to.equal(expectedActions[0].type);
+        expect(actions[1].type).to.equal(expectedActions[1].type);
+        expect(actions[1].payload).to.deep.equal(expectedActions[1].payload);
+
+        expect(api.patient.getAll.calledOnce).to.be.true;
+        expect(api.patient.getAll.calledWith(options)).to.be.true;
+        expect(callback.calledOnce).to.be.true;
+        expect(callback.calledWith(null, mockResults)).to.be.true;
+      });
+
+      it('should dispatch FETCH_PATIENTS_REQUEST and FETCH_PATIENTS_FAILURE when unsuccessful', () => {
+        const err = new Error('API error');
+        api.patient.getAll.callsArgWith(1, err);
+
+        const expectedActions = [
+          { type: 'FETCH_PATIENTS_REQUEST' },
+          {
+            type: 'FETCH_PATIENTS_FAILURE',
+            error: new Error(ErrorMessages.ERR_FETCHING_PATIENTS),
+            meta: { apiError: err }
+          }
+        ];
+
+        const options = { mrn: '12345' };
+        const callback = sinon.stub();
+
+        store.dispatch(async.fetchPatients(api, options, callback));
+
+        const actions = store.getActions();
+        expect(actions[0].type).to.equal(expectedActions[0].type);
+        expect(actions[1].type).to.equal(expectedActions[1].type);
+        expect(actions[1].error).to.be.an.instanceOf(Error);
+        expect(actions[1].error.message).to.equal(ErrorMessages.ERR_FETCHING_PATIENTS);
+        expect(actions[1].meta.apiError).to.equal(err);
+
+        expect(api.patient.getAll.calledOnce).to.be.true;
+        expect(api.patient.getAll.calledWith(options)).to.be.true;
+        expect(callback.calledOnce).to.be.true;
+        expect(callback.calledWith(err)).to.be.true;
       });
     });
   });

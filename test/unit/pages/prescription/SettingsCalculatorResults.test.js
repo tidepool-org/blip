@@ -1,5 +1,5 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { render } from '@testing-library/react';
 import { Formik } from 'formik';
 
 import SettingsCalculatorResults from '../../../../app/pages/prescription/SettingsCalculatorResults';
@@ -9,11 +9,6 @@ import { MGDL_UNITS, MMOLL_UNITS } from '../../../../app/core/constants';
 /* global sinon */
 /* global describe */
 /* global it */
-/* global before */
-/* global after */
-/* global afterEach */
-/* global beforeEach */
-
 const expect = chai.expect;
 
 describe('SettingsCalculatorResults', () => {
@@ -35,39 +30,33 @@ describe('SettingsCalculatorResults', () => {
     },
   };
 
-  const createWrapper = formikContext => {
-    SettingsCalculatorResults.__Rewire__('useFormikContext', sinon.stub().returns(formikContext));
-
-    return mount((
+  const renderView = formikContext => {
+    return render(
       <Formik
         initialValues={{ ...formikContext.values }}
       >
-        <SettingsCalculatorResults t={sinon.stub()} />
+        <SettingsCalculatorResults t={value => value} />
       </Formik>
-    ));
+    );
   };
 
-  afterEach(() => {
-    SettingsCalculatorResults.__ResetDependency__('useFormikContext');
+  it('should not render anything if calculator results are missing', () => {
+    const { container } = renderView(noResultsFormikContext);
+    expect(container.textContent).to.equal('');
   });
 
-  it('should not render anything if calulator results are missing', () => {
-    const wrapper = createWrapper(noResultsFormikContext);
-    expect(wrapper.html()).to.equal('');
-  });
+  it('should render results if calculator results are present', () => {
+    const { container } = renderView(withResultsFormikContext);
+    expect(container.textContent).to.contain('Basal Rate: 0.5 U/hr');
+    expect(container.textContent).to.contain('Insulin Sensitivity: 25 mg/dL/U');
+    expect(container.textContent).to.contain('Carbohydrate Ratio: 20 g/U');
 
-  it('should render results anything if calulator results are present', () => {
-    const wrapper = createWrapper(withResultsFormikContext);
-    expect(wrapper.text()).to.contain('Basal Rate: 0.5 U/hr');
-    expect(wrapper.text()).to.contain('Insulin Sensitivity: 25 mg/dL/U');
-    expect(wrapper.text()).to.contain('Carbohydrate Ratio: 20 g/U');
-
-    const mmollWrapper = createWrapper({ values: {
+    const mmollView = renderView({ values: {
       ...withResultsFormikContext.values,
       initialSettings: { bloodGlucoseUnits: MMOLL_UNITS },
     } });
 
-    expect(mmollWrapper.text()).to.contain('Insulin Sensitivity: 25 mmol/L/U');
+    expect(mmollView.container.textContent).to.contain('Insulin Sensitivity: 25 mmol/L/U');
   });
 
 });

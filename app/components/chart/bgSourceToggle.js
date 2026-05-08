@@ -53,9 +53,9 @@ BgSourceToggle.propTypes = {
     current: PropTypes.string,
   }).isRequired,
   chartPrefs: PropTypes.shape({
-    bgLog: chartPrefsShape,
-    daily: chartPrefsShape,
-    trends: chartPrefsShape,
+    bgLog: PropTypes.shape(chartPrefsShape),
+    daily: PropTypes.shape(chartPrefsShape),
+    trends: PropTypes.shape(chartPrefsShape),
   }),
   chartType: PropTypes.string,
   onClickBgSourceToggle: PropTypes.func.isRequired,

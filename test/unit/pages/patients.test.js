@@ -7,8 +7,6 @@
 
 
 import React, { createElement } from 'react';
-import { mount } from 'enzyme';
-import { BrowserRouter } from 'react-router-dom';
 
 import mutationTracker from 'object-invariant-test-helper';
 
@@ -18,26 +16,63 @@ var expect = chai.expect;
 import { Patients } from '../../../app/pages/patients';
 import { mapStateToProps, getFetchers } from '../../../app/pages/patients';
 
+const PatientsClass = Patients.WrappedComponent || Patients;
+
+const createPatientsInstance = (overrides = {}) => {
+  const props = {
+    clearPatientInView: sinon.stub(),
+    currentPatientInViewId: null,
+    dataWorkerRemoveDataRequest: sinon.stub(),
+    fetchers: [],
+    fetchingUser: false,
+    fetchingPendingReceivedInvites: { inProgress: false, completed: null },
+    fetchingAssociatedAccounts: { inProgress: false, completed: null },
+    invites: [],
+    loading: false,
+    location: { query: {} },
+    loggedInUserId: '20',
+    onAcceptInvitation: sinon.stub(),
+    onDismissInvitation: sinon.stub(),
+    onHideWelcomeSetup: sinon.stub(),
+    onRemovePatient: sinon.stub(),
+    patients: [],
+    selectedClinicId: null,
+    selectClinic: sinon.stub(),
+    showWelcomeMessage: sinon.stub(),
+    showingWelcomeMessage: null,
+    trackMetric: sinon.stub(),
+    uploadUrl: '/upload',
+    user: { userid: '20' },
+    history: { push: sinon.stub() },
+    t: str => str,
+    ...overrides,
+  };
+
+  const instance = new PatientsClass(props);
+  instance.props = props;
+  instance.setState = (nextState, callback) => {
+    const resolved = typeof nextState === 'function'
+      ? nextState(instance.state, instance.props)
+      : nextState;
+    instance.state = { ...instance.state, ...resolved };
+    if (typeof callback === 'function') {
+      callback.call(instance);
+    }
+  };
+
+  return { instance, props };
+};
+
 describe('Patients', () => {
   it('should be exposed as a module and be of type function', () => {
     expect(Patients).to.be.a('function');
   });
 
-  let props = {
-    clearPatientInView: sinon.stub(),
-    dataWorkerRemoveDataRequest: sinon.stub(),
-  };
-
-  let wrapper;
+  let props;
+  let instance;
   beforeEach(() => {
-    wrapper = mount(
-      createElement(
-        props => (
-          <BrowserRouter>
-            <Patients {...props} />
-          </BrowserRouter>
-        ), props )
-    );
+    ({ instance, props } = createPatientsInstance());
+    instance.UNSAFE_componentWillMount();
   });
 
   afterEach(() => {
@@ -57,12 +92,7 @@ describe('Patients', () => {
 
   describe('componentWillReceiveProps', () => {
     it('should not redirect to patient data when justLogged query param is set and only one patient if invites present', () => {
-      var props = {
-        dataWorkerRemoveDataRequest: sinon.stub(),
-      };
-
-      wrapper.setProps(props);
-      var render = wrapper.find(Patients).childAt(0);
+      const { instance } = createPatientsInstance();
 
       var nextProps = Object.assign({}, props, {
         invites: [1],
@@ -76,16 +106,12 @@ describe('Patients', () => {
         showingWelcomeMessage: null
       });
 
-      render.instance().UNSAFE_componentWillReceiveProps(nextProps);
+      instance.UNSAFE_componentWillReceiveProps(nextProps);
       expect(window.location.pathname).to.not.equal('/patients/1/data');
     });
 
     it('should not redirect to patient data when justLogged query param is set and more than one patient available', () => {
-      var props = {
-        dataWorkerRemoveDataRequest: sinon.stub(),
-      };
-      wrapper.setProps(props);
-      var render = wrapper.find(Patients).childAt(0);
+      const { instance } = createPatientsInstance();
       var currentPath = window.location.pathname;
       var nextProps = Object.assign({}, props, {
         loading: false,
@@ -98,17 +124,14 @@ describe('Patients', () => {
         showingWelcomeMessage: null
       });
 
-      render.instance().UNSAFE_componentWillReceiveProps(nextProps);
+      instance.UNSAFE_componentWillReceiveProps(nextProps);
       expect(window.location.pathname).to.equal(currentPath);
     });
 
     it('should not redirect to patient data when justLogged query param is set and zero patients available', () => {
-      var props = {
-        dataWorkerRemoveDataRequest: sinon.stub(),
+      const { instance, props } = createPatientsInstance({
         showWelcomeMessage: sinon.stub(),
-      };
-      wrapper.setProps(props);
-      var render = wrapper.find(Patients).childAt(0);
+      });
       var currentPath = window.location.pathname;
       var nextProps = Object.assign({}, props, {
           loading: false,
@@ -122,18 +145,14 @@ describe('Patients', () => {
           showingWelcomeMessage: null
       });
 
-      render.instance().UNSAFE_componentWillReceiveProps(nextProps);
+      instance.UNSAFE_componentWillReceiveProps(nextProps);
       expect(window.location.pathname).to.equal(currentPath);
     });
 
     it('should trigger showWelcomeMessage to patient data when justLogged query param is set and zero patients and zero invites available', () => {
-      var props = {
-        dataWorkerRemoveDataRequest: sinon.stub(),
+      const { instance, props } = createPatientsInstance({
         showWelcomeMessage: sinon.stub(),
-      };
-      wrapper.setProps(props);
-      var render = wrapper.find(Patients).childAt(0);
-      var currentPath = window.location.pathname;
+      });
       var nextProps = Object.assign({}, props, {
           loading: false,
           location: { query: {
@@ -146,18 +165,14 @@ describe('Patients', () => {
           showingWelcomeMessage: null
       });
 
-      render.instance().UNSAFE_componentWillReceiveProps(nextProps);
+      instance.UNSAFE_componentWillReceiveProps(nextProps);
       expect(nextProps.showWelcomeMessage.callCount).to.equal(1);
     });
 
     it('should not trigger showWelcomeMessage to patient data when justLogged query param is set and one patient and one invite available', () => {
-      var props = {
-        dataWorkerRemoveDataRequest: sinon.stub(),
+      const { instance, props } = createPatientsInstance({
         showWelcomeMessage: sinon.stub(),
-      };
-      wrapper.setProps(props);
-      var render = wrapper.find(Patients).childAt(0);
-      var currentPath = window.location.pathname;
+      });
       var nextProps = Object.assign({}, props, {
           loading: false,
           location: { query: {
@@ -170,18 +185,14 @@ describe('Patients', () => {
           showingWelcomeMessage: null
       });
 
-      render.instance().UNSAFE_componentWillReceiveProps(nextProps);
+      instance.UNSAFE_componentWillReceiveProps(nextProps);
       expect(nextProps.showWelcomeMessage.callCount).to.equal(0);
     });
 
     it('should not trigger showWelcomeMessage to patient data when justLogged query param is set and zero patients but one invite available', () => {
-      var props = {
-        dataWorkerRemoveDataRequest: sinon.stub(),
+      const { instance, props } = createPatientsInstance({
         showWelcomeMessage: sinon.stub(),
-      };
-      wrapper.setProps(props);
-      var render = wrapper.find(Patients).childAt(0);
-      var currentPath = window.location.pathname;
+      });
       var nextProps = Object.assign({}, props, {
           loading: false,
           location: { query: {
@@ -194,16 +205,12 @@ describe('Patients', () => {
           showingWelcomeMessage: null
       });
 
-      render.instance().UNSAFE_componentWillReceiveProps(nextProps);
+      instance.UNSAFE_componentWillReceiveProps(nextProps);
       expect(nextProps.showWelcomeMessage.callCount).to.equal(0);
     });
 
     it('should not redirect to patient data when justLogged query param is set and only one patient available and no invites, but user is a clinic', () => {
-      var props = {
-        dataWorkerRemoveDataRequest: sinon.stub(),
-      };
-      wrapper.setProps(props);
-      var render = wrapper.find(Patients).childAt(0);
+      const { instance } = createPatientsInstance();
 
       var nextProps = Object.assign({}, props, {
         invites: [],
@@ -220,20 +227,16 @@ describe('Patients', () => {
         }
       });
 
-      render.instance().UNSAFE_componentWillReceiveProps(nextProps);
+      instance.UNSAFE_componentWillReceiveProps(nextProps);
       expect(window.location.pathname).to.not.equal('/patients/1/data');
     });
 
-    // NB: this test has to go last since it affects the global window.location.pathname!
     it('should redirect to patient data when justLogged query param is set and only one patient available and no invites', () => {
-      var props = {
-        dataWorkerRemoveDataRequest: sinon.stub(),
+      const { instance, props } = createPatientsInstance({
         history: {
           push: sinon.stub()
         },
-      };
-      wrapper.setProps(props);
-      var render = wrapper.find(Patients).childAt(0);
+      });
 
       var nextProps = Object.assign({}, props, {
         invites: [],
@@ -247,7 +250,7 @@ describe('Patients', () => {
         showingWelcomeMessage: null
       });
 
-      render.instance().UNSAFE_componentWillReceiveProps(nextProps);
+      instance.UNSAFE_componentWillReceiveProps(nextProps);
       sinon.assert.calledWith(props.history.push, '/patients/1/data');
     });
   });
