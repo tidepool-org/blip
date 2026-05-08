@@ -6,7 +6,6 @@ import { Text } from 'theme-ui';
 
 import Button from '../elements/Button';
 import { Body1, MediumTitle } from '../elements/FontStyles';
-import { providers } from './DataConnections';
 
 import {
   Dialog,
@@ -16,9 +15,8 @@ import {
 } from '../elements/Dialog';
 
 export const DataSourceDisconnectConfirmDialog = (props) => {
-  const { t, onClose, onConfirm, open, patient, providerName } = props;
+  const { t, onClose, onConfirm, open, patient, providerDisplayName } = props;
   const { disconnectingDataSource } = useSelector((state) => state.blip.working);
-  const providerDisplayName = providers[providerName]?.displayName;
 
   return (
     <Dialog
@@ -38,7 +36,10 @@ export const DataSourceDisconnectConfirmDialog = (props) => {
             </Text>
           </Trans>
           <Text mt={2} sx={{ display: 'block' }}>
-            {t('Disconnecting will stop the data flow and you will no longer receive new data from this device. To reconnect, a new invite must be sent.')}
+            {t('Disconnecting this device will stop new data from syncing into Tidepool for all clinics the patient is currently sharing this device data with.')}
+          </Text>
+          <Text mt={2} sx={{ display: 'block' }}>
+            {t('Historical data already in Tidepool will remain available. To reconnect this device later, a new invitation must be sent to the patient.')}
           </Text>
         </Body1>
       </DialogContent>
@@ -64,7 +65,7 @@ DataSourceDisconnectConfirmDialog.propTypes = {
   onConfirm: PropTypes.func.isRequired,
   open: PropTypes.bool,
   patient: PropTypes.object,
-  providerName: PropTypes.string,
+  providerDisplayName: PropTypes.string,
   t: PropTypes.func.isRequired,
 };
 

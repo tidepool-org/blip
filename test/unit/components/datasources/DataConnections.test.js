@@ -118,8 +118,9 @@ describe('getProviderHandlers', () => {
       disconnect: {
         buttonText: 'Disconnect',
         buttonStyle: 'text',
-        action: appActions.async.disconnectDataSource,
-        args: [coreApi, provider.dataSourceFilter],
+        action: appActions.async.deleteClinicPatientDataSource,
+        args: [coreApi, 'patient123', provider.dataSourceFilter],
+        requiresConfirmation: true,
       },
       inviteSent: {
         buttonDisabled: true,
@@ -364,7 +365,7 @@ describe('getConnectStateUI', () => {
 
       expect(UI.connected.message).to.equal(null);
       expect(UI.connected.text).to.equal('Connected');
-      expect(UI.connected.handler).to.equal(null);
+      expect(UI.connected.handler).to.equal('disconnect');
 
       expect(UI.disconnected.message).to.equal('Last update 20 days ago');
       expect(UI.disconnected.text).to.equal('Patient Disconnected');
@@ -478,6 +479,7 @@ describe('getDataConnectionProps', () => {
       providerName: 'dexcom',
       connectState: 'pending',
       handler: 'resendInvite',
+      requiresConfirmation: undefined,
     });
   });
 });
@@ -585,7 +587,6 @@ describe('DataConnections', () => {
         updatingClinicPatient: defaultWorkingState,
         disconnectingDataSource: defaultWorkingState,
       },
-      selectedClinicId: 'clinicID123',
       loggedInUserId: 'patient123',
     },
   };
@@ -928,7 +929,7 @@ describe('DataConnections', () => {
         expect(twiistConnection.querySelector('.state-message')).to.be.null;
       });
 
-      it('should not render an action button', () => {
+      it('should render a Disconnect action button for non-twiist providers', () => {
         const store = mockStore(clinicianUserLoggedInState);
         mountWrapper(store, clinicPatients.dataConnectionConnected);
 
@@ -937,11 +938,15 @@ describe('DataConnections', () => {
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
-        expect(dexcomConnection.querySelector('.action')).to.be.null;
+        const dexcomActionButton = dexcomConnection.querySelector('.action');
+        expect(dexcomActionButton).to.exist;
+        expect(dexcomActionButton.textContent).to.equal('Disconnect');
 
         const twiistConnection = container.querySelector('#data-connection-twiist');
         expect(twiistConnection).to.exist;
-        expect(twiistConnection.querySelector('.action')).to.be.null;
+        const twiistActionButton = twiistConnection.querySelector('.action');
+        expect(twiistActionButton).to.exist;
+        expect(twiistActionButton.textContent).to.equal('Disconnect');
       });
     });
 

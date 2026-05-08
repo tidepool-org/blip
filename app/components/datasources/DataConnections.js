@@ -687,7 +687,7 @@ export const DataConnections = (props) => {
         onConfirm={handleDataSourceDisconnectConfirm}
         open={showDataSourceDisconnectConfirm}
         patient={patient}
-        providerName={activeHandler?.providerName}
+        providerDisplayName={providers[activeHandler?.providerName]?.displayName}
         t={t}
       />
 
