@@ -5,7 +5,7 @@ import { render, screen, fireEvent, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 import moment from 'moment';
 
 import { DataDonationForm, formContexts } from '../../../../../app/pages/patient/DataDonationForm';

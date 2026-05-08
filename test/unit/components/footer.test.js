@@ -1,10 +1,10 @@
 /* global afterEach, before, chai, describe, it, sinon, after */
 
 import React from 'react';
-import { mount } from 'enzyme';
+import { render, fireEvent } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 
 import Footer from '../../../app/components/footer/';
 
@@ -12,30 +12,16 @@ const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
 describe('Footer', () => {
-  let wrapper;
-  let store;
-
   const props = {
     trackMetric: sinon.spy(),
     version: '1.0.0',
     location: '/patient'
   };
 
-  before(() => {
-    store = mockStore({
-      blip: {
-        smartCorrelationId: null
-      }
-    });
-    wrapper = mount(
-      <Provider store={store}>
-        <Footer {...props} />
-      </Provider>
-    );
-  });
-
-  after(() => {
-    wrapper.unmount();
+  const defaultStore = mockStore({
+    blip: {
+      smartCorrelationId: null
+    }
   });
 
   afterEach(() => {
@@ -44,37 +30,39 @@ describe('Footer', () => {
 
   describe('render', () => {
     it('should render four links', () => {
-      expect(wrapper.find('a').length).to.equal(4);
+      const { container } = render(
+        <Provider store={defaultStore}>
+          <Footer {...props} />
+        </Provider>
+      );
+      expect(container.querySelectorAll('a').length).to.equal(4);
     });
 
     describe('in Smart-on-FHIR mode', () => {
-      let smartOnFhirWrapper;
+      let smartOnFhirContainer;
 
-      before(() => {
+      beforeEach(() => {
         const smartOnFhirStore = mockStore({
           blip: {
             smartCorrelationId: 'test-correlation-id'
           }
         });
-        smartOnFhirWrapper = mount(
+        const { container } = render(
           <Provider store={smartOnFhirStore}>
             <Footer {...props} />
           </Provider>
         );
-      });
-
-      after(() => {
-        smartOnFhirWrapper.unmount();
+        smartOnFhirContainer = container;
       });
 
       it('should not render social media links', () => {
         // Should not find Twitter and Facebook links
-        expect(smartOnFhirWrapper.find('a#twitter').exists()).to.be.false;
-        expect(smartOnFhirWrapper.find('a#facebook').exists()).to.be.false;
+        expect(smartOnFhirContainer.querySelector('a#twitter')).to.be.null;
+        expect(smartOnFhirContainer.querySelector('a#facebook')).to.be.null;
       });
 
       it('should still render version info', () => {
-        expect(smartOnFhirWrapper.find('Version').exists()).to.be.true;
+        expect(smartOnFhirContainer.querySelector('.Version')).to.not.be.null;
       });
     });
   });
@@ -89,9 +77,15 @@ describe('Footer', () => {
 
     for (const link of links) {
       it(`a#${link.id} should fire the trackMetric function when clicked`, () => {
-        const linkEl = wrapper.find(`a#${link.id}`);
+        const { container } = render(
+          <Provider store={defaultStore}>
+            <Footer {...props} />
+          </Provider>
+        );
+        const linkEl = container.querySelector(`#${link.id}`);
+        expect(linkEl).to.not.be.null;
         expect(props.trackMetric.callCount).to.equal(0);
-        linkEl.simulate('click');
+        fireEvent.click(linkEl);
         expect(props.trackMetric.callCount).to.equal(1);
         expect(props.trackMetric.firstCall.args[0]).to.equal(`Clicked Footer ${link.metric}`);
       });
