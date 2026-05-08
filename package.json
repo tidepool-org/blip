@@ -1,7 +1,7 @@
 {
   "name": "blip",
   "engines": {
-    "node": "20.8.0"
+    "node": "24.15.0"
   },
   "packageManager": "yarn@3.6.4",
   "version": "1.95.1",
