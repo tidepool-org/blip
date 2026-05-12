@@ -100,6 +100,7 @@ export const useLatestDatumTime = (tidepoolApi = api, uploadId) => {
 const SettingsPopover = styled(Popover)`
   .MuiPopover-paper {
     max-height: 40vh;
+    padding-bottom: 0;
   };
 `;
 
@@ -576,7 +577,7 @@ const Settings = ({
         <DialogActions
           sx={{
             position: 'sticky',
-            bottom: '-8px',
+            bottom: 0,
             borderTop: `1px solid ${vizColors.gray10}`,
             background: vizColors.white,
             justifyContent: 'space-between'
