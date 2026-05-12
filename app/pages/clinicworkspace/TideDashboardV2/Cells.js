@@ -11,6 +11,7 @@ import BgSummaryCell from '../../../components/clinic/BgSummaryCell';
 import DeltaBar from '../../../components/elements/DeltaBar';
 import utils from '../../../core/utils';
 import { CATEGORY } from './FilterByCategory';
+import isUndefined from 'lodash/isUndefined';
 
 export const PatientCell = ({ patient }) => {
   const { t } = useTranslation();
@@ -59,7 +60,9 @@ export const TimeInRangePercentBarChartCell = ({ patient }) => {
 export const TimeInTargetPercentCell = ({ patient }) => {
   const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
   const rawValue = patient?.summary?.cgmStats?.periods?.[summaryPeriod]?.timeInTargetPercent;
-  const value = utils.formatDecimal(rawValue * 100, 0);
+  let value = utils.formatDecimal(rawValue * 100, 0);
+
+  if (isUndefined(rawValue)) value = '';
 
   return <NumericTemplateCell value={value} isPercent />;
 };
