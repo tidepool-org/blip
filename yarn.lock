@@ -6211,9 +6211,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.56.0-web-3529-carb-edits.3":
-  version: 1.56.0-web-3529-carb-edits.3
-  resolution: "@tidepool/viz@npm:1.56.0-web-3529-carb-edits.3"
+"@tidepool/viz@npm:1.56.0-web-3359.3":
+  version: 1.56.0-web-3359.3
+  resolution: "@tidepool/viz@npm:1.56.0-web-3359.3"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6258,7 +6258,7 @@ __metadata:
     reductio: 1.0.0
     redux: 4.2.1
     serialize-svg-path: 0.1.0
-    sundial: 1.7.1
+    sundial: 1.7.6
     svg-to-pdfkit: 0.1.8
     text-table: 0.2.0
     translate-svg-path: 0.0.1
@@ -6274,7 +6274,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 98e9474ef5b32ee5607a65bf352492ac132582b4d079a4ad9467647d6e590053b6460812a6871378926e77fab52741ea68cba499221723d554877c33419ce7dd
+  checksum: c27b26efd183782dd5394bfbd17e3132c09d1056611d9ae1f8a46d2a264dfdfd7a430155b5bcb05b7e8689c8b3bd234cbc1c8fadb083b7ae83baadc6a86ae996
   languageName: node
   linkType: hard
 
@@ -8410,7 +8410,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.56.0-web-3529-carb-edits.3
+    "@tidepool/viz": 1.56.0-web-3359.3
     "@types/jest": 29.5.14
     async: 2.6.4
     autoprefixer: 10.4.16
@@ -8523,11 +8523,11 @@ __metadata:
     stylelint: 15.11.0
     stylelint-config-recommended: 13.0.0
     stylelint-config-styled-components: 0.1.1
-    sundial: 1.7.1
+    sundial: 1.7.6
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.39.0-web-3529-carb-edits.2
+    tideline: 1.38.0-web-3359.3
     tidepool-platform-client: 0.65.0-web-4390-install-rtk.2
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
@@ -16811,6 +16811,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"moment-timezone@npm:0.6.2":
+  version: 0.6.2
+  resolution: "moment-timezone@npm:0.6.2"
+  dependencies:
+    moment: ^2.29.4
+  checksum: ee2838659d26c094ca788cb0032dd9c584fc5f30df3d491ab385f32d01f16f7cf26339fa9d6a843f1c23420c72d283071911a8c86138740b68b381d9d78527d6
+  languageName: node
+  linkType: hard
+
 "moment@npm:2.29.4, moment@npm:>=1.6.0, moment@npm:^2.29.4":
   version: 2.29.4
   resolution: "moment@npm:2.29.4"
@@ -21348,12 +21357,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sundial@npm:1.7.1":
-  version: 1.7.1
-  resolution: "sundial@npm:1.7.1"
+"sundial@npm:1.7.6":
+  version: 1.7.6
+  resolution: "sundial@npm:1.7.6"
   dependencies:
-    moment-timezone: 0.5.43
-  checksum: daca08a80092c47045725319352f8fda3bded465a265c9172263dffec06944584dbab4dfd5ae4c663e3b6f3769ecbffe349170c6ec3993daa4b96bc45bb4afb9
+    moment-timezone: 0.6.2
+  checksum: 7cacba1f6d44fd32de77074d53cba96262bf673093d335b6de3d23d715b10ae319f5b6fed218d8b0631b0e1c5be791e4d3e8f5e13679b2443a9f7c02392678bd
   languageName: node
   linkType: hard
 
@@ -21759,9 +21768,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.39.0-web-3529-carb-edits.2":
-  version: 1.39.0-web-3529-carb-edits.2
-  resolution: "tideline@npm:1.39.0-web-3529-carb-edits.2"
+"tideline@npm:1.38.0-web-3359.3":
+  version: 1.38.0-web-3359.3
+  resolution: "tideline@npm:1.38.0-web-3359.3"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -21778,11 +21787,11 @@ __metadata:
     react: 16.14.0
     react-dom: 16.14.0
     react-sizeme: 3.0.2
-    sundial: 1.7.1
+    sundial: 1.7.6
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: 25d7b8618b58c6b6b9f91c9894daa499fe405b2d525aa38ef555c12a095f78e8d1e1a6883eb82cd87539cb760954e76a72120c35df2c6d5748d2af2658229d6f
+  checksum: e94493de4178bdbab103745f2f1d46184a80a2baaca64c87bf2e59b47c297b4f9415b8894a0bbbaf2d883993c697320417210d06577096cfebe35e6f0837551a
   languageName: node
   linkType: hard
 
