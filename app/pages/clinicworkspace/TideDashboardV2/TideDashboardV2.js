@@ -12,6 +12,7 @@ import FilterByDataRecency from './FilterByDataRecency';
 import FilterBySummaryPeriod from './FilterBySummaryPeriod';
 import PaginationControls from '../components/PaginationControls';
 import ActiveFilterCount from '../components/ActiveFilterCount';
+import PatientDrawerController from './PatientDrawerController';
 
 import { resetTideDashboardState, setOffset } from './tideDashboardSlice';
 import { useGetTideDashboardPatientsQuery } from './tideDashboardApi';
@@ -27,7 +28,7 @@ const LIMIT = 12;
 
 const Divider = () => <Box id='filter-divider' mx={2} sx={{ border: `1px solid ${vizColors.gray05}`, height: '24px' }}></Box>;
 
-const TideDashboard = () => {
+const TideDashboard = ({ api }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
@@ -103,6 +104,8 @@ const TideDashboard = () => {
           onOffsetChange={handleChangeOffset}
         />
       </Flex>
+
+      <PatientDrawerController api={api} />
     </>
   );
 };
