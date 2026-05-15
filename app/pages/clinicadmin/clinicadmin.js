@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { withTranslation, Trans } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
 import { push } from 'connected-react-router';
 import compact from 'lodash/compact';
 import filter from 'lodash/filter';
@@ -18,13 +18,13 @@ import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import EditIcon from '@material-ui/icons/EditRounded';
 import InputIcon from '@material-ui/icons/Input';
+import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import SearchIcon from '@material-ui/icons/Search';
 import sundial from 'sundial';
 import { useFormik } from 'formik';
 import { useFlags } from 'launchdarkly-react-client-sdk';
 
 import {
-  Title,
   MediumTitle,
   Body1,
 } from '../../components/elements/FontStyles';
@@ -67,7 +67,8 @@ const clinicTypesLabels = mapValues(keyBy(clinicTypes, 'value'), 'label');
 
 export const ClinicAdmin = (props) => {
   useScrollToTop();
-  const { t, api, trackMetric } = props;
+  const { t } = useTranslation();
+  const { api, trackMetric } = props;
   const { showPrescriptions } = useFlags();
   const dispatch = useDispatch();
   const isFirstRender = useIsFirstRender();
@@ -296,6 +297,8 @@ export const ClinicAdmin = (props) => {
         roles,
         createdTime,
         updatedTime,
+        mfaEnabled: clinician?.mfaEnabled === true,
+        mfaEnabledSort: clinician?.mfaEnabled ? '1' : '',
       };
     }
   );
@@ -325,6 +328,7 @@ export const ClinicAdmin = (props) => {
         t('Email'),
         t('Admin?'),
         t('Pending?'),
+        t('2FA Enabled?'),
         t('Created'),
         t('Updated'),
       ],
@@ -338,13 +342,14 @@ export const ClinicAdmin = (props) => {
     };
 
     clinicianArray.forEach((clinician) => {
-      const { fullName, email, isAdmin, inviteId, createdTime, updatedTime } = clinician;
+      const { fullName, email, isAdmin, inviteId, mfaEnabled, createdTime, updatedTime } = clinician;
 
       csvRows.push([
         csvEscape(fullName),
         csvEscape(email),
         isAdmin ? 'True' : 'False',
         inviteId ? 'True' : 'False',
+        mfaEnabled ? 'True' : 'False',
         sundial.formatInTimezone(createdTime, timeZone, 'YYYY-MM-DD HH:mm:ss z'),
         sundial.formatInTimezone(updatedTime, timeZone, 'YYYY-MM-DD HH:mm:ss z'),
       ]);
@@ -520,6 +525,18 @@ export const ClinicAdmin = (props) => {
     </Box>
   );
 
+  const renderSecurity = ({ mfaEnabled, inviteId }) => {
+    if (!mfaEnabled || inviteId) return null;
+    return (
+      <Flex sx={{ alignItems: 'center', gap: 1 }}>
+        <LockOutlinedIcon sx={{ fontSize: '14px', color: 'text.primaryGrey' }} />
+        <Text sx={{ fontSize: 0, fontWeight: 'bold', color: 'text.primaryGrey' }}>
+          {t('2FA Enabled')}
+        </Text>
+      </Flex>
+    );
+  };
+
   const renderMore = props => {
     const items = [];
 
@@ -628,6 +645,15 @@ export const ClinicAdmin = (props) => {
     sortable: true,
     sortBy: 'role',
     render: renderRole,
+  });
+
+  columns.push({
+    title: t('Security'),
+    field: 'mfaEnabled',
+    align: 'left',
+    sortable: true,
+    sortBy: 'mfaEnabledSort',
+    render: renderSecurity,
   });
 
   if (((isClinicAdmin()))) {
@@ -1032,4 +1058,4 @@ ClinicAdmin.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default withTranslation()(ClinicAdmin);
+export default ClinicAdmin;

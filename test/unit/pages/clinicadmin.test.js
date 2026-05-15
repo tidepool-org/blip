@@ -408,6 +408,7 @@ describe('ClinicAdmin', () => {
           'Email',
           'Admin?',
           'Pending?',
+          '2FA Enabled?',
           'Created',
           'Updated',
         ],
@@ -415,6 +416,7 @@ describe('ClinicAdmin', () => {
           '"John Doe"',
           '"clinic@example.com"',
           'True',
+          'False',
           'False',
           '2021-10-05 18:00:00 UTC',
           '2021-10-05 18:00:00 UTC',
@@ -424,6 +426,7 @@ describe('ClinicAdmin', () => {
           '"clinicianUserId456@example.com"',
           'True',
           'False',
+          'False',
           '2021-10-06 18:00:00 UTC',
           '2021-10-06 18:00:00 UTC',
         ],
@@ -432,6 +435,7 @@ describe('ClinicAdmin', () => {
           '"clinicianUserId789@example.com"',
           'False',
           'True',
+          'False',
           '2021-10-07 18:00:00 UTC',
           '2021-10-07 18:00:00 UTC',
         ],
@@ -475,7 +479,7 @@ describe('ClinicAdmin', () => {
     it('should render a "More" icon per row', () => {
       expect(view.container.querySelector('#clinicianTable')).to.exist;
       expect(getRows(view.container)).to.have.length(3);
-      expect(getCells(view.container)).to.have.length(12);
+      expect(getCells(view.container)).to.have.length(15);
       expect(document.querySelectorAll('[aria-label="info"]')).to.have.length(3);
     });
 
@@ -588,6 +592,118 @@ describe('ClinicAdmin', () => {
         'clinicID456',
         'clinicianUserId789InviteId'
       );
+    });
+  });
+
+  describe('Security column', () => {
+    const fetchedMfaEnabledState = merge({}, fetchedMultipleAdminState, {
+      blip: {
+        clinics: {
+          clinicID456: {
+            clinicians: {
+              clinicianUserId123: { mfaEnabled: true },
+              clinicianUserId789InviteId: { mfaEnabled: true },
+            },
+          },
+        },
+      },
+    });
+
+    it('should show lock icon and "2FA Enabled" text when mfaEnabled is true', () => {
+      store = mockStore(fetchedMfaEnabledState);
+      view = renderClinicAdmin(store);
+      // John Doe (clinicianUserId123) has mfaEnabled: true and no inviteId
+      // Sorted by fullName asc: '' (pending) < 'Jane Smith' < 'John Doe' → row index 2
+      const cell = view.container.querySelector('#clinicianTable-row-2-mfaEnabled');
+      expect(cell).to.exist;
+      expect(within(cell).getByText('2FA Enabled')).to.exist;
+      expect(cell.querySelector('svg')).to.exist; // LockOutlinedIcon renders as SVG
+    });
+
+    it('should render an empty cell when mfaEnabled is false', () => {
+      // Default fetchedMultipleAdminState has no mfaEnabled set → all false
+      store = mockStore(fetchedMultipleAdminState);
+      view = renderClinicAdmin(store);
+      const cell = view.container.querySelector('#clinicianTable-row-2-mfaEnabled');
+      expect(cell).to.exist;
+      // Mobile label 'Security' is always present; 2FA Enabled content should be absent
+      expect(within(cell).queryByText('2FA Enabled')).to.not.exist;
+      expect(cell.querySelector('svg')).to.not.exist;
+    });
+
+    it('should render an empty cell for a pending invite even when mfaEnabled is true', () => {
+      store = mockStore(fetchedMfaEnabledState);
+      view = renderClinicAdmin(store);
+      // clinicianUserId789InviteId has inviteId set → row index 0 (empty name sorts first)
+      const cell = view.container.querySelector('#clinicianTable-row-0-mfaEnabled');
+      expect(cell).to.exist;
+      // inviteId present → renderSecurity returns null even when mfaEnabled: true
+      expect(within(cell).queryByText('2FA Enabled')).to.not.exist;
+      expect(cell.querySelector('svg')).to.not.exist;
+    });
+
+    it('should render a "Security" column header that is sortable', () => {
+      store = mockStore(fetchedMultipleAdminState);
+      view = renderClinicAdmin(store);
+      const headerCell = view.container.querySelector('#clinicianTable-header-mfaEnabled');
+      expect(headerCell).to.exist;
+      expect(headerCell.textContent).to.include('Security');
+      // Sortable columns render a MuiTableSortLabel root element
+      expect(headerCell.querySelector('.MuiTableSortLabel-root')).to.exist;
+    });
+  });
+
+  describe('CSV export — 2FA Enabled?', () => {
+    it('should include a "True" value in the 2FA Enabled? column for a clinician with mfaEnabled: true', () => {
+      const clock = sinon.useFakeTimers({
+        now: new Date('2021-10-05T18:00:00.000Z').getTime()
+      });
+
+      const fetchedMfaEnabledState = merge({}, fetchedMultipleAdminState, {
+        blip: {
+          clinics: {
+            clinicID456: {
+              clinicians: {
+                clinicianUserId123: { mfaEnabled: true },
+              },
+            },
+          },
+        },
+      });
+
+      store = mockStore(fetchedMfaEnabledState);
+      view = renderClinicAdmin(store);
+
+      const exportButton = screen.getByRole('button', { name: 'Export List' });
+      const createBlobSpy = sinon.spy(window, 'Blob');
+      const createElementStub = sinon.stub(document, 'createElement').returns({
+        href: '',
+        download: '',
+        click: sinon.stub(),
+      });
+      const createObjectURLStub = sinon.stub(URL, 'createObjectURL').returns('mock-url');
+
+      try {
+        fireEvent.click(exportButton);
+        expect(createBlobSpy.calledOnce).to.be.true;
+        const csvString = createBlobSpy.firstCall.args[0][0];
+        const csvLines = csvString.split('\n');
+        // Header row must contain '2FA Enabled?' after 'Pending?'
+        const headerCols = csvLines[0].split(',');
+        const pendingIdx = headerCols.indexOf('Pending?');
+        expect(pendingIdx).to.be.greaterThan(-1);
+        expect(headerCols[pendingIdx + 1]).to.equal('2FA Enabled?');
+        // At least one data row contains 'True' in the 2FA Enabled? position
+        const dataRows = csvLines.slice(1).map((line) => line.split(','));
+        const mfaValues = dataRows.map((row) => row[pendingIdx + 1]);
+        expect(mfaValues).to.include('True');
+        expect(mfaValues).to.include('False');
+      } finally {
+        createElementStub.restore();
+        createObjectURLStub.restore();
+        createBlobSpy.restore();
+        clock.restore();
+      }
     });
   });
 

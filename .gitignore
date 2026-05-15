@@ -54,3 +54,11 @@ locales/*/*_old.json
 .pi
 .pi-lens
 .claude
+logs/
+
+# ApoVault — task-scoped work stays local (phases, bugs, decisions, sessions)
+.apo/02_Phases/
+.apo/03_Bugs/
+.apo/04_Decisions/
+.apo/05_Sessions/
+.apo/.obsidian/workspace*
