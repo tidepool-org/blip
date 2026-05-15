@@ -6211,9 +6211,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.55.0-web-3359.2":
-  version: 1.55.0-web-3359.2
-  resolution: "@tidepool/viz@npm:1.55.0-web-3359.2"
+"@tidepool/viz@npm:1.56.0-web-3359.3":
+  version: 1.56.0-web-3359.3
+  resolution: "@tidepool/viz@npm:1.56.0-web-3359.3"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6258,7 +6258,7 @@ __metadata:
     reductio: 1.0.0
     redux: 4.2.1
     serialize-svg-path: 0.1.0
-    sundial: 1.7.6-rc.1
+    sundial: 1.7.6
     svg-to-pdfkit: 0.1.8
     text-table: 0.2.0
     translate-svg-path: 0.0.1
@@ -6274,7 +6274,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: fe9438af82c0d6e56c9bbcc116d7569e1033ce6d981f5c832901c60237bb6989ef861389266b947b8fe620fe796eaea308a3680e50b84e3becf2094e0f280190
+  checksum: c27b26efd183782dd5394bfbd17e3132c09d1056611d9ae1f8a46d2a264dfdfd7a430155b5bcb05b7e8689c8b3bd234cbc1c8fadb083b7ae83baadc6a86ae996
   languageName: node
   linkType: hard
 
@@ -8410,7 +8410,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.55.0-web-3359.2
+    "@tidepool/viz": 1.56.0-web-3359.3
     "@types/jest": 29.5.14
     async: 2.6.4
     autoprefixer: 10.4.16
@@ -16811,6 +16811,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"moment-timezone@npm:0.6.2":
+  version: 0.6.2
+  resolution: "moment-timezone@npm:0.6.2"
+  dependencies:
+    moment: ^2.29.4
+  checksum: ee2838659d26c094ca788cb0032dd9c584fc5f30df3d491ab385f32d01f16f7cf26339fa9d6a843f1c23420c72d283071911a8c86138740b68b381d9d78527d6
+  languageName: node
+  linkType: hard
+
 "moment@npm:2.29.4, moment@npm:>=1.6.0, moment@npm:^2.29.4":
   version: 2.29.4
   resolution: "moment@npm:2.29.4"
@@ -21345,6 +21354,15 @@ __metadata:
   version: 4.3.0
   resolution: "stylis@npm:4.3.0"
   checksum: 6120de3f03eacf3b5adc8e7919c4cca991089156a6badc5248752a3088106afaaf74996211a6817a7760ebeadca09004048eea31875bd8d4df51386365c50025
+  languageName: node
+  linkType: hard
+
+"sundial@npm:1.7.6":
+  version: 1.7.6
+  resolution: "sundial@npm:1.7.6"
+  dependencies:
+    moment-timezone: 0.6.2
+  checksum: 7cacba1f6d44fd32de77074d53cba96262bf673093d335b6de3d23d715b10ae319f5b6fed218d8b0631b0e1c5be791e4d3e8f5e13679b2443a9f7c02392678bd
   languageName: node
   linkType: hard
 
