@@ -24,9 +24,41 @@
 
 import React from 'react';
 import _ from 'lodash';
-import { shallow, mount } from 'enzyme';
+import { render, fireEvent } from '@testing-library/react';
 
 import BgSourceToggle from '../../../../app/components/chart/bgSourceToggle';
+
+jest.mock('@tidepool/viz', () => {
+  const React = require('react');
+
+  return {
+    components: {
+      TwoOptionToggle: ({ left, right, disabled, toggleFn }) => React.createElement(
+        'div',
+        {
+          'data-testid': 'two-option-toggle',
+          'data-disabled': String(disabled),
+          'data-left-label': left.label,
+          'data-left-state': String(left.state),
+          'data-right-label': right.label,
+          'data-right-state': String(right.state),
+        },
+        React.createElement('button', {
+          'data-testid': 'toggle-click',
+          onClick: toggleFn,
+        }, 'toggle'),
+      ),
+    },
+    utils: {
+      stat: {
+        statBgSourceLabels: {
+          smbg: 'BGM',
+          cbg: 'CGM',
+        },
+      },
+    },
+  };
+});
 
 const expect = chai.expect;
 
@@ -46,145 +78,145 @@ describe('BgSourceToggle', () => {
     onClickBgSourceToggle: sinon.stub(),
   };
 
-  let wrapper;
-  beforeEach(() => {
-    wrapper = shallow(<BgSourceToggle {...props} />);
-  });
+  const renderToggle = (overrideProps = {}) => render(<BgSourceToggle {...props} {...overrideProps} />);
 
   afterEach(() => {
-    props.onClickBgSourceToggle.reset();
+    props.onClickBgSourceToggle.resetHistory();
   });
 
   it('should render without errors when provided all required props', () => {
-    console.error = sinon.stub();
+    const consoleErrorStub = sinon.stub(console, 'error');
+    try {
+      const { container, getByTestId } = renderToggle();
 
-    expect(wrapper.find('.toggle-container')).to.have.length(1);
-    expect(wrapper.find('.toggle-container').children()).to.have.length(1);
-    expect(console.error.callCount).to.equal(0);
+      expect(container.querySelector('.toggle-container')).to.exist;
+      expect(getByTestId('two-option-toggle')).to.exist;
+      expect(consoleErrorStub.callCount).to.equal(0);
+    } finally {
+      consoleErrorStub.restore();
+    }
   });
 
   it('should render toggle if either cbg or smbg sources are available', () => {
-    wrapper.setProps(_.assign({}, props, {
+    const { getByTestId, rerender } = renderToggle({
       bgSources: {
         cbg: false,
         smbg: true,
       },
-    }));
+    });
 
-    expect(wrapper.find('.toggle-container').children()).to.have.length(1);
+    expect(getByTestId('two-option-toggle')).to.exist;
 
-    wrapper.setProps(_.assign({}, props, {
+    rerender(<BgSourceToggle {...props} {..._.assign({}, props, {
       bgSources: {
         cbg: true,
         smbg: false,
       },
-    }));
-    expect(wrapper.find('.toggle-container').children()).to.have.length(1);
+    })} />);
+    expect(getByTestId('two-option-toggle')).to.exist;
   });
 
   it('should not render toggle if cbg and smbg sources unavailable', () => {
-    wrapper.setProps(_.assign({}, props, {
+    const { queryByTestId } = renderToggle({
       bgSources: {
         cbg: false,
         smbg: false,
       },
-    }));
+    });
 
-    expect(wrapper.find('.toggle-container').children()).to.have.length(0);
+    expect(queryByTestId('two-option-toggle')).to.equal(null);
   });
 
-  it('should disable the toggle if either cbg or smbg sources are available', () => {
-    let toggle = () => wrapper.find('.toggle-container').children('TwoOptionToggle');
-    expect(toggle().props().disabled).to.be.false;
+  it('should disable the toggle if only one of cbg or smbg sources is available', () => {
+    const { getByTestId, rerender } = renderToggle();
+    let toggle = () => getByTestId('two-option-toggle');
+    expect(toggle().getAttribute('data-disabled')).to.equal('false');
 
-    wrapper.setProps(_.assign({}, props, {
+    rerender(<BgSourceToggle {...props} {..._.assign({}, props, {
       bgSources: {
         cbg: true,
         smbg: false,
       },
-    }));
+    })} />);
 
-    expect(toggle().props().disabled).to.be.true;
+    expect(toggle().getAttribute('data-disabled')).to.equal('true');
 
-    wrapper.setProps(_.assign({}, props, {
+    rerender(<BgSourceToggle {...props} {..._.assign({}, props, {
       bgSources: {
         cbg: false,
         smbg: true,
       },
-    }));
+    })} />);
 
-    expect(toggle().props().disabled).to.be.true;
+    expect(toggle().getAttribute('data-disabled')).to.equal('true');
   });
 
   it('should activate the appropriate source when chartPrefs bgSource prop changes', () => {
-    let toggle = () => wrapper.find('.toggle-container').children('TwoOptionToggle');
+    const { getByTestId, rerender } = renderToggle();
+    let toggle = () => getByTestId('two-option-toggle');
 
-    expect(toggle().props().left.label).to.equal('BGM');
-    expect(toggle().props().left.state).to.be.false;
+    expect(toggle().getAttribute('data-left-label')).to.equal('BGM');
+    expect(toggle().getAttribute('data-left-state')).to.equal('false');
 
-    expect(toggle().props().right.label).to.equal('CGM');
-    expect(toggle().props().right.state).to.be.true;
+    expect(toggle().getAttribute('data-right-label')).to.equal('CGM');
+    expect(toggle().getAttribute('data-right-state')).to.equal('true');
 
-    wrapper.setProps(_.assign({}, props, {
+    rerender(<BgSourceToggle {...props} {..._.assign({}, props, {
       chartPrefs: {
         bgLog: {
           bgSource: 'smbg',
         },
       },
-    }));
+    })} />);
 
-    expect(toggle().props().left.label).to.equal('BGM');
-    expect(toggle().props().left.state).to.be.true;
+    expect(toggle().getAttribute('data-left-label')).to.equal('BGM');
+    expect(toggle().getAttribute('data-left-state')).to.equal('true');
 
-    expect(toggle().props().right.label).to.equal('CGM');
-    expect(toggle().props().right.state).to.be.false;
+    expect(toggle().getAttribute('data-right-label')).to.equal('CGM');
+    expect(toggle().getAttribute('data-right-state')).to.equal('false');
   });
 
   it('should fall back to bgSources.current when bgSource is not available in chartPrefs', () => {
-    let toggle = () => wrapper.find('.toggle-container').children('TwoOptionToggle');
+    const { getByTestId, rerender } = renderToggle();
+    let toggle = () => getByTestId('two-option-toggle');
 
-    expect(toggle().props().left.label).to.equal('BGM');
-    expect(toggle().props().left.state).to.be.false;
+    expect(toggle().getAttribute('data-left-label')).to.equal('BGM');
+    expect(toggle().getAttribute('data-left-state')).to.equal('false');
 
-    expect(toggle().props().right.label).to.equal('CGM');
-    expect(toggle().props().right.state).to.be.true;
+    expect(toggle().getAttribute('data-right-label')).to.equal('CGM');
+    expect(toggle().getAttribute('data-right-state')).to.equal('true');
 
-    // Unset chartPrefs, and it should fall back to props.bgSources.current, which is 'smbg'
-    wrapper.setProps(_.assign({}, props, {
+    rerender(<BgSourceToggle {...props} {..._.assign({}, props, {
       chartPrefs: undefined,
-    }));
+    })} />);
 
-    expect(toggle().props().left.label).to.equal('BGM');
-    expect(toggle().props().left.state).to.be.true;
+    expect(toggle().getAttribute('data-left-label')).to.equal('BGM');
+    expect(toggle().getAttribute('data-left-state')).to.equal('true');
 
-    expect(toggle().props().right.label).to.equal('CGM');
-    expect(toggle().props().right.state).to.be.false;
+    expect(toggle().getAttribute('data-right-label')).to.equal('CGM');
+    expect(toggle().getAttribute('data-right-state')).to.equal('false');
   });
 
   it('should call the click handler with new bgSource prop when clicked', () => {
-    wrapper = mount(<BgSourceToggle {...props} />);
-    let toggle = () => wrapper.find('.toggle-container').children('TwoOptionToggle');
+    const { getByTestId, rerender } = renderToggle();
 
     sinon.assert.callCount(props.onClickBgSourceToggle, 0);
 
-    expect(wrapper.props().chartPrefs.bgLog.bgSource).to.equal('cbg');
-
-    toggle().find('Toggle').simulate('click');
+    fireEvent.click(getByTestId('toggle-click'));
 
     sinon.assert.callCount(props.onClickBgSourceToggle, 1);
     sinon.assert.calledWith(props.onClickBgSourceToggle, sinon.match({}), 'smbg');
 
-    wrapper.setProps(_.assign({}, props, {
+    const updatedProps = _.assign({}, props, {
       chartPrefs: {
         bgLog: {
           bgSource: 'smbg',
         },
       },
-    }));
+    });
+    rerender(<BgSourceToggle {...updatedProps} />);
 
-    expect(wrapper.props().chartPrefs.bgLog.bgSource).to.equal('smbg');
-
-    toggle().find('Toggle').simulate('click');
+    fireEvent.click(getByTestId('toggle-click'));
 
     sinon.assert.callCount(props.onClickBgSourceToggle, 2);
     sinon.assert.calledWith(props.onClickBgSourceToggle, sinon.match({}), 'cbg');
