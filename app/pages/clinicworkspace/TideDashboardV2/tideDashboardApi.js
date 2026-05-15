@@ -39,6 +39,10 @@ const tideDashboardApi = RTKQueryApi.injectEndpoints({
           params,
         };
       },
+      transformResponse: (response, _meta, arg) => ({
+        ...response,
+        category: arg.category,
+      }),
     }),
   }),
 });
