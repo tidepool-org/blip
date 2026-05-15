@@ -23,6 +23,7 @@ import {
 } from './Cells';
 
 import TagListCell from '../components/TagListCell';
+import PatientLastReviewed from './PatientLastReviewed';
 
 const getColumnTypes = (t, category, thresholds) => ({
   patientDetails: {
@@ -107,6 +108,7 @@ const getColumnTypes = (t, category, thresholds) => ({
     title: t('Last Reviewed'),
     field: 'lastReviewed',
     align: 'center',
+    render: patient => <PatientLastReviewed patient={patient} />,
   },
   moreMenu: {
     title: t(''),

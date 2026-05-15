@@ -42,6 +42,7 @@ export const RTKQueryApi = createApi({
     baseQuery,
     { maxRetries: RETRY_COUNT },
   ),
+  tagTypes: ['TideDashboardPatients'],
   refetchOnMountOrArgChange: true,
   endpoints: () => ({}),
 });
