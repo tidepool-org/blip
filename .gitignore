@@ -51,3 +51,6 @@ locales/*/*_old.json
 
 .codegpt
 *.code-workspace
+.pi
+.pi-lens
+.claude
