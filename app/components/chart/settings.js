@@ -639,7 +639,6 @@ const Settings = ({
 
     return (
       <PumpSettingsContainer
-        data={data}
         currentPatientInViewId={currentPatientInViewId}
         copySettingsClicked={handleCopySettingsClicked}
         bgUnits={_.get(data, 'bgPrefs.bgUnits', {})}
