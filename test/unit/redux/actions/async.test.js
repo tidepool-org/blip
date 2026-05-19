@@ -5599,6 +5599,52 @@ describe('Actions', () => {
         expect(actions).to.eql(expectedActions);
         expect(api.clinics.getAll.callCount).to.equal(1);
       });
+
+      it('should dispatch GET_CLINICS_SUCCESS before invoking cb', () => {
+        // cb must fire AFTER the success dispatch so that any caller
+        // reading state from inside the callback sees clinics populated.
+        let clinics = [
+          {
+            id: '5f85fbe6686e6bb9170ab5d0',
+            address: '1 Address Ln, City Zip',
+            name: 'Clinic1',
+          },
+        ];
+
+        let api = {
+          clinics: {
+            getAll: sinon.stub().callsArgWith(1, null, clinics),
+            getEHRSettings: sinon.stub().callsArgWith(1, null, {}),
+            getMRNSettings: sinon.stub().callsArgWith(1, null, {}),
+          },
+        };
+
+        let store = mockStore({ blip: initialState });
+        let actionTypesAtCbTime = null;
+
+        store.dispatch(async.getAllClinics(api, {}, () => {
+          actionTypesAtCbTime = _.map(store.getActions(), 'type');
+        }));
+
+        expect(actionTypesAtCbTime).to.include('GET_CLINICS_SUCCESS');
+      });
+
+      it('should dispatch GET_CLINICS_FAILURE before invoking cb on error', () => {
+        let api = {
+          clinics: {
+            getAll: sinon.stub().callsArgWith(1, { status: 500, body: 'Error!' }, null),
+          },
+        };
+
+        let store = mockStore({ blip: initialState });
+        let actionTypesAtCbTime = null;
+
+        store.dispatch(async.getAllClinics(api, {}, () => {
+          actionTypesAtCbTime = _.map(store.getActions(), 'type');
+        }));
+
+        expect(actionTypesAtCbTime).to.include('GET_CLINICS_FAILURE');
+      });
     });
 
     describe('createClinic', () => {
@@ -8572,6 +8618,59 @@ describe('Actions', () => {
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.clinics.getClinicsForClinician.callCount).to.equal(1);
+      });
+
+      it('should dispatch GET_CLINICS_FOR_CLINICIAN_SUCCESS before invoking cb', () => {
+        // cb must fire AFTER the success dispatch so that any caller
+        // reading state from inside the callback (notably async.login's async.parallel collector,
+        // which dispatches selectClinic) sees clinics populated. The cb-before-dispatch ordering
+        // caused selectClinic's `if (clinic)` guard to short-circuit and left clinic.entitlements
+        // undefined, which in turn blocked the patient list fetch on hard reload.
+        let clinicianId = 'clinicianId1';
+        let clinics = [
+          {
+            clinic: {
+              id: '5f85fbe6686e6bb9170ab5d0',
+              name: 'Clinic1',
+            },
+            clinician: { id: 'clinicianId1' },
+          },
+        ];
+
+        let api = {
+          clinics: {
+            getClinicsForClinician: sinon.stub().callsArgWith(2, null, clinics),
+            getEHRSettings: sinon.stub().callsArgWith(1, null, {}),
+            getMRNSettings: sinon.stub().callsArgWith(1, null, {}),
+          },
+        };
+
+        let store = mockStore({ blip: initialState });
+        let actionTypesAtCbTime = null;
+
+        store.dispatch(async.getClinicsForClinician(api, clinicianId, {}, () => {
+          actionTypesAtCbTime = _.map(store.getActions(), 'type');
+        }));
+
+        expect(actionTypesAtCbTime).to.include('GET_CLINICS_FOR_CLINICIAN_SUCCESS');
+      });
+
+      it('should dispatch GET_CLINICS_FOR_CLINICIAN_FAILURE before invoking cb on error', () => {
+        let clinicianId = 'clinicianId1';
+        let api = {
+          clinics: {
+            getClinicsForClinician: sinon.stub().callsArgWith(2, { status: 500, body: 'Error!' }, null),
+          },
+        };
+
+        let store = mockStore({ blip: initialState });
+        let actionTypesAtCbTime = null;
+
+        store.dispatch(async.getClinicsForClinician(api, clinicianId, {}, () => {
+          actionTypesAtCbTime = _.map(store.getActions(), 'type');
+        }));
+
+        expect(actionTypesAtCbTime).to.include('GET_CLINICS_FOR_CLINICIAN_FAILURE');
       });
     });
 
