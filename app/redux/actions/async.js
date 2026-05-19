@@ -1754,7 +1754,9 @@ export function getAllClinics(api, options = {}, cb = _.noop) {
     dispatch(sync.getClinicsRequest());
 
     api.clinics.getAll(options, (err, clinics) => {
-      cb(err, clinics);
+      // Dispatch the success/failure action BEFORE invoking cb so that any caller reading
+      // state from inside the callback sees clinics populated. See getClinicsForClinician for the
+      // detailed rationale.
       if (err) {
         dispatch(sync.getClinicsFailure(
           createActionError(ErrorMessages.ERR_GETTING_CLINICS, err), err
@@ -1768,6 +1770,7 @@ export function getAllClinics(api, options = {}, cb = _.noop) {
           dispatch(fetchClinicMRNSettings(api, clinic.id));
         });
       }
+      cb(err, clinics);
     });
   };
 }
@@ -2668,7 +2671,11 @@ export function getClinicsForClinician(api, clinicianId, options = {}, cb = _.no
     dispatch(sync.getClinicsForClinicianRequest());
 
     api.clinics.getClinicsForClinician(clinicianId, options, (err, clinics) => {
-      cb(err, clinics);
+      // Dispatch the success/failure action BEFORE invoking cb so that any caller reading
+      // state from inside the callback (notably async.login's async.parallel final callback, which
+      // dispatches selectClinic) sees clinics populated. Previously the cb-before-dispatch order
+      // caused selectClinic's `if (clinic)` guard to short-circuit, leaving clinic.entitlements
+      // undefined and the LD context stuck on the 'none' fallback.
       if (err) {
         dispatch(sync.getClinicsForClinicianFailure(
           createActionError(ErrorMessages.ERR_FETCHING_CLINICS_FOR_CLINICIAN, err), err
@@ -2676,6 +2683,7 @@ export function getClinicsForClinician(api, clinicianId, options = {}, cb = _.no
       } else {
         dispatch(sync.getClinicsForClinicianSuccess(clinics, clinicianId, options));
       }
+      cb(err, clinics);
       // fetch EHR and MRN settings for clinics
       _.each(clinics, (clinic) => {
         dispatch(fetchClinicEHRSettings(api, clinic.clinic.id));
