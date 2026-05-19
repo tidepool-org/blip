@@ -6753,6 +6753,72 @@ describe('Actions', () => {
         expect(actions).to.eql(expectedActions);
         expect(api.clinics.getPatientsForClinic.callCount).to.equal(1);
       });
+
+      it('should abandon stale fetch responses when a newer fetch has been dispatched (stale-overwrite race fix)', () => {
+        // Two fetches are dispatched in sequence (e.g. an early non-summary fetch followed by a
+        // later summary fetch when entitlements arrive). If the older one returns LAST under slow
+        // network conditions, its payload must NOT overwrite the newer one's result.
+        const clinicId = '5f85fbe6686e6bb9170ab5d0';
+        let cbA;
+        let cbB;
+        const api = {
+          clinics: {
+            getPatientsForClinic: sinon.stub()
+              .onFirstCall().callsFake((id, opts, callback) => { cbA = callback; })
+              .onSecondCall().callsFake((id, opts, callback) => { cbB = callback; }),
+          },
+        };
+
+        const store = mockStore({ blip: initialState });
+
+        // Dispatch fetch A (older) — captures cbA
+        store.dispatch(async.fetchPatientsForClinic(api, clinicId, { offset: 0 }));
+        // Dispatch fetch B (newer) — captures cbB
+        store.dispatch(async.fetchPatientsForClinic(api, clinicId, { offset: 0, tags: ['t1'] }));
+
+        // Resolve fetch B first (returns 1 filtered patient)
+        cbB(null, { data: [{ id: 'patient_B' }], meta: { count: 1, totalCount: 1 } });
+        // Resolve fetch A last (would return 99 unfiltered patients — stale)
+        cbA(null, { data: _.times(99, (i) => ({ id: `patient_A_${i}` })), meta: { count: 99, totalCount: 99 } });
+
+        const successActions = _.filter(store.getActions(), { type: 'FETCH_PATIENTS_FOR_CLINIC_SUCCESS' });
+
+        // Only fetch B's SUCCESS should have dispatched; fetch A is silently abandoned.
+        expect(successActions).to.have.length(1);
+        expect(successActions[0].payload.patients).to.eql([{ id: 'patient_B' }]);
+        expect(successActions[0].payload.count).to.equal(1);
+        expect(successActions[0].payload.totalCount).to.equal(1);
+      });
+
+      it('should abandon stale failure responses when a newer fetch has been dispatched', () => {
+        const clinicId = '5f85fbe6686e6bb9170ab5d0';
+        let cbA;
+        let cbB;
+        const api = {
+          clinics: {
+            getPatientsForClinic: sinon.stub()
+              .onFirstCall().callsFake((id, opts, callback) => { cbA = callback; })
+              .onSecondCall().callsFake((id, opts, callback) => { cbB = callback; }),
+          },
+        };
+
+        const store = mockStore({ blip: initialState });
+
+        store.dispatch(async.fetchPatientsForClinic(api, clinicId, { offset: 0 }));
+        store.dispatch(async.fetchPatientsForClinic(api, clinicId, { offset: 0, tags: ['t1'] }));
+
+        // Newer fetch succeeds
+        cbB(null, { data: [{ id: 'patient_B' }], meta: { count: 1, totalCount: 1 } });
+        // Older fetch errors out (stale — must be ignored, no FAILURE dispatched)
+        cbA({ status: 500, body: 'Error!' }, null);
+
+        const actionTypes = _.map(store.getActions(), 'type');
+        const failureCount = _.filter(actionTypes, (t) => t === 'FETCH_PATIENTS_FOR_CLINIC_FAILURE').length;
+        const successCount = _.filter(actionTypes, (t) => t === 'FETCH_PATIENTS_FOR_CLINIC_SUCCESS').length;
+
+        expect(failureCount).to.equal(0);
+        expect(successCount).to.equal(1);
+      });
     });
 
     describe('fetchPatientFromClinic', () => {

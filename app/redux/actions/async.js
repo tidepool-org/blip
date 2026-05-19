@@ -2067,11 +2067,22 @@ export function deletePatientFromClinic(api, clinicId, patientId, cb = _.noop) {
  * @param {Number} [options.sortType] - type of bg data to sort by (cgm|bgm)
  * @param {Number} [options.period] - summary period to sort by (1d|7d|14d|30d)
  */
+// Monotonic sequence counter used by fetchPatientsForClinic to ignore stale responses when multiple
+// fetches are in flight simultaneously (e.g. the showSummaryData boolean coercion fix can dispatch a
+// non-summary fetch followed by a summary fetch on the same page load; under slow network conditions
+// the older one can otherwise return last and overwrite the newer correctly-filtered result).
+let latestPatientsFetchSeq = 0;
+
 export function fetchPatientsForClinic(api, clinicId, options = {}) {
   return (dispatch) => {
+    const seq = ++latestPatientsFetchSeq;
     dispatch(sync.fetchPatientsForClinicRequest());
 
     api.clinics.getPatientsForClinic(clinicId, options, (err, results) => {
+      // If a newer fetch has been dispatched while this one was in flight, abandon this response
+      // entirely. No success/failure dispatch — let the newer fetch be the one that updates state.
+      if (seq !== latestPatientsFetchSeq) return;
+
       if (err) {
         let errMsg = ErrorMessages.ERR_FETCHING_PATIENTS_FOR_CLINIC;
         if (err?.status === 403) {
