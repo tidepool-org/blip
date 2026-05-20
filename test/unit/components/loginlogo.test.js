@@ -3,24 +3,26 @@
 /* global sinon */
 /* global it */
 
-var React = require('react');
-var expect = chai.expect;
-
-import { mount } from 'enzyme';
+import React from 'react';
+import { render } from '@testing-library/react';
 import LoginLogo from '../../../app/components/loginlogo/loginlogo';
 
 describe('LoginLogo', function () {
   it('should be exposed as a module and be of type function', function() {
-    expect(LoginLogo).to.be.a('function');
+    expect(typeof LoginLogo).toBe('function');
   });
 
   describe('render', function() {
     it('should render without problems', function () {
-      console.error = sinon.stub();
+      const consoleErrorStub = sinon.stub(console, 'error');
       var props = {};
       var elem = React.createElement(LoginLogo, props);
-      var render = mount(elem);
-      expect(console.error.callCount).to.equal(0);
+      try {
+        render(elem);
+        expect(consoleErrorStub.callCount).toBe(0);
+      } finally {
+        consoleErrorStub.restore();
+      }
     });
   });
 });
