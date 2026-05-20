@@ -893,7 +893,7 @@ export const PatientDataClass = createReactClass({
 
     const commonQueries = {
       bgPrefs: state.bgPrefs,
-      metaData: 'latestPumpUpload, bgSources',
+      metaData: 'latestPumpUpload, bgSources, devices, matchedDevices',
       timePrefs: state.timePrefs,
       excludedDevices: state.chartPrefs?.excludedDevices,
     };
@@ -1963,7 +1963,7 @@ export const PatientDataClass = createReactClass({
   },
 
   UNSAFE_componentWillUpdate: function (nextProps, nextState) {
-    const pdfGenerated = _.isObject(nextProps.pdf.combined);
+    const pdfGenerated = _.isObject(_.get(nextProps, 'pdf.combined'));
     const pdfGenerationFailed = _.get(nextProps, 'generatingPDF.notification.type') === 'error';
 
     if (nextState.printDialogProcessing && pdfGenerated) {
