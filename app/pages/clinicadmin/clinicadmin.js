@@ -18,7 +18,7 @@ import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import EditIcon from '@material-ui/icons/EditRounded';
 import InputIcon from '@material-ui/icons/Input';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
+import VerifiedUserRoundedIcon from '@material-ui/icons/VerifiedUserRounded';
 import SearchIcon from '@material-ui/icons/Search';
 import sundial from 'sundial';
 import { useFormik } from 'formik';
@@ -547,9 +547,14 @@ export const ClinicAdmin = (props) => {
 
   const renderMfaStatus = ({ mfaEnabled }) => (
     mfaEnabled ? (
-      <Flex sx={{ gap: 1, alignItems: 'center' }}>
-        <LockOutlinedIcon sx={{ fontSize: '14px', color: 'blueGrey' }} />
-        <Text sx={{ fontSize: 0, fontWeight: 'bold', color: 'blueGrey' }}>
+      <Flex sx={{ gap: 1, alignItems: 'center', justifyContent: 'flex-start' }}>
+        <Icon
+          variant="static"
+          icon={VerifiedUserRoundedIcon}
+          label="2FA enabled"
+          sx={{ fontSize: '14px', color: 'feedback.success' }}
+        />
+        <Text sx={{ fontWeight: 'medium', color: 'blueGrey' }}>
           {t('2FA Enabled')}
         </Text>
       </Flex>
