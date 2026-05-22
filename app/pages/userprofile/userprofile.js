@@ -14,11 +14,12 @@
  */
 
 import PropTypes from 'prop-types';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { Box, Flex, Link, Text } from 'theme-ui';
 import _ from 'lodash';
+import noop from 'lodash/noop';
 import moment from 'moment';
 import ChevronLeftRoundedIcon from '@material-ui/icons/ChevronLeftRounded';
 import OpenInNewRoundedIcon from '@material-ui/icons/OpenInNewRounded';
@@ -28,8 +29,10 @@ import Button from '../../components/elements/Button';
 import Icon from '../../components/elements/Icon';
 import personUtils from '../../core/personutils';
 import { selectMfaStatus } from '../../core/selectors';
+import { roles as clinicRoles } from '../../core/clinicUtils';
 import { URL_SUPPORT_ACCOUNT_SETTINGS } from '../../core/constants';
 import baseTheme from '../../themes/baseTheme';
+import EditPersonalDetailsDialog from './EditPersonalDetailsDialog';
 
 const TRACK_METRICS = {
   back: 'Clicked Back in Account',
@@ -91,10 +94,11 @@ StatusPill.propTypes = {
   color: PropTypes.string.isRequired,
 };
 
-function ProfileSection({ user, isClinician, t, trackMetric }) {
+function ProfileSection({ user, isClinician, t, onEdit }) {
   const fullName = _.get(user, 'profile.fullName');
   const email = user?.username || _.get(user, 'emails.0');
-  const jobTitle = _.get(user, 'profile.clinic.role');
+  const jobTitleValue = _.get(user, 'profile.clinic.role');
+  const jobTitle = _.get(_.find(clinicRoles, { value: jobTitleValue }), 'label', jobTitleValue);
   const lastUpdated = _.get(user, 'profile.updatedAt') || _.get(user, 'updatedAt');
 
   return (
@@ -150,7 +154,7 @@ function ProfileSection({ user, isClinician, t, trackMetric }) {
         <Button
           variant="secondary"
           sx={{ width: ['100%', 'auto'], flexShrink: 0 }}
-          onClick={() => trackMetric(TRACK_METRICS.editPersonalDetails)}
+          onClick={onEdit}
         >
           {t('Edit Personal Details')}
         </Button>
@@ -163,7 +167,7 @@ ProfileSection.propTypes = {
   user: PropTypes.object,
   isClinician: PropTypes.bool.isRequired,
   t: PropTypes.func.isRequired,
-  trackMetric: PropTypes.func.isRequired,
+  onEdit: PropTypes.func.isRequired,
 };
 
 const securityRowSx = {
@@ -286,7 +290,7 @@ function TwoFactorRow({ t, trackMetric, mfaStatus }) {
               <StatusPill
                 label={t('Disabled')}
                 dotColor="blueGray30"
-                bg="blueGray00"
+                bg="blue00"
                 color="blueGreyDark"
               />
             )}
@@ -431,7 +435,7 @@ RecoveryCodesRow.propTypes = {
   mfaStatus: PropTypes.object.isRequired,
 };
 
-export function UserProfile({ trackMetric, history }) {
+export function UserProfile({ trackMetric, history, api }) {
   const { t } = useTranslation();
   const user = useSelector((state) => {
     const allUsersMap = state.blip?.allUsersMap;
@@ -444,19 +448,20 @@ export function UserProfile({ trackMetric, history }) {
   const isSSO = personUtils.isSSOAccount(user);
   const passwordLastUpdated = _.get(user, 'passwordLastUpdated');
 
+  const [editOpen, setEditOpen] = useState(false);
+
   useEffect(() => {
-    if (trackMetric) {
-      trackMetric('Viewed Account Settings');
-    }
+    trackMetric('Viewed Account Settings');
   }, [trackMetric]);
 
-  const safeTrackMetric = (event) => {
-    if (trackMetric) trackMetric(event);
+  const handleEditPersonalDetails = () => {
+    trackMetric(TRACK_METRICS.editPersonalDetails);
+    setEditOpen(true);
   };
 
   const handleBack = (e) => {
     e.preventDefault();
-    safeTrackMetric(TRACK_METRICS.back);
+    trackMetric(TRACK_METRICS.back);
     if (history?.goBack) history.goBack();
   };
 
@@ -555,7 +560,7 @@ export function UserProfile({ trackMetric, history }) {
               user={user}
               isClinician={isClinician}
               t={t}
-              trackMetric={safeTrackMetric}
+              onEdit={handleEditPersonalDetails}
             />
 
             <Box sx={{ borderTop: '1px solid', borderColor: 'gray10' }} />
@@ -579,20 +584,20 @@ export function UserProfile({ trackMetric, history }) {
               <Flex sx={{ flexDirection: 'column', gap: 4 }}>
                 <ManagePasswordRow
                   t={t}
-                  trackMetric={safeTrackMetric}
+                  trackMetric={trackMetric}
                   passwordLastUpdated={passwordLastUpdated}
                 />
                 {isClinician && (
                   <TwoFactorRow
                     t={t}
-                    trackMetric={safeTrackMetric}
+                    trackMetric={trackMetric}
                     mfaStatus={mfaStatus}
                   />
                 )}
                 {isClinician && mfaStatus.enabled && (
                   <RecoveryCodesRow
                     t={t}
-                    trackMetric={safeTrackMetric}
+                    trackMetric={trackMetric}
                     mfaStatus={mfaStatus}
                   />
                 )}
@@ -601,6 +606,13 @@ export function UserProfile({ trackMetric, history }) {
           </Flex>
         </Box>
       </Box>
+
+      <EditPersonalDetailsDialog
+        open={editOpen}
+        onClose={() => setEditOpen(false)}
+        api={api}
+        trackMetric={trackMetric}
+      />
     </Box>
   );
 }
@@ -608,6 +620,11 @@ export function UserProfile({ trackMetric, history }) {
 UserProfile.propTypes = {
   trackMetric: PropTypes.func.isRequired,
   history: PropTypes.object,
+  api: PropTypes.object.isRequired,
+};
+
+UserProfile.defaultProps = {
+  trackMetric: noop,
 };
 
 export default UserProfile;

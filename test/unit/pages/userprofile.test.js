@@ -52,14 +52,15 @@ const buildState = (user) => ({
 const renderWith = (state) => {
   const store = mockStore(state);
   const trackMetric = sinon.stub();
+  const api = {};
   const utils = render(
     <Provider store={store}>
       <ToastProvider>
-        <UserProfile trackMetric={trackMetric} />
+        <UserProfile trackMetric={trackMetric} api={api} />
       </ToastProvider>
     </Provider>
   );
-  return { ...utils, trackMetric };
+  return { ...utils, trackMetric, api };
 };
 
 const clinicianUser = {
@@ -67,7 +68,7 @@ const clinicianUser = {
   username: 'sally@clinic.org',
   profile: {
     fullName: 'Dr. Sally Seastar',
-    clinic: { role: 'Endocrinologist' },
+    clinic: { role: 'endocrinologist' },
     updatedAt: '2025-03-22T11:34:00Z',
   },
 };
@@ -103,8 +104,11 @@ describe('UserProfile', () => {
     it('renders the profile card with name, email, job title, and last-updated caption', () => {
       renderWith(buildState(clinicianUser));
       expect(screen.getByText('Dr. Sally Seastar')).to.exist;
-      expect(screen.getByText(/sally@clinic\.org/)).to.exist;
-      expect(screen.getByText(/Endocrinologist/)).to.exist;
+      // EditPersonalDetailsDialog uses keepMounted=true (project Dialog default at
+      // app/components/elements/Dialog.js:220), so the dialog's email card + role
+      // options coexist in the DOM with the page's profile card. Relax to getAllByText.
+      expect(screen.getAllByText(/sally@clinic\.org/).length).to.be.at.least(1);
+      expect(screen.getAllByText(/Endocrinologist/).length).to.be.at.least(1);
       expect(screen.getByText(/Last updated/)).to.exist;
     });
 
@@ -217,12 +221,14 @@ describe('UserProfile', () => {
   });
 
   describe('button-stub behavior', () => {
-    it('fires trackMetric with the documented event name for Edit Personal Details', () => {
+    it('fires trackMetric with the documented event name for Edit Personal Details and opens the dialog', () => {
       mockSelectMfaStatus.mockReturnValue(disabledMfaStatus);
       const { trackMetric } = renderWith(buildState(clinicianUser));
       fireEvent.click(screen.getByRole('button', { name: 'Edit Personal Details' }));
       expect(trackMetric.calledWith('Clicked Edit Personal Details in Account')).to.be.true;
-      expect(screen.queryByRole('dialog')).to.be.null;
+      // Heading (not the button) disambiguates: both share the accessible name
+      // 'Edit Personal Details', but the heading only mounts when the dialog opens.
+      expect(screen.getByRole('heading', { name: 'Edit Personal Details' })).to.exist;
     });
 
     it('fires trackMetric for Update Password', () => {
