@@ -293,7 +293,7 @@ export const ClinicAdmin = (props) => {
       }
 
       let mfaEnabled = !!mfa?.enabled;
-      let mfaEnabledAt = mfa?.lastUpdateTime || null;
+      let mfaEnabledAt = mfa?.enabledTime || null;
 
       if (mock2FA) {
         const hash = (email || clinicianId || '').split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);

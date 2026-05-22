@@ -160,7 +160,7 @@ describe('selectPatientSharedAccounts', () => {
 describe('selectMfaStatus', () => {
   const baselineShape = {
     enabled: false,
-    lastUpdateTime: null,
+    enabledTime: null,
     device: { name: null, registeredTime: null },
     recoveryCodes: { used: 0, total: 12, generatedTime: null },
   };
@@ -195,7 +195,7 @@ describe('selectMfaStatus', () => {
   it('should default enabled to false and timestamps to null when source is missing', () => {
     const result = selectMfaStatus({ blip: {} });
     expect(result.enabled).to.be.false;
-    expect(result.lastUpdateTime).to.be.null;
+    expect(result.enabledTime).to.be.null;
     expect(result.device.name).to.be.null;
     expect(result.device.registeredTime).to.be.null;
     expect(result.recoveryCodes.generatedTime).to.be.null;
@@ -210,7 +210,7 @@ describe('selectMfaStatus', () => {
   it('should read mfa values from allUsersMap[loggedInUserId].profile.clinic.mfa when populated', () => {
     const mfa = {
       enabled: true,
-      lastUpdateTime: '2026-04-01T00:00:00Z',
+      enabledTime: '2026-04-01T00:00:00Z',
       device: { name: 'iPhone 17', registeredTime: '2026-04-01T00:00:00Z' },
       recoveryCodes: { used: 3, total: 12, generatedTime: '2026-04-01T00:00:00Z' },
     };
@@ -226,7 +226,7 @@ describe('selectMfaStatus', () => {
     }));
     expect(result).to.deep.equal({
       enabled: true,
-      lastUpdateTime: null,
+      enabledTime: null,
       device: { name: 'Pixel 12', registeredTime: null },
       recoveryCodes: { used: 1, total: 12, generatedTime: null },
     });

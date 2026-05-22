@@ -179,7 +179,7 @@ describe('ClinicAdmin', () => {
           clinicians: {
             clinicianUserId123: {
               roles: ['CLINIC_ADMIN', 'PRESCRIBER'],
-              mfa: { enabled: true, lastUpdateTime: '2026-04-01T12:34:56Z' },
+              mfa: { enabled: true, enabledTime: '2026-04-01T12:34:56Z' },
             },
             clinicianUserId456: {
               roles: ['CLINIC_ADMIN', 'PRESCRIBER'],
@@ -188,7 +188,7 @@ describe('ClinicAdmin', () => {
               id: 'clinicianUserId456',
               createdTime: '2021-10-06T18:00:00Z',
               updatedTime: '2021-10-06T18:00:00Z',
-              mfa: { enabled: false, lastUpdateTime: null },
+              mfa: { enabled: false, enabledTime: null },
             },
             clinicianUserId789InviteId: {
               roles: ['CLINIC_MEMBER'],
