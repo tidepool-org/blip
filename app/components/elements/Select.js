@@ -40,6 +40,7 @@ const StyledSelect = styled(Flex)`
 export function Select(props) {
   const {
     disabled,
+    id,
     innerRef,
     name,
     label,
@@ -54,6 +55,8 @@ export function Select(props) {
     ...selectProps
   } = props;
 
+  const inputId = id || name;
+
   const classNames = cx({ disabled, error, empty: value === '' });
   const inputClasses = cx({
     error,
@@ -63,7 +66,7 @@ export function Select(props) {
   return (
     <Box width={['100%', '75%', '50%']} {...themeProps}>
       {label && (
-        <Label htmlFor={name}>
+        <Label htmlFor={inputId}>
           <Caption
             sx={{
               fontWeight: fontWeights.medium,
@@ -77,7 +80,7 @@ export function Select(props) {
       )}
       <StyledSelect sx={{ alignItems: 'center' }} className={classNames} variant={`inputs.select.${variant}`} {...selectProps}>
         <Base
-          id={name}
+          id={inputId}
           name={name}
           disabled={disabled}
           value={value}
@@ -107,6 +110,7 @@ export function Select(props) {
 
 Select.propTypes = {
   ...SelectProps,
+  id: PropTypes.string,
   innerRef: PropTypes.oneOfType([
     PropTypes.func,
     PropTypes.shape({ current: PropTypes.any }),
