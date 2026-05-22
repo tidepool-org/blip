@@ -434,10 +434,10 @@ export function UserProfile({ trackMetric, history }) {
       <Box variant="containers.largeBordered" mb={4}>
         <Flex
           px={4}
-          py={2}
+          py="12px"
           sx={{
             alignItems: 'center',
-            justifyContent: 'space-between',
+            justifyContent: ['center', 'space-between'],
             flexWrap: ['wrap', null, 'nowrap'],
             gap: 3,
           }}
