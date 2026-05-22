@@ -29,14 +29,14 @@ const mockStore = configureStore([thunk]);
 
 const disabledMfaStatus = {
   enabled: false,
-  lastUpdateTime: null,
+  enabledTime: null,
   device: { name: null, registeredTime: null },
   recoveryCodes: { used: 0, total: 12, generatedTime: null },
 };
 
 const enabledMfaStatus = (overrides = {}) => ({
   enabled: true,
-  lastUpdateTime: '2026-04-01T00:00:00Z',
+  enabledTime: '2026-04-01T00:00:00Z',
   device: { name: 'iPhone 17', registeredTime: '2026-04-01T00:00:00Z' },
   recoveryCodes: { used: 1, total: 12, generatedTime: '2026-04-01T00:00:00Z' },
   ...overrides,

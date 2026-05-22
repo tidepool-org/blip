@@ -175,7 +175,7 @@ export const selectMfaStatus = createSelector(
     const mfa = get(allUsersMap, [loggedInUserId, 'profile', 'clinic', 'mfa']);
     return {
       enabled: !!mfa?.enabled,
-      lastUpdateTime: mfa?.lastUpdateTime ?? null,
+      enabledTime: mfa?.enabledTime ?? null,
       device: {
         name: mfa?.device?.name ?? null,
         registeredTime: mfa?.device?.registeredTime ?? null,
