@@ -96,8 +96,6 @@ export const ClinicAdmin = (props) => {
   const [userRolesInClinic, setUserRolesInClinic] = useState([]);
   const [sortOptions, setSortOptions] = useState({ orderBy: 'fullName', order: 'asc' });
 
-  const mock2FA = true;
-
   const sortedClinicianArray = useMemo(() => {
     const { orderBy, order } = sortOptions;
 
@@ -292,16 +290,8 @@ export const ClinicAdmin = (props) => {
         role = t('Clinic Member');
       }
 
-      let mfaEnabled = !!mfa?.enabled;
-      let mfaEnabledAt = mfa?.enabledTime || null;
-
-      if (mock2FA) {
-        const hash = (email || clinicianId || '').split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
-        mfaEnabled = hash % 2 === 0;
-        mfaEnabledAt = mfaEnabled
-          ? new Date(Date.now() - ((hash % 30) + 1) * 24 * 60 * 60 * 1000).toISOString()
-          : null;
-      }
+      const mfaEnabled = !!mfa?.enabled;
+      const mfaEnabledAt = mfa?.enabledTime || null;
 
       return {
         fullName: name,
