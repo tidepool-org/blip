@@ -99,7 +99,14 @@ function ProfileSection({ user, isClinician, t, trackMetric }) {
 
   return (
     <Box variant="containers.well" p={4}>
-      <Flex sx={{ justifyContent: 'space-between', alignItems: 'flex-start', gap: 3 }}>
+      <Flex
+        sx={{
+          flexDirection: ['column', 'row'],
+          justifyContent: 'space-between',
+          alignItems: ['stretch', 'flex-start'],
+          gap: 3,
+        }}
+      >
         <Box>
           <Text
             as="div"
@@ -142,6 +149,7 @@ function ProfileSection({ user, isClinician, t, trackMetric }) {
         </Box>
         <Button
           variant="secondary"
+          sx={{ width: ['100%', 'auto'], flexShrink: 0 }}
           onClick={() => trackMetric(TRACK_METRICS.editPersonalDetails)}
         >
           {t('Edit Personal Details')}
@@ -183,7 +191,14 @@ SecuritySSONotice.propTypes = { t: PropTypes.func.isRequired };
 function ManagePasswordRow({ t, trackMetric, passwordLastUpdated }) {
   return (
     <Box sx={securityRowSx}>
-      <Flex sx={{ justifyContent: 'space-between', alignItems: 'center', gap: 3 }}>
+      <Flex
+        sx={{
+          flexDirection: ['column', 'row'],
+          justifyContent: 'space-between',
+          alignItems: ['stretch', 'center'],
+          gap: 3,
+        }}
+      >
         <Box>
           <Text
             as="div"
@@ -215,6 +230,7 @@ function ManagePasswordRow({ t, trackMetric, passwordLastUpdated }) {
         </Box>
         <Button
           variant="secondary"
+          sx={{ width: ['100%', 'auto'], flexShrink: 0 }}
           onClick={() => trackMetric(TRACK_METRICS.updatePassword)}
         >
           {t('Update Password')}
@@ -237,9 +253,16 @@ function TwoFactorRow({ t, trackMetric, mfaStatus }) {
 
   return (
     <Box sx={securityRowSx}>
-      <Flex sx={{ justifyContent: 'space-between', alignItems: 'flex-start', gap: 3 }}>
+      <Flex
+        sx={{
+          flexDirection: ['column', 'row'],
+          justifyContent: 'space-between',
+          alignItems: ['stretch', 'flex-start'],
+          gap: 3,
+        }}
+      >
         <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Flex sx={{ alignItems: 'center', gap: 2, mb: 2 }}>
+          <Flex sx={{ alignItems: 'center', gap: 2, mb: 2, flexWrap: 'wrap' }}>
             <Text
               as="div"
               sx={{
@@ -302,7 +325,7 @@ function TwoFactorRow({ t, trackMetric, mfaStatus }) {
         {enabled ? (
           <Button
             variant="secondary"
-            sx={{ flexShrink: 0 }}
+            sx={{ width: ['100%', 'auto'], flexShrink: 0 }}
             onClick={() => trackMetric(TRACK_METRICS.disable2fa)}
           >
             {t('Disable 2FA')}
@@ -310,7 +333,7 @@ function TwoFactorRow({ t, trackMetric, mfaStatus }) {
         ) : (
           <Button
             variant="primary"
-            sx={{ flexShrink: 0 }}
+            sx={{ width: ['100%', 'auto'], flexShrink: 0 }}
             onClick={() => trackMetric(TRACK_METRICS.setUp2fa)}
           >
             {t('Set up 2FA')}
@@ -335,7 +358,14 @@ function RecoveryCodesRow({ t, trackMetric, mfaStatus }) {
 
   return (
     <Box sx={securityRowSx}>
-      <Flex sx={{ justifyContent: 'space-between', alignItems: 'flex-start', gap: 3 }}>
+      <Flex
+        sx={{
+          flexDirection: ['column', 'row'],
+          justifyContent: 'space-between',
+          alignItems: ['stretch', 'flex-start'],
+          gap: 3,
+        }}
+      >
         <Box>
           <Text
             as="div"
@@ -385,6 +415,7 @@ function RecoveryCodesRow({ t, trackMetric, mfaStatus }) {
         </Box>
         <Button
           variant="secondary"
+          sx={{ width: ['100%', 'auto'], flexShrink: 0 }}
           onClick={() => trackMetric(TRACK_METRICS.regenerateCodes)}
         >
           {t('Regenerate Codes')}
