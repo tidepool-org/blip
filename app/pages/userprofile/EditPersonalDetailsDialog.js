@@ -18,6 +18,7 @@ import { getCommonFormikFieldProps, addEmptyOption, fieldsAreValid } from '../..
 import personUtils from '../../core/personutils';
 import { roles as clinicRoles } from '../../core/clinicUtils';
 import * as actions from '../../redux/actions';
+import { redirectToKeycloakAction } from '../../keycloak';
 
 export function EditPersonalDetailsDialog({ open, onClose, api, trackMetric }) {
   const { t } = useTranslation();
@@ -75,6 +76,7 @@ export function EditPersonalDetailsDialog({ open, onClose, api, trackMetric }) {
 
   const handleUpdateEmail = () => {
     trackMetric('Clicked Update Email in Account');
+    redirectToKeycloakAction('UPDATE_EMAIL', `${window.location.origin}/profile`);
   };
 
   return (
