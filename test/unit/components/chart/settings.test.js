@@ -1443,7 +1443,7 @@ describe('Settings', () => {
             isUserPatient: false,
             clinicPatient: {
               ...clinicPatient,
-              dataSources: _.map(availableProviders, providerName => ({ providerName, state: 'pending' })),
+              dataSources: _.map(availableProviders, providerName => ({ providerName, state: 'connected' })),
             },
           };
 
@@ -1545,7 +1545,7 @@ describe('Settings', () => {
             blip: {
               ...defaultState.blip,
               loggedInUserId: '40', // Match patient.userid so oura (requiresLoggedInUser) shows
-              dataSources: _.map(availableProviders, providerName => ({ providerName, state: 'pending' })),
+              dataSources: _.map(availableProviders, providerName => ({ providerName, state: 'connected' })),
             }
           };
 
