@@ -51,3 +51,9 @@ locales/*/*_old.json
 
 .codegpt
 *.code-workspace
+.pi
+.pi-lens
+.claude
+
+# ApoVault — ignore entire vault locally
+.apo/
