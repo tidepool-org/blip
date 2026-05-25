@@ -55,10 +55,5 @@ locales/*/*_old.json
 .pi-lens
 .claude
 
-# ApoVault — task-scoped work stays local (workstreams + shared artifacts + Obsidian workspace state)
-.apo/02_Work/
-.apo/00_Home/
-.apo/03_Shared/
-.apo/01_Knowledge/_pending/
-.apo/.obsidian/
-.apo/.config.json
+# ApoVault — ignore entire vault locally
+.apo/
