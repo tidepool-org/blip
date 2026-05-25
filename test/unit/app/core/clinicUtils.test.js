@@ -756,8 +756,6 @@ describe('clinicUtils', function() {
         'mrn',
         'sites',
         'tags',
-        'connectDexcom',
-        'dataSources',
         'glycemicRanges',
         'diagnosisType',
       ]);
