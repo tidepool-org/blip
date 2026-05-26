@@ -71,7 +71,7 @@ export const ClinicWorkspace = (props) => {
     if (tab && tab in tabIndices && tabIndices[tab] !== selectedTab) {
       setSelectedTab(tabIndices[tab]);
     }
-  }, [tab]);
+  }, [tab, tabIndices]);
 
   // Fetchers
   useEffect(() => {
