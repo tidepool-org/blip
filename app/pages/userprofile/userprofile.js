@@ -465,26 +465,35 @@ export function UserProfile({ trackMetric, history, api }) {
   useEffect(() => {
     // Keycloak's AIA flow returns kc_action_status in the URL fragment
     // (response_mode=fragment is the default for application-initiated actions).
+    // Toast is per-action: UPDATE_PASSWORD fires on all statuses, UPDATE_EMAIL fires
+    // only on cancelled/error (success stays silent since the user is logged out in this flow).
     const hashStr = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : '';
     const params = new URLSearchParams(hashStr);
+    const action = params.get('kc_action');
     const status = params.get('kc_action_status');
     let toast = null;
-    if (status === 'cancelled' || status === 'error') {
-      toast = { message: t('Password reset {{status}}.', { status }), variant: 'danger' };
-    } else if (status === 'success') {
-      toast = {
-        message: t('Password reset successful. You can now log in using your new password.'),
-        variant: 'success',
-      };
+    if (action === 'UPDATE_PASSWORD') {
+      if (status === 'cancelled' || status === 'error') {
+        toast = { message: t('Password reset {{status}}.', { status }), variant: 'danger' };
+      } else if (status === 'success') {
+        toast = {
+          message: t('Password reset successful. You can now log in using your new password.'),
+          variant: 'success',
+        };
+      }
+    } else if (action === 'UPDATE_EMAIL') {
+      if (status === 'cancelled' || status === 'error') {
+        toast = { message: t('Email update {{status}}.', { status }), variant: 'danger' };
+      }
+    } else {
+      return;
     }
-    if (toast) {
-      setToast(toast);
-      params.delete('kc_action_status');
-      params.delete('kc_action');
-      const remaining = params.toString();
-      const newHash = remaining ? `#${remaining}` : '';
-      window.history.replaceState(null, '', window.location.pathname + window.location.search + newHash);
-    }
+    if (toast) setToast(toast);
+    params.delete('kc_action_status');
+    params.delete('kc_action');
+    const remaining = params.toString();
+    const newHash = remaining ? `#${remaining}` : '';
+    window.history.replaceState(null, '', window.location.pathname + window.location.search + newHash);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

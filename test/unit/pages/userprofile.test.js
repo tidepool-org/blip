@@ -283,25 +283,25 @@ describe('UserProfile', () => {
       mockSelectMfaStatus.mockReturnValue(disabledMfaStatus);
     });
 
-    it('shows the cancel toast and strips the param when kc_action_status=cancelled', () => {
-      window.history.pushState({}, '', '/profile#kc_action_status=cancelled');
+    it('shows the cancel toast and strips the param when kc_action=UPDATE_PASSWORD&kc_action_status=cancelled', () => {
+      window.history.pushState({}, '', '/profile#kc_action=UPDATE_PASSWORD&kc_action_status=cancelled');
       renderWith(buildState(clinicianUser));
       expect(screen.getByText('Password reset cancelled.')).to.exist;
       expect(window.location.hash).to.equal('');
       expect(window.location.pathname).to.equal('/profile');
     });
 
-    it('shows the cancel toast and strips the param when kc_action_status=error', () => {
-      window.history.pushState({}, '', '/profile#kc_action_status=error');
+    it('shows the cancel toast and strips the param when kc_action=UPDATE_PASSWORD&kc_action_status=error', () => {
+      window.history.pushState({}, '', '/profile#kc_action=UPDATE_PASSWORD&kc_action_status=error');
       renderWith(buildState(clinicianUser));
       expect(screen.getByText('Password reset error.')).to.exist;
       expect(window.location.hash).to.equal('');
     });
 
-    it('shows the success toast and strips the param when kc_action_status=success', () => {
+    it('shows the success toast and strips the param when kc_action=UPDATE_PASSWORD&kc_action_status=success', () => {
       // Per DEC-0018: /profile is the only page that fires the success toast (Keycloak does
       // not sign the user out in any tested flow). Full Figma copy used verbatim.
-      window.history.pushState({}, '', '/profile#kc_action_status=success');
+      window.history.pushState({}, '', '/profile#kc_action=UPDATE_PASSWORD&kc_action_status=success');
       renderWith(buildState(clinicianUser));
       expect(screen.getByText('Password reset successful. You can now log in using your new password.')).to.exist;
       expect(window.location.hash).to.equal('');
@@ -314,8 +314,47 @@ describe('UserProfile', () => {
       expect(window.location.hash).to.equal('');
     });
 
+    it('shows the email cancel toast and strips the params when kc_action=UPDATE_EMAIL&kc_action_status=cancelled', () => {
+      window.history.pushState({}, '', '/profile#kc_action=UPDATE_EMAIL&kc_action_status=cancelled');
+      renderWith(buildState(clinicianUser));
+      expect(screen.getByText('Email update cancelled.')).to.exist;
+      expect(screen.queryByText('Password reset cancelled.')).to.be.null;
+      expect(window.location.hash).to.equal('');
+    });
+
+    it('shows the email error toast and strips the params when kc_action=UPDATE_EMAIL&kc_action_status=error', () => {
+      window.history.pushState({}, '', '/profile#kc_action=UPDATE_EMAIL&kc_action_status=error');
+      renderWith(buildState(clinicianUser));
+      expect(screen.getByText('Email update error.')).to.exist;
+      expect(window.location.hash).to.equal('');
+    });
+
+    it('stays silent on email update success but still strips the params', () => {
+      // Success is silent for UPDATE_EMAIL — Keycloak's own flow confirms; we just clean the URL.
+      window.history.pushState({}, '', '/profile#kc_action=UPDATE_EMAIL&kc_action_status=success');
+      renderWith(buildState(clinicianUser));
+      expect(screen.queryByText('Email update success.')).to.be.null;
+      expect(screen.queryByText('Password reset successful. You can now log in using your new password.')).to.be.null;
+      expect(window.location.hash).to.equal('');
+    });
+
+    it('leaves the hash untouched when kc_action is foreign (neither UPDATE_PASSWORD nor UPDATE_EMAIL)', () => {
+      // Foreign kc_action: no toast, no strip — leave the params for a future per-action handler.
+      window.history.pushState({}, '', '/profile#kc_action=CONFIGURE_TOTP&kc_action_status=cancelled');
+      renderWith(buildState(clinicianUser));
+      expect(screen.queryByText('Password reset cancelled.')).to.be.null;
+      expect(screen.queryByText('Email update cancelled.')).to.be.null;
+      expect(window.location.hash).to.equal('#kc_action=CONFIGURE_TOTP&kc_action_status=cancelled');
+    });
+
+    it('does not show the password toast when kc_action is absent (kc_action_status orphaned)', () => {
+      window.history.pushState({}, '', '/profile#kc_action_status=cancelled');
+      renderWith(buildState(clinicianUser));
+      expect(screen.queryByText('Password reset cancelled.')).to.be.null;
+    });
+
     it('preserves unrelated query parameters when stripping kc_action_status from the hash', () => {
-      window.history.pushState({}, '', '/profile?foo=bar#kc_action_status=cancelled');
+      window.history.pushState({}, '', '/profile?foo=bar#kc_action=UPDATE_PASSWORD&kc_action_status=cancelled');
       renderWith(buildState(clinicianUser));
       expect(window.location.search).to.equal('?foo=bar');
       expect(window.location.hash).to.equal('');
