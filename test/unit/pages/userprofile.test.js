@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
@@ -253,12 +253,39 @@ describe('UserProfile', () => {
       expect(screen.queryByRole('dialog')).to.be.null;
     });
 
-    it('fires trackMetric for Set up 2FA', () => {
+    it('fires trackMetric and opens the 2FA instructions dialog when Set up 2FA is clicked, without redirecting', () => {
       mockSelectMfaStatus.mockReturnValue(disabledMfaStatus);
       const { trackMetric } = renderWith(buildState(clinicianUser));
       fireEvent.click(screen.getByRole('button', { name: 'Set up 2FA' }));
       expect(trackMetric.calledWith('Clicked Set Up 2FA in Account')).to.be.true;
-      expect(screen.queryByRole('dialog')).to.be.null;
+      // Heading mounts (becomes accessible) only when the dialog opens.
+      expect(screen.getByRole('heading', { name: 'Before setting up 2FA' })).to.exist;
+      expect(redirectToKeycloakAction.mock.calls).to.have.lengthOf(0);
+    });
+
+    it('redirects to Keycloak CONFIGURE_TOTP when "I understand" is clicked in the dialog', () => {
+      mockSelectMfaStatus.mockReturnValue(disabledMfaStatus);
+      renderWith(buildState(clinicianUser));
+      fireEvent.click(screen.getByRole('button', { name: 'Set up 2FA' }));
+      fireEvent.click(screen.getByRole('button', { name: 'I understand' }));
+      expect(redirectToKeycloakAction.mock.calls).to.have.lengthOf(1);
+      expect(redirectToKeycloakAction.mock.calls[0]).to.deep.equal([
+        'CONFIGURE_TOTP',
+        `${window.location.origin}/profile`,
+      ]);
+    });
+
+    it('closes the 2FA dialog without redirecting when Cancel is clicked', async () => {
+      mockSelectMfaStatus.mockReturnValue(disabledMfaStatus);
+      renderWith(buildState(clinicianUser));
+      fireEvent.click(screen.getByRole('button', { name: 'Set up 2FA' }));
+      expect(screen.getByRole('heading', { name: 'Before setting up 2FA' })).to.exist;
+      fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+      expect(redirectToKeycloakAction.mock.calls).to.have.lengthOf(0);
+      // keepMounted Dialog stays in the DOM; it becomes inaccessible after the exit transition.
+      await waitFor(() =>
+        expect(screen.queryByRole('heading', { name: 'Before setting up 2FA' })).to.be.null
+      );
     });
 
     it('fires trackMetric for Disable 2FA', () => {
@@ -283,23 +310,25 @@ describe('UserProfile', () => {
       mockSelectMfaStatus.mockReturnValue(disabledMfaStatus);
     });
 
-    it('shows the cancel toast and strips the param when kc_action=UPDATE_PASSWORD&kc_action_status=cancelled', () => {
+    it('shows the cancel toast (info variant) and strips the param when kc_action=UPDATE_PASSWORD&kc_action_status=cancelled', () => {
       window.history.pushState({}, '', '/profile#kc_action=UPDATE_PASSWORD&kc_action_status=cancelled');
       renderWith(buildState(clinicianUser));
       expect(screen.getByText('Password reset cancelled.')).to.exist;
+      expect(screen.getByText('Password reset cancelled.').closest('.info')).to.exist;
       expect(window.location.hash).to.equal('');
       expect(window.location.pathname).to.equal('/profile');
     });
 
-    it('shows the cancel toast and strips the param when kc_action=UPDATE_PASSWORD&kc_action_status=error', () => {
+    it('shows the error toast (danger variant) and strips the param when kc_action=UPDATE_PASSWORD&kc_action_status=error', () => {
       window.history.pushState({}, '', '/profile#kc_action=UPDATE_PASSWORD&kc_action_status=error');
       renderWith(buildState(clinicianUser));
       expect(screen.getByText('Password reset error.')).to.exist;
+      expect(screen.getByText('Password reset error.').closest('.danger')).to.exist;
       expect(window.location.hash).to.equal('');
     });
 
     it('shows the success toast and strips the param when kc_action=UPDATE_PASSWORD&kc_action_status=success', () => {
-      // Per DEC-0018: /profile is the only page that fires the success toast (Keycloak does
+      // /profile is the only page that fires the success toast (Keycloak does
       // not sign the user out in any tested flow). Full Figma copy used verbatim.
       window.history.pushState({}, '', '/profile#kc_action=UPDATE_PASSWORD&kc_action_status=success');
       renderWith(buildState(clinicianUser));
@@ -314,18 +343,20 @@ describe('UserProfile', () => {
       expect(window.location.hash).to.equal('');
     });
 
-    it('shows the email cancel toast and strips the params when kc_action=UPDATE_EMAIL&kc_action_status=cancelled', () => {
+    it('shows the email cancel toast (info variant) and strips the params when kc_action=UPDATE_EMAIL&kc_action_status=cancelled', () => {
       window.history.pushState({}, '', '/profile#kc_action=UPDATE_EMAIL&kc_action_status=cancelled');
       renderWith(buildState(clinicianUser));
       expect(screen.getByText('Email update cancelled.')).to.exist;
+      expect(screen.getByText('Email update cancelled.').closest('.info')).to.exist;
       expect(screen.queryByText('Password reset cancelled.')).to.be.null;
       expect(window.location.hash).to.equal('');
     });
 
-    it('shows the email error toast and strips the params when kc_action=UPDATE_EMAIL&kc_action_status=error', () => {
+    it('shows the email error toast (danger variant) and strips the params when kc_action=UPDATE_EMAIL&kc_action_status=error', () => {
       window.history.pushState({}, '', '/profile#kc_action=UPDATE_EMAIL&kc_action_status=error');
       renderWith(buildState(clinicianUser));
       expect(screen.getByText('Email update error.')).to.exist;
+      expect(screen.getByText('Email update error.').closest('.danger')).to.exist;
       expect(window.location.hash).to.equal('');
     });
 
@@ -338,13 +369,39 @@ describe('UserProfile', () => {
       expect(window.location.hash).to.equal('');
     });
 
-    it('leaves the hash untouched when kc_action is foreign (neither UPDATE_PASSWORD nor UPDATE_EMAIL)', () => {
-      // Foreign kc_action: no toast, no strip — leave the params for a future per-action handler.
+    it('shows the 2FA success toast (success variant) and strips the param when kc_action=CONFIGURE_TOTP&kc_action_status=success', () => {
+      window.history.pushState({}, '', '/profile#kc_action=CONFIGURE_TOTP&kc_action_status=success');
+      renderWith(buildState(clinicianUser));
+      const msg = 'Two-factor authentication (2FA) is now enabled. You’ll be asked for a verification code the next time you log in.';
+      expect(screen.getByText(msg)).to.exist;
+      expect(screen.getByText(msg).closest('.success')).to.exist;
+      expect(window.location.hash).to.equal('');
+    });
+
+    it('shows the 2FA error toast (danger variant) and strips the param when kc_action=CONFIGURE_TOTP&kc_action_status=error', () => {
+      window.history.pushState({}, '', '/profile#kc_action=CONFIGURE_TOTP&kc_action_status=error');
+      renderWith(buildState(clinicianUser));
+      const msg = 'We couldn’t complete set up. Your account security hasn’t changed, please try again.';
+      expect(screen.getByText(msg)).to.exist;
+      expect(screen.getByText(msg).closest('.danger')).to.exist;
+      expect(window.location.hash).to.equal('');
+    });
+
+    it('shows the 2FA cancelled toast (info variant) and strips the param when kc_action=CONFIGURE_TOTP&kc_action_status=cancelled', () => {
       window.history.pushState({}, '', '/profile#kc_action=CONFIGURE_TOTP&kc_action_status=cancelled');
+      renderWith(buildState(clinicianUser));
+      expect(screen.getByText('Two-factor authentication setup cancelled.')).to.exist;
+      expect(screen.getByText('Two-factor authentication setup cancelled.').closest('.info')).to.exist;
+      expect(window.location.hash).to.equal('');
+    });
+
+    it('leaves the hash untouched when kc_action is foreign (none of UPDATE_PASSWORD/UPDATE_EMAIL/CONFIGURE_TOTP)', () => {
+      // Foreign kc_action: no toast, no strip — leave the params for a future per-action handler.
+      window.history.pushState({}, '', '/profile#kc_action=VERIFY_EMAIL&kc_action_status=cancelled');
       renderWith(buildState(clinicianUser));
       expect(screen.queryByText('Password reset cancelled.')).to.be.null;
       expect(screen.queryByText('Email update cancelled.')).to.be.null;
-      expect(window.location.hash).to.equal('#kc_action=CONFIGURE_TOTP&kc_action_status=cancelled');
+      expect(window.location.hash).to.equal('#kc_action=VERIFY_EMAIL&kc_action_status=cancelled');
     });
 
     it('does not show the password toast when kc_action is absent (kc_action_status orphaned)', () => {

@@ -35,6 +35,7 @@ import baseTheme from '../../themes/baseTheme';
 import { redirectToKeycloakAction } from '../../keycloak';
 import { useToasts } from '../../providers/ToastProvider';
 import EditPersonalDetailsDialog from './EditPersonalDetailsDialog';
+import SetupTwoFactorInstructionsDialog from './SetupTwoFactorInstructionsDialog';
 
 const TRACK_METRICS = {
   back: 'Clicked Back in Account',
@@ -257,7 +258,7 @@ ManagePasswordRow.propTypes = {
   passwordLastUpdated: PropTypes.string,
 };
 
-function TwoFactorRow({ t, trackMetric, mfaStatus }) {
+function TwoFactorRow({ t, trackMetric, mfaStatus, onSetup2fa }) {
   const enabled = !!mfaStatus.enabled;
   const deviceName = _.get(mfaStatus, 'device.name');
   const deviceRegisteredTime = _.get(mfaStatus, 'device.registeredTime');
@@ -345,7 +346,7 @@ function TwoFactorRow({ t, trackMetric, mfaStatus }) {
           <Button
             variant="primary"
             sx={{ width: ['100%', 'auto'], flexShrink: 0 }}
-            onClick={() => trackMetric(TRACK_METRICS.setUp2fa)}
+            onClick={onSetup2fa}
           >
             {t('Set up 2FA')}
           </Button>
@@ -359,6 +360,7 @@ TwoFactorRow.propTypes = {
   t: PropTypes.func.isRequired,
   trackMetric: PropTypes.func.isRequired,
   mfaStatus: PropTypes.object.isRequired,
+  onSetup2fa: PropTypes.func.isRequired,
 };
 
 function RecoveryCodesRow({ t, trackMetric, mfaStatus }) {
@@ -457,6 +459,7 @@ export function UserProfile({ trackMetric, history, api }) {
   const passwordLastUpdated = _.get(user, 'passwordLastUpdated');
 
   const [editOpen, setEditOpen] = useState(false);
+  const [setup2faOpen, setSetup2faOpen] = useState(false);
 
   useEffect(() => {
     trackMetric('Viewed Account Settings');
@@ -465,15 +468,19 @@ export function UserProfile({ trackMetric, history, api }) {
   useEffect(() => {
     // Keycloak's AIA flow returns kc_action_status in the URL fragment
     // (response_mode=fragment is the default for application-initiated actions).
-    // Toast is per-action: UPDATE_PASSWORD fires on all statuses, UPDATE_EMAIL fires
-    // only on cancelled/error (success stays silent since the user is logged out in this flow).
+    // Toast is per-action: UPDATE_PASSWORD and CONFIGURE_TOTP fire on all statuses,
+    // UPDATE_EMAIL fires only on cancelled/error (success stays silent since the user
+    // is logged out in that flow). Variant is per-status: cancelled -> info (a benign
+    // user cancel), error -> danger, success -> success.
     const hashStr = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : '';
     const params = new URLSearchParams(hashStr);
     const action = params.get('kc_action');
     const status = params.get('kc_action_status');
     let toast = null;
     if (action === 'UPDATE_PASSWORD') {
-      if (status === 'cancelled' || status === 'error') {
+      if (status === 'cancelled') {
+        toast = { message: t('Password reset {{status}}.', { status }), variant: 'info' };
+      } else if (status === 'error') {
         toast = { message: t('Password reset {{status}}.', { status }), variant: 'danger' };
       } else if (status === 'success') {
         toast = {
@@ -482,8 +489,24 @@ export function UserProfile({ trackMetric, history, api }) {
         };
       }
     } else if (action === 'UPDATE_EMAIL') {
-      if (status === 'cancelled' || status === 'error') {
+      if (status === 'cancelled') {
+        toast = { message: t('Email update {{status}}.', { status }), variant: 'info' };
+      } else if (status === 'error') {
         toast = { message: t('Email update {{status}}.', { status }), variant: 'danger' };
+      }
+    } else if (action === 'CONFIGURE_TOTP') {
+      if (status === 'cancelled') {
+        toast = { message: t('Two-factor authentication setup {{status}}.', { status }), variant: 'info' };
+      } else if (status === 'error') {
+        toast = {
+          message: t('We couldn’t complete set up. Your account security hasn’t changed, please try again.'),
+          variant: 'danger',
+        };
+      } else if (status === 'success') {
+        toast = {
+          message: t('Two-factor authentication (2FA) is now enabled. You’ll be asked for a verification code the next time you log in.'),
+          variant: 'success',
+        };
       }
     } else {
       return;
@@ -500,6 +523,11 @@ export function UserProfile({ trackMetric, history, api }) {
   const handleEditPersonalDetails = () => {
     trackMetric(TRACK_METRICS.editPersonalDetails);
     setEditOpen(true);
+  };
+
+  const handleSetup2fa = () => {
+    trackMetric(TRACK_METRICS.setUp2fa);
+    setSetup2faOpen(true);
   };
 
   const handleBack = (e) => {
@@ -635,6 +663,7 @@ export function UserProfile({ trackMetric, history, api }) {
                     t={t}
                     trackMetric={trackMetric}
                     mfaStatus={mfaStatus}
+                    onSetup2fa={handleSetup2fa}
                   />
                 )}
                 {isClinician && mfaStatus.enabled && (
@@ -655,6 +684,11 @@ export function UserProfile({ trackMetric, history, api }) {
         onClose={() => setEditOpen(false)}
         api={api}
         trackMetric={trackMetric}
+      />
+
+      <SetupTwoFactorInstructionsDialog
+        open={setup2faOpen}
+        onClose={() => setSetup2faOpen(false)}
       />
     </Box>
   );
