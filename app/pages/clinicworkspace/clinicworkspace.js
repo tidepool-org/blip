@@ -65,13 +65,7 @@ export const ClinicWorkspace = (props) => {
     });
   }
 
-  const [selectedTab, setSelectedTab] = useState(get(tabIndices, tab, 0));
-
-  useEffect(() => {
-    if (tab && tab in tabIndices && tabIndices[tab] !== selectedTab) {
-      setSelectedTab(tabIndices[tab]);
-    }
-  }, [tab, tabIndices]);
+  const selectedTab = get(tabIndices, tab, 0);
 
   // Fetchers
   useEffect(() => {
@@ -104,7 +98,6 @@ export const ClinicWorkspace = (props) => {
 
   function handleSelectTab(event, newValue) {
     trackMetric(tabs[newValue]?.metric, { clinicId: selectedClinicId, source: 'Workspace table' });
-    setSelectedTab(newValue);
     dispatch(push(`/clinic-workspace/${tabs[newValue].name}`));
   }
 
