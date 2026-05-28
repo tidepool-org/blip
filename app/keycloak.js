@@ -232,6 +232,71 @@ export async function redirectToKeycloakAction(action, redirectUri) {
   window.location.href = url;
 }
 
+/**
+ * Fetch the current user's Keycloak account credentials.
+ *
+ * GETs the realm account REST endpoint with the current access token. Returns
+ * the parsed credential array (password / otp / recovery-authn-codes entries).
+ * Must only be called at runtime (not module load) to avoid the import cycle
+ * with redux/actions.
+ *
+ * @returns {Promise<Array>} the parsed credentials array
+ */
+export async function fetchKeycloakCredentials() {
+  const url = new URL(`${keycloak.authServerUrl}/realms/${keycloak.realm}/account/credentials`);
+  const response = await fetch(url.toString(), {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${keycloak.token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const error = new Error(`Failed to fetch Keycloak credentials (${response.status})`);
+    error.status = response.status;
+    throw error;
+  }
+
+  return response.json();
+}
+
+/**
+ * Map a Keycloak account credentials array to the page-ready mfaStatus shape.
+ *
+ * @param {Array} credentials - the array returned by fetchKeycloakCredentials
+ * @returns {{enabled: boolean, enabledTime: ?number, device: {name: ?string, registeredTime: ?number}, recoveryCodes: {used: number, total: number, generatedTime: ?number}}}
+ */
+export function mapKeycloakCredentialsToMfaStatus(credentials) {
+  const list = Array.isArray(credentials) ? credentials : [];
+
+  const otpCred = list.find((c) => c?.type === 'otp')?.userCredentialMetadatas?.[0]?.credential;
+  const recoveryCred = list.find((c) => c?.type === 'recovery-authn-codes')?.userCredentialMetadatas?.[0]?.credential;
+
+  let recoveryData = null;
+  if (recoveryCred?.credentialData) {
+    try {
+      recoveryData = JSON.parse(recoveryCred.credentialData);
+    } catch (e) {
+      recoveryData = null;
+    }
+  }
+
+  return {
+    enabled: !!otpCred,
+    enabledTime: otpCred?.createdDate ?? null,
+    device: {
+      name: otpCred?.userLabel ?? null,
+      registeredTime: otpCred?.createdDate ?? null,
+    },
+    recoveryCodes: {
+      used: recoveryData ? recoveryData.totalCodes - recoveryData.remainingCodes : 0,
+      total: recoveryData?.totalCodes ?? 12,
+      generatedTime: recoveryCred?.createdDate ?? null,
+    },
+  };
+}
+
 export default {
   keycloak,
   onKeycloakEvent,
@@ -239,4 +304,6 @@ export default {
   keycloakMiddleware,
   generateSSOLinkUri,
   redirectToKeycloakAction,
+  fetchKeycloakCredentials,
+  mapKeycloakCredentialsToMfaStatus,
 };

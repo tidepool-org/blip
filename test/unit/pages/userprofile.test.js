@@ -1,23 +1,22 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
-import configureStore from 'redux-mock-store';
-import { thunk } from 'redux-thunk';
+import { configureStore } from '@reduxjs/toolkit';
 import { ToastProvider } from '../../../app/providers/ToastProvider';
+import { RTKQueryApi } from '../../../app/redux/api/baseApi';
 
-const mockSelectMfaStatus = jest.fn();
-
-jest.mock('../../../app/core/selectors', () => {
-  const actual = jest.requireActual('../../../app/core/selectors');
-  return {
-    ...actual,
-    selectMfaStatus: (state) => mockSelectMfaStatus(state),
-  };
-});
+// MFA status now flows through the RTK Query getMfaStatus endpoint, whose queryFn
+// calls fetchKeycloakCredentials() then mapKeycloakCredentialsToMfaStatus(). We stub
+// those two collaborators to control the component's MFA state per test; the real
+// HTTP path is covered by the endpoint test (mfaStatusApi.test.js via MSW).
+const mockFetchCreds = jest.fn();
+const mockMapMfa = jest.fn();
 
 jest.mock('../../../app/keycloak', () => ({
   __esModule: true,
   redirectToKeycloakAction: jest.fn(),
+  fetchKeycloakCredentials: (...args) => mockFetchCreds(...args),
+  mapKeycloakCredentialsToMfaStatus: (...args) => mockMapMfa(...args),
 }));
 
 import { redirectToKeycloakAction } from '../../../app/keycloak';
@@ -31,7 +30,6 @@ import UserProfile from '../../../app/pages/userprofile';
 /* global afterEach */
 
 const expect = chai.expect;
-const mockStore = configureStore([thunk]);
 
 const disabledMfaStatus = {
   enabled: false,
@@ -48,6 +46,14 @@ const enabledMfaStatus = (overrides = {}) => ({
   ...overrides,
 });
 
+const makeStore = (blipState) => configureStore({
+  reducer: {
+    blip: (state = blipState) => state,
+    [RTKQueryApi.reducerPath]: RTKQueryApi.reducer,
+  },
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(RTKQueryApi.middleware),
+});
+
 const buildState = (user) => ({
   blip: {
     loggedInUserId: 'u1',
@@ -56,7 +62,7 @@ const buildState = (user) => ({
 });
 
 const renderWith = (state) => {
-  const store = mockStore(state);
+  const store = makeStore(state.blip);
   const trackMetric = sinon.stub();
   const api = {};
   const utils = render(
@@ -66,7 +72,7 @@ const renderWith = (state) => {
       </ToastProvider>
     </Provider>
   );
-  return { ...utils, trackMetric, api };
+  return { ...utils, trackMetric, api, store };
 };
 
 const clinicianUser = {
@@ -95,21 +101,20 @@ const personalUser = {
 
 describe('UserProfile', () => {
   beforeEach(() => {
-    mockSelectMfaStatus.mockReturnValue(disabledMfaStatus);
+    // Default: a resolved, disabled MFA status.
+    mockFetchCreds.mockReset();
+    mockMapMfa.mockReset();
+    mockFetchCreds.mockResolvedValue([]);
+    mockMapMfa.mockReturnValue(disabledMfaStatus);
     redirectToKeycloakAction.mockClear();
     window.history.pushState({}, '', '/profile');
   });
 
   afterEach(() => {
-    mockSelectMfaStatus.mockReset();
     window.history.pushState({}, '', '/profile');
   });
 
   describe('non-SSO clinician, 2FA disabled', () => {
-    beforeEach(() => {
-      mockSelectMfaStatus.mockReturnValue(disabledMfaStatus);
-    });
-
     it('renders the profile card with name, email, job title, and last-updated caption', () => {
       renderWith(buildState(clinicianUser));
       expect(screen.getByText('Dr. Sally Seastar')).to.exist;
@@ -127,66 +132,65 @@ describe('UserProfile', () => {
       expect(screen.getByRole('button', { name: 'Update Password' })).to.exist;
     });
 
-    it('renders the 2FA row with Disabled pill and Set up 2FA button', () => {
+    it('renders the 2FA row with Disabled pill and Set up 2FA button', async () => {
       renderWith(buildState(clinicianUser));
       expect(screen.getByText('Two-factor authentication (2FA)')).to.exist;
-      expect(screen.getByText('Disabled')).to.exist;
-      expect(screen.getByRole('button', { name: 'Set up 2FA' })).to.exist;
+      expect(await screen.findByText('Disabled')).to.exist;
+      expect(await screen.findByRole('button', { name: 'Set up 2FA' })).to.exist;
     });
 
-    it('does not render the Recovery codes section', () => {
+    it('does not render the Recovery codes section', async () => {
       renderWith(buildState(clinicianUser));
-      expect(screen.queryByText('Recovery codes')).to.be.null;
+      await screen.findByText('Disabled');
+      expect(screen.queryByText('Recovery Codes')).to.be.null;
     });
   });
 
   describe('non-SSO clinician, 2FA enabled, low usage', () => {
     beforeEach(() => {
-      mockSelectMfaStatus.mockReturnValue(enabledMfaStatus({
+      mockMapMfa.mockReturnValue(enabledMfaStatus({
         recoveryCodes: { used: 1, total: 12, generatedTime: '2026-04-01T00:00:00Z' },
       }));
     });
 
-    it('shows the Enabled pill, device details, and Disable 2FA button', () => {
+    it('shows the Enabled pill, device details, and Disable 2FA button', async () => {
       renderWith(buildState(clinicianUser));
-      expect(screen.getByText('Enabled')).to.exist;
+      expect(await screen.findByText('2FA Enabled')).to.exist;
       expect(screen.getByText(/iPhone 17/)).to.exist;
-      expect(screen.getByText(/Registered/)).to.exist;
+      // 'Created' label appears in both the 2FA device panel and the Recovery codes panel.
+      expect(screen.getAllByText(/Created/).length).to.be.at.least(1);
       expect(screen.getByRole('button', { name: 'Disable 2FA' })).to.exist;
     });
 
-    it('renders the Recovery codes row with x/total text and Regenerate button', () => {
+    it('renders the Recovery codes row with x/total text and Regenerate button', async () => {
       renderWith(buildState(clinicianUser));
-      expect(screen.getByText('Recovery codes')).to.exist;
-      expect(screen.getByText('1/12')).to.exist;
-      expect(screen.getByText(/recovery codes used/)).to.exist;
+      expect(await screen.findByText('Recovery Codes')).to.exist;
+      expect(screen.getByText(/1\/12/)).to.exist;
+      expect(screen.getByText(/Recovery codes used/)).to.exist;
       expect(screen.getByRole('button', { name: 'Regenerate Codes' })).to.exist;
     });
 
-    it('does not show the low-recovery-codes warning', () => {
+    it('does not show the low-recovery-codes warning', async () => {
       renderWith(buildState(clinicianUser));
+      await screen.findByText('2FA Enabled');
       expect(screen.queryByText(/running low on recovery codes/i)).to.be.null;
     });
   });
 
   describe('non-SSO clinician, 2FA enabled, at threshold', () => {
     beforeEach(() => {
-      mockSelectMfaStatus.mockReturnValue(enabledMfaStatus({
+      mockMapMfa.mockReturnValue(enabledMfaStatus({
         recoveryCodes: { used: 3, total: 12, generatedTime: '2026-04-01T00:00:00Z' },
       }));
     });
 
-    it('renders the low-recovery-codes warning', () => {
+    it('renders the low-recovery-codes warning', async () => {
       renderWith(buildState(clinicianUser));
-      expect(screen.getByText(/running low on recovery codes/i)).to.exist;
+      expect(await screen.findByText(/running low on recovery codes/i)).to.exist;
     });
   });
 
   describe('SSO clinician', () => {
-    beforeEach(() => {
-      mockSelectMfaStatus.mockReturnValue(disabledMfaStatus);
-    });
-
     it('renders the IT-team-managed notice', () => {
       renderWith(buildState(ssoClinicianUser));
       expect(screen.getByText(/managed by your organization's IT team/i)).to.exist;
@@ -207,10 +211,6 @@ describe('UserProfile', () => {
   });
 
   describe('personal user', () => {
-    beforeEach(() => {
-      mockSelectMfaStatus.mockReturnValue(disabledMfaStatus);
-    });
-
     it('renders the profile card without job title', () => {
       renderWith(buildState(personalUser));
       expect(screen.getByText('Pat Personal')).to.exist;
@@ -225,13 +225,12 @@ describe('UserProfile', () => {
     it('does not render the 2FA row or Recovery codes row', () => {
       renderWith(buildState(personalUser));
       expect(screen.queryByText('Two-factor authentication (2FA)')).to.be.null;
-      expect(screen.queryByText('Recovery codes')).to.be.null;
+      expect(screen.queryByText('Recovery Codes')).to.be.null;
     });
   });
 
   describe('button-stub behavior', () => {
     it('fires trackMetric with the documented event name for Edit Personal Details and opens the dialog', () => {
-      mockSelectMfaStatus.mockReturnValue(disabledMfaStatus);
       const { trackMetric } = renderWith(buildState(clinicianUser));
       fireEvent.click(screen.getByRole('button', { name: 'Edit Personal Details' }));
       expect(trackMetric.calledWith('Clicked Edit Personal Details in Account')).to.be.true;
@@ -241,7 +240,6 @@ describe('UserProfile', () => {
     });
 
     it('fires trackMetric and redirects to Keycloak UPDATE_PASSWORD when Update Password is clicked', () => {
-      mockSelectMfaStatus.mockReturnValue(disabledMfaStatus);
       const { trackMetric } = renderWith(buildState(clinicianUser));
       fireEvent.click(screen.getByRole('button', { name: 'Update Password' }));
       expect(trackMetric.calledWith('Clicked Update Password in Account')).to.be.true;
@@ -253,20 +251,18 @@ describe('UserProfile', () => {
       expect(screen.queryByRole('dialog')).to.be.null;
     });
 
-    it('fires trackMetric and opens the 2FA instructions dialog when Set up 2FA is clicked, without redirecting', () => {
-      mockSelectMfaStatus.mockReturnValue(disabledMfaStatus);
+    it('fires trackMetric and opens the 2FA instructions dialog when Set up 2FA is clicked, without redirecting', async () => {
       const { trackMetric } = renderWith(buildState(clinicianUser));
-      fireEvent.click(screen.getByRole('button', { name: 'Set up 2FA' }));
+      fireEvent.click(await screen.findByRole('button', { name: 'Set up 2FA' }));
       expect(trackMetric.calledWith('Clicked Set Up 2FA in Account')).to.be.true;
       // Heading mounts (becomes accessible) only when the dialog opens.
       expect(screen.getByRole('heading', { name: 'Before setting up 2FA' })).to.exist;
       expect(redirectToKeycloakAction.mock.calls).to.have.lengthOf(0);
     });
 
-    it('redirects to Keycloak CONFIGURE_TOTP when "I understand" is clicked in the dialog', () => {
-      mockSelectMfaStatus.mockReturnValue(disabledMfaStatus);
+    it('redirects to Keycloak CONFIGURE_TOTP when "I understand" is clicked in the dialog', async () => {
       renderWith(buildState(clinicianUser));
-      fireEvent.click(screen.getByRole('button', { name: 'Set up 2FA' }));
+      fireEvent.click(await screen.findByRole('button', { name: 'Set up 2FA' }));
       fireEvent.click(screen.getByRole('button', { name: 'I understand' }));
       expect(redirectToKeycloakAction.mock.calls).to.have.lengthOf(1);
       expect(redirectToKeycloakAction.mock.calls[0]).to.deep.equal([
@@ -276,9 +272,8 @@ describe('UserProfile', () => {
     });
 
     it('closes the 2FA dialog without redirecting when Cancel is clicked', async () => {
-      mockSelectMfaStatus.mockReturnValue(disabledMfaStatus);
       renderWith(buildState(clinicianUser));
-      fireEvent.click(screen.getByRole('button', { name: 'Set up 2FA' }));
+      fireEvent.click(await screen.findByRole('button', { name: 'Set up 2FA' }));
       expect(screen.getByRole('heading', { name: 'Before setting up 2FA' })).to.exist;
       fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
       expect(redirectToKeycloakAction.mock.calls).to.have.lengthOf(0);
@@ -288,28 +283,24 @@ describe('UserProfile', () => {
       );
     });
 
-    it('fires trackMetric for Disable 2FA', () => {
-      mockSelectMfaStatus.mockReturnValue(enabledMfaStatus());
+    it('fires trackMetric for Disable 2FA', async () => {
+      mockMapMfa.mockReturnValue(enabledMfaStatus());
       const { trackMetric } = renderWith(buildState(clinicianUser));
-      fireEvent.click(screen.getByRole('button', { name: 'Disable 2FA' }));
+      fireEvent.click(await screen.findByRole('button', { name: 'Disable 2FA' }));
       expect(trackMetric.calledWith('Clicked Disable 2FA in Account')).to.be.true;
       expect(screen.queryByRole('dialog')).to.be.null;
     });
 
-    it('fires trackMetric for Regenerate Codes', () => {
-      mockSelectMfaStatus.mockReturnValue(enabledMfaStatus());
+    it('fires trackMetric for Regenerate Codes', async () => {
+      mockMapMfa.mockReturnValue(enabledMfaStatus());
       const { trackMetric } = renderWith(buildState(clinicianUser));
-      fireEvent.click(screen.getByRole('button', { name: 'Regenerate Codes' }));
+      fireEvent.click(await screen.findByRole('button', { name: 'Regenerate Codes' }));
       expect(trackMetric.calledWith('Clicked Regenerate Recovery Codes in Account')).to.be.true;
       expect(screen.queryByRole('dialog')).to.be.null;
     });
   });
 
   describe('kc_action_status on mount', () => {
-    beforeEach(() => {
-      mockSelectMfaStatus.mockReturnValue(disabledMfaStatus);
-    });
-
     it('shows the cancel toast (info variant) and strips the param when kc_action=UPDATE_PASSWORD&kc_action_status=cancelled', () => {
       window.history.pushState({}, '', '/profile#kc_action=UPDATE_PASSWORD&kc_action_status=cancelled');
       renderWith(buildState(clinicianUser));
@@ -429,6 +420,45 @@ describe('UserProfile', () => {
       expect(screen.getByText('Password reset cancelled.')).to.exist;
       // Hash retains everything except kc_action and kc_action_status, in original order.
       expect(window.location.hash).to.equal('#state=abc&session_state=def&iss=https%3A%2F%2Fauth&code=xyz');
+    });
+  });
+
+  describe('mfa status fetch (RTK Query)', () => {
+    it('fetches the MFA status on mount', async () => {
+      renderWith(buildState(clinicianUser));
+      await waitFor(() => expect(mockFetchCreds.mock.calls.length).to.be.at.least(1));
+    });
+
+    it('shows the Loading pill and a Fetching 2FA Status button while the fetch is in progress', () => {
+      // Never-resolving fetch keeps the query in the fetching state.
+      mockFetchCreds.mockImplementation(() => new Promise(() => {}));
+      renderWith(buildState(clinicianUser));
+      expect(screen.getByText('Loading')).to.exist;
+      expect(screen.getByRole('button', { name: 'Fetching 2FA Status' })).to.exist;
+      expect(screen.queryByRole('button', { name: 'Set up 2FA' })).to.be.null;
+    });
+
+    it('shows the Failed to load pill and a Re-fetch 2FA Status button on failure', async () => {
+      mockFetchCreds.mockRejectedValue(Object.assign(new Error('nope'), { status: 500 }));
+      renderWith(buildState(clinicianUser));
+      expect(await screen.findByText('Failed to load')).to.exist;
+      expect(screen.getByRole('button', { name: 'Re-fetch 2FA Status' })).to.exist;
+      expect(screen.queryByRole('button', { name: 'Set up 2FA' })).to.be.null;
+    });
+
+    it('re-fetches the MFA status when Re-fetch 2FA Status is clicked', async () => {
+      mockFetchCreds.mockRejectedValue(Object.assign(new Error('nope'), { status: 500 }));
+      renderWith(buildState(clinicianUser));
+      const retryButton = await screen.findByRole('button', { name: 'Re-fetch 2FA Status' });
+      const before = mockFetchCreds.mock.calls.length;
+      fireEvent.click(retryButton);
+      await waitFor(() => expect(mockFetchCreds.mock.calls.length).to.be.at.least(before + 1));
+    });
+
+    it('fires a danger toast when the fetch fails', async () => {
+      mockFetchCreds.mockRejectedValue(Object.assign(new Error('nope'), { status: 500 }));
+      renderWith(buildState(clinicianUser));
+      expect(await screen.findByText('We couldn’t load your two-factor authentication status. Please try again.')).to.exist;
     });
   });
 });

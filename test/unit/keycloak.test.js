@@ -22,6 +22,8 @@ import {
   keycloakMiddleware,
   generateSSOLinkUri,
   redirectToKeycloakAction,
+  fetchKeycloakCredentials,
+  mapKeycloakCredentialsToMfaStatus,
 } from '../../app/keycloak';
 
 const mockKeycloakCtor = jest.fn();
@@ -428,6 +430,96 @@ describe('keycloak', () => {
         action: 'delete_credential:abc-123',
         redirectUri: 'https://app.example/foo',
       });
+    });
+  });
+
+  describe('fetchKeycloakCredentials', () => {
+    let originalFetch;
+
+    beforeEach(() => {
+      originalFetch = global.fetch;
+    });
+
+    afterEach(() => {
+      global.fetch = originalFetch;
+    });
+
+    it('GETs the account/credentials endpoint with a bearer token and returns the parsed array', async () => {
+      const payload = [{ type: 'password' }];
+      global.fetch = sinon.stub().resolves({ ok: true, json: () => Promise.resolve(payload) });
+
+      const result = await fetchKeycloakCredentials();
+
+      sinon.assert.calledOnce(global.fetch);
+      const [url, options] = global.fetch.firstCall.args;
+      expect(url).to.equal('http://keycloakauthserverurl/realms/keycloakRealm/account/credentials');
+      expect(options.method).to.equal('GET');
+      expect(options.headers.Authorization).to.equal('Bearer tokenValue');
+      expect(result).to.deep.equal(payload);
+    });
+
+    it('throws an error carrying the HTTP status on a non-OK response', async () => {
+      global.fetch = sinon.stub().resolves({ ok: false, status: 403, json: () => Promise.resolve({}) });
+
+      let caught;
+      try {
+        await fetchKeycloakCredentials();
+      } catch (err) {
+        caught = err;
+      }
+      expect(caught).to.be.an('error');
+      expect(caught.status).to.equal(403);
+    });
+  });
+
+  describe('mapKeycloakCredentialsToMfaStatus', () => {
+    const sample = [
+      { type: 'password', category: 'basic-authentication' },
+      {
+        type: 'otp',
+        category: 'two-factor',
+        userCredentialMetadatas: [{
+          credential: { id: 'otp-1', type: 'otp', userLabel: 'OnePlus 12R', createdDate: 1779895908703 },
+        }],
+      },
+      {
+        type: 'recovery-authn-codes',
+        category: 'two-factor',
+        userCredentialMetadatas: [{
+          credential: {
+            id: 'rec-1',
+            type: 'recovery-authn-codes',
+            createdDate: 1779895908756,
+            credentialData: '{"algorithm":"SHA-512","totalCodes":12,"remainingCodes":10}',
+          },
+        }],
+      },
+    ];
+
+    it('maps the otp + recovery-authn-codes sample to the mfaStatus shape', () => {
+      const result = mapKeycloakCredentialsToMfaStatus(sample);
+      expect(result).to.deep.equal({
+        enabled: true,
+        enabledTime: 1779895908703,
+        device: { name: 'OnePlus 12R', registeredTime: 1779895908703 },
+        recoveryCodes: { used: 2, total: 12, generatedTime: 1779895908756 },
+      });
+    });
+
+    it('returns the disabled baseline for an empty array', () => {
+      const result = mapKeycloakCredentialsToMfaStatus([]);
+      expect(result).to.deep.equal({
+        enabled: false,
+        enabledTime: null,
+        device: { name: null, registeredTime: null },
+        recoveryCodes: { used: 0, total: 12, generatedTime: null },
+      });
+    });
+
+    it('returns the disabled baseline for non-array input', () => {
+      const result = mapKeycloakCredentialsToMfaStatus(undefined);
+      expect(result.enabled).to.be.false;
+      expect(result.recoveryCodes.total).to.equal(12);
     });
   });
 });

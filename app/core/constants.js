@@ -31,6 +31,8 @@ export const URL_TIDEPOOL_PLUS_PLANS = 'https://tidepool.org/providers/tidepoolp
 export const URL_TIDEPOOL_PLUS_CONTACT_SALES = 'https://app.cronofy.com/add_to_calendar/scheduling/-hq0nDA6';
 export const URL_TIDEPOOL_EXTERNAL_DATA_CONNECTIONS = 'https://support.tidepool.org/hc/en-us/articles/34686287140884';
 export const URL_SUPPORT_ACCOUNT_SETTINGS = 'https://support.tidepool.org/hc/en-us/articles/360029368972-How-to-Change-your-Account-information';
+// Placeholder — points at the generic account-settings article until a recovery-codes-specific article is published.
+export const URL_SUPPORT_RECOVERY_CODES = URL_SUPPORT_ACCOUNT_SETTINGS;
 
 export const TIDEPOOL_DATA_DONATION_ACCOUNT_EMAIL = 'bigdata@tidepool.org';
 export const DATA_DONATION_CONSENT_TYPE = 'big_data_donation_project';

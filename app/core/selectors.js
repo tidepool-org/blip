@@ -160,31 +160,3 @@ export const selectIsSmartOnFhirMode = createSelector(
   }
 );
 
-/**
- * Page-ready MFA status shape. Reads from `allUsersMap[loggedInUserId].profile.clinic.mfa`
- * and normalizes to a stable shape, falling back to the disabled baseline for unset fields.
- */
-// (verify) — backend wiring lands in WEB-4567/WEB-4568/WEB-4569; the source path is expected
-// to be allUsersMap[loggedInUserId].profile.clinic.mfa.
-export const selectMfaStatus = createSelector(
-  [
-    state => state.blip.allUsersMap,
-    state => state.blip.loggedInUserId,
-  ],
-  (allUsersMap, loggedInUserId) => {
-    const mfa = get(allUsersMap, [loggedInUserId, 'profile', 'clinic', 'mfa']);
-    return {
-      enabled: !!mfa?.enabled,
-      enabledTime: mfa?.enabledTime ?? null,
-      device: {
-        name: mfa?.device?.name ?? null,
-        registeredTime: mfa?.device?.registeredTime ?? null,
-      },
-      recoveryCodes: {
-        used: mfa?.recoveryCodes?.used ?? 0,
-        total: mfa?.recoveryCodes?.total ?? 12,
-        generatedTime: mfa?.recoveryCodes?.generatedTime ?? null,
-      },
-    };
-  }
-);
