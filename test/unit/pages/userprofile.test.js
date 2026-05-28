@@ -316,12 +316,37 @@ describe('UserProfile', () => {
       );
     });
 
-    it('fires trackMetric for Regenerate Codes', async () => {
+    it('fires trackMetric and opens the regenerate-codes confirm dialog when Regenerate Codes is clicked, without redirecting', async () => {
       mockMapMfa.mockReturnValue(enabledMfaStatus());
       const { trackMetric } = renderWith(buildState(clinicianUser));
       fireEvent.click(await screen.findByRole('button', { name: 'Regenerate Codes' }));
       expect(trackMetric.calledWith('Clicked Regenerate Recovery Codes in Account')).to.be.true;
-      expect(screen.queryByRole('dialog')).to.be.null;
+      expect(screen.getByRole('heading', { name: 'You’re about to regenerate your recovery codes' })).to.exist;
+      expect(redirectToKeycloakAction.mock.calls).to.have.lengthOf(0);
+    });
+
+    it('redirects to Keycloak CONFIGURE_RECOVERY_AUTHN_CODES when "I understand" is clicked in the regenerate dialog', async () => {
+      mockMapMfa.mockReturnValue(enabledMfaStatus());
+      renderWith(buildState(clinicianUser));
+      fireEvent.click(await screen.findByRole('button', { name: 'Regenerate Codes' }));
+      fireEvent.click(screen.getByRole('button', { name: 'I understand' }));
+      expect(redirectToKeycloakAction.mock.calls).to.have.lengthOf(1);
+      expect(redirectToKeycloakAction.mock.calls[0]).to.deep.equal([
+        'CONFIGURE_RECOVERY_AUTHN_CODES',
+        `${window.location.origin}/profile`,
+      ]);
+    });
+
+    it('closes the regenerate-codes dialog without redirecting when Cancel is clicked', async () => {
+      mockMapMfa.mockReturnValue(enabledMfaStatus());
+      renderWith(buildState(clinicianUser));
+      fireEvent.click(await screen.findByRole('button', { name: 'Regenerate Codes' }));
+      expect(screen.getByRole('heading', { name: 'You’re about to regenerate your recovery codes' })).to.exist;
+      fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+      expect(redirectToKeycloakAction.mock.calls).to.have.lengthOf(0);
+      await waitFor(() =>
+        expect(screen.queryByRole('heading', { name: 'You’re about to regenerate your recovery codes' })).to.be.null
+      );
     });
   });
 
@@ -445,7 +470,33 @@ describe('UserProfile', () => {
       expect(window.location.hash).to.equal('');
     });
 
-    it('leaves the hash untouched when kc_action is foreign (none of UPDATE_PASSWORD/UPDATE_EMAIL/CONFIGURE_TOTP/delete_credential)', () => {
+    it('shows the regen-codes success toast (success variant) and strips the param when kc_action=CONFIGURE_RECOVERY_AUTHN_CODES&kc_action_status=success', () => {
+      window.history.pushState({}, '', '/profile#kc_action=CONFIGURE_RECOVERY_AUTHN_CODES&kc_action_status=success');
+      renderWith(buildState(clinicianUser));
+      const msg = 'You have successfully generated a new set of recovery codes.';
+      expect(screen.getByText(msg)).to.exist;
+      expect(screen.getByText(msg).closest('.success')).to.exist;
+      expect(window.location.hash).to.equal('');
+    });
+
+    it('shows the regen-codes error toast (danger variant overriding the Figma info-style) and strips the param when kc_action=CONFIGURE_RECOVERY_AUTHN_CODES&kc_action_status=error', () => {
+      window.history.pushState({}, '', '/profile#kc_action=CONFIGURE_RECOVERY_AUTHN_CODES&kc_action_status=error');
+      renderWith(buildState(clinicianUser));
+      const msg = 'Recovery code regeneration failed. Please try again.';
+      expect(screen.getByText(msg)).to.exist;
+      expect(screen.getByText(msg).closest('.danger')).to.exist;
+      expect(window.location.hash).to.equal('');
+    });
+
+    it('shows the regen-codes cancelled toast (info variant) and strips the param when kc_action=CONFIGURE_RECOVERY_AUTHN_CODES&kc_action_status=cancelled', () => {
+      window.history.pushState({}, '', '/profile#kc_action=CONFIGURE_RECOVERY_AUTHN_CODES&kc_action_status=cancelled');
+      renderWith(buildState(clinicianUser));
+      expect(screen.getByText('Recovery code regeneration cancelled.')).to.exist;
+      expect(screen.getByText('Recovery code regeneration cancelled.').closest('.info')).to.exist;
+      expect(window.location.hash).to.equal('');
+    });
+
+    it('leaves the hash untouched when kc_action is foreign (none of UPDATE_PASSWORD/UPDATE_EMAIL/CONFIGURE_TOTP/delete_credential/CONFIGURE_RECOVERY_AUTHN_CODES)', () => {
       // Foreign kc_action: no toast, no strip — leave the params for a future per-action handler.
       window.history.pushState({}, '', '/profile#kc_action=VERIFY_EMAIL&kc_action_status=cancelled');
       renderWith(buildState(clinicianUser));
