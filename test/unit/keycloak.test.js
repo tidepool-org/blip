@@ -501,7 +501,7 @@ describe('keycloak', () => {
       expect(result).to.deep.equal({
         enabled: true,
         enabledTime: 1779895908703,
-        device: { name: 'OnePlus 12R', registeredTime: 1779895908703 },
+        device: { id: 'otp-1', name: 'OnePlus 12R', registeredTime: 1779895908703 },
         recoveryCodes: { used: 2, total: 12, generatedTime: 1779895908756 },
       });
     });
@@ -511,7 +511,7 @@ describe('keycloak', () => {
       expect(result).to.deep.equal({
         enabled: false,
         enabledTime: null,
-        device: { name: null, registeredTime: null },
+        device: { id: null, name: null, registeredTime: null },
         recoveryCodes: { used: 0, total: 12, generatedTime: null },
       });
     });

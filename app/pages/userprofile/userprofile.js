@@ -39,6 +39,7 @@ import { useToasts } from '../../providers/ToastProvider';
 import { usePrevious } from '../../core/hooks';
 import EditPersonalDetailsDialog from './EditPersonalDetailsDialog';
 import SetupTwoFactorInstructionsDialog from './SetupTwoFactorInstructionsDialog';
+import DisableTwoFactorConfirmDialog from './DisableTwoFactorConfirmDialog';
 
 const TRACK_METRICS = {
   back: 'Clicked Back in Account',
@@ -56,7 +57,7 @@ const RECOVERY_CODES_WARNING_THRESHOLD = 3;
 const MFA_STATUS_DEFAULT = {
   enabled: false,
   enabledTime: null,
-  device: { name: null, registeredTime: null },
+  device: { id: null, name: null, registeredTime: null },
   recoveryCodes: { used: 0, total: 12, generatedTime: null },
 };
 
@@ -308,7 +309,7 @@ InsetCell.propTypes = {
   sx: PropTypes.object,
 };
 
-function TwoFactorRow({ t, trackMetric, mfaStatus, onSetup2fa, loading, error, onRetry }) {
+function TwoFactorRow({ t, trackMetric, mfaStatus, onSetup2fa, onDisable2fa, loading, error, onRetry }) {
   const enabled = !!mfaStatus.enabled;
   const deviceName = _.get(mfaStatus, 'device.name');
   const deviceRegisteredTime = _.get(mfaStatus, 'device.registeredTime');
@@ -383,7 +384,7 @@ function TwoFactorRow({ t, trackMetric, mfaStatus, onSetup2fa, loading, error, o
           <Button
             variant="danger"
             sx={{ width: ['100%', 'auto'], flexShrink: 0 }}
-            onClick={() => trackMetric(TRACK_METRICS.disable2fa)}
+            onClick={onDisable2fa}
           >
             {t('Disable 2FA')}
           </Button>
@@ -459,6 +460,7 @@ TwoFactorRow.propTypes = {
   trackMetric: PropTypes.func.isRequired,
   mfaStatus: PropTypes.object.isRequired,
   onSetup2fa: PropTypes.func.isRequired,
+  onDisable2fa: PropTypes.func.isRequired,
   loading: PropTypes.bool.isRequired,
   error: PropTypes.bool.isRequired,
   onRetry: PropTypes.func.isRequired,
@@ -604,6 +606,7 @@ export function UserProfile({ trackMetric, history, api }) {
 
   const [editOpen, setEditOpen] = useState(false);
   const [setup2faOpen, setSetup2faOpen] = useState(false);
+  const [disable2faOpen, setDisable2faOpen] = useState(false);
 
   useEffect(() => {
     trackMetric('Viewed Account Settings');
@@ -626,10 +629,11 @@ export function UserProfile({ trackMetric, history, api }) {
   useEffect(() => {
     // Keycloak's AIA flow returns kc_action_status in the URL fragment
     // (response_mode=fragment is the default for application-initiated actions).
-    // Toast is per-action: UPDATE_PASSWORD and CONFIGURE_TOTP fire on all statuses,
-    // UPDATE_EMAIL fires only on cancelled/error (success stays silent since the user
-    // is logged out in that flow). Variant is per-status: cancelled -> info (a benign
-    // user cancel), error -> danger, success -> success.
+    // Toast is per-action: UPDATE_PASSWORD, CONFIGURE_TOTP, and delete_credential
+    // fire on all statuses, UPDATE_EMAIL fires only on cancelled/error (success
+    // stays silent since the user is logged out in that flow). Variant is
+    // per-status: cancelled -> info (a benign user cancel), error -> danger,
+    // success -> success.
     const hashStr = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : '';
     const params = new URLSearchParams(hashStr);
     const action = params.get('kc_action');
@@ -666,6 +670,20 @@ export function UserProfile({ trackMetric, history, api }) {
           variant: 'success',
         };
       }
+    } else if (action === 'delete_credential' || action?.startsWith('delete_credential:')) {
+      if (status === 'cancelled') {
+        toast = { message: t('Disabling 2FA {{status}}.', { status }), variant: 'info' };
+      } else if (status === 'error') {
+        toast = {
+          message: t('We couldn’t disable two-factor authentication (2FA). Your security settings haven’t changed, please try again.'),
+          variant: 'danger',
+        };
+      } else if (status === 'success') {
+        toast = {
+          message: t('Two-factor authentication (2FA) has been disabled. You will now log in using only your email and password.'),
+          variant: 'success',
+        };
+      }
     } else {
       return;
     }
@@ -686,6 +704,11 @@ export function UserProfile({ trackMetric, history, api }) {
   const handleSetup2fa = () => {
     trackMetric(TRACK_METRICS.setUp2fa);
     setSetup2faOpen(true);
+  };
+
+  const handleDisable2fa = () => {
+    trackMetric(TRACK_METRICS.disable2fa);
+    setDisable2faOpen(true);
   };
 
   const handleBack = (e) => {
@@ -822,6 +845,7 @@ export function UserProfile({ trackMetric, history, api }) {
                     trackMetric={trackMetric}
                     mfaStatus={mfaStatus}
                     onSetup2fa={handleSetup2fa}
+                    onDisable2fa={handleDisable2fa}
                     loading={mfaLoading}
                     error={mfaFailed}
                     onRetry={handleRetryMfaStatus}
@@ -843,6 +867,12 @@ export function UserProfile({ trackMetric, history, api }) {
       <SetupTwoFactorInstructionsDialog
         open={setup2faOpen}
         onClose={() => setSetup2faOpen(false)}
+      />
+
+      <DisableTwoFactorConfirmDialog
+        open={disable2faOpen}
+        onClose={() => setDisable2faOpen(false)}
+        credentialId={mfaStatus.device.id}
       />
     </Box>
   );

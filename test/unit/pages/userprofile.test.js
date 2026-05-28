@@ -34,14 +34,14 @@ const expect = chai.expect;
 const disabledMfaStatus = {
   enabled: false,
   enabledTime: null,
-  device: { name: null, registeredTime: null },
+  device: { id: null, name: null, registeredTime: null },
   recoveryCodes: { used: 0, total: 12, generatedTime: null },
 };
 
 const enabledMfaStatus = (overrides = {}) => ({
   enabled: true,
   enabledTime: '2026-04-01T00:00:00Z',
-  device: { name: 'iPhone 17', registeredTime: '2026-04-01T00:00:00Z' },
+  device: { id: 'otp-1', name: 'iPhone 17', registeredTime: '2026-04-01T00:00:00Z' },
   recoveryCodes: { used: 1, total: 12, generatedTime: '2026-04-01T00:00:00Z' },
   ...overrides,
 });
@@ -283,12 +283,37 @@ describe('UserProfile', () => {
       );
     });
 
-    it('fires trackMetric for Disable 2FA', async () => {
+    it('fires trackMetric and opens the disable-2FA confirm dialog when Disable 2FA is clicked, without redirecting', async () => {
       mockMapMfa.mockReturnValue(enabledMfaStatus());
       const { trackMetric } = renderWith(buildState(clinicianUser));
       fireEvent.click(await screen.findByRole('button', { name: 'Disable 2FA' }));
       expect(trackMetric.calledWith('Clicked Disable 2FA in Account')).to.be.true;
-      expect(screen.queryByRole('dialog')).to.be.null;
+      expect(screen.getByRole('heading', { name: 'You’re about to disable 2FA' })).to.exist;
+      expect(redirectToKeycloakAction.mock.calls).to.have.lengthOf(0);
+    });
+
+    it('redirects to Keycloak delete_credential:<id> when "I understand" is clicked in the disable dialog', async () => {
+      mockMapMfa.mockReturnValue(enabledMfaStatus());
+      renderWith(buildState(clinicianUser));
+      fireEvent.click(await screen.findByRole('button', { name: 'Disable 2FA' }));
+      fireEvent.click(screen.getByRole('button', { name: 'I understand' }));
+      expect(redirectToKeycloakAction.mock.calls).to.have.lengthOf(1);
+      expect(redirectToKeycloakAction.mock.calls[0]).to.deep.equal([
+        'delete_credential:otp-1',
+        `${window.location.origin}/profile`,
+      ]);
+    });
+
+    it('closes the disable-2FA dialog without redirecting when Cancel is clicked', async () => {
+      mockMapMfa.mockReturnValue(enabledMfaStatus());
+      renderWith(buildState(clinicianUser));
+      fireEvent.click(await screen.findByRole('button', { name: 'Disable 2FA' }));
+      expect(screen.getByRole('heading', { name: 'You’re about to disable 2FA' })).to.exist;
+      fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+      expect(redirectToKeycloakAction.mock.calls).to.have.lengthOf(0);
+      await waitFor(() =>
+        expect(screen.queryByRole('heading', { name: 'You’re about to disable 2FA' })).to.be.null
+      );
     });
 
     it('fires trackMetric for Regenerate Codes', async () => {
@@ -386,7 +411,41 @@ describe('UserProfile', () => {
       expect(window.location.hash).to.equal('');
     });
 
-    it('leaves the hash untouched when kc_action is foreign (none of UPDATE_PASSWORD/UPDATE_EMAIL/CONFIGURE_TOTP)', () => {
+    it('shows the disable-2FA success toast (success variant) and strips the param when kc_action=delete_credential&kc_action_status=success', () => {
+      window.history.pushState({}, '', '/profile#kc_action=delete_credential&kc_action_status=success');
+      renderWith(buildState(clinicianUser));
+      const msg = 'Two-factor authentication (2FA) has been disabled. You will now log in using only your email and password.';
+      expect(screen.getByText(msg)).to.exist;
+      expect(screen.getByText(msg).closest('.success')).to.exist;
+      expect(window.location.hash).to.equal('');
+    });
+
+    it('shows the disable-2FA error toast (danger variant) and strips the param when kc_action=delete_credential&kc_action_status=error', () => {
+      window.history.pushState({}, '', '/profile#kc_action=delete_credential&kc_action_status=error');
+      renderWith(buildState(clinicianUser));
+      const msg = 'We couldn’t disable two-factor authentication (2FA). Your security settings haven’t changed, please try again.';
+      expect(screen.getByText(msg)).to.exist;
+      expect(screen.getByText(msg).closest('.danger')).to.exist;
+      expect(window.location.hash).to.equal('');
+    });
+
+    it('shows the disable-2FA cancelled toast (info variant) and strips the param when kc_action=delete_credential&kc_action_status=cancelled', () => {
+      window.history.pushState({}, '', '/profile#kc_action=delete_credential&kc_action_status=cancelled');
+      renderWith(buildState(clinicianUser));
+      expect(screen.getByText('Disabling 2FA cancelled.')).to.exist;
+      expect(screen.getByText('Disabling 2FA cancelled.').closest('.info')).to.exist;
+      expect(window.location.hash).to.equal('');
+    });
+
+    it('matches the suffixed delete_credential:<id> form too (Keycloak may echo the credential id)', () => {
+      window.history.pushState({}, '', '/profile#kc_action=delete_credential%3Aotp-1&kc_action_status=success');
+      renderWith(buildState(clinicianUser));
+      const msg = 'Two-factor authentication (2FA) has been disabled. You will now log in using only your email and password.';
+      expect(screen.getByText(msg)).to.exist;
+      expect(window.location.hash).to.equal('');
+    });
+
+    it('leaves the hash untouched when kc_action is foreign (none of UPDATE_PASSWORD/UPDATE_EMAIL/CONFIGURE_TOTP/delete_credential)', () => {
       // Foreign kc_action: no toast, no strip — leave the params for a future per-action handler.
       window.history.pushState({}, '', '/profile#kc_action=VERIFY_EMAIL&kc_action_status=cancelled');
       renderWith(buildState(clinicianUser));

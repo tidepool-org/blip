@@ -286,6 +286,7 @@ export function mapKeycloakCredentialsToMfaStatus(credentials) {
     enabled: !!otpCred,
     enabledTime: otpCred?.createdDate ?? null,
     device: {
+      id: otpCred?.id ?? null,
       name: otpCred?.userLabel ?? null,
       registeredTime: otpCred?.createdDate ?? null,
     },
