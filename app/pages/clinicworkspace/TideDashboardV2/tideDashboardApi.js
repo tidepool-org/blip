@@ -11,8 +11,9 @@ const cgmExclusionQuery = new CGMExclusionQuery()
   .addRule(CATEGORY.ANY_HIGH,  'cgm.timeInAnyHighPercent',  '>=0.25')
   .addRule(CATEGORY.VERY_HIGH, 'cgm.timeInVeryHighPercent', '>=0.05');
 
-export const buildGetTideDashboardPatientsParams = (offset, limit, category, tags = []) => {
+export const buildGetTideDashboardPatientsParams = (offset, limit, category, tags = [], sites = []) => {
   const formattedTags = tags.length > 0 ? tags.join(',') : undefined;
+  const formattedSites = sites.length > 0 ? sites.join(',') : undefined;
 
   const cgmQueryParams = cgmExclusionQuery.getQueryParams(category);
 
@@ -21,6 +22,7 @@ export const buildGetTideDashboardPatientsParams = (offset, limit, category, tag
     limit,
     category,
     tags: formattedTags,
+    sites: formattedSites,
     ...cgmQueryParams,
   };
 };
@@ -29,8 +31,8 @@ export const buildGetTideDashboardPatientsParams = (offset, limit, category, tag
 const tideDashboardApi = RTKQueryApi.injectEndpoints({
   endpoints: (builder) => ({
     getTideDashboardPatients: builder.query({
-      query: ({ clinicId, offset, category, tags, limit }) => {
-        const params = buildGetTideDashboardPatientsParams(offset, limit, category, tags);
+      query: ({ clinicId, offset, category, tags, sites, limit }) => {
+        const params = buildGetTideDashboardPatientsParams(offset, limit, category, tags, sites);
 
         return {
           url: `/clinics/${clinicId}/patients`,

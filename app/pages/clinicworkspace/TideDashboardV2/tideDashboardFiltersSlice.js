@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   patientTags: [],
+  clinicSites: [],
 };
 
 const tideDashboardFiltersSlice = createSlice({
@@ -12,9 +13,18 @@ const tideDashboardFiltersSlice = createSlice({
     setPatientTagsFilter: (state, action) => {
       state.patientTags = action.payload;
     },
+    setClinicSitesFilter: (state, action) => {
+      state.clinicSites = action.payload;
+    },
     resetTideDashboardFilters: () => initialState,
   },
 });
 
-export const { setPatientTagsFilter, setTideDashboardFilters, resetTideDashboardFilters } = tideDashboardFiltersSlice.actions;
+export const {
+  setPatientTagsFilter,
+  setClinicSitesFilter,
+  setTideDashboardFilters,
+  resetTideDashboardFilters
+} = tideDashboardFiltersSlice.actions;
+
 export default tideDashboardFiltersSlice.reducer;
