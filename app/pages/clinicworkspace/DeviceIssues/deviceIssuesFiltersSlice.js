@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   patientTags: [],
+  clinicSites: [],
 };
 
 const deviceIssuesFiltersSlice = createSlice({
@@ -12,9 +13,18 @@ const deviceIssuesFiltersSlice = createSlice({
     setPatientTagsFilter: (state, action) => {
       state.patientTags = action.payload;
     },
+    setClinicSitesFilter: (state, action) => {
+      state.clinicSites = action.payload;
+    },
     resetDeviceIssuesFilters: () => initialState,
   },
 });
 
-export const { setPatientTagsFilter, setDeviceIssuesFilters, resetDeviceIssuesFilters } = deviceIssuesFiltersSlice.actions;
+export const {
+  setDeviceIssuesFilters,
+  setClinicSitesFilter,
+  setPatientTagsFilter,
+  resetDeviceIssuesFilters
+} = deviceIssuesFiltersSlice.actions;
+
 export default deviceIssuesFiltersSlice.reducer;
