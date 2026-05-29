@@ -8,6 +8,7 @@ import { Flex, Text } from 'theme-ui';
 
 import ActiveFilterCount from '../components/ActiveFilterCount';
 import FilterByTags from './FilterByTags';
+import FilterBySites from './FilterBySites';
 import FilterByCategory from './FilterByCategory';
 import ResetFilters from '../components/ResetFilters';
 import PaginationControls from '../components/PaginationControls';
@@ -32,14 +33,14 @@ const DeviceIssues = () => {
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const category = useSelector(state => state.blip.deviceIssues.category);
   const offset = useSelector(state => state.blip.deviceIssues.offset);
-  const { patientTags } = useSelector(state => state.blip.deviceIssuesFilters);
+  const { patientTags, clinicSites } = useSelector(state => state.blip.deviceIssuesFilters);
 
-  const showTags = clinic?.entitlements?.patientTags;
+  const showFilters = clinic?.entitlements?.patientTags && clinic?.entitlements?.clinicSites;
 
   const columns = useTableColumns();
 
   const { data } = useGetDeviceIssuesPatientsQuery(
-    { clinicId: selectedClinicId, offset, category, tags: patientTags, limit: LIMIT },
+    { clinicId: selectedClinicId, offset, category, tags: patientTags, sites: clinicSites, limit: LIMIT },
     { skip: !selectedClinicId }
   );
 
@@ -69,10 +70,11 @@ const DeviceIssues = () => {
         </Trans>
       </Flex>
 
-      { showTags &&
+      { showFilters &&
         <Flex mb={3} sx={{ gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
           <ActiveFilterCount count={activeFiltersCount} />
           <FilterByTags />
+          <FilterBySites />
           <ResetFilters hidden={activeFiltersCount <= 0} onClick={handleResetFilters} />
         </Flex>
       }
