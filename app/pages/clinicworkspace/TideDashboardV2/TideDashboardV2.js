@@ -20,9 +20,10 @@ import { useGetTideDashboardPatientsQuery } from './tideDashboardApi';
 import ResetFilters from '../components/ResetFilters';
 import useActiveFiltersCount from './useActiveFiltersCount';
 import useDerivedDataRecencyEndpoints from './useDerivedDataRecencyEndpoints';
-import usePruneInvalidTags from './usePruneInvalidTags';
+import usePruneInvalidFilters from './usePruneInvalidFilters';
 import { resetTideDashboardFilters } from './tideDashboardFiltersSlice';
 import EmptyContentNode from './EmptyContentNode';
+import FilterBySites from './FilterBySites';
 
 const LIMIT = 12;
 
@@ -32,17 +33,17 @@ const TideDashboard = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
-  usePruneInvalidTags();
+  usePruneInvalidFilters();
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const category = useSelector(state => state.blip.tideDashboard.category);
   const offset = useSelector(state => state.blip.tideDashboard.offset);
-  const patientTags = useSelector(state => state.blip.tideDashboardFilters.patientTags);
+  const { patientTags, clinicSites } = useSelector(state => state.blip.tideDashboardFilters);
 
   const [lastDataFrom, lastDataTo] = useDerivedDataRecencyEndpoints();
 
   const { data } = useGetTideDashboardPatientsQuery(
-    { clinicId: selectedClinicId, offset, category, lastDataTo, lastDataFrom, tags: patientTags, limit: LIMIT },
+    { clinicId: selectedClinicId, offset, category, lastDataTo, lastDataFrom, tags: patientTags, sites: clinicSites, limit: LIMIT },
     { skip: !selectedClinicId }
   );
 
@@ -67,6 +68,7 @@ const TideDashboard = () => {
         <FilterBySummaryPeriod />
         <Divider />
         <FilterByTags />
+        <FilterBySites />
         <ResetFilters
           hidden={activeFiltersCount <= 0}
           onClick={() => dispatch(resetTideDashboardFilters())}
