@@ -18,7 +18,7 @@ import { setOffset, resetDeviceIssuesState } from './deviceIssuesSlice';
 import { useGetDeviceIssuesPatientsQuery } from './deviceIssuesApi';
 import useActiveFiltersCount from './useActiveFiltersCount';
 import EmptyContentNode from './EmptyContentNode';
-import usePruneInvalidTags from './usePruneInvalidTags';
+import usePruneInvalidFilters from './usePruneInvalidFilters';
 import useTableColumns from './useTableColumns';
 
 const LIMIT = 12;
@@ -27,7 +27,7 @@ const DeviceIssues = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
-  usePruneInvalidTags();
+  usePruneInvalidFilters();
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
