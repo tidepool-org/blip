@@ -6211,9 +6211,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.56.0-web-4597-edited-carb-qa-feedback.1":
-  version: 1.56.0-web-4597-edited-carb-qa-feedback.1
-  resolution: "@tidepool/viz@npm:1.56.0-web-4597-edited-carb-qa-feedback.1"
+"@tidepool/viz@npm:1.56.0-web-4597-edited-carb-qa-feedback.2":
+  version: 1.56.0-web-4597-edited-carb-qa-feedback.2
+  resolution: "@tidepool/viz@npm:1.56.0-web-4597-edited-carb-qa-feedback.2"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6274,7 +6274,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: 3a2d536985d9cdff13eabdc69339ab9891794d57d0350deae42207f4346cccb48c7a0f4861d8b3a036a7d03b135a53044cc85697b567690002532a79f9eec31a
+  checksum: 105e830b51ca193902bb54f1235bd522ad92faf94accbc4d688c9ed8107d8238d063bd0dceda10de8aff71bd56c437aed69e108877fe523da1e01e9664060d5b
   languageName: node
   linkType: hard
 
@@ -8410,7 +8410,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.56.0-web-4597-edited-carb-qa-feedback.1
+    "@tidepool/viz": 1.56.0-web-4597-edited-carb-qa-feedback.2
     "@types/jest": 29.5.14
     async: 2.6.4
     autoprefixer: 10.4.16
