@@ -321,7 +321,7 @@ describe('UserProfile', () => {
       const { trackMetric } = renderWith(buildState(clinicianUser));
       fireEvent.click(await screen.findByRole('button', { name: 'Regenerate Codes' }));
       expect(trackMetric.calledWith('Clicked Regenerate Recovery Codes in Account')).to.be.true;
-      expect(screen.getByRole('heading', { name: 'You’re about to regenerate your recovery codes' })).to.exist;
+      expect(screen.getByRole('heading', { name: 'Generating new recovery codes?' })).to.exist;
       expect(redirectToKeycloakAction.mock.calls).to.have.lengthOf(0);
     });
 
@@ -341,11 +341,11 @@ describe('UserProfile', () => {
       mockMapMfa.mockReturnValue(enabledMfaStatus());
       renderWith(buildState(clinicianUser));
       fireEvent.click(await screen.findByRole('button', { name: 'Regenerate Codes' }));
-      expect(screen.getByRole('heading', { name: 'You’re about to regenerate your recovery codes' })).to.exist;
+      expect(screen.getByRole('heading', { name: 'Generating new recovery codes?' })).to.exist;
       fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
       expect(redirectToKeycloakAction.mock.calls).to.have.lengthOf(0);
       await waitFor(() =>
-        expect(screen.queryByRole('heading', { name: 'You’re about to regenerate your recovery codes' })).to.be.null
+        expect(screen.queryByRole('heading', { name: 'Generating new recovery codes?' })).to.be.null
       );
     });
   });

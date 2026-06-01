@@ -3,9 +3,6 @@ import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 import { Box, Flex, Text } from 'theme-ui';
 import SecurityRoundedIcon from '@material-ui/icons/SecurityRounded';
-import LockRoundedIcon from '@material-ui/icons/LockRounded';
-import GetAppRoundedIcon from '@material-ui/icons/GetAppRounded';
-import ReportProblemRoundedIcon from '@material-ui/icons/ReportProblemRounded';
 
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '../../components/elements/Dialog';
 import Button from '../../components/elements/Button';
@@ -98,50 +95,18 @@ export function RegenerateRecoveryCodesConfirmDialog({ open, onClose }) {
       aria-labelledby="regenerate-recovery-codes-confirm-title"
     >
       <DialogTitle onClose={onClose}>
-        <Flex sx={{ alignItems: 'center', gap: 2 }}>
-          <Icon
-            variant="static"
-            theme={baseTheme}
-            icon={ReportProblemRoundedIcon}
-            label="regenerate-recovery-codes-warning"
-            sx={{ color: 'feedback.warning', fontSize: '1.5em' }}
-          />
-          <MediumTitle id="regenerate-recovery-codes-confirm-title">
-            {t('You’re about to regenerate your recovery codes')}
-          </MediumTitle>
-        </Flex>
+        <MediumTitle id="regenerate-recovery-codes-confirm-title">
+          {t('Generating new recovery codes?')}
+        </MediumTitle>
       </DialogTitle>
 
       <DialogContent>
-        <Flex sx={{ flexDirection: 'column', gap: 4 }}>
-          <Advisory
-            icon={SecurityRoundedIcon}
-            label="regenerate-recovery-codes-invalidation-advisory"
-            heading={t('Your current recovery codes will stop working')}
-            body={t('Once new codes are generated, your existing recovery codes will be invalidated and can no longer be used to access your account.')}
-          />
-          <Advisory
-            icon={LockRoundedIcon}
-            label="regenerate-recovery-codes-identity-advisory"
-            heading={t('We’ll verify your identity before issuing new codes')}
-            body={t('Before generating new codes, you’ll be asked to:')}
-            bullets={[
-              t('Re-enter your account password'),
-              t('Provide a code from your authenticator app'),
-            ]}
-          />
-          <Advisory
-            icon={GetAppRoundedIcon}
-            label="regenerate-recovery-codes-save-advisory"
-            heading={t('Save your new codes immediately')}
-            body={t('You’ll receive 12 new single-use recovery codes. After regeneration:')}
-            bullets={[
-              t('You won’t be able to view these codes again from Account Settings'),
-              t('Each code can be used once before expiring'),
-              t('Store them somewhere safe (a password manager or secure note)'),
-            ]}
-          />
-        </Flex>
+        <Advisory
+          icon={SecurityRoundedIcon}
+          label="regenerate-recovery-codes-invalidation-advisory"
+          heading={t('You’re downloading a new set of recovery codes')}
+          body={t('You’re about to download a new set of recovery codes. This will replace your old codes, and they will no longer work. Any unused codes you have left will stop working when you create a new set.')}
+        />
       </DialogContent>
 
       <DialogActions>
