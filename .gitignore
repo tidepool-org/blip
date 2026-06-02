@@ -53,3 +53,4 @@ locales/*/*_old.json
 *.code-workspace
 .pi
 .pi-lens
+.apo
