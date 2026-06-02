@@ -62,7 +62,7 @@ const DropdownContent = ({
             </Text>
             { sortedSiteFilterOptions.length > 0 &&
               <Text sx={{ display: 'block', position: 'relative', top: -2, color: colors.gray50, fontSize: 0, fontStyle: 'italic', maxWidth: '208px', whiteSpace: 'wrap', lineHeight: 1 }}>
-                {t('Only patients with ALL of the sites you select below will be shown.')}
+                {t('Any patient with one or more of the sites you select below will be shown.')}
               </Text>
             }
           </Box>
