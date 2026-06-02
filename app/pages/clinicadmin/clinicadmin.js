@@ -96,8 +96,6 @@ export const ClinicAdmin = (props) => {
   const [userRolesInClinic, setUserRolesInClinic] = useState([]);
   const [sortOptions, setSortOptions] = useState({ orderBy: 'fullName', order: 'asc' });
 
-  const mock2FA = true;
-
   const sortedClinicianArray = useMemo(() => {
     const { orderBy, order } = sortOptions;
 
@@ -283,7 +281,7 @@ export const ClinicAdmin = (props) => {
   const getClinicianArray = () => map(
     get(clinics, [selectedClinicId, 'clinicians'], {}),
     (clinician) => {
-      const { roles, email, id: clinicianId, inviteId, name = '', createdTime, updatedTime, mfa = {} } = clinician;
+      const { roles, email, id: clinicianId, inviteId, name = '', createdTime, updatedTime, securityProfile = {} } = clinician;
       let role = '';
 
       if (includes(roles, 'CLINIC_ADMIN')) {
@@ -292,16 +290,7 @@ export const ClinicAdmin = (props) => {
         role = t('Clinic Member');
       }
 
-      let mfaEnabled = !!mfa?.enabled;
-      let mfaEnabledAt = mfa?.lastUpdateTime || null;
-
-      if (mock2FA) {
-        const hash = (email || clinicianId || '').split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
-        mfaEnabled = hash % 2 === 0;
-        mfaEnabledAt = mfaEnabled
-          ? new Date(Date.now() - ((hash % 30) + 1) * 24 * 60 * 60 * 1000).toISOString()
-          : null;
-      }
+      const { mfaEnabled, mfaEnabledTime } = securityProfile;
 
       return {
         fullName: name,
@@ -316,7 +305,7 @@ export const ClinicAdmin = (props) => {
         createdTime,
         updatedTime,
         mfaEnabled,
-        mfaEnabledAt,
+        mfaEnabledTime,
       };
     }
   );
@@ -361,7 +350,7 @@ export const ClinicAdmin = (props) => {
     };
 
     clinicianArray.forEach((clinician) => {
-      const { fullName, email, isAdmin, inviteId, createdTime, updatedTime, mfaEnabled, mfaEnabledAt } = clinician;
+      const { fullName, email, isAdmin, inviteId, createdTime, updatedTime, mfaEnabled, mfaEnabledTime } = clinician;
 
       csvRows.push([
         csvEscape(fullName),
@@ -371,7 +360,7 @@ export const ClinicAdmin = (props) => {
         sundial.formatInTimezone(createdTime, timeZone, 'YYYY-MM-DD HH:mm:ss z'),
         sundial.formatInTimezone(updatedTime, timeZone, 'YYYY-MM-DD HH:mm:ss z'),
         mfaEnabled ? 'True' : 'False',
-        mfaEnabledAt ? sundial.formatInTimezone(mfaEnabledAt, timeZone, 'YYYY-MM-DD HH:mm:ss z') : '',
+        mfaEnabledTime ? sundial.formatInTimezone(mfaEnabledTime, timeZone, 'YYYY-MM-DD HH:mm:ss z') : '',
       ]);
     });
 
@@ -551,7 +540,7 @@ export const ClinicAdmin = (props) => {
         <Icon
           variant="static"
           icon={VerifiedUserRoundedIcon}
-          label="2FA enabled"
+          label={t('2FA Enabled')}
           sx={{ fontSize: '14px', color: 'feedback.success' }}
         />
         <Text sx={{ fontWeight: 'medium', color: 'blueGrey' }}>
