@@ -99,9 +99,8 @@ export const ClinicAdmin = (props) => {
   const sortedClinicianArray = useMemo(() => {
     const { orderBy, order } = sortOptions;
 
-    // compareLabels delegates to String.prototype.localeCompare; coerce non-string
-    // sort keys (e.g. boolean mfaEnabled) so columns backed by non-string fields sort safely.
-    const toSortKey = (val) => (typeof val === 'string' || val === null || val === undefined ? val : String(val));
+    // compareLabels uses localeCompare, which throws on a boolean — coerce booleans to strings.
+    const toSortKey = (val) => (typeof val === 'boolean' ? String(val) : val);
 
     const sortedArray = clinicianArray.toSorted((a, b) => {
       return (
