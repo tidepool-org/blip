@@ -7,6 +7,9 @@ import { thunk } from 'redux-thunk';
 import merge from 'lodash/merge';
 import { ToastProvider } from '../../../app/providers/ToastProvider';
 import ClinicDetails from '../../../app/pages/clinicdetails';
+import { useUpdateUserProfileMutation } from '../../../app/redux/features/userProfile/userProfileApi';
+
+jest.mock('../../../app/redux/features/userProfile/userProfileApi');
 
 jest.mock('../../../app/core/validation/postalCodes', () => ({}));
 
@@ -36,6 +39,7 @@ const mockStore = configureStore([thunk]);
 describe('ClinicDetails', () => {
   let wrapper;
   let store;
+  let mockMutate;
 
   const defaultProps = {
     trackMetric: sinon.stub(),
@@ -50,9 +54,6 @@ describe('ClinicDetails', () => {
         triggerInitialClinicMigration: sinon.stub().callsArgWith(1, null, { triggerMigrationReturn: 'success' }),
         getEHRSettings: sinon.stub().callsArgWith(1, null, { enabled: true }),
         getMRNSettings: sinon.stub().callsArgWith(1, null, { required: true }),
-      },
-      user: {
-        put: sinon.stub().callsArgWith(1, null, { updateUserReturn: 'success' }),
       },
     },
   };
@@ -70,7 +71,6 @@ describe('ClinicDetails', () => {
         fetchingClinicsForClinician: defaultWorkingState,
         updatingClinic: defaultWorkingState,
         creatingClinic: defaultWorkingState,
-        updatingUser: defaultWorkingState,
         triggeringInitialClinicMigration: defaultWorkingState,
         dismissingClinicianInvite: defaultWorkingState,
       },
@@ -194,11 +194,17 @@ describe('ClinicDetails', () => {
   };
 
   beforeEach(() => {
+    mockMutate = jest.fn();
+    useUpdateUserProfileMutation.mockReturnValue([
+      mockMutate,
+      { isLoading: false, isSuccess: false, isError: false },
+    ]);
     defaultProps.trackMetric.resetHistory();
   });
 
   afterEach(() => {
     cleanup();
+    jest.clearAllMocks();
     defaultProps.api.clinics.getClinicianInvites.resetHistory();
     defaultProps.api.clinics.getClinicsForClinician.resetHistory();
     defaultProps.api.clinics.dismissClinicianInvite.resetHistory();
@@ -207,7 +213,6 @@ describe('ClinicDetails', () => {
     defaultProps.api.clinics.triggerInitialClinicMigration.resetHistory();
     defaultProps.api.clinics.getEHRSettings.resetHistory();
     defaultProps.api.clinics.getMRNSettings.resetHistory();
-    defaultProps.api.user.put.resetHistory();
   });
 
   context('initial fetching', () => {
@@ -292,52 +297,16 @@ describe('ClinicDetails', () => {
         fireEvent.click(container.querySelector('button#submit'));
 
         await waitFor(() => {
-          expect(defaultProps.api.user.put.callCount).to.equal(1);
+          expect(mockMutate.mock.calls).to.have.lengthOf(1);
         });
 
-        sinon.assert.calledWith(
-          defaultProps.api.user.put,
-          {
-            preferences: {},
-            profile: {
-              clinic: { role: 'endocrinologist' },
-              fullName: 'Bill Bryerson',
-            },
-            roles: ['clinician'],
-            userid: 'clinicianUserId123',
-          }
-        );
-
-        expect(store.getActions()).to.eql([
-          {
-            type: 'UPDATE_USER_REQUEST',
-            payload: {
-              userId: 'clinicianUserId123',
-              updatingUser: {
-                emails: ['clinic@example.com'],
-                roles: ['clinician'],
-                userid: 'clinicianUserId123',
-                username: 'clinic@example.com',
-                profile: {
-                  fullName: 'Bill Bryerson',
-                  clinic: { role: 'endocrinologist' },
-                },
-                preferences: {},
-              },
-            },
+        expect(mockMutate.mock.calls[0][0]).to.deep.equal({
+          roles: ['clinician'],
+          profile: {
+            fullName: 'Bill Bryerson',
+            clinic: { role: 'endocrinologist' },
           },
-          {
-            type: 'UPDATE_USER_SUCCESS',
-            payload: {
-              userId: 'clinicianUserId123',
-              updatedUser: { updateUserReturn: 'success' },
-            },
-          },
-          {
-            type: '@@router/CALL_HISTORY_METHOD',
-            payload: { method: 'push', args: ['/workspaces', { selectedClinicId: null }] },
-          },
-        ]);
+        });
       });
     });
 
@@ -398,21 +367,16 @@ describe('ClinicDetails', () => {
         fireEvent.click(container.querySelector('button#submit'));
 
         await waitFor(() => {
-          expect(defaultProps.api.user.put.callCount).to.equal(1);
+          expect(mockMutate.mock.calls).to.have.lengthOf(1);
         });
 
-        sinon.assert.calledWith(
-          defaultProps.api.user.put,
-          {
-            preferences: {},
-            profile: {
-              clinic: { role: 'endocrinologist' },
-              fullName: 'Bill Bryerson',
-            },
-            roles: ['clinician'],
-            userid: 'clinicianUserId123',
-          }
-        );
+        expect(mockMutate.mock.calls[0][0]).to.deep.equal({
+          roles: ['clinician'],
+          profile: {
+            fullName: 'Bill Bryerson',
+            clinic: { role: 'endocrinologist' },
+          },
+        });
 
         expect(defaultProps.api.clinics.update.callCount).to.equal(1);
 
@@ -433,30 +397,6 @@ describe('ClinicDetails', () => {
         );
 
         expect(store.getActions()).to.eql([
-          {
-            type: 'UPDATE_USER_REQUEST',
-            payload: {
-              userId: 'clinicianUserId123',
-              updatingUser: {
-                emails: ['clinic@example.com'],
-                roles: ['clinician'],
-                userid: 'clinicianUserId123',
-                username: 'clinic@example.com',
-                profile: {
-                  fullName: 'Bill Bryerson',
-                  clinic: { role: 'endocrinologist' },
-                },
-                preferences: {},
-              },
-            },
-          },
-          {
-            type: 'UPDATE_USER_SUCCESS',
-            payload: {
-              userId: 'clinicianUserId123',
-              updatedUser: { updateUserReturn: 'success' },
-            },
-          },
           { type: 'UPDATE_CLINIC_REQUEST' },
           {
             type: 'UPDATE_CLINIC_SUCCESS',
@@ -517,7 +457,7 @@ describe('ClinicDetails', () => {
           expect(defaultProps.api.clinics.create.callCount).to.equal(1);
         });
 
-        sinon.assert.notCalled(defaultProps.api.user.put);
+        expect(mockMutate.mock.calls).to.have.lengthOf(0);
 
         sinon.assert.calledWith(
           defaultProps.api.clinics.create,

@@ -5,6 +5,7 @@ import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
 import { ToastProvider } from '../../../app/providers/ToastProvider';
 import EditPersonalDetailsDialog from '../../../app/pages/userprofile/EditPersonalDetailsDialog';
+import { useUpdateUserProfileMutation } from '../../../app/redux/features/userProfile/userProfileApi';
 
 /* global chai */
 /* global sinon */
@@ -14,13 +15,12 @@ import EditPersonalDetailsDialog from '../../../app/pages/userprofile/EditPerson
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
 
-const defaultWorking = { inProgress: false, completed: false, notification: null };
+jest.mock('../../../app/redux/features/userProfile/userProfileApi');
 
-const buildState = (user, working = defaultWorking) => ({
+const buildState = (user) => ({
   blip: {
     loggedInUserId: 'u1',
     allUsersMap: { u1: { userid: 'u1', ...user } },
-    working: { updatingUser: working },
   },
 });
 
@@ -51,7 +51,6 @@ const renderWith = (state, propsOverrides = {}) => {
   const props = {
     open: true,
     onClose,
-    api: {},
     trackMetric,
     ...propsOverrides,
   };
@@ -66,10 +65,21 @@ const renderWith = (state, propsOverrides = {}) => {
   return { ...utils, store, trackMetric, onClose, roleSelect };
 };
 
-const updateUserRequests = (store) =>
-  store.getActions().filter((a) => a.type === 'UPDATE_USER_REQUEST');
-
 describe('EditPersonalDetailsDialog', () => {
+  let mockMutate;
+
+  beforeEach(() => {
+    mockMutate = jest.fn();
+    useUpdateUserProfileMutation.mockReturnValue([
+      mockMutate,
+      { isLoading: false, isSuccess: false, isError: false },
+    ]);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe('non-SSO clinician', () => {
     it('prefills Name, Job Title, and Email; shows Update Email button and no SSO caption', () => {
       const { roleSelect } = renderWith(buildState(clinicianUser));
@@ -99,18 +109,18 @@ describe('EditPersonalDetailsDialog', () => {
   });
 
   describe('Update Email click', () => {
-    it('fires trackMetric and does not call onClose or dispatch', () => {
-      const { store, trackMetric, onClose } = renderWith(buildState(clinicianUser));
+    it('fires trackMetric and does not call onClose or mutation', () => {
+      const { trackMetric, onClose } = renderWith(buildState(clinicianUser));
       fireEvent.click(screen.getByRole('button', { name: 'Update Email' }));
       expect(trackMetric.calledOnceWith('Clicked Update Email in Account')).to.be.true;
       expect(onClose.called).to.be.false;
-      expect(updateUserRequests(store)).to.have.lengthOf(0);
+      expect(mockMutate.mock.calls).to.have.lengthOf(0);
     });
   });
 
   describe('Save Changes — happy path', () => {
-    it('dispatches UPDATE_USER_REQUEST with the merged profile payload', async () => {
-      const { store, roleSelect } = renderWith(buildState(clinicianUser));
+    it('calls mutation with the merged profile payload', async () => {
+      const { roleSelect } = renderWith(buildState(clinicianUser));
 
       fireEvent.change(screen.getByLabelText(/Name/), {
         target: { value: 'Dr. Sally Seastar' },
@@ -120,16 +130,16 @@ describe('EditPersonalDetailsDialog', () => {
       });
       fireEvent.click(screen.getByRole('button', { name: 'Save Changes' }));
 
-      await waitFor(() => expect(updateUserRequests(store)).to.have.lengthOf(1));
-      const request = updateUserRequests(store)[0];
-      expect(request.payload.updatingUser.profile.fullName).to.equal('Dr. Sally Seastar');
-      expect(request.payload.updatingUser.profile.clinic.role).to.equal('primary_care_physician');
+      await waitFor(() => expect(mockMutate.mock.calls).to.have.lengthOf(1));
+      const [profileUpdates] = mockMutate.mock.calls[0];
+      expect(profileUpdates.profile.fullName).to.equal('Dr. Sally Seastar');
+      expect(profileUpdates.profile.clinic.role).to.equal('primary_care_physician');
     });
   });
 
   describe('Save Changes — empty name', () => {
-    it('shows validation error, disables Save Changes, and does not dispatch', async () => {
-      const { store } = renderWith(buildState(clinicianUser));
+    it('shows validation error, disables Save Changes, and does not call mutation', async () => {
+      renderWith(buildState(clinicianUser));
 
       const saveButton = screen.getByRole('button', { name: 'Save Changes' });
       expect(saveButton.disabled).to.be.false;
@@ -140,32 +150,32 @@ describe('EditPersonalDetailsDialog', () => {
       await waitFor(() => expect(saveButton.disabled).to.be.true);
 
       fireEvent.click(saveButton);
-      expect(updateUserRequests(store)).to.have.lengthOf(0);
+      expect(mockMutate.mock.calls).to.have.lengthOf(0);
     });
   });
 
   describe('Save Changes — personal user payload', () => {
-    it('omits profile.clinic from the dispatched payload', async () => {
-      const { store } = renderWith(buildState(personalUser));
+    it('omits profile.clinic from the mutation payload', async () => {
+      renderWith(buildState(personalUser));
 
       fireEvent.change(screen.getByLabelText(/Name/), {
         target: { value: 'Pat P. Personal' },
       });
       fireEvent.click(screen.getByRole('button', { name: 'Save Changes' }));
 
-      await waitFor(() => expect(updateUserRequests(store)).to.have.lengthOf(1));
-      const profile = updateUserRequests(store)[0].payload.updatingUser.profile;
-      expect(profile.fullName).to.equal('Pat P. Personal');
-      expect(profile.clinic).to.be.undefined;
+      await waitFor(() => expect(mockMutate.mock.calls).to.have.lengthOf(1));
+      const [profileUpdates] = mockMutate.mock.calls[0];
+      expect(profileUpdates.profile.fullName).to.equal('Pat P. Personal');
+      expect(profileUpdates.profile.clinic).to.be.undefined;
     });
   });
 
   describe('Cancel', () => {
-    it('calls onClose and does not dispatch', () => {
-      const { store, onClose } = renderWith(buildState(clinicianUser));
+    it('calls onClose and does not call mutation', () => {
+      const { onClose } = renderWith(buildState(clinicianUser));
       fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
       expect(onClose.calledOnce).to.be.true;
-      expect(updateUserRequests(store)).to.have.lengthOf(0);
+      expect(mockMutate.mock.calls).to.have.lengthOf(0);
     });
   });
 });
