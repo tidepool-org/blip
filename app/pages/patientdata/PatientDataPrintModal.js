@@ -6,7 +6,7 @@ import noop from 'lodash/noop';
 import { getMostRecentDatumTimeByChartType } from '../../core/dataViewUtils';
 import * as actions from '../../redux/actions';
 
-import usePrintPDF from './../../pages/clinicworkspace/ClinicPatientsPrintModal/usePrintPDF';
+import { useFetchPrintModalData } from './../../pages/clinicworkspace/ClinicPatientsPrintModal/usePrintPDF';
 import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE } from '../../core/constants';
 import { trackMetric } from '../../core/metricUtils';
 
@@ -19,7 +19,7 @@ const PatientDataPrintModal = ({ api, patientId, chartPrefs = {}, onClose = noop
     return () => dispatch(actions.worker.removeGeneratedPDFS());
   }, []);
 
-  const { status, modalData, canPrint, print } = usePrintPDF(api, patientId, onClose);
+  const { modalData, canPrint, print } = useFetchPrintModalData(api, patientId);
 
   const handleClickPrint = (opts) => {
     const enrichedOpts = _.cloneDeep(opts);
@@ -32,6 +32,7 @@ const PatientDataPrintModal = ({ api, patientId, chartPrefs = {}, onClose = noop
 
     setIsProcessing(true);
     print(enrichedOpts);
+    onClose();
   };
 
   const { latestDatumByType, timePrefs } = modalData;

@@ -8,7 +8,7 @@ import { components as vizComponents } from '@tidepool/viz';
 const { Loader } = vizComponents;
 import { getMostRecentDatumTimeByChartType } from '../../../core/dataViewUtils';
 
-import usePrintPDF, { STATUS } from './usePrintPDF';
+import { useFetchPrintModalData, MODAL_STATUS } from './usePrintPDF';
 import { useTranslation } from 'react-i18next';
 import { useToasts } from '../../../providers/ToastProvider';
 import { trackMetric } from '../../../core/metricUtils';
@@ -34,10 +34,10 @@ const ClinicPatientsPrintModal = ({ api, patientId, onClose = noop }) => {
   const loggedInUserId = useSelector(state => state.blip.loggedInUserId);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const { status, modalData, canPrint, print } = usePrintPDF(api, patientId, onClose);
+  const { status, modalData, canPrint, print } = useFetchPrintModalData(api, patientId);
 
   useEffect(() => {
-    if (status === STATUS.NO_PATIENT_DATA) {
+    if (status === MODAL_STATUS.NO_PATIENT_DATA) {
       setToast({ message: t('This patient does not have any data'), variant: 'danger' });
       onClose();
     }
@@ -46,6 +46,7 @@ const ClinicPatientsPrintModal = ({ api, patientId, onClose = noop }) => {
   const handleClickPrint = (opts) => {
     setIsProcessing(true);
     print(opts);
+    onClose();
   };
 
   const { latestDatumByType, timePrefs } = modalData;

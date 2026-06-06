@@ -142,6 +142,10 @@ export class AppComponent extends React.Component {
     }
   }
 
+  isPrintPage() {
+    return this.props.location === '/print';
+  }
+
   renderNavbar() {
     this.props.context.log('Rendering navbar');
     // at some point we should refactor so that LoginNav and NavBar
@@ -153,6 +157,7 @@ export class AppComponent extends React.Component {
       '/confirm-password-reset',
       '/email-verification',
       '/login',
+      '/print',
       '/request-password-reset',
       '/request-password-from-uploader',
       '/signup',
@@ -244,6 +249,8 @@ export class AppComponent extends React.Component {
   }
 
   renderFooter() {
+    if (this.isPrintPage()) return null;
+
     const version = this.getVersion();
     const trackMetric = this.props.context.trackMetric;
     const location = this.props.location;

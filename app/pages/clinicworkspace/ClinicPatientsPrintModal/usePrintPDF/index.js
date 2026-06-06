@@ -1,5 +1,4 @@
-import usePrintPDF, { STATUS } from './usePrintPDF';
+import useFetchPrintModalData, { MODAL_STATUS } from './useFetchPrintModalData';
+import usePrintPDFProcess, { PROCESS_STATUS } from './usePrintPDFProcess';
 
-export { STATUS };
-
-export default usePrintPDF;
+export { useFetchPrintModalData, usePrintPDFProcess, MODAL_STATUS, PROCESS_STATUS };

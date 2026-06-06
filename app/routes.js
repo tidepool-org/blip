@@ -20,6 +20,7 @@ import { PrescriptionForm } from './pages/prescription';
 import OAuthConnection from './pages/oauth/OAuthConnection';
 import PatientData from './pages/patientdata';
 import PatientNew from './pages/patientnew';
+import PatientPrint from './pages/patientprint';
 import PatientNewDataDonation from './pages/patientnew/dataDonation';
 import PatientProfile from './pages/patientprofile/patientprofile';
 import Patients from './pages/patients';
@@ -285,6 +286,33 @@ export const requireAuth = (api, cb = _.noop) => (dispatch, getState) => {
 };
 
 /**
+ * Slim auth gate for the print route. Verifies authentication and ensures the logged-in user is
+ * loaded into state, but intentionally skips the clinic-fetching cascade and the workspace/profile
+ * redirects in {@link requireAuth} so the print landing page can run with minimal bootstrapping.
+ *
+ * @param  {Object} api
+ */
+export const requireAuthForPrint = (api, cb = _.noop) => (dispatch, getState) => {
+  const { blip: state, router: routerState } = getState();
+
+  if (!api.user.isAuthenticated()) {
+    let dest = '';
+    if (routerState?.location?.pathname) {
+      dest = `?dest=${encodeURIComponent(routerState.location.pathname + routerState.location.search + routerState.location.hash)}`;
+    }
+    dispatch(push(`/login${dest}`));
+    return;
+  }
+
+  const user = _.get(state.allUsersMap, state.loggedInUserId, {});
+  if (!_.isEmpty(user)) {
+    cb();
+  } else {
+    dispatch(actions.async.fetchUser(api, () => cb()));
+  }
+};
+
+/**
  * This function redirects any requests that land on pages that should only be
  * visible when no data storage is set up if the user has data storage set up
  *
@@ -445,6 +473,7 @@ export const getRoutes = (appContext) => {
 
   const boundRequireNoAuth = requireNoAuth.bind(null, api);
   const boundRequireAuth = requireAuth.bind(null, api);
+  const boundRequireAuthForPrint = requireAuthForPrint.bind(null, api);
   const boundRequireNotVerified = requireNotVerified.bind(null, api);
   const boundRequireAuthAndNoPatient = requireAuthAndNoPatient.bind(null, api);
   const boundRequireSmartOnFhir = requireSmartOnFhir.bind(null, api);
@@ -481,6 +510,7 @@ export const getRoutes = (appContext) => {
           <Route exact path='/patients/:id/share' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><AccessManagement {...routeProps} {...props} /></Gate>)} />
           <Route exact path='/patients/:id/share/invite' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ShareInvite {...routeProps} {...props} /></Gate>)} />
           <Route exact path='/patients/:id/data/:chartType?' render={routeProps => (<Gate onEnter={boundRequireSupportedBrowserForUserType} key={routeProps.match.path}><PatientData {...routeProps} {...props} /></Gate>)} />
+          <Route exact path='/print' render={routeProps => (<Gate onEnter={boundRequireAuthForPrint} key={routeProps.match.path}><PatientPrint {...routeProps} {...props} /></Gate>)} />
           <Route path='/request-password-reset' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><RequestPasswordReset {...routeProps} {...props} /></Gate>)} />
           <Route path='/confirm-password-reset' render={routeProps => (<Gate onEnter={boundEnsureNoAuth} key={routeProps.match.path}><ConfirmPasswordReset {...routeProps} {...props} /></Gate>)} />
           <Route path='/oauth/:providerName/:status' render={routeProps => (<OAuthConnection {...routeProps} {...props} />)} />
