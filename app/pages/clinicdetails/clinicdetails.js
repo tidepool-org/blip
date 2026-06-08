@@ -91,7 +91,7 @@ export const ClinicDetails = (props) => {
   const [populateProfileFields, setPopulateProfileFields] = useState(includes(['new', 'profile'], action));
   const working = useSelector((state) => state.blip.working);
   const previousWorking = usePrevious(working);
-  const [updateUserProfile, { isSuccess: updateUserSucceeded, isError: updateUserFailed, error: updateUserError }] = useUpdateUserProfileMutation();
+  const [updateUserProfile] = useUpdateUserProfileMutation();
   const [submitting, setSubmitting] = useState(false);
   const [showMigrationDialog, setShowMigrationDialog] = useState(false);
   const [logoutPending, setLogoutPending] = useState(false);
@@ -216,23 +216,6 @@ export const ClinicDetails = (props) => {
   }, [loggedInUserId]);
 
   useEffect(() => {
-    if (action !== 'profile') return;
-    if (updateUserSucceeded) {
-      setSubmitting(false);
-      setToast({ message: t('Profile updated'), variant: 'success' });
-      if (isUploadLaunch) {
-        dispatch(push({ pathname: '/upload-redirect', state: { referrer: 'profile' } }));
-      } else {
-        // Redirect to new clinic setup form
-        dispatch(push('/clinic-details/new', { referrer: location.pathname }));
-      }
-    } else if (updateUserFailed) {
-      setSubmitting(false);
-      setToast({ message: updateUserError?.data ?? t('An error occurred. Please try again.'), variant: 'danger' });
-    }
-  }, [action, updateUserSucceeded, updateUserFailed]);
-
-  useEffect(() => {
     let clinicAction = action === 'new' ? 'creatingClinic' : 'updatingClinic';
 
     const {
@@ -336,7 +319,7 @@ export const ClinicDetails = (props) => {
   const formikContext = useFormik({
     initialValues: clinicValues(),
     validationSchema: schemas[schema],
-    onSubmit: values => {
+    onSubmit: async values => {
       setSubmitting(true);
 
       if (displayClinicianForm) {
@@ -353,11 +336,24 @@ export const ClinicDetails = (props) => {
           profileUpdates.profile.clinic.role = values.role;
         }
 
-        updateUserProfile(profileUpdates);
-
         if (action === 'profile') {
           trackMetric('Web - Clinician Details Setup');
-          if (clinicInvite) redirectToWorkspace();
+          try {
+            await updateUserProfile(profileUpdates).unwrap();
+            setToast({ message: t('Profile updated'), variant: 'success' });
+            if (clinicInvite) {
+              redirectToWorkspace();
+            } else if (isUploadLaunch) {
+              dispatch(push({ pathname: '/upload-redirect', state: { referrer: 'profile' } }));
+            } else {
+              dispatch(push('/clinic-details/new', { referrer: location.pathname }));
+            }
+          } catch (err) {
+            setSubmitting(false);
+            setToast({ message: err?.data ?? t('An error occurred. Please try again.'), variant: 'danger' });
+          }
+        } else {
+          updateUserProfile(profileUpdates);
         }
       }
 

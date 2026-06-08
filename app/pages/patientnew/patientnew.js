@@ -98,7 +98,7 @@ export const PatientNew = (props) => {
   const user = get(allUsersMap, loggedInUserId);
   const working = useSelector((state) => state.blip.working);
   const previousWorking = usePrevious(working);
-  const [updateUserProfile, { isSuccess: updateUserSucceeded, isError: updateUserFailed, error: updateUserError }] = useUpdateUserProfileMutation();
+  const [updateUserProfile] = useUpdateUserProfileMutation();
   const [submitting, setSubmitting] = useState(false);
   const [currentForm, setCurrentForm] = useState(formSteps.accountDetails);
 
@@ -138,17 +138,6 @@ export const PatientNew = (props) => {
     }
   }, [working.settingUpDataStorage]);
 
-  useEffect(() => {
-    if (updateUserSucceeded) {
-      setSubmitting(false);
-      setToast({ message: t('Profile updated'), variant: 'success' });
-      dispatch(push('/patients?justLoggedIn=true'));
-    } else if (updateUserFailed) {
-      setSubmitting(false);
-      setToast({ message: updateUserError?.data ?? t('An error occurred. Please try again.'), variant: 'danger' });
-    }
-  }, [updateUserSucceeded, updateUserFailed]);
-
   const { firstName, lastName } = personUtils.splitNamesFromFullname(user?.profile?.fullName);
 
   const formikContext = useFormik({
@@ -163,7 +152,7 @@ export const PatientNew = (props) => {
       diagnosisType: '',
     },
     validationSchema: schemas[currentForm],
-    onSubmit: values => {
+    onSubmit: async values => {
       if (includes(['personal', 'caregiver'], values.accountType)) {
         if (currentForm === formSteps.accountDetails) {
           setCurrentForm(formSteps.patientDetails);
@@ -178,7 +167,14 @@ export const PatientNew = (props) => {
         // We skip the welcome message on the patients home page, which just prompts them to set up
         // data storage, which they've just indicated they don't want to do at this time.
         dispatch(actions.sync.hideWelcomeMessage());
-        updateUserProfile(profile);
+        try {
+          await updateUserProfile(profile).unwrap();
+          setToast({ message: t('Profile updated'), variant: 'success' });
+          dispatch(push('/patients?justLoggedIn=true'));
+        } catch (err) {
+          setSubmitting(false);
+          setToast({ message: err?.data ?? t('An error occurred. Please try again.'), variant: 'danger' });
+        }
       }
     },
   });

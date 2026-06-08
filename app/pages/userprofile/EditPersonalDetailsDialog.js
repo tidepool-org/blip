@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -24,7 +24,7 @@ export function EditPersonalDetailsDialog({ open, onClose, trackMetric }) {
   const { set: setToast } = useToasts();
 
   const user = useSelector(selectUser);
-  const [updateUserProfile, { isLoading, isSuccess, isError, error: updateError }] = useUpdateUserProfileMutation();
+  const [updateUserProfile, { isLoading }] = useUpdateUserProfileMutation();
 
   const isClinician = personUtils.isClinicianAccount(user);
   const isSSO = personUtils.isSSOAccount(user);
@@ -42,25 +42,22 @@ export function EditPersonalDetailsDialog({ open, onClose, trackMetric }) {
       role: _.get(user, 'profile.clinic.role', ''),
     },
     validationSchema: schema,
-    onSubmit: (values) => {
+    onSubmit: async (values, { setSubmitting }) => {
       const profileUpdates = { profile: { fullName: values.fullName.trim() } };
       if (isClinician) {
         profileUpdates.profile.clinic = { role: values.role || '' };
       }
-      updateUserProfile(profileUpdates);
+      try {
+        await updateUserProfile(profileUpdates).unwrap();
+        setToast({ message: t('Personal details updated.'), variant: 'success' });
+        onClose();
+      } catch (err) {
+        setToast({ message: err?.data ?? t('An error occurred. Please try again.'), variant: 'danger' });
+      } finally {
+        setSubmitting(false);
+      }
     },
   });
-
-  useEffect(() => {
-    if (isSuccess) {
-      formikContext.setSubmitting(false);
-      setToast({ message: t('Personal details updated.'), variant: 'success' });
-      onClose();
-    } else if (isError) {
-      formikContext.setSubmitting(false);
-      setToast({ message: updateError?.data ?? t('An error occurred. Please try again.'), variant: 'danger' });
-    }
-  }, [isSuccess, isError]);
 
   const handleClose = () => {
     formikContext.resetForm();

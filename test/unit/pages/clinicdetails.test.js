@@ -194,11 +194,8 @@ describe('ClinicDetails', () => {
   };
 
   beforeEach(() => {
-    mockMutate = jest.fn();
-    useUpdateUserProfileMutation.mockReturnValue([
-      mockMutate,
-      { isLoading: false, isSuccess: false, isError: false },
-    ]);
+    mockMutate = jest.fn().mockReturnValue({ unwrap: jest.fn().mockResolvedValue({}) });
+    useUpdateUserProfileMutation.mockReturnValue([mockMutate, { isLoading: false }]);
     defaultProps.trackMetric.resetHistory();
   });
 
