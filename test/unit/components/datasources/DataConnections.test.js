@@ -197,12 +197,12 @@ describe('resolveConnectState', () => {
     expect(resolveConnectState(patient, 'dexcom', NOW)).to.equal('pendingReconnect');
   });
 
-  it('falls through to dataSource.state when connectionRequest.createdTime predates dataSource.modifiedTime', () => {
+  it('returns pendingReconnect even when dataSource.modifiedTime is newer than the request (recency is not compared)', () => {
     const patient = {
       dataSources: [{ providerName: 'dexcom', state: 'disconnected', modifiedTime: past(1) }],
       connectionRequests: { dexcom: [{ providerName: 'dexcom', createdTime: past(10), expirationTime: future(20) }] },
     };
-    expect(resolveConnectState(patient, 'dexcom', NOW)).to.equal('disconnected');
+    expect(resolveConnectState(patient, 'dexcom', NOW)).to.equal('pendingReconnect');
   });
 
   it('returns connected when dataSource is connected, even with a recent connectionRequest', () => {
@@ -328,9 +328,9 @@ describe('getCurrentDataSourceForProvider', () => {
 describe('getConnectStateUI', () => {
   // getConnectStateUI returns the full UI map keyed by connectState identifier; the actual
   // resolved state for a patient is the consumer's concern. These fixtures supply enough
-  // timing context for the UI map's messages to render. Post-BACK-4414, dataSource.state
-  // is one of ['connected', 'disconnected', 'error'] — 'disconnected' is the inert choice
-  // here since the fixtures aren't exercising state-driven branches.
+  // timing context for the UI map's messages to render. dataSource.state is one of
+  // ['connected', 'disconnected', 'error'] — 'disconnected' is the inert choice here
+  // since the fixtures aren't exercising state-driven branches.
   const clinicPatient = {
     id: 'patient123',
     dataSources: [ { providerName: 'provider123', state: 'disconnected' }],

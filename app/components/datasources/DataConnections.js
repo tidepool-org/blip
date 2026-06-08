@@ -179,12 +179,10 @@ export const getCurrentDataSourceForProvider = (patient, providerName) => {
 
 /**
  * Derive a single connectState identifier for a provider by joining
- * patient.dataSources with patient.connectionRequests[providerName] per the
- * BACK-4414 / WEB-4595 contract:
+ * patient.dataSources with patient.connectionRequests[providerName]:
  *
  *   - pending          = non-expired connectionRequest, no dataSource
  *   - pendingReconnect = non-expired connectionRequest + non-connected dataSource
- *                        whose modifiedTime predates the request's createdTime
  *   - pendingExpired   = expired connectionRequest + no connected dataSource
  *   - connected        = dataSource state === 'connected'
  *   - disconnected     = dataSource state === 'disconnected'
@@ -201,13 +199,10 @@ export const resolveConnectState = (patient, providerName, now = moment.utc().to
   const connectionRequest = patient?.connectionRequests?.[providerName]?.[0];
   const requestExpired = !!connectionRequest?.expirationTime
     && moment(connectionRequest.expirationTime).isBefore(now);
-  const requestNewerThanDataSource = !!connectionRequest?.createdTime
-    && (!dataSource?.modifiedTime
-      || moment(connectionRequest.createdTime).isAfter(dataSource.modifiedTime));
 
   if (connectionRequest && !requestExpired) {
     if (!dataSource) return 'pending';
-    if (dataSource.state !== 'connected' && requestNewerThanDataSource) return 'pendingReconnect';
+    if (dataSource.state !== 'connected') return 'pendingReconnect';
   }
 
   if (connectionRequest && requestExpired && (!dataSource || dataSource.state !== 'connected')) {
