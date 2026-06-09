@@ -19,7 +19,7 @@ const usePrintWindow = () => {
     }
   };
 
-  const triggerPrint = (pdf) => {
+  const openPDF = (pdf) => {
     if (!pdf?.combined?.url) return;
 
     if (printWindowRef.current && !printWindowRef.current?.closed) {
@@ -30,42 +30,33 @@ const usePrintWindow = () => {
       printWindowRef.current = window.open(pdf.combined.url);
     }
 
-    setTimeout(() => {
-      if (printWindowRef.current) {
-        printWindowRef.current.focus();
-        printWindowRef.current.print();
-      } else {
-        if (!pdf?.combined?.url) return;
+    if (!printWindowRef.current) {
+      setToast({
+        message: t('A popup blocker is preventing your report from opening.'),
+        variant: 'warning',
+        autoHideDuration: null,
+        action: (
+          <Button
+            p={0}
+            sx= {{ lineHeight: 1.5, fontSize: 1 }}
+            variant="textPrimary"
+            onClick={() => {
+              const printWindow = window.open(pdf.combined.url);
 
-        setToast({
-          message: t('A popup blocker is preventing your report from opening.'),
-          variant: 'warning',
-          autoHideDuration: null,
-          action: (
-            <Button
-              p={0}
-              sx= {{ lineHeight: 1.5, fontSize: 1 }}
-              variant="textPrimary"
-              onClick={() => {
-                const printWindow = window.open(pdf.combined.url);
+              if (!printWindow) return;
 
-                if (!printWindow) return;
-
-                printWindowRef.current = printWindow;
-                printWindowRef.current.focus();
-                printWindowRef.current.print();
-                setToast(null);
-              }}
-            >
-              {t('Open it anyway')}
-            </Button>
-          ),
-        });
-      }
-    });
+              printWindowRef.current = printWindow;
+              setToast(null);
+            }}
+          >
+            {t('Open it anyway')}
+          </Button>
+        ),
+      });
+    }
   };
 
-  return { openPrintWindow, triggerPrint };
+  return { openPrintWindow, openPDF };
 };
 
 export default usePrintWindow;

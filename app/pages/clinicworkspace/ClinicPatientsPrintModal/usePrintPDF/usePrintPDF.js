@@ -138,7 +138,7 @@ const usePrintPDF = (
 ) => {
   const dispatch = useDispatch();
   const generateAGPImages = useGenerateAGPImages();
-  const { openPrintWindow, triggerPrint } = usePrintWindow();
+  const { openPrintWindow, openPDF } = usePrintWindow();
   const [requestId] = useState(crypto.randomUUID());
 
   const data = useSelector(state => state.blip.data);
@@ -213,7 +213,7 @@ const usePrintPDF = (
 
       case STATUS.TRIGGERING_PRINT:
         if (pdf?.opts?.requestId === requestId) {
-          triggerPrint(pdf);
+          openPDF(pdf);
         }
         setTimeout(() => {
           onPrintTriggered();
