@@ -1269,6 +1269,41 @@ export function fetchPatientData(api, options, id) {
 }
 
 /**
+ * Fetch only the latest datums for a patient, skipping the server time check
+ * and the bulk data fetch. Used to quickly populate latestDatumByType in Redux.
+ *
+ * @param  {Object} api an instance of the API wrapper
+ * @param  {String|Number} id
+ */
+export function fetchPatientLatestDatums(api, id) {
+  return (dispatch, getState) => {
+    const latestDatumsFetchParams = {
+      type: ALL_FETCHED_DATA_TYPES.join(','),
+      latest: 1,
+    };
+
+    api.patientData.get(id, latestDatumsFetchParams, (err, latestDatums) => {
+      if (err) {
+        const { blip: { loggedInUserId } } = getState();
+        let errMsg = ErrorMessages.ERR_FETCHING_PATIENT_DATA;
+        if (err?.status === 403) {
+          if (loggedInUserId === id) {
+            errMsg = ErrorMessages.ERR_FETCHING_PATIENT_DATA_UNAUTHORIZED;
+          } else {
+            errMsg = ErrorMessages.ERR_FETCHING_PATIENT_DATA_CLINICIAN_UNAUTHORIZED;
+          }
+        }
+        dispatch(sync.fetchPatientDataFailure(
+          createActionError(errMsg, err), err
+        ));
+      } else {
+        dispatch(worker.dataWorkerAddDataRequest(latestDatums, false, id, null));
+      }
+    });
+  };
+}
+
+/**
  * Fetch Prescriptions Action Creator
  *
  * @param  {Object} api - an instance of the API wrapper
