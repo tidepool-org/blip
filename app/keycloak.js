@@ -220,10 +220,23 @@ export function generateSSOLinkUri(idp, redirectUri, originalNonce) {
   return uri.toString();
 }
 
+/**
+ * Redirect to a Keycloak application-initiated action.
+ *
+ * @param {String} action - Keycloak action value (e.g. 'UPDATE_EMAIL',
+ *   'UPDATE_PASSWORD', 'CONFIGURE_TOTP', 'delete_credential:<id>').
+ * @param {String} redirectUri - Absolute URL Keycloak returns the user to.
+ */
+export async function redirectToKeycloakAction(action, redirectUri) {
+  const url = await keycloak.createLoginUrl({ action, redirectUri });
+  window.location.href = url;
+}
+
 export default {
   keycloak,
   onKeycloakEvent,
   onKeycloakTokens,
   keycloakMiddleware,
   generateSSOLinkUri,
+  redirectToKeycloakAction,
 };

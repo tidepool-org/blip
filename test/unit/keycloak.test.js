@@ -21,6 +21,7 @@ import {
   onKeycloakTokens,
   keycloakMiddleware,
   generateSSOLinkUri,
+  redirectToKeycloakAction,
 } from '../../app/keycloak';
 
 const mockKeycloakCtor = jest.fn();
@@ -77,6 +78,7 @@ const makeKeycloakInstance = (overrides = {}) => ({
   token: 'tokenValue',
   timeSkew: 2,
   updateToken: sinon.stub(),
+  createLoginUrl: sinon.stub().resolves('http://keycloakauthserverurl/realms/keycloakRealm/protocol/openid-connect/auth?client_id=blip&kc_action=stubAction'),
   authServerUrl: 'http://keycloakauthserverurl',
   realm: 'keycloakRealm',
   clientId: 'keycloakClientId',
@@ -387,6 +389,45 @@ describe('keycloak', () => {
       ).to.equal(
         'http://keycloakauthserverurl/realms/keycloakRealm/broker/anIdp/link?nonce=providedNonce&hash=9poE5eoZoNI83tBnkjtE_v-LgE4nAa0jZTFjBaOvG8w&client_id=keycloakClientId&redirect_uri=aRedirectUri'
       );
+    });
+  });
+
+  describe('redirectToKeycloakAction', () => {
+    let originalLocation;
+
+    beforeEach(() => {
+      originalLocation = window.location;
+      delete window.location;
+      window.location = { href: '' };
+    });
+
+    afterEach(() => {
+      window.location = originalLocation;
+    });
+
+    it('calls keycloak.createLoginUrl with { action, redirectUri } and navigates window.location.href to the resolved URL', async () => {
+      keycloakClient.createLoginUrl = sinon.stub().resolves('http://keycloakauthserverurl/realms/keycloakRealm/protocol/openid-connect/auth?client_id=blip&kc_action=UPDATE_EMAIL&redirect_uri=https%3A%2F%2Fapp.example%2Fprofile');
+
+      await redirectToKeycloakAction('UPDATE_EMAIL', 'https://app.example/profile');
+
+      sinon.assert.calledOnceWithExactly(keycloakClient.createLoginUrl, {
+        action: 'UPDATE_EMAIL',
+        redirectUri: 'https://app.example/profile',
+      });
+      expect(window.location.href).to.equal(
+        'http://keycloakauthserverurl/realms/keycloakRealm/protocol/openid-connect/auth?client_id=blip&kc_action=UPDATE_EMAIL&redirect_uri=https%3A%2F%2Fapp.example%2Fprofile'
+      );
+    });
+
+    it('passes arbitrary action strings through unchanged (delete_credential:<id>)', async () => {
+      keycloakClient.createLoginUrl = sinon.stub().resolves('http://keycloakauthserverurl/...&kc_action=delete_credential%3Aabc-123');
+
+      await redirectToKeycloakAction('delete_credential:abc-123', 'https://app.example/foo');
+
+      sinon.assert.calledOnceWithExactly(keycloakClient.createLoginUrl, {
+        action: 'delete_credential:abc-123',
+        redirectUri: 'https://app.example/foo',
+      });
     });
   });
 });

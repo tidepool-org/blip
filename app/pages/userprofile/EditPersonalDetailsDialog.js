@@ -16,6 +16,7 @@ import { useToasts } from '../../providers/ToastProvider';
 import { getCommonFormikFieldProps, addEmptyOption, fieldsAreValid } from '../../core/forms';
 import personUtils from '../../core/personutils';
 import { roles as clinicRoles } from '../../core/clinicUtils';
+import { redirectToKeycloakAction } from '../../keycloak';
 import { selectUser } from '../../core/selectors';
 import { useUpdateUserProfileMutation } from '../../redux/features/userProfile/userProfileApi';
 
@@ -66,6 +67,7 @@ export function EditPersonalDetailsDialog({ open, onClose, trackMetric }) {
 
   const handleUpdateEmail = () => {
     trackMetric('Clicked Update Email in Account');
+    redirectToKeycloakAction('UPDATE_EMAIL', `${window.location.origin}/profile`);
   };
 
   return (

@@ -4,6 +4,13 @@ import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
 import { ToastProvider } from '../../../app/providers/ToastProvider';
+
+jest.mock('../../../app/keycloak', () => ({
+  __esModule: true,
+  redirectToKeycloakAction: jest.fn(),
+}));
+
+import { redirectToKeycloakAction } from '../../../app/keycloak';
 import EditPersonalDetailsDialog from '../../../app/pages/userprofile/EditPersonalDetailsDialog';
 import { useUpdateUserProfileMutation } from '../../../app/redux/features/userProfile/userProfileApi';
 
@@ -11,6 +18,7 @@ import { useUpdateUserProfileMutation } from '../../../app/redux/features/userPr
 /* global sinon */
 /* global describe */
 /* global it */
+/* global beforeEach */
 
 const expect = chai.expect;
 const mockStore = configureStore([thunk]);
@@ -66,6 +74,10 @@ const renderWith = (state, propsOverrides = {}) => {
 };
 
 describe('EditPersonalDetailsDialog', () => {
+  beforeEach(() => {
+    redirectToKeycloakAction.mockClear();
+  });
+
   let mockMutate;
 
   beforeEach(() => {
@@ -106,12 +118,23 @@ describe('EditPersonalDetailsDialog', () => {
   });
 
   describe('Update Email click', () => {
-    it('fires trackMetric and does not call onClose or mutation', () => {
-      const { trackMetric, onClose } = renderWith(buildState(clinicianUser));
+    it('fires trackMetric, redirects to Keycloak UPDATE_EMAIL, and does not call onClose or dispatch', () => {
+      const { store, trackMetric, onClose } = renderWith(buildState(clinicianUser));
       fireEvent.click(screen.getByRole('button', { name: 'Update Email' }));
       expect(trackMetric.calledOnceWith('Clicked Update Email in Account')).to.be.true;
+      expect(redirectToKeycloakAction.mock.calls).to.have.lengthOf(1);
+      expect(redirectToKeycloakAction.mock.calls[0]).to.deep.equal([
+        'UPDATE_EMAIL',
+        `${window.location.origin}/profile`,
+      ]);
       expect(onClose.called).to.be.false;
       expect(mockMutate.mock.calls).to.have.lengthOf(0);
+    });
+
+    it('does not call redirectToKeycloakAction for SSO users (button absent)', () => {
+      renderWith(buildState(ssoClinicianUser));
+      expect(screen.queryByRole('button', { name: 'Update Email' })).to.be.null;
+      expect(redirectToKeycloakAction.mock.calls).to.have.lengthOf(0);
     });
   });
 
