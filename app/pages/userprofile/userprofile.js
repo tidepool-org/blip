@@ -31,6 +31,7 @@ import Icon from '../../components/elements/Icon';
 import PopoverLabel from '../../components/elements/PopoverLabel';
 import personUtils from '../../core/personutils';
 import { useGetMfaStatusQuery } from '../../redux/features/mfaStatus/mfaStatusApi';
+import { selectUser } from '../../core/selectors';
 import { roles as clinicRoles } from '../../core/clinicUtils';
 import { URL_SUPPORT_ACCOUNT_SETTINGS, URL_SUPPORT_RECOVERY_CODES } from '../../core/constants';
 import baseTheme from '../../themes/baseTheme';
@@ -50,6 +51,7 @@ const TRACK_METRICS = {
 };
 
 const RECOVERY_CODES_WARNING_THRESHOLD = 3;
+const RECOVERY_CODES_TOTAL = 12;
 
 // Disabled baseline used while the MFA status query is loading or errored, so the
 // security rows always receive a fully-shaped object (matches the query's mapped shape).
@@ -501,7 +503,7 @@ RecoveryCodesInfoContent.propTypes = {
 
 function RecoveryCodesRow({ t, trackMetric, mfaStatus }) {
   const used = _.get(mfaStatus, 'recoveryCodes.used', 0);
-  const total = _.get(mfaStatus, 'recoveryCodes.total', 0);
+  const total = _.get(mfaStatus, 'recoveryCodes.total', RECOVERY_CODES_TOTAL);
   const generatedTime = _.get(mfaStatus, 'recoveryCodes.generatedTime');
   const lowCodes = used >= RECOVERY_CODES_WARNING_THRESHOLD;
 
@@ -587,11 +589,7 @@ RecoveryCodesRow.propTypes = {
 export function UserProfile({ trackMetric, history, api }) {
   const { t } = useTranslation();
   const { set: setToast } = useToasts();
-  const user = useSelector((state) => {
-    const allUsersMap = state.blip?.allUsersMap;
-    const loggedInUserId = state.blip?.loggedInUserId;
-    return allUsersMap && loggedInUserId ? allUsersMap[loggedInUserId] : null;
-  });
+  const user = useSelector(selectUser);
   const { data: mfaData, isLoading, isFetching, isError, refetch } = useGetMfaStatusQuery();
   const mfaStatus = mfaData ?? MFA_STATUS_DEFAULT;
   const mfaLoading = isLoading || isFetching;
@@ -836,7 +834,6 @@ export function UserProfile({ trackMetric, history, api }) {
       <EditPersonalDetailsDialog
         open={editOpen}
         onClose={() => setEditOpen(false)}
-        api={api}
         trackMetric={trackMetric}
       />
 
