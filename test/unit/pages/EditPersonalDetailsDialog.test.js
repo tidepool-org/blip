@@ -76,6 +76,8 @@ const renderWith = (state, propsOverrides = {}) => {
 describe('EditPersonalDetailsDialog', () => {
   beforeEach(() => {
     redirectToKeycloakAction.mockClear();
+  });
+
   let mockMutate;
 
   beforeEach(() => {
