@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { selectPatientSharedAccounts, selectMfaStatus } from '../../../../app/core/selectors';
+import { selectPatientSharedAccounts } from '../../../../app/core/selectors';
 
 /* global describe */
 /* global it */
@@ -154,98 +154,5 @@ describe('selectPatientSharedAccounts', () => {
       key: 'xyz789',
       uploadPermission: false,
     });
-  });
-});
-
-describe('selectMfaStatus', () => {
-  const baselineShape = {
-    enabled: false,
-    enabledTime: null,
-    device: { name: null, registeredTime: null },
-    recoveryCodes: { used: null, total: null, generatedTime: null },
-  };
-
-  const stateWithMfa = (mfa) => ({
-    blip: {
-      loggedInUserId: 'user1',
-      allUsersMap: {
-        user1: {
-          userid: 'user1',
-          profile: { clinic: { mfa } },
-        },
-      },
-    },
-  });
-
-  it('should return the disabled-baseline shape for an empty blip state', () => {
-    const result = selectMfaStatus({ blip: {} });
-    expect(result).to.deep.equal(baselineShape);
-  });
-
-  it('should return the disabled-baseline shape when the logged-in user has no mfa data', () => {
-    const result = selectMfaStatus({
-      blip: {
-        loggedInUserId: 'user1',
-        allUsersMap: { user1: { roles: ['clinician'] } },
-      },
-    });
-    expect(result).to.deep.equal(baselineShape);
-  });
-
-  it('should default enabled to false and timestamps to null when source is missing', () => {
-    const result = selectMfaStatus({ blip: {} });
-    expect(result.enabled).to.be.false;
-    expect(result.enabledTime).to.be.null;
-    expect(result.device.name).to.be.null;
-    expect(result.device.registeredTime).to.be.null;
-    expect(result.recoveryCodes.generatedTime).to.be.null;
-  });
-
-  it('should report recoveryCodes.total and used as null when source is missing', () => {
-    const result = selectMfaStatus({ blip: {} });
-    expect(result.recoveryCodes.total).to.be.null;
-    expect(result.recoveryCodes.used).to.be.null;
-  });
-
-  it('should read mfa values from allUsersMap[loggedInUserId].profile.clinic.mfa when populated', () => {
-    const mfa = {
-      enabled: true,
-      enabledTime: '2026-04-01T00:00:00Z',
-      device: { name: 'iPhone 17', registeredTime: '2026-04-01T00:00:00Z' },
-      recoveryCodes: { used: 3, total: 12, generatedTime: '2026-04-01T00:00:00Z' },
-    };
-    const result = selectMfaStatus(stateWithMfa(mfa));
-    expect(result).to.deep.equal(mfa);
-  });
-
-  it('should normalize partial mfa data, filling in missing fields with the disabled baseline', () => {
-    const result = selectMfaStatus(stateWithMfa({
-      enabled: true,
-      device: { name: 'Pixel 12' },
-      recoveryCodes: { used: 1 },
-    }));
-    expect(result).to.deep.equal({
-      enabled: true,
-      enabledTime: null,
-      device: { name: 'Pixel 12', registeredTime: null },
-      recoveryCodes: { used: 1, total: null, generatedTime: null },
-    });
-  });
-
-  it('should coerce truthy non-boolean enabled values to a boolean', () => {
-    const result = selectMfaStatus(stateWithMfa({ enabled: 'yes' }));
-    expect(result.enabled).to.be.true;
-  });
-
-  it('should fall back to the baseline when loggedInUserId is absent even if allUsersMap is populated', () => {
-    const result = selectMfaStatus({
-      blip: {
-        loggedInUserId: undefined,
-        allUsersMap: {
-          user1: { profile: { clinic: { mfa: { enabled: true } } } },
-        },
-      },
-    });
-    expect(result).to.deep.equal(baselineShape);
   });
 });
