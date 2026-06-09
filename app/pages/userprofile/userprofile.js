@@ -1,4 +1,3 @@
-
 /**
  * Copyright (c) 2014, Tidepool Project
  *
@@ -15,325 +14,613 @@
  */
 
 import PropTypes from 'prop-types';
-import React from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { push } from 'connected-react-router';
-
-import * as actions from '../../redux/actions';
-
-import {withTranslation} from 'react-i18next';
+import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+import { Box, Flex, Link, Text } from 'theme-ui';
 import _ from 'lodash';
-import { validateForm } from '../../core/validation';
+import noop from 'lodash/noop';
+import moment from 'moment';
+import ChevronLeftRoundedIcon from '@material-ui/icons/ChevronLeftRounded';
+import OpenInNewRoundedIcon from '@material-ui/icons/OpenInNewRounded';
+import ReportProblemRoundedIcon from '@material-ui/icons/ReportProblemRounded';
 
-import config from '../../config';
+import Button from '../../components/elements/Button';
+import Icon from '../../components/elements/Icon';
+import personUtils from '../../core/personutils';
+import { selectMfaStatus, selectUser } from '../../core/selectors';
+import { roles as clinicRoles } from '../../core/clinicUtils';
+import { URL_SUPPORT_ACCOUNT_SETTINGS } from '../../core/constants';
+import baseTheme from '../../themes/baseTheme';
+import EditPersonalDetailsDialog from './EditPersonalDetailsDialog';
 
-import SimpleForm from '../../components/simpleform';
-import ToastContext from '../../providers/ToastProvider';
-
-// A different namespace than the default can be specified in withTranslation()
-export var UserProfileClass = class extends React.Component {
-  static propTypes = {
-    fetchingUser: PropTypes.bool.isRequired,
-    updatingUser: PropTypes.object.isRequired,
-    history: PropTypes.object.isRequired,
-    onSubmit: PropTypes.func.isRequired,
-    trackMetric: PropTypes.func.isRequired,
-    login: PropTypes.func.isRequired,
-    user: PropTypes.object
-  };
-  static contextType = ToastContext;
-
-  formInputs = () => {
-    const { t, user } = this.props;
-    const userRoles = _.get(user, 'roles', []);
-    const isBrokeredAccount =
-      _.intersection(userRoles, ['brokered']).length > 0;
-    const inputs = [
-      { name: 'fullName', label: t('Full name'), type: 'text' },
-      {
-        name: 'username',
-        label: t('Email'),
-        type: 'email',
-        disabled: isBrokeredAccount,
-      },
-      {
-        name: 'password',
-        label: t('Password'),
-        type: 'password',
-        disabled: isBrokeredAccount,
-      },
-      {
-        name: 'passwordConfirm',
-        label: t('Confirm password'),
-        type: 'password',
-        disabled: isBrokeredAccount,
-      },
-    ];
-
-    if (config.I18N_ENABLED) {
-      inputs.push({
-        name: 'lang',
-        label: t('Language'),
-        type: 'select',
-        items: [
-          {value: 'en', label: 'English'},
-          {value: 'fr', label: 'Français'},
-        ],
-        placeholder: t('Select language...')
-      });
-    }
-
-    return inputs;
-  };
-
-  MESSAGE_TIMEOUT = 2000;
-
-  formValuesFromUser = (user) => {
-    if (!user) {
-      return {};
-    }
-
-    return {
-      fullName: user.profile && user.profile.fullName,
-      username: user.username,
-      lang: _.get(user, 'preferences.displayLanguageCode', undefined)
-    };
-  };
-
-  componentDidMount() {
-    const { user: { profile: { fullName } }, t } = this.props;
-    if (_.isEmpty(fullName)) {
-      this.context.set({
-        message: t('Please enter your full name.'),
-        autoHideDuration: null,
-      });
-      this.setState({
-        validationErrors: {
-          fullName: t('Full name is required.')
-        }
-      });
-    }
-    if (this.props.trackMetric) {
-      this.props.trackMetric('Viewed Account Edit');
-    }
-  }
-
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    const {t} = this.props;
-    const isUploadLaunch = this.props.history.location.state?.referrer === 'upload-launch';
-    // Keep form values in sync with upstream changes
-    this.setState({formValues: this.formValuesFromUser(nextProps.user)});
-    if(_.isEmpty(this.props.user?.profile?.fullName) && !_.isEmpty(nextProps.user?.profile?.fullName)){
-      this.context.clear();
-      if (!isUploadLaunch) {
-        this.props.login();
-      }
-    }
-    let updatingUser = this.props.updatingUser;
-    if (
-      updatingUser.inProgress &&
-      !nextProps.updatingUser.inProgress &&
-      nextProps.updatingUser.completed
-    ) {
-      this.setState({
-        notification: { type: 'success', message: t('All changes saved.') },
-      });
-
-      this.messageTimeoutId = setTimeout(() => {
-        this.setState({ notification: null });
-      }, this.MESSAGE_TIMEOUT);
-
-      if (isUploadLaunch) {
-        this.props.push({
-          pathname: '/upload-redirect',
-          state: { referrer: 'profile' },
-        });
-      }
-    }
-  }
-
-  componentWillUnmount() {
-    clearTimeout(this.messageTimeoutId);
-  }
-
-  render() {
-    const {t} = this.props;
-    var form = this.renderForm();
-    var self = this;
-    var handleClickBack = function(e) {
-      e.preventDefault();
-      self.props.trackMetric('Clicked Back in Account');
-      self.props.history.goBack();
-      return false;
-    };
-
-    return (
-      <div className="profile">
-        <div className="container-box-outer profile-subnav">
-          <div className="container-box-inner profile-subnav-box">
-            <div className="grid">
-              <div className="grid-item one-whole medium-one-third">
-                <a className="js-back" href="" onClick={handleClickBack}>
-                  <i className="icon-back"></i>
-                  {' ' + t('Back')}
-                </a>
-              </div>
-              <div className="grid-item one-whole medium-one-third">
-                <div className="profile-subnav-title">{t('Account')}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="container-box-outer profile-content">
-          <div className="container-box-inner profile-content-box">
-            <div className="profile-form">{form}</div>
-          </div>
-        </div>
-      </div>
-    );
-
-  }
-
-  renderForm = () => {
-    const {t} = this.props;
-    var disabled = this.isResettingUserData();
-
-    return (
-      <SimpleForm
-        inputs={this.formInputs()}
-        formValues={this.state.formValues}
-        validationErrors={this.state.validationErrors}
-        submitButtonText={t('Save')}
-        submitDisabled={this.props.updatingUser.inProgress}
-        onSubmit={this.handleSubmit}
-        notification={this.state.notification}
-        disabled={disabled}/>
-    );
-
-  };
-
-  isResettingUserData = () => {
-    return (this.props.fetchingUser && !this.props.user);
-  };
-
-  handleSubmit = (formValues) => {
-
-    this.resetFormStateBeforeSubmit(formValues);
-
-    var validationErrors = this.validateFormValues(formValues);
-    if (!_.isEmpty(validationErrors)) {
-      return;
-    }
-
-    formValues = this.prepareFormValuesForSubmit(formValues);
-    this.submitFormValues(formValues);
-  };
-
-  resetFormStateBeforeSubmit = (formValues) => {
-    this.setState({
-      formValues: formValues,
-      validationErrors: {},
-      notification: null
-    });
-    clearTimeout(this.messageTimeoutId);
-  };
-
-  validateFormValues = (formValues) => {
-    var form = [
-      { type: 'name', name: 'fullName', label: 'full name', value: formValues.fullName },
-      { type: 'email', name: 'username', label: 'email', value: formValues.username }
-    ];
-
-    if (formValues.password || formValues.passwordConfirm) {
-      form = _.merge(form, [
-        { type: 'password', name: 'password', label: 'password', value: formValues.password },
-        { type: 'confirmPassword', name: 'passwordConfirm', label: 'confirm password', value: formValues.passwordConfirm, prerequisites: { password: formValues.password }  }
-      ]);
-    }
-
-    var validationErrors = validateForm(form);
-
-    if (!_.isEmpty(validationErrors)) {
-      this.setState({
-        validationErrors: validationErrors
-      });
-    }
-
-    return validationErrors;
-  };
-
-  prepareFormValuesForSubmit = (formValues) => {
-    var result = {
-      username: formValues.username,
-      emails: [formValues.username],
-      profile: {
-        fullName: formValues.fullName
-      },
-    };
-
-    if (config.I18N_ENABLED) {
-      _.set(result, 'preferences.displayLanguageCode', formValues.lang);
-    }
-
-    if (formValues.password) {
-      result.password = formValues.password;
-    }
-
-    return result;
-  };
-
-  submitFormValues = (formValues) => {
-    var submit = this.props.onSubmit;
-
-    submit(formValues);
-  };
-
-  state = {
-    formValues: this.formValuesFromUser(this.props.user),
-    validationErrors: {},
-    notification: null
-  };
+const TRACK_METRICS = {
+  back: 'Clicked Back in Account',
+  editPersonalDetails: 'Clicked Edit Personal Details in Account',
+  updatePassword: 'Clicked Update Password in Account',
+  setUp2fa: 'Clicked Set Up 2FA in Account',
+  disable2fa: 'Clicked Disable 2FA in Account',
+  regenerateCodes: 'Clicked Regenerate Recovery Codes in Account',
 };
 
-// We need to apply the contextType prop to use the Toast provider with create-react-class.
-// This produces an issue with the current enzyme mounting and breaks unit tests.
-// Solution is to wrap the create-react-class component with a small HOC that gets the i18n context.
-export const UserProfile = withTranslation()(props => <UserProfileClass {...props}/>);
+const RECOVERY_CODES_WARNING_THRESHOLD = 3;
+const RECOVERY_CODES_TOTAL = 12;
 
-/**
- * Expose "Smart" Component that is connect-ed to Redux
- */
-export function mapStateToProps(state) {
-  let user = null;
-  let { allUsersMap, loggedInUserId } = state.blip;
+const formatDate = (ts) => (ts ? moment(ts).format('MMM D, YYYY') : null);
+const formatDateTime = (ts) => (ts ? moment(ts).format('MMM D, YYYY (h:mma)') : null);
 
-  if (allUsersMap) {
-    if (loggedInUserId) {
-      user = allUsersMap[loggedInUserId];
-    }
-  }
-
-  return {
-    user: user,
-    fetchingUser: state.blip.working.fetchingUser.inProgress,
-    updatingUser: state.blip.working.updatingUser,
-  };
+function StatusPill({ label, dotColor, bg, color }) {
+  return (
+    <Flex
+      as="span"
+      sx={{
+        bg,
+        borderRadius: 'input',
+        px: 2,
+        py: '2px',
+        alignItems: 'center',
+        gap: 2,
+      }}
+    >
+      <Box
+        as="span"
+        sx={{
+          width: '8px',
+          height: '8px',
+          borderRadius: '50%',
+          bg: dotColor,
+          flexShrink: 0,
+        }}
+      />
+      <Text
+        as="span"
+        sx={{
+          fontFamily: 'default',
+          fontSize: 0,
+          lineHeight: 1,
+          fontWeight: 'medium',
+          color,
+        }}
+      >
+        {label}
+      </Text>
+    </Flex>
+  );
 }
 
-let mapDispatchToProps = dispatch => bindActionCreators({
-  updateUser: actions.async.updateUser,
-  login: actions.async.login,
-  push,
-}, dispatch);
-
-let mergeProps = (stateProps, dispatchProps, ownProps) => {
-  var api = ownProps.api;
-  return Object.assign({}, _.pick(ownProps, ['history', 'trackMetric']), stateProps, {
-    onSubmit: dispatchProps.updateUser.bind(null, api),
-    login: dispatchProps.login.bind(null, api),
-    push: dispatchProps.push,
-  });
+StatusPill.propTypes = {
+  label: PropTypes.string.isRequired,
+  dotColor: PropTypes.string.isRequired,
+  bg: PropTypes.string.isRequired,
+  color: PropTypes.string.isRequired,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(UserProfile);
+function ProfileSection({ user, isClinician, t, onEdit }) {
+  const fullName = _.get(user, 'profile.fullName');
+  const email = user?.username || _.get(user, 'emails.0');
+  const jobTitleValue = _.get(user, 'profile.clinic.role');
+  const jobTitle = _.get(_.find(clinicRoles, { value: jobTitleValue }), 'label', jobTitleValue);
+  const lastUpdated = _.get(user, 'profile.updatedAt') || _.get(user, 'updatedAt');
+
+  return (
+    <Box variant="containers.well" p={4}>
+      <Flex
+        sx={{
+          flexDirection: ['column', 'row'],
+          justifyContent: 'space-between',
+          alignItems: ['stretch', 'flex-start'],
+          gap: 3,
+        }}
+      >
+        <Box>
+          <Text
+            as="div"
+            sx={{
+              fontFamily: 'default',
+              fontWeight: 'bold',
+              fontSize: 2,
+              lineHeight: 3,
+              color: 'text.primary',
+              mb: 2,
+            }}
+          >
+            {fullName}
+          </Text>
+          <Text as="div" sx={{ fontFamily: 'default', fontSize: 0, lineHeight: 1, color: 'darkGrey', mb: 1 }}>
+            <Text as="span" sx={{ fontWeight: 'medium' }}>{t('Email address:')}</Text>{' '}
+            <Text as="span" sx={{ fontWeight: 'bold' }}>{email}</Text>
+          </Text>
+          {isClinician && jobTitle && (
+            <Text as="div" sx={{ fontFamily: 'default', fontSize: 0, lineHeight: 1, color: 'darkGrey', mb: 1 }}>
+              <Text as="span" sx={{ fontWeight: 'medium' }}>{t('Job title:')}</Text>{' '}
+              <Text as="span" sx={{ fontWeight: 'bold' }}>{jobTitle}</Text>
+            </Text>
+          )}
+          {lastUpdated && (
+            <Text
+              as="div"
+              sx={{
+                fontFamily: 'default',
+                fontSize: '9px',
+                lineHeight: 1,
+                fontWeight: 'bold',
+                color: 'mediumGrey',
+                mt: 2,
+              }}
+            >
+              {t('Last updated {{date}}', { date: formatDateTime(lastUpdated) })}
+            </Text>
+          )}
+        </Box>
+        <Button
+          variant="secondary"
+          sx={{ width: ['100%', 'auto'], flexShrink: 0 }}
+          onClick={onEdit}
+        >
+          {t('Edit Personal Details')}
+        </Button>
+      </Flex>
+    </Box>
+  );
+}
+
+ProfileSection.propTypes = {
+  user: PropTypes.object,
+  isClinician: PropTypes.bool.isRequired,
+  t: PropTypes.func.isRequired,
+  onEdit: PropTypes.func.isRequired,
+};
+
+const securityRowSx = {
+  border: '1px solid',
+  borderColor: 'gray10',
+  borderRadius: 'default',
+  backgroundColor: 'white',
+  p: 4,
+};
+
+function SecuritySSONotice({ t }) {
+  return (
+    <Box sx={securityRowSx}>
+      <Text as="p" sx={{ m: 0, fontSize: 1, lineHeight: 3 }}>
+        {t(
+          'Your account security settings are managed by your organization\'s IT team. Please contact your IT team for help updating your password or two-factor authentication settings.'
+        )}
+      </Text>
+    </Box>
+  );
+}
+
+SecuritySSONotice.propTypes = { t: PropTypes.func.isRequired };
+
+function ManagePasswordRow({ t, trackMetric, passwordLastUpdated }) {
+  return (
+    <Box sx={securityRowSx}>
+      <Flex
+        sx={{
+          flexDirection: ['column', 'row'],
+          justifyContent: 'space-between',
+          alignItems: ['stretch', 'center'],
+          gap: 3,
+        }}
+      >
+        <Box>
+          <Text
+            as="div"
+            sx={{
+              fontFamily: 'default',
+              fontWeight: 'bold',
+              fontSize: 2,
+              lineHeight: 3,
+              color: 'text.primary',
+            }}
+          >
+            {t('Manage password')}
+          </Text>
+          {passwordLastUpdated && (
+            <Text
+              as="div"
+              sx={{
+                fontFamily: 'default',
+                fontSize: '9px',
+                lineHeight: 1,
+                fontWeight: 'bold',
+                color: 'mediumGrey',
+                mt: 2,
+              }}
+            >
+              {t('Last updated {{date}}', { date: formatDateTime(passwordLastUpdated) })}
+            </Text>
+          )}
+        </Box>
+        <Button
+          variant="secondary"
+          sx={{ width: ['100%', 'auto'], flexShrink: 0 }}
+          onClick={() => trackMetric(TRACK_METRICS.updatePassword)}
+        >
+          {t('Update Password')}
+        </Button>
+      </Flex>
+    </Box>
+  );
+}
+
+ManagePasswordRow.propTypes = {
+  t: PropTypes.func.isRequired,
+  trackMetric: PropTypes.func.isRequired,
+  passwordLastUpdated: PropTypes.string,
+};
+
+function TwoFactorRow({ t, trackMetric, mfaStatus }) {
+  const enabled = !!mfaStatus.enabled;
+  const deviceName = _.get(mfaStatus, 'device.name');
+  const deviceRegisteredTime = _.get(mfaStatus, 'device.registeredTime');
+
+  return (
+    <Box sx={securityRowSx}>
+      <Flex
+        sx={{
+          flexDirection: ['column', 'row'],
+          justifyContent: 'space-between',
+          alignItems: ['stretch', 'flex-start'],
+          gap: 3,
+        }}
+      >
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Flex sx={{ alignItems: 'center', gap: 2, mb: 2, flexWrap: 'wrap' }}>
+            <Text
+              as="div"
+              sx={{
+                fontFamily: 'default',
+                fontWeight: 'bold',
+                fontSize: 2,
+                lineHeight: 3,
+                color: 'text.primary',
+              }}
+            >
+              {t('Two-factor authentication (2FA)')}
+            </Text>
+            {enabled ? (
+              <StatusPill
+                label={t('Enabled')}
+                dotColor="feedback.success"
+                bg="#DAF9E4"
+                color="feedback.success"
+              />
+            ) : (
+              <StatusPill
+                label={t('Disabled')}
+                dotColor="blueGray30"
+                bg="blue00"
+                color="blueGreyDark"
+              />
+            )}
+          </Flex>
+          {enabled ? (
+            <Box>
+              {deviceName && (
+                <Text as="div" sx={{ fontFamily: 'default', fontSize: 0, lineHeight: 1, color: 'darkGrey', mb: 1 }}>
+                  <Text as="span" sx={{ fontWeight: 'medium' }}>{t('Device:')}</Text>{' '}
+                  <Text as="span" sx={{ fontWeight: 'bold' }}>{deviceName}</Text>
+                </Text>
+              )}
+              {deviceRegisteredTime && (
+                <Text as="div" sx={{ fontFamily: 'default', fontSize: 0, lineHeight: 1, color: 'darkGrey' }}>
+                  {t('Registered {{date}}', { date: formatDate(deviceRegisteredTime) })}
+                </Text>
+              )}
+            </Box>
+          ) : (
+            <Text
+              as="p"
+              sx={{
+                fontFamily: 'default',
+                fontSize: 0,
+                lineHeight: 1,
+                color: 'blueGreyLight',
+                m: 0,
+              }}
+            >
+              {t(
+                'Protect your Tidepool account with an extra layer of security. Two-factor authentication (2FA) helps keep your account secure, even if your password is compromised.'
+              )}
+            </Text>
+          )}
+        </Box>
+        {enabled ? (
+          <Button
+            variant="secondary"
+            sx={{ width: ['100%', 'auto'], flexShrink: 0 }}
+            onClick={() => trackMetric(TRACK_METRICS.disable2fa)}
+          >
+            {t('Disable 2FA')}
+          </Button>
+        ) : (
+          <Button
+            variant="primary"
+            sx={{ width: ['100%', 'auto'], flexShrink: 0 }}
+            onClick={() => trackMetric(TRACK_METRICS.setUp2fa)}
+          >
+            {t('Set up 2FA')}
+          </Button>
+        )}
+      </Flex>
+    </Box>
+  );
+}
+
+TwoFactorRow.propTypes = {
+  t: PropTypes.func.isRequired,
+  trackMetric: PropTypes.func.isRequired,
+  mfaStatus: PropTypes.object.isRequired,
+};
+
+function RecoveryCodesRow({ t, trackMetric, mfaStatus }) {
+  const used = _.get(mfaStatus, 'recoveryCodes.used', 0);
+  const total = _.get(mfaStatus, 'recoveryCodes.total', RECOVERY_CODES_TOTAL);
+  const generatedTime = _.get(mfaStatus, 'recoveryCodes.generatedTime');
+  const lowCodes = used >= RECOVERY_CODES_WARNING_THRESHOLD;
+
+  return (
+    <Box sx={securityRowSx}>
+      <Flex
+        sx={{
+          flexDirection: ['column', 'row'],
+          justifyContent: 'space-between',
+          alignItems: ['stretch', 'flex-start'],
+          gap: 3,
+        }}
+      >
+        <Box>
+          <Text
+            as="div"
+            sx={{
+              fontFamily: 'default',
+              fontWeight: 'bold',
+              fontSize: 2,
+              lineHeight: 3,
+              color: 'text.primary',
+              mb: 1,
+            }}
+          >
+            {t('Recovery codes')}
+          </Text>
+          <Text as="div" sx={{ fontFamily: 'default', fontSize: 0, lineHeight: 1, color: 'darkGrey', mb: 1 }}>
+            <Text as="span" sx={{ fontWeight: 'bold' }}>{t('{{used}}/{{total}}', { used, total })}</Text>{' '}
+            {t('recovery codes used')}
+          </Text>
+          {generatedTime && (
+            <Text as="div" sx={{ fontFamily: 'default', fontSize: '9px', lineHeight: 1, fontWeight: 'bold', color: 'mediumGrey', mt: 2 }}>
+              {t('Generated {{date}}', { date: formatDate(generatedTime) })}
+            </Text>
+          )}
+          {lowCodes && (
+            <Flex
+              sx={{
+                alignItems: 'center',
+                gap: 2,
+                mt: 3,
+                color: 'feedback.danger',
+              }}
+            >
+              <Icon
+                variant="static"
+                theme={baseTheme}
+                icon={ReportProblemRoundedIcon}
+                label="low-recovery-codes-warning"
+                sx={{ color: 'feedback.danger', fontSize: '1.25em' }}
+              />
+              <Text as="span" sx={{ color: 'feedback.danger', fontFamily: 'default', fontSize: 0, lineHeight: 1 }}>
+                {t(
+                  'You are running low on recovery codes. Regenerate to receive a new set.'
+                )}
+              </Text>
+            </Flex>
+          )}
+        </Box>
+        <Button
+          variant="secondary"
+          sx={{ width: ['100%', 'auto'], flexShrink: 0 }}
+          onClick={() => trackMetric(TRACK_METRICS.regenerateCodes)}
+        >
+          {t('Regenerate Codes')}
+        </Button>
+      </Flex>
+    </Box>
+  );
+}
+
+RecoveryCodesRow.propTypes = {
+  t: PropTypes.func.isRequired,
+  trackMetric: PropTypes.func.isRequired,
+  mfaStatus: PropTypes.object.isRequired,
+};
+
+export function UserProfile({ trackMetric, history, api }) {
+  const { t } = useTranslation();
+  const user = useSelector(selectUser);
+  const mfaStatus = useSelector(selectMfaStatus);
+
+  const isClinician = personUtils.isClinicianAccount(user);
+  const isSSO = personUtils.isSSOAccount(user);
+  const passwordLastUpdated = _.get(user, 'passwordLastUpdated');
+
+  const [editOpen, setEditOpen] = useState(false);
+
+  useEffect(() => {
+    trackMetric('Viewed Account Settings');
+  }, [trackMetric]);
+
+  const handleEditPersonalDetails = () => {
+    trackMetric(TRACK_METRICS.editPersonalDetails);
+    setEditOpen(true);
+  };
+
+  const handleBack = (e) => {
+    e.preventDefault();
+    trackMetric(TRACK_METRICS.back);
+    if (history?.goBack) history.goBack();
+  };
+
+  return (
+    <Box className="profile">
+      <Box variant="containers.largeBordered" mb={4}>
+        <Flex
+          px={4}
+          py="12px"
+          sx={{
+            alignItems: 'center',
+            justifyContent: ['center', 'space-between'],
+            flexWrap: ['wrap', null, 'nowrap'],
+            gap: 3,
+          }}
+        >
+          <Flex sx={{ alignItems: 'center', gap: 3 }}>
+            <Button
+              id="account-settings-back"
+              onClick={handleBack}
+              icon={ChevronLeftRoundedIcon}
+              iconLabel={t('Back')}
+              iconPosition="left"
+              iconFontSize="1em"
+              variant="textSecondary"
+              sx={{ fontSize: 0, color: 'blueGreyDark' }}
+              pl={0}
+            >
+              {t('Back')}
+            </Button>
+            <Box sx={{ borderLeft: '1px solid', borderColor: 'gray10', alignSelf: 'stretch', mx: 1 }} />
+            <Text
+              as="span"
+              sx={{
+                fontFamily: 'default',
+                fontSize: '18px',
+                lineHeight: '32px',
+                fontWeight: 'medium',
+                color: 'blueGreyDark',
+              }}
+            >
+              {t('Account Settings')}
+            </Text>
+          </Flex>
+          <Link
+            href={URL_SUPPORT_ACCOUNT_SETTINGS}
+            target="_blank"
+            rel="noopener noreferrer"
+            sx={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 1,
+              fontFamily: 'default',
+              fontSize: 0,
+              fontWeight: 'medium',
+              color: 'purpleMedium',
+              textDecoration: 'underline',
+              '&:hover': { textDecoration: 'underline' },
+            }}
+          >
+            <Icon
+              variant="static"
+              theme={baseTheme}
+              icon={OpenInNewRoundedIcon}
+              label="external-link"
+              sx={{ fontSize: 1, color: 'purpleMedium' }}
+            />
+            {t('Get support managing your account')}
+          </Link>
+        </Flex>
+      </Box>
+
+      <Box variant="containers.largeBordered" mb={8}>
+        <Flex
+          px={4}
+          py={2}
+          sx={{ borderBottom: baseTheme.borders.thick, alignItems: 'center' }}
+        >
+          <Text
+            as="span"
+            sx={{
+              fontFamily: 'default',
+              fontSize: '18px',
+              lineHeight: '32px',
+              fontWeight: 'medium',
+              color: 'blueGreyDark',
+            }}
+          >
+            {t('Profile & Security Settings')}
+          </Text>
+        </Flex>
+
+        <Box mx={4} py={4}>
+          <Flex sx={{ flexDirection: 'column', gap: 4 }}>
+            <ProfileSection
+              user={user}
+              isClinician={isClinician}
+              t={t}
+              onEdit={handleEditPersonalDetails}
+            />
+
+            <Box sx={{ borderTop: '1px solid', borderColor: 'gray10' }} />
+
+            <Text
+              as="div"
+              sx={{
+                fontFamily: 'default',
+                fontSize: '18px',
+                lineHeight: '32px',
+                fontWeight: 'medium',
+                color: 'blueGreyDark',
+              }}
+            >
+              {t('Security')}
+            </Text>
+
+            {isSSO ? (
+              <SecuritySSONotice t={t} />
+            ) : (
+              <Flex sx={{ flexDirection: 'column', gap: 4 }}>
+                <ManagePasswordRow
+                  t={t}
+                  trackMetric={trackMetric}
+                  passwordLastUpdated={passwordLastUpdated}
+                />
+                {isClinician && (
+                  <TwoFactorRow
+                    t={t}
+                    trackMetric={trackMetric}
+                    mfaStatus={mfaStatus}
+                  />
+                )}
+                {isClinician && mfaStatus.enabled && (
+                  <RecoveryCodesRow
+                    t={t}
+                    trackMetric={trackMetric}
+                    mfaStatus={mfaStatus}
+                  />
+                )}
+              </Flex>
+            )}
+          </Flex>
+        </Box>
+      </Box>
+
+      <EditPersonalDetailsDialog
+        open={editOpen}
+        onClose={() => setEditOpen(false)}
+        trackMetric={trackMetric}
+      />
+    </Box>
+  );
+}
+
+UserProfile.propTypes = {
+  trackMetric: PropTypes.func.isRequired,
+  history: PropTypes.object,
+  api: PropTypes.object.isRequired,
+};
+
+UserProfile.defaultProps = {
+  trackMetric: noop,
+};
+
+export default UserProfile;

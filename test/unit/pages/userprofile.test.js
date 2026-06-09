@@ -1,234 +1,266 @@
-/* global chai */
-/* global describe */
-/* global sinon */
-/* global it */
-/* global before */
-
 import React from 'react';
-import mutationTracker from 'object-invariant-test-helper';
-import { fireEvent, render } from '@testing-library/react';
-import i18next from '../../../app/core/language';
-
-import { UserProfile, UserProfileClass, mapStateToProps } from '../../../app/pages/userprofile';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { Provider } from 'react-redux';
+import configureStore from 'redux-mock-store';
+import { thunk } from 'redux-thunk';
 import { ToastProvider } from '../../../app/providers/ToastProvider';
 
-var assert = chai.assert;
-var expect = chai.expect;
-const t = i18next.t.bind(i18next);
+const mockSelectMfaStatus = jest.fn();
 
-const buildProps = (overrides = {}) => ({
-  fetchingUser: false,
-  updatingUser: {
-    inProgress: false,
-    completed: false,
-    notification: null,
-  },
-  history: { location: { state: {} }, goBack: sinon.stub() },
-  onSubmit: sinon.stub(),
-  trackMetric: sinon.stub(),
-  login: sinon.stub(),
-  push: sinon.stub(),
-  user: { profile: {} },
-  t,
+jest.mock('../../../app/core/selectors', () => {
+  const actual = jest.requireActual('../../../app/core/selectors');
+  return {
+    ...actual,
+    selectMfaStatus: (state) => mockSelectMfaStatus(state),
+  };
+});
+
+import UserProfile from '../../../app/pages/userprofile';
+
+/* global chai */
+/* global sinon */
+/* global describe */
+/* global it */
+/* global beforeEach */
+/* global afterEach */
+
+const expect = chai.expect;
+const mockStore = configureStore([thunk]);
+
+const disabledMfaStatus = {
+  enabled: false,
+  enabledTime: null,
+  device: { name: null, registeredTime: null },
+  recoveryCodes: { used: 0, total: 12, generatedTime: null },
+};
+
+const enabledMfaStatus = (overrides = {}) => ({
+  enabled: true,
+  enabledTime: '2026-04-01T00:00:00Z',
+  device: { name: 'iPhone 17', registeredTime: '2026-04-01T00:00:00Z' },
+  recoveryCodes: { used: 1, total: 12, generatedTime: '2026-04-01T00:00:00Z' },
   ...overrides,
 });
 
-const createInstance = (props = {}) => {
-  const instance = new UserProfileClass(buildProps(props));
-  instance.context = { set: sinon.stub(), clear: sinon.stub() };
-  instance.setState = function setState(update) {
-    this.state = {
-      ...this.state,
-      ...(typeof update === 'function' ? update(this.state, this.props) : update),
-    };
-  };
-  return instance;
+const buildState = (user) => ({
+  blip: {
+    loggedInUserId: 'u1',
+    allUsersMap: { u1: { userid: 'u1', ...user } },
+  },
+});
+
+const renderWith = (state) => {
+  const store = mockStore(state);
+  const trackMetric = sinon.stub();
+  const api = {};
+  const utils = render(
+    <Provider store={store}>
+      <ToastProvider>
+        <UserProfile trackMetric={trackMetric} api={api} />
+      </ToastProvider>
+    </Provider>
+  );
+  return { ...utils, trackMetric, api };
 };
 
-describe('UserProfile', function () {
-  it('should be exposed as a module and be of type function', function() {
-    expect(UserProfile).to.be.a('function');
+const clinicianUser = {
+  roles: ['clinician'],
+  username: 'sally@clinic.org',
+  profile: {
+    fullName: 'Dr. Sally Seastar',
+    clinic: { role: 'endocrinologist' },
+    updatedAt: '2025-03-22T11:34:00Z',
+  },
+};
+
+const ssoClinicianUser = {
+  ...clinicianUser,
+  roles: ['clinician', 'brokered'],
+};
+
+const personalUser = {
+  roles: [],
+  username: 'pat@example.com',
+  profile: {
+    fullName: 'Pat Personal',
+    updatedAt: '2025-03-22T11:34:00Z',
+  },
+};
+
+describe('UserProfile', () => {
+  beforeEach(() => {
+    mockSelectMfaStatus.mockReturnValue(disabledMfaStatus);
   });
 
-  describe('render', function() {
-    it('should render without problems when required props are set', function () {
-      const consoleError = sinon.stub(console, 'error');
-      try {
-        const props = buildProps({ history: {} });
-        render(<ToastProvider><UserProfileClass {...props} /></ToastProvider>);
-        expect(consoleError.callCount).to.equal(0);
-      } finally {
-        consoleError.restore();
-      }
-    });
-
-    it('should render without problems when user is logging out', function () {
-      const consoleError = sinon.stub(console, 'error');
-      try {
-        const props = buildProps();
-        const result = render(<ToastProvider><UserProfileClass {...props} /></ToastProvider>);
-        result.rerender(<ToastProvider><UserProfileClass {...buildProps({ user: null })} /></ToastProvider>);
-        expect(consoleError.callCount).to.equal(0);
-      } finally {
-        consoleError.restore();
-      }
-    });
+  afterEach(() => {
+    mockSelectMfaStatus.mockReset();
   });
 
-  describe('initial state', function() {
-    it('should return expected initial state', function() {
-      const props = {
-        user: {
-          profile: {
-            fullName: 'Gordon Dent'
-          },
-          username: 'foo@bar.com'
-        },
-        t,
-        updatingUser: {
-          inProgress: false,
-          completed: false,
-          notification: null,
-        },
-      };
-      const instance = createInstance(props);
-      const state = instance.state;
-      const inputs = instance.formInputs();
-      const usernameInput = inputs.find(input => input.name === 'username');
-      const passwordInput = inputs.find(input => input.name === 'password');
-
-      expect(state.formValues.username).to.equal('foo@bar.com');
-      expect(state.formValues.fullName).to.equal('Gordon Dent');
-
-      expect(usernameInput.disabled).to.be.false;
-      expect(passwordInput.disabled).to.be.false;
-      expect(Object.keys(state.validationErrors).length).to.equal(0);
-      expect(state.notification).to.equal(null);
+  describe('non-SSO clinician, 2FA disabled', () => {
+    beforeEach(() => {
+      mockSelectMfaStatus.mockReturnValue(disabledMfaStatus);
     });
 
-    it('should have username and password disabled for brokered accounts', function() {
-      const props = {
-        user: {
-          roles: ['brokered'],
-          profile: {
-            fullName: 'Gordon Dent'
-          },
-          username: 'foo@bar.com'
-        },
-        t,
-        updatingUser: {
-          inProgress: false,
-          completed: false,
-          notification: null,
-        },
-      };
-      const instance = createInstance(props);
-      const state = instance.state;
-      const inputs = instance.formInputs();
-      const usernameInput = inputs.find(input => input.name === 'username');
-      const passwordInput = inputs.find(input => input.name === 'password');
-
-      expect(state.formValues.username).to.equal('foo@bar.com');
-      expect(state.formValues.fullName).to.equal('Gordon Dent');
-      expect(usernameInput.disabled).to.be.true;
-      expect(passwordInput.disabled).to.be.true;
-      expect(Object.keys(state.validationErrors).length).to.equal(0);
-      expect(state.notification).to.equal(null);
+    it('renders the profile card with name, email, job title, and last-updated caption', () => {
+      renderWith(buildState(clinicianUser));
+      expect(screen.getByText('Dr. Sally Seastar')).to.exist;
+      // EditPersonalDetailsDialog uses keepMounted=true (project Dialog default at
+      // app/components/elements/Dialog.js:220), so the dialog's email card + role
+      // options coexist in the DOM with the page's profile card. Relax to getAllByText.
+      expect(screen.getAllByText(/sally@clinic\.org/).length).to.be.at.least(1);
+      expect(screen.getAllByText(/Endocrinologist/).length).to.be.at.least(1);
+      expect(screen.getByText(/Last updated/)).to.exist;
     });
 
-    it('should take a step back through history on clicking back button', function() {
-      const props = buildProps();
-      const { container } = render(<ToastProvider><UserProfileClass {...props} /></ToastProvider>);
-      const backButton = container.querySelector('.js-back');
+    it('renders the Manage password row', () => {
+      renderWith(buildState(clinicianUser));
+      expect(screen.getByText('Manage password')).to.exist;
+      expect(screen.getByRole('button', { name: 'Update Password' })).to.exist;
+    });
 
-      expect(props.trackMetric.callCount).to.equal(1);
-      expect(props.history.goBack.callCount).to.equal(0);
-      fireEvent.click(backButton);
-      expect(props.trackMetric.callCount).to.equal(2);
-      expect(props.history.goBack.callCount).to.equal(1);
+    it('renders the 2FA row with Disabled pill and Set up 2FA button', () => {
+      renderWith(buildState(clinicianUser));
+      expect(screen.getByText('Two-factor authentication (2FA)')).to.exist;
+      expect(screen.getByText('Disabled')).to.exist;
+      expect(screen.getByRole('button', { name: 'Set up 2FA' })).to.exist;
+    });
+
+    it('does not render the Recovery codes section', () => {
+      renderWith(buildState(clinicianUser));
+      expect(screen.queryByText('Recovery codes')).to.be.null;
     });
   });
 
-  describe('componentWillReceiveProps', () => {
-    it('should login when fullName is filled out', () => {
-      const props = buildProps({ user: { profile: {} } });
-      const instance = createInstance(props);
-      instance.UNSAFE_componentWillReceiveProps({ ...props, user: { profile: { fullName: 'new fullname' } } });
-      expect(props.login.callCount).to.equal(1);
+  describe('non-SSO clinician, 2FA enabled, low usage', () => {
+    beforeEach(() => {
+      mockSelectMfaStatus.mockReturnValue(enabledMfaStatus({
+        recoveryCodes: { used: 1, total: 12, generatedTime: '2026-04-01T00:00:00Z' },
+      }));
     });
 
-    it('should not login when fullName is filled out if coming from upload-launch', () => {
-      const props = buildProps({
-        history: { location: { state: { referrer: 'upload-launch' } } },
-        user: { profile: {} },
-      });
-      const instance = createInstance(props);
-      instance.UNSAFE_componentWillReceiveProps({ ...props, user: { profile: { fullName: 'new fullname' } } });
-      expect(props.login.callCount).to.equal(0);
+    it('shows the Enabled pill, device details, and Disable 2FA button', () => {
+      renderWith(buildState(clinicianUser));
+      expect(screen.getByText('Enabled')).to.exist;
+      expect(screen.getByText(/iPhone 17/)).to.exist;
+      expect(screen.getByText(/Registered/)).to.exist;
+      expect(screen.getByRole('button', { name: 'Disable 2FA' })).to.exist;
     });
 
-    it('should call push when profile updated and coming from upload-launch', () => {
-      const props = buildProps({
-        history: { location: { state: { referrer: 'upload-launch' } } },
-        updatingUser: {
-          inProgress: true,
-          completed: false,
-          notification: null,
-        },
-      });
-      const instance = createInstance(props);
-      expect(props.push.callCount).to.equal(0);
-      instance.UNSAFE_componentWillReceiveProps({
-        ...props,
-        updatingUser: { inProgress: false, completed: true },
-      });
-      expect(props.push.callCount).to.equal(1);
-      expect(
-        props.push.calledWithMatch({
-          pathname: '/upload-redirect',
-          state: { referrer: 'profile' },
-        })
-      ).to.be.true;
+    it('renders the Recovery codes row with x/total text and Regenerate button', () => {
+      renderWith(buildState(clinicianUser));
+      expect(screen.getByText('Recovery codes')).to.exist;
+      expect(screen.getByText('1/12')).to.exist;
+      expect(screen.getByText(/recovery codes used/)).to.exist;
+      expect(screen.getByRole('button', { name: 'Regenerate Codes' })).to.exist;
+    });
+
+    it('does not show the low-recovery-codes warning', () => {
+      renderWith(buildState(clinicianUser));
+      expect(screen.queryByText(/running low on recovery codes/i)).to.be.null;
     });
   });
 
-  describe('mapStateToProps', () => {
-    const state = {
-      allUsersMap: {
-        a1b2c3: {userid: 'a1b2c3'}
-      },
-      loggedInUserId: 'a1b2c3',
-      working: {
-        fetchingUser: {inProgress: false},
-        updatingUser: {
-          inProgress: false,
-          completed: false,
-          notification: null,
-        },
-      }
-    };
-
-    const tracked = mutationTracker.trackObj(state);
-    const result = mapStateToProps({blip: state});
-
-    it('should not mutate the state', () => {
-      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+  describe('non-SSO clinician, 2FA enabled, at threshold', () => {
+    beforeEach(() => {
+      mockSelectMfaStatus.mockReturnValue(enabledMfaStatus({
+        recoveryCodes: { used: 3, total: 12, generatedTime: '2026-04-01T00:00:00Z' },
+      }));
     });
 
-    it('should be a function', () => {
-      assert.isFunction(mapStateToProps);
+    it('renders the low-recovery-codes warning', () => {
+      renderWith(buildState(clinicianUser));
+      expect(screen.getByText(/running low on recovery codes/i)).to.exist;
+    });
+  });
+
+  describe('SSO clinician', () => {
+    beforeEach(() => {
+      mockSelectMfaStatus.mockReturnValue(disabledMfaStatus);
     });
 
-    it('should map allUsersMap.a1b2c3 to user', () => {
-      expect(result.user).to.deep.equal(state.allUsersMap.a1b2c3);
+    it('renders the IT-team-managed notice', () => {
+      renderWith(buildState(ssoClinicianUser));
+      expect(screen.getByText(/managed by your organization's IT team/i)).to.exist;
     });
 
-    it('should map working.fetchingUser.inProgress to fetchingUser', () => {
-      expect(result.fetchingUser).to.equal(state.working.fetchingUser.inProgress);
+    it('does not render Update Password, Set up 2FA, Disable 2FA, or Regenerate Codes buttons', () => {
+      renderWith(buildState(ssoClinicianUser));
+      expect(screen.queryByRole('button', { name: 'Update Password' })).to.be.null;
+      expect(screen.queryByRole('button', { name: 'Set up 2FA' })).to.be.null;
+      expect(screen.queryByRole('button', { name: 'Disable 2FA' })).to.be.null;
+      expect(screen.queryByRole('button', { name: 'Regenerate Codes' })).to.be.null;
     });
 
-    it('should map working.updatingUser to updatingUser', () => {
-      expect(result.updatingUser).to.deep.equal(state.working.updatingUser);
+    it('still renders the Edit Personal Details button', () => {
+      renderWith(buildState(ssoClinicianUser));
+      expect(screen.getByRole('button', { name: 'Edit Personal Details' })).to.exist;
+    });
+  });
+
+  describe('personal user', () => {
+    beforeEach(() => {
+      mockSelectMfaStatus.mockReturnValue(disabledMfaStatus);
+    });
+
+    it('renders the profile card without job title', () => {
+      renderWith(buildState(personalUser));
+      expect(screen.getByText('Pat Personal')).to.exist;
+      expect(screen.queryByText(/Job title:/)).to.be.null;
+    });
+
+    it('renders the Manage password row', () => {
+      renderWith(buildState(personalUser));
+      expect(screen.getByRole('button', { name: 'Update Password' })).to.exist;
+    });
+
+    it('does not render the 2FA row or Recovery codes row', () => {
+      renderWith(buildState(personalUser));
+      expect(screen.queryByText('Two-factor authentication (2FA)')).to.be.null;
+      expect(screen.queryByText('Recovery codes')).to.be.null;
+    });
+  });
+
+  describe('button-stub behavior', () => {
+    it('fires trackMetric with the documented event name for Edit Personal Details and opens the dialog', () => {
+      mockSelectMfaStatus.mockReturnValue(disabledMfaStatus);
+      const { trackMetric } = renderWith(buildState(clinicianUser));
+      fireEvent.click(screen.getByRole('button', { name: 'Edit Personal Details' }));
+      expect(trackMetric.calledWith('Clicked Edit Personal Details in Account')).to.be.true;
+      // Heading (not the button) disambiguates: both share the accessible name
+      // 'Edit Personal Details', but the heading only mounts when the dialog opens.
+      expect(screen.getByRole('heading', { name: 'Edit Personal Details' })).to.exist;
+    });
+
+    it('fires trackMetric for Update Password', () => {
+      mockSelectMfaStatus.mockReturnValue(disabledMfaStatus);
+      const { trackMetric } = renderWith(buildState(clinicianUser));
+      fireEvent.click(screen.getByRole('button', { name: 'Update Password' }));
+      expect(trackMetric.calledWith('Clicked Update Password in Account')).to.be.true;
+      expect(screen.queryByRole('dialog')).to.be.null;
+    });
+
+    it('fires trackMetric for Set up 2FA', () => {
+      mockSelectMfaStatus.mockReturnValue(disabledMfaStatus);
+      const { trackMetric } = renderWith(buildState(clinicianUser));
+      fireEvent.click(screen.getByRole('button', { name: 'Set up 2FA' }));
+      expect(trackMetric.calledWith('Clicked Set Up 2FA in Account')).to.be.true;
+      expect(screen.queryByRole('dialog')).to.be.null;
+    });
+
+    it('fires trackMetric for Disable 2FA', () => {
+      mockSelectMfaStatus.mockReturnValue(enabledMfaStatus());
+      const { trackMetric } = renderWith(buildState(clinicianUser));
+      fireEvent.click(screen.getByRole('button', { name: 'Disable 2FA' }));
+      expect(trackMetric.calledWith('Clicked Disable 2FA in Account')).to.be.true;
+      expect(screen.queryByRole('dialog')).to.be.null;
+    });
+
+    it('fires trackMetric for Regenerate Codes', () => {
+      mockSelectMfaStatus.mockReturnValue(enabledMfaStatus());
+      const { trackMetric } = renderWith(buildState(clinicianUser));
+      fireEvent.click(screen.getByRole('button', { name: 'Regenerate Codes' }));
+      expect(trackMetric.calledWith('Clicked Regenerate Recovery Codes in Account')).to.be.true;
+      expect(screen.queryByRole('dialog')).to.be.null;
     });
   });
 });
