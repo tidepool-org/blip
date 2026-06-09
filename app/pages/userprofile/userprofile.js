@@ -41,6 +41,7 @@ import { usePrevious } from '../../core/hooks';
 import EditPersonalDetailsDialog from './EditPersonalDetailsDialog';
 import SetupTwoFactorInstructionsDialog from './SetupTwoFactorInstructionsDialog';
 import DisableTwoFactorConfirmDialog from './DisableTwoFactorConfirmDialog';
+import RegenerateRecoveryCodesConfirmDialog from './RegenerateRecoveryCodesConfirmDialog';
 
 const TRACK_METRICS = {
   back: 'Clicked Back in Account',
@@ -311,7 +312,7 @@ InsetCell.propTypes = {
   sx: PropTypes.object,
 };
 
-function TwoFactorRow({ t, trackMetric, mfaStatus, onSetup2fa, onDisable2fa, loading, error, onRetry }) {
+function TwoFactorRow({ t, trackMetric, mfaStatus, onSetup2fa, onDisable2fa, onRegenerateCodes, loading, error, onRetry }) {
   const enabled = !!mfaStatus.enabled;
   const deviceName = _.get(mfaStatus, 'device.name');
   const deviceRegisteredTime = _.get(mfaStatus, 'device.registeredTime');
@@ -392,7 +393,12 @@ function TwoFactorRow({ t, trackMetric, mfaStatus, onSetup2fa, onDisable2fa, loa
           </Button>
         </Flex>
         <Box mt={4}>
-          <RecoveryCodesRow t={t} trackMetric={trackMetric} mfaStatus={mfaStatus} />
+          <RecoveryCodesRow
+            t={t}
+            trackMetric={trackMetric}
+            mfaStatus={mfaStatus}
+            onRegenerateCodes={onRegenerateCodes}
+          />
         </Box>
       </Box>
     );
@@ -463,6 +469,7 @@ TwoFactorRow.propTypes = {
   mfaStatus: PropTypes.object.isRequired,
   onSetup2fa: PropTypes.func.isRequired,
   onDisable2fa: PropTypes.func.isRequired,
+  onRegenerateCodes: PropTypes.func.isRequired,
   loading: PropTypes.bool.isRequired,
   error: PropTypes.bool.isRequired,
   onRetry: PropTypes.func.isRequired,
@@ -503,7 +510,7 @@ RecoveryCodesInfoContent.propTypes = {
   t: PropTypes.func.isRequired,
 };
 
-function RecoveryCodesRow({ t, trackMetric, mfaStatus }) {
+function RecoveryCodesRow({ t, trackMetric, mfaStatus, onRegenerateCodes }) {
   const used = _.get(mfaStatus, 'recoveryCodes.used', 0);
   const total = _.get(mfaStatus, 'recoveryCodes.total', RECOVERY_CODES_TOTAL);
   const generatedTime = _.get(mfaStatus, 'recoveryCodes.generatedTime');
@@ -559,7 +566,7 @@ function RecoveryCodesRow({ t, trackMetric, mfaStatus }) {
         <Button
           variant="secondary"
           sx={{ width: ['100%', 'auto'], flexShrink: 0 }}
-          onClick={() => trackMetric(TRACK_METRICS.regenerateCodes)}
+          onClick={onRegenerateCodes}
         >
           {t('Regenerate Codes')}
         </Button>
@@ -586,6 +593,7 @@ RecoveryCodesRow.propTypes = {
   t: PropTypes.func.isRequired,
   trackMetric: PropTypes.func.isRequired,
   mfaStatus: PropTypes.object.isRequired,
+  onRegenerateCodes: PropTypes.func.isRequired,
 };
 
 export function UserProfile({ trackMetric, history, api }) {
@@ -605,6 +613,7 @@ export function UserProfile({ trackMetric, history, api }) {
   const [editOpen, setEditOpen] = useState(false);
   const [setup2faOpen, setSetup2faOpen] = useState(false);
   const [disable2faOpen, setDisable2faOpen] = useState(false);
+  const [regenerate2faCodesOpen, setRegenerate2faCodesOpen] = useState(false);
 
   useEffect(() => {
     trackMetric('Viewed Account Settings');
@@ -627,11 +636,11 @@ export function UserProfile({ trackMetric, history, api }) {
   useEffect(() => {
     // Keycloak's AIA flow returns kc_action_status in the URL fragment
     // (response_mode=fragment is the default for application-initiated actions).
-    // Toast is per-action: UPDATE_PASSWORD, CONFIGURE_TOTP, and delete_credential
-    // fire on all statuses, UPDATE_EMAIL fires only on cancelled/error (success
-    // stays silent since the user is logged out in that flow). Variant is
-    // per-status: cancelled -> info (a benign user cancel), error -> danger,
-    // success -> success.
+    // Toast is per-action: UPDATE_PASSWORD, CONFIGURE_TOTP, delete_credential, and
+    // CONFIGURE_RECOVERY_AUTHN_CODES fire on all statuses, UPDATE_EMAIL fires only
+    // on cancelled/error (success stays silent since the user is logged out in
+    // that flow). Variant is per-status: cancelled -> info (a benign user cancel),
+    // error -> danger, success -> success.
     const hashStr = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : '';
     const params = new URLSearchParams(hashStr);
     const action = params.get('kc_action');
@@ -682,6 +691,20 @@ export function UserProfile({ trackMetric, history, api }) {
           variant: 'success',
         };
       }
+    } else if (action === 'CONFIGURE_RECOVERY_AUTHN_CODES') {
+      if (status === 'cancelled') {
+        toast = { message: t('Recovery code regeneration {{status}}.', { status }), variant: 'info' };
+      } else if (status === 'error') {
+        toast = {
+          message: t('Recovery code regeneration failed. Please try again.'),
+          variant: 'danger',
+        };
+      } else if (status === 'success') {
+        toast = {
+          message: t('You have successfully generated a new set of recovery codes.'),
+          variant: 'success',
+        };
+      }
     } else {
       return;
     }
@@ -707,6 +730,11 @@ export function UserProfile({ trackMetric, history, api }) {
   const handleDisable2fa = () => {
     trackMetric(TRACK_METRICS.disable2fa);
     setDisable2faOpen(true);
+  };
+
+  const handleRegenerateCodes = () => {
+    trackMetric(TRACK_METRICS.regenerateCodes);
+    setRegenerate2faCodesOpen(true);
   };
 
   const handleBack = (e) => {
@@ -844,6 +872,7 @@ export function UserProfile({ trackMetric, history, api }) {
                     mfaStatus={mfaStatus}
                     onSetup2fa={handleSetup2fa}
                     onDisable2fa={handleDisable2fa}
+                    onRegenerateCodes={handleRegenerateCodes}
                     loading={mfaLoading}
                     error={mfaFailed}
                     onRetry={handleRetryMfaStatus}
@@ -870,6 +899,11 @@ export function UserProfile({ trackMetric, history, api }) {
         open={disable2faOpen}
         onClose={() => setDisable2faOpen(false)}
         credentialId={mfaStatus.device.id}
+      />
+
+      <RegenerateRecoveryCodesConfirmDialog
+        open={regenerate2faCodesOpen}
+        onClose={() => setRegenerate2faCodesOpen(false)}
       />
     </Box>
   );
