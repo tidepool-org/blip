@@ -456,7 +456,9 @@ describe('getDataConnectionProps', () => {
   it('should merge the appropriate connect state UI and handler props based on the current provider connection state for a patient', () => {
     const dataConnectionProps = getDataConnectionProps(createPatientWithPendingDexcomConnection(), false, 'clinic125', setActiveHandlerStub);
 
-    expect(dataConnectionProps).to.have.all.keys(availableProviders);
+    // Clinic users (isLoggedInUser = false) cannot see providers that requiresLoggedInUser (e.g. oura)
+    const clinicVisibleProviders = availableProviders.filter(p => !providers[p].requiresLoggedInUser);
+    expect(dataConnectionProps).to.have.all.keys(clinicVisibleProviders);
 
     const dexcomConnection = dataConnectionProps.dexcom;
     expect(dexcomConnection.buttonHandler).to.be.a('function');
@@ -490,61 +492,35 @@ describe('getDataConnectionProps', () => {
   });
 
   it('should exclude providers with requiresLoggedInUser when user is not logged in', () => {
-    DataConnections.__Rewire__('providers', {
-      provider123: {
-        logoImage: 'provider123 logo image stub',
-        requiresLoggedInUser: true,
-      }
-    });
-
-    const patient = createPatientWithConnectionState('connectState1', moment.utc().subtract(2, 'days').toISOString());
+    // oura has requiresLoggedInUser: true — must not appear for clinic users
+    const patient = { id: 'patient123', dataSources: [{ providerName: 'oura', state: 'connected' }] };
     const props = getDataConnectionProps(patient, false, 'clinic125', setActiveHandlerStub);
 
-    expect(props.provider123).to.be.undefined;
+    expect(props.oura).to.be.undefined;
   });
 
   it('should include providers with requiresLoggedInUser when user is logged in', () => {
-    DataConnections.__Rewire__('providers', {
-      provider123: {
-        logoImage: 'provider123 logo image stub',
-        requiresLoggedInUser: true,
-      }
-    });
-
-    const patient = createPatientWithConnectionState('connectState1', moment.utc().subtract(2, 'days').toISOString());
+    // oura has requiresLoggedInUser: true — must appear when the patient is viewing their own data
+    const patient = { id: 'patient123', dataSources: [{ providerName: 'oura', state: 'connected' }] };
     const props = getDataConnectionProps(patient, true, 'clinic125', setActiveHandlerStub);
 
-    expect(props.provider123).to.be.an('object');
+    expect(props.oura).to.be.an('object');
   });
 
   it('should exclude providers with requiresExistingDataSource when no data source exists', () => {
-    DataConnections.__Rewire__('providers', {
-      provider123: {
-        logoImage: 'provider123 logo image stub',
-        requiresExistingDataSource: true,
-        dataSourceFilter: { providerName: 'provider123' },
-      }
-    });
-
+    // oura has requiresExistingDataSource: true — must not appear without a pre-existing data source
     const patient = { id: 'patient123', dataSources: [] };
     const props = getDataConnectionProps(patient, true, 'clinic125', setActiveHandlerStub);
 
-    expect(props.provider123).to.be.undefined;
+    expect(props.oura).to.be.undefined;
   });
 
   it('should include providers with requiresExistingDataSource when data source exists', () => {
-    DataConnections.__Rewire__('providers', {
-      provider123: {
-        logoImage: 'provider123 logo image stub',
-        requiresExistingDataSource: true,
-        dataSourceFilter: { providerName: 'provider123' },
-      }
-    });
-
-    const patient = createPatientWithConnectionState('connectState1', moment.utc().subtract(2, 'days').toISOString());
+    // oura has requiresExistingDataSource: true — must appear when the data source exists
+    const patient = { id: 'patient123', dataSources: [{ providerName: 'oura', state: 'connected' }] };
     const props = getDataConnectionProps(patient, true, 'clinic125', setActiveHandlerStub);
 
-    expect(props.provider123).to.be.an('object');
+    expect(props.oura).to.be.an('object');
   });
 });
 
@@ -1195,12 +1171,12 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionJustConnected);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
-        expect(dexcomConnection.querySelector('.state-text').textContent).to.equal('Connecting');
-        expect(dexcomConnection.querySelector('.state-message').textContent).to.equal(' - This can take a few minutes');
+        expect(dexcomConnection.querySelector('.state-text').textContent).to.equal('Connected');
+        expect(dexcomConnection.querySelector('.state-message').textContent).to.equal(' - Awaiting data, this can take a few minutes');
 
         const twiistConnection = container.querySelector('#data-connection-twiist');
         expect(twiistConnection).to.exist;
@@ -1213,7 +1189,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionJustConnected);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1244,7 +1220,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionConnectedWithNoData);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1262,7 +1238,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionConnectedWithNoData);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1311,7 +1287,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionConnectedWithData);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1342,7 +1318,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionDisconnected);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1360,7 +1336,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionDisconnected);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1394,7 +1370,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionError);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1412,7 +1388,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionError);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;

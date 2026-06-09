@@ -202,11 +202,10 @@ describe('useProviderConnectionPopup', function () {
     // Simulate pre-authorization accept path - popup should remain open
     const authorizedDataSource = { id: 'oauth/testProvider', url: `${window.location.origin}/oauth/testProvider/accept`};
     store.dispatch(actions.sync.connectDataSourceSuccess(authorizedDataSource.id, authorizedDataSource.url));
-    wrapper.update();
 
     setTimeout(() => {
       expect(setToast.notCalled).to.be.true;
-      expect(wrapper.text()).to.equal('Popup Open');
+      expect(wrapper.getByText('Popup Open')).to.not.equal(null);
       done();
     }, 100);
   });
