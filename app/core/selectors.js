@@ -181,8 +181,8 @@ export const selectMfaStatus = createSelector(
         registeredTime: mfa?.device?.registeredTime ?? null,
       },
       recoveryCodes: {
-        used: mfa?.recoveryCodes?.used ?? 0,
-        total: mfa?.recoveryCodes?.total ?? 12,
+        used: mfa?.recoveryCodes?.used ?? null,
+        total: mfa?.recoveryCodes?.total ?? null,
         generatedTime: mfa?.recoveryCodes?.generatedTime ?? null,
       },
     };

@@ -99,9 +99,8 @@ export const ClinicAdmin = (props) => {
   const sortedClinicianArray = useMemo(() => {
     const { orderBy, order } = sortOptions;
 
-    // compareLabels delegates to String.prototype.localeCompare; coerce non-string
-    // sort keys (e.g. boolean mfaEnabled) so columns backed by non-string fields sort safely.
-    const toSortKey = (val) => (typeof val === 'string' || val === null || val === undefined ? val : String(val));
+    // compareLabels uses localeCompare, which throws on a boolean — coerce booleans to strings.
+    const toSortKey = (val) => (typeof val === 'boolean' ? String(val) : val);
 
     const sortedArray = clinicianArray.toSorted((a, b) => {
       return (
@@ -281,7 +280,7 @@ export const ClinicAdmin = (props) => {
   const getClinicianArray = () => map(
     get(clinics, [selectedClinicId, 'clinicians'], {}),
     (clinician) => {
-      const { roles, email, id: clinicianId, inviteId, name = '', createdTime, updatedTime, mfa = {} } = clinician;
+      const { roles, email, id: clinicianId, inviteId, name = '', createdTime, updatedTime, securityProfile = {} } = clinician;
       let role = '';
 
       if (includes(roles, 'CLINIC_ADMIN')) {
@@ -290,8 +289,7 @@ export const ClinicAdmin = (props) => {
         role = t('Clinic Member');
       }
 
-      const mfaEnabled = !!mfa?.enabled;
-      const mfaEnabledAt = mfa?.enabledTime || null;
+      const { mfaEnabled, mfaEnabledTime } = securityProfile;
 
       return {
         fullName: name,
@@ -306,7 +304,7 @@ export const ClinicAdmin = (props) => {
         createdTime,
         updatedTime,
         mfaEnabled,
-        mfaEnabledAt,
+        mfaEnabledTime,
       };
     }
   );
@@ -351,7 +349,7 @@ export const ClinicAdmin = (props) => {
     };
 
     clinicianArray.forEach((clinician) => {
-      const { fullName, email, isAdmin, inviteId, createdTime, updatedTime, mfaEnabled, mfaEnabledAt } = clinician;
+      const { fullName, email, isAdmin, inviteId, createdTime, updatedTime, mfaEnabled, mfaEnabledTime } = clinician;
 
       csvRows.push([
         csvEscape(fullName),
@@ -361,7 +359,7 @@ export const ClinicAdmin = (props) => {
         sundial.formatInTimezone(createdTime, timeZone, 'YYYY-MM-DD HH:mm:ss z'),
         sundial.formatInTimezone(updatedTime, timeZone, 'YYYY-MM-DD HH:mm:ss z'),
         mfaEnabled ? 'True' : 'False',
-        mfaEnabledAt ? sundial.formatInTimezone(mfaEnabledAt, timeZone, 'YYYY-MM-DD HH:mm:ss z') : '',
+        mfaEnabledTime ? sundial.formatInTimezone(mfaEnabledTime, timeZone, 'YYYY-MM-DD HH:mm:ss z') : '',
       ]);
     });
 
@@ -541,7 +539,7 @@ export const ClinicAdmin = (props) => {
         <Icon
           variant="static"
           icon={VerifiedUserRoundedIcon}
-          label="2FA enabled"
+          label={t('2FA Enabled')}
           sx={{ fontSize: '14px', color: 'feedback.success' }}
         />
         <Text sx={{ fontWeight: 'medium', color: 'blueGrey' }}>

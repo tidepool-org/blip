@@ -5,6 +5,9 @@ import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
 import { ToastProvider } from '../../../app/providers/ToastProvider';
 import PatientNew from '../../../app/pages/patientnew';
+import { useUpdateUserProfileMutation } from '../../../app/redux/features/userProfile/userProfileApi';
+
+jest.mock('../../../app/redux/features/userProfile/userProfileApi');
 
 /* global chai */
 /* global sinon */
@@ -52,11 +55,11 @@ describe('PatientNew', function () {
       loggedInUserId: 'a1b2c3',
       working: {
         settingUpDataStorage: defaultWorkingState,
-        updatingUser: defaultWorkingState,
       },
     },
   };
 
+  let mockMutate;
   let store = mockStore(defaultState);
 
   const renderPage = (providedStore = store) => {
@@ -72,6 +75,8 @@ describe('PatientNew', function () {
   };
 
   beforeEach(() => {
+    mockMutate = jest.fn().mockReturnValue({ unwrap: jest.fn().mockResolvedValue({}) });
+    useUpdateUserProfileMutation.mockReturnValue([mockMutate, { isLoading: false }]);
     defaultProps.trackMetric.resetHistory();
     renderPage();
   });
@@ -79,6 +84,7 @@ describe('PatientNew', function () {
   afterEach(() => {
     defaultProps.api.invitation.send.resetHistory();
     defaultProps.api.patient.post.resetHistory();
+    jest.clearAllMocks();
   });
 
   it('should allow creating a personal patient account profile', async () => {
@@ -333,11 +339,8 @@ describe('PatientNew', function () {
     fireEvent.click(nextButton());
 
     await waitFor(() => {
-      expect(defaultProps.api.user.put.callCount).to.equal(1);
-      sinon.assert.calledWith(
-        defaultProps.api.user.put,
-        { preferences: {}, profile: { fullName: 'Kathy Viewonly' }, userid: 'a1b2c3' },
-      );
+      expect(mockMutate.mock.calls).to.have.lengthOf(1);
+      expect(mockMutate.mock.calls[0][0]).to.deep.equal({ profile: { fullName: 'Kathy Viewonly' } });
     });
   });
 });

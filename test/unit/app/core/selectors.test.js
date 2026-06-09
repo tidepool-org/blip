@@ -162,7 +162,7 @@ describe('selectMfaStatus', () => {
     enabled: false,
     enabledTime: null,
     device: { name: null, registeredTime: null },
-    recoveryCodes: { used: 0, total: 12, generatedTime: null },
+    recoveryCodes: { used: null, total: null, generatedTime: null },
   };
 
   const stateWithMfa = (mfa) => ({
@@ -201,10 +201,10 @@ describe('selectMfaStatus', () => {
     expect(result.recoveryCodes.generatedTime).to.be.null;
   });
 
-  it('should report recoveryCodes.total of 12 when source is missing', () => {
+  it('should report recoveryCodes.total and used as null when source is missing', () => {
     const result = selectMfaStatus({ blip: {} });
-    expect(result.recoveryCodes.total).to.equal(12);
-    expect(result.recoveryCodes.used).to.equal(0);
+    expect(result.recoveryCodes.total).to.be.null;
+    expect(result.recoveryCodes.used).to.be.null;
   });
 
   it('should read mfa values from allUsersMap[loggedInUserId].profile.clinic.mfa when populated', () => {
@@ -228,7 +228,7 @@ describe('selectMfaStatus', () => {
       enabled: true,
       enabledTime: null,
       device: { name: 'Pixel 12', registeredTime: null },
-      recoveryCodes: { used: 1, total: 12, generatedTime: null },
+      recoveryCodes: { used: 1, total: null, generatedTime: null },
     });
   });
 

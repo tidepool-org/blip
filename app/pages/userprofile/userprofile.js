@@ -28,7 +28,7 @@ import ReportProblemRoundedIcon from '@material-ui/icons/ReportProblemRounded';
 import Button from '../../components/elements/Button';
 import Icon from '../../components/elements/Icon';
 import personUtils from '../../core/personutils';
-import { selectMfaStatus } from '../../core/selectors';
+import { selectMfaStatus, selectUser } from '../../core/selectors';
 import { roles as clinicRoles } from '../../core/clinicUtils';
 import { URL_SUPPORT_ACCOUNT_SETTINGS } from '../../core/constants';
 import baseTheme from '../../themes/baseTheme';
@@ -46,6 +46,7 @@ const TRACK_METRICS = {
 };
 
 const RECOVERY_CODES_WARNING_THRESHOLD = 3;
+const RECOVERY_CODES_TOTAL = 12;
 
 const formatDate = (ts) => (ts ? moment(ts).format('MMM D, YYYY') : null);
 const formatDateTime = (ts) => (ts ? moment(ts).format('MMM D, YYYY (h:mma)') : null);
@@ -363,7 +364,7 @@ TwoFactorRow.propTypes = {
 
 function RecoveryCodesRow({ t, trackMetric, mfaStatus }) {
   const used = _.get(mfaStatus, 'recoveryCodes.used', 0);
-  const total = _.get(mfaStatus, 'recoveryCodes.total', 0);
+  const total = _.get(mfaStatus, 'recoveryCodes.total', RECOVERY_CODES_TOTAL);
   const generatedTime = _.get(mfaStatus, 'recoveryCodes.generatedTime');
   const lowCodes = used >= RECOVERY_CODES_WARNING_THRESHOLD;
 
@@ -445,11 +446,7 @@ RecoveryCodesRow.propTypes = {
 export function UserProfile({ trackMetric, history, api }) {
   const { t } = useTranslation();
   const { set: setToast } = useToasts();
-  const user = useSelector((state) => {
-    const allUsersMap = state.blip?.allUsersMap;
-    const loggedInUserId = state.blip?.loggedInUserId;
-    return allUsersMap && loggedInUserId ? allUsersMap[loggedInUserId] : null;
-  });
+  const user = useSelector(selectUser);
   const mfaStatus = useSelector(selectMfaStatus);
 
   const isClinician = personUtils.isClinicianAccount(user);
@@ -653,7 +650,6 @@ export function UserProfile({ trackMetric, history, api }) {
       <EditPersonalDetailsDialog
         open={editOpen}
         onClose={() => setEditOpen(false)}
-        api={api}
         trackMetric={trackMetric}
       />
     </Box>
