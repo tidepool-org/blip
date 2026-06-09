@@ -16,7 +16,6 @@ import { useToasts } from '../../providers/ToastProvider';
 import { getCommonFormikFieldProps, addEmptyOption, fieldsAreValid } from '../../core/forms';
 import personUtils from '../../core/personutils';
 import { roles as clinicRoles } from '../../core/clinicUtils';
-import * as actions from '../../redux/actions';
 import { redirectToKeycloakAction } from '../../keycloak';
 import { selectUser } from '../../core/selectors';
 import { useUpdateUserProfileMutation } from '../../redux/features/userProfile/userProfileApi';
