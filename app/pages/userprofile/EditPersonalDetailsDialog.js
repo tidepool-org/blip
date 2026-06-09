@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { Box, Flex, Text } from 'theme-ui';
 import _ from 'lodash';
@@ -13,25 +13,20 @@ import Select from '../../components/elements/Select';
 import Button from '../../components/elements/Button';
 import { MediumTitle } from '../../components/elements/FontStyles';
 import { useToasts } from '../../providers/ToastProvider';
-import { usePrevious } from '../../core/hooks';
 import { getCommonFormikFieldProps, addEmptyOption, fieldsAreValid } from '../../core/forms';
 import personUtils from '../../core/personutils';
 import { roles as clinicRoles } from '../../core/clinicUtils';
 import * as actions from '../../redux/actions';
 import { redirectToKeycloakAction } from '../../keycloak';
+import { selectUser } from '../../core/selectors';
+import { useUpdateUserProfileMutation } from '../../redux/features/userProfile/userProfileApi';
 
-export function EditPersonalDetailsDialog({ open, onClose, api, trackMetric }) {
+export function EditPersonalDetailsDialog({ open, onClose, trackMetric }) {
   const { t } = useTranslation();
-  const dispatch = useDispatch();
   const { set: setToast } = useToasts();
 
-  const user = useSelector((state) => {
-    const allUsersMap = state.blip?.allUsersMap;
-    const loggedInUserId = state.blip?.loggedInUserId;
-    return allUsersMap && loggedInUserId ? allUsersMap[loggedInUserId] : null;
-  });
-  const working = useSelector((state) => state.blip?.working?.updatingUser);
-  const previousWorking = usePrevious(working);
+  const user = useSelector(selectUser);
+  const [updateUserProfile, { isLoading }] = useUpdateUserProfileMutation();
 
   const isClinician = personUtils.isClinicianAccount(user);
   const isSSO = personUtils.isSSOAccount(user);
@@ -49,30 +44,27 @@ export function EditPersonalDetailsDialog({ open, onClose, api, trackMetric }) {
       role: _.get(user, 'profile.clinic.role', ''),
     },
     validationSchema: schema,
-    onSubmit: (values) => {
+    onSubmit: async (values, { setSubmitting }) => {
       const profileUpdates = { profile: { fullName: values.fullName.trim() } };
       if (isClinician) {
         profileUpdates.profile.clinic = { role: values.role || '' };
       }
-      dispatch(actions.async.updateUser(api, profileUpdates));
+      try {
+        await updateUserProfile(profileUpdates).unwrap();
+        setToast({ message: t('Personal details updated.'), variant: 'success' });
+        onClose();
+      } catch (err) {
+        setToast({ message: err?.data ?? t('An error occurred. Please try again.'), variant: 'danger' });
+      } finally {
+        setSubmitting(false);
+      }
     },
   });
 
-  useEffect(() => {
-    if (!working) return;
-    const { inProgress, completed, notification } = working;
-    const prevInProgress = previousWorking?.inProgress;
-
-    if (!inProgress && completed !== null && prevInProgress) {
-      formikContext.setSubmitting(false);
-      if (completed === true) {
-        setToast({ message: t('Personal details updated.'), variant: 'success' });
-        onClose();
-      } else if (notification) {
-        setToast({ message: notification.message, variant: 'danger' });
-      }
-    }
-  }, [working]);
+  const handleClose = () => {
+    formikContext.resetForm();
+    onClose();
+  };
 
   const handleUpdateEmail = () => {
     trackMetric('Clicked Update Email in Account');
@@ -83,12 +75,12 @@ export function EditPersonalDetailsDialog({ open, onClose, api, trackMetric }) {
     <Dialog
       id="edit-personal-details"
       open={open}
-      onClose={onClose}
+      onClose={handleClose}
       maxWidth="md"
       fullWidth
       aria-labelledby="edit-personal-details-title"
     >
-      <DialogTitle onClose={onClose}>
+      <DialogTitle onClose={handleClose}>
         <MediumTitle id="edit-personal-details-title">
           {t('Edit Personal Details')}
         </MediumTitle>
@@ -161,12 +153,12 @@ export function EditPersonalDetailsDialog({ open, onClose, api, trackMetric }) {
       </DialogContent>
 
       <DialogActions>
-        <Button variant="secondary" onClick={onClose}>
+        <Button variant="secondary" onClick={handleClose}>
           {t('Cancel')}
         </Button>
         <Button
           variant="primary"
-          processing={working?.inProgress}
+          processing={isLoading}
           disabled={!fieldsAreValid(['fullName'], schema, formikContext.values)}
           onClick={formikContext.handleSubmit}
         >
@@ -184,7 +176,6 @@ EditPersonalDetailsDialog.defaultProps = {
 EditPersonalDetailsDialog.propTypes = {
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
-  api: PropTypes.object.isRequired,
   trackMetric: PropTypes.func.isRequired,
 };
 
