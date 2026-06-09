@@ -5,7 +5,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Switch, Route } from 'react-router-dom'; // for useParams
 import configureStore from 'redux-mock-store'; // for mockStore
-import thunk from 'redux-thunk';
+import { thunk } from 'redux-thunk';
 
 import api from '../../../../../app/core/api';
 import * as actions from '../../../../../app/redux/actions';
