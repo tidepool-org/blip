@@ -1242,7 +1242,9 @@ export const ClinicPatients = (props) => {
   ]);
 
   useEffect(() => {
-    setShowSummaryData(showSummaryDashboard || clinic?.entitlements?.summaryDashboard)
+    // Coerce to boolean so the !isBoolean(showSummaryData) guard at the patientFetchOptions effect
+    // doesn't keep the patient fetch indefinitely blocked when entitlements haven't arrived yet.
+    setShowSummaryData(!!(showSummaryDashboard || clinic?.entitlements?.summaryDashboard));
   }, [showSummaryDashboard, clinic?.entitlements]);
 
   useEffect(() => {
