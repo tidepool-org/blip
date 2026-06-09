@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import * as actions from '../../../../redux/actions';
@@ -21,6 +21,7 @@ import omit from 'lodash/omit';
 import { selectPatient, selectUser } from '../../../../core/selectors';
 import { useToasts } from '../../../../providers/ToastProvider';
 import { useGenerateReportMutation } from '../../../../redux/api/reportApi';
+import usePrintWindow from './usePrintWindow';
 
 export const STATUS = {
   // States in order of happy path sequence, up to the point the request is handed
@@ -133,6 +134,8 @@ const usePrintPDF = (
   const timePrefsRef = useRef(null);
   const getTimePrefs = () => timePrefsRef.current;
 
+  const { openWindow, closeWindow, openPDF } = usePrintWindow();
+
   const [canPrint, setCanPrint] = useState(false);
 
   const lastCompletedStep = inferLastCompletedStep(requestId, patientId, data, patient, pdf);
@@ -163,6 +166,8 @@ const usePrintPDF = (
   }, [lastCompletedStep]);
 
   const onPrintPDF = async (opts = {}) => {
+    openWindow();
+
     const printOpts = normalizePrintOpts(opts);
 
     const body = {
@@ -177,18 +182,17 @@ const usePrintPDF = (
     };
 
     try {
+      onPrintTriggered();
       const blob = await generateReport({ patientId, body }).unwrap();
-      // Re-type the octet-stream response to application/pdf so the browser
-      // renders it inline rather than downloading it.
       const url = URL.createObjectURL(blob.slice(0, blob.size, 'application/pdf'));
-      window.open(url, '_blank');
+      openPDF(url);
     } catch (error) {
+      closeWindow();
+
       setToast({
         message: t('Something went wrong while generating your report.'),
         variant: 'danger',
       });
-    } finally {
-      onPrintTriggered();
     }
   };
 
