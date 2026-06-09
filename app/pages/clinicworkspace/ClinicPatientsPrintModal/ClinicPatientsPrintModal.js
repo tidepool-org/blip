@@ -38,8 +38,11 @@ const ClinicPatientsPrintModal = ({ api, patientId, onClose = noop }) => {
 
   useEffect(() => {
     if (status === STATUS.NO_PATIENT_DATA) {
-      setToast({ message: t('This patient does not have any data'), variant: 'danger' });
       onClose();
+      setToast({
+        message: t('Insufficient data for patient to generate any report.'),
+        variant: 'danger'
+      });
     }
   }, [status]);
 
