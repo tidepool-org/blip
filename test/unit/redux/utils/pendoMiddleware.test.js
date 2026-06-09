@@ -1,4 +1,5 @@
 /* global sinon */
+/* global chai */
 /* global describe */
 /* global context */
 /* global it */
@@ -8,6 +9,8 @@
 import * as ActionTypes from '../../../../app/redux/constants/actionTypes';
 import pendoMiddleware, { parseDeviceKeyVersions } from '../../../../app/redux/utils/pendoMiddleware';
 import _ from 'lodash';
+
+const expect = chai.expect;
 
 describe('pendoMiddleware', () => {
   const api = {};
@@ -33,8 +36,6 @@ describe('pendoMiddleware', () => {
   };
   const next = sinon.stub();
 
-  pendoMiddleware.__Rewire__('config', { PENDO_ENABLED: true });
-
   const winMock = {
     location: {
       hostname: 'localhost',
@@ -48,7 +49,7 @@ describe('pendoMiddleware', () => {
   const users = {
     clinicAdminID: { userid: 'clinicAdminID', username: 'clinicAdminID@example.com', roles: ['CLINIC_ADMIN', 'clinician'], termsAccepted: '2020-02-02T00:00:00.000Z' },
     clinicMemberID: { userid: 'clinicMemberID', username: 'clinicMemberID@example.com', roles: ['CLINIC_MEMBER', 'clinician'], termsAccepted: '2021-02-02T00:00:00.000Z' },
-    patientId: { userid: 'patientId', username: 'patientId@example.com', roles: [], termsAccepted: '2020-02-02T00:00:00.000Z', termsAccepted: '2022-02-02T00:00:00.000Z' },
+    patientId: { userid: 'patientId', username: 'patientId@example.com', roles: [], termsAccepted: '2020-02-02T00:00:00.000Z' },
     legacyClinicianID: { userid: 'legacyClinicianID', username: 'legacyClinicianID@example.com', roles: ['CLINIC_MEMBER', 'clinic'], termsAccepted: '2021-02-02T00:00:00.000Z' },
     migratedClinicianID: { userid: 'migratedClinicianID', username: 'migratedClinicianID@example.com', roles: ['CLINIC_MEMBER', 'migrated_clinic'], termsAccepted: '2021-02-02T00:00:00.000Z' },
   }
@@ -73,6 +74,10 @@ describe('pendoMiddleware', () => {
   }
 
   beforeEach(() => {
+    if (!window.config) {
+      window.config = {};
+    }
+    window.config.PENDO_ENABLED = true;
     winMock.pendo.initialize.resetHistory();
     winMock.pendo.updateOptions.resetHistory();
     winMock.pendo.visitorId = undefined; // pendo uninitialized by default
@@ -84,7 +89,7 @@ describe('pendoMiddleware', () => {
   });
 
   it('should not call pendo for LOGIN_SUCCESS if not PENDO_ENABLED', () => {
-    pendoMiddleware.__Rewire__('config', { PENDO_ENABLED: false });
+    window.config.PENDO_ENABLED = false;
     const loginSuccess = {
       type: ActionTypes.LOGIN_SUCCESS,
       payload: {
@@ -111,7 +116,7 @@ describe('pendoMiddleware', () => {
     pendoMiddleware(api, winMock)(getStateObj)(next)(loginSuccess);
     expect(winMock.pendo.initialize.callCount).to.equal(0);
     expect(winMock.pendo.updateOptions.callCount).to.equal(0);
-    pendoMiddleware.__Rewire__('config', { PENDO_ENABLED: true });
+    window.config.PENDO_ENABLED = true;
   });
 
   it('should not call pendo if noPendo query is set', () => {
@@ -297,6 +302,55 @@ describe('pendoMiddleware', () => {
     expect(winMock.pendo.initialize.callCount).to.equal(0);
     pendoMiddleware(api, winMock)(getStateObj)(next)(loginSuccess);
     expect(winMock.pendo.initialize.calledWithMatch({ visitor: { id: 'migratedClinicianID', role: 'clinician' }})).to.be.true;
+  });
+
+  it('should include isSmartOnFhir true when SMART on FHIR data is present', () => {
+    const loginSuccess = {
+      type: ActionTypes.LOGIN_SUCCESS,
+      payload: {
+        user: {},
+      },
+    };
+    getStateObj.getState.returns({
+      ...emptyState,
+      ...{
+        blip: {
+          clinics: _.pick(clinics, 'clinicID123'),
+          loggedInUserId: 'clinicAdminID',
+          allUsersMap: _.pick(users, 'clinicAdminID'),
+          smartOnFhirData: {
+            patientId: 'smart-patient-123',
+          },
+          pendoData: {
+            account: {},
+            visitor: {},
+          },
+        },
+      },
+    });
+    const expectedConfig = {
+      account: {
+        clinic: 'Mock Clinic Name',
+        id: 'clinicID123',
+      },
+      visitor: {
+        application: 'Web',
+        environment: 'local',
+        id: 'clinicAdminID',
+        isSmartOnFhir: true,
+        currentlyViewedDevices: [],
+        currentlyViewedDataAnnotations: [],
+        permission: 'administrator',
+        role: 'clinician',
+        domain: 'example.com',
+        termsAccepted: '2020-02-02T00:00:00.000Z',
+      },
+    };
+    expect(winMock.pendo.initialize.callCount).to.equal(0);
+    pendoMiddleware(api, winMock)(getStateObj)(next)(loginSuccess);
+    expect(winMock.pendo.initialize.callCount).to.equal(1);
+    expect(winMock.pendo.initialize.getCall(0).args[0]).to.eql(expectedConfig);
+    expect(winMock.pendo.initialize.calledWith(expectedConfig)).to.be.true;
   });
 
   it('should call updateOptions for LOGIN_SUCCESS if pendo is already initialized', () => {

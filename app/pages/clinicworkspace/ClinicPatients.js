@@ -1215,7 +1215,9 @@ export const ClinicPatients = (props) => {
   ]);
 
   useEffect(() => {
-    setShowSummaryData(showSummaryDashboard || clinic?.entitlements?.summaryDashboard)
+    // Coerce to boolean so the !isBoolean(showSummaryData) guard at the patientFetchOptions effect
+    // doesn't keep the patient fetch indefinitely blocked when entitlements haven't arrived yet.
+    setShowSummaryData(!!(showSummaryDashboard || clinic?.entitlements?.summaryDashboard));
   }, [showSummaryDashboard, clinic?.entitlements]);
 
   useEffect(() => {
@@ -2959,13 +2961,13 @@ export const ClinicPatients = (props) => {
                 </Text>
               </Box>
 
-              {/* { numPatients > 0 && (
+              { numPatients > 0 && (
                 <Box mt={2}>
                   <Text sx={{ fontWeight: 'normal' }}>
                     {t('If you remove it, {{ count }} patient accounts will no longer be associated with this site.', { count: numPatients })}
                   </Text>
                 </Box>
-              )} */}
+              )}
             </Body1>
           </Flex>
         </DialogContent>
@@ -3011,13 +3013,13 @@ export const ClinicPatients = (props) => {
                 </Text>
               </Box>
 
-              {/* {numPatients > 0 && (
+              {numPatients > 0 && (
                 <Box mt={2}>
                   <Text sx={{ fontWeight: 'normal' }}>
                     {t('If you remove it, {{ count }} patient accounts will no longer be associated with this tag.', { count: numPatients })}
                   </Text>
                 </Box>
-              )} */}
+              )}
             </Body1>
           </Flex>
         </DialogContent>
@@ -3299,11 +3301,11 @@ export const ClinicPatients = (props) => {
                     </Text>
                   </Box>
 
-                  {/* <Flex sx={{ justifyContent: 'flex-end' }}>
+                  <Flex sx={{ justifyContent: 'flex-end' }}>
                     <Text sx={{ fontSize: 0, color: colors.gray50, fontStyle: 'italic' }}>
                       {t('Patients with Site')}
                     </Text>
-                  </Flex> */}
+                  </Flex>
                 </Grid>
               </>
             }
@@ -3332,9 +3334,9 @@ export const ClinicPatients = (props) => {
                     </Flex>
 
                     <Flex sx={{ justifyContent: 'flex-end' }}>
-                      {/* <Text data-testid={`site-${id}-numPatients`} sx={{ fontSize: 0, fontStyle: 'italic', color: vizColors.gray50 }}>
+                      <Text data-testid={`site-${id}-numPatients`} sx={{ fontSize: 0, fontStyle: 'italic', color: vizColors.gray50 }}>
                         {numPatients}
-                      </Text> */}
+                      </Text>
                     </Flex>
 
                     <Flex sx={{ justifyContent: 'flex-end' }}>
@@ -3471,11 +3473,11 @@ export const ClinicPatients = (props) => {
                     </Text>
                   </Box>
 
-                  {/* <Flex sx={{ justifyContent: 'flex-end' }}>
+                  <Flex sx={{ justifyContent: 'flex-end' }}>
                     <Text sx={{ fontSize: 0, color: colors.gray50, fontStyle: 'italic' }}>
                       {t('Patients with Tag')}
                     </Text>
-                  </Flex> */}
+                  </Flex>
                 </Grid>
               </>
             }
@@ -3503,11 +3505,10 @@ export const ClinicPatients = (props) => {
                     </Flex>
 
                     <Flex sx={{ justifyContent: 'flex-end' }}>
-                      {/* <Text data-testid={`tag-${id}-numPatients`} sx={{ fontSize: 0, fontStyle: 'italic', color: vizColors.gray50 }}>
+                      <Text data-testid={`tag-${id}-numPatients`} sx={{ fontSize: 0, fontStyle: 'italic', color: vizColors.gray50 }}>
                         {numPatients}
-                      </Text> */}
+                      </Text>
                     </Flex>
-
                     <Flex sx={{ justifyContent: 'flex-end' }}>
                       <Icon
                         id={`delete-tag-button-${id}`}
