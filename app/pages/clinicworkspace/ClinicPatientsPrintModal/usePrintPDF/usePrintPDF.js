@@ -1,44 +1,40 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import * as actions from '../../../../redux/actions';
 import moment from 'moment';
-import usePrintWindow from './usePrintWindow';
 
 import { utils as vizUtils } from '@tidepool/viz';
 const { getTimezoneFromTimePrefs } = vizUtils.datetime;
 import utils from '../../../../core/utils';
 import personUtils from '../../../../core/personutils';
 
-import getQueries from './getQueries';
-
 import noop from 'lodash/noop';
 import get from 'lodash/get';
 import filter from 'lodash/filter';
 import min from 'lodash/min';
-import at from 'lodash/at';
+import max from 'lodash/max';
 import map from 'lodash/map';
 import keys from 'lodash/keys';
-import { useGenerateAGPImages } from '../../../../core/agpUtils';
+import omit from 'lodash/omit';
+
 import { selectPatient, selectUser } from '../../../../core/selectors';
-import { DEFAULT_CGM_SAMPLE_INTERVAL, MS_IN_MIN } from '../../../../core/constants';
+import { useToasts } from '../../../../providers/ToastProvider';
+import { useGenerateReportMutation } from '../../../../redux/api/reportApi';
 
 export const STATUS = {
-  // States in order of happy path AGP generation sequence
+  // States in order of happy path sequence, up to the point the request is handed
+  // off to the export service.
   CLEARING_CACHE: 'CLEARING_CACHE',
   FETCHING_MODAL_DATA: 'FETCHING_MODAL_DATA',
   AWAITING_INPUT: 'AWAITING_INPUT',
-  FETCHING_PDF_DATA: 'FETCHING_PDF_DATA',
-  GENERATING_PDF: 'GENERATING_PDF',
-  GENERATING_AGP: 'GENERATING_AGP',
-  ATTACHING_SVGS: 'ATTACHING_SVGS',
-  TRIGGERING_PRINT: 'TRIGGERING_PRINT',
 
   // Other states
   NO_PATIENT_DATA: 'NO_PATIENT_DATA',
 };
 
 // TODO: Revisit best way to listen for progress when we move away from blip.working
-const inferLastCompletedStep = (requestId, patientId, data, patient, pdf, hasClickedPrint, hasFetchedPDFData) => {
+const inferLastCompletedStep = (requestId, patientId, data, patient, pdf) => {
   // If the outputted data for a step in the process exists, we infer that the step was successful.
   // We do the lookup in reverse order to return the LATEST completed step
 
@@ -54,74 +50,66 @@ const inferLastCompletedStep = (requestId, patientId, data, patient, pdf, hasCli
   if (hasNoPatientData) return STATUS.NO_PATIENT_DATA;
 
   // Happy Path States ---
-  const hasPDFUrlInState  = !!pdf?.combined?.url;
-  const hasImagesInState  = !!pdf?.opts?.svgDataURLS;
-  const hasPDFDataInState = !!pdf?.data;
-
-  const hasPatientDataInState = !!data?.metaData?.patientId && hasFetchedPDFData;
-  const hasPrintTriggered = !!data?.metaData?.patientId && patient?.userid && hasClickedPrint;
   const hasModalDataInState = !!data?.metaData?.patientId && patient?.userid;
 
-  if (hasPDFUrlInState)      return STATUS.TRIGGERING_PRINT;
-  if (hasImagesInState)      return STATUS.ATTACHING_SVGS;
-  if (hasPDFDataInState)     return STATUS.GENERATING_AGP;
-  if (hasPatientDataInState) return STATUS.GENERATING_PDF;
-  if (hasPrintTriggered)     return STATUS.FETCHING_PDF_DATA;
-  if (hasModalDataInState)   return STATUS.AWAITING_INPUT;
+  if (hasModalDataInState) return STATUS.AWAITING_INPUT;
 
   return STATUS.FETCHING_MODAL_DATA;
 };
 
-const getMainFetchOpts = (timePrefs, opts, fetchedUntil) => {
-  const enabledOpts = filter(opts, { disabled: false });
-  const earliestPrintDate = min(at(enabledOpts, map(keys(enabledOpts), key => `${key}.endpoints.0`)));
+// JS `Infinity` is not valid JSON (it serializes to `null`). Number.MAX_VALUE
+// survives JSON serialization and is treated as an effectively-unbounded upper
+// limit by the export service / Viz.
+const JSON_SAFE_INFINITY = Number.MAX_VALUE;
 
-  const startDate = moment.utc(earliestPrintDate).tz(getTimezoneFromTimePrefs(timePrefs)).toISOString();
+const normalizePrintOpts = (printOpts) => {
+  const opts = omit(printOpts, 'requestId');
+  const cgmSampleIntervalRange = opts.daily?.cgmSampleIntervalRange;
 
-  const endDate = fetchedUntil
-    ? moment.utc(fetchedUntil).subtract(1, 'milliseconds').toISOString()
-    : moment.utc().add(1, 'days').toISOString();
+  if (cgmSampleIntervalRange) {
+    opts.daily = {
+      ...opts.daily,
+      cgmSampleIntervalRange: map(cgmSampleIntervalRange, value => (value === Infinity ? JSON_SAFE_INFINITY : value)),
+    };
+  }
 
-  const sampleIntervalMinimum = opts.daily?.cgmSampleIntervalRange?.[0] || DEFAULT_CGM_SAMPLE_INTERVAL;
+  return opts;
+};
+
+// The enabled report keys double as the export service's `reports` filter (its
+// report type names match the printOpts keys). Sending only the enabled reports
+// keeps the service from fetching/querying data for charts the user disabled.
+const getEnabledReports = (printOpts) =>
+  keys(printOpts).filter(key => printOpts[key]?.disabled === false);
+
+const getReportDateRange = (printOpts) => {
+  const enabledOpts = filter(printOpts, { disabled: false });
+  const startDates = map(enabledOpts, opt => opt.endpoints?.[0]).filter(ms => ms != null);
+  const endDates = map(enabledOpts, opt => opt.endpoints?.[1]).filter(ms => ms != null);
 
   return {
-    initial: false,
-    startDate,
-    endDate,
-    returnData: false,
-    forceDataWorkerAddDataRequest: true,
-    useCache: false,
-    sampleIntervalMinimum,
+    startDate: startDates.length ? moment.utc(min(startDates)).toISOString() : null,
+    endDate: endDates.length ? moment.utc(max(endDates)).toISOString() : null,
   };
 };
 
-const getEarliestPrintDate = (printOpts, timePrefs) => {
-  const enabledOpts = filter(printOpts, { disabled: false });
-  const earliestPrintDate = min(at(enabledOpts, map(keys(enabledOpts), key => `${key}.endpoints.0`)));
-  const startDate = moment.utc(earliestPrintDate).tz(getTimezoneFromTimePrefs(timePrefs)).toISOString();
+const getReportBgUnits = (patient, clinicPatient, clinic) => {
+  const settings = patient?.settings || {};
+  const bgUnitsOverride = { units: clinic?.preferredBgUnits, source: 'preferred clinic units' };
 
-  return startDate;
+  return utils.getBGPrefsForDataProcessing(settings, clinicPatient, bgUnitsOverride).bgUnits;
 };
 
-const getPdfOpts = (printOpts, user, patient, clinicPatient) => {
+const getUserDetail = (user, patient, clinicPatient) => {
   const combinedPatient = clinicPatient ? personUtils.combinedAccountAndClinicPatient(patient, clinicPatient) : null;
   const sourcePatient = personUtils.isClinicianAccount(user) && !!combinedPatient ? combinedPatient : patient;
-  const patientSettings = patient?.settings || {};
-  const siteChangeSource = patient?.settings?.siteChangeSource;
 
-  const pdfPatient = {
-    ...sourcePatient,
-    id: clinicPatient?.id || patient?.id,
-    settings: { ...patientSettings, siteChangeSource },
+  return {
+    userId: clinicPatient?.id || patient?.userid,
+    fullName: personUtils.patientFullName(sourcePatient),
+    dob: get(sourcePatient, 'profile.patient.birthday'),
+    mrn: get(sourcePatient, 'profile.patient.mrn'),
   };
-
-  return { ...printOpts, patient: pdfPatient };
-};
-
-const getFetchedUntil = (data, printOpts) => {
-  return printOpts?.daily?.cgmSampleIntervalRange?.[0] === MS_IN_MIN
-    ? get(data, 'oneMinCgmFetchedUntil') || moment.utc().toISOString()
-    : get(data, 'fetchedUntil');
 };
 
 const usePrintPDF = (
@@ -130,8 +118,9 @@ const usePrintPDF = (
   onPrintTriggered = noop,
 ) => {
   const dispatch = useDispatch();
-  const generateAGPImages = useGenerateAGPImages();
-  const { openPrintWindow, triggerPrint } = usePrintWindow();
+  const { t } = useTranslation();
+  const { set: setToast } = useToasts();
+  const [generateReport] = useGenerateReportMutation();
   const [requestId] = useState(crypto.randomUUID());
 
   const data = useSelector(state => state.blip.data);
@@ -141,21 +130,12 @@ const usePrintPDF = (
   const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
   const clinicPatient = clinic?.patients?.[patientId];
 
-  const printOptsRef = useRef(null);
   const timePrefsRef = useRef(null);
-  const pdfStartDateRef = useRef(null);
-
-  const getPrintOpts = () => printOptsRef.current;
   const getTimePrefs = () => timePrefsRef.current;
-  const getPdfStartDate = () => pdfStartDateRef.current;
 
   const [canPrint, setCanPrint] = useState(false);
-  const [hasClickedPrint, setHasClickedPrint] = useState(false);
 
-  const fetchedUntil = getFetchedUntil(data, getPrintOpts());
-  const hasFetchedPDFData = !!fetchedUntil && !!getPdfStartDate() && fetchedUntil <= getPdfStartDate();
-
-  const lastCompletedStep = inferLastCompletedStep(requestId, patientId, data, patient, pdf, hasClickedPrint, hasFetchedPDFData);
+  const lastCompletedStep = inferLastCompletedStep(requestId, patientId, data, patient, pdf);
 
   useEffect(() => {
     // Whenever a step is successfully completed, this effect triggers the next step in the sequence.
@@ -177,51 +157,39 @@ const usePrintPDF = (
         setCanPrint(true);
         break;
 
-      case STATUS.FETCHING_PDF_DATA:
-        const fetchPatientOpts = getMainFetchOpts(getTimePrefs(), getPrintOpts(), fetchedUntil);
-        dispatch(actions.async.fetchPatientData(api, fetchPatientOpts, patientId));
-        break;
-
-      case STATUS.GENERATING_PDF:
-        const queries = getQueries(data, patient, clinicPatient, clinic, getTimePrefs(), getPrintOpts());
-        const pdfOpts = getPdfOpts(getPrintOpts(), user, patient, clinicPatient);
-        dispatch(actions.worker.generatePDFRequest('combined', queries, pdfOpts, patientId));
-        break;
-
-      case STATUS.GENERATING_AGP:
-        const hasAgpBGM = pdf?.opts?.agpBGM?.disabled === false;
-        const hasAgpCGM = pdf?.opts?.agpCGM?.disabled === false;
-        const reportTypes = [(hasAgpBGM && 'agpBGM'), (hasAgpCGM && 'agpCGM')].filter(s => s);
-        generateAGPImages(pdf, reportTypes);
-        break;
-
-      case STATUS.ATTACHING_SVGS:
-        printOptsRef.current = pdf.opts;
-        // Call generatePDFRequest a second time with SVGs in args to attach them to the PDF
-        const agpQueries = getQueries(data, patient, clinicPatient, clinic, getTimePrefs(), getPrintOpts());
-        const agpPdfOpts = getPdfOpts(getPrintOpts(), user, patient, clinicPatient);
-        dispatch(actions.worker.generatePDFRequest('combined', agpQueries, agpPdfOpts, patientId));
-        break;
-
-      case STATUS.TRIGGERING_PRINT:
-        if (pdf?.opts?.requestId === requestId) {
-          triggerPrint(pdf);
-        }
-        setTimeout(() => {
-          onPrintTriggered();
-        }, 100);
-
       default:
         break;
     }
   }, [lastCompletedStep]);
 
-  const onPrintPDF = (opts = {}) => {
-    printOptsRef.current = { ...opts, requestId };
-    pdfStartDateRef.current = getEarliestPrintDate(getPrintOpts(), getTimePrefs());
+  const onPrintPDF = async (opts = {}) => {
+    const printOpts = normalizePrintOpts(opts);
 
-    openPrintWindow();
-    setHasClickedPrint(true);
+    const body = {
+      userDetail: getUserDetail(user, patient, clinicPatient),
+      reportDetail: {
+        tzName: getTimezoneFromTimePrefs(getTimePrefs()),
+        bgUnits: getReportBgUnits(patient, clinicPatient, clinic),
+        reports: getEnabledReports(printOpts),
+        ...getReportDateRange(printOpts),
+      },
+      printOpts,
+    };
+
+    try {
+      const blob = await generateReport({ patientId, body }).unwrap();
+      // Re-type the octet-stream response to application/pdf so the browser
+      // renders it inline rather than downloading it.
+      const url = URL.createObjectURL(blob.slice(0, blob.size, 'application/pdf'));
+      window.open(url, '_blank');
+    } catch (error) {
+      setToast({
+        message: t('Something went wrong while generating your report.'),
+        variant: 'danger',
+      });
+    } finally {
+      onPrintTriggered();
+    }
   };
 
   return {
