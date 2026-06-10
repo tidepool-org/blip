@@ -14,6 +14,7 @@ import isFunction from 'lodash/isFunction';
 import keys from 'lodash/keys';
 import map from 'lodash/map';
 import max from 'lodash/max';
+import maxBy from 'lodash/maxBy';
 import noop from 'lodash/noop';
 import orderBy from 'lodash/orderBy';
 import reduce from 'lodash/reduce';
@@ -178,6 +179,17 @@ export const getCurrentDataSourceForProvider = (patient, providerName) => {
 };
 
 /**
+ * Return the meaningful connection request for a provider. A provider can carry more than one
+ * request in edge cases; newer requests supersede older ones, so only the most recently created
+ * request is meaningful. Selecting by createdTime keeps this correct independent of array order.
+ *
+ * @param {Object} patient
+ * @param {String} providerName
+ */
+export const getCurrentConnectionRequestForProvider = (patient, providerName) =>
+  maxBy(patient?.connectionRequests?.[providerName], request => moment.utc(request.createdTime).valueOf());
+
+/**
  * Derive a single connectState identifier for a provider by joining
  * patient.dataSources with patient.connectionRequests[providerName]:
  *
@@ -196,7 +208,7 @@ export const getCurrentDataSourceForProvider = (patient, providerName) => {
  */
 export const resolveConnectState = (patient, providerName, now = moment.utc().toISOString()) => {
   const dataSource = getCurrentDataSourceForProvider(patient, providerName);
-  const connectionRequest = patient?.connectionRequests?.[providerName]?.[0];
+  const connectionRequest = getCurrentConnectionRequestForProvider(patient, providerName);
   const requestExpired = !!connectionRequest?.expirationTime
     && moment(connectionRequest.expirationTime).isBefore(now);
 
@@ -226,7 +238,7 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
       dataSource?.modifiedTime,
     ]) : max([
       dataSource?.modifiedTime,
-      patient?.connectionRequests?.[providerName]?.[0]?.createdTime
+      getCurrentConnectionRequestForProvider(patient, providerName)?.createdTime
     ]);
 
   let timeAgo;

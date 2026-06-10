@@ -237,6 +237,31 @@ describe('resolveConnectState', () => {
     };
     expect(resolveConnectState(patient, 'dexcom', NOW)).to.equal('pending');
   });
+
+  it('uses the newest request when multiple exist, regardless of array order', () => {
+    // An older expired request and a newer non-expired request. The newest supersedes,
+    // so the state is driven by the non-expired request — even when it is not first.
+    const olderExpired = { providerName: 'dexcom', createdTime: past(60), expirationTime: past(30) };
+    const newerValid = { providerName: 'dexcom', createdTime: past(2), expirationTime: future(28) };
+
+    expect(resolveConnectState({
+      connectionRequests: { dexcom: [olderExpired, newerValid] },
+    }, 'dexcom', NOW)).to.equal('pending');
+
+    // Same set, reversed order — selection must not depend on index [0].
+    expect(resolveConnectState({
+      connectionRequests: { dexcom: [newerValid, olderExpired] },
+    }, 'dexcom', NOW)).to.equal('pending');
+  });
+
+  it('reports pendingExpired when the newest request is the expired one', () => {
+    const olderValidByExpiry = { providerName: 'dexcom', createdTime: past(60), expirationTime: future(5) };
+    const newerExpired = { providerName: 'dexcom', createdTime: past(2), expirationTime: past(1) };
+
+    expect(resolveConnectState({
+      connectionRequests: { dexcom: [olderValidByExpiry, newerExpired] },
+    }, 'dexcom', NOW)).to.equal('pendingExpired');
+  });
 });
 
 describe('getCurrentDataSourceForProvider', () => {
