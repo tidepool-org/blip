@@ -11,9 +11,9 @@ import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
 import moment from 'moment';
 
-import usePrintPDF, { STATUS } from '@app/pages/clinicworkspace/ClinicPatientsPrintModal/usePrintPDF/usePrintPDF';
+import usePrintPDF, { STATUS } from '@app/core/usePrintPDF/usePrintPDF';
+import usePrintWindow from '@app/core/usePrintPDF/usePrintWindow';
 import * as actions from '@app/redux/actions';
-import usePrintWindow from '@app/pages/clinicworkspace/ClinicPatientsPrintModal/usePrintPDF/usePrintWindow';
 import { useGenerateAGPImages } from '@app/core/agpUtils';
 
 const mockStore = configureStore([thunk]);
@@ -30,7 +30,7 @@ jest.mock('@app/redux/actions', () => ({
   },
 }));
 
-jest.mock('@app/pages/clinicworkspace/ClinicPatientsPrintModal/usePrintPDF/usePrintWindow');
+jest.mock('@app/core/usePrintPDF/usePrintWindow');
 jest.mock('@app/core/agpUtils');
 
 const mockOpenPrintWindow = jest.fn();

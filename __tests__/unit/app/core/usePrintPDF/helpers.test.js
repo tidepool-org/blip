@@ -5,7 +5,7 @@
 /* global beforeEach */
 /* global context */
 
-import getQueries from '@app/pages/clinicworkspace/ClinicPatientsPrintModal/usePrintPDF/getQueries';
+import { getQueries } from '@app/core/usePrintPDF/helpers';
 import utils from '@app/core/utils';
 import { getStatsByChartType } from '@app/core/dataViewUtils';
 import { DEFAULT_GLYCEMIC_RANGES } from '@app/core/glycemicRangesUtils';

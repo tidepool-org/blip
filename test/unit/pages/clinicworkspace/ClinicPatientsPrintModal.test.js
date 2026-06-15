@@ -4,11 +4,11 @@ import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
 import { thunk } from 'redux-thunk';
 
-import ClinicPatientsPrintModal from '../../../../app/pages/clinicworkspace/ClinicPatientsPrintModal/ClinicPatientsPrintModal';
-import { ToastProvider } from '../../../../app/providers/ToastProvider';
-import usePrintPDF, { STATUS } from '../../../../app/pages/clinicworkspace/ClinicPatientsPrintModal/usePrintPDF';
+import ClinicPatientsPrintModal from '@app/pages/clinicworkspace/ClinicPatientsPrintModal/ClinicPatientsPrintModal';
+import { ToastProvider } from '@app/providers/ToastProvider';
+import usePrintPDF, { STATUS } from '@app/core/usePrintPDF';
 
-jest.mock('../../../../app/pages/clinicworkspace/ClinicPatientsPrintModal/usePrintPDF');
+jest.mock('@app/core/usePrintPDF');
 
 const mockStore = configureStore([thunk]);
 

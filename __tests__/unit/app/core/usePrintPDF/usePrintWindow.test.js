@@ -1,10 +1,10 @@
 import { renderHook } from '@testing-library/react-hooks';
 import { act } from '@testing-library/react';
-import { useToasts } from '../../../../../app/providers/ToastProvider';
-import usePrintWindow from '../../../../../app/pages/clinicworkspace/ClinicPatientsPrintModal/usePrintPDF/usePrintWindow';
+import { useToasts } from '@app/providers/ToastProvider';
+import usePrintWindow from '@app/core/usePrintPDF/usePrintWindow';
 
-jest.mock('../../../../../app/providers/ToastProvider', () => {
-  const actual = jest.requireActual('../../../../../app/providers/ToastProvider');
+jest.mock('@app/providers/ToastProvider', () => {
+  const actual = jest.requireActual('@app/providers/ToastProvider');
   return {
     ...actual,
     useToasts: jest.fn(),

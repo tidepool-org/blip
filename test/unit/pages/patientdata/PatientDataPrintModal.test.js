@@ -4,11 +4,11 @@ import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
 import { thunk } from 'redux-thunk';
 
-import PatientDataPrintModal from '../../../../app/pages/patientdata/PatientDataPrintModal';
-import usePrintPDF, { STATUS } from '../../../../app/pages/clinicworkspace/ClinicPatientsPrintModal/usePrintPDF';
-import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE } from '../../../../app/core/constants';
+import PatientDataPrintModal from '@app/pages/patientdata/PatientDataPrintModal';
+import usePrintPDF, { STATUS } from '@app/core/usePrintPDF';
+import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE } from '@app/core/constants';
 
-jest.mock('../../../../app/pages/clinicworkspace/ClinicPatientsPrintModal/usePrintPDF');
+jest.mock('@app/core/usePrintPDF');
 
 const mockStore = configureStore([thunk]);
 
