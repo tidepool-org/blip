@@ -34,7 +34,7 @@ jest.mock('@app/pages/clinicworkspace/ClinicPatientsPrintModal/usePrintPDF/usePr
 jest.mock('@app/core/agpUtils');
 
 const mockOpenPrintWindow = jest.fn();
-const mockTriggerPrint = jest.fn();
+const mockOpenPDF = jest.fn();
 const mockGenerateAGPImages = jest.fn();
 
 describe('usePrintPDF', () => {
@@ -49,7 +49,7 @@ describe('usePrintPDF', () => {
 
     usePrintWindow.mockReturnValue({
       openPrintWindow: mockOpenPrintWindow,
-      triggerPrint: mockTriggerPrint,
+      openPDF: mockOpenPDF,
     });
 
     useGenerateAGPImages.mockReturnValue(mockGenerateAGPImages);
@@ -423,7 +423,7 @@ describe('usePrintPDF', () => {
       );
 
       expect(result.current.status).toBe(STATUS.TRIGGERING_PRINT);
-      expect(mockTriggerPrint).toHaveBeenCalledWith(store.getState().blip.pdf);
+      expect(mockOpenPDF).toHaveBeenCalledWith(store.getState().blip.pdf);
     });
   });
 });

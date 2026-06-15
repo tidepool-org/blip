@@ -78,7 +78,7 @@ describe('usePrintWindow', () => {
     });
   });
 
-  describe('triggerPrint', () => {
+  describe('openPDF', () => {
     it('reuses an existing open window by setting its location href', async () => {
       const { result } = renderHook(() => usePrintWindow());
 
@@ -87,14 +87,12 @@ describe('usePrintWindow', () => {
       const pdf = { combined: { url: 'blob:tidepool.test/abcd-1234-efgh-7689' } };
 
       act(() => {
-        result.current.triggerPrint(pdf);
+        result.current.openPDF(pdf);
         jest.runAllTimers();
       });
 
       expect(window.open).toHaveBeenCalledTimes(1);
       expect(mockWindow.location.href).toBe(pdf.combined.url);
-      expect(mockWindow.focus).toHaveBeenCalled();
-      expect(mockWindow.print).toHaveBeenCalled();
     });
 
     it('opens a new window with the pdf url when no window is currently open', async () => {
@@ -103,13 +101,11 @@ describe('usePrintWindow', () => {
       const pdf = { combined: { url: 'blob:tidepool.test/abcd-1234-efgh-7689' } };
 
       act(() => {
-        result.current.triggerPrint(pdf);
+        result.current.openPDF(pdf);
         jest.runAllTimers();
       });
 
       expect(window.open).toHaveBeenCalledWith(pdf.combined.url);
-      expect(mockWindow.focus).toHaveBeenCalled();
-      expect(mockWindow.print).toHaveBeenCalled();
     });
 
     it('shows a warning toast with a retry action when the window is blocked by a popup blocker', async () => {
@@ -119,7 +115,7 @@ describe('usePrintWindow', () => {
       const pdf = { combined: { url: 'blob:tidepool.test/abcd-1234-efgh-7689' } };
 
       act(() => {
-        result.current.triggerPrint(pdf);
+        result.current.openPDF(pdf);
         jest.runAllTimers();
       });
 
