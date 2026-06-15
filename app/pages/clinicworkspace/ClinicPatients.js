@@ -433,18 +433,22 @@ const MoreMenu = ({
         handleEditPatientDataConnections(patient);
       },
       text: t('Bring Data into Tidepool'),
-    }, {
-      icon: PrintRoundedIcon,
-      iconLabel: t('Print Patient Data'),
-      iconPosition: 'left',
-      id: `print-patient-data-${patient.id}`,
-      variant: 'actionListItem',
-      onClick: (_popupState) => {
-        _popupState.close();
-        handlePrintPatientData(patient);
-      },
-      text: t('Print Report'),
     });
+
+    if (patient?.summary) {
+      arr.push({
+        icon: PrintRoundedIcon,
+        iconLabel: t('Print Patient Data'),
+        iconPosition: 'left',
+        id: `print-patient-data-${patient.id}`,
+        variant: 'actionListItem',
+        onClick: (_popupState) => {
+          _popupState.close();
+          handlePrintPatientData(patient);
+        },
+        text: t('Print Report'),
+      });
+    }
 
     if (showSummaryData && patient.email && !patient.permissions?.custodian) {
       arr.push({
@@ -475,6 +479,7 @@ const MoreMenu = ({
         text: t('Remove Patient'),
       });
     }
+
     return arr;
   }, [
     handleEditPatient,
