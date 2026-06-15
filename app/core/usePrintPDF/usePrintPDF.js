@@ -1,26 +1,21 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import * as actions from '../../../../redux/actions';
-import moment from 'moment';
+import * as actions from '../../redux/actions';
+import noop from 'lodash/noop';
+import utils from '../utils';
+import personUtils from '../personutils';
+import { useGenerateAGPImages } from '../agpUtils';
+import { selectPatient, selectUser } from '../selectors';
 import usePrintWindow from './usePrintWindow';
 
-import { utils as vizUtils } from '@tidepool/viz';
-const { getTimezoneFromTimePrefs } = vizUtils.datetime;
-import utils from '../../../../core/utils';
-import personUtils from '../../../../core/personutils';
-
-import getQueries from './getQueries';
-
-import noop from 'lodash/noop';
-import get from 'lodash/get';
-import filter from 'lodash/filter';
-import min from 'lodash/min';
-import at from 'lodash/at';
-import map from 'lodash/map';
-import keys from 'lodash/keys';
-import { useGenerateAGPImages } from '../../../../core/agpUtils';
-import { selectPatient, selectUser } from '../../../../core/selectors';
-import { DEFAULT_CGM_SAMPLE_INTERVAL, MS_IN_MIN } from '../../../../core/constants';
+import {
+  getInitialFetchOpts,
+  getMainFetchOpts,
+  getEarliestPrintDate,
+  getPdfOpts,
+  getFetchedUntil,
+  getQueries,
+} from './helpers';
 
 export const STATUS = {
   // States in order of happy path AGP generation sequence
@@ -70,65 +65,6 @@ const inferLastCompletedStep = (requestId, patientId, data, patient, pdf, hasCli
   if (hasModalDataInState)   return STATUS.AWAITING_INPUT;
 
   return STATUS.FETCHING_MODAL_DATA;
-};
-
-const getInitialFetchOpts = () => ({
-  initial: true,
-  forceDataWorkerAddDataRequest: true,
-  returnData: false,
-  useCache: false,
-});
-
-const getMainFetchOpts = (timePrefs, opts, fetchedUntil) => {
-  const enabledOpts = filter(opts, { disabled: false });
-  const earliestPrintDate = min(at(enabledOpts, map(keys(enabledOpts), key => `${key}.endpoints.0`)));
-
-  const startDate = moment.utc(earliestPrintDate).tz(getTimezoneFromTimePrefs(timePrefs)).toISOString();
-
-  const endDate = fetchedUntil
-    ? moment.utc(fetchedUntil).subtract(1, 'milliseconds').toISOString()
-    : moment.utc().add(1, 'days').toISOString();
-
-  const sampleIntervalMinimum = opts.daily?.cgmSampleIntervalRange?.[0] || DEFAULT_CGM_SAMPLE_INTERVAL;
-
-  return {
-    initial: false,
-    startDate,
-    endDate,
-    returnData: false,
-    forceDataWorkerAddDataRequest: true,
-    useCache: false,
-    sampleIntervalMinimum,
-  };
-};
-
-const getEarliestPrintDate = (printOpts, timePrefs) => {
-  const enabledOpts = filter(printOpts, { disabled: false });
-  const earliestPrintDate = min(at(enabledOpts, map(keys(enabledOpts), key => `${key}.endpoints.0`)));
-  const startDate = moment.utc(earliestPrintDate).tz(getTimezoneFromTimePrefs(timePrefs)).toISOString();
-
-  return startDate;
-};
-
-const getPdfOpts = (printOpts, user, patient, clinicPatient) => {
-  const combinedPatient = clinicPatient ? personUtils.combinedAccountAndClinicPatient(patient, clinicPatient) : null;
-  const sourcePatient = personUtils.isClinicianAccount(user) && !!combinedPatient ? combinedPatient : patient;
-  const patientSettings = patient?.settings || {};
-  const siteChangeSource = patient?.settings?.siteChangeSource;
-
-  const pdfPatient = {
-    ...sourcePatient,
-    id: clinicPatient?.id || patient?.id,
-    settings: { ...patientSettings, siteChangeSource },
-  };
-
-  return { ...printOpts, patient: pdfPatient };
-};
-
-const getFetchedUntil = (data, printOpts) => {
-  return printOpts?.daily?.cgmSampleIntervalRange?.[0] === MS_IN_MIN
-    ? get(data, 'oneMinCgmFetchedUntil') || moment.utc().toISOString()
-    : get(data, 'fetchedUntil');
 };
 
 const usePrintPDF = (

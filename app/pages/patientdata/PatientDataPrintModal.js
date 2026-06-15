@@ -6,7 +6,7 @@ import noop from 'lodash/noop';
 import { getMostRecentDatumTimeByChartType } from '../../core/dataViewUtils';
 import * as actions from '../../redux/actions';
 
-import usePrintPDF from './../../pages/clinicworkspace/ClinicPatientsPrintModal/usePrintPDF';
+import usePrintPDF from '../../core/usePrintPDF';
 import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE } from '../../core/constants';
 import { trackMetric } from '../../core/metricUtils';
 

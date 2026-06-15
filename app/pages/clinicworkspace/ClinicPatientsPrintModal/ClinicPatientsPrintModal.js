@@ -8,7 +8,7 @@ import { components as vizComponents } from '@tidepool/viz';
 const { Loader } = vizComponents;
 import { getMostRecentDatumTimeByChartType } from '../../../core/dataViewUtils';
 
-import usePrintPDF, { STATUS } from './usePrintPDF';
+import usePrintPDF, { STATUS } from '../../../core/usePrintPDF';
 import { useTranslation } from 'react-i18next';
 import { useToasts } from '../../../providers/ToastProvider';
 import { trackMetric } from '../../../core/metricUtils';

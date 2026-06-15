@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useToasts } from '../../../../providers/ToastProvider';
-import Button from '../../../../components/elements/Button';
+import { useToasts } from '../../providers/ToastProvider';
+import Button from '../../components/elements/Button';
 
 const usePrintWindow = () => {
   const { t } = useTranslation();
