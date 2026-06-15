@@ -36,11 +36,12 @@ const PatientDataPrintModal = ({ api, patientId, chartPrefs = {}, onClose = noop
 
   const { latestDatumByType, timePrefs } = modalData;
 
-  if (!latestDatumByType || !timePrefs) return null;
+  const isLoading = !latestDatumByType || !timePrefs;
 
   return (
     <PrintDateRangeModal
       open
+      isLoading={isLoading}
       id="print-dialog"
       loggedInUserId={loggedInUserId}
       mostRecentDatumDates={{

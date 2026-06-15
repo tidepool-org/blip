@@ -21,7 +21,7 @@ const LoadingModal = ({ onClose = noop }) => {
       <DialogTitle divider={true} onClose={onClose}>
         <MediumTitle>{t('Print Report')}</MediumTitle>
       </DialogTitle>
-      <DialogContent divider={false} sx={{ minWidth: '768px', minHeight: '360px' }} pt={3} px={3}>
+      <DialogContent divider={false} sx={{ minWidth: '768px', minHeight: '540px' }} pt={3} px={3}>
         <Loader show />
       </DialogContent>
     </Dialog>
@@ -53,11 +53,12 @@ const ClinicPatientsPrintModal = ({ api, patientId, onClose = noop }) => {
 
   const { latestDatumByType, timePrefs } = modalData;
 
-  if (!latestDatumByType || !timePrefs) return <LoadingModal onClose={onClose} />;
+  const isLoading = !latestDatumByType || !timePrefs;
 
   return (
     <PrintDateRangeModal
       open
+      isLoading={isLoading}
       id="print-dialog"
       loggedInUserId={loggedInUserId}
       mostRecentDatumDates={{

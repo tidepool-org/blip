@@ -9,6 +9,8 @@ import { Flex, Box, Text } from 'theme-ui';
 import { Switch } from 'theme-ui';
 import moment from 'moment-timezone';
 import { Element, scroller } from 'react-scroll';
+import { components as vizComponents } from '@tidepool/viz';
+const { Loader } = vizComponents;
 
 import Button from './elements/Button';
 import DateRangePicker from './elements/DateRangePicker';
@@ -34,7 +36,7 @@ const {
 
 const t = i18next.t.bind(i18next);
 
-export const PrintDateRangeModal = (props) => {
+export const MainContent = (props) => {
   const {
     maxDays,
     mostRecentDatumDates,
@@ -352,10 +354,7 @@ export const PrintDateRangeModal = (props) => {
   }, [enabled, dates]);
 
   return (
-    <Dialog id="printDateRangePicker" PaperProps={{ id: 'printDateRangePickerInner'}} maxWidth="md" open={open} onClose={handleClose}>
-      <DialogTitle divider={true} onClose={handleClose}>
-        <MediumTitle>{t('Print Report')}</MediumTitle>
-      </DialogTitle>
+    <>
       <DialogContent divider={false} sx={{ minWidth: '768px' }} pt={3} px={3}>
         {map(panels, panel => (
           <Element name={`${panel.key}-wrapper`}>
@@ -481,11 +480,11 @@ export const PrintDateRangeModal = (props) => {
           {t('Print')}
         </Button>
       </DialogActions>
-    </Dialog>
+    </>
   );
 };
 
-PrintDateRangeModal.propTypes = {
+MainContent.propTypes = {
   maxDays: PropTypes.number.isRequired,
   mostRecentDatumDates: PropTypes.shape({
     agpBGM: PropTypes.number,
@@ -506,7 +505,7 @@ PrintDateRangeModal.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-PrintDateRangeModal.defaultProps = {
+MainContent.defaultProps = {
   maxDays: 90,
   onClickPrint: noop,
   onClose: noop,
@@ -514,4 +513,26 @@ PrintDateRangeModal.defaultProps = {
   trackMetric: noop,
 };
 
-export default PrintDateRangeModal;
+export const LoadingContent = () => (
+  <DialogContent divider={false} sx={{ minWidth: '768px', minHeight: '540px' }} pt={3} px={3}>
+    <Loader show />
+  </DialogContent>
+)
+
+export const ModalWrapper = (props) => {
+  const { isLoading = false, open = false, onClose = noop } = props;
+
+  return (
+    <Dialog id="printDateRangePicker" PaperProps={{ id: 'printDateRangePickerInner'}} maxWidth="md" open={open} onClose={onClose}>
+      <DialogTitle divider={true} onClose={onClose}>
+        <MediumTitle>{t('Print Report')}</MediumTitle>
+      </DialogTitle>
+      { isLoading
+        ? <LoadingContent />
+        : <MainContent {...props} />
+      }
+    </Dialog>
+  )
+}
+
+export default ModalWrapper;
