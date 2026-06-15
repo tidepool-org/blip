@@ -355,7 +355,7 @@ export const MainContent = (props) => {
 
   return (
     <>
-      <DialogContent divider={false} sx={{ minWidth: '768px' }} pt={3} px={3}>
+      <DialogContent divider={false} sx={{ minWidth: '766px' }} pt={3} px={3}>
         {map(panels, panel => (
           <Element name={`${panel.key}-wrapper`}>
             <Box
@@ -514,7 +514,7 @@ MainContent.defaultProps = {
 };
 
 export const LoadingContent = () => (
-  <DialogContent divider={false} sx={{ minWidth: '768px', minHeight: '540px' }} pt={3} px={3}>
+  <DialogContent divider={false} sx={{ minWidth: '766px', minHeight: '540px' }} pt={3} px={3}>
     <Loader show />
   </DialogContent>
 )
