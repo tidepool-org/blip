@@ -57,7 +57,6 @@ const ClinicPatientsPrintModal = ({ api, patientId, onClose = noop }) => {
       open
       isLoading={isLoading}
       metricSource={'Clinic Patient List View'}
-      id="print-dialog"
       mostRecentDatumDates={{
         agpBGM: getMostRecentDatumTimeByChartType(latestDatumByType, 'agpBGM'),
         agpCGM: getMostRecentDatumTimeByChartType(latestDatumByType, 'agpCGM'),
