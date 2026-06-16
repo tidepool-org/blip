@@ -7,13 +7,16 @@ import userEvent from '@testing-library/user-event';
 import configureStore from 'redux-mock-store';
 import { ThemeProvider } from 'theme-ui';
 import { utils as vizUtils } from '@tidepool/viz';
-import theme from '../../../../app/themes/baseTheme';
-import EditPatientDialog from '../../../../app/components/navpatientheader/EditPatientDialog';
-import { ToastProvider } from '../../../../app/providers/ToastProvider';
-import { buildGlycemicRangesFromPreset } from '../../../../app/core/glycemicRangesUtils';
-import { GLYCEMIC_RANGE_OPTS } from '../../../../app/components/clinic/PatientForm/SelectGlycemicRanges';
-import { MGDL_UNITS } from '../../../../app/core/constants';
+import theme from '@app/themes/baseTheme';
+import EditPatientDialog from '@app/components/navpatientheader/EditPatientDialog';
+import { ToastProvider } from '@app/providers/ToastProvider';
+import { buildGlycemicRangesFromPreset } from '@app/core/glycemicRangesUtils';
+import { GLYCEMIC_RANGE_OPTS } from '@app/components/clinic/PatientForm/SelectGlycemicRanges';
+import { MGDL_UNITS } from '@app/core/constants';
+import { usePrevious } from '@app/core/hooks';
 const { GLYCEMIC_RANGES_PRESET } = vizUtils.constants;
+
+const mockStore = configureStore([thunk]);
 
 jest.mock('@app/core/hooks', () => ({
   ...jest.requireActual('@app/core/hooks'),
@@ -107,8 +110,6 @@ describe('EditPatientDialog', () => {
   // clinic patient, the dialog is closed (isOpen=false) but still fires dataWorkerRemoveDataRequest,
   // wiping the patient-data view. It should only clear the cache for updates it initiated.
   describe('data worker cache on a foreign clinic-patient update', () => {
-    const { usePrevious } = require('../../../../app/core/hooks');
-
     // updatingClinicPatient just transitioned inProgress -> completed
     const justCompletedUpdateState = {
       blip: {
@@ -160,11 +161,6 @@ describe('EditPatientDialog', () => {
   // only data-affecting field in the edit form. A no-data patient has nothing to reprocess and clearing
   // the worker would strand its view on the loader, so it must be skipped there.
   describe('clearing chart data only when a data-affecting field changed and chart data exists', () => {
-    const mockStore = configureStore([thunk]);
-    const { usePrevious } = require('../../../../app/core/hooks');
-
-    // RANGE_A is the form's default (ADA Standard); RANGE_B is an alternate preset. Their option
-    // labels are how the clinician picks them from the Target Range dropdown.
     const RANGE_A = buildGlycemicRangesFromPreset(GLYCEMIC_RANGES_PRESET.ADA_STANDARD);
     const RANGE_B = buildGlycemicRangesFromPreset(GLYCEMIC_RANGES_PRESET.ADA_OLDER_HIGH_RISK);
     const RANGE_A_LABEL = GLYCEMIC_RANGE_OPTS[MGDL_UNITS][0].label;
