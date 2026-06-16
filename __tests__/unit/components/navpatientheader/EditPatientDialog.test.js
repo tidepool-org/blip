@@ -69,7 +69,7 @@ const renderEditPatientDialog = (storeState = initialState) => {
 };
 
 describe('EditPatientDialog', () => {
-  it('sets isReadOnly=true and disables save button when smartCorrelationId is present', () => {
+  it('sets read-only fields disabled and disables save button when smartCorrelationId is present', () => {
     const smartOnFhirState = {
       blip: {
         ...initialState.blip,
@@ -79,7 +79,6 @@ describe('EditPatientDialog', () => {
 
     renderEditPatientDialog(smartOnFhirState);
 
-    // Every isReadOnly-gated field rendered by PatientForm should be disabled.
     expect(screen.getByRole('textbox', { name: /Full Name/i })).toBeDisabled();
     expect(screen.getByRole('textbox', { name: /Birthdate/i })).toBeDisabled();
     expect(screen.getByRole('textbox', { name: /MRN/i })).toBeDisabled();
@@ -92,10 +91,9 @@ describe('EditPatientDialog', () => {
     expect(saveButton).toBeDisabled();
   });
 
-  it('sets isReadOnly=false when smartCorrelationId is absent', () => {
+  it('sets read-only fields enabled when smartCorrelationId is absent', () => {
     renderEditPatientDialog(initialState);
 
-    // Every isReadOnly-gated field rendered by PatientForm should be enabled.
     expect(screen.getByRole('textbox', { name: /Full Name/i })).not.toBeDisabled();
     expect(screen.getByRole('textbox', { name: /Birthdate/i })).not.toBeDisabled();
     expect(screen.getByRole('textbox', { name: /MRN/i })).not.toBeDisabled();
@@ -168,8 +166,6 @@ describe('EditPatientDialog', () => {
     const IDLE_UPDATE = { inProgress: false, completed: null, notification: null };
     const COMPLETED_UPDATE = { inProgress: false, completed: true, notification: null };
 
-    // savedRange is the patient's currently-stored Target Range (the comparison baseline);
-    // chartDataSize seeds the data worker's metaData.size (0 = a no-data patient).
     const makeState = ({ savedRange, chartDataSize, updatingClinicPatient }) => ({
       blip: {
         ...initialState.blip,
