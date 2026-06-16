@@ -506,7 +506,6 @@ MainContent.propTypes = {
     timezoneAware: PropTypes.bool,
     timezoneName: PropTypes.string,
   }),
-  trackMetric: PropTypes.func.isRequired,
 };
 
 MainContent.defaultProps = {
@@ -514,7 +513,6 @@ MainContent.defaultProps = {
   onClickPrint: noop,
   onClose: noop,
   onDatesChange: noop,
-  trackMetric: noop,
 };
 
 export const LoadingContent = () => (
