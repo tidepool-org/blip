@@ -522,11 +522,16 @@ export const LoadingContent = () => (
 )
 
 export const ModalWrapper = (props) => {
-  const { isLoading = false, open = false, onClose = noop } = props;
+  const { isLoading = false, processing = false, open = false, onClose = noop } = props;
+
+  const handleClose = () => {
+    if (processing) return;
+    onClose();
+  }
 
   return (
-    <Dialog id="printDateRangePicker" PaperProps={{ id: 'printDateRangePickerInner'}} maxWidth="md" open={open} onClose={onClose}>
-      <DialogTitle divider={true} onClose={onClose}>
+    <Dialog id="printDateRangePicker" PaperProps={{ id: 'printDateRangePickerInner'}} maxWidth="md" open={open} onClose={handleClose}>
+      <DialogTitle divider={true} onClose={handleClose}>
         <MediumTitle>{t('Print Report')}</MediumTitle>
       </DialogTitle>
       { isLoading
