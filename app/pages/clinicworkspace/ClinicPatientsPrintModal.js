@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import PrintDateRangeModal from '../../../components/PrintDateRangeModal';
+import PrintDateRangeModal from '../../components/PrintDateRangeModal';
 import noop from 'lodash/noop';
-import { Dialog, DialogTitle, DialogContent } from '../../../components/elements/Dialog';
-import { MediumTitle } from '../../../components/elements/FontStyles';
+import { Dialog, DialogTitle, DialogContent } from '../../components/elements/Dialog';
+import { MediumTitle } from '../../components/elements/FontStyles';
 import { components as vizComponents } from '@tidepool/viz';
 const { Loader } = vizComponents;
-import { getMostRecentDatumTimeByChartType } from '../../../core/dataViewUtils';
+import { getMostRecentDatumTimeByChartType } from '../../core/dataViewUtils';
 
-import usePrintPDF, { STATUS } from '../../../core/usePrintPDF';
+import usePrintPDF, { STATUS } from '../../core/usePrintPDF';
 import { useTranslation } from 'react-i18next';
-import { useToasts } from '../../../providers/ToastProvider';
-import { trackMetric } from '../../../core/metricUtils';
+import { useToasts } from '../../providers/ToastProvider';
 
 const LoadingModal = ({ onClose = noop }) => {
   const { t } = useTranslation();

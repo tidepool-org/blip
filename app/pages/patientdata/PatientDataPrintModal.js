@@ -8,7 +8,6 @@ import * as actions from '../../redux/actions';
 
 import usePrintPDF from '../../core/usePrintPDF';
 import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE } from '../../core/constants';
-import { trackMetric } from '../../core/metricUtils';
 
 const PatientDataPrintModal = ({ api, patientId, chartPrefs = {}, onClose = noop }) => {
   const dispatch = useDispatch();

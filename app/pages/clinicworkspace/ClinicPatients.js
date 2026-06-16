@@ -119,7 +119,7 @@ import Banner from '../../components/elements/Banner';
 import colorPalette from '../../themes/colorPalette';
 import noop from 'lodash/noop';
 import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils';
-import ClinicPatientsPrintModal from './ClinicPatientsPrintModal/ClinicPatientsPrintModal';
+import ClinicPatientsPrintModal from './ClinicPatientsPrintModal';
 
 const { Loader } = vizComponents;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels, formatBgValue } = vizUtils.bg;

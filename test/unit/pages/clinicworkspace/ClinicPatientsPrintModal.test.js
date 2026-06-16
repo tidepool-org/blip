@@ -4,7 +4,7 @@ import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
 import { thunk } from 'redux-thunk';
 
-import ClinicPatientsPrintModal from '@app/pages/clinicworkspace/ClinicPatientsPrintModal/ClinicPatientsPrintModal';
+import ClinicPatientsPrintModal from '@app/pages/clinicworkspace/ClinicPatientsPrintModal';
 import { ToastProvider } from '@app/providers/ToastProvider';
 import usePrintPDF, { STATUS } from '@app/core/usePrintPDF';
 
