@@ -3362,6 +3362,7 @@ describe('PatientData', function () {
       instance.handleClickPrint();
 
       sinon.assert.calledWith(defaultProps.trackMetric, 'Clicked Print', {
+        source: 'Patient Data View',
         fromChart: instance.state.chartType,
       });
     });
