@@ -1126,7 +1126,7 @@ export const PatientDataClass = createReactClass({
   },
 
   handleClickPrint: function() {
-    const metricProps = { fromChart: this.state.chartType };
+    const metricProps = { source: 'Patient Data View', fromChart: this.state.chartType };
 
     if (_.includes(['basics', 'daily', 'trends'], this.state.chartType)) {
       const bgSource = _.get(this.state.chartPrefs, [this.state.chartType, 'bgSource']);

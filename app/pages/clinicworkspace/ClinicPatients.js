@@ -444,6 +444,7 @@ const MoreMenu = ({
         variant: 'actionListItem',
         onClick: (_popupState) => {
           _popupState.close();
+          trackMetric('Clicked Print', { source: 'Clinic Patient List View' })
           handlePrintPatientData(patient);
         },
         text: t('Print Report'),
