@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import _ from 'lodash';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import PrintDateRangeModal from '../../components/PrintDateRangeModal';
 import noop from 'lodash/noop';
 import { getMostRecentDatumTimeByChartType } from '../../core/dataViewUtils';
@@ -12,7 +12,6 @@ import { trackMetric } from '../../core/metricUtils';
 
 const PatientDataPrintModal = ({ api, patientId, chartPrefs = {}, onClose = noop }) => {
   const dispatch = useDispatch();
-  const loggedInUserId = useSelector(state => state.blip.loggedInUserId);
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
@@ -42,8 +41,8 @@ const PatientDataPrintModal = ({ api, patientId, chartPrefs = {}, onClose = noop
     <PrintDateRangeModal
       open
       isLoading={isLoading}
+      metricSource={'Patient Data View'}
       id="print-dialog"
-      loggedInUserId={loggedInUserId}
       mostRecentDatumDates={{
         agpBGM: getMostRecentDatumTimeByChartType(latestDatumByType, 'agpBGM'),
         agpCGM: getMostRecentDatumTimeByChartType(latestDatumByType, 'agpCGM'),
@@ -55,7 +54,6 @@ const PatientDataPrintModal = ({ api, patientId, chartPrefs = {}, onClose = noop
       onClickPrint={handleClickPrint}
       processing={!canPrint || isProcessing}
       timePrefs={timePrefs}
-      trackMetric={trackMetric}
     />
   );
 };

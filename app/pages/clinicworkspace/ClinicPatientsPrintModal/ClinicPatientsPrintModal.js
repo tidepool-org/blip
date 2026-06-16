@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
 import PrintDateRangeModal from '../../../components/PrintDateRangeModal';
 import noop from 'lodash/noop';
 import { Dialog, DialogTitle, DialogContent } from '../../../components/elements/Dialog';
@@ -31,7 +30,6 @@ const LoadingModal = ({ onClose = noop }) => {
 const ClinicPatientsPrintModal = ({ api, patientId, onClose = noop }) => {
   const { t } = useTranslation();
   const { set: setToast } = useToasts();
-  const loggedInUserId = useSelector(state => state.blip.loggedInUserId);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const { status, modalData, canPrint, print } = usePrintPDF(api, patientId, onClose);
@@ -59,8 +57,8 @@ const ClinicPatientsPrintModal = ({ api, patientId, onClose = noop }) => {
     <PrintDateRangeModal
       open
       isLoading={isLoading}
+      metricSource={'Clinic Patient List View'}
       id="print-dialog"
-      loggedInUserId={loggedInUserId}
       mostRecentDatumDates={{
         agpBGM: getMostRecentDatumTimeByChartType(latestDatumByType, 'agpBGM'),
         agpCGM: getMostRecentDatumTimeByChartType(latestDatumByType, 'agpCGM'),
@@ -72,7 +70,6 @@ const ClinicPatientsPrintModal = ({ api, patientId, onClose = noop }) => {
       onClickPrint={handleClickPrint}
       processing={!canPrint || isProcessing}
       timePrefs={timePrefs}
-      trackMetric={trackMetric}
     />
   );
 };

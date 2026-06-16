@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import filter from 'lodash/filter';
 import get from 'lodash/get';
@@ -11,6 +12,7 @@ import moment from 'moment-timezone';
 import { Element, scroller } from 'react-scroll';
 import { components as vizComponents } from '@tidepool/viz';
 const { Loader } = vizComponents;
+import { trackMetric } from '../core/metricUtils';
 
 import Button from './elements/Button';
 import DateRangePicker from './elements/DateRangePicker';
@@ -46,9 +48,10 @@ export const MainContent = (props) => {
     open,
     processing,
     timePrefs,
-    trackMetric,
-    loggedInUserId,
+    metricSource,
   } = props;
+
+  const loggedInUserId = useSelector(state => state.blip.loggedInUserId);
 
   const { timezoneName = 'UTC' } = timePrefs;
 
@@ -316,6 +319,7 @@ export const MainContent = (props) => {
     };
 
     const metrics = {
+      source: metricSource || 'Unknown',
       agpBGM: printOpts.agpBGM.disabled ? 'disabled' : getDateRangeMetric(presetDaysOptions.agpBGM, 'agpBGM'),
       agpCGM: printOpts.agpCGM.disabled ? 'disabled' : getDateRangeMetric(presetDaysOptions.agpCGM, 'agpCGM'),
       basics: printOpts.basics.disabled ? 'disabled' : getDateRangeMetric(presetDaysOptions.basics, 'basics'),
