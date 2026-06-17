@@ -101,6 +101,8 @@ const usePrintPDF = (
   const lastCompletedStep = inferLastCompletedStep(requestId, patientId, data, patient, pdf, hasClickedPrint, hasFetchedPDFData);
 
   useEffect(() => {
+    let printTriggerTimeout;
+
     // Whenever a step is successfully completed, this effect triggers the next step in the sequence.
 
     switch(lastCompletedStep) {
@@ -151,13 +153,16 @@ const usePrintPDF = (
         if (pdf?.opts?.requestId === requestId) {
           openPDF(pdf);
         }
-        setTimeout(() => { // Delay closing modal so popup window can navigate to PDF before unmount
+        // Delay closing modal so popup window can navigate to PDF before unmount
+        printTriggerTimeout = setTimeout(() => {
           onPrintTriggered();
         }, 100);
 
       default:
         break;
     }
+
+    return () => clearTimeout(printTriggerTimeout);
   }, [lastCompletedStep]);
 
   const onPrintPDF = (opts = {}) => {
