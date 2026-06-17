@@ -11,7 +11,7 @@ class MailTo extends React.Component {
 
   render() {
 
-    var mailtoInfo = 'mailto:'+this.props.emailAddress+'?Subject='+this.props.emailSubject;
+    var mailtoInfo = 'mailto:' + encodeURIComponent(this.props.emailAddress) + '?Subject=' + encodeURIComponent(this.props.emailSubject);
 
     // Hack: don't let "mailto:" link cancel other XHR requests by pointing it
     // to a hidden iframe
