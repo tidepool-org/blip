@@ -13,6 +13,7 @@ import AddRoundedIcon from '@material-ui/icons/AddRounded';
 import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
 import launchCustomProtocol from 'custom-protocol-detection';
 import { DesktopOnly } from '../mediaqueries';
+import { colors as vizColors } from '@tidepool/viz';
 
 import {
   bindPopover,
@@ -98,8 +99,9 @@ export const useLatestDatumTime = (tidepoolApi = api, uploadId) => {
 
 const SettingsPopover = styled(Popover)`
   .MuiPopover-paper {
-    overflow: hidden;
-  }
+    max-height: 40vh;
+    padding-bottom: 0;
+  };
 `;
 
 const Settings = ({
@@ -545,7 +547,7 @@ const Settings = ({
           settingsSelectionPopupState.close();
         }}
       >
-        <DialogContent px={2} py={3} dividers>
+        <DialogContent px={2} py={3} sx={{ borderBottom: 'unset' }}>
           <Box sx={{ alignItems: 'center' }} mb={2}>
             <Text
               sx={{
@@ -564,7 +566,7 @@ const Settings = ({
             name="settings"
             options={settingsOptions}
             variant="vertical"
-            sx={{ fontSize: 0, maxHeight: '40vh' }}
+            sx={{ fontSize: 0 }}
             value={pendingSettings || selectedSettingsId}
             onChange={(event) => {
               setPendingSettings(event.target.value || null);
@@ -572,7 +574,16 @@ const Settings = ({
           />
         </DialogContent>
 
-        <DialogActions sx={{ justifyContent: 'space-between' }} p={1}>
+        <DialogActions
+          sx={{
+            position: 'sticky',
+            bottom: 0,
+            borderTop: `1px solid ${vizColors.gray10}`,
+            background: vizColors.white,
+            justifyContent: 'space-between'
+          }}
+          p={1}
+        >
           <Button
             id="cancel-settings-selection"
             sx={{ fontSize: 1 }}
