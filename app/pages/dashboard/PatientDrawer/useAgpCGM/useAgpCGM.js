@@ -66,6 +66,7 @@ const getFetchPatientOpts = (
     endDate: moment.utc().add(1, 'days').toISOString(),
     forceDataWorkerAddDataRequest: true,
     useCache: false,
+    syncTimePrefs: true,
   };
 };
 

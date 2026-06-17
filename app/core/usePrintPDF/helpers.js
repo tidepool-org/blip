@@ -25,6 +25,7 @@ export const getInitialFetchOpts = () => ({
   forceDataWorkerAddDataRequest: true,
   returnData: false,
   useCache: false,
+  syncTimePrefs: true,
 });
 
 export const getMainFetchOpts = (timePrefs, opts, fetchedUntil) => {
@@ -47,6 +48,7 @@ export const getMainFetchOpts = (timePrefs, opts, fetchedUntil) => {
     forceDataWorkerAddDataRequest: true,
     useCache: false,
     sampleIntervalMinimum,
+    syncTimePrefs: true,
   };
 };
 
