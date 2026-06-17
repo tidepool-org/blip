@@ -12,7 +12,7 @@ export const Gate = (props) => {
 
   useEffect(() => {
     dispatch(onEnter((run = true) => setRun(run)));
-  }, []);
+  }, [dispatch, onEnter]);
 
   return hasRun ? <>{children}</> : <Loader />;
 };
