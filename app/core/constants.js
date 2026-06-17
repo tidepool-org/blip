@@ -46,6 +46,8 @@ export const SUPPORTED_ORGANIZATIONS_OPTIONS = map([
   'Diabetes Youth Families (DYF)',
   'The Diabetes Link',
   'The diaTribe Foundation',
+  'Nightscout Foundation',
+  'T1D Exchange',
 ], (name) => ({ value: name, label: t(name) }));
 
 export const DIABETES_TYPES = () => [

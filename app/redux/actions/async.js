@@ -1398,7 +1398,7 @@ export function fetchUserConsentRecords(api, consentType) {
  * @param {String} consentRecord.grantorType - Allowed values: ['owner', 'parent/guardian']
  * @param {String} consentRecord.type - Type of the consent record (e.g., 'big_data_donation_project')
  * @param {Object} [consentRecord.metadata]
- * @param {String[]} [consentRecord.metadata.supportedOrganizations] - Allowed values: ['ADCES Foundation', 'Beyond Type 1', 'Children With Diabetes', 'The Diabetes Link', 'Diabetes Youth Families (DYF)', 'DiabetesSisters', 'The diaTribe Foundation', 'Breakthrough T1D']
+ * @param {String[]} [consentRecord.metadata.supportedOrganizations] - Allowed values: ['ADCES Foundation', 'Beyond Type 1', 'Children With Diabetes', 'The Diabetes Link', 'Diabetes Youth Families (DYF)', 'DiabetesSisters', 'The diaTribe Foundation', 'Breakthrough T1D', 'Nightscout Foundation', 'T1D Exchange']
  * @param {Number} consentRecord.version - >=1
  */
 export function createUserConsentRecord(api, consentRecord) {
@@ -1426,7 +1426,7 @@ export function createUserConsentRecord(api, consentRecord) {
  * @param {String} recordId - id of the consent record to update
  * @param {Object} updates
  * @param {Object} updates.metadata
- * @param {Array[String]} updates.metadata.supportedOrganizations - Allowed values: ['ADCES Foundation', 'Beyond Type 1', 'Children With Diabetes', 'The Diabetes Link', 'Diabetes Youth Families (DYF)', 'DiabetesSisters', 'The diaTribe Foundation', 'Breakthrough T1D']
+ * @param {Array[String]} updates.metadata.supportedOrganizations - Allowed values: ['ADCES Foundation', 'Beyond Type 1', 'Children With Diabetes', 'The Diabetes Link', 'Diabetes Youth Families (DYF)', 'DiabetesSisters', 'The diaTribe Foundation', 'Breakthrough T1D', 'Nightscout Foundation', 'T1D Exchange']
  */
 export function updateUserConsentRecord(api, recordId, updates) {
   return (dispatch, getState) => {
