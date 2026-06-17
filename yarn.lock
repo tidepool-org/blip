@@ -21366,15 +21366,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sundial@npm:1.7.6":
-  version: 1.7.6
-  resolution: "sundial@npm:1.7.6"
-  dependencies:
-    moment-timezone: 0.6.2
-  checksum: 7cacba1f6d44fd32de77074d53cba96262bf673093d335b6de3d23d715b10ae319f5b6fed218d8b0631b0e1c5be791e4d3e8f5e13679b2443a9f7c02392678bd
-  languageName: node
-  linkType: hard
-
 "superagent@npm:5.2.2":
   version: 5.2.2
   resolution: "superagent@npm:5.2.2"
