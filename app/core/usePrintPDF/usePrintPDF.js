@@ -151,7 +151,7 @@ const usePrintPDF = (
         if (pdf?.opts?.requestId === requestId) {
           openPDF(pdf);
         }
-        setTimeout(() => {
+        setTimeout(() => { // Delay closing modal so popup window can navigate to PDF before unmount
           onPrintTriggered();
         }, 100);
 
