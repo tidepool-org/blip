@@ -681,6 +681,59 @@ describe('DataConnections', () => {
       });
     });
 
+    // The "Email Invite" spinner is driven by activeHandler, cleared on the connect-request success
+    // transition detected via usePrevious. Stepping the chained updateClinicPatient -> connect
+    // completions deterministically confirms the spinner clears once both phases complete.
+    describe('button processing across the chained updateClinicPatient -> connect', () => {
+      const idle = { inProgress: false, completed: false, notification: null };
+      const storeWith = (working) => mockStore({
+        blip: {
+          ...clinicianUserLoggedInState.blip,
+          working: {
+            updatingClinicPatient: idle,
+            sendingPatientDataProviderConnectRequest: idle,
+            ...working,
+          },
+        },
+      });
+
+      const tree = (store) => (
+        <Provider store={store}>
+          <ToastProvider>
+            <DataConnections {...defaultProps} patient={clinicPatients.dataConnectionUnset} />
+          </ToastProvider>
+        </Provider>
+      );
+
+      it('clears the dexcom button spinner once both phases complete', async () => {
+        const { rerender } = render(tree(storeWith({})));
+        const dexcomBtn = () => container?.querySelector('#data-connection-dexcom .action')
+          || document.querySelector('#data-connection-dexcom .action');
+
+        fireEvent.click(dexcomBtn());
+        // activeHandler set -> button is processing
+        expect(dexcomBtn().classList.contains('processing')).to.be.true;
+
+        // phase 1: updateClinicPatient in progress, then completed (fires the chained connect)
+        rerender(tree(storeWith({ updatingClinicPatient: { inProgress: true, completed: false } })));
+        rerender(tree(storeWith({ updatingClinicPatient: { inProgress: false, completed: true } })));
+
+        // phase 2: connect request in progress, then completed (should clear activeHandler)
+        rerender(tree(storeWith({
+          updatingClinicPatient: { inProgress: false, completed: true },
+          sendingPatientDataProviderConnectRequest: { inProgress: true, completed: false },
+        })));
+        rerender(tree(storeWith({
+          updatingClinicPatient: { inProgress: false, completed: true },
+          sendingPatientDataProviderConnectRequest: { inProgress: false, completed: true },
+        })));
+
+        await waitFor(() => {
+          expect(dexcomBtn()?.classList.contains('processing')).to.not.equal(true);
+        });
+      });
+    });
+
     describe('data connection invite just sent', () => {
       it('should render all appropriate data connection statuses and messages', () => {
         const store = mockStore(clinicianUserLoggedInState);

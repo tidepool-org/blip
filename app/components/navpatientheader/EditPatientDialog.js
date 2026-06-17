@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useIsFirstRender, usePrevious } from '../../core/hooks';
 import { useTranslation } from 'react-i18next';
@@ -10,8 +10,10 @@ import PatientForm from '../clinic/PatientForm';
 import noop from 'lodash/noop';
 import keys from 'lodash/keys';
 import get from 'lodash/get';
+import isEqual from 'lodash/isEqual';
 import { fieldsAreValid } from '../../core/forms';
 import { patientSchema as validationSchema } from '../../core/clinicUtils';
+import { DEFAULT_GLYCEMIC_RANGES } from '../../core/glycemicRangesUtils';
 import { useToasts } from '../../providers/ToastProvider';
 import * as actions from '../../redux/actions';
 
@@ -65,10 +67,23 @@ const EditPatientDialog = ({
   const mrnSettings = useMemo(() => clinic?.mrnSettings ?? {}, [clinic?.mrnSettings]);
   const existingMRNs = useSelector(state => state.blip.clinicMRNsForPatientFormValidation)?.filter(mrn => mrn !== clinicPatient?.mrn) || [];
 
-  const onUpdateSuccess = () => {
-    if (isOpen) onClose();
+  const hasChartData = useSelector(state => (state.blip.data?.metaData?.size || 0) > 0);
 
-    dispatch(actions.worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
+  // Captured at submit time: whether this edit needs the chart data reprocessed.
+  const shouldClearDataRef = useRef(false);
+
+  const onUpdateSuccess = () => {
+    // updatingClinicPatient is global working state, so this fires for any clinic-patient update while
+    // the header is mounted. Only react to updates this dialog drove; a foreign update (e.g. adding a
+    // data source) would otherwise clear the data worker cache and strand the data view on the loader.
+    if (!isOpen) return;
+
+    onClose();
+
+    if (shouldClearDataRef.current) {
+      dispatch(actions.worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
+      shouldClearDataRef.current = false;
+    }
   };
 
   const updatingClinicPatient = useUpdatingClinicPatientWorkingState({ onUpdateSuccess });
@@ -76,6 +91,14 @@ const EditPatientDialog = ({
   const [patientFormContext, setPatientFormContext] = useState();
 
   const handleEditPatientConfirm = () => {
+    // Clear the data worker (forcing a reprocess) only when Target Range (glycemicRanges, the only
+    // data-affecting field here) changed AND there is chart data to reprocess. Compare against the
+    // patient's saved range, not the form's initialValues (frozen at mount, blind to prior saves);
+    // fall back to the default range so a patient without one — for whom the form injects the default —
+    // doesn't read as a change.
+    const savedRange = clinicPatient?.glycemicRanges || DEFAULT_GLYCEMIC_RANGES;
+    const targetRangeChanged = !isEqual(patientFormContext?.values?.glycemicRanges, savedRange);
+    shouldClearDataRef.current = targetRangeChanged && hasChartData;
     patientFormContext?.handleSubmit();
   };
 
