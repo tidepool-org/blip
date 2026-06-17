@@ -6211,9 +6211,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.56.0-web-3359.3":
-  version: 1.56.0-web-3359.3
-  resolution: "@tidepool/viz@npm:1.56.0-web-3359.3"
+"@tidepool/viz@npm:1.57.0-web-3359.4":
+  version: 1.57.0-web-3359.4
+  resolution: "@tidepool/viz@npm:1.57.0-web-3359.4"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6274,7 +6274,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: c27b26efd183782dd5394bfbd17e3132c09d1056611d9ae1f8a46d2a264dfdfd7a430155b5bcb05b7e8689c8b3bd234cbc1c8fadb083b7ae83baadc6a86ae996
+  checksum: 35db03dc4ab47a556b0ff0b73c09ac91bfb95e6bb9d8b7511a07b5811d9601e22695712daa5b1a0d6483e9fbdfe41d1f792c355fb61460f18a24afc49220bb80
   languageName: node
   linkType: hard
 
@@ -8410,7 +8410,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.56.0-web-3359.3
+    "@tidepool/viz": 1.57.0-web-3359.4
     "@types/jest": 29.5.14
     async: 2.6.4
     autoprefixer: 10.4.16
@@ -8527,7 +8527,7 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.38.0-web-3359.3
+    tideline: 1.40.0-web-3359.4
     tidepool-platform-client: 0.65.0-web-4390-install-rtk.2
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
@@ -21768,9 +21768,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.38.0-web-3359.3":
-  version: 1.38.0-web-3359.3
-  resolution: "tideline@npm:1.38.0-web-3359.3"
+"tideline@npm:1.40.0-web-3359.4":
+  version: 1.40.0-web-3359.4
+  resolution: "tideline@npm:1.40.0-web-3359.4"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -21791,7 +21791,7 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: e94493de4178bdbab103745f2f1d46184a80a2baaca64c87bf2e59b47c297b4f9415b8894a0bbbaf2d883993c697320417210d06577096cfebe35e6f0837551a
+  checksum: 69496b5f249506ae87a88a97f8e8d1ae31ad83fb9da5745bb40c1908df34b5091bca08d82e4bf7bfd28255950a8f9ee6468bfcf257aa255fde723fa0bda2cc24
   languageName: node
   linkType: hard
 
