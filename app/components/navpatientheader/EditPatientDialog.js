@@ -67,24 +67,22 @@ const EditPatientDialog = ({
   const mrnSettings = useMemo(() => clinic?.mrnSettings ?? {}, [clinic?.mrnSettings]);
   const existingMRNs = useSelector(state => state.blip.clinicMRNsForPatientFormValidation)?.filter(mrn => mrn !== clinicPatient?.mrn) || [];
 
-  // Check whether the patient-data view currently holds chart data for this patient.
   const hasChartData = useSelector(state => (state.blip.data?.metaData?.size || 0) > 0);
 
-  // Captured at submit time (before the update lands and the form re-initialises): whether this edit
-  // needs the chart data reprocessed.
+  // Captured at submit time: whether this edit needs the chart data reprocessed.
   const shouldClearDataRef = useRef(false);
 
   const onUpdateSuccess = () => {
-    // updatingClinicPatient is global working state, so this fires for any clinic-patient update
-    // while the header is mounted. Only react when this dialog drove the update — otherwise a
-    // foreign update (e.g. adding a data source) would clear the data worker cache and leave the
-    // patient-data view stuck loading.
+    // updatingClinicPatient is global working state, so this fires for any clinic-patient update while
+    // the header is mounted. Only react to updates this dialog drove; a foreign update (e.g. adding a
+    // data source) would otherwise clear the data worker cache and strand the data view on the loader.
     if (!isOpen) return;
 
     onClose();
 
     if (shouldClearDataRef.current) {
       dispatch(actions.worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
+      shouldClearDataRef.current = false;
     }
   };
 
@@ -93,13 +91,11 @@ const EditPatientDialog = ({
   const [patientFormContext, setPatientFormContext] = useState();
 
   const handleEditPatientConfirm = () => {
-    // Clear the data worker cache (forcing a reprocess) only when a data-affecting field changed AND
-    // there is chart data to reprocess. Target Range (glycemicRanges) is the only data-affecting field
-    // in this form. Compare the submitted value against the patient's currently-saved range (the form's
-    // own initialValues is frozen at mount and wouldn't track prior saves); fall back to the default
-    // range so a patient without a saved range — for whom the form injects the default — doesn't read
-    // as a change. A no-data patient has nothing to reprocess, and clearing would strand its view on
-    // the loader, so skip it there.
+    // Clear the data worker (forcing a reprocess) only when Target Range (glycemicRanges, the only
+    // data-affecting field here) changed AND there is chart data to reprocess. Compare against the
+    // patient's saved range, not the form's initialValues (frozen at mount, blind to prior saves);
+    // fall back to the default range so a patient without one — for whom the form injects the default —
+    // doesn't read as a change.
     const savedRange = clinicPatient?.glycemicRanges || DEFAULT_GLYCEMIC_RANGES;
     const targetRangeChanged = !isEqual(patientFormContext?.values?.glycemicRanges, savedRange);
     shouldClearDataRef.current = targetRangeChanged && hasChartData;

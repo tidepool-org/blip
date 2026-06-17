@@ -681,14 +681,9 @@ describe('DataConnections', () => {
       });
     });
 
-    // --- Test C: probes the colleague's theory (activeHandler / button spinner never resets) ---
-    // The "Email Invite" spinner is driven by activeHandler, which is cleared on the connect-request
-    // success transition detected via usePrevious. The hypothesis is that across the chained
-    // updateClinicPatient -> connect dispatch, the inProgress:true->false edge is lost in a render
-    // burst so activeHandler never resets. This steps the two completions deterministically and
-    // asserts the spinner clears. If this PASSES, the happy-path logic is correct when not raced —
-    // i.e. the hang is a render-timing race not reproducible at the unit level (needs live
-    // instrumentation), NOT a deterministic logic bug.
+    // The "Email Invite" spinner is driven by activeHandler, cleared on the connect-request success
+    // transition detected via usePrevious. Stepping the chained updateClinicPatient -> connect
+    // completions deterministically confirms the spinner clears once both phases complete.
     describe('button processing across the chained updateClinicPatient -> connect', () => {
       const idle = { inProgress: false, completed: false, notification: null };
       const storeWith = (working) => mockStore({
