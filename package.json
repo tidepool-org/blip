@@ -4,7 +4,7 @@
     "node": "24.15.0"
   },
   "packageManager": "yarn@3.6.4",
-  "version": "1.97.0-web-3359.3",
+  "version": "1.97.0-rc.1",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test yarn jest --verbose",
