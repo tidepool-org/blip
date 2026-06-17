@@ -38,7 +38,7 @@ const ClinicPatientsPrintModal = ({ api, patientId, onClose = noop }) => {
       onClose();
       setToast({
         message: t('Insufficient data for patient to generate any report.'),
-        variant: 'danger'
+        variant: 'warning'
       });
     }
   }, [status]);
