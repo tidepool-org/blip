@@ -28,11 +28,16 @@ export const getInitialFetchOpts = () => ({
   syncTimePrefs: true,
 });
 
-export const getMainFetchOpts = (timePrefs, opts, fetchedUntil) => {
+export const getEarliestPrintDate = (opts, timePrefs) => {
   const enabledOpts = filter(opts, { disabled: false });
   const earliestPrintDate = min(at(enabledOpts, map(keys(enabledOpts), key => `${key}.endpoints.0`)));
-
   const startDate = moment.utc(earliestPrintDate).tz(getTimezoneFromTimePrefs(timePrefs)).toISOString();
+
+  return startDate;
+};
+
+export const getMainFetchOpts = (timePrefs, opts, fetchedUntil) => {
+  const startDate = getEarliestPrintDate(opts, timePrefs);
 
   const endDate = fetchedUntil
     ? moment.utc(fetchedUntil).subtract(1, 'milliseconds').toISOString()
@@ -50,14 +55,6 @@ export const getMainFetchOpts = (timePrefs, opts, fetchedUntil) => {
     sampleIntervalMinimum,
     syncTimePrefs: true,
   };
-};
-
-export const getEarliestPrintDate = (printOpts, timePrefs) => {
-  const enabledOpts = filter(printOpts, { disabled: false });
-  const earliestPrintDate = min(at(enabledOpts, map(keys(enabledOpts), key => `${key}.endpoints.0`)));
-  const startDate = moment.utc(earliestPrintDate).tz(getTimezoneFromTimePrefs(timePrefs)).toISOString();
-
-  return startDate;
 };
 
 export const getPdfOpts = (printOpts, user, patient, clinicPatient) => {
