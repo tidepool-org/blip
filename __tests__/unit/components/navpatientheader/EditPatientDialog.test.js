@@ -9,11 +9,16 @@ import EditPatientDialog from '../../../../app/components/navpatientheader/EditP
 import { ToastProvider } from '../../../../app/providers/ToastProvider';
 
 jest.mock('../../../../app/components/clinic/PatientForm', () => {
-  return (props) => (
-    <div data-testid="PatientForm" data-is-read-only={props.isReadOnly ? 'true' : 'false'}>
-      PatientForm Mock
-    </div>
-  );
+  return (props) => {
+    React.useEffect(() => {
+      props.onFormChange({ handleSubmit: jest.fn(), values: {} });
+    }, []);
+    return (
+      <div data-testid="PatientForm" data-disabled-fields={JSON.stringify(props.disabledFields || {})}>
+        PatientForm Mock
+      </div>
+    );
+  };
 });
 
 jest.mock('../../../../app/core/hooks', () => ({
@@ -65,7 +70,7 @@ const renderEditPatientDialog = (storeState = initialState) => {
 };
 
 describe('EditPatientDialog', () => {
-  it('sets isReadOnly=true and disables save button when smartCorrelationId is present', () => {
+  it('locks identity fields and leaves the save button enabled when smartCorrelationId is present', () => {
     const smartOnFhirState = {
       blip: {
         ...initialState.blip,
@@ -76,17 +81,22 @@ describe('EditPatientDialog', () => {
     renderEditPatientDialog(smartOnFhirState);
 
     const patientForm = screen.getByTestId('PatientForm');
-    expect(patientForm).toHaveAttribute('data-is-read-only', 'true');
+    expect(JSON.parse(patientForm.getAttribute('data-disabled-fields'))).toEqual({
+      fullName: true,
+      birthDate: true,
+      mrn: true,
+      email: true,
+    });
 
     const saveButton = screen.getByRole('button', { name: 'Save Changes' });
     expect(saveButton).toBeInTheDocument();
-    expect(saveButton).toBeDisabled();
+    expect(saveButton).toBeEnabled();
   });
 
-  it('sets isReadOnly=false when smartCorrelationId is absent', () => {
+  it('passes an empty disabledFields object when smartCorrelationId is absent', () => {
     renderEditPatientDialog(initialState);
 
     const patientForm = screen.getByTestId('PatientForm');
-    expect(patientForm).toHaveAttribute('data-is-read-only', 'false');
+    expect(JSON.parse(patientForm.getAttribute('data-disabled-fields'))).toEqual({});
   });
 });
