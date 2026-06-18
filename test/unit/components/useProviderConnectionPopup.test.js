@@ -1,6 +1,8 @@
 import React from 'react';
 import useProviderConnectionPopup from '../../../app/components/datasources/useProviderConnectionPopup';
 import * as actions from '../../../app/redux/actions';
+
+jest.mock('../../../app/redux/features/mfaStatus/mfaStatusApi');
 import { render } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter, Route } from 'react-router';

@@ -29,12 +29,7 @@ jest.mock('../../../../../app/components/datasources/DataConnections', () => ({
   },
 }));
 
-// The provider's 2FA-banner eligibility calls useGetMfaStatusQuery, which needs the RTK
-// Query api reducer/middleware. This suite mounts against redux-mock-store, so we stub the
-// hook and drive MFA state per test instead of standing up the real Keycloak-backed query.
-jest.mock('../../../../../app/redux/features/mfaStatus/mfaStatusApi', () => ({
-  useGetMfaStatusQuery: jest.fn(),
-}));
+jest.mock('../../../../../app/redux/features/mfaStatus/mfaStatusApi');
 import { useGetMfaStatusQuery } from '../../../../../app/redux/features/mfaStatus/mfaStatusApi';
 import { ToastProvider } from '../../../../../app/providers/ToastProvider';
 import { find, keys, pickBy } from 'lodash';

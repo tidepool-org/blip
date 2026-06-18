@@ -609,9 +609,10 @@ export function UserProfile({ trackMetric, history, api, location }) {
   const isClinician = personUtils.isClinicianAccount(user);
   const isSSO = personUtils.isSSOAccount(user);
   const passwordLastUpdated = _.get(user, 'passwordLastUpdated');
+  const open2faSetupOnMount = location?.state?.openMfaSetup && isClinician && !isSSO;
 
   const [editOpen, setEditOpen] = useState(false);
-  const [setup2faOpen, setSetup2faOpen] = useState(false);
+  const [setup2faOpen, setSetup2faOpen] = useState(open2faSetupOnMount);
   const [disable2faOpen, setDisable2faOpen] = useState(false);
   const [regenerate2faCodesOpen, setRegenerate2faCodesOpen] = useState(false);
 
@@ -619,10 +620,6 @@ export function UserProfile({ trackMetric, history, api, location }) {
     trackMetric('Viewed Account Settings');
   }, [trackMetric]);
 
-
-const open2faSetupOnMount = location?.state?.openMfaSetup && isClinician && !isSSO;
-const [setup2faOpen, setSetup2faOpen] = useState(open2faSetupOnMount);
- 
   useEffect(() => {
     if (isError && !previousMfaFailed) {
       setToast({
