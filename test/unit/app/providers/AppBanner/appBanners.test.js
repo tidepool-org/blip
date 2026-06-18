@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
+import { push } from 'connected-react-router';
 import { appBanners, pathRegexes } from '../../../../../app/providers/AppBanner/appBanners';
 
 /* global describe */
@@ -8,7 +9,16 @@ import { appBanners, pathRegexes } from '../../../../../app/providers/AppBanner/
 describe('pathRegexes', () => {
   it('should have the correct regex for each path', () => {
     expect(pathRegexes.clinicWorkspace).to.eql(/^\/clinic-workspace/);
+    expect(pathRegexes.clinicWorkspacePatientList).to.eql(/^\/clinic-workspace(\/patients)?\/?$/);
     expect(pathRegexes.patientData).to.eql(/^\/patients\/\S+\/data/);
+  });
+
+  it('clinicWorkspacePatientList should match the patient list tab only', () => {
+    expect(pathRegexes.clinicWorkspacePatientList.test('/clinic-workspace')).to.be.true;
+    expect(pathRegexes.clinicWorkspacePatientList.test('/clinic-workspace/patients')).to.be.true;
+    expect(pathRegexes.clinicWorkspacePatientList.test('/clinic-workspace/invites')).to.be.false;
+    expect(pathRegexes.clinicWorkspacePatientList.test('/clinic-workspace/prescriptions')).to.be.false;
+    expect(pathRegexes.clinicWorkspacePatientList.test('/patients/abc/data')).to.be.false;
   });
 });
 
@@ -34,6 +44,7 @@ describe('appBanners', () => {
       'dataSourceReconnectInvite',
       'addEmail',
       'sendVerification',
+      'enable2fa',
     ];
 
     // Check that each expected ID is present
@@ -128,6 +139,14 @@ describe('appBanners', () => {
     });
     expect(bannerMap.sendVerification.context).to.eql(['clinic']);
     expect(bannerMap.sendVerification.paths).to.eql([pathRegexes.patientData]);
+
+    // enable2fa
+    expect(bannerMap.enable2fa).to.include({
+      variant: 'info',
+      priority: 11,
+    });
+    expect(bannerMap.enable2fa.context).to.eql(['clinic']);
+    expect(bannerMap.enable2fa.paths).to.eql([pathRegexes.clinicWorkspacePatientList]);
   });
 
   describe('getProps', () => {
@@ -168,6 +187,8 @@ describe('appBanners', () => {
           return banner.getProps(formikContextStub, patientStub);
         case 'sendVerification':
           return banner.getProps(dispatchStub, patientStub);
+        case 'enable2fa':
+          return banner.getProps(dispatchStub);
         default:
           return null;
       }
@@ -226,6 +247,22 @@ describe('appBanners', () => {
     it('sendVerification should return object with the expected keys', () => {
       const props = getPropsForBanner('sendVerification');
       expect(props).to.have.all.keys(['interactionId', 'label', 'message', 'show', 'action', 'dismiss']);
+    });
+
+    it('enable2fa should return object with the expected keys', () => {
+      const props = getPropsForBanner('enable2fa');
+      expect(props).to.have.all.keys(['interactionId', 'label', 'message', 'show', 'action', 'dismiss']);
+    });
+
+    it('enable2fa action handler dispatches a push to /profile with openMfaSetup location state', () => {
+      const dispatch = sinon.stub();
+      const banner = appBanners.find(b => b.id === 'enable2fa');
+      const props = banner.getProps(dispatch);
+      props.action.handler();
+      expect(dispatch.calledOnce).to.be.true;
+      expect(dispatch.firstCall.args[0]).to.deep.equal(
+        push({ pathname: '/profile', state: { openMfaSetup: true } })
+      );
     });
   });
 });

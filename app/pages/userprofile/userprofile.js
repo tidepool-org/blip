@@ -596,7 +596,7 @@ RecoveryCodesRow.propTypes = {
   onRegenerateCodes: PropTypes.func.isRequired,
 };
 
-export function UserProfile({ trackMetric, history, api }) {
+export function UserProfile({ trackMetric, history, api, location }) {
   const { t } = useTranslation();
   const { set: setToast } = useToasts();
   const user = useSelector(selectUser);
@@ -618,6 +618,15 @@ export function UserProfile({ trackMetric, history, api }) {
   useEffect(() => {
     trackMetric('Viewed Account Settings');
   }, [trackMetric]);
+
+  useEffect(() => {
+    // The 2FA banner deep-links here with this flag. Location state is dropped on the next
+    // navigation, so a refresh or keycloak round-trip won't re-open the dialog.
+    if (location?.state?.openMfaSetup && isClinician && !isSSO) {
+      setSetup2faOpen(true);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location?.state?.openMfaSetup]);
 
   useEffect(() => {
     if (isError && !previousMfaFailed) {
@@ -913,6 +922,7 @@ UserProfile.propTypes = {
   trackMetric: PropTypes.func.isRequired,
   history: PropTypes.object,
   api: PropTypes.object.isRequired,
+  location: PropTypes.object,
 };
 
 UserProfile.defaultProps = {
