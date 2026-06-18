@@ -34,6 +34,7 @@ const expect = chai.expect;
 const disabledMfaStatus = {
   enabled: false,
   enabledTime: null,
+  passwordUpdatedTime: null,
   device: { id: null, name: null, registeredTime: null },
   recoveryCodes: { used: 0, total: 12, generatedTime: null },
 };
@@ -41,6 +42,7 @@ const disabledMfaStatus = {
 const enabledMfaStatus = (overrides = {}) => ({
   enabled: true,
   enabledTime: '2026-04-01T00:00:00Z',
+  passwordUpdatedTime: null,
   device: { id: 'otp-1', name: 'iPhone 17', registeredTime: '2026-04-01T00:00:00Z' },
   recoveryCodes: { used: 1, total: 12, generatedTime: '2026-04-01T00:00:00Z' },
   ...overrides,
@@ -81,7 +83,6 @@ const clinicianUser = {
   profile: {
     fullName: 'Dr. Sally Seastar',
     clinic: { role: 'endocrinologist' },
-    updatedAt: '2025-03-22T11:34:00Z',
   },
 };
 
@@ -95,7 +96,6 @@ const personalUser = {
   username: 'pat@example.com',
   profile: {
     fullName: 'Pat Personal',
-    updatedAt: '2025-03-22T11:34:00Z',
   },
 };
 
@@ -115,7 +115,7 @@ describe('UserProfile', () => {
   });
 
   describe('non-SSO clinician, 2FA disabled', () => {
-    it('renders the profile card with name, email, job title, and last-updated caption', () => {
+    it('renders the profile card with name, email, and job title', () => {
       renderWith(buildState(clinicianUser));
       expect(screen.getByText('Dr. Sally Seastar')).to.exist;
       // EditPersonalDetailsDialog uses keepMounted=true (project Dialog default at
@@ -123,13 +123,26 @@ describe('UserProfile', () => {
       // options coexist in the DOM with the page's profile card. Relax to getAllByText.
       expect(screen.getAllByText(/sally@clinic\.org/).length).to.be.at.least(1);
       expect(screen.getAllByText(/Endocrinologist/).length).to.be.at.least(1);
-      expect(screen.getByText(/Last updated/)).to.exist;
     });
 
     it('renders the Manage password row', () => {
       renderWith(buildState(clinicianUser));
       expect(screen.getByText('Manage password')).to.exist;
       expect(screen.getByRole('button', { name: 'Update Password' })).to.exist;
+    });
+
+    it('shows the Manage password "Last updated" line when mfaStatus.passwordUpdatedTime is set', async () => {
+      mockMapMfa.mockReturnValue({ ...disabledMfaStatus, passwordUpdatedTime: 1779729776172 });
+      renderWith(buildState(clinicianUser));
+      // The Manage password row is the only "Last updated" caption on the page.
+      expect(await screen.findByText(/Last updated/)).to.exist;
+    });
+
+    it('hides the Manage password "Last updated" line when passwordUpdatedTime is null', async () => {
+      mockMapMfa.mockReturnValue({ ...disabledMfaStatus, passwordUpdatedTime: null });
+      renderWith(buildState(clinicianUser));
+      await screen.findByText('Manage password');
+      expect(screen.queryByText(/Last updated/)).to.be.null;
     });
 
     it('renders the 2FA row with Disabled pill and Set up 2FA button', async () => {
@@ -260,6 +273,15 @@ describe('UserProfile', () => {
       expect(redirectToKeycloakAction.mock.calls).to.have.lengthOf(0);
     });
 
+    it('renders the simplified body paragraphs and drops the advisory cards in the 2FA instructions dialog', async () => {
+      renderWith(buildState(clinicianUser));
+      fireEvent.click(await screen.findByRole('button', { name: 'Set up 2FA' }));
+      expect(screen.getByText(/Only set up two-factor authentication \(2FA\) on individual clinic accounts/)).to.exist;
+      expect(screen.getByText(/Verify there are at least two clinic admins in your clinic workspace/)).to.exist;
+      expect(screen.queryByText('Use two-factor authentication (2FA) only on individual accounts')).to.be.null;
+      expect(screen.queryByText('Review your clinic workspaces')).to.be.null;
+    });
+
     it('redirects to Keycloak CONFIGURE_TOTP when "I understand" is clicked in the dialog', async () => {
       renderWith(buildState(clinicianUser));
       fireEvent.click(await screen.findByRole('button', { name: 'Set up 2FA' }));
@@ -292,6 +314,15 @@ describe('UserProfile', () => {
       expect(redirectToKeycloakAction.mock.calls).to.have.lengthOf(0);
     });
 
+    it('renders the single body paragraph and drops the advisory cards in the disable-2FA dialog', async () => {
+      mockMapMfa.mockReturnValue(enabledMfaStatus());
+      renderWith(buildState(clinicianUser));
+      fireEvent.click(await screen.findByRole('button', { name: 'Disable 2FA' }));
+      expect(screen.getByText(/Disabling 2FA will remove the extra security layer for your account completely/)).to.exist;
+      expect(screen.queryByText('Recovery codes will be deleted')).to.be.null;
+      expect(screen.queryByText('Two-factor authentication (2FA) will be turned off')).to.be.null;
+    });
+
     it('redirects to Keycloak delete_credential:<id> when "I understand" is clicked in the disable dialog', async () => {
       mockMapMfa.mockReturnValue(enabledMfaStatus());
       renderWith(buildState(clinicianUser));
@@ -321,15 +352,25 @@ describe('UserProfile', () => {
       const { trackMetric } = renderWith(buildState(clinicianUser));
       fireEvent.click(await screen.findByRole('button', { name: 'Regenerate Codes' }));
       expect(trackMetric.calledWith('Clicked Regenerate Recovery Codes in Account')).to.be.true;
-      expect(screen.getByRole('heading', { name: 'Generating new recovery codes?' })).to.exist;
+      expect(screen.getByRole('heading', { name: 'Generate New Recovery Codes'})).to.exist;
       expect(redirectToKeycloakAction.mock.calls).to.have.lengthOf(0);
     });
 
-    it('redirects to Keycloak CONFIGURE_RECOVERY_AUTHN_CODES when "I understand" is clicked in the regenerate dialog', async () => {
+    it('renders the retitled dialog, single body paragraph, and relabeled confirm button for regenerate codes', async () => {
       mockMapMfa.mockReturnValue(enabledMfaStatus());
       renderWith(buildState(clinicianUser));
       fireEvent.click(await screen.findByRole('button', { name: 'Regenerate Codes' }));
-      fireEvent.click(screen.getByRole('button', { name: 'I understand' }));
+      expect(screen.getByRole('heading', { name: 'Generate New Recovery Codes' })).to.exist;
+      expect(screen.getByText(/This will permanently replace your existing recovery codes/)).to.exist;
+      expect(screen.getByRole('button', { name: 'Yes, generate new codes' })).to.exist;
+      expect(screen.queryByText('You’re downloading a new set of recovery codes')).to.be.null;
+    });
+
+    it('redirects to Keycloak CONFIGURE_RECOVERY_AUTHN_CODES when "Yes, generate new codes" is clicked in the regenerate dialog', async () => {
+      mockMapMfa.mockReturnValue(enabledMfaStatus());
+      renderWith(buildState(clinicianUser));
+      fireEvent.click(await screen.findByRole('button', { name: 'Regenerate Codes' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Yes, generate new codes' }));
       expect(redirectToKeycloakAction.mock.calls).to.have.lengthOf(1);
       expect(redirectToKeycloakAction.mock.calls[0]).to.deep.equal([
         'CONFIGURE_RECOVERY_AUTHN_CODES',
@@ -341,11 +382,11 @@ describe('UserProfile', () => {
       mockMapMfa.mockReturnValue(enabledMfaStatus());
       renderWith(buildState(clinicianUser));
       fireEvent.click(await screen.findByRole('button', { name: 'Regenerate Codes' }));
-      expect(screen.getByRole('heading', { name: 'Generating new recovery codes?' })).to.exist;
+      expect(screen.getByRole('heading', { name: 'Generate New Recovery Codes'})).to.exist;
       fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
       expect(redirectToKeycloakAction.mock.calls).to.have.lengthOf(0);
       await waitFor(() =>
-        expect(screen.queryByRole('heading', { name: 'Generating new recovery codes?' })).to.be.null
+        expect(screen.queryByRole('heading', { name: 'Generate New Recovery Codes'})).to.be.null
       );
     });
   });

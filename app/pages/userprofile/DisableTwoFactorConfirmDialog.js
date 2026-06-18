@@ -1,10 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
-import { Box, Flex, Text } from 'theme-ui';
-import PhoneIphoneRoundedIcon from '@material-ui/icons/PhoneIphoneRounded';
-import ChatBubbleRoundedIcon from '@material-ui/icons/ChatBubbleRounded';
-import SecurityRoundedIcon from '@material-ui/icons/SecurityRounded';
+import { Flex, Text } from 'theme-ui';
 import ReportProblemRoundedIcon from '@material-ui/icons/ReportProblemRounded';
 
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '../../components/elements/Dialog';
@@ -13,73 +10,6 @@ import Icon from '../../components/elements/Icon';
 import { MediumTitle } from '../../components/elements/FontStyles';
 import baseTheme from '../../themes/baseTheme';
 import { redirectToKeycloakAction } from '../../keycloak';
-
-function Advisory({ icon, label, heading, body, bullets }) {
-  return (
-    <Flex sx={{ gap: 3, alignItems: 'flex-start' }}>
-      <Flex
-        sx={{
-          flexShrink: 0,
-          width: '40px',
-          height: '40px',
-          borderRadius: '50%',
-          bg: '#E1EAF9',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <Icon
-          variant="static"
-          theme={baseTheme}
-          icon={icon}
-          label={label}
-          sx={{ color: 'text.primary', fontSize: '1.25em' }}
-        />
-      </Flex>
-      <Box>
-        <Text
-          as="div"
-          sx={{ fontFamily: 'default', fontWeight: 'bold', fontSize: 1, lineHeight: 2, color: 'text.primary', mb: 1 }}
-        >
-          {heading}
-        </Text>
-        <Text
-          as="div"
-          sx={{ fontFamily: 'default', fontSize: 0, lineHeight: 2, color: 'blueGreyDark' }}
-        >
-          {body}
-        </Text>
-        {bullets && bullets.length > 0 && (
-          <Box
-            as="ul"
-            sx={{
-              fontFamily: 'default',
-              fontSize: 0,
-              lineHeight: 2,
-              color: 'blueGreyDark',
-              pl: 3,
-              m: 0,
-              mt: 1,
-            }}
-          >
-            {bullets.map((bullet, i) => (
-              // eslint-disable-next-line react/no-array-index-key
-              <Box as="li" key={i}>{bullet}</Box>
-            ))}
-          </Box>
-        )}
-      </Box>
-    </Flex>
-  );
-}
-
-Advisory.propTypes = {
-  icon: PropTypes.elementType.isRequired,
-  label: PropTypes.string.isRequired,
-  heading: PropTypes.string.isRequired,
-  body: PropTypes.string.isRequired,
-  bullets: PropTypes.arrayOf(PropTypes.string),
-};
 
 export function DisableTwoFactorConfirmDialog({ open, onClose, credentialId }) {
   const { t } = useTranslation();
@@ -114,35 +44,9 @@ export function DisableTwoFactorConfirmDialog({ open, onClose, credentialId }) {
       </DialogTitle>
 
       <DialogContent>
-        <Flex sx={{ flexDirection: 'column', gap: 4 }}>
-          <Advisory
-            icon={PhoneIphoneRoundedIcon}
-            label="disable-2fa-device-removal-advisory"
-            heading={t('Your current personal device (authenticator app) will be removed')}
-            body={t('You won’t be able to use your authenticator app on this device to log in.')}
-          />
-          <Advisory
-            icon={ChatBubbleRoundedIcon}
-            label="disable-2fa-turned-off-advisory"
-            heading={t('Two-factor authentication (2FA) will be turned off')}
-            body={t('If you continue to disable 2FA')}
-            bullets={[
-              t('2FA will be turned off'),
-              t('Your current personal device will be removed'),
-              t('You’ll log in with only your email and password until you set up 2FA again.'),
-            ]}
-          />
-          <Advisory
-            icon={SecurityRoundedIcon}
-            label="disable-2fa-recovery-codes-advisory"
-            heading={t('Recovery codes will be deleted')}
-            body={t('Removing your 2FA device will also delete associated recovery codes. These codes will no longer be available for account recovery once the device is removed.')}
-            bullets={[
-              t('You will no longer be able to use existing recovery codes.'),
-              t('You’ll need to set up 2FA again to generate new recovery codes.'),
-            ]}
-          />
-        </Flex>
+        <Text as="p" sx={{ fontFamily: 'default', fontSize: 1, lineHeight: 2, color: 'text.primary', m: 0 }}>
+          {t('Disabling 2FA will remove the extra security layer for your account completely. You can re-enable two-factor authentication at any time.')}
+        </Text>
       </DialogContent>
 
       <DialogActions>
