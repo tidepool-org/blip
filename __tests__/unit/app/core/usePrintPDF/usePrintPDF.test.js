@@ -148,6 +148,7 @@ describe('usePrintPDF', () => {
           forceDataWorkerAddDataRequest: true,
           initial: true,
           returnData: false,
+          syncTimePrefs: true,
           useCache: false,
         },
         patientId,
