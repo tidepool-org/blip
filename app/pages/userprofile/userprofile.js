@@ -619,15 +619,10 @@ export function UserProfile({ trackMetric, history, api, location }) {
     trackMetric('Viewed Account Settings');
   }, [trackMetric]);
 
-  useEffect(() => {
-    // The 2FA banner deep-links here with this flag. Location state is dropped on the next
-    // navigation, so a refresh or keycloak round-trip won't re-open the dialog.
-    if (location?.state?.openMfaSetup && isClinician && !isSSO) {
-      setSetup2faOpen(true);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location?.state?.openMfaSetup]);
 
+const open2faSetupOnMount = location?.state?.openMfaSetup && isClinician && !isSSO;
+const [setup2faOpen, setSetup2faOpen] = useState(open2faSetupOnMount);
+ 
   useEffect(() => {
     if (isError && !previousMfaFailed) {
       setToast({
