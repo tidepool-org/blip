@@ -57,7 +57,7 @@ const renderEditPatientDialog = (storeState = initialState) => {
       <ThemeProvider theme={theme}>
         <ToastProvider>
           <EditPatientDialog
-            api={{}}
+            api={{ clinics: { getPatientFromClinic: jest.fn() } }}
             trackMetric={jest.fn()}
             isOpen={true}
             onClose={jest.fn()}
@@ -74,6 +74,14 @@ describe('EditPatientDialog', () => {
       blip: {
         ...initialState.blip,
         smartCorrelationId: 'some-correlation-id',
+        clinics: {
+          clinic123: {
+            ...initialState.blip.clinics.clinic123,
+            patients: {
+              patient123: { id: 'patient123', fullName: 'John Doe', birthDate: '2000-01-01' },
+            },
+          },
+        },
       },
     };
 
