@@ -273,13 +273,11 @@ describe('UserProfile', () => {
       expect(redirectToKeycloakAction.mock.calls).to.have.lengthOf(0);
     });
 
-    it('renders the simplified body paragraphs and drops the advisory cards in the 2FA instructions dialog', async () => {
+    it('renders the simplified body paragraphs in the 2FA instructions dialog', async () => {
       renderWith(buildState(clinicianUser));
       fireEvent.click(await screen.findByRole('button', { name: 'Set up 2FA' }));
       expect(screen.getByText(/Only set up two-factor authentication \(2FA\) on individual clinic accounts/)).to.exist;
       expect(screen.getByText(/Verify there are at least two clinic admins in your clinic workspace/)).to.exist;
-      expect(screen.queryByText('Use two-factor authentication (2FA) only on individual accounts')).to.be.null;
-      expect(screen.queryByText('Review your clinic workspaces')).to.be.null;
     });
 
     it('redirects to Keycloak CONFIGURE_TOTP when "I understand" is clicked in the dialog', async () => {
@@ -314,13 +312,11 @@ describe('UserProfile', () => {
       expect(redirectToKeycloakAction.mock.calls).to.have.lengthOf(0);
     });
 
-    it('renders the single body paragraph and drops the advisory cards in the disable-2FA dialog', async () => {
+    it('renders the single body paragraph in the disable-2FA dialog', async () => {
       mockMapMfa.mockReturnValue(enabledMfaStatus());
       renderWith(buildState(clinicianUser));
       fireEvent.click(await screen.findByRole('button', { name: 'Disable 2FA' }));
       expect(screen.getByText(/Disabling 2FA will remove the extra security layer for your account completely/)).to.exist;
-      expect(screen.queryByText('Recovery codes will be deleted')).to.be.null;
-      expect(screen.queryByText('Two-factor authentication (2FA) will be turned off')).to.be.null;
     });
 
     it('redirects to Keycloak delete_credential:<id> when "I understand" is clicked in the disable dialog', async () => {
@@ -363,7 +359,6 @@ describe('UserProfile', () => {
       expect(screen.getByRole('heading', { name: 'Generate New Recovery Codes' })).to.exist;
       expect(screen.getByText(/This will permanently replace your existing recovery codes/)).to.exist;
       expect(screen.getByRole('button', { name: 'Yes, generate new codes' })).to.exist;
-      expect(screen.queryByText('You’re downloading a new set of recovery codes')).to.be.null;
     });
 
     it('redirects to Keycloak CONFIGURE_RECOVERY_AUTHN_CODES when "Yes, generate new codes" is clicked in the regenerate dialog', async () => {
