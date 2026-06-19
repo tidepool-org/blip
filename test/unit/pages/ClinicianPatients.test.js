@@ -1,6 +1,8 @@
 import React from 'react';
 import { screen, fireEvent, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+
+jest.mock('../../../app/redux/features/mfaStatus/mfaStatusApi');
 import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
 import merge from 'lodash/merge';

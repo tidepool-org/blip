@@ -23,6 +23,9 @@ const AppBanner = ({ trackMetric }) => {
   const loggedInUserId = useSelector(state => state.blip.loggedInUserId);
   const currentPatientInViewId = useSelector(state => state.blip.currentPatientInViewId);
   const userIsCurrentPatient = loggedInUserId && loggedInUserId === currentPatientInViewId;
+  // User-scoped banners (persistInteractionForUser) persist regardless of patient context;
+  // patient-scoped banners persist only while the user is the patient in view.
+  const persistBannerInteraction = userIsCurrentPatient || banner?.persistInteractionForUser;
   const isFirstRender = useIsFirstRender();
   const working = useSelector(state => state.blip.working);
   const { set: setToast } = useToasts();
@@ -32,7 +35,7 @@ const AppBanner = ({ trackMetric }) => {
   const [bannerActionClicked, setBannerActionClicked] = useState(false);
 
   const completeClickAction = useCallback(() => {
-    userIsCurrentPatient && dispatch(async.handleBannerInteraction(api, loggedInUserId, banner?.interactionId, CLICKED_BANNER_ACTION));
+    persistBannerInteraction && dispatch(async.handleBannerInteraction(api, loggedInUserId, banner?.interactionId, CLICKED_BANNER_ACTION));
     showModal && setShowModal(false);
 
     setBannerInteractedForPatient({
@@ -52,7 +55,7 @@ const AppBanner = ({ trackMetric }) => {
     loggedInUserId,
     setBannerInteractedForPatient,
     showModal,
-    userIsCurrentPatient,
+    persistBannerInteraction,
   ]);
 
   const handleAsyncResult = useCallback((workingState, successMessage, errorMessage) => {
@@ -145,7 +148,7 @@ const AppBanner = ({ trackMetric }) => {
   }
 
   function handleDismiss() {
-    userIsCurrentPatient && dispatch(async.handleBannerInteraction(api, loggedInUserId, banner.interactionId, DISMISSED_BANNER_ACTION));
+    persistBannerInteraction && dispatch(async.handleBannerInteraction(api, loggedInUserId, banner.interactionId, DISMISSED_BANNER_ACTION));
     isFunction(banner.dismiss?.handler) && banner.dismiss.handler();
     banner.dismiss?.metric && trackMetric(banner.dismiss.metric, banner.dismiss?.metricProps);
 
