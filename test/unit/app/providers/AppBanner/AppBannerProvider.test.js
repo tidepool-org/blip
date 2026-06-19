@@ -28,6 +28,9 @@ jest.mock('../../../../../app/components/datasources/DataConnections', () => ({
     },
   },
 }));
+
+jest.mock('../../../../../app/redux/features/mfaStatus/mfaStatusApi');
+import { useGetMfaStatusQuery } from '../../../../../app/redux/features/mfaStatus/mfaStatusApi';
 import { ToastProvider } from '../../../../../app/providers/ToastProvider';
 import { find, keys, pickBy } from 'lodash';
 import { appBanners } from '../../../../../app/providers/AppBanner/appBanners';
@@ -98,13 +101,13 @@ describe('AppBannerProvider', () => {
   beforeEach(() => {
     dispatchStub = 'dispatchStub';
 
-    
+    // Default: MFA query returns no data; the 2FA banner stays hidden unless a test opts in.
+    useGetMfaStatusQuery.mockReturnValue({ data: undefined });
+
     store = mockStore(initialState);
   });
 
   afterEach(() => {
-    
-    
     jest.restoreAllMocks();
   });
 
@@ -761,5 +764,102 @@ describe('AppBannerProvider', () => {
     expect(contextData.banner.id).toEqual('donateYourData');
     appBanners.length = 0;
     appBanners.push(...originalBanners);
+  });
+
+  describe('enable2fa banner eligibility', () => {
+    // A clinician (account roles) viewing a clinic where another admin exists, so the
+    // viewer is not the sole admin.
+    const makeState = ({
+      roles = ['clinician'],
+      preferences = {},
+      clinicians = {
+        clinician1: { roles: ['CLINIC_ADMIN'] },
+        clinician2: { roles: ['CLINIC_ADMIN'] },
+      },
+    } = {}) => ({
+      blip: {
+        selectedClinicId: 'clinic1',
+        clinics: {
+          clinic1: {
+            name: 'Test Clinic',
+            patients: {},
+            patientLimitEnforced: false,
+            ui: {},
+            clinicians,
+          },
+        },
+        loggedInUserId: 'clinician1',
+        allUsersMap: {
+          clinician1: { roles, preferences },
+        },
+        currentPatientInViewId: null,
+        data: { metaData: { size: 0, devices: [] } },
+        dataSources: [],
+        justConnectedDataSourceProviderName: null,
+        consentRecords: {},
+      },
+    });
+
+    const renderAt = (state, path = '/clinic-workspace') => {
+      store = mockStore(state);
+      render(
+        <Provider store={store}>
+          <ToastProvider>
+            <MemoryRouter initialEntries={[path]}>
+              <AppBannerProvider>
+                <DummyConsumer />
+              </AppBannerProvider>
+            </MemoryRouter>
+          </ToastProvider>
+        </Provider>
+      );
+      return JSON.parse(screen.getByTestId('context').textContent);
+    };
+
+    it('shows the banner for a non-SSO clinician without 2FA who is not the sole admin', () => {
+      useGetMfaStatusQuery.mockReturnValue({ data: { enabled: false } });
+      const contextData = renderAt(makeState());
+      expect(contextData.hasBanner).toBe(true);
+      expect(contextData.banner.id).toEqual('enable2fa');
+      expect(contextData.processedBanner.bannerArgs).toEqual([dispatchStub]);
+    });
+
+    it('hides the banner for an SSO user', () => {
+      useGetMfaStatusQuery.mockReturnValue({ data: { enabled: false } });
+      const contextData = renderAt(makeState({ roles: ['clinician', 'brokered'] }));
+      expect(contextData.hasBanner).toBe(false);
+    });
+
+    it('hides the banner when 2FA is already enabled', () => {
+      useGetMfaStatusQuery.mockReturnValue({ data: { enabled: true } });
+      const contextData = renderAt(makeState());
+      expect(contextData.hasBanner).toBe(false);
+    });
+
+    it('hides the banner for a non-clinician', () => {
+      useGetMfaStatusQuery.mockReturnValue({ data: { enabled: false } });
+      const contextData = renderAt(makeState({ roles: [] }));
+      expect(contextData.hasBanner).toBe(false);
+    });
+
+    it('hides the banner for the sole admin of the selected clinic', () => {
+      useGetMfaStatusQuery.mockReturnValue({ data: { enabled: false } });
+      const contextData = renderAt(makeState({ clinicians: { clinician1: { roles: ['CLINIC_ADMIN'] } } }));
+      expect(contextData.hasBanner).toBe(false);
+    });
+
+    it('hides the banner on a non-patient-list clinic path', () => {
+      useGetMfaStatusQuery.mockReturnValue({ data: { enabled: false } });
+      const contextData = renderAt(makeState(), '/clinic-workspace/invites');
+      expect(contextData.hasBanner).toBe(false);
+    });
+
+    it('hides the banner once a dismissal preference is recorded', () => {
+      useGetMfaStatusQuery.mockReturnValue({ data: { enabled: false } });
+      const contextData = renderAt(
+        makeState({ preferences: { dismissedEnable2faBannerTime: '2026-01-01T00:00:00.000Z' } })
+      );
+      expect(contextData.hasBanner).toBe(false);
+    });
   });
 });

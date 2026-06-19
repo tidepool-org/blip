@@ -1,6 +1,8 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor, within, cleanup } from '@testing-library/react';
 import { mountWithProviders } from '../../utils/mountWithProviders';
+
+jest.mock('../../../app/redux/features/mfaStatus/mfaStatusApi');
 import moment from 'moment-timezone';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';

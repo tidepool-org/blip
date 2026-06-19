@@ -63,14 +63,14 @@ const buildState = (user) => ({
   },
 });
 
-const renderWith = (state) => {
+const renderWith = (state, props = {}) => {
   const store = makeStore(state.blip);
   const trackMetric = sinon.stub();
   const api = {};
   const utils = render(
     <Provider store={store}>
       <ToastProvider>
-        <UserProfile trackMetric={trackMetric} api={api} />
+        <UserProfile trackMetric={trackMetric} api={api} {...props} />
       </ToastProvider>
     </Provider>
   );
@@ -610,6 +610,25 @@ describe('UserProfile', () => {
       mockFetchCreds.mockRejectedValue(Object.assign(new Error('nope'), { status: 500 }));
       renderWith(buildState(clinicianUser));
       expect(await screen.findByText('We couldn’t load your two-factor authentication status. Please try again.')).to.exist;
+    });
+  });
+
+  describe('2FA setup deep-link (router location state)', () => {
+    it('auto-opens the 2FA instructions dialog when location.state.openMfaSetup is true', async () => {
+      renderWith(buildState(clinicianUser), { location: { state: { openMfaSetup: true } } });
+      expect(await screen.findByRole('heading', { name: 'Before setting up 2FA' })).to.exist;
+    });
+
+    it('does not auto-open the dialog without the location-state flag', async () => {
+      renderWith(buildState(clinicianUser));
+      // Wait for the page to settle (the 2FA row resolves) before asserting the dialog is closed.
+      await screen.findByRole('button', { name: 'Set up 2FA' });
+      expect(screen.queryByRole('heading', { name: 'Before setting up 2FA' })).to.be.null;
+    });
+
+    it('does not auto-open the dialog for an SSO viewer even with the flag', () => {
+      renderWith(buildState(ssoClinicianUser), { location: { state: { openMfaSetup: true } } });
+      expect(screen.queryByRole('heading', { name: 'Before setting up 2FA' })).to.be.null;
     });
   });
 });

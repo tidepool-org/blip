@@ -581,7 +581,7 @@ RecoveryCodesRow.propTypes = {
   onRegenerateCodes: PropTypes.func.isRequired,
 };
 
-export function UserProfile({ trackMetric, history, api }) {
+export function UserProfile({ trackMetric, history, api, location }) {
   const { t } = useTranslation();
   const { set: setToast } = useToasts();
   const user = useSelector(selectUser);
@@ -594,9 +594,10 @@ export function UserProfile({ trackMetric, history, api }) {
   const isClinician = personUtils.isClinicianAccount(user);
   const isSSO = personUtils.isSSOAccount(user);
   const passwordLastUpdated = mfaStatus.passwordUpdatedTime;
+  const open2faSetupOnMount = location?.state?.openMfaSetup && isClinician && !isSSO;
 
   const [editOpen, setEditOpen] = useState(false);
-  const [setup2faOpen, setSetup2faOpen] = useState(false);
+  const [setup2faOpen, setSetup2faOpen] = useState(open2faSetupOnMount);
   const [disable2faOpen, setDisable2faOpen] = useState(false);
   const [regenerate2faCodesOpen, setRegenerate2faCodesOpen] = useState(false);
 
@@ -900,6 +901,7 @@ UserProfile.propTypes = {
   trackMetric: PropTypes.func.isRequired,
   history: PropTypes.object,
   api: PropTypes.object.isRequired,
+  location: PropTypes.object,
 };
 
 UserProfile.defaultProps = {
