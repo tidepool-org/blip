@@ -21,6 +21,7 @@ import usePruneInvalidFilters from './usePruneInvalidFilters';
 import { resetTideDashboardFilters } from './tideDashboardFiltersSlice';
 import EmptyContentNode from './EmptyContentNode';
 import FilterBySites from './FilterBySites';
+import FilterDisplay from './FilterDisplay';
 
 const LIMIT = 12;
 
@@ -68,6 +69,8 @@ const TideDashboard = () => {
       <Flex mb={3} sx={{ justifyContent: 'center' }}>
         <FilterByCategory />
       </Flex>
+
+      <FilterDisplay count={data?.meta?.count || 0} />
 
       <Table
         id="tideDashboardPatientsTable"

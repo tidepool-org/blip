@@ -10,6 +10,7 @@ import ActiveFilterCount from '../components/ActiveFilterCount';
 import FilterByTags from './FilterByTags';
 import FilterBySites from './FilterBySites';
 import FilterByCategory from './FilterByCategory';
+import FilterDisplay from './FilterDisplay';
 import ResetFilters from '../components/ResetFilters';
 import PaginationControls from '../components/PaginationControls';
 
@@ -82,6 +83,8 @@ const DeviceIssues = () => {
       <Flex mb={3} sx={{ justifyContent: 'center' }}>
         <FilterByCategory />
       </Flex>
+
+      <FilterDisplay count={data?.meta?.count || 0} />
 
       <Table
         id="deviceIssuesPatientsTable"
