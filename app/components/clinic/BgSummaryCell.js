@@ -6,6 +6,7 @@ import { withTranslation } from 'react-i18next';
 
 import { utils as vizUtils, colors as vizColors } from '@tidepool/viz';
 const { GLYCEMIC_RANGES_PRESET } = vizUtils.constants;
+const { bankersRound } = vizUtils.stat;
 
 import { MGDL_PER_MMOLL, MGDL_UNITS } from '../../core/constants';
 import BgRangeSummary from './BgRangeSummary';
@@ -117,7 +118,7 @@ export const BgSummaryCell = ({
     }, [summary, showExtremeHigh]
   );
 
-  const cgmUsePercent = (summary?.timeCGMUsePercent || 0);
+  const cgmUsePercent = bankersRound((summary?.timeCGMUsePercent || 0), 2);
   const minCgmHours = 24;
   const minCgmPercent = 0.7;
 
