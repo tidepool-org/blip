@@ -265,11 +265,12 @@ export async function fetchKeycloakCredentials() {
  * Map a Keycloak account credentials array to the page-ready mfaStatus shape.
  *
  * @param {Array} credentials - the array returned by fetchKeycloakCredentials
- * @returns {{enabled: boolean, enabledTime: ?number, device: {name: ?string, registeredTime: ?number}, recoveryCodes: {used: number, total: number, generatedTime: ?number}}}
+ * @returns {{enabled: boolean, enabledTime: ?number, passwordUpdatedTime: ?number, device: {name: ?string, registeredTime: ?number}, recoveryCodes: {used: number, total: number, generatedTime: ?number}}}
  */
 export function mapKeycloakCredentialsToMfaStatus(credentials) {
   const list = Array.isArray(credentials) ? credentials : [];
 
+  const passwordCred = list.find((c) => c?.type === 'password')?.userCredentialMetadatas?.[0]?.credential;
   const otpCred = list.find((c) => c?.type === 'otp')?.userCredentialMetadatas?.[0]?.credential;
   const recoveryCred = list.find((c) => c?.type === 'recovery-authn-codes')?.userCredentialMetadatas?.[0]?.credential;
 
@@ -285,6 +286,7 @@ export function mapKeycloakCredentialsToMfaStatus(credentials) {
   return {
     enabled: !!otpCred,
     enabledTime: otpCred?.createdDate ?? null,
+    passwordUpdatedTime: passwordCred?.createdDate ?? null,
     device: {
       id: otpCred?.id ?? null,
       name: otpCred?.userLabel ?? null,

@@ -474,7 +474,13 @@ describe('keycloak', () => {
 
   describe('mapKeycloakCredentialsToMfaStatus', () => {
     const sample = [
-      { type: 'password', category: 'basic-authentication' },
+      {
+        type: 'password',
+        category: 'basic-authentication',
+        userCredentialMetadatas: [{
+          credential: { id: 'pwd-1', type: 'password', createdDate: 1779729776172 },
+        }],
+      },
       {
         type: 'otp',
         category: 'two-factor',
@@ -501,6 +507,7 @@ describe('keycloak', () => {
       expect(result).to.deep.equal({
         enabled: true,
         enabledTime: 1779895908703,
+        passwordUpdatedTime: 1779729776172,
         device: { id: 'otp-1', name: 'OnePlus 12R', registeredTime: 1779895908703 },
         recoveryCodes: { used: 2, total: 12, generatedTime: 1779895908756 },
       });
@@ -511,6 +518,7 @@ describe('keycloak', () => {
       expect(result).to.deep.equal({
         enabled: false,
         enabledTime: null,
+        passwordUpdatedTime: null,
         device: { id: null, name: null, registeredTime: null },
         recoveryCodes: { used: 0, total: 12, generatedTime: null },
       });
@@ -520,6 +528,23 @@ describe('keycloak', () => {
       const result = mapKeycloakCredentialsToMfaStatus(undefined);
       expect(result.enabled).to.be.false;
       expect(result.recoveryCodes.total).to.equal(12);
+    });
+
+    it('maps the password credential createdDate to passwordUpdatedTime', () => {
+      const result = mapKeycloakCredentialsToMfaStatus([
+        {
+          type: 'password',
+          userCredentialMetadatas: [{ credential: { id: 'pwd-1', type: 'password', createdDate: 1779729776172 } }],
+        },
+      ]);
+      expect(result.passwordUpdatedTime).to.equal(1779729776172);
+    });
+
+    it('returns passwordUpdatedTime null when there is no password credential', () => {
+      const result = mapKeycloakCredentialsToMfaStatus([
+        { type: 'otp', userCredentialMetadatas: [{ credential: { id: 'otp-1', createdDate: 1779895908703 } }] },
+      ]);
+      expect(result.passwordUpdatedTime).to.be.null;
     });
   });
 });

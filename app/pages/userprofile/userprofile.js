@@ -60,6 +60,7 @@ const RECOVERY_CODES_TOTAL = 12;
 const MFA_STATUS_DEFAULT = {
   enabled: false,
   enabledTime: null,
+  passwordUpdatedTime: null,
   device: { id: null, name: null, registeredTime: null },
   recoveryCodes: { used: 0, total: 12, generatedTime: null },
 };
@@ -118,7 +119,6 @@ function ProfileSection({ user, isClinician, t, onEdit }) {
   const email = user?.username || _.get(user, 'emails.0');
   const jobTitleValue = _.get(user, 'profile.clinic.role');
   const jobTitle = _.get(_.find(clinicRoles, { value: jobTitleValue }), 'label', jobTitleValue);
-  const lastUpdated = _.get(user, 'profile.updatedAt') || _.get(user, 'updatedAt');
 
   return (
     <Box variant="containers.well" p={4}>
@@ -152,21 +152,6 @@ function ProfileSection({ user, isClinician, t, onEdit }) {
             <Text as="div" sx={{ fontFamily: 'default', fontSize: 0, lineHeight: 1, color: 'darkGrey', mb: 1 }}>
               <Text as="span" sx={{ fontWeight: 'medium' }}>{t('Job title:')}</Text>{' '}
               <Text as="span" sx={{ fontWeight: 'bold' }}>{jobTitle}</Text>
-            </Text>
-          )}
-          {lastUpdated && (
-            <Text
-              as="div"
-              sx={{
-                fontFamily: 'default',
-                fontSize: '9px',
-                lineHeight: 1,
-                fontWeight: 'bold',
-                color: 'mediumGrey',
-                mt: 2,
-              }}
-            >
-              {t('Last updated {{date}}', { date: formatDateTime(lastUpdated) })}
             </Text>
           )}
         </Box>
@@ -271,7 +256,7 @@ function ManagePasswordRow({ t, trackMetric, passwordLastUpdated }) {
 ManagePasswordRow.propTypes = {
   t: PropTypes.func.isRequired,
   trackMetric: PropTypes.func.isRequired,
-  passwordLastUpdated: PropTypes.string,
+  passwordLastUpdated: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };
 
 // Cell shape inside the gray inset panel used by both the 2FA and Recovery Codes
@@ -608,7 +593,7 @@ export function UserProfile({ trackMetric, history, api, location }) {
 
   const isClinician = personUtils.isClinicianAccount(user);
   const isSSO = personUtils.isSSOAccount(user);
-  const passwordLastUpdated = _.get(user, 'passwordLastUpdated');
+  const passwordLastUpdated = mfaStatus.passwordUpdatedTime;
   const open2faSetupOnMount = location?.state?.openMfaSetup && isClinician && !isSSO;
 
   const [editOpen, setEditOpen] = useState(false);
@@ -844,43 +829,45 @@ export function UserProfile({ trackMetric, history, api, location }) {
 
             <Box sx={{ borderTop: '1px solid', borderColor: 'gray10' }} />
 
-            <Text
-              as="div"
-              sx={{
-                fontFamily: 'default',
-                fontSize: '18px',
-                lineHeight: '32px',
-                fontWeight: 'medium',
-                color: 'blueGreyDark',
-              }}
-            >
-              {t('Security')}
-            </Text>
+            <Flex sx={{ flexDirection: 'column', gap: '12px' }}>
+              <Text
+                as="div"
+                sx={{
+                  fontFamily: 'default',
+                  fontSize: '18px',
+                  lineHeight: '32px',
+                  fontWeight: 'medium',
+                  color: 'blueGreyDark',
+                }}
+              >
+                {t('Security')}
+              </Text>
 
-            {isSSO ? (
-              <SecuritySSONotice t={t} />
-            ) : (
-              <Flex sx={{ flexDirection: 'column', gap: 4 }}>
-                <ManagePasswordRow
-                  t={t}
-                  trackMetric={trackMetric}
-                  passwordLastUpdated={passwordLastUpdated}
-                />
-                {isClinician && (
-                  <TwoFactorRow
+              {isSSO ? (
+                <SecuritySSONotice t={t} />
+              ) : (
+                <Flex sx={{ flexDirection: 'column', gap: 4 }}>
+                  <ManagePasswordRow
                     t={t}
                     trackMetric={trackMetric}
-                    mfaStatus={mfaStatus}
-                    onSetup2fa={handleSetup2fa}
-                    onDisable2fa={handleDisable2fa}
-                    onRegenerateCodes={handleRegenerateCodes}
-                    loading={mfaLoading}
-                    error={mfaFailed}
-                    onRetry={handleRetryMfaStatus}
+                    passwordLastUpdated={passwordLastUpdated}
                   />
-                )}
-              </Flex>
-            )}
+                  {isClinician && (
+                    <TwoFactorRow
+                      t={t}
+                      trackMetric={trackMetric}
+                      mfaStatus={mfaStatus}
+                      onSetup2fa={handleSetup2fa}
+                      onDisable2fa={handleDisable2fa}
+                      onRegenerateCodes={handleRegenerateCodes}
+                      loading={mfaLoading}
+                      error={mfaFailed}
+                      onRetry={handleRetryMfaStatus}
+                    />
+                  )}
+                </Flex>
+              )}
+            </Flex>
           </Flex>
         </Box>
       </Box>

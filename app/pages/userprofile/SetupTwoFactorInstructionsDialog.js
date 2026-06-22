@@ -1,9 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
-import { Box, Flex, Text } from 'theme-ui';
-import AccountTreeRoundedIcon from '@material-ui/icons/AccountTreeRounded';
-import GroupRoundedIcon from '@material-ui/icons/GroupRounded';
+import { Flex, Text } from 'theme-ui';
 import ReportProblemRoundedIcon from '@material-ui/icons/ReportProblemRounded';
 
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '../../components/elements/Dialog';
@@ -12,53 +10,6 @@ import Icon from '../../components/elements/Icon';
 import { MediumTitle } from '../../components/elements/FontStyles';
 import baseTheme from '../../themes/baseTheme';
 import { redirectToKeycloakAction } from '../../keycloak';
-
-function Advisory({ icon, label, heading, body }) {
-  return (
-    <Flex sx={{ gap: 3, alignItems: 'flex-start' }}>
-      <Flex
-        sx={{
-          flexShrink: 0,
-          width: '40px',
-          height: '40px',
-          borderRadius: '50%',
-          bg: '#E1EAF9',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <Icon
-          variant="static"
-          theme={baseTheme}
-          icon={icon}
-          label={label}
-          sx={{ color: 'text.primary', fontSize: '1.25em' }}
-        />
-      </Flex>
-      <Box>
-        <Text
-          as="div"
-          sx={{ fontFamily: 'default', fontWeight: 'bold', fontSize: 1, lineHeight: 2, color: 'text.primary', mb: 1 }}
-        >
-          {heading}
-        </Text>
-        <Text
-          as="div"
-          sx={{ fontFamily: 'default', fontSize: 0, lineHeight: 2, color: 'blueGreyDark' }}
-        >
-          {body}
-        </Text>
-      </Box>
-    </Flex>
-  );
-}
-
-Advisory.propTypes = {
-  icon: PropTypes.elementType.isRequired,
-  label: PropTypes.string.isRequired,
-  heading: PropTypes.string.isRequired,
-  body: PropTypes.string.isRequired,
-};
 
 export function SetupTwoFactorInstructionsDialog({ open, onClose }) {
   const { t } = useTranslation();
@@ -92,19 +43,13 @@ export function SetupTwoFactorInstructionsDialog({ open, onClose }) {
       </DialogTitle>
 
       <DialogContent>
-        <Flex sx={{ flexDirection: 'column', gap: 4 }}>
-          <Advisory
-            icon={AccountTreeRoundedIcon}
-            label="2fa-individual-accounts-advisory"
-            heading={t('Use two-factor authentication (2FA) only on individual accounts')}
-            body={t('Two-factor authentication is designed for personal logins. If this account is shared, other people may not be able to sign in once 2FA is enabled.')}
-          />
-          <Advisory
-            icon={GroupRoundedIcon}
-            label="2fa-clinic-workspaces-advisory"
-            heading={t('Review your clinic workspaces')}
-            body={t('If you are the only admin in this clinic workspace, add at least one other admin before enabling two-factor authentication (2FA). This helps ensure your clinic can recover access if an admin is ever locked out.')}
-          />
+        <Flex sx={{ flexDirection: 'column', gap: 3 }}>
+          <Text as="p" sx={{ fontFamily: 'default', fontSize: 1, lineHeight: 2, color: 'text.primary', m: 0 }}>
+            {t('Only set up two-factor authentication (2FA) on individual clinic accounts. Create separate accounts for each team member before continuing.')}
+          </Text>
+          <Text as="p" sx={{ fontFamily: 'default', fontSize: 1, lineHeight: 2, color: 'text.primary', m: 0 }}>
+            {t('Verify there are at least two clinic admins in your clinic workspace. This helps ensure your clinic can recover access if an admin is ever locked out.')}
+          </Text>
         </Flex>
       </DialogContent>
 
