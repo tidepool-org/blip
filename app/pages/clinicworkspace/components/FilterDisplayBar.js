@@ -38,7 +38,7 @@ const FilterDisplayBar = ({ count = 0, tags = [], sites = [], onReset = noop, on
     ...map(sites, site => ({ type: FILTER_TYPE.SITE, properties: site })),
   ];
 
-  if (!filters.length) return null;
+  if (!filters.length || count <= 0) return null;
 
   return (
     <Flex
