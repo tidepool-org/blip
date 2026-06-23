@@ -18,10 +18,11 @@ import useTideDashboardPatients, { LIMIT } from './useTideDashboardPatients';
 import ResetFilters from '../components/ResetFilters';
 import useActiveFiltersCount from './useActiveFiltersCount';
 import useDerivedDataRecencyEndpoints from './useDerivedDataRecencyEndpoints';
-import usePruneInvalidTags from './usePruneInvalidTags';
+import usePruneInvalidFilters from './usePruneInvalidFilters';
 import { resetTideDashboardFilters } from './tideDashboardFiltersSlice';
 import useTableColumns from './useTableColumns';
 import EmptyContentNode from './EmptyContentNode';
+import FilterBySites from './FilterBySites';
 
 const Divider = () => <Box id='filter-divider' mx={2} sx={{ border: `1px solid ${vizColors.gray05}`, height: '24px' }}></Box>;
 
@@ -29,7 +30,7 @@ const TideDashboard = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
-  usePruneInvalidTags();
+  usePruneInvalidFilters();
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const category = useSelector(state => state.blip.tideDashboard.category);
@@ -63,6 +64,7 @@ const TideDashboard = () => {
         <FilterBySummaryPeriod />
         <Divider />
         <FilterByTags />
+        <FilterBySites />
         <ResetFilters
           hidden={activeFiltersCount <= 0}
           onClick={() => dispatch(resetTideDashboardFilters())}

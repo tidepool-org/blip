@@ -35,22 +35,22 @@ import { SPECIAL_FILTER_STATES } from '../ClinicPatients';
 const DropdownContent = ({
   onClose = noop,
   onChange = noop,
-  patientTags = [],
+  clinicSites = [],
 }) => {
   const { t } = useTranslation();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
 
-  const [pendingTags, setPendingTags] = useState(patientTags);
+  const [pendingSites, setPendingSites] = useState(clinicSites);
 
-  const isFilteringForZeroTags = isEqual(pendingTags, SPECIAL_FILTER_STATES.ZERO_TAGS);
+  const isFilteringForZeroSites = isEqual(pendingSites, SPECIAL_FILTER_STATES.ZERO_SITES);
 
-  const sortedTagFilterOptions = useMemo(() => {
-    return map(clinic?.patientTags, ({ id, name }) => ({ id, label: name }))
+  const sortedSiteFilterOptions = useMemo(() => {
+    return map(clinic?.sites, ({ id, name }) => ({ id, label: name }))
       .toSorted((a, b) => utils.compareLabels(a.label, b.label));
-  }, [clinic?.patientTags]);
+  }, [clinic?.sites]);
 
-  const handleChange = (patientTags) => onChange(patientTags);
+  const handleChange = (clinicSites) => onChange(clinicSites);
 
   return (
     <>
@@ -58,33 +58,33 @@ const DropdownContent = ({
         <Box variant="containers.small">
           <Box mb={2}>
             <Text sx={{ display: 'block', position: 'relative', top: -2, color: colors.gray50, fontSize: 1, fontWeight: 'medium' }}>
-              {t('Tags')}
+              {t('Sites')}
             </Text>
-            { sortedTagFilterOptions.length > 0 &&
+            { sortedSiteFilterOptions.length > 0 &&
               <Text sx={{ display: 'block', position: 'relative', top: -2, color: colors.gray50, fontSize: 0, fontStyle: 'italic', maxWidth: '208px', whiteSpace: 'wrap', lineHeight: 1 }}>
-                {t('Only patients with ALL of the tags you select below will be shown.')}
+                {t('Any patient with one or more of the sites you select below will be shown.')}
               </Text>
             }
           </Box>
 
           { // Render a list of checkboxes
-            sortedTagFilterOptions.map(({ id, label }) => {
-              const isChecked = pendingTags?.includes(id);
+            sortedSiteFilterOptions.map(({ id, label }) => {
+              const isChecked = pendingSites?.includes(id);
 
               return (
-                <Box mt={1} className="tag-filter-option" key={`tag-filter-option-${id}`}>
+                <Box mt={1} className="site-filter-option" key={`site-filter-option-${id}`}>
                   <Checkbox
-                    id={`tag-filter-option-checkbox-${id}`}
-                    data-testid={`tag-filter-option-checkbox-${id}`}
+                    id={`site-filter-option-checkbox-${id}`}
+                    data-testid={`site-filter-option-checkbox-${id}`}
                     label={<Text sx={{ fontSize: 0, fontWeight: 'normal' }}>{label}</Text>}
                     checked={isChecked}
                     onChange={() => {
-                      if (isFilteringForZeroTags) {
-                        setPendingTags([id]);
+                      if (isFilteringForZeroSites) {
+                        setPendingSites([id]);
                       } else if (isChecked) {
-                        setPendingTags(pendingTags => without(pendingTags, id));
+                        setPendingSites(pendingSites => without(pendingSites, id));
                       } else {
-                        setPendingTags(pendingTags => [...pendingTags, id]);
+                        setPendingSites(pendingSites => [...pendingSites, id]);
                       }
                     }}
                   />
@@ -93,32 +93,32 @@ const DropdownContent = ({
             })
           }
 
-          { // Display an option to filter for patients with zero tags
-            sortedTagFilterOptions.length > 0 &&
-            <Box mt={2} mx={-2} pt={3} px={2} sx={{ borderTop: borders.divider }} className="clinic-site-filter-option" key="clinic-site-filter-option-PWDS_WITH_ZERO_TAGS">
+          { // Display an option to filter for patients with zero sites
+            sortedSiteFilterOptions.length > 0 &&
+            <Box mt={2} mx={-2} pt={3} px={2} sx={{ borderTop: borders.divider }} className="clinic-site-filter-option" key="clinic-site-filter-option-PWDS_WITH_ZERO_SITES">
               <Checkbox
-                id="tag-filter-option-checkbox-PWDS_WITH_ZERO_TAGS"
-                data-testid="tag-filter-option-checkbox-PWDS_WITH_ZERO_TAGS"
+                id="site-filter-option-checkbox-PWDS_WITH_ZERO_SITES"
+                data-testid="site-filter-option-checkbox-PWDS_WITH_ZERO_SITES"
                 label={<Text sx={{ fontSize: 0, fontWeight: 'normal' }}>
-                  {t('Patients without any tags')}
+                  {t('Patients without any sites')}
                 </Text>}
-                checked={isFilteringForZeroTags}
+                checked={isFilteringForZeroSites}
                 onChange={() => {
-                  if (isFilteringForZeroTags) {
-                    setPendingTags([]);
+                  if (isFilteringForZeroSites) {
+                    setPendingSites([]);
                   } else {
-                    setPendingTags(SPECIAL_FILTER_STATES.ZERO_TAGS);
+                    setPendingSites(SPECIAL_FILTER_STATES.ZERO_SITES);
                   }
                 }}
               />
             </Box>
           }
 
-          { // If no tags exist, display a message
-            sortedTagFilterOptions.length <= 0 &&
+          { // If no sites exist, display a message
+            sortedSiteFilterOptions.length <= 0 &&
             <Box>
               <Box sx={{ fontSize: 1, color: colors.gray50, lineHeight: 1 }}>
-                {t('Tags help you segment your patient population based on criteria you define, such as clinician, type of diabetes, or care groups.')}
+                {t('Create and assign sites to patient accounts to segment your patient population by location.')}
               </Box>
 
             </Box>
@@ -126,15 +126,15 @@ const DropdownContent = ({
         </Box>
       </DialogContent>
 
-      { sortedTagFilterOptions.length > 0 &&
+      { sortedSiteFilterOptions.length > 0 &&
         <DialogActions sx={{ justifyContent: 'space-around', padding: 2 }} p={1}>
           <Button
-            id="clear-patient-tags-filter"
+            id="clear-patient-sites-filter"
             sx={{ fontSize: 1 }}
             variant="textSecondary"
             onClick={() => {
-              trackMetric(prefixPopHealthMetric('Patient tag filter clear'), { clinicId: selectedClinicId });
-              setPendingTags([]);
+              trackMetric(prefixPopHealthMetric('Patient site filter clear'), { clinicId: selectedClinicId });
+              setPendingSites([]);
               handleChange([]);
               onClose();
             }}
@@ -142,9 +142,9 @@ const DropdownContent = ({
             {t('Clear')}
           </Button>
 
-          <Button id="apply-patient-tags-filter" sx={{ fontSize: 1 }} variant="textPrimary" onClick={() => {
-            trackMetric(prefixPopHealthMetric('Patient tag filter apply'), { clinicId: selectedClinicId });
-            handleChange(pendingTags);
+          <Button id="apply-patient-sites-filter" sx={{ fontSize: 1 }} variant="textPrimary" onClick={() => {
+            trackMetric(prefixPopHealthMetric('Patient site filter apply'), { clinicId: selectedClinicId });
+            handleChange(pendingSites);
             onClose();
           }}>
             {t('Apply')}
@@ -155,47 +155,47 @@ const DropdownContent = ({
   );
 };
 
-const TagFilterDropdown = ({
+const SitesFilterDropdown = ({
   onChange = noop,
-  patientTags = [],
+  clinicSites = [],
 }) => {
   const { t } = useTranslation();
 
-  const patientTagsPopupFilterState = usePopupState({
+  const clinicSitesPopupFilterState = usePopupState({
     variant: 'popover',
-    popupId: 'patientTagFilters',
+    popupId: 'clinicSiteFilters',
   });
 
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
 
   const handleCloseDropdown = () => {
-    patientTagsPopupFilterState.close();
+    clinicSitesPopupFilterState.close();
   };
 
   return (
     <>
       <Box
         onClick={() => {
-          if (!patientTagsPopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('patient tags filter open'), { clinicId: selectedClinicId });
+          if (!clinicSitesPopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('patient sites filter open'), { clinicId: selectedClinicId });
         }}
         sx={{ flexShrink: 0 }}
       >
         <Button
           variant="filter"
-          id="patient-tags-filter-trigger"
-          selected={patientTags.length > 0}
-          {...bindTrigger(patientTagsPopupFilterState)}
+          id="patient-sites-filter-trigger"
+          selected={clinicSites.length > 0}
+          {...bindTrigger(clinicSitesPopupFilterState)}
           icon={KeyboardArrowDownRoundedIcon}
-          iconLabel="Filter by patient tags"
+          iconLabel="Filter by clinic sites"
           sx={{ fontSize: 0, lineHeight: 1.3 }}
         >
           <Flex sx={{ alignItems: 'center', gap: 1 }}>
-            {t('Tags')}
+            {t('Sites')}
 
-            {patientTags.length > 0 && (
+            {clinicSites.length > 0 && (
               <Pill
-                id="patient-tags-filter-count"
+                id="patient-sites-filter-count"
                 label="filter count"
                 round
                 sx={{
@@ -206,7 +206,7 @@ const TagFilterDropdown = ({
                   display: 'inline-block',
                 }}
                 colorPalette={['purpleMedium', 'white']}
-                text={`${patientTags.length}`}
+                text={`${clinicSites.length}`}
               />
             )}
           </Flex>
@@ -216,17 +216,17 @@ const TagFilterDropdown = ({
       <Popover
         minWidth="11em"
         closeIcon
-        {...bindPopover(patientTagsPopupFilterState)}
+        {...bindPopover(clinicSitesPopupFilterState)}
         onClickCloseIcon={() => {
-          trackMetric(prefixPopHealthMetric('Patient tag filter close'), { clinicId: selectedClinicId });
+          trackMetric(prefixPopHealthMetric('Patient site filter close'), { clinicId: selectedClinicId });
         }}
         onClose={() => {
-          patientTagsPopupFilterState.close();
+          clinicSitesPopupFilterState.close();
         }}
       >
-        { patientTagsPopupFilterState.isOpen &&
+        { clinicSitesPopupFilterState.isOpen &&
           <DropdownContent
-            patientTags={patientTags}
+            clinicSites={clinicSites}
             onClose={handleCloseDropdown}
             onChange={onChange}
           />
@@ -236,4 +236,4 @@ const TagFilterDropdown = ({
   );
 };
 
-export default TagFilterDropdown;
+export default SitesFilterDropdown;
