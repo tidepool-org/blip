@@ -62,6 +62,8 @@ describe('constants', function() {
       'Diabetes Youth Families (DYF)',
       'The Diabetes Link',
       'The diaTribe Foundation',
+      'Nightscout Foundation',
+      'T1D Exchange',
     ]);
   });
 
