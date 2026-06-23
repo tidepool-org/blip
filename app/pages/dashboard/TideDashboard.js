@@ -798,11 +798,11 @@ const TideDashboardSection = React.memo(props => {
   };
 
   const sectionLabelsMap = {
-    timeInVeryLowPercent: t('> 1% Time below {{veryLowGlucoseThreshold}} {{clinicBgUnits}}', {
+    timeInVeryLowPercent: t('≥ 1% Time below {{veryLowGlucoseThreshold}} {{clinicBgUnits}}', {
       veryLowGlucoseThreshold,
       clinicBgUnits,
     }),
-    timeInAnyLowPercent: t('> 4% Time below {{lowGlucoseThreshold}} {{clinicBgUnits}}', {
+    timeInAnyLowPercent: t('≥ 4% Time below {{lowGlucoseThreshold}} {{clinicBgUnits}}', {
       lowGlucoseThreshold,
       clinicBgUnits,
     }),
@@ -811,15 +811,15 @@ const TideDashboardSection = React.memo(props => {
         extremeHighGlucoseThreshold,
         clinicBgUnits,
       }) : null,
-    timeInVeryHighPercent: t('> 5% Time above {{veryHighGlucoseThreshold}} {{clinicBgUnits}}', {
+    timeInVeryHighPercent: t('≥ 5% Time above {{veryHighGlucoseThreshold}} {{clinicBgUnits}}', {
       veryHighGlucoseThreshold,
       clinicBgUnits,
     }),
-    timeInAnyHighPercent: t('> 25% Time above {{highGlucoseThreshold}} {{clinicBgUnits}}', {
+    timeInAnyHighPercent: t('≥ 25% Time above {{highGlucoseThreshold}} {{clinicBgUnits}}', {
       highGlucoseThreshold,
       clinicBgUnits,
     }),
-    dropInTimeInTargetPercent: t('> 15%'),
+    dropInTimeInTargetPercent: t('≥ 15%'),
     timeInTargetPercent: t('< 70%'),
     timeCGMUsePercent: t('< 70%'),
   };

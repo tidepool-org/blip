@@ -5575,6 +5575,52 @@ describe('Actions', () => {
         expect(actions).to.eql(expectedActions);
         expect(api.clinics.getAll.callCount).to.equal(1);
       });
+
+      it('should dispatch GET_CLINICS_SUCCESS before invoking cb', () => {
+        // cb must fire AFTER the success dispatch so that any caller
+        // reading state from inside the callback sees clinics populated.
+        let clinics = [
+          {
+            id: '5f85fbe6686e6bb9170ab5d0',
+            address: '1 Address Ln, City Zip',
+            name: 'Clinic1',
+          },
+        ];
+
+        let api = {
+          clinics: {
+            getAll: sinon.stub().callsArgWith(1, null, clinics),
+            getEHRSettings: sinon.stub().callsArgWith(1, null, {}),
+            getMRNSettings: sinon.stub().callsArgWith(1, null, {}),
+          },
+        };
+
+        let store = mockStore({ blip: initialState });
+        let actionTypesAtCbTime = null;
+
+        store.dispatch(async.getAllClinics(api, {}, () => {
+          actionTypesAtCbTime = _.map(store.getActions(), 'type');
+        }));
+
+        expect(actionTypesAtCbTime).to.include('GET_CLINICS_SUCCESS');
+      });
+
+      it('should dispatch GET_CLINICS_FAILURE before invoking cb on error', () => {
+        let api = {
+          clinics: {
+            getAll: sinon.stub().callsArgWith(1, { status: 500, body: 'Error!' }, null),
+          },
+        };
+
+        let store = mockStore({ blip: initialState });
+        let actionTypesAtCbTime = null;
+
+        store.dispatch(async.getAllClinics(api, {}, () => {
+          actionTypesAtCbTime = _.map(store.getActions(), 'type');
+        }));
+
+        expect(actionTypesAtCbTime).to.include('GET_CLINICS_FAILURE');
+      });
     });
 
     describe('createClinic', () => {
@@ -6682,6 +6728,72 @@ describe('Actions', () => {
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.clinics.getPatientsForClinic.callCount).to.equal(1);
+      });
+
+      it('should abandon stale fetch responses when a newer fetch has been dispatched (stale-overwrite race fix)', () => {
+        // Two fetches are dispatched in sequence (e.g. an early non-summary fetch followed by a
+        // later summary fetch when entitlements arrive). If the older one returns LAST under slow
+        // network conditions, its payload must NOT overwrite the newer one's result.
+        const clinicId = '5f85fbe6686e6bb9170ab5d0';
+        let cbA;
+        let cbB;
+        const api = {
+          clinics: {
+            getPatientsForClinic: sinon.stub()
+              .onFirstCall().callsFake((id, opts, callback) => { cbA = callback; })
+              .onSecondCall().callsFake((id, opts, callback) => { cbB = callback; }),
+          },
+        };
+
+        const store = mockStore({ blip: initialState });
+
+        // Dispatch fetch A (older) — captures cbA
+        store.dispatch(async.fetchPatientsForClinic(api, clinicId, { offset: 0 }));
+        // Dispatch fetch B (newer) — captures cbB
+        store.dispatch(async.fetchPatientsForClinic(api, clinicId, { offset: 0, tags: ['t1'] }));
+
+        // Resolve fetch B first (returns 1 filtered patient)
+        cbB(null, { data: [{ id: 'patient_B' }], meta: { count: 1, totalCount: 1 } });
+        // Resolve fetch A last (would return 99 unfiltered patients — stale)
+        cbA(null, { data: _.times(99, (i) => ({ id: `patient_A_${i}` })), meta: { count: 99, totalCount: 99 } });
+
+        const successActions = _.filter(store.getActions(), { type: 'FETCH_PATIENTS_FOR_CLINIC_SUCCESS' });
+
+        // Only fetch B's SUCCESS should have dispatched; fetch A is silently abandoned.
+        expect(successActions).to.have.length(1);
+        expect(successActions[0].payload.patients).to.eql([{ id: 'patient_B' }]);
+        expect(successActions[0].payload.count).to.equal(1);
+        expect(successActions[0].payload.totalCount).to.equal(1);
+      });
+
+      it('should abandon stale failure responses when a newer fetch has been dispatched', () => {
+        const clinicId = '5f85fbe6686e6bb9170ab5d0';
+        let cbA;
+        let cbB;
+        const api = {
+          clinics: {
+            getPatientsForClinic: sinon.stub()
+              .onFirstCall().callsFake((id, opts, callback) => { cbA = callback; })
+              .onSecondCall().callsFake((id, opts, callback) => { cbB = callback; }),
+          },
+        };
+
+        const store = mockStore({ blip: initialState });
+
+        store.dispatch(async.fetchPatientsForClinic(api, clinicId, { offset: 0 }));
+        store.dispatch(async.fetchPatientsForClinic(api, clinicId, { offset: 0, tags: ['t1'] }));
+
+        // Newer fetch succeeds
+        cbB(null, { data: [{ id: 'patient_B' }], meta: { count: 1, totalCount: 1 } });
+        // Older fetch errors out (stale — must be ignored, no FAILURE dispatched)
+        cbA({ status: 500, body: 'Error!' }, null);
+
+        const actionTypes = _.map(store.getActions(), 'type');
+        const failureCount = _.filter(actionTypes, (t) => t === 'FETCH_PATIENTS_FOR_CLINIC_FAILURE').length;
+        const successCount = _.filter(actionTypes, (t) => t === 'FETCH_PATIENTS_FOR_CLINIC_SUCCESS').length;
+
+        expect(failureCount).to.equal(0);
+        expect(successCount).to.equal(1);
       });
     });
 
@@ -8548,6 +8660,59 @@ describe('Actions', () => {
         expectedActions[1].error = actions[1].error;
         expect(actions).to.eql(expectedActions);
         expect(api.clinics.getClinicsForClinician.callCount).to.equal(1);
+      });
+
+      it('should dispatch GET_CLINICS_FOR_CLINICIAN_SUCCESS before invoking cb', () => {
+        // cb must fire AFTER the success dispatch so that any caller
+        // reading state from inside the callback (notably async.login's async.parallel collector,
+        // which dispatches selectClinic) sees clinics populated. The cb-before-dispatch ordering
+        // caused selectClinic's `if (clinic)` guard to short-circuit and left clinic.entitlements
+        // undefined, which in turn blocked the patient list fetch on hard reload.
+        let clinicianId = 'clinicianId1';
+        let clinics = [
+          {
+            clinic: {
+              id: '5f85fbe6686e6bb9170ab5d0',
+              name: 'Clinic1',
+            },
+            clinician: { id: 'clinicianId1' },
+          },
+        ];
+
+        let api = {
+          clinics: {
+            getClinicsForClinician: sinon.stub().callsArgWith(2, null, clinics),
+            getEHRSettings: sinon.stub().callsArgWith(1, null, {}),
+            getMRNSettings: sinon.stub().callsArgWith(1, null, {}),
+          },
+        };
+
+        let store = mockStore({ blip: initialState });
+        let actionTypesAtCbTime = null;
+
+        store.dispatch(async.getClinicsForClinician(api, clinicianId, {}, () => {
+          actionTypesAtCbTime = _.map(store.getActions(), 'type');
+        }));
+
+        expect(actionTypesAtCbTime).to.include('GET_CLINICS_FOR_CLINICIAN_SUCCESS');
+      });
+
+      it('should dispatch GET_CLINICS_FOR_CLINICIAN_FAILURE before invoking cb on error', () => {
+        let clinicianId = 'clinicianId1';
+        let api = {
+          clinics: {
+            getClinicsForClinician: sinon.stub().callsArgWith(2, { status: 500, body: 'Error!' }, null),
+          },
+        };
+
+        let store = mockStore({ blip: initialState });
+        let actionTypesAtCbTime = null;
+
+        store.dispatch(async.getClinicsForClinician(api, clinicianId, {}, () => {
+          actionTypesAtCbTime = _.map(store.getActions(), 'type');
+        }));
+
+        expect(actionTypesAtCbTime).to.include('GET_CLINICS_FOR_CLINICIAN_FAILURE');
       });
     });
 
