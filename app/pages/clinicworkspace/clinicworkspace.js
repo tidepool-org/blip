@@ -38,8 +38,7 @@ const useTabs = () => {
 
   const showDeviceIssuesUI = clinic?.entitlements?.deviceIssues;
 
-  const showTideDashboardUI = (showSummaryDashboard || clinic?.entitlements?.summaryDashboard)
-    && (showTideDashboard || clinic?.entitlements?.tideDashboard);
+  const showTideDashboardUI = showTideDashboard || clinic?.entitlements?.tideDashboard;
 
   const tabs = useMemo(() => (
     [
