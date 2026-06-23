@@ -1444,7 +1444,7 @@ export function fetchUserConsentRecords(api, consentType) {
  * @param {String} consentRecord.grantorType - Allowed values: ['owner', 'parent/guardian']
  * @param {String} consentRecord.type - Type of the consent record (e.g., 'big_data_donation_project')
  * @param {Object} [consentRecord.metadata]
- * @param {String[]} [consentRecord.metadata.supportedOrganizations] - Allowed values: ['ADCES Foundation', 'Beyond Type 1', 'Children With Diabetes', 'The Diabetes Link', 'Diabetes Youth Families (DYF)', 'DiabetesSisters', 'The diaTribe Foundation', 'Breakthrough T1D']
+ * @param {String[]} [consentRecord.metadata.supportedOrganizations] - Allowed values: ['ADCES Foundation', 'Beyond Type 1', 'Children With Diabetes', 'The Diabetes Link', 'Diabetes Youth Families (DYF)', 'DiabetesSisters', 'The diaTribe Foundation', 'Breakthrough T1D', 'Nightscout Foundation', 'T1D Exchange']
  * @param {Number} consentRecord.version - >=1
  */
 export function createUserConsentRecord(api, consentRecord) {
@@ -1472,7 +1472,7 @@ export function createUserConsentRecord(api, consentRecord) {
  * @param {String} recordId - id of the consent record to update
  * @param {Object} updates
  * @param {Object} updates.metadata
- * @param {Array[String]} updates.metadata.supportedOrganizations - Allowed values: ['ADCES Foundation', 'Beyond Type 1', 'Children With Diabetes', 'The Diabetes Link', 'Diabetes Youth Families (DYF)', 'DiabetesSisters', 'The diaTribe Foundation', 'Breakthrough T1D']
+ * @param {Array[String]} updates.metadata.supportedOrganizations - Allowed values: ['ADCES Foundation', 'Beyond Type 1', 'Children With Diabetes', 'The Diabetes Link', 'Diabetes Youth Families (DYF)', 'DiabetesSisters', 'The diaTribe Foundation', 'Breakthrough T1D', 'Nightscout Foundation', 'T1D Exchange']
  */
 export function updateUserConsentRecord(api, recordId, updates) {
   return (dispatch, getState) => {
@@ -1757,7 +1757,9 @@ export function getAllClinics(api, options = {}, cb = _.noop) {
     dispatch(sync.getClinicsRequest());
 
     api.clinics.getAll(options, (err, clinics) => {
-      cb(err, clinics);
+      // Dispatch the success/failure action BEFORE invoking cb so that any caller reading
+      // state from inside the callback sees clinics populated. See getClinicsForClinician for the
+      // detailed rationale.
       if (err) {
         dispatch(sync.getClinicsFailure(
           createActionError(ErrorMessages.ERR_GETTING_CLINICS, err), err
@@ -1771,6 +1773,7 @@ export function getAllClinics(api, options = {}, cb = _.noop) {
           dispatch(fetchClinicMRNSettings(api, clinic.id));
         });
       }
+      cb(err, clinics);
     });
   };
 }
@@ -2067,11 +2070,22 @@ export function deletePatientFromClinic(api, clinicId, patientId, cb = _.noop) {
  * @param {Number} [options.sortType] - type of bg data to sort by (cgm|bgm)
  * @param {Number} [options.period] - summary period to sort by (1d|7d|14d|30d)
  */
+// Monotonic sequence counter used by fetchPatientsForClinic to ignore stale responses when multiple
+// fetches are in flight simultaneously (e.g. the showSummaryData boolean coercion fix can dispatch a
+// non-summary fetch followed by a summary fetch on the same page load; under slow network conditions
+// the older one can otherwise return last and overwrite the newer correctly-filtered result).
+let latestPatientsFetchSeq = 0;
+
 export function fetchPatientsForClinic(api, clinicId, options = {}) {
   return (dispatch) => {
+    const seq = ++latestPatientsFetchSeq;
     dispatch(sync.fetchPatientsForClinicRequest());
 
     api.clinics.getPatientsForClinic(clinicId, options, (err, results) => {
+      // If a newer fetch has been dispatched while this one was in flight, abandon this response
+      // entirely. No success/failure dispatch — let the newer fetch be the one that updates state.
+      if (seq !== latestPatientsFetchSeq) return;
+
       if (err) {
         let errMsg = ErrorMessages.ERR_FETCHING_PATIENTS_FOR_CLINIC;
         if (err?.status === 403) {
@@ -2671,7 +2685,11 @@ export function getClinicsForClinician(api, clinicianId, options = {}, cb = _.no
     dispatch(sync.getClinicsForClinicianRequest());
 
     api.clinics.getClinicsForClinician(clinicianId, options, (err, clinics) => {
-      cb(err, clinics);
+      // Dispatch the success/failure action BEFORE invoking cb so that any caller reading
+      // state from inside the callback (notably async.login's async.parallel final callback, which
+      // dispatches selectClinic) sees clinics populated. Previously the cb-before-dispatch order
+      // caused selectClinic's `if (clinic)` guard to short-circuit, leaving clinic.entitlements
+      // undefined and the LD context stuck on the 'none' fallback.
       if (err) {
         dispatch(sync.getClinicsForClinicianFailure(
           createActionError(ErrorMessages.ERR_FETCHING_CLINICS_FOR_CLINICIAN, err), err
@@ -2679,6 +2697,7 @@ export function getClinicsForClinician(api, clinicianId, options = {}, cb = _.no
       } else {
         dispatch(sync.getClinicsForClinicianSuccess(clinics, clinicianId, options));
       }
+      cb(err, clinics);
       // fetch EHR and MRN settings for clinics
       _.each(clinics, (clinic) => {
         dispatch(fetchClinicEHRSettings(api, clinic.clinic.id));
