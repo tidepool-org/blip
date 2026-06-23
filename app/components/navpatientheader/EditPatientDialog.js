@@ -65,6 +65,12 @@ const EditPatientDialog = ({
   const mrnSettings = useMemo(() => clinic?.mrnSettings ?? {}, [clinic?.mrnSettings]);
   const existingMRNs = useSelector(state => state.blip.clinicMRNsForPatientFormValidation)?.filter(mrn => mrn !== clinicPatient?.mrn) || [];
 
+  // In smart-on-fhir mode, identity fields are sourced from the EHR and locked.
+  const disabledFields = useMemo(
+    () => (isSmartOnFhir ? { fullName: true, birthDate: true, mrn: true, email: true } : {}),
+    [isSmartOnFhir]
+  );
+
   const onUpdateSuccess = () => {
     if (isOpen) onClose();
 
@@ -107,7 +113,7 @@ const EditPatientDialog = ({
           patient={clinicPatient}
           searchDebounceMs={PATIENT_FORM_SEARCH_DEBOUNCE_MS}
           action="edit"
-          isReadOnly={isSmartOnFhir}
+          disabledFields={disabledFields}
         />
       </DialogContent>
 
@@ -124,7 +130,7 @@ const EditPatientDialog = ({
           variant="primary"
           onClick={handleEditPatientConfirm}
           processing={updatingClinicPatient.inProgress}
-          disabled={isSmartOnFhir || !fieldsAreValid(keys(patientFormContext?.values), validationSchema({ mrnSettings, existingMRNs }), patientFormContext?.values)}
+          disabled={!patientFormContext || !fieldsAreValid(keys(patientFormContext?.values), validationSchema({ mrnSettings, existingMRNs }), patientFormContext?.values)}
         >
           {t('Save Changes')}
         </Button>

@@ -56,6 +56,7 @@ const DailyChart = withTranslation(null, { withRef: true })(class DailyChart ext
     bolusRatio: PropTypes.number,
     data: PropTypes.object.isRequired,
     dynamicCarbs: PropTypes.bool,
+    editedCarbs: PropTypes.bool,
     initialDatetimeLocation: PropTypes.string,
     patient: PropTypes.object,
     timePrefs: PropTypes.object.isRequired,
@@ -93,6 +94,7 @@ const DailyChart = withTranslation(null, { withRef: true })(class DailyChart ext
       'bolusRatio',
       'carbUnits',
       'dynamicCarbs',
+      'editedCarbs',
       'insulinBolus',
       'timePrefs',
       'onBolusHover',
@@ -295,7 +297,13 @@ class Daily extends Component {
 
     if (this.chartRef.current) {
       const updates = {};
-      if (loadingJustCompleted || newDataAdded || dataUpdated || newDataRecieved) updates.data = nextProps.data;
+      if (loadingJustCompleted || newDataAdded || dataUpdated || newDataRecieved) {
+        updates.data = nextProps.data;
+        updates.editedCarbs = _.some(
+          _.get(nextProps, 'data.data.combined'),
+          d => d.type === 'food' && (d.tags?.carbsEdited === true || d.tags?.entryTimeDiffers === true)
+        );
+      }
       if (!_.isEmpty(updates)) this.chartRef.current?.rerenderChart(updates);
     }
 
@@ -492,6 +500,11 @@ class Daily extends Component {
       { type: 'insulin' }
     );
 
+    const hasEditedCarbs = _.some(
+      _.get(this.props, 'data.data.combined'),
+      d => d.type === 'food' && (d.tags?.carbsEdited === true || d.tags?.entryTimeDiffers === true)
+    );
+
     const hasOneMinCgmSampleIntervalDevice = _.some(
       _.get(this.props, 'data.metaData.devices'),
       { oneMinCgmSampleInterval: true }
@@ -532,6 +545,7 @@ class Daily extends Component {
             carbUnits={carbUnits}
             data={this.props.data}
             dynamicCarbs={this.props.chartPrefs.dynamicCarbs}
+            editedCarbs={hasEditedCarbs}
             initialDatetimeLocation={this.props.initialDatetimeLocation}
             timePrefs={timePrefs}
             // message handlers

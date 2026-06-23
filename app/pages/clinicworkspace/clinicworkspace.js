@@ -36,8 +36,9 @@ const useTabs = () => {
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const patientInvites = values(clinic?.patientInvites);
 
-  const showTideDashboardUI = (showSummaryDashboard || clinic?.entitlements?.summaryDashboard)
-    && (showTideDashboard || clinic?.entitlements?.tideDashboard);
+  const showDeviceIssuesUI = clinic?.entitlements?.deviceIssues;
+
+  const showTideDashboardUI = showTideDashboard || clinic?.entitlements?.tideDashboard;
 
   const tabs = useMemo(() => (
     [
@@ -46,7 +47,7 @@ const useTabs = () => {
         label: t('Patient List'),
         metric: 'Clinic - View patient list'
       },
-      {
+      showDeviceIssuesUI && {
         name: TAB.DEVICE_ISSUES,
         label: t('Device Issues'),
         metric: 'Clinic - View device issues'
@@ -67,10 +68,10 @@ const useTabs = () => {
         metric: 'Clinic - View prescriptions'
       },
     ].filter(Boolean)
-  ), [showPrescriptions, showTideDashboardUI, patientInvites.length, t]);
+  ), [showPrescriptions, showDeviceIssuesUI, showTideDashboardUI, patientInvites.length, t]);
 
   return tabs;
-}
+};
 
 export const ClinicWorkspace = (props) => {
   const { t, api, trackMetric } = props;

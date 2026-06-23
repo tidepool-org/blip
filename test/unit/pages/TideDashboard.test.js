@@ -580,11 +580,11 @@ describe('TideDashboard', () => {
 
       const dashboardSectionLabels = document.querySelectorAll('.dashboard-section-label');
       expect(dashboardSectionLabels).to.have.length(8);
-      expect(dashboardSectionLabels[0].textContent).to.equal('Very Low> 1% Time below 54 mg/dL');
-      expect(dashboardSectionLabels[1].textContent).to.equal('Low> 4% Time below 70 mg/dL');
-      expect(dashboardSectionLabels[2].textContent).to.equal('Large Drop in Time in Range> 15%');
-      expect(dashboardSectionLabels[3].textContent).to.equal('High> 25% Time above 180 mg/dL');
-      expect(dashboardSectionLabels[4].textContent).to.equal('Very High> 5% Time above 250 mg/dL');
+      expect(dashboardSectionLabels[0].textContent).to.equal('Very Low≥ 1% Time below 54 mg/dL');
+      expect(dashboardSectionLabels[1].textContent).to.equal('Low≥ 4% Time below 70 mg/dL');
+      expect(dashboardSectionLabels[2].textContent).to.equal('Large Drop in Time in Range≥ 15%');
+      expect(dashboardSectionLabels[3].textContent).to.equal('High≥ 25% Time above 180 mg/dL');
+      expect(dashboardSectionLabels[4].textContent).to.equal('Very High≥ 5% Time above 250 mg/dL');
       expect(dashboardSectionLabels[5].textContent).to.equal('Low CGM Wear Time< 70%');
       expect(dashboardSectionLabels[6].textContent).to.equal('Meeting Targets');
       expect(dashboardSectionLabels[7].textContent).to.equal('Data Issues');
@@ -638,15 +638,15 @@ describe('TideDashboard', () => {
 
       // Should contain a "more" menu that allows opening a patient edit dialog and opening a patient data connections dialog
       const moreMenuIcon = getTableRow(0, 2).querySelectorAll('td')[9].querySelector('button');
-      
+
       expect(document.querySelector('#editPatient')).to.be.null;
       fireEvent.click(moreMenuIcon);
-      
+
       const editButton = (await screen.findAllByText('Edit Patient Details'))[0];
       expect(editButton).to.not.be.null;
 
       fireEvent.click(editButton);
-      
+
       const editDialog = await waitFor(() => document.querySelector('#editPatient'));
       expect(editDialog).to.not.be.null;
 
@@ -670,7 +670,7 @@ describe('TideDashboard', () => {
       expect(document.querySelector('#data-connections')).to.be.null;
 
       fireEvent.click(dataConnectionsButton);
-      
+
       const dataConnectionsDialog = await waitFor(() => document.querySelector('#data-connections'));
       expect(dataConnectionsDialog).to.not.be.null;
 
@@ -808,8 +808,8 @@ describe('TideDashboard', () => {
 
         const dashboardSectionLabels = document.querySelectorAll('.dashboard-section-label');
         expect(dashboardSectionLabels).to.have.length(8);
-        expect(dashboardSectionLabels[0].textContent).to.equal('Very Low> 1% Time below 3.0 mmol/L');
-        expect(dashboardSectionLabels[1].textContent).to.equal('Low> 4% Time below 3.9 mmol/L');
+        expect(dashboardSectionLabels[0].textContent).to.equal('Very Low≥ 1% Time below 3.0 mmol/L');
+        expect(dashboardSectionLabels[1].textContent).to.equal('Low≥ 4% Time below 3.9 mmol/L');
 
         const dashboardSectionTables = document.querySelectorAll('.dashboard-table');
         const getTableRow = (tableIndex, rowIndex) => dashboardSectionTables[tableIndex].querySelectorAll('tr')[rowIndex];
@@ -870,7 +870,7 @@ describe('TideDashboard', () => {
 
           store.clearActions();
           fireEvent.click(updateButton());
-          
+
           await waitFor(() => {
             sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Mark patient reviewed', sinon.match({ clinicId: 'clinicID123', source: 'TIDE dashboard' }));
           });
@@ -900,7 +900,7 @@ describe('TideDashboard', () => {
 
           store.clearActions();
           fireEvent.click(updateButton());
-          
+
           await waitFor(() => {
             sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Undo mark patient reviewed', sinon.match({ clinicId: 'clinicID123', source: 'TIDE dashboard' }));
           });
@@ -991,7 +991,7 @@ describe('TideDashboard', () => {
       expect(dashboardSectionLabels[0].textContent).to.equal('Data Issues');
       expect(dashboardSectionLabels[1].textContent).to.equal('Meeting Targets');
       expect(dashboardSectionLabels[2].textContent).to.equal('Low CGM Wear Time< 70%');
-      expect(dashboardSectionLabels[3].textContent).to.equal('Low> 4% Time below 70 mg/dL');
+      expect(dashboardSectionLabels[3].textContent).to.equal('Low≥ 4% Time below 70 mg/dL');
     });
   });
 
@@ -1003,10 +1003,10 @@ describe('TideDashboard', () => {
       // Open dashboard config popover
       expect(document.querySelector('#tideDashboardConfig')).to.be.null;
       fireEvent.click(tideDashboardButton);
-      
+
       const dialog = await waitFor(() => document.querySelector('#tideDashboardConfig'));
       expect(dialog).to.not.be.null;
-      
+
       sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Show Tide Dashboard config dialog', sinon.match({ clinicId: 'clinicID123', source: 'Tide dashboard' }));
 
       // Select 2 tags from select menu
