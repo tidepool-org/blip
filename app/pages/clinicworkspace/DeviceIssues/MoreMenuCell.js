@@ -11,7 +11,7 @@ import {
 
 import PopoverMenu from '../../../components/elements/PopoverMenu';
 import EditIcon from '@material-ui/icons/EditRounded';
-import DataInIcon from '../../../core/icons/DataInIcon.svg'
+import DataInIcon from '../../../core/icons/DataInIcon.svg';
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 
@@ -27,6 +27,10 @@ const MoreMenuCell = ({ patient }) => {
   const handleOpenDataConnectionsModal = () => {
     dispatch(setDataConnectionsModalIsOpen(true));
     dispatch(setDataConnectionsModalPatientId(patient.id));
+  };
+
+  const handleHideIssue = () => {
+    // To implement
   };
 
   return (
@@ -54,6 +58,17 @@ const MoreMenuCell = ({ patient }) => {
           handleOpenDataConnectionsModal();
         },
         text: t('Bring Data into Tidepool'),
+      }, {
+        icon: VisibilityOffIcon,
+        iconLabel: t('Hide Issue'),
+        iconPosition: 'left',
+        id: `hide-issue-${patient?.id}`,
+        variant: 'actionListItem',
+        onClick: (_popupState) => {
+          _popupState.close();
+          handleHideIssue();
+        },
+        text: t('Hide Issue'),
       }]}
       sx={{ position: 'relative', left: '-2px' }}
     />
