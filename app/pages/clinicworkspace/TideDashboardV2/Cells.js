@@ -2,13 +2,11 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useHistory } from 'react-router-dom';
-import { Box, Text } from 'theme-ui';
-import { utils as vizUtils } from '@tidepool/viz';
+import { Box, Flex, Text } from 'theme-ui';
+import { utils as vizUtils, colors as vizColors  } from '@tidepool/viz';
 const { bankersRound } = vizUtils.stat;
 import { MGDL_UNITS } from '../../../core/constants';
 import { push } from 'connected-react-router';
-import { Box, Flex, Text } from 'theme-ui';
-import { utils as vizUtils, colors as vizColors  } from '@tidepool/viz';
 import { colors } from '../../../themes/baseTheme';
 
 import BgSummaryCell from '../../../components/clinic/BgSummaryCell';
@@ -25,23 +23,16 @@ export const PatientCell = ({ patient }) => {
   const history = useHistory();
   const dispatch = useDispatch();
 
-  const { showTideDashboardPatientDrawer } = useFlags();
-
   const { fullName, birthDate, mrn } = patient || {};
 
   const handleClick = () => {
     if (!patient.id) return;
 
-    if (showTideDashboardPatientDrawer) {
-      const params = new URLSearchParams(search);
-      params.set('drawerPatientId', patient.id);
-      params.set('drawerTab', OVERVIEW_TAB_INDEX);
-      history.replace({ pathname, search: params.toString() });
+    const params = new URLSearchParams(search);
+    params.set('drawerPatientId', patient.id);
+    params.set('drawerTab', OVERVIEW_TAB_INDEX);
 
-      return;
-    }
-
-    dispatch(push(`/patients/${patient.id}/data?dashboard=tide`));
+    history.replace({ pathname, search: params.toString() });
   };
 
   return <Box onClick={handleClick}>

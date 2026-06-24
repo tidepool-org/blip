@@ -8,7 +8,6 @@ const trackMetric = () => {};
 
 const PatientDrawerController = ({ api }) => {
   const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
-  const { showTideDashboardPatientDrawer } = useFlags();
   const { search, pathname } = useLocation();
   const history = useHistory();
 
@@ -20,8 +19,6 @@ const PatientDrawerController = ({ api }) => {
     params.delete('drawerTab');
     history.replace({ pathname, search: params.toString() });
   };
-
-  if (!showTideDashboardPatientDrawer) return null;
 
   return (
     <PatientDrawer
