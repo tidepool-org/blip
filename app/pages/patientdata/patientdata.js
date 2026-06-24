@@ -625,6 +625,7 @@ export const PatientDataClass = createReactClass({
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             onClickChartDates={this.handleClickChartDates}
             patient={this.props.patient}
+            siteChangeSource={vizUtils.aggregation.getSiteChangeSource(this.props.patient, this.getMetaData('latestPumpUpload.manufacturer', ''))}
             stats={stats}
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}

@@ -49,7 +49,7 @@ import CgmSampleIntervalRangeToggle from './cgmSampleIntervalRangeToggle';
 import EventsInfoLabel from './eventsInfoLabel';
 import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE } from '../../core/constants';
 
-const DailyChart = withTranslation(null, { withRef: true })(class DailyChart extends Component {
+export class DailyChart extends Component {
   static propTypes = {
     bgClasses: PropTypes.object.isRequired,
     bgUnits: PropTypes.string.isRequired,
@@ -59,6 +59,7 @@ const DailyChart = withTranslation(null, { withRef: true })(class DailyChart ext
     editedCarbs: PropTypes.bool,
     initialDatetimeLocation: PropTypes.string,
     patient: PropTypes.object,
+    siteChangeSource: PropTypes.string,
     timePrefs: PropTypes.object.isRequired,
     // message handlers
     onCreateMessage: PropTypes.func.isRequired,
@@ -96,6 +97,7 @@ const DailyChart = withTranslation(null, { withRef: true })(class DailyChart ext
       'dynamicCarbs',
       'editedCarbs',
       'insulinBolus',
+      'siteChangeSource',
       'timePrefs',
       'onBolusHover',
       'onBolusOut',
@@ -230,7 +232,9 @@ const DailyChart = withTranslation(null, { withRef: true })(class DailyChart ext
   editMessage = message => {
     return this.chart?.editMessage(message);
   };
-});
+}
+
+const TranslatedDailyChart = withTranslation(null, { withRef: true })(DailyChart);
 
 class Daily extends Component {
   static propTypes = {
@@ -239,6 +243,7 @@ class Daily extends Component {
     data: PropTypes.object.isRequired,
     initialDatetimeLocation: PropTypes.string,
     loading: PropTypes.bool.isRequired,
+    siteChangeSource: PropTypes.string,
     mostRecentDatetimeLocation: PropTypes.string,
     queryDataCount: PropTypes.number.isRequired,
     stats: PropTypes.array.isRequired,
@@ -282,6 +287,7 @@ class Daily extends Component {
       atMostRecent: false,
       endpoints: [],
       hasAlarmEventsInView: null,
+      hasSiteChangeEventsInView: null,
       initialDatetimeLocation: this.props.initialDatetimeLocation,
       inTransition: false,
       title: '',
@@ -307,15 +313,25 @@ class Daily extends Component {
       if (!_.isEmpty(updates)) this.chartRef.current?.rerenderChart(updates);
     }
 
-    if (nextProps.data?.data?.combined && (this.state.hasAlarmEventsInView === null || newEndpointsReceived)) {
+    const eventFlagsUnset = this.state.hasAlarmEventsInView === null || this.state.hasSiteChangeEventsInView === null;
+
+    if (nextProps.data?.data?.combined && (eventFlagsUnset || newEndpointsReceived)) {
+      const isInView = d => d.normalTime >= nextProps.data.data.current.endpoints.range[0] && d.normalTime <= nextProps.data.data.current.endpoints.range[1];
+
       const hasAlarmEventsInView = _.some(
         _.filter(nextProps.data.data.combined, d => !!d.tags?.alarm),
-        d => d.normalTime >= nextProps.data.data.current.endpoints.range[0] && d.normalTime <= nextProps.data.data.current.endpoints.range[1]
+        isInView
       );
 
-      if (hasAlarmEventsInView !== this.state.hasAlarmEventsInView) {
-        this.setState({ hasAlarmEventsInView });
-      }
+      const hasSiteChangeEventsInView = _.some(
+        _.filter(nextProps.data.data.combined, d => !!d.tags?.siteChange),
+        isInView
+      );
+
+      const eventStateUpdates = {};
+      if (hasAlarmEventsInView !== this.state.hasAlarmEventsInView) eventStateUpdates.hasAlarmEventsInView = hasAlarmEventsInView;
+      if (hasSiteChangeEventsInView !== this.state.hasSiteChangeEventsInView) eventStateUpdates.hasSiteChangeEventsInView = hasSiteChangeEventsInView;
+      if (!_.isEmpty(eventStateUpdates)) this.setState(eventStateUpdates);
     }
   };
 
@@ -522,7 +538,10 @@ class Daily extends Component {
             zIndex: 1,
           }}
         >
-          <EventsInfoLabel hasAlarmEventsInView={this.state.hasAlarmEventsInView} />
+          <EventsInfoLabel
+            hasAlarmEventsInView={this.state.hasAlarmEventsInView}
+            hasSiteChangeEventsInView={this.state.hasSiteChangeEventsInView}
+          />
 
           {/* TODO: re-enable CgmSampleIntervalRangeToggle once twiist data issue is resolved */}
           {/* {showingCgmData && hasOneMinCgmSampleIntervalDevice && (
@@ -535,7 +554,7 @@ class Daily extends Component {
         </Flex>
 
         <Box sx={{ position: 'relative', top: '-24px' }}>
-          <DailyChart
+          <TranslatedDailyChart
             automatedBasal={isAutomatedBasalDevice}
             automatedBolus={isAutomatedBolusDevice}
             insulinBolus={hasInsulinData}
@@ -547,6 +566,7 @@ class Daily extends Component {
             dynamicCarbs={this.props.chartPrefs.dynamicCarbs}
             editedCarbs={hasEditedCarbs}
             initialDatetimeLocation={this.props.initialDatetimeLocation}
+            siteChangeSource={this.props.siteChangeSource}
             timePrefs={timePrefs}
             // message handlers
             onCreateMessage={this.props.onCreateMessage}

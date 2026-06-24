@@ -15,7 +15,8 @@ var expect = chai.expect;
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 
 import i18next from '../../../../app/core/language';
-import Daily from '../../../../app/components/chart/daily';
+import Daily, { DailyChart } from '../../../../app/components/chart/daily';
+import EventsInfoLabel from '../../../../app/components/chart/eventsInfoLabel';
 import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE, MGDL_UNITS, ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE } from '../../../../app/core/constants';
 import { components as vizComponents } from '@tidepool/viz';
 
@@ -302,6 +303,66 @@ describe('Daily', () => {
           },
           data: {
             combined: [{ tags: { alarm: true }, normalTime: new Date('2018-01-15T12:00:00.000Z').valueOf() }],
+            current: { endpoints: { range: [new Date('2018-01-16T00:00:00.000Z').valueOf(), new Date('2018-01-17T00:00:00.000Z').valueOf()] } },
+          },
+        },
+      }} />);
+      await waitFor(() => expect(tooltip()).to.equal(0));
+    });
+
+    it('should render the Events pool label info tooltip if there are site change events in view, even without alarms', async () => {
+      const { container, rerender } = render(<DailyClass {...baseProps} />);
+      const tooltip = () => container.querySelectorAll('.events-label-tooltip').length;
+
+      var dayDataReadyProps = _.assign({}, baseProps, {
+        loading: false,
+        data: {
+          query: { chartType: 'daily'},
+          bgPrefs,
+          timePrefs: {
+            timezoneAware: false,
+            timezoneName: 'US/Pacific',
+          },
+          data: {
+            combined: [{ type: 'cbg', normalTime: new Date('2018-01-15T12:00:00.000Z').valueOf() }],
+            current: { endpoints: { range: [new Date('2018-01-15T00:00:00.000Z').valueOf(), new Date('2018-01-16T00:00:00.000Z').valueOf()] } },
+          },
+        },
+      });
+
+      rerender(<DailyClass {...dayDataReadyProps} />);
+      expect(tooltip()).to.equal(0);
+
+      // Set data with a site change event in view (no alarm present)
+      rerender(<DailyClass {...{
+        ...dayDataReadyProps,
+        data: {
+          query: { chartType: 'daily'},
+          bgPrefs,
+          timePrefs: {
+            timezoneAware: false,
+            timezoneName: 'US/Pacific',
+          },
+          data: {
+            combined: [{ tags: { siteChange: true }, normalTime: new Date('2018-01-15T12:00:00.000Z').valueOf() }],
+            current: { endpoints: { range: [new Date('2018-01-15T00:00:00.000Z').valueOf(), new Date('2018-01-16T00:00:00.000Z').valueOf()] } },
+          },
+        },
+      }} />);
+      await waitFor(() => expect(tooltip()).to.equal(1));
+
+      // Move endpoints so that the site change event is out of view
+      rerender(<DailyClass {...{
+        ...dayDataReadyProps,
+        data: {
+          query: { chartType: 'daily'},
+          bgPrefs,
+          timePrefs: {
+            timezoneAware: false,
+            timezoneName: 'US/Pacific',
+          },
+          data: {
+            combined: [{ tags: { siteChange: true }, normalTime: new Date('2018-01-15T12:00:00.000Z').valueOf() }],
             current: { endpoints: { range: [new Date('2018-01-16T00:00:00.000Z').valueOf(), new Date('2018-01-17T00:00:00.000Z').valueOf()] } },
           },
         },
@@ -715,6 +776,92 @@ describe('Daily', () => {
       instance.handleEventOut();
 
       expect(instance.state.hoveredEvent).to.be.false;
+    });
+  });
+
+  describe('siteChangeSource threading', () => {
+    const dayDataReadyProps = _.assign({}, baseProps, {
+      loading: false,
+      data: {
+        query: { chartType: 'daily' },
+        bgPrefs,
+        timePrefs: { timezoneAware: false, timezoneName: 'US/Pacific' },
+        data: {
+          combined: [{ type: 'cbg', normalTime: new Date('2018-01-15T12:00:00.000Z').valueOf() }],
+          current: { endpoints: { range: [new Date('2018-01-15T00:00:00.000Z').valueOf(), new Date('2018-01-16T00:00:00.000Z').valueOf()] } },
+        },
+      },
+    });
+
+    const findDailyChart = component => {
+      const queue = [component.render()];
+
+      while (queue.length) {
+        const node = queue.shift();
+        if (!node || !node.props) continue;
+        if (node.props.onEventHover) return node;
+        queue.push(...React.Children.toArray(node.props.children));
+      }
+
+      return null;
+    };
+
+    it('includes siteChangeSource in the chart options picked for the tideline factory', () => {
+      const chartInstance = new DailyChart({ initialDatetimeLocation: baseProps.initialDateTimeLocation });
+
+      expect(chartInstance.chartOpts).to.include('siteChangeSource');
+    });
+
+    it('threads the siteChangeSource prop down to the DailyChart when a siteChangeSource prop exists', () => {
+      const props = _.assign({}, dayDataReadyProps, { siteChangeSource: 'cannulaPrime' });
+      const dailyChart = findDailyChart(createInstance(props));
+
+      expect(dailyChart.props.siteChangeSource).to.equal('cannulaPrime');
+    });
+
+    it('threads an undefined siteChangeSource when no siteChangeSource prop has been provided', () => {
+      const dailyChart = findDailyChart(createInstance(dayDataReadyProps));
+
+      expect(dailyChart.props.siteChangeSource).to.be.undefined;
+    });
+  });
+
+  describe('hasSiteChangeEventsInView', () => {
+    const withSiteChangeInRange = range => _.assign({}, baseProps, {
+      loading: false,
+      data: {
+        query: { chartType: 'daily' },
+        bgPrefs,
+        timePrefs: { timezoneAware: false, timezoneName: 'US/Pacific' },
+        data: {
+          combined: [{ tags: { siteChange: true }, normalTime: new Date('2018-01-15T12:00:00.000Z').valueOf() }],
+          current: { endpoints: { range } },
+        },
+      },
+    });
+
+    const inViewRange = [new Date('2018-01-15T00:00:00.000Z').valueOf(), new Date('2018-01-16T00:00:00.000Z').valueOf()];
+    const outOfViewRange = [new Date('2018-01-16T00:00:00.000Z').valueOf(), new Date('2018-01-17T00:00:00.000Z').valueOf()];
+
+    it('computes true when a site-change event falls within the current endpoints range', () => {
+      const dailyInstance = createInstance(baseProps);
+      dailyInstance.UNSAFE_componentWillReceiveProps(withSiteChangeInRange(inViewRange));
+      expect(dailyInstance.state.hasSiteChangeEventsInView).to.be.true;
+    });
+
+    it('computes false when the site-change event is outside the current endpoints range', () => {
+      const dailyInstance = createInstance(baseProps);
+      dailyInstance.UNSAFE_componentWillReceiveProps(withSiteChangeInRange(outOfViewRange));
+      expect(dailyInstance.state.hasSiteChangeEventsInView).to.be.false;
+    });
+
+    it('passes hasSiteChangeEventsInView through to EventsInfoLabel', () => {
+      const dailyInstance = createInstance(withSiteChangeInRange(inViewRange));
+      dailyInstance.UNSAFE_componentWillReceiveProps(dailyInstance.props);
+
+      const label = getNodeByType(dailyInstance, EventsInfoLabel);
+      expect(label).to.exist;
+      expect(label.props.hasSiteChangeEventsInView).to.equal(dailyInstance.state.hasSiteChangeEventsInView);
     });
   });
 });

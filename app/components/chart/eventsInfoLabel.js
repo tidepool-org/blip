@@ -10,7 +10,7 @@ import { Body1 } from '../elements/FontStyles';
 const { EventsInfoTooltip } = vizComponents;
 
 const EventsInfoLabel = props => {
-  const { hasAlarmEventsInView } = props;
+  const { hasAlarmEventsInView, hasSiteChangeEventsInView } = props;
   const { t } = useTranslation();
   const [showTooltip, setShowTooltip] = React.useState(false);
 
@@ -30,7 +30,7 @@ const EventsInfoLabel = props => {
         <Body1 sx={{ color: 'stat.text', fontWeight: 'bold' }}>{t('Events')}</Body1>
       </Box>
 
-      {hasAlarmEventsInView && (
+      {(hasAlarmEventsInView || hasSiteChangeEventsInView) && (
         <Flex className='events-label-tooltip' sx={{ position: 'relative', alignItems: 'center' }}>
           <Icon
             icon={InfoOutlinedIcon}
