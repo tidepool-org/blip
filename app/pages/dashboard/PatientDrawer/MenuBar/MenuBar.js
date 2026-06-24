@@ -35,7 +35,6 @@ const tabs = {
 const MenuBar = ({ patientId, onClose, onSelectTab, selectedTab, trackMetric }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
-  const { showTideDashboardLastReviewed } = useFlags();
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const patient = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]?.patients?.[patientId]);
@@ -87,26 +86,24 @@ const MenuBar = ({ patientId, onClose, onSelectTab, selectedTab, trackMetric }) 
         </Flex>
 
         <Flex sx={{ fontSize: 0, alignItems: 'center' }}>
-          {showTideDashboardLastReviewed && (
-            <Flex data-testid="last-reviewed-section" sx={{ alignItems: 'center', justifyContent: 'space-between', gap: 3 }}>
-              <Text sx={{
-                color: vizColors.purple90,
-                fontWeight: 'medium',
-              }}>
-                {t('Last Reviewed')}
-              </Text>
+          <Flex data-testid="last-reviewed-section" sx={{ alignItems: 'center', justifyContent: 'space-between', gap: 3 }}>
+            <Text sx={{
+              color: vizColors.purple90,
+              fontWeight: 'medium',
+            }}>
+              {t('Last Reviewed')}
+            </Text>
 
-              <PatientLastReviewed
-                sx={{ flexGrow: 1 }}
-                api={api}
-                trackMetric={trackMetric}
-                metricSource="TIDE dashboard"
-                patientId={patientId}
-                recentlyReviewedThresholdDate={recentlyReviewedThresholdDate}
-                onReview={handleReviewSuccess}
-              />
-            </Flex>
-          )}
+            <PatientLastReviewed
+              sx={{ flexGrow: 1 }}
+              api={api}
+              trackMetric={trackMetric}
+              metricSource="TIDE dashboard"
+              patientId={patientId}
+              recentlyReviewedThresholdDate={recentlyReviewedThresholdDate}
+              onReview={handleReviewSuccess}
+            />
+          </Flex>
         </Flex>
       </Flex>
 
