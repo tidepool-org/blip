@@ -2435,9 +2435,14 @@ export function getFetchers(dispatchProps, ownProps, stateProps, api, options) {
   ) {
     if (clinicsWithPatient.length > 0) {
       // In most cases, the clinicsWithPatient array will have length of 1. In cases where the same clinician and patient
-      // are in several of the same clinics, we select one arbitrarily, as we have no further information about which
-      // clinic the clinician is arriving from.
-      const clinicToSelect = clinicsWithPatient[0];
+      // are in several of the same clinics, prefer the clinic the SMART-on-FHIR/EHR session launched from when the patient
+      // is a member of it, so that clinic entitlements (e.g. patient tags/sites) bind to the launching clinic. If there is
+      // no SMART context clinic, or the patient is not a member of it, we fall back to selecting one arbitrarily, as we have
+      // no further information about which clinic the clinician is arriving from.
+      const contextClinicId = stateProps.smartOnFhirData?.context?.clinicId;
+      const clinicToSelect = (contextClinicId && clinicsWithPatient.includes(contextClinicId))
+        ? contextClinicId
+        : clinicsWithPatient[0];
       dispatchProps.selectClinic(api, clinicToSelect);
     } else {
       _.forEach(stateProps.clinics, (clinic, clinicId) => {
@@ -2548,6 +2553,7 @@ export function mapStateToProps(state, props) {
     clinic: state.blip.clinics?.[state.blip.selectedClinicId],
     clinics: state.blip.clinics,
     isSmartOnFhirMode: selectIsSmartOnFhirMode(state),
+    smartOnFhirData: state.blip.smartOnFhirData,
   };
 }
 
