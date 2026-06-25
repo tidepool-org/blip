@@ -354,7 +354,7 @@ describe('ClinicPatients', () => {
               fullName: 'patient7',
               birthDate: '1999-01-01',
               // PendingReconnect = non-connected dataSource +
-              // newer connectionRequest.
+              // non-expired connectionRequest.
               dataSources: [
                 { providerName: 'dexcom', state: 'disconnected', modifiedTime: '2021-10-19T16:27:59.504Z' },
               ],

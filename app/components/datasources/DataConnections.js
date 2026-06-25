@@ -187,7 +187,11 @@ export const getCurrentDataSourceForProvider = (patient, providerName) => {
  * @param {String} providerName
  */
 export const getCurrentConnectionRequestForProvider = (patient, providerName) =>
-  maxBy(patient?.connectionRequests?.[providerName], request => moment.utc(request.createdTime).valueOf());
+  maxBy(patient?.connectionRequests?.[providerName], request => {
+    const createdTime = moment.utc(request.createdTime, moment.ISO_8601, true);
+    // Treat a missing/invalid createdTime as the oldest so it never wins selection.
+    return createdTime.isValid() ? createdTime.valueOf() : -Infinity;
+  });
 
 /**
  * Derive a single connectState identifier for a provider by joining
@@ -210,7 +214,7 @@ export const resolveConnectState = (patient, providerName, now = moment.utc().to
   const dataSource = getCurrentDataSourceForProvider(patient, providerName);
   const connectionRequest = getCurrentConnectionRequestForProvider(patient, providerName);
   const requestExpired = !!connectionRequest?.expirationTime
-    && moment(connectionRequest.expirationTime).isBefore(now);
+    && moment.utc(connectionRequest.expirationTime).isBefore(now);
 
   if (connectionRequest && !requestExpired) {
     if (!dataSource) return 'pending';
@@ -685,7 +689,7 @@ const connectionRequestShape = {
 DataConnections.propTypes = {
   ...BoxProps,
   patient: PropTypes.shape({
-    dataSources: PropTypes.oneOf([PropTypes.shape(clinicPatientDataSourceShape), PropTypes.shape(userDataSourceShape)]),
+    dataSources: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.shape(clinicPatientDataSourceShape), PropTypes.shape(userDataSourceShape)])),
     connectionRequests: PropTypes.objectOf(PropTypes.arrayOf(PropTypes.shape(connectionRequestShape))),
   }),
   shownProviders: PropTypes.arrayOf(PropTypes.oneOf(availableProviders)),
