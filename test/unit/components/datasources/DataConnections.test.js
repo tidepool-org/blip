@@ -5,6 +5,7 @@ import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
 import { thunk } from 'redux-thunk';
 import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
+import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
 import { ToastProvider } from '../../../../app/providers/ToastProvider';
 import map from 'lodash/map';
 import reduce from 'lodash/reduce';
@@ -91,6 +92,7 @@ describe('providers', () => {
     expect(oura.logoImage).to.be.a('string');
     expect(oura.requiresLoggedInUser).to.be.true;
     expect(oura.requiresExistingDataSource).to.be.true;
+    expect(oura.connectedMessage).to.equal('Data donation only, not viewable on the platform');
   });
 });
 
@@ -429,6 +431,66 @@ describe('getConnectStateUI', () => {
       expect(UI.error.message).to.equal('Last update 20 days ago. Please reconnect your account to keep syncing data.');
       expect(UI.error.text).to.equal('Error Connecting');
       expect(UI.error.handler).to.equal('reconnect');
+    });
+  });
+
+  context('patient user with a donation-only provider (oura)', () => {
+    const ouraAwaiting = {
+      id: 'patient123',
+      dataSources: [ {
+        providerName: 'oura',
+        state: 'connected',
+        createdTime: moment.utc().subtract(20, 'days'),
+      }],
+    };
+
+    const ouraNoDataFound = {
+      id: 'patient123',
+      dataSources: [ {
+        providerName: 'oura',
+        state: 'connected',
+        createdTime: moment.utc().subtract(20, 'days'),
+        lastImportTime: moment.utc().subtract(10, 'days'),
+      }],
+    };
+
+    const ouraDataFound = {
+      id: 'patient123',
+      dataSources: [ {
+        providerName: 'oura',
+        state: 'connected',
+        createdTime: moment.utc().subtract(20, 'days'),
+        modifiedTime: moment.utc().subtract(5, 'days'),
+        lastImportTime: moment.utc().subtract(10, 'days'),
+        latestDataTime: moment.utc().subtract(15, 'days'),
+      }],
+    };
+
+    it('should keep the generic awaiting message before the first import', () => {
+      const UIAwaiting = getConnectStateUI(ouraAwaiting, true, 'oura');
+
+      expect(UIAwaiting.connected.message).to.equal('Awaiting data, this can take a few minutes');
+      expect(UIAwaiting.connected.icon).to.be.undefined;
+      expect(UIAwaiting.connected.text).to.equal('Connected');
+    });
+
+    it('should show the static donation message once data has been imported', () => {
+      const UINoDataFound = getConnectStateUI(ouraNoDataFound, true, 'oura');
+      const UIDataFound = getConnectStateUI(ouraDataFound, true, 'oura');
+
+      expect(UINoDataFound.connected.message).to.equal('Data donation only, not viewable on the platform');
+      expect(UIDataFound.connected.message).to.equal('Data donation only, not viewable on the platform');
+    });
+
+    it('should show the connected check icon and "Connected" text once initial import has occurred', () => {
+      const UINoDataFound = getConnectStateUI(ouraNoDataFound, true, 'oura');
+      const UIDataFound = getConnectStateUI(ouraDataFound, true, 'oura');
+
+      expect(UINoDataFound.connected.icon).to.equal(CheckCircleRoundedIcon);
+      expect(UIDataFound.connected.icon).to.equal(CheckCircleRoundedIcon);
+
+      expect(UINoDataFound.connected.text).to.equal('Connected');
+      expect(UIDataFound.connected.text).to.equal('Connected');
     });
   });
 });

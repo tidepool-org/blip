@@ -90,6 +90,7 @@ export const providers = {
     logoImage: ouraLogo,
     requiresLoggedInUser: true,
     requiresExistingDataSource: true,
+    connectedMessage: t('Data donation only, not viewable on the platform'),
   },
   twiist: {
     id: 'oauth/twiist',
@@ -240,6 +241,12 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
   let patientConnectedIcon;
   let patientConnectedText = t('Connected');
 
+  // Providers whose data is collected but never surfaced in the platform show a fixed
+  // connected message in place of the data-time-based copy, but only once the first
+  // import has landed — the generic awaiting message still shows before then.
+  const providerConnectedMessage = providers[providerName]?.connectedMessage;
+  const showProviderConnectedMessage = !!providerConnectedMessage && !!dataSource?.lastImportTime;
+
   if (!dataSource?.lastImportTime && !providers[providerName]?.indeterminateDataImportTime) {
     patientConnectedMessage = t('Awaiting data, this can take a few minutes');
     patientConnectedText = t('Connected');
@@ -296,8 +303,8 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
     connected: {
       color: colors.text.primary,
       handler: isLoggedInUser ? 'disconnect' : null,
-      message: isLoggedInUser && (providerName !== 'twiist') ? patientConnectedMessage : null, // Temporarily hide the message for twiist while we await a backend data source fix
-      icon: isLoggedInUser ? patientConnectedIcon : CheckCircleRoundedIcon,
+      message: isLoggedInUser && (providerName !== 'twiist') ? (showProviderConnectedMessage ? providerConnectedMessage : patientConnectedMessage) : null, // Temporarily hide the message for twiist while we await a backend data source fix
+      icon: isLoggedInUser ? (showProviderConnectedMessage ? CheckCircleRoundedIcon : patientConnectedIcon) : CheckCircleRoundedIcon,
       text: isLoggedInUser ? patientConnectedText : t('Connected'),
     },
     disconnected: {
