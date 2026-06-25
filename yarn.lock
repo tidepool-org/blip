@@ -6211,9 +6211,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.58.0-web-55-daily-view-site-change-events.1":
-  version: 1.58.0-web-55-daily-view-site-change-events.1
-  resolution: "@tidepool/viz@npm:1.58.0-web-55-daily-view-site-change-events.1"
+"@tidepool/viz@npm:1.58.0-web-55-daily-view-site-change-events.2":
+  version: 1.58.0-web-55-daily-view-site-change-events.2
+  resolution: "@tidepool/viz@npm:1.58.0-web-55-daily-view-site-change-events.2"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6274,7 +6274,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: b342181cd2d823fd857195b7f72c2f25f4827ffe50cc8bf766bd528f90c4e4d9df166c821ff52092b6cee4a2acf4e517f23c36a385f84874fc75bd2b138b6ea4
+  checksum: 8cccc5888bf89d13d488c1378e0e7e085b45d33c9348e641bda2c9e2ca50fde7bb8a179446fe264d2049c6d2e5ade9fee5d2f3311de093b7927becc5a74cb12e
   languageName: node
   linkType: hard
 
@@ -8410,7 +8410,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.58.0-web-55-daily-view-site-change-events.1
+    "@tidepool/viz": 1.58.0-web-55-daily-view-site-change-events.2
     "@types/jest": 29.5.14
     async: 2.6.4
     autoprefixer: 10.4.16
@@ -8527,7 +8527,7 @@ __metadata:
     terser: 5.22.0
     terser-webpack-plugin: 5.3.9
     theme-ui: 0.16.1
-    tideline: 1.40.0-web-55-daily-view-site-change-events.1
+    tideline: 1.41.0-web-55-daily-view-site-change-events.1
     tidepool-platform-client: 0.66.0
     tidepool-standard-action: 0.1.1
     ua-parser-js: 1.0.36
@@ -21768,9 +21768,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tideline@npm:1.40.0-web-55-daily-view-site-change-events.1":
-  version: 1.40.0-web-55-daily-view-site-change-events.1
-  resolution: "tideline@npm:1.40.0-web-55-daily-view-site-change-events.1"
+"tideline@npm:1.41.0-web-55-daily-view-site-change-events.1":
+  version: 1.41.0-web-55-daily-view-site-change-events.1
+  resolution: "tideline@npm:1.41.0-web-55-daily-view-site-change-events.1"
   dependencies:
     bows: 1.7.2
     classnames: 2.3.2
@@ -21791,7 +21791,7 @@ __metadata:
   peerDependencies:
     babel-core: 6.x || 7.0.0-bridge.0
     lodash: ^4.17.21
-  checksum: 57bb17cda2f3cc6d6ce6eacb60a0d20ee0fa69488d93199730a3b60a7fe8e2324117e2995502f2422081f0934a1c614be38fc06c6a12866b418fd1dcb14cad12
+  checksum: 3db28e5c285560834ad5beaab045b48afbc544eaf836d768a97a4de347d6d1a972b62e4ce98b4ba8b59bb168c6d9b4bd934fe7c1c53bd7b8b6b02c75db7e40a9
   languageName: node
   linkType: hard
 
