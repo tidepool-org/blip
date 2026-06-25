@@ -2,7 +2,12 @@ import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { DeviceNameCell, PatientCell } from './Cells';
+import {
+  PatientCell,
+  DeviceNameCell,
+  LastUpdatedCell,
+} from './Cells';
+
 import TagListCell from '../components/TagListCell';
 
 const useTableColumns = () => {
@@ -34,7 +39,7 @@ const useTableColumns = () => {
       {
         title: t('Last Update'),
         field: '',
-        align: 'left',
+        render: patient => <LastUpdatedCell patient={patient} />,
       },
       (showTags && {
         title: t('Tags'),
