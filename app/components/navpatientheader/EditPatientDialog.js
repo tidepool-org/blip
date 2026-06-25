@@ -69,6 +69,12 @@ const EditPatientDialog = ({
 
   const hasChartData = useSelector(state => (state.blip.data?.metaData?.size || 0) > 0);
 
+  // In smart-on-fhir mode, identity fields are sourced from the EHR and locked.
+  const disabledFields = useMemo(
+    () => (isSmartOnFhir ? { fullName: true, birthDate: true, mrn: true, email: true } : {}),
+    [isSmartOnFhir]
+  );
+
   // Captured at submit time: whether this edit needs the chart data reprocessed.
   const shouldClearDataRef = useRef(false);
 
@@ -130,7 +136,7 @@ const EditPatientDialog = ({
           patient={clinicPatient}
           searchDebounceMs={PATIENT_FORM_SEARCH_DEBOUNCE_MS}
           action="edit"
-          isReadOnly={isSmartOnFhir}
+          disabledFields={disabledFields}
         />
       </DialogContent>
 
@@ -147,7 +153,7 @@ const EditPatientDialog = ({
           variant="primary"
           onClick={handleEditPatientConfirm}
           processing={updatingClinicPatient.inProgress}
-          disabled={isSmartOnFhir || !fieldsAreValid(keys(patientFormContext?.values), validationSchema({ mrnSettings, existingMRNs }), patientFormContext?.values)}
+          disabled={!patientFormContext || !fieldsAreValid(keys(patientFormContext?.values), validationSchema({ mrnSettings, existingMRNs }), patientFormContext?.values)}
         >
           {t('Save Changes')}
         </Button>

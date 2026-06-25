@@ -57,7 +57,7 @@ const renderEditPatientDialog = (storeState = initialState) => {
       <ThemeProvider theme={theme}>
         <ToastProvider>
           <EditPatientDialog
-            api={{}}
+            api={{ clinics: { getPatientFromClinic: jest.fn() } }}
             trackMetric={jest.fn()}
             isOpen={true}
             onClose={jest.fn()}
@@ -69,11 +69,19 @@ const renderEditPatientDialog = (storeState = initialState) => {
 };
 
 describe('EditPatientDialog', () => {
-  it('sets read-only fields disabled and disables save button when smartCorrelationId is present', () => {
+  it('locks identity fields and leaves the save button enabled when smartCorrelationId is present', () => {
     const smartOnFhirState = {
       blip: {
         ...initialState.blip,
         smartCorrelationId: 'some-correlation-id',
+        clinics: {
+          clinic123: {
+            ...initialState.blip.clinics.clinic123,
+            patients: {
+              patient123: { id: 'patient123', fullName: 'John Doe', birthDate: '2000-01-01' },
+            },
+          },
+        },
       },
     };
 
@@ -83,12 +91,13 @@ describe('EditPatientDialog', () => {
     expect(screen.getByRole('textbox', { name: /Birthdate/i })).toBeDisabled();
     expect(screen.getByRole('textbox', { name: /MRN/i })).toBeDisabled();
     expect(screen.getByRole('textbox', { name: /Email/i })).toBeDisabled();
-    expect(screen.getByLabelText(/Diabetes Type/i)).toBeDisabled();
-    expect(screen.getByLabelText('Target Range')).toBeDisabled();
+    // Clinical fields stay editable in smart-on-fhir mode; only EHR-sourced identity fields lock.
+    expect(screen.getByLabelText(/Diabetes Type/i)).not.toBeDisabled();
+    expect(screen.getByLabelText('Target Range')).not.toBeDisabled();
 
     const saveButton = screen.getByRole('button', { name: 'Save Changes' });
     expect(saveButton).toBeInTheDocument();
-    expect(saveButton).toBeDisabled();
+    expect(saveButton).toBeEnabled();
   });
 
   it('sets read-only fields enabled when smartCorrelationId is absent', () => {
