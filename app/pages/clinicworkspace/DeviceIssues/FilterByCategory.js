@@ -8,12 +8,14 @@ export const CATEGORY = {
   DEFAULT: 'DEFAULT',
   STALE_DATA: 'STALE_DATA',
   DISCONNECTED: 'DISCONNECTED',
+  ERRORING: 'ERRORING',
   INVITE_EXPIRED: 'INVITE_EXPIRED',
+  INVITE_STALE: 'INVITE_STALE',
   INVITE_SENT: 'INVITE_SENT',
   HIDDEN: 'HIDDEN',
 };
 
-const { DEFAULT, STALE_DATA, DISCONNECTED, INVITE_EXPIRED, INVITE_SENT, HIDDEN } = CATEGORY;
+const { DEFAULT, STALE_DATA, DISCONNECTED, ERRORING, INVITE_EXPIRED, INVITE_SENT, HIDDEN } = CATEGORY;
 
 const FilterByCategory = () => {
   const { t } = useTranslation();
@@ -30,6 +32,7 @@ const FilterByCategory = () => {
       <Segment selected={category === DEFAULT} onClick={() => handleChange(DEFAULT)}>{t('All Issues')}</Segment>
       <Segment selected={category === STALE_DATA} onClick={() => handleChange(STALE_DATA)}>{t('Stale Data')}</Segment>
       <Segment selected={category === DISCONNECTED} onClick={() => handleChange(DISCONNECTED)}>{t('Disconnected or Error')}</Segment>
+      <Segment selected={category === ERRORING} onClick={() => handleChange(ERRORING)}>{t('Disconnected or Error')}</Segment>
       <Segment selected={category === INVITE_EXPIRED} onClick={() => handleChange(INVITE_EXPIRED)}>{t('Invite Expired')}</Segment>
       <Segment selected={category === INVITE_SENT} onClick={() => handleChange(INVITE_SENT)}>{t('Invite Sent')}</Segment>
       <Segment selected={category === HIDDEN} onClick={() => handleChange(HIDDEN)}>{t('Hidden Issues')}</Segment>
