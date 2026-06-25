@@ -482,7 +482,7 @@ describe('getConnectStateUI', () => {
       expect(UIDataFound.connected.message).to.equal('Data donation only, not viewable on the platform');
     });
 
-    it('should show the connected check icon and "Connected" text once intiial import has occurred', () => {
+    it('should show the connected check icon and "Connected" text once initial import has occurred', () => {
       const UINoDataFound = getConnectStateUI(ouraNoDataFound, true, 'oura');
       const UIDataFound = getConnectStateUI(ouraDataFound, true, 'oura');
 
