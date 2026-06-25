@@ -90,49 +90,36 @@ const renderPatientForm = (props = {}, storeState = initialState) => {
 };
 
 describe('PatientForm', () => {
-  it('renders with editable fields by default (isReadOnly=false)', () => {
-    renderPatientForm({ isReadOnly: false });
-
-    // Inputs
-    expect(screen.getByLabelText('Full Name')).toBeEnabled();
-    expect(screen.getByLabelText('Email (optional)')).toBeEnabled();
-    expect(screen.getByLabelText('MRN (optional)')).toBeEnabled();
-    expect(screen.getByLabelText('Birthdate')).toBeEnabled();
-
-    // Selects
-    expect(screen.getByTestId('SelectDiabetesType')).toHaveAttribute('data-is-disabled', 'false');
-    expect(screen.getByTestId('SelectGlycemicRanges')).toHaveAttribute('data-is-disabled', 'false');
-    expect(screen.getByTestId('SelectTags')).toHaveAttribute('data-is-disabled', 'false');
-    expect(screen.getByTestId('SelectSites')).toHaveAttribute('data-is-disabled', 'false');
-  });
-
-  it('renders with disabled fields when isReadOnly=true', () => {
-    renderPatientForm({ isReadOnly: true });
-
-    // Inputs
-    expect(screen.getByLabelText('Full Name')).toBeDisabled();
-    expect(screen.getByLabelText('Email (optional)')).toBeDisabled();
-    expect(screen.getByLabelText('MRN (optional)')).toBeDisabled();
-    expect(screen.getByLabelText('Birthdate')).toBeDisabled();
-
-    // Selects
-    expect(screen.getByTestId('SelectDiabetesType')).toHaveAttribute('data-is-disabled', 'true');
-    expect(screen.getByTestId('SelectGlycemicRanges')).toHaveAttribute('data-is-disabled', 'true');
-    expect(screen.getByTestId('SelectTags')).toHaveAttribute('data-is-disabled', 'true');
-    expect(screen.getByTestId('SelectSites')).toHaveAttribute('data-is-disabled', 'true');
-  });
-
-  it('renders with editable fields when isReadOnly is not provided (default false)', () => {
+  it('renders all fields editable when disabledFields is not provided', () => {
     renderPatientForm();
 
     expect(screen.getByLabelText('Full Name')).toBeEnabled();
     expect(screen.getByLabelText('Email (optional)')).toBeEnabled();
     expect(screen.getByLabelText('MRN (optional)')).toBeEnabled();
     expect(screen.getByLabelText('Birthdate')).toBeEnabled();
+  });
 
+  it('disables only the identity fields named in disabledFields', () => {
+    renderPatientForm({ disabledFields: { fullName: true, birthDate: true, mrn: true, email: true } });
+
+    expect(screen.getByLabelText('Full Name')).toBeDisabled();
+    expect(screen.getByLabelText('Email (optional)')).toBeDisabled();
+    expect(screen.getByLabelText('MRN (optional)')).toBeDisabled();
+    expect(screen.getByLabelText('Birthdate')).toBeDisabled();
+
+    // Clinic fields should remain enabled
     expect(screen.getByTestId('SelectDiabetesType')).toHaveAttribute('data-is-disabled', 'false');
     expect(screen.getByTestId('SelectGlycemicRanges')).toHaveAttribute('data-is-disabled', 'false');
     expect(screen.getByTestId('SelectTags')).toHaveAttribute('data-is-disabled', 'false');
     expect(screen.getByTestId('SelectSites')).toHaveAttribute('data-is-disabled', 'false');
+  });
+
+  it('disables a single field when only that key is set in disabledFields', () => {
+    renderPatientForm({ disabledFields: { fullName: true } });
+
+    expect(screen.getByLabelText('Full Name')).toBeDisabled();
+    expect(screen.getByLabelText('Email (optional)')).toBeEnabled();
+    expect(screen.getByLabelText('MRN (optional)')).toBeEnabled();
+    expect(screen.getByLabelText('Birthdate')).toBeEnabled();
   });
 });
