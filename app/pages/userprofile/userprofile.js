@@ -260,7 +260,7 @@ ManagePasswordRow.propTypes = {
 };
 
 // Cell shape inside the gray inset panel used by both the 2FA and Recovery Codes
-function InsetCell({ label, children, sx }) {
+function InsetCell({ label, children, sx, truncate, title }) {
   return (
     <Box sx={sx}>
       <Text
@@ -278,11 +278,13 @@ function InsetCell({ label, children, sx }) {
       </Text>
       <Text
         as="div"
+        title={title}
         sx={{
           fontFamily: 'default',
           fontSize: 1,
           lineHeight: 2,
           color: 'black',
+          ...(truncate && { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }),
         }}
       >
         {children}
@@ -295,6 +297,8 @@ InsetCell.propTypes = {
   label: PropTypes.string.isRequired,
   children: PropTypes.node,
   sx: PropTypes.object,
+  truncate: PropTypes.bool,
+  title: PropTypes.string,
 };
 
 function TwoFactorRow({ t, trackMetric, mfaStatus, onSetup2fa, onDisable2fa, onRegenerateCodes, loading, error, onRetry }) {
@@ -363,7 +367,12 @@ function TwoFactorRow({ t, trackMetric, mfaStatus, onSetup2fa, onDisable2fa, onR
             justifyContent: 'space-between',
           }}
         >
-          <InsetCell label={t('Personal device name')} sx={{ flex: ['unset', 1], minWidth: 0 }}>
+          <InsetCell
+            label={t('Personal device name')}
+            sx={{ flex: ['unset', 1], minWidth: 0 }}
+            truncate
+            title={deviceName || undefined}
+          >
             {deviceName || '—'}
           </InsetCell>
           <InsetCell label={t('Created')} sx={{ flex: ['unset', 1], minWidth: 0 }}>
