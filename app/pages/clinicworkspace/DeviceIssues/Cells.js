@@ -1,8 +1,9 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Text } from 'theme-ui';
+import getMostRecentEvent from './getMostRecentEvent';
 
-const PatientCell = ({ patient }) => {
+export const PatientCell = ({ patient }) => {
   const { t } = useTranslation();
 
   const { fullName, birthDate, mrn } = patient || {};
@@ -14,4 +15,16 @@ const PatientCell = ({ patient }) => {
   </Box>;
 };
 
-export default PatientCell;
+export const DeviceNameCell = ({ patient }) => {
+  const { t } = useTranslation();
+
+  const deviceIssue = getMostRecentEvent(patient);
+
+  return <Box>
+    <Text sx={{ display: 'block', fontSize: [1, null, 0], fontWeight: 'medium' }}>{deviceIssue?.providerName || '-'}</Text>
+  </Box>;
+};
+
+export default {
+  PatientCell,
+};
