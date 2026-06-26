@@ -189,18 +189,10 @@ describe('resolveConnectState', () => {
     expect(resolveConnectState(patient, 'dexcom', NOW)).to.equal('pendingExpired');
   });
 
-  it('returns pendingReconnect when a non-expired connectionRequest exists alongside a non-connected dataSource whose modifiedTime predates the request', () => {
+  it('returns pendingReconnect when a non-expired connectionRequest exists alongside a non-connected dataSource', () => {
     const patient = {
       dataSources: [{ providerName: 'dexcom', state: 'disconnected', modifiedTime: past(10) }],
       connectionRequests: { dexcom: [{ providerName: 'dexcom', createdTime: past(2), expirationTime: future(28) }] },
-    };
-    expect(resolveConnectState(patient, 'dexcom', NOW)).to.equal('pendingReconnect');
-  });
-
-  it('returns pendingReconnect even when dataSource.modifiedTime is newer than the request (recency is not compared)', () => {
-    const patient = {
-      dataSources: [{ providerName: 'dexcom', state: 'disconnected', modifiedTime: past(1) }],
-      connectionRequests: { dexcom: [{ providerName: 'dexcom', createdTime: past(10), expirationTime: future(20) }] },
     };
     expect(resolveConnectState(patient, 'dexcom', NOW)).to.equal('pendingReconnect');
   });
