@@ -1,8 +1,8 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Text } from 'theme-ui';
-import getMostRecentEvent from './getMostRecentEvent';
 import moment from 'moment-timezone';
+import { getPrimaryDeviceProvider } from '../../../components/datasources/DataConnections';
 
 export const PatientCell = ({ patient }) => {
   const { t } = useTranslation();
@@ -19,17 +19,17 @@ export const PatientCell = ({ patient }) => {
 export const DeviceNameCell = ({ patient }) => {
   const { t } = useTranslation();
 
-  const deviceIssue = getMostRecentEvent(patient);
+  const displayName = getPrimaryDeviceProvider(patient)?.displayName || '-';
 
   return <Box>
-    <Text sx={{ display: 'block', fontSize: [1, null, 0], fontWeight: 'medium' }}>{deviceIssue?.providerName || '-'}</Text>
+    <Text sx={{ display: 'block', fontSize: [1, null, 0], fontWeight: 'medium' }}>{displayName}</Text>
   </Box>;
 };
 
 export const LastUpdatedCell = ({ patient }) => {
   const { t } = useTranslation();
 
-  const deviceIssue = getMostRecentEvent(patient);
+  const deviceIssue = {};
 
   const daysAgo = deviceIssue?.time
     ? moment().diff(moment(deviceIssue.time), 'days')
