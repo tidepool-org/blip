@@ -8,6 +8,7 @@ import { Flex, Text } from 'theme-ui';
 
 import FilterByCategory from './FilterByCategory';
 import FilterByTags from './FilterByTags';
+import TableCategoryHeader from './TableCategoryHeader';
 import PaginationControls from '../components/PaginationControls';
 import ActiveFilterCount from '../components/ActiveFilterCount';
 
@@ -69,6 +70,7 @@ const TideDashboard = () => {
         <FilterByCategory />
       </Flex>
 
+      <TableCategoryHeader />
       <Table
         id="tideDashboardPatientsTable"
         variant="condensed"
