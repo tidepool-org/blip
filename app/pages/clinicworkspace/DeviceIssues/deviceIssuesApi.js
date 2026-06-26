@@ -3,15 +3,26 @@ import { CATEGORY } from './FilterByCategory';
 
 const getDeviceIssuesParam = (category) => {
   switch(category) {
-    case CATEGORY.DEFAULT: return 'all'; // TODO: FIX
-    case CATEGORY.STALE_DATA: return 'staleData';
-    case CATEGORY.DISCONNECTED: return 'disconnected';
-    case CATEGORY.ERRORING: return 'erroring';
-    case CATEGORY.INVITE_STALE: return 'staleConnectionInvitation';
-    case CATEGORY.INVITE_EXPIRED: return 'expiredConnectionInvitation';
+    case CATEGORY.STALE_DATA:
+      return ['staleData'];
+    case CATEGORY.ERROR_OR_DC:
+      return ['disconnected', 'erroring'];
+    case CATEGORY.INVITE_SENT:
+      return ['staleConnectionInvitation'];
+    case CATEGORY.INVITE_EXPIRED:
+      return ['expiredConnectionInvitation'];
+    case CATEGORY.HIDDEN:
+    case CATEGORY.DEFAULT:
+      return [
+        'staleData',
+        'disconnected',
+        'erroring',
+        'staleConnectionInvitation',
+        'expiredConnectionInvitation',
+      ];
+    default:
+      return undefined;
   }
-
-  return undefined;
 };
 
 const deviceIssuesApi = RTKQueryApi.injectEndpoints({
@@ -19,10 +30,16 @@ const deviceIssuesApi = RTKQueryApi.injectEndpoints({
     getDeviceIssuesPatients: builder.query({
       query: ({ clinicId, offset, category, limit }) => {
         const deviceIssues = getDeviceIssuesParam(category);
+        const excludeHiddenDeviceIssues = category !== CATEGORY.HIDDEN;
 
         return {
           url: `/clinics/${clinicId}/patients`,
-          params: { offset, deviceIssues, limit },
+          params: {
+            offset,
+            limit,
+            deviceIssues,
+            excludeHiddenDeviceIssues,
+          },
         };
       },
     }),
