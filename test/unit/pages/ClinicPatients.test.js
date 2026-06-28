@@ -2875,7 +2875,7 @@ describe('ClinicPatients', () => {
             fireEvent.click(updateButton());
 
             await waitFor(() => {
-              sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Mark patient reviewed', sinon.match({ clinicId: 'clinicID123', source: 'Patients list' }));
+              sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Mark patient reviewed', sinon.match({ clinicId: 'clinicID123', source: 'Patients list', patientID: 'patient2' }));
 
               sinon.assert.calledWith(
                 defaultProps.api.clinics.setClinicPatientLastReviewed,
