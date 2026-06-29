@@ -20,7 +20,6 @@ export const buildGetTideDashboardPatientsParams = (offset, limit, category, las
   return {
     offset,
     limit,
-    category,
     'cgm.lastDataTo': lastDataTo,
     'cgm.lastDataFrom': lastDataFrom,
     tags: formattedTags,
