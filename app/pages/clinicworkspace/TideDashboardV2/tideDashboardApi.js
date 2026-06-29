@@ -27,7 +27,6 @@ export const buildGetTideDashboardPatientsParams = (offset, limit, category, tag
   return {
     offset,
     limit,
-    category,
     tags: formattedTags,
     sites: formattedSites,
     ...cgmQueryParams,
