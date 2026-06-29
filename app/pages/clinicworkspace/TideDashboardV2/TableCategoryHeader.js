@@ -71,11 +71,11 @@ const useCategoryHeaderCopy = () => {
 const TableCategoryHeader = () => {
   const { title, label } = useCategoryHeaderCopy();
 
-  return <Box sx={{ minHeight: '24px' }} mt={5} mb={1} ml={2}>
-    <Text sx={{ fontSize: 2, fontWeight: 'medium', color: vizColors.purple90 }} mr={2}>
+  return <Box sx={{ minHeight: '24px' }} mt={4} mb={1} ml={2}>
+    <Text sx={{ fontSize: 1, fontWeight: 'medium', color: vizColors.purple90 }} mr={2}>
       {title}
     </Text>
-    <Text sx={{ fontSize: 2, fontWeight: 'normal', color: vizColors.purple90 }}>
+    <Text sx={{ fontSize: 1, fontWeight: 'normal', color: vizColors.purple90 }}>
       {label}
     </Text>
   </Box>;
