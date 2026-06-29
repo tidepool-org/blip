@@ -2,6 +2,7 @@ import React from 'react';
 import { action } from '@storybook/addon-actions';
 import { ThemeProvider } from '@emotion/react';
 import moment from 'moment-timezone';
+import includes from 'lodash/includes';
 import map from 'lodash/map';
 import noop from 'lodash/noop';
 
@@ -27,22 +28,42 @@ export default {
   decorators: [withTheme],
 };
 
-const patientWithState = (isClinicContext, state, opts = {}) => ({
-  id: 'patient123',
-  dataSources: state ? map(availableProviders, providerName => ({
-    providerName,
-    state,
-    createdTime: opts.createdTime,
-    modifiedTime: opts.modifiedTime,
-    expirationTime: opts.expirationTime,
-    lastImportTime: opts.lastImportTime,
-    latestDataTime: opts.latestDataTime,
-  })) : undefined,
-  connectionRequests: isClinicContext && opts.createdTime ? reduce(availableProviders, (res, providerName) => {
-    res[providerName] = [{ providerName, createdTime: opts.createdTime }];
-    return res;
-  }, {}) : undefined,
-});
+// The invite lifecycle lives on patient.connectionRequests; established
+// connections live on patient.dataSources. Stories using a `pending` / `pendingReconnect`
+// / `pendingExpired` state pass through the connectionRequests path. `pendingReconnect`
+// additionally seeds a non-connected dataSource whose modifiedTime predates the request.
+const requestDrivenStates = ['pending', 'pendingReconnect', 'pendingExpired'];
+
+const patientWithState = (isClinicContext, state, opts = {}) => {
+  const hasDataSource = !!state && !includes(['pending', 'pendingExpired'], state);
+  const dataSourceState = state === 'pendingReconnect' ? 'disconnected' : state;
+  const dataSourceModifiedTime = state === 'pendingReconnect'
+    ? moment.utc(opts.createdTime).subtract(1, 'day').toISOString()
+    : opts.modifiedTime;
+  const hasConnectionRequest = isClinicContext && includes(requestDrivenStates, state);
+  const requestExpirationTime = opts.expirationTime
+    || (opts.createdTime ? moment.utc(opts.createdTime).add(30, 'days').toISOString() : undefined);
+
+  return {
+    id: 'patient123',
+    dataSources: hasDataSource ? map(availableProviders, providerName => ({
+      providerName,
+      state: dataSourceState,
+      createdTime: opts.createdTime,
+      modifiedTime: dataSourceModifiedTime,
+      lastImportTime: opts.lastImportTime,
+      latestDataTime: opts.latestDataTime,
+    })) : undefined,
+    connectionRequests: hasConnectionRequest ? reduce(availableProviders, (res, providerName) => {
+      res[providerName] = [{
+        providerName,
+        createdTime: opts.createdTime,
+        expirationTime: requestExpirationTime,
+      }];
+      return res;
+    }, {}) : undefined,
+  };
+};
 
 const getDateInPast = (amount, unit) => moment.utc().subtract(amount, unit).toISOString();
 
