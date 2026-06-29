@@ -185,31 +185,31 @@ export const clinicTierDetails = (clinic = {}) => {
     },
     tier0201: {
       planName: 'essential',
-      entitlements: { ...entitlements, patientTags: true, clinicSites: true, summaryDashboard: true },
+      entitlements: { ...entitlements, deviceIssues: true, patientTags: true, clinicSites: true, summaryDashboard: true },
     },
     tier0202: {
       planName: 'professional',
-      entitlements: { ...entitlements, patientTags: true, clinicSites: true, summaryDashboard: true },
+      entitlements: { ...entitlements, deviceIssues: true, patientTags: true, clinicSites: true, summaryDashboard: true },
     },
     tier0300: {
       planName: 'professional',
-      entitlements: { ...entitlements, patientTags: true, clinicSites: true, summaryDashboard: true },
+      entitlements: { ...entitlements, deviceIssues: true, patientTags: true, clinicSites: true, summaryDashboard: true },
     },
     tier0301: {
       planName: 'professional',
-      entitlements: { ...entitlements, rpmReport: true, patientTags: true, clinicSites: true, summaryDashboard: true, tideDashboard: true },
+      entitlements: { ...entitlements, rpmReport: true, deviceIssues: true, patientTags: true, clinicSites: true, summaryDashboard: true, tideDashboard: true },
     },
     tier0302: {
       planName: 'professional',
-      entitlements: { ...entitlements, rpmReport: true, patientTags: true, clinicSites: true, summaryDashboard: true },
+      entitlements: { ...entitlements, rpmReport: true, deviceIssues: true, patientTags: true, clinicSites: true, summaryDashboard: true },
     },
     tier0303: {
       planName: 'professional',
-      entitlements: { ...entitlements, rpmReport: true, patientTags: true, clinicSites: true, summaryDashboard: true, tideDashboard: true },
+      entitlements: { ...entitlements, rpmReport: true, deviceIssues: true, patientTags: true, clinicSites: true, summaryDashboard: true, tideDashboard: true },
     },
     tier0400: {
       planName: 'enterprise',
-      entitlements: { ...entitlements, rpmReport: true, patientTags: true, clinicSites: true, summaryDashboard: true, tideDashboard: true },
+      entitlements: { ...entitlements, rpmReport: true, deviceIssues: true, patientTags: true, clinicSites: true, summaryDashboard: true, tideDashboard: true },
     },
   };
 
