@@ -29,6 +29,8 @@ const LIMIT = 12;
 
 const Divider = () => <Box id='filter-divider' mx={2} sx={{ border: `1px solid ${vizColors.gray05}`, height: '24px' }}></Box>;
 
+const Gap = () => <Box sx={{ marginLeft: 'auto' }}></Box>;
+
 const TideDashboard = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
@@ -56,6 +58,8 @@ const TideDashboard = () => {
 
   const handleChangeOffset = (newOffset) => dispatch(setOffset(newOffset));
 
+  const handleResetFilters = () => dispatch(resetTideDashboardFilters());
+
   if (!data) return null;
 
   const tableData = data?.data || [];
@@ -64,15 +68,12 @@ const TideDashboard = () => {
     <>
       <Flex id="tide-dashboard-filters" mb={3} sx={{ gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
         <ActiveFilterCount count={activeFiltersCount} />
-        <FilterByDataRecency />
-        <FilterBySummaryPeriod />
-        <Divider />
         <FilterByTags />
         <FilterBySites />
-        <ResetFilters
-          hidden={activeFiltersCount <= 0}
-          onClick={() => dispatch(resetTideDashboardFilters())}
-        />
+        <FilterByDataRecency />
+        <ResetFilters hidden={activeFiltersCount <= 0} onClick={handleResetFilters} />
+        <Gap />
+        <FilterBySummaryPeriod />
       </Flex>
 
       <Flex mb={3} sx={{ justifyContent: 'center' }}>
