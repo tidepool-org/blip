@@ -8,8 +8,10 @@ import { utils as vizUtils } from '@tidepool/viz';
 const { DEFAULT_BG_BOUNDS } = vizUtils.constants;
 
 import {
+  AvgGlucoseHeader,
   AvgGlucoseCell,
   CGMUseCell,
+  ChangeTIRHeader,
   ChangeTIRCell,
   GMICell,
   PatientCell,
@@ -42,6 +44,7 @@ const getColumnTypes = (t, category, thresholds) => ({
     title: t('Avg Glucose'),
     field: 'avgGlucose',
     align: 'center',
+    titleComponent: () => <AvgGlucoseHeader />,
     render: patient => <AvgGlucoseCell patient={patient} />,
   },
   timeInRangeBarChart: {
@@ -54,6 +57,7 @@ const getColumnTypes = (t, category, thresholds) => ({
     title: t('% Change in TIR'),
     field: 'changeInTIR',
     align: 'center',
+    titleComponent: () => <ChangeTIRHeader />,
     render: patient => <ChangeTIRCell patient={patient} />,
   },
   timeInVeryLow: {
@@ -138,7 +142,6 @@ const useTableColumns = (category) => {
       columnTypes.patientDetails,
       columnTypes.flag,
       columnTypes.avgGlucose,
-      columnTypes.timeInTarget,
       columnTypes.timeInRangeBarChart,
       columnTypes.changeInTIR,
       columnTypes.gmi,
@@ -157,7 +160,6 @@ const useTableColumns = (category) => {
       columnTypes.timeInTarget,
       columnTypes.timeInRangeBarChart,
       columnTypes.changeInTIR,
-      columnTypes.gmi,
       columnTypes.tags,
       columnTypes.lastReviewed,
       columnTypes.moreMenu,
@@ -172,7 +174,6 @@ const useTableColumns = (category) => {
       columnTypes.timeInTarget,
       columnTypes.timeInRangeBarChart,
       columnTypes.changeInTIR,
-      columnTypes.gmi,
       columnTypes.tags,
       columnTypes.lastReviewed,
       columnTypes.moreMenu,
