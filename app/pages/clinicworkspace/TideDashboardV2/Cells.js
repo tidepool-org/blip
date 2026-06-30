@@ -200,7 +200,7 @@ export const FlagCell = ({ patient, category = null, }) => {
   const flagColor = colors.bg[rangeName] || vizColors.gold30;
 
   return (
-    <Flex className='tide-dashboard-flag-cell' sx={{ minWidth: '120px' }}>
+    <Flex className='tide-dashboard-flag-cell'>
       <Flex
         className='tide-dashboard-flag'
         px={2} py={1} sx={{
@@ -213,7 +213,7 @@ export const FlagCell = ({ patient, category = null, }) => {
             mr={2}
           >
           </Box>
-          <Text sx={{ fontSize: 0, color: vizColors.black, fontWeight: 'medium' }}>
+          <Text sx={{ fontSize: 0, color: vizColors.black, fontWeight: 'medium', whiteSpace: 'nowrap' }}>
             {flagLabels[rangeName] || ''}
           </Text>
       </Flex>
