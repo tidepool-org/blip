@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, withTranslation } from 'react-i18next';
 import { Box, Flex, Text } from 'theme-ui';
 import { utils as vizUtils, colors as vizColors  } from '@tidepool/viz';
 const { bankersRound } = vizUtils.stat;
@@ -13,23 +13,32 @@ import utils from '../../../core/utils';
 import { CATEGORY } from './FilterByCategory';
 import isUndefined from 'lodash/isUndefined';
 
+export const COMPACT = '@container (max-width: 1200px)';
+
 export const PatientCell = ({ patient }) => {
   const { t } = useTranslation();
 
   const { fullName, birthDate, mrn } = patient || {};
 
-  return <Box>
-    <Text sx={{ display: 'block', fontSize: [1, null, 0], fontWeight: 'medium' }}>{fullName}</Text>
-    <Text sx={{ fontSize: [0, null, '10px'], whiteSpace: 'nowrap' }}>{t('DOB:')} {birthDate}</Text>
-    {mrn && <Text sx={{ fontSize: [0, null, '10px'], whiteSpace: 'nowrap' }}>, {t('MRN: {{mrn}}', { mrn: mrn })}</Text>}
+  return <Box sx={{ gap: 0, marginRight: -2 }}>
+    <Box sx={{ fontSize: 0, whiteSpace: 'nowrap', fontWeight: 'medium' }}>{fullName}</Box>
+    <Box sx={{ fontSize: 0, whiteSpace: 'nowrap' }}>{t('DOB:')} {birthDate}</Box>
+    {mrn && <Box sx={{ fontSize: 0, whiteSpace: 'nowrap' }}>{t('MRN: {{mrn}}', { mrn: mrn })}</Box>}
   </Box>;
 };
 
 export const NumericTemplateCell = ({ value, isPercent = false }) => {
   if (!value) return <Text sx={{ fontWeight: 'normal' }}></Text>;
 
-  return <Text sx={{ fontWeight: 'normal' }}>{value} {isPercent && '%'}</Text>;
+  return <Text sx={{ fontWeight: 'normal', whiteSpace: 'nowrap' }}>{value} {isPercent && '%'}</Text>;
 };
+
+export const AvgGlucoseHeader = withTranslation()(({ t }) => (
+  <>
+    <Box sx={{ [COMPACT]: { display: 'none' } }}>{t('Avg Glucose')}</Box>
+    <Box sx={{ display: 'none', [COMPACT]: { display: 'block' } }}>{t('Avg Gluc.')}</Box>
+  </>
+));
 
 export const AvgGlucoseCell = ({ patient, units }) => { // TODO: Fix for units
   const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
@@ -114,17 +123,34 @@ export const CGMUseCell = ({ patient }) => {
   return <NumericTemplateCell value={value} isPercent/>;
 };
 
+export const ChangeTIRHeader = withTranslation()(({ t }) => (
+  <>
+    <Box sx={{ [COMPACT]: { display: 'none' } }}>{t('% Change in TIR')}</Box>
+    <Box sx={{ display: 'none', [COMPACT]: { display: 'block' } }}>{t('% Δ TIR')}</Box>
+  </>
+));
+
 export const ChangeTIRCell = ({ patient }) => {
   const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
   const timeInTargetPercentDelta = patient?.summary?.cgmStats?.periods?.[summaryPeriod]?.timeInTargetPercentDelta;
 
-  if (!timeInTargetPercentDelta) return <Text sx={{ fontWeight: 'medium' }}>--</Text>;
+  if (!timeInTargetPercentDelta) return <Text sx={{ fontWeight: 'medium' }}>-</Text>;
 
-  return <DeltaBar
-    sx={{ fontWeight: 'medium' }}
-    delta={timeInTargetPercentDelta * 100}
-    max={30}
-  />;
+  const compactDisplayValue = utils.formatDecimal(timeInTargetPercentDelta * 100, 1);
+
+  return <>
+    <Box sx={{ [COMPACT]: { display: 'none' } }}>
+      <DeltaBar
+        sx={{ fontWeight: 'medium' }}
+        delta={timeInTargetPercentDelta * 100}
+        max={30}
+      />
+    </Box>
+    <Box sx={{ display: 'none', [COMPACT]: { display: 'block' } }}>
+      <NumericTemplateCell value={compactDisplayValue} isPercent />
+    </Box>
+  </>
+  ;
 };
 
 export const FlagCell = ({ patient, category = null, }) => {

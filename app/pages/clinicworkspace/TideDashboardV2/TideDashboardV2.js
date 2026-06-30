@@ -90,6 +90,7 @@ const TideDashboard = () => {
         columns={tableColumns}
         data={tableData}
         emptyContentNode={<EmptyContentNode />}
+        containerProps={{ sx: { containerType: 'inline-size' } }}
         // sx={tableStyle}
         // onSort={handleSortChange}
         // order={sort?.substring(0, 1) === '+' ? 'asc' : 'desc'}
