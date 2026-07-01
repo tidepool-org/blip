@@ -7,7 +7,7 @@ import { colors as vizColors } from '@tidepool/viz';
 import { useSelector } from 'react-redux';
 import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
 import Icon from '../../../components/elements/Icon';
-import { getPrimaryDeviceIssue } from './helpers';
+import { getActiveDeviceIssue } from './helpers';
 
 export const PatientCell = ({ patient }) => {
   const { t } = useTranslation();
@@ -25,7 +25,7 @@ export const DeviceNameCell = ({ patient }) => {
   const { t } = useTranslation();
   const category = useSelector(state => state.blip.deviceIssues.category);
 
-  const providerName = getPrimaryDeviceIssue(patient, category)?.providerId;
+  const providerName = getActiveDeviceIssue(patient, category)?.providerId;
   const displayName = providerName ? providers[providerName].displayName : '-';
 
   return <Box>
@@ -38,12 +38,12 @@ export const ConnectionStatusCell = ({ patient }) => {
   const category = useSelector(state => state.blip.deviceIssues.category);
   const flagColor = vizColors.gold50;
 
-  const primaryDeviceIssue = getPrimaryDeviceIssue(patient, category);
+  const activeDeviceIssue = getActiveDeviceIssue(patient, category);
 
-  if (!primaryDeviceIssue) return null;
+  if (!activeDeviceIssue) return null;
 
   const connectionStatus = (() => {
-    switch(primaryDeviceIssue._type) {
+    switch(activeDeviceIssue._type) {
       case 'staleData': return t('Stale Data');
       case 'erroring': return t('Error Connecting');
       case 'disconnected': return t('Patient Disconnected');

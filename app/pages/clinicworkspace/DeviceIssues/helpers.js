@@ -26,7 +26,7 @@ const pickByDeviceIssueByCategory = (issues, category) => {
   return type ? { ...issue, _type: type } : null;
 };
 
-export const getPrimaryDeviceIssue = (patient, category) => {
+export const getActiveDeviceIssue = (patient, category) => {
   const { deviceIssues } = patient;
 
   if (!deviceIssues) return null;
