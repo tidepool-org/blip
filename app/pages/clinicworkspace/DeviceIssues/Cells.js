@@ -23,8 +23,9 @@ export const PatientCell = ({ patient }) => {
 
 export const DeviceNameCell = ({ patient }) => {
   const { t } = useTranslation();
+  const category = useSelector(state => state.blip.deviceIssues.category);
 
-  const providerName = getPrimaryDeviceIssue(patient)?.providerId;
+  const providerName = getPrimaryDeviceIssue(patient, category)?.providerId;
   const displayName = providerName ? providers[providerName].displayName : '-';
 
   return <Box>
@@ -37,7 +38,7 @@ export const ConnectionStatusCell = ({ patient }) => {
   const category = useSelector(state => state.blip.deviceIssues.category);
   const flagColor = vizColors.gold50;
 
-  const primaryDeviceIssue = getPrimaryDeviceIssue(patient);
+  const primaryDeviceIssue = getPrimaryDeviceIssue(patient, category);
 
   if (!primaryDeviceIssue) return null;
 
