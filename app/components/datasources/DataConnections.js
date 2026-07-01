@@ -105,9 +105,10 @@ export const getActiveProviders = (overrides = {}) => {
 
 export const getPrimaryDeviceProvider = (clinicPatient) => {
   const providerName = clinicPatient?.primaryDeviceProviderName;
-  if (providerName && !!providers[providerName]) return providers[providerName];
 
-  return null;
+  if (!providerName || !providers[providerName]) return null;
+
+  return providers[providerName];
 };
 
 export function getProviderHandlers(patient, selectedClinicId, provider) {
