@@ -1,6 +1,8 @@
 import React from 'react';
 import { getPrimaryDeviceProvider } from '../../../components/datasources/DataConnections';
 import pickBy from 'lodash/pickBy';
+import maxBy from 'lodash/maxBy';
+import isEmpty from 'lodash/isEmpty';
 import { CATEGORY } from './FilterByCategory';
 
 const pickByDeviceIssueByCategory = (issues, category) => {
@@ -18,7 +20,8 @@ const pickByDeviceIssueByCategory = (issues, category) => {
     if (match) return { ...issues[match], _type: match };
   }
 
-  const [type, issue] = Object.entries(issues)[0] ?? [];
+  // No category preference — fall back to the issue with the most recent effectiveTime
+  const [type, issue] = maxBy(Object.entries(issues), ([, di]) => di.effectiveTime) ?? [];
 
   return type ? { ...issue, _type: type } : null;
 };
@@ -35,7 +38,7 @@ export const getPrimaryDeviceIssue = (patient, category) => {
     const primaryProviderId = primaryProvider?.dataSourceFilter?.providerName;
     const filteredIssues = pickBy(deviceIssues, di => di.providerId === primaryProviderId);
 
-    const hasDeviceIssuesForPrimaryProvider = !!Object.keys(filteredIssues).length;
+    const hasDeviceIssuesForPrimaryProvider = !isEmpty(filteredIssues);
 
     if (hasDeviceIssuesForPrimaryProvider) {
       return pickByDeviceIssueByCategory(filteredIssues, category);
