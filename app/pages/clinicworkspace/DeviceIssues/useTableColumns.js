@@ -27,18 +27,19 @@ const useTableColumns = () => {
       },
       {
         title: t('Device'),
-        field: '',
+        field: 'device',
         align: 'left',
         render: patient => <DeviceNameCell patient={patient} />,
       },
       {
         title: t('Connection Status'),
-        field: '',
+        field: 'connectionStatus',
         align: 'left',
       },
       {
         title: t('Last Update'),
-        field: '',
+        field: 'lastUpdate',
+        align: 'left',
         render: patient => <LastUpdatedCell patient={patient} />,
       },
       (showTags && {
@@ -49,12 +50,12 @@ const useTableColumns = () => {
       ),
       {
         title: t('Last Outreach'),
-        field: '',
+        field: 'lastOutreach',
         align: 'left',
       },
       {
         title: t(''),
-        field: '',
+        field: 'more',
         align: 'left',
       }, // More
     ].filter(column => !!column);

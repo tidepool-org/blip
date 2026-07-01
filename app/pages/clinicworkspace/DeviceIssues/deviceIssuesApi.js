@@ -30,7 +30,7 @@ const deviceIssuesApi = RTKQueryApi.injectEndpoints({
     getDeviceIssuesPatients: builder.query({
       query: ({ clinicId, offset, category, limit }) => {
         const deviceIssues = getDeviceIssuesParam(category);
-        const excludeHiddenDeviceIssues = category !== CATEGORY.HIDDEN;
+        const omitHiddenDevicesIssues = category !== CATEGORY.HIDDEN;
 
         return {
           url: `/clinics/${clinicId}/patients`,
@@ -38,7 +38,7 @@ const deviceIssuesApi = RTKQueryApi.injectEndpoints({
             offset,
             limit,
             deviceIssues,
-            excludeHiddenDeviceIssues,
+            omitHiddenDevicesIssues,
           },
         };
       },
