@@ -24,6 +24,9 @@ jest.mock('../../../../../app/core/api', () => ({
 jest.mock('../../../../../app/redux/features/mfaStatus/mfaStatusApi', () => ({
   useGetMfaStatusQuery: jest.fn(() => ({ data: undefined })),
 }));
+jest.mock('../../../../../app/redux/features/clinicians/cliniciansApi', () => ({
+  useGetCliniciansForClinicQuery: jest.fn(() => ({ data: undefined })),
+}));
 
 /* global describe */
 /* global it */

@@ -23,6 +23,7 @@ import { appBanners } from './appBanners';
 import { providers } from '../../components/datasources/DataConnections';
 import personUtils from '../../core/personutils';
 import { useGetMfaStatusQuery } from '../../redux/features/mfaStatus/mfaStatusApi';
+import { useGetCliniciansForClinicQuery } from '../../redux/features/clinicians/cliniciansApi';
 import { selectPatientSharedAccounts } from '../../core/selectors';
 import { DATA_DONATION_CONSENT_TYPE, SUPPORTED_ORGANIZATIONS_OPTIONS } from '../../core/constants';
 
@@ -54,8 +55,19 @@ const AppBannerProvider = ({ children }) => {
   // (the sole admin is exempted to avoid nudging them toward a potential lock-out).
   const isClinician = personUtils.isClinicianAccount(loggedInUser);
   const isSSO = personUtils.isSSOAccount(loggedInUser);
-  const clinicAdminCount = filter(clinic?.clinicians, { roles: ['CLINIC_ADMIN'] }).length;
   const loggedInUserIsClinicAdmin = includes(clinic?.clinicians?.[loggedInUserId]?.roles, 'CLINIC_ADMIN');
+
+  // getClinicsForClinician seeds clinic.clinicians with only the viewer's own record, so a viewer
+  // who is one of several admins looks like the sole admin. When the partial roster would trigger
+  // the sole-admin exemption, fetch the full clinician list and count admins from it, so the
+  // exemption is decided on complete data rather than suppressing the banner on first load.
+  const partialClinicAdminCount = filter(clinic?.clinicians, { roles: ['CLINIC_ADMIN'] }).length;
+  const rosterFetchNeeded = isClinician && !isSSO && !!selectedClinicId && partialClinicAdminCount === 1 && loggedInUserIsClinicAdmin;
+  const { data: fetchedClinicians } = useGetCliniciansForClinicQuery(selectedClinicId, { skip: !rosterFetchNeeded });
+
+  const clinicAdminCount = fetchedClinicians
+    ? filter(fetchedClinicians, { roles: ['CLINIC_ADMIN'] }).length
+    : partialClinicAdminCount;
   const isSoleAdminOfSelectedClinic = clinicAdminCount === 1 && loggedInUserIsClinicAdmin;
   const eligibleFor2faBanner = isClinician && !isSSO && !isSoleAdminOfSelectedClinic;
 
