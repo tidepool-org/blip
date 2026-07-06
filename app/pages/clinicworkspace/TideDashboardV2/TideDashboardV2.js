@@ -4,12 +4,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation, Trans } from 'react-i18next';
 import { colors as vizColors } from '@tidepool/viz';
 import Table from '../../../components/elements/Table';
-import { Flex, Text, Box } from 'theme-ui';
+import { Flex, Text, Box, Grid } from 'theme-ui';
 
 import FilterByCategory from './FilterByCategory';
 import FilterByTags from './FilterByTags';
 import FilterByDataRecency from './FilterByDataRecency';
 import FilterBySummaryPeriod from './FilterBySummaryPeriod';
+
+import TableCategoryHeader from './TableCategoryHeader';
 import PaginationControls from '../components/PaginationControls';
 import ActiveFilterCount from '../components/ActiveFilterCount';
 
@@ -23,8 +25,11 @@ import { resetTideDashboardFilters } from './tideDashboardFiltersSlice';
 import useTableColumns from './useTableColumns';
 import EmptyContentNode from './EmptyContentNode';
 import FilterBySites from './FilterBySites';
+import PatientCount from '../components/PatientCount';
 
 const Divider = () => <Box id='filter-divider' mx={2} sx={{ border: `1px solid ${vizColors.gray05}`, height: '24px' }}></Box>;
+
+const Gap = () => <Box sx={{ marginLeft: 'auto' }}></Box>;
 
 const TideDashboard = () => {
   const { t } = useTranslation();
@@ -52,29 +57,31 @@ const TideDashboard = () => {
 
   const handleChangeOffset = (newOffset) => dispatch(setOffset(newOffset));
 
+  const handleResetFilters = () => dispatch(resetTideDashboardFilters());
+
   if (!data) return null;
 
   const tableData = data?.data || [];
+
+  const total = data?.meta?.count || 0;
 
   return (
     <>
       <Flex id="tide-dashboard-filters" mb={3} sx={{ gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
         <ActiveFilterCount count={activeFiltersCount} />
-        <FilterByDataRecency />
-        <FilterBySummaryPeriod />
-        <Divider />
         <FilterByTags />
         <FilterBySites />
-        <ResetFilters
-          hidden={activeFiltersCount <= 0}
-          onClick={() => dispatch(resetTideDashboardFilters())}
-        />
+        <FilterByDataRecency />
+        <ResetFilters hidden={activeFiltersCount <= 0} onClick={handleResetFilters} />
+        <Gap />
+        <FilterBySummaryPeriod />
       </Flex>
 
       <Flex mb={3} sx={{ justifyContent: 'center' }}>
         <FilterByCategory />
       </Flex>
 
+      <TableCategoryHeader />
       <Table
         id="tideDashboardPatientsTable"
         variant="condensed"
@@ -90,14 +97,20 @@ const TideDashboard = () => {
         // onClickRow={handleClickPatient}
       />
 
-      <Flex pb={4} sx={{ maxWidth: '640px', justifyContent: 'center', margin: '0 auto' }}>
-        <PaginationControls
-          limit={LIMIT}
-          total={data?.meta?.count || 0}
-          offset={offset}
-          onOffsetChange={handleChangeOffset}
-        />
-      </Flex>
+      <Grid sx={{ gridTemplateColumns: '1fr 2fr 1fr' }}>
+        <Flex sx={{ alignItems: 'flex-end', padding: '0 0 24px 12px' }}>
+          <PatientCount offset={offset} limit={LIMIT} total={total} />
+        </Flex>
+        <Flex pb={4} sx={{ maxWidth: '640px', justifyContent: 'center', margin: '0 auto' }}>
+          <PaginationControls
+            limit={LIMIT}
+            total={total}
+            offset={offset}
+            onOffsetChange={handleChangeOffset}
+          />
+        </Flex>
+        <Box></Box>
+      </Grid>
     </>
   );
 };

@@ -117,6 +117,7 @@ const FilterBySummaryPeriod = () => {
         <Button
           variant="filter"
           id="summary-period-filter-trigger"
+          selected={!!summaryPeriod}
           {...bindTrigger(summaryPeriodPopupFilterState)}
           icon={KeyboardArrowDownRoundedIcon}
           iconLabel="Filter by summary period duration"
