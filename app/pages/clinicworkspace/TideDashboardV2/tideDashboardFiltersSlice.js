@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  lastData: 14,
+  lastData: 7,
   patientTags: [],
   clinicSites: [],
   summaryPeriod: '14d',

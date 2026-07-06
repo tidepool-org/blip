@@ -53,6 +53,7 @@ import PatientForm from '../../components/clinic/PatientForm';
 import TideDashboardConfigForm, { validateTideConfig } from '../../components/clinic/TideDashboardConfigForm';
 import BgSummaryCell from '../../components/clinic/BgSummaryCell';
 import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
+import { resolveConnectState } from '../../components/datasources/DataConnections';
 import Popover from '../../components/elements/Popover';
 import PopoverMenu from '../../components/elements/PopoverMenu';
 import RadioGroup from '../../components/elements/RadioGroup';
@@ -564,19 +565,7 @@ const TideDashboardSection = React.memo(props => {
   ]);
 
   const renderDexcomConnectionStatus = useCallback(({ patient }) => {
-    const dexcomDataSource = find(patient?.dataSources, { providerName: 'dexcom' });
-    const dexcomAuthInviteExpired = dexcomDataSource?.expirationTime < moment.utc().toISOString();
-    let dexcomConnectState;
-
-    if (dexcomDataSource) {
-      dexcomConnectState = includes(keys(dexcomConnectStateUI), dexcomDataSource?.state)
-        ? dexcomDataSource.state
-        : 'unknown';
-
-      if (includes(['pending', 'pendingReconnect'], dexcomConnectState) && dexcomAuthInviteExpired) dexcomConnectState = 'pendingExpired';
-    } else {
-      dexcomConnectState = 'noPendingConnections';
-    }
+    const dexcomConnectState = resolveConnectState(patient, 'dexcom');
 
     const showViewButton = includes([
       'disconnected',
