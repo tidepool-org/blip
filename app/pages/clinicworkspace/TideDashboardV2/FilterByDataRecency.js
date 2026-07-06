@@ -23,7 +23,7 @@ import { setOffset } from './tideDashboardSlice';
 const trackMetric = noop;
 const prefixPopHealthMetric = noop;
 
-const customLastDataFilterOptions = reject(lastDataFilterOptions, { value: 7 });
+const customLastDataFilterOptions = lastDataFilterOptions.filter(opt => [1, 2, 7].includes(opt.value));
 
 const DropdownContent = ({
   onClose = noop,

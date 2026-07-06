@@ -4,7 +4,7 @@ import { useHistory } from 'react-router-dom';
 import { useTranslation, Trans } from 'react-i18next';
 import { colors as vizColors } from '@tidepool/viz';
 import Table from '../../../components/elements/Table';
-import { Flex, Text } from 'theme-ui';
+import { Box, Flex, Grid, Text } from 'theme-ui';
 
 import ActiveFilterCount from '../components/ActiveFilterCount';
 import FilterByTags from './FilterByTags';
@@ -20,6 +20,7 @@ import useActiveFiltersCount from './useActiveFiltersCount';
 import EmptyContentNode from './EmptyContentNode';
 import usePruneInvalidFilters from './usePruneInvalidFilters';
 import useTableColumns from './useTableColumns';
+import PatientCount from '../components/PatientCount';
 
 const LIMIT = 12;
 
@@ -62,6 +63,8 @@ const DeviceIssues = () => {
 
   const tableData = data?.data || [];
 
+  const total = data?.meta?.count || 0;
+
   return (
     <>
       <Flex mb={3} sx={{ fontSize: 0, color: vizColors.blueGray50, fontStyle: 'italic' }}>
@@ -101,14 +104,20 @@ const DeviceIssues = () => {
         // onClickRow={handleClickPatient}
       />
 
-      <Flex pb={4} sx={{ maxWidth: '640px', justifyContent: 'center', margin: '0 auto' }}>
-        <PaginationControls
-          limit={LIMIT}
-          total={data?.meta?.count || 0}
-          offset={offset}
-          onOffsetChange={handleChangeOffset}
-        />
-      </Flex>
+      <Grid sx={{ gridTemplateColumns: '1fr 2fr 1fr' }}>
+        <Flex sx={{ alignItems: 'flex-end', padding: '0 0 24px 12px' }}>
+          <PatientCount offset={offset} limit={LIMIT} total={total} />
+        </Flex>
+        <Flex pb={4} sx={{ maxWidth: '640px', justifyContent: 'center', margin: '0 auto' }}>
+          <PaginationControls
+            limit={LIMIT}
+            total={total}
+            offset={offset}
+            onOffsetChange={handleChangeOffset}
+          />
+        </Flex>
+        <Box></Box>
+      </Grid>
     </>
   );
 };
