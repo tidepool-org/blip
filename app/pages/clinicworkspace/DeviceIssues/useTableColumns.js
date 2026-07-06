@@ -23,17 +23,17 @@ const useTableColumns = () => {
       },
       {
         title: t('Device'),
-        field: '',
+        field: 'device',
         align: 'left',
       },
       {
         title: t('Connection Status'),
-        field: '',
+        field: 'connectionStatus',
         align: 'left',
       },
       {
         title: t('Last Update'),
-        field: '',
+        field: 'lastUpdate',
         align: 'left',
       },
       (showTags && {
@@ -44,12 +44,12 @@ const useTableColumns = () => {
       ),
       {
         title: t('Last Outreach'),
-        field: '',
+        field: 'lastOutreach',
         align: 'left',
       },
       {
         title: t(''),
-        field: '',
+        field: 'more',
         align: 'left',
         render: patient => <MoreMenuCell patient={patient} />,
       }, // More

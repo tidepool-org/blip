@@ -38,7 +38,6 @@ export function getFormValues(source, clinicPatientTags, clinicSites) {
     fullName: source?.fullName || '',
     mrn: source?.mrn || '',
     tags: reject(source?.tags || [], tagId => !clinicPatientTags?.[tagId]),
-    dataSources: source?.dataSources || [],
     sites: source?.sites?.filter(site => !!clinicSites[site.id]) || [],
     diagnosisType: source?.diagnosisType || '',
     glycemicRanges: source?.glycemicRanges || DEFAULT_GLYCEMIC_RANGES,
