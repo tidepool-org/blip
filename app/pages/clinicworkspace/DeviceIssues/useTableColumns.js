@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import PatientCell from './PatientCell';
 import TagListCell from '../components/TagListCell';
+import MoreMenuCell from './MoreMenuCell';
 
 const useTableColumns = () => {
   const { t } = useTranslation();
@@ -50,6 +51,7 @@ const useTableColumns = () => {
         title: t(''),
         field: 'more',
         align: 'left',
+        render: patient => <MoreMenuCell patient={patient} />,
       }, // More
     ].filter(column => !!column);
   }, [showTags]);
