@@ -4,12 +4,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation, Trans } from 'react-i18next';
 import { colors as vizColors } from '@tidepool/viz';
 import Table from '../../../components/elements/Table';
-import { Flex, Text, Box } from 'theme-ui';
+import { Flex, Text, Box, Grid } from 'theme-ui';
 
 import FilterByCategory from './FilterByCategory';
 import FilterByTags from './FilterByTags';
 import FilterByDataRecency from './FilterByDataRecency';
 import FilterBySummaryPeriod from './FilterBySummaryPeriod';
+
+import TableCategoryHeader from './TableCategoryHeader';
 import PaginationControls from '../components/PaginationControls';
 import ActiveFilterCount from '../components/ActiveFilterCount';
 
@@ -24,6 +26,7 @@ import usePruneInvalidFilters from './usePruneInvalidFilters';
 import { resetTideDashboardFilters } from './tideDashboardFiltersSlice';
 import EmptyContentNode from './EmptyContentNode';
 import FilterBySites from './FilterBySites';
+import PatientCount from '../components/PatientCount';
 
 const LIMIT = 12;
 
@@ -64,6 +67,8 @@ const TideDashboard = () => {
 
   const tableData = data?.data || [];
 
+  const total = data?.meta?.count || 0;
+
   return (
     <>
       <Flex id="tide-dashboard-filters" mb={3} sx={{ gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -80,6 +85,7 @@ const TideDashboard = () => {
         <FilterByCategory />
       </Flex>
 
+      <TableCategoryHeader />
       <Table
         id="tideDashboardPatientsTable"
         variant="condensed"
@@ -106,14 +112,20 @@ const TideDashboard = () => {
         // onClickRow={handleClickPatient}
       />
 
-      <Flex pb={4} sx={{ maxWidth: '640px', justifyContent: 'center', margin: '0 auto' }}>
-        <PaginationControls
-          limit={LIMIT}
-          total={data?.meta?.count || 0}
-          offset={offset}
-          onOffsetChange={handleChangeOffset}
-        />
-      </Flex>
+      <Grid sx={{ gridTemplateColumns: '1fr 2fr 1fr' }}>
+        <Flex sx={{ alignItems: 'flex-end', padding: '0 0 24px 12px' }}>
+          <PatientCount offset={offset} limit={LIMIT} total={total} />
+        </Flex>
+        <Flex pb={4} sx={{ maxWidth: '640px', justifyContent: 'center', margin: '0 auto' }}>
+          <PaginationControls
+            limit={LIMIT}
+            total={total}
+            offset={offset}
+            onOffsetChange={handleChangeOffset}
+          />
+        </Flex>
+        <Box></Box>
+      </Grid>
     </>
   );
 };

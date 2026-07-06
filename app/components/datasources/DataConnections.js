@@ -7,7 +7,6 @@ import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
 import moment from 'moment-timezone';
 import defaults from 'lodash/defaults';
 import filter from 'lodash/filter';
-import find from 'lodash/find';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 import intersection from 'lodash/intersection';
@@ -15,6 +14,7 @@ import isFunction from 'lodash/isFunction';
 import keys from 'lodash/keys';
 import map from 'lodash/map';
 import max from 'lodash/max';
+import maxBy from 'lodash/maxBy';
 import noop from 'lodash/noop';
 import orderBy from 'lodash/orderBy';
 import reduce from 'lodash/reduce';
@@ -107,21 +107,9 @@ export function getProviderHandlers(patient, selectedClinicId, provider) {
   const { id, restrictedTokenCreate, dataSourceFilter } = provider;
   const providerName = dataSourceFilter?.providerName;
 
-  // Clinician-initiated send and resend invite handlers will potentially need to gather an email
-  // address and set the initial data source pending status on the patient if these do not exist.
+  // Clinician-initiated send and resend invite handlers may need to gather a patient email address
+  // before the connection request can be sent.
   const emailRequired = !!(selectedClinicId && !patient?.email && patient?.permissions?.custodian);
-  const hasProviderDataSource = !!find(patient?.dataSources, { providerName });
-
-  let patientUpdates;
-
-  if (!hasProviderDataSource) {
-    patientUpdates = {
-      dataSources: [
-        ...patient?.dataSources || [],
-        { providerName, state: 'pending' },
-      ],
-    };
-  }
 
   return {
     connect: {
@@ -156,7 +144,6 @@ export function getProviderHandlers(patient, selectedClinicId, provider) {
       action: actions.async.sendPatientDataProviderConnectRequest,
       args: [api, selectedClinicId, patient?.id, providerName],
       emailRequired,
-      patientUpdates,
     },
     resendInvite: {
       buttonText: t('Resend Invite'),
@@ -164,7 +151,6 @@ export function getProviderHandlers(patient, selectedClinicId, provider) {
       action: actions.async.sendPatientDataProviderConnectRequest,
       args: [api, selectedClinicId, patient?.id, providerName],
       emailRequired,
-      patientUpdates,
     },
   }
 };
@@ -178,11 +164,9 @@ export const getCurrentDataSourceForProvider = (patient, providerName) => {
 
   // Define state priority order
   const statePriority = {
-    pending: 1,
-    connected: 2,
-    error: 3,
-    pendingReconnect: 4,
-    disconnected: 5,
+    connected: 1,
+    error: 2,
+    disconnected: 3,
   };
 
   // Sort by state priority, then by lastImportTime (descending) for disconnected states
@@ -192,6 +176,60 @@ export const getCurrentDataSourceForProvider = (patient, providerName) => {
   ], ['asc', 'asc']);
 
   return sortedDataSources[0];
+};
+
+/**
+ * Return the meaningful connection request for a provider. A provider can carry more than one
+ * request in edge cases; newer requests supersede older ones, so only the most recently created
+ * request is meaningful. Selecting by createdTime keeps this correct independent of array order.
+ *
+ * @param {Object} patient
+ * @param {String} providerName
+ */
+export const getCurrentConnectionRequestForProvider = (patient, providerName) =>
+  maxBy(patient?.connectionRequests?.[providerName], request => {
+    const createdTime = moment.utc(request.createdTime, moment.ISO_8601, true);
+    // Treat a missing/invalid createdTime as the oldest so it never wins selection.
+    return createdTime.isValid() ? createdTime.valueOf() : -Infinity;
+  });
+
+/**
+ * Derive a single connectState identifier for a provider by joining
+ * patient.dataSources with patient.connectionRequests[providerName]:
+ *
+ *   - pending          = non-expired connectionRequest, no dataSource
+ *   - pendingReconnect = non-expired connectionRequest + non-connected dataSource
+ *   - pendingExpired   = expired connectionRequest + no connected dataSource
+ *   - connected        = dataSource state === 'connected'
+ *   - disconnected     = dataSource state === 'disconnected'
+ *   - error            = dataSource state === 'error'
+ *   - unknown          = dataSource state is none of the above
+ *   - noPendingConnections = no dataSource and no connectionRequest
+ *
+ * @param {Object} patient
+ * @param {String} providerName
+ * @param {String} [now] - ISO 8601 timestamp; defaults to moment.utc().toISOString()
+ */
+export const resolveConnectState = (patient, providerName, now = moment.utc().toISOString()) => {
+  const dataSource = getCurrentDataSourceForProvider(patient, providerName);
+  const connectionRequest = getCurrentConnectionRequestForProvider(patient, providerName);
+  const requestExpired = !!connectionRequest?.expirationTime
+    && moment.utc(connectionRequest.expirationTime).isBefore(now);
+
+  if (connectionRequest && !requestExpired) {
+    if (!dataSource) return 'pending';
+    if (dataSource.state !== 'connected') return 'pendingReconnect';
+  }
+
+  if (connectionRequest && requestExpired && (!dataSource || dataSource.state !== 'connected')) {
+    return 'pendingExpired';
+  }
+
+  if (!dataSource) return 'noPendingConnections';
+
+  return includes(['connected', 'disconnected', 'error'], dataSource.state)
+    ? dataSource.state
+    : 'unknown';
 };
 
 export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
@@ -204,7 +242,7 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
       dataSource?.modifiedTime,
     ]) : max([
       dataSource?.modifiedTime,
-      patient?.connectionRequests?.[providerName]?.[0]?.createdTime
+      getCurrentConnectionRequestForProvider(patient, providerName)?.createdTime
     ]);
 
   let timeAgo;
@@ -309,26 +347,11 @@ export const getConnectStateUI = (patient, isLoggedInUser, providerName) => {
 export const getDataConnectionProps = (patient, isLoggedInUser, selectedClinicId, setActiveHandler) => reduce(availableProviders, (result, providerName) => {
   result[providerName] = {};
 
-  let connectState;
-
-  const dataSource = getCurrentDataSourceForProvider(patient, providerName);
   const connectStateUI = getConnectStateUI(patient, isLoggedInUser, providerName);
-  const inviteExpired = dataSource?.expirationTime < moment.utc().toISOString();
+  let connectState = resolveConnectState(patient, providerName);
 
-  if (dataSource?.state) {
-    connectState = includes(keys(connectStateUI), dataSource.state)
-      ? dataSource.state
-      : 'unknown';
-
-    if (includes(['pending', 'pendingReconnect'], connectState)) {
-      if (inviteExpired) {
-        connectState = 'pendingExpired';
-      } else if (connectStateUI[connectState].inviteJustSent) {
-        connectState = 'inviteJustSent';
-      }
-    }
-  } else {
-    connectState = 'noPendingConnections';
+  if (includes(['pending', 'pendingReconnect'], connectState) && connectStateUI[connectState]?.inviteJustSent) {
+    connectState = 'inviteJustSent';
   }
 
   const { color, icon, message, text, handler } = connectStateUI[connectState];
@@ -341,13 +364,12 @@ export const getDataConnectionProps = (patient, isLoggedInUser, selectedClinicId
     buttonText,
     buttonStyle,
     emailRequired,
-    patientUpdates,
   } = getProviderHandlers(patient, selectedClinicId, providers[providerName])[handler] || {};
 
   if (action) {
     result[providerName].buttonDisabled = buttonDisabled;
     result[providerName].buttonIcon = buttonIcon;
-    result[providerName].buttonHandler = () => setActiveHandler({ action, args, emailRequired, patientUpdates, providerName, connectState, handler });
+    result[providerName].buttonHandler = () => setActiveHandler({ action, args, emailRequired, providerName, connectState, handler });
     result[providerName].buttonText = buttonText;
     result[providerName].buttonStyle = buttonStyle;
   }
@@ -384,7 +406,6 @@ export const DataConnections = (props) => {
   const [showPatientEmailModal, setShowPatientEmailModal] = useState(false);
   const [patientEmailFormContext, setPatientEmailFormContext] = useState();
   const [processingEmailUpdate, setProcessingEmailUpdate] = useState(false);
-  const [patientUpdates, setPatientUpdates] = useState({});
   const [activeHandler, setActiveHandler] = useState(null);
   const dataConnectionProps = getDataConnectionProps(patient, isLoggedInUser, selectedClinicId, setActiveHandler);
   const activeProviders = getActiveProviders();
@@ -434,7 +455,6 @@ export const DataConnections = (props) => {
 
         setShowPatientEmailModal(false);
         setProcessingEmailUpdate(false);
-        setPatientUpdates({});
         setActiveHandler(null);
       }
     }
@@ -470,18 +490,12 @@ export const DataConnections = (props) => {
     fetchPatientDetails();
     setShowPatientEmailModal(false);
     setProcessingEmailUpdate(false);
-    setPatientUpdates({});
 
-    if (activeHandler?.action) {
-      if (activeHandler?.emailRequired) {
-        // Immediately after adding a new patient email address. There will be a small amount
-        // of time where the backend services may not be able to find the patient, so we wait
-        // a second before requesting that a connection request email be sent.
-        setTimeout(() => dispatch(activeHandler.action(...activeHandler.args)), 1000);
-      } else {
-        // If we haven't just added an email to a patient, we can fire this right away.
-        dispatch(activeHandler.action(...activeHandler.args));
-      }
+    if (activeHandler?.action && activeHandler?.emailRequired) {
+      // Immediately after adding a new patient email address. There will be a small amount
+      // of time where the backend services may not be able to find the patient, so we wait
+      // a second before requesting that a connection request email be sent.
+      setTimeout(() => dispatch(activeHandler.action(...activeHandler.args)), 1000);
     }
   }, [
     activeHandler,
@@ -550,17 +564,12 @@ export const DataConnections = (props) => {
       setActiveHandler({ ...activeHandler, inProgress: true });
 
       if (activeHandler.emailRequired) {
-        // Store any patient updates in state.  We will collect the email address, and then add it
-        // to the updates obect before applying them.
-        setPatientUpdates(activeHandler.patientUpdates || {});
+        // Custodial patient is missing an email; gather it via PatientEmailModal, then fire the
+        // connection request from handleUpdatePatientComplete.
         handleAddPatientEmailOpen();
-      } else if (patient && activeHandler.patientUpdates) {
-        // We have updates to apply before we can fire the data connection action.
-        dispatch(actions.async.updateClinicPatient(api, selectedClinicId, patient.id, { ...patient, ...activeHandler.patientUpdates }));
       } else if (activeHandler.handler === 'resendInvite') {
         handleResendDataSourceConnectEmailOpen();
       } else {
-        // No need to update patient object prior to firing data connection action. Fire away.
         dispatch(activeHandler.action(...activeHandler.args));
       }
     }
@@ -569,8 +578,6 @@ export const DataConnections = (props) => {
     dispatch,
     handleAddPatientEmailOpen,
     handleResendDataSourceConnectEmailOpen,
-    patient,
-    selectedClinicId,
   ]);
 
   useEffect(() => {
@@ -632,7 +639,7 @@ export const DataConnections = (props) => {
         onClose={handleAddPatientEmailClose}
         onFormChange={handleAddPatientEmailFormChange}
         onSubmit={handleAddPatientEmailConfirm}
-        patient={{ ...patient, ...patientUpdates }}
+        patient={patient}
         processing={processingEmailUpdate}
         trackMetric={trackMetric}
       />}
@@ -659,10 +666,9 @@ export const DataConnections = (props) => {
 };
 
 const clinicPatientDataSourceShape = {
-  expirationTime: PropTypes.string,
   modifiedTime: PropTypes.string,
   providerName: PropTypes.string.isRequired,
-  state: PropTypes.oneOf(['connected', 'disconnected', 'error', 'pending', 'pendingReconnect']).isRequired,
+  state: PropTypes.oneOf(['connected', 'disconnected', 'error']).isRequired,
 };
 
 const userDataSourceShape = {
@@ -671,13 +677,20 @@ const userDataSourceShape = {
   latestDataTime: PropTypes.string,
   modifiedTime: PropTypes.string,
   providerName: PropTypes.string.isRequired,
-  state: PropTypes.oneOf(['connected', 'disconnected', 'error', 'pending', 'pendingReconnect']).isRequired,
+  state: PropTypes.oneOf(['connected', 'disconnected', 'error']).isRequired,
+};
+
+const connectionRequestShape = {
+  providerName: PropTypes.string.isRequired,
+  createdTime: PropTypes.string.isRequired,
+  expirationTime: PropTypes.string,
 };
 
 DataConnections.propTypes = {
   ...BoxProps,
   patient: PropTypes.shape({
-    dataSources: PropTypes.oneOf([PropTypes.shape(clinicPatientDataSourceShape), PropTypes.shape(userDataSourceShape)])
+    dataSources: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.shape(clinicPatientDataSourceShape), PropTypes.shape(userDataSourceShape)])),
+    connectionRequests: PropTypes.objectOf(PropTypes.arrayOf(PropTypes.shape(connectionRequestShape))),
   }),
   shownProviders: PropTypes.arrayOf(PropTypes.oneOf(availableProviders)),
   trackMetric: PropTypes.func.isRequired,
