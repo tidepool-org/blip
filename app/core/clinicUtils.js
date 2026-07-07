@@ -435,6 +435,13 @@ export const patientSchema = config => {
       .required(t('Patient\'s birthday is required')),
     mrn: mrnSchema,
     email: yup.string().email(t('Please enter a valid email address')),
+    connectDexcom: yup.boolean(),
+    dataSources: yup.array().of(
+      yup.object().shape({
+        providerName: yup.string(),
+        state: yup.string().oneOf(['pending', 'pendingReconnect', 'connected', 'error', 'disconnected']),
+      }),
+    ),
     tags: yup.array().of(
       yup.string()
     ),
