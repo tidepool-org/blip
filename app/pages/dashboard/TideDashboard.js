@@ -409,7 +409,7 @@ const TideDashboardSection = React.memo(props => {
       const isValidAgpPeriod = ['7d', '14d', '30d'].includes(config?.period);
 
       if (showTideDashboardPatientDrawer && isValidAgpPeriod && !isNoDataGroup) {
-        trackMetric('Tide Dashboard - opened patient in side drawer', { clinicId: selectedClinicId, patientID: patient.id });
+        trackMetric('Tide Dashboard - opened patient in side drawer', { clinicId: selectedClinicId, patientID: patient?.id });
 
         const { search, pathname } = location;
         const params = new URLSearchParams(search);
