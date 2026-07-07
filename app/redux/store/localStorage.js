@@ -20,10 +20,6 @@ export const saveLocalState = (state, key = 'blipState') => {
   }
 };
 
-export const getDeviceIssuesFiltersKey = (userId, clinicId) => {
-  return `deviceIssuesFilters/${userId}/${clinicId}`;
-};
-
 export const getTideDashboardFiltersKey = (userId, clinicId) => {
   return `tideDashboardFilters/${userId}/${clinicId}`;
 };
