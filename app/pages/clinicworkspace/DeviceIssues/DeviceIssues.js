@@ -1,16 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 import { useTranslation, Trans } from 'react-i18next';
 import { colors as vizColors } from '@tidepool/viz';
 import Table from '../../../components/elements/Table';
 import { Box, Flex, Grid, Text } from 'theme-ui';
 
+import ActiveFilterCount from '../components/ActiveFilterCount';
+import FilterByTags from './FilterByTags';
+import FilterBySites from './FilterBySites';
 import FilterByCategory from './FilterByCategory';
+import ResetFilters from '../components/ResetFilters';
 import PaginationControls from '../components/PaginationControls';
 
+import { resetDeviceIssuesFilters } from './deviceIssuesFiltersSlice';
 import { setOffset, resetDeviceIssuesState } from './deviceIssuesSlice';
 import { useGetDeviceIssuesPatientsQuery } from './deviceIssuesApi';
+import useActiveFiltersCount from './useActiveFiltersCount';
+import EmptyContentNode from './EmptyContentNode';
+import usePruneInvalidFilters from './usePruneInvalidFilters';
 import useTableColumns from './useTableColumns';
 import PatientCount from '../components/PatientCount';
 
@@ -20,16 +28,24 @@ const DeviceIssues = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
+  usePruneInvalidFilters();
+
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const category = useSelector(state => state.blip.deviceIssues.category);
   const offset = useSelector(state => state.blip.deviceIssues.offset);
+  const { patientTags, clinicSites } = useSelector(state => state.blip.deviceIssuesFilters);
+
+  const showFilters = clinic?.entitlements?.patientTags && clinic?.entitlements?.clinicSites;
 
   const columns = useTableColumns();
 
   const { data } = useGetDeviceIssuesPatientsQuery(
-    { clinicId: selectedClinicId, offset, category, limit: LIMIT },
+    { clinicId: selectedClinicId, offset, category, tags: patientTags, sites: clinicSites, limit: LIMIT },
     { skip: !selectedClinicId }
   );
+
+  const activeFiltersCount = useActiveFiltersCount();
 
   // reset state on dismount
   useEffect(() => {
@@ -37,6 +53,11 @@ const DeviceIssues = () => {
   }, []);
 
   const handleChangeOffset = (newOffset) => dispatch(setOffset(newOffset));
+
+  const handleResetFilters = () => {
+    dispatch(resetDeviceIssuesFilters());
+    dispatch(setOffset(0));
+  };
 
   if (!data) return null;
 
@@ -46,13 +67,20 @@ const DeviceIssues = () => {
 
   return (
     <>
-      <Flex mb={2}>
+      <Flex mb={3} sx={{ fontSize: 0, color: vizColors.blueGray50, fontStyle: 'italic' }}>
         <Trans>
-          <Text sx={{ fontSize: 0, color: vizColors.blueGray50, fontStyle: 'italic' }}>
-            Only patients with active device issues or delayed data from a <Text sx={{ fontWeight: 'bold' }}>cloud-connected device</Text> will be displayed.
-          </Text>
+          Only patients with active device issues or delayed data from a <Text sx={{ fontWeight: 'bold' }}>cloud-connected device</Text> will be displayed.
         </Trans>
       </Flex>
+
+      { showFilters &&
+        <Flex mb={3} sx={{ gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+          <ActiveFilterCount count={activeFiltersCount} />
+          <FilterByTags />
+          <FilterBySites />
+          <ResetFilters hidden={activeFiltersCount <= 0} onClick={handleResetFilters} />
+        </Flex>
+      }
 
       <Flex mb={3} sx={{ justifyContent: 'center' }}>
         <FilterByCategory />
@@ -64,12 +92,16 @@ const DeviceIssues = () => {
         label="deviceIssuesPatientsTable"
         columns={columns}
         data={tableData}
-        // sx={tableStyle}
+        emptyContentNode={<EmptyContentNode />}
+        sx={{
+          '&.MuiTable-root': {
+            display: tableData?.length > 0 ? 'table' : 'none',
+          },
+        }}
         // onSort={handleSortChange}
         // order={sort?.substring(0, 1) === '+' ? 'asc' : 'desc'}
         // orderBy={sort?.substring(1)}
         // onClickRow={handleClickPatient}
-        // emptyContentNode={}
       />
 
       <Grid sx={{ gridTemplateColumns: '1fr 2fr 1fr' }}>

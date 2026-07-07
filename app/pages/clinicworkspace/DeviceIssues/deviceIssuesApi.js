@@ -25,21 +25,32 @@ const getDeviceIssuesParam = (category) => {
   }
 };
 
+export const buildGetDeviceIssuesPatientsParams = (offset, limit, category, tags = [], sites = []) => {
+  const formattedTags = tags.length > 0 ? tags.join(',') : undefined;
+  const formattedSites = sites.length > 0 ? sites.join(',') : undefined;
+
+  const deviceIssues = getDeviceIssuesParam(category);
+  const omitHiddenDevicesIssues = category !== CATEGORY.HIDDEN;
+
+  return {
+    offset,
+    limit,
+    tags: formattedTags,
+    sites: formattedSites,
+    deviceIssues,
+    omitHiddenDevicesIssues,
+  };
+};
+
 const deviceIssuesApi = RTKQueryApi.injectEndpoints({
   endpoints: (builder) => ({
     getDeviceIssuesPatients: builder.query({
-      query: ({ clinicId, offset, category, limit }) => {
-        const deviceIssues = getDeviceIssuesParam(category);
-        const omitHiddenDevicesIssues = category !== CATEGORY.HIDDEN;
+      query: ({ clinicId, offset, limit, category, tags, sites }) => {
+        const params = buildGetDeviceIssuesPatientsParams(offset, limit, category, tags, sites);
 
         return {
           url: `/clinics/${clinicId}/patients`,
-          params: {
-            offset,
-            limit,
-            deviceIssues,
-            omitHiddenDevicesIssues,
-          },
+          params,
         };
       },
     }),
