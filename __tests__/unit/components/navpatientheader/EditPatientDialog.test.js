@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 import { render, screen } from '@testing-library/react';
 import { ThemeProvider } from 'theme-ui';
 import theme from '../../../../app/themes/baseTheme';
-import EditPatientDialog from '../../../../app/components/navpatientheader/EditPatientDialog';
+import EditPatientDialog from '../../../../app/components/modals/EditPatientDialog';
 import { ToastProvider } from '../../../../app/providers/ToastProvider';
 
 jest.mock('../../../../app/components/clinic/PatientForm', () => {

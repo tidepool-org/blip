@@ -1,5 +1,5 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation, withTranslation } from 'react-i18next';
 import { Box, Flex, Text } from 'theme-ui';
 import { utils as vizUtils, colors as vizColors  } from '@tidepool/viz';
@@ -12,6 +12,17 @@ import DeltaBar from '../../../components/elements/DeltaBar';
 import utils from '../../../core/utils';
 import { CATEGORY } from './FilterByCategory';
 import isUndefined from 'lodash/isUndefined';
+
+import PopoverMenu from '../../../components/elements/PopoverMenu';
+import EditIcon from '@material-ui/icons/EditRounded';
+import DataInIcon from '../../../core/icons/DataInIcon.svg';
+
+import {
+  setEditPatientDialogIsOpen,
+  setEditPatientDialogPatientId,
+  setDataConnectionsModalIsOpen,
+  setDataConnectionsModalPatientId,
+} from './tideDashboardSlice';
 
 export const COMPACT = '@container (max-width: 1200px)';
 
@@ -218,6 +229,52 @@ export const FlagCell = ({ patient, category = null, }) => {
           </Text>
       </Flex>
     </Flex>
+  );
+};
+
+
+export const MoreMenuCell = ({ patient }) => {
+  const { t } = useTranslation();
+  const dispatch = useDispatch();
+
+  const handleOpenEditPatientDialog = () => {
+    dispatch(setEditPatientDialogIsOpen(true));
+    dispatch(setEditPatientDialogPatientId(patient.id));
+  };
+
+  const handleOpenDataConnectionsModal = () => {
+    dispatch(setDataConnectionsModalIsOpen(true));
+    dispatch(setDataConnectionsModalPatientId(patient.id));
+  };
+
+  return (
+    <PopoverMenu
+      id={`action-menu-${patient?.id}`}
+      items={[{
+        icon: EditIcon,
+        iconLabel: t('Edit Patient Details'),
+        iconPosition: 'left',
+        id: `edit-${patient?.id}`,
+        variant: 'actionListItem',
+        onClick: (_popupState) => {
+          _popupState.close();
+          handleOpenEditPatientDialog();
+        },
+        text: t('Edit Patient Details'),
+      }, {
+        iconSrc: DataInIcon,
+        iconLabel: t('Bring Data into Tidepool'),
+        iconPosition: 'left',
+        id: `edit-data-connections-${patient?.id}`,
+        variant: 'actionListItem',
+        onClick: (_popupState) => {
+          _popupState.close();
+          handleOpenDataConnectionsModal();
+        },
+        text: t('Bring Data into Tidepool'),
+      }]}
+      sx={{ position: 'relative', left: '-2px' }}
+    />
   );
 };
 

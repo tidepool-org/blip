@@ -22,6 +22,7 @@ import {
   TimeInAnyHighPercentCell,
   TimeInTargetPercentCell,
   FlagCell,
+  MoreMenuCell,
 } from './Cells';
 
 import TagListCell from '../components/TagListCell';
@@ -113,9 +114,10 @@ const getColumnTypes = (t, category, thresholds) => ({
     align: 'center',
   },
   moreMenu: {
-    title: t(''),
+    title: '',
     field: 'moreMenu',
     align: 'center',
+    render: patient => <MoreMenuCell patient={patient} />,
   }, // More
 });
 
