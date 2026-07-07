@@ -10,8 +10,7 @@ import { tagTypes } from '../tideDashboardApi';
 const { TIDE_DASHBOARD_PATIENTS } = tagTypes;
 
 export const buildGetTideReportParams = (period, lastData, tags = [], lastDataCutoff, categories = []) => {
-  const formattedTags = ['69069fb929795a93a07df446'];
-  // const formattedTags = tags.length > 0 ? tags.join(',') : undefined;
+  const formattedTags = tags.length > 0 ? tags.join(',') : undefined;
   const formattedCategories = categories.length > 0 ? categories.join(',') : undefined;
 
   return {
