@@ -1,119 +1,55 @@
-import React, { useMemo } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useCallback, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import moment from 'moment-timezone';
 import { Box, Flex, Text } from 'theme-ui';
-import includes from 'lodash/includes';
 
 import Table from '../../../../components/elements/Table';
-import Pill from '../../../../components/elements/Pill';
-import HoverButton from '../../../../components/elements/HoverButton';
-import { resolveConnectState } from '../../../../components/datasources/DataConnections';
-import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
-import { colors, fontWeights } from '../../../../themes/baseTheme';
 
-import { PatientCell, MoreMenuCell } from '../Cells';
+import { PatientCell } from '../Cells';
+import { DexcomConnectionStatusCell, DaysSinceLastDataCell, MoreMenuCell } from './Cells';
 import TagListCell from '../../components/TagListCell';
 import EmptyContentNode from '../EmptyContentNode';
 import useTideReportNoDataPatients from './useTideReportNoDataPatients';
+import EditPatientDialogController from './EditPatientDialogController';
+import DataConnectionsModalController from './DataConnectionsModalController';
+import { useGetPatientFromClinicQuery } from './tideDashboardLegacyApi';
 
-import {
-  setDataConnectionsModalIsOpen,
-  setDataConnectionsModalPatientId,
-} from '../tideDashboardSlice';
+const usePatientFromClinic = (patientId) => {
+  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
 
-const DexcomConnectionStatusCell = ({ patient }) => {
-  const { t } = useTranslation();
-  const dispatch = useDispatch();
-
-  const dexcomConnectStateUI = useMemo(() => ({
-    noPendingConnections: { colorPalette: 'neutral', icon: null, text: t('No Pending Connections') },
-    pending: { colorPalette: 'info', icon: null, text: t('Invite Sent') },
-    pendingReconnect: { colorPalette: 'info', icon: null, text: t('Invite Sent') },
-    pendingExpired: { colorPalette: 'warning', icon: ErrorRoundedIcon, text: t('Invite Expired') },
-    connected: { colorPalette: 'info', icon: null, text: t('Connected') },
-    disconnected: { colorPalette: 'warning', icon: ErrorRoundedIcon, text: t('Patient Disconnected') },
-    error: { colorPalette: 'warning', icon: ErrorRoundedIcon, text: t('Error Connecting') },
-    unknown: { colorPalette: 'warning', icon: ErrorRoundedIcon, text: t('Unknown Status') },
-  }), [t]);
-
-  const dexcomConnectState = resolveConnectState(patient, 'dexcom');
-
-  if (!dexcomConnectState) return null;
-
-  const showViewButton = includes([
-    'disconnected',
-    'error',
-    'noPendingConnections',
-    'pendingExpired',
-    'unknown',
-  ], dexcomConnectState);
-
-  const handleOpenDataConnectionsModal = () => {
-    dispatch(setDataConnectionsModalIsOpen(true));
-    dispatch(setDataConnectionsModalPatientId(patient.id));
-  };
-
-  const StatusBadge = () => (
-    <Pill
-      className="patient-dexcom-connection-status"
-      icon={dexcomConnectStateUI[dexcomConnectState].icon}
-      text={dexcomConnectStateUI[dexcomConnectState].text}
-      label={t('dexcom connection status')}
-      colorPalette={dexcomConnectStateUI[dexcomConnectState].colorPalette}
-      condensed
-    />
+  const { data: patient } = useGetPatientFromClinicQuery(
+    { clinicId: selectedClinicId, patientId },
+    { skip: !selectedClinicId || !patientId }
   );
 
-  if (!showViewButton) return <StatusBadge />;
-
-  return (
-    <HoverButton
-      buttonText={t('View')}
-      buttonProps={{
-        onClick: handleOpenDataConnectionsModal,
-        variant: 'textSecondary',
-        ml: -2,
-        sx: {
-          fontSize: 0,
-          fontWeight: fontWeights.medium,
-          textDecoration: 'underline',
-          color: colors.purpleMedium,
-          ':hover': {
-            color: colors.purpleMedium,
-            textDecoration: 'underline',
-          },
-        },
-      }}
-    >
-      <Box sx={{ whiteSpace: 'nowrap' }}>
-        <StatusBadge />
-      </Box>
-    </HoverButton>
-  );
+  return patient;
 };
 
-const DaysSinceLastDataCell = ({ patient }) => {
-  const timePrefs = useSelector(state => state.blip.timePrefs);
-
-  const daysSinceLastData = useMemo(() => {
-    if (!patient?.lastData) return null;
-
-    const timezone = timePrefs?.timezoneName || new Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const startOfLastDataDay = moment.utc(patient.lastData).tz(timezone).startOf('day');
-    const startOfCurrentDay = moment.utc().tz(timezone).startOf('day');
-
-    return startOfCurrentDay.diff(startOfLastDataDay, 'days');
-  }, [patient?.lastData, timePrefs?.timezoneName]);
-
-  return (
-    <Text sx={{ fontWeight: 'medium' }}>{daysSinceLastData ?? '-'}</Text>
-  );
-};
-
-const DataIssues = () => {
+const DataIssues = ({ api }) => {
   const { t } = useTranslation();
   const { patients } = useTideReportNoDataPatients();
+
+  const [activePatientId, setActivePatientId] = useState(null);
+  const [isEditPatientDialogOpen, setIsEditPatientDialogOpen] = useState(false);
+  const [isDataConnectionsModalOpen, setIsDataConnectionsModalOpen] = useState(false);
+
+  const activePatient = usePatientFromClinic(activePatientId);
+
+  const handleOpenEditPatientDialog = useCallback((patientId) => {
+    setActivePatientId(patientId);
+    setIsEditPatientDialogOpen(true);
+  }, []);
+
+  const handleOpenDataConnectionsModal = (patientId) => {
+    setActivePatientId(patientId);
+    setIsDataConnectionsModalOpen(true);
+  };
+
+  const handleCloseModals = () => {
+    setIsEditPatientDialogOpen(false);
+    setIsDataConnectionsModalOpen(false);
+    setActivePatientId(null);
+  };
 
   const columns = useMemo(() => ([
     {
@@ -126,7 +62,7 @@ const DataIssues = () => {
       title: t('Dexcom Connection Status'),
       field: 'dexcomConnectionStatus',
       align: 'left',
-      render: patient => <DexcomConnectionStatusCell patient={patient} />,
+      render: patient => <DexcomConnectionStatusCell patient={patient} onOpenDataConnectionsModal={handleOpenDataConnectionsModal} />,
     },
     {
       title: t('Days Since Last Data'),
@@ -144,9 +80,15 @@ const DataIssues = () => {
       title: '',
       field: 'moreMenu',
       align: 'center',
-      render: patient => <MoreMenuCell patient={patient} />,
+      render: patient => (
+        <MoreMenuCell
+          patient={patient}
+          onOpenEditPatientDialog={handleOpenEditPatientDialog}
+          onOpenDataConnectionsModal={handleOpenDataConnectionsModal}
+        />
+      ),
     },
-  ]), [t]);
+  ]), [t, handleOpenEditPatientDialog, handleOpenDataConnectionsModal]);
 
   return (
     <Box id="tide-dashboard-data-issues" mt={4}>
@@ -162,6 +104,19 @@ const DataIssues = () => {
         data={patients}
         emptyContentNode={<EmptyContentNode />}
         containerProps={{ sx: { containerType: 'inline-size' } }}
+      />
+
+      <EditPatientDialogController
+        api={api}
+        isOpen={isEditPatientDialogOpen}
+        patient={activePatient}
+        onClose={handleCloseModals}
+      />
+
+      <DataConnectionsModalController
+        isOpen={isDataConnectionsModalOpen}
+        patient={activePatient}
+        onClose={handleCloseModals}
       />
     </Box>
   );

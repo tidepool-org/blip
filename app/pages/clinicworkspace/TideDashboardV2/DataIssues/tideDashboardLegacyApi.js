@@ -46,7 +46,15 @@ const tideDashboardLegacyApi = RTKQueryApi.injectEndpoints({
       },
       providesTags: [TIDE_DASHBOARD_PATIENTS],
     }),
+    getPatientFromClinic: builder.query({
+      queryFn: async ({ clinicId, patientId }, _queryApi, _extraOptions, baseQuery) => {
+        if (!patientId) return { data: null };
+
+        return baseQuery({ url: `/clinics/${clinicId}/patients/${patientId}` });
+      },
+      providesTags: [TIDE_DASHBOARD_PATIENTS],
+    }),
   }),
 });
 
-export const { useGetTideReportQuery } = tideDashboardLegacyApi;
+export const { useGetTideReportQuery, useGetPatientFromClinicQuery } = tideDashboardLegacyApi;

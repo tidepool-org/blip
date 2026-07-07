@@ -123,7 +123,7 @@ const TideDashboard = ({ api, trackMetric }) => {
         <Box></Box>
       </Grid>
 
-      <DataIssues />
+      <DataIssues api={api} />
 
       <EditPatientDialogController
         api={api}
