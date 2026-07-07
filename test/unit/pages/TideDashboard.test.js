@@ -782,7 +782,7 @@ describe('TideDashboard', () => {
       ]);
     });
 
-    it('should track a metric and open the side drawer when a patient is clicked with the patient drawer flag enabled', () => {
+    it('should track a metric when a patient is clicked to open in the side drawer with the patient drawer flag enabled', () => {
       useFlags.mockReturnValue({
         showTideDashboard: true,
         showSummaryDashboard: true,
