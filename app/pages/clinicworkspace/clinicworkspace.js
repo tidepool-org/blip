@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { push } from 'connected-react-router';
-import { withTranslation } from 'react-i18next';
+import { useTranslation, withTranslation } from 'react-i18next';
 import forEach from 'lodash/forEach';
 import get from 'lodash/get'
 import values from 'lodash/values'
@@ -14,10 +14,55 @@ import { useFlags } from 'launchdarkly-react-client-sdk';
 import TabGroup from '../../components/elements/TabGroup';
 import ClinicWorkspaceHeader from '../../components/clinic/ClinicWorkspaceHeader';
 import ClinicPatients from './ClinicPatients';
+import TideDashboardV2 from './TideDashboardV2';
 import Prescriptions from '../prescription/Prescriptions';
 import { PatientInvites } from '../share';
 import * as actions from '../../redux/actions';
 import config from '../../config';
+
+const TAB = {
+  PATIENTS: 'patients',
+  TIDE_DASHBOARD: 'tide-dashboard',
+  INVITES: 'invites',
+  PRESCRIPTIONS: 'prescriptions',
+};
+
+const useTabs = () => {
+  const { t } = useTranslation();
+  const { showPrescriptions, showSummaryDashboard, showTideDashboard } = useFlags();
+  const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+  const patientInvites = values(clinic?.patientInvites);
+
+  const showTideDashboardUI = showTideDashboard || clinic?.entitlements?.tideDashboard;
+
+  const tabs = useMemo(() => (
+    [
+      {
+        name: TAB.PATIENTS,
+        label: t('Patient List'),
+        metric: 'Clinic - View patient list'
+      },
+      showTideDashboardUI && {
+        name: TAB.TIDE_DASHBOARD,
+        label: t('TIDE Dashboard'),
+        metric: 'Clinic - View TIDE Dashboard'
+      },
+      {
+        name: TAB.INVITES,
+        label: t('Invites ({{count}})', { count: patientInvites.length }),
+        metric: 'Clinic - View patient invites'
+      },
+      showPrescriptions && {
+        name: TAB.PRESCRIPTIONS,
+        label: t('Tidepool Loop Start Orders'),
+        metric: 'Clinic - View prescriptions'
+      },
+    ].filter(Boolean)
+  ), [showPrescriptions, showTideDashboardUI, patientInvites.length, t]);
+
+  return tabs;
+};
 
 export const ClinicWorkspace = (props) => {
   const { t, api, trackMetric } = props;
@@ -28,35 +73,9 @@ export const ClinicWorkspace = (props) => {
   const currentPatientInViewId = useSelector((state) => state.blip.currentPatientInViewId);
   const { fetchingPatientInvites } = useSelector((state) => state.blip.working);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
-  const patientInvites = values(clinic?.patientInvites);
-  const { showPrescriptions } = useFlags();
+  const tabs = useTabs();
 
-  const tabIndices = {
-    patients: 0,
-    invites: 1,
-    prescriptions: 2,
-  }
-
-  const tabs = [
-    {
-      name: 'patients',
-      label: t('Patient List'),
-      metric: 'Clinic - View patient list',
-    },
-    {
-      name: 'invites',
-      label: t('Invites ({{count}})', { count: patientInvites.length }),
-      metric: 'Clinic - View patient invites',
-    },
-  ];
-
-  if (showPrescriptions) {
-    tabs.push({
-      name: 'prescriptions',
-      label: t('Tidepool Loop Start Orders'),
-      metric: 'Clinic - View prescriptions',
-    });
-  }
+  const tabIndices = useMemo(() => Object.fromEntries(tabs.map(({ name }, i) => [name, i])), [tabs]);
 
   const [selectedTab, setSelectedTab] = useState(get(tabIndices, tab, 0));
 
@@ -125,15 +144,19 @@ export const ClinicWorkspace = (props) => {
           }}
         >
           <Box id="patientsTab">
-            {selectedTab === 0 && <ClinicPatients key={clinic?.id} {...props} />}
+            {selectedTab === tabIndices[TAB.PATIENTS] && <ClinicPatients key={clinic?.id} {...props} />}
+          </Box>
+
+          <Box id="tideDashboardTab">
+            {selectedTab === tabIndices[TAB.TIDE_DASHBOARD] && <TideDashboardV2 key={clinic?.id} {...props} />}
           </Box>
 
           <Box id="invitesTab">
-            {selectedTab === 1 && <PatientInvites {...props} />}
+            {selectedTab === tabIndices[TAB.INVITES] && <PatientInvites {...props} />}
           </Box>
 
           <Box id="prescriptionsTab">
-            {selectedTab === 2 && <Prescriptions {...props} />}
+            {selectedTab === tabIndices[TAB.PRESCRIPTIONS] && <Prescriptions {...props} />}
           </Box>
         </TabGroup>
       </Box>

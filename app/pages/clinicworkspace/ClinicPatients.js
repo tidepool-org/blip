@@ -67,7 +67,7 @@ import Button from '../../components/elements/Button';
 import Icon from '../../components/elements/Icon';
 import Table from '../../components/elements/Table';
 import { TagList } from '../../components/elements/Tag';
-import Pagination from '../../components/elements/Pagination';
+import PaginationControls from './components/PaginationControls';
 import TextInput from '../../components/elements/TextInput';
 import BgSummaryCell from '../../components/clinic/BgSummaryCell';
 import PatientForm from '../../components/clinic/PatientForm';
@@ -86,6 +86,7 @@ import SendEmailIcon from '../../core/icons/SendEmailIcon.svg';
 import TabularReportIcon from '../../core/icons/TabularReportIcon.svg';
 import utils from '../../core/utils';
 import LimitReached from './images/LimitReached.svg';
+import ActiveFilterCount from './components/ActiveFilterCount';
 
 import {
   Dialog,
@@ -118,6 +119,7 @@ import Banner from '../../components/elements/Banner';
 import colorPalette from '../../themes/colorPalette';
 import noop from 'lodash/noop';
 import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils';
+import ResetFilters from './components/ResetFilters';
 
 const { Loader } = vizComponents;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels, formatBgValue } = vizUtils.bg;
@@ -1563,11 +1565,8 @@ export const ClinicPatients = (props) => {
     debounceSearch('');
   }
 
-  const handlePageChange = useCallback((event, page) => {
-    setPatientFetchOptions({
-      ...patientFetchOptions,
-      offset: (page - 1) * patientFetchOptions.limit,
-    });
+  const handleOffsetChange = useCallback(offset => {
+    setPatientFetchOptions({ ...patientFetchOptions, offset: offset });
   }, [patientFetchOptions]);
 
   function handleResetFilters() {
@@ -1702,46 +1701,6 @@ export const ClinicPatients = (props) => {
 
               <Box sx={{ flex: 1, flexBasis:'fit-content', position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
                 <Flex sx={{ justifyContent: 'space-between', alignContent: 'center', gap: 2 }}>
-                  {showTideDashboardUI && (
-                    <PopoverElement
-                      id="tideDashAddTagsPopover"
-                      triggerOnHover
-                      disabled={!!clinic?.patientTags?.length}
-                      popoverProps={{
-                        anchorOrigin: {
-                          vertical: 'bottom',
-                          horizontal: 'center',
-                        },
-                        transformOrigin: {
-                          vertical: 'top',
-                          horizontal: 'center',
-                        },
-                        backgroundColor: 'rgba(79, 106, 146, 0.85)',
-                        border: 'none',
-                        borderRadius: radii.input,
-                        marginTop: `-${space[2]}px`,
-                        padding: `0 ${space[2]}px`,
-                        width: 'auto',
-                      }}
-                      popoverContent={(
-                        <Text sx={{ color: 'white', fontSize:'10px', fontWeight: 'medium' }}>{t('Add and apply patient tags to use')}</Text>
-                      )}
-                    >
-                      <Button
-                        id="open-tide-dashboard"
-                        variant="tertiary"
-                        onClick={handleConfigureTideDashboard}
-                        tag={t('New')}
-                        px={2}
-                        sx={{ flexShrink: 0, fontSize: 0 }}
-                        disabled={!clinic?.patientTags?.length}
-                        tagColorPalette={!clinic?.patientTags?.length ? [colors.lightGrey, colors.text.primaryDisabled] : 'greens'}
-                      >
-                        {t('TIDE Dashboard View')}
-                      </Button>
-                    </PopoverElement>
-                  )}
-
                   <TextInput
                     themeProps={{
                       sx: { width: ['100%', null, '250px'] },
@@ -1772,37 +1731,7 @@ export const ClinicPatients = (props) => {
                 sx={{ alignItems: 'center', gap: 2, justifyContent: 'flex-start', flexWrap: 'wrap' }}
                 id='summary-dashboard-filters'
               >
-                <Flex
-                  pl={[0, 0, 2]}
-                  py={1}
-                  sx={{
-                    color: activeFiltersCount > 0 ? 'purpleMedium' : 'grays.4',
-                    alignItems: 'center',
-                    gap: 1,
-                    borderLeft: ['none', null, borders.divider],
-                    flexShrink: 0
-                  }}
-                >
-                  {activeFiltersCount > 0 ? (
-                    <Pill
-                      id="filter-count"
-                      label="filter count"
-                      round
-                      sx={{ width: '14px', lineHeight: '15px', fontSize: '9px', display: 'flex', justifyContent: 'center' }}
-                      colorPalette={['purpleMedium', 'white']}
-                      text={`${activeFiltersCount}`}
-                    />
-                  ) : (
-                    <Icon
-                      id="filter-icon"
-                      variant="static"
-                      iconSrc={FilterIcon}
-                      label={t('Filter')}
-                      sx={{ fontSize: 1, width: '14px', color: 'grays.4' }}
-                    />
-                  )}
-                  <Text sx={{ fontSize: 0 }}>{t('Filter By')}</Text>
-                </Flex>
+                <ActiveFilterCount count={activeFiltersCount} />
 
                 <Flex sx={{ flexShrink: 0, gap: 2 }}>
                   <Box
@@ -2564,17 +2493,10 @@ export const ClinicPatients = (props) => {
                   </Popover>
                 </Flex>
 
-                {activeFiltersCount > 0 && (
-                  <Button
-                    id="reset-all-active-filters"
-                    variant="textSecondary"
-                    onClick={handleResetFilters}
-                    sx={{ fontSize: 0, color: 'grays.4', flexShrink: 0 }}
-                    px={0}
-                  >
-                    {t('Reset Filters')}
-                  </Button>
-                )}
+                <ResetFilters
+                  hidden={activeFiltersCount <= 0}
+                  onClick={handleResetFilters}
+                />
               </Flex>
             )}
 
@@ -4223,7 +4145,6 @@ export const ClinicPatients = (props) => {
 
   const renderPeopleTable = useCallback(() => {
     const pageCount = Math.ceil(clinic?.fetchedPatientCount / patientFetchOptions.limit);
-    const page = Math.ceil(patientFetchOptions.offset / patientFetchOptions.limit) + 1;
     const sort = patientFetchOptions.sort || defaultPatientFetchOptions.sort;
 
     const patientListQueryState = getPatientListQueryState(activeFilters, patientListSearchTextInput);
@@ -4271,17 +4192,14 @@ export const ClinicPatients = (props) => {
         />
 
         {pageCount > 1 && (
-          <Pagination
-            px="5%"
-            sx={{ width: '100%', position: 'absolute', bottom: '-50px' }}
-            id="clinic-patients-pagination"
-            count={pageCount}
-            disabled={pageCount < 2}
-            onChange={handlePageChange}
-            page={page}
-            showFirstButton={false}
-            showLastButton={false}
-          />
+          <Box sx={{ width: '100%', position: 'absolute', bottom: '-50px' }}>
+            <PaginationControls
+              total={clinic?.fetchedPatientCount}
+              limit={patientFetchOptions.limit}
+              offset={patientFetchOptions.offset}
+              onOffsetChange={handleOffsetChange}
+            />
+          </Box>
         )}
       </Box>
     );
@@ -4290,7 +4208,7 @@ export const ClinicPatients = (props) => {
     columns,
     data,
     defaultPatientFetchOptions.sort,
-    handlePageChange,
+    handleOffsetChange,
     handleSortChange,
     loading,
     patientFetchOptions,
