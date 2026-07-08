@@ -103,6 +103,14 @@ export const getActiveProviders = (overrides = {}) => {
   return filter(availableProviders, provider => activeProviders[provider]);
 };
 
+export const getPrimaryDeviceProvider = (clinicPatient) => {
+  const providerName = clinicPatient?.primaryDeviceProviderName;
+
+  if (!providerName || !providers[providerName]) return null;
+
+  return providers[providerName];
+};
+
 export function getProviderHandlers(patient, selectedClinicId, provider) {
   const { id, restrictedTokenCreate, dataSourceFilter } = provider;
   const providerName = dataSourceFilter?.providerName;
