@@ -1,19 +1,17 @@
-import React from 'react';
-import Icon from '../../../components/elements/Icon';
+import React, { useState } from 'react';
+import Icon from '../../components/elements/Icon';
 import { useLocation, useHistory } from 'react-router-dom';
 import Drawer from '@material-ui/core/Drawer';
 import styled from '@emotion/styled';
 import { makeStyles } from '@material-ui/core/styles';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import { Box } from 'theme-ui';
-import { useFlags } from 'launchdarkly-react-client-sdk';
 
 import Overview from './Overview';
 import StackedDaily from './StackedDaily';
 import MenuBar, { OVERVIEW_TAB_INDEX, STACKED_DAILY_TAB_INDEX } from './MenuBar';
 import useAgpCGM from './useAgpCGM';
-import { shadows } from '../../../themes/baseTheme';
-import { useScrollToTop } from '../../../core/hooks';
+import { shadows } from '../../themes/baseTheme';
 
 const StyledCloseButton = styled(Icon)`
   position: absolute;
@@ -64,7 +62,6 @@ const DrawerContent = ({ patientId, onClose, api, trackMetric, period }) => {
   const agpPeriodInDays = getAgpPeriodInDays(period);
   const agpCGMData = useAgpCGM(api, patientId, agpPeriodInDays);
   const contentRef = React.useRef(undefined);
-  useScrollToTop(contentRef?.current, [selectedTab]);
 
   function setDrawerTabParam(tabIndex) {
     const { search, pathname } = location;
@@ -76,11 +73,12 @@ const DrawerContent = ({ patientId, onClose, api, trackMetric, period }) => {
   function handleSelectTab(tabIndex) {
     setSelectedTab(parseInt(tabIndex, 10));
     setDrawerTabParam(tabIndex);
+    contentRef?.current?.scrollTo(0, 0);
   }
 
   const handleContentScroll = (e) => {
     setScrolledToTop((e.target.scrollTop || 0) <= 5);
-  }
+  };
 
   return (
     <>
@@ -110,10 +108,8 @@ const DrawerContent = ({ patientId, onClose, api, trackMetric, period }) => {
 
 const PatientDrawer = ({ patientId, onClose, api, trackMetric, period }) => {
   const classes = useStyles();
-  const { showTideDashboardPatientDrawer } = useFlags();
-  const isOpen = !!patientId && isValidAgpPeriod(period);
 
-  if (!showTideDashboardPatientDrawer) return null;
+  const isOpen = !!patientId && isValidAgpPeriod(period);
 
   return (
     <StyledDrawer

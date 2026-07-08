@@ -21,5 +21,9 @@ const tideDashboardSlice = createSlice({
   },
 });
 
-export const { setCategory, setOffset, resetTideDashboardState } = tideDashboardSlice.actions;
+export const {
+  setCategory,
+  setOffset,
+  resetTideDashboardState,
+} = tideDashboardSlice.actions;
 export default tideDashboardSlice.reducer;

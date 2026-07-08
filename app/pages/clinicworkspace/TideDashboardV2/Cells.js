@@ -1,15 +1,19 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useLocation, useHistory } from 'react-router-dom';
 import { useTranslation, withTranslation } from 'react-i18next';
 import { Box, Flex, Text } from 'theme-ui';
 import { utils as vizUtils, colors as vizColors  } from '@tidepool/viz';
 const { bankersRound } = vizUtils.stat;
 import { MGDL_UNITS } from '../../../core/constants';
+import { push } from 'connected-react-router';
 import { colors } from '../../../themes/baseTheme';
 
 import BgSummaryCell from '../../../components/clinic/BgSummaryCell';
 import DeltaBar from '../../../components/elements/DeltaBar';
 import utils from '../../../core/utils';
+import { OVERVIEW_TAB_INDEX } from '../../../components/PatientDrawer/MenuBar/MenuBar';
+import { useFlags } from 'launchdarkly-react-client-sdk';
 import { CATEGORY } from './FilterByCategory';
 import isUndefined from 'lodash/isUndefined';
 
@@ -17,10 +21,23 @@ export const COMPACT = '@container (max-width: 1200px)';
 
 export const PatientCell = ({ patient }) => {
   const { t } = useTranslation();
+  const { search, pathname } = useLocation();
+  const history = useHistory();
+  const dispatch = useDispatch();
 
   const { fullName, birthDate, mrn } = patient || {};
 
-  return <Box sx={{ gap: 0, marginRight: -2 }}>
+  const handleClick = () => {
+    if (!patient.id) return;
+
+    const params = new URLSearchParams(search);
+    params.set('drawerPatientId', patient.id);
+    params.set('drawerTab', OVERVIEW_TAB_INDEX);
+
+    history.replace({ pathname, search: params.toString() });
+  };
+
+  return <Box onClick={handleClick} sx={{ gap: 0, marginRight: -2 }}>
     <Box sx={{ fontSize: 0, whiteSpace: 'nowrap', fontWeight: 'medium' }}>{fullName}</Box>
     <Box sx={{ fontSize: 0, whiteSpace: 'nowrap' }}>{t('DOB:')} {birthDate}</Box>
     {mrn && <Box sx={{ fontSize: 0, whiteSpace: 'nowrap' }}>{t('MRN: {{mrn}}', { mrn: mrn })}</Box>}
