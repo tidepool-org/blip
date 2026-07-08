@@ -16,7 +16,7 @@ function DataDonationSlideShow() {
         {
           id: 'fuelingInnovation',
           title: t('Fueling the Next Generation of Diabetes Innovation'),
-          content: t('The Tidepool Big Data Donation Project enables students, academics, and industry to innovate faster. By donating your anonymized data, you can help transform the landscape of diabetes management.'),
+          content: t('The Tidepool Big Data Donation Project enables students, academics, and industry to innovate faster. By donating your data, you can help transform the landscape of diabetes management.'),
           image: FuelingNextGenImage,
           imageAlt: t('Illustration: fueling diabetes innovation'),
         },

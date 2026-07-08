@@ -140,7 +140,7 @@ export const appBanners = [
         metric: 'Big Data banner displayed',
       },
       action: {
-        text: t('Donate my anonymized data'),
+        text: t('Donate my data'),
         metric: 'web - big data sign up',
         metricProps: { source: 'none', location: 'banner' },
         handler: () => dispatch(push(`/patients/${loggedInUserId}/profile#donateForm`)),
