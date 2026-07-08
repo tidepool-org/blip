@@ -2,14 +2,14 @@ import { createSlice } from '@reduxjs/toolkit';
 
 import { CATEGORY } from './FilterByCategory';
 
-const initialState = {
+const getInitialState = () => ({
   category: CATEGORY.DEFAULT,
   offset: 0,
-};
+});
 
 const tideDashboardSlice = createSlice({
   name: 'tideDashboard',
-  initialState,
+  initialState: getInitialState(),
   reducers: {
     setCategory: (state, action) => {
       state.category = action.payload;
@@ -17,7 +17,7 @@ const tideDashboardSlice = createSlice({
     setOffset: (state, action) => {
       state.offset = action.payload;
     },
-    resetTideDashboardState: () => initialState,
+    resetTideDashboardState: () => getInitialState(),
   },
 });
 

@@ -1,17 +1,17 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-const initialState = {
+const getInitialState = () => ({
   lastData: 7,
   patientTags: [],
   clinicSites: [],
   summaryPeriod: '14d',
-};
+});
 
 const tideDashboardFiltersSlice = createSlice({
   name: 'tideDashboardFilters',
-  initialState,
+  initialState: getInitialState(),
   reducers: {
-    setTideDashboardFilters: (_state, action) => action.payload || initialState,
+    setTideDashboardFilters: (_state, action) => action.payload || getInitialState(),
     setLastDataFilter: (state, action) => {
       state.lastData = action.payload;
     },
@@ -24,7 +24,7 @@ const tideDashboardFiltersSlice = createSlice({
     setSummaryPeriodFilter: (state, action) => {
       state.summaryPeriod = action.payload;
     },
-    resetTideDashboardFilters: () => initialState,
+    resetTideDashboardFilters: () => getInitialState(),
   },
 });
 
@@ -34,7 +34,7 @@ export const {
   setClinicSitesFilter,
   setSummaryPeriodFilter,
   setTideDashboardFilters,
-  resetTideDashboardFilters
+  resetTideDashboardFilters,
 } = tideDashboardFiltersSlice.actions;
 
 export default tideDashboardFiltersSlice.reducer;
