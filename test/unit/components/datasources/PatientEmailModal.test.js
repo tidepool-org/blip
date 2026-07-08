@@ -106,6 +106,7 @@ describe('PatientEmailModal', () => {
       fullName: 'Patient 123',
       mrn: '12345',
       tags: ['tag1', 'tag2'],
+      dataSources: [],
     } }));
 
     store.clearActions();
@@ -149,6 +150,7 @@ describe('PatientEmailModal', () => {
       fullName: 'Patient 123',
       mrn: '12345',
       tags: ['tag1', 'tag2'],
+      dataSources: [],
     } }));
 
     store.clearActions();

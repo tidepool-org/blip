@@ -185,31 +185,31 @@ export const clinicTierDetails = (clinic = {}) => {
     },
     tier0201: {
       planName: 'essential',
-      entitlements: { ...entitlements, deviceIssues: true, patientTags: true, clinicSites: true, summaryDashboard: true },
+      entitlements: { ...entitlements, patientTags: true, clinicSites: true, summaryDashboard: true },
     },
     tier0202: {
       planName: 'professional',
-      entitlements: { ...entitlements, deviceIssues: true, patientTags: true, clinicSites: true, summaryDashboard: true },
+      entitlements: { ...entitlements, patientTags: true, clinicSites: true, summaryDashboard: true },
     },
     tier0300: {
       planName: 'professional',
-      entitlements: { ...entitlements, deviceIssues: true, patientTags: true, clinicSites: true, summaryDashboard: true },
+      entitlements: { ...entitlements, patientTags: true, clinicSites: true, summaryDashboard: true },
     },
     tier0301: {
       planName: 'professional',
-      entitlements: { ...entitlements, rpmReport: true, deviceIssues: true, patientTags: true, clinicSites: true, summaryDashboard: true, tideDashboard: true },
+      entitlements: { ...entitlements, rpmReport: true, patientTags: true, clinicSites: true, summaryDashboard: true, tideDashboard: true },
     },
     tier0302: {
       planName: 'professional',
-      entitlements: { ...entitlements, rpmReport: true, deviceIssues: true, patientTags: true, clinicSites: true, summaryDashboard: true },
+      entitlements: { ...entitlements, rpmReport: true, patientTags: true, clinicSites: true, summaryDashboard: true },
     },
     tier0303: {
       planName: 'professional',
-      entitlements: { ...entitlements, rpmReport: true, deviceIssues: true, patientTags: true, clinicSites: true, summaryDashboard: true, tideDashboard: true },
+      entitlements: { ...entitlements, rpmReport: true, patientTags: true, clinicSites: true, summaryDashboard: true, tideDashboard: true },
     },
     tier0400: {
       planName: 'enterprise',
-      entitlements: { ...entitlements, rpmReport: true, deviceIssues: true, patientTags: true, clinicSites: true, summaryDashboard: true, tideDashboard: true },
+      entitlements: { ...entitlements, rpmReport: true, patientTags: true, clinicSites: true, summaryDashboard: true, tideDashboard: true },
     },
   };
 
@@ -435,6 +435,13 @@ export const patientSchema = config => {
       .required(t('Patient\'s birthday is required')),
     mrn: mrnSchema,
     email: yup.string().email(t('Please enter a valid email address')),
+    connectDexcom: yup.boolean(),
+    dataSources: yup.array().of(
+      yup.object().shape({
+        providerName: yup.string(),
+        state: yup.string().oneOf(['pending', 'pendingReconnect', 'connected', 'error', 'disconnected']),
+      }),
+    ),
     tags: yup.array().of(
       yup.string()
     ),
