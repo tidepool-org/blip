@@ -4,10 +4,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation, Trans } from 'react-i18next';
 import { colors as vizColors } from '@tidepool/viz';
 import Table from '../../../components/elements/Table';
-import { Box, Flex, Grid, Text } from 'theme-ui';
+import { Flex, Text, Box, Grid } from 'theme-ui';
 
 import FilterByCategory from './FilterByCategory';
 import FilterByTags from './FilterByTags';
+import FilterByDataRecency from './FilterByDataRecency';
+import FilterBySummaryPeriod from './FilterBySummaryPeriod';
+
 import TableCategoryHeader from './TableCategoryHeader';
 import PaginationControls from '../components/PaginationControls';
 import ActiveFilterCount from '../components/ActiveFilterCount';
@@ -18,6 +21,7 @@ import { resetTideDashboardState, setOffset } from './tideDashboardSlice';
 import { useGetTideDashboardPatientsQuery } from './tideDashboardApi';
 import ResetFilters from '../components/ResetFilters';
 import useActiveFiltersCount from './useActiveFiltersCount';
+import useDerivedDataRecencyEndpoints from './useDerivedDataRecencyEndpoints';
 import usePruneInvalidFilters from './usePruneInvalidFilters';
 import { resetTideDashboardFilters } from './tideDashboardFiltersSlice';
 import EmptyContentNode from './EmptyContentNode';
@@ -25,6 +29,10 @@ import FilterBySites from './FilterBySites';
 import PatientCount from '../components/PatientCount';
 
 const LIMIT = 12;
+
+const Divider = () => <Box id='filter-divider' mx={2} sx={{ border: `1px solid ${vizColors.gray05}`, height: '24px' }}></Box>;
+
+const Gap = () => <Box sx={{ marginLeft: 'auto' }}></Box>;
 
 const TideDashboard = () => {
   const { t } = useTranslation();
@@ -37,8 +45,10 @@ const TideDashboard = () => {
   const offset = useSelector(state => state.blip.tideDashboard.offset);
   const { patientTags, clinicSites } = useSelector(state => state.blip.tideDashboardFilters);
 
+  const [lastDataFrom, lastDataTo] = useDerivedDataRecencyEndpoints();
+
   const { data } = useGetTideDashboardPatientsQuery(
-    { clinicId: selectedClinicId, offset, category, tags: patientTags, sites: clinicSites, limit: LIMIT },
+    { clinicId: selectedClinicId, offset, category, lastDataTo, lastDataFrom, tags: patientTags, sites: clinicSites, limit: LIMIT },
     { skip: !selectedClinicId }
   );
 
@@ -50,6 +60,8 @@ const TideDashboard = () => {
   }, []);
 
   const handleChangeOffset = (newOffset) => dispatch(setOffset(newOffset));
+
+  const handleResetFilters = () => dispatch(resetTideDashboardFilters());
 
   if (!data) return null;
 
@@ -63,10 +75,10 @@ const TideDashboard = () => {
         <ActiveFilterCount count={activeFiltersCount} />
         <FilterByTags />
         <FilterBySites />
-        <ResetFilters
-          hidden={activeFiltersCount <= 0}
-          onClick={() => dispatch(resetTideDashboardFilters())}
-        />
+        <FilterByDataRecency />
+        <ResetFilters hidden={activeFiltersCount <= 0} onClick={handleResetFilters} />
+        <Gap />
+        <FilterBySummaryPeriod />
       </Flex>
 
       <Flex mb={3} sx={{ justifyContent: 'center' }}>
