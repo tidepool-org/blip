@@ -6,7 +6,6 @@ import { Provider } from 'react-redux';
 import { thunk } from 'redux-thunk';
 import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
 import { ToastProvider } from '../../../../app/providers/ToastProvider';
-import includes from 'lodash/includes';
 import map from 'lodash/map';
 import reduce from 'lodash/reduce';
 import coreApi from '../../../../app/core/api';
@@ -23,8 +22,7 @@ import DataConnections, {
   getProviderHandlers,
   getCurrentDataSourceForProvider,
   getConnectStateUI,
-  getDataConnectionProps,
-  resolveConnectState,
+  getDataConnectionProps
 } from '../../../../app/components/datasources/DataConnections';
 
 /* global chai */
@@ -143,6 +141,7 @@ describe('getProviderHandlers', () => {
         action: appActions.async.sendPatientDataProviderConnectRequest,
         args: [coreApi, 'clinic123', 'patient123', 'provider123'],
         emailRequired: false,
+        patientUpdates: undefined,
       },
       resendInvite: {
         buttonText: 'Resend Invite',
@@ -150,6 +149,7 @@ describe('getProviderHandlers', () => {
         action: appActions.async.sendPatientDataProviderConnectRequest,
         args: [coreApi, 'clinic123', 'patient123', 'provider123'],
         emailRequired: false,
+        patientUpdates: undefined,
       },
     });
   });
@@ -163,96 +163,15 @@ describe('getProviderHandlers', () => {
     expect(handlers.sendInvite.emailRequired).to.be.true;
     expect(handlers.resendInvite.emailRequired).to.be.true;
   });
-});
 
-describe('resolveConnectState', () => {
-  const NOW = '2026-05-25T12:00:00Z';
-  const past = (days) => moment.utc(NOW).subtract(days, 'days').toISOString();
-  const future = (days) => moment.utc(NOW).add(days, 'days').toISOString();
+  it('should set patientUpdates to include pending data source for send and resend invite actions if patient does not have a data source for the provider', () => {
+    const patient = { id: 'patient123', email: 'patient@123.com', permissions: { custodian: {} }, dataSources: [ { providerName: 'otherProvider' }] };
+    const selectedClinicId = 'clinic123';
+    const provider = { id: 'oauth/provider123', dataSourceFilter: { providerName: 'provider123' }, restrictedTokenCreate: { paths: ['/v1/oauth/provider123'] }};
 
-  it('returns noPendingConnections when no dataSource and no connectionRequest', () => {
-    const patient = { dataSources: [], connectionRequests: {} };
-    expect(resolveConnectState(patient, 'dexcom', NOW)).to.equal('noPendingConnections');
-  });
-
-  it('returns pending when a non-expired connectionRequest exists and no dataSource', () => {
-    const patient = {
-      connectionRequests: { dexcom: [{ providerName: 'dexcom', createdTime: past(2), expirationTime: future(28) }] },
-    };
-    expect(resolveConnectState(patient, 'dexcom', NOW)).to.equal('pending');
-  });
-
-  it('returns pendingExpired when a connectionRequest exists and is expired and no connected dataSource', () => {
-    const patient = {
-      connectionRequests: { dexcom: [{ providerName: 'dexcom', createdTime: past(31), expirationTime: past(1) }] },
-    };
-    expect(resolveConnectState(patient, 'dexcom', NOW)).to.equal('pendingExpired');
-  });
-
-  it('returns pendingReconnect when a non-expired connectionRequest exists alongside a non-connected dataSource', () => {
-    const patient = {
-      dataSources: [{ providerName: 'dexcom', state: 'disconnected', modifiedTime: past(10) }],
-      connectionRequests: { dexcom: [{ providerName: 'dexcom', createdTime: past(2), expirationTime: future(28) }] },
-    };
-    expect(resolveConnectState(patient, 'dexcom', NOW)).to.equal('pendingReconnect');
-  });
-
-  it('returns connected when dataSource is connected, even with a recent connectionRequest', () => {
-    const patient = {
-      dataSources: [{ providerName: 'dexcom', state: 'connected', modifiedTime: past(1) }],
-      connectionRequests: { dexcom: [{ providerName: 'dexcom', createdTime: past(2), expirationTime: future(28) }] },
-    };
-    expect(resolveConnectState(patient, 'dexcom', NOW)).to.equal('connected');
-  });
-
-  it('does not surface pendingExpired when dataSource is connected', () => {
-    const patient = {
-      dataSources: [{ providerName: 'dexcom', state: 'connected', modifiedTime: past(1) }],
-      connectionRequests: { dexcom: [{ providerName: 'dexcom', createdTime: past(60), expirationTime: past(30) }] },
-    };
-    expect(resolveConnectState(patient, 'dexcom', NOW)).to.equal('connected');
-  });
-
-  it('returns disconnected / error when no connectionRequest is present', () => {
-    expect(resolveConnectState({
-      dataSources: [{ providerName: 'dexcom', state: 'disconnected', modifiedTime: past(1) }],
-    }, 'dexcom', NOW)).to.equal('disconnected');
-
-    expect(resolveConnectState({
-      dataSources: [{ providerName: 'dexcom', state: 'error', modifiedTime: past(1) }],
-    }, 'dexcom', NOW)).to.equal('error');
-  });
-
-  it('treats a missing expirationTime as "not expired"', () => {
-    const patient = {
-      connectionRequests: { dexcom: [{ providerName: 'dexcom', createdTime: past(60) }] },
-    };
-    expect(resolveConnectState(patient, 'dexcom', NOW)).to.equal('pending');
-  });
-
-  it('uses the newest request when multiple exist, regardless of array order', () => {
-    // An older expired request and a newer non-expired request. The newest supersedes,
-    // so the state is driven by the non-expired request — even when it is not first.
-    const olderExpired = { providerName: 'dexcom', createdTime: past(60), expirationTime: past(30) };
-    const newerValid = { providerName: 'dexcom', createdTime: past(2), expirationTime: future(28) };
-
-    expect(resolveConnectState({
-      connectionRequests: { dexcom: [olderExpired, newerValid] },
-    }, 'dexcom', NOW)).to.equal('pending');
-
-    // Same set, reversed order — selection must not depend on index [0].
-    expect(resolveConnectState({
-      connectionRequests: { dexcom: [newerValid, olderExpired] },
-    }, 'dexcom', NOW)).to.equal('pending');
-  });
-
-  it('reports pendingExpired when the newest request is the expired one', () => {
-    const olderValidByExpiry = { providerName: 'dexcom', createdTime: past(60), expirationTime: future(5) };
-    const newerExpired = { providerName: 'dexcom', createdTime: past(2), expirationTime: past(1) };
-
-    expect(resolveConnectState({
-      connectionRequests: { dexcom: [olderValidByExpiry, newerExpired] },
-    }, 'dexcom', NOW)).to.equal('pendingExpired');
+    const handlers = getProviderHandlers(patient, selectedClinicId, provider);
+    expect(handlers.sendInvite.patientUpdates).to.eql({ dataSources: [ { providerName: 'otherProvider' }, { providerName: 'provider123', state: 'pending' } ]});
+    expect(handlers.resendInvite.patientUpdates).to.eql({ dataSources: [ { providerName: 'otherProvider' }, { providerName: 'provider123', state: 'pending' } ]});
   });
 });
 
@@ -273,10 +192,25 @@ describe('getCurrentDataSourceForProvider', () => {
     expect(result).to.be.undefined;
   });
 
-  it('should return connected data source as highest priority', () => {
+  it('should return pending data source as highest priority', () => {
     const patient = {
       dataSources: [
         { providerName: 'dexcom', state: 'disconnected', lastImportTime: '2024-02-01T00:00:00Z' },
+        { providerName: 'dexcom', state: 'pendingReconnect' },
+        { providerName: 'dexcom', state: 'error' },
+        { providerName: 'dexcom', state: 'connected' },
+        { providerName: 'dexcom', state: 'pending' },
+      ],
+    };
+    const result = getCurrentDataSourceForProvider(patient, 'dexcom');
+    expect(result.state).to.equal('pending');
+  });
+
+  it('should return connected data source when no pending exists', () => {
+    const patient = {
+      dataSources: [
+        { providerName: 'dexcom', state: 'disconnected', lastImportTime: '2024-02-01T00:00:00Z' },
+        { providerName: 'dexcom', state: 'pendingReconnect' },
         { providerName: 'dexcom', state: 'error' },
         { providerName: 'dexcom', state: 'connected' },
       ],
@@ -285,15 +219,27 @@ describe('getCurrentDataSourceForProvider', () => {
     expect(result.state).to.equal('connected');
   });
 
-  it('should return error data source when no connected exists', () => {
+  it('should return error data source when no pending or connected exists', () => {
     const patient = {
       dataSources: [
         { providerName: 'dexcom', state: 'disconnected', lastImportTime: '2024-02-01T00:00:00Z' },
+        { providerName: 'dexcom', state: 'pendingReconnect' },
         { providerName: 'dexcom', state: 'error' },
       ],
     };
     const result = getCurrentDataSourceForProvider(patient, 'dexcom');
     expect(result.state).to.equal('error');
+  });
+
+  it('should return pendingReconnect data source when no pending, connected, or error exists', () => {
+    const patient = {
+      dataSources: [
+        { providerName: 'dexcom', state: 'disconnected', lastImportTime: '2024-02-01T00:00:00Z' },
+        { providerName: 'dexcom', state: 'pendingReconnect' },
+      ],
+    };
+    const result = getCurrentDataSourceForProvider(patient, 'dexcom');
+    expect(result.state).to.equal('pendingReconnect');
   });
 
   it('should return the disconnected data source with the most recent lastImportTime when only disconnected states exist', () => {
@@ -343,14 +289,9 @@ describe('getCurrentDataSourceForProvider', () => {
 });
 
 describe('getConnectStateUI', () => {
-  // getConnectStateUI returns the full UI map keyed by connectState identifier; the actual
-  // resolved state for a patient is the consumer's concern. These fixtures supply enough
-  // timing context for the UI map's messages to render. dataSource.state is one of
-  // ['connected', 'disconnected', 'error'] — 'disconnected' is the inert choice here
-  // since the fixtures aren't exercising state-driven branches.
   const clinicPatient = {
     id: 'patient123',
-    dataSources: [ { providerName: 'provider123', state: 'disconnected' }],
+    dataSources: [ { providerName: 'provider123', state: 'pending' }],
     connectionRequests: { provider123: [{ createdTime: moment.utc().subtract(20, 'days') }] },
   };
 
@@ -363,7 +304,7 @@ describe('getConnectStateUI', () => {
     id: 'patient123',
     dataSources: [ {
       providerName: 'provider123',
-      state: 'disconnected',
+      state: 'pending',
       createdTime: moment.utc().subtract(20, 'days'),
     }],
   }
@@ -372,7 +313,7 @@ describe('getConnectStateUI', () => {
     id: 'patient123',
     dataSources: [ {
       providerName: 'provider123',
-      state: 'disconnected',
+      state: 'pending',
       createdTime: moment.utc().subtract(20, 'days'),
       lastImportTime: moment.utc().subtract(10, 'days'),
     }],
@@ -382,7 +323,7 @@ describe('getConnectStateUI', () => {
     id: 'patient123',
     dataSources: [ {
       providerName: 'provider123',
-      state: 'disconnected',
+      state: 'pending',
       createdTime: moment.utc().subtract(20, 'days'),
       modifiedTime: moment.utc().subtract(5, 'days'),
       lastImportTime: moment.utc().subtract(10, 'days'),
@@ -487,16 +428,17 @@ describe('getConnectStateUI', () => {
 describe('getDataConnectionProps', () => {
   const setActiveHandlerStub = sinon.stub();
 
-  // Pending state lives on connectionRequests, not on dataSources.
   const createPatientWithPendingDexcomConnection = () => ({
     id: 'patient123',
-    connectionRequests: {
-      dexcom: [{
+    dataSources: [
+      {
         providerName: 'dexcom',
-        createdTime: moment.utc().subtract(2, 'days').toISOString(),
-        expirationTime: moment.utc().add(28, 'days').toISOString(),
-      }],
-    },
+        state: 'pending',
+        modifiedTime: moment.utc().subtract(2, 'days').toISOString(),
+        expirationTime: moment.utc().add(5, 'days').toISOString(),
+      },
+    ],
+    connectionRequests: { dexcom: [{ createdTime: moment.utc().subtract(2, 'days').toISOString() }] },
   });
 
   afterEach(() => {
@@ -532,6 +474,7 @@ describe('getDataConnectionProps', () => {
       action: appActions.async.sendPatientDataProviderConnectRequest,
       args: [coreApi, 'clinic125', 'patient123', 'dexcom'],
       emailRequired: false,
+      patientUpdates: undefined,
       providerName: 'dexcom',
       connectState: 'pending',
       handler: 'resendInvite',
@@ -568,41 +511,22 @@ describe('DataConnections', () => {
 
   const getDateInPast = (amount, unit) => moment.utc().subtract(amount, unit).toISOString();
 
-  // Pending lifecycle is on patient.connectionRequests; established
-  // connections are on patient.dataSources. `pendingReconnect` carries both: a non-
-  // connected dataSource with modifiedTime older than the request's createdTime.
-  const requestDrivenStates = ['pending', 'pendingReconnect', 'pendingExpired'];
-
-  const patientWithState = (isClinicContext, state, opts = {}) => {
-    const hasDataSource = !!state && !includes(['pending', 'pendingExpired'], state);
-    const dataSourceState = state === 'pendingReconnect' ? 'disconnected' : state;
-    const dataSourceModifiedTime = state === 'pendingReconnect'
-      ? moment.utc(opts.createdTime).subtract(1, 'day').toISOString()
-      : opts.modifiedTime;
-    const hasConnectionRequest = isClinicContext && includes(requestDrivenStates, state);
-    const requestExpirationTime = opts.expirationTime
-      || (opts.createdTime ? moment.utc(opts.createdTime).add(30, 'days').toISOString() : undefined);
-
-    return {
-      id: 'patient123',
-      dataSources: hasDataSource ? map(availableProviders, providerName => ({
-        providerName,
-        state: dataSourceState,
-        createdTime: opts.createdTime,
-        modifiedTime: dataSourceModifiedTime,
-        lastImportTime: opts.lastImportTime,
-        latestDataTime: opts.latestDataTime,
-      })) : undefined,
-      connectionRequests: hasConnectionRequest ? reduce(availableProviders, (res, providerName) => {
-        res[providerName] = [{
-          providerName,
-          createdTime: opts.createdTime,
-          expirationTime: requestExpirationTime,
-        }];
-        return res;
-      }, {}) : undefined,
-    };
-  };
+  const patientWithState = (isClinicContext, state, opts = {}) => ({
+    id: 'patient123',
+    dataSources: state ? map(availableProviders, providerName => ({
+      providerName,
+      state,
+      createdTime: opts.createdTime,
+      modifiedTime: opts.modifiedTime,
+      expirationTime: opts.expirationTime,
+      lastImportTime: opts.lastImportTime,
+      latestDataTime: opts.latestDataTime,
+    })) : undefined,
+    connectionRequests: isClinicContext && opts.createdTime ? reduce(availableProviders, (res, providerName) => {
+      res[providerName] = [{ providerName, createdTime: opts.createdTime }];
+      return res;
+    }, {}) : undefined,
+  });
 
   let clinicPatients;
   let userPatients;
@@ -751,11 +675,9 @@ describe('DataConnections', () => {
         fireEvent.click(twiistActionButton);
 
         await waitFor(() => {
-          sinon.assert.calledWith(api.clinics.sendPatientDataProviderConnectRequest, 'clinicID123', 'patient123', 'dexcom');
-          sinon.assert.calledWith(api.clinics.sendPatientDataProviderConnectRequest, 'clinicID123', 'patient123', 'twiist');
+          sinon.assert.calledWith(api.clinics.updateClinicPatient, 'clinicID123', 'patient123', sinon.match({ dataSources: [ { providerName: 'dexcom', state: 'pending' } ] }));
+          sinon.assert.calledWith(api.clinics.updateClinicPatient, 'clinicID123', 'patient123', sinon.match({ dataSources: [ { providerName: 'twiist', state: 'pending' } ] }));
         });
-        // No synthetic dataSources write — the connect-request endpoint is authoritative.
-        sinon.assert.notCalled(api.clinics.updateClinicPatient);
       });
     });
 

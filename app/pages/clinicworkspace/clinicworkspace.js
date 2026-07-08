@@ -14,7 +14,6 @@ import { useFlags } from 'launchdarkly-react-client-sdk';
 import TabGroup from '../../components/elements/TabGroup';
 import ClinicWorkspaceHeader from '../../components/clinic/ClinicWorkspaceHeader';
 import ClinicPatients from './ClinicPatients';
-import DeviceIssues from './DeviceIssues';
 import TideDashboardV2 from './TideDashboardV2';
 import Prescriptions from '../prescription/Prescriptions';
 import { PatientInvites } from '../share';
@@ -23,7 +22,6 @@ import config from '../../config';
 
 const TAB = {
   PATIENTS: 'patients',
-  DEVICE_ISSUES: 'device-issues',
   TIDE_DASHBOARD: 'tide-dashboard',
   INVITES: 'invites',
   PRESCRIPTIONS: 'prescriptions',
@@ -36,8 +34,6 @@ const useTabs = () => {
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const patientInvites = values(clinic?.patientInvites);
 
-  const showDeviceIssuesUI = clinic?.entitlements?.deviceIssues;
-
   const showTideDashboardUI = showTideDashboard || clinic?.entitlements?.tideDashboard;
 
   const tabs = useMemo(() => (
@@ -46,11 +42,6 @@ const useTabs = () => {
         name: TAB.PATIENTS,
         label: t('Patient List'),
         metric: 'Clinic - View patient list'
-      },
-      showDeviceIssuesUI && {
-        name: TAB.DEVICE_ISSUES,
-        label: t('Device Issues'),
-        metric: 'Clinic - View device issues'
       },
       showTideDashboardUI && {
         name: TAB.TIDE_DASHBOARD,
@@ -68,7 +59,7 @@ const useTabs = () => {
         metric: 'Clinic - View prescriptions'
       },
     ].filter(Boolean)
-  ), [showPrescriptions, showDeviceIssuesUI, showTideDashboardUI, patientInvites.length, t]);
+  ), [showPrescriptions, showTideDashboardUI, patientInvites.length, t]);
 
   return tabs;
 };
@@ -154,10 +145,6 @@ export const ClinicWorkspace = (props) => {
         >
           <Box id="patientsTab">
             {selectedTab === tabIndices[TAB.PATIENTS] && <ClinicPatients key={clinic?.id} {...props} />}
-          </Box>
-
-          <Box id="deviceIssuesTab">
-            {selectedTab === tabIndices[TAB.DEVICE_ISSUES] && <DeviceIssues key={clinic?.id} {...props} />}
           </Box>
 
           <Box id="tideDashboardTab">
