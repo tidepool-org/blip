@@ -1443,7 +1443,7 @@ describe('Settings', () => {
             isUserPatient: false,
             clinicPatient: {
               ...clinicPatient,
-              dataSources: _.map(availableProviders, providerName => ({ providerName, state: 'connected' })),
+              dataSources: _.map(availableProviders, providerName => ({ providerName, state: 'pending' })),
             },
           };
 
@@ -1545,7 +1545,7 @@ describe('Settings', () => {
           const state = {
             blip: {
               ...defaultState.blip,
-              dataSources: _.map(availableProviders, providerName => ({ providerName, state: 'connected' })),
+              dataSources: _.map(availableProviders, providerName => ({ providerName, state: 'pending' })),
             }
           };
 

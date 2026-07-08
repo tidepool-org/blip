@@ -293,14 +293,9 @@ describe('ClinicPatients', () => {
               fullName: 'patient1',
               birthDate: '1999-01-01',
               createdTime: '2021-10-19T16:27:59.504Z',
-              // Pending lives on connectionRequests, not dataSources.
-              connectionRequests: {
-                dexcom: [{
-                  providerName: 'dexcom',
-                  createdTime: '2021-10-19T16:30:00.000Z',
-                  expirationTime: '2099-01-01T00:00:00.000Z',
-                }],
-              },
+              dataSources: [
+                { providerName: 'dexcom', state: 'pending' },
+              ],
             },
             patient2: {
               id: 'patient2',
@@ -353,18 +348,9 @@ describe('ClinicPatients', () => {
               email: 'patient7@test.ca',
               fullName: 'patient7',
               birthDate: '1999-01-01',
-              // PendingReconnect = non-connected dataSource +
-              // non-expired connectionRequest.
               dataSources: [
-                { providerName: 'dexcom', state: 'disconnected', modifiedTime: '2021-10-19T16:27:59.504Z' },
+                { providerName: 'dexcom', state: 'pendingReconnect' },
               ],
-              connectionRequests: {
-                dexcom: [{
-                  providerName: 'dexcom',
-                  createdTime: '2021-10-19T16:30:00.000Z',
-                  expirationTime: '2099-01-01T00:00:00.000Z',
-                }],
-              },
             },
           },
         },
