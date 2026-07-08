@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation, Trans } from 'react-i18next';
@@ -14,9 +14,8 @@ import FilterBySummaryPeriod from './FilterBySummaryPeriod';
 import TableCategoryHeader from './TableCategoryHeader';
 import PaginationControls from '../components/PaginationControls';
 import ActiveFilterCount from '../components/ActiveFilterCount';
+import PatientDrawerController from './PatientDrawerController';
 
-import TagListCell from '../components/TagListCell';
-import { PatientCell } from './Cells';
 import { resetTideDashboardState, setOffset } from './tideDashboardSlice';
 import { useGetTideDashboardPatientsQuery } from './tideDashboardApi';
 import ResetFilters from '../components/ResetFilters';
@@ -24,6 +23,7 @@ import useActiveFiltersCount from './useActiveFiltersCount';
 import useDerivedDataRecencyEndpoints from './useDerivedDataRecencyEndpoints';
 import usePruneInvalidFilters from './usePruneInvalidFilters';
 import { resetTideDashboardFilters } from './tideDashboardFiltersSlice';
+import useTableColumns from './useTableColumns';
 import EmptyContentNode from './EmptyContentNode';
 import FilterBySites from './FilterBySites';
 import PatientCount from '../components/PatientCount';
@@ -34,7 +34,7 @@ const Divider = () => <Box id='filter-divider' mx={2} sx={{ border: `1px solid $
 
 const Gap = () => <Box sx={{ marginLeft: 'auto' }}></Box>;
 
-const TideDashboard = () => {
+const TideDashboard = ({ api }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
@@ -52,6 +52,11 @@ const TideDashboard = () => {
     { skip: !selectedClinicId }
   );
 
+  // Sync category to data fetching resolution; prevents visual glitch due to
+  // category updating view before the API call resolves and updates it again
+  const resolvedCategory = data?.category || category;
+
+  const tableColumns = useTableColumns(resolvedCategory);
   const activeFiltersCount = useActiveFiltersCount();
 
   // reset state on dismount
@@ -90,21 +95,10 @@ const TideDashboard = () => {
         id="tideDashboardPatientsTable"
         variant="condensed"
         label="tideDashboardPatientsTable"
-        columns={[
-          { title: t('Patient Details'), field: 'fullName', align: 'left', render: patient => <PatientCell patient={patient} /> },
-          { title: t('Flag'), field: '', align: 'left' },
-          { title: t('Avg Glucose'), field: '', align: 'left' },
-          { title: t('% TIR'), field: '', align: 'left' },
-          { title: t('% Time in Range'), field: '', align: 'left' },
-          { title: t('% Change in TIR'), field: '', align: 'left' },
-          { title: t('GMI'), field: '', align: 'left' },
-          { title: t('CGM Use'), field: '', align: 'left' },
-          { title: t('Tags'), field: 'tags', align: 'left', render: patient => <TagListCell patient={patient} /> },
-          { title: t('Last Reviewed'), field: '', align: 'left' },
-          { title: t(''), field: '', align: 'left' }, // More
-        ]}
+        columns={tableColumns}
         data={tableData}
         emptyContentNode={<EmptyContentNode />}
+        containerProps={{ sx: { containerType: 'inline-size' } }}
         // sx={tableStyle}
         // onSort={handleSortChange}
         // order={sort?.substring(0, 1) === '+' ? 'asc' : 'desc'}
@@ -126,6 +120,8 @@ const TideDashboard = () => {
         </Flex>
         <Box></Box>
       </Grid>
+
+      <PatientDrawerController api={api} />
     </>
   );
 };

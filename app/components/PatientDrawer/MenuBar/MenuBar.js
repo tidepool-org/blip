@@ -1,20 +1,20 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import * as actions from '../../../../redux/actions';
+import * as actions from '../../../redux/actions';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { push } from 'connected-react-router';
 import { Flex, Box, Text } from 'theme-ui';
 import { colors as vizColors } from '@tidepool/viz';
-import Button from '../../../../components/elements/Button';
+import Button from '../../../components/elements/Button';
 import moment from 'moment';
-import PatientLastReviewed from '../../../../components/clinic/PatientLastReviewed';
+import PatientLastReviewed from '../../../components/clinic/PatientLastReviewed';
 import { useFlags } from 'launchdarkly-react-client-sdk';
 import CGMClipboardButton from './CGMClipboardButton';
-import api from '../../../../core/api';
+import api from '../../../core/api';
 import { map, keys } from 'lodash';
-import copyIcon from '../../../../core/icons/copyIcon.svg';
-import viewIcon from '../../../../core/icons/viewIcon.svg';
+import copyIcon from '../../../core/icons/copyIcon.svg';
+import viewIcon from '../../../core/icons/viewIcon.svg';
 
 export const OVERVIEW_TAB_INDEX = 0;
 export const STACKED_DAILY_TAB_INDEX = 1;

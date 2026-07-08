@@ -27,7 +27,6 @@ export const buildGetTideDashboardPatientsParams = (offset, limit, category, las
   return {
     offset,
     limit,
-    category,
     'cgm.lastDataTo': lastDataTo,
     'cgm.lastDataFrom': lastDataFrom,
     tags: formattedTags,
@@ -48,6 +47,10 @@ const tideDashboardApi = RTKQueryApi.injectEndpoints({
           params,
         };
       },
+      transformResponse: (response, _meta, arg) => ({
+        ...response,
+        category: arg.category,
+      }),
     }),
   }),
 });
