@@ -4,7 +4,7 @@
     "node": "24.15.0"
   },
   "packageManager": "yarn@3.6.4",
-  "version": "1.98.0",
+  "version": "1.98.1",
   "private": true,
   "scripts": {
     "test": "TZ=UTC NODE_ENV=test yarn jest --verbose",
@@ -19,7 +19,7 @@
     "build-app": "NODE_ENV=production node buildapp",
     "build-config": "NODE_ENV=production node buildconfig",
     "server": "node server",
-    "update-translations": "i18next 'app/**/*.js' 'node_modules/tideline/{plugins,js}/**/*.js' \"${TIDEPOOL_DOCKER_VIZ_DIR:-'../viz'}/{storiesDatatypes,storybookDatatypes,stories,src}/**/*.js\" -c i18next-parser.config.json -o .",
+    "update-translations": "i18next 'app/**/*.js' 'node_modules/tideline/{plugins,js}/**/*.js' \"${TIDEPOOL_DOCKER_VIZ_DIR:-../viz}\"'/{storiesDatatypes,storybookDatatypes,stories,src}/**/*.js' -c i18next-parser.config.json",
     "storybook": "NODE_ENV=test yarn sb dev -p 6006 --ci",
     "build-storybook": "build-storybook",
     "lint": "NODE_ENV=test yarn eslint app stories test __tests__",
