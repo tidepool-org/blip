@@ -26,6 +26,8 @@ import useTableColumns from './useTableColumns';
 import EmptyContentNode from './EmptyContentNode';
 import FilterBySites from './FilterBySites';
 import PatientCount from '../components/PatientCount';
+import EditPatientDialogController from './EditPatientDialogController';
+import DataConnectionsModalController from './DataConnectionsModalController';
 
 const LIMIT = 12;
 
@@ -33,7 +35,7 @@ const Divider = () => <Box id='filter-divider' mx={2} sx={{ border: `1px solid $
 
 const Gap = () => <Box sx={{ marginLeft: 'auto' }}></Box>;
 
-const TideDashboard = () => {
+const TideDashboard = ({ api, trackMetric }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
@@ -69,7 +71,7 @@ const TideDashboard = () => {
 
   if (!data) return null;
 
-  const tableData = data?.data || [];
+  const patients = data?.data || [];
 
   const total = data?.meta?.count || 0;
 
@@ -95,7 +97,7 @@ const TideDashboard = () => {
         variant="condensed"
         label="tideDashboardPatientsTable"
         columns={tableColumns}
-        data={tableData}
+        data={patients}
         emptyContentNode={<EmptyContentNode />}
         containerProps={{ sx: { containerType: 'inline-size' } }}
         // sx={tableStyle}
@@ -119,6 +121,16 @@ const TideDashboard = () => {
         </Flex>
         <Box></Box>
       </Grid>
+
+      <EditPatientDialogController
+        api={api}
+        trackMetric={trackMetric}
+        patients={patients}
+      />
+
+      <DataConnectionsModalController
+        patients={patients}
+      />
     </>
   );
 };

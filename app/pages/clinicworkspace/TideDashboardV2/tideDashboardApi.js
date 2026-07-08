@@ -36,6 +36,15 @@ export const buildGetTideDashboardPatientsParams = (offset, limit, category, las
   };
 };
 
+export const tagTypes = {
+  TIDE_DASHBOARD_PATIENTS: 'TIDE_DASHBOARD_PATIENTS',
+};
+
+const { TIDE_DASHBOARD_PATIENTS } = tagTypes;
+
+RTKQueryApi.enhanceEndpoints({
+  addTagTypes: [TIDE_DASHBOARD_PATIENTS],
+});
 
 const tideDashboardApi = RTKQueryApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -52,6 +61,7 @@ const tideDashboardApi = RTKQueryApi.injectEndpoints({
         ...response,
         category: arg.category,
       }),
+      providesTags: [TIDE_DASHBOARD_PATIENTS],
     }),
   }),
 });
