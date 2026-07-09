@@ -159,7 +159,10 @@ const ChipGroup = ({ prefixIcon, prefixText, chips, onRemove }) => {
   );
 };
 
-const AppliedFilters = ({ filters = {}, onRemoveFilter = noop }) => {
+const AppliedFilters = ({
+  filters = {},
+  onRemoveFilter = noop,
+}) => {
   const { t } = useTranslation();
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
@@ -184,7 +187,6 @@ const AppliedFilters = ({ filters = {}, onRemoveFilter = noop }) => {
   return (
     <Flex
       id="clinic-patients-active-filters"
-      mb={3}
       px={3}
       py={2}
       sx={{
@@ -193,7 +195,9 @@ const AppliedFilters = ({ filters = {}, onRemoveFilter = noop }) => {
         rowGap: '8px',
         flexWrap: 'wrap',
         bg: vizColors.indigo00,
-        borderRadius: '8px',
+        borderTopRightRadius: '8px',
+        borderTopLeftRadius: '8px',
+        borderBottom: `1px solid ${vizColors.blueGray30}`,
       }}
     >
       <Flex sx={{ alignItems: 'center', gap: 1, flexWrap: 'wrap', color: vizColors.gray50, fontSize: 0 }}>
