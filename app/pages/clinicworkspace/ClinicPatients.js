@@ -48,7 +48,8 @@ import { scroller } from 'react-scroll';
 import { Formik, Form } from 'formik';
 import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
 import { Link as RouterLink } from 'react-router-dom';
-import useClinicPatientsFilters, { defaultFilterState } from './useClinicPatientsFilters';
+import useClinicPatientsFilters, { defaultFilterState, SPECIAL_FILTER_STATES } from './useClinicPatientsFilters';
+import ActiveFiltersBar from './ActiveFiltersBar';
 
 import {
   bindPopover,
@@ -664,15 +665,6 @@ const PatientTags = ({
       </Popover>
     </Box>
   );
-};
-
-// If we HTTP GET `/patients` without a sites/tags query arg, we receive a list of PwDs with zero
-// or many sites/tags. We need to pass an explicit argument to request PwDs with exactly zero
-// sites/tags. By setting the filter to `['_']`, the query path is set to `/patients?sites=_` or
-// `/patients?tags=_`, which the backend understands as a request for PwDs with zero sites/tags
-export const SPECIAL_FILTER_STATES = {
-  ZERO_SITES: ['_'],
-  ZERO_TAGS: ['_'],
 };
 
 export const ClinicPatients = (props) => {
@@ -4235,6 +4227,8 @@ export const ClinicPatients = (props) => {
       <Box>
         <Loader show={loading} overlay={true} />
 
+        <ActiveFiltersBar activeFilters={activeFilters} setActiveFilters={setActiveFilters} />
+
         { showFilterResetBar &&
           <FilterResetBar
             patientListQueryState={patientListQueryState}
@@ -4286,6 +4280,7 @@ export const ClinicPatients = (props) => {
       </Box>
     );
   }, [
+    activeFilters,
     clinic?.fetchedPatientCount,
     columns,
     data,
@@ -4294,6 +4289,7 @@ export const ClinicPatients = (props) => {
     handleSortChange,
     loading,
     patientFetchOptions,
+    setActiveFilters,
     showSummaryData,
     tableStyle,
   ]);
