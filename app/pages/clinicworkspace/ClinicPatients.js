@@ -314,41 +314,6 @@ const ClearFilterButtons = withTranslation()(({ t, patientListQueryState, onClea
   }
 });
 
-const FilterResetBar = withTranslation()(({ t, rightSideContent, patientListQueryState }) => {
-  const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
-  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
-  const count = clinic?.fetchedPatientCount || 0;
-
-  const { FILTER_AND_SEARCH, FILTER_ONLY, SEARCH_ONLY, NONE } = PATIENT_LIST_QUERY_STATE;
-
-  if (patientListQueryState === PATIENT_LIST_QUERY_STATE.NONE) return null; // hide when no search or filters applied
-
-  const fetchedPatientCountCopyDefs = {
-    [FILTER_AND_SEARCH]: t('Showing {{ count }} patient accounts with the current filter(s) that match your search', { count }),
-    [FILTER_ONLY]: t('Showing {{ count }} patient accounts with the current filter(s)', { count }),
-    [SEARCH_ONLY]: t('Showing {{ count }} patient accounts that match your search', { count }),
-    [NONE]: t('There are no results to show'),
-  };
-
-  const fetchedPatientCountCopy = fetchedPatientCountCopyDefs[patientListQueryState];
-
-  return (
-    <Flex
-      className='filter-reset-bar'
-      px={2}
-      py={2}
-      sx={{
-        backgroundColor: vizColors.blue00,
-        borderBottom: '1px solid #D1D6E1',
-        justifyContent: 'space-between',
-      }}
-    >
-      <Text sx={{ fontWeight: 'medium' }}>{fetchedPatientCountCopy}</Text>
-      <Box>{rightSideContent}</Box>
-    </Flex>
-  );
-});
-
 const MoreMenu = ({
   patient,
   isClinicAdmin,
@@ -4220,27 +4185,11 @@ export const ClinicPatients = (props) => {
 
     const patientListQueryState = getPatientListQueryState(activeFilters, patientListSearchTextInput);
 
-    // Show the Filter Reset Bar only if data exists and any filters/search are applied
-    const showFilterResetBar = (data?.length > 0) && patientListQueryState !== PATIENT_LIST_QUERY_STATE.NONE;
-
     return (
       <Box>
         <Loader show={loading} overlay={true} />
 
         <ActiveFiltersBar activeFilters={activeFilters} setActiveFilters={setActiveFilters} />
-
-        { showFilterResetBar &&
-          <FilterResetBar
-            patientListQueryState={patientListQueryState}
-            rightSideContent={
-              <ClearFilterButtons
-                patientListQueryState={patientListQueryState}
-                onClearSearch={handleClearSearch}
-                onResetFilters={handleResetFilters}
-              />
-            }
-          />
-        }
 
         <Table
           id={'peopleTable'}
