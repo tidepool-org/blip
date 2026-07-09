@@ -6,6 +6,7 @@ import { colors as vizColors } from '@tidepool/viz';
 
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import LocationOnOutlinedIcon from '@material-ui/icons/LocationOnOutlined';
+import TagIcon from '../../../core/icons/tagIcon.svg';
 
 import find from 'lodash/find';
 import isEqual from 'lodash/isEqual';
@@ -110,7 +111,12 @@ const Chip = withTranslation()(({ t, label, onRemove }) => (
       fontSize: 0,
       fontWeight: 'normal',
       cursor: 'default',
+      '&:hover': {
+        color: vizColors.blue80,
+        fontWeight: 'medium',
+      },
       '.remove-filter-icon': {
+        color: vizColors.blue80,
         width: 0,
         ml: 0,
         opacity: 0,
@@ -120,6 +126,7 @@ const Chip = withTranslation()(({ t, label, onRemove }) => (
       '&:hover .remove-filter-icon': {
         width: '14px',
         ml: 1,
+        mr: 2,
         opacity: 1,
       },
     }}
@@ -140,9 +147,9 @@ const ChipGroup = ({ prefixIcon, prefixText, chips, onRemove }) => {
   if (!chips?.length) return null;
 
   return (
-    <Flex mr={2} sx={{ alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+    <Flex mr={2} sx={{ alignItems: 'center', gap: 1, flexWrap: 'wrap', color: vizColors.blue30 }}>
       { (prefixIcon || prefixText) &&
-        <Flex sx={{ alignItems: 'center', gap: 1, color: vizColors.gray50, flexShrink: 0 }}>
+        <Flex mr={1} sx={{ alignItems: 'center', flexShrink: 0 }}>
           {prefixIcon}
           {prefixText && <Text sx={{ fontSize: 0 }}>{prefixText}</Text>}
         </Flex>
@@ -200,7 +207,7 @@ const AppliedFilters = ({
         borderBottom: `1px solid ${vizColors.blueGray30}`,
       }}
     >
-      <Flex sx={{ alignItems: 'center', gap: 1, flexWrap: 'wrap', color: vizColors.gray50, fontSize: 0 }}>
+      <Flex sx={{ alignItems: 'center', gap: 1, flexWrap: 'wrap', color: vizColors.blue30, fontSize: 0 }}>
         {t('Showing {{ count }} patients', { count: clinic?.fetchedPatientCount || 0 })}
       </Flex>
 
@@ -211,7 +218,7 @@ const AppliedFilters = ({
       />
 
       <ChipGroup
-        prefixIcon={<Text sx={{ fontSize: 1, fontWeight: 'bold', color: vizColors.gray50 }}>#</Text>}
+        prefixIcon={<Icon variant="static" iconSrc={TagIcon} label={t('Tags filter')} cursor="default" tabIndex={-1} sx={{ fontSize: 1 }} />}
         prefixText={t('tagged')}
         chips={tagChips}
         onRemove={handleRemoveChip}
