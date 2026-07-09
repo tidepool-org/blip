@@ -35,6 +35,8 @@
   "{{source}} data from {{count}} readings": "",
   "{{source}} pumps don't capture the details of how combo boluses are split between the normal and extended amounts.": "",
   "{{title}} (cont.)": "",
+  "{{ type }} data within {{ count }} days_one": "{{ type }} data within {{ count }} day",
+  "{{ type }} data within {{ count }} days_other": "{{ type }} data within {{ count }} days",
   "{{yearsAgo}} years ago": "",
   "{{yrsAgo}} years old": "",
   "* Animas pumps don't capture the details of how combo boluses are split between the normal and extended amounts.": "",
