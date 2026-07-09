@@ -1770,12 +1770,7 @@ export const ClinicPatients = (props) => {
                       iconLabel="Filter by last upload"
                       sx={{ fontSize: 0, lineHeight: 1.3 }}
                     >
-                      {activeFilters.lastData
-                       ? activeFilters.lastData === 1
-                        ? t('Data within 1 day')
-                        : t('Data within') + find(customLastDataFilterOptions, { value: activeFilters.lastData })?.label.replace('Within', '')
-                       : t('Data Recency')
-                      }
+                      {t('Data Recency')}
                     </Button>
                   </Box>
 
