@@ -756,6 +756,17 @@ export const ClinicPatients = (props) => {
     { value: '30d', label: t('30 days') },
   ];
 
+  const getSummaryPeriodSelectLabel = (activeSummaryPeriod) => {
+    switch(activeSummaryPeriod) {
+      case '1d': return t('Summarizing 24 hours of data');
+      case '7d': return t('Summarizing 7 days of data');
+      case '14d': return t('Summarizing 14 days of data');
+      case '30d': return t('Summarizing 30 days of data');
+    }
+
+    return null;
+  };
+
   const clinicSites = useMemo(() => keyBy(clinic?.sites, 'id'), [clinic?.sites]);
   const patientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
 
@@ -1733,31 +1744,13 @@ export const ClinicPatients = (props) => {
                   pl={[0, 0, 2]}
                   py={1}
                   sx={{
-                    color: activeFiltersCount > 0 ? 'purpleMedium' : 'grays.4',
+                    color: 'grays.4',
                     alignItems: 'center',
                     gap: 1,
                     borderLeft: ['none', null, borders.divider],
                     flexShrink: 0
                   }}
                 >
-                  {activeFiltersCount > 0 ? (
-                    <Pill
-                      id="filter-count"
-                      label="filter count"
-                      round
-                      sx={{ width: '14px', lineHeight: '15px', fontSize: '9px', display: 'flex', justifyContent: 'center' }}
-                      colorPalette={['purpleMedium', 'white']}
-                      text={`${activeFiltersCount}`}
-                    />
-                  ) : (
-                    <Icon
-                      id="filter-icon"
-                      variant="static"
-                      iconSrc={FilterIcon}
-                      label={t('Filter')}
-                      sx={{ fontSize: 1, width: '14px', color: 'grays.4' }}
-                    />
-                  )}
                   <Text sx={{ fontSize: 0 }}>{t('Filter By')}</Text>
                 </Flex>
 
@@ -2520,38 +2513,18 @@ export const ClinicPatients = (props) => {
                     </DialogActions>
                   </Popover>
                 </Flex>
-
-                {activeFiltersCount > 0 && (
-                  <Button
-                    id="reset-all-active-filters"
-                    variant="textSecondary"
-                    onClick={handleResetFilters}
-                    sx={{ fontSize: 0, color: 'grays.4', flexShrink: 0 }}
-                    px={0}
-                  >
-                    {t('Reset Filters')}
-                  </Button>
-                )}
               </Flex>
             )}
 
             {/* Flex Group 2b: Range select and Info/Visibility Icons */}
-            <Flex sx={{ flexGrow: 1, justifyContent: 'space-between', gap: 3 }}>
+            <Flex sx={{ flexGrow: 1, justifyContent: 'flex-end', gap: 3 }}>
 
               {/* Range select */}
               {showSummaryData && (
                 <Flex
                   pt={0}
-                  sx={{ gap: 3, justifyContent: 'flex-start', alignItems: 'center', flexShrink: 0 }}
+                  sx={{ gap: 3, justifyContent: 'flex-end', alignItems: 'center', flexShrink: 0 }}
                 >
-                  <Flex
-                    py={1}
-                    pl={[0, 0, 3]}
-                    sx={{ color: 'grays.4', borderLeft: ['none', null, borders.divider], alignItems: 'center' }}
-                  >
-
-                  <Text sx={{ fontSize: 0 }}>{t('Summarizing')}</Text>
-                </Flex>
 
                 <Box
                   onClick={() => {
@@ -2560,13 +2533,14 @@ export const ClinicPatients = (props) => {
                 >
                   <Button
                     variant="filter"
+                    selected={true}
                     id="summary-period-filter-trigger"
                     {...bindTrigger(summaryPeriodPopupFilterState)}
                     icon={KeyboardArrowDownRoundedIcon}
                     iconLabel="Filter by summary period duration"
                     sx={{ fontSize: 0, lineHeight: 1.3 }}
                   >
-                    {find(summaryPeriodOptions, { value: activeSummaryPeriod })?.label} {t('of data')}
+                    {getSummaryPeriodSelectLabel(activeSummaryPeriod)}
                   </Button>
                 </Box>
 
@@ -2657,7 +2631,7 @@ export const ClinicPatients = (props) => {
             )}
 
             {/* Info/Visibility Icons */}
-            <Flex sx={{ gap: 2, justifyContent: 'flex-end', flexGrow: 1, flexShrink: 0, alignItems: 'center' }}>
+            <Flex sx={{ gap: 2, justifyContent: 'flex-end', flexShrink: 0, alignItems: 'center' }}>
               {showSummaryData && isPatientListVisible && (
                 <>
                   <PopoverLabel
