@@ -11,6 +11,11 @@ export const defaultFilterState = {
   clinicSites: [],
 };
 
+export const SPECIAL_FILTER_STATES = {
+  ZERO_SITES: ['_'],
+  ZERO_TAGS: ['_'],
+};
+
 const useClinicPatientsFilters = () => {
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
