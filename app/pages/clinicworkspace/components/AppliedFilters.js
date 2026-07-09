@@ -15,10 +15,10 @@ import Icon from '../../../components/elements/Icon';
 import { transitions } from '../../../themes/baseTheme';
 import { SPECIAL_FILTER_STATES } from '../useClinicPatientsFilters';
 
-const getLastDataTypeLabel = (t, lastDataType) => ({
-  cgm: t('CGM'),
-  bgm: t('BGM'),
-}[lastDataType]);
+const getLastDataLabel = (t, lastData, lastDataType) => t('{{ type }} data within {{ count }} days', {
+  type: { cgm: t('CGM'), bgm: t('BGM') }[lastDataType],
+  count: lastData,
+});
 
 const getCgmUsePercentLabel = (t, timeCGMUsePercent) => ({
   '<0.7': t('CGM Use less than 70%'),
@@ -34,11 +34,53 @@ const getTimeInRangeLabel = (t, rangeKey) => ({
   timeInVeryLowPercent: t('Time in Range: Very Low'),
 }[rangeKey]);
 
-// A single filter value rendered as an underlined label. Hovering the label
-// reveals an inline X icon which, when clicked, removes the filter. Because the
-// X icon occupies layout space when revealed, subsequent labels shift to the
-// right on hover.
-const RemovableLabel = withTranslation()(({ t, label, onRemove }) => (
+const getPrimaryChips = (t, activeFilters) => {
+  const { lastData, lastDataType, timeCGMUsePercent, timeInRange = [] } = activeFilters;
+
+  return [
+    // Data Recency
+    (lastData && lastDataType && {
+      label: getLastDataLabel(t, lastData, lastDataType),
+      filterKey: 'lastData',
+      value: null,
+    }),
+
+    // CGM Wear Time
+    (timeCGMUsePercent && {
+      label: getCgmUsePercentLabel(t, timeCGMUsePercent),
+      filterKey: 'timeCGMUsePercent',
+      value: null,
+    }),
+
+    // Time In Range
+    ...timeInRange.map(rangeKey => {
+      const label = getTimeInRangeLabel(t, rangeKey);
+      return label && { label, filterKey: 'timeInRange', value: rangeKey };
+    }),
+  ].filter(Boolean);
+};
+
+const getTagChips = (t, patientTags = [], patientTagOptions) => {
+  if (isEqual(patientTags, SPECIAL_FILTER_STATES.ZERO_TAGS)) {
+    return [{ label: t('Without any tags'), filterKey: 'patientTags', value: SPECIAL_FILTER_STATES.ZERO_TAGS[0] }];
+  }
+
+  return patientTags
+    .map(id => ({ label: find(patientTagOptions, { id })?.name, filterKey: 'patientTags', value: id }))
+    .filter(chip => chip.label);
+};
+
+const getSiteChips = (t, clinicSites = [], clinicSiteOptions) => {
+  if (isEqual(clinicSites, SPECIAL_FILTER_STATES.ZERO_SITES)) {
+    return [{ label: t('Without any sites'), filterKey: 'clinicSites', value: SPECIAL_FILTER_STATES.ZERO_SITES[0] }];
+  }
+
+  return clinicSites
+    .map(id => ({ label: find(clinicSiteOptions, { id })?.name, filterKey: 'clinicSites', value: id }))
+    .filter(chip => chip.label);
+};
+
+const Chip = withTranslation()(({ t, label, onRemove }) => (
   <Flex
     as="span"
     className="applied-filter-label"
@@ -76,8 +118,8 @@ const RemovableLabel = withTranslation()(({ t, label, onRemove }) => (
 
 // A group of applied filter values, optionally prefixed with a descriptive
 // icon and/or text. Renders nothing when it has no values.
-const FilterGroup = ({ prefixIcon, prefixText, items, onRemove }) => {
-  if (!items?.length) return null;
+const ChipGroup = ({ prefixIcon, prefixText, chips, onRemove }) => {
+  if (!chips?.length) return null;
 
   return (
     <Flex sx={{ alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
@@ -88,11 +130,11 @@ const FilterGroup = ({ prefixIcon, prefixText, items, onRemove }) => {
         </Flex>
       }
 
-      {items.map(item => (
-        <RemovableLabel
-          key={item.id}
-          label={item.label}
-          onRemove={() => onRemove(item)}
+      {chips.map(chip => (
+        <Chip
+          key={`${chip.filterKey}-${chip.value || 'filter'}`}
+          label={chip.label}
+          onRemove={() => onRemove(chip)}
         />
       ))}
     </Flex>
@@ -128,50 +170,11 @@ const AppliedFilters = ({ filters, onRemoveFilter = noop }) => {
 
   if (!hasActiveFilters) return null;
 
-  const removeItem = item => onRemoveFilter(item.filterKey, item.value);
+  const handleRemoveChip = chip => onRemoveFilter(chip.filterKey, chip.value);
 
-  const primaryItems = [];
-
-  // lastData and lastDataType are always set together, so they render (and are removed) as one item.
-  if (lastData && lastDataType) {
-    primaryItems.push({
-      id: 'lastData',
-      label: t('{{ type }} data within {{ count }} days', {
-        type: getLastDataTypeLabel(t, lastDataType),
-        count: lastData,
-      }),
-      filterKey: 'lastData',
-      value: null,
-    });
-  }
-
-  if (timeCGMUsePercent) {
-    primaryItems.push({
-      id: 'timeCGMUsePercent',
-      label: getCgmUsePercentLabel(t, timeCGMUsePercent),
-      filterKey: 'timeCGMUsePercent',
-      value: null,
-    });
-  }
-
-  timeInRange.forEach(rangeKey => {
-    const label = getTimeInRangeLabel(t, rangeKey);
-    if (label) primaryItems.push({ id: `timeInRange-${rangeKey}`, label, filterKey: 'timeInRange', value: rangeKey });
-  });
-
-  const isZeroTags = isEqual(patientTags, SPECIAL_FILTER_STATES.ZERO_TAGS);
-  const patientTagItems = isZeroTags
-    ? [{ id: 'patientTags-zero', label: t('Without any tags'), filterKey: 'patientTags', value: SPECIAL_FILTER_STATES.ZERO_TAGS[0] }]
-    : patientTags
-        .map(id => ({ id: `patientTags-${id}`, label: find(patientTagOptions, { id })?.name, filterKey: 'patientTags', value: id }))
-        .filter(item => item.label);
-
-  const isZeroSites = isEqual(clinicSites, SPECIAL_FILTER_STATES.ZERO_SITES);
-  const clinicSiteItems = isZeroSites
-    ? [{ id: 'clinicSites-zero', label: t('Without any sites'), filterKey: 'clinicSites', value: SPECIAL_FILTER_STATES.ZERO_SITES[0] }]
-    : clinicSites
-        .map(id => ({ id: `clinicSites-${id}`, label: find(clinicSiteOptions, { id })?.name, filterKey: 'clinicSites', value: id }))
-        .filter(item => item.label);
+  const primaryChips = getPrimaryChips(t, filters);
+  const tagChips = getTagChips(t, patientTags, patientTagOptions);
+  const siteChips = getSiteChips(t, clinicSites, clinicSiteOptions);
 
   return (
     <Flex
@@ -192,24 +195,24 @@ const AppliedFilters = ({ filters, onRemoveFilter = noop }) => {
         {t('Showing {{ count }} patients', { count: patientCount })}
       </Flex>
 
-      <FilterGroup
+      <ChipGroup
         prefixText={t('with')}
-        items={primaryItems}
-        onRemove={removeItem}
+        chips={primaryChips}
+        onRemove={handleRemoveChip}
       />
 
-      <FilterGroup
+      <ChipGroup
         prefixIcon={<Text sx={{ fontSize: 1, fontWeight: 'bold', color: vizColors.gray50 }}>#</Text>}
         prefixText={t('tagged')}
-        items={patientTagItems}
-        onRemove={removeItem}
+        chips={tagChips}
+        onRemove={handleRemoveChip}
       />
 
-      <FilterGroup
+      <ChipGroup
         prefixIcon={<Icon variant="static" icon={LocationOnOutlinedIcon} label={t('Sites filter')} cursor="default" tabIndex={-1} sx={{ fontSize: 1 }} />}
         prefixText={t('visiting')}
-        items={clinicSiteItems}
-        onRemove={removeItem}
+        chips={siteChips}
+        onRemove={handleRemoveChip}
       />
     </Flex>
   );
