@@ -15,68 +15,80 @@ import Icon from '../../../components/elements/Icon';
 import { transitions } from '../../../themes/baseTheme';
 import { SPECIAL_FILTER_STATES } from '../useClinicPatientsFilters';
 
-const getLastDataLabel = (t, lastData, lastDataType) => t('{{ type }} data within {{ count }} days', {
-  type: { cgm: t('CGM'), bgm: t('BGM') }[lastDataType],
-  count: lastData,
-});
-
-const getCgmUsePercentLabel = (t, timeCGMUsePercent) => ({
-  '<0.7': t('CGM Use less than 70%'),
-  '>=0.7': t('CGM Use 70% or more'),
-}[timeCGMUsePercent]);
-
-const getTimeInRangeLabel = (t, rangeKey) => ({
-  timeInExtremeHighPercent: t('Time in Range: Highest'),
-  timeInVeryHighPercent: t('Time in Range: Very High'),
-  timeInAnyHighPercent: t('Time in Range: High'),
-  timeInTargetPercent: t('Time in Range: Not Meeting Target'),
-  timeInAnyLowPercent: t('Time in Range: Low'),
-  timeInVeryLowPercent: t('Time in Range: Very Low'),
-}[rangeKey]);
-
-const getPrimaryChips = (t, activeFilters) => {
+const usePrimaryChips = (activeFilters) => {
+  const { t } = useTranslation();
   const { lastData, lastDataType, timeCGMUsePercent, timeInRange = [] } = activeFilters;
 
   return [
-    // Data Recency
+    // Data Recency Filter
     (lastData && lastDataType && {
-      label: getLastDataLabel(t, lastData, lastDataType),
-      filterKey: 'lastData',
-      value: null,
+      type: 'lastData',
+      value: `${lastDataType}-${lastData}`,
+      label: ({
+        bgm: t('BGM data within {{ count }} days', { count: lastData }),
+        cgm: t('CGM data within {{ count }} days', { count: lastData }),
+      }[lastDataType]),
     }),
 
-    // CGM Wear Time
+    // CGM Wear Time Filter
     (timeCGMUsePercent && {
-      label: getCgmUsePercentLabel(t, timeCGMUsePercent),
-      filterKey: 'timeCGMUsePercent',
-      value: null,
+      type: 'timeCGMUsePercent',
+      value: timeCGMUsePercent,
+      label: ({
+        '<0.7': t('CGM Use less than 70%'),
+        '>=0.7': t('CGM Use 70% or more'),
+      }[timeCGMUsePercent]),
     }),
 
-    // Time In Range
-    ...timeInRange.map(rangeKey => {
-      const label = getTimeInRangeLabel(t, rangeKey);
-      return label && { label, filterKey: 'timeInRange', value: rangeKey };
-    }),
+    // Time In Range Filters
+    ...timeInRange.map(rangeKey => ({
+      type: 'timeInRange',
+      value: rangeKey,
+      label: ({
+        timeInExtremeHighPercent: t('%TIR = Highest'),
+        timeInVeryHighPercent: t('%TIR = Very High'),
+        timeInAnyHighPercent: t('%TIR = High'),
+        timeInTargetPercent: t('%TIR = Meeting Targets'),
+        timeInAnyLowPercent: t('%TIR = Low'),
+        timeInVeryLowPercent: t('%TIR = Very Low'),
+      }[rangeKey]),
+    })),
   ].filter(Boolean);
 };
 
-const getTagChips = (t, patientTags = [], patientTagOptions) => {
+const useTagChips = (patientTags = []) => {
+  const { t } = useTranslation();
+  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+
   if (isEqual(patientTags, SPECIAL_FILTER_STATES.ZERO_TAGS)) {
-    return [{ label: t('Without any tags'), filterKey: 'patientTags', value: SPECIAL_FILTER_STATES.ZERO_TAGS[0] }];
+    return [{ label: t('Without any tags'), type: 'patientTags', value: SPECIAL_FILTER_STATES.ZERO_TAGS[0] }];
   }
 
   return patientTags
-    .map(id => ({ label: find(patientTagOptions, { id })?.name, filterKey: 'patientTags', value: id }))
+    .map(id => ({
+      type: 'patientTags',
+      value: id,
+      label: find(clinic?.patientTags, { id })?.name,
+    }))
     .filter(chip => chip.label);
 };
 
-const getSiteChips = (t, clinicSites = [], clinicSiteOptions) => {
+const useSiteChips = (clinicSites = []) => {
+  const { t } = useTranslation();
+  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+
   if (isEqual(clinicSites, SPECIAL_FILTER_STATES.ZERO_SITES)) {
-    return [{ label: t('Without any sites'), filterKey: 'clinicSites', value: SPECIAL_FILTER_STATES.ZERO_SITES[0] }];
+    return [{ label: t('Without any sites'), type: 'clinicSites', value: SPECIAL_FILTER_STATES.ZERO_SITES[0] }];
   }
 
   return clinicSites
-    .map(id => ({ label: find(clinicSiteOptions, { id })?.name, filterKey: 'clinicSites', value: id }))
+    .map(id => ({
+      type: 'clinicSites',
+      value: id,
+      label: find(clinic?.sites, { id })?.name,
+    }))
     .filter(chip => chip.label);
 };
 
@@ -116,8 +128,6 @@ const Chip = withTranslation()(({ t, label, onRemove }) => (
   </Flex>
 ));
 
-// A group of applied filter values, optionally prefixed with a descriptive
-// icon and/or text. Renders nothing when it has no values.
 const ChipGroup = ({ prefixIcon, prefixText, chips, onRemove }) => {
   if (!chips?.length) return null;
 
@@ -132,7 +142,7 @@ const ChipGroup = ({ prefixIcon, prefixText, chips, onRemove }) => {
 
       {chips.map(chip => (
         <Chip
-          key={`${chip.filterKey}-${chip.value || 'filter'}`}
+          key={`${chip.type}-${chip.value || 'filter'}`}
           label={chip.label}
           onRemove={() => onRemove(chip)}
         />
@@ -141,40 +151,27 @@ const ChipGroup = ({ prefixIcon, prefixText, chips, onRemove }) => {
   );
 };
 
-const AppliedFilters = ({ filters, onRemoveFilter = noop }) => {
+const AppliedFilters = ({ filters = {}, onRemoveFilter = noop }) => {
   const { t } = useTranslation();
-
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
-  const patientTagOptions = clinic?.patientTags;
-  const clinicSiteOptions = clinic?.sites;
-  const patientCount = clinic?.fetchedPatientCount || 0;
 
-  const {
-    lastData,
-    lastDataType,
-    timeCGMUsePercent,
-    timeInRange = [],
-    patientTags = [],
-    clinicSites = [],
-  } = filters;
+  const primaryChips = usePrimaryChips(filters);
+  const tagChips = useTagChips(filters.patientTags);
+  const siteChips = useSiteChips(filters.clinicSites);
 
   const hasActiveFilters = !!(
-    lastData ||
-    lastDataType ||
-    timeCGMUsePercent ||
-    timeInRange.length > 0 ||
-    patientTags.length > 0 ||
-    clinicSites.length > 0
+    filters.lastData ||
+    filters.lastDataType ||
+    filters.timeCGMUsePercent ||
+    filters.timeInRange?.length > 0 ||
+    filters.patientTags?.length > 0 ||
+    filters.clinicSites?.length > 0
   );
 
   if (!hasActiveFilters) return null;
 
-  const handleRemoveChip = chip => onRemoveFilter(chip.filterKey, chip.value);
-
-  const primaryChips = getPrimaryChips(t, filters);
-  const tagChips = getTagChips(t, patientTags, patientTagOptions);
-  const siteChips = getSiteChips(t, clinicSites, clinicSiteOptions);
+  const handleRemoveChip = chip => onRemoveFilter(chip.type, chip.value);
 
   return (
     <Flex
@@ -192,7 +189,7 @@ const AppliedFilters = ({ filters, onRemoveFilter = noop }) => {
       }}
     >
       <Flex sx={{ alignItems: 'center', gap: 1, flexWrap: 'wrap', color: vizColors.gray50, fontSize: 0 }}>
-        {t('Showing {{ count }} patients', { count: patientCount })}
+        {t('Showing {{ count }} patients', { count: clinic?.fetchedPatientCount || 0 })}
       </Flex>
 
       <ChipGroup
