@@ -62,7 +62,11 @@ const useTagChips = (patientTags = []) => {
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
 
   if (isEqual(patientTags, SPECIAL_FILTER_STATES.ZERO_TAGS)) {
-    return [{ label: t('Without any tags'), type: 'patientTags', value: SPECIAL_FILTER_STATES.ZERO_TAGS[0] }];
+    return [{
+      type: 'patientTags',
+      value: SPECIAL_FILTER_STATES.ZERO_TAGS[0],
+      label: t('Without any tags'),
+    }];
   }
 
   return patientTags
@@ -80,7 +84,11 @@ const useSiteChips = (clinicSites = []) => {
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
 
   if (isEqual(clinicSites, SPECIAL_FILTER_STATES.ZERO_SITES)) {
-    return [{ label: t('Without any sites'), type: 'clinicSites', value: SPECIAL_FILTER_STATES.ZERO_SITES[0] }];
+    return [{
+      type: 'clinicSites',
+      value: SPECIAL_FILTER_STATES.ZERO_SITES[0],
+      label: t('Without any sites'),
+    }];
   }
 
   return clinicSites
@@ -98,9 +106,9 @@ const Chip = withTranslation()(({ t, label, onRemove }) => (
     className="applied-filter-label"
     sx={{
       alignItems: 'center',
-      color: vizColors.indigo50,
+      color: vizColors.blue60,
       fontSize: 0,
-      fontWeight: 'medium',
+      fontWeight: 'normal',
       cursor: 'default',
       '.remove-filter-icon': {
         width: 0,
@@ -132,7 +140,7 @@ const ChipGroup = ({ prefixIcon, prefixText, chips, onRemove }) => {
   if (!chips?.length) return null;
 
   return (
-    <Flex sx={{ alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+    <Flex mr={2} sx={{ alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
       { (prefixIcon || prefixText) &&
         <Flex sx={{ alignItems: 'center', gap: 1, color: vizColors.gray50, flexShrink: 0 }}>
           {prefixIcon}
@@ -181,7 +189,7 @@ const AppliedFilters = ({ filters = {}, onRemoveFilter = noop }) => {
       py={2}
       sx={{
         alignItems: 'center',
-        columnGap: '24px',
+        columnGap: '4px',
         rowGap: '8px',
         flexWrap: 'wrap',
         bg: vizColors.indigo00,
