@@ -13,7 +13,6 @@ import Button from './elements/Button';
 import DateRangePicker from './elements/DateRangePicker';
 import { Dialog, DialogActions, DialogContent, DialogTitle } from './elements/Dialog';
 import { MediumTitle, Caption, Body0 } from './elements/FontStyles';
-import { borders } from '../themes/baseTheme';
 import { MGDL_UNITS, MMOLL_UNITS } from '../core/constants';
 
 const DAYS_OPTIONS = [14, 30, 90];
@@ -124,9 +123,9 @@ export const ExportModal = ({
   return (
     <>
       <DialogTitle divider={true} onClose={handleClose}>
-        <MediumTitle>{t('Export Patient Data')}</MediumTitle>
+        <MediumTitle id="dialog-title">{t('Export Patient Data')}</MediumTitle>
       </DialogTitle>
-      <DialogContent divider={false} sx={{ minWidth: '648px' }} pt={3} px={3}>
+      <DialogContent divider={false} minWidth={648} pt={3} px={3}>
         <Box p={3}>
           <Text as={Box} sx={{ color: 'text.primary', fontSize: 1, fontWeight: 'bold' }} mb={3}>
             {t('Export data from the last')}
@@ -259,11 +258,7 @@ export const ExportModal = ({
           </Caption>
         )}
       </DialogContent>
-      <DialogActions
-        mt={3}
-        py="12px"
-        sx={{ borderTop: borders.default, justifyContent: 'space-between' }}
-      >
+      <DialogActions>
         <Button variant="textSecondary" className="export-cancel" onClick={handleClose}>
           {t('Cancel')}
         </Button>
@@ -286,9 +281,9 @@ const ExportModalWrapper = (props) => {
   return (
     <Dialog
       id="exportDialog"
+      aria-labelledby="dialog-title"
       open={open}
       onClose={onClose}
-      PaperProps={{ id: 'exportDialogInner' }}
       maxWidth="md"
     >
       {open && <ExportModal {...props} />}

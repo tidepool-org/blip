@@ -347,11 +347,11 @@ export const PrintDateRangeModal = (props) => {
   }, [enabled, dates]);
 
   return (
-    <Dialog id="printDateRangePicker" PaperProps={{ id: 'printDateRangePickerInner'}} maxWidth="md" open={open} onClose={handleClose}>
+    <Dialog id="printDateRangePicker" aria-labelledby="dialog-title" PaperProps={{ id: 'printDateRangePickerInner'}} maxWidth="md" open={open} onClose={handleClose}>
       <DialogTitle divider={true} onClose={handleClose}>
-        <MediumTitle>{t('Print Report')}</MediumTitle>
+        <MediumTitle id="dialog-title">{t('Print Report')}</MediumTitle>
       </DialogTitle>
-      <DialogContent divider={false} sx={{ minWidth: '768px' }} pt={3} px={3}>
+      <DialogContent divider={false} minWidth={768} pt={3} px={3}>
         {map(panels, panel => (
           <Element name={`${panel.key}-wrapper`}>
             <Box
@@ -461,14 +461,7 @@ export const PrintDateRangeModal = (props) => {
           </Caption>
         )}
       </DialogContent>
-      <DialogActions
-        mt={3}
-        py="12px"
-        sx={{
-          borderTop: borders.default,
-          justifyContent: 'space-between',
-        }}
-      >
+      <DialogActions>
         <Button variant="textSecondary" className="print-cancel" onClick={handleClose}>
           {t('Cancel')}
         </Button>

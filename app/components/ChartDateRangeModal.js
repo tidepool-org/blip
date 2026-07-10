@@ -200,11 +200,11 @@ export const ChartDateRangeModal = (props) => {
   const isPartialDaySelected = displayFormat === CHART_DATE_BOUND_FORMAT.DATE_AND_TIME;
 
   return (
-    <Dialog id="ChartDateRangePicker" maxWidth="md" open={open} onClose={handleClose}>
+    <Dialog id="ChartDateRangePicker" aria-labelledby="dialog-title" maxWidth="md" open={open} onClose={handleClose}>
       <DialogTitle divider={false} onClose={handleClose}>
-        <MediumTitle>{title}</MediumTitle>
+        <MediumTitle id="dialog-title">{title}</MediumTitle>
       </DialogTitle>
-      <DialogContent divider sx={{ minWidth: '400px' }} p={0}>
+      <DialogContent divider minWidth={400} p={0}>
         <Box px={3}>
           <Box mb={5}>
             <Body1 mb={2}>{t('Number of days (most recent)')}</Body1>
@@ -259,7 +259,7 @@ export const ChartDateRangeModal = (props) => {
           )}
         </Box>
       </DialogContent>
-      <DialogActions sx={{ justifyContent: 'space-between' }} py="12px">
+      <DialogActions>
         <Button variant="textSecondary" className="chart-dates-cancel" onClick={handleClose}>
           {t('Cancel')}
         </Button>

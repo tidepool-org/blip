@@ -201,4 +201,12 @@ describe('DataConnectionsModal', () => {
     expect(document.getElementById('patient-email-modal')).to.be.null;
     expect(document.getElementById('data-connections-open-email-modal')).to.be.null;
   });
+
+  it('should call onBack when the dialog back button is clicked', () => {
+    const backButton = document.querySelector('[aria-label="dialog back button"]');
+    expect(backButton).to.not.be.null;
+
+    fireEvent.click(backButton);
+    sinon.assert.calledOnce(defaultProps.onBack);
+  });
 });
