@@ -1,11 +1,14 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import without from 'lodash/without';
 
 import AppliedFilters from './components/AppliedFilters';
 import { defaultFilterState } from './useClinicPatientsFilters';
 
-const ActiveFiltersBar = ({ activeFilters, setActiveFilters }) => {
+const AppliedFiltersAdapter = ({ activeFilters, setActiveFilters }) => {
+  const { patientListSearchTextInput } = useSelector(({ blip }) => blip.patientListFilters);
+
   const handleRemoveFilter = (filterKey, value) => {
     switch (filterKey) {
       case 'lastData':
@@ -45,12 +48,15 @@ const ActiveFiltersBar = ({ activeFilters, setActiveFilters }) => {
     }
   };
 
+  const hasSearchActive = !!patientListSearchTextInput;
+
   return (
     <AppliedFilters
+      hasSearchActive={hasSearchActive}
       filters={activeFilters}
       onRemoveFilter={handleRemoveFilter}
     />
   );
 };
 
-export default ActiveFiltersBar;
+export default AppliedFiltersAdapter;
