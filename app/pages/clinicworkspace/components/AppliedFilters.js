@@ -168,6 +168,7 @@ const ChipGroup = ({ prefixIcon, prefixText, chips, onRemove }) => {
 
 const AppliedFilters = ({
   filters = {},
+  hasSearchActive = false,
   onRemoveFilter = noop,
 }) => {
   const { t } = useTranslation();
@@ -178,6 +179,8 @@ const AppliedFilters = ({
   const tagChips = useTagChips(filters.patientTags);
   const siteChips = useSiteChips(filters.clinicSites);
 
+  const count = clinic?.fetchedPatientCount || 0;
+
   const hasActiveFilters = !!(
     filters.lastData ||
     filters.lastDataType ||
@@ -187,7 +190,9 @@ const AppliedFilters = ({
     filters.clinicSites?.length > 0
   );
 
-  if (!hasActiveFilters) return null;
+  const isActive = hasActiveFilters || hasSearchActive;
+
+  if (!isActive || count <= 0) return null;
 
   const handleRemoveChip = chip => onRemoveFilter(chip.type, chip.value);
 
@@ -208,7 +213,10 @@ const AppliedFilters = ({
       }}
     >
       <Flex sx={{ alignItems: 'center', gap: 1, flexWrap: 'wrap', color: vizColors.blue30, fontSize: 0 }}>
-        {t('Showing {{ count }} patients', { count: clinic?.fetchedPatientCount || 0 })}
+        { hasSearchActive
+            ? t('Showing {{ count }} patients that match your search', { count })
+            : t('Showing {{ count }} patients', { count })
+        }
       </Flex>
 
       <ChipGroup
