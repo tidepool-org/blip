@@ -1957,7 +1957,7 @@ export const ClinicPatients = (props) => {
                       sx={{ fontSize: 0, lineHeight: 1.3 }}
                     >
                       <Flex sx={{ alignItems: 'center', gap: 1 }}>
-                        {t('Sites')}
+                        {t('Clinic Sites')}
 
                         {!!activeFilters.clinicSites?.length && (
                           <Pill
@@ -1996,7 +1996,7 @@ export const ClinicPatients = (props) => {
                       <Box variant="containers.small">
                         <Box mb={2}>
                           <Text sx={{ display: 'block', position: 'relative', top: -2, color: colors.gray50, fontSize: 1, fontWeight: 'medium' }}>
-                            {t('Sites')}
+                            {t('Clinic Sites')}
                           </Text>
                           { sortedSiteFilterOptions.length > 0 &&
                             <Text sx={{ display: 'block', position: 'relative', top: -2, color: colors.gray50, fontSize: 0, fontStyle: 'italic', maxWidth: '208px', whiteSpace: 'wrap', lineHeight: 1 }}>
