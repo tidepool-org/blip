@@ -143,17 +143,12 @@ const Chip = withTranslation()(({ t, label, onRemove }) => (
   </Flex>
 ));
 
-const ChipGroup = ({ prefixIcon, prefixText, chips, onRemove }) => {
+const ChipGroup = ({ prefix, chips, onRemove }) => {
   if (!chips?.length) return null;
 
   return (
     <Flex mr={2} sx={{ alignItems: 'center', gap: 1, flexWrap: 'wrap', color: vizColors.blue30 }}>
-      { (prefixIcon || prefixText) &&
-        <Flex mr={1} sx={{ alignItems: 'center', flexShrink: 0 }}>
-          {prefixIcon}
-          {prefixText && <Text sx={{ fontSize: 0 }}>{prefixText}</Text>}
-        </Flex>
-      }
+      {prefix}
 
       {chips.map(chip => (
         <Chip
@@ -220,23 +215,27 @@ const AppliedFilters = ({
       </Flex>
 
       <ChipGroup
-        prefixText={t('with')}
         chips={primaryChips}
         onRemove={handleRemoveChip}
+        prefix={<Text sx={{ fontSize: 0 }}>{t('with')}</Text>}
       />
 
       <ChipGroup
-        prefixIcon={<Icon variant="static" iconSrc={TagIcon} label={t('Tags filter')} cursor="default" tabIndex={-1} sx={{ fontSize: 1 }} />}
-        prefixText={t('tagged')}
         chips={tagChips}
         onRemove={handleRemoveChip}
+        prefix={<>
+          <Icon variant="static" iconSrc={TagIcon} sx={{ fontSize: 1 }} />
+          <Text sx={{ fontSize: 0 }}>{t('tagged')}</Text>
+        </>}
       />
 
       <ChipGroup
-        prefixIcon={<Icon variant="static" icon={LocationOnOutlinedIcon} label={t('Sites filter')} cursor="default" tabIndex={-1} sx={{ fontSize: 1 }} />}
-        prefixText={t('visiting')}
         chips={siteChips}
         onRemove={handleRemoveChip}
+        prefix={<>
+          <Icon variant="static" icon={LocationOnOutlinedIcon} sx={{ fontSize: 1 }} />
+          <Text sx={{ fontSize: 0 }}>{t('visiting')}</Text>
+        </>}
       />
     </Flex>
   );
