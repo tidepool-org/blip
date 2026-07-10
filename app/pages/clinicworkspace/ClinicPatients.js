@@ -49,7 +49,7 @@ import { Formik, Form } from 'formik';
 import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
 import { Link as RouterLink } from 'react-router-dom';
 import useClinicPatientsFilters, { defaultFilterState, SPECIAL_FILTER_STATES } from './useClinicPatientsFilters';
-import ActiveFiltersBar from './ActiveFiltersBar';
+import AppliedFiltersAdapter from './AppliedFiltersAdapter';
 
 import {
   bindPopover,
@@ -4160,7 +4160,7 @@ export const ClinicPatients = (props) => {
       <Box>
         <Loader show={loading} overlay={true} />
 
-        <ActiveFiltersBar activeFilters={activeFilters} setActiveFilters={setActiveFilters} />
+        <AppliedFiltersAdapter activeFilters={activeFilters} setActiveFilters={setActiveFilters} />
 
         <Table
           id={'peopleTable'}
