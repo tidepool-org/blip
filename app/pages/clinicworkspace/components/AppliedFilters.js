@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation, withTranslation } from 'react-i18next';
-import { Flex, Text } from 'theme-ui';
+import { Flex, Text, Box } from 'theme-ui';
 import { colors as vizColors } from '@tidepool/viz';
 
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
@@ -36,8 +36,8 @@ const usePrimaryChips = (activeFilters) => {
       type: 'timeCGMUsePercent',
       value: timeCGMUsePercent,
       label: ({
-        '<0.7': t('CGM Use less than 70%'),
-        '>=0.7': t('CGM Use 70% or more'),
+        '<0.7': t('< 70% CGM use'),
+        '>=0.7': t('>= 70% CGM use'),
       }[timeCGMUsePercent]),
     }),
 
@@ -111,14 +111,16 @@ const Chip = withTranslation()(({ t, label, onRemove }) => (
       fontSize: 0,
       fontWeight: 'normal',
       cursor: 'default',
+      ml: 1,
       '&:hover': {
         color: vizColors.blue80,
         fontWeight: 'medium',
       },
       '.remove-filter-icon': {
         color: vizColors.blue80,
+        minWidth: 0,
         width: 0,
-        ml: 0,
+        mr: 1,
         opacity: 0,
         overflow: 'hidden',
         transition: transitions.easeOut,
@@ -126,7 +128,7 @@ const Chip = withTranslation()(({ t, label, onRemove }) => (
       '&:hover .remove-filter-icon': {
         width: '14px',
         ml: 1,
-        mr: 2,
+        mr: 1,
         opacity: 1,
       },
     }}
@@ -198,49 +200,59 @@ const AppliedFilters = ({
       px={3}
       py={2}
       sx={{
-        alignItems: 'center',
-        columnGap: '4px',
-        rowGap: '8px',
-        flexWrap: 'wrap',
+        alignItems: 'flex-start',
+        gap: '4px',
+        flexWrap: 'nowrap',
         bg: vizColors.indigo00,
         borderTopRightRadius: '8px',
         borderTopLeftRadius: '8px',
         borderBottom: `1px solid ${vizColors.blueGray30}`,
       }}
     >
-      <Flex sx={{ alignItems: 'center', gap: 1, flexWrap: 'wrap', color: vizColors.blue30, fontSize: 0 }}>
-        { hasSearchActive
-            ? t('Showing {{ count }} patients that match your search', { count })
-            : t('Showing {{ count }} patients', { count })
-        }
+      <Flex
+        sx={{
+          flex: 1,
+          minWidth: 0,
+          alignItems: 'center',
+          columnGap: '4px',
+          rowGap: '8px',
+          flexWrap: 'wrap',
+        }}
+      >
+        <Flex sx={{ alignItems: 'center', gap: 1, flexWrap: 'wrap', color: vizColors.blue30, fontSize: 0 }}>
+          { hasSearchActive
+              ? t('Showing {{ count }} patients that match your search', { count })
+              : t('Showing {{ count }} patients', { count })
+          }
+        </Flex>
+
+        <ChipGroup
+          chips={primaryChips}
+          onRemove={handleRemoveChip}
+          prefix={<Text sx={{ fontSize: 0 }}>{t('with')}</Text>}
+        />
+
+        <ChipGroup
+          chips={tagChips}
+          onRemove={handleRemoveChip}
+          prefix={<Flex sx={{ alignItems: 'center' }}>
+            <Icon variant="static" iconSrc={TagIcon} sx={{ fontSize: 1, mr: 1 }} />
+            <Text sx={{ fontSize: 0 }}>{t('tagged')}</Text>
+          </Flex>}
+        />
+
+        <ChipGroup
+          chips={siteChips}
+          onRemove={handleRemoveChip}
+          prefix={<Flex sx={{ alignItems: 'center' }}>
+            <Icon variant="static" icon={LocationOnOutlinedIcon} sx={{ fontSize: 1, mr: 1 }} />
+            <Text sx={{ fontSize: 0 }}>{t('visiting')}</Text>
+          </Flex>}
+        />
       </Flex>
 
-      <ChipGroup
-        chips={primaryChips}
-        onRemove={handleRemoveChip}
-        prefix={<Text sx={{ fontSize: 0 }}>{t('with')}</Text>}
-      />
-
-      <ChipGroup
-        chips={tagChips}
-        onRemove={handleRemoveChip}
-        prefix={<>
-          <Icon variant="static" iconSrc={TagIcon} sx={{ fontSize: 1 }} />
-          <Text sx={{ fontSize: 0 }}>{t('tagged')}</Text>
-        </>}
-      />
-
-      <ChipGroup
-        chips={siteChips}
-        onRemove={handleRemoveChip}
-        prefix={<>
-          <Icon variant="static" icon={LocationOnOutlinedIcon} sx={{ fontSize: 1 }} />
-          <Text sx={{ fontSize: 0 }}>{t('visiting')}</Text>
-        </>}
-      />
-
       {rightContent && (
-        <Flex sx={{ ml: 'auto', alignItems: 'center', flexShrink: 0, whiteSpace: 'nowrap' }}>
+        <Flex sx={{ alignItems: 'center', flexShrink: 0, whiteSpace: 'nowrap' }}>
           {rightContent}
         </Flex>
       )}
