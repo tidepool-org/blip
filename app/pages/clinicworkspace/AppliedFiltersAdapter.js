@@ -8,7 +8,7 @@ import { defaultFilterState } from './useClinicPatientsFilters';
 import { Box } from 'theme-ui';
 
 const AppliedFiltersAdapter = ({ activeFilters, setActiveFilters, rightContent }) => {
-  const { patientListSearchTextInput } = useSelector(({ blip }) => blip.patientListFilters);
+  const { patientListSearchTextInput } = useSelector(state => state.blip.patientListFilters);
 
   const handleRemoveFilter = (filterKey, value) => {
     switch (filterKey) {
@@ -40,12 +40,6 @@ const AppliedFiltersAdapter = ({ activeFilters, setActiveFilters, rightContent }
           clinicSites: without(activeFilters.clinicSites, value),
         });
         break;
-
-      default:
-        setActiveFilters({
-          ...activeFilters,
-          [filterKey]: defaultFilterState[filterKey],
-        });
     }
   };
 
