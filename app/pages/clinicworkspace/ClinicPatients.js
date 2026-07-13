@@ -2827,7 +2827,7 @@ export const ClinicPatients = (props) => {
         >
           {clinicSiteFormikContext => (
             <Form id="clinic-site-update">
-              <DialogContent sx={{ minWidth: '512px' }}>
+              <DialogContent minWidth={512}>
                 <Flex mb={3} sx={{ gap: 2 }}>
                   <TextInput
                     themeProps={{
@@ -2894,7 +2894,7 @@ export const ClinicPatients = (props) => {
         >
           {patientTagFormikContext => (
             <Form id="patient-tag-update">
-              <DialogContent sx={{ minWidth: '512px' }}>
+              <DialogContent minWidth={512}>
                 <Flex mb={3} sx={{ gap: 2 }}>
                   <TextInput
                     themeProps={{
@@ -3167,10 +3167,8 @@ export const ClinicPatients = (props) => {
         onClose={handleCloseOverlays}
         maxWidth="sm"
       >
-        <DialogTitle sx={{ alignItems: 'flex-start' }} onClose={handleCloseOverlays}>
-          <Box mr={2}>
-            <MediumTitle id="dialog-title">{t('Filter the TIDE Dashboard')}</MediumTitle>
-          </Box>
+        <DialogTitle onClose={handleCloseOverlays}>
+          <MediumTitle id="dialog-title">{t('Filter the TIDE Dashboard')}</MediumTitle>
         </DialogTitle>
 
         <DialogContent>
@@ -3220,10 +3218,10 @@ export const ClinicPatients = (props) => {
               handleCloseOverlays();
             }}
           >
-            <Body1 sx={{ fontWeight: 'medium', fontSize: 3 }}>{t('Edit Sites')}</Body1>
+            <MediumTitle id="dialog-title">{t('Edit Sites')}</MediumTitle>
           </DialogTitle>
 
-          <DialogContent pt={0} divider={false} sx={{ minWidth: '512px', maxHeight: '70vh' }}>
+          <DialogContent pt={0} divider={false} minWidth={512} sx={{ maxHeight: '70vh' }}>
             <Formik
               initialValues={{ name: '' }}
               onSubmit={(clinicSite, context) => {
@@ -3354,7 +3352,7 @@ export const ClinicPatients = (props) => {
             </Box>
           </DialogContent>
 
-          <DialogActions sx={{ borderTop: borders.divider, display: 'flex', justifyContent: 'flex-end' }}>
+          <DialogActions>
             <Button
               id="edit-sites-dialog-done"
               variant="secondary"
@@ -3400,10 +3398,10 @@ export const ClinicPatients = (props) => {
               handleCloseOverlays();
             }}
           >
-            <Body1 sx={{ fontWeight: 'medium', fontSize: 3 }}>{t('Edit Tags')}</Body1>
+            <MediumTitle id="dialog-title">{t('Edit Tags')}</MediumTitle>
           </DialogTitle>
 
-          <DialogContent pt={0} divider={false} sx={{ minWidth: '512px', maxHeight: '70vh' }}>
+          <DialogContent pt={0} divider={false} minWidth={512} sx={{ maxHeight: '70vh' }}>
             <Formik
               initialValues={{ name: '' }}
               onSubmit={(tag, context) => {
@@ -3524,7 +3522,7 @@ export const ClinicPatients = (props) => {
             </Box>
           </DialogContent>
 
-          <DialogActions sx={{ borderTop: borders.divider, display: 'flex', justifyContent: 'flex-end' }}>
+          <DialogActions>
             <Button
               id="edit-patient-tags-dialog-done"
               variant="secondary"
@@ -3634,12 +3632,10 @@ export const ClinicPatients = (props) => {
         PaperProps={{ id: 'rpmReportConfigInner'}}
       >
         <DialogTitle onClose={handleCloseOverlays}>
-          <Box sx={{ flexGrow: 1 }} mr={2}>
-            <MediumTitle sx={{ fontSize: 4, textAlign: 'center' }} id="dialog-title">{t('RPM Report')}</MediumTitle>
-          </Box>
+          <MediumTitle id="dialog-title">{t('RPM Report')}</MediumTitle>
         </DialogTitle>
 
-        <DialogContent sx={{ width: '609px' }} divider>
+        <DialogContent minWidth={609} divider>
           <RpmReportConfigForm
             api={api}
             patientFetchOptions={patientFetchOptions}
@@ -3687,12 +3683,10 @@ export const ClinicPatients = (props) => {
         PaperProps={{ id: 'rpmReportLimitInner'}}
       >
         <DialogTitle onClose={handleCloseOverlays}>
-          <Box sx={{ flexGrow: 1 }} mr={2}>
-            <MediumTitle sx={{ fontSize: 4, textAlign: 'center' }} id="dialog-title">{t('RPM Report')}</MediumTitle>
-          </Box>
+          <MediumTitle id="dialog-title">{t('RPM Report')}</MediumTitle>
         </DialogTitle>
 
-        <DialogContent sx={{ width: '609px' }} divider>
+        <DialogContent minWidth={609} divider>
           <Flex
             px={3}
             py={4}

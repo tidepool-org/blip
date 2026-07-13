@@ -1277,10 +1277,8 @@ export const TideDashboard = (props) => {
         onClose={handleCloseOverlays}
         maxWidth="sm"
       >
-        <DialogTitle sx={{ alignItems: 'flex-start' }} onClose={handleCloseOverlays}>
-          <Box mr={2}>
-            <MediumTitle id="dialog-title">{t('Filter the TIDE Dashboard')}</MediumTitle>
-          </Box>
+        <DialogTitle onClose={handleCloseOverlays}>
+          <MediumTitle id="dialog-title">{t('Filter the TIDE Dashboard')}</MediumTitle>
         </DialogTitle>
 
         <DialogContent>
