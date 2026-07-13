@@ -4180,7 +4180,17 @@ export const ClinicPatients = (props) => {
       <Box>
         <Loader show={loading} overlay={true} />
 
-        <AppliedFiltersAdapter activeFilters={activeFilters} setActiveFilters={setActiveFilters} />
+        <AppliedFiltersAdapter
+          activeFilters={activeFilters}
+          setActiveFilters={setActiveFilters}
+          rightContent={
+            <ClearFilterButtons
+              patientListQueryState={patientListQueryState}
+              onClearSearch={handleClearSearch}
+              onResetFilters={handleResetFilters}
+            />
+          }
+        />
 
         <Table
           id={'peopleTable'}
