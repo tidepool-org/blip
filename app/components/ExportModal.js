@@ -284,6 +284,7 @@ const ExportModalWrapper = (props) => {
       aria-labelledby="dialog-title"
       open={open}
       onClose={onClose}
+      PaperProps={{ id: 'exportDialogInner' }}
       maxWidth="md"
     >
       {open && <ExportModal {...props} />}
