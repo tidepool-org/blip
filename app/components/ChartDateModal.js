@@ -97,7 +97,7 @@ export const ChartDateModal = (props) => {
       <DialogTitle divider={false} onClose={handleClose}>
         <MediumTitle id="dialog-title">{title}</MediumTitle>
       </DialogTitle>
-      <DialogContent divider minWidth={330} p={0}>
+      <DialogContent minWidth={330} p={0}>
         <Box px={3}>
           <Box mb={3}>
             <Body1 mb={2}>{t('Select a specific day')}</Body1>

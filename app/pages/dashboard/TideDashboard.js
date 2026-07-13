@@ -301,7 +301,7 @@ const SortPopover = React.memo(props => {
           sortPopupFilterState.close();
         }}
       >
-        <DialogContent px={2} py={3} dividers>
+        <DialogContent px={2} py={3}>
           <RadioGroup
             id={`${id}-options`}
             name={`${id}-options`}

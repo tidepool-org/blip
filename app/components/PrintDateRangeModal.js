@@ -348,7 +348,7 @@ export const PrintDateRangeModal = (props) => {
 
   return (
     <Dialog id="printDateRangePicker" aria-labelledby="dialog-title" PaperProps={{ id: 'printDateRangePickerInner'}} maxWidth="md" open={open} onClose={handleClose}>
-      <DialogTitle divider={true} onClose={handleClose}>
+      <DialogTitle onClose={handleClose}>
         <MediumTitle id="dialog-title">{t('Print Report')}</MediumTitle>
       </DialogTitle>
       <DialogContent divider={false} minWidth={768} pt={3} px={3}>

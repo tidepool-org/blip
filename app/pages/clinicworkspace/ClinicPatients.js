@@ -567,7 +567,7 @@ const PatientTags = ({
         anchorOrigin={anchorOrigin}
         transformOrigin={transformOrigin}
       >
-        <DialogContent px={2} py={3} dividers>
+        <DialogContent px={2} py={3}>
           <Box variant="containers.extraSmall">
             <Box sx={{ alignItems: 'center' }} mb={3} fontSize={1} fontWeight="medium">
               <Text color="text.primary" sx={{ whiteSpace: 'nowrap' }}>
@@ -1841,7 +1841,7 @@ export const ClinicPatients = (props) => {
                       setPendingFilters(activeFilters);
                     }}
                   >
-                    <DialogContent px={2} py={3} dividers>
+                    <DialogContent px={2} py={3}>
                       <Box sx={{ alignItems: 'center' }} mb={2}>
                         <Text sx={{ color: 'grays.4', fontWeight: 'medium', fontSize: 0, whiteSpace: 'nowrap' }}>
                           {t('Device Type')}
@@ -1978,7 +1978,7 @@ export const ClinicPatients = (props) => {
                       setPendingFilters(activeFilters);
                     }}
                   >
-                    <DialogContent px={2} pt={1} pb={3} mt={3} sx={{ maxHeight: '400px', maxWidth: '240px' }} dividers>
+                    <DialogContent px={2} pt={1} pb={3} mt={3} sx={{ maxHeight: '400px', maxWidth: '240px' }}>
                       <Box variant="containers.small">
                         <Box mb={2}>
                           <Text sx={{ display: 'block', position: 'relative', top: -2, color: colors.gray50, fontSize: 1, fontWeight: 'medium' }}>
@@ -2167,7 +2167,7 @@ export const ClinicPatients = (props) => {
                       setPendingFilters(activeFilters);
                     }}
                   >
-                    <DialogContent px={2} pt={1} pb={3} mt={3} sx={{ maxHeight: '400px', maxWidth: '240px' }} dividers>
+                    <DialogContent px={2} pt={1} pb={3} mt={3} sx={{ maxHeight: '400px', maxWidth: '240px' }}>
                       <Box variant="containers.small">
                         <Box mb={2}>
                           <Text sx={{ display: 'block', position: 'relative', top: -2, color: colors.gray50, fontSize: 1, fontWeight: 'medium' }}>
@@ -2508,7 +2508,7 @@ export const ClinicPatients = (props) => {
                       setPendingFilters(activeFilters);
                     }}
                   >
-                    <DialogContent px={2} py={3} dividers>
+                    <DialogContent px={2} py={3}>
                       <Box sx={{ alignItems: 'center' }} mb={2}>
                         <Text sx={{ color: 'grays.4', fontWeight: 'medium', fontSize: 0, whiteSpace: 'nowrap' }}>
                           {t('% CGM Use')}
@@ -2625,7 +2625,7 @@ export const ClinicPatients = (props) => {
                     setPendingSummaryPeriod(activeSummaryPeriod);
                   }}
                 >
-                  <DialogContent px={2} py={3} dividers>
+                  <DialogContent px={2} py={3}>
                     <Body0 color="grays.4" sx={{ fontWeight: 'medium' }} mb={2}>{t('Tidepool will generate health summaries for the selected number of days.')}</Body0>
 
                     <RadioGroup
@@ -3212,7 +3212,6 @@ export const ClinicPatients = (props) => {
       >
         <Box variant="containers.small" mb={0} sx={{ width: ['100%', '100%'] }}>
           <DialogTitle
-            divider
             onClose={() => {
               trackMetric(prefixPopHealthMetric('Edit clinic sites dialog close'), { clinicId: selectedClinicId });
               handleCloseOverlays();
@@ -3392,7 +3391,6 @@ export const ClinicPatients = (props) => {
       >
         <Box variant="containers.small" mb={0} sx={{ width: ['100%', '100%'] }}>
           <DialogTitle
-            divider
             onClose={() => {
               trackMetric(prefixPopHealthMetric('Edit clinic tags close'), { clinicId: selectedClinicId });
               handleCloseOverlays();
@@ -3635,7 +3633,7 @@ export const ClinicPatients = (props) => {
           <MediumTitle id="dialog-title">{t('RPM Report')}</MediumTitle>
         </DialogTitle>
 
-        <DialogContent minWidth={609} divider>
+        <DialogContent minWidth={609}>
           <RpmReportConfigForm
             api={api}
             patientFetchOptions={patientFetchOptions}
@@ -3686,7 +3684,7 @@ export const ClinicPatients = (props) => {
           <MediumTitle id="dialog-title">{t('RPM Report')}</MediumTitle>
         </DialogTitle>
 
-        <DialogContent minWidth={609} divider>
+        <DialogContent minWidth={609}>
           <Flex
             px={3}
             py={4}

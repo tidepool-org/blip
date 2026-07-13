@@ -122,7 +122,7 @@ export const ExportModal = ({
 
   return (
     <>
-      <DialogTitle divider={true} onClose={handleClose}>
+      <DialogTitle onClose={handleClose}>
         <MediumTitle id="dialog-title">{t('Export Patient Data')}</MediumTitle>
       </DialogTitle>
       <DialogContent divider={false} minWidth={648} pt={3} px={3}>

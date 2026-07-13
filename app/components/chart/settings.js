@@ -446,7 +446,7 @@ const Settings = ({
           deviceSelectionPopupState.close();
         }}
       >
-        <DialogContent px={2} py={3} dividers>
+        <DialogContent px={2} py={3}>
           <RadioGroup
             id="device"
             name="device"
