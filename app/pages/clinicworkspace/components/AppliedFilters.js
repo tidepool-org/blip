@@ -165,6 +165,7 @@ const AppliedFilters = ({
   filters = {},
   hasSearchActive = false,
   onRemoveFilter = noop,
+  rightContent = null,
 }) => {
   const { t } = useTranslation();
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
@@ -237,6 +238,12 @@ const AppliedFilters = ({
           <Text sx={{ fontSize: 0 }}>{t('visiting')}</Text>
         </>}
       />
+
+      {rightContent && (
+        <Flex sx={{ ml: 'auto', alignItems: 'center', flexShrink: 0, whiteSpace: 'nowrap' }}>
+          {rightContent}
+        </Flex>
+      )}
     </Flex>
   );
 };

@@ -5,8 +5,9 @@ import without from 'lodash/without';
 
 import AppliedFilters from './components/AppliedFilters';
 import { defaultFilterState } from './useClinicPatientsFilters';
+import { Box } from 'theme-ui';
 
-const AppliedFiltersAdapter = ({ activeFilters, setActiveFilters }) => {
+const AppliedFiltersAdapter = ({ activeFilters, setActiveFilters, rightContent }) => {
   const { patientListSearchTextInput } = useSelector(({ blip }) => blip.patientListFilters);
 
   const handleRemoveFilter = (filterKey, value) => {
@@ -55,6 +56,11 @@ const AppliedFiltersAdapter = ({ activeFilters, setActiveFilters }) => {
       hasSearchActive={hasSearchActive}
       filters={activeFilters}
       onRemoveFilter={handleRemoveFilter}
+      rightContent={
+        <Box sx={{ fontSize: 0 }}>
+          {rightContent}
+        </Box>
+      }
     />
   );
 };
