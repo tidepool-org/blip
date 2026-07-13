@@ -2613,12 +2613,12 @@ export const ClinicPatients = (props) => {
                       id="open-rpm-report-config"
                       variant="tertiary"
                       onClick={handleConfigureRpmReport}
-                      fontSize={0}
                       lineHeight={1.3}
                       px={2}
                       py={1}
                       iconSrc={TabularReportIcon}
                       iconPosition="left"
+                      sx={{ fontSize: 0 }}
                     >
                       {t('RPM Report')}
                     </Button>
