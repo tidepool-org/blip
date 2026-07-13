@@ -41,7 +41,7 @@ import Trends from '../../components/chart/trends';
 import Stats from '../../components/chart/stats';
 import { bgLog as BgLog } from '../../components/chart';
 import { settings as Settings } from '../../components/chart';
-import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
+import UploadLaunchDialog from '../../components/UploadLaunchDialog';
 import baseTheme from '../../themes/baseTheme';
 import { DesktopOnly, MobileOnly } from '../../components/mediaqueries';
 
@@ -187,7 +187,7 @@ export const PatientDataClass = createReactClass({
       loading: true,
       transitioningChartType: false,
       timePrefs: {},
-      showUploadOverlay: false,
+      showUploadDialog: false,
     };
 
     return state;
@@ -265,7 +265,7 @@ export const PatientDataClass = createReactClass({
 
   renderNoData: function() {
     const { t, currentPatientInViewId, isUserPatient, selectedClinicId } = this.props;
-    const uploadLaunchOverlay = this.state.showUploadOverlay ? this.renderUploadOverlay() : null;
+    const uploadLaunchDialog = this.state.showUploadDialog ? this.renderUploadDialog() : null;
     const dataConnectionsDialog = this.state.showDataConnectionsDialog ? this.renderDataConnectionsDialog() : null;
 
     const self = this;
@@ -279,7 +279,7 @@ export const PatientDataClass = createReactClass({
       const properties = { patientID: currentPatientInViewId };
       if (selectedClinicId) properties.clinicId = selectedClinicId;
       self.props.trackMetric('Clicked No Data Upload Card', properties);
-      self.setState({showUploadOverlay: true});
+      self.setState({showUploadDialog: true});
       launchCustomProtocol('tidepoolupload://open');
     };
 
@@ -373,14 +373,14 @@ export const PatientDataClass = createReactClass({
           </Flex>
         </Box>
 
-        {uploadLaunchOverlay}
+        {uploadLaunchDialog}
         {dataConnectionsDialog}
       </Box>
     );
   },
 
-  renderUploadOverlay: function() {
-    return <UploadLaunchOverlay modalDismissHandler={()=>{this.setState({ showUploadOverlay: false })}}/>
+  renderUploadDialog: function() {
+    return <UploadLaunchDialog open onClose={()=>{this.setState({ showUploadDialog: false })}}/>
   },
 
   renderDataConnectionsDialog: function() {

@@ -219,7 +219,7 @@ export const ClinicianPatients = (props) => {
         </DialogTitle>
 
         <DialogContent>
-          <Trans className="ModalOverlay-content" i18nKey="html.peopletable-remove-patient-confirm">
+          <Trans i18nKey="html.peopletable-remove-patient-confirm">
             <Body1>
               Are you sure you want to remove patient: {{fullName}} from your list?
             </Body1>

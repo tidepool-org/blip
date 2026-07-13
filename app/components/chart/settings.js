@@ -44,7 +44,7 @@ import DataConnectionsBanner from '../../components/elements/Card/Banners/DataCo
 import DataConnectionsDialog from '../../components/datasources/DataConnectionsDialog';
 import Card from '../elements/Card';
 import { Body1, MediumTitle } from '../elements/FontStyles';
-import Uploadlaunchoverlay from '../uploadlaunchoverlay';
+import UploadLaunchDialog from '../UploadLaunchDialog';
 import api from '../../core/api';
 import styled from '@emotion/styled';
 
@@ -143,7 +143,7 @@ const Settings = ({
   const previousSelectedDevice = usePrevious(selectedDevice);
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const isClinicContext = !!selectedClinicId;
-  const [showUploadOverlay, setShowUploadOverlay] = useState(false);
+  const [showUploadDialog, setShowUploadDialog] = useState(false);
   const dataSources = useSelector(state => state.blip.dataSources);
   const metaDataDevices = useSelector(state => state.blip.data?.metaData?.devices || []);
 
@@ -673,7 +673,7 @@ const Settings = ({
       const properties = { patientID: currentPatientInViewId };
       if (selectedClinicId) properties.clinicId = selectedClinicId;
       trackMetric('Clicked Partial Data Upload, No Settings', properties);
-      setShowUploadOverlay(true);
+      setShowUploadDialog(true);
       launchCustomProtocol('tidepoolupload://open');
     };
 
@@ -743,8 +743,8 @@ const Settings = ({
     );
   };
 
-  const renderUploadOverlay = () => (
-    <Uploadlaunchoverlay modalDismissHandler={() => setShowUploadOverlay(false)}/>
+  const renderUploadDialog = () => (
+    <UploadLaunchDialog open onClose={() => setShowUploadDialog(false)}/>
   );
 
   return (
@@ -811,7 +811,7 @@ const Settings = ({
         </Box>
 
         {showDataConnectionsDialog && renderDataConnectionsDialog()}
-        {showUploadOverlay && renderUploadOverlay()}
+        {showUploadDialog && renderUploadDialog()}
       </Box>
     </div>
   );

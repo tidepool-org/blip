@@ -108,7 +108,7 @@ describe('PatientCard', function () {
       const leaveLink = rendered.container.querySelector('a.patientcard-actions-remove');
       expect(leaveLink).to.not.be.null;
       fireEvent.click(leaveLink);
-      const overlay = rendered.container.querySelectorAll('.ModalOverlay-content');
+      const overlay = document.querySelectorAll('[role="dialog"]');
       expect(overlay.length).to.equal(1);
     });
   });

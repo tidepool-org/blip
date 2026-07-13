@@ -25,7 +25,7 @@ import moment from 'moment';
 import { Flex } from 'theme-ui';
 
 var launchCustomProtocol = require('custom-protocol-detection');
-var UploadLaunchOverlay = require('../uploadlaunchoverlay');
+import UploadLaunchDialog from '../UploadLaunchDialog';
 
 var personUtils = require('../../core/personutils');
 
@@ -41,7 +41,7 @@ var NavbarPatientCard = withTranslation()(class extends React.Component {
   };
 
   state = {
-    showUploadOverlay: false,
+    showUploadDialog: false,
   };
 
   render() {
@@ -62,7 +62,7 @@ var NavbarPatientCard = withTranslation()(class extends React.Component {
     var upload = this.props.isSmartOnFhirMode ? null : this.renderUpload(patient);
     var share = this.renderShare(patient);
     var profile = this.renderProfile(patient);
-    var overlay = this.state.showUploadOverlay ? this.renderOverlay() : null;
+    var overlay = this.state.showUploadDialog ? this.renderDialog() : null;
 
     return (
       <Flex sx={{ alignItems: 'center' }} className={classes}>
@@ -143,7 +143,7 @@ var NavbarPatientCard = withTranslation()(class extends React.Component {
         e.preventDefault();
         e.stopPropagation();
       }
-      self.setState({showUploadOverlay: true});
+      self.setState({showUploadDialog: true});
       launchCustomProtocol('tidepoolupload://open');
       self.props.trackMetric('Clicked Navbar Upload Data');
     };
@@ -184,8 +184,8 @@ var NavbarPatientCard = withTranslation()(class extends React.Component {
     return null;
   };
 
-  renderOverlay = () => {
-    return <UploadLaunchOverlay modalDismissHandler={()=>{this.setState({showUploadOverlay: false})}}/>
+  renderDialog = () => {
+    return <UploadLaunchDialog open onClose={()=>{this.setState({showUploadDialog: false})}}/>
   };
 
   getFullName = () => {
