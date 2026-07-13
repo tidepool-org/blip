@@ -5070,6 +5070,132 @@ describe('PatientData', function () {
       expect(selectClinicResult[1]()).to.equal('fetchPatientData');
       expect(dispatchProps.selectClinic.callCount).to.equal(1);
     });
+
+    it('should select the SMART-on-FHIR context clinic when the patient belongs to multiple clinics and the context clinicId matches one of them', () => {
+      expect(dispatchProps.selectClinic.callCount).to.equal(0);
+      getFetchers(dispatchProps, ownProps, {
+        user: {
+          userid: 'clinician123',
+          isClinicMember: true,
+        },
+        clinics: {
+          clinic1234: {
+            patients: { '12345': {} },
+          },
+          clinic6789: {
+            patients: { '12345': {} },
+          },
+        },
+        selectedClinicId: null,
+        smartOnFhirData: { context: { clinicId: 'clinic6789' } },
+        fetchingPatientFromClinic: {
+          inProgress: false,
+        },
+        fetchingPendingSentInvites: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingClinicsForPatient: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingAssociatedAccounts: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingUserConsentRecords: {
+          inProgress: false,
+          completed: true,
+        },
+      });
+
+      // Should select the context clinic (clinic6789) rather than the first one (clinic1234)
+      expect(dispatchProps.selectClinic.callCount).to.equal(1);
+      expect(dispatchProps.selectClinic.calledWith(undefined, 'clinic6789')).to.be.true;
+    });
+
+    it('should fall back to the first matching clinic when the SMART-on-FHIR context clinicId does not match a clinic the patient belongs to', () => {
+      expect(dispatchProps.selectClinic.callCount).to.equal(0);
+      getFetchers(dispatchProps, ownProps, {
+        user: {
+          userid: 'clinician123',
+          isClinicMember: true,
+        },
+        clinics: {
+          clinic1234: {
+            patients: { '12345': {} },
+          },
+          clinic6789: {
+            patients: { '12345': {} },
+          },
+        },
+        selectedClinicId: null,
+        smartOnFhirData: { context: { clinicId: 'clinicNotAMember' } },
+        fetchingPatientFromClinic: {
+          inProgress: false,
+        },
+        fetchingPendingSentInvites: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingClinicsForPatient: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingAssociatedAccounts: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingUserConsentRecords: {
+          inProgress: false,
+          completed: true,
+        },
+      });
+
+      expect(dispatchProps.selectClinic.callCount).to.equal(1);
+      expect(dispatchProps.selectClinic.calledWith(undefined, 'clinic1234')).to.be.true;
+    });
+
+    it('should fall back to the first matching clinic when the patient belongs to multiple clinics and there is no SMART-on-FHIR context', () => {
+      expect(dispatchProps.selectClinic.callCount).to.equal(0);
+      getFetchers(dispatchProps, ownProps, {
+        user: {
+          userid: 'clinician123',
+          isClinicMember: true,
+        },
+        clinics: {
+          clinic1234: {
+            patients: { '12345': {} },
+          },
+          clinic6789: {
+            patients: { '12345': {} },
+          },
+        },
+        selectedClinicId: null,
+        fetchingPatientFromClinic: {
+          inProgress: false,
+        },
+        fetchingPendingSentInvites: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingClinicsForPatient: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingAssociatedAccounts: {
+          inProgress: false,
+          completed: true,
+        },
+        fetchingUserConsentRecords: {
+          inProgress: false,
+          completed: true,
+        },
+      });
+
+      expect(dispatchProps.selectClinic.callCount).to.equal(1);
+      expect(dispatchProps.selectClinic.calledWith(undefined, 'clinic1234')).to.be.true;
+    });
   });
 
   describe('mapStateToProps', () => {
