@@ -39,7 +39,7 @@ const datesMatchPreset = (start, end, days) => {
   return startDate === start && endDate === end;
 };
 
-export const ExportModal = ({
+export const ExportDialog = ({
   api,
   onClose,
   trackMetric,
@@ -275,7 +275,7 @@ export const ExportModal = ({
   );
 };
 
-const ExportModalWrapper = (props) => {
+const ExportDialogWrapper = (props) => {
   const { onClose, open } = props;
 
   return (
@@ -287,12 +287,12 @@ const ExportModalWrapper = (props) => {
       PaperProps={{ id: 'exportDialogInner' }}
       maxWidth="md"
     >
-      {open && <ExportModal {...props} />}
+      {open && <ExportDialog {...props} />}
     </Dialog>
   );
 };
 
-ExportModalWrapper.propTypes = {
+ExportDialogWrapper.propTypes = {
   api: PropTypes.shape({
     tidepool: PropTypes.shape({
       getExportDataURL: PropTypes.func.isRequired,
@@ -314,9 +314,9 @@ ExportModalWrapper.propTypes = {
   trackMetric: PropTypes.func,
 };
 
-ExportModalWrapper.defaultProps = {
+ExportDialogWrapper.defaultProps = {
   onClose: noop,
   trackMetric: noop,
 };
 
-export default ExportModalWrapper;
+export default ExportDialogWrapper;

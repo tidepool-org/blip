@@ -12,9 +12,9 @@ import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import _ from 'lodash';
 
-import ExportModal from '@app/components/ExportModal';
+import ExportDialog from '@app/components/ExportDialog';
 
-describe('ExportModal', () => {
+describe('ExportDialog', () => {
   beforeEach(() => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2030-02-01T00:00:00Z'));
@@ -63,7 +63,7 @@ describe('ExportModal', () => {
     it('calls the API with the expected args', async () => {
       render(
         <Provider store={store}>
-          <ExportModal {...props} />
+          <ExportDialog {...props} />
         </Provider>
       );
 

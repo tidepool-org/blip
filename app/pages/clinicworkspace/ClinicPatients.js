@@ -113,7 +113,7 @@ import {
 import { DIABETES_TYPES, MGDL_UNITS, MMOLL_UNITS, URL_TIDEPOOL_PLUS_PLANS } from '../../core/constants';
 import baseTheme, { borders, radii, colors, space, fontWeights } from '../../themes/baseTheme';
 import PopoverElement from '../../components/elements/PopoverElement';
-import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
+import DataConnectionsDialog from '../../components/datasources/DataConnectionsDialog';
 import Banner from '../../components/elements/Banner';
 import colorPalette from '../../themes/colorPalette';
 import noop from 'lodash/noop';
@@ -193,10 +193,10 @@ const editPatient = (patient, setSelectedPatient, selectedClinicId, trackMetric,
   setShowEditPatientDialog(true);
 };
 
-const editPatientDataConnections = (patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal, source) => {
+const editPatientDataConnections = (patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsDialog, source) => {
   trackMetric('Clinic - Edit patient data connections', { clinicId: selectedClinicId, source });
   setSelectedPatient(patient);
-  setShowDataConnectionsModal(true);
+  setShowDataConnectionsDialog(true);
 };
 
 const ClearButton = styled.button`
@@ -356,7 +356,7 @@ const MoreMenu = ({
   t,
   trackMetric,
   setSelectedPatient,
-  setShowDataConnectionsModal,
+  setShowDataConnectionsDialog,
   setShowEditPatientDialog,
   prefixPopHealthMetric,
   setShowSendUploadReminderDialog,
@@ -367,8 +367,8 @@ const MoreMenu = ({
   }, [patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog]);
 
   const handleEditPatientDataConnections = useCallback(() => {
-    editPatientDataConnections(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal, 'action menu');
-  }, [patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal]);
+    editPatientDataConnections(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsDialog, 'action menu');
+  }, [patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsDialog]);
 
   const handleSendUploadReminder = useCallback(
     (patient) => {
@@ -697,7 +697,7 @@ export const ClinicPatients = (props) => {
   const [showRpmReportConfigDialog, setShowRpmReportConfigDialog] = useState(false);
   const [showRpmReportLimitDialog, setShowRpmReportLimitDialog] = useState(false);
   const [showTideDashboardConfigDialog, setShowTideDashboardConfigDialog] = useState(false);
-  const [showDataConnectionsModal, setShowDataConnectionsModal] = useState(false);
+  const [showDataConnectionsDialog, setShowDataConnectionsDialog] = useState(false);
   const [showEditPatientDialog, setShowEditPatientDialog] = useState(false);
   const [showClinicSitesDialog, setShowClinicSitesDialog] = useState(false);
   const [showClinicPatientTagsDialog, setShowClinicPatientTagsDialog] = useState(false);
@@ -907,7 +907,7 @@ export const ClinicPatients = (props) => {
     const resetList = showAddPatientDialog || showEditPatientDialog;
     setShowAddPatientDialog(false);
     setShowDeleteDialog(false);
-    setShowDataConnectionsModal(false);
+    setShowDataConnectionsDialog(false);
     setShowEditPatientDialog(false);
     setShowClinicPatientTagsDialog(false);
     setShowClinicSitesDialog(false);
@@ -1004,7 +1004,7 @@ export const ClinicPatients = (props) => {
   const handlePatientCreatedOrEdited = useCallback(() => {
     dispatch(actions.async.fetchClinic(api, selectedClinicId)); // patient counts for tags and/or sites may have changed
 
-    if (patientFormContext?.status?.showDataConnectionsModalNext) {
+    if (patientFormContext?.status?.showDataConnectionsDialogNext) {
       let currentPatient = selectedPatient;
 
       if (patientFormContext?.status?.newPatient && creatingClinicCustodialAccount?.patientId) currentPatient = {
@@ -1014,7 +1014,7 @@ export const ClinicPatients = (props) => {
 
       setShowAddPatientDialog(false);
       setShowEditPatientDialog(false);
-      editPatientDataConnections(currentPatient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal, 'Patients list - patient modal');
+      editPatientDataConnections(currentPatient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsDialog, 'Patients list - patient modal');
     } else {
       handleCloseOverlays();
     }
@@ -1029,7 +1029,7 @@ export const ClinicPatients = (props) => {
 
   useEffect(() => {
     // Only process detected updates if patient edit form is showing. Other child components, such as
-    // the PatientEmailModal, may also update the patient, and handle the results
+    // the PatientEmailDialog, may also update the patient, and handle the results
     if (showEditPatientDialog) {
       handleAsyncResult({ ...updatingClinicPatient, prevInProgress: previousUpdatingClinicPatient?.inProgress }, t('You have successfully updated a patient.'), handlePatientCreatedOrEdited);
     }
@@ -1400,7 +1400,7 @@ export const ClinicPatients = (props) => {
 
   const handleEditPatientAndAddDataSourcesConfirm = useCallback(() => {
     trackMetric('Clinic - Edit patient next', { clinicId: selectedClinicId, source: 'Patients list' });
-    patientFormContext?.setStatus({ showDataConnectionsModalNext: true });
+    patientFormContext?.setStatus({ showDataConnectionsDialogNext: true });
     handleEditPatientConfirm();
   }, [patientFormContext, selectedClinicId, trackMetric, handleEditPatientConfirm]);
 
@@ -3123,7 +3123,7 @@ export const ClinicPatients = (props) => {
             id="editPatientNext"
             variant="secondary"
             onClick={handleEditPatientAndAddDataSourcesConfirm}
-            processing={updatingClinicPatient.inProgress && patientFormContext?.status?.showDataConnectionsModalNext}
+            processing={updatingClinicPatient.inProgress && patientFormContext?.status?.showDataConnectionsDialogNext}
             disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema({mrnSettings, existingMRNs}), patientFormContext?.values)}
           >
             {t('Save & Next')}
@@ -3133,7 +3133,7 @@ export const ClinicPatients = (props) => {
             id="editPatientConfirm"
             variant="primary"
             onClick={handleEditPatientConfirm}
-            processing={updatingClinicPatient.inProgress && !patientFormContext?.status?.showDataConnectionsModalNext}
+            processing={updatingClinicPatient.inProgress && !patientFormContext?.status?.showDataConnectionsDialogNext}
             disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema({mrnSettings, existingMRNs}), patientFormContext?.values)}
           >
             {t('Save Changes')}
@@ -3726,14 +3726,14 @@ export const ClinicPatients = (props) => {
     t,
   ]);
 
-  const renderDataConnectionsModal = useCallback(() => {
+  const renderDataConnectionsDialog = useCallback(() => {
     return (
-      <DataConnectionsModal
+      <DataConnectionsDialog
         open
         patient={selectedPatient}
         onClose={handleCloseOverlays}
-        onBack={patientFormContext?.status?.showDataConnectionsModalNext ? () => {
-          setShowDataConnectionsModal(false)
+        onBack={patientFormContext?.status?.showDataConnectionsDialogNext ? () => {
+          setShowDataConnectionsDialog(false)
           setShowEditPatientDialog(true)
         } : undefined}
       />
@@ -4001,7 +4001,7 @@ export const ClinicPatients = (props) => {
       t={t}
       trackMetric={trackMetric}
       setSelectedPatient={setSelectedPatient}
-      setShowDataConnectionsModal={setShowDataConnectionsModal}
+      setShowDataConnectionsDialog={setShowDataConnectionsDialog}
       setShowEditPatientDialog={setShowEditPatientDialog}
       prefixPopHealthMetric={prefixPopHealthMetric}
       setShowSendUploadReminderDialog={setShowSendUploadReminderDialog}
@@ -4328,7 +4328,7 @@ export const ClinicPatients = (props) => {
       {showSendUploadReminderDialog && renderSendUploadReminderDialog()}
       {isClinicSitesDialogVisible && renderClinicSitesDialog()}
       {isClinicPatientTagsDialogVisible && renderClinicPatientTagsDialog()}
-      {showDataConnectionsModal && renderDataConnectionsModal()}
+      {showDataConnectionsDialog && renderDataConnectionsDialog()}
 
       <StyledScrollToTop
         smooth

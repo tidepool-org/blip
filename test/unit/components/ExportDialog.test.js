@@ -4,12 +4,12 @@ import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
 
-import ExportModal from '@app/components/ExportModal';
+import ExportDialog from '@app/components/ExportDialog';
 import { MGDL_UNITS } from '@app/core/constants';
 
 const mockStore = configureStore([thunk]);
 
-describe('ExportModal', () => {
+describe('ExportDialog', () => {
   const state = {
     blip: {
       allUsersMap: {
@@ -33,7 +33,7 @@ describe('ExportModal', () => {
 
   const renderModal = (props = {}) => render(
     <Provider store={mockStore(state)}>
-      <ExportModal {...defaultProps} open {...props} />
+      <ExportDialog {...defaultProps} open {...props} />
     </Provider>
   );
 
@@ -44,14 +44,14 @@ describe('ExportModal', () => {
   it('mounts the dialog contents only while open', () => {
     const { rerender } = render(
       <Provider store={mockStore(state)}>
-        <ExportModal {...defaultProps} open={false} />
+        <ExportDialog {...defaultProps} open={false} />
       </Provider>
     );
     expect(screen.queryByText('Export Patient Data')).not.toBeInTheDocument();
 
     rerender(
       <Provider store={mockStore(state)}>
-        <ExportModal {...defaultProps} open />
+        <ExportDialog {...defaultProps} open />
       </Provider>
     );
     expect(screen.getByText('Export Patient Data')).toBeInTheDocument();

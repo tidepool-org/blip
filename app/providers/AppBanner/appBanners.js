@@ -5,7 +5,7 @@ import { async } from '../../redux/actions';
 import api from '../../core/api';
 import { URL_BIG_DATA_DONATION_INFO, URL_SHARE_DATA_INFO, URL_TIDEPOOL_PLUS_CONTACT_SALES } from '../../core/constants';
 import { ResendDataSourceConnectRequestDialog } from '../../components/clinic/ResendDataSourceConnectRequestDialog';
-import PatientEmailModal from '../../components/datasources/PatientEmailModal';
+import PatientEmailDialog from '../../components/datasources/PatientEmailDialog';
 import { upperFirst } from 'lodash';
 
 const t = i18next.t.bind(i18next);
@@ -296,7 +296,7 @@ export const appBanners = [
         metricProps: { source: 'none', location: 'banner' },
         handler: () => formikContext.handleSubmit(),
         modal: {
-          component: PatientEmailModal,
+          component: PatientEmailDialog,
           confirmHandlerProp: 'onSubmit',
           props: { patient },
         },

@@ -46,10 +46,10 @@ import baseTheme from '../../themes/baseTheme';
 import { DesktopOnly, MobileOnly } from '../../components/mediaqueries';
 
 import Messages from '../../components/messages';
-import ChartDateRangeModal from '../../components/ChartDateRangeModal';
-import ChartDateModal from '../../components/ChartDateModal';
-import PrintDateRangeModal from '../../components/PrintDateRangeModal';
-import ExportModal from '../../components/ExportModal';
+import ChartDateRangeDialog from '../../components/ChartDateRangeDialog';
+import ChartDateDialog from '../../components/ChartDateDialog';
+import PrintDateRangeDialog from '../../components/PrintDateRangeDialog';
+import ExportDialog from '../../components/ExportDialog';
 import Button from '../../components/elements/Button';
 
 import ToastContext from '../../providers/ToastProvider';
@@ -62,7 +62,7 @@ import Card from '../../components/elements/Card';
 import UploaderBanner from '../../components/elements/Card/Banners/Uploader.png';
 import ShareBanner from '../../components/elements/Card/Banners/Share.png';
 import DataConnectionsBanner from '../../components/elements/Card/Banners/DataConnections.png';
-import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
+import DataConnectionsDialog from '../../components/datasources/DataConnectionsDialog';
 import { DATA_DONATION_CONSENT_TYPE, DEFAULT_CGM_SAMPLE_INTERVAL, DEFAULT_CGM_SAMPLE_INTERVAL_RANGE, DIABETES_TYPES, MS_IN_MIN } from '../../core/constants';
 const { GLYCEMIC_RANGES_PRESET } = vizUtils.constants;
 import { selectIsSmartOnFhirMode } from '../../core/selectors';
@@ -266,7 +266,7 @@ export const PatientDataClass = createReactClass({
   renderNoData: function() {
     const { t, currentPatientInViewId, isUserPatient, selectedClinicId } = this.props;
     const uploadLaunchOverlay = this.state.showUploadOverlay ? this.renderUploadOverlay() : null;
-    const dataConnectionsModal = this.state.showDataConnectionsModal ? this.renderDataConnectionsModal() : null;
+    const dataConnectionsDialog = this.state.showDataConnectionsDialog ? this.renderDataConnectionsDialog() : null;
 
     const self = this;
 
@@ -287,7 +287,7 @@ export const PatientDataClass = createReactClass({
       const properties = { patientID: currentPatientInViewId };
       if (selectedClinicId) properties.clinicId = selectedClinicId;
       self.props.trackMetric('Clicked No Data Data Connections Card', properties);
-      self.setState({showDataConnectionsModal: true});
+      self.setState({showDataConnectionsDialog: true});
     };
 
     const handleShare = function() {
@@ -374,7 +374,7 @@ export const PatientDataClass = createReactClass({
         </Box>
 
         {uploadLaunchOverlay}
-        {dataConnectionsModal}
+        {dataConnectionsDialog}
       </Box>
     );
   },
@@ -383,17 +383,17 @@ export const PatientDataClass = createReactClass({
     return <UploadLaunchOverlay modalDismissHandler={()=>{this.setState({ showUploadOverlay: false })}}/>
   },
 
-  renderDataConnectionsModal: function() {
-    return <DataConnectionsModal
+  renderDataConnectionsDialog: function() {
+    return <DataConnectionsDialog
       open
       patient={this.props.clinicPatient || this.props.patient}
-      onClose={() => this.setState({ showDataConnectionsModal: false })}
+      onClose={() => this.setState({ showDataConnectionsDialog: false })}
     />
   },
 
   renderDatesDialog: function() {
     const isDaily = this.state.chartType === 'daily';
-    const DatePickerComponent = isDaily ? ChartDateModal : ChartDateRangeModal;
+    const DatePickerComponent = isDaily ? ChartDateDialog : ChartDateRangeDialog;
 
     const extraProps = isDaily ? {
       id: 'chart-date-dialog',
@@ -451,7 +451,7 @@ export const PatientDataClass = createReactClass({
 
   renderExportDialog: function() {
     return (
-      <ExportModal
+      <ExportDialog
         id="export-dialog"
         api={this.props.api}
         open={this.state.exportDialogOpen}
@@ -464,7 +464,7 @@ export const PatientDataClass = createReactClass({
 
   renderPrintDialog: function() {
     return (
-      <PrintDateRangeModal
+      <PrintDateRangeDialog
         id="print-dialog"
         loggedInUserId={this.props.user?.userid}
         mostRecentDatumDates={{

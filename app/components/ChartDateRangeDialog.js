@@ -34,7 +34,7 @@ const t = i18next.t.bind(i18next);
 
 const MOBILE_BREAKPOINT_QUERY = `@media screen and (max-width: ${breakpoints[1]})`;
 
-export const ChartDateRangeModal = (props) => {
+export const ChartDateRangeDialog = (props) => {
   const {
     chartType,
     defaultDates: defaultDatesProp,
@@ -271,7 +271,7 @@ export const ChartDateRangeModal = (props) => {
   );
 };
 
-ChartDateRangeModal.propTypes = {
+ChartDateRangeDialog.propTypes = {
   chartType: PropTypes.string,
   maxDays: PropTypes.number.isRequired,
   mostRecentDatumDate: PropTypes.number,
@@ -287,7 +287,7 @@ ChartDateRangeModal.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-ChartDateRangeModal.defaultProps = {
+ChartDateRangeDialog.defaultProps = {
   maxDays: 90,
   onClose: noop,
   onDatesChange: noop,
@@ -297,4 +297,4 @@ ChartDateRangeModal.defaultProps = {
   trackMetric: noop,
 };
 
-export default ChartDateRangeModal;
+export default ChartDateRangeDialog;

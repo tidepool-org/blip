@@ -33,7 +33,7 @@ const {
 
 const t = i18next.t.bind(i18next);
 
-export const PrintDateRangeModal = (props) => {
+export const PrintDateRangeDialog = (props) => {
   const {
     maxDays,
     mostRecentDatumDates,
@@ -473,7 +473,7 @@ export const PrintDateRangeModal = (props) => {
   );
 };
 
-PrintDateRangeModal.propTypes = {
+PrintDateRangeDialog.propTypes = {
   maxDays: PropTypes.number.isRequired,
   mostRecentDatumDates: PropTypes.shape({
     agpBGM: PropTypes.number,
@@ -494,7 +494,7 @@ PrintDateRangeModal.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-PrintDateRangeModal.defaultProps = {
+PrintDateRangeDialog.defaultProps = {
   maxDays: 90,
   onClickPrint: noop,
   onClose: noop,
@@ -502,4 +502,4 @@ PrintDateRangeModal.defaultProps = {
   trackMetric: noop,
 };
 
-export default PrintDateRangeModal;
+export default PrintDateRangeDialog;

@@ -18,7 +18,7 @@ import i18next from '../core/language';
 
 const t = i18next.t.bind(i18next);
 
-export const ChartDateModal = (props) => {
+export const ChartDateDialog = (props) => {
   const {
     chartType,
     defaultDate,
@@ -136,7 +136,7 @@ export const ChartDateModal = (props) => {
   );
 };
 
-ChartDateModal.propTypes = {
+ChartDateDialog.propTypes = {
   chartType: PropTypes.string,
   defaultDate: PropTypes.string.isRequired,
   mostRecentDatumDate: PropTypes.number,
@@ -152,7 +152,7 @@ ChartDateModal.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-ChartDateModal.defaultProps = {
+ChartDateDialog.defaultProps = {
   onClose: noop,
   onDateChange: noop,
   onSubmit: noop,
@@ -160,4 +160,4 @@ ChartDateModal.defaultProps = {
   trackMetric: noop,
 };
 
-export default ChartDateModal;
+export default ChartDateDialog;

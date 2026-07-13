@@ -26,7 +26,7 @@ import api from '../../core/api';
 import { useIsFirstRender, usePrevious } from '../../core/hooks';
 import i18next from '../../core/language';
 import DataConnection from './DataConnection';
-import PatientEmailModal from './PatientEmailModal';
+import PatientEmailDialog from './PatientEmailDialog';
 import ResendDataSourceConnectRequestDialog from '../clinic/ResendDataSourceConnectRequestDialog';
 import DataSourceDisconnectDialog from './DataSourceDisconnectDialog';
 import { Box, BoxProps } from 'theme-ui';
@@ -421,7 +421,7 @@ export const DataConnections = (props) => {
   const isLoggedInUser = useSelector((state) => state.blip.loggedInUserId === patient?.id);
   const [showResendDataSourceConnectRequest, setShowResendDataSourceConnectRequest] = useState(false);
   const [dataSourceDisconnectInstructions, setDataSourceDisconnectInstructions] = useState();
-  const [showPatientEmailModal, setShowPatientEmailModal] = useState(false);
+  const [showPatientEmailDialog, setShowPatientEmailDialog] = useState(false);
   const [patientEmailFormContext, setPatientEmailFormContext] = useState();
   const [processingEmailUpdate, setProcessingEmailUpdate] = useState(false);
   const [patientUpdates, setPatientUpdates] = useState({});
@@ -472,7 +472,7 @@ export const DataConnections = (props) => {
           variant: 'danger',
         });
 
-        setShowPatientEmailModal(false);
+        setShowPatientEmailDialog(false);
         setProcessingEmailUpdate(false);
         setPatientUpdates({});
         setActiveHandler(null);
@@ -485,14 +485,14 @@ export const DataConnections = (props) => {
 
   const handleAddPatientEmailOpen = useCallback(() => {
     trackMetric('Data Connections - add patient email', { selectedClinicId });
-    setShowPatientEmailModal(true);
+    setShowPatientEmailDialog(true);
   }, [
     selectedClinicId,
     trackMetric,
   ]);
 
   const handleAddPatientEmailClose = () => {
-    setShowPatientEmailModal(false);
+    setShowPatientEmailDialog(false);
     setActiveHandler(null);
   };
 
@@ -508,7 +508,7 @@ export const DataConnections = (props) => {
 
   const handleUpdatePatientComplete = useCallback(() => {
     fetchPatientDetails();
-    setShowPatientEmailModal(false);
+    setShowPatientEmailDialog(false);
     setProcessingEmailUpdate(false);
     setPatientUpdates({});
 
@@ -560,7 +560,7 @@ export const DataConnections = (props) => {
   };
 
   const handleActiveHandlerComplete = useCallback(() => {
-    setShowPatientEmailModal(false);
+    setShowPatientEmailDialog(false);
     setShowResendDataSourceConnectRequest(false);
     setActiveHandler(null);
 
@@ -661,13 +661,13 @@ export const DataConnections = (props) => {
             className="data-connection"
             key={i}
             mb={1}
-            buttonProcessing={activeHandler?.providerName === provider && !showPatientEmailModal && !showResendDataSourceConnectRequest}
+            buttonProcessing={activeHandler?.providerName === provider && !showPatientEmailDialog && !showResendDataSourceConnectRequest}
             { ...dataConnectionProps[provider]}
           />
         ))}
       </Box>
 
-      {showPatientEmailModal && <PatientEmailModal
+      {showPatientEmailDialog && <PatientEmailDialog
         open
         onClose={handleAddPatientEmailClose}
         onFormChange={handleAddPatientEmailFormChange}

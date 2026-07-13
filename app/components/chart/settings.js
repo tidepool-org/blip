@@ -41,7 +41,7 @@ import Icon from '../elements/Icon';
 import { useSelector } from 'react-redux';
 import DataConnections from '../../components/datasources/DataConnections';
 import DataConnectionsBanner from '../../components/elements/Card/Banners/DataConnections.png';
-import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
+import DataConnectionsDialog from '../../components/datasources/DataConnectionsDialog';
 import Card from '../elements/Card';
 import { Body1, MediumTitle } from '../elements/FontStyles';
 import Uploadlaunchoverlay from '../uploadlaunchoverlay';
@@ -129,7 +129,7 @@ const Settings = ({
   const { location } = useHistory();
   const isJustConnected = !!location?.query?.dataConnectionStatus;
 
-  const [showDataConnectionsModal, setShowDataConnectionsModal] = useState(isJustConnected);
+  const [showDataConnectionsDialog, setShowDataConnectionsDialog] = useState(isJustConnected);
   const [atMostRecent, setAtMostRecent] = useState(true);
   const [inTransition, setInTransition] = useState(false);
   const [title, setTitle] = useState('');
@@ -381,7 +381,7 @@ const Settings = ({
     const properties = { patientID: currentPatientInViewId, source };
     if (selectedClinicId) properties.clinicId = selectedClinicId;
     trackMetric('Clicked Settings Add Data Connections', properties);
-    setShowDataConnectionsModal(true);
+    setShowDataConnectionsDialog(true);
   };
 
   const toggleSettingsSection = useCallback((deviceKey, scheduleOrProfileKey) => {
@@ -708,11 +708,11 @@ const Settings = ({
     );
   };
 
-  const renderDataConnectionsModal = () => (
-    <DataConnectionsModal
+  const renderDataConnectionsDialog = () => (
+    <DataConnectionsDialog
       open
       patient={clinicPatient || patient}
-      onClose={() => setShowDataConnectionsModal(false)}
+      onClose={() => setShowDataConnectionsDialog(false)}
     />
   );
 
@@ -810,7 +810,7 @@ const Settings = ({
           </Box>
         </Box>
 
-        {showDataConnectionsModal && renderDataConnectionsModal()}
+        {showDataConnectionsDialog && renderDataConnectionsDialog()}
         {showUploadOverlay && renderUploadOverlay()}
       </Box>
     </div>

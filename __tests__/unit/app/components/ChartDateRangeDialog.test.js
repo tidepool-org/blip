@@ -10,10 +10,10 @@ import { render, screen } from '@testing-library/react';
 import moment from 'moment-timezone';
 import _ from 'lodash';
 
-import ChartDateRangeModal from '@app/components/ChartDateRangeModal';
+import ChartDateRangeDialog from '@app/components/ChartDateRangeDialog';
 import userEvent from '@testing-library/user-event';
 
-describe('ChartDateRangeModal', () => {
+describe('ChartDateRangeDialog', () => {
   const onClose = jest.fn();
   const onSubmit = jest.fn();
   const trackMetric = jest.fn();
@@ -41,11 +41,11 @@ describe('ChartDateRangeModal', () => {
 
   it('should be visible when open prop is true', async () => {
     // Should not be open when "open" prop is false
-    const { rerender } = render(<ChartDateRangeModal {...props} open={false} />);
+    const { rerender } = render(<ChartDateRangeDialog {...props} open={false} />);
     expect(screen.queryByRole('heading', { name: /Chart Date Range/ })).not.toBeInTheDocument();
 
     // Should be open when "open" prop is true
-    rerender(<ChartDateRangeModal {...props} />);
+    rerender(<ChartDateRangeDialog {...props} />);
     expect(screen.getByRole('heading', { name: /Chart Date Range/ })).toBeInTheDocument();
 
     // Should close when cancel button is clicked
@@ -59,7 +59,7 @@ describe('ChartDateRangeModal', () => {
   });
 
   it('should set default dates as provided by props in UTC timezone', () => {
-    render(<ChartDateRangeModal {...props} />);
+    render(<ChartDateRangeDialog {...props} />);
 
     // Should provide date range preset options
     expect(screen.getByRole('button', { name: /14 days/ })).toBeInTheDocument();
@@ -75,7 +75,7 @@ describe('ChartDateRangeModal', () => {
 
   it('should set default dates as provided by props in custom timezone', () => {
     // Use 'US/Pacific' time zone
-    render(<ChartDateRangeModal {...{ ...props, timePrefs: { timezoneName: 'US/Pacific' } }} />);
+    render(<ChartDateRangeDialog {...{ ...props, timePrefs: { timezoneName: 'US/Pacific' } }} />);
 
     // Shows the hour of the latest datum localized to time zone
     expect(screen.getByPlaceholderText('Start Date')).toHaveValue('Feb 29, 2020 (4:00 PM)');
@@ -84,7 +84,7 @@ describe('ChartDateRangeModal', () => {
 
   describe('form submission', () => {
     it('should call `onSubmit` prop method with appropriate print ranges and disabled statuses', async () => {
-      render(<ChartDateRangeModal {...props} />);
+      render(<ChartDateRangeDialog {...props} />);
 
       await userEvent.click(screen.getByRole('button', { name: /30 days/ }));
       await userEvent.click(screen.getByRole('button', { name: /Apply/ }));
@@ -101,7 +101,7 @@ describe('ChartDateRangeModal', () => {
     });
 
     it('should not call `onSubmit` if there are date validation errors and render error message', async () => {
-      render(<ChartDateRangeModal {...props} />);
+      render(<ChartDateRangeDialog {...props} />);
 
       // Clear the date inputs
       await userEvent.click(screen.getByRole('button', { name: /Clear Dates/ }));
