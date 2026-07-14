@@ -203,6 +203,12 @@ const editPatientDataConnections = (patient, setSelectedPatient, selectedClinicI
   setShowDataConnectionsModal(true);
 };
 
+const printPatientData = (patient, setSelectedPatient, selectedClinicId, trackMetric, setShowPrintDataModal, source) => {
+  trackMetric('Clinic - open print patient data modal', { clinicId: selectedClinicId, source });
+  setSelectedPatient(patient);
+  setShowPrintDataModal(true);
+};
+
 export const getPatientQueryState = (
   activeFilters = {},
   patientListSearchTextInput = '',
