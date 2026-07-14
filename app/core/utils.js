@@ -341,7 +341,7 @@ utils.roundBgTarget = (value, units) => {
   return utils.roundToNearest(value, nearest);
 }
 
-utils.getTimePrefsForDataProcessing = (latestTimeZone, queryParams) => {
+utils.getTimePrefsForDataProcessing = (latestTimeZone, queryParams = {}) => {
   var timePrefsForTideline;
   var browserTimezone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
 

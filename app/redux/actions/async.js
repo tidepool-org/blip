@@ -1030,6 +1030,7 @@ export function fetchPatientData(api, options, id) {
     type: ALL_FETCHED_DATA_TYPES.join(','),
     forceDataWorkerAddDataRequest: false,
     sampleIntervalMinimum: DEFAULT_CGM_SAMPLE_INTERVAL,
+    syncTimePrefs: false,
   });
 
   // Only fetch relevant dosing decision data
@@ -1171,7 +1172,17 @@ export function fetchPatientData(api, options, id) {
         (location.pathname.indexOf(id) >= 0 && (!fetchingPatientId || fetchingPatientId === id))
       ) {
         if (options.sampleIntervalMinimum === MS_IN_MIN) options.oneMinCgmFetchedUntil = options.startDate;
-        dispatch(worker.dataWorkerAddDataRequest(data, options.returnData, patientId, options.startDate, options.oneMinCgmFetchedUntil));
+
+        dispatch(
+          worker.dataWorkerAddDataRequest(
+            data,
+            options.returnData,
+            patientId,
+            options.startDate,
+            options.oneMinCgmFetchedUntil,
+            options.syncTimePrefs,
+          )
+        );
       }
     }
 

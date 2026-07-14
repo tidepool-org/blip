@@ -28,8 +28,8 @@ export const appBanners = [
       interactionId: `${upperFirst(provider?.dataSourceFilter?.providerName)}DataSourceJustConnected`,
       label: t('Data Source Just Connected banner'),
       title: provider?.indeterminateDataImportTime
-        ? t('If you have connected your {{displayName}} device, data is on its way. This usually takes a few minutes but occassionally takes longer. Refresh the page to see data.', provider)
-        : t('{{displayName}} data is on its way. This usually takes a few minutes but occasionally takes longer. Refresh the page to see data.', provider),
+        ? t('If you have connected your {{displayName}} device, data is on its way. This usually takes a few minutes but occassionally takes longer.', provider)
+        : t('{{displayName}} data is on its way. This usually takes a few minutes but occasionally takes longer.', provider),
       show: {
         metric: 'Data Source Just Connected banner displayed',
         metricProps: { providerName: provider?.dataSourceFilter?.providerName },
@@ -141,7 +141,7 @@ export const appBanners = [
         metric: 'Big Data banner displayed',
       },
       action: {
-        text: t('Donate my anonymized data'),
+        text: t('Donate my data'),
         metric: 'web - big data sign up',
         metricProps: { source: 'none', location: 'banner' },
         handler: () => dispatch(push(`/patients/${loggedInUserId}/profile#donateForm`)),

@@ -131,7 +131,7 @@ export default class PDFWorker {
       this.renderer : createPrintPDFPackage;
 
     renderLib(data, opts).then(pdf =>
-      postMessage(actions.generatePDFSuccess({ [type]: pdf }))
+      postMessage(actions.generatePDFSuccess({ [type]: pdf, opts }))
     ).catch(error =>
       postMessage(actions.generatePDFFailure(error))
     );
