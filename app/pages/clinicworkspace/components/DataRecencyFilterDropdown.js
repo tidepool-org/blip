@@ -78,7 +78,6 @@ const DropdownContent = ({
             options={customLastDataFilterOptions}
             variant="vertical"
             sx={{ fontSize: 0 }}
-            mb={3}
             value={pending.lastData}
             onChange={event => {
               setPending({ ...pending, lastData: parseInt(event.target.value) || null });
