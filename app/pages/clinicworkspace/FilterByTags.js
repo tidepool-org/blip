@@ -9,7 +9,6 @@ import TagFilterDropdown from './components/TagFilterDropdown';
 import useIsClinicAdmin from './useIsClinicAdmin';
 
 const trackMetric = noop; // TODO: FIX
-const prefixPopHealthMetric = noop; // TODO: FIX
 
 const FilterByTags = ({
   api,
@@ -28,7 +27,7 @@ const FilterByTags = ({
   const patientTags = activeFilters?.patientTags;
 
   const handleClickEditTags = () => {
-    trackMetric(prefixPopHealthMetric('Edit clinic tags open'), { clinicId: selectedClinicId, source: 'Filter menu' });
+    trackMetric('Clinic - Population Health - Edit clinic tags open', { clinicId: selectedClinicId, source: 'Filter menu' });
     dispatch(actions.async.fetchClinicPatientTags(api, selectedClinicId)); // current data in clinic object may be stale
     setShowClinicPatientTagsDialog(true);
   };

@@ -9,7 +9,6 @@ import SiteFilterDropdown from './components/SiteFilterDropdown';
 import useIsClinicAdmin from './useIsClinicAdmin';
 
 const trackMetric = noop; // TODO: FIX
-const prefixPopHealthMetric = noop; // TODO: FIX
 
 const FilterBySites = ({
   api,
@@ -28,7 +27,7 @@ const FilterBySites = ({
   const clinicSites = activeFilters?.clinicSites;
 
   const handleClickEditSites = () => {
-    trackMetric(prefixPopHealthMetric('Edit clinic sites open'), { clinicId: selectedClinicId, source: 'Filter menu' });
+    trackMetric('Clinic - Population Health - Edit clinic sites open', { clinicId: selectedClinicId, source: 'Filter menu' });
     dispatch(actions.async.fetchClinicSites(api, selectedClinicId)); // current data in clinic object may be stale
     setShowClinicSitesDialog(true);
   };
