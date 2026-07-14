@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import filter from 'lodash/filter';
 import get from 'lodash/get';
@@ -9,6 +10,9 @@ import { Flex, Box, Text } from 'theme-ui';
 import { Switch } from 'theme-ui';
 import moment from 'moment-timezone';
 import { Element, scroller } from 'react-scroll';
+import { components as vizComponents } from '@tidepool/viz';
+const { Loader } = vizComponents;
+import { trackMetric } from '../core/metricUtils';
 
 import Button from './elements/Button';
 import DateRangePicker from './elements/DateRangePicker';
@@ -25,6 +29,7 @@ import { useLocalStorage } from '../core/hooks';
 import PartialDaysTooltip from './PartialDaysTooltip';
 
 import { utils as vizUtils } from '@tidepool/viz';
+import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE } from '../core/constants';
 const {
   getLocalizedCeiling,
   getChartDateBoundFormat,
@@ -33,7 +38,7 @@ const {
 
 const t = i18next.t.bind(i18next);
 
-export const PrintDateRangeDialog = (props) => {
+export const MainContent = (props) => {
   const {
     maxDays,
     mostRecentDatumDates,
@@ -43,9 +48,10 @@ export const PrintDateRangeDialog = (props) => {
     open,
     processing,
     timePrefs,
-    trackMetric,
-    loggedInUserId,
+    metricSource,
   } = props;
+
+  const loggedInUserId = useSelector(state => state.blip.loggedInUserId);
 
   const { timezoneName = 'UTC' } = timePrefs;
 
@@ -295,7 +301,11 @@ export const PrintDateRangeDialog = (props) => {
       agpCGM: { endpoints: formatDateEndpoints(dates.agpCGM), disabled: !enabled.agpCGM },
       basics: { endpoints: formatBasicsDateEndpoints(dates.basics), disabled: !enabled.basics },
       bgLog: { endpoints: formatDateEndpoints(dates.bgLog), disabled: !enabled.bgLog },
-      daily: { endpoints: formatDateEndpoints(dates.daily), disabled: !enabled.daily },
+      daily: {
+        endpoints: formatDateEndpoints(dates.daily),
+        disabled: !enabled.daily,
+        cgmSampleIntervalRange: DEFAULT_CGM_SAMPLE_INTERVAL_RANGE,
+      },
       settings: { disabled: !enabled.settings },
     };
 
@@ -309,6 +319,7 @@ export const PrintDateRangeDialog = (props) => {
     };
 
     const metrics = {
+      source: metricSource || 'Unknown',
       agpBGM: printOpts.agpBGM.disabled ? 'disabled' : getDateRangeMetric(presetDaysOptions.agpBGM, 'agpBGM'),
       agpCGM: printOpts.agpCGM.disabled ? 'disabled' : getDateRangeMetric(presetDaysOptions.agpCGM, 'agpCGM'),
       basics: printOpts.basics.disabled ? 'disabled' : getDateRangeMetric(presetDaysOptions.basics, 'basics'),
@@ -347,11 +358,8 @@ export const PrintDateRangeDialog = (props) => {
   }, [enabled, dates]);
 
   return (
-    <Dialog id="printDateRangePicker" aria-labelledby="dialog-title" PaperProps={{ id: 'printDateRangePickerInner'}} maxWidth="md" open={open} onClose={handleClose}>
-      <DialogTitle onClose={handleClose}>
-        <MediumTitle id="dialog-title">{t('Print Report')}</MediumTitle>
-      </DialogTitle>
-      <DialogContent divider={false} minWidth={768} pt={3} px={3}>
+    <>
+      <DialogContent divider={false} minWidth={766} pt={3} px={3}>
         {map(panels, panel => (
           <Element name={`${panel.key}-wrapper`}>
             <Box
@@ -469,11 +477,11 @@ export const PrintDateRangeDialog = (props) => {
           {t('Print')}
         </Button>
       </DialogActions>
-    </Dialog>
+    </>
   );
 };
 
-PrintDateRangeDialog.propTypes = {
+MainContent.propTypes = {
   maxDays: PropTypes.number.isRequired,
   mostRecentDatumDates: PropTypes.shape({
     agpBGM: PropTypes.number,
@@ -491,15 +499,40 @@ PrintDateRangeDialog.propTypes = {
     timezoneAware: PropTypes.bool,
     timezoneName: PropTypes.string,
   }),
-  trackMetric: PropTypes.func.isRequired,
 };
 
-PrintDateRangeDialog.defaultProps = {
+MainContent.defaultProps = {
   maxDays: 90,
   onClickPrint: noop,
   onClose: noop,
   onDatesChange: noop,
-  trackMetric: noop,
 };
+
+export const LoadingContent = () => (
+  <DialogContent divider={false} minWidth={766} sx={{ minHeight: '540px' }} pt={3} px={3}>
+    <Loader show />
+  </DialogContent>
+)
+
+export const PrintDateRangeDialog = (props) => {
+  const { isLoading = false, processing = false, open = false, onClose = noop } = props;
+
+  const handleClose = () => {
+    if (processing) return;
+    onClose();
+  }
+
+  return (
+    <Dialog id="printDateRangePicker" aria-labelledby="dialog-title" PaperProps={{ id: 'printDateRangePickerInner'}} maxWidth="md" open={open} onClose={handleClose}>
+      <DialogTitle onClose={handleClose}>
+        <MediumTitle id="dialog-title">{t('Print Report')}</MediumTitle>
+      </DialogTitle>
+      { isLoading
+        ? <LoadingContent />
+        : <MainContent {...props} />
+      }
+    </Dialog>
+  )
+}
 
 export default PrintDateRangeDialog;

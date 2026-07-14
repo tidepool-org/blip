@@ -2663,10 +2663,10 @@ export function generateAGPImagesRequest(data, opts, queries) {
   };
 }
 
-export function generateAGPImagesSuccess(images) {
+export function generateAGPImagesSuccess(images, opts) {
   return {
     type: ActionTypes.GENERATE_AGP_IMAGES_SUCCESS,
-    payload: { images },
+    payload: { images, opts },
   };
 }
 
