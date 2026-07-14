@@ -121,6 +121,7 @@ import colorPalette from '../../themes/colorPalette';
 import noop from 'lodash/noop';
 import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils';
 import FilterByTags from './FilterByTags';
+import FilterBySites from './FilterBySites';
 
 const { Loader } = vizComponents;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels, formatBgValue } = vizUtils.bg;
@@ -1822,194 +1823,18 @@ export const ClinicPatients = (props) => {
                     </DialogActions>
                   </Popover>
 
-                  <Box
-                    onClick={() => {
-                      if (!clinicSitesPopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('clinic sites filter open'), { clinicId: selectedClinicId });
-                    }}
-                    sx={{ flexShrink: 0 }}
-                  >
-                    <Button
-                      variant="filter"
-                      id="clinic-sites-filter-trigger"
-                      selected={activeFilters.clinicSites?.length > 0}
-                      {...bindTrigger(clinicSitesPopupFilterState)}
-                      icon={KeyboardArrowDownRoundedIcon}
-                      iconLabel="Filter by clinic sites"
-                      sx={{ fontSize: 0, lineHeight: 1.3 }}
-                    >
-                      <Flex sx={{ alignItems: 'center', gap: 1 }}>
-                        {t('Clinic Sites')}
-
-                        {!!activeFilters.clinicSites?.length && (
-                          <Pill
-                            id="clinic-sites-filter-count"
-                            label="clinic site count"
-                            round
-                            sx={{
-                              width: '14px',
-                              fontSize: '9px',
-                              lineHeight: '15px',
-                              textAlign: 'center',
-                              display: 'inline-block',
-                            }}
-                            colorPalette={['purpleMedium', 'white']}
-                            text={`${activeFilters.clinicSites?.length}`}
-                          />
-                        )}
-                      </Flex>
-                    </Button>
-                  </Box>
-
-                  {/* Clinic Sites Filter */}
-                  <Popover
-                    minWidth="11em"
-                    closeIcon
-                    {...bindPopover(clinicSitesPopupFilterState)}
-                    onClickCloseIcon={() => {
-                      trackMetric(prefixPopHealthMetric('Clinic sites filter close'), { clinicId: selectedClinicId });
-                    }}
-                    onClose={() => {
-                      clinicSitesPopupFilterState.close();
-                      setPendingFilters(activeFilters);
-                    }}
-                  >
-                    <DialogContent px={2} pt={1} pb={3} mt={3} sx={{ maxHeight: '400px', maxWidth: '240px' }} dividers>
-                      <Box variant="containers.small">
-                        <Box mb={2}>
-                          <Text sx={{ display: 'block', position: 'relative', top: -2, color: colors.gray50, fontSize: 1, fontWeight: 'medium' }}>
-                            {t('Clinic Sites')}
-                          </Text>
-                          { sortedSiteFilterOptions.length > 0 &&
-                            <Text sx={{ display: 'block', position: 'relative', top: -2, color: colors.gray50, fontSize: 0, fontStyle: 'italic', maxWidth: '208px', whiteSpace: 'wrap', lineHeight: 1 }}>
-                              {t('Any patient with one or more of the sites you select below will be shown.')}
-                            </Text>
-                          }
-                        </Box>
-
-                        { // Render a list of checkboxes
-                          sortedSiteFilterOptions.map(({ id, label }) => {
-                            const { clinicSites } = pendingFilters;
-                            const isChecked = clinicSites?.includes(id);
-
-                            return (
-                              <Box mt={1} className="clinic-site-filter-option" key={`clinic-site-filter-option-${id}`}>
-                                <Checkbox
-                                  id={`clinic-site-filter-option-checkbox-${id}`}
-                                  data-testid={`clinic-site-filter-option-checkbox-${id}`}
-                                  label={
-                                    <Text sx={{ fontSize: 0, fontWeight: 'normal', display: 'inline-block', maxWidth: '160px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
-                                      {label}
-                                    </Text>
-                                  }
-                                  checked={isChecked}
-                                  onChange={() => {
-                                    if (isFilteringForZeroSites) {
-                                      setPendingFilters({ ...pendingFilters, clinicSites: [id] });
-                                    } else if (isChecked) {
-                                      setPendingFilters({ ...pendingFilters, clinicSites: without(clinicSites, id) });
-                                    } else {
-                                      setPendingFilters({ ...pendingFilters, clinicSites: [...clinicSites, id] });
-                                    }
-                                  }}
-                                />
-                              </Box>
-                            );
-                          })
-                        }
-
-                        { // Display an option to filter for patients with zero sites
-                          sortedSiteFilterOptions.length > 0 &&
-                          <Box mt={2} mx={-2} pt={3} px={2} sx={{ borderTop: borders.divider }} className="clinic-site-filter-option" key="clinic-site-filter-option-PWDS_WITH_ZERO_SITES">
-                            <Checkbox
-                              id="clinic-site-filter-option-checkbox-PWDS_WITH_ZERO_SITES"
-                              data-testid="clinic-site-filter-option-checkbox-PWDS_WITH_ZERO_SITES"
-                              label={<Text sx={{ fontSize: 0, fontWeight: 'normal' }}>
-                                {t('Patients without any sites')}
-                              </Text>}
-                              checked={isFilteringForZeroSites}
-                              onChange={() => {
-                                if (isFilteringForZeroSites) {
-                                  setPendingFilters({ ...pendingFilters, clinicSites: [] });
-                                } else {
-                                  setPendingFilters({ ...pendingFilters, clinicSites: SPECIAL_FILTER_STATES.ZERO_SITES });
-                                }
-                              }}
-                            />
-                          </Box>
-                        }
-
-                        { // If no sites exist, display a message
-                          sortedSiteFilterOptions.length <= 0 &&
-                          <Box>
-                            <Box sx={{ fontSize: 1, color: colors.gray50, lineHeight: 1 }}>
-                              {t('Create and assign sites to patient accounts to segment your patient population by location.')}
-                            </Box>
-                            { !isClinicAdmin &&
-                              <Box mt={3} pt={3} sx={{ borderTop: `1px solid ${colors.gray05}`, fontSize: 0, color: colors.gray50, lineHeight: 1 }}>
-                                <Trans t={t}>
-                                  Sites can only be created by your Workspace Admins. Not sure who the admins are? Check the Clinic Members list in your&nbsp;
-                                  <RouterLink to='/clinic-admin' style={{ color: colors.purpleBright }}>Workspace Settings.</RouterLink>
-                                </Trans>
-                              </Box>
-                            }
-                          </Box>
-                        }
-                      </Box>
-                    </DialogContent>
-
-                    { sortedSiteFilterOptions.length > 0 &&
-                      <DialogActions sx={{ justifyContent: 'space-around', padding: 2 }} p={1}>
-                        <Button
-                          id="clear-clinic-sites-filter"
-                          sx={{ fontSize: 1 }}
-                          variant="textSecondary"
-                          onClick={() => {
-                            trackMetric(prefixPopHealthMetric('Clinic site filter clear'), { clinicId: selectedClinicId });
-                            setPendingFilters({ ...activeFilters, clinicSites: defaultFilterState.clinicSites });
-                            setActiveFilters({ ...activeFilters, clinicSites: defaultFilterState.clinicSites });
-                            clinicSitesPopupFilterState.close();
-                          }}
-                        >
-                          {t('Clear')}
-                        </Button>
-
-                        <Button id="apply-clinic-sites-filter" sx={{ fontSize: 1 }} variant="textPrimary" onClick={() => {
-                          trackMetric(prefixPopHealthMetric('Clinic sites filter apply'), { clinicId: selectedClinicId });
-                          setActiveFilters(pendingFilters);
-                          clinicSitesPopupFilterState.close();
-                        }}>
-                          {t('Apply')}
-                        </Button>
-                      </DialogActions>
-                    }
-
-                    {isClinicAdmin &&
-                      <DialogActions p={1} sx={{ borderTop: borders.divider }} py={2} px={0}>
-                        <Button
-                          id="show-edit-clinic-sites-dialog"
-                          icon={EditIcon}
-                          iconPosition="left"
-                          iconLabel="Edit Sites"
-                          sx={{ fontSize: 1 }}
-                          variant="textPrimary"
-                          onClick={() => {
-                            trackMetric(prefixPopHealthMetric('Edit clinic sites open'), { clinicId: selectedClinicId, source: 'Filter menu' });
-                            dispatch(actions.async.fetchClinicSites(api, selectedClinicId)); // current data in clinic object may be stale
-                            setShowClinicSitesDialog(true);
-                          }}
-                        >
-                          {t('Edit Sites')}
-                        </Button>
-
-                      </DialogActions>
-                    }
-                  </Popover>
-
                   <FilterByTags
                     api={api}
                     activeFilters={activeFilters}
                     setActiveFilters={setActiveFilters}
                     setShowClinicPatientTagsDialog={setShowClinicPatientTagsDialog}
+                  />
+
+                  <FilterBySites
+                    api={api}
+                    activeFilters={activeFilters}
+                    setActiveFilters={setActiveFilters}
+                    setShowClinicSitesDialog={setShowClinicSitesDialog}
                   />
 
                   <Box
