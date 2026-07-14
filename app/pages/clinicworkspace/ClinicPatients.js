@@ -123,6 +123,7 @@ import noop from 'lodash/noop';
 import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils';
 import FilterByTags from './FilterByTags';
 import FilterBySites from './FilterBySites';
+import FilterByDataRecency from './FilterByDataRecency';
 import ClinicPatientsPrintModal from './ClinicPatientsPrintModal';
 
 const { Loader } = vizComponents;
@@ -1732,124 +1733,6 @@ export const ClinicPatients = (props) => {
                 </Flex>
 
                 <Flex sx={{ flexShrink: 0, gap: 2 }}>
-
-                  <Box
-                    onClick={() => {
-                      if (!lastDataPopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('Last data filter open'), { clinicId: selectedClinicId });
-                    }}
-                    sx={{ flexShrink: 0 }}
-                  >
-                    <Button
-                      variant="filter"
-                      id="last-data-filter-trigger"
-                      selected={!!activeFilters.lastData}
-                      {...bindTrigger(lastDataPopupFilterState)}
-                      icon={KeyboardArrowDownRoundedIcon}
-                      iconLabel="Filter by last upload"
-                      sx={{ fontSize: 0, lineHeight: 1.3 }}
-                    >
-                      {t('Data Recency')}
-                    </Button>
-                  </Box>
-
-                  <Popover
-                    width="13em"
-                    closeIcon
-                    {...bindPopover(lastDataPopupFilterState)}
-                    onClickCloseIcon={() => {
-                      trackMetric(prefixPopHealthMetric('Last upload filter close'), { clinicId: selectedClinicId });
-                    }}
-                    onClose={() => {
-                      lastDataPopupFilterState.close();
-                      setPendingFilters(activeFilters);
-                    }}
-                  >
-                    <DialogContent px={2} py={3} dividers>
-                      <Box sx={{ alignItems: 'center' }} mb={2}>
-                        <Text sx={{ color: 'grays.4', fontWeight: 'medium', fontSize: 0, whiteSpace: 'nowrap' }}>
-                          {t('Device Type')}
-                        </Text>
-                      </Box>
-
-                      <RadioGroup
-                        id="last-upload-type"
-                        name="last-upload-type"
-                        options={lastDataTypeFilterOptions}
-                        variant="vertical"
-                        sx={{ fontSize: 0 }}
-                        value={pendingFilters.lastDataType || activeFilters.lastDataType}
-                        onChange={event => {
-                          setPendingFilters({ ...pendingFilters, lastDataType: event.target.value || null });
-                        }}
-                      />
-
-                      <Box
-                        mt={3}
-                        mb={2}
-                        pt={3}
-                        sx={{
-                          alignItems: 'center',
-                          borderTop: borders.divider,
-                        }}
-                      >
-                        <Body0 color="grays.4" sx={{ fontWeight: 'bold' }} mb={0}>{t('Data Recency')}</Body0>
-                        <Body0 color="grays.4" sx={{ fontWeight: 'medium' }} mb={2}>{t('Tidepool will only show patients who have data within the selected number of days.')}</Body0>
-                      </Box>
-
-                      <RadioGroup
-                        id="last-upload-filters"
-                        name="last-upload-filters"
-                        options={customLastDataFilterOptions}
-                        variant="vertical"
-                        sx={{ fontSize: 0 }}
-                        mb={3}
-                        value={pendingFilters.lastData || activeFilters.lastData}
-                        onChange={event => {
-                          setPendingFilters({ ...pendingFilters, lastData: parseInt(event.target.value) || null });
-                        }}
-                      />
-                    </DialogContent>
-
-                    <DialogActions sx={{ justifyContent: 'space-between' }} p={1}>
-                      <Button
-                        id="clear-last-upload-filter"
-                        sx={{ fontSize: 1 }}
-                        variant="textSecondary"
-                        onClick={() => {
-                          trackMetric(prefixPopHealthMetric('Last upload clear filter'), { clinicId: selectedClinicId });
-                          setPendingFilters({ ...activeFilters, lastData: defaultFilterState.lastData, lastDataType: defaultFilterState.lastDataType });
-                          setActiveFilters({ ...activeFilters, lastData: defaultFilterState.lastData, lastDataType: defaultFilterState.lastDataType });
-                          lastDataPopupFilterState.close();
-                        }}
-                      >
-                        {t('Clear')}
-                      </Button>
-
-                      <Button
-                        id="apply-last-upload-filter"
-                        disabled={!pendingFilters.lastData || !pendingFilters.lastDataType}
-                        sx={{ fontSize: 1 }}
-                        variant="textPrimary"
-                        onClick={() => {
-                          const dateRange = pendingFilters.lastData === 1
-                            ? 'today'
-                            : `${pendingFilters.lastData} days`;
-
-                          trackMetric(prefixPopHealthMetric('Last upload apply filter'), {
-                            clinicId: selectedClinicId,
-                            dateRange,
-                            type: pendingFilters.lastDataType,
-                          });
-
-                          setActiveFilters(pendingFilters);
-                          lastDataPopupFilterState.close();
-                        }}
-                      >
-                        {t('Apply')}
-                      </Button>
-                    </DialogActions>
-                  </Popover>
-
                   <FilterByTags
                     api={api}
                     activeFilters={activeFilters}
@@ -1862,6 +1745,11 @@ export const ClinicPatients = (props) => {
                     activeFilters={activeFilters}
                     setActiveFilters={setActiveFilters}
                     setShowClinicSitesDialog={setShowClinicSitesDialog}
+                  />
+
+                  <FilterByDataRecency
+                    activeFilters={activeFilters}
+                    setActiveFilters={setActiveFilters}
                   />
 
                   <Box
