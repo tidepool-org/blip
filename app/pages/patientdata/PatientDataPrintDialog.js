@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useDispatch } from 'react-redux';
 import PrintDateRangeDialog from '../../components/PrintDateRangeDialog';
@@ -54,6 +55,13 @@ const PatientDataPrintDialog = ({ api, patientId, chartPrefs = {}, onClose = noo
       timePrefs={timePrefs}
     />
   );
+};
+
+PatientDataPrintDialog.propTypes = {
+  api: PropTypes.object.isRequired,
+  patientId: PropTypes.string.isRequired,
+  chartPrefs: PropTypes.object,
+  onClose: PropTypes.func,
 };
 
 export default PatientDataPrintDialog;

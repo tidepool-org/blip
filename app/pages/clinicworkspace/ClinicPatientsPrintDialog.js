@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import PrintDateRangeDialog from '../../components/PrintDateRangeDialog';
 import noop from 'lodash/noop';
 import { getMostRecentDatumTimeByChartType } from '../../core/dataViewUtils';
@@ -51,6 +52,12 @@ const ClinicPatientsPrintDialog = ({ api, patientId, onClose = noop }) => {
       timePrefs={timePrefs}
     />
   );
+};
+
+ClinicPatientsPrintDialog.propTypes = {
+  api: PropTypes.object.isRequired,
+  patientId: PropTypes.string.isRequired,
+  onClose: PropTypes.func,
 };
 
 export default ClinicPatientsPrintDialog;
