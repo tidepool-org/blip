@@ -28,6 +28,7 @@ import FilterBySites from './FilterBySites';
 import PatientCount from '../components/PatientCount';
 import EditPatientDialogController from './EditPatientDialogController';
 import DataConnectionsModalController from './DataConnectionsModalController';
+import DataIssues from './DataIssues';
 
 const LIMIT = 12;
 
@@ -121,6 +122,8 @@ const TideDashboard = ({ api, trackMetric }) => {
         </Flex>
         <Box></Box>
       </Grid>
+
+      <DataIssues api={api} />
 
       <EditPatientDialogController
         api={api}
