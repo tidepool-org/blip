@@ -31,13 +31,36 @@ const trackMetric = () => noop;
 const prefixPopHealthMetric = () => noop;
 
 import { SPECIAL_FILTER_STATES } from '../useClinicPatientsFilters';
+import useIsClinicAdmin from '../useIsClinicAdmin';
+
+const EditTagsAction = ({ onClick = noop }) => {
+  const { t } = useTranslation();
+
+  return (
+    <DialogActions p={1} sx={{ borderTop: borders.divider }} py={2} px={0}>
+      <Button
+        id="show-edit-clinic-patient-tags-dialog"
+        icon={EditIcon}
+        iconPosition="left"
+        iconLabel="Edit patient tags"
+        sx={{ fontSize: 1 }}
+        variant="textPrimary"
+        onClick={onClick}
+      >
+        {t('Edit Tags')}
+      </Button>
+    </DialogActions>
+  );
+};
 
 const DropdownContent = ({
   onClose = noop,
   onChange = noop,
   patientTags = [],
+  onClickEditTags = null,
 }) => {
   const { t } = useTranslation();
+  const isClinicAdmin = useIsClinicAdmin();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
 
@@ -120,7 +143,14 @@ const DropdownContent = ({
               <Box sx={{ fontSize: 1, color: colors.gray50, lineHeight: 1 }}>
                 {t('Tags help you segment your patient population based on criteria you define, such as clinician, type of diabetes, or care groups.')}
               </Box>
-
+              { !isClinicAdmin &&
+                <Box mt={3} pt={3} sx={{ borderTop: `1px solid ${colors.gray05}`, fontSize: 0, color: colors.gray50, lineHeight: 1 }}>
+                  <Trans t={t}>
+                    Tags can only be created by your Workspace Admins. Not sure who the admins are? Check the Clinic Members list in your&nbsp;
+                    <RouterLink to='/clinic-admin' style={{ color: colors.purpleBright }}>Workspace Settings.</RouterLink>
+                  </Trans>
+                </Box>
+              }
             </Box>
           }
         </Box>
@@ -151,6 +181,8 @@ const DropdownContent = ({
           </Button>
         </DialogActions>
       }
+
+      {!!onClickEditTags && <EditTagsAction onClick={onClickEditTags} />}
     </>
   );
 };
@@ -158,6 +190,7 @@ const DropdownContent = ({
 const TagFilterDropdown = ({
   onChange = noop,
   patientTags = [],
+  onClickEditTags = null,
 }) => {
   const { t } = useTranslation();
 
@@ -229,6 +262,7 @@ const TagFilterDropdown = ({
             patientTags={patientTags}
             onClose={handleCloseDropdown}
             onChange={onChange}
+            onClickEditTags={onClickEditTags}
           />
         }
       </Popover>
