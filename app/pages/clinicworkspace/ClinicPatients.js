@@ -87,6 +87,7 @@ import SendEmailIcon from '../../core/icons/SendEmailIcon.svg';
 import TabularReportIcon from '../../core/icons/TabularReportIcon.svg';
 import utils from '../../core/utils';
 import LimitReached from './images/LimitReached.svg';
+import ClearFilterButtons, { PATIENT_QUERY_STATE } from './components/ClearFilterButtons';
 
 import {
   Dialog,
@@ -200,25 +201,7 @@ const editPatientDataConnections = (patient, setSelectedPatient, selectedClinicI
   setShowDataConnectionsModal(true);
 };
 
-const ClearButton = styled.button`
-  background: none;
-  color: ${vizColors.indigo30};
-  border: none;
-  padding: 0;
-  font: inherit;
-  cursor: pointer;
-  text-underline-offset: 4px;
-  text-decoration: underline;
-`;
-
-export const PATIENT_LIST_QUERY_STATE = {
-  FILTER_AND_SEARCH: 'FILTER_AND_SEARCH',
-  FILTER_ONLY: 'FILTER_ONLY',
-  SEARCH_ONLY: 'SEARCH_ONLY',
-  NONE: 'NONE',
-};
-
-export const getPatientListQueryState = (
+export const getPatientQueryState = (
   activeFilters = {},
   patientListSearchTextInput = '',
 ) => {
@@ -236,19 +219,19 @@ export const getPatientListQueryState = (
   const hasSearchActive = !!patientListSearchTextInput;
 
   if (hasFiltersActive && hasSearchActive) {
-    return PATIENT_LIST_QUERY_STATE.FILTER_AND_SEARCH;
+    return PATIENT_QUERY_STATE.FILTER_AND_SEARCH;
   } else if (hasFiltersActive) {
-    return PATIENT_LIST_QUERY_STATE.FILTER_ONLY;
+    return PATIENT_QUERY_STATE.FILTER_ONLY;
   } else if (hasSearchActive) {
-    return PATIENT_LIST_QUERY_STATE.SEARCH_ONLY;
+    return PATIENT_QUERY_STATE.SEARCH_ONLY;
   }
 
-  return PATIENT_LIST_QUERY_STATE.NONE;
+  return PATIENT_QUERY_STATE.NONE;
 };
 
-const EmptyContentNode = ({ patientListQueryState, children }) => {
+const EmptyContentNode = ({ patientQueryState, children }) => {
   const { t } = useTranslation();
-  const { FILTER_AND_SEARCH, FILTER_ONLY, SEARCH_ONLY, NONE } = PATIENT_LIST_QUERY_STATE;
+  const { FILTER_AND_SEARCH, FILTER_ONLY, SEARCH_ONLY, NONE } = PATIENT_QUERY_STATE;
 
   const emptyContentCopyDefs = {
     [FILTER_AND_SEARCH]: t('There are no patient accounts with the current filter(s) that match your search'),
@@ -257,7 +240,7 @@ const EmptyContentNode = ({ patientListQueryState, children }) => {
     [NONE]: t('There are no results to show'),
   };
 
-  const emptyContentCopy = emptyContentCopyDefs[patientListQueryState] || emptyContentCopyDefs[NONE];
+  const emptyContentCopy = emptyContentCopyDefs[patientQueryState] || emptyContentCopyDefs[NONE];
 
   return (
     <Flex sx={{
@@ -278,41 +261,6 @@ const EmptyContentNode = ({ patientListQueryState, children }) => {
     </Flex>
   );
 };
-
-const ClearFilterButtons = withTranslation()(({ t, patientListQueryState, onClearSearch, onResetFilters }) => {
-  const { FILTER_AND_SEARCH, FILTER_ONLY, SEARCH_ONLY, NONE } = PATIENT_LIST_QUERY_STATE;
-
-  switch(patientListQueryState) {
-    case SEARCH_ONLY:
-      return <Box>
-        <ClearButton className='clear-search-button' onClick={onClearSearch}>
-          {t('Clear Search')}
-        </ClearButton>
-      </Box>;
-
-    case FILTER_ONLY:
-      return <Box>
-        <ClearButton className='reset-filters-button' onClick={onResetFilters}>
-          {t('Reset Filters')}
-        </ClearButton>
-      </Box>;
-
-    case FILTER_AND_SEARCH:
-      return <Box>
-        <ClearButton className='reset-filters-button' onClick={onResetFilters}>
-          {t('Reset Filters')}
-        </ClearButton>
-        <>{' '}{t('or')}{' '}</>
-        <ClearButton className='clear-search-button' onClick={onClearSearch}>
-          {t('Clear Search')}
-        </ClearButton>
-      </Box>;
-
-    case NONE:
-    default:
-      return null;
-  }
-});
 
 const MoreMenu = ({
   patient,
@@ -4153,7 +4101,7 @@ export const ClinicPatients = (props) => {
     const page = Math.ceil(patientFetchOptions.offset / patientFetchOptions.limit) + 1;
     const sort = patientFetchOptions.sort || defaultPatientFetchOptions.sort;
 
-    const patientListQueryState = getPatientListQueryState(activeFilters, patientListSearchTextInput);
+    const patientQueryState = getPatientQueryState(activeFilters, patientListSearchTextInput);
 
     return (
       <Box>
@@ -4164,7 +4112,7 @@ export const ClinicPatients = (props) => {
           setActiveFilters={setActiveFilters}
           rightContent={
             <ClearFilterButtons
-              patientListQueryState={patientListQueryState}
+              patientQueryState={patientQueryState}
               onClearSearch={handleClearSearch}
               onResetFilters={handleResetFilters}
             />
@@ -4183,9 +4131,9 @@ export const ClinicPatients = (props) => {
           orderBy={sort?.substring(1)}
           onClickRow={handleClickPatient}
           emptyContentNode={
-            <EmptyContentNode patientListQueryState={patientListQueryState}>
+            <EmptyContentNode patientQueryState={patientQueryState}>
               <ClearFilterButtons
-                patientListQueryState={patientListQueryState}
+                patientQueryState={patientQueryState}
                 onClearSearch={handleClearSearch}
                 onResetFilters={handleResetFilters}
               />
