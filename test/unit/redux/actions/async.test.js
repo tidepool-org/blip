@@ -4021,6 +4021,7 @@ describe('Actions', () => {
                   fetchedUntil: '2018-01-01T00:00:00.000Z',
                   oneMinCgmFetchedUntil: undefined,
                   returnData: false,
+                  syncTimePrefs: false,
                 },
               },
             ];
@@ -4062,6 +4063,7 @@ describe('Actions', () => {
                   fetchedUntil: '2018-01-01T00:00:00.000Z',
                   oneMinCgmFetchedUntil: '2018-01-01T00:00:00.000Z',
                   returnData: false,
+                  syncTimePrefs: false,
                 },
               },
             ];

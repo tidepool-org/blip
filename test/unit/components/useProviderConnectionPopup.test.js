@@ -200,6 +200,18 @@ describe('useProviderConnectionPopup', function () {
     }, 100);
   });
 
+  it('should not close popup or show a toast message when the authorization status is `accept`', (done) => {
+    // Simulate pre-authorization accept path - popup should remain open
+    const authorizedDataSource = { id: 'oauth/testProvider', url: `${window.location.origin}/oauth/testProvider/accept`};
+    store.dispatch(actions.sync.connectDataSourceSuccess(authorizedDataSource.id, authorizedDataSource.url));
+
+    setTimeout(() => {
+      expect(setToast.notCalled).to.be.true;
+      expect(wrapper.getByText('Popup Open')).to.not.equal(null);
+      done();
+    }, 100);
+  });
+
   it('should fetch patient data sources when justConnectedDataSourceProviderName state is set', (done) => {
     expect(api.user.getDataSources.mock.calls.length).to.equal(0);
 

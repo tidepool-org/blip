@@ -409,6 +409,8 @@ const TideDashboardSection = React.memo(props => {
       const isValidAgpPeriod = ['7d', '14d', '30d'].includes(config?.period);
 
       if (showTideDashboardPatientDrawer && isValidAgpPeriod && !isNoDataGroup) {
+        trackMetric('Tide Dashboard - opened patient in side drawer', { clinicId: selectedClinicId, patientID: patient?.id });
+
         const { search, pathname } = location;
         const params = new URLSearchParams(search);
         params.set('drawerPatientId', patient.id);
@@ -420,7 +422,7 @@ const TideDashboardSection = React.memo(props => {
 
       dispatch(push(`/patients/${patient?.id}/data/trends?dashboard=tide`));
     }
-  }, [dispatch, trackMetric, showTideDashboardPatientDrawer, config]);
+  }, [dispatch, trackMetric, showTideDashboardPatientDrawer, config, selectedClinicId]);
 
   const handleEditPatientDataConnections = useCallback((patient) => {
     editPatientDataConnections(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal, 'dexcom connection status');
