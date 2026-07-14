@@ -54,6 +54,13 @@ if (!global.Worker) {
 // https://web.archive.org/web/20250216081109/https://www.helpscout.com/blog/improve-react-testing-times/
 window.getComputedStyle = () => ({ getPropertyValue: () => undefined });
 
+// Polyfill crypto.randomUUID for jsdom (not available in Node's test environment by default)
+if (!global.crypto) global.crypto = {};
+if (!global.crypto.randomUUID) {
+  let counter = 0;
+  global.crypto.randomUUID = () => `test-uuid-${++counter}`;
+}
+
 if (!window.scrollTo) {
 	window.scrollTo = () => {};
 }
