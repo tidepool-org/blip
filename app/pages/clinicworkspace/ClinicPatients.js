@@ -777,16 +777,6 @@ export const ClinicPatients = (props) => {
     popupId: 'lastDataFilters',
   });
 
-  const clinicSitesPopupFilterState = usePopupState({
-    variant: 'popover',
-    popupId: 'clinicSitesFilters',
-  });
-
-  const patientTagsPopupFilterState = usePopupState({
-    variant: 'popover',
-    popupId: 'patientTagFilters',
-  });
-
   const timeInRangePopupFilterState = usePopupState({
     variant: 'popover',
     popupId: 'timeInRangeFilters',
