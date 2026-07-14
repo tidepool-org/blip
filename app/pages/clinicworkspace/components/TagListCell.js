@@ -10,7 +10,9 @@ const TagListCell = ({ patient }) => {
   const patientTags = clinic?.patientTags || [];
 
   const tagIds = patient?.tags || [];
-  const tags = tagIds.map(tag => patientTags.find(ptTag => ptTag.id === tag)); // TODO: index
+  const tags = tagIds
+    .map(tag => patientTags.find(ptTag => ptTag.id === tag)) // TODO: index
+    .filter(Boolean);
 
   return <TagList tags={tags} maxTagsVisible={MAX_TAGS} />;
 };

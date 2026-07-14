@@ -19,6 +19,7 @@ export const DexcomConnectionStatusCell = ({ patient, onOpenDataConnectionsModal
 
   const dexcomConnectStateUI = useMemo(() => ({
     noPendingConnections: { colorPalette: 'neutral', icon: null, text: t('No Pending Connections') },
+    inviteJustSent: { colorPalette: 'info', icon: null, text: t('Invite Sent') },
     pending: { colorPalette: 'info', icon: null, text: t('Invite Sent') },
     pendingReconnect: { colorPalette: 'info', icon: null, text: t('Invite Sent') },
     pendingExpired: { colorPalette: 'warning', icon: ErrorRoundedIcon, text: t('Invite Expired') },
