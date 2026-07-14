@@ -78,7 +78,7 @@ const DropdownContent = ({
     const trimmedSearchText = searchText.trim().toLowerCase();
     if (!trimmedSearchText) return sortedSiteFilterOptions;
 
-    return sortedSiteFilterOptions.filter(({ label }) => label.toLowerCase().includes(trimmedSearchText));
+    return sortedSiteFilterOptions.filter(({ label }) => label?.toLowerCase()?.includes(trimmedSearchText));
   }, [sortedSiteFilterOptions, searchText]);
 
   const handleChange = (clinicSites) => onChange(clinicSites);

@@ -78,7 +78,7 @@ const DropdownContent = ({
     const trimmedSearchText = searchText.trim().toLowerCase();
     if (!trimmedSearchText) return sortedTagFilterOptions;
 
-    return sortedTagFilterOptions.filter(({ label }) => label.toLowerCase().includes(trimmedSearchText));
+    return sortedTagFilterOptions.filter(({ label }) => label?.toLowerCase()?.includes(trimmedSearchText));
   }, [sortedTagFilterOptions, searchText]);
 
   const handleChange = (patientTags) => onChange(patientTags);
