@@ -120,6 +120,7 @@ import Banner from '../../components/elements/Banner';
 import colorPalette from '../../themes/colorPalette';
 import noop from 'lodash/noop';
 import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils';
+import FilterByTags from './FilterByTags';
 
 const { Loader } = vizComponents;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels, formatBgValue } = vizUtils.bg;
@@ -2003,6 +2004,8 @@ export const ClinicPatients = (props) => {
                       </DialogActions>
                     }
                   </Popover>
+
+                  <FilterByTags activeFilters={activeFilters} setActiveFilters={setActiveFilters} />
 
                   {/* Tags Filter */}
                   <Box
