@@ -9,15 +9,26 @@
 import React from 'react';
 import moment from 'moment-timezone';
 import { render, fireEvent } from '@testing-library/react';
+import { Provider } from 'react-redux';
+import configureStore from 'redux-mock-store';
+
+jest.mock('../../../app/core/metricUtils');
+import { trackMetric as mockTrackMetric } from '../../../app/core/metricUtils';
 
 import PrintDateRangeModal from '../../../app/components/PrintDateRangeModal';
+import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE } from '../../../app/core/constants';
 
 const expect = chai.expect;
+
+const mockStore = configureStore([]);
 
 describe('PrintDateRangeModal', function () {
   const loggedInUserId = 'clinicianUserId123';
   const enabledChartsLocalKey = `${loggedInUserId}_PDFChartsEnabled`;
   const defaultRangesLocalKey = `${loggedInUserId}_PDFChartsSelectedRangeIndices`;
+
+  const store = mockStore({ blip: { loggedInUserId } });
+  const wrapper = ({ children }) => <Provider store={store}>{children}</Provider>;
 
   const props = {
     loggedInUserId,
@@ -44,14 +55,14 @@ describe('PrintDateRangeModal', function () {
   beforeEach(() => {
     localStorage.removeItem(enabledChartsLocalKey);
     localStorage.removeItem(defaultRangesLocalKey);
-    rendered = render(<PrintDateRangeModal {...props} />);
+    rendered = render(<PrintDateRangeModal {...props} />, { wrapper });
   });
 
   afterEach(() => {
     rendered && rendered.unmount();
     props.onClose.reset();
     props.onClickPrint.reset();
-    props.trackMetric.reset();
+    mockTrackMetric.mockReset();
   });
 
   it('should be visible when open prop is true', () => {
@@ -111,7 +122,7 @@ describe('PrintDateRangeModal', function () {
 
     // new render should load with the updated defaults from localStorage
     rendered.unmount();
-    rendered = render(<PrintDateRangeModal {...props} />);
+    rendered = render(<PrintDateRangeModal {...props} />, { wrapper });
     expect(numValue(get('#days-agpCGM .selected'))).to.equal(7);
     expect(get('input[name="enabled-basics"]').checked).to.be.false;
   });
@@ -196,7 +207,7 @@ describe('PrintDateRangeModal', function () {
     );
 
     rendered.unmount();
-    rendered = render(<PrintDateRangeModal {...{ ...props, timePrefs: { timezoneName: 'US/Pacific' } }} />);
+    rendered = render(<PrintDateRangeModal {...{ ...props, timePrefs: { timezoneName: 'US/Pacific' } }} />, { wrapper });
 
     expect(get('#basics-end-date').value).to.equal('Mar 9, 2020 (5:00 PM)');
     expect(get('#basics-start-date').value).to.equal('Feb 24, 2020 (5:00 PM)');
@@ -236,7 +247,9 @@ describe('PrintDateRangeModal', function () {
           ]
         },
         daily: {
-          disabled: false, endpoints: [
+          cgmSampleIntervalRange: DEFAULT_CGM_SAMPLE_INTERVAL_RANGE,
+          disabled: false,
+          endpoints: [
             moment.utc(Date.parse('2020-03-06T00:00:00.000Z')).subtract(30, 'days').valueOf(),
             Date.parse('2020-03-06T00:00:00.000Z'),
           ]
@@ -272,14 +285,15 @@ describe('PrintDateRangeModal', function () {
       fireEvent.click(getAll('#days-daily button')[2]);
       fireEvent.click(get('button.print-submit'));
 
-      sinon.assert.calledWith(props.trackMetric, 'Submitted Print Options', {
+      expect(mockTrackMetric.mock.calls[0]).to.deep.equal(['Submitted Print Options', {
+        source: 'Unknown',
         agpBGM: '30 days',
         agpCGM: '14 days',
         basics: '14 days',
         bgLog: 'disabled',
         daily: '30 days',
-        settings: 'enabled'
-      });
+        settings: 'enabled',
+      }]);
     });
   });
 
