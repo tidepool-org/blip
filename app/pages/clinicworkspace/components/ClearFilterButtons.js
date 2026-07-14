@@ -22,12 +22,12 @@ const ClearButton = styled.button`
   text-decoration: underline;
 `;
 
-const ClearFilterButtons = ({ patientListQueryState, onClearSearch, onResetFilters }) => {
+const ClearFilterButtons = ({ patientQueryState, onClearSearch, onResetFilters }) => {
   const { t } = useTranslation();
 
   const { FILTER_AND_SEARCH, FILTER_ONLY, SEARCH_ONLY, NONE } = PATIENT_QUERY_STATE;
 
-  switch(patientListQueryState) {
+  switch(patientQueryState) {
     case SEARCH_ONLY:
       return <Box>
         <ClearButton className='clear-search-button' onClick={onClearSearch}>
