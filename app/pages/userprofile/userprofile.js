@@ -643,12 +643,12 @@ export function UserProfile({ trackMetric, history, api, location }) {
     let toast = null;
     if (action === 'UPDATE_PASSWORD') {
       if (status === 'cancelled') {
-        toast = { message: t('Password reset {{status}}.', { status }), variant: 'info' };
+        toast = { message: t('Password not updated.'), variant: 'info' };
       } else if (status === 'error') {
-        toast = { message: t('Password reset {{status}}.', { status }), variant: 'danger' };
+        toast = { message: t('Password update {{status}}.', { status }), variant: 'danger' };
       } else if (status === 'success') {
         toast = {
-          message: t('Password reset successful. You can now log in using your new password.'),
+          message: t('Password updated. You can now log in using your new password.'),
           variant: 'success',
         };
       }

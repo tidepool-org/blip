@@ -390,8 +390,8 @@ describe('UserProfile', () => {
     it('shows the cancel toast (info variant) and strips the param when kc_action=UPDATE_PASSWORD&kc_action_status=cancelled', () => {
       window.history.pushState({}, '', '/profile#kc_action=UPDATE_PASSWORD&kc_action_status=cancelled');
       renderWith(buildState(clinicianUser));
-      expect(screen.getByText('Password reset cancelled.')).to.exist;
-      expect(screen.getByText('Password reset cancelled.').closest('.info')).to.exist;
+      expect(screen.getByText('Password not updated.')).to.exist;
+      expect(screen.getByText('Password not updated.').closest('.info')).to.exist;
       expect(window.location.hash).to.equal('');
       expect(window.location.pathname).to.equal('/profile');
     });
@@ -399,8 +399,8 @@ describe('UserProfile', () => {
     it('shows the error toast (danger variant) and strips the param when kc_action=UPDATE_PASSWORD&kc_action_status=error', () => {
       window.history.pushState({}, '', '/profile#kc_action=UPDATE_PASSWORD&kc_action_status=error');
       renderWith(buildState(clinicianUser));
-      expect(screen.getByText('Password reset error.')).to.exist;
-      expect(screen.getByText('Password reset error.').closest('.danger')).to.exist;
+      expect(screen.getByText('Password update error.')).to.exist;
+      expect(screen.getByText('Password update error.').closest('.danger')).to.exist;
       expect(window.location.hash).to.equal('');
     });
 
@@ -409,14 +409,14 @@ describe('UserProfile', () => {
       // not sign the user out in any tested flow). Full Figma copy used verbatim.
       window.history.pushState({}, '', '/profile#kc_action=UPDATE_PASSWORD&kc_action_status=success');
       renderWith(buildState(clinicianUser));
-      expect(screen.getByText('Password reset successful. You can now log in using your new password.')).to.exist;
+      expect(screen.getByText('Password updated. You can now log in using your new password.')).to.exist;
       expect(window.location.hash).to.equal('');
     });
 
     it('does not show any toast when kc_action_status is absent', () => {
       window.history.pushState({}, '', '/profile');
       renderWith(buildState(clinicianUser));
-      expect(screen.queryByText('Password reset cancelled.')).to.be.null;
+      expect(screen.queryByText('Password not updated.')).to.be.null;
       expect(window.location.hash).to.equal('');
     });
 
@@ -425,7 +425,7 @@ describe('UserProfile', () => {
       renderWith(buildState(clinicianUser));
       expect(screen.getByText('Email update cancelled.')).to.exist;
       expect(screen.getByText('Email update cancelled.').closest('.info')).to.exist;
-      expect(screen.queryByText('Password reset cancelled.')).to.be.null;
+      expect(screen.queryByText('Password not updated.')).to.be.null;
       expect(window.location.hash).to.equal('');
     });
 
@@ -442,7 +442,7 @@ describe('UserProfile', () => {
       window.history.pushState({}, '', '/profile#kc_action=UPDATE_EMAIL&kc_action_status=success');
       renderWith(buildState(clinicianUser));
       expect(screen.queryByText('Email update success.')).to.be.null;
-      expect(screen.queryByText('Password reset successful. You can now log in using your new password.')).to.be.null;
+      expect(screen.queryByText('Password updated. You can now log in using your new password.')).to.be.null;
       expect(window.location.hash).to.equal('');
     });
 
@@ -536,7 +536,7 @@ describe('UserProfile', () => {
       // Foreign kc_action: no toast, no strip — leave the params for a future per-action handler.
       window.history.pushState({}, '', '/profile#kc_action=VERIFY_EMAIL&kc_action_status=cancelled');
       renderWith(buildState(clinicianUser));
-      expect(screen.queryByText('Password reset cancelled.')).to.be.null;
+      expect(screen.queryByText('Password not updated.')).to.be.null;
       expect(screen.queryByText('Email update cancelled.')).to.be.null;
       expect(window.location.hash).to.equal('#kc_action=VERIFY_EMAIL&kc_action_status=cancelled');
     });
@@ -544,7 +544,7 @@ describe('UserProfile', () => {
     it('does not show the password toast when kc_action is absent (kc_action_status orphaned)', () => {
       window.history.pushState({}, '', '/profile#kc_action_status=cancelled');
       renderWith(buildState(clinicianUser));
-      expect(screen.queryByText('Password reset cancelled.')).to.be.null;
+      expect(screen.queryByText('Password not updated.')).to.be.null;
     });
 
     it('preserves unrelated query parameters when stripping kc_action_status from the hash', () => {
@@ -563,7 +563,7 @@ describe('UserProfile', () => {
         '/profile#state=abc&session_state=def&iss=https%3A%2F%2Fauth&kc_action=UPDATE_PASSWORD&kc_action_status=cancelled&code=xyz'
       );
       renderWith(buildState(clinicianUser));
-      expect(screen.getByText('Password reset cancelled.')).to.exist;
+      expect(screen.getByText('Password not updated.')).to.exist;
       // Hash retains everything except kc_action and kc_action_status, in original order.
       expect(window.location.hash).to.equal('#state=abc&session_state=def&iss=https%3A%2F%2Fauth&code=xyz');
     });
