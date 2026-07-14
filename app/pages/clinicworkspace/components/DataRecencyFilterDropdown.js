@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { trackMetric } from '../../../core/metricUtils';
+import { colors as vizColors } from '@tidepool/viz';
 
-import { Box, Text } from 'theme-ui';
+import { Box, Grid, Text } from 'theme-ui';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 
 import reject from 'lodash/reject';
@@ -43,58 +44,54 @@ const DropdownContent = ({
   const handleChange = (filters) => onChange(filters);
 
   return (
-    <>
-      <DialogContent px={2} py={3} dividers>
+    <Box mt={5} mx={2} sx={{ width: 300 }}>
+      <Box>
         <Box sx={{ alignItems: 'center' }} mb={2}>
-          <Text sx={{ color: 'grays.4', fontWeight: 'medium', fontSize: 0, whiteSpace: 'nowrap' }}>
+          <Text sx={{ color: 'grays.4', fontWeight: 'medium', fontSize: 1, whiteSpace: 'nowrap' }}>
             {t('Device Type')}
           </Text>
         </Box>
 
-        <RadioGroup
-          id="last-upload-type"
-          name="last-upload-type"
-          options={lastDataTypeFilterOptions}
-          variant="vertical"
-          sx={{ fontSize: 0 }}
-          value={pending.lastDataType}
-          onChange={event => {
-            setPending({ ...pending, lastDataType: event.target.value || null });
-          }}
-        />
-
-        <Box
-          mt={3}
-          mb={2}
-          pt={3}
-          sx={{
-            alignItems: 'center',
-            borderTop: borders.divider,
-          }}
-        >
-          <Body0 color="grays.4" sx={{ fontWeight: 'bold' }} mb={0}>{t('Data Recency')}</Body0>
-          <Body0 color="grays.4" sx={{ fontWeight: 'medium' }} mb={2}>{t('Tidepool will only show patients who have data within the selected number of days.')}</Body0>
+        <Box sx={{ border: `1px solid ${vizColors.gray10}`, borderRadius: 6, padding: 2 }}>
+          <RadioGroup
+            id="last-upload-type"
+            name="last-upload-type"
+            options={lastDataTypeFilterOptions}
+            variant="vertical"
+            sx={{ fontSize: 0 }}
+            value={pending.lastDataType}
+            onChange={event => {
+              setPending({ ...pending, lastDataType: event.target.value || null });
+            }}
+          />
         </Box>
 
-        <RadioGroup
-          id="last-upload-filters"
-          name="last-upload-filters"
-          options={customLastDataFilterOptions}
-          variant="vertical"
-          sx={{ fontSize: 0 }}
-          mb={3}
-          value={pending.lastData}
-          onChange={event => {
-            setPending({ ...pending, lastData: parseInt(event.target.value) || null });
-          }}
-        />
-      </DialogContent>
+        <Box mt={3} mb={2} pt={2} sx={{ alignItems: 'center' }}>
+          <Body0 color="grays.4" sx={{ fontWeight: 'medium', fontSize: 1 }} mb={0}>{t('Data Recency')}</Body0>
+          <Body0 color="grays.4" sx={{ fontWeight: 'normal', fontSize: 0 }} mb={2} mt={1}>{t('Tidepool will only show patients who have data within the selected number of days.')}</Body0>
+        </Box>
 
-      <DialogActions sx={{ justifyContent: 'space-between' }} p={1}>
+        <Box sx={{ border: `1px solid ${vizColors.gray10}`, borderRadius: 6, padding: 2 }}>
+          <RadioGroup
+            id="last-upload-filters"
+            name="last-upload-filters"
+            options={customLastDataFilterOptions}
+            variant="vertical"
+            sx={{ fontSize: 0 }}
+            mb={3}
+            value={pending.lastData}
+            onChange={event => {
+              setPending({ ...pending, lastData: parseInt(event.target.value) || null });
+            }}
+          />
+        </Box>
+      </Box>
+
+      <Grid sx={{ gridTemplateColumns: '1fr 1fr' }} mt={3} mb={2}>
         <Button
           id="clear-last-upload-filter"
           sx={{ fontSize: 1 }}
-          variant="textSecondary"
+          variant="secondary"
           onClick={() => {
             trackMetric(prefixPopHealthMetric('Last upload clear filter'), { clinicId: selectedClinicId });
             setPending({ lastData: null, lastDataType: null });
@@ -109,7 +106,7 @@ const DropdownContent = ({
           id="apply-last-upload-filter"
           disabled={!pending.lastData || !pending.lastDataType}
           sx={{ fontSize: 1 }}
-          variant="textPrimary"
+          variant="primary"
           onClick={() => {
             const dateRange = pending.lastData === 1
               ? 'today'
@@ -127,8 +124,8 @@ const DropdownContent = ({
         >
           {t('Apply')}
         </Button>
-      </DialogActions>
-    </>
+      </Grid>
+    </Box>
   );
 };
 
@@ -172,7 +169,7 @@ const DataRecencyFilterDropdown = ({
       </Box>
 
       <Popover
-        width="13em"
+        minWidth="11em"
         closeIcon
         {...bindPopover(lastDataPopupFilterState)}
         onClickCloseIcon={() => {
