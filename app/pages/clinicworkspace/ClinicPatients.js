@@ -1634,11 +1634,6 @@ export const ClinicPatients = (props) => {
                     setActiveFilters={setActiveFilters}
                   />
 
-                  <FilterByTimeInRange
-                    activeFilters={activeFilters}
-                    setActiveFilters={setActiveFilters}
-                  />
-
                   <Box
                     onClick={() => {
                       if (!cgmUsePopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('CGM Use filter open'), { clinicId: selectedClinicId });
@@ -1724,6 +1719,11 @@ export const ClinicPatients = (props) => {
                       </Button>
                     </DialogActions>
                   </Popover>
+
+                  <FilterByTimeInRange
+                    activeFilters={activeFilters}
+                    setActiveFilters={setActiveFilters}
+                  />
                 </Flex>
               </Flex>
             )}
