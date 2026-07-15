@@ -49,8 +49,6 @@ import { Formik, Form } from 'formik';
 import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
 import { Link as RouterLink } from 'react-router-dom';
 import useClinicPatientsFilters, { defaultFilterState, SPECIAL_FILTER_STATES } from './useClinicPatientsFilters';
-import AppliedFiltersAdapter from './AppliedFiltersAdapter';
-import FilterBySummaryPeriod from './FilterBySummaryPeriod';
 
 import {
   bindPopover,
@@ -121,12 +119,14 @@ import Banner from '../../components/elements/Banner';
 import colorPalette from '../../themes/colorPalette';
 import noop from 'lodash/noop';
 import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils';
-import FilterByTags from './FilterByTags';
-import FilterBySites from './FilterBySites';
-import FilterByDataRecency from './FilterByDataRecency';
-import FilterByTimeInRange from './FilterByTimeInRange';
+import FilterByTags from './clinicPatientsFilters/FilterByTags';
+import FilterBySites from './clinicPatientsFilters/FilterBySites';
+import FilterByDataRecency from './clinicPatientsFilters/FilterByDataRecency';
+import FilterBySummaryPeriod from './clinicPatientsFilters/FilterBySummaryPeriod';
+import FilterByTimeInRange from './clinicPatientsFilters/FilterByTimeInRange';
 import FilterByCGMUse from './FilterByCGMUse';
 import ClinicPatientsPrintModal from './ClinicPatientsPrintModal';
+import AppliedFiltersList from './clinicPatientsFilters/AppliedFiltersList';
 
 const { Loader } = vizComponents;
 const { formatBgValue } = vizUtils.bg;
@@ -3236,7 +3236,7 @@ export const ClinicPatients = (props) => {
       <Box>
         <Loader show={loading} overlay={true} />
 
-        <AppliedFiltersAdapter
+        <AppliedFiltersList
           activeFilters={activeFilters}
           setActiveFilters={setActiveFilters}
           rightContent={

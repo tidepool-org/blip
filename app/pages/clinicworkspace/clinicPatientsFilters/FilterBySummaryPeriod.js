@@ -1,7 +1,7 @@
 import React from 'react';
 import noop from 'lodash/noop';
 
-import SummaryPeriodFilterDropdown from './components/SummaryPeriodFilterDropdown';
+import SummaryPeriodFilterDropdown from '../components/SummaryPeriodFilterDropdown';
 
 const FilterBySummaryPeriod = ({
   activeSummaryPeriod,
