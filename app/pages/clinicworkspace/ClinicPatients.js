@@ -736,17 +736,6 @@ export const ClinicPatients = (props) => {
     { value: '30d', label: t('30 days') },
   ];
 
-  const getSummaryPeriodSelectLabel = (activeSummaryPeriod) => {
-    switch(activeSummaryPeriod) {
-      case '1d': return t('Summarizing 24 hours of data');
-      case '7d': return t('Summarizing 7 days of data');
-      case '14d': return t('Summarizing 14 days of data');
-      case '30d': return t('Summarizing 30 days of data');
-    }
-
-    return null;
-  };
-
   const clinicSites = useMemo(() => keyBy(clinic?.sites, 'id'), [clinic?.sites]);
   const patientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
 
@@ -2136,14 +2125,22 @@ export const ClinicPatients = (props) => {
             )}
 
             {/* Flex Group 2b: Range select and Info/Visibility Icons */}
-            <Flex sx={{ flexGrow: 1, justifyContent: 'flex-end', gap: 3 }}>
+            <Flex sx={{ flexGrow: 1, justifyContent: 'space-between', gap: 3 }}>
 
               {/* Range select */}
               {showSummaryData && (
                 <Flex
                   pt={0}
-                  sx={{ gap: 3, justifyContent: 'flex-end', alignItems: 'center', flexShrink: 0 }}
+                  sx={{ gap: 3, justifyContent: 'flex-start', alignItems: 'center', flexShrink: 0 }}
                 >
+                  <Flex
+                    py={1}
+                    pl={[0, 0, 3]}
+                    sx={{ color: 'grays.4', borderLeft: ['none', null, borders.divider], alignItems: 'center' }}
+                  >
+
+                  <Text sx={{ fontSize: 0 }}>{t('Summarizing')}</Text>
+                </Flex>
 
                 <Box
                   onClick={() => {
@@ -2152,14 +2149,13 @@ export const ClinicPatients = (props) => {
                 >
                   <Button
                     variant="filter"
-                    selected={true}
                     id="summary-period-filter-trigger"
                     {...bindTrigger(summaryPeriodPopupFilterState)}
                     icon={KeyboardArrowDownRoundedIcon}
                     iconLabel="Filter by summary period duration"
                     sx={{ fontSize: 0, lineHeight: 1.3 }}
                   >
-                    {getSummaryPeriodSelectLabel(activeSummaryPeriod)}
+                    {find(summaryPeriodOptions, { value: activeSummaryPeriod })?.label} {t('of data')}
                   </Button>
                 </Box>
 
