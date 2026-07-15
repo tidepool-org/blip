@@ -55,7 +55,7 @@ const DropdownContent = ({
           {t('Summarizing Data')}
         </Body0>
 
-        <Body1 color="grays.4" sx={{ fontWeight: 'normal', fontSize: 0 }}>
+        <Body1 color="grays.4" sx={{ fontWeight: 'normal', fontSize: 0 }} mb={2}>
           {t('Tidepool will generate health summaries for the selected number of days.')}
         </Body1>
 
