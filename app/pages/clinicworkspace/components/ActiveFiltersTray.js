@@ -163,7 +163,7 @@ const ChipGroup = ({ prefix, chips, onRemove }) => {
   );
 };
 
-const AppliedFilters = ({
+const ActiveFiltersTray = ({
   filters = {},
   hasSearchActive = false,
   onRemoveFilter = noop,
@@ -178,19 +178,6 @@ const AppliedFilters = ({
   const siteChips = useSiteChips(filters.clinicSites);
 
   const count = clinic?.fetchedPatientCount || 0;
-
-  const hasActiveFilters = !!(
-    filters.lastData ||
-    filters.lastDataType ||
-    filters.timeCGMUsePercent ||
-    filters.timeInRange?.length > 0 ||
-    filters.patientTags?.length > 0 ||
-    filters.clinicSites?.length > 0
-  );
-
-  const isActive = hasActiveFilters || hasSearchActive;
-
-  if (!isActive || count <= 0) return null;
 
   const handleRemoveChip = chip => onRemoveFilter(chip.type, chip.value);
 
@@ -260,4 +247,4 @@ const AppliedFilters = ({
   );
 };
 
-export default AppliedFilters;
+export default ActiveFiltersTray;
