@@ -78,7 +78,7 @@ const DropdownContent = ({
     const trimmedSearchText = searchText.trim().toLowerCase();
     if (!trimmedSearchText) return sortedTagFilterOptions;
 
-    return sortedTagFilterOptions.filter(({ label }) => label.toLowerCase().includes(trimmedSearchText));
+    return sortedTagFilterOptions.filter(({ label }) => label?.toLowerCase()?.includes(trimmedSearchText));
   }, [sortedTagFilterOptions, searchText]);
 
   const handleChange = (patientTags) => onChange(patientTags);
@@ -95,7 +95,7 @@ const DropdownContent = ({
         {!!onClickEditTags && <EditTagsAction onClick={onClickEditTags} />}
       </Flex>
 
-      <Box sx={{ border: `1px solid ${vizColors.gray05}`, borderRadius: 6, padding: 2 }}>
+      <Box sx={{ border: `1px solid ${vizColors.gray10}`, borderRadius: 6, padding: 2 }}>
         <Box>
           { sortedTagFilterOptions.length > 0 &&
             <TextInput
@@ -176,7 +176,7 @@ const DropdownContent = ({
       </Box>
 
       { sortedTagFilterOptions.length > 0 &&
-        <Grid sx={{ gridTemplateColumns: '1fr 1fr' }} mt={3}>
+        <Grid sx={{ gridTemplateColumns: '1fr 1fr' }} mt={3} mb={2}>
           <Button
             id="clear-patient-tags-filter"
             sx={{ fontSize: 1}}

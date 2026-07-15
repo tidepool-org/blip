@@ -78,7 +78,7 @@ const DropdownContent = ({
     const trimmedSearchText = searchText.trim().toLowerCase();
     if (!trimmedSearchText) return sortedSiteFilterOptions;
 
-    return sortedSiteFilterOptions.filter(({ label }) => label.toLowerCase().includes(trimmedSearchText));
+    return sortedSiteFilterOptions.filter(({ label }) => label?.toLowerCase()?.includes(trimmedSearchText));
   }, [sortedSiteFilterOptions, searchText]);
 
   const handleChange = (clinicSites) => onChange(clinicSites);
@@ -95,7 +95,7 @@ const DropdownContent = ({
         {!!onClickEditSites && <EditSitesAction onClick={onClickEditSites} />}
       </Flex>
 
-      <Box sx={{ border: `1px solid ${vizColors.gray05}`, borderRadius: 6, padding: 2 }}>
+      <Box sx={{ border: `1px solid ${vizColors.gray10}`, borderRadius: 6, padding: 2 }}>
         <Box>
           { sortedSiteFilterOptions.length > 0 &&
             <TextInput
@@ -168,7 +168,7 @@ const DropdownContent = ({
               {t('Create and assign sites to patient accounts to segment your patient population by location.')}
             </Box>
             { !isClinicAdmin &&
-              <Box mt={3} pt={3} sx={{ borderTop: `1px solid ${colors.gray05}`, fontSize: 0, color: colors.gray50, lineHeight: 1 }}>
+              <Box mt={3} pt={3} sx={{ borderTop: `1px solid ${colors.gray10}`, fontSize: 0, color: colors.gray50, lineHeight: 1 }}>
                 <Trans t={t}>
                   Sites can only be created by your Workspace Admins. Not sure who the admins are? Check the Clinic Members list in your&nbsp;
                   <RouterLink to='/clinic-admin' style={{ color: colors.purpleBright }}>Workspace Settings.</RouterLink>
@@ -180,7 +180,7 @@ const DropdownContent = ({
       </Box>
 
       { sortedSiteFilterOptions.length > 0 &&
-        <Grid sx={{ gridTemplateColumns: '1fr 1fr' }} mt={3}>
+        <Grid sx={{ gridTemplateColumns: '1fr 1fr' }} mt={3} mb={2}>
           <Button
             id="clear-clinic-sites-filter"
             sx={{ fontSize: 1}}
