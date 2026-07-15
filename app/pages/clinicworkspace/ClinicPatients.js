@@ -8,7 +8,6 @@ import compact from 'lodash/compact';
 import debounce from 'lodash/debounce';
 import difference from 'lodash/difference';
 import forEach from 'lodash/forEach';
-import find from 'lodash/find';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 import indexOf from 'lodash/indexOf';
@@ -126,6 +125,7 @@ import FilterByTags from './FilterByTags';
 import FilterBySites from './FilterBySites';
 import FilterByDataRecency from './FilterByDataRecency';
 import FilterByTimeInRange from './FilterByTimeInRange';
+import FilterByCGMUse from './FilterByCGMUse';
 import ClinicPatientsPrintModal from './ClinicPatientsPrintModal';
 
 const { Loader } = vizComponents;
@@ -663,11 +663,6 @@ export const ClinicPatients = (props) => {
   const [pendingFilters, setPendingFilters] = useState({ ...defaultFilterState, ...activeFilters });
   const previousActiveFilters = usePrevious(activeFilters);
 
-  const cgmUseFilterOptions = [
-    { value: '<0.7', label: t('Less than 70%') },
-    { value: '>=0.7', label: t('70% or more') },
-  ];
-
   const lastDataTypeFilterOptions = [
     { value: 'cgm', label: t('CGM') },
     { value: 'bgm', label: t('BGM') },
@@ -693,11 +688,6 @@ export const ClinicPatients = (props) => {
   const defaultSummaryPeriod = '14d';
   const [activeSummaryPeriod, setActiveSummaryPeriod] = useLocalStorage('activePatientSummaryPeriod', defaultSummaryPeriod);
   const previousSummaryPeriod = usePrevious(activeSummaryPeriod);
-
-  const cgmUsePopupFilterState = usePopupState({
-    variant: 'popover',
-    popupId: 'cgmUseFilters',
-  });
 
   const debounceSearch = useCallback(debounce(search => {
     // Prevent a premature update to patientFetchOptions, which would trigger an initial patient
@@ -1634,91 +1624,10 @@ export const ClinicPatients = (props) => {
                     setActiveFilters={setActiveFilters}
                   />
 
-                  <Box
-                    onClick={() => {
-                      if (!cgmUsePopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('CGM Use filter open'), { clinicId: selectedClinicId });
-                    }}
-                    sx={{ flexShrink: 0 }}
-                  >
-                    <Button
-                      variant="filter"
-                      id="cgm-use-filter-trigger"
-                      selected={!!activeFilters.timeCGMUsePercent}
-                      {...bindTrigger(cgmUsePopupFilterState)}
-                      icon={KeyboardArrowDownRoundedIcon}
-                      iconLabel="Filter by cgm use"
-                      sx={{ fontSize: 0, lineHeight: 1.3 }}
-                    >
-                      {activeFilters.timeCGMUsePercent ? find(cgmUseFilterOptions, { value: activeFilters.timeCGMUsePercent })?.label : t('% CGM Use')}
-                    </Button>
-                  </Box>
-
-                  <Popover
-                    minWidth="11em"
-                    closeIcon
-                    {...bindPopover(cgmUsePopupFilterState)}
-                    onClickCloseIcon={() => {
-                      trackMetric(prefixPopHealthMetric('CGM Use filter close'), { clinicId: selectedClinicId });
-                    }}
-                    onClose={() => {
-                      cgmUsePopupFilterState.close();
-                      setPendingFilters(activeFilters);
-                    }}
-                  >
-                    <DialogContent px={2} py={3} dividers>
-                      <Box sx={{ alignItems: 'center' }} mb={2}>
-                        <Text sx={{ color: 'grays.4', fontWeight: 'medium', fontSize: 0, whiteSpace: 'nowrap' }}>
-                          {t('% CGM Use')}
-                        </Text>
-                      </Box>
-
-                      <RadioGroup
-                        id="cgm-use"
-                        name="cgm-use"
-                        options={cgmUseFilterOptions}
-                        variant="vertical"
-                        sx={{ fontSize: 0 }}
-                        value={pendingFilters.timeCGMUsePercent || activeFilters.timeCGMUsePercent}
-                        onChange={event => {
-                          setPendingFilters({ ...pendingFilters, timeCGMUsePercent: event.target.value || null });
-                        }}
-                      />
-                    </DialogContent>
-
-                    <DialogActions sx={{ justifyContent: 'space-between' }} p={1}>
-                      <Button
-                        id="clear-cgm-use-filter"
-                        sx={{ fontSize: 1 }}
-                        variant="textSecondary"
-                        onClick={() => {
-                          trackMetric(prefixPopHealthMetric('CGM use clear filter'), { clinicId: selectedClinicId });
-                          setPendingFilters({ ...activeFilters, timeCGMUsePercent: defaultFilterState.timeCGMUsePercent });
-                          setActiveFilters({ ...activeFilters, timeCGMUsePercent: defaultFilterState.timeCGMUsePercent });
-                          cgmUsePopupFilterState.close();
-                        }}
-                      >
-                        {t('Clear')}
-                      </Button>
-
-                      <Button
-                        id="apply-cgm-use-filter"
-                        disabled={!pendingFilters.timeCGMUsePercent}
-                        sx={{ fontSize: 1 }}
-                        variant="textPrimary"
-                        onClick={() => {
-                          trackMetric(prefixPopHealthMetric('CGM use apply filter'), {
-                            clinicId: selectedClinicId,
-                            filter: pendingFilters.timeCGMUsePercent,
-                          });
-
-                          setActiveFilters(pendingFilters);
-                          cgmUsePopupFilterState.close();
-                        }}
-                      >
-                        {t('Apply')}
-                      </Button>
-                    </DialogActions>
-                  </Popover>
+                  <FilterByCGMUse
+                    activeFilters={activeFilters}
+                    setActiveFilters={setActiveFilters}
+                  />
 
                   <FilterByTimeInRange
                     activeFilters={activeFilters}
