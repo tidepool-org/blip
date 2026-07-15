@@ -2511,7 +2511,6 @@ export const ClinicPatients = (props) => {
                 >
                   <Button
                     variant="filter"
-                    selected={true}
                     id="summary-period-filter-trigger"
                     {...bindTrigger(summaryPeriodPopupFilterState)}
                     icon={KeyboardArrowDownRoundedIcon}
