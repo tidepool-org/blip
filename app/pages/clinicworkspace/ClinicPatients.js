@@ -122,7 +122,7 @@ import noop from 'lodash/noop';
 import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils';
 import FilterByTags from './clinicPatientsFilters/FilterByTags';
 import FilterBySites from './clinicPatientsFilters/FilterBySites';
-import FilterByDataRecency from './FilterByDataRecency';
+import FilterByDataRecency from './clinicPatientsFilters/FilterByDataRecency';
 import ClinicPatientsPrintModal from './ClinicPatientsPrintModal';
 import AppliedFiltersList from './clinicPatientsFilters/AppliedFiltersList';
 
