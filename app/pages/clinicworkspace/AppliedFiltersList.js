@@ -3,11 +3,11 @@ import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import without from 'lodash/without';
 
-import AppliedFilters from './components/AppliedFilters';
+import ActiveFiltersTray from './components/ActiveFiltersTray';
 import { defaultFilterState } from './useClinicPatientsFilters';
 import { Box } from 'theme-ui';
 
-const AppliedFiltersAdapter = ({ activeFilters, setActiveFilters, rightContent }) => {
+const AppliedFiltersList = ({ activeFilters, setActiveFilters, rightContent }) => {
   const { patientListSearchTextInput } = useSelector(state => state.blip.patientListFilters);
 
   const handleRemoveFilter = (filterKey, value) => {
@@ -46,7 +46,7 @@ const AppliedFiltersAdapter = ({ activeFilters, setActiveFilters, rightContent }
   const hasSearchActive = !!patientListSearchTextInput;
 
   return (
-    <AppliedFilters
+    <ActiveFiltersTray
       hasSearchActive={hasSearchActive}
       filters={activeFilters}
       onRemoveFilter={handleRemoveFilter}
@@ -59,4 +59,4 @@ const AppliedFiltersAdapter = ({ activeFilters, setActiveFilters, rightContent }
   );
 };
 
-export default AppliedFiltersAdapter;
+export default AppliedFiltersList;
