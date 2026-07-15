@@ -1,7 +1,7 @@
 import React from 'react';
 import noop from 'lodash/noop';
 
-import DataRecencyFilterDropdown from './components/DataRecencyFilterDropdown';
+import DataRecencyFilterDropdown from '../components/DataRecencyFilterDropdown';
 
 const FilterByDataRecency = ({
   activeFilters = {},
