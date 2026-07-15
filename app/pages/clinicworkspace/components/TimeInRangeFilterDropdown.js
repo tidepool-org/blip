@@ -5,7 +5,7 @@ import { useFlags } from 'launchdarkly-react-client-sdk';
 import { trackMetric } from '../../../core/metricUtils';
 import { colors as vizColors, utils as vizUtils } from '@tidepool/viz';
 
-import { Box, Flex, Text } from 'theme-ui';
+import { Box, Flex, Grid, Text } from 'theme-ui';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 
 import map from 'lodash/map';
@@ -109,27 +109,28 @@ const DropdownContent = ({
 
   const handleChange = (timeInRange) => onChange(timeInRange);
 
-  return (
-    <>
-      <DialogContent color="text.primary" pl={4} pr={6} pb={3} sx={{ width: 600 }}>
-        <Box mb={3} sx={{ fontSize: 1, fontWeight: 'medium' }}>
-          <Box mr={2} sx={{ color: vizColors.gray50, fontWeight: 'medium', fontSize: 1, whiteSpace: 'nowrap' }}>
-            {t('% Time in Range')}
-          </Box>
-          <Box mt={2} sx={{ color: vizColors.blue50, fontWeight: 'normal', fontStyle: 'italic', fontSize: 0, lineHeight: 1 }}>
-            <Text>{t('Only patients using the standard target range will be included.')}</Text>
-          </Box>
-        </Box>
+  const filterOptions = getTimeInRangeFilterOptions(showExtremeHigh, t).reverse();
 
-        {map(getTimeInRangeFilterOptions(showExtremeHigh, t), ({ value, title, rangeName, threshold, prefix }) => {
+  return (
+    <Box mt={5} mx={2}>
+      <Box mb={3} sx={{ fontSize: 1, fontWeight: 'medium' }}>
+        <Box mr={2} sx={{ color: vizColors.gray50, fontWeight: 'medium', fontSize: 1, whiteSpace: 'nowrap' }}>
+          {t('% Time in Range')}
+        </Box>
+        <Box mt={2} sx={{ color: vizColors.gray30, fontWeight: 'normal', fontSize: 0, lineHeight: 1 }}>
+          <Text>{t('Only patients using the standard target range will be included.')}</Text>
+        </Box>
+      </Box>
+
+      <Box sx={{ border: `1px solid ${vizColors.gray10}`, borderRadius: 6, padding: 3 }}>
+        {map(filterOptions, ({ value, title, rangeName, threshold, prefix }, i) => {
           const { prefix: bgPrefix, suffix, value: glucoseTargetValue } = bgLabels[rangeName];
 
           return (
             <Flex
               id={`time-in-range-filter-${rangeName}`}
               key={rangeName}
-              mb={3}
-              ml={2}
+              mb={(i === filterOptions.length - 1) ? 0 : 3}
               sx={{ alignItems: 'center', gap: 2 }}
             >
               <Checkbox
@@ -145,7 +146,7 @@ const DropdownContent = ({
               />
 
               <Box
-                px={1}
+                px={2}
                 py={1}
                 ml={-2}
                 sx={{
@@ -183,22 +184,23 @@ const DropdownContent = ({
 
                   <Text
                     id={`range-${value}-filter-option-title`}
-                    sx={{ fontSize: 1, fontWeight: 'bold', color: 'black' }}
+                    sx={{ fontSize: 1, fontWeight: 'medium', color: 'black' }}
                     mr={2}
                   >
                     {title}
                   </Text>
 
-                  <Text id={`range-${value}-filter-option-definition`} sx={{ fontSize: 1 }} mr={2}>
-                    {prefix}{' '}
-                    <Text sx={{ fontSize: 2, fontWeight: 'bold' }}>
-                      {threshold}
-                    </Text>
-                    % {t('Time')}{' '}
+                  <Text id={`range-${value}-filter-option-definition`} sx={{ fontSize: 0, color: vizColors.gray50 }} mr={2}>
+                    {prefix}
+                    {' '}
+                    {threshold}%
+                    {' '}
+                    {t('Time')}
+                    {' '}
                     {bgPrefix && `${t(bgPrefix)} `}
-                    <Text sx={{ fontSize: 2, fontWeight: 'bold' }}>
-                      {glucoseTargetValue}
-                    </Text>{' '}
+                    {' '}
+                    {glucoseTargetValue}
+                    {' '}
                     {suffix}
                   </Text>
                 </Flex>
@@ -206,24 +208,12 @@ const DropdownContent = ({
             </Flex>
           );
         })}
+      </Box>
 
-        <Button
-          variant="textSecondary"
-          px={0}
-          sx={{ fontSize: 0 }}
-          onClick={() => {
-            trackMetric(prefixPopHealthMetric('Time in range unselect all'), { clinicId: selectedClinicId });
-            setPendingTimeInRange([]);
-          }}
-        >
-          {t('Unselect all')}
-        </Button>
-      </DialogContent>
-
-      <DialogActions sx={{ justifyContent: 'space-between' }} p={2}>
+      <Grid sx={{ gridTemplateColumns: '1fr 1fr' }} mt={3} mb={2}>
         <Button
           id="timeInRangeFilterClear"
-          variant="textSecondary"
+          variant="secondary"
           onClick={() => {
             trackMetric(prefixPopHealthMetric('Time in range clear filter'), { clinicId: selectedClinicId });
             setPendingTimeInRange([]);
@@ -236,7 +226,7 @@ const DropdownContent = ({
 
         <Button
           id="timeInRangeFilterConfirm"
-          variant="textPrimary"
+          variant="primary"
           onClick={() => {
             trackMetric(prefixPopHealthMetric('Time in range apply filter'), {
               clinicId: selectedClinicId,
@@ -254,8 +244,8 @@ const DropdownContent = ({
         >
           {t('Apply')}
         </Button>
-      </DialogActions>
-    </>
+      </Grid>
+    </Box>
   );
 };
 
