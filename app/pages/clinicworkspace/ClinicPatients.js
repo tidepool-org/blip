@@ -125,7 +125,7 @@ import FilterByTags from './FilterByTags';
 import FilterBySites from './FilterBySites';
 import FilterByDataRecency from './FilterByDataRecency';
 import ClinicPatientsPrintModal from './ClinicPatientsPrintModal';
-import AppliedFiltersList from './AppliedFiltersList';
+import AppliedFiltersList from './clinicPatientsFilters/AppliedFiltersList';
 
 const { Loader } = vizComponents;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels, formatBgValue } = vizUtils.bg;
