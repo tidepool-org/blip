@@ -3556,13 +3556,8 @@ export const ClinicPatients = (props) => {
         <AppliedFiltersList
           activeFilters={activeFilters}
           setActiveFilters={setActiveFilters}
-          rightContent={
-            <ClearFilterButtons
-              patientQueryState={patientQueryState}
-              onClearSearch={handleClearSearch}
-              onResetFilters={handleResetFilters}
-            />
-          }
+          onClearSearch={handleClearSearch}
+          onResetFilters={handleResetFilters}
         />
 
         <Table

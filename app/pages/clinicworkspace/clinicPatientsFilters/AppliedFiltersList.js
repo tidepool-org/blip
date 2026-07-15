@@ -4,10 +4,12 @@ import PropTypes from 'prop-types';
 import without from 'lodash/without';
 
 import ActiveFiltersTray from '../components/ActiveFiltersTray';
+import ClearFilterButtons from '../components/ClearFilterButtons';
+import { getPatientQueryState } from '../ClinicPatients';
 import { defaultFilterState } from '../useClinicPatientsFilters';
 import { Box } from 'theme-ui';
 
-const AppliedFiltersList = ({ activeFilters, setActiveFilters, rightContent }) => {
+const AppliedFiltersList = ({ activeFilters, setActiveFilters, onClearSearch, onResetFilters }) => {
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const { patientListSearchTextInput } = useSelector(state => state.blip.patientListFilters);
@@ -61,6 +63,8 @@ const AppliedFiltersList = ({ activeFilters, setActiveFilters, rightContent }) =
 
   if (!isActive || count <= 0) return null;
 
+  const patientQueryState = getPatientQueryState(activeFilters, patientListSearchTextInput);
+
   return (
     <ActiveFiltersTray
       hasSearchActive={hasSearchActive}
@@ -68,7 +72,11 @@ const AppliedFiltersList = ({ activeFilters, setActiveFilters, rightContent }) =
       onRemoveFilter={handleRemoveFilter}
       rightContent={
         <Box sx={{ fontSize: 0 }}>
-          {rightContent}
+          <ClearFilterButtons
+            patientQueryState={patientQueryState}
+            onClearSearch={onClearSearch}
+            onResetFilters={onResetFilters}
+          />
         </Box>
       }
     />
