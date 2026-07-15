@@ -124,7 +124,7 @@ import FilterBySites from './clinicPatientsFilters/FilterBySites';
 import FilterByDataRecency from './clinicPatientsFilters/FilterByDataRecency';
 import FilterBySummaryPeriod from './clinicPatientsFilters/FilterBySummaryPeriod';
 import FilterByTimeInRange from './clinicPatientsFilters/FilterByTimeInRange';
-import FilterByCGMUse from './FilterByCGMUse';
+import FilterByCGMUse from './clinicPatientsFilters/FilterByCGMUse';
 import ClinicPatientsPrintModal from './ClinicPatientsPrintModal';
 import AppliedFiltersList from './clinicPatientsFilters/AppliedFiltersList';
 

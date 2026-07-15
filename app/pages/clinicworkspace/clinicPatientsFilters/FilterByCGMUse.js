@@ -1,7 +1,7 @@
 import React from 'react';
 import noop from 'lodash/noop';
 
-import CGMUseFilterDropdown from './components/CGMUseFilterDropdown';
+import CGMUseFilterDropdown from '../components/CGMUseFilterDropdown';
 
 const FilterByCGMUse = ({
   activeFilters = {},
