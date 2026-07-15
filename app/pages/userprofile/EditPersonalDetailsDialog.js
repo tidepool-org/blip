@@ -99,8 +99,8 @@ export function EditPersonalDetailsDialog({ open, onClose, trackMetric }) {
               <Flex
                 sx={{
                   justifyContent: 'space-between',
-                  alignItems: 'center',
-                  flexWrap: 'wrap',
+                  alignItems: ['flex-start', 'flex-start', 'center'],
+                  flexDirection: ['column', 'column', 'row'],
                   gap: 3,
                 }}
               >
@@ -122,6 +122,7 @@ export function EditPersonalDetailsDialog({ open, onClose, trackMetric }) {
                   <Button
                     variant="secondary"
                     onClick={handleUpdateEmail}
+                    sx={{ width: ['100%', '100%', 'auto'] }}
                   >
                     {t('Update Email')}
                   </Button>
