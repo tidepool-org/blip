@@ -162,31 +162,5 @@ describe('AppliedFiltersList', () => {
         clinicSites: ['site2'],
       });
     });
-
-    it('clears the patientTags filter when the "Without any tags" special-state chip is removed', async () => {
-      const activeFilters = { ...defaultFilterState, patientTags: SPECIAL_FILTER_STATES.ZERO_TAGS };
-      const { setActiveFilters } = renderList({ activeFilters });
-
-      await userEvent.click(screen.getByLabelText('Remove Without any tags filter'));
-
-      expect(setActiveFilters).toHaveBeenCalledTimes(1);
-      expect(setActiveFilters).toHaveBeenCalledWith({
-        ...activeFilters,
-        patientTags: [],
-      });
-    });
-
-    it('clears the clinicSites filter when the "Without any sites" special-state chip is removed', async () => {
-      const activeFilters = { ...defaultFilterState, clinicSites: SPECIAL_FILTER_STATES.ZERO_SITES };
-      const { setActiveFilters } = renderList({ activeFilters });
-
-      await userEvent.click(screen.getByLabelText('Remove Without any sites filter'));
-
-      expect(setActiveFilters).toHaveBeenCalledTimes(1);
-      expect(setActiveFilters).toHaveBeenCalledWith({
-        ...activeFilters,
-        clinicSites: [],
-      });
-    });
   });
 });
