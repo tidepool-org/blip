@@ -50,7 +50,6 @@ import { Formik, Form } from 'formik';
 import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
 import { Link as RouterLink } from 'react-router-dom';
 import useClinicPatientsFilters, { defaultFilterState, SPECIAL_FILTER_STATES } from './useClinicPatientsFilters';
-import AppliedFiltersAdapter from './AppliedFiltersAdapter';
 
 import {
   bindPopover,
@@ -122,6 +121,7 @@ import colorPalette from '../../themes/colorPalette';
 import noop from 'lodash/noop';
 import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils';
 import ClinicPatientsPrintModal from './ClinicPatientsPrintModal';
+import AppliedFiltersList from './AppliedFiltersList';
 
 const { Loader } = vizComponents;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels, formatBgValue } = vizUtils.bg;
@@ -4165,7 +4165,7 @@ export const ClinicPatients = (props) => {
       <Box>
         <Loader show={loading} overlay={true} />
 
-        <AppliedFiltersAdapter
+        <AppliedFiltersList
           activeFilters={activeFilters}
           setActiveFilters={setActiveFilters}
           rightContent={

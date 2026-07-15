@@ -163,7 +163,7 @@ const ChipGroup = ({ prefix, chips, onRemove }) => {
   );
 };
 
-const AppliedFilters = ({
+const ActiveFiltersTray = ({
   filters = {},
   hasSearchActive = false,
   onRemoveFilter = noop,
@@ -260,4 +260,4 @@ const AppliedFilters = ({
   );
 };
 
-export default AppliedFilters;
+export default ActiveFiltersTray;
