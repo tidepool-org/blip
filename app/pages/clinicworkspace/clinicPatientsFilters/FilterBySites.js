@@ -1,12 +1,12 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import * as actions from '../../redux/actions';
+import * as actions from '../../../redux/actions';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 import noop from 'lodash/noop';
 
-import SiteFilterDropdown from './components/SiteFilterDropdown';
-import useIsClinicAdmin from './useIsClinicAdmin';
+import SiteFilterDropdown from '../components/SiteFilterDropdown';
+import useIsClinicAdmin from '../useIsClinicAdmin';
 
 const trackMetric = noop; // TODO: FIX
 

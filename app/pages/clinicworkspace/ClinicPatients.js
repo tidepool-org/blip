@@ -120,8 +120,8 @@ import Banner from '../../components/elements/Banner';
 import colorPalette from '../../themes/colorPalette';
 import noop from 'lodash/noop';
 import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils';
-import FilterByTags from './FilterByTags';
-import FilterBySites from './FilterBySites';
+import FilterByTags from './clinicPatientsFilters/FilterByTags';
+import FilterBySites from './clinicPatientsFilters/FilterBySites';
 import ClinicPatientsPrintModal from './ClinicPatientsPrintModal';
 import AppliedFiltersList from './clinicPatientsFilters/AppliedFiltersList';
 
