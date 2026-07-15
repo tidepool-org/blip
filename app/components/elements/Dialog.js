@@ -188,6 +188,10 @@ const StyledDialog = styled(MuiDialog)`
       margin: 0;
       height: 100%;
       max-height: 100%;
+      // Neutralize MuiDialog-paperFullWidth's calc(100% - 64px) so fullWidth
+      // dialogs fill the viewport edge-to-edge as full-screen sheets.
+      width: 100%;
+      max-width: 100%;
     }
   }
 
