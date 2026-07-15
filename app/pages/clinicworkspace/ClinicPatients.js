@@ -124,6 +124,7 @@ import FilterByTags from './clinicPatientsFilters/FilterByTags';
 import FilterBySites from './clinicPatientsFilters/FilterBySites';
 import FilterByDataRecency from './clinicPatientsFilters/FilterByDataRecency';
 import FilterBySummaryPeriod from './clinicPatientsFilters/FilterBySummaryPeriod';
+import FilterByTimeInRange from './clinicPatientsFilters/FilterByTimeInRange';
 import ClinicPatientsPrintModal from './ClinicPatientsPrintModal';
 import useIsClinicAdmin from './useIsClinicAdmin';
 import AppliedFiltersList, { getPatientQueryState } from './clinicPatientsFilters/AppliedFiltersList';
