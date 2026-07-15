@@ -179,19 +179,6 @@ const ActiveFiltersTray = ({
 
   const count = clinic?.fetchedPatientCount || 0;
 
-  const hasActiveFilters = !!(
-    filters.lastData ||
-    filters.lastDataType ||
-    filters.timeCGMUsePercent ||
-    filters.timeInRange?.length > 0 ||
-    filters.patientTags?.length > 0 ||
-    filters.clinicSites?.length > 0
-  );
-
-  const isActive = hasActiveFilters || hasSearchActive;
-
-  if (!isActive || count <= 0) return null;
-
   const handleRemoveChip = chip => onRemoveFilter(chip.type, chip.value);
 
   return (

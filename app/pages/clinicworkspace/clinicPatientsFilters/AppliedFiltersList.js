@@ -8,6 +8,8 @@ import { defaultFilterState } from '../useClinicPatientsFilters';
 import { Box } from 'theme-ui';
 
 const AppliedFiltersList = ({ activeFilters, setActiveFilters, rightContent }) => {
+  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const { patientListSearchTextInput } = useSelector(state => state.blip.patientListFilters);
 
   const handleRemoveFilter = (filterKey, value) => {
@@ -44,6 +46,20 @@ const AppliedFiltersList = ({ activeFilters, setActiveFilters, rightContent }) =
   };
 
   const hasSearchActive = !!patientListSearchTextInput;
+
+  const hasActiveFilters = !!(
+    activeFilters.lastData ||
+    activeFilters.lastDataType ||
+    activeFilters.timeCGMUsePercent ||
+    activeFilters.timeInRange?.length > 0 ||
+    activeFilters.patientTags?.length > 0 ||
+    activeFilters.clinicSites?.length > 0
+  );
+
+  const isActive = hasActiveFilters || hasSearchActive;
+  const count = clinic?.fetchedPatientCount || 0;
+
+  if (!isActive || count <= 0) return null;
 
   return (
     <ActiveFiltersTray
