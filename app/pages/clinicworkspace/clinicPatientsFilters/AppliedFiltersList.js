@@ -3,8 +3,8 @@ import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import without from 'lodash/without';
 
-import ActiveFiltersTray from './components/ActiveFiltersTray';
-import { defaultFilterState } from './useClinicPatientsFilters';
+import ActiveFiltersTray from '../components/ActiveFiltersTray';
+import { defaultFilterState } from '../useClinicPatientsFilters';
 import { Box } from 'theme-ui';
 
 const AppliedFiltersList = ({ activeFilters, setActiveFilters, rightContent }) => {
