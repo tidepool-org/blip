@@ -160,13 +160,16 @@ const DropdownContent = ({
         { // If no tags exist, display a message
           sortedTagFilterOptions.length <= 0 &&
           <Box mx={2} mb={2}>
-            <Box sx={{ fontSize: 1, color: colors.gray50, lineHeight: 1 }}>
-              {t('Tags help you segment your patient population based on criteria you define, such as clinician, type of diabetes, or care groups.')}
+            <Box sx={{ fontSize: 1, color: colors.blue50, lineHeight: 1 }} mb={3}>
+              {t('You don\'t have any tags yet.')}
+            </Box>
+            <Box sx={{ fontSize: 1, color: colors.blue50, lineHeight: 1 }}>
+              {t('Tags help you organize and find patients using categories that matter to your clinic, such as clinician, diabetes type, or care group.')}
             </Box>
             { !isClinicAdmin &&
-              <Box mt={3} pt={3} sx={{ borderTop: `1px solid ${colors.gray05}`, fontSize: 0, color: colors.gray50, lineHeight: 1 }}>
+              <Box mt={3} pt={3} sx={{ borderTop: `1px solid ${colors.gray05}`, fontSize: 0, color: colors.blue50, lineHeight: 1 }}>
                 <Trans t={t}>
-                  Tags can only be created by your Workspace Admins. Not sure who the admins are? Check the Clinic Members list in your&nbsp;
+                  Tags can only be created by Workspace Admins. If you don't have admin access, contact a Workspace Admin to create tags or update your from&nbsp;
                   <RouterLink to='/clinic-admin' style={{ color: colors.purpleBright }}>Workspace Settings.</RouterLink>
                 </Trans>
               </Box>
