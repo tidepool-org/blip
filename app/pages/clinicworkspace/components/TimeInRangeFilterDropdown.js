@@ -262,9 +262,7 @@ const TimeInRangeFilterDropdown = ({
 
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
 
-  const handleCloseDropdown = () => {
-    timeInRangePopupFilterState.close();
-  };
+  const handleCloseDropdown = () => timeInRangePopupFilterState.close();
 
   return (
     <>
@@ -313,9 +311,7 @@ const TimeInRangeFilterDropdown = ({
         onClickCloseIcon={() => {
           trackMetric(prefixPopHealthMetric('Time in range filter close'), { clinicId: selectedClinicId });
         }}
-        onClose={() => {
-          timeInRangePopupFilterState.close();
-        }}
+        onClose={handleCloseDropdown}
       >
         { timeInRangePopupFilterState.isOpen &&
           <DropdownContent
