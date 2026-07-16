@@ -24,10 +24,10 @@ import { lastDataFilterOptions } from '../../../core/clinicUtils';
 const prefixPopHealthMetric = () => noop; // TODO: FIX
 
 const DropdownContent = ({
-  onClose = noop,
-  onChange = noop,
-  lastData = null,
-  lastDataType = null,
+  onClose,
+  onChange,
+  lastData,
+  lastDataType,
   filterOptions,
 }) => {
   const { t } = useTranslation();
@@ -174,9 +174,7 @@ const DataRecencyFilterDropdown = ({
         onClickCloseIcon={() => {
           trackMetric(prefixPopHealthMetric('Last upload filter close'), { clinicId: selectedClinicId });
         }}
-        onClose={() => {
-          lastDataPopupFilterState.close();
-        }}
+        onClose={handleCloseDropdown}
       >
         { lastDataPopupFilterState.isOpen &&
           <DropdownContent
