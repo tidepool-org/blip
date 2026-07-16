@@ -164,13 +164,13 @@ const DropdownContent = ({
         { // If no sites exist, display a message
           sortedSiteFilterOptions.length <= 0 &&
           <Box mx={2} mb={2}>
-            <Box sx={{ fontSize: 1, color: colors.gray50, lineHeight: 1 }}>
-              {t('Create and assign sites to patient accounts to segment your patient population by location.')}
+            <Box sx={{ fontSize: 1, color: colors.blue50, lineHeight: 1 }}>
+              {t('You don\'t have any Clinic Sites listed for your workspace. Add Clinic Sites to organize and filter patients by care location.')}
             </Box>
             { !isClinicAdmin &&
-              <Box mt={3} pt={3} sx={{ borderTop: `1px solid ${colors.gray10}`, fontSize: 0, color: colors.gray50, lineHeight: 1 }}>
+              <Box mt={3} pt={3} sx={{ borderTop: `1px solid ${colors.gray05}`, fontSize: 0, color: colors.blue50, lineHeight: 1 }}>
                 <Trans t={t}>
-                  Sites can only be created by your Workspace Admins. Not sure who the admins are? Check the Clinic Members list in your&nbsp;
+                  Only admins can add new Clinic Sites associated with this workspace. If you don't have admin access, contact a workspace admin to add clinic sites or update your permissions from&nbsp;
                   <RouterLink to='/clinic-admin' style={{ color: colors.purpleBright }}>Workspace Settings.</RouterLink>
                 </Trans>
               </Box>
