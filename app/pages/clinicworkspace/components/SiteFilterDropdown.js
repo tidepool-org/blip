@@ -12,6 +12,7 @@ import { components as vizComponents, utils as vizUtils, colors as vizColors } f
 import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
 import { Link as RouterLink } from 'react-router-dom';
 import utils from '../../../core/utils';
+import { trackMetric } from '../../../core/metricUtils';
 
 import without from 'lodash/without';
 import map from 'lodash/map';
@@ -30,11 +31,9 @@ import Checkbox from '../../../components/elements/Checkbox';
 import { borders, colors } from '../../../themes/baseTheme';
 import { DialogContent, DialogActions } from '../../../components/elements/Dialog';
 
-const trackMetric = () => noop;
-const prefixPopHealthMetric = () => noop;
-
 import { SPECIAL_FILTER_STATES } from '../useClinicPatientsFilters';
 import useIsClinicAdmin from '../useIsClinicAdmin';
+import { useClinicMetricsPageName } from '../../../core/metricUtils';
 import TextInput from '../../../components/elements/TextInput';
 import styled from '@emotion/styled';
 
@@ -61,6 +60,7 @@ const DropdownContent = ({
 }) => {
   const { t } = useTranslation();
   const isClinicAdmin = useIsClinicAdmin();
+  const pageName = useClinicMetricsPageName();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
 
@@ -188,7 +188,7 @@ const DropdownContent = ({
             sx={{ fontSize: 1}}
             variant="secondary"
             onClick={() => {
-              trackMetric(prefixPopHealthMetric('Clinic site filter clear'), { clinicId: selectedClinicId });
+              trackMetric('Clinic - Clinic site filter clear', { clinicId: selectedClinicId, pageName });
               setPendingSites([]);
               handleChange([]);
               onClose();
@@ -198,7 +198,7 @@ const DropdownContent = ({
           </Button>
 
           <Button id="apply-clinic-sites-filter" sx={{ fontSize: 1}} variant="primary" onClick={() => {
-            trackMetric(prefixPopHealthMetric('Clinic sites filter apply'), { clinicId: selectedClinicId });
+            trackMetric('Clinic - Clinic sites filter apply', { clinicId: selectedClinicId, pageName });
             handleChange(pendingSites);
             onClose();
           }}>
@@ -223,6 +223,7 @@ const SiteFilterDropdown = ({
   onClickEditSites = null,
 }) => {
   const { t } = useTranslation();
+  const pageName = useClinicMetricsPageName();
 
   const clinicSitesPopupFilterState = usePopupState({
     variant: 'popover',
@@ -238,7 +239,7 @@ const SiteFilterDropdown = ({
     <>
       <Box
         onClick={() => {
-          if (!clinicSitesPopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('clinic sites filter open'), { clinicId: selectedClinicId });
+          if (!clinicSitesPopupFilterState.isOpen) trackMetric('Clinic - clinic sites filter open', { clinicId: selectedClinicId, pageName });
         }}
         sx={{ flexShrink: 0 }}
       >
@@ -279,7 +280,7 @@ const SiteFilterDropdown = ({
         closeIcon
         {...bindPopover(clinicSitesPopupFilterState)}
         onClickCloseIcon={() => {
-          trackMetric(prefixPopHealthMetric('Clinic sites filter close'), { clinicId: selectedClinicId });
+          trackMetric('Clinic sites filter close', { clinicId: selectedClinicId, pageName });
         }}
         onClose={handleCloseDropdown}
       >

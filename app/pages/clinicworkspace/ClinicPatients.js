@@ -124,6 +124,7 @@ import FilterByTags from './clinicPatientsFilters/FilterByTags';
 import FilterBySites from './clinicPatientsFilters/FilterBySites';
 import ClinicPatientsPrintModal from './ClinicPatientsPrintModal';
 import AppliedFiltersList from './clinicPatientsFilters/AppliedFiltersList';
+import useIsClinicAdmin from './useIsClinicAdmin';
 
 const { Loader } = vizComponents;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels, formatBgValue } = vizUtils.bg;
@@ -623,7 +624,7 @@ export const ClinicPatients = (props) => {
   const mrnSettings = useMemo(() => clinic?.mrnSettings ?? {}, [clinic?.mrnSettings]);
   const timePrefs = useSelector((state) => state.blip.timePrefs);
   const rpmReportPatients = useSelector(state => state.blip.rpmReportPatients);
-  const isClinicAdmin = includes(get(clinic, ['clinicians', loggedInUserId, 'roles'], []), 'CLINIC_ADMIN');
+  const isClinicAdmin = useIsClinicAdmin();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showDeleteClinicSiteDialog, setShowDeleteClinicSiteDialog] = useState(false);
   const [showUpdateClinicSiteDialog, setShowUpdateClinicSiteDialog] = useState(false);
