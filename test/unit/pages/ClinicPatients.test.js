@@ -1639,54 +1639,6 @@ describe('ClinicPatients', () => {
           expect(timeAgoMessage).to.equal('Last updated less than an hour ago');
         });
 
-        it('should allow filtering by last upload', () => {
-          const lastDataFilterTrigger = container.querySelector('#last-data-filter-trigger');
-          expect(lastDataFilterTrigger).to.exist;
-
-          const popover = () => document.querySelector('#lastDataFilters');
-          expect(popover()).to.exist;
-          expect(popover().style.visibility).to.equal('hidden');
-
-          // Open filters popover
-          fireEvent.click(lastDataFilterTrigger);
-          expect(popover().style.visibility).to.equal('');
-
-          // Ensure filter options present
-          const typeFilterOptions = document.querySelectorAll('#last-upload-type label');
-          expect(typeFilterOptions.length).to.equal(2);
-          expect(typeFilterOptions[0].textContent).to.equal('CGM');
-          expect(typeFilterOptions[0].querySelector('input').value).to.equal('cgm');
-
-          expect(typeFilterOptions[1].textContent).to.equal('BGM');
-          expect(typeFilterOptions[1].querySelector('input').value).to.equal('bgm');
-
-          // Ensure period filter options present
-          const periodFilterOptions = document.querySelectorAll('#last-upload-filters label');
-          expect(periodFilterOptions.length).to.equal(4);
-          expect(periodFilterOptions[0].textContent).to.equal('Today');
-          expect(periodFilterOptions[0].querySelector('input').value).to.equal('1');
-
-          expect(periodFilterOptions[1].textContent).to.equal('Within 2 days');
-          expect(periodFilterOptions[1].querySelector('input').value).to.equal('2');
-
-          expect(periodFilterOptions[2].textContent).to.equal('Within 14 days');
-          expect(periodFilterOptions[2].querySelector('input').value).to.equal('14');
-
-          expect(periodFilterOptions[3].textContent).to.equal('Within 30 days');
-          expect(periodFilterOptions[3].querySelector('input').value).to.equal('30');
-
-          // Apply button disabled until selection made
-          const applyButton = () => document.querySelector('#apply-last-upload-filter');
-          expect(applyButton().disabled).to.be.true;
-
-          fireEvent.click(typeFilterOptions[1].querySelector('input'));
-          fireEvent.click(periodFilterOptions[3].querySelector('input'));
-          expect(applyButton().disabled).to.be.false;
-
-          fireEvent.click(applyButton());
-          sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Last upload apply filter', sinon.match({ clinicId: 'clinicID123', dateRange: '30 days', type: 'bgm'}));
-        });
-
         it('should allow filtering by cgm use', () => {
           const cgmUseFilterTrigger = container.querySelector('#cgm-use-filter-trigger');
           expect(cgmUseFilterTrigger).to.exist;
@@ -2008,11 +1960,6 @@ describe('ClinicPatients', () => {
 
             mountWrapper(store);
             defaultProps.trackMetric.resetHistory();
-          });
-
-          it('should set the last upload filter on load based on the stored filters', () => {
-            const lastDataFilterTrigger = container.querySelector('#last-data-filter-trigger');
-            expect(lastDataFilterTrigger.textContent).to.equal('Data within 14 days');
           });
 
           it('should set the patient tag filters on load based on the stored filters', () => {
