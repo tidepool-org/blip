@@ -8,7 +8,7 @@ import noop from 'lodash/noop';
 
 import SiteFilterDropdown from '../components/SiteFilterDropdown';
 import useIsClinicAdmin from '../useIsClinicAdmin';
-import { useClinicMetricsPageName } from '../../../core/metricUtils';
+import useClinicMetricsPageName from '../useClinicMetricsPageName';
 
 const FilterBySites = ({
   api,
