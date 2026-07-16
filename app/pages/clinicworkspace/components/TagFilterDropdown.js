@@ -88,7 +88,7 @@ const DropdownContent = ({
   const canEditTags = !!onClickEditTags && isClinicAdmin;
 
   return (
-    <Box sx={{ width: 300, position: 'sticky', top: 0 }} mt={5} mx={2}>
+    <Box data-testid='tag-filter-dropdown' sx={{ width: 300, position: 'sticky', top: 0 }} mt={5} mx={2}>
       <Flex sx={{ justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
         <Box sx={{ padding: 1, color: colors.gray50, fontSize: 1, fontWeight: 'medium' }}>
           {t('Tags')}
