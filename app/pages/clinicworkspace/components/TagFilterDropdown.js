@@ -169,7 +169,7 @@ const DropdownContent = ({
             { !isClinicAdmin &&
               <Box mt={3} pt={3} sx={{ borderTop: `1px solid ${colors.gray05}`, fontSize: 0, color: colors.blue50, lineHeight: 1 }}>
                 <Trans t={t}>
-                  Tags can only be created by Workspace Admins. If you don't have admin access, contact a Workspace Admin to create tags or update your from&nbsp;
+                  Tags can only be created by Workspace Admins. If you don't have admin access, contact a Workspace Admin to create tags or update your permissions from&nbsp;
                   <RouterLink to='/clinic-admin' style={{ color: colors.purpleBright }}>Workspace Settings.</RouterLink>
                 </Trans>
               </Box>
