@@ -72,7 +72,7 @@
     "@testing-library/react": "12.1.5",
     "@testing-library/react-hooks": "8.0.1",
     "@testing-library/user-event": "14.6.1",
-    "@tidepool/viz": "1.58.0-rc.1",
+    "@tidepool/viz": "1.58.0",
     "@types/jest": "29.5.14",
     "async": "2.6.4",
     "autoprefixer": "10.4.16",
