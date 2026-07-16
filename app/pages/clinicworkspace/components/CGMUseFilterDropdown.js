@@ -136,7 +136,11 @@ const CGMUseFilterDropdown = ({
         closeIcon
         {...bindPopover(cgmUsePopupFilterState)}
         onClickCloseIcon={() => {
+<<<<<<< HEAD
           trackMetric('Clinic - CGM Use filter close', { clinicId: selectedClinicId, pageName });
+=======
+          trackMetric(prefixPopHealthMetric('CGM Use filter close'), { clinicId: selectedClinicId });
+>>>>>>> 5fc13f928 (WEB-4654 clear unneeded props)
         }}
         onClose={handleCloseDropdown}
       >
