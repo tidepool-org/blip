@@ -30,9 +30,9 @@ const getSummaryPeriodSelectLabel = (t, activeSummaryPeriod) => {
 };
 
 const DropdownContent = ({
-  onClose = noop,
-  onChange = noop,
-  activeSummaryPeriod = null,
+  onClose,
+  onChange,
+  activeSummaryPeriod,
 }) => {
   const { t } = useTranslation();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
@@ -121,9 +121,7 @@ const SummaryPeriodFilterDropdown = ({
 
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
 
-  const handleCloseDropdown = () => {
-    summaryPeriodPopupFilterState.close();
-  };
+  const handleCloseDropdown = () => summaryPeriodPopupFilterState.close();
 
   return (
     <>
@@ -153,9 +151,7 @@ const SummaryPeriodFilterDropdown = ({
         onClickCloseIcon={() => {
           trackMetric(prefixPopHealthMetric('Summary period filter close'), { clinicId: selectedClinicId });
         }}
-        onClose={() => {
-          summaryPeriodPopupFilterState.close();
-        }}
+        onClose={handleCloseDropdown}
       >
         { summaryPeriodPopupFilterState.isOpen &&
           <DropdownContent
