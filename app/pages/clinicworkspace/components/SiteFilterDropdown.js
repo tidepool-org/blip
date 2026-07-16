@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { Box, Flex, Grid, Text } from 'theme-ui';
-import EditIcon from '@material-ui/icons/EditRounded';
+import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import SearchIcon from '@material-ui/icons/Search';
@@ -45,9 +45,9 @@ const EditSitesAction = ({ onClick = noop }) => {
     <Icon
       id="show-edit-clinic-sites-dialog"
       variant="button"
-      icon={EditIcon}
+      icon={AddCircleOutlineIcon}
       label={t('Edit Sites')}
-      sx={{ fontSize: 1 }}
+      sx={{ fontSize: 3, color: vizColors.indigo30 }}
       onClick={onClick}
     />
   );
@@ -85,6 +85,8 @@ const DropdownContent = ({
 
   const isChecked = id => pendingSites?.includes(id);
 
+  const canEditSites = !!onClickEditSites && isClinicAdmin;
+
   return (
     <Box sx={{ width: 300, position: 'sticky', top: 0 }} mt={5} mx={2}>
       <Flex sx={{ justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
@@ -92,7 +94,7 @@ const DropdownContent = ({
           {t('Clinic Sites')}
         </Box>
 
-        {!!onClickEditSites && <EditSitesAction onClick={onClickEditSites} />}
+        {canEditSites && <EditSitesAction onClick={onClickEditSites} />}
       </Flex>
 
       <Box sx={{ border: `1px solid ${vizColors.gray10}`, borderRadius: 6, padding: 2 }}>
