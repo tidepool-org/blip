@@ -54,10 +54,10 @@ const EditTagsAction = ({ onClick = noop }) => {
 };
 
 const DropdownContent = ({
-  onClose = noop,
-  onChange = noop,
-  patientTags = [],
-  onClickEditTags = null,
+  onClose,
+  onChange,
+  patientTags,
+  onClickEditTags,
 }) => {
   const { t } = useTranslation();
   const isClinicAdmin = useIsClinicAdmin();
@@ -231,9 +231,7 @@ const TagFilterDropdown = ({
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
 
-  const handleCloseDropdown = () => {
-    patientTagsPopupFilterState.close();
-  };
+  const handleCloseDropdown = () => patientTagsPopupFilterState.close();
 
   return (
     <>
@@ -282,9 +280,7 @@ const TagFilterDropdown = ({
         onClickCloseIcon={() => {
           trackMetric(prefixPopHealthMetric('Patient tag filter close'), { clinicId: selectedClinicId });
         }}
-        onClose={() => {
-          patientTagsPopupFilterState.close();
-        }}
+        onClose={handleCloseDropdown}
       >
         { patientTagsPopupFilterState.isOpen &&
           <DropdownContent
