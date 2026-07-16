@@ -28,6 +28,7 @@ const DropdownContent = ({
   onChange = noop,
   lastData = null,
   lastDataType = null,
+  filterOptions,
 }) => {
   const { t } = useTranslation();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
@@ -38,8 +39,6 @@ const DropdownContent = ({
     { value: 'cgm', label: t('CGM') },
     { value: 'bgm', label: t('BGM') },
   ];
-
-  const customLastDataFilterOptions = reject(lastDataFilterOptions, { value: 7 });
 
   const handleChange = (filters) => onChange(filters);
 
@@ -75,7 +74,7 @@ const DropdownContent = ({
           <RadioGroup
             id="last-upload-filters"
             name="last-upload-filters"
-            options={customLastDataFilterOptions}
+            options={filterOptions}
             variant="vertical"
             sx={{ fontSize: 0 }}
             value={pending.lastData}
@@ -132,6 +131,7 @@ const DataRecencyFilterDropdown = ({
   onChange = noop,
   lastData = null,
   lastDataType = null,
+  filterOptions = lastDataFilterOptions,
 }) => {
   const { t } = useTranslation();
 
@@ -182,6 +182,7 @@ const DataRecencyFilterDropdown = ({
           <DropdownContent
             lastData={lastData}
             lastDataType={lastDataType}
+            filterOptions={filterOptions}
             onClose={handleCloseDropdown}
             onChange={onChange}
           />
