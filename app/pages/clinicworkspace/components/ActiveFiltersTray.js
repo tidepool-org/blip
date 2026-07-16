@@ -66,7 +66,7 @@ const useTagChips = (patientTags = []) => {
     return [{
       type: 'patientTags',
       value: SPECIAL_FILTER_STATES.ZERO_TAGS[0],
-      label: t('Without any tags'),
+      label: t('No tags'),
     }];
   }
 
@@ -88,7 +88,7 @@ const useSiteChips = (clinicSites = []) => {
     return [{
       type: 'clinicSites',
       value: SPECIAL_FILTER_STATES.ZERO_SITES[0],
-      label: t('Without any sites'),
+      label: t('No clinic sites'),
     }];
   }
 
