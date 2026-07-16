@@ -24,9 +24,9 @@ const getCgmUseFilterOptions = (t) => [
 ];
 
 const DropdownContent = ({
-  onClose = noop,
-  onChange = noop,
-  timeCGMUsePercent = null,
+  onClose,
+  onChange,
+  timeCGMUsePercent,
 }) => {
   const { t } = useTranslation();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
@@ -109,9 +109,7 @@ const CGMUseFilterDropdown = ({
 
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
 
-  const handleCloseDropdown = () => {
-    cgmUsePopupFilterState.close();
-  };
+  const handleCloseDropdown = () => cgmUsePopupFilterState.close();
 
   return (
     <>
@@ -141,9 +139,7 @@ const CGMUseFilterDropdown = ({
         onClickCloseIcon={() => {
           trackMetric(prefixPopHealthMetric('CGM Use filter close'), { clinicId: selectedClinicId });
         }}
-        onClose={() => {
-          cgmUsePopupFilterState.close();
-        }}
+        onClose={handleCloseDropdown}
       >
         { cgmUsePopupFilterState.isOpen &&
           <DropdownContent
