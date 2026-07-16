@@ -33,7 +33,7 @@ import { DialogContent, DialogActions } from '../../../components/elements/Dialo
 
 import { SPECIAL_FILTER_STATES } from '../useClinicPatientsFilters';
 import useIsClinicAdmin from '../useIsClinicAdmin';
-import { useClinicMetricsPageName } from '../../../core/metricUtils';
+import useClinicMetricsPageName from '../useClinicMetricsPageName';
 import TextInput from '../../../components/elements/TextInput';
 import styled from '@emotion/styled';
 

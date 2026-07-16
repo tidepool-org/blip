@@ -8,7 +8,7 @@ import noop from 'lodash/noop';
 
 import TagFilterDropdown from '../components/TagFilterDropdown';
 import useIsClinicAdmin from '../useIsClinicAdmin';
-import { useClinicMetricsPageName } from '../../../core/metricUtils';
+import useClinicMetricsPageName from '../useClinicMetricsPageName';
 
 const FilterByTags = ({
   api,
