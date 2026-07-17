@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { Box, Flex, Grid, Text } from 'theme-ui';
-import EditIcon from '@material-ui/icons/EditRounded';
+import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import SearchIcon from '@material-ui/icons/Search';
@@ -12,6 +12,7 @@ import { components as vizComponents, utils as vizUtils, colors as vizColors } f
 import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
 import { Link as RouterLink } from 'react-router-dom';
 import utils from '../../../core/utils';
+import { trackMetric } from '../../../core/metricUtils';
 
 import without from 'lodash/without';
 import map from 'lodash/map';
@@ -30,11 +31,9 @@ import Checkbox from '../../../components/elements/Checkbox';
 import { borders, colors } from '../../../themes/baseTheme';
 import { DialogContent, DialogActions } from '../../../components/elements/Dialog';
 
-const trackMetric = () => noop;
-const prefixPopHealthMetric = () => noop;
-
 import { SPECIAL_FILTER_STATES } from '../useClinicPatientsFilters';
 import useIsClinicAdmin from '../useIsClinicAdmin';
+import useClinicMetricsPageName from '../useClinicMetricsPageName';
 import TextInput from '../../../components/elements/TextInput';
 import styled from '@emotion/styled';
 
@@ -45,22 +44,23 @@ const EditSitesAction = ({ onClick = noop }) => {
     <Icon
       id="show-edit-clinic-sites-dialog"
       variant="button"
-      icon={EditIcon}
+      icon={AddCircleOutlineIcon}
       label={t('Edit Sites')}
-      sx={{ fontSize: 1 }}
+      sx={{ fontSize: 3, color: vizColors.indigo30 }}
       onClick={onClick}
     />
   );
 };
 
 const DropdownContent = ({
-  onClose = noop,
-  onChange = noop,
-  clinicSites = [],
-  onClickEditSites = null,
+  onClose,
+  onChange,
+  clinicSites,
+  onClickEditSites,
 }) => {
   const { t } = useTranslation();
   const isClinicAdmin = useIsClinicAdmin();
+  const pageName = useClinicMetricsPageName();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
 
@@ -85,14 +85,16 @@ const DropdownContent = ({
 
   const isChecked = id => pendingSites?.includes(id);
 
+  const canEditSites = !!onClickEditSites && isClinicAdmin;
+
   return (
-    <Box sx={{ width: 300, position: 'sticky', top: 0 }} mt={5} mx={2}>
+    <Box data-testid='site-filter-dropdown' sx={{ width: 300, position: 'sticky', top: 0 }} mt={5} mx={2}>
       <Flex sx={{ justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
         <Box sx={{ padding: 1, color: colors.gray50, fontSize: 1, fontWeight: 'medium' }}>
           {t('Clinic Sites')}
         </Box>
 
-        {!!onClickEditSites && <EditSitesAction onClick={onClickEditSites} />}
+        {canEditSites && <EditSitesAction onClick={onClickEditSites} />}
       </Flex>
 
       <Box sx={{ border: `1px solid ${vizColors.gray10}`, borderRadius: 6, padding: 2 }}>
@@ -164,13 +166,13 @@ const DropdownContent = ({
         { // If no sites exist, display a message
           sortedSiteFilterOptions.length <= 0 &&
           <Box mx={2} mb={2}>
-            <Box sx={{ fontSize: 1, color: colors.gray50, lineHeight: 1 }}>
-              {t('Create and assign sites to patient accounts to segment your patient population by location.')}
+            <Box sx={{ fontSize: 1, color: colors.blue50, lineHeight: 1 }}>
+              {t('You don\'t have any Clinic Sites listed for your workspace. Add Clinic Sites to organize and filter patients by care location.')}
             </Box>
             { !isClinicAdmin &&
-              <Box mt={3} pt={3} sx={{ borderTop: `1px solid ${colors.gray10}`, fontSize: 0, color: colors.gray50, lineHeight: 1 }}>
+              <Box mt={3} pt={3} sx={{ borderTop: `1px solid ${colors.gray05}`, fontSize: 0, color: colors.blue50, lineHeight: 1 }}>
                 <Trans t={t}>
-                  Sites can only be created by your Workspace Admins. Not sure who the admins are? Check the Clinic Members list in your&nbsp;
+                  Only admins can add new Clinic Sites associated with this workspace. If you don't have admin access, contact a workspace admin to add clinic sites or update your permissions from&nbsp;
                   <RouterLink to='/clinic-admin' style={{ color: colors.purpleBright }}>Workspace Settings.</RouterLink>
                 </Trans>
               </Box>
@@ -186,7 +188,7 @@ const DropdownContent = ({
             sx={{ fontSize: 1}}
             variant="secondary"
             onClick={() => {
-              trackMetric(prefixPopHealthMetric('Clinic site filter clear'), { clinicId: selectedClinicId });
+              trackMetric('Clinic - Clinic site filter clear', { clinicId: selectedClinicId, pageName });
               setPendingSites([]);
               handleChange([]);
               onClose();
@@ -196,7 +198,7 @@ const DropdownContent = ({
           </Button>
 
           <Button id="apply-clinic-sites-filter" sx={{ fontSize: 1}} variant="primary" onClick={() => {
-            trackMetric(prefixPopHealthMetric('Clinic sites filter apply'), { clinicId: selectedClinicId });
+            trackMetric('Clinic - Clinic sites filter apply', { clinicId: selectedClinicId, pageName });
             handleChange(pendingSites);
             onClose();
           }}>
@@ -221,6 +223,7 @@ const SiteFilterDropdown = ({
   onClickEditSites = null,
 }) => {
   const { t } = useTranslation();
+  const pageName = useClinicMetricsPageName();
 
   const clinicSitesPopupFilterState = usePopupState({
     variant: 'popover',
@@ -230,15 +233,13 @@ const SiteFilterDropdown = ({
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
 
-  const handleCloseDropdown = () => {
-    clinicSitesPopupFilterState.close();
-  };
+  const handleCloseDropdown = () => clinicSitesPopupFilterState.close();
 
   return (
     <>
       <Box
         onClick={() => {
-          if (!clinicSitesPopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('clinic sites filter open'), { clinicId: selectedClinicId });
+          if (!clinicSitesPopupFilterState.isOpen) trackMetric('Clinic - clinic sites filter open', { clinicId: selectedClinicId, pageName });
         }}
         sx={{ flexShrink: 0 }}
       >
@@ -279,11 +280,9 @@ const SiteFilterDropdown = ({
         closeIcon
         {...bindPopover(clinicSitesPopupFilterState)}
         onClickCloseIcon={() => {
-          trackMetric(prefixPopHealthMetric('Clinic sites filter close'), { clinicId: selectedClinicId });
+          trackMetric('Clinic sites filter close', { clinicId: selectedClinicId, pageName });
         }}
-        onClose={() => {
-          clinicSitesPopupFilterState.close();
-        }}
+        onClose={handleCloseDropdown}
       >
         { clinicSitesPopupFilterState.isOpen &&
           <DropdownContent
