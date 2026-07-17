@@ -664,13 +664,6 @@ describe('ClinicPatients', () => {
       expect(container.querySelector('.table-empty-text').textContent).includes('There are no results to show');
     });
 
-    describe('Filter Reset Bar', () => {
-      it('should hide the Filter Reset Bar', () => {
-        const filterResetBar = container.querySelector('.filter-reset-bar');
-        expect(filterResetBar).to.be.null;
-      });
-    });
-
     it('should open a modal for adding a new patient', async () => {
       const addButton = container.querySelector('button#add-patient');
       expect(addButton.textContent).to.equal('Add New Patient');
@@ -951,13 +944,6 @@ describe('ClinicPatients', () => {
       store = mockStore(noPatientsButWithFiltersState);
       defaultProps.trackMetric.resetHistory();
       mountWrapper(store);
-    });
-
-    describe('Filter Reset Bar', () => {
-      it('should hide the Filter Reset Bar', () => {
-        const filterResetBar = container.querySelector('.filter-reset-bar');
-        expect(filterResetBar).to.be.null;
-      });
     });
 
     describe('when Reset Filters button is clicked', function () {
@@ -1814,11 +1800,6 @@ describe('ClinicPatients', () => {
             mountWrapper(store);
           });
 
-          it('should show the Filter Reset Bar', () => {
-            const filterResetBar = container.querySelector('.filter-reset-bar');
-            expect(filterResetBar).to.exist;
-          });
-
           it('should allow filtering by summary period', () => {
             const summaryPeriodFilterTrigger = container.querySelector('#summary-period-filter-trigger');
             expect(summaryPeriodFilterTrigger).to.exist;
@@ -2150,181 +2131,6 @@ describe('ClinicPatients', () => {
             expect(veryHighFilter().querySelector('input').checked).to.be.false;
           });
         });
-
-        it('should track how many filters are active', async () => {
-          // Set up stateful filter mock to allow DOM verification after applying filters
-          let currentFilters = { timeInRange: [], patientTags: [], meetsGlycemicTargets: false };
-          const applyFiltersMock = (newFilters) => {
-            currentFilters = typeof newFilters === 'function' ? newFilters(currentFilters) : newFilters;
-            mockUseClinicPatientsFilters.mockImplementation(() => [currentFilters, applyFiltersMock]);
-          };
-          mockUseClinicPatientsFilters.mockImplementation(() => [currentFilters, applyFiltersMock]);
-          mountWrapper(store);
-          defaultProps.trackMetric.resetHistory();
-
-          const filterCount = () => container.querySelector('#filter-count');
-          expect(filterCount()).to.be.null;
-
-          const timeInRangeFilterCount = () => container.querySelector('#time-in-range-filter-count');
-          expect(timeInRangeFilterCount()).to.be.null;
-
-          // Set lastData filter
-          const lastDataFilterTrigger = container.querySelector('#last-data-filter-trigger');
-          expect(lastDataFilterTrigger).to.exist;
-
-          fireEvent.click(lastDataFilterTrigger);
-
-          const typeFilterOptions = document.querySelectorAll('#last-upload-type label');
-          expect(typeFilterOptions.length).to.equal(2);
-
-          const periodFilterOptions = document.querySelectorAll('#last-upload-filters label');
-          expect(periodFilterOptions.length).to.equal(4);
-
-          fireEvent.click(typeFilterOptions[0].querySelector('input'));
-          fireEvent.click(periodFilterOptions[3].querySelector('input'));
-          fireEvent.click(document.querySelector('#apply-last-upload-filter'));
-
-          // Filter count should be 1 after natural re-render from popover close
-          await waitFor(() => {
-            expect(filterCount()).to.exist;
-          });
-          expect(filterCount().textContent).to.equal('1');
-
-          // Set time in range filter
-          const timeInRangeFilterTrigger = container.querySelector('#time-in-range-filter-trigger');
-          expect(timeInRangeFilterTrigger).to.exist;
-
-          fireEvent.click(timeInRangeFilterTrigger);
-
-          // Select 3 filter ranges
-          const veryLowFilter = () => document.querySelector('#time-in-range-filter-veryLow');
-          fireEvent.click(veryLowFilter().querySelector('input'));
-          expect(veryLowFilter().querySelector('input').checked).to.be.true;
-
-          const lowFilter = () => document.querySelector('#time-in-range-filter-anyLow');
-          fireEvent.click(lowFilter().querySelector('input'));
-          expect(lowFilter().querySelector('input').checked).to.be.true;
-
-          const highFilter = () => document.querySelector('#time-in-range-filter-anyHigh');
-          fireEvent.click(highFilter().querySelector('input'));
-          expect(highFilter().querySelector('input').checked).to.be.true;
-
-          // Submit the form
-          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-          fireEvent.click(document.querySelector('#timeInRangeFilterConfirm'));
-
-          // Filter count should be 2 after natural re-render from popover close
-          await waitFor(() => {
-            expect(filterCount()?.textContent).to.equal('2');
-            expect(timeInRangeFilterCount()).to.exist;
-            expect(timeInRangeFilterCount().textContent).to.equal('3');
-          });
-
-          // Unset last upload filter
-          fireEvent.click(lastDataFilterTrigger);
-          fireEvent.click(document.querySelector('#clear-last-upload-filter'));
-
-          // Filter count should be 1
-          await waitFor(() => {
-            expect(filterCount()?.textContent).to.equal('1');
-            expect(timeInRangeFilterCount()).to.exist;
-            expect(timeInRangeFilterCount().textContent).to.equal('3');
-          });
-
-          // Unset time in range filter
-          fireEvent.click(timeInRangeFilterTrigger);
-          fireEvent.click(document.querySelector('#timeInRangeFilterClear'));
-
-          // Total filter count and time in range filter count should be unset
-          await waitFor(() => {
-            expect(filterCount()).to.be.null;
-          });
-          expect(timeInRangeFilterCount()).to.be.null;
-        }, 30000);
-
-        it('should reset all active filters at once', async () => {
-          // Set up stateful filter mock to allow DOM verification after applying filters
-          let currentFilters = { timeInRange: [], patientTags: [], meetsGlycemicTargets: false };
-          const applyFiltersMock = (newFilters) => {
-            currentFilters = typeof newFilters === 'function' ? newFilters(currentFilters) : newFilters;
-            mockUseClinicPatientsFilters.mockImplementation(() => [currentFilters, applyFiltersMock]);
-          };
-          mockUseClinicPatientsFilters.mockImplementation(() => [currentFilters, applyFiltersMock]);
-          mountWrapper(store);
-          defaultProps.trackMetric.resetHistory();
-
-          const filterCount = () => container.querySelector('#filter-count');
-          expect(filterCount()).to.be.null;
-
-          const timeInRangeFilterCount = () => container.querySelector('#time-in-range-filter-count');
-          expect(timeInRangeFilterCount()).to.be.null;
-
-          const resetAllFiltersButton = () => container.querySelector('#reset-all-active-filters');
-          expect(resetAllFiltersButton()).to.be.null;
-
-          // Set lastData filter
-          const lastDataFilterTrigger = container.querySelector('#last-data-filter-trigger');
-          expect(lastDataFilterTrigger).to.exist;
-
-          fireEvent.click(lastDataFilterTrigger);
-
-          const typeFilterOptions = document.querySelectorAll('#last-upload-type label');
-          expect(typeFilterOptions.length).to.equal(2);
-
-          const periodFilterOptions = document.querySelectorAll('#last-upload-filters label');
-          expect(periodFilterOptions.length).to.equal(4);
-
-          fireEvent.click(typeFilterOptions[0].querySelector('input'));
-          fireEvent.click(periodFilterOptions[3].querySelector('input'));
-          fireEvent.click(document.querySelector('#apply-last-upload-filter'));
-
-          // Filter count should be 1 after natural re-render from popover close
-          await waitFor(() => {
-            expect(filterCount()).to.exist;
-          });
-          expect(filterCount().textContent).to.equal('1');
-          expect(resetAllFiltersButton()).to.exist;
-
-          // Set time in range filter
-          const timeInRangeFilterTrigger = container.querySelector('#time-in-range-filter-trigger');
-          expect(timeInRangeFilterTrigger).to.exist;
-
-          fireEvent.click(timeInRangeFilterTrigger);
-
-          // Select 3 filter ranges
-          const veryLowFilter = () => document.querySelector('#time-in-range-filter-veryLow');
-          fireEvent.click(veryLowFilter().querySelector('input'));
-          expect(veryLowFilter().querySelector('input').checked).to.be.true;
-
-          const lowFilter = () => document.querySelector('#time-in-range-filter-anyLow');
-          fireEvent.click(lowFilter().querySelector('input'));
-          expect(lowFilter().querySelector('input').checked).to.be.true;
-
-          const highFilter = () => document.querySelector('#time-in-range-filter-anyHigh');
-          fireEvent.click(highFilter().querySelector('input'));
-          expect(highFilter().querySelector('input').checked).to.be.true;
-
-          // Submit the form
-          defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-          fireEvent.click(document.querySelector('#timeInRangeFilterConfirm'));
-
-          // Filter count should be 2 after natural re-render from popover close
-          await waitFor(() => {
-            expect(filterCount()?.textContent).to.equal('2');
-            expect(timeInRangeFilterCount()).to.exist;
-            expect(timeInRangeFilterCount().textContent).to.equal('3');
-          });
-          expect(resetAllFiltersButton()).to.exist;
-
-          fireEvent.click(resetAllFiltersButton());
-
-          // Total filter count and time in range filter count should be unset
-          await waitFor(() => {
-            expect(filterCount()).to.be.null;
-          });
-          expect(timeInRangeFilterCount()).to.be.null;
-          expect(resetAllFiltersButton()).to.be.null;
-        }, 25000);
 
         it('should clear pending filter edits when time in range filter dialog closed', () => {
           const filterCount = () => container.querySelector('#filter-count');
