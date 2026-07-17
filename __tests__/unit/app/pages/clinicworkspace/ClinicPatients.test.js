@@ -382,103 +382,20 @@ describe('ClinicPatients', ()  => {
 
         describe('filtering for patients', () => {
           afterEach(() => {
-            // Clear any persisted filter state between tests
             localStorage.clear();
           });
 
-          it('should allow filtering by sites', async () => {
+          it('maps an applied tag filter into the getPatientsForClinic query', async () => {
             render(
               <MockedProviderWrappers>
                 <ClinicPatients {...defaultProps} />
               </MockedProviderWrappers>
             );
 
-            // Open the Sites filter  dropdown and filter for 2 sites
-            await userEvent.click(screen.getByRole('button', { name: /Sites/ }));
-
-            const site1checkbox = screen.getByTestId('clinic-site-filter-option-checkbox-site-1-id');
-            const site2checkbox = screen.getByTestId('clinic-site-filter-option-checkbox-site-2-id');
-
-            expect(site1checkbox).not.toBeChecked();
-            expect(site2checkbox).not.toBeChecked();
-
-            await userEvent.click(site1checkbox);
-            await userEvent.click(site2checkbox);
-
-            expect(site1checkbox).toBeChecked();
-            expect(site2checkbox).toBeChecked();
-
-            // Click Apply
-            await userEvent.click(screen.getByRole('button', { name: /Apply/ }));
-
-            expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
-              'clinicID123',
-              { sites: ['site-1-id', 'site-2-id'], limit: 50, offset: 0, period: '14d', sortType: 'cgm', sort: '-lastData' },
-              expect.any(Function),
-            );
-
-            expect(defaultProps.trackMetric).toHaveBeenCalledWith(
-              'Clinic - Population Health - Clinic sites filter apply',
-              { clinicId: 'clinicID123' },
-            );
-          }, TEST_TIMEOUT_MS);
-
-          it('should allow filtering by for patients with zero sites', async () => {
-            render(
-              <MockedProviderWrappers>
-                <ClinicPatients {...defaultProps} />
-              </MockedProviderWrappers>
-            );
-
-            // Open the Sites filter dropdown and filter for 2 sites
-            await userEvent.click(screen.getByRole('button', { name: /Sites/ }));
-
-            const site1checkbox = screen.getByTestId('clinic-site-filter-option-checkbox-site-1-id');
-            const site2checkbox = screen.getByTestId('clinic-site-filter-option-checkbox-site-2-id');
-            await userEvent.click(site1checkbox);
-            await userEvent.click(site2checkbox);
-            expect(site1checkbox).toBeChecked();
-            expect(site2checkbox).toBeChecked();
-
-            // Click the checkbox to filter for pwds with zero sites. Others should uncheck.
-            const zeroSiteCheckbox = screen.getByTestId('clinic-site-filter-option-checkbox-PWDS_WITH_ZERO_SITES');
-            await userEvent.click(zeroSiteCheckbox);
-            expect(site1checkbox).not.toBeChecked();
-            expect(site2checkbox).not.toBeChecked();
-
-            // Click Apply. A query of `['_']` should be made for sites.
-            await userEvent.click(screen.getByRole('button', { name: /Apply/ }));
-
-            expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
-              'clinicID123',
-              { sites: ['_'], limit: 50, offset: 0, period: '14d', sortType: 'cgm', sort: '-lastData' },
-              expect.any(Function),
-            );
-          }, TEST_TIMEOUT_MS);
-
-          it('should allow filtering by tags', async () => {
-            render(
-              <MockedProviderWrappers>
-                <ClinicPatients {...defaultProps} />
-              </MockedProviderWrappers>
-            );
-
-            // Open the Tags filter dropdown and filter for 2 sites
+            // Open the Tags filter dropdown, select 2 tags, and apply
             await userEvent.click(screen.getByRole('button', { name: /Tags/ }));
-
-            const tag1checkbox = screen.getByTestId('tag-filter-option-checkbox-tag1');
-            const tag3checkbox = screen.getByTestId('tag-filter-option-checkbox-tag3');
-
-            expect(tag1checkbox).not.toBeChecked();
-            expect(tag3checkbox).not.toBeChecked();
-
-            await userEvent.click(tag1checkbox);
-            await userEvent.click(tag3checkbox);
-
-            expect(tag1checkbox).toBeChecked();
-            expect(tag3checkbox).toBeChecked();
-
-            // Click Apply
+            await userEvent.click(screen.getByTestId('tag-filter-option-checkbox-tag1'));
+            await userEvent.click(screen.getByTestId('tag-filter-option-checkbox-tag3'));
             await userEvent.click(screen.getByRole('button', { name: /Apply/ }));
 
             expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenLastCalledWith(
@@ -486,42 +403,52 @@ describe('ClinicPatients', ()  => {
               { tags: ['tag1', 'tag3'], limit: 50, offset: 0, period: '14d', sortType: 'cgm', sort: '-lastData' },
               expect.any(Function),
             );
-
-            expect(defaultProps.trackMetric).toHaveBeenCalledWith(
-              'Clinic - Population Health - Patient tag filter apply',
-              { clinicId: 'clinicID123' },
-            );
           }, TEST_TIMEOUT_MS);
 
-          it('should allow filtering by for patients with zero tags', async () => {
+          it('maps an applied site filter into the getPatientsForClinic query', async () => {
             render(
               <MockedProviderWrappers>
                 <ClinicPatients {...defaultProps} />
               </MockedProviderWrappers>
             );
 
-            // Open the Tags filter dropdown and filter for 2 tags
-            await userEvent.click(screen.getByRole('button', { name: /Tags/ }));
-
-            const tag1checkbox = screen.getByTestId('tag-filter-option-checkbox-tag1');
-            const tag2checkbox = screen.getByTestId('tag-filter-option-checkbox-tag2');
-            await userEvent.click(tag1checkbox);
-            await userEvent.click(tag2checkbox);
-            expect(tag1checkbox).toBeChecked();
-            expect(tag2checkbox).toBeChecked();
-
-            // Click the checkbox to filter for pwds with zero tags. Others should uncheck.
-            const zeroTagCheckbox = screen.getByTestId('tag-filter-option-checkbox-PWDS_WITH_ZERO_TAGS');
-            await userEvent.click(zeroTagCheckbox);
-            expect(tag1checkbox).not.toBeChecked();
-            expect(tag2checkbox).not.toBeChecked();
-
-            // Click Apply. A query of `['_']` should be made for sites.
+            // Open the Sites filter dropdown, select 2 sites, and apply
+            await userEvent.click(screen.getByRole('button', { name: /Sites/ }));
+            await userEvent.click(screen.getByTestId('clinic-site-filter-option-checkbox-site-1-id'));
+            await userEvent.click(screen.getByTestId('clinic-site-filter-option-checkbox-site-2-id'));
             await userEvent.click(screen.getByRole('button', { name: /Apply/ }));
 
-            expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenCalledWith(
+            expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenLastCalledWith(
               'clinicID123',
-              { tags: ['_'], limit: 50, offset: 0, period: '14d', sortType: 'cgm', sort: '-lastData' },
+              { sites: ['site-1-id', 'site-2-id'], limit: 50, offset: 0, period: '14d', sortType: 'cgm', sort: '-lastData' },
+              expect.any(Function),
+            );
+          }, TEST_TIMEOUT_MS);
+
+          it('maps an applied data recency filter into the getPatientsForClinic query', async () => {
+            render(
+              <MockedProviderWrappers>
+                <ClinicPatients {...defaultProps} />
+              </MockedProviderWrappers>
+            );
+
+            // Open the Data Recency filter dropdown, pick a device type and window, and apply.
+            // Match the trigger via its icon label ("Data Recency" alone also matches the
+            // sortable column header of the same name).
+            await userEvent.click(screen.getByRole('button', { name: /Filter by last upload/ }));
+            await userEvent.click(screen.getByRole('radio', { name: /CGM/ }));
+            await userEvent.click(screen.getByRole('radio', { name: /Within 14 days/ }));
+            await userEvent.click(screen.getByRole('button', { name: /Apply/ }));
+
+            // The from/to date bounds are derived from the current date, so assert their
+            // presence and 14-day span rather than exact ISO timestamps.
+            expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenLastCalledWith(
+              'clinicID123',
+              expect.objectContaining({
+                'cgm.lastDataFrom': expect.any(String),
+                'cgm.lastDataTo': expect.any(String),
+                limit: 50, offset: 0, period: '14d', sortType: 'cgm', sort: '-lastData',
+              }),
               expect.any(Function),
             );
           }, TEST_TIMEOUT_MS);

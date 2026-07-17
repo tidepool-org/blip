@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { Box, Flex, Grid, Text } from 'theme-ui';
-import EditIcon from '@material-ui/icons/EditRounded';
+import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import SearchIcon from '@material-ui/icons/Search';
@@ -12,6 +12,7 @@ import { components as vizComponents, utils as vizUtils, colors as vizColors } f
 import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
 import { Link as RouterLink } from 'react-router-dom';
 import utils from '../../../core/utils';
+import { trackMetric } from '../../../core/metricUtils';
 
 import without from 'lodash/without';
 import map from 'lodash/map';
@@ -30,11 +31,9 @@ import Checkbox from '../../../components/elements/Checkbox';
 import { borders, colors } from '../../../themes/baseTheme';
 import { DialogContent, DialogActions } from '../../../components/elements/Dialog';
 
-const trackMetric = () => noop;
-const prefixPopHealthMetric = () => noop;
-
 import { SPECIAL_FILTER_STATES } from '../useClinicPatientsFilters';
 import useIsClinicAdmin from '../useIsClinicAdmin';
+import useClinicMetricsPageName from '../useClinicMetricsPageName';
 import TextInput from '../../../components/elements/TextInput';
 import styled from '@emotion/styled';
 
@@ -45,22 +44,23 @@ const EditTagsAction = ({ onClick = noop }) => {
     <Icon
       id="show-edit-clinic-patient-tags-dialog"
       variant="button"
-      icon={EditIcon}
+      icon={AddCircleOutlineIcon}
       label={t('Edit Tags')}
-      sx={{ fontSize: 1 }}
+      sx={{ fontSize: 3, color: vizColors.indigo30 }}
       onClick={onClick}
     />
   );
 };
 
 const DropdownContent = ({
-  onClose = noop,
-  onChange = noop,
-  patientTags = [],
-  onClickEditTags = null,
+  onClose,
+  onChange,
+  patientTags,
+  onClickEditTags,
 }) => {
   const { t } = useTranslation();
   const isClinicAdmin = useIsClinicAdmin();
+  const pageName = useClinicMetricsPageName();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
 
@@ -85,14 +85,16 @@ const DropdownContent = ({
 
   const isChecked = id => pendingTags?.includes(id);
 
+  const canEditTags = !!onClickEditTags && isClinicAdmin;
+
   return (
-    <Box sx={{ width: 300, position: 'sticky', top: 0 }} mt={5} mx={2}>
+    <Box data-testid='tag-filter-dropdown' sx={{ width: 300, position: 'sticky', top: 0 }} mt={5} mx={2}>
       <Flex sx={{ justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
         <Box sx={{ padding: 1, color: colors.gray50, fontSize: 1, fontWeight: 'medium' }}>
           {t('Tags')}
         </Box>
 
-        {!!onClickEditTags && <EditTagsAction onClick={onClickEditTags} />}
+        {canEditTags && <EditTagsAction onClick={onClickEditTags} />}
       </Flex>
 
       <Box sx={{ border: `1px solid ${vizColors.gray10}`, borderRadius: 6, padding: 2 }}>
@@ -160,13 +162,16 @@ const DropdownContent = ({
         { // If no tags exist, display a message
           sortedTagFilterOptions.length <= 0 &&
           <Box mx={2} mb={2}>
-            <Box sx={{ fontSize: 1, color: colors.gray50, lineHeight: 1 }}>
-              {t('Tags help you segment your patient population based on criteria you define, such as clinician, type of diabetes, or care groups.')}
+            <Box sx={{ fontSize: 1, color: colors.blue50, lineHeight: 1 }} mb={3}>
+              {t('You don\'t have any tags yet.')}
+            </Box>
+            <Box sx={{ fontSize: 1, color: colors.blue50, lineHeight: 1 }}>
+              {t('Tags help you organize and find patients using categories that matter to your clinic, such as clinician, diabetes type, or care group.')}
             </Box>
             { !isClinicAdmin &&
-              <Box mt={3} pt={3} sx={{ borderTop: `1px solid ${colors.gray05}`, fontSize: 0, color: colors.gray50, lineHeight: 1 }}>
+              <Box mt={3} pt={3} sx={{ borderTop: `1px solid ${colors.gray05}`, fontSize: 0, color: colors.blue50, lineHeight: 1 }}>
                 <Trans t={t}>
-                  Tags can only be created by your Workspace Admins. Not sure who the admins are? Check the Clinic Members list in your&nbsp;
+                  Tags can only be created by Workspace Admins. If you don't have admin access, contact a Workspace Admin to create tags or update your permissions from&nbsp;
                   <RouterLink to='/clinic-admin' style={{ color: colors.purpleBright }}>Workspace Settings.</RouterLink>
                 </Trans>
               </Box>
@@ -182,7 +187,7 @@ const DropdownContent = ({
             sx={{ fontSize: 1}}
             variant="secondary"
             onClick={() => {
-              trackMetric(prefixPopHealthMetric('Patient tag filter clear'), { clinicId: selectedClinicId });
+              trackMetric('Clinic - Patient tag filter clear', { clinicId: selectedClinicId, pageName });
               setPendingTags([]);
               handleChange([]);
               onClose();
@@ -192,7 +197,7 @@ const DropdownContent = ({
           </Button>
 
           <Button id="apply-patient-tags-filter" sx={{ fontSize: 1}} variant="primary" onClick={() => {
-            trackMetric(prefixPopHealthMetric('Patient tag filter apply'), { clinicId: selectedClinicId });
+            trackMetric('Clinic - Patient tag filter apply', { clinicId: selectedClinicId, pageName });
             handleChange(pendingTags);
             onClose();
           }}>
@@ -217,6 +222,7 @@ const TagFilterDropdown = ({
   onClickEditTags = null,
 }) => {
   const { t } = useTranslation();
+  const pageName = useClinicMetricsPageName();
 
   const patientTagsPopupFilterState = usePopupState({
     variant: 'popover',
@@ -226,15 +232,13 @@ const TagFilterDropdown = ({
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
 
-  const handleCloseDropdown = () => {
-    patientTagsPopupFilterState.close();
-  };
+  const handleCloseDropdown = () => patientTagsPopupFilterState.close();
 
   return (
     <>
       <Box
         onClick={() => {
-          if (!patientTagsPopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('patient tags filter open'), { clinicId: selectedClinicId });
+          if (!patientTagsPopupFilterState.isOpen) trackMetric('Clinic - patient tags filter open', { clinicId: selectedClinicId, pageName });
         }}
         sx={{ flexShrink: 0 }}
       >
@@ -275,11 +279,9 @@ const TagFilterDropdown = ({
         closeIcon
         {...bindPopover(patientTagsPopupFilterState)}
         onClickCloseIcon={() => {
-          trackMetric(prefixPopHealthMetric('Patient tag filter close'), { clinicId: selectedClinicId });
+          trackMetric('Clinic - Patient tag filter close', { clinicId: selectedClinicId, pageName });
         }}
-        onClose={() => {
-          patientTagsPopupFilterState.close();
-        }}
+        onClose={handleCloseDropdown}
       >
         { patientTagsPopupFilterState.isOpen &&
           <DropdownContent

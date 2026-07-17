@@ -20,17 +20,18 @@ import { Body0 } from '../../../components/elements/FontStyles';
 import { borders } from '../../../themes/baseTheme';
 import { DialogContent, DialogActions } from '../../../components/elements/Dialog';
 import { lastDataFilterOptions } from '../../../core/clinicUtils';
-
-const prefixPopHealthMetric = () => noop; // TODO: FIX
+import useClinicMetricsPageName from '../useClinicMetricsPageName';
 
 const DropdownContent = ({
-  onClose = noop,
-  onChange = noop,
-  lastData = null,
-  lastDataType = null,
+  onClose,
+  onChange,
+  lastData,
+  lastDataType,
+  filterOptions,
 }) => {
   const { t } = useTranslation();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
+  const pageName = useClinicMetricsPageName();
 
   const [pending, setPending] = useState({ lastData, lastDataType });
 
@@ -39,12 +40,10 @@ const DropdownContent = ({
     { value: 'bgm', label: t('BGM') },
   ];
 
-  const customLastDataFilterOptions = reject(lastDataFilterOptions, { value: 7 });
-
   const handleChange = (filters) => onChange(filters);
 
   return (
-    <Box mt={5} mx={2} sx={{ width: 300 }}>
+    <Box data-testid="data-recency-filter-dropdown" mt={5} mx={2} sx={{ width: 300 }}>
       <Box>
         <Box sx={{ alignItems: 'center' }} mb={2}>
           <Text sx={{ color: 'grays.4', fontWeight: 'medium', fontSize: 1, whiteSpace: 'nowrap' }}>
@@ -75,7 +74,7 @@ const DropdownContent = ({
           <RadioGroup
             id="last-upload-filters"
             name="last-upload-filters"
-            options={customLastDataFilterOptions}
+            options={filterOptions}
             variant="vertical"
             sx={{ fontSize: 0 }}
             value={pending.lastData}
@@ -92,7 +91,7 @@ const DropdownContent = ({
           sx={{ fontSize: 1 }}
           variant="secondary"
           onClick={() => {
-            trackMetric(prefixPopHealthMetric('Last upload clear filter'), { clinicId: selectedClinicId });
+            trackMetric('Clinic - Last upload clear filter', { clinicId: selectedClinicId, pageName });
             setPending({ lastData: null, lastDataType: null });
             handleChange({ lastData: null, lastDataType: null });
             onClose();
@@ -111,7 +110,7 @@ const DropdownContent = ({
               ? 'today'
               : `${pending.lastData} days`;
 
-            trackMetric(prefixPopHealthMetric('Last upload apply filter'), {
+            trackMetric('Clinic - Last upload apply filter', {
               clinicId: selectedClinicId,
               dateRange,
               type: pending.lastDataType,
@@ -132,8 +131,10 @@ const DataRecencyFilterDropdown = ({
   onChange = noop,
   lastData = null,
   lastDataType = null,
+  filterOptions = lastDataFilterOptions,
 }) => {
   const { t } = useTranslation();
+  const pageName = useClinicMetricsPageName();
 
   const lastDataPopupFilterState = usePopupState({
     variant: 'popover',
@@ -150,7 +151,7 @@ const DataRecencyFilterDropdown = ({
     <>
       <Box
         onClick={() => {
-          if (!lastDataPopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('Last data filter open'), { clinicId: selectedClinicId });
+          if (!lastDataPopupFilterState.isOpen) trackMetric('Clinic - Last data filter open', { clinicId: selectedClinicId, pageName });
         }}
         sx={{ flexShrink: 0 }}
       >
@@ -172,16 +173,15 @@ const DataRecencyFilterDropdown = ({
         closeIcon
         {...bindPopover(lastDataPopupFilterState)}
         onClickCloseIcon={() => {
-          trackMetric(prefixPopHealthMetric('Last upload filter close'), { clinicId: selectedClinicId });
+          trackMetric('Clinic - Last upload filter close', { clinicId: selectedClinicId, pageName });
         }}
-        onClose={() => {
-          lastDataPopupFilterState.close();
-        }}
+        onClose={handleCloseDropdown}
       >
         { lastDataPopupFilterState.isOpen &&
           <DropdownContent
             lastData={lastData}
             lastDataType={lastDataType}
+            filterOptions={filterOptions || lastDataFilterOptions}
             onClose={handleCloseDropdown}
             onChange={onChange}
           />
