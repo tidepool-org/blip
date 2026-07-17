@@ -1625,38 +1625,6 @@ describe('ClinicPatients', () => {
           expect(timeAgoMessage).to.equal('Last updated less than an hour ago');
         });
 
-        it('should allow filtering by cgm use', () => {
-          const cgmUseFilterTrigger = container.querySelector('#cgm-use-filter-trigger');
-          expect(cgmUseFilterTrigger).to.exist;
-
-          const popover = () => document.querySelector('#cgmUseFilters');
-          expect(popover()).to.exist;
-          expect(popover().style.visibility).to.equal('hidden');
-
-          // Open filters popover
-          fireEvent.click(cgmUseFilterTrigger);
-          expect(popover().style.visibility).to.equal('');
-
-          // Ensure filter options present
-          const cgmUseFilterOptions = document.querySelectorAll('#cgm-use label');
-          expect(cgmUseFilterOptions.length).to.equal(2);
-          expect(cgmUseFilterOptions[0].textContent).to.equal('Less than 70%');
-          expect(cgmUseFilterOptions[0].querySelector('input').value).to.equal('<0.7');
-
-          expect(cgmUseFilterOptions[1].textContent).to.equal('70% or more');
-          expect(cgmUseFilterOptions[1].querySelector('input').value).to.equal('>=0.7');
-
-          // Apply button disabled until selection made
-          const applyButton = () => document.querySelector('#apply-cgm-use-filter');
-          expect(applyButton().disabled).to.be.true;
-
-          fireEvent.click(cgmUseFilterOptions[0].querySelector('input'));
-          expect(applyButton().disabled).to.be.false;
-
-          fireEvent.click(applyButton());
-          sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - CGM use apply filter', sinon.match({ clinicId: 'clinicID123', filter: '<0.7' }));
-        });
-
         context('summary period filtering', () => {
           const emptyStatText = '--';
           const rowData = row => container.querySelectorAll('table tbody tr')[row].querySelectorAll('.MuiTableCell-root');

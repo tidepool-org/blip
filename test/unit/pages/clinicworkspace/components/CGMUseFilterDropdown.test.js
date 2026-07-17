@@ -6,6 +6,12 @@ import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
 
 import CGMUseFilterDropdown from '@app/pages/clinicworkspace/components/CGMUseFilterDropdown';
+import { trackMetric as mockTrackMetric } from '../../../../../app/core/metricUtils';
+import useClinicMetricsPageName from '@app/pages/clinicworkspace/useClinicMetricsPageName';
+
+jest.mock('@app/pages/clinicworkspace/useClinicMetricsPageName');
+
+useClinicMetricsPageName.mockReturnValue('Population Health');
 
 const mockStore = configureStore([thunk]);
 
@@ -37,6 +43,7 @@ describe('CGMUseFilterDropdown', () => {
     });
 
     onChange.mockClear();
+    mockTrackMetric.mockClear();
   });
 
   describe('filtering for cgm use', () => {

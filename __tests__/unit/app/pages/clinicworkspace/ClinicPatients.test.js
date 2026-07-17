@@ -496,6 +496,28 @@ describe('ClinicPatients', ()  => {
               expect.any(Function),
             );
           }, TEST_TIMEOUT_MS);
+
+          it('maps an applied cgm use filter into the getPatientsForClinic query', async () => {
+            render(
+              <MockedProviderWrappers>
+                <ClinicPatients {...defaultProps} />
+              </MockedProviderWrappers>
+            );
+
+            // Open the % CGM Use filter dropdown, select a range, and apply.
+            await userEvent.click(screen.getByRole('button', { name: /CGM Use/ }));
+            await userEvent.click(screen.getByRole('radio', { name: /Less than 70%/ }));
+            await userEvent.click(screen.getByRole('button', { name: /Apply/ }));
+
+            expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenLastCalledWith(
+              'clinicID123',
+              expect.objectContaining({
+                'cgm.timeCGMUsePercent': '<0.7',
+                limit: 50, offset: 0, period: '14d', sortType: 'cgm', sort: '-lastData',
+              }),
+              expect.any(Function),
+            );
+          }, TEST_TIMEOUT_MS);
         });
 
         describe('managing sites', () => {
