@@ -8,8 +8,12 @@ import { MemoryRouter } from 'react-router-dom';
 
 import { useFlags } from 'launchdarkly-react-client-sdk';
 import FilterByTimeInRange from '@app/pages/clinicworkspace/clinicPatientsFilters/FilterByTimeInRange';
+import useClinicMetricsPageName from '@app/pages/clinicworkspace/useClinicMetricsPageName';
 
 jest.mock('launchdarkly-react-client-sdk');
+jest.mock('@app/pages/clinicworkspace/useClinicMetricsPageName');
+
+useClinicMetricsPageName.mockReturnValue('Population Health');
 
 const mockStore = configureStore([thunk]);
 
