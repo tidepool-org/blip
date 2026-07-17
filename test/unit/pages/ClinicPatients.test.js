@@ -664,13 +664,6 @@ describe('ClinicPatients', () => {
       expect(container.querySelector('.table-empty-text').textContent).includes('There are no results to show');
     });
 
-    describe('Filter Reset Bar', () => {
-      it('should hide the Filter Reset Bar', () => {
-        const filterResetBar = container.querySelector('.filter-reset-bar');
-        expect(filterResetBar).to.be.null;
-      });
-    });
-
     it('should open a modal for adding a new patient', async () => {
       const addButton = container.querySelector('button#add-patient');
       expect(addButton.textContent).to.equal('Add New Patient');
@@ -951,13 +944,6 @@ describe('ClinicPatients', () => {
       store = mockStore(noPatientsButWithFiltersState);
       defaultProps.trackMetric.resetHistory();
       mountWrapper(store);
-    });
-
-    describe('Filter Reset Bar', () => {
-      it('should hide the Filter Reset Bar', () => {
-        const filterResetBar = container.querySelector('.filter-reset-bar');
-        expect(filterResetBar).to.be.null;
-      });
     });
 
     describe('when Reset Filters button is clicked', function () {

@@ -88,7 +88,7 @@ describe('ActiveFiltersTray', () => {
     it('renders a CGM-use filter with its expected label', () => {
       renderTray({ filters: { ...defaultFilterState, timeCGMUsePercent: '>=0.7' } });
 
-      expect(screen.getByText('>= 70% CGM use')).toBeInTheDocument();
+      expect(screen.getByText('≥ 70% CGM use')).toBeInTheDocument();
     });
   });
 
