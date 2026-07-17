@@ -37,7 +37,7 @@ const usePrimaryChips = (activeFilters) => {
       value: timeCGMUsePercent,
       label: ({
         '<0.7': t('< 70% CGM use'),
-        '>=0.7': t('>= 70% CGM use'),
+        '>=0.7': t('≥ 70% CGM use'),
       }[timeCGMUsePercent]),
     }),
 
