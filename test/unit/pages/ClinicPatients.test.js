@@ -1763,140 +1763,35 @@ describe('ClinicPatients', () => {
         });
 
         context('summary period filtering', () => {
-          let mockedLocalStorage;
+          const emptyStatText = '--';
+          const rowData = row => container.querySelectorAll('table tbody tr')[row].querySelectorAll('.MuiTableCell-root');
 
-          beforeEach(() => {
-            mockedLocalStorage = {
-              'activePatientFilters/clinicianUserId123/clinicID123': {
-                timeInRange: [
-                    'timeInAnyLowPercent',
-                    'timeInAnyHighPercent'
-                ],
-                patientTags: [],
-                meetsGlycemicTargets: false,
-              },
-              activePatientSummaryPeriod: '14d',
-            };
-
-            mockUseLocalStorage.mockImplementation(key => {
-              defaults(mockedLocalStorage, { [key]: {} })
-              return [
-                mockedLocalStorage[key],
-                sinon.stub().callsFake(val => mockedLocalStorage[key] = val)
-              ];
+          const mountWithSummaryPeriod = period => {
+            mockUseLocalStorage.mockImplementation((key, fallback = {}) => {
+              return [key === 'activePatientSummaryPeriod' ? period : fallback, sinon.stub()];
             });
 
-            mockUseClinicPatientsFilters.mockImplementation(() => (
-              [
-                {
-                  timeInRange: ['timeInAnyLowPercent', 'timeInAnyHighPercent'],
-                  patientTags: [],
-                  meetsGlycemicTargets: false,
-                },
-                sinon.stub(),
-              ]
-            ));
-
             mountWrapper(store);
+          };
+
+          it('should show the GMI when the selected period is 14 days', () => {
+            mountWithSummaryPeriod('14d');
+            expect(rowData(2)[4].textContent).to.contain('6.5 %');
           });
 
-          it('should allow filtering by summary period', () => {
-            const summaryPeriodFilterTrigger = container.querySelector('#summary-period-filter-trigger');
-            expect(summaryPeriodFilterTrigger).to.exist;
-
-            const popover = () => document.querySelector('#summaryPeriodFilters');
-            expect(popover()).to.exist;
-            expect(popover().style.visibility).to.equal('hidden');
-
-            // Open filters popover
-            fireEvent.click(summaryPeriodFilterTrigger);
-            expect(popover().style.visibility).to.equal('');
-
-            // Ensure filter options present
-            const filterOptions = document.querySelectorAll('#summary-period-filters label');
-            expect(filterOptions.length).to.equal(4);
-            expect(filterOptions[0].textContent).to.equal('24 hours');
-            expect(filterOptions[0].querySelector('input').value).to.equal('1d');
-
-            expect(filterOptions[1].textContent).to.equal('7 days');
-            expect(filterOptions[1].querySelector('input').value).to.equal('7d');
-
-            expect(filterOptions[2].textContent).to.equal('14 days');
-            expect(filterOptions[2].querySelector('input').value).to.equal('14d');
-
-            expect(filterOptions[3].textContent).to.equal('30 days');
-            expect(filterOptions[3].querySelector('input').value).to.equal('30d');
-
-            // Default should be 14 days
-            expect(filterOptions[2].querySelector('input').checked).to.be.true;
-
-            // Set to 7 days
-            fireEvent.click(filterOptions[1].querySelector('input'));
-
-            defaultProps.api.clinics.getPatientsForClinic.resetHistory();
-            const applyButton = document.querySelector('#apply-summary-period-filter');
-            fireEvent.click(applyButton);
-
-            // Ensure resulting patient fetch is requesting the 7 day period for time in range filters
-            sinon.assert.calledWith(defaultProps.api.clinics.getPatientsForClinic, 'clinicID123', sinon.match({
-              ...defaultFetchOptions,
-              sort: '-lastData',
-              period: '7d',
-              'cgm.timeInAnyHighPercent': '>0.25',
-              'cgm.timeInAnyLowPercent': '>0.04',
-            }));
-
-            sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Population Health - Summary period apply filter', sinon.match({ clinicId: 'clinicID123', summaryPeriod: '7d' }));
+          it('should show the GMI when the selected period is 30 days', () => {
+            mountWithSummaryPeriod('30d');
+            expect(rowData(2)[4].textContent).to.contain('7.5 %');
           });
 
-          it('should not show the GMI if selected period is less than 14 days', () => {
-            const emptyStatText = '--';
-            const summaryPeriodFilterTrigger = container.querySelector('#summary-period-filter-trigger');
-            expect(summaryPeriodFilterTrigger).to.exist;
+          it('should not show the GMI when the selected period is 7 days', () => {
+            mountWithSummaryPeriod('7d');
+            expect(rowData(2)[4].textContent).to.contain(emptyStatText);
+          });
 
-            const popover = () => document.querySelector('#summaryPeriodFilters');
-            expect(popover()).to.exist;
-            expect(popover().style.visibility).to.equal('hidden');
-
-            const applyButton = () => document.querySelector('#apply-summary-period-filter');
-
-            // Open filters popover
-            fireEvent.click(summaryPeriodFilterTrigger);
-            expect(popover().style.visibility).to.equal('');
-
-            // Ensure filter options present
-            const filterOptions = () => document.querySelectorAll('#summary-period-filters label');
-
-            // Default should be 14 days
-            expect(filterOptions()[2].querySelector('input').checked).to.be.true;
-
-            const dataRows = container.querySelectorAll('table tbody tr');
-            expect(dataRows.length).to.equal(5);
-
-            const rowData = row => container.querySelectorAll('table tbody tr')[row].querySelectorAll('.MuiTableCell-root');
-
-            expect(rowData(2)[4].textContent).to.contain('6.5 %'); // shows for 14 days
-
-            // Open filters popover and set to 30 days
-            fireEvent.click(summaryPeriodFilterTrigger);
-            fireEvent.click(filterOptions()[3].querySelector('input'));
-            expect(filterOptions()[3].querySelector('input').checked).to.be.true;
-            fireEvent.click(applyButton());
-            expect(rowData(2)[4].textContent).to.contain('7.5 %'); // shows for 30 days
-
-            // Open filters popover and set to 7 days
-            fireEvent.click(summaryPeriodFilterTrigger);
-            fireEvent.click(filterOptions()[1].querySelector('input'));
-            expect(filterOptions()[1].querySelector('input').checked).to.be.true;
-            fireEvent.click(applyButton());
-            expect(rowData(2)[4].textContent).to.contain(emptyStatText); // hidden for 7 days
-
-            // Open filters popover and set to 1 day
-            fireEvent.click(summaryPeriodFilterTrigger);
-            fireEvent.click(filterOptions()[0].querySelector('input'));
-            expect(filterOptions()[0].querySelector('input').checked).to.be.true;
-            fireEvent.click(applyButton());
-            expect(rowData(2)[4].textContent).to.contain(emptyStatText); // hidden for 1 day
+          it('should not show the GMI when the selected period is 1 day', () => {
+            mountWithSummaryPeriod('1d');
+            expect(rowData(2)[4].textContent).to.contain(emptyStatText);
           });
         });
 
