@@ -49,7 +49,7 @@ const DropdownContent = ({
   const handleChange = (summaryPeriod) => onChange(summaryPeriod);
 
   return (
-    <Box mt={5} mx={2} sx={{ width: 300 }}>
+    <Box data-testid='summary-period-filter-dropdown' mt={5} mx={2} sx={{ width: 300 }}>
       <Box>
         <Body0 color="grays.4" sx={{ fontWeight: 'medium', fontSize: 1 }}>
           {t('Summarizing Data')}
