@@ -29,6 +29,13 @@ const getSummaryPeriodSelectLabel = (t, activeSummaryPeriod) => {
   return null;
 };
 
+const getSummaryPeriodOptions = (t) => ([
+  { value: '1d', label: t('24 hours') },
+  { value: '7d', label: t('7 days') },
+  { value: '14d', label: t('14 days') },
+  { value: '30d', label: t('30 days') },
+]);
+
 const DropdownContent = ({
   onClose,
   onChange,
@@ -38,13 +45,6 @@ const DropdownContent = ({
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
 
   const [pendingSummaryPeriod, setPendingSummaryPeriod] = useState(activeSummaryPeriod);
-
-  const summaryPeriodOptions = [
-    { value: '1d', label: t('24 hours') },
-    { value: '7d', label: t('7 days') },
-    { value: '14d', label: t('14 days') },
-    { value: '30d', label: t('30 days') },
-  ];
 
   const handleChange = (summaryPeriod) => onChange(summaryPeriod);
 
@@ -63,7 +63,7 @@ const DropdownContent = ({
           <RadioGroup
             id="summary-period-filters"
             name="summary-period-filters"
-            options={summaryPeriodOptions}
+            options={getSummaryPeriodOptions(t)}
             variant="vertical"
             sx={{ fontSize: 0 }}
             value={pendingSummaryPeriod}
