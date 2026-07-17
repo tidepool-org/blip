@@ -79,7 +79,7 @@ describe('AppliedFiltersList', () => {
         activeFilters: { ...defaultFilterState, timeInRange: ['timeInTargetPercent'] },
       });
 
-      await userEvent.click(screen.getByRole('button', { name: 'Reset Filters' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Reset All Filters' }));
 
       expect(onResetFilters).toHaveBeenCalledTimes(1);
       expect(onClearSearch).not.toHaveBeenCalled();
@@ -103,7 +103,7 @@ describe('AppliedFiltersList', () => {
         state: buildState({ patientListSearchTextInput: 'john' }),
       });
 
-      await userEvent.click(screen.getByRole('button', { name: 'Reset Filters' }));
+      await userEvent.click(screen.getByRole('button', { name: 'Reset All Filters' }));
       await userEvent.click(screen.getByRole('button', { name: 'Clear Search' }));
 
       expect(onResetFilters).toHaveBeenCalledTimes(1);
