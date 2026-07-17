@@ -20,39 +20,45 @@ const usePrimaryChips = (activeFilters) => {
   const { t } = useTranslation();
   const { lastData, lastDataType, timeCGMUsePercent, timeInRange = [] } = activeFilters;
 
+  const getLastDataChipChipLabel = (lastDataType, lastData, t) => ({
+    bgm: t('BGM data within {{ count }} days', { count: lastData }),
+    cgm: t('CGM data within {{ count }} days', { count: lastData }),
+  }[lastDataType]);
+
+  const getTimeCGMUsePercentChipLabel = (timeCGMUsePercent, t) => ({
+    '<0.7': t('< 70% CGM use'),
+    '>=0.7': t('≥ 70% CGM use'),
+  }[timeCGMUsePercent]);
+
+  const getTimeInRangeChipLabel = (rangeKey, t) => ({
+    timeInExtremeHighPercent: t('%TIR = Highest'),
+    timeInVeryHighPercent: t('%TIR = Very High'),
+    timeInAnyHighPercent: t('%TIR = High'),
+    timeInTargetPercent: t('%TIR = Meeting Targets'),
+    timeInAnyLowPercent: t('%TIR = Low'),
+    timeInVeryLowPercent: t('%TIR = Very Low'),
+  }[rangeKey]);
+
   return [
     // Data Recency Filter
     (lastData && lastDataType && {
       type: 'lastData',
       value: `${lastDataType}-${lastData}`,
-      label: ({
-        bgm: t('BGM data within {{ count }} days', { count: lastData }),
-        cgm: t('CGM data within {{ count }} days', { count: lastData }),
-      }[lastDataType]),
+      label: getLastDataChipChipLabel(lastDataType, lastData, t),
     }),
 
     // CGM Wear Time Filter
     (timeCGMUsePercent && {
       type: 'timeCGMUsePercent',
       value: timeCGMUsePercent,
-      label: ({
-        '<0.7': t('< 70% CGM use'),
-        '>=0.7': t('>= 70% CGM use'),
-      }[timeCGMUsePercent]),
+      label: getTimeCGMUsePercentChipLabel(timeCGMUsePercent, t),
     }),
 
     // Time In Range Filters
     ...timeInRange.map(rangeKey => ({
       type: 'timeInRange',
       value: rangeKey,
-      label: ({
-        timeInExtremeHighPercent: t('%TIR = Highest'),
-        timeInVeryHighPercent: t('%TIR = Very High'),
-        timeInAnyHighPercent: t('%TIR = High'),
-        timeInTargetPercent: t('%TIR = Meeting Targets'),
-        timeInAnyLowPercent: t('%TIR = Low'),
-        timeInVeryLowPercent: t('%TIR = Very Low'),
-      }[rangeKey]),
+      label: getTimeInRangeChipLabel(rangeKey, t),
     })),
   ].filter(Boolean);
 };
@@ -66,7 +72,7 @@ const useTagChips = (patientTags = []) => {
     return [{
       type: 'patientTags',
       value: SPECIAL_FILTER_STATES.ZERO_TAGS[0],
-      label: t('Without any tags'),
+      label: t('No tags'),
     }];
   }
 
@@ -88,7 +94,7 @@ const useSiteChips = (clinicSites = []) => {
     return [{
       type: 'clinicSites',
       value: SPECIAL_FILTER_STATES.ZERO_SITES[0],
-      label: t('Without any sites'),
+      label: t('No clinic sites'),
     }];
   }
 
