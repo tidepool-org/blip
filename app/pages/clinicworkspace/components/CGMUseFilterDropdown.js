@@ -38,7 +38,7 @@ const DropdownContent = ({
   const handleChange = timeCGMUsePercent => onChange(timeCGMUsePercent);
 
   return (
-    <Box mt={5} mx={2} sx={{ width: 300 }}>
+    <Box data-testid='cgm-use-filter-dropdown' mt={5} mx={2} sx={{ width: 300 }}>
       <Box>
         <Box sx={{ alignItems: 'center' }} mb={2}>
           <Text sx={{ color: 'grays.4', fontWeight: 'medium', fontSize: 1, whiteSpace: 'nowrap' }}>
