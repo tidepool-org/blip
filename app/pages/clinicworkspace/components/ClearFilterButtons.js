@@ -38,14 +38,14 @@ const ClearFilterButtons = ({ patientQueryState, onClearSearch, onResetFilters }
     case FILTER_ONLY:
       return <Box>
         <ClearButton className='reset-filters-button' onClick={onResetFilters}>
-          {t('Reset Filters')}
+          {t('Reset All Filters')}
         </ClearButton>
       </Box>;
 
     case FILTER_AND_SEARCH:
       return <Box>
         <ClearButton className='reset-filters-button' onClick={onResetFilters}>
-          {t('Reset Filters')}
+          {t('Reset All Filters')}
         </ClearButton>
         <>{' '}{t('or')}{' '}</>
         <ClearButton className='clear-search-button' onClick={onClearSearch}>
