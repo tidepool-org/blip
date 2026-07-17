@@ -15,8 +15,7 @@ import Button from '../../../components/elements/Button';
 import Popover from '../../../components/elements/Popover';
 import RadioGroup from '../../../components/elements/RadioGroup';
 import { Body0, Body1 } from '../../../components/elements/FontStyles';
-
-const prefixPopHealthMetric = () => noop; // TODO: FIX
+import useClinicMetricsPageName from '../useClinicMetricsPageName';
 
 const getSummaryPeriodSelectLabel = (t, activeSummaryPeriod) => {
   switch (activeSummaryPeriod) {
@@ -29,22 +28,23 @@ const getSummaryPeriodSelectLabel = (t, activeSummaryPeriod) => {
   return null;
 };
 
+const getSummaryPeriodOptions = (t) => ([
+  { value: '1d', label: t('24 hours') },
+  { value: '7d', label: t('7 days') },
+  { value: '14d', label: t('14 days') },
+  { value: '30d', label: t('30 days') },
+]);
+
 const DropdownContent = ({
   onClose,
   onChange,
   activeSummaryPeriod,
 }) => {
   const { t } = useTranslation();
+  const pageName = useClinicMetricsPageName();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
 
   const [pendingSummaryPeriod, setPendingSummaryPeriod] = useState(activeSummaryPeriod);
-
-  const summaryPeriodOptions = [
-    { value: '1d', label: t('24 hours') },
-    { value: '7d', label: t('7 days') },
-    { value: '14d', label: t('14 days') },
-    { value: '30d', label: t('30 days') },
-  ];
 
   const handleChange = (summaryPeriod) => onChange(summaryPeriod);
 
@@ -63,7 +63,7 @@ const DropdownContent = ({
           <RadioGroup
             id="summary-period-filters"
             name="summary-period-filters"
-            options={summaryPeriodOptions}
+            options={getSummaryPeriodOptions(t)}
             variant="vertical"
             sx={{ fontSize: 0 }}
             value={pendingSummaryPeriod}
@@ -78,7 +78,7 @@ const DropdownContent = ({
           sx={{ fontSize: 1 }}
           variant="secondary"
           onClick={() => {
-            trackMetric(prefixPopHealthMetric('Summary period filter cancel'), { clinicId: selectedClinicId });
+            trackMetric('Clinic - Summary period filter cancel', { clinicId: selectedClinicId, pageName });
             setPendingSummaryPeriod(activeSummaryPeriod);
             onClose();
           }}
@@ -92,7 +92,7 @@ const DropdownContent = ({
           sx={{ fontSize: 1 }}
           variant="primary"
           onClick={() => {
-            trackMetric(prefixPopHealthMetric('Summary period apply filter'), {
+            trackMetric('Clinic - Summary period apply filter', {
               clinicId: selectedClinicId,
               summaryPeriod: pendingSummaryPeriod,
             });
@@ -113,6 +113,7 @@ const SummaryPeriodFilterDropdown = ({
   activeSummaryPeriod = null,
 }) => {
   const { t } = useTranslation();
+  const pageName = useClinicMetricsPageName();
 
   const summaryPeriodPopupFilterState = usePopupState({
     variant: 'popover',
@@ -127,7 +128,7 @@ const SummaryPeriodFilterDropdown = ({
     <>
       <Box
         onClick={() => {
-          if (!summaryPeriodPopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('Summary period filter open'), { clinicId: selectedClinicId });
+          if (!summaryPeriodPopupFilterState.isOpen) trackMetric('Clinic - Summary period filter open', { clinicId: selectedClinicId, pageName });
         }}
         sx={{ flexShrink: 0 }}
       >
@@ -149,7 +150,7 @@ const SummaryPeriodFilterDropdown = ({
         closeIcon
         {...bindPopover(summaryPeriodPopupFilterState)}
         onClickCloseIcon={() => {
-          trackMetric(prefixPopHealthMetric('Summary period filter close'), { clinicId: selectedClinicId });
+          trackMetric('Clinic - Summary period filter close', { clinicId: selectedClinicId, pageName });
         }}
         onClose={handleCloseDropdown}
       >
