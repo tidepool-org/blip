@@ -6,6 +6,9 @@ import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
 
 import SummaryPeriodFilterDropdown from '@app/pages/clinicworkspace/components/SummaryPeriodFilterDropdown';
+import useClinicMetricsPageName from '@app/pages/clinicworkspace/useClinicMetricsPageName';
+
+jest.mock('@app/pages/clinicworkspace/useClinicMetricsPageName');
 
 const mockStore = configureStore([thunk]);
 
@@ -16,6 +19,8 @@ describe('SummaryPeriodFilterDropdown', () => {
   const selectedClinicId = 'clinic123';
 
   let onChange = jest.fn();
+
+  useClinicMetricsPageName.mockReturnValue('Population Health');
 
   const ui = (props = {}) => (
     <Provider store={store}>
