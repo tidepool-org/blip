@@ -782,6 +782,36 @@ describe('TideDashboard', () => {
       ]);
     });
 
+    it('should track a metric when a patient is clicked to open in the side drawer with the patient drawer flag enabled', () => {
+      useFlags.mockReturnValue({
+        showTideDashboard: true,
+        showSummaryDashboard: true,
+        tideDashboardCategories: '',
+        showTideDashboardPatientDrawer: true,
+      });
+
+      wrapper = mountWithProviders(
+        <TideDashboard {...defaultProps} />,
+        { store }
+      );
+
+      const dashboardSectionTables = document.querySelectorAll('.dashboard-table');
+      const getTableRow = (tableIndex, rowIndex) => dashboardSectionTables[tableIndex].querySelectorAll('tr')[rowIndex];
+
+      const firstPatientName = getTableRow(0, 2).querySelectorAll('span')[0];
+      expect(firstPatientName.textContent).contains('Charmane Fassman');
+      const expectedPatientId = '6da2c016-263b-92db-1c3e-11ed92f5be4b';
+
+      defaultProps.trackMetric.resetHistory();
+      fireEvent.click(firstPatientName);
+
+      sinon.assert.calledWith(
+        defaultProps.trackMetric,
+        'Tide Dashboard - opened patient in side drawer',
+        sinon.match({ clinicId: 'clinicID123', patientID: expectedPatientId })
+      );
+    });
+
     context('mmol/L preferredBgUnits', () => {
       beforeEach(() => {
         store = mockStore(hasResultsStateMmoll);
@@ -872,7 +902,7 @@ describe('TideDashboard', () => {
           fireEvent.click(updateButton());
 
           await waitFor(() => {
-            sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Mark patient reviewed', sinon.match({ clinicId: 'clinicID123', source: 'TIDE dashboard' }));
+            sinon.assert.calledWith(defaultProps.trackMetric, 'Clinic - Mark patient reviewed', sinon.match({ clinicId: 'clinicID123', source: 'TIDE dashboard', patientID: 'ea8ab4da-d4ed-bc6a-dec3-6aa170a99d49' }));
           });
 
           sinon.assert.calledWith(

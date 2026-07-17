@@ -83,6 +83,7 @@ describe('pdf reducer', () => {
     it('should merge the payload.images to state.opts.svgDataURLS', () => {
       const payload = {
         images: 'someImages',
+        opts: { patient: 'somePatient' },
       };
 
       const initialState = { opts: { patient: 'somePatient' } };
