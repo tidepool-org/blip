@@ -112,7 +112,7 @@ const DropdownContent = ({
   const filterOptions = getTimeInRangeFilterOptions(showExtremeHigh, t).reverse();
 
   return (
-    <Box mt={5} mx={2}>
+    <Box data-testid="time-in-range-filter-dropdown" mt={5} mx={2}>
       <Box mb={3} sx={{ fontSize: 1, fontWeight: 'medium' }}>
         <Box mr={2} sx={{ color: vizColors.gray50, fontWeight: 'medium', fontSize: 1, whiteSpace: 'nowrap' }}>
           {t('% Time in Range')}
@@ -262,9 +262,7 @@ const TimeInRangeFilterDropdown = ({
 
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
 
-  const handleCloseDropdown = () => {
-    timeInRangePopupFilterState.close();
-  };
+  const handleCloseDropdown = () => timeInRangePopupFilterState.close();
 
   return (
     <>
@@ -313,9 +311,7 @@ const TimeInRangeFilterDropdown = ({
         onClickCloseIcon={() => {
           trackMetric(prefixPopHealthMetric('Time in range filter close'), { clinicId: selectedClinicId });
         }}
-        onClose={() => {
-          timeInRangePopupFilterState.close();
-        }}
+        onClose={handleCloseDropdown}
       >
         { timeInRangePopupFilterState.isOpen &&
           <DropdownContent
