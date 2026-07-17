@@ -141,7 +141,7 @@ const StyledScrollToTop = styled(ScrollToTop)`
   padding-top: 4px;
 `;
 
-const glycemicTargetThresholds = {
+export const glycemicTargetThresholds = {
   timeInVeryLowPercent: { value: 1, comparator: '>' },
   timeInLowPercent: { value: 4, comparator: '>' },
   timeInAnyLowPercent: { value: 4, comparator: '>' },

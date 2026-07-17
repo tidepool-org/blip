@@ -25,19 +25,8 @@ import { colors } from '../../../themes/baseTheme';
 import { MGDL_UNITS } from '../../../core/constants';
 
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels } = vizUtils.bg;
-
-const prefixPopHealthMetric = () => noop; // TODO: FIX
-
-const glycemicTargetThresholds = {
-  timeInVeryLowPercent: { value: 1, comparator: '>' },
-  timeInLowPercent: { value: 4, comparator: '>' },
-  timeInAnyLowPercent: { value: 4, comparator: '>' },
-  timeInTargetPercent: { value: 70, comparator: '<' },
-  timeInHighPercent: { value: 25, comparator: '>' },
-  timeInAnyHighPercent: { value: 25, comparator: '>' },
-  timeInVeryHighPercent: { value: 5, comparator: '>' },
-  timeInExtremeHighPercent: { value: 1, comparator: '>' },
-};
+import { glycemicTargetThresholds } from '../ClinicPatients';
+import useClinicMetricsPageName from '../useClinicMetricsPageName';
 
 const getTimeInRangeFilterOptions = (showExtremeHigh = false, t) => [
   (showExtremeHigh && {
@@ -90,6 +79,7 @@ const DropdownContent = ({
   timeInRange = [],
 }) => {
   const { t } = useTranslation();
+  const pageName = useClinicMetricsPageName();
   const { showExtremeHigh } = useFlags();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinicBgUnits = useSelector((state) => state.blip.clinics?.[selectedClinicId]?.preferredBgUnits) || MGDL_UNITS;
@@ -215,7 +205,7 @@ const DropdownContent = ({
           id="timeInRangeFilterClear"
           variant="secondary"
           onClick={() => {
-            trackMetric(prefixPopHealthMetric('Time in range clear filter'), { clinicId: selectedClinicId });
+            trackMetric('Time in range clear filter', { clinicId: selectedClinicId, pageName });
             setPendingTimeInRange([]);
             handleChange([]);
             onClose();
@@ -228,7 +218,7 @@ const DropdownContent = ({
           id="timeInRangeFilterConfirm"
           variant="primary"
           onClick={() => {
-            trackMetric(prefixPopHealthMetric('Time in range apply filter'), {
+            trackMetric('Time in range apply filter', {
               clinicId: selectedClinicId,
               severeHypo: includes(pendingTimeInRange, 'timeInVeryLowPercent'),
               hypo: includes(pendingTimeInRange, 'timeInAnyLowPercent'),
@@ -254,6 +244,7 @@ const TimeInRangeFilterDropdown = ({
   timeInRange = [],
 }) => {
   const { t } = useTranslation();
+  const pageName = useClinicMetricsPageName();
 
   const timeInRangePopupFilterState = usePopupState({
     variant: 'popover',
@@ -268,7 +259,7 @@ const TimeInRangeFilterDropdown = ({
     <>
       <Box
         onClick={() => {
-          if (!timeInRangePopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('Time in range filter open'), { clinicId: selectedClinicId });
+          if (!timeInRangePopupFilterState.isOpen) trackMetric('Time in range filter open', { clinicId: selectedClinicId, pageName });
         }}
         sx={{ flexShrink: 0 }}
       >
@@ -309,7 +300,7 @@ const TimeInRangeFilterDropdown = ({
         closeIcon
         {...bindPopover(timeInRangePopupFilterState)}
         onClickCloseIcon={() => {
-          trackMetric(prefixPopHealthMetric('Time in range filter close'), { clinicId: selectedClinicId });
+          trackMetric('Time in range filter close', { clinicId: selectedClinicId, pageName });
         }}
         onClose={handleCloseDropdown}
       >
