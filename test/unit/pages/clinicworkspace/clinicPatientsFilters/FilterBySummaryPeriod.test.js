@@ -6,6 +6,10 @@ import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
 
 import FilterBySummaryPeriod from '@app/pages/clinicworkspace/clinicPatientsFilters/FilterBySummaryPeriod';
+import { trackMetric as mockTrackMetric } from '../../../../../app/core/metricUtils';
+import useClinicMetricsPageName from '@app/pages/clinicworkspace/useClinicMetricsPageName';
+
+jest.mock('@app/pages/clinicworkspace/useClinicMetricsPageName');
 
 const mockStore = configureStore([thunk]);
 
@@ -16,6 +20,8 @@ describe('FilterBySummaryPeriod', () => {
   const selectedClinicId = 'clinic123';
 
   const setActiveSummaryPeriod = jest.fn();
+
+  useClinicMetricsPageName.mockReturnValue('Population Health');
 
   const ui = (props = {}) => (
     <Provider store={store}>
@@ -37,6 +43,7 @@ describe('FilterBySummaryPeriod', () => {
     });
 
     setActiveSummaryPeriod.mockClear();
+    mockTrackMetric.mockClear();
   });
 
   describe('handleChange', () => {
