@@ -6,6 +6,11 @@ import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
 
 import FilterByCGMUse from '@app/pages/clinicworkspace/clinicPatientsFilters/FilterByCGMUse';
+import useClinicMetricsPageName from '@app/pages/clinicworkspace/useClinicMetricsPageName';
+
+jest.mock('@app/pages/clinicworkspace/useClinicMetricsPageName');
+
+useClinicMetricsPageName.mockReturnValue('Population Health');
 
 const mockStore = configureStore([thunk]);
 
