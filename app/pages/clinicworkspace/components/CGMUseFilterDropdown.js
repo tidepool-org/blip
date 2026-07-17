@@ -15,8 +15,7 @@ import { bindPopover, bindTrigger, usePopupState } from 'material-ui-popup-state
 import Button from '../../../components/elements/Button';
 import Popover from '../../../components/elements/Popover';
 import RadioGroup from '../../../components/elements/RadioGroup';
-
-const prefixPopHealthMetric = () => noop; // TODO: FIX
+import useClinicMetricsPageName from '../useClinicMetricsPageName';
 
 const getCgmUseFilterOptions = (t) => [
   { value: '<0.7', label: t('Less than 70%') },
@@ -29,6 +28,7 @@ const DropdownContent = ({
   timeCGMUsePercent,
 }) => {
   const { t } = useTranslation();
+  const pageName = useClinicMetricsPageName();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
 
   const [pendingTimeCGMUsePercent, setPendingTimeCGMUsePercent] = useState(timeCGMUsePercent);
@@ -65,7 +65,7 @@ const DropdownContent = ({
           sx={{ fontSize: 1 }}
           variant="secondary"
           onClick={() => {
-            trackMetric(prefixPopHealthMetric('CGM use clear filter'), { clinicId: selectedClinicId });
+            trackMetric('CGM use clear filter', { clinicId: selectedClinicId, pageName });
             setPendingTimeCGMUsePercent(null);
             handleChange(null);
             onClose();
@@ -80,7 +80,7 @@ const DropdownContent = ({
           sx={{ fontSize: 1 }}
           variant="primary"
           onClick={() => {
-            trackMetric(prefixPopHealthMetric('CGM use apply filter'), {
+            trackMetric('CGM use apply filter', {
               clinicId: selectedClinicId,
               filter: pendingTimeCGMUsePercent,
             });
@@ -101,6 +101,7 @@ const CGMUseFilterDropdown = ({
   timeCGMUsePercent = null,
 }) => {
   const { t } = useTranslation();
+  const pageName = useClinicMetricsPageName();
 
   const cgmUsePopupFilterState = usePopupState({
     variant: 'popover',
@@ -115,7 +116,7 @@ const CGMUseFilterDropdown = ({
     <>
       <Box
         onClick={() => {
-          if (!cgmUsePopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('CGM Use filter open'), { clinicId: selectedClinicId });
+          if (!cgmUsePopupFilterState.isOpen) trackMetric('CGM Use filter open', { clinicId: selectedClinicId, pageName });
         }}
         sx={{ flexShrink: 0 }}
       >
@@ -137,7 +138,7 @@ const CGMUseFilterDropdown = ({
         closeIcon
         {...bindPopover(cgmUsePopupFilterState)}
         onClickCloseIcon={() => {
-          trackMetric(prefixPopHealthMetric('CGM Use filter close'), { clinicId: selectedClinicId });
+          trackMetric('CGM Use filter close', { clinicId: selectedClinicId, pageName });
         }}
         onClose={handleCloseDropdown}
       >
