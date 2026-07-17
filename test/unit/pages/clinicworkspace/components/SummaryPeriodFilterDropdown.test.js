@@ -48,7 +48,7 @@ describe('SummaryPeriodFilterDropdown', () => {
       expect(screen.getByRole('button', { name: /Summarizing 14 days of data/ })).toBeInTheDocument();
 
       // Dropdown closed initially
-      expect(screen.queryByRole('radio', { name: /24 hours/ })).not.toBeInTheDocument();
+      expect(screen.queryByTestId('summary-period-filter-dropdown')).not.toBeInTheDocument();
 
       // Open the dropdown
       await userEvent.click(screen.getByRole('button', { name: /Filter by summary period duration/ }));
@@ -64,7 +64,7 @@ describe('SummaryPeriodFilterDropdown', () => {
       expect(onChange).toHaveBeenCalledWith('30d');
 
       // Dropdown should automatically close
-      expect(screen.queryByRole('radio', { name: /24 hours/ })).not.toBeInTheDocument();
+      expect(screen.queryByTestId('summary-period-filter-dropdown')).not.toBeInTheDocument();
     });
 
     it('disables the Apply button until a different period is selected', async () => {
@@ -95,7 +95,7 @@ describe('SummaryPeriodFilterDropdown', () => {
 
       // No change is applied and the dropdown closes
       expect(onChange).not.toHaveBeenCalled();
-      expect(screen.queryByRole('radio', { name: /24 hours/ })).not.toBeInTheDocument();
+      expect(screen.queryByTestId('summary-period-filter-dropdown')).not.toBeInTheDocument();
 
       // Re-opening shows the original active period still selected (pending was reset)
       await userEvent.click(screen.getByRole('button', { name: /Filter by summary period duration/ }));
