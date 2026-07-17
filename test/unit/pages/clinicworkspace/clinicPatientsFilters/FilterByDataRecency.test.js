@@ -51,6 +51,13 @@ describe('FilterByDataRecency', () => {
       await userEvent.click(screen.getByRole('button', { name: /^Data Recency/ }));
       await screen.findByTestId('data-recency-filter-dropdown');
 
+      // Correct options exist
+      expect(screen.getByRole('radio', { name: /Today/ })).toBeInTheDocument();
+      expect(screen.getByRole('radio', { name: /Within 2 days/ })).toBeInTheDocument();
+      expect(screen.getByRole('radio', { name: /Within 14 days/ })).toBeInTheDocument();
+      expect(screen.getByRole('radio', { name: /Within 30 days/ })).toBeInTheDocument();
+      expect(screen.queryByRole('radio', { name: /Within 7 days/ })).not.toBeInTheDocument();
+
       await userEvent.click(screen.getByRole('radio', { name: /CGM/ }));
       await userEvent.click(screen.getByRole('radio', { name: /Within 14 days/ }));
       await userEvent.click(screen.getByRole('button', { name: 'Apply' }));
@@ -61,21 +68,6 @@ describe('FilterByDataRecency', () => {
         lastDataType: 'cgm',
         patientTags: ['tag1'],
       });
-    });
-  });
-
-  describe('filterOptions', () => {
-    it('omits the 7-day option from the data recency choices', async () => {
-      wrapper = renderComponent();
-
-      await userEvent.click(screen.getByRole('button', { name: /^Data Recency/ }));
-      await screen.findByTestId('data-recency-filter-dropdown');
-
-      expect(screen.getByRole('radio', { name: /Today/ })).toBeInTheDocument();
-      expect(screen.getByRole('radio', { name: /Within 2 days/ })).toBeInTheDocument();
-      expect(screen.getByRole('radio', { name: /Within 14 days/ })).toBeInTheDocument();
-      expect(screen.getByRole('radio', { name: /Within 30 days/ })).toBeInTheDocument();
-      expect(screen.queryByRole('radio', { name: /Within 7 days/ })).not.toBeInTheDocument();
     });
   });
 

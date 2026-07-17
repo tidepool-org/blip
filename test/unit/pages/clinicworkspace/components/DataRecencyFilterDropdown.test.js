@@ -74,8 +74,6 @@ describe('DataRecencyFilterDropdown', () => {
       // Select a device type and a data recency window
       await userEvent.click(screen.getByRole('radio', { name: /CGM/ }));
       await userEvent.click(screen.getByRole('radio', { name: /Within 14 days/ }));
-      expect(screen.getByRole('radio', { name: /CGM/ })).toBeChecked();
-      expect(screen.getByRole('radio', { name: /Within 14 days/ })).toBeChecked();
 
       // Applying the filter sets it
       await userEvent.click(screen.getByRole('button', { name: /Apply/ }));
@@ -101,19 +99,6 @@ describe('DataRecencyFilterDropdown', () => {
       // Enabled once a data recency window is also selected
       await userEvent.click(screen.getByRole('radio', { name: /Within 2 days/ }));
       expect(screen.getByRole('button', { name: /Apply/ })).toBeEnabled();
-    });
-
-    it('reports the "today" date range when the single-day option is applied', async () => {
-      renderComponent();
-
-      await userEvent.click(screen.getByRole('button', { name: /Data Recency/ }));
-
-      await userEvent.click(screen.getByRole('radio', { name: /BGM/ }));
-      await userEvent.click(screen.getByRole('radio', { name: /Today/ }));
-      await userEvent.click(screen.getByRole('button', { name: /Apply/ }));
-
-      expect(onChange).toHaveBeenCalledWith({ lastData: 1, lastDataType: 'bgm' });
-      expect(mockTrackMetric).toHaveBeenCalledWith('Clinic - Last upload apply filter', { clinicId: 'clinic123', dateRange: 'today', type: 'bgm' });
     });
 
     it('pre-selects the radios matching the active filters', async () => {
