@@ -4,11 +4,9 @@ import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
+import { MemoryRouter } from 'react-router-dom';
 
 import SummaryPeriodFilterDropdown from '@app/pages/clinicworkspace/components/SummaryPeriodFilterDropdown';
-import useClinicMetricsPageName from '@app/pages/clinicworkspace/useClinicMetricsPageName';
-
-jest.mock('@app/pages/clinicworkspace/useClinicMetricsPageName');
 
 const mockStore = configureStore([thunk]);
 
@@ -20,15 +18,15 @@ describe('SummaryPeriodFilterDropdown', () => {
 
   let onChange = jest.fn();
 
-  useClinicMetricsPageName.mockReturnValue('Population Health');
-
   const ui = (props = {}) => (
     <Provider store={store}>
-      <SummaryPeriodFilterDropdown
-        onChange={onChange}
-        activeSummaryPeriod="14d"
-        {...props}
-      />
+      <MemoryRouter initialEntries={['/clinic-workspace']}>
+        <SummaryPeriodFilterDropdown
+          onChange={onChange}
+          activeSummaryPeriod="14d"
+          {...props}
+        />
+      </MemoryRouter>
     </Provider>
   );
 
