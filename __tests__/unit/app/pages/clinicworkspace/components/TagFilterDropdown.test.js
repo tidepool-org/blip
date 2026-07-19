@@ -4,20 +4,15 @@ import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
+import { MemoryRouter } from 'react-router-dom';
 
 import * as actions from '@app/redux/actions';
 import TagFilterDropdown from '@app/pages/clinicworkspace/components/TagFilterDropdown';
 import { trackMetric as mockTrackMetric } from '../../../../../app/core/metricUtils';
 import useIsClinicAdmin from '@app/pages/clinicworkspace/useIsClinicAdmin';
-import useClinicMetricsPageName from '@app/pages/clinicworkspace/useClinicMetricsPageName';
-import { SPECIAL_FILTER_STATES } from '../../../../../app/pages/clinicworkspace/useClinicPatientsFilters';
+import { SPECIAL_FILTER_STATES } from '@app/pages/clinicworkspace/useClinicPatientsFilters';
 
 jest.mock('@app/pages/clinicworkspace/useIsClinicAdmin');
-jest.mock('@app/pages/clinicworkspace/useClinicMetricsPageName');
-
-jest.mock('@app/redux/actions', () => ({
-
-}));
 
 const mockStore = configureStore([thunk]);
 
@@ -42,16 +37,17 @@ describe('TagFilterDropdown', () => {
   let patientTags = [];
 
   useIsClinicAdmin.mockReturnValue(true);
-  useClinicMetricsPageName.mockReturnValue('Population Health');
 
   const ui = (props = {}) => (
     <Provider store={store}>
-      <TagFilterDropdown
-        onChange={onChange}
-        onClickEditTags={onClickEditTags}
-        patientTags={patientTags}
-        {...props}
-      />
+      <MemoryRouter initialEntries={['/clinic-workspace']}>
+        <TagFilterDropdown
+          onChange={onChange}
+          onClickEditTags={onClickEditTags}
+          patientTags={patientTags}
+          {...props}
+        />
+      </MemoryRouter>
     </Provider>
   );
 

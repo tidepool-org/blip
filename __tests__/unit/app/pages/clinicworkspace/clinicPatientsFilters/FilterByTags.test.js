@@ -4,15 +4,14 @@ import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
+import { MemoryRouter } from 'react-router-dom';
 
 import * as actions from '@app/redux/actions';
 import FilterByTags from '@app/pages/clinicworkspace/clinicPatientsFilters/FilterByTags';
 import { trackMetric as mockTrackMetric } from '../../../../../app/core/metricUtils';
 import useIsClinicAdmin from '@app/pages/clinicworkspace/useIsClinicAdmin';
-import useClinicMetricsPageName from '@app/pages/clinicworkspace/useClinicMetricsPageName';
 
 jest.mock('@app/pages/clinicworkspace/useIsClinicAdmin');
-jest.mock('@app/pages/clinicworkspace/useClinicMetricsPageName');
 
 jest.mock('@app/redux/actions', () => ({
   async: {
@@ -38,16 +37,17 @@ describe('FilterByTags', () => {
   const setShowClinicPatientTagsDialog = jest.fn();
 
   useIsClinicAdmin.mockReturnValue(true);
-  useClinicMetricsPageName.mockReturnValue('Population Health');
 
   const ui = (props = {}) => (
     <Provider store={store}>
-      <FilterByTags
-        api={api}
-        setActiveFilters={setActiveFilters}
-        setShowClinicPatientTagsDialog={setShowClinicPatientTagsDialog}
-        {...props}
-      />
+      <MemoryRouter initialEntries={['/clinic-workspace']}>
+        <FilterByTags
+          api={api}
+          setActiveFilters={setActiveFilters}
+          setShowClinicPatientTagsDialog={setShowClinicPatientTagsDialog}
+          {...props}
+        />
+      </MemoryRouter>
     </Provider>
   );
 

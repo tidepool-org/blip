@@ -4,15 +4,14 @@ import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
+import { MemoryRouter } from 'react-router-dom';
 
 import * as actions from '@app/redux/actions';
 import FilterBySites from '@app/pages/clinicworkspace/clinicPatientsFilters/FilterBySites';
 import { trackMetric as mockTrackMetric } from '../../../../../app/core/metricUtils';
 import useIsClinicAdmin from '@app/pages/clinicworkspace/useIsClinicAdmin';
-import useClinicMetricsPageName from '@app/pages/clinicworkspace/useClinicMetricsPageName';
 
 jest.mock('@app/pages/clinicworkspace/useIsClinicAdmin');
-jest.mock('@app/pages/clinicworkspace/useClinicMetricsPageName');
 
 jest.mock('@app/redux/actions', () => ({
   async: { fetchClinicSites: jest.fn().mockReturnValue({ type: 'FETCH_CLINIC_SITES' }) },
@@ -36,16 +35,17 @@ describe('FilterBySites', () => {
   const setShowClinicSitesDialog = jest.fn();
 
   useIsClinicAdmin.mockReturnValue(true);
-  useClinicMetricsPageName.mockReturnValue('Population Health');
 
   const ui = (props = {}) => (
     <Provider store={store}>
-      <FilterBySites
-        api={api}
-        setActiveFilters={setActiveFilters}
-        setShowClinicSitesDialog={setShowClinicSitesDialog}
-        {...props}
-      />
+      <MemoryRouter initialEntries={['/clinic-workspace']}>
+        <FilterBySites
+          api={api}
+          setActiveFilters={setActiveFilters}
+          setShowClinicSitesDialog={setShowClinicSitesDialog}
+          {...props}
+        />
+      </MemoryRouter>
     </Provider>
   );
 
