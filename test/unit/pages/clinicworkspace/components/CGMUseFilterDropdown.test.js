@@ -4,14 +4,10 @@ import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
+import { MemoryRouter } from 'react-router-dom';
 
 import CGMUseFilterDropdown from '@app/pages/clinicworkspace/components/CGMUseFilterDropdown';
 import { trackMetric as mockTrackMetric } from '../../../../../app/core/metricUtils';
-import useClinicMetricsPageName from '@app/pages/clinicworkspace/useClinicMetricsPageName';
-
-jest.mock('@app/pages/clinicworkspace/useClinicMetricsPageName');
-
-useClinicMetricsPageName.mockReturnValue('Population Health');
 
 const mockStore = configureStore([thunk]);
 
@@ -24,11 +20,13 @@ describe('CGMUseFilterDropdown', () => {
 
   const ui = (props = {}) => (
     <Provider store={store}>
-      <CGMUseFilterDropdown
-        onChange={onChange}
-        timeCGMUsePercent={null}
-        {...props}
-      />
+      <MemoryRouter initialEntries={['/clinic-workspace']}>
+        <CGMUseFilterDropdown
+          onChange={onChange}
+          timeCGMUsePercent={null}
+          {...props}
+        />
+      </MemoryRouter>
     </Provider>
   );
 
