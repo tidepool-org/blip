@@ -4,11 +4,9 @@ import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
+import { MemoryRouter } from 'react-router-dom';
 
 import FilterByDataRecency from '@app/pages/clinicworkspace/clinicPatientsFilters/FilterByDataRecency';
-import useClinicMetricsPageName from '@app/pages/clinicworkspace/useClinicMetricsPageName';
-
-jest.mock('@app/pages/clinicworkspace/useClinicMetricsPageName');
 
 const mockStore = configureStore([thunk]);
 
@@ -20,14 +18,14 @@ describe('FilterByDataRecency', () => {
 
   const setActiveFilters = jest.fn();
 
-  useClinicMetricsPageName.mockReturnValue('Population Health');
-
   const ui = (props = {}) => (
     <Provider store={store}>
-      <FilterByDataRecency
-        setActiveFilters={setActiveFilters}
-        {...props}
-      />
+      <MemoryRouter initialEntries={['/clinic-workspace']}>
+        <FilterByDataRecency
+          setActiveFilters={setActiveFilters}
+          {...props}
+        />
+      </MemoryRouter>
     </Provider>
   );
 
