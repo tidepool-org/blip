@@ -4,12 +4,10 @@ import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
+import { MemoryRouter } from 'react-router-dom';
 
 import FilterBySummaryPeriod from '@app/pages/clinicworkspace/clinicPatientsFilters/FilterBySummaryPeriod';
 import { trackMetric as mockTrackMetric } from '../../../../../app/core/metricUtils';
-import useClinicMetricsPageName from '@app/pages/clinicworkspace/useClinicMetricsPageName';
-
-jest.mock('@app/pages/clinicworkspace/useClinicMetricsPageName');
 
 const mockStore = configureStore([thunk]);
 
@@ -21,14 +19,14 @@ describe('FilterBySummaryPeriod', () => {
 
   const setActiveSummaryPeriod = jest.fn();
 
-  useClinicMetricsPageName.mockReturnValue('Population Health');
-
   const ui = (props = {}) => (
     <Provider store={store}>
-      <FilterBySummaryPeriod
-        setActiveSummaryPeriod={setActiveSummaryPeriod}
-        {...props}
-      />
+      <MemoryRouter initialEntries={['/clinic-workspace']}>
+        <FilterBySummaryPeriod
+          setActiveSummaryPeriod={setActiveSummaryPeriod}
+          {...props}
+        />
+      </MemoryRouter>
     </Provider>
   );
 
