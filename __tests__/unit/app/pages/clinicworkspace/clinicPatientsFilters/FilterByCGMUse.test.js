@@ -4,13 +4,9 @@ import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
+import { MemoryRouter } from 'react-router-dom';
 
 import FilterByCGMUse from '@app/pages/clinicworkspace/clinicPatientsFilters/FilterByCGMUse';
-import useClinicMetricsPageName from '@app/pages/clinicworkspace/useClinicMetricsPageName';
-
-jest.mock('@app/pages/clinicworkspace/useClinicMetricsPageName');
-
-useClinicMetricsPageName.mockReturnValue('Population Health');
 
 const mockStore = configureStore([thunk]);
 
@@ -23,10 +19,12 @@ describe('FilterByCGMUse', () => {
 
   const ui = (props = {}) => (
     <Provider store={store}>
-      <FilterByCGMUse
-        setActiveFilters={setActiveFilters}
-        {...props}
-      />
+      <MemoryRouter initialEntries={['/clinic-workspace']}>
+        <FilterByCGMUse
+          setActiveFilters={setActiveFilters}
+          {...props}
+        />
+      </MemoryRouter>
     </Provider>
   );
 
