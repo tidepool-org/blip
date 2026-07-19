@@ -4,15 +4,12 @@ import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
+import { MemoryRouter } from 'react-router-dom';
 
 import { useFlags } from 'launchdarkly-react-client-sdk';
 import FilterByTimeInRange from '@app/pages/clinicworkspace/clinicPatientsFilters/FilterByTimeInRange';
-import useClinicMetricsPageName from '@app/pages/clinicworkspace/useClinicMetricsPageName';
 
 jest.mock('launchdarkly-react-client-sdk');
-jest.mock('@app/pages/clinicworkspace/useClinicMetricsPageName');
-
-useClinicMetricsPageName.mockReturnValue('Population Health');
 
 const mockStore = configureStore([thunk]);
 
@@ -27,10 +24,12 @@ describe('FilterByTimeInRange', () => {
 
   const ui = (props = {}) => (
     <Provider store={store}>
-      <FilterByTimeInRange
-        setActiveFilters={setActiveFilters}
-        {...props}
-      />
+      <MemoryRouter initialEntries={['/clinic-workspace']}>
+        <FilterByTimeInRange
+          setActiveFilters={setActiveFilters}
+          {...props}
+        />
+      </MemoryRouter>
     </Provider>
   );
 
