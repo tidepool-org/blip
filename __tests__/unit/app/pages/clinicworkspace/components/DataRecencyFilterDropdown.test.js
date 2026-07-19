@@ -4,13 +4,11 @@ import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
+import { MemoryRouter } from 'react-router-dom';
 
 import * as actions from '@app/redux/actions';
 import DataRecencyFilterDropdown from '@app/pages/clinicworkspace/components/DataRecencyFilterDropdown';
 import { trackMetric as mockTrackMetric } from '../../../../../app/core/metricUtils';
-import useClinicMetricsPageName from '@app/pages/clinicworkspace/useClinicMetricsPageName';
-
-jest.mock('@app/pages/clinicworkspace/useClinicMetricsPageName');
 
 const mockStore = configureStore([thunk]);
 
@@ -29,15 +27,15 @@ describe('DataRecencyFilterDropdown', () => {
 
   let onChange = jest.fn();
 
-  useClinicMetricsPageName.mockReturnValue('Population Health');
-
   const ui = (props = {}) => (
     <Provider store={store}>
-      <DataRecencyFilterDropdown
-        onChange={onChange}
-        filterOptions={filterOptions}
-        {...props}
-      />
+      <MemoryRouter initialEntries={['/clinic-workspace']}>
+        <DataRecencyFilterDropdown
+          onChange={onChange}
+          filterOptions={filterOptions}
+          {...props}
+        />
+      </MemoryRouter>
     </Provider>
   );
 
