@@ -4,17 +4,14 @@ import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
+import { MemoryRouter } from 'react-router-dom';
 
 import { useFlags } from 'launchdarkly-react-client-sdk';
 import TimeInRangeFilterDropdown from '@app/pages/clinicworkspace/components/TimeInRangeFilterDropdown';
 import { MMOLL_UNITS } from '@app/core/constants';
 import { trackMetric as mockTrackMetric } from '../../../../../app/core/metricUtils';
-import useClinicMetricsPageName from '@app/pages/clinicworkspace/useClinicMetricsPageName';
 
 jest.mock('launchdarkly-react-client-sdk');
-jest.mock('@app/pages/clinicworkspace/useClinicMetricsPageName');
-
-useClinicMetricsPageName.mockReturnValue('Population Health');
 
 const mockStore = configureStore([thunk]);
 
@@ -27,11 +24,13 @@ describe('TimeInRangeFilterDropdown', () => {
 
   const ui = (props = {}) => (
     <Provider store={store}>
-      <TimeInRangeFilterDropdown
-        onChange={onChange}
-        timeInRange={[]}
-        {...props}
-      />
+      <MemoryRouter initialEntries={['/clinic-workspace']}>
+        <TimeInRangeFilterDropdown
+          onChange={onChange}
+          timeInRange={[]}
+          {...props}
+        />
+      </MemoryRouter>
     </Provider>
   );
 
