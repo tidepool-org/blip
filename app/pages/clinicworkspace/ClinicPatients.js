@@ -729,8 +729,6 @@ export const ClinicPatients = (props) => {
     { value: 'bgm', label: t('BGM') },
   ];
 
-  const customLastDataFilterOptions = reject(lastDataFilterOptions, { value: 7 });
-
   const summaryPeriodOptions = [
     { value: '1d', label: t('24 hours') },
     { value: '7d', label: t('7 days') },
