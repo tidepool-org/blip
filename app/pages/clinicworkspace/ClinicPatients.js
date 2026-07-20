@@ -1546,14 +1546,6 @@ export const ClinicPatients = (props) => {
   }, [api, dispatch, selectedClinicId, selectedPatient?.id, trackMetric]);
 
   const renderHeader = () => {
-    const activeFiltersCount = without([
-      activeFilters.timeCGMUsePercent,
-      activeFilters.lastData,
-      activeFilters.clinicSites?.length,
-      activeFilters.timeInRange?.length,
-      activeFilters.patientTags?.length,
-    ], null, 0, undefined).length;
-
     const sortedSiteFilterOptions = clinicSitesFilterOptions?.toSorted((a, b) => utils.compareLabels(a.label, b.label)) || [];
     const sortedTagFilterOptions = patientTagsFilterOptions?.toSorted((a, b) => utils.compareLabels(a.label, b.label)) || [];
 
