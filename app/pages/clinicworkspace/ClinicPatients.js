@@ -32,7 +32,6 @@ import DoubleArrowIcon from '@material-ui/icons/DoubleArrow';
 import EditIcon from '@material-ui/icons/EditRounded';
 import PrintRoundedIcon from '@material-ui/icons/PrintRounded';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
-import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 import RefreshRoundedIcon from '@material-ui/icons/RefreshRounded';
 import SearchIcon from '@material-ui/icons/Search';
 import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined';
@@ -47,7 +46,6 @@ import styled from '@emotion/styled';
 import { scroller } from 'react-scroll';
 import { Formik, Form } from 'formik';
 import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
-import { Link as RouterLink } from 'react-router-dom';
 import useClinicPatientsFilters, { defaultFilterState, SPECIAL_FILTER_STATES } from './useClinicPatientsFilters';
 
 import {
@@ -74,13 +72,9 @@ import PatientForm from '../../components/clinic/PatientForm';
 import PatientLastReviewed from '../../components/clinic/PatientLastReviewed';
 import TideDashboardConfigForm, { validateTideConfig } from '../../components/clinic/TideDashboardConfigForm';
 import RpmReportConfigForm, { exportRpmReport } from '../../components/clinic/RpmReportConfigForm';
-import Pill from '../../components/elements/Pill';
 import PopoverMenu from '../../components/elements/PopoverMenu';
 import PopoverLabel from '../../components/elements/PopoverLabel';
 import Popover from '../../components/elements/Popover';
-import RadioGroup from '../../components/elements/RadioGroup';
-import Checkbox from '../../components/elements/Checkbox';
-import FilterIcon from '../../core/icons/FilterIcon.svg';
 import DataInIcon from '../../core/icons/DataInIcon.svg';
 import SendEmailIcon from '../../core/icons/SendEmailIcon.svg';
 import TabularReportIcon from '../../core/icons/TabularReportIcon.svg';
@@ -112,10 +106,9 @@ import {
 } from '../../core/clinicUtils';
 
 import { DIABETES_TYPES, MGDL_UNITS, MMOLL_UNITS, URL_TIDEPOOL_PLUS_PLANS } from '../../core/constants';
-import baseTheme, { borders, radii, colors, space, fontWeights } from '../../themes/baseTheme';
+import baseTheme, { borders, radii, colors, space } from '../../themes/baseTheme';
 import PopoverElement from '../../components/elements/PopoverElement';
 import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
-import Banner from '../../components/elements/Banner';
 import colorPalette from '../../themes/colorPalette';
 import noop from 'lodash/noop';
 import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils';
@@ -663,11 +656,6 @@ export const ClinicPatients = (props) => {
   const [activeFilters, setActiveFilters] = useClinicPatientsFilters();
   const [pendingFilters, setPendingFilters] = useState({ ...defaultFilterState, ...activeFilters });
   const previousActiveFilters = usePrevious(activeFilters);
-
-  const cgmUseFilterOptions = [
-    { value: '<0.7', label: t('Less than 70%') },
-    { value: '>=0.7', label: t('70% or more') },
-  ];
 
   const clinicSites = useMemo(() => keyBy(clinic?.sites, 'id'), [clinic?.sites]);
   const patientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
