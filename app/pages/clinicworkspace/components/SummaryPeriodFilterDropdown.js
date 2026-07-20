@@ -148,6 +148,8 @@ const SummaryPeriodFilterDropdown = ({
       <Popover
         minWidth="11em"
         closeIcon
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
         {...bindPopover(summaryPeriodPopupFilterState)}
         onClickCloseIcon={() => {
           trackMetric('Clinic - Summary period filter close', { clinicId: selectedClinicId, pageName });
