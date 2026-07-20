@@ -191,7 +191,7 @@ const ActiveFiltersTray = ({
     <Flex
       id="clinic-patients-active-filters"
       px={3}
-      py={2}
+      py={3}
       sx={{
         alignItems: 'flex-start',
         gap: '4px',

@@ -866,6 +866,8 @@
   "Showing {{ count }} patient accounts with the current filter(s)_other": "Showing {{ count }} patient accounts with the current filter(s)",
   "Showing {{ count }} patient accounts that match your search_one": "Showing {{ count }} patient account that matches your search",
   "Showing {{ count }} patient accounts that match your search_other": "Showing {{ count }} patient accounts that match your search",
+  "Showing {{ count }} patients that match your search_one": "Showing {{ count }} patient that matches your search",
+  "Showing {{ count }} patients that match your search_other": "Showing {{ count }} patients that match your search",
   "Showing {{ count }} patients_one": "Showing {{ count }} patient",
   "Showing {{ count }} patients_other": "Showing {{ count }} patients",
   "If you remove it, {{ count }} patient accounts will no longer be associated with this site._one": "If you remove it, {{ count }} patient account will no longer be associated with this site.",
