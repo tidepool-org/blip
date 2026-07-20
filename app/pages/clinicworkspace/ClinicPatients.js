@@ -1547,29 +1547,12 @@ export const ClinicPatients = (props) => {
   }, [api, dispatch, selectedClinicId, selectedPatient?.id, trackMetric]);
 
   const renderHeader = () => {
-    const activeFiltersCount = without([
-      activeFilters.timeCGMUsePercent,
-      activeFilters.lastData,
-      activeFilters.clinicSites?.length,
-      activeFilters.timeInRange?.length,
-      activeFilters.patientTags?.length,
-    ], null, 0, undefined).length;
-
-    const sortedSiteFilterOptions = clinicSitesFilterOptions?.toSorted((a, b) => utils.compareLabels(a.label, b.label)) || [];
-    const sortedTagFilterOptions = patientTagsFilterOptions?.toSorted((a, b) => utils.compareLabels(a.label, b.label)) || [];
-
     const VisibilityIcon = isPatientListVisible ? VisibilityOffOutlinedIcon : VisibilityOutlinedIcon;
     const hoursAgo = Math.floor(patientFetchMinutesAgo / 60);
     let timeAgoUnits = hoursAgo < 2 ? t('hour') : t('hours');
     let timeAgo = hoursAgo === 0 ? t('less than an') : t('over {{hoursAgo}}', { hoursAgo });
     if (hoursAgo >= 24) timeAgo = t('over 24');
     const timeAgoMessage = t('Last updated {{timeAgo}} {{timeAgoUnits}} ago', { timeAgo, timeAgoUnits });
-
-    // Filtering for patients "zero sites/tags" is different than not filtering. If we don't pass any filters
-    // to backend, we receive a list of PwDs with zero or many sites/tags. We need to explicitly filter for
-    // PwDs with exactly zero sites/tags.
-    const isFilteringForZeroSites = isEqual(pendingFilters?.clinicSites, SPECIAL_FILTER_STATES.ZERO_SITES);
-    const isFilteringForZeroTags = isEqual(pendingFilters?.patientTags, SPECIAL_FILTER_STATES.ZERO_TAGS);
 
     return (
       <>
