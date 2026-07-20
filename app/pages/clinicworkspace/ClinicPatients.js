@@ -724,11 +724,6 @@ export const ClinicPatients = (props) => {
     { value: '>=0.7', label: t('70% or more') },
   ];
 
-  const lastDataTypeFilterOptions = [
-    { value: 'cgm', label: t('CGM') },
-    { value: 'bgm', label: t('BGM') },
-  ];
-
   const summaryPeriodOptions = [
     { value: '1d', label: t('24 hours') },
     { value: '7d', label: t('7 days') },
