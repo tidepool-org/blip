@@ -123,6 +123,7 @@ import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils';
 import FilterByTags from './clinicPatientsFilters/FilterByTags';
 import FilterBySites from './clinicPatientsFilters/FilterBySites';
 import FilterByDataRecency from './clinicPatientsFilters/FilterByDataRecency';
+import FilterBySummaryPeriod from './clinicPatientsFilters/FilterBySummaryPeriod';
 import ClinicPatientsPrintModal from './ClinicPatientsPrintModal';
 import AppliedFiltersList from './clinicPatientsFilters/AppliedFiltersList';
 import useIsClinicAdmin from './useIsClinicAdmin';
@@ -724,13 +725,6 @@ export const ClinicPatients = (props) => {
     { value: '>=0.7', label: t('70% or more') },
   ];
 
-  const summaryPeriodOptions = [
-    { value: '1d', label: t('24 hours') },
-    { value: '7d', label: t('7 days') },
-    { value: '14d', label: t('14 days') },
-    { value: '30d', label: t('30 days') },
-  ];
-
   const clinicSites = useMemo(() => keyBy(clinic?.sites, 'id'), [clinic?.sites]);
   const patientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
 
@@ -748,18 +742,7 @@ export const ClinicPatients = (props) => {
 
   const defaultSummaryPeriod = '14d';
   const [activeSummaryPeriod, setActiveSummaryPeriod] = useLocalStorage('activePatientSummaryPeriod', defaultSummaryPeriod);
-  const [pendingSummaryPeriod, setPendingSummaryPeriod] = useState(activeSummaryPeriod);
   const previousSummaryPeriod = usePrevious(activeSummaryPeriod);
-
-  const summaryPeriodPopupFilterState = usePopupState({
-    variant: 'popover',
-    popupId: 'summaryPeriodFilters',
-  });
-
-  const lastDataPopupFilterState = usePopupState({
-    variant: 'popover',
-    popupId: 'lastDataFilters',
-  });
 
   const timeInRangePopupFilterState = usePopupState({
     variant: 'popover',
@@ -1990,99 +1973,19 @@ export const ClinicPatients = (props) => {
             )}
 
             {/* Flex Group 2b: Range select and Info/Visibility Icons */}
-            <Flex sx={{ flexGrow: 1, justifyContent: 'space-between', gap: 3 }}>
+            <Flex sx={{ flexGrow: 1, justifyContent: 'flex-end', gap: 3 }}>
 
               {/* Range select */}
               {showSummaryData && (
                 <Flex
                   pt={0}
-                  sx={{ gap: 3, justifyContent: 'flex-start', alignItems: 'center', flexShrink: 0 }}
+                  sx={{ gap: 3, justifyContent: 'flex-end', alignItems: 'center', flexShrink: 0 }}
                 >
-                  <Flex
-                    py={1}
-                    pl={[0, 0, 3]}
-                    sx={{ color: 'grays.4', borderLeft: ['none', null, borders.divider], alignItems: 'center' }}
-                  >
 
-                  <Text sx={{ fontSize: 0 }}>{t('Summarizing')}</Text>
-                </Flex>
-
-                <Box
-                  onClick={() => {
-                    if (!summaryPeriodPopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('Summary period filter open'), { clinicId: selectedClinicId });
-                  }}
-                >
-                  <Button
-                    variant="filter"
-                    id="summary-period-filter-trigger"
-                    {...bindTrigger(summaryPeriodPopupFilterState)}
-                    icon={KeyboardArrowDownRoundedIcon}
-                    iconLabel="Filter by summary period duration"
-                    sx={{ fontSize: 0, lineHeight: 1.3 }}
-                  >
-                    {find(summaryPeriodOptions, { value: activeSummaryPeriod })?.label} {t('of data')}
-                  </Button>
-                </Box>
-
-                <Popover
-                  width="13em"
-                  closeIcon
-                  {...bindPopover(summaryPeriodPopupFilterState)}
-                  onClickCloseIcon={() => {
-                    trackMetric(prefixPopHealthMetric('Summary period filter close'), { clinicId: selectedClinicId });
-                  }}
-                  onClose={() => {
-                    summaryPeriodPopupFilterState.close();
-                    setPendingSummaryPeriod(activeSummaryPeriod);
-                  }}
-                >
-                  <DialogContent px={2} py={3} dividers>
-                    <Body0 color="grays.4" sx={{ fontWeight: 'medium' }} mb={2}>{t('Tidepool will generate health summaries for the selected number of days.')}</Body0>
-
-                    <RadioGroup
-                      id="summary-period-filters"
-                      name="summary-period-filters"
-                      options={summaryPeriodOptions}
-                      variant="vertical"
-                      sx={{ fontSize: 0 }}
-                      value={pendingSummaryPeriod || activeSummaryPeriod}
-                      onChange={event => setPendingSummaryPeriod(event.target.value)}
-                    />
-                  </DialogContent>
-
-                  <DialogActions sx={{ justifyContent: 'space-between' }} p={1}>
-                    <Button
-                      id="cancel-summary-period-filter"
-                      sx={{ fontSize: 1 }}
-                      variant="textSecondary"
-                      onClick={() => {
-                        trackMetric(prefixPopHealthMetric('Summary period filter cancel'), { clinicId: selectedClinicId });
-                        setPendingSummaryPeriod(activeSummaryPeriod);
-                        summaryPeriodPopupFilterState.close();
-                      }}
-                    >
-                      {t('Cancel')}
-                    </Button>
-
-                    <Button
-                      id="apply-summary-period-filter"
-                      sx={{ fontSize: 1 }}
-                      variant="textPrimary"
-                      disabled={pendingSummaryPeriod === activeSummaryPeriod}
-                      onClick={() => {
-                        trackMetric(prefixPopHealthMetric('Summary period apply filter'), {
-                          clinicId: selectedClinicId,
-                          summaryPeriod: pendingSummaryPeriod,
-                        });
-
-                        setActiveSummaryPeriod(pendingSummaryPeriod);
-                        summaryPeriodPopupFilterState.close();
-                      }}
-                    >
-                      {t('Apply')}
-                    </Button>
-                  </DialogActions>
-                </Popover>
+                <FilterBySummaryPeriod
+                  activeSummaryPeriod={activeSummaryPeriod}
+                  setActiveSummaryPeriod={setActiveSummaryPeriod}
+                />
 
                 {showRpmReportUI && (
                   <Flex
