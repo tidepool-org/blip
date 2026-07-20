@@ -725,13 +725,6 @@ export const ClinicPatients = (props) => {
     { value: '>=0.7', label: t('70% or more') },
   ];
 
-  const summaryPeriodOptions = [
-    { value: '1d', label: t('24 hours') },
-    { value: '7d', label: t('7 days') },
-    { value: '14d', label: t('14 days') },
-    { value: '30d', label: t('30 days') },
-  ];
-
   const clinicSites = useMemo(() => keyBy(clinic?.sites, 'id'), [clinic?.sites]);
   const patientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
 
