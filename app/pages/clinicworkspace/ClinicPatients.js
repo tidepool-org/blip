@@ -730,8 +730,6 @@ export const ClinicPatients = (props) => {
     { value: 'bgm', label: t('BGM') },
   ];
 
-  const customLastDataFilterOptions = reject(lastDataFilterOptions, { value: 7 });
-
   const clinicSites = useMemo(() => keyBy(clinic?.sites, 'id'), [clinic?.sites]);
   const patientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
 
