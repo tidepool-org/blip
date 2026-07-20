@@ -725,11 +725,6 @@ export const ClinicPatients = (props) => {
     { value: '>=0.7', label: t('70% or more') },
   ];
 
-  const lastDataTypeFilterOptions = [
-    { value: 'cgm', label: t('CGM') },
-    { value: 'bgm', label: t('BGM') },
-  ];
-
   const clinicSites = useMemo(() => keyBy(clinic?.sites, 'id'), [clinic?.sites]);
   const patientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
 
