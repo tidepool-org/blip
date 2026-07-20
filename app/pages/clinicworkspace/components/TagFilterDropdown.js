@@ -104,6 +104,7 @@ const DropdownContent = ({
               id="search-tags"
               name="search-tags"
               placeholder={t('Search')}
+              autoFocus
               icon={!isEmpty(searchText) ? CloseRoundedIcon : SearchIcon}
               iconLabel={t('Search')}
               onClickIcon={() => setSearchText('')}
