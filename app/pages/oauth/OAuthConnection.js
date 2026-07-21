@@ -29,11 +29,7 @@ export const OAuthConnection = (props) => {
   const queryParams = new URLSearchParams(search);
   const dispatch = useDispatch();
   const history = useHistory();
-  const [isCustodial, setIsCustodial] = useState();
-  const [authStatus, setAuthStatus] = useState();
   const [acceptProcessing, setAcceptProcessing] = useState(false);
-  const isAcceptStatus = authStatus?.status === 'accept';
-  const isErrorStatus = authStatus?.status === 'error';
 
   const statusContent = {
     accept: {
@@ -89,6 +85,9 @@ export const OAuthConnection = (props) => {
       ? statusContent[status]
       : statusContent.error
   );
+
+  const isAcceptStatus = authStatus?.status === 'accept';
+  const isErrorStatus = authStatus?.status === 'error';
 
   const handleRedirectToClaimAccount = (params) => {
     trackMetric('Oauth - Connection - Claim Account', { providerName, status });
