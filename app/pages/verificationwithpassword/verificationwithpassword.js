@@ -86,7 +86,7 @@ const useInferEHRSignupWorkflow = () => {
   // If there is a restrictedToken in the params, we assume that the user is
   // coming in from the EHR C2C flow. Otherwise, we assume they are coming
   // in from the default "Claim Your Account" email flow.
-  const isEHRSignupWorkflow = queryParams.has('restrictedToken');
+  const isEHRSignupWorkflow = queryParams.has('restrictedTokenId');
 
   return isEHRSignupWorkflow;
 };
@@ -194,7 +194,7 @@ const VerificationWithPassword = ({
             disabled: disabled,
             sx: styleProps.actionButton,
           },
-        ].filter(a => !!a)}
+        ].filter(Boolean)}
       >
         <Box sx={styleProps.inputFieldContainer}>
           <TextInput // Password Field
