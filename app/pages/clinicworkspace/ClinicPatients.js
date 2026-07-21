@@ -654,7 +654,6 @@ export const ClinicPatients = (props) => {
   }), []);
 
   const [activeFilters, setActiveFilters] = useClinicPatientsFilters();
-  const [pendingFilters, setPendingFilters] = useState({ ...defaultFilterState, ...activeFilters });
   const previousActiveFilters = usePrevious(activeFilters);
 
   const clinicSites = useMemo(() => keyBy(clinic?.sites, 'id'), [clinic?.sites]);
@@ -927,12 +926,6 @@ export const ClinicPatients = (props) => {
     if (missingTagsInFilter.length || missingSitesInFilter.length) {
       setActiveFilters({
         ...activeFilters,
-        patientTags: without(activeFilters.patientTags, ...missingTagsInFilter),
-        clinicSites: without(activeFilters.clinicSites, ...missingSitesInFilter),
-      });
-
-      setPendingFilters({
-        ...pendingFilters,
         patientTags: without(activeFilters.patientTags, ...missingTagsInFilter),
         clinicSites: without(activeFilters.clinicSites, ...missingSitesInFilter),
       });
@@ -1407,7 +1400,6 @@ export const ClinicPatients = (props) => {
   function handleResetFilters() {
     trackMetric(prefixPopHealthMetric('Clear all filters'), { clinicId: selectedClinicId });
     setActiveFilters(defaultFilterState);
-    setPendingFilters(defaultFilterState);
   }
 
   const handleRemovePatient = useCallback(() => {
