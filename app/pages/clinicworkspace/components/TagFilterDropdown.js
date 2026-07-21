@@ -88,8 +88,8 @@ const DropdownContent = ({
   const canEditTags = !!onClickEditTags && isClinicAdmin;
 
   return (
-    <Box data-testid='tag-filter-dropdown' sx={{ width: 300, position: 'sticky', top: 0 }} mt={5} mx={2}>
-      <Flex sx={{ justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
+    <Box data-testid='tag-filter-dropdown' sx={{ width: 300, position: 'sticky', top: 0 }} mx={2}>
+      <Flex sx={{ justifyContent: 'space-between', alignItems: 'center' }} pt={5} mb={2}>
         <Box sx={{ padding: 1, color: colors.gray50, fontSize: 1, fontWeight: 'medium' }}>
           {t('Tags')}
         </Box>
@@ -122,7 +122,11 @@ const DropdownContent = ({
                 <Checkbox
                   id={`tag-filter-option-checkbox-${id}`}
                   data-testid={`tag-filter-option-checkbox-${id}`}
-                  label={<Text sx={{ fontSize: 0, fontWeight: 'normal' }}>{label}</Text>}
+                  label={
+                    <Text sx={{ fontSize: 0, fontWeight: 'normal', display: 'inline-block', maxWidth: '160px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                      {label}
+                    </Text>
+                  }
                   checked={isChecked(id)}
                   onChange={() => {
                     if (isFilteringForZeroTags) {
