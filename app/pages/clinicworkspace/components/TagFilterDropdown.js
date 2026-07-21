@@ -88,8 +88,8 @@ const DropdownContent = ({
   const canEditTags = !!onClickEditTags && isClinicAdmin;
 
   return (
-    <Box data-testid='tag-filter-dropdown' sx={{ width: 300, position: 'sticky', top: 0 }} mx={2}>
-      <Flex sx={{ justifyContent: 'space-between', alignItems: 'center' }} pt={5} mb={2}>
+    <Box data-testid='tag-filter-dropdown' sx={{ width: 300 }} mt={5} mx={2}>
+      <Flex sx={{ justifyContent: 'space-between', alignItems: 'center' }} mb={2}>
         <Box sx={{ padding: 1, color: colors.gray50, fontSize: 1, fontWeight: 'medium' }}>
           {t('Tags')}
         </Box>
@@ -217,7 +217,7 @@ const DropdownContent = ({
 const TagFilterPopover = styled(Popover)`
   .MuiPopover-paper {
     max-height: 540px;
-    overflow: hidden;
+    overflow: clip;
   }
 `;
 
