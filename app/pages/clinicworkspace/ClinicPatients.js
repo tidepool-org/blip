@@ -49,7 +49,7 @@ import { scroller } from 'react-scroll';
 import { Formik, Form } from 'formik';
 import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
 import { Link as RouterLink } from 'react-router-dom';
-import useClinicPatientsFilters, { defaultFilterState } from './useClinicPatientsFilters';
+import useClinicPatientsFilters, { defaultFilterState, SPECIAL_FILTER_STATES } from './useClinicPatientsFilters';
 
 import {
   bindPopover,
@@ -87,6 +87,7 @@ import SendEmailIcon from '../../core/icons/SendEmailIcon.svg';
 import TabularReportIcon from '../../core/icons/TabularReportIcon.svg';
 import utils from '../../core/utils';
 import LimitReached from './images/LimitReached.svg';
+import ClearFilterButtons, { PATIENT_QUERY_STATE } from './components/ClearFilterButtons';
 
 import {
   Dialog,
@@ -120,6 +121,7 @@ import colorPalette from '../../themes/colorPalette';
 import noop from 'lodash/noop';
 import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils';
 import ClinicPatientsPrintModal from './ClinicPatientsPrintModal';
+import AppliedFiltersList from './clinicPatientsFilters/AppliedFiltersList';
 
 const { Loader } = vizComponents;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels, formatBgValue } = vizUtils.bg;
@@ -207,25 +209,7 @@ const printPatientData = (patient, setSelectedPatient, selectedClinicId, trackMe
   setShowPrintDataModal(true);
 };
 
-const ClearButton = styled.button`
-  background: none;
-  color: ${vizColors.indigo30};
-  border: none;
-  padding: 0;
-  font: inherit;
-  cursor: pointer;
-  text-underline-offset: 4px;
-  text-decoration: underline;
-`;
-
-export const PATIENT_LIST_QUERY_STATE = {
-  FILTER_AND_SEARCH: 'FILTER_AND_SEARCH',
-  FILTER_ONLY: 'FILTER_ONLY',
-  SEARCH_ONLY: 'SEARCH_ONLY',
-  NONE: 'NONE',
-};
-
-export const getPatientListQueryState = (
+export const getPatientQueryState = (
   activeFilters = {},
   patientListSearchTextInput = '',
 ) => {
@@ -243,19 +227,19 @@ export const getPatientListQueryState = (
   const hasSearchActive = !!patientListSearchTextInput;
 
   if (hasFiltersActive && hasSearchActive) {
-    return PATIENT_LIST_QUERY_STATE.FILTER_AND_SEARCH;
+    return PATIENT_QUERY_STATE.FILTER_AND_SEARCH;
   } else if (hasFiltersActive) {
-    return PATIENT_LIST_QUERY_STATE.FILTER_ONLY;
+    return PATIENT_QUERY_STATE.FILTER_ONLY;
   } else if (hasSearchActive) {
-    return PATIENT_LIST_QUERY_STATE.SEARCH_ONLY;
+    return PATIENT_QUERY_STATE.SEARCH_ONLY;
   }
 
-  return PATIENT_LIST_QUERY_STATE.NONE;
+  return PATIENT_QUERY_STATE.NONE;
 };
 
-const EmptyContentNode = ({ patientListQueryState, children }) => {
+const EmptyContentNode = ({ patientQueryState, children }) => {
   const { t } = useTranslation();
-  const { FILTER_AND_SEARCH, FILTER_ONLY, SEARCH_ONLY, NONE } = PATIENT_LIST_QUERY_STATE;
+  const { FILTER_AND_SEARCH, FILTER_ONLY, SEARCH_ONLY, NONE } = PATIENT_QUERY_STATE;
 
   const emptyContentCopyDefs = {
     [FILTER_AND_SEARCH]: t('There are no patient accounts with the current filter(s) that match your search'),
@@ -264,7 +248,7 @@ const EmptyContentNode = ({ patientListQueryState, children }) => {
     [NONE]: t('There are no results to show'),
   };
 
-  const emptyContentCopy = emptyContentCopyDefs[patientListQueryState] || emptyContentCopyDefs[NONE];
+  const emptyContentCopy = emptyContentCopyDefs[patientQueryState] || emptyContentCopyDefs[NONE];
 
   return (
     <Flex sx={{
@@ -285,76 +269,6 @@ const EmptyContentNode = ({ patientListQueryState, children }) => {
     </Flex>
   );
 };
-
-const ClearFilterButtons = withTranslation()(({ t, patientListQueryState, onClearSearch, onResetFilters }) => {
-  const { FILTER_AND_SEARCH, FILTER_ONLY, SEARCH_ONLY, NONE } = PATIENT_LIST_QUERY_STATE;
-
-  switch(patientListQueryState) {
-    case SEARCH_ONLY:
-      return <Box>
-        <ClearButton className='clear-search-button' onClick={onClearSearch}>
-          {t('Clear Search')}
-        </ClearButton>
-      </Box>;
-
-    case FILTER_ONLY:
-      return <Box>
-        <ClearButton className='reset-filters-button' onClick={onResetFilters}>
-          {t('Reset Filters')}
-        </ClearButton>
-      </Box>;
-
-    case FILTER_AND_SEARCH:
-      return <Box>
-        <ClearButton className='reset-filters-button' onClick={onResetFilters}>
-          {t('Reset Filters')}
-        </ClearButton>
-        <>{' '}{t('or')}{' '}</>
-        <ClearButton className='clear-search-button' onClick={onClearSearch}>
-          {t('Clear Search')}
-        </ClearButton>
-      </Box>;
-
-    case NONE:
-    default:
-      return null;
-  }
-});
-
-const FilterResetBar = withTranslation()(({ t, rightSideContent, patientListQueryState }) => {
-  const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
-  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
-  const count = clinic?.fetchedPatientCount || 0;
-
-  const { FILTER_AND_SEARCH, FILTER_ONLY, SEARCH_ONLY, NONE } = PATIENT_LIST_QUERY_STATE;
-
-  if (patientListQueryState === PATIENT_LIST_QUERY_STATE.NONE) return null; // hide when no search or filters applied
-
-  const fetchedPatientCountCopyDefs = {
-    [FILTER_AND_SEARCH]: t('Showing {{ count }} patient accounts with the current filter(s) that match your search', { count }),
-    [FILTER_ONLY]: t('Showing {{ count }} patient accounts with the current filter(s)', { count }),
-    [SEARCH_ONLY]: t('Showing {{ count }} patient accounts that match your search', { count }),
-    [NONE]: t('There are no results to show'),
-  };
-
-  const fetchedPatientCountCopy = fetchedPatientCountCopyDefs[patientListQueryState];
-
-  return (
-    <Flex
-      className='filter-reset-bar'
-      px={2}
-      py={2}
-      sx={{
-        backgroundColor: vizColors.blue00,
-        borderBottom: '1px solid #D1D6E1',
-        justifyContent: 'space-between',
-      }}
-    >
-      <Text sx={{ fontWeight: 'medium' }}>{fetchedPatientCountCopy}</Text>
-      <Box>{rightSideContent}</Box>
-    </Flex>
-  );
-});
 
 const MoreMenu = ({
   patient,
@@ -692,15 +606,6 @@ const PatientTags = ({
       </Popover>
     </Box>
   );
-};
-
-// If we HTTP GET `/patients` without a sites/tags query arg, we receive a list of PwDs with zero
-// or many sites/tags. We need to pass an explicit argument to request PwDs with exactly zero
-// sites/tags. By setting the filter to `['_']`, the query path is set to `/patients?sites=_` or
-// `/patients?tags=_`, which the backend understands as a request for PwDs with zero sites/tags
-export const SPECIAL_FILTER_STATES = {
-  ZERO_SITES: ['_'],
-  ZERO_TAGS: ['_'],
 };
 
 export const ClinicPatients = (props) => {
@@ -1648,14 +1553,6 @@ export const ClinicPatients = (props) => {
   }, [api, dispatch, selectedClinicId, selectedPatient?.id, trackMetric]);
 
   const renderHeader = () => {
-    const activeFiltersCount = without([
-      activeFilters.timeCGMUsePercent,
-      activeFilters.lastData,
-      activeFilters.clinicSites?.length,
-      activeFilters.timeInRange?.length,
-      activeFilters.patientTags?.length,
-    ], null, 0, undefined).length;
-
     const sortedSiteFilterOptions = clinicSitesFilterOptions?.toSorted((a, b) => utils.compareLabels(a.label, b.label)) || [];
     const sortedTagFilterOptions = patientTagsFilterOptions?.toSorted((a, b) => utils.compareLabels(a.label, b.label)) || [];
 
@@ -1813,35 +1710,18 @@ export const ClinicPatients = (props) => {
                   pl={[0, 0, 2]}
                   py={1}
                   sx={{
-                    color: activeFiltersCount > 0 ? 'purpleMedium' : 'grays.4',
+                    color: 'grays.4',
                     alignItems: 'center',
                     gap: 1,
                     borderLeft: ['none', null, borders.divider],
                     flexShrink: 0
                   }}
                 >
-                  {activeFiltersCount > 0 ? (
-                    <Pill
-                      id="filter-count"
-                      label="filter count"
-                      round
-                      sx={{ width: '14px', lineHeight: '15px', fontSize: '9px', display: 'flex', justifyContent: 'center' }}
-                      colorPalette={['purpleMedium', 'white']}
-                      text={`${activeFiltersCount}`}
-                    />
-                  ) : (
-                    <Icon
-                      id="filter-icon"
-                      variant="static"
-                      iconSrc={FilterIcon}
-                      label={t('Filter')}
-                      sx={{ fontSize: 1, width: '14px', color: 'grays.4' }}
-                    />
-                  )}
                   <Text sx={{ fontSize: 0 }}>{t('Filter By')}</Text>
                 </Flex>
 
                 <Flex sx={{ flexShrink: 0, gap: 2 }}>
+
                   <Box
                     onClick={() => {
                       if (!lastDataPopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('Last data filter open'), { clinicId: selectedClinicId });
@@ -1857,12 +1737,7 @@ export const ClinicPatients = (props) => {
                       iconLabel="Filter by last upload"
                       sx={{ fontSize: 0, lineHeight: 1.3 }}
                     >
-                      {activeFilters.lastData
-                       ? activeFilters.lastData === 1
-                        ? t('Data within 1 day')
-                        : t('Data within') + find(customLastDataFilterOptions, { value: activeFilters.lastData })?.label.replace('Within', '')
-                       : t('Data Recency')
-                      }
+                      {t('Data Recency')}
                     </Button>
                   </Box>
 
@@ -1980,7 +1855,7 @@ export const ClinicPatients = (props) => {
                       sx={{ fontSize: 0, lineHeight: 1.3 }}
                     >
                       <Flex sx={{ alignItems: 'center', gap: 1 }}>
-                        {t('Sites')}
+                        {t('Clinic Sites')}
 
                         {!!activeFilters.clinicSites?.length && (
                           <Pill
@@ -2019,7 +1894,7 @@ export const ClinicPatients = (props) => {
                       <Box variant="containers.small">
                         <Box mb={2}>
                           <Text sx={{ display: 'block', position: 'relative', top: -2, color: colors.gray50, fontSize: 1, fontWeight: 'medium' }}>
-                            {t('Sites')}
+                            {t('Clinic Sites')}
                           </Text>
                           { sortedSiteFilterOptions.length > 0 &&
                             <Text sx={{ display: 'block', position: 'relative', top: -2, color: colors.gray50, fontSize: 0, fontStyle: 'italic', maxWidth: '208px', whiteSpace: 'wrap', lineHeight: 1 }}>
@@ -2600,18 +2475,6 @@ export const ClinicPatients = (props) => {
                     </DialogActions>
                   </Popover>
                 </Flex>
-
-                {activeFiltersCount > 0 && (
-                  <Button
-                    id="reset-all-active-filters"
-                    variant="textSecondary"
-                    onClick={handleResetFilters}
-                    sx={{ fontSize: 0, color: 'grays.4', flexShrink: 0 }}
-                    px={0}
-                  >
-                    {t('Reset Filters')}
-                  </Button>
-                )}
               </Flex>
             )}
 
@@ -2722,12 +2585,12 @@ export const ClinicPatients = (props) => {
                       id="open-rpm-report-config"
                       variant="tertiary"
                       onClick={handleConfigureRpmReport}
-                      fontSize={0}
                       lineHeight={1.3}
                       px={2}
                       py={1}
                       iconSrc={TabularReportIcon}
                       iconPosition="left"
+                      sx={{ fontSize: 0 }}
                     >
                       {t('RPM Report')}
                     </Button>
@@ -2737,7 +2600,7 @@ export const ClinicPatients = (props) => {
             )}
 
             {/* Info/Visibility Icons */}
-            <Flex sx={{ gap: 2, justifyContent: 'flex-end', flexGrow: 1, flexShrink: 0, alignItems: 'center' }}>
+            <Flex sx={{ gap: 2, justifyContent: 'flex-end', flexShrink: 0, alignItems: 'center' }}>
               {showSummaryData && isPatientListVisible && (
                 <>
                   <PopoverLabel
@@ -4288,27 +4151,18 @@ export const ClinicPatients = (props) => {
     const page = Math.ceil(patientFetchOptions.offset / patientFetchOptions.limit) + 1;
     const sort = patientFetchOptions.sort || defaultPatientFetchOptions.sort;
 
-    const patientListQueryState = getPatientListQueryState(activeFilters, patientListSearchTextInput);
-
-    // Show the Filter Reset Bar only if data exists and any filters/search are applied
-    const showFilterResetBar = (data?.length > 0) && patientListQueryState !== PATIENT_LIST_QUERY_STATE.NONE;
+    const patientQueryState = getPatientQueryState(activeFilters, patientListSearchTextInput);
 
     return (
       <Box>
         <Loader show={loading} overlay={true} />
 
-        { showFilterResetBar &&
-          <FilterResetBar
-            patientListQueryState={patientListQueryState}
-            rightSideContent={
-              <ClearFilterButtons
-                patientListQueryState={patientListQueryState}
-                onClearSearch={handleClearSearch}
-                onResetFilters={handleResetFilters}
-              />
-            }
-          />
-        }
+        <AppliedFiltersList
+          activeFilters={activeFilters}
+          setActiveFilters={setActiveFilters}
+          onClearSearch={handleClearSearch}
+          onResetFilters={handleResetFilters}
+        />
 
         <Table
           id={'peopleTable'}
@@ -4322,9 +4176,9 @@ export const ClinicPatients = (props) => {
           orderBy={sort?.substring(1)}
           onClickRow={handleClickPatient}
           emptyContentNode={
-            <EmptyContentNode patientListQueryState={patientListQueryState}>
+            <EmptyContentNode patientQueryState={patientQueryState}>
               <ClearFilterButtons
-                patientListQueryState={patientListQueryState}
+                patientQueryState={patientQueryState}
                 onClearSearch={handleClearSearch}
                 onResetFilters={handleResetFilters}
               />
@@ -4348,6 +4202,7 @@ export const ClinicPatients = (props) => {
       </Box>
     );
   }, [
+    activeFilters,
     clinic?.fetchedPatientCount,
     columns,
     data,
@@ -4356,6 +4211,7 @@ export const ClinicPatients = (props) => {
     handleSortChange,
     loading,
     patientFetchOptions,
+    setActiveFilters,
     showSummaryData,
     tableStyle,
   ]);
