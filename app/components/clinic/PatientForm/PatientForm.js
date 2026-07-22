@@ -98,7 +98,7 @@ export const PatientForm = (props) => {
 
   const formikContext = useFormik({
     initialValues: getFormValues(patient, clinicPatientTags, clinicSites),
-    initialStatus: { showDataConnectionsModalNext: false },
+    initialStatus: { showDataConnectionsDialogNext: false },
     onSubmit: (values, formikHelpers) => {
       const context = selectedClinicId ? 'clinic' : 'vca';
 
@@ -141,7 +141,7 @@ export const PatientForm = (props) => {
       const handlerArgs = actionMap[action][context].args();
 
       if (context === 'clinic' && action === 'create' && clinic?.country === 'US') {
-        formikHelpers.setStatus({ showDataConnectionsModalNext: true, newPatient: handlerArgs[1] });
+        formikHelpers.setStatus({ showDataConnectionsDialogNext: true, newPatient: handlerArgs[1] });
       }
 
       dispatch(actions.async[actionMap[action][context].handler](api, ...handlerArgs));

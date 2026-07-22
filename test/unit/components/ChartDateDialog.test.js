@@ -10,11 +10,11 @@ import React from 'react';
 import moment from 'moment-timezone';
 import { render, fireEvent, screen, waitFor } from '@testing-library/react';
 
-import ChartDateModal from '../../../app/components/ChartDateModal';
+import ChartDateDialog from '../../../app/components/ChartDateDialog';
 
 const expect = chai.expect;
 
-describe('ChartDateModal', function () {
+describe('ChartDateDialog', function () {
   const props = {
     chartType: 'daily',
     defaultDate: Date.parse('2020-03-10T00:00:00.000Z'),
@@ -31,7 +31,7 @@ describe('ChartDateModal', function () {
 
   let rendered;
   beforeEach(() => {
-    rendered = render(<ChartDateModal {...props} />);
+    rendered = render(<ChartDateDialog {...props} />);
   });
 
   afterEach(() => {
@@ -43,7 +43,7 @@ describe('ChartDateModal', function () {
   it('should be visible when open prop is true', async () => {
     expect(screen.queryByRole('dialog')).to.not.be.null;
 
-    rendered.rerender(<ChartDateModal {...props} open={false} />);
+    rendered.rerender(<ChartDateDialog {...props} open={false} />);
 
     await waitFor(() => {
       expect(screen.queryByRole('dialog')).to.be.null;
@@ -60,7 +60,7 @@ describe('ChartDateModal', function () {
 
     // Use 'US/Pacific' time zone
     rendered.unmount();
-    const renderedPacific = render(<ChartDateModal {...{ ...props, timePrefs: { timezoneName: 'US/Pacific' } }} />);
+    const renderedPacific = render(<ChartDateDialog {...{ ...props, timePrefs: { timezoneName: 'US/Pacific' } }} />);
 
     const dateInPacific = document.body.querySelector('#chart-date');
 

@@ -34,7 +34,7 @@ const t = i18next.t.bind(i18next);
 
 const MOBILE_BREAKPOINT_QUERY = `@media screen and (max-width: ${breakpoints[1]})`;
 
-export const ChartDateRangeModal = (props) => {
+export const ChartDateRangeDialog = (props) => {
   const {
     chartType,
     defaultDates: defaultDatesProp,
@@ -200,11 +200,11 @@ export const ChartDateRangeModal = (props) => {
   const isPartialDaySelected = displayFormat === CHART_DATE_BOUND_FORMAT.DATE_AND_TIME;
 
   return (
-    <Dialog id="ChartDateRangePicker" maxWidth="md" open={open} onClose={handleClose}>
+    <Dialog id="ChartDateRangePicker" aria-labelledby="dialog-title" maxWidth="md" open={open} onClose={handleClose}>
       <DialogTitle divider={false} onClose={handleClose}>
-        <MediumTitle>{title}</MediumTitle>
+        <MediumTitle id="dialog-title">{title}</MediumTitle>
       </DialogTitle>
-      <DialogContent divider sx={{ minWidth: '400px' }} p={0}>
+      <DialogContent minWidth={400} p={0}>
         <Box px={3}>
           <Box mb={5}>
             <Body1 mb={2}>{t('Number of days (most recent)')}</Body1>
@@ -259,7 +259,7 @@ export const ChartDateRangeModal = (props) => {
           )}
         </Box>
       </DialogContent>
-      <DialogActions sx={{ justifyContent: 'space-between' }} py="12px">
+      <DialogActions>
         <Button variant="textSecondary" className="chart-dates-cancel" onClick={handleClose}>
           {t('Cancel')}
         </Button>
@@ -271,7 +271,7 @@ export const ChartDateRangeModal = (props) => {
   );
 };
 
-ChartDateRangeModal.propTypes = {
+ChartDateRangeDialog.propTypes = {
   chartType: PropTypes.string,
   maxDays: PropTypes.number.isRequired,
   mostRecentDatumDate: PropTypes.number,
@@ -287,7 +287,7 @@ ChartDateRangeModal.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-ChartDateRangeModal.defaultProps = {
+ChartDateRangeDialog.defaultProps = {
   maxDays: 90,
   onClose: noop,
   onDatesChange: noop,
@@ -297,4 +297,4 @@ ChartDateRangeModal.defaultProps = {
   trackMetric: noop,
 };
 
-export default ChartDateRangeModal;
+export default ChartDateRangeDialog;

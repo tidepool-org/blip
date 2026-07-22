@@ -1,35 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import _ from 'lodash';
-import { useDispatch } from 'react-redux';
-import PrintDateRangeModal from '../../components/PrintDateRangeModal';
+import PropTypes from 'prop-types';
+import PrintDateRangeDialog from '../../components/PrintDateRangeDialog';
 import noop from 'lodash/noop';
 import { getMostRecentDatumTimeByChartType } from '../../core/dataViewUtils';
-import * as actions from '../../redux/actions';
 
-import usePrintPDF from '../../core/usePrintPDF';
-import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE } from '../../core/constants';
+import usePrintPDF, { STATUS } from '../../core/usePrintPDF';
+import { useTranslation } from 'react-i18next';
+import { useToasts } from '../../providers/ToastProvider';
 
-const PatientDataPrintModal = ({ api, patientId, chartPrefs = {}, onClose = noop }) => {
-  const dispatch = useDispatch();
+const ClinicPatientsPrintDialog = ({ api, patientId, onClose = noop }) => {
+  const { t } = useTranslation();
+  const { set: setToast } = useToasts();
   const [isProcessing, setIsProcessing] = useState(false);
-
-  useEffect(() => {
-    return () => dispatch(actions.worker.removeGeneratedPDFS());
-  }, []);
 
   const { status, modalData, canPrint, print } = usePrintPDF(api, patientId, onClose);
 
-  const handleClickPrint = (opts) => {
-    const enrichedOpts = _.cloneDeep(opts);
-
-    // Inject cgmSampleIntervalRange from patient data view into printOptions
-    if (!!enrichedOpts.daily) {
-      const rangeFromChartPrefs = chartPrefs?.daily?.cgmSampleIntervalRange;
-      enrichedOpts.daily.cgmSampleIntervalRange = rangeFromChartPrefs || DEFAULT_CGM_SAMPLE_INTERVAL_RANGE;
+  useEffect(() => {
+    if (status === STATUS.NO_PATIENT_DATA) {
+      onClose();
+      setToast({
+        message: t('Insufficient data for patient to generate any report.'),
+        variant: 'warning'
+      });
     }
+  }, [status]);
 
+  const handleClickPrint = (opts) => {
     setIsProcessing(true);
-    print(enrichedOpts);
+    print(opts);
   };
 
   const { latestDatumByType, timePrefs } = modalData;
@@ -37,10 +35,10 @@ const PatientDataPrintModal = ({ api, patientId, chartPrefs = {}, onClose = noop
   const isLoading = !latestDatumByType || !timePrefs;
 
   return (
-    <PrintDateRangeModal
+    <PrintDateRangeDialog
       open
       isLoading={isLoading}
-      metricSource={'Patient Data View'}
+      metricSource={'Clinic Patient List View'}
       mostRecentDatumDates={{
         agpBGM: getMostRecentDatumTimeByChartType(latestDatumByType, 'agpBGM'),
         agpCGM: getMostRecentDatumTimeByChartType(latestDatumByType, 'agpCGM'),
@@ -56,4 +54,10 @@ const PatientDataPrintModal = ({ api, patientId, chartPrefs = {}, onClose = noop
   );
 };
 
-export default PatientDataPrintModal;
+ClinicPatientsPrintDialog.propTypes = {
+  api: PropTypes.object.isRequired,
+  patientId: PropTypes.string.isRequired,
+  onClose: PropTypes.func,
+};
+
+export default ClinicPatientsPrintDialog;

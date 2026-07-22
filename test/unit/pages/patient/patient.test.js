@@ -59,9 +59,8 @@ describe('Patient', function () {
       var instance = new PatientClass(buildProps());
       var initialState = instance.getInitialState();
 
-      expect(Object.keys(initialState).length).to.equal(2);
-      expect(initialState.showModalOverlay).to.equal(false);
-      expect(initialState.dialog).to.equal('');
+      expect(Object.keys(initialState).length).to.equal(1);
+      expect(initialState.showDeleteDialog).to.equal(false);
     });
   });
 });

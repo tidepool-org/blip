@@ -17,7 +17,7 @@ import TideDashboard from '../../../app/pages/dashboard/TideDashboard';
 import Popover from '../../../app/components/elements/Popover';
 import TideDashboardConfigForm from '../../../app/components/clinic/TideDashboardConfigForm';
 import DataConnections from '../../../app/components/datasources/DataConnections';
-import DataConnectionsModal from '../../../app/components/datasources/DataConnectionsModal';
+import DataConnectionsDialog from '../../../app/components/datasources/DataConnectionsDialog';
 import { clinicUIDetails } from '../../../app/core/clinicUtils';
 import api from '../../../app/core/api';
 import mockTideDashboardPatients from '../../fixtures/mockTideDashboardPatients.json';

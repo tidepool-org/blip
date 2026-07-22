@@ -12,8 +12,8 @@ import reduce from 'lodash/reduce';
 import coreApi from '../../../../app/core/api';
 import * as appActions from '../../../../app/redux/actions';
 
-import PatientEmailModal from '../../../../app/components/datasources/PatientEmailModal';
-import * as PatientEmailModalModule from '../../../../app/components/datasources/PatientEmailModal';
+import PatientEmailDialog from '../../../../app/components/datasources/PatientEmailDialog';
+import * as PatientEmailDialogModule from '../../../../app/components/datasources/PatientEmailDialog';
 import * as DataConnectionsModule from '../../../../app/components/datasources/DataConnections';
 
 import DataConnections, {
