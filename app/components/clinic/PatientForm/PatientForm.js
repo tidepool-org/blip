@@ -101,8 +101,7 @@ export const PatientForm = (props) => {
 
   const formikContext = useFormik({
     initialValues: getFormValues(patient, clinicPatientTags, clinicSites),
-    initialStatus: { showDataConnectionsModalNext: false },
-    onSubmit: (values, formikHelpers) => {
+    onSubmit: (values) => {
       const context = selectedClinicId ? 'clinic' : 'vca';
 
       const actionMap = {
@@ -143,10 +142,6 @@ export const PatientForm = (props) => {
 
       const handlerArgs = actionMap[action][context].args();
 
-      if (context === 'clinic' && action === 'create' && clinic?.country === 'US') {
-        formikHelpers.setStatus({ showDataConnectionsModalNext: true, newPatient: handlerArgs[1] });
-      }
-
       dispatch(actions.async[actionMap[action][context].handler](api, ...handlerArgs));
     },
     validationSchema: validationSchema({ mrnSettings, existingMRNs }),
@@ -155,7 +150,6 @@ export const PatientForm = (props) => {
   const {
     setFieldValue,
     setValues,
-    status,
     values,
   } = formikContext;
 
@@ -209,7 +203,7 @@ export const PatientForm = (props) => {
 
   useEffect(() => {
     onFormChange(formikContext);
-  }, [values, clinicPatientTags, status]);
+  }, [values, clinicPatientTags]);
 
   // Pull the patient on load to ensure the most recent dexcom connection state is made available
   useEffect(() => {
