@@ -471,6 +471,31 @@ describe('ClinicPatients', ()  => {
               expect.any(Function),
             );
           }, TEST_TIMEOUT_MS);
+
+          it('maps an applied time in range filter into the getPatientsForClinic query', async () => {
+            render(
+              <MockedProviderWrappers>
+                <ClinicPatients {...defaultProps} />
+              </MockedProviderWrappers>
+            );
+
+            // Open the % Time in Range filter dropdown, select a range, and apply.
+            await userEvent.click(screen.getByRole('button', { name: /Filter by Time in Range/ }));
+            await userEvent.click(screen.getByRole('checkbox', { name: /Not meeting TIR/ }));
+            await userEvent.click(screen.getByRole('button', { name: /Apply/ }));
+
+            // Selecting ranges scopes the query to standard target ranges and maps each
+            // selected range into a `cgm.<range>` comparator threshold (fraction of time).
+            expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenLastCalledWith(
+              'clinicID123',
+              expect.objectContaining({
+                omitNonStandardRanges: true,
+                'cgm.timeInTargetPercent': '<=0.7',
+                limit: 50, offset: 0, period: '14d', sortType: 'cgm', sort: '-lastData',
+              }),
+              expect.any(Function),
+            );
+          }, TEST_TIMEOUT_MS);
         });
 
         describe('managing sites', () => {
