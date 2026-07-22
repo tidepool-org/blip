@@ -234,6 +234,8 @@ export const PatientForm = (props) => {
     setTimeout(() => ref?.current?.scrollIntoView(), 50);
   }
 
+  const isEmailFieldDisabled = disabledFields.email || (patient?.id && !patient?.permissions?.custodian);
+
   return (
     <Box
       as="form"
@@ -315,7 +317,7 @@ export const PatientForm = (props) => {
 
       {showEmail && (
         <>
-          <Box mb={1}>
+          <Box mb={3}>
             <TextInput
               {...getCommonFormikFieldProps('email', formikContext)}
               innerRef={initialFocusedInput === 'email' ? initialFocusedInputRef : undefined}
@@ -323,22 +325,24 @@ export const PatientForm = (props) => {
               placeholder={t('Email')}
               variant="condensed"
               sx={{ width: '100%' }}
-              disabled={disabledFields.email || (patient?.id && !patient?.permissions?.custodian)}
+              disabled={isEmailFieldDisabled}
             />
           </Box>
 
-          <Flex mt={2} mb={3} px={3} py={3} sx={{ alignItems: 'center', gap: 2, borderRadius: 3, background: vizColors.blue00 }}>
-            <Icon
-              icon={InfoRoundedIcon}
-              label={t('Cloud connection information')}
-              color={vizColors.blue30}
-              sx={{ fontSize: 1 }}
-            />
+          { !isEmailFieldDisabled &&
+            <Flex mt={-2} mb={3} px={3} py={3} sx={{ alignItems: 'center', gap: 2, borderRadius: 3, background: vizColors.blue00 }}>
+              <Icon
+                icon={InfoRoundedIcon}
+                label={t('Cloud connection information')}
+                color={vizColors.blue30}
+                sx={{ fontSize: 1 }}
+                />
 
-            <Body0>
-              {t('Adding the patient\'s email lets them upload data at home or connect other diabetes device accounts to share data with you on an ongoing basis.')}
-            </Body0>
-          </Flex>
+              <Body0>
+                {t('Adding the patient\'s email lets them upload data at home or connect other diabetes device accounts to share data with you on an ongoing basis.')}
+              </Body0>
+            </Flex>
+          }
         </>
       )}
 
