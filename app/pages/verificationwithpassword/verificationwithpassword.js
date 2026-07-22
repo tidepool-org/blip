@@ -79,16 +79,16 @@ const Notification = ({ notification = null }) => {
   return <div className={className}>{notification.message}</div>;
 };
 
-const useInferEHRSignupWorkflow = () => {
+const useInferIsTwoStepWorkflow = () => {
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search);
 
   // If there is a restrictedToken in the params, we assume that the user is
-  // coming in from the EHR C2C flow. Otherwise, we assume they are coming
-  // in from the default "Claim Your Account" email flow.
-  const isEHRSignupWorkflow = queryParams.has('restrictedTokenId');
+  // coming in from a "Cloud-to-Cloud" flow. Otherwise, we assume they are
+  // coming in from a "Claim Your Account" email flow.
+  const isTwoStepWorkflow = queryParams.has('restrictedTokenId');
 
-  return isEHRSignupWorkflow;
+  return isTwoStepWorkflow;
 };
 
 const VerificationWithPassword = ({
@@ -103,7 +103,7 @@ const VerificationWithPassword = ({
   const queryParams = new URLSearchParams(search);
   const { set: setToast } = useToasts();
 
-  const isEHRSignupWorkflow = useInferEHRSignupWorkflow();
+  const isTwoStepWorkflow = useInferIsTwoStepWorkflow();
   const signupKey = utils.getSignupKey(location);
   const signupEmail = utils.getSignupEmail(location);
 
@@ -166,7 +166,7 @@ const VerificationWithPassword = ({
     <Box sx={{ paddingTop: ['72px', '72px', '86px', '86px'] }}>
       <Container
         title={
-          isEHRSignupWorkflow
+          isTwoStepWorkflow
             ? t('Optional: Setup Your Account')
             : t('Claim Your Account')
         }
@@ -176,7 +176,7 @@ const VerificationWithPassword = ({
         pt={3}
         sx={{ flexDirection: ['column', 'column', 'row', 'row'] }}
         actions={[
-          (isEHRSignupWorkflow && {
+          (isTwoStepWorkflow && {
             id: 'verificationWithPasswordSkip',
             variant: 'secondary',
             onClick: handleSkip,
