@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor, within, cleanup } from '@testing-li
 import { mountWithProviders } from '../../utils/mountWithProviders';
 
 jest.mock('../../../app/redux/features/mfaStatus/mfaStatusApi');
+jest.mock('../../../app/redux/features/clinicians/cliniciansApi');
 import moment from 'moment-timezone';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
