@@ -7,6 +7,7 @@ import personUtils from '../personutils';
 import { useGenerateAGPImages } from '../agpUtils';
 import { selectPatient, selectUser } from '../selectors';
 import usePrintWindow from './usePrintWindow';
+import { trackMetric } from '../../core/metricUtils';
 
 import {
   getInitialFetchOpts,
@@ -115,6 +116,7 @@ const usePrintPDF = (
         const initialFetchOpts = getInitialFetchOpts();
         dispatch(actions.async.fetchPatientData(api, initialFetchOpts, patientId));
         dispatch(actions.async.fetchPatient(api, patientId));
+        trackMetric('Fetched initial patient data', { patientID: patientId });
         break;
 
       case STATUS.AWAITING_INPUT:
@@ -126,12 +128,14 @@ const usePrintPDF = (
       case STATUS.FETCHING_PDF_DATA:
         const fetchPatientOpts = getMainFetchOpts(getTimePrefs(), getPrintOpts(), fetchedUntil);
         dispatch(actions.async.fetchPatientData(api, fetchPatientOpts, patientId));
+        trackMetric('Fetched earlier patient data', { patientID: patientId, count: 1 });
         break;
 
       case STATUS.GENERATING_PDF:
         const queries = getQueries(data, patient, clinicPatient, clinic, getTimePrefs(), getPrintOpts());
         const pdfOpts = getPdfOpts(getPrintOpts(), user, patient, clinicPatient);
         dispatch(actions.worker.generatePDFRequest('combined', queries, pdfOpts, patientId));
+        trackMetric('Generated PDF', { patientID: patientId });
         break;
 
       case STATUS.GENERATING_AGP:
