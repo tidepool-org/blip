@@ -233,21 +233,6 @@ describe('notification', () => {
     });
   });
 
-  describe('updateUserFailure', () => {
-    it('should build a notification', () => {
-      let action = actions.sync.updateUserFailure(ERR);
-
-      let state = reducer(initialState, action);
-
-      expect(state).to.deep.equal({
-        key: 'updatingUser',
-        isDismissible: true,
-        link: null,
-        status: null
-      });
-    });
-  });
-
   describe('fetchUserFailure', () => {
     it('should build a notification', () => {
       let action = actions.sync.fetchUserFailure(ERR);

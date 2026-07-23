@@ -1,6 +1,9 @@
 import React from 'react';
 import { mountWithProviders } from '../../utils/mountWithProviders';
 import { MemoryRouter, Route } from 'react-router';
+
+jest.mock('../../../app/redux/features/mfaStatus/mfaStatusApi');
+jest.mock('../../../app/redux/features/clinicians/cliniciansApi');
 import OAuthConnection from '../../../app/pages/oauth/OAuthConnection';
 import { fireEvent } from '@testing-library/react';
 

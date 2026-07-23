@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { withTranslation, Trans } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
 import { push } from 'connected-react-router';
 import compact from 'lodash/compact';
 import filter from 'lodash/filter';
@@ -18,6 +18,7 @@ import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import EditIcon from '@material-ui/icons/EditRounded';
 import InputIcon from '@material-ui/icons/Input';
+import VerifiedUserRoundedIcon from '@material-ui/icons/VerifiedUserRounded';
 import SearchIcon from '@material-ui/icons/Search';
 import sundial from 'sundial';
 import { useFormik } from 'formik';
@@ -67,7 +68,8 @@ const clinicTypesLabels = mapValues(keyBy(clinicTypes, 'value'), 'label');
 
 export const ClinicAdmin = (props) => {
   useScrollToTop();
-  const { t, api, trackMetric } = props;
+  const { api, trackMetric } = props;
+  const { t } = useTranslation();
   const { showPrescriptions } = useFlags();
   const dispatch = useDispatch();
   const isFirstRender = useIsFirstRender();
@@ -97,9 +99,12 @@ export const ClinicAdmin = (props) => {
   const sortedClinicianArray = useMemo(() => {
     const { orderBy, order } = sortOptions;
 
+    // compareLabels uses localeCompare, which throws on a boolean — coerce booleans to strings.
+    const toSortKey = (val) => (typeof val === 'boolean' ? String(val) : val);
+
     const sortedArray = clinicianArray.toSorted((a, b) => {
       return (
-        utils.compareLabels(a[orderBy], b[orderBy]) || // group by designated column
+        utils.compareLabels(toSortKey(a[orderBy]), toSortKey(b[orderBy])) || // group by designated column
         utils.compareLabels(a.fullName, b.fullName) || // within each group, sort by name
         utils.compareLabels(a.email, b.email)          // if no name, sort by email
       );
@@ -275,7 +280,7 @@ export const ClinicAdmin = (props) => {
   const getClinicianArray = () => map(
     get(clinics, [selectedClinicId, 'clinicians'], {}),
     (clinician) => {
-      const { roles, email, id: clinicianId, inviteId, name = '', createdTime, updatedTime } = clinician;
+      const { roles, email, id: clinicianId, inviteId, name = '', createdTime, updatedTime, securityProfile = {} } = clinician;
       let role = '';
 
       if (includes(roles, 'CLINIC_ADMIN')) {
@@ -283,6 +288,8 @@ export const ClinicAdmin = (props) => {
       } else if (includes(roles, 'CLINIC_MEMBER')) {
         role = t('Clinic Member');
       }
+
+      const { mfaEnabled, mfaEnabledTime } = securityProfile;
 
       return {
         fullName: name,
@@ -296,6 +303,8 @@ export const ClinicAdmin = (props) => {
         roles,
         createdTime,
         updatedTime,
+        mfaEnabled,
+        mfaEnabledTime,
       };
     }
   );
@@ -327,6 +336,8 @@ export const ClinicAdmin = (props) => {
         t('Pending?'),
         t('Created'),
         t('Updated'),
+        t('2FA Enabled'),
+        t('2FA Enabled On'),
       ],
     ];
 
@@ -338,7 +349,7 @@ export const ClinicAdmin = (props) => {
     };
 
     clinicianArray.forEach((clinician) => {
-      const { fullName, email, isAdmin, inviteId, createdTime, updatedTime } = clinician;
+      const { fullName, email, isAdmin, inviteId, createdTime, updatedTime, mfaEnabled, mfaEnabledTime } = clinician;
 
       csvRows.push([
         csvEscape(fullName),
@@ -347,6 +358,8 @@ export const ClinicAdmin = (props) => {
         inviteId ? 'True' : 'False',
         sundial.formatInTimezone(createdTime, timeZone, 'YYYY-MM-DD HH:mm:ss z'),
         sundial.formatInTimezone(updatedTime, timeZone, 'YYYY-MM-DD HH:mm:ss z'),
+        mfaEnabled ? 'True' : 'False',
+        mfaEnabledTime ? sundial.formatInTimezone(mfaEnabledTime, timeZone, 'YYYY-MM-DD HH:mm:ss z') : '',
       ]);
     });
 
@@ -520,6 +533,22 @@ export const ClinicAdmin = (props) => {
     </Box>
   );
 
+  const renderMfaStatus = ({ mfaEnabled }) => (
+    mfaEnabled ? (
+      <Flex sx={{ gap: 1, alignItems: 'center', justifyContent: 'flex-start' }}>
+        <Icon
+          variant="static"
+          icon={VerifiedUserRoundedIcon}
+          label={t('2FA Enabled')}
+          sx={{ fontSize: '14px', color: 'feedback.success' }}
+        />
+        <Text sx={{ fontWeight: 'medium', color: 'blueGrey' }}>
+          {t('2FA Enabled')}
+        </Text>
+      </Flex>
+    ) : null
+  );
+
   const renderMore = props => {
     const items = [];
 
@@ -629,6 +658,17 @@ export const ClinicAdmin = (props) => {
     sortBy: 'role',
     render: renderRole,
   });
+
+  if (isClinicAdmin()) {
+    columns.push({
+      title: t('Security'),
+      field: 'mfaEnabled',
+      align: 'left',
+      sortable: true,
+      sortBy: 'mfaEnabled',
+      render: renderMfaStatus,
+    });
+  }
 
   if (((isClinicAdmin()))) {
     columns.push(
@@ -1032,4 +1072,4 @@ ClinicAdmin.propTypes = {
   trackMetric: PropTypes.func.isRequired,
 };
 
-export default withTranslation()(ClinicAdmin);
+export default ClinicAdmin;

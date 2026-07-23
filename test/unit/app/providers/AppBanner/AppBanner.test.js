@@ -18,6 +18,16 @@ jest.mock('../../../../../app/core/api', () => ({
   default: 'api',
 }));
 
+// mountWithProviders wraps the tree in the real AppBannerProvider, which calls
+// useGetMfaStatusQuery (an RTK Query hook needing the api middleware that this suite's
+// mock store lacks). These tests inject their own banner context, so stub the hook out.
+jest.mock('../../../../../app/redux/features/mfaStatus/mfaStatusApi', () => ({
+  useGetMfaStatusQuery: jest.fn(() => ({ data: undefined })),
+}));
+jest.mock('../../../../../app/redux/features/clinicians/cliniciansApi', () => ({
+  useGetCliniciansForClinicQuery: jest.fn(() => ({ data: undefined })),
+}));
+
 /* global describe */
 /* global it */
 /* global beforeEach */
@@ -184,5 +194,24 @@ describe('AppBanner handleClickAction', () => {
     expect(dispatchSpy.called).to.be.true;
     expect(actions.async.handleBannerInteraction.mock.calls.length).to.be.at.least(1);
     expect(actions.async.handleBannerInteraction.mock.calls[0]).to.include(DISMISSED_BANNER_ACTION);
+  });
+
+  it('should persist a persistInteractionForUser banner dismissal even when the user is not the patient in view', () => {
+    // Simulate a clinician on the clinic-workspace patient list: no patient is in view, so the
+    // logged-in user is not the current patient. A user-scoped banner must still persist.
+    defaultState.currentPatientInViewId = 'someOtherPatient';
+    createWrapper({ persistInteractionForUser: true, dismiss: {} });
+
+    fireEvent.click(screen.getByLabelText('Close banner'));
+    expect(actions.async.handleBannerInteraction.mock.calls.length).to.be.at.least(1);
+    expect(actions.async.handleBannerInteraction.mock.calls[0]).to.include(DISMISSED_BANNER_ACTION);
+  });
+
+  it('should NOT persist a patient-scoped banner dismissal when the user is not the patient in view', () => {
+    defaultState.currentPatientInViewId = 'someOtherPatient';
+    createWrapper({ dismiss: {} });
+
+    fireEvent.click(screen.getByLabelText('Close banner'));
+    expect(actions.async.handleBannerInteraction.mock.calls.length).to.equal(0);
   });
 });

@@ -21,6 +21,9 @@ import {
 
 import { appBanners } from './appBanners';
 import { providers } from '../../components/datasources/DataConnections';
+import personUtils from '../../core/personutils';
+import { useGetMfaStatusQuery } from '../../redux/features/mfaStatus/mfaStatusApi';
+import { useGetCliniciansForClinicQuery } from '../../redux/features/clinicians/cliniciansApi';
 import { selectPatientSharedAccounts } from '../../core/selectors';
 import { DATA_DONATION_CONSENT_TYPE, SUPPORTED_ORGANIZATIONS_OPTIONS } from '../../core/constants';
 
@@ -47,6 +50,29 @@ const AppBannerProvider = ({ children }) => {
 
   const loggedInUserId = useSelector(state => state.blip.loggedInUserId);
   const loggedInUser = useSelector(state => state.blip.allUsersMap[loggedInUserId]);
+
+  // 2FA banner candidate: a non-SSO clinician who isn't the sole admin of the viewed clinic
+  // (the sole admin is exempted to avoid nudging them toward a potential lock-out).
+  const isClinician = personUtils.isClinicianAccount(loggedInUser);
+  const isSSO = personUtils.isSSOAccount(loggedInUser);
+  const loggedInUserIsClinicAdmin = includes(clinic?.clinicians?.[loggedInUserId]?.roles, 'CLINIC_ADMIN');
+
+  // getClinicsForClinician seeds clinic.clinicians with only the viewer's own record, so a viewer
+  // who is one of several admins looks like the sole admin. When the partial roster would trigger
+  // the sole-admin exemption, fetch the full clinician list and count admins from it, so the
+  // exemption is decided on complete data rather than suppressing the banner on first load.
+  const partialClinicAdminCount = filter(clinic?.clinicians, { roles: ['CLINIC_ADMIN'] }).length;
+  const rosterFetchNeeded = isClinician && !isSSO && !!selectedClinicId && partialClinicAdminCount === 1 && loggedInUserIsClinicAdmin;
+  const { data: fetchedClinicians } = useGetCliniciansForClinicQuery(selectedClinicId, { skip: !rosterFetchNeeded });
+
+  const clinicAdminCount = fetchedClinicians
+    ? filter(fetchedClinicians, { roles: ['CLINIC_ADMIN'] }).length
+    : partialClinicAdminCount;
+  const isSoleAdminOfSelectedClinic = clinicAdminCount === 1 && loggedInUserIsClinicAdmin;
+  const eligibleFor2faBanner = isClinician && !isSSO && !isSoleAdminOfSelectedClinic;
+
+  // Only fetch the Keycloak-backed MFA status for candidate viewers.
+  const { data: mfaData } = useGetMfaStatusQuery(undefined, { skip: !eligibleFor2faBanner });
 
   const currentPatientInViewId = useSelector(state => state.blip.currentPatientInViewId);
   const sharedAccounts = useSelector(state => selectPatientSharedAccounts(state));
@@ -145,6 +171,11 @@ const AppBannerProvider = ({ children }) => {
       bannerArgs: [clinic],
     },
 
+    enable2fa: {
+      show: eligibleFor2faBanner && mfaData?.enabled === false,
+      bannerArgs: [dispatch],
+    },
+
     dataSourceReconnectInvite: {
       show: !!erroredDataSource?.providerName,
       bannerArgs: [dispatch, selectedClinicId, clinicPatient, providers[erroredDataSource?.providerName]],
@@ -172,10 +203,12 @@ const AppBannerProvider = ({ children }) => {
     currentPatientInViewId,
     dataSources?.length,
     dispatch,
+    eligibleFor2faBanner,
     erroredDataSource,
     formikContext,
     isCustodialPatient,
     isInitialProcessing,
+    mfaData?.enabled,
     justConnectedDataSource,
     justConnectedDataSourceProvider,
     loggedInUserId,
