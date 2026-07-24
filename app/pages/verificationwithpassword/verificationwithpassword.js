@@ -83,9 +83,9 @@ const useInferIsTwoStepWorkflow = () => {
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search);
 
-  // If there is a restrictedToken in the params, we assume that the user is
-  // coming in from a "Cloud-to-Cloud" flow. Otherwise, we assume they are
-  // coming in from a "Claim Your Account" email flow.
+  // If there is a restrictedToken in the params, we assume that this is the second step
+  // of a flow where the invitation to connect cloud devices came first. Otherwise, we
+  // assume that the user was sent directly to this screen.
   const isTwoStepWorkflow = queryParams.has('restrictedTokenId');
 
   return isTwoStepWorkflow;
