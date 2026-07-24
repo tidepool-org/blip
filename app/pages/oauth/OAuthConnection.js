@@ -138,8 +138,8 @@ export const OAuthConnection = (props) => {
     trackMetric('Oauth - Connection', { providerName, status, custodialSignup: isCustodial });
   }, []);
 
-  // In EHR C2C flow, user will complete C2C before they have an account created. We redirect to
-  // Claim My Account automatically after landing on this page.
+  // In Two-Step C2C flow, user will complete C2C before they have an account created. We redirect
+  // to Claim My Account automatically after landing on this page.
   const isAuthorized = authStatus.status === 'authorized';
   useRedirectOnCustodialMobileC2CSuccess({ isAuthorized, onRedirect: handleRedirectToClaimAccount });
 
