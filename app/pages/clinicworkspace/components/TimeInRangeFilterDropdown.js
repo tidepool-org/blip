@@ -99,7 +99,7 @@ const DropdownContent = ({
 
   const handleChange = (timeInRange) => onChange(timeInRange);
 
-  const filterOptions = getTimeInRangeFilterOptions(showExtremeHigh, t).reverse();
+  const filterOptions = getTimeInRangeFilterOptions(showExtremeHigh, t);
 
   return (
     <Box data-testid="time-in-range-filter-dropdown" mt={5} mx={2}>
