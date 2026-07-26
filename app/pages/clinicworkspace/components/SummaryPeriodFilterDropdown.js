@@ -95,6 +95,7 @@ const DropdownContent = ({
             trackMetric('Clinic - Summary period apply filter', {
               clinicId: selectedClinicId,
               summaryPeriod: pendingSummaryPeriod,
+              pageName,
             });
 
             handleChange(pendingSummaryPeriod);

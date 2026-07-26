@@ -205,7 +205,7 @@ const DropdownContent = ({
           id="timeInRangeFilterClear"
           variant="secondary"
           onClick={() => {
-            trackMetric('Time in range clear filter', { clinicId: selectedClinicId, pageName });
+            trackMetric('Clinic - Time in range clear filter', { clinicId: selectedClinicId, pageName });
             setPendingTimeInRange([]);
             handleChange([]);
             onClose();
@@ -218,8 +218,9 @@ const DropdownContent = ({
           id="timeInRangeFilterConfirm"
           variant="primary"
           onClick={() => {
-            trackMetric('Time in range apply filter', {
+            trackMetric('Clinic - Time in range apply filter', {
               clinicId: selectedClinicId,
+              pageName,
               severeHypo: includes(pendingTimeInRange, 'timeInVeryLowPercent'),
               hypo: includes(pendingTimeInRange, 'timeInAnyLowPercent'),
               inRange: includes(pendingTimeInRange, 'timeInTargetPercent'),
@@ -259,7 +260,7 @@ const TimeInRangeFilterDropdown = ({
     <>
       <Box
         onClick={() => {
-          if (!timeInRangePopupFilterState.isOpen) trackMetric('Time in range filter open', { clinicId: selectedClinicId, pageName });
+          if (!timeInRangePopupFilterState.isOpen) trackMetric('Clinic - Time in range filter open', { clinicId: selectedClinicId, pageName });
         }}
         sx={{ flexShrink: 0 }}
       >
@@ -300,7 +301,7 @@ const TimeInRangeFilterDropdown = ({
         closeIcon
         {...bindPopover(timeInRangePopupFilterState)}
         onClickCloseIcon={() => {
-          trackMetric('Time in range filter close', { clinicId: selectedClinicId, pageName });
+          trackMetric('Clinic - Time in range filter close', { clinicId: selectedClinicId, pageName });
         }}
         onClose={handleCloseDropdown}
       >

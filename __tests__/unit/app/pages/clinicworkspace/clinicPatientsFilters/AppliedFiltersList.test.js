@@ -71,8 +71,6 @@ const renderList = ({
 };
 
 describe('AppliedFiltersList', () => {
-  // The adapter derives the patient-query state from the active filters + search text and renders the
-  // matching ClearFilterButtons controls, wiring each to the onClearSearch / onResetFilters callbacks.
   describe('clear/reset controls', () => {
     it('shows a "Reset Filters" control that fires onResetFilters when only filters are active', async () => {
       const { onResetFilters, onClearSearch } = renderList({
@@ -111,8 +109,6 @@ describe('AppliedFiltersList', () => {
     });
   });
 
-  // The core adapter contract: a chip's remove action must call the `setActiveFilters` prop with a
-  // new filter object that removes exactly the clicked filter and leaves every other filter intact.
   describe('removing filters fires setActiveFilters correctly', () => {
     it('resets lastData and lastDataType to their defaults when the data-recency chip is removed', async () => {
       const { setActiveFilters } = renderList({ activeFilters: FULLY_ACTIVE_FILTERS });
@@ -130,7 +126,7 @@ describe('AppliedFiltersList', () => {
     it('removes only the clicked time-in-range value, preserving the others', async () => {
       const { setActiveFilters } = renderList({ activeFilters: FULLY_ACTIVE_FILTERS });
 
-      await userEvent.click(screen.getByLabelText('Remove %TIR = Meeting Targets filter'));
+      await userEvent.click(screen.getByLabelText('Remove %TIR = Not meeting TIR filter'));
 
       expect(setActiveFilters).toHaveBeenCalledTimes(1);
       expect(setActiveFilters).toHaveBeenCalledWith({
