@@ -281,7 +281,7 @@ const SiteFilterDropdown = ({
         closeIcon
         {...bindPopover(clinicSitesPopupFilterState)}
         onClickCloseIcon={() => {
-          trackMetric('Clinic sites filter close', { clinicId: selectedClinicId, pageName });
+          trackMetric('Clinic - Clinic sites filter close', { clinicId: selectedClinicId, pageName });
         }}
         onClose={handleCloseDropdown}
       >
