@@ -4,10 +4,37 @@ import PropTypes from 'prop-types';
 import without from 'lodash/without';
 
 import ActiveFiltersTray from '../components/ActiveFiltersTray';
-import ClearFilterButtons from '../components/ClearFilterButtons';
-import { getPatientQueryState } from '../ClinicPatients';
+import ClearFilterButtons, { PATIENT_QUERY_STATE } from '../components/ClearFilterButtons';
 import { defaultFilterState } from '../useClinicPatientsFilters';
 import { Box } from 'theme-ui';
+
+export const getPatientQueryState = (
+  activeFilters = {},
+  patientListSearchTextInput = '',
+) => {
+  const { lastData, lastDataType, timeCGMUsePercent, timeInRange, clinicSites, patientTags } = activeFilters;
+
+  const hasFiltersActive = (
+    lastData ||
+    lastDataType ||
+    timeCGMUsePercent ||
+    timeInRange?.length > 0 ||
+    clinicSites?.length > 0 ||
+    patientTags?.length > 0
+  );
+
+  const hasSearchActive = !!patientListSearchTextInput;
+
+  if (hasFiltersActive && hasSearchActive) {
+    return PATIENT_QUERY_STATE.FILTER_AND_SEARCH;
+  } else if (hasFiltersActive) {
+    return PATIENT_QUERY_STATE.FILTER_ONLY;
+  } else if (hasSearchActive) {
+    return PATIENT_QUERY_STATE.SEARCH_ONLY;
+  }
+
+  return PATIENT_QUERY_STATE.NONE;
+};
 
 const AppliedFiltersList = ({ activeFilters, setActiveFilters, onClearSearch, onResetFilters }) => {
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
