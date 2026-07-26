@@ -103,6 +103,7 @@ import {
   rpmReportConfigSchema,
   maxClinicPatientTags,
   maxWorkspaceClinicSites,
+  timeInRangeFilterThresholds,
 } from '../../core/clinicUtils';
 
 import { DIABETES_TYPES, MGDL_UNITS, MMOLL_UNITS, URL_TIDEPOOL_PLUS_PLANS } from '../../core/constants';
@@ -119,7 +120,7 @@ import FilterBySummaryPeriod from './clinicPatientsFilters/FilterBySummaryPeriod
 import FilterByTimeInRange from './clinicPatientsFilters/FilterByTimeInRange';
 import FilterByCGMUse from './clinicPatientsFilters/FilterByCGMUse';
 import ClinicPatientsPrintModal from './ClinicPatientsPrintModal';
-import AppliedFiltersList from './clinicPatientsFilters/AppliedFiltersList';
+import AppliedFiltersList, { getPatientQueryState } from './clinicPatientsFilters/AppliedFiltersList';
 import useIsClinicAdmin from './useIsClinicAdmin';
 
 const { Loader } = vizComponents;
@@ -133,17 +134,6 @@ const StyledScrollToTop = styled(ScrollToTop)`
   border-radius: 20px;
   padding-top: 4px;
 `;
-
-export const glycemicTargetThresholds = {
-  timeInVeryLowPercent: { value: 1, comparator: '>' },
-  timeInLowPercent: { value: 4, comparator: '>' },
-  timeInAnyLowPercent: { value: 4, comparator: '>' },
-  timeInTargetPercent: { value: 70, comparator: '<' },
-  timeInHighPercent: { value: 25, comparator: '>' },
-  timeInAnyHighPercent: { value: 25, comparator: '>' },
-  timeInVeryHighPercent: { value: 5, comparator: '>' },
-  timeInExtremeHighPercent: { value: 1, comparator: '>' },
-};
 
 const editPatient = (patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog, source) => {
   trackMetric('Clinic - Edit patient', { clinicId: selectedClinicId, source });
@@ -161,34 +151,6 @@ const printPatientData = (patient, setSelectedPatient, selectedClinicId, trackMe
   trackMetric('Clinic - open print patient data modal', { clinicId: selectedClinicId, source });
   setSelectedPatient(patient);
   setShowPrintDataModal(true);
-};
-
-export const getPatientQueryState = (
-  activeFilters = {},
-  patientListSearchTextInput = '',
-) => {
-  const { lastData, lastDataType, timeCGMUsePercent, timeInRange, clinicSites, patientTags } = activeFilters;
-
-  const hasFiltersActive = (
-    lastData ||
-    lastDataType ||
-    timeCGMUsePercent ||
-    timeInRange?.length > 0 ||
-    clinicSites?.length > 0 ||
-    patientTags?.length > 0
-  );
-
-  const hasSearchActive = !!patientListSearchTextInput;
-
-  if (hasFiltersActive && hasSearchActive) {
-    return PATIENT_QUERY_STATE.FILTER_AND_SEARCH;
-  } else if (hasFiltersActive) {
-    return PATIENT_QUERY_STATE.FILTER_ONLY;
-  } else if (hasSearchActive) {
-    return PATIENT_QUERY_STATE.SEARCH_ONLY;
-  }
-
-  return PATIENT_QUERY_STATE.NONE;
 };
 
 const EmptyContentNode = ({ patientQueryState, children }) => {
@@ -1090,7 +1052,7 @@ export const ClinicPatients = (props) => {
         }
 
         forEach(activeFilters.timeInRange, filter => {
-          let { comparator, value } = glycemicTargetThresholds[filter];
+          let { comparator, value } = timeInRangeFilterThresholds[filter];
           value = value / 100;
 
           if (activeFilters.meetsGlycemicTargets) {
