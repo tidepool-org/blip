@@ -125,8 +125,8 @@ import FilterBySites from './clinicPatientsFilters/FilterBySites';
 import FilterByDataRecency from './clinicPatientsFilters/FilterByDataRecency';
 import FilterBySummaryPeriod from './clinicPatientsFilters/FilterBySummaryPeriod';
 import ClinicPatientsPrintModal from './ClinicPatientsPrintModal';
-import AppliedFiltersList from './clinicPatientsFilters/AppliedFiltersList';
 import useIsClinicAdmin from './useIsClinicAdmin';
+import AppliedFiltersList, { getPatientQueryState } from './clinicPatientsFilters/AppliedFiltersList';
 
 const { Loader } = vizComponents;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels, formatBgValue } = vizUtils.bg;
@@ -212,34 +212,6 @@ const printPatientData = (patient, setSelectedPatient, selectedClinicId, trackMe
   trackMetric('Clinic - open print patient data modal', { clinicId: selectedClinicId, source });
   setSelectedPatient(patient);
   setShowPrintDataModal(true);
-};
-
-export const getPatientQueryState = (
-  activeFilters = {},
-  patientListSearchTextInput = '',
-) => {
-  const { lastData, lastDataType, timeCGMUsePercent, timeInRange, clinicSites, patientTags } = activeFilters;
-
-  const hasFiltersActive = (
-    lastData ||
-    lastDataType ||
-    timeCGMUsePercent ||
-    timeInRange?.length > 0 ||
-    clinicSites?.length > 0 ||
-    patientTags?.length > 0
-  );
-
-  const hasSearchActive = !!patientListSearchTextInput;
-
-  if (hasFiltersActive && hasSearchActive) {
-    return PATIENT_QUERY_STATE.FILTER_AND_SEARCH;
-  } else if (hasFiltersActive) {
-    return PATIENT_QUERY_STATE.FILTER_ONLY;
-  } else if (hasSearchActive) {
-    return PATIENT_QUERY_STATE.SEARCH_ONLY;
-  }
-
-  return PATIENT_QUERY_STATE.NONE;
 };
 
 const EmptyContentNode = ({ patientQueryState, children }) => {
