@@ -65,7 +65,7 @@ const DropdownContent = ({
           sx={{ fontSize: 1 }}
           variant="secondary"
           onClick={() => {
-            trackMetric('CGM use clear filter', { clinicId: selectedClinicId, pageName });
+            trackMetric('Clinic - CGM use clear filter', { clinicId: selectedClinicId, pageName });
             setPendingTimeCGMUsePercent(null);
             handleChange(null);
             onClose();
@@ -80,7 +80,7 @@ const DropdownContent = ({
           sx={{ fontSize: 1 }}
           variant="primary"
           onClick={() => {
-            trackMetric('CGM use apply filter', {
+            trackMetric('Clinic - CGM use apply filter', {
               clinicId: selectedClinicId,
               filter: pendingTimeCGMUsePercent,
             });
@@ -116,7 +116,7 @@ const CGMUseFilterDropdown = ({
     <>
       <Box
         onClick={() => {
-          if (!cgmUsePopupFilterState.isOpen) trackMetric('CGM Use filter open', { clinicId: selectedClinicId, pageName });
+          if (!cgmUsePopupFilterState.isOpen) trackMetric('Clinic - CGM Use filter open', { clinicId: selectedClinicId, pageName });
         }}
         sx={{ flexShrink: 0 }}
       >
@@ -138,7 +138,7 @@ const CGMUseFilterDropdown = ({
         closeIcon
         {...bindPopover(cgmUsePopupFilterState)}
         onClickCloseIcon={() => {
-          trackMetric('CGM Use filter close', { clinicId: selectedClinicId, pageName });
+          trackMetric('Clinic - CGM Use filter close', { clinicId: selectedClinicId, pageName });
         }}
         onClose={handleCloseDropdown}
       >
