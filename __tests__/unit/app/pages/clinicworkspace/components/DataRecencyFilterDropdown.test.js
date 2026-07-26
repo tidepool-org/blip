@@ -76,7 +76,7 @@ describe('DataRecencyFilterDropdown', () => {
       // Applying the filter sets it
       await userEvent.click(screen.getByRole('button', { name: /Apply/ }));
       expect(onChange).toHaveBeenCalledWith({ lastData: 14, lastDataType: 'cgm' });
-      expect(mockTrackMetric).toHaveBeenCalledWith('Clinic - Last upload apply filter', { clinicId: 'clinic123', dateRange: '14 days', type: 'cgm' });
+      expect(mockTrackMetric).toHaveBeenCalledWith('Clinic - Last upload apply filter', { clinicId: 'clinic123', dateRange: '14 days', type: 'cgm', pageName: 'Population Health' });
 
       // Dropdown should automatically close
       expect(screen.queryByTestId('data-recency-filter-dropdown')).not.toBeInTheDocument();
