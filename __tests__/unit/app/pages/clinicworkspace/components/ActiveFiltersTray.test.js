@@ -76,7 +76,7 @@ describe('ActiveFiltersTray', () => {
       renderTray({ filters: { ...defaultFilterState, timeInRange: ['timeInTargetPercent'] } });
 
       expect(screen.getByText('with')).toBeInTheDocument();
-      expect(screen.getByText('%TIR = Meeting Targets')).toBeInTheDocument();
+      expect(screen.getByText('%TIR = Not meeting TIR')).toBeInTheDocument();
     });
 
     it('renders a data-recency filter with its expected label', () => {
