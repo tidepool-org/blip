@@ -13,6 +13,7 @@ import isEqual from 'lodash/isEqual';
 import noop from 'lodash/noop';
 
 import Icon from '../../../components/elements/Icon';
+import utils from '../../../core/utils';
 import { transitions } from '../../../themes/baseTheme';
 import { SPECIAL_FILTER_STATES } from '../useClinicPatientsFilters';
 
@@ -82,7 +83,8 @@ const useTagChips = (patientTags = []) => {
       value: id,
       label: find(clinic?.patientTags, { id })?.name,
     }))
-    .filter(chip => chip.label);
+    .filter(chip => chip.label)
+    .toSorted((a, b) => utils.compareLabels(a.label, b.label));
 };
 
 const useSiteChips = (clinicSites = []) => {
@@ -104,7 +106,8 @@ const useSiteChips = (clinicSites = []) => {
       value: id,
       label: find(clinic?.sites, { id })?.name,
     }))
-    .filter(chip => chip.label);
+    .filter(chip => chip.label)
+    .toSorted((a, b) => utils.compareLabels(a.label, b.label));
 };
 
 const Chip = withTranslation()(({ t, label, onRemove }) => (
@@ -191,7 +194,7 @@ const ActiveFiltersTray = ({
     <Flex
       id="clinic-patients-active-filters"
       px={3}
-      py={2}
+      py={3}
       sx={{
         alignItems: 'flex-start',
         gap: '4px',
