@@ -220,6 +220,7 @@ const DropdownContent = ({
           onClick={() => {
             trackMetric('Clinic - Time in range apply filter', {
               clinicId: selectedClinicId,
+              pageName,
               severeHypo: includes(pendingTimeInRange, 'timeInVeryLowPercent'),
               hypo: includes(pendingTimeInRange, 'timeInAnyLowPercent'),
               inRange: includes(pendingTimeInRange, 'timeInTargetPercent'),
