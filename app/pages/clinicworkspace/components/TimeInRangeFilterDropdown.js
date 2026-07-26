@@ -25,49 +25,49 @@ import { colors } from '../../../themes/baseTheme';
 import { MGDL_UNITS } from '../../../core/constants';
 
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels } = vizUtils.bg;
-import { glycemicTargetThresholds } from '../ClinicPatients';
 import useClinicMetricsPageName from '../useClinicMetricsPageName';
+import { timeInRangeFilterThresholds } from '../../../core/clinicUtils';
 
 const getTimeInRangeFilterOptions = (showExtremeHigh = false, t) => [
   (showExtremeHigh && {
     title: t('Highest'),
     value: 'timeInExtremeHighPercent',
-    threshold: glycemicTargetThresholds.timeInExtremeHighPercent.value,
+    threshold: timeInRangeFilterThresholds.timeInExtremeHighPercent.value,
     prefix: t('Greater than'),
     rangeName: 'extremeHigh',
   }),
   {
     title: t('Very High'),
     value: 'timeInVeryHighPercent',
-    threshold: glycemicTargetThresholds.timeInVeryHighPercent.value,
+    threshold: timeInRangeFilterThresholds.timeInVeryHighPercent.value,
     prefix: t('Greater than'),
     rangeName: 'veryHigh',
   },
   {
     title: t('High'),
     value: 'timeInAnyHighPercent',
-    threshold: glycemicTargetThresholds.timeInAnyHighPercent.value,
+    threshold: timeInRangeFilterThresholds.timeInAnyHighPercent.value,
     prefix: t('Greater than'),
     rangeName: 'anyHigh',
   },
   {
     title: t('Not meeting TIR'),
     value: 'timeInTargetPercent',
-    threshold: glycemicTargetThresholds.timeInTargetPercent.value,
+    threshold: timeInRangeFilterThresholds.timeInTargetPercent.value,
     prefix: t('Less than'),
     rangeName: 'target',
   },
   {
     title: t('Low'),
     value: 'timeInAnyLowPercent',
-    threshold: glycemicTargetThresholds.timeInAnyLowPercent.value,
+    threshold: timeInRangeFilterThresholds.timeInAnyLowPercent.value,
     prefix: t('Greater than'),
     rangeName: 'anyLow',
   },
   {
     title: t('Very Low'),
     value: 'timeInVeryLowPercent',
-    threshold: glycemicTargetThresholds.timeInVeryLowPercent.value,
+    threshold: timeInRangeFilterThresholds.timeInVeryLowPercent.value,
     prefix: t('Greater than'),
     rangeName: 'veryLow',
   },
