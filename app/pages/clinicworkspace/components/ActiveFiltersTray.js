@@ -34,7 +34,7 @@ const usePrimaryChips = (activeFilters) => {
     timeInExtremeHighPercent: t('%TIR = Highest'),
     timeInVeryHighPercent: t('%TIR = Very High'),
     timeInAnyHighPercent: t('%TIR = High'),
-    timeInTargetPercent: t('%TIR = Meeting Targets'),
+    timeInTargetPercent: t('%TIR = Not meeting TIR'),
     timeInAnyLowPercent: t('%TIR = Low'),
     timeInVeryLowPercent: t('%TIR = Very Low'),
   }[rangeKey]);
