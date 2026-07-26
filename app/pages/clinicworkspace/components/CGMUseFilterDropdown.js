@@ -83,6 +83,7 @@ const DropdownContent = ({
             trackMetric('Clinic - CGM use apply filter', {
               clinicId: selectedClinicId,
               filter: pendingTimeCGMUsePercent,
+              pageName,
             });
 
             handleChange(pendingTimeCGMUsePercent);
