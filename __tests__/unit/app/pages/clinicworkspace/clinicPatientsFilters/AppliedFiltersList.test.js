@@ -71,8 +71,6 @@ const renderList = ({
 };
 
 describe('AppliedFiltersList', () => {
-  // The adapter derives the patient-query state from the active filters + search text and renders the
-  // matching ClearFilterButtons controls, wiring each to the onClearSearch / onResetFilters callbacks.
   describe('clear/reset controls', () => {
     it('shows a "Reset Filters" control that fires onResetFilters when only filters are active', async () => {
       const { onResetFilters, onClearSearch } = renderList({
@@ -111,8 +109,6 @@ describe('AppliedFiltersList', () => {
     });
   });
 
-  // The core adapter contract: a chip's remove action must call the `setActiveFilters` prop with a
-  // new filter object that removes exactly the clicked filter and leaves every other filter intact.
   describe('removing filters fires setActiveFilters correctly', () => {
     it('resets lastData and lastDataType to their defaults when the data-recency chip is removed', async () => {
       const { setActiveFilters } = renderList({ activeFilters: FULLY_ACTIVE_FILTERS });

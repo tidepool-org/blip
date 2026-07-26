@@ -44,6 +44,13 @@ const AppliedFiltersList = ({ activeFilters, setActiveFilters, onClearSearch, on
           clinicSites: without(activeFilters.clinicSites, value),
         });
         break;
+
+      case 'timeCGMUsePercent':
+        setActiveFilters({
+          ...activeFilters,
+          timeCGMUsePercent: defaultFilterState.timeCGMUsePercent,
+        });
+        break;
     }
   };
 
