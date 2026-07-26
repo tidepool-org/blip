@@ -114,6 +114,7 @@ const DropdownContent = ({
               clinicId: selectedClinicId,
               dateRange,
               type: pending.lastDataType,
+              pageName,
             });
 
             handleChange(pending);
