@@ -224,7 +224,7 @@ const EmptyContentNode = ({ patientQueryState, children }) => {
 
   return (
     <Flex sx={{
-      backgroundColor: colorPalette.primary.bluePrimary00,
+      backgroundColor: vizColors.gray00,
       justifyContent: 'center',
       alignItems: 'center',
       minHeight: '90px',
