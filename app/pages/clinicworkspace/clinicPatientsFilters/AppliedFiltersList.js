@@ -98,8 +98,6 @@ const AppliedFiltersList = ({ activeFilters, setActiveFilters, onClearSearch, on
 
   const patientQueryState = getPatientQueryState(activeFilters, patientListSearchTextInput);
 
-  const patientQueryState = getPatientQueryState(activeFilters, patientListSearchTextInput);
-
   return (
     <ActiveFiltersTray
       hasSearchActive={hasSearchActive}
