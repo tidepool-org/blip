@@ -92,10 +92,9 @@ const AppliedFiltersList = ({ activeFilters, setActiveFilters, onClearSearch, on
     activeFilters.clinicSites?.length > 0
   );
 
-  const isActive = hasActiveFilters || hasSearchActive;
-  const count = clinic?.fetchedPatientCount || 0;
+  const isRendered = hasActiveFilters || hasSearchActive;
 
-  if (!isActive || count <= 0) return null;
+  if (!isRendered) return null;
 
   const patientQueryState = getPatientQueryState(activeFilters, patientListSearchTextInput);
 
