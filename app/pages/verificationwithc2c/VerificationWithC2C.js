@@ -3,6 +3,8 @@ import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { useHistory, useLocation } from 'react-router-dom';
 import { colors as vizColors } from '@tidepool/viz';
+import map from 'lodash/map';
+import pick from 'lodash/pick';
 import * as actions from '../../redux/actions';
 
 import { providers } from '../../components/datasources/DataConnections';
@@ -104,6 +106,8 @@ const VerificationWithC2C = () => {
     dispatch(actions.sync.connectDataSourceSuccess(providerId, popupUrl));
   };
 
+  const renderedProviders = pick(providers, ['twiist', 'dexcom', 'abbott']);
+
   return (
     <Box sx={{ paddingTop: ['72px', '72px', '86px', '86px'] }}>
       <Container
@@ -115,7 +119,7 @@ const VerificationWithC2C = () => {
       >
         <Box>
           <Box>
-            { Object.entries(providers).map(([providerName, provider]) => (
+            { map(renderedProviders, (provider, providerName) => (
                 <Box sx={styleProps.providerContainer}>
                   {/* TODO: Fix Image */}
                   <img src={provider.logoImage} alt={providerName} style={{ objectFit: 'contain' }}/>

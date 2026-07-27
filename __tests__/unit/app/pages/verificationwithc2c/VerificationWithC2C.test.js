@@ -64,8 +64,8 @@ describe('VerificationWithC2C', () => {
     expect(screen.getByText('Welcome!')).toBeInTheDocument();
     expect(screen.getByText('Choose how you manage your diabetes')).toBeInTheDocument();
 
-    // One Connect button per provider
-    expect(screen.getAllByRole('button', { name: /Connect/ })).toHaveLength(Object.keys(providers).length);
+    // One Connect button per allowed provider
+    expect(screen.getAllByRole('button', { name: /Connect/ })).toHaveLength(3);
     expect(screen.getByRole('button', { name: /I have a different device/ })).toBeInTheDocument();
 
     // On the C2C page to start
@@ -80,17 +80,29 @@ describe('VerificationWithC2C', () => {
     expect(history.location.search).toBe('?restrictedTokenId=abc123');
   });
 
+  it('only renders the abbott, dexcom, and twiist providers', async () => {
+    renderComponent();
+
+    const allowedProviders = ['abbott', 'dexcom', 'twiist'];
+
+    allowedProviders.forEach(providerName => {
+      expect(screen.getByAltText(providerName)).toBeInTheDocument();
+    });
+
+    expect(screen.getAllByRole('button', { name: /Connect/ })).toHaveLength(allowedProviders.length);
+  });
+
   it('dispatches connectDataSourceSuccess with the provider id and popup url when the token is valid', async () => {
     renderComponent();
 
-    // Connect the first provider (dexcom). The current provider and restricted token are validated
+    // Connect the first provider (twiist). The current provider and restricted token are validated
     mockUnwrap.mockResolvedValue({ isValid: true });
     await userEvent.click(screen.getAllByRole('button', { name: /Connect/ })[0]);
-    expect(mockValidateRestrictedToken).toHaveBeenCalledWith({ restrictedToken: 'abc123', providerName: 'dexcom' });
+    expect(mockValidateRestrictedToken).toHaveBeenCalledWith({ restrictedToken: 'abc123', providerName: 'twiist' });
 
     await waitFor(() => expect(actions.sync.connectDataSourceSuccess).toHaveBeenCalledWith(
-      'oauth/dexcom',      // providerId
-      'http://app.tidepool.test/v1/oauth/dexcom/authorize?restricted_token=abc123',  // data connection popup url
+      'oauth/twiist',      // providerId
+      'http://app.tidepool.test/v1/oauth/twiist/authorize?restricted_token=abc123',  // data connection popup url
     ));
   });
 
