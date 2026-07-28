@@ -52,6 +52,29 @@ const EditTagsAction = ({ onClick = noop }) => {
   );
 };
 
+const NoClinicTags = () => {
+  const isClinicAdmin = useIsClinicAdmin();
+  const { t } = useTranslation();
+
+  return (
+    <Box mx={2} mb={2}>
+      <Box sx={{ fontSize: 1, color: colors.blue50, lineHeight: 1 }} mb={3}>
+        {t('You don\'t have any tags yet.')}
+      </Box>
+      <Box sx={{ fontSize: 1, color: colors.blue50, lineHeight: 1 }}>
+        {t('Tags help you organize and find patients using categories that matter to your clinic, such as clinician, diabetes type, or care group.')}
+      </Box>
+      { !isClinicAdmin &&
+        <Box mt={3} pt={3} sx={{ borderTop: `1px solid ${colors.gray05}`, fontSize: 0, color: colors.blue50, lineHeight: 1 }}>
+          <Trans t={t}>
+            Tags can only be created by Workspace Admins. If you don't have admin access, contact a Workspace Admin.
+          </Trans>
+        </Box>
+      }
+    </Box>
+  );
+};
+
 const DropdownContent = ({
   onClose,
   onChange,
@@ -86,6 +109,8 @@ const DropdownContent = ({
   const isChecked = id => pendingTags?.includes(id);
 
   const canEditTags = !!onClickEditTags && isClinicAdmin;
+
+  const hasNoSearchResults = !!searchText.trim() && shownTagFilterOptions.length <= 0;
 
   return (
     <Box data-testid='tag-filter-dropdown' sx={{ width: 300 }} mt={5} mx={2}>
@@ -143,6 +168,12 @@ const DropdownContent = ({
           }
         </Box>
 
+        { hasNoSearchResults &&
+          <Box sx={{ textAlign: 'center', fontSize: 0, lineHeight: 1, fontStyle:'italic', color: vizColors.blueGray30, margin: 3 }}>
+            {t('No tags found that match your search. Check your spelling or try a different search.')}
+          </Box>
+        }
+
         { // Display an option to filter for patients with zero tags
           sortedTagFilterOptions.length > 0 &&
           <Box mt={1} pt={3} px={2} sx={{ borderTop: borders.divider }} className="clinic-site-filter-option" key="clinic-site-filter-option-PWDS_WITH_ZERO_TAGS">
@@ -165,23 +196,7 @@ const DropdownContent = ({
         }
 
         { // If no tags exist, display a message
-          sortedTagFilterOptions.length <= 0 &&
-          <Box mx={2} mb={2}>
-            <Box sx={{ fontSize: 1, color: colors.blue50, lineHeight: 1 }} mb={3}>
-              {t('You don\'t have any tags yet.')}
-            </Box>
-            <Box sx={{ fontSize: 1, color: colors.blue50, lineHeight: 1 }}>
-              {t('Tags help you organize and find patients using categories that matter to your clinic, such as clinician, diabetes type, or care group.')}
-            </Box>
-            { !isClinicAdmin &&
-              <Box mt={3} pt={3} sx={{ borderTop: `1px solid ${colors.gray05}`, fontSize: 0, color: colors.blue50, lineHeight: 1 }}>
-                <Trans t={t}>
-                  Tags can only be created by Workspace Admins. If you don't have admin access, contact a Workspace Admin to create tags or update your permissions from&nbsp;
-                  <RouterLink to='/clinic-admin' style={{ color: colors.purpleBright }}>Workspace Settings.</RouterLink>
-                </Trans>
-              </Box>
-            }
-          </Box>
+          sortedTagFilterOptions.length <= 0 && <NoClinicTags />
         }
       </Box>
 
