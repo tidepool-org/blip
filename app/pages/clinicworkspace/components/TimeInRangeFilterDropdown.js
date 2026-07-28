@@ -99,7 +99,6 @@ const DropdownContent = ({
         bgUnits: clinicBgUnits,
         bgBounds: reshapeBgClassesToBgBounds({ bgUnits: clinicBgUnits }),
       },
-      { segmented: true }
     ),
     [clinicBgUnits]
   );
