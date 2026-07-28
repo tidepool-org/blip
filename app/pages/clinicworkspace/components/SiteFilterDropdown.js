@@ -52,6 +52,26 @@ const EditSitesAction = ({ onClick = noop }) => {
   );
 };
 
+const NoClinicSites = () => {
+  const isClinicAdmin = useIsClinicAdmin();
+  const { t } = useTranslation();
+
+  return (
+    <Box mx={2} mb={2}>
+      <Box sx={{ fontSize: 1, color: colors.blue50, lineHeight: 1 }}>
+        {t('You don\'t have any Clinic Sites listed for your workspace. Add Clinic Sites to organize and filter patients by care location.')}
+      </Box>
+      { !isClinicAdmin &&
+        <Box mt={3} pt={3} sx={{ borderTop: `1px solid ${colors.gray05}`, fontSize: 0, color: colors.blue50, lineHeight: 1 }}>
+          <Trans t={t}>
+            Only admins can add new Clinic Sites associated with this workspace. If you don't have admin access, contact a Workspace Admin to add clinic sites.
+          </Trans>
+        </Box>
+      }
+    </Box>
+  );
+};
+
 const DropdownContent = ({
   onClose,
   onChange,
@@ -86,6 +106,8 @@ const DropdownContent = ({
   const isChecked = id => pendingSites?.includes(id);
 
   const canEditSites = !!onClickEditSites && isClinicAdmin;
+
+  const hasNoSearchResults = !!searchText.trim() && shownSiteFilterOptions.length <= 0;
 
   return (
     <Box data-testid='site-filter-dropdown' sx={{ width: 300 }} mt={5} mx={2}>
@@ -143,6 +165,12 @@ const DropdownContent = ({
           }
         </Box>
 
+        { hasNoSearchResults &&
+          <Box sx={{ textAlign: 'center', fontSize: 0, lineHeight: 1, fontStyle:'italic', color: vizColors.blueGray30, margin: 3 }}>
+            {t('No sites found that match your search. Check your spelling or try a different search.')}
+          </Box>
+        }
+
         { // Display an option to filter for patients with zero sites
           sortedSiteFilterOptions.length > 0 &&
           <Box mt={1} pt={3} px={2} sx={{ borderTop: borders.divider }} className="clinic-site-filter-option" key="clinic-site-filter-option-PWDS_WITH_ZERO_SITES">
@@ -165,20 +193,7 @@ const DropdownContent = ({
         }
 
         { // If no sites exist, display a message
-          sortedSiteFilterOptions.length <= 0 &&
-          <Box mx={2} mb={2}>
-            <Box sx={{ fontSize: 1, color: colors.blue50, lineHeight: 1 }}>
-              {t('You don\'t have any Clinic Sites listed for your workspace. Add Clinic Sites to organize and filter patients by care location.')}
-            </Box>
-            { !isClinicAdmin &&
-              <Box mt={3} pt={3} sx={{ borderTop: `1px solid ${colors.gray05}`, fontSize: 0, color: colors.blue50, lineHeight: 1 }}>
-                <Trans t={t}>
-                  Only admins can add new Clinic Sites associated with this workspace. If you don't have admin access, contact a workspace admin to add clinic sites or update your permissions from&nbsp;
-                  <RouterLink to='/clinic-admin' style={{ color: colors.purpleBright }}>Workspace Settings.</RouterLink>
-                </Trans>
-              </Box>
-            }
-          </Box>
+          sortedSiteFilterOptions.length <= 0 && <NoClinicSites />
         }
       </Box>
 
