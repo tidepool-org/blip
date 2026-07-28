@@ -33,45 +33,46 @@ const getTimeInRangeFilterOptions = (showExtremeHigh = false, t) => [
     title: t('Highest'),
     value: 'timeInExtremeHighPercent',
     threshold: timeInRangeFilterThresholds.timeInExtremeHighPercent.value,
-    prefix: t('Greater than'),
+    prefix: t('≥'),
     rangeName: 'extremeHigh',
   }),
   {
     title: t('Very High'),
     value: 'timeInVeryHighPercent',
     threshold: timeInRangeFilterThresholds.timeInVeryHighPercent.value,
-    prefix: t('Greater than'),
+    prefix: t('≥'),
     rangeName: 'veryHigh',
   },
   {
     title: t('High'),
     value: 'timeInAnyHighPercent',
     threshold: timeInRangeFilterThresholds.timeInAnyHighPercent.value,
-    prefix: t('Greater than'),
+    prefix: t('≥'),
     rangeName: 'anyHigh',
   },
   {
     title: t('Not meeting TIR'),
     value: 'timeInTargetPercent',
     threshold: timeInRangeFilterThresholds.timeInTargetPercent.value,
-    prefix: t('Less than'),
+    prefix: t('≤'),
     rangeName: 'target',
   },
   {
     title: t('Low'),
     value: 'timeInAnyLowPercent',
     threshold: timeInRangeFilterThresholds.timeInAnyLowPercent.value,
-    prefix: t('Greater than'),
+    prefix: t('≥'),
     rangeName: 'anyLow',
   },
   {
     title: t('Very Low'),
     value: 'timeInVeryLowPercent',
     threshold: timeInRangeFilterThresholds.timeInVeryLowPercent.value,
-    prefix: t('Greater than'),
+    prefix: t('≥'),
     rangeName: 'veryLow',
   },
-].filter(Boolean);
+].filter(Boolean)
+ .reverse();
 
 const DropdownContent = ({
   onClose = noop,
@@ -92,7 +93,6 @@ const DropdownContent = ({
         bgUnits: clinicBgUnits,
         bgBounds: reshapeBgClassesToBgBounds({ bgUnits: clinicBgUnits }),
       },
-      { segmented: true }
     ),
     [clinicBgUnits]
   );
@@ -114,7 +114,7 @@ const DropdownContent = ({
 
       <Box sx={{ border: `1px solid ${vizColors.gray10}`, borderRadius: 6, padding: 3 }}>
         {map(filterOptions, ({ value, title, rangeName, threshold, prefix }, i) => {
-          const { prefix: bgPrefix, suffix, value: glucoseTargetValue } = bgLabels[rangeName];
+          const glucoseRangeLabel = bgLabels[rangeName];
 
           return (
             <Flex
@@ -187,11 +187,7 @@ const DropdownContent = ({
                     {' '}
                     {t('Time')}
                     {' '}
-                    {bgPrefix && `${t(bgPrefix)} `}
-                    {' '}
-                    {glucoseTargetValue}
-                    {' '}
-                    {suffix}
+                    {glucoseRangeLabel}
                   </Text>
                 </Flex>
               </Box>
