@@ -160,5 +160,62 @@ describe('VerificationWithPassword', () => {
 
     expect(screen.getByText("Passwords don't match.")).toBeInTheDocument();
     expect(actions.async.verifyCustodial).not.toHaveBeenCalled();
+
+    // Clear inputs and rerender
+    await userEvent.clear(passwordInput);
+    await userEvent.clear(confirmPasswordInput);
+    await userEvent.clear(birthdayInput);
+    rerender(
+      <Provider store={store}>
+        <Router history={history}>
+          <VerificationWithPassword {...defaultProps} />
+        </Router>
+      </Provider>
+    );
+
+    // Test 4: Birthdate month isn't a real calendar month
+    await userEvent.click(passwordInput);
+    await userEvent.paste('ValidPass123!');
+    await userEvent.click(confirmPasswordInput);
+    await userEvent.paste('ValidPass123!');
+    await userEvent.click(birthdayInput);
+    await userEvent.paste('13/15/1990');
+
+    await userEvent.click(confirmButton);
+
+    expect(screen.getByText(/this date doesn’t look right/)).toBeInTheDocument();
+    expect(actions.async.verifyCustodial).not.toHaveBeenCalled();
+
+    // Clear inputs and rerender
+    await userEvent.clear(passwordInput);
+    await userEvent.clear(confirmPasswordInput);
+    await userEvent.clear(birthdayInput);
+    rerender(
+      <Provider store={store}>
+        <Router history={history}>
+          <VerificationWithPassword {...defaultProps} />
+        </Router>
+      </Provider>
+    );
+
+    // Test 5: Valid inputs
+    await userEvent.click(passwordInput);
+    await userEvent.paste('ValidPass123!');
+    await userEvent.click(confirmPasswordInput);
+    await userEvent.paste('ValidPass123!');
+    await userEvent.click(birthdayInput);
+    await userEvent.paste('12/15/1990');
+
+    await userEvent.click(confirmButton);
+
+    await waitFor(() => {
+      expect(actions.async.verifyCustodial).toHaveBeenCalledWith(
+        defaultProps.api,   // api
+        'testKey123',       // signupKey
+        'test@example.com', // signupEmail
+        '1990-12-15',       // birthday
+        'ValidPass123!',    // password
+      );
+    });
   }, TEST_TIMEOUT_MS);
 });
