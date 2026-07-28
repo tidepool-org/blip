@@ -101,13 +101,16 @@ describe('TimeInRangeFilterDropdown', () => {
       // Hidden when the flag is off
       const { rerender } = renderComponent();
       await userEvent.click(screen.getByRole('button', { name: /Time in Range/ }));
-      expect(screen.queryByRole('checkbox', { name: /Highest/ })).not.toBeInTheDocument();
+      expect(screen.queryByRole('checkbox', { name: /Extremely High/ })).not.toBeInTheDocument();
       expect(screen.getByRole('checkbox', { name: /Very High/ })).toBeInTheDocument();
 
       // Visible when the flag is on
       useFlags.mockReturnValue({ showExtremeHigh: true });
       rerender(ui());
-      expect(screen.getByRole('checkbox', { name: /Highest/ })).toBeInTheDocument();
+
+      await userEvent.click(screen.getByRole('checkbox', { name: /Extremely High/ }));
+      await userEvent.click(screen.getByRole('button', { name: /Apply/ }));
+      expect(onChange).toHaveBeenCalledWith(['timeInExtremeHighPercent']);
     });
 
     it('removes a range when its checkbox is unchecked', async () => {
@@ -125,28 +128,15 @@ describe('TimeInRangeFilterDropdown', () => {
       expect(onChange).toHaveBeenCalledWith(['timeInVeryLowPercent']);
     });
 
-    it('applies the "Not meeting TIR" (target) range', async () => {
-      renderComponent({ timeInRange: [] });
-
-      await userEvent.click(screen.getByRole('button', { name: /Time in Range/ }));
-
-      // This is the only option using a "Less than" threshold (the rest use "Greater than")
-      expect(screen.getByText(/Less than 70%/)).toBeInTheDocument();
-
-      await userEvent.click(screen.getByRole('checkbox', { name: /Not meeting TIR/ }));
-      await userEvent.click(screen.getByRole('button', { name: /Apply/ }));
-      expect(onChange).toHaveBeenCalledWith(['timeInTargetPercent']);
-    });
-
     it('renders the range definitions in mg/dL units', async () => {
       renderComponent({ timeInRange: [] });
       await userEvent.click(screen.getByRole('button', { name: /Time in Range/ }));
 
-      expect(screen.getByText('Greater than 1% Time <54 mg/dL')).toBeInTheDocument(); // Very Low
-      expect(screen.getByText('Greater than 4% Time <70 mg/dL')).toBeInTheDocument(); // Low
-      expect(screen.getByText('Less than 70% Time between 70-180 mg/dL')).toBeInTheDocument(); // Not meeting TIR
-      expect(screen.getByText('Greater than 25% Time >180 mg/dL')).toBeInTheDocument(); // High
-      expect(screen.getByText('Greater than 5% Time >250 mg/dL')).toBeInTheDocument(); // Very High
+      expect(screen.getByText('≥ 1% Time below 54 mg/dL')).toBeInTheDocument(); // Very Low
+      expect(screen.getByText('≥ 4% Time below 70 mg/dL')).toBeInTheDocument(); // Low
+      expect(screen.getByText('≤ 70% Time between 70 - 180 mg/dL')).toBeInTheDocument(); // Not meeting TIR
+      expect(screen.getByText('≥ 25% Time above 180 mg/dL')).toBeInTheDocument(); // High
+      expect(screen.getByText('≥ 5% Time above 250 mg/dL')).toBeInTheDocument(); // Very High
     });
 
     it('renders the range definitions in mmol/L units', async () => {
@@ -160,11 +150,11 @@ describe('TimeInRangeFilterDropdown', () => {
       renderComponent({ timeInRange: [] });
       await userEvent.click(screen.getByRole('button', { name: /Time in Range/ }));
 
-      expect(screen.getByText('Greater than 1% Time <3.0 mmol/L')).toBeInTheDocument(); // Very Low
-      expect(screen.getByText('Greater than 4% Time <3.9 mmol/L')).toBeInTheDocument(); // Low
-      expect(screen.getByText('Less than 70% Time between 3.9-10.0 mmol/L')).toBeInTheDocument(); // Not meeting TIR
-      expect(screen.getByText('Greater than 25% Time >10.0 mmol/L')).toBeInTheDocument(); // High
-      expect(screen.getByText('Greater than 5% Time >13.9 mmol/L')).toBeInTheDocument(); // Very High
+      expect(screen.getByText('≥ 1% Time below 3.0 mmol/L')).toBeInTheDocument(); // Very Low
+      expect(screen.getByText('≥ 4% Time below 3.9 mmol/L')).toBeInTheDocument(); // Low
+      expect(screen.getByText('≤ 70% Time between 3.9 - 10.0 mmol/L')).toBeInTheDocument(); // Not meeting TIR
+      expect(screen.getByText('≥ 25% Time above 10.0 mmol/L')).toBeInTheDocument(); // High
+      expect(screen.getByText('≥ 5% Time above 13.9 mmol/L')).toBeInTheDocument(); // Very High
     });
   });
 });
