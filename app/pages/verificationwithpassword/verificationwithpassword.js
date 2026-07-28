@@ -125,8 +125,10 @@ const VerificationWithPassword = ({
   };
 
   const validateFormValues = (formValues) => {
-    const [year, month, day] = formValues.birthday?.split('-');
-    const birthdayForValidation = { year, month, day };
+    const [year, month, day] = (formValues.birthday || '').split('-');
+
+    const validationMonth = month && String(Number(month) - 1); // validator expects a zero-indexed month
+    const birthdayForValidation = { year, month: validationMonth, day };
 
     const form = [
       { type: 'date', name: 'birthday', label: t('birthday'), value: birthdayForValidation },
