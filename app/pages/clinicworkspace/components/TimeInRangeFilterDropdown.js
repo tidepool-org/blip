@@ -77,8 +77,7 @@ const getTimeInRangeFilterOptions = (showExtremeHigh = false, t) => [
     threshold: timeInRangeFilterThresholds.timeInVeryLowPercent.value,
     rangeName: 'veryLow',
   },
-].filter(Boolean)
- .reverse();
+].filter(Boolean);
 
 const DropdownContent = ({
   onClose = noop,
@@ -99,6 +98,7 @@ const DropdownContent = ({
         bgUnits: clinicBgUnits,
         bgBounds: reshapeBgClassesToBgBounds({ bgUnits: clinicBgUnits }),
       },
+      { segmented: true }
     ),
     [clinicBgUnits]
   );
