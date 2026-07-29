@@ -176,7 +176,7 @@ const DropdownContent = ({
 
         { // Display an option to filter for patients with zero tags
           sortedTagFilterOptions.length > 0 &&
-          <Box mt={1} pt={3} px={2} sx={{ borderTop: borders.divider }} className="clinic-site-filter-option" key="clinic-site-filter-option-PWDS_WITH_ZERO_TAGS">
+          <Box mt={1} pt={3} px={2} sx={{ borderTop: borders.divider }} className="tag-filter-option" key="tag-filter-option-PWDS_WITH_ZERO_TAGS">
             <Checkbox
               id="tag-filter-option-checkbox-PWDS_WITH_ZERO_TAGS"
               data-testid="tag-filter-option-checkbox-PWDS_WITH_ZERO_TAGS"
