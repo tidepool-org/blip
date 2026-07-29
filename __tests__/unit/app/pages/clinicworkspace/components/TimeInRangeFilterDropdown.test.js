@@ -101,7 +101,7 @@ describe('TimeInRangeFilterDropdown', () => {
       // Hidden when the flag is off
       const { rerender } = renderComponent();
       await userEvent.click(screen.getByRole('button', { name: /Time in Range/ }));
-      expect(screen.queryByRole('checkbox', { name: /Extremely High/ })).not.toBeInTheDocument();
+      expect(screen.queryByRole('checkbox', { name: /Highest/ })).not.toBeInTheDocument();
       expect(screen.getByRole('checkbox', { name: /Very High/ })).toBeInTheDocument();
 
       // Visible when the flag is on
