@@ -30,7 +30,7 @@ import { timeInRangeFilterThresholds } from '../../../core/clinicUtils';
 
 const getTimeInRangeFilterOptions = (showExtremeHigh = false, t) => [
   (showExtremeHigh && {
-    title: t('Extremely High'),
+    title: t('Highest'),
     value: 'timeInExtremeHighPercent',
     threshold: timeInRangeFilterThresholds.timeInExtremeHighPercent.value,
     prefix: t('≥'),
