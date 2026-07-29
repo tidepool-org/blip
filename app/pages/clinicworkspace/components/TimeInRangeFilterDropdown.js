@@ -42,7 +42,7 @@ const getRangeDefinition = (t, { comparator, threshold, bgRange, isBounded }) =>
 
 const getTimeInRangeFilterOptions = (showExtremeHigh = false, t) => [
   (showExtremeHigh && {
-    title: t('Highest'),
+    title: t('Extremely High'),
     value: 'timeInExtremeHighPercent',
     threshold: timeInRangeFilterThresholds.timeInExtremeHighPercent.value,
     rangeName: 'extremeHigh',
@@ -77,7 +77,8 @@ const getTimeInRangeFilterOptions = (showExtremeHigh = false, t) => [
     threshold: timeInRangeFilterThresholds.timeInVeryLowPercent.value,
     rangeName: 'veryLow',
   },
-].filter(Boolean);
+].filter(Boolean)
+ .reverse();
 
 const DropdownContent = ({
   onClose = noop,
