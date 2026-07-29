@@ -120,8 +120,7 @@ const VerificationWithC2C = () => {
         <Box>
           <Box>
             { map(renderedProviders, (provider, providerName) => (
-                <Box sx={styleProps.providerContainer}>
-                  {/* TODO: Fix Image */}
+                <Box key={providerName} sx={styleProps.providerContainer}>
                   <img src={provider.logoImage} alt={providerName} style={{ objectFit: 'contain' }}/>
 
                   <Button

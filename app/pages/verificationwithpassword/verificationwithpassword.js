@@ -249,7 +249,7 @@ const VerificationWithPassword = ({
             mask="99/99/9999"
             maskPlaceholder="mm/dd/yyyy"
             value={(formValues.birthday || '').replace(dateRegex, '$2/$3/$1')}
-            const onChange={(e) => handleInputChange('birthday', e.target.value.replace(dateRegex, '$3-$1-$2'))}
+            onChange={(e) => handleInputChange('birthday', e.target.value.replace(dateRegex, '$3-$1-$2'))}
             onBlur={(e) => handleInputChange('birthday', e.target.value.replace(dateRegex, '$3-$1-$2'))}
             disabled={disabled}
           >
