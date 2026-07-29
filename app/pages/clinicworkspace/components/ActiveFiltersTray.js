@@ -33,7 +33,7 @@ const usePrimaryChips = (activeFilters) => {
   }[timeCGMUsePercent]);
 
   const getTimeInRangeChipLabel = (rangeKey) => ({
-    timeInExtremeHighPercent: t('%TIR = Highest'),
+    timeInExtremeHighPercent: t('%TIR = Extremely High'),
     timeInVeryHighPercent: t('%TIR = Very High'),
     timeInAnyHighPercent: t('%TIR = High'),
     timeInTargetPercent: t('%TIR = Not meeting TIR'),

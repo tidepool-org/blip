@@ -30,7 +30,7 @@ import { timeInRangeFilterThresholds } from '../../../core/clinicUtils';
 
 const getTimeInRangeFilterOptions = (showExtremeHigh = false, t) => [
   (showExtremeHigh && {
-    title: t('Highest'),
+    title: t('Extremely High'),
     value: 'timeInExtremeHighPercent',
     threshold: timeInRangeFilterThresholds.timeInExtremeHighPercent.value,
     prefix: t('Greater than'),
@@ -71,7 +71,8 @@ const getTimeInRangeFilterOptions = (showExtremeHigh = false, t) => [
     prefix: t('Greater than'),
     rangeName: 'veryLow',
   },
-].filter(Boolean);
+].filter(Boolean)
+ .reverse();
 
 const DropdownContent = ({
   onClose = noop,
