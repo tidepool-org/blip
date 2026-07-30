@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
@@ -8,7 +8,6 @@ import VisibilityIcon from '@material-ui/icons/Visibility';
 import PropTypes from 'prop-types';
 
 import * as actions from '../../redux/actions';
-import { useToasts } from '../../providers/ToastProvider';
 
 import _ from 'lodash';
 
@@ -17,27 +16,12 @@ import { validateForm } from '../../core/validation';
 import { dateRegex } from '../../core/clinicUtils';
 import TextInput from '../../components/elements/TextInput';
 import { Box } from 'theme-ui';
-import Button from '../../components/elements/Button';
 import Icon from '../../components/elements/Icon';
 import InputMask from 'react-input-mask';
 
 import Container from '../../components/elements/Container';
 
 const styleProps = {
-  titleContainer: {
-    fontSize: 2,
-    display: 'flex',
-    justifyContent: 'center',
-    color: vizColors.blue50,
-    my: 2,
-  },
-  subtitleContainer: {
-    fontSize: 1,
-    display: 'flex',
-    justifyContent: 'center',
-    color: vizColors.blue50,
-    my: 2,
-  },
   inputFieldContainer: {
     position: 'relative',
     py: 2,
@@ -108,8 +92,6 @@ const VerificationWithPassword = ({
   const dispatch = useDispatch();
   const location = useLocation();
   const { search } = location;
-  const queryParams = new URLSearchParams(search);
-  const { set: setToast } = useToasts();
 
   const isTwoStepWorkflow = useInferIsTwoStepWorkflow();
   const signupKey = utils.getSignupKey(location);
