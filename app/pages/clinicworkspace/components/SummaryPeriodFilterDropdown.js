@@ -51,13 +51,10 @@ const DropdownContent = ({
   return (
     <Box data-testid='summary-period-filter-dropdown' mt={5} mx={2} sx={{ width: 300 }}>
       <Box>
-        <Body0 color="grays.4" sx={{ fontWeight: 'medium', fontSize: 1 }}>
-          {t('Summarizing Data')}
-        </Body0>
-
-        <Body1 color="grays.4" sx={{ fontWeight: 'normal', fontSize: 0 }} mb={2}>
-          {t('Tidepool will generate health summaries for the selected number of days.')}
-        </Body1>
+        <Box sx={{ padding: 1, color: vizColors.gray50, lineHeight: 1 }} mb={2}>
+          <Box sx={{ fontWeight: 'medium', fontSize: 1 }}>{t('Summarizing Data')}</Box>
+          <Box sx={{ fontSize: 0 }} mt={1}>{t('Tidepool will generate health summaries for the selected number of days.')}</Box>
+        </Box>
 
         <Box sx={{ border: `1px solid ${vizColors.gray10}`, borderRadius: 6, padding: 2 }}>
           <RadioGroup
