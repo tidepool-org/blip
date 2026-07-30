@@ -89,7 +89,7 @@ const useProviderConnectionPopup = ({ popupWatchTimeout = 500, trackMetric = noo
 
   useEffect(() => {
     if (justConnectedDataSourceProviderName && justConnectedDataSourceProviderName !== previousJustConnectedDataSourceProviderName) {
-      if (!fetchingDataSources?.inProgress) dispatch(async.fetchDataSources(api));
+      if (hasUser && !fetchingDataSources?.inProgress) dispatch(async.fetchDataSources(api));
     }
   }, [justConnectedDataSourceProviderName, fetchingDataSources?.inProgress, previousJustConnectedDataSourceProviderName, dispatch]);
 
