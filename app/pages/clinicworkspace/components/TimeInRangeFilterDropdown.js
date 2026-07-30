@@ -33,42 +33,42 @@ const getTimeInRangeFilterOptions = (showExtremeHigh = false, t) => [
     title: t('Extremely High'),
     value: 'timeInExtremeHighPercent',
     threshold: timeInRangeFilterThresholds.timeInExtremeHighPercent.value,
-    prefix: t('≥'),
+    prefix: t('Greater than'),
     rangeName: 'extremeHigh',
   }),
   {
     title: t('Very High'),
     value: 'timeInVeryHighPercent',
     threshold: timeInRangeFilterThresholds.timeInVeryHighPercent.value,
-    prefix: t('≥'),
+    prefix: t('Greater than'),
     rangeName: 'veryHigh',
   },
   {
     title: t('High'),
     value: 'timeInAnyHighPercent',
     threshold: timeInRangeFilterThresholds.timeInAnyHighPercent.value,
-    prefix: t('≥'),
+    prefix: t('Greater than'),
     rangeName: 'anyHigh',
   },
   {
     title: t('Not meeting TIR'),
     value: 'timeInTargetPercent',
     threshold: timeInRangeFilterThresholds.timeInTargetPercent.value,
-    prefix: t('≤'),
+    prefix: t('Less than'),
     rangeName: 'target',
   },
   {
     title: t('Low'),
     value: 'timeInAnyLowPercent',
     threshold: timeInRangeFilterThresholds.timeInAnyLowPercent.value,
-    prefix: t('≥'),
+    prefix: t('Greater than'),
     rangeName: 'anyLow',
   },
   {
     title: t('Very Low'),
     value: 'timeInVeryLowPercent',
     threshold: timeInRangeFilterThresholds.timeInVeryLowPercent.value,
-    prefix: t('≥'),
+    prefix: t('Greater than'),
     rangeName: 'veryLow',
   },
 ].filter(Boolean)
@@ -93,6 +93,7 @@ const DropdownContent = ({
         bgUnits: clinicBgUnits,
         bgBounds: reshapeBgClassesToBgBounds({ bgUnits: clinicBgUnits }),
       },
+      { segmented: true }
     ),
     [clinicBgUnits]
   );
@@ -103,18 +104,14 @@ const DropdownContent = ({
 
   return (
     <Box data-testid="time-in-range-filter-dropdown" mt={5} mx={2}>
-      <Box mb={3} sx={{ fontSize: 1, fontWeight: 'medium' }}>
-        <Box mr={2} sx={{ color: vizColors.gray50, fontWeight: 'medium', fontSize: 1, whiteSpace: 'nowrap' }}>
-          {t('% Time in Range')}
-        </Box>
-        <Box mt={2} sx={{ color: vizColors.gray30, fontWeight: 'normal', fontSize: 0, lineHeight: 1 }}>
-          <Text>{t('Only patients using the standard target range will be included.')}</Text>
-        </Box>
+      <Box sx={{ padding: 1, color: vizColors.gray50, lineHeight: 1 }} mb={2}>
+        <Box sx={{ fontWeight: 'medium', fontSize: 1 }}>{t('% Time in Range')}</Box>
+        <Box mt={1} sx={{ fontSize: 0 }}>{t('Only patients using the standard target range will be included.')}</Box>
       </Box>
 
       <Box sx={{ border: `1px solid ${vizColors.gray10}`, borderRadius: 6, padding: 3 }}>
         {map(filterOptions, ({ value, title, rangeName, threshold, prefix }, i) => {
-          const glucoseRangeLabel = bgLabels[rangeName];
+          const { prefix: bgPrefix, suffix, value: glucoseTargetValue } = bgLabels[rangeName];
 
           return (
             <Flex
@@ -187,7 +184,11 @@ const DropdownContent = ({
                     {' '}
                     {t('Time')}
                     {' '}
-                    {glucoseRangeLabel}
+                    {bgPrefix && `${t(bgPrefix)} `}
+                    {' '}
+                    {glucoseTargetValue}
+                    {' '}
+                    {suffix}
                   </Text>
                 </Flex>
               </Box>

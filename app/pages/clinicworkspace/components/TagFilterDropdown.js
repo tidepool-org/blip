@@ -115,8 +115,9 @@ const DropdownContent = ({
   return (
     <Box data-testid='tag-filter-dropdown' sx={{ width: 300 }} mt={5} mx={2}>
       <Flex sx={{ justifyContent: 'space-between', alignItems: 'center' }} mb={2}>
-        <Box sx={{ padding: 1, color: colors.gray50, fontSize: 1, fontWeight: 'medium' }}>
-          {t('Tags')}
+        <Box sx={{ padding: 1, color: vizColors.gray50, lineHeight: 1 }}>
+          <Box sx={{ fontSize: 1, fontWeight: 'medium' }}>{t('Tags')}</Box>
+          <Box sx={{ fontSize: 0 }} mt={1}>{t('Only patients with ALL of the tags you select below will be shown.')}</Box>
         </Box>
 
         {canEditTags && <EditTagsAction onClick={onClickEditTags} />}
@@ -176,7 +177,7 @@ const DropdownContent = ({
 
         { // Display an option to filter for patients with zero tags
           sortedTagFilterOptions.length > 0 &&
-          <Box mt={1} pt={3} px={2} sx={{ borderTop: borders.divider }} className="clinic-site-filter-option" key="clinic-site-filter-option-PWDS_WITH_ZERO_TAGS">
+          <Box mt={1} pt={3} px={2} sx={{ borderTop: borders.divider }} className="tag-filter-option" key="tag-filter-option-PWDS_WITH_ZERO_TAGS">
             <Checkbox
               id="tag-filter-option-checkbox-PWDS_WITH_ZERO_TAGS"
               data-testid="tag-filter-option-checkbox-PWDS_WITH_ZERO_TAGS"
