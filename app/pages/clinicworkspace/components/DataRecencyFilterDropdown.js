@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { trackMetric } from '../../../core/metricUtils';
 import { colors as vizColors } from '@tidepool/viz';
 
-import { Box, Grid, Text } from 'theme-ui';
+import { Box, Flex, Grid, Text } from 'theme-ui';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 
 import reject from 'lodash/reject';
@@ -45,10 +45,10 @@ const DropdownContent = ({
   return (
     <Box data-testid="data-recency-filter-dropdown" mt={5} mx={2} sx={{ width: 300 }}>
       <Box>
-        <Box sx={{ alignItems: 'center' }} mb={2}>
-          <Text sx={{ color: 'grays.4', fontWeight: 'medium', fontSize: 1, whiteSpace: 'nowrap' }}>
+        <Box mb={2}>
+          <Box sx={{ padding: 1, color: vizColors.gray50, lineHeight: 1, fontSize: 1, fontWeight: 'medium' }}>
             {t('Device Type')}
-          </Text>
+          </Box>
         </Box>
 
         <Box sx={{ border: `1px solid ${vizColors.gray10}`, borderRadius: 6, padding: 2 }}>
@@ -65,9 +65,9 @@ const DropdownContent = ({
           />
         </Box>
 
-        <Box mt={3} mb={2} pt={2} sx={{ alignItems: 'center' }}>
-          <Body0 color="grays.4" sx={{ fontWeight: 'medium', fontSize: 1 }} mb={0}>{t('Data Recency')}</Body0>
-          <Body0 color="grays.4" sx={{ fontWeight: 'normal', fontSize: 0 }} mb={2} mt={1}>{t('Tidepool will only show patients who have data within the selected number of days.')}</Body0>
+        <Box mt={3} mb={2} sx={{ padding: 1, color: vizColors.gray50, lineHeight: 1 }}>
+          <Box sx={{ fontSize: 1, fontWeight: 'medium' }}>{t('Data Recency')}</Box>
+          <Box sx={{ fontSize: 0 }} mt={1}>{t('Tidepool will only show patients who have data within the selected number of days.')}</Box>
         </Box>
 
         <Box sx={{ border: `1px solid ${vizColors.gray10}`, borderRadius: 6, padding: 2 }}>
