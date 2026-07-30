@@ -5,6 +5,7 @@ import { useLocation } from 'react-router-dom';
 import { colors as vizColors } from '@tidepool/viz';
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 import VisibilityIcon from '@material-ui/icons/Visibility';
+import PropTypes from 'prop-types';
 
 import * as actions from '../../redux/actions';
 import { useToasts } from '../../providers/ToastProvider';
@@ -77,6 +78,13 @@ const Notification = ({ notification = null }) => {
   ].join(' ');
 
   return <div className={className}>{notification.message}</div>;
+};
+
+Notification.propTypes = {
+  notification: PropTypes.shape({
+    type: PropTypes.string,
+    message: PropTypes.string,
+  }),
 };
 
 const useInferIsTwoStepWorkflow = () => {
@@ -270,6 +278,12 @@ const VerificationWithPassword = ({
       </Container>
     </Box>
   );
+};
+
+VerificationWithPassword.propTypes = {
+  api: PropTypes.object.isRequired,
+  fetchingUser: PropTypes.bool,
+  user: PropTypes.object,
 };
 
 export default VerificationWithPassword;
