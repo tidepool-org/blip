@@ -40,10 +40,8 @@ const DropdownContent = ({
   return (
     <Box data-testid='cgm-use-filter-dropdown' mt={5} mx={2} sx={{ width: 300 }}>
       <Box>
-        <Box sx={{ alignItems: 'center' }} mb={2}>
-          <Text sx={{ color: 'grays.4', fontWeight: 'medium', fontSize: 1, whiteSpace: 'nowrap' }}>
-            {t('% CGM Use')}
-          </Text>
+        <Box sx={{ padding: 1, color: vizColors.gray50, lineHeight: 1, fontWeight: 'medium', fontSize: 1 }} mb={2}>
+          {t('% CGM Use')}
         </Box>
 
         <Box sx={{ border: `1px solid ${vizColors.gray10}`, borderRadius: 6, padding: 2 }}>
