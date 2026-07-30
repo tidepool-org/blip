@@ -112,8 +112,9 @@ const DropdownContent = ({
   return (
     <Box data-testid='site-filter-dropdown' sx={{ width: 300 }} mt={5} mx={2}>
       <Flex sx={{ justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }} mb={2}>
-        <Box sx={{ padding: 1, color: colors.gray50, fontSize: 1, fontWeight: 'medium' }}>
-          {t('Clinic Sites')}
+        <Box sx={{ padding: 1, color: vizColors.gray50, lineHeight: 1 }}>
+          <Box sx={{ fontSize: 1, fontWeight: 'medium' }}>{t('Clinic Sites')}</Box>
+          <Box sx={{ fontSize: 0 }} mt={1}>{t('Any patient with one or more of the clinic sites you select below will be shown.')}</Box>
         </Box>
 
         {canEditSites && <EditSitesAction onClick={onClickEditSites} />}
