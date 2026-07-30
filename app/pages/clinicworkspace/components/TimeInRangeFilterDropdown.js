@@ -104,13 +104,9 @@ const DropdownContent = ({
 
   return (
     <Box data-testid="time-in-range-filter-dropdown" mt={5} mx={2}>
-      <Box mb={3} sx={{ fontSize: 1, fontWeight: 'medium' }}>
-        <Box mr={2} sx={{ color: vizColors.gray50, fontWeight: 'medium', fontSize: 1, whiteSpace: 'nowrap' }}>
-          {t('% Time in Range')}
-        </Box>
-        <Box mt={2} sx={{ color: vizColors.gray30, fontWeight: 'normal', fontSize: 0, lineHeight: 1 }}>
-          <Text>{t('Only patients using the standard target range will be included.')}</Text>
-        </Box>
+      <Box sx={{ padding: 1, color: vizColors.gray50, lineHeight: 1 }} mb={2}>
+        <Box sx={{ fontWeight: 'medium', fontSize: 1 }}>{t('% Time in Range')}</Box>
+        <Box mt={1} sx={{ fontSize: 0 }}>{t('Only patients using the standard target range will be included.')}</Box>
       </Box>
 
       <Box sx={{ border: `1px solid ${vizColors.gray10}`, borderRadius: 6, padding: 3 }}>
