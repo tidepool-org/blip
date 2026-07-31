@@ -126,6 +126,8 @@ const Chip = withTranslation()(({ t, label, onRemove }) => (
         fontWeight: 'medium',
       },
       '.remove-filter-icon': {
+        fontSize: '14px',
+        padding: '2px',
         color: vizColors.blue80,
         minWidth: 0,
         width: 0,
@@ -135,9 +137,7 @@ const Chip = withTranslation()(({ t, label, onRemove }) => (
         transition: transitions.easeOut,
       },
       '&:hover .remove-filter-icon': {
-        width: '14px',
-        ml: 1,
-        mr: 1,
+        width: '22px',
         opacity: 1,
       },
     }}
@@ -149,7 +149,6 @@ const Chip = withTranslation()(({ t, label, onRemove }) => (
       icon={CloseRoundedIcon}
       label={t('Remove {{ label }} filter', { label })}
       onClick={onRemove}
-      sx={{ fontSize: '14px', color: vizColors.indigo50, flexShrink: 0 }}
     />
   </Flex>
 ));
@@ -232,7 +231,7 @@ const ActiveFiltersTray = ({
           chips={tagChips}
           onRemove={handleRemoveChip}
           prefix={<Flex sx={{ alignItems: 'center' }}>
-            <Icon variant="static" iconSrc={TagIcon} sx={{ fontSize: 1, mr: 1 }} />
+            <Icon tabIndex='-1' variant="static" iconSrc={TagIcon} sx={{ fontSize: 1, mr: 1 }} />
             <Text sx={{ fontSize: 0 }}>{t('tagged')}</Text>
           </Flex>}
         />
@@ -241,7 +240,7 @@ const ActiveFiltersTray = ({
           chips={siteChips}
           onRemove={handleRemoveChip}
           prefix={<Flex sx={{ alignItems: 'center' }}>
-            <Icon variant="static" icon={LocationOnOutlinedIcon} sx={{ fontSize: 1, mr: 1 }} />
+            <Icon tabIndex='-1' variant="static" icon={LocationOnOutlinedIcon} sx={{ fontSize: 1, mr: 1 }} />
             <Text sx={{ fontSize: 0 }}>{t('visiting')}</Text>
           </Flex>}
         />
