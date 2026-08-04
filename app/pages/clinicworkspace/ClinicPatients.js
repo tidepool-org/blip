@@ -120,6 +120,7 @@ import colorPalette from '../../themes/colorPalette';
 import noop from 'lodash/noop';
 import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils';
 import ClinicPatientsPrintModal from './ClinicPatientsPrintModal';
+import AddPatientDialog from './clinicPatientsDialogs/addPatientDialog';
 
 const { Loader } = vizComponents;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels, formatBgValue } = vizUtils.bg;
@@ -3053,48 +3054,16 @@ export const ClinicPatients = (props) => {
   }, [handleDeleteClinicPatientTagConfirm, handleCloseClinicPatientTagUpdateDialog, selectedPatientTag?.name, showDeleteClinicPatientTagDialog, t]);
 
   const renderAddPatientDialog = useCallback(() => {
+    if (!showAddPatientDialog) return null;
+
     return (
-      <Dialog
-        id="addPatient"
-        aria-labelledby="dialog-title"
-        open={showAddPatientDialog}
+      <AddPatientDialog
+        api={api}
         onClose={handleCloseOverlays}
-      >
-        <DialogTitle onClose={handleCloseOverlays}>
-          <MediumTitle id="dialog-title">{t('Add New Patient Account')}</MediumTitle>
-        </DialogTitle>
-
-        <DialogContent>
-          <PatientForm api={api} trackMetric={trackMetric} onFormChange={handlePatientFormChange} searchDebounceMs={searchDebounceMs} action="create" />
-        </DialogContent>
-
-        <DialogActions>
-          <Button id="addPatientCancel" variant="secondary" onClick={handleCloseOverlays}>
-            {t('Cancel')}
-          </Button>
-          <Button
-            id="addPatientConfirm"
-            variant="primary"
-            onClick={handleAddPatientConfirm}
-            processing={creatingClinicCustodialAccount.inProgress}
-            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema({mrnSettings, existingMRNs}), patientFormContext?.values)}
-          >
-            {t('Add Patient')}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onConfirm={handleAddPatientConfirm}
+      />
     );
-  }, [
-    api,
-    creatingClinicCustodialAccount.inProgress,
-    handleAddPatientConfirm,
-    mrnSettings,
-    existingMRNs,
-    patientFormContext?.values,
-    showAddPatientDialog,
-    t,
-    trackMetric
-  ]);
+  }, [api, showAddPatientDialog, handleCloseOverlays, handleAddPatientConfirm]);
 
   const renderEditPatientDialog = useCallback(() => {
     return (
