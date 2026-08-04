@@ -71,9 +71,13 @@ export const PatientForm = (props) => {
   const dispatch = useDispatch();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
-  const mrnSettings = clinic?.mrnSettings ?? {};
+  const mrnSettings = useMemo(() => clinic?.mrnSettings ?? {}, [clinic?.mrnSettings]);
 
-  const existingMRNs = useSelector(state => state.blip.clinicMRNsForPatientFormValidation)?.filter(mrn => mrn !== patient?.mrn) || [];
+  const clinicMRNsForPatientFormValidation = useSelector(state => state.blip.clinicMRNsForPatientFormValidation);
+  // Patient's pre-existing MRN will already exist in clinic, so it needs to not trip the validator
+  const existingMRNs = useMemo(() => (
+    clinicMRNsForPatientFormValidation?.filter(mrn => mrn !== patient?.mrn) || []
+  ), [clinicMRNsForPatientFormValidation, patient?.mrn]);
 
   const dateInputFormat = 'MM/DD/YYYY';
   const dateMaskFormat = dateInputFormat.replace(/[A-Z]/g, '9');
@@ -98,6 +102,8 @@ export const PatientForm = (props) => {
   const siteSectionRef = useRef(null);
   const diagnosisTypeSectionRef = useRef(null);
   const targetRangePresetSectionRef = useRef(null);
+
+  const schema = useMemo(() => validationSchema({ mrnSettings, existingMRNs }), [mrnSettings, existingMRNs]);
 
   const formikContext = useFormik({
     initialValues: getFormValues(patient, clinicPatientTags, clinicSites),
@@ -144,7 +150,7 @@ export const PatientForm = (props) => {
 
       dispatch(actions.async[actionMap[action][context].handler](api, ...handlerArgs));
     },
-    validationSchema: validationSchema({ mrnSettings, existingMRNs }),
+    validationSchema: schema,
   });
 
   const {
