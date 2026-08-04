@@ -15,13 +15,14 @@ import PatientForm from '../../../components/clinic/PatientForm';
 
 const SEARCH_DEBOUNCE_MS = 1000;
 
-const AddPatientDialog = ({
+const EditPatientDialog = ({
   api,
   onClose = noop,
   onConfirm = noop,
+  patient = {},
 }) => {
   const { t } = useTranslation();
-  const creatingClinicCustodialAccount = useSelector(state => state.blip.working.creatingClinicCustodialAccount);
+  const updatingClinicPatient = useSelector(state => state.blip.working.updatingClinicPatient);
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const existingMRNs = useSelector(state => state.blip.clinicMRNsForPatientFormValidation)?.filter(mrn => mrn !== selectedPatient?.mrn) || [];
@@ -37,13 +38,16 @@ const AddPatientDialog = ({
 
   return (
     <Dialog
-      id="addPatient"
+      id="editPatient"
       aria-labelledby="dialog-title"
       open={true}
       onClose={handleClose}
     >
-      <DialogTitle onClose={handleClose}>
-        <MediumTitle id="dialog-title">{t('Add New Patient Account')}</MediumTitle>
+      <DialogTitle onClose={() => {
+        trackMetric('Clinic - Edit patient close', { clinicId: selectedClinicId });
+        handleClose()
+      }}>
+        <MediumTitle id="dialog-title">{t('Edit Patient Details')}</MediumTitle>
       </DialogTitle>
 
       <DialogContent>
@@ -51,27 +55,32 @@ const AddPatientDialog = ({
           api={api}
           trackMetric={trackMetric}
           onFormChange={handleFormChange}
+          patient={patient}
           searchDebounceMs={SEARCH_DEBOUNCE_MS}
-          action="create"
+          action="edit"
         />
       </DialogContent>
 
       <DialogActions>
-        <Button id="addPatientCancel" variant="secondary" onClick={handleClose}>
+        <Button id="editPatientCancel" variant="secondary" onClick={() => {
+          trackMetric('Clinic - Edit patient cancel', { clinicId: selectedClinicId, source: 'Patients list' });
+          handleClose()
+        }}>
           {t('Cancel')}
         </Button>
+
         <Button
-          id="addPatientConfirm"
+          id="editPatientConfirm"
           variant="primary"
           onClick={handleConfirm}
-          processing={creatingClinicCustodialAccount.inProgress}
+          processing={updatingClinicPatient.inProgress}
           disabled={!fieldsAreValid(keys(formContext?.values), validationSchema({mrnSettings, existingMRNs}), formContext?.values)}
         >
-          {t('Add Patient')}
+          {t('Save Changes')}
         </Button>
       </DialogActions>
     </Dialog>
   );
 }
 
-export default AddPatientDialog;
+export default EditPatientDialog;

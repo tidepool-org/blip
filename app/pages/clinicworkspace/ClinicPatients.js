@@ -121,6 +121,7 @@ import noop from 'lodash/noop';
 import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils';
 import ClinicPatientsPrintModal from './ClinicPatientsPrintModal';
 import AddPatientDialog from './clinicPatientsDialogs/addPatientDialog';
+import EditPatientDialog from './clinicPatientsDialogs/editPatientDialog';
 
 const { Loader } = vizComponents;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels, formatBgValue } = vizUtils.bg;
@@ -3066,66 +3067,17 @@ export const ClinicPatients = (props) => {
   }, [api, showAddPatientDialog, handleCloseOverlays, handleAddPatientConfirm]);
 
   const renderEditPatientDialog = useCallback(() => {
+    if (!showEditPatientDialog || !selectedPatient) return null;
+
     return (
-      <Dialog
-        id="editPatient"
-        aria-labelledby="dialog-title"
-        open={showEditPatientDialog}
+      <EditPatientDialog
+        api={api}
         onClose={handleCloseOverlays}
-      >
-        <DialogTitle onClose={() => {
-          trackMetric('Clinic - Edit patient close', { clinicId: selectedClinicId });
-          handleCloseOverlays()
-        }}>
-          <MediumTitle id="dialog-title">{t('Edit Patient Details')}</MediumTitle>
-        </DialogTitle>
-
-        <DialogContent>
-          <PatientForm
-            api={api}
-            trackMetric={trackMetric}
-            onFormChange={handlePatientFormChange}
-            patient={selectedPatient}
-            searchDebounceMs={searchDebounceMs}
-            action="edit"
-          />
-        </DialogContent>
-
-        <DialogActions>
-          <Button id="editPatientCancel" variant="secondary" onClick={() => {
-            trackMetric('Clinic - Edit patient cancel', { clinicId: selectedClinicId, source: 'Patients list' });
-            handleCloseOverlays()
-          }}>
-            {t('Cancel')}
-          </Button>
-
-          <Button
-            id="editPatientConfirm"
-            variant="primary"
-            onClick={handleEditPatientConfirm}
-            processing={updatingClinicPatient.inProgress}
-            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema({mrnSettings, existingMRNs}), patientFormContext?.values)}
-          >
-            {t('Save Changes')}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onConfirm={handleEditPatientConfirm}
+        patient={selectedPatient}
+      />
     );
-  }, [
-    api,
-    handleEditPatientConfirm,
-    mrnSettings,
-    existingMRNs,
-    handleCloseOverlays,
-    patientFormContext,
-    searchDebounceMs,
-    selectedClinicId,
-    selectedPatient,
-    showEditPatientDialog,
-    t,
-    trackMetric,
-    updatingClinicPatient.inProgress
-  ]);
+  }, [api, handleCloseOverlays, handleEditPatientConfirm, selectedPatient]);
 
   const renderTideDashboardConfigDialog = useCallback(() => {
     return (
