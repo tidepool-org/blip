@@ -71,7 +71,6 @@ import { TagList } from '../../components/elements/Tag';
 import Pagination from '../../components/elements/Pagination';
 import TextInput from '../../components/elements/TextInput';
 import BgSummaryCell from '../../components/clinic/BgSummaryCell';
-import PatientForm from '../../components/clinic/PatientForm';
 import PatientLastReviewed from '../../components/clinic/PatientLastReviewed';
 import TideDashboardConfigForm, { validateTideConfig } from '../../components/clinic/TideDashboardConfigForm';
 import RpmReportConfigForm, { exportRpmReport } from '../../components/clinic/RpmReportConfigForm';
@@ -101,7 +100,6 @@ import { useIsFirstRender, useLocalStorage, usePrevious, useScrollToTop } from '
 import { fieldsAreValid, getCommonFormikFieldProps } from '../../core/forms';
 
 import {
-  patientSchema as validationSchema,
   clinicSiteSchema,
   clinicPatientTagSchema,
   lastDataFilterOptions,
@@ -715,7 +713,6 @@ export const ClinicPatients = (props) => {
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const pdf = useSelector((state) => state.blip.pdf);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
-  const mrnSettings = useMemo(() => clinic?.mrnSettings ?? {}, [clinic?.mrnSettings]);
   const timePrefs = useSelector((state) => state.blip.timePrefs);
   const rpmReportPatients = useSelector(state => state.blip.rpmReportPatients);
   const isClinicAdmin = includes(get(clinic, ['clinicians', loggedInUserId, 'roles'], []), 'CLINIC_ADMIN');
@@ -759,8 +756,6 @@ export const ClinicPatients = (props) => {
   const showTideDashboardUI = showSummaryData && (showTideDashboard || clinic?.entitlements?.tideDashboard);
   const ldClient = useLDClient();
   const ldContext = ldClient.getContext();
-
-  const existingMRNs = useSelector(state => state.blip.clinicMRNsForPatientFormValidation)?.filter(mrn => mrn !== selectedPatient?.mrn) || [];
 
   const defaultPatientFetchOptions = useMemo(
     () => {
@@ -3046,7 +3041,7 @@ export const ClinicPatients = (props) => {
     return (
       <EditPatientDialog api={api} patient={selectedPatient} onClose={handleCloseOverlays} />
     );
-  }, [api, selectedPatient, handleCloseOverlays]);
+  }, [api, showEditPatientDialog, selectedPatient, handleCloseOverlays]);
 
   const renderTideDashboardConfigDialog = useCallback(() => {
     return (
