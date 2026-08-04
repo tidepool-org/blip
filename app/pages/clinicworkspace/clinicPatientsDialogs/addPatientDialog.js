@@ -18,14 +18,16 @@ const SEARCH_DEBOUNCE_MS = 1000;
 const AddPatientDialog = ({
   api,
   onClose = noop,
-  onConfirm = noop,
 }) => {
   const { t } = useTranslation();
   const creatingClinicCustodialAccount = useSelector(state => state.blip.working.creatingClinicCustodialAccount);
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
+
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
-  const existingMRNs = useSelector(state => state.blip.clinicMRNsForPatientFormValidation)?.filter(mrn => mrn !== selectedPatient?.mrn) || [];
   const mrnSettings = clinic?.mrnSettings ?? {};
+
+  const clinicMRNsForPatientFormValidation = useSelector(state => state.blip.clinicMRNsForPatientFormValidation);
+  const existingMRNs = clinicMRNsForPatientFormValidation || [];
 
   const [formContext, setFormContext] = useState(null);
 
@@ -33,7 +35,10 @@ const AddPatientDialog = ({
 
   const handleClose = () => onClose();
 
-  const handleConfirm = () => onConfirm();
+  const handleConfirm = () => {
+    trackMetric('Clinic - Add patient confirmed', { clinicId: selectedClinicId });
+    formContext?.handleSubmit();
+  };
 
   return (
     <Dialog

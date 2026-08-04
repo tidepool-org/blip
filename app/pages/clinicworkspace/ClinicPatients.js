@@ -738,7 +738,6 @@ export const ClinicPatients = (props) => {
   const [selectedClinicSite, setSelectedClinicSite] = useState(null);
   const [selectedPatientTag, setSelectedPatientTag] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [patientFormContext, setPatientFormContext] = useState();
   const [rpmReportFormContext, setRpmReportFormContext] = useState();
   const [tideDashboardFormContext, setTideDashboardFormContext] = useState();
   const [clinicSiteFormContext, setClinicSiteFormContext] = useState();
@@ -954,7 +953,6 @@ export const ClinicPatients = (props) => {
     }
 
     setTimeout(() => {
-      setPatientFormContext(null);
       setSelectedPatient(null);
     });
   }, [
@@ -1401,22 +1399,6 @@ export const ClinicPatients = (props) => {
     setShowAddPatientDialog(true);
   }
 
-  const handleAddPatientConfirm = useCallback(() => {
-    trackMetric('Clinic - Add patient confirmed', { clinicId: selectedClinicId });
-    patientFormContext?.handleSubmit();
-  }, [patientFormContext, selectedClinicId, trackMetric]);
-
-  const handleEditPatientConfirm = useCallback(() => {
-    trackMetric('Clinic - Edit patient confirmed', { clinicId: selectedClinicId });
-    const updatedTags = [...(patientFormContext?.values?.tags || [])];
-    const existingTags = [...(selectedPatient?.tags || [])];
-
-    if (!isEqual(updatedTags.sort(), existingTags.sort())) {
-      trackMetric(prefixPopHealthMetric('Edit patient tags confirm'), { clinicId: selectedClinicId });
-    }
-    patientFormContext?.handleSubmit();
-  }, [patientFormContext, selectedClinicId, trackMetric, selectedPatient?.tags, prefixPopHealthMetric]);
-
   function handleConfigureTideDashboard() {
     if (validateTideConfig(tideDashboardConfig[localConfigKey], patientTags)) {
       trackMetric('Clinic - Navigate to Tide Dashboard', { clinicId: selectedClinicId, source: 'Patients list' });
@@ -1505,10 +1487,6 @@ export const ClinicPatients = (props) => {
     trackMetric(prefixPopHealthMetric('Send upload reminder confirmed'), { clinicId: selectedClinicId });
     dispatch(actions.async.sendPatientUploadReminder(api, selectedClinicId, selectedPatient?.id));
   }, [api, dispatch, prefixPopHealthMetric, selectedClinicId, selectedPatient?.id, trackMetric]);
-
-  function handlePatientFormChange(formikContext) {
-    setPatientFormContext({ ...formikContext });
-  }
 
   function handleTideDashboardConfigFormChange(formikContext) {
     setTideDashboardFormContext({ ...formikContext });
@@ -3058,26 +3036,17 @@ export const ClinicPatients = (props) => {
     if (!showAddPatientDialog) return null;
 
     return (
-      <AddPatientDialog
-        api={api}
-        onClose={handleCloseOverlays}
-        onConfirm={handleAddPatientConfirm}
-      />
+      <AddPatientDialog api={api} onClose={handleCloseOverlays} />
     );
-  }, [api, showAddPatientDialog, handleCloseOverlays, handleAddPatientConfirm]);
+  }, [api, showAddPatientDialog, handleCloseOverlays]);
 
   const renderEditPatientDialog = useCallback(() => {
     if (!showEditPatientDialog || !selectedPatient) return null;
 
     return (
-      <EditPatientDialog
-        api={api}
-        onClose={handleCloseOverlays}
-        onConfirm={handleEditPatientConfirm}
-        patient={selectedPatient}
-      />
+      <EditPatientDialog api={api} patient={selectedPatient} onClose={handleCloseOverlays} />
     );
-  }, [api, handleCloseOverlays, handleEditPatientConfirm, selectedPatient]);
+  }, [api, selectedPatient, handleCloseOverlays]);
 
   const renderTideDashboardConfigDialog = useCallback(() => {
     return (

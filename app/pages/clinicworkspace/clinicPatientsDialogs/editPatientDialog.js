@@ -5,6 +5,7 @@ import { trackMetric } from '../../../core/metricUtils';
 
 import keys from 'lodash/keys';
 import noop from 'lodash/noop';
+import isEqual from 'lodash/isEqual';
 import { fieldsAreValid } from '../../../core/forms';
 import { patientSchema as validationSchema } from '../../../core/clinicUtils';
 
@@ -17,16 +18,19 @@ const SEARCH_DEBOUNCE_MS = 1000;
 
 const EditPatientDialog = ({
   api,
+  patient,
   onClose = noop,
-  onConfirm = noop,
-  patient = {},
 }) => {
   const { t } = useTranslation();
   const updatingClinicPatient = useSelector(state => state.blip.working.updatingClinicPatient);
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
+
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
-  const existingMRNs = useSelector(state => state.blip.clinicMRNsForPatientFormValidation)?.filter(mrn => mrn !== selectedPatient?.mrn) || [];
   const mrnSettings = clinic?.mrnSettings ?? {};
+
+  const clinicMRNsForPatientFormValidation = useSelector(state => state.blip.clinicMRNsForPatientFormValidation);
+  // Patient's pre-existing MRN will already exist in clinic, so it needs to not trip the validator
+  const existingMRNs = clinicMRNsForPatientFormValidation?.filter(mrn => mrn !== patient?.mrn) || [];
 
   const [formContext, setFormContext] = useState(null);
 
@@ -34,7 +38,17 @@ const EditPatientDialog = ({
 
   const handleClose = () => onClose();
 
-  const handleConfirm = () => onConfirm();
+  const handleConfirm = () => {
+    trackMetric('Clinic - Edit patient confirmed', { clinicId: selectedClinicId });
+    const updatedTags = [...(formContext?.values?.tags || [])];
+    const existingTags = [...(patient?.tags || [])];
+
+    if (!isEqual(updatedTags.sort(), existingTags.sort())) {
+      trackMetric('Clinic - Population Health - Edit patient tags confirm', { clinicId: selectedClinicId });
+    }
+
+    formContext?.handleSubmit();
+  };
 
   return (
     <Dialog
