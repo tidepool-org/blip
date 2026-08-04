@@ -120,8 +120,8 @@ import colorPalette from '../../themes/colorPalette';
 import noop from 'lodash/noop';
 import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils';
 import ClinicPatientsPrintModal from './ClinicPatientsPrintModal';
-import AddPatientDialog from './clinicPatientsDialogs/addPatientDialog';
-import EditPatientDialog from './clinicPatientsDialogs/editPatientDialog';
+import AddPatientDialog from './clinicPatientsDialogs/AddPatientDialog';
+import EditPatientDialog from './clinicPatientsDialogs/EditPatientDialog';
 
 const { Loader } = vizComponents;
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels, formatBgValue } = vizUtils.bg;
