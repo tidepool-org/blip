@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { trackMetric } from '../../../core/metricUtils';
@@ -26,11 +26,14 @@ const EditPatientDialog = ({
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
 
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
-  const mrnSettings = clinic?.mrnSettings ?? {};
+  const mrnSettings = useMemo(() => clinic?.mrnSettings ?? {}, [clinic?.mrnSettings]);
 
   const clinicMRNsForPatientFormValidation = useSelector(state => state.blip.clinicMRNsForPatientFormValidation);
   // Patient's pre-existing MRN will already exist in clinic, so it needs to not trip the validator
-  const existingMRNs = clinicMRNsForPatientFormValidation?.filter(mrn => mrn !== patient?.mrn) || [];
+  const existingMRNs = useMemo(() => (
+    clinicMRNsForPatientFormValidation?.filter(mrn => mrn !== patient?.mrn) || []
+  ), [clinicMRNsForPatientFormValidation, patient?.mrn]);
+  const schema = useMemo(() => validationSchema({ mrnSettings, existingMRNs }), [mrnSettings, existingMRNs]);
 
   const [formContext, setFormContext] = useState(null);
 
@@ -88,7 +91,7 @@ const EditPatientDialog = ({
           variant="primary"
           onClick={handleConfirm}
           processing={updatingClinicPatient.inProgress}
-          disabled={!fieldsAreValid(keys(formContext?.values), validationSchema({mrnSettings, existingMRNs}), formContext?.values)}
+          disabled={!fieldsAreValid(keys(formContext?.values), schema, formContext?.values)}
         >
           {t('Save Changes')}
         </Button>

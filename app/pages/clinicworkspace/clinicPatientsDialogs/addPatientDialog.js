@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { trackMetric } from '../../../core/metricUtils';
@@ -24,10 +24,11 @@ const AddPatientDialog = ({
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
 
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
-  const mrnSettings = clinic?.mrnSettings ?? {};
+  const mrnSettings = useMemo(() => clinic?.mrnSettings ?? {}, [clinic?.mrnSettings]);
 
   const clinicMRNsForPatientFormValidation = useSelector(state => state.blip.clinicMRNsForPatientFormValidation);
-  const existingMRNs = clinicMRNsForPatientFormValidation || [];
+  const existingMRNs = useMemo(() => clinicMRNsForPatientFormValidation || [], [clinicMRNsForPatientFormValidation]);
+  const schema = useMemo(() => validationSchema({ mrnSettings, existingMRNs }), [mrnSettings, existingMRNs]);
 
   const [formContext, setFormContext] = useState(null);
 
@@ -70,7 +71,7 @@ const AddPatientDialog = ({
           variant="primary"
           onClick={handleConfirm}
           processing={creatingClinicCustodialAccount.inProgress}
-          disabled={!fieldsAreValid(keys(formContext?.values), validationSchema({mrnSettings, existingMRNs}), formContext?.values)}
+          disabled={!fieldsAreValid(keys(formContext?.values), schema, formContext?.values)}
         >
           {t('Add Patient')}
         </Button>
