@@ -132,20 +132,23 @@ const Chip = withTranslation()(({ t, label, onRemove }) => (
         minWidth: 0,
         width: 0,
         mr: 1,
-        opacity: 0,
         overflow: 'hidden',
         transition: transitions.easeOut,
       },
       '&:hover .remove-filter-icon': {
         width: '22px',
-        opacity: 1,
+      },
+      '.remove-filter-icon:focus-visible': {
+        width: '22px',
+      },
+      '.remove-filter-icon:focus:not(:focus-visible)': {
+        boxShadow: 'none',
       },
     }}
   >
     <Text sx={{ textDecoration: 'underline', whiteSpace: 'nowrap' }}>{label}</Text>
     <Icon
       className="remove-filter-icon"
-      variant="static"
       icon={CloseRoundedIcon}
       label={t('Remove {{ label }} filter', { label })}
       onClick={onRemove}
