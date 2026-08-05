@@ -4200,6 +4200,7 @@ export const ClinicPatients = (props) => {
     defaultPatientFetchOptions.sort,
     emptyContentNode,
     handleClearSearch,
+    handleClickPatient,
     handlePageChange,
     handleResetFilters,
     handleSortChange,
