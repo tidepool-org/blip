@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { trackMetric } from '../../../core/metricUtils';
@@ -190,6 +191,16 @@ const DataRecencyFilterDropdown = ({
       </Popover>
     </>
   );
+};
+
+DataRecencyFilterDropdown.propTypes = {
+  onChange: PropTypes.func,
+  lastData: PropTypes.number,
+  lastDataType: PropTypes.oneOf(['bgm', 'cgm']),
+  filterOptions: PropTypes.arrayOf(PropTypes.shape({
+    value: PropTypes.number.isRequired,
+    label: PropTypes.string.isRequired,
+  })),
 };
 
 export default DataRecencyFilterDropdown;
