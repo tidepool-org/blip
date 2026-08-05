@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { trackMetric } from '../../../core/metricUtils';
@@ -151,6 +152,11 @@ const CGMUseFilterDropdown = ({
       </Popover>
     </>
   );
+};
+
+CGMUseFilterDropdown.propTypes = {
+  onChange: PropTypes.func,
+  timeCGMUsePercent: PropTypes.oneOf(['<0.7', '>=0.7']),
 };
 
 export default CGMUseFilterDropdown;
