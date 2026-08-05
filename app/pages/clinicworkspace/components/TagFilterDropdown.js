@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import PropTypes from 'prop-types';
 import { useSelector, useDispatch } from 'react-redux';
 import { Trans, useTranslation } from 'react-i18next';
 
@@ -315,6 +316,12 @@ const TagFilterDropdown = ({
       </TagFilterPopover>
     </>
   );
+};
+
+TagFilterDropdown.propTypes = {
+  onChange: PropTypes.func,
+  patientTags: PropTypes.arrayOf(PropTypes.string),
+  onClickEditTags: PropTypes.func,
 };
 
 export default TagFilterDropdown;
