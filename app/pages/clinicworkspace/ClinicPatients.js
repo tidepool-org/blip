@@ -888,22 +888,20 @@ export const ClinicPatients = (props) => {
     });
   }, searchDebounceMs), [patientFetchOptions, searchDebounceMs]);
 
-  const {
-    fetchingPatientFromClinic,
-    fetchingPatientsForClinic,
-    deletingPatientFromClinic,
-    updatingClinicPatient,
-    creatingClinicCustodialAccount,
-    sendingPatientUploadReminder,
-    creatingClinicSite,
-    updatingClinicSite,
-    creatingClinicPatientTag,
-    updatingClinicPatientTag,
-    deletingClinicSite,
-    deletingClinicPatientTag,
-    fetchingTideDashboardPatients,
-    fetchingRpmReportPatients,
-  } = useSelector((state) => state.blip.working);
+  const fetchingPatientFromClinic = useSelector((state) => state.blip.working.fetchingPatientFromClinic);
+  const fetchingPatientsForClinic = useSelector((state) => state.blip.working.fetchingPatientsForClinic);
+  const deletingPatientFromClinic = useSelector((state) => state.blip.working.deletingPatientFromClinic);
+  const updatingClinicPatient = useSelector((state) => state.blip.working.updatingClinicPatient);
+  const creatingClinicCustodialAccount = useSelector((state) => state.blip.working.creatingClinicCustodialAccount);
+  const sendingPatientUploadReminder = useSelector((state) => state.blip.working.sendingPatientUploadReminder);
+  const creatingClinicSite = useSelector((state) => state.blip.working.creatingClinicSite);
+  const updatingClinicSite = useSelector((state) => state.blip.working.updatingClinicSite);
+  const creatingClinicPatientTag = useSelector((state) => state.blip.working.creatingClinicPatientTag);
+  const updatingClinicPatientTag = useSelector((state) => state.blip.working.updatingClinicPatientTag);
+  const deletingClinicSite = useSelector((state) => state.blip.working.deletingClinicSite);
+  const deletingClinicPatientTag = useSelector((state) => state.blip.working.deletingClinicPatientTag);
+  const fetchingTideDashboardPatients = useSelector((state) => state.blip.working.fetchingTideDashboardPatients);
+  const fetchingRpmReportPatients = useSelector((state) => state.blip.working.fetchingRpmReportPatients);
 
   const { patientListSearchTextInput, isPatientListVisible } = useSelector(({ blip }) => blip.patientListFilters);
 
@@ -1543,11 +1541,11 @@ export const ClinicPatients = (props) => {
     setActiveSort,
   ]);
 
-  function handleClearSearch() {
+  const handleClearSearch = useCallback(() => {
     dispatch(actions.sync.setPatientListSearchTextInput(''));
     setLoading(true);
     debounceSearch('');
-  }
+  }, [debounceSearch, dispatch]);
 
   const handlePageChange = useCallback((event, page) => {
     setPatientFetchOptions({
@@ -1556,11 +1554,11 @@ export const ClinicPatients = (props) => {
     });
   }, [patientFetchOptions]);
 
-  function handleResetFilters() {
+  const handleResetFilters = useCallback(() => {
     trackMetric(prefixPopHealthMetric('Clear all filters'), { clinicId: selectedClinicId });
     setActiveFilters(defaultFilterState);
     setPendingFilters(defaultFilterState);
-  }
+  }, [prefixPopHealthMetric, selectedClinicId, setActiveFilters, trackMetric]);
 
   const handleFilterTimeInRange = useCallback(() => {
     trackMetric(prefixPopHealthMetric('Time in range apply filter'), {
@@ -4126,12 +4124,25 @@ export const ClinicPatients = (props) => {
     },
   }), [data?.length, showSummaryData]);
 
+  const patientListQueryState = useMemo(
+    () => getPatientListQueryState(activeFilters, patientListSearchTextInput),
+    [activeFilters, patientListSearchTextInput]
+  );
+
+  const emptyContentNode = useMemo(() => (
+    <EmptyContentNode patientListQueryState={patientListQueryState}>
+      <ClearFilterButtons
+        patientListQueryState={patientListQueryState}
+        onClearSearch={handleClearSearch}
+        onResetFilters={handleResetFilters}
+      />
+    </EmptyContentNode>
+  ), [patientListQueryState, handleClearSearch, handleResetFilters]);
+
   const renderPeopleTable = useCallback(() => {
     const pageCount = Math.ceil(clinic?.fetchedPatientCount / patientFetchOptions.limit);
     const page = Math.ceil(patientFetchOptions.offset / patientFetchOptions.limit) + 1;
     const sort = patientFetchOptions.sort || defaultPatientFetchOptions.sort;
-
-    const patientListQueryState = getPatientListQueryState(activeFilters, patientListSearchTextInput);
 
     // Show the Filter Reset Bar only if data exists and any filters/search are applied
     const showFilterResetBar = (data?.length > 0) && patientListQueryState !== PATIENT_LIST_QUERY_STATE.NONE;
@@ -4164,15 +4175,7 @@ export const ClinicPatients = (props) => {
           order={sort?.substring(0, 1) === '+' ? 'asc' : 'desc'}
           orderBy={sort?.substring(1)}
           onClickRow={handleClickPatient}
-          emptyContentNode={
-            <EmptyContentNode patientListQueryState={patientListQueryState}>
-              <ClearFilterButtons
-                patientListQueryState={patientListQueryState}
-                onClearSearch={handleClearSearch}
-                onResetFilters={handleResetFilters}
-              />
-            </EmptyContentNode>
-          }
+          emptyContentNode={emptyContentNode}
         />
 
         {pageCount > 1 && (
@@ -4195,10 +4198,14 @@ export const ClinicPatients = (props) => {
     columns,
     data,
     defaultPatientFetchOptions.sort,
+    emptyContentNode,
+    handleClearSearch,
     handlePageChange,
+    handleResetFilters,
     handleSortChange,
     loading,
     patientFetchOptions,
+    patientListQueryState,
     showSummaryData,
     tableStyle,
   ]);
