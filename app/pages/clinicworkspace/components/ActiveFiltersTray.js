@@ -21,17 +21,17 @@ const usePrimaryChips = (activeFilters) => {
   const { t } = useTranslation();
   const { lastData, lastDataType, timeCGMUsePercent, timeInRange = [] } = activeFilters;
 
-  const getLastDataChipChipLabel = (lastDataType, lastData, t) => ({
+  const getLastDataChipLabel = (lastDataType, lastData) => ({
     bgm: t('BGM data within {{ count }} days', { count: lastData }),
     cgm: t('CGM data within {{ count }} days', { count: lastData }),
   }[lastDataType]);
 
-  const getTimeCGMUsePercentChipLabel = (timeCGMUsePercent, t) => ({
+  const getTimeCGMUsePercentChipLabel = (timeCGMUsePercent) => ({
     '<0.7': t('< 70% CGM use'),
     '>=0.7': t('≥ 70% CGM use'),
   }[timeCGMUsePercent]);
 
-  const getTimeInRangeChipLabel = (rangeKey, t) => ({
+  const getTimeInRangeChipLabel = (rangeKey) => ({
     timeInExtremeHighPercent: t('%TIR = Highest'),
     timeInVeryHighPercent: t('%TIR = Very High'),
     timeInAnyHighPercent: t('%TIR = High'),
@@ -45,21 +45,21 @@ const usePrimaryChips = (activeFilters) => {
     (lastData && lastDataType && {
       type: 'lastData',
       value: `${lastDataType}-${lastData}`,
-      label: getLastDataChipChipLabel(lastDataType, lastData, t),
+      label: getLastDataChipLabel(lastDataType, lastData),
     }),
 
     // CGM Wear Time Filter
     (timeCGMUsePercent && {
       type: 'timeCGMUsePercent',
       value: timeCGMUsePercent,
-      label: getTimeCGMUsePercentChipLabel(timeCGMUsePercent, t),
+      label: getTimeCGMUsePercentChipLabel(timeCGMUsePercent),
     }),
 
     // Time In Range Filters
     ...timeInRange.map(rangeKey => ({
       type: 'timeInRange',
       value: rangeKey,
-      label: getTimeInRangeChipLabel(rangeKey, t),
+      label: getTimeInRangeChipLabel(rangeKey),
     })),
   ].filter(Boolean);
 };
@@ -110,51 +110,58 @@ const useSiteChips = (clinicSites = []) => {
     .toSorted((a, b) => utils.compareLabels(a.label, b.label));
 };
 
-const Chip = withTranslation()(({ t, label, onRemove }) => (
-  <Flex
-    as="span"
-    className="applied-filter-label"
-    sx={{
-      alignItems: 'center',
-      color: vizColors.blue60,
-      fontSize: 0,
-      fontWeight: 'normal',
-      cursor: 'default',
-      ml: 1,
-      '&:hover': {
-        color: vizColors.blue80,
-        fontWeight: 'medium',
-      },
-      '.remove-filter-icon': {
-        fontSize: '14px',
-        padding: '2px',
-        color: vizColors.blue80,
-        minWidth: 0,
-        width: 0,
-        mr: 1,
-        overflow: 'hidden',
-        transition: transitions.easeOut,
-      },
-      '&:hover .remove-filter-icon': {
-        width: '22px',
-      },
-      '.remove-filter-icon:focus-visible': {
-        width: '22px',
-      },
-      '.remove-filter-icon:focus:not(:focus-visible)': {
-        boxShadow: 'none',
-      },
-    }}
-  >
-    <Text sx={{ textDecoration: 'underline', whiteSpace: 'nowrap' }}>{label}</Text>
-    <Icon
-      className="remove-filter-icon"
-      icon={CloseRoundedIcon}
-      label={t('Remove {{ label }} filter', { label })}
-      onClick={onRemove}
-    />
-  </Flex>
-));
+const Chip = ({ label, onRemove }) => {
+  const { t } = useTranslation();
+
+  return (
+    <Flex
+      as="span"
+      className="applied-filter-label"
+      sx={{
+        alignItems: 'center',
+        color: vizColors.blue60,
+        fontSize: 0,
+        fontWeight: 'normal',
+        cursor: 'default',
+        ml: 1,
+        '&:hover': {
+          color: vizColors.blue80,
+          fontWeight: 'medium',
+        },
+        '.remove-filter-icon': {
+          fontSize: '14px',
+          padding: '2px',
+          color: vizColors.blue80,
+          minWidth: 0,
+          width: 0,
+          mr: 1,
+          overflow: 'hidden',
+          transition: transitions.easeOut,
+        },
+        '&:hover .remove-filter-icon': {
+          width: '22px',
+        },
+        '.remove-filter-icon:focus-visible': {
+          width: '22px',
+        },
+        '.remove-filter-icon:focus:not(:focus-visible)': {
+          boxShadow: 'none',
+        },
+      }}
+    >
+      <Text sx={{ textDecoration: 'underline', whiteSpace: 'nowrap' }}>
+        {label}
+      </Text>
+
+      <Icon
+        className="remove-filter-icon"
+        icon={CloseRoundedIcon}
+        label={t('Remove {{ label }} filter', { label })}
+        onClick={onRemove}
+      />
+    </Flex>
+  );
+};
 
 const ChipGroup = ({ prefix, chips, onRemove }) => {
   if (!chips?.length) return null;
