@@ -47,7 +47,7 @@ const EditTagsAction = ({ onClick = noop }) => {
       variant="button"
       icon={AddCircleOutlineIcon}
       label={t('Edit Tags')}
-      sx={{ fontSize: 3, color: vizColors.indigo30 }}
+      sx={{ fontSize: 3, color: vizColors.indigo30, justifyContent: 'center' }}
       onClick={onClick}
     />
   );
