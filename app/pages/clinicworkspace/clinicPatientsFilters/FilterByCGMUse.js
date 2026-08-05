@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import noop from 'lodash/noop';
 
 import CGMUseFilterDropdown from '../components/CGMUseFilterDropdown';
@@ -19,6 +20,13 @@ const FilterByCGMUse = ({
       timeCGMUsePercent={timeCGMUsePercent}
     />
   );
+};
+
+FilterByCGMUse.propTypes = {
+  activeFilters: PropTypes.shape({
+    timeCGMUsePercent: PropTypes.string,
+  }),
+  setActiveFilters: PropTypes.func,
 };
 
 export default FilterByCGMUse;
