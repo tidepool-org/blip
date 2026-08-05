@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useTranslation, withTranslation } from 'react-i18next';
 import { Flex, Text, Box } from 'theme-ui';
@@ -263,6 +264,20 @@ const ActiveFiltersTray = ({
       )}
     </Flex>
   );
+};
+
+ActiveFiltersTray.propTypes = {
+  filters: PropTypes.shape({
+    lastData: PropTypes.number,
+    lastDataType: PropTypes.oneOf(['bgm', 'cgm']),
+    timeCGMUsePercent: PropTypes.oneOf(['<0.7', '>=0.7']),
+    timeInRange: PropTypes.arrayOf(PropTypes.string),
+    patientTags: PropTypes.arrayOf(PropTypes.string),
+    clinicSites: PropTypes.arrayOf(PropTypes.string),
+  }),
+  hasSearchActive: PropTypes.bool,
+  onRemoveFilter: PropTypes.func,
+  rightContent: PropTypes.node,
 };
 
 export default ActiveFiltersTray;
