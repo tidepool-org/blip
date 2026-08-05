@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import PropTypes from 'prop-types';
 import { useSelector, useDispatch } from 'react-redux';
 import { Trans, useTranslation } from 'react-i18next';
 
@@ -46,7 +47,7 @@ const EditTagsAction = ({ onClick = noop }) => {
       variant="button"
       icon={AddCircleOutlineIcon}
       label={t('Edit Tags')}
-      sx={{ fontSize: 3, color: vizColors.indigo30 }}
+      sx={{ fontSize: 3, color: vizColors.indigo30, justifyContent: 'center' }}
       onClick={onClick}
     />
   );
@@ -315,6 +316,12 @@ const TagFilterDropdown = ({
       </TagFilterPopover>
     </>
   );
+};
+
+TagFilterDropdown.propTypes = {
+  onChange: PropTypes.func,
+  patientTags: PropTypes.arrayOf(PropTypes.string),
+  onClickEditTags: PropTypes.func,
 };
 
 export default TagFilterDropdown;

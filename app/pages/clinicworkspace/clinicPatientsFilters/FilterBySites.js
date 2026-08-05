@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../../../redux/actions';
 import { trackMetric } from '../../../core/metricUtils';
@@ -40,6 +41,15 @@ const FilterBySites = ({
       clinicSites={clinicSites}
     />
   );
+};
+
+FilterBySites.propTypes = {
+  api: PropTypes.object.isRequired,
+  activeFilters: PropTypes.shape({
+    clinicSites: PropTypes.arrayOf(PropTypes.string),
+  }),
+  setActiveFilters: PropTypes.func,
+  setShowClinicSitesDialog: PropTypes.func,
 };
 
 export default FilterBySites;

@@ -132,7 +132,7 @@ describe('SiteFilterDropdown', () => {
 
       await userEvent.click(screen.getByRole('button', { name: /Clear/ }));
       expect(onChange).toHaveBeenCalledWith([]);
-      expect(mockTrackMetric).toHaveBeenCalledWith('Clinic - Clinic site filter clear', { clinicId: 'clinic123', pageName: 'Population Health' })
+      expect(mockTrackMetric).toHaveBeenCalledWith('Clinic - Clinic sites filter clear', { clinicId: 'clinic123', pageName: 'Population Health' })
       expect(screen.queryByTestId('site-filter-dropdown')).not.toBeInTheDocument();
     });
   });

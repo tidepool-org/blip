@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import PropTypes from 'prop-types';
 import { useSelector, useDispatch } from 'react-redux';
 import { Trans, useTranslation } from 'react-i18next';
 
@@ -46,7 +47,7 @@ const EditSitesAction = ({ onClick = noop }) => {
       variant="button"
       icon={AddCircleOutlineIcon}
       label={t('Edit Sites')}
-      sx={{ fontSize: 3, color: vizColors.indigo30 }}
+      sx={{ fontSize: 3, color: vizColors.indigo30, justifyContent: 'center' }}
       onClick={onClick}
     />
   );
@@ -202,10 +203,10 @@ const DropdownContent = ({
         <Grid sx={{ gridTemplateColumns: '1fr 1fr' }} mt={3} mb={2}>
           <Button
             id="clear-clinic-sites-filter"
-            sx={{ fontSize: 1}}
+            sx={{ fontSize: 1 }}
             variant="secondary"
             onClick={() => {
-              trackMetric('Clinic - Clinic site filter clear', { clinicId: selectedClinicId, pageName });
+              trackMetric('Clinic - Clinic sites filter clear', { clinicId: selectedClinicId, pageName });
               setPendingSites([]);
               handleChange([]);
               onClose();
@@ -312,6 +313,12 @@ const SiteFilterDropdown = ({
       </SiteFilterPopover>
     </>
   );
+};
+
+SiteFilterDropdown.propTypes = {
+  onChange: PropTypes.func,
+  clinicSites: PropTypes.arrayOf(PropTypes.string),
+  onClickEditSites: PropTypes.func,
 };
 
 export default SiteFilterDropdown;
