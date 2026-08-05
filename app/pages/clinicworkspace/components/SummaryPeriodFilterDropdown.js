@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { trackMetric } from '../../../core/metricUtils';
@@ -164,6 +165,11 @@ const SummaryPeriodFilterDropdown = ({
       </Popover>
     </>
   );
+};
+
+SummaryPeriodFilterDropdown.propTypes = {
+  onChange: PropTypes.func,
+  activeSummaryPeriod: PropTypes.oneOf(['1d', '7d', '14d', '30d']).isRequired,
 };
 
 export default SummaryPeriodFilterDropdown;
