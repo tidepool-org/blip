@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { useFlags } from 'launchdarkly-react-client-sdk';
@@ -312,6 +313,11 @@ const TimeInRangeFilterDropdown = ({
       </Popover>
     </>
   );
+};
+
+TimeInRangeFilterDropdown.propTypes = {
+  onChange: PropTypes.func,
+  timeInRange: PropTypes.arrayOf(PropTypes.string),
 };
 
 export default TimeInRangeFilterDropdown;

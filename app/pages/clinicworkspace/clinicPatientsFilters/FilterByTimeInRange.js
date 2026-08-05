@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import noop from 'lodash/noop';
 
 import TimeInRangeFilterDropdown from '../components/TimeInRangeFilterDropdown';
@@ -19,6 +20,13 @@ const FilterByTimeInRange = ({
       timeInRange={timeInRange}
     />
   );
+};
+
+FilterByTimeInRange.propTypes = {
+  activeFilters: PropTypes.shape({
+    timeInRange: PropTypes.arrayOf(PropTypes.string),
+  }),
+  setActiveFilters: PropTypes.func,
 };
 
 export default FilterByTimeInRange;
