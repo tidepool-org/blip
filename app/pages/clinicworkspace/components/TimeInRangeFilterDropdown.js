@@ -20,7 +20,6 @@ import Button from '../../../components/elements/Button';
 import Pill from '../../../components/elements/Pill';
 import Popover from '../../../components/elements/Popover';
 import Checkbox from '../../../components/elements/Checkbox';
-import { DialogContent, DialogActions } from '../../../components/elements/Dialog';
 
 import { colors } from '../../../themes/baseTheme';
 import { MGDL_UNITS } from '../../../core/constants';
