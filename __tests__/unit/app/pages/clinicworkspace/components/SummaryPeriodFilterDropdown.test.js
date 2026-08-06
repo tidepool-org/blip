@@ -12,7 +12,6 @@ const mockStore = configureStore([thunk]);
 
 describe('SummaryPeriodFilterDropdown', () => {
   let store;
-  let wrapper;
 
   const selectedClinicId = 'clinic123';
 

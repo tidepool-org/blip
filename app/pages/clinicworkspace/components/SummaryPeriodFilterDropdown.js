@@ -15,7 +15,6 @@ import { bindPopover, bindTrigger, usePopupState } from 'material-ui-popup-state
 import Button from '../../../components/elements/Button';
 import Popover from '../../../components/elements/Popover';
 import RadioGroup from '../../../components/elements/RadioGroup';
-import { Body0, Body1 } from '../../../components/elements/FontStyles';
 import useClinicMetricsPageName from '../useClinicMetricsPageName';
 
 const getSummaryPeriodSelectLabel = (t, activeSummaryPeriod) => {
