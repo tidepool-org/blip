@@ -5,10 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { trackMetric } from '../../../core/metricUtils';
 import { colors as vizColors } from '@tidepool/viz';
 
-import { Box, Grid, Text } from 'theme-ui';
+import { Box, Grid } from 'theme-ui';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
-
-import find from 'lodash/find';
 import noop from 'lodash/noop';
 
 import { bindPopover, bindTrigger, usePopupState } from 'material-ui-popup-state/hooks';
