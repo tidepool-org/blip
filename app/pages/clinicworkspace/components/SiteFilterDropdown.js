@@ -26,7 +26,7 @@ import Pill from '../../../components/elements/Pill';
 import Popover from '../../../components/elements/Popover';
 import Checkbox from '../../../components/elements/Checkbox';
 
-import { borders, colors } from '../../../themes/baseTheme';
+import { borders } from '../../../themes/baseTheme';
 
 import { SPECIAL_FILTER_STATES } from '../useClinicPatientsFilters';
 import useIsClinicAdmin from '../useIsClinicAdmin';
@@ -55,11 +55,11 @@ const NoClinicSites = () => {
 
   return (
     <Box mx={2} mb={2}>
-      <Box sx={{ fontSize: 1, color: colors.blue50, lineHeight: 1 }}>
+      <Box sx={{ fontSize: 1, color: vizColors.blue50, lineHeight: 1 }}>
         {t('You don\'t have any Clinic Sites listed for your workspace. Add Clinic Sites to organize and filter patients by care location.')}
       </Box>
       { !isClinicAdmin &&
-        <Box mt={3} pt={3} sx={{ borderTop: `1px solid ${colors.gray05}`, fontSize: 0, color: colors.blue50, lineHeight: 1 }}>
+        <Box mt={3} pt={3} sx={{ borderTop: `1px solid ${vizColors.gray05}`, fontSize: 0, color: vizColors.blue50, lineHeight: 1 }}>
           <Trans t={t}>
             Only admins can add new Clinic Sites associated with this workspace. If you don't have admin access, contact a Workspace Admin to add clinic sites.
           </Trans>
