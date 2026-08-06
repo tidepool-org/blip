@@ -6,7 +6,6 @@ import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
 import { MemoryRouter } from 'react-router-dom';
 
-import * as actions from '@app/redux/actions';
 import DataRecencyFilterDropdown from '@app/pages/clinicworkspace/components/DataRecencyFilterDropdown';
 import { trackMetric as mockTrackMetric } from '../../../../../app/core/metricUtils';
 
@@ -14,7 +13,6 @@ const mockStore = configureStore([thunk]);
 
 describe('DataRecencyFilterDropdown', () => {
   let store;
-  let wrapper;
 
   const selectedClinicId = 'clinic123';
 
