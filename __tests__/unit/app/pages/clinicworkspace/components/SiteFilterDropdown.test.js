@@ -6,7 +6,6 @@ import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
 import { MemoryRouter } from 'react-router-dom';
 
-import * as actions from '@app/redux/actions';
 import SiteFilterDropdown from '@app/pages/clinicworkspace/components/SiteFilterDropdown';
 import { trackMetric as mockTrackMetric } from '../../../../../app/core/metricUtils';
 import useIsClinicAdmin from '@app/pages/clinicworkspace/useIsClinicAdmin';
@@ -18,7 +17,6 @@ const mockStore = configureStore([thunk]);
 
 describe('SiteFilterDropdown', () => {
   let store;
-  let wrapper;
 
   const selectedClinicId = 'clinic123';
 
@@ -28,9 +26,6 @@ describe('SiteFilterDropdown', () => {
     { id: 'site3', name: 'East Site' },
     { id: 'site4', name: 'Downtown Clinic' },
   ];
-
-  const setActiveFilters = jest.fn();
-  const setShowClinicPatientTagsDialog = jest.fn();
 
   let onChange = jest.fn();
   let onClickEditSites = jest.fn();

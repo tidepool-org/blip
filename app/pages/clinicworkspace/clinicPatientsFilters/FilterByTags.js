@@ -3,8 +3,6 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../../../redux/actions';
 import { trackMetric } from '../../../core/metricUtils';
-import get from 'lodash/get';
-import includes from 'lodash/includes';
 import noop from 'lodash/noop';
 
 import TagFilterDropdown from '../components/TagFilterDropdown';
