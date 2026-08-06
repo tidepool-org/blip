@@ -728,11 +728,6 @@ export const ClinicPatients = (props) => {
     popupId: 'summaryPeriodFilters',
   });
 
-  const lastDataPopupFilterState = usePopupState({
-    variant: 'popover',
-    popupId: 'lastDataFilters',
-  });
-
   const timeInRangePopupFilterState = usePopupState({
     variant: 'popover',
     popupId: 'timeInRangeFilters',
