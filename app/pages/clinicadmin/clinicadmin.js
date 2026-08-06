@@ -5,7 +5,6 @@ import { useTranslation, Trans } from 'react-i18next';
 import { push } from 'connected-react-router';
 import compact from 'lodash/compact';
 import filter from 'lodash/filter';
-import find from 'lodash/find';
 import get from 'lodash/get'
 import has from 'lodash/has';
 import includes from 'lodash/includes';
@@ -25,7 +24,6 @@ import { useFormik } from 'formik';
 import { useFlags } from 'launchdarkly-react-client-sdk';
 
 import {
-  Title,
   MediumTitle,
   Body1,
 } from '../../components/elements/FontStyles';
@@ -63,6 +61,7 @@ import {
 import config from '../../config';
 import Icon from '../../components/elements/Icon';
 import utils from '../../core/utils';
+import useIsClinicAdmin from '../clinicworkspace/useIsClinicAdmin';
 
 const clinicTypesLabels = mapValues(keyBy(clinicTypes, 'value'), 'label');
 
@@ -93,7 +92,6 @@ export const ClinicAdmin = (props) => {
   const pendingSentClinicianInvites = useSelector((state) => state.blip.pendingSentClinicianInvites);
   const timePrefs = useSelector((state) => state.blip.timePrefs);
   const [clinicianArray, setClinicianArray] = useState([]);
-  const [userRolesInClinic, setUserRolesInClinic] = useState([]);
   const [sortOptions, setSortOptions] = useState({ orderBy: 'fullName', order: 'asc' });
 
   const sortedClinicianArray = useMemo(() => {
@@ -127,7 +125,7 @@ export const ClinicAdmin = (props) => {
     validationSchema,
   });
 
-  const isClinicAdmin = () => includes(userRolesInClinic, 'CLINIC_ADMIN');
+  const isClinicAdmin = useIsClinicAdmin();
   const isOnlyClinicAdmin = () => filter(clinicianArray, { isAdmin: true, inviteId: undefined }).length === 1;
 
   useEffect(() => {
@@ -316,7 +314,6 @@ export const ClinicAdmin = (props) => {
   }, [clinic?.clinicians]);
 
   useEffect(() => {
-    setUserRolesInClinic(get(find(clinicianArray, { userId: loggedInUserId }), 'roles', []));
     setPageCount(Math.ceil(clinicianArray.length / rowsPerPage));
   }, [clinicianArray]);
 
@@ -659,7 +656,7 @@ export const ClinicAdmin = (props) => {
     render: renderRole,
   });
 
-  if (isClinicAdmin()) {
+  if (isClinicAdmin) {
     columns.push({
       title: t('Security'),
       field: 'mfaEnabled',
@@ -670,7 +667,7 @@ export const ClinicAdmin = (props) => {
     });
   }
 
-  if (((isClinicAdmin()))) {
+  if (isClinicAdmin) {
     columns.push(
       {
         title: '',
@@ -724,7 +721,7 @@ export const ClinicAdmin = (props) => {
                     </Text>
                   </Flex>
 
-                  {isClinicAdmin() && (
+                  {isClinicAdmin && (
                     <Button
                       id="clinic-profile-edit-trigger"
                       sx={{ width: ['auto'], flex: 'initial' }}
@@ -845,7 +842,7 @@ export const ClinicAdmin = (props) => {
                   width: ['100%', null, 'auto'],
                 }}
               >
-                {isClinicAdmin() && (
+                {isClinicAdmin && (
                   <Flex sx={{ gap: 3, flex: 1 }}>
                     <Button
                       id="add-clinic-team-member"

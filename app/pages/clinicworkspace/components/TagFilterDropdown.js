@@ -1,17 +1,14 @@
 import React, { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { Box, Flex, Grid, Text } from 'theme-ui';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
-import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import SearchIcon from '@material-ui/icons/Search';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
-import { components as vizComponents, utils as vizUtils, colors as vizColors } from '@tidepool/viz';
-import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
-import { Link as RouterLink } from 'react-router-dom';
+import { colors as vizColors } from '@tidepool/viz';
 import utils from '../../../core/utils';
 import { trackMetric } from '../../../core/metricUtils';
 
@@ -30,7 +27,6 @@ import Popover from '../../../components/elements/Popover';
 import Checkbox from '../../../components/elements/Checkbox';
 
 import { borders, colors } from '../../../themes/baseTheme';
-import { DialogContent, DialogActions } from '../../../components/elements/Dialog';
 
 import { SPECIAL_FILTER_STATES } from '../useClinicPatientsFilters';
 import useIsClinicAdmin from '../useIsClinicAdmin';
