@@ -424,6 +424,34 @@ describe('ClinicPatients', ()  => {
               expect.any(Function),
             );
           }, TEST_TIMEOUT_MS);
+
+          it('maps an applied data recency filter into the getPatientsForClinic query', async () => {
+            render(
+              <MockedProviderWrappers>
+                <ClinicPatients {...defaultProps} />
+              </MockedProviderWrappers>
+            );
+
+            // Open the Data Recency filter dropdown, pick a device type and window, and apply.
+            // Match the trigger via its icon label ("Data Recency" alone also matches the
+            // sortable column header of the same name).
+            await userEvent.click(screen.getByRole('button', { name: /Filter by last upload/ }));
+            await userEvent.click(screen.getByRole('radio', { name: /CGM/ }));
+            await userEvent.click(screen.getByRole('radio', { name: /Within 14 days/ }));
+            await userEvent.click(screen.getByRole('button', { name: /Apply/ }));
+
+            // The from/to date bounds are derived from the current date, so assert their
+            // presence and 14-day span rather than exact ISO timestamps.
+            expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenLastCalledWith(
+              'clinicID123',
+              expect.objectContaining({
+                'cgm.lastDataFrom': expect.any(String),
+                'cgm.lastDataTo': expect.any(String),
+                limit: 50, offset: 0, period: '14d', sortType: 'cgm', sort: '-lastData',
+              }),
+              expect.any(Function),
+            );
+          }, TEST_TIMEOUT_MS);
         });
 
         describe('managing sites', () => {
