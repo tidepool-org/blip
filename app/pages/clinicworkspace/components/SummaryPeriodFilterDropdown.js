@@ -29,13 +29,6 @@ const getSummaryPeriodSelectLabel = (t, activeSummaryPeriod) => {
   return null;
 };
 
-const getSummaryPeriodOptions = (t) => ([
-  { value: '1d', label: t('24 hours') },
-  { value: '7d', label: t('7 days') },
-  { value: '14d', label: t('14 days') },
-  { value: '30d', label: t('30 days') },
-]);
-
 const DropdownContent = ({
   onClose,
   onChange,
@@ -61,7 +54,7 @@ const DropdownContent = ({
           <RadioGroup
             id="summary-period-filters"
             name="summary-period-filters"
-            options={getSummaryPeriodOptions(t)}
+            options={summaryPeriodOptions}
             variant="vertical"
             sx={{ fontSize: 0 }}
             value={pendingSummaryPeriod}
