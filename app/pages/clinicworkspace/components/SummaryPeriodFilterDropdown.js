@@ -162,7 +162,7 @@ const SummaryPeriodFilterDropdown = ({
 
 SummaryPeriodFilterDropdown.propTypes = {
   onChange: PropTypes.func,
-  activeSummaryPeriod: PropTypes.oneOf(['1d', '7d', '14d', '30d']).isRequired,
+  activeSummaryPeriod: PropTypes.oneOf(summaryPeriodOptions.map(opt => opt.value)).isRequired,
 };
 
 export default SummaryPeriodFilterDropdown;
