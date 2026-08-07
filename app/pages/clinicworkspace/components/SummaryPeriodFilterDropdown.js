@@ -16,6 +16,7 @@ import Button from '../../../components/elements/Button';
 import Popover from '../../../components/elements/Popover';
 import RadioGroup from '../../../components/elements/RadioGroup';
 import useClinicMetricsPageName from '../useClinicMetricsPageName';
+import { summaryPeriodOptions } from '../../../core/clinicUtils';
 
 const getSummaryPeriodSelectLabel = (t, activeSummaryPeriod) => {
   switch (activeSummaryPeriod) {
@@ -27,13 +28,6 @@ const getSummaryPeriodSelectLabel = (t, activeSummaryPeriod) => {
 
   return null;
 };
-
-const getSummaryPeriodOptions = (t) => ([
-  { value: '1d', label: t('24 hours') },
-  { value: '7d', label: t('7 days') },
-  { value: '14d', label: t('14 days') },
-  { value: '30d', label: t('30 days') },
-]);
 
 const DropdownContent = ({
   onClose,
@@ -49,7 +43,7 @@ const DropdownContent = ({
   const handleChange = (summaryPeriod) => onChange(summaryPeriod);
 
   return (
-    <Box data-testid='summary-period-filter-dropdown' mt={5} mx={2} sx={{ width: 300 }}>
+    <Box data-testid="summary-period-filter-dropdown" mt={5} mx={2} sx={{ width: 300 }}>
       <Box>
         <Box sx={{ padding: 1, color: vizColors.gray50, lineHeight: 1 }} mb={2}>
           <Box sx={{ fontWeight: 'medium', fontSize: 1 }}>{t('Summarizing Data')}</Box>
@@ -60,7 +54,7 @@ const DropdownContent = ({
           <RadioGroup
             id="summary-period-filters"
             name="summary-period-filters"
-            options={getSummaryPeriodOptions(t)}
+            options={summaryPeriodOptions}
             variant="vertical"
             sx={{ fontSize: 0 }}
             value={pendingSummaryPeriod}
@@ -108,7 +102,7 @@ const DropdownContent = ({
 
 const SummaryPeriodFilterDropdown = ({
   onChange = noop,
-  activeSummaryPeriod = null,
+  activeSummaryPeriod,
 }) => {
   const { t } = useTranslation();
   const pageName = useClinicMetricsPageName();
