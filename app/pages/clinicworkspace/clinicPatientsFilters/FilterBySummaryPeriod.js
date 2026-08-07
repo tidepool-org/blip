@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import noop from 'lodash/noop';
 
 import SummaryPeriodFilterDropdown from '../components/SummaryPeriodFilterDropdown';
+import { summaryPeriodOptions } from '../../../core/clinicUtils';
 
 const FilterBySummaryPeriod = ({
   activeSummaryPeriod,
@@ -21,7 +22,7 @@ const FilterBySummaryPeriod = ({
 };
 
 FilterBySummaryPeriod.propTypes = {
-  activeSummaryPeriod: PropTypes.oneOf(['1d', '7d', '14d', '30d']).isRequired,
+  activeSummaryPeriod: PropTypes.oneOf(summaryPeriodOptions.map(opt => opt.value)).isRequired,
   setActiveSummaryPeriod: PropTypes.func,
 };
 
