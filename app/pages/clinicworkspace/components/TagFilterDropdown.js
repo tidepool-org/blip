@@ -1,16 +1,14 @@
 import React, { useMemo, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { Box, Flex, Grid, Text } from 'theme-ui';
 import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
-import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import SearchIcon from '@material-ui/icons/Search';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
-import { components as vizComponents, utils as vizUtils, colors as vizColors } from '@tidepool/viz';
-import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
-import { Link as RouterLink } from 'react-router-dom';
+import { colors as vizColors } from '@tidepool/viz';
 import utils from '../../../core/utils';
 import { trackMetric } from '../../../core/metricUtils';
 
@@ -28,8 +26,7 @@ import Pill from '../../../components/elements/Pill';
 import Popover from '../../../components/elements/Popover';
 import Checkbox from '../../../components/elements/Checkbox';
 
-import { borders, colors } from '../../../themes/baseTheme';
-import { DialogContent, DialogActions } from '../../../components/elements/Dialog';
+import { borders } from '../../../themes/baseTheme';
 
 import { SPECIAL_FILTER_STATES } from '../useClinicPatientsFilters';
 import useIsClinicAdmin from '../useIsClinicAdmin';
@@ -46,7 +43,7 @@ const EditTagsAction = ({ onClick = noop }) => {
       variant="button"
       icon={AddCircleOutlineIcon}
       label={t('Edit Tags')}
-      sx={{ fontSize: 3, color: vizColors.indigo30 }}
+      sx={{ fontSize: 3, color: vizColors.indigo30, justifyContent: 'center' }}
       onClick={onClick}
     />
   );
@@ -58,14 +55,14 @@ const NoClinicTags = () => {
 
   return (
     <Box mx={2} mb={2}>
-      <Box sx={{ fontSize: 1, color: colors.blue50, lineHeight: 1 }} mb={3}>
+      <Box sx={{ fontSize: 1, color: vizColors.blue50, lineHeight: 1 }} mb={3}>
         {t('You don\'t have any tags yet.')}
       </Box>
-      <Box sx={{ fontSize: 1, color: colors.blue50, lineHeight: 1 }}>
+      <Box sx={{ fontSize: 1, color: vizColors.blue50, lineHeight: 1 }}>
         {t('Tags help you organize and find patients using categories that matter to your clinic, such as clinician, diabetes type, or care group.')}
       </Box>
       { !isClinicAdmin &&
-        <Box mt={3} pt={3} sx={{ borderTop: `1px solid ${colors.gray05}`, fontSize: 0, color: colors.blue50, lineHeight: 1 }}>
+        <Box mt={3} pt={3} sx={{ borderTop: `1px solid ${vizColors.gray05}`, fontSize: 0, color: vizColors.blue50, lineHeight: 1 }}>
           <Trans t={t}>
             Tags can only be created by Workspace Admins. If you don't have admin access, contact a Workspace Admin.
           </Trans>
@@ -315,6 +312,12 @@ const TagFilterDropdown = ({
       </TagFilterPopover>
     </>
   );
+};
+
+TagFilterDropdown.propTypes = {
+  onChange: PropTypes.func,
+  patientTags: PropTypes.arrayOf(PropTypes.string),
+  onClickEditTags: PropTypes.func,
 };
 
 export default TagFilterDropdown;
