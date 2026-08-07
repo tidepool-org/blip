@@ -7,7 +7,6 @@ import { thunk } from 'redux-thunk';
 import { MemoryRouter } from 'react-router-dom';
 
 import FilterBySummaryPeriod from '@app/pages/clinicworkspace/clinicPatientsFilters/FilterBySummaryPeriod';
-import { trackMetric as mockTrackMetric } from '../../../../../app/core/metricUtils';
 
 const mockStore = configureStore([thunk]);
 
@@ -41,7 +40,6 @@ describe('FilterBySummaryPeriod', () => {
     });
 
     setActiveSummaryPeriod.mockClear();
-    mockTrackMetric.mockClear();
   });
 
   describe('handleChange', () => {
@@ -71,6 +69,7 @@ describe('FilterBySummaryPeriod', () => {
 
       await userEvent.click(screen.getByRole('button', { name: /Filter by summary period duration/ }));
 
+      expect(screen.getByRole('radio', { name: /24 hours/ })).not.toBeChecked();
       expect(screen.getByRole('radio', { name: /7 days/ })).toBeChecked();
       expect(screen.getByRole('radio', { name: /14 days/ })).not.toBeChecked();
       expect(screen.getByRole('radio', { name: /30 days/ })).not.toBeChecked();

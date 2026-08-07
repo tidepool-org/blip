@@ -21,7 +21,7 @@ const FilterBySummaryPeriod = ({
 };
 
 FilterBySummaryPeriod.propTypes = {
-  activeSummaryPeriod: PropTypes.oneOf(['1d', '7d', '14d', '30d']),
+  activeSummaryPeriod: PropTypes.oneOf(['1d', '7d', '14d', '30d']).isRequired,
   setActiveSummaryPeriod: PropTypes.func,
 };
 

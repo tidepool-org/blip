@@ -7,6 +7,7 @@ import { thunk } from 'redux-thunk';
 import { MemoryRouter } from 'react-router-dom';
 
 import SummaryPeriodFilterDropdown from '@app/pages/clinicworkspace/components/SummaryPeriodFilterDropdown';
+import { trackMetric as mockTrackMetric } from '../../../../../app/core/metricUtils';
 
 const mockStore = configureStore([thunk]);
 
@@ -40,6 +41,7 @@ describe('SummaryPeriodFilterDropdown', () => {
     });
 
     onChange.mockClear();
+    mockTrackMetric.mockClear();
   });
 
   describe('filtering for summary period', () => {
@@ -55,6 +57,7 @@ describe('SummaryPeriodFilterDropdown', () => {
       // Open the dropdown
       await userEvent.click(screen.getByRole('button', { name: /Filter by summary period duration/ }));
       expect(screen.getByRole('radio', { name: /24 hours/ })).toBeInTheDocument();
+      expect(mockTrackMetric).toHaveBeenCalledWith('Clinic - Summary period filter open', { clinicId: 'clinic123', pageName: 'Population Health' });
 
       // The active period is pre-selected
       expect(screen.getByRole('radio', { name: /14 days/ })).toBeChecked();
@@ -64,6 +67,7 @@ describe('SummaryPeriodFilterDropdown', () => {
       await userEvent.click(screen.getByRole('radio', { name: /30 days/ }));
       await userEvent.click(screen.getByRole('button', { name: /Apply/ }));
       expect(onChange).toHaveBeenCalledWith('30d');
+      expect(mockTrackMetric).toHaveBeenCalledWith('Clinic - Summary period apply filter', { clinicId: 'clinic123', summaryPeriod: '30d', pageName: 'Population Health' });
 
       // Dropdown should automatically close
       expect(screen.queryByTestId('summary-period-filter-dropdown')).not.toBeInTheDocument();
@@ -97,6 +101,7 @@ describe('SummaryPeriodFilterDropdown', () => {
 
       // No change is applied and the dropdown closes
       expect(onChange).not.toHaveBeenCalled();
+      expect(mockTrackMetric).toHaveBeenCalledWith('Clinic - Summary period filter cancel', { clinicId: 'clinic123', pageName: 'Population Health' });
       expect(screen.queryByTestId('summary-period-filter-dropdown')).not.toBeInTheDocument();
 
       // Re-opening shows the original active period still selected (pending was reset)
