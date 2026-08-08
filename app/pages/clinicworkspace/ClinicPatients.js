@@ -4209,6 +4209,7 @@ export const ClinicPatients = (props) => {
     patientListQueryState,
     showSummaryData,
     tableStyle,
+    patientListQueryState,
   ]);
 
   const renderPeopleArea = useCallback(() => {
