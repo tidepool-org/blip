@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import noop from 'lodash/noop';
 import reject from 'lodash/reject';
@@ -27,6 +28,14 @@ const FilterByDataRecency = ({
       filterOptions={customLastDataFilterOptions}
     />
   );
+};
+
+FilterByDataRecency.propTypes = {
+  activeFilters: PropTypes.shape({
+    lastData: PropTypes.number,
+    lastDataType: PropTypes.oneOf(['bgm', 'cgm']),
+  }),
+  setActiveFilters: PropTypes.func,
 };
 
 export default FilterByDataRecency;

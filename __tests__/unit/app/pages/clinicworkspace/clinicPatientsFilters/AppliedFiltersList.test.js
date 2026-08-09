@@ -126,7 +126,7 @@ describe('AppliedFiltersList', () => {
     it('removes only the clicked time-in-range value, preserving the others', async () => {
       const { setActiveFilters } = renderList({ activeFilters: FULLY_ACTIVE_FILTERS });
 
-      await userEvent.click(screen.getByLabelText('Remove %TIR = Not meeting TIR filter'));
+      await userEvent.click(screen.getByLabelText('Remove %TIR = Not in Range filter'));
 
       expect(setActiveFilters).toHaveBeenCalledTimes(1);
       expect(setActiveFilters).toHaveBeenCalledWith({

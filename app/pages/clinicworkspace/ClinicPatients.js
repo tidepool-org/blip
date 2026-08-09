@@ -168,7 +168,7 @@ const EmptyContentNode = ({ patientQueryState, children }) => {
 
   return (
     <Flex sx={{
-      backgroundColor: colorPalette.primary.bluePrimary00,
+      backgroundColor: vizColors.gray00,
       justifyContent: 'center',
       alignItems: 'center',
       minHeight: '90px',
@@ -1571,36 +1571,36 @@ export const ClinicPatients = (props) => {
                   sx={{ gap: 3, justifyContent: 'flex-end', alignItems: 'center', flexShrink: 0 }}
                 >
 
-                <FilterBySummaryPeriod
-                  activeSummaryPeriod={activeSummaryPeriod}
-                  setActiveSummaryPeriod={setActiveSummaryPeriod}
-                />
+                  <FilterBySummaryPeriod
+                    activeSummaryPeriod={activeSummaryPeriod}
+                    setActiveSummaryPeriod={setActiveSummaryPeriod}
+                  />
 
-                {showRpmReportUI && (
-                  <Flex
-                    alignItems="center"
-                    color="grays.4"
-                    py="1px"
-                    pl={[0, 0, 3]}
-                    sx={{ borderLeft: ['none', null, borders.divider] }}
-                  >
-                    <Button
-                      id="open-rpm-report-config"
-                      variant="tertiary"
-                      onClick={handleConfigureRpmReport}
-                      lineHeight={1.3}
-                      px={2}
-                      py={1}
-                      iconSrc={TabularReportIcon}
-                      iconPosition="left"
-                      sx={{ fontSize: 0 }}
+                  {showRpmReportUI && (
+                    <Flex
+                      alignItems="center"
+                      color="grays.4"
+                      py="1px"
+                      pl={[0, 0, 3]}
+                      sx={{ borderLeft: ['none', null, borders.divider] }}
                     >
-                      {t('RPM Report')}
-                    </Button>
-                  </Flex>
-                )}
-              </Flex>
-            )}
+                      <Button
+                        id="open-rpm-report-config"
+                        variant="tertiary"
+                        onClick={handleConfigureRpmReport}
+                        lineHeight={1.3}
+                        px={2}
+                        py={1}
+                        iconSrc={TabularReportIcon}
+                        iconPosition="left"
+                        sx={{ fontSize: 0 }}
+                      >
+                        {t('RPM Report')}
+                      </Button>
+                    </Flex>
+                  )}
+                </Flex>
+              )}
 
             {/* Info/Visibility Icons */}
             <Flex sx={{ gap: 2, justifyContent: 'flex-end', flexShrink: 0, alignItems: 'center' }}>

@@ -92,10 +92,9 @@ const AppliedFiltersList = ({ activeFilters, setActiveFilters, onClearSearch, on
     activeFilters.clinicSites?.length > 0
   );
 
-  const isActive = hasActiveFilters || hasSearchActive;
-  const count = clinic?.fetchedPatientCount || 0;
+  const isRendered = hasActiveFilters || hasSearchActive;
 
-  if (!isActive || count <= 0) return null;
+  if (!isRendered) return null;
 
   const patientQueryState = getPatientQueryState(activeFilters, patientListSearchTextInput);
 
@@ -115,6 +114,21 @@ const AppliedFiltersList = ({ activeFilters, setActiveFilters, onClearSearch, on
       }
     />
   );
+};
+
+AppliedFiltersList.propTypes = {
+  activeFilters: PropTypes.shape({
+    lastData: PropTypes.number,
+    lastDataType: PropTypes.oneOf(['bgm', 'cgm']),
+    timeCGMUsePercent: PropTypes.oneOf(['<0.7', '>=0.7']),
+    timeInRange: PropTypes.arrayOf(PropTypes.string),
+    meetsGlycemicTargets: PropTypes.bool,
+    patientTags: PropTypes.arrayOf(PropTypes.string),
+    clinicSites: PropTypes.arrayOf(PropTypes.string),
+  }).isRequired,
+  setActiveFilters: PropTypes.func.isRequired,
+  onClearSearch: PropTypes.func.isRequired,
+  onResetFilters: PropTypes.func.isRequired,
 };
 
 export default AppliedFiltersList;

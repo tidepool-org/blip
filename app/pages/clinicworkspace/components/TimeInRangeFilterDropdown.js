@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { useFlags } from 'launchdarkly-react-client-sdk';
@@ -19,7 +20,6 @@ import Button from '../../../components/elements/Button';
 import Pill from '../../../components/elements/Pill';
 import Popover from '../../../components/elements/Popover';
 import Checkbox from '../../../components/elements/Checkbox';
-import { DialogContent, DialogActions } from '../../../components/elements/Dialog';
 
 import { colors } from '../../../themes/baseTheme';
 import { MGDL_UNITS } from '../../../core/constants';
@@ -312,6 +312,11 @@ const TimeInRangeFilterDropdown = ({
       </Popover>
     </>
   );
+};
+
+TimeInRangeFilterDropdown.propTypes = {
+  onChange: PropTypes.func,
+  timeInRange: PropTypes.arrayOf(PropTypes.string),
 };
 
 export default TimeInRangeFilterDropdown;
