@@ -1,9 +1,8 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../../../redux/actions';
 import { trackMetric } from '../../../core/metricUtils';
-import get from 'lodash/get';
-import includes from 'lodash/includes';
 import noop from 'lodash/noop';
 
 import TagFilterDropdown from '../components/TagFilterDropdown';
@@ -40,6 +39,15 @@ const FilterByTags = ({
       patientTags={patientTags}
     />
   );
+};
+
+FilterByTags.propTypes = {
+  api: PropTypes.object.isRequired,
+  activeFilters: PropTypes.shape({
+    patientTags: PropTypes.arrayOf(PropTypes.string),
+  }),
+  setActiveFilters: PropTypes.func,
+  setShowClinicPatientTagsDialog: PropTypes.func,
 };
 
 export default FilterByTags;

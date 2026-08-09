@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { trackMetric } from '../../../core/metricUtils';
 import { colors as vizColors } from '@tidepool/viz';
 
-import { Box, Flex, Grid, Text } from 'theme-ui';
+import { Box, Grid } from 'theme-ui';
 import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
-
-import reject from 'lodash/reject';
 import noop from 'lodash/noop';
 
 import { bindPopover, bindTrigger, usePopupState } from 'material-ui-popup-state/hooks';
@@ -15,10 +14,6 @@ import { bindPopover, bindTrigger, usePopupState } from 'material-ui-popup-state
 import Button from '../../../components/elements/Button';
 import Popover from '../../../components/elements/Popover';
 import RadioGroup from '../../../components/elements/RadioGroup';
-import { Body0 } from '../../../components/elements/FontStyles';
-
-import { borders } from '../../../themes/baseTheme';
-import { DialogContent, DialogActions } from '../../../components/elements/Dialog';
 import { lastDataFilterOptions } from '../../../core/clinicUtils';
 import useClinicMetricsPageName from '../useClinicMetricsPageName';
 
@@ -190,6 +185,16 @@ const DataRecencyFilterDropdown = ({
       </Popover>
     </>
   );
+};
+
+DataRecencyFilterDropdown.propTypes = {
+  onChange: PropTypes.func,
+  lastData: PropTypes.number,
+  lastDataType: PropTypes.oneOf(['bgm', 'cgm']),
+  filterOptions: PropTypes.arrayOf(PropTypes.shape({
+    value: PropTypes.number.isRequired,
+    label: PropTypes.string.isRequired,
+  })),
 };
 
 export default DataRecencyFilterDropdown;

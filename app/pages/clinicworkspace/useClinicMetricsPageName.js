@@ -4,14 +4,9 @@ import { useLocation } from 'react-router-dom';
 const useClinicMetricsPageName = () => {
   const { pathname } = useLocation();
 
-  switch (pathname) {
-    case '/clinic-workspace':
-    case '/clinic-workspace/patients':
-      return 'Population Health';
+  if (pathname.startsWith('/clinic-workspace')) return 'Population Health';
 
-    default:
-      return 'Unknown';
-  };
+  return 'Unknown';
 };
 
 export default useClinicMetricsPageName;

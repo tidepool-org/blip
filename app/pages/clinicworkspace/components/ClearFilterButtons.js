@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 import { Box } from 'theme-ui';
 import styled from '@emotion/styled';
@@ -57,6 +58,12 @@ const ClearFilterButtons = ({ patientQueryState, onClearSearch, onResetFilters }
     default:
       return null;
   }
+};
+
+ClearFilterButtons.propTypes = {
+  patientQueryState: PropTypes.oneOf(Object.values(PATIENT_QUERY_STATE)).isRequired,
+  onClearSearch: PropTypes.func.isRequired,
+  onResetFilters: PropTypes.func.isRequired,
 };
 
 export default ClearFilterButtons;
