@@ -95,24 +95,24 @@ const DataIssues = ({ api }) => {
     },
   ]), [t, handleOpenEditPatientDialog, handleOpenDataConnectionsModal]);
 
+  if (!patients?.length) return null;
+
   return (
-    <Box id="tide-dashboard-data-issues" mt={4}>
+    <Box id="tide-dashboard-data-issues" my={5}>
       <Flex
         onClick={() => setIsAccordionOpen(isOpen => !isOpen)}
         className="data-issues-section-label"
-        mb={3}
         sx={{
           justifyContent: 'space-between',
           transition: 'all 0.2s ease',
-          border: '1px solid',
+          borderBottom: '1px solid',
           borderColor: isAccordionOpen ? vizColors.white : vizColors.gray10,
-          borderRadius: 4,
           padding: 3,
           color: vizColors.blueGray50,
           '&:hover': { cursor: 'pointer', borderColor: vizColors.gray30 },
         }}
       >
-        <Text sx={{ fontSize: 2 }}>{t('Data Issues')}</Text>
+        <Text sx={{ fontSize: 2 }}>{t('Device Issues ({{count}})', { count: patients.length })}</Text>
 
         <Icon
           variant="static"

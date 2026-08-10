@@ -108,7 +108,7 @@ const TideDashboard = ({ api, trackMetric }) => {
         // onClickRow={handleClickPatient}
       />
 
-      <Grid sx={{ gridTemplateColumns: '1fr 2fr 1fr' }}>
+      <Grid sx={{ gridTemplateColumns: '1fr 2fr 1fr', borderBottom: `1px solid ${vizColors.gray10}` }}>
         <Flex sx={{ alignItems: 'flex-end', padding: '0 0 24px 12px' }}>
           <PatientCount offset={offset} limit={LIMIT} total={total} />
         </Flex>
@@ -120,7 +120,6 @@ const TideDashboard = ({ api, trackMetric }) => {
             onOffsetChange={handleChangeOffset}
           />
         </Flex>
-        <Box></Box>
       </Grid>
 
       <DataIssues api={api} />
