@@ -14,6 +14,7 @@ import FilterBySummaryPeriod from './FilterBySummaryPeriod';
 import TableCategoryHeader from './TableCategoryHeader';
 import PaginationControls from '../components/PaginationControls';
 import ActiveFilterCount from '../components/ActiveFilterCount';
+import PatientDrawerController from './PatientDrawerController';
 
 import { resetTideDashboardState, setOffset } from './tideDashboardSlice';
 import { useGetTideDashboardPatientsQuery } from './tideDashboardApi';
@@ -133,6 +134,8 @@ const TideDashboard = ({ api, trackMetric }) => {
       <DataConnectionsModalController
         patients={patients}
       />
+
+      <PatientDrawerController api={api} />
     </>
   );
 };

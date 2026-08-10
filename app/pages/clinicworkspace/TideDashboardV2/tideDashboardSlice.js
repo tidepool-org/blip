@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 import { CATEGORY } from './FilterByCategory';
 
-const initialState = {
+const getInitialState = () => ({
   category: CATEGORY.DEFAULT,
   offset: 0,
   editPatientDialog: {
@@ -13,11 +13,11 @@ const initialState = {
     patientId: null,
     isOpen: false,
   },
-};
+});
 
 const tideDashboardSlice = createSlice({
   name: 'tideDashboard',
-  initialState,
+  initialState: getInitialState(),
   reducers: {
     setCategory: (state, action) => {
       state.category = action.payload;
@@ -38,10 +38,12 @@ const tideDashboardSlice = createSlice({
       state.dataConnectionsModal.isOpen = action.payload;
     },
     closeModals: (state) => {
-      state.editPatientDialog = initialState.editPatientDialog;
-      state.dataConnectionsModal = initialState.dataConnectionsModal;
+      const { editPatientDialog, dataConnectionsModal } = getInitialState();
+
+      state.editPatientDialog = editPatientDialog;
+      state.dataConnectionsModal = dataConnectionsModal;
     },
-    resetTideDashboardState: () => initialState,
+    resetTideDashboardState: () => getInitialState(),
   },
 });
 
