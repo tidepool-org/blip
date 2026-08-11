@@ -28,47 +28,53 @@ const { reshapeBgClassesToBgBounds, generateBgRangeLabels } = vizUtils.bg;
 import useClinicMetricsPageName from '../useClinicMetricsPageName';
 import { timeInRangeFilterThresholds } from '../../../core/clinicUtils';
 
+const getRangeDefinition = (t, { comparator, threshold, bgRange, isBounded }) => {
+  if (isBounded) {
+    return comparator === '<'
+      ? t('Less than {{threshold}}% Time between {{bgRange}}', { threshold, bgRange })
+      : t('Greater than {{threshold}}% Time between {{bgRange}}', { threshold, bgRange });
+  }
+
+  return comparator === '<'
+    ? t('Less than {{threshold}}% Time {{bgRange}}', { threshold, bgRange })
+    : t('Greater than {{threshold}}% Time {{bgRange}}', { threshold, bgRange });
+};
+
 const getTimeInRangeFilterOptions = (showExtremeHigh = false, t) => [
   (showExtremeHigh && {
     title: t('Extremely High'),
     value: 'timeInExtremeHighPercent',
     threshold: timeInRangeFilterThresholds.timeInExtremeHighPercent.value,
-    prefix: t('Greater than'),
     rangeName: 'extremeHigh',
   }),
   {
     title: t('Very High'),
     value: 'timeInVeryHighPercent',
     threshold: timeInRangeFilterThresholds.timeInVeryHighPercent.value,
-    prefix: t('Greater than'),
     rangeName: 'veryHigh',
   },
   {
     title: t('High'),
     value: 'timeInAnyHighPercent',
     threshold: timeInRangeFilterThresholds.timeInAnyHighPercent.value,
-    prefix: t('Greater than'),
     rangeName: 'anyHigh',
   },
   {
     title: t('Not meeting TIR'),
     value: 'timeInTargetPercent',
     threshold: timeInRangeFilterThresholds.timeInTargetPercent.value,
-    prefix: t('Less than'),
     rangeName: 'target',
   },
   {
     title: t('Low'),
     value: 'timeInAnyLowPercent',
     threshold: timeInRangeFilterThresholds.timeInAnyLowPercent.value,
-    prefix: t('Greater than'),
     rangeName: 'anyLow',
   },
   {
     title: t('Very Low'),
     value: 'timeInVeryLowPercent',
     threshold: timeInRangeFilterThresholds.timeInVeryLowPercent.value,
-    prefix: t('Greater than'),
     rangeName: 'veryLow',
   },
 ].filter(Boolean)
@@ -110,8 +116,16 @@ const DropdownContent = ({
       </Box>
 
       <Box sx={{ border: `1px solid ${vizColors.gray10}`, borderRadius: 6, padding: 3 }}>
-        {map(filterOptions, ({ value, title, rangeName, threshold, prefix }, i) => {
-          const { prefix: bgPrefix, suffix, value: glucoseTargetValue } = bgLabels[rangeName];
+        {map(filterOptions, ({ value, title, rangeName, threshold }, i) => {
+          const { prefix: bgPrefix, suffix, value: bgValue } = bgLabels[rangeName];
+          const { comparator } = timeInRangeFilterThresholds[value];
+
+          const definition = getRangeDefinition(t, {
+            comparator,
+            threshold,
+            bgRange: `${bgValue} ${suffix}`,
+            isBounded: !!bgPrefix,
+          });
 
           return (
             <Flex
@@ -178,17 +192,7 @@ const DropdownContent = ({
                   </Text>
 
                   <Text id={`range-${value}-filter-option-definition`} sx={{ fontSize: 0, color: vizColors.gray50 }} mr={2}>
-                    {prefix}
-                    {' '}
-                    {threshold}%
-                    {' '}
-                    {t('Time')}
-                    {' '}
-                    {bgPrefix && `${t(bgPrefix)} `}
-                    {' '}
-                    {glucoseTargetValue}
-                    {' '}
-                    {suffix}
+                    {definition}
                   </Text>
                 </Flex>
               </Box>
