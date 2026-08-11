@@ -405,6 +405,25 @@ describe('ClinicPatients', ()  => {
             );
           }, TEST_TIMEOUT_MS);
 
+          it('maps an applied summary period filter into the getPatientsForClinic query', async () => {
+            render(
+              <MockedProviderWrappers>
+                <ClinicPatients {...defaultProps} />
+              </MockedProviderWrappers>
+            );
+
+            // Open the Summary Period filter dropdown, select 30 days, and apply
+            await userEvent.click(screen.getByRole('button', { name: /Filter by summary period duration/ }));
+            await userEvent.click(screen.getByRole('radio', { name: /30 days/ }));
+            await userEvent.click(screen.getByRole('button', { name: /Apply/ }));
+
+            expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenLastCalledWith(
+              'clinicID123',
+              { limit: 50, offset: 0, period: '30d', sortType: 'cgm', sort: '-lastData' },
+              expect.any(Function),
+            );
+          }, TEST_TIMEOUT_MS);
+
           it('maps an applied site filter into the getPatientsForClinic query', async () => {
             render(
               <MockedProviderWrappers>
