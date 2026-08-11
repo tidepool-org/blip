@@ -14,7 +14,9 @@ import pick from 'lodash/pick';
 import reject from 'lodash/reject';
 import { useFormik } from 'formik';
 import InputMask from 'react-input-mask';
-import { Box, BoxProps } from 'theme-ui';
+import { Box, BoxProps, Flex } from 'theme-ui';
+import { colors as vizColors } from '@tidepool/viz';
+import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
 
 import * as actions from '../../../redux/actions';
 import TextInput from '../../../components/elements/TextInput';
@@ -30,6 +32,7 @@ import SelectGlycemicRanges from './SelectGlycemicRanges';
 import SelectTags from './SelectTags';
 import SelectSites from './SelectSites';
 import { DEFAULT_GLYCEMIC_RANGES } from '../../../core/glycemicRangesUtils';
+import Icon from '../../elements/Icon';
 
 export function getFormValues(source, clinicPatientTags, clinicSites) {
   return {
@@ -98,8 +101,7 @@ export const PatientForm = (props) => {
 
   const formikContext = useFormik({
     initialValues: getFormValues(patient, clinicPatientTags, clinicSites),
-    initialStatus: { showDataConnectionsModalNext: false },
-    onSubmit: (values, formikHelpers) => {
+    onSubmit: (values) => {
       const context = selectedClinicId ? 'clinic' : 'vca';
 
       const actionMap = {
@@ -140,10 +142,6 @@ export const PatientForm = (props) => {
 
       const handlerArgs = actionMap[action][context].args();
 
-      if (context === 'clinic' && action === 'create' && clinic?.country === 'US') {
-        formikHelpers.setStatus({ showDataConnectionsModalNext: true, newPatient: handlerArgs[1] });
-      }
-
       dispatch(actions.async[actionMap[action][context].handler](api, ...handlerArgs));
     },
     validationSchema: validationSchema({ mrnSettings, existingMRNs }),
@@ -152,7 +150,6 @@ export const PatientForm = (props) => {
   const {
     setFieldValue,
     setValues,
-    status,
     values,
   } = formikContext;
 
@@ -206,7 +203,7 @@ export const PatientForm = (props) => {
 
   useEffect(() => {
     onFormChange(formikContext);
-  }, [values, clinicPatientTags, status]);
+  }, [values, clinicPatientTags]);
 
   // Pull the patient on load to ensure the most recent dexcom connection state is made available
   useEffect(() => {
@@ -236,6 +233,8 @@ export const PatientForm = (props) => {
     // Wait for height modal to expand via CSS, then scroll down to enhance dropdown visibility
     setTimeout(() => ref?.current?.scrollIntoView(), 50);
   }
+
+  const isEmailFieldDisabled = disabledFields.email || (patient?.id && !patient?.permissions?.custodian);
 
   return (
     <Box
@@ -318,7 +317,7 @@ export const PatientForm = (props) => {
 
       {showEmail && (
         <>
-          <Box mb={1}>
+          <Box mb={3}>
             <TextInput
               {...getCommonFormikFieldProps('email', formikContext)}
               innerRef={initialFocusedInput === 'email' ? initialFocusedInputRef : undefined}
@@ -326,13 +325,24 @@ export const PatientForm = (props) => {
               placeholder={t('Email')}
               variant="condensed"
               sx={{ width: '100%' }}
-              disabled={disabledFields.email || (patient?.id && !patient?.permissions?.custodian)}
+              disabled={isEmailFieldDisabled}
             />
           </Box>
 
-          <Body0 mb={3}>
-            {t('If you want your patients to upload their data from home, you must include their email address.')}
-          </Body0>
+          { !isEmailFieldDisabled &&
+            <Flex mt={-2} mb={3} px={3} py={3} sx={{ alignItems: 'center', gap: 2, borderRadius: 3, background: vizColors.blue00 }}>
+              <Icon
+                icon={InfoRoundedIcon}
+                label={t('Cloud connection information')}
+                color={vizColors.blue30}
+                sx={{ fontSize: 1 }}
+                />
+
+              <Body0>
+                {t('Adding the patient\'s email lets them upload data at home or connect other diabetes device accounts to share data with you on an ongoing basis.')}
+              </Body0>
+            </Flex>
+          }
         </>
       )}
 
