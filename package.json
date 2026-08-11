@@ -211,6 +211,7 @@
     "qs": "6.11.2",
     "react-sizeme": "2.6.12",
     "tar-fs": "^2.1.4",
-    "webpack": "5.94.0"
+    "webpack": "5.94.0",
+    "path-to-regexp": "0.1.13"
   }
 }
