@@ -193,9 +193,9 @@ export const FlagCell = ({ patient, category = null, }) => {
       // If no category, then read from summary
       case period.timeInVeryLowPercent >= 0.005: return 'veryLow';           // >=1%
       case period.timeInAnyLowPercent >= 0.035: return 'anyLow';             // >=4%
-      case period.timeInVeryHighPercent >= 0.045: return 'veryHigh';         // >=5%
-      case period.timeInAnyHighPercent >= 0.245: return 'anyHigh';           // >=25%
       case period.timeInTargetPercentDelta <= -0.145: return 'dropInTIR';    // <=-15%
+      case period.timeInAnyHighPercent >= 0.245: return 'anyHigh';           // >=25%
+      case period.timeInVeryHighPercent >= 0.045: return 'veryHigh';         // >=5%
       case period.timeCGMUsePercent < 0.695: return 'lowSensorUsage';        // <70%
 
       default: return null;
