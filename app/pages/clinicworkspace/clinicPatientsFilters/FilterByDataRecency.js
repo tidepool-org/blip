@@ -26,6 +26,8 @@ const FilterByDataRecency = ({
       lastData={lastData}
       lastDataType={lastDataType}
       filterOptions={customLastDataFilterOptions}
+      canSelectLastDataType
+      canClearSelection
     />
   );
 };
