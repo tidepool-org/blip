@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { Box } from 'theme-ui';
 import styled from '@emotion/styled';
 import { colors as vizColors } from '@tidepool/viz';
@@ -45,13 +45,11 @@ const ClearFilterButtons = ({ patientQueryState, onClearSearch, onResetFilters }
 
     case FILTER_AND_SEARCH:
       return <Box>
-        <ClearButton className='reset-filters-button' onClick={onResetFilters}>
-          {t('Reset All Filters')}
-        </ClearButton>
-        <>{' '}{t('or')}{' '}</>
-        <ClearButton className='clear-search-button' onClick={onClearSearch}>
-          {t('Clear Search')}
-        </ClearButton>
+        <Trans t={t}>
+          <ClearButton className='reset-filters-button' onClick={onResetFilters}>Reset All Filters</ClearButton>
+          {' '}or{' '}
+          <ClearButton className='clear-search-button' onClick={onClearSearch}>Clear Search</ClearButton>
+        </Trans>
       </Box>;
 
     case NONE:

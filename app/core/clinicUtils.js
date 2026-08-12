@@ -87,6 +87,17 @@ export const summaryPeriodOptions = [
   { value: '30d', label: t('30 days') },
 ];
 
+export const timeInRangeFilterThresholds = {
+  timeInVeryLowPercent: { value: 1, comparator: '>' },
+  timeInLowPercent: { value: 4, comparator: '>' },
+  timeInAnyLowPercent: { value: 4, comparator: '>' },
+  timeInTargetPercent: { value: 70, comparator: '<' },
+  timeInHighPercent: { value: 25, comparator: '>' },
+  timeInAnyHighPercent: { value: 25, comparator: '>' },
+  timeInVeryHighPercent: { value: 5, comparator: '>' },
+  timeInExtremeHighPercent: { value: 1, comparator: '>' },
+};
+
 export const timezoneOptions = map(
   timezoneNames,
   name => ({ value: name, label: name })
