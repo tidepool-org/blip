@@ -54,4 +54,7 @@ locales/*/*_old.json
 .claude
 .pi
 .pi-lens
-.apo
+.claude
+
+# ApoVault — ignore entire vault locally
+.apo/

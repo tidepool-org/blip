@@ -15,8 +15,8 @@ import {
 
 export const DataDonationRevokeConsentDialog = (props) => {
   const { t, onClose, onConfirm, open, processing } = props;
-  const question = t('Are you sure you want to opt out of sharing your anonymized diabetes device data?');
-  const description = t('By clicking “Yes” below, you will stop sharing new data with the Tidepool Big Data Donation Project. Please note that previously donated anonymized data cannot be removed from the project.');
+  const question = t('Are you sure you want to opt out of sharing your diabetes device data?');
+  const description = t('By clicking “Yes” below, you will stop sharing new data with the Tidepool Big Data Donation Project. Please note that previously donated data cannot be removed from the project.');
 
   return (
     <Dialog

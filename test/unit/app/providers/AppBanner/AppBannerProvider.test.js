@@ -28,6 +28,11 @@ jest.mock('../../../../../app/components/datasources/DataConnections', () => ({
     },
   },
 }));
+
+jest.mock('../../../../../app/redux/features/mfaStatus/mfaStatusApi');
+import { useGetMfaStatusQuery } from '../../../../../app/redux/features/mfaStatus/mfaStatusApi';
+jest.mock('../../../../../app/redux/features/clinicians/cliniciansApi');
+import { useGetCliniciansForClinicQuery } from '../../../../../app/redux/features/clinicians/cliniciansApi';
 import { ToastProvider } from '../../../../../app/providers/ToastProvider';
 import { find, keys, pickBy } from 'lodash';
 import { appBanners } from '../../../../../app/providers/AppBanner/appBanners';
@@ -98,13 +103,16 @@ describe('AppBannerProvider', () => {
   beforeEach(() => {
     dispatchStub = 'dispatchStub';
 
-    
+    // Default: MFA query returns no data; the 2FA banner stays hidden unless a test opts in.
+    useGetMfaStatusQuery.mockReturnValue({ data: undefined });
+    // Default: full clinician roster not fetched; sole-admin calc falls back to clinic.clinicians.
+    useGetCliniciansForClinicQuery.mockClear();
+    useGetCliniciansForClinicQuery.mockReturnValue({ data: undefined });
+
     store = mockStore(initialState);
   });
 
   afterEach(() => {
-    
-    
     jest.restoreAllMocks();
   });
 
@@ -761,5 +769,129 @@ describe('AppBannerProvider', () => {
     expect(contextData.banner.id).toEqual('donateYourData');
     appBanners.length = 0;
     appBanners.push(...originalBanners);
+  });
+
+  describe('enable2fa banner eligibility', () => {
+    // A clinician (account roles) viewing a clinic where another admin exists, so the
+    // viewer is not the sole admin.
+    const makeState = ({
+      roles = ['clinician'],
+      preferences = {},
+      clinicians = {
+        clinician1: { roles: ['CLINIC_ADMIN'] },
+        clinician2: { roles: ['CLINIC_ADMIN'] },
+      },
+    } = {}) => ({
+      blip: {
+        selectedClinicId: 'clinic1',
+        clinics: {
+          clinic1: {
+            name: 'Test Clinic',
+            patients: {},
+            patientLimitEnforced: false,
+            ui: {},
+            clinicians,
+          },
+        },
+        loggedInUserId: 'clinician1',
+        allUsersMap: {
+          clinician1: { roles, preferences },
+        },
+        currentPatientInViewId: null,
+        data: { metaData: { size: 0, devices: [] } },
+        dataSources: [],
+        justConnectedDataSourceProviderName: null,
+        consentRecords: {},
+      },
+    });
+
+    const renderAt = (state, path = '/clinic-workspace') => {
+      store = mockStore(state);
+      render(
+        <Provider store={store}>
+          <ToastProvider>
+            <MemoryRouter initialEntries={[path]}>
+              <AppBannerProvider>
+                <DummyConsumer />
+              </AppBannerProvider>
+            </MemoryRouter>
+          </ToastProvider>
+        </Provider>
+      );
+      return JSON.parse(screen.getByTestId('context').textContent);
+    };
+
+    it('shows the banner for a non-SSO clinician without 2FA who is not the sole admin', () => {
+      useGetMfaStatusQuery.mockReturnValue({ data: { enabled: false } });
+      const contextData = renderAt(makeState());
+      expect(contextData.hasBanner).toBe(true);
+      expect(contextData.banner.id).toEqual('enable2fa');
+      expect(contextData.processedBanner.bannerArgs).toEqual([dispatchStub]);
+    });
+
+    it('hides the banner for an SSO user', () => {
+      useGetMfaStatusQuery.mockReturnValue({ data: { enabled: false } });
+      const contextData = renderAt(makeState({ roles: ['clinician', 'brokered'] }));
+      expect(contextData.hasBanner).toBe(false);
+    });
+
+    it('hides the banner when 2FA is already enabled', () => {
+      useGetMfaStatusQuery.mockReturnValue({ data: { enabled: true } });
+      const contextData = renderAt(makeState());
+      expect(contextData.hasBanner).toBe(false);
+    });
+
+    it('hides the banner for a non-clinician', () => {
+      useGetMfaStatusQuery.mockReturnValue({ data: { enabled: false } });
+      const contextData = renderAt(makeState({ roles: [] }));
+      expect(contextData.hasBanner).toBe(false);
+    });
+
+    it('hides the banner for the sole admin of the selected clinic', () => {
+      useGetMfaStatusQuery.mockReturnValue({ data: { enabled: false } });
+      const contextData = renderAt(makeState({ clinicians: { clinician1: { roles: ['CLINIC_ADMIN'] } } }));
+      expect(contextData.hasBanner).toBe(false);
+    });
+
+    it('hides the banner on a non-patient-list clinic path', () => {
+      useGetMfaStatusQuery.mockReturnValue({ data: { enabled: false } });
+      const contextData = renderAt(makeState(), '/clinic-workspace/invites');
+      expect(contextData.hasBanner).toBe(false);
+    });
+
+    it('hides the banner once a dismissal preference is recorded', () => {
+      useGetMfaStatusQuery.mockReturnValue({ data: { enabled: false } });
+      const contextData = renderAt(
+        makeState({ preferences: { dismissedEnable2faBannerTime: '2026-01-01T00:00:00.000Z' } })
+      );
+      expect(contextData.hasBanner).toBe(false);
+    });
+
+    it('fetches the full clinician roster when partial post-invite data shows the viewer as the sole admin', () => {
+      // After accepting an invite, clinic.clinicians holds only the viewer's own record, so an
+      // admin viewer looks like the sole admin. The roster query runs (skip: false) so the
+      // exemption is decided on complete data rather than suppressing the banner on first load.
+      useGetMfaStatusQuery.mockReturnValue({ data: { enabled: false } });
+      renderAt(makeState({ clinicians: { clinician1: { roles: ['CLINIC_ADMIN'] } } }));
+      expect(useGetCliniciansForClinicQuery).toHaveBeenLastCalledWith('clinic1', { skip: false });
+    });
+
+    it('does not fetch the roster when the clinic already shows multiple admins', () => {
+      useGetMfaStatusQuery.mockReturnValue({ data: { enabled: false } });
+      renderAt(makeState());
+      expect(useGetCliniciansForClinicQuery).toHaveBeenLastCalledWith('clinic1', { skip: true });
+    });
+
+    it('shows the banner once the fetched roster reveals other admins', () => {
+      // clinic.clinicians still holds only the viewer (sole admin), but the fetched roster shows
+      // multiple admins, so the exemption resolves false and the banner appears without navigation.
+      useGetMfaStatusQuery.mockReturnValue({ data: { enabled: false } });
+      useGetCliniciansForClinicQuery.mockReturnValue({
+        data: [{ roles: ['CLINIC_ADMIN'] }, { roles: ['CLINIC_ADMIN'] }],
+      });
+      const contextData = renderAt(makeState({ clinicians: { clinician1: { roles: ['CLINIC_ADMIN'] } } }));
+      expect(contextData.hasBanner).toBe(true);
+      expect(contextData.banner.id).toEqual('enable2fa');
+    });
   });
 });

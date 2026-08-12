@@ -3,23 +3,18 @@ import _ from 'lodash';
 import get from 'lodash/get';
 import { utils as vizUtils } from '@tidepool/viz';
 import utils from '../../../../core/utils';
+import { getMostRecentDatumTimeByChartType } from '../../../../core/dataViewUtils';
 
 const getTimezoneFromTimePrefs = vizUtils.datetime.getTimezoneFromTimePrefs;
 
 const getOpts = (
+  requestId,
   data, // data from redux (state.blip.data)
   agpPeriodInDays,
 ) => {
-  const getMostRecentDatumTimeByChartType = (data, _chartType) => {
-    const getLatestDatums = types => _.pick(_.get(data, 'metaData.latestDatumByType'), types);
-
-    let latestDatums = getLatestDatums(['cbg']) || [];
-
-    return _.max(_.map(latestDatums, d => (d.normalEnd || d.normalTime)));
-  };
-
+  const latestDatumByType = _.get(data, 'metaData.latestDatumByType');
   const mostRecentDatumDates = {
-    agpCGM: getMostRecentDatumTimeByChartType(data, 'agpCGM'),
+    agpCGM: getMostRecentDatumTimeByChartType(latestDatumByType, 'agpCGM'),
   };
 
   const timePrefs = (() => {
@@ -66,6 +61,7 @@ const getOpts = (
   ] : []);
 
   const opts = {
+    requestId,
     agpCGM:       { disabled: false, endpoints: formatDateEndpoints(dates) },
     offsetAgpCGM: { disabled: false, endpoints: formatDateEndpoints(offsetDates) },
     agpBGM:       { disabled: true },
