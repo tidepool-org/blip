@@ -1,15 +1,19 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useLocation, useHistory } from 'react-router-dom';
 import { useTranslation, withTranslation } from 'react-i18next';
 import { Box, Flex, Text } from 'theme-ui';
 import { utils as vizUtils, colors as vizColors  } from '@tidepool/viz';
 const { bankersRound } = vizUtils.stat;
 import { MGDL_UNITS } from '../../../core/constants';
+import { push } from 'connected-react-router';
 import { colors } from '../../../themes/baseTheme';
 
 import BgSummaryCell from '../../../components/clinic/BgSummaryCell';
 import DeltaBar from '../../../components/elements/DeltaBar';
 import utils from '../../../core/utils';
+import { OVERVIEW_TAB_INDEX } from '../../../components/PatientDrawer/MenuBar/MenuBar';
+import { useFlags } from 'launchdarkly-react-client-sdk';
 import { CATEGORY } from './FilterByCategory';
 import isUndefined from 'lodash/isUndefined';
 
@@ -17,10 +21,23 @@ export const COMPACT = '@container (max-width: 1200px)';
 
 export const PatientCell = ({ patient }) => {
   const { t } = useTranslation();
+  const { search, pathname } = useLocation();
+  const history = useHistory();
+  const dispatch = useDispatch();
 
   const { fullName, birthDate, mrn } = patient || {};
 
-  return <Box sx={{ gap: 0, marginRight: -2 }}>
+  const handleClick = () => {
+    if (!patient.id) return;
+
+    const params = new URLSearchParams(search);
+    params.set('drawerPatientId', patient.id);
+    params.set('drawerTab', OVERVIEW_TAB_INDEX);
+
+    history.replace({ pathname, search: params.toString() });
+  };
+
+  return <Box onClick={handleClick} sx={{ gap: 0, marginRight: -2 }}>
     <Box sx={{ fontSize: 0, whiteSpace: 'nowrap', fontWeight: 'medium' }}>{fullName}</Box>
     <Box sx={{ fontSize: 0, whiteSpace: 'nowrap' }}>{t('DOB:')} {birthDate}</Box>
     {mrn && <Box sx={{ fontSize: 0, whiteSpace: 'nowrap' }}>{t('MRN: {{mrn}}', { mrn: mrn })}</Box>}
@@ -174,12 +191,12 @@ export const FlagCell = ({ patient, category = null, }) => {
       case category === TARGET: return 'target';
 
       // If no category, then read from summary
-      case period.timeInVeryLowPercent > 0.01: return 'veryLow';
-      case period.timeInAnyLowPercent > 0.04: return 'anyLow';
-      case period.timeInVeryHighPercent > 0.05: return 'veryHigh';
-      case period.timeInAnyHighPercent > 0.25: return 'anyHigh';
-      case period.timeInTargetPercentDelta < -0.15: return 'dropInTIR';
-      case period.timeCGMUsePercent < 0.70: return 'lowSensorUsage';
+      case period.timeInVeryLowPercent >= 0.005: return 'veryLow';           // >=1%
+      case period.timeInAnyLowPercent >= 0.035: return 'anyLow';             // >=4%
+      case period.timeInTargetPercentDelta <= -0.145: return 'dropInTIR';    // <=-15%
+      case period.timeInAnyHighPercent >= 0.245: return 'anyHigh';           // >=25%
+      case period.timeInVeryHighPercent >= 0.045: return 'veryHigh';         // >=5%
+      case period.timeCGMUsePercent < 0.695: return 'lowSensorUsage';        // <70%
 
       default: return null;
     }

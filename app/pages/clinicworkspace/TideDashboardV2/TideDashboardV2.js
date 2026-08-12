@@ -14,6 +14,7 @@ import FilterBySummaryPeriod from './FilterBySummaryPeriod';
 import TableCategoryHeader from './TableCategoryHeader';
 import PaginationControls from '../components/PaginationControls';
 import ActiveFilterCount from '../components/ActiveFilterCount';
+import PatientDrawerController from './PatientDrawerController';
 
 import { resetTideDashboardState, setOffset } from './tideDashboardSlice';
 import useTideDashboardPatients, { LIMIT } from './useTideDashboardPatients';
@@ -31,7 +32,7 @@ const Divider = () => <Box id='filter-divider' mx={2} sx={{ border: `1px solid $
 
 const Gap = () => <Box sx={{ marginLeft: 'auto' }}></Box>;
 
-const TideDashboard = () => {
+const TideDashboard = ({ api }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
@@ -111,6 +112,8 @@ const TideDashboard = () => {
         </Flex>
         <Box></Box>
       </Grid>
+
+      <PatientDrawerController api={api} />
     </>
   );
 };

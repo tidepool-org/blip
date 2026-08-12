@@ -49,7 +49,10 @@ jest.mock('@tidepool/viz', () => {
     },
     utils: {
       ...originalModule.utils,
-      getLocalizedCeiling: jest.fn(val => mockLocalizedCeiling),
+      datetime: {
+        ...originalModule.utils.datetime,
+        getLocalizedCeiling: jest.fn(val => mockLocalizedCeiling),
+      },
     }
   };
 });

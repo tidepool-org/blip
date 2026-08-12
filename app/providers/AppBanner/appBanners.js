@@ -12,6 +12,7 @@ const t = i18next.t.bind(i18next);
 
 export const pathRegexes = {
   clinicWorkspace: /^\/clinic-workspace/,
+  clinicWorkspacePatientList: /^\/clinic-workspace(\/patients)?\/?$/,
   patientData: /^\/patients\/\S+\/data/,
 };
 
@@ -27,8 +28,8 @@ export const appBanners = [
       interactionId: `${upperFirst(provider?.dataSourceFilter?.providerName)}DataSourceJustConnected`,
       label: t('Data Source Just Connected banner'),
       title: provider?.indeterminateDataImportTime
-        ? t('If you have connected your {{displayName}} device, data is on its way. This usually takes a few minutes but occassionally takes longer. Refresh the page to see data.', provider)
-        : t('{{displayName}} data is on its way. This usually takes a few minutes but occasionally takes longer. Refresh the page to see data.', provider),
+        ? t('If you have connected your {{displayName}} device, data is on its way. This usually takes a few minutes but occassionally takes longer.', provider)
+        : t('{{displayName}} data is on its way. This usually takes a few minutes but occasionally takes longer.', provider),
       show: {
         metric: 'Data Source Just Connected banner displayed',
         metricProps: { providerName: provider?.dataSourceFilter?.providerName },
@@ -140,7 +141,7 @@ export const appBanners = [
         metric: 'Big Data banner displayed',
       },
       action: {
-        text: t('Donate my anonymized data'),
+        text: t('Donate my data'),
         metric: 'web - big data sign up',
         metricProps: { source: 'none', location: 'banner' },
         handler: () => dispatch(push(`/patients/${loggedInUserId}/profile#donateForm`)),
@@ -340,6 +341,31 @@ export const appBanners = [
       },
       dismiss: {
         metric: 'Send Verification banner banner dismissed',
+      },
+    }),
+  },
+
+  {
+    id: 'enable2fa',
+    variant: 'info',
+    priority: 11,
+    context: ['clinic'],
+    paths: [pathRegexes.clinicWorkspacePatientList],
+    persistInteractionForUser: true,
+    getProps: dispatch => ({
+      interactionId: 'Enable2fa',
+      label: t('Enable 2FA banner'),
+      message: t('You Can Now Secure Your Account Using Two-Factor Authentication (2FA)'),
+      show: {
+        metric: 'Enable 2FA banner displayed',
+      },
+      action: {
+        text: t('Set Up 2FA'),
+        metric: 'Enable 2FA banner clicked',
+        handler: () => dispatch(push({ pathname: '/profile', state: { openMfaSetup: true } })),
+      },
+      dismiss: {
+        metric: 'Enable 2FA banner dismissed',
       },
     }),
   },

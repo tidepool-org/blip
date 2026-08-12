@@ -1,6 +1,9 @@
 import React from 'react';
 import useProviderConnectionPopup from '../../../app/components/datasources/useProviderConnectionPopup';
 import * as actions from '../../../app/redux/actions';
+
+jest.mock('../../../app/redux/features/mfaStatus/mfaStatusApi');
+jest.mock('../../../app/redux/features/clinicians/cliniciansApi');
 import { render } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter, Route } from 'react-router';
@@ -67,6 +70,8 @@ describe('useProviderConnectionPopup', function () {
   const setToast = sinon.stub();
 
   const trackMetric = sinon.stub();
+
+  const loggedInUser = { userid: 'user123', username: 'user@example.com' };
 
   const renderWithProviders = (ui) => {
     const Wrapper = ({ children }) => (
@@ -198,14 +203,42 @@ describe('useProviderConnectionPopup', function () {
     }, 100);
   });
 
-  it('should fetch patient data sources when justConnectedDataSourceProviderName state is set', (done) => {
-    expect(api.user.getDataSources.mock.calls.length).to.equal(0);
-
-    store.dispatch(actions.sync.setJustConnectedDataSourceProviderName('testProvider'));
+  it('should not close popup or show a toast message when the authorization status is `accept`', (done) => {
+    // Simulate pre-authorization accept path - popup should remain open
+    const authorizedDataSource = { id: 'oauth/testProvider', url: `${window.location.origin}/oauth/testProvider/accept`};
+    store.dispatch(actions.sync.connectDataSourceSuccess(authorizedDataSource.id, authorizedDataSource.url));
 
     setTimeout(() => {
-      expect(api.user.getDataSources.mock.calls.length).to.equal(1);
+      expect(setToast.notCalled).to.be.true;
+      expect(wrapper.getByText('Popup Open')).to.not.equal(null);
       done();
     }, 100);
+  });
+
+  describe('When a Data Source has just been connected', () => {
+    it('should fetch patient data sources user is logged in', (done) => {
+      expect(api.user.getDataSources.mock.calls.length).to.equal(0);
+      store.dispatch(actions.sync.loginSuccess(loggedInUser));
+      expect(store.getState().blip.loggedInUserId).to.equal(loggedInUser.userid);
+
+      store.dispatch(actions.sync.setJustConnectedDataSourceProviderName('testProvider'));
+
+      setTimeout(() => {
+        expect(api.user.getDataSources.mock.calls.length).to.equal(1);
+        done();
+      }, 100);
+    });
+
+    it('should not fetch patient data sources when user is NOT logged in', (done) => {
+      expect(api.user.getDataSources.mock.calls.length).to.equal(0);
+      expect(store.getState().blip.loggedInUserId).to.be.null;
+
+      store.dispatch(actions.sync.setJustConnectedDataSourceProviderName('testProvider'));
+
+      setTimeout(() => {
+        expect(api.user.getDataSources.mock.calls.length).to.equal(0);
+        done();
+      }, 100);
+    });
   });
 });

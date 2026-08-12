@@ -58,7 +58,7 @@ import PopoverMenu from '../../components/elements/PopoverMenu';
 import RadioGroup from '../../components/elements/RadioGroup';
 import DeltaBar from '../../components/elements/DeltaBar';
 import Pill from '../../components/elements/Pill';
-import PatientDrawer, { isValidAgpPeriod } from './PatientDrawer';
+import PatientDrawer, { isValidAgpPeriod } from '../../components/PatientDrawer';
 import utils from '../../core/utils';
 
 import {
@@ -85,7 +85,7 @@ import DataInIcon from '../../core/icons/DataInIcon.svg';
 import { colors, fontWeights, radii } from '../../themes/baseTheme';
 import PatientLastReviewed from '../../components/clinic/PatientLastReviewed';
 import { DEFAULT_GLYCEMIC_RANGES } from '../../core/glycemicRangesUtils';
-import { OVERVIEW_TAB_INDEX } from './PatientDrawer/MenuBar/MenuBar';
+import { OVERVIEW_TAB_INDEX } from '../../components/PatientDrawer/MenuBar/MenuBar';
 
 const { Loader } = vizComponents;
 const { formatBgValue } = vizUtils.bg;
@@ -409,6 +409,8 @@ const TideDashboardSection = React.memo(props => {
       const isValidAgpPeriod = ['7d', '14d', '30d'].includes(config?.period);
 
       if (showTideDashboardPatientDrawer && isValidAgpPeriod && !isNoDataGroup) {
+        trackMetric('Tide Dashboard - opened patient in side drawer', { clinicId: selectedClinicId, patientID: patient?.id });
+
         const { search, pathname } = location;
         const params = new URLSearchParams(search);
         params.set('drawerPatientId', patient.id);
@@ -420,7 +422,7 @@ const TideDashboardSection = React.memo(props => {
 
       dispatch(push(`/patients/${patient?.id}/data/trends?dashboard=tide`));
     }
-  }, [dispatch, trackMetric, showTideDashboardPatientDrawer, config]);
+  }, [dispatch, trackMetric, showTideDashboardPatientDrawer, config, selectedClinicId]);
 
   const handleEditPatientDataConnections = useCallback((patient) => {
     editPatientDataConnections(patient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal, 'dexcom connection status');
@@ -982,13 +984,8 @@ export const TideDashboard = (props) => {
   }, [isFirstRender, setToast]);
 
   const handlePatientEdited = useCallback(() => {
-    if (patientFormContext?.status?.showDataConnectionsModalNext) {
-      setShowEditPatientDialog(false);
-      editPatientDataConnections(selectedPatient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal, 'Tide dashboard - patient modal');
-    } else {
-      handleCloseOverlays();
-    }
-  }, [handleCloseOverlays, patientFormContext?.status]);
+    handleCloseOverlays();
+  }, [handleCloseOverlays]);
 
   useEffect(() => {
     // Only process detected updates if patient edit form is showing. Other child components, such as
@@ -1001,7 +998,6 @@ export const TideDashboard = (props) => {
     handlePatientEdited,
     t,
     updatingClinicPatient,
-    patientFormContext?.status,
     previousUpdatingClinicPatient?.inProgress,
     showEditPatientDialog,
   ]);
@@ -1124,12 +1120,6 @@ export const TideDashboard = (props) => {
     }
     patientFormContext?.handleSubmit();
   }, [patientFormContext, selectedClinicId, trackMetric, selectedPatient?.tags]);
-
-  const handleEditPatientAndAddDataSourcesConfirm = useCallback(() => {
-    trackMetric('Clinic - Edit patient next', { clinicId: selectedClinicId, source: 'Tide dashboard' });
-    patientFormContext?.setStatus({ showDataConnectionsModalNext: true });
-    handleEditPatientConfirm();
-  }, [patientFormContext, selectedClinicId, trackMetric, handleEditPatientConfirm]);
 
   const handleClosePatientDrawer = useCallback(() => {
     const { search, pathname } = location;
@@ -1336,20 +1326,10 @@ export const TideDashboard = (props) => {
           </Button>
 
           <Button
-            id="editPatientNext"
-            variant="secondary"
-            onClick={handleEditPatientAndAddDataSourcesConfirm}
-            processing={updatingClinicPatient.inProgress && patientFormContext?.status?.showDataConnectionsModalNext}
-            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema({mrnSettings, existingMRNs}), patientFormContext?.values)}
-          >
-            {t('Save & Next')}
-          </Button>
-
-          <Button
             id="editPatientConfirm"
             variant="primary"
             onClick={handleEditPatientConfirm}
-            processing={updatingClinicPatient.inProgress && !patientFormContext?.status?.showDataConnectionsModalNext}
+            processing={updatingClinicPatient.inProgress}
             disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema({mrnSettings, existingMRNs}), patientFormContext?.values)}
           >
             {t('Save Changes')}
@@ -1361,7 +1341,6 @@ export const TideDashboard = (props) => {
     api,
     existingMRNs,
     handleEditPatientConfirm,
-    handleEditPatientAndAddDataSourcesConfirm,
     mrnSettings,
     patientFormContext,
     selectedClinicId,
@@ -1378,15 +1357,10 @@ export const TideDashboard = (props) => {
         open
         patient={selectedPatient}
         onClose={handleCloseOverlays}
-        onBack={patientFormContext?.status?.showDataConnectionsModalNext ? () => {
-          setShowDataConnectionsModal(false)
-          setShowEditPatientDialog(true)
-        } : undefined}
       />
     );
   }, [
     handleCloseOverlays,
-    patientFormContext?.status,
     selectedPatient,
   ]);
 
