@@ -792,28 +792,10 @@ export const ClinicPatients = (props) => {
 
   const handlePatientCreatedOrEdited = useCallback(() => {
     dispatch(actions.async.fetchClinic(api, selectedClinicId)); // patient counts for tags and/or sites may have changed
-
-    if (patientFormContext?.status?.showDataConnectionsModalNext) {
-      let currentPatient = selectedPatient;
-
-      if (patientFormContext?.status?.newPatient && creatingClinicCustodialAccount?.patientId) currentPatient = {
-        ...patientFormContext.status.newPatient,
-        id: creatingClinicCustodialAccount.patientId,
-      };
-
-      setShowAddPatientDialog(false);
-      setShowEditPatientDialog(false);
-      editPatientDataConnections(currentPatient, setSelectedPatient, selectedClinicId, trackMetric, setShowDataConnectionsModal, 'Patients list - patient modal');
-    } else {
-      handleCloseOverlays();
-    }
+    handleCloseOverlays();
   }, [
     handleCloseOverlays,
-    patientFormContext?.status,
-    creatingClinicCustodialAccount,
     selectedClinicId,
-    selectedPatient,
-    trackMetric,
   ]);
 
   useEffect(() => {
@@ -827,7 +809,6 @@ export const ClinicPatients = (props) => {
     handlePatientCreatedOrEdited,
     t,
     updatingClinicPatient,
-    patientFormContext?.status,
     previousUpdatingClinicPatient?.inProgress,
     showEditPatientDialog,
   ]);
@@ -839,7 +820,6 @@ export const ClinicPatients = (props) => {
     handlePatientCreatedOrEdited,
     t,
     creatingClinicCustodialAccount,
-    patientFormContext?.status,
     previousCreatingClinicCustodialAccount?.inProgress,
   ]);
 
@@ -1186,12 +1166,6 @@ export const ClinicPatients = (props) => {
     }
     patientFormContext?.handleSubmit();
   }, [patientFormContext, selectedClinicId, trackMetric, selectedPatient?.tags, prefixPopHealthMetric]);
-
-  const handleEditPatientAndAddDataSourcesConfirm = useCallback(() => {
-    trackMetric('Clinic - Edit patient next', { clinicId: selectedClinicId, source: 'Patients list' });
-    patientFormContext?.setStatus({ showDataConnectionsModalNext: true });
-    handleEditPatientConfirm();
-  }, [patientFormContext, selectedClinicId, trackMetric, handleEditPatientConfirm]);
 
   function handleConfigureTideDashboard() {
     if (validateTideConfig(tideDashboardConfig[localConfigKey], patientTags)) {
@@ -2023,20 +1997,10 @@ export const ClinicPatients = (props) => {
           </Button>
 
           <Button
-            id="editPatientNext"
-            variant="secondary"
-            onClick={handleEditPatientAndAddDataSourcesConfirm}
-            processing={updatingClinicPatient.inProgress && patientFormContext?.status?.showDataConnectionsModalNext}
-            disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema({mrnSettings, existingMRNs}), patientFormContext?.values)}
-          >
-            {t('Save & Next')}
-          </Button>
-
-          <Button
             id="editPatientConfirm"
             variant="primary"
             onClick={handleEditPatientConfirm}
-            processing={updatingClinicPatient.inProgress && !patientFormContext?.status?.showDataConnectionsModalNext}
+            processing={updatingClinicPatient.inProgress}
             disabled={!fieldsAreValid(keys(patientFormContext?.values), validationSchema({mrnSettings, existingMRNs}), patientFormContext?.values)}
           >
             {t('Save Changes')}
@@ -2047,7 +2011,6 @@ export const ClinicPatients = (props) => {
   }, [
     api,
     handleEditPatientConfirm,
-    handleEditPatientAndAddDataSourcesConfirm,
     mrnSettings,
     existingMRNs,
     handleCloseOverlays,
@@ -2643,15 +2606,10 @@ export const ClinicPatients = (props) => {
         open
         patient={selectedPatient}
         onClose={handleCloseOverlays}
-        onBack={patientFormContext?.status?.showDataConnectionsModalNext ? () => {
-          setShowDataConnectionsModal(false)
-          setShowEditPatientDialog(true)
-        } : undefined}
       />
     );
   }, [
     handleCloseOverlays,
-    patientFormContext?.status,
     selectedPatient,
   ]);
 

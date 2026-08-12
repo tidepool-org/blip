@@ -87,7 +87,7 @@ export function signup(api, accountDetails) {
  * @param  {String} signupKey
  * @param  {String} signupEmail
  */
-export function confirmSignup(api, signupKey, signupEmail) {
+export function confirmSignup(api, signupKey, signupEmail, restrictedToken = null) {
   return (dispatch) => {
     dispatch(sync.confirmSignupRequest());
 
@@ -101,12 +101,18 @@ export function confirmSignup(api, signupKey, signupEmail) {
           createActionError(errMsg, err), err, signupKey
         ));
         if (err.status === 409) {
-          dispatch(push(`/verification-with-password?signupKey=${signupKey}&signupEmail=${signupEmail}`));
+          // If restricted token exists, we invite them to connect C2C first.
+          // Otherwise, we redirect to account creation.
+          if (restrictedToken) {
+            dispatch(push(`/verification-with-c2c?signupKey=${signupKey}&signupEmail=${signupEmail}&restrictedTokenId=${restrictedToken}`));
+          } else {
+            dispatch(push(`/verification-with-password?signupKey=${signupKey}&signupEmail=${signupEmail}`));
+          }
         }
       } else {
-        dispatch(sync.confirmSignupSuccess())
+        dispatch(sync.confirmSignupSuccess());
       }
-    })
+    });
   };
 }
 
@@ -755,50 +761,6 @@ export function updateSettings(api, patientId, settings) {
       } else {
         dispatch(sync.updateSettingsSuccess(patientId, updatedSettings));
         updatingBgUnits && dispatch(sync.updatePatientBgUnitsSuccess(patientId, updatedSettings));
-      }
-    });
-  };
-}
-
-/**
- * Update User Data Action Creator
- *
- * @param  {Object} api an instance of the API wrapper
- * @param {userId} userId
- * @param  {Object} formValues
- */
-export function updateUser(api, formValues) {
-  return (dispatch, getState) => {
-    const { blip: { loggedInUserId, allUsersMap } } = getState();
-    const loggedInUser = allUsersMap[loggedInUserId];
-
-    const newUser = _.assign({},
-      _.omit(loggedInUser, ['profile', 'preferences']),
-      _.omit(formValues, ['profile', 'preferences']),
-      {
-        profile: _.assign({}, loggedInUser.profile, formValues.profile),
-        preferences: _.assign({}, loggedInUser.preferences, formValues.preferences)
-      }
-    );
-
-    dispatch(sync.updateUserRequest(loggedInUserId, _.omit(newUser, 'password')));
-
-    var userUpdates = _.cloneDeep(newUser);
-    if (userUpdates.username === loggedInUser.username) {
-      userUpdates = _.omit(userUpdates, 'username', 'emails');
-    }
-
-    api.user.put(userUpdates, (err, updatedUser) => {
-      if (err) {
-        let errMsg = ErrorMessages.ERR_UPDATING_USER;
-        if (err?.status === 409) {
-          errMsg = ErrorMessages.ERR_UPDATING_USER_EMAIL_IN_USE;
-        }
-        dispatch(sync.updateUserFailure(
-          createActionError(errMsg, err), err
-        ));
-      } else {
-        dispatch(sync.updateUserSuccess(loggedInUserId, updatedUser));
       }
     });
   };

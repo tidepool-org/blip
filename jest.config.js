@@ -1,3 +1,8 @@
+// Pin TZ to UTC so date-dependent assertions are stable when jest is invoked
+// directly (e.g. `npx jest`) rather than through `yarn test` (which sets TZ=UTC
+// in package.json). Setting here propagates to worker processes before jsdom init.
+process.env.TZ = 'UTC';
+
 /** @type {import('jest').Config} */
 const config = {
   testEnvironment: 'jest-fixed-jsdom',
