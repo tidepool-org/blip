@@ -71,6 +71,8 @@ describe('useProviderConnectionPopup', function () {
 
   const trackMetric = sinon.stub();
 
+  const loggedInUser = { userid: 'user123', username: 'user@example.com' };
+
   const renderWithProviders = (ui) => {
     const Wrapper = ({ children }) => (
       <Provider store={store}>
@@ -213,14 +215,30 @@ describe('useProviderConnectionPopup', function () {
     }, 100);
   });
 
-  it('should fetch patient data sources when justConnectedDataSourceProviderName state is set', (done) => {
-    expect(api.user.getDataSources.mock.calls.length).to.equal(0);
+  describe('When a Data Source has just been connected', () => {
+    it('should fetch patient data sources user is logged in', (done) => {
+      expect(api.user.getDataSources.mock.calls.length).to.equal(0);
+      store.dispatch(actions.sync.loginSuccess(loggedInUser));
+      expect(store.getState().blip.loggedInUserId).to.equal(loggedInUser.userid);
 
-    store.dispatch(actions.sync.setJustConnectedDataSourceProviderName('testProvider'));
+      store.dispatch(actions.sync.setJustConnectedDataSourceProviderName('testProvider'));
 
-    setTimeout(() => {
-      expect(api.user.getDataSources.mock.calls.length).to.equal(1);
-      done();
-    }, 100);
+      setTimeout(() => {
+        expect(api.user.getDataSources.mock.calls.length).to.equal(1);
+        done();
+      }, 100);
+    });
+
+    it('should not fetch patient data sources when user is NOT logged in', (done) => {
+      expect(api.user.getDataSources.mock.calls.length).to.equal(0);
+      expect(store.getState().blip.loggedInUserId).to.be.null;
+
+      store.dispatch(actions.sync.setJustConnectedDataSourceProviderName('testProvider'));
+
+      setTimeout(() => {
+        expect(api.user.getDataSources.mock.calls.length).to.equal(0);
+        done();
+      }, 100);
+    });
   });
 });
