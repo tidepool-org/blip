@@ -67,7 +67,7 @@ export const PatientLastReviewed = ({ api, patientId, recentlyReviewedThresholdD
   }, [revertingClinicPatientLastReviewed]);
 
   const handleReview = () => {
-    trackMetric('Clinic - Mark patient reviewed', { clinicId: selectedClinicId, source: metricSource });
+    trackMetric('Clinic - Mark patient reviewed', { clinicId: selectedClinicId, source: metricSource, patientID: patientId });
     dispatch(actions.async.setClinicPatientLastReviewed(api, selectedClinicId, patientId));
     onReview && onReview();
   };

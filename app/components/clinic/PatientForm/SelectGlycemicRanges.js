@@ -15,7 +15,7 @@ import {
 import { MGDL_UNITS, MMOLL_UNITS } from '../../../core/constants';
 const { GLYCEMIC_RANGES_PRESET } = vizUtils.constants;
 
-const GLYCEMIC_RANGE_OPTS = {
+export const GLYCEMIC_RANGE_OPTS = {
   [MGDL_UNITS]: [
     { label: 'Standard (Type 1 and 2): 70-180 mg/dL', value: GLYCEMIC_RANGES_PRESET.ADA_STANDARD },
     { label: 'Older/High Risk (Type 1 and 2): 70-180 mg/dL', value: GLYCEMIC_RANGES_PRESET.ADA_OLDER_HIGH_RISK },

@@ -104,13 +104,13 @@ export const DataDonationForm = (props) => {
 
   const accountTypeText = {
     personal: {
-      dataDonatePrompt: t('Would you like to donate your anonymized data?'),
+      dataDonatePrompt: t('Would you like to donate your data?'),
       dataDonateOwnership: t('You own your data.'),
       dataDonateConsentLabel: t('Yes - I have read this form and give my consent by checking this box and clicking submit.'),
       dataDonateOrganizationsLabel: t('Tidepool will share 10% of the proceeds with the diabetes organization(s) of your choice.'),
     },
     caregiver: {
-      dataDonatePrompt: t('Would they like to donate their anonymized data?'),
+      dataDonatePrompt: t('Would they like to donate their data?'),
       dataDonateOwnership: t('People with diabetes own their data.'),
       dataDonateConsentLabel: t('Yes - I have read this form and give my consent by checking this box and clicking submit.'),
       dataDonateOrganizationsLabel: t('Tidepool will share 10% of the proceeds with the diabetes organization(s) of their choice.'),

@@ -2,7 +2,7 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setOffset } from './tideDashboardSlice';
 import { setClinicSitesFilter } from './tideDashboardFiltersSlice';
-import SitesFilterDropdown from '../components/SitesFilterDropdown';
+import SiteFilterDropdown from '../components/SiteFilterDropdown';
 
 const FilterBySites = () => {
   const dispatch = useDispatch();
@@ -13,7 +13,7 @@ const FilterBySites = () => {
     dispatch(setOffset(0));
   };
 
-  return <SitesFilterDropdown onChange={handleChange} clinicSites={clinicSites} />;
+  return <SiteFilterDropdown onChange={handleChange} clinicSites={clinicSites} />;
 };
 
 export default FilterBySites;
