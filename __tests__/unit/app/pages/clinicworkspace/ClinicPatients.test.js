@@ -87,6 +87,7 @@ describe('ClinicPatients', ()  => {
         patientListSearchTextInput: '',
         isPatientListVisible: true,
       },
+      pdf: {},
     },
   };
 
