@@ -141,6 +141,7 @@ describe('worker action creators', () => {
           patientId,
           fetchedUntil,
           oneMinCgmFetchedUntil: undefined,
+          syncTimePrefs: undefined,
         },
       });
     });

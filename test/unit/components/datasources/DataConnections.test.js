@@ -5,6 +5,7 @@ import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
 import { thunk } from 'redux-thunk';
 import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
+import CheckCircleRoundedIcon from '@material-ui/icons/CheckCircleRounded';
 import { ToastProvider } from '../../../../app/providers/ToastProvider';
 import map from 'lodash/map';
 import reduce from 'lodash/reduce';
@@ -56,7 +57,7 @@ const mockStore = configureStore([thunk]);
 
 describe('providers', () => {
   it('should define the provider details', () => {
-    const { dexcom, abbott, twiist } = providers;
+    const { dexcom, abbott, twiist, oura } = providers;
 
     expect(dexcom.id).to.equal('oauth/dexcom');
     expect(dexcom.displayName).to.equal('Dexcom');
@@ -83,22 +84,31 @@ describe('providers', () => {
     expect(twiist.logoImage).to.be.a('string');
     expect(twiist.disconnectInstructions).to.be.undefined;
     expect(twiist.indeterminateDataImportTime).to.be.true;
+
+    expect(oura.id).to.equal('oauth/oura');
+    expect(oura.displayName).to.equal('Oura');
+    expect(oura.restrictedTokenCreate).to.eql({ paths: ['/v1/oauth/oura'] });
+    expect(oura.dataSourceFilter).to.eql({ providerType: 'oauth', providerName: 'oura' });
+    expect(oura.logoImage).to.be.a('string');
+    expect(oura.requiresLoggedInUser).to.be.true;
+    expect(oura.requiresExistingDataSource).to.be.true;
+    expect(oura.connectedMessage).to.equal('Data donation only, not viewable on the platform');
   });
 });
 
 describe('availableProviders', () => {
   it('should define a list of all available providers', () => {
-    expect(availableProviders).to.eql(['dexcom', 'twiist', 'abbott']);
+    expect(availableProviders).to.eql(['dexcom', 'twiist', 'abbott', 'oura']);
   });
 });
 
 describe('getActiveProviders', () => {
   it('should define a default list of all available providers when called without overrides', () => {
-    expect(getActiveProviders()).to.eql(['dexcom', 'twiist', 'abbott']);
+    expect(getActiveProviders()).to.eql(['dexcom', 'twiist', 'abbott', 'oura']);
   });
 
   it('should define an overridden list of all available providers when called with overrides', () => {
-    expect(getActiveProviders({ dexcom: false, abbott: true })).to.eql(['twiist', 'abbott']);
+    expect(getActiveProviders({ dexcom: false, abbott: true })).to.eql(['twiist', 'abbott', 'oura']);
   });
 });
 
@@ -404,8 +414,8 @@ describe('getConnectStateUI', () => {
       expect(UI.pendingExpired.text).to.equal('Invite Expired');
       expect(UI.pendingExpired.handler).to.equal('connect');
 
-      expect(UI.connected.message).to.equal('This can take a few minutes');
-      expect(UI.connected.text).to.equal('Connecting');
+      expect(UI.connected.message).to.equal('Awaiting data, this can take a few minutes');
+      expect(UI.connected.text).to.equal('Connected');
       expect(UI.connected.handler).to.equal('disconnect');
       expect(UINoDataFound.connected.message).to.equal('No data found as of 10 days ago');
       expect(UINoDataFound.connected.text).to.equal('Connected');
@@ -421,6 +431,66 @@ describe('getConnectStateUI', () => {
       expect(UI.error.message).to.equal('Last update 20 days ago. Please reconnect your account to keep syncing data.');
       expect(UI.error.text).to.equal('Error Connecting');
       expect(UI.error.handler).to.equal('reconnect');
+    });
+  });
+
+  context('patient user with a donation-only provider (oura)', () => {
+    const ouraAwaiting = {
+      id: 'patient123',
+      dataSources: [ {
+        providerName: 'oura',
+        state: 'connected',
+        createdTime: moment.utc().subtract(20, 'days'),
+      }],
+    };
+
+    const ouraNoDataFound = {
+      id: 'patient123',
+      dataSources: [ {
+        providerName: 'oura',
+        state: 'connected',
+        createdTime: moment.utc().subtract(20, 'days'),
+        lastImportTime: moment.utc().subtract(10, 'days'),
+      }],
+    };
+
+    const ouraDataFound = {
+      id: 'patient123',
+      dataSources: [ {
+        providerName: 'oura',
+        state: 'connected',
+        createdTime: moment.utc().subtract(20, 'days'),
+        modifiedTime: moment.utc().subtract(5, 'days'),
+        lastImportTime: moment.utc().subtract(10, 'days'),
+        latestDataTime: moment.utc().subtract(15, 'days'),
+      }],
+    };
+
+    it('should keep the generic awaiting message before the first import', () => {
+      const UIAwaiting = getConnectStateUI(ouraAwaiting, true, 'oura');
+
+      expect(UIAwaiting.connected.message).to.equal('Awaiting data, this can take a few minutes');
+      expect(UIAwaiting.connected.icon).to.be.undefined;
+      expect(UIAwaiting.connected.text).to.equal('Connected');
+    });
+
+    it('should show the static donation message once data has been imported', () => {
+      const UINoDataFound = getConnectStateUI(ouraNoDataFound, true, 'oura');
+      const UIDataFound = getConnectStateUI(ouraDataFound, true, 'oura');
+
+      expect(UINoDataFound.connected.message).to.equal('Data donation only, not viewable on the platform');
+      expect(UIDataFound.connected.message).to.equal('Data donation only, not viewable on the platform');
+    });
+
+    it('should show the connected check icon and "Connected" text once initial import has occurred', () => {
+      const UINoDataFound = getConnectStateUI(ouraNoDataFound, true, 'oura');
+      const UIDataFound = getConnectStateUI(ouraDataFound, true, 'oura');
+
+      expect(UINoDataFound.connected.icon).to.equal(CheckCircleRoundedIcon);
+      expect(UIDataFound.connected.icon).to.equal(CheckCircleRoundedIcon);
+
+      expect(UINoDataFound.connected.text).to.equal('Connected');
+      expect(UIDataFound.connected.text).to.equal('Connected');
     });
   });
 });
@@ -448,7 +518,9 @@ describe('getDataConnectionProps', () => {
   it('should merge the appropriate connect state UI and handler props based on the current provider connection state for a patient', () => {
     const dataConnectionProps = getDataConnectionProps(createPatientWithPendingDexcomConnection(), false, 'clinic125', setActiveHandlerStub);
 
-    expect(dataConnectionProps).to.have.all.keys(availableProviders);
+    // Clinic users (isLoggedInUser = false) cannot see providers that requiresLoggedInUser (e.g. oura)
+    const clinicVisibleProviders = availableProviders.filter(p => !providers[p].requiresLoggedInUser);
+    expect(dataConnectionProps).to.have.all.keys(clinicVisibleProviders);
 
     const dexcomConnection = dataConnectionProps.dexcom;
     expect(dexcomConnection.buttonHandler).to.be.a('function');
@@ -479,6 +551,38 @@ describe('getDataConnectionProps', () => {
       connectState: 'pending',
       handler: 'resendInvite',
     });
+  });
+
+  it('should exclude providers with requiresLoggedInUser when user is not logged in', () => {
+    // oura has requiresLoggedInUser: true — must not appear for clinic users
+    const patient = { id: 'patient123', dataSources: [{ providerName: 'oura', state: 'connected' }] };
+    const props = getDataConnectionProps(patient, false, 'clinic125', setActiveHandlerStub);
+
+    expect(props.oura).to.be.undefined;
+  });
+
+  it('should include providers with requiresLoggedInUser when user is logged in', () => {
+    // oura has requiresLoggedInUser: true — must appear when the patient is viewing their own data
+    const patient = { id: 'patient123', dataSources: [{ providerName: 'oura', state: 'connected' }] };
+    const props = getDataConnectionProps(patient, true, 'clinic125', setActiveHandlerStub);
+
+    expect(props.oura).to.be.an('object');
+  });
+
+  it('should exclude providers with requiresExistingDataSource when no data source exists', () => {
+    // oura has requiresExistingDataSource: true — must not appear without a pre-existing data source
+    const patient = { id: 'patient123', dataSources: [] };
+    const props = getDataConnectionProps(patient, true, 'clinic125', setActiveHandlerStub);
+
+    expect(props.oura).to.be.undefined;
+  });
+
+  it('should include providers with requiresExistingDataSource when data source exists', () => {
+    // oura has requiresExistingDataSource: true — must appear when the data source exists
+    const patient = { id: 'patient123', dataSources: [{ providerName: 'oura', state: 'connected' }] };
+    const props = getDataConnectionProps(patient, true, 'clinic125', setActiveHandlerStub);
+
+    expect(props.oura).to.be.an('object');
   });
 });
 
@@ -677,6 +781,59 @@ describe('DataConnections', () => {
         await waitFor(() => {
           sinon.assert.calledWith(api.clinics.updateClinicPatient, 'clinicID123', 'patient123', sinon.match({ dataSources: [ { providerName: 'dexcom', state: 'pending' } ] }));
           sinon.assert.calledWith(api.clinics.updateClinicPatient, 'clinicID123', 'patient123', sinon.match({ dataSources: [ { providerName: 'twiist', state: 'pending' } ] }));
+        });
+      });
+    });
+
+    // The "Email Invite" spinner is driven by activeHandler, cleared on the connect-request success
+    // transition detected via usePrevious. Stepping the chained updateClinicPatient -> connect
+    // completions deterministically confirms the spinner clears once both phases complete.
+    describe('button processing across the chained updateClinicPatient -> connect', () => {
+      const idle = { inProgress: false, completed: false, notification: null };
+      const storeWith = (working) => mockStore({
+        blip: {
+          ...clinicianUserLoggedInState.blip,
+          working: {
+            updatingClinicPatient: idle,
+            sendingPatientDataProviderConnectRequest: idle,
+            ...working,
+          },
+        },
+      });
+
+      const tree = (store) => (
+        <Provider store={store}>
+          <ToastProvider>
+            <DataConnections {...defaultProps} patient={clinicPatients.dataConnectionUnset} />
+          </ToastProvider>
+        </Provider>
+      );
+
+      it('clears the dexcom button spinner once both phases complete', async () => {
+        const { rerender } = render(tree(storeWith({})));
+        const dexcomBtn = () => container?.querySelector('#data-connection-dexcom .action')
+          || document.querySelector('#data-connection-dexcom .action');
+
+        fireEvent.click(dexcomBtn());
+        // activeHandler set -> button is processing
+        expect(dexcomBtn().classList.contains('processing')).to.be.true;
+
+        // phase 1: updateClinicPatient in progress, then completed (fires the chained connect)
+        rerender(tree(storeWith({ updatingClinicPatient: { inProgress: true, completed: false } })));
+        rerender(tree(storeWith({ updatingClinicPatient: { inProgress: false, completed: true } })));
+
+        // phase 2: connect request in progress, then completed (should clear activeHandler)
+        rerender(tree(storeWith({
+          updatingClinicPatient: { inProgress: false, completed: true },
+          sendingPatientDataProviderConnectRequest: { inProgress: true, completed: false },
+        })));
+        rerender(tree(storeWith({
+          updatingClinicPatient: { inProgress: false, completed: true },
+          sendingPatientDataProviderConnectRequest: { inProgress: false, completed: true },
+        })));
+
+        await waitFor(() => {
+          expect(dexcomBtn()?.classList.contains('processing')).to.not.equal(true);
         });
       });
     });
@@ -1129,12 +1286,12 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionJustConnected);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
-        expect(dexcomConnection.querySelector('.state-text').textContent).to.equal('Connecting');
-        expect(dexcomConnection.querySelector('.state-message').textContent).to.equal(' - This can take a few minutes');
+        expect(dexcomConnection.querySelector('.state-text').textContent).to.equal('Connected');
+        expect(dexcomConnection.querySelector('.state-message').textContent).to.equal(' - Awaiting data, this can take a few minutes');
 
         const twiistConnection = container.querySelector('#data-connection-twiist');
         expect(twiistConnection).to.exist;
@@ -1147,7 +1304,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionJustConnected);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1178,7 +1335,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionConnectedWithNoData);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1196,7 +1353,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionConnectedWithNoData);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1245,7 +1402,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionConnectedWithData);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1276,7 +1433,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionDisconnected);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1294,7 +1451,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionDisconnected);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1328,7 +1485,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionError);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
@@ -1346,7 +1503,7 @@ describe('DataConnections', () => {
         mountWrapper(store, userPatients.dataConnectionError);
 
         const connections = container.querySelectorAll('.data-connection');
-        expect(connections.length).to.equal(3);
+        expect(connections.length).to.equal(4);
 
         const dexcomConnection = container.querySelector('#data-connection-dexcom');
         expect(dexcomConnection).to.exist;
