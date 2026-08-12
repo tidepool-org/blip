@@ -101,7 +101,7 @@ const SettingsPopover = styled(Popover)`
   .MuiPopover-paper {
     max-height: 40vh;
     padding-bottom: 0;
-  };
+  }
 `;
 
 const Settings = ({
