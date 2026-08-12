@@ -28,6 +28,7 @@ import ClinicProfileFields from '../../components/clinic/ClinicProfileFields';
 import * as actions from '../../redux/actions';
 import i18next from '../../core/language';
 import { usePrevious } from '../../core/hooks';
+import { useUpdateUserProfileMutation } from '../../redux/features/userProfile/userProfileApi';
 import { getCommonFormikFieldProps, fieldsAreValid } from '../../core/forms';
 import { useToasts } from '../../providers/ToastProvider';
 import { push } from 'connected-react-router';
@@ -90,6 +91,7 @@ export const ClinicDetails = (props) => {
   const [populateProfileFields, setPopulateProfileFields] = useState(includes(['new', 'profile'], action));
   const working = useSelector((state) => state.blip.working);
   const previousWorking = usePrevious(working);
+  const [updateUserProfile] = useUpdateUserProfileMutation();
   const [submitting, setSubmitting] = useState(false);
   const [showMigrationDialog, setShowMigrationDialog] = useState(false);
   const [logoutPending, setLogoutPending] = useState(false);
@@ -214,47 +216,6 @@ export const ClinicDetails = (props) => {
   }, [loggedInUserId]);
 
   useEffect(() => {
-    const {
-      inProgress,
-      completed,
-      notification,
-    } = working.updatingUser;
-
-    const prevInProgress = get(
-      previousWorking,
-      'updatingUser.inProgress'
-    );
-
-    if (action === 'profile' && !inProgress && completed !== null && prevInProgress) {
-      setSubmitting(false);
-
-      if (notification) {
-        setToast({
-          message: notification.message,
-          variant: 'danger',
-        });
-      } else {
-        setToast({
-          message: t('Profile updated'),
-          variant: 'success',
-        });
-
-        if (isUploadLaunch) {
-          dispatch(
-            push({
-              pathname: '/upload-redirect',
-              state: { referrer: 'profile' },
-            })
-          );
-        } else {
-          // Redirect to new clinic setup form
-          dispatch(push('/clinic-details/new', { referrer: location.pathname }));
-        }
-      }
-    }
-  }, [working.updatingUser]);
-
-  useEffect(() => {
     let clinicAction = action === 'new' ? 'creatingClinic' : 'updatingClinic';
 
     const {
@@ -358,7 +319,7 @@ export const ClinicDetails = (props) => {
   const formikContext = useFormik({
     initialValues: clinicValues(),
     validationSchema: schemas[schema],
-    onSubmit: values => {
+    onSubmit: async values => {
       setSubmitting(true);
 
       if (displayClinicianForm) {
@@ -375,11 +336,24 @@ export const ClinicDetails = (props) => {
           profileUpdates.profile.clinic.role = values.role;
         }
 
-        dispatch(actions.async.updateUser(api, profileUpdates));
-
         if (action === 'profile') {
           trackMetric('Web - Clinician Details Setup');
-          if (clinicInvite) redirectToWorkspace();
+          try {
+            await updateUserProfile(profileUpdates).unwrap();
+            setToast({ message: t('Profile updated'), variant: 'success' });
+            if (clinicInvite) {
+              redirectToWorkspace();
+            } else if (isUploadLaunch) {
+              dispatch(push({ pathname: '/upload-redirect', state: { referrer: 'profile' } }));
+            } else {
+              dispatch(push('/clinic-details/new', { referrer: location.pathname }));
+            }
+          } catch (err) {
+            setSubmitting(false);
+            setToast({ message: err?.data ?? t('An error occurred. Please try again.'), variant: 'danger' });
+          }
+        } else {
+          updateUserProfile(profileUpdates);
         }
       }
 
