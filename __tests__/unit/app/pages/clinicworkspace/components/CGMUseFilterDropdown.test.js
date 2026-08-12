@@ -63,6 +63,11 @@ describe('CGMUseFilterDropdown', () => {
       await userEvent.click(screen.getByRole('radio', { name: /Less than 70%/ }));
       await userEvent.click(screen.getByRole('button', { name: /Apply/ }));
       expect(onChange).toHaveBeenCalledWith('<0.7');
+      expect(mockTrackMetric).toHaveBeenCalledWith('Clinic - CGM use apply filter', {
+        clinicId: 'clinic123',
+        filter: '<0.7',
+        pageName: 'Population Health',
+      });
 
       // Dropdown should automatically close
       expect(screen.queryByTestId('cgm-use-filter-dropdown')).not.toBeInTheDocument();

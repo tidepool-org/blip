@@ -37,7 +37,7 @@ const DropdownContent = ({
   const handleChange = timeCGMUsePercent => onChange(timeCGMUsePercent);
 
   return (
-    <Box data-testid='cgm-use-filter-dropdown' mt={5} mx={2} sx={{ width: 300 }}>
+    <Box data-testid="cgm-use-filter-dropdown" mt={5} mx={2} sx={{ width: 300 }}>
       <Box>
         <Box sx={{ padding: 1, color: vizColors.gray50, lineHeight: 1, fontWeight: 'medium', fontSize: 1 }} mb={2}>
           {t('% CGM Use')}
@@ -154,7 +154,7 @@ const CGMUseFilterDropdown = ({
 
 CGMUseFilterDropdown.propTypes = {
   onChange: PropTypes.func,
-  timeCGMUsePercent: PropTypes.oneOf(['<0.7', '>=0.7']),
+  timeCGMUsePercent: PropTypes.oneOf(getCgmUseFilterOptions(label => label).map(opt => opt.value)),
 };
 
 export default CGMUseFilterDropdown;
