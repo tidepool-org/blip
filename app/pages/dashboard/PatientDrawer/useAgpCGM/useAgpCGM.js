@@ -1,12 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import * as actions from '../../../../redux/actions';
-import buildGenerateAGPImages from './buildGenerateAGPImages';
 import moment from 'moment';
 
 import getOpts from './getOpts';
 import getQueries from './getQueries';
 import { cloneDeep } from 'lodash';
+import { useGenerateAGPImages } from '../../../../core/agpUtils';
 
 export const STATUS = {
   // States in order of happy path AGP generation sequence
@@ -22,12 +22,12 @@ export const STATUS = {
 };
 
 // TODO: Revisit best way to listen for progress when we move away from blip.working
-const inferLastCompletedStep = (patientId, data, pdf) => {
+const inferLastCompletedStep = (requestId, patientId, data, pdf) => {
   // If the outputted data for a step in the process exists, we infer that the step was successful.
   // We do the lookup in reverse order to return the LATEST completed step
 
   // Incorrect Patient --- (occurs when user switches patient partway through fetching)
-  const hasOtherPdfInState  = !!pdf.opts && pdf.opts.patient?.id !== patientId;
+  const hasOtherPdfInState = !!pdf.opts?.requestId && pdf.opts.requestId !== requestId;
   const hasOtherDataInState = !!data.metaData.patientId && data.metaData.patientId !== patientId;
 
   if (hasOtherPdfInState || hasOtherDataInState) return STATUS.INITIALIZED;
@@ -66,6 +66,7 @@ const getFetchPatientOpts = (
     endDate: moment.utc().add(1, 'days').toISOString(),
     forceDataWorkerAddDataRequest: true,
     useCache: false,
+    syncTimePrefs: true,
   };
 };
 
@@ -77,13 +78,15 @@ const useAgpCGM = (
   agpPeriodInDays = DEFAULT_AGP_PERIOD_IN_DAYS,
 ) => {
   const dispatch = useDispatch();
-  const generateAGPImages = buildGenerateAGPImages(dispatch);
+  const generateAGPImages = useGenerateAGPImages();
+  const [requestId] = useState(crypto.randomUUID());
 
   const data   = useSelector(state => state.blip.data);
   const pdf    = useSelector(state => state.blip.pdf);
   const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
   const clinicPatient = clinic?.patients?.[patientId];
-  const lastCompletedStep = inferLastCompletedStep(patientId, data, pdf);
+
+  const lastCompletedStep = inferLastCompletedStep(requestId, patientId, data, pdf);
 
   useEffect(() => {
     // Whenever a step is successfully completed, this effect triggers the next step in the sequence.
@@ -100,7 +103,7 @@ const useAgpCGM = (
         break;
 
       case STATUS.PATIENT_LOADED:
-        const opts    = getOpts(data, agpPeriodInDays);
+        const opts    = getOpts(requestId, data, agpPeriodInDays);
         const queries = getQueries(data, clinicPatient, clinic, opts);
         const pdfOpts = { ...opts, patient: clinicPatient };
         dispatch(actions.worker.generatePDFRequest('combined', queries, pdfOpts, patientId));
