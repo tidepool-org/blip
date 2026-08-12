@@ -8,7 +8,6 @@ import compact from 'lodash/compact';
 import debounce from 'lodash/debounce';
 import difference from 'lodash/difference';
 import forEach from 'lodash/forEach';
-import find from 'lodash/find';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 import indexOf from 'lodash/indexOf';
@@ -33,7 +32,6 @@ import DoubleArrowIcon from '@material-ui/icons/DoubleArrow';
 import EditIcon from '@material-ui/icons/EditRounded';
 import PrintRoundedIcon from '@material-ui/icons/PrintRounded';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
-import KeyboardArrowDownRoundedIcon from '@material-ui/icons/KeyboardArrowDownRounded';
 import RefreshRoundedIcon from '@material-ui/icons/RefreshRounded';
 import SearchIcon from '@material-ui/icons/Search';
 import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined';
@@ -48,8 +46,7 @@ import styled from '@emotion/styled';
 import { scroller } from 'react-scroll';
 import { Formik, Form } from 'formik';
 import { useFlags, useLDClient } from 'launchdarkly-react-client-sdk';
-import { Link as RouterLink } from 'react-router-dom';
-import useClinicPatientsFilters, { defaultFilterState } from './useClinicPatientsFilters';
+import useClinicPatientsFilters, { defaultFilterState, SPECIAL_FILTER_STATES } from './useClinicPatientsFilters';
 
 import {
   bindPopover,
@@ -75,18 +72,15 @@ import PatientForm from '../../components/clinic/PatientForm';
 import PatientLastReviewed from '../../components/clinic/PatientLastReviewed';
 import TideDashboardConfigForm, { validateTideConfig } from '../../components/clinic/TideDashboardConfigForm';
 import RpmReportConfigForm, { exportRpmReport } from '../../components/clinic/RpmReportConfigForm';
-import Pill from '../../components/elements/Pill';
 import PopoverMenu from '../../components/elements/PopoverMenu';
 import PopoverLabel from '../../components/elements/PopoverLabel';
 import Popover from '../../components/elements/Popover';
-import RadioGroup from '../../components/elements/RadioGroup';
-import Checkbox from '../../components/elements/Checkbox';
-import FilterIcon from '../../core/icons/FilterIcon.svg';
 import DataInIcon from '../../core/icons/DataInIcon.svg';
 import SendEmailIcon from '../../core/icons/SendEmailIcon.svg';
 import TabularReportIcon from '../../core/icons/TabularReportIcon.svg';
 import utils from '../../core/utils';
 import LimitReached from './images/LimitReached.svg';
+import ClearFilterButtons, { PATIENT_QUERY_STATE } from './components/ClearFilterButtons';
 
 import {
   Dialog,
@@ -109,20 +103,28 @@ import {
   rpmReportConfigSchema,
   maxClinicPatientTags,
   maxWorkspaceClinicSites,
+  timeInRangeFilterThresholds,
 } from '../../core/clinicUtils';
 
 import { DIABETES_TYPES, MGDL_UNITS, MMOLL_UNITS, URL_TIDEPOOL_PLUS_PLANS } from '../../core/constants';
-import baseTheme, { borders, radii, colors, space, fontWeights } from '../../themes/baseTheme';
+import baseTheme, { borders, radii, colors, space } from '../../themes/baseTheme';
 import PopoverElement from '../../components/elements/PopoverElement';
 import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
-import Banner from '../../components/elements/Banner';
 import colorPalette from '../../themes/colorPalette';
 import noop from 'lodash/noop';
 import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils';
+import FilterByTags from './clinicPatientsFilters/FilterByTags';
+import FilterBySites from './clinicPatientsFilters/FilterBySites';
+import FilterByDataRecency from './clinicPatientsFilters/FilterByDataRecency';
+import FilterBySummaryPeriod from './clinicPatientsFilters/FilterBySummaryPeriod';
+import FilterByTimeInRange from './clinicPatientsFilters/FilterByTimeInRange';
+import FilterByCGMUse from './clinicPatientsFilters/FilterByCGMUse';
 import ClinicPatientsPrintModal from './ClinicPatientsPrintModal';
+import AppliedFiltersList, { getPatientQueryState } from './clinicPatientsFilters/AppliedFiltersList';
+import useIsClinicAdmin from './useIsClinicAdmin';
 
 const { Loader } = vizComponents;
-const { reshapeBgClassesToBgBounds, generateBgRangeLabels, formatBgValue } = vizUtils.bg;
+const { formatBgValue } = vizUtils.bg;
 const { getLocalizedCeiling, formatTimeAgo } = vizUtils.datetime;
 
 const StyledScrollToTop = styled(ScrollToTop)`
@@ -132,62 +134,6 @@ const StyledScrollToTop = styled(ScrollToTop)`
   border-radius: 20px;
   padding-top: 4px;
 `;
-
-const glycemicTargetThresholds = {
-  timeInVeryLowPercent: { value: 1, comparator: '>' },
-  timeInLowPercent: { value: 4, comparator: '>' },
-  timeInAnyLowPercent: { value: 4, comparator: '>' },
-  timeInTargetPercent: { value: 70, comparator: '<' },
-  timeInHighPercent: { value: 25, comparator: '>' },
-  timeInAnyHighPercent: { value: 25, comparator: '>' },
-  timeInVeryHighPercent: { value: 5, comparator: '>' },
-  timeInExtremeHighPercent: { value: 1, comparator: '>' },
-};
-
-const getTimeInRangeFilterOptions = (showExtremeHigh = false, t) => [
-  (showExtremeHigh && {
-    title: t('Highest'),
-    value: 'timeInExtremeHighPercent',
-    threshold: glycemicTargetThresholds.timeInExtremeHighPercent.value,
-    prefix: t('Greater than'),
-    rangeName: 'extremeHigh',
-  }),
-  {
-    title: t('Very High'),
-    value: 'timeInVeryHighPercent',
-    threshold: glycemicTargetThresholds.timeInVeryHighPercent.value,
-    prefix: t('Greater than'),
-    rangeName: 'veryHigh',
-  },
-  {
-    title: t('High'),
-    value: 'timeInAnyHighPercent',
-    threshold: glycemicTargetThresholds.timeInAnyHighPercent.value,
-    prefix: t('Greater than'),
-    rangeName: 'anyHigh',
-  },
-  {
-    title: t('Not meeting TIR'),
-    value: 'timeInTargetPercent',
-    threshold: glycemicTargetThresholds.timeInTargetPercent.value,
-    prefix: t('Less than'),
-    rangeName: 'target',
-  },
-  {
-    title: t('Low'),
-    value: 'timeInAnyLowPercent',
-    threshold: glycemicTargetThresholds.timeInAnyLowPercent.value,
-    prefix: t('Greater than'),
-    rangeName: 'anyLow',
-  },
-  {
-    title: t('Very Low'),
-    value: 'timeInVeryLowPercent',
-    threshold: glycemicTargetThresholds.timeInVeryLowPercent.value,
-    prefix: t('Greater than'),
-    rangeName: 'veryLow',
-  },
-].filter(Boolean);
 
 const editPatient = (patient, setSelectedPatient, selectedClinicId, trackMetric, setShowEditPatientDialog, source) => {
   trackMetric('Clinic - Edit patient', { clinicId: selectedClinicId, source });
@@ -207,55 +153,9 @@ const printPatientData = (patient, setSelectedPatient, selectedClinicId, trackMe
   setShowPrintDataModal(true);
 };
 
-const ClearButton = styled.button`
-  background: none;
-  color: ${vizColors.indigo30};
-  border: none;
-  padding: 0;
-  font: inherit;
-  cursor: pointer;
-  text-underline-offset: 4px;
-  text-decoration: underline;
-`;
-
-export const PATIENT_LIST_QUERY_STATE = {
-  FILTER_AND_SEARCH: 'FILTER_AND_SEARCH',
-  FILTER_ONLY: 'FILTER_ONLY',
-  SEARCH_ONLY: 'SEARCH_ONLY',
-  NONE: 'NONE',
-};
-
-export const getPatientListQueryState = (
-  activeFilters = {},
-  patientListSearchTextInput = '',
-) => {
-  const { lastData, lastDataType, timeCGMUsePercent, timeInRange, clinicSites, patientTags } = activeFilters;
-
-  const hasFiltersActive = (
-    lastData ||
-    lastDataType ||
-    timeCGMUsePercent ||
-    timeInRange?.length > 0 ||
-    clinicSites?.length > 0 ||
-    patientTags?.length > 0
-  );
-
-  const hasSearchActive = !!patientListSearchTextInput;
-
-  if (hasFiltersActive && hasSearchActive) {
-    return PATIENT_LIST_QUERY_STATE.FILTER_AND_SEARCH;
-  } else if (hasFiltersActive) {
-    return PATIENT_LIST_QUERY_STATE.FILTER_ONLY;
-  } else if (hasSearchActive) {
-    return PATIENT_LIST_QUERY_STATE.SEARCH_ONLY;
-  }
-
-  return PATIENT_LIST_QUERY_STATE.NONE;
-};
-
-const EmptyContentNode = ({ patientListQueryState, children }) => {
+const EmptyContentNode = ({ patientQueryState, children }) => {
   const { t } = useTranslation();
-  const { FILTER_AND_SEARCH, FILTER_ONLY, SEARCH_ONLY, NONE } = PATIENT_LIST_QUERY_STATE;
+  const { FILTER_AND_SEARCH, FILTER_ONLY, SEARCH_ONLY, NONE } = PATIENT_QUERY_STATE;
 
   const emptyContentCopyDefs = {
     [FILTER_AND_SEARCH]: t('There are no patient accounts with the current filter(s) that match your search'),
@@ -264,11 +164,11 @@ const EmptyContentNode = ({ patientListQueryState, children }) => {
     [NONE]: t('There are no results to show'),
   };
 
-  const emptyContentCopy = emptyContentCopyDefs[patientListQueryState] || emptyContentCopyDefs[NONE];
+  const emptyContentCopy = emptyContentCopyDefs[patientQueryState] || emptyContentCopyDefs[NONE];
 
   return (
     <Flex sx={{
-      backgroundColor: colorPalette.primary.bluePrimary00,
+      backgroundColor: vizColors.gray00,
       justifyContent: 'center',
       alignItems: 'center',
       minHeight: '90px',
@@ -285,76 +185,6 @@ const EmptyContentNode = ({ patientListQueryState, children }) => {
     </Flex>
   );
 };
-
-const ClearFilterButtons = withTranslation()(({ t, patientListQueryState, onClearSearch, onResetFilters }) => {
-  const { FILTER_AND_SEARCH, FILTER_ONLY, SEARCH_ONLY, NONE } = PATIENT_LIST_QUERY_STATE;
-
-  switch(patientListQueryState) {
-    case SEARCH_ONLY:
-      return <Box>
-        <ClearButton className='clear-search-button' onClick={onClearSearch}>
-          {t('Clear Search')}
-        </ClearButton>
-      </Box>;
-
-    case FILTER_ONLY:
-      return <Box>
-        <ClearButton className='reset-filters-button' onClick={onResetFilters}>
-          {t('Reset Filters')}
-        </ClearButton>
-      </Box>;
-
-    case FILTER_AND_SEARCH:
-      return <Box>
-        <ClearButton className='reset-filters-button' onClick={onResetFilters}>
-          {t('Reset Filters')}
-        </ClearButton>
-        <>{' '}{t('or')}{' '}</>
-        <ClearButton className='clear-search-button' onClick={onClearSearch}>
-          {t('Clear Search')}
-        </ClearButton>
-      </Box>;
-
-    case NONE:
-    default:
-      return null;
-  }
-});
-
-const FilterResetBar = withTranslation()(({ t, rightSideContent, patientListQueryState }) => {
-  const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
-  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
-  const count = clinic?.fetchedPatientCount || 0;
-
-  const { FILTER_AND_SEARCH, FILTER_ONLY, SEARCH_ONLY, NONE } = PATIENT_LIST_QUERY_STATE;
-
-  if (patientListQueryState === PATIENT_LIST_QUERY_STATE.NONE) return null; // hide when no search or filters applied
-
-  const fetchedPatientCountCopyDefs = {
-    [FILTER_AND_SEARCH]: t('Showing {{ count }} patient accounts with the current filter(s) that match your search', { count }),
-    [FILTER_ONLY]: t('Showing {{ count }} patient accounts with the current filter(s)', { count }),
-    [SEARCH_ONLY]: t('Showing {{ count }} patient accounts that match your search', { count }),
-    [NONE]: t('There are no results to show'),
-  };
-
-  const fetchedPatientCountCopy = fetchedPatientCountCopyDefs[patientListQueryState];
-
-  return (
-    <Flex
-      className='filter-reset-bar'
-      px={2}
-      py={2}
-      sx={{
-        backgroundColor: vizColors.blue00,
-        borderBottom: '1px solid #D1D6E1',
-        justifyContent: 'space-between',
-      }}
-    >
-      <Text sx={{ fontWeight: 'medium' }}>{fetchedPatientCountCopy}</Text>
-      <Box>{rightSideContent}</Box>
-    </Flex>
-  );
-});
 
 const MoreMenu = ({
   patient,
@@ -694,15 +524,6 @@ const PatientTags = ({
   );
 };
 
-// If we HTTP GET `/patients` without a sites/tags query arg, we receive a list of PwDs with zero
-// or many sites/tags. We need to pass an explicit argument to request PwDs with exactly zero
-// sites/tags. By setting the filter to `['_']`, the query path is set to `/patients?sites=_` or
-// `/patients?tags=_`, which the backend understands as a request for PwDs with zero sites/tags
-export const SPECIAL_FILTER_STATES = {
-  ZERO_SITES: ['_'],
-  ZERO_TAGS: ['_'],
-};
-
 export const ClinicPatients = (props) => {
   useScrollToTop();
   const { t, api, trackMetric, searchDebounceMs } = props;
@@ -716,7 +537,7 @@ export const ClinicPatients = (props) => {
   const mrnSettings = useMemo(() => clinic?.mrnSettings ?? {}, [clinic?.mrnSettings]);
   const timePrefs = useSelector((state) => state.blip.timePrefs);
   const rpmReportPatients = useSelector(state => state.blip.rpmReportPatients);
-  const isClinicAdmin = includes(get(clinic, ['clinicians', loggedInUserId, 'roles'], []), 'CLINIC_ADMIN');
+  const isClinicAdmin = useIsClinicAdmin();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showDeleteClinicSiteDialog, setShowDeleteClinicSiteDialog] = useState(false);
   const [showUpdateClinicSiteDialog, setShowUpdateClinicSiteDialog] = useState(false);
@@ -794,40 +615,8 @@ export const ClinicPatients = (props) => {
     timeInVeryHighRecords: 'desc',
   }), []);
 
-  const bgLabels = useMemo(
-    () =>
-      generateBgRangeLabels(
-        {
-          bgUnits: clinicBgUnits,
-          bgBounds: reshapeBgClassesToBgBounds({ bgUnits: clinicBgUnits }),
-        },
-        { segmented: true }
-      ),
-    [clinicBgUnits]
-  );
-
   const [activeFilters, setActiveFilters] = useClinicPatientsFilters();
-  const [pendingFilters, setPendingFilters] = useState({ ...defaultFilterState, ...activeFilters });
   const previousActiveFilters = usePrevious(activeFilters);
-
-  const cgmUseFilterOptions = [
-    { value: '<0.7', label: t('Less than 70%') },
-    { value: '>=0.7', label: t('70% or more') },
-  ];
-
-  const lastDataTypeFilterOptions = [
-    { value: 'cgm', label: t('CGM') },
-    { value: 'bgm', label: t('BGM') },
-  ];
-
-  const customLastDataFilterOptions = reject(lastDataFilterOptions, { value: 7 });
-
-  const summaryPeriodOptions = [
-    { value: '1d', label: t('24 hours') },
-    { value: '7d', label: t('7 days') },
-    { value: '14d', label: t('14 days') },
-    { value: '30d', label: t('30 days') },
-  ];
 
   const clinicSites = useMemo(() => keyBy(clinic?.sites, 'id'), [clinic?.sites]);
   const patientTags = useMemo(() => keyBy(clinic?.patientTags, 'id'), [clinic?.patientTags]);
@@ -846,38 +635,7 @@ export const ClinicPatients = (props) => {
 
   const defaultSummaryPeriod = '14d';
   const [activeSummaryPeriod, setActiveSummaryPeriod] = useLocalStorage('activePatientSummaryPeriod', defaultSummaryPeriod);
-  const [pendingSummaryPeriod, setPendingSummaryPeriod] = useState(activeSummaryPeriod);
   const previousSummaryPeriod = usePrevious(activeSummaryPeriod);
-
-  const summaryPeriodPopupFilterState = usePopupState({
-    variant: 'popover',
-    popupId: 'summaryPeriodFilters',
-  });
-
-  const lastDataPopupFilterState = usePopupState({
-    variant: 'popover',
-    popupId: 'lastDataFilters',
-  });
-
-  const clinicSitesPopupFilterState = usePopupState({
-    variant: 'popover',
-    popupId: 'clinicSitesFilters',
-  });
-
-  const patientTagsPopupFilterState = usePopupState({
-    variant: 'popover',
-    popupId: 'patientTagFilters',
-  });
-
-  const timeInRangePopupFilterState = usePopupState({
-    variant: 'popover',
-    popupId: 'timeInRangeFilters',
-  });
-
-  const cgmUsePopupFilterState = usePopupState({
-    variant: 'popover',
-    popupId: 'cgmUseFilters',
-  });
 
   const debounceSearch = useCallback(debounce(search => {
     // Prevent a premature update to patientFetchOptions, which would trigger an initial patient
@@ -1113,12 +871,6 @@ export const ClinicPatients = (props) => {
         patientTags: without(activeFilters.patientTags, ...missingTagsInFilter),
         clinicSites: without(activeFilters.clinicSites, ...missingSitesInFilter),
       });
-
-      setPendingFilters({
-        ...pendingFilters,
-        patientTags: without(activeFilters.patientTags, ...missingTagsInFilter),
-        clinicSites: without(activeFilters.clinicSites, ...missingSitesInFilter),
-      });
     }
   }, [patientTags, clinicSites]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -1280,7 +1032,7 @@ export const ClinicPatients = (props) => {
         }
 
         forEach(activeFilters.timeInRange, filter => {
-          let { comparator, value } = glycemicTargetThresholds[filter];
+          let { comparator, value } = timeInRangeFilterThresholds[filter];
           value = value / 100;
 
           if (activeFilters.meetsGlycemicTargets) {
@@ -1584,37 +1336,7 @@ export const ClinicPatients = (props) => {
   function handleResetFilters() {
     trackMetric(prefixPopHealthMetric('Clear all filters'), { clinicId: selectedClinicId });
     setActiveFilters(defaultFilterState);
-    setPendingFilters(defaultFilterState);
   }
-
-  const handleFilterTimeInRange = useCallback(() => {
-    trackMetric(prefixPopHealthMetric('Time in range apply filter'), {
-      clinicId: selectedClinicId,
-      meetsCriteria: pendingFilters.meetsGlycemicTargets,
-      severeHypo: includes(pendingFilters.timeInRange, 'timeInVeryLowPercent'),
-      hypo: includes(pendingFilters.timeInRange, 'timeInAnyLowPercent'),
-      inRange: includes(pendingFilters.timeInRange, 'timeInTargetPercent'),
-      hyper: includes(pendingFilters.timeInRange, 'timeInAnyHighPercent'),
-      severeHyper: includes(pendingFilters.timeInRange, 'timeInVeryHighPercent'),
-      extremeHyper: includes(pendingFilters.timeInRange, 'timeInExtremeHighPercent'),
-    });
-
-    setActiveFilters({
-      ...activeFilters,
-      meetsGlycemicTargets: pendingFilters.meetsGlycemicTargets,
-      timeInRange: pendingFilters.timeInRange,
-    });
-
-    timeInRangePopupFilterState.close();
-  }, [
-    activeFilters,
-    pendingFilters.meetsGlycemicTargets,
-    pendingFilters.timeInRange,
-    prefixPopHealthMetric,
-    selectedClinicId,
-    setActiveFilters,
-    trackMetric
-  ]);
 
   const handleRemovePatient = useCallback(() => {
     trackMetric('Clinic - Remove patient confirmed', { clinicId: selectedClinicId });
@@ -1622,29 +1344,12 @@ export const ClinicPatients = (props) => {
   }, [api, dispatch, selectedClinicId, selectedPatient?.id, trackMetric]);
 
   const renderHeader = () => {
-    const activeFiltersCount = without([
-      activeFilters.timeCGMUsePercent,
-      activeFilters.lastData,
-      activeFilters.clinicSites?.length,
-      activeFilters.timeInRange?.length,
-      activeFilters.patientTags?.length,
-    ], null, 0, undefined).length;
-
-    const sortedSiteFilterOptions = clinicSitesFilterOptions?.toSorted((a, b) => utils.compareLabels(a.label, b.label)) || [];
-    const sortedTagFilterOptions = patientTagsFilterOptions?.toSorted((a, b) => utils.compareLabels(a.label, b.label)) || [];
-
     const VisibilityIcon = isPatientListVisible ? VisibilityOffOutlinedIcon : VisibilityOutlinedIcon;
     const hoursAgo = Math.floor(patientFetchMinutesAgo / 60);
     let timeAgoUnits = hoursAgo < 2 ? t('hour') : t('hours');
     let timeAgo = hoursAgo === 0 ? t('less than an') : t('over {{hoursAgo}}', { hoursAgo });
     if (hoursAgo >= 24) timeAgo = t('over 24');
     const timeAgoMessage = t('Last updated {{timeAgo}} {{timeAgoUnits}} ago', { timeAgo, timeAgoUnits });
-
-    // Filtering for patients "zero sites/tags" is different than not filtering. If we don't pass any filters
-    // to backend, we receive a list of PwDs with zero or many sites/tags. We need to explicitly filter for
-    // PwDs with exactly zero sites/tags.
-    const isFilteringForZeroSites = isEqual(pendingFilters?.clinicSites, SPECIAL_FILTER_STATES.ZERO_SITES);
-    const isFilteringForZeroTags = isEqual(pendingFilters?.patientTags, SPECIAL_FILTER_STATES.ZERO_TAGS);
 
     return (
       <>
@@ -1787,931 +1492,92 @@ export const ClinicPatients = (props) => {
                   pl={[0, 0, 2]}
                   py={1}
                   sx={{
-                    color: activeFiltersCount > 0 ? 'purpleMedium' : 'grays.4',
+                    color: 'grays.4',
                     alignItems: 'center',
                     gap: 1,
                     borderLeft: ['none', null, borders.divider],
                     flexShrink: 0
                   }}
                 >
-                  {activeFiltersCount > 0 ? (
-                    <Pill
-                      id="filter-count"
-                      label="filter count"
-                      round
-                      sx={{ width: '14px', lineHeight: '15px', fontSize: '9px', display: 'flex', justifyContent: 'center' }}
-                      colorPalette={['purpleMedium', 'white']}
-                      text={`${activeFiltersCount}`}
-                    />
-                  ) : (
-                    <Icon
-                      id="filter-icon"
-                      variant="static"
-                      iconSrc={FilterIcon}
-                      label={t('Filter')}
-                      sx={{ fontSize: 1, width: '14px', color: 'grays.4' }}
-                    />
-                  )}
                   <Text sx={{ fontSize: 0 }}>{t('Filter By')}</Text>
                 </Flex>
 
                 <Flex sx={{ flexShrink: 0, gap: 2 }}>
-                  <Box
-                    onClick={() => {
-                      if (!lastDataPopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('Last data filter open'), { clinicId: selectedClinicId });
-                    }}
-                    sx={{ flexShrink: 0 }}
-                  >
-                    <Button
-                      variant="filter"
-                      id="last-data-filter-trigger"
-                      selected={!!activeFilters.lastData}
-                      {...bindTrigger(lastDataPopupFilterState)}
-                      icon={KeyboardArrowDownRoundedIcon}
-                      iconLabel="Filter by last upload"
-                      sx={{ fontSize: 0, lineHeight: 1.3 }}
-                    >
-                      {activeFilters.lastData
-                       ? activeFilters.lastData === 1
-                        ? t('Data within 1 day')
-                        : t('Data within') + find(customLastDataFilterOptions, { value: activeFilters.lastData })?.label.replace('Within', '')
-                       : t('Data Recency')
-                      }
-                    </Button>
-                  </Box>
+                  <FilterByTags
+                    api={api}
+                    activeFilters={activeFilters}
+                    setActiveFilters={setActiveFilters}
+                    setShowClinicPatientTagsDialog={setShowClinicPatientTagsDialog}
+                  />
 
-                  <Popover
-                    width="13em"
-                    closeIcon
-                    {...bindPopover(lastDataPopupFilterState)}
-                    onClickCloseIcon={() => {
-                      trackMetric(prefixPopHealthMetric('Last upload filter close'), { clinicId: selectedClinicId });
-                    }}
-                    onClose={() => {
-                      lastDataPopupFilterState.close();
-                      setPendingFilters(activeFilters);
-                    }}
-                  >
-                    <DialogContent px={2} py={3} dividers>
-                      <Box sx={{ alignItems: 'center' }} mb={2}>
-                        <Text sx={{ color: 'grays.4', fontWeight: 'medium', fontSize: 0, whiteSpace: 'nowrap' }}>
-                          {t('Device Type')}
-                        </Text>
-                      </Box>
+                  <FilterBySites
+                    api={api}
+                    activeFilters={activeFilters}
+                    setActiveFilters={setActiveFilters}
+                    setShowClinicSitesDialog={setShowClinicSitesDialog}
+                  />
 
-                      <RadioGroup
-                        id="last-upload-type"
-                        name="last-upload-type"
-                        options={lastDataTypeFilterOptions}
-                        variant="vertical"
-                        sx={{ fontSize: 0 }}
-                        value={pendingFilters.lastDataType || activeFilters.lastDataType}
-                        onChange={event => {
-                          setPendingFilters({ ...pendingFilters, lastDataType: event.target.value || null });
-                        }}
-                      />
+                  <FilterByDataRecency
+                    activeFilters={activeFilters}
+                    setActiveFilters={setActiveFilters}
+                  />
 
-                      <Box
-                        mt={3}
-                        mb={2}
-                        pt={3}
-                        sx={{
-                          alignItems: 'center',
-                          borderTop: borders.divider,
-                        }}
-                      >
-                        <Body0 color="grays.4" sx={{ fontWeight: 'bold' }} mb={0}>{t('Data Recency')}</Body0>
-                        <Body0 color="grays.4" sx={{ fontWeight: 'medium' }} mb={2}>{t('Tidepool will only show patients who have data within the selected number of days.')}</Body0>
-                      </Box>
+                  <FilterByCGMUse
+                    activeFilters={activeFilters}
+                    setActiveFilters={setActiveFilters}
+                  />
 
-                      <RadioGroup
-                        id="last-upload-filters"
-                        name="last-upload-filters"
-                        options={customLastDataFilterOptions}
-                        variant="vertical"
-                        sx={{ fontSize: 0 }}
-                        mb={3}
-                        value={pendingFilters.lastData || activeFilters.lastData}
-                        onChange={event => {
-                          setPendingFilters({ ...pendingFilters, lastData: parseInt(event.target.value) || null });
-                        }}
-                      />
-                    </DialogContent>
-
-                    <DialogActions sx={{ justifyContent: 'space-between' }} p={1}>
-                      <Button
-                        id="clear-last-upload-filter"
-                        sx={{ fontSize: 1 }}
-                        variant="textSecondary"
-                        onClick={() => {
-                          trackMetric(prefixPopHealthMetric('Last upload clear filter'), { clinicId: selectedClinicId });
-                          setPendingFilters({ ...activeFilters, lastData: defaultFilterState.lastData, lastDataType: defaultFilterState.lastDataType });
-                          setActiveFilters({ ...activeFilters, lastData: defaultFilterState.lastData, lastDataType: defaultFilterState.lastDataType });
-                          lastDataPopupFilterState.close();
-                        }}
-                      >
-                        {t('Clear')}
-                      </Button>
-
-                      <Button
-                        id="apply-last-upload-filter"
-                        disabled={!pendingFilters.lastData || !pendingFilters.lastDataType}
-                        sx={{ fontSize: 1 }}
-                        variant="textPrimary"
-                        onClick={() => {
-                          const dateRange = pendingFilters.lastData === 1
-                            ? 'today'
-                            : `${pendingFilters.lastData} days`;
-
-                          trackMetric(prefixPopHealthMetric('Last upload apply filter'), {
-                            clinicId: selectedClinicId,
-                            dateRange,
-                            type: pendingFilters.lastDataType,
-                          });
-
-                          setActiveFilters(pendingFilters);
-                          lastDataPopupFilterState.close();
-                        }}
-                      >
-                        {t('Apply')}
-                      </Button>
-                    </DialogActions>
-                  </Popover>
-
-                  <Box
-                    onClick={() => {
-                      if (!clinicSitesPopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('clinic sites filter open'), { clinicId: selectedClinicId });
-                    }}
-                    sx={{ flexShrink: 0 }}
-                  >
-                    <Button
-                      variant="filter"
-                      id="clinic-sites-filter-trigger"
-                      selected={activeFilters.clinicSites?.length > 0}
-                      {...bindTrigger(clinicSitesPopupFilterState)}
-                      icon={KeyboardArrowDownRoundedIcon}
-                      iconLabel="Filter by clinic sites"
-                      sx={{ fontSize: 0, lineHeight: 1.3 }}
-                    >
-                      <Flex sx={{ alignItems: 'center', gap: 1 }}>
-                        {t('Sites')}
-
-                        {!!activeFilters.clinicSites?.length && (
-                          <Pill
-                            id="clinic-sites-filter-count"
-                            label="clinic site count"
-                            round
-                            sx={{
-                              width: '14px',
-                              fontSize: '9px',
-                              lineHeight: '15px',
-                              textAlign: 'center',
-                              display: 'inline-block',
-                            }}
-                            colorPalette={['purpleMedium', 'white']}
-                            text={`${activeFilters.clinicSites?.length}`}
-                          />
-                        )}
-                      </Flex>
-                    </Button>
-                  </Box>
-
-                  {/* Clinic Sites Filter */}
-                  <Popover
-                    minWidth="11em"
-                    closeIcon
-                    {...bindPopover(clinicSitesPopupFilterState)}
-                    onClickCloseIcon={() => {
-                      trackMetric(prefixPopHealthMetric('Clinic sites filter close'), { clinicId: selectedClinicId });
-                    }}
-                    onClose={() => {
-                      clinicSitesPopupFilterState.close();
-                      setPendingFilters(activeFilters);
-                    }}
-                  >
-                    <DialogContent px={2} pt={1} pb={3} mt={3} sx={{ maxHeight: '400px', maxWidth: '240px' }} dividers>
-                      <Box variant="containers.small">
-                        <Box mb={2}>
-                          <Text sx={{ display: 'block', position: 'relative', top: -2, color: colors.gray50, fontSize: 1, fontWeight: 'medium' }}>
-                            {t('Sites')}
-                          </Text>
-                          { sortedSiteFilterOptions.length > 0 &&
-                            <Text sx={{ display: 'block', position: 'relative', top: -2, color: colors.gray50, fontSize: 0, fontStyle: 'italic', maxWidth: '208px', whiteSpace: 'wrap', lineHeight: 1 }}>
-                              {t('Any patient with one or more of the sites you select below will be shown.')}
-                            </Text>
-                          }
-                        </Box>
-
-                        { // Render a list of checkboxes
-                          sortedSiteFilterOptions.map(({ id, label }) => {
-                            const { clinicSites } = pendingFilters;
-                            const isChecked = clinicSites?.includes(id);
-
-                            return (
-                              <Box mt={1} className="clinic-site-filter-option" key={`clinic-site-filter-option-${id}`}>
-                                <Checkbox
-                                  id={`clinic-site-filter-option-checkbox-${id}`}
-                                  data-testid={`clinic-site-filter-option-checkbox-${id}`}
-                                  label={
-                                    <Text sx={{ fontSize: 0, fontWeight: 'normal', display: 'inline-block', maxWidth: '160px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
-                                      {label}
-                                    </Text>
-                                  }
-                                  checked={isChecked}
-                                  onChange={() => {
-                                    if (isFilteringForZeroSites) {
-                                      setPendingFilters({ ...pendingFilters, clinicSites: [id] });
-                                    } else if (isChecked) {
-                                      setPendingFilters({ ...pendingFilters, clinicSites: without(clinicSites, id) });
-                                    } else {
-                                      setPendingFilters({ ...pendingFilters, clinicSites: [...clinicSites, id] });
-                                    }
-                                  }}
-                                />
-                              </Box>
-                            );
-                          })
-                        }
-
-                        { // Display an option to filter for patients with zero sites
-                          sortedSiteFilterOptions.length > 0 &&
-                          <Box mt={2} mx={-2} pt={3} px={2} sx={{ borderTop: borders.divider }} className="clinic-site-filter-option" key="clinic-site-filter-option-PWDS_WITH_ZERO_SITES">
-                            <Checkbox
-                              id="clinic-site-filter-option-checkbox-PWDS_WITH_ZERO_SITES"
-                              data-testid="clinic-site-filter-option-checkbox-PWDS_WITH_ZERO_SITES"
-                              label={<Text sx={{ fontSize: 0, fontWeight: 'normal' }}>
-                                {t('Patients without any sites')}
-                              </Text>}
-                              checked={isFilteringForZeroSites}
-                              onChange={() => {
-                                if (isFilteringForZeroSites) {
-                                  setPendingFilters({ ...pendingFilters, clinicSites: [] });
-                                } else {
-                                  setPendingFilters({ ...pendingFilters, clinicSites: SPECIAL_FILTER_STATES.ZERO_SITES });
-                                }
-                              }}
-                            />
-                          </Box>
-                        }
-
-                        { // If no sites exist, display a message
-                          sortedSiteFilterOptions.length <= 0 &&
-                          <Box>
-                            <Box sx={{ fontSize: 1, color: colors.gray50, lineHeight: 1 }}>
-                              {t('Create and assign sites to patient accounts to segment your patient population by location.')}
-                            </Box>
-                            { !isClinicAdmin &&
-                              <Box mt={3} pt={3} sx={{ borderTop: `1px solid ${colors.gray05}`, fontSize: 0, color: colors.gray50, lineHeight: 1 }}>
-                                <Trans t={t}>
-                                  Sites can only be created by your Workspace Admins. Not sure who the admins are? Check the Clinic Members list in your&nbsp;
-                                  <RouterLink to='/clinic-admin' style={{ color: colors.purpleBright }}>Workspace Settings.</RouterLink>
-                                </Trans>
-                              </Box>
-                            }
-                          </Box>
-                        }
-                      </Box>
-                    </DialogContent>
-
-                    { sortedSiteFilterOptions.length > 0 &&
-                      <DialogActions sx={{ justifyContent: 'space-around', padding: 2 }} p={1}>
-                        <Button
-                          id="clear-clinic-sites-filter"
-                          sx={{ fontSize: 1 }}
-                          variant="textSecondary"
-                          onClick={() => {
-                            trackMetric(prefixPopHealthMetric('Clinic site filter clear'), { clinicId: selectedClinicId });
-                            setPendingFilters({ ...activeFilters, clinicSites: defaultFilterState.clinicSites });
-                            setActiveFilters({ ...activeFilters, clinicSites: defaultFilterState.clinicSites });
-                            clinicSitesPopupFilterState.close();
-                          }}
-                        >
-                          {t('Clear')}
-                        </Button>
-
-                        <Button id="apply-clinic-sites-filter" sx={{ fontSize: 1 }} variant="textPrimary" onClick={() => {
-                          trackMetric(prefixPopHealthMetric('Clinic sites filter apply'), { clinicId: selectedClinicId });
-                          setActiveFilters(pendingFilters);
-                          clinicSitesPopupFilterState.close();
-                        }}>
-                          {t('Apply')}
-                        </Button>
-                      </DialogActions>
-                    }
-
-                    {isClinicAdmin &&
-                      <DialogActions p={1} sx={{ borderTop: borders.divider }} py={2} px={0}>
-                        <Button
-                          id="show-edit-clinic-sites-dialog"
-                          icon={EditIcon}
-                          iconPosition="left"
-                          iconLabel="Edit Sites"
-                          sx={{ fontSize: 1 }}
-                          variant="textPrimary"
-                          onClick={() => {
-                            trackMetric(prefixPopHealthMetric('Edit clinic sites open'), { clinicId: selectedClinicId, source: 'Filter menu' });
-                            dispatch(actions.async.fetchClinicSites(api, selectedClinicId)); // current data in clinic object may be stale
-                            setShowClinicSitesDialog(true);
-                          }}
-                        >
-                          {t('Edit Sites')}
-                        </Button>
-
-                      </DialogActions>
-                    }
-                  </Popover>
-
-                  {/* Tags Filter */}
-                  <Box
-                    onClick={() => {
-                      if (!patientTagsPopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('patient tags filter open'), { clinicId: selectedClinicId });
-                    }}
-                    sx={{ flexShrink: 0 }}
-                  >
-                    <Button
-                      variant="filter"
-                      id="patient-tags-filter-trigger"
-                      selected={activeFilters.patientTags?.length > 0}
-                      {...bindTrigger(patientTagsPopupFilterState)}
-                      icon={KeyboardArrowDownRoundedIcon}
-                      iconLabel="Filter by patient tags"
-                      sx={{ fontSize: 0, lineHeight: 1.3 }}
-                    >
-                      <Flex sx={{ alignItems: 'center', gap: 1 }}>
-                        {showTideDashboard && !clinic?.patientTags?.length && <Icon
-                          variant="static"
-                          icon={InfoOutlinedIcon}
-                          sx={{ fontSize: '14px' }}
-                        />}
-
-                        {t('Tags')}
-
-                        {!!activeFilters.patientTags?.length && (
-                          <Pill
-                            id="patient-tags-filter-count"
-                            label="filter count"
-                            round
-                            sx={{
-                              width: '14px',
-                              fontSize: '9px',
-                              lineHeight: '15px',
-                              textAlign: 'center',
-                              display: 'inline-block',
-                            }}
-                            colorPalette={['purpleMedium', 'white']}
-                            text={`${activeFilters.patientTags?.length}`}
-                          />
-                        )}
-                      </Flex>
-                    </Button>
-                  </Box>
-
-                  <Popover
-                    minWidth="11em"
-                    closeIcon
-                    {...bindPopover(patientTagsPopupFilterState)}
-                    onClickCloseIcon={() => {
-                      trackMetric(prefixPopHealthMetric('Patient tag filter close'), { clinicId: selectedClinicId });
-                    }}
-                    onClose={() => {
-                      patientTagsPopupFilterState.close();
-                      setPendingFilters(activeFilters);
-                    }}
-                  >
-                    <DialogContent px={2} pt={1} pb={3} mt={3} sx={{ maxHeight: '400px', maxWidth: '240px' }} dividers>
-                      <Box variant="containers.small">
-                        <Box mb={2}>
-                          <Text sx={{ display: 'block', position: 'relative', top: -2, color: colors.gray50, fontSize: 1, fontWeight: 'medium' }}>
-                            {t('Tags')}
-                          </Text>
-                          { sortedTagFilterOptions.length > 0 &&
-                            <Text sx={{ display: 'block', position: 'relative', top: -2, color: colors.gray50, fontSize: 0, fontStyle: 'italic', maxWidth: '208px', whiteSpace: 'wrap', lineHeight: 1 }}>
-                              {t('Only patients with ALL of the tags you select below will be shown.')}
-                            </Text>
-                          }
-                        </Box>
-
-                        { // Render a list of checkboxes
-                          sortedTagFilterOptions.map(({ id, label }) => {
-                            const { patientTags } = pendingFilters;
-                            const isChecked = patientTags?.includes(id);
-
-                            return (
-                              <Box mt={1} className="tag-filter-option" key={`tag-filter-option-${id}`}>
-                                <Checkbox
-                                  id={`tag-filter-option-checkbox-${id}`}
-                                  data-testid={`tag-filter-option-checkbox-${id}`}
-                                  label={<Text sx={{ fontSize: 0, fontWeight: 'normal' }}>{label}</Text>}
-                                  checked={isChecked}
-                                  onChange={() => {
-                                    if (isFilteringForZeroTags) {
-                                      setPendingFilters({ ...pendingFilters, patientTags: [id] });
-                                    } else if (isChecked) {
-                                      setPendingFilters({ ...pendingFilters, patientTags: without(patientTags, id) });
-                                    } else {
-                                      setPendingFilters({ ...pendingFilters, patientTags: [...patientTags, id] });
-                                    }
-                                  }}
-                                />
-                              </Box>
-                            );
-                          })
-                        }
-
-                        { // Display an option to filter for patients with zero tags
-                          sortedTagFilterOptions.length > 0 &&
-                          <Box mt={2} mx={-2} pt={3} px={2} sx={{ borderTop: borders.divider }} className="clinic-site-filter-option" key="clinic-site-filter-option-PWDS_WITH_ZERO_TAGS">
-                            <Checkbox
-                              id="tag-filter-option-checkbox-PWDS_WITH_ZERO_TAGS"
-                              data-testid="tag-filter-option-checkbox-PWDS_WITH_ZERO_TAGS"
-                              label={<Text sx={{ fontSize: 0, fontWeight: 'normal' }}>
-                                {t('Patients without any tags')}
-                              </Text>}
-                              checked={isFilteringForZeroTags}
-                              onChange={() => {
-                                if (isFilteringForZeroTags) {
-                                  setPendingFilters({ ...pendingFilters, patientTags: [] });
-                                } else {
-                                  setPendingFilters({ ...pendingFilters, patientTags: SPECIAL_FILTER_STATES.ZERO_TAGS });
-                                }
-                              }}
-                            />
-                          </Box>
-                        }
-
-                        { // If no tags exist, display a message
-                          sortedTagFilterOptions.length <= 0 &&
-                          <Box>
-                            <Box sx={{ fontSize: 1, color: colors.gray50, lineHeight: 1 }}>
-                              {t('Tags help you segment your patient population based on criteria you define, such as clinician, type of diabetes, or care groups.')}
-                            </Box>
-                            { !isClinicAdmin &&
-                              <Box mt={3} pt={3} sx={{ borderTop: `1px solid ${colors.gray05}`, fontSize: 0, color: colors.gray50, lineHeight: 1 }}>
-                                <Trans t={t}>
-                                  Tags can only be created by your Workspace Admins. Not sure who the admins are? Check the Clinic Members list in your&nbsp;
-                                  <RouterLink to='/clinic-admin' style={{ color: colors.purpleBright }}>Workspace Settings.</RouterLink>
-                                </Trans>
-                              </Box>
-                            }
-                          </Box>
-                        }
-                      </Box>
-                    </DialogContent>
-
-                    { sortedTagFilterOptions.length > 0 &&
-                      <DialogActions sx={{ justifyContent: 'space-around', padding: 2 }} p={1}>
-                        <Button
-                          id="clear-patient-tags-filter"
-                          sx={{ fontSize: 1 }}
-                          variant="textSecondary"
-                          onClick={() => {
-                            trackMetric(prefixPopHealthMetric('Patient tag filter clear'), { clinicId: selectedClinicId });
-                            setPendingFilters({ ...activeFilters, patientTags: defaultFilterState.patientTags });
-                            setActiveFilters({ ...activeFilters, patientTags: defaultFilterState.patientTags });
-                            patientTagsPopupFilterState.close();
-                          }}
-                        >
-                          {t('Clear')}
-                        </Button>
-
-                        <Button id="apply-patient-tags-filter" sx={{ fontSize: 1 }} variant="textPrimary" onClick={() => {
-                          trackMetric(prefixPopHealthMetric('Patient tag filter apply'), { clinicId: selectedClinicId });
-                          setActiveFilters(pendingFilters);
-                          patientTagsPopupFilterState.close();
-                        }}>
-                          {t('Apply')}
-                        </Button>
-                      </DialogActions>
-                    }
-
-                    {isClinicAdmin &&
-                      <DialogActions p={1} sx={{ borderTop: borders.divider }} py={2} px={0}>
-                        <Button
-                          id="show-edit-clinic-patient-tags-dialog"
-                          icon={EditIcon}
-                          iconPosition="left"
-                          iconLabel="Edit patient tags"
-                          sx={{ fontSize: 1 }}
-                          variant="textPrimary"
-                          onClick={() => {
-                            trackMetric(prefixPopHealthMetric('Edit clinic tags open'), { clinicId: selectedClinicId, source: 'Filter menu' });
-                            dispatch(actions.async.fetchClinicPatientTags(api, selectedClinicId)); // current data in clinic object may be stale
-                            setShowClinicPatientTagsDialog(true);
-                          }}
-                        >
-                          {t('Edit Tags')}
-                        </Button>
-
-                      </DialogActions>
-                    }
-                  </Popover>
-
-                  <Box
-                    onClick={() => {
-                      if (!timeInRangePopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('Time in range filter open'), { clinicId: selectedClinicId });
-                    }}
-                  >
-                    <Button
-                      id="time-in-range-filter-trigger"
-                      variant="filter"
-                      selected={!!activeFilters.timeInRange?.length}
-                      {...bindTrigger(timeInRangePopupFilterState)}
-                      icon={KeyboardArrowDownRoundedIcon}
-                      iconLabel="Filter by Time in Range"
-                      sx={{ fontSize: 0, lineHeight: 1.3, flexShrink: 0 }}
-                    >
-                      <Flex sx={{ gap: 1 }}>
-                        {t('% Time in Range')}
-                        {!!activeFilters.timeInRange?.length && (
-                          <Pill
-                            id="time-in-range-filter-count"
-                            label="filter count"
-                            round
-                            sx={{
-                              width: '14px',
-                              fontSize: '9px',
-                              lineHeight: '15px',
-                              textAlign: 'center',
-                              display: 'inline-block',
-                            }}
-                            colorPalette={['purpleMedium', 'white']}
-                            text={`${activeFilters.timeInRange?.length}`}
-                          />
-                        )}
-                        </Flex>
-                    </Button>
-                  </Box>
-
-                  <Popover
-                    minWidth="11em"
-                    closeIcon
-                    {...bindPopover(timeInRangePopupFilterState)}
-                    onClickCloseIcon={() => {
-                      trackMetric(prefixPopHealthMetric('Time in range filter close'), { clinicId: selectedClinicId });
-                    }}
-                    onClose={() => {
-                      timeInRangePopupFilterState.close();
-                      setPendingFilters(activeFilters);
-                    }}
-                  >
-                    <DialogContent color="text.primary" pl={4} pr={6} pb={3}>
-                      <Box mb={3} sx={{ fontSize: 1, fontWeight: 'medium' }}>
-                        <Box mr={2} sx={{ color: vizColors.gray50, fontWeight: 'medium', fontSize: 1, whiteSpace: 'nowrap' }}>
-                          {t('% Time in Range')}
-                        </Box>
-                        <Box mt={2} sx={{ color: vizColors.blue50, fontWeight: 'normal', fontStyle: 'italic', fontSize: 0, lineHeight: 1 }}>
-                          <Text>{t('Only patients using the standard target range will be included.')}</Text>
-                        </Box>
-                      </Box>
-
-                      {map(getTimeInRangeFilterOptions(showExtremeHigh, t), ({ value, title, rangeName, threshold, prefix }) => {
-                        const {prefix: bgPrefix, suffix, value:glucoseTargetValue} = bgLabels[rangeName];
-
-                        return (
-                          <Flex
-                            id={`time-in-range-filter-${rangeName}`}
-                            key={rangeName}
-                            mb={3}
-                            ml={2}
-                            sx={{ alignItems: 'center', gap: 2 }}
-                          >
-                            <Checkbox
-                              id={`range-${value}-filter`}
-                              name={`range-${value}-filter`}
-                              key={value}
-                              checked={includes([...pendingFilters.timeInRange], value)}
-                              onChange={event => {
-                                setPendingFilters(event.target.checked
-                                  ? { ...pendingFilters, timeInRange: [...pendingFilters.timeInRange, value] }
-                                  : { ...pendingFilters, timeInRange: without(pendingFilters.timeInRange, value) }
-                                );
-                              }}
-                            />
-
-                          <Box
-                            px={1}
-                            py={1}
-                            ml={-2}
-                            sx={{
-                              backgroundColor: `${colors.bg[rangeName]}1A`, // Adding '1A' reduces opacity to 0.1
-                              borderRadius: 4,
-                            }}
-                          >
-                            <Flex as="label" htmlFor={`range-${value}-filter`} sx={{ alignItems: 'center' }}>
-                              <Box
-                                id={`range-${value}-filter-option-color-indicator`}
-                                sx={{
-                                  position: 'relative',
-                                  borderRadius: 4,
-                                  backgroundColor: colors.bg[rangeName],
-                                  width: '12px',
-                                  height: '12px',
-
-                                  // The styles within the :after pseudo-class below create a diagonal line
-
-                                  border: value === 'timeInTargetPercent' && `1.5px solid ${colors.blueGreyDark}`,
-                                  '&::after': value === 'timeInTargetPercent' && {
-                                    content: '""',
-                                    height: '1.5px',
-                                    width: '141.421%',
-                                    backgroundColor: colors.blueGreyDark,
-                                    position: 'absolute',
-                                    bottom: '0px',
-                                    transform: 'rotate(-45deg)',
-                                    transformOrigin: '1px 1px',
-                                  },
-                                }}
-                                mr={2}
-                              >
-                              </Box>
-
-                              <Text
-                                id={`range-${value}-filter-option-title`}
-                                sx={{ fontSize: 1, fontWeight: 'bold', color: 'black' }}
-                                mr={2}
-                              >
-                                {title}
-                              </Text>
-
-                              <Text id={`range-${value}-filter-option-definition`} sx={{ fontSize: 1 }} mr={2}>
-                                {prefix}{' '}
-                                <Text sx={{ fontSize: 2, fontWeight: 'bold' }}>
-                                  {threshold}
-                                </Text>
-                                % {t('Time')}{' '}
-                                {bgPrefix && `${t(bgPrefix)} `}
-                                <Text sx={{ fontSize: 2, fontWeight: 'bold' }}>
-                                  {glucoseTargetValue}
-                                </Text>{' '}
-                                {suffix}
-                              </Text>
-                            </Flex>
-                          </Box>
-                        </Flex>
-                        );
-                      })}
-
-                      <Button
-                        variant="textSecondary"
-                        px={0}
-                        sx={{ fontSize: 0 }}
-                        onClick={() => {
-                          trackMetric(prefixPopHealthMetric('Time in range unselect all'), { clinicId: selectedClinicId });
-                          setPendingFilters({ ...pendingFilters, timeInRange: defaultFilterState.timeInRange });
-                        }}
-                      >
-                        {t('Unselect all')}
-                      </Button>
-                    </DialogContent>
-
-                    <DialogActions sx={{ justifyContent: 'space-between' }} p={2}>
-                      <Button
-                        id="timeInRangeFilterClear"
-                        variant="textSecondary"
-                        onClick={() => {
-                          trackMetric(prefixPopHealthMetric('Time in range clear filter'), { clinicId: selectedClinicId });
-                          setPendingFilters({ ...activeFilters, timeInRange: defaultFilterState.timeInRange });
-                          setActiveFilters({ ...activeFilters, timeInRange: defaultFilterState.timeInRange });
-                          timeInRangePopupFilterState.close();
-                        }}
-                      >
-                        {t('Clear')}
-                      </Button>
-
-                      <Button
-                        id="timeInRangeFilterConfirm"
-                        variant="textPrimary"
-                        onClick={handleFilterTimeInRange}
-                      >
-                        {t('Apply')}
-                      </Button>
-                    </DialogActions>
-                  </Popover>
-
-                  <Box
-                    onClick={() => {
-                      if (!cgmUsePopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('CGM Use filter open'), { clinicId: selectedClinicId });
-                    }}
-                    sx={{ flexShrink: 0 }}
-                  >
-                    <Button
-                      variant="filter"
-                      id="cgm-use-filter-trigger"
-                      selected={!!activeFilters.timeCGMUsePercent}
-                      {...bindTrigger(cgmUsePopupFilterState)}
-                      icon={KeyboardArrowDownRoundedIcon}
-                      iconLabel="Filter by cgm use"
-                      sx={{ fontSize: 0, lineHeight: 1.3 }}
-                    >
-                      {activeFilters.timeCGMUsePercent ? find(cgmUseFilterOptions, { value: activeFilters.timeCGMUsePercent })?.label : t('% CGM Use')}
-                    </Button>
-                  </Box>
-
-                  <Popover
-                    minWidth="11em"
-                    closeIcon
-                    {...bindPopover(cgmUsePopupFilterState)}
-                    onClickCloseIcon={() => {
-                      trackMetric(prefixPopHealthMetric('CGM Use filter close'), { clinicId: selectedClinicId });
-                    }}
-                    onClose={() => {
-                      cgmUsePopupFilterState.close();
-                      setPendingFilters(activeFilters);
-                    }}
-                  >
-                    <DialogContent px={2} py={3} dividers>
-                      <Box sx={{ alignItems: 'center' }} mb={2}>
-                        <Text sx={{ color: 'grays.4', fontWeight: 'medium', fontSize: 0, whiteSpace: 'nowrap' }}>
-                          {t('% CGM Use')}
-                        </Text>
-                      </Box>
-
-                      <RadioGroup
-                        id="cgm-use"
-                        name="cgm-use"
-                        options={cgmUseFilterOptions}
-                        variant="vertical"
-                        sx={{ fontSize: 0 }}
-                        value={pendingFilters.timeCGMUsePercent || activeFilters.timeCGMUsePercent}
-                        onChange={event => {
-                          setPendingFilters({ ...pendingFilters, timeCGMUsePercent: event.target.value || null });
-                        }}
-                      />
-                    </DialogContent>
-
-                    <DialogActions sx={{ justifyContent: 'space-between' }} p={1}>
-                      <Button
-                        id="clear-cgm-use-filter"
-                        sx={{ fontSize: 1 }}
-                        variant="textSecondary"
-                        onClick={() => {
-                          trackMetric(prefixPopHealthMetric('CGM use clear filter'), { clinicId: selectedClinicId });
-                          setPendingFilters({ ...activeFilters, timeCGMUsePercent: defaultFilterState.timeCGMUsePercent });
-                          setActiveFilters({ ...activeFilters, timeCGMUsePercent: defaultFilterState.timeCGMUsePercent });
-                          cgmUsePopupFilterState.close();
-                        }}
-                      >
-                        {t('Clear')}
-                      </Button>
-
-                      <Button
-                        id="apply-cgm-use-filter"
-                        disabled={!pendingFilters.timeCGMUsePercent}
-                        sx={{ fontSize: 1 }}
-                        variant="textPrimary"
-                        onClick={() => {
-                          trackMetric(prefixPopHealthMetric('CGM use apply filter'), {
-                            clinicId: selectedClinicId,
-                            filter: pendingFilters.timeCGMUsePercent,
-                          });
-
-                          setActiveFilters(pendingFilters);
-                          cgmUsePopupFilterState.close();
-                        }}
-                      >
-                        {t('Apply')}
-                      </Button>
-                    </DialogActions>
-                  </Popover>
+                  <FilterByTimeInRange
+                    activeFilters={activeFilters}
+                    setActiveFilters={setActiveFilters}
+                  />
                 </Flex>
-
-                {activeFiltersCount > 0 && (
-                  <Button
-                    id="reset-all-active-filters"
-                    variant="textSecondary"
-                    onClick={handleResetFilters}
-                    sx={{ fontSize: 0, color: 'grays.4', flexShrink: 0 }}
-                    px={0}
-                  >
-                    {t('Reset Filters')}
-                  </Button>
-                )}
               </Flex>
             )}
 
             {/* Flex Group 2b: Range select and Info/Visibility Icons */}
-            <Flex sx={{ flexGrow: 1, justifyContent: 'space-between', gap: 3 }}>
+            <Flex sx={{ flexGrow: 1, justifyContent: 'flex-end', gap: 3 }}>
 
               {/* Range select */}
               {showSummaryData && (
                 <Flex
                   pt={0}
-                  sx={{ gap: 3, justifyContent: 'flex-start', alignItems: 'center', flexShrink: 0 }}
+                  sx={{ gap: 3, justifyContent: 'flex-end', alignItems: 'center', flexShrink: 0 }}
                 >
-                  <Flex
-                    py={1}
-                    pl={[0, 0, 3]}
-                    sx={{ color: 'grays.4', borderLeft: ['none', null, borders.divider], alignItems: 'center' }}
-                  >
 
-                  <Text sx={{ fontSize: 0 }}>{t('Summarizing')}</Text>
+                  <FilterBySummaryPeriod
+                    activeSummaryPeriod={activeSummaryPeriod}
+                    setActiveSummaryPeriod={setActiveSummaryPeriod}
+                  />
+
+                  {showRpmReportUI && (
+                    <Flex
+                      alignItems="center"
+                      color="grays.4"
+                      py="1px"
+                      pl={[0, 0, 3]}
+                      sx={{ borderLeft: ['none', null, borders.divider] }}
+                    >
+                      <Button
+                        id="open-rpm-report-config"
+                        variant="tertiary"
+                        onClick={handleConfigureRpmReport}
+                        lineHeight={1.3}
+                        px={2}
+                        py={1}
+                        iconSrc={TabularReportIcon}
+                        iconPosition="left"
+                        sx={{ fontSize: 0 }}
+                      >
+                        {t('RPM Report')}
+                      </Button>
+                    </Flex>
+                  )}
                 </Flex>
-
-                <Box
-                  onClick={() => {
-                    if (!summaryPeriodPopupFilterState.isOpen) trackMetric(prefixPopHealthMetric('Summary period filter open'), { clinicId: selectedClinicId });
-                  }}
-                >
-                  <Button
-                    variant="filter"
-                    id="summary-period-filter-trigger"
-                    {...bindTrigger(summaryPeriodPopupFilterState)}
-                    icon={KeyboardArrowDownRoundedIcon}
-                    iconLabel="Filter by summary period duration"
-                    sx={{ fontSize: 0, lineHeight: 1.3 }}
-                  >
-                    {find(summaryPeriodOptions, { value: activeSummaryPeriod })?.label} {t('of data')}
-                  </Button>
-                </Box>
-
-                <Popover
-                  width="13em"
-                  closeIcon
-                  {...bindPopover(summaryPeriodPopupFilterState)}
-                  onClickCloseIcon={() => {
-                    trackMetric(prefixPopHealthMetric('Summary period filter close'), { clinicId: selectedClinicId });
-                  }}
-                  onClose={() => {
-                    summaryPeriodPopupFilterState.close();
-                    setPendingSummaryPeriod(activeSummaryPeriod);
-                  }}
-                >
-                  <DialogContent px={2} py={3} dividers>
-                    <Body0 color="grays.4" sx={{ fontWeight: 'medium' }} mb={2}>{t('Tidepool will generate health summaries for the selected number of days.')}</Body0>
-
-                    <RadioGroup
-                      id="summary-period-filters"
-                      name="summary-period-filters"
-                      options={summaryPeriodOptions}
-                      variant="vertical"
-                      sx={{ fontSize: 0 }}
-                      value={pendingSummaryPeriod || activeSummaryPeriod}
-                      onChange={event => setPendingSummaryPeriod(event.target.value)}
-                    />
-                  </DialogContent>
-
-                  <DialogActions sx={{ justifyContent: 'space-between' }} p={1}>
-                    <Button
-                      id="cancel-summary-period-filter"
-                      sx={{ fontSize: 1 }}
-                      variant="textSecondary"
-                      onClick={() => {
-                        trackMetric(prefixPopHealthMetric('Summary period filter cancel'), { clinicId: selectedClinicId });
-                        setPendingSummaryPeriod(activeSummaryPeriod);
-                        summaryPeriodPopupFilterState.close();
-                      }}
-                    >
-                      {t('Cancel')}
-                    </Button>
-
-                    <Button
-                      id="apply-summary-period-filter"
-                      sx={{ fontSize: 1 }}
-                      variant="textPrimary"
-                      disabled={pendingSummaryPeriod === activeSummaryPeriod}
-                      onClick={() => {
-                        trackMetric(prefixPopHealthMetric('Summary period apply filter'), {
-                          clinicId: selectedClinicId,
-                          summaryPeriod: pendingSummaryPeriod,
-                        });
-
-                        setActiveSummaryPeriod(pendingSummaryPeriod);
-                        summaryPeriodPopupFilterState.close();
-                      }}
-                    >
-                      {t('Apply')}
-                    </Button>
-                  </DialogActions>
-                </Popover>
-
-                {showRpmReportUI && (
-                  <Flex
-                    alignItems="center"
-                    color="grays.4"
-                    py="1px"
-                    pl={[0, 0, 3]}
-                    sx={{ borderLeft: ['none', null, borders.divider] }}
-                  >
-                    <Button
-                      id="open-rpm-report-config"
-                      variant="tertiary"
-                      onClick={handleConfigureRpmReport}
-                      fontSize={0}
-                      lineHeight={1.3}
-                      px={2}
-                      py={1}
-                      iconSrc={TabularReportIcon}
-                      iconPosition="left"
-                    >
-                      {t('RPM Report')}
-                    </Button>
-                  </Flex>
-                )}
-              </Flex>
-            )}
+              )}
 
             {/* Info/Visibility Icons */}
-            <Flex sx={{ gap: 2, justifyContent: 'flex-end', flexGrow: 1, flexShrink: 0, alignItems: 'center' }}>
+            <Flex sx={{ gap: 2, justifyContent: 'flex-end', flexShrink: 0, alignItems: 'center' }}>
               {showSummaryData && isPatientListVisible && (
                 <>
                   <PopoverLabel
@@ -4246,27 +3112,18 @@ export const ClinicPatients = (props) => {
     const page = Math.ceil(patientFetchOptions.offset / patientFetchOptions.limit) + 1;
     const sort = patientFetchOptions.sort || defaultPatientFetchOptions.sort;
 
-    const patientListQueryState = getPatientListQueryState(activeFilters, patientListSearchTextInput);
-
-    // Show the Filter Reset Bar only if data exists and any filters/search are applied
-    const showFilterResetBar = (data?.length > 0) && patientListQueryState !== PATIENT_LIST_QUERY_STATE.NONE;
+    const patientQueryState = getPatientQueryState(activeFilters, patientListSearchTextInput);
 
     return (
       <Box>
         <Loader show={loading} overlay={true} />
 
-        { showFilterResetBar &&
-          <FilterResetBar
-            patientListQueryState={patientListQueryState}
-            rightSideContent={
-              <ClearFilterButtons
-                patientListQueryState={patientListQueryState}
-                onClearSearch={handleClearSearch}
-                onResetFilters={handleResetFilters}
-              />
-            }
-          />
-        }
+        <AppliedFiltersList
+          activeFilters={activeFilters}
+          setActiveFilters={setActiveFilters}
+          onClearSearch={handleClearSearch}
+          onResetFilters={handleResetFilters}
+        />
 
         <Table
           id={'peopleTable'}
@@ -4280,9 +3137,9 @@ export const ClinicPatients = (props) => {
           orderBy={sort?.substring(1)}
           onClickRow={handleClickPatient}
           emptyContentNode={
-            <EmptyContentNode patientListQueryState={patientListQueryState}>
+            <EmptyContentNode patientQueryState={patientQueryState}>
               <ClearFilterButtons
-                patientListQueryState={patientListQueryState}
+                patientQueryState={patientQueryState}
                 onClearSearch={handleClearSearch}
                 onResetFilters={handleResetFilters}
               />
@@ -4306,6 +3163,7 @@ export const ClinicPatients = (props) => {
       </Box>
     );
   }, [
+    activeFilters,
     clinic?.fetchedPatientCount,
     columns,
     data,
@@ -4314,6 +3172,7 @@ export const ClinicPatients = (props) => {
     handleSortChange,
     loading,
     patientFetchOptions,
+    setActiveFilters,
     showSummaryData,
     tableStyle,
   ]);
