@@ -99,7 +99,6 @@ import {
   patientSchema as validationSchema,
   clinicSiteSchema,
   clinicPatientTagSchema,
-  lastDataFilterOptions,
   tideDashboardConfigSchema,
   rpmReportConfigSchema,
   maxClinicPatientTags,
@@ -111,10 +110,8 @@ import { DIABETES_TYPES, MGDL_UNITS, MMOLL_UNITS, URL_TIDEPOOL_PLUS_PLANS } from
 import baseTheme, { borders, radii, colors, space } from '../../themes/baseTheme';
 import PopoverElement from '../../components/elements/PopoverElement';
 import DataConnectionsModal from '../../components/datasources/DataConnectionsModal';
-import colorPalette from '../../themes/colorPalette';
 import noop from 'lodash/noop';
 import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils';
-import ResetFilters from './components/ResetFilters';
 import FilterByTags from './clinicPatientsFilters/FilterByTags';
 import FilterBySites from './clinicPatientsFilters/FilterBySites';
 import FilterByDataRecency from './clinicPatientsFilters/FilterByDataRecency';

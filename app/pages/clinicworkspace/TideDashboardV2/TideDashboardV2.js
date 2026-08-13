@@ -53,16 +53,12 @@ const TideDashboard = () => {
     { skip: !selectedClinicId }
   );
 
-  const activeFiltersCount = useActiveFiltersCount();
-
   // reset state on dismount
   useEffect(() => {
     return () => dispatch(resetTideDashboardState());
   }, []);
 
   const handleChangeOffset = (newOffset) => dispatch(setOffset(newOffset));
-
-  const handleResetFilters = () => dispatch(resetTideDashboardFilters());
 
   if (!data) return null;
 
@@ -77,7 +73,6 @@ const TideDashboard = () => {
         <FilterByTags />
         <FilterBySites />
         <FilterByDataRecency />
-        <ResetFilters hidden={activeFiltersCount <= 0} onClick={handleResetFilters} />
         <Gap />
         <FilterBySummaryPeriod />
       </Flex>
