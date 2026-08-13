@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import Table from '../../../components/elements/Table';
@@ -14,7 +14,7 @@ import PaginationControls from '../components/PaginationControls';
 
 import TagListCell from '../components/TagListCell';
 import { PatientCell } from './Cells';
-import { resetTideDashboardState, setOffset } from './tideDashboardSlice';
+import { setOffset } from './tideDashboardSlice';
 import { useGetTideDashboardPatientsQuery } from './tideDashboardApi';
 import useDerivedDataRecencyEndpoints from './useDerivedDataRecencyEndpoints';
 import usePruneInvalidFilters from './usePruneInvalidFilters';
@@ -44,11 +44,6 @@ const TideDashboard = () => {
     { clinicId: selectedClinicId, offset, category, summaryPeriod, lastDataTo, lastDataFrom, tags: patientTags, sites: clinicSites, limit: LIMIT },
     { skip: !selectedClinicId }
   );
-
-  // reset state on dismount
-  useEffect(() => {
-    return () => dispatch(resetTideDashboardState());
-  }, []);
 
   const handleChangeOffset = (newOffset) => dispatch(setOffset(newOffset));
 
