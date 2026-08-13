@@ -59,6 +59,7 @@ const AppliedFiltersList = ({ patientCount = 0 }) => {
       patientCount={patientCount}
       hasSearchActive={false} // No patient search in TIDE Dashboard
       filters={activeFilters}
+      requiredFilters={['lastData']}
       onRemoveFilter={handleRemoveFilter}
       rightContent={
         <Box sx={{ fontSize: 0 }}>
