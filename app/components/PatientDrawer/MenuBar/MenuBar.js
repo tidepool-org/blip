@@ -15,6 +15,7 @@ import api from '../../../core/api';
 import { map, keys } from 'lodash';
 import copyIcon from '../../../core/icons/copyIcon.svg';
 import viewIcon from '../../../core/icons/viewIcon.svg';
+import { trackMetric } from '../../../core/metricUtils';
 
 export const OVERVIEW_TAB_INDEX = 0;
 export const STACKED_DAILY_TAB_INDEX = 1;
@@ -32,7 +33,7 @@ const tabs = {
   },
 };
 
-const MenuBar = ({ patientId, onClose, onSelectTab, selectedTab, trackMetric }) => {
+const MenuBar = ({ patientId, onClose, onSelectTab, selectedTab }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const { showTideDashboardLastReviewed } = useFlags();
@@ -157,7 +158,6 @@ MenuBar.propTypes = {
   onClose: PropTypes.func.isRequired,
   onSelectTab: PropTypes.func.isRequired,
   selectedTab: PropTypes.number.isRequired,
-  trackMetric: PropTypes.func.isRequired,
 };
 
 export default MenuBar;
