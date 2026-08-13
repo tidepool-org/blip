@@ -114,16 +114,8 @@ const TideDashboard = ({ api, trackMetric }) => {
         <Box></Box>
       </Grid>
 
-      <EditPatientDialogController
-        api={api}
-        trackMetric={trackMetric}
-        patients={patients}
-      />
-
-      <DataConnectionsModalController
-        patients={patients}
-      />
-
+      <EditPatientDialogController api={api} patients={patients} />
+      <DataConnectionsModalController patients={patients}/>
       <PatientDrawerController api={api} />
     </>
   );
