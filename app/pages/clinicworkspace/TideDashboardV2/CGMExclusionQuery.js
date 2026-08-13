@@ -10,10 +10,10 @@ export default class CGMExclusionQuery {
 
   negate(threshold) {
     switch (true) {
-      case threshold.startsWith('>='): return threshold.replace('>=', '<');
-      case threshold.startsWith('<='): return threshold.replace('<=', '>');
-      case threshold.startsWith('>'):  return threshold.replace('>', '<=');
-      case threshold.startsWith('<'):  return threshold.replace('<', '>=');
+      case threshold.startsWith('>='): return threshold.replace(/^>=/, '<');
+      case threshold.startsWith('<='): return threshold.replace(/^<=/, '>');
+      case threshold.startsWith('>'):  return threshold.replace(/^>/, '<=');
+      case threshold.startsWith('<'):  return threshold.replace(/^</, '>=');
 
       default: return threshold;
     }

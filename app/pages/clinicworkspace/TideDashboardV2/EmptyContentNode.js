@@ -2,22 +2,12 @@ import React from 'react';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import colorPalette from '../../../themes/colorPalette';
-import { Flex, Text, Box } from 'theme-ui';
-import styled from '@emotion/styled';
-import { colors as vizColors } from '@tidepool/viz';
+import { Flex, Text } from 'theme-ui';
 import useActiveFiltersCount from './useActiveFiltersCount';
 import { resetTideDashboardFilters } from './tideDashboardFiltersSlice';
-
-const ClearButton = styled.button`
-  background: none;
-  color: ${vizColors.indigo30};
-  border: none;
-  padding: 0;
-  font: inherit;
-  cursor: pointer;
-  text-underline-offset: 4px;
-  text-decoration: underline;
-`;
+import { setOffset } from './tideDashboardSlice';
+import ClearFilterButtons, { PATIENT_QUERY_STATE } from '../components/ClearFilterButtons';
+import noop from 'lodash/noop';
 
 const EmptyContentNode = () => {
   const { t } = useTranslation();
@@ -26,11 +16,16 @@ const EmptyContentNode = () => {
   const activeFiltersCount = useActiveFiltersCount();
   const hasActiveFilters = activeFiltersCount > 0;
 
+  const handleResetFilters = () => {
+    dispatch(resetTideDashboardFilters());
+    dispatch(setOffset(0));
+  };
+
   const emptyContentCopy = hasActiveFilters
     ? t('There are no patients with the current filter(s)')
     : t('There are no results to show');
 
-  const handleResetFilters = () => dispatch(resetTideDashboardFilters());
+  const patientQueryState = hasActiveFilters ? PATIENT_QUERY_STATE.FILTER_ONLY : PATIENT_QUERY_STATE.NONE;
 
   return (
     <Flex sx={{
@@ -47,11 +42,13 @@ const EmptyContentNode = () => {
         {emptyContentCopy}
       </Text>
 
-      { hasActiveFilters && (
-        <ClearButton className='reset-filters-button' onClick={handleResetFilters}>
-          {t('Reset Filter')}
-        </ClearButton>
-      )}
+      { hasActiveFilters &&
+        <ClearFilterButtons
+          patientQueryState={patientQueryState}
+          onResetFilters={handleResetFilters}
+          onClearSearch={noop}
+        />
+      }
     </Flex>
   );
 };
