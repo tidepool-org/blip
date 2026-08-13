@@ -41,6 +41,8 @@ const AppliedFiltersList = ({ activeFilters, setActiveFilters, onClearSearch, on
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const { patientListSearchTextInput } = useSelector(state => state.blip.patientListFilters);
 
+  const patientCount = clinic?.fetchedPatientCount || 0;
+
   const handleRemoveFilter = (filterKey, value) => {
     switch (filterKey) {
       case 'lastData':
@@ -100,6 +102,7 @@ const AppliedFiltersList = ({ activeFilters, setActiveFilters, onClearSearch, on
 
   return (
     <ActiveFiltersTray
+      patientCount={patientCount}
       hasSearchActive={hasSearchActive}
       filters={activeFilters}
       onRemoveFilter={handleRemoveFilter}
