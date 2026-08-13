@@ -58,7 +58,7 @@ const FilterByCategory = () => {
         <Indicator color={vizColors.veryHigh}/>{t('Very High')}
       </Segment>
       <Segment selected={category === LOW_CGM_WEAR} onClick={() => handleChange(LOW_CGM_WEAR)}>
-        <Indicator color={vizColors.gold30}/>{t('Low CGM Wear Time')}
+        <Indicator color={vizColors.gold30}/>{t('Low CGM Wear')}
       </Segment>
       <Segment selected={category === TARGET} onClick={() => handleChange(TARGET)}>
         <Indicator color={vizColors.target}/>{t('Meeting Targets')}

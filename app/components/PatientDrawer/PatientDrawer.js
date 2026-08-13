@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Icon from '../../components/elements/Icon';
 import { useLocation, useHistory } from 'react-router-dom';
 import Drawer from '@material-ui/core/Drawer';
@@ -51,7 +51,7 @@ const getAgpPeriodInDays = (period) => {
   }
 };
 
-const DrawerContent = ({ patientId, onClose, api, trackMetric, period }) => {
+const DrawerContent = ({ patientId, onClose, api, period }) => {
   // Only rendered when patient is selected and isOpen is true
   // this will also allow the hook to dismount and for the cleanup to be called
   const location = useLocation();
@@ -83,7 +83,7 @@ const DrawerContent = ({ patientId, onClose, api, trackMetric, period }) => {
   return (
     <>
       <Box sx={{ flexShrink: 0 }}>
-        <MenuBar patientId={patientId} trackMetric={trackMetric} onClose={onClose} selectedTab={selectedTab} onSelectTab={handleSelectTab} />
+        <MenuBar patientId={patientId} onClose={onClose} selectedTab={selectedTab} onSelectTab={handleSelectTab} />
 
         <Box className='sticky-shadow' sx={{ height: '8px', position: 'sticky', zIndex: 1, visibility: scrolledToTop ? 'hidden' : 'visible', boxShadow: shadows.large }} />
       </Box>
@@ -106,7 +106,7 @@ const DrawerContent = ({ patientId, onClose, api, trackMetric, period }) => {
   )
 }
 
-const PatientDrawer = ({ patientId, onClose, api, trackMetric, period }) => {
+const PatientDrawer = ({ patientId, onClose, api, period }) => {
   const classes = useStyles();
 
   const isOpen = !!patientId && isValidAgpPeriod(period);
@@ -129,7 +129,7 @@ const PatientDrawer = ({ patientId, onClose, api, trackMetric, period }) => {
           flexDirection: 'column',
         }}
       >
-        {isOpen && <DrawerContent patientId={patientId} onClose={onClose} api={api} trackMetric={trackMetric} period={period} />}
+        {isOpen && <DrawerContent patientId={patientId} onClose={onClose} api={api} period={period} />}
       </Box>
     </StyledDrawer>
   );

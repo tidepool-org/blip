@@ -7,8 +7,6 @@ import { tagTypes } from './tideDashboardApi';
 
 const { TIDE_DASHBOARD_PATIENTS } = tagTypes;
 
-const trackMetric = () => {};
-
 const EditPatientDialogController = ({ api, patients }) => {
   const dispatch = useDispatch();
   const editPatientDialog = useSelector(state => state.blip.tideDashboard.editPatientDialog);
@@ -27,7 +25,6 @@ const EditPatientDialogController = ({ api, patients }) => {
     <>
       <EditPatientDialog
         api={api}
-        trackMetric={trackMetric}
         clinicPatient={clinicPatient}
         isOpen={editPatientDialog.isOpen}
         onClose={handleCloseModal}

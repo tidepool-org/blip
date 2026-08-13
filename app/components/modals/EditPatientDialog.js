@@ -16,6 +16,7 @@ import { patientSchema as validationSchema } from '../../core/clinicUtils';
 import { DEFAULT_GLYCEMIC_RANGES } from '../../core/glycemicRangesUtils';
 import { useToasts } from '../../providers/ToastProvider';
 import * as actions from '../../redux/actions';
+import { trackMetric } from '../../core/metricUtils';
 
 const useUpdatingClinicPatientWorkingState = ({ onUpdateSuccess = noop }) => {
   const { t } = useTranslation();
@@ -51,7 +52,6 @@ const PATIENT_FORM_SEARCH_DEBOUNCE_MS = 600;
 
 const EditPatientDialog = ({
   api,
-  trackMetric,
   clinicPatient,
   isOpen,
   onClose = noop,

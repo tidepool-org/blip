@@ -13,9 +13,8 @@ const formatThreshold = (value, bgUnits) => bgUnits === MGDL_UNITS
   ? value
   : utils.formatDecimal(value, 1);
 
-const useCategoryHeaderCopy = () => {
+const useCategoryHeaderCopy = (category) => {
   const { t } = useTranslation();
-  const category = useSelector(state => state.blip.tideDashboard.category);
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const bgUnits = clinic?.preferredBgUnits || MGDL_UNITS;
@@ -54,7 +53,7 @@ const useCategoryHeaderCopy = () => {
       };
     case CATEGORY.LOW_CGM_WEAR:
       return {
-        title: t('Low CGM Wear Time'),
+        title: t('Low CGM Wear'),
         label: t('< 70%'),
       };
     case CATEGORY.TARGET:
@@ -68,8 +67,8 @@ const useCategoryHeaderCopy = () => {
   }
 };
 
-const TableCategoryHeader = () => {
-  const { title, label } = useCategoryHeaderCopy();
+const TableCategoryHeader = ({ category }) => {
+  const { title, label } = useCategoryHeaderCopy(category);
 
   return <Box sx={{ minHeight: '24px' }} mt={4} mb={1} ml={2}>
     <Text sx={{ fontSize: 1, fontWeight: 'medium', color: vizColors.purple90 }} mr={2}>
