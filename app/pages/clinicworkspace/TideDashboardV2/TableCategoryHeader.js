@@ -54,7 +54,7 @@ const useCategoryHeaderCopy = () => {
       };
     case CATEGORY.LOW_CGM_WEAR:
       return {
-        title: t('Low CGM Wear Time'),
+        title: t('Low CGM Wear'),
         label: t('< 70%'),
       };
     case CATEGORY.TARGET:
