@@ -90,11 +90,6 @@ const TideDashboard = ({ api }) => {
         data={tableData}
         emptyContentNode={<EmptyContentNode />}
         containerProps={{ sx: { containerType: 'inline-size' } }}
-        // sx={tableStyle}
-        // onSort={handleSortChange}
-        // order={sort?.substring(0, 1) === '+' ? 'asc' : 'desc'}
-        // orderBy={sort?.substring(1)}
-        // onClickRow={handleClickPatient}
       />
 
       <Grid sx={{ gridTemplateColumns: '1fr 2fr 1fr' }}>
