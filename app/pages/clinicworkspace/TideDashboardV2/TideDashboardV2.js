@@ -79,7 +79,7 @@ const TideDashboard = ({ api }) => {
         <FilterByCategory />
       </Flex>
 
-      <TableCategoryHeader />
+      <TableCategoryHeader category={resolvedCategory} />
 
       <AppliedFiltersList patientCount={total} />
       <Table
