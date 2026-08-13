@@ -15,8 +15,7 @@ import PaginationControls from '../components/PaginationControls';
 import PatientDrawerController from './PatientDrawerController';
 
 import { setOffset } from './tideDashboardSlice';
-import { useGetTideDashboardPatientsQuery } from './tideDashboardApi';
-import useDerivedDataRecencyEndpoints from './useDerivedDataRecencyEndpoints';
+import useTideDashboardPatients, { LIMIT } from './useTideDashboardPatients';
 import usePruneInvalidFilters from './usePruneInvalidFilters';
 import useTableColumns from './useTableColumns';
 import EmptyContentNode from './EmptyContentNode';
@@ -27,8 +26,6 @@ import EditPatientDialogController from './EditPatientDialogController';
 import DataConnectionsModalController from './DataConnectionsModalController';
 import DataIssues from './DataIssues';
 
-const LIMIT = 12;
-
 const Gap = () => <Box sx={{ marginLeft: 'auto' }}></Box>;
 
 const TideDashboard = ({ api, trackMetric }) => {
@@ -37,17 +34,10 @@ const TideDashboard = ({ api, trackMetric }) => {
 
   usePruneInvalidFilters();
 
-  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const category = useSelector(state => state.blip.tideDashboard.category);
   const offset = useSelector(state => state.blip.tideDashboard.offset);
-  const { patientTags, clinicSites, summaryPeriod } = useSelector(state => state.blip.tideDashboardFilters);
 
-  const [lastDataFrom, lastDataTo] = useDerivedDataRecencyEndpoints();
-
-  const { data } = useGetTideDashboardPatientsQuery(
-    { clinicId: selectedClinicId, offset, category, summaryPeriod, lastDataTo, lastDataFrom, tags: patientTags, sites: clinicSites, limit: LIMIT },
-    { skip: !selectedClinicId }
-  );
+  const { data } = useTideDashboardPatients();
 
   // Sync category to data fetching resolution; prevents visual glitch due to
   // category updating view before the API call resolves and updates it again

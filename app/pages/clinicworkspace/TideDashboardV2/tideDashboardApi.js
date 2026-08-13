@@ -64,7 +64,25 @@ const tideDashboardApi = RTKQueryApi.injectEndpoints({
       }),
       providesTags: [TIDE_DASHBOARD_PATIENTS],
     }),
+    setClinicPatientLastReviewed: builder.mutation({
+      query: ({ clinicId, patientId }) => ({
+        url: `/clinics/${clinicId}/patients/${patientId}/reviews`,
+        method: 'PUT',
+      }),
+      invalidatesTags: [TIDE_DASHBOARD_PATIENTS],
+    }),
+    revertClinicPatientLastReviewed: builder.mutation({
+      query: ({ clinicId, patientId }) => ({
+        url: `/clinics/${clinicId}/patients/${patientId}/reviews`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: [TIDE_DASHBOARD_PATIENTS],
+    }),
   }),
 });
 
-export const { useGetTideDashboardPatientsQuery } = tideDashboardApi;
+export const {
+  useGetTideDashboardPatientsQuery,
+  useSetClinicPatientLastReviewedMutation,
+  useRevertClinicPatientLastReviewedMutation,
+} = tideDashboardApi;
