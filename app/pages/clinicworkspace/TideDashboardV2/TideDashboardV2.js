@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import Table from '../../../components/elements/Table';
 import { Flex, Text, Box, Grid } from 'theme-ui';
+import { colors as vizColors } from '@tidepool/viz';
 
 import FilterByCategory from './FilterByCategory';
 import FilterByTags from './FilterByTags';
