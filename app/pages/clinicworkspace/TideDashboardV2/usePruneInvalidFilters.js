@@ -7,7 +7,7 @@ const usePruneInvalidFilters = () => {
   const dispatch = useDispatch();
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
-  const { patientTags, clinicSites } = useSelector(state => state.blip.tideDashboardFilters.patientTags);
+  const { patientTags, clinicSites } = useSelector(state => state.blip.tideDashboardFilters);
 
   useEffect(() => {
     if (!patientTags?.length || !clinic) return;

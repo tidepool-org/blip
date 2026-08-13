@@ -5,6 +5,7 @@ import colorPalette from '../../../themes/colorPalette';
 import { Flex, Text } from 'theme-ui';
 import useActiveFiltersCount from './useActiveFiltersCount';
 import { resetTideDashboardFilters } from './tideDashboardFiltersSlice';
+import { setOffset } from './tideDashboardSlice';
 import ClearFilterButtons, { PATIENT_QUERY_STATE } from '../components/ClearFilterButtons';
 import noop from 'lodash/noop';
 
@@ -15,7 +16,10 @@ const EmptyContentNode = () => {
   const activeFiltersCount = useActiveFiltersCount();
   const hasActiveFilters = activeFiltersCount > 0;
 
-  const handleResetFilters = () => dispatch(resetTideDashboardFilters());
+  const handleResetFilters = () => {
+    dispatch(resetTideDashboardFilters());
+    dispatch(setOffset(0));
+  };
 
   const emptyContentCopy = hasActiveFilters
     ? t('There are no patients with the current filter(s)')
