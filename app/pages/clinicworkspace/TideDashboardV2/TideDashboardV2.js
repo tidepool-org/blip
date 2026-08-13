@@ -1,25 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useTranslation, Trans } from 'react-i18next';
-import { colors as vizColors } from '@tidepool/viz';
+import { useTranslation } from 'react-i18next';
 import Table from '../../../components/elements/Table';
-import { Box, Flex, Grid, Text } from 'theme-ui';
+import { Box, Flex, Grid } from 'theme-ui';
 
 import FilterByCategory from './FilterByCategory';
 import FilterByTags from './FilterByTags';
 import TableCategoryHeader from './TableCategoryHeader';
 import PaginationControls from '../components/PaginationControls';
-import ActiveFilterCount from '../components/ActiveFilterCount';
 
 import TagListCell from '../components/TagListCell';
 import { PatientCell } from './Cells';
 import { resetTideDashboardState, setOffset } from './tideDashboardSlice';
 import { useGetTideDashboardPatientsQuery } from './tideDashboardApi';
-import ResetFilters from '../components/ResetFilters';
-import useActiveFiltersCount from './useActiveFiltersCount';
 import usePruneInvalidFilters from './usePruneInvalidFilters';
-import { resetTideDashboardFilters } from './tideDashboardFiltersSlice';
 import EmptyContentNode from './EmptyContentNode';
 import FilterBySites from './FilterBySites';
 import PatientCount from '../components/PatientCount';
@@ -42,8 +36,6 @@ const TideDashboard = () => {
     { skip: !selectedClinicId }
   );
 
-  const activeFiltersCount = useActiveFiltersCount();
-
   // reset state on dismount
   useEffect(() => {
     return () => dispatch(resetTideDashboardState());
@@ -60,13 +52,8 @@ const TideDashboard = () => {
   return (
     <>
       <Flex id="tide-dashboard-filters" mb={3} sx={{ gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
-        <ActiveFilterCount count={activeFiltersCount} />
         <FilterByTags />
         <FilterBySites />
-        <ResetFilters
-          hidden={activeFiltersCount <= 0}
-          onClick={() => dispatch(resetTideDashboardFilters())}
-        />
       </Flex>
 
       <Flex mb={3} sx={{ justifyContent: 'center' }}>
