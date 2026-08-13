@@ -18,7 +18,7 @@ import TideDashboardV2 from './TideDashboardV2';
 import Prescriptions from '../prescription/Prescriptions';
 import { PatientInvites } from '../share';
 import * as actions from '../../redux/actions';
-import config from '../../config';
+import { resetTideDashboardState } from './TideDashboardV2/tideDashboardSlice';
 
 const TAB = {
   PATIENTS: 'patients',
@@ -29,7 +29,7 @@ const TAB = {
 
 const useTabs = () => {
   const { t } = useTranslation();
-  const { showPrescriptions, showSummaryDashboard, showTideDashboard } = useFlags();
+  const { showPrescriptions, showTideDashboard } = useFlags();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const patientInvites = values(clinic?.patientInvites);
@@ -41,22 +41,22 @@ const useTabs = () => {
       {
         name: TAB.PATIENTS,
         label: t('Patient List'),
-        metric: 'Clinic - View patient list'
+        metric: 'Clinic - View patient list',
       },
       showTideDashboardUI && {
         name: TAB.TIDE_DASHBOARD,
         label: t('TIDE Dashboard'),
-        metric: 'Clinic - View TIDE Dashboard'
+        metric: 'Clinic - View TIDE Dashboard',
       },
       {
         name: TAB.INVITES,
         label: t('Invites ({{count}})', { count: patientInvites.length }),
-        metric: 'Clinic - View patient invites'
+        metric: 'Clinic - View patient invites',
       },
       showPrescriptions && {
         name: TAB.PRESCRIPTIONS,
         label: t('Tidepool Loop Start Orders'),
-        metric: 'Clinic - View prescriptions'
+        metric: 'Clinic - View prescriptions',
       },
     ].filter(Boolean)
   ), [showPrescriptions, showTideDashboardUI, patientInvites.length, t]);
@@ -115,9 +115,16 @@ export const ClinicWorkspace = (props) => {
   }, [props.location?.state?.selectedClinicId]);
 
   function handleSelectTab(event, newValue) {
-    trackMetric(tabs[newValue]?.metric, { clinicId: selectedClinicId, source: 'Workspace table' });
+    const newTab = tabs[newValue];
+
+    trackMetric(newTab?.metric, { clinicId: selectedClinicId, source: 'Workspace table' });
     setSelectedTab(newValue);
-    dispatch(push(`/clinic-workspace/${tabs[newValue].name}`));
+
+    if (newTab?.name === 'tide-dashboard') {
+      dispatch(resetTideDashboardState());
+    }
+
+    dispatch(push(`/clinic-workspace/${newTab.name}`));
   }
 
   return (

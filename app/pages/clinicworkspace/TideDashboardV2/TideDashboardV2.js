@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import Table from '../../../components/elements/Table';
@@ -13,7 +13,7 @@ import TableCategoryHeader from './TableCategoryHeader';
 import PaginationControls from '../components/PaginationControls';
 import PatientDrawerController from './PatientDrawerController';
 
-import { resetTideDashboardState, setOffset } from './tideDashboardSlice';
+import { setOffset } from './tideDashboardSlice';
 import { useGetTideDashboardPatientsQuery } from './tideDashboardApi';
 import useDerivedDataRecencyEndpoints from './useDerivedDataRecencyEndpoints';
 import usePruneInvalidFilters from './usePruneInvalidFilters';
@@ -53,11 +53,6 @@ const TideDashboard = ({ api, trackMetric }) => {
 
   const tableColumns = useTableColumns(resolvedCategory);
 
-  // reset state on dismount
-  useEffect(() => {
-    return () => dispatch(resetTideDashboardState());
-  }, []);
-
   const handleChangeOffset = (newOffset) => dispatch(setOffset(newOffset));
 
   if (!data) return null;
@@ -81,7 +76,7 @@ const TideDashboard = ({ api, trackMetric }) => {
         <FilterByCategory />
       </Flex>
 
-      <TableCategoryHeader />
+      <TableCategoryHeader category={resolvedCategory} />
 
       <AppliedFiltersList patientCount={total} />
       <Table
@@ -92,11 +87,6 @@ const TideDashboard = ({ api, trackMetric }) => {
         data={patients}
         emptyContentNode={<EmptyContentNode />}
         containerProps={{ sx: { containerType: 'inline-size' } }}
-        // sx={tableStyle}
-        // onSort={handleSortChange}
-        // order={sort?.substring(0, 1) === '+' ? 'asc' : 'desc'}
-        // orderBy={sort?.substring(1)}
-        // onClickRow={handleClickPatient}
       />
 
       <Grid sx={{ gridTemplateColumns: '1fr 2fr 1fr' }}>
