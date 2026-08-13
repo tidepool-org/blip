@@ -3,7 +3,7 @@ import _ from 'lodash';
 import get from 'lodash/get';
 import { utils as vizUtils } from '@tidepool/viz';
 import utils from '../../../core/utils';
-import { getMostRecentDatumTimeByChartType } from '../../../../core/dataViewUtils';
+import { getMostRecentDatumTimeByChartType } from '../../../core/dataViewUtils';
 
 const getTimezoneFromTimePrefs = vizUtils.datetime.getTimezoneFromTimePrefs;
 
