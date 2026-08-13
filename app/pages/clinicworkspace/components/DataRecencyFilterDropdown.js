@@ -86,22 +86,23 @@ const DropdownContent = ({
         </Box>
       </Box>
 
-      <Grid sx={{ gridTemplateColumns: canClearSelection ? '1fr 1fr' : '1fr' }} mt={3} mb={2}>
-        {canClearSelection &&
-          <Button
-            id="clear-last-upload-filter"
-            sx={{ fontSize: 1 }}
-            variant="secondary"
-            onClick={() => {
+      <Grid sx={{ gridTemplateColumns: '1fr 1fr' }} mt={3} mb={2}>
+        <Button
+          id={canClearSelection ? 'clear-last-upload-filter' : 'cancel-last-upload-filter'}
+          sx={{ fontSize: 1 }}
+          variant="secondary"
+          onClick={() => {
+            if (canClearSelection) {
               trackMetric('Clinic - Last upload clear filter', { clinicId: selectedClinicId, pageName });
               setPending({ lastData: null, lastDataType: null });
               handleChange({ lastData: null, lastDataType: null });
-              onClose();
-            }}
-          >
-            {t('Clear')}
-          </Button>
-        }
+            }
+
+            onClose();
+          }}
+        >
+          {canClearSelection ? t('Clear') : t('Cancel')}
+        </Button>
 
         <Button
           id="apply-last-upload-filter"

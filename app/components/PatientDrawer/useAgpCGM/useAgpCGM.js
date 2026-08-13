@@ -6,7 +6,7 @@ import moment from 'moment';
 import getOpts from './getOpts';
 import getQueries from './getQueries';
 import { cloneDeep } from 'lodash';
-import { useGenerateAGPImages } from '../../../../core/agpUtils';
+import { useGenerateAGPImages } from '../../../core/agpUtils';
 
 export const STATUS = {
   // States in order of happy path AGP generation sequence
