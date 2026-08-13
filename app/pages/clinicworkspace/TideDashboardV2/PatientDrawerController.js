@@ -1,10 +1,8 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { useSelector } from 'react-redux';
 import { useLocation, useHistory } from 'react-router-dom';
 import PatientDrawer from '../../../components/PatientDrawer/PatientDrawer';
-import { useFlags } from 'launchdarkly-react-client-sdk';
-
-const trackMetric = () => {};
+import { trackMetric } from '../../../core/metricUtils';
 
 const PatientDrawerController = ({ api }) => {
   const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
