@@ -183,22 +183,20 @@ const ChipGroup = ({ prefix, chips, onRemove }) => {
 };
 
 const ActiveFiltersTray = ({
+  patientCount = 0,
   filters = {},
   hasSearchActive = false,
   onRemoveFilter = noop,
   rightContent = null,
 }) => {
   const { t } = useTranslation();
-  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
-  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
-
   const primaryChips = usePrimaryChips(filters);
   const tagChips = useTagChips(filters.patientTags);
   const siteChips = useSiteChips(filters.clinicSites);
 
-  const count = clinic?.fetchedPatientCount || 0;
-
   const handleRemoveChip = chip => onRemoveFilter(chip.type, chip.value);
+
+  const count = patientCount;
 
   return (
     <Flex
@@ -267,6 +265,7 @@ const ActiveFiltersTray = ({
 };
 
 ActiveFiltersTray.propTypes = {
+  patientCount: PropTypes.number,
   filters: PropTypes.shape({
     lastData: PropTypes.number,
     lastDataType: PropTypes.oneOf(['bgm', 'cgm']),

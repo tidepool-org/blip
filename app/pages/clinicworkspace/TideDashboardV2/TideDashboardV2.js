@@ -27,6 +27,7 @@ import { resetTideDashboardFilters } from './tideDashboardFiltersSlice';
 import EmptyContentNode from './EmptyContentNode';
 import FilterBySites from './FilterBySites';
 import PatientCount from '../components/PatientCount';
+import AppliedFiltersList from './AppliedFiltersList';
 
 const LIMIT = 12;
 
@@ -72,7 +73,7 @@ const TideDashboard = () => {
   return (
     <>
       <Flex id="tide-dashboard-filters" mb={3} sx={{ gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
-        <ActiveFilterCount count={activeFiltersCount} />
+        <Text sx={{ fontSize: 0, color: 'grays.4' }}>{t('Filter By')}</Text>
         <FilterByTags />
         <FilterBySites />
         <FilterByDataRecency />
@@ -86,6 +87,8 @@ const TideDashboard = () => {
       </Flex>
 
       <TableCategoryHeader />
+
+      <AppliedFiltersList patientCount={total} />
       <Table
         id="tideDashboardPatientsTable"
         variant="condensed"
