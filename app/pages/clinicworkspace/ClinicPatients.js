@@ -80,7 +80,6 @@ import SendEmailIcon from '../../core/icons/SendEmailIcon.svg';
 import TabularReportIcon from '../../core/icons/TabularReportIcon.svg';
 import utils from '../../core/utils';
 import LimitReached from './images/LimitReached.svg';
-import ActiveFilterCount from './components/ActiveFilterCount';
 import ClearFilterButtons, { PATIENT_QUERY_STATE } from './components/ClearFilterButtons';
 
 import {

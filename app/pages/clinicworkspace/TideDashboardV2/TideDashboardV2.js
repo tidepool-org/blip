@@ -1,8 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useTranslation, Trans } from 'react-i18next';
-import { colors as vizColors } from '@tidepool/viz';
+import { useTranslation } from 'react-i18next';
 import Table from '../../../components/elements/Table';
 import { Flex, Text, Box, Grid } from 'theme-ui';
 
@@ -13,25 +11,19 @@ import FilterBySummaryPeriod from './FilterBySummaryPeriod';
 
 import TableCategoryHeader from './TableCategoryHeader';
 import PaginationControls from '../components/PaginationControls';
-import ActiveFilterCount from '../components/ActiveFilterCount';
 
 import TagListCell from '../components/TagListCell';
 import { PatientCell } from './Cells';
 import { resetTideDashboardState, setOffset } from './tideDashboardSlice';
 import { useGetTideDashboardPatientsQuery } from './tideDashboardApi';
-import ResetFilters from '../components/ResetFilters';
-import useActiveFiltersCount from './useActiveFiltersCount';
 import useDerivedDataRecencyEndpoints from './useDerivedDataRecencyEndpoints';
 import usePruneInvalidFilters from './usePruneInvalidFilters';
-import { resetTideDashboardFilters } from './tideDashboardFiltersSlice';
 import EmptyContentNode from './EmptyContentNode';
 import FilterBySites from './FilterBySites';
 import PatientCount from '../components/PatientCount';
 import AppliedFiltersList from './AppliedFiltersList';
 
 const LIMIT = 12;
-
-const Divider = () => <Box id='filter-divider' mx={2} sx={{ border: `1px solid ${vizColors.gray05}`, height: '24px' }}></Box>;
 
 const Gap = () => <Box sx={{ marginLeft: 'auto' }}></Box>;
 
