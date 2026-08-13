@@ -80,11 +80,6 @@ const TideDashboard = () => {
         ]}
         data={tableData}
         emptyContentNode={<EmptyContentNode />}
-        // sx={tableStyle}
-        // onSort={handleSortChange}
-        // order={sort?.substring(0, 1) === '+' ? 'asc' : 'desc'}
-        // orderBy={sort?.substring(1)}
-        // onClickRow={handleClickPatient}
       />
 
       <Grid sx={{ gridTemplateColumns: '1fr 2fr 1fr' }}>
