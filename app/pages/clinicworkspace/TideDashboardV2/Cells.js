@@ -16,6 +16,7 @@ import { OVERVIEW_TAB_INDEX } from '../../../components/PatientDrawer/MenuBar/Me
 import { useFlags } from 'launchdarkly-react-client-sdk';
 import { CATEGORY } from './FilterByCategory';
 import isUndefined from 'lodash/isUndefined';
+import PatientLastReviewed from './PatientLastReviewed';
 
 export const COMPACT = '@container (max-width: 1200px)';
 
@@ -238,6 +239,10 @@ export const FlagCell = ({ patient, category = null, }) => {
   );
 };
 
+export const PatientLastReviewedCell = ({ patient }) => {
+  return <PatientLastReviewed patient={patient} />;
+};
+
 export default {
   PatientCell,
   NumericTemplateCell,
@@ -248,4 +253,5 @@ export default {
   GMICell,
   CGMUseCell,
   FlagCell,
+  PatientLastReviewedCell,
 };

@@ -1,26 +1,12 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { useTranslation } from 'react-i18next';
-import { Text, Box, FlexProps } from 'theme-ui';
-import moment from 'moment-timezone';
-import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
-import { utils as vizUtils } from '@tidepool/viz';
-import upperFirst from 'lodash/upperFirst';
 
-import HoverButton from '../../../components/elements/HoverButton';
-import Icon from '../../../components/elements/Icon';
+import ReviewToggle from '../components/ReviewToggle';
 import { useSetClinicPatientLastReviewedMutation, useRevertClinicPatientLastReviewedMutation } from './tideDashboardApi';
 import useTideDashboardPatients from './useTideDashboardPatients';
-import useClinicMetricsPageName from '../useClinicMetricsPageName';
-import { trackMetric } from '../../../core/metricUtils';
-const { formatTimeAgo, getTimezoneFromTimePrefs } = vizUtils.datetime;
 
 const PatientLastReviewed = ({ patient }) => {
-  const { t } = useTranslation();
-  const pageName = useClinicMetricsPageName();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
-  const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
-  const timePrefs = useSelector((state) => state.blip.timePrefs);
   const patientId = patient?.id;
 
   const { isFetching } = useTideDashboardPatients();
@@ -28,82 +14,17 @@ const PatientLastReviewed = ({ patient }) => {
   const [setClinicPatientLastReviewed, { isLoading: isSetting }] = useSetClinicPatientLastReviewedMutation();
   const [revertClinicPatientLastReviewed, { isLoading: isReverting }] = useRevertClinicPatientLastReviewedMutation();
 
-  const handleReview = () => {
-    trackMetric('Clinic - Mark patient reviewed', { clinicId: selectedClinicId, pageName });
-    setClinicPatientLastReviewed({ clinicId: selectedClinicId, patientId });
-    // onReview && onReview();
-  };
+  const handleReview = () => setClinicPatientLastReviewed({ clinicId: selectedClinicId, patientId });
 
-  const handleUndo = () => {
-    trackMetric('Clinic - Undo mark patient reviewed', { clinicId: selectedClinicId, pageName });
-    revertClinicPatientLastReviewed({ clinicId: selectedClinicId, patientId });
-  };
-
-  const recentlyReviewedThresholdDate = moment().startOf('isoWeek').toISOString();
-
-  let clickHandler = handleReview;
-  let buttonText = t('Mark Reviewed');
-
-  let formattedLastReviewed = { daysText: '-' };
-  let lastReviewIsToday = false;
-  let reviewIsRecent = false;
-  let canReview = true;
-  let color = 'feedback.warning';
-
-  if (patient?.reviews?.[0]?.time) {
-    formattedLastReviewed = formatTimeAgo(patient.reviews[0].time, timePrefs);
-    lastReviewIsToday = moment.utc(patient.reviews[0].time).tz(getTimezoneFromTimePrefs(timePrefs)).isSame(moment(), 'day');
-
-    if (lastReviewIsToday) {
-      canReview = false;
-      clickHandler = null;
-    }
-
-    if (moment.utc(patient.reviews[0].time).isSameOrAfter(moment(recentlyReviewedThresholdDate))) {
-      reviewIsRecent = true;
-    }
-
-    if (lastReviewIsToday && patient.reviews[0].clinicianId === loggedInUserId) {
-      clickHandler = handleUndo;
-      buttonText = t('Undo');
-    };
-
-    if (reviewIsRecent) {
-      color = 'feedback.success';
-    }
-  }
-
+  const handleUndo = () => revertClinicPatientLastReviewed({ clinicId: selectedClinicId, patientId });
 
   return (
-    <Box sx={{ minWidth: '120px' }}>
-      <HoverButton
-        {...FlexProps}
-        buttonText={buttonText}
-        buttonProps={{
-          onClick: clickHandler,
-          variant: 'quickActionCondensed',
-          ml: canReview ? -2 : 0,
-          disabled: isSetting || isReverting || isFetching,
-        }}
-        hideChildrenOnHover={canReview}
-      >
-        <Box sx={{ whiteSpace: 'nowrap' }}>
-          <Text
-            sx={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 1,
-              color: color,
-              fontWeight: 'medium',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {reviewIsRecent && <Icon variant="static" icon={CheckRoundedIcon} />}
-            {upperFirst(formattedLastReviewed.daysText)}
-          </Text>
-        </Box>
-      </HoverButton>
-    </Box>
+    <ReviewToggle
+      patient={patient}
+      onReview={handleReview}
+      onUndo={handleUndo}
+      disabled={isSetting || isReverting || isFetching}
+    />
   );
 };
 
