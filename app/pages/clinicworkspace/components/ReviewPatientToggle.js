@@ -15,7 +15,7 @@ import useClinicMetricsPageName from '../useClinicMetricsPageName';
 import { trackMetric } from '../../../core/metricUtils';
 const { formatTimeAgo, getTimezoneFromTimePrefs } = vizUtils.datetime;
 
-const ReviewToggle = ({
+const ReviewPatientToggle = ({
   patient,
   onReview = noop,
   onUndo = noop,
@@ -104,7 +104,7 @@ const ReviewToggle = ({
   );
 };
 
-ReviewToggle.propTypes = {
+ReviewPatientToggle.propTypes = {
   patient: PropTypes.object,
   onReview: PropTypes.func,
   onUndo: PropTypes.func,
@@ -112,4 +112,4 @@ ReviewToggle.propTypes = {
   recentlyReviewedThresholdDate: PropTypes.string,
 };
 
-export default ReviewToggle;
+export default ReviewPatientToggle;

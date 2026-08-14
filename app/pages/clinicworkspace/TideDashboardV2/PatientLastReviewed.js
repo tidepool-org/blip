@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 
-import ReviewToggle from '../components/ReviewToggle';
+import ReviewPatientToggle from '../components/ReviewPatientToggle';
 import { useSetClinicPatientLastReviewedMutation, useRevertClinicPatientLastReviewedMutation } from './tideDashboardApi';
 import useTideDashboardPatients from './useTideDashboardPatients';
 
@@ -19,7 +19,7 @@ const PatientLastReviewed = ({ patient }) => {
   const handleUndo = () => revertClinicPatientLastReviewed({ clinicId: selectedClinicId, patientId });
 
   return (
-    <ReviewToggle
+    <ReviewPatientToggle
       patient={patient}
       onReview={handleReview}
       onUndo={handleUndo}
