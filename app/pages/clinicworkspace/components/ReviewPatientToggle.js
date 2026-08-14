@@ -19,7 +19,7 @@ const ReviewPatientToggle = ({
   patient,
   onReview = noop,
   onUndo = noop,
-  disabled = false,
+  processing = false,
   recentlyReviewedThresholdDate = moment().startOf('isoWeek').toISOString(),
 }) => {
   const { t } = useTranslation();
@@ -70,7 +70,6 @@ const ReviewPatientToggle = ({
     }
   }
 
-
   return (
     <Box sx={{ minWidth: '120px' }}>
       <HoverButton
@@ -80,7 +79,7 @@ const ReviewPatientToggle = ({
           onClick: clickHandler,
           variant: 'quickActionCondensed',
           ml: canReview ? -2 : 0,
-          disabled,
+          processing,
         }}
         hideChildrenOnHover={canReview}
       >
@@ -108,7 +107,7 @@ ReviewPatientToggle.propTypes = {
   patient: PropTypes.object,
   onReview: PropTypes.func,
   onUndo: PropTypes.func,
-  disabled: PropTypes.bool,
+  processing: PropTypes.bool,
   recentlyReviewedThresholdDate: PropTypes.string,
 };
 

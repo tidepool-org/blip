@@ -18,12 +18,14 @@ const PatientLastReviewed = ({ patient }) => {
 
   const handleUndo = () => revertClinicPatientLastReviewed({ clinicId: selectedClinicId, patientId });
 
+  const processing = isSetting || isReverting || isFetching;
+
   return (
     <ReviewPatientToggle
       patient={patient}
       onReview={handleReview}
       onUndo={handleUndo}
-      disabled={isSetting || isReverting || isFetching}
+      processing={processing}
     />
   );
 };
