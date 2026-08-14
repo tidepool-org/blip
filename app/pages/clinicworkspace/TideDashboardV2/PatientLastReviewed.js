@@ -9,20 +9,15 @@ import upperFirst from 'lodash/upperFirst';
 
 import HoverButton from '../../../components/elements/HoverButton';
 import Icon from '../../../components/elements/Icon';
-import { useToasts } from '../../../providers/ToastProvider';
 import { useSetClinicPatientLastReviewedMutation, useRevertClinicPatientLastReviewedMutation } from './tideDashboardApi';
 import useTideDashboardPatients from './useTideDashboardPatients';
-
-const {
-  formatTimeAgo,
-  getTimezoneFromTimePrefs,
-} = vizUtils.datetime;
-
-const trackMetric = () => {}; // TODO: FIX
+import useClinicMetricsPageName from '../useClinicMetricsPageName';
+import { trackMetric } from '../../../core/metricUtils';
+const { formatTimeAgo, getTimezoneFromTimePrefs } = vizUtils.datetime;
 
 const PatientLastReviewed = ({ patient }) => {
   const { t } = useTranslation();
-  // const { set: setToast } = useToasts();
+  const pageName = useClinicMetricsPageName();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const timePrefs = useSelector((state) => state.blip.timePrefs);
@@ -34,13 +29,13 @@ const PatientLastReviewed = ({ patient }) => {
   const [revertClinicPatientLastReviewed, { isLoading: isReverting }] = useRevertClinicPatientLastReviewedMutation();
 
   const handleReview = () => {
-    // trackMetric('Clinic - Mark patient reviewed', { clinicId: selectedClinicId, source: metricSource });
+    trackMetric('Clinic - Mark patient reviewed', { clinicId: selectedClinicId, pageName });
     setClinicPatientLastReviewed({ clinicId: selectedClinicId, patientId });
     // onReview && onReview();
   };
 
   const handleUndo = () => {
-    // trackMetric('Clinic - Undo mark patient reviewed', { clinicId: selectedClinicId, source: metricSource });
+    trackMetric('Clinic - Undo mark patient reviewed', { clinicId: selectedClinicId, pageName });
     revertClinicPatientLastReviewed({ clinicId: selectedClinicId, patientId });
   };
 
