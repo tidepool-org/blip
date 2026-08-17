@@ -23,6 +23,7 @@ import {
   TimeInTargetPercentCell,
   MoreMenuHeader,
   PatientLastReviewedCell,
+  MoreMenuCell,
 } from './Cells';
 
 import TagListCell from '../components/TagListCell';
@@ -113,7 +114,7 @@ const buildColumnTypes = (t, category, summaryPeriod, thresholds) => ({
     field: 'moreMenu',
     align: 'center',
     titleComponent: () => <MoreMenuHeader />,
-    render: patient => null, // TODO: Implement
+    render: patient => <MoreMenuCell patient={patient} />,
   }, // More
 });
 
