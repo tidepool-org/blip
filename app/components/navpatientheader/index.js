@@ -100,7 +100,7 @@ const NavPatientHeader = ({ api, trackMetric, patient, clinicPatient, user, perm
 
       <EditPatientDialog
         api={api}
-        trackMetric={trackMetric}
+        clinicPatient={clinicPatient}
         isOpen={isEditPatientModalOpen}
         onClose={() => setIsEditPatientModalOpen(false)}
       />
