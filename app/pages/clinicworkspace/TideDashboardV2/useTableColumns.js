@@ -22,6 +22,7 @@ import {
   TimeInTargetPercentCell,
   FlagCell,
   MoreMenuHeader,
+  PatientLastReviewedCell,
 } from './Cells';
 
 import TagListCell from '../components/TagListCell';
@@ -112,7 +113,7 @@ const buildColumnTypes = (t, category, thresholds) => ({
     title: t('Last Reviewed'),
     field: 'lastReviewed',
     align: 'center',
-    render: patient => null, // TODO: Implement
+    render: patient => <PatientLastReviewedCell patient={patient} />,
   },
   moreMenu: {
     title: '',
