@@ -16,6 +16,7 @@ import { patientSchema as validationSchema } from '../../core/clinicUtils';
 import { DEFAULT_GLYCEMIC_RANGES } from '../../core/glycemicRangesUtils';
 import { useToasts } from '../../providers/ToastProvider';
 import * as actions from '../../redux/actions';
+import { trackMetric } from '../../core/metricUtils';
 
 const useUpdatingClinicPatientWorkingState = ({ onUpdateSuccess = noop }) => {
   const { t } = useTranslation();
@@ -51,18 +52,18 @@ const PATIENT_FORM_SEARCH_DEBOUNCE_MS = 600;
 
 const EditPatientDialog = ({
   api,
-  trackMetric,
+  clinicPatient,
   isOpen,
   onClose = noop,
+  onEditSuccess = noop,
 }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
-  const currentPatientInViewId = useSelector(state => state.blip.currentPatientInViewId);
-  const clinicPatient = useSelector(state => selectClinicPatient(state));
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const isSmartOnFhir = useSelector(selectIsSmartOnFhirMode);
+  const patientId = clinicPatient?.id;
 
   const mrnSettings = useMemo(() => clinic?.mrnSettings ?? {}, [clinic?.mrnSettings]);
   const existingMRNs = useSelector(state => state.blip.clinicMRNsForPatientFormValidation)?.filter(mrn => mrn !== clinicPatient?.mrn) || [];
@@ -87,7 +88,8 @@ const EditPatientDialog = ({
     onClose();
 
     if (shouldClearDataRef.current) {
-      dispatch(actions.worker.dataWorkerRemoveDataRequest(null, currentPatientInViewId));
+      onEditSuccess();
+      dispatch(actions.worker.dataWorkerRemoveDataRequest(null, patientId));
       shouldClearDataRef.current = false;
     }
   };
@@ -112,7 +114,7 @@ const EditPatientDialog = ({
     setPatientFormContext({ ...formikContext });
   };
 
-  if (!currentPatientInViewId || !selectedClinicId) return null;
+  if (!patientId || !selectedClinicId) return null;
 
   return (
     <Dialog

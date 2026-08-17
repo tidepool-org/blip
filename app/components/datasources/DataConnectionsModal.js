@@ -60,8 +60,8 @@ export const DataConnectionsModal = (props) => {
   const dispatch = useDispatch();
 
   const fetchPatientDetails = useCallback(() => {
-    dispatch(actions.async.fetchPatientFromClinic(api, selectedClinicId, patient.id));
-  }, [dispatch, patient.id, selectedClinicId])
+    dispatch(actions.async.fetchPatientFromClinic(api, selectedClinicId, patient?.id));
+  }, [dispatch, patient?.id, selectedClinicId]);
 
   // Pull the patient on load to ensure the most recent dexcom connection state is made available
   useEffect(() => {
@@ -135,6 +135,8 @@ export const DataConnectionsModal = (props) => {
   const learnMoreText = selectedClinicId
     ? t('Learn more.')
     : t('Learn more here.');
+
+  if (!patient) return null;
 
   return (
     <>
