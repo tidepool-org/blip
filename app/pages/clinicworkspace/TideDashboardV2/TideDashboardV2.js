@@ -6,6 +6,7 @@ import { Flex, Text, Box } from 'theme-ui';
 
 import FilterByCategory from './FilterByCategory';
 import FilterByTags from './FilterByTags';
+import FilterBySites from './FilterBySites';
 import FilterByDataRecency from './FilterByDataRecency';
 import FilterBySummaryPeriod from './FilterBySummaryPeriod';
 
@@ -16,7 +17,6 @@ import useTideDashboardPatients from './useTideDashboardPatients';
 import usePruneInvalidFilters from './usePruneInvalidFilters';
 import useTableColumns from './useTableColumns';
 import EmptyContentNode from './EmptyContentNode';
-import FilterBySites from './FilterBySites';
 import AppliedFiltersList from './AppliedFiltersList';
 
 const Gap = () => <Box sx={{ marginLeft: 'auto' }}></Box>;
