@@ -22,11 +22,14 @@ import { Redirect, useLocation } from 'react-router-dom';
 import useAuthorizationGate from './useAuthorizationGate';
 import FetchError from './FetchError';
 
+import EditPatientDialogController from './EditPatientDialogController';
+import DataConnectionsModalController from './DataConnectionsModalController';
+
 const Gap = () => <Box sx={{ marginLeft: 'auto' }}></Box>;
 
 const tableContainerProps = { sx: { containerType: 'inline-size', transition: 'all 0.1s' } };
 
-const TideDashboardV2 = () => {
+const TideDashboardV2 = ({ api }) => {
   const { search } = useLocation();
   const { t } = useTranslation();
 
@@ -86,6 +89,9 @@ const TideDashboardV2 = () => {
       />
 
       <PaginationController total={total} resolvedOffset={resolvedOffset} />
+
+      <EditPatientDialogController api={api} patients={patients} />
+      <DataConnectionsModalController patients={patients}/>
     </>
   );
 };
