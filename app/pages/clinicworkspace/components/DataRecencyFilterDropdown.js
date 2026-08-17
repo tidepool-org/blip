@@ -18,6 +18,8 @@ import { lastDataFilterOptions } from '../../../core/clinicUtils';
 import useClinicMetricsPageName from '../useClinicMetricsPageName';
 
 const DropdownContent = ({
+  canSelectLastDataType,
+  canClearSelection,
   onClose,
   onChange,
   lastData,
@@ -40,25 +42,29 @@ const DropdownContent = ({
   return (
     <Box data-testid="data-recency-filter-dropdown" mt={5} mx={2} sx={{ width: 300 }}>
       <Box>
-        <Box mb={2}>
-          <Box sx={{ padding: 1, color: vizColors.gray50, lineHeight: 1, fontSize: 1, fontWeight: 'medium' }}>
-            {t('Device Type')}
-          </Box>
-        </Box>
+        {canSelectLastDataType &&
+          <>
+            <Box mb={2} sx={{ padding: 1, color: vizColors.gray50, lineHeight: 1 }}>
+              <Box sx={{ fontSize: 1, fontWeight: 'medium' }}>
+                {t('Device Type')}
+              </Box>
+            </Box>
 
-        <Box sx={{ border: `1px solid ${vizColors.gray10}`, borderRadius: 6, padding: 2 }}>
-          <RadioGroup
-            id="last-upload-type"
-            name="last-upload-type"
-            options={lastDataTypeFilterOptions}
-            variant="vertical"
-            sx={{ fontSize: 0 }}
-            value={pending.lastDataType}
-            onChange={event => {
-              setPending({ ...pending, lastDataType: event.target.value || null });
-            }}
-          />
-        </Box>
+            <Box sx={{ border: `1px solid ${vizColors.gray10}`, borderRadius: 6, padding: 2 }}>
+              <RadioGroup
+                id="last-upload-type"
+                name="last-upload-type"
+                options={lastDataTypeFilterOptions}
+                variant="vertical"
+                sx={{ fontSize: 0 }}
+                value={pending.lastDataType}
+                onChange={event => {
+                  setPending({ ...pending, lastDataType: event.target.value || null });
+                }}
+              />
+            </Box>
+          </>
+        }
 
         <Box mt={3} mb={2} sx={{ padding: 1, color: vizColors.gray50, lineHeight: 1 }}>
           <Box sx={{ fontSize: 1, fontWeight: 'medium' }}>{t('Data Recency')}</Box>
@@ -82,17 +88,20 @@ const DropdownContent = ({
 
       <Grid sx={{ gridTemplateColumns: '1fr 1fr' }} mt={3} mb={2}>
         <Button
-          id="clear-last-upload-filter"
+          id={canClearSelection ? 'clear-last-upload-filter' : 'cancel-last-upload-filter'}
           sx={{ fontSize: 1 }}
           variant="secondary"
           onClick={() => {
-            trackMetric('Clinic - Last upload clear filter', { clinicId: selectedClinicId, pageName });
-            setPending({ lastData: null, lastDataType: null });
-            handleChange({ lastData: null, lastDataType: null });
+            if (canClearSelection) {
+              trackMetric('Clinic - Last upload clear filter', { clinicId: selectedClinicId, pageName });
+              setPending({ lastData: null, lastDataType: null });
+              handleChange({ lastData: null, lastDataType: null });
+            }
+
             onClose();
           }}
         >
-          {t('Clear')}
+          {canClearSelection ? t('Clear') : t('Cancel')}
         </Button>
 
         <Button
@@ -124,6 +133,8 @@ const DropdownContent = ({
 };
 
 const DataRecencyFilterDropdown = ({
+  canSelectLastDataType = true,
+  canClearSelection = true,
   onChange = noop,
   lastData = null,
   lastDataType = null,
@@ -175,6 +186,8 @@ const DataRecencyFilterDropdown = ({
       >
         { lastDataPopupFilterState.isOpen &&
           <DropdownContent
+            canSelectLastDataType={canSelectLastDataType}
+            canClearSelection={canClearSelection}
             lastData={lastData}
             lastDataType={lastDataType}
             filterOptions={filterOptions || lastDataFilterOptions}
