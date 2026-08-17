@@ -239,6 +239,10 @@ export const MoreMenuHeader = () => {
 
 export const MoreMenuCell = () => <></>; // TEMPORARY
 
+export const PatientLastReviewedCell = ({ patient }) => {
+  return <PatientLastReviewed patient={patient} />;
+};
+
 export default {
   PatientCell,
   NumericTemplateCell,
@@ -249,4 +253,5 @@ export default {
   GMICell,
   CGMUseCell,
   FlagCell,
+  PatientLastReviewedCell,
 };
