@@ -1,9 +1,12 @@
 import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import Table from '../../../components/elements/Table';
-import { Flex} from 'theme-ui';
+import { Flex, Text, Box } from 'theme-ui';
 
 import FilterByCategory from './FilterByCategory';
+import FilterByTags from './FilterByTags';
+import FilterByDataRecency from './FilterByDataRecency';
+import FilterBySummaryPeriod from './FilterBySummaryPeriod';
 
 import TableCategoryHeader from './TableCategoryHeader';
 import PaginationController from './PaginationController';
@@ -11,6 +14,10 @@ import PaginationController from './PaginationController';
 import useTideDashboardPatients from './useTideDashboardPatients';
 import useTableColumns from './useTableColumns';
 import EmptyContentNode from './EmptyContentNode';
+import FilterBySites from './FilterBySites';
+import AppliedFiltersList from './AppliedFiltersList';
+
+const Gap = () => <Box sx={{ marginLeft: 'auto' }}></Box>;
 
 const tableContainerProps = { sx: { containerType: 'inline-size' } };
 
@@ -34,11 +41,21 @@ const TideDashboardV2 = () => {
 
   return (
     <>
+      <Flex id="tide-dashboard-filters" mb={3} sx={{ gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+        <Text sx={{ fontSize: 0, color: 'grays.4' }}>{t('Filter By')}</Text>
+        <FilterByTags />
+        <FilterBySites />
+        <FilterByDataRecency />
+        <Gap />
+        <FilterBySummaryPeriod />
+      </Flex>
+
       <Flex mb={3} sx={{ justifyContent: 'center' }}>
         <FilterByCategory />
       </Flex>
 
       <TableCategoryHeader category={resolvedCategory} />
+      <AppliedFiltersList patientCount={total} />
       <Table
         id="tideDashboardPatientsTable"
         variant="condensed"
