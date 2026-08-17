@@ -40,7 +40,7 @@ const baseQuery = fetchBaseQuery({
 
 export const RTKQueryApi = createApi({
   reducerPath: 'api',
-  tagTypes: ['MfaStatus'],
+  tagTypes: ['MfaStatus', 'TideDashboardPatients'],
   baseQuery: retry(
     baseQuery,
     { maxRetries: RETRY_COUNT },
