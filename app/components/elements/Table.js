@@ -227,6 +227,7 @@ export const Table = React.memo(props => {
             <TableRow
               id={`${id}-row-${rowIndex}`}
               key={`${id}-row-${rowIndex}`}
+              data-testid={`${id}-row-${rowIndex}`}
               hover={rowHover}
               onClick={e => handleRowClick(e, d)}
             >
@@ -234,6 +235,7 @@ export const Table = React.memo(props => {
                 <TableCell
                   id={`${id}-row-${rowIndex}-${col.field}`}
                   key={`${id}-row-${rowIndex}-${col.field}`}
+                  data-testid={`${id}-row-${rowIndex}-${col.field}`}
                   component={index === 0 ? 'th' : 'td'}
                   scope={index === 0 ? 'row' : undefined}
                   align={col.align || (index === 0 ? 'left' : 'right')}
