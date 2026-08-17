@@ -29,6 +29,7 @@ import EditPatientDialogController from './modals/EditPatientDialogController';
 import DataConnectionsDialogController from './modals/DataConnectionsDialogController';
 import { isValidAgpPeriod } from '../../../components/PatientDrawer';
 import { OVERVIEW_TAB_INDEX } from '../../../components/PatientDrawer/MenuBar';
+import DataIssues from './DataIssues/DataIssues';
 
 const Gap = () => <Box sx={{ marginLeft: 'auto' }}></Box>;
 
@@ -117,6 +118,8 @@ const TideDashboardV2 = ({ api }) => {
       />
 
       <PaginationController total={total} resolvedOffset={resolvedOffset} />
+
+      <DataIssues api={api} />
 
       <PatientDrawerController api={api} patients={patients} />
       <EditPatientDialogController api={api} patients={patients} />
