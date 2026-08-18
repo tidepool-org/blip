@@ -2843,7 +2843,7 @@ export const ClinicPatients = (props) => {
   const renderLastReviewed = useCallback((patient) => {
     return (
       <Box onClick={event => event.stopPropagation()}>
-        <PatientLastReviewed api={api} trackMetric={trackMetric} metricSource="Patients list" patientId={patient.id} recentlyReviewedThresholdDate={moment().startOf('day').toISOString()} />
+        <PatientLastReviewed api={api} patientId={patient.id} />
       </Box>
     );
   }, [api, trackMetric]);
