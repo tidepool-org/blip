@@ -20,13 +20,14 @@ const ReviewPatientToggle = ({
   onReview = noop,
   onUndo = noop,
   processing = false,
-  recentlyReviewedThresholdDate = moment().startOf('isoWeek').toISOString(),
 }) => {
   const { t } = useTranslation();
   const pageName = useClinicMetricsPageName();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const timePrefs = useSelector((state) => state.blip.timePrefs);
+
+  const recentlyReviewedThresholdDate = moment().startOf('isoWeek').toISOString();
 
   const handleReview = () => {
     trackMetric('Clinic - Mark patient reviewed', { clinicId: selectedClinicId, pageName });
@@ -108,7 +109,6 @@ ReviewPatientToggle.propTypes = {
   onReview: PropTypes.func,
   onUndo: PropTypes.func,
   processing: PropTypes.bool,
-  recentlyReviewedThresholdDate: PropTypes.string,
 };
 
 export default ReviewPatientToggle;
