@@ -10,7 +10,7 @@ import Button from '../../../components/elements/Button';
 import moment from 'moment';
 import PatientLastReviewed from '../../../clinicworkspace/components/ReviewPatientToggle/PatientLastReviewedGenericAdapter';
 import CGMClipboardButton from './CGMClipboardButton';
-import api from '../../../core/api';
+import { useGetPatientDrawerPatientQuery } from '../patientDrawerApi';
 import { map, keys } from 'lodash';
 import copyIcon from '../../../core/icons/copyIcon.svg';
 import viewIcon from '../../../core/icons/viewIcon.svg';
@@ -37,13 +37,12 @@ const MenuBar = ({ patientId, onClose, onSelectTab, selectedTab }) => {
   const { t } = useTranslation();
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
-  const patient = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]?.patients?.[patientId]);
   const pdf = useSelector(state => state.blip.pdf); // IMPORTANT: Data taken from Redux PDF slice
 
-  useEffect(() => {
-    // DOB field in Patient object may not be populated in TIDE Dashboard, so we need to refetch
-    dispatch(actions.async.fetchPatientFromClinic(api, selectedClinicId, patientId));
-  }, []);
+  const { data: patient } = useGetPatientDrawerPatientQuery(
+    { clinicId: selectedClinicId, patientId },
+    { skip: !selectedClinicId || !patientId }
+  );
 
   const handleViewData = () => {
     dispatch(push(`/patients/${patientId}/data/trends?dashboard=tide&drawerTab=${selectedTab}`));
