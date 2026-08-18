@@ -17,8 +17,6 @@ export const PatientLastReviewed = ({ api, patientId }) => {
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const patient = clinic?.patients?.[patientId];
 
-  const recentlyReviewedThresholdDate = moment().startOf('day').toISOString();
-
   const {
     settingClinicPatientLastReviewed,
     revertingClinicPatientLastReviewed,
@@ -79,7 +77,6 @@ export const PatientLastReviewed = ({ api, patientId }) => {
 PatientLastReviewed.propTypes = {
   api: PropTypes.object.isRequired,
   patientId: PropTypes.string.isRequired,
-  onReview: PropTypes.func,
 };
 
 export default PatientLastReviewed;
