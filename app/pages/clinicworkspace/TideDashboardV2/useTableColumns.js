@@ -1,5 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
+import { CATEGORY } from './FilterByCategory';
+import { MGDL_UNITS } from '../../../core/constants';
+import mapValues from 'lodash/mapValues';
+import { utils as vizUtils } from '@tidepool/viz';
+const { DEFAULT_BG_BOUNDS } = vizUtils.constants;
 
 import {
   PatientCell,
@@ -115,21 +121,78 @@ const getColumnTypes = (t, category, thresholds) => ({
   }, // More
 });
 
+const getFormattedThresholds = (clinicBgUnits) => {
+  const thresholds = DEFAULT_BG_BOUNDS[clinicBgUnits];
+  const precision = clinicBgUnits === MGDL_UNITS ? 0 : 1;
+
+  return mapValues(thresholds, value => value.toFixed(precision));
+};
+
 const useTableColumns = (category) => {
   const { t } = useTranslation();
+  const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+  const clinicBgUnits = clinic?.preferredBgUnits || MGDL_UNITS;
 
-  const columnTypes = getColumnTypes(t, category);
+  const columns = useMemo(() => {
+    const thresholds = getFormattedThresholds(clinicBgUnits);
+    const columnTypes = getColumnTypes(t, category, thresholds);
 
-  return [
-    columnTypes.patientDetails,
-    columnTypes.placeholder,
-    columnTypes.placeholder,
-    columnTypes.placeholder,
-    columnTypes.placeholder,
-    columnTypes.placeholder,
-    columnTypes.placeholder,
-    columnTypes.placeholder,
-  ];
+    const standardColumnSet = [
+      columnTypes.patientDetails,
+      columnTypes.flag,
+      columnTypes.avgGlucose,
+      columnTypes.timeInRangeBarChart,
+      columnTypes.changeInTIR,
+      columnTypes.gmi,
+      columnTypes.cgmUse,
+      columnTypes.tags,
+      columnTypes.lastReviewed,
+      columnTypes.moreMenu,
+    ];
+
+    const lowColumnSet = [
+      columnTypes.patientDetails,
+      columnTypes.flag,
+      columnTypes.avgGlucose,
+      columnTypes.timeInVeryLow,
+      columnTypes.timeInAnyLow,
+      columnTypes.timeInTarget,
+      columnTypes.timeInRangeBarChart,
+      columnTypes.changeInTIR,
+      columnTypes.tags,
+      columnTypes.lastReviewed,
+      columnTypes.moreMenu,
+    ];
+
+    const highColumnSet = [
+      columnTypes.patientDetails,
+      columnTypes.flag,
+      columnTypes.avgGlucose,
+      columnTypes.timeInVeryHigh,
+      columnTypes.timeInAnyHigh,
+      columnTypes.timeInTarget,
+      columnTypes.timeInRangeBarChart,
+      columnTypes.changeInTIR,
+      columnTypes.tags,
+      columnTypes.lastReviewed,
+      columnTypes.moreMenu,
+    ];
+
+    switch(category) {
+      case CATEGORY.DEFAULT: return standardColumnSet;
+      case CATEGORY.VERY_LOW: return lowColumnSet;
+      case CATEGORY.ANY_LOW: return lowColumnSet;
+      case CATEGORY.DROP_IN_TIR: return standardColumnSet;
+      case CATEGORY.ANY_HIGH: return highColumnSet;
+      case CATEGORY.VERY_HIGH: return highColumnSet;
+      case CATEGORY.LOW_CGM_WEAR: return standardColumnSet;
+      case CATEGORY.TARGET: return standardColumnSet;
+      default: return standardColumnSet;
+    }
+  }, [category, clinicBgUnits]);
+
+  return columns;
 };
 
 export default useTableColumns;
