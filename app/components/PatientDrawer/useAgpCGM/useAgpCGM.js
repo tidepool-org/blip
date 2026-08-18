@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import * as actions from '../../../../redux/actions';
+import * as actions from '../../../redux/actions';
 import moment from 'moment';
 
 import getOpts from './getOpts';
 import getQueries from './getQueries';
 import { cloneDeep } from 'lodash';
-import { useGenerateAGPImages } from '../../../../core/agpUtils';
+import { useGenerateAGPImages } from '../../../core/agpUtils';
 
 export const STATUS = {
   // States in order of happy path AGP generation sequence
