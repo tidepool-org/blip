@@ -9,10 +9,10 @@ import { utils as vizUtils } from '@tidepool/viz';
 import noop from 'lodash/noop';
 import upperFirst from 'lodash/upperFirst';
 
-import HoverButton from '../../../components/elements/HoverButton';
-import Icon from '../../../components/elements/Icon';
-import useClinicMetricsPageName from '../useClinicMetricsPageName';
-import { trackMetric } from '../../../core/metricUtils';
+import HoverButton from '../../../../components/elements/HoverButton';
+import Icon from '../../../../components/elements/Icon';
+import useClinicMetricsPageName from '../../useClinicMetricsPageName';
+import { trackMetric } from '../../../../core/metricUtils';
 const { formatTimeAgo, getTimezoneFromTimePrefs } = vizUtils.datetime;
 
 const ReviewPatientToggle = ({
