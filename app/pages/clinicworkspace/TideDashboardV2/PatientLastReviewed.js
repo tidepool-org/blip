@@ -2,7 +2,11 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 
 import ReviewPatientToggle from '../components/ReviewPatientToggle';
-import { useSetClinicPatientLastReviewedMutation, useRevertClinicPatientLastReviewedMutation } from './tideDashboardApi';
+import {
+  useSetClinicPatientLastReviewedMutation,
+  useRevertClinicPatientLastReviewedMutation,
+} from '../components/ReviewPatientToggle/reviewPatientApi';
+
 import useTideDashboardPatients from './useTideDashboardPatients';
 
 const PatientLastReviewed = ({ patient }) => {
