@@ -15,13 +15,13 @@ const { getLocalizedCeiling } = vizUtils.datetime;
 import tidelineBlip from 'tideline/plugins/blip';
 const chartDailyFactory = tidelineBlip.oneday;
 
-import { MS_IN_DAY } from '../../../core/constants';
+import { MS_IN_DAY } from '../../core/constants';
 import { NoPatientData } from './Overview';
 import { STATUS } from './useAgpCGM';
-import { Body1, Body2 } from '../../../components/elements/FontStyles';
-import Button from '../../../components/elements/Button';
+import { Body1, Body2 } from '../../components/elements/FontStyles';
+import Button from '../../components/elements/Button';
 import { STACKED_DAILY_TAB_INDEX } from './MenuBar';
-import BgLegend from '../../../components/chart/BgLegend';
+import BgLegend from '../../components/chart/BgLegend';
 
 const CHART_HEIGHT = 200;
 
