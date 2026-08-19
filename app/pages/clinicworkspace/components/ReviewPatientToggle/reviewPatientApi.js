@@ -5,14 +5,14 @@ const { TIDE_DASHBOARD_PATIENTS } = tideDashboardTagTypes;
 
 const reviewPatientApi = RTKQueryApi.injectEndpoints({
   endpoints: (builder) => ({
-    setClinicPatientLastReviewed: builder.mutation({
+    markPatientReviewed: builder.mutation({
       query: ({ clinicId, patientId }) => ({
         url: `/clinics/${clinicId}/patients/${patientId}/reviews`,
         method: 'PUT',
       }),
       invalidatesTags: [TIDE_DASHBOARD_PATIENTS],
     }),
-    revertClinicPatientLastReviewed: builder.mutation({
+    undoPatientReviewed: builder.mutation({
       query: ({ clinicId, patientId }) => ({
         url: `/clinics/${clinicId}/patients/${patientId}/reviews`,
         method: 'DELETE',
@@ -23,6 +23,6 @@ const reviewPatientApi = RTKQueryApi.injectEndpoints({
 });
 
 export const {
-  useSetClinicPatientLastReviewedMutation,
-  useRevertClinicPatientLastReviewedMutation,
+  useMarkPatientReviewedMutation,
+  useUndoPatientReviewedMutation,
 } = reviewPatientApi;
