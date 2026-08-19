@@ -60,14 +60,18 @@ export const PatientLastReviewed = ({ api, patientId }) => {
     dispatch(actions.async.revertClinicPatientLastReviewed(api, selectedClinicId, patientId));
   };
 
+  const reviews = patient?.reviews || [];
+
   const processing = settingClinicPatientLastReviewed.inProgress || revertingClinicPatientLastReviewed.inProgress;
 
   return (
     <ReviewPatientToggle
-      patient={patient}
+      patientId={patient?.id}
+      reviews={reviews}
       onReview={handleReview}
       onUndo={handleUndo}
       processing={processing}
+      recentlyReviewedThresholdDate={recentlyReviewedThresholdDate}
     />
   );
 };
@@ -75,7 +79,6 @@ export const PatientLastReviewed = ({ api, patientId }) => {
 PatientLastReviewed.propTypes = {
   api: PropTypes.object.isRequired,
   patientId: PropTypes.string.isRequired,
-  recentlyReviewedThresholdDate: PropTypes.string.isRequired,
   onReview: PropTypes.func,
 };
 

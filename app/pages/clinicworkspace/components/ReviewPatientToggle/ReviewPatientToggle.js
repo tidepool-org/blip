@@ -16,10 +16,12 @@ import { trackMetric } from '../../../../core/metricUtils';
 const { formatTimeAgo, getTimezoneFromTimePrefs } = vizUtils.datetime;
 
 const ReviewPatientToggle = ({
-  patient,
+  patientId = null,
+  reviews = [],
   onReview = noop,
   onUndo = noop,
   processing = false,
+  recentlyReviewedThresholdDate = moment().startOf('isoWeek').toISOString(),
 }) => {
   const { t } = useTranslation();
   const pageName = useClinicMetricsPageName();
@@ -27,15 +29,15 @@ const ReviewPatientToggle = ({
   const loggedInUserId = useSelector((state) => state.blip.loggedInUserId);
   const timePrefs = useSelector((state) => state.blip.timePrefs);
 
-  const recentlyReviewedThresholdDate = moment().startOf('isoWeek').toISOString();
-
   const handleReview = () => {
-    trackMetric('Clinic - Mark patient reviewed', { clinicId: selectedClinicId, pageName });
+    if (processing) return;
+
+    trackMetric('Clinic - Mark patient reviewed', { clinicId: selectedClinicId, patientID: patientId, pageName });
     onReview();
   };
 
   const handleUndo = () => {
-    trackMetric('Clinic - Undo mark patient reviewed', { clinicId: selectedClinicId, pageName });
+    trackMetric('Clinic - Undo mark patient reviewed', { clinicId: selectedClinicId, patientID: patientId, pageName });
     onUndo();
   };
 
@@ -48,20 +50,20 @@ const ReviewPatientToggle = ({
   let canReview = true;
   let color = 'feedback.warning';
 
-  if (patient?.reviews?.[0]?.time) {
-    formattedLastReviewed = formatTimeAgo(patient.reviews[0].time, timePrefs);
-    lastReviewIsToday = moment.utc(patient.reviews[0].time).tz(getTimezoneFromTimePrefs(timePrefs)).isSame(moment(), 'day');
+  if (reviews?.[0]?.time) {
+    formattedLastReviewed = formatTimeAgo(reviews[0].time, timePrefs);
+    lastReviewIsToday = moment.utc(reviews[0].time).tz(getTimezoneFromTimePrefs(timePrefs)).isSame(moment(), 'day');
 
     if (lastReviewIsToday) {
       canReview = false;
       clickHandler = null;
     }
 
-    if (moment.utc(patient.reviews[0].time).isSameOrAfter(moment(recentlyReviewedThresholdDate))) {
+    if (moment.utc(reviews[0].time).isSameOrAfter(moment(recentlyReviewedThresholdDate))) {
       reviewIsRecent = true;
     }
 
-    if (lastReviewIsToday && patient.reviews[0].clinicianId === loggedInUserId) {
+    if (lastReviewIsToday && reviews[0].clinicianId === loggedInUserId) {
       clickHandler = handleUndo;
       buttonText = t('Undo');
     };
@@ -105,10 +107,12 @@ const ReviewPatientToggle = ({
 };
 
 ReviewPatientToggle.propTypes = {
-  patient: PropTypes.object,
+  patientId: PropTypes.string,
+  reviews: PropTypes.array,
   onReview: PropTypes.func,
   onUndo: PropTypes.func,
   processing: PropTypes.bool,
+  recentlyReviewedThresholdDate: PropTypes.string,
 };
 
 export default ReviewPatientToggle;
