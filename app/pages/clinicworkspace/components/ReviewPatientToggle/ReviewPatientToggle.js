@@ -37,6 +37,8 @@ const ReviewPatientToggle = ({
   };
 
   const handleUndo = () => {
+    if (processing) return;
+
     trackMetric('Clinic - Undo mark patient reviewed', { clinicId: selectedClinicId, patientID: patientId, pageName });
     onUndo();
   };
