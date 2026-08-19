@@ -23,18 +23,18 @@ const PatientLastReviewed = ({ patient }) => {
     setReviews(patient?.reviews || []);
   }, [patientId, patient?.reviews]);
 
-  const [setClinicPatientLastReviewed, { isLoading: isSetting }] = useMarkPatientReviewedMutation();
-  const [revertClinicPatientLastReviewed, { isLoading: isReverting }] = useUndoPatientReviewedMutation();
+  const [markPatientReviewed, { isLoading: isMarking }] = useMarkPatientReviewedMutation();
+  const [undoPatientReviewed, { isLoading: isUndoing }] = useUndoPatientReviewedMutation();
 
   const handleReview = () => {
-    setClinicPatientLastReviewed({ clinicId: selectedClinicId, patientId })
+    markPatientReviewed({ clinicId: selectedClinicId, patientId })
       .unwrap()
       .then(updatedReviews => setReviews(updatedReviews || []))
       .catch(() => setToast({ message: ErrorMessages.ERR_SETTING_CLINIC_PATIENT_LAST_REVIEWED , variant: 'danger' }));
   };
 
   const handleUndo = () => {
-    revertClinicPatientLastReviewed({ clinicId: selectedClinicId, patientId })
+    undoPatientReviewed({ clinicId: selectedClinicId, patientId })
       .unwrap()
       .then(updatedReviews => setReviews(updatedReviews || []))
       .catch(() => setToast({ message: ErrorMessages.ERR_REVERTING_CLINIC_PATIENT_LAST_REVIEWED , variant: 'danger' }));
@@ -46,7 +46,7 @@ const PatientLastReviewed = ({ patient }) => {
       reviews={reviews}
       onReview={handleReview}
       onUndo={handleUndo}
-      processing={isSetting || isReverting}
+      processing={isMarking || isUndoing}
       recentlyReviewedThresholdDate={recentlyReviewedThresholdDate}
     />
   );
