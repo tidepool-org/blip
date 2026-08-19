@@ -17,6 +17,8 @@ export const PatientLastReviewed = ({ api, patientId }) => {
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const patient = clinic?.patients?.[patientId];
 
+  const recentlyReviewedThresholdDate = moment().startOf('day').toISOString();
+
   const {
     settingClinicPatientLastReviewed,
     revertingClinicPatientLastReviewed,
