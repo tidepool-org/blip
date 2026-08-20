@@ -1,8 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-// IMPORTANT: This slice is automatically persisted between user sessions via localStorage.
-// If you don't want your state variable value persisted, use a different redux slice for it.
-
 const getInitialState = () => ({
   lastData: 7,
   patientTags: [],
@@ -15,11 +12,29 @@ const tideDashboardFiltersSlice = createSlice({
   initialState: getInitialState(),
   reducers: {
     setTideDashboardFilters: (_state, action) => action.payload || getInitialState(),
+    setLastDataFilter: (state, action) => {
+      state.lastData = action.payload;
+    },
+    setPatientTagsFilter: (state, action) => {
+      state.patientTags = action.payload;
+    },
+    setClinicSitesFilter: (state, action) => {
+      state.clinicSites = action.payload;
+    },
+    setSummaryPeriodFilter: (state, action) => {
+      state.summaryPeriod = action.payload;
+    },
+    resetTideDashboardFilters: () => getInitialState(),
   },
 });
 
 export const {
   setTideDashboardFilters,
+  setLastDataFilter,
+  setPatientTagsFilter,
+  setClinicSitesFilter,
+  setSummaryPeriodFilter,
+  resetTideDashboardFilters,
 } = tideDashboardFiltersSlice.actions;
 
 export default tideDashboardFiltersSlice.reducer;
