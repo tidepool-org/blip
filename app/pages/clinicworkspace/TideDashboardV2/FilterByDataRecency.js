@@ -16,7 +16,7 @@ const FilterByDataRecency = () => {
     dispatch(setOffset(0));
   };
 
-  const customLastDataFilterOptions = lastDataFilterOptions.filter(opt => [1, 2, 7].includes(opt.value));
+  const customLastDataFilterOptions = lastDataFilterOptions.filter(opt => [1, 2, 7, 14].includes(opt.value));
 
   return (
     <DataRecencyFilterDropdown
