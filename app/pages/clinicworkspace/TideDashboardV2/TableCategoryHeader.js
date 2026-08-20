@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { CATEGORY } from './FilterByCategory';
+import { CATEGORY } from './tideDashboardSlice';
 import { useTranslation } from 'react-i18next';
 import { Box, Text } from 'theme-ui';
 import { colors as vizColors, utils as vizUtils } from '@tidepool/viz';
