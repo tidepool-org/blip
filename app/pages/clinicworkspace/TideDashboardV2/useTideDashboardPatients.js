@@ -4,11 +4,18 @@ import useDerivedDataRecencyEndpoints from './useDerivedDataRecencyEndpoints';
 
 const LIMIT = 12;
 
+const tideDashboardFilters = {
+  lastData: 7,
+  patientTags: [],
+  clinicSites: [],
+  summaryPeriod: '14d',
+};
+
 const useTideDashboardPatients = () => {
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const category = useSelector(state => state.blip.tideDashboard.category);
   const offset = useSelector(state => state.blip.tideDashboard.offset);
-  const patientTags = useSelector(state => state.blip.tideDashboardFilters.patientTags);
+  const patientTags = tideDashboardFilters.patientTags;
   const [lastDataFrom, lastDataTo] = useDerivedDataRecencyEndpoints();
 
   return useGetTideDashboardPatientsQuery(

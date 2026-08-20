@@ -11,15 +11,12 @@ import PaginationControls from '../components/PaginationControls';
 
 import { setOffset } from './tideDashboardSlice';
 import useTideDashboardPatients, { LIMIT } from './useTideDashboardPatients';
-import usePruneInvalidFilters from './usePruneInvalidFilters';
 import useTableColumns from './useTableColumns';
 import EmptyContentNode from './EmptyContentNode';
 import PatientCount from '../components/PatientCount';
 
 const TideDashboardV2 = ({ api, trackMetric }) => {
   const dispatch = useDispatch();
-
-  usePruneInvalidFilters();
 
   const category = useSelector(state => state.blip.tideDashboard.category);
   const offset = useSelector(state => state.blip.tideDashboard.offset);
