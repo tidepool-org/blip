@@ -5,40 +5,39 @@
 
 export default class CGMExclusionQuery {
   constructor() {
-    this.rules = [];
-    this.computedParams = {};
+    this.rules = {};
+    this.queryParams = {};
   }
 
-  negate(threshold) {
+  getComplementaryOperator(operator) {
     switch (true) {
-      case threshold.startsWith('>='): return threshold.replace(/^>=/, '<');
-      case threshold.startsWith('<='): return threshold.replace(/^<=/, '>');
-      case threshold.startsWith('>'):  return threshold.replace(/^>/, '<=');
-      case threshold.startsWith('<'):  return threshold.replace(/^</, '>=');
-
-      default: return threshold;
+      case operator === '>=': return  '<';
+      case operator === '<=': return  '>';
+      case operator === '>':  return '<=';
+      case operator === '<':  return '>=';
     }
   }
 
-  addRule(category, paramKey, threshold) {
-    const queryParams = {};
+  addRule(name, param, operator, threshold) {
+    const queryParamsForRule = {};
 
     // For every existing rule, we need to negate the corresponding query
-    for (const rule of this.rules) {
-      queryParams[rule.paramKey] = this.negate(rule.threshold);
+    for (const rule of Object.values(this.rules)) {
+      const compOperator = this.getComplementaryOperator(rule.operator);
+      queryParamsForRule[rule.param] = `${compOperator}${String(rule.threshold)}`;
     }
 
-    // Add the new query
-    queryParams[paramKey] = threshold;
+    // Add the new query after existing queries have been negated
+    queryParamsForRule[param] = `${operator}${String(threshold)}`;
 
     // Store the new query params for retrieval by getQueryParams()
-    this.computedParams[category] = queryParams;
-    this.rules.push({ category, paramKey, threshold });
+    this.rules[name] = { param, operator, threshold };
+    this.queryParams[name] = queryParamsForRule;
 
     return this;
   }
 
-  getQueryParams(category) {
-    return this.computedParams[category] || {};
+  getQueryParams(name) {
+    return this.queryParams[name] || {};
   }
 };

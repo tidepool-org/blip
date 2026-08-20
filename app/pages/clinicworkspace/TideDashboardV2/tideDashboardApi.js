@@ -10,13 +10,13 @@ import CGMExclusionQuery from './CGMExclusionQuery';
 // cutoff (raw 0.005 displays as 1%), matching raw backend values that round to it.
 // e.g. A value of 3.7% gets rounded up to 4%, so it needs to be returned when querying >=4%.
 const cgmExclusionQuery = new CGMExclusionQuery()
-  .addRule(CATEGORY.VERY_LOW, 'cgm.timeInVeryLowPercent', '>=0.005')         // >=1%
-  .addRule(CATEGORY.ANY_LOW, 'cgm.timeInAnyLowPercent', '>=0.035')           // >=4%
-  .addRule(CATEGORY.DROP_IN_TIR, 'cgm.timeInTargetPercentDelta', '<=-0.145') // <=-15%
-  .addRule(CATEGORY.ANY_HIGH, 'cgm.timeInAnyHighPercent', '>=0.245')         // >=25%
-  .addRule(CATEGORY.VERY_HIGH, 'cgm.timeInVeryHighPercent', '>=0.045')       // >=5%
-  .addRule(CATEGORY.LOW_CGM_WEAR, 'cgm.timeCGMUsePercent', '<0.695')         // <70%
-  .addRule(CATEGORY.TARGET, 'cgm.timeCGMUsePercent', '>=0.695');             // >=70% and overwrites previous
+  .addRule(CATEGORY.VERY_LOW, 'cgm.timeInVeryLowPercent', '>=', 0.005)         // >=1%
+  .addRule(CATEGORY.ANY_LOW, 'cgm.timeInAnyLowPercent', '>=', 0.035)           // >=4%
+  .addRule(CATEGORY.DROP_IN_TIR, 'cgm.timeInTargetPercentDelta', '<=', -0.145) // <=-15%
+  .addRule(CATEGORY.ANY_HIGH, 'cgm.timeInAnyHighPercent', '>=', 0.245)         // >=25%
+  .addRule(CATEGORY.VERY_HIGH, 'cgm.timeInVeryHighPercent', '>=', 0.045)       // >=5%
+  .addRule(CATEGORY.LOW_CGM_WEAR, 'cgm.timeCGMUsePercent', '<', 0.695)         // <70%
+  .addRule(CATEGORY.TARGET, 'cgm.timeCGMUsePercent', '>=', 0.695);             // >=70% and overwrites previous
 
 export const buildGetTideDashboardPatientsParams = (offset, limit, category, summaryPeriod, lastDataFrom, lastDataTo, tags = [], sites = []) => {
   const formattedTags = tags.length > 0 ? tags.join(',') : undefined;
