@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import Table from '../../../components/elements/Table';
 import { Flex, Text, Box } from 'theme-ui';
@@ -12,6 +13,7 @@ import TableCategoryHeader from './TableCategoryHeader';
 import PaginationController from './PaginationController';
 
 import useTideDashboardPatients from './useTideDashboardPatients';
+import usePruneInvalidFilters from './usePruneInvalidFilters';
 import useTableColumns from './useTableColumns';
 import EmptyContentNode from './EmptyContentNode';
 import FilterBySites from './FilterBySites';
@@ -20,6 +22,10 @@ import AppliedFiltersList from './AppliedFiltersList';
 const Gap = () => <Box sx={{ marginLeft: 'auto' }}></Box>;
 
 const TideDashboardV2 = () => {
+  const { t } = useTranslation();
+
+  usePruneInvalidFilters();
+
   const category = useSelector(state => state.blip.tideDashboard.category);
 
   const { data } = useTideDashboardPatients();
