@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
-import { useTranslation, withTranslation } from 'react-i18next';
-import { Flex, Text, Box } from 'theme-ui';
+import { useTranslation } from 'react-i18next';
+import { Flex, Text } from 'theme-ui';
 import { colors as vizColors } from '@tidepool/viz';
 
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
@@ -47,7 +47,7 @@ const usePrimaryChips = (activeFilters, requiredFilters) => {
       type: 'lastData',
       value: `${lastDataType}-${lastData}`,
       label: getLastDataChipLabel(lastDataType, lastData),
-      required: requiredFilters?.includes('lastData') || false,
+      required: requiredFilters?.['lastData'] || false,
     }),
 
     // CGM Wear Time Filter
@@ -114,7 +114,7 @@ const useSiteChips = (clinicSites = []) => {
 
 const Chip = ({ label, onRemove, required = false }) => {
   const { t } = useTranslation();
-  const hasRemoveIcon = !required;
+  const canRemove = !required;
 
   return (
     <Flex
@@ -127,7 +127,7 @@ const Chip = ({ label, onRemove, required = false }) => {
         fontWeight: 'normal',
         cursor: 'default',
         ml: 1,
-        '&:hover': hasRemoveIcon ? {
+        '&:hover': canRemove ? {
           color: vizColors.blue80,
           fontWeight: 'medium',
         } : {},
@@ -152,11 +152,11 @@ const Chip = ({ label, onRemove, required = false }) => {
         },
       }}
     >
-      <Text sx={{ textDecoration: 'underline', whiteSpace: 'nowrap' }}>
+      <Text sx={{ textDecoration: canRemove ? 'underline' : 'none', whiteSpace: 'nowrap' }}>
         {label}
       </Text>
 
-      { hasRemoveIcon &&
+      { canRemove &&
         <Icon
           className="remove-filter-icon"
           icon={CloseRoundedIcon}
@@ -190,7 +190,7 @@ const ChipGroup = ({ prefix, chips, onRemove }) => {
 const ActiveFiltersTray = ({
   patientCount = 0,
   filters = {},
-  requiredFilters = [],
+  requiredFilters = {},
   hasSearchActive = false,
   onRemoveFilter = noop,
   rightContent = null,
@@ -272,6 +272,7 @@ const ActiveFiltersTray = ({
 
 ActiveFiltersTray.propTypes = {
   patientCount: PropTypes.number,
+  requiredFilters: PropTypes.object,
   filters: PropTypes.shape({
     lastData: PropTypes.number,
     lastDataType: PropTypes.oneOf(['bgm', 'cgm']),
