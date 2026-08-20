@@ -212,11 +212,19 @@ describe('WorkspaceSwitcher', () => {
           },
         },
         {
+          type: 'tideDashboardFilters/setTideDashboardFilters',
+          payload: undefined,
+        },
+        {
           type: '@@router/CALL_HISTORY_METHOD',
           payload: {
             args: ['/patients', { selectedClinicId: null }],
             method: 'push',
           },
+        },
+        {
+          type: 'tideDashboard/resetTideDashboardState',
+          payload: undefined,
         },
       ]);
 
