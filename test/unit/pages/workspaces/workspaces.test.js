@@ -311,6 +311,7 @@ describe('Workspaces', () => {
       fireEvent.click(button);
       expect(store.getActions()).to.eql([
         { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: null } },
+        { type: 'tideDashboardFilters/setTideDashboardFilters', payload: undefined },
         {
           type: '@@router/CALL_HISTORY_METHOD',
           payload: {
@@ -361,6 +362,7 @@ describe('Workspaces', () => {
         { type: 'SET_PATIENT_LIST_SEARCH_TEXT_INPUT', payload: { textInput: '' } },
         { type: 'SET_IS_PATIENT_LIST_VISIBLE', payload: { isVisible: false } },
         { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: 'clinicID456' } },
+        { type: 'tideDashboardFilters/setTideDashboardFilters', payload: undefined },
         { type: 'FETCH_CLINIC_PATIENT_COUNTS_REQUEST' },
         { type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST' },
         {
