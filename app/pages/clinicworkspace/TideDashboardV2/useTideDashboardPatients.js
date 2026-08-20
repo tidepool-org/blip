@@ -16,10 +16,11 @@ const useTideDashboardPatients = () => {
   const category = useSelector(state => state.blip.tideDashboard.category);
   const offset = useSelector(state => state.blip.tideDashboard.offset);
   const patientTags = tideDashboardFilters.patientTags;
+  const clinicSites = tideDashboardFilters.clinicSites;
   const [lastDataFrom, lastDataTo] = useDerivedDataRecencyEndpoints();
 
   return useGetTideDashboardPatientsQuery(
-    { clinicId: selectedClinicId, offset, category, lastDataTo, lastDataFrom, tags: patientTags, limit: LIMIT },
+    { clinicId: selectedClinicId, offset, category, lastDataTo, lastDataFrom, tags: patientTags, sites: clinicSites, limit: LIMIT },
     { skip: !selectedClinicId }
   );
 };
