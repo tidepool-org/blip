@@ -1,5 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+// IMPORTANT: This slice is automatically persisted between user sessions via localStorage.
+// If you don't want your state variable value persisted, use a different redux slice for it.
+
 const getInitialState = () => ({
   lastData: 7,
   patientTags: [],
