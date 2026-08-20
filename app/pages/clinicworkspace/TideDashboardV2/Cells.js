@@ -206,8 +206,8 @@ export const FlagCell = ({ patient, category = null, }) => {
     anyLow: t('Low'),
     veryHigh: t('Very High'),
     anyHigh: t('High'),
-    dropInTIR: t('Large Drop in TIR'),
-    lowSensorUsage: t('Low CGM Wear Time'),
+    dropInTIR: t('Drop in TIR'),
+    lowSensorUsage: t('Low CGM Wear'),
     target: t('Meeting Targets'),
   };
 
