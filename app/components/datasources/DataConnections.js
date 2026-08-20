@@ -359,7 +359,21 @@ export const resolveConnectState = (patient, providerName, isLoggedInUser = fals
 };
 
 export const getDataConnectionProps = (patient, isLoggedInUser, selectedClinicId, setActiveHandler) => reduce(availableProviders, (result, providerName) => {
-  result[providerName] = {};
+
+  const provider = providers[providerName];
+  const dataSource = getCurrentDataSourceForProvider(patient, providerName);
+
+  // If the provider requires a logged in user to create the connection, then ensure that is the case.
+  if (!!provider.requiresLoggedInUser && !isLoggedInUser) {
+    return result;
+  }
+
+  // If the provider requires an existing data source to create the connection, then ensure that is the case.
+  // This mechanism can be used to limit access to certain providers to only users who have previously connected
+  // or where Tidepool has created a data source on their behalf.
+  if (!!provider.requiresExistingDataSource && !dataSource) {
+    return result;
+  }
 
   const connectStateUI = getConnectStateUI(patient, isLoggedInUser, providerName);
   const connectState = resolveConnectState(patient, providerName, isLoggedInUser);
