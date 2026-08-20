@@ -1,5 +1,5 @@
 import { RTKQueryApi } from '../../../redux/api/baseApi';
-import { CATEGORY } from './FilterByCategory';
+import { CATEGORY } from './tideDashboardSlice';
 import CGMExclusionQuery from './CGMExclusionQuery';
 
 
