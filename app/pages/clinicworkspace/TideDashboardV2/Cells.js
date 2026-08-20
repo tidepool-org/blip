@@ -24,6 +24,8 @@ import {
   setDataConnectionsModalPatientId,
 } from './tideDashboardSlice';
 
+import { tideDashboardCgmParams } from './tideDashboardApi';
+
 export const COMPACT = '@container (max-width: 1200px)';
 
 export const PatientCell = ({ patient }) => {
@@ -169,7 +171,9 @@ export const FlagCell = ({ patient, category = null, }) => {
   const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
   const period = patient?.summary?.cgmStats?.periods?.[summaryPeriod];
 
-  const { VERY_LOW, ANY_LOW, DROP_IN_TIR, ANY_HIGH, VERY_HIGH, LOW_CGM_WEAR, TARGET } = CATEGORY;
+  const { VERY_LOW, ANY_LOW, DROP_IN_TIR, ANY_HIGH, VERY_HIGH, LOW_CGM_WEAR } = CATEGORY;
+
+  const getThreshold = (category) => tideDashboardCgmParams.getRule(category).threshold;
 
   if (!period) return null;
 
@@ -182,15 +186,14 @@ export const FlagCell = ({ patient, category = null, }) => {
       case category === ANY_HIGH: return 'anyHigh';
       case category === DROP_IN_TIR: return 'dropInTIR';
       case category === LOW_CGM_WEAR: return 'lowSensorUsage';
-      case category === TARGET: return 'target';
 
       // If no category, then read from summary
-      case period.timeInVeryLowPercent >= 0.005: return 'veryLow';           // >=1%
-      case period.timeInAnyLowPercent >= 0.035: return 'anyLow';             // >=4%
-      case period.timeInTargetPercentDelta <= -0.145: return 'dropInTIR';    // <=-15%
-      case period.timeInAnyHighPercent >= 0.245: return 'anyHigh';           // >=25%
-      case period.timeInVeryHighPercent >= 0.045: return 'veryHigh';         // >=5%
-      case period.timeCGMUsePercent < 0.695: return 'lowSensorUsage';        // <70%
+      case period.timeInVeryLowPercent >= getThreshold(VERY_LOW): return 'veryLow';           // >=1%
+      case period.timeInAnyLowPercent >= getThreshold(ANY_LOW): return 'anyLow';              // >=4%
+      case period.timeInTargetPercentDelta <= getThreshold(DROP_IN_TIR): return 'dropInTIR';  // <=-15%
+      case period.timeInAnyHighPercent >= getThreshold(ANY_HIGH): return 'anyHigh';           // >=25%
+      case period.timeInVeryHighPercent >= getThreshold(VERY_HIGH): return 'veryHigh';        // >=5%
+      case period.timeCGMUsePercent < getThreshold(ANY_LOW): return 'lowSensorUsage';         // <70%
 
       default: return null;
     }
