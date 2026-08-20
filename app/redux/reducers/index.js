@@ -21,6 +21,7 @@ import pdf from './pdf';
 import data from './data';
 import patientListFilters from './patientListFilters';
 import tideDashboard from '../../pages/clinicworkspace/TideDashboardV2/tideDashboardSlice';
+import tideDashboardFilters from '../../pages/clinicworkspace/TideDashboardV2/tideDashboardFiltersSlice';
 
 import {
   bgPrefs,
@@ -111,4 +112,5 @@ export default combineReducers({
   clinicMRNsForPatientFormValidation,
   patientListFilters,
   tideDashboard,
+  tideDashboardFilters,
 });
