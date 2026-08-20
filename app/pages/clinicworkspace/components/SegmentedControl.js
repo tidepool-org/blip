@@ -3,8 +3,9 @@ import { colors as vizColors } from '@tidepool/viz';
 import { Flex } from 'theme-ui';
 import noop from 'lodash/noop';
 
-export const CategorySegmentedControl = ({ children }) => (
+export const SegmentedControl = ({ children }) => (
   <Flex
+    role="radiogroup"
     sx={{
       border: `1px solid ${ vizColors.gray10 }`,
       borderRadius: 3,
@@ -24,6 +25,8 @@ export const Segment = ({
 }) => {
   return (
     <Flex
+      role="radio"
+      aria-checked={selected}
       onClick={onClick}
       onKeyDown={(evt) => {
         if (evt.key === 'Enter' || evt.key === ' ') {
@@ -52,6 +55,6 @@ export const Segment = ({
 };
 
 export default {
-  CategorySegmentedControl,
+  SegmentedControl,
   Segment,
 };
