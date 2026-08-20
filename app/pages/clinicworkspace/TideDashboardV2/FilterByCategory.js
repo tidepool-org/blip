@@ -2,20 +2,9 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector, useDispatch } from 'react-redux';
 import { CategorySegmentedControl, Segment } from '../components/CategorySegmentedControl';
-import { setCategory, setOffset } from './tideDashboardSlice';
+import { setCategory, setOffset, CATEGORY } from './tideDashboardSlice';
 import { colors as vizColors } from '@tidepool/viz';
 import { Box } from 'theme-ui';
-
-export const CATEGORY = {
-  DEFAULT: 'DEFAULT',
-  VERY_LOW: 'VERY_LOW',
-  ANY_LOW: 'ANY_LOW',
-  DROP_IN_TIR: 'DROP_IN_TIR',
-  ANY_HIGH: 'ANY_HIGH',
-  VERY_HIGH: 'VERY_HIGH',
-  LOW_CGM_WEAR: 'LOW_CGM_WEAR',
-  TARGET: 'TARGET',
-};
 
 const { DEFAULT, VERY_LOW, ANY_LOW, DROP_IN_TIR, ANY_HIGH, VERY_HIGH, LOW_CGM_WEAR, TARGET } = CATEGORY;
 
