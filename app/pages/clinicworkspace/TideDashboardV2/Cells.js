@@ -10,7 +10,7 @@ import { colors } from '../../../themes/baseTheme';
 import BgSummaryCell from '../../../components/clinic/BgSummaryCell';
 import DeltaBar from '../../../components/elements/DeltaBar';
 import utils from '../../../core/utils';
-import { CATEGORY } from './FilterByCategory';
+import { CATEGORY } from './tideDashboardSlice';
 import isUndefined from 'lodash/isUndefined';
 
 import PopoverMenu from '../../../components/elements/PopoverMenu';
