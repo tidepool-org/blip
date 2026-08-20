@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector, useDispatch } from 'react-redux';
-import { CategorySegmentedControl, Segment } from '../components/CategorySegmentedControl';
+import { SegmentedControl, Segment } from '../components/SegmentedControl';
 import { setCategory, setOffset, CATEGORY } from './tideDashboardSlice';
 import { colors as vizColors } from '@tidepool/viz';
 import { Box } from 'theme-ui';
@@ -27,7 +27,7 @@ const FilterByCategory = () => {
   };
 
   return (
-    <CategorySegmentedControl>
+    <SegmentedControl>
       <Segment selected={category === DEFAULT} onClick={() => handleChange(DEFAULT)}>
         {t('All Patients')}
       </Segment>
@@ -52,7 +52,7 @@ const FilterByCategory = () => {
       <Segment selected={category === TARGET} onClick={() => handleChange(TARGET)}>
         <Indicator color={vizColors.target}/>{t('Meeting Targets')}
       </Segment>
-    </CategorySegmentedControl>
+    </SegmentedControl>
   );
 };
 
