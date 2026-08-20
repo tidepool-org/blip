@@ -18,8 +18,6 @@ import utils from '../../core/utils';
 import { clinicUIDetails } from '../../core/clinicUtils.js';
 import { getDismissedAltRangeBannerKey, isRangeWithNonStandardTarget } from '../../providers/AppBanner/appBannerHelpers.js';
 import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils.js';
-import { getTideDashboardFiltersKey, loadLocalState } from '../store/localStorage';
-import { setTideDashboardFilters } from '../../pages/clinicworkspace/TideDashboardV2/tideDashboardFiltersSlice';
 
 // Upload record lookups in flight at once, a courtesy to the backend rather than a browser limit
 const UPLOAD_FETCH_CONCURRENCY = 5;
@@ -3171,11 +3169,7 @@ export function selectClinic(api, clinicId) {
   return (dispatch, getState) => {
     dispatch(sync.selectClinicSuccess(clinicId));
 
-    const { blip: { clinics = {}, loggedInUserId } } = getState();
-
-    const tideDashboardFiltersKey = getTideDashboardFiltersKey(loggedInUserId, clinicId);
-    const tideDashboardFilters = loggedInUserId && clinicId ? loadLocalState(tideDashboardFiltersKey) : undefined;
-    dispatch(setTideDashboardFilters(tideDashboardFilters));
+    const { blip: { clinics = {} } } = getState();
 
     const clinic = clinics[clinicId];
 
