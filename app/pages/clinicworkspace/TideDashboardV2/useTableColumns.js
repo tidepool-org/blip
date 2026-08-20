@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { CATEGORY } from './FilterByCategory';
+import { CATEGORY } from './tideDashboardSlice';
 import { MGDL_UNITS } from '../../../core/constants';
 import mapValues from 'lodash/mapValues';
 import { utils as vizUtils } from '@tidepool/viz';
