@@ -26,6 +26,7 @@ import { selectIsSmartOnFhirMode } from '../../core/selectors';
 import Button from '../elements/Button';
 import Popover from '../elements/Popover';
 import { colors } from '../../themes/baseTheme';
+import { resetTideDashboardState } from '../../pages/clinicworkspace/TideDashboardV2/tideDashboardSlice';
 
 export const WorkspaceSwitcher = props => {
   const { t, api, trackMetric } = props;
@@ -85,6 +86,7 @@ export const WorkspaceSwitcher = props => {
     dispatch(actions.sync.setIsPatientListVisible(false));
     dispatch(actions.async.selectClinic(api, option.id));
     dispatch(push(option.id ? '/clinic-workspace' : '/patients', { selectedClinicId: option.id }));
+    dispatch(resetTideDashboardState());
     popupState.close();
   };
 
