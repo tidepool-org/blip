@@ -1,6 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-import { CATEGORY } from './FilterByCategory';
+export const CATEGORY = {
+  DEFAULT: 'DEFAULT',
+  VERY_LOW: 'VERY_LOW',
+  ANY_LOW: 'ANY_LOW',
+  DROP_IN_TIR: 'DROP_IN_TIR',
+  ANY_HIGH: 'ANY_HIGH',
+  VERY_HIGH: 'VERY_HIGH',
+  LOW_CGM_WEAR: 'LOW_CGM_WEAR',
+  TARGET: 'TARGET',
+};
 
 const getInitialState = () => ({
   category: CATEGORY.DEFAULT,
