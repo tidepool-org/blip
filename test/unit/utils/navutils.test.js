@@ -145,6 +145,10 @@ describe('navutils', () => {
             payload: { clinicId: null }, // null is appropriate for switch to private workspace
           },
           {
+            type: 'tideDashboardFilters/setTideDashboardFilters',
+            payload: undefined,
+          },
+          {
             type: '@@router/CALL_HISTORY_METHOD',
             payload: {
               args: ['/patients', { selectedClinicId: null }],
