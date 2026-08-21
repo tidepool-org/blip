@@ -378,6 +378,9 @@ export const ClinicDetails = (props) => {
 
   useEffect(() => {
       formikContext.resetForm();
+      // The route pattern is shared across actions, so this component instance
+      // persists across the step change and would keep a stale submitting flag.
+      setSubmitting(false);
   }, [action]);
 
   const formActions = [{
