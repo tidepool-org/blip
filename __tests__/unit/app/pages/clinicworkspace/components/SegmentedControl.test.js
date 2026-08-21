@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import { SegmentedControl, Segment } from '@app/pages/clinicworkspace/components/SegmentedControl';
 
-const segments = [{ label: 'First', id: 1 }, { label: 'Second', id: 2 }, { label: 'Third', id: 3 },];
+const segments = [{ label: 'First', id: 1 }, { label: 'Second', id: 2 }, { label: 'Third', id: 3 }];
 
 describe('SegmentedControl', () => {
   const onSelect = jest.fn();
