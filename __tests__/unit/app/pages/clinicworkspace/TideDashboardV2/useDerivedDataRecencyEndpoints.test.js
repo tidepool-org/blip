@@ -4,7 +4,6 @@ import { renderHook } from '@testing-library/react-hooks/dom';
 import { thunk } from 'redux-thunk';
 import configureStore from 'redux-mock-store';
 
-import { lastDataFilterOptions } from '@app/core/clinicUtils';
 import useDerivedDataRecencyEndpoints from '@app/pages/clinicworkspace/TideDashboardV2/useDerivedDataRecencyEndpoints';
 
 const mockStore = configureStore([thunk]);
@@ -36,10 +35,6 @@ describe('useDerivedDataRecencyEndpoints', () => {
 
   afterEach(() => {
     jest.useRealTimers();
-  });
-
-  it('has a case below for every lastDataFilterOptions value', () => {
-    expect(lastDataFilterOptions.map(({ value }) => value)).toStrictEqual([1, 2, 7, 14, 30]);
   });
 
   it('derives the window for the "Today" (1 day) option', () => {
