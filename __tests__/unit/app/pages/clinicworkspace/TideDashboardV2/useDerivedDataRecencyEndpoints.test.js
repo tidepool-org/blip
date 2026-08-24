@@ -49,28 +49,28 @@ describe('useDerivedDataRecencyEndpoints', () => {
     ]);
   });
 
-  it('derives the window when the "Within 2 days" option', () => {
+  it('derives the window for the "Within 2 days" option', () => {
     expect(renderEndpointsHook({ lastData: 2 })).toStrictEqual([
       '2025-05-28T00:00:00.000Z', // lastDataFrom
       '2025-05-30T00:00:00.000Z', // lastDataTo
     ]);
   });
 
-  it('derives the window when the "Within 7 days" option', () => {
+  it('derives the window for the "Within 7 days" option', () => {
     expect(renderEndpointsHook({ lastData: 7 })).toStrictEqual([
       '2025-05-23T00:00:00.000Z', // lastDataFrom
       '2025-05-30T00:00:00.000Z', // lastDataTo
     ]);
   });
 
-  it('derives the window when the "Within 14 days" option', () => {
+  it('derives the window for the "Within 14 days" option', () => {
     expect(renderEndpointsHook({ lastData: 14 })).toStrictEqual([
       '2025-05-16T00:00:00.000Z', // lastDataFrom
       '2025-05-30T00:00:00.000Z', // lastDataTo
     ]);
   });
 
-  it('derives the window when the "Within 30 days" option', () => {
+  it('derives the window for the "Within 30 days" option', () => {
     expect(renderEndpointsHook({ lastData: 30 })).toStrictEqual([
       '2025-04-30T00:00:00.000Z', // lastDataFrom
       '2025-05-30T00:00:00.000Z', // lastDataTo
