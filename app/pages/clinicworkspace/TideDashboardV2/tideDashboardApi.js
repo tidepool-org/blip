@@ -26,7 +26,6 @@ export const buildGetTideDashboardPatientsParams = (offset, limit, category, sum
   return {
     offset,
     limit,
-    category,
     period: summaryPeriod,
     'cgm.lastDataTo': lastDataTo,
     'cgm.lastDataFrom': lastDataFrom,
