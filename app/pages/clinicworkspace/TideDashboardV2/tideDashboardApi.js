@@ -18,8 +18,8 @@ export const tideDashboardExclusionQuery = new CGMExclusionQuery()
   .addRule(CATEGORY.TARGET, 'cgm.timeCGMUsePercent', '>=', 0.695);             // >=70% and overwrites previous
 
 export const buildGetTideDashboardPatientsParams = (offset, limit, category, summaryPeriod, lastDataFrom, lastDataTo, tags = [], sites = []) => {
-  const formattedTags = tags.length > 0 ? tags.join(',') : undefined;
-  const formattedSites = sites.length > 0 ? sites.join(',') : undefined;
+  const formattedTags = tags?.length > 0 ? tags.join(',') : undefined;
+  const formattedSites = sites?.length > 0 ? sites.join(',') : undefined;
 
   const cgmQueryParams = tideDashboardExclusionQuery.getQueryParams(category);
 
