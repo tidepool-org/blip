@@ -1,9 +1,10 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import moment from 'moment';
 import { useSelector } from 'react-redux';
 import { utils as vizUtils } from '@tidepool/viz';
 const { getLocalizedCeiling } = vizUtils.datetime;
 
+// TEMPORARY, will be set in redux
 const tideDashboardFilters = {
   lastData: 7,
   patientTags: [],
@@ -11,17 +12,14 @@ const tideDashboardFilters = {
   summaryPeriod: '14d',
 };
 
-const useDerivedDataRecencyEndpoints = () => {
-  const lastData = tideDashboardFilters.lastData;
+const useDerivedDataRecencyEndpoints = (
+  filters = tideDashboardFilters // TEMPORARY, will be set in redux
+) => {
+  const lastData = filters.lastData;
   const timePrefs = useSelector((state) => state.blip.timePrefs);
 
-  const lastDataTo = useMemo(() => {
-    return getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
-  }, [timePrefs]);
-
-  const lastDataFrom = useMemo(() => {
-    return moment(lastDataTo).subtract(lastData, 'days').toISOString();
-  }, [lastDataTo, lastData]);
+  const lastDataTo = getLocalizedCeiling(new Date().toISOString(), timePrefs).toISOString();
+  const lastDataFrom = moment(lastDataTo).subtract(lastData, 'days').toISOString();
 
   return [lastDataFrom, lastDataTo];
 };
