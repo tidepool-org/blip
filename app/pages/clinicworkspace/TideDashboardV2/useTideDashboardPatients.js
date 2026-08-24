@@ -4,6 +4,7 @@ import useDerivedDataRecencyEndpoints from './useDerivedDataRecencyEndpoints';
 
 const LIMIT = 12;
 
+// TEMPORARY, will be set in redux
 const tideDashboardFilters = {
   lastData: 7,
   patientTags: [],
@@ -17,10 +18,11 @@ const useTideDashboardPatients = () => {
   const offset = useSelector(state => state.blip.tideDashboard.offset);
   const patientTags = tideDashboardFilters.patientTags;
   const clinicSites = tideDashboardFilters.clinicSites;
+  const summaryPeriod = tideDashboardFilters.summaryPeriod;
   const [lastDataFrom, lastDataTo] = useDerivedDataRecencyEndpoints();
 
   return useGetTideDashboardPatientsQuery(
-    { clinicId: selectedClinicId, offset, category, lastDataTo, lastDataFrom, tags: patientTags, sites: clinicSites, limit: LIMIT },
+    { clinicId: selectedClinicId, offset, category, summaryPeriod, lastDataTo, lastDataFrom, tags: patientTags, sites: clinicSites, limit: LIMIT },
     { skip: !selectedClinicId }
   );
 };
