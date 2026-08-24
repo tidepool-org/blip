@@ -5,10 +5,12 @@ import { Provider } from 'react-redux';
 import { MemoryRouter, Route } from 'react-router-dom';
 import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
+import merge from 'lodash/merge';
 import { push } from 'connected-react-router';
 import { useFlags } from 'launchdarkly-react-client-sdk';
 
 import '@app/core/language';
+import * as actions from '@app/redux/actions';
 import ClinicWorkspace from '@app/pages/clinicworkspace';
 import { resetTideDashboardState } from '@app/pages/clinicworkspace/TideDashboardV2/tideDashboardSlice';
 
@@ -55,15 +57,18 @@ describe('ClinicWorkspace', () => {
     },
   };
 
-  const renderComponent = (route = '') => render(
+  const ui = ({ route = '', ...props } = {}) => (
     <Provider store={store}>
       <MemoryRouter initialEntries={[`/clinic-workspace/${route}`]}>
-        <Route path="/clinic-workspace/:tab?" children={() => <ClinicWorkspace {...defaultProps} />} />
+        <Route path="/clinic-workspace/:tab?" children={() => <ClinicWorkspace {...defaultProps} {...props} />} />
       </MemoryRouter>
     </Provider>
   );
 
+  const renderComponent = (props) => render(ui(props));
+
   beforeEach(() => {
+    jest.clearAllMocks();
     useFlags.mockReturnValue({ showTideDashboard: true, showPrescriptions: true });
     store = mockStore(defaultState);
     defaultProps = { api: {}, trackMetric: jest.fn() };
@@ -111,6 +116,51 @@ describe('ClinicWorkspace', () => {
     });
   });
 
+  describe('fetching patient invites', () => {
+    it('fetches patient invites on mount when they have not been fetched yet', () => {
+      store = mockStore(merge({}, defaultState, {
+        blip: { working: { fetchingPatientInvites: { completed: false } } },
+      }));
+      renderComponent();
+
+      expect(actions.async.fetchPatientInvites).toHaveBeenCalledTimes(1);
+      expect(actions.async.fetchPatientInvites).toHaveBeenCalledWith(
+        defaultProps.api, // api
+        'clinic123',      // clinicId
+      );
+    });
+
+    it('does not refetch patient invites that have already been fetched', () => {
+      renderComponent();
+
+      expect(actions.async.fetchPatientInvites).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('clearing the patient in view', () => {
+    it('clears the patient in view on mount and again when the clinic changes', () => {
+      const { rerender } = render(ui({ location: { state: { selectedClinicId: 'clinic123' } } }));
+
+      expect(actions.worker.dataWorkerRemoveDataRequest).toHaveBeenCalledTimes(1);
+      expect(actions.sync.clearPatientInView).toHaveBeenCalledTimes(1);
+
+      // Arriving from a different clinic clears the previous clinic's patient again
+      rerender(ui({ location: { state: { selectedClinicId: 'clinic456' } } }));
+
+      expect(actions.worker.dataWorkerRemoveDataRequest).toHaveBeenCalledTimes(2);
+      expect(actions.sync.clearPatientInView).toHaveBeenCalledTimes(2);
+    });
+
+    it('selects the clinic the workspace was opened for when it differs from the selected clinic', () => {
+      renderComponent({ location: { state: { selectedClinicId: 'clinic456' } } });
+
+      expect(actions.async.selectClinic).toHaveBeenCalledWith(
+        defaultProps.api, // api
+        'clinic456',      // clinicId from the location state
+      );
+    });
+  });
+
   describe('tab navigation', () => {
     it('sets the tide dashboard path when clicking TIDE Dashboard', async () => {
       renderComponent();
@@ -149,7 +199,7 @@ describe('ClinicWorkspace', () => {
     });
 
     it('sets the patients path when clicking Patient List from another tab', async () => {
-      renderComponent('invites');
+      renderComponent({ route: 'invites' });
 
       // The invites route param pre-selects the Invites tab
       expect(screen.getByRole('tab', { selected: true })).toHaveTextContent('Invites (2)');
