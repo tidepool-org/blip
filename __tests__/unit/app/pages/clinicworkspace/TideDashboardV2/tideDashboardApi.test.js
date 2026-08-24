@@ -1,4 +1,4 @@
-import { tideDashboardExclusionQuery } from '@app/pages/clinicworkspace/TideDashboardV2/tideDashboardApi';
+import { buildGetTideDashboardPatientsParams, tideDashboardExclusionQuery } from '@app/pages/clinicworkspace/TideDashboardV2/tideDashboardApi';
 import { CATEGORY } from '@app/pages/clinicworkspace/TideDashboardV2/tideDashboardSlice';
 
 describe ('tideDashboardApi', () => {
@@ -68,6 +68,64 @@ describe ('tideDashboardApi', () => {
         'cgm.timeInAnyHighPercent': '<0.245', // < 25%
         'cgm.timeInVeryHighPercent': '<0.045', // < 5%
         'cgm.timeCGMUsePercent': '>=0.695', // >= 70%
+      });
+    });
+  });
+
+  describe('buildGetTideDashboardPatientsParams', () => {
+    const cgmQueryParams = { 'cgm.timeInVeryLowPercent': '<0.005' };
+
+    beforeEach(() => {
+      jest.spyOn(tideDashboardExclusionQuery, 'getQueryParams').mockReturnValue(cgmQueryParams);
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('joins tags and sites into comma-separated params', () => {
+      expect(buildGetTideDashboardPatientsParams(
+        50,                      // offset
+        10,                      // limit
+        CATEGORY.ANY_LOW,        // category
+        '14d',                   // summaryPeriod
+        '2025-05-15T00:00:00Z',  // lastDataFrom
+        '2025-05-29T00:00:00Z',  // lastDataTo
+        ['tagId1', 'tagId2'],    // tags
+        ['siteId1', 'siteId2'],  // sites
+      )).toStrictEqual({
+        offset: 50,
+        limit: 10,
+        category: CATEGORY.ANY_LOW,
+        period: '14d',
+        'cgm.lastDataFrom': '2025-05-15T00:00:00Z',
+        'cgm.lastDataTo': '2025-05-29T00:00:00Z',
+        tags: 'tagId1,tagId2',
+        sites: 'siteId1,siteId2',
+        'cgm.timeInVeryLowPercent': '<0.005',
+      });
+    });
+
+    it('omits tags and sites when no filters are applied', () => {
+      expect(buildGetTideDashboardPatientsParams(
+        0,                       // offset
+        10,                      // limit
+        CATEGORY.ANY_LOW,        // category
+        '14d',                   // summaryPeriod
+        '2025-05-15T00:00:00Z',  // lastDataFrom
+        '2025-05-29T00:00:00Z',  // lastDataTo
+        [],                      // tags
+        [],                      // sites
+      )).toStrictEqual({
+        offset: 0,
+        limit: 10,
+        category: CATEGORY.ANY_LOW,
+        period: '14d',
+        'cgm.lastDataFrom': '2025-05-15T00:00:00Z',
+        'cgm.lastDataTo': '2025-05-29T00:00:00Z',
+        tags: undefined,
+        sites: undefined,
+        'cgm.timeInVeryLowPercent': '<0.005',
       });
     });
   });
