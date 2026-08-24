@@ -1,7 +1,8 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
+import { MemoryRouter } from 'react-router-dom';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import isEqual from 'lodash/isEqual';
@@ -177,7 +178,9 @@ describe('TideDashboardV2', () => {
 
   const renderComponent = () => render(
     <Provider store={store}>
-      <TideDashboardV2 />
+      <MemoryRouter initialEntries={['/clinic-workspace/tide-dashboard']}>
+        <TideDashboardV2 />
+      </MemoryRouter>
     </Provider>
   );
 
@@ -251,4 +254,46 @@ describe('TideDashboardV2', () => {
     expect(screen.getByText('Meeting Targets Patient 2')).toBeInTheDocument();
     expect(screen.queryByText('Low CGM Wear Patient 1')).not.toBeInTheDocument();
   }, TEST_TIMEOUT_MS);
+
+  describe('empty content', () => {
+    it('shows Reset button when no patients match applied filters', async () => {
+      // A tag filter is applied before the dashboard mounts
+      store = setupStore({
+        blip: {
+          selectedClinicId: 'clinic123',
+          clinics: {
+            clinic123: { id: 'clinic123', patientTags: [{ id: 'tag1', name: 'Tag One' }] },
+          },
+          tideDashboardFilters: { lastData: 7, patientTags: ['tag1'], clinicSites: [], summaryPeriod: '14d' },
+        },
+      }, { blip: blipReducer });
+
+      renderComponent();
+
+      // The tag-filtered query returns no patients, so the filtered empty message shows
+      const emptyContent = await screen.findByTestId('tide-dashboard-empty-content');
+      expect(within(emptyContent).getByText('There are no patients with the current filter(s)')).toBeInTheDocument();
+      expect(screen.queryByText('Default Patient 1')).not.toBeInTheDocument();
+
+      // Resetting the filters refetches and shows the unfiltered cohort
+      await userEvent.click(within(emptyContent).getByRole('button', { name: 'Reset All Filters' }));
+      expect(await screen.findByText('Default Patient 1')).toBeInTheDocument();
+      expect(screen.queryByTestId('tide-dashboard-empty-content')).not.toBeInTheDocument();
+    });
+
+    it('shows an empty message without a reset button when there are no patients and no filters applied', async () => {
+      // No patients exist for the unfiltered query
+      server.use(
+        http.get('http://app.tidepool.test/v1/clinics/clinic123/patients', () =>
+          HttpResponse.json({ data: [], meta: { count: 0 } })
+        )
+      );
+
+      renderComponent();
+
+      const emptyContent = await screen.findByTestId('tide-dashboard-empty-content');
+      expect(within(emptyContent).getByText('There are no results to show')).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Reset All Filters' })).not.toBeInTheDocument();
+    });
+  });
 });

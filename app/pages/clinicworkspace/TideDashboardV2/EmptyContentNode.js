@@ -34,7 +34,7 @@ const EmptyContentNode = () => {
   const patientQueryState = hasActiveFilters ? PATIENT_QUERY_STATE.FILTER_ONLY : PATIENT_QUERY_STATE.NONE;
 
   return (
-    <Flex sx={{
+    <Flex data-testid="tide-dashboard-empty-content" sx={{
       backgroundColor: colorPalette.primary.bluePrimary00,
       justifyContent: 'center',
       alignItems: 'center',
