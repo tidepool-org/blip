@@ -73,16 +73,6 @@ describe ('tideDashboardApi', () => {
   });
 
   describe('buildGetTideDashboardPatientsParams', () => {
-    const cgmQueryParams = { 'cgm.timeInVeryLowPercent': '<0.005' };
-
-    beforeEach(() => {
-      jest.spyOn(tideDashboardExclusionQuery, 'getQueryParams').mockReturnValue(cgmQueryParams);
-    });
-
-    afterEach(() => {
-      jest.restoreAllMocks();
-    });
-
     it('joins tags and sites into comma-separated params', () => {
       expect(buildGetTideDashboardPatientsParams(
         50,                      // offset
@@ -96,12 +86,12 @@ describe ('tideDashboardApi', () => {
       )).toStrictEqual({
         offset: 50,
         limit: 10,
-        category: CATEGORY.ANY_LOW,
         period: '14d',
         'cgm.lastDataFrom': '2025-05-15T00:00:00Z',
         'cgm.lastDataTo': '2025-05-29T00:00:00Z',
         tags: 'tagId1,tagId2',
         sites: 'siteId1,siteId2',
+        'cgm.timeInAnyLowPercent': '>=0.035',
         'cgm.timeInVeryLowPercent': '<0.005',
       });
     });
@@ -119,12 +109,12 @@ describe ('tideDashboardApi', () => {
       )).toStrictEqual({
         offset: 0,
         limit: 10,
-        category: CATEGORY.ANY_LOW,
         period: '14d',
         'cgm.lastDataFrom': '2025-05-15T00:00:00Z',
         'cgm.lastDataTo': '2025-05-29T00:00:00Z',
         tags: undefined,
         sites: undefined,
+        'cgm.timeInAnyLowPercent': '>=0.035',
         'cgm.timeInVeryLowPercent': '<0.005',
       });
     });
