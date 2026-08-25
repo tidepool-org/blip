@@ -5,7 +5,6 @@ import { thunk } from 'redux-thunk';
 import configureStore from 'redux-mock-store';
 
 import usePruneInvalidFilters from '@app/pages/clinicworkspace/TideDashboardV2/usePruneInvalidFilters';
-import { setPatientTagsFilter, setClinicSitesFilter } from '@app/pages/clinicworkspace/TideDashboardV2/tideDashboardFiltersSlice';
 import { SPECIAL_FILTER_STATES } from '@app/pages/clinicworkspace/useClinicPatientsFilters';
 
 const mockStore = configureStore([thunk]);
@@ -51,7 +50,7 @@ describe('usePruneInvalidFilters', () => {
     renderPruneHook({ filterOverrides: { patientTags: ['tag1', 'tag3'] } });
 
     expect(store.getActions()).toStrictEqual([
-      setPatientTagsFilter(['tag1']),
+      { type: 'tideDashboardFilters/setPatientTagsFilter', payload: ['tag1'] },
     ]);
   });
 
@@ -59,7 +58,7 @@ describe('usePruneInvalidFilters', () => {
     renderPruneHook({ filterOverrides: { clinicSites: ['site3', 'site2'] } });
 
     expect(store.getActions()).toStrictEqual([
-      setClinicSitesFilter(['site2']),
+      { type: 'tideDashboardFilters/setClinicSitesFilter', payload: ['site2'] },
     ]);
   });
 
@@ -72,8 +71,8 @@ describe('usePruneInvalidFilters', () => {
     });
 
     expect(store.getActions()).toStrictEqual([
-      setPatientTagsFilter(['tag1']),
-      setClinicSitesFilter(['site2']),
+      { type: 'tideDashboardFilters/setPatientTagsFilter', payload: ['tag1'] },
+      { type: 'tideDashboardFilters/setClinicSitesFilter', payload: ['site2'] },
     ]);
   });
 
