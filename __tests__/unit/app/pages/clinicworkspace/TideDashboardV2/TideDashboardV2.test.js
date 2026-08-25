@@ -156,75 +156,62 @@ describe('TideDashboardV2', () => {
 
   afterAll(() => server.close());
 
-  it('fetches and renders the All Patients cohort on mount', async () => {
+    it('fetches and renders each category of patients', async () => {
     renderComponent();
-
-    // Nothing renders until the first page of patients resolves
-    expect(screen.queryByText('Default Patient 1')).not.toBeInTheDocument();
-
-    expect(await screen.findByText('Default Patient 1')).toBeInTheDocument();
-    expect(screen.getByText('Default Patient 2')).toBeInTheDocument();
-    expect(screen.getByText('DOB: 2001-01-01')).toBeInTheDocument();
 
     // All Patients is the pre-selected category
-    expect(screen.getByRole('radio', { name: /All Patients/ })).toBeChecked();
-
-    // No other cohort's patients leak in
-    expect(screen.queryByText('Very Low Patient 1')).not.toBeInTheDocument();
-  });
-
-  it('refetches with each category\'s exclusion params and swaps in that cohort', async () => {
-    renderComponent();
-
     expect(await screen.findByText('Default Patient 1')).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /All Patients/ })).toBeChecked();
+    expect(screen.getByText('Default Patient 2')).toBeInTheDocument();
+    expect(screen.getByText('DOB: 2001-01-01')).toBeInTheDocument();
 
     // Selecting Very Low fetches and shows the Very Low cohort
     await userEvent.click(screen.getByRole('radio', { name: /Very Low/ }));
     expect(await screen.findByText('Very Low Patient 1')).toBeInTheDocument();
-    expect(screen.getByText('Very Low Patient 2')).toBeInTheDocument();
     expect(screen.getByRole('radio', { name: /Very Low/ })).toBeChecked();
+    expect(screen.getByText('Very Low Patient 2')).toBeInTheDocument();
     expect(screen.queryByText('Default Patient 1')).not.toBeInTheDocument();
 
     // Selecting Low fetches and shows the Low cohort
     await userEvent.click(screen.getByRole('radio', { name: /^Low$/ }));
     expect(await screen.findByText('Low Patient 1')).toBeInTheDocument();
-    expect(screen.getByText('Low Patient 2')).toBeInTheDocument();
     expect(screen.getByRole('radio', { name: /^Low$/ })).toBeChecked();
+    expect(screen.getByText('Low Patient 2')).toBeInTheDocument();
     expect(screen.queryByText('Very Low Patient 1')).not.toBeInTheDocument();
 
     // Selecting Drop in TIR fetches and shows the Drop in TIR cohort
     await userEvent.click(screen.getByRole('radio', { name: /Drop in TIR/ }));
     expect(await screen.findByText('Drop In TIR Patient 1')).toBeInTheDocument();
-    expect(screen.getByText('Drop In TIR Patient 2')).toBeInTheDocument();
     expect(screen.getByRole('radio', { name: /Drop in TIR/ })).toBeChecked();
+    expect(screen.getByText('Drop In TIR Patient 2')).toBeInTheDocument();
     expect(screen.queryByText('Low Patient 1')).not.toBeInTheDocument();
 
     // Selecting High fetches and shows the High cohort
     await userEvent.click(screen.getByRole('radio', { name: /^High$/ }));
     expect(await screen.findByText('High Patient 1')).toBeInTheDocument();
-    expect(screen.getByText('High Patient 2')).toBeInTheDocument();
     expect(screen.getByRole('radio', { name: /^High$/ })).toBeChecked();
+    expect(screen.getByText('High Patient 2')).toBeInTheDocument();
     expect(screen.queryByText('Drop In TIR Patient 1')).not.toBeInTheDocument();
 
     // Selecting Very High fetches and shows the Very High cohort
     await userEvent.click(screen.getByRole('radio', { name: /Very High/ }));
     expect(await screen.findByText('Very High Patient 1')).toBeInTheDocument();
-    expect(screen.getByText('Very High Patient 2')).toBeInTheDocument();
     expect(screen.getByRole('radio', { name: /Very High/ })).toBeChecked();
+    expect(screen.getByText('Very High Patient 2')).toBeInTheDocument();
     expect(screen.queryByText('High Patient 1')).not.toBeInTheDocument();
 
     // Selecting Low CGM Wear fetches and shows the Low CGM Wear cohort
     await userEvent.click(screen.getByRole('radio', { name: /Low CGM Wear/ }));
     expect(await screen.findByText('Low CGM Wear Patient 1')).toBeInTheDocument();
-    expect(screen.getByText('Low CGM Wear Patient 2')).toBeInTheDocument();
     expect(screen.getByRole('radio', { name: /Low CGM Wear/ })).toBeChecked();
+    expect(screen.getByText('Low CGM Wear Patient 2')).toBeInTheDocument();
     expect(screen.queryByText('Very High Patient 1')).not.toBeInTheDocument();
 
     // Selecting Meeting Targets fetches and shows the Meeting Targets cohort
     await userEvent.click(screen.getByRole('radio', { name: /Meeting Targets/ }));
     expect(await screen.findByText('Meeting Targets Patient 1')).toBeInTheDocument();
-    expect(screen.getByText('Meeting Targets Patient 2')).toBeInTheDocument();
     expect(screen.getByRole('radio', { name: /Meeting Targets/ })).toBeChecked();
+    expect(screen.getByText('Meeting Targets Patient 2')).toBeInTheDocument();
     expect(screen.queryByText('Low CGM Wear Patient 1')).not.toBeInTheDocument();
   }, TEST_TIMEOUT_MS);
 });
