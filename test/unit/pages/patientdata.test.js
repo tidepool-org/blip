@@ -28,6 +28,7 @@ const t = i18next.t.bind(i18next);
 // We must remember to require the base module when mocking dependencies,
 // otherwise dependencies mocked will be bound to the wrong scope!
 import PD, { PatientData, PatientDataClass, getFetchers, mapStateToProps } from '../../../app/pages/patientdata/patientdata.js';
+import MobileAppLink from '../../../app/components/mobileapplink';
 import { DEFAULT_CGM_SAMPLE_INTERVAL_RANGE, MGDL_UNITS, MS_IN_MIN, ONE_MINUTE_CGM_SAMPLE_INTERVAL_RANGE } from '../../../app/core/constants';
 
 jest.mock('../../../app/core/dataViewUtils', () => {
@@ -599,11 +600,46 @@ describe('PatientData', function () {
     describe('no data available', () => {
       let dataConnectionsCard
       let uploaderCard;
+      let mobileAppLink;
       let wrapper;
 
       beforeEach(() => {
         dataConnectionsCard = () => wrapper.find('#data-connections-card');
         uploaderCard = () => wrapper.find('#uploader-card');
+        mobileAppLink = () => wrapper.find(MobileAppLink);
+      });
+
+      describe('mobile app link', () => {
+        const renderWithNoData = (props) => {
+          const mountProps = _.assign({}, defaultProps, {
+            fetchingPatient: false,
+            fetchingPatientData: false,
+            removingData: { inProgress: false },
+            generatingPDF: { inProgress: false },
+            pdf: {},
+            isSmartOnFhirMode: false,
+          }, props);
+
+          wrapper = shallow(<PatientDataClass {...mountProps} />);
+
+          wrapper.setProps(_.assign({}, mountProps, {
+            data: {
+              metaData: { size: 0 },
+            }
+          }));
+        };
+
+        it('should render the mobile app link when the logged-in user is viewing their own data', function() {
+          renderWithNoData({ isUserPatient: true });
+
+          expect(mobileAppLink().length).to.equal(1);
+        });
+
+        it('should not render the mobile app link when the logged-in user is viewing another patient', function() {
+          renderWithNoData({ isUserPatient: false });
+
+          expect(mobileAppLink().length).to.equal(0);
+        });
       });
 
       describe('logged-in user is not current patient targeted for viewing', () => {

@@ -109,6 +109,24 @@ utils.isMobile = () => {
   return (userAgent.indexOf('mobi') > -1);
 };
 
+/**
+ * Identify the mobile platform from the user agent, for cases where a viewport-width media query
+ * (see MobileOnly) isn't sufficient because the behaviour differs per platform.
+ *
+ * Note that iPadOS 13+ requests desktop sites by default and reports itself as a Mac, so an iPad
+ * will generally return null here.
+ *
+ * @return {String|null} 'ios', 'android', or null when neither
+ */
+utils.getMobilePlatform = () => {
+  const userAgent = navigator.userAgent.toLowerCase();
+
+  if (/iphone|ipad|ipod/.test(userAgent)) return 'ios';
+  if (userAgent.indexOf('android') > -1) return 'android';
+
+  return null;
+};
+
 utils.validateEmail = email => {
   var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   return re.test(email);
