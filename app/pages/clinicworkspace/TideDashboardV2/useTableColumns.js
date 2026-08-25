@@ -121,6 +121,80 @@ const getColumnTypes = (t, category, thresholds) => ({
   }, // More
 });
 
+const buildColumnSets = (columnTypes) => ({
+  default: [
+    columnTypes.patientDetails,
+    columnTypes.flag,
+    columnTypes.avgGlucose,
+    columnTypes.timeInRangeBarChart,
+    columnTypes.changeInTIR,
+    columnTypes.gmi,
+    columnTypes.cgmUse,
+    columnTypes.tags,
+    columnTypes.lastReviewed,
+    columnTypes.moreMenu,
+  ],
+  target: [
+    columnTypes.patientDetails,
+    columnTypes.avgGlucose,
+    columnTypes.timeInRangeBarChart,
+    columnTypes.changeInTIR,
+    columnTypes.gmi,
+    columnTypes.cgmUse,
+    columnTypes.tags,
+    columnTypes.lastReviewed,
+    columnTypes.moreMenu,
+  ],
+  low: [
+    columnTypes.patientDetails,
+    columnTypes.avgGlucose,
+    columnTypes.timeInVeryLow,
+    columnTypes.timeInAnyLow,
+    columnTypes.timeInTarget,
+    columnTypes.timeInRangeBarChart,
+    columnTypes.changeInTIR,
+    columnTypes.tags,
+    columnTypes.lastReviewed,
+    columnTypes.moreMenu,
+  ],
+  high: [
+    columnTypes.patientDetails,
+    columnTypes.avgGlucose,
+    columnTypes.timeInVeryHigh,
+    columnTypes.timeInAnyHigh,
+    columnTypes.timeInTarget,
+    columnTypes.timeInRangeBarChart,
+    columnTypes.changeInTIR,
+    columnTypes.tags,
+    columnTypes.lastReviewed,
+    columnTypes.moreMenu,
+  ],
+  dropInTIR: [
+    columnTypes.patientDetails,
+    columnTypes.avgGlucose,
+    columnTypes.timeInTarget,
+    columnTypes.timeInRangeBarChart,
+    columnTypes.changeInTIR,
+    columnTypes.gmi,
+    columnTypes.cgmUse,
+    columnTypes.tags,
+    columnTypes.lastReviewed,
+    columnTypes.moreMenu,
+  ],
+  lowCgmWear: [
+    columnTypes.patientDetails,
+    columnTypes.cgmUse,
+    columnTypes.avgGlucose,
+    columnTypes.timeInTarget,
+    columnTypes.timeInRangeBarChart,
+    columnTypes.changeInTIR,
+    columnTypes.gmi,
+    columnTypes.tags,
+    columnTypes.lastReviewed,
+    columnTypes.moreMenu,
+  ],
+});
+
 const getFormattedThresholds = (clinicBgUnits) => {
   const thresholds = DEFAULT_BG_BOUNDS[clinicBgUnits];
   const precision = clinicBgUnits === MGDL_UNITS ? 0 : 1;
@@ -137,58 +211,18 @@ const useTableColumns = (category) => {
   const columns = useMemo(() => {
     const thresholds = getFormattedThresholds(clinicBgUnits);
     const columnTypes = getColumnTypes(t, category, thresholds);
-
-    const standardColumnSet = [
-      columnTypes.patientDetails,
-      columnTypes.flag,
-      columnTypes.avgGlucose,
-      columnTypes.timeInRangeBarChart,
-      columnTypes.changeInTIR,
-      columnTypes.gmi,
-      columnTypes.cgmUse,
-      columnTypes.tags,
-      columnTypes.lastReviewed,
-      columnTypes.moreMenu,
-    ];
-
-    const lowColumnSet = [
-      columnTypes.patientDetails,
-      columnTypes.flag,
-      columnTypes.avgGlucose,
-      columnTypes.timeInVeryLow,
-      columnTypes.timeInAnyLow,
-      columnTypes.timeInTarget,
-      columnTypes.timeInRangeBarChart,
-      columnTypes.changeInTIR,
-      columnTypes.tags,
-      columnTypes.lastReviewed,
-      columnTypes.moreMenu,
-    ];
-
-    const highColumnSet = [
-      columnTypes.patientDetails,
-      columnTypes.flag,
-      columnTypes.avgGlucose,
-      columnTypes.timeInVeryHigh,
-      columnTypes.timeInAnyHigh,
-      columnTypes.timeInTarget,
-      columnTypes.timeInRangeBarChart,
-      columnTypes.changeInTIR,
-      columnTypes.tags,
-      columnTypes.lastReviewed,
-      columnTypes.moreMenu,
-    ];
+    const columnSets = buildColumnSets(columnTypes);
 
     switch(category) {
-      case CATEGORY.DEFAULT: return standardColumnSet;
-      case CATEGORY.VERY_LOW: return lowColumnSet;
-      case CATEGORY.ANY_LOW: return lowColumnSet;
-      case CATEGORY.DROP_IN_TIR: return standardColumnSet;
-      case CATEGORY.ANY_HIGH: return highColumnSet;
-      case CATEGORY.VERY_HIGH: return highColumnSet;
-      case CATEGORY.LOW_CGM_WEAR: return standardColumnSet;
-      case CATEGORY.TARGET: return standardColumnSet;
-      default: return standardColumnSet;
+      case CATEGORY.DEFAULT: return columnSets.default;
+      case CATEGORY.VERY_LOW: return columnSets.low;
+      case CATEGORY.ANY_LOW: return columnSets.low;
+      case CATEGORY.DROP_IN_TIR: return columnSets.dropInTIR;
+      case CATEGORY.ANY_HIGH: return columnSets.high;
+      case CATEGORY.VERY_HIGH: return columnSets.high;
+      case CATEGORY.LOW_CGM_WEAR: return columnSets.lowCgmWear;
+      case CATEGORY.TARGET: return columnSets.target;
+      default: return columnSets.default;
     }
   }, [category, clinicBgUnits]);
 
