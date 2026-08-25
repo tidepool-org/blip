@@ -5,6 +5,7 @@ import { Provider } from 'react-redux';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import isEqual from 'lodash/isEqual';
+import entries from 'lodash/entries';
 
 import { setupStore } from '@tests/utils/setupStore';
 import blipReducer from '@app/redux/reducers';
@@ -119,17 +120,27 @@ const patientsForCategory = {
   ],
 };
 
-// Patients are only returned when the request matches a category's anticipated
-// query exactly; any other query yields an empty result set.
+const getCorrespondingDataForQuery = (searchParams) => {
+  let datasetName;
+
+  // Look over anticipated queries. If the query matches, return the dataset
+  for (let [category, anticipatedQuery] of entries(anticipatedQueries)) {
+    if (isEqual(searchParams, anticipatedQuery)) {
+      datasetName = category;
+      break;
+    }
+  }
+
+  if (!datasetName) throw new Error('No data for this query found');
+
+  return patientsForCategory[datasetName];
+};
+
 const server = setupServer(
   http.get('http://app.tidepool.test/v1/clinics/clinic123/patients', ({ request }) => {
     const searchParams = Object.fromEntries(new URL(request.url).searchParams);
 
-    const matchedCategory = Object
-      .keys(anticipatedQueries)
-      .find(category => isEqual(searchParams, anticipatedQueries[category]));
-
-    const patients = patientsForCategory[matchedCategory] || [];
+    const patients = getCorrespondingDataForQuery(searchParams);
 
     return HttpResponse.json({ data: patients, meta: { count: patients.length } });
   })
