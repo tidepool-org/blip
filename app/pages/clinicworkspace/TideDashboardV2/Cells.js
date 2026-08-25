@@ -166,7 +166,7 @@ export const ChangeTIRCell = ({ patient }) => {
   ;
 };
 
-export const FlagCell = ({ patient, category = null, }) => {
+export const FlagCell = ({ patient, category = null }) => {
   const { t } = useTranslation();
   const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
   const period = patient?.summary?.cgmStats?.periods?.[summaryPeriod];
@@ -235,6 +235,11 @@ export const FlagCell = ({ patient, category = null, }) => {
   );
 };
 
+export const MoreMenuHeader = () => {
+  const { t } = useTranslation();
+
+  return <Box aria-label={t('More Options')}></Box>;
+};
 
 export const MoreMenuCell = ({ patient }) => {
   const { t } = useTranslation();
