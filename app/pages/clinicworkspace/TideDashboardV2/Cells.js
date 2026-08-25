@@ -4,6 +4,7 @@ import { useTranslation, withTranslation } from 'react-i18next';
 import { Box, Text } from 'theme-ui';
 import { MGDL_UNITS } from '../../../core/constants';
 
+import PatientLastReviewed from './PatientLastReviewed';
 import BgSummaryCell from '../../../components/clinic/BgSummaryCell';
 import DeltaBar from '../../../components/elements/DeltaBar';
 import utils from '../../../core/utils';
