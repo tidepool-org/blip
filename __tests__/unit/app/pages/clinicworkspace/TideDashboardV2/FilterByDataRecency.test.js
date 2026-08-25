@@ -7,8 +7,6 @@ import { thunk } from 'redux-thunk';
 import { MemoryRouter } from 'react-router-dom';
 
 import FilterByDataRecency from '@app/pages/clinicworkspace/TideDashboardV2/FilterByDataRecency';
-import { setLastDataFilter } from '@app/pages/clinicworkspace/TideDashboardV2/tideDashboardFiltersSlice';
-import { setOffset } from '@app/pages/clinicworkspace/TideDashboardV2/tideDashboardSlice';
 
 const mockStore = configureStore([thunk]);
 
@@ -59,8 +57,8 @@ describe('FilterByDataRecency', () => {
     // Applying the filter dispatches the new filter value and resets the page offset
     await userEvent.click(screen.getByRole('button', { name: /Apply/ }));
     expect(store.getActions()).toStrictEqual([
-      setLastDataFilter(2),
-      setOffset(0),
+      { type: 'tideDashboardFilters/setLastDataFilter', payload: 2 },
+      { type: 'tideDashboard/setOffset', payload: 0 },
     ]);
   });
 });

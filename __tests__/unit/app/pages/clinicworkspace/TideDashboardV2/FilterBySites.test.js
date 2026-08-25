@@ -7,8 +7,6 @@ import { thunk } from 'redux-thunk';
 import { MemoryRouter } from 'react-router-dom';
 
 import FilterBySites from '@app/pages/clinicworkspace/TideDashboardV2/FilterBySites';
-import { setClinicSitesFilter } from '@app/pages/clinicworkspace/TideDashboardV2/tideDashboardFiltersSlice';
-import { setOffset } from '@app/pages/clinicworkspace/TideDashboardV2/tideDashboardSlice';
 
 const mockStore = configureStore([thunk]);
 
@@ -56,8 +54,8 @@ describe('FilterBySites', () => {
     // Applying the filter dispatches the selected sites and resets the page offset
     await userEvent.click(screen.getByRole('button', { name: /Apply/ }));
     expect(store.getActions()).toStrictEqual([
-      setClinicSitesFilter(['site1', 'site2']),
-      setOffset(0),
+      { type: 'tideDashboardFilters/setClinicSitesFilter', payload: ['site1', 'site2'] },
+      { type: 'tideDashboard/setOffset', payload: 0 },
     ]);
   });
 });
