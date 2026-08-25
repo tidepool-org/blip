@@ -1,6 +1,5 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useLocation, useHistory } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { useTranslation, withTranslation } from 'react-i18next';
 import { Box, Flex, Text } from 'theme-ui';
 import { colors as vizColors  } from '@tidepool/viz';
@@ -13,16 +12,6 @@ import utils from '../../../core/utils';
 import { CATEGORY } from './tideDashboardSlice';
 import isUndefined from 'lodash/isUndefined';
 
-import PopoverMenu from '../../../components/elements/PopoverMenu';
-import EditIcon from '@material-ui/icons/EditRounded';
-import DataInIcon from '../../../core/icons/DataInIcon.svg';
-
-import {
-  setEditPatientDialogIsOpen,
-  setEditPatientDialogPatientId,
-  setDataConnectionsModalIsOpen,
-  setDataConnectionsModalPatientId,
-} from './tideDashboardSlice';
 
 import { tideDashboardCgmParams } from './tideDashboardApi';
 
