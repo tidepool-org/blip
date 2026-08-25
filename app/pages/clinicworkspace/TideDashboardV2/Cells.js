@@ -241,50 +241,7 @@ export const MoreMenuHeader = () => {
   return <Box aria-label={t('More Options')}></Box>;
 };
 
-export const MoreMenuCell = ({ patient }) => {
-  const { t } = useTranslation();
-  const dispatch = useDispatch();
-
-  const handleOpenEditPatientDialog = () => {
-    dispatch(setEditPatientDialogIsOpen(true));
-    dispatch(setEditPatientDialogPatientId(patient.id));
-  };
-
-  const handleOpenDataConnectionsModal = () => {
-    dispatch(setDataConnectionsModalIsOpen(true));
-    dispatch(setDataConnectionsModalPatientId(patient.id));
-  };
-
-  return (
-    <PopoverMenu
-      id={`action-menu-${patient?.id}`}
-      items={[{
-        icon: EditIcon,
-        iconLabel: t('Edit Patient Details'),
-        iconPosition: 'left',
-        id: `edit-${patient?.id}`,
-        variant: 'actionListItem',
-        onClick: (_popupState) => {
-          _popupState.close();
-          handleOpenEditPatientDialog();
-        },
-        text: t('Edit Patient Details'),
-      }, {
-        iconSrc: DataInIcon,
-        iconLabel: t('Bring Data into Tidepool'),
-        iconPosition: 'left',
-        id: `edit-data-connections-${patient?.id}`,
-        variant: 'actionListItem',
-        onClick: (_popupState) => {
-          _popupState.close();
-          handleOpenDataConnectionsModal();
-        },
-        text: t('Bring Data into Tidepool'),
-      }]}
-      sx={{ position: 'relative', left: '-2px' }}
-    />
-  );
-};
+export const MoreMenuCell = () => <></>; // TEMPORARY
 
 export default {
   PatientCell,
