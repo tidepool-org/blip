@@ -2,6 +2,7 @@
 /* global describe */
 /* global it */
 /* global expect */
+/* global afterEach */
 
 import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
@@ -109,9 +110,17 @@ describe('Actions', () => {
         },
       };
 
+      afterEach(() => {
+        localStorage.clear();
+      });
+
       it('should trigger SELECT_CLINIC_SUCCESS, FETCH_CLINIC_PATIENT_COUNTS_SUCCESS, and FETCH_CLINIC_PATIENT_COUNT_SETTINGS_SUCCESS for a successful request', () => {
         const countResults = { plan: 33 };
         const settingsResults = { bar: 'baz' };
+
+        localStorage.setItem('tideDashboardFilters/user456/clinic123', JSON.stringify({ lastData: 7, patientTags: ['load1'] })); // this one should load
+        localStorage.setItem('tideDashboardFilters/wrongUser/clinic123', JSON.stringify({ lastData: 1 }));
+        localStorage.setItem('tideDashboardFilters/user456/wrongClinic', JSON.stringify({ lastData: 30 }));
 
         let api = {
           clinics: {
@@ -122,7 +131,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId } },
-          { type: 'tideDashboardFilters/setTideDashboardFilters', payload: undefined },
+          { type: 'tideDashboardFilters/setTideDashboardFilters', payload: { lastData: 7, patientTags: ['load1'] } }, // loads from localState
           { type: 'FETCH_CLINIC_PATIENT_COUNTS_REQUEST' },
           { type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST' },
           { type: 'FETCH_CLINIC_PATIENT_COUNTS_SUCCESS', payload: { clinicId, patientCounts: countResults } },
@@ -132,6 +141,7 @@ describe('Actions', () => {
 
         let store = mockStore({ blip: {
           ...initialState,
+          loggedInUserId: 'user456',
           clinics: {
             [clinicId]: {
               patientCounts: undefined,
