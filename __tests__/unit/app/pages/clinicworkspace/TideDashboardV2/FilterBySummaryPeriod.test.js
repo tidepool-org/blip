@@ -7,8 +7,6 @@ import { thunk } from 'redux-thunk';
 import { MemoryRouter } from 'react-router-dom';
 
 import FilterBySummaryPeriod from '@app/pages/clinicworkspace/TideDashboardV2/FilterBySummaryPeriod';
-import { setSummaryPeriodFilter } from '@app/pages/clinicworkspace/TideDashboardV2/tideDashboardFiltersSlice';
-import { setOffset } from '@app/pages/clinicworkspace/TideDashboardV2/tideDashboardSlice';
 
 const mockStore = configureStore([thunk]);
 
@@ -54,8 +52,8 @@ describe('FilterBySummaryPeriod', () => {
     // Applying the filter dispatches the new period and resets the page offset
     await userEvent.click(screen.getByRole('button', { name: /Apply/ }));
     expect(store.getActions()).toStrictEqual([
-      setSummaryPeriodFilter('30d'),
-      setOffset(0),
+      { type: 'tideDashboardFilters/setSummaryPeriodFilter', payload: '30d' },
+      { type: 'tideDashboard/setOffset', payload: 0 },
     ]);
   });
 });
