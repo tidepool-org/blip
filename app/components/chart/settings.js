@@ -106,6 +106,7 @@ const SettingsPopover = styled(Popover)`
 
 const Settings = ({
   chartPrefs,
+  copyAsTextMetadata,
   data,
   onClickRefresh,
   onClickNoDataRefresh,
@@ -652,6 +653,9 @@ const Settings = ({
       <PumpSettingsContainer
         currentPatientInViewId={currentPatientInViewId}
         copySettingsClicked={handleCopySettingsClicked}
+        copyAsTextMetadata={copyAsTextMetadata}
+        patient={patient}
+        metaData={_.get(data, 'metaData', {})}
         bgUnits={_.get(data, 'bgPrefs.bgUnits', {})}
         manufacturerKey={manufacturer}
         toggleSettingsSection={toggleSettingsSection}
@@ -819,6 +823,7 @@ const Settings = ({
 
 Settings.propTypes = {
   chartPrefs: PropTypes.object.isRequired,
+  copyAsTextMetadata: PropTypes.object,
   data: PropTypes.object.isRequired,
   onClickRefresh: PropTypes.func.isRequired,
   onClickNoDataRefresh: PropTypes.func.isRequired,
