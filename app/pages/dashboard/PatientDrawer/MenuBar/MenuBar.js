@@ -9,7 +9,6 @@ import { colors as vizColors } from '@tidepool/viz';
 import Button from '../../../../components/elements/Button';
 import moment from 'moment';
 import PatientLastReviewed from '../../../../components/clinic/PatientLastReviewed';
-import { useFlags } from 'launchdarkly-react-client-sdk';
 import CGMClipboardButton from './CGMClipboardButton';
 import api from '../../../../core/api';
 import { map, keys } from 'lodash';
