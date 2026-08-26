@@ -6211,9 +6211,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tidepool/viz@npm:1.58.0":
-  version: 1.58.0
-  resolution: "@tidepool/viz@npm:1.58.0"
+"@tidepool/viz@npm:1.59.0-web-4282-trends-phantom-points.2":
+  version: 1.59.0-web-4282-trends-phantom-points.2
+  resolution: "@tidepool/viz@npm:1.59.0-web-4282-trends-phantom-points.2"
   dependencies:
     bluebird: 3.7.2
     bows: 1.7.2
@@ -6274,7 +6274,7 @@ __metadata:
     react-dom: 16.x
     react-redux: 8.x
     redux: 4.x
-  checksum: c51273e11c63b1dde6d4a77541df02299cb1890e73f54041a3a3d3a011360321e324e78c4b2a75f08cfeed1f3e20eaaa50e23315fb277a5dccf53bcfc6c7ba54
+  checksum: 8ca00b4244908398041685f8131c02d7bfded14e76b037e915d1ac3255fcb79115dcdb5b3f86546842dbc5140b9e420b6280bda6ac8bd7150fcc26c972a7d98c
   languageName: node
   linkType: hard
 
@@ -8410,7 +8410,7 @@ __metadata:
     "@testing-library/react": 12.1.5
     "@testing-library/react-hooks": 8.0.1
     "@testing-library/user-event": 14.6.1
-    "@tidepool/viz": 1.58.0
+    "@tidepool/viz": 1.59.0-web-4282-trends-phantom-points.2
     "@types/jest": 29.5.14
     async: 2.6.4
     autoprefixer: 10.4.16
