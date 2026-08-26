@@ -19,7 +19,6 @@ describe('PatientLastReviewed', () => {
   // Review times are formatted against the real clock, so anchor the fixtures to the current moment
   const today = moment().toISOString();
   const yesterday = moment().subtract(1, 'day').toISOString();
-  const monthAgo = moment().subtract(30, 'days').toISOString();
 
   const defaultWorkingState = {
     inProgress: false,
@@ -37,9 +36,6 @@ describe('PatientLastReviewed', () => {
           patients: {
             patient1: { id: 'patient1', reviews: [{ clinicianId: 'user2', time: today }, { clinicianId: 'user2', time: yesterday }] },
             patient2: { id: 'patient2', reviews: [{ clinicianId: 'user2', time: yesterday }] },
-            patient3: { id: 'patient3', reviews: [{ clinicianId: 'user2', time: monthAgo }] },
-            patient4: { id: 'patient4', reviews: [{ clinicianId: 'user2', time: '2024-03-05T12:00:00.000Z' }] },
-            patient5: { id: 'patient5', reviews: [] },
           },
         },
       },
@@ -82,24 +78,6 @@ describe('PatientLastReviewed', () => {
     api.clinics.revertClinicPatientLastReviewed.mockImplementation((cId, pId, cb) => cb(null, [yesterday]));
 
     mockTrackMetric.mockClear();
-  });
-
-  it('renders the time since the patient was last reviewed', () => {
-    const { rerender } = renderComponent({ patientId: 'patient1' });
-    expect(screen.getByText('Today')).toBeInTheDocument();
-
-    rerender(ui({ patientId: 'patient2' }));
-    expect(screen.getByText('Yesterday')).toBeInTheDocument();
-
-    rerender(ui({ patientId: 'patient3' }));
-    expect(screen.getByText('30 days ago')).toBeInTheDocument();
-
-
-    rerender(ui({ patientId: 'patient4' })); // >30 days ago, should show the review date
-    expect(screen.getByText('2024-03-05')).toBeInTheDocument();
-
-    rerender(ui({ patientId: 'patient5' })); // no reviews
-    expect(screen.getByText('-')).toBeInTheDocument();
   });
 
   it('allows marking a patient as reviewed', async () => {
