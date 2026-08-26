@@ -8,16 +8,10 @@ import { MemoryRouter } from 'react-router-dom';
 import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
 import { I18nextProvider } from 'react-i18next';
+import { trackMetric as mockTrackMetric } from '../../../../../../app/core/metricUtils';
 
 import MenuBar, { OVERVIEW_TAB_INDEX, STACKED_DAILY_TAB_INDEX } from '@app/pages/dashboard/PatientDrawer/MenuBar/MenuBar';
 import i18n from '@app/core/language';
-
-// Mock LaunchDarkly
-jest.mock('launchdarkly-react-client-sdk', () => ({
-  useFlags: jest.fn(() => ({
-    showTideDashboardLastReviewed: false,
-  })),
-}));
 
 // Mock actions
 jest.mock('@app/redux/actions', () => ({
@@ -63,7 +57,6 @@ const defaultProps = {
   onClose: jest.fn(),
   onSelectTab: jest.fn(),
   selectedTab: OVERVIEW_TAB_INDEX,
-  trackMetric: jest.fn(),
 };
 
 const defaultPatient = {
@@ -100,14 +93,8 @@ const defaultState = {
   },
 };
 
-const renderMenuBar = (props = {}, state = defaultState, flags = {}) => {
+const renderMenuBar = (props = {}, state = defaultState) => {
   const store = mockStore(state);
-
-  // Mock useFlags
-  require('launchdarkly-react-client-sdk').useFlags.mockReturnValue({
-    showTideDashboardLastReviewed: false,
-    ...flags,
-  });
 
   return render(
     <Provider store={store}>
@@ -163,19 +150,12 @@ describe('MenuBar Component', () => {
   });
 
   describe('Last Reviewed Component', () => {
-    it('should display last reviewed section when feature flag is enabled', () => {
-      renderMenuBar({}, defaultState, { showTideDashboardLastReviewed: true });
+    it('should display last reviewed section', () => {
+      renderMenuBar({}, defaultState);
 
       expect(screen.getByTestId('last-reviewed-section')).toBeInTheDocument();
       expect(screen.getByTestId('patient-last-reviewed')).toBeInTheDocument();
       expect(screen.getByText('Last Reviewed')).toBeInTheDocument();
-    });
-
-    it('should not display last reviewed section when feature flag is disabled', () => {
-      renderMenuBar({}, defaultState, { showTideDashboardLastReviewed: false });
-
-      expect(screen.queryByTestId('last-reviewed-section')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('patient-last-reviewed')).not.toBeInTheDocument();
     });
   });
 
@@ -213,12 +193,8 @@ describe('MenuBar Component', () => {
 
     it('calls onSelectTab and trackMetric when a tab is clicked', () => {
       const mockOnSelectTab = jest.fn();
-      const mockTrackMetric = jest.fn();
 
-      renderMenuBar({
-        onSelectTab: mockOnSelectTab,
-        trackMetric: mockTrackMetric
-      });
+      renderMenuBar({ onSelectTab: mockOnSelectTab });
 
       fireEvent.click(screen.getByTestId('tab-stackedDaily'));
 
