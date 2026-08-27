@@ -3,20 +3,27 @@ import { useSelector } from 'react-redux';
 import moment from 'moment-timezone';
 import noop from 'lodash/noop';
 
-import ReviewPatientToggle, {
+import ReviewPatientToggle from './ReviewPatientToggle';
+
+import {
   useMarkPatientReviewedMutation,
   useUndoPatientReviewedMutation,
-} from '../components/ReviewPatientToggle';
+} from './reviewPatientApi';
 
-import * as ErrorMessages from '../../../redux/constants/errorMessages';
-import { useToasts } from '../../../providers/ToastProvider';
+import * as ErrorMessages from '../../../../redux/constants/errorMessages';
+import { useToasts } from '../../../../providers/ToastProvider';
 
-const PatientLastReviewed = ({ patient, onReview = noop }) => {
+// This is a generic adapter for the ReviewPatientToggle. Create a different adapter
+// if you want to use a different method to call APIs or to set state.
+
+const PatientLastReviewed = ({
+  patient,
+  recentlyReviewedThresholdDate = moment().startOf('isoWeek').toISOString(),
+  onReview = noop,
+}) => {
   const { set: setToast } = useToasts();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const patientId = patient?.id;
-
-  const recentlyReviewedThresholdDate = moment().startOf('isoWeek').toISOString();
 
   const [reviews, setReviews] = useState(patient?.reviews || []);
 
