@@ -10,9 +10,9 @@ import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
 import { thunk } from 'redux-thunk';
 
-import Overview from '@app/pages/dashboard/PatientDrawer/Overview';
+import Overview from '@app/components/PatientDrawer/Overview';
 
-import { STATUS } from '@app/pages/dashboard/PatientDrawer/useAgpCGM';
+import { STATUS } from '@app/components/PatientDrawer/useAgpCGM';
 
 const mockStore = configureStore([thunk]);
 
