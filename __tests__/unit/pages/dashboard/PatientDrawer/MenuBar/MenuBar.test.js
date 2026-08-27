@@ -10,15 +10,12 @@ import { thunk } from 'redux-thunk';
 import { I18nextProvider } from 'react-i18next';
 import { trackMetric as mockTrackMetric } from '../../../../../../app/core/metricUtils';
 
-import MenuBar, { OVERVIEW_TAB_INDEX, STACKED_DAILY_TAB_INDEX } from '@app/pages/dashboard/PatientDrawer/MenuBar/MenuBar';
+import MenuBar, { OVERVIEW_TAB_INDEX, STACKED_DAILY_TAB_INDEX } from '@app/components/PatientDrawer/MenuBar/MenuBar';
+import { useGetPatientDrawerPatientQuery } from '@app/components/PatientDrawer/patientDrawerApi';
 import i18n from '@app/core/language';
 
 // Mock actions
-jest.mock('@app/redux/actions', () => ({
-  async: {
-    fetchPatientFromClinic: jest.fn(() => ({ type: 'MOCK_FETCH_PATIENT' })),
-  },
-}));
+jest.mock('@app/redux/actions', () => ({}));
 
 // Mock connected-react-router
 jest.mock('connected-react-router', () => ({
@@ -27,6 +24,10 @@ jest.mock('connected-react-router', () => ({
 
 // Mock api
 jest.mock('@app/core/api', () => ({}));
+
+jest.mock('@app/components/PatientDrawer/patientDrawerApi', () => ({
+  useGetPatientDrawerPatientQuery: jest.fn(),
+}));
 
 // Mock the agpCGMText function from @tidepool/viz while preserving other exports
 jest.mock('@tidepool/viz', () => {
@@ -42,12 +43,6 @@ jest.mock('@tidepool/viz', () => {
     },
   };
 });
-
-jest.mock('@app/providers/ToastProvider', () => ({
-  useToasts: jest.fn().mockReturnValue({
-    set: jest.fn(),
-  }),
-}));
 
 const mockStore = configureStore([thunk]);
 
@@ -67,13 +62,6 @@ const defaultPatient = {
 const defaultState = {
   blip: {
     selectedClinicId: 'clinic123',
-    clinics: {
-      clinic123: {
-        patients: {
-          patient123: defaultPatient,
-        },
-      },
-    },
     pdf: {
       data: {
         agpCGM: {
@@ -110,12 +98,17 @@ const renderMenuBar = (props = {}, state = defaultState) => {
 describe('MenuBar Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    useGetPatientDrawerPatientQuery.mockReturnValue({ data: defaultPatient });
   });
 
   describe('Patient Information Display', () => {
     it('should display patient name when patient data is available', () => {
       renderMenuBar();
 
+      expect(useGetPatientDrawerPatientQuery).toHaveBeenCalledWith(
+        { clinicId: 'clinic123', patientId: 'patient123' },
+        { skip: false },
+      );
       expect(screen.getByTestId('patient-name')).toHaveTextContent('John Doe');
     });
 
@@ -126,23 +119,9 @@ describe('MenuBar Component', () => {
     });
 
     it('should handle missing patient birthdate gracefully', () => {
-      const stateWithoutBirthdate = {
-        ...defaultState,
-        blip: {
-          ...defaultState.blip,
-          clinics: {
-            clinic123: {
-              patients: {
-                patient123: {
-                  fullName: 'John Doe',
-                },
-              },
-            },
-          },
-        },
-      };
+      useGetPatientDrawerPatientQuery.mockReturnValue({ data: { fullName: 'John Doe' } });
 
-      renderMenuBar({}, stateWithoutBirthdate);
+      renderMenuBar();
 
       expect(screen.getByTestId('patient-name')).toHaveTextContent('John Doe');
       expect(screen.queryByTestId('patient-birthdate')).not.toBeInTheDocument();
@@ -154,7 +133,7 @@ describe('MenuBar Component', () => {
       renderMenuBar({}, defaultState);
 
       expect(screen.getByTestId('last-reviewed-section')).toBeInTheDocument();
-      expect(screen.getByTestId('patient-review-toggle')).toBeInTheDocument();
+      expect(screen.getByTestId('patient-last-reviewed')).toBeInTheDocument();
       expect(screen.getByText('Last Reviewed')).toBeInTheDocument();
     });
   });
