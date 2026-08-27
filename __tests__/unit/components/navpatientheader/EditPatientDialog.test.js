@@ -24,22 +24,17 @@ jest.mock('@app/core/hooks', () => ({
   usePrevious: jest.fn(),
 }));
 
+const baseClinicPatient = {
+  id: 'patient123',
+  fullName: 'John Doe',
+  birthDate: '2000-01-01',
+  permissions: { custodian: {} },
+};
+
 const initialState = {
   blip: {
     selectedClinicId: 'clinic123',
-    currentPatientInViewId: 'patient123',
-    clinics: {
-      clinic123: {
-        id: 'clinic123',
-        mrnSettings: { required: false },
-      },
-    },
-    allUsersMap: {
-      patient123: {
-        id: 'patient123',
-        profile: { fullName: 'John Doe' },
-      },
-    },
+    clinics: { clinic123: { id: 'clinic123', mrnSettings: { required: false } } },
     working: {
       fetchingClinicMRNsForPatientFormValidation: { inProgress: false, completed: false, notification: null },
       updatingClinicPatient: { inProgress: false, completed: false, notification: null },
@@ -48,7 +43,7 @@ const initialState = {
   },
 };
 
-const renderEditPatientDialog = (storeState = initialState) => {
+const renderEditPatientDialog = (storeState = initialState, clinicPatient = baseClinicPatient) => {
   const reducer = (state = storeState, action) => state;
   const store = createStore(reducer, applyMiddleware(thunk));
 
@@ -58,7 +53,7 @@ const renderEditPatientDialog = (storeState = initialState) => {
         <ToastProvider>
           <EditPatientDialog
             api={{ clinics: { getPatientFromClinic: jest.fn() } }}
-            trackMetric={jest.fn()}
+            clinicPatient={clinicPatient}
             isOpen={true}
             onClose={jest.fn()}
           />
@@ -129,11 +124,13 @@ describe('EditPatientDialog', () => {
       const store = mockStore(justCompletedUpdateState);
       const onClose = jest.fn();
 
+      const testApi = { clinics: { getPatientFromClinic: jest.fn() } };
+
       render(
         <Provider store={store}>
           <ThemeProvider theme={theme}>
             <ToastProvider>
-              <EditPatientDialog api={{}} trackMetric={jest.fn()} isOpen={isOpen} onClose={onClose} />
+              <EditPatientDialog api={testApi} clinicPatient={baseClinicPatient} isOpen={isOpen} onClose={onClose} />
             </ToastProvider>
           </ThemeProvider>
         </Provider>
@@ -173,12 +170,7 @@ describe('EditPatientDialog', () => {
         },
         data: { metaData: { size: chartDataSize } },
         clinics: {
-          clinic123: {
-            ...initialState.blip.clinics.clinic123,
-            patients: {
-              patient123: { id: 'patient123', fullName: 'John Doe', birthDate: '2000-01-01', glycemicRanges: savedRange },
-            },
-          },
+          clinic123: { ...initialState.blip.clinics.clinic123 },
         },
       },
     });
@@ -186,11 +178,11 @@ describe('EditPatientDialog', () => {
     const api = { clinics: { getPatientFromClinic: jest.fn(), updateClinicPatient: jest.fn() } };
     const onClose = jest.fn();
 
-    const ui = (store) => (
+    const ui = (store, clinicPatient) => (
       <Provider store={store}>
         <ThemeProvider theme={theme}>
           <ToastProvider>
-            <EditPatientDialog api={api} trackMetric={jest.fn()} isOpen={true} onClose={onClose} />
+            <EditPatientDialog api={api} clinicPatient={clinicPatient} isOpen={true} onClose={onClose} />
           </ToastProvider>
         </ThemeProvider>
       </Provider>
@@ -204,58 +196,63 @@ describe('EditPatientDialog', () => {
       window.HTMLElement.prototype.scrollIntoView = jest.fn();
     });
 
+    const originalClinicPatient = { ...baseClinicPatient, glycemicRanges: RANGE_A };
+    const uneditedClinicPatient = { ...baseClinicPatient, glycemicRanges: RANGE_A };
+    const modifiedClinicPatient = { ...baseClinicPatient, glycemicRanges: RANGE_B };
+
     it('does NOT clear the data worker for a demographic-only edit, even when chart data exists', async () => {
-      const initialState = makeState({ savedRange: RANGE_A, chartDataSize: 100, updatingClinicPatient: IDLE_UPDATE });
-      const { rerender } = render(ui(mockStore(initialState)));
+      const initialState = makeState({ chartDataSize: 100, updatingClinicPatient: IDLE_UPDATE });
+
+      const { rerender } = render(ui(mockStore(initialState), originalClinicPatient));
 
       await userEvent.type(screen.getByRole('textbox', { name: /Full Name/i }), ' Jr');
       await userEvent.click(screen.getByRole('button', { name: 'Save Changes' }));
 
-      const completedStore = mockStore(makeState({ savedRange: RANGE_A, chartDataSize: 100, updatingClinicPatient: COMPLETED_UPDATE }));
-      rerender(ui(completedStore));
+      const completedStore = mockStore(makeState({ chartDataSize: 100, updatingClinicPatient: COMPLETED_UPDATE }));
+      rerender(ui(completedStore, uneditedClinicPatient));
 
       expect(onClose).toHaveBeenCalled();
       expect(cleared(completedStore)).toBe(false);
     });
 
     it('DOES clear the data worker when Target Range changed from the saved value and the patient has chart data', async () => {
-      const { rerender } = render(ui(mockStore(makeState({ savedRange: RANGE_A, chartDataSize: 100, updatingClinicPatient: IDLE_UPDATE }))));
+      const { rerender } = render(ui(mockStore(makeState({ chartDataSize: 100, updatingClinicPatient: IDLE_UPDATE })), originalClinicPatient));
 
       await userEvent.click(screen.getByLabelText('Target Range'));
       await userEvent.click(screen.getByText(RANGE_B_LABEL));
       await userEvent.click(screen.getByRole('button', { name: 'Save Changes' }));
 
-      const completedStore = mockStore(makeState({ savedRange: RANGE_A, chartDataSize: 100, updatingClinicPatient: COMPLETED_UPDATE }));
-      rerender(ui(completedStore));
+      const completedStore = mockStore(makeState({ chartDataSize: 100, updatingClinicPatient: COMPLETED_UPDATE }));
+      rerender(ui(completedStore, modifiedClinicPatient));
 
       expect(onClose).toHaveBeenCalled();
       expect(cleared(completedStore)).toBe(true);
     });
 
     it('clears on a SUBSEQUENT Target Range change — compares against the saved value, not the frozen original', async () => {
-      const { rerender } = render(ui(mockStore(makeState({ savedRange: RANGE_A, chartDataSize: 100, updatingClinicPatient: IDLE_UPDATE }))));
-      rerender(ui(mockStore(makeState({ savedRange: RANGE_B, chartDataSize: 100, updatingClinicPatient: IDLE_UPDATE }))));
+      const { rerender } = render(ui(mockStore(makeState({ chartDataSize: 100, updatingClinicPatient: IDLE_UPDATE })), originalClinicPatient));
+      rerender(ui(mockStore(makeState({ chartDataSize: 100, updatingClinicPatient: IDLE_UPDATE })), modifiedClinicPatient));
 
       await userEvent.click(screen.getByLabelText('Target Range'));
       await userEvent.click(screen.getByText(RANGE_A_LABEL));
       await userEvent.click(screen.getByRole('button', { name: 'Save Changes' }));
 
-      const completedStore = mockStore(makeState({ savedRange: RANGE_B, chartDataSize: 100, updatingClinicPatient: COMPLETED_UPDATE }));
-      rerender(ui(completedStore));
+      const completedStore = mockStore(makeState({ chartDataSize: 100, updatingClinicPatient: COMPLETED_UPDATE }));
+      rerender(ui(completedStore, modifiedClinicPatient));
 
       expect(onClose).toHaveBeenCalled();
       expect(cleared(completedStore)).toBe(true);
     });
 
     it('does NOT clear the data worker on a Target Range change for a no-data patient (would strand the loader)', async () => {
-      const { rerender } = render(ui(mockStore(makeState({ savedRange: RANGE_A, chartDataSize: 0, updatingClinicPatient: IDLE_UPDATE }))));
+      const { rerender } = render(ui(mockStore(makeState({ chartDataSize: 0, updatingClinicPatient: IDLE_UPDATE })), originalClinicPatient));
 
       await userEvent.click(screen.getByLabelText('Target Range'));
       await userEvent.click(screen.getByText(RANGE_B_LABEL));
       await userEvent.click(screen.getByRole('button', { name: 'Save Changes' }));
 
-      const completedStore = mockStore(makeState({ savedRange: RANGE_A, chartDataSize: 0, updatingClinicPatient: COMPLETED_UPDATE }));
-      rerender(ui(completedStore));
+      const completedStore = mockStore(makeState({ chartDataSize: 0, updatingClinicPatient: COMPLETED_UPDATE }));
+      rerender(ui(completedStore, uneditedClinicPatient));
 
       expect(onClose).toHaveBeenCalled();
       expect(cleared(completedStore)).toBe(false);
