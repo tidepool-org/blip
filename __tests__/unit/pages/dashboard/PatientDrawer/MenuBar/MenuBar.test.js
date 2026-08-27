@@ -1,17 +1,18 @@
-/* global jest, beforeEach, afterEach, test, expect, describe, it */
+/* global jest, beforeAll, beforeEach, afterEach, afterAll, expect, describe, it */
 
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
-import configureStore from 'redux-mock-store';
-import { thunk } from 'redux-thunk';
 import { I18nextProvider } from 'react-i18next';
+import { http, HttpResponse } from 'msw';
+import { setupServer } from 'msw/node';
 import { trackMetric as mockTrackMetric } from '../../../../../../app/core/metricUtils';
 
+import { setupStore } from '@tests/utils/setupStore';
+import blipReducer from '@app/redux/reducers';
 import MenuBar, { OVERVIEW_TAB_INDEX, STACKED_DAILY_TAB_INDEX } from '@app/components/PatientDrawer/MenuBar/MenuBar';
-import { useGetPatientDrawerPatientQuery } from '@app/components/PatientDrawer/patientDrawerApi';
 import i18n from '@app/core/language';
 
 // Mock actions
@@ -44,19 +45,20 @@ jest.mock('@tidepool/viz', () => {
   };
 });
 
-const mockStore = configureStore([thunk]);
+const TEST_TIMEOUT_MS = 30_000;
+
+const patientUrl = 'http://app.tidepool.test/v1/clinics/clinic123/patients/patient123';
+const defaultPatient = { id: 'patient123', fullName: 'Zhilei Zhang', birthDate: '1990-01-15' };
+
+const server = setupServer(
+  http.get(patientUrl, () => HttpResponse.json(defaultPatient)),
+);
 
 const defaultProps = {
   patientId: 'patient123',
   onClose: jest.fn(),
   onSelectTab: jest.fn(),
   selectedTab: OVERVIEW_TAB_INDEX,
-};
-
-const defaultPatient = {
-  id: 'patient123',
-  fullName: 'John Doe',
-  birthDate: '1990-01-15',
 };
 
 const defaultState = {
@@ -82,7 +84,7 @@ const defaultState = {
 };
 
 const renderMenuBar = (props = {}, state = defaultState) => {
-  const store = mockStore(state);
+  const store = setupStore(state, { blip: blipReducer });
 
   return render(
     <Provider store={store}>
@@ -96,46 +98,52 @@ const renderMenuBar = (props = {}, state = defaultState) => {
 };
 
 describe('MenuBar Component', () => {
+  beforeAll(() => server.listen());
+
   beforeEach(() => {
     jest.clearAllMocks();
-    useGetPatientDrawerPatientQuery.mockReturnValue({ data: defaultPatient });
   });
 
+  afterEach(() => server.resetHandlers());
+
+  afterAll(() => server.close());
+
   describe('Patient Information Display', () => {
-    it('should display patient name when patient data is available', () => {
+    it('should display patient name when patient data is available', async () => {
       renderMenuBar();
 
-      expect(useGetPatientDrawerPatientQuery).toHaveBeenCalledWith(
-        { clinicId: 'clinic123', patientId: 'patient123' },
-        { skip: false },
+      expect(screen.getByTestId('patient-name')).toBeEmptyDOMElement();
+
+      expect(await screen.findByText('Zhilei Zhang')).toBeInTheDocument();
+      expect(screen.getByTestId('patient-name')).toHaveTextContent('Zhilei Zhang');
+    }, TEST_TIMEOUT_MS);
+
+    it('should display patient birthdate when patient data is available', async () => {
+      renderMenuBar();
+
+      expect(await screen.findByTestId('patient-birthdate')).toHaveTextContent('DOB: 1990-01-15');
+    }, TEST_TIMEOUT_MS);
+
+    it('should handle missing patient birthdate gracefully', async () => {
+      server.use(
+        http.get(patientUrl, () => HttpResponse.json({ fullName: 'Zhilei Zhang' })),
       );
-      expect(screen.getByTestId('patient-name')).toHaveTextContent('John Doe');
-    });
-
-    it('should display patient birthdate when patient data is available', () => {
-      renderMenuBar();
-
-      expect(screen.getByTestId('patient-birthdate')).toHaveTextContent('DOB: 1990-01-15');
-    });
-
-    it('should handle missing patient birthdate gracefully', () => {
-      useGetPatientDrawerPatientQuery.mockReturnValue({ data: { fullName: 'John Doe' } });
 
       renderMenuBar();
 
-      expect(screen.getByTestId('patient-name')).toHaveTextContent('John Doe');
+      expect(await screen.findByText('Zhilei Zhang')).toBeInTheDocument();
       expect(screen.queryByTestId('patient-birthdate')).not.toBeInTheDocument();
-    });
+    }, TEST_TIMEOUT_MS);
   });
 
   describe('Last Reviewed Component', () => {
     it('should display last reviewed section', () => {
-      renderMenuBar({}, defaultState);
+      renderMenuBar();
 
       expect(screen.getByTestId('last-reviewed-section')).toBeInTheDocument();
       expect(screen.getByTestId('patient-last-reviewed')).toBeInTheDocument();
       expect(screen.getByText('Last Reviewed')).toBeInTheDocument();
-    });
+    }, TEST_TIMEOUT_MS);
   });
 
   describe('Tab Navigation', () => {
@@ -186,7 +194,7 @@ describe('MenuBar Component', () => {
   });
 
   describe('View Data Button', () => {
-    it('should render view data button', () => {
+    it('should render view data button', async () => {
       renderMenuBar();
 
       const viewDataButton = screen.getByTestId('view-data-button');
@@ -294,6 +302,6 @@ describe('MenuBar Component', () => {
 
       const cgmButton = screen.getByTestId('cgm-clipboard-button');
       expect(cgmButton).toBeDisabled();
-    });
+    }, TEST_TIMEOUT_MS);
   });
 });
