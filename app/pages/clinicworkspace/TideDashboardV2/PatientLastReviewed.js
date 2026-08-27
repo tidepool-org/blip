@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import moment from 'moment-timezone';
+import noop from 'lodash/noop';
 
 import ReviewPatientToggle, {
   useMarkPatientReviewedMutation,
@@ -10,7 +11,7 @@ import ReviewPatientToggle, {
 import * as ErrorMessages from '../../../redux/constants/errorMessages';
 import { useToasts } from '../../../providers/ToastProvider';
 
-const PatientLastReviewed = ({ patient }) => {
+const PatientLastReviewed = ({ patient, onReview = noop }) => {
   const { set: setToast } = useToasts();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const patientId = patient?.id;
@@ -31,6 +32,8 @@ const PatientLastReviewed = ({ patient }) => {
       .unwrap()
       .then(updatedReviews => setReviews(updatedReviews || []))
       .catch(() => setToast({ message: ErrorMessages.ERR_SETTING_CLINIC_PATIENT_LAST_REVIEWED , variant: 'danger' }));
+
+    onReview();
   };
 
   const handleUndo = () => {
