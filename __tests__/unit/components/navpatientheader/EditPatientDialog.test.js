@@ -43,7 +43,7 @@ const initialState = {
   },
 };
 
-const renderEditPatientDialog = (storeState = initialState, clinicPatient = baseClinicPatient) => {
+const renderEditPatientDialog = (storeState = initialState, clinicPatient) => {
   const reducer = (state = storeState, action) => state;
   const store = createStore(reducer, applyMiddleware(thunk));
 
@@ -80,7 +80,7 @@ describe('EditPatientDialog', () => {
       },
     };
 
-    renderEditPatientDialog(smartOnFhirState);
+    renderEditPatientDialog(smartOnFhirState, baseClinicPatient);
 
     expect(screen.getByRole('textbox', { name: /Full Name/i })).toBeDisabled();
     expect(screen.getByRole('textbox', { name: /Birthdate/i })).toBeDisabled();
@@ -96,7 +96,7 @@ describe('EditPatientDialog', () => {
   });
 
   it('sets read-only fields enabled when smartCorrelationId is absent', () => {
-    renderEditPatientDialog(initialState);
+    renderEditPatientDialog(initialState, baseClinicPatient);
 
     expect(screen.getByRole('textbox', { name: /Full Name/i })).not.toBeDisabled();
     expect(screen.getByRole('textbox', { name: /Birthdate/i })).not.toBeDisabled();
