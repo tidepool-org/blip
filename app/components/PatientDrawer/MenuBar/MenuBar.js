@@ -1,13 +1,11 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import * as actions from '../../../redux/actions';
 import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { push } from 'connected-react-router';
 import { Flex, Box, Text } from 'theme-ui';
 import { colors as vizColors } from '@tidepool/viz';
 import Button from '../../../components/elements/Button';
-import moment from 'moment';
 import PatientLastReviewed from '../../../clinicworkspace/components/ReviewPatientToggle/PatientLastReviewedGenericAdapter';
 import CGMClipboardButton from './CGMClipboardButton';
 import { useGetPatientDrawerPatientQuery } from '../patientDrawerApi';
