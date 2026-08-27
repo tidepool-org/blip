@@ -89,7 +89,7 @@ const MenuBar = ({ patientId, onClose, onSelectTab, selectedTab }) => {
               {t('Last Reviewed')}
             </Text>
 
-            <PatientLastReviewed patient={patient} onReview={handleReviewSuccess} />
+            {!!patient && <PatientLastReviewed patient={patient} onReview={handleReviewSuccess} />}
           </Flex>
         </Flex>
       </Flex>
