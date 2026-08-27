@@ -8,7 +8,7 @@ import { Flex, Box, Text } from 'theme-ui';
 import { colors as vizColors } from '@tidepool/viz';
 import Button from '../../../../components/elements/Button';
 import moment from 'moment';
-import PatientLastReviewed from '../../../../components/clinic/PatientLastReviewed';
+import PatientLastReviewed from '../../../clinicworkspace/TideDashboardV2/PatientLastReviewed';
 import CGMClipboardButton from './CGMClipboardButton';
 import api from '../../../../core/api';
 import { map, keys } from 'lodash';
@@ -94,12 +94,7 @@ const MenuBar = ({ patientId, onClose, onSelectTab, selectedTab }) => {
               {t('Last Reviewed')}
             </Text>
 
-            <PatientLastReviewed
-              api={api}
-              patientId={patientId}
-              recentlyReviewedThresholdDate={recentlyReviewedThresholdDate}
-              onReview={handleReviewSuccess}
-            />
+            <PatientLastReviewed patient={patient} onReview={handleReviewSuccess} />
           </Flex>
         </Flex>
       </Flex>
