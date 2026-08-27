@@ -76,7 +76,7 @@ const ReviewPatientToggle = ({
   }
 
   return (
-    <Box sx={{ minWidth: '120px' }}>
+    <Box sx={{ minWidth: '120px' }} data-testid='patient-review-toggle'>
       <HoverButton
         {...FlexProps}
         buttonText={buttonText}
