@@ -8,7 +8,7 @@
 import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 
-import CGMDeltaSummary from '@app/pages/dashboard/PatientDrawer/CGMDeltaSummary';
+import CGMDeltaSummary from '@app/components/PatientDrawer/CGMDeltaSummary';
 
 const agpCGM = {
   timePrefs: {

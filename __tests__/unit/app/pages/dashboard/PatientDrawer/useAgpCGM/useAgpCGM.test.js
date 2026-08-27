@@ -16,7 +16,7 @@ import configureStore from 'redux-mock-store';
 import { utils as vizUtils } from '@tidepool/viz';
 import Plotly from 'plotly.js-basic-dist-min';
 
-import useAgpCGM from '@app/pages/dashboard/PatientDrawer/useAgpCGM';
+import useAgpCGM from '@app/components/PatientDrawer/useAgpCGM';
 import * as actions from '@app/redux/actions';
 
 const mockStore = configureStore([thunk]);
