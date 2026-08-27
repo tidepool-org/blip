@@ -14,11 +14,11 @@ import blipReducer from '@app/redux/reducers';
 import { ToastProvider } from '@app/providers/ToastProvider';
 import { CATEGORY } from '@app/pages/clinicworkspace/TideDashboardV2/tideDashboardSlice';
 import { useGetTideDashboardPatientsQuery } from '@app/pages/clinicworkspace/TideDashboardV2/tideDashboardApi';
-import PatientLastReviewed from '@app/pages/clinicworkspace/TideDashboardV2/PatientLastReviewed';
+import PatientLastReviewed from '@app/pages/clinicworkspace/components/ReviewPatientToggle/PatientLastReviewed';
 
 const TEST_TIMEOUT_MS = 30_000;
 
-describe('TideDashboardV2 PatientLastReviewed', () => {
+describe('Generic PatientLastReviewed Adapter', () => {
   const today = moment().toISOString();
   const yesterday = moment().subtract(1, 'day').toISOString();
 
