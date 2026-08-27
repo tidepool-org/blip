@@ -8,7 +8,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
-import CGMStatistics from '@app/pages/dashboard/PatientDrawer/CGMStatistics';
+import CGMStatistics from '@app/components/PatientDrawer/CGMStatistics';
 
 const agpCGM = {
   'data': {
