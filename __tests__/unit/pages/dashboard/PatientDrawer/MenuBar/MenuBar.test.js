@@ -50,6 +50,12 @@ jest.mock('@tidepool/viz', () => {
   };
 });
 
+jest.mock('@app/providers/ToastProvider', () => ({
+  useToasts: jest.fn().mockReturnValue({
+    set: jest.fn(),
+  }),
+}));
+
 const mockStore = configureStore([thunk]);
 
 const defaultProps = {
@@ -154,7 +160,7 @@ describe('MenuBar Component', () => {
       renderMenuBar({}, defaultState);
 
       expect(screen.getByTestId('last-reviewed-section')).toBeInTheDocument();
-      expect(screen.getByTestId('patient-last-reviewed')).toBeInTheDocument();
+      expect(screen.getByTestId('patient-review-toggle')).toBeInTheDocument();
       expect(screen.getByText('Last Reviewed')).toBeInTheDocument();
     });
   });
