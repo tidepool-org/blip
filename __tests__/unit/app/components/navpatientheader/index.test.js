@@ -7,7 +7,7 @@
 
 import React from 'react';
 import { Provider } from 'react-redux';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import _ from 'lodash';
 import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
@@ -39,7 +39,7 @@ jest.mock('@app/providers/ToastProvider', () => ({
 
 describe('NavPatientHeader', () => {
   const trackMetric = jest.fn();
-  const api = {};
+  const api = { clinics: { getPatientFromClinic: jest.fn() } };
 
   const patientProps = {
     userid: '1234',
@@ -191,7 +191,7 @@ describe('NavPatientHeader', () => {
         expect(screen.getByText(/Naoya Inoue/)).toBeInTheDocument();
         expect(screen.getByText(/999999/)).toBeInTheDocument();
         expect(screen.getByText(/1965-01-01/)).toBeInTheDocument();
-        expect(screen.getByText(/Pre-diabetes/)).toBeInTheDocument();
+        expect(within(screen.getByTestId('nav-patient-header')).getByText(/Pre-diabetes/)).toBeInTheDocument();
 
         // should NOT show demographic info from the 'patient' object
         expect(screen.queryByText(/Vasyl Lomachenko/)).not.toBeInTheDocument();
@@ -228,7 +228,7 @@ describe('NavPatientHeader', () => {
         expect(screen.getByText(/Naoya Inoue/)).toBeInTheDocument();
         expect(screen.getByText(/999999/)).toBeInTheDocument();
         expect(screen.getByText(/1965-01-01/)).toBeInTheDocument();
-        expect(screen.getByText(/Pre-diabetes/)).toBeInTheDocument();
+        expect(within(screen.getByTestId('nav-patient-header')).getByText(/Pre-diabetes/)).toBeInTheDocument();
 
         // should NOT show demographic info from the 'patient' object
         expect(screen.queryByText(/Vasyl Lomachenko/)).not.toBeInTheDocument();

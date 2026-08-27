@@ -18,7 +18,7 @@ import utils from '../../core/utils';
 
 const HeaderContainer = ({ children }) => (
   <Box variant="containers.largeBordered" mb={0} mx={[0, 0]} sx={{ width: ['100%', '100%'] }}>
-    <Flex id="navPatientHeader" px={4} py="12px"
+    <Flex id="navPatientHeader" data-testid="nav-patient-header" px={4} py="12px"
       sx={{
         columnGap: 5,
         flexWrap: 'wrap',
