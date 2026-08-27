@@ -5,7 +5,7 @@ import CGMExclusionQuery from './CGMExclusionQuery';
 // Each rule matches a category and automatically negates all preceding
 // rules, ensuring patients appear in at most one category.
 //
-export const tideDashboardCgmParams = new CGMExclusionQuery()
+export const tideDashboardExclusionQueryParams = new CGMExclusionQuery()
   .addRule(CATEGORY.VERY_LOW, 'cgm.timeInVeryLowPercent', '>=', 0.01)         // queries >=0.005
   .addRule(CATEGORY.ANY_LOW, 'cgm.timeInAnyLowPercent', '>=', 0.04)           // queries >=0.035
   .addRule(CATEGORY.DROP_IN_TIR, 'cgm.timeInTargetPercentDelta', '<=', -0.15) // queries <=-0.145
@@ -18,7 +18,7 @@ export const buildGetTideDashboardPatientsParams = (offset, limit, category, sum
   const formattedTags = tags?.length > 0 ? tags.join(',') : undefined;
   const formattedSites = sites?.length > 0 ? sites.join(',') : undefined;
 
-  const cgmQueryParams = tideDashboardCgmParams.getQueryParams(category);
+  const cgmQueryParams = tideDashboardExclusionQueryParams.getQueryParams(category);
 
   return {
     offset,
