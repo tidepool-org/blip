@@ -13,7 +13,7 @@ import { CATEGORY } from './tideDashboardSlice';
 import isUndefined from 'lodash/isUndefined';
 
 
-import { tideDashboardExclusionQueryParams } from './tideDashboardApi';
+import { tideDashboardExclusionQuery } from './tideDashboardApi';
 
 export const COMPACT = '@container (max-width: 1200px)';
 
@@ -162,7 +162,7 @@ export const FlagCell = ({ patient, category = null }) => {
 
   const { VERY_LOW, ANY_LOW, DROP_IN_TIR, ANY_HIGH, VERY_HIGH, LOW_CGM_WEAR } = CATEGORY;
 
-  const getThreshold = (category) => tideDashboardExclusionQueryParams.getRule(category).threshold;
+  const getThreshold = (category) => tideDashboardExclusionQuery.getRule(category).threshold;
 
   if (!period) return null;
 
