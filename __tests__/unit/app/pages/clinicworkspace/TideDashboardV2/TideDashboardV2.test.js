@@ -231,16 +231,16 @@ describe('TideDashboardV2', () => {
     expect(screen.getByText('DOB: 2001-01-01')).toBeInTheDocument();
 
     expect(within(table).getAllByRole('columnheader')).toHaveLength(10);
-    expect(screen.getByRole('columnheader', { name: /Patient Details/ })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: /Flag/ })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: /Time in Range/ })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: /% Change in TIR/ })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: /GMI/ })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: /CGM Use/ })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: /Tags/ })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: /Last Reviewed/ })).toBeInTheDocument();
-    expect(screen.getByRole('columnheader', { name: /More Options/ })).toBeInTheDocument();
+    expect(within(table).getByRole('columnheader', { name: /Patient Details/ })).toBeInTheDocument();
+    expect(within(table).getByRole('columnheader', { name: /Flag/ })).toBeInTheDocument();
+    expect(within(table).getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
+    expect(within(table).getByRole('columnheader', { name: /Time in Range/ })).toBeInTheDocument();
+    expect(within(table).getByRole('columnheader', { name: /% Change in TIR/ })).toBeInTheDocument();
+    expect(within(table).getByRole('columnheader', { name: /GMI/ })).toBeInTheDocument();
+    expect(within(table).getByRole('columnheader', { name: /CGM Use/ })).toBeInTheDocument();
+    expect(within(table).getByRole('columnheader', { name: /Tags/ })).toBeInTheDocument();
+    expect(within(table).getByRole('columnheader', { name: /Last Reviewed/ })).toBeInTheDocument();
+    expect(within(table).getByRole('columnheader', { name: /More Options/ })).toBeInTheDocument();
 
     // Selecting Very Low fetches and shows the Very Low cohort
     await userEvent.click(screen.getByRole('radio', { name: /Very Low/ }));
