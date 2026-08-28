@@ -217,7 +217,11 @@ const server = setupServer(
     const patients = getCorrespondingDataForQuery(searchParams);
 
     return HttpResponse.json({ data: patients, meta: { count: patients.length } });
-  })
+  }),
+
+  http.get('http://app.tidepool.test/v1/clinics/clinic123/tide_report', () => HttpResponse.json({
+    results: { noData: [{ patient: { id: 'no-data-1', fullName: 'No Data Patient 1', birthDate: '2006-01-01' } }] },
+  }))
 );
 
 describe('TideDashboardV2', () => {
@@ -247,6 +251,8 @@ describe('TideDashboardV2', () => {
 
   it('fetches and renders each category of patients', async () => {
     renderComponent();
+
+    const table = await screen.findByTestId('tideDashboardPatientsTable');
 
     // All Patients is the pre-selected category
     expect(await screen.findByText('Default Patient 1')).toBeInTheDocument();
@@ -450,6 +456,13 @@ describe('TideDashboardV2', () => {
       expect(screen.getByRole('tab', { name: 'Stacked Daily View' })).toHaveAttribute('aria-selected', 'true');
     }, TEST_TIMEOUT_MS);
   });
+
+  it('renders the Data Issues section when the tide report returns patients with no data', async () => {
+    renderComponent();
+
+    expect(await screen.findByText('Device Issues (1)')).toBeInTheDocument();
+    expect(await screen.findByText('No Data Patient 1')).toBeInTheDocument();
+  }, TEST_TIMEOUT_MS);
 
   describe('empty content', () => {
     beforeEach(() => {
