@@ -113,6 +113,7 @@ export const MoreMenuCell = ({ patient, onOpenEditPatientDialog, onOpenDataConne
   return (
     <PopoverMenu
       id={`action-menu-${patient?.id}`}
+      data-testid={`action-menu-${patient?.id}-icon`}
       items={[{
         icon: EditIcon,
         iconLabel: t('Edit Patient Details'),
