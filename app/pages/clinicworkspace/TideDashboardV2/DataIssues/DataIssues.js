@@ -9,8 +9,15 @@ import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import Table from '../../../../components/elements/Table';
 
 import { PatientCell } from '../Cells';
-import { DexcomConnectionStatusCell, DaysSinceLastDataCell, MoreMenuCell } from './Cells';
 import TagListCell from '../../components/TagListCell';
+
+import {
+  DexcomConnectionStatusCell,
+  DaysSinceLastDataCell,
+  PatientLastReviewedCell,
+  MoreMenuCell,
+} from './Cells';
+
 import EmptyContentNode from '../EmptyContentNode';
 import useTideReportNoDataPatients from './useTideReportNoDataPatients';
 import EditPatientDialogController from './EditPatientDialogController';
@@ -80,6 +87,12 @@ const DataIssues = ({ api }) => {
       field: 'tags',
       align: 'center',
       render: patient => <TagListCell patient={patient} />,
+    },
+    {
+      title: t('Last Reviewed'),
+      field: 'lastReviewed',
+      align: 'center',
+      render: patient => <PatientLastReviewedCell patient={patient} />,
     },
     {
       title: '',
