@@ -13,6 +13,7 @@ import { colors, fontWeights } from '../../../../themes/baseTheme';
 import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
 import EditIcon from '@material-ui/icons/EditRounded';
 import DataInIcon from '../../../../core/icons/DataInIcon.svg';
+import PatientLastReviewed from '../../components/ReviewPatientToggle/PatientLastReviewed';
 
 export const DexcomConnectionStatusCell = ({ patient, onOpenDataConnectionsModal }) => {
   const { t } = useTranslation();
@@ -98,6 +99,12 @@ export const DaysSinceLastDataCell = ({ patient }) => {
   return (
     <Text sx={{ fontWeight: 'medium' }}>{daysSinceLastData ?? '-'}</Text>
   );
+};
+
+export const PatientLastReviewedCell = ({ patient }) => {
+  return <Box>
+    <PatientLastReviewed patient={patient} />
+  </Box>;
 };
 
 export const MoreMenuCell = ({ patient, onOpenEditPatientDialog, onOpenDataConnectionsModal }) => {
