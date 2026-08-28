@@ -11,8 +11,10 @@ const usePruneInvalidFilters = () => {
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const { patientTags, clinicSites } = useSelector(state => state.blip.tideDashboardFilters);
 
+  const clinicId = clinic?.id;
+
   useEffect(() => {
-    if (!patientTags?.length || !clinic) return;
+    if (!patientTags?.length || !clinicId) return;
 
     if (isEqual(patientTags, SPECIAL_FILTER_STATES.ZERO_TAGS)) return;
 
@@ -22,10 +24,10 @@ const usePruneInvalidFilters = () => {
     if (prunedTags.length < patientTags.length) {
       dispatch(setPatientTagsFilter(prunedTags));
     }
-  }, []);
+  }, [clinicId]);
 
   useEffect(() => {
-    if (!clinicSites?.length || !clinic) return;
+    if (!clinicSites?.length || !clinicId) return;
 
     if (isEqual(clinicSites, SPECIAL_FILTER_STATES.ZERO_SITES)) return;
 
@@ -35,7 +37,7 @@ const usePruneInvalidFilters = () => {
     if (prunedSites.length < clinicSites.length) {
       dispatch(setClinicSitesFilter(prunedSites));
     }
-  }, []);
+  }, [clinicId]);
 };
 
 export default usePruneInvalidFilters;
