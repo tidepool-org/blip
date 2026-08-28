@@ -15,20 +15,8 @@ import blipReducer from '@app/redux/reducers';
 import MenuBar, { OVERVIEW_TAB_INDEX, STACKED_DAILY_TAB_INDEX } from '@app/components/PatientDrawer/MenuBar/MenuBar';
 import i18n from '@app/core/language';
 
-// Mock actions
-jest.mock('@app/redux/actions', () => ({}));
-
 // Mock connected-react-router
-jest.mock('connected-react-router', () => ({
-  push: jest.fn(),
-}));
-
-// Mock api
-jest.mock('@app/core/api', () => ({}));
-
-jest.mock('@app/components/PatientDrawer/patientDrawerApi', () => ({
-  useGetPatientDrawerPatientQuery: jest.fn(),
-}));
+jest.mock('connected-react-router', () => ({ push: jest.fn() }));
 
 // Mock the agpCGMText function from @tidepool/viz while preserving other exports
 jest.mock('@tidepool/viz', () => {
@@ -45,13 +33,16 @@ jest.mock('@tidepool/viz', () => {
   };
 });
 
+jest.mock('@app/providers/ToastProvider', () => ({
+  useToasts: () => ({ set: jest.fn() }),
+}));
+
 const TEST_TIMEOUT_MS = 30_000;
 
 const patientUrl = 'http://app.tidepool.test/v1/clinics/clinic123/patients/patient123';
-const defaultPatient = { id: 'patient123', fullName: 'Zhilei Zhang', birthDate: '1990-01-15' };
 
 const server = setupServer(
-  http.get(patientUrl, () => HttpResponse.json(defaultPatient)),
+  http.get(patientUrl, () => HttpResponse.json({ id: 'patient123', fullName: 'Zhilei Zhang', birthDate: '1990-01-15' })),
 );
 
 const defaultProps = {
@@ -137,11 +128,11 @@ describe('MenuBar Component', () => {
   });
 
   describe('Last Reviewed Component', () => {
-    it('should display last reviewed section', () => {
+    it('should display last reviewed section', async () => {
       renderMenuBar();
 
       expect(screen.getByTestId('last-reviewed-section')).toBeInTheDocument();
-      expect(screen.getByTestId('patient-last-reviewed')).toBeInTheDocument();
+      expect(await screen.findByTestId('patient-review-toggle')).toBeInTheDocument(); // shows on patient fetch
       expect(screen.getByText('Last Reviewed')).toBeInTheDocument();
     }, TEST_TIMEOUT_MS);
   });
