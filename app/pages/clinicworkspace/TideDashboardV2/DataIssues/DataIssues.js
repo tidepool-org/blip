@@ -65,7 +65,7 @@ const DataIssues = ({ api }) => {
 
   const columns = useMemo(() => ([
     {
-      title: t('Patient Details'),
+      title: t('Patient Name'),
       field: 'fullName',
       align: 'left',
       render: patient => <PatientCell patient={patient} />,
