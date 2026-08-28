@@ -15,7 +15,7 @@ import useTableColumns from './useTableColumns';
 import EmptyContentNode from './EmptyContentNode';
 import PatientCount from '../components/PatientCount';
 
-const TideDashboardV2 = ({ api, trackMetric }) => {
+const TideDashboardV2 = () => {
   const dispatch = useDispatch();
 
   const category = useSelector(state => state.blip.tideDashboard.category);
