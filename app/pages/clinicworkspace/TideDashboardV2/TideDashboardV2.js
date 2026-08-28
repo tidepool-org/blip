@@ -82,6 +82,7 @@ const TideDashboardV2 = ({ api }) => {
       <AppliedFiltersList patientCount={total} />
       <Table
         id="tideDashboardPatientsTable"
+        data-testid='tideDashboardPatientsTable'
         variant="condensed"
         label="tideDashboardPatientsTable"
         columns={tableColumns}
