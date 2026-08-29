@@ -5,7 +5,7 @@ import useClinic from '../useClinic';
 const MAX_TAGS = 3;
 
 const TagListCell = ({ patient }) => {
-  const clinic = useClinic();
+  const { clinic } = useClinic();
   const patientTags = clinic?.patientTags || [];
 
   const tagIds = patient?.tags || [];

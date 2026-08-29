@@ -20,9 +20,16 @@ const clinicApi = RTKQueryApi.injectEndpoints({
       }),
       providesTags: [CURRENT_CLINIC],
     }),
+    getClinicsForClinician: builder.query({
+      query: ({ userId }) => {
+        return { url: `/clinicians/${userId}/clinics` };
+      },
+      providesTags: [CURRENT_CLINIC],
+    }),
   }),
 });
 
 export const {
   useGetClinicQuery,
+  useGetClinicsForClinicianQuery,
 } = clinicApi;
