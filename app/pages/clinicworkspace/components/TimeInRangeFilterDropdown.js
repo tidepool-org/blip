@@ -27,6 +27,7 @@ import { MGDL_UNITS } from '../../../core/constants';
 const { reshapeBgClassesToBgBounds, generateBgRangeLabels } = vizUtils.bg;
 import useClinicMetricsPageName from '../useClinicMetricsPageName';
 import { timeInRangeFilterThresholds } from '../../../core/clinicUtils';
+import useClinic from '../useClinic';
 
 const getRangeDefinition = (t, { comparator, threshold, bgRange, isBounded }) => {
   if (isBounded) {
@@ -88,8 +89,9 @@ const DropdownContent = ({
   const { t } = useTranslation();
   const pageName = useClinicMetricsPageName();
   const { showExtremeHigh } = useFlags();
+  const clinic = useClinic();
+  const clinicBgUnits = clinic?.preferredBgUnits || MGDL_UNITS;
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
-  const clinicBgUnits = useSelector((state) => state.blip.clinics?.[selectedClinicId]?.preferredBgUnits) || MGDL_UNITS;
 
   const [pendingTimeInRange, setPendingTimeInRange] = useState(timeInRange);
 

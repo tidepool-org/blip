@@ -17,6 +17,7 @@ import Icon from '../../../components/elements/Icon';
 import utils from '../../../core/utils';
 import { transitions } from '../../../themes/baseTheme';
 import { SPECIAL_FILTER_STATES } from '../useClinicPatientsFilters';
+import useClinic from '../useClinic';
 
 const usePrimaryChips = (activeFilters, requiredFilters) => {
   const { t } = useTranslation();
@@ -68,8 +69,7 @@ const usePrimaryChips = (activeFilters, requiredFilters) => {
 
 const useTagChips = (patientTags = []) => {
   const { t } = useTranslation();
-  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
-  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+  const clinic = useClinic();
 
   if (isEqual(patientTags, SPECIAL_FILTER_STATES.ZERO_TAGS)) {
     return [{
@@ -91,8 +91,7 @@ const useTagChips = (patientTags = []) => {
 
 const useSiteChips = (clinicSites = []) => {
   const { t } = useTranslation();
-  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
-  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+  const clinic = useClinic();
 
   if (isEqual(clinicSites, SPECIAL_FILTER_STATES.ZERO_SITES)) {
     return [{
