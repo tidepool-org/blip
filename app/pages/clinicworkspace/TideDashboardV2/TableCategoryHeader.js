@@ -15,7 +15,7 @@ const formatThreshold = (value, bgUnits) => bgUnits === MGDL_UNITS
 
 const useCategoryHeaderCopy = (category) => {
   const { t } = useTranslation();
-  const clinic = useClinic();
+  const { clinic } = useClinic();
   const bgUnits = clinic?.preferredBgUnits || MGDL_UNITS;
 
   const bounds = ADA_STANDARD_BG_BOUNDS[bgUnits];
