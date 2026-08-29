@@ -4,7 +4,9 @@ import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
+import cloneDeep from 'lodash/cloneDeep';
 
+import { CATEGORY } from '@app/pages/clinicworkspace/TideDashboardV2/tideDashboardSlice';
 import {
   PatientCell,
   NumericTemplateCell,
@@ -18,6 +20,7 @@ import {
   ChangeTIRCell,
   GMICell,
   CGMUseCell,
+  FlagCell,
   MoreMenuCell,
 } from '@app/pages/clinicworkspace/TideDashboardV2/Cells';
 
@@ -172,6 +175,96 @@ describe('Cells', () => {
       renderComponent(<CGMUseCell patient={patient} />);
 
       expect(screen.getByText('93 %')).toBeInTheDocument(); // timeCGMUsePercent 0.9312
+    });
+  });
+
+  describe('FlagCell', () => {
+    // Patient whose summary stats sit within every flag threshold, so no flag applies
+    const meetingTargetsPatient = {
+      summary: {
+        cgmStats: {
+          periods: {
+            '14d': {
+              timeInVeryLowPercent: 0.004,
+              timeInAnyLowPercent: 0.03,
+              timeInTargetPercentDelta: -0.05,
+              timeInAnyHighPercent: 0.2,
+              timeInVeryHighPercent: 0.04,
+              timeCGMUsePercent: 0.85,
+            },
+          },
+        },
+      },
+    };
+
+    const ui = (props) => <Provider store={store}><FlagCell {...props} /></Provider>;
+
+    it('flags the highest-priority range whose threshold the summary meets', () => {
+      let patient;
+
+      // No flag when the summary is within every threshold
+      patient = cloneDeep(meetingTargetsPatient);
+      const { container, rerender } = render(ui({ patient }));
+      expect(container).toBeEmptyDOMElement();
+
+      // Time in very low at or above 1% flags Very Low
+      patient = cloneDeep(meetingTargetsPatient);
+      patient.summary.cgmStats.periods['14d'].timeInVeryLowPercent = 0.0134;
+      rerender(ui({ patient }));
+      expect(screen.getByText('Very Low')).toBeInTheDocument();
+
+      // Time in any low at or above 4% flags Low
+      patient = cloneDeep(meetingTargetsPatient);
+      patient.summary.cgmStats.periods['14d'].timeInAnyLowPercent = 0.0568;
+      rerender(ui({ patient }));
+      expect(screen.getByText('Low')).toBeInTheDocument();
+      expect(screen.queryByText('Very Low')).not.toBeInTheDocument();
+
+      // Drop in time in target at or below -15% flags Drop in TIR
+      patient = cloneDeep(meetingTargetsPatient);
+      patient.summary.cgmStats.periods['14d'].timeInTargetPercentDelta = -0.1523;
+      rerender(ui({ patient }));
+      expect(screen.getByText('Drop in TIR')).toBeInTheDocument();
+
+      // Time in any high at or above 25% flags High
+      patient = cloneDeep(meetingTargetsPatient);
+      patient.summary.cgmStats.periods['14d'].timeInAnyHighPercent = 0.2733;
+      rerender(ui({ patient }));
+      expect(screen.getByText('High')).toBeInTheDocument();
+
+      // Time in very high at or above 5% flags Very High
+      patient = cloneDeep(meetingTargetsPatient);
+      patient.summary.cgmStats.periods['14d'].timeInVeryHighPercent = 0.0722;
+      rerender(ui({ patient }));
+      expect(screen.getByText('Very High')).toBeInTheDocument();
+
+      // CGM use below 70% flags Low CGM Wear
+      patient = cloneDeep(meetingTargetsPatient);
+      patient.summary.cgmStats.periods['14d'].timeCGMUsePercent = 0.65;
+      rerender(ui({ patient }));
+      expect(screen.getByText('Low CGM Wear')).toBeInTheDocument();
+
+      // When several thresholds are met, only the highest-priority flag shows
+      patient = cloneDeep(meetingTargetsPatient);
+      patient.summary.cgmStats.periods['14d'].timeInVeryLowPercent = 0.0134;
+      patient.summary.cgmStats.periods['14d'].timeInAnyLowPercent = 0.0568;
+      rerender(ui({ patient }));
+
+      expect(screen.getByText('Very Low')).toBeInTheDocument();
+      expect(screen.queryByText('Low')).not.toBeInTheDocument();
+    });
+
+    it('flags the current category ahead of a higher-priority flag', () => {
+      // The summary meets both the Very Low and Low thresholds, which would normally flag Very Low
+      let patient = cloneDeep(meetingTargetsPatient);
+      patient.summary.cgmStats.periods['14d'].timeInVeryLowPercent = 0.0134;
+      patient.summary.cgmStats.periods['14d'].timeInAnyLowPercent = 0.0568;
+
+      renderComponent(<FlagCell patient={patient} category={CATEGORY.ANY_LOW} />);
+
+      // The current dashboard category wins
+      expect(screen.getByText('Low')).toBeInTheDocument();
+      expect(screen.queryByText('Very Low')).not.toBeInTheDocument();
     });
   });
 });
