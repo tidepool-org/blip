@@ -1,25 +1,19 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import Table from '../../../components/elements/Table';
-import { Flex, Grid } from 'theme-ui';
-import { colors as vizColors } from '@tidepool/viz';
+import { Flex} from 'theme-ui';
 
 import FilterByCategory from './FilterByCategory';
 
 import TableCategoryHeader from './TableCategoryHeader';
-import PaginationControls from '../components/PaginationControls';
+import PaginationController from './PaginationController';
 
-import { setOffset } from './tideDashboardSlice';
-import useTideDashboardPatients, { LIMIT } from './useTideDashboardPatients';
+import useTideDashboardPatients from './useTideDashboardPatients';
 import useTableColumns from './useTableColumns';
 import EmptyContentNode from './EmptyContentNode';
-import PatientCount from '../components/PatientCount';
 
 const TideDashboardV2 = () => {
-  const dispatch = useDispatch();
-
   const category = useSelector(state => state.blip.tideDashboard.category);
-  const offset = useSelector(state => state.blip.tideDashboard.offset);
 
   const { data } = useTideDashboardPatients();
 
@@ -28,8 +22,6 @@ const TideDashboardV2 = () => {
   const resolvedCategory = data?.category || category;
 
   const tableColumns = useTableColumns(resolvedCategory);
-
-  const handleChangeOffset = (newOffset) => dispatch(setOffset(newOffset));
 
   if (!data) return null;
 
@@ -55,20 +47,7 @@ const TideDashboardV2 = () => {
         containerProps={{ sx: { containerType: 'inline-size' } }}
       />
 
-      <Grid sx={{ gridTemplateColumns: '1fr 2fr 1fr', borderBottom: `1px solid ${vizColors.gray10}` }}>
-        <Flex sx={{ alignItems: 'flex-end', padding: '0 0 24px 12px' }}>
-          <PatientCount offset={offset} limit={LIMIT} total={total} />
-        </Flex>
-        <Flex pb={4} sx={{ maxWidth: '640px', justifyContent: 'center', margin: '0 auto' }}>
-          <PaginationControls
-            limit={LIMIT}
-            total={total}
-            offset={offset}
-            onOffsetChange={handleChangeOffset}
-          />
-        </Flex>
-      </Grid>
-
+      <PaginationController total={total} />
     </>
   );
 };
