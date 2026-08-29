@@ -1,11 +1,11 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
 import { CATEGORY } from './tideDashboardSlice';
 import { useTranslation } from 'react-i18next';
 import { Box, Text } from 'theme-ui';
 import { colors as vizColors, utils as vizUtils } from '@tidepool/viz';
 import utils from '../../../core/utils';
 import { MGDL_UNITS } from '../../../core/constants';
+import useClinic from '../useClinic';
 
 const { ADA_STANDARD_BG_BOUNDS } = vizUtils.constants;
 
@@ -15,8 +15,7 @@ const formatThreshold = (value, bgUnits) => bgUnits === MGDL_UNITS
 
 const useCategoryHeaderCopy = (category) => {
   const { t } = useTranslation();
-  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
-  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+  const clinic = useClinic();
   const bgUnits = clinic?.preferredBgUnits || MGDL_UNITS;
 
   const bounds = ADA_STANDARD_BG_BOUNDS[bgUnits];
