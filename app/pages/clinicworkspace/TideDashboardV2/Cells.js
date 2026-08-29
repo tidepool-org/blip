@@ -53,7 +53,7 @@ export const AvgGlucoseCell = ({ patient, units }) => { // TODO: Fix for units
 
 export const TimeInRangePercentBarChartCell = ({ patient }) => {
   const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
-  const clinic = useClinic();
+  const { clinic } = useClinic();
   const clinicBgUnits = clinic?.preferredBgUnits || MGDL_UNITS;
 
   // TODO: need to add showExtremeHigh

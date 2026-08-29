@@ -83,7 +83,7 @@ const DropdownContent = ({
   const isClinicAdmin = useIsClinicAdmin();
   const pageName = useClinicMetricsPageName();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
-  const clinic = useClinic();
+  const { clinic } = useClinic();
 
   const [pendingTags, setPendingTags] = useState(patientTags);
   const [searchText, setSearchText] = useState('');

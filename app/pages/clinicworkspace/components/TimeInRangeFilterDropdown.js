@@ -89,7 +89,7 @@ const DropdownContent = ({
   const { t } = useTranslation();
   const pageName = useClinicMetricsPageName();
   const { showExtremeHigh } = useFlags();
-  const clinic = useClinic();
+  const { clinic } = useClinic();
   const clinicBgUnits = clinic?.preferredBgUnits || MGDL_UNITS;
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
 
