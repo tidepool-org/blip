@@ -68,7 +68,7 @@ const usePrimaryChips = (activeFilters, requiredFilters) => {
 
 const useTagChips = (patientTags = []) => {
   const { t } = useTranslation();
-  const clinic = useClinic();
+  const { clinic } = useClinic();
 
   if (isEqual(patientTags, SPECIAL_FILTER_STATES.ZERO_TAGS)) {
     return [{
@@ -90,7 +90,7 @@ const useTagChips = (patientTags = []) => {
 
 const useSiteChips = (clinicSites = []) => {
   const { t } = useTranslation();
-  const clinic = useClinic();
+  const { clinic } = useClinic();
 
   if (isEqual(clinicSites, SPECIAL_FILTER_STATES.ZERO_SITES)) {
     return [{
