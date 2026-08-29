@@ -28,7 +28,7 @@ const PaginationController = ({ total }) => {
         />
       </Flex>
     </Grid>
-  )
+  );
 };
 
 export default PaginationController;
