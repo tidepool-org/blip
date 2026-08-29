@@ -193,7 +193,7 @@ describe('TideDashboardV2', () => {
 
   afterAll(() => server.close());
 
-    it('fetches and renders each category of patients', async () => {
+  it('fetches and renders each category of patients', async () => {
     renderComponent();
 
     // All Patients is the pre-selected category

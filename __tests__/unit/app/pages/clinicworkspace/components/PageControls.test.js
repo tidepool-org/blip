@@ -2,14 +2,14 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import PaginationControls from '@app/pages/clinicworkspace/components/PaginationControls';
+import PageControls from '@app/pages/clinicworkspace/components/PageControls';
 
-describe('PaginationControls', () => {
+describe('PageControls', () => {
   const onOffsetChange = jest.fn();
 
   // 115 patients at 10 per page -> 12 pages, with a partial last page
   const ui = ({ total = 115, limit = 10, offset = 0 } = {}) => (
-    <PaginationControls
+    <PageControls
       total={total}
       limit={limit}
       offset={offset}
