@@ -6,7 +6,7 @@ const MAX_TAGS = 2;
 const MAX_CHARS = 12;
 
 const TagListCell = ({ patient }) => {
-  const clinic = useClinic();
+  const { clinic } = useClinic();
   const patientTags = clinic?.patientTags || [];
 
   const tagIds = patient?.tags || [];

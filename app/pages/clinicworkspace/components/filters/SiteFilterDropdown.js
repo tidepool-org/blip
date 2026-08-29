@@ -79,7 +79,7 @@ const DropdownContent = ({
   const { t } = useTranslation();
   const isClinicAdmin = useIsClinicAdmin();
   const pageName = useClinicMetricsPageName();
-  const clinic = useClinic();
+  const { clinic } = useClinic();
 
   const [pendingSites, setPendingSites] = useState(clinicSites);
   const [searchText, setSearchText] = useState('');

@@ -198,7 +198,7 @@ const getFormattedThresholds = (clinicBgUnits) => {
 
 const useTableColumns = (category, summaryPeriod) => {
   const { t } = useTranslation();
-  const clinic = useClinic();
+  const { clinic } = useClinic();
   const clinicBgUnits = clinic?.preferredBgUnits || MGDL_UNITS;
 
   const columns = useMemo(() => {
