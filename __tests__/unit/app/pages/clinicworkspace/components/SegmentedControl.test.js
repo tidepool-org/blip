@@ -12,10 +12,7 @@ describe('SegmentedControl', () => {
   const ui = ({ selectedId = 1 } = {}) => (
     <SegmentedControl>
       {segments.map(seg => (
-        <Segment
-          selected={seg.id === selectedId}
-          onClick={() => onSelect(seg.id)}
-        >
+        <Segment selected={seg.id === selectedId} onClick={() => onSelect(seg.id)}>
           {seg.label}
         </Segment>
       ))}
