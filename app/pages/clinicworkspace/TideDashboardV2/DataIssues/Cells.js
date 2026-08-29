@@ -58,28 +58,30 @@ export const DexcomConnectionStatusCell = ({ patient, onOpenDataConnectionsModal
   if (!showViewButton) return <StatusBadge />;
 
   return (
-    <HoverButton
-      buttonText={t('View')}
-      buttonProps={{
-        onClick: handleOpenDataConnectionsModal,
-        variant: 'textSecondary',
-        ml: -2,
-        sx: {
-          fontSize: 0,
-          fontWeight: fontWeights.medium,
-          textDecoration: 'underline',
-          color: colors.purpleMedium,
-          ':hover': {
-            color: colors.purpleMedium,
+    <Box sx={{ width: '35%', minWidth: 220 }}>
+      <HoverButton
+        buttonText={t('View')}
+        buttonProps={{
+          onClick: handleOpenDataConnectionsModal,
+          variant: 'textSecondary',
+          ml: -2,
+          sx: {
+            fontSize: 0,
+            fontWeight: fontWeights.medium,
             textDecoration: 'underline',
+            color: colors.purpleMedium,
+            ':hover': {
+              color: colors.purpleMedium,
+              textDecoration: 'underline',
+            },
           },
-        },
-      }}
-    >
-      <Box sx={{ whiteSpace: 'nowrap' }}>
-        <StatusBadge />
-      </Box>
-    </HoverButton>
+        }}
+      >
+        <Box sx={{ whiteSpace: 'nowrap' }}>
+          <StatusBadge />
+        </Box>
+      </HoverButton>
+    </Box>
   );
 };
 
