@@ -14,6 +14,7 @@ import isUndefined from 'lodash/isUndefined';
 
 
 import { tideDashboardExclusionQuery } from './tideDashboardApi';
+import useClinic from '../useClinic';
 
 export const COMPACT = '@container (max-width: 1200px)';
 
@@ -52,8 +53,7 @@ export const AvgGlucoseCell = ({ patient, units }) => { // TODO: Fix for units
 
 export const TimeInRangePercentBarChartCell = ({ patient }) => {
   const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
-  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
-  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+  const clinic = useClinic();
   const clinicBgUnits = clinic?.preferredBgUnits || MGDL_UNITS;
 
   // TODO: need to add showExtremeHigh
