@@ -11,14 +11,14 @@ const useClinic = () => {
     { skip: !selectedClinicId }
   );
 
-  const { currentData: userClinics } = useGetClinicsForClinicianQuery(
+  const { currentData: affiliations } = useGetClinicsForClinicianQuery(
     { userId: loggedInUserId },
     { skip: !loggedInUserId }
   );
 
-  const currentUserClinic = userClinics?.find(userClinic => userClinic.clinic.id === selectedClinicId);
+  const affiliation = affiliations?.find(aff => aff.clinic.id === selectedClinicId);
 
-  const isClinicAdmin = currentUserClinic?.clinician?.roles?.includes('CLINIC_ADMIN') || false;
+  const isClinicAdmin = affiliation?.clinician?.roles?.includes('CLINIC_ADMIN') || false;
 
   return { clinic, isClinicAdmin };
 };
