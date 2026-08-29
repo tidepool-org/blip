@@ -37,8 +37,6 @@ export const getPatientQueryState = (
 };
 
 const AppliedFiltersList = ({ activeFilters, setActiveFilters, onClearSearch, onResetFilters }) => {
-  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
-  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const { patientListSearchTextInput } = useSelector(state => state.blip.patientListFilters);
 
   const handleRemoveFilter = (filterKey, value) => {
