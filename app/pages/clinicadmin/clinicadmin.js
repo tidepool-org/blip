@@ -61,7 +61,7 @@ import {
 import config from '../../config';
 import Icon from '../../components/elements/Icon';
 import utils from '../../core/utils';
-import useIsClinicAdmin from '../clinicworkspace/useIsClinicAdmin';
+import useClinic from '../clinicworkspace/useClinic';
 
 const clinicTypesLabels = mapValues(keyBy(clinicTypes, 'value'), 'label');
 
@@ -125,7 +125,7 @@ export const ClinicAdmin = (props) => {
     validationSchema,
   });
 
-  const isClinicAdmin = useIsClinicAdmin();
+  const { isClinicAdmin } = useClinic();
   const isOnlyClinicAdmin = () => filter(clinicianArray, { isAdmin: true, inviteId: undefined }).length === 1;
 
   useEffect(() => {
