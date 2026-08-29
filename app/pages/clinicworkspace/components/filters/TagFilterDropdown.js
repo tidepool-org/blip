@@ -33,6 +33,7 @@ import useIsClinicAdmin from '../../useIsClinicAdmin';
 import useClinicMetricsPageName from '../../useClinicMetricsPageName';
 import TextInput from '../../../../components/elements/TextInput';
 import styled from '@emotion/styled';
+import useClinic from '../useClinic';
 
 const EditTagsAction = ({ onClick = noop }) => {
   const { t } = useTranslation();
@@ -82,7 +83,7 @@ const DropdownContent = ({
   const isClinicAdmin = useIsClinicAdmin();
   const pageName = useClinicMetricsPageName();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
-  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+  const clinic = useClinic();
 
   const [pendingTags, setPendingTags] = useState(patientTags);
   const [searchText, setSearchText] = useState('');
@@ -248,7 +249,6 @@ const TagFilterDropdown = ({
   });
 
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
-  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
 
   const handleCloseDropdown = () => patientTagsPopupFilterState.close();
 
