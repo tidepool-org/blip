@@ -36,7 +36,6 @@ const TideDashboardV2 = () => {
       </Flex>
 
       <TableCategoryHeader category={resolvedCategory} />
-
       <Table
         id="tideDashboardPatientsTable"
         variant="condensed"
