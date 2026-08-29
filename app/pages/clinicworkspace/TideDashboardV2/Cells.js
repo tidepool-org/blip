@@ -182,7 +182,7 @@ export const FlagCell = ({ patient, category = null }) => {
       case period.timeInTargetPercentDelta <= getThreshold(DROP_IN_TIR): return 'dropInTIR';  // <=-15%
       case period.timeInAnyHighPercent >= getThreshold(ANY_HIGH): return 'anyHigh';           // >=25%
       case period.timeInVeryHighPercent >= getThreshold(VERY_HIGH): return 'veryHigh';        // >=5%
-      case period.timeCGMUsePercent < getThreshold(ANY_LOW): return 'lowSensorUsage';         // <70%
+      case period.timeCGMUsePercent < getThreshold(LOW_CGM_WEAR): return 'lowSensorUsage';    // <70%
 
       default: return null;
     }
