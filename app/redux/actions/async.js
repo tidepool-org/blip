@@ -19,6 +19,8 @@ import { clinicUIDetails } from '../../core/clinicUtils.js';
 import { getDismissedAltRangeBannerKey, isRangeWithNonStandardTarget } from '../../providers/AppBanner/appBannerHelpers.js';
 import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils.js';
 import { getTideDashboardFiltersKey, loadLocalState } from '../store/localStorage';
+import { RTKQueryApi } from '../api/baseApi';
+import { tagTypes as clinicTagTypes } from '../../pages/clinicworkspace/clinicApi';
 
 // Exported as a mutable reference to allow location to be swapped in tests
 export const _win = { location: window.location };
@@ -1779,6 +1781,7 @@ export function createClinic(api, clinic, clinicianId) {
         );
       } else {
         dispatch(sync.createClinicSuccess(clinic));
+        dispatch(RTKQueryApi.util.invalidateTags([clinicTagTypes.CURRENT_CLINIC]));
         dispatch(selectClinic(api, clinic.id));
         dispatch(getClinicsForClinician(api, clinicianId, { limit: 1000, offset: 0 }));
       }
@@ -1874,6 +1877,7 @@ export function updateClinic(api, clinicId, clinic) {
         ));
       } else {
         dispatch(sync.updateClinicSuccess(clinicId, updatedClinic));
+        dispatch(RTKQueryApi.util.invalidateTags([clinicTagTypes.CURRENT_CLINIC]));
       }
     });
   };
@@ -1961,6 +1965,7 @@ export function updateClinician(api, clinicId, clinicianId, clinician) {
         ));
       } else {
         dispatch(sync.updateClinicianSuccess(clinicId, clinicianId, clinician));
+        dispatch(RTKQueryApi.util.invalidateTags([clinicTagTypes.CURRENT_CLINIC]));
       }
     });
   };
@@ -1988,6 +1993,7 @@ export function deleteClinicianFromClinic(api, clinicId, clinicianId) {
         ));
       } else {
         dispatch(sync.deleteClinicianFromClinicSuccess(clinicId, clinicianId));
+        dispatch(RTKQueryApi.util.invalidateTags([clinicTagTypes.CURRENT_CLINIC]));
       }
     });
   };
@@ -2021,6 +2027,7 @@ export function deletePatientFromClinic(api, clinicId, patientId, cb = _.noop) {
         ));
       } else {
         dispatch(sync.deletePatientFromClinicSuccess(clinicId, patientId));
+        dispatch(RTKQueryApi.util.invalidateTags([clinicTagTypes.CURRENT_CLINIC]));
 
         // Re-fetch patient count to ensure we have the latest from the server
         dispatch(fetchClinicPatientCounts(api, clinicId));
@@ -2172,6 +2179,10 @@ export function createClinicCustodialAccount(api, clinicId, patient) {
         ));
       } else {
         dispatch(sync.createClinicCustodialAccountSuccess(clinicId, result.id, result));
+        // Patient CRUD invalidates only if GET /clinics/:id carries per-tag/site patient
+        // counts. Kept for parity with handlePatientCreatedOrEdited's clinic refetch; drop
+        // this and the three below if the platform team confirms it does not.
+        dispatch(RTKQueryApi.util.invalidateTags([clinicTagTypes.CURRENT_CLINIC]));
 
         // Re-fetch patient count to ensure we have the latest from the server
         dispatch(fetchClinicPatientCounts(api, clinicId));
@@ -2259,6 +2270,7 @@ export function updateClinicPatient(api, clinicId, patientId, patient) {
         ));
       } else {
         dispatch(sync.updateClinicPatientSuccess(clinicId, patient.id, patient));
+        dispatch(RTKQueryApi.util.invalidateTags([clinicTagTypes.CURRENT_CLINIC]));
       }
     });
   };
@@ -2448,6 +2460,7 @@ export function acceptPatientInvitation(api, clinicId, inviteId, patientId, pati
         ));
       } else {
         dispatch(sync.acceptPatientInvitationSuccess(clinicId, inviteId, patientId));
+        dispatch(RTKQueryApi.util.invalidateTags([clinicTagTypes.CURRENT_CLINIC]));
 
         // Re-fetch patient count to ensure we have the latest from the server
         dispatch(fetchClinicPatientCounts(api, clinicId));
@@ -2614,6 +2627,7 @@ export function acceptClinicianInvite(api, userId, inviteId) {
         ));
       } else {
         dispatch(sync.acceptClinicianInviteSuccess(inviteId));
+        dispatch(RTKQueryApi.util.invalidateTags([clinicTagTypes.CURRENT_CLINIC]));
       }
     });
   };
@@ -2718,6 +2732,7 @@ export function triggerInitialClinicMigration(api, clinicId) {
         ));
       } else {
         dispatch(sync.triggerInitialClinicMigrationSuccess(clinicId));
+        dispatch(RTKQueryApi.util.invalidateTags([clinicTagTypes.CURRENT_CLINIC]));
       }
     });
   };
@@ -2902,6 +2917,7 @@ export function createClinicSite(api, clinicId, site) {
         ));
       } else {
         dispatch(sync.createClinicSiteSuccess(clinicId, newSite));
+        dispatch(RTKQueryApi.util.invalidateTags([clinicTagTypes.CURRENT_CLINIC]));
       }
     });
   };
@@ -2934,6 +2950,7 @@ export function createClinicPatientTag(api, clinicId, patientTag) {
         ));
       } else {
         dispatch(sync.createClinicPatientTagSuccess(clinicId, patientTag));
+        dispatch(RTKQueryApi.util.invalidateTags([clinicTagTypes.CURRENT_CLINIC]));
       }
     });
   };
@@ -2965,6 +2982,7 @@ export function updateClinicSite(api, clinicId, siteId, site) {
         ));
       } else {
         dispatch(sync.updateClinicSiteSuccess(clinicId, site));
+        dispatch(RTKQueryApi.util.invalidateTags([clinicTagTypes.CURRENT_CLINIC]));
       }
     });
   };
@@ -2996,6 +3014,7 @@ export function updateClinicPatientTag(api, clinicId, patientTagId, patientTag) 
         ));
       } else {
         dispatch(sync.updateClinicPatientTagSuccess(clinicId, patientTag));
+        dispatch(RTKQueryApi.util.invalidateTags([clinicTagTypes.CURRENT_CLINIC]));
       }
     });
   };
@@ -3019,6 +3038,7 @@ export function deleteClinicSite(api, clinicId, siteId) {
         ));
       } else {
         dispatch(sync.deleteClinicSiteSuccess(clinicId, siteId));
+        dispatch(RTKQueryApi.util.invalidateTags([clinicTagTypes.CURRENT_CLINIC]));
       }
     });
   };
@@ -3042,6 +3062,7 @@ export function deleteClinicPatientTag(api, clinicId, patientTagId) {
         ));
       } else {
         dispatch(sync.deleteClinicPatientTagSuccess(clinicId, patientTagId));
+        dispatch(RTKQueryApi.util.invalidateTags([clinicTagTypes.CURRENT_CLINIC]));
       }
     });
   };
