@@ -119,8 +119,8 @@ import FilterBySummaryPeriod from './clinicPatientsFilters/FilterBySummaryPeriod
 import FilterByTimeInRange from './clinicPatientsFilters/FilterByTimeInRange';
 import FilterByCGMUse from './clinicPatientsFilters/FilterByCGMUse';
 import ClinicPatientsPrintModal from './ClinicPatientsPrintModal';
-import useIsClinicAdmin from './useIsClinicAdmin';
 import AppliedFiltersList, { getPatientQueryState } from './clinicPatientsFilters/AppliedFiltersList';
+import useClinic from './useClinic';
 
 const { Loader } = vizComponents;
 const { formatBgValue } = vizUtils.bg;
@@ -536,7 +536,7 @@ export const ClinicPatients = (props) => {
   const mrnSettings = useMemo(() => clinic?.mrnSettings ?? {}, [clinic?.mrnSettings]);
   const timePrefs = useSelector((state) => state.blip.timePrefs);
   const rpmReportPatients = useSelector(state => state.blip.rpmReportPatients);
-  const isClinicAdmin = useIsClinicAdmin();
+  const { isClinicAdmin } = useClinic();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showDeleteClinicSiteDialog, setShowDeleteClinicSiteDialog] = useState(false);
   const [showUpdateClinicSiteDialog, setShowUpdateClinicSiteDialog] = useState(false);

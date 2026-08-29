@@ -6,8 +6,8 @@ import { trackMetric } from '../../../core/metricUtils';
 import noop from 'lodash/noop';
 
 import SiteFilterDropdown from '../components/SiteFilterDropdown';
-import useIsClinicAdmin from '../useIsClinicAdmin';
 import useClinicMetricsPageName from '../useClinicMetricsPageName';
+import useClinic from '../useClinic';
 
 const FilterBySites = ({
   api,
@@ -17,7 +17,7 @@ const FilterBySites = ({
 }) => {
   const dispatch = useDispatch();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
-  const isClinicAdmin = useIsClinicAdmin();
+  const { isClinicAdmin } = useClinic();
   const pageName = useClinicMetricsPageName();
 
   const handleChange = (clinicSites) => {

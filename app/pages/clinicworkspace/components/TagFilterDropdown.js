@@ -29,7 +29,6 @@ import Checkbox from '../../../components/elements/Checkbox';
 import { borders } from '../../../themes/baseTheme';
 
 import { SPECIAL_FILTER_STATES } from '../useClinicPatientsFilters';
-import useIsClinicAdmin from '../useIsClinicAdmin';
 import useClinicMetricsPageName from '../useClinicMetricsPageName';
 import TextInput from '../../../components/elements/TextInput';
 import styled from '@emotion/styled';
@@ -51,7 +50,7 @@ const EditTagsAction = ({ onClick = noop }) => {
 };
 
 const NoClinicTags = () => {
-  const isClinicAdmin = useIsClinicAdmin();
+  const { isClinicAdmin } = useClinic();
   const { t } = useTranslation();
 
   return (
@@ -80,7 +79,7 @@ const DropdownContent = ({
   onClickEditTags,
 }) => {
   const { t } = useTranslation();
-  const isClinicAdmin = useIsClinicAdmin();
+  const { isClinicAdmin } = useClinic();
   const pageName = useClinicMetricsPageName();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
   const { clinic } = useClinic();

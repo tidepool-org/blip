@@ -29,7 +29,6 @@ import Checkbox from '../../../components/elements/Checkbox';
 import { borders } from '../../../themes/baseTheme';
 
 import { SPECIAL_FILTER_STATES } from '../useClinicPatientsFilters';
-import useIsClinicAdmin from '../useIsClinicAdmin';
 import useClinicMetricsPageName from '../useClinicMetricsPageName';
 import TextInput from '../../../components/elements/TextInput';
 import styled from '@emotion/styled';
@@ -51,7 +50,7 @@ const EditSitesAction = ({ onClick = noop }) => {
 };
 
 const NoClinicSites = () => {
-  const isClinicAdmin = useIsClinicAdmin();
+  const { isClinicAdmin } = useClinic();
   const { t } = useTranslation();
 
   return (
@@ -77,7 +76,7 @@ const DropdownContent = ({
   onClickEditSites,
 }) => {
   const { t } = useTranslation();
-  const isClinicAdmin = useIsClinicAdmin();
+  const { isClinicAdmin } = useClinic();
   const pageName = useClinicMetricsPageName();
   const { clinic } = useClinic();
 
