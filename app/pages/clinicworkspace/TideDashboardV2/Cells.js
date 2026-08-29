@@ -59,8 +59,7 @@ export const AvgGlucoseCell = ({ patient }) => {
 
 export const TimeInRangePercentBarChartCell = ({ patient }) => {
   const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
-  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
-  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+  const clinic = useClinic();
   const clinicBgUnits = clinic?.preferredBgUnits || MGDL_UNITS;
 
   const { showExtremeHigh } = useFlags();
