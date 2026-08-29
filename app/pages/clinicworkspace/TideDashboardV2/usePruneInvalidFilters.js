@@ -8,7 +8,7 @@ import useClinic from '../useClinic';
 
 const usePruneInvalidFilters = () => {
   const dispatch = useDispatch();
-  const clinic = useClinic();
+  const { clinic } = useClinic();
   const { patientTags, clinicSites } = useSelector(state => state.blip.tideDashboardFilters);
 
   const clinicId = clinic?.id;
