@@ -49,8 +49,7 @@ const EditSitesAction = ({ onClick = noop }) => {
   );
 };
 
-const NoClinicSites = () => {
-  const { isClinicAdmin } = useClinic();
+const NoClinicSites = (isClinicAdmin) => {
   const { t } = useTranslation();
 
   return (
@@ -70,15 +69,15 @@ const NoClinicSites = () => {
 };
 
 const DropdownContent = ({
+  clinic,
+  isClinicAdmin,
   onClose,
   onChange,
   clinicSites,
   onClickEditSites,
 }) => {
   const { t } = useTranslation();
-  const { isClinicAdmin } = useClinic();
   const pageName = useClinicMetricsPageName();
-  const { clinic } = useClinic();
 
   const [pendingSites, setPendingSites] = useState(clinicSites);
   const [searchText, setSearchText] = useState('');
@@ -237,6 +236,7 @@ const SiteFilterDropdown = ({
 }) => {
   const { t } = useTranslation();
   const pageName = useClinicMetricsPageName();
+  const { clinic, isClinicAdmin } = useClinic();
 
   const clinicSitesPopupFilterState = usePopupState({
     variant: 'popover',
@@ -298,6 +298,8 @@ const SiteFilterDropdown = ({
       >
         { clinicSitesPopupFilterState.isOpen &&
           <DropdownContent
+            clinic={clinic}
+            isClinicAdmin={isClinicAdmin}
             clinicSites={clinicSites}
             onClose={handleCloseDropdown}
             onChange={onChange}

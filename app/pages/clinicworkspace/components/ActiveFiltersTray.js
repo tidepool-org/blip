@@ -67,9 +67,8 @@ const usePrimaryChips = (activeFilters, requiredFilters) => {
   ].filter(Boolean);
 };
 
-const useTagChips = (patientTags = []) => {
+const useTagChips = (clinic, patientTags = []) => {
   const { t } = useTranslation();
-  const { clinic } = useClinic();
 
   if (isEqual(patientTags, SPECIAL_FILTER_STATES.ZERO_TAGS)) {
     return [{
@@ -89,9 +88,8 @@ const useTagChips = (patientTags = []) => {
     .toSorted((a, b) => utils.compareLabels(a.label, b.label));
 };
 
-const useSiteChips = (clinicSites = []) => {
+const useSiteChips = (clinic, clinicSites = []) => {
   const { t } = useTranslation();
-  const { clinic } = useClinic();
 
   if (isEqual(clinicSites, SPECIAL_FILTER_STATES.ZERO_SITES)) {
     return [{
@@ -195,9 +193,10 @@ const ActiveFiltersTray = ({
   rightContent = null,
 }) => {
   const { t } = useTranslation();
+  const clinic = useClinic();
   const primaryChips = usePrimaryChips(filters, requiredFilters);
-  const tagChips = useTagChips(filters.patientTags);
-  const siteChips = useSiteChips(filters.clinicSites);
+  const tagChips = useTagChips(clinic, filters.patientTags);
+  const siteChips = useSiteChips(clinic, filters.clinicSites);
 
   const handleRemoveChip = chip => onRemoveFilter(chip.type, chip.value);
 

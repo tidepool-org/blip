@@ -82,6 +82,7 @@ const getTimeInRangeFilterOptions = (showExtremeHigh = false, t) => [
  .reverse();
 
 const DropdownContent = ({
+  clinic,
   onClose = noop,
   onChange = noop,
   timeInRange = [],
@@ -89,7 +90,6 @@ const DropdownContent = ({
   const { t } = useTranslation();
   const pageName = useClinicMetricsPageName();
   const { showExtremeHigh } = useFlags();
-  const { clinic } = useClinic();
   const clinicBgUnits = clinic?.preferredBgUnits || MGDL_UNITS;
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
 
@@ -249,6 +249,7 @@ const TimeInRangeFilterDropdown = ({
 }) => {
   const { t } = useTranslation();
   const pageName = useClinicMetricsPageName();
+  const { clinic } = useClinic();
 
   const timeInRangePopupFilterState = usePopupState({
     variant: 'popover',
@@ -310,6 +311,7 @@ const TimeInRangeFilterDropdown = ({
       >
         { timeInRangePopupFilterState.isOpen &&
           <DropdownContent
+            clinic={clinic}
             timeInRange={timeInRange}
             onClose={handleCloseDropdown}
             onChange={onChange}

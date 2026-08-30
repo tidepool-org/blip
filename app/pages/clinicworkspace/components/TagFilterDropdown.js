@@ -49,8 +49,7 @@ const EditTagsAction = ({ onClick = noop }) => {
   );
 };
 
-const NoClinicTags = () => {
-  const { isClinicAdmin } = useClinic();
+const NoClinicTags = (isClinicAdmin) => {
   const { t } = useTranslation();
 
   return (
@@ -73,16 +72,16 @@ const NoClinicTags = () => {
 };
 
 const DropdownContent = ({
+  clinic,
+  isClinicAdmin,
   onClose,
   onChange,
   patientTags,
   onClickEditTags,
 }) => {
   const { t } = useTranslation();
-  const { isClinicAdmin } = useClinic();
   const pageName = useClinicMetricsPageName();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
-  const { clinic } = useClinic();
 
   const [pendingTags, setPendingTags] = useState(patientTags);
   const [searchText, setSearchText] = useState('');
@@ -194,7 +193,7 @@ const DropdownContent = ({
         }
 
         { // If no tags exist, display a message
-          sortedTagFilterOptions.length <= 0 && <NoClinicTags />
+          sortedTagFilterOptions.length <= 0 && <NoClinicTags isClinicAdmin={isClinicAdmin} />
         }
       </Box>
 
@@ -241,6 +240,7 @@ const TagFilterDropdown = ({
 }) => {
   const { t } = useTranslation();
   const pageName = useClinicMetricsPageName();
+  const { clinic, isClinicAdmin } = useClinic();
 
   const patientTagsPopupFilterState = usePopupState({
     variant: 'popover',
@@ -302,6 +302,8 @@ const TagFilterDropdown = ({
       >
         { patientTagsPopupFilterState.isOpen &&
           <DropdownContent
+            clinic={clinic}
+            isClinicAdmin={isClinicAdmin}
             patientTags={patientTags}
             onClose={handleCloseDropdown}
             onChange={onChange}
