@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import DataConnectionsModal from '../../../components/datasources/DataConnectionsModal';
-import { closeModals } from './tideDashboardSlice';
+import DataConnectionsModal from '../../../../components/datasources/DataConnectionsModal';
+import { closeModals } from '../tideDashboardSlice';
 
 const DataConnectionsModalController = ({ patients }) => {
   const dispatch = useDispatch();
