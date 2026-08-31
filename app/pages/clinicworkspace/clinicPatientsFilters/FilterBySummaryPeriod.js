@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import noop from 'lodash/noop';
 
-import SummaryPeriodFilterDropdown from '../components/SummaryPeriodFilterDropdown';
+import SummaryPeriodFilterDropdown from '../components/filters/SummaryPeriodFilterDropdown';
 import { summaryPeriodOptions } from '../../../core/clinicUtils';
 
 const FilterBySummaryPeriod = ({
