@@ -1,11 +1,12 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { TagList } from '../../../components/elements/Tag';
-import useClinic from '../useClinic';
 
 const MAX_TAGS = 3;
 
 const TagListCell = ({ patient }) => {
-  const { clinic } = useClinic();
+  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const patientTags = clinic?.patientTags || [];
 
   const tagIds = patient?.tags || [];
