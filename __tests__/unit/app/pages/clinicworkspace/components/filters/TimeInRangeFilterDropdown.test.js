@@ -7,7 +7,7 @@ import { thunk } from 'redux-thunk';
 import { MemoryRouter } from 'react-router-dom';
 
 import { useFlags } from 'launchdarkly-react-client-sdk';
-import TimeInRangeFilterDropdown from '@app/pages/clinicworkspace/components/TimeInRangeFilterDropdown';
+import TimeInRangeFilterDropdown from '@app/pages/clinicworkspace/components/filters/TimeInRangeFilterDropdown';
 import { MMOLL_UNITS } from '@app/core/constants';
 import { trackMetric as mockTrackMetric } from '../../../../../app/core/metricUtils';
 
