@@ -1,11 +1,11 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setOffset } from './tideDashboardSlice';
-import { setLastDataFilter } from './tideDashboardFiltersSlice';
+import { setOffset } from '../tideDashboardSlice';
+import { setLastDataFilter } from '../tideDashboardFiltersSlice';
 
-import { lastDataFilterOptions } from '../../../core/clinicUtils';
+import { lastDataFilterOptions } from '../../../../core/clinicUtils';
 
-import DataRecencyFilterDropdown from '../components/DataRecencyFilterDropdown';
+import DataRecencyFilterDropdown from '../../components/DataRecencyFilterDropdown';
 
 const FilterByDataRecency = () => {
   const dispatch = useDispatch();

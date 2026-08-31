@@ -6,7 +6,7 @@ import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
 import { MemoryRouter } from 'react-router-dom';
 
-import FilterByDataRecency from '@app/pages/clinicworkspace/TideDashboardV2/FilterByDataRecency';
+import FilterByDataRecency from '@app/pages/clinicworkspace/TideDashboardV2/filters/FilterByDataRecency';
 
 const mockStore = configureStore([thunk]);
 
