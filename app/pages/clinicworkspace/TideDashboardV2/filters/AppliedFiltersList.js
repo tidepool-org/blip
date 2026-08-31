@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import without from 'lodash/without';
 import noop from 'lodash/noop';
 
-import ActiveFiltersTray from '../../components/ActiveFiltersTray';
+import ActiveFiltersTray from '../../components/filters/ActiveFiltersTray';
 import ClearFilterButtons, { PATIENT_QUERY_STATE } from '../../components/ClearFilterButtons';
 import { Box } from 'theme-ui';
 import { setClinicSitesFilter, setPatientTagsFilter } from '../tideDashboardFiltersSlice';

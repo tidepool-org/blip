@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import SummaryPeriodFilterDropdown from '../../components/SummaryPeriodFilterDropdown';
+import SummaryPeriodFilterDropdown from '../../components/filters/SummaryPeriodFilterDropdown';
 import { setSummaryPeriodFilter } from '../tideDashboardFiltersSlice';
 import { setOffset } from '../tideDashboardSlice';
 
