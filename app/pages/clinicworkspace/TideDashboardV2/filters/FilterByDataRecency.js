@@ -5,7 +5,7 @@ import { setLastDataFilter } from '../tideDashboardFiltersSlice';
 
 import { lastDataFilterOptions } from '../../../../core/clinicUtils';
 
-import DataRecencyFilterDropdown from '../../components/DataRecencyFilterDropdown';
+import DataRecencyFilterDropdown from '../../components/filters/DataRecencyFilterDropdown';
 
 const FilterByDataRecency = () => {
   const dispatch = useDispatch();
