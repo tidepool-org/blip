@@ -6,7 +6,7 @@ import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
 import { MemoryRouter } from 'react-router-dom';
 
-import FilterByTags from '@app/pages/clinicworkspace/TideDashboardV2/FilterByTags';
+import FilterByTags from '@app/pages/clinicworkspace/TideDashboardV2/filters/FilterByTags';
 
 const mockStore = configureStore([thunk]);
 
