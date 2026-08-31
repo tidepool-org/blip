@@ -19,8 +19,6 @@ import { clinicUIDetails } from '../../core/clinicUtils.js';
 import { getDismissedAltRangeBannerKey, isRangeWithNonStandardTarget } from '../../providers/AppBanner/appBannerHelpers.js';
 import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils.js';
 import { getTideDashboardFiltersKey, loadLocalState } from '../store/localStorage';
-import { RTKQueryApi } from '../api/baseApi';
-import { tagTypes as clinicTagTypes } from '../../pages/clinicworkspace/clinicApi';
 
 // Exported as a mutable reference to allow location to be swapped in tests
 export const _win = { location: window.location };
@@ -2904,7 +2902,6 @@ export function createClinicSite(api, clinicId, site) {
         ));
       } else {
         dispatch(sync.createClinicSiteSuccess(clinicId, newSite));
-        dispatch(RTKQueryApi.util.invalidateTags([clinicTagTypes.CURRENT_CLINIC]));
       }
     });
   };
@@ -2937,7 +2934,6 @@ export function createClinicPatientTag(api, clinicId, patientTag) {
         ));
       } else {
         dispatch(sync.createClinicPatientTagSuccess(clinicId, patientTag));
-        dispatch(RTKQueryApi.util.invalidateTags([clinicTagTypes.CURRENT_CLINIC]));
       }
     });
   };
@@ -2969,7 +2965,6 @@ export function updateClinicSite(api, clinicId, siteId, site) {
         ));
       } else {
         dispatch(sync.updateClinicSiteSuccess(clinicId, site));
-        dispatch(RTKQueryApi.util.invalidateTags([clinicTagTypes.CURRENT_CLINIC]));
       }
     });
   };
@@ -3001,7 +2996,6 @@ export function updateClinicPatientTag(api, clinicId, patientTagId, patientTag) 
         ));
       } else {
         dispatch(sync.updateClinicPatientTagSuccess(clinicId, patientTag));
-        dispatch(RTKQueryApi.util.invalidateTags([clinicTagTypes.CURRENT_CLINIC]));
       }
     });
   };
@@ -3025,7 +3019,6 @@ export function deleteClinicSite(api, clinicId, siteId) {
         ));
       } else {
         dispatch(sync.deleteClinicSiteSuccess(clinicId, siteId));
-        dispatch(RTKQueryApi.util.invalidateTags([clinicTagTypes.CURRENT_CLINIC]));
       }
     });
   };
@@ -3049,7 +3042,6 @@ export function deleteClinicPatientTag(api, clinicId, patientTagId) {
         ));
       } else {
         dispatch(sync.deleteClinicPatientTagSuccess(clinicId, patientTagId));
-        dispatch(RTKQueryApi.util.invalidateTags([clinicTagTypes.CURRENT_CLINIC]));
       }
     });
   };
