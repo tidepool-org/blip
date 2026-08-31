@@ -4,11 +4,11 @@ import PropTypes from 'prop-types';
 import without from 'lodash/without';
 import noop from 'lodash/noop';
 
-import ActiveFiltersTray from '../components/ActiveFiltersTray';
-import ClearFilterButtons, { PATIENT_QUERY_STATE } from '../components/ClearFilterButtons';
+import ActiveFiltersTray from '../../components/ActiveFiltersTray';
+import ClearFilterButtons, { PATIENT_QUERY_STATE } from '../../components/ClearFilterButtons';
 import { Box } from 'theme-ui';
-import { setClinicSitesFilter, setPatientTagsFilter } from './tideDashboardFiltersSlice';
-import { setOffset } from './tideDashboardSlice';
+import { setClinicSitesFilter, setPatientTagsFilter } from '../tideDashboardFiltersSlice';
+import { setOffset } from '../tideDashboardSlice';
 
 export const getPatientQueryState = (patientTags, clinicSites) => {
   const hasFiltersActive = clinicSites?.length > 0 || patientTags?.length > 0;

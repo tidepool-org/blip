@@ -6,7 +6,7 @@ import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
 import { MemoryRouter } from 'react-router-dom';
 
-import FilterBySummaryPeriod from '@app/pages/clinicworkspace/TideDashboardV2/FilterBySummaryPeriod';
+import FilterBySummaryPeriod from '@app/pages/clinicworkspace/TideDashboardV2/filters/FilterBySummaryPeriod';
 
 const mockStore = configureStore([thunk]);
 
