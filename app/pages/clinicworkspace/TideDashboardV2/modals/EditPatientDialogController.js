@@ -1,9 +1,9 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { closeModals } from './tideDashboardSlice';
-import { RTKQueryApi } from '../../../redux/api/baseApi';
-import EditPatientDialog from '../../../components/navpatientheader/EditPatientDialog';
-import { tagTypes } from './tideDashboardApi';
+import { closeModals } from '../tideDashboardSlice';
+import { RTKQueryApi } from '../../../../redux/api/baseApi';
+import EditPatientDialog from '../../../../components/navpatientheader/EditPatientDialog';
+import { tagTypes } from '../tideDashboardApi';
 
 const { TIDE_DASHBOARD_PATIENTS } = tagTypes;
 
