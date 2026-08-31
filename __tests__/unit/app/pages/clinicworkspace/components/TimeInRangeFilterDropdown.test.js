@@ -10,12 +10,8 @@ import { useFlags } from 'launchdarkly-react-client-sdk';
 import TimeInRangeFilterDropdown from '@app/pages/clinicworkspace/components/TimeInRangeFilterDropdown';
 import { MMOLL_UNITS } from '@app/core/constants';
 import { trackMetric as mockTrackMetric } from '../../../../../app/core/metricUtils';
-import useClinicMetricsPageName from '@app/pages/clinicworkspace/useClinicMetricsPageName';
 
 jest.mock('launchdarkly-react-client-sdk');
-jest.mock('@app/pages/clinicworkspace/useClinicMetricsPageName');
-
-useClinicMetricsPageName.mockReturnValue('Population Health');
 
 const mockStore = configureStore([thunk]);
 
