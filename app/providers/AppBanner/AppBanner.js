@@ -142,7 +142,7 @@ const AppBanner = ({ trackMetric }) => {
 
     isFunction(banner.action?.handler) && banner.action.handler();
 
-    if (!banner.action?.working?.key) {
+    if (!banner.action?.working?.key && banner.action?.trackInteraction !== false) {
       completeClickAction();
     }
   }
