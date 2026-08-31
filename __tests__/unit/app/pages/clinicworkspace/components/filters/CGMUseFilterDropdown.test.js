@@ -6,7 +6,7 @@ import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
 import { MemoryRouter } from 'react-router-dom';
 
-import CGMUseFilterDropdown from '@app/pages/clinicworkspace/components/CGMUseFilterDropdown';
+import CGMUseFilterDropdown from '@app/pages/clinicworkspace/components/filters/CGMUseFilterDropdown';
 import { trackMetric as mockTrackMetric } from '../../../../../app/core/metricUtils';
 
 const mockStore = configureStore([thunk]);

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { trackMetric } from '../../../core/metricUtils';
+import { trackMetric } from '../../../../core/metricUtils';
 import { colors as vizColors } from '@tidepool/viz';
 
 import { Box, Grid } from 'theme-ui';
@@ -12,11 +12,11 @@ import noop from 'lodash/noop';
 
 import { bindPopover, bindTrigger, usePopupState } from 'material-ui-popup-state/hooks';
 
-import Button from '../../../components/elements/Button';
-import Popover from '../../../components/elements/Popover';
-import RadioGroup from '../../../components/elements/RadioGroup';
-import useClinicMetricsPageName from '../useClinicMetricsPageName';
-import { summaryPeriodOptions } from '../../../core/clinicUtils';
+import Button from '../../../../components/elements/Button';
+import Popover from '../../../../components/elements/Popover';
+import RadioGroup from '../../../../components/elements/RadioGroup';
+import useClinicMetricsPageName from '../../useClinicMetricsPageName';
+import { summaryPeriodOptions } from '../../../../core/clinicUtils';
 
 const getSummaryPeriodSelectLabel = (t, activeSummaryPeriod) => {
   switch (activeSummaryPeriod) {
