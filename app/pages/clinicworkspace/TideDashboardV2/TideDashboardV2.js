@@ -19,8 +19,8 @@ import usePruneInvalidFilters from './usePruneInvalidFilters';
 import useTableColumns from './useTableColumns';
 import EmptyContentNode from './EmptyContentNode';
 
-import EditPatientDialogController from './EditPatientDialogController';
-import DataConnectionsModalController from './DataConnectionsModalController';
+import EditPatientDialogController from './modals/EditPatientDialogController';
+import DataConnectionsModalController from './modals/DataConnectionsModalController';
 
 const Gap = () => <Box sx={{ marginLeft: 'auto' }}></Box>;
 
