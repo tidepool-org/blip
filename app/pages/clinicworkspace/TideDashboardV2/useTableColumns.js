@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { CATEGORY } from './tideDashboardSlice';
 import { MGDL_UNITS } from '../../../core/constants';
@@ -26,7 +27,6 @@ import {
 } from './Cells';
 
 import TagListCell from '../components/TagListCell';
-import useClinic from '../useClinic';
 
 const buildColumnTypes = (t, category, thresholds) => ({
   patientDetails: {
@@ -207,7 +207,8 @@ const getFormattedThresholds = (clinicBgUnits) => {
 
 const useTableColumns = (category) => {
   const { t } = useTranslation();
-  const { clinic } = useClinic();
+  const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const clinicBgUnits = clinic?.preferredBgUnits || MGDL_UNITS;
 
   const columns = useMemo(() => {
