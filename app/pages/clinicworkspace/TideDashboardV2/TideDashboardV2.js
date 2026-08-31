@@ -22,8 +22,8 @@ import { Redirect, useLocation } from 'react-router-dom';
 import useAuthorizationGate from './useAuthorizationGate';
 import * as ErrorMessages from '../../../redux/constants/errorMessages';
 
-import EditPatientDialogController from './EditPatientDialogController';
-import DataConnectionsModalController from './DataConnectionsModalController';
+import EditPatientDialogController from './modals/EditPatientDialogController';
+import DataConnectionsModalController from './modals/DataConnectionsModalController';
 
 const Gap = () => <Box sx={{ marginLeft: 'auto' }}></Box>;
 
