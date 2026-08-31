@@ -1,9 +1,9 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import SummaryPeriodFilterDropdown from '../components/SummaryPeriodFilterDropdown';
-import { setSummaryPeriodFilter } from './tideDashboardFiltersSlice';
-import { setOffset } from './tideDashboardSlice';
+import SummaryPeriodFilterDropdown from '../../components/SummaryPeriodFilterDropdown';
+import { setSummaryPeriodFilter } from '../tideDashboardFiltersSlice';
+import { setOffset } from '../tideDashboardSlice';
 
 const FilterBySummaryPeriod = () => {
   const dispatch = useDispatch();
