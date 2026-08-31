@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import noop from 'lodash/noop';
 
-import CGMUseFilterDropdown from '../components/CGMUseFilterDropdown';
+import CGMUseFilterDropdown from '../components/filters/CGMUseFilterDropdown';
 
 const FilterByCGMUse = ({
   activeFilters = {},

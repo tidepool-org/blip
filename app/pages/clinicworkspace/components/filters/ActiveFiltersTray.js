@@ -7,16 +7,16 @@ import { colors as vizColors } from '@tidepool/viz';
 
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import LocationOnOutlinedIcon from '@material-ui/icons/LocationOnOutlined';
-import TagIcon from '../../../core/icons/tagIcon.svg';
+import TagIcon from '../../../../core/icons/tagIcon.svg';
 
 import find from 'lodash/find';
 import isEqual from 'lodash/isEqual';
 import noop from 'lodash/noop';
 
-import Icon from '../../../components/elements/Icon';
-import utils from '../../../core/utils';
-import { transitions } from '../../../themes/baseTheme';
-import { SPECIAL_FILTER_STATES } from '../useClinicPatientsFilters';
+import Icon from '../../../../components/elements/Icon';
+import utils from '../../../../core/utils';
+import { transitions } from '../../../../themes/baseTheme';
+import { SPECIAL_FILTER_STATES } from '../../useClinicPatientsFilters';
 
 const usePrimaryChips = (activeFilters, requiredFilters) => {
   const { t } = useTranslation();
