@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import without from 'lodash/without';
 
-import ActiveFiltersTray from '../components/ActiveFiltersTray';
+import ActiveFiltersTray from '../components/filters/ActiveFiltersTray';
 import ClearFilterButtons, { PATIENT_QUERY_STATE } from '../components/ClearFilterButtons';
 import { defaultFilterState } from '../useClinicPatientsFilters';
 import { Box } from 'theme-ui';

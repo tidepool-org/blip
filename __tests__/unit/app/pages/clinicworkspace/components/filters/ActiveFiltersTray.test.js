@@ -8,7 +8,7 @@ import { ThemeProvider } from 'theme-ui';
 import '@app/core/language';
 
 import theme from '@app/themes/baseTheme';
-import ActiveFiltersTray from '@app/pages/clinicworkspace/components/ActiveFiltersTray';
+import ActiveFiltersTray from '@app/pages/clinicworkspace/components/filters/ActiveFiltersTray';
 import { defaultFilterState } from '@app/pages/clinicworkspace/useClinicPatientsFilters';
 
 const mockStore = configureStore([thunk]);
