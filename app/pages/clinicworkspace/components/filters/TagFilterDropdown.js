@@ -29,10 +29,10 @@ import Checkbox from '../../../../components/elements/Checkbox';
 import { borders } from '../../../../themes/baseTheme';
 
 import { SPECIAL_FILTER_STATES } from '../../useClinicPatientsFilters';
+import useIsClinicAdmin from '../../useIsClinicAdmin';
 import useClinicMetricsPageName from '../../useClinicMetricsPageName';
 import TextInput from '../../../../components/elements/TextInput';
 import styled from '@emotion/styled';
-import useClinic from '../useClinic';
 
 const EditTagsAction = ({ onClick = noop }) => {
   const { t } = useTranslation();
@@ -50,7 +50,7 @@ const EditTagsAction = ({ onClick = noop }) => {
 };
 
 const NoClinicTags = () => {
-  const { isClinicAdmin } = useClinic();
+  const isClinicAdmin = useIsClinicAdmin();
   const { t } = useTranslation();
 
   return (
@@ -79,10 +79,10 @@ const DropdownContent = ({
   onClickEditTags,
 }) => {
   const { t } = useTranslation();
-  const { isClinicAdmin } = useClinic();
+  const isClinicAdmin = useIsClinicAdmin();
   const pageName = useClinicMetricsPageName();
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
-  const { clinic } = useClinic();
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
 
   const [pendingTags, setPendingTags] = useState(patientTags);
   const [searchText, setSearchText] = useState('');
@@ -248,6 +248,7 @@ const TagFilterDropdown = ({
   });
 
   const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
 
   const handleCloseDropdown = () => patientTagsPopupFilterState.close();
 
