@@ -68,7 +68,8 @@ const usePrimaryChips = (activeFilters, requiredFilters) => {
 
 const useTagChips = (patientTags = []) => {
   const { t } = useTranslation();
-  const { clinic } = useClinic();
+  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
 
   if (isEqual(patientTags, SPECIAL_FILTER_STATES.ZERO_TAGS)) {
     return [{
@@ -89,7 +90,8 @@ const useTagChips = (patientTags = []) => {
 
 const useSiteChips = (clinicSites = []) => {
   const { t } = useTranslation();
-  const { clinic } = useClinic();
+  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
 
   if (isEqual(clinicSites, SPECIAL_FILTER_STATES.ZERO_SITES)) {
     return [{

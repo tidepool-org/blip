@@ -4,11 +4,11 @@ import { setPatientTagsFilter, setClinicSitesFilter } from './tideDashboardFilte
 import { SPECIAL_FILTER_STATES } from '../useClinicPatientsFilters';
 import keyBy from 'lodash/keyBy';
 import isEqual from 'lodash/isEqual';
-import useClinic from '../useClinic';
 
 const usePruneInvalidFilters = () => {
   const dispatch = useDispatch();
-  const { clinic } = useClinic();
+  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const { patientTags, clinicSites } = useSelector(state => state.blip.tideDashboardFilters);
 
   const clinicId = clinic?.id;
