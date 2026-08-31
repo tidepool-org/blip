@@ -1,8 +1,8 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setOffset } from './tideDashboardSlice';
-import { setClinicSitesFilter } from './tideDashboardFiltersSlice';
-import SiteFilterDropdown from '../components/SiteFilterDropdown';
+import { setOffset } from '../tideDashboardSlice';
+import { setClinicSitesFilter } from '../tideDashboardFiltersSlice';
+import SiteFilterDropdown from '../../components/SiteFilterDropdown';
 
 const FilterBySites = () => {
   const dispatch = useDispatch();

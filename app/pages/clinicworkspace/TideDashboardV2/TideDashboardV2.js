@@ -4,10 +4,12 @@ import { useSelector } from 'react-redux';
 import Table from '../../../components/elements/Table';
 import { Flex, Text, Box } from 'theme-ui';
 
-import FilterByCategory from './FilterByCategory';
-import FilterByTags from './FilterByTags';
-import FilterByDataRecency from './FilterByDataRecency';
-import FilterBySummaryPeriod from './FilterBySummaryPeriod';
+import FilterByCategory from './filters/FilterByCategory';
+import FilterByTags from './filters/FilterByTags';
+import FilterBySites from './filters/FilterBySites';
+import FilterByDataRecency from './filters/FilterByDataRecency';
+import FilterBySummaryPeriod from './filters/FilterBySummaryPeriod';
+import AppliedFiltersList from './filters/AppliedFiltersList';
 
 import TableCategoryHeader from './TableCategoryHeader';
 import PaginationController from './PaginationController';
@@ -16,8 +18,6 @@ import useTideDashboardPatients from './useTideDashboardPatients';
 import usePruneInvalidFilters from './usePruneInvalidFilters';
 import useTableColumns from './useTableColumns';
 import EmptyContentNode from './EmptyContentNode';
-import FilterBySites from './FilterBySites';
-import AppliedFiltersList from './AppliedFiltersList';
 
 const Gap = () => <Box sx={{ marginLeft: 'auto' }}></Box>;
 
