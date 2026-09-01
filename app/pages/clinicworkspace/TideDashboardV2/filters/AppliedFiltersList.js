@@ -23,12 +23,9 @@ const AppliedFiltersList = ({ patientCount = 0 }) => {
 
   const { lastData, clinicSites, patientTags } = useSelector(state => state.blip.tideDashboardFilters);
 
-  const activeFilters = {
-    lastDataType: 'cgm',
-    lastData,
-    clinicSites,
-    patientTags,
-  };
+  // Last Data is a required filter to be applied
+  const requiredFilters = { lastData: true };
+  const activeFilters = { lastDataType: 'cgm', lastData, clinicSites, patientTags };
 
   const handleResetFilters = () => {
     dispatch(setPatientTagsFilter([]));
@@ -59,7 +56,7 @@ const AppliedFiltersList = ({ patientCount = 0 }) => {
       patientCount={patientCount}
       hasSearchActive={false} // No patient search in TIDE Dashboard
       filters={activeFilters}
-      requiredFilters={{ lastData: true }}
+      requiredFilters={requiredFilters}
       onRemoveFilter={handleRemoveFilter}
       rightContent={
         <Box sx={{ fontSize: 0 }}>
