@@ -9,7 +9,7 @@ const CATEGORIES = ['meetingTargets'];
 
 const useTideReportNoDataPatients = () => {
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
-  const { summaryPeriod, lastData, patientTags } = useSelector(state => state.blip.tideDashboardFilters);
+  const { summaryPeriod, lastData, patientTags, clinicSites } = useSelector(state => state.blip.tideDashboardFilters);
 
   // `lastDataFrom` is derived identically to V1's `lastDataCutoff`.
   const [lastDataCutoff] = useDerivedDataRecencyEndpoints();
@@ -20,6 +20,7 @@ const useTideReportNoDataPatients = () => {
       period: summaryPeriod,
       lastData,
       tags: patientTags,
+      sites: clinicSites,
       lastDataCutoff,
       categories: CATEGORIES,
     },

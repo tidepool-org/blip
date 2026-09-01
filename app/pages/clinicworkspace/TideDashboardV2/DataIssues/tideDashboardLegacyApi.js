@@ -9,7 +9,7 @@ import { tagTypes } from '../tideDashboardApi';
 
 const { TIDE_DASHBOARD_PATIENTS } = tagTypes;
 
-export const buildGetTideReportParams = (period, lastData, tags = [], lastDataCutoff, categories = []) => {
+export const buildGetTideReportParams = (period, lastData, lastDataCutoff, tags = [], sites = [], categories = []) => {
   const formattedTags = tags.length > 0 ? tags.join(',') : undefined;
   const formattedCategories = categories.length > 0 ? categories.join(',') : undefined;
 
@@ -25,21 +25,21 @@ export const buildGetTideReportParams = (period, lastData, tags = [], lastDataCu
 const tideDashboardLegacyApi = RTKQueryApi.injectEndpoints({
   endpoints: (builder) => ({
     getTideReport: builder.query({
-      query: ({ clinicId, period, lastData, tags, lastDataCutoff, categories }) => {
-        const params = buildGetTideReportParams(period, lastData, tags, lastDataCutoff, categories);
+      query: ({ clinicId, period, lastData, tags, sites, lastDataCutoff, categories }) => {
+        const params = buildGetTideReportParams(period, lastData, lastDataCutoff, tags, sites, categories);
 
         return {
           url: `/clinics/${clinicId}/tide_report`,
           params,
         };
       },
-      // The tide_report response groups patients by category. The "Data Issues"
-      // table only renders the `noData` group. We flatten each entry so that the
-      // row === patient (matching how the V2 table cells consume rows), keeping
-      // the top-level `lastData` needed to derive days since last data.
       transformResponse: (response) => {
         const noData = response?.results?.noData || [];
 
+        // The tide_report response groups patients by category. The "Data Issues"
+        // table only renders the `noData` group. We flatten each entry so that the
+        // row === patient (matching how the V2 table cells consume rows), keeping
+        // the top-level `lastData` needed to derive days since last data.
         return {
           patients: noData.map(({ patient, lastData }) => ({ ...patient, lastData })),
         };
