@@ -166,7 +166,7 @@ describe('AppBanner handleClickAction', () => {
     expect(handleBannerInteractionStub.mock.calls.length).to.equal(0);
   });
 
-  it('should NOT complete the click interaction if action.trackInteraction is false', () => {
+  it('should NOT record an interaction if action.trackInteraction is false', () => {
     const handlerStub = sinon.stub();
     createWrapper({
       action: {

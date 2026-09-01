@@ -35,19 +35,23 @@ const AppBanner = ({ trackMetric }) => {
   const [bannerActionClicked, setBannerActionClicked] = useState(false);
 
   const completeClickAction = useCallback(() => {
-    persistBannerInteraction && dispatch(async.handleBannerInteraction(api, loggedInUserId, banner?.interactionId, CLICKED_BANNER_ACTION));
-    showModal && setShowModal(false);
+    if (banner?.action?.trackInteraction !== false) {
+      persistBannerInteraction && dispatch(async.handleBannerInteraction(api, loggedInUserId, banner?.interactionId, CLICKED_BANNER_ACTION));
 
-    setBannerInteractedForPatient({
-      [banner?.interactionId]: {
-        ...(bannerInteractedForPatient[banner?.interactionId] || {}),
-        [currentPatientInViewId]: true,
-      },
-    });
+      setBannerInteractedForPatient({
+        [banner?.interactionId]: {
+          ...(bannerInteractedForPatient[banner?.interactionId] || {}),
+          [currentPatientInViewId]: true,
+        },
+      });
+    }
+
+    showModal && setShowModal(false);
 
     // Reset the banner action clicked state to false whenever the click action is completed
     setBannerActionClicked(false);
   }, [
+    banner?.action?.trackInteraction,
     banner?.interactionId,
     bannerInteractedForPatient,
     currentPatientInViewId,
@@ -142,7 +146,7 @@ const AppBanner = ({ trackMetric }) => {
 
     isFunction(banner.action?.handler) && banner.action.handler();
 
-    if (!banner.action?.working?.key && banner.action?.trackInteraction !== false) {
+    if (!banner.action?.working?.key) {
       completeClickAction();
     }
   }
