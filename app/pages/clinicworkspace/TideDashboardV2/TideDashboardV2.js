@@ -92,7 +92,7 @@ const TideDashboardV2 = ({ api }) => {
 
       <PaginationController total={total} />
 
-      <PatientDrawerController api={api} />
+      <PatientDrawerController api={api} patients={patients} />
       <EditPatientDialogController api={api} patients={patients} />
       <DataConnectionsModalController patients={patients}/>
     </>
