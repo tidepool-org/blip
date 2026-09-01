@@ -1,0 +1,15 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["75U4X84TEG.org.tidepool.blipnotes"],
+        "components": [
+          {
+            "/": "/mobile-app",
+            "comment": "Return to the Tidepool Mobile app after completing signup on the web"
+          }
+        ]
+      }
+    ]
+  }
+}

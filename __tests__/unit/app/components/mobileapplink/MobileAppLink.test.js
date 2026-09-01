@@ -13,7 +13,9 @@ import MobileAppLink, {
   ANDROID_APP_URL,
   APP_STORE_URL,
   IOS_APP_URL,
+  IOS_UNIVERSAL_LINK_URL,
   PLAY_STORE_URL,
+  getIosAppUrl,
 } from '@app/components/mobileapplink/MobileAppLink';
 import utils from '@app/core/utils';
 
@@ -67,6 +69,46 @@ describe('MobileAppLink', () => {
       await userEvent.click(screen.getByRole('link', { name: OPEN_APP_LABEL }));
 
       expect(trackMetric).toHaveBeenCalledWith('Clicked Open Tidepool Mobile App', { platform: 'ios' });
+    });
+  });
+
+  describe('getIosAppUrl', () => {
+    it('should default to the custom scheme', () => {
+      expect(getIosAppUrl('')).toBe(IOS_APP_URL);
+    });
+
+    it('should return the universal link when overridden via the query string', () => {
+      expect(getIosAppUrl('?iosLink=universal')).toBe(IOS_UNIVERSAL_LINK_URL);
+    });
+
+    it('should return the custom scheme when explicitly overridden', () => {
+      expect(getIosAppUrl('?iosLink=scheme')).toBe(IOS_APP_URL);
+    });
+
+    it('should ignore an unrecognised override', () => {
+      expect(getIosAppUrl('?iosLink=nonsense')).toBe(IOS_APP_URL);
+    });
+
+    it('should point at the current origin when testing the same-host case', () => {
+      expect(getIosAppUrl('?iosLink=universal&linkHost=same', 'https://qa1.development.tidepool.org'))
+        .toBe('https://qa1.development.tidepool.org/mobile-app');
+    });
+
+    it('should ignore linkHost when the scheme strategy is selected', () => {
+      expect(getIosAppUrl('?iosLink=scheme&linkHost=same', 'https://qa1.development.tidepool.org'))
+        .toBe(IOS_APP_URL);
+    });
+
+    // The value renders into an href, so an attacker-supplied host would repoint the button off-site.
+    it('should not honour an arbitrary host supplied in the query string', () => {
+      expect(getIosAppUrl('?iosLink=universal&linkHost=evil.example.com', 'https://qa1.development.tidepool.org'))
+        .toBe(IOS_UNIVERSAL_LINK_URL);
+    });
+
+    // Safari opens same-host universal links in the browser rather than the app, so pointing this
+    // at the host serving the page would silently defeat the whole mechanism.
+    it('should point the universal link at a dedicated host', () => {
+      expect(IOS_UNIVERSAL_LINK_URL).toMatch(/^https:\/\/[^/]+\/mobile-app$/);
     });
   });
 

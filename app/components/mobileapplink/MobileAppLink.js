@@ -13,11 +13,44 @@ import GooglePlayBadge from './images/google-play-badge.png';
 export const APP_STORE_URL = 'https://apps.apple.com/us/app/tidepool-mobile/id1026395200';
 export const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=io.tidepool.urchin';
 
-// A custom scheme rather than a universal/app link, deliberately: universal links don't fire when
-// tapped from a page on the domain they point at, nor from most email-client in-app browsers, which
-// is exactly where post-verification traffic lands. The link only foregrounds the app — it carries
-// no parameters and the app does no routing on it.
+// The link only foregrounds the app — it carries no parameters and the app does no routing on it.
 export const IOS_APP_URL = 'org.tidepool.mobile://signup-complete';
+
+export const IOS_UNIVERSAL_LINK_PATH = '/mobile-app';
+
+// PROTOTYPE. Host serving /.well-known/apple-app-site-association. iOS is understood to suppress
+// universal links that point at the current page's own host, opening them in Safari rather than the
+// app, which is why this defaults to a host other than the one serving the page. That claim is the
+// premise of the whole design, so ?linkHost=same exists to test it directly.
+export const IOS_UNIVERSAL_LINK_HOST = 'qa2.development.tidepool.org';
+export const IOS_UNIVERSAL_LINK_URL = `https://${IOS_UNIVERSAL_LINK_HOST}${IOS_UNIVERSAL_LINK_PATH}`;
+
+// Which link form iOS gets. 'scheme' is the shipped behaviour; 'universal' is under evaluation as a
+// way to avoid Safari's "address is invalid" alert when the app isn't installed. Override per-load
+// with ?iosLink=universal|scheme so both can be compared on a single build.
+export const IOS_LINK_STRATEGY = 'scheme';
+
+/**
+ * Build the iOS link for the current page load.
+ *
+ * ?iosLink=universal|scheme  selects the link form
+ * ?linkHost=same             points the universal link at the current origin, to verify that iOS
+ *                            really does suppress same-host universal links
+ *
+ * linkHost only accepts 'same' rather than an arbitrary host: this renders into an href, and
+ * honouring a caller-supplied domain would let a crafted URL repoint the button off-site.
+ */
+export const getIosAppUrl = (search = '', origin = '') => {
+  const params = new URLSearchParams(search);
+  const override = params.get('iosLink');
+  const strategy = ['scheme', 'universal'].includes(override) ? override : IOS_LINK_STRATEGY;
+
+  if (strategy !== 'universal') return IOS_APP_URL;
+
+  return params.get('linkHost') === 'same' && origin
+    ? `${origin}${IOS_UNIVERSAL_LINK_PATH}`
+    : IOS_UNIVERSAL_LINK_URL;
+};
 
 // Chrome's intent:// syntax, so that a missing app falls through to the Play Store listing instead
 // of failing silently. iOS has no equivalent fallback — Safari shows an "address is invalid" alert —
@@ -32,13 +65,13 @@ export const ANDROID_APP_URL = [
 
 const platformConfig = {
   ios: {
-    appUrl: IOS_APP_URL,
+    getAppUrl: getIosAppUrl,
     storeUrl: APP_STORE_URL,
     badgeImage: AppStoreBadge,
     badgeMetric: 'Clicked App Store Badge',
   },
   android: {
-    appUrl: ANDROID_APP_URL,
+    getAppUrl: () => ANDROID_APP_URL,
     storeUrl: PLAY_STORE_URL,
     badgeImage: GooglePlayBadge,
     badgeMetric: 'Clicked Play Store Badge',
@@ -56,7 +89,8 @@ export const MobileAppLink = (props) => {
 
   if (!platform) return null;
 
-  const { appUrl, storeUrl, badgeImage, badgeMetric } = platformConfig[platform];
+  const { getAppUrl, storeUrl, badgeImage, badgeMetric } = platformConfig[platform];
+  const appUrl = getAppUrl(window.location.search, window.location.origin);
 
   return (
     <Flex
