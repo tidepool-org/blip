@@ -12,11 +12,11 @@ import moment from 'moment';
 import { setupStore } from '@tests/utils/setupStore';
 import blipReducer from '@app/redux/reducers';
 import { ToastProvider } from '@app/providers/ToastProvider';
-import PatientLastReviewed from '@app/pages/clinicworkspace/components/ReviewPatientToggle/PatientLastReviewed';
+import PatientLastReviewed from '@app/pages/clinicworkspace/components/ReviewPatientToggle/PatientLastReviewedGenericAdapter';
 
 const TEST_TIMEOUT_MS = 30_000;
 
-describe('Generic PatientLastReviewed Adapter', () => {
+describe('PatientLastReviewed Generic Adapter', () => {
   const today = moment().toISOString();
   const yesterday = moment().subtract(1, 'day').toISOString();
 
