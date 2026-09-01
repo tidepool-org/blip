@@ -8,7 +8,6 @@ import { colors as vizColors } from '@tidepool/viz';
 import Button from '../../../components/elements/Button';
 import PatientLastReviewed from '../../../clinicworkspace/components/ReviewPatientToggle/PatientLastReviewedGenericAdapter';
 import CGMClipboardButton from './CGMClipboardButton';
-import { useGetPatientDrawerPatientQuery } from '../patientDrawerApi';
 import { map, keys } from 'lodash';
 import copyIcon from '../../../core/icons/copyIcon.svg';
 import viewIcon from '../../../core/icons/viewIcon.svg';
@@ -132,7 +131,7 @@ const MenuBar = ({ patient, onClose, onSelectTab, selectedTab }) => {
 }
 
 MenuBar.propTypes = {
-  patientId: PropTypes.string.isRequired,
+  patient: PropTypes.object.isRequired,
   onClose: PropTypes.func.isRequired,
   onSelectTab: PropTypes.func.isRequired,
   selectedTab: PropTypes.number.isRequired,
