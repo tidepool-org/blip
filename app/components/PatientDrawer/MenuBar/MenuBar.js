@@ -6,7 +6,7 @@ import { push } from 'connected-react-router';
 import { Flex, Box, Text } from 'theme-ui';
 import { colors as vizColors } from '@tidepool/viz';
 import Button from '../../../components/elements/Button';
-import PatientLastReviewed from '../../../clinicworkspace/components/ReviewPatientToggle/PatientLastReviewedGenericAdapter';
+import PatientLastReviewed from './PatientLastReviewed';
 import CGMClipboardButton from './CGMClipboardButton';
 import { map, keys } from 'lodash';
 import copyIcon from '../../../core/icons/copyIcon.svg';
