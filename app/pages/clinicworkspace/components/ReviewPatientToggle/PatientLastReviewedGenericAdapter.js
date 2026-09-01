@@ -16,7 +16,7 @@ import { useToasts } from '../../../../providers/ToastProvider';
 // This is a generic adapter for the ReviewPatientToggle. Create a different adapter
 // if you want to use a different method to call APIs or to set state.
 
-const PatientLastReviewed = ({
+const PatientLastReviewedGenericAdapter = ({
   patient,
   recentlyReviewedThresholdDate = moment().startOf('isoWeek').toISOString(),
   onReview = noop,
@@ -62,4 +62,4 @@ const PatientLastReviewed = ({
   );
 };
 
-export default PatientLastReviewed;
+export default PatientLastReviewedGenericAdapter;
