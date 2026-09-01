@@ -74,7 +74,7 @@ const DEFAULT_AGP_PERIOD_IN_DAYS = 14;
 
 const useAgpCGM = (
   api,
-  patientId,
+  clinicPatient,
   agpPeriodInDays = DEFAULT_AGP_PERIOD_IN_DAYS,
 ) => {
   const dispatch = useDispatch();
@@ -84,7 +84,7 @@ const useAgpCGM = (
   const data   = useSelector(state => state.blip.data);
   const pdf    = useSelector(state => state.blip.pdf);
   const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
-  const clinicPatient = clinic?.patients?.[patientId];
+  const patientId = clinicPatient?.id;
 
   const lastCompletedStep = inferLastCompletedStep(requestId, patientId, data, pdf);
 
