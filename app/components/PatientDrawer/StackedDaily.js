@@ -1,5 +1,5 @@
 import React, { useRef, useMemo } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import { useTranslation } from 'react-i18next';
 import { Flex, Box } from 'theme-ui';
@@ -27,6 +27,7 @@ const CHART_HEIGHT = 200;
 
 const StackedDaily = ({ patient, agpCGMData }) => {
   const { t } = useTranslation();
+  const { id: patientId } = patient || {};
   const { status } = agpCGMData;
   const chartRefs = useRef([]);
   const containerRef = useRef(null);
