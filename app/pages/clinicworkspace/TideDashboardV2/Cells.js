@@ -4,7 +4,7 @@ import { useTranslation, withTranslation } from 'react-i18next';
 import { Box, Text } from 'theme-ui';
 import { MGDL_UNITS } from '../../../core/constants';
 
-import PatientLastReviewed from './PatientLastReviewed';
+import PatientLastReviewedGenericAdapter from '../components/ReviewPatientToggle/PatientLastReviewedGenericAdapter';
 import BgSummaryCell from '../../../components/clinic/BgSummaryCell';
 import DeltaBar from '../../../components/elements/DeltaBar';
 import utils from '../../../core/utils';
@@ -158,7 +158,7 @@ export const MoreMenuHeader = () => {
 export const MoreMenuCell = () => <></>; // TEMPORARY
 
 export const PatientLastReviewedCell = ({ patient }) => {
-  return <PatientLastReviewed patient={patient} />;
+  return <PatientLastReviewedGenericAdapter patient={patient} />;
 };
 
 export default {
