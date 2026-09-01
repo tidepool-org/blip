@@ -115,7 +115,7 @@ const PatientDrawer = ({ patientId, onClose, api, period }) => {
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
 
-  const { data: patient } = useGetPatientDrawerPatientQuery(
+  const { currentData: patient } = useGetPatientDrawerPatientQuery(
     { clinicId: selectedClinicId, patientId },
     { skip: !selectedClinicId || !patientId }
   );
@@ -140,7 +140,7 @@ const PatientDrawer = ({ patientId, onClose, api, period }) => {
           flexDirection: 'column',
         }}
       >
-        {showContent && <DrawerContent patient={patient} onClose={onClose} api={api} period={period} />}
+        { showContent && <DrawerContent patient={patient} onClose={onClose} api={api} period={period} /> }
       </Box>
     </StyledDrawer>
   );
