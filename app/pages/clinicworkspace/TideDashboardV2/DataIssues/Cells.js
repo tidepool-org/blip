@@ -13,7 +13,7 @@ import { colors, fontWeights } from '../../../../themes/baseTheme';
 import ErrorRoundedIcon from '@material-ui/icons/ErrorRounded';
 import EditIcon from '@material-ui/icons/EditRounded';
 import DataInIcon from '../../../../core/icons/DataInIcon.svg';
-import PatientLastReviewed from '../../components/ReviewPatientToggle/PatientLastReviewed';
+import PatientLastReviewedGenericAdapter from '../../components/ReviewPatientToggle/PatientLastReviewedGenericAdapter';
 
 export const DexcomConnectionStatusCell = ({ patient, onOpenDataConnectionsModal }) => {
   const { t } = useTranslation();
@@ -105,7 +105,7 @@ export const DaysSinceLastDataCell = ({ patient }) => {
 
 export const PatientLastReviewedCell = ({ patient }) => {
   return <Box>
-    <PatientLastReviewed patient={patient} />
+    <PatientLastReviewedGenericAdapter patient={patient} />
   </Box>;
 };
 
