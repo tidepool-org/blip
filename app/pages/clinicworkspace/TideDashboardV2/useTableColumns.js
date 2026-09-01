@@ -27,7 +27,7 @@ import {
 
 import TagListCell from '../components/TagListCell';
 
-const getColumnTypes = (t, category, thresholds) => ({
+const buildColumnTypes = (t, category, thresholds) => ({
   patientDetails: {
     title: t('Patient Details'),
     field: 'fullName',
@@ -123,7 +123,7 @@ const getColumnTypes = (t, category, thresholds) => ({
   }, // More
 });
 
-const buildColumnSets = (columnTypes) => ({
+const getColumnSet = (columnTypes) => ({
   default: [
     columnTypes.patientDetails,
     columnTypes.flag,
@@ -212,19 +212,19 @@ const useTableColumns = (category) => {
 
   const columns = useMemo(() => {
     const thresholds = getFormattedThresholds(clinicBgUnits);
-    const columnTypes = getColumnTypes(t, category, thresholds);
-    const columnSets = buildColumnSets(columnTypes);
+    const columnTypes = buildColumnTypes(t, category, thresholds);
+    const columnSet = getColumnSet(columnTypes);
 
     switch(category) {
-      case CATEGORY.DEFAULT: return columnSets.default;
-      case CATEGORY.VERY_LOW: return columnSets.low;
-      case CATEGORY.ANY_LOW: return columnSets.low;
-      case CATEGORY.DROP_IN_TIR: return columnSets.dropInTIR;
-      case CATEGORY.ANY_HIGH: return columnSets.high;
-      case CATEGORY.VERY_HIGH: return columnSets.high;
-      case CATEGORY.LOW_CGM_WEAR: return columnSets.lowCgmWear;
-      case CATEGORY.TARGET: return columnSets.target;
-      default: return columnSets.default;
+      case CATEGORY.DEFAULT: return columnSet.default;
+      case CATEGORY.VERY_LOW: return columnSet.low;
+      case CATEGORY.ANY_LOW: return columnSet.low;
+      case CATEGORY.DROP_IN_TIR: return columnSet.dropInTIR;
+      case CATEGORY.ANY_HIGH: return columnSet.high;
+      case CATEGORY.VERY_HIGH: return columnSet.high;
+      case CATEGORY.LOW_CGM_WEAR: return columnSet.lowCgmWear;
+      case CATEGORY.TARGET: return columnSet.target;
+      default: return columnSet.default;
     }
   }, [category, clinicBgUnits]);
 
