@@ -6,7 +6,7 @@ import { colors as vizColors  } from '@tidepool/viz';
 import { MGDL_UNITS } from '../../../core/constants';
 import { colors } from '../../../themes/baseTheme';
 
-import PatientLastReviewed from '../components/ReviewPatientToggle/PatientLastReviewed';
+import PatientLastReviewed from './PatientLastReviewed';
 import BgSummaryCell from '../../../components/clinic/BgSummaryCell';
 import DeltaBar from '../../../components/elements/DeltaBar';
 import utils from '../../../core/utils';
