@@ -66,11 +66,6 @@ jest.mock('../../../app/core/hooks', () => {
   };
 });
 
-jest.mock('../../../app/components/PatientDrawer/patientDrawerApi', () => ({
-  ...jest.requireActual('../../../app/components/PatientDrawer/patientDrawerApi'),
-  useGetPatientDrawerPatientQuery: jest.fn(() => ({ currentData: undefined })),
-}));
-
 jest.mock('../../../app/components/clinic/PatientForm/SelectTags', () => {
   const React = require('react');
   return jest.fn((props) => (
