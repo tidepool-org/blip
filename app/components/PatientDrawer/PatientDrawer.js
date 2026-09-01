@@ -13,8 +13,6 @@ import MenuBar, { OVERVIEW_TAB_INDEX, STACKED_DAILY_TAB_INDEX } from './MenuBar'
 import useAgpCGM from './useAgpCGM';
 import { shadows } from '../../themes/baseTheme';
 import { useScrollToTop } from '../../core/hooks';
-import { useGetPatientDrawerPatientQuery } from './patientDrawerApi';
-import { useSelector } from 'react-redux';
 
 const StyledCloseButton = styled(Icon)`
   position: absolute;
@@ -109,18 +107,9 @@ const DrawerContent = ({ patient, onClose, api, period }) => {
   )
 }
 
-const PatientDrawer = ({ patientId, onClose, api, period }) => {
+const PatientDrawer = ({ patient, onClose, api, period }) => {
   const classes = useStyles();
-  const isOpen = !!patientId && isValidAgpPeriod(period);
-
-  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
-
-  const { currentData: patient } = useGetPatientDrawerPatientQuery(
-    { clinicId: selectedClinicId, patientId },
-    { skip: !selectedClinicId || !patientId }
-  );
-
-  const showContent = isOpen && !!patient;
+  const isOpen = !!patient && isValidAgpPeriod(period);
 
   return (
     <StyledDrawer
@@ -140,7 +129,7 @@ const PatientDrawer = ({ patientId, onClose, api, period }) => {
           flexDirection: 'column',
         }}
       >
-        { showContent && <DrawerContent patient={patient} onClose={onClose} api={api} period={period} /> }
+        { isOpen && <DrawerContent patient={patient} onClose={onClose} api={api} period={period} /> }
       </Box>
     </StyledDrawer>
   );
