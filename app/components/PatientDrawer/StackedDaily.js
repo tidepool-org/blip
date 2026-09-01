@@ -25,15 +25,13 @@ import BgLegend from '../../components/chart/BgLegend';
 
 const CHART_HEIGHT = 200;
 
-const StackedDaily = ({ patientId, agpCGMData }) => {
+const StackedDaily = ({ patient, agpCGMData }) => {
   const { t } = useTranslation();
   const { status } = agpCGMData;
   const chartRefs = useRef([]);
   const containerRef = useRef(null);
   const [hoveredSMBG, setHoveredSMBG] = React.useState(false);
   const [hoveredCBG, setHoveredCBG] = React.useState(false);
-  const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
-  const patient = clinic?.patients?.[patientId];
   const dispatch = useDispatch();
   const bgPrefs = agpCGMData?.agpCGM?.query?.bgPrefs;
   const bgClasses = bgPrefs?.bgClasses;
