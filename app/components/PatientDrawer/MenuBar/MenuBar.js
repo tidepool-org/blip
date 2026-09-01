@@ -30,17 +30,14 @@ const tabs = {
   },
 };
 
-const MenuBar = ({ patientId, onClose, onSelectTab, selectedTab }) => {
+const MenuBar = ({ patient, onClose, onSelectTab, selectedTab }) => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
 
   const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
   const pdf = useSelector(state => state.blip.pdf); // IMPORTANT: Data taken from Redux PDF slice
 
-  const { data: patient } = useGetPatientDrawerPatientQuery(
-    { clinicId: selectedClinicId, patientId },
-    { skip: !selectedClinicId || !patientId }
-  );
+  const { id: patientId, fullName, birthDate } = patient || {};
 
   const handleViewData = () => {
     dispatch(push(`/patients/${patientId}/data/trends?dashboard=tide&drawerTab=${selectedTab}`));
@@ -57,8 +54,6 @@ const MenuBar = ({ patientId, onClose, onSelectTab, selectedTab }) => {
     trackMetric(tabs[tabIndex]?.metric, { clinicId: selectedClinicId });
     onSelectTab(tabIndex);
   }
-
-  const { fullName, birthDate } = patient || {};
 
   return (
     <Box px={4} pt={4} sx={{ position: 'sticky', top: 0, bg: 'white', zIndex: 1 }}>
