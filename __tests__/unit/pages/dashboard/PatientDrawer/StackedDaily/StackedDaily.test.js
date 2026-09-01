@@ -77,7 +77,7 @@ jest.mock('@app/components/chart/BgLegend', () => {
 const mockStore = configureStore([thunk]);
 
 const defaultProps = {
-  patientId: 'patient123',
+  patient: { id: 'patient123', fullName: 'John Doe' },
   agpCGMData: {
     status: STATUS.DATA_PROCESSED,
     agpCGM: {
@@ -107,18 +107,7 @@ const defaultProps = {
 };
 
 const defaultState = {
-  blip: {
-    selectedClinicId: 'clinic123',
-    clinics: {
-      clinic123: {
-        patients: {
-          patient123: {
-            fullName: 'John Doe',
-          },
-        },
-      },
-    },
-  },
+  blip: {},
 };
 
 const renderComponent = (props = {}, storeState = {}) => {
