@@ -5,35 +5,21 @@
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import _ from 'lodash';
-import configureStore from 'redux-mock-store';
-import { Provider } from 'react-redux';
-import { thunk } from 'redux-thunk';
 
 import Overview from '@app/components/PatientDrawer/Overview';
 
 import { STATUS } from '@app/components/PatientDrawer/useAgpCGM';
 
-const mockStore = configureStore([thunk]);
-
 describe('PatientDrawer/Overview', () => {
-  const store = mockStore({
-    blip: {
-      selectedClinicId: '5678-efgh',
-      clinics: { '5678-efgh': { patients: { '1234-abcd': { fullName: 'Naoya Inoue' } } } },
-    },
-  });
-
   const props = {
-    api: { foo: 'bar' },
-    patientId: '1234-abcd',
+    patient: { id: '1234-abcd', fullName: 'Naoya Inoue' },
   };
 
   describe('When patient has no data in the platform', () => {
     it('shows no data fields and an appropriate message to the user', () => {
       const agpCGMData = { status: STATUS.NO_PATIENT_DATA };
 
-      render(<Provider store={store}> <Overview {...props} agpCGMData={agpCGMData} /> </Provider>);
+      render(<Overview {...props} agpCGMData={agpCGMData} />);
 
       expect(screen.getByText('Naoya Inoue does not have any data yet.')).toBeInTheDocument();
       expect(screen.queryByText('Time in Ranges')).not.toBeInTheDocument();
@@ -46,7 +32,7 @@ describe('PatientDrawer/Overview', () => {
     it('shows a message about data being insufficient', () => {
       const agpCGMData = { status: STATUS.INSUFFICIENT_DATA };
 
-      render(<Provider store={store}> <Overview {...props} agpCGMData={agpCGMData} /> </Provider>);
+      render(<Overview {...props} agpCGMData={agpCGMData} />);
 
       expect(screen.getByText('Insufficient data to generate AGP Report.')).toBeInTheDocument();
       expect(screen.queryByText('Time in Ranges')).not.toBeInTheDocument();
@@ -59,7 +45,7 @@ describe('PatientDrawer/Overview', () => {
     it('shows a loader', () => {
       const agpCGMData = { status: STATUS.PATIENT_LOADED }; // any intermediate state prior to 'SVGS_GENERATED'
 
-      render(<Provider store={store}> <Overview {...props} agpCGMData={agpCGMData} /> </Provider>);
+      render(<Overview {...props} agpCGMData={agpCGMData} />);
 
       const loader = document.getElementsByClassName('loader')?.[0]; //eslint-disable-line
       expect(loader).toBeTruthy();
@@ -90,7 +76,7 @@ describe('PatientDrawer/Overview', () => {
           },
         };
 
-        render(<Provider store={store}> <Overview {...props} agpCGMData={agpCGMData} /> </Provider>);
+        render(<Overview {...props} agpCGMData={agpCGMData} />);
 
         expect(screen.getByText('Time in Ranges')).toBeInTheDocument();
         expect(screen.getByText('Ambulatory Glucose Profile (AGP)')).toBeInTheDocument();
@@ -127,7 +113,7 @@ describe('PatientDrawer/Overview', () => {
         },
       };
 
-      render(<Provider store={store}> <Overview {...props} agpCGMData={agpCGMData} /> </Provider>);
+      render(<Overview {...props} agpCGMData={agpCGMData} />);
 
         expect(screen.getByText('Insufficient CGM data to generate AGP graph')).toBeInTheDocument();
 
