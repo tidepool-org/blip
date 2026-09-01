@@ -1,9 +1,7 @@
 import { RTKQueryApi } from '../../../../redux/api/baseApi';
 import { tagTypes as tideDashboardTagTypes } from '../../TideDashboardV2/tideDashboardApi';
-import { tagTypes as patientDrawerTagTypes } from '../../../../components/PatientDrawer/patientDrawerApi';
 
 const { TIDE_DASHBOARD_PATIENTS } = tideDashboardTagTypes;
-const { PATIENT_DRAWER_PATIENT } = patientDrawerTagTypes;
 
 const reviewPatientApi = RTKQueryApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -13,7 +11,7 @@ const reviewPatientApi = RTKQueryApi.injectEndpoints({
         method: 'PUT',
       }),
       extraOptions: { maxRetries: 0 },
-      invalidatesTags: [TIDE_DASHBOARD_PATIENTS, PATIENT_DRAWER_PATIENT],
+      invalidatesTags: [TIDE_DASHBOARD_PATIENTS],
     }),
     undoPatientReviewed: builder.mutation({
       query: ({ clinicId, patientId }) => ({
@@ -21,7 +19,7 @@ const reviewPatientApi = RTKQueryApi.injectEndpoints({
         method: 'DELETE',
       }),
       extraOptions: { maxRetries: 0 },
-      invalidatesTags: [TIDE_DASHBOARD_PATIENTS, PATIENT_DRAWER_PATIENT],
+      invalidatesTags: [TIDE_DASHBOARD_PATIENTS],
     }),
   }),
 });
