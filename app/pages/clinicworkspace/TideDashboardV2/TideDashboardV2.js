@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import Table from '../../../components/elements/Table';
 import { Flex} from 'theme-ui';
@@ -12,6 +12,8 @@ import useTideDashboardPatients from './useTideDashboardPatients';
 import useTableColumns from './useTableColumns';
 import EmptyContentNode from './EmptyContentNode';
 
+const tableContainerProps = { sx: { containerType: 'inline-size' } };
+
 const TideDashboardV2 = () => {
   const category = useSelector(state => state.blip.tideDashboard.category);
 
@@ -22,6 +24,7 @@ const TideDashboardV2 = () => {
   const resolvedCategory = data?.category || category;
 
   const tableColumns = useTableColumns(resolvedCategory);
+  const emptyContentNode = useMemo(() => <EmptyContentNode />, []);
 
   if (!data) return null;
 
@@ -42,8 +45,8 @@ const TideDashboardV2 = () => {
         label="tideDashboardPatientsTable"
         columns={tableColumns}
         data={patients}
-        emptyContentNode={<EmptyContentNode />}
-        containerProps={{ sx: { containerType: 'inline-size' } }}
+        emptyContentNode={emptyContentNode}
+        containerProps={tableContainerProps}
       />
 
       <PaginationController total={total} />
