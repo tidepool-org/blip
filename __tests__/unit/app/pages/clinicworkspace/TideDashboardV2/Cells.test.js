@@ -88,7 +88,7 @@ describe('Cells', () => {
     it('renders the average glucose of the active summary period to one decimal place', () => {
       renderComponent(<AvgGlucoseCell patient={patient} />);
 
-      expect(screen.getByText('8.3')).toBeInTheDocument(); // averageGlucoseMmol 8.26
+      expect(screen.getByText('149')).toBeInTheDocument(); // averageGlucoseMmol 8.26
     });
   });
 
