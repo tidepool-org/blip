@@ -14,6 +14,7 @@ import isUndefined from 'lodash/isUndefined';
 
 
 import { tideDashboardExclusionQuery } from './tideDashboardApi';
+import { useFlags } from 'launchdarkly-react-client-sdk';
 
 export const COMPACT = '@container (max-width: 1200px)';
 
@@ -44,10 +45,16 @@ export const AvgGlucoseHeader = withTranslation()(({ t }) => (
   </>
 ));
 
-export const AvgGlucoseCell = ({ patient, units }) => { // TODO: Fix for units
+export const AvgGlucoseCell = ({ patient }) => {
   const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
+  const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+  const clinicBgUnits = clinic?.preferredBgUnits || MGDL_UNITS;
+
   const rawValue = patient?.summary?.cgmStats?.periods?.[summaryPeriod]?.averageGlucoseMmol;
-  const value = utils.formatDecimal(rawValue, 1);
+  const value = clinicBgUnits === MGDL_UNITS
+    ? utils.translateBg(rawValue, MGDL_UNITS)
+    : utils.formatDecimal(rawValue, 1); // MMOLL_UNITS
 
   return <NumericTemplateCell value={value} />;
 };
@@ -58,7 +65,7 @@ export const TimeInRangePercentBarChartCell = ({ patient }) => {
   const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
   const clinicBgUnits = clinic?.preferredBgUnits || MGDL_UNITS;
 
-  // TODO: need to add showExtremeHigh
+  const { showExtremeHigh } = useFlags();
 
   return <BgSummaryCell
     id={patient?.id}
@@ -67,6 +74,7 @@ export const TimeInRangePercentBarChartCell = ({ patient }) => {
     activeSummaryPeriod={summaryPeriod}
     glycemicRanges={patient?.glycemicRanges}
     clinicBgUnits={clinicBgUnits}
+    showExtremeHigh={showExtremeHigh || false}
   />;
 };
 
