@@ -3,12 +3,14 @@ import { useSelector } from 'react-redux';
 import { useLocation, useHistory } from 'react-router-dom';
 import PatientDrawer from '../../../components/PatientDrawer';
 
-const PatientDrawerController = ({ api }) => {
+const PatientDrawerController = ({ api, patients }) => {
   const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
   const { search, pathname } = useLocation();
   const history = useHistory();
 
   const drawerPatientId = new URLSearchParams(search)?.get('drawerPatientId') || null;
+
+  const patient = patients.find(patient => patient.id === drawerPatientId);
 
   const handleClose = () => {
     const params = new URLSearchParams(search);
@@ -20,7 +22,7 @@ const PatientDrawerController = ({ api }) => {
   return (
     <PatientDrawer
       api={api}
-      patientId={drawerPatientId}
+      patient={patient}
       onClose={handleClose}
       period={summaryPeriod}
     />
