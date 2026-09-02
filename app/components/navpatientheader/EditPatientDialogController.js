@@ -29,7 +29,7 @@ const EditPatientDialogController = ({
   // Captured at submit time: whether this edit needs the chart data reprocessed.
   const shouldClearDataRef = useRef(false);
 
-  const onEditSuccess = () => {
+  const handleEditSuccess = () => {
     // updatingClinicPatient is global working state, so this fires for any clinic-patient update while
     // the header is mounted. Only react to updates this dialog drove; a foreign update (e.g. adding a
     // data source) would otherwise clear the data worker cache and strand the data view on the loader.
@@ -48,14 +48,14 @@ const EditPatientDialogController = ({
     }
   };
 
-  const onEditFailure = () => {
+  const handleEditFailure = () => {
     setToast({
       message: get(notification, 'message'),
       variant: 'danger',
     });
   };
 
-  const handleEditPatientConfirm = (formContext) => {
+  const handleEditConfirm = (formContext) => {
     // Clear the data worker (forcing a reprocess) only when Target Range (glycemicRanges, the only
     // data-affecting field here) changed AND there is chart data to reprocess. Compare against the
     // patient's saved range, not the form's initialValues (frozen at mount, blind to prior saves);
@@ -74,9 +74,9 @@ const EditPatientDialogController = ({
       clinicPatient={clinicPatient}
       isOpen={isOpen}
       onClose={onClose}
-      onEditConfirm={handleEditPatientConfirm}
-      onEditSuccess={onEditSuccess}
-      onEditFailure={onEditFailure}
+      onEditConfirm={handleEditConfirm}
+      onEditSuccess={handleEditSuccess}
+      onEditFailure={handleEditFailure}
     />
   );
 };
