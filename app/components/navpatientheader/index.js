@@ -9,7 +9,7 @@ import DemographicInfo from './DemographicInfo';
 import PatientMenuOptions from './MenuOptions/Patient';
 import ClinicianMenuOptions from './MenuOptions/Clinician';
 import UploadLaunchDialog from '../../components/UploadLaunchDialog';
-import EditPatientDialog from './EditPatientDialog';
+import EditPatientDialogController from './EditPatientDialogController';
 
 import { isClinicianAccount } from '../../core/personutils';
 import { breakpoints } from '../../themes/baseTheme';
@@ -98,7 +98,7 @@ const NavPatientHeader = ({ api, trackMetric, patient, clinicPatient, user, perm
         <UploadLaunchDialog open onClose={() => setShowUploadDialog(false)} />
       }
 
-      <EditPatientDialog
+      <EditPatientDialogController
         api={api}
         clinicPatient={clinicPatient}
         isOpen={isEditPatientModalOpen}
