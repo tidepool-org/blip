@@ -2,7 +2,7 @@ import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { closeModals } from '../tideDashboardSlice';
 import { RTKQueryApi } from '../../../../redux/api/baseApi';
-import EditPatientDialog from '../../../../components/navpatientheader/EditPatientDialog';
+import EditPatientDialog from '../../../../components/clinic/EditPatientDialog';
 import { tagTypes } from '../tideDashboardApi';
 
 const { TIDE_DASHBOARD_PATIENTS } = tagTypes;
@@ -13,11 +13,10 @@ const EditPatientDialogController = ({ api, patients }) => {
 
   const clinicPatient = patients.find(patient => patient.id === editPatientDialog.patientId);
 
-  const handleCloseModal = () => {
-    dispatch(closeModals());
-  };
+  const handleCloseModal = () => dispatch(closeModals());
 
   const handleEditSuccess = () => {
+    dispatch(closeModals());
     dispatch(RTKQueryApi.util.invalidateTags([TIDE_DASHBOARD_PATIENTS]));
   };
 
