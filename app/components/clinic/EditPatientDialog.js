@@ -91,7 +91,7 @@ const EditPatientDialog = ({
       onClose={onClose}
     >
       <DialogTitle onClose={() => {
-        trackMetric('Clinic - Edit patient close', { clinicId: selectedClinicId });
+        trackMetric('Clinic - Edit patient close', { clinicId: selectedClinicId, pageName });
         onClose();
       }}>
         <MediumTitle id="dialog-title">{t('Edit Patient Details')}</MediumTitle>
