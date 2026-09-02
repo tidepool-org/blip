@@ -2,13 +2,14 @@ import React from 'react';
 import { createStore, applyMiddleware } from 'redux';
 import { thunk } from 'redux-thunk';
 import { Provider } from 'react-redux';
+import { MemoryRouter } from 'react-router-dom';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import configureStore from 'redux-mock-store';
 import { ThemeProvider } from 'theme-ui';
 import { utils as vizUtils } from '@tidepool/viz';
 import theme from '@app/themes/baseTheme';
-import EditPatientDialog from '@app/components/navpatientheader/EditPatientDialog';
+import EditPatientDialogController from '@app/components/navpatientheader/EditPatientDialogController';
 import { ToastProvider } from '@app/providers/ToastProvider';
 import { buildGlycemicRangesFromPreset } from '@app/core/glycemicRangesUtils';
 import { GLYCEMIC_RANGE_OPTS } from '@app/components/clinic/PatientForm/SelectGlycemicRanges';
@@ -34,6 +35,7 @@ const baseClinicPatient = {
 const initialState = {
   blip: {
     selectedClinicId: 'clinic123',
+    currentPatientInViewId: 'patient123',
     clinics: { clinic123: { id: 'clinic123', mrnSettings: { required: false } } },
     working: {
       fetchingClinicMRNsForPatientFormValidation: { inProgress: false, completed: false, notification: null },
@@ -43,27 +45,29 @@ const initialState = {
   },
 };
 
-const renderEditPatientDialog = (storeState = initialState, clinicPatient) => {
+const renderEditPatientDialogController = (storeState = initialState, clinicPatient) => {
   const reducer = (state = storeState, action) => state;
   const store = createStore(reducer, applyMiddleware(thunk));
 
   return render(
     <Provider store={store}>
-      <ThemeProvider theme={theme}>
-        <ToastProvider>
-          <EditPatientDialog
-            api={{ clinics: { getPatientFromClinic: jest.fn() } }}
-            clinicPatient={clinicPatient}
-            isOpen={true}
-            onClose={jest.fn()}
-          />
-        </ToastProvider>
-      </ThemeProvider>
+      <MemoryRouter initialEntries={['/patients/patient123/data']}>
+        <ThemeProvider theme={theme}>
+          <ToastProvider>
+            <EditPatientDialogController
+              api={{ clinics: { getPatientFromClinic: jest.fn() } }}
+              clinicPatient={clinicPatient}
+              isOpen={true}
+              onClose={jest.fn()}
+            />
+          </ToastProvider>
+        </ThemeProvider>
+      </MemoryRouter>
     </Provider>
   );
 };
 
-describe('EditPatientDialog', () => {
+describe('EditPatientDialogController', () => {
   it('locks identity fields and leaves the save button enabled when smartCorrelationId is present', () => {
     const smartOnFhirState = {
       blip: {
@@ -80,7 +84,7 @@ describe('EditPatientDialog', () => {
       },
     };
 
-    renderEditPatientDialog(smartOnFhirState, baseClinicPatient);
+    renderEditPatientDialogController(smartOnFhirState, baseClinicPatient);
 
     expect(screen.getByRole('textbox', { name: /Full Name/i })).toBeDisabled();
     expect(screen.getByRole('textbox', { name: /Birthdate/i })).toBeDisabled();
@@ -96,7 +100,7 @@ describe('EditPatientDialog', () => {
   });
 
   it('sets read-only fields enabled when smartCorrelationId is absent', () => {
-    renderEditPatientDialog(initialState, baseClinicPatient);
+    renderEditPatientDialogController(initialState, baseClinicPatient);
 
     expect(screen.getByRole('textbox', { name: /Full Name/i })).not.toBeDisabled();
     expect(screen.getByRole('textbox', { name: /Birthdate/i })).not.toBeDisabled();
@@ -128,11 +132,13 @@ describe('EditPatientDialog', () => {
 
       render(
         <Provider store={store}>
-          <ThemeProvider theme={theme}>
-            <ToastProvider>
-              <EditPatientDialog api={testApi} clinicPatient={baseClinicPatient} isOpen={isOpen} onClose={onClose} />
-            </ToastProvider>
-          </ThemeProvider>
+          <MemoryRouter initialEntries={['/patients/patient123/data']}>
+            <ThemeProvider theme={theme}>
+              <ToastProvider>
+                <EditPatientDialogController api={testApi} clinicPatient={baseClinicPatient} isOpen={isOpen} onClose={onClose} />
+              </ToastProvider>
+            </ThemeProvider>
+          </MemoryRouter>
         </Provider>
       );
 
@@ -161,7 +167,7 @@ describe('EditPatientDialog', () => {
     const IDLE_UPDATE = { inProgress: false, completed: null, notification: null };
     const COMPLETED_UPDATE = { inProgress: false, completed: true, notification: null };
 
-    const makeState = ({ savedRange, chartDataSize, updatingClinicPatient }) => ({
+    const makeState = ({ chartDataSize, updatingClinicPatient }) => ({
       blip: {
         ...initialState.blip,
         working: {
@@ -180,11 +186,13 @@ describe('EditPatientDialog', () => {
 
     const ui = (store, clinicPatient) => (
       <Provider store={store}>
-        <ThemeProvider theme={theme}>
-          <ToastProvider>
-            <EditPatientDialog api={api} clinicPatient={clinicPatient} isOpen={true} onClose={onClose} />
-          </ToastProvider>
-        </ThemeProvider>
+        <MemoryRouter initialEntries={['/patients/patient123/data']}>
+          <ThemeProvider theme={theme}>
+            <ToastProvider>
+              <EditPatientDialogController api={api} clinicPatient={clinicPatient} isOpen={true} onClose={onClose} />
+            </ToastProvider>
+          </ThemeProvider>
+        </MemoryRouter>
       </Provider>
     );
 
@@ -201,9 +209,7 @@ describe('EditPatientDialog', () => {
     const modifiedClinicPatient = { ...baseClinicPatient, glycemicRanges: RANGE_B };
 
     it('does NOT clear the data worker for a demographic-only edit, even when chart data exists', async () => {
-      const initialState = makeState({ chartDataSize: 100, updatingClinicPatient: IDLE_UPDATE });
-
-      const { rerender } = render(ui(mockStore(initialState), originalClinicPatient));
+      const { rerender } = render(ui(mockStore(makeState({ chartDataSize: 100, updatingClinicPatient: IDLE_UPDATE })), originalClinicPatient));
 
       await userEvent.type(screen.getByRole('textbox', { name: /Full Name/i }), ' Jr');
       await userEvent.click(screen.getByRole('button', { name: 'Save Changes' }));

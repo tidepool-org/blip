@@ -9,7 +9,7 @@ import DemographicInfo from './DemographicInfo';
 import PatientMenuOptions from './MenuOptions/Patient';
 import ClinicianMenuOptions from './MenuOptions/Clinician';
 import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
-import EditPatientDialog from './EditPatientDialog';
+import EditPatientDialogController from './EditPatientDialogController';
 
 import { isClinicianAccount } from '../../core/personutils';
 import { breakpoints } from '../../themes/baseTheme';
@@ -98,7 +98,7 @@ const NavPatientHeader = ({ api, trackMetric, patient, clinicPatient, user, perm
         <UploadLaunchOverlay modalDismissHandler={() => setIsUploadOverlayOpen(false)} />
       }
 
-      <EditPatientDialog
+      <EditPatientDialogController
         api={api}
         clinicPatient={clinicPatient}
         isOpen={isEditPatientModalOpen}
