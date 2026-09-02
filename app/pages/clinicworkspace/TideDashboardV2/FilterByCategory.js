@@ -11,7 +11,7 @@ const { DEFAULT, VERY_LOW, ANY_LOW, DROP_IN_TIR, ANY_HIGH, VERY_HIGH, LOW_CGM_WE
 const Indicator = ({ color }) => (
   <Box
     mr={1}
-    sx={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: color }}
+    sx={{ display: 'inline-block', minWidth: '8px', minHeight: '8px', borderRadius: '50%', backgroundColor: color }}
   >
   </Box>
 );
