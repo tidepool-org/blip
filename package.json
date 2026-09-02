@@ -182,7 +182,7 @@
     "terser": "5.22.0",
     "terser-webpack-plugin": "5.3.9",
     "theme-ui": "0.16.1",
-    "tideline": "1.40.0",
+    "tideline": "1.41.0-web-4694-stacked-range.2",
     "tidepool-platform-client": "0.66.0",
     "tidepool-standard-action": "0.1.1",
     "ua-parser-js": "1.0.36",
