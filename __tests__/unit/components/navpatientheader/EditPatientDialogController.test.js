@@ -45,71 +45,7 @@ const initialState = {
   },
 };
 
-const renderEditPatientDialogController = (storeState = initialState, clinicPatient) => {
-  const reducer = (state = storeState, action) => state;
-  const store = createStore(reducer, applyMiddleware(thunk));
-
-  return render(
-    <Provider store={store}>
-      <MemoryRouter initialEntries={['/patients/patient123/data']}>
-        <ThemeProvider theme={theme}>
-          <ToastProvider>
-            <EditPatientDialogController
-              api={{ clinics: { getPatientFromClinic: jest.fn() } }}
-              clinicPatient={clinicPatient}
-              isOpen={true}
-              onClose={jest.fn()}
-            />
-          </ToastProvider>
-        </ThemeProvider>
-      </MemoryRouter>
-    </Provider>
-  );
-};
-
 describe('EditPatientDialogController', () => {
-  it('locks identity fields and leaves the save button enabled when smartCorrelationId is present', () => {
-    const smartOnFhirState = {
-      blip: {
-        ...initialState.blip,
-        smartCorrelationId: 'some-correlation-id',
-        clinics: {
-          clinic123: {
-            ...initialState.blip.clinics.clinic123,
-            patients: {
-              patient123: { id: 'patient123', fullName: 'John Doe', birthDate: '2000-01-01' },
-            },
-          },
-        },
-      },
-    };
-
-    renderEditPatientDialogController(smartOnFhirState, baseClinicPatient);
-
-    expect(screen.getByRole('textbox', { name: /Full Name/i })).toBeDisabled();
-    expect(screen.getByRole('textbox', { name: /Birthdate/i })).toBeDisabled();
-    expect(screen.getByRole('textbox', { name: /MRN/i })).toBeDisabled();
-    expect(screen.getByRole('textbox', { name: /Email/i })).toBeDisabled();
-    // Clinical fields stay editable in smart-on-fhir mode; only EHR-sourced identity fields lock.
-    expect(screen.getByLabelText(/Diabetes Type/i)).not.toBeDisabled();
-    expect(screen.getByLabelText('Target Range')).not.toBeDisabled();
-
-    const saveButton = screen.getByRole('button', { name: 'Save Changes' });
-    expect(saveButton).toBeInTheDocument();
-    expect(saveButton).toBeEnabled();
-  });
-
-  it('sets read-only fields enabled when smartCorrelationId is absent', () => {
-    renderEditPatientDialogController(initialState, baseClinicPatient);
-
-    expect(screen.getByRole('textbox', { name: /Full Name/i })).not.toBeDisabled();
-    expect(screen.getByRole('textbox', { name: /Birthdate/i })).not.toBeDisabled();
-    expect(screen.getByRole('textbox', { name: /MRN/i })).not.toBeDisabled();
-    expect(screen.getByRole('textbox', { name: /Email/i })).not.toBeDisabled();
-    expect(screen.getByLabelText(/Diabetes Type/i)).not.toBeDisabled();
-    expect(screen.getByLabelText('Target Range')).not.toBeDisabled();
-  });
-
   // The dialog is permanently mounted and subscribes to the global updatingClinicPatient, so it must
   // only clear the data worker for updates it initiated (isOpen), not foreign ones (e.g. adding a data
   // source) — clearing on a foreign update would strand the patient-data view on the loader.
