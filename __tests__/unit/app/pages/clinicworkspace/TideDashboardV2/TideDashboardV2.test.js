@@ -250,7 +250,7 @@ describe('TideDashboardV2', () => {
     expect(screen.getByText('Very Low Patient 2')).toBeInTheDocument();
     expect(screen.queryByText('Default Patient 1')).not.toBeInTheDocument();
 
-    expect(screen.getAllByRole('columnheader')).toHaveLength(11);
+    expect(screen.getAllByRole('columnheader')).toHaveLength(10);
     expect(screen.getByRole('columnheader', { name: /Patient Details/ })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: /% Time < 54/ })).toBeInTheDocument();
@@ -269,7 +269,7 @@ describe('TideDashboardV2', () => {
     expect(screen.getByText('Low Patient 2')).toBeInTheDocument();
     expect(screen.queryByText('Very Low Patient 1')).not.toBeInTheDocument();
 
-    expect(screen.getAllByRole('columnheader')).toHaveLength(11);
+    expect(screen.getAllByRole('columnheader')).toHaveLength(10);
     expect(screen.getByRole('columnheader', { name: /Patient Details/ })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: /% Time < 54/ })).toBeInTheDocument();
@@ -288,7 +288,7 @@ describe('TideDashboardV2', () => {
     expect(screen.getByText('Drop In TIR Patient 2')).toBeInTheDocument();
     expect(screen.queryByText('Low Patient 1')).not.toBeInTheDocument();
 
-    expect(screen.getAllByRole('columnheader')).toHaveLength(11);
+    expect(screen.getAllByRole('columnheader')).toHaveLength(10);
     expect(screen.getByRole('columnheader', { name: /Patient Details/ })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: /% TIR 70-180/ })).toBeInTheDocument();
@@ -307,7 +307,7 @@ describe('TideDashboardV2', () => {
     expect(screen.getByText('High Patient 2')).toBeInTheDocument();
     expect(screen.queryByText('Drop In TIR Patient 1')).not.toBeInTheDocument();
 
-    expect(screen.getAllByRole('columnheader')).toHaveLength(11);
+    expect(screen.getAllByRole('columnheader')).toHaveLength(10);
     expect(screen.getByRole('columnheader', { name: /Patient Details/ })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: /% Time > 250/ })).toBeInTheDocument();
@@ -326,7 +326,7 @@ describe('TideDashboardV2', () => {
     expect(screen.getByText('Very High Patient 2')).toBeInTheDocument();
     expect(screen.queryByText('High Patient 1')).not.toBeInTheDocument();
 
-    expect(screen.getAllByRole('columnheader')).toHaveLength(11);
+    expect(screen.getAllByRole('columnheader')).toHaveLength(10);
     expect(screen.getByRole('columnheader', { name: /Patient Details/ })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: /% Time > 250/ })).toBeInTheDocument();
@@ -345,7 +345,7 @@ describe('TideDashboardV2', () => {
     expect(screen.getByText('Low CGM Wear Patient 2')).toBeInTheDocument();
     expect(screen.queryByText('Very High Patient 1')).not.toBeInTheDocument();
 
-    expect(screen.getAllByRole('columnheader')).toHaveLength(11);
+    expect(screen.getAllByRole('columnheader')).toHaveLength(10);
     expect(screen.getByRole('columnheader', { name: /Patient Details/ })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: /CGM Use/ })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
@@ -364,7 +364,7 @@ describe('TideDashboardV2', () => {
     expect(screen.getByText('Meeting Targets Patient 2')).toBeInTheDocument();
     expect(screen.queryByText('Low CGM Wear Patient 1')).not.toBeInTheDocument();
 
-    expect(screen.getAllByRole('columnheader')).toHaveLength(10);
+    expect(screen.getAllByRole('columnheader')).toHaveLength(9);
     expect(screen.getByRole('columnheader', { name: /Patient Details/ })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: /Avg Glucose/ })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: /Time in Range/ })).toBeInTheDocument();

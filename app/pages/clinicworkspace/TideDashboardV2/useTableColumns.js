@@ -138,7 +138,6 @@ const getColumnSet = (columnTypes) => ({
   ],
   low: [
     columnTypes.patientDetails,
-    columnTypes.flag,
     columnTypes.avgGlucose,
     columnTypes.timeInVeryLow,
     columnTypes.timeInAnyLow,
@@ -151,7 +150,6 @@ const getColumnSet = (columnTypes) => ({
   ],
   high: [
     columnTypes.patientDetails,
-    columnTypes.flag,
     columnTypes.avgGlucose,
     columnTypes.timeInVeryHigh,
     columnTypes.timeInAnyHigh,
@@ -164,7 +162,6 @@ const getColumnSet = (columnTypes) => ({
   ],
   dropInTIR: [
     columnTypes.patientDetails,
-    columnTypes.flag,
     columnTypes.avgGlucose,
     columnTypes.timeInTarget,
     columnTypes.timeInRangeBarChart,
@@ -177,13 +174,23 @@ const getColumnSet = (columnTypes) => ({
   ],
   lowCgmWear: [
     columnTypes.patientDetails,
-    columnTypes.flag,
     columnTypes.cgmUse,
     columnTypes.avgGlucose,
     columnTypes.timeInTarget,
     columnTypes.timeInRangeBarChart,
     columnTypes.changeInTIR,
     columnTypes.gmi,
+    columnTypes.tags,
+    columnTypes.lastReviewed,
+    columnTypes.moreMenu,
+  ],
+  target: [
+    columnTypes.patientDetails,
+    columnTypes.avgGlucose,
+    columnTypes.timeInRangeBarChart,
+    columnTypes.changeInTIR,
+    columnTypes.gmi,
+    columnTypes.cgmUse,
     columnTypes.tags,
     columnTypes.lastReviewed,
     columnTypes.moreMenu,
@@ -216,7 +223,7 @@ const useTableColumns = (category) => {
       case CATEGORY.ANY_HIGH: return columnSet.high;
       case CATEGORY.VERY_HIGH: return columnSet.high;
       case CATEGORY.LOW_CGM_WEAR: return columnSet.lowCgmWear;
-      case CATEGORY.TARGET: return columnSet.default;
+      case CATEGORY.TARGET: return columnSet.target;
       default: return columnSet.default;
     }
   }, [category, clinicBgUnits]);
