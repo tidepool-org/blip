@@ -111,6 +111,7 @@ const StackedDaily = ({ patientId, agpCGMData }) => {
       onCBGOut: handleCBGOut,
       endpoints: [chartStart, chartEnd],
       dayLabel: false,
+      fullRangeBgScale: true,
       minHeight: CHART_HEIGHT,
       pool: {
         events: {
