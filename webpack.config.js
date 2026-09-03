@@ -251,6 +251,16 @@ module.exports = {
   devServer: {
     static: { publicPath: output.publicPath },
     historyApiFallback: true,
+    // Mirrors the production route in server.js: the extensionless association file needs an
+    // explicit application/json type, and must not fall through to historyApiFallback.
+    setupMiddlewares: (middlewares, devServer) => {
+      devServer.app.get('/.well-known/apple-app-site-association', (req, res) => {
+        res.type('application/json');
+        res.sendFile(path.join(__dirname, 'static/.well-known/apple-app-site-association'));
+      });
+
+      return middlewares;
+    },
     hot: isDev,
     client: {
       logging: 'info',

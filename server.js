@@ -125,6 +125,19 @@ app.get('/silent-check-sso.html', (req, res) => {
   res.send(res.locals.ssoHtmlWithNonces);
 });
 
+// The apple-app-site-association file has no extension, so express.static cannot infer its type —
+// Apple requires application/json, with no redirects. Read once at startup and served from memory,
+// so the handler does no per-request filesystem access.
+const appleAppSiteAssociation = fs.readFileSync(
+  path.join(staticDir, '.well-known', 'apple-app-site-association'),
+  'utf8'
+);
+
+app.get('/.well-known/apple-app-site-association', (req, res) => {
+  res.type('application/json');
+  res.send(appleAppSiteAssociation);
+});
+
 app.use(express.static(staticDir, { index: false }));
 
 //So that we can use react-router and browser history
