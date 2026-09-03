@@ -29,9 +29,8 @@ export const Segment = ({
       aria-checked={selected}
       onClick={onClick}
       onKeyDown={(evt) => {
-        if (evt.key === 'Enter' || evt.key === ' ') {
-          onClick();
-        }
+        evt.preventDefault();
+        if (evt.key === 'Enter' || evt.key === ' ') onClick();
       }}
       tabIndex="0"
       px={4}
