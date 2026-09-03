@@ -363,6 +363,8 @@ export const appBanners = [
         text: t('Set Up 2FA'),
         metric: 'Enable 2FA banner clicked',
         handler: () => dispatch(push({ pathname: '/profile', state: { openMfaSetup: true } })),
+        // Clicking through to setup shouldn't consume the banner; it stays visible until dismissed or 2FA is enabled
+        trackInteraction: false,
       },
       dismiss: {
         metric: 'Enable 2FA banner dismissed',

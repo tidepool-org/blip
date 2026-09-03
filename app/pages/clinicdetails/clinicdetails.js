@@ -378,6 +378,9 @@ export const ClinicDetails = (props) => {
 
   useEffect(() => {
       formikContext.resetForm();
+      // The component stays mounted between actions, so clear the previous
+      // action's submitting flag.
+      setSubmitting(false);
   }, [action]);
 
   const formActions = [{
