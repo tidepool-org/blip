@@ -30,24 +30,68 @@ export const IOS_UNIVERSAL_LINK_URL = `https://${IOS_UNIVERSAL_LINK_HOST}${IOS_U
 // with ?iosLink=universal|scheme so both can be compared on a single build.
 export const IOS_LINK_STRATEGY = 'scheme';
 
+export const IOS_LINK_STORAGE_KEY = 'mobileAppLink.iosLink';
+export const IOS_LINK_HOST_STORAGE_KEY = 'mobileAppLink.linkHost';
+
+// localStorage can throw (private browsing, storage disabled); a failed read/write just means the
+// override doesn't stick, which only degrades the test workflow, never the shipped behaviour.
+const storage = {
+  get: (key) => { try { return window.localStorage.getItem(key); } catch (e) { return null; } },
+  set: (key, value) => { try { window.localStorage.setItem(key, value); } catch (e) { /* noop */ } },
+  remove: (key) => { try { window.localStorage.removeItem(key); } catch (e) { /* noop */ } },
+};
+
 /**
- * Build the iOS link for the current page load.
+ * Resolve the iOS link strategy for the current page load.
  *
  * ?iosLink=universal|scheme  selects the link form
  * ?linkHost=same             points the universal link at the current origin, to verify that iOS
  *                            really does suppress same-host universal links
+ * ?iosLink=reset             clears a persisted override
+ *
+ * A query-string override is persisted on the device and keeps applying on later visits until it
+ * is replaced or reset — editing query params by hand on a phone keyboard is painful, so the URL
+ * only ever needs to be typed (or a prepared link tapped) once per mode. Each iosLink visit
+ * re-persists linkHost according to its presence, so the stored state always mirrors the last
+ * override URL used. An on-page indicator shows when an override is active.
  *
  * linkHost only accepts 'same' rather than an arbitrary host: this renders into an href, and
  * honouring a caller-supplied domain would let a crafted URL repoint the button off-site.
  */
-export const getIosAppUrl = (search = '', origin = '') => {
+export const resolveIosLinkStrategy = (search = '') => {
   const params = new URLSearchParams(search);
   const override = params.get('iosLink');
-  const strategy = ['scheme', 'universal'].includes(override) ? override : IOS_LINK_STRATEGY;
+
+  if (override === 'reset') {
+    storage.remove(IOS_LINK_STORAGE_KEY);
+    storage.remove(IOS_LINK_HOST_STORAGE_KEY);
+  } else if (['scheme', 'universal'].includes(override)) {
+    storage.set(IOS_LINK_STORAGE_KEY, override);
+
+    if (params.get('linkHost') === 'same') {
+      storage.set(IOS_LINK_HOST_STORAGE_KEY, 'same');
+    } else {
+      storage.remove(IOS_LINK_HOST_STORAGE_KEY);
+    }
+  }
+
+  const stored = storage.get(IOS_LINK_STORAGE_KEY);
+  const isOverride = ['scheme', 'universal'].includes(stored);
+  const strategy = isOverride ? stored : IOS_LINK_STRATEGY;
+
+  return {
+    strategy,
+    sameHost: strategy === 'universal' && storage.get(IOS_LINK_HOST_STORAGE_KEY) === 'same',
+    isOverride,
+  };
+};
+
+export const getIosAppUrl = (search = '', origin = '') => {
+  const { strategy, sameHost } = resolveIosLinkStrategy(search);
 
   if (strategy !== 'universal') return IOS_APP_URL;
 
-  return params.get('linkHost') === 'same' && origin
+  return sameHost && origin
     ? `${origin}${IOS_UNIVERSAL_LINK_PATH}`
     : IOS_UNIVERSAL_LINK_URL;
 };
@@ -91,6 +135,7 @@ export const MobileAppLink = (props) => {
 
   const { getAppUrl, storeUrl, badgeImage, badgeMetric } = platformConfig[platform];
   const appUrl = getAppUrl(window.location.search, window.location.origin);
+  const iosLink = platform === 'ios' ? resolveIosLinkStrategy(window.location.search) : null;
 
   return (
     <Flex
@@ -108,6 +153,14 @@ export const MobileAppLink = (props) => {
           {t('Open the Tidepool Mobile app')}
         </Button>
       </Link>
+
+      {/* Test scaffolding, so deliberately untranslated: visible only while a persisted
+          ?iosLink override is active, so the device's current mode is never a mystery. */}
+      {iosLink?.isOverride && (
+        <Paragraph1 id="mobile-app-link-override" mt={2} sx={{ fontSize: 0, color: '#66788A' }}>
+          {`Link override active: ${iosLink.strategy}${iosLink.sameHost ? ' (same host)' : ''} — ?iosLink=reset clears it`}
+        </Paragraph1>
+      )}
 
       <Paragraph1 mt={3} mb={2} sx={{ fontWeight: 'medium' }}>
         {t('Don\'t have the app yet?')}

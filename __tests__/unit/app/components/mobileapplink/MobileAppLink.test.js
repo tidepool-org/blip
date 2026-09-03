@@ -29,6 +29,8 @@ describe('MobileAppLink', () => {
   beforeEach(() => {
     getMobilePlatform = jest.spyOn(utils, 'getMobilePlatform');
     trackMetric = jest.fn();
+    // The iosLink override persists to localStorage, so tests must not leak state into each other
+    window.localStorage.clear();
   });
 
   afterEach(() => {
@@ -109,6 +111,62 @@ describe('MobileAppLink', () => {
     // at the host serving the page would silently defeat the whole mechanism.
     it('should point the universal link at a dedicated host', () => {
       expect(IOS_UNIVERSAL_LINK_URL).toMatch(/^https:\/\/[^/]+\/mobile-app$/);
+    });
+
+    // Editing query params on a phone keyboard is painful, so an override sticks across visits.
+    describe('override persistence', () => {
+      it('should keep applying an override on later visits without the query param', () => {
+        getIosAppUrl('?iosLink=universal');
+
+        expect(getIosAppUrl('')).toBe(IOS_UNIVERSAL_LINK_URL);
+      });
+
+      it('should persist the same-host variant, including the host choice', () => {
+        getIosAppUrl('?iosLink=universal&linkHost=same', 'https://qa3.development.tidepool.org');
+
+        expect(getIosAppUrl('', 'https://qa3.development.tidepool.org'))
+          .toBe('https://qa3.development.tidepool.org/mobile-app');
+      });
+
+      it('should drop a persisted linkHost when a later override omits it', () => {
+        getIosAppUrl('?iosLink=universal&linkHost=same', 'https://qa3.development.tidepool.org');
+        getIosAppUrl('?iosLink=universal', 'https://qa3.development.tidepool.org');
+
+        expect(getIosAppUrl('', 'https://qa3.development.tidepool.org')).toBe(IOS_UNIVERSAL_LINK_URL);
+      });
+
+      it('should return to the default after ?iosLink=reset', () => {
+        getIosAppUrl('?iosLink=universal');
+        getIosAppUrl('?iosLink=reset');
+
+        expect(getIosAppUrl('')).toBe(IOS_APP_URL);
+      });
+
+      it('should not persist an unrecognised override', () => {
+        getIosAppUrl('?iosLink=nonsense');
+
+        expect(window.localStorage.getItem('mobileAppLink.iosLink')).toBeNull();
+      });
+    });
+  });
+
+  describe('override indicator', () => {
+    beforeEach(() => {
+      getMobilePlatform.mockReturnValue('ios');
+    });
+
+    it('should not render while no override is active', () => {
+      render(<MobileAppLink trackMetric={trackMetric} />);
+
+      expect(screen.queryByText(/Link override active/)).not.toBeInTheDocument();
+    });
+
+    it('should name the active override and how to clear it', () => {
+      getIosAppUrl('?iosLink=universal&linkHost=same', 'https://qa3.development.tidepool.org');
+      render(<MobileAppLink trackMetric={trackMetric} />);
+
+      expect(screen.getByText('Link override active: universal (same host) — ?iosLink=reset clears it'))
+        .toBeInTheDocument();
     });
   });
 
