@@ -6566,68 +6566,6 @@ describe('Actions', () => {
       });
     });
 
-    describe('fetchClinicByShareCode', () => {
-      it('should trigger FETCH_CLINIC_SUCCESS and it should call clinics.getClinicByShareCode once for a successful request', () => {
-        let clinic = {
-          id: '5f85fbe6686e6bb9170ab5d0',
-          address: '1 Address Ln, City Zip',
-          name: 'Clinic1',
-        };
-
-        let api = {
-          clinics: {
-            getClinicByShareCode: sinon.stub().callsArgWith(1, null, clinic),
-          },
-        };
-
-        let expectedActions = [
-          { type: 'FETCH_CLINIC_REQUEST' },
-          { type: 'FETCH_CLINIC_SUCCESS', payload: {
-            clinic,
-          } }
-        ];
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
-        });
-
-        let store = mockStore({ blip: initialState });
-        store.dispatch(async.fetchClinicByShareCode(api, 'ABCD-EVGR-3393-J48I'));
-
-        const actions = store.getActions();
-        expect(actions).to.eql(expectedActions);
-        expect(api.clinics.getClinicByShareCode.callCount).to.equal(1);
-      });
-
-      it('should trigger FETCH_CLINIC_FAILURE and it should call error once for a failed request', () => {
-        const error = {status: 500, body: 'Error!'};
-        let api = {
-          clinics: {
-            getClinicByShareCode: sinon.stub().callsArgWith(1, error, null),
-          },
-        };
-
-        let err = new Error(ErrorMessages.ERR_FETCHING_CLINIC);
-        err.status = 500;
-
-        let expectedActions = [
-          { type: 'FETCH_CLINIC_REQUEST' },
-          { type: 'FETCH_CLINIC_FAILURE', error: err, meta: { apiError: error } }
-        ];
-        _.each(expectedActions, (action) => {
-          expect(isTSA(action)).to.be.true;
-        });
-
-        let store = mockStore({ blip: initialState });
-        store.dispatch(async.fetchClinicByShareCode(api, 'ABCD-EVGR-3393-J48I'));
-
-        const actions = store.getActions();
-        expect(actions[1].error).to.deep.include({ message: ErrorMessages.ERR_FETCHING_CLINIC });
-        expectedActions[1].error = actions[1].error;
-        expect(actions).to.eql(expectedActions);
-        expect(api.clinics.getClinicByShareCode.callCount).to.equal(1);
-      });
-    });
-
     describe('fetchPatientsForClinic', () => {
       it('should trigger FETCH_PATIENTS_FOR_CLINIC_SUCCESS and it should call clinics.getPatientsForClinic once for a successful request', () => {
         let patients = [{
