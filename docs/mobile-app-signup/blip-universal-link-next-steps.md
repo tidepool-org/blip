@@ -21,10 +21,17 @@ being re-examined here. Read it first for background.
 > the Notes control) means resuming is cheap: the only open question left is step 2
 > (cross-subdomain).
 >
-> **Update, same day**: qa3 **and qa4** turned out to be free, so step 2 is being run before the
-> branch is truly parked — qa3/qa4 are siblings under `development.tidepool.org`, the strict
-> analog of the production `app`/`link.tidepool.org` pair. `IOS_UNIVERSAL_LINK_HOST` now points at
-> qa4. The ship decision (custom scheme) stands unless step 2 changes the calculus.
+> **Update, same day**: qa3 **and qa4** turned out to be free, so step 2 ran before parking —
+> qa3/qa4 are siblings under `development.tidepool.org`, the strict analog of the production
+> `app`/`link.tidepool.org` pair. `IOS_UNIVERSAL_LINK_HOST` now points at qa4.
+>
+> **EXPERIMENT COMPLETE, both steps ✅**: same-host suppression is real (step 1), sibling-subdomain
+> links work perfectly (step 2) — app opens when installed, landing page when not, never an error.
+> The technique is proven; what remains to ship it is purely infrastructure and process (see
+> step 3): a real link host serving the AASA, a production entitlement (without `?mode=developer`,
+> so a mobile release), and validating once on the real host pair since Apple's CDN — bypassed by
+> developer mode — sits in the production fetch path. Whether that cost is paid now or later is a
+> product decision; the custom scheme remains the shipped behaviour until it's made.
 
 ---
 
@@ -54,9 +61,10 @@ no device data, and an iOS/Android user agent.
   is invalid."* (2026-09-03) — the degradation this experiment exists to fix, now reproduced
   first-hand rather than assumed
 
-**Not yet tested:** the universal link **cross-subdomain** (step 2 — the case the final design
-depends on), the App Store badge rendering/working on a real device, Gmail in-app browser. Step 1
-(same-host) is done: suppression confirmed, see the step 1 result below.
+**Not yet tested:** the App Store badge link working from a real device (the artwork has been seen
+rendering on the landing page), Gmail in-app browser (both platforms). Steps 1 and 2 are **both
+done** — see the result sections below: suppression is same-host only, and the two-host design
+works completely.
 
 ### Uncommitted — the universal link prototype
 
@@ -240,6 +248,17 @@ infrastructure.
 Deploy blip to a **second** QA host (`qa4`). Since blip serves the AASA from `static/`, that host
 gets the file automatically.
 
+⚠️ Gotchas hit here on 2026-09-03, both diagnosed via the Notes positive control failing for qa4
+while qa3 kept working:
+
+- **Order matters**: iOS validates domain associations **at app install**. An app installed before
+  the host's AASA went live never associates with it — delete and reinstall from Xcode *after* the
+  deploy is confirmed. This was the actual failure.
+- **A 200 on the AASA URL proves nothing by itself**: blip's catch-all serves `index.html` with a
+  200 for *any* path, so an old build answers 200 with HTML. Always check the body for the appID.
+- Most informative diagnostic on-device: **Settings → Developer → Universal Links → Diagnostics**,
+  paste the URL, it says whether it's linked to the app and why not.
+
 Load the Welcome page on **`qa3`**, tap with:
 
 ```
@@ -257,6 +276,22 @@ error alert**. That is the entire point of the exercise.
 
 Control: `?iosLink=scheme` reproduces current shipped behaviour for comparison. Both strategies work
 on one build, no rebuild needed to switch.
+
+### ✅ Step 2 result (2026-09-03): sibling-subdomain universal links WORK
+
+On the qa3 Welcome page with `?iosLink=universal` (button → `https://qa4…/mobile-app`):
+
+- **App installed → tap opens the app.** Suppression does *not* extend to sibling subdomains;
+  it is same-host only, as hoped.
+- **App not installed → tap lands on qa4's `/mobile-app` landing page, no error alert.**
+
+Combined with step 1, the full behaviour matrix of the production design
+(`app.tidepool.org` page → `link.tidepool.org` link) is now empirically verified: the link must
+live on a sibling host (same-host is suppressed), and on a sibling host it opens the app or
+degrades to a useful page — never Safari's "address is invalid" alert. One caution before
+declaring victory: mind the persisted override when interpreting any run — an accidental
+`(same host)` state re-runs step 1 and mimics a step 2 failure. The on-page indicator exists for
+exactly this; it caught one such near-miss during this run.
 
 ---
 
@@ -286,6 +321,23 @@ Options, roughly increasing cost:
 
 Whatever ships, the **Android side should not change** — `intent://` with `browser_fallback_url` is
 verified working and is the right mechanism there.
+
+### If/when universal links ship: the PR checklist
+
+Everything on this branch is built so that shipping is configuration, not rework:
+
+1. Stand up the link host (e.g. `link.tidepool.org`) serving the AASA and `/mobile-app` — a blip
+   deploy gives both for free, but anything serving those two paths works.
+2. `IOS_UNIVERSAL_LINK_HOST` → the real host; `IOS_LINK_STRATEGY` → `'universal'`.
+3. Mobile release with a production entitlement: `applinks:link.tidepool.org` (no
+   `?mode=developer`). Ship order matters: entitlement + AASA must be live **before** the blip
+   change flips the default, and note app installs only pick up associations at install/update.
+4. Validate once on the real host pair from a TestFlight build — the production AASA fetch goes
+   through Apple's CDN, which every developer-mode test bypassed. This is the only untested link
+   in the chain.
+5. Decide the fate of the test scaffolding (`?iosLink` sticky override + on-page indicator): keep
+   it through the TestFlight validation — it's how you flip strategies without redeploying — then
+   strip it (or leave it; it's inert without the query param and invisible without an override).
 
 ---
 

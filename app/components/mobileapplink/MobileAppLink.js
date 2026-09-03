@@ -18,16 +18,20 @@ export const IOS_APP_URL = 'org.tidepool.mobile://signup-complete';
 
 export const IOS_UNIVERSAL_LINK_PATH = '/mobile-app';
 
-// PROTOTYPE. Host serving /.well-known/apple-app-site-association. iOS is understood to suppress
-// universal links that point at the current page's own host, opening them in Safari rather than the
-// app, which is why this defaults to a host other than the one serving the page. That claim is the
-// premise of the whole design, so ?linkHost=same exists to test it directly.
+// Host serving /.well-known/apple-app-site-association. iOS suppresses universal links that point
+// at the current page's own host (opens them in Safari instead of the app), so this must be a host
+// other than the one serving the page. Suppression is same-host only — a sibling subdomain works —
+// both verified on hardware 2026-09-03 (see docs/mobile-app-signup/). This is a QA test value;
+// shipping requires the real link host here (e.g. link.tidepool.org), with a matching entry in the
+// iOS app's associated-domains entitlement.
 export const IOS_UNIVERSAL_LINK_HOST = 'qa4.development.tidepool.org';
 export const IOS_UNIVERSAL_LINK_URL = `https://${IOS_UNIVERSAL_LINK_HOST}${IOS_UNIVERSAL_LINK_PATH}`;
 
-// Which link form iOS gets. 'scheme' is the shipped behaviour; 'universal' is under evaluation as a
-// way to avoid Safari's "address is invalid" alert when the app isn't installed. Override per-load
-// with ?iosLink=universal|scheme so both can be compared on a single build.
+// Which link form iOS gets. 'scheme' is the shipped behaviour. 'universal' is fully verified
+// (opens the app when installed, lands on IOS_UNIVERSAL_LINK_URL when not, never errors) but
+// shipping it needs production infrastructure — see docs/mobile-app-signup/ — so the default stays
+// 'scheme' until that decision is made. Override with ?iosLink=universal|scheme (sticky, see below)
+// to compare both on a single build.
 export const IOS_LINK_STRATEGY = 'scheme';
 
 export const IOS_LINK_STORAGE_KEY = 'mobileAppLink.iosLink';
@@ -45,8 +49,8 @@ const storage = {
  * Resolve the iOS link strategy for the current page load.
  *
  * ?iosLink=universal|scheme  selects the link form
- * ?linkHost=same             points the universal link at the current origin, to verify that iOS
- *                            really does suppress same-host universal links
+ * ?linkHost=same             points the universal link at the current origin (the step 1 control —
+ *                            it confirmed iOS suppresses same-host universal links)
  * ?iosLink=reset             clears a persisted override
  *
  * A query-string override is persisted on the device and keeps applying on later visits until it
