@@ -19,8 +19,12 @@ being re-examined here. Read it first for background.
 > The prototype is **complete through step 1** and preserved on the `universal-link-prototype`
 > branch (this doc travels with it). Step 1's result (suppression confirmed, setup validated by
 > the Notes control) means resuming is cheap: the only open question left is step 2
-> (cross-subdomain), blocked on a second deploy host — see the step 2 section and the host-choice
-> caveat (sibling `qa*` host preferred over `dev1.dev.tidepool.org`).
+> (cross-subdomain).
+>
+> **Update, same day**: qa3 **and qa4** turned out to be free, so step 2 is being run before the
+> branch is truly parked — qa3/qa4 are siblings under `development.tidepool.org`, the strict
+> analog of the production `app`/`link.tidepool.org` pair. `IOS_UNIVERSAL_LINK_HOST` now points at
+> qa4. The ship decision (custom scheme) stands unless step 2 changes the calculus.
 
 ---
 
@@ -147,9 +151,9 @@ positive control.** Two work on a single host:
    carrying only those will silently never match on qa3:
    ```
    applinks:qa3.development.tidepool.org?mode=developer
-   applinks:qa2.development.tidepool.org?mode=developer
+   applinks:qa4.development.tidepool.org?mode=developer
    ```
-   (`qa2` stays as the second host because blip's `IOS_UNIVERSAL_LINK_HOST` defaults to it; if the
+   (`qa4` is the second host — qa1/qa2 turned out to be in use by others; if the
    step 2 deploy lands on a different host instead, update both the constant and the entitlement.)
 
 4. Build to a physical device from Xcode. `?mode=developer` requires a **development-signed** build
@@ -225,7 +229,7 @@ infrastructure.
   opening the installed app.
 - Conclusion: iOS suppresses universal links pointing at the current page's own host, exactly as
   the original handoff claimed. **The single-host simplification is dead; a separate link host is
-  required. Proceed to step 2** (sibling subdomain, qa3 page → qa2 link).
+  required. Proceed to step 2** (sibling subdomain, qa3 page → qa4 link).
 - Also verified along the way, app **not** installed: the same tap lands on `/mobile-app` with
   **no error alert** — the iOS degradation this design set out to fix, working.
 
@@ -233,7 +237,7 @@ infrastructure.
 
 ## Step 2 — Cross-subdomain (only if step 1 confirms suppression)
 
-Deploy blip to a **second** QA host (`qa2`). Since blip serves the AASA from `static/`, that host
+Deploy blip to a **second** QA host (`qa4`). Since blip serves the AASA from `static/`, that host
 gets the file automatically.
 
 Load the Welcome page on **`qa3`**, tap with:
@@ -242,7 +246,7 @@ Load the Welcome page on **`qa3`**, tap with:
 /patients/<userid>/data?iosLink=universal
 ```
 
-This defaults to `IOS_UNIVERSAL_LINK_HOST` (`MobileAppLink.js:25`, currently `qa2.development.tidepool.org`).
+This defaults to `IOS_UNIVERSAL_LINK_HOST` (`MobileAppLink.js:25`, currently `qa4.development.tidepool.org`).
 
 Expected: the app opens. This tests **sibling subdomains**, which is the genuinely uncertain case
 and the one the eventual `app.tidepool.org` → `link.tidepool.org` design depends on. A cross-domain

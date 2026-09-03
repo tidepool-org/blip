@@ -1,10 +1,11 @@
 # Handoff: add Associated Domains (universal links) to the mobile-remix iOS build
 
-> **Status 2026-09-03: PARKED.** The web side is shipping the custom scheme instead; no
-> mobile-remix action is needed unless the universal-link experiment resumes (it's preserved,
-> complete through step 1, on blip's `universal-link-prototype` branch). The entitlements described
-> below were added and validated on a dev build during step 1 — keep or drop them freely; they are
-> developer-mode-only and inert in TestFlight/App Store builds either way.
+> **Status 2026-09-03: step 2 in progress** (briefly un-parked — qa4 became available). The
+> mobile-side ask right now: the dev build's entitlement needs
+> `applinks:qa4.development.tidepool.org?mode=developer` added (qa3 is already validated; a qa2
+> entry, if present, is dead — that host belongs to another team), then rebuild + reinstall on the
+> test device. Everything else below still applies. The web ship decision remains the custom
+> scheme; these entitlements are developer-mode-only and inert in TestFlight/App Store builds.
 
 **Audience**: the agent/developer working in the `mobile-remix` repo (branch `improve-signup-flow`).
 **Written**: 2026-09-01. Companion docs live in the blip repo: `blip-signup-return-handoff.md`
@@ -25,7 +26,7 @@ Add the **Associated Domains** capability to the iOS app target with exactly the
 
 ```
 applinks:qa3.development.tidepool.org?mode=developer
-applinks:qa2.development.tidepool.org?mode=developer
+applinks:qa4.development.tidepool.org?mode=developer
 ```
 
 > **Update 2026-09-03**: blip is deployed to **qa3** (AASA verified live there), so `qa3` replaced

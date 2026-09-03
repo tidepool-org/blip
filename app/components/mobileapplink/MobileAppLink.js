@@ -22,7 +22,7 @@ export const IOS_UNIVERSAL_LINK_PATH = '/mobile-app';
 // universal links that point at the current page's own host, opening them in Safari rather than the
 // app, which is why this defaults to a host other than the one serving the page. That claim is the
 // premise of the whole design, so ?linkHost=same exists to test it directly.
-export const IOS_UNIVERSAL_LINK_HOST = 'qa2.development.tidepool.org';
+export const IOS_UNIVERSAL_LINK_HOST = 'qa4.development.tidepool.org';
 export const IOS_UNIVERSAL_LINK_URL = `https://${IOS_UNIVERSAL_LINK_HOST}${IOS_UNIVERSAL_LINK_PATH}`;
 
 // Which link form iOS gets. 'scheme' is the shipped behaviour; 'universal' is under evaluation as a
