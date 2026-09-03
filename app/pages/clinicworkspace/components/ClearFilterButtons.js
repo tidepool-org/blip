@@ -61,8 +61,8 @@ const ClearFilterButtons = ({ patientQueryState, onClearSearch = noop, onResetFi
 
 ClearFilterButtons.propTypes = {
   patientQueryState: PropTypes.oneOf(Object.values(PATIENT_QUERY_STATE)).isRequired,
-  onClearSearch: PropTypes.func.isRequired,
-  onResetFilters: PropTypes.func.isRequired,
+  onClearSearch: PropTypes.func,
+  onResetFilters: PropTypes.func,
 };
 
 export default ClearFilterButtons;
