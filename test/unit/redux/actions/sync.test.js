@@ -3576,9 +3576,11 @@ describe('Actions', () => {
 
       it('type should equal SELECT_CLINIC_SUCCESS', () => {
         let clinicId = 'clinicId'
-        let action = sync.selectClinicSuccess(clinicId);
+        let tideDashboardFilters = { lastData: 30, patientTags: ['tag1'] };
+        let action = sync.selectClinicSuccess(clinicId, tideDashboardFilters);
         expect(action.type).to.equal('SELECT_CLINIC_SUCCESS');
         expect(action.payload.clinicId).to.equal(clinicId);
+        expect(action.payload.tideDashboardFilters).to.eql(tideDashboardFilters);
       });
     });
 

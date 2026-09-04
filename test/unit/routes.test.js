@@ -489,8 +489,7 @@ describe('routes', () => {
         { type: 'FETCH_CLINIC_MRN_SETTINGS_SUCCESS', payload: { clinicId: 'newClinic', settings: {} } },
         { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
         { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] } },
-        { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: 'newClinic' } },
-        { type: 'tideDashboardFilters/setTideDashboardFilters', payload: undefined },
+        { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: 'newClinic', tideDashboardFilters: undefined } },
         routeAction('/clinic-details/migrate', { selectedClinicId: null }),
       ];
 
@@ -555,8 +554,7 @@ describe('routes', () => {
         { type: 'FETCH_CLINIC_MRN_SETTINGS_SUCCESS', payload: { clinicId: 'newClinic', settings: {} } },
         { type: 'FETCH_CLINICIAN_INVITES_REQUEST' },
         { type: 'FETCH_CLINICIAN_INVITES_SUCCESS', payload: { invites: [] } },
-        { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: 'newClinic' } },
-        { type: 'tideDashboardFilters/setTideDashboardFilters', payload: undefined },
+        { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: 'newClinic', tideDashboardFilters: undefined } },
         routeAction('/clinic-details/migrate', { selectedClinicId: null }),
       ];
 
@@ -1091,8 +1089,7 @@ describe('routes', () => {
           });
 
           let expectedActions = [
-            { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: 'clinic123' } },
-            { type: 'tideDashboardFilters/setTideDashboardFilters', payload: undefined },
+            { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId: 'clinic123', tideDashboardFilters: undefined } },
             { type: 'FETCH_CLINIC_PATIENT_COUNTS_REQUEST' },
             { type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST' },
             routeAction('/clinic-details'),
