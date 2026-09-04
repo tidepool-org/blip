@@ -49,8 +49,6 @@ const MenuBar = ({ patientId, onClose, onSelectTab, selectedTab }) => {
     dispatch(push(`/patients/${patientId}/data/trends?dashboard=tide&drawerTab=${selectedTab}`));
   };
 
-  const recentlyReviewedThresholdDate = moment().startOf('isoWeek').toISOString();
-
   const handleReviewSuccess = () => {
     setTimeout(() => {
       onClose();
