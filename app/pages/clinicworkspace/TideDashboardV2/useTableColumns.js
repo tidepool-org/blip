@@ -226,7 +226,7 @@ const useTableColumns = (category) => {
       case CATEGORY.TARGET: return columnSet.target;
       default: return columnSet.default;
     }
-  }, [category, clinicBgUnits]);
+  }, [category, clinicBgUnits, t]);
 
   return columns;
 };
