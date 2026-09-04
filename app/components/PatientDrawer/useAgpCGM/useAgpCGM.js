@@ -126,7 +126,7 @@ const useAgpCGM = (
       dispatch(actions.worker.removeGeneratedPDFS());
       dispatch(actions.worker.dataWorkerRemoveDataRequest(null, patientId));
     };
-  }, []);
+  }, [patientId]);
 
   // Note: probably unnecessary; failsafe to ensure that data is being returned for correct patient
   const isCorrectPatientInState = pdf.opts?.patient?.id === patientId;
