@@ -665,9 +665,9 @@ describe('TideDashboard', () => {
       // Open menu again
       fireEvent.click(moreMenuIcon);
 
-      await screen.findAllByText('Bring Data into Tidepool'); // wait for DOM to settle
+      await screen.findAllByText('Manage Device Connections'); // wait for DOM to settle
       const dataConnectionsButton = Array.from(document.querySelectorAll('.action-list-item'))
-        .find(el => el.textContent.includes('Bring Data into Tidepool'));
+        .find(el => el.textContent.includes('Manage Device Connections'));
       expect(dataConnectionsButton).to.not.be.null;
 
       expect(document.querySelector('#data-connections')).to.be.null;
