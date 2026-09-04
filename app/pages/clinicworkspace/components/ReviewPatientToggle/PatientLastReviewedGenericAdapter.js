@@ -37,10 +37,11 @@ const PatientLastReviewedGenericAdapter = ({
   const handleReview = () => {
     markPatientReviewed({ clinicId: selectedClinicId, patientId })
       .unwrap()
-      .then(updatedReviews => setReviews(updatedReviews || []))
+      .then(updatedReviews => {
+        setReviews(updatedReviews || []);
+        onReview();
+      })
       .catch(() => setToast({ message: ErrorMessages.ERR_SETTING_CLINIC_PATIENT_LAST_REVIEWED , variant: 'danger' }));
-
-    onReview();
   };
 
   const handleUndo = () => {
@@ -50,9 +51,11 @@ const PatientLastReviewedGenericAdapter = ({
       .catch(() => setToast({ message: ErrorMessages.ERR_REVERTING_CLINIC_PATIENT_LAST_REVIEWED , variant: 'danger' }));
   };
 
+  if (!patientId) return null;
+
   return (
     <ReviewPatientToggle
-      patientId={patient?.id}
+      patientId={patientId}
       reviews={reviews}
       onReview={handleReview}
       onUndo={handleUndo}
