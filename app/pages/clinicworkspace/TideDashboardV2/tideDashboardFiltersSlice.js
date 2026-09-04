@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { SELECT_CLINIC_SUCCESS } from '../../../redux/constants/actionTypes';
 
 const getInitialState = () => ({
   lastData: 7,
@@ -25,6 +26,11 @@ const tideDashboardFiltersSlice = createSlice({
       state.summaryPeriod = action.payload;
     },
     resetTideDashboardFilters: () => getInitialState(),
+  },
+  extraReducers: (builder) => {
+    builder.addCase(SELECT_CLINIC_SUCCESS, (_state, action) => {
+      return action.payload?.tideDashboardFilters || getInitialState();
+    });
   },
 });
 
