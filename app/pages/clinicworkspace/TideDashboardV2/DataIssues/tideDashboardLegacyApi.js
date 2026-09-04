@@ -11,12 +11,14 @@ const { TIDE_DASHBOARD_PATIENTS } = tagTypes;
 
 export const buildGetTideReportParams = (period, lastData, lastDataCutoff, tags = [], sites = [], categories = []) => {
   const formattedTags = tags.length > 0 ? tags.join(',') : undefined;
+  const formattedSites = sites.length > 0 ? sites.join(',') : undefined;
   const formattedCategories = categories.length > 0 ? categories.join(',') : undefined;
 
   return {
     period,
     lastData,
     tags: formattedTags,
+    sites: formattedSites,
     lastDataCutoff,
     categories: formattedCategories,
   };
