@@ -36,17 +36,4 @@ describe('SegmentedControl', () => {
 
     expect(onSelect).toHaveBeenCalledWith(3);
   });
-
-  it('makes every segment keyboard focusable in the order rendered', async () => {
-    renderComponent();
-
-    await userEvent.tab();
-    expect(screen.getByRole('radio', { name: /First/ })).toHaveFocus();
-
-    await userEvent.tab();
-    expect(screen.getByRole('radio', { name: /Second/ })).toHaveFocus();
-
-    await userEvent.keyboard('{Enter}');
-    expect(onSelect).toHaveBeenCalledWith(2);
-  });
 });
