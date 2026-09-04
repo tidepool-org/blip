@@ -209,11 +209,8 @@ describe('WorkspaceSwitcher', () => {
           type: 'SELECT_CLINIC_SUCCESS',
           payload: {
             clinicId: null,
+            tideDashboardFilters: undefined,
           },
-        },
-        {
-          type: 'tideDashboardFilters/setTideDashboardFilters',
-          payload: undefined,
         },
         {
           type: '@@router/CALL_HISTORY_METHOD',
@@ -252,6 +249,7 @@ describe('WorkspaceSwitcher', () => {
           type: 'SELECT_CLINIC_SUCCESS',
           payload: {
             clinicId: 'clinicID456',
+            tideDashboardFilters: undefined,
           },
         },
         {
