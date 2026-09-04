@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { Text, Box, FlexProps } from 'theme-ui';
+import { Text, Box } from 'theme-ui';
 import moment from 'moment-timezone';
 import CheckRoundedIcon from '@material-ui/icons/CheckRounded';
 import { utils as vizUtils } from '@tidepool/viz';
@@ -78,7 +78,6 @@ const ReviewPatientToggle = ({
   return (
     <Box sx={{ minWidth: '120px' }} data-testid='patient-review-toggle'>
       <HoverButton
-        {...FlexProps}
         buttonText={buttonText}
         buttonProps={{
           onClick: clickHandler,
