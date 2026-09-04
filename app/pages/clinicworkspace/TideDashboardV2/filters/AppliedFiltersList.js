@@ -35,17 +35,19 @@ const AppliedFiltersList = ({ patientCount = 0 }) => {
 
   const handleRemoveFilter = (filterKey, value) => {
     switch (filterKey) {
-      case 'patientTags':
+      case 'patientTags': {
         const updatedTags = without(patientTags, value);
         dispatch(setPatientTagsFilter(updatedTags));
         dispatch(setOffset(0));
         break;
+      }
 
-      case 'clinicSites':
+      case 'clinicSites': {
         const updatedSites = without(clinicSites, value);
         dispatch(setClinicSitesFilter(updatedSites));
         dispatch(setOffset(0));
         break;
+      }
     }
   };
 
