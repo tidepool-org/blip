@@ -28,13 +28,6 @@ jest.mock('connected-react-router', () => ({
 // Mock api
 jest.mock('@app/core/api', () => ({}));
 
-// Mock PatientLastReviewed component
-jest.mock('@app/components/clinic/PatientLastReviewed', () => {
-  return function MockPatientLastReviewed(props) {
-    return <div data-testid="patient-last-reviewed">Last Reviewed Component</div>;
-  };
-});
-
 // Mock the agpCGMText function from @tidepool/viz while preserving other exports
 jest.mock('@tidepool/viz', () => {
   const originalModule = jest.requireActual('@tidepool/viz');
@@ -66,6 +59,7 @@ const defaultProps = {
 };
 
 const defaultPatient = {
+  id: 'patient123',
   fullName: 'John Doe',
   birthDate: '1990-01-15',
 };
