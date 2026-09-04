@@ -15,6 +15,7 @@ describe('configureStore.dev', () => {
   };
 
   beforeEach(() => {
+    jest.clearAllMocks();
     jest.useFakeTimers();
   });
 
