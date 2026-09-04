@@ -5,7 +5,7 @@ import * as actions from '../../../redux/actions';
 import { trackMetric } from '../../../core/metricUtils';
 import noop from 'lodash/noop';
 
-import TagFilterDropdown from '../components/TagFilterDropdown';
+import TagFilterDropdown from '../components/filters/TagFilterDropdown';
 import useIsClinicAdmin from '../useIsClinicAdmin';
 import useClinicMetricsPageName from '../useClinicMetricsPageName';
 

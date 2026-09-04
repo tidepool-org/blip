@@ -1,7 +1,8 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
+import { MemoryRouter } from 'react-router-dom';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import isEqual from 'lodash/isEqual';
@@ -109,9 +110,18 @@ const anticipatedQueries = {
     'cgm.timeInVeryHighPercent': '<0.045',
     'cgm.timeCGMUsePercent': '>=0.695',
   },
+  'DEFAULT_WITH_FILTERS': {
+    offset: '0',
+    limit: '12',
+    period: '30d',
+    'cgm.lastDataFrom': '2025-05-23T00:00:00.000Z',
+    'cgm.lastDataTo': '2025-05-30T00:00:00.000Z',
+    tags: 'tag8',
+    sites: 'site9',
+  },
 };
 
-const patientsForCategory = {
+const datasets = {
   [DEFAULT]: [
     { id: 'default-1', fullName: 'Default Patient 1', birthDate: '2001-01-01' },
     { id: 'default-2', fullName: 'Default Patient 2', birthDate: '2002-02-02' },
@@ -144,22 +154,25 @@ const patientsForCategory = {
     { id: 'target-1', fullName: 'Meeting Targets Patient 1', birthDate: '2015-03-15' },
     { id: 'target-2', fullName: 'Meeting Targets Patient 2', birthDate: '2016-04-16' },
   ],
+  'DEFAULT_WITH_FILTERS': [
+    { id: 'filtered-3', fullName: 'Filtered Patient 3', birthDate: '2001-01-01' },
+  ],
 };
 
 const getCorrespondingDataForQuery = (searchParams) => {
-  let datasetName;
+  let matchedDatasetName;
 
   // Look over anticipated queries. If the query matches, return the dataset
-  for (let [category, anticipatedQuery] of entries(anticipatedQueries)) {
+  for (let [datasetName, anticipatedQuery] of entries(anticipatedQueries)) {
     if (isEqual(searchParams, anticipatedQuery)) {
-      datasetName = category;
+      matchedDatasetName = datasetName;
       break;
     }
   }
 
-  if (!datasetName) throw new Error('No data for this query found');
+  if (!matchedDatasetName) throw new Error('No data for this query found');
 
-  return patientsForCategory[datasetName];
+  return datasets[matchedDatasetName];
 };
 
 const server = setupServer(
@@ -177,7 +190,9 @@ describe('TideDashboardV2', () => {
 
   const renderComponent = () => render(
     <Provider store={store}>
-      <TideDashboardV2 />
+      <MemoryRouter initialEntries={['/clinic-workspace/tide-dashboard']}>
+        <TideDashboardV2 />
+      </MemoryRouter>
     </Provider>
   );
 
@@ -251,4 +266,64 @@ describe('TideDashboardV2', () => {
     expect(screen.getByText('Meeting Targets Patient 2')).toBeInTheDocument();
     expect(screen.queryByText('Low CGM Wear Patient 1')).not.toBeInTheDocument();
   }, TEST_TIMEOUT_MS);
+
+  it('fetches with filters', async () => {
+    store = setupStore({
+      blip: {
+        selectedClinicId: 'clinic123',
+        clinics: { clinic123: { id: 'clinic123', patientTags: [{ id: 'tag8', name: 'Tag 8' }], sites: [{ id: 'site9', name: 'Site 9' }] } },
+        tideDashboardFilters: { lastData: 7, patientTags: ['tag8'], clinicSites: ['site9'], summaryPeriod: '30d' },
+      },
+    }, { blip: blipReducer });
+
+    renderComponent();
+
+    expect(await screen.findByText('Filtered Patient 3')).toBeInTheDocument();
+  }, TEST_TIMEOUT_MS);
+
+  describe('empty content', () => {
+    beforeEach(() => {
+      let fetchCount = 0;
+
+      server.use(
+        http.get('http://app.tidepool.test/v1/clinics/clinic123/patients', () => {
+          fetchCount += 1;
+
+          return fetchCount <= 1
+            // first fetch -> no patients
+            ? HttpResponse.json({ data: [], meta: { count: 0 } })
+            // refetch -> 1 patient
+            : HttpResponse.json({ data: [{ id: 'default-1', fullName: 'Default Patient 1', birthDate: '2001-01-01' }], meta: { count: 1 } });
+          }
+        )
+      );
+    });
+
+    it('shows Reset button when no patients match applied filters', async () => {
+      // A tag filter is applied before the dashboard mounts
+      store = setupStore({
+        blip: {
+          selectedClinicId: 'clinic123',
+          clinics: { clinic123: { id: 'clinic123', patientTags: [{ id: 'tag1', name: 'Tag One' }] } },
+          tideDashboardFilters: { lastData: 7, patientTags: ['tag1'], clinicSites: [], summaryPeriod: '14d' },
+        },
+      }, { blip: blipReducer });
+
+      renderComponent();
+
+      const emptyContent = await screen.findByTestId('tide-dashboard-empty-content');
+      expect(within(emptyContent).getByText('There are no patients with the current filter(s)')).toBeInTheDocument();
+      await userEvent.click(within(emptyContent).getByRole('button', { name: 'Reset All Filters' }));
+
+      expect(await screen.findByText('Default Patient 1')).toBeInTheDocument();
+    });
+
+    it('shows an empty message without a reset button when there are no patients and no filters applied', async () => {
+      renderComponent();
+
+      const emptyContent = await screen.findByTestId('tide-dashboard-empty-content');
+      expect(within(emptyContent).getByText('There are no results to show')).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Reset All Filters' })).not.toBeInTheDocument(); // no filters = no button
+    });
+  });
 });
