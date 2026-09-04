@@ -142,11 +142,7 @@ describe('navutils', () => {
           },
           {
             type: 'SELECT_CLINIC_SUCCESS',
-            payload: { clinicId: null }, // null is appropriate for switch to private workspace
-          },
-          {
-            type: 'tideDashboardFilters/setTideDashboardFilters',
-            payload: undefined,
+            payload: { clinicId: null, tideDashboardFilters: undefined }, // null is appropriate for switch to private workspace
           },
           {
             type: '@@router/CALL_HISTORY_METHOD',

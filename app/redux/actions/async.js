@@ -19,7 +19,6 @@ import { clinicUIDetails } from '../../core/clinicUtils.js';
 import { getDismissedAltRangeBannerKey, isRangeWithNonStandardTarget } from '../../providers/AppBanner/appBannerHelpers.js';
 import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils.js';
 import { getTideDashboardFiltersKey, loadLocalState } from '../store/localStorage';
-import { setTideDashboardFilters } from '../../pages/clinicworkspace/TideDashboardV2/tideDashboardFiltersSlice';
 
 // Exported as a mutable reference to allow location to be swapped in tests
 export const _win = { location: window.location };
@@ -3155,13 +3154,11 @@ export function fetchRpmReportPatients(api, clinicId, options) {
  */
 export function selectClinic(api, clinicId) {
   return (dispatch, getState) => {
-    dispatch(sync.selectClinicSuccess(clinicId));
-
     const { blip: { clinics = {}, loggedInUserId } } = getState();
 
     const tideDashboardFiltersKey = getTideDashboardFiltersKey(loggedInUserId, clinicId);
     const tideDashboardFilters = loggedInUserId && clinicId ? loadLocalState(tideDashboardFiltersKey) : undefined;
-    dispatch(setTideDashboardFilters(tideDashboardFilters));
+    dispatch(sync.selectClinicSuccess(clinicId, tideDashboardFilters));
 
     const clinic = clinics[clinicId];
 

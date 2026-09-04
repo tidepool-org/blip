@@ -2114,11 +2114,12 @@ export function getClinicsForClinicianFailure(error, apiError) {
   };
 }
 
-export function selectClinicSuccess(clinicId) {
+export function selectClinicSuccess(clinicId, tideDashboardFilters) {
   return {
     type: ActionTypes.SELECT_CLINIC_SUCCESS,
     payload: {
-      clinicId
+      clinicId,
+      tideDashboardFilters,
     },
   };
 }
