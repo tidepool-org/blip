@@ -130,8 +130,7 @@ describe('Actions', () => {
         };
 
         let expectedActions = [
-          { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId } },
-          { type: 'tideDashboardFilters/setTideDashboardFilters', payload: { lastData: 7, patientTags: ['load1'] } }, // loads from localState
+          { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId, tideDashboardFilters: { lastData: 7, patientTags: ['load1'] } } }, // filters load from localState
           { type: 'FETCH_CLINIC_PATIENT_COUNTS_REQUEST' },
           { type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST' },
           { type: 'FETCH_CLINIC_PATIENT_COUNTS_SUCCESS', payload: { clinicId, patientCounts: countResults } },
@@ -169,8 +168,7 @@ describe('Actions', () => {
         };
 
         let expectedActions = [
-          { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId } },
-          { type: 'tideDashboardFilters/setTideDashboardFilters', payload: undefined },
+          { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId, tideDashboardFilters: undefined } },
           { type: 'SET_CLINIC_UI_DETAILS', payload: { clinicId, uiDetails: expectedUIDetails } },
         ];
 
@@ -207,8 +205,7 @@ describe('Actions', () => {
         settingsErr.status = 500;
 
         let expectedActions = [
-          { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId } },
-          { type: 'tideDashboardFilters/setTideDashboardFilters', payload: undefined },
+          { type: 'SELECT_CLINIC_SUCCESS', payload: { clinicId, tideDashboardFilters: undefined } },
           { type: 'FETCH_CLINIC_PATIENT_COUNTS_REQUEST' },
           { type: 'FETCH_CLINIC_PATIENT_COUNT_SETTINGS_REQUEST' },
           {
