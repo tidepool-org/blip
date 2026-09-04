@@ -19,11 +19,14 @@ import usePruneInvalidFilters from './usePruneInvalidFilters';
 import useTableColumns from './useTableColumns';
 import EmptyContentNode from './EmptyContentNode';
 
+import EditPatientDialogController from './modals/EditPatientDialogController';
+import DataConnectionsModalController from './modals/DataConnectionsModalController';
+
 const Gap = () => <Box sx={{ marginLeft: 'auto' }}></Box>;
 
 const tableContainerProps = { sx: { containerType: 'inline-size' } };
 
-const TideDashboardV2 = () => {
+const TideDashboardV2 = ({ api }) => {
   const { t } = useTranslation();
 
   usePruneInvalidFilters();
@@ -73,6 +76,9 @@ const TideDashboardV2 = () => {
       />
 
       <PaginationController total={total} />
+
+      <EditPatientDialogController api={api} patients={patients} />
+      <DataConnectionsModalController patients={patients}/>
     </>
   );
 };

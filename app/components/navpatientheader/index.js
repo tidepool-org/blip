@@ -9,7 +9,7 @@ import DemographicInfo from './DemographicInfo';
 import PatientMenuOptions from './MenuOptions/Patient';
 import ClinicianMenuOptions from './MenuOptions/Clinician';
 import UploadLaunchOverlay from '../../components/uploadlaunchoverlay';
-import EditPatientDialog from './EditPatientDialog';
+import EditPatientDialogController from './EditPatientDialogController';
 
 import { isClinicianAccount } from '../../core/personutils';
 import { breakpoints } from '../../themes/baseTheme';
@@ -18,7 +18,7 @@ import utils from '../../core/utils';
 
 const HeaderContainer = ({ children }) => (
   <Box variant="containers.largeBordered" mb={0} mx={[0, 0]} sx={{ width: ['100%', '100%'] }}>
-    <Flex id="navPatientHeader" px={4} py="12px"
+    <Flex id="navPatientHeader" data-testid="nav-patient-header" px={4} py="12px"
       sx={{
         columnGap: 5,
         flexWrap: 'wrap',
@@ -98,9 +98,9 @@ const NavPatientHeader = ({ api, trackMetric, patient, clinicPatient, user, perm
         <UploadLaunchOverlay modalDismissHandler={() => setIsUploadOverlayOpen(false)} />
       }
 
-      <EditPatientDialog
+      <EditPatientDialogController
         api={api}
-        trackMetric={trackMetric}
+        clinicPatient={clinicPatient}
         isOpen={isEditPatientModalOpen}
         onClose={() => setIsEditPatientModalOpen(false)}
       />

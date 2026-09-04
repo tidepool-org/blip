@@ -28,6 +28,7 @@ import i18next from '../../core/language';
 import { URL_TIDEPOOL_EXTERNAL_DATA_CONNECTIONS, URL_UPLOADER_DOWNLOAD_PAGE } from '../../core/constants';
 import PatientEmailModal from './PatientEmailModal';
 import { DesktopOnly } from '../mediaqueries';
+import { trackMetric } from '../../core/metricUtils';
 
 const t = i18next.t.bind(i18next);
 
@@ -38,7 +39,6 @@ export const DataConnectionsModal = (props) => {
     onBack,
     patient,
     shownProviders,
-    trackMetric,
   } = props;
 
   const history = useHistory();
@@ -60,8 +60,8 @@ export const DataConnectionsModal = (props) => {
   const dispatch = useDispatch();
 
   const fetchPatientDetails = useCallback(() => {
-    dispatch(actions.async.fetchPatientFromClinic(api, selectedClinicId, patient.id));
-  }, [dispatch, patient.id, selectedClinicId])
+    dispatch(actions.async.fetchPatientFromClinic(api, selectedClinicId, patient?.id));
+  }, [dispatch, patient?.id, selectedClinicId]);
 
   // Pull the patient on load to ensure the most recent dexcom connection state is made available
   useEffect(() => {
@@ -135,6 +135,8 @@ export const DataConnectionsModal = (props) => {
   const learnMoreText = selectedClinicId
     ? t('Learn more.')
     : t('Learn more here.');
+
+  if (!patient) return null;
 
   return (
     <>
