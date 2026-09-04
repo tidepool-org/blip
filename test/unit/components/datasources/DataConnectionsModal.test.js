@@ -142,7 +142,7 @@ describe('DataConnectionsModal', () => {
     // Dialog portals into document.body
     const title = document.getElementById('data-connections-title');
     expect(title).to.not.be.null;
-    expect(title.textContent).to.equal('Bring Data into Tidepool');
+    expect(title.textContent).to.equal('Manage Device Connections');
   });
 
   it('should render patient details', () => {

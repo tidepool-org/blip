@@ -424,7 +424,7 @@ const MoreMenu = ({
       text: t('Edit Patient Details'),
     }, {
       iconSrc: DataInIcon,
-      iconLabel: t('Bring Data into Tidepool'),
+      iconLabel: t('Manage Device Connections'),
       iconPosition: 'left',
       id: `edit-data-connections-${patient.id}`,
       variant: 'actionListItem',
@@ -432,7 +432,7 @@ const MoreMenu = ({
         _popupState.close();
         handleEditPatientDataConnections(patient);
       },
-      text: t('Bring Data into Tidepool'),
+      text: t('Manage Device Connections'),
     });
 
     arr.push({

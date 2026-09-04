@@ -132,10 +132,6 @@ export const DataConnectionsModal = (props) => {
     ? t('Invite patients to authorize syncing from these accounts. Only available in the US at this time.')
     : t('When you connect an account, data can flow into Tidepool without any extra effort. Only available in the US at this time.');
 
-  const learnMoreText = selectedClinicId
-    ? t('Learn more.')
-    : t('Learn more here.');
-
   return (
     <>
       <Dialog
@@ -147,7 +143,7 @@ export const DataConnectionsModal = (props) => {
         onClose={onClose}
       >
         <DialogTitle onBack={onBack} onClose={onClose}>
-          <MediumTitle id="data-connections-title">{t('Bring Data into Tidepool')}</MediumTitle>
+          <MediumTitle id="data-connections-title">{t('Manage Device Connections')}</MediumTitle>
         </DialogTitle>
 
         <DialogContent>
@@ -159,16 +155,6 @@ export const DataConnectionsModal = (props) => {
           <Box mb={3}>
             <Body1 sx={{ fontWeight: 'medium'}}>
               {dataSourcesText}&nbsp;
-              <Link
-                id="data-connections-restrictions-link"
-                href={URL_TIDEPOOL_EXTERNAL_DATA_CONNECTIONS}
-                target="_blank"
-                rel="noreferrer noopener"
-                sx={{
-                  fontSize: 1,
-                  fontWeight: 'medium',
-                }}
-              >{learnMoreText}</Link>
             </Body1>
 
             {patientData?.email && patient?.permissions?.custodian && (
