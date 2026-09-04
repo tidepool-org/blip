@@ -65,7 +65,7 @@ import Button from '../../components/elements/Button';
 import Icon from '../../components/elements/Icon';
 import Table from '../../components/elements/Table';
 import { TagList } from '../../components/elements/Tag';
-import Pagination from '../../components/elements/Pagination';
+import PageControls from './components/PageControls';
 import TextInput from '../../components/elements/TextInput';
 import BgSummaryCell from '../../components/clinic/BgSummaryCell';
 import PatientForm from '../../components/clinic/PatientForm';
@@ -98,7 +98,6 @@ import {
   patientSchema as validationSchema,
   clinicSiteSchema,
   clinicPatientTagSchema,
-  lastDataFilterOptions,
   tideDashboardConfigSchema,
   rpmReportConfigSchema,
   maxClinicPatientTags,
@@ -1326,11 +1325,8 @@ export const ClinicPatients = (props) => {
     debounceSearch('');
   }
 
-  const handlePageChange = useCallback((event, page) => {
-    setPatientFetchOptions({
-      ...patientFetchOptions,
-      offset: (page - 1) * patientFetchOptions.limit,
-    });
+  const handleOffsetChange = useCallback(offset => {
+    setPatientFetchOptions({ ...patientFetchOptions, offset: offset });
   }, [patientFetchOptions]);
 
   function handleResetFilters() {
@@ -1418,46 +1414,6 @@ export const ClinicPatients = (props) => {
 
               <Box sx={{ flex: 1, flexBasis:'fit-content', position: ['static', null, 'absolute'], top: '8px', right: 4 }}>
                 <Flex sx={{ justifyContent: 'space-between', alignContent: 'center', gap: 2 }}>
-                  {showTideDashboardUI && (
-                    <PopoverElement
-                      id="tideDashAddTagsPopover"
-                      triggerOnHover
-                      disabled={!!clinic?.patientTags?.length}
-                      popoverProps={{
-                        anchorOrigin: {
-                          vertical: 'bottom',
-                          horizontal: 'center',
-                        },
-                        transformOrigin: {
-                          vertical: 'top',
-                          horizontal: 'center',
-                        },
-                        backgroundColor: 'rgba(79, 106, 146, 0.85)',
-                        border: 'none',
-                        borderRadius: radii.input,
-                        marginTop: `-${space[2]}px`,
-                        padding: `0 ${space[2]}px`,
-                        width: 'auto',
-                      }}
-                      popoverContent={(
-                        <Text sx={{ color: 'white', fontSize:'10px', fontWeight: 'medium' }}>{t('Add and apply patient tags to use')}</Text>
-                      )}
-                    >
-                      <Button
-                        id="open-tide-dashboard"
-                        variant="tertiary"
-                        onClick={handleConfigureTideDashboard}
-                        tag={t('New')}
-                        px={2}
-                        sx={{ flexShrink: 0, fontSize: 0 }}
-                        disabled={!clinic?.patientTags?.length}
-                        tagColorPalette={!clinic?.patientTags?.length ? [colors.lightGrey, colors.text.primaryDisabled] : 'greens'}
-                      >
-                        {t('TIDE Dashboard View')}
-                      </Button>
-                    </PopoverElement>
-                  )}
-
                   <TextInput
                     themeProps={{
                       sx: { width: ['100%', null, '250px'] },
@@ -1536,14 +1492,22 @@ export const ClinicPatients = (props) => {
             )}
 
             {/* Flex Group 2b: Range select and Info/Visibility Icons */}
-            <Flex sx={{ flexGrow: 1, justifyContent: 'flex-end', gap: 3 }}>
+            <Flex sx={{ flexGrow: 1, justifyContent: 'space-between', gap: 3 }}>
 
               {/* Range select */}
               {showSummaryData && (
                 <Flex
                   pt={0}
-                  sx={{ gap: 3, justifyContent: 'flex-end', alignItems: 'center', flexShrink: 0 }}
+                  sx={{ gap: 3, justifyContent: 'flex-start', alignItems: 'center', flexShrink: 0 }}
                 >
+                  <Flex
+                    py={1}
+                    pl={[0, 0, 3]}
+                    sx={{ color: 'grays.4', borderLeft: ['none', null, borders.divider], alignItems: 'center' }}
+                  >
+
+                  <Text sx={{ fontSize: 0 }}>{t('Summarizing')}</Text>
+                </Flex>
 
                   <FilterBySummaryPeriod
                     activeSummaryPeriod={activeSummaryPeriod}
@@ -3109,7 +3073,6 @@ export const ClinicPatients = (props) => {
 
   const renderPeopleTable = useCallback(() => {
     const pageCount = Math.ceil(clinic?.fetchedPatientCount / patientFetchOptions.limit);
-    const page = Math.ceil(patientFetchOptions.offset / patientFetchOptions.limit) + 1;
     const sort = patientFetchOptions.sort || defaultPatientFetchOptions.sort;
 
     const patientQueryState = getPatientQueryState(activeFilters, patientListSearchTextInput);
@@ -3148,17 +3111,14 @@ export const ClinicPatients = (props) => {
         />
 
         {pageCount > 1 && (
-          <Pagination
-            px="5%"
-            sx={{ width: '100%', position: 'absolute', bottom: '-50px' }}
-            id="clinic-patients-pagination"
-            count={pageCount}
-            disabled={pageCount < 2}
-            onChange={handlePageChange}
-            page={page}
-            showFirstButton={false}
-            showLastButton={false}
-          />
+          <Box sx={{ width: '100%', position: 'absolute', bottom: '-50px' }}>
+            <PageControls
+              total={clinic?.fetchedPatientCount}
+              limit={patientFetchOptions.limit}
+              offset={patientFetchOptions.offset}
+              onOffsetChange={handleOffsetChange}
+            />
+          </Box>
         )}
       </Box>
     );
@@ -3168,7 +3128,7 @@ export const ClinicPatients = (props) => {
     columns,
     data,
     defaultPatientFetchOptions.sort,
-    handlePageChange,
+    handleOffsetChange,
     handleSortChange,
     loading,
     patientFetchOptions,
