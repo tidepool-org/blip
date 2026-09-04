@@ -208,6 +208,8 @@ DataRecencyFilterDropdown.propTypes = {
     value: PropTypes.number.isRequired,
     label: PropTypes.string.isRequired,
   })),
+  canSelectLastDataType: PropTypes.bool,
+  canClearSelection: PropTypes.bool,
 };
 
 export default DataRecencyFilterDropdown;
