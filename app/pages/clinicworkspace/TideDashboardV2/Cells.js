@@ -1,6 +1,20 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
-import { Box } from 'theme-ui';
+import { useSelector } from 'react-redux';
+import { useTranslation, withTranslation } from 'react-i18next';
+import { Box, Flex, Text } from 'theme-ui';
+import { colors as vizColors  } from '@tidepool/viz';
+import { MGDL_UNITS } from '../../../core/constants';
+import { colors } from '../../../themes/baseTheme';
+
+import BgSummaryCell from '../../../components/clinic/BgSummaryCell';
+import DeltaBar from '../../../components/elements/DeltaBar';
+import utils from '../../../core/utils';
+import { CATEGORY } from './tideDashboardSlice';
+import isUndefined from 'lodash/isUndefined';
+
+
+import { tideDashboardExclusionQuery } from './tideDashboardApi';
+import { useFlags } from 'launchdarkly-react-client-sdk';
 
 export const COMPACT = '@container (max-width: 1200px)';
 
@@ -16,6 +30,224 @@ export const PatientCell = ({ patient }) => {
   </Box>;
 };
 
+export const NumericTemplateCell = ({ value, isPercent = false }) => {
+  if (!value) return <Text sx={{ fontWeight: 'normal' }}></Text>;
+
+  return <Text sx={{ fontWeight: 'normal', whiteSpace: 'nowrap' }}>{value} {isPercent && '%'}</Text>;
+};
+
+export const AvgGlucoseHeader = withTranslation()(({ t }) => (
+  <>
+    <Box sx={{ [COMPACT]: { display: 'none' } }}>{t('Avg Glucose')}</Box>
+    <Box sx={{ display: 'none', [COMPACT]: { display: 'block' } }}>{t('Avg Gluc.')}</Box>
+  </>
+));
+
+export const AvgGlucoseCell = ({ patient }) => {
+  const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
+  const selectedClinicId = useSelector((state) => state.blip.selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+  const clinicBgUnits = clinic?.preferredBgUnits || MGDL_UNITS;
+
+  const rawValue = patient?.summary?.cgmStats?.periods?.[summaryPeriod]?.averageGlucoseMmol;
+  const value = clinicBgUnits === MGDL_UNITS
+    ? utils.translateBg(rawValue, MGDL_UNITS)
+    : utils.formatDecimal(rawValue, 1); // MMOLL_UNITS
+
+  return <NumericTemplateCell value={value} />;
+};
+
+export const TimeInRangePercentBarChartCell = ({ patient }) => {
+  const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
+  const selectedClinicId = useSelector(state => state.blip.selectedClinicId);
+  const clinic = useSelector(state => state.blip.clinics?.[selectedClinicId]);
+  const clinicBgUnits = clinic?.preferredBgUnits || MGDL_UNITS;
+
+  const { showExtremeHigh } = useFlags();
+
+  return <BgSummaryCell
+    id={patient?.id}
+    summary={patient?.summary?.cgmStats?.periods?.[summaryPeriod]}
+    config={patient?.summary?.cgmStats?.config}
+    activeSummaryPeriod={summaryPeriod}
+    glycemicRanges={patient?.glycemicRanges}
+    clinicBgUnits={clinicBgUnits}
+    showExtremeHigh={showExtremeHigh || false}
+  />;
+};
+
+export const TimeInTargetPercentCell = ({ patient }) => {
+  const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
+  const rawValue = patient?.summary?.cgmStats?.periods?.[summaryPeriod]?.timeInTargetPercent;
+  let value = utils.formatDecimal(rawValue * 100, 0);
+
+  if (isUndefined(rawValue)) value = '';
+
+  return <NumericTemplateCell value={value} isPercent />;
+};
+
+export const TimeInVeryLowPercentCell = ({ patient }) => {
+  const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
+  const rawValue = patient?.summary?.cgmStats?.periods?.[summaryPeriod]?.timeInVeryLowPercent;
+  const value = utils.formatDecimal(rawValue * 100, 0);
+
+  return <NumericTemplateCell value={value} isPercent />;
+};
+
+export const TimeInAnyLowPercentCell = ({ patient }) => {
+  const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
+  const rawValue = patient?.summary?.cgmStats?.periods?.[summaryPeriod]?.timeInAnyLowPercent;
+  const value = utils.formatDecimal(rawValue * 100, 0);
+
+  return <NumericTemplateCell value={value} isPercent />;
+};
+
+export const TimeInVeryHighPercentCell = ({ patient }) => {
+  const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
+  const rawValue = patient?.summary?.cgmStats?.periods?.[summaryPeriod]?.timeInVeryHighPercent;
+  const value = utils.formatDecimal(rawValue * 100, 0);
+
+  return <NumericTemplateCell value={value} isPercent />;
+};
+
+export const TimeInAnyHighPercentCell = ({ patient }) => {
+  const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
+  const rawValue = patient?.summary?.cgmStats?.periods?.[summaryPeriod]?.timeInAnyHighPercent;
+  const value = utils.formatDecimal(rawValue * 100, 0);
+
+  return <NumericTemplateCell value={value} isPercent />;
+};
+
+export const GMICell = ({ patient }) => {
+  const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
+  const value = patient?.summary?.cgmStats?.periods?.[summaryPeriod]?.glucoseManagementIndicator;
+
+  return <NumericTemplateCell value={value} isPercent />;
+};
+
+export const CGMUseCell = ({ patient }) => {
+  const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
+  const rawValue = patient?.summary?.cgmStats?.periods?.[summaryPeriod]?.timeCGMUsePercent;
+  const value = utils.formatDecimal(rawValue * 100, 0);
+
+  return <NumericTemplateCell value={value} isPercent/>;
+};
+
+export const ChangeTIRHeader = withTranslation()(({ t }) => (
+  <>
+    <Box sx={{ [COMPACT]: { display: 'none' } }}>{t('% Change in TIR')}</Box>
+    <Box sx={{ display: 'none', [COMPACT]: { display: 'block' } }}>{t('% Δ TIR')}</Box>
+  </>
+));
+
+export const ChangeTIRCell = ({ patient }) => {
+  const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
+  const timeInTargetPercentDelta = patient?.summary?.cgmStats?.periods?.[summaryPeriod]?.timeInTargetPercentDelta;
+
+  if (!timeInTargetPercentDelta) return <Text sx={{ fontWeight: 'medium' }}>-</Text>;
+
+  const compactDisplayValue = utils.formatDecimal(timeInTargetPercentDelta * 100, 1);
+
+  return <>
+    <Box sx={{ [COMPACT]: { display: 'none' } }}>
+      <DeltaBar
+        sx={{ fontWeight: 'medium' }}
+        delta={timeInTargetPercentDelta * 100}
+        max={30}
+      />
+    </Box>
+    <Box sx={{ display: 'none', [COMPACT]: { display: 'block' } }}>
+      <NumericTemplateCell value={compactDisplayValue} isPercent />
+    </Box>
+  </>
+  ;
+};
+
+export const FlagCell = ({ patient, category = null }) => {
+  const { t } = useTranslation();
+  const summaryPeriod = useSelector(state => state.blip.tideDashboardFilters.summaryPeriod);
+  const period = patient?.summary?.cgmStats?.periods?.[summaryPeriod];
+
+  const { VERY_LOW, ANY_LOW, DROP_IN_TIR, ANY_HIGH, VERY_HIGH, LOW_CGM_WEAR } = CATEGORY;
+
+  const getThreshold = (category) => tideDashboardExclusionQuery.getRule(category).threshold;
+
+  if (!period) return null;
+
+  const rangeName = (() => {
+    switch(true) {
+      // Current dashboard category takes priority
+      case category === VERY_LOW: return 'veryLow';
+      case category === ANY_LOW: return 'anyLow';
+      case category === VERY_HIGH: return 'veryHigh';
+      case category === ANY_HIGH: return 'anyHigh';
+      case category === DROP_IN_TIR: return 'dropInTIR';
+      case category === LOW_CGM_WEAR: return 'lowSensorUsage';
+
+      // If no category, then read from summary
+      case period.timeInVeryLowPercent >= getThreshold(VERY_LOW): return 'veryLow';           // >=1%
+      case period.timeInAnyLowPercent >= getThreshold(ANY_LOW): return 'anyLow';              // >=4%
+      case period.timeInTargetPercentDelta <= getThreshold(DROP_IN_TIR): return 'dropInTIR';  // <=-15%
+      case period.timeInAnyHighPercent >= getThreshold(ANY_HIGH): return 'anyHigh';           // >=25%
+      case period.timeInVeryHighPercent >= getThreshold(VERY_HIGH): return 'veryHigh';        // >=5%
+      case period.timeCGMUsePercent < getThreshold(LOW_CGM_WEAR): return 'lowSensorUsage';    // <70%
+
+      default: return null;
+    }
+  })();
+
+  if (!rangeName) return null;
+
+  const flagLabels = {
+    veryLow: t('Very Low'),
+    anyLow: t('Low'),
+    veryHigh: t('Very High'),
+    anyHigh: t('High'),
+    dropInTIR: t('Drop in TIR'),
+    lowSensorUsage: t('Low CGM Wear'),
+    target: t('Meeting Targets'),
+  };
+
+  const flagColor = colors.bg[rangeName] || vizColors.gold30;
+
+  return (
+    <Flex className='tide-dashboard-flag-cell'>
+      <Flex
+        className='tide-dashboard-flag'
+        px={2} py={1} sx={{
+        backgroundColor: `${flagColor}1A`, // adding '1A' reduces opacity to 0.1
+        borderRadius: 4,
+        alignItems: 'center',
+      }}>
+          <Box
+            sx={{ borderRadius: 4, backgroundColor: flagColor, width: '12px', height: '12px' }}
+            mr={2}
+          >
+          </Box>
+          <Text sx={{ fontSize: 0, color: vizColors.black, fontWeight: 'medium', whiteSpace: 'nowrap' }}>
+            {flagLabels[rangeName] || ''}
+          </Text>
+      </Flex>
+    </Flex>
+  );
+};
+
+export const MoreMenuHeader = () => {
+  const { t } = useTranslation();
+
+  return <Box aria-label={t('More Options')}></Box>;
+};
+
+export const MoreMenuCell = () => <></>; // TEMPORARY
+
 export default {
   PatientCell,
+  NumericTemplateCell,
+  AvgGlucoseCell,
+  TimeInRangePercentBarChartCell,
+  TimeInVeryLowPercentCell,
+  ChangeTIRCell,
+  GMICell,
+  CGMUseCell,
+  FlagCell,
 };
