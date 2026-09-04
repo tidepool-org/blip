@@ -296,7 +296,9 @@ export const MoreMenuCell = ({ patient }) => {
 };
 
 export const PatientLastReviewedCell = ({ patient }) => {
-  return <PatientLastReviewedGenericAdapter patient={patient} />;
+  return <Box onClick={event => event.stopPropagation()}>
+    <PatientLastReviewedGenericAdapter patient={patient} />
+  </Box>;
 };
 
 export default {

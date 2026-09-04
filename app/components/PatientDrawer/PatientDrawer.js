@@ -1,19 +1,18 @@
 import React from 'react';
-import Icon from '../../../components/elements/Icon';
+import Icon from '../../components/elements/Icon';
 import { useLocation, useHistory } from 'react-router-dom';
 import Drawer from '@material-ui/core/Drawer';
 import styled from '@emotion/styled';
 import { makeStyles } from '@material-ui/core/styles';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import { Box } from 'theme-ui';
-import { useFlags } from 'launchdarkly-react-client-sdk';
 
 import Overview from './Overview';
 import StackedDaily from './StackedDaily';
 import MenuBar, { OVERVIEW_TAB_INDEX, STACKED_DAILY_TAB_INDEX } from './MenuBar';
 import useAgpCGM from './useAgpCGM';
-import { shadows } from '../../../themes/baseTheme';
-import { useScrollToTop } from '../../../core/hooks';
+import { shadows } from '../../themes/baseTheme';
+import { useScrollToTop } from '../../core/hooks';
 
 const StyledCloseButton = styled(Icon)`
   position: absolute;
@@ -53,7 +52,7 @@ const getAgpPeriodInDays = (period) => {
   }
 };
 
-const DrawerContent = ({ patientId, onClose, api, trackMetric, period }) => {
+const DrawerContent = ({ patient, onClose, api, period }) => {
   // Only rendered when patient is selected and isOpen is true
   // this will also allow the hook to dismount and for the cleanup to be called
   const location = useLocation();
@@ -62,7 +61,7 @@ const DrawerContent = ({ patientId, onClose, api, trackMetric, period }) => {
   const [selectedTab, setSelectedTab] = React.useState(drawerTab);
   const [scrolledToTop, setScrolledToTop] = React.useState(true);
   const agpPeriodInDays = getAgpPeriodInDays(period);
-  const agpCGMData = useAgpCGM(api, patientId, agpPeriodInDays);
+  const agpCGMData = useAgpCGM(api, patient, agpPeriodInDays);
   const contentRef = React.useRef(undefined);
   useScrollToTop(contentRef?.current, [selectedTab]);
 
@@ -85,7 +84,7 @@ const DrawerContent = ({ patientId, onClose, api, trackMetric, period }) => {
   return (
     <>
       <Box sx={{ flexShrink: 0 }}>
-        <MenuBar patientId={patientId} trackMetric={trackMetric} onClose={onClose} selectedTab={selectedTab} onSelectTab={handleSelectTab} />
+        <MenuBar patient={patient} onClose={onClose} selectedTab={selectedTab} onSelectTab={handleSelectTab} />
 
         <Box className='sticky-shadow' sx={{ height: '8px', position: 'sticky', zIndex: 1, visibility: scrolledToTop ? 'hidden' : 'visible', boxShadow: shadows.large }} />
       </Box>
@@ -101,19 +100,16 @@ const DrawerContent = ({ patientId, onClose, api, trackMetric, period }) => {
         onScroll={handleContentScroll}
         ref={contentRef}
       >
-        {selectedTab === OVERVIEW_TAB_INDEX && <Overview patientId={patientId} agpCGMData={agpCGMData} />}
-        {selectedTab === STACKED_DAILY_TAB_INDEX && <StackedDaily patientId={patientId} agpCGMData={agpCGMData} />}
+        {selectedTab === OVERVIEW_TAB_INDEX && <Overview patient={patient} agpCGMData={agpCGMData} />}
+        {selectedTab === STACKED_DAILY_TAB_INDEX && <StackedDaily patient={patient} agpCGMData={agpCGMData} />}
       </Box>
     </>
   )
 }
 
-const PatientDrawer = ({ patientId, onClose, api, trackMetric, period }) => {
+const PatientDrawer = ({ patient, onClose, api, period }) => {
   const classes = useStyles();
-  const { showTideDashboardPatientDrawer } = useFlags();
-  const isOpen = !!patientId && isValidAgpPeriod(period);
-
-  if (!showTideDashboardPatientDrawer) return null;
+  const isOpen = !!patient && isValidAgpPeriod(period);
 
   return (
     <StyledDrawer
@@ -133,7 +129,7 @@ const PatientDrawer = ({ patientId, onClose, api, trackMetric, period }) => {
           flexDirection: 'column',
         }}
       >
-        {isOpen && <DrawerContent patientId={patientId} onClose={onClose} api={api} trackMetric={trackMetric} period={period} />}
+        { isOpen && <DrawerContent patient={patient} onClose={onClose} api={api} period={period} /> }
       </Box>
     </StyledDrawer>
   );
