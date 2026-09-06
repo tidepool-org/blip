@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import { useLocation, useHistory } from 'react-router-dom';
+import { Redirect, useLocation, useHistory } from 'react-router-dom';
 import Table from '../../../components/elements/Table';
 import { Flex, Text, Box } from 'theme-ui';
 
@@ -19,7 +19,6 @@ import useTideDashboardPatients from './useTideDashboardPatients';
 import usePruneInvalidFilters from './usePruneInvalidFilters';
 import useTableColumns from './useTableColumns';
 import EmptyContentNode from './EmptyContentNode';
-import { Redirect, useLocation } from 'react-router-dom';
 import useAuthorizationGate from './useAuthorizationGate';
 import * as ErrorMessages from '../../../redux/constants/errorMessages';
 
@@ -31,7 +30,6 @@ import { OVERVIEW_TAB_INDEX } from '../../../components/PatientDrawer/MenuBar';
 const Gap = () => <Box sx={{ marginLeft: 'auto' }}></Box>;
 
 const TideDashboardV2 = ({ api }) => {
-  const { search } = useLocation();
   const { t } = useTranslation();
   const { search, pathname } = useLocation();
   const history = useHistory();
