@@ -2,11 +2,11 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
-import { MemoryRouter, Route } from 'react-router-dom';
+import { Router, Route } from 'react-router-dom';
+import { createMemoryHistory } from 'history';
 import configureStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
 import merge from 'lodash/merge';
-import { push } from 'connected-react-router';
 import { useFlags } from 'launchdarkly-react-client-sdk';
 
 import '@app/core/language';
@@ -35,6 +35,7 @@ const mockStore = configureStore([thunk]);
 
 describe('ClinicWorkspace', () => {
   let store;
+  let history;
   let defaultProps;
 
   const defaultState = {
@@ -57,15 +58,18 @@ describe('ClinicWorkspace', () => {
     },
   };
 
-  const ui = ({ route = '', ...props } = {}) => (
+  const ui = (props = {}) => (
     <Provider store={store}>
-      <MemoryRouter initialEntries={[`/clinic-workspace/${route}`]}>
+      <Router history={history}>
         <Route path="/clinic-workspace/:tab?" children={() => <ClinicWorkspace {...defaultProps} {...props} />} />
-      </MemoryRouter>
+      </Router>
     </Provider>
   );
 
-  const renderComponent = (props) => render(ui(props));
+  const renderComponent = ({ route = '', ...props } = {}) => {
+    history = createMemoryHistory({ initialEntries: [`/clinic-workspace/${route}`] });
+    return render(ui(props));
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -139,7 +143,7 @@ describe('ClinicWorkspace', () => {
 
   describe('clearing the patient in view', () => {
     it('clears the patient in view on mount and again when the clinic changes', () => {
-      const { rerender } = render(ui({ location: { state: { selectedClinicId: 'clinic123' } } }));
+      const { rerender } = renderComponent({ location: { state: { selectedClinicId: 'clinic123' } } });
 
       expect(actions.worker.dataWorkerRemoveDataRequest).toHaveBeenCalledTimes(1);
       expect(actions.sync.clearPatientInView).toHaveBeenCalledTimes(1);
@@ -162,15 +166,16 @@ describe('ClinicWorkspace', () => {
   });
 
   describe('tab navigation', () => {
-    it('sets the tide dashboard path when clicking TIDE Dashboard', async () => {
-      renderComponent();
+    it('sets the tide dashboard path when clicking TIDE Dashboard, keeping the query string', async () => {
+      renderComponent({ route: 'patients?drawerPatientId=patient123' });
 
       expect(screen.queryByText('stubbed tide dashboard')).not.toBeInTheDocument();
 
       await userEvent.click(screen.getByRole('tab', { name: 'TIDE Dashboard' }));
 
       expect(screen.getByText('stubbed tide dashboard')).toBeInTheDocument();
-      expect(store.getActions()).toContainEqual(push('/clinic-workspace/tide-dashboard'));
+      expect(history.location.pathname).toBe('/clinic-workspace/tide-dashboard');
+      expect(history.location.search).toBe('?drawerPatientId=patient123');
       expect(store.getActions()).toContainEqual(resetTideDashboardState());
     });
 
@@ -182,7 +187,7 @@ describe('ClinicWorkspace', () => {
       await userEvent.click(screen.getByRole('tab', { name: 'Invites (2)' }));
 
       expect(screen.getByText('stubbed patient invites')).toBeInTheDocument();
-      expect(store.getActions()).toContainEqual(push('/clinic-workspace/invites'));
+      expect(history.location.pathname).toBe('/clinic-workspace/invites');
       expect(store.getActions()).not.toContainEqual(resetTideDashboardState());
     });
 
@@ -194,7 +199,7 @@ describe('ClinicWorkspace', () => {
       await userEvent.click(screen.getByRole('tab', { name: 'Tidepool Loop Start Orders' }));
 
       expect(screen.getByText('stubbed prescriptions')).toBeInTheDocument();
-      expect(store.getActions()).toContainEqual(push('/clinic-workspace/prescriptions'));
+      expect(history.location.pathname).toBe('/clinic-workspace/prescriptions');
       expect(store.getActions()).not.toContainEqual(resetTideDashboardState());
     });
 
@@ -208,7 +213,7 @@ describe('ClinicWorkspace', () => {
       await userEvent.click(screen.getByRole('tab', { name: 'Patient List' }));
 
       expect(screen.getByText('stubbed clinic patients')).toBeInTheDocument();
-      expect(store.getActions()).toContainEqual(push('/clinic-workspace/patients'));
+      expect(history.location.pathname).toBe('/clinic-workspace/patients');
       expect(store.getActions()).not.toContainEqual(resetTideDashboardState());
     });
   });
