@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import Table from '../../../components/elements/Table';
-import { Flex} from 'theme-ui';
+import { Flex } from 'theme-ui';
 
 import FilterByCategory from './FilterByCategory';
 
@@ -11,12 +11,16 @@ import PaginationController from './PaginationController';
 import useTideDashboardPatients from './useTideDashboardPatients';
 import useTableColumns from './useTableColumns';
 import EmptyContentNode from './EmptyContentNode';
+import { Redirect, useLocation } from 'react-router-dom';
+import useAuthorizationGate from './useAuthorizationGate';
 
 const tableContainerProps = { sx: { containerType: 'inline-size' } };
 
 const TideDashboardV2 = () => {
+  const { search } = useLocation();
   const category = useSelector(state => state.blip.tideDashboard.category);
 
+  const { isAuthorized, isUnauthorized } = useAuthorizationGate();
   const { data } = useTideDashboardPatients();
 
   // Sync category to data fetching resolution; prevents visual glitch due to
@@ -26,10 +30,13 @@ const TideDashboardV2 = () => {
   const tableColumns = useTableColumns(resolvedCategory);
   const emptyContentNode = useMemo(() => <EmptyContentNode />, []);
 
-  if (!data) return null;
+  if (isUnauthorized) {
+    return <Redirect to={{ pathname: '/clinic-workspace/patients', search }} />;
+  }
+
+  if (!isAuthorized || !data) return null;
 
   const patients = data?.data || [];
-
   const total = data?.meta?.count || 0;
 
   return (
