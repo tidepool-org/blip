@@ -566,7 +566,6 @@ export const ClinicPatients = (props) => {
   const [currentPage, setCurrentPage] = useState(1);
   const previousClinic = usePrevious(clinic);
   const previousFetchOptions = usePrevious(patientFetchOptions);
-  const localConfigKey = [loggedInUserId, selectedClinicId].join('|');
   const { showExtremeHigh, showSummaryDashboard, showSummaryDashboardLastReviewed, showRpmReport } = useFlags();
   const [showSummaryData, setShowSummaryData] = useState();
   const previousShowSummaryData = usePrevious(showSummaryData)
