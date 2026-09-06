@@ -12,7 +12,6 @@ import { setupStore } from '@tests/utils/setupStore';
 import blipReducer from '@app/redux/reducers';
 import { CATEGORY } from '@app/pages/clinicworkspace/TideDashboardV2/tideDashboardSlice';
 import TideDashboardV2 from '@app/pages/clinicworkspace/TideDashboardV2/TideDashboardV2';
-import { MemoryRouter } from 'react-router-dom';
 
 // Pin the data recency window to a stable [lastDataFrom, lastDataTo]
 jest.mock('@app/pages/clinicworkspace/TideDashboardV2/useDerivedDataRecencyEndpoints', () => ({
