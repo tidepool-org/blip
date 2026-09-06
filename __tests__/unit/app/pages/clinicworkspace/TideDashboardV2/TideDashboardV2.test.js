@@ -11,6 +11,7 @@ import { setupStore } from '@tests/utils/setupStore';
 import blipReducer from '@app/redux/reducers';
 import { CATEGORY } from '@app/pages/clinicworkspace/TideDashboardV2/tideDashboardSlice';
 import TideDashboardV2 from '@app/pages/clinicworkspace/TideDashboardV2/TideDashboardV2';
+import { MemoryRouter } from 'react-router-dom';
 
 // Pin the data recency window to a stable [lastDataFrom, lastDataTo]
 jest.mock('@app/pages/clinicworkspace/TideDashboardV2/useDerivedDataRecencyEndpoints', () => ({
@@ -19,6 +20,15 @@ jest.mock('@app/pages/clinicworkspace/TideDashboardV2/useDerivedDataRecencyEndpo
     '2025-05-23T00:00:00.000Z', // lastDataFrom
     '2025-05-30T00:00:00.000Z', // lastDataTo
   ],
+}));
+
+jest.mock('launchdarkly-react-client-sdk', () => ({
+  useFlags: jest.fn().mockReturnValue({ showTideDashboard: true }),
+  useLDClient: jest.fn().mockReturnValue({
+    getContext: () => ({
+      clinic: { tier: 'tier0400' },
+    }),
+  }),
 }));
 
 const { DEFAULT, VERY_LOW, ANY_LOW, DROP_IN_TIR, ANY_HIGH, VERY_HIGH, LOW_CGM_WEAR, TARGET } = CATEGORY;
@@ -177,7 +187,9 @@ describe('TideDashboardV2', () => {
 
   const renderComponent = () => render(
     <Provider store={store}>
-      <TideDashboardV2 />
+      <MemoryRouter initialEntries={['/clinic-workspace/tide-dashboard']}>
+        <TideDashboardV2 />
+      </MemoryRouter>
     </Provider>
   );
 
