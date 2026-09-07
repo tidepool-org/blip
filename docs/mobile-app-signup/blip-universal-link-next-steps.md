@@ -326,8 +326,13 @@ verified working and is the right mechanism there.
 
 Everything on this branch is built so that shipping is configuration, not rework:
 
-1. Stand up the link host (e.g. `link.tidepool.org`) serving the AASA and `/mobile-app` — a blip
-   deploy gives both for free, but anything serving those two paths works.
+1. Stand up the link host (e.g. `link.tidepool.org`) serving the AASA and `/mobile-app`. **This
+   does not require a new server**: iOS judges same-host suppression by the URL's hostname string,
+   not the backend, so an alias (DNS + TLS + ingress) pointing at the *existing* `app.tidepool.org`
+   blip deployment suffices — blip already serves both paths. Use a purpose-named alias rather than
+   reusing an existing one like `api.tidepool.org`: the API gateway doesn't serve the landing page,
+   its redirect/rewrite rules can silently break the AASA's no-redirect requirement, and claiming
+   the API host in the app's entitlement is a pointless coupling.
 2. `IOS_UNIVERSAL_LINK_HOST` → the real host; `IOS_LINK_STRATEGY` → `'universal'`.
 3. Mobile release with a production entitlement: `applinks:link.tidepool.org` (no
    `?mode=developer`). Ship order matters: entitlement + AASA must be live **before** the blip
