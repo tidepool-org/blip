@@ -16,6 +16,7 @@ import Workspaces from './pages/workspaces';
 import ConfirmPasswordReset from './pages/passwordreset/confirm';
 import EmailVerification from './pages/emailverification';
 import Login from './pages/login';
+import MobileApp from './pages/mobileapp';
 import { PrescriptionForm } from './pages/prescription';
 import OAuthConnection from './pages/oauth/OAuthConnection';
 import PatientData from './pages/patientdata';
@@ -463,6 +464,8 @@ export const getRoutes = (appContext) => {
           <Route path='/login' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><Login {...routeProps} {...props} /></Gate>)} />
           <Route path='/smart-on-fhir' render={routeProps => (<Gate onEnter={boundRequireSmartOnFhir} key={routeProps.match.path}><SmartOnFhir {...routeProps} {...props} /></Gate>)} />
           <Route path='/terms' render={routeProps => (<Terms {...routeProps} {...props} />)} />
+          {/* Universal link target — must stay unauthenticated, since it is reached from the app store flow */}
+          <Route path='/mobile-app' render={routeProps => (<MobileApp {...routeProps} {...props} />)} />
           <Route path='/signup' render={routeProps => (<Gate onEnter={boundRequireNoAuth} key={routeProps.match.path}><Signup {...routeProps} {...props} /></Gate>)} />
           <Route path='/clinic-admin' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicAdmin {...routeProps} {...props} /></Gate>)} />
           <Route path='/clinic-details/:action' render={routeProps => (<Gate onEnter={boundRequireAuth} key={routeProps.match.path}><ClinicDetails {...routeProps} {...props} /></Gate>)} />

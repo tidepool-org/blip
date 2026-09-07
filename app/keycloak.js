@@ -72,8 +72,11 @@ export const onKeycloakEvent = (store) => (event, error) => {
     }
     case 'onAuthSuccess': {
       const isOauthRedirectRoute = /^\/oauth\//.test(window?.location?.pathname);
+      // The mobile-app page is a universal-link landing target: like the oauth redirect pages, it
+      // must not trigger the login flow, whose redirect would immediately navigate away from it
+      const isMobileAppLandingRoute = /^\/mobile-app\/?$/.test(window?.location?.pathname);
       // We don't trigger the login (and subsequent redirects) on the oauth redirect landing page
-      if (!isOauthRedirectRoute) {
+      if (!isOauthRedirectRoute && !isMobileAppLandingRoute) {
         store.dispatch(sync.keycloakAuthSuccess(event, error));
         api.user.saveSession(
           keycloak?.tokenParsed?.sub,

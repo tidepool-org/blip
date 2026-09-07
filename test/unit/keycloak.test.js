@@ -171,6 +171,22 @@ describe('keycloak', () => {
       expect(api.user.saveSession.mock.calls.length).to.equal(1);
     });
 
+    it('should not dispatch keycloakAuthSuccess or trigger login for onAuthSuccess on the mobile-app landing page', () => {
+      const originalLocation = window.location;
+      delete window.location;
+      window.location = { pathname: '/mobile-app' };
+
+      const store = mockStore();
+      const onEvent = onKeycloakEvent(store);
+
+      onEvent('onAuthSuccess', null);
+
+      expect(store.getActions()).to.eql([]);
+      expect(api.user.saveSession.mock.calls.length).to.equal(0);
+
+      window.location = originalLocation;
+    });
+
     it('should dispatch keycloakAuthError for onAuthError', () => {
       const store = mockStore();
       const onEvent = onKeycloakEvent(store);
