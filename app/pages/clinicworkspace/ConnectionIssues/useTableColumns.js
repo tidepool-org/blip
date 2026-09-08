@@ -6,6 +6,7 @@ import {
   ConnectionStatusCell,
   DeviceNameCell,
   StatusSummaryCell,
+  MoreMenuCell,
 } from './Cells';
 
 import PatientCell from '../components/cells/PatientCell';
@@ -59,6 +60,7 @@ const useTableColumns = () => {
         title: t(''),
         field: 'more',
         align: 'left',
+        render: patient => <MoreMenuCell patient={patient} />,
       }, // More
     ].filter(column => !!column);
   }, [showTags]);
