@@ -25,25 +25,49 @@ const getConnectionIssuesParam = (category) => {
   }
 };
 
-export const LIMIT = 12;
+export const buildGetConnectionIssuesPatientsParams = (offset, limit, category, tags = [], sites = []) => {
+  const connectionIssueCauses = getConnectionIssuesParam(category);
+  const onlyHiddenConnectionIssues = category === CATEGORY.HIDDEN || undefined;
+
+  const formattedTags = tags?.length > 0 ? tags.join(',') : undefined;
+  const formattedSites = sites?.length > 0 ? sites.join(',') : undefined;
+
+  return {
+    offset,
+    limit,
+    connectionIssueCauses,
+    onlyHiddenConnectionIssues,
+    tags: formattedTags,
+    sites: formattedSites,
+  };
+};
+
+export const tagTypes = {
+  CONNECTION_ISSUES_PATIENTS: 'CONNECTION_ISSUES_PATIENTS',
+};
+
+const { CONNECTION_ISSUES_PATIENTS } = tagTypes;
+
+RTKQueryApi.enhanceEndpoints({
+  addTagTypes: [CONNECTION_ISSUES_PATIENTS],
+});
 
 const connectionIssuesApi = RTKQueryApi.injectEndpoints({
   endpoints: (builder) => ({
     getConnectionIssuesPatients: builder.query({
-      query: ({ clinicId, offset, category, limit }) => {
-        const connectionIssueCauses = getConnectionIssuesParam(category);
-        const onlyHiddenConnectionIssues = category === CATEGORY.HIDDEN || undefined;
+      query: ({ clinicId, offset, category, limit, tags, sites }) => {
+        const params = buildGetConnectionIssuesPatientsParams(offset, limit, category, tags, sites);
 
         return {
           url: `/clinics/${clinicId}/patients`,
-          params: {
-            offset,
-            limit,
-            connectionIssueCauses,
-            onlyHiddenConnectionIssues,
-          },
+          params,
         };
       },
+      transformResponse: (response, _meta, arg) => ({
+        ...response,
+        category: arg.category,
+      }),
+      providesTags: [CONNECTION_ISSUES_PATIENTS],
     }),
   }),
 });
