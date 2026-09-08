@@ -61,9 +61,9 @@ const ConnectionIssues = () => {
 
       <AppliedFiltersList patientCount={total} />
       <Table
-        id="deviceIssuesPatientsTable"
+        id="connectionIssuesPatientsTable"
         variant="condensed"
-        label="deviceIssuesPatientsTable"
+        label="connectionIssuesPatientsTable"
         columns={columns}
         data={patients}
         containerProps={tableContainerProps}
