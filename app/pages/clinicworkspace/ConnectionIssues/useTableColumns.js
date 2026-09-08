@@ -2,7 +2,13 @@ import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { PatientCell } from './Cells';
+import {
+  PatientCell,
+  ConnectionStatusCell,
+  DeviceNameCell,
+  LastUpdatedCell,
+} from './Cells';
+
 import TagListCell from '../components/TagListCell';
 
 const useTableColumns = () => {
@@ -23,17 +29,18 @@ const useTableColumns = () => {
       {
         title: t('Device'),
         field: 'device',
-        align: 'left',
+        render: patient => <DeviceNameCell patient={patient} />,
       },
       {
         title: t('Connection Status'),
         field: 'connectionStatus',
-        align: 'left',
+        render: patient => <ConnectionStatusCell patient={patient} />,
       },
       {
         title: t('Last Update'),
         field: 'lastUpdate',
         align: 'left',
+        render: patient => <LastUpdatedCell patient={patient} />,
       },
       (showTags && {
         title: t('Tags'),
