@@ -23,3 +23,7 @@ export const saveLocalState = (state, key = 'blipState') => {
 export const getTideDashboardFiltersKey = (userId, clinicId) => {
   return `tideDashboardFilters/${userId}/${clinicId}`;
 };
+
+export const getConnectionIssuesFiltersKey = (userId, clinicId) => {
+  return `connectionIssuesFilters/${userId}/${clinicId}`;
+};
