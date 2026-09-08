@@ -18,7 +18,7 @@ import utils from '../../core/utils';
 import { clinicUIDetails } from '../../core/clinicUtils.js';
 import { getDismissedAltRangeBannerKey, isRangeWithNonStandardTarget } from '../../providers/AppBanner/appBannerHelpers.js';
 import { getGlycemicRangesPreset } from '../../core/glycemicRangesUtils.js';
-import { getTideDashboardFiltersKey, loadLocalState } from '../store/localStorage';
+import { getTideDashboardFiltersKey, getConnectionIssuesFiltersKey, loadLocalState } from '../store/localStorage';
 
 // Exported as a mutable reference to allow location to be swapped in tests
 export const _win = { location: window.location };
@@ -3158,7 +3158,11 @@ export function selectClinic(api, clinicId) {
 
     const tideDashboardFiltersKey = getTideDashboardFiltersKey(loggedInUserId, clinicId);
     const tideDashboardFilters = loggedInUserId && clinicId ? loadLocalState(tideDashboardFiltersKey) : undefined;
-    dispatch(sync.selectClinicSuccess(clinicId, tideDashboardFilters));
+
+    const connectionIssuesFiltersKey = getConnectionIssuesFiltersKey(loggedInUserId, clinicId);
+    const connectionIssuesFilters = loggedInUserId && clinicId ? loadLocalState(connectionIssuesFiltersKey) : undefined;
+
+    dispatch(sync.selectClinicSuccess(clinicId, tideDashboardFilters, connectionIssuesFilters));
 
     const clinic = clinics[clinicId];
 

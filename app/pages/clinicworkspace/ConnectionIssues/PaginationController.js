@@ -6,7 +6,7 @@ import { Grid, Flex } from 'theme-ui';
 import { colors as vizColors } from '@tidepool/viz';
 import { setOffset } from './connectionIssuesSlice';
 
-import { LIMIT } from './connectionIssuesApi';
+import { LIMIT } from './useConnectionIssuesPatients';
 
 const PaginationController = ({ total }) => {
   const dispatch = useDispatch();
