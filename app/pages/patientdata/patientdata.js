@@ -608,7 +608,11 @@ export const PatientDataClass = createReactClass({
             isSmartOnFhirMode={this.props.isSmartOnFhirMode}
             />
           );
-      case 'daily':
+      case 'daily': {
+        const manufacturer = this.getMetaData('latestPumpUpload.manufacturer', '');
+        const siteChangeSource = vizUtils.aggregation.getSiteChangeSource(this.props.patient, manufacturer);
+        const siteChangeSourceLabel = vizUtils.aggregation.getSiteChangeSourceLabel(siteChangeSource, manufacturer);
+
         return (
           <Daily
             addingData={this.props.addingData}
@@ -625,7 +629,8 @@ export const PatientDataClass = createReactClass({
             onUpdateChartDateRange={this.handleChartDateRangeUpdate}
             onClickChartDates={this.handleClickChartDates}
             patient={this.props.patient}
-            siteChangeSource={vizUtils.aggregation.getSiteChangeSource(this.props.patient, this.getMetaData('latestPumpUpload.manufacturer', ''))}
+            siteChangeSource={siteChangeSource}
+            siteChangeSourceLabel={siteChangeSourceLabel}
             stats={stats}
             trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
@@ -641,6 +646,7 @@ export const PatientDataClass = createReactClass({
             isSmartOnFhirMode={this.props.isSmartOnFhirMode}
             />
           );
+      }
       case 'trends':
         return (
           <Trends

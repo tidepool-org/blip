@@ -316,6 +316,7 @@ describe('Daily', () => {
 
       var dayDataReadyProps = _.assign({}, baseProps, {
         loading: false,
+        siteChangeSource: 'cannulaPrime',
         data: {
           query: { chartType: 'daily'},
           bgPrefs,
@@ -344,7 +345,7 @@ describe('Daily', () => {
             timezoneName: 'US/Pacific',
           },
           data: {
-            combined: [{ tags: { siteChange: true }, normalTime: new Date('2018-01-15T12:00:00.000Z').valueOf() }],
+            combined: [{ tags: { siteChange: true, cannulaPrime: true }, normalTime: new Date('2018-01-15T12:00:00.000Z').valueOf() }],
             current: { endpoints: { range: [new Date('2018-01-15T00:00:00.000Z').valueOf(), new Date('2018-01-16T00:00:00.000Z').valueOf()] } },
           },
         },
@@ -362,7 +363,7 @@ describe('Daily', () => {
             timezoneName: 'US/Pacific',
           },
           data: {
-            combined: [{ tags: { siteChange: true }, normalTime: new Date('2018-01-15T12:00:00.000Z').valueOf() }],
+            combined: [{ tags: { siteChange: true, cannulaPrime: true }, normalTime: new Date('2018-01-15T12:00:00.000Z').valueOf() }],
             current: { endpoints: { range: [new Date('2018-01-16T00:00:00.000Z').valueOf(), new Date('2018-01-17T00:00:00.000Z').valueOf()] } },
           },
         },
@@ -824,17 +825,37 @@ describe('Daily', () => {
 
       expect(dailyChart.props.siteChangeSource).to.be.undefined;
     });
+
+    it('includes siteChangeSourceLabel in the chart options picked for the tideline factory', () => {
+      const chartInstance = new DailyChart({ initialDatetimeLocation: baseProps.initialDateTimeLocation });
+
+      expect(chartInstance.chartOpts).to.include('siteChangeSourceLabel');
+    });
+
+    it('threads the siteChangeSourceLabel prop down to the DailyChart when a siteChangeSourceLabel prop exists', () => {
+      const props = _.assign({}, dayDataReadyProps, { siteChangeSourceLabel: 'Cannula Fill' });
+      const dailyChart = findDailyChart(createInstance(props));
+
+      expect(dailyChart.props.siteChangeSourceLabel).to.equal('Cannula Fill');
+    });
+
+    it('threads an undefined siteChangeSourceLabel when no siteChangeSourceLabel prop has been provided', () => {
+      const dailyChart = findDailyChart(createInstance(dayDataReadyProps));
+
+      expect(dailyChart.props.siteChangeSourceLabel).to.be.undefined;
+    });
   });
 
   describe('hasSiteChangeEventsInView', () => {
-    const withSiteChangeInRange = range => _.assign({}, baseProps, {
+    const withSiteChangeInRange = (range, { siteChangeSource = 'cannulaPrime', tags = { siteChange: true, cannulaPrime: true } } = {}) => _.assign({}, baseProps, {
       loading: false,
+      siteChangeSource,
       data: {
         query: { chartType: 'daily' },
         bgPrefs,
         timePrefs: { timezoneAware: false, timezoneName: 'US/Pacific' },
         data: {
-          combined: [{ tags: { siteChange: true }, normalTime: new Date('2018-01-15T12:00:00.000Z').valueOf() }],
+          combined: [{ tags, normalTime: new Date('2018-01-15T12:00:00.000Z').valueOf() }],
           current: { endpoints: { range } },
         },
       },
@@ -843,10 +864,22 @@ describe('Daily', () => {
     const inViewRange = [new Date('2018-01-15T00:00:00.000Z').valueOf(), new Date('2018-01-16T00:00:00.000Z').valueOf()];
     const outOfViewRange = [new Date('2018-01-16T00:00:00.000Z').valueOf(), new Date('2018-01-17T00:00:00.000Z').valueOf()];
 
-    it('computes true when a site-change event falls within the current endpoints range', () => {
+    it('computes true when an in-range site-change event carries the selected subtype tag', () => {
       const dailyInstance = createInstance(baseProps);
       dailyInstance.UNSAFE_componentWillReceiveProps(withSiteChangeInRange(inViewRange));
       expect(dailyInstance.state.hasSiteChangeEventsInView).to.be.true;
+    });
+
+    it('computes false when the in-range site-change events carry only a different subtype tag', () => {
+      const dailyInstance = createInstance(baseProps);
+      dailyInstance.UNSAFE_componentWillReceiveProps(withSiteChangeInRange(inViewRange, { tags: { siteChange: true, tubingPrime: true } }));
+      expect(dailyInstance.state.hasSiteChangeEventsInView).to.be.false;
+    });
+
+    it('computes false when the siteChangeSource is undeclared', () => {
+      const dailyInstance = createInstance(baseProps);
+      dailyInstance.UNSAFE_componentWillReceiveProps(withSiteChangeInRange(inViewRange, { siteChangeSource: 'undeclared' }));
+      expect(dailyInstance.state.hasSiteChangeEventsInView).to.be.false;
     });
 
     it('computes false when the site-change event is outside the current endpoints range', () => {

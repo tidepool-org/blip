@@ -60,6 +60,7 @@ export class DailyChart extends Component {
     initialDatetimeLocation: PropTypes.string,
     patient: PropTypes.object,
     siteChangeSource: PropTypes.string,
+    siteChangeSourceLabel: PropTypes.string,
     timePrefs: PropTypes.object.isRequired,
     // message handlers
     onCreateMessage: PropTypes.func.isRequired,
@@ -98,6 +99,7 @@ export class DailyChart extends Component {
       'editedCarbs',
       'insulinBolus',
       'siteChangeSource',
+      'siteChangeSourceLabel',
       'timePrefs',
       'onBolusHover',
       'onBolusOut',
@@ -244,6 +246,7 @@ class Daily extends Component {
     initialDatetimeLocation: PropTypes.string,
     loading: PropTypes.bool.isRequired,
     siteChangeSource: PropTypes.string,
+    siteChangeSourceLabel: PropTypes.string,
     mostRecentDatetimeLocation: PropTypes.string,
     queryDataCount: PropTypes.number.isRequired,
     stats: PropTypes.array.isRequired,
@@ -324,7 +327,7 @@ class Daily extends Component {
       );
 
       const hasSiteChangeEventsInView = _.some(
-        _.filter(nextProps.data.data.combined, d => !!d.tags?.siteChange),
+        _.filter(nextProps.data.data.combined, d => !!d.tags?.[nextProps.siteChangeSource]),
         isInView
       );
 
@@ -567,6 +570,7 @@ class Daily extends Component {
             editedCarbs={hasEditedCarbs}
             initialDatetimeLocation={this.props.initialDatetimeLocation}
             siteChangeSource={this.props.siteChangeSource}
+            siteChangeSourceLabel={this.props.siteChangeSourceLabel}
             timePrefs={timePrefs}
             // message handlers
             onCreateMessage={this.props.onCreateMessage}
