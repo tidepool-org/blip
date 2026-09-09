@@ -70,7 +70,7 @@ export const ConnectionStatusCell = ({ patient }) => {
   );
 };
 
-export const LastUpdatedCell = ({ patient }) => {
+export const StatusDescriptionCell = ({ patient }) => {
   const { t } = useTranslation();
 
   const deviceIssue = {};
@@ -89,5 +89,5 @@ export const LastUpdatedCell = ({ patient }) => {
 export default {
   PatientCell,
   DeviceNameCell,
-  LastUpdatedCell,
+  StatusDescriptionCell,
 };
