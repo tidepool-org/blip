@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { components as vizComponents } from '@tidepool/viz';
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined';
 import { useTranslation } from 'react-i18next';
@@ -52,5 +53,10 @@ const EventsInfoLabel = props => {
 };
 
 EventsInfoLabel.displayName = 'EventsInfoLabel';
+
+EventsInfoLabel.propTypes = {
+  hasAlarmEventsInView: PropTypes.bool,
+  hasSiteChangeEventsInView: PropTypes.bool,
+};
 
 export default EventsInfoLabel;
