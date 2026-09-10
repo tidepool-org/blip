@@ -13,10 +13,12 @@ import GooglePlayBadge from './images/google-play-badge.png';
 export const APP_STORE_URL = 'https://apps.apple.com/us/app/tidepool-mobile/id1026395200';
 export const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=io.tidepool.urchin';
 
-// A custom scheme rather than a universal/app link, deliberately: universal links don't fire when
-// tapped from a page on the domain they point at, nor from most email-client in-app browsers, which
-// is exactly where post-verification traffic lands. The link only foregrounds the app — it carries
-// no parameters and the app does no routing on it.
+// A custom scheme for now. The nicer alternative, an iOS universal link, is postponed to post-MVP
+// because it needs real infrastructure: a dedicated link host (iOS refuses to open universal links
+// pointing at the host of the page they're tapped on) and an associated-domains entitlement in the
+// app, i.e. a mobile release. A verified, working implementation is parked on the
+// universal-link-prototype branch. This link only foregrounds the app — it carries no parameters
+// and the app does no routing on it.
 export const IOS_APP_URL = 'org.tidepool.mobile://signup-complete';
 
 // Chrome's intent:// syntax, so that a missing app falls through to the Play Store listing instead
