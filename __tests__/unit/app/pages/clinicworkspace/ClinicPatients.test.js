@@ -1,7 +1,7 @@
 /* global jest, before, beforeEach, afterEach, test, expect, describe, it */
 
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
@@ -350,6 +350,12 @@ describe('ClinicPatients', ()  => {
     </Provider>
   );
 
+  const ui = () => (
+    <MockedProviderWrappers>
+      <ClinicPatients {...defaultProps} />
+    </MockedProviderWrappers>
+  );
+
   beforeEach(() => {
     defaultProps.trackMetric.mockClear();
     defaultProps.api.clinics.getPatientsForClinic.mockClear();
@@ -386,11 +392,7 @@ describe('ClinicPatients', ()  => {
           });
 
           it('maps an applied tag filter into the getPatientsForClinic query', async () => {
-            render(
-              <MockedProviderWrappers>
-                <ClinicPatients {...defaultProps} />
-              </MockedProviderWrappers>
-            );
+            render(ui());
 
             // Open the Tags filter dropdown, select 2 tags, and apply
             await userEvent.click(screen.getByRole('button', { name: /Tags/ }));
@@ -406,11 +408,7 @@ describe('ClinicPatients', ()  => {
           }, TEST_TIMEOUT_MS);
 
           it('maps an applied summary period filter into the getPatientsForClinic query', async () => {
-            render(
-              <MockedProviderWrappers>
-                <ClinicPatients {...defaultProps} />
-              </MockedProviderWrappers>
-            );
+            render(ui());
 
             // Open the Summary Period filter dropdown, select 30 days, and apply
             await userEvent.click(screen.getByRole('button', { name: /Filter by summary period duration/ }));
@@ -425,11 +423,7 @@ describe('ClinicPatients', ()  => {
           }, TEST_TIMEOUT_MS);
 
           it('maps an applied site filter into the getPatientsForClinic query', async () => {
-            render(
-              <MockedProviderWrappers>
-                <ClinicPatients {...defaultProps} />
-              </MockedProviderWrappers>
-            );
+            render(ui());
 
             // Open the Sites filter dropdown, select 2 sites, and apply
             await userEvent.click(screen.getByRole('button', { name: /Sites/ }));
@@ -445,11 +439,7 @@ describe('ClinicPatients', ()  => {
           }, TEST_TIMEOUT_MS);
 
           it('maps an applied data recency filter into the getPatientsForClinic query', async () => {
-            render(
-              <MockedProviderWrappers>
-                <ClinicPatients {...defaultProps} />
-              </MockedProviderWrappers>
-            );
+            render(ui());
 
             // Open the Data Recency filter dropdown, pick a device type and window, and apply.
             // Match the trigger via its icon label ("Data Recency" alone also matches the
@@ -473,11 +463,7 @@ describe('ClinicPatients', ()  => {
           }, TEST_TIMEOUT_MS);
 
           it('maps an applied time in range filter into the getPatientsForClinic query', async () => {
-            render(
-              <MockedProviderWrappers>
-                <ClinicPatients {...defaultProps} />
-              </MockedProviderWrappers>
-            );
+            render(ui());
 
             // Open the % Time in Range filter dropdown, select a range, and apply.
             await userEvent.click(screen.getByRole('button', { name: /Filter by Time in Range/ }));
@@ -498,11 +484,7 @@ describe('ClinicPatients', ()  => {
           }, TEST_TIMEOUT_MS);
 
           it('maps an applied cgm use filter into the getPatientsForClinic query', async () => {
-            render(
-              <MockedProviderWrappers>
-                <ClinicPatients {...defaultProps} />
-              </MockedProviderWrappers>
-            );
+            render(ui());
 
             // Open the % CGM Use filter dropdown, select a range, and apply.
             await userEvent.click(screen.getByRole('button', { name: /CGM Use/ }));
@@ -522,11 +504,7 @@ describe('ClinicPatients', ()  => {
 
         describe('managing sites', () => {
           it('should allow creating a new site for a workspace', async () => {
-            render(
-              <MockedProviderWrappers>
-                <ClinicPatients {...defaultProps} />
-              </MockedProviderWrappers>
-            );
+            render(ui());
 
             expect(defaultProps.api.clinics.get).not.toHaveBeenCalled();
 
@@ -559,11 +537,7 @@ describe('ClinicPatients', ()  => {
           }, TEST_TIMEOUT_MS);
 
           it('should allow updating an existing site for a workspace', async () => {
-            render(
-              <MockedProviderWrappers>
-                <ClinicPatients {...defaultProps} />
-              </MockedProviderWrappers>
-            );
+            render(ui());
 
             // Open the Edit Sites Dialog
             await userEvent.click(screen.getByRole('button', { name: /Sites/ }));
@@ -600,11 +574,7 @@ describe('ClinicPatients', ()  => {
           }, TEST_TIMEOUT_MS);
 
           it('should allow deleting an existing site for a workspace', async () => {
-            render(
-              <MockedProviderWrappers>
-                <ClinicPatients {...defaultProps} />
-              </MockedProviderWrappers>
-            );
+            render(ui());
 
             // Open the Edit Sites Dialog
             await userEvent.click(screen.getByRole('button', { name: /Sites/ }));
@@ -634,11 +604,7 @@ describe('ClinicPatients', ()  => {
 
         describe('managing patient sites', () => {
           it('should allow updating sites for a patient', async () => {
-            render(
-              <MockedProviderWrappers>
-                <ClinicPatients {...defaultProps} />
-              </MockedProviderWrappers>
-            );
+            render(ui());
 
             // Click the Edit Sites icon for a patient. The Dialog for Edit Patient Details should open.
             await userEvent.click(screen.getByTestId('action-menu-patient2-icon'));
@@ -701,11 +667,7 @@ describe('ClinicPatients', ()  => {
 
         describe('managing clinic patient tags', () => {
           it('should allow creating a new tag for a workspace', async () => {
-            render(
-              <MockedProviderWrappers>
-                <ClinicPatients {...defaultProps} />
-              </MockedProviderWrappers>
-            );
+            render(ui());
 
             expect(defaultProps.api.clinics.get).not.toHaveBeenCalled();
 
@@ -738,11 +700,7 @@ describe('ClinicPatients', ()  => {
         });
 
         it('should allow updating an existing tag for a workspace', async () => {
-          render(
-            <MockedProviderWrappers>
-              <ClinicPatients {...defaultProps} />
-            </MockedProviderWrappers>
-          );
+          render(ui());
 
           // Open the Edit Tags Dialog
           await userEvent.click(screen.getByRole('button', { name: /Tags/ }));
@@ -779,11 +737,7 @@ describe('ClinicPatients', ()  => {
         }, TEST_TIMEOUT_MS);
 
         it('should allow deleting an existing patient tag for a workspace', async () => {
-          render(
-            <MockedProviderWrappers>
-              <ClinicPatients {...defaultProps} />
-            </MockedProviderWrappers>
-          );
+          render(ui());
 
           // Open the Edit Tags Dialog
           await userEvent.click(screen.getByRole('button', { name: /Tags/ }));
@@ -812,11 +766,7 @@ describe('ClinicPatients', ()  => {
 
         describe('managing patient tags', () => {
           it('should allow updating tags for a patient', async () => {
-            render(
-              <MockedProviderWrappers>
-                <ClinicPatients {...defaultProps} />
-              </MockedProviderWrappers>
-            );
+            render(ui());
 
             // Click the Edit Tags icon for a patient. The Dialog for Edit Patient Details should open.
             await userEvent.click(screen.getAllByTestId('edit-tags-icon')[0]); // Open patient2
@@ -873,6 +823,60 @@ describe('ClinicPatients', ()  => {
               },
               expect.any(Function), // callback fn passed to api
             );
+          }, TEST_TIMEOUT_MS);
+        });
+
+        describe('managing patient last reviewed dates', () => {
+          it('renders the Last Reviewed column with a review toggle for each patient', () => {
+            // Hidden when showSummaryDashboardLastReviewed is false
+            useFlags.mockReturnValue({ showSummaryDashboard: true, showSummaryDashboardLastReviewed: false });
+
+            const { rerender } = render(ui());
+
+            expect(screen.getByRole('columnheader', { name: /Patient Details/ })).toBeInTheDocument();
+            expect(screen.queryByRole('columnheader', { name: /Last Reviewed/ })).not.toBeInTheDocument();
+
+            // Hidden when clinic has no summary dashboard
+            useFlags.mockReturnValue({ showSummaryDashboard: false, showSummaryDashboardLastReviewed: true });
+            store = mockStore(hasPatientsState);
+
+            rerender(ui());
+
+            expect(screen.getByRole('columnheader', { name: /Patient Details/ })).toBeInTheDocument();
+            expect(screen.queryByRole('columnheader', { name: /Last Reviewed/ })).not.toBeInTheDocument();
+
+            // Shown when clinic has summary dashboard + last reviewed flag is on
+            useFlags.mockReturnValue({ showSummaryDashboard: true, showSummaryDashboardLastReviewed: true });
+            store = mockStore(tier0300ClinicState);
+
+            rerender(ui());
+
+            expect(screen.getByRole('columnheader', { name: /Last Reviewed/ })).toBeInTheDocument();
+
+            const lastReviewedCell = screen.getByTestId('peopleTable-row-0-lastReviewed');
+            expect(within(lastReviewedCell).getByRole('button', { name: /Mark Reviewed/ })).toBeInTheDocument();
+          }, TEST_TIMEOUT_MS);
+
+          it('refetches patients with an updated sort parameter when the Last Reviewed header is clicked', async () => {
+            render(ui());
+
+            // First click sorts by last reviewed date, ascending
+            await userEvent.click(screen.getByRole('button', { name: /Last Reviewed/ }));
+
+            await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenLastCalledWith(
+              'clinicID123',
+              { limit: 50, offset: 0, period: '14d', sortType: 'cgm', sort: '+lastReviewed' },
+              expect.any(Function),
+            ));
+
+            // Second click flips the sort to descending
+            await userEvent.click(screen.getByRole('button', { name: /Last Reviewed/ }));
+
+            await waitFor(() => expect(defaultProps.api.clinics.getPatientsForClinic).toHaveBeenLastCalledWith(
+              'clinicID123',
+              { limit: 50, offset: 0, period: '14d', sortType: 'cgm', sort: '-lastReviewed' },
+              expect.any(Function),
+            ));
           }, TEST_TIMEOUT_MS);
         });
       });
