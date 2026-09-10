@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import * as actions from '../../../../redux/actions';
+import * as actions from '../../../redux/actions';
 import moment from 'moment';
 
 import getOpts from './getOpts';
 import getQueries from './getQueries';
 import { cloneDeep } from 'lodash';
-import { useGenerateAGPImages } from '../../../../core/agpUtils';
+import { useGenerateAGPImages } from '../../../core/agpUtils';
 
 export const STATUS = {
   // States in order of happy path AGP generation sequence
@@ -74,7 +74,7 @@ const DEFAULT_AGP_PERIOD_IN_DAYS = 14;
 
 const useAgpCGM = (
   api,
-  patientId,
+  clinicPatient,
   agpPeriodInDays = DEFAULT_AGP_PERIOD_IN_DAYS,
 ) => {
   const dispatch = useDispatch();
@@ -84,7 +84,7 @@ const useAgpCGM = (
   const data   = useSelector(state => state.blip.data);
   const pdf    = useSelector(state => state.blip.pdf);
   const clinic = useSelector(state => state.blip.clinics[state.blip.selectedClinicId]);
-  const clinicPatient = clinic?.patients?.[patientId];
+  const patientId = clinicPatient?.id;
 
   const lastCompletedStep = inferLastCompletedStep(requestId, patientId, data, pdf);
 
@@ -126,7 +126,7 @@ const useAgpCGM = (
       dispatch(actions.worker.removeGeneratedPDFS());
       dispatch(actions.worker.dataWorkerRemoveDataRequest(null, patientId));
     };
-  }, []);
+  }, [patientId]);
 
   // Note: probably unnecessary; failsafe to ensure that data is being returned for correct patient
   const isCorrectPatientInState = pdf.opts?.patient?.id === patientId;
