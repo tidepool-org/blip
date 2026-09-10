@@ -12,7 +12,9 @@ export const PatientCell = ({ patient }) => {
   return <Box sx={{ gap: 0, marginRight: -2 }}>
     <Box sx={{ fontSize: 0, whiteSpace: 'nowrap', fontWeight: 'medium' }}>{fullName}</Box>
     <Box sx={{ fontSize: 0, whiteSpace: 'nowrap' }}>{t('DOB:')} {birthDate}</Box>
-    {mrn && <Box sx={{ fontSize: 0, whiteSpace: 'nowrap' }}>{t('MRN: {{mrn}}', { mrn: mrn })}</Box>}
+    <Box sx={{ minHeight: '18px', fontSize: 0, whiteSpace: 'nowrap' }}>
+      {mrn ? t('MRN: {{mrn}}', { mrn: mrn }) : ''}
+    </Box>
   </Box>;
 };
 
