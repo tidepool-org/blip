@@ -22,6 +22,7 @@ import data from './data';
 import patientListFilters from './patientListFilters';
 import tideDashboard from '../../pages/clinicworkspace/TideDashboardV2/tideDashboardSlice';
 import tideDashboardFilters from '../../pages/clinicworkspace/TideDashboardV2/tideDashboardFiltersSlice';
+import connectionIssues from '../../pages/clinicworkspace/ConnectionIssues/connectionIssuesSlice';
 
 import {
   bgPrefs,
@@ -113,4 +114,5 @@ export default combineReducers({
   patientListFilters,
   tideDashboard,
   tideDashboardFilters,
+  connectionIssues,
 });

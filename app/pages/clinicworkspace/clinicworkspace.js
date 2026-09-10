@@ -14,6 +14,7 @@ import TabGroup from '../../components/elements/TabGroup';
 import ClinicWorkspaceHeader from '../../components/clinic/ClinicWorkspaceHeader';
 import ClinicPatients from './ClinicPatients';
 import TideDashboardV2 from './TideDashboardV2';
+import ConnectionIssues from './ConnectionIssues';
 import Prescriptions from '../prescription/Prescriptions';
 import { PatientInvites } from '../share';
 import * as actions from '../../redux/actions';
@@ -21,6 +22,7 @@ import { resetTideDashboardState } from './TideDashboardV2/tideDashboardSlice';
 
 const TAB = {
   PATIENTS: 'patients',
+  CONNECTION_ISSUES: 'connection-issues',
   TIDE_DASHBOARD: 'tide-dashboard',
   INVITES: 'invites',
   PRESCRIPTIONS: 'prescriptions',
@@ -54,6 +56,11 @@ const useTabOptions = (tabParam) => {
         label: t('Patient List'),
         metric: 'Clinic - View patient list',
       },
+      {
+        slug: TAB.CONNECTION_ISSUES,
+        label: t('Connection Issues'),
+        metric: 'Clinic - View connection issues',
+      },
       showTideDashboardTab && {
         slug: TAB.TIDE_DASHBOARD,
         label: t('TIDE Dashboard'),
@@ -84,6 +91,8 @@ const Content = (props) => {
   switch (props.selectedTab) {
     case TAB.PATIENTS:
       return <ClinicPatients key={clinic?.id} {...props} />;
+    case TAB.CONNECTION_ISSUES:
+      return <ConnectionIssues key={clinic?.id} {...props} />;
     case TAB.TIDE_DASHBOARD:
       return <TideDashboardV2 key={clinic?.id} {...props} />;
     case TAB.INVITES:
