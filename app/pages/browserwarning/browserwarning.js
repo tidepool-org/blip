@@ -13,6 +13,7 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+import _ from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
@@ -21,21 +22,24 @@ import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 
 import BrowserWarningComponent from '../../components/browserwarning';
+import personUtils from '../../core/personutils';
 
 export class BrowserWarning extends Component {
   static propTypes = {
     authenticated: PropTypes.bool.isRequired,
+    showMobileAppLink: PropTypes.bool.isRequired,
     trackMetric: PropTypes.func.isRequired
   };
 
   render() {
     var classes = {
-      'container-box-outer': true, 
+      'container-box-outer': true,
       'browser-warning-logged-out': !this.props.authenticated
     }
     return <div className={cx(classes)}>
       <div className="browser-warning-container">
         <BrowserWarningComponent
+          showMobileAppLink={this.props.showMobileAppLink}
           trackMetric={this.props.trackMetric} />
       </div>
     </div>;
@@ -43,8 +47,14 @@ export class BrowserWarning extends Component {
 }
 
 export function mapStateToProps(state) {
+  const user = _.get(state.blip.allUsersMap, state.blip.loggedInUserId);
+
   return {
-    authenticated: state.blip.isLoggedIn
+    authenticated: state.blip.isLoggedIn,
+    // The Tidepool Mobile app is for patients: clinicians land on this page from mobile browsers
+    // too (requireSupportedBrowserForUserType), and logged-out visitors are of unknown type, so
+    // the app link renders only for a logged-in, loaded, non-clinician user.
+    showMobileAppLink: state.blip.isLoggedIn && !!user && !personUtils.isClinicianAccount(user),
   };
 }
 

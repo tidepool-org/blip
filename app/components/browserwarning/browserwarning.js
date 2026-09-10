@@ -18,6 +18,7 @@ import React, { Component } from 'react';
 import { withTranslation, Trans } from 'react-i18next';
 
 import utils from '../../core/utils';
+import MobileAppLink from '../mobileapplink';
 
 const COPY_STATUS_NULL = 0;
 const COPY_STATUS_SUCCESS = 10;
@@ -25,7 +26,11 @@ const COPY_STATUS_FAIL = 20;
 
 export default withTranslation()(class BrowserWarning extends Component {
   static propTypes = {
-    trackMetric: PropTypes.func.isRequired
+    trackMetric: PropTypes.func.isRequired,
+    // Offer the Tidepool Mobile app as the way forward. Off by default: this page also catches
+    // clinicians on mobile browsers, and the app is for patients — the caller decides from the
+    // logged-in user's type. MobileAppLink itself renders nothing on desktop user agents.
+    showMobileAppLink: PropTypes.bool,
   };
 
   constructor(props) {
@@ -88,6 +93,7 @@ export default withTranslation()(class BrowserWarning extends Component {
             <span className="browser-warning-nowrap">{t('Mac or Windows.')}</span>
           </h1>
           {downloadBrowserCopy}
+          {this.props.showMobileAppLink && <MobileAppLink trackMetric={this.props.trackMetric} />}
         </div>
       </div>
     );
